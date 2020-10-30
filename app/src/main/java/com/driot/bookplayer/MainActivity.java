@@ -1,150 +1,105 @@
 package com.driot.bookplayer;
 
 import android.app.Activity;
-import android.media.MediaPlayer;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.View;
 
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.SeekBar;
-import android.widget.TextView;
-import android.widget.Toast;
-import java.util.concurrent.TimeUnit;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import java.util.Calendar;
+import java.sql.Date;
+import java.util.List;
 
 
 public class MainActivity extends Activity {
-    private Button bForward,bPause,bPlay,bRewind;
-    private ImageView iv;
-    private MediaPlayer mediaPlayer;
 
-    private double startTime = 0;
-    private double finalTime = 0;
+    private RecyclerView recyclerView;
+    private FloatingActionButton btn_Add;
 
-    private Handler myHandler = new Handler();;
-    private int forwardTime = 5000;
-    private int backwardTime = 5000;
-    private SeekBar seekbar;
-    private TextView txSeekBar,txTempsTotal,txNomFichier;
-
-    public static int oneTimeOnly = 0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        bRewind = (Button)findViewById(R.id.buttonRewind);
-        bPlay = (Button) findViewById(R.id.buttonPlay);
-        bPause = (Button) findViewById(R.id.buttonPause);
-        bForward = (Button) findViewById(R.id.buttonForward);
-        iv = (ImageView)findViewById(R.id.imageView);
+        recyclerView = findViewById(R.id.recyclerview_folders);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        txSeekBar = (TextView)findViewById(R.id.textViewSeekBar);
-        txTempsTotal = (TextView)findViewById(R.id.textViewTempsTotal);
-        txNomFichier = (TextView)findViewById(R.id.textViewNomFichier);
-        txNomFichier.setText("Song.mp3");
+        btn_Add = findViewById(R.id.FAB_Add);
 
-        mediaPlayer = MediaPlayer.create(this, R.raw.song);
-        seekbar = (SeekBar)findViewById(R.id.seekBar);
-        seekbar.setClickable(false);
-        bPause.setEnabled(false);
-        txSeekBar.setVisibility(View.INVISIBLE);
-
-
-        bPlay.setOnClickListener(new View.OnClickListener() {
+        btn_Add.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-
-                mediaPlayer.start();
-
-                finalTime = mediaPlayer.getDuration();
-                startTime = mediaPlayer.getCurrentPosition();
-
-                if (oneTimeOnly == 0) {
-                    seekbar.setMax((int) finalTime);
-                    oneTimeOnly = 1;
-                }
-
-                txTempsTotal.setText(GetBarTime("final"));
-                txSeekBar.setText(GetBarTime("start"));
-                seekbar.setProgress((int)startTime);
-                myHandler.postDelayed(UpdateSongTime,100);
-                SetInterfacePlayingMode();
-            }
-
-        });
-
-
-        bPause.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mediaPlayer.pause();
-                bPause.setEnabled(false);
-                bPlay.setEnabled(true);
+            public void onClick(View view) {
+                saveFolder();
             }
         });
 
-        bForward.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                int temp = (int)startTime;
-
-                if((temp+forwardTime)<=finalTime){
-                    startTime = startTime + forwardTime;
-                    mediaPlayer.seekTo((int) startTime);
-                }
-            }
-        });
-
-        bRewind.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                int temp = (int)startTime;
-
-                if((temp-backwardTime)>0){
-                    startTime = startTime - backwardTime;
-                    mediaPlayer.seekTo((int) startTime);
-                }
-            }
-        });
-
+        getFolders();
     }
 
-    private Runnable UpdateSongTime = new Runnable() {
-        public void run() {
-            startTime = mediaPlayer.getCurrentPosition();
-            txSeekBar.setText(GetBarTime("start"));
-            seekbar.setProgress((int)startTime);
-            myHandler.postDelayed(this, 100);
-        }
-    };
+    private void getFolders() {
 
-    private void SetInterfacePlayingMode() {
-        bPause.setEnabled(true);
-        bPlay.setEnabled(false);
-        txNomFichier.setVisibility(View.INVISIBLE);
-        txSeekBar.setVisibility(View.VISIBLE);
+        class GetFolders extends AsyncTask<Void, Void, List<Folder>> {
+
+        @Override
+        protected List<Folder> doInBackground(Void... voids) {
+            List<Folder> folderList = DatabaseClient
+                    .getInstance(getApplicationContext())
+                    .getAppDatabase()
+                    .FolderDao()
+                    .getAll();
+            return folderList;
+        }
+
+        @Override
+        protected void onPostExecute(List<Folder> folders) {
+            super.onPostExecute(folders);
+            FoldersAdapter adapter = new FoldersAdapter(MainActivity.this, folders);
+            recyclerView.setAdapter(adapter);
+        }
     }
 
-    private String GetBarTime(String zeType) {
-        String myReturn = "";
-        switch (zeType) {
-            case "start":
-                myReturn = String.format("%d min, %d sec",
-                        TimeUnit.MILLISECONDS.toMinutes((long) startTime),
-                        TimeUnit.MILLISECONDS.toSeconds((long) startTime) -
-                                TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.
-                                        toMinutes((long) startTime)));
-                break;
-            case "final":
-                myReturn = String.format("%d min, %d sec",
-                        TimeUnit.MILLISECONDS.toMinutes((long) finalTime),
-                        TimeUnit.MILLISECONDS.toSeconds((long) finalTime) -
-                                TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long)
-                                        finalTime)));
-                break;
+    GetFolders gt = new GetFolders();
+    gt.execute();
+    }
+
+    private void saveFolder() {
+        final String sName = "toto Folder";
+        final Double sPercent = 50.0;
+        final Date sFirstAccess = new java.sql.Date(Calendar.getInstance().getTime().getTime());
+        final Date sLastAccess = new java.sql.Date(Calendar.getInstance().getTime().getTime());
+        // ou new Date(System.currentTimeMillis())
+
+        class SaveFolder extends AsyncTask<Void, Void, Void> {
+
+            @Override
+            protected Void doInBackground(Void... voids) {
+
+                //creating a Folder
+                Folder folder = new Folder();
+                folder.setName(sName);
+                folder.setPercentdone(sPercent);
+                folder.setFirstaccess(sFirstAccess);
+                folder.setLastaccess(sLastAccess);
+                folder.setFinished(false);
+
+                //adding to database
+                DatabaseClient.getInstance(getApplicationContext()).getAppDatabase()
+                        .FolderDao()
+                        .insert(folder);
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void aVoid) {
+                super.onPostExecute(aVoid);
+                //finish();
+            }
         }
-        return myReturn;
+        SaveFolder st = new SaveFolder();
+        st.execute();
     }
 }
