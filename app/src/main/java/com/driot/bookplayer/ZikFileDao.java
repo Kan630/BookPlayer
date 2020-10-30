@@ -19,6 +19,9 @@ public interface ZikFileDao {
     @Query("SELECT * FROM ZikFile")
     List<ZikFile> getAll();
 
+    @Query("SELECT * FROM ZikFile WHERE idFolder = :idFolder")
+    List<ZikFile> getZikFiles(long idFolder);
+
     @Insert
     void insert(ZikFile ZikFile);
 

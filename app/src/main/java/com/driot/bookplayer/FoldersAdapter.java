@@ -62,7 +62,8 @@ public class FoldersAdapter extends RecyclerView.Adapter<FoldersAdapter.FoldersV
         public void onClick(View view) {
             Folder Folder = FolderList.get(getAdapterPosition());
 
-            Intent intent = new Intent(mCtx, PlayActivity.class);
+            //Intent intent = new Intent(mCtx, PlayActivity.class);
+            Intent intent = new Intent(mCtx, FolderContentActivity.class);
             intent.putExtra("Folder", Folder);
 
             mCtx.startActivity(intent);

@@ -36,7 +36,10 @@ public class ZikFilesAdapter extends RecyclerView.Adapter<ZikFilesAdapter.ZikFil
         ZikFile t = ZikFileList.get(position);
         holder.textViewFileName.setText(t.getName());
         holder.textViewFilePercent.setText(t.getPercentdone().toString());
-        holder.textViewFileLastAccess.setText(t.getLastaccess().toString());
+        if (t.getLastaccess() != null) {
+            holder.textViewFileLastAccess.setText(t.getLastaccess().toString());
+        }
+
     }
 
     @Override

@@ -10,6 +10,8 @@ import androidx.room.Room;
 
 public class DatabaseClient {
 
+    public static final String DATABASE_NAME = "BookPlayer";
+
     private Context mCtx;
     private static com.driot.bookplayer.DatabaseClient mInstance;
 
@@ -19,9 +21,11 @@ public class DatabaseClient {
     private DatabaseClient(Context mCtx) {
         this.mCtx = mCtx;
 
+        //mCtx.deleteDatabase(DATABASE_NAME);
+
         //creating the app database with Room database builder
         //MyToDos is the name of the database
-        appDatabase = Room.databaseBuilder(mCtx, AppDatabase.class, "MyToDos")
+        appDatabase = Room.databaseBuilder(mCtx, AppDatabase.class,DATABASE_NAME )
 
                 //-------------------------------------------------------
                 .fallbackToDestructiveMigration()  // <--- ATTENTION !!

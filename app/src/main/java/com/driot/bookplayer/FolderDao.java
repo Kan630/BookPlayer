@@ -19,6 +19,9 @@ public interface FolderDao {
     @Query("SELECT * FROM Folder")
     List<Folder> getAll();
 
+    @Query("SELECT COUNT(id) FROM Folder WHERE uri LIKE :sUri AND hash LIKE :iHash")
+    long folderAlreadyExist(String sUri, String iHash);
+
     @Insert
     long insert(Folder Folder);
 

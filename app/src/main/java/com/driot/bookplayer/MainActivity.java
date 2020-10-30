@@ -5,8 +5,10 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.documentfile.provider.DocumentFile;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -29,6 +31,15 @@ public class MainActivity extends Activity {
     public static final int READ_REQUEST_CODE = 107;
 
     private long[] InsertedFolderId = {0};
+    private DocumentFile[] myZikFileList;
+    private Handler myHandler = new Handler();;
+
+    private DocumentFile pickedDir;
+    private String sAddedFolderUri;
+    private String sAddedFolderHash;
+    private String sAddedFolderName;
+    private String sAddedFolderPath;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,27 +65,63 @@ public class MainActivity extends Activity {
 
         class GetFolders extends AsyncTask<Void, Void, List<Folder>> {
 
-        @Override
-        protected List<Folder> doInBackground(Void... voids) {
-            List<Folder> folderList = DatabaseClient
-                    .getInstance(getApplicationContext())
-                    .getAppDatabase()
-                    .FolderDao()
-                    .getAll();
-            return folderList;
-        }
+            @Override
+            protected List<Folder> doInBackground(Void... voids) {
+                List<Folder> folderList = DatabaseClient
+                        .getInstance(getApplicationContext())
+                        .getAppDatabase()
+                        .FolderDao()
+                        .getAll();
+                return folderList;
+            }
 
-        @Override
-        protected void onPostExecute(List<Folder> folders) {
-            super.onPostExecute(folders);
-            FoldersAdapter adapter = new FoldersAdapter(MainActivity.this, folders);
-            recyclerView.setAdapter(adapter);
+            @Override
+            protected void onPostExecute(List<Folder> folders) {
+                super.onPostExecute(folders);
+                FoldersAdapter adapter = new FoldersAdapter(MainActivity.this, folders);
+                recyclerView.setAdapter(adapter);
+            }
         }
-    }
 
     GetFolders gt = new GetFolders();
     gt.execute();
     }
+
+    private void checkIfAddedFolderExist() {
+
+        class CheckIfAddedFolderExist extends AsyncTask<Void, Void, Boolean> {
+
+            @Override
+            protected Boolean doInBackground(Void... voids) {
+                boolean bcheckIfFolderExist = false;
+                long lcheckIfFolderExist = DatabaseClient
+                        .getInstance(getApplicationContext())
+                        .getAppDatabase()
+                        .FolderDao()
+                        .folderAlreadyExist(sAddedFolderUri,sAddedFolderHash);
+                if (lcheckIfFolderExist>0) { bcheckIfFolderExist = true;}
+                return bcheckIfFolderExist;
+            }
+
+            @Override
+            protected void onPostExecute(Boolean bb) {
+                super.onPostExecute(bb);
+                if (bb) {
+                    Toast.makeText(MainActivity.this, "Ce dossier a déjà été importé", Toast.LENGTH_SHORT);
+                } else {
+                    // TODO vérifier que au moins un fichier mp3
+                    myZikFileList = pickedDir.listFiles();
+                    if (myZikFileList.length > 0) {
+                        saveFolder();
+                    }
+                }
+            }
+        }
+
+        CheckIfAddedFolderExist gt = new CheckIfAddedFolderExist();
+        gt.execute();
+    }
+
 
     public void performFileSearch() {
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
@@ -85,69 +132,38 @@ public class MainActivity extends Activity {
         if (resultCode == RESULT_OK && requestCode == READ_REQUEST_CODE) {
             Uri treeUri = resultData.getData();
             //File pickedDir = new File(treeUri.getPath());
-            DocumentFile pickedDir = DocumentFile.fromTreeUri(this, treeUri);
+            pickedDir = DocumentFile.fromTreeUri(this, treeUri);
 
-            // TODO : Si c'est pas un dossier, prendre l'objet parent...
-
-            if (pickedDir.isDirectory()) {
-
-                String fdPath = pickedDir.getUri().getLastPathSegment();
-                    // deux derniers folders pour le nom :
-                    String str = fdPath;
-                    int pos1 = str.lastIndexOf("/");
-                    int pos2 =  str.substring(0,pos1).lastIndexOf("/",pos1);
-                    String fdName = str.substring(pos2+1);
-                String fdUri = pickedDir.getUri().toString();
-                String fdHash = Integer.toString(pickedDir.getUri().hashCode());
-
-                Log.d("titi", "folder name : " + pickedDir.getName());
-                Log.d("titi", "is Dir : " + pickedDir.isDirectory());
-                Log.d("titi", "is File : " + pickedDir.isFile());
-                Log.d("titi", "folder parentfile: " + pickedDir.getParentFile());
-                Log.d("titi", "folder to string : " + pickedDir.toString());
-                Log.d("titi", "folder get path : " + treeUri.getPath());
-                Log.d("titi", "treeUri to String : " + treeUri.toString());
-                Log.d("titi", "folder get path : " + treeUri.getLastPathSegment());
-                Log.d("titi", "folder get path : " + pickedDir.getUri().getPath());
-                Log.d("titi", "folder get path : " + pickedDir.getUri().getLastPathSegment());
-                Log.d("titi", "folder get path : " + pickedDir.getUri().toString());
-                Log.d("titi", "folder get path : " + pickedDir.getUri().hashCode());
-
-                saveFolder(fdName, fdPath, fdUri, fdHash);
-
-
-                // TODO on pourrait lancer le SaveFile a l'interieur du OnPostExecute du SaveFolder...
-                // pour ca faut juste preparer un array avec le nom des fichiers
-
-                Log.d("titi", "INSERTED FOLDER ID : --" + InsertedFolderId[0] + "--");
-
-
-                // List all existing files inside picked directory
-
-                DocumentFile[] myList = pickedDir.listFiles();
-                if (myList.length > 1) {
-                    // TODO => trouver un tri qui ne prend pas 7 secondes !!!!
-                    /*
-                    Arrays.sort(myList, new Comparator<DocumentFile>() {
-                        @Override
-                        public int compare(DocumentFile object1, DocumentFile object2) {
-                            return object1.getName().compareTo(object2.getName());
-                        }
-                    });
-                    */
-
-                    for (DocumentFile file :myList) {
-                        //Log.d("titi", "Found file " + file.getName() + " with size " + file.length());
-                        saveFile(file.getName(), InsertedFolderId[0]);
-                    }
-                }
+            // Si c'est pas un dossier, on prend le dossier parent...
+            if (!pickedDir.isDirectory()) {
+                pickedDir = DocumentFile.fromTreeUri(this, treeUri).getParentFile();
             }
 
+            // on construit quelques attributs
+            sAddedFolderUri = pickedDir.getUri().toString();
+            sAddedFolderHash = Integer.toString(pickedDir.getUri().hashCode());
+            // nom par défaut = les deux derniers folders :
+            // ex  : "S3 - Finances publiques/Audios"
+            sAddedFolderPath = pickedDir.getUri().getLastPathSegment();
+            String str = sAddedFolderPath;
+            int pos1 = str.lastIndexOf("/");
+            int pos2 =  str.substring(0,pos1).lastIndexOf("/",pos1);
+            sAddedFolderName = str.substring(pos2+1);
+
+            // On vérifie qu'on a pas deja le loustic
+
+            if (pickedDir.isDirectory()) {
+                Log.d("titi", "treeUri get path : " + treeUri.getPath());
+                Log.d("titi", "folder name : " + pickedDir.getName());
+                checkIfAddedFolderExist();
+            } else {
+                Toast.makeText(getBaseContext(), "Le dossier a importé n'est pas reconnu", Toast.LENGTH_SHORT);
+            }
         }
     }
 
 
-    private void saveFolder(String fdName, String fdPath, String fdUri, String fdHash) {
+    private void saveFolder() {
 
         final Double sPercent = 0.0;
         final Time sFirstAccess = new Time(System.currentTimeMillis());
@@ -160,10 +176,10 @@ public class MainActivity extends Activity {
 
                 //creating a Folder
                 Folder folder = new Folder();
-                folder.setName(fdName);
-                folder.setPath(fdPath);
-                folder.setUri(fdUri);
-                folder.setHash(fdHash);
+                folder.setName(sAddedFolderName);
+                folder.setPath(sAddedFolderPath);
+                folder.setUri(sAddedFolderUri);
+                folder.setHash(sAddedFolderHash);
                 folder.setPercentdone(sPercent);
                 folder.setFirstaccess(sFirstAccess);
                 folder.setLastaccess(sLastAccess);
@@ -180,11 +196,11 @@ public class MainActivity extends Activity {
             protected void onPostExecute(Void aVoid) {
                 super.onPostExecute(aVoid);
                 //finish();
+                for (DocumentFile file :myZikFileList) {
+                    saveFile(file.getName(), InsertedFolderId[0]);
+                }
             }
         }
-
-        // TODO check if folder doesn't already exists...
-        // TODO get id of created folder
 
         SaveFolder st = new SaveFolder();
         st.execute();
@@ -218,11 +234,11 @@ public class MainActivity extends Activity {
             protected void onPostExecute(Void aVoid) {
                 super.onPostExecute(aVoid);
                 //finish();
+
+                // refresh screen
+                myHandler.postDelayed(MainActivity.this::getFolders, 100);
             }
         }
-
-        // TODO check if folder doesn't already exists...
-        // TODO get id of created folder
 
         SaveFile st = new SaveFile();
         st.execute();
