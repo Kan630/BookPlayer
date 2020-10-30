@@ -18,6 +18,9 @@ public class ZikFile implements Serializable {
     @PrimaryKey(autoGenerate = true)
     private int id;
 
+    @ColumnInfo(name = "idFolder")
+    private long idFolder;
+
     @ColumnInfo(name = "name")
     private String name;
 
@@ -112,5 +115,13 @@ public class ZikFile implements Serializable {
 
     public void setFinished(boolean finished) {
         this.finished = finished;
+    }
+
+    public long getIdFolder() {
+        return idFolder;
+    }
+
+    public void setIdFolder(long idFolder) {
+        this.idFolder = idFolder;
     }
 }

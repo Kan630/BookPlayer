@@ -16,6 +16,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".PlayActivity" />
+        <activity android:name=".FolderContentActivity" />
     </application>
 
 </manifest>

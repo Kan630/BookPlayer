@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">BookPlayer</string>
+    <string name="hintprompt">Liste des dossiers</string>
+
     <string name="back"><![CDATA[<]]></string>
     <string name="play"><![CDATA[>]]></string>
     <string name="rewind"><![CDATA[<<]]></string>

@@ -20,7 +20,7 @@ public interface FolderDao {
     List<Folder> getAll();
 
     @Insert
-    void insert(Folder Folder);
+    long insert(Folder Folder);
 
     @Delete
     void delete(Folder Folder);
