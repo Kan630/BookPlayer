@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 
 
 public class MainActivity extends Activity {
-    private Button b1,b2,b3,b4;
+    private Button bForward,bPause,bPlay,bRewind;
     private ImageView iv;
     private MediaPlayer mediaPlayer;
 
@@ -26,7 +26,7 @@ public class MainActivity extends Activity {
     private int forwardTime = 5000;
     private int backwardTime = 5000;
     private SeekBar seekbar;
-    private TextView tx1,tx2,tx3;
+    private TextView txSeekBar,txTempsTotal,txNomFichier;
 
     public static int oneTimeOnly = 0;
     @Override
@@ -34,27 +34,28 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        b1 = (Button) findViewById(R.id.button);
-        b2 = (Button) findViewById(R.id.button2);
-        b3 = (Button)findViewById(R.id.button3);
-        b4 = (Button)findViewById(R.id.button4);
+        bRewind = (Button)findViewById(R.id.buttonRewind);
+        bPlay = (Button) findViewById(R.id.buttonPlay);
+        bPause = (Button) findViewById(R.id.buttonPause);
+        bForward = (Button) findViewById(R.id.buttonForward);
         iv = (ImageView)findViewById(R.id.imageView);
 
-        tx1 = (TextView)findViewById(R.id.textView2);
-        tx2 = (TextView)findViewById(R.id.textView3);
-        tx3 = (TextView)findViewById(R.id.textView4);
-        tx3.setText("Song.mp3");
+        txSeekBar = (TextView)findViewById(R.id.textViewSeekBar);
+        txTempsTotal = (TextView)findViewById(R.id.textViewTempsTotal);
+        txNomFichier = (TextView)findViewById(R.id.textViewNomFichier);
+        txNomFichier.setText("Song.mp3");
 
         mediaPlayer = MediaPlayer.create(this, R.raw.song);
         seekbar = (SeekBar)findViewById(R.id.seekBar);
         seekbar.setClickable(false);
-        b2.setEnabled(false);
+        bPause.setEnabled(false);
+        txSeekBar.setVisibility(View.INVISIBLE);
 
-        b3.setOnClickListener(new View.OnClickListener() {
+
+        bPlay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getApplicationContext(), "Playing
-                        sound",Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Playing sound",Toast.LENGTH_SHORT).show();
                         mediaPlayer.start();
 
                 finalTime = mediaPlayer.getDuration();
@@ -65,14 +66,14 @@ public class MainActivity extends Activity {
                     oneTimeOnly = 1;
                 }
 
-                tx2.setText(String.format("%d min, %d sec",
+                txTempsTotal.setText(String.format("%d min, %d sec",
                         TimeUnit.MILLISECONDS.toMinutes((long) finalTime),
                         TimeUnit.MILLISECONDS.toSeconds((long) finalTime) -
                                 TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long)
                                         finalTime)))
                 );
 
-                tx1.setText(String.format("%d min, %d sec",
+                txSeekBar.setText(String.format("%d min, %d sec",
                         TimeUnit.MILLISECONDS.toMinutes((long) startTime),
                         TimeUnit.MILLISECONDS.toSeconds((long) startTime) -
                                 TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long)
@@ -81,23 +82,23 @@ public class MainActivity extends Activity {
 
                 seekbar.setProgress((int)startTime);
                 myHandler.postDelayed(UpdateSongTime,100);
-                b2.setEnabled(true);
-                b3.setEnabled(false);
+                SetInterfacePlayingMode();
             }
+
         });
 
-        b2.setOnClickListener(new View.OnClickListener() {
+
+        bPause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getApplicationContext(), "Pausing
-                        sound",Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Pausing sound",Toast.LENGTH_SHORT).show();
                         mediaPlayer.pause();
-                b2.setEnabled(false);
-                b3.setEnabled(true);
+                bPause.setEnabled(false);
+                bPlay.setEnabled(true);
             }
         });
 
-        b1.setOnClickListener(new View.OnClickListener() {
+        bForward.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 int temp = (int)startTime;
@@ -105,16 +106,14 @@ public class MainActivity extends Activity {
                 if((temp+forwardTime)<=finalTime){
                     startTime = startTime + forwardTime;
                     mediaPlayer.seekTo((int) startTime);
-                    Toast.makeText(getApplicationContext(),"You have Jumped forward 5
-                            seconds",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(),"You have Jumped forward 5 seconds",Toast.LENGTH_SHORT).show();
                 }else{
-                    Toast.makeText(getApplicationContext(),"Cannot jump forward 5
-                            seconds",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(),"Cannot jump forward 5 seconds",Toast.LENGTH_SHORT).show();
                 }
             }
         });
 
-        b4.setOnClickListener(new View.OnClickListener() {
+        bRewind.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 int temp = (int)startTime;
@@ -122,20 +121,26 @@ public class MainActivity extends Activity {
                 if((temp-backwardTime)>0){
                     startTime = startTime - backwardTime;
                     mediaPlayer.seekTo((int) startTime);
-                    Toast.makeText(getApplicationContext(),"You have Jumped backward 5
-                            seconds",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(),"You have Jumped backward 5 seconds",Toast.LENGTH_SHORT).show();
                 }else{
-                    Toast.makeText(getApplicationContext(),"Cannot jump backward 5
-                            seconds",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(),"Cannot jump backward 5 seconds",Toast.LENGTH_SHORT).show();
                 }
             }
         });
+
+    }
+
+    private void SetInterfacePlayingMode() {
+        bPause.setEnabled(true);
+        bPlay.setEnabled(false);
+        txNomFichier.setVisibility(View.INVISIBLE);
+        txSeekBar.setVisibility(View.VISIBLE);
     }
 
     private Runnable UpdateSongTime = new Runnable() {
         public void run() {
             startTime = mediaPlayer.getCurrentPosition();
-            tx1.setText(String.format("%d min, %d sec",
+            txSeekBar.setText(String.format("%d min, %d sec",
                     TimeUnit.MILLISECONDS.toMinutes((long) startTime),
                     TimeUnit.MILLISECONDS.toSeconds((long) startTime) -
                             TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.
@@ -145,4 +150,5 @@ public class MainActivity extends Activity {
             myHandler.postDelayed(this, 100);
         }
     };
+
 }
