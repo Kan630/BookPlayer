@@ -9,11 +9,15 @@ import androidx.room.TypeConverters;
 
 import java.sql.Date;
 
-@Database(entities = {com.driot.bookplayer.Folder.class}, version = 1)
+@Database(entities = {
+        com.driot.bookplayer.Folder.class,
+        com.driot.bookplayer.ZikFile.class
+}, version = 2)
+
 @TypeConverters({Converters.class})
 
 public abstract class AppDatabase extends RoomDatabase {
     public abstract com.driot.bookplayer.FolderDao FolderDao();
-
+    public abstract com.driot.bookplayer.ZikFileDao ZikFileDao();
 }
 

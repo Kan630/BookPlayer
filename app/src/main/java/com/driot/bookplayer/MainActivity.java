@@ -1,16 +1,21 @@
 package com.driot.bookplayer;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
+import androidx.documentfile.provider.DocumentFile;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import java.util.Calendar;
+import java.io.File;
+import java.sql.Time;
 import java.sql.Date;
 import java.util.List;
 
@@ -19,6 +24,8 @@ public class MainActivity extends Activity {
 
     private RecyclerView recyclerView;
     private FloatingActionButton btn_Add;
+    public static final int READ_REQUEST_CODE = 107;
+    List<DocumentFile> mFileList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,7 +40,7 @@ public class MainActivity extends Activity {
         btn_Add.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                saveFolder();
+                performFileSearch();
             }
         });
 
@@ -66,12 +73,11 @@ public class MainActivity extends Activity {
     gt.execute();
     }
 
-    private void saveFolder() {
-        final String sName = "toto Folder";
-        final Double sPercent = 50.0;
-        final Date sFirstAccess = new java.sql.Date(Calendar.getInstance().getTime().getTime());
-        final Date sLastAccess = new java.sql.Date(Calendar.getInstance().getTime().getTime());
-        // ou new Date(System.currentTimeMillis())
+    private void saveFolder(String fdName, String fdPath, String fdUri, String fdHash) {
+
+        final Double sPercent = 0.0;
+        final Time sFirstAccess = new Time(System.currentTimeMillis());
+        final Time sLastAccess = new Time(System.currentTimeMillis());
 
         class SaveFolder extends AsyncTask<Void, Void, Void> {
 
@@ -80,7 +86,10 @@ public class MainActivity extends Activity {
 
                 //creating a Folder
                 Folder folder = new Folder();
-                folder.setName(sName);
+                folder.setName(fdName);
+                folder.setPath(fdPath);
+                folder.setUri(fdUri);
+                folder.setHash(fdHash);
                 folder.setPercentdone(sPercent);
                 folder.setFirstaccess(sFirstAccess);
                 folder.setLastaccess(sLastAccess);
@@ -99,7 +108,48 @@ public class MainActivity extends Activity {
                 //finish();
             }
         }
+
+        // TODO check if folder doesn't already exists...
+        // TODO get id of created folder
+
         SaveFolder st = new SaveFolder();
         st.execute();
     }
+
+    public void performFileSearch() {
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+        startActivityForResult(intent, READ_REQUEST_CODE);
+    }
+
+    public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
+        if (resultCode == RESULT_OK && requestCode == READ_REQUEST_CODE) {
+            Uri treeUri = resultData.getData();
+            DocumentFile pickedDir = DocumentFile.fromTreeUri(this, treeUri);
+
+            if (pickedDir.isDirectory()) {
+                String fdPath = pickedDir.getUri().getLastPathSegment();
+                // deux derniers folders pour le nom :
+                String str = fdPath;
+                int pos1 = str.lastIndexOf("/");
+                int pos2 =  str.substring(0,pos1).lastIndexOf("/",pos1);
+                String fdName = str.substring(pos2+1);
+                String fdUri = pickedDir.getUri().toString();
+                String fdHash = Integer.toString(pickedDir.getUri().hashCode());
+                //saveFolder(fdName, fdPath, fdUri, fdHash);
+                Log.d("titi", "folder name : " + pickedDir.getName());
+                Log.d("titi", "folder parentfile: " + pickedDir.getParentFile());
+                Log.d("titi", "folder to string : " + pickedDir.toString());
+                Log.d("titi", "folder get path : " + pickedDir.getUri().getPath());
+                Log.d("titi", "folder get path : " + pickedDir.getUri().getLastPathSegment());
+                Log.d("titi", "folder get path : " + pickedDir.getUri().toString());
+                Log.d("titi", "folder get path : " + pickedDir.getUri().hashCode());
+                // List all existing files inside picked directory
+                for (DocumentFile file : pickedDir.listFiles()) {
+                    //Log.d("titi", "Found file " + file.getName() + " with size " + file.length());
+                }
+            }
+
+        }
+    }
+
 }

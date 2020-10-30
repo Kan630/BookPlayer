@@ -1,7 +1,7 @@
 package com.driot.bookplayer;
 
 /**
- * created by Antoine Driot -- antoine.driot.com -- on 28/10/20
+ * created by Antoine Driot -- antoine.driot.com -- on 30/10/20
  */
 
 import androidx.room.ColumnInfo;
@@ -13,7 +13,7 @@ import java.sql.Date;
 import java.sql.Time;
 
 @Entity
-public class Folder implements Serializable {
+public class ZikFile implements Serializable {
 
     @PrimaryKey(autoGenerate = true)
     private int id;
@@ -23,12 +23,6 @@ public class Folder implements Serializable {
 
     @ColumnInfo(name = "path")
     private String path;
-
-    @ColumnInfo(name = "uri")
-    private String uri;
-
-    @ColumnInfo(name = "hash")
-    private String hash;
 
     @ColumnInfo(name = "position")
     private int position;
@@ -47,27 +41,6 @@ public class Folder implements Serializable {
 
     @ColumnInfo(name = "finished")
     private boolean finished;
-
-
-    /*
-     * Getters and Setters
-     * */
-
-    public String getUri() {
-        return uri;
-    }
-
-    public void setUri(String uri) {
-        this.uri = uri;
-    }
-
-    public String getHash() {
-        return hash;
-    }
-
-    public void setHash(String hash) {
-        this.hash = hash;
-    }
 
     public int getId() {
         return id;

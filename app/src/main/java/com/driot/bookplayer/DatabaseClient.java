@@ -21,7 +21,15 @@ public class DatabaseClient {
 
         //creating the app database with Room database builder
         //MyToDos is the name of the database
-        appDatabase = Room.databaseBuilder(mCtx, AppDatabase.class, "MyToDos").build();
+        appDatabase = Room.databaseBuilder(mCtx, AppDatabase.class, "MyToDos")
+
+                //-------------------------------------------------------
+                .fallbackToDestructiveMigration()  // <--- ATTENTION !!
+                //                              modif version BDD => truncate all tables !!
+                //-------------------------------------------------------
+
+                .build();
+
     }
 
     public static synchronized com.driot.bookplayer.DatabaseClient getInstance(Context mCtx) {
