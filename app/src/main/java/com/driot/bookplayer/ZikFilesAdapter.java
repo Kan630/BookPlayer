@@ -69,12 +69,13 @@ public class ZikFilesAdapter extends RecyclerView.Adapter<ZikFilesAdapter.ZikFil
             Intent intent = new Intent(mCtx, PlayActivity.class);
 
             //TODO pass an object, check parcelable
-            //intent.putExtra("ZikFile", zikFile);
+            intent.putExtra("ZikFile", zikFile);
 
+            /*
             intent.putExtra("zikFilePath", zikFile.getPath());
             intent.putExtra("zikFileName", zikFile.getName());
             intent.putExtra("zikFilePosition", zikFile.getPosition());
-
+*/
             mCtx.startActivity(intent);
         }
     }

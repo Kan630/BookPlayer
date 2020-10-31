@@ -33,6 +33,9 @@ public class ZikFile implements Serializable {
     @ColumnInfo(name = "path")
     private String path;
 
+    @ColumnInfo(name = "folderName")
+    private String folderName;
+
     @ColumnInfo(name = "position")
     private double position;
 
@@ -57,6 +60,14 @@ public class ZikFile implements Serializable {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public String getFolderName() {
+        return folderName;
+    }
+
+    public void setFolderName(String folderName) {
+        this.folderName = folderName;
     }
 
     public String getName() {
@@ -131,4 +142,20 @@ public class ZikFile implements Serializable {
         this.idFolder = idFolder;
     }
 
+    @Override
+    public String toString() {
+        return "ZikFile{" +
+                "id=" + id +
+                ", idFolder=" + idFolder +
+                ", name='" + name + '\'' +
+                ", path='" + path + '\'' +
+                ", folderName='" + folderName + '\'' +
+                ", position=" + position +
+                ", length=" + length +
+                ", percentdone=" + percentdone +
+                ", firstaccess=" + firstaccess +
+                ", lastaccess=" + lastaccess +
+                ", finished=" + finished +
+                '}';
+    }
 }

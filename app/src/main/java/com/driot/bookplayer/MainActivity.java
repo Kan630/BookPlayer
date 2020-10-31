@@ -26,6 +26,7 @@ import java.util.List;
 
 public class MainActivity extends Activity {
 
+    static final String TAG = "MainActivity.java";
     private RecyclerView recyclerView;
     private FloatingActionButton btn_Add;
     public static final int READ_REQUEST_CODE = 107;
@@ -152,10 +153,12 @@ public class MainActivity extends Activity {
             // On vérifie qu'on a pas deja le loustic
 
             if (pickedDir.isDirectory()) {
+                /*
                 Log.d("titi", "treeUri get path : " + treeUri.getPath());
                 Log.d("titi", "treeUri get path : " + treeUri.toString());
                 Log.d("titi", "folder name : " + pickedDir.getName());
                 Log.d("titi", "folder name : " + pickedDir.toString());
+                */
                 checkIfAddedFolderExist();
             } else {
                 Toast.makeText(getBaseContext(), "Le dossier a importé n'est pas reconnu", Toast.LENGTH_SHORT);
@@ -247,4 +250,45 @@ public class MainActivity extends Activity {
         st.execute();
     }
 
+    /********************
+     *
+     * END STUFF
+     */
+
+    private void myLog(String str) {
+        //String TAG = this.getClass().getName().substring(this.getClass().getName().lastIndexOf(".")+1);
+        Log.d("titi " + TAG + " ",str);
+        System.out.println(str);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        myLog("::OnStart()");
+
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        myLog("::OnStop()");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        myLog("::OnResume()");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        myLog("::OnPause()");
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        myLog("::OnDestroy()");
+    }
 }

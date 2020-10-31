@@ -62,15 +62,12 @@
         android:text="@string/forward"
         android:id="@+id/buttonForward"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
         android:layout_toRightOf="@id/buttonPause" />
 
     <SeekBar
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/seekBar"
-        android:layout_alignStart="@+id/textviewTitle"
-        android:layout_alignEnd="@+id/textviewTitle"
         android:layout_above="@+id/buttonForward" />
 
     <TextView
@@ -78,30 +75,28 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@+id/seekBar"
-        android:layout_marginEnd="-80dp"
-        android:layout_marginBottom="33dp"
-        android:layout_toStartOf="@+id/textViewSubTitle"
-        android:text="Small Text"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
+        android:text="Current position"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceSmall"
-        android:text="Small Text"
+        android:text="Temps total"
         android:id="@+id/textViewTempsTotal"
+        android:layout_marginLeft="30dp"
         android:layout_above="@+id/seekBar"
-        android:layout_alignEnd="@+id/buttonRewind" />
+        android:layout_alignParentEnd="true"
+        />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Medium Text"
+        android:text="Nom Fichier"
         android:id="@+id/textViewNomFichier"
-        android:layout_alignBaseline="@+id/textViewSeekBar"
-        android:layout_alignBottom="@+id/textViewSeekBar"
-        android:layout_centerHorizontal="true" />
+        android:layout_above="@+id/textViewSeekBar"
+        />
 
 </RelativeLayout>
 

@@ -10,6 +10,7 @@ import androidx.room.Insert;
 import androidx.room.Query;
 import androidx.room.Update;
 
+import java.sql.Time;
 import java.util.List;
 
 
@@ -23,13 +24,21 @@ public interface ZikFileDao {
     List<ZikFile> getZikFiles(long idFolder);
 
     @Insert
-    void insert(ZikFile ZikFile);
+    void insert(ZikFile zikFile);
 
     @Delete
-    void delete(ZikFile ZikFile);
+    void delete(ZikFile zikFile);
 
     @Update
-    void update(ZikFile ZikFile);
+    void update(ZikFile zikFile);
+
+    @Query("UPDATE ZikFile SET FolderName=:folderName WHERE id = :id")
+    void updateFolderName(String folderName, int id);
+
+    @Query("UPDATE ZikFile SET firstaccess=:firstAccess WHERE id = :id")
+    void updateFirstAccess(Time firstAccess, int id);
+
+
 
     // Exemple avec dates :
     //@Query("SELECT * FROM user WHERE birthday BETWEEN :from AND :to")
