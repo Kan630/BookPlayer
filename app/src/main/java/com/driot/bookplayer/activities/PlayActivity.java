@@ -33,13 +33,17 @@ public class PlayActivity extends LifecycleLoggingActivity {
 
     private Button bForward,bPause,bPlay,bRewind;
     private ImageView iv;
-    private MediaPlayer mediaPlayer;
+    private static MediaPlayer mediaPlayer;
 
-    private double startTime = 0;
+    private double currentProgress = 0;
     private double finalTime = 0;
+
+    private boolean HasBeenInitialized = false;
 
     private Handler myHandler = new Handler();;
     Future UpdateSongTimeFuture;
+    private static final int INTERVAL_REDRAW_SEEKBAR = 100;
+    private volatile boolean threadSuspended;
 
     private int forwardTime = 5000;
     private int backwardTime = 5000;
@@ -49,8 +53,43 @@ public class PlayActivity extends LifecycleLoggingActivity {
     private Time zikFileAccessFirstTime;
     private int idCurrentZikFile;
 
-    public static int oneTimeOnly = 0;
+    /********************************************************************************
+     ***       GESTION FLIP ECRAN
+     ********************************************************************************
+     */
     @Override
+    protected void onSaveInstanceState(Bundle outState)
+    {
+        outState.putDouble("position", currentProgress);
+        myLog("SaveInstance - Time is " + currentProgress);
+        if (mediaPlayer.isPlaying()) {
+            outState.putBoolean("wasPlaying", true);
+            mediaPlayer.pause();
+        } else {
+            outState.putBoolean("wasPlaying", false);
+        }
+        super.onSaveInstanceState(outState);
+    }
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState)
+    {
+        boolean wasPlaying = savedInstanceState.getBoolean("wasPlaying",false);
+        currentProgress = savedInstanceState.getDouble("position");
+        myLog("RestaureInstance - Time is " + currentProgress);
+        if (wasPlaying) {
+            mediaPlayer.seekTo((int)currentProgress);
+            mediaPlayer.start();
+        }
+        super.onRestoreInstanceState(savedInstanceState);
+    }
+    @Override
+
+
+    /********************************************************************************
+     ***       ON CREATE
+     ********************************************************************************
+     */
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_play);
@@ -66,15 +105,20 @@ public class PlayActivity extends LifecycleLoggingActivity {
         txNomFichier = (TextView)findViewById(R.id.textViewNomFichier);
         txTitle = (TextView)findViewById(R.id.textviewTitle);
         txSubTitle = (TextView)findViewById(R.id.textViewSubTitle);
-
+        seekbar = (SeekBar)findViewById(R.id.seekBar);
 
         // TODO, use Parcelable
         //ZikFile zikFile = getIntent().getParcelableExtra("zikFile");
+
+        //if (!HasBeenInitialized) {
+        myLog("Initial Time is " + currentProgress);
         ZikFile currentZikFile = (ZikFile) getIntent().getSerializableExtra("ZikFile");
         Log.d("titi","Passed Intent in PlayActivity : " + currentZikFile.toString());
+        //HasBeenInitialized=true;
 
         idCurrentZikFile = currentZikFile.getId();
-        startTime = currentZikFile.getPosition();
+        currentProgress = currentZikFile.getPosition();
+        myLog("Start Time is " + currentProgress);
         txSubTitle.setText(currentZikFile.getName());
         txTitle.setText(currentZikFile.getFolderName());
         String filePath = currentZikFile.getPath() + "/" + currentZikFile.getName();   //"/storage/0123-4567/Droit/09 00.mp3"
@@ -94,24 +138,38 @@ public class PlayActivity extends LifecycleLoggingActivity {
         try {mediaPlayer.prepare();} catch (IOException e) {e.printStackTrace();myLog("check permissions");}
         if (mediaPlayer == null) {Log.d("titi","Media Player creation failed");}
 
-        seekbar = (SeekBar)findViewById(R.id.seekBar);
-        //seekbar.setClickable(false);
-        bPause.setEnabled(false);
-
-        txSeekBar.setVisibility(View.VISIBLE);
         finalTime = mediaPlayer.getDuration();
-        mediaPlayer.seekTo((int)startTime);
-        startTime = mediaPlayer.getCurrentPosition();
+        myLog("Final Time is " + finalTime);
+        seekbar.setMax((int) finalTime);
 
-        if (oneTimeOnly == 0) {
-            seekbar.setMax((int) finalTime);
-            oneTimeOnly = 1;
-        }
+        mediaPlayer.seekTo((int)currentProgress);
 
         txTempsTotal.setText(GetBarTime("final"));
-        txSeekBar.setText(GetBarTime("start"));
-        seekbar.setProgress((int)startTime);
 
+        /********************************************************************************
+         ***       SEEKBAR
+         ********************************************************************************
+         */
+        seekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (fromUser) {
+                    currentProgress = progress;
+                    mediaPlayer.seekTo(progress);
+                    txSeekBar.setText(GetBarTime("start"));
+                    myLog("User changes Progress Time : " + progress);
+                }
+            }
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {}
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {}
+        });
+
+        /********************************************************************************
+         ***       BUTTON PLAY
+         ********************************************************************************
+         */
         bPlay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -120,44 +178,26 @@ public class PlayActivity extends LifecycleLoggingActivity {
                 SetInterfacePlayingMode();
 
                 // TODO plante quand on passe en mode paysage
-                myHandler.postDelayed(UpdateSongTime,100);
-
+                myHandler.postDelayed(UpdateSongTime,INTERVAL_REDRAW_SEEKBAR);
                 /*
                 ExecutorService executorService = Executors.newSingleThreadExecutor();
                 // submit task to threadpool:
                 UpdateSongTimeFuture = executorService.submit(UpdateSongTime);
                  */
-
-
-
-                /*
-                finalTime = mediaPlayer.getDuration();
-                mediaPlayer.seekTo((int)startTime);
-                startTime = mediaPlayer.getCurrentPosition();
-
-                if (oneTimeOnly == 0) {
-                    seekbar.setMax((int) finalTime);
-                    oneTimeOnly = 1;
-                }
-
-                txTempsTotal.setText(GetBarTime("final"));
-                txSeekBar.setText(GetBarTime("start"));
-                seekbar.setProgress((int)startTime);
-                myHandler.postDelayed(UpdateSongTime,100);
-                */
-
             }
-
         });
 
+        /********************************************************************************
+         ***       BUTTON PAUSE
+         ********************************************************************************
+         */
 
         bPause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mediaPlayer.pause();
                 //UpdateSongTimeFuture.cancel(true);
-                bPause.setEnabled(false);
-                bPlay.setEnabled(true);
+                SetInterfacePausingMode();
                 updateZikFileState(currentZikFile);
                 myLog("updated on pause : " + currentZikFile.getId());
             }
@@ -166,11 +206,11 @@ public class PlayActivity extends LifecycleLoggingActivity {
         bForward.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int temp = (int)startTime;
+                int temp = (int)currentProgress;
 
                 if((temp+forwardTime)<=finalTime){
-                    startTime = startTime + forwardTime;
-                    mediaPlayer.seekTo((int) startTime);
+                    currentProgress = currentProgress + forwardTime;
+                    mediaPlayer.seekTo((int) currentProgress);
                 }
             }
         });
@@ -178,11 +218,11 @@ public class PlayActivity extends LifecycleLoggingActivity {
         bRewind.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int temp = (int)startTime;
+                int temp = (int)currentProgress;
 
                 if((temp-backwardTime)>0){
-                    startTime = startTime - backwardTime;
-                    mediaPlayer.seekTo((int) startTime);
+                    currentProgress = currentProgress - backwardTime;
+                    mediaPlayer.seekTo((int) currentProgress);
                 }
             }
         });
@@ -193,7 +233,9 @@ public class PlayActivity extends LifecycleLoggingActivity {
     protected void onDestroy() {
         super.onDestroy();
         myLog("::OnDestroy()");
+        myLog("1 Time is " + currentProgress);
         mediaPlayer.release();
+        myLog("2 Time is " + currentProgress);
     }
 
     private void updateZikFileState(ZikFile zikFile) {
@@ -201,7 +243,8 @@ public class PlayActivity extends LifecycleLoggingActivity {
         if (zikFile.getFirstaccess() == null) { zikFile.setFirstaccess(zikFileAccessFirstTime); }
         final Time sLastAccess = new Time(System.currentTimeMillis());
         zikFile.setLastaccess(sLastAccess);
-        zikFile.setPosition(startTime);
+        myLog("current position : " + currentProgress);
+        zikFile.setPosition(currentProgress);
 
         class UpdateZikFileState extends AsyncTask<Void, Void, Void> {
 
@@ -219,31 +262,45 @@ public class PlayActivity extends LifecycleLoggingActivity {
 
     }
 
+    private void redrawSeekBar() {
+        if (mediaPlayer.isPlaying()) {
+            txSeekBar.setText(GetBarTime("start"));
+            seekbar.setProgress((int)currentProgress);
+        }
+    }
+    
+    
     private Runnable UpdateSongTime = new Runnable() {
         public void run() {
-            startTime = mediaPlayer.getCurrentPosition();
-            txSeekBar.setText(GetBarTime("start"));
-            seekbar.setProgress((int)startTime);
-            myHandler.postDelayed(this, 100);
+            if (mediaPlayer.isPlaying()) {
+                currentProgress = mediaPlayer.getCurrentPosition();
+                redrawSeekBar();
+                myHandler.postDelayed(this, INTERVAL_REDRAW_SEEKBAR);
+                myLog("runnable current progress : " + currentProgress);
+            }
         }
     };
 
     private void SetInterfacePlayingMode() {
         bPause.setEnabled(true);
         bPlay.setEnabled(false);
-        txNomFichier.setVisibility(View.INVISIBLE);
-        txSeekBar.setVisibility(View.VISIBLE);
     }
+    private void SetInterfacePausingMode() {
+        bPause.setEnabled(false);
+        bPlay.setEnabled(true);
+    }
+
+
 
     private String GetBarTime(String zeType) {
         String myReturn = "";
         switch (zeType) {
             case "start":
                 myReturn = String.format("%d min, %d sec",
-                        TimeUnit.MILLISECONDS.toMinutes((long) startTime),
-                        TimeUnit.MILLISECONDS.toSeconds((long) startTime) -
+                        TimeUnit.MILLISECONDS.toMinutes((long) currentProgress),
+                        TimeUnit.MILLISECONDS.toSeconds((long) currentProgress) -
                                 TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.
-                                        toMinutes((long) startTime)));
+                                        toMinutes((long) currentProgress)));
                 break;
             case "final":
                 myReturn = String.format("%d min, %d sec",
