@@ -4,6 +4,9 @@ package com.driot.bookplayer;
  * created by Antoine Driot -- antoine.driot.com -- on 30/10/20
  */
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
@@ -14,6 +17,9 @@ import java.sql.Time;
 
 @Entity
 public class ZikFile implements Serializable {
+
+// TODO : best practice for intent passing .. to test
+//public class ZikFile implements Parcelable {
 
     @PrimaryKey(autoGenerate = true)
     private int id;
@@ -28,7 +34,7 @@ public class ZikFile implements Serializable {
     private String path;
 
     @ColumnInfo(name = "position")
-    private int position;
+    private double position;
 
     @ColumnInfo(name = "length")
     private int length;
@@ -69,11 +75,11 @@ public class ZikFile implements Serializable {
         this.path = path;
     }
 
-    public int getPosition() {
+    public double getPosition() {
         return position;
     }
 
-    public void setPosition(int position) {
+    public void setPosition(double position) {
         this.position = position;
     }
 
@@ -124,4 +130,5 @@ public class ZikFile implements Serializable {
     public void setIdFolder(long idFolder) {
         this.idFolder = idFolder;
     }
+
 }

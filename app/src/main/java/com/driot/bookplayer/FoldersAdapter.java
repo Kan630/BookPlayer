@@ -6,6 +6,7 @@ package com.driot.bookplayer;
 
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,29 +45,42 @@ public class FoldersAdapter extends RecyclerView.Adapter<FoldersAdapter.FoldersV
         return FolderList.size();
     }
 
-    class FoldersViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        class FoldersViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
 
-        TextView textViewFileName, textViewFilePercent, textViewFileLastAccess;
+            TextView textViewFileName, textViewFilePercent, textViewFileLastAccess;
 
-        public FoldersViewHolder(View itemView) {
-            super(itemView);
+            public FoldersViewHolder(View itemView) {
+                super(itemView);
 
-            textViewFileName = itemView.findViewById(R.id.textViewFileName);
-            textViewFilePercent = itemView.findViewById(R.id.textViewFilePercent);
-            textViewFileLastAccess = itemView.findViewById(R.id.textViewFileLastAccess);
+                textViewFileName = itemView.findViewById(R.id.textViewFileName);
+                textViewFilePercent = itemView.findViewById(R.id.textViewFilePercent);
+                textViewFileLastAccess = itemView.findViewById(R.id.textViewFileLastAccess);
 
-            itemView.setOnClickListener(this);
+                itemView.setOnClickListener(this);
+                itemView.setOnLongClickListener(this);
+            }
+
+            @Override
+            public void onClick(View view) {
+                Folder folder = FolderList.get(getAdapterPosition());
+
+                Intent intent = new Intent(mCtx, FolderContentActivity.class);
+                intent.putExtra("FolderId", folder.getId());
+                mCtx.startActivity(intent);
+            }
+
+            @Override
+            public boolean onLongClick(View view) {
+                Folder folder = FolderList.get(getAdapterPosition());
+
+                //TODO Activity Modify Folder
+
+                //Intent intent = new Intent(mCtx, FolderModifActivity.class);
+                //intent.putExtra("Folder", folder);
+
+                //mCtx.startActivity(intent);
+                return false;
+            }
+
         }
-
-        @Override
-        public void onClick(View view) {
-            Folder Folder = FolderList.get(getAdapterPosition());
-
-            //Intent intent = new Intent(mCtx, PlayActivity.class);
-            Intent intent = new Intent(mCtx, FolderContentActivity.class);
-            intent.putExtra("Folder", Folder);
-
-            mCtx.startActivity(intent);
-        }
-    }
 }

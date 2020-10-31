@@ -117,7 +117,6 @@ public class MainActivity extends Activity {
                 }
             }
         }
-
         CheckIfAddedFolderExist gt = new CheckIfAddedFolderExist();
         gt.execute();
     }
@@ -154,7 +153,9 @@ public class MainActivity extends Activity {
 
             if (pickedDir.isDirectory()) {
                 Log.d("titi", "treeUri get path : " + treeUri.getPath());
+                Log.d("titi", "treeUri get path : " + treeUri.toString());
                 Log.d("titi", "folder name : " + pickedDir.getName());
+                Log.d("titi", "folder name : " + pickedDir.toString());
                 checkIfAddedFolderExist();
             } else {
                 Toast.makeText(getBaseContext(), "Le dossier a importé n'est pas reconnu", Toast.LENGTH_SHORT);
@@ -222,6 +223,8 @@ public class MainActivity extends Activity {
                 zikFile.setIdFolder(lFolderId);
                 zikFile.setPercentdone(dPercent);
                 zikFile.setPosition(iPosition);
+                String sFilePath = "/storage/" + sAddedFolderPath.replace(":","/");
+                zikFile.setPath(sFilePath);
 
                 //adding to database
                 DatabaseClient.getInstance(getApplicationContext()).getAppDatabase()

@@ -10,7 +10,7 @@
 
     <TextView android:text="TextBook Player" android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/textview"
+        android:id="@+id/textviewTitle"
         android:textSize="35dp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true" />
@@ -19,8 +19,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="ho yeah"
-        android:id="@+id/textView"
-        android:layout_below="@+id/textview"
+        android:id="@+id/textViewSubTitle"
+        android:layout_below="@+id/textviewTitle"
         android:layout_centerHorizontal="true"
         android:textColor="#ff7aff24"
         android:textSize="25dp" />
@@ -29,7 +29,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/imageView"
-        android:layout_below="@+id/textView"
+        android:layout_below="@+id/textViewSubTitle"
         android:layout_centerHorizontal="true" />
 
     <Button
@@ -69,8 +69,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/seekBar"
-        android:layout_alignStart="@+id/textview"
-        android:layout_alignEnd="@+id/textview"
+        android:layout_alignStart="@+id/textviewTitle"
+        android:layout_alignEnd="@+id/textviewTitle"
         android:layout_above="@+id/buttonForward" />
 
     <TextView
@@ -80,7 +80,7 @@
         android:layout_above="@+id/seekBar"
         android:layout_marginEnd="-80dp"
         android:layout_marginBottom="33dp"
-        android:layout_toStartOf="@+id/textView"
+        android:layout_toStartOf="@+id/textViewSubTitle"
         android:text="Small Text"
         android:textAppearance="?android:attr/textAppearanceSmall" />
 

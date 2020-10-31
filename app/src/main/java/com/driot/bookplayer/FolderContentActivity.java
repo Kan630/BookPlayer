@@ -1,9 +1,15 @@
 package com.driot.bookplayer;
 
+import android.Manifest;
 import android.app.Activity;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -24,8 +30,19 @@ public class FolderContentActivity extends Activity {
         recyclerView = findViewById(R.id.recyclerview_zikfiles);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        long idFolder = 1;
-        getZikFiles(idFolder);
+        long idFolder = getIntent().getIntExtra("FolderId",0);
+        if (idFolder != 0) {
+            getZikFiles(idFolder);
+        }
+
+        int REQUEST_READ_SD_CARD=1;
+        int permissionCheck = ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_EXTERNAL_STORAGE);
+        if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},REQUEST_READ_SD_CARD);
+        }
+
+
     }
 
     private void getZikFiles(long idFolder) {

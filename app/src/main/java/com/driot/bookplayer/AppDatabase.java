@@ -12,7 +12,7 @@ import java.sql.Date;
 @Database(entities = {
         com.driot.bookplayer.Folder.class,
         com.driot.bookplayer.ZikFile.class
-}, version = 3)
+}, version = 2)
 
 @TypeConverters({Converters.class})
 

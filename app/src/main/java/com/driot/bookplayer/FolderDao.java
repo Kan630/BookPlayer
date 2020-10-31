@@ -16,7 +16,7 @@ import java.util.List;
 @Dao
 public interface FolderDao {
 
-    @Query("SELECT * FROM Folder")
+    @Query("SELECT * FROM Folder ORDER BY lastaccess DESC")
     List<Folder> getAll();
 
     @Query("SELECT COUNT(id) FROM Folder WHERE uri LIKE :sUri AND hash LIKE :iHash")

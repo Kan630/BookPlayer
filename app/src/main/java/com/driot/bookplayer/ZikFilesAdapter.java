@@ -6,6 +6,7 @@ package com.driot.bookplayer;
 
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -63,10 +64,16 @@ public class ZikFilesAdapter extends RecyclerView.Adapter<ZikFilesAdapter.ZikFil
 
         @Override
         public void onClick(View view) {
-            ZikFile ZikFile = ZikFileList.get(getAdapterPosition());
+            ZikFile zikFile = ZikFileList.get(getAdapterPosition());
 
             Intent intent = new Intent(mCtx, PlayActivity.class);
-            intent.putExtra("ZikFile", ZikFile);
+
+            //TODO pass an object, check parcelable
+            //intent.putExtra("ZikFile", zikFile);
+
+            intent.putExtra("zikFilePath", zikFile.getPath());
+            intent.putExtra("zikFileName", zikFile.getName());
+            intent.putExtra("zikFilePosition", zikFile.getPosition());
 
             mCtx.startActivity(intent);
         }
