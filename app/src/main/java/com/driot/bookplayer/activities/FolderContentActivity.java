@@ -1,24 +1,29 @@
-package com.driot.bookplayer;
+package com.driot.bookplayer.activities;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ViewGroup;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.driot.bookplayer.db.DatabaseClient;
+import com.driot.bookplayer.R;
+import com.driot.bookplayer.db.ZikFile;
+import com.driot.bookplayer.utils.PermissionRequest;
+
 import java.util.List;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 30/10/20
  */
-public class FolderContentActivity extends Activity {
+public class FolderContentActivity extends LifecycleLoggingActivity {
 
     static final String TAG = "FolderContentActivity.java";
     private RecyclerView recyclerView;
@@ -36,14 +41,13 @@ public class FolderContentActivity extends Activity {
             getZikFiles(idFolder);
         }
 
+        // PERMISSIONS
         int REQUEST_READ_SD_CARD=1;
         int permissionCheck = ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_EXTERNAL_STORAGE);
         if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},REQUEST_READ_SD_CARD);
         }
-
-
     }
 
     private void getZikFiles(long idFolder) {
@@ -83,6 +87,7 @@ public class FolderContentActivity extends Activity {
         System.out.println(str);
     }
 
+    /*
     @Override
     protected void onStart() {
         super.onStart();
@@ -113,5 +118,6 @@ public class FolderContentActivity extends Activity {
         super.onDestroy();
         myLog("::OnDestroy()");
     }
+*/
 }
 

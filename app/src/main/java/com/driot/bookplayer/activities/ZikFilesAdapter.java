@@ -1,4 +1,4 @@
-package com.driot.bookplayer;
+package com.driot.bookplayer.activities;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 28/10/20
@@ -6,13 +6,15 @@ package com.driot.bookplayer;
 
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.driot.bookplayer.R;
+import com.driot.bookplayer.db.ZikFile;
 
 import java.util.List;
 

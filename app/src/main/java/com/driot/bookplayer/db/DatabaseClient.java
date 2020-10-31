@@ -1,4 +1,4 @@
-package com.driot.bookplayer;
+package com.driot.bookplayer.db;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 28/10/20
@@ -13,7 +13,7 @@ public class DatabaseClient {
     public static final String DATABASE_NAME = "BookPlayer";
 
     private Context mCtx;
-    private static com.driot.bookplayer.DatabaseClient mInstance;
+    private static DatabaseClient mInstance;
 
     //our app database object
     private AppDatabase appDatabase;
@@ -36,9 +36,9 @@ public class DatabaseClient {
 
     }
 
-    public static synchronized com.driot.bookplayer.DatabaseClient getInstance(Context mCtx) {
+    public static synchronized DatabaseClient getInstance(Context mCtx) {
         if (mInstance == null) {
-            mInstance = new com.driot.bookplayer.DatabaseClient(mCtx);
+            mInstance = new DatabaseClient(mCtx);
         }
         return mInstance;
     }

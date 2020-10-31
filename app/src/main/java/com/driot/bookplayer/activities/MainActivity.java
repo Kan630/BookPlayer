@@ -1,4 +1,4 @@
-package com.driot.bookplayer;
+package com.driot.bookplayer.activities;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -14,17 +14,17 @@ import androidx.documentfile.provider.DocumentFile;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.driot.bookplayer.db.DatabaseClient;
+import com.driot.bookplayer.db.Folder;
+import com.driot.bookplayer.R;
+import com.driot.bookplayer.db.ZikFile;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import java.io.File;
 import java.sql.Time;
-import java.sql.Date;
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 
 
-public class MainActivity extends Activity {
+public class MainActivity extends LifecycleLoggingActivity {
 
     static final String TAG = "MainActivity.java";
     private RecyclerView recyclerView;
@@ -261,6 +261,7 @@ public class MainActivity extends Activity {
         System.out.println(str);
     }
 
+    /*
     @Override
     protected void onStart() {
         super.onStart();
@@ -291,4 +292,5 @@ public class MainActivity extends Activity {
         super.onDestroy();
         myLog("::OnDestroy()");
     }
+*/
 }

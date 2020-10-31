@@ -1,46 +1,32 @@
-package com.driot.bookplayer;
+package com.driot.bookplayer.activities;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 30/10/20
  */
 
-import android.Manifest;
 import android.app.Activity;
-import android.content.ContentResolver;
-import android.content.pm.PackageManager;
 import android.media.MediaPlayer;
-import android.media.MediaScannerConnection;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
-import android.os.ParcelFileDescriptor;
 import android.util.Log;
 import android.view.View;
-
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
+import com.driot.bookplayer.db.DatabaseClient;
+import com.driot.bookplayer.R;
+import com.driot.bookplayer.db.ZikFile;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.sql.Time;
-import java.util.Objects;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 
-public class PlayActivity extends Activity {
+public class PlayActivity extends LifecycleLoggingActivity {
 
     static final int REQUEST_READ_SD_CARD = 1;
     static final String TAG = "PlayActivity.java";
@@ -105,7 +91,7 @@ public class PlayActivity extends Activity {
         // TODO, use openFileDescriptor & remove legacy from manifest
         mediaPlayer = new MediaPlayer();
         try {mediaPlayer.setDataSource(filePath);} catch (IOException e) {e.printStackTrace();}
-        try {mediaPlayer.prepare();} catch (IOException e) {e.printStackTrace();}
+        try {mediaPlayer.prepare();} catch (IOException e) {e.printStackTrace();myLog("check permissions");}
         if (mediaPlayer == null) {Log.d("titi","Media Player creation failed");}
 
         seekbar = (SeekBar)findViewById(R.id.seekBar);
@@ -281,7 +267,7 @@ public class PlayActivity extends Activity {
         Log.d("titi " + TAG + " ",str);
         System.out.println(str);
     }
-
+/*
     @Override
     protected void onStart() {
         super.onStart();
@@ -306,4 +292,5 @@ public class PlayActivity extends Activity {
         super.onPause();
         myLog("::OnPause()");
     }
+    */
 }
