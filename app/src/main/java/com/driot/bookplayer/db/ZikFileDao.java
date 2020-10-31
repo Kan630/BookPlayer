@@ -23,6 +23,9 @@ public interface ZikFileDao {
     @Query("SELECT * FROM ZikFile WHERE idFolder = :idFolder ORDER BY name")
     List<ZikFile> getZikFiles(long idFolder);
 
+    @Query("SELECT * FROM ZikFile WHERE id = :id")
+    ZikFile getZikFile(long id);
+
     @Insert
     void insert(ZikFile zikFile);
 

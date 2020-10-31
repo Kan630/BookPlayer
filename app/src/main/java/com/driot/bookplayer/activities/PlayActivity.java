@@ -22,6 +22,7 @@ import com.driot.bookplayer.db.ZikFile;
 
 import java.io.IOException;
 import java.sql.Time;
+import java.util.List;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
@@ -60,6 +61,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState)
     {
+        super.onSaveInstanceState(outState);
         outState.putDouble("position", currentProgress);
         myLog("SaveInstance - Time is " + currentProgress);
         if (mediaPlayer.isPlaying()) {
@@ -68,7 +70,6 @@ public class PlayActivity extends LifecycleLoggingActivity {
         } else {
             outState.putBoolean("wasPlaying", false);
         }
-        super.onSaveInstanceState(outState);
     }
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState)
@@ -110,41 +111,12 @@ public class PlayActivity extends LifecycleLoggingActivity {
         // TODO, use Parcelable
         //ZikFile zikFile = getIntent().getParcelableExtra("zikFile");
 
-        //if (!HasBeenInitialized) {
         myLog("Initial Time is " + currentProgress);
-        ZikFile currentZikFile = (ZikFile) getIntent().getSerializableExtra("ZikFile");
-        Log.d("titi","Passed Intent in PlayActivity : " + currentZikFile.toString());
-        //HasBeenInitialized=true;
+        ZikFile ZikFileFromIntent = (ZikFile) getIntent().getSerializableExtra("ZikFile");
+        Log.d("titi","Passed Intent in PlayActivity : " + ZikFileFromIntent.toString());
 
-        idCurrentZikFile = currentZikFile.getId();
-        currentProgress = currentZikFile.getPosition();
-        myLog("Start Time is " + currentProgress);
-        txSubTitle.setText(currentZikFile.getName());
-        txTitle.setText(currentZikFile.getFolderName());
-        String filePath = currentZikFile.getPath() + "/" + currentZikFile.getName();   //"/storage/0123-4567/Droit/09 00.mp3"
-
-        zikFileAccessFirstTime = new Time(System.currentTimeMillis());
-        updateZikFileState(currentZikFile);
-        myLog("updated on start : " + currentZikFile.getId());
-        /*
-        // DEBUG : check file exist
-        File f = new File(filePath);
-        if (f.exists()) { Log.d("titi","ok file found : " + filePath);} else {Log.d("titi","KO file not found : " + filePath);}
-        */
-
-        // TODO, use openFileDescriptor & remove legacy from manifest
-        mediaPlayer = new MediaPlayer();
-        try {mediaPlayer.setDataSource(filePath);} catch (IOException e) {e.printStackTrace();}
-        try {mediaPlayer.prepare();} catch (IOException e) {e.printStackTrace();myLog("check permissions");}
-        if (mediaPlayer == null) {Log.d("titi","Media Player creation failed");}
-
-        finalTime = mediaPlayer.getDuration();
-        myLog("Final Time is " + finalTime);
-        seekbar.setMax((int) finalTime);
-
-        mediaPlayer.seekTo((int)currentProgress);
-
-        txTempsTotal.setText(GetBarTime("final"));
+        idCurrentZikFile = ZikFileFromIntent.getId();
+        getZikFile(idCurrentZikFile);
 
         /********************************************************************************
          ***       SEEKBAR
@@ -238,12 +210,79 @@ public class PlayActivity extends LifecycleLoggingActivity {
         myLog("2 Time is " + currentProgress);
     }
 
+    /********************************************************************************
+     ***       GET FROM DB
+     ********************************************************************************
+     */
+    private void getZikFile(long id) {
+
+        class GetZikFile extends AsyncTask<Void, Void, ZikFile> {
+
+            @Override
+            protected ZikFile doInBackground(Void... voids) {
+                ZikFile zikFile = DatabaseClient
+                        .getInstance(getApplicationContext())
+                        .getAppDatabase()
+                        .ZikFileDao()
+                        .getZikFile(id);
+                return zikFile;
+            }
+
+            @Override
+            protected void onPostExecute(ZikFile zikFile) {
+                super.onPostExecute(zikFile);
+                currentZikFile = zikFile;
+                Initialize();
+            }
+        }
+        GetZikFile gt = new GetZikFile();
+        gt.execute();
+    }
+    private void Initialize() {
+        Log.d("titi","Passed Intent in PlayActivity : " + currentZikFile.toString());
+        currentProgress = currentZikFile.getPosition();
+        zikFileAccessFirstTime = new Time(System.currentTimeMillis());
+        myLog("Start Time is " + currentProgress);
+        txSubTitle.setText(currentZikFile.getName());
+        txTitle.setText(currentZikFile.getFolderName());
+        String filePath = currentZikFile.getPath() + "/" + currentZikFile.getName();   //"/storage/0123-4567/Droit/09 00.mp3"
+
+
+        updateZikFileState(currentZikFile);
+        myLog("updated on start : " + currentZikFile.getId());
+        /*
+        // DEBUG : check file exist
+        File f = new File(filePath);
+        if (f.exists()) { Log.d("titi","ok file found : " + filePath);} else {Log.d("titi","KO file not found : " + filePath);}
+        */
+
+        // TODO, use openFileDescriptor & remove legacy from manifest
+        mediaPlayer = new MediaPlayer();
+        try {mediaPlayer.setDataSource(filePath);} catch (IOException e) {e.printStackTrace();}
+        try {mediaPlayer.prepare();} catch (IOException e) {e.printStackTrace();myLog("check permissions");}
+        if (mediaPlayer == null) {Log.d("titi","Media Player creation failed");}
+
+        finalTime = mediaPlayer.getDuration();
+        myLog("Final Time is " + finalTime);
+        seekbar.setMax((int) finalTime);
+
+        mediaPlayer.seekTo((int)currentProgress);
+
+        txTempsTotal.setText(GetBarTime("final"));
+        redrawSeekBar();
+
+    }
+
+    /********************************************************************************
+     ***       UPDATE DB
+     ********************************************************************************
+     */
     private void updateZikFileState(ZikFile zikFile) {
 
         if (zikFile.getFirstaccess() == null) { zikFile.setFirstaccess(zikFileAccessFirstTime); }
         final Time sLastAccess = new Time(System.currentTimeMillis());
         zikFile.setLastaccess(sLastAccess);
-        myLog("current position : " + currentProgress);
+        myLog("updateZikFileState current position : " + currentProgress);
         zikFile.setPosition(currentProgress);
 
         class UpdateZikFileState extends AsyncTask<Void, Void, Void> {
@@ -262,14 +301,10 @@ public class PlayActivity extends LifecycleLoggingActivity {
 
     }
 
-    private void redrawSeekBar() {
-        if (mediaPlayer.isPlaying()) {
-            txSeekBar.setText(GetBarTime("start"));
-            seekbar.setProgress((int)currentProgress);
-        }
-    }
-    
-    
+    /********************************************************************************
+     ***       UPDATE SEEKBAR
+     ********************************************************************************
+     */
     private Runnable UpdateSongTime = new Runnable() {
         public void run() {
             if (mediaPlayer.isPlaying()) {
@@ -280,7 +315,18 @@ public class PlayActivity extends LifecycleLoggingActivity {
             }
         }
     };
+    private void redrawSeekBar() {
+        if (mediaPlayer.isPlaying()) {
+            txSeekBar.setText(GetBarTime("start"));
+            seekbar.setProgress((int)currentProgress);
+        }
+    }
 
+
+    /********************************************************************************
+     ***       DIVERS
+     ********************************************************************************
+     */
     private void SetInterfacePlayingMode() {
         bPause.setEnabled(true);
         bPlay.setEnabled(false);
