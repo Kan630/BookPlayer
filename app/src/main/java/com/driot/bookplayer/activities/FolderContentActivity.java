@@ -85,38 +85,5 @@ public class FolderContentActivity extends LifecycleLoggingActivity {
         Log.d("titi " + TAG + " ",str);
         System.out.println(str);
     }
-
-    /*
-    @Override
-    protected void onStart() {
-        super.onStart();
-        myLog("::OnStart()");
-
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        myLog("::OnStop()");
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        myLog("::OnResume()");
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        myLog("::OnPause()");
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        myLog("::OnDestroy()");
-    }
-*/
 }
 

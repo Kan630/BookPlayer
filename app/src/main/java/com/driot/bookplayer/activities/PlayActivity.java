@@ -21,10 +21,13 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.ZikFile;
 
 import java.io.IOException;
+import java.sql.Date;
 import java.sql.Time;
 import java.util.List;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+
+import static com.driot.bookplayer.utils.Tonio.FormatTime;
 
 
 public class PlayActivity extends LifecycleLoggingActivity {
@@ -51,7 +54,8 @@ public class PlayActivity extends LifecycleLoggingActivity {
     private SeekBar seekbar;
     private TextView txSeekBar,txTempsTotal,txNomFichier, txTitle, txSubTitle;
     private ZikFile currentZikFile;
-    private Time zikFileAccessFirstTime;
+    //private Time zikFileAccessFirstTime;
+    private Date zikFileAccessFirstTime;
     private int idCurrentZikFile;
 
     /********************************************************************************
@@ -137,7 +141,8 @@ public class PlayActivity extends LifecycleLoggingActivity {
                 if (fromUser) {
                     currentProgress = progress;
                     mediaPlayer.seekTo(progress);
-                    txSeekBar.setText(GetBarTime("start"));
+                    //txSeekBar.setText(GetBarTime("start"));
+                    txSeekBar.setText(FormatTime(currentProgress));
                 }
             }
             @Override
@@ -270,14 +275,16 @@ public class PlayActivity extends LifecycleLoggingActivity {
     }
     private void Initialize() {
         currentProgress = currentZikFile.getPosition();
-        zikFileAccessFirstTime = new Time(System.currentTimeMillis());
+        //zikFileAccessFirstTime = new Time(System.currentTimeMillis());
+        zikFileAccessFirstTime = new Date(System.currentTimeMillis());
 
         updateZikFileState(currentZikFile);
 
         finalTime = mediaPlayer.getDuration();
         seekbar.setMax((int) finalTime);
         mediaPlayer.seekTo((int)currentProgress);
-        txTempsTotal.setText(GetBarTime("final"));
+        //txTempsTotal.setText(GetBarTime("final"));
+        txSeekBar.setText(FormatTime(finalTime));
         redrawSeekBar();
     }
 
@@ -288,9 +295,13 @@ public class PlayActivity extends LifecycleLoggingActivity {
     private void updateZikFileState(ZikFile zikFile) {
 
         if (zikFile.getFirstaccess() == null) { zikFile.setFirstaccess(zikFileAccessFirstTime); }
-        final Time sLastAccess = new Time(System.currentTimeMillis());
+        final Time sLastAccessTime = new Time(System.currentTimeMillis());
+        final Date sLastAccess = new Date(System.currentTimeMillis());
         zikFile.setLastaccess(sLastAccess);
+        zikFile.setLastaccessTime(sLastAccessTime);
         zikFile.setPosition(currentProgress);
+        zikFile.setPercentdone(caclulatePercent());
+        if (zikFile.getLength() == 0) { zikFile.setLength(finalTime); }
 
         class UpdateZikFileState extends AsyncTask<Void, Void, Void> {
 
@@ -323,7 +334,8 @@ public class PlayActivity extends LifecycleLoggingActivity {
     };
     private void redrawSeekBar() {
         //if (mediaPlayer.isPlaying()) {
-            txSeekBar.setText(GetBarTime("start"));
+            //txSeekBar.setText(GetBarTime("start"));
+        txSeekBar.setText(FormatTime(currentProgress));
             seekbar.setProgress((int)currentProgress);
         //}
     }
@@ -343,7 +355,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
     }
 
 
-
+/*
     private String GetBarTime(String zeType) {
         String myReturn = "";
         switch (zeType) {
@@ -364,7 +376,15 @@ public class PlayActivity extends LifecycleLoggingActivity {
         }
         return myReturn;
     }
+  */
 
+
+    private double caclulatePercent() {
+        double ret = currentProgress/finalTime;
+        if (ret<0) {ret=0;}
+        if (ret>100) {ret=100;}
+        return ret;
+    }
 
     /********************************************************************************
      ***       DIVERS FONCTIONS
