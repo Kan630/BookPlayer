@@ -1,7 +1,15 @@
 package com.driot.bookplayer.utils;
 
+import android.annotation.SuppressLint;
 import android.util.Log;
+import android.webkit.MimeTypeMap;
 
+import androidx.annotation.NonNull;
+
+import java.io.File;
+import java.sql.Date;
+import java.sql.Time;
+import java.text.SimpleDateFormat;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -27,5 +35,69 @@ public class Tonio {
             s = "";
         }
         return s;
+    }
+
+    public static String FormatPercentString(Double d) {
+        String str;
+        if (d != null) {
+            d = d*100;
+            str = d.toString().substring(0,2);
+            if (str.substring(1).equals(".")) {str=str.substring(0,1);}
+            str = str + " %";
+        } else {
+            str = "";
+        }
+        return str;
+    }
+    public static int FormatPercentInt(Double d) {
+        int i;
+        if (d != null) {
+            d = d * 100;
+            i = d.intValue();
+            if (i < 0) {
+                i = 0;
+            }
+            if (i > 100) {
+                i = 100;
+            }
+        } else {
+            i = 0;
+        }
+        return i;
+    }
+    public static String FormatLastAccess(Date d, Time t) {
+        String s;
+        if (d != null && t != null) {
+            Date d2 = new Date(System.currentTimeMillis());
+            String s1 = d.toString();
+            String s2 = d2.toString();
+            // check if date same as today
+            if (s1.equals(s2)) {
+                // Give time :
+                s = t.toString();
+                s = s.substring(0, 5);
+            } else {
+                //give date :
+                @SuppressLint("SimpleDateFormat") SimpleDateFormat simpleDate =  new SimpleDateFormat("dd/MM/yyyy");
+                s = simpleDate.format(d);
+            }
+        } else {
+            s = " ";
+        }
+        return s;
+    }
+
+    @NonNull
+    static String getMimeType(@NonNull File file) {
+        String type = null;
+        final String url = file.toString();
+        final String extension = MimeTypeMap.getFileExtensionFromUrl(url);
+        if (extension != null) {
+            type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension.toLowerCase());
+        }
+        if (type == null) {
+            type = "image/*"; // fallback type. You might set it to */*
+        }
+        return type;
     }
 }

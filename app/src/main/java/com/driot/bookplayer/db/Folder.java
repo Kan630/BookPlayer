@@ -43,7 +43,10 @@ public class Folder implements Serializable {
     private Time firstaccess;
 
     @ColumnInfo(name = "lastaccess")
-    private Time lastaccess;
+    private Date lastaccess;
+
+    @ColumnInfo(name = "lastaccessTime")
+    private Time lastaccessTime;
 
     @ColumnInfo(name = "finished")
     private boolean finished;
@@ -125,12 +128,20 @@ public class Folder implements Serializable {
         this.firstaccess = firstaccess;
     }
 
-    public Time getLastaccess() {
+    public Date getLastaccess() {
         return lastaccess;
     }
 
-    public void setLastaccess(Time lastaccess) {
+    public void setLastaccess(Date lastaccess) {
         this.lastaccess = lastaccess;
+    }
+
+    public Time getLastaccessTime() {
+        return lastaccessTime;
+    }
+
+    public void setLastaccessTime(Time lastaccessTime) {
+        this.lastaccessTime = lastaccessTime;
     }
 
     public boolean isFinished() {

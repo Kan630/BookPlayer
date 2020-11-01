@@ -20,6 +20,8 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.ZikFile;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.io.File;
+import java.sql.Date;
 import java.sql.Time;
 import java.util.List;
 
@@ -88,40 +90,13 @@ public class MainActivity extends LifecycleLoggingActivity {
     gt.execute();
     }
 
-    private void checkIfAddedFolderExist() {
 
-        class CheckIfAddedFolderExist extends AsyncTask<Void, Void, Boolean> {
-
-            @Override
-            protected Boolean doInBackground(Void... voids) {
-                boolean bcheckIfFolderExist = false;
-                long lcheckIfFolderExist = DatabaseClient
-                        .getInstance(getApplicationContext())
-                        .getAppDatabase()
-                        .FolderDao()
-                        .folderAlreadyExist(sAddedFolderUri,sAddedFolderHash);
-                if (lcheckIfFolderExist>0) { bcheckIfFolderExist = true;}
-                return bcheckIfFolderExist;
-            }
-
-            @Override
-            protected void onPostExecute(Boolean bb) {
-                super.onPostExecute(bb);
-                if (bb) {
-                    Toast.makeText(MainActivity.this, "Ce dossier a déjà été importé", Toast.LENGTH_SHORT);
-                } else {
-                    // TODO vérifier que au moins un fichier mp3
-                    myZikFileList = pickedDir.listFiles();
-                    if (myZikFileList.length > 0) {
-                        saveFolder();
-                    }
-                }
-            }
-        }
-        CheckIfAddedFolderExist gt = new CheckIfAddedFolderExist();
-        gt.execute();
-    }
-
+    /********************************************************************************
+     * ******************************************************************************
+     ***        AJOUT NOUVEAU DOSSIER
+     ********************************************************************************
+     ********************************************************************************
+     */
 
     public void performFileSearch() {
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
@@ -145,10 +120,19 @@ public class MainActivity extends LifecycleLoggingActivity {
             // nom par défaut = les deux derniers folders :
             // ex  : "S3 - Finances publiques/Audios"
             sAddedFolderPath = pickedDir.getUri().getLastPathSegment();
-            String str = sAddedFolderPath;
+            String str = sAddedFolderPath.replace(":","/");
+            Log.d("toto",str);
             int pos1 = str.lastIndexOf("/");
-            int pos2 =  str.substring(0,pos1).lastIndexOf("/",pos1);
-            sAddedFolderName = str.substring(pos2+1);
+            if (pos1>-1) {
+                int pos2 =  str.substring(0,pos1).lastIndexOf("/",pos1);
+                if (pos2>-1) {
+                    sAddedFolderName = str.substring(pos2+1);
+                } else {
+                    sAddedFolderName = str.substring(pos1+1);
+                }
+            }
+
+
 
             // On vérifie qu'on a pas deja le loustic
 
@@ -161,17 +145,63 @@ public class MainActivity extends LifecycleLoggingActivity {
                 */
                 checkIfAddedFolderExist();
             } else {
-                Toast.makeText(getBaseContext(), "Le dossier a importé n'est pas reconnu", Toast.LENGTH_SHORT);
+                Log.d("toto","Ce n'est pas un dossier");
+                Toast.makeText(getApplicationContext(), "Le dossier a importé n'est pas reconnu", Toast.LENGTH_SHORT);
             }
         }
     }
 
+    private void checkIfAddedFolderExist() {
+
+        class CheckIfAddedFolderExist extends AsyncTask<Void, Void, Boolean> {
+
+            @Override
+            protected Boolean doInBackground(Void... voids) {
+                boolean bcheckIfFolderExist = false;
+                long lcheckIfFolderExist = DatabaseClient
+                        .getInstance(getApplicationContext())
+                        .getAppDatabase()
+                        .FolderDao()
+                        .folderAlreadyExist(sAddedFolderUri,sAddedFolderHash);
+                if (lcheckIfFolderExist>0) { bcheckIfFolderExist = true;}
+                return bcheckIfFolderExist;
+            }
+
+            @Override
+            protected void onPostExecute(Boolean bb) {
+                super.onPostExecute(bb);
+                if (bb) {
+                    myZikFileList = pickedDir.listFiles();
+                    Log.d("toto","Dossier deja importé");
+                    Toast.makeText(MainActivity.this, "Ce dossier a déjà été importé", Toast.LENGTH_SHORT).show();
+                } else {
+                    // on vérifie que le dossier contient au moins un fichier media
+                    myZikFileList = pickedDir.listFiles();
+                    boolean atLeastOneMedia = false;
+                    for (DocumentFile f:myZikFileList) { //check myZikFileList.length > 0 ??
+                        if (f.getType().equals("audio/mpeg")) {
+                            atLeastOneMedia = true;
+                        }
+                    }
+                    if (!atLeastOneMedia) {
+                        Log.d("toto","Pas de medias dans ce dossier");
+                        Toast.makeText(MainActivity.this, "Pas de medias dans ce dossier", Toast.LENGTH_SHORT).show();
+                    } else {
+                        saveFolder();
+                    }
+                }
+            }
+        }
+        CheckIfAddedFolderExist gt = new CheckIfAddedFolderExist();
+        gt.execute();
+    }
 
     private void saveFolder() {
 
         final Double sPercent = 0.0;
         final Time sFirstAccess = new Time(System.currentTimeMillis());
-        final Time sLastAccess = new Time(System.currentTimeMillis());
+        final Date sLastAccess = new Date(System.currentTimeMillis());
+        final Time sLastAccessTime = new Time(System.currentTimeMillis());
 
         class SaveFolder extends AsyncTask<Void, Void, Void> {
 
@@ -187,6 +217,7 @@ public class MainActivity extends LifecycleLoggingActivity {
                 folder.setPercentdone(sPercent);
                 folder.setFirstaccess(sFirstAccess);
                 folder.setLastaccess(sLastAccess);
+                folder.setLastaccessTime(sLastAccessTime);
                 folder.setFinished(false);
 
                 //adding to database
@@ -201,7 +232,9 @@ public class MainActivity extends LifecycleLoggingActivity {
                 super.onPostExecute(aVoid);
                 //finish();
                 for (DocumentFile file :myZikFileList) {
-                    saveFile(file.getName(), InsertedFolderId[0]);
+                    if (file.getType().equals("audio/mpeg")) {
+                        saveFile(file.getName(), InsertedFolderId[0]);
+                    }
                 }
             }
         }
@@ -228,6 +261,9 @@ public class MainActivity extends LifecycleLoggingActivity {
                 zikFile.setPosition(iPosition);
                 String sFilePath = "/storage/" + sAddedFolderPath.replace(":","/");
                 zikFile.setPath(sFilePath);
+                File f = new File(sFilePath);
+                //File file = new File(Uri.parse("/sdcard/lala.txt").getPath());
+                zikFile.setSize(f.length());
 
                 //adding to database
                 DatabaseClient.getInstance(getApplicationContext()).getAppDatabase()
@@ -261,36 +297,4 @@ public class MainActivity extends LifecycleLoggingActivity {
         System.out.println(str);
     }
 
-    /*
-    @Override
-    protected void onStart() {
-        super.onStart();
-        myLog("::OnStart()");
-
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        myLog("::OnStop()");
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        myLog("::OnResume()");
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        myLog("::OnPause()");
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        myLog("::OnDestroy()");
-    }
-*/
 }

@@ -42,6 +42,9 @@ public class ZikFile implements Serializable {
     @ColumnInfo(name = "length")
     private double length;
 
+    @ColumnInfo(name = "size")
+    private double size;
+
     @ColumnInfo(name = "percentdone")
     private Double percentdone;
 
@@ -152,6 +155,14 @@ public class ZikFile implements Serializable {
         this.idFolder = idFolder;
     }
 
+    public double getSize() {
+        return size;
+    }
+
+    public void setSize(double size) {
+        this.size = size;
+    }
+
     @Override
     public String toString() {
         return "ZikFile{" +
@@ -162,9 +173,11 @@ public class ZikFile implements Serializable {
                 ", folderName='" + folderName + '\'' +
                 ", position=" + position +
                 ", length=" + length +
+                ", size=" + size +
                 ", percentdone=" + percentdone +
                 ", firstaccess=" + firstaccess +
                 ", lastaccess=" + lastaccess +
+                ", lastaccessTime=" + lastaccessTime +
                 ", finished=" + finished +
                 '}';
     }

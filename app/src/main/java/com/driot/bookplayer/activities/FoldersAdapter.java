@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
@@ -17,6 +18,11 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.Folder;
 
 import java.util.List;
+
+import static com.driot.bookplayer.utils.Tonio.FormatLastAccess;
+import static com.driot.bookplayer.utils.Tonio.FormatPercentInt;
+import static com.driot.bookplayer.utils.Tonio.FormatPercentString;
+import static com.driot.bookplayer.utils.Tonio.FormatTime;
 
 public class FoldersAdapter extends RecyclerView.Adapter<FoldersAdapter.FoldersViewHolder> {
 
@@ -40,6 +46,17 @@ public class FoldersAdapter extends RecyclerView.Adapter<FoldersAdapter.FoldersV
         holder.textViewFileName.setText(t.getName());
         holder.textViewFilePercent.setText(t.getPercentdone().toString());
         holder.textViewFileLastAccess.setText(t.getLastaccess().toString());
+
+        holder.textViewFilePercent.setText(FormatPercentString(t.getPercentdone()));
+
+        holder.mProgressBar.setProgress(FormatPercentInt(t.getPercentdone()));
+
+        holder.textViewFileLastAccess.setText(FormatLastAccess(t.getLastaccess(),t.getLastaccessTime()));
+
+        //holder.textViewLength.setText(FormatTime(t.getLength()));
+        holder.textViewLength.setText("");
+
+
     }
 
     @Override
@@ -49,7 +66,8 @@ public class FoldersAdapter extends RecyclerView.Adapter<FoldersAdapter.FoldersV
 
         class FoldersViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
 
-            TextView textViewFileName, textViewFilePercent, textViewFileLastAccess;
+            TextView textViewFileName, textViewFileLastAccess, textViewFilePercent, textViewLength;
+            ProgressBar mProgressBar;
 
             public FoldersViewHolder(View itemView) {
                 super(itemView);
@@ -57,6 +75,8 @@ public class FoldersAdapter extends RecyclerView.Adapter<FoldersAdapter.FoldersV
                 textViewFileName = itemView.findViewById(R.id.textViewFileName);
                 textViewFilePercent = itemView.findViewById(R.id.textViewFilePercent);
                 textViewFileLastAccess = itemView.findViewById(R.id.textViewFileLastAccess);
+                textViewLength =  itemView.findViewById(R.id.textViewLength);
+                mProgressBar = itemView.findViewById(R.id.progressBar);
 
                 itemView.setOnClickListener(this);
                 itemView.setOnLongClickListener(this);
