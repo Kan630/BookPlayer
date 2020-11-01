@@ -3,6 +3,22 @@ package com.driot.bookplayer.activities;
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
+/** onCreate
+ *  onStart
+ *  onResume
+ *
+ *  //ecran noir        //ecran flip                //back button
+ *  onPause             onPause                     onPause
+ *  onStop              onStop                      onStop
+ *  onSaveInstance      onSaveInstanceState         onDestroy
+ *                      onDestroy
+ *  onRestart           onCreate                    onCreate
+ *  onStart             onStart                     onStart
+ *  onResume            onRestaureInstanceState     onResume
+ *                      onResume
+ *
+ */
+
 
 /**
  * This abstract class extends the Activity class and overrides

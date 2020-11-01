@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
 public class PlayActivity extends LifecycleLoggingActivity {
 
     static final int REQUEST_READ_SD_CARD = 1;
-    static final String TAG = "PlayActivity.java";
+    static final String TAG = "PlayActivity";
 
     private Button bForward,bPause,bPlay,bRewind;
     private ImageView iv;
@@ -58,13 +58,12 @@ public class PlayActivity extends LifecycleLoggingActivity {
      ***       GESTION FLIP ECRAN
      ********************************************************************************
      */
+
     @Override
-    protected void onSaveInstanceState(Bundle outState)
+    protected void onSaveInstanceState(Bundle outState) // entre stop et destroy
     {
         super.onSaveInstanceState(outState);
-        outState.putDouble("position", currentProgress);
-        myLog("SaveInstance - Time is " + currentProgress);
-        if (mediaPlayer.isPlaying()) {
+        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
             outState.putBoolean("wasPlaying", true);
             mediaPlayer.pause();
         } else {
@@ -72,25 +71,23 @@ public class PlayActivity extends LifecycleLoggingActivity {
         }
     }
     @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState)
+    protected void onRestoreInstanceState(Bundle savedInstanceState) // apres onStart
     {
-        boolean wasPlaying = savedInstanceState.getBoolean("wasPlaying",false);
-        currentProgress = savedInstanceState.getDouble("position");
-        myLog("RestaureInstance - Time is " + currentProgress);
-        if (wasPlaying) {
-            mediaPlayer.seekTo((int)currentProgress);
-            mediaPlayer.start();
-        }
         super.onRestoreInstanceState(savedInstanceState);
+        boolean wasPlaying = savedInstanceState.getBoolean("wasPlaying",false);
+        if (wasPlaying) {
+            mediaPlayer.start();
+            myHandler.postDelayed(UpdateSongTime,INTERVAL_REDRAW_SEEKBAR);
+        }
     }
-    @Override
+
 
 
     /********************************************************************************
      ***       ON CREATE
      ********************************************************************************
      */
-
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_play);
@@ -112,10 +109,26 @@ public class PlayActivity extends LifecycleLoggingActivity {
         //ZikFile zikFile = getIntent().getParcelableExtra("zikFile");
 
         myLog("Initial Time is " + currentProgress);
-        ZikFile ZikFileFromIntent = (ZikFile) getIntent().getSerializableExtra("ZikFile");
-        Log.d("titi","Passed Intent in PlayActivity : " + ZikFileFromIntent.toString());
+        ZikFile zikFileFromIntent = (ZikFile) getIntent().getSerializableExtra("ZikFile");
+        Log.d("titi","Passed Intent in PlayActivity : " + zikFileFromIntent.toString());
+        idCurrentZikFile = zikFileFromIntent.getId();
 
-        idCurrentZikFile = ZikFileFromIntent.getId();
+        txSubTitle.setText(zikFileFromIntent.getName());
+        txTitle.setText(zikFileFromIntent.getFolderName());
+        String filePath = zikFileFromIntent.getPath() + "/" + zikFileFromIntent.getName();   //"/storage/0123-4567/Droit/09 00.mp3"
+
+        /*
+        // DEBUG : check file exist
+        File f = new File(filePath);
+        if (f.exists()) { Log.d("titi","ok file found : " + filePath);} else {Log.d("titi","KO file not found : " + filePath);}
+        */
+
+        // TODO, use openFileDescriptor & remove legacy from manifest
+        mediaPlayer = new MediaPlayer();
+        try {mediaPlayer.setDataSource(filePath);} catch (IOException e) {e.printStackTrace();}
+        try {mediaPlayer.prepare();} catch (IOException e) {e.printStackTrace();myLog("check permissions");}
+        if (mediaPlayer == null) {Log.d("titi","Media Player creation failed");}
+
         getZikFile(idCurrentZikFile);
 
         /********************************************************************************
@@ -175,6 +188,10 @@ public class PlayActivity extends LifecycleLoggingActivity {
             }
         });
 
+        /********************************************************************************
+         ***       BUTTONS AVANCE & RETOUR RAPIDE
+         ********************************************************************************
+         */
         bForward.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -183,6 +200,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
                 if((temp+forwardTime)<=finalTime){
                     currentProgress = currentProgress + forwardTime;
                     mediaPlayer.seekTo((int) currentProgress);
+                    redrawSeekBar();
                 }
             }
         });
@@ -195,21 +213,42 @@ public class PlayActivity extends LifecycleLoggingActivity {
                 if((temp-backwardTime)>0){
                     currentProgress = currentProgress - backwardTime;
                     mediaPlayer.seekTo((int) currentProgress);
+                    redrawSeekBar();
                 }
             }
         });
-
     }
-
+    /********************************************************************************
+     ***       DESTROY
+     * Fleche Retour Arriere ou Change Inclinaison
+     ********************************************************************************
+     */
+    @Override
+    protected void onPause() {
+        super.onPause();
+        currentProgress = mediaPlayer.getCurrentPosition();
+        myLog("onPause CurrentProgress : " + currentProgress);
+        updateZikFileState(currentZikFile);
+    }
     @Override
     protected void onDestroy() {
         super.onDestroy();
         myLog("::OnDestroy()");
         myLog("1 Time is " + currentProgress);
-        mediaPlayer.release();
+        stopAudio();
         myLog("2 Time is " + currentProgress);
     }
 
+    private void stopAudio() {
+        if (mediaPlayer != null) {
+            if (mediaPlayer.isPlaying()) {
+                mediaPlayer.stop();
+                updateZikFileState(currentZikFile);
+            }
+            mediaPlayer.release();
+            mediaPlayer = null;
+        }
+    }
     /********************************************************************************
      ***       GET FROM DB
      ********************************************************************************
@@ -232,6 +271,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
             protected void onPostExecute(ZikFile zikFile) {
                 super.onPostExecute(zikFile);
                 currentZikFile = zikFile;
+                myLog("onPostExecuteGetZikFileFromId() - Time is " + currentProgress);
                 Initialize();
             }
         }
@@ -239,35 +279,18 @@ public class PlayActivity extends LifecycleLoggingActivity {
         gt.execute();
     }
     private void Initialize() {
-        Log.d("titi","Passed Intent in PlayActivity : " + currentZikFile.toString());
+        Log.d("titi","Initialize");
         currentProgress = currentZikFile.getPosition();
         zikFileAccessFirstTime = new Time(System.currentTimeMillis());
         myLog("Start Time is " + currentProgress);
-        txSubTitle.setText(currentZikFile.getName());
-        txTitle.setText(currentZikFile.getFolderName());
-        String filePath = currentZikFile.getPath() + "/" + currentZikFile.getName();   //"/storage/0123-4567/Droit/09 00.mp3"
-
 
         updateZikFileState(currentZikFile);
         myLog("updated on start : " + currentZikFile.getId());
-        /*
-        // DEBUG : check file exist
-        File f = new File(filePath);
-        if (f.exists()) { Log.d("titi","ok file found : " + filePath);} else {Log.d("titi","KO file not found : " + filePath);}
-        */
-
-        // TODO, use openFileDescriptor & remove legacy from manifest
-        mediaPlayer = new MediaPlayer();
-        try {mediaPlayer.setDataSource(filePath);} catch (IOException e) {e.printStackTrace();}
-        try {mediaPlayer.prepare();} catch (IOException e) {e.printStackTrace();myLog("check permissions");}
-        if (mediaPlayer == null) {Log.d("titi","Media Player creation failed");}
 
         finalTime = mediaPlayer.getDuration();
         myLog("Final Time is " + finalTime);
         seekbar.setMax((int) finalTime);
-
         mediaPlayer.seekTo((int)currentProgress);
-
         txTempsTotal.setText(GetBarTime("final"));
         redrawSeekBar();
 
@@ -307,7 +330,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
      */
     private Runnable UpdateSongTime = new Runnable() {
         public void run() {
-            if (mediaPlayer.isPlaying()) {
+            if (mediaPlayer != null && mediaPlayer.isPlaying()) {
                 currentProgress = mediaPlayer.getCurrentPosition();
                 redrawSeekBar();
                 myHandler.postDelayed(this, INTERVAL_REDRAW_SEEKBAR);
@@ -316,10 +339,10 @@ public class PlayActivity extends LifecycleLoggingActivity {
         }
     };
     private void redrawSeekBar() {
-        if (mediaPlayer.isPlaying()) {
+        //if (mediaPlayer.isPlaying()) {
             txSeekBar.setText(GetBarTime("start"));
             seekbar.setProgress((int)currentProgress);
-        }
+        //}
     }
 
 
