@@ -10,6 +10,9 @@ import java.io.File;
 import java.sql.Date;
 import java.sql.Time;
 import java.text.SimpleDateFormat;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -26,7 +29,7 @@ public class Tonio {
     public static String FormatTime(double doubleTime) {
         String s;
         if (doubleTime>0) {
-            s= String.format("%d min, %d sec",
+            s= String.format(Locale.getDefault(), "%d min, %d sec",
                     TimeUnit.MILLISECONDS.toMinutes((long) doubleTime),
                     TimeUnit.MILLISECONDS.toSeconds((long) doubleTime) -
                             TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long)
@@ -78,7 +81,7 @@ public class Tonio {
                 s = s.substring(0, 5);
             } else {
                 //give date :
-                @SuppressLint("SimpleDateFormat") SimpleDateFormat simpleDate =  new SimpleDateFormat("dd/MM/yyyy");
+                SimpleDateFormat simpleDate =  new SimpleDateFormat("dd/MM/yyyy");
                 s = simpleDate.format(d);
             }
         } else {

@@ -132,10 +132,7 @@ public class MainActivity extends LifecycleLoggingActivity {
                 }
             }
 
-
-
             // On vérifie qu'on a pas deja le loustic
-
             if (pickedDir.isDirectory()) {
                 /*
                 Log.d("titi", "treeUri get path : " + treeUri.getPath());
@@ -146,7 +143,7 @@ public class MainActivity extends LifecycleLoggingActivity {
                 checkIfAddedFolderExist();
             } else {
                 Log.d("toto","Ce n'est pas un dossier");
-                Toast.makeText(getApplicationContext(), "Le dossier a importé n'est pas reconnu", Toast.LENGTH_SHORT);
+                Toast.makeText(getApplicationContext(), "Cet élément n'est pas reconnu comme un dossier", Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -178,9 +175,13 @@ public class MainActivity extends LifecycleLoggingActivity {
                     // on vérifie que le dossier contient au moins un fichier media
                     myZikFileList = pickedDir.listFiles();
                     boolean atLeastOneMedia = false;
-                    for (DocumentFile f:myZikFileList) { //check myZikFileList.length > 0 ??
-                        if (f.getType().equals("audio/mpeg")) {
-                            atLeastOneMedia = true;
+                    if (myZikFileList.length > 0) {
+                        for (DocumentFile f:myZikFileList) { //check myZikFileList.length > 0 ??
+                            if (f.getType() != null) {
+                                if (f.getType().equals("audio/mpeg")) {
+                                    atLeastOneMedia = true;
+                                }
+                            }
                         }
                     }
                     if (!atLeastOneMedia) {
