@@ -81,8 +81,6 @@ public class PlayActivity extends LifecycleLoggingActivity {
         }
     }
 
-
-
     /********************************************************************************
      ***       ON CREATE
      ********************************************************************************
@@ -108,9 +106,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
         // TODO, use Parcelable
         //ZikFile zikFile = getIntent().getParcelableExtra("zikFile");
 
-        myLog("Initial Time is " + currentProgress);
         ZikFile zikFileFromIntent = (ZikFile) getIntent().getSerializableExtra("ZikFile");
-        Log.d("titi","Passed Intent in PlayActivity : " + zikFileFromIntent.toString());
         idCurrentZikFile = zikFileFromIntent.getId();
 
         txSubTitle.setText(zikFileFromIntent.getName());
@@ -142,7 +138,6 @@ public class PlayActivity extends LifecycleLoggingActivity {
                     currentProgress = progress;
                     mediaPlayer.seekTo(progress);
                     txSeekBar.setText(GetBarTime("start"));
-                    myLog("User changes Progress Time : " + progress);
                 }
             }
             @Override
@@ -227,16 +222,12 @@ public class PlayActivity extends LifecycleLoggingActivity {
     protected void onPause() {
         super.onPause();
         currentProgress = mediaPlayer.getCurrentPosition();
-        myLog("onPause CurrentProgress : " + currentProgress);
         updateZikFileState(currentZikFile);
     }
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        myLog("::OnDestroy()");
-        myLog("1 Time is " + currentProgress);
         stopAudio();
-        myLog("2 Time is " + currentProgress);
     }
 
     private void stopAudio() {
@@ -271,7 +262,6 @@ public class PlayActivity extends LifecycleLoggingActivity {
             protected void onPostExecute(ZikFile zikFile) {
                 super.onPostExecute(zikFile);
                 currentZikFile = zikFile;
-                myLog("onPostExecuteGetZikFileFromId() - Time is " + currentProgress);
                 Initialize();
             }
         }
@@ -279,21 +269,16 @@ public class PlayActivity extends LifecycleLoggingActivity {
         gt.execute();
     }
     private void Initialize() {
-        Log.d("titi","Initialize");
         currentProgress = currentZikFile.getPosition();
         zikFileAccessFirstTime = new Time(System.currentTimeMillis());
-        myLog("Start Time is " + currentProgress);
 
         updateZikFileState(currentZikFile);
-        myLog("updated on start : " + currentZikFile.getId());
 
         finalTime = mediaPlayer.getDuration();
-        myLog("Final Time is " + finalTime);
         seekbar.setMax((int) finalTime);
         mediaPlayer.seekTo((int)currentProgress);
         txTempsTotal.setText(GetBarTime("final"));
         redrawSeekBar();
-
     }
 
     /********************************************************************************
@@ -305,7 +290,6 @@ public class PlayActivity extends LifecycleLoggingActivity {
         if (zikFile.getFirstaccess() == null) { zikFile.setFirstaccess(zikFileAccessFirstTime); }
         final Time sLastAccess = new Time(System.currentTimeMillis());
         zikFile.setLastaccess(sLastAccess);
-        myLog("updateZikFileState current position : " + currentProgress);
         zikFile.setPosition(currentProgress);
 
         class UpdateZikFileState extends AsyncTask<Void, Void, Void> {
@@ -334,7 +318,6 @@ public class PlayActivity extends LifecycleLoggingActivity {
                 currentProgress = mediaPlayer.getCurrentPosition();
                 redrawSeekBar();
                 myHandler.postDelayed(this, INTERVAL_REDRAW_SEEKBAR);
-                myLog("runnable current progress : " + currentProgress);
             }
         }
     };
@@ -383,9 +366,9 @@ public class PlayActivity extends LifecycleLoggingActivity {
     }
 
 
-    /********************
-     *
-     * END STUFF
+    /********************************************************************************
+     ***       DIVERS FONCTIONS
+     ********************************************************************************
      */
 
     private void myLog(String str) {
@@ -393,30 +376,4 @@ public class PlayActivity extends LifecycleLoggingActivity {
         Log.d("titi " + TAG + " ",str);
         System.out.println(str);
     }
-/*
-    @Override
-    protected void onStart() {
-        super.onStart();
-        myLog("::OnStart()");
-
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        myLog("::OnStop()");
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        myLog("::OnResume()");
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        myLog("::OnPause()");
-    }
-    */
 }
