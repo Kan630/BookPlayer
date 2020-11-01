@@ -2,4 +2,13 @@
 <resources>
     <dimen name="activity_horizontal_margin">10dp</dimen>
     <dimen name="activity_vertical_margin">10dp</dimen>
+
+
+    <dimen name="recyclerview_margin">3dp</dimen>
+    <dimen name="recyclerview_between_cardView">5dp</dimen>
+    <dimen name="recyclerview_elements_top">5dp</dimen>
+    <dimen name="recyclerview_elements_bottom">5dp</dimen>
+    <dimen name="recyclerview_elements_sides">3dp</dimen>
+    <dimen name="recyclerview_padding_text">1dp</dimen>
+
 </resources>

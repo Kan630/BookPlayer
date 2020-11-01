@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">BookPlayer</string>
-    <string name="hintprompt">Liste des dossiers</string>
+    <string name="title_FolderList">Liste des dossiers</string>
+    <string name="title_FolderContent">Liste des fichiers</string>
+
 
     <string name="back"><![CDATA[<]]></string>
     <string name="play"><![CDATA[>]]></string>
