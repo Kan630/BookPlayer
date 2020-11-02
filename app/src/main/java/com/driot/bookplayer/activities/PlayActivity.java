@@ -446,7 +446,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
     private Runnable UpdateSongTime = new Runnable() {
         public void run() {
             //if (mediaPlayer != null && mediaPlayer.isPlaying()) {
-            if (mService != null && mService.isPlaying()) {
+            if (mService != null && mService.exist() && mService.isPlaying()) {
                 //currentProgress = mediaPlayer.getCurrentPosition();
                 redrawSeekBar();
                 myHandler.postDelayed(this, INTERVAL_REDRAW_SEEKBAR);
@@ -532,7 +532,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
             BackgroundService.BackgroundBinder binder = (BackgroundService.BackgroundBinder) service;
             mService = binder.getService();
             mBound = true;
-             {mService.loadFile(filePath);}
+            mService.loadFile(filePath);
             getZikFile(idCurrentZikFile);
         }
 

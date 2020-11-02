@@ -30,6 +30,7 @@ public class BackgroundService extends Service {
     private final Random mGenerator = new Random();
 
     private MediaPlayer mediaPlayer;
+    private boolean fileHasBeenLoaded = false;
 
     /**
      * Class used for the client Binder.  Because we know this service always
@@ -65,18 +66,21 @@ public class BackgroundService extends Service {
 
     // TODO, use openFileDescriptor & remove legacy from manifest
     public void loadFile(String sPath) {
-        Log.d("toto", "Loading File " + sPath);
-        try {
-            mediaPlayer.setDataSource(sPath);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        try {
-            mediaPlayer.prepare();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        if (mediaPlayer == null) {
+        if (!fileHasBeenLoaded) {
+            Log.d("toto", "Loading File " + sPath);
+            try {
+                mediaPlayer.setDataSource(sPath);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            try {
+                mediaPlayer.prepare();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            fileHasBeenLoaded=true;
+        } else {
+            Log.d("toto", "File was already loaded !! " + sPath);
         }
     }
 
@@ -110,6 +114,14 @@ public class BackgroundService extends Service {
 
     public boolean isPlaying() {
         return mediaPlayer.isPlaying();
+    }
+    public boolean exist() {
+        if (mediaPlayer == null) {
+            return false;
+        } else {
+            return true;
+        }
+
     }
 
 
