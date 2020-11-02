@@ -20,7 +20,7 @@
         </activity>
         <activity android:name=".activities.PlayActivity" />
         <activity android:name=".activities.FolderContentActivity" />
-        <service android:name=".BackgroundService" />
+        <service android:name=".utils.AudioService" />
     </application>
 
 </manifest>

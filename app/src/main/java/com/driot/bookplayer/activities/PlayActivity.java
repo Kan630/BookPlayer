@@ -18,9 +18,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.driot.bookplayer.BackgroundService;
+import com.driot.bookplayer.utils.AudioService;
 import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.ZikFile;
@@ -55,7 +54,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
     private Date zikFileAccessFirstTime;
     private int idCurrentZikFile;
 
-    BackgroundService mService;
+    AudioService mService;
     boolean mBound = false;
     private Bundle bundleOnSavedinstance;
 
@@ -109,7 +108,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
         txSubTitle = (TextView) findViewById(R.id.textViewSubTitle);
         seekbar = (SeekBar) findViewById(R.id.seekBar);
 
-        Intent intentMusicService = new Intent(PlayActivity.this, BackgroundService.class);
+        Intent intentMusicService = new Intent(PlayActivity.this, AudioService.class);
         bindService(intentMusicService, connection, Context.BIND_AUTO_CREATE);
         Log.d("toto","Activity : bind to Service ");
 
@@ -335,7 +334,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
         public void onServiceConnected(ComponentName className,
                                        IBinder service) {
             // We've bound to LocalService, cast the IBinder and get LocalService instance
-            BackgroundService.BackgroundBinder binder = (BackgroundService.BackgroundBinder) service;
+            AudioService.BackgroundBinder binder = (AudioService.BackgroundBinder) service;
             mService = binder.getService();
             mBound = true;
             mService.loadFile(filePath);

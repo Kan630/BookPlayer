@@ -1,40 +1,38 @@
-package com.driot.bookplayer;
+package com.driot.bookplayer.utils;
 
 import android.app.Service;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Binder;
 import android.os.IBinder;
-import android.telephony.ClosedSubscriberGroupInfo;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
-import com.driot.bookplayer.activities.PlayActivity;
-
 import java.io.IOException;
-import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 01/11/20
  */
-public class BackgroundService extends Service {
+public class AudioService extends Service {
 
     private final IBinder binder = new BackgroundBinder();
-
-    private Timer timer;
-    private int increment = 0;
-    private final Random mGenerator = new Random();
 
     private MediaPlayer mediaPlayer;
     private boolean fileHasBeenLoaded = false;
 
-    /**
-     * Class used for the client Binder.  Because we know this service always
-     * runs in the same process as its clients, we don't need to deal with IPC.
+    // controle pour le debug...
+    private Timer timer;
+    private int increment = 0;
+
+
+    /********************************************************************************
+     ***       NATIVE METHODS
+     ********************************************************************************
+     *  Because service always runs in the same process as clients, no need IPC.
+     *
      */
     @Override
     public void onCreate() {
@@ -58,18 +56,45 @@ public class BackgroundService extends Service {
         Log.d("toto", "Service onStartCommand");
         return START_STICKY;
     }
-
-    /** method for clients */
-    public int getRandomNumber() {
-        return mGenerator.nextInt(100);
+    @Override
+    public void onDestroy() {
+        Log.d("toto", "Service onDestroy");
+        this.timer.cancel();
+        if (mediaPlayer.isPlaying()) {mediaPlayer.stop();}
+        mediaPlayer.release();
+        mediaPlayer = null;
     }
 
-            /*
-        // DEBUG : check file exist
-        File f = new File(filePath);
-        if (f.exists()) { Log.d("titi","ok file found : " + filePath);} else {Log.d("titi","KO file not found : " + filePath);}
-        */
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        Log.d("toto", "Service onBind");
+        return binder;
+    }
 
+    @Override
+    public boolean onUnbind(Intent intent) {
+        Log.d("toto", "Service onUnBind");
+        return super.onUnbind(intent);
+    }
+
+    public class BackgroundBinder extends Binder {
+        public AudioService getService() {
+            return AudioService.this;
+        }
+    }
+
+
+    /********************************************************************************
+     ***       USER METHODS
+     ********************************************************************************
+     */
+
+    // TODO, check File Exist
+        /*
+    File f = new File(filePath);
+    if (f.exists()) { Log.d("titi","ok file found : " + filePath);} else {Log.d("titi","KO file not found : " + filePath);}
+    */
 
     // TODO, use openFileDescriptor & remove legacy from manifest
     public void loadFile(String sPath) {
@@ -89,10 +114,6 @@ public class BackgroundService extends Service {
         } else {
             Log.d("toto", "File was already loaded !! " + sPath);
         }
-    }
-
-    public String getTrackInfo() {
-        return String.valueOf(mediaPlayer.getTrackInfo());
     }
 
     public void start() {
@@ -128,38 +149,8 @@ public class BackgroundService extends Service {
         } else {
             return true;
         }
-
     }
 
-
-    @Override
-    public void onDestroy() {
-        Log.d("toto", "Service onDestroy");
-        this.timer.cancel();
-        if (mediaPlayer.isPlaying()) {mediaPlayer.stop();}
-        mediaPlayer.release();
-        mediaPlayer = null;
-    }
-
-    @Nullable
-    @Override
-    public IBinder onBind(Intent intent) {
-        Log.d("toto", "Service onBind");
-        return binder;
-    }
-
-    @Override
-    public boolean onUnbind(Intent intent) {
-        Log.d("toto", "Service onUnBind");
-        return super.onUnbind(intent);
-    }
-
-    public class BackgroundBinder extends Binder {
-        public BackgroundService getService() {
-            // Return this instance of LocalService so clients can call public methods
-            return BackgroundService.this;
-        }
-    }
 
 
 }
