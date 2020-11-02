@@ -45,9 +45,9 @@ public class PlayActivity extends LifecycleLoggingActivity {
 
     private Button bForward, bPause, bPlay, bRewind;
     private ImageView iv;
-    private static MediaPlayer mediaPlayer;
+//    private static MediaPlayer mediaPlayer;
 
-    private double currentProgress = 0;
+//    private double currentProgress = 0;
     private double finalTime = 0;
 
     private boolean HasBeenInitialized = false;
@@ -63,13 +63,14 @@ public class PlayActivity extends LifecycleLoggingActivity {
     private SeekBar seekbar;
     private TextView txSeekBar, txTempsTotal, txNomFichier, txTitle, txSubTitle;
     private ZikFile currentZikFile;
+    private String filePath;
     //private Time zikFileAccessFirstTime;
     private Date zikFileAccessFirstTime;
     private int idCurrentZikFile;
 
-
     BackgroundService mService;
     boolean mBound = false;
+    private Bundle bundleOnSavedinstance;
 
     /********************************************************************************
      ***       GESTION FLIP ECRAN
@@ -80,12 +81,15 @@ public class PlayActivity extends LifecycleLoggingActivity {
     protected void onSaveInstanceState(Bundle outState) // entre stop et destroy
     {
         super.onSaveInstanceState(outState);
-        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+//        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+        if (mService != null && mService.isPlaying()) {
             outState.putBoolean("wasPlaying", true);
-            mediaPlayer.pause();
+            //mediaPlayer.pause();
+            //mService.pause();
         } else {
             outState.putBoolean("wasPlaying", false);
         }
+        bundleOnSavedinstance = outState;
     }
 
     @Override
@@ -94,19 +98,12 @@ public class PlayActivity extends LifecycleLoggingActivity {
         super.onRestoreInstanceState(savedInstanceState);
         boolean wasPlaying = savedInstanceState.getBoolean("wasPlaying", false);
         if (wasPlaying) {
-            mediaPlayer.start();
+//            mediaPlayer.start();
+            if (mService != null) {mService.start();}
             myHandler.postDelayed(UpdateSongTime, INTERVAL_REDRAW_SEEKBAR);
         }
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        // Bind to BackgroundService
-        Intent intentBGS = new Intent(PlayActivity.this, BackgroundService.class);
-        bindService(intentBGS, connection, Context.BIND_AUTO_CREATE);
-
-    }
     /********************************************************************************
      ***       ON CREATE
      ********************************************************************************
@@ -129,6 +126,11 @@ public class PlayActivity extends LifecycleLoggingActivity {
         txSubTitle = (TextView) findViewById(R.id.textViewSubTitle);
         seekbar = (SeekBar) findViewById(R.id.seekBar);
 
+        // Bind to BackgroundService
+        Intent intentBGS = new Intent(PlayActivity.this, BackgroundService.class);
+        bindService(intentBGS, connection, Context.BIND_AUTO_CREATE);
+        Log.d("toto","Activity : bind to Service ");
+
         // TODO, use Parcelable
         //ZikFile zikFile = getIntent().getParcelableExtra("zikFile");
 
@@ -137,7 +139,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
 
         txSubTitle.setText(zikFileFromIntent.getName());
         txTitle.setText(zikFileFromIntent.getFolderName());
-        String filePath = zikFileFromIntent.getPath() + "/" + zikFileFromIntent.getName();   //"/storage/0123-4567/Droit/09 00.mp3"
+        filePath = zikFileFromIntent.getPath() + "/" + zikFileFromIntent.getName();   //"/storage/0123-4567/Droit/09 00.mp3"
 
         /*
         // DEBUG : check file exist
@@ -146,7 +148,8 @@ public class PlayActivity extends LifecycleLoggingActivity {
         */
 
         // TODO, use openFileDescriptor & remove legacy from manifest
-        mediaPlayer = new MediaPlayer();
+/*
+//      mediaPlayer = new MediaPlayer();
         try {
             mediaPlayer.setDataSource(filePath);
         } catch (IOException e) {
@@ -161,8 +164,8 @@ public class PlayActivity extends LifecycleLoggingActivity {
         if (mediaPlayer == null) {
             Log.d("titi", "Media Player creation failed");
         }
+ */
 
-        getZikFile(idCurrentZikFile);
 
         /********************************************************************************
          ***       SEEKBAR
@@ -172,10 +175,10 @@ public class PlayActivity extends LifecycleLoggingActivity {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 if (fromUser) {
-                    currentProgress = progress;
-                    mediaPlayer.seekTo(progress);
-                    //txSeekBar.setText(GetBarTime("start"));
-                    txSeekBar.setText(FormatTime(currentProgress));
+                    mService.setPosition(progress);
+                    //currentProgress = progress;
+                    //mediaPlayer.seekTo(progress);
+                    txSeekBar.setText(FormatTime(progress));
                 }
             }
 
@@ -197,7 +200,8 @@ public class PlayActivity extends LifecycleLoggingActivity {
             public void onClick(View v) {
 
 
-                mediaPlayer.start();
+                //mediaPlayer.start();
+                mService.start();
                 SetInterfacePlayingMode();
 
                 if (mBound) {
@@ -263,7 +267,8 @@ public class PlayActivity extends LifecycleLoggingActivity {
         bPause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mediaPlayer.pause();
+                mService.pause();
+                //mediaPlayer.pause();
                 //UpdateSongTimeFuture.cancel(true);
                 SetInterfacePausingMode();
                 updateZikFileState(currentZikFile);
@@ -278,11 +283,13 @@ public class PlayActivity extends LifecycleLoggingActivity {
         bForward.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int temp = (int) currentProgress;
+                //int temp = (int) currentProgress;
+                int temp = mService.getPosition();
 
                 if ((temp + forwardTime) <= finalTime) {
-                    currentProgress = currentProgress + forwardTime;
-                    mediaPlayer.seekTo((int) currentProgress);
+                    //currentProgress = currentProgress + forwardTime;
+                    //mediaPlayer.seekTo((int) currentProgress);
+                    mService.setPosition(temp + forwardTime);
                     redrawSeekBar();
                 }
             }
@@ -291,11 +298,13 @@ public class PlayActivity extends LifecycleLoggingActivity {
         bRewind.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int temp = (int) currentProgress;
+                //int temp = (int) currentProgress;
+                int temp = mService.getPosition();
 
                 if ((temp - backwardTime) > 0) {
-                    currentProgress = currentProgress - backwardTime;
-                    mediaPlayer.seekTo((int) currentProgress);
+                    //currentProgress = currentProgress - backwardTime;
+                    //mediaPlayer.seekTo((int) currentProgress);
+                    mService.setPosition(temp - backwardTime);
                     redrawSeekBar();
                 }
             }
@@ -310,23 +319,33 @@ public class PlayActivity extends LifecycleLoggingActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        currentProgress = mediaPlayer.getCurrentPosition();
+        //currentProgress = mediaPlayer.getCurrentPosition();
         updateZikFileState(currentZikFile);
     }
     @Override
     protected void onStop() {
         super.onStop();
-        unbindService(connection);
         mBound = false;
+        bundleOnSavedinstance = null;
     }
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        stopAudio();
-        Intent intentBackGroundService = new Intent(this, BackgroundService.class);
-        stopService(intentBackGroundService);
+        //stopAudio();
+        boolean stopzeAudio = true;
+        if (bundleOnSavedinstance != null) {
+            boolean wasPlaying = bundleOnSavedinstance.getBoolean("wasPlaying", false);
+            if (wasPlaying) {
+                stopzeAudio = false ;
+            }
+        }
+        if (stopzeAudio) {
+            unbindService(connection);
+        }
+        //Intent intentBackGroundService = new Intent(this, BackgroundService.class);
+        //stopService(intentBackGroundService);
     }
-
+/*
     private void stopAudio() {
         if (mediaPlayer != null) {
             if (mediaPlayer.isPlaying()) {
@@ -337,7 +356,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
             mediaPlayer = null;
         }
     }
-
+*/
     /********************************************************************************
      ***       GET FROM DB
      ********************************************************************************
@@ -368,15 +387,17 @@ public class PlayActivity extends LifecycleLoggingActivity {
     }
 
     private void Initialize() {
-        currentProgress = currentZikFile.getPosition();
+        mService.setPosition((int) currentZikFile.getPosition());
+        //currentProgress = currentZikFile.getPosition();
         //zikFileAccessFirstTime = new Time(System.currentTimeMillis());
         zikFileAccessFirstTime = new Date(System.currentTimeMillis());
 
         updateZikFileState(currentZikFile);
 
-        finalTime = mediaPlayer.getDuration();
+        //finalTime = mediaPlayer.getDuration();
+        finalTime = mService.getDuration();
         seekbar.setMax((int) finalTime);
-        mediaPlayer.seekTo((int) currentProgress);
+        //mediaPlayer.seekTo((int) currentProgress);
         //txTempsTotal.setText(GetBarTime("final"));
         txSeekBar.setText(FormatTime(finalTime));
         redrawSeekBar();
@@ -395,7 +416,8 @@ public class PlayActivity extends LifecycleLoggingActivity {
         final Date sLastAccess = new Date(System.currentTimeMillis());
         zikFile.setLastaccess(sLastAccess);
         zikFile.setLastaccessTime(sLastAccessTime);
-        zikFile.setPosition(currentProgress);
+        //zikFile.setPosition(currentProgress);
+        zikFile.setPosition(mService.getPosition());
         zikFile.setPercentdone(caclulatePercent());
         if (zikFile.getLength() == 0) {
             zikFile.setLength(finalTime);
@@ -423,8 +445,9 @@ public class PlayActivity extends LifecycleLoggingActivity {
      */
     private Runnable UpdateSongTime = new Runnable() {
         public void run() {
-            if (mediaPlayer != null && mediaPlayer.isPlaying()) {
-                currentProgress = mediaPlayer.getCurrentPosition();
+            //if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+            if (mService != null && mService.isPlaying()) {
+                //currentProgress = mediaPlayer.getCurrentPosition();
                 redrawSeekBar();
                 myHandler.postDelayed(this, INTERVAL_REDRAW_SEEKBAR);
             }
@@ -434,8 +457,11 @@ public class PlayActivity extends LifecycleLoggingActivity {
     private void redrawSeekBar() {
         //if (mediaPlayer.isPlaying()) {
         //txSeekBar.setText(GetBarTime("start"));
-        txSeekBar.setText(FormatTime(currentProgress));
-        seekbar.setProgress((int) currentProgress);
+        //txSeekBar.setText(FormatTime(currentProgress));
+        //seekbar.setProgress((int) currentProgress);
+        int iPosition = mService.getPosition();
+        txSeekBar.setText(FormatTime(iPosition));
+        seekbar.setProgress(iPosition);
         //}
     }
 
@@ -480,7 +506,8 @@ public class PlayActivity extends LifecycleLoggingActivity {
 
 
     private double caclulatePercent() {
-        double ret = currentProgress / finalTime;
+        //double ret = currentProgress / finalTime;
+        double ret = mService.getPosition() / finalTime;
         if (ret < 0) {
             ret = 0;
         }
@@ -505,6 +532,8 @@ public class PlayActivity extends LifecycleLoggingActivity {
             BackgroundService.BackgroundBinder binder = (BackgroundService.BackgroundBinder) service;
             mService = binder.getService();
             mBound = true;
+             {mService.loadFile(filePath);}
+            getZikFile(idCurrentZikFile);
         }
 
         @Override
