@@ -64,6 +64,13 @@ public class BackgroundService extends Service {
         return mGenerator.nextInt(100);
     }
 
+            /*
+        // DEBUG : check file exist
+        File f = new File(filePath);
+        if (f.exists()) { Log.d("titi","ok file found : " + filePath);} else {Log.d("titi","KO file not found : " + filePath);}
+        */
+
+
     // TODO, use openFileDescriptor & remove legacy from manifest
     public void loadFile(String sPath) {
         if (!fileHasBeenLoaded) {
