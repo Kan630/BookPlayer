@@ -143,7 +143,7 @@ public class MainActivity extends LifecycleLoggingActivity {
                 checkIfAddedFolderExist();
             } else {
                 Log.d("toto","Ce n'est pas un dossier");
-                Toast.makeText(getApplicationContext(), "Cet élément n'est pas reconnu comme un dossier", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), getString(R.string.Error_MainActivity_IsNotFolder), Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -170,7 +170,7 @@ public class MainActivity extends LifecycleLoggingActivity {
                 if (bb) {
                     myZikFileList = pickedDir.listFiles();
                     Log.d("toto","Dossier deja importé");
-                    Toast.makeText(MainActivity.this, "Ce dossier a déjà été importé", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, getString(R.string.Error_MainActivity_FolderAlreadyImported), Toast.LENGTH_SHORT).show();
                 } else {
                     // on vérifie que le dossier contient au moins un fichier media
                     myZikFileList = pickedDir.listFiles();
@@ -186,7 +186,7 @@ public class MainActivity extends LifecycleLoggingActivity {
                     }
                     if (!atLeastOneMedia) {
                         Log.d("toto","Pas de medias dans ce dossier");
-                        Toast.makeText(MainActivity.this, "Pas de medias dans ce dossier", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MainActivity.this, getString(R.string.Error_MainActivity_NoMediaInFolder), Toast.LENGTH_SHORT).show();
                     } else {
                         saveFolder();
                     }
