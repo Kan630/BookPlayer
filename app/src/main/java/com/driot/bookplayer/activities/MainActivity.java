@@ -37,7 +37,7 @@ public class MainActivity extends LifecycleLoggingActivity {
     private FloatingActionButton btn_Add;
     public static final int READ_REQUEST_CODE = 107;
 
-    private long[] InsertedFolderId = {0};
+    private int[] InsertedFolderId = {0};
     private DocumentFile[] myZikFileList;
     private Handler myHandler = new Handler();;
 
@@ -228,7 +228,7 @@ public class MainActivity extends LifecycleLoggingActivity {
                 folder.setFinished(false);
 
                 //adding to database
-                InsertedFolderId[0] = DatabaseClient.getInstance(getApplicationContext()).getAppDatabase()
+                InsertedFolderId[0] = (int) DatabaseClient.getInstance(getApplicationContext()).getAppDatabase()
                         .FolderDao()
                         .insert(folder);
                 return null;
@@ -250,7 +250,7 @@ public class MainActivity extends LifecycleLoggingActivity {
         st.execute();
     }
 
-    private void saveFile(String sZikFileName, long lFolderId) {
+    private void saveFile(String sZikFileName, int mFolderId) {
 
         final Double dPercent = 0.0;
         final int iPosition = 0;
@@ -263,7 +263,7 @@ public class MainActivity extends LifecycleLoggingActivity {
                 //creating a Folder
                 ZikFile zikFile = new ZikFile();
                 zikFile.setName(sZikFileName);
-                zikFile.setIdFolder(lFolderId);
+                zikFile.setIdFolder(mFolderId);
                 zikFile.setPercentdone(dPercent);
                 zikFile.setPosition(iPosition);
                 String sFilePath = "/storage/" + sAddedFolderPath.replace(":","/");

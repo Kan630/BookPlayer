@@ -10,6 +10,7 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -22,11 +23,13 @@ public class AudioService extends Service {
 
     private MediaPlayer mediaPlayer;
     private boolean fileHasBeenLoaded = false;
+    private int numSong = 0;
+    private String[] arrayPaths;
 
     // controle pour le debug...
     private Timer timer;
-    private int increment = 0;
 
+    private int increment = 0;
 
     /********************************************************************************
      ***       NATIVE METHODS
@@ -49,6 +52,21 @@ public class AudioService extends Service {
 
             }
         }, 0, 1000);
+
+        mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mediaPlayer) {
+                Log.d("toto","onCompletion - nextTrack");
+                //nextTrack();
+            }
+        });
+    }
+
+    void nextTrack() {
+        numSong++;
+        mediaPlayer.release();
+        Log.d("toto","loading " + arrayPaths[numSong]);
+        loadFile(arrayPaths[numSong]);
     }
 
     @Override
@@ -96,7 +114,15 @@ public class AudioService extends Service {
     if (f.exists()) { Log.d("titi","ok file found : " + filePath);} else {Log.d("titi","KO file not found : " + filePath);}
     */
 
-    // TODO, use openFileDescriptor & remove legacy from manifest
+    public void loadFiles(ArrayList<String> sPaths) {
+        arrayPaths = sPaths.toArray(new String[0]);
+        numSong = 0;
+        loadFile(arrayPaths[numSong]);
+    }
+
+
+
+        // TODO, use openFileDescriptor & remove legacy from manifest
     public void loadFile(String sPath) {
         if (!fileHasBeenLoaded) {
             Log.d("toto", "Loading File " + sPath);

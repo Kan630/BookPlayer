@@ -24,9 +24,10 @@ import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.ZikFile;
 
-import java.nio.file.Files;
+import java.sql.Array;
 import java.sql.Date;
 import java.sql.Time;
+import java.util.ArrayList;
 
 import static com.driot.bookplayer.utils.Tonio.*;
 
@@ -47,9 +48,10 @@ public class PlayActivity extends LifecycleLoggingActivity {
     private int backwardTime = 5000;
     private SeekBar seekbar;
     private TextView txSeekBar, txTempsTotal, txNomFichier, txTitle, txSubTitle;
+    private ZikFile zikFileFromIntent;
     private ZikFile currentZikFile;
     private String filePath;
-    private int idCurrentZikFile;
+    private ArrayList<String> arrayListPaths;
 
     AudioService mService;
     boolean mBound = false;
@@ -111,9 +113,8 @@ public class PlayActivity extends LifecycleLoggingActivity {
 
         // TODO, use Parcelable
         //ZikFile zikFile = getIntent().getParcelableExtra("zikFile");
-        ZikFile zikFileFromIntent = (ZikFile) getIntent().getSerializableExtra("ZikFile");
-        idCurrentZikFile = zikFileFromIntent.getId();
 
+        zikFileFromIntent = (ZikFile) getIntent().getSerializableExtra("ZikFile");
         txSubTitle.setText(StripExtention(zikFileFromIntent.getName()));
         txTitle.setText(zikFileFromIntent.getFolderName());
         filePath = zikFileFromIntent.getPath() + "/" + zikFileFromIntent.getName();   //"/storage/0123-4567/Droit/09 00.mp3"
@@ -232,28 +233,35 @@ public class PlayActivity extends LifecycleLoggingActivity {
      ***       GET FROM DB
      ********************************************************************************
      */
-    private void getZikFile(long id) {
+    private void getZikFiles() {
 
-        class GetZikFile extends AsyncTask<Void, Void, ZikFile> {
+        class GetZikFiles extends AsyncTask<Void, Void, ZikFile[]> {
 
             @Override
-            protected ZikFile doInBackground(Void... voids) {
-                ZikFile zikFile = DatabaseClient
+            protected ZikFile[] doInBackground(Void... voids) {
+                ZikFile[] zikFiles = DatabaseClient
                         .getInstance(getApplicationContext())
                         .getAppDatabase()
                         .ZikFileDao()
-                        .getZikFile(id);
-                return zikFile;
+                        .getNextZikFiles(zikFileFromIntent.getIdFolder(),zikFileFromIntent.getName());
+                return zikFiles;
             }
 
             @Override
-            protected void onPostExecute(ZikFile zikFile) {
-                super.onPostExecute(zikFile);
-                currentZikFile = zikFile;
+            protected void onPostExecute(ZikFile[] zikFiles) {
+                super.onPostExecute(zikFiles);
+                currentZikFile = zikFiles[0];
+                Log.d("toto","do it");
+                arrayListPaths = new ArrayList<String>();
+                for (ZikFile zikFile : zikFiles) {
+                    Log.d("toto", zikFile.getName());
+                    arrayListPaths.add(zikFileFromIntent.getPath() + "/" + zikFile.getName());
+                }
+                Log.d("toto","problemo ?");
                 Initialize();
             }
         }
-        GetZikFile gt = new GetZikFile();
+        GetZikFiles gt = new GetZikFiles();
         gt.execute();
     }
 
@@ -263,6 +271,9 @@ public class PlayActivity extends LifecycleLoggingActivity {
         seekbar.setMax(mService.getDuration());
         mService.setPosition((int) currentZikFile.getPosition());
         redrawSeekBar();
+
+        Log.d("toto","arrayListPath " + arrayListPaths.get(0));
+        mService.loadFiles(arrayListPaths);
 
         updateZikFileState(currentZikFile);
     }
@@ -333,14 +344,16 @@ public class PlayActivity extends LifecycleLoggingActivity {
             AudioService.BackgroundBinder binder = (AudioService.BackgroundBinder) service;
             mService = binder.getService();
             mBound = true;
-            mService.loadFile(filePath);
-            getZikFile(idCurrentZikFile);
+            // si trop lent, on intervertit en chargeant juste la filepath avant la liste de filepath
+            getZikFiles();
         }
 
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
+            myLog("OnServiceDisconnected");
             mBound = false;
         }
+
     };
 
     /********************************************************************************
@@ -374,9 +387,9 @@ public class PlayActivity extends LifecycleLoggingActivity {
      */
 
 
-    private void myLog(String str) {
+    protected void myLog(String str) {
         //String TAG = this.getClass().getName().substring(this.getClass().getName().lastIndexOf(".")+1);
-        Log.d("titi " + TAG + " ", str);
+        Log.d("toto " + TAG + " ", str);
         System.out.println(str);
     }
 

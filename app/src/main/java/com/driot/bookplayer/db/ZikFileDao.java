@@ -23,6 +23,9 @@ public interface ZikFileDao {
     @Query("SELECT * FROM ZikFile WHERE idFolder = :idFolder ORDER BY name")
     List<ZikFile> getZikFiles(long idFolder);
 
+    @Query("SELECT * FROM ZikFile WHERE idFolder = :idFolder AND name >= :startFromName ORDER BY name")
+    ZikFile[] getNextZikFiles(long idFolder, String startFromName);
+
     @Query("SELECT * FROM ZikFile WHERE id = :id")
     ZikFile getZikFile(long id);
 

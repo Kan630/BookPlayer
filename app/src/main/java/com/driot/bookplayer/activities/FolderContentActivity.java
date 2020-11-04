@@ -90,13 +90,6 @@ public class FolderContentActivity extends LifecycleLoggingActivity {
                 super.onPostExecute(zikFiles);
                 adapter = new ZikFilesAdapter(FolderContentActivity.this, zikFiles);
                 recyclerView.setAdapter(adapter);
-                DefaultItemAnimator animator = new DefaultItemAnimator() {
-                    @Override
-                    public boolean canReuseUpdatedViewHolder(RecyclerView.ViewHolder viewHolder) {
-                        return true;
-                    }
-                };
-                recyclerView.setItemAnimator(animator);
             }
         }
 

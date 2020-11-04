@@ -25,7 +25,7 @@ public class ZikFile implements Serializable {
     private int id;
 
     @ColumnInfo(name = "idFolder")
-    private long idFolder;
+    private int idFolder;
 
     @ColumnInfo(name = "name")
     private String name;
@@ -147,11 +147,11 @@ public class ZikFile implements Serializable {
         this.finished = finished;
     }
 
-    public long getIdFolder() {
+    public int getIdFolder() {
         return idFolder;
     }
 
-    public void setIdFolder(long idFolder) {
+    public void setIdFolder(int idFolder) {
         this.idFolder = idFolder;
     }
 
