@@ -19,10 +19,7 @@ import com.driot.bookplayer.db.Folder;
 
 import java.util.List;
 
-import static com.driot.bookplayer.utils.Tonio.FormatLastAccess;
-import static com.driot.bookplayer.utils.Tonio.FormatPercentInt;
-import static com.driot.bookplayer.utils.Tonio.FormatPercentString;
-import static com.driot.bookplayer.utils.Tonio.FormatTime;
+import static com.driot.bookplayer.utils.Tonio.*;
 
 public class FoldersAdapter extends RecyclerView.Adapter<FoldersAdapter.FoldersViewHolder> {
 
@@ -49,7 +46,7 @@ public class FoldersAdapter extends RecyclerView.Adapter<FoldersAdapter.FoldersV
 
         holder.textViewFilePercent.setText(FormatPercentString(t.getPercentdone()));
 
-        holder.mProgressBar.setProgress(FormatPercentInt(t.getPercentdone()));
+        holder.mProgressBar.setProgress(FormatPercentForProgressBar(t.getPercentdone()));
 
         holder.textViewFileLastAccess.setText(FormatLastAccess(t.getLastaccess(),t.getLastaccessTime()));
 

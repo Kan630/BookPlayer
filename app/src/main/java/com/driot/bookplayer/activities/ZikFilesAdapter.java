@@ -24,10 +24,10 @@ import java.sql.Time;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
-import static com.driot.bookplayer.utils.Tonio.FormatLastAccess;
-import static com.driot.bookplayer.utils.Tonio.FormatPercentInt;
-import static com.driot.bookplayer.utils.Tonio.FormatPercentString;
-import static com.driot.bookplayer.utils.Tonio.FormatTime;
+import static com.driot.bookplayer.utils.Tonio.*;
+
+
+
 
 public class ZikFilesAdapter extends RecyclerView.Adapter<ZikFilesAdapter.ZikFilesViewHolder> {
 
@@ -48,21 +48,26 @@ public class ZikFilesAdapter extends RecyclerView.Adapter<ZikFilesAdapter.ZikFil
     /********************************************************************************
      ***       SETTING VALUES
      ********************************************************************************
-     */    @Override
+     */
+    @Override
     public void onBindViewHolder(ZikFilesViewHolder holder, int position) {
+        RedrawViewHolderElements(holder, position);
+    }
+
+    public void RedrawViewHolderElements(ZikFilesViewHolder holder, int position) {
         ZikFile t = ZikFileList.get(position);
 
-        holder.textViewFileName.setText(t.getName());
+        holder.textViewFileName.setText(StripExtention(t.getName()));
 
         holder.textViewFilePercent.setText(FormatPercentString(t.getPercentdone()));
 
-        holder.mProgressBar.setProgress(FormatPercentInt(t.getPercentdone()));
+        holder.mProgressBar.setProgress(FormatPercentForProgressBar(t.getPercentdone()));
 
         holder.textViewFileLastAccess.setText(FormatLastAccess(t.getLastaccess(),t.getLastaccessTime()));
 
-        holder.textViewLength.setText(FormatTime(t.getLength()));
-    }
+        holder.textViewLength.setText(FormatTime(t.getDuration()));
 
+    }
 
 
     @Override

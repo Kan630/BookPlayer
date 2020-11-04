@@ -45,7 +45,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.7" />
+            app:layout_constraintGuide_percent="0.75" />
 
         <ProgressBar
             android:id="@+id/progressBar"
@@ -66,10 +66,10 @@
             android:layout_width="0dp"
             android:layout_height="20dp"
             android:layout_marginTop="@dimen/recyclerview_elements_bottom"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="@dimen/recyclerview_elements_sides"
+            android:gravity="center"
             android:textColor="@color/black"
             app:layout_constraintTop_toBottomOf="@id/textViewFileName"
+            app:layout_constraintRight_toRightOf="@id/guideline"
             app:layout_constraintLeft_toLeftOf="parent"
             android:text="...xx%..." />
 
@@ -87,6 +87,7 @@
 
         <TextView
             android:id="@+id/textViewFileLastAccess"
+            android:textAlignment="textEnd"
             android:layout_width="0dp"
             android:layout_height="20dp"
             android:layout_marginTop="@dimen/recyclerview_elements_bottom"

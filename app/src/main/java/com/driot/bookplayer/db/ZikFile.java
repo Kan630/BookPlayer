@@ -39,14 +39,14 @@ public class ZikFile implements Serializable {
     @ColumnInfo(name = "position")
     private double position;
 
-    @ColumnInfo(name = "length")
-    private double length;
+    @ColumnInfo(name = "duration")
+    private double duration;
 
     @ColumnInfo(name = "size")
     private double size;
 
     @ColumnInfo(name = "percentdone")
-    private Double percentdone;
+    private double percentdone;
 
     @ColumnInfo(name = "firstaccess")
     private Date firstaccess;
@@ -100,19 +100,19 @@ public class ZikFile implements Serializable {
         this.position = position;
     }
 
-    public double getLength() {
-        return length;
+    public double getDuration() {
+        return duration;
     }
 
-    public void setLength(double length) {
-        this.length = length;
+    public void setDuration(double duration) {
+        this.duration = duration;
     }
 
-    public Double getPercentdone() {
+    public double getPercentdone() {
         return percentdone;
     }
 
-    public void setPercentdone(Double percentdone) {
+    public void setPercentdone(double percentdone) {
         this.percentdone = percentdone;
     }
 
@@ -172,7 +172,7 @@ public class ZikFile implements Serializable {
                 ", path='" + path + '\'' +
                 ", folderName='" + folderName + '\'' +
                 ", position=" + position +
-                ", length=" + length +
+                ", duration=" + duration +
                 ", size=" + size +
                 ", percentdone=" + percentdone +
                 ", firstaccess=" + firstaccess +

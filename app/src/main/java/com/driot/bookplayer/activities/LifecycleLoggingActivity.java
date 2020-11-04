@@ -7,14 +7,14 @@ import android.util.Log;
  *  onStart
  *  onResume
  *
- *  //ecran noir        //ecran flip                //back button
- *  onPause             onPause                     onPause
- *  onStop              onStop                      onStop
+ *  //ecran noir        //ecran flip                //back button     launch another activity
+ *  onPause             onPause                     onPause             on pause
+ *  onStop              onStop                      onStop              on stop
  *  onSaveInstance      onSaveInstanceState         onDestroy
  *                      onDestroy
- *  onRestart           onCreate                    onCreate
- *  onStart             onStart                     onStart
- *  onResume            onRestaureInstanceState     onResume
+ *  onRestart           onCreate                    onCreate            onRestart
+ *  onStart             onStart                     onStart             onStart
+ *  onResume            onRestaureInstanceState     onResume            onResume
  *                      onResume
  *
  */

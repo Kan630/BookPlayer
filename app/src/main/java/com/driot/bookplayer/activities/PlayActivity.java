@@ -24,11 +24,11 @@ import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.ZikFile;
 
+import java.nio.file.Files;
 import java.sql.Date;
 import java.sql.Time;
 
-import static com.driot.bookplayer.utils.Tonio.FormatTime;
-
+import static com.driot.bookplayer.utils.Tonio.*;
 
 public class PlayActivity extends LifecycleLoggingActivity {
 
@@ -36,7 +36,6 @@ public class PlayActivity extends LifecycleLoggingActivity {
 
     private Button bForward, bPause, bPlay, bRewind;
     private ImageView iv;
-    private double finalTime = 0;
 
     private boolean HasBeenInitialized = false;
 
@@ -50,8 +49,6 @@ public class PlayActivity extends LifecycleLoggingActivity {
     private TextView txSeekBar, txTempsTotal, txNomFichier, txTitle, txSubTitle;
     private ZikFile currentZikFile;
     private String filePath;
-    //private Time zikFileAccessFirstTime;
-    private Date zikFileAccessFirstTime;
     private int idCurrentZikFile;
 
     AudioService mService;
@@ -117,7 +114,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
         ZikFile zikFileFromIntent = (ZikFile) getIntent().getSerializableExtra("ZikFile");
         idCurrentZikFile = zikFileFromIntent.getId();
 
-        txSubTitle.setText(zikFileFromIntent.getName());
+        txSubTitle.setText(StripExtention(zikFileFromIntent.getName()));
         txTitle.setText(zikFileFromIntent.getFolderName());
         filePath = zikFileFromIntent.getPath() + "/" + zikFileFromIntent.getName();   //"/storage/0123-4567/Droit/09 00.mp3"
 
@@ -182,7 +179,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
             @Override
             public void onClick(View v) {
                 int temp = mService.getPosition();
-                if ((temp + forwardTime) <= finalTime) {
+                if ((temp + forwardTime) <= mService.getDuration()) {
                     mService.setPosition(temp + forwardTime);
                     redrawSeekBar();
                 }
@@ -261,14 +258,13 @@ public class PlayActivity extends LifecycleLoggingActivity {
     }
 
     private void Initialize() {
+        txNomFichier.setText("");
+        txTempsTotal.setText(FormatTime(mService.getDuration()));
+        seekbar.setMax(mService.getDuration());
         mService.setPosition((int) currentZikFile.getPosition());
-        finalTime = mService.getDuration();
+        redrawSeekBar();
 
         updateZikFileState(currentZikFile);
-
-        seekbar.setMax((int) finalTime);
-        txSeekBar.setText(FormatTime(finalTime));
-        redrawSeekBar();
     }
 
     /********************************************************************************
@@ -285,9 +281,9 @@ public class PlayActivity extends LifecycleLoggingActivity {
         zikFile.setLastaccess(sLastAccess);
         zikFile.setLastaccessTime(sLastAccessTime);
         zikFile.setPosition(mService.getPosition());
-        zikFile.setPercentdone(caclulatePercent());
-        if (zikFile.getLength() == 0) {
-            zikFile.setLength(finalTime);
+        zikFile.setPercentdone(FormatPercentDouble((double) mService.getPosition()/mService.getDuration()));
+        if (zikFile.getDuration() == 0) {
+            zikFile.setDuration(mService.getDuration());
         }
 
         class UpdateZikFileState extends AsyncTask<Void, Void, Void> {
@@ -360,9 +356,9 @@ public class PlayActivity extends LifecycleLoggingActivity {
         bPause.setEnabled(false);
         bPlay.setEnabled(true);
     }
-
-    private double caclulatePercent() {
-        double ret = mService.getPosition() / finalTime;
+/*
+    private double caclulatePercent(double division) {
+        double ret = division*100;
         if (ret < 0) {
             ret = 0;
         }
@@ -371,7 +367,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
         }
         return ret;
     }
-
+*/
     /********************************************************************************
      ***       DIVERS FONCTIONS
      ********************************************************************************

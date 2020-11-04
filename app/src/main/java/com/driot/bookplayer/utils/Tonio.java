@@ -28,12 +28,20 @@ public class Tonio {
 
     public static String FormatTime(double doubleTime) {
         String s;
+        long sec,min,hou;
         if (doubleTime>0) {
-            s= String.format(Locale.getDefault(), "%d min, %d sec",
-                    TimeUnit.MILLISECONDS.toMinutes((long) doubleTime),
-                    TimeUnit.MILLISECONDS.toSeconds((long) doubleTime) -
-                            TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes((long)
-                                    doubleTime)));
+
+            hou = TimeUnit.MILLISECONDS.toHours((long) doubleTime);
+            min = TimeUnit.MILLISECONDS.toMinutes((long) doubleTime)-TimeUnit.HOURS.toMinutes(hou);
+            sec = TimeUnit.MILLISECONDS.toSeconds((long) doubleTime)-TimeUnit.HOURS.toSeconds(hou)-TimeUnit.MINUTES.toSeconds(min);
+            if (hou !=0) {
+                s = String.format(Locale.getDefault(),"%dh %dm", hou, min);
+            } else if (min !=0) {
+                s = String.format(Locale.getDefault(), "%dm %ds", min, sec);
+            } else {
+                s = String.format(Locale.getDefault(), "%ds", sec);
+            }
+
         } else {
             s = "";
         }
@@ -52,10 +60,9 @@ public class Tonio {
         }
         return str;
     }
-    public static int FormatPercentInt(Double d) {
+    public static int FormatPercentForProgressBar(Double d) {
         int i;
         if (d != null) {
-            d = d * 100;
             i = d.intValue();
             if (i < 0) {
                 i = 0;
@@ -67,6 +74,20 @@ public class Tonio {
             i = 0;
         }
         return i;
+    }
+    public static double FormatPercentDouble(Double d) {
+        if (d != null) {
+            d = d * 100;
+            if (d < 0) {
+                d = 0.0;
+            }
+            if (d > 100) {
+                d = 100.0;
+            }
+        } else {
+            d = 0.0;
+        }
+        return d;
     }
     public static String FormatLastAccess(Date d, Time t) {
         String s;
@@ -88,6 +109,16 @@ public class Tonio {
             s = " ";
         }
         return s;
+    }
+
+    public static String StripExtention(String fileName) {
+        String s = fileName;
+        if (s.indexOf(".") > 0) {
+            s = s.substring(0, s.lastIndexOf("."));
+        }
+        s = s.replace("_"," ");
+        return s;
+
     }
 
     @NonNull

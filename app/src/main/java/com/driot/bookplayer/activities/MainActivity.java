@@ -1,7 +1,9 @@
 package com.driot.bookplayer.activities;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -10,6 +12,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.documentfile.provider.DocumentFile;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -62,6 +66,8 @@ public class MainActivity extends LifecycleLoggingActivity {
         });
 
         getFolders();
+
+        checkPermissions();
     }
 
     private void getFolders() {
@@ -296,6 +302,16 @@ public class MainActivity extends LifecycleLoggingActivity {
         //String TAG = this.getClass().getName().substring(this.getClass().getName().lastIndexOf(".")+1);
         Log.d("titi " + TAG + " ",str);
         System.out.println(str);
+    }
+
+    // PERMISSIONS
+    private void checkPermissions() {
+        int REQUEST_READ_SD_CARD=1;
+        int permissionCheck = ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_EXTERNAL_STORAGE);
+        if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},REQUEST_READ_SD_CARD);
+        }
     }
 
 }
