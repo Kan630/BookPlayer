@@ -39,6 +39,8 @@ import java.sql.Date;
 import java.sql.Time;
 import java.util.ArrayList;
 
+import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_NEWTRACK;
+import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_TRACKFINISHED;
 import static com.driot.bookplayer.utils.Tonio.*;
 
 public class PlayActivity extends LifecycleLoggingActivity {
@@ -63,6 +65,8 @@ public class PlayActivity extends LifecycleLoggingActivity {
     private String filePath;
     private ArrayList<ZikFile> arrayListZikFiles;
     private ArrayList<String> arrayListPaths;
+
+    private boolean PlayNextSong = true;
 
     AudioService mService;
     boolean mBound = false;
@@ -181,7 +185,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
             public void onClick(View v) {
                 mService.pause();
                 SetInterfacePausingMode();
-                updateZikFileState(currentZikFile);
+                updateZikFileState(currentZikFile,false);
                 myLog("updated on pause : " + currentZikFile.getId());
             }
         });
@@ -221,13 +225,13 @@ public class PlayActivity extends LifecycleLoggingActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        registerReceiver(receiver, new IntentFilter(AudioService.NOTIFICATION));
+        registerReceiver(receiver, new IntentFilter(NOTIFICATION_NEWTRACK));
+        registerReceiver(receiver, new IntentFilter(NOTIFICATION_TRACKFINISHED));
     }
     @Override
     protected void onPause() {
         super.onPause();
-        unregisterReceiver(receiver);
-        updateZikFileState(currentZikFile);
+        updateZikFileState(currentZikFile, false);
     }
     @Override
     protected void onStop() {
@@ -237,6 +241,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        unregisterReceiver(receiver);
         boolean stopzeAudio = true;
         if (bundleOnSavedinstance != null) {
             boolean wasPlaying = bundleOnSavedinstance.getBoolean("wasPlaying", false);
@@ -290,14 +295,14 @@ public class PlayActivity extends LifecycleLoggingActivity {
         mService.setPosition((int) currentZikFile.getPosition());
         redrawSeekBar();
 
-        updateZikFileState(currentZikFile);
+        updateZikFileState(currentZikFile, false);
     }
 
     /********************************************************************************
      ***       UPDATE DB
      ********************************************************************************
      */
-    private void updateZikFileState(ZikFile zikFile) {
+    private void updateZikFileState(ZikFile zikFile, boolean bFinished) {
 
         if (zikFile.getFirstaccess() == null) {
             zikFile.setFirstaccess(new Date(System.currentTimeMillis()));
@@ -306,10 +311,16 @@ public class PlayActivity extends LifecycleLoggingActivity {
         final Date sLastAccess = new Date(System.currentTimeMillis());
         zikFile.setLastaccess(sLastAccess);
         zikFile.setLastaccessTime(sLastAccessTime);
-        zikFile.setPosition(mService.getPosition());
-        zikFile.setPercentdone(FormatPercentDouble((double) mService.getPosition()/mService.getDuration()));
-        if (zikFile.getDuration() == 0) {
-            zikFile.setDuration(mService.getDuration());
+        if (bFinished) {
+            zikFile.setPosition(zikFile.getDuration());
+            zikFile.setPercentdone(100);
+            zikFile.setFinished(true);
+        } else {
+            zikFile.setPosition(mService.getPosition());
+            zikFile.setPercentdone(FormatPercentDouble((double) mService.getPosition()/mService.getDuration()));
+            if (zikFile.getDuration() == 0) {
+                zikFile.setDuration(mService.getDuration());
+            }
         }
 
         class UpdateZikFileState extends AsyncTask<Void, Void, Void> {
@@ -376,13 +387,18 @@ public class PlayActivity extends LifecycleLoggingActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.d("toto","Broadcast received");
-            Bundle bundle = intent.getExtras();
-            if (bundle != null) {
-                int numSong = bundle.getInt(AudioService.TRACKNUMBER);
-                currentZikFile = arrayListZikFiles.get(numSong);
-                txSubTitle.setText(StripExtention(currentZikFile.getName()));
-                txTempsTotal.setText(FormatTime(currentZikFile.getDuration()));
-                seekbar.setMax((int) currentZikFile.getDuration());
+            if (intent.getAction().equals(NOTIFICATION_NEWTRACK)) {
+                Bundle bundle = intent.getExtras();
+                if (bundle != null) {
+                    int numSong = bundle.getInt(AudioService.TRACKNUMBER);
+                    currentZikFile = arrayListZikFiles.get(numSong);
+                    txSubTitle.setText(StripExtention(currentZikFile.getName()));
+                    txTempsTotal.setText(FormatTime(currentZikFile.getDuration()));
+                    seekbar.setMax((int) currentZikFile.getDuration());
+                }
+            }
+            if (intent.getAction().equals(NOTIFICATION_TRACKFINISHED)) {
+                updateZikFileState(currentZikFile, true);
             }
         }
     };

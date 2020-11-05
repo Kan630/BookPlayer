@@ -24,7 +24,8 @@ public class AudioService extends Service {
 
     private final IBinder binder = new BackgroundBinder();
     public static final String TRACKNUMBER = "tracknumber";
-    public static final String NOTIFICATION = "com.driot.bookplayer.broadcastreceiver.saga.yo";
+    public static final String NOTIFICATION_NEWTRACK = "NOTIFICATION_NEWTRACK";
+    public static final String NOTIFICATION_TRACKFINISHED = "NOTIFICATION_TRACKFINISHED";
 
     private MediaPlayer mediaPlayer;
     private boolean fileHasBeenLoaded = false;
@@ -61,6 +62,7 @@ public class AudioService extends Service {
             @Override
             public void onCompletion(MediaPlayer mediaPlayer) {
                 Log.d("toto","MusicService onCompletion - nextTrack");
+                alertTrackFinished();
                 fileHasBeenLoaded=false;
                 nextTrack();
             }
@@ -78,7 +80,6 @@ public class AudioService extends Service {
     void nextTrack() {
         numSong++;
         mediaPlayer.reset();
-        alertNewTrack();
         // TODO petit bip
         //mediaPlayer.create(this, Settings.System.DEFAULT_RINGTONE_URI);
         //mediaPlayer.start();
@@ -86,13 +87,19 @@ public class AudioService extends Service {
         Log.d("toto","loading " + arrayPaths[numSong]);
         loadFile(arrayPaths[numSong]);
         mediaPlayer.start();
+        alertNewTrack();
     }
-
-    private void alertNewTrack() {
-        Intent intent = new Intent(NOTIFICATION);
+        private void alertNewTrack() {
+        Intent intent = new Intent(NOTIFICATION_NEWTRACK);
         intent.putExtra(TRACKNUMBER, numSong);
         sendBroadcast(intent);
-        Log.d("toto","MusicService sendBroadcast");
+        Log.d("toto","MusicService sendBroadcast alertNewTrack");
+    }
+
+    private void alertTrackFinished() {
+        Intent intent = new Intent(NOTIFICATION_TRACKFINISHED);
+        sendBroadcast(intent);
+        Log.d("toto","MusicService sendBroadcast alertTrackFinished");
     }
 
     @Override

@@ -51,10 +51,16 @@ public class Tonio {
     public static String FormatPercentString(Double d) {
         String str;
         if (d != null) {
-            d = d*100;
-            str = d.toString().substring(0,2);
-            if (str.substring(1).equals(".")) {str=str.substring(0,1);}
-            str = str + " %";
+            if (d == 100.0) {
+                str = "100 %";
+            } else {
+                d = d * 100;
+                str = d.toString().substring(0, 2);
+                if (str.substring(1).equals(".")) {
+                    str = str.substring(0, 1);
+                }
+                str = str + " %";
+            }
         } else {
             str = "";
         }

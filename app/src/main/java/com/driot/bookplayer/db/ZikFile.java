@@ -4,6 +4,9 @@ package com.driot.bookplayer.db;
  * created by Antoine Driot -- antoine.driot.com -- on 30/10/20
  */
 
+import android.content.Context;
+import android.content.res.AssetManager;
+import android.os.AsyncTask;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -11,9 +14,13 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
+import com.driot.bookplayer.activities.PlayActivity;
+
 import java.io.Serializable;
 import java.sql.Date;
 import java.sql.Time;
+
+import static com.driot.bookplayer.utils.Tonio.FormatPercentDouble;
 
 @Entity
 public class ZikFile implements Serializable {
@@ -163,6 +170,34 @@ public class ZikFile implements Serializable {
         this.size = size;
     }
 
+    /*
+    public void saveProgress(double position, boolean bFinished) {
+        if (this.getFirstaccess() == null) {
+            this.setFirstaccess(new Date(System.currentTimeMillis()));
+        }
+        this.setLastaccess(new Date(System.currentTimeMillis()));
+        this.setLastaccessTime(new Time(System.currentTimeMillis()));
+        if (bFinished) {
+            this.setFinished(true);
+            this.setPosition(this.getDuration());
+            this.setPercentdone(100);
+        } else {
+            this.setPosition(position);
+            this.setPercentdone(FormatPercentDouble(this.getPosition()/this.getDuration()));
+        }
+
+        class UpdateZikFileState extends AsyncTask<Void, Void, Void> {
+            @Override
+            protected Void doInBackground(Void... voids) {
+                DatabaseClient.getInstance(getApplicationContext()).getAppDatabase().ZikFileDao().update(this);
+                return null;
+            }
+        }
+        UpdateZikFileState gt = new UpdateZikFileState();
+        gt.execute();
+    }
+    */
+
     @Override
     public String toString() {
         return "ZikFile{" +
@@ -181,4 +216,5 @@ public class ZikFile implements Serializable {
                 ", finished=" + finished +
                 '}';
     }
+
 }
