@@ -5,6 +5,9 @@ import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Binder;
 import android.os.IBinder;
+import android.os.Message;
+import android.os.RemoteException;
+import android.provider.Settings;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
@@ -20,6 +23,8 @@ import java.util.TimerTask;
 public class AudioService extends Service {
 
     private final IBinder binder = new BackgroundBinder();
+    public static final String TRACKNUMBER = "tracknumber";
+    public static final String NOTIFICATION = "com.driot.bookplayer.broadcastreceiver.saga.yo";
 
     private MediaPlayer mediaPlayer;
     private boolean fileHasBeenLoaded = false;
@@ -27,9 +32,8 @@ public class AudioService extends Service {
     private String[] arrayPaths;
 
     // controle pour le debug...
-    private Timer timer;
-
-    private int increment = 0;
+    //private Timer timer;
+    //private int increment = 0;
 
     /********************************************************************************
      ***       NATIVE METHODS
@@ -39,10 +43,10 @@ public class AudioService extends Service {
      */
     @Override
     public void onCreate() {
-        Log.d("toto", "Service onCreate");
+        Log.d("toto", "MusicService onCreate");
         super.onCreate();
         mediaPlayer = new MediaPlayer();
-
+/*
         timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask() {
             public void run() {
@@ -52,32 +56,54 @@ public class AudioService extends Service {
 
             }
         }, 0, 1000);
-
+*/
         mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mediaPlayer) {
-                Log.d("toto","onCompletion - nextTrack");
-                //nextTrack();
+                Log.d("toto","MusicService onCompletion - nextTrack");
+                fileHasBeenLoaded=false;
+                nextTrack();
+            }
+        });
+
+        mediaPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
+            @Override
+            public boolean onError(MediaPlayer mediaPlayer, int i, int i1) {
+                Log.d("toto","MusicService - MediaPlayer On Error Fired : " + i + " : " + i1 );
+                return false;
             }
         });
     }
 
     void nextTrack() {
         numSong++;
-        mediaPlayer.release();
+        mediaPlayer.reset();
+        alertNewTrack();
+        // TODO petit bip
+        //mediaPlayer.create(this, Settings.System.DEFAULT_RINGTONE_URI);
+        //mediaPlayer.start();
+        //mediaPlayer.reset();
         Log.d("toto","loading " + arrayPaths[numSong]);
         loadFile(arrayPaths[numSong]);
+        mediaPlayer.start();
+    }
+
+    private void alertNewTrack() {
+        Intent intent = new Intent(NOTIFICATION);
+        intent.putExtra(TRACKNUMBER, numSong);
+        sendBroadcast(intent);
+        Log.d("toto","MusicService sendBroadcast");
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d("toto", "Service onStartCommand");
-        return START_STICKY;
+        Log.d("toto", "MusicService onStartCommand");
+        return START_NOT_STICKY;
     }
     @Override
     public void onDestroy() {
-        Log.d("toto", "Service onDestroy");
-        this.timer.cancel();
+        Log.d("toto", "MusicService onDestroy");
+        //this.timer.cancel();
         if (mediaPlayer.isPlaying()) {mediaPlayer.stop();}
         mediaPlayer.release();
         mediaPlayer = null;
@@ -86,13 +112,13 @@ public class AudioService extends Service {
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        Log.d("toto", "Service onBind");
+        Log.d("toto", "MusicService onBind");
         return binder;
     }
 
     @Override
     public boolean onUnbind(Intent intent) {
-        Log.d("toto", "Service onUnBind");
+        Log.d("toto", "MusicService onUnBind");
         return super.onUnbind(intent);
     }
 
@@ -115,6 +141,7 @@ public class AudioService extends Service {
     */
 
     public void loadFiles(ArrayList<String> sPaths) {
+        Log.d("toto","MusicPlayer.loadFiles(array)");
         arrayPaths = sPaths.toArray(new String[0]);
         numSong = 0;
         loadFile(arrayPaths[numSong]);
@@ -125,7 +152,7 @@ public class AudioService extends Service {
         // TODO, use openFileDescriptor & remove legacy from manifest
     public void loadFile(String sPath) {
         if (!fileHasBeenLoaded) {
-            Log.d("toto", "Loading File " + sPath);
+            Log.d("toto", "MusicService loadFile(" + sPath + ")");
             try {
                 mediaPlayer.setDataSource(sPath);
             } catch (IOException e) {
@@ -143,33 +170,45 @@ public class AudioService extends Service {
     }
 
     public void start() {
+        Log.d("toto","MusicPlayer.start()");
         if (!mediaPlayer.isPlaying()) {
             mediaPlayer.start();
         }
     }
 
     public void pause() {
+        Log.d("toto","MusicPlayer.pause()");
         if (mediaPlayer.isPlaying()) {
             mediaPlayer.pause();
         }
     }
 
     public void setPosition(int position) {
+        Log.d("toto","MusicPlayer.seekTo(" + position + ")");
         mediaPlayer.seekTo(position);
     }
 
     public int getPosition() {
+        Log.d("toto","MusicPlayer.getPosition()");
         return mediaPlayer.getCurrentPosition();
     }
 
+    public int getTrackNum() {
+        Log.d("toto","MusicPlayer.getTrackNum()");
+        return numSong;
+    }
+
     public int getDuration() {
+        Log.d("toto","MusicPlayer.getDuration()");
         return mediaPlayer.getDuration();
     }
 
     public boolean isPlaying() {
+        Log.d("toto","MusicPlayer.isPlaying()");
         return mediaPlayer.isPlaying();
     }
     public boolean exist() {
+        Log.d("toto","MusicPlayer.exist");
         if (mediaPlayer == null) {
             return false;
         } else {
@@ -178,5 +217,4 @@ public class AudioService extends Service {
     }
 
 
-
-}
+    }

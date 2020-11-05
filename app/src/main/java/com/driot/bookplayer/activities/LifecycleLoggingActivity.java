@@ -30,7 +30,7 @@ public abstract class LifecycleLoggingActivity
      * Debugging tag used by the Android logger.
      */
     protected final String TAG =
-        "titi " + getClass().getSimpleName();
+        "toto " + getClass().getSimpleName();
 
     /**
      * Hook method called when a new instance of Activity is created. One time

@@ -2,11 +2,20 @@ package com.driot.bookplayer.activities;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 30/10/20
+ *
+ * onCreate
+ * bindToService
+ * getZikFiles
+ * initialize
+ *
+ *
  */
 
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -18,6 +27,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.driot.bookplayer.utils.AudioService;
 import com.driot.bookplayer.db.DatabaseClient;
@@ -51,6 +61,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
     private ZikFile zikFileFromIntent;
     private ZikFile currentZikFile;
     private String filePath;
+    private ArrayList<ZikFile> arrayListZikFiles;
     private ArrayList<String> arrayListPaths;
 
     AudioService mService;
@@ -117,6 +128,9 @@ public class PlayActivity extends LifecycleLoggingActivity {
         zikFileFromIntent = (ZikFile) getIntent().getSerializableExtra("ZikFile");
         txSubTitle.setText(StripExtention(zikFileFromIntent.getName()));
         txTitle.setText(zikFileFromIntent.getFolderName());
+        txNomFichier.setText("");
+        txTempsTotal.setText(FormatTime(zikFileFromIntent.getDuration()));
+        seekbar.setMax((int) zikFileFromIntent.getDuration());
         filePath = zikFileFromIntent.getPath() + "/" + zikFileFromIntent.getName();   //"/storage/0123-4567/Droit/09 00.mp3"
 
         /********************************************************************************
@@ -200,19 +214,24 @@ public class PlayActivity extends LifecycleLoggingActivity {
     }
 
     /********************************************************************************
-     ***       DESTROY
-     * Fleche Retour Arriere ou Change Inclinaison
+     ***       EVENTS
+     * Destroy = Fleche Retour Arriere ou Change Inclinaison
      ********************************************************************************
      */
     @Override
+    protected void onResume() {
+        super.onResume();
+        registerReceiver(receiver, new IntentFilter(AudioService.NOTIFICATION));
+    }
+    @Override
     protected void onPause() {
         super.onPause();
+        unregisterReceiver(receiver);
         updateZikFileState(currentZikFile);
     }
     @Override
     protected void onStop() {
         super.onStop();
-        mBound = false;
         bundleOnSavedinstance = null;
     }
     @Override
@@ -252,12 +271,13 @@ public class PlayActivity extends LifecycleLoggingActivity {
                 super.onPostExecute(zikFiles);
                 currentZikFile = zikFiles[0];
                 Log.d("toto","do it");
+                arrayListZikFiles = new ArrayList<ZikFile>();
                 arrayListPaths = new ArrayList<String>();
                 for (ZikFile zikFile : zikFiles) {
                     Log.d("toto", zikFile.getName());
+                    arrayListZikFiles.add(zikFile);
                     arrayListPaths.add(zikFileFromIntent.getPath() + "/" + zikFile.getName());
                 }
-                Log.d("toto","problemo ?");
                 Initialize();
             }
         }
@@ -266,14 +286,9 @@ public class PlayActivity extends LifecycleLoggingActivity {
     }
 
     private void Initialize() {
-        txNomFichier.setText("");
-        txTempsTotal.setText(FormatTime(mService.getDuration()));
-        seekbar.setMax(mService.getDuration());
+        mService.loadFiles(arrayListPaths);
         mService.setPosition((int) currentZikFile.getPosition());
         redrawSeekBar();
-
-        Log.d("toto","arrayListPath " + arrayListPaths.get(0));
-        mService.loadFiles(arrayListPaths);
 
         updateZikFileState(currentZikFile);
     }
@@ -338,9 +353,9 @@ public class PlayActivity extends LifecycleLoggingActivity {
     private ServiceConnection connection = new ServiceConnection() {
 
         @Override
-        public void onServiceConnected(ComponentName className,
-                                       IBinder service) {
+        public void onServiceConnected(ComponentName className, IBinder service) {
             // We've bound to LocalService, cast the IBinder and get LocalService instance
+            Log.d("toto","onServiceConnected");
             AudioService.BackgroundBinder binder = (AudioService.BackgroundBinder) service;
             mService = binder.getService();
             mBound = true;
@@ -355,6 +370,23 @@ public class PlayActivity extends LifecycleLoggingActivity {
         }
 
     };
+
+    private BroadcastReceiver receiver = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d("toto","Broadcast received");
+            Bundle bundle = intent.getExtras();
+            if (bundle != null) {
+                int numSong = bundle.getInt(AudioService.TRACKNUMBER);
+                currentZikFile = arrayListZikFiles.get(numSong);
+                txSubTitle.setText(StripExtention(currentZikFile.getName()));
+                txTempsTotal.setText(FormatTime(currentZikFile.getDuration()));
+                seekbar.setMax((int) currentZikFile.getDuration());
+            }
+        }
+    };
+
 
     /********************************************************************************
      ***       DIVERS
