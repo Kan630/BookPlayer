@@ -5,6 +5,7 @@
 
     <string name="bOpenFolder">Open Folder</string>
     <string name="bOpenZipFile">Open Zip File</string>
+    <string name="bAddRessource">Add Content</string>
 
     <string name="Error_MainActivity_IsNotFolder">This doesn\'t look like a folder</string>
     <string name="Error_MainActivity_FolderAlreadyImported">This folder has already been loaded</string>

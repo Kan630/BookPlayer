@@ -16,32 +16,26 @@
     <!-- Progress bar overlay; shown while login is in progress -->
     <include layout="@layout/include_progress_overlay"/>
 
-    <LinearLayout
-        android:orientation="vertical"
+<FrameLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerview_folders"
         android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/FAB_Add"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:gravity="bottom">
+        android:layout_gravity="end|bottom"
+        android:src="@drawable/ic_btn_add_book"
+        android:contentDescription="@string/bAddRessource"
+        android:layout_margin="16dp" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerview_folders"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+</FrameLayout>
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/FAB_Add"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                android:src="@android:drawable/ic_input_add"
-                android:orientation="vertical"
-                android:layout_alignParentLeft="true" />
-        </RelativeLayout>
-
-    </LinearLayout>
 </LinearLayout>
+
 
