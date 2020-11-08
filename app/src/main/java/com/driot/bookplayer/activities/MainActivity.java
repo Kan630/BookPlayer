@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -267,11 +268,14 @@ public class MainActivity extends LifecycleLoggingActivity {
                 zikFile.setFolderName(sAddedFolderName);
                 zikFile.setPercentdone(dPercent);
                 zikFile.setPosition(iPosition);
-                String sFilePath = "/storage/" + sAddedFolderPath.replace(":","/");
-                zikFile.setPath(sFilePath);
-                File f = new File(sFilePath);
+
+                String sFolderPath = "/storage/" + sAddedFolderPath.replace(":","/");
+                String sFileFullPath = sFolderPath + File.separator + sZikFileName;
+                zikFile.setPath(sFolderPath);
+                File f = new File(sFileFullPath);
                 //File file = new File(Uri.parse("/sdcard/lala.txt").getPath());
                 zikFile.setSize(f.length());
+                zikFile.setDuration(getMediaDurationFromPath(sFileFullPath));
 
                 //adding to database
                 DatabaseClient.getInstance(getApplicationContext()).getAppDatabase()
@@ -315,4 +319,10 @@ public class MainActivity extends LifecycleLoggingActivity {
         }
     }
 
+    // DUREE AUDIO
+    private static long getMediaDurationFromPath(String zePath) {
+        MediaMetadataRetriever mediaMetadataRetriever = new MediaMetadataRetriever();
+        mediaMetadataRetriever.setDataSource(zePath);
+        return Long.parseLong(mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
+    }
 }

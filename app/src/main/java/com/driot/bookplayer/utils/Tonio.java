@@ -1,6 +1,7 @@
 package com.driot.bookplayer.utils;
 
 import android.annotation.SuppressLint;
+import android.media.MediaMetadataRetriever;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
@@ -53,12 +54,13 @@ public class Tonio {
         if (d != null) {
             if (d == 100.0) {
                 str = "100 %";
+            } else if (d == 0.0) {
+                str = "";
+            } else if (d < 10.0) {
+                str = d.toString().substring(0, 3);
+                str = str + " %";
             } else {
-                d = d * 100;
                 str = d.toString().substring(0, 2);
-                if (str.substring(1).equals(".")) {
-                    str = str.substring(0, 1);
-                }
                 str = str + " %";
             }
         } else {
@@ -106,6 +108,11 @@ public class Tonio {
                 // Give time :
                 s = t.toString();
                 s = s.substring(0, 5);
+                // check if less than 7 days
+            } else if ((d2.getTime()-d.getTime())/ (1000 * 60 * 60 * 24)<7) {
+                // give name of the day
+                SimpleDateFormat outFormat = new SimpleDateFormat("EEEE");
+                s = outFormat.format(d);
             } else {
                 //give date :
                 SimpleDateFormat simpleDate =  new SimpleDateFormat("dd/MM/yyyy");
@@ -140,4 +147,5 @@ public class Tonio {
         }
         return type;
     }
+
 }
