@@ -10,7 +10,7 @@ import androidx.room.TypeConverters;
 @Database(entities = {
         Folder.class,
         ZikFile.class
-}, version = 6)
+}, version = 1)
 
 @TypeConverters({Converters.class})
 

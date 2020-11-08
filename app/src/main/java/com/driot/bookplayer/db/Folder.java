@@ -33,8 +33,8 @@ public class Folder implements Serializable {
     @ColumnInfo(name = "position")
     private int position;
 
-    @ColumnInfo(name = "length")
-    private int length;
+    @ColumnInfo(name = "duration")
+    private double duration;
 
     @ColumnInfo(name = "percentdone")
     private Double percentdone;
@@ -104,16 +104,20 @@ public class Folder implements Serializable {
         this.position = position;
     }
 
-    public int getLength() {
-        return length;
+    public double getDuration() {
+        return duration;
     }
 
-    public void setLength(int length) {
-        this.length = length;
+    public void setDuration(double duration) {
+        this.duration = duration;
     }
 
     public Double getPercentdone() {
-        return percentdone;
+        if (percentdone==null) {
+            return 0.0;
+        } else {
+            return percentdone;
+        }
     }
 
     public void setPercentdone(Double percentdone) {
@@ -151,4 +155,5 @@ public class Folder implements Serializable {
     public void setFinished(boolean finished) {
         this.finished = finished;
     }
+
 }

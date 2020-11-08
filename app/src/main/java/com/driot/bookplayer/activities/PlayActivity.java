@@ -17,6 +17,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -29,10 +30,16 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.documentfile.provider.DocumentFile;
+import androidx.sqlite.db.SimpleSQLiteQuery;
+
+import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.utils.AudioService;
 import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.ZikFile;
+
+import org.w3c.dom.Text;
 
 import java.sql.Array;
 import java.sql.Date;
@@ -51,6 +58,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
     private ImageView iv;
 
     private boolean HasBeenInitialized = false;
+    private boolean HasBeenPlayed = false;
 
     private Handler myHandler = new Handler();
 
@@ -172,6 +180,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
                     mService.start();
                     SetInterfacePlayingMode();
                     myHandler.postDelayed(UpdateSongTime, INTERVAL_REDRAW_SEEKBAR);
+                    HasBeenPlayed=true;
                 }
             }
         });
@@ -253,6 +262,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
         if (stopzeAudio) {
             unbindService(connection);
         }
+        updateFolderState();
     }
     /********************************************************************************
      ***       GET FROM DB
@@ -304,37 +314,39 @@ public class PlayActivity extends LifecycleLoggingActivity {
      */
     private void updateZikFileState(ZikFile zikFile, boolean bFinished) {
 
-        if (zikFile.getFirstaccess() == null) {
-            zikFile.setFirstaccess(new Date(System.currentTimeMillis()));
-        }
-        final Time sLastAccessTime = new Time(System.currentTimeMillis());
-        final Date sLastAccess = new Date(System.currentTimeMillis());
-        zikFile.setLastaccess(sLastAccess);
-        zikFile.setLastaccessTime(sLastAccessTime);
-        if (bFinished) {
-            zikFile.setPosition(zikFile.getDuration());
-            zikFile.setPercentdone(100);
-            zikFile.setFinished(true);
-        } else {
-            zikFile.setPosition(mService.getPosition());
-            zikFile.setPercentdone(FormatPercentDouble((double) mService.getPosition()/mService.getDuration()));
-            if (zikFile.getDuration() == 0) {
-                zikFile.setDuration(mService.getDuration());
+        if (HasBeenPlayed) {
+            if (zikFile.getFirstaccess() == null) {
+                zikFile.setFirstaccess(new Date(System.currentTimeMillis()));
             }
-        }
-
-        class UpdateZikFileState extends AsyncTask<Void, Void, Void> {
-
-            @Override
-            protected Void doInBackground(Void... voids) {
-                DatabaseClient.getInstance(getApplicationContext()).getAppDatabase()
-                        .ZikFileDao().update(zikFile);
-                return null;
+            final Time sLastAccessTime = new Time(System.currentTimeMillis());
+            final Date sLastAccess = new Date(System.currentTimeMillis());
+            zikFile.setLastaccess(sLastAccess);
+            zikFile.setLastaccessTime(sLastAccessTime);
+            if (bFinished) {
+                zikFile.setPosition(zikFile.getDuration());
+                zikFile.setPercentdone(100);
+                zikFile.setFinished(true);
+            } else {
+                zikFile.setPosition(mService.getPosition());
+                zikFile.setPercentdone(FormatPercentDouble((double) mService.getPosition()/mService.getDuration()));
+                if (zikFile.getDuration() == 0) {
+                    zikFile.setDuration(mService.getDuration());
+                }
             }
 
+            class UpdateZikFileState extends AsyncTask<Void, Void, Void> {
+
+                @Override
+                protected Void doInBackground(Void... voids) {
+                    DatabaseClient.getInstance(getApplicationContext()).getAppDatabase()
+                            .ZikFileDao().update(zikFile);
+                    return null;
+                }
+
+            }
+            UpdateZikFileState gt = new UpdateZikFileState();
+            gt.execute();
         }
-        UpdateZikFileState gt = new UpdateZikFileState();
-        gt.execute();
     }
 
     /********************************************************************************
@@ -417,18 +429,51 @@ public class PlayActivity extends LifecycleLoggingActivity {
         bPause.setEnabled(false);
         bPlay.setEnabled(true);
     }
-/*
-    private double caclulatePercent(double division) {
-        double ret = division*100;
-        if (ret < 0) {
-            ret = 0;
-        }
-        if (ret > 100) {
-            ret = 100;
-        }
-        return ret;
+
+    private void updateFolderState() {
+
+        //String strSQL = "UPDATE Folder SET percentdone = 11.11 WHERE id = 1";
+        String strSQL = "UPDATE Folder " +
+                " SET percentdone = (SELECT SUM(percentdone*duration)/SUM(duration) " +
+                " FROM ZikFile " +
+                " WHERE Folder.id = ZikFile.idFolder )";
+
+        class UpdateFolderState extends AsyncTask<Void, Void, Void> {
+
+            @Override
+            protected Void doInBackground(Void... voids) {
+
+                //TODO try Direct SQL lite Query
+                /*
+                SQLiteDatabase db = this.getWritableDatabase();
+                String selectQuery = "select sum(odometer) as odometer from tripmileagetable where date like '2012-07%'";
+                Cursor cursor = db.rawQuery(selectQuery, null);
+ */
+
+
+                SimpleSQLiteQuery query = new SimpleSQLiteQuery(strSQL);
+
+                DatabaseClient
+                        .getInstance(getApplicationContext())
+                        .getAppDatabase()
+                        .FolderDao()
+                        .runRawSql(query);
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void aVoid) {
+                super.onPostExecute(aVoid);
+                Log.d("toto","run query " + strSQL);
+                }
+            }
+
+    UpdateFolderState gt = new UpdateFolderState();
+        gt.execute();
     }
-*/
+
+
+
     /********************************************************************************
      ***       DIVERS FONCTIONS
      ********************************************************************************

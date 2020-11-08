@@ -2,6 +2,7 @@ package com.driot.bookplayer.activities;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AsyncNotedAppOp;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.media.MediaMetadataRetriever;
@@ -18,6 +19,7 @@ import androidx.core.content.ContextCompat;
 import androidx.documentfile.provider.DocumentFile;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.sqlite.db.SimpleSQLiteQuery;
 
 import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.db.Folder;
@@ -30,11 +32,15 @@ import java.sql.Date;
 import java.sql.Time;
 import java.util.List;
 
+import static com.driot.bookplayer.utils.Utils.animateView;
+
 
 public class MainActivity extends LifecycleLoggingActivity {
 
     static final String TAG = "MainActivity.java";
+    public static final int DELAY_ANIMATION = 200;
     private RecyclerView recyclerView;
+    private View progressOverlay;
     private FloatingActionButton btn_Add;
     public static final int READ_REQUEST_CODE = 107;
 
@@ -55,9 +61,10 @@ public class MainActivity extends LifecycleLoggingActivity {
         setContentView(R.layout.activity_main);
 
         recyclerView = findViewById(R.id.recyclerview_folders);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-
         btn_Add = findViewById(R.id.FAB_Add);
+        progressOverlay = findViewById(R.id.progress_overlay);
+
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         btn_Add.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -69,6 +76,13 @@ public class MainActivity extends LifecycleLoggingActivity {
         getFolders();
 
         checkPermissions();
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        getFolders();
+        Log.d("recyclerview","drawing through setAdapter on restart");
     }
 
     private void getFolders() {
@@ -206,6 +220,9 @@ public class MainActivity extends LifecycleLoggingActivity {
 
     private void saveFolder() {
 
+        // Show progress overlay (with animation):
+        animateView(progressOverlay, View.VISIBLE, 0.4f, DELAY_ANIMATION);
+
         final Double sPercent = 0.0;
         final Time sFirstAccess = new Time(System.currentTimeMillis());
         final Date sLastAccess = new Date(System.currentTimeMillis());
@@ -238,17 +255,39 @@ public class MainActivity extends LifecycleLoggingActivity {
             @Override
             protected void onPostExecute(Void aVoid) {
                 super.onPostExecute(aVoid);
-                //finish();
-                for (DocumentFile file :myZikFileList) {
-                    if (file.getType().equals("audio/mpeg")) {
-                        saveFile(file.getName(), InsertedFolderId[0]);
-                    }
-                }
+                saveFiles();
             }
         }
 
         SaveFolder st = new SaveFolder();
         st.execute();
+    }
+
+    private void saveFiles() {
+
+        class SaveFiles extends AsyncTask<Void, Void, Void> {
+
+            @Override
+            protected Void doInBackground(Void... voids) {
+                for (DocumentFile file :myZikFileList) {
+                    if (file.getType().equals("audio/mpeg")) {
+                        saveFile(file.getName(), InsertedFolderId[0]);
+                    }
+                }
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void aVoid) {
+                super.onPostExecute(aVoid);
+                updateFolderDuration();
+            }
+        }
+
+        SaveFiles st = new SaveFiles();
+        st.execute();
+
+
     }
 
     private void saveFile(String sZikFileName, int mFolderId) {
@@ -281,22 +320,58 @@ public class MainActivity extends LifecycleLoggingActivity {
                 DatabaseClient.getInstance(getApplicationContext()).getAppDatabase()
                         .ZikFileDao()
                         .insert(zikFile);
+                Log.d("toto","File Added " + zikFile.getName());
                 return null;
             }
 
             @Override
             protected void onPostExecute(Void aVoid) {
                 super.onPostExecute(aVoid);
-                //finish();
-
-                // refresh screen
-                myHandler.postDelayed(MainActivity.this::getFolders, 100);
             }
         }
 
         SaveFile st = new SaveFile();
         st.execute();
     }
+
+    private void updateFolderDuration() {
+
+        String strSQL = "UPDATE Folder " +
+                " SET duration = (SELECT SUM(duration) " +
+                " FROM ZikFile " +
+                " WHERE Folder.id = ZikFile.idFolder )";
+
+        class UpdateFolderDuration extends AsyncTask<Void, Void, Void> {
+
+            @Override
+            protected Void doInBackground(Void... voids) {
+
+                SimpleSQLiteQuery query = new SimpleSQLiteQuery(strSQL);
+                DatabaseClient
+                        .getInstance(getApplicationContext())
+                        .getAppDatabase()
+                        .FolderDao()
+                        .runRawSql(query);
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void aVoid) {
+                super.onPostExecute(aVoid);
+                Log.d("toto","run query " + strSQL);
+
+                // Hide animation:
+                animateView(progressOverlay, View.GONE, 0, DELAY_ANIMATION);
+                // refresh screen
+                myHandler.postDelayed(MainActivity.this::getFolders, 100);
+            }
+        }
+
+        UpdateFolderDuration gt = new UpdateFolderDuration();
+        gt.execute();
+    }
+
+
 
     /********************
      *

@@ -50,8 +50,7 @@ public class FoldersAdapter extends RecyclerView.Adapter<FoldersAdapter.FoldersV
 
         holder.textViewFileLastAccess.setText(FormatLastAccess(t.getLastaccess(),t.getLastaccessTime()));
 
-        //holder.textViewLength.setText(FormatTime(t.getLength()));
-        holder.textViewLength.setText("");
+        holder.textViewDuration.setText(FormatTime(t.getDuration()));
 
 
     }
@@ -63,7 +62,7 @@ public class FoldersAdapter extends RecyclerView.Adapter<FoldersAdapter.FoldersV
 
         class FoldersViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
 
-            TextView textViewFileName, textViewFileLastAccess, textViewFilePercent, textViewLength;
+            TextView textViewFileName, textViewFileLastAccess, textViewFilePercent, textViewDuration;
             ProgressBar mProgressBar;
 
             public FoldersViewHolder(View itemView) {
@@ -72,7 +71,7 @@ public class FoldersAdapter extends RecyclerView.Adapter<FoldersAdapter.FoldersV
                 textViewFileName = itemView.findViewById(R.id.textViewFileName);
                 textViewFilePercent = itemView.findViewById(R.id.textViewFilePercent);
                 textViewFileLastAccess = itemView.findViewById(R.id.textViewFileLastAccess);
-                textViewLength =  itemView.findViewById(R.id.textViewLength);
+                textViewDuration =  itemView.findViewById(R.id.textViewDuration);
                 mProgressBar = itemView.findViewById(R.id.progressBar);
 
                 itemView.setOnClickListener(this);

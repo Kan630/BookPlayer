@@ -8,7 +8,9 @@ import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
+import androidx.room.RawQuery;
 import androidx.room.Update;
+import androidx.sqlite.db.SupportSQLiteQuery;
 
 import java.util.List;
 
@@ -21,6 +23,9 @@ public interface FolderDao {
 
     @Query("SELECT COUNT(id) FROM Folder WHERE uri LIKE :sUri AND hash LIKE :iHash")
     long folderAlreadyExist(String sUri, String iHash);
+
+    @RawQuery
+    int runRawSql(SupportSQLiteQuery query);
 
     @Insert
     long insert(Folder Folder);

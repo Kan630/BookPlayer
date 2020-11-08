@@ -4,10 +4,8 @@ package com.driot.bookplayer.activities;
  * created by Antoine Driot -- antoine.driot.com -- on 28/10/20
  */
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,9 +17,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.ZikFile;
 
-import java.sql.Date;
-import java.sql.Time;
-import java.text.SimpleDateFormat;
 import java.util.List;
 
 import static com.driot.bookplayer.utils.Tonio.*;
@@ -65,7 +60,7 @@ public class ZikFilesAdapter extends RecyclerView.Adapter<ZikFilesAdapter.ZikFil
 
         holder.textViewFileLastAccess.setText(FormatLastAccess(t.getLastaccess(),t.getLastaccessTime()));
 
-        holder.textViewLength.setText(FormatTime(t.getDuration()));
+        holder.textViewDuration.setText(FormatTime(t.getDuration()));
 
     }
 
@@ -77,7 +72,7 @@ public class ZikFilesAdapter extends RecyclerView.Adapter<ZikFilesAdapter.ZikFil
 
     class ZikFilesViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        TextView textViewFileName, textViewFileLastAccess, textViewFilePercent, textViewLength;
+        TextView textViewFileName, textViewFileLastAccess, textViewFilePercent, textViewDuration;
         ProgressBar mProgressBar;
 
 
@@ -87,7 +82,7 @@ public class ZikFilesAdapter extends RecyclerView.Adapter<ZikFilesAdapter.ZikFil
             textViewFileName = itemView.findViewById(R.id.textViewFileName);
             textViewFilePercent = itemView.findViewById(R.id.textViewFilePercent);
             textViewFileLastAccess = itemView.findViewById(R.id.textViewFileLastAccess);
-            textViewLength =  itemView.findViewById(R.id.textViewLength);
+            textViewDuration =  itemView.findViewById(R.id.textViewDuration);
             mProgressBar = itemView.findViewById(R.id.progressBar);
 
             itemView.setOnClickListener(this);

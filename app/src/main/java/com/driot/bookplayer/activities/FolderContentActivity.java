@@ -56,7 +56,9 @@ public class FolderContentActivity extends LifecycleLoggingActivity {
     @Override
     protected void onRestart() {
         super.onRestart();
-/*
+
+        //TODO put position just after 100%....
+
         long idFolder = getIntent().getIntExtra("FolderId",0);
         Log.d("recyclerview","idFolder on restart = " + idFolder);
         if (idFolder != 0) {
@@ -65,7 +67,7 @@ public class FolderContentActivity extends LifecycleLoggingActivity {
         }
         Log.d("recyclerview","position = " + verticalOffset);
         //recyclerView.smoothScrollToPosition(30); //11
-  */
+
     }
 
     @Override
