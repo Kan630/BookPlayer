@@ -3,6 +3,9 @@
     <string name="title_FolderList">Folders List</string>
     <string name="title_FolderContent">Files List</string>
 
+    <string name="bOpenFolder">Open Folder</string>
+    <string name="bOpenZipFile">Open Zip File</string>
+
     <string name="Error_MainActivity_IsNotFolder">This doesn\'t look like a folder</string>
     <string name="Error_MainActivity_FolderAlreadyImported">This folder has already been loaded</string>
     <string name="Error_MainActivity_NoMediaInFolder">No media found in this folder</string>

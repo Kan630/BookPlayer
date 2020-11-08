@@ -85,6 +85,7 @@ public class FoldersAdapter extends RecyclerView.Adapter<FoldersAdapter.FoldersV
 
                 Intent intent = new Intent(mCtx, FolderContentActivity.class);
                 intent.putExtra("FolderId", folder.getId());
+                intent.putExtra("FolderName", folder.getName());
                 mCtx.startActivity(intent);
             }
 

@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.Log;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -28,6 +29,7 @@ public class FolderContentActivity extends LifecycleLoggingActivity {
 
     static final String TAG = "FolderContentActivity.java";
     private RecyclerView recyclerView;
+    private TextView mTextViewTitle;
     private Parcelable recyclerViewState;
     List<ZikFile> currentZikFileList;
     private ZikFilesAdapter adapter;
@@ -38,10 +40,12 @@ public class FolderContentActivity extends LifecycleLoggingActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_foldercontent);
 
+        mTextViewTitle = findViewById(R.id.textViewTitle);
         recyclerView = findViewById(R.id.recyclerview_zikfiles);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         long idFolder = getIntent().getIntExtra("FolderId",0);
+        mTextViewTitle.setText(getIntent().getStringExtra("FolderName"));
         Log.d("recyclerview","idFolder = " + idFolder);
         if (idFolder != 0) {
             getZikFiles(idFolder);

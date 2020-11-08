@@ -264,6 +264,7 @@ public class MainActivity extends LifecycleLoggingActivity {
                 ZikFile zikFile = new ZikFile();
                 zikFile.setName(sZikFileName);
                 zikFile.setIdFolder(mFolderId);
+                zikFile.setFolderName(sAddedFolderName);
                 zikFile.setPercentdone(dPercent);
                 zikFile.setPosition(iPosition);
                 String sFilePath = "/storage/" + sAddedFolderPath.replace(":","/");

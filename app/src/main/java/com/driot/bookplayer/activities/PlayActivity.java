@@ -136,6 +136,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
         txTempsTotal.setText(FormatTime(zikFileFromIntent.getDuration()));
         seekbar.setMax((int) zikFileFromIntent.getDuration());
         filePath = zikFileFromIntent.getPath() + "/" + zikFileFromIntent.getName();   //"/storage/0123-4567/Droit/09 00.mp3"
+        Log.d("toto","initialized " + zikFileFromIntent.getDuration());
 
         /********************************************************************************
          ***       SEEKBAR
@@ -275,11 +276,10 @@ public class PlayActivity extends LifecycleLoggingActivity {
             protected void onPostExecute(ZikFile[] zikFiles) {
                 super.onPostExecute(zikFiles);
                 currentZikFile = zikFiles[0];
-                Log.d("toto","do it");
+                Log.d("toto","getFiles ok, new currentZikFile");
                 arrayListZikFiles = new ArrayList<ZikFile>();
                 arrayListPaths = new ArrayList<String>();
                 for (ZikFile zikFile : zikFiles) {
-                    Log.d("toto", zikFile.getName());
                     arrayListZikFiles.add(zikFile);
                     arrayListPaths.add(zikFileFromIntent.getPath() + "/" + zikFile.getName());
                 }
