@@ -1,9 +1,7 @@
 package com.driot.bookplayer.activities;
 
-import android.app.Activity;
-import android.os.Bundle;
-import android.util.Log;
-/** onCreate
+/**
+ *  onCreate
  *  onStart
  *  onResume
  *
@@ -19,6 +17,10 @@ import android.util.Log;
  *
  */
 
+import android.app.Activity;
+import android.os.Bundle;
+import android.util.Log;
+
 
 /**
  * This abstract class extends the Activity class and overrides
@@ -26,11 +28,10 @@ import android.util.Log;
  */
 public abstract class LifecycleLoggingActivity 
        extends Activity {
-    /**
-     * Debugging tag used by the Android logger.
-     */
-    protected final String TAG =
-        "toto " + getClass().getSimpleName();
+
+    private static final boolean LOG_TRACE = false;
+
+    protected final String TAG = "toto " + getClass().getSimpleName();
 
     /**
      * Hook method called when a new instance of Activity is created. One time
@@ -51,12 +52,12 @@ public abstract class LifecycleLoggingActivity
             // The activity is being re-created. Use the
             // savedInstanceState bundle for initializations either
             // during onCreate or onRestoreInstanceState().
-            Log.d(TAG, "onCreate(): activity re-created");
+            myLog("onCreate(): activity re-created");
 
         } else {
             // Activity is being created anew. No prior saved
             // instance state information available in Bundle object.
-            Log.d(TAG, "onCreate(): activity created anew");
+            myLog("onCreate(): activity created anew");
         }
 
     }
@@ -72,7 +73,7 @@ public abstract class LifecycleLoggingActivity
         // Always call super class for necessary
         // initialization/implementation.
         super.onStart();
-        Log.d(TAG, "onStart() - the activity is about to become visible");
+        myLog("onStart() - the activity is about to become visible");
     }
 
     /**
@@ -89,8 +90,7 @@ public abstract class LifecycleLoggingActivity
         // initialization/implementation and then log which lifecycle
         // hook method is being called.
         super.onResume();
-        Log.d(TAG,
-              "onResume() - the activity has become visible (it is now \"resumed\")");
+        myLog("onResume() - the activity has become visible (it is now \"resumed\")");
     }
 
     /**
@@ -106,8 +106,7 @@ public abstract class LifecycleLoggingActivity
         // initialization/implementation and then log which lifecycle
         // hook method is being called.
         super.onPause();
-        Log.d(TAG,
-              "onPause() - another activity is taking focus (this activity is about to be \"paused\")");
+        myLog("onPause() - another activity is taking focus (this activity is about to be \"paused\")");
     }
 
     /**
@@ -121,8 +120,7 @@ public abstract class LifecycleLoggingActivity
         // initialization/implementation and then log which lifecycle
         // hook method is being called.
         super.onStop();
-        Log.d(TAG,
-              "onStop() - the activity is no longer visible (it is now \"stopped\")");
+        myLog("onStop() - the activity is no longer visible (it is now \"stopped\")");
     }
 
     /**
@@ -135,7 +133,7 @@ public abstract class LifecycleLoggingActivity
         // initialization/implementation and then log which lifecycle
         // hook method is being called.
         super.onRestart();
-        Log.d(TAG, "onRestart() - the activity is about to be restarted()");
+        myLog("onRestart() - the activity is about to be restarted()");
     }
 
     /**
@@ -149,7 +147,10 @@ public abstract class LifecycleLoggingActivity
         // initialization/implementation and then log which lifecycle
         // hook method is being called.
         super.onDestroy();
-        Log.d(TAG, "onDestroy() - the activity is about to be destroyed");
+        myLog("onDestroy() - the activity is about to be destroyed");
     }
 
+    private void myLog(String str) {
+        if (LOG_TRACE) { myLog(str); }
+    }
 }

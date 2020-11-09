@@ -3,17 +3,12 @@ package com.driot.bookplayer.utils;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.media.AudioAttributes;
 import android.media.AudioFocusRequest;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Binder;
-import android.os.Build;
 import android.os.IBinder;
-import android.os.Message;
-import android.os.RemoteException;
-import android.provider.Settings;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
@@ -36,7 +31,7 @@ public class AudioService extends Service {
     public static final String NOTIFICATION_AUDIOFOCUS_GAIN = "NOTIFICATION_AUDIOFOCUS_GAIN";
 
     private static final boolean LOG_TRACE = false;
-    
+
     private MediaPlayer mediaPlayer;
     private AudioManager mAudioManager;
     private AudioManager.OnAudioFocusChangeListener afChangeListener;
@@ -107,7 +102,8 @@ public class AudioService extends Service {
         mediaPlayer.start();
         alertNewTrack();
     }
-        private void alertNewTrack() {
+
+    private void alertNewTrack() {
         Intent intent = new Intent(NOTIFICATION_NEWTRACK);
         intent.putExtra(TRACKNUMBER, numSong);
         sendBroadcast(intent);
@@ -205,13 +201,11 @@ public class AudioService extends Service {
                 @Override
                 public void onAudioFocusChange(int focusChange) {
                     if(focusChange<=0) {
-                        //LOSS -> PAUSE
                         myLog("Audio Focus Lost");
                         AudioService.this.pause();
                         Intent intent = new Intent(NOTIFICATION_AUDIOFOCUS_LOST);
                         sendBroadcast(intent);
                     } else {
-                        //GAIN -> PLAY
                         myLog("Audio Focus Gain");
                         AudioService.this.start();
                         Intent intent = new Intent(NOTIFICATION_AUDIOFOCUS_GAIN);
@@ -222,75 +216,7 @@ public class AudioService extends Service {
             mAudioManager.requestAudioFocus(afChangeListener, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
 
             mediaPlayer.start();
-
-
-
-            /*
-            mAudioManager = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
-            AudioManager.OnAudioFocusChangeListener afChangeListener = null;
-            //mAudioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
-            // Request audio focus for playback
-            int result = mAudioManager.requestAudioFocus(afChangeListener,
-                    // Use the music stream.
-                    AudioManager.STREAM_MUSIC,
-                    // Request permanent focus.
-                    AudioManager.AUDIOFOCUS_GAIN);
-
-            if (result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
-                // Start playback
-                mediaPlayer.start();
-            }
-/*
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                playbackAttributes = new AudioAttributes.Builder()
-                        .setUsage(AudioAttributes.USAGE_MEDIA)
-                        .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
-                        .build();
-                focusRequest = new AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
-                        .setAudioAttributes(playbackAttributes)
-                        .setAcceptsDelayedFocusGain(true)
-                        .setOnAudioFocusChangeListener(afChangeListener, handler)
-                        .build();
-
-                int res = mAudioManager.requestAudioFocus(focusRequest);
-                synchronized(focusLock) {
-                    if (res == AudioManager.AUDIOFOCUS_REQUEST_FAILED) {
-                        playbackNowAuthorized = false;
-                    } else if (res == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
-                        playbackNowAuthorized = true;
-                        playbackNow();
-                    } else if (res == AudioManager.AUDIOFOCUS_REQUEST_DELAYED) {
-                        playbackDelayed = true;
-                        playbackNowAuthorized = false;
-                    }
-                }
-            } else {
-                mAudioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
-            }
-
-
-
-                // ...
-/*
-
-
-            playbackAttributes = new AudioAttributes.Builder()
-                    .setUsage(AudioAttributes.USAGE_MEDIA)
-                    .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
-                    .build();
-            AudioFocusRequest focusRequest;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                focusRequest = new AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
-                        .setAudioAttributes(playbackAttributes)
-                        .setAcceptsDelayedFocusGain(true)
-                        .setOnAudioFocusChangeListener(afChangeListener, handler)
-                        .build();
-            } else {
-
-            }
-  */
-
-        }
+       }
     }
 
     public void pause() {
@@ -337,5 +263,5 @@ public class AudioService extends Service {
     private void myLog(String str) {
         if (LOG_TRACE) { Log.d("toto",str); }
     }
-    
+
 }
