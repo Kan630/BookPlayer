@@ -63,27 +63,6 @@ public class AudioService extends Service {
         super.onCreate();
         mediaPlayer = new MediaPlayer();
 
-        mAudioManager = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
-        afChangeListener = new AudioManager.OnAudioFocusChangeListener() {
-
-            @Override
-            public void onAudioFocusChange(int focusChange) {
-                if(focusChange<=0) {
-                    //LOSS -> PAUSE
-                    myLog("Audio Focus Lost");
-                    AudioService.this.pause();
-                    Intent intent = new Intent(NOTIFICATION_AUDIOFOCUS_LOST);
-                    sendBroadcast(intent);
-                } else {
-                    //GAIN -> PLAY
-                    myLog("Audio Focus Gain");
-                    AudioService.this.start();
-                    Intent intent = new Intent(NOTIFICATION_AUDIOFOCUS_GAIN);
-                    sendBroadcast(intent);
-                }
-            }
-        };
-        mAudioManager.requestAudioFocus(afChangeListener, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
 
 
 /*
@@ -219,6 +198,29 @@ public class AudioService extends Service {
     public void start() {
         myLog("MusicPlayer.start()");
         if (!mediaPlayer.isPlaying()) {
+
+            mAudioManager = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
+            afChangeListener = new AudioManager.OnAudioFocusChangeListener() {
+
+                @Override
+                public void onAudioFocusChange(int focusChange) {
+                    if(focusChange<=0) {
+                        //LOSS -> PAUSE
+                        myLog("Audio Focus Lost");
+                        AudioService.this.pause();
+                        Intent intent = new Intent(NOTIFICATION_AUDIOFOCUS_LOST);
+                        sendBroadcast(intent);
+                    } else {
+                        //GAIN -> PLAY
+                        myLog("Audio Focus Gain");
+                        AudioService.this.start();
+                        Intent intent = new Intent(NOTIFICATION_AUDIOFOCUS_GAIN);
+                        sendBroadcast(intent);
+                    }
+                }
+            };
+            mAudioManager.requestAudioFocus(afChangeListener, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
+
             mediaPlayer.start();
 
 

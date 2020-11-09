@@ -421,6 +421,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
                 case NOTIFICATION_AUDIOFOCUS_LOST:
                     Log.d("toto","broadcast received AUDIO FOCUS LOST");
                     SetInterfacePausingMode();
+                    updateZikFileState(currentZikFile,false);
                     break;
                 case NOTIFICATION_AUDIOFOCUS_GAIN:
                     Log.d("toto","broadcast received AUDIO FOCUS GAIN");
