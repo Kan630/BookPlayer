@@ -48,6 +48,9 @@ public class Folder implements Serializable {
     @ColumnInfo(name = "lastaccessTime")
     private Time lastaccessTime;
 
+    @ColumnInfo(name = "iszipfile")
+    private boolean iszipfile;
+
     @ColumnInfo(name = "finished")
     private boolean finished;
 
@@ -146,6 +149,14 @@ public class Folder implements Serializable {
 
     public void setLastaccessTime(Time lastaccessTime) {
         this.lastaccessTime = lastaccessTime;
+    }
+
+    public boolean isIszipfile() {
+        return iszipfile;
+    }
+
+    public void setIszipfile(boolean iszipfile) {
+        this.iszipfile = iszipfile;
     }
 
     public boolean isFinished() {

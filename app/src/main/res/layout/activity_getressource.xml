@@ -5,6 +5,9 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <!-- Progress bar overlay; shown while login is in progress -->
+    <include layout="@layout/include_progress_overlay"/>
+
     <Button
         android:id="@+id/bOpenFolder"
         android:layout_width="wrap_content"
