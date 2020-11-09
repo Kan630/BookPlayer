@@ -1,9 +1,14 @@
 package com.driot.bookplayer.utils;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
+import android.media.AudioAttributes;
+import android.media.AudioFocusRequest;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Binder;
+import android.os.Build;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.RemoteException;
@@ -20,14 +25,18 @@ import java.util.TimerTask;
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 01/11/20
  */
-public class AudioService extends Service {
+public class AudioService extends Service implements AudioManager.OnAudioFocusChangeListener {
 
     private final IBinder binder = new BackgroundBinder();
     public static final String TRACKNUMBER = "tracknumber";
     public static final String NOTIFICATION_NEWTRACK = "NOTIFICATION_NEWTRACK";
     public static final String NOTIFICATION_TRACKFINISHED = "NOTIFICATION_TRACKFINISHED";
+    public static final String NOTIFICATION_AUDIOFOCUS_LOST = "NOTIFICATION_AUDIOFOCUS_LOST";
+    public static final String NOTIFICATION_AUDIOFOCUS_PLAY = "NOTIFICATION_AUDIOFOCUS_PLAY";
 
     private MediaPlayer mediaPlayer;
+    private AudioManager mAudioManager;
+
     private boolean fileHasBeenLoaded = false;
     private int numSong = 0;
     private String[] arrayPaths;
@@ -47,6 +56,7 @@ public class AudioService extends Service {
         Log.d("toto", "MusicService onCreate");
         super.onCreate();
         mediaPlayer = new MediaPlayer();
+
 /*
         timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask() {
@@ -114,6 +124,7 @@ public class AudioService extends Service {
         if (mediaPlayer.isPlaying()) {mediaPlayer.stop();}
         mediaPlayer.release();
         mediaPlayer = null;
+        mAudioManager.abandonAudioFocus(this);
     }
 
     @Nullable
@@ -127,6 +138,19 @@ public class AudioService extends Service {
     public boolean onUnbind(Intent intent) {
         Log.d("toto", "MusicService onUnBind");
         return super.onUnbind(intent);
+    }
+
+    @Override
+    public void onAudioFocusChange(int focusChange) {
+        if(focusChange<=0) {
+            //LOSS -> PAUSE
+            Intent intent = new Intent(NOTIFICATION_AUDIOFOCUS_LOST);
+            sendBroadcast(intent);
+        } else {
+            //GAIN -> PLAY
+            Intent intent = new Intent(NOTIFICATION_AUDIOFOCUS_PLAY);
+            sendBroadcast(intent);
+        }
     }
 
     public class BackgroundBinder extends Binder {
@@ -179,6 +203,26 @@ public class AudioService extends Service {
     public void start() {
         Log.d("toto","MusicPlayer.start()");
         if (!mediaPlayer.isPlaying()) {
+            //AudioAttributes = CONTENT_TYPE_SPEECH
+            mAudioManager = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
+            mAudioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
+
+/*
+            playbackAttributes = new AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_MEDIA)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+                    .build();
+            AudioFocusRequest focusRequest;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                focusRequest = new AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
+                        .setAudioAttributes(playbackAttributes)
+                        .setAcceptsDelayedFocusGain(true)
+                        .setOnAudioFocusChangeListener(afChangeListener, handler)
+                        .build();
+            } else {
+
+            }
+  */
             mediaPlayer.start();
         }
     }
@@ -187,6 +231,7 @@ public class AudioService extends Service {
         Log.d("toto","MusicPlayer.pause()");
         if (mediaPlayer.isPlaying()) {
             mediaPlayer.pause();
+            mAudioManager.abandonAudioFocus(this);
         }
     }
 

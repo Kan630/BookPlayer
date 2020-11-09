@@ -41,7 +41,6 @@ public class MainActivity extends LifecycleLoggingActivity {
     public static final int DELAY_ANIMATION = 200;
     private RecyclerView recyclerView;
     private View progressOverlay;
-    private FloatingActionButton btn_Add;
     public static final int READ_REQUEST_CODE = 107;
 
     private int[] InsertedFolderId = {0};
@@ -61,7 +60,7 @@ public class MainActivity extends LifecycleLoggingActivity {
         setContentView(R.layout.activity_main);
 
         recyclerView = findViewById(R.id.recyclerview_folders);
-        btn_Add = findViewById(R.id.FAB_Add);
+        FloatingActionButton btn_Add = findViewById(R.id.FAB_Add);
         progressOverlay = findViewById(R.id.progress_overlay);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
