@@ -31,6 +31,14 @@ import java.io.File;
 import java.sql.Date;
 import java.sql.Time;
 import java.util.List;
+import java.util.concurrent.Callable;
+
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.annotations.NonNull;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.Observer;
+import io.reactivex.rxjava3.disposables.Disposable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
 import static com.driot.bookplayer.utils.Utils.animateView;
 
@@ -75,31 +83,23 @@ public class MainActivity extends LifecycleLoggingActivity {
     }
 
     private void getFolders() {
-
-        class GetFolders extends AsyncTask<Void, Void, List<Folder>> {
-
-            @Override
-            protected List<Folder> doInBackground(Void... voids) {
-                List<Folder> folderList = DatabaseClient
-                        .getInstance(getApplicationContext())
-                        .getAppDatabase()
-                        .FolderDao()
-                        .getAll();
-                return folderList;
-            }
-
-            @Override
-            protected void onPostExecute(List<Folder> folders) {
-                super.onPostExecute(folders);
-                FoldersAdapter adapter = new FoldersAdapter(MainActivity.this, folders);
-                recyclerView.setAdapter(adapter);
-            }
-        }
-
-    GetFolders gt = new GetFolders();
-    gt.execute();
+        Observable.fromCallable(() -> {
+            List<Folder> folders = DatabaseClient
+                    .getInstance(getApplicationContext())
+                    .getAppDatabase()
+                    .FolderDao()
+                    .getAll();
+            return folders;
+        })
+                //.subscribeOn(Schedulers.io())
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                //.subscribe(new Observer<Boolean>() {
+                .subscribe((result) -> {
+                    FoldersAdapter adapter = new FoldersAdapter(MainActivity.this, result);
+                    recyclerView.setAdapter(adapter);
+                });
     }
-
 
     /********************************************************************************
      * ******************************************************************************
