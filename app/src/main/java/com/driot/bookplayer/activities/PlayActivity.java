@@ -46,6 +46,8 @@ import java.sql.Date;
 import java.sql.Time;
 import java.util.ArrayList;
 
+import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_AUDIOFOCUS_GAIN;
+import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_AUDIOFOCUS_LOST;
 import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_NEWTRACK;
 import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_TRACKFINISHED;
 import static com.driot.bookplayer.utils.Tonio.*;
@@ -237,6 +239,8 @@ public class PlayActivity extends LifecycleLoggingActivity {
         super.onResume();
         registerReceiver(receiver, new IntentFilter(NOTIFICATION_NEWTRACK));
         registerReceiver(receiver, new IntentFilter(NOTIFICATION_TRACKFINISHED));
+        registerReceiver(receiver, new IntentFilter(NOTIFICATION_AUDIOFOCUS_GAIN));
+        registerReceiver(receiver, new IntentFilter(NOTIFICATION_AUDIOFOCUS_LOST));
     }
     @Override
     protected void onPause() {
@@ -398,19 +402,30 @@ public class PlayActivity extends LifecycleLoggingActivity {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d("toto","Broadcast received");
-            if (intent.getAction().equals(NOTIFICATION_NEWTRACK)) {
-                Bundle bundle = intent.getExtras();
-                if (bundle != null) {
-                    int numSong = bundle.getInt(AudioService.TRACKNUMBER);
-                    currentZikFile = arrayListZikFiles.get(numSong);
-                    txSubTitle.setText(StripExtention(currentZikFile.getName()));
-                    txTempsTotal.setText(FormatTime(currentZikFile.getDuration()));
-                    seekbar.setMax((int) currentZikFile.getDuration());
-                }
-            }
-            if (intent.getAction().equals(NOTIFICATION_TRACKFINISHED)) {
-                updateZikFileState(currentZikFile, true);
+            switch (intent.getAction()) {
+                case NOTIFICATION_NEWTRACK:
+                    Log.d("toto","broadcast received NEW TRACK");
+                    Bundle bundle = intent.getExtras();
+                    if (bundle != null) {
+                        int numSong = bundle.getInt(AudioService.TRACKNUMBER);
+                        currentZikFile = arrayListZikFiles.get(numSong);
+                        txSubTitle.setText(StripExtention(currentZikFile.getName()));
+                        txTempsTotal.setText(FormatTime(currentZikFile.getDuration()));
+                        seekbar.setMax((int) currentZikFile.getDuration());
+                    }
+                    break;
+                case NOTIFICATION_TRACKFINISHED:
+                    Log.d("toto","broadcast received TRACK FINISHED");
+                    updateZikFileState(currentZikFile, true);
+                    break;
+                case NOTIFICATION_AUDIOFOCUS_LOST:
+                    Log.d("toto","broadcast received AUDIO FOCUS LOST");
+                    SetInterfacePausingMode();
+                    break;
+                case NOTIFICATION_AUDIOFOCUS_GAIN:
+                    Log.d("toto","broadcast received AUDIO FOCUS GAIN");
+                    SetInterfacePlayingMode();
+                    break;
             }
         }
     };

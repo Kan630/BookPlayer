@@ -3,6 +3,10 @@ plugins {
 }
 
 android {
+    signingConfigs {
+        release {
+        }
+    }
     compileSdkVersion 30
 
     defaultConfig {
@@ -13,6 +17,7 @@ android {
         versionName "4"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        signingConfig signingConfigs.debug
     }
 
     buildTypes {

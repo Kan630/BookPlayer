@@ -3,6 +3,7 @@ package com.driot.bookplayer.utils;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.media.AudioAttributes;
 import android.media.AudioFocusRequest;
 import android.media.AudioManager;
@@ -25,17 +26,22 @@ import java.util.TimerTask;
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 01/11/20
  */
-public class AudioService extends Service implements AudioManager.OnAudioFocusChangeListener {
+public class AudioService extends Service {
 
     private final IBinder binder = new BackgroundBinder();
     public static final String TRACKNUMBER = "tracknumber";
     public static final String NOTIFICATION_NEWTRACK = "NOTIFICATION_NEWTRACK";
     public static final String NOTIFICATION_TRACKFINISHED = "NOTIFICATION_TRACKFINISHED";
     public static final String NOTIFICATION_AUDIOFOCUS_LOST = "NOTIFICATION_AUDIOFOCUS_LOST";
-    public static final String NOTIFICATION_AUDIOFOCUS_PLAY = "NOTIFICATION_AUDIOFOCUS_PLAY";
+    public static final String NOTIFICATION_AUDIOFOCUS_GAIN = "NOTIFICATION_AUDIOFOCUS_GAIN";
 
+    private static final boolean LOG_TRACE = false;
+    
     private MediaPlayer mediaPlayer;
     private AudioManager mAudioManager;
+    private AudioManager.OnAudioFocusChangeListener afChangeListener;
+    private AudioAttributes playbackAttributes;
+    private AudioFocusRequest focusRequest;
 
     private boolean fileHasBeenLoaded = false;
     private int numSong = 0;
@@ -53,9 +59,32 @@ public class AudioService extends Service implements AudioManager.OnAudioFocusCh
      */
     @Override
     public void onCreate() {
-        Log.d("toto", "MusicService onCreate");
+        myLog("MusicService onCreate");
         super.onCreate();
         mediaPlayer = new MediaPlayer();
+
+        mAudioManager = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
+        afChangeListener = new AudioManager.OnAudioFocusChangeListener() {
+
+            @Override
+            public void onAudioFocusChange(int focusChange) {
+                if(focusChange<=0) {
+                    //LOSS -> PAUSE
+                    myLog("Audio Focus Lost");
+                    AudioService.this.pause();
+                    Intent intent = new Intent(NOTIFICATION_AUDIOFOCUS_LOST);
+                    sendBroadcast(intent);
+                } else {
+                    //GAIN -> PLAY
+                    myLog("Audio Focus Gain");
+                    AudioService.this.start();
+                    Intent intent = new Intent(NOTIFICATION_AUDIOFOCUS_GAIN);
+                    sendBroadcast(intent);
+                }
+            }
+        };
+        mAudioManager.requestAudioFocus(afChangeListener, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
+
 
 /*
         timer = new Timer();
@@ -63,7 +92,7 @@ public class AudioService extends Service implements AudioManager.OnAudioFocusCh
             public void run() {
                 // Executer de votre tâche
                 increment++;
-                Log.d("toto", "Mon pti service " + increment);
+                myLog("Mon pti service " + increment);
 
             }
         }, 0, 1000);
@@ -71,7 +100,7 @@ public class AudioService extends Service implements AudioManager.OnAudioFocusCh
         mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mediaPlayer) {
-                Log.d("toto","MusicService onCompletion - nextTrack");
+                myLog("MusicService onCompletion - nextTrack");
                 alertTrackFinished();
                 fileHasBeenLoaded=false;
                 nextTrack();
@@ -81,7 +110,7 @@ public class AudioService extends Service implements AudioManager.OnAudioFocusCh
         mediaPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
             @Override
             public boolean onError(MediaPlayer mediaPlayer, int i, int i1) {
-                Log.d("toto","MusicService - MediaPlayer On Error Fired : " + i + " : " + i1 );
+                myLog("MusicService - MediaPlayer On Error Fired : " + i + " : " + i1 );
                 return false;
             }
         });
@@ -94,7 +123,7 @@ public class AudioService extends Service implements AudioManager.OnAudioFocusCh
         //mediaPlayer.create(this, Settings.System.DEFAULT_RINGTONE_URI);
         //mediaPlayer.start();
         //mediaPlayer.reset();
-        Log.d("toto","loading " + arrayPaths[numSong]);
+        myLog("loading " + arrayPaths[numSong]);
         loadFile(arrayPaths[numSong]);
         mediaPlayer.start();
         alertNewTrack();
@@ -103,54 +132,41 @@ public class AudioService extends Service implements AudioManager.OnAudioFocusCh
         Intent intent = new Intent(NOTIFICATION_NEWTRACK);
         intent.putExtra(TRACKNUMBER, numSong);
         sendBroadcast(intent);
-        Log.d("toto","MusicService sendBroadcast alertNewTrack");
+        myLog("MusicService sendBroadcast alertNewTrack");
     }
 
     private void alertTrackFinished() {
         Intent intent = new Intent(NOTIFICATION_TRACKFINISHED);
         sendBroadcast(intent);
-        Log.d("toto","MusicService sendBroadcast alertTrackFinished");
+        myLog("MusicService sendBroadcast alertTrackFinished");
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d("toto", "MusicService onStartCommand");
+        myLog("MusicService onStartCommand");
         return START_NOT_STICKY;
     }
     @Override
     public void onDestroy() {
-        Log.d("toto", "MusicService onDestroy");
+        myLog("MusicService onDestroy");
         //this.timer.cancel();
         if (mediaPlayer.isPlaying()) {mediaPlayer.stop();}
         mediaPlayer.release();
         mediaPlayer = null;
-        mAudioManager.abandonAudioFocus(this);
+        if (mAudioManager != null) { mAudioManager.abandonAudioFocus(afChangeListener); }
     }
 
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        Log.d("toto", "MusicService onBind");
+        myLog("MusicService onBind");
         return binder;
     }
 
     @Override
     public boolean onUnbind(Intent intent) {
-        Log.d("toto", "MusicService onUnBind");
+        myLog("MusicService onUnBind");
         return super.onUnbind(intent);
-    }
-
-    @Override
-    public void onAudioFocusChange(int focusChange) {
-        if(focusChange<=0) {
-            //LOSS -> PAUSE
-            Intent intent = new Intent(NOTIFICATION_AUDIOFOCUS_LOST);
-            sendBroadcast(intent);
-        } else {
-            //GAIN -> PLAY
-            Intent intent = new Intent(NOTIFICATION_AUDIOFOCUS_PLAY);
-            sendBroadcast(intent);
-        }
     }
 
     public class BackgroundBinder extends Binder {
@@ -172,7 +188,7 @@ public class AudioService extends Service implements AudioManager.OnAudioFocusCh
     */
 
     public void loadFiles(ArrayList<String> sPaths) {
-        Log.d("toto","MusicPlayer.loadFiles(array)");
+        myLog("MusicPlayer.loadFiles(array)");
         arrayPaths = sPaths.toArray(new String[0]);
         numSong = 0;
         loadFile(arrayPaths[numSong]);
@@ -183,7 +199,7 @@ public class AudioService extends Service implements AudioManager.OnAudioFocusCh
         // TODO, use openFileDescriptor & remove legacy from manifest
     public void loadFile(String sPath) {
         if (!fileHasBeenLoaded) {
-            Log.d("toto", "MusicService loadFile(" + sPath + ")");
+            myLog("MusicService loadFile(" + sPath + ")");
             try {
                 mediaPlayer.setDataSource(sPath);
             } catch (IOException e) {
@@ -196,18 +212,66 @@ public class AudioService extends Service implements AudioManager.OnAudioFocusCh
             }
             fileHasBeenLoaded=true;
         } else {
-            Log.d("toto", "File was already loaded !! " + sPath);
+            myLog("File was already loaded !! " + sPath);
         }
     }
 
     public void start() {
-        Log.d("toto","MusicPlayer.start()");
+        myLog("MusicPlayer.start()");
         if (!mediaPlayer.isPlaying()) {
-            //AudioAttributes = CONTENT_TYPE_SPEECH
-            mAudioManager = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
-            mAudioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
+            mediaPlayer.start();
 
+
+
+            /*
+            mAudioManager = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
+            AudioManager.OnAudioFocusChangeListener afChangeListener = null;
+            //mAudioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
+            // Request audio focus for playback
+            int result = mAudioManager.requestAudioFocus(afChangeListener,
+                    // Use the music stream.
+                    AudioManager.STREAM_MUSIC,
+                    // Request permanent focus.
+                    AudioManager.AUDIOFOCUS_GAIN);
+
+            if (result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+                // Start playback
+                mediaPlayer.start();
+            }
 /*
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                playbackAttributes = new AudioAttributes.Builder()
+                        .setUsage(AudioAttributes.USAGE_MEDIA)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+                        .build();
+                focusRequest = new AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
+                        .setAudioAttributes(playbackAttributes)
+                        .setAcceptsDelayedFocusGain(true)
+                        .setOnAudioFocusChangeListener(afChangeListener, handler)
+                        .build();
+
+                int res = mAudioManager.requestAudioFocus(focusRequest);
+                synchronized(focusLock) {
+                    if (res == AudioManager.AUDIOFOCUS_REQUEST_FAILED) {
+                        playbackNowAuthorized = false;
+                    } else if (res == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+                        playbackNowAuthorized = true;
+                        playbackNow();
+                    } else if (res == AudioManager.AUDIOFOCUS_REQUEST_DELAYED) {
+                        playbackDelayed = true;
+                        playbackNowAuthorized = false;
+                    }
+                }
+            } else {
+                mAudioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
+            }
+
+
+
+                // ...
+/*
+
+
             playbackAttributes = new AudioAttributes.Builder()
                     .setUsage(AudioAttributes.USAGE_MEDIA)
                     .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
@@ -223,44 +287,44 @@ public class AudioService extends Service implements AudioManager.OnAudioFocusCh
 
             }
   */
-            mediaPlayer.start();
+
         }
     }
 
     public void pause() {
-        Log.d("toto","MusicPlayer.pause()");
+        myLog("MusicPlayer.pause()");
         if (mediaPlayer.isPlaying()) {
             mediaPlayer.pause();
-            mAudioManager.abandonAudioFocus(this);
+            if (mAudioManager != null) { mAudioManager.abandonAudioFocus(afChangeListener); }
         }
     }
 
     public void setPosition(int position) {
-        Log.d("toto","MusicPlayer.seekTo(" + position + ")");
+        myLog("MusicPlayer.seekTo(" + position + ")");
         mediaPlayer.seekTo(position);
     }
 
     public int getPosition() {
-        Log.d("toto","MusicPlayer.getPosition()");
+        myLog("MusicPlayer.getPosition()");
         return mediaPlayer.getCurrentPosition();
     }
 
     public int getTrackNum() {
-        Log.d("toto","MusicPlayer.getTrackNum()");
+        myLog("MusicPlayer.getTrackNum()");
         return numSong;
     }
 
     public int getDuration() {
-        Log.d("toto","MusicPlayer.getDuration()");
+        myLog("MusicPlayer.getDuration()");
         return mediaPlayer.getDuration();
     }
 
     public boolean isPlaying() {
-        Log.d("toto","MusicPlayer.isPlaying()");
+        myLog("MusicPlayer.isPlaying()");
         return mediaPlayer.isPlaying();
     }
     public boolean exist() {
-        Log.d("toto","MusicPlayer.exist");
+        myLog("MusicPlayer.exist");
         if (mediaPlayer == null) {
             return false;
         } else {
@@ -268,5 +332,8 @@ public class AudioService extends Service implements AudioManager.OnAudioFocusCh
         }
     }
 
-
+    private void myLog(String str) {
+        if (LOG_TRACE) { Log.d("toto",str); }
     }
+    
+}

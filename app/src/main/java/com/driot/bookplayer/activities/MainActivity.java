@@ -154,12 +154,6 @@ public class MainActivity extends LifecycleLoggingActivity {
 
             // On vérifie qu'on a pas deja le loustic
             if (pickedDir.isDirectory()) {
-                /*
-                Log.d("titi", "treeUri get path : " + treeUri.getPath());
-                Log.d("titi", "treeUri get path : " + treeUri.toString());
-                Log.d("titi", "folder name : " + pickedDir.getName());
-                Log.d("titi", "folder name : " + pickedDir.toString());
-                */
                 checkIfAddedFolderExist();
             } else {
                 Log.d("toto","Ce n'est pas un dossier");
