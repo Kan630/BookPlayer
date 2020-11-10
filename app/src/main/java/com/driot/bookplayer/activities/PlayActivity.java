@@ -91,6 +91,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
     protected void onSaveInstanceState(Bundle outState) // entre stop et destroy
     {
         super.onSaveInstanceState(outState);
+        outState.putBoolean("HasBeenPlayed", HasBeenPlayed);
         if (mService != null && mService.isPlaying()) {
             outState.putBoolean("wasPlaying", true);
         } else {
@@ -104,6 +105,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
     {
         super.onRestoreInstanceState(savedInstanceState);
         boolean wasPlaying = savedInstanceState.getBoolean("wasPlaying", false);
+        HasBeenPlayed = savedInstanceState.getBoolean("HasBeenPlayed", false);
         if (wasPlaying) {
             if (mService != null) {mService.start();}
             myHandler.postDelayed(UpdateSongTime, INTERVAL_REDRAW_SEEKBAR);
@@ -134,7 +136,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
 
         Intent intentMusicService = new Intent(PlayActivity.this, AudioService.class);
         bindService(intentMusicService, connection, Context.BIND_AUTO_CREATE);
-        Log.d("toto","Activity : bind to Service ");
+        Log.d("toto","PlayActivity : bind to Service ");
 
         // TODO, use Parcelable
         //ZikFile zikFile = getIntent().getParcelableExtra("zikFile");
@@ -146,7 +148,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
         txTempsTotal.setText(FormatTime(zikFileFromIntent.getDuration()));
         seekbar.setMax((int) zikFileFromIntent.getDuration());
         filePath = zikFileFromIntent.getPath() + "/" + zikFileFromIntent.getName();   //"/storage/0123-4567/Droit/09 00.mp3"
-        Log.d("toto","initialized " + zikFileFromIntent.getDuration());
+        Log.d("toto","----------------------------- play screen initialized " + zikFileFromIntent.getPosition());
 
         /********************************************************************************
          ***       SEEKBAR
@@ -198,7 +200,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
                 mService.pause();
                 SetInterfacePausingMode();
                 updateZikFileState(currentZikFile,false);
-                myLog("updated on pause : " + currentZikFile.getId());
+                //myLog("updated on pause : " + currentZikFile.getId());
             }
         });
 
@@ -307,6 +309,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
     private void Initialize() {
         mService.loadFiles(arrayListPaths);
         mService.setPosition((int) currentZikFile.getPosition());
+        Log.d("toto","---- position initialized " + currentZikFile.getPosition());
         redrawSeekBar();
 
         updateZikFileState(currentZikFile, false);
@@ -317,7 +320,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
      ********************************************************************************
      */
     private void updateZikFileState(ZikFile zikFile, boolean bFinished) {
-
+        Log.d("toto","---------- ZikFile called for update - position : " + mService.getPosition());
         if (HasBeenPlayed) {
             if (zikFile.getFirstaccess() == null) {
                 zikFile.setFirstaccess(new Date(System.currentTimeMillis()));
@@ -344,6 +347,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
                 protected Void doInBackground(Void... voids) {
                     DatabaseClient.getInstance(getApplicationContext()).getAppDatabase()
                             .ZikFileDao().update(zikFile);
+                    Log.d("toto","---------- ZikFile updated - position : " + zikFile.getPosition());
                     return null;
                 }
 

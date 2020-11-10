@@ -113,8 +113,6 @@ public class MainActivity extends LifecycleLoggingActivity {
         startActivity(intent);
     }
 
-
-
     /********************
      *
      * END STUFF

@@ -18,8 +18,11 @@ package com.driot.bookplayer.activities;
  */
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+
+import androidx.annotation.NonNull;
 
 
 /**
@@ -29,7 +32,11 @@ import android.util.Log;
 public abstract class LifecycleLoggingActivity 
        extends Activity {
 
-    private static final boolean LOG_TRACE = false;
+    //------------------------------------------------------------------------
+    //------------------------------------------------------------------------
+    private static final boolean LOG_TRACE = true;
+    //------------------------------------------------------------------------
+    //------------------------------------------------------------------------
 
     protected final String TAG = "toto " + getClass().getSimpleName();
 
@@ -150,7 +157,33 @@ public abstract class LifecycleLoggingActivity
         myLog("onDestroy() - the activity is about to be destroyed");
     }
 
+    // Ajouts Tonio
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        myLog("onSaveInstanceState()");
+    }
+
+    @Override
+    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        myLog("onRestoreInstanceState()");
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        myLog("onActivityResult() - request code " + requestCode);
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        myLog("onNewIntent() + intent : " + intent.getAction());
+    }
+
     private void myLog(String str) {
-        if (LOG_TRACE) { myLog(str); }
+        if (LOG_TRACE) { Log.d(TAG,str); }
     }
 }
