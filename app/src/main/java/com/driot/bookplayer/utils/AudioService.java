@@ -13,6 +13,8 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 
+import com.driot.bookplayer.db.ZikFile;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Timer;
@@ -40,7 +42,9 @@ public class AudioService extends Service {
 
     private boolean fileHasBeenLoaded = false;
     private int numSong = 0;
-    private String[] arrayPaths;
+    //private String[] arrayPaths;
+
+    private ZikFile[] zikFilePlayList;
 
     // controle pour le debug...
     //private Timer timer;
@@ -97,8 +101,9 @@ public class AudioService extends Service {
         //mediaPlayer.create(this, Settings.System.DEFAULT_RINGTONE_URI);
         //mediaPlayer.start();
         //mediaPlayer.reset();
-        myLog("loading " + arrayPaths[numSong]);
-        loadFile(arrayPaths[numSong]);
+        String mPath = zikFilePlayList[numSong].getPath() + "/" + zikFilePlayList[numSong].getName();
+        myLog("loading " + mPath);
+        loadFile(mPath);
         mediaPlayer.start();
         alertNewTrack();
     }
@@ -162,11 +167,13 @@ public class AudioService extends Service {
     if (f.exists()) { Log.d("titi","ok file found : " + filePath);} else {Log.d("titi","KO file not found : " + filePath);}
     */
 
-    public void loadFiles(ArrayList<String> sPaths) {
+    public void loadFiles(ZikFile[] zikFiles) {
         myLog("MusicPlayer.loadFiles(array)");
-        arrayPaths = sPaths.toArray(new String[0]);
+        //arrayPaths = sPaths.toArray(new String[0]);
         numSong = 0;
-        loadFile(arrayPaths[numSong]);
+        zikFilePlayList = zikFiles;
+        String mPath = zikFilePlayList[numSong].getPath() + "/" + zikFilePlayList[numSong].getName();
+        loadFile(mPath);
     }
 
 
@@ -185,9 +192,9 @@ public class AudioService extends Service {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            fileHasBeenLoaded=true;
+            fileHasBeenLoaded = true;
         } else {
-            myLog("File was already loaded !! " + sPath);
+            Log.d("toto","ERROR -- File was already loaded !! " + sPath);
         }
     }
 
@@ -237,11 +244,6 @@ public class AudioService extends Service {
         return mediaPlayer.getCurrentPosition();
     }
 
-    public int getTrackNum() {
-        myLog("MusicPlayer.getTrackNum()");
-        return numSong;
-    }
-
     public int getDuration() {
         myLog("MusicPlayer.getDuration()");
         return mediaPlayer.getDuration();
@@ -257,6 +259,36 @@ public class AudioService extends Service {
             return false;
         } else {
             return true;
+        }
+    }
+
+    public ZikFile getCurrentZikFile() {
+        if (fileHasBeenLoaded) {
+            Log.d("toto", "getCurrentZikFile : " + zikFilePlayList[numSong].getName());
+            return zikFilePlayList[numSong];
+        } else {
+            Log.d("toto", "getCurrentZikFile : ERROR file not loaded");
+            return null;
+        }
+    }
+
+    public ZikFile getLastZikFile() {
+        if (fileHasBeenLoaded) {
+            if (numSong > 0) {
+                return zikFilePlayList[numSong - 1];
+            } else {
+                return null;
+            }
+        } else {
+            return null;
+        }
+    }
+
+    public boolean hasBeenLoaded() {
+        if (fileHasBeenLoaded) {
+            return true;
+        } else {
+            return false;
         }
     }
 
