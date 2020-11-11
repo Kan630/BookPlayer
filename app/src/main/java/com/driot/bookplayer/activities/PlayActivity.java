@@ -452,8 +452,11 @@ public class PlayActivity extends LifecycleLoggingActivity {
         //String strSQL = "UPDATE Folder SET percentdone = 11.11 WHERE id = 1";
         String strSQL = "UPDATE Folder " +
                 " SET percentdone = (SELECT SUM(percentdone*duration)/SUM(duration) " +
-                " FROM ZikFile " +
-                " WHERE Folder.id = ZikFile.idFolder )";
+                "                   FROM ZikFile " +
+                "                   WHERE Folder.id = ZikFile.idFolder )" +
+                "   , LastAccess = strftime('%s','now') * 1000" +
+                "   , LastAccessTime = strftime('%s','now') * 1000 " +
+                " WHERE Folder.id = " + mService.getCurrentZikFile().getIdFolder();
 
         class UpdateFolderState extends AsyncTask<Void, Void, Void> {
 
