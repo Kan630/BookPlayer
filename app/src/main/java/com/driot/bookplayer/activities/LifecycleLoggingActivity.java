@@ -39,6 +39,7 @@ public abstract class LifecycleLoggingActivity
     //------------------------------------------------------------------------
 
     protected final String TAG = "toto " + getClass().getSimpleName();
+    //String TAG = this.getClass().getName().substring(this.getClass().getName().lastIndexOf(".")+1);
 
     /**
      * Hook method called when a new instance of Activity is created. One time

@@ -49,6 +49,7 @@ import java.util.HashSet;
 
 import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_AUDIOFOCUS_GAIN;
 import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_AUDIOFOCUS_LOST;
+import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_FILELOADED;
 import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_NEWTRACK;
 import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_TRACKFINISHED;
 import static com.driot.bookplayer.utils.Tonio.*;
@@ -75,9 +76,6 @@ public class PlayActivity extends LifecycleLoggingActivity {
     private SeekBar seekbar;
     private TextView txSeekBar, txTempsTotal, txNomFichier, txTitle, txSubTitle;
     private ZikFile zikFileFromIntent;
-    //private ArrayList<ZikFile> arrayListZikFiles;
-    //private ArrayList<String> arrayListPaths;
-
 
     AudioService mService;
     boolean mBound = false;
@@ -111,19 +109,6 @@ public class PlayActivity extends LifecycleLoggingActivity {
         HasBeenPlayed = savedInstanceState.getBoolean("HasBeenPlayed", false);
         HasBeenInitializedService = savedInstanceState.getBoolean("HasBeenInitializedService", false);
         myHandler.postDelayed(UpdateSongTime, INTERVAL_REDRAW_SEEKBAR);
-/*
-        boolean wasPlaying = savedInstanceState.getBoolean("wasPlaying", false);
-        if (wasPlaying) {
-            if (mService != null) {
-                mService.start();
-                mService.setPosition(savedInstanceState.getInt("position" ));
-                //currentZikFile = mService.getCurrentZikFile();
-            }
-
-        }
-        DrawUI();
-
- */
     }
 
     /********************************************************************************
@@ -157,18 +142,17 @@ public class PlayActivity extends LifecycleLoggingActivity {
 
         zikFileFromIntent = (ZikFile) getIntent().getSerializableExtra("ZikFile");
 
-        DrawUI();
+        //-*******************************************************************************
+        //-***       SEEKBAR
+        //-*******************************************************************************
 
-        /********************************************************************************
-         ***       SEEKBAR
-         ********************************************************************************
-         */
         seekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 if (fromUser) {
                     mService.setPosition(progress);
                     txSeekBar.setText(FormatTime(progress));
+                    HasBeenPlayed = true;
                 }
             }
 
@@ -181,10 +165,10 @@ public class PlayActivity extends LifecycleLoggingActivity {
             }
         });
 
-        /********************************************************************************
-         ***       BUTTON PLAY
-         ********************************************************************************
-         */
+        //-*******************************************************************************
+        //-***       BUTTON PLAY
+        //-*******************************************************************************
+
         bPlay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -198,10 +182,9 @@ public class PlayActivity extends LifecycleLoggingActivity {
             }
         });
 
-        /********************************************************************************
-         ***       BUTTON PAUSE
-         ********************************************************************************
-         */
+        //-*******************************************************************************
+        //-***       BUTTON PAUSE
+        //-*******************************************************************************
 
         bPause.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -209,14 +192,13 @@ public class PlayActivity extends LifecycleLoggingActivity {
                 mService.pause();
                 SetInterfacePausingMode();
                 updateZikFileState(mService.getCurrentZikFile(),false);
-                //myLog("updated on pause : " + currentZikFile.getId());
             }
         });
 
-        /********************************************************************************
-         ***       BUTTONS AVANCE & RETOUR RAPIDE
-         ********************************************************************************
-         */
+        //-*******************************************************************************
+        //-***       BUTTONS AVANCE & RETOUR RAPIDE
+        //-*******************************************************************************
+
         bForward.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -252,6 +234,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
         registerReceiver(receiver, new IntentFilter(NOTIFICATION_TRACKFINISHED));
         registerReceiver(receiver, new IntentFilter(NOTIFICATION_AUDIOFOCUS_GAIN));
         registerReceiver(receiver, new IntentFilter(NOTIFICATION_AUDIOFOCUS_LOST));
+        registerReceiver(receiver, new IntentFilter(NOTIFICATION_FILELOADED));
     }
     @Override
     protected void onPause() {
@@ -287,7 +270,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
      ********************************************************************************
      */
     private void loadPlayListIntoService() {
-        Log.d("toto","+++++++++ GetZikFiles");
+        Log.d("toto","+++++++++ loading PlayList Into Service - GetZikFiles");
 
         class GetZikFiles extends AsyncTask<Void, Void, ZikFile[]> {
 
@@ -304,13 +287,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
             @Override
             protected void onPostExecute(ZikFile[] zikFiles) {
                 super.onPostExecute(zikFiles);
-
-                // Load Playlist
                 mService.loadFiles(zikFiles);
-
-                DrawUI();
-
-                redrawSeekBar();
             }
         }
         GetZikFiles gt = new GetZikFiles();
@@ -327,7 +304,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
             seekbar.setMax((int) zf.getDuration());
             txSeekBar.setText(FormatTime(zf.getPosition()));
             seekbar.setProgress((int) zf.getPosition());
-            Log.d("toto","----------------------------- play screen drawn");
+            Log.d("toto","----------------------------- play screen drawn " + zf.getPosition());
         } else {
             Log.d("toto","----------------------------- play screen drawn ERROR no mService or not ready");
         }
@@ -348,32 +325,32 @@ public class PlayActivity extends LifecycleLoggingActivity {
             final Date sLastAccess = new Date(System.currentTimeMillis());
             zikFile.setLastaccess(sLastAccess);
             zikFile.setLastaccessTime(sLastAccessTime);
-        }
-        if (bFinished) {
-            zikFile.setPosition(zikFile.getDuration());
-            zikFile.setPercentdone(100);
-            zikFile.setFinished(true);
-        } else {
-            zikFile.setPosition(mService.getPosition());
-            zikFile.setPercentdone(FormatPercentDouble((double) mService.getPosition()/mService.getDuration()));
-            if (zikFile.getDuration() == 0) {
-                zikFile.setDuration(mService.getDuration());
-            }
-        }
-
-        class UpdateZikFileState extends AsyncTask<Void, Void, Void> {
-
-            @Override
-            protected Void doInBackground(Void... voids) {
-                DatabaseClient.getInstance(getApplicationContext()).getAppDatabase()
-                        .ZikFileDao().update(zikFile);
-                Log.d("toto","---------- ZikFile updated - position : " + zikFile.getPosition());
-                return null;
+            if (bFinished) {
+                zikFile.setPosition(zikFile.getDuration());
+                zikFile.setPercentdone(100);
+                zikFile.setFinished(true);
+            } else {
+                zikFile.setPosition(mService.getPosition());
+                zikFile.setPercentdone(FormatPercentDouble((double) mService.getPosition()/mService.getDuration()));
+                if (zikFile.getDuration() == 0) {
+                    zikFile.setDuration(mService.getDuration());
+                }
             }
 
+            class UpdateZikFileState extends AsyncTask<Void, Void, Void> {
+
+                @Override
+                protected Void doInBackground(Void... voids) {
+                    DatabaseClient.getInstance(getApplicationContext()).getAppDatabase()
+                            .ZikFileDao().update(zikFile);
+                    Log.d("toto","---------- ZikFile updated - position : " + zikFile.getPosition());
+                    return null;
+                }
+
+            }
+            UpdateZikFileState gt = new UpdateZikFileState();
+            gt.execute();
         }
-        UpdateZikFileState gt = new UpdateZikFileState();
-        gt.execute();
     }
 
     /********************************************************************************
@@ -413,6 +390,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
             if (!HasBeenInitializedService) { loadPlayListIntoService(); }
             HasBeenInitializedService = true;
 
+            // retour de flip ecran
             DrawUI();
         }
 
@@ -431,10 +409,6 @@ public class PlayActivity extends LifecycleLoggingActivity {
             switch (intent.getAction()) {
                 case NOTIFICATION_NEWTRACK:
                     Log.d("toto","broadcast received NEW TRACK");
-                    //Bundle bundle = intent.getExtras();
-                    //if (bundle != null) {
-                        DrawUI();
-                    //}
                     break;
                 case NOTIFICATION_TRACKFINISHED:
                     Log.d("toto","broadcast received TRACK FINISHED");
@@ -448,6 +422,11 @@ public class PlayActivity extends LifecycleLoggingActivity {
                 case NOTIFICATION_AUDIOFOCUS_GAIN:
                     Log.d("toto","broadcast received AUDIO FOCUS GAIN");
                     SetInterfacePlayingMode();
+                    break;
+                case NOTIFICATION_FILELOADED:
+                    Log.d("toto","broadcast received FILE LOADED");
+                    DrawUI();
+                    mService.setPosition((int) mService.getCurrentZikFile().getPosition());
                     break;
             }
         }
@@ -519,7 +498,6 @@ public class PlayActivity extends LifecycleLoggingActivity {
 
 
     protected void myLog(String str) {
-        //String TAG = this.getClass().getName().substring(this.getClass().getName().lastIndexOf(".")+1);
         Log.d("toto " + TAG + " ", str);
         System.out.println(str);
     }

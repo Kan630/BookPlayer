@@ -27,6 +27,7 @@ public class AudioService extends Service {
 
     private final IBinder binder = new BackgroundBinder();
     public static final String TRACKNUMBER = "tracknumber";
+    public static final String NOTIFICATION_FILELOADED = "NOTIFICATION_FILELOADED";
     public static final String NOTIFICATION_NEWTRACK = "NOTIFICATION_NEWTRACK";
     public static final String NOTIFICATION_TRACKFINISHED = "NOTIFICATION_TRACKFINISHED";
     public static final String NOTIFICATION_AUDIOFOCUS_LOST = "NOTIFICATION_AUDIOFOCUS_LOST";
@@ -193,6 +194,8 @@ public class AudioService extends Service {
                 e.printStackTrace();
             }
             fileHasBeenLoaded = true;
+            Intent intent = new Intent(NOTIFICATION_FILELOADED);
+            sendBroadcast(intent);
         } else {
             Log.d("toto","ERROR -- File was already loaded !! " + sPath);
         }
@@ -237,6 +240,7 @@ public class AudioService extends Service {
     public void setPosition(int position) {
         myLog("MusicPlayer.seekTo(" + position + ")");
         mediaPlayer.seekTo(position);
+        //zikFilePlayList[numSong].setPosition(position);
     }
 
     public int getPosition() {
