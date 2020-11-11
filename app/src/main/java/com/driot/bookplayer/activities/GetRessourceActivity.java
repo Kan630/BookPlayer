@@ -22,16 +22,24 @@ import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.ZikFile;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Date;
 import java.sql.Time;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.zip.ZipFile;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
+import static com.driot.bookplayer.utils.Tonio.getExtension;
+import static com.driot.bookplayer.utils.Tonio.getMimeType;
 import static com.driot.bookplayer.utils.Utils.animateView;
+import static com.driot.bookplayer.utils.Utils.copyStream;
 import static com.driot.bookplayer.utils.Utils.retrieveListing;
 
 /**
@@ -46,6 +54,8 @@ public class GetRessourceActivity extends Activity {
     public static final int DELAY_ANIMATION = 200;
     private int[] InsertedFolderId = {0};
     private DocumentFile[] myZikFileList;
+    private String[] filePathList;
+
     private Handler myHandler = new Handler();;
 
     private DocumentFile pickedDir;
@@ -53,6 +63,11 @@ public class GetRessourceActivity extends Activity {
     private String sAddedFolderHash;
     private String sAddedFolderName;
     private String sAddedFolderPath;
+
+    private boolean isZipFolder;
+    private String zipFilePath;
+    private ZipFile zipFile;
+    private ArrayList<String> audioFileArrayList;
 
 
     @Override
@@ -88,6 +103,7 @@ public class GetRessourceActivity extends Activity {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK && requestCode == OPEN_FOLDER_REQUEST_CODE) {
+            isZipFolder = false;
             Uri treeUri = data.getData();
             //File pickedDir = new File(treeUri.getPath());
             pickedDir = DocumentFile.fromTreeUri(this, treeUri);
@@ -97,23 +113,7 @@ public class GetRessourceActivity extends Activity {
                 pickedDir = DocumentFile.fromTreeUri(this, treeUri).getParentFile();
             }
 
-            // on construit quelques attributs
-            sAddedFolderUri = pickedDir.getUri().toString();
-            sAddedFolderHash = Integer.toString(pickedDir.getUri().hashCode());
-            // nom par défaut = les deux derniers folders :
-            // ex  : "S3 - Finances publiques/Audios"
-            sAddedFolderPath = pickedDir.getUri().getLastPathSegment();
-            String str = sAddedFolderPath.replace(":","/");
-            Log.d("toto",str);
-            int pos1 = str.lastIndexOf("/");
-            if (pos1>-1) {
-                int pos2 =  str.substring(0,pos1).lastIndexOf("/",pos1);
-                if (pos2>-1) {
-                    sAddedFolderName = str.substring(pos2+1);
-                } else {
-                    sAddedFolderName = str.substring(pos1+1);
-                }
-            }
+            BuildFolderAttributesFromUri(pickedDir.getUri());
 
             // On vérifie qu'on a pas deja le loustic
             if (pickedDir.isDirectory()) {
@@ -123,23 +123,121 @@ public class GetRessourceActivity extends Activity {
                 Toast.makeText(getApplicationContext(), getString(R.string.Error_MainActivity_IsNotFolder), Toast.LENGTH_SHORT).show();
             }
         } else if (resultCode == RESULT_OK && requestCode == OPEN_ZIP_FILE_REQUEST_CODE) {
-            Toast.makeText(getApplicationContext(), "Pas encore disponible !", Toast.LENGTH_SHORT).show();
+            isZipFolder = true;
+            //Toast.makeText(getApplicationContext(), "Pas encore disponible !", Toast.LENGTH_SHORT).show();
+
             Uri uri = data.getData();
-            String filePath;
-            filePath = uri.getPath().replace(":","/").replace("document","storage");
-            File zipFile = new File(filePath);
-            if (zipFile.exists()) { Log.d("toto","ok file found : " + filePath);} else {Log.d("toto","KO file not found : " + filePath);}
+            BuildFolderAttributesFromUri(uri);
+
+            // Zip File Stuff
+            zipFilePath = uri.getPath().replace(":","/").replace("document","storage");
+
+            File fileZipFile = new File(zipFilePath);
+            if (fileZipFile.exists()) { Log.d("toto","ok zip file found : " + zipFilePath);} else {Log.d("toto","KO zip file not found : " + zipFilePath);}
+
+            zipFile = null;
+            try {
+                zipFile = new ZipFile(zipFilePath);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            Log.d("toto","ZipFile instancied ok");
+            //for (Enumeration e = zipFile.entries(); e.hasMoreElements();) {
+            //    ZipEntry entry = (ZipEntry) e.nextElement();
+            //    System.out.println(entry);
+
+
             HashMap<String, List<String>> zipFileListing;
-            zipFileListing = retrieveListing(zipFile);
+            zipFileListing = retrieveListing(fileZipFile);
+            filePathList = zipFileListing.get("root").toArray(new String[0]);
 
-            Log.d("toto",zipFileListing.get("root").toString());
+            // filter audio file
+            audioFileArrayList = new ArrayList<String>();
+            for (String s : filePathList) {
+                String mimeType = getMimeType(new File(s));
+                if (mimeType.equals("audio/mpeg")) {
+                    audioFileArrayList.add(s); //this adds an element to the list.
+                }
+            }
 
-            // list audio file
-            // check not empty
-            // add folder & files
+            if (audioFileArrayList.size() == 0) {
+                Toast.makeText(getApplicationContext(), "Aucun fichier audio trouvé dans le fichier zip", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(getApplicationContext(), audioFileArrayList.size() + " fichiers audios ont été trouvés dans le zip", Toast.LENGTH_SHORT).show();
+            }
+
+            checkIfFolderAlreadyExist();
+
+            Log.d("toto","--------------------------");
 
         }
     }
+
+    private void BuildFolderAttributesFromUri(Uri uri) {
+        // on construit quelques attributs
+        sAddedFolderUri = uri.toString();
+        sAddedFolderHash = Integer.toString(uri.hashCode());
+        // nom par défaut = les deux derniers folders :
+        // ex  : "S3 - Finances publiques/Audios"
+        sAddedFolderPath = uri.getLastPathSegment();
+        String str = sAddedFolderPath.replace(":","/");
+        int pos1 = str.lastIndexOf("/");
+        if (isZipFolder) {
+            sAddedFolderName = str.substring(pos1+1).replace(".zip","").replace(".zip","").replace("_"," ");
+        } else {
+            Log.d("toto",str);
+            if (pos1>-1) {
+                int pos2 =  str.substring(0,pos1).lastIndexOf("/",pos1);
+                if (pos2>-1) {
+                    sAddedFolderName = str.substring(pos2+1);
+                } else {
+                    sAddedFolderName = str.substring(pos1+1);
+                }
+            }
+        }
+    }
+
+    private void checkIfFolderAlreadyExist() {
+        Observable.fromCallable(() -> {
+            boolean bcheckIfFolderExist = false;
+            long lcheckIfFolderExist = DatabaseClient
+                    .getInstance(getApplicationContext())
+                    .getAppDatabase()
+                    .FolderDao()
+                    .folderAlreadyExist(sAddedFolderUri,sAddedFolderHash);
+            if (lcheckIfFolderExist>0) { bcheckIfFolderExist = true;}
+            return bcheckIfFolderExist;
+        })
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe((result) -> {
+                    if (result) {
+                        Log.d("toto","Zip deja importé");
+                        Toast.makeText(getApplicationContext(), getString(R.string.Error_MainActivity_FolderAlreadyImported), Toast.LENGTH_SHORT).show();
+                    } else {
+                        Log.d("toto","ok on continue");
+                        saveFolder();
+                    }
+
+                });
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     private void checkIfAddedFolderExist() {
@@ -217,6 +315,7 @@ public class GetRessourceActivity extends Activity {
                 folder.setLastaccess(sLastAccess);
                 folder.setLastaccessTime(sLastAccessTime);
                 folder.setFinished(false);
+                folder.setIszipfile(isZipFolder);
 
                 //adding to database
                 InsertedFolderId[0] = (int) DatabaseClient.getInstance(getApplicationContext()).getAppDatabase()
@@ -228,12 +327,35 @@ public class GetRessourceActivity extends Activity {
             @Override
             protected void onPostExecute(Void aVoid) {
                 super.onPostExecute(aVoid);
-                saveFiles();
+                if (isZipFolder) {
+                    saveZipFiles();
+                } else {
+                    saveFiles();
+                }
             }
         }
 
         SaveFolder st = new SaveFolder();
         st.execute();
+    }
+
+    private void saveZipFiles() {
+        Log.d("toto","saving ZipFiles");
+        Observable.fromCallable(() -> {
+            for (String s : audioFileArrayList) {
+                String fileName = s.substring(s.lastIndexOf("/")+1);
+                Log.d("toto","Call save " + fileName);
+                saveFile(fileName, InsertedFolderId[0]);
+            }
+            return true;
+        })
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe((result) -> {
+                    Log.d("toto","Zip file have been saved ");
+                    updateFolderDuration();
+                });
+
     }
 
     private void saveFiles() {
@@ -284,16 +406,22 @@ public class GetRessourceActivity extends Activity {
                 String sFolderPath = "/storage/" + sAddedFolderPath.replace(":","/");
                 String sFileFullPath = sFolderPath + File.separator + sZikFileName;
                 zikFile.setPath(sFolderPath);
+                //Log.d("toto","File Full path : " + sFileFullPath);
                 File f = new File(sFileFullPath);
                 //File file = new File(Uri.parse("/sdcard/lala.txt").getPath());
                 zikFile.setSize(f.length());
-                zikFile.setDuration(getMediaDurationFromPath(sFileFullPath));
+                try {
+                    zikFile.setDuration(getMediaDurationFromPath(sFileFullPath));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                zikFile.setIszipfile(isZipFolder);
 
                 //adding to database
                 DatabaseClient.getInstance(getApplicationContext()).getAppDatabase()
                         .ZikFileDao()
                         .insert(zikFile);
-                Log.d("toto","File Added " + zikFile.getName());
+                //Log.d("toto","File Added " + zikFile.getName());
                 return null;
             }
 
@@ -348,10 +476,47 @@ public class GetRessourceActivity extends Activity {
 
 
     // DUREE AUDIO
-    private static long getMediaDurationFromPath(String zePath) {
+    private long getMediaDurationFromPath(String zePath) throws IOException {
         MediaMetadataRetriever mediaMetadataRetriever = new MediaMetadataRetriever();
-        mediaMetadataRetriever.setDataSource(zePath);
-        return Long.parseLong(mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
+        long duration = 0;
+        if (isZipFolder) {
+            InputStream inputStream = null;
+            FileOutputStream out = null;
+            try {
+                // or use this APK / library / whatever
+                // ZipResourceFile expansionFile = new ZipResourceFile(zePath);
+
+                String fileName = zePath.substring(zePath.lastIndexOf("/")+1);
+                inputStream = zipFile.getInputStream(zipFile.getEntry(fileName));
+                File f = File.createTempFile("_AUDIO_", getExtension(fileName));
+                f.deleteOnExit();
+                out = new FileOutputStream(f);
+                copyStream(inputStream,out);
+
+                mediaMetadataRetriever.setDataSource(f.getPath());
+                duration = Long.parseLong(mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
+
+                f.delete();
+                //Log.d("toto", "ca marche " + duration + " : " + fileName);
+
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            } finally {
+                if (mediaMetadataRetriever != null) {
+                    mediaMetadataRetriever.release();
+                }
+                if (inputStream != null) {
+                    inputStream.close();
+                }
+                if (out != null) {
+                    out.close();
+                }
+            }
+    } else {
+            mediaMetadataRetriever.setDataSource(zePath);
+            duration = Long.parseLong(mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
+        }
+        return duration;
     }
 
 

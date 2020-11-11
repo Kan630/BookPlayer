@@ -17,7 +17,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -28,24 +27,16 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import androidx.documentfile.provider.DocumentFile;
 import androidx.sqlite.db.SimpleSQLiteQuery;
 
-import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.utils.AudioService;
 import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.ZikFile;
 
-import org.w3c.dom.Text;
-
-import java.sql.Array;
 import java.sql.Date;
 import java.sql.Time;
-import java.util.ArrayList;
-import java.util.HashSet;
 
 import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_AUDIOFOCUS_GAIN;
 import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_AUDIOFOCUS_LOST;
@@ -297,7 +288,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
     private void DrawUI() {
         if (mService != null && mService.hasBeenLoaded()) {
             ZikFile zf = mService.getCurrentZikFile();
-            txSubTitle.setText(StripExtention(zf.getName()));
+            txSubTitle.setText(stripExtension(zf.getName()));
             txTitle.setText(zf.getFolderName());
             txNomFichier.setText("");
             txTempsTotal.setText(FormatTime(zf.getDuration()));

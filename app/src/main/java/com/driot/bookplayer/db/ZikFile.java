@@ -64,6 +64,9 @@ public class ZikFile implements Serializable {
     @ColumnInfo(name = "lastaccessTime")
     private Time lastaccessTime;
 
+    @ColumnInfo(name = "iszipfile")
+    private boolean iszipfile;
+
     @ColumnInfo(name = "finished")
     private boolean finished;
 
@@ -170,51 +173,11 @@ public class ZikFile implements Serializable {
         this.size = size;
     }
 
-    /*
-    public void saveProgress(double position, boolean bFinished) {
-        if (this.getFirstaccess() == null) {
-            this.setFirstaccess(new Date(System.currentTimeMillis()));
-        }
-        this.setLastaccess(new Date(System.currentTimeMillis()));
-        this.setLastaccessTime(new Time(System.currentTimeMillis()));
-        if (bFinished) {
-            this.setFinished(true);
-            this.setPosition(this.getDuration());
-            this.setPercentdone(100);
-        } else {
-            this.setPosition(position);
-            this.setPercentdone(FormatPercentDouble(this.getPosition()/this.getDuration()));
-        }
-
-        class UpdateZikFileState extends AsyncTask<Void, Void, Void> {
-            @Override
-            protected Void doInBackground(Void... voids) {
-                DatabaseClient.getInstance(getApplicationContext()).getAppDatabase().ZikFileDao().update(this);
-                return null;
-            }
-        }
-        UpdateZikFileState gt = new UpdateZikFileState();
-        gt.execute();
-    }
-    */
-
-    @Override
-    public String toString() {
-        return "ZikFile{" +
-                "id=" + id +
-                ", idFolder=" + idFolder +
-                ", name='" + name + '\'' +
-                ", path='" + path + '\'' +
-                ", folderName='" + folderName + '\'' +
-                ", position=" + position +
-                ", duration=" + duration +
-                ", size=" + size +
-                ", percentdone=" + percentdone +
-                ", firstaccess=" + firstaccess +
-                ", lastaccess=" + lastaccess +
-                ", lastaccessTime=" + lastaccessTime +
-                ", finished=" + finished +
-                '}';
+    public boolean isIszipfile() {
+        return iszipfile;
     }
 
+    public void setIszipfile(boolean iszipfile) {
+        this.iszipfile = iszipfile;
+    }
 }

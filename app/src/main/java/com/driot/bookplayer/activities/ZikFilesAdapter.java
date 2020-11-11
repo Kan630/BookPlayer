@@ -52,7 +52,7 @@ public class ZikFilesAdapter extends RecyclerView.Adapter<ZikFilesAdapter.ZikFil
     public void RedrawViewHolderElements(ZikFilesViewHolder holder, int position) {
         ZikFile t = ZikFileList.get(position);
 
-        holder.textViewFileName.setText(StripExtention(t.getName()));
+        holder.textViewFileName.setText(stripExtension(t.getName()));
 
         holder.textViewFilePercent.setText(FormatPercentString(t.getPercentdone()));
 

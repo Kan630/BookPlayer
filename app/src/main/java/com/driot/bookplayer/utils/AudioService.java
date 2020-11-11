@@ -15,10 +15,14 @@ import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.db.ZikFile;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.io.InputStream;
+import java.util.zip.ZipFile;
+
+import static com.driot.bookplayer.utils.Tonio.getExtension;
+import static com.driot.bookplayer.utils.Utils.copyStream;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 01/11/20
@@ -46,6 +50,7 @@ public class AudioService extends Service {
     //private String[] arrayPaths;
 
     private ZikFile[] zikFilePlayList;
+    private File tempFile = null;
 
     // controle pour le debug...
     //private Timer timer;
@@ -102,9 +107,11 @@ public class AudioService extends Service {
         //mediaPlayer.create(this, Settings.System.DEFAULT_RINGTONE_URI);
         //mediaPlayer.start();
         //mediaPlayer.reset();
-        String mPath = zikFilePlayList[numSong].getPath() + "/" + zikFilePlayList[numSong].getName();
-        myLog("loading " + mPath);
-        loadFile(mPath);
+
+        //String mPath = zikFilePlayList[numSong].getPath() + "/" + zikFilePlayList[numSong].getName();
+        //loadFile(mPath);
+        myLog("loading next track");
+        loadZeFile();
         mediaPlayer.start();
         alertNewTrack();
     }
@@ -135,6 +142,7 @@ public class AudioService extends Service {
         mediaPlayer.release();
         mediaPlayer = null;
         if (mAudioManager != null) { mAudioManager.abandonAudioFocus(afChangeListener); }
+        if (tempFile != null && tempFile.exists()) { tempFile.delete();tempFile=null;}
     }
 
     @Nullable
@@ -170,16 +178,50 @@ public class AudioService extends Service {
 
     public void loadFiles(ZikFile[] zikFiles) {
         myLog("MusicPlayer.loadFiles(array)");
-        //arrayPaths = sPaths.toArray(new String[0]);
+        // sorte de constructeur
         numSong = 0;
         zikFilePlayList = zikFiles;
-        String mPath = zikFilePlayList[numSong].getPath() + "/" + zikFilePlayList[numSong].getName();
-        loadFile(mPath);
+
+        // on charge le premier fichier
+        loadZeFile();
+    }
+
+    private void loadZeFile() {
+        if (zikFilePlayList[numSong].isIszipfile()) {
+            loadFile(GetTempFilePathFromZipFile());
+        } else {
+            String mPath = zikFilePlayList[numSong].getPath() + "/" + zikFilePlayList[numSong].getName();
+            loadFile(mPath);
+        }
+    }
+
+    private String GetTempFilePathFromZipFile() {
+        String pathOfTempFile = "";
+        String zipFilePath = zikFilePlayList[numSong].getPath();
+        String fileName = zikFilePlayList[numSong].getName();
+
+        //File fileZipFile = new File(zipFilePath);
+        //if (fileZipFile.exists()) { Log.d("toto","ok zip file found : " + zipFilePath);} else {Log.d("toto","KO zip file not found : " + zipFilePath);}
+
+
+        try {
+            if (tempFile != null && tempFile.exists()) { tempFile.delete();tempFile=null;}
+            ZipFile zipFile = new ZipFile(zipFilePath);
+            InputStream inputStream = zipFile.getInputStream(zipFile.getEntry(fileName));
+            tempFile = File.createTempFile("_AUDIO_", getExtension(fileName));
+            //tempFile.deleteOnExit();
+            FileOutputStream out = new FileOutputStream(tempFile);
+            copyStream(inputStream,out);
+            pathOfTempFile = tempFile.getPath();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return pathOfTempFile;
     }
 
 
-
-        // TODO, use openFileDescriptor & remove legacy from manifest
+    // TODO, use openFileDescriptor & remove legacy from manifest
     public void loadFile(String sPath) {
         if (!fileHasBeenLoaded) {
             myLog("MusicService loadFile(" + sPath + ")");

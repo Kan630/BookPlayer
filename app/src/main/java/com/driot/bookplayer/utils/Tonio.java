@@ -124,18 +124,28 @@ public class Tonio {
         return s;
     }
 
-    public static String StripExtention(String fileName) {
+    public static String stripExtension(String fileName) {
         String s = fileName;
         if (s.indexOf(".") > 0) {
             s = s.substring(0, s.lastIndexOf("."));
         }
         s = s.replace("_"," ");
         return s;
+    }
 
+    public static String getExtension(String fileName) {
+        String s = fileName;
+        int pos = s.lastIndexOf(".");
+        if (pos > 0) {
+            s = s.substring(pos);
+        } else {
+            s="";
+        }
+        return s;
     }
 
     @NonNull
-    static String getMimeType(@NonNull File file) {
+    public static String getMimeType(@NonNull File file) {
         String type = null;
         final String url = file.toString();
         final String extension = MimeTypeMap.getFileExtensionFromUrl(url);
@@ -143,7 +153,7 @@ public class Tonio {
             type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension.toLowerCase());
         }
         if (type == null) {
-            type = "image/*"; // fallback type. You might set it to */*
+            type = "*/*"; // fallback type. You might set it to image/*
         }
         return type;
     }
