@@ -24,8 +24,15 @@ import com.driot.bookplayer.db.ZikFile;
 import java.io.File;
 import java.sql.Date;
 import java.sql.Time;
+import java.util.HashMap;
+import java.util.List;
+
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
 import static com.driot.bookplayer.utils.Utils.animateView;
+import static com.driot.bookplayer.utils.Utils.retrieveListing;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 08/11/20
@@ -117,8 +124,23 @@ public class GetRessourceActivity extends Activity {
             }
         } else if (resultCode == RESULT_OK && requestCode == OPEN_ZIP_FILE_REQUEST_CODE) {
             Toast.makeText(getApplicationContext(), "Pas encore disponible !", Toast.LENGTH_SHORT).show();
+            Uri uri = data.getData();
+            String filePath;
+            filePath = uri.getPath().replace(":","/").replace("document","storage");
+            File zipFile = new File(filePath);
+            if (zipFile.exists()) { Log.d("toto","ok file found : " + filePath);} else {Log.d("toto","KO file not found : " + filePath);}
+            HashMap<String, List<String>> zipFileListing;
+            zipFileListing = retrieveListing(zipFile);
+
+            Log.d("toto",zipFileListing.get("root").toString());
+
+            // list audio file
+            // check not empty
+            // add folder & files
+
         }
     }
+
 
     private void checkIfAddedFolderExist() {
 
