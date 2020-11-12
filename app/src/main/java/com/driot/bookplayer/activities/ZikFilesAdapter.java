@@ -58,7 +58,7 @@ public class ZikFilesAdapter extends RecyclerView.Adapter<ZikFilesAdapter.ZikFil
 
         holder.mProgressBar.setProgress(FormatPercentForProgressBar(t.getPercentdone()));
 
-        holder.textViewFileLastAccess.setText(FormatLastAccess(t.getLastaccess(),t.getLastaccessTime()));
+        holder.textViewFileLastAccess.setText(FormatLastAccess(t.getLastaccess(),t.getLastaccessTime(), mCtx.getString(R.string.yesterday)));
 
         holder.textViewDuration.setText(FormatTime(t.getDuration()));
 

@@ -23,6 +23,8 @@
     <string name="Error_MainActivity_FolderAlreadyImported">This folder has already been loaded</string>
     <string name="Error_MainActivity_NoMediaInFolder">No media found in this folder</string>
 
+    <string name="yesterday">"yesterday"</string>
+
     <string name="back"><![CDATA[<]]></string>
     <string name="play"><![CDATA[>]]></string>
     <string name="rewind"><![CDATA[<<]]></string>

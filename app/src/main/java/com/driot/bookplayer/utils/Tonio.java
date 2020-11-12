@@ -1,7 +1,5 @@
 package com.driot.bookplayer.utils;
 
-import android.annotation.SuppressLint;
-import android.media.MediaMetadataRetriever;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
@@ -11,8 +9,7 @@ import java.io.File;
 import java.sql.Date;
 import java.sql.Time;
 import java.text.SimpleDateFormat;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
+import java.util.Calendar;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
@@ -97,18 +94,27 @@ public class Tonio {
         }
         return d;
     }
-    public static String FormatLastAccess(Date d, Time t) {
+    public static String FormatLastAccess(Date d, Time t, String NameForYesterday) {
         String s;
         if (d != null && t != null) {
             Date d2 = new Date(System.currentTimeMillis());
+            Calendar cal = Calendar.getInstance();
+            cal.add(Calendar.DATE,-1);
+            Date d3 = new Date(cal.getTimeInMillis()); // yesterday
             String s1 = d.toString();
             String s2 = d2.toString();
+            String s3 = d3.toString();
             // check if date same as today
             if (s1.equals(s2)) {
                 // Give time :
                 s = t.toString();
                 s = s.substring(0, 5);
-                // check if less than 7 days
+                // check if yesterday
+            } else if (s1.equals(s3)) {
+                //RelativeDateTimeFormatter fmt = RelativeDateTimeFormatter.getInstance(); // require API 24
+                //fmt.format(Direction.LAST, AbsoluteUnit.DAY);
+                s = NameForYesterday;
+                // give name of the day
             } else if ((d2.getTime()-d.getTime())/ (1000 * 60 * 60 * 24)<7) {
                 // give name of the day
                 SimpleDateFormat outFormat = new SimpleDateFormat("EEEE");
