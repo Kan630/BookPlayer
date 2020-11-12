@@ -5,6 +5,18 @@
 
     <string name="bOpenFolder">Open Folder</string>
     <string name="bOpenZipFile">Open Zip File</string>
+    <string name="bSearchLibrivox">Librivox.org</string>
+    <string name="bSearchLitteratureaudio">Litteratureaudio.com</string>
+
+    <string name="TextHeaderOpen">Open an audio on my device</string>
+    <string name="bOpenFolder_desc">If your audios files are located inside a folder, press this button and select this folder :</string>
+    <string name="bOpenZipFile_desc">If your audios files are located inside a ZIP file, press this button and select this archive :</string>
+
+    <string name="TextHeaderSearch">Search for free audio on internet</string>
+    <string name="bSearchLibrivox_desc">Search then Download a book from Librivox.org (english mostly) :</string>
+    <string name="bSearchlitteratureaudio_desc">Search then Download a book from litteratureaudio.com (french) :</string>
+    <string name="bSearchExampleText">These 2 website above are only examples, there is tons of audio on the web, you could also download university lectures.</string>
+
     <string name="bAddRessource">Add Content</string>
 
     <string name="Error_MainActivity_IsNotFolder">This doesn\'t look like a folder</string>

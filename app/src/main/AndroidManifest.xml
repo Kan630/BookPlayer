@@ -20,7 +20,7 @@
         </activity>
         <activity android:name=".activities.PlayActivity" />
         <activity android:name=".activities.FolderContentActivity" />
-        <activity android:name=".activities.GetRessourceActivity" />
+        <activity android:name=".activities.GetResourceActivity" />
         <service android:name=".utils.AudioService" />
     </application>
 

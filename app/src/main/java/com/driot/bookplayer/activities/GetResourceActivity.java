@@ -45,10 +45,11 @@ import static com.driot.bookplayer.utils.Utils.retrieveListing;
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 08/11/20
  */
-public class GetRessourceActivity extends Activity {
+public class GetResourceActivity extends Activity {
 
     private static final int OPEN_ZIP_FILE_REQUEST_CODE = 24;
     private static final int OPEN_FOLDER_REQUEST_CODE = 25;
+    private static final int DOWNLOAD_BOOK_REQUEST_CODE = 26;
 
     private View progressOverlay;
     public static final int DELAY_ANIMATION = 200;
@@ -77,6 +78,8 @@ public class GetRessourceActivity extends Activity {
 
         Button bOpenFolder = findViewById(R.id.bOpenFolder);
         Button bOpenZipFile = findViewById(R.id.bOpenZipFile);
+        Button bSearchLibrivox = findViewById(R.id.bSearchLibrivox);
+        Button bSearchLitteratureaudio = findViewById(R.id.bSearchLitteratureaudio);
         progressOverlay = findViewById(R.id.progress_overlay);
 
 
@@ -94,6 +97,24 @@ public class GetRessourceActivity extends Activity {
             public void onClick(View view) {
                 Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
                 startActivityForResult(intent, OPEN_FOLDER_REQUEST_CODE);
+            }
+        });
+        bSearchLibrivox.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String url = "https://librivox.org/search";
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                startActivity(intent);
+                //startActivityForResult(intent, DOWNLOAD_BOOK_REQUEST_CODE);
+            }
+        });
+        bSearchLitteratureaudio.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String url = "http://www.litteratureaudio.com/classement-de-nos-livres-audio-gratuits-les-plus-apprecies";
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                startActivity(intent);
+                //startActivityForResult(intent, DOWNLOAD_BOOK_REQUEST_CODE);
             }
         });
 
@@ -170,6 +191,8 @@ public class GetRessourceActivity extends Activity {
 
             Log.d("toto","--------------------------");
 
+        } else if (resultCode == RESULT_OK && requestCode == DOWNLOAD_BOOK_REQUEST_CODE) {
+            Log.d("toto","search done");
         }
     }
 
@@ -459,14 +482,15 @@ public class GetRessourceActivity extends Activity {
             @Override
             protected void onPostExecute(Void aVoid) {
                 super.onPostExecute(aVoid);
-                Log.d("toto","run query " + strSQL);
+                Log.d("toto","query has been run : " + strSQL);
 
                 // Hide animation:
                 animateView(progressOverlay, View.GONE, 0, DELAY_ANIMATION);
                 // refresh screen
-                Intent intent = new Intent(getApplicationContext(),MainActivity.class);
-                startActivity(intent);
+                //Intent intent = new Intent(getApplicationContext(),MainActivity.class);
+                //startActivity(intent);
                 // myHandler.postDelayed(GetRessourceActivity.this::getFolders, 100);
+                finish();
             }
         }
 

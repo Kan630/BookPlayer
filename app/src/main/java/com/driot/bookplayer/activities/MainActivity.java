@@ -1,46 +1,27 @@
 package com.driot.bookplayer.activities;
 
 import android.Manifest;
-import android.app.Activity;
-import android.app.AsyncNotedAppOp;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.media.MediaMetadataRetriever;
-import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.View;
-import android.widget.Toast;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.documentfile.provider.DocumentFile;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.sqlite.db.SimpleSQLiteQuery;
 
 import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.db.ZikFile;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import java.io.File;
-import java.sql.Date;
-import java.sql.Time;
 import java.util.List;
-import java.util.concurrent.Callable;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
-import io.reactivex.rxjava3.annotations.NonNull;
 import io.reactivex.rxjava3.core.Observable;
-import io.reactivex.rxjava3.core.Observer;
-import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
-
-import static com.driot.bookplayer.utils.Utils.animateView;
 
 
 public class MainActivity extends LifecycleLoggingActivity {
@@ -96,8 +77,12 @@ public class MainActivity extends LifecycleLoggingActivity {
                 .observeOn(AndroidSchedulers.mainThread())
                 //.subscribe(new Observer<Boolean>() {
                 .subscribe((result) -> {
-                    FoldersAdapter adapter = new FoldersAdapter(MainActivity.this, result);
-                    recyclerView.setAdapter(adapter);
+                    if (result.size()==0) {
+                        performFileSearch();
+                    } else {
+                        FoldersAdapter adapter = new FoldersAdapter(MainActivity.this, result);
+                        recyclerView.setAdapter(adapter);
+                    }
                 });
     }
 
@@ -109,7 +94,7 @@ public class MainActivity extends LifecycleLoggingActivity {
      */
 
     public void performFileSearch() {
-        Intent intent = new Intent(getApplicationContext(),GetRessourceActivity.class);
+        Intent intent = new Intent(getApplicationContext(), GetResourceActivity.class);
         startActivity(intent);
     }
 

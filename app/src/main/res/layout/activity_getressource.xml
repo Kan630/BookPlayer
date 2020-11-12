@@ -8,15 +8,50 @@
     <!-- Progress bar overlay; shown while login is in progress -->
     <include layout="@layout/include_progress_overlay"/>
 
-    <Button
-        android:id="@+id/bOpenFolder"
+    <TextView
+        android:id="@+id/TextHeaderOpen"
+        android:text="@string/TextHeaderOpen"
+        android:textStyle="bold"
+        android:textSize="20dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/bOpenFolder"
-        android:layout_marginTop="100dp"
-        android:layout_marginLeft="50dp"
+        android:layout_marginTop="20dp"
+        android:paddingHorizontal="20dp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        />
+
+    <TextView
+        android:id="@+id/bOpenFolder_desc"
+        android:text="@string/bOpenFolder_desc"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/GetRessource_vertical_margin_title2text"
+        android:paddingHorizontal="50dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/TextHeaderOpen"
+        />
+
+    <Button
+        android:id="@+id/bOpenFolder"
+        android:text="@string/bOpenFolder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/GetRessource_vertical_margin_text2button"
+        android:layout_marginLeft="50dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/bOpenFolder_desc"
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/bOpenZiFile_desc"
+        android:text="@string/bOpenZipFile_desc"
+        android:paddingHorizontal="50dp"
+        android:layout_marginTop="@dimen/GetRessource_vertical_margin_low"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/bOpenFolder"
         />
 
     <Button
@@ -24,9 +59,81 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/bOpenZipFile"
-        android:layout_marginTop="100dp"
+        android:layout_marginTop="@dimen/GetRessource_vertical_margin_text2button"
         android:layout_marginLeft="50dp"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/bOpenFolder"
+        app:layout_constraintTop_toBottomOf="@id/bOpenZiFile_desc"
         />
+
+
+    <TextView
+        android:id="@+id/TextHeaderSearch"
+        android:text="@string/TextHeaderSearch"
+        android:textStyle="bold"
+        android:textSize="20dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/GetRessource_vertical_margin_high"
+        android:paddingHorizontal="20dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/bOpenZipFile"
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/bSearchLibrivox_desc"
+        android:text="@string/bSearchLibrivox_desc"
+        android:paddingHorizontal="50dp"
+        android:layout_marginTop="@dimen/GetRessource_vertical_margin_title2text"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/TextHeaderSearch"
+        />
+
+    <Button
+        android:id="@+id/bSearchLibrivox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/bSearchLibrivox"
+        android:layout_marginTop="@dimen/GetRessource_vertical_margin_text2button"
+        android:layout_marginLeft="50dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/bSearchLibrivox_desc"
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/bSearchlitteratureaudio_desc"
+        android:text="@string/bSearchlitteratureaudio_desc"
+        android:paddingHorizontal="50dp"
+        android:layout_marginTop="@dimen/GetRessource_vertical_margin_low"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/bSearchLibrivox"
+        />
+
+    <Button
+        android:id="@+id/bSearchLitteratureaudio"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/bSearchLitteratureaudio"
+        android:layout_marginTop="@dimen/GetRessource_vertical_margin_text2button"
+        android:layout_marginLeft="50dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/bSearchlitteratureaudio_desc"
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/bSearchExempleText"
+        android:text="@string/bSearchExampleText"
+        android:textStyle="italic"
+        android:paddingHorizontal="50dp"
+        android:layout_marginTop="@dimen/GetRessource_vertical_margin_low"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/bSearchLitteratureaudio"
+        />
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>
