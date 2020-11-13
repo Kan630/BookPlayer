@@ -28,7 +28,7 @@ public class DatabaseClient {
         appDatabase = Room.databaseBuilder(mCtx, AppDatabase.class,DATABASE_NAME )
 
                 //-------------------------------------------------------
-                .fallbackToDestructiveMigration()  // <--- ATTENTION !!
+                //.fallbackToDestructiveMigration()  // <--- ATTENTION !!
                 //                              modif version BDD => truncate all tables !!
                 //-------------------------------------------------------
 

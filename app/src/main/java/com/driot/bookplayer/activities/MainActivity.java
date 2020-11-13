@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -32,6 +33,20 @@ public class MainActivity extends LifecycleLoggingActivity {
     private View progressOverlay;
     public static final int DELAY_ANIMATION = 200;
 
+    private boolean HasBeenProposedToOpenFile;
+
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean("HasBeenProposedToOpenFile", HasBeenProposedToOpenFile);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        HasBeenProposedToOpenFile = savedInstanceState.getBoolean("HasBeenProposedToOpenFile", false);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,7 +93,8 @@ public class MainActivity extends LifecycleLoggingActivity {
                 //.subscribe(new Observer<Boolean>() {
                 .subscribe((result) -> {
                     if (result.size()==0) {
-                        performFileSearch();
+                        if (!HasBeenProposedToOpenFile) performFileSearch();
+                        HasBeenProposedToOpenFile=true;
                     } else {
                         FoldersAdapter adapter = new FoldersAdapter(MainActivity.this, result);
                         recyclerView.setAdapter(adapter);

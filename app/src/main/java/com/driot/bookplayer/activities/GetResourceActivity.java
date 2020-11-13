@@ -389,6 +389,7 @@ public class GetResourceActivity extends Activity {
             protected Void doInBackground(Void... voids) {
                 for (DocumentFile file :myZikFileList) {
                     if (file.getType().equals("audio/mpeg")) {
+                        Log.d("toto","saving file " + file.getName());
                         saveFile(file.getName(), InsertedFolderId[0]);
                     }
                 }
