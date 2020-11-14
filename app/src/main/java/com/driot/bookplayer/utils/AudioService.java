@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.zip.ZipFile;
 
+import static com.driot.bookplayer.utils.Tonio.fileExists;
 import static com.driot.bookplayer.utils.Tonio.getExtension;
 import static com.driot.bookplayer.utils.Utils.copyStream;
 
@@ -39,10 +40,12 @@ public class AudioService extends Service {
     public static final String NOTIFICATION_FILELOADED = "NOTIFICATION_FILELOADED";
     public static final String NOTIFICATION_NEWTRACK = "NOTIFICATION_NEWTRACK";
     public static final String NOTIFICATION_TRACKFINISHED = "NOTIFICATION_TRACKFINISHED";
+    public static final String NOTIFICATION_ERROR = "NOTIFICATION_ERROR";
     public static final String NOTIFICATION_AUDIOFOCUS_LOST = "NOTIFICATION_AUDIOFOCUS_LOST";
     public static final String NOTIFICATION_AUDIOFOCUS_GAIN = "NOTIFICATION_AUDIOFOCUS_GAIN";
 
     private static final boolean LOG_TRACE = false;
+    private static final boolean LOG_TRACE_ALL = false;
 
     private MediaPlayer mediaPlayer;
     private AudioManager mAudioManager;
@@ -52,14 +55,12 @@ public class AudioService extends Service {
 
     private boolean fileHasBeenLoaded = false;
     private int numSong = 0;
-    //private String[] arrayPaths;
 
     private ZikFile[] zikFilePlayList;
     private File tempFile = null;
 
-    // controle pour le debug...
-    //private Timer timer;
-    //private int increment = 0;
+    private boolean ErrorLoadingFile = false;
+
 
     /********************************************************************************
      ***       NATIVE METHODS
@@ -73,31 +74,24 @@ public class AudioService extends Service {
         super.onCreate();
         mediaPlayer = new MediaPlayer();
 
-/*
-        timer = new Timer();
-        timer.scheduleAtFixedRate(new TimerTask() {
-            public void run() {
-                // Executer de votre tâche
-                increment++;
-                myLog("Mon pti service " + increment);
-
-            }
-        }, 0, 1000);
-*/
         mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mediaPlayer) {
-                myLog("MusicService onCompletion - nextTrack");
-                alertTrackFinished();
-                fileHasBeenLoaded=false;
-                nextTrack();
+                if (!ErrorLoadingFile) {
+                    myLog("MusicService onCompletion - nextTrack");
+                    alertTrackFinished();
+                    fileHasBeenLoaded=false;
+                    nextTrack();
+                }
             }
         });
 
         mediaPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
             @Override
             public boolean onError(MediaPlayer mediaPlayer, int i, int i1) {
+                ErrorLoadingFile = true;
                 myLog("MusicService - MediaPlayer On Error Fired : " + i + " : " + i1 );
+                alertError();
                 return false;
             }
         });
@@ -111,8 +105,6 @@ public class AudioService extends Service {
         //mediaPlayer.start();
         //mediaPlayer.reset();
 
-        //String mPath = zikFilePlayList[numSong].getPath() + "/" + zikFilePlayList[numSong].getName();
-        //loadFile(mPath);
         myLog("loading next track");
         loadZeFile();
         mediaPlayer.start();
@@ -124,6 +116,13 @@ public class AudioService extends Service {
         intent.putExtra(TRACKNUMBER, numSong);
         sendBroadcast(intent);
         myLog("MusicService sendBroadcast alertNewTrack");
+    }
+
+    private void alertError() {
+        Intent intent = new Intent(NOTIFICATION_ERROR);
+        intent.putExtra(TRACKNUMBER, numSong);
+        sendBroadcast(intent);
+        myLog("MusicService sendBroadcast alertError");
     }
 
     private void alertTrackFinished() {
@@ -140,7 +139,6 @@ public class AudioService extends Service {
     @Override
     public void onDestroy() {
         myLog("MusicService onDestroy");
-        //this.timer.cancel();
         if (mediaPlayer.isPlaying()) {mediaPlayer.stop();}
         mediaPlayer.release();
         mediaPlayer = null;
@@ -173,11 +171,6 @@ public class AudioService extends Service {
      ********************************************************************************
      */
 
-    // TODO, check File Exist
-        /*
-    File f = new File(filePath);
-    if (f.exists()) { Log.d("titi","ok file found : " + filePath);} else {Log.d("titi","KO file not found : " + filePath);}
-    */
 
     public void loadFiles(ZikFile[] zikFiles) {
         myLog("MusicPlayer.loadFiles(array)");
@@ -203,9 +196,6 @@ public class AudioService extends Service {
         String zipFilePath = zikFilePlayList[numSong].getPath();
         String fileName = zikFilePlayList[numSong].getName();
 
-        //File fileZipFile = new File(zipFilePath);
-        //if (fileZipFile.exists()) { Log.d("toto","ok zip file found : " + zipFilePath);} else {Log.d("toto","KO zip file not found : " + zipFilePath);}
-
 
         try {
             if (tempFile != null && tempFile.exists()) { tempFile.delete();tempFile=null;}
@@ -225,25 +215,30 @@ public class AudioService extends Service {
 
 
     // TODO, use openFileDescriptor & remove legacy from manifest
-    public void loadFile(String sPath) {
-        if (!fileHasBeenLoaded) {
-            myLog("MusicService loadFile(" + sPath + ")");
-            try {
-                mediaPlayer.setDataSource(sPath);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            try {
-                mediaPlayer.prepare();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+    public boolean loadFile(String sPath) {
+        ErrorLoadingFile = false; // for onCompletion Next Track...
+        if (!fileExists(sPath)) {
+            myLog("ERROR -- File doesn't exist !! " + sPath);
+            ErrorLoadingFile=false;
+            return false;
+        }
+        if (fileHasBeenLoaded) {
+            myLog("ERROR -- File was already loaded !! " + sPath);
+            return false;
+        }
+        myLog("MusicService loadFile(" + sPath + ")");
+        try {
+            mediaPlayer.setDataSource(sPath);
+            mediaPlayer.prepare();
             fileHasBeenLoaded = true;
             Intent intent = new Intent(NOTIFICATION_FILELOADED);
             sendBroadcast(intent);
-        } else {
-            Log.d("toto","ERROR -- File was already loaded !! " + sPath);
+        } catch (Exception e) {
+            myLog(" +++++***+++++ ERROR LOADING FILE +++++***+++++ (" + sPath + ")");
+            e.printStackTrace();
+            return false;
         }
+        return true;
     }
 
     public void start() {
@@ -268,13 +263,8 @@ public class AudioService extends Service {
                     }
                 }
             };
+
             mAudioManager.requestAudioFocus(afChangeListener, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
-
-            //mRemoteControlResponder = new ComponentName(getPackageName(), RemoteControlReceiver.class.getName());
-            //mAudioManager.registerMediaButtonEventReceiver( mRemoteControlResponder);
-
-
-
 
             mediaPlayer.start();
        }
@@ -295,7 +285,7 @@ public class AudioService extends Service {
     }
 
     public int getPosition() {
-        myLog("MusicPlayer.getPosition()");
+        if (LOG_TRACE_ALL) myLog("MusicPlayer.getPosition()");
         return mediaPlayer.getCurrentPosition();
     }
 
@@ -305,11 +295,11 @@ public class AudioService extends Service {
     }
 
     public boolean isPlaying() {
-        myLog("MusicPlayer.isPlaying()");
+        if (LOG_TRACE_ALL) myLog("MusicPlayer.isPlaying()");
         return mediaPlayer.isPlaying();
     }
     public boolean exist() {
-        myLog("MusicPlayer.exist");
+        if (LOG_TRACE_ALL) myLog("MusicPlayer.exist");
         if (mediaPlayer == null) {
             return false;
         } else {

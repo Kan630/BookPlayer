@@ -6,11 +6,13 @@ package com.driot.bookplayer.activities;
 
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -92,12 +94,32 @@ public class ZikFilesAdapter extends RecyclerView.Adapter<ZikFilesAdapter.ZikFil
         public void onClick(View view) {
             ZikFile zikFile = ZikFileList.get(getAdapterPosition());
 
-            Intent intent = new Intent(mCtx, PlayActivity.class);
+            boolean FileOkForPlay = false;
+            // check First that zikFile is propre zikFile and is playable
+            if (zikFile.isIszipfile()) {
+                FileOkForPlay = true;
+            } else {
+                // check file exists
+                String fullPath = zikFile.getPath() + "/" + zikFile.getName();
+                myLog("full path zikFile to open PlayActivity : " + fullPath);
+                if (fileExists(fullPath)) FileOkForPlay = true;
+            }
 
-            //TODO pass an object, check parcelable
-            intent.putExtra("ZikFile", zikFile);
-
-            mCtx.startActivity(intent);
+            if (FileOkForPlay) {
+                Intent intent = new Intent(mCtx, PlayActivity.class);
+                //TODO pass an object, check parcelable
+                intent.putExtra("ZikFile", zikFile);
+                mCtx.startActivity(intent);
+            } else {
+                myLog("opening PlayActivity -- ERROR OPENING TRACK - FILE NOT FOUND !");
+                Toast.makeText(mCtx,"ERROR OPENING TRACK - FILE NOT FOUND !",Toast.LENGTH_SHORT).show();
+            }
         }
     }
+
+    private void myLog(String str) {
+        Log.d("toto adapter ", str);
+        System.out.println(str);
+    }
+
 }

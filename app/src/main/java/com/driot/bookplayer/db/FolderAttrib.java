@@ -1,6 +1,13 @@
 package com.driot.bookplayer.db;
 
+import android.content.Context;
 import android.net.Uri;
+import android.os.Build;
+import android.util.Log;
+
+import java.io.File;
+
+
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 14/11/20
@@ -10,13 +17,15 @@ public class FolderAttrib {
     private final Uri uri;
     private final boolean isZipFolder;
 
+    private boolean FolderKO;
+
     private final String sFolderUri;
     private final String sFolderHash;
     private final String sFolderPath;
-    private final String sRealFolderPath;
+    private String sRealFolderPath;
     private String sFolderName;
 
-    public FolderAttrib(Uri uri, boolean isZipFolder) {
+    public FolderAttrib(Context context, Uri uri, boolean isZipFolder) {
 
         this.uri = uri;
         this.isZipFolder = isZipFolder;
@@ -27,14 +36,41 @@ public class FolderAttrib {
 
         sFolderPath = uri.getLastPathSegment();
 
-        sRealFolderPath = "/storage/" + sFolderPath.replace(":","/");
+        sRealFolderPath="";
+        if (uri.getLastPathSegment().substring(0,7).equals("primary")) {
+            sRealFolderPath = uri.getLastPathSegment()
+                    .replace("primary:","/storage/emulated/0/");
+        } else {
+            sRealFolderPath = uri.getPath()
+                    .replace("document", "storage")
+                    .replace("tree", "storage")
+                    .replace(":", "/");
+        }
+
+        // controle de l'exitence du fullPath
+        File f = new File(sRealFolderPath);
+        if (!f.exists())  {
+            FolderKO = true;
+            myLog("====== File not exists");
+        }
+
+        if (isZipFolder) {
+            if (!f.isFile())  FolderKO = true;
+            myLog("====== Is not File");
+        } else {
+            if (!f.isDirectory())  FolderKO = true;
+            myLog("====== Is not Folder");
+        }
+
 
         // nom par défaut = les deux derniers folders :
         // ex  : "S3 - Finances publiques/Audios"
         String str = sFolderPath.replace(":", "/");
         int pos1 = str.lastIndexOf("/");
         if (isZipFolder) {
-            sFolderName = str.substring(pos1 + 1).replace(".zip", "").replace(".zip", "").replace("_", " ");
+            sFolderName = str.substring(pos1 + 1)
+                    .replace(".zip", "")
+                    .replace("_", " ");
         } else {
             if (pos1 > -1) {
                 int pos2 = str.substring(0, pos1).lastIndexOf("/", pos1);
@@ -45,6 +81,9 @@ public class FolderAttrib {
                 }
             }
         }
+        myLog("..." + "\n" +
+                this.toString() + "\n" +
+                "...");
     }
 
     public String getsFolderUri() {
@@ -71,30 +110,45 @@ public class FolderAttrib {
         return isZipFolder;
     }
 
+    public boolean isFolderKO() {
+        return FolderKO;
+    }
+
     @Override
     public String toString() {
         return "FolderAttrib{" + "\n" +
-                "sFolderUri='" + sFolderUri + '\'' + "\n" +
-                ", sFolderHash='" + sFolderHash + '\'' + "\n" +
-                ", sFolderPath='" + sFolderPath + '\'' + "\n" +
-                ", sRealFolderPath='" + sRealFolderPath + '\'' + "\n" +
-                ", isZipFolder=" + isZipFolder + "\n" +
-                ", sFolderName='" + sFolderName + '\'' + "\n" +
+                "uri                 ='" + uri + '\'' + "\n" +
+                "uri.getPath         ='" + uri.getPath() + '\'' + "\n" +
+                "uri.getLastPathSeg  =" + uri.getLastPathSegment() + "\n" +
+                "uri.getAuthority    =" + uri.getAuthority() + "\n" +
+                "sFolderUri          ='" + sFolderUri + '\'' + "\n" +
+                "sFolderHash         ='" + sFolderHash + '\'' + "\n" +
+                "sFolderPath         ='" + sFolderPath + '\'' + "\n" +
+                "sRealFolderPath     ='" + sRealFolderPath + '\'' + "\n" +
+                "isZipFolder         =" + isZipFolder + "\n" +
+                "isFolderKO          =" + FolderKO + "\n" +
+                "sFolderName         ='" + sFolderName + '\'' + "\n" +
                 '}';
     }
-
-    // + check if fileexists
-    // + vire le truc dans manifest
 
     public String PrintManyPaths() {
         String ss =
                 "..." + "\n" +
-                        "uri              : " + uri + "\n" +
-                        "uri.getPath      : " + uri.getPath() + "\n" +
-                        "uri.getAuthority : " + uri.getAuthority() + "\n" +
-                        "uri.getFragment  : " + uri.getFragment() + "\n" +
-                        "uri.getHost      : " + uri.getHost() + "\n";
+                        "uri                : " + uri + "\n" +
+                        "uri.getPath        : " + uri.getPath() + "\n" +
+                        "uri.getEncodedPath : " + uri.getEncodedPath() + "\n" +
+                        "uri.getLastPathSeg : " + uri.getLastPathSegment() + "\n" +
+                        "uri.getAuthority   : " + uri.getAuthority() + "\n" +
+                        "uri.getHost        : " + uri.getHost() + "\n" +
+                "";
+
         return ss;
     }
+
+    protected void myLog(String str) {
+        Log.d("toto Folder -- ", str);
+        System.out.println(str);
+    }
+
 
 }
