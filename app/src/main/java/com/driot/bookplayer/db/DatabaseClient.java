@@ -21,7 +21,7 @@ public class DatabaseClient {
     private DatabaseClient(Context mCtx) {
         this.mCtx = mCtx;
 
-        mCtx.deleteDatabase(DATABASE_NAME);
+        //mCtx.deleteDatabase(DATABASE_NAME);
 
         //creating the app database with Room database builder
         //MyToDos is the name of the database

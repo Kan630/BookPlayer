@@ -24,6 +24,7 @@
     <string name="Error_Import_NoMediaInFolder">No media found in this folder</string>
     <string name="Error_Import_FolderPathKO">Cannot find path of folder </string>
     <string name="Import_nMediaInFolder">medias have been found in this folder</string>
+    <string name="Error_Import_ParsingZipFile">Error parsing zip file</string>
 
     <string name="yesterday">"yesterday"</string>
 

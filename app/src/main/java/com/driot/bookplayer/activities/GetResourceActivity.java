@@ -1,6 +1,7 @@
 package com.driot.bookplayer.activities;
 
 import android.Manifest;
+import android.animation.ObjectAnimator;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -12,6 +13,8 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -34,8 +37,10 @@ import java.io.InputStream;
 import java.sql.Date;
 import java.sql.Time;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
+import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
@@ -44,6 +49,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 
 import static com.driot.bookplayer.utils.Tonio.fileExists;
 import static com.driot.bookplayer.utils.Tonio.getExtension;
+import static com.driot.bookplayer.utils.Tonio.getFileNameFromPath;
 import static com.driot.bookplayer.utils.Tonio.getMimeType;
 import static com.driot.bookplayer.utils.Utils.animateView;
 import static com.driot.bookplayer.utils.Utils.copyStream;
@@ -57,11 +63,17 @@ public class GetResourceActivity extends ActivityBase {
     private static final int OPEN_ZIP_FILE_REQUEST_CODE = 24;
     private static final int OPEN_FOLDER_REQUEST_CODE = 25;
 
-    private View progressOverlay;
-    public static final int DELAY_ANIMATION = 200;
+    private View progressBarOverlay;
+    private ProgressBar progressBar;
+    private TextView progressBarText;
+    private Button bOpenFolder;
+    private Button bOpenZipFile;
+    private Button bSearchLibrivox;
+    private Button bSearchLitteratureaudio;
+
+    public static final int DELAY_ANIMATION = 500;
     private int[] InsertedFolderId = {0};
     private DocumentFile[] myZikFileList;
-    private String[] filePathList;
 
     private Handler myHandler = new Handler();;
 
@@ -69,7 +81,6 @@ public class GetResourceActivity extends ActivityBase {
 
     private FolderAttrib myFolder;
 
-    private String zipFilePath;
     private ZipFile zipFile;
     private ArrayList<String> audioFileArrayList;
 
@@ -79,13 +90,15 @@ public class GetResourceActivity extends ActivityBase {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_getressource);
 
-        Button bOpenFolder = findViewById(R.id.bOpenFolder);
-        Button bOpenZipFile = findViewById(R.id.bOpenZipFile);
-        Button bSearchLibrivox = findViewById(R.id.bSearchLibrivox);
-        Button bSearchLitteratureaudio = findViewById(R.id.bSearchLitteratureaudio);
-        progressOverlay = findViewById(R.id.progress_overlay);
+        bOpenFolder = findViewById(R.id.bOpenFolder);
+        bOpenZipFile = findViewById(R.id.bOpenZipFile);
+        bSearchLibrivox = findViewById(R.id.bSearchLibrivox);
+        bSearchLitteratureaudio = findViewById(R.id.bSearchLitteratureaudio);
+        progressBarOverlay = findViewById(R.id.progressBar_overlay);
+        progressBar = findViewById(R.id.progressBar);
+        progressBarText = findViewById(R.id.progressBarText);
 
-/*
+        /*
         if (!checkPermissionsReadStorage()) {
             bOpenFolder.setEnabled(false);
             bOpenZipFile.setEnabled(false);
@@ -102,8 +115,7 @@ public class GetResourceActivity extends ActivityBase {
                     intent.addCategory(Intent.CATEGORY_OPENABLE);
                     startActivityForResult(intent, OPEN_ZIP_FILE_REQUEST_CODE);
                 } else {
-                    Toast.makeText(getApplicationContext(),getString(R.string.permissions_denied_sorry_cannot), Toast.LENGTH_SHORT).show();
-                    myLog(getString(R.string.permissions_denied_sorry_cannot));
+                    myToast(getString(R.string.permissions_denied_sorry_cannot));
                 }
             }
         });
@@ -116,8 +128,7 @@ public class GetResourceActivity extends ActivityBase {
                     Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
                     startActivityForResult(intent, OPEN_FOLDER_REQUEST_CODE);
                 } else {
-                    Toast.makeText(getApplicationContext(),getString(R.string.permissions_denied_sorry_cannot), Toast.LENGTH_SHORT).show();
-                    myLog(getString(R.string.permissions_denied_sorry_cannot));
+                    myToast(getString(R.string.permissions_denied_sorry_cannot));
                 }
 
             }
@@ -166,10 +177,9 @@ public class GetResourceActivity extends ActivityBase {
 
                 // constructeur pour mon pti folder
                 myFolder = new FolderAttrib(getApplicationContext(), data.getData(), false);
-                myLog(myFolder.toString());
                 if (myFolder.isFolderKO()) {
                     myLog("Cannot get Full real path of folder");
-                    Toast.makeText(getApplicationContext(), R.string.Error_Import_FolderPathKO, Toast.LENGTH_SHORT).show();
+                    myToast(getString(R.string.Error_Import_FolderPathKO));
                 } else {
 
 
@@ -179,6 +189,7 @@ public class GetResourceActivity extends ActivityBase {
                         for (DocumentFile f:myZikFileList) { //check myZikFileList.length > 0 ??
                             if (f.getType() != null) {
                                 if (f.getType().equals("audio/mpeg")) {
+                                    myLog(f.getName());
                                     audioFileArrayList.add(f.getName()); //this adds an element to the list.
                                 }
                             }
@@ -188,18 +199,15 @@ public class GetResourceActivity extends ActivityBase {
                     // TODO se servir de audioFileArrayList et pas de DocumentFile for les folders
 
                     if (audioFileArrayList.size() == 0) {
-                        Toast.makeText(getApplicationContext(), getString(R.string.Error_Import_NoMediaInFolder), Toast.LENGTH_SHORT).show();
-                        myLog("Aucun fichier audio trouvé dans le dossier");
+                        myToast(getString(R.string.Error_Import_NoMediaInFolder));
                     } else {
-                        Toast.makeText(getApplicationContext(), audioFileArrayList.size() + " " + getString(R.string.Import_nMediaInFolder), Toast.LENGTH_SHORT).show();
-                        myLog(audioFileArrayList.size() + " fichiers audios ont été trouvés dans le dossier");
+                        myToast(audioFileArrayList.size() + " " + getString(R.string.Import_nMediaInFolder));
                         checkIfAddedFolderExist();
                     }
                 }
 
             } else {
-                myLog("Ce n'est pas un dossier");
-                Toast.makeText(getApplicationContext(), getString(R.string.Error_Import_IsNotFolder), Toast.LENGTH_SHORT).show();
+                myToast(getString(R.string.Error_Import_IsNotFolder));
             }
 
             ///---------------------------------------------
@@ -212,54 +220,55 @@ public class GetResourceActivity extends ActivityBase {
             myFolder = new FolderAttrib(getApplicationContext(), uri,true);
 
             if (myFolder.isFolderKO()) {
-                myLog("Cannot get Full real path of zip file");
-                Toast.makeText(getApplicationContext(), R.string.Error_Import_FolderPathKO, Toast.LENGTH_SHORT).show();
+                myToast(getString(R.string.Error_Import_FolderPathKO));
             } else {
-
-                // Zip File Stuff
-                zipFilePath = myFolder.getsRealFolderPath();
-
-                File fileZipFile = new File(zipFilePath);
-                if (fileZipFile.exists()) {
-                    myLog("ok zip file found : " + zipFilePath);
-                } else {
-                    myLog("KO zip file not found : " + zipFilePath);
-                }
+                boolean OnContinue=true;
+                File fileZipFile = new File(myFolder.getsRealFolderPath());
 
                 zipFile = null;
                 try {
-                    zipFile = new ZipFile(zipFilePath);
-                } catch (IOException e) {
+                    //zipFile = new ZipFile(zipFilePath);
+                    zipFile = new ZipFile(fileZipFile);
+                } catch (Exception e) {
+                    myToast(getString(R.string.Error_Import_ParsingZipFile));
                     e.printStackTrace();
+                    OnContinue=false;
                 }
-                myLog("ZipFile instancied ok");
-                //for (Enumeration e = zipFile.entries(); e.hasMoreElements();) {
-                //    ZipEntry entry = (ZipEntry) e.nextElement();
-                //    System.out.println(entry);
 
-                HashMap<String, List<String>> zipFileListing;
-                zipFileListing = retrieveListing(fileZipFile);
+                if (OnContinue) {
+                    myLog("ZipFile instancied ok");
 
-                audioFileArrayList = new ArrayList<String>();
+                    audioFileArrayList = new ArrayList<String>();
+                    ArrayList<String> zipFileListing;
+                    zipFileListing = new ArrayList<String>();
 
-                if (zipFileListing.get("root") != null) {
-                    filePathList = zipFileListing.get("root").toArray(new String[0]);
-                    // filter audio file
-                    for (String s : filePathList) {
-                        String mimeType = getMimeType(new File(s));
-                        if (mimeType.equals("audio/mpeg")) {
-                            audioFileArrayList.add(s); //this adds an element to the list.
+                    for (Enumeration e = zipFile.entries(); e.hasMoreElements();) {
+                        ZipEntry entry = (ZipEntry) e.nextElement();
+                        if (!entry.isDirectory()) {
+                            String zeName = entry.getName();
+                            zipFileListing.add(zeName);
+                            myLog(zeName);
                         }
                     }
-                }
+                    myLog("----------------");
 
-                if (audioFileArrayList.size() == 0) {
-                    Toast.makeText(getApplicationContext(), getString(R.string.Error_Import_NoMediaInFolder), Toast.LENGTH_SHORT).show();
-                    myLog("Aucun fichier audio trouvé dans le dossier");
-                } else {
-                    Toast.makeText(getApplicationContext(), audioFileArrayList.size() + " " + getString(R.string.Import_nMediaInFolder), Toast.LENGTH_SHORT).show();
-                    myLog(audioFileArrayList.size() + " fichiers audios ont été trouvés dans le dossier");
-                    checkIfFolderAlreadyExist();
+                    if (zipFileListing.size() != 0) {
+                        // filter audio file
+                        for (String s : zipFileListing) {
+                            if (getMimeType(s).equals("audio/mpeg")) {
+                                myLog(s);
+                                audioFileArrayList.add(s); //this adds an element to the list.
+                            }
+                        }
+                    }
+
+                    if (audioFileArrayList.size() == 0) {
+                        myToast(getString(R.string.Error_Import_NoMediaInFolder));
+                    } else {
+                        myToast(audioFileArrayList.size() + " " + getString(R.string.Import_nMediaInFolder));
+                        checkIfZipFolderAlreadyExist();
+                    }
+
                 }
             }
         }
@@ -267,7 +276,7 @@ public class GetResourceActivity extends ActivityBase {
 
 
     // ZIP
-    private void checkIfFolderAlreadyExist() {
+    private void checkIfZipFolderAlreadyExist() {
         Observable.fromCallable(() -> {
             boolean bcheckIfFolderExist = false;
             long lcheckIfFolderExist = DatabaseClient
@@ -282,8 +291,7 @@ public class GetResourceActivity extends ActivityBase {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe((result) -> {
                     if (result) {
-                        myLog("Zip deja importé");
-                        Toast.makeText(getApplicationContext(), getString(R.string.Error_Import_FolderAlreadyImported), Toast.LENGTH_SHORT).show();
+                        myToast(getString(R.string.Error_Import_FolderAlreadyImported));
                     } else {
                         myLog("ok on continue");
                         saveFolder();
@@ -330,10 +338,10 @@ public class GetResourceActivity extends ActivityBase {
             protected void onPostExecute(Boolean bb) {
                 super.onPostExecute(bb);
                 if (bb) {
-                    myZikFileList = pickedDir.listFiles();
-                    myLog("Dossier deja importé");
-                    Toast.makeText(getApplicationContext(), getString(R.string.Error_Import_FolderAlreadyImported), Toast.LENGTH_SHORT).show();
+                    //myZikFileList = pickedDir.listFiles();
+                    myToast(getString(R.string.Error_Import_FolderAlreadyImported));
                 } else {
+                    /*
                     // on vérifie que le dossier contient au moins un fichier media
                     myZikFileList = pickedDir.listFiles();
                     boolean atLeastOneMedia = false;
@@ -347,11 +355,12 @@ public class GetResourceActivity extends ActivityBase {
                         }
                     }
                     if (!atLeastOneMedia) {
-                        myLog("Pas de medias dans ce dossier");
-                        Toast.makeText(getApplicationContext(), getString(R.string.Error_Import_NoMediaInFolder), Toast.LENGTH_SHORT).show();
+                        myToast(getString(R.string.Error_Import_NoMediaInFolder));
                     } else {
+
+                     */
                         saveFolder();
-                    }
+                    //}
                 }
             }
         }
@@ -361,8 +370,7 @@ public class GetResourceActivity extends ActivityBase {
 
     private void saveFolder() {
 
-        // Show progress overlay (with animation):
-        animateView(progressOverlay, View.VISIBLE, 0.4f, DELAY_ANIMATION);
+        ShowProgress();
 
         final Double sPercent = 0.0;
         final Time sFirstAccess = new Time(System.currentTimeMillis());
@@ -412,10 +420,15 @@ public class GetResourceActivity extends ActivityBase {
     private void saveZipFiles() {
         myLog("saving ZipFiles");
         Observable.fromCallable(() -> {
+            int i = 0; int progress = 0; String txtProgress = "";
             for (String s : audioFileArrayList) {
-                String fileName = s.substring(s.lastIndexOf("/")+1);
-                myLog("Call save " + fileName);
-                saveFile(fileName, InsertedFolderId[0]);
+                //String fileName = s.substring(s.lastIndexOf("/")+1);
+                //saveFile(fileName, InsertedFolderId[0]);
+                i++;
+                progress = (int) i*100/audioFileArrayList.size();
+                txtProgress = progress + "% - reading file n°" + i + "/" + audioFileArrayList.size() + "\n" + getFileNameFromPath(s);
+                myLog("Call save " + s);
+                saveFile(s, InsertedFolderId[0], progress, txtProgress);
             }
             return true;
         })
@@ -434,10 +447,16 @@ public class GetResourceActivity extends ActivityBase {
 
             @Override
             protected Void doInBackground(Void... voids) {
-                for (DocumentFile file :myZikFileList) {
-                    if (file.getType().equals("audio/mpeg")) {
-                        myLog("saving file " + file.getName());
-                        saveFile(file.getName(), InsertedFolderId[0]);
+                int i = 0; int progress = 0; String txtProgress = "";
+                for (DocumentFile f :myZikFileList) {
+                    if (f.getType() != null) {
+                        if (f.getType().equals("audio/mpeg")) {
+                            //myLog("saving file " + f.getName());
+                            i++;
+                            progress = (int) i*100/audioFileArrayList.size();
+                            txtProgress = progress + "% - saving file n°" + i + "/" + audioFileArrayList.size() + "\n" + f.getName();
+                            saveFile(f.getName(), InsertedFolderId[0], progress, txtProgress);
+                        }
                     }
                 }
                 return null;
@@ -456,7 +475,7 @@ public class GetResourceActivity extends ActivityBase {
 
     }
 
-    private void saveFile(String sZikFileName, int mFolderId) {
+    private void saveFile(String sZikFileName, int mFolderId, int progress, String txtProgress) {
 
         final Double dPercent = 0.0;
         final int iPosition = 0;
@@ -466,28 +485,36 @@ public class GetResourceActivity extends ActivityBase {
             @Override
             protected Void doInBackground(Void... voids) {
 
-                //creating a Folder
                 ZikFile zikFile = new ZikFile();
                 zikFile.setName(sZikFileName);
                 zikFile.setIdFolder(mFolderId);
                 zikFile.setFolderName(myFolder.getsFolderName());
                 zikFile.setPercentdone(dPercent);
                 zikFile.setPosition(iPosition);
-
                 zikFile.setPath(myFolder.getsRealFolderPath());
-                String sFileFullPath = myFolder.getsRealFolderPath() + File.separator + sZikFileName;
+                zikFile.setIszipfile(myFolder.isZipFolder());
 
                 //myLog("File Full path : " + sFileFullPath);
-                File f = new File(sFileFullPath);
+                //File f = new File(sFileFullPath);
                 //File file = new File(Uri.parse("/sdcard/lala.txt").getPath());
-                zikFile.setSize(f.length());
+                //zikFile.setSize(f.length()); // pour le zip, faudra faire une enum sur entry..
                 //myLog("File length : " + f.length());
+
+                // Media Duration
+                //--------------------------------
+                String sFileFullPath;
+                if (myFolder.isZipFolder()) {
+                    sFileFullPath = sZikFileName;
+                } else {
+                    sFileFullPath = myFolder.getsRealFolderPath() + File.separator + sZikFileName;
+                }
                 try {
+                    myLog("Get Media Duration : " + sFileFullPath);
                     zikFile.setDuration(getMediaDurationFromPath(sFileFullPath));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                zikFile.setIszipfile(myFolder.isZipFolder());
+                //--------------------------------
 
                 //adding to database
                 DatabaseClient.getInstance(getApplicationContext()).getAppDatabase()
@@ -495,11 +522,14 @@ public class GetResourceActivity extends ActivityBase {
                         .insert(zikFile);
                 //myLog("File Added " + zikFile.getName());
                 return null;
+
             }
 
             @Override
             protected void onPostExecute(Void aVoid) {
                 super.onPostExecute(aVoid);
+                progressBar.setProgress(progress);
+                progressBarText.setText(txtProgress);
             }
         }
 
@@ -533,8 +563,8 @@ public class GetResourceActivity extends ActivityBase {
                 super.onPostExecute(aVoid);
                 myLog("query has been run : " + strSQL);
 
-                // Hide animation:
-                animateView(progressOverlay, View.GONE, 0, DELAY_ANIMATION);
+                HideProgress();
+
                 // refresh screen
                 //Intent intent = new Intent(getApplicationContext(),MainActivity.class);
                 //startActivity(intent);
@@ -559,9 +589,8 @@ public class GetResourceActivity extends ActivityBase {
                 // or use this APK / library / whatever
                 // ZipResourceFile expansionFile = new ZipResourceFile(zePath);
 
-                String fileName = zePath.substring(zePath.lastIndexOf("/")+1);
-                inputStream = zipFile.getInputStream(zipFile.getEntry(fileName));
-                File f = File.createTempFile("_AUDIO_", getExtension(fileName));
+                inputStream = zipFile.getInputStream(zipFile.getEntry(zePath));
+                File f = File.createTempFile("_AUDIO_", getExtension(zePath));
                 f.deleteOnExit();
                 out = new FileOutputStream(f);
                 copyStream(inputStream,out);
@@ -572,12 +601,10 @@ public class GetResourceActivity extends ActivityBase {
                 f.delete();
                 //myLog( "ca marche " + duration + " : " + fileName);
 
-            } catch (IOException ioException) {
-                ioException.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
             } finally {
-                if (mediaMetadataRetriever != null) {
-                    mediaMetadataRetriever.release();
-                }
+                mediaMetadataRetriever.release();
                 if (inputStream != null) {
                     inputStream.close();
                 }
@@ -618,6 +645,32 @@ public class GetResourceActivity extends ActivityBase {
     }
 */
 
+    private void ShowProgress() {
+        //animateView(progressOverlay, View.VISIBLE, 0.4f, DELAY_ANIMATION);
+        animateView(progressBarOverlay, View.VISIBLE, 1, DELAY_ANIMATION);
+        progressBarOverlay.setVisibility(View.VISIBLE);
+        progressBarOverlay.bringToFront();
+        bOpenFolder.setVisibility(View.INVISIBLE);
+        bOpenZipFile.setVisibility(View.INVISIBLE);
+        bSearchLibrivox.setVisibility(View.INVISIBLE);
+        bSearchLitteratureaudio.setVisibility(View.INVISIBLE);
+    }
+
+    private void HideProgress() {
+        animateView(progressBarOverlay, View.GONE, 0, DELAY_ANIMATION);
+        bOpenFolder.setVisibility(View.VISIBLE);
+        bOpenZipFile.setVisibility(View.VISIBLE);
+        bSearchLibrivox.setVisibility(View.VISIBLE);
+        bSearchLitteratureaudio.setVisibility(View.VISIBLE);
+    }
+
+
+
+    private void myToast(String str) {
+        myLog(str);
+        Toast.makeText(getApplicationContext(),str,Toast.LENGTH_SHORT).show();
+    }
+    
     protected void myLog(String str) {
         Log.d("toto getResAct ", str);
         System.out.println(str);
