@@ -7,15 +7,18 @@ import android.net.Uri;
  */
 public class FolderAttrib {
 
+    private final Uri uri;
+    private final boolean isZipFolder;
+
     private final String sFolderUri;
     private final String sFolderHash;
     private final String sFolderPath;
     private final String sRealFolderPath;
-    private final boolean isZipFolder;
     private String sFolderName;
 
     public FolderAttrib(Uri uri, boolean isZipFolder) {
 
+        this.uri = uri;
         this.isZipFolder = isZipFolder;
 
         sFolderUri = uri.toString();
@@ -70,12 +73,28 @@ public class FolderAttrib {
 
     @Override
     public String toString() {
-        return "FolderAttrib{" +
-                "sFolderUri='" + sFolderUri + '\'' +
-                ", sFolderHash='" + sFolderHash + '\'' +
-                ", sFolderPath='" + sFolderPath + '\'' +
-                ", sFolderName='" + sFolderName + '\'' +
-                ", isZipFolder=" + isZipFolder +
+        return "FolderAttrib{" + "\n" +
+                "sFolderUri='" + sFolderUri + '\'' + "\n" +
+                ", sFolderHash='" + sFolderHash + '\'' + "\n" +
+                ", sFolderPath='" + sFolderPath + '\'' + "\n" +
+                ", sRealFolderPath='" + sRealFolderPath + '\'' + "\n" +
+                ", isZipFolder=" + isZipFolder + "\n" +
+                ", sFolderName='" + sFolderName + '\'' + "\n" +
                 '}';
     }
+
+    // + check if fileexists
+    // + vire le truc dans manifest
+
+    public String PrintManyPaths() {
+        String ss =
+                "..." + "\n" +
+                        "uri              : " + uri + "\n" +
+                        "uri.getPath      : " + uri.getPath() + "\n" +
+                        "uri.getAuthority : " + uri.getAuthority() + "\n" +
+                        "uri.getFragment  : " + uri.getFragment() + "\n" +
+                        "uri.getHost      : " + uri.getHost() + "\n";
+        return ss;
+    }
+
 }

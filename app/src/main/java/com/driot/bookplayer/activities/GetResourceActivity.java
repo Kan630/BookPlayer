@@ -93,20 +93,25 @@ public class GetResourceActivity extends ActivityBase {
         }
 */
 
+        // ZIP
         bOpenZipFile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (checkIfPermissionsReadStorage()) {
+                //if (checkIfPermissionsReadStorage()) {
                     Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
                     intent.setType("application/zip");
                     intent.addCategory(Intent.CATEGORY_OPENABLE);
                     startActivityForResult(intent, OPEN_ZIP_FILE_REQUEST_CODE);
+                /*
                 } else {
                     Toast.makeText(getApplicationContext(),getString(R.string.permissions_denied_sorry_cannot), Toast.LENGTH_SHORT).show();
                     myLog(getString(R.string.permissions_denied_sorry_cannot));
                 }
+                */
             }
         });
+
+        // FOLDER
         bOpenFolder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -159,7 +164,7 @@ public class GetResourceActivity extends ActivityBase {
                 myLog("Parent Folder taken in place");
             }
 
-            if (pickedDir.isDirectory()) {
+            if (pickedDir != null && pickedDir.isDirectory()) {
 
                 // constructeur pour mon pti folder
                 myFolder = new FolderAttrib(data.getData(), false);
@@ -200,12 +205,11 @@ public class GetResourceActivity extends ActivityBase {
             ///---------------------------------------------
 
         } else if (resultCode == RESULT_OK && requestCode == OPEN_ZIP_FILE_REQUEST_CODE) {
-            //Toast.makeText(getApplicationContext(), "Pas encore disponible !", Toast.LENGTH_SHORT).show();
 
             Uri uri = data.getData();
-            //BuildFolderAttributesFromUri(uri);
             myFolder = new FolderAttrib(uri,true);
             myLog(myFolder.toString());
+            myLog(myFolder.PrintManyPaths());
 
             // Zip File Stuff
             zipFilePath = uri.getPath().replace(":","/").replace("document","storage");
@@ -226,14 +230,17 @@ public class GetResourceActivity extends ActivityBase {
 
             HashMap<String, List<String>> zipFileListing;
             zipFileListing = retrieveListing(fileZipFile);
-            filePathList = zipFileListing.get("root").toArray(new String[0]);
 
-            // filter audio file
             audioFileArrayList = new ArrayList<String>();
-            for (String s : filePathList) {
-                String mimeType = getMimeType(new File(s));
-                if (mimeType.equals("audio/mpeg")) {
-                    audioFileArrayList.add(s); //this adds an element to the list.
+
+            if (zipFileListing.get("root") != null) {
+                filePathList = zipFileListing.get("root").toArray(new String[0]);
+                // filter audio file
+                for (String s : filePathList) {
+                    String mimeType = getMimeType(new File(s));
+                    if (mimeType.equals("audio/mpeg")) {
+                        audioFileArrayList.add(s); //this adds an element to the list.
+                    }
                 }
             }
 
