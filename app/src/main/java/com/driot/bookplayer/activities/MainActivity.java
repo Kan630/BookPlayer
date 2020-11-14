@@ -67,8 +67,6 @@ public class MainActivity extends LifecycleLoggingActivity {
         });
 
         getFolders();
-
-        checkPermissions();
     }
 
     @Override
@@ -123,16 +121,6 @@ public class MainActivity extends LifecycleLoggingActivity {
         //String TAG = this.getClass().getName().substring(this.getClass().getName().lastIndexOf(".")+1);
         Log.d("titi " + TAG + " ",str);
         System.out.println(str);
-    }
-
-    // PERMISSIONS
-    private void checkPermissions() {
-        int REQUEST_READ_SD_CARD=1;
-        int permissionCheck = ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_EXTERNAL_STORAGE);
-        if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},REQUEST_READ_SD_CARD);
-        }
     }
 
 }
