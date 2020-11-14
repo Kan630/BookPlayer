@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Default permission strings -->
+    <string name="permission_rationale" formatted="false">Cette application a besoin de ces permissions: %1$s</string>
+    <string name="permissions_granted">Permissions ont été accordées .</string>
+    <string name="permissions_denied">Permissions refusées.</string>
+    <string name="permissions_ok_button">OK</string>
+
+    <!-- Application specific permission strings -->
+    <string name="permission_read_write_rationale">"Pour lire les fichiers, l'application necessite votre permission d'accès."</string>
+    <string name="permission_read_write_granted">La permission de lire le stockage externe a été accordée.</string>
+    <string name="permission_read_write_denied">"BookPlayer ne pourra pas lire l'audio."</string>
+
+    <string name="permissions_denied_sorry_cannot">"Les permissions n'ont pas été accordées, BookPlayer ne peut pas lire l'audio".</string>
+
+</resources>
