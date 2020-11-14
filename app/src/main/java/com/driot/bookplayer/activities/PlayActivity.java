@@ -17,17 +17,21 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.media.session.MediaSession;
+import android.media.session.PlaybackState;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.sqlite.db.SimpleSQLiteQuery;
 
 import com.driot.bookplayer.utils.AudioService;
@@ -71,6 +75,9 @@ public class PlayActivity extends LifecycleLoggingActivity {
     AudioService mService;
     boolean mBound = false;
     private Bundle bundleOnSavedinstance;
+
+    private static MediaSession mediaSession;
+
 
     /********************************************************************************
      ***       GESTION FLIP ECRAN
@@ -126,12 +133,15 @@ public class PlayActivity extends LifecycleLoggingActivity {
 
         Intent intentMusicService = new Intent(PlayActivity.this, AudioService.class);
         bindService(intentMusicService, connection, Context.BIND_AUTO_CREATE);
-        Log.d("toto","PlayActivity : bind to Service ");
+        Log.d("toto", "PlayActivity : bind to Service ");
 
         // TODO, use Parcelable
         //ZikFile zikFile = getIntent().getParcelableExtra("zikFile");
 
         zikFileFromIntent = (ZikFile) getIntent().getSerializableExtra("ZikFile");
+
+        configureMediaSession();
+        //setPlaybackState(0);
 
         //-*******************************************************************************
         //-***       SEEKBAR
@@ -163,13 +173,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
         bPlay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                if (mBound) {
-                    mService.start();
-                    SetInterfacePlayingMode();
-                    myHandler.postDelayed(UpdateSongTime, INTERVAL_REDRAW_SEEKBAR);
-                    HasBeenPlayed=true;
-                }
+                playMe();
             }
         });
 
@@ -180,9 +184,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
         bPause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mService.pause();
-                SetInterfacePausingMode();
-                updateZikFileState(mService.getCurrentZikFile(),false);
+                pauseMe();
             }
         });
 
@@ -193,31 +195,55 @@ public class PlayActivity extends LifecycleLoggingActivity {
         bForward.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int temp = mService.getPosition();
-                if ((temp + forwardTime) <= mService.getDuration()) {
-                    mService.setPosition(temp + forwardTime);
-                    redrawSeekBar();
-                }
+                forwardMe();
             }
         });
 
         bRewind.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int temp = mService.getPosition();
-                if ((temp - backwardTime) > 0) {
-                    mService.setPosition(temp - backwardTime);
-                    redrawSeekBar();
-                }
+                backwardMe();
             }
         });
     }
 
-    /********************************************************************************
-     ***       EVENTS
-     * Destroy = Fleche Retour Arriere ou Change Inclinaison
-     ********************************************************************************
-     */
+    private void playMe() {
+        if (mBound) {
+            mService.start();
+            SetInterfacePlayingMode();
+            myHandler.postDelayed(UpdateSongTime, INTERVAL_REDRAW_SEEKBAR);
+            HasBeenPlayed=true;
+        }
+    }
+
+    private void pauseMe() {
+        mService.pause();
+        SetInterfacePausingMode();
+        updateZikFileState(mService.getCurrentZikFile(),false);
+    }
+
+    private void forwardMe() {
+        int temp = mService.getPosition();
+        if ((temp + forwardTime) <= mService.getDuration()) {
+            mService.setPosition(temp + forwardTime);
+            redrawSeekBar();
+        }
+    }
+
+    private void backwardMe() {
+        int temp = mService.getPosition();
+        if ((temp - backwardTime) > 0) {
+            mService.setPosition(temp - backwardTime);
+            redrawSeekBar();
+        }
+    }
+
+
+        /********************************************************************************
+         ***       EVENTS
+         * Destroy = Fleche Retour Arriere ou Change Inclinaison
+         ********************************************************************************
+         */
     @Override
     protected void onResume() {
         super.onResume();
@@ -483,7 +509,51 @@ public class PlayActivity extends LifecycleLoggingActivity {
         gt.execute();
     }
 
+    private void configureMediaSession() {
+        mediaSession = new MediaSession(this, "MyMediaSession");
 
+        // Overridden methods in the MediaSession.Callback class.
+        mediaSession.setCallback(new MediaSession.Callback() {
+            @Override
+            public boolean onMediaButtonEvent(Intent mediaButtonIntent) {
+                myLog("onMediaButtonEvent called: " + mediaButtonIntent);
+                KeyEvent ke = mediaButtonIntent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
+                myLog("onMediaButtonEvent Received command: " + ke);
+                if (ke != null && ke.getAction() == KeyEvent.ACTION_DOWN) {
+                    switch (ke.getKeyCode()) {
+                        case KeyEvent.KEYCODE_MEDIA_PLAY:
+                            myLog("onMediaButtonEvent --- Play pressed ---");
+                            playMe();
+                            break;
+                        case KeyEvent.KEYCODE_MEDIA_PAUSE:
+                            myLog("onMediaButtonEvent --- Pause pressed ---");
+                            pauseMe();
+                            break;
+                        case KeyEvent.KEYCODE_HEADSETHOOK:
+                            myLog("onMediaButtonEvent --- Pause pressed ---");
+                            if (mService.isPlaying()) {
+                                pauseMe();
+                            } else {
+                                playMe();
+                            }
+                            break;
+                        case KeyEvent.KEYCODE_MEDIA_NEXT:
+                            myLog("onMediaButtonEvent --- Next pressed ---");
+                            forwardMe();
+                            break;
+                        case KeyEvent.KEYCODE_MEDIA_PREVIOUS:
+                            myLog("onMediaButtonEvent --- Previous pressed ---");
+                            backwardMe();
+                            break;
+
+                    }
+                }
+                return super.onMediaButtonEvent(mediaButtonIntent);
+            }
+        });
+        mediaSession.setFlags(MediaSession.FLAG_HANDLES_MEDIA_BUTTONS | MediaSession.FLAG_HANDLES_TRANSPORT_CONTROLS);
+        mediaSession.setActive(true);
+    }
 
     /********************************************************************************
      ***       DIVERS FONCTIONS

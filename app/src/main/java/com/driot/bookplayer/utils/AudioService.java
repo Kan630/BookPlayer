@@ -6,11 +6,16 @@ import android.content.Intent;
 import android.media.AudioAttributes;
 import android.media.AudioFocusRequest;
 import android.media.AudioManager;
+import android.media.MediaMetadata;
 import android.media.MediaPlayer;
+import android.media.session.MediaSession;
+import android.media.session.PlaybackState;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
+import android.view.KeyEvent;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.db.ZikFile;
@@ -67,8 +72,6 @@ public class AudioService extends Service {
         myLog("MusicService onCreate");
         super.onCreate();
         mediaPlayer = new MediaPlayer();
-
-
 
 /*
         timer = new Timer();
@@ -267,6 +270,12 @@ public class AudioService extends Service {
             };
             mAudioManager.requestAudioFocus(afChangeListener, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
 
+            //mRemoteControlResponder = new ComponentName(getPackageName(), RemoteControlReceiver.class.getName());
+            //mAudioManager.registerMediaButtonEventReceiver( mRemoteControlResponder);
+
+
+
+
             mediaPlayer.start();
        }
     }
@@ -337,6 +346,9 @@ public class AudioService extends Service {
             return false;
         }
     }
+
+
+
 
     private void myLog(String str) {
         if (LOG_TRACE) { Log.d("toto",str); }
