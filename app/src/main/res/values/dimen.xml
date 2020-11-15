@@ -16,4 +16,9 @@
     <dimen name="GetRessource_vertical_margin_text2button">5dp</dimen>
     <dimen name="GetRessource_vertical_margin_high">25dp</dimen>
 
+    <dimen name="GetRessource320_vertical_margin_low">3dp</dimen>
+    <dimen name="GetRessource320_vertical_margin_title2text">2dp</dimen>
+    <dimen name="GetRessource320_vertical_margin_text2button">0dp</dimen>
+    <dimen name="GetRessource320_vertical_margin_high">5dp</dimen>
+
 </resources>
