@@ -1,12 +1,13 @@
 package com.driot.bookplayer.db;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
+import android.os.Environment;
+import android.provider.OpenableColumns;
 import android.util.Log;
 
 import java.io.File;
-
 
 
 /**
@@ -37,7 +38,11 @@ public class FolderAttrib {
         sFolderPath = uri.getLastPathSegment();
 
         sRealFolderPath="";
-        if (uri.getLastPathSegment().substring(0,7).equals("primary")) {
+
+        if (uri.getAuthority().equals("com.android.providers.downloads.documents")) {
+            String DownloadFolderPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getPath();
+            sRealFolderPath = DownloadFolderPath + "/" + getFileName(context,uri);
+        } else if (uri.getLastPathSegment().substring(0,7).equals("primary")) {
             sRealFolderPath = uri.getLastPathSegment()
                     .replace("primary:","/storage/emulated/0/");
         } else {
@@ -121,6 +126,7 @@ public class FolderAttrib {
                 "uri.getPath         ='" + uri.getPath() + '\'' + "\n" +
                 "uri.getLastPathSeg  =" + uri.getLastPathSegment() + "\n" +
                 "uri.getAuthority    =" + uri.getAuthority() + "\n" +
+                "uri.getFragment     =" + uri.getFragment() + "\n" +
                 "sFolderUri          ='" + sFolderUri + '\'' + "\n" +
                 "sFolderHash         ='" + sFolderHash + '\'' + "\n" +
                 "sFolderPath         ='" + sFolderPath + '\'' + "\n" +
@@ -148,6 +154,29 @@ public class FolderAttrib {
     protected void myLog(String str) {
         Log.d("toto Folder -- ", str);
         System.out.println(str);
+    }
+
+
+    public String getFileName(Context context, Uri uri) {
+        String result = null;
+        if (uri.getScheme().equals("content")) {
+            Cursor cursor = context.getContentResolver().query(uri, null, null, null, null);
+            try {
+                if (cursor != null && cursor.moveToFirst()) {
+                    result = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+                }
+            } finally {
+                cursor.close();
+            }
+        }
+        if (result == null) {
+            result = uri.getPath();
+            int cut = result.lastIndexOf('/');
+            if (cut != -1) {
+                result = result.substring(cut + 1);
+            }
+        }
+        return result;
     }
 
 
