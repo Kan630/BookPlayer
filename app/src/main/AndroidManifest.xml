@@ -21,6 +21,7 @@
         <activity android:name=".activities.PlayActivity" />
         <activity android:name=".activities.FolderContentActivity" />
         <activity android:name=".activities.GetResourceActivity" />
+        <activity android:name=".activities.FolderModifyActivity" />
         <service android:name=".utils.AudioService" />
     </application>
 

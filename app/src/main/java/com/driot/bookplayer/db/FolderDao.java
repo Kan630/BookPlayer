@@ -33,6 +33,15 @@ public interface FolderDao {
     @Delete
     void delete(Folder Folder);
 
+    @Query("DELETE FROM Folder WHERE id =:id")
+    void delete(int id);
+
+    @Query("UPDATE Folder SET name = :newName WHERE id =:id")
+    void changeName(int id, String newName);
+
+    @Query("UPDATE Folder SET position = 0, percentdone = 0, lastAccess=null, lastAccessTime=null, finished=0 WHERE id =:id")
+    void resetProgression(int id);
+
     @Update
     void update(Folder Folder);
 

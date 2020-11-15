@@ -42,13 +42,14 @@ public class FoldersAdapter extends RecyclerView.Adapter<FoldersAdapter.FoldersV
         Folder t = FolderList.get(position);
         holder.textViewFileName.setText(t.getName());
         holder.textViewFilePercent.setText(t.getPercentdone().toString());
-        holder.textViewFileLastAccess.setText(t.getLastaccess().toString());
+
+        if (t.getLastaccess() != null) holder.textViewFileLastAccess.setText(t.getLastaccess().toString());
 
         holder.textViewFilePercent.setText(FormatPercentString(t.getPercentdone()));
 
         holder.mProgressBar.setProgress(FormatPercentForProgressBar(t.getPercentdone()));
 
-        holder.textViewFileLastAccess.setText(FormatLastAccess(t.getLastaccess(),t.getLastaccessTime(), mCtx.getString(R.string.yesterday)));
+        if (t.getLastaccess() != null) holder.textViewFileLastAccess.setText(FormatLastAccess(t.getLastaccess(),t.getLastaccessTime(), mCtx.getString(R.string.yesterday)));
 
         holder.textViewDuration.setText(FormatTime(t.getDuration()));
 
@@ -94,10 +95,11 @@ public class FoldersAdapter extends RecyclerView.Adapter<FoldersAdapter.FoldersV
 
                 //TODO Activity Modify Folder
 
-                //Intent intent = new Intent(mCtx, FolderModifActivity.class);
-                //intent.putExtra("Folder", folder);
+                Intent intent = new Intent(mCtx, FolderModifyActivity.class);
+                intent.putExtra("FolderName", folder.getName());
+                intent.putExtra("FolderId", folder.getId());
 
-                //mCtx.startActivity(intent);
+                mCtx.startActivity(intent);
                 return false;
             }
 

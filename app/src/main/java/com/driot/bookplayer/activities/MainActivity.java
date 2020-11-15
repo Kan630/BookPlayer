@@ -59,12 +59,7 @@ public class MainActivity extends LifecycleLoggingActivity {
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        btn_Add.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                performFileSearch();
-            }
-        });
+        btn_Add.setOnClickListener(view -> performFileSearch());
 
         getFolders();
     }

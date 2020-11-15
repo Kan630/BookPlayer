@@ -658,10 +658,12 @@ public class GetResourceActivity extends ActivityBase {
 
     private void HideProgress() {
         animateView(progressBarOverlay, View.GONE, 0, DELAY_ANIMATION);
+/*
         bOpenFolder.setVisibility(View.VISIBLE);
         bOpenZipFile.setVisibility(View.VISIBLE);
         bSearchLibrivox.setVisibility(View.VISIBLE);
         bSearchLitteratureaudio.setVisibility(View.VISIBLE);
+*/
     }
 
 
@@ -670,7 +672,7 @@ public class GetResourceActivity extends ActivityBase {
         myLog(str);
         Toast.makeText(getApplicationContext(),str,Toast.LENGTH_SHORT).show();
     }
-    
+
     protected void myLog(String str) {
         Log.d("toto getResAct ", str);
         System.out.println(str);

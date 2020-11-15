@@ -35,6 +35,12 @@ public interface ZikFileDao {
     @Delete
     void delete(ZikFile zikFile);
 
+    @Query("DELETE FROM ZikFile WHERE idFolder = :idFolder")
+    void deleteFolder(int idFolder);
+
+    @Query("UPDATE ZikFile SET position = 0, percentdone = 0, firstAccess = null, lastAccess=null, lastAccessTime=null, finished=0 WHERE idFolder =:idFolder")
+    void resetFolderProgression(int idFolder);
+
     @Update
     void update(ZikFile zikFile);
 

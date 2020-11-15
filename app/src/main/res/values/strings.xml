@@ -25,8 +25,24 @@
     <string name="Error_Import_FolderPathKO">Cannot find path of folder </string>
     <string name="Import_nMediaInFolder">medias have been found in this folder</string>
     <string name="Error_Import_ParsingZipFile">Error parsing zip file</string>
+    <string name="Folder_Reset">"Folder progress has been reset"</string>
 
     <string name="yesterday">"yesterday"</string>
+
+
+    <!-- ********************************** -->
+    <!-- FolderModifyActivity -->
+
+    <string name="bDelete">"Delete"</string>
+    <string name="bRename">"Rename Folder"</string>
+    <string name="bRenameOk">"Rename"</string>
+    <string name="bReset">"Reset Progress"</string>
+    <string name="Folder_Deleted">"Folder has been deleted"</string>
+    <string name="Folder_Renamed">"Folder has been renamed"</string>
+    <string name="Error_FolderNameTooShort">"Folder Name should be at least 2 characters"</string>
+
+    <!-- ********************************** -->
+    <!-- PlayActivity -->
 
     <string name="back"><![CDATA[<]]></string>
     <string name="play"><![CDATA[>]]></string>
