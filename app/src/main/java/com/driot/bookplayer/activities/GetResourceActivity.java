@@ -1,20 +1,24 @@
 package com.driot.bookplayer.activities;
 
 import android.Manifest;
+import android.annotation.TargetApi;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.documentfile.provider.DocumentFile;
@@ -25,6 +29,7 @@ import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.FolderAttrib;
 import com.driot.bookplayer.db.ZikFile;
+import com.driot.bookplayer.utils.PermissionRequest;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -39,6 +44,7 @@ import java.util.zip.ZipFile;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.functions.Action;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 import static com.driot.bookplayer.utils.Tonio.fileExists;
@@ -51,7 +57,7 @@ import static com.driot.bookplayer.utils.Utils.copyStream;
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 08/11/20
  */
-public class GetResourceActivity extends ActivityBase {
+public class GetResourceActivity extends LifecycleLoggingActivity {
 
     private static final int OPEN_ZIP_FILE_REQUEST_CODE = 24;
     private static final int OPEN_FOLDER_REQUEST_CODE = 25;
@@ -77,6 +83,10 @@ public class GetResourceActivity extends ActivityBase {
     private ZipFile zipFile;
     private ArrayList<String> audioFileArrayList;
 
+    private PermissionRequest mPermissionRequest;
+    public boolean PermissionHasBeenGranted;
+
+    private int nbFileSaved, nbFileToSave;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -90,6 +100,8 @@ public class GetResourceActivity extends ActivityBase {
         progressBarOverlay = findViewById(R.id.progressBar_overlay);
         progressBar = findViewById(R.id.progressBar);
         progressBarText = findViewById(R.id.progressBarText);
+
+        //checkPermissionsReadStorage2();
 
         /*
         if (!checkPermissionsReadStorage()) {
@@ -411,35 +423,44 @@ public class GetResourceActivity extends ActivityBase {
     }
 
     private void saveZipFiles() {
-        myLog("saving ZipFiles");
-        Observable.fromCallable(() -> {
-            int i = 0; int progress = 0; String txtProgress = "";
-            for (String s : audioFileArrayList) {
-                //String fileName = s.substring(s.lastIndexOf("/")+1);
-                //saveFile(fileName, InsertedFolderId[0]);
-                i++;
-                progress = (int) i*100/audioFileArrayList.size();
-                txtProgress = progress + "% - reading file n°" + i + "/" + audioFileArrayList.size() + "\n" + getFileNameFromPath(s);
-                myLog("Call save " + s);
-                saveFile(s, InsertedFolderId[0], progress, txtProgress);
+
+        class SaveZipFiles extends AsyncTask<Void, Void, Void> {
+
+            @Override
+            protected Void doInBackground(Void... voids) {
+                nbFileToSave=audioFileArrayList.size();nbFileSaved=0;
+                int i = 0; int progress = 0; String txtProgress = "";
+                for (String s : audioFileArrayList) {
+                    //String fileName = s.substring(s.lastIndexOf("/")+1);
+                    //saveFile(fileName, InsertedFolderId[0]);
+                    i++;
+                    progress = (int) i * 100 / audioFileArrayList.size();
+                    txtProgress = progress + "% - reading file n°" + i + "/" + audioFileArrayList.size() + "\n" + getFileNameFromPath(s);
+                    myLog("Call save " + s);
+                    saveFile(s, InsertedFolderId[0], progress, txtProgress);
+                }
+                return null;
             }
-            return true;
-        })
-                .subscribeOn(Schedulers.newThread())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe((result) -> {
-                    myLog("Zip file have been saved ");
-                    updateFolderDuration();
-                });
 
-    }
+            @Override
+            protected void onPostExecute(Void aVoid) {
+                super.onPostExecute(aVoid);
+                //updateFolderDuration();
+            }
+        }
 
+    SaveZipFiles st = new SaveZipFiles();
+    st.execute();
+
+
+}
     private void saveFiles() {
 
         class SaveFiles extends AsyncTask<Void, Void, Void> {
 
             @Override
             protected Void doInBackground(Void... voids) {
+                nbFileToSave=audioFileArrayList.size();nbFileSaved=0;
                 int i = 0; int progress = 0; String txtProgress = "";
                 for (DocumentFile f :myZikFileList) {
                     if (f.getType() != null) {
@@ -458,7 +479,7 @@ public class GetResourceActivity extends ActivityBase {
             @Override
             protected void onPostExecute(Void aVoid) {
                 super.onPostExecute(aVoid);
-                updateFolderDuration();
+                //updateFolderDuration();
             }
         }
 
@@ -523,6 +544,11 @@ public class GetResourceActivity extends ActivityBase {
                 super.onPostExecute(aVoid);
                 progressBar.setProgress(progress);
                 progressBarText.setText(txtProgress);
+                nbFileSaved++;
+                if (nbFileSaved == nbFileToSave) {
+                    myLog("All files have been saved ");
+                    updateFolderDuration();
+                }
             }
         }
 
@@ -531,43 +557,25 @@ public class GetResourceActivity extends ActivityBase {
     }
 
     private void updateFolderDuration() {
-
-        String strSQL = "UPDATE Folder " +
-                " SET duration = (SELECT SUM(duration) " +
-                " FROM ZikFile " +
-                " WHERE Folder.id = ZikFile.idFolder )";
-
-        class UpdateFolderDuration extends AsyncTask<Void, Void, Void> {
-
-            @Override
-            protected Void doInBackground(Void... voids) {
-
-                SimpleSQLiteQuery query = new SimpleSQLiteQuery(strSQL);
-                DatabaseClient
-                        .getInstance(getApplicationContext())
-                        .getAppDatabase()
-                        .FolderDao()
-                        .runRawSql(query);
-                return null;
-            }
-
-            @Override
-            protected void onPostExecute(Void aVoid) {
-                super.onPostExecute(aVoid);
-                myLog("query has been run : " + strSQL);
-
-                HideProgress();
-
-                // refresh screen
-                //Intent intent = new Intent(getApplicationContext(),MainActivity.class);
-                //startActivity(intent);
-                // myHandler.postDelayed(GetRessourceActivity.this::getFolders, 100);
-                finish();
-            }
-        }
-
-        UpdateFolderDuration gt = new UpdateFolderDuration();
-        gt.execute();
+        Observable.fromCallable(() -> {
+            String strSQL = "UPDATE Folder " +
+                    " SET duration = (SELECT SUM(duration) " +
+                    " FROM ZikFile " +
+                    " WHERE Folder.id = ZikFile.idFolder )";
+            SimpleSQLiteQuery query = new SimpleSQLiteQuery(strSQL);
+            return DatabaseClient
+                    .getInstance(getApplicationContext())
+                    .getAppDatabase()
+                    .FolderDao()
+                    .runRawSql(query);
+        })
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(result -> {
+                    myLog("Folder Duration Updated : " + result);
+                    HideProgress();
+                    finish();
+                }, throwable -> Log.e("toto", "Throwable " + throwable.getMessage()));
     }
 
 
@@ -669,6 +677,66 @@ public class GetResourceActivity extends ActivityBase {
     protected void myLog(String str) {
         Log.d("toto getResAct ", str);
         System.out.println(str);
+    }
+
+
+
+    /**
+     * Handle the onPostCreate() hook to call permission helper to handle all
+     * permission requests using the API 23 permission model framework.
+     * <p>
+     * The framework will callback to request this application to provide a
+     * descriptive reason for the permission request that is then displayed to
+     * the user. The user has the opportunity to grant or deny the permission
+     * request. The callback is also handled automatically by the permission
+     * helper class.
+     *
+     * @param savedInstanceState A saved state or null.
+     */
+    @Override
+    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
+        checkPermissionsReadStorage2();
+        super.onPostCreate(savedInstanceState);
+    }
+
+    private void checkPermissionsReadStorage2() {
+        // Submit a permission request to ensure that this app has the
+        // required permissions for writing and reading external storage.
+        mPermissionRequest = PermissionRequest
+                .with(this)
+                .permissions(Manifest.permission.READ_EXTERNAL_STORAGE)
+                //Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                .rationale(R.string.permission_read_write_rationale)
+                //.granted(R.string.permission_read_write_granted)  // Tonio no need to display message if granted OK
+                .denied(R.string.permission_read_write_denied)
+                .snackbar((ViewGroup)findViewById(android.R.id.content))
+                .submit();
+    }
+
+    /**
+     * API 23 (M) callback received when a permissions request has been
+     * completed. Redirect callback to permission helper.
+     */
+    @TargetApi(Build.VERSION_CODES.M)
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+
+        // Tonio
+        if (grantResults[0] == -1) {
+            PermissionHasBeenGranted = false;
+        } else {
+            PermissionHasBeenGranted = true;
+        }
+
+        // Redirect hook call to permission helper method.
+        if (mPermissionRequest != null) {
+            mPermissionRequest.onRequestPermissionsResult(requestCode,
+                    permissions,
+                    grantResults);
+            mPermissionRequest = null; // request no longer needed
+        }
     }
 
 
