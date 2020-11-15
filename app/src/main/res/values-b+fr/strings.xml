@@ -1,0 +1,52 @@
+<resources>
+    <string name="app_name">BookPlayer</string>
+    <string name="title_FolderList">Liste des dossiers</string>
+    <string name="title_FolderContent">Liste des fichiers</string>
+
+    <string name="bOpenFolder">Ouvrir un dossier</string>
+    <string name="bOpenZipFile">Ouvrir un fichier Zip</string>
+    <string name="bSearchLibrivox">Librivox.org</string>
+    <string name="bSearchLitteratureaudio">Litteratureaudio.com</string>
+
+    <string name="TextHeaderOpen">Ouvrir un audio sur mon appareil</string>
+    <string name="bOpenFolder_desc">Si vos fichiers audios sont localisés dans un répertoire, pressez ce bouton et sélectionnez le dossier :</string>
+    <string name="bOpenZipFile_desc">Si vos fichiers audios sont localisés dans un fichier ZIP, pressez ce bouton et sélectionnez le Zip :</string>
+
+    <string name="TextHeaderSearch">Rechercher un livre audio gratuit sur le Web</string>
+    <string name="bSearchLibrivox_desc">Chercher puis téléchargez un livre depuis Librivox.org (anglais) :</string>
+    <string name="bSearchlitteratureaudio_desc">Chercher puis Téléchargez un livre depuis litteratureaudio.com (français) :</string>
+    <string name="bSearchExampleText">"Les 2 sites web ci-dessus sont là pour l\'exemple, il y a de multiples ressources audios sur internet, vous pourriez tout aussi bien télécharger des cours magistraux d'université."</string>
+
+    <string name="bAddRessource">Ajouter une ressource</string>
+
+    <string name="Error_Import_IsNotFolder">"Cet élément n\'est pas reconnu comme un dossier"</string>
+    <string name="Error_Import_FolderAlreadyImported">Ce dossier a déjà été importé</string>
+    <string name="Error_Import_NoMediaInFolder">Pas de medias dans ce dossier</string>
+    <string name="Error_Import_FolderPathKO">Impossible de trouver le chemin du dossier </string>
+    <string name="Import_nMediaInFolder">medias ont été trouvés dans ce dossier</string>
+    <string name="Error_Import_ParsingZipFile">Erreur de lecture de la structure du fichier Zip</string>
+
+    <string name="yesterday">"hier"</string>
+
+
+    <!-- ********************************** -->
+    <!-- FolderModifyActivity -->
+
+    <string name="bDelete">"Supprimer le dossier"</string>
+    <string name="bRename">"Renommer le dossier"</string>
+    <string name="bRenameOk">"Renommer"</string>
+    <string name="bReset">"Effacer la progression"</string>
+    <string name="Folder_Deleted">"le dossier a été supprimé"</string>
+    <string name="Folder_Renamed">"le dossier a été renommé"</string>
+    <string name="Folder_Reset">"la progression du dossier a été remise à zéro"</string>
+    <string name="Error_FolderNameTooShort">"Le nom du dossier doit être au minimum de 2 caractères"</string>
+
+    <!-- ********************************** -->
+    <!-- PlayActivity -->
+
+    <string name="back"><![CDATA[<]]></string>
+    <string name="play"><![CDATA[>]]></string>
+    <string name="rewind"><![CDATA[<<]]></string>
+    <string name="forward"><![CDATA[>>]]></string>
+    <string name="pause">||</string>
+</resources>

@@ -12,6 +12,8 @@ import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -103,8 +105,8 @@ public class PermissionRequest {
         ArrayList<String> requests = new ArrayList<>();
 
         for (final String permission : mPermissions) {
-            if (mActivity.checkSelfPermission(permission)
-                    != PackageManager.PERMISSION_GRANTED) {
+            //if (mActivity.checkSelfPermission(permission)   // Tonio
+            if (ContextCompat.checkSelfPermission(mActivity.getApplicationContext(), permission) != PackageManager.PERMISSION_GRANTED) {
                 requests.add(permission);
                 if (ActivityCompat.shouldShowRequestPermissionRationale(
                         mActivity, permission)) {
