@@ -1,18 +1,10 @@
 package com.driot.bookplayer.activities;
 
-import android.Manifest;
-import android.app.Activity;
-import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.util.Log;
-import android.view.ViewGroup;
 import android.widget.TextView;
 
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -27,10 +19,8 @@ import java.util.List;
  */
 public class FolderContentActivity extends LifecycleLoggingActivity {
 
-    static final String TAG = "FolderContentActivity.java";
     private RecyclerView recyclerView;
     private TextView mTextViewTitle;
-    private Parcelable recyclerViewState;
     List<ZikFile> currentZikFileList;
     private ZikFilesAdapter adapter;
     private int verticalOffset;
