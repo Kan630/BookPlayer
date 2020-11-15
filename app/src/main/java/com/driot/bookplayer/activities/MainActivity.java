@@ -27,7 +27,6 @@ public class MainActivity extends LifecycleLoggingActivity {
     private RecyclerView recyclerView;
 
     private View progressOverlay;
-    public static final int DELAY_ANIMATION = 200;
 
     private boolean HasBeenProposedToOpenFile;
 

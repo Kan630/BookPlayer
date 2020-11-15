@@ -43,6 +43,7 @@ public class AudioService extends Service {
     public static final String NOTIFICATION_ERROR = "NOTIFICATION_ERROR";
     public static final String NOTIFICATION_AUDIOFOCUS_LOST = "NOTIFICATION_AUDIOFOCUS_LOST";
     public static final String NOTIFICATION_AUDIOFOCUS_GAIN = "NOTIFICATION_AUDIOFOCUS_GAIN";
+    public static final String NOTIFICATION_ZIP_FILE_LOADED = "NOTIFICATION_ZIP_FILE_LOADED";
 
     private static final boolean LOG_TRACE = false;
     private static final boolean LOG_TRACE_ALL = false;
@@ -209,6 +210,9 @@ public class AudioService extends Service {
 
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            Intent intent = new Intent(NOTIFICATION_ZIP_FILE_LOADED);
+            sendBroadcast(intent);
         }
         return pathOfTempFile;
     }

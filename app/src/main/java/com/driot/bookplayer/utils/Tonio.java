@@ -135,12 +135,17 @@ public class Tonio {
         return file.getName();
     }
 
+    public static String FormatNameForDisplay(String s) {
+        s = stripExtension(s);
+        s = s.replace("_", " ");
+        return s;
+    }
+
     public static String stripExtension(String fileName) {
         String s = fileName;
         if (s.indexOf(".") > 0) {
             s = s.substring(0, s.lastIndexOf("."));
         }
-        s = s.replace("_"," ");
         return s;
     }
 

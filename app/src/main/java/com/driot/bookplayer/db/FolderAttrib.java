@@ -6,8 +6,13 @@ import android.net.Uri;
 import android.os.Environment;
 import android.provider.OpenableColumns;
 import android.util.Log;
+import android.widget.Toast;
+
+import com.driot.bookplayer.R;
 
 import java.io.File;
+
+import static com.driot.bookplayer.utils.Tonio.FormatNameForDisplay;
 
 
 /**
@@ -17,19 +22,24 @@ public class FolderAttrib {
 
     private final Uri uri;
     private final boolean isZipFolder;
+    private Context mCtx;
 
     private boolean FolderKO;
 
     private final String sFolderUri;
     private final String sFolderHash;
-    private final String sFolderPath;
-    private String sRealFolderPath;
+    private String sFolderPath;
     private String sFolderName;
+
+    private String sRealFolderPath;
+
+    private boolean fromDownloadFolder;
 
     public FolderAttrib(Context context, Uri uri, boolean isZipFolder) {
 
         this.uri = uri;
         this.isZipFolder = isZipFolder;
+        this.mCtx = context;
 
         sFolderUri = uri.toString();
 
@@ -39,12 +49,27 @@ public class FolderAttrib {
 
         sRealFolderPath="";
 
+        fromDownloadFolder=false;
+
+            // from DOWNLOAD
         if (uri.getAuthority().equals("com.android.providers.downloads.documents")) {
-            String DownloadFolderPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getPath();
-            sRealFolderPath = DownloadFolderPath + "/" + getFileName(context,uri);
-        } else if (uri.getLastPathSegment().substring(0,7).equals("primary")) {
+            sFolderPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getPath();
+            if (isZipFolder) {
+                String sRealFolderName = getFileName(context,uri);
+                sRealFolderPath = sFolderPath + "/" + sRealFolderName;
+                sFolderName = FormatNameForDisplay(sRealFolderName);
+            } else {
+                sRealFolderPath = uri.getLastPathSegment().replace("raw:","");
+                sFolderName = FormatNameForDisplay(sRealFolderPath.substring(sRealFolderPath.lastIndexOf("/")+1));
+            }
+            fromDownloadFolder=true;
+
+            // from MAIN MEMORY
+        } else if (uri.getLastPathSegment().startsWith("primary")) {
             sRealFolderPath = uri.getLastPathSegment()
                     .replace("primary:","/storage/emulated/0/");
+
+            // from SD CARD
         } else {
             sRealFolderPath = uri.getPath()
                     .replace("document", "storage")
@@ -67,25 +92,25 @@ public class FolderAttrib {
             myLog("====== Is not Folder");
         }
 
-
-        // nom par défaut = les deux derniers folders :
-        // ex  : "S3 - Finances publiques/Audios"
-        String str = sFolderPath.replace(":", "/");
-        int pos1 = str.lastIndexOf("/");
-        if (isZipFolder) {
-            sFolderName = str.substring(pos1 + 1)
-                    .replace(".zip", "")
-                    .replace("_", " ");
-        } else {
-            if (pos1 > -1) {
-                int pos2 = str.substring(0, pos1).lastIndexOf("/", pos1);
-                if (pos2 > -1) {
-                    sFolderName = str.substring(pos2 + 1);
-                } else {
-                    sFolderName = str.substring(pos1 + 1);
+        if (!fromDownloadFolder) {
+            // nom par défaut = les deux derniers folders :
+            // ex  : "S3 - Finances publiques/Audios"
+            String str = sFolderPath.replace(":", "/");
+            int pos1 = str.lastIndexOf("/");
+            if (isZipFolder) {
+                sFolderName = FormatNameForDisplay(str.substring(pos1 + 1));
+            } else {
+                if (pos1 > -1) {
+                    int pos2 = str.substring(0, pos1).lastIndexOf("/", pos1);
+                    if (pos2 > -1) {
+                        sFolderName = str.substring(pos2 + 1);
+                    } else {
+                        sFolderName = str.substring(pos1 + 1);
+                    }
                 }
             }
         }
+
         myLog("..." + "\n" +
                 this.toString() + "\n" +
                 "...");
@@ -151,22 +176,21 @@ public class FolderAttrib {
         return ss;
     }
 
-    protected void myLog(String str) {
-        Log.d("toto Folder -- ", str);
-        System.out.println(str);
-    }
-
 
     public String getFileName(Context context, Uri uri) {
         String result = null;
         if (uri.getScheme().equals("content")) {
-            Cursor cursor = context.getContentResolver().query(uri, null, null, null, null);
+            Cursor cursor = null;
             try {
+                cursor = context.getContentResolver().query(uri, null, null, null, null);
                 if (cursor != null && cursor.moveToFirst()) {
                     result = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
                 }
+            } catch (Exception e) {
+                e.printStackTrace();
+                myToast(context.getString(R.string.Error_Getting_Ressource_Name_from_Download_Folder));
             } finally {
-                cursor.close();
+                if (cursor != null) cursor.close();
             }
         }
         if (result == null) {
@@ -177,6 +201,16 @@ public class FolderAttrib {
             }
         }
         return result;
+    }
+
+    private void myToast(String str) {
+        myLog(str);
+        Toast.makeText(mCtx,str,Toast.LENGTH_SHORT).show();
+    }
+
+    protected void myLog(String str) {
+        Log.d("toto FolderAttrib -- ", str);
+        System.out.println(str);
     }
 
 

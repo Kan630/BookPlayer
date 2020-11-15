@@ -27,6 +27,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -47,7 +48,10 @@ import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_ERROR;
 import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_FILELOADED;
 import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_NEWTRACK;
 import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_TRACKFINISHED;
+import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_ZIP_FILE_LOADED;
+
 import static com.driot.bookplayer.utils.Tonio.*;
+import static com.driot.bookplayer.utils.Utils.animateView;
 
 public class PlayActivity extends LifecycleLoggingActivity {
 
@@ -57,6 +61,9 @@ public class PlayActivity extends LifecycleLoggingActivity {
 
     private Button bForward, bPause, bPlay, bRewind;
     private ImageView iv;
+    private View progressOverlay;
+    private static final int DELAY_ANIMATION = 200;
+    private boolean AnimationNow;
 
     private boolean HasBeenInitializedService = false;
     private boolean HasBeenInitializedUI = false;
@@ -79,6 +86,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
     private static MediaSession mediaSession;
 
     private boolean ShitHappensFlee = false;
+    private static boolean isZipFile;
 
 
     /********************************************************************************
@@ -125,6 +133,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
         bPause = (Button) findViewById(R.id.buttonPause);
         bForward = (Button) findViewById(R.id.buttonForward);
         iv = (ImageView) findViewById(R.id.imageView);
+        progressOverlay = findViewById(R.id.progress_overlay);
 
         txSeekBar = (TextView) findViewById(R.id.textViewSeekBar);
         txTempsTotal = (TextView) findViewById(R.id.textViewTempsTotal);
@@ -141,6 +150,8 @@ public class PlayActivity extends LifecycleLoggingActivity {
         //ZikFile zikFile = getIntent().getParcelableExtra("zikFile");
 
         zikFileFromIntent = (ZikFile) getIntent().getSerializableExtra("ZikFile");
+        isZipFile = zikFileFromIntent.isIszipfile();
+        if (isZipFile) ShowProgressAnim();
 
         configureMediaSession();
         //setPlaybackState(0);
@@ -255,6 +266,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
         registerReceiver(receiver, new IntentFilter(NOTIFICATION_AUDIOFOCUS_LOST));
         registerReceiver(receiver, new IntentFilter(NOTIFICATION_FILELOADED));
         registerReceiver(receiver, new IntentFilter(NOTIFICATION_ERROR));
+        registerReceiver(receiver, new IntentFilter(NOTIFICATION_ZIP_FILE_LOADED));
     }
     @Override
     protected void onPause() {
@@ -317,13 +329,14 @@ public class PlayActivity extends LifecycleLoggingActivity {
     private void DrawUI() {
         if (mService != null && mService.hasBeenLoaded()) {
             ZikFile zf = mService.getCurrentZikFile();
-            txSubTitle.setText(stripExtension(zf.getName()));
+            txSubTitle.setText(FormatNameForDisplay(zf.getName()));
             txTitle.setText(zf.getFolderName());
             txNomFichier.setText("");
             txTempsTotal.setText(FormatTime(zf.getDuration()));
             seekbar.setMax((int) zf.getDuration());
             txSeekBar.setText(FormatTime(zf.getPosition()));
             seekbar.setProgress((int) zf.getPosition());
+            HideProgressAnim();
             Log.d("toto","----------------------------- play screen drawn " + zf.getPosition());
         } else {
             Log.d("toto","----------------------------- play screen drawn ERROR no mService or not ready");
@@ -433,6 +446,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
             switch (intent.getAction()) {
                 case NOTIFICATION_NEWTRACK:
                     Log.d("toto","broadcast received NEW TRACK");
+                    //if (isZipFile) ShowProgressAnim();
                     break;
                 case NOTIFICATION_ERROR:
                     ShitHappensFlee=true;
@@ -456,6 +470,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
                     Log.d("toto","broadcast received FILE LOADED");
                     DrawUI();
                     mService.setPosition((int) mService.getCurrentZikFile().getPosition());
+                    HideProgressAnim();
                     break;
             }
         }
@@ -513,7 +528,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
                 @Override
                 protected void onPostExecute(Void aVoid) {
                     super.onPostExecute(aVoid);
-                    Log.d("toto", "run query " + strSQL);
+                    //Log.d("toto", "run query " + strSQL);
                 }
             }
 
@@ -576,6 +591,17 @@ public class PlayActivity extends LifecycleLoggingActivity {
      ********************************************************************************
      */
 
+    private void ShowProgressAnim() {
+        animateView(progressOverlay, View.VISIBLE, 0.4f, DELAY_ANIMATION);
+        AnimationNow=true;
+    }
+    private void HideProgressAnim() {
+        if (AnimationNow) {
+            animateView(progressOverlay, View.GONE, 0, DELAY_ANIMATION);
+            AnimationNow=false;
+        }
+
+    }
 
     protected void myLog(String str) {
         Log.d("toto " + TAG + " ", str);
