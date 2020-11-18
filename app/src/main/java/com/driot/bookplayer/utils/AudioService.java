@@ -44,6 +44,9 @@ public class AudioService extends Service {
     public static final int DELAY_CHECK_TIMER = 1000*5;
 */
 
+    static final String TAG = "MusicService";
+    private static final boolean LOG_TRACE = true;
+    private static final boolean LOG_TRACE_ALL = false;
 
     private final IBinder binder = new BackgroundBinder();
     public static final String TRACKNUMBER = "tracknumber";
@@ -56,8 +59,6 @@ public class AudioService extends Service {
     public static final String NOTIFICATION_ZIP_FILE_LOADED = "NOTIFICATION_ZIP_FILE_LOADED";
     public static final String NOTIFICATION_PLAYBACK_MAXTIMEREACH = "NOTIFICATION_PLAYBACK_MAXTIMEREACH";
 
-    private static final boolean LOG_TRACE = false;
-    private static final boolean LOG_TRACE_ALL = false;
 
     private MediaPlayer mediaPlayer;
     private AudioManager mAudioManager;
@@ -82,7 +83,7 @@ public class AudioService extends Service {
      */
     @Override
     public void onCreate() {
-        myLog("MusicService onCreate");
+        myLog("onCreate()");
         super.onCreate();
         mediaPlayer = new MediaPlayer();
 
@@ -90,7 +91,7 @@ public class AudioService extends Service {
             @Override
             public void onCompletion(MediaPlayer mediaPlayer) {
                 if (!ErrorLoadingFile) {
-                    myLog("MusicService onCompletion - nextTrack");
+                    myLog("mediaPlayer.OnErrorListener - nextTrack");
                     alertTrackFinished();
                     fileHasBeenLoaded=false;
                     nextTrack();
@@ -102,7 +103,7 @@ public class AudioService extends Service {
             @Override
             public boolean onError(MediaPlayer mediaPlayer, int i, int i1) {
                 ErrorLoadingFile = true;
-                myLog("MusicService - MediaPlayer On Error Fired : " + i + " : " + i1 );
+                myLog("mediaPlayer.OnErrorListener Fired : " + i + " : " + i1 );
                 alertError();
                 return false;
             }
@@ -128,30 +129,30 @@ public class AudioService extends Service {
         Intent intent = new Intent(NOTIFICATION_NEWTRACK);
         intent.putExtra(TRACKNUMBER, numSong);
         sendBroadcast(intent);
-        myLog("MusicService sendBroadcast alertNewTrack");
+        myLog("sendBroadcast alertNewTrack");
     }
 
     private void alertError() {
         Intent intent = new Intent(NOTIFICATION_ERROR);
         intent.putExtra(TRACKNUMBER, numSong);
         sendBroadcast(intent);
-        myLog("MusicService sendBroadcast alertError");
+        myLog("sendBroadcast alertError");
     }
 
     private void alertTrackFinished() {
         Intent intent = new Intent(NOTIFICATION_TRACKFINISHED);
         sendBroadcast(intent);
-        myLog("MusicService sendBroadcast alertTrackFinished");
+        myLog("sendBroadcast alertTrackFinished");
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        myLog("MusicService onStartCommand");
+        myLog("onStartCommand()");
         return START_NOT_STICKY;
     }
     @Override
     public void onDestroy() {
-        myLog("MusicService onDestroy");
+        myLog("onDestroy()");
         if (mediaPlayer.isPlaying()) {mediaPlayer.stop();}
         mediaPlayer.release();
         mediaPlayer = null;
@@ -163,13 +164,13 @@ public class AudioService extends Service {
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        myLog("MusicService onBind");
+        myLog("onBind()");
         return binder;
     }
 
     @Override
     public boolean onUnbind(Intent intent) {
-        myLog("MusicService onUnBind");
+        myLog("onUnBind()");
         return super.onUnbind(intent);
     }
 
@@ -187,7 +188,7 @@ public class AudioService extends Service {
 
 
     public void loadFiles(ZikFile[] zikFiles) {
-        myLog("MusicPlayer.loadFiles(array)");
+        myLog("loadFiles(array)");
         // sorte de constructeur
         numSong = 0;
         zikFilePlayList = zikFiles;
@@ -235,15 +236,15 @@ public class AudioService extends Service {
     public boolean loadFile(String sPath) {
         ErrorLoadingFile = false; // for onCompletion Next Track...
         if (!fileExists(sPath)) {
-            myLog("ERROR -- File doesn't exist !! " + sPath);
+            myLog("loadFile(sPath) : ERROR -- File doesn't exist !! " + sPath);
             ErrorLoadingFile=false;
             return false;
         }
         if (fileHasBeenLoaded) {
-            myLog("ERROR -- File was already loaded !! " + sPath);
+            myLog("loadFile(sPath) : ERROR -- File was already loaded !! " + sPath);
             return false;
         }
-        myLog("MusicService loadFile(" + sPath + ")");
+        myLog("loadFile(" + sPath + ")");
         try {
             mediaPlayer.setDataSource(sPath);
             mediaPlayer.prepare();
@@ -259,7 +260,7 @@ public class AudioService extends Service {
     }
 
     public void playAudio() {
-        myLog("MusicPlayer.playAudio()");
+        myLog("playAudio()");
         if (!mediaPlayer.isPlaying()) {
 
             mAudioManager = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
@@ -269,14 +270,15 @@ public class AudioService extends Service {
                 public void onAudioFocusChange(int focusChange) {
                     if(focusChange<=0) {
                         myLog("Audio Focus Lost");
-                        //AudioService.this.pause();
-                        mediaPlayer.pause();
+                        AudioService.this.pause();
+                        //mediaPlayer.pause();
                         Intent intent = new Intent(NOTIFICATION_AUDIOFOCUS_LOST);
                         sendBroadcast(intent);
                     } else {
                         myLog("Audio Focus Gain");
                         //AudioService.this.start();
-                        mediaPlayer.start();
+                        AudioService.this.playAudio();
+                        //mediaPlayer.start();
                         Intent intent = new Intent(NOTIFICATION_AUDIOFOCUS_GAIN);
                         sendBroadcast(intent);
                     }
@@ -291,7 +293,7 @@ public class AudioService extends Service {
     }
 
     public void pause() {
-        myLog("MusicPlayer.pause()");
+        myLog("pause()");
         if (mediaPlayer.isPlaying()) {
             mediaPlayer.pause();
             if (mAudioManager != null) { mAudioManager.abandonAudioFocus(afChangeListener); }
@@ -299,27 +301,27 @@ public class AudioService extends Service {
     }
 
     public void setPosition(int position) {
-        myLog("MusicPlayer.seekTo(" + position + ")");
+        myLog("setPosition-seekTo(" + position + ")");
         mediaPlayer.seekTo(position);
         //zikFilePlayList[numSong].setPosition(position);
     }
 
     public int getPosition() {
-        if (LOG_TRACE_ALL) myLog("MusicPlayer.getPosition()");
+        if (LOG_TRACE_ALL) myLog("getPosition()");
         return mediaPlayer.getCurrentPosition();
     }
 
     public int getDuration() {
-        myLog("MusicPlayer.getDuration()");
+        myLog("getDuration()");
         return mediaPlayer.getDuration();
     }
 
     public boolean isPlaying() {
-        if (LOG_TRACE_ALL) myLog("MusicPlayer.isPlaying()");
+        if (LOG_TRACE_ALL) myLog("isPlaying()");
         return mediaPlayer.isPlaying();
     }
     public boolean exist() {
-        if (LOG_TRACE_ALL) myLog("MusicPlayer.exist");
+        if (LOG_TRACE_ALL) myLog("exist");
         if (mediaPlayer == null) {
             return false;
         } else {
@@ -329,15 +331,16 @@ public class AudioService extends Service {
 
     public ZikFile getCurrentZikFile() {
         if (fileHasBeenLoaded) {
-            Log.d("toto", "getCurrentZikFile : " + zikFilePlayList[numSong].getName());
+            myLog( "getCurrentZikFile() : " + zikFilePlayList[numSong].getName());
             return zikFilePlayList[numSong];
         } else {
-            Log.d("toto", "getCurrentZikFile : ERROR file not loaded");
+            myLog( "getCurrentZikFile() : ERROR file not loaded");
             return null;
         }
     }
 
     public ZikFile getLastZikFile() {
+        myLog( "getLastZikFile()");
         if (fileHasBeenLoaded) {
             if (numSong > 0) {
                 return zikFilePlayList[numSong - 1];
@@ -364,9 +367,9 @@ public class AudioService extends Service {
         timer.scheduleAtFixedRate(new TimerTask() {
             public void run() {
                 tempsEcoule = tempsEcoule + DELAY_CHECK_TIMER/1000;
-                Log.d("toto", "AudioService started since " + tempsEcoule + " seconds");
+                myLog( "AudioService started since " + tempsEcoule + " seconds");
                 if (tempsEcoule>DELAY_MAXPLAYBACK) {
-                    Log.d("toto", "Max Playback Time Reached -- Stopping Service");
+                    myLog( "Max Playback Time Reached -- Stopping Service");
                     Intent intent = new Intent(NOTIFICATION_PLAYBACK_MAXTIMEREACH);
                     sendBroadcast(intent);
                     timer.cancel();
@@ -380,7 +383,7 @@ public class AudioService extends Service {
 
 
     private void myLog(String str) {
-        if (LOG_TRACE) { Log.d("toto",str); }
+        if (LOG_TRACE) { Log.d("toto " + TAG + " ",str); }
     }
 
 }
