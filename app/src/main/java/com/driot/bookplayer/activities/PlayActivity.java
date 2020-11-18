@@ -221,11 +221,14 @@ public class PlayActivity extends LifecycleLoggingActivity {
     }
 
     private void playMe() {
+        myLog("playMe call");
         if (mBound) {
-            mService.start();
-            SetInterfacePlayingMode();
-            myHandler.postDelayed(UpdateSongTime, INTERVAL_REDRAW_SEEKBAR);
-            HasBeenPlayed=true;
+            if (mService != null && mService.exist()) {
+                mService.playAudio();
+                SetInterfacePlayingMode();
+                myHandler.postDelayed(UpdateSongTime, INTERVAL_REDRAW_SEEKBAR);
+                HasBeenPlayed=true;
+            }
         }
     }
 

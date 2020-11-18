@@ -24,6 +24,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.zip.ZipFile;
 
 import static com.driot.bookplayer.utils.Tonio.fileExists;
@@ -35,6 +37,14 @@ import static com.driot.bookplayer.utils.Utils.copyStream;
  */
 public class AudioService extends Service {
 
+/*
+    private Timer timer;
+    private int tempsEcoule = 0;
+    public static final int DELAY_MAXPLAYBACK = 1000*60*60; //1h
+    public static final int DELAY_CHECK_TIMER = 1000*5;
+*/
+
+
     private final IBinder binder = new BackgroundBinder();
     public static final String TRACKNUMBER = "tracknumber";
     public static final String NOTIFICATION_FILELOADED = "NOTIFICATION_FILELOADED";
@@ -44,6 +54,7 @@ public class AudioService extends Service {
     public static final String NOTIFICATION_AUDIOFOCUS_LOST = "NOTIFICATION_AUDIOFOCUS_LOST";
     public static final String NOTIFICATION_AUDIOFOCUS_GAIN = "NOTIFICATION_AUDIOFOCUS_GAIN";
     public static final String NOTIFICATION_ZIP_FILE_LOADED = "NOTIFICATION_ZIP_FILE_LOADED";
+    public static final String NOTIFICATION_PLAYBACK_MAXTIMEREACH = "NOTIFICATION_PLAYBACK_MAXTIMEREACH";
 
     private static final boolean LOG_TRACE = false;
     private static final boolean LOG_TRACE_ALL = false;
@@ -96,6 +107,7 @@ public class AudioService extends Service {
                 return false;
             }
         });
+
     }
 
     void nextTrack() {
@@ -145,6 +157,7 @@ public class AudioService extends Service {
         mediaPlayer = null;
         if (mAudioManager != null) { mAudioManager.abandonAudioFocus(afChangeListener); }
         if (tempFile != null && tempFile.exists()) { tempFile.delete();tempFile=null;}
+        //this.timer.cancel();
     }
 
     @Nullable
@@ -245,8 +258,8 @@ public class AudioService extends Service {
         return true;
     }
 
-    public void start() {
-        myLog("MusicPlayer.start()");
+    public void playAudio() {
+        myLog("MusicPlayer.playAudio()");
         if (!mediaPlayer.isPlaying()) {
 
             mAudioManager = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
@@ -256,12 +269,14 @@ public class AudioService extends Service {
                 public void onAudioFocusChange(int focusChange) {
                     if(focusChange<=0) {
                         myLog("Audio Focus Lost");
-                        AudioService.this.pause();
+                        //AudioService.this.pause();
+                        mediaPlayer.pause();
                         Intent intent = new Intent(NOTIFICATION_AUDIOFOCUS_LOST);
                         sendBroadcast(intent);
                     } else {
                         myLog("Audio Focus Gain");
-                        AudioService.this.start();
+                        //AudioService.this.start();
+                        mediaPlayer.start();
                         Intent intent = new Intent(NOTIFICATION_AUDIOFOCUS_GAIN);
                         sendBroadcast(intent);
                     }
@@ -271,6 +286,7 @@ public class AudioService extends Service {
             mAudioManager.requestAudioFocus(afChangeListener, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
 
             mediaPlayer.start();
+            //StartTimer();
        }
     }
 
@@ -341,7 +357,26 @@ public class AudioService extends Service {
         }
     }
 
-
+/*
+    private void StartTimer() {
+        timer = new Timer();
+        tempsEcoule = 0;
+        timer.scheduleAtFixedRate(new TimerTask() {
+            public void run() {
+                tempsEcoule = tempsEcoule + DELAY_CHECK_TIMER/1000;
+                Log.d("toto", "AudioService started since " + tempsEcoule + " seconds");
+                if (tempsEcoule>DELAY_MAXPLAYBACK) {
+                    Log.d("toto", "Max Playback Time Reached -- Stopping Service");
+                    Intent intent = new Intent(NOTIFICATION_PLAYBACK_MAXTIMEREACH);
+                    sendBroadcast(intent);
+                    timer.cancel();
+                    mediaPlayer.stop();
+                    stopSelf();
+                }
+            }
+        }, 0,DELAY_CHECK_TIMER);
+    }
+ */
 
 
     private void myLog(String str) {
