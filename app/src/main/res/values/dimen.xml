@@ -9,7 +9,7 @@
     <dimen name="recyclerview_elements_top">5dp</dimen>
     <dimen name="recyclerview_elements_bottom">5dp</dimen>
     <dimen name="recyclerview_elements_sides">3dp</dimen>
-    <dimen name="recyclerview_padding_text">1dp</dimen>
+    <dimen name="recyclerview_padding_text">2dp</dimen>
 
     <dimen name="GetRessource_vertical_margin_low">20dp</dimen>
     <dimen name="GetRessource_vertical_margin_title2text">15dp</dimen>

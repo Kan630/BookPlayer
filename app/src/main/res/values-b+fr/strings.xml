@@ -2,6 +2,7 @@
     <string name="app_name">BookPlayer</string>
     <string name="title_FolderList">Liste des dossiers</string>
     <string name="title_FolderContent">Liste des fichiers</string>
+    <string name="PlayerActivity_Title">TextBook Player</string>
 
     <string name="bOpenFolder">Ouvrir un dossier</string>
     <string name="bOpenZipFile">Ouvrir un fichier Zip</string>

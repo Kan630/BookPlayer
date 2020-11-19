@@ -11,104 +11,100 @@
     <!-- Progress bar overlay; shown while login is in progress -->
     <include layout="@layout/include_progress_overlay"/>
 
-    <TextView android:text="TextBook Player" android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+    <TextView
         android:id="@+id/textviewTitle"
-        android:textSize="35dp"
+        android:text="@string/PlayerActivity_Title"
+        style="@style/myStyleTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="35sp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true" />
 
     <TextView
+        android:id="@+id/textViewSubTitle"
+        android:text="subTitle"
+        style="@style/myStyleTextSubTitlePlay"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="ho yeah"
-        android:id="@+id/textViewSubTitle"
         android:layout_below="@+id/textviewTitle"
         android:layout_centerHorizontal="true"
-        android:textColor="#ff7aff24"
-        android:textSize="25dp" />
+        />
 
     <ImageView
+        android:id="@+id/imageView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/imageView"
         android:layout_below="@+id/textViewSubTitle"
         android:layout_centerHorizontal="true" />
 
     <Button
+        android:id="@+id/buttonRewind"
+        android:text="@string/rewind"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/rewind"
-        android:id="@+id/buttonRewind"
         android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true" />
 
     <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/play"
         android:id="@+id/buttonPlay"
-        android:layout_alignParentBottom="true"
-        android:layout_toRightOf="@id/buttonRewind" />
-
-    <Button
+        android:text="@string/play"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/pause"
+        android:layout_alignParentBottom="true"
+        android:layout_toEndOf="@id/buttonRewind" />
+
+    <Button
         android:id="@+id/buttonPause"
-        android:layout_alignParentBottom="true"
-        android:layout_toRightOf="@id/buttonPlay" />
-
-    <Button
+        android:text="@string/pause"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/forward"
-        android:id="@+id/buttonForward"
         android:layout_alignParentBottom="true"
-        android:layout_toRightOf="@id/buttonPause" />
+        android:layout_toEndOf="@id/buttonPlay" />
+
+    <Button
+        android:id="@+id/buttonForward"
+        android:text="@string/forward"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_toEndOf="@id/buttonPause" />
 
     <SeekBar
+        android:id="@+id/seekBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/seekBar"
         android:layout_above="@+id/buttonForward" />
 
     <TextView
         android:id="@+id/textViewSeekBar"
+        android:text="Current position"
+        style="@style/myStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@+id/seekBar"
-        android:text="Current position"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
+        android:id="@+id/textViewTempsTotal"
+        android:text="Temps total"
+        style="@style/myStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceSmall"
-        android:text="Temps total"
-        android:id="@+id/textViewTempsTotal"
-        android:layout_marginLeft="30dp"
+        android:layout_marginStart="30dp"
         android:layout_above="@+id/seekBar"
         android:layout_alignParentEnd="true"
         />
 
     <TextView
+        android:id="@+id/textViewNomFichier"
+        android:text="Nom Fichier"
+        style="@style/myStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Nom Fichier"
-        android:id="@+id/textViewNomFichier"
         android:layout_above="@+id/textViewSeekBar"
         />
 
 </RelativeLayout>
-
-    <!--
-    relative layout
-
-
-
-    image view :
-
-        android:src="@drawable/abc"/
-    -->
