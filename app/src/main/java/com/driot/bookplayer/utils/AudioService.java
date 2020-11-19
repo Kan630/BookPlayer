@@ -63,8 +63,6 @@ public class AudioService extends Service {
     private MediaPlayer mediaPlayer;
     private AudioManager mAudioManager;
     private AudioManager.OnAudioFocusChangeListener afChangeListener;
-    private AudioAttributes playbackAttributes;
-    private AudioFocusRequest focusRequest;
 
     private boolean fileHasBeenLoaded = false;
     private int numSong = 0;
@@ -308,12 +306,15 @@ public class AudioService extends Service {
 
     public int getPosition() {
         if (LOG_TRACE_ALL) myLog("getPosition()");
-        return mediaPlayer.getCurrentPosition();
+        int curPos = mediaPlayer.getCurrentPosition();
+        getCurrentZikFile().setPosition(curPos);
+        return curPos;
     }
 
     public int getDuration() {
         myLog("getDuration()");
-        return mediaPlayer.getDuration();
+        //return mediaPlayer.getDuration();
+        return (int) getCurrentZikFile().getDuration();
     }
 
     public boolean isPlaying() {
@@ -331,7 +332,7 @@ public class AudioService extends Service {
 
     public ZikFile getCurrentZikFile() {
         if (fileHasBeenLoaded) {
-            myLog( "getCurrentZikFile() : " + zikFilePlayList[numSong].getName());
+            if (LOG_TRACE_ALL) myLog( "getCurrentZikFile() : " + zikFilePlayList[numSong].getName());
             return zikFilePlayList[numSong];
         } else {
             myLog( "getCurrentZikFile() : ERROR file not loaded");

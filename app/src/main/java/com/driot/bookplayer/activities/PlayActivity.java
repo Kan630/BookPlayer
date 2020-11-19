@@ -175,55 +175,20 @@ public class PlayActivity extends LifecycleLoggingActivity {
                     HasBeenPlayed = true;
                 }
             }
-
             @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-            }
-
+            public void onStartTrackingTouch(SeekBar seekBar) {            }
             @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-            }
+            public void onStopTrackingTouch(SeekBar seekBar) {            }
         });
 
         //-*******************************************************************************
-        //-***       BUTTON PLAY
+        //-***       BUTTONS
         //-*******************************************************************************
 
-        bPlay.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                playMe();
-            }
-        });
-
-        //-*******************************************************************************
-        //-***       BUTTON PAUSE
-        //-*******************************************************************************
-
-        bPause.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                pauseMe();
-            }
-        });
-
-        //-*******************************************************************************
-        //-***       BUTTONS AVANCE & RETOUR RAPIDE
-        //-*******************************************************************************
-
-        bForward.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                forwardMe();
-            }
-        });
-
-        bRewind.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                backwardMe();
-            }
-        });
+        bPlay.setOnClickListener(v -> playMe());
+        bPause.setOnClickListener(v -> pauseMe());
+        bForward.setOnClickListener(v -> forwardMe());
+        bRewind.setOnClickListener(v -> backwardMe());
     }
 
     private void playMe() {
@@ -366,9 +331,9 @@ public class PlayActivity extends LifecycleLoggingActivity {
     private void updateZikFileState(ZikFile zikFile, boolean bFinished) {
         boolean DoIt = true;
         myLog("---------- ZikFile called for update");
-        if (ShitHappensFlee) myLog("updateZikFile KO because Shit Happens so Flee far away and don't come back");DoIt = false;
-        if (!HasBeenPlayed) myLog("updateZikFile KO because HasBeenPlayed=false");DoIt = false;
-        if (zikFile == null) myLog("updateZikFile KO because zikFile=null");DoIt = false;
+        if (ShitHappensFlee) {myLog("won't update ZikFile because Shit Happens so Flee far away and don't come back");DoIt = false;}
+        if (!HasBeenPlayed) {myLog("won't update ZikFile because HasBeenPlayed=false");DoIt = false;}
+        if (zikFile == null) {myLog("won't update ZikFile because zikFile=null");DoIt = false;}
         if (DoIt) {
             try {
                 if (zikFile.getFirstaccess() == null) {
@@ -448,7 +413,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
             HasBeenInitializedService = true;
 
             // retour de flip ecran
-            DrawUI();
+            DrawUI(); //utile pour suppression progressBar
         }
 
         @Override
@@ -561,6 +526,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
 
 
     private void configureMediaSession() {
+        myLog("configureMediaSession()");
         mediaSession = new MediaSession(this, "MyMediaSession");
 
         // Overridden methods in the MediaSession.Callback class.
