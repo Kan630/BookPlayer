@@ -30,7 +30,7 @@ public interface ZikFileDao {
     ZikFile getZikFile(long id);
 
     @Insert
-    void insert(ZikFile zikFile);
+    long insert(ZikFile zikFile);
 
     @Delete
     void delete(ZikFile zikFile);

@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -83,7 +82,6 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
     private ArrayList<String> audioFileArrayList;
 
     private PermissionRequest mPermissionRequest;
-    public boolean PermissionHasBeenGranted;
 
     private int nbFileSaved, nbFileToSave;
 
@@ -99,15 +97,6 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
         progressBarOverlay = findViewById(R.id.progressBar_overlay);
         progressBar = findViewById(R.id.progressBar);
         progressBarText = findViewById(R.id.progressBarText);
-
-        //checkPermissionsReadStorage2();
-
-        /*
-        if (!checkPermissionsReadStorage()) {
-            bOpenFolder.setEnabled(false);
-            bOpenZipFile.setEnabled(false);
-        }
-*/
 
         // ZIP
         bOpenZipFile.setOnClickListener(new View.OnClickListener() {
@@ -200,14 +189,7 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
                         }
                     }
 
-                    // TODO se servir de audioFileArrayList et pas de DocumentFile for les folders
-
-                    if (audioFileArrayList.size() == 0) {
-                        myToast(getString(R.string.Error_Import_NoMediaInFolder));
-                    } else {
-                        myToast(audioFileArrayList.size() + " " + getString(R.string.Import_nMediaInFolder));
-                        checkIfAddedFolderExist();
-                    }
+                    goFolder();
                 }
 
             } else {
@@ -231,7 +213,6 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
 
                 zipFile = null;
                 try {
-                    //zipFile = new ZipFile(zipFilePath);
                     zipFile = new ZipFile(fileZipFile);
                 } catch (Exception e) {
                     myToast(getString(R.string.Error_Import_ParsingZipFile));
@@ -251,10 +232,8 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
                         if (!entry.isDirectory()) {
                             String zeName = entry.getName();
                             zipFileListing.add(zeName);
-                            myLog(zeName);
                         }
                     }
-                    myLog("----------------");
 
                     if (zipFileListing.size() != 0) {
                         // filter audio file
@@ -266,21 +245,23 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
                         }
                     }
 
-                    if (audioFileArrayList.size() == 0) {
-                        myToast(getString(R.string.Error_Import_NoMediaInFolder));
-                    } else {
-                        myToast(audioFileArrayList.size() + " " + getString(R.string.Import_nMediaInFolder));
-                        checkIfZipFolderAlreadyExist();
-                    }
+                    goFolder();
 
                 }
             }
         }
     }
 
+    private void goFolder() {
+        if (audioFileArrayList.size() == 0) {
+            myToast(getString(R.string.Error_Import_NoMediaInFolder));
+        } else {
+            myToast(audioFileArrayList.size() + " " + getString(R.string.Import_nMediaInFolder));
+            checkIfFolderAlreadyExist();
+        }
+    }
 
-    // ZIP
-    private void checkIfZipFolderAlreadyExist() {
+    private void checkIfFolderAlreadyExist() {
         Observable.fromCallable(() -> {
             boolean bcheckIfFolderExist = false;
             long lcheckIfFolderExist = DatabaseClient
@@ -300,260 +281,132 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
                         myLog("ok on continue");
                         saveFolder();
                     }
-
                 });
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // FOLDER
-    private void checkIfAddedFolderExist() {
-
-        class CheckIfAddedFolderExist extends AsyncTask<Void, Void, Boolean> {
-
-            @Override
-            protected Boolean doInBackground(Void... voids) {
-                boolean bcheckIfFolderExist = false;
-                long lcheckIfFolderExist = DatabaseClient
-                        .getInstance(getApplicationContext())
-                        .getAppDatabase()
-                        .FolderDao()
-                        .folderAlreadyExist(myFolder.getsFolderUri(),myFolder.getsFolderHash());
-                if (lcheckIfFolderExist>0) { bcheckIfFolderExist = true;}
-                return bcheckIfFolderExist;
-            }
-
-            @Override
-            protected void onPostExecute(Boolean bb) {
-                super.onPostExecute(bb);
-                if (bb) {
-                    //myZikFileList = pickedDir.listFiles();
-                    myToast(getString(R.string.Error_Import_FolderAlreadyImported));
-                } else {
-                    /*
-                    // on vérifie que le dossier contient au moins un fichier media
-                    myZikFileList = pickedDir.listFiles();
-                    boolean atLeastOneMedia = false;
-                    if (myZikFileList.length > 0) {
-                        for (DocumentFile f:myZikFileList) { //check myZikFileList.length > 0 ??
-                            if (f.getType() != null) {
-                                if (f.getType().equals("audio/mpeg")) {
-                                    atLeastOneMedia = true;
-                                }
-                            }
-                        }
-                    }
-                    if (!atLeastOneMedia) {
-                        myToast(getString(R.string.Error_Import_NoMediaInFolder));
-                    } else {
-
-                     */
-                        saveFolder();
-                    //}
-                }
-            }
-        }
-        CheckIfAddedFolderExist gt = new CheckIfAddedFolderExist();
-        gt.execute();
-    }
-
     private void saveFolder() {
-
         ShowProgress();
-
-        final Double sPercent = 0.0;
         final Time sFirstAccess = new Time(System.currentTimeMillis());
         final Date sLastAccess = new Date(System.currentTimeMillis());
         final Time sLastAccessTime = new Time(System.currentTimeMillis());
 
-        class SaveFolder extends AsyncTask<Void, Void, Void> {
+        Observable.fromCallable(() -> {
+            //creating a Folder
+            Folder folder = new Folder();
+            folder.setName(myFolder.getsFolderName());
+            folder.setPath(myFolder.getsFolderPath());
+            folder.setUri(myFolder.getsFolderUri());
+            folder.setHash(myFolder.getsFolderHash());
+            folder.setPercentdone(0.0);
+            folder.setFirstaccess(sFirstAccess);
+            folder.setLastaccess(sLastAccess);
+            folder.setLastaccessTime(sLastAccessTime);
+            folder.setFinished(false);
+            folder.setIszipfile(myFolder.isZipFolder());
 
-            @Override
-            protected Void doInBackground(Void... voids) {
-
-                //creating a Folder
-                Folder folder = new Folder();
-                folder.setName(myFolder.getsFolderName());
-                folder.setPath(myFolder.getsFolderPath());
-                folder.setUri(myFolder.getsFolderUri());
-                folder.setHash(myFolder.getsFolderHash());
-                folder.setPercentdone(sPercent);
-                folder.setFirstaccess(sFirstAccess);
-                folder.setLastaccess(sLastAccess);
-                folder.setLastaccessTime(sLastAccessTime);
-                folder.setFinished(false);
-                folder.setIszipfile(myFolder.isZipFolder());
-
-                //adding to database
-                InsertedFolderId[0] = (int) DatabaseClient.getInstance(getApplicationContext()).getAppDatabase()
-                        .FolderDao()
-                        .insert(folder);
-                return null;
-            }
-
-            @Override
-            protected void onPostExecute(Void aVoid) {
-                super.onPostExecute(aVoid);
+            //adding to database
+            InsertedFolderId[0] = (int) DatabaseClient.getInstance(getApplicationContext()).getAppDatabase()
+                    .FolderDao()
+                    .insert(folder);
+            return true;
+        })
+                .subscribeOn(Schedulers.newThread())
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe((result) -> {
+            if (result) {
                 if (myFolder.isZipFolder()) {
                     saveZipFiles();
                 } else {
                     saveFiles();
                 }
             }
-        }
-
-        SaveFolder st = new SaveFolder();
-        st.execute();
+        })
+        ;
     }
 
     private void saveZipFiles() {
-
-        class SaveZipFiles extends AsyncTask<Void, Void, Void> {
-
-            @Override
-            protected Void doInBackground(Void... voids) {
-                nbFileToSave=audioFileArrayList.size();nbFileSaved=0;
-                int i = 0; int progress = 0; String txtProgress = "";
-                for (String s : audioFileArrayList) {
-                    //String fileName = s.substring(s.lastIndexOf("/")+1);
-                    //saveFile(fileName, InsertedFolderId[0]);
-                    i++;
-                    progress = (int) i * 100 / audioFileArrayList.size();
-                    txtProgress = progress + "% - reading file n°" + i + "/" + audioFileArrayList.size() + "\n" + getFileNameFromPath(s);
-                    myLog("Call save " + s);
-                    saveFile(s, InsertedFolderId[0], progress, txtProgress);
-                }
-                return null;
-            }
-
-            @Override
-            protected void onPostExecute(Void aVoid) {
-                super.onPostExecute(aVoid);
-                //updateFolderDuration();
-            }
+        nbFileToSave=audioFileArrayList.size();nbFileSaved=0;
+        int i = 0; int progress = 0; String txtProgress = "";
+        for (String s : audioFileArrayList) {
+            i++;
+            progress = (int) i * 100 / audioFileArrayList.size();
+            txtProgress = progress + "% - reading file n°" + i + "/" + audioFileArrayList.size() + "\n" + getFileNameFromPath(s);
+            myLog("Call save " + s);
+            saveFile(s, InsertedFolderId[0], progress, txtProgress);
         }
+    }
 
-    SaveZipFiles st = new SaveZipFiles();
-    st.execute();
-
-
-}
     private void saveFiles() {
-
-        class SaveFiles extends AsyncTask<Void, Void, Void> {
-
-            @Override
-            protected Void doInBackground(Void... voids) {
-                nbFileToSave=audioFileArrayList.size();nbFileSaved=0;
-                int i = 0; int progress = 0; String txtProgress = "";
-                for (DocumentFile f :myZikFileList) {
-                    if (f.getType() != null) {
-                        if (f.getType().equals("audio/mpeg")) {
-                            //myLog("saving file " + f.getName());
-                            i++;
-                            progress = (int) i*100/audioFileArrayList.size();
-                            txtProgress = progress + "% - saving file n°" + i + "/" + audioFileArrayList.size() + "\n" + f.getName();
-                            saveFile(f.getName(), InsertedFolderId[0], progress, txtProgress);
-                        }
-                    }
+        nbFileToSave=audioFileArrayList.size();nbFileSaved=0;
+        int i = 0; int progress = 0; String txtProgress = "";
+        for (DocumentFile f :myZikFileList) {
+            if (f.getType() != null) {
+                if (f.getType().equals("audio/mpeg")) {
+                    i++;
+                    progress = (int) i*100/audioFileArrayList.size();
+                    txtProgress = progress + "% - saving file n°" + i + "/" + audioFileArrayList.size() + "\n" + f.getName();
+                    myLog("saving file " + f.getName());
+                    saveFile(f.getName(), InsertedFolderId[0], progress, txtProgress);
                 }
-                return null;
-            }
-
-            @Override
-            protected void onPostExecute(Void aVoid) {
-                super.onPostExecute(aVoid);
-                //updateFolderDuration();
             }
         }
-
-        SaveFiles st = new SaveFiles();
-        st.execute();
-
-
     }
 
     private void saveFile(String sZikFileName, int mFolderId, int progress, String txtProgress) {
-
-        final Double dPercent = 0.0;
-        final int iPosition = 0;
-
-        class SaveFile extends AsyncTask<Void, Void, Void> {
-
-            @Override
-            protected Void doInBackground(Void... voids) {
-
+        Observable.fromCallable(() -> {
+                // creating file
                 ZikFile zikFile = new ZikFile();
-                zikFile.setName(sZikFileName);
-                zikFile.setIdFolder(mFolderId);
-                zikFile.setFolderName(myFolder.getsFolderName());
-                zikFile.setPercentdone(dPercent);
-                zikFile.setPosition(iPosition);
-                zikFile.setPath(myFolder.getsRealFolderPath());
-                zikFile.setIszipfile(myFolder.isZipFolder());
+            zikFile.setName(sZikFileName);
+            zikFile.setIdFolder(mFolderId);
+            zikFile.setFolderName(myFolder.getsFolderName());
+            zikFile.setPercentdone(0.0);
+            zikFile.setPosition(0);
+            zikFile.setPath(myFolder.getsRealFolderPath());
+            zikFile.setIszipfile(myFolder.isZipFolder());
 
-                //myLog("File Full path : " + sFileFullPath);
-                //File f = new File(sFileFullPath);
-                //File file = new File(Uri.parse("/sdcard/lala.txt").getPath());
-                //zikFile.setSize(f.length()); // pour le zip, faudra faire une enum sur entry..
-                //myLog("File length : " + f.length());
+            // get Media Duration
+            //--------------------------------
+            String sFileFullPath;
+            if (myFolder.isZipFolder()) {
+                sFileFullPath = sZikFileName;
+            } else {
+                sFileFullPath = myFolder.getsRealFolderPath() + File.separator + sZikFileName;
+            }
+            try {
+                myLog("Get Media Duration : " + sFileFullPath);
+                zikFile.setDuration(getMediaDurationFromPath(sFileFullPath));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            //--------------------------------
 
-                // Media Duration
-                //--------------------------------
-                String sFileFullPath;
-                if (myFolder.isZipFolder()) {
-                    sFileFullPath = sZikFileName;
-                } else {
-                    sFileFullPath = myFolder.getsRealFolderPath() + File.separator + sZikFileName;
-                }
-                try {
-                    myLog("Get Media Duration : " + sFileFullPath);
-                    zikFile.setDuration(getMediaDurationFromPath(sFileFullPath));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                //--------------------------------
-
-                //adding to database
-                DatabaseClient.getInstance(getApplicationContext()).getAppDatabase()
+            //adding to database
+            return DatabaseClient
+                        .getInstance(getApplicationContext())
+                        .getAppDatabase()
                         .ZikFileDao()
                         .insert(zikFile);
-                //myLog("File Added " + zikFile.getName());
-                return null;
 
-            }
-
-            @Override
-            protected void onPostExecute(Void aVoid) {
-                super.onPostExecute(aVoid);
-                progressBar.setProgress(progress);
-                progressBarText.setText(txtProgress);
-                nbFileSaved++;
-                if (nbFileSaved == nbFileToSave) {
-                    myLog("All files have been saved ");
-                    updateFolderDuration();
-                }
-            }
-        }
-
-        SaveFile st = new SaveFile();
-        st.execute();
+        })
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe((result) -> {
+                    if (result != null) {
+                        myLog("File Added - SQL result = " + result);
+                        progressBar.setProgress(progress);
+                        progressBarText.setText(txtProgress);
+                        nbFileSaved++;
+                        if (nbFileSaved == nbFileToSave) {
+                            myLog("All files have been saved ");
+                            updateFolderDuration();
+                        }
+                    } else {
+                        myLog("ca chie");
+                    }
+                }, throwable -> Log.e("toto", "Throwable2 " + throwable.getMessage()));
     }
+
 
     private void updateFolderDuration() {
         Observable.fromCallable(() -> {
@@ -571,7 +424,7 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(result -> {
-                    myLog("Folder Duration Updated : " + result);
+                    myLog("Folder Duration Updated : runRawSQL result = " + result);
                     HideProgress();
                     finish();
                 }, throwable -> Log.e("toto", "Throwable " + throwable.getMessage()));
@@ -586,9 +439,6 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
             InputStream inputStream = null;
             FileOutputStream out = null;
             try {
-                // or use this APK / library / whatever
-                // ZipResourceFile expansionFile = new ZipResourceFile(zePath);
-
                 inputStream = zipFile.getInputStream(zipFile.getEntry(zePath));
                 File f = File.createTempFile("_AUDIO_", getExtension(zePath));
                 f.deleteOnExit();
@@ -599,7 +449,6 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
                 duration = Long.parseLong(mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
 
                 f.delete();
-                //myLog( "ca marche " + duration + " : " + fileName);
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -630,20 +479,6 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
         if (permissionCheck == PackageManager.PERMISSION_GRANTED) HasPermission = true;
         return HasPermission;
     }
-/*
-    private boolean checkPermissionsReadStorage() {
-        boolean HasPermission = false;
-        int REQUEST_READ_SD_CARD=1;
-        int permissionCheck = ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_EXTERNAL_STORAGE);
-        if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},REQUEST_READ_SD_CARD);
-        } else {
-            HasPermission = true;
-        }
-        return HasPermission;
-    }
-*/
 
     private void ShowProgress() {
         //animateView(progressOverlay, View.VISIBLE, 0.4f, DELAY_ANIMATION);
@@ -658,12 +493,6 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
 
     private void HideProgress() {
         animateView(progressBarOverlay, View.GONE, 0, DELAY_ANIMATION);
-/*
-        bOpenFolder.setVisibility(View.VISIBLE);
-        bOpenZipFile.setVisibility(View.VISIBLE);
-        bSearchLibrivox.setVisibility(View.VISIBLE);
-        bSearchLitteratureaudio.setVisibility(View.VISIBLE);
-*/
     }
 
 
@@ -714,14 +543,6 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
     public void onRequestPermissionsResult(int requestCode,
                                            @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
-
-        // Tonio
-        if (grantResults[0] == -1) {
-            PermissionHasBeenGranted = false;
-        } else {
-            PermissionHasBeenGranted = true;
-        }
-
         // Redirect hook call to permission helper method.
         if (mPermissionRequest != null) {
             mPermissionRequest.onRequestPermissionsResult(requestCode,
@@ -730,6 +551,5 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
             mPermissionRequest = null; // request no longer needed
         }
     }
-
 
 }
