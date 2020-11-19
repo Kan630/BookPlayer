@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="myStyle" parent="TextAppearance.AppCompat">
+        <item name="android:textColor">#CDCDCD</item>
+    </style>
+
+    <style name="myStyleTitle" parent="myStyle">
+        <item name="android:textAlignment">center</item>
+        <item name="android:textSize">24sp</item>
+    </style>
+
+    <style name="myStyleTextTitle2" parent="myStyle">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">20sp</item>
+    </style>
+
+    <style name="myStyleTextExplainButton" parent="myStyle">
+    </style>
+
+</resources>

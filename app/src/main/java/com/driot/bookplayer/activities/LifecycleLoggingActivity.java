@@ -184,7 +184,10 @@ public abstract class LifecycleLoggingActivity
         myLog("onNewIntent() + intent : " + intent.getAction());
     }
 
-    private void myLog(String str) {
-        if (LOG_TRACE) { Log.d(TAG,str); }
+    protected void myLog(String str) {
+        if (LOG_TRACE) {
+            Log.d(TAG,str);
+            System.out.println(str);
+        }
     }
 }

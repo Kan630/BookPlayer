@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Mini // Fait pour logicom LeHello - ideal 480x800 WVGA   -->
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:fillViewport="true">
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto">
@@ -11,9 +15,8 @@
 
     <TextView
         android:id="@+id/TextHeaderOpen"
+        style="@style/myStyleTextTitle2"
         android:text="@string/TextHeaderOpen"
-        android:textStyle="bold"
-        android:textSize="20sp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
@@ -24,6 +27,7 @@
 
     <TextView
         android:id="@+id/bOpenFolder_desc"
+        style="@style/myStyleTextExplainButton"
         android:text="@string/bOpenFolder_desc"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -48,6 +52,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/bOpenZiFile_desc"
+        style="@style/myStyleTextExplainButton"
         android:text="@string/bOpenZipFile_desc"
         android:paddingHorizontal="50dp"
         android:layout_marginTop="@dimen/GetRessource320_vertical_margin_low"
@@ -70,8 +75,7 @@
     <TextView
         android:id="@+id/TextHeaderSearch"
         android:text="@string/TextHeaderSearch"
-        android:textStyle="bold"
-        android:textSize="20sp"
+        style="@style/myStyleTextTitle2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/GetRessource320_vertical_margin_high"
@@ -85,6 +89,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/bSearchLibrivox_desc"
         android:text="@string/bSearchLibrivox_desc"
+        style="@style/myStyleTextExplainButton"
         android:paddingHorizontal="50dp"
         android:layout_marginTop="@dimen/GetRessource320_vertical_margin_title2text"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -106,6 +111,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/bSearchlitteratureaudio_desc"
+        style="@style/myStyleTextExplainButton"
         android:text="@string/bSearchlitteratureaudio_desc"
         android:paddingHorizontal="50dp"
         android:layout_marginTop="@dimen/GetRessource320_vertical_margin_low"
@@ -128,6 +134,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/bSearchExempleText"
+        style="@style/myStyleTextExplainButton"
         android:text="@string/bSearchExampleText"
         android:textStyle="italic"
         android:paddingHorizontal="50dp"
@@ -138,3 +145,4 @@
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

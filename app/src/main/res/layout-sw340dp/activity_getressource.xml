@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Normal // Fait pour smart P 2019 - parfait pour 720x1280 - sw340 -->
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:fillViewport="true">
+
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -12,8 +18,7 @@
     <TextView
         android:id="@+id/TextHeaderOpen"
         android:text="@string/TextHeaderOpen"
-        android:textStyle="bold"
-        android:textSize="20sp"
+        style="@style/myStyleTextTitle2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
@@ -25,6 +30,7 @@
     <TextView
         android:id="@+id/bOpenFolder_desc"
         android:text="@string/bOpenFolder_desc"
+        style="@style/myStyleTextExplainButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/GetRessource_vertical_margin_title2text"
@@ -45,9 +51,10 @@
         />
 
     <TextView
+        android:id="@+id/bOpenZiFile_desc"
+        style="@style/myStyleTextExplainButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/bOpenZiFile_desc"
         android:text="@string/bOpenZipFile_desc"
         android:paddingHorizontal="50dp"
         android:layout_marginTop="@dimen/GetRessource_vertical_margin_low"
@@ -70,8 +77,7 @@
     <TextView
         android:id="@+id/TextHeaderSearch"
         android:text="@string/TextHeaderSearch"
-        android:textStyle="bold"
-        android:textSize="20sp"
+        style="@style/myStyleTextTitle2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/GetRessource_vertical_margin_high"
@@ -84,6 +90,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/bSearchLibrivox_desc"
+        style="@style/myStyleTextExplainButton"
         android:text="@string/bSearchLibrivox_desc"
         android:paddingHorizontal="50dp"
         android:layout_marginTop="@dimen/GetRessource_vertical_margin_title2text"
@@ -106,6 +113,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/bSearchlitteratureaudio_desc"
+        style="@style/myStyleTextExplainButton"
         android:text="@string/bSearchlitteratureaudio_desc"
         android:paddingHorizontal="50dp"
         android:layout_marginTop="@dimen/GetRessource_vertical_margin_low"
@@ -128,6 +136,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/bSearchExempleText"
+        style="@style/myStyleTextExplainButton"
         android:text="@string/bSearchExampleText"
         android:textStyle="italic"
         android:paddingHorizontal="50dp"
@@ -138,3 +147,5 @@
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+
+</ScrollView>

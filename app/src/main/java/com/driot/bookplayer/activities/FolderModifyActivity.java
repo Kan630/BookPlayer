@@ -177,9 +177,4 @@ public class FolderModifyActivity extends LifecycleLoggingActivity {
         Toast.makeText(getApplicationContext(), str, Toast.LENGTH_SHORT).show();
     }
 
-    protected void myLog(String str) {
-        Log.d("toto getResAct ", str);
-        System.out.println(str);
-    }
-
 }

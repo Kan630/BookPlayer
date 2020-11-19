@@ -118,7 +118,7 @@ public class ZikFilesAdapter extends RecyclerView.Adapter<ZikFilesAdapter.ZikFil
     }
 
     private void myLog(String str) {
-        Log.d("toto adapter ", str);
+        Log.d("toto -adapter ", str);
         System.out.println(str);
     }
 

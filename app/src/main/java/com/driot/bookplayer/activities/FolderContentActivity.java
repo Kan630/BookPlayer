@@ -36,10 +36,10 @@ public class FolderContentActivity extends LifecycleLoggingActivity {
 
         long idFolder = getIntent().getIntExtra("FolderId",0);
         mTextViewTitle.setText(getIntent().getStringExtra("FolderName"));
-        Log.d("recyclerview","idFolder = " + idFolder);
+        myLog("recyclerview idFolder = " + idFolder);
         if (idFolder != 0) {
             getZikFiles(idFolder);
-            Log.d("recyclerview"," drawing through setAdapter");
+            myLog("recyclerview drawing through setAdapter");
         }
     }
 
@@ -50,12 +50,12 @@ public class FolderContentActivity extends LifecycleLoggingActivity {
         //TODO put position just after 100%....
 
         long idFolder = getIntent().getIntExtra("FolderId",0);
-        Log.d("recyclerview","idFolder on restart = " + idFolder);
+        myLog("recyclerview idFolder on restart = " + idFolder);
         if (idFolder != 0) {
             getZikFiles(idFolder);
-            Log.d("recyclerview","drawing through setAdapter on restart");
+            myLog("recyclerview drawing through setAdapter on restart");
         }
-        Log.d("recyclerview","position = " + verticalOffset);
+        myLog("recyclerview position = " + verticalOffset);
         //recyclerView.smoothScrollToPosition(30); //11
 
     }

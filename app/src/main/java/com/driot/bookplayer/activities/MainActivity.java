@@ -26,7 +26,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class MainActivity extends LifecycleLoggingActivity {
 
-    static final String TAG = "MainActivity.java";
+//    static final String TAG = "MainActivity.java";
     private RecyclerView recyclerView;
 
     private View progressOverlay;
@@ -66,7 +66,7 @@ public class MainActivity extends LifecycleLoggingActivity {
     protected void onRestart() {
         super.onRestart();
         getFolders();
-        Log.d("recyclerview","drawing through setAdapter on restart");
+        myLog("recyclerview drawing through setAdapter on restart");
     }
 
     private void getFolders() {
@@ -109,11 +109,4 @@ public class MainActivity extends LifecycleLoggingActivity {
      *
      * END STUFF
      */
-
-    private void myLog(String str) {
-        //String TAG = this.getClass().getName().substring(this.getClass().getName().lastIndexOf(".")+1);
-        Log.d("titi " + TAG + " ",str);
-        System.out.println(str);
-    }
-
 }

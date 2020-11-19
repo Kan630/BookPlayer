@@ -57,7 +57,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
 
     private static final boolean DO_PLAY_NEXT_SONG = true;
 
-    static final String TAG = "PlayActivity";
+    //static final String TAG = "PlayActivity";
 
     private Button bForward, bPause, bPlay, bRewind;
     private ImageView iv;
@@ -587,11 +587,6 @@ public class PlayActivity extends LifecycleLoggingActivity {
             AnimationNow=false;
         }
 
-    }
-
-    protected void myLog(String str) {
-        Log.d("toto " + TAG + " ", str);
-        System.out.println(str);
     }
 
 }

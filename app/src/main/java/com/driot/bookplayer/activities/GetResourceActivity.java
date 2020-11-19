@@ -673,13 +673,6 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
         Toast.makeText(getApplicationContext(),str,Toast.LENGTH_SHORT).show();
     }
 
-    protected void myLog(String str) {
-        Log.d("toto getResAct ", str);
-        System.out.println(str);
-    }
-
-
-
     /**
      * Handle the onPostCreate() hook to call permission helper to handle all
      * permission requests using the API 23 permission model framework.
