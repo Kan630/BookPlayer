@@ -247,7 +247,6 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
         }
     }
 
-
     private void goFolder() {
         if (audioFileArrayList.size() == 0) {
             myToast(getString(R.string.Error_Import_NoMediaInFolder));
@@ -256,27 +255,6 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
             checkIfFolderAlreadyExist();
         }
     }
-
-    /*
-    private void go1() {
-        Object lock = new Object();
-        Observable.fromCallable(() -> {
-            myLog("before progress");
-            synchronized (lock) {
-                try {
-                    lock.wait(2000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-            myLog("after wait");
-            return false;
-        }).subscribeOn(Schedulers.io()).subscribe(result -> {
-            progressBar.setProgress(20);
-            go2();
-        });
-    }
-     */
 
     private void checkIfFolderAlreadyExist() {
         Observable.fromCallable(() -> {
@@ -336,20 +314,16 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
             if (result) {
                 progressBar.setProgress(8);
                 progressBarText.setText("Folder Saved");
-                if (myFolder.isZipFolder()) {
-                    saveZipFiles2();
-                } else {
-                    saveFiles();
-                }
+                saveFiles();
             }
         }, throwable -> {
-            myLogE("ERROR create Folder : " + throwable.getMessage());
+            myLogE("create Folder : " + throwable.getMessage());
             HideProgress();
         })
         ;
     }
 
-    private void saveZipFiles2() {
+    private void saveFiles() {
         nbFileToSave = audioFileArrayList.size();
         nbFileSaved = 0;
         Thread one;
@@ -359,56 +333,54 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
                 int i = 0;
                 int progress = 0;
                 String txtProgress = "";
-                for (String s : audioFileArrayList) {
-                    i++;
-                    progress = (int) i * 100 / audioFileArrayList.size();
-                    txtProgress = progress + "% - reading file n°" + i + "/" + audioFileArrayList.size() + "\n" + getFileNameFromPath(s);
-                    myLog("Call save " + s);
-                    saveFile(s, InsertedFolderId[0], progress, txtProgress);
+            //ZIP
+                if (myFolder.isZipFolder()) {
+                    for (String s : audioFileArrayList) {
+                        i++;
+                        progress = (int) i * 100 / audioFileArrayList.size();
+                        txtProgress = progress + "% - reading file n°" + i + "/" + audioFileArrayList.size() + "\n" + getFileNameFromPath(s);
+                        myLog("Call save " + s);
+                        saveFile(s, InsertedFolderId[0], progress, txtProgress);
 
-                    // code runs in a thread
-                    int finalProgress = progress;
-                    String finalTxtProgress = txtProgress;
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            progressBar.setProgress(finalProgress);
-                            progressBarText.setText(finalTxtProgress);
+                        // code runs in a thread
+                        int finalProgress = progress;
+                        String finalTxtProgress = txtProgress;
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                progressBar.setProgress(finalProgress);
+                                progressBarText.setText(finalTxtProgress);
+                            }
+                        });
+                    }
+            //FOLDER
+                } else {
+                    for (DocumentFile f :myZikFileList) {
+                        if (f.getType() != null) {
+                            if (f.getType().equals("audio/mpeg")) {
+                                i++;
+                                progress = (int) i * 100 / audioFileArrayList.size();
+                                txtProgress = progress + "% - saving file n°" + i + "/" + audioFileArrayList.size() + "\n" + f.getName();
+                                myLog("saving file " + f.getName());
+                                saveFile(f.getName(), InsertedFolderId[0], progress, txtProgress);
+
+                                // code runs in a thread
+                                int finalProgress = progress;
+                                String finalTxtProgress = txtProgress;
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        progressBar.setProgress(finalProgress);
+                                        progressBarText.setText(finalTxtProgress);
+                                    }
+                                });
+                            }
                         }
-                    });
+                    }
                 }
             }
         };
         one.start();
-    }
-
-    private void saveZipFiles() {
-        nbFileToSave=audioFileArrayList.size();nbFileSaved=0;
-        int i = 0; int progress = 0; String txtProgress = "";
-        for (String s : audioFileArrayList) {
-            i++;
-            progress = (int) i * 100 / audioFileArrayList.size();
-            txtProgress = progress + "% - reading file n°" + i + "/" + audioFileArrayList.size() + "\n" + getFileNameFromPath(s);
-            myLog("Call save " + s);
-            saveFile(s, InsertedFolderId[0], progress, txtProgress);
-        }
-        //updateFolderDuration();
-    }
-
-    private void saveFiles() {
-        nbFileToSave=audioFileArrayList.size();nbFileSaved=0;
-        int i = 0; int progress = 0; String txtProgress = "";
-        for (DocumentFile f :myZikFileList) {
-            if (f.getType() != null) {
-                if (f.getType().equals("audio/mpeg")) {
-                    i++;
-                    progress = (int) i*100/audioFileArrayList.size();
-                    txtProgress = progress + "% - saving file n°" + i + "/" + audioFileArrayList.size() + "\n" + f.getName();
-                    myLog("saving file " + f.getName());
-                    saveFile(f.getName(), InsertedFolderId[0], progress, txtProgress);
-                }
-            }
-        }
     }
 
     private void saveFile(String sZikFileName, int mFolderId, int progress, String txtProgress) {
@@ -437,21 +409,6 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
             e.printStackTrace();
         }
 
-
-
-        //--------------------------------
-/*
-        Completable.fromAction(new Action() {
-            @Override
-            public void run() throws Throwable {
-                DatabaseClient
-                        .getInstance(getApplicationContext())
-                        .getAppDatabase()
-                        .ZikFileDao()
-                        .insert(zikFile);
-            }
-
-*/
         Observable.fromCallable(() -> {
             //adding to database
             return DatabaseClient
@@ -469,10 +426,10 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
                         nbFileSaved++;
                         if (nbFileSaved == nbFileToSave) {
                             myLog("All files have been saved ");
-                            //updateFolderDuration();
+                            updateFolderDuration();
                         }
                     } else {
-                        myLog("ca chie");
+                        myLogE("ca chie");
                     }
                 }, throwable -> {
                     myLogE("Saving File " + sZikFileName + " : " + throwable.getMessage());
@@ -494,7 +451,7 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
                     .FolderDao()
                     .runRawSql(query);
         })
-                .subscribeOn(Schedulers.newThread())
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(result -> {
                     myLog("Folder Duration Updated : runRawSQL result = " + result);
