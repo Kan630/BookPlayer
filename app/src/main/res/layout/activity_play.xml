@@ -107,4 +107,46 @@
         android:layout_above="@+id/textViewSeekBar"
         />
 
+    <!-- PlayBack Speed -->
+    <TextView
+        android:id="@+id/textViewSpeedDesc"
+        android:text="@string/tvSpeed"
+        style="@style/myStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:layout_toStartOf="@id/bSpeedDown"
+        android:layout_marginEnd="20sp"
+        android:layout_above="@+id/textViewNomFichier"
+        />
+    <Button
+        android:id="@+id/bSpeedDown"
+        android:text="-"
+        android:layout_width="@dimen/playactivity_Playback_Height"
+        android:layout_height="@dimen/playactivity_Playback_Height"
+        android:layout_toStartOf="@id/textViewSpeed"
+        android:layout_above="@+id/textViewNomFichier"
+        />
+    <TextView
+        android:id="@+id/textViewSpeed"
+        android:text="100%"
+        style="@style/myStyle"
+        android:textSize="@dimen/playactivity_PlaybackText_Height"
+        android:paddingStart="10sp"
+        android:paddingEnd="10sp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:layout_centerHorizontal="true"
+        android:layout_above="@+id/textViewNomFichier"
+        />
+    <Button
+        android:id="@+id/bSpeedUp"
+        android:text="+"
+        android:layout_width="@dimen/playactivity_Playback_Height"
+        android:layout_height="@dimen/playactivity_Playback_Height"
+        android:layout_toEndOf="@id/textViewSpeed"
+        android:layout_above="@+id/textViewNomFichier"
+        />
+
 </RelativeLayout>

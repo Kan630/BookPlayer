@@ -42,7 +42,11 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.core.Completable;
+import io.reactivex.rxjava3.core.CompletableObserver;
 import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.disposables.Disposable;
+import io.reactivex.rxjava3.functions.Action;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 import static com.driot.bookplayer.utils.Tonio.fileExists;
@@ -332,6 +336,8 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
             i++;
             progress = (int) i * 100 / audioFileArrayList.size();
             txtProgress = progress + "% - reading file n°" + i + "/" + audioFileArrayList.size() + "\n" + getFileNameFromPath(s);
+            progressBar.setProgress(progress);
+            progressBarText.setText(txtProgress);
             myLog("Call save " + s);
             saveFile(s, InsertedFolderId[0], progress, txtProgress);
         }
@@ -346,6 +352,8 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
                     i++;
                     progress = (int) i*100/audioFileArrayList.size();
                     txtProgress = progress + "% - saving file n°" + i + "/" + audioFileArrayList.size() + "\n" + f.getName();
+                    progressBar.setProgress(progress);
+                    progressBarText.setText(txtProgress);
                     myLog("saving file " + f.getName());
                     saveFile(f.getName(), InsertedFolderId[0], progress, txtProgress);
                 }
@@ -354,33 +362,44 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
     }
 
     private void saveFile(String sZikFileName, int mFolderId, int progress, String txtProgress) {
+            // creating file
+        ZikFile zikFile = new ZikFile();
+        zikFile.setName(sZikFileName);
+        zikFile.setIdFolder(mFolderId);
+        zikFile.setFolderName(myFolder.getsFolderName());
+        zikFile.setPercentdone(0.0);
+        zikFile.setPosition(0);
+        zikFile.setPath(myFolder.getsRealFolderPath());
+        zikFile.setIszipfile(myFolder.isZipFolder());
+
+        // get Media Duration
+        //--------------------------------
+        String sFileFullPath;
+        if (myFolder.isZipFolder()) {
+            sFileFullPath = sZikFileName;
+        } else {
+            sFileFullPath = myFolder.getsRealFolderPath() + File.separator + sZikFileName;
+        }
+        try {
+            myLog("Get Media Duration : " + sFileFullPath);
+            zikFile.setDuration(getMediaDurationFromPath(sFileFullPath));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        //--------------------------------
+/*
+        Completable.fromAction(new Action() {
+            @Override
+            public void run() throws Throwable {
+                DatabaseClient
+                        .getInstance(getApplicationContext())
+                        .getAppDatabase()
+                        .ZikFileDao()
+                        .insert(zikFile);
+            }
+*/
         Observable.fromCallable(() -> {
-                // creating file
-                ZikFile zikFile = new ZikFile();
-            zikFile.setName(sZikFileName);
-            zikFile.setIdFolder(mFolderId);
-            zikFile.setFolderName(myFolder.getsFolderName());
-            zikFile.setPercentdone(0.0);
-            zikFile.setPosition(0);
-            zikFile.setPath(myFolder.getsRealFolderPath());
-            zikFile.setIszipfile(myFolder.isZipFolder());
-
-            // get Media Duration
-            //--------------------------------
-            String sFileFullPath;
-            if (myFolder.isZipFolder()) {
-                sFileFullPath = sZikFileName;
-            } else {
-                sFileFullPath = myFolder.getsRealFolderPath() + File.separator + sZikFileName;
-            }
-            try {
-                myLog("Get Media Duration : " + sFileFullPath);
-                zikFile.setDuration(getMediaDurationFromPath(sFileFullPath));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            //--------------------------------
-
             //adding to database
             return DatabaseClient
                         .getInstance(getApplicationContext())
@@ -394,8 +413,6 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
                 .subscribe((result) -> {
                     if (result != null) {
                         myLog("File Added - SQL result = " + result);
-                        progressBar.setProgress(progress);
-                        progressBarText.setText(txtProgress);
                         nbFileSaved++;
                         if (nbFileSaved == nbFileToSave) {
                             myLog("All files have been saved ");
@@ -489,6 +506,8 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
         bOpenZipFile.setVisibility(View.INVISIBLE);
         bSearchLibrivox.setVisibility(View.INVISIBLE);
         bSearchLitteratureaudio.setVisibility(View.INVISIBLE);
+        progressBar.setProgress(2);
+        progressBarText.setText("init");
     }
 
     private void HideProgress() {

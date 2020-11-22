@@ -46,6 +46,14 @@ public class Tonio {
         return s;
     }
 
+    public static String FormatPercentStringForSpeed(Double d) {
+        String str = "";
+        if (d != null) {
+            str = Math.round(d) + "%";
+        }
+        return str;
+    }
+
     public static String FormatPercentString(Double d) {
         String str;
         if (d != null) {

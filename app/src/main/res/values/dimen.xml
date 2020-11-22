@@ -21,4 +21,7 @@
     <dimen name="GetRessource320_vertical_margin_text2button">0dp</dimen>
     <dimen name="GetRessource320_vertical_margin_high">5dp</dimen>
 
+    <dimen name="playactivity_Playback_Height">50sp</dimen>
+    <dimen name="playactivity_PlaybackText_Height">30sp</dimen>
+
 </resources>

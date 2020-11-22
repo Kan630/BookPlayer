@@ -298,10 +298,20 @@ public class AudioService extends Service {
         }
     }
 
+    public void setSpeed(float speed) {
+        mediaPlayer.setPlaybackParams(mediaPlayer.getPlaybackParams().setSpeed(speed));
+        myLog("setSpeed(" + speed + ")");
+    }
+
+    public float getSpeed() {
+        float speed = mediaPlayer.getPlaybackParams().getSpeed();
+        myLog("getSpeed() : " + speed);
+        return speed;
+    }
+
     public void setPosition(int position) {
         myLog("setPosition-seekTo(" + position + ")");
         mediaPlayer.seekTo(position);
-        //zikFilePlayList[numSong].setPosition(position);
     }
 
     public int getPosition() {

@@ -59,9 +59,14 @@ public class PlayActivity extends LifecycleLoggingActivity {
 
     //static final String TAG = "PlayActivity";
 
-    private Button bForward, bPause, bPlay, bRewind;
-    private ImageView iv;
+    private Button bForward, bPause, bPlay, bRewind, bSpeedUp, bSpeedDown;
+    private SeekBar seekbar;
+    private TextView txSeekBar, txTempsTotal, txNomFichier, txTitle, txSubTitle, txSpeed;
     private View progressOverlay;
+    private ImageView iv;
+
+    private static final int INTERVAL_REDRAW_SEEKBAR = 100;
+    private Handler myHandler = new Handler();
     private static final int DELAY_ANIMATION = 200;
     private boolean AnimationNow;
 
@@ -69,14 +74,9 @@ public class PlayActivity extends LifecycleLoggingActivity {
     private boolean HasBeenInitializedUI = false;
     private boolean HasBeenPlayed = false;
 
-    private Handler myHandler = new Handler();
-
-    private static final int INTERVAL_REDRAW_SEEKBAR = 100;
-
-    private int forwardTime = 5000;
-    private int backwardTime = 5000;
-    private SeekBar seekbar;
-    private TextView txSeekBar, txTempsTotal, txNomFichier, txTitle, txSubTitle;
+    private static final int FORWARD_TIME = 5000;
+    private static final int BACKWARD_TIME = 5000;
+    private static final float INCREMENT_SPEED = 0.05f;
     private ZikFile zikFileFromIntent;
 
     private Intent intentMusicService;
@@ -134,6 +134,9 @@ public class PlayActivity extends LifecycleLoggingActivity {
         bPlay = (Button) findViewById(R.id.buttonPlay);
         bPause = (Button) findViewById(R.id.buttonPause);
         bForward = (Button) findViewById(R.id.buttonForward);
+        bSpeedUp = (Button) findViewById(R.id.bSpeedUp);
+        bSpeedDown = (Button) findViewById(R.id.bSpeedDown);
+
         iv = (ImageView) findViewById(R.id.imageView);
         progressOverlay = findViewById(R.id.progress_overlay);
 
@@ -142,6 +145,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
         txNomFichier = (TextView) findViewById(R.id.textViewNomFichier);
         txTitle = (TextView) findViewById(R.id.textviewTitle);
         txSubTitle = (TextView) findViewById(R.id.textViewSubTitle);
+        txSpeed = (TextView) findViewById(R.id.textViewSpeed);
         seekbar = (SeekBar) findViewById(R.id.seekBar);
 
         intentMusicService = new Intent(PlayActivity.this, AudioService.class);
@@ -189,6 +193,9 @@ public class PlayActivity extends LifecycleLoggingActivity {
         bPause.setOnClickListener(v -> pauseMe());
         bForward.setOnClickListener(v -> forwardMe());
         bRewind.setOnClickListener(v -> backwardMe());
+        bSpeedUp.setOnClickListener(v -> SpeedMeUp());
+        bSpeedDown.setOnClickListener(v -> SpeedMeDown());
+
     }
 
     private void playMe() {
@@ -211,22 +218,36 @@ public class PlayActivity extends LifecycleLoggingActivity {
 
     private void forwardMe() {
         int temp = mService.getPosition();
-        if ((temp + forwardTime) <= mService.getDuration()) {
-            mService.setPosition(temp + forwardTime);
+        if ((temp + FORWARD_TIME ) <= mService.getDuration()) {
+            mService.setPosition(temp + FORWARD_TIME );
             redrawSeekBar();
         }
     }
 
     private void backwardMe() {
         int temp = mService.getPosition();
-        if ((temp - backwardTime) > 0) {
-            mService.setPosition(temp - backwardTime);
+        if ((temp - BACKWARD_TIME) > 0) {
+            mService.setPosition(temp - BACKWARD_TIME);
             redrawSeekBar();
         }
     }
 
+    private void SpeedMeUp() {
+        float newSpeed = mService.getSpeed()+INCREMENT_SPEED;
+        mService.setSpeed(newSpeed);
+        String txt = FormatPercentStringForSpeed((double) newSpeed*100);
+        txSpeed.setText(txt);
+    }
+    private void SpeedMeDown() {
+        float newSpeed = mService.getSpeed()-INCREMENT_SPEED;
+        mService.setSpeed(newSpeed);
+        String txt = FormatPercentStringForSpeed((double) newSpeed*100);
+        txSpeed.setText(txt);
+    }
 
-        /********************************************************************************
+
+
+    /********************************************************************************
          ***       EVENTS
          * Destroy = Fleche Retour Arriere ou Change Inclinaison
          ********************************************************************************
@@ -259,19 +280,6 @@ public class PlayActivity extends LifecycleLoggingActivity {
         super.onDestroy();
         unregisterReceiver(receiver);
         stopService(intentMusicService);
-/*
-        boolean stopzeAudio = true;
-        if (bundleOnSavedinstance != null) {
-            boolean wasPlaying = bundleOnSavedinstance.getBoolean("wasPlaying", false);
-            if (wasPlaying) {
-                stopzeAudio = false ;
-            }
-        }
-        if (stopzeAudio) {
-            unbindService(connection);
-        }
-        // car le MainActivity est bien loin et y a le temps
-  */
         updateFolderState();
     }
     /********************************************************************************
@@ -304,9 +312,6 @@ public class PlayActivity extends LifecycleLoggingActivity {
     }
 
     private void DrawUI() {
-        //myLog("mService not null: " + Boolean.toString(mService!=null));
-        //myLog("mBound: " + mBound);
-        //if (mService != null && mService.hasBeenLoaded()) {
         try {
             ZikFile zf = mService.getCurrentZikFile();
             txSubTitle.setText(FormatNameForDisplay(zf.getName()));
@@ -486,6 +491,8 @@ public class PlayActivity extends LifecycleLoggingActivity {
                     "   , LastAccess = strftime('%s','now') * 1000" +
                     "   , LastAccessTime = strftime('%s','now') * 1000 " +
                     " WHERE Folder.id = " + mService.getCurrentZikFile().getIdFolder();
+
+
 
             class UpdateFolderState extends AsyncTask<Void, Void, Void> {
 
