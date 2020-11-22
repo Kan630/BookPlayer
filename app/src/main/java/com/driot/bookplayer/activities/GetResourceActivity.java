@@ -73,17 +73,16 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
     private Button bSearchLitteratureaudio;
 
     public static final int DELAY_ANIMATION = 500;
-    private int[] InsertedFolderId = {0};
-    private DocumentFile[] myZikFileList;
 
     private Handler myHandler = new Handler();;
 
+    private boolean ResourceSelected;
     private DocumentFile pickedDir;
-
     private FolderAttrib myFolder;
-
     private ZipFile zipFile;
     private ArrayList<String> audioFileArrayList;
+    private int[] InsertedFolderId = {0};
+    private DocumentFile[] myZikFileList;
 
     private PermissionRequest mPermissionRequest;
 
@@ -103,57 +102,44 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
         progressBarText = findViewById(R.id.progressBarText);
 
         // ZIP
-        bOpenZipFile.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (checkIfPermissionsReadStorage()) {
-                    Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-                    intent.setType("application/zip");
-                    intent.addCategory(Intent.CATEGORY_OPENABLE);
-                    startActivityForResult(intent, OPEN_ZIP_FILE_REQUEST_CODE);
-                } else {
-                    myToast(getString(R.string.permissions_denied_sorry_cannot));
-                }
+        bOpenZipFile.setOnClickListener(view -> {
+            if (checkIfPermissionsReadStorage()) {
+                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                intent.setType("application/zip");
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                startActivityForResult(intent, OPEN_ZIP_FILE_REQUEST_CODE);
+            } else {
+                myToast(getString(R.string.permissions_denied_sorry_cannot));
             }
         });
 
         // FOLDER
-        bOpenFolder.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (checkIfPermissionsReadStorage()) {
-                    Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
-                    startActivityForResult(intent, OPEN_FOLDER_REQUEST_CODE);
-                } else {
-                    myToast(getString(R.string.permissions_denied_sorry_cannot));
-                }
-
+        bOpenFolder.setOnClickListener(view -> {
+            if (checkIfPermissionsReadStorage()) {
+                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+                startActivityForResult(intent, OPEN_FOLDER_REQUEST_CODE);
+            } else {
+                myToast(getString(R.string.permissions_denied_sorry_cannot));
             }
         });
-        bSearchLibrivox.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String url = "https://librivox.org/search";
-                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                startActivity(intent);
-                //startActivityForResult(intent, DOWNLOAD_BOOK_REQUEST_CODE);
-            }
+        bSearchLibrivox.setOnClickListener(view -> {
+            String url = "https://librivox.org/search";
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+            startActivity(intent);
+            //startActivityForResult(intent, DOWNLOAD_BOOK_REQUEST_CODE);
         });
-        bSearchLitteratureaudio.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String url = "http://www.litteratureaudio.com/classement-de-nos-livres-audio-gratuits-les-plus-apprecies";
-                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                startActivity(intent);
-                //startActivityForResult(intent, DOWNLOAD_BOOK_REQUEST_CODE);
-            }
+        bSearchLitteratureaudio.setOnClickListener(view -> {
+            String url = "http://www.litteratureaudio.com/classement-de-nos-livres-audio-gratuits-les-plus-apprecies";
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+            startActivity(intent);
+            //startActivityForResult(intent, DOWNLOAD_BOOK_REQUEST_CODE);
         });
-
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        ResourceSelected = false;
 
         ///---------------------------------------------
         /// FOLDER
@@ -192,10 +178,8 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
                             }
                         }
                     }
-
-                    goFolder();
+                    ResourceSelected = true;
                 }
-
             } else {
                 myToast(getString(R.string.Error_Import_IsNotFolder));
             }
@@ -248,13 +232,21 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
                             }
                         }
                     }
-
-                    goFolder();
-
+                    ResourceSelected = true;
                 }
             }
         }
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (ResourceSelected) {
+            ShowProgress();
+            goFolder();
+        }
+    }
+
 
     private void goFolder() {
         if (audioFileArrayList.size() == 0) {
@@ -264,6 +256,27 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
             checkIfFolderAlreadyExist();
         }
     }
+
+    /*
+    private void go1() {
+        Object lock = new Object();
+        Observable.fromCallable(() -> {
+            myLog("before progress");
+            synchronized (lock) {
+                try {
+                    lock.wait(2000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            myLog("after wait");
+            return false;
+        }).subscribeOn(Schedulers.io()).subscribe(result -> {
+            progressBar.setProgress(20);
+            go2();
+        });
+    }
+     */
 
     private void checkIfFolderAlreadyExist() {
         Observable.fromCallable(() -> {
@@ -275,22 +288,24 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
                     .folderAlreadyExist(myFolder.getsFolderUri(),myFolder.getsFolderHash());
             if (lcheckIfFolderExist>0) { bcheckIfFolderExist = true;}
             return bcheckIfFolderExist;
-        })
-                .subscribeOn(Schedulers.newThread())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe((result) -> {
-                    if (result) {
-                        myToast(getString(R.string.Error_Import_FolderAlreadyImported));
-                    } else {
-                        myLog("ok on continue");
-                        saveFolder();
-                    }
-                });
+        }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(result -> {
+            if (result) {
+                HideProgress();
+                myToast(getString(R.string.Error_Import_FolderAlreadyImported));
+            } else {
+                myLog("ok on continue");
+                progressBar.setProgress(5);
+                progressBarText.setText("Check Folder not already imported");
+                saveFolder();
+            }
+        }, throwable -> {
+            myLogE("ERROR checkIfFolderAlreadyExist : " + throwable.getMessage());
+            HideProgress();
+        });
     }
 
-
     private void saveFolder() {
-        ShowProgress();
+
         final Time sFirstAccess = new Time(System.currentTimeMillis());
         final Date sLastAccess = new Date(System.currentTimeMillis());
         final Time sLastAccessTime = new Time(System.currentTimeMillis());
@@ -315,18 +330,56 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
                     .insert(folder);
             return true;
         })
-                .subscribeOn(Schedulers.newThread())
-        .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
         .subscribe((result) -> {
             if (result) {
+                progressBar.setProgress(8);
+                progressBarText.setText("Folder Saved");
                 if (myFolder.isZipFolder()) {
-                    saveZipFiles();
+                    saveZipFiles2();
                 } else {
                     saveFiles();
                 }
             }
+        }, throwable -> {
+            myLogE("ERROR create Folder : " + throwable.getMessage());
+            HideProgress();
         })
         ;
+    }
+
+    private void saveZipFiles2() {
+        nbFileToSave = audioFileArrayList.size();
+        nbFileSaved = 0;
+        Thread one;
+        one = new Thread() {
+            @Override
+            public void run() {
+                int i = 0;
+                int progress = 0;
+                String txtProgress = "";
+                for (String s : audioFileArrayList) {
+                    i++;
+                    progress = (int) i * 100 / audioFileArrayList.size();
+                    txtProgress = progress + "% - reading file n°" + i + "/" + audioFileArrayList.size() + "\n" + getFileNameFromPath(s);
+                    myLog("Call save " + s);
+                    saveFile(s, InsertedFolderId[0], progress, txtProgress);
+
+                    // code runs in a thread
+                    int finalProgress = progress;
+                    String finalTxtProgress = txtProgress;
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            progressBar.setProgress(finalProgress);
+                            progressBarText.setText(finalTxtProgress);
+                        }
+                    });
+                }
+            }
+        };
+        one.start();
     }
 
     private void saveZipFiles() {
@@ -336,11 +389,10 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
             i++;
             progress = (int) i * 100 / audioFileArrayList.size();
             txtProgress = progress + "% - reading file n°" + i + "/" + audioFileArrayList.size() + "\n" + getFileNameFromPath(s);
-            progressBar.setProgress(progress);
-            progressBarText.setText(txtProgress);
             myLog("Call save " + s);
             saveFile(s, InsertedFolderId[0], progress, txtProgress);
         }
+        //updateFolderDuration();
     }
 
     private void saveFiles() {
@@ -352,8 +404,6 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
                     i++;
                     progress = (int) i*100/audioFileArrayList.size();
                     txtProgress = progress + "% - saving file n°" + i + "/" + audioFileArrayList.size() + "\n" + f.getName();
-                    progressBar.setProgress(progress);
-                    progressBarText.setText(txtProgress);
                     myLog("saving file " + f.getName());
                     saveFile(f.getName(), InsertedFolderId[0], progress, txtProgress);
                 }
@@ -387,6 +437,8 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
             e.printStackTrace();
         }
 
+
+
         //--------------------------------
 /*
         Completable.fromAction(new Action() {
@@ -398,6 +450,7 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
                         .ZikFileDao()
                         .insert(zikFile);
             }
+
 */
         Observable.fromCallable(() -> {
             //adding to database
@@ -408,7 +461,7 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
                         .insert(zikFile);
 
         })
-                .subscribeOn(Schedulers.newThread())
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe((result) -> {
                     if (result != null) {
@@ -416,12 +469,15 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
                         nbFileSaved++;
                         if (nbFileSaved == nbFileToSave) {
                             myLog("All files have been saved ");
-                            updateFolderDuration();
+                            //updateFolderDuration();
                         }
                     } else {
                         myLog("ca chie");
                     }
-                }, throwable -> Log.e("toto", "Throwable2 " + throwable.getMessage()));
+                }, throwable -> {
+                    myLogE("Saving File " + sZikFileName + " : " + throwable.getMessage());
+                    }
+                    );
     }
 
 
@@ -444,7 +500,11 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
                     myLog("Folder Duration Updated : runRawSQL result = " + result);
                     HideProgress();
                     finish();
-                }, throwable -> Log.e("toto", "Throwable " + throwable.getMessage()));
+                }, throwable -> {
+                    myLogE("ERROR updateFolderDuration : " + throwable.getMessage());
+                    HideProgress();
+                    finish();
+                });
     }
 
 
@@ -483,7 +543,7 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
                 mediaMetadataRetriever.setDataSource(zePath);
                 duration = Long.parseLong(mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
             } else {
-                myLog("error getting duration of media, file not exist in path : " + zePath);
+                myLogE("error getting duration of media, file not exist in path : " + zePath);
             }
         }
         return duration;
@@ -512,6 +572,10 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
 
     private void HideProgress() {
         animateView(progressBarOverlay, View.GONE, 0, DELAY_ANIMATION);
+        bOpenFolder.setVisibility(View.VISIBLE);
+        bOpenZipFile.setVisibility(View.VISIBLE);
+        bSearchLibrivox.setVisibility(View.VISIBLE);
+        bSearchLitteratureaudio.setVisibility(View.VISIBLE);
     }
 
 

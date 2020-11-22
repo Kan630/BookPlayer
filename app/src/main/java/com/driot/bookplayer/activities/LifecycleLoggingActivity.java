@@ -190,4 +190,10 @@ public abstract class LifecycleLoggingActivity
             System.out.println(str);
         }
     }
+    protected void myLogE(String str) {
+        if (LOG_TRACE) {
+            Log.e(TAG,str);
+            System.out.println(str);
+        }
+    }
 }
