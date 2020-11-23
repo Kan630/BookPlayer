@@ -112,7 +112,7 @@ public class ZikFilesAdapter extends RecyclerView.Adapter<ZikFilesAdapter.ZikFil
                 mCtx.startActivity(intent);
             } else {
                 myLog("opening PlayActivity -- ERROR OPENING TRACK - FILE NOT FOUND !");
-                Toast.makeText(mCtx,"ERROR OPENING TRACK - FILE NOT FOUND !",Toast.LENGTH_SHORT).show();
+                Toast.makeText(mCtx,mCtx.getString(R.string.PlayActivity_ErrorOpeningTrack_FileNotFound),Toast.LENGTH_SHORT).show();
             }
         }
     }

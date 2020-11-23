@@ -1,8 +1,15 @@
 <resources>
     <string name="app_name">BookPlayer</string>
+    <string name="yesterday">"yesterday"</string>
+
     <string name="title_FolderList">Folders List</string>
     <string name="title_FolderContent">Files List</string>
     <string name="PlayerActivity_Title">TextBook Player</string>
+
+
+
+    <!-- ********************************** -->
+    <!-- Get Resources -->
 
     <string name="bOpenFolder">Open Folder</string>
     <string name="bOpenZipFile">Open Zip File</string>
@@ -33,10 +40,6 @@
     <string name="Import_Success">Import Successful</string>
 
 
-
-    <string name="yesterday">"yesterday"</string>
-
-
     <!-- ********************************** -->
     <!-- FolderModifyActivity -->
 
@@ -49,6 +52,16 @@
     <string name="Error_FolderNameTooShort">"Folder Name should be at least 2 characters"</string>
     <string name="Folder_Reset">"Folder progress has been reset"</string>
 
+    <string name="ModifyFolder_AskDeleteTitle">Confirm Delete</string>
+    <string name="ModifyFolder_AskDeleteText">"You are about to delete this folder " + "\n" +
+                        "You will loose all progress attached to it." + "\n" +
+                        "Are you sure ?"</string>
+    <string name="ModifyFolder_AskResetTitle">Confirm Reset</string>
+    <string name="ModifyFolder_AskResetText">"You are about to reset progression for this folder " + "\n" +
+                        "Are you sure ?"</string>
+
+
+
     <!-- ********************************** -->
     <!-- PlayActivity -->
 
@@ -58,4 +71,6 @@
     <string name="forward"><![CDATA[>>]]></string>
     <string name="pause">||</string>
     <string name="tvSpeed">playback speed</string>
+    <string name="PlayActivity_ErrorOpeningTrack_FileNotFound">"ERROR OPENING TRACK - FILE NOT FOUND !"</string>
+
 </resources>

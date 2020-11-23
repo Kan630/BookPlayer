@@ -22,12 +22,10 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -57,8 +55,6 @@ public class PlayActivity extends LifecycleLoggingActivity {
 
     private static final boolean DO_PLAY_NEXT_SONG = true;
 
-    //static final String TAG = "PlayActivity";
-
     private Button bForward, bPause, bPlay, bRewind, bSpeedUp, bSpeedDown;
     private SeekBar seekbar;
     private TextView txSeekBar, txTempsTotal, txNomFichier, txTitle, txSubTitle, txSpeed;
@@ -83,7 +79,6 @@ public class PlayActivity extends LifecycleLoggingActivity {
     boolean boundToService;
     AudioService mService;
     boolean mBound = false;
-    private Bundle bundleOnSavedinstance;
 
     private static MediaSession mediaSession;
 
@@ -108,8 +103,6 @@ public class PlayActivity extends LifecycleLoggingActivity {
         } else {
             outState.putBoolean("wasPlaying", false);
         }
-        bundleOnSavedinstance = outState;
-
     }
 
     @Override
@@ -152,9 +145,6 @@ public class PlayActivity extends LifecycleLoggingActivity {
         startService(intentMusicService);
         boundToService = bindService(intentMusicService, connection, Context.BIND_AUTO_CREATE);
         myLog("call start & bind to Service in Activity.onCreate() - bound result :" + boundToService + "");
-        //myLog("bind to Service : " + Boolean.toString(boundToService));
-        //myLog("mService not null: " + Boolean.toString(mService!=null));
-        //myLog("mBound: " + mBound);
 
         // TODO, use Parcelable
         //ZikFile zikFile = getIntent().getParcelableExtra("zikFile");
@@ -273,7 +263,6 @@ public class PlayActivity extends LifecycleLoggingActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        bundleOnSavedinstance = null;
     }
     @Override
     protected void onDestroy() {

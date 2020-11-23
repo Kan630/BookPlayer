@@ -2,7 +2,6 @@ package com.driot.bookplayer.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -20,13 +19,8 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
-/**
- * New Home Directory for my project
- */
-
 public class MainActivity extends LifecycleLoggingActivity {
 
-//    static final String TAG = "MainActivity.java";
     private RecyclerView recyclerView;
 
     private View progressOverlay;
@@ -78,10 +72,8 @@ public class MainActivity extends LifecycleLoggingActivity {
                     .getAll();
             return folders;
         })
-                //.subscribeOn(Schedulers.io())
-                .subscribeOn(Schedulers.newThread())
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                //.subscribe(new Observer<Boolean>() {
                 .subscribe((result) -> {
                     if (result.size()==0) {
                         if (!HasBeenProposedToOpenFile) performFileSearch();
@@ -93,20 +85,9 @@ public class MainActivity extends LifecycleLoggingActivity {
                 });
     }
 
-    /********************************************************************************
-     * ******************************************************************************
-     ***        AJOUT NOUVEAU DOSSIER
-     ********************************************************************************
-     ********************************************************************************
-     */
-
     public void performFileSearch() {
         Intent intent = new Intent(getApplicationContext(), GetResourceActivity.class);
         startActivity(intent);
     }
 
-    /********************
-     *
-     * END STUFF
-     */
 }

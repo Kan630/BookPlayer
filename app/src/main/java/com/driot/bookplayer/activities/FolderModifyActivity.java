@@ -2,7 +2,6 @@ package com.driot.bookplayer.activities;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -58,22 +57,11 @@ public class FolderModifyActivity extends LifecycleLoggingActivity {
 
     private void bDeleteClick() {
         new AlertDialog.Builder(FolderModifyActivity.this)
-                .setTitle("Confirmation")
-                .setMessage("Attention, vous êtes sur le point d'effacer ce dossier " +
-                        "et de perdre toute la progression qui y est rattachée." + "\n" +
-                        "confirmez vous ?")
+                .setTitle(getString(R.string.ModifyFolder_AskDeleteTitle))
+                .setMessage(getString(R.string.ModifyFolder_AskDeleteText))
                 .setCancelable(false)
-                .setPositiveButton("ok", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        deleteFolder();
-                    }
-                })
-                .setNegativeButton("cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                    }
-                })
+                .setPositiveButton("ok", (dialog, which) -> deleteFolder())
+                .setNegativeButton("cancel", (dialogInterface, i) -> {})
                 .show();
     }
 
@@ -92,7 +80,7 @@ public class FolderModifyActivity extends LifecycleLoggingActivity {
                     .deleteFolder(idFolder);
             return true;
         })
-                .subscribeOn(Schedulers.newThread())
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe((result) -> {
                     if (result) {
@@ -115,7 +103,7 @@ public class FolderModifyActivity extends LifecycleLoggingActivity {
                         .changeName(idFolder, newName);
                 return true;
             })
-                    .subscribeOn(Schedulers.newThread())
+                    .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe((result) -> {
                         if (result) {
@@ -128,17 +116,10 @@ public class FolderModifyActivity extends LifecycleLoggingActivity {
 
     private void bResetClick() {
         new AlertDialog.Builder(FolderModifyActivity.this)
-                .setTitle("Confirmation")
-                .setMessage("Attention, vous êtes sur le point d'effacer de remettre à zéro " + "\n" +
-                                "toute la progression de ce dossier." + "\n" +
-                        "confirmez vous ?")
+                .setTitle(getString((R.string.ModifyFolder_AskResetTitle)))
+                .setMessage(getString((R.string.ModifyFolder_AskResetText)))
                 .setCancelable(true)
-                .setPositiveButton("ok", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        resetFolder();
-                    }
-                })
+                .setPositiveButton("ok", (dialog, which) -> resetFolder())
                 .show();
     }
 

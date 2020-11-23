@@ -1,8 +1,14 @@
 <resources>
     <string name="app_name">BookPlayer</string>
+    <string name="yesterday">"hier"</string>
+
     <string name="title_FolderList">Liste des dossiers</string>
     <string name="title_FolderContent">Liste des fichiers</string>
     <string name="PlayerActivity_Title">TextBook Player</string>
+
+
+    <!-- ********************************** -->
+    <!-- Get Resources -->
 
     <string name="bOpenFolder">Ouvrir un dossier</string>
     <string name="bOpenZipFile">Ouvrir un fichier Zip</string>
@@ -19,6 +25,7 @@
     <string name="bSearchExampleText">"Les 2 sites web ci-dessus sont là pour l\'exemple, il y a de multiples ressources audios sur internet, vous pourriez tout aussi bien télécharger des cours magistraux d'université."</string>
 
 
+    <!-- ********************************** -->
     <!-- Add Resources -->
 
     <string name="bAddRessource">Ajouter une ressource</string>
@@ -33,8 +40,6 @@
 
     <string name="Import_Success">Importation effectuée</string>
 
-    <string name="yesterday">"hier"</string>
-
 
     <!-- ********************************** -->
     <!-- FolderModifyActivity -->
@@ -48,6 +53,16 @@
     <string name="Folder_Reset">"la progression du dossier a été remise à zéro"</string>
     <string name="Error_FolderNameTooShort">"Le nom du dossier doit être au minimum de 2 caractères"</string>
 
+    <string name="ModifyFolder_AskDeleteTitle">Confirmation de Suppression</string>
+    <string name="ModifyFolder_AskDeleteText">"Attention, vous êtes sur le point d'effacer ce dossier " +
+                        "et de perdre toute la progression qui y est rattachée." + "\n" +
+                        "êtes vous certain ?"</string>
+    <string name="ModifyFolder_AskResetTitle">Confirmation de RAZ</string>
+    <string name="ModifyFolder_AskResetText">"Attention, vous êtes sur le point de remettre à zéro " + "\n" +
+                                "toute la progression de ce dossier." + "\n" +
+                        "êtes vous certain ?"</string>
+
+
     <!-- ********************************** -->
     <!-- PlayActivity -->
 
@@ -57,5 +72,6 @@
     <string name="forward"><![CDATA[>>]]></string>
     <string name="pause">||</string>
     <string name="tvSpeed">Vitesse de lecture</string>
+    <string name="PlayActivity_ErrorOpeningTrack_FileNotFound">"ERREUR PISTE AUDIO - Fichier non trouvé !"</string>
 
 </resources>

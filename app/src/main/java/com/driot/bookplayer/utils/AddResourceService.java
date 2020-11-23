@@ -16,7 +16,6 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.FolderAttrib;
-import com.driot.bookplayer.db.Resource;
 import com.driot.bookplayer.db.ZikFile;
 
 import java.io.File;
@@ -57,7 +56,6 @@ public class AddResourceService extends Service {
     private boolean ResourceSelected;
     private DocumentFile pickedDir;
     private FolderAttrib myFolder;
-    private Resource myResource;
     private ZipFile zipFile;
     private ArrayList<String> audioFileArrayList;
     private int[] InsertedFolderId = {0};
@@ -99,6 +97,7 @@ public class AddResourceService extends Service {
                     // constructeur pour mon pti folder
                     myFolder = new FolderAttrib(getApplicationContext(), uri, false);
                     tellName(myFolder.getsFolderName());
+
                     if (myFolder.isFolderKO()) {
                         myLog("Cannot get Full real path of folder");
                         tellError(getString(R.string.Error_Import_FolderPathKO));
@@ -127,8 +126,10 @@ public class AddResourceService extends Service {
             /// ZIP FILE
             ///---------------------------------------------
             case "ZIP":
+
                 myFolder = new FolderAttrib(getApplicationContext(), uri, true);
                 tellName(myFolder.getsFolderName());
+
                 if (myFolder.isFolderKO()) {
                     tellError(getString(R.string.Error_Import_FolderPathKO));
                 } else {
@@ -182,7 +183,7 @@ public class AddResourceService extends Service {
 
     private void go1() {
         myLog("go1");
-        myResource = new Resource(myFolder);
+        //myResource = new Resource(myFolder);
         goFolder();
     }
 
@@ -207,7 +208,6 @@ public class AddResourceService extends Service {
             return bcheckIfFolderExist;
         }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(result -> {
             if (result) {
-                //tellError(getString(R.string.Error_Import_FolderAlreadyImported));
                 tellEnd(getString(R.string.Error_Import_FolderAlreadyImported));
             } else {
                 myLog("ok on continue");

@@ -1,62 +1,21 @@
 package com.driot.bookplayer.activities;
 
 import android.Manifest;
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.media.MediaMetadataRetriever;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.util.Log;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
-import androidx.documentfile.provider.DocumentFile;
-import androidx.sqlite.db.SimpleSQLiteQuery;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.db.DatabaseClient;
-import com.driot.bookplayer.db.Folder;
-import com.driot.bookplayer.db.FolderAttrib;
-import com.driot.bookplayer.db.Resource;
-import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.utils.PermissionRequest;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.sql.Date;
-import java.sql.Time;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
-
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
-import io.reactivex.rxjava3.core.Completable;
-import io.reactivex.rxjava3.core.CompletableObserver;
-import io.reactivex.rxjava3.core.Observable;
-import io.reactivex.rxjava3.disposables.Disposable;
-import io.reactivex.rxjava3.functions.Action;
-import io.reactivex.rxjava3.schedulers.Schedulers;
-
-import static com.driot.bookplayer.utils.Tonio.fileExists;
-import static com.driot.bookplayer.utils.Tonio.getExtension;
-import static com.driot.bookplayer.utils.Tonio.getFileNameFromPath;
-import static com.driot.bookplayer.utils.Tonio.getMimeType;
-import static com.driot.bookplayer.utils.Utils.animateView;
-import static com.driot.bookplayer.utils.Utils.copyStream;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 08/11/20
@@ -67,20 +26,12 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
     private static final int OPEN_FOLDER_REQUEST_CODE = 25;
     public static final int ADD_RESOURCE_REQUEST_CODE = 26;
 
-    private View progressBarOverlay;
-    private ProgressBar progressBar;
-    private TextView progressBarText;
     private Button bOpenFolder;
     private Button bOpenZipFile;
     private Button bSearchLibrivox;
     private Button bSearchLitteratureaudio;
 
-    public static final int DELAY_ANIMATION = 500;
-
-    private Handler myHandler = new Handler();;
-
     private PermissionRequest mPermissionRequest;
-
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -91,9 +42,6 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
         bOpenZipFile = findViewById(R.id.bOpenZipFile);
         bSearchLibrivox = findViewById(R.id.bSearchLibrivox);
         bSearchLitteratureaudio = findViewById(R.id.bSearchLitteratureaudio);
-        progressBarOverlay = findViewById(R.id.progressBar_overlay);
-        progressBar = findViewById(R.id.progressBar);
-        progressBarText = findViewById(R.id.progressBarText);
 
         // ZIP
         bOpenZipFile.setOnClickListener(view -> {
@@ -120,13 +68,11 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
             String url = "https://librivox.org/search";
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
             startActivity(intent);
-            //startActivityForResult(intent, DOWNLOAD_BOOK_REQUEST_CODE);
         });
         bSearchLitteratureaudio.setOnClickListener(view -> {
             String url = "http://www.litteratureaudio.com/classement-de-nos-livres-audio-gratuits-les-plus-apprecies";
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
             startActivity(intent);
-            //startActivityForResult(intent, DOWNLOAD_BOOK_REQUEST_CODE);
         });
     }
 
@@ -173,29 +119,6 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
         return HasPermission;
     }
 
-    private void ShowProgress() {
-        //animateView(progressOverlay, View.VISIBLE, 0.4f, DELAY_ANIMATION);
-        animateView(progressBarOverlay, View.VISIBLE, 1, DELAY_ANIMATION);
-        progressBarOverlay.setVisibility(View.VISIBLE);
-        progressBarOverlay.bringToFront();
-        bOpenFolder.setVisibility(View.INVISIBLE);
-        bOpenZipFile.setVisibility(View.INVISIBLE);
-        bSearchLibrivox.setVisibility(View.INVISIBLE);
-        bSearchLitteratureaudio.setVisibility(View.INVISIBLE);
-        progressBar.setProgress(2);
-        progressBarText.setText("init");
-    }
-
-    private void HideProgress() {
-        animateView(progressBarOverlay, View.GONE, 0, DELAY_ANIMATION);
-        bOpenFolder.setVisibility(View.VISIBLE);
-        bOpenZipFile.setVisibility(View.VISIBLE);
-        bSearchLibrivox.setVisibility(View.VISIBLE);
-        bSearchLitteratureaudio.setVisibility(View.VISIBLE);
-    }
-
-
-
     private void myToast(String str) {
         myLog(str);
         Toast.makeText(getApplicationContext(),str,Toast.LENGTH_SHORT).show();
@@ -220,8 +143,6 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
     }
 
     private void checkPermissionsReadStorage2() {
-        // Submit a permission request to ensure that this app has the
-        // required permissions for writing and reading external storage.
         mPermissionRequest = PermissionRequest
                 .with(this)
                 .permissions(Manifest.permission.READ_EXTERNAL_STORAGE)
@@ -233,11 +154,6 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
                 .submit();
     }
 
-    /**
-     * API 23 (M) callback received when a permissions request has been
-     * completed. Redirect callback to permission helper.
-     */
-    @TargetApi(Build.VERSION_CODES.M)
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            @NonNull String[] permissions,
