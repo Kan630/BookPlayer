@@ -1,6 +1,7 @@
 package com.driot.bookplayer.activities;
 
 import android.content.Intent;
+import android.content.IntentSender;
 import android.os.Bundle;
 import android.view.View;
 
@@ -12,6 +13,12 @@ import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.R;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.play.core.appupdate.AppUpdateInfo;
+import com.google.android.play.core.appupdate.AppUpdateManager;
+import com.google.android.play.core.appupdate.AppUpdateManagerFactory;
+import com.google.android.play.core.install.model.AppUpdateType;
+import com.google.android.play.core.install.model.UpdateAvailability;
+import com.google.android.play.core.tasks.Task;
 
 import java.util.List;
 
@@ -24,6 +31,8 @@ public class MainActivity extends LifecycleLoggingActivity {
     private RecyclerView recyclerView;
 
     private View progressOverlay;
+    public static final int DAYS_FOR_FLEXIBLE_UPDATE = 10;
+    public static final int UPDATE_APP_REQUEST_CODE = 6354;
 
     private boolean HasBeenProposedToOpenFile;
 
@@ -44,6 +53,8 @@ public class MainActivity extends LifecycleLoggingActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        checkForUpdate();
 
         recyclerView = findViewById(R.id.recyclerview_folders);
         FloatingActionButton btn_Add = findViewById(R.id.FAB_Add);
@@ -88,6 +99,62 @@ public class MainActivity extends LifecycleLoggingActivity {
     public void performFileSearch() {
         Intent intent = new Intent(getApplicationContext(), GetResourceActivity.class);
         startActivity(intent);
+    }
+
+    private void checkForUpdate() {
+        boolean DoZeUpdate = false;
+
+        // Creates instance of the manager.
+        AppUpdateManager appUpdateManager = AppUpdateManagerFactory.create(getApplicationContext());
+
+        // Returns an intent object that you use to check for an update.
+        Task<AppUpdateInfo> appUpdateInfoTask = appUpdateManager.getAppUpdateInfo();
+
+        // Checks that the platform will allow the specified type of update.
+        appUpdateInfoTask.addOnSuccessListener(appUpdateInfo -> {
+            myLog(appUpdateInfo.toString());
+            if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
+                    && appUpdateInfo.clientVersionStalenessDays() != null
+                    && appUpdateInfo.clientVersionStalenessDays() >= DAYS_FOR_FLEXIBLE_UPDATE
+                    && appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.FLEXIBLE)) {
+
+                //appUpdateInfo.updatePriority() >= HIGH_PRIORITY_UPDATE
+                //        && appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE)) {
+
+                // Request the update.
+                myLog("Update should be launched");
+
+                if (DoZeUpdate) {
+                    try {
+                        appUpdateManager.startUpdateFlowForResult(
+                                // Pass the intent that is returned by 'getAppUpdateInfo()'.
+                                appUpdateInfo,
+                                // Or 'AppUpdateType.FLEXIBLE' for flexible updates.
+                                AppUpdateType.IMMEDIATE,
+                                // The current activity making the update request.
+                                this,
+                                // Include a request code to later monitor this update request.
+                                UPDATE_APP_REQUEST_CODE);
+                    } catch (IntentSender.SendIntentException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+            }
+                });
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == UPDATE_APP_REQUEST_CODE) {
+            if (resultCode != RESULT_OK) {
+                myLogE("Update flow failed! Result code: " + resultCode);
+                // If the update is cancelled or fails,
+                // you can request to start the update again.
+            } else {
+                myLog("Update success");
+            }
+        }
     }
 
 }

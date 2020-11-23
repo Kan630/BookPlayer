@@ -80,7 +80,10 @@
         android:id="@+id/seekBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/llCommandButtons" />
+        android:layout_above="@+id/llCommandButtons"
+        android:progressDrawable="@drawable/seek_bar"
+        android:thumb="@drawable/seek_thumb"
+        />
 
     <TextView
         android:id="@+id/textViewSeekBar"

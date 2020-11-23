@@ -24,4 +24,6 @@
     <dimen name="playactivity_Playback_Height">50sp</dimen>
     <dimen name="playactivity_PlaybackText_Height">30sp</dimen>
 
+    <dimen name="seek_bar_thickness">4dp</dimen>
+    <dimen name="seek_bar_thumb_size">20dp</dimen>
 </resources>

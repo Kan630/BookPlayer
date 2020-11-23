@@ -2,7 +2,7 @@
 <resources>
 
     <style name="myStyle" parent="TextAppearance.AppCompat">
-        <item name="android:textColor">#CDCDCD</item>
+        <item name="android:textColor">@color/text_default</item>
     </style>
 
     <style name="myStyleTitle" parent="myStyle">
@@ -19,7 +19,7 @@
     </style>
 
     <style name="myStyleTextSubTitlePlay" parent="myStyle">
-        <item name="android:textColor">#7aff24</item>
+        <item name="android:textColor">@color/play_sub_title</item>
         <item name="android:textSize">25sp</item>
     </style>
 
