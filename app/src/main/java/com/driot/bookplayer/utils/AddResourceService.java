@@ -49,6 +49,7 @@ public class AddResourceService extends Service {
     static final String TAG = "AddResourceServ.";
     private static final boolean LOG_TRACE = true;
 
+    public static final String NOTIFICATION_ADDRESOURCE_NAME = "NOTIFICATION_ADDRESOURCE_NAME";
     public static final String NOTIFICATION_ADDRESOURCE_PROGRESS = "NOTIFICATION_ADDRESOURCE_PROGRESS";
     public static final String NOTIFICATION_ADDRESOURCE_ERROR = "NOTIFICATION_ADDRESOURCE_ERROR";
     public static final String NOTIFICATION_ADDRESOURCE_END = "NOTIFICATION_ADDRESOURCE_END";
@@ -97,6 +98,7 @@ public class AddResourceService extends Service {
 
                     // constructeur pour mon pti folder
                     myFolder = new FolderAttrib(getApplicationContext(), uri, false);
+                    tellName(myFolder.getsFolderName());
                     if (myFolder.isFolderKO()) {
                         myLog("Cannot get Full real path of folder");
                         tellError(getString(R.string.Error_Import_FolderPathKO));
@@ -126,7 +128,7 @@ public class AddResourceService extends Service {
             ///---------------------------------------------
             case "ZIP":
                 myFolder = new FolderAttrib(getApplicationContext(), uri, true);
-
+                tellName(myFolder.getsFolderName());
                 if (myFolder.isFolderKO()) {
                     tellError(getString(R.string.Error_Import_FolderPathKO));
                 } else {
@@ -206,7 +208,6 @@ public class AddResourceService extends Service {
         }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(result -> {
             if (result) {
                 tellError(getString(R.string.Error_Import_FolderAlreadyImported));
-                tellEnd("ko");
             } else {
                 myLog("ok on continue");
                 tellProgress(5,"Check Folder not already imported");
@@ -428,12 +429,14 @@ public class AddResourceService extends Service {
         sendBroadcast(intent);
         myLog("broadcast progress sent");
     }
+
     private void tellEnd() {
         Intent intent = new Intent(NOTIFICATION_ADDRESOURCE_END);
         intent.putExtra("ok",true);
         sendBroadcast(intent);
         myLog("broadcast end sent");
     }
+
     private void tellEnd(String KO_message) {
         Intent intent = new Intent(NOTIFICATION_ADDRESOURCE_END);
         intent.putExtra("ok",false);
@@ -441,11 +444,19 @@ public class AddResourceService extends Service {
         sendBroadcast(intent);
         myLog("broadcast end sent");
     }
+
     private void tellError(String txt) {
-        Intent intent = new Intent(NOTIFICATION_ADDRESOURCE_END);
+        Intent intent = new Intent(NOTIFICATION_ADDRESOURCE_ERROR);
         intent.putExtra("message",txt);
         sendBroadcast(intent);
         myLogE("broadcast error sent :" + txt);
+    }
+
+    private void tellName(String txt) {
+        Intent intent = new Intent(NOTIFICATION_ADDRESOURCE_NAME);
+        intent.putExtra("name",txt);
+        sendBroadcast(intent);
+        myLog("broadcast name sent :" + txt);
     }
 
 

@@ -64,6 +64,7 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
 
     private static final int OPEN_ZIP_FILE_REQUEST_CODE = 24;
     private static final int OPEN_FOLDER_REQUEST_CODE = 25;
+    public static final int ADD_RESOURCE_REQUEST_CODE = 26;
 
     private View progressBarOverlay;
     private ProgressBar progressBar;
@@ -131,25 +132,32 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
-        if (resultCode == RESULT_OK && requestCode == OPEN_FOLDER_REQUEST_CODE) {
-
-            Uri uri = data.getData();
-
-            Intent intent = new Intent(getApplicationContext(), AddResourceActivity.class);
-            intent.putExtra("Uri", uri);
-            intent.putExtra("type", "Folder");
-            startActivity(intent);
-
-        } else if (resultCode == RESULT_OK && requestCode == OPEN_ZIP_FILE_REQUEST_CODE) {
-
-            Uri uri = data.getData();
-
-            Intent intent = new Intent(getApplicationContext(), AddResourceActivity.class);
-            intent.putExtra("Uri", uri);
-            intent.putExtra("type", "ZIP");
-            startActivity(intent);
-
+        switch (requestCode) {
+            case OPEN_FOLDER_REQUEST_CODE:
+                if (resultCode == RESULT_OK) {
+                    Uri uri = data.getData();
+                    Intent intent = new Intent(getApplicationContext(), AddResourceActivity.class);
+                    intent.putExtra("Uri", uri);
+                    intent.putExtra("type", "Folder");
+                    startActivityForResult(intent,ADD_RESOURCE_REQUEST_CODE);
+                }
+                break;
+            case OPEN_ZIP_FILE_REQUEST_CODE:
+                if (resultCode == RESULT_OK) {
+                    Uri uri = data.getData();
+                    Intent intent = new Intent(getApplicationContext(), AddResourceActivity.class);
+                    intent.putExtra("Uri", uri);
+                    intent.putExtra("type", "ZIP");
+                    startActivityForResult(intent, ADD_RESOURCE_REQUEST_CODE);
+                }
+                break;
+            case ADD_RESOURCE_REQUEST_CODE:
+                if (resultCode == RESULT_OK) {
+                    finish();
+                }
+                break;
+            default:
+                myLogE("Bad Activity Request Result Code");
         }
     }
 

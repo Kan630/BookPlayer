@@ -1,5 +1,6 @@
 package com.driot.bookplayer.activities;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -17,6 +18,7 @@ import android.widget.Toast;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.utils.AddResourceService;
 
+import static com.driot.bookplayer.utils.AddResourceService.NOTIFICATION_ADDRESOURCE_NAME;
 import static com.driot.bookplayer.utils.AddResourceService.NOTIFICATION_ADDRESOURCE_PROGRESS;
 import static com.driot.bookplayer.utils.AddResourceService.NOTIFICATION_ADDRESOURCE_ERROR;
 import static com.driot.bookplayer.utils.AddResourceService.NOTIFICATION_ADDRESOURCE_END;
@@ -31,6 +33,7 @@ public class AddResourceActivity extends LifecycleLoggingActivity {
 
     private ProgressBar progressBar;
     private TextView progressBarText;
+    private TextView tvTitle;
 
     private Intent intentAddResourceService;
     boolean boundToService;
@@ -48,12 +51,12 @@ public class AddResourceActivity extends LifecycleLoggingActivity {
 
         progressBar = findViewById(R.id.progressBar);
         progressBarText = findViewById(R.id.progressBarText);
-        TextView tvTitle = findViewById(R.id.tvTitle);
+        tvTitle = findViewById(R.id.tvTitle);
 
         uri = getIntent().getParcelableExtra("Uri");
         type =  getIntent().getStringExtra("type");
 
-        tvTitle.setText(type + " - " + FormatNameForDisplay(getFileNameFromPath(uri.getLastPathSegment())));
+        putTitle(uri.getLastPathSegment());
 
         intentAddResourceService = new Intent(AddResourceActivity.this, AddResourceService.class);
         startService(intentAddResourceService);
@@ -81,6 +84,10 @@ public class AddResourceActivity extends LifecycleLoggingActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             switch (intent.getAction()) {
+                case NOTIFICATION_ADDRESOURCE_NAME:
+                    myLog("broadcast received NAME");
+                    putTitle(intent.getStringExtra("name"));
+                    break;
                 case NOTIFICATION_ADDRESOURCE_PROGRESS:
                     myLog("broadcast received PROGRESS");
                     progressBar.setProgress(intent.getIntExtra("progress",0));
@@ -92,12 +99,11 @@ public class AddResourceActivity extends LifecycleLoggingActivity {
                     progressBarText.setTextColor(Color.RED);
                     myToast(errorMessage);
                     myLogE("broadcast received ERROR : " + errorMessage);
-                    //TODO display error message and let user exit himself
-                    finish();
                 case NOTIFICATION_ADDRESOURCE_END:
                     myLog("broadcast received END");
                     if (intent.getBooleanExtra("ok",false)) {
                         myToast(getString(R.string.Import_Success));
+                        setResultCode(Activity.RESULT_OK);
                     } else {
                         myToast("IMPORT CANCELLED !");
                     }
@@ -127,6 +133,11 @@ public class AddResourceActivity extends LifecycleLoggingActivity {
         }
 
     };
+
+    private void putTitle(String name) {
+        name = type + " - " + FormatNameForDisplay(getFileNameFromPath(name));
+        tvTitle.setText(name);
+    }
 
     private void myToast(String str) {
         myLog(str);
