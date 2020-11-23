@@ -3,19 +3,13 @@ package com.driot.bookplayer.utils;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.media.AudioAttributes;
-import android.media.AudioFocusRequest;
 import android.media.AudioManager;
-import android.media.MediaMetadata;
 import android.media.MediaPlayer;
-import android.media.session.MediaSession;
-import android.media.session.PlaybackState;
+import android.media.ToneGenerator;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
-import android.view.KeyEvent;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.db.ZikFile;
@@ -85,26 +79,20 @@ public class AudioService extends Service {
         super.onCreate();
         mediaPlayer = new MediaPlayer();
 
-        mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            @Override
-            public void onCompletion(MediaPlayer mediaPlayer) {
-                if (!ErrorLoadingFile) {
-                    myLog("mediaPlayer.OnErrorListener - nextTrack");
-                    alertTrackFinished();
-                    fileHasBeenLoaded=false;
-                    nextTrack();
-                }
+        mediaPlayer.setOnCompletionListener(mediaPlayer -> {
+            if (!ErrorLoadingFile) {
+                myLog("mediaPlayer.OnErrorListener - nextTrack");
+                alertTrackFinished();
+                fileHasBeenLoaded=false;
+                nextTrack();
             }
         });
 
-        mediaPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
-            @Override
-            public boolean onError(MediaPlayer mediaPlayer, int i, int i1) {
-                ErrorLoadingFile = true;
-                myLog("mediaPlayer.OnErrorListener Fired : " + i + " : " + i1 );
-                alertError();
-                return false;
-            }
+        mediaPlayer.setOnErrorListener((mediaPlayer, i, i1) -> {
+            ErrorLoadingFile = true;
+            myLog("mediaPlayer.OnErrorListener Fired : " + i + " : " + i1 );
+            alertError();
+            return false;
         });
 
     }
@@ -112,10 +100,10 @@ public class AudioService extends Service {
     void nextTrack() {
         numSong++;
         mediaPlayer.reset();
-        // TODO petit bip
-        //mediaPlayer.create(this, Settings.System.DEFAULT_RINGTONE_URI);
-        //mediaPlayer.start();
-        //mediaPlayer.reset();
+
+        // petit bip
+        ToneGenerator toneGen1 = new ToneGenerator(AudioManager.STREAM_MUSIC, 100);
+        toneGen1.startTone(ToneGenerator.TONE_CDMA_PIP,150);
 
         myLog("loading next track");
         loadZeFile();
