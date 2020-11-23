@@ -2,6 +2,7 @@ package com.driot.bookplayer.activities;
 
 import android.Manifest;
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.media.MediaMetadataRetriever;
@@ -152,7 +153,9 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
                 }
                 break;
             case ADD_RESOURCE_REQUEST_CODE:
-                if (resultCode == RESULT_OK) {
+                myLog("retour activity");
+                if (resultCode == Activity.RESULT_OK) {
+                    myLog("result ok");
                     finish();
                 }
                 break;

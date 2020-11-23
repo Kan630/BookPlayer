@@ -173,7 +173,7 @@ public class AddResourceService extends Service {
                 }
             default:
                 myLogE("Incorrect type : " + type);
-                tellEnd("ko");
+                //tellEnd("ko");
         }
 
         if (ResourceSelected) go1();
@@ -207,7 +207,8 @@ public class AddResourceService extends Service {
             return bcheckIfFolderExist;
         }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(result -> {
             if (result) {
-                tellError(getString(R.string.Error_Import_FolderAlreadyImported));
+                //tellError(getString(R.string.Error_Import_FolderAlreadyImported));
+                tellEnd(getString(R.string.Error_Import_FolderAlreadyImported));
             } else {
                 myLog("ok on continue");
                 tellProgress(5,"Check Folder not already imported");
@@ -215,7 +216,6 @@ public class AddResourceService extends Service {
             }
         }, throwable -> {
             tellError("ERROR checkIfFolderAlreadyExist : " + throwable.getMessage());
-            tellEnd("ko");
         });
     }
 
@@ -254,7 +254,6 @@ public class AddResourceService extends Service {
                     }
                 }, throwable -> {
                     tellError("create Folder : " + throwable.getMessage());
-                    tellEnd("ko");
                 })
         ;
     }
@@ -376,7 +375,6 @@ public class AddResourceService extends Service {
                     tellEnd();
                 }, throwable -> {
                     tellError("ERROR updateFolderDuration : " + throwable.getMessage());
-                    tellEnd();
                 });
     }
 
@@ -435,11 +433,11 @@ public class AddResourceService extends Service {
         intent.putExtra("ok",true);
         sendBroadcast(intent);
         myLog("broadcast end sent");
+        stopSelf();
     }
 
-    private void tellEnd(String KO_message) {
+    private void tellEnd(String KO_message) { // my first overload... ^^
         Intent intent = new Intent(NOTIFICATION_ADDRESOURCE_END);
-        intent.putExtra("ok",false);
         intent.putExtra("message",KO_message);
         sendBroadcast(intent);
         myLog("broadcast end sent");

@@ -67,6 +67,7 @@ public class AddResourceActivity extends LifecycleLoggingActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        registerReceiver(receiver, new IntentFilter(NOTIFICATION_ADDRESOURCE_NAME));
         registerReceiver(receiver, new IntentFilter(NOTIFICATION_ADDRESOURCE_PROGRESS));
         registerReceiver(receiver, new IntentFilter(NOTIFICATION_ADDRESOURCE_ERROR));
         registerReceiver(receiver, new IntentFilter(NOTIFICATION_ADDRESOURCE_END));
@@ -88,24 +89,33 @@ public class AddResourceActivity extends LifecycleLoggingActivity {
                     myLog("broadcast received NAME");
                     putTitle(intent.getStringExtra("name"));
                     break;
+
                 case NOTIFICATION_ADDRESOURCE_PROGRESS:
                     myLog("broadcast received PROGRESS");
                     progressBar.setProgress(intent.getIntExtra("progress",0));
                     progressBarText.setText(intent.getStringExtra("progressText"));
                     break;
+
                 case NOTIFICATION_ADDRESOURCE_ERROR:
                     String errorMessage = intent.getStringExtra("message");
                     progressBarText.setText("ERROR :" + errorMessage);
                     progressBarText.setTextColor(Color.RED);
                     myToast(errorMessage);
                     myLogE("broadcast received ERROR : " + errorMessage);
+                    break;
+
                 case NOTIFICATION_ADDRESOURCE_END:
                     myLog("broadcast received END");
                     if (intent.getBooleanExtra("ok",false)) {
                         myToast(getString(R.string.Import_Success));
-                        setResultCode(Activity.RESULT_OK);
+                        AddResourceActivity.this.setResult(Activity.RESULT_OK);
                     } else {
-                        myToast("IMPORT CANCELLED !");
+                        String message = intent.getStringExtra("message");
+                        if (message != "") {
+                            myToast(message);
+                        } else {
+                            myToast("IMPORT CANCELLED !");
+                        }
                     }
                     finish();
             }
