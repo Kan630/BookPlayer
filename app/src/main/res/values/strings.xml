@@ -18,6 +18,8 @@
     <string name="bSearchlitteratureaudio_desc">Search then Download a book from litteratureaudio.com (french) :</string>
     <string name="bSearchExampleText">These 2 website above are only examples, there is tons of audio on the web, you could also download university lectures.</string>
 
+    <!-- Add Resources -->
+
     <string name="bAddRessource">Add Content</string>
 
     <string name="Error_Import_IsNotFolder">This doesn\'t look like a folder</string>
@@ -27,6 +29,10 @@
     <string name="Import_nMediaInFolder">medias have been found in this folder</string>
     <string name="Error_Import_ParsingZipFile">Error parsing zip file</string>
     <string name="Error_Getting_Ressource_Name_from_Download_Folder">Error while accessing resource in Downloads location</string>
+
+    <string name="Import_Success">Import Successful</string>
+
+
 
     <string name="yesterday">"yesterday"</string>
 

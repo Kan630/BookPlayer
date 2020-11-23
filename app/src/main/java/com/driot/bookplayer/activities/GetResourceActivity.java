@@ -27,6 +27,7 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.FolderAttrib;
+import com.driot.bookplayer.db.Resource;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.utils.PermissionRequest;
 
@@ -76,17 +77,8 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
 
     private Handler myHandler = new Handler();;
 
-    private boolean ResourceSelected;
-    private DocumentFile pickedDir;
-    private FolderAttrib myFolder;
-    private ZipFile zipFile;
-    private ArrayList<String> audioFileArrayList;
-    private int[] InsertedFolderId = {0};
-    private DocumentFile[] myZikFileList;
-
     private PermissionRequest mPermissionRequest;
 
-    private int nbFileSaved, nbFileToSave;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -139,372 +131,28 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        ResourceSelected = false;
-
-        ///---------------------------------------------
-        /// FOLDER
-        ///---------------------------------------------
 
         if (resultCode == RESULT_OK && requestCode == OPEN_FOLDER_REQUEST_CODE) {
 
-            Uri treeUri = data.getData();
-            pickedDir = DocumentFile.fromTreeUri(this, treeUri);
+            Uri uri = data.getData();
 
-            // Si c'est pas un dossier, on prend le dossier parent...
-            if (!pickedDir.isDirectory()) {
-                pickedDir = DocumentFile.fromTreeUri(this, treeUri).getParentFile();
-                myLog("Parent Folder taken in place");
-            }
-
-            if (pickedDir != null && pickedDir.isDirectory()) {
-
-                // constructeur pour mon pti folder
-                myFolder = new FolderAttrib(getApplicationContext(), data.getData(), false);
-                if (myFolder.isFolderKO()) {
-                    myLog("Cannot get Full real path of folder");
-                    myToast(getString(R.string.Error_Import_FolderPathKO));
-                } else {
-
-
-                    audioFileArrayList = new ArrayList<String>();
-                    myZikFileList = pickedDir.listFiles();
-                    if (myZikFileList.length > 0) {
-                        for (DocumentFile f:myZikFileList) { //check myZikFileList.length > 0 ??
-                            if (f.getType() != null) {
-                                if (f.getType().equals("audio/mpeg")) {
-                                    myLog(f.getName());
-                                    audioFileArrayList.add(f.getName()); //this adds an element to the list.
-                                }
-                            }
-                        }
-                    }
-                    ResourceSelected = true;
-                }
-            } else {
-                myToast(getString(R.string.Error_Import_IsNotFolder));
-            }
-
-            ///---------------------------------------------
-            /// ZIP FILE
-            ///---------------------------------------------
+            Intent intent = new Intent(getApplicationContext(), AddResourceActivity.class);
+            intent.putExtra("Uri", uri);
+            intent.putExtra("type", "Folder");
+            startActivity(intent);
 
         } else if (resultCode == RESULT_OK && requestCode == OPEN_ZIP_FILE_REQUEST_CODE) {
 
             Uri uri = data.getData();
-            myFolder = new FolderAttrib(getApplicationContext(), uri,true);
 
-            if (myFolder.isFolderKO()) {
-                myToast(getString(R.string.Error_Import_FolderPathKO));
-            } else {
-                boolean OnContinue=true;
-                File fileZipFile = new File(myFolder.getsRealFolderPath());
+            Intent intent = new Intent(getApplicationContext(), AddResourceActivity.class);
+            intent.putExtra("Uri", uri);
+            intent.putExtra("type", "ZIP");
+            startActivity(intent);
 
-                zipFile = null;
-                try {
-                    zipFile = new ZipFile(fileZipFile);
-                } catch (Exception e) {
-                    myToast(getString(R.string.Error_Import_ParsingZipFile));
-                    e.printStackTrace();
-                    OnContinue=false;
-                }
-
-                if (OnContinue) {
-                    myLog("ZipFile instancied ok");
-
-                    audioFileArrayList = new ArrayList<String>();
-                    ArrayList<String> zipFileListing;
-                    zipFileListing = new ArrayList<String>();
-
-                    for (Enumeration e = zipFile.entries(); e.hasMoreElements();) {
-                        ZipEntry entry = (ZipEntry) e.nextElement();
-                        if (!entry.isDirectory()) {
-                            String zeName = entry.getName();
-                            zipFileListing.add(zeName);
-                        }
-                    }
-
-                    if (zipFileListing.size() != 0) {
-                        // filter audio file
-                        for (String s : zipFileListing) {
-                            if (getMimeType(s).equals("audio/mpeg")) {
-                                myLog(s);
-                                audioFileArrayList.add(s); //this adds an element to the list.
-                            }
-                        }
-                    }
-                    ResourceSelected = true;
-                }
-            }
         }
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (ResourceSelected) {
-            ShowProgress();
-            goFolder();
-        }
-    }
-
-    private void goFolder() {
-        if (audioFileArrayList.size() == 0) {
-            myToast(getString(R.string.Error_Import_NoMediaInFolder));
-        } else {
-            myToast(audioFileArrayList.size() + " " + getString(R.string.Import_nMediaInFolder));
-            checkIfFolderAlreadyExist();
-        }
-    }
-
-    private void checkIfFolderAlreadyExist() {
-        Observable.fromCallable(() -> {
-            boolean bcheckIfFolderExist = false;
-            long lcheckIfFolderExist = DatabaseClient
-                    .getInstance(getApplicationContext())
-                    .getAppDatabase()
-                    .FolderDao()
-                    .folderAlreadyExist(myFolder.getsFolderUri(),myFolder.getsFolderHash());
-            if (lcheckIfFolderExist>0) { bcheckIfFolderExist = true;}
-            return bcheckIfFolderExist;
-        }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(result -> {
-            if (result) {
-                HideProgress();
-                myToast(getString(R.string.Error_Import_FolderAlreadyImported));
-            } else {
-                myLog("ok on continue");
-                progressBar.setProgress(5);
-                progressBarText.setText("Check Folder not already imported");
-                saveFolder();
-            }
-        }, throwable -> {
-            myLogE("ERROR checkIfFolderAlreadyExist : " + throwable.getMessage());
-            HideProgress();
-        });
-    }
-
-    private void saveFolder() {
-
-        final Time sFirstAccess = new Time(System.currentTimeMillis());
-        final Date sLastAccess = new Date(System.currentTimeMillis());
-        final Time sLastAccessTime = new Time(System.currentTimeMillis());
-
-        Observable.fromCallable(() -> {
-            //creating a Folder
-            Folder folder = new Folder();
-            folder.setName(myFolder.getsFolderName());
-            folder.setPath(myFolder.getsFolderPath());
-            folder.setUri(myFolder.getsFolderUri());
-            folder.setHash(myFolder.getsFolderHash());
-            folder.setPercentdone(0.0);
-            folder.setFirstaccess(sFirstAccess);
-            folder.setLastaccess(sLastAccess);
-            folder.setLastaccessTime(sLastAccessTime);
-            folder.setFinished(false);
-            folder.setIszipfile(myFolder.isZipFolder());
-
-            //adding to database
-            InsertedFolderId[0] = (int) DatabaseClient.getInstance(getApplicationContext()).getAppDatabase()
-                    .FolderDao()
-                    .insert(folder);
-            return true;
-        })
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-        .subscribe((result) -> {
-            if (result) {
-                progressBar.setProgress(8);
-                progressBarText.setText("Folder Saved");
-                saveFiles();
-            }
-        }, throwable -> {
-            myLogE("create Folder : " + throwable.getMessage());
-            HideProgress();
-        })
-        ;
-    }
-
-    private void saveFiles() {
-        nbFileToSave = audioFileArrayList.size();
-        nbFileSaved = 0;
-        Thread one;
-        one = new Thread() {
-            @Override
-            public void run() {
-                int i = 0;
-                int progress = 0;
-                String txtProgress = "";
-            //ZIP
-                if (myFolder.isZipFolder()) {
-                    for (String s : audioFileArrayList) {
-                        i++;
-                        progress = (int) i * 100 / audioFileArrayList.size();
-                        txtProgress = progress + "% - reading file n°" + i + "/" + audioFileArrayList.size() + "\n" + getFileNameFromPath(s);
-                        myLog("Call save " + s);
-                        saveFile(s, InsertedFolderId[0], progress, txtProgress);
-
-                        // code runs in a thread
-                        int finalProgress = progress;
-                        String finalTxtProgress = txtProgress;
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                progressBar.setProgress(finalProgress);
-                                progressBarText.setText(finalTxtProgress);
-                            }
-                        });
-                    }
-            //FOLDER
-                } else {
-                    for (DocumentFile f :myZikFileList) {
-                        if (f.getType() != null) {
-                            if (f.getType().equals("audio/mpeg")) {
-                                i++;
-                                progress = (int) i * 100 / audioFileArrayList.size();
-                                txtProgress = progress + "% - saving file n°" + i + "/" + audioFileArrayList.size() + "\n" + f.getName();
-                                myLog("saving file " + f.getName());
-                                saveFile(f.getName(), InsertedFolderId[0], progress, txtProgress);
-
-                                // code runs in a thread
-                                int finalProgress = progress;
-                                String finalTxtProgress = txtProgress;
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        progressBar.setProgress(finalProgress);
-                                        progressBarText.setText(finalTxtProgress);
-                                    }
-                                });
-                            }
-                        }
-                    }
-                }
-            }
-        };
-        one.start();
-    }
-
-    private void saveFile(String sZikFileName, int mFolderId, int progress, String txtProgress) {
-            // creating file
-        ZikFile zikFile = new ZikFile();
-        zikFile.setName(sZikFileName);
-        zikFile.setIdFolder(mFolderId);
-        zikFile.setFolderName(myFolder.getsFolderName());
-        zikFile.setPercentdone(0.0);
-        zikFile.setPosition(0);
-        zikFile.setPath(myFolder.getsRealFolderPath());
-        zikFile.setIszipfile(myFolder.isZipFolder());
-
-        // get Media Duration
-        //--------------------------------
-        String sFileFullPath;
-        if (myFolder.isZipFolder()) {
-            sFileFullPath = sZikFileName;
-        } else {
-            sFileFullPath = myFolder.getsRealFolderPath() + File.separator + sZikFileName;
-        }
-        try {
-            myLog("Get Media Duration : " + sFileFullPath);
-            zikFile.setDuration(getMediaDurationFromPath(sFileFullPath));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        Observable.fromCallable(() -> {
-            //adding to database
-            return DatabaseClient
-                        .getInstance(getApplicationContext())
-                        .getAppDatabase()
-                        .ZikFileDao()
-                        .insert(zikFile);
-
-        })
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe((result) -> {
-                    if (result != null) {
-                        myLog("File Added - SQL result = " + result);
-                        nbFileSaved++;
-                        if (nbFileSaved == nbFileToSave) {
-                            myLog("All files have been saved ");
-                            updateFolderDuration();
-                        }
-                    } else {
-                        myLogE("ca chie");
-                    }
-                }, throwable -> {
-                    myLogE("Saving File " + sZikFileName + " : " + throwable.getMessage());
-                    }
-                    );
-    }
-
-
-    private void updateFolderDuration() {
-        Observable.fromCallable(() -> {
-            String strSQL = "UPDATE Folder " +
-                    " SET duration = (SELECT SUM(duration) " +
-                    " FROM ZikFile " +
-                    " WHERE Folder.id = ZikFile.idFolder )";
-            SimpleSQLiteQuery query = new SimpleSQLiteQuery(strSQL);
-            return DatabaseClient
-                    .getInstance(getApplicationContext())
-                    .getAppDatabase()
-                    .FolderDao()
-                    .runRawSql(query);
-        })
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(result -> {
-                    myLog("Folder Duration Updated : runRawSQL result = " + result);
-                    HideProgress();
-                    finish();
-                }, throwable -> {
-                    myLogE("ERROR updateFolderDuration : " + throwable.getMessage());
-                    HideProgress();
-                    finish();
-                });
-    }
-
-
-    // DUREE AUDIO
-    private long getMediaDurationFromPath(String zePath) throws IOException {
-        MediaMetadataRetriever mediaMetadataRetriever = new MediaMetadataRetriever();
-        long duration = 0;
-        if (myFolder.isZipFolder()) {
-            InputStream inputStream = null;
-            FileOutputStream out = null;
-            try {
-                inputStream = zipFile.getInputStream(zipFile.getEntry(zePath));
-                File f = File.createTempFile("_AUDIO_", getExtension(zePath));
-                f.deleteOnExit();
-                out = new FileOutputStream(f);
-                copyStream(inputStream,out);
-
-                mediaMetadataRetriever.setDataSource(f.getPath());
-                duration = Long.parseLong(mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
-
-                f.delete();
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-                mediaMetadataRetriever.release();
-                if (inputStream != null) {
-                    inputStream.close();
-                }
-                if (out != null) {
-                    out.close();
-                }
-            }
-    } else {
-            if (fileExists(zePath)) {
-                mediaMetadataRetriever.setDataSource(zePath);
-                duration = Long.parseLong(mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
-            } else {
-                myLogE("error getting duration of media, file not exist in path : " + zePath);
-            }
-        }
-        return duration;
-    }
 
     // PERMISSIONS
     private boolean checkIfPermissionsReadStorage() {
