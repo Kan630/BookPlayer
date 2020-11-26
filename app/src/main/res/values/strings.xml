@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">BookPlayer</string>
     <string name="yesterday">"yesterday"</string>
+    <string name="ERROR">"ERROR"</string>
 
     <string name="title_FolderList">Folders List</string>
     <string name="title_FolderContent">Files List</string>
@@ -33,6 +34,8 @@
     <string name="Error_Import_FolderAlreadyImported">This folder has already been loaded</string>
     <string name="Error_Import_NoMediaInFolder">No media found in this folder</string>
     <string name="Error_Import_FolderPathKO">Cannot find path of folder </string>
+    <string name="Error_Import_ZipFilePathKO">Cannot find path of zip file </string>
+    <string name="Error_Import_BetterTryNoDownloadFolder">Try to move the audio resource in another location (not in Download Folder) </string>
     <string name="Import_nMediaInFolder">medias have been found in this folder</string>
     <string name="Error_Import_ParsingZipFile">Error parsing zip file</string>
     <string name="Error_Getting_Ressource_Name_from_Download_Folder">Error while accessing resource in Downloads location</string>

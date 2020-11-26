@@ -60,6 +60,7 @@ public class AudioService extends Service {
 
     private boolean fileHasBeenLoaded = false;
     private int numSong = 0;
+    private double speed;
 
     private ZikFile[] zikFilePlayList;
     private File tempFile = null;
@@ -286,13 +287,15 @@ public class AudioService extends Service {
         }
     }
 
-    public void setSpeed(float speed) {
-        mediaPlayer.setPlaybackParams(mediaPlayer.getPlaybackParams().setSpeed(speed));
+    public void setSpeed(double speed) {
+        this.speed = speed;
+        mediaPlayer.setPlaybackParams(mediaPlayer.getPlaybackParams().setSpeed((float) speed));
         myLog("setSpeed(" + speed + ")");
     }
 
-    public float getSpeed() {
-        float speed = mediaPlayer.getPlaybackParams().getSpeed();
+    public double getSpeed() {
+        speed = mediaPlayer.getPlaybackParams().getSpeed();
+        if (speed == 0) speed = 1.0;
         myLog("getSpeed() : " + speed);
         return speed;
     }

@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">BookPlayer</string>
     <string name="yesterday">"hier"</string>
+    <string name="ERROR">"ERREUR"</string>
 
     <string name="title_FolderList">Liste des dossiers</string>
     <string name="title_FolderContent">Liste des fichiers</string>
@@ -34,6 +35,8 @@
     <string name="Error_Import_FolderAlreadyImported">Ce dossier a déjà été importé</string>
     <string name="Error_Import_NoMediaInFolder">Pas de medias dans ce dossier</string>
     <string name="Error_Import_FolderPathKO">Impossible de trouver le chemin du dossier </string>
+    <string name="Error_Import_ZipFilePathKO">Impossible de trouver le chemin du fichier zip </string>
+    <string name="Error_Import_BetterTryNoDownloadFolder">Essayer de deplacer votre ressource audio ailleurs que dans le répertoire téléchargement</string>
     <string name="Import_nMediaInFolder">medias ont été trouvés dans ce dossier</string>
     <string name="Error_Import_ParsingZipFile">Erreur de lecture de la structure du fichier Zip</string>
     <string name="Error_Getting_Ressource_Name_from_Download_Folder">Erreur lors de la récupération du nom du fichier choisi dans le répertoire de téléchargements</string>

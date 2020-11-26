@@ -223,13 +223,13 @@ public class PlayActivity extends LifecycleLoggingActivity {
     }
 
     private void SpeedMeUp() {
-        float newSpeed = mService.getSpeed()+INCREMENT_SPEED;
+        double newSpeed = mService.getSpeed()+INCREMENT_SPEED;
         mService.setSpeed(newSpeed);
         String txt = FormatPercentStringForSpeed((double) newSpeed*100);
         txSpeed.setText(txt);
     }
     private void SpeedMeDown() {
-        float newSpeed = mService.getSpeed()-INCREMENT_SPEED;
+        double newSpeed = mService.getSpeed()-INCREMENT_SPEED;
         mService.setSpeed(newSpeed);
         String txt = FormatPercentStringForSpeed((double) newSpeed*100);
         txSpeed.setText(txt);

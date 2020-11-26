@@ -22,6 +22,7 @@ public class FolderAttrib {
 
     private final Uri uri;
     private final boolean isZipFolder;
+    private boolean isLocatedInDownloadFolder = false;
     private Context mCtx;
 
     private boolean FolderKO;
@@ -53,6 +54,7 @@ public class FolderAttrib {
 
             // from DOWNLOAD
         if (uri.getAuthority().equals("com.android.providers.downloads.documents")) {
+            isLocatedInDownloadFolder=true;
             sFolderPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getPath();
             if (isZipFolder) {
                 String sRealFolderName = getFileName(context,uri);
@@ -142,6 +144,10 @@ public class FolderAttrib {
 
     public boolean isFolderKO() {
         return FolderKO;
+    }
+
+    public boolean isLocatedInDownloadFolder() {
+        return isLocatedInDownloadFolder;
     }
 
     @Override

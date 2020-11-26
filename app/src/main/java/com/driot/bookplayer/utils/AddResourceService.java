@@ -99,8 +99,9 @@ public class AddResourceService extends Service {
                     tellName(myFolder.getsFolderName());
 
                     if (myFolder.isFolderKO()) {
-                        myLog("Cannot get Full real path of folder");
-                        tellError(getString(R.string.Error_Import_FolderPathKO));
+                        String error = getString(R.string.Error_Import_FolderPathKO);
+                        if (myFolder.isLocatedInDownloadFolder())  error += "/n" + getString(R.string.Error_Import_BetterTryNoDownloadFolder);
+                        tellError(error);
                     } else {
                         myLog("folder ok");
 
@@ -131,7 +132,9 @@ public class AddResourceService extends Service {
                 tellName(myFolder.getsFolderName());
 
                 if (myFolder.isFolderKO()) {
-                    tellError(getString(R.string.Error_Import_FolderPathKO));
+                    String error = getString(R.string.Error_Import_ZipFilePathKO);
+                    if (myFolder.isLocatedInDownloadFolder())  error += "/n" + getString(R.string.Error_Import_BetterTryNoDownloadFolder);
+                    tellError(error);
                 } else {
                     boolean OnContinue = true;
                     File fileZipFile = new File(myFolder.getsRealFolderPath());

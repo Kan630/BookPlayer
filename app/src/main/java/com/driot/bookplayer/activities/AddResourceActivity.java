@@ -97,8 +97,8 @@ public class AddResourceActivity extends LifecycleLoggingActivity {
                     break;
 
                 case NOTIFICATION_ADDRESOURCE_ERROR:
-                    String errorMessage = intent.getStringExtra("message");
-                    progressBarText.setText("ERROR :" + errorMessage);
+                    String errorMessage = getString(R.string.ERROR) + " :" + intent.getStringExtra("message");
+                    progressBarText.setText(errorMessage);
                     progressBarText.setTextColor(Color.RED);
                     myToast(errorMessage);
                     myLogE("broadcast received ERROR : " + errorMessage);
