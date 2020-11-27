@@ -70,8 +70,6 @@ public class PlayActivity extends LifecycleLoggingActivity {
     private boolean HasBeenInitializedUI = false;
     private boolean HasBeenPlayed = false;
 
-    private static final int FORWARD_TIME = 5000;
-    private static final int BACKWARD_TIME = 5000;
     private static final float INCREMENT_SPEED = 0.05f;
     private ZikFile zikFileFromIntent;
 
@@ -79,8 +77,6 @@ public class PlayActivity extends LifecycleLoggingActivity {
     boolean boundToService;
     AudioService mService;
     boolean mBound = false;
-
-    private static MediaSession mediaSession;
 
     private boolean ShitHappensFlee = false;
     private static boolean isZipFile;
@@ -153,7 +149,6 @@ public class PlayActivity extends LifecycleLoggingActivity {
         isZipFile = zikFileFromIntent.isIszipfile();
         if (isZipFile) ShowProgressAnim();
 
-        configureMediaSession();
         //setPlaybackState(0);
 
         //-*******************************************************************************
@@ -201,25 +196,20 @@ public class PlayActivity extends LifecycleLoggingActivity {
     }
 
     private void pauseMe() {
-        mService.pause();
+        myLog("pauseMe call");
+        mService.pauseAudio();
         SetInterfacePausingMode();
         updateZikFileState(mService.getCurrentZikFile(),false);
     }
 
     private void forwardMe() {
-        int temp = mService.getPosition();
-        if ((temp + FORWARD_TIME ) <= mService.getDuration()) {
-            mService.setPosition(temp + FORWARD_TIME );
-            redrawSeekBar();
-        }
+        mService.forwardAudio();
+        redrawSeekBar();
     }
 
     private void backwardMe() {
-        int temp = mService.getPosition();
-        if ((temp - BACKWARD_TIME) > 0) {
-            mService.setPosition(temp - BACKWARD_TIME);
-            redrawSeekBar();
-        }
+        mService.backwardAudio();
+        redrawSeekBar();
     }
 
     private void SpeedMeUp() {
@@ -259,10 +249,6 @@ public class PlayActivity extends LifecycleLoggingActivity {
         // car onPause est juste avant le onRestart le FolderContentActivity
         // mais probleme, update en Asynch et le temps de la faire, le onstart est deja passé....
         updateZikFileState(mService.getCurrentZikFile(), false);
-    }
-    @Override
-    protected void onStop() {
-        super.onStop();
     }
     @Override
     protected void onDestroy() {
@@ -517,55 +503,6 @@ public class PlayActivity extends LifecycleLoggingActivity {
             gt.execute();
 
         }
-    }
-
-
-
-    private void configureMediaSession() {
-        myLog("configureMediaSession()");
-        mediaSession = new MediaSession(this, "MyMediaSession");
-
-        // Overridden methods in the MediaSession.Callback class.
-        mediaSession.setCallback(new MediaSession.Callback() {
-            @Override
-            public boolean onMediaButtonEvent(Intent mediaButtonIntent) {
-                myLog("onMediaButtonEvent called: " + mediaButtonIntent);
-                KeyEvent ke = mediaButtonIntent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
-                myLog("onMediaButtonEvent Received command: " + ke);
-                if (ke != null && ke.getAction() == KeyEvent.ACTION_DOWN) {
-                    switch (ke.getKeyCode()) {
-                        case KeyEvent.KEYCODE_MEDIA_PLAY:
-                            myLog("onMediaButtonEvent --- Play pressed ---");
-                            playMe();
-                            break;
-                        case KeyEvent.KEYCODE_MEDIA_PAUSE:
-                            myLog("onMediaButtonEvent --- Pause pressed ---");
-                            pauseMe();
-                            break;
-                        case KeyEvent.KEYCODE_HEADSETHOOK:
-                            myLog("onMediaButtonEvent --- Pause pressed ---");
-                            if (mService.isPlaying()) {
-                                pauseMe();
-                            } else {
-                                playMe();
-                            }
-                            break;
-                        case KeyEvent.KEYCODE_MEDIA_NEXT:
-                            myLog("onMediaButtonEvent --- Next pressed ---");
-                            forwardMe();
-                            break;
-                        case KeyEvent.KEYCODE_MEDIA_PREVIOUS:
-                            myLog("onMediaButtonEvent --- Previous pressed ---");
-                            backwardMe();
-                            break;
-
-                    }
-                }
-                return super.onMediaButtonEvent(mediaButtonIntent);
-            }
-        });
-        mediaSession.setFlags(MediaSession.FLAG_HANDLES_MEDIA_BUTTONS | MediaSession.FLAG_HANDLES_TRANSPORT_CONTROLS);
-        mediaSession.setActive(true);
     }
 
     /********************************************************************************

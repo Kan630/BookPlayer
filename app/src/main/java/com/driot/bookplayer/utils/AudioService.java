@@ -6,9 +6,11 @@ import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.ToneGenerator;
+import android.media.session.MediaSession;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
+import android.view.KeyEvent;
 
 import androidx.annotation.Nullable;
 
@@ -53,10 +55,13 @@ public class AudioService extends Service {
     public static final String NOTIFICATION_ZIP_FILE_LOADED = "NOTIFICATION_ZIP_FILE_LOADED";
     public static final String NOTIFICATION_PLAYBACK_MAXTIMEREACH = "NOTIFICATION_PLAYBACK_MAXTIMEREACH";
 
+    private static final int FORWARD_TIME = 5000;
+    private static final int BACKWARD_TIME = 5000;
 
     private MediaPlayer mediaPlayer;
     private AudioManager mAudioManager;
     private AudioManager.OnAudioFocusChangeListener afChangeListener;
+
 
     private boolean fileHasBeenLoaded = false;
     private int numSong = 0;
@@ -169,7 +174,7 @@ public class AudioService extends Service {
 
 
     /********************************************************************************
-     ***       USER METHODS
+     ***       LOADING FILES
      ********************************************************************************
      */
 
@@ -182,6 +187,8 @@ public class AudioService extends Service {
 
         // on charge le premier fichier
         loadZeFile();
+
+        configureMediaSession();
     }
 
     private void loadZeFile() {
@@ -246,29 +253,29 @@ public class AudioService extends Service {
         return true;
     }
 
+
+    /********************************************************************************
+     ***       PLAY-PAUSE
+     ********************************************************************************
+     */
+
+
     public void playAudio() {
         myLog("playAudio()");
         if (!mediaPlayer.isPlaying()) {
 
             mAudioManager = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
-            afChangeListener = new AudioManager.OnAudioFocusChangeListener() {
-
-                @Override
-                public void onAudioFocusChange(int focusChange) {
-                    if(focusChange<=0) {
-                        myLog("Audio Focus Lost");
-                        AudioService.this.pause();
-                        //mediaPlayer.pause();
-                        Intent intent = new Intent(NOTIFICATION_AUDIOFOCUS_LOST);
-                        sendBroadcast(intent);
-                    } else {
-                        myLog("Audio Focus Gain");
-                        //AudioService.this.start();
-                        AudioService.this.playAudio();
-                        //mediaPlayer.start();
-                        Intent intent = new Intent(NOTIFICATION_AUDIOFOCUS_GAIN);
-                        sendBroadcast(intent);
-                    }
+            afChangeListener = focusChange -> {
+                if(focusChange<=0) {
+                    myLog("Audio Focus Lost");
+                    AudioService.this.pauseAudio();
+                    Intent intent = new Intent(NOTIFICATION_AUDIOFOCUS_LOST);
+                    sendBroadcast(intent);
+                } else {
+                    myLog("Audio Focus Gain");
+                    AudioService.this.playAudio();
+                    Intent intent = new Intent(NOTIFICATION_AUDIOFOCUS_GAIN);
+                    sendBroadcast(intent);
                 }
             };
 
@@ -279,13 +286,35 @@ public class AudioService extends Service {
        }
     }
 
-    public void pause() {
-        myLog("pause()");
+    public void pauseAudio() {
+        myLog("pauseAudio()");
         if (mediaPlayer.isPlaying()) {
             mediaPlayer.pause();
             if (mAudioManager != null) { mAudioManager.abandonAudioFocus(afChangeListener); }
         }
     }
+
+    public void forwardAudio() {
+        myLog("forwardAudio()");
+        int temp = getPosition();
+        if ((temp + FORWARD_TIME ) <= getDuration()) {
+            setPosition(temp + FORWARD_TIME );
+        }
+    }
+
+    public void backwardAudio() {
+        myLog("backwardAudio()");
+        int temp = getPosition();
+        if ((temp - BACKWARD_TIME) > 0) {
+            setPosition(temp - BACKWARD_TIME);
+        }
+    }
+
+    /********************************************************************************
+     ***       SPEED - POSITION
+     ********************************************************************************
+     */
+
 
     public void setSpeed(double speed) {
         this.speed = speed;
@@ -361,6 +390,55 @@ public class AudioService extends Service {
             return false;
         }
     }
+
+
+    private void configureMediaSession() {
+        myLog("configureMediaSession()");
+        MediaSession mediaSession = new MediaSession(this, "MyMediaSession");
+
+        // Overridden methods in the MediaSession.Callback class.
+        mediaSession.setCallback(new MediaSession.Callback() {
+            @Override
+            public boolean onMediaButtonEvent(Intent mediaButtonIntent) {
+                myLog("onMediaButtonEvent called: " + mediaButtonIntent);
+                KeyEvent ke = mediaButtonIntent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
+                myLog("onMediaButtonEvent Received command: " + ke);
+                if (ke != null && ke.getAction() == KeyEvent.ACTION_DOWN) {
+                    switch (ke.getKeyCode()) {
+                        case KeyEvent.KEYCODE_MEDIA_PLAY:
+                            myLog("onMediaButtonEvent --- Play pressed ---");
+                            playAudio();
+                            break;
+                        case KeyEvent.KEYCODE_MEDIA_PAUSE:
+                            myLog("onMediaButtonEvent --- Pause pressed ---");
+                            pauseAudio();
+                            break;
+                        case KeyEvent.KEYCODE_HEADSETHOOK:
+                            myLog("onMediaButtonEvent --- Pause pressed ---");
+                            if (isPlaying()) {
+                                pauseAudio();
+                            } else {
+                                playAudio();
+                            }
+                            break;
+                        case KeyEvent.KEYCODE_MEDIA_NEXT:
+                            myLog("onMediaButtonEvent --- Next pressed ---");
+                            forwardAudio();
+                            break;
+                        case KeyEvent.KEYCODE_MEDIA_PREVIOUS:
+                            myLog("onMediaButtonEvent --- Previous pressed ---");
+                            backwardAudio();
+                            break;
+
+                    }
+                }
+                return super.onMediaButtonEvent(mediaButtonIntent);
+            }
+        });
+        mediaSession.setFlags(MediaSession.FLAG_HANDLES_MEDIA_BUTTONS | MediaSession.FLAG_HANDLES_TRANSPORT_CONTROLS);
+        mediaSession.setActive(true);
+    }
+
 
 /*
     private void StartTimer() {
