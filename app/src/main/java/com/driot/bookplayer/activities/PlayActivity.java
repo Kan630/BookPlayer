@@ -15,8 +15,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.media.audiofx.Visualizer;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.view.View;
@@ -65,7 +63,6 @@ public class PlayActivity extends LifecycleLoggingActivity {
     boolean boundToService;
     AudioService mService;
     boolean mBound = false;
-    VisualizerView mVisualizerView;
     private Button bForward, bPlay, bRewind, bSpeedUp, bSpeedDown;
     private SeekBar seekbar;
     private TextView txSeekBar, txTempsTotal, txNomFichier, txTitle, txSubTitle, txSpeed;
@@ -79,7 +76,6 @@ public class PlayActivity extends LifecycleLoggingActivity {
     private Intent intentMusicService;
     private boolean ShitHappensFlee = false;
     private Timer autoUpdate;
-    private Visualizer mVisualizer;
 
     /********************************************************************************
      ***       SERVICE
@@ -98,7 +94,6 @@ public class PlayActivity extends LifecycleLoggingActivity {
             // Get PlayList
             if (!HasBeenInitializedService) {
                 loadPlayListIntoService();
-                //setupVisualizerFxAndUI();
             }
             HasBeenInitializedService = true;
 
@@ -159,24 +154,22 @@ public class PlayActivity extends LifecycleLoggingActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_play);
 
-        bRewind = (Button) findViewById(R.id.buttonRewind);
-        bPlay = (Button) findViewById(R.id.buttonPlay);
-        bForward = (Button) findViewById(R.id.buttonForward);
-        bSpeedUp = (Button) findViewById(R.id.bSpeedUp);
-        bSpeedDown = (Button) findViewById(R.id.bSpeedDown);
+        bRewind = findViewById(R.id.buttonRewind);
+        bPlay = findViewById(R.id.buttonPlay);
+        bForward = findViewById(R.id.buttonForward);
+        bSpeedUp = findViewById(R.id.bSpeedUp);
+        bSpeedDown = findViewById(R.id.bSpeedDown);
 
-        iv = (ImageView) findViewById(R.id.imageView);
+        iv = findViewById(R.id.imageView);
         progressOverlay = findViewById(R.id.progress_overlay);
 
-        txSeekBar = (TextView) findViewById(R.id.textViewSeekBar);
-        txTempsTotal = (TextView) findViewById(R.id.textViewTempsTotal);
-        txNomFichier = (TextView) findViewById(R.id.textViewNomFichier);
-        txTitle = (TextView) findViewById(R.id.textviewTitle);
-        txSubTitle = (TextView) findViewById(R.id.textViewSubTitle);
-        txSpeed = (TextView) findViewById(R.id.textViewSpeed);
-        seekbar = (SeekBar) findViewById(R.id.seekBar);
-
-        //mVisualizerView = (VisualizerView) findViewById(R.id.visualizerView);
+        txSeekBar = findViewById(R.id.textViewSeekBar);
+        txTempsTotal = findViewById(R.id.textViewTempsTotal);
+        txNomFichier = findViewById(R.id.textViewNomFichier);
+        txTitle = findViewById(R.id.textviewTitle);
+        txSubTitle = findViewById(R.id.textViewSubTitle);
+        txSpeed = findViewById(R.id.textViewSpeed);
+        seekbar = findViewById(R.id.seekBar);
 
         intentMusicService = new Intent(PlayActivity.this, AudioService.class);
         startService(intentMusicService);
@@ -298,7 +291,6 @@ public class PlayActivity extends LifecycleLoggingActivity {
         // car onPause est juste avant le onRestart le FolderContentActivity
         // mais probleme, update en Asynch et le temps de la faire, le onstart est deja passé....
         updateZikFileState(mService.getCurrentZikFile(), false);
-        //-mVisualizer.release();
     }
 
     @Override
@@ -384,19 +376,21 @@ public class PlayActivity extends LifecycleLoggingActivity {
                         zikFile.setDuration(mService.getDuration());
                     }
                 }
-                class UpdateZikFileState extends AsyncTask<Void, Void, Void> {
 
-                    @Override
-                    protected Void doInBackground(Void... voids) {
-                        DatabaseClient.getInstance(getApplicationContext()).getAppDatabase()
-                                .ZikFileDao().update(zikFile);
-                        myLog("---------- ZikFile updated - position : " + zikFile.getPosition());
-                        return null;
-                    }
-
-                }
-                UpdateZikFileState gt = new UpdateZikFileState();
-                gt.execute();
+                Observable.fromCallable(() -> {
+                    DatabaseClient
+                            .getInstance(getApplicationContext())
+                            .getAppDatabase()
+                            .ZikFileDao()
+                            .update(zikFile);
+                    return false;
+                })
+                        .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(result -> {
+                            myLog("---------- ZikFile updated - position : " + zikFile.getPosition());
+                        }, throwable -> {
+                            myLogE("error sql updating ZikFile :" + throwable.getMessage());
+                        });
 
             } catch (Exception e) {
                 myLog("==== ERROR ==== Updating File progress ");
@@ -409,17 +403,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
      ***       UPDATE SEEKBAR
      ********************************************************************************
      */
-    /*
-    private Runnable runContinuousUIupdate = new Runnable() {
-        public void run() {
-            if (mService != null && mService.exist() && mService.isPlaying()) {
-                redrawSeekBar();
-                myHandler.postDelayed(this, INTERVAL_REDRAW_SEEKBAR);
-            }
-        }
-    };
 
-     */
     private void redrawSeekBar() {
         if (mService != null && mService.exist()) {
             if (mService.isPlaying()) {
@@ -427,10 +411,8 @@ public class PlayActivity extends LifecycleLoggingActivity {
                 int iPosition = mService.getPosition();
                 txSeekBar.setText(FormatTime(iPosition));
                 seekbar.setProgress(iPosition);
-                //mVisualizer.setEnabled(true);
             } else {
                 bPlay.setText(R.string.play);
-                //mVisualizer.setEnabled(false);
             }
         }
     }
@@ -439,21 +421,12 @@ public class PlayActivity extends LifecycleLoggingActivity {
      ***       DIVERS
      ********************************************************************************
      */
-    /*
-    private void SetInterfacePlayingMode() {
-        bPause.setEnabled(true);
-        bPlay.setEnabled(false);
-    }
-
-    private void SetInterfacePausingMode() {
-        bPause.setEnabled(false);
-        bPlay.setEnabled(true);
-    }
-
-     */
+    //TODO try Direct SQL lite Query
+    //SQLiteDatabase db = this.getWritableDatabase();
+    //String selectQuery = "select sum(odometer) as odometer from tripmileagetable where date like '2012-07%'";
+    //Cursor cursor = db.rawQuery(selectQuery, null);
     private void updateFolderState() {
         if (!ShitHappensFlee) {
-            //String strSQL = "UPDATE Folder SET percentdone = 11.11 WHERE id = 1";
             String strSQL = "UPDATE Folder " +
                     " SET percentdone = (SELECT SUM(percentdone*duration)/SUM(duration) " +
                     "                   FROM ZikFile " +
@@ -461,41 +434,13 @@ public class PlayActivity extends LifecycleLoggingActivity {
                     "   , LastAccess = strftime('%s','now') * 1000" +
                     "   , LastAccessTime = strftime('%s','now') * 1000 " +
                     " WHERE Folder.id = " + mService.getCurrentZikFile().getIdFolder();
+            SimpleSQLiteQuery query = new SimpleSQLiteQuery(strSQL);
 
-
-            class UpdateFolderState extends AsyncTask<Void, Void, Void> {
-
-                @Override
-                protected Void doInBackground(Void... voids) {
-
-                    //TODO try Direct SQL lite Query
-                    /*
-                    SQLiteDatabase db = this.getWritableDatabase();
-                    String selectQuery = "select sum(odometer) as odometer from tripmileagetable where date like '2012-07%'";
-                    Cursor cursor = db.rawQuery(selectQuery, null);
-     */
-
-
-                    SimpleSQLiteQuery query = new SimpleSQLiteQuery(strSQL);
-
-                    DatabaseClient
-                            .getInstance(getApplicationContext())
-                            .getAppDatabase()
-                            .FolderDao()
-                            .runRawSql(query);
-                    return null;
-                }
-
-                @Override
-                protected void onPostExecute(Void aVoid) {
-                    super.onPostExecute(aVoid);
-                    //myLog( "run query " + strSQL);
-                }
-            }
-
-            UpdateFolderState gt = new UpdateFolderState();
-            gt.execute();
-
+            Observable.fromCallable(() -> DatabaseClient
+                    .getInstance(getApplicationContext())
+                    .getAppDatabase()
+                    .FolderDao()
+                    .runRawSql(query)).subscribeOn(Schedulers.io());
         }
     }
 
@@ -515,26 +460,6 @@ public class PlayActivity extends LifecycleLoggingActivity {
             AnimationNow = false;
         }
 
-    }
-
-    private void setupVisualizerFxAndUI() {
-
-        // permission RECORD_AUDIO && peut etre MODIFY_AUDIO_SETTINGS
-
-        // Create the Visualizer object and attach it to our media player.
-        mVisualizer = new Visualizer(mService.getAudioSessionId());
-        mVisualizer.setCaptureSize(Visualizer.getCaptureSizeRange()[1]);
-        mVisualizer.setDataCaptureListener(
-                new Visualizer.OnDataCaptureListener() {
-                    public void onWaveFormDataCapture(Visualizer visualizer,
-                                                      byte[] bytes, int samplingRate) {
-                        mVisualizerView.updateVisualizer(bytes);
-                    }
-
-                    public void onFftDataCapture(Visualizer visualizer,
-                                                 byte[] bytes, int samplingRate) {
-                    }
-                }, Visualizer.getMaxCaptureRate() / 2, true, false);
     }
 
 }
