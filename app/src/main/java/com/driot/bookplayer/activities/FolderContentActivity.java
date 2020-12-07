@@ -11,6 +11,8 @@ import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.ZikFile;
 
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -22,7 +24,7 @@ public class FolderContentActivity extends LifecycleLoggingActivity {
     private TextView mTextViewTitle;
     List<ZikFile> currentZikFileList;
     private ZikFilesAdapter adapter;
-    private int verticalOffset;
+    private HashMap<Integer, Integer> map;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,11 +44,17 @@ public class FolderContentActivity extends LifecycleLoggingActivity {
         }
     }
 
+    private void createMap() {
+        map = new HashMap<>();
+        for (int i = 0; i < currentZikFileList.size(); i++) {
+            int id = currentZikFileList.get(i).getId(); // id of the model
+            map.put(id, i); // i is the position of adapter
+        }
+    }
+
     @Override
     protected void onRestart() {
         super.onRestart();
-
-        //TODO put position just after 100%....
 
         long idFolder = getIntent().getIntExtra("FolderId",0);
         myLog("recyclerview idFolder on restart = " + idFolder);
@@ -54,15 +62,34 @@ public class FolderContentActivity extends LifecycleLoggingActivity {
             getZikFiles(idFolder);
             myLog("recyclerview drawing through setAdapter on restart");
         }
-        myLog("recyclerview position = " + verticalOffset);
-        //recyclerView.smoothScrollToPosition(30); //11
+    }
 
+    private void goToLastAudio() {
+        Date d = new Date(0);
+        Date d_max = new Date(0);
+        int id_max = 0;
+        try {
+            for (ZikFile z : currentZikFileList) {
+                if (z.getLastaccess() != null) d = z.getLastaccess();
+                if (d.after(d_max)) {
+                    d_max = d;
+                    id_max = z.getId();
+                }
+            }
+            if (id_max != 0) {
+                int pos = map.get(id_max);
+                if ((pos)>1) pos = pos-1;
+                if (id_max != 0) recyclerView.scrollToPosition(pos);
+                myLog("scrolling to  :" + map.get(id_max));
+            }
+        } catch (Exception e) {
+            myLogE("goToLastCurrentAudio :" + e.getMessage());
+        }
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        verticalOffset = recyclerView.computeVerticalScrollOffset();
     }
 
     public void getZikFiles(long idFolder) {
@@ -85,6 +112,8 @@ public class FolderContentActivity extends LifecycleLoggingActivity {
                 super.onPostExecute(zikFiles);
                 adapter = new ZikFilesAdapter(FolderContentActivity.this, zikFiles);
                 recyclerView.setAdapter(adapter);
+                createMap();
+                goToLastAudio();
             }
         }
 

@@ -277,6 +277,7 @@ public class AddResourceService extends Service {
                         i++;
                         progress = (int) i * 100 / audioFileArrayList.size();
                         txtProgress = progress + "% - reading file n°" + i + "/" + audioFileArrayList.size() + "\n" + getFileNameFromPath(s);
+                        txtProgress = progress + "% - " + getString(R.string.Add_resource_reading_file) + " n°" + i + "/" + audioFileArrayList.size() + "\n" + getFileNameFromPath(s);
                         myLog("Call save " + s);
                         saveFile(s, InsertedFolderId[0], progress, txtProgress);
 

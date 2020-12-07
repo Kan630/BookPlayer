@@ -42,6 +42,8 @@
     <string name="Import_nMediaInFolder">medias have been found in this folder</string>
     <string name="Error_Import_ParsingZipFile">Error parsing zip file</string>
     <string name="Error_Getting_Ressource_Name_from_Download_Folder">Error while accessing resource in Downloads location</string>
+    <string name="Add_resource_reading_file">reading file</string>
+
 
     <string name="Import_Success">Import Successful</string>
 
