@@ -61,6 +61,7 @@ public class AudioService extends Service {
     private MediaPlayer mediaPlayer;
     private AudioManager mAudioManager;
     private AudioManager.OnAudioFocusChangeListener afChangeListener;
+    private MediaSession mediaSession;
 
 
     private boolean fileHasBeenLoaded = false;
@@ -84,6 +85,8 @@ public class AudioService extends Service {
         myLog("onCreate()");
         super.onCreate();
         mediaPlayer = new MediaPlayer();
+        mediaSession = new MediaSession(this, "MyMediaSession");
+        configureMediaSession();
 
         mediaPlayer.setOnCompletionListener(mediaPlayer -> {
             if (!ErrorLoadingFile) {
@@ -188,7 +191,6 @@ public class AudioService extends Service {
         // on charge le premier fichier
         loadZeFile();
 
-        configureMediaSession();
     }
 
     private void loadZeFile() {
@@ -269,11 +271,13 @@ public class AudioService extends Service {
                 if(focusChange<=0) {
                     myLog("Audio Focus Lost");
                     AudioService.this.pauseAudio();
+                    mediaSession.setActive(false);
                     Intent intent = new Intent(NOTIFICATION_AUDIOFOCUS_LOST);
                     sendBroadcast(intent);
                 } else {
                     myLog("Audio Focus Gain");
                     AudioService.this.playAudio();
+                    mediaSession.setActive(true);
                     Intent intent = new Intent(NOTIFICATION_AUDIOFOCUS_GAIN);
                     sendBroadcast(intent);
                 }
@@ -394,7 +398,6 @@ public class AudioService extends Service {
 
     private void configureMediaSession() {
         myLog("configureMediaSession()");
-        MediaSession mediaSession = new MediaSession(this, "MyMediaSession");
 
         // Overridden methods in the MediaSession.Callback class.
         mediaSession.setCallback(new MediaSession.Callback() {

@@ -61,47 +61,45 @@ public class FoldersAdapter extends RecyclerView.Adapter<FoldersAdapter.FoldersV
         return FolderList.size();
     }
 
-        class FoldersViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
+    class FoldersViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
 
-            TextView textViewFileName, textViewFileLastAccess, textViewFilePercent, textViewDuration;
-            ProgressBar mProgressBar;
+        TextView textViewFileName, textViewFileLastAccess, textViewFilePercent, textViewDuration;
+        ProgressBar mProgressBar;
 
-            public FoldersViewHolder(View itemView) {
-                super(itemView);
+        public FoldersViewHolder(View itemView) {
+            super(itemView);
 
-                textViewFileName = itemView.findViewById(R.id.textViewFileName);
-                textViewFilePercent = itemView.findViewById(R.id.textViewFilePercent);
-                textViewFileLastAccess = itemView.findViewById(R.id.textViewFileLastAccess);
-                textViewDuration =  itemView.findViewById(R.id.textViewDuration);
-                mProgressBar = itemView.findViewById(R.id.progressBar);
+            textViewFileName = itemView.findViewById(R.id.textViewFileName);
+            textViewFilePercent = itemView.findViewById(R.id.textViewFilePercent);
+            textViewFileLastAccess = itemView.findViewById(R.id.textViewFileLastAccess);
+            textViewDuration =  itemView.findViewById(R.id.textViewDuration);
+            mProgressBar = itemView.findViewById(R.id.progressBar);
 
-                itemView.setOnClickListener(this);
-                itemView.setOnLongClickListener(this);
-            }
-
-            @Override
-            public void onClick(View view) {
-                Folder folder = FolderList.get(getAdapterPosition());
-
-                Intent intent = new Intent(mCtx, FolderContentActivity.class);
-                intent.putExtra("FolderId", folder.getId());
-                intent.putExtra("FolderName", folder.getName());
-                mCtx.startActivity(intent);
-            }
-
-            @Override
-            public boolean onLongClick(View view) {
-                Folder folder = FolderList.get(getAdapterPosition());
-
-                //TODO Activity Modify Folder
-
-                Intent intent = new Intent(mCtx, FolderModifyActivity.class);
-                intent.putExtra("FolderName", folder.getName());
-                intent.putExtra("FolderId", folder.getId());
-
-                mCtx.startActivity(intent);
-                return false;
-            }
-
+            itemView.setOnClickListener(this);
+            itemView.setOnLongClickListener(this);
         }
+
+        @Override
+        public void onClick(View view) {
+            Folder folder = FolderList.get(getAdapterPosition());
+
+            Intent intent = new Intent(mCtx, FolderContentActivity.class);
+            intent.putExtra("FolderId", folder.getId());
+            intent.putExtra("FolderName", folder.getName());
+            mCtx.startActivity(intent);
+        }
+
+        @Override
+        public boolean onLongClick(View view) {
+            Folder folder = FolderList.get(getAdapterPosition());
+
+            Intent intent = new Intent(mCtx, FolderModifyActivity.class);
+            intent.putExtra("FolderName", folder.getName());
+            intent.putExtra("FolderId", folder.getId());
+
+            mCtx.startActivity(intent);
+            return false;
+        }
+
+    }
 }

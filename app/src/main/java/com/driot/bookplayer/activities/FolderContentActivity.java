@@ -65,7 +65,7 @@ public class FolderContentActivity extends LifecycleLoggingActivity {
         verticalOffset = recyclerView.computeVerticalScrollOffset();
     }
 
-    private void getZikFiles(long idFolder) {
+    public void getZikFiles(long idFolder) {
 
         class GetZikFiles extends AsyncTask<Void, Void, List<ZikFile>> {
 

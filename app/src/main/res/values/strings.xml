@@ -7,6 +7,9 @@
     <string name="title_FolderContent">Files List</string>
     <string name="PlayerActivity_Title">TextBook Player</string>
 
+    <string name="yes">"yes"</string>
+    <string name="no">"no"</string>
+    <string name="cancel">"cancel"</string>
 
 
     <!-- ********************************** -->
@@ -63,6 +66,13 @@
     <string name="ModifyFolder_AskResetText">"You are about to reset progression for this folder " + "\n" +
                         "Are you sure ?"</string>
 
+
+    <!-- ********************************** -->
+    <!-- Zik File Adapter -->
+
+    <string name="Progression_reset_done">"Progress has been reset"</string>
+    <string name="ModifyFolder_AskDeleteProgressFromZikFile_Title">"Confirm Reset"</string>
+    <string name="ModifyFolder_AskDeleteProgressFromZikFile_Text">"You are about to reset progression from this audio\nAre you sure ?"</string>
 
 
     <!-- ********************************** -->

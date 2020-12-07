@@ -14,26 +14,35 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.db.ZikFile;
 
 import java.util.List;
 
-import static com.driot.bookplayer.utils.Tonio.*;
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
-
+import static com.driot.bookplayer.utils.Tonio.FormatLastAccess;
+import static com.driot.bookplayer.utils.Tonio.FormatNameForDisplay;
+import static com.driot.bookplayer.utils.Tonio.FormatPercentForProgressBar;
+import static com.driot.bookplayer.utils.Tonio.FormatPercentString;
+import static com.driot.bookplayer.utils.Tonio.FormatTime;
+import static com.driot.bookplayer.utils.Tonio.fileExists;
 
 
 public class ZikFilesAdapter extends RecyclerView.Adapter<ZikFilesAdapter.ZikFilesViewHolder> {
 
     private Context mCtx;
-    private List<ZikFile> ZikFileList;
+    private List<ZikFile> zikFileList;
 
-    public ZikFilesAdapter(Context mCtx, List<ZikFile> ZikFileList) {
+    public ZikFilesAdapter(Context mCtx, List<ZikFile> zikFileList) {
         this.mCtx = mCtx;
-        this.ZikFileList = ZikFileList;
+        this.zikFileList = zikFileList;
     }
 
     @Override
@@ -52,7 +61,7 @@ public class ZikFilesAdapter extends RecyclerView.Adapter<ZikFilesAdapter.ZikFil
     }
 
     public void RedrawViewHolderElements(ZikFilesViewHolder holder, int position) {
-        ZikFile t = ZikFileList.get(position);
+        ZikFile t = zikFileList.get(position);
 
         holder.textViewFileName.setText(FormatNameForDisplay(t.getName()));
 
@@ -60,7 +69,7 @@ public class ZikFilesAdapter extends RecyclerView.Adapter<ZikFilesAdapter.ZikFil
 
         holder.mProgressBar.setProgress(FormatPercentForProgressBar(t.getPercentdone()));
 
-        holder.textViewFileLastAccess.setText(FormatLastAccess(t.getLastaccess(),t.getLastaccessTime(), mCtx.getString(R.string.yesterday)));
+        holder.textViewFileLastAccess.setText(FormatLastAccess(t.getLastaccess(), t.getLastaccessTime(), mCtx.getString(R.string.yesterday)));
 
         holder.textViewDuration.setText(FormatTime(t.getDuration()));
 
@@ -69,10 +78,10 @@ public class ZikFilesAdapter extends RecyclerView.Adapter<ZikFilesAdapter.ZikFil
 
     @Override
     public int getItemCount() {
-        return ZikFileList.size();
+        return zikFileList.size();
     }
 
-    class ZikFilesViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    class ZikFilesViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
 
         TextView textViewFileName, textViewFileLastAccess, textViewFilePercent, textViewDuration;
         ProgressBar mProgressBar;
@@ -84,18 +93,19 @@ public class ZikFilesAdapter extends RecyclerView.Adapter<ZikFilesAdapter.ZikFil
             textViewFileName = itemView.findViewById(R.id.textViewFileName);
             textViewFilePercent = itemView.findViewById(R.id.textViewFilePercent);
             textViewFileLastAccess = itemView.findViewById(R.id.textViewFileLastAccess);
-            textViewDuration =  itemView.findViewById(R.id.textViewDuration);
+            textViewDuration = itemView.findViewById(R.id.textViewDuration);
             mProgressBar = itemView.findViewById(R.id.progressBar);
 
             itemView.setOnClickListener(this);
+            itemView.setOnLongClickListener(this);
         }
 
         @Override
         public void onClick(View view) {
-            ZikFile zikFile = ZikFileList.get(getAdapterPosition());
+            ZikFile zikFile = zikFileList.get(getAdapterPosition());
 
             boolean FileOkForPlay = false;
-            // check First that zikFile is propre zikFile and is playable
+            // check First that zikFile is proper zikFile and is playable
             if (zikFile.isIszipfile()) {
                 FileOkForPlay = true;
             } else {
@@ -112,14 +122,81 @@ public class ZikFilesAdapter extends RecyclerView.Adapter<ZikFilesAdapter.ZikFil
                 mCtx.startActivity(intent);
             } else {
                 myLog("opening PlayActivity -- ERROR OPENING TRACK - FILE NOT FOUND !");
-                Toast.makeText(mCtx,mCtx.getString(R.string.PlayActivity_ErrorOpeningTrack_FileNotFound),Toast.LENGTH_SHORT).show();
+                Toast.makeText(mCtx, mCtx.getString(R.string.PlayActivity_ErrorOpeningTrack_FileNotFound), Toast.LENGTH_SHORT).show();
             }
         }
+
+
+        @Override
+        public boolean onLongClick(View view) {
+            ZikFile zikFile = zikFileList.get(getAdapterPosition());
+            bDeleteLongClick(zikFile.getIdFolder(), zikFile.getName());
+            return false;
+        }
     }
+
+    private void bDeleteLongClick(int idFolder, String zikFileName) {
+        new AlertDialog.Builder(mCtx)
+                .setTitle(mCtx.getString(R.string.ModifyFolder_AskDeleteProgressFromZikFile_Title))
+                .setMessage(mCtx.getString(R.string.ModifyFolder_AskDeleteProgressFromZikFile_Text))
+                .setCancelable(false)
+                .setPositiveButton(mCtx.getString(R.string.yes), (dialog, which) -> deleteProgressFromThisZikFile(idFolder, zikFileName))
+                .setNegativeButton(mCtx.getString(R.string.cancel), (dialogInterface, i) -> {})
+                .show();
+    }
+
+    private void deleteProgressFromThisZikFile(int idFolder, String zikFileName) {
+        Observable.fromCallable(() -> {
+            DatabaseClient
+                    .getInstance(mCtx.getApplicationContext())
+                    .getAppDatabase()
+                    .ZikFileDao()
+                    .resetProgressionFromThisZikFile(idFolder, zikFileName);
+            return true;
+        })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe((result) -> {
+                    if (result) {
+                        myToast(mCtx.getString(R.string.Progression_reset_done));
+                        reLoad(idFolder);
+                    }
+                }, throwable -> {
+                    myToastE("error deleting progress");
+                    myLogE("error deleteProgressFromThisZikFile :" + throwable.getMessage());
+                    throwable.printStackTrace();
+                });
+
+    }
+
+    private void reLoad(int idFolder) {
+        ((FolderContentActivity)mCtx).getZikFiles(idFolder);
+    }
+
+    /**
+     * **************************************************************************************
+     * **************************************************************************************
+     */
 
     private void myLog(String str) {
         Log.d("toto -adapter ", str);
         System.out.println(str);
     }
+
+    private void myLogE(String str) {
+        Log.e("toto -adapter ", str);
+        System.out.println(str);
+    }
+
+    private void myToast(String str) {
+        myLog(str);
+        Toast.makeText(mCtx, str, Toast.LENGTH_SHORT).show();
+    }
+
+    private void myToastE(String str) {
+        myLogE(str);
+        Toast.makeText(mCtx, str, Toast.LENGTH_SHORT).show();
+    }
+
 
 }

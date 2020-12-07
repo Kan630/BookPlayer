@@ -7,6 +7,10 @@
     <string name="title_FolderContent">Liste des fichiers</string>
     <string name="PlayerActivity_Title">TextBook Player</string>
 
+    <string name="yes">"oui"</string>
+    <string name="no">"non"</string>
+    <string name="cancel">"annuler"</string>
+
 
     <!-- ********************************** -->
     <!-- Get Resources -->
@@ -64,6 +68,14 @@
     <string name="ModifyFolder_AskResetText">"Attention, vous êtes sur le point de remettre à zéro " + "\n" +
                                 "toute la progression de ce dossier." + "\n" +
                         "êtes vous certain ?"</string>
+
+
+    <!-- ********************************** -->
+    <!-- Zik File Adapter -->
+
+    <string name="Progression_reset_done">"Progression effacée"</string>
+    <string name="ModifyFolder_AskDeleteProgressFromZikFile_Title">"Remise à zéro de la progression"</string>
+    <string name="ModifyFolder_AskDeleteProgressFromZikFile_Text">"Attention, vous êtes sur le point de remettre à zéro toute la progression à partir de cet audio.\nÊtes vous certain ?"</string>
 
 
     <!-- ********************************** -->

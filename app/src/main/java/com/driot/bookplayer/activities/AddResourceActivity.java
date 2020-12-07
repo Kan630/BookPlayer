@@ -111,7 +111,7 @@ public class AddResourceActivity extends LifecycleLoggingActivity {
                         AddResourceActivity.this.setResult(Activity.RESULT_OK);
                     } else {
                         String message = intent.getStringExtra("message");
-                        if (message != "") {
+                        if (!message.equals("")) {
                             myToast(message);
                         } else {
                             myToast("IMPORT CANCELLED !");

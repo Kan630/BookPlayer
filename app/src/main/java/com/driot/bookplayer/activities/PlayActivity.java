@@ -90,6 +90,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState) // entre stop et destroy
     {
+        // !! WARNING !! should save value before saving state...
         super.onSaveInstanceState(outState);
         outState.putBoolean("HasBeenPlayed", HasBeenPlayed);
         outState.putBoolean("HasBeenInitializedService", HasBeenInitializedService);
@@ -109,6 +110,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
         HasBeenInitializedService = savedInstanceState.getBoolean("HasBeenInitializedService", false);
         myHandler.postDelayed(UpdateSongTime, INTERVAL_REDRAW_SEEKBAR);
     }
+
 
     /********************************************************************************
      ***       ON CREATE

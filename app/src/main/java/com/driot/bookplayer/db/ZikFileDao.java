@@ -41,6 +41,9 @@ public interface ZikFileDao {
     @Query("UPDATE ZikFile SET position = 0, percentdone = 0, firstAccess = null, lastAccess=null, lastAccessTime=null, finished=0 WHERE idFolder =:idFolder")
     void resetFolderProgression(int idFolder);
 
+    @Query("UPDATE ZikFile SET position = 0, percentdone = 0, firstAccess = null, lastAccess=null, lastAccessTime=null, finished=0 WHERE idFolder =:idFolder AND name >= :name")
+    void resetProgressionFromThisZikFile(int idFolder, String name);
+
     @Update
     void update(ZikFile zikFile);
 
