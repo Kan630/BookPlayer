@@ -2,13 +2,11 @@ package com.driot.bookplayer.activities;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 30/10/20
- *
+ * <p>
  * onCreate
  * bindToService
  * getZikFiles
  * initialize
- *
- *
  */
 
 import android.content.BroadcastReceiver;
@@ -17,12 +15,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.media.session.MediaSession;
+import android.media.audiofx.Visualizer;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
-import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -32,13 +28,19 @@ import android.widget.Toast;
 
 import androidx.sqlite.db.SimpleSQLiteQuery;
 
-import com.driot.bookplayer.utils.AudioService;
-import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.db.ZikFile;
+import com.driot.bookplayer.utils.AudioService;
 
 import java.sql.Date;
 import java.sql.Time;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
 import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_AUDIOFOCUS_GAIN;
 import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_AUDIOFOCUS_LOST;
@@ -47,70 +49,106 @@ import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_FILELOADED;
 import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_NEWTRACK;
 import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_TRACKFINISHED;
 import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_ZIP_FILE_LOADED;
-
-import static com.driot.bookplayer.utils.Tonio.*;
+import static com.driot.bookplayer.utils.Tonio.FormatNameForDisplay;
+import static com.driot.bookplayer.utils.Tonio.FormatPercentDouble;
+import static com.driot.bookplayer.utils.Tonio.FormatPercentStringForSpeed;
+import static com.driot.bookplayer.utils.Tonio.FormatTime;
 import static com.driot.bookplayer.utils.Utils.animateView;
 
 public class PlayActivity extends LifecycleLoggingActivity {
 
     private static final boolean DO_PLAY_NEXT_SONG = true;
-
-    private Button bForward, bPause, bPlay, bRewind, bSpeedUp, bSpeedDown;
+    private static final int INTERVAL_REDRAW_SEEKBAR = 100;
+    private static final int DELAY_ANIMATION = 200;
+    private static final float INCREMENT_SPEED = 0.05f;
+    private static boolean isZipFile;
+    boolean boundToService;
+    AudioService mService;
+    boolean mBound = false;
+    VisualizerView mVisualizerView;
+    private Button bForward, bPlay, bRewind, bSpeedUp, bSpeedDown;
     private SeekBar seekbar;
     private TextView txSeekBar, txTempsTotal, txNomFichier, txTitle, txSubTitle, txSpeed;
     private View progressOverlay;
     private ImageView iv;
-
-    private static final int INTERVAL_REDRAW_SEEKBAR = 100;
-    private Handler myHandler = new Handler();
-    private static final int DELAY_ANIMATION = 200;
     private boolean AnimationNow;
-
     private boolean HasBeenInitializedService = false;
     private boolean HasBeenInitializedUI = false;
     private boolean HasBeenPlayed = false;
-
-    private static final float INCREMENT_SPEED = 0.05f;
     private ZikFile zikFileFromIntent;
-
     private Intent intentMusicService;
-    boolean boundToService;
-    AudioService mService;
-    boolean mBound = false;
-
     private boolean ShitHappensFlee = false;
-    private static boolean isZipFile;
-
+    private Timer autoUpdate;
+    private Visualizer mVisualizer;
 
     /********************************************************************************
-     ***       GESTION FLIP ECRAN
+     ***       SERVICE
      ********************************************************************************
      */
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState) // entre stop et destroy
-    {
-        // !! WARNING !! should save value before saving state...
-        super.onSaveInstanceState(outState);
-        outState.putBoolean("HasBeenPlayed", HasBeenPlayed);
-        outState.putBoolean("HasBeenInitializedService", HasBeenInitializedService);
-        outState.putInt("position", mService.getPosition());
-        if (mService != null && mService.isPlaying()) {
-            outState.putBoolean("wasPlaying", true);
-        } else {
-            outState.putBoolean("wasPlaying", false);
+    private ServiceConnection connection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            myLog("onServiceConnected");
+            AudioService.BackgroundBinder binder = (AudioService.BackgroundBinder) service;
+            mService = binder.getService();
+            mBound = true;
+
+            // Get PlayList
+            if (!HasBeenInitializedService) {
+                loadPlayListIntoService();
+                //setupVisualizerFxAndUI();
+            }
+            HasBeenInitializedService = true;
+
+            // retour de flip ecran
+            DrawUI(); //utile pour suppression progressBar
         }
-    }
 
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) // apres onStart
-    {
-        super.onRestoreInstanceState(savedInstanceState);
-        HasBeenPlayed = savedInstanceState.getBoolean("HasBeenPlayed", false);
-        HasBeenInitializedService = savedInstanceState.getBoolean("HasBeenInitializedService", false);
-        myHandler.postDelayed(UpdateSongTime, INTERVAL_REDRAW_SEEKBAR);
-    }
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            myLog("OnServiceDisconnected");
+            mBound = false;
+        }
 
+    };
+    private BroadcastReceiver receiver = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            switch (intent.getAction()) {
+                case NOTIFICATION_NEWTRACK:
+                    myLog("broadcast received NEW TRACK");
+                    //if (isZipFile) ShowProgressAnim();
+                    break;
+                case NOTIFICATION_ERROR:
+                    ShitHappensFlee = true;
+                    myLog("broadcast received ERROR");
+                    Toast.makeText(getApplicationContext(), "ERROR READING TRACK !", Toast.LENGTH_SHORT).show();
+                    finish();
+                case NOTIFICATION_TRACKFINISHED:
+                    myLog("broadcast received TRACK FINISHED");
+                    updateZikFileState(mService.getLastZikFile(), true);
+                    break;
+                case NOTIFICATION_AUDIOFOCUS_LOST:
+                    myLog("broadcast received AUDIO FOCUS LOST");
+                    //SetInterfacePausingMode();
+                    updateZikFileState(mService.getCurrentZikFile(), false);
+                    break;
+                case NOTIFICATION_AUDIOFOCUS_GAIN:
+                    myLog("broadcast received AUDIO FOCUS GAIN");
+                    //SetInterfacePlayingMode();
+                    break;
+                case NOTIFICATION_FILELOADED:
+                    myLog("broadcast received FILE LOADED");
+                    DrawUI();
+                    mService.setPosition((int) mService.getCurrentZikFile().getPosition());
+                    HideProgressAnim();
+                    break;
+            }
+        }
+    };
 
     /********************************************************************************
      ***       ON CREATE
@@ -123,7 +161,6 @@ public class PlayActivity extends LifecycleLoggingActivity {
 
         bRewind = (Button) findViewById(R.id.buttonRewind);
         bPlay = (Button) findViewById(R.id.buttonPlay);
-        bPause = (Button) findViewById(R.id.buttonPause);
         bForward = (Button) findViewById(R.id.buttonForward);
         bSpeedUp = (Button) findViewById(R.id.bSpeedUp);
         bSpeedDown = (Button) findViewById(R.id.bSpeedDown);
@@ -138,6 +175,8 @@ public class PlayActivity extends LifecycleLoggingActivity {
         txSubTitle = (TextView) findViewById(R.id.textViewSubTitle);
         txSpeed = (TextView) findViewById(R.id.textViewSpeed);
         seekbar = (SeekBar) findViewById(R.id.seekBar);
+
+        //mVisualizerView = (VisualizerView) findViewById(R.id.visualizerView);
 
         intentMusicService = new Intent(PlayActivity.this, AudioService.class);
         startService(intentMusicService);
@@ -166,10 +205,14 @@ public class PlayActivity extends LifecycleLoggingActivity {
                     HasBeenPlayed = true;
                 }
             }
+
             @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {            }
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
             @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {            }
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
         });
 
         //-*******************************************************************************
@@ -177,7 +220,6 @@ public class PlayActivity extends LifecycleLoggingActivity {
         //-*******************************************************************************
 
         bPlay.setOnClickListener(v -> playMe());
-        bPause.setOnClickListener(v -> pauseMe());
         bForward.setOnClickListener(v -> forwardMe());
         bRewind.setOnClickListener(v -> backwardMe());
         bSpeedUp.setOnClickListener(v -> SpeedMeUp());
@@ -186,57 +228,52 @@ public class PlayActivity extends LifecycleLoggingActivity {
     }
 
     private void playMe() {
-        myLog("playMe call");
         if (mBound) {
             if (mService != null && mService.exist()) {
-                mService.playAudio();
-                SetInterfacePlayingMode();
-                myHandler.postDelayed(UpdateSongTime, INTERVAL_REDRAW_SEEKBAR);
-                HasBeenPlayed=true;
+                if (mService.isPlaying()) {
+                    myLog("pause call from UI");
+                    mService.pauseAudio();
+                    updateZikFileState(mService.getCurrentZikFile(), false);
+                } else {
+                    myLog("play call from UI");
+                    mService.playAudio();
+                    HasBeenPlayed = true;
+                }
             }
         }
     }
 
-    private void pauseMe() {
-        myLog("pauseMe call");
-        mService.pauseAudio();
-        SetInterfacePausingMode();
-        updateZikFileState(mService.getCurrentZikFile(),false);
-    }
-
     private void forwardMe() {
         mService.forwardAudio();
-        redrawSeekBar();
     }
 
     private void backwardMe() {
         mService.backwardAudio();
-        redrawSeekBar();
     }
 
     private void SpeedMeUp() {
-        double newSpeed = mService.getSpeed()+INCREMENT_SPEED;
+        double newSpeed = mService.getSpeed() + INCREMENT_SPEED;
         mService.setSpeed(newSpeed);
-        String txt = FormatPercentStringForSpeed((double) newSpeed*100);
+        String txt = FormatPercentStringForSpeed((double) newSpeed * 100);
         txSpeed.setText(txt);
     }
+
     private void SpeedMeDown() {
-        double newSpeed = mService.getSpeed()-INCREMENT_SPEED;
+        double newSpeed = mService.getSpeed() - INCREMENT_SPEED;
         mService.setSpeed(newSpeed);
-        String txt = FormatPercentStringForSpeed((double) newSpeed*100);
+        String txt = FormatPercentStringForSpeed((double) newSpeed * 100);
         txSpeed.setText(txt);
     }
-
-
 
     /********************************************************************************
-         ***       EVENTS
-         * Destroy = Fleche Retour Arriere ou Change Inclinaison
-         ********************************************************************************
-         */
+     ***       EVENTS
+     * Destroy = Fleche Retour Arriere ou Change Inclinaison
+     ********************************************************************************
+     */
     @Override
     protected void onResume() {
         super.onResume();
+
         registerReceiver(receiver, new IntentFilter(NOTIFICATION_NEWTRACK));
         registerReceiver(receiver, new IntentFilter(NOTIFICATION_TRACKFINISHED));
         registerReceiver(receiver, new IntentFilter(NOTIFICATION_AUDIOFOCUS_GAIN));
@@ -244,14 +281,26 @@ public class PlayActivity extends LifecycleLoggingActivity {
         registerReceiver(receiver, new IntentFilter(NOTIFICATION_FILELOADED));
         registerReceiver(receiver, new IntentFilter(NOTIFICATION_ERROR));
         registerReceiver(receiver, new IntentFilter(NOTIFICATION_ZIP_FILE_LOADED));
+
+        autoUpdate = new Timer();
+        autoUpdate.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                runOnUiThread(() -> redrawSeekBar());
+            }
+        }, 0, INTERVAL_REDRAW_SEEKBAR);
+
     }
+
     @Override
     protected void onPause() {
         super.onPause();
         // car onPause est juste avant le onRestart le FolderContentActivity
         // mais probleme, update en Asynch et le temps de la faire, le onstart est deja passé....
         updateZikFileState(mService.getCurrentZikFile(), false);
+        //-mVisualizer.release();
     }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -259,33 +308,24 @@ public class PlayActivity extends LifecycleLoggingActivity {
         stopService(intentMusicService);
         updateFolderState();
     }
+
     /********************************************************************************
      ***       GET FROM DB
      ********************************************************************************
      */
     private void loadPlayListIntoService() {
         myLog("+++++++++ loading PlayList Into Service - GetZikFiles");
-
-        class GetZikFiles extends AsyncTask<Void, Void, ZikFile[]> {
-
-            @Override
-            protected ZikFile[] doInBackground(Void... voids) {
-                ZikFile[] zikFiles = DatabaseClient
-                        .getInstance(getApplicationContext())
-                        .getAppDatabase()
-                        .ZikFileDao()
-                        .getNextZikFiles(zikFileFromIntent.getIdFolder(),zikFileFromIntent.getName());
-                return zikFiles;
-            }
-
-            @Override
-            protected void onPostExecute(ZikFile[] zikFiles) {
-                super.onPostExecute(zikFiles);
-                mService.loadFiles(zikFiles);
-            }
-        }
-        GetZikFiles gt = new GetZikFiles();
-        gt.execute();
+        Observable.fromCallable(() -> DatabaseClient
+                .getInstance(getApplicationContext())
+                .getAppDatabase()
+                .ZikFileDao()
+                .getNextZikFiles(zikFileFromIntent.getIdFolder(), zikFileFromIntent.getName())).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe((result) -> mService.loadFiles(result), throwable -> {
+                    myToastE(this, "Error Loading playlist");
+                    myLogE("Error Loading playlist :" + throwable.getMessage());
+                    throwable.printStackTrace();
+                });
     }
 
     private void DrawUI() {
@@ -305,7 +345,6 @@ public class PlayActivity extends LifecycleLoggingActivity {
         }
     }
 
-
     /********************************************************************************
      ***       UPDATE DB
      ********************************************************************************
@@ -313,9 +352,18 @@ public class PlayActivity extends LifecycleLoggingActivity {
     private void updateZikFileState(ZikFile zikFile, boolean bFinished) {
         boolean DoIt = true;
         myLog("---------- ZikFile called for update");
-        if (ShitHappensFlee) {myLog("won't update ZikFile because Shit Happens so Flee far away and don't come back");DoIt = false;}
-        if (!HasBeenPlayed) {myLog("won't update ZikFile because HasBeenPlayed=false");DoIt = false;}
-        if (zikFile == null) {myLog("won't update ZikFile because zikFile=null");DoIt = false;}
+        if (ShitHappensFlee) {
+            myLog("won't update ZikFile because Shit Happens so Flee far away and don't come back");
+            DoIt = false;
+        }
+        if (!HasBeenPlayed) {
+            myLog("won't update ZikFile because HasBeenPlayed=false");
+            DoIt = false;
+        }
+        if (zikFile == null) {
+            myLog("won't update ZikFile because zikFile=null");
+            DoIt = false;
+        }
         if (DoIt) {
             try {
                 if (zikFile.getFirstaccess() == null) {
@@ -331,7 +379,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
                     zikFile.setFinished(true);
                 } else {
                     zikFile.setPosition(mService.getPosition());
-                    zikFile.setPercentdone(FormatPercentDouble((double) mService.getPosition()/mService.getDuration()));
+                    zikFile.setPercentdone(FormatPercentDouble((double) mService.getPosition() / mService.getDuration()));
                     if (zikFile.getDuration() == 0) {
                         zikFile.setDuration(mService.getDuration());
                     }
@@ -361,7 +409,8 @@ public class PlayActivity extends LifecycleLoggingActivity {
      ***       UPDATE SEEKBAR
      ********************************************************************************
      */
-    private Runnable UpdateSongTime = new Runnable() {
+    /*
+    private Runnable runContinuousUIupdate = new Runnable() {
         public void run() {
             if (mService != null && mService.exist() && mService.isPlaying()) {
                 redrawSeekBar();
@@ -370,84 +419,27 @@ public class PlayActivity extends LifecycleLoggingActivity {
         }
     };
 
-    private void redrawSeekBar() {
-        int iPosition = mService.getPosition();
-        txSeekBar.setText(FormatTime(iPosition));
-        seekbar.setProgress(iPosition);
-    }
-
-    /********************************************************************************
-     ***       SERVICE
-     ********************************************************************************
      */
-
-    private ServiceConnection connection = new ServiceConnection() {
-
-        @Override
-        public void onServiceConnected(ComponentName className, IBinder service) {
-            myLog("onServiceConnected");
-            AudioService.BackgroundBinder binder = (AudioService.BackgroundBinder) service;
-            mService = binder.getService();
-            mBound = true;
-
-            // Get PlayList
-            if (!HasBeenInitializedService) { loadPlayListIntoService(); }
-            HasBeenInitializedService = true;
-
-            // retour de flip ecran
-            DrawUI(); //utile pour suppression progressBar
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-            myLog("OnServiceDisconnected");
-            mBound = false;
-        }
-
-    };
-
-    private BroadcastReceiver receiver = new BroadcastReceiver() {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            switch (intent.getAction()) {
-                case NOTIFICATION_NEWTRACK:
-                    myLog("broadcast received NEW TRACK");
-                    //if (isZipFile) ShowProgressAnim();
-                    break;
-                case NOTIFICATION_ERROR:
-                    ShitHappensFlee=true;
-                    myLog("broadcast received ERROR");
-                    Toast.makeText(getApplicationContext(),"ERROR READING TRACK !",Toast.LENGTH_SHORT).show();
-                    finish();
-                case NOTIFICATION_TRACKFINISHED:
-                    myLog("broadcast received TRACK FINISHED");
-                    updateZikFileState(mService.getLastZikFile(), true);
-                    break;
-                case NOTIFICATION_AUDIOFOCUS_LOST:
-                    myLog("broadcast received AUDIO FOCUS LOST");
-                    SetInterfacePausingMode();
-                    updateZikFileState(mService.getCurrentZikFile(),false);
-                    break;
-                case NOTIFICATION_AUDIOFOCUS_GAIN:
-                    myLog("broadcast received AUDIO FOCUS GAIN");
-                    SetInterfacePlayingMode();
-                    break;
-                case NOTIFICATION_FILELOADED:
-                    myLog("broadcast received FILE LOADED");
-                    DrawUI();
-                    mService.setPosition((int) mService.getCurrentZikFile().getPosition());
-                    HideProgressAnim();
-                    break;
+    private void redrawSeekBar() {
+        if (mService != null && mService.exist()) {
+            if (mService.isPlaying()) {
+                bPlay.setText(R.string.pause);
+                int iPosition = mService.getPosition();
+                txSeekBar.setText(FormatTime(iPosition));
+                seekbar.setProgress(iPosition);
+                //mVisualizer.setEnabled(true);
+            } else {
+                bPlay.setText(R.string.play);
+                //mVisualizer.setEnabled(false);
             }
         }
-    };
-
+    }
 
     /********************************************************************************
      ***       DIVERS
      ********************************************************************************
      */
+    /*
     private void SetInterfacePlayingMode() {
         bPause.setEnabled(true);
         bPlay.setEnabled(false);
@@ -458,6 +450,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
         bPlay.setEnabled(true);
     }
 
+     */
     private void updateFolderState() {
         if (!ShitHappensFlee) {
             //String strSQL = "UPDATE Folder SET percentdone = 11.11 WHERE id = 1";
@@ -468,7 +461,6 @@ public class PlayActivity extends LifecycleLoggingActivity {
                     "   , LastAccess = strftime('%s','now') * 1000" +
                     "   , LastAccessTime = strftime('%s','now') * 1000 " +
                     " WHERE Folder.id = " + mService.getCurrentZikFile().getIdFolder();
-
 
 
             class UpdateFolderState extends AsyncTask<Void, Void, Void> {
@@ -514,14 +506,35 @@ public class PlayActivity extends LifecycleLoggingActivity {
 
     private void ShowProgressAnim() {
         animateView(progressOverlay, View.VISIBLE, 0.4f, DELAY_ANIMATION);
-        AnimationNow=true;
+        AnimationNow = true;
     }
+
     private void HideProgressAnim() {
         if (AnimationNow) {
             animateView(progressOverlay, View.GONE, 0, DELAY_ANIMATION);
-            AnimationNow=false;
+            AnimationNow = false;
         }
 
+    }
+
+    private void setupVisualizerFxAndUI() {
+
+        // permission RECORD_AUDIO && peut etre MODIFY_AUDIO_SETTINGS
+
+        // Create the Visualizer object and attach it to our media player.
+        mVisualizer = new Visualizer(mService.getAudioSessionId());
+        mVisualizer.setCaptureSize(Visualizer.getCaptureSizeRange()[1]);
+        mVisualizer.setDataCaptureListener(
+                new Visualizer.OnDataCaptureListener() {
+                    public void onWaveFormDataCapture(Visualizer visualizer,
+                                                      byte[] bytes, int samplingRate) {
+                        mVisualizerView.updateVisualizer(bytes);
+                    }
+
+                    public void onFftDataCapture(Visualizer visualizer,
+                                                 byte[] bytes, int samplingRate) {
+                    }
+                }, Visualizer.getMaxCaptureRate() / 2, true, false);
     }
 
 }

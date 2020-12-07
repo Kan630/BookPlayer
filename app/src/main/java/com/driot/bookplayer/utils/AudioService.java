@@ -292,11 +292,20 @@ public class AudioService extends Service {
 
     public void pauseAudio() {
         myLog("pauseAudio()");
-        if (mediaPlayer.isPlaying()) {
+        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
             mediaPlayer.pause();
             if (mAudioManager != null) { mAudioManager.abandonAudioFocus(afChangeListener); }
         }
     }
+
+    public void playPauseAudio() {
+        if (isPlaying()) {
+            pauseAudio();
+        } else {
+            playAudio();
+        }
+    }
+
 
     public void forwardAudio() {
         myLog("forwardAudio()");
@@ -364,6 +373,12 @@ public class AudioService extends Service {
         }
     }
 
+    public int getAudioSessionId() {
+        int id = 0;
+        try { id = mediaPlayer.getAudioSessionId(); } catch (Exception e) { e.printStackTrace(); }
+        return id;
+    }
+
     public ZikFile getCurrentZikFile() {
         if (fileHasBeenLoaded) {
             if (LOG_TRACE_ALL) myLog( "getCurrentZikFile() : " + zikFilePlayList[numSong].getName());
@@ -410,19 +425,15 @@ public class AudioService extends Service {
                     switch (ke.getKeyCode()) {
                         case KeyEvent.KEYCODE_MEDIA_PLAY:
                             myLog("onMediaButtonEvent --- Play pressed ---");
-                            playAudio();
+                            playPauseAudio();
                             break;
                         case KeyEvent.KEYCODE_MEDIA_PAUSE:
                             myLog("onMediaButtonEvent --- Pause pressed ---");
-                            pauseAudio();
+                            playPauseAudio();
                             break;
                         case KeyEvent.KEYCODE_HEADSETHOOK:
-                            myLog("onMediaButtonEvent --- Pause pressed ---");
-                            if (isPlaying()) {
-                                pauseAudio();
-                            } else {
-                                playAudio();
-                            }
+                            myLog("onMediaButtonEvent --- PlayPause pressed ---");
+                            playPauseAudio();
                             break;
                         case KeyEvent.KEYCODE_MEDIA_NEXT:
                             myLog("onMediaButtonEvent --- Next pressed ---");

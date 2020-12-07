@@ -31,6 +31,14 @@
         android:layout_centerHorizontal="true"
         />
 
+    <com.driot.bookplayer.activities.VisualizerView
+        android:id="@+id/visualizerView"
+        android:layout_width="match_parent"
+        android:layout_height="200sp"
+        android:layout_marginTop="50sp"
+        android:layout_below="@id/textViewSubTitle"
+        />
+
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="wrap_content"
@@ -50,7 +58,6 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         />
-
     <Button
         android:id="@+id/buttonPlay"
         android:text="@string/play"
@@ -58,15 +65,6 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         />
-
-    <Button
-        android:id="@+id/buttonPause"
-        android:text="@string/pause"
-        android:layout_weight="1"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        />
-
     <Button
         android:id="@+id/buttonForward"
         android:text="@string/forward"

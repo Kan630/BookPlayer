@@ -18,9 +18,11 @@ package com.driot.bookplayer.activities;
  */
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
@@ -184,12 +186,23 @@ public abstract class LifecycleLoggingActivity
         myLog("onNewIntent() + intent : " + intent.getAction());
     }
 
+    protected void myToast(Context c, String str) {
+        Toast.makeText(c, str, Toast.LENGTH_SHORT).show();
+        myLog(str);
+    }
+
     protected void myLog(String str) {
         if (LOG_TRACE) {
             Log.d(TAG,str);
             System.out.println(str);
         }
     }
+
+    protected void myToastE(Context c, String str) {
+        Toast.makeText(c, str, Toast.LENGTH_SHORT).show();
+        myLogE(str);
+    }
+
     protected void myLogE(String str) {
         if (LOG_TRACE) {
             Log.e(TAG,str);
