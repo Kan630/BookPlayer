@@ -19,6 +19,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.DatabaseClient;
+import com.driot.bookplayer.db.Folder;
+import com.driot.bookplayer.db.Sql;
 import com.driot.bookplayer.db.ZikFile;
 
 import java.util.List;
@@ -159,6 +161,7 @@ public class ZikFilesAdapter extends RecyclerView.Adapter<ZikFilesAdapter.ZikFil
                 .subscribe((result) -> {
                     if (result) {
                         myToast(mCtx.getString(R.string.Progression_reset_done));
+                        Sql.calculateFolderProgress(mCtx, idFolder);
                         reLoad(idFolder);
                     }
                 }, throwable -> {

@@ -28,6 +28,7 @@ import androidx.sqlite.db.SimpleSQLiteQuery;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.DatabaseClient;
+import com.driot.bookplayer.db.Sql;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.utils.AudioService;
 
@@ -298,7 +299,6 @@ public class PlayActivity extends LifecycleLoggingActivity {
         super.onDestroy();
         unregisterReceiver(receiver);
         stopService(intentMusicService);
-        updateFolderState();
     }
 
     /********************************************************************************
@@ -387,7 +387,8 @@ public class PlayActivity extends LifecycleLoggingActivity {
                 })
                         .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
                         .subscribe(result -> {
-                            myLog("---------- ZikFile updated - position : " + zikFile.getPosition());
+                            myLog("---------- ZikFile updated (" + zikFile.getName() + ")- position : " + zikFile.getPosition());
+                            Sql.calculateFolderProgress(getApplicationContext(), mService.getCurrentZikFile().getIdFolder());
                         }, throwable -> {
                             myLogE("error sql updating ZikFile :" + throwable.getMessage());
                         });
@@ -417,32 +418,6 @@ public class PlayActivity extends LifecycleLoggingActivity {
         }
     }
 
-    /********************************************************************************
-     ***       DIVERS
-     ********************************************************************************
-     */
-    //TODO try Direct SQL lite Query
-    //SQLiteDatabase db = this.getWritableDatabase();
-    //String selectQuery = "select sum(odometer) as odometer from tripmileagetable where date like '2012-07%'";
-    //Cursor cursor = db.rawQuery(selectQuery, null);
-    private void updateFolderState() {
-        if (!ShitHappensFlee) {
-            String strSQL = "UPDATE Folder " +
-                    " SET percentdone = (SELECT SUM(percentdone*duration)/SUM(duration) " +
-                    "                   FROM ZikFile " +
-                    "                   WHERE Folder.id = ZikFile.idFolder )" +
-                    "   , LastAccess = strftime('%s','now') * 1000" +
-                    "   , LastAccessTime = strftime('%s','now') * 1000 " +
-                    " WHERE Folder.id = " + mService.getCurrentZikFile().getIdFolder();
-            SimpleSQLiteQuery query = new SimpleSQLiteQuery(strSQL);
-
-            Observable.fromCallable(() -> DatabaseClient
-                    .getInstance(getApplicationContext())
-                    .getAppDatabase()
-                    .FolderDao()
-                    .runRawSql(query)).subscribeOn(Schedulers.io());
-        }
-    }
 
     /********************************************************************************
      ***       DIVERS FONCTIONS

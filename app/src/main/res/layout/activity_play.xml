@@ -31,14 +31,6 @@
         android:layout_centerHorizontal="true"
         />
 
-    <com.driot.bookplayer.activities.VisualizerView
-        android:id="@+id/visualizerView"
-        android:layout_width="match_parent"
-        android:layout_height="200sp"
-        android:layout_marginTop="50sp"
-        android:layout_below="@id/textViewSubTitle"
-        />
-
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="wrap_content"
