@@ -26,8 +26,12 @@
 
             <TextView
                 android:id="@+id/textViewFileName"
+                android:text="Song 1.mp3"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                style="@style/audioName"
+                android:textColor="@color/black"
+                android:background="@color/verylightgray"
                 android:paddingTop="@dimen/recyclerview_padding_text_vertical"
                 android:paddingBottom="@dimen/recyclerview_padding_text_vertical"
                 android:paddingStart="@dimen/recyclerview_padding_text_horizontal"
@@ -35,9 +39,6 @@
                 android:layout_marginTop="@dimen/recyclerview_elements_top"
                 android:layout_marginLeft="@dimen/recyclerview_elements_sides"
                 android:layout_marginRight="@dimen/recyclerview_elements_sides"
-                android:text="Song 1.mp3"
-                android:textColor="@color/black"
-                android:background="@color/verylightgray"
                 app:layout_constraintBottom_toTopOf="@id/textViewFilePercent"
                 />
 
@@ -64,6 +65,7 @@
 
             <TextView
                 android:id="@+id/textViewFilePercent"
+                android:text="...xx%..."
                 android:layout_width="0dp"
                 android:layout_height="20dp"
                 android:layout_marginTop="@dimen/recyclerview_elements_bottom"
@@ -72,15 +74,15 @@
                 app:layout_constraintTop_toBottomOf="@id/textViewFileName"
                 app:layout_constraintRight_toRightOf="@id/guideline"
                 android:layout_marginRight="20dp"
-                android:text="...xx%..." />
+                />
 
             <TextView
                 android:id="@+id/textViewDuration"
                 android:layout_width="0dp"
                 android:layout_height="20dp"
                 android:layout_marginTop="@dimen/recyclerview_elements_bottom"
-                android:layout_marginLeft="20dp"
-                android:layout_marginRight="@dimen/recyclerview_elements_sides"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="@dimen/recyclerview_elements_sides"
                 android:textColor="@color/black"
                 app:layout_constraintTop_toBottomOf="@id/textViewFileName"
                 app:layout_constraintLeft_toLeftOf="parent"
@@ -88,22 +90,24 @@
 
             <TextView
                 android:id="@+id/textViewFileLastAccess"
+                android:text="..."
+                style="@style/lastAccess"
                 android:textAlignment="textEnd"
+                android:textColor="@color/black"
+                android:background="@color/verylightgray"
+                android:paddingTop= "@dimen/recyclerview_padding_text_horizontal"
+                android:paddingBottom= "@dimen/recyclerview_padding_text_horizontal"
+                android:paddingStart="@dimen/recyclerview_padding_text_vertical"
+                android:paddingEnd="@dimen/recyclerview_padding_text_vertical"
                 android:layout_width="0dp"
                 android:layout_height="20dp"
                 android:layout_marginTop="@dimen/recyclerview_elements_bottom"
                 android:layout_marginLeft="@dimen/recyclerview_elements_sides"
                 android:layout_marginRight="@dimen/recyclerview_elements_sides"
-                android:paddingTop= "@dimen/recyclerview_padding_text_horizontal"
-                android:paddingBottom= "@dimen/recyclerview_padding_text_horizontal"
-                android:paddingStart="@dimen/recyclerview_padding_text_vertical"
-                android:paddingEnd="@dimen/recyclerview_padding_text_vertical"
-                android:textColor="@color/black"
-                android:background="@color/verylightgray"
                 app:layout_constraintTop_toBottomOf="@id/textViewFileName"
                 app:layout_constraintLeft_toLeftOf="@+id/guideline"
                 app:layout_constraintRight_toRightOf="parent"
-                android:text="..."/>
+                />
 
 
 
