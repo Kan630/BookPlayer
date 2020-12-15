@@ -424,23 +424,23 @@ public class AudioService extends Service {
                 if (ke != null && ke.getAction() == KeyEvent.ACTION_DOWN) {
                     switch (ke.getKeyCode()) {
                         case KeyEvent.KEYCODE_MEDIA_PLAY:
-                            myLog("onMediaButtonEvent --- Play pressed ---");
+                            myLog("onMediaButtonEvent --- Play pressed --- KEYCODE");
                             playPauseAudio();
                             break;
                         case KeyEvent.KEYCODE_MEDIA_PAUSE:
-                            myLog("onMediaButtonEvent --- Pause pressed ---");
+                            myLog("onMediaButtonEvent --- Pause pressed --- KEYCODE");
                             playPauseAudio();
                             break;
                         case KeyEvent.KEYCODE_HEADSETHOOK:
-                            myLog("onMediaButtonEvent --- PlayPause pressed ---");
+                            myLog("onMediaButtonEvent --- PlayPause pressed --- KEYCODE");
                             playPauseAudio();
                             break;
                         case KeyEvent.KEYCODE_MEDIA_NEXT:
-                            myLog("onMediaButtonEvent --- Next pressed ---");
+                            myLog("onMediaButtonEvent --- Next pressed --- KEYCODE");
                             forwardAudio();
                             break;
                         case KeyEvent.KEYCODE_MEDIA_PREVIOUS:
-                            myLog("onMediaButtonEvent --- Previous pressed ---");
+                            myLog("onMediaButtonEvent --- Previous pressed --- KEYCODE");
                             backwardAudio();
                             break;
 

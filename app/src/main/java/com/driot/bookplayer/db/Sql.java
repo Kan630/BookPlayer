@@ -33,10 +33,10 @@ public class Sql {
         SimpleSQLiteQuery query = new SimpleSQLiteQuery(strSQL);
 
         Observable.fromCallable(() -> DatabaseClient
-                    .getInstance(c)
-                    .getAppDatabase()
-                    .FolderDao()
-                    .runRawSql(query))
+                .getInstance(c)
+                .getAppDatabase()
+                .FolderDao()
+                .runRawSql(query))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(result -> {
@@ -45,6 +45,7 @@ public class Sql {
                     myLogE("calculateFolderProgress error :" + throwable.getMessage());
                     throwable.printStackTrace();
                 });
+
     }
 
 }
