@@ -55,8 +55,8 @@ public class AudioService extends Service {
     public static final String NOTIFICATION_ZIP_FILE_LOADED = "NOTIFICATION_ZIP_FILE_LOADED";
     public static final String NOTIFICATION_PLAYBACK_MAXTIMEREACH = "NOTIFICATION_PLAYBACK_MAXTIMEREACH";
 
-    private static final int FORWARD_TIME = 5000;
-    private static final int BACKWARD_TIME = 5000;
+    private static final int FORWARD_TIME = 10000;
+    private static final int BACKWARD_TIME = 10000;
 
     private MediaPlayer mediaPlayer;
     private AudioManager mAudioManager;
