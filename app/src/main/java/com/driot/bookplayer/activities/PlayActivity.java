@@ -46,6 +46,7 @@ import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_AUDIOFOCUS_LO
 import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_ERROR;
 import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_FILELOADED;
 import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_NEWTRACK;
+import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_PLAYLISTFINISHED;
 import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_TRACKFINISHED;
 import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_ZIP_FILE_LOADED;
 import static com.driot.bookplayer.utils.Tonio.FormatNameForDisplay;
@@ -126,6 +127,11 @@ public class PlayActivity extends LifecycleLoggingActivity {
                 case NOTIFICATION_TRACKFINISHED:
                     myLog("broadcast received TRACK FINISHED");
                     updateZikFileState(mService.getLastZikFile(), true);
+                    break;
+                case NOTIFICATION_PLAYLISTFINISHED:
+                    myLog("broadcast received PLAYLIST FINISHED");
+                    updateZikFileState(mService.getLastZikFile(), true);
+                    finish();
                     break;
                 case NOTIFICATION_AUDIOFOCUS_LOST:
                     myLog("broadcast received AUDIO FOCUS LOST");
@@ -275,6 +281,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
         registerReceiver(receiver, new IntentFilter(NOTIFICATION_FILELOADED));
         registerReceiver(receiver, new IntentFilter(NOTIFICATION_ERROR));
         registerReceiver(receiver, new IntentFilter(NOTIFICATION_ZIP_FILE_LOADED));
+        registerReceiver(receiver, new IntentFilter(NOTIFICATION_PLAYLISTFINISHED));
 
         autoUpdate = new Timer();
         autoUpdate.schedule(new TimerTask() {

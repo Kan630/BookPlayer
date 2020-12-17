@@ -53,6 +53,7 @@ public class AudioService extends Service {
     public static final String NOTIFICATION_AUDIOFOCUS_LOST = "NOTIFICATION_AUDIOFOCUS_LOST";
     public static final String NOTIFICATION_AUDIOFOCUS_GAIN = "NOTIFICATION_AUDIOFOCUS_GAIN";
     public static final String NOTIFICATION_ZIP_FILE_LOADED = "NOTIFICATION_ZIP_FILE_LOADED";
+    public static final String NOTIFICATION_PLAYLISTFINISHED = "NOTIFICATION_PLAYLISTFINISHED";
     public static final String NOTIFICATION_PLAYBACK_MAXTIMEREACH = "NOTIFICATION_PLAYBACK_MAXTIMEREACH";
 
     private static final int FORWARD_TIME = 10000;
@@ -90,10 +91,16 @@ public class AudioService extends Service {
 
         mediaPlayer.setOnCompletionListener(mediaPlayer -> {
             if (!ErrorLoadingFile) {
-                myLog("mediaPlayer.OnErrorListener - nextTrack");
-                alertTrackFinished();
-                fileHasBeenLoaded=false;
-                nextTrack();
+                if (numSong+1 == zikFilePlayList.length) {
+                    myLog("mediaPlayer.OnCompletionListener - End Of Playlist");
+                    alertTrackFinished();
+                    alertPlaylistFinished();
+                } else {
+                    myLog("mediaPlayer.OnCompletionListener - nextTrack");
+                    alertTrackFinished();
+                    fileHasBeenLoaded=false;
+                    nextTrack();
+                }
             }
         });
 
@@ -110,11 +117,12 @@ public class AudioService extends Service {
         numSong++;
         mediaPlayer.reset();
 
+        myLog("loading next track : n°" + (numSong + 1) + "/" + zikFilePlayList.length );
+
         // petit bip
         ToneGenerator toneGen1 = new ToneGenerator(AudioManager.STREAM_MUSIC, 100);
         toneGen1.startTone(ToneGenerator.TONE_CDMA_PIP,150);
 
-        myLog("loading next track");
         loadZeFile();
         mediaPlayer.start();
         alertNewTrack();
@@ -139,6 +147,13 @@ public class AudioService extends Service {
         sendBroadcast(intent);
         myLog("sendBroadcast alertTrackFinished");
     }
+
+    private void alertPlaylistFinished() {
+        Intent intent = new Intent(NOTIFICATION_PLAYLISTFINISHED);
+        sendBroadcast(intent);
+        myLog("sendBroadcast alertPlaylistFinished");
+    }
+
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -343,7 +358,7 @@ public class AudioService extends Service {
     }
 
     public void setPosition(int position) {
-        myLog("setPosition-seekTo(" + position + ")");
+        //myLog("setPosition-seekTo(" + position + ")");
         mediaPlayer.seekTo(position);
     }
 
