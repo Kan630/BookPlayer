@@ -93,6 +93,11 @@ public class AudioService extends Service {
             if (!ErrorLoadingFile) {
                 if (numSong+1 == zikFilePlayList.length) {
                     myLog("mediaPlayer.OnCompletionListener - End Of Playlist");
+
+                    // 3 bips
+                    ToneGenerator toneGen1 = new ToneGenerator(AudioManager.STREAM_MUSIC, 100);
+                    toneGen1.startTone(ToneGenerator.TONE_CDMA_PIP,500);
+
                     alertTrackFinished();
                     alertPlaylistFinished();
                 } else {
@@ -116,8 +121,8 @@ public class AudioService extends Service {
     void nextTrack() {
         numSong++;
         mediaPlayer.reset();
-
-        myLog("loading next track : n°" + (numSong + 1) + "/" + zikFilePlayList.length );
+        int curNum = numSong + 1;
+        myLog("loading next track : n°" + curNum + "/" + zikFilePlayList.length );
 
         // petit bip
         ToneGenerator toneGen1 = new ToneGenerator(AudioManager.STREAM_MUSIC, 100);
