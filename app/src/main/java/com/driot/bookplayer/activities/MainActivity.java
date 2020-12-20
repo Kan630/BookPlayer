@@ -3,7 +3,10 @@ package com.driot.bookplayer.activities;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toolbar;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -12,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.R;
+import com.driot.tonylib.KanLogger;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.play.core.appupdate.AppUpdateInfo;
 import com.google.android.play.core.appupdate.AppUpdateManager;
@@ -28,6 +32,9 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
+import static com.driot.tonylib.KanLogger.myLog;
+import static com.driot.tonylib.KanLogger.myLogE;
+
 public class MainActivity extends LifecycleLoggingActivity {
 
     private RecyclerView recyclerView;
@@ -37,7 +44,6 @@ public class MainActivity extends LifecycleLoggingActivity {
     public static final int UPDATE_APP_REQUEST_CODE = 6354;
 
     private boolean HasBeenProposedToOpenFile;
-
 
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
@@ -57,12 +63,19 @@ public class MainActivity extends LifecycleLoggingActivity {
         setContentView(R.layout.activity_main);
 
         checkForUpdate();
+        KanLogger.setContext(getApplicationContext());
+        KanLogger.myLog("");
+        KanLogger.myLog("============================================> Let's go");
+        KanLogger.myLog("");
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setActionBar(toolbar);
 
         recyclerView = findViewById(R.id.recyclerview_folders);
         FloatingActionButton btn_Add = findViewById(R.id.FAB_Add);
         progressOverlay = findViewById(R.id.progress_overlay);
 
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        if (recyclerView != null) recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         btn_Add.setOnClickListener(view -> performFileSearch());
 
@@ -76,7 +89,29 @@ public class MainActivity extends LifecycleLoggingActivity {
         myLog("recyclerview drawing through setAdapter on restart");
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int itemId = item.getItemId();
+        if (itemId == R.id.menu_options) {
+            startActivity(new Intent(getApplicationContext(),OptionActivity.class));
+        } else if (itemId == R.id.menu_manual) {
+            startActivity(new Intent(getApplicationContext(),HelpActivity.class));
+        } else if (itemId == R.id.menu_otherapp) {
+            startActivity(new Intent(getApplicationContext(),AutresApplisActivity.class));
+        } else {
+            myLogE("menu click : action inconnue");
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     private void getFolders() {
+        myLog("getFolders()");
         Observable.fromCallable(() -> {
             List<Folder> folders = DatabaseClient
                     .getInstance(getApplicationContext())

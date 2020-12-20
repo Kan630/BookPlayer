@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        >
+
+        <TextView
+            style="@style/myStyleTextTitle2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="50sp"
+            android:layout_marginTop="50sp"
+            android:text="@string/option_timeBeforeSleep"
+            />
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginStart="50sp"
+            android:layout_marginTop="20sp"
+            >
+            <TextView
+                style="@style/myStyleTextExplainButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/option_timeBeforeSleep_text"
+                android:layout_marginStart="50sp"
+                android:textSize="24sp"
+                />
+            <EditText
+                style="@style/myStyleTextExplainButton"
+                android:layout_width="70sp"
+                android:layout_height="wrap_content"
+                android:id="@+id/etTimeBeforeSleep"
+                android:inputType="number"
+                android:textAlignment="textEnd"
+                android:paddingStart="4sp"
+                android:paddingEnd="4sp"
+                android:textSize="24sp"
+                />
+            <TextView
+                style="@style/myStyleTextExplainButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/option_timeBeforeSleep_min"
+                android:textSize="24sp"
+                />
+
+        </LinearLayout>
+        <TextView
+            style="@style/myStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="textEnd"
+            android:text="Min = 10"
+            android:textSize="12sp"
+            />
+        <TextView
+            style="@style/myStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="textEnd"
+            android:text="Max = 1440"
+            android:textSize="12sp"
+            />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

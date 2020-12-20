@@ -17,6 +17,9 @@ import androidx.core.content.ContextCompat;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.utils.PermissionRequest;
 
+import static com.driot.tonylib.KanLogger.myLog;
+import static com.driot.tonylib.KanLogger.myLogE;
+
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 08/11/20
  */

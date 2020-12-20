@@ -3,18 +3,25 @@ plugins {
 }
 
 android {
+    /*
     signingConfigs {
         release {
+            storeFile file('/home/tony/TAF/APPS/BookPlayer ressources/keystore/bbb.jks')
+            storePassword '****'
+            keyAlias 'key0'
+            keyPassword '****'
         }
     }
+
+     */
     compileSdkVersion 30
 
     defaultConfig {
         applicationId "com.driot.bookplayer"
         minSdkVersion 23
         targetSdkVersion 30
-        versionCode 15
-        versionName "15"
+        versionCode 16
+        versionName "16"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         signingConfig signingConfigs.debug
@@ -39,6 +46,8 @@ android {
             proguardFiles getDefaultProguardFile(
                     'proguard-android-optimize.txt'),
                     'proguard-rules.pro'
+            //signingConfig signingConfigs.release
+            //debuggable true
         }
     }
     compileOptions {

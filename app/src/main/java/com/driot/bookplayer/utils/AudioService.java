@@ -3,6 +3,7 @@ package com.driot.bookplayer.utils;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.ToneGenerator;
@@ -14,31 +15,42 @@ import android.view.KeyEvent;
 
 import androidx.annotation.Nullable;
 
+import com.driot.bookplayer.db.DatabaseClient;
+import com.driot.bookplayer.db.Sql;
 import com.driot.bookplayer.db.ZikFile;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.Date;
+import java.sql.Time;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.zip.ZipFile;
 
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
+
+import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_TIME_BEFORE_SLEEP;
+import static com.driot.bookplayer.activities.OptionActivity.SHARED_PREFERENCE_TIME_BEFORE_SLEEP;
+import static com.driot.bookplayer.utils.Tonio.FormatPercentDouble;
 import static com.driot.bookplayer.utils.Tonio.fileExists;
 import static com.driot.bookplayer.utils.Tonio.getExtension;
 import static com.driot.bookplayer.utils.Utils.copyStream;
+import static com.driot.tonylib.KanLogger.myLog;
+import static com.driot.tonylib.KanLogger.myLogE;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 01/11/20
  */
 public class AudioService extends Service {
 
-/*
     private Timer timer;
     private int tempsEcoule = 0;
     public static final int DELAY_MAXPLAYBACK = 1000*60*60; //1h
     public static final int DELAY_CHECK_TIMER = 1000*5;
-*/
 
     static final String TAG = "MusicService";
     private static final boolean LOG_TRACE = true;
@@ -56,13 +68,14 @@ public class AudioService extends Service {
     public static final String NOTIFICATION_PLAYLISTFINISHED = "NOTIFICATION_PLAYLISTFINISHED";
     public static final String NOTIFICATION_PLAYBACK_MAXTIMEREACH = "NOTIFICATION_PLAYBACK_MAXTIMEREACH";
 
-    private static final int FORWARD_TIME = 10000;
-    private static final int BACKWARD_TIME = 10000;
+    private static final int FORWARD_TIME = 5*1000;
+    private static final int BACKWARD_TIME = 5*1000;
 
     private MediaPlayer mediaPlayer;
     private AudioManager mAudioManager;
     private AudioManager.OnAudioFocusChangeListener afChangeListener;
     private MediaSession mediaSession;
+    private int maxTimeBeforeSleep;
 
 
     private boolean fileHasBeenLoaded = false;
@@ -88,22 +101,24 @@ public class AudioService extends Service {
         mediaPlayer = new MediaPlayer();
         mediaSession = new MediaSession(this, "MyMediaSession");
         configureMediaSession();
+        setMaxTimeBeforeSleep();
 
         mediaPlayer.setOnCompletionListener(mediaPlayer -> {
             if (!ErrorLoadingFile) {
+                updateZikFileState(true);
+                alertTrackFinished();
+                fileHasBeenLoaded=false;
+
                 if (numSong+1 == zikFilePlayList.length) {
-                    myLog("mediaPlayer.OnCompletionListener - End Of Playlist");
+                    myLog("mediaPlayer.OnCompletionListener  => calling PlayListFinish");
 
                     // 3 bips
                     ToneGenerator toneGen1 = new ToneGenerator(AudioManager.STREAM_MUSIC, 100);
                     toneGen1.startTone(ToneGenerator.TONE_CDMA_PIP,500);
 
-                    alertTrackFinished();
                     alertPlaylistFinished();
                 } else {
-                    myLog("mediaPlayer.OnCompletionListener - nextTrack");
-                    alertTrackFinished();
-                    fileHasBeenLoaded=false;
+                    myLog("mediaPlayer.OnCompletionListener => calling nextTrack");
                     nextTrack();
                 }
             }
@@ -173,7 +188,7 @@ public class AudioService extends Service {
         mediaPlayer = null;
         if (mAudioManager != null) { mAudioManager.abandonAudioFocus(afChangeListener); }
         if (tempFile != null && tempFile.exists()) { tempFile.delete();tempFile=null;}
-        //this.timer.cancel();
+        if (timer != null) this.timer.cancel();
     }
 
     @Nullable
@@ -306,7 +321,7 @@ public class AudioService extends Service {
             mAudioManager.requestAudioFocus(afChangeListener, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
 
             mediaPlayer.start();
-            //StartTimer();
+            startTimer();
        }
     }
 
@@ -314,7 +329,9 @@ public class AudioService extends Service {
         myLog("pauseAudio()");
         if (mediaPlayer != null && mediaPlayer.isPlaying()) {
             mediaPlayer.pause();
+            updateZikFileState(false);
             if (mAudioManager != null) { mAudioManager.abandonAudioFocus(afChangeListener); }
+            killTimer();
         }
     }
 
@@ -325,7 +342,6 @@ public class AudioService extends Service {
             playAudio();
         }
     }
-
 
     public void forwardAudio() {
         myLog("forwardAudio()");
@@ -393,12 +409,6 @@ public class AudioService extends Service {
         }
     }
 
-    public int getAudioSessionId() {
-        int id = 0;
-        try { id = mediaPlayer.getAudioSessionId(); } catch (Exception e) { e.printStackTrace(); }
-        return id;
-    }
-
     public ZikFile getCurrentZikFile() {
         if (fileHasBeenLoaded) {
             if (LOG_TRACE_ALL) myLog( "getCurrentZikFile() : " + zikFilePlayList[numSong].getName());
@@ -421,15 +431,6 @@ public class AudioService extends Service {
             return null;
         }
     }
-
-    public boolean hasBeenLoaded() {
-        if (fileHasBeenLoaded) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
 
     private void configureMediaSession() {
         myLog("configureMediaSession()");
@@ -474,30 +475,91 @@ public class AudioService extends Service {
     }
 
 
-/*
-    private void StartTimer() {
+    private void startTimer() {
         timer = new Timer();
         tempsEcoule = 0;
         timer.scheduleAtFixedRate(new TimerTask() {
             public void run() {
                 tempsEcoule = tempsEcoule + DELAY_CHECK_TIMER/1000;
                 myLog( "AudioService started since " + tempsEcoule + " seconds");
-                if (tempsEcoule>DELAY_MAXPLAYBACK) {
+                updateZikFileState(false);
+                
+                if (tempsEcoule > maxTimeBeforeSleep*60) {
                     myLog( "Max Playback Time Reached -- Stopping Service");
+
+                    ToneGenerator toneGen2 = new ToneGenerator(AudioManager.STREAM_MUSIC, 50);
+                    toneGen2.startTone(ToneGenerator.TONE_DTMF_0,1000);
+
                     Intent intent = new Intent(NOTIFICATION_PLAYBACK_MAXTIMEREACH);
                     sendBroadcast(intent);
-                    timer.cancel();
+                    killTimer();
                     mediaPlayer.stop();
                     stopSelf();
+
                 }
             }
         }, 0,DELAY_CHECK_TIMER);
     }
- */
 
-
-    private void myLog(String str) {
-        if (LOG_TRACE) { Log.d("toto " + TAG + " ",str); }
+    private void killTimer() {
+        timer.cancel();
+        timer.purge();
+        timer = null;
     }
+
+    /********************************************************************************
+     ***       UPDATE DB
+     ********************************************************************************
+     */
+    private void updateZikFileState(boolean bFinished) {
+        myLog("---------- ZikFile update start");
+        ZikFile zf = getCurrentZikFile();
+        try {
+            if (zf.getFirstaccess() == null) {
+                zf.setFirstaccess(new Date(System.currentTimeMillis()));
+            }
+            final Time sLastAccessTime = new Time(System.currentTimeMillis());
+            final Date sLastAccess = new Date(System.currentTimeMillis());
+            zf.setLastaccess(sLastAccess);
+            zf.setLastaccessTime(sLastAccessTime);
+            if (bFinished) {
+                zf.setPosition(zf.getDuration());
+                zf.setPercentdone(100);
+                zf.setFinished(true);
+            } else {
+                //zf.setPosition(getPosition());
+                zf.setPercentdone(FormatPercentDouble((double) getPosition() / getDuration()));
+                //if (zf.getDuration() == 0) zf.setDuration(getDuration());
+            }
+
+            Observable.fromCallable(() -> {
+                DatabaseClient
+                        .getInstance(getApplicationContext())
+                        .getAppDatabase()
+                        .ZikFileDao()
+                        .update(zf);
+                return false;
+            })
+                    .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(result -> {
+                        myLog("---------- zikFile updated (" + zf.getName() + ")- position : " + zf.getPosition());
+                        Sql.calculateFolderProgress(getApplicationContext(), zf.getIdFolder());
+                    }, throwable -> {
+                        myLogE("error sql updating zikFile :" + throwable.getMessage());
+                    });
+
+        } catch (Exception e) {
+            myLog("==== ERROR ==== Updating File progress ");
+        }
+
+
+    }
+
+
+    private void setMaxTimeBeforeSleep() {
+        SharedPreferences prefs = this.getSharedPreferences(SHARED_PREFERENCE_TIME_BEFORE_SLEEP, MODE_PRIVATE);
+        maxTimeBeforeSleep = prefs.getInt("TIME_BEFORE_SLEEP", DEFAULT_TIME_BEFORE_SLEEP);
+    }
+
 
 }

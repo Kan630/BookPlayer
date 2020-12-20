@@ -13,6 +13,29 @@
 
 
     <!-- ********************************** -->
+    <!-- HELP Screen -->
+
+    <string name="help">Help</string>
+    <string name="help_folder">Folder :</string>
+    <string name="help_folder_text">"a long click on a folder opens the 'modify folder' page."</string>
+    <string name="help_file">Track :</string>
+    <string name="help_file_text">"a long click on a file opens a dialog to reset progress of this audio and the following ones\n=>Useful if you fell asleep !"</string>
+    <string name="help_import">Import :</string>
+    <string name="help_import_text">"Zip file are always a bit slower, to import, to load, to play"</string>
+    <string name="help_import_text2">"If you have trouble importing your audio\nTry tp unzip them if zipped\nTry to move them out of 'Download' folder if they are in"</string>
+
+
+    <!-- ********************************** -->
+    <!-- Options Screen -->
+
+    <string name="option_timeBeforeSleep">Automatic Pause</string>
+    <string name="option_timeBeforeSleep_text">after :</string>
+    <string name="option_timeBeforeSleep_min">min.</string>
+    <string name="option_timeBeforeSleep_outOfBound">Argg : automatic pause duration out of bounds, reset back to default</string>
+
+
+
+    <!-- ********************************** -->
     <!-- Get Resources -->
 
     <string name="bOpenFolder">Open Folder</string>
@@ -87,5 +110,26 @@
     <string name="pause">||</string>
     <string name="tvSpeed">playback speed</string>
     <string name="PlayActivity_ErrorOpeningTrack_FileNotFound">"ERROR OPENING TRACK - FILE NOT FOUND !"</string>
+    <string name="error_reading_track">"ERROR READING TRACK !"</string>
+
+    <!-- ********************************** -->
+    <!-- Menus -->
+
+    <string name="menu_three_dot">Menu</string>
+    <string name="menu_manual">manual</string>
+    <string name="menu_options">options</string>
+    <string name="menu_otherapp">other apps</string>
+    <string name="menu_send">tell developper</string>
+
+    <!-- ********************************** -->
+    <!-- OTHER APPS -->
+
+    <string name="otherApp_title">My other apps :-)</string>
+    <string name="otherApp_droitpositif">Droit Positif</string>
+    <string name="otherApp_deces">Dead Frogs</string>
+    <string name="otherApp_droitpositif_txt">Major French law texts, available even offline</string>
+    <string name="otherApp_deces_txt">Every death of French citizens since 1970</string>
+
+
 
 </resources>

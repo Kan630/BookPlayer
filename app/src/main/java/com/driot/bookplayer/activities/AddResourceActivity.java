@@ -24,6 +24,8 @@ import static com.driot.bookplayer.utils.AddResourceService.NOTIFICATION_ADDRESO
 import static com.driot.bookplayer.utils.AddResourceService.NOTIFICATION_ADDRESOURCE_END;
 import static com.driot.bookplayer.utils.Tonio.getFileNameFromPath;
 import static com.driot.bookplayer.utils.Tonio.FormatNameForDisplay;
+import static com.driot.tonylib.KanLogger.myLog;
+import static com.driot.tonylib.KanLogger.myLogE;
 
 
 /**

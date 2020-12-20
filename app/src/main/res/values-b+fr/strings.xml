@@ -13,6 +13,27 @@
 
 
     <!-- ********************************** -->
+    <!-- HELP Screen -->
+
+    <string name="help">Aide</string>
+    <string name="help_folder">Dossier :</string>
+    <string name="help_folder_text">"un click long sur un dossier permet d'ouvrir le menu du dossier"</string>
+    <string name="help_file">Piste :</string>
+    <string name="help_file_text">"un click long sur une piste audio permet de réinitialiser la progression pour cet audio et ceux qui suivent\nUtile par example si vous vous êtes endormi !"</string>
+    <string name="help_import">Import :</string>
+    <string name="help_import_text">"Les audios Zip sont toujours un peu plus long à importer, à charger, à jouer."</string>
+    <string name="help_import_text2">"Si vous rencontrez des problèmes pour importer vos audios:\n- Essayez de les décompresser si ils sont 'zippés'.\n- Essayez de les déplacer si ils sont dans le répertoire 'téléchargement'"</string>
+
+    <!-- ********************************** -->
+    <!-- Options Screen -->
+
+    <string name="option_timeBeforeSleep">Pause Automatique</string>
+    <string name="option_timeBeforeSleep_text">après :</string>
+    <string name="option_timeBeforeSleep_min">min.</string>
+    <string name="option_timeBeforeSleep_outOfBound">Argg : La pause automatique a été définie hors de sa plage autorisée, elle sera réinitialisée à sa valeur par défaut</string>
+
+
+    <!-- ********************************** -->
     <!-- Get Resources -->
 
     <string name="bOpenFolder">Ouvrir un dossier</string>
@@ -89,5 +110,25 @@
     <string name="pause">||</string>
     <string name="tvSpeed">Vitesse de lecture</string>
     <string name="PlayActivity_ErrorOpeningTrack_FileNotFound">"ERREUR PISTE AUDIO - Fichier non trouvé !"</string>
+    <string name="error_reading_track">"ERREUR A LA LECTURE DE LA PISTE AUDIO !"</string>
+
+    <!-- ********************************** -->
+    <!-- Menus -->
+
+    <string name="menu_three_dot">Menu</string>
+    <string name="menu_manual">"mode d'emploi"</string>
+    <string name="menu_options">options</string>
+    <string name="menu_otherapp">autres apps</string>
+    <string name="menu_send">mail au developpeur</string>
+
+    <!-- ********************************** -->
+    <!-- OTHER APPS -->
+
+    <string name="otherApp_title">Mes autres apps :-)</string>
+    <string name="otherApp_droitpositif">Droit Positif</string>
+    <string name="otherApp_droitpositif_txt">Les textes de droits majeurs même sans internet</string>
+    <string name="otherApp_deces">Décès</string>
+    <string name="otherApp_deces_txt">tous les citoyens français décédés depuis 1970</string>
+
 
 </resources>

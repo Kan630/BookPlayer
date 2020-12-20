@@ -18,13 +18,12 @@ package com.driot.bookplayer.activities;
  */
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+
+import static com.driot.tonylib.KanLogger.myLog;
 
 
 /**
@@ -40,7 +39,7 @@ public abstract class LifecycleLoggingActivity
     //------------------------------------------------------------------------
     //------------------------------------------------------------------------
 
-    protected final String TAG = "toto " + getClass().getSimpleName();
+    protected final String TAG = getClass().getSimpleName();
     //String TAG = this.getClass().getName().substring(this.getClass().getName().lastIndexOf(".")+1);
 
     /**
@@ -62,12 +61,12 @@ public abstract class LifecycleLoggingActivity
             // The activity is being re-created. Use the
             // savedInstanceState bundle for initializations either
             // during onCreate or onRestoreInstanceState().
-            myLog("onCreate(): activity re-created");
+            if (LOG_TRACE) myLog(TAG, "onCreate(): activity re-created");
 
         } else {
             // Activity is being created anew. No prior saved
             // instance state information available in Bundle object.
-            myLog("onCreate(): activity created anew");
+            if (LOG_TRACE) myLog(TAG, "onCreate(): activity created anew");
         }
 
     }
@@ -83,7 +82,7 @@ public abstract class LifecycleLoggingActivity
         // Always call super class for necessary
         // initialization/implementation.
         super.onStart();
-        myLog("onStart() - the activity is about to become visible");
+        if (LOG_TRACE) myLog(TAG, "onStart() - the activity is about to become visible");
     }
 
     /**
@@ -100,7 +99,7 @@ public abstract class LifecycleLoggingActivity
         // initialization/implementation and then log which lifecycle
         // hook method is being called.
         super.onResume();
-        myLog("onResume() - the activity has become visible (it is now \"resumed\")");
+        if (LOG_TRACE) myLog(TAG, "onResume() - the activity has become visible (it is now \"resumed\")");
     }
 
     /**
@@ -116,7 +115,7 @@ public abstract class LifecycleLoggingActivity
         // initialization/implementation and then log which lifecycle
         // hook method is being called.
         super.onPause();
-        myLog("onPause() - another activity is taking focus (this activity is about to be \"paused\")");
+        if (LOG_TRACE) myLog(TAG, "onPause() - another activity is taking focus (this activity is about to be \"paused\")");
     }
 
     /**
@@ -130,7 +129,7 @@ public abstract class LifecycleLoggingActivity
         // initialization/implementation and then log which lifecycle
         // hook method is being called.
         super.onStop();
-        myLog("onStop() - the activity is no longer visible (it is now \"stopped\")");
+        if (LOG_TRACE) myLog(TAG, "onStop() - the activity is no longer visible (it is now \"stopped\")");
     }
 
     /**
@@ -143,7 +142,7 @@ public abstract class LifecycleLoggingActivity
         // initialization/implementation and then log which lifecycle
         // hook method is being called.
         super.onRestart();
-        myLog("onRestart() - the activity is about to be restarted()");
+        if (LOG_TRACE) myLog(TAG, "onRestart() - the activity is about to be restarted()");
     }
 
     /**
@@ -157,7 +156,7 @@ public abstract class LifecycleLoggingActivity
         // initialization/implementation and then log which lifecycle
         // hook method is being called.
         super.onDestroy();
-        myLog("onDestroy() - the activity is about to be destroyed");
+        if (LOG_TRACE) myLog(TAG, "onDestroy() - the activity is about to be destroyed");
     }
 
     // Ajouts Tonio
@@ -165,48 +164,25 @@ public abstract class LifecycleLoggingActivity
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        myLog("onSaveInstanceState()");
+        if (LOG_TRACE) myLog(TAG, "onSaveInstanceState()");
     }
 
     @Override
     protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        myLog("onRestoreInstanceState()");
+        if (LOG_TRACE) myLog(TAG, "onRestoreInstanceState()");
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        myLog("onActivityResult() - request code " + requestCode);
+        if (LOG_TRACE) myLog(TAG, "onActivityResult() - request code " + requestCode);
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        myLog("onNewIntent() + intent : " + intent.getAction());
+        if (LOG_TRACE) myLog(TAG, "onNewIntent() + intent : " + intent.getAction());
     }
 
-    protected void myToast(Context c, String str) {
-        Toast.makeText(c, str, Toast.LENGTH_SHORT).show();
-        myLog(str);
-    }
-
-    protected void myLog(String str) {
-        if (LOG_TRACE) {
-            Log.d(TAG,str);
-            System.out.println(str);
-        }
-    }
-
-    protected void myToastE(Context c, String str) {
-        Toast.makeText(c, str, Toast.LENGTH_SHORT).show();
-        myLogE(str);
-    }
-
-    protected void myLogE(String str) {
-        if (LOG_TRACE) {
-            Log.e(TAG,str);
-            System.out.println(str);
-        }
-    }
 }

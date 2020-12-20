@@ -22,8 +22,11 @@
         <activity android:name=".activities.GetResourceActivity" />
         <activity android:name=".activities.FolderModifyActivity" />
         <activity android:name=".activities.AddResourceActivity" />
-        <service android:name=".utils.AudioService" />
-        <service android:name=".utils.AddResourceService" />
+        <activity android:name=".activities.HelpActivity" />
+        <activity android:name=".activities.OptionActivity" />
+        <activity android:name=".activities.AutresApplisActivity" />
+        <service android:name=".utils.AudioService" android:stopWithTask="true"/>
+        <service android:name=".utils.AddResourceService" android:stopWithTask="true"/>
     </application>
 
 </manifest>

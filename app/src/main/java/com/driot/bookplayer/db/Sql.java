@@ -8,8 +8,8 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
-import static com.driot.tonylib.TonioCommonStuff.myLog;
-import static com.driot.tonylib.TonioCommonStuff.myLogE;
+import static com.driot.tonylib.KanLogger.myLog;
+import static com.driot.tonylib.KanLogger.myLogE;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 10/12/20

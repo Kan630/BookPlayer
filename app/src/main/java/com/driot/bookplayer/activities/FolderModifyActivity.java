@@ -16,6 +16,8 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
+import static com.driot.tonylib.KanLogger.myToast;
+
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 15/11/20
  */
@@ -147,15 +149,5 @@ public class FolderModifyActivity extends LifecycleLoggingActivity {
                 });
     }
 
-
-
-
-
-
-
-    private void myToast(String str) {
-        myLog(str);
-        Toast.makeText(getApplicationContext(), str, Toast.LENGTH_SHORT).show();
-    }
 
 }

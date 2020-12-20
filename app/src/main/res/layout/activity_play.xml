@@ -48,21 +48,24 @@
         android:text="@string/rewind"
         android:layout_weight="1"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="60sp"
+        android:textSize="18sp"
         />
     <Button
         android:id="@+id/buttonPlay"
         android:text="@string/play"
         android:layout_weight="1"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="60sp"
+        android:textSize="18sp"
         />
     <Button
         android:id="@+id/buttonForward"
         android:text="@string/forward"
         android:layout_weight="1"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="60sp"
+        android:textSize="18sp"
         />
     </LinearLayout>
 

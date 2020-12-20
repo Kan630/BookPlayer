@@ -3,6 +3,17 @@ plugins {
 }
 
 android {
+    /*
+    signingConfigs {
+        release {
+            storeFile file('/home/tony/TAF/APPS/BookPlayer ressources/keystore/bbb.jks')
+            storePassword '***'
+            keyAlias 'key0'
+            keyPassword '***'
+        }
+    }
+
+     */
     compileSdkVersion 30
 
     defaultConfig {
@@ -23,6 +34,8 @@ android {
             proguardFiles getDefaultProguardFile(
                     'proguard-android-optimize.txt'),
                     'proguard-rules.pro'
+            //signingConfig signingConfigs.release
+            //debuggable true
         }
     }
     compileOptions {
