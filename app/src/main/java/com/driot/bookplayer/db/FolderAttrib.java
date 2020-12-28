@@ -87,11 +87,15 @@ public class FolderAttrib {
         }
 
         if (isZipFolder) {
-            if (!f.isFile())  FolderKO = true;
-            myLog("====== Is not File");
+            if (!f.isFile())  {
+                FolderKO = true;
+                myLog("====== Is not File");
+            }
         } else {
-            if (!f.isDirectory())  FolderKO = true;
-            myLog("====== Is not Folder");
+            if (!f.isDirectory()) {
+                FolderKO = true;
+                myLog("====== Is not Folder");
+            }
         }
 
         if (!fromDownloadFolder) {

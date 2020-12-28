@@ -64,6 +64,8 @@
     <string name="Error_Import_BetterTryNoDownloadFolder">Try to move the audio resource in another location (not in Download Folder) </string>
     <string name="Import_nMediaInFolder">medias have been found in this folder</string>
     <string name="Error_Import_ParsingZipFile">Error parsing zip file</string>
+    <string name="Error_Import_ParsingZipFile2">Sorry, Cannot read zip file</string>
+    <string name="Error_Import_ParsingZipFile_advice">You could first unzip the audio book and then load the folder</string>
     <string name="Error_Getting_Ressource_Name_from_Download_Folder">Error while accessing resource in Downloads location</string>
     <string name="Add_resource_reading_file">reading file</string>
 

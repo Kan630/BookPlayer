@@ -133,7 +133,7 @@ public class AddResourceService extends Service {
 
                 if (myFolder.isFolderKO()) {
                     String error = getString(R.string.Error_Import_ZipFilePathKO);
-                    if (myFolder.isLocatedInDownloadFolder())  error += "/n" + getString(R.string.Error_Import_BetterTryNoDownloadFolder);
+                    if (myFolder.isLocatedInDownloadFolder())  error += "\n" + getString(R.string.Error_Import_BetterTryNoDownloadFolder);
                     tellError(error);
                 } else {
                     boolean OnContinue = true;
@@ -155,24 +155,31 @@ public class AddResourceService extends Service {
                         ArrayList<String> zipFileListing;
                         zipFileListing = new ArrayList<String>();
 
-                        for (Enumeration e = zipFile.entries(); e.hasMoreElements(); ) {
-                            ZipEntry entry = (ZipEntry) e.nextElement();
-                            if (!entry.isDirectory()) {
-                                String zeName = entry.getName();
-                                zipFileListing.add(zeName);
-                            }
-                        }
-
-                        if (zipFileListing.size() != 0) {
-                            // filter audio file
-                            for (String s : zipFileListing) {
-                                if (getMimeType(s).equals("audio/mpeg")) {
-                                    myLog(s);
-                                    audioFileArrayList.add(s); //this adds an element to the list.
+                        try {
+                            for (Enumeration e = zipFile.entries(); e.hasMoreElements(); ) {
+                                ZipEntry entry = (ZipEntry) e.nextElement();
+                                if (!entry.isDirectory()) {
+                                    String zeName = entry.getName();
+                                    zipFileListing.add(zeName);
                                 }
                             }
+                            if (zipFileListing.size() != 0) {
+                                // filter audio file
+                                for (String s : zipFileListing) {
+                                    if (getMimeType(s).equals("audio/mpeg")) {
+                                        myLog(s);
+                                        audioFileArrayList.add(s); //this adds an element to the list.
+                                    }
+                                }
+                            }
+
+                            ResourceSelected = true;
+
+                        } catch (Exception e) {
+                            tellError(getString(R.string.Error_Import_ParsingZipFile2) + "\n" + getString(R.string.Error_Import_ParsingZipFile_advice));
+                            e.printStackTrace();
                         }
-                        ResourceSelected = true;
+
                     }
                 }
             default:
