@@ -25,6 +25,7 @@ import java.io.InputStream;
 import java.sql.Date;
 import java.sql.Time;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -172,6 +173,7 @@ public class AddResourceService extends Service {
                                     }
                                 }
                             }
+                            Collections.sort(audioFileArrayList);
 
                             ResourceSelected = true;
 
