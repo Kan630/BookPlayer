@@ -54,8 +54,6 @@ public class AddResourceService extends Service {
     public static final String NOTIFICATION_ADDRESOURCE_ERROR = "NOTIFICATION_ADDRESOURCE_ERROR";
     public static final String NOTIFICATION_ADDRESOURCE_END = "NOTIFICATION_ADDRESOURCE_END";
 
-    private boolean ResourceSelected;
-    private DocumentFile pickedDir;
     private FolderAttrib myFolder;
     private ZipFile zipFile;
     private ArrayList<String> audioFileArrayList;
@@ -78,14 +76,14 @@ public class AddResourceService extends Service {
 
     public void init(Uri uri, String type) {
         myLog("init()");
-        ResourceSelected = false;
+        boolean resourceSelected = false;
         switch (type) {
             ///---------------------------------------------
             /// FOLDER
             ///---------------------------------------------
             case "Folder":
 
-                pickedDir = DocumentFile.fromTreeUri(this, uri);
+                DocumentFile pickedDir = DocumentFile.fromTreeUri(this, uri);
 
                 // Si c'est pas un dossier, on prend le dossier parent...
                 if (!pickedDir.isDirectory()) {
@@ -118,7 +116,7 @@ public class AddResourceService extends Service {
                                 }
                             }
                         }
-                        ResourceSelected = true;
+                        resourceSelected = true;
                     }
                 } else {
                     tellError(getString(R.string.Error_Import_IsNotFolder));
@@ -175,7 +173,7 @@ public class AddResourceService extends Service {
                             }
                             Collections.sort(audioFileArrayList);
 
-                            ResourceSelected = true;
+                            resourceSelected = true;
 
                         } catch (Exception e) {
                             tellError(getString(R.string.Error_Import_ParsingZipFile2) + "\n" + getString(R.string.Error_Import_ParsingZipFile_advice));
@@ -189,7 +187,7 @@ public class AddResourceService extends Service {
                 //tellEnd("ko");
         }
 
-        if (ResourceSelected) go1();
+        if (resourceSelected) go1();
     }
 
 
@@ -285,7 +283,6 @@ public class AddResourceService extends Service {
                     for (String s : audioFileArrayList) {
                         i++;
                         progress = (int) i * 100 / audioFileArrayList.size();
-                        txtProgress = progress + "% - reading file n°" + i + "/" + audioFileArrayList.size() + "\n" + getFileNameFromPath(s);
                         txtProgress = progress + "% - " + getString(R.string.Add_resource_reading_file) + " n°" + i + "/" + audioFileArrayList.size() + "\n" + getFileNameFromPath(s);
                         myLog("Call save " + s);
                         saveFile(s, InsertedFolderId[0], progress, txtProgress);
@@ -359,7 +356,7 @@ public class AddResourceService extends Service {
                                     updateFolderDuration();
                                 }
                             } else {
-                                tellError("ca chie");
+                                tellError("error saving ZikFile in DB");
                             }
                         }, throwable -> {
                             tellError("Saving File " + sZikFileName + " : " + throwable.getMessage());
@@ -427,7 +424,7 @@ public class AddResourceService extends Service {
                 mediaMetadataRetriever.setDataSource(zePath);
                 duration = Long.parseLong(mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
             } else {
-                tellError("error getting duration of media, file not exist in path : " + zePath);
+                tellError("error getting duration of media, file does not exist in path : " + zePath);
             }
         }
         return duration;
