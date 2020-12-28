@@ -366,9 +366,14 @@ public class AudioService extends Service {
 
 
     public void setSpeed(double speed) {
-        this.speed = speed;
-        mediaPlayer.setPlaybackParams(mediaPlayer.getPlaybackParams().setSpeed((float) speed));
-        myLog("setSpeed(" + speed + ")");
+        try {
+            this.speed = speed;
+            mediaPlayer.setPlaybackParams(mediaPlayer.getPlaybackParams().setSpeed((float) speed));
+            myLog("setSpeed(" + speed + ")");
+        } catch (Exception e) {
+            myLogE("Error setting Speed");
+            e.printStackTrace();
+        }
     }
 
     public double getSpeed() {
