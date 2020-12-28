@@ -502,9 +502,14 @@ public class AudioService extends Service {
     }
 
     private void killTimer() {
-        timer.cancel();
-        timer.purge();
-        timer = null;
+        try {
+            timer.cancel();
+            timer.purge();
+            timer = null;
+        } catch (Exception e) {
+            myLogE("killTimer, nothing to kill ?");
+            e.printStackTrace();
+        }
     }
 
     /********************************************************************************
