@@ -122,6 +122,7 @@
     <string name="menu_options">options</string>
     <string name="menu_otherapp">autres apps</string>
     <string name="menu_send">mail au developpeur</string>
+    <string name="menu_seeLog">Voir le Log</string>
 
     <!-- ********************************** -->
     <!-- OTHER APPS -->
@@ -130,7 +131,14 @@
     <string name="otherApp_droitpositif">Droit Positif</string>
     <string name="otherApp_droitpositif_txt">Les textes de droits majeurs même sans internet</string>
     <string name="otherApp_deces">Décès</string>
-    <string name="otherApp_deces_txt">tous les citoyens français décédés depuis 1970</string>
+    <string name="otherApp_deces_txt">Personnes décédées en France depuis les années 70</string>
+
+    <!-- Action Bar -->
+
+    <string name="action_tailleCharPlus">Taille caractères +</string>
+    <string name="action_tailleCharMoins">Taille caractères -</string>
+    <string name="action_search">Recherche</string>
+    <string name="action_debutTexte">Début du texte</string>
 
 
 </resources>

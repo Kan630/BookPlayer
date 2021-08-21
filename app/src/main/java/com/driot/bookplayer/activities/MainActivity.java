@@ -32,6 +32,8 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
+import static com.driot.bookplayer.utils.Tonio2.loadBiggerText;
+import static com.driot.bookplayer.utils.Tonio2.writeToFile;
 import static com.driot.tonylib.KanLogger.myLog;
 import static com.driot.tonylib.KanLogger.myLogE;
 
@@ -104,6 +106,12 @@ public class MainActivity extends LifecycleLoggingActivity {
             startActivity(new Intent(getApplicationContext(),HelpActivity.class));
         } else if (itemId == R.id.menu_otherapp) {
             startActivity(new Intent(getApplicationContext(),AutresApplisActivity.class));
+        } else if (itemId == R.id.menu_seelog) {
+            startActivity(new Intent(getApplicationContext(),LogListActivity.class));
+            startActivity(new Intent(this,LogListActivity.class));
+            //loadBiggerText(this, "test_log.txt", "Log");
+            //loadBiggerText(this, "classic", "loggg.txt", "Log");
+            //loadBiggerText(this, "classic", "kanlog_2021-07-21.txt", "Log");
         } else {
             myLogE("menu click : action inconnue");
         }

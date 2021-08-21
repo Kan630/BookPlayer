@@ -41,6 +41,7 @@ import static com.driot.bookplayer.utils.Tonio.getExtension;
 import static com.driot.bookplayer.utils.Utils.copyStream;
 import static com.driot.tonylib.KanLogger.myLog;
 import static com.driot.tonylib.KanLogger.myLogE;
+import static com.driot.tonylib.KanLogger.myLogInFile;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 01/11/20
@@ -134,6 +135,7 @@ public class AudioService extends Service {
     }
 
     void nextTrack() {
+        myLogInFile("AudioService : Next track");
         numSong++;
         mediaPlayer.reset();
         int curNum = numSong + 1;
@@ -304,13 +306,13 @@ public class AudioService extends Service {
             mAudioManager = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
             afChangeListener = focusChange -> {
                 if(focusChange<=0) {
-                    myLog("Audio Focus Lost");
+                    myLogInFile("AudioService : Audio Focus Lost");
                     AudioService.this.pauseAudio();
                     mediaSession.setActive(false);
                     Intent intent = new Intent(NOTIFICATION_AUDIOFOCUS_LOST);
                     sendBroadcast(intent);
                 } else {
-                    myLog("Audio Focus Gain");
+                    myLogInFile("AudioService : Audio Focus Gain");
                     AudioService.this.playAudio();
                     mediaSession.setActive(true);
                     Intent intent = new Intent(NOTIFICATION_AUDIOFOCUS_GAIN);
@@ -490,7 +492,7 @@ public class AudioService extends Service {
                 updateZikFileState(false);
                 
                 if (tempsEcoule > maxTimeBeforeSleep*60) {
-                    myLog( "Max Playback Time Reached -- Stopping Service");
+                    myLog( "AudioService : Max Playback Time Reached -- Stopping Service");
 
                     ToneGenerator toneGen2 = new ToneGenerator(AudioManager.STREAM_MUSIC, 50);
                     toneGen2.startTone(ToneGenerator.TONE_DTMF_0,1000);
@@ -507,13 +509,15 @@ public class AudioService extends Service {
     }
 
     private void killTimer() {
-        try {
-            timer.cancel();
-            timer.purge();
-            timer = null;
-        } catch (Exception e) {
-            myLogE("killTimer, nothing to kill ?");
-            e.printStackTrace();
+        if (!(timer == null)) {
+            try {
+                timer.cancel();
+                timer.purge();
+                timer = null;
+            } catch (Exception e) {
+                myLogE("killTimer, nothing to kill ?");
+                e.printStackTrace();
+            }
         }
     }
 

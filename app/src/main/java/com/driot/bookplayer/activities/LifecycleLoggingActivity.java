@@ -61,12 +61,12 @@ public abstract class LifecycleLoggingActivity
             // The activity is being re-created. Use the
             // savedInstanceState bundle for initializations either
             // during onCreate or onRestoreInstanceState().
-            if (LOG_TRACE) myLog(TAG, "onCreate(): activity re-created");
+            if (LOG_TRACE) myLog(TAG + "onCreate(): activity re-created");
 
         } else {
             // Activity is being created anew. No prior saved
             // instance state information available in Bundle object.
-            if (LOG_TRACE) myLog(TAG, "onCreate(): activity created anew");
+            if (LOG_TRACE) myLog(TAG + "onCreate(): activity created anew");
         }
 
     }
@@ -82,7 +82,7 @@ public abstract class LifecycleLoggingActivity
         // Always call super class for necessary
         // initialization/implementation.
         super.onStart();
-        if (LOG_TRACE) myLog(TAG, "onStart() - the activity is about to become visible");
+        if (LOG_TRACE) myLog(TAG + "onStart() - the activity is about to become visible");
     }
 
     /**
@@ -99,7 +99,7 @@ public abstract class LifecycleLoggingActivity
         // initialization/implementation and then log which lifecycle
         // hook method is being called.
         super.onResume();
-        if (LOG_TRACE) myLog(TAG, "onResume() - the activity has become visible (it is now \"resumed\")");
+        if (LOG_TRACE) myLog(TAG + "onResume() - the activity has become visible (it is now \"resumed\")");
     }
 
     /**
@@ -115,7 +115,7 @@ public abstract class LifecycleLoggingActivity
         // initialization/implementation and then log which lifecycle
         // hook method is being called.
         super.onPause();
-        if (LOG_TRACE) myLog(TAG, "onPause() - another activity is taking focus (this activity is about to be \"paused\")");
+        if (LOG_TRACE) myLog(TAG + "onPause() - another activity is taking focus (this activity is about to be \"paused\")");
     }
 
     /**
@@ -129,7 +129,7 @@ public abstract class LifecycleLoggingActivity
         // initialization/implementation and then log which lifecycle
         // hook method is being called.
         super.onStop();
-        if (LOG_TRACE) myLog(TAG, "onStop() - the activity is no longer visible (it is now \"stopped\")");
+        if (LOG_TRACE) myLog(TAG + "onStop() - the activity is no longer visible (it is now \"stopped\")");
     }
 
     /**
@@ -142,7 +142,7 @@ public abstract class LifecycleLoggingActivity
         // initialization/implementation and then log which lifecycle
         // hook method is being called.
         super.onRestart();
-        if (LOG_TRACE) myLog(TAG, "onRestart() - the activity is about to be restarted()");
+        if (LOG_TRACE) myLog(TAG + "onRestart() - the activity is about to be restarted()");
     }
 
     /**
@@ -156,7 +156,7 @@ public abstract class LifecycleLoggingActivity
         // initialization/implementation and then log which lifecycle
         // hook method is being called.
         super.onDestroy();
-        if (LOG_TRACE) myLog(TAG, "onDestroy() - the activity is about to be destroyed");
+        if (LOG_TRACE) myLog(TAG + "onDestroy() - the activity is about to be destroyed");
     }
 
     // Ajouts Tonio
@@ -164,25 +164,25 @@ public abstract class LifecycleLoggingActivity
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        if (LOG_TRACE) myLog(TAG, "onSaveInstanceState()");
+        if (LOG_TRACE) myLog(TAG + "onSaveInstanceState()");
     }
 
     @Override
     protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        if (LOG_TRACE) myLog(TAG, "onRestoreInstanceState()");
+        if (LOG_TRACE) myLog(TAG + "onRestoreInstanceState()");
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (LOG_TRACE) myLog(TAG, "onActivityResult() - request code " + requestCode);
+        if (LOG_TRACE) myLog(TAG + "onActivityResult() - request code " + requestCode);
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        if (LOG_TRACE) myLog(TAG, "onNewIntent() + intent : " + intent.getAction());
+        if (LOG_TRACE) myLog(TAG + "onNewIntent() + intent : " + intent.getAction());
     }
 
 }

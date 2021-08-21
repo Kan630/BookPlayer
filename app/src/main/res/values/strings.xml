@@ -122,6 +122,7 @@
     <string name="menu_options">options</string>
     <string name="menu_otherapp">other apps</string>
     <string name="menu_send">tell developper</string>
+    <string name="menu_seeLog">See Log</string>
 
     <!-- ********************************** -->
     <!-- OTHER APPS -->
@@ -130,8 +131,13 @@
     <string name="otherApp_droitpositif">Droit Positif</string>
     <string name="otherApp_deces">Dead Frogs</string>
     <string name="otherApp_droitpositif_txt">Major French law texts, available even offline</string>
-    <string name="otherApp_deces_txt">Every death of French citizens since 1970</string>
+    <string name="otherApp_deces_txt">People dead in France since the 70\'</string>
 
+    <!-- Action Bar -->
 
+    <string name="action_tailleCharPlus">Chars Size +</string>
+    <string name="action_tailleCharMoins">Chars Size -</string>
+    <string name="action_search">Search</string>
+    <string name="action_debutTexte">Goto Top</string>
 
 </resources>

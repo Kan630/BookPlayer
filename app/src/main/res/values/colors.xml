@@ -29,4 +29,13 @@
     <color name="seek_bar_thumb">#7aff24</color>
     <color name="play_sub_title">#7aff24</color>
 
+    <color name="color_Juri_CE">#33bb33</color>
+    <color name="color_Juri_Cass">#b73080</color>
+    <color name="color_Juri_CC">#b76aff</color>
+    <color name="color_Juri_CJUE">#1e88e5</color>
+    <color name="color_Juri_CEDH">#6ab7ff</color>
+    <color name="color_Juri_CIJ">#5B09BAA5</color>
+    <color name="color_Juri_TriCon">#bbaacc</color>
+    <color name="color_Juri_default">#bbbbbb</color>
+
 </resources>

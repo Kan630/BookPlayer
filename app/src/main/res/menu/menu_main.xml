@@ -21,4 +21,9 @@
         app:showAsAction="ifRoom"
         />
 
+    <item android:id="@+id/menu_seelog"
+        android:title="@string/menu_seeLog"
+        app:showAsAction="ifRoom"
+        />
+
 </menu>

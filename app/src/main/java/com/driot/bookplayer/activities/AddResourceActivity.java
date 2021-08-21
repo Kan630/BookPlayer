@@ -62,7 +62,7 @@ public class AddResourceActivity extends LifecycleLoggingActivity {
 
         intentAddResourceService = new Intent(AddResourceActivity.this, AddResourceService.class);
         startService(intentAddResourceService);
-        boundToService = bindService(intentAddResourceService, connection, Context.BIND_AUTO_CREATE);
+        boundToService = bindService(intentAddResourceService, connection, Context.BIND_AUTO_CREATE); //error Log : Activity XXX has leaked ServiceConnection
         myLog("call start & bind to Service in Activity.onCreate() - bound result :" + boundToService + "");
     }
 

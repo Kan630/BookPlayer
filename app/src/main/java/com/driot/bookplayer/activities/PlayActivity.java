@@ -60,6 +60,7 @@ import static com.driot.bookplayer.utils.Tonio.FormatTime;
 import static com.driot.bookplayer.utils.Utils.animateView;
 import static com.driot.tonylib.KanLogger.myLog;
 import static com.driot.tonylib.KanLogger.myLogE;
+import static com.driot.tonylib.KanLogger.myLogInFile;
 import static com.driot.tonylib.KanLogger.myToastE;
 
 public class PlayActivity extends LifecycleLoggingActivity {
@@ -208,6 +209,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 if (fromUser) {
+                    myLogInFile("Activity : SeekBar");
                     mService.setPosition(progress);
                     txSeekBar.setText(FormatTime(progress));
                 }
@@ -238,10 +240,10 @@ public class PlayActivity extends LifecycleLoggingActivity {
         if (mBound) {
             if (mService != null && mService.exist()) {
                 if (mService.isPlaying()) {
-                    myLog("pause call from UI");
+                    myLogInFile("Activity : pause");
                     mService.pauseAudio();
                 } else {
-                    myLog("play call from UI");
+                    myLogInFile("Activity : play");
                     mService.playAudio();
                 }
             }
@@ -250,18 +252,22 @@ public class PlayActivity extends LifecycleLoggingActivity {
 
     private void forwardMe() {
         mService.forwardAudio();
+        myLogInFile("Activity : Forward");
     }
 
     private void backwardMe() {
         mService.backwardAudio();
+        myLogInFile("Activity : Backward");
     }
 
     private void SpeedMeUp() {
         setSpeed(mService.getSpeed() + INCREMENT_SPEED);
+        myLogInFile("Activity : SpeedUp");
     }
 
     private void SpeedMeDown() {
         setSpeed(mService.getSpeed() - INCREMENT_SPEED);
+        myLogInFile("Activity : SpeedDown");
     }
 
     private void setSpeed(double speed) {
@@ -353,12 +359,12 @@ public class PlayActivity extends LifecycleLoggingActivity {
         if (mService != null && mService.exist()) {
             if (mService.isPlaying()) {
                 bPlay.setText(R.string.pause);
-                int iPosition = mService.getPosition();
-                txSeekBar.setText(FormatTime(iPosition));
-                seekbar.setProgress(iPosition);
             } else {
                 bPlay.setText(R.string.play);
             }
+            int iPosition = mService.getPosition();
+            txSeekBar.setText(FormatTime(iPosition));
+            seekbar.setProgress(iPosition);
         }
     }
 
