@@ -97,7 +97,7 @@ public class AudioService extends Service {
      */
     @Override
     public void onCreate() {
-        myLog("onCreate()");
+        myLogInFile("Audio Service : onCreate()");
         super.onCreate();
         mediaPlayer = new MediaPlayer();
         mediaSession = new MediaSession(this, "MyMediaSession");
@@ -179,12 +179,12 @@ public class AudioService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        myLog("onStartCommand()");
+        myLogInFile("Audio Service : onStartCommand()");
         return START_NOT_STICKY;
     }
     @Override
     public void onDestroy() {
-        myLog("onDestroy()");
+        myLogInFile("Audio Service : onDestroy()");
         if (mediaPlayer.isPlaying()) {mediaPlayer.stop();}
         mediaPlayer.release();
         mediaPlayer = null;
@@ -196,13 +196,13 @@ public class AudioService extends Service {
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        myLog("onBind()");
+        myLogInFile("Audio Service : onBind()");
         return binder;
     }
 
     @Override
     public boolean onUnbind(Intent intent) {
-        myLog("onUnBind()");
+        myLogInFile("Audio Service : onUnBind()");
         return super.onUnbind(intent);
     }
 
@@ -440,7 +440,7 @@ public class AudioService extends Service {
     }
 
     private void configureMediaSession() {
-        myLog("configureMediaSession()");
+        myLogInFile("Audio Service : configureMediaSession()");
 
         // Overridden methods in the MediaSession.Callback class.
         mediaSession.setCallback(new MediaSession.Callback() {
@@ -487,8 +487,7 @@ public class AudioService extends Service {
         tempsEcoule = 0;
         timer.scheduleAtFixedRate(new TimerTask() {
             public void run() {
-                tempsEcoule = tempsEcoule + DELAY_CHECK_TIMER/1000;
-                myLog( "AudioService started since " + tempsEcoule + " seconds");
+                myLogInFile("Audio Service : Timer, AudioService started since " + tempsEcoule + " seconds");
                 updateZikFileState(false);
                 
                 if (tempsEcoule > maxTimeBeforeSleep*60) {
@@ -504,6 +503,7 @@ public class AudioService extends Service {
                     stopSelf();
 
                 }
+                tempsEcoule = tempsEcoule + DELAY_CHECK_TIMER/1000;
             }
         }, 0,DELAY_CHECK_TIMER);
     }
@@ -526,7 +526,7 @@ public class AudioService extends Service {
      ********************************************************************************
      */
     private void updateZikFileState(boolean bFinished) {
-        myLog("---------- ZikFile update start");
+        myLogInFile("Audio Service : ---------- ZikFile update start");
         ZikFile zf = getCurrentZikFile();
         try {
             if (zf.getFirstaccess() == null) {
@@ -556,10 +556,10 @@ public class AudioService extends Service {
             })
                     .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
                     .subscribe(result -> {
-                        myLog("---------- zikFile updated (" + zf.getName() + ")- position : " + zf.getPosition());
+                        myLogInFile("Audio Service : ---------- zikFile updated (" + zf.getName() + ")- position : " + zf.getPosition());
                         Sql.calculateFolderProgress(getApplicationContext(), zf.getIdFolder());
                     }, throwable -> {
-                        myLogE("error sql updating zikFile :" + throwable.getMessage());
+                        myLogInFile("Audio Service : error sql updating zikFile :" + throwable.getMessage());
                     });
 
         } catch (Exception e) {

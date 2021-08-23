@@ -98,8 +98,10 @@ public class Tonio2 {
             String str;
             int i = 0;
             while ((str = reader.readLine()) != null) {
-                arrayList.add(new MyTextChunk(i, str, charSize));
-                i++;
+                //if (!(str.contains("redraw Seek Bar"))) { //TODO temp for log analysis
+                    arrayList.add(new MyTextChunk(i, str, charSize));
+                    i++;
+                //}
             }
             reader.close();
             return arrayList;

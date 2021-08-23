@@ -67,7 +67,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
 
     public static final String SHARED_PREFERENCE_SPEED="SHARED_PREFERENCE_SPEED";
     private static final boolean DO_PLAY_NEXT_SONG = true;
-    private static final int INTERVAL_REDRAW_SEEKBAR = 100;
+    private static final int INTERVAL_REDRAW_SEEKBAR = 500; //  because looks like it happens erraticly when choosing value of 100 for this constant
     private static final int DELAY_ANIMATION = 200;
     private static final float INCREMENT_SPEED = 0.05f;
     private static boolean isZipFile;
@@ -344,9 +344,9 @@ public class PlayActivity extends LifecycleLoggingActivity {
             seekbar.setProgress((int) zf.getPosition());
             txSpeed.setText(FormatPercentStringForSpeed(getSpeed() * 100));
             HideProgressAnim();
-            myLog("----------------------------- play screen drawn " + zf.getPosition());
+            myLogInFile("Play Activity : ----------------------------- play screen drawn " + zf.getPosition());
         } catch (Exception e) {
-            myLog("----------------------------- play screen drawn ERROR");
+            myLogInFile("Play Activity :----------------------------- play screen drawn ERROR");
         }
     }
 
@@ -366,6 +366,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
             txSeekBar.setText(FormatTime(iPosition));
             seekbar.setProgress(iPosition);
         }
+        myLogInFile("Play Activity :----------------------------- redraw Seek Bar");
     }
 
 
