@@ -62,6 +62,7 @@ import static com.driot.bookplayer.utils.Utils.animateView;
 import static com.driot.tonylib.KanLogger.myLog;
 import static com.driot.tonylib.KanLogger.myLogE;
 import static com.driot.tonylib.KanLogger.myLogInFile;
+import static com.driot.tonylib.KanLogger.myToast;
 import static com.driot.tonylib.KanLogger.myToastE;
 
 public class PlayActivity extends LifecycleLoggingActivity {
@@ -332,6 +333,15 @@ public class PlayActivity extends LifecycleLoggingActivity {
         unregisterReceiver(receiver);
         //stopService(intentMusicService);
         if (connection != null) { unbindService(connection); }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (mService.isPlaying()) {
+            //myToast(getResources().getString(R.string.no_back_while_play));
+            playMe();
+        }
+        super.onBackPressed();
     }
 
     /********************************************************************************

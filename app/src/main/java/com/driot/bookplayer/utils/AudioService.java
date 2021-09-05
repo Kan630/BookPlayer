@@ -154,7 +154,7 @@ public class AudioService extends Service {
         Intent intent = new Intent(NOTIFICATION_NEWTRACK);
         intent.putExtra(TRACKNUMBER, numSong);
         sendBroadcast(intent);
-        myLog("sendBroadcast alertNewTrack");
+        myLog("sendBroadcast alertNewTrack ");
     }
 
     private void alertError() {
@@ -167,7 +167,7 @@ public class AudioService extends Service {
     private void alertTrackFinished() {
         Intent intent = new Intent(NOTIFICATION_TRACKFINISHED);
         sendBroadcast(intent);
-        myLog("sendBroadcast alertTrackFinished ========================================================================");
+        myLog("-------------------------------------------------------------------------------- sendBroadcast alertTrackFinished --------------------------------------------------------------------------------");
     }
 
     private void alertPlaylistFinished() {
