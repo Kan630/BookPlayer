@@ -24,7 +24,7 @@ import static com.driot.tonylib.TonioCommonStuff.MD5;
 public class KanLogger {
 
     private static final String LOG_FILE_FOLDER = "log";
-    private static final String LOG_FILE_NAME = "kanlog2";
+    private static final String LOG_FILE_NAME = "kanlog3";
     private static final String USER_LOG_FILE_FOLDER = "log";
     private static final String USER_LOG_FILE_NAME = "kanlog";
     private static final boolean LOG_THEM_ALL = false;
@@ -44,11 +44,11 @@ public class KanLogger {
     }
 
     public static void myLogInFile(String str) {
-        writeToLogFile(str);
         myLog(str);
     }
 
     public static void myLog(String str) {
+        writeToLogFile(str);
         if (isMyPhoneDev()) {
             Log.d("toto", str);
         } else {

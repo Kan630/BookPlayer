@@ -296,7 +296,7 @@ public class AddResourceService extends Service {
                             if (f.getType().equals("audio/mpeg")) {
                                 i++;
                                 progress = (int) i * 100 / audioFileArrayList.size();
-                                txtProgress = progress + "% - saving file n°" + i + "/" + audioFileArrayList.size() + "\n" + f.getName();
+                                txtProgress = progress + "% - scanning file n°" + i + "/" + audioFileArrayList.size() + "\n" + f.getName();
                                 myLog("saving file " + f.getName());
                                 saveFile(f.getName(), InsertedFolderId[0], progress, txtProgress);
 

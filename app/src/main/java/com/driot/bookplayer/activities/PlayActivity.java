@@ -29,6 +29,7 @@ import androidx.sqlite.db.SimpleSQLiteQuery;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.DatabaseClient;
+import com.driot.bookplayer.db.PlayList;
 import com.driot.bookplayer.db.Sql;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.utils.AudioService;
@@ -83,6 +84,8 @@ public class PlayActivity extends LifecycleLoggingActivity {
     private boolean HasBeenInitializedService = false;
     private boolean HasBeenInitializedUI = false;
     private ZikFile zikFileFromIntent;
+    private ZikFile zikFileFromService;
+    private ZikFile zikFile;
     private Intent intentMusicService;
     private boolean ShitHappensFlee = false;
     private Timer autoUpdate;
@@ -196,7 +199,18 @@ public class PlayActivity extends LifecycleLoggingActivity {
         //ZikFile zikFile = getIntent().getParcelableExtra("zikFile");
 
         zikFileFromIntent = (ZikFile) getIntent().getSerializableExtra("ZikFile");
-        isZipFile = zikFileFromIntent.isIszipfile();
+        zikFileFromService = PlayList.currentZikFile;
+        if (!(zikFileFromService==null)) {
+            zikFile = zikFileFromService;
+            myLog("PlayActivity.onCreate -- ZikFile from service : " + zikFile.toString());
+        } else if (!(zikFileFromIntent==null)) {
+            zikFile = zikFileFromIntent;
+            myLog("PlayActivity.onCreate -- ZikFile from intent : " + zikFile.toString());
+        } else {
+            zikFile = null;
+            myLog("PlayActivity.onCreate -- ZikFile = null");
+        }
+        isZipFile = zikFile.isIszipfile();
         if (isZipFile) ShowProgressAnim();
 
         //setPlaybackState(0);
@@ -323,7 +337,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
                 .getInstance(getApplicationContext())
                 .getAppDatabase()
                 .ZikFileDao()
-                .getNextZikFiles(zikFileFromIntent.getIdFolder(), zikFileFromIntent.getName())).subscribeOn(Schedulers.io())
+                .getNextZikFiles(zikFile.getIdFolder(), zikFile.getName())).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe((result) -> mService.loadFiles(result), throwable -> {
                     myToastE("Error Loading playlist");
@@ -347,6 +361,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
             myLogInFile("Play Activity : ----------------------------- play screen drawn " + zf.getPosition());
         } catch (Exception e) {
             myLogInFile("Play Activity :----------------------------- play screen drawn ERROR");
+            myLogE(e.getMessage());
         }
     }
 
@@ -366,9 +381,8 @@ public class PlayActivity extends LifecycleLoggingActivity {
             txSeekBar.setText(FormatTime(iPosition));
             seekbar.setProgress(iPosition);
         }
-        myLogInFile("Play Activity :----------------------------- redraw Seek Bar");
+        //myLogInFile("Play Activity :----------------------------- redraw Seek Bar");
     }
-
 
     /********************************************************************************
      ***       DIVERS FONCTIONS
@@ -390,12 +404,12 @@ public class PlayActivity extends LifecycleLoggingActivity {
 
     private void saveSpeed(double speed) {
         SharedPreferences.Editor editor = this.getSharedPreferences(SHARED_PREFERENCE_SPEED, MODE_PRIVATE).edit();
-        editor.putString(String.valueOf(zikFileFromIntent.getIdFolder()),Double.toString(speed)).apply();
+        editor.putString(String.valueOf(zikFile.getIdFolder()),Double.toString(speed)).apply();
     }
 
     private double getSpeed() {
         SharedPreferences prefs = this.getSharedPreferences(SHARED_PREFERENCE_SPEED, MODE_PRIVATE);
-        return Double.parseDouble(prefs.getString(String.valueOf(zikFileFromIntent.getIdFolder()), "1.0"));
+        return Double.parseDouble(prefs.getString(String.valueOf(zikFile.getIdFolder()), "1.0"));
     }
 
 

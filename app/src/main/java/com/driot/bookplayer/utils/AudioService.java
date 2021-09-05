@@ -10,12 +10,12 @@ import android.media.ToneGenerator;
 import android.media.session.MediaSession;
 import android.os.Binder;
 import android.os.IBinder;
-import android.util.Log;
 import android.view.KeyEvent;
 
 import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.db.DatabaseClient;
+import com.driot.bookplayer.db.PlayList;
 import com.driot.bookplayer.db.Sql;
 import com.driot.bookplayer.db.ZikFile;
 
@@ -135,7 +135,7 @@ public class AudioService extends Service {
     }
 
     void nextTrack() {
-        myLogInFile("AudioService : Next track");
+        myLogInFile("Audio Service : Next track");
         numSong++;
         mediaPlayer.reset();
         int curNum = numSong + 1;
@@ -167,7 +167,7 @@ public class AudioService extends Service {
     private void alertTrackFinished() {
         Intent intent = new Intent(NOTIFICATION_TRACKFINISHED);
         sendBroadcast(intent);
-        myLog("sendBroadcast alertTrackFinished");
+        myLog("sendBroadcast alertTrackFinished ========================================================================");
     }
 
     private void alertPlaylistFinished() {
@@ -179,7 +179,7 @@ public class AudioService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        myLogInFile("Audio Service : onStartCommand()");
+        myLogInFile("Audio Service : onStartCommand()" + intent.toString());
         return START_NOT_STICKY;
     }
     @Override
@@ -231,18 +231,21 @@ public class AudioService extends Service {
     }
 
     private void loadZeFile() {
-        if (zikFilePlayList[numSong].isIszipfile()) {
-            loadFile(GetTempFilePathFromZipFile());
+        ZikFile zf = zikFilePlayList[numSong];
+        PlayList.currentZikFile = zf; //update global var
+
+        if (zf.isIszipfile()) {
+            loadFile(GetTempFilePathFromZipFile(zf));
         } else {
-            String mPath = zikFilePlayList[numSong].getPath() + "/" + zikFilePlayList[numSong].getName();
+            String mPath = zf.getPath() + "/" + zf.getName();
             loadFile(mPath);
         }
     }
 
-    private String GetTempFilePathFromZipFile() {
+    private String GetTempFilePathFromZipFile(ZikFile file) {
         String pathOfTempFile = "";
-        String zipFilePath = zikFilePlayList[numSong].getPath();
-        String fileName = zikFilePlayList[numSong].getName();
+        String zipFilePath = file.getPath();
+        String fileName = file.getName();
 
 
         try {
@@ -306,13 +309,13 @@ public class AudioService extends Service {
             mAudioManager = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
             afChangeListener = focusChange -> {
                 if(focusChange<=0) {
-                    myLogInFile("AudioService : Audio Focus Lost");
+                    myLogInFile("Audio Service : Audio Focus Lost");
                     AudioService.this.pauseAudio();
                     mediaSession.setActive(false);
                     Intent intent = new Intent(NOTIFICATION_AUDIOFOCUS_LOST);
                     sendBroadcast(intent);
                 } else {
-                    myLogInFile("AudioService : Audio Focus Gain");
+                    myLogInFile("Audio Service : Audio Focus Gain");
                     AudioService.this.playAudio();
                     mediaSession.setActive(true);
                     Intent intent = new Intent(NOTIFICATION_AUDIOFOCUS_GAIN);
@@ -418,14 +421,16 @@ public class AudioService extends Service {
 
     public ZikFile getCurrentZikFile() {
         if (fileHasBeenLoaded) {
-            if (LOG_TRACE_ALL) myLog( "getCurrentZikFile() : " + zikFilePlayList[numSong].getName());
-            return zikFilePlayList[numSong];
+            ZikFile zf = zikFilePlayList[numSong];
+            PlayList.currentZikFile = zf; //update global var
+            if (LOG_TRACE_ALL) myLog( "getCurrentZikFile() : " + zf.getName());
+            return zf;
         } else {
             myLog( "getCurrentZikFile() : ERROR file not loaded");
             return null;
         }
     }
-
+/*
     public ZikFile getLastZikFile() {
         myLog( "getLastZikFile()");
         if (fileHasBeenLoaded) {
@@ -438,7 +443,7 @@ public class AudioService extends Service {
             return null;
         }
     }
-
+*/
     private void configureMediaSession() {
         myLogInFile("Audio Service : configureMediaSession()");
 
@@ -487,11 +492,11 @@ public class AudioService extends Service {
         tempsEcoule = 0;
         timer.scheduleAtFixedRate(new TimerTask() {
             public void run() {
-                myLogInFile("Audio Service : Timer, AudioService started since " + tempsEcoule + " seconds");
+                myLogInFile("Audio Service ----------------------------------------------------------------------------- " + tempsEcoule + "s. since timer started " );
                 updateZikFileState(false);
                 
                 if (tempsEcoule > maxTimeBeforeSleep*60) {
-                    myLog( "AudioService : Max Playback Time Reached -- Stopping Service");
+                    myLog( "Audio Service : Max Playback Time Reached -- Stopping Service");
 
                     ToneGenerator toneGen2 = new ToneGenerator(AudioManager.STREAM_MUSIC, 50);
                     toneGen2.startTone(ToneGenerator.TONE_DTMF_0,1000);

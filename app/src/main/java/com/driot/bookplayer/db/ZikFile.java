@@ -180,4 +180,24 @@ public class ZikFile implements Serializable {
     public void setIszipfile(boolean iszipfile) {
         this.iszipfile = iszipfile;
     }
+
+    @Override
+    public String toString() {
+        return "ZikFile{" +
+                "id=" + id +
+                ", idFolder=" + idFolder +
+                ", name='" + name + '\'' +
+                ", path='" + path + '\'' +
+                ", folderName='" + folderName + '\'' +
+                ", position=" + position +
+                ", duration=" + duration +
+                ", size=" + size +
+                ", percentdone=" + percentdone +
+                ", firstaccess=" + firstaccess +
+                ", lastaccess=" + lastaccess +
+                ", lastaccessTime=" + lastaccessTime +
+                ", iszipfile=" + iszipfile +
+                ", finished=" + finished +
+                '}';
+    }
 }
