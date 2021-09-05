@@ -192,7 +192,13 @@ public class PlayActivity extends LifecycleLoggingActivity {
 
         intentMusicService = new Intent(PlayActivity.this, AudioService.class);
         startService(intentMusicService);
-        boundToService = bindService(intentMusicService, connection, Context.BIND_AUTO_CREATE);
+        boundToService=false;
+        try {
+            boundToService = bindService(intentMusicService, connection, Context.BIND_AUTO_CREATE);
+        } catch (Exception e) {
+            myLogE("ERROR bindService");
+            myLogE(e.getMessage());
+        }
         myLog("call start & bind to Service in Activity.onCreate() - bound result :" + boundToService + "");
 
         // TODO, use Parcelable
@@ -324,7 +330,8 @@ public class PlayActivity extends LifecycleLoggingActivity {
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(receiver);
-        stopService(intentMusicService);
+        //stopService(intentMusicService);
+        if (connection != null) { unbindService(connection); }
     }
 
     /********************************************************************************

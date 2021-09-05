@@ -451,29 +451,32 @@ public class AudioService extends Service {
         mediaSession.setCallback(new MediaSession.Callback() {
             @Override
             public boolean onMediaButtonEvent(Intent mediaButtonIntent) {
-                myLog("onMediaButtonEvent called: " + mediaButtonIntent);
                 KeyEvent ke = mediaButtonIntent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
                 myLog("onMediaButtonEvent Received command: " + ke);
                 if (ke != null && ke.getAction() == KeyEvent.ACTION_DOWN) {
                     switch (ke.getKeyCode()) {
                         case KeyEvent.KEYCODE_MEDIA_PLAY:
-                            myLog("onMediaButtonEvent --- Play pressed --- KEYCODE");
+                            myLog("onMediaButtonEvent --- Play pressed --- KEYCODE_MEDIA_PLAY");
                             playPauseAudio();
                             break;
                         case KeyEvent.KEYCODE_MEDIA_PAUSE:
-                            myLog("onMediaButtonEvent --- Pause pressed --- KEYCODE");
+                            myLog("onMediaButtonEvent --- Pause pressed --- KEYCODE_MEDIA_PAUSE");
+                            playPauseAudio();
+                            break;
+                        case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
+                            myLog("onMediaButtonEvent --- PlayPause pressed --- KEYCODE_MEDIA_PLAY_PAUSE");
                             playPauseAudio();
                             break;
                         case KeyEvent.KEYCODE_HEADSETHOOK:
-                            myLog("onMediaButtonEvent --- PlayPause pressed --- KEYCODE");
+                            myLog("onMediaButtonEvent --- PlayPause pressed --- KEYCODE_HEADSETHOOK");
                             playPauseAudio();
                             break;
                         case KeyEvent.KEYCODE_MEDIA_NEXT:
-                            myLog("onMediaButtonEvent --- Next pressed --- KEYCODE");
+                            myLog("onMediaButtonEvent --- Next pressed --- KEYCODE_MEDIA_NEXT");
                             forwardAudio();
                             break;
                         case KeyEvent.KEYCODE_MEDIA_PREVIOUS:
-                            myLog("onMediaButtonEvent --- Previous pressed --- KEYCODE");
+                            myLog("onMediaButtonEvent --- Previous pressed --- KEYCODE_MEDIA_PREVIOUS");
                             backwardAudio();
                             break;
 
