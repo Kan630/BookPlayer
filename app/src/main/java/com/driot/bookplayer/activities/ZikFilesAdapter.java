@@ -116,6 +116,7 @@ public class ZikFilesAdapter extends RecyclerView.Adapter<ZikFilesAdapter.ZikFil
             // check First that zikFile is proper zikFile and is playable
             if (zikFile.isIszipfile()) {
                 FileOkForPlay = true;
+                myLog("Adapater : zikFile is zip");
             } else {
                 // check file exists
                 String fullPath = zikFile.getPath() + "/" + zikFile.getName();
@@ -124,10 +125,10 @@ public class ZikFilesAdapter extends RecyclerView.Adapter<ZikFilesAdapter.ZikFil
             }
 
             if (FileOkForPlay) {
-                Intent intent = new Intent(mCtx, PlayActivity.class);
-                //TODO pass an object, check parcelable
-                intent.putExtra("ZikFile", zikFile);
                 PlayList.currentZikFile = zikFile; //global var
+                //TODO pass an object, check parcelable
+                Intent intent = new Intent(mCtx, PlayActivity.class);
+                intent.putExtra("ZikFile", zikFile);
                 mCtx.startActivity(intent);
             } else {
                 myLogE("Adapater : opening PlayActivity -- ERROR OPENING TRACK - FILE NOT FOUND !");

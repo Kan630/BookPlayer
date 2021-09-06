@@ -107,7 +107,9 @@ public class PlayActivity extends LifecycleLoggingActivity {
 
             // Get PlayList
             if (!HasBeenInitializedService) {
-                loadPlayListIntoService();
+                if (!(mService.isPlaying())) {
+                    loadPlayListIntoService();
+                }
             }
             HasBeenInitializedService = true;
 
@@ -367,6 +369,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
         try {
             myLog("Play Activity : DrawUI zf : " + zikFile.getName());
             myLog("Play Activity : DrawUI pl : " + PlayList.currentZikFile.getName());
+            zikFile = PlayList.currentZikFile;
             txSubTitle.setText(FormatNameForDisplay(zikFile.getName()));
             txTitle.setText(zikFile.getFolderName());
             txNomFichier.setText("");
