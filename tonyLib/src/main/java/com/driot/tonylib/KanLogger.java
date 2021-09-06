@@ -45,7 +45,9 @@ public class KanLogger {
     }
 
     public static void myLogInFile(String str) {
+        if (TextUtils.isEmpty(str)) {str = "...";}
         writeToLogFile(str);
+        myLog(str);
     }
 
     public static void myLog(String str) {

@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import static com.driot.bookplayer.utils.Tonio2.getTextFileContentInArrayList;
+import static com.driot.tonylib.KanLogger.myLog;
 import static com.driot.tonylib.KanLogger.myLogE;
 
 import com.driot.bookplayer.R;
@@ -109,6 +110,12 @@ public class BiggerTextActivity extends AppCompatActivity {
             }
         }
         super.onDestroy();
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        myLog("BiggerTextActivity back press");
     }
 
     /*

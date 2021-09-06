@@ -16,6 +16,7 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
+import static com.driot.tonylib.KanLogger.myLogInFile;
 import static com.driot.tonylib.KanLogger.myToast;
 
 /**
@@ -24,6 +25,7 @@ import static com.driot.tonylib.KanLogger.myToast;
 public class FolderModifyActivity extends LifecycleLoggingActivity {
 
     private int idFolder;
+    private String FolderName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,8 +40,9 @@ public class FolderModifyActivity extends LifecycleLoggingActivity {
         TextView tvRename = findViewById(R.id.tvRename);
 
         idFolder = getIntent().getIntExtra("FolderId", 0);
-        tvTitle.setText(getIntent().getStringExtra("FolderName"));
-        tvRename.setText(getIntent().getStringExtra("FolderName"));
+        FolderName = getIntent().getStringExtra("FolderName");
+        tvTitle.setText(FolderName);
+        tvRename.setText(FolderName);
 
         tvRename.setVisibility(View.INVISIBLE);
         bRenameOk.setVisibility(View.INVISIBLE);
@@ -87,6 +90,7 @@ public class FolderModifyActivity extends LifecycleLoggingActivity {
                 .subscribe((result) -> {
                     if (result) {
                         myToast(getString(R.string.Folder_Deleted));
+                        myLogInFile(getString(R.string.Folder_Deleted) + " : " + FolderName);
                         finish();
                     }
                 });
@@ -110,6 +114,7 @@ public class FolderModifyActivity extends LifecycleLoggingActivity {
                     .subscribe((result) -> {
                         if (result) {
                             myToast(getString(R.string.Folder_Renamed));
+                            myLogInFile(getString(R.string.Folder_Renamed) + " : " + FolderName);
                             finish();
                         }
                     });
@@ -143,6 +148,7 @@ public class FolderModifyActivity extends LifecycleLoggingActivity {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe((result) -> {
                     if (result) {
+                        myLogInFile(getString(R.string.Folder_Reset) + " : " + FolderName);
                         myToast(getString(R.string.Folder_Reset));
                         finish();
                     }

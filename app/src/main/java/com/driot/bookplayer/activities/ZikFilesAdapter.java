@@ -38,6 +38,7 @@ import static com.driot.bookplayer.utils.Tonio.FormatTime;
 import static com.driot.bookplayer.utils.Tonio.fileExists;
 import static com.driot.tonylib.KanLogger.myLog;
 import static com.driot.tonylib.KanLogger.myLogE;
+import static com.driot.tonylib.KanLogger.myLogInFile;
 import static com.driot.tonylib.KanLogger.myToast;
 import static com.driot.tonylib.KanLogger.myToastE;
 
@@ -169,6 +170,7 @@ public class ZikFilesAdapter extends RecyclerView.Adapter<ZikFilesAdapter.ZikFil
                 .subscribe((result) -> {
                     if (result) {
                         myToast(mCtx.getString(R.string.Progression_reset_done));
+                        myLogInFile(mCtx.getString(R.string.Progression_reset_done) + " beggining on " + zikFileName);
                         Sql.calculateFolderProgress(mCtx, idFolder);
                         reLoad(idFolder);
                     }

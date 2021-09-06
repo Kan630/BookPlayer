@@ -530,7 +530,7 @@ public class AudioService extends Service {
                 timer = null;
                 String str;
                 if (!(zikFilePlayList==null)) {
-                    str = getCurrentZikFile().getFolderName() + " : " + FormatTime((double)tempsEcoule) + "s.";
+                    str = getCurrentZikFile().getFolderName() + " : " + FormatTime(tempsEcoule*1000);
                 } else {
                     str = "ERROR zikFilePlayList==null";
                 }

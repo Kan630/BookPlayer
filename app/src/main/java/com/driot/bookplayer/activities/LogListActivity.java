@@ -14,6 +14,7 @@ import com.driot.bookplayer.utils.MyFileAdapter;
 import java.util.ArrayList;
 
 import static com.driot.bookplayer.utils.Tonio2.getFileInArrayList;
+import static com.driot.tonylib.KanLogger.myLog;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 02/12/20
@@ -53,10 +54,14 @@ public class LogListActivity extends AppCompatActivity {
 
     private void loadRecyclerView() {
         myItemArrayList = getFileInArrayList(this);
-        //recyclerView.setAdapter(new MyItemAdapter(this, myItemArrayList));
         recyclerView.setAdapter(new MyFileAdapter(this, myItemArrayList));
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        myLog("LogListActivity back press");
+    }
 /*
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

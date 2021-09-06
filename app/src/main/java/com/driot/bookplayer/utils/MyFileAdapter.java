@@ -66,7 +66,7 @@ public class MyFileAdapter extends RecyclerView.Adapter<MyFileAdapter.MyFileView
 
         @Override
         public void onClick(View view) {
-            myLog("onClick");
+            myLog("MyFileAdapter.onClick()");
             MyFile myFile = myFileArrayList.get(getAdapterPosition());
             loadBiggerText(mContext, "classic", myFile.getFileName(), "Log");
         }

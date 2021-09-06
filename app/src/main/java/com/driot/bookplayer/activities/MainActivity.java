@@ -107,11 +107,7 @@ public class MainActivity extends LifecycleLoggingActivity {
         } else if (itemId == R.id.menu_otherapp) {
             startActivity(new Intent(getApplicationContext(),AutresApplisActivity.class));
         } else if (itemId == R.id.menu_seelog) {
-            startActivity(new Intent(getApplicationContext(),LogListActivity.class));
             startActivity(new Intent(this,LogListActivity.class));
-            //loadBiggerText(this, "test_log.txt", "Log");
-            //loadBiggerText(this, "classic", "loggg.txt", "Log");
-            //loadBiggerText(this, "classic", "kanlog_2021-07-21.txt", "Log");
         } else {
             myLogE("menu click : action inconnue");
         }
