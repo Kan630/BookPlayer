@@ -158,7 +158,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
                 case NOTIFICATION_FILELOADED:
                     myLog("broadcast received FILE LOADED");
                     DrawUI();
-                    mService.setPosition((int) mService.getCurrentZikFile().getPosition());
+                    mService.setPosition((int) zikFile.getPosition());
                     HideProgressAnim();
                     break;
             }
@@ -349,7 +349,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
      ********************************************************************************
      */
     private void loadPlayListIntoService() {
-        myLog("+++++++++ loading PlayList Into Service - GetZikFiles");
+        myLog("+++++++++ loading PlayList Into Service - GetZikFiles - Folder : " + zikFile.getIdFolder());
         Observable.fromCallable(() -> DatabaseClient
                 .getInstance(getApplicationContext())
                 .getAppDatabase()
@@ -365,19 +365,20 @@ public class PlayActivity extends LifecycleLoggingActivity {
 
     private void DrawUI() {
         try {
-            ZikFile zf = mService.getCurrentZikFile();
-            txSubTitle.setText(FormatNameForDisplay(zf.getName()));
-            txTitle.setText(zf.getFolderName());
+            myLog("Play Activity : DrawUI zf : " + zikFile.getName());
+            myLog("Play Activity : DrawUI pl : " + PlayList.currentZikFile.getName());
+            txSubTitle.setText(FormatNameForDisplay(zikFile.getName()));
+            txTitle.setText(zikFile.getFolderName());
             txNomFichier.setText("");
-            txTempsTotal.setText(FormatTime(zf.getDuration()));
-            seekbar.setMax((int) zf.getDuration());
-            txSeekBar.setText(FormatTime(zf.getPosition()));
-            seekbar.setProgress((int) zf.getPosition());
+            txTempsTotal.setText(FormatTime(zikFile.getDuration()));
+            seekbar.setMax((int) zikFile.getDuration());
+            txSeekBar.setText(FormatTime(zikFile.getPosition()));
+            seekbar.setProgress((int) zikFile.getPosition());
             txSpeed.setText(FormatPercentStringForSpeed(getSpeed() * 100));
             HideProgressAnim();
-            myLogInFile("Play Activity : ----------------------------- play screen drawn " + zf.getPosition());
+            myLog("Play Activity : ----------------------------- play screen drawn " + zikFile.getPosition());
         } catch (Exception e) {
-            myLogInFile("Play Activity :----------------------------- play screen drawn ERROR");
+            myLog("Play Activity :----------------------------- play screen drawn ERROR");
             myLogE(e.getMessage());
         }
     }

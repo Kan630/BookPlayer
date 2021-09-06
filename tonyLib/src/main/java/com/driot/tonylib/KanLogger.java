@@ -2,6 +2,7 @@ package com.driot.tonylib;
 
 import android.content.Context;
 import android.os.Build;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -48,6 +49,7 @@ public class KanLogger {
     }
 
     public static void myLog(String str) {
+        if (TextUtils.isEmpty(str)) {str = "...";}
         writeToLogFile(str);
         if (isMyPhoneDev()) {
             Log.d("toto", str);
@@ -57,6 +59,7 @@ public class KanLogger {
     }
 
     public static void myLogE(String str) {
+        if (TextUtils.isEmpty(str)) {str = "...";}
         if (isMyPhoneDev()) {
             writeToLogFile("ERR: " + str);
             Log.e("toto", str);

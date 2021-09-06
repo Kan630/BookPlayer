@@ -79,7 +79,7 @@ public class AudioService extends Service {
     private int maxTimeBeforeSleep;
 
 
-    private boolean fileHasBeenLoaded = false;
+    //private boolean fileHasBeenLoaded = false;
     private int numSong = 0;
     private double speed;
 
@@ -108,7 +108,7 @@ public class AudioService extends Service {
             if (!ErrorLoadingFile) {
                 updateZikFileState(true);
                 alertTrackFinished();
-                fileHasBeenLoaded=false;
+                //fileHasBeenLoaded=false;
 
                 if (numSong+1 == zikFilePlayList.length) {
                     myLog("mediaPlayer.OnCompletionListener  => calling PlayListFinish");
@@ -220,7 +220,7 @@ public class AudioService extends Service {
 
 
     public void loadFiles(ZikFile[] zikFiles) {
-        myLog("loadFiles(array)");
+        myLog("loadFiles(array) - folder : " + zikFiles[0].getIdFolder());
         // sorte de constructeur
         numSong = 0;
         zikFilePlayList = zikFiles;
@@ -273,23 +273,27 @@ public class AudioService extends Service {
         ErrorLoadingFile = false; // for onCompletion Next Track...
         if (!fileExists(sPath)) {
             myLog("loadFile(sPath) : ERROR -- File doesn't exist !! " + sPath);
-            ErrorLoadingFile=false;
+            ErrorLoadingFile=true;
             return false;
         }
-        if (fileHasBeenLoaded) {
-            myLog("loadFile(sPath) : ERROR -- File was already loaded !! " + sPath);
-            return false;
-        }
+        //if (fileHasBeenLoaded) {
+        //    myLog("loadFile(sPath) : ERROR -- File was already loaded !! " + sPath);
+        //    return false;
+        //}
         myLog("loadFile(" + sPath + ")");
         try {
+            mediaPlayer.stop();
+            mediaPlayer.reset();
             mediaPlayer.setDataSource(sPath);
             mediaPlayer.prepare();
-            fileHasBeenLoaded = true;
+            //fileHasBeenLoaded = true;
             Intent intent = new Intent(NOTIFICATION_FILELOADED);
             sendBroadcast(intent);
         } catch (Exception e) {
-            myLog(" +++++***+++++ ERROR LOADING FILE +++++***+++++ (" + sPath + ")");
+            myLogE(e.getMessage());
+            myLogE(" +++++***+++++ ERROR LOADING FILE +++++***+++++ (" + sPath + ")");
             e.printStackTrace();
+            ErrorLoadingFile=true;
             return false;
         }
         return true;
@@ -419,14 +423,15 @@ public class AudioService extends Service {
         }
     }
 
-    public ZikFile getCurrentZikFile() {
-        if (fileHasBeenLoaded) {
+    private ZikFile getCurrentZikFile() {
+        if (!(zikFilePlayList==null)) {
+            //if (fileHasBeenLoaded) {
             ZikFile zf = zikFilePlayList[numSong];
             PlayList.currentZikFile = zf; //update global var
             if (LOG_TRACE_ALL) myLog( "getCurrentZikFile() : " + zf.getName());
             return zf;
         } else {
-            myLog( "getCurrentZikFile() : ERROR file not loaded");
+            myLog( "getCurrentZikFile() : ERROR empty playlist");
             return null;
         }
     }

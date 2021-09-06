@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.db.Folder;
+import com.driot.bookplayer.db.PlayList;
 import com.driot.bookplayer.db.Sql;
 import com.driot.bookplayer.db.ZikFile;
 
@@ -35,6 +36,10 @@ import static com.driot.bookplayer.utils.Tonio.FormatPercentForProgressBar;
 import static com.driot.bookplayer.utils.Tonio.FormatPercentString;
 import static com.driot.bookplayer.utils.Tonio.FormatTime;
 import static com.driot.bookplayer.utils.Tonio.fileExists;
+import static com.driot.tonylib.KanLogger.myLog;
+import static com.driot.tonylib.KanLogger.myLogE;
+import static com.driot.tonylib.KanLogger.myToast;
+import static com.driot.tonylib.KanLogger.myToastE;
 
 
 public class ZikFilesAdapter extends RecyclerView.Adapter<ZikFilesAdapter.ZikFilesViewHolder> {
@@ -105,6 +110,7 @@ public class ZikFilesAdapter extends RecyclerView.Adapter<ZikFilesAdapter.ZikFil
         @Override
         public void onClick(View view) {
             ZikFile zikFile = zikFileList.get(getAdapterPosition());
+            myLog("Adapater : onClick() : " + zikFile.getName());
 
             boolean FileOkForPlay = false;
             // check First that zikFile is proper zikFile and is playable
@@ -113,7 +119,7 @@ public class ZikFilesAdapter extends RecyclerView.Adapter<ZikFilesAdapter.ZikFil
             } else {
                 // check file exists
                 String fullPath = zikFile.getPath() + "/" + zikFile.getName();
-                myLog("full path zikFile to open PlayActivity : " + fullPath);
+                myLog("Adapater : full path zikFile to open PlayActivity : " + fullPath);
                 if (fileExists(fullPath)) FileOkForPlay = true;
             }
 
@@ -121,9 +127,10 @@ public class ZikFilesAdapter extends RecyclerView.Adapter<ZikFilesAdapter.ZikFil
                 Intent intent = new Intent(mCtx, PlayActivity.class);
                 //TODO pass an object, check parcelable
                 intent.putExtra("ZikFile", zikFile);
+                PlayList.currentZikFile = zikFile; //global var
                 mCtx.startActivity(intent);
             } else {
-                myLog("opening PlayActivity -- ERROR OPENING TRACK - FILE NOT FOUND !");
+                myLogE("Adapater : opening PlayActivity -- ERROR OPENING TRACK - FILE NOT FOUND !");
                 Toast.makeText(mCtx, mCtx.getString(R.string.PlayActivity_ErrorOpeningTrack_FileNotFound), Toast.LENGTH_SHORT).show();
             }
         }
@@ -165,8 +172,8 @@ public class ZikFilesAdapter extends RecyclerView.Adapter<ZikFilesAdapter.ZikFil
                         reLoad(idFolder);
                     }
                 }, throwable -> {
-                    myToastE("error deleting progress");
-                    myLogE("error deleteProgressFromThisZikFile :" + throwable.getMessage());
+                    myToastE("Adapater : error deleting progress");
+                    myLogE("Adapater : error deleteProgressFromThisZikFile :" + throwable.getMessage());
                     throwable.printStackTrace();
                 });
 
@@ -175,31 +182,5 @@ public class ZikFilesAdapter extends RecyclerView.Adapter<ZikFilesAdapter.ZikFil
     private void reLoad(int idFolder) {
         ((FolderContentActivity)mCtx).getZikFiles(idFolder);
     }
-
-    /**
-     * **************************************************************************************
-     * **************************************************************************************
-     */
-
-    private void myLog(String str) {
-        Log.d("toto -adapter ", str);
-        System.out.println(str);
-    }
-
-    private void myLogE(String str) {
-        Log.e("toto -adapter ", str);
-        System.out.println(str);
-    }
-
-    private void myToast(String str) {
-        myLog(str);
-        Toast.makeText(mCtx, str, Toast.LENGTH_SHORT).show();
-    }
-
-    private void myToastE(String str) {
-        myLogE(str);
-        Toast.makeText(mCtx, str, Toast.LENGTH_SHORT).show();
-    }
-
 
 }
