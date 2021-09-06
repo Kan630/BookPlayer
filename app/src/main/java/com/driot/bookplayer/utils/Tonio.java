@@ -18,12 +18,6 @@ import java.util.concurrent.TimeUnit;
  */
 public class Tonio {
 
-    private void myLog(String str) {
-        String TAG = this.getClass().getName().substring(this.getClass().getName().lastIndexOf(".")+1);
-        Log.d("titi " + TAG + " ",str);
-        System.out.println(str);
-    }
-
     public static String FormatTime(double doubleTime) {
         String s;
         long sec,min,hou;
@@ -45,6 +39,7 @@ public class Tonio {
         }
         return s;
     }
+
 
     public static String FormatPercentStringForSpeed(Double d) {
         String str = "";

@@ -232,7 +232,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 if (fromUser) {
-                    myLogInFile("Activity : SeekBar");
+                    myLog("Activity : SeekBar");
                     mService.setPosition(progress);
                     txSeekBar.setText(FormatTime(progress));
                 }
@@ -263,10 +263,10 @@ public class PlayActivity extends LifecycleLoggingActivity {
         if (mBound) {
             if (mService != null && mService.exist()) {
                 if (mService.isPlaying()) {
-                    myLogInFile("Activity : pause");
+                    myLog("Activity : pause");
                     mService.pauseAudio();
                 } else {
-                    myLogInFile("Activity : play");
+                    myLog("Activity : play");
                     mService.playAudio();
                 }
             }
@@ -275,22 +275,22 @@ public class PlayActivity extends LifecycleLoggingActivity {
 
     private void forwardMe() {
         mService.forwardAudio();
-        myLogInFile("Activity : Forward");
+        myLog("Activity : Forward");
     }
 
     private void backwardMe() {
         mService.backwardAudio();
-        myLogInFile("Activity : Backward");
+        myLog("Activity : Backward");
     }
 
     private void SpeedMeUp() {
         setSpeed(mService.getSpeed() + INCREMENT_SPEED);
-        myLogInFile("Activity : SpeedUp");
+        myLog("Activity : SpeedUp");
     }
 
     private void SpeedMeDown() {
         setSpeed(mService.getSpeed() - INCREMENT_SPEED);
-        myLogInFile("Activity : SpeedDown");
+        myLog("Activity : SpeedDown");
     }
 
     private void setSpeed(double speed) {
@@ -402,7 +402,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
             txSeekBar.setText(FormatTime(iPosition));
             seekbar.setProgress(iPosition);
         }
-        //myLogInFile("Play Activity :----------------------------- redraw Seek Bar");
+        //myLog("Play Activity :----------------------------- redraw Seek Bar");
     }
 
     /********************************************************************************

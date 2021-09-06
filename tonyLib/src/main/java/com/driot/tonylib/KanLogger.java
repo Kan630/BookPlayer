@@ -25,7 +25,7 @@ import static com.driot.tonylib.TonioCommonStuff.MD5;
 public class KanLogger {
 
     private static final String LOG_FILE_FOLDER = "log";
-    private static final String LOG_FILE_NAME = "kanlog3";
+    private static final String LOG_FILE_NAME = "kanlog4";
     private static final String USER_LOG_FILE_FOLDER = "log";
     private static final String USER_LOG_FILE_NAME = "kanlog";
     private static final boolean LOG_THEM_ALL = false;
@@ -45,12 +45,11 @@ public class KanLogger {
     }
 
     public static void myLogInFile(String str) {
-        myLog(str);
+        writeToLogFile(str);
     }
 
     public static void myLog(String str) {
         if (TextUtils.isEmpty(str)) {str = "...";}
-        writeToLogFile(str);
         if (isMyPhoneDev()) {
             Log.d("toto", str);
         } else {
@@ -112,7 +111,8 @@ public class KanLogger {
     {
         if (appContext != null) {
             String date = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
-            String time = new SimpleDateFormat("HH:mm:ss.SSS", Locale.getDefault()).format(new Date());
+            //String time = new SimpleDateFormat("HH:mm:ss.SSS", Locale.getDefault()).format(new Date());
+            String time = new SimpleDateFormat("HH:mm", Locale.getDefault()).format(new Date());
             String fileName = LOG_FILE_NAME + "_" + date + ".txt";
             try {
                 //FileOutputStream fileOutputStream = appContext.openFileOutput( fileName, Context.MODE_PRIVATE + Context.MODE_APPEND);
