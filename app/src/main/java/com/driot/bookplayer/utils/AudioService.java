@@ -35,6 +35,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 
 import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_TIME_BEFORE_SLEEP;
 import static com.driot.bookplayer.activities.OptionActivity.SHARED_PREFERENCE_TIME_BEFORE_SLEEP;
+import static com.driot.bookplayer.activities.PlayActivity.SHARED_PREFERENCE_SPEED;
 import static com.driot.bookplayer.utils.Tonio.FormatPercentDouble;
 import static com.driot.bookplayer.utils.Tonio.FormatTime;
 import static com.driot.bookplayer.utils.Tonio.fileExists;
@@ -147,7 +148,9 @@ public class AudioService extends Service {
         toneGen1.startTone(ToneGenerator.TONE_CDMA_PIP,150);
 
         loadZeFile();
+        //TODO remplace par PlayAudio() ??
         mediaPlayer.start();
+        setSpeed(getSpeed());
         alertNewTrack();
     }
 
@@ -203,8 +206,7 @@ public class AudioService extends Service {
 
     @Override
     public boolean onUnbind(Intent intent) {
-        myLog("Audio Service : onUnBind()");
-        myLog("Audio Service : onUnBind()   " + intent.getDataString());
+        myLog("Audio Service : onUnBind()  " + intent.getDataString());
         return super.onUnbind(intent);
     }
 
@@ -332,6 +334,7 @@ public class AudioService extends Service {
             mAudioManager.requestAudioFocus(afChangeListener, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
 
             mediaPlayer.start();
+            setSpeed(getSpeed());
             startTimer();
        }
     }
@@ -379,16 +382,20 @@ public class AudioService extends Service {
     public void setSpeed(double speed) {
         try {
             this.speed = speed;
-            mediaPlayer.setPlaybackParams(mediaPlayer.getPlaybackParams().setSpeed((float) speed));
+            if (mediaPlayer!=null && mediaPlayer.isPlaying()) {
+                mediaPlayer.setPlaybackParams(mediaPlayer.getPlaybackParams().setSpeed((float) speed));
+            }
             myLog("setSpeed(" + speed + ")");
         } catch (Exception e) {
             myLogE("Error setting Speed");
             e.printStackTrace();
         }
+        saveSpeedToPref(speed);
     }
 
     public double getSpeed() {
-        speed = mediaPlayer.getPlaybackParams().getSpeed();
+        //speed = mediaPlayer.getPlaybackParams().getSpeed();
+        speed = getSpeedFromPref();
         if (speed == 0) speed = 1.0;
         myLog("getSpeed() : " + speed);
         return speed;
@@ -595,5 +602,13 @@ public class AudioService extends Service {
         maxTimeBeforeSleep = prefs.getInt("TIME_BEFORE_SLEEP", DEFAULT_TIME_BEFORE_SLEEP);
     }
 
+    private void saveSpeedToPref(double speed) {
+        SharedPreferences.Editor editor = this.getSharedPreferences(SHARED_PREFERENCE_SPEED, MODE_PRIVATE).edit();
+        editor.putString(String.valueOf(getCurrentZikFile().getIdFolder()),Double.toString(speed)).apply();
+    }
 
+    private double getSpeedFromPref() {
+        SharedPreferences prefs = this.getSharedPreferences(SHARED_PREFERENCE_SPEED, MODE_PRIVATE);
+        return Double.parseDouble(prefs.getString(String.valueOf(getCurrentZikFile().getIdFolder()), "1.0"));
+    }
 }

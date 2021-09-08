@@ -133,6 +133,8 @@
     <string name="otherApp_droitpositif_txt">Les textes de droits majeurs même sans internet</string>
     <string name="otherApp_deces">Décès</string>
     <string name="otherApp_deces_txt">Personnes décédées en France depuis les années 70</string>
+    <string name="otherApp_kankwiz">Kan Kwiz</string>
+    <string name="otherApp_kankwiz_txt">Quiz vocabulaire et traduction </string>
 
     <!-- Action Bar -->
 

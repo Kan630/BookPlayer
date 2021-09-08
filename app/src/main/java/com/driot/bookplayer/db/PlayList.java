@@ -6,5 +6,6 @@ package com.driot.bookplayer.db;
 public class PlayList {
 
     public static ZikFile currentZikFile;
+    public static double playSpeed;
 
 }

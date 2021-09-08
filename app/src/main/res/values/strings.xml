@@ -19,7 +19,7 @@
     <string name="help_folder">Folder :</string>
     <string name="help_folder_text">"a long click on a folder opens the 'modify folder' page."</string>
     <string name="help_file">Track :</string>
-    <string name="help_file_text">"a long click on a file opens a dialog to reset progress of this audio and the following ones\n=>Useful if you fell asleep !"</string>
+    <string name="help_file_text">"a long click on a track(file) opens a dialog to delete progress for this audio and the following ones\n=>Useful if you fell asleep !"</string>
     <string name="help_import">Import :</string>
     <string name="help_import_text">"Zip file are always a bit slower, to import, to load, to play"</string>
     <string name="help_import_text2">"If you have trouble importing your audio\nTry tp unzip them if zipped\nTry to move them out of 'Download' folder if they are in"</string>
@@ -131,9 +131,11 @@
 
     <string name="otherApp_title">My other apps :-)</string>
     <string name="otherApp_droitpositif">Droit Positif</string>
-    <string name="otherApp_deces">Dead Frogs</string>
     <string name="otherApp_droitpositif_txt">Major French law texts, available even offline</string>
+    <string name="otherApp_deces">Dead Frogs</string>
     <string name="otherApp_deces_txt">People dead in France since the 70\'</string>
+    <string name="otherApp_kankwiz">Kan Kwiz</string>
+    <string name="otherApp_kankwiz_txt">Vocabulary and Language Quiz</string>
 
     <!-- Action Bar -->
 

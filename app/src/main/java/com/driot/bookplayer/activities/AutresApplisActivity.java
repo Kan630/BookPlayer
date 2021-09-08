@@ -18,6 +18,7 @@ public class AutresApplisActivity extends LifecycleLoggingActivity {
 
         findViewById(R.id.ll_DroitPositif).setOnClickListener(view -> openPlayStoreApp("com.driot.droitpositif"));
         findViewById(R.id.ll_Deces).setOnClickListener(view -> openPlayStoreApp("com.driot.deces"));
+        findViewById(R.id.ll_KanKwiz).setOnClickListener(view -> openPlayStoreApp("com.driot.kankwiz"));
     }
 
     private void openPlayStoreApp(String appPackageName) {

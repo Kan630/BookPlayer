@@ -317,7 +317,6 @@ public class PlayActivity extends LifecycleLoggingActivity {
         mService.setSpeed(speed);
         String txt = FormatPercentStringForSpeed((double) speed * 100);
         txSpeed.setText(txt);
-        saveSpeed(speed);
     }
 
     /********************************************************************************
@@ -401,7 +400,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
             seekbar.setMax((int) zikFile.getDuration());
             txSeekBar.setText(FormatTime(zikFile.getPosition()));
             seekbar.setProgress((int) zikFile.getPosition());
-            txSpeed.setText(FormatPercentStringForSpeed(getSpeed() * 100));
+            txSpeed.setText(FormatPercentStringForSpeed( mService.getSpeed() * 100));
             HideProgressAnim();
             myLog("Play Activity : ----------------------------- play screen drawn " + zikFile.getPosition());
         } catch (Exception e) {
@@ -446,17 +445,6 @@ public class PlayActivity extends LifecycleLoggingActivity {
         }
 
     }
-
-    private void saveSpeed(double speed) {
-        SharedPreferences.Editor editor = this.getSharedPreferences(SHARED_PREFERENCE_SPEED, MODE_PRIVATE).edit();
-        editor.putString(String.valueOf(zikFile.getIdFolder()),Double.toString(speed)).apply();
-    }
-
-    private double getSpeed() {
-        SharedPreferences prefs = this.getSharedPreferences(SHARED_PREFERENCE_SPEED, MODE_PRIVATE);
-        return Double.parseDouble(prefs.getString(String.valueOf(zikFile.getIdFolder()), "1.0"));
-    }
-
 
 
 }
