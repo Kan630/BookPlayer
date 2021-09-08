@@ -129,7 +129,7 @@
     <!-- ********************************** -->
     <!-- OTHER APPS -->
 
-    <string name="otherApp_title">My other apps :-)</string>
+    <string name="otherApp_title">"My other apps :-)"</string>
     <string name="otherApp_droitpositif">Droit Positif</string>
     <string name="otherApp_droitpositif_txt">Major French law texts, available even offline</string>
     <string name="otherApp_deces">Dead Frogs</string>
