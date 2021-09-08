@@ -193,16 +193,8 @@ public class PlayActivity extends LifecycleLoggingActivity {
         txSpeed = findViewById(R.id.textViewSpeed);
         seekbar = findViewById(R.id.seekBar);
 
-        intentMusicService = new Intent(PlayActivity.this, AudioService.class);
-        startService(intentMusicService);
-        boundToService=false;
-        try {
-            boundToService = bindService(intentMusicService, connection, Context.BIND_AUTO_CREATE);
-        } catch (Exception e) {
-            myLogE("ERROR bindService");
-            myLogE(e.getMessage());
-        }
-        myLog("call start & bind to Service in Activity.onCreate() - bound result :" + boundToService + "");
+        myLog("Activity.onCreate() -- Launching Music Service");
+        launchService();
 
         // TODO, use Parcelable
         //ZikFile zikFile = getIntent().getParcelableExtra("zikFile");
@@ -259,17 +251,45 @@ public class PlayActivity extends LifecycleLoggingActivity {
 
     }
 
+    private void launchService() {
+        intentMusicService = new Intent(PlayActivity.this, AudioService.class);
+        startService(intentMusicService);
+        boundToService=false;
+        try {
+            boundToService = bindService(intentMusicService, connection, Context.BIND_AUTO_CREATE);
+        } catch (Exception e) {
+            myLogE("ERROR bindService");
+            myLogE(e.getMessage());
+        }
+        myLog("call start & bind to Service in Activity.onCreate() - bound result :" + boundToService + "");
+    }
+
     private void playMe() {
+        myLog("PlayActivity.PlayMe()");
         if (mBound) {
             if (mService != null && mService.exist()) {
                 if (mService.isPlaying()) {
                     myLog("Activity : pause");
                     mService.pauseAudio();
+                    myLog("Activity : unbinding service");
+                    try {
+                        unbindService(connection);
+                    } catch (Exception e) {
+                        myLogE("Activity : unbinding service ERROR");
+                        myLogE(e.getMessage());
+                        e.printStackTrace();
+                    }
                 } else {
                     myLog("Activity : play");
+                    launchService();
+                    myLog("Activity : service has been launched");
                     mService.playAudio();
                 }
+            } else {
+                myLogE("Activity playMe() mService KO");
             }
+        } else {
+            myLogE("Activity playMe() mBound False");
         }
     }
 
@@ -307,7 +327,9 @@ public class PlayActivity extends LifecycleLoggingActivity {
      */
     @Override
     protected void onResume() {
+        myLog("PlayActivity.onResume");
         super.onResume();
+        myLog("PlayActivity.onResume, super done, then registering receiver");
 
         registerReceiver(receiver, new IntentFilter(NOTIFICATION_NEWTRACK));
         registerReceiver(receiver, new IntentFilter(NOTIFICATION_TRACKFINISHED));
@@ -319,6 +341,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
         registerReceiver(receiver, new IntentFilter(NOTIFICATION_PLAYLISTFINISHED));
         registerReceiver(receiver, new IntentFilter(NOTIFICATION_PLAYBACK_MAXTIMEREACH));
 
+        myLog("PlayActivity.onResume, creating new timer");
         autoUpdate = new Timer();
         autoUpdate.schedule(new TimerTask() {
             @Override
@@ -327,6 +350,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
             }
         }, 0, INTERVAL_REDRAW_SEEKBAR);
 
+        myLog("PlayActivity.onResume, end");
     }
 
     @Override
@@ -334,7 +358,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
         super.onDestroy();
         unregisterReceiver(receiver);
         //stopService(intentMusicService);
-        if (connection != null) { unbindService(connection); }
+        //if (connection != null) { unbindService(connection); }
     }
 
     @Override

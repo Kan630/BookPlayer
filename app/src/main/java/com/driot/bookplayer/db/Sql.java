@@ -40,7 +40,7 @@ public class Sql {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(result -> {
-                    myLog("calculateFolderProgress done");
+                    //myLog("calculateFolderProgress done");
                 }, throwable -> {
                     myLogE("calculateFolderProgress error :" + throwable.getMessage());
                     throwable.printStackTrace();

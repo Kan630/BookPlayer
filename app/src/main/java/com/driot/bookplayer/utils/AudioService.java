@@ -204,6 +204,7 @@ public class AudioService extends Service {
     @Override
     public boolean onUnbind(Intent intent) {
         myLog("Audio Service : onUnBind()");
+        myLog("Audio Service : onUnBind()   " + intent.getDataString());
         return super.onUnbind(intent);
     }
 
@@ -406,8 +407,6 @@ public class AudioService extends Service {
     }
 
     public int getDuration() {
-        myLog("getDuration()");
-        //return mediaPlayer.getDuration();
         return (int) getCurrentZikFile().getDuration();
     }
 
@@ -548,7 +547,6 @@ public class AudioService extends Service {
      ********************************************************************************
      */
     private void updateZikFileState(boolean bFinished) {
-        myLog("Audio Service : ---------- ZikFile update start");
         ZikFile zf = getCurrentZikFile();
         try {
             if (zf.getFirstaccess() == null) {
