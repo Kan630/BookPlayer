@@ -15,7 +15,7 @@ import android.view.KeyEvent;
 import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.db.DatabaseClient;
-import com.driot.bookplayer.db.PlayList;
+import com.driot.bookplayer.global.PlayList;
 import com.driot.bookplayer.db.Sql;
 import com.driot.bookplayer.db.ZikFile;
 
@@ -43,7 +43,6 @@ import static com.driot.bookplayer.utils.Tonio.getExtension;
 import static com.driot.bookplayer.utils.Utils.copyStream;
 import static com.driot.tonylib.KanLogger.myLog;
 import static com.driot.tonylib.KanLogger.myLogE;
-import static com.driot.tonylib.KanLogger.myLogInFile;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 01/11/20
@@ -82,7 +81,7 @@ public class AudioService extends Service {
 
     //private boolean fileHasBeenLoaded = false;
     private int numSong = 0;
-    private double speed;
+    private double speed = 1.0;
 
     private ZikFile[] zikFilePlayList;
     private File tempFile = null;
@@ -226,17 +225,27 @@ public class AudioService extends Service {
     public void loadFiles(ZikFile[] zikFiles) {
         myLog("AudioService - loadFiles(array) - folder : " + zikFiles[0].getIdFolder());
         // sorte de constructeur
-        numSong = 0;
-        zikFilePlayList = zikFiles;
 
-        // on charge le premier fichier
-        loadZeFile();
+        // on ne charge que si on avait pas deja chargé avant le meme rep
+        //if (!(zikFiles[0].getIdFolder()==zikFilePlayList[0].getIdFolder())) {
+            numSong = 0;
+            zikFilePlayList = zikFiles;
+
+            // on charge le premier fichier
+            loadZeFile();
+        //} else {
+        //    myLog("AudioService - loadFiles -- no need, already loaded");
+        //}
 
     }
 
     private void loadZeFile() {
+        myLog("AudioService.loadZeFile()");
         ZikFile zf = zikFilePlayList[numSong];
-        PlayList.currentZikFile = zf; //update global var
+        if (!(PlayList.currentZikFile.getId()==zf.getId())) {
+            PlayList.currentZikFile = zf; //update global var because new file
+            myLog("AudioService.loadZeFile() - Updating PlayList.currentZikFile");
+        }
 
         if (zf.isIszipfile()) {
             loadFile(GetTempFilePathFromZipFile(zf));
@@ -398,7 +407,9 @@ public class AudioService extends Service {
 
     public double getSpeed() {
         //speed = mediaPlayer.getPlaybackParams().getSpeed();
-        speed = getSpeedFromPref();
+        if (!(getCurrentZikFile()==null)) {
+            speed = getSpeedFromPref();
+        }
         if (speed == 0) speed = 1.0;
         myLog("AudioService.getSpeed() : " + speed);
         return speed;
@@ -434,14 +445,26 @@ public class AudioService extends Service {
     }
 
     private ZikFile getCurrentZikFile() {
+        /*
         if (!(zikFilePlayList==null)) {
             //if (fileHasBeenLoaded) {
-            ZikFile zf = zikFilePlayList[numSong];
-            PlayList.currentZikFile = zf; //update global var
+            //ZikFile zf = zikFilePlayList[numSong];
+            //PlayList.currentZikFile = zf; //update global var
+
+            ZikFile zf = PlayList.currentZikFile;
             if (LOG_TRACE_ALL) myLog( "AudioService.getCurrentZikFile() : " + zf.getName());
             return zf;
         } else {
             myLogE( "AudioService.getCurrentZikFile() : ERROR empty playlist");
+            return null;
+        }
+*/
+        ZikFile zf = PlayList.currentZikFile;
+        if (!(zf==null)) {
+            if (LOG_TRACE_ALL) myLog( "AudioService.getCurrentZikFile() : " + zf.getName());
+            return zf;
+        } else {
+            myLogE( "AudioService.getCurrentZikFile() : NULL");
             return null;
         }
     }

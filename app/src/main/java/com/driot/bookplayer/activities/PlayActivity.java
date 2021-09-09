@@ -15,7 +15,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.view.View;
@@ -25,17 +24,12 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.sqlite.db.SimpleSQLiteQuery;
-
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.DatabaseClient;
-import com.driot.bookplayer.db.PlayList;
-import com.driot.bookplayer.db.Sql;
+import com.driot.bookplayer.global.PlayList;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.utils.AudioService;
 
-import java.sql.Date;
-import java.sql.Time;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -43,8 +37,6 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
-import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_TIME_BEFORE_SLEEP;
-import static com.driot.bookplayer.activities.OptionActivity.SHARED_PREFERENCE_TIME_BEFORE_SLEEP;
 import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_AUDIOFOCUS_GAIN;
 import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_AUDIOFOCUS_LOST;
 import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_ERROR;
@@ -55,14 +47,11 @@ import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_PLAYLISTFINIS
 import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_TRACKFINISHED;
 import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_ZIP_FILE_LOADED;
 import static com.driot.bookplayer.utils.Tonio.FormatNameForDisplay;
-import static com.driot.bookplayer.utils.Tonio.FormatPercentDouble;
 import static com.driot.bookplayer.utils.Tonio.FormatPercentStringForSpeed;
 import static com.driot.bookplayer.utils.Tonio.FormatTime;
 import static com.driot.bookplayer.utils.Utils.animateView;
 import static com.driot.tonylib.KanLogger.myLog;
 import static com.driot.tonylib.KanLogger.myLogE;
-import static com.driot.tonylib.KanLogger.myLogInFile;
-import static com.driot.tonylib.KanLogger.myToast;
 import static com.driot.tonylib.KanLogger.myToastE;
 
 public class PlayActivity extends LifecycleLoggingActivity {
@@ -114,6 +103,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
             HasBeenInitializedService = true;
 
             // retour de flip ecran
+            myLog("PlayActivity : onServiceConnected - DrawUI");
             DrawUI(); //utile pour suppression progressBar
         }
 
@@ -159,6 +149,9 @@ public class PlayActivity extends LifecycleLoggingActivity {
                     break;
                 case NOTIFICATION_FILELOADED:
                     myLog("PlayActivity : broadcast received FILE LOADED");
+                    myLog("PlayActivity : fileloaded - DrawUI");
+                    myLog("PlayActivity : zikFile " + zikFile.getPosition());
+                    myLog("PlayActivity : PlayList.zikFile " + PlayList.currentZikFile.getPosition());
                     DrawUI();
                     mService.setPosition((int) zikFile.getPosition());
                     HideProgressAnim();
@@ -390,8 +383,8 @@ public class PlayActivity extends LifecycleLoggingActivity {
 
     private void DrawUI() {
         try {
-            myLog("PlayActivity : DrawUI zf : " + zikFile.getName());
-            myLog("PlayActivity : DrawUI pl : " + PlayList.currentZikFile.getName());
+            myLog("PlayActivity : DrawUI zf : " + zikFile.getName() + " -- " + zikFile.getPosition());
+            myLog("PlayActivity : DrawUI pl : " + PlayList.currentZikFile.getName() + " -- " + PlayList.currentZikFile.getPosition());
             zikFile = PlayList.currentZikFile;
             txSubTitle.setText(FormatNameForDisplay(zikFile.getName()));
             txTitle.setText(zikFile.getFolderName());

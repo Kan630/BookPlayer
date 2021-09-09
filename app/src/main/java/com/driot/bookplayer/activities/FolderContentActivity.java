@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.ZikFile;
+import com.driot.bookplayer.global.PlayList;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -24,8 +25,6 @@ import static com.driot.tonylib.KanLogger.myLogE;
 public class FolderContentActivity extends LifecycleLoggingActivity {
 
     private RecyclerView recyclerView;
-    private TextView mTextViewTitle;
-    List<ZikFile> currentZikFileList;
     private ZikFilesAdapter adapter;
     private HashMap<Integer, Integer> map;
 
@@ -34,23 +33,20 @@ public class FolderContentActivity extends LifecycleLoggingActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_foldercontent);
 
-        mTextViewTitle = findViewById(R.id.textViewTitle);
+        TextView mTextViewTitle = findViewById(R.id.textViewTitle);
         recyclerView = findViewById(R.id.recyclerview_zikfiles);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        long idFolder = getIntent().getIntExtra("FolderId",0);
         mTextViewTitle.setText(getIntent().getStringExtra("FolderName"));
-        myLog("recyclerview idFolder = " + idFolder);
-        if (idFolder != 0) {
-            getZikFiles(idFolder);
-            myLog("recyclerview drawing through setAdapter");
-        }
+
+        myLog("recyclerview idFolder onCreate - getDATA");
+        getDATA();
     }
 
     private void createMap() {
         map = new HashMap<>();
-        for (int i = 0; i < currentZikFileList.size(); i++) {
-            int id = currentZikFileList.get(i).getId(); // id of the model
+        for (int i = 0; i < PlayList.zikFilesList.size(); i++) {
+            int id = PlayList.zikFilesList.get(i).getId(); // id of the model
             map.put(id, i); // i is the position of adapter
         }
     }
@@ -58,12 +54,17 @@ public class FolderContentActivity extends LifecycleLoggingActivity {
     @Override
     protected void onRestart() {
         super.onRestart();
+        myLog("recyclerview idFolder onRestart - getDATA");
+        getDATA();
+    }
 
+    private void getDATA() {
         long idFolder = getIntent().getIntExtra("FolderId",0);
-        myLog("recyclerview idFolder on restart = " + idFolder);
+        myLog("recyclerview idFolder = " + idFolder);
         if (idFolder != 0) {
             getZikFiles(idFolder);
-            myLog("recyclerview drawing through setAdapter on restart");
+        } else {
+            myLogE("FolderContentActivity.onCreate id Folder = 0");
         }
     }
 
@@ -72,7 +73,7 @@ public class FolderContentActivity extends LifecycleLoggingActivity {
         Date d_max = new Date(0);
         int id_max = 0;
         try {
-            for (ZikFile z : currentZikFileList) {
+            for (ZikFile z : PlayList.zikFilesList) {
                 if (z.getLastaccess() != null) d = z.getLastaccess();
                 if (d.after(d_max)) {
                     d_max = d;
@@ -106,7 +107,7 @@ public class FolderContentActivity extends LifecycleLoggingActivity {
                         .getAppDatabase()
                         .ZikFileDao()
                         .getZikFiles(idFolder);
-                currentZikFileList = zikFilesList;
+                PlayList.zikFilesList = zikFilesList; // GLOBAL
                 return zikFilesList;
             }
 

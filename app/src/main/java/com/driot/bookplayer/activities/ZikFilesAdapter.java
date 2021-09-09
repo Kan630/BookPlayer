@@ -6,7 +6,6 @@ package com.driot.bookplayer.activities;
 
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,8 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.DatabaseClient;
-import com.driot.bookplayer.db.Folder;
-import com.driot.bookplayer.db.PlayList;
+import com.driot.bookplayer.global.PlayList;
 import com.driot.bookplayer.db.Sql;
 import com.driot.bookplayer.db.ZikFile;
 
@@ -108,6 +106,7 @@ public class ZikFilesAdapter extends RecyclerView.Adapter<ZikFilesAdapter.ZikFil
             itemView.setOnLongClickListener(this);
         }
 
+        ////////////////////// CLICK
         @Override
         public void onClick(View view) {
             ZikFile zikFile = zikFileList.get(getAdapterPosition());
