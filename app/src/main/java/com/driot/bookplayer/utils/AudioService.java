@@ -56,7 +56,6 @@ public class AudioService extends Service {
     public static final int DELAY_CHECK_TIMER = 1000*5;
 
     static final String TAG = "MusicService";
-    private static final boolean LOG_TRACE = true;
     private static final boolean LOG_TRACE_ALL = false;
 
     private final IBinder binder = new BackgroundBinder();
@@ -294,7 +293,7 @@ public class AudioService extends Service {
             Intent intent = new Intent(NOTIFICATION_FILELOADED);
             sendBroadcast(intent);
         } catch (Exception e) {
-            myLogE(e.getMessage());
+            myLogE("AudioService : LoadFile - " + e.getMessage());
             myLogE(" +++++***+++++ ERROR LOADING FILE +++++***+++++ (" + sPath + ")");
             e.printStackTrace();
             ErrorLoadingFile=true;
@@ -340,7 +339,7 @@ public class AudioService extends Service {
     }
 
     public void pauseAudio() {
-        myLog("pauseAudio()");
+        myLog("AudioService : pauseAudio()");
         if (mediaPlayer != null && mediaPlayer.isPlaying()) {
             mediaPlayer.pause();
             updateZikFileState(false);
@@ -540,8 +539,7 @@ public class AudioService extends Service {
                 } else {
                     str = "ERROR zikFilePlayList==null";
                 }
-                myLogInFile(str);
-                myLog("Audio Service ----------------------------------------------------------------------------- " + tempsEcoule + "s. since timer started - STOPPED" );
+                myLog("Audio Service ----------------------------------------------------------------------------- " + tempsEcoule + "s. since timer started -- STOPPED -- " + str );
             } catch (Exception e) {
                 myLogE("killTimer, nothing to kill ?");
                 e.printStackTrace();

@@ -130,35 +130,35 @@ public class PlayActivity extends LifecycleLoggingActivity {
         public void onReceive(Context context, Intent intent) {
             switch (intent.getAction()) {
                 case NOTIFICATION_NEWTRACK:
-                    myLog("broadcast received NEW TRACK");
+                    myLog("PlayActivity : broadcast received NEW TRACK");
                     //if (isZipFile) ShowProgressAnim();
                     break;
                 case NOTIFICATION_ERROR:
                     ShitHappensFlee = true;
-                    myLog("broadcast received ERROR");
+                    myLog("PlayActivity : broadcast received ERROR");
                     Toast.makeText(getApplicationContext(), getString(R.string.error_reading_track), Toast.LENGTH_SHORT).show();
                     finish();
                 case NOTIFICATION_TRACKFINISHED:
-                    myLog("broadcast received TRACK FINISHED");
+                    myLog("PlayActivity : broadcast received TRACK FINISHED");
                     break;
                 case NOTIFICATION_PLAYLISTFINISHED:
-                    myLog("broadcast received PLAYLIST FINISHED");
+                    myLog("PlayActivity : broadcast received PLAYLIST FINISHED");
                     finish();
                     break;
                 case NOTIFICATION_PLAYBACK_MAXTIMEREACH:
-                    myLog("broadcast received PLAYBACK_MAXTIMEREACH");
+                    myLog("PlayActivity : broadcast received PLAYBACK_MAXTIMEREACH");
                     finish();
                     break;
                 case NOTIFICATION_AUDIOFOCUS_LOST:
-                    myLog("broadcast received AUDIO FOCUS LOST");
+                    myLog("PlayActivity : broadcast received AUDIO FOCUS LOST");
                     //SetInterfacePausingMode();
                     break;
                 case NOTIFICATION_AUDIOFOCUS_GAIN:
-                    myLog("broadcast received AUDIO FOCUS GAIN");
+                    myLog("PlayActivity : broadcast received AUDIO FOCUS GAIN");
                     //SetInterfacePlayingMode();
                     break;
                 case NOTIFICATION_FILELOADED:
-                    myLog("broadcast received FILE LOADED");
+                    myLog("PlayActivity : broadcast received FILE LOADED");
                     DrawUI();
                     mService.setPosition((int) zikFile.getPosition());
                     HideProgressAnim();
