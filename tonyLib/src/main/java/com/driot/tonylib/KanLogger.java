@@ -28,12 +28,13 @@ public class KanLogger {
     private static final String LOG_FILE_NAME = "kanlog4";
     private static final String USER_LOG_FILE_FOLDER = "log";
     private static final String USER_LOG_FILE_NAME = "kanlog";
-    private static final boolean LOG_THEM_ALL = false;
+    private static final boolean LOG_THEM_ALL = true;
 
     public static final String[] MD5_MY_PHONE = {
              "5ef4fa41375ff615e0fd81940d929294" //"HUAWEI/POT-LX1EEA/HWPOT-H:10/HUAWEIPOT-L21/10.0.0.238C431:user/release-keys"
             ,"540eb3b4c6a4140193519e66f9cc29e4" //"Logicom/Le_Hello/Le_Hello:7.0/NRD90M/1527151208:user/release-keys"
             ,"dc785c43b8f9a6fcefc067a0050cb370" //"samsung/j5y17ltexx/j5y17lte:9/PPR1.180610.011/J530FXXS7CTF1:user/release-keys"
+            ,"ed8acdf5617d368dce4175a6597197a2" //"samsung/j5y17ltexx/j5y17lte:9/PPR1.180610.011/J530FXXS9CUE5:user/release-keys" // 09/09/2021
             ,"56db55f6c978892e2f3a55563fcb6f80" //"OPPO/CPH2065EEA/OP4BDCL1:11/RP1A.200720.011/1718335401248:user/release-keys"
             ,"f440eedc21b7e92490e9ad90e4a93215" //"OPPO/CPH2065EEA/OP4BDCL1:11/RP1A.200720.011/1624562435949:user/release-keys" //oppo-cph2065-P7LFRGOFKVKRLNPF
     };

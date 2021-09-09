@@ -100,7 +100,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
 
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
-            myLog("onServiceConnected");
+            myLog("PlayActivity : onServiceConnected");
             AudioService.BackgroundBinder binder = (AudioService.BackgroundBinder) service;
             mService = binder.getService();
             mBound = true;
@@ -119,7 +119,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
 
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
-            myLog("OnServiceDisconnected");
+            myLog("PlayActivity : OnServiceDisconnected");
             mBound = false;
         }
 
@@ -193,7 +193,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
         txSpeed = findViewById(R.id.textViewSpeed);
         seekbar = findViewById(R.id.seekBar);
 
-        myLog("Activity.onCreate() -- Launching Music Service");
+        myLog("PlayActivity.onCreate() -- Launching Music Service");
         launchService();
 
         // TODO, use Parcelable
@@ -224,7 +224,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 if (fromUser) {
-                    myLog("Activity : SeekBar");
+                    myLog("PlayActivity : SeekBar");
                     mService.setPosition(progress);
                     txSeekBar.setText(FormatTime(progress));
                 }
@@ -258,10 +258,10 @@ public class PlayActivity extends LifecycleLoggingActivity {
         try {
             boundToService = bindService(intentMusicService, connection, Context.BIND_AUTO_CREATE);
         } catch (Exception e) {
-            myLogE("ERROR bindService");
+            myLogE("PlayActivity : ERROR bindService");
             myLogE(e.getMessage());
         }
-        myLog("call start & bind to Service in Activity.onCreate() - bound result :" + boundToService + "");
+        myLog("PlayActivity : call start & bind to Service in Activity.onCreate() - bound result :" + boundToService + "");
     }
 
     private void playMe() {
@@ -269,48 +269,48 @@ public class PlayActivity extends LifecycleLoggingActivity {
         if (mBound) {
             if (mService != null && mService.exist()) {
                 if (mService.isPlaying()) {
-                    myLog("Activity : pause");
+                    myLog("PlayActivity : pause");
                     mService.pauseAudio();
-                    myLog("Activity : unbinding service");
+                    myLog("PlayActivity : unbinding service");
                     try {
                         unbindService(connection);
                     } catch (Exception e) {
-                        myLogE("Activity : unbinding service ERROR");
+                        myLogE("PlayActivity : unbinding service ERROR");
                         myLogE(e.getMessage());
                         e.printStackTrace();
                     }
                 } else {
-                    myLog("Activity : play");
+                    myLog("PlayActivity : play");
                     launchService();
-                    myLog("Activity : service has been launched");
+                    myLog("PlayActivity : service has been launched");
                     mService.playAudio();
                 }
             } else {
-                myLogE("Activity playMe() mService KO");
+                myLogE("PlayActivity playMe() mService KO");
             }
         } else {
-            myLogE("Activity playMe() mBound False");
+            myLogE("PlayActivity playMe() mBound False");
         }
     }
 
     private void forwardMe() {
         mService.forwardAudio();
-        myLog("Activity : Forward");
+        myLog("PlayActivity : Forward");
     }
 
     private void backwardMe() {
         mService.backwardAudio();
-        myLog("Activity : Backward");
+        myLog("PlayActivity : Backward");
     }
 
     private void SpeedMeUp() {
         setSpeed(mService.getSpeed() + INCREMENT_SPEED);
-        myLog("Activity : SpeedUp");
+        myLog("PlayActivity : SpeedUp");
     }
 
     private void SpeedMeDown() {
         setSpeed(mService.getSpeed() - INCREMENT_SPEED);
-        myLog("Activity : SpeedDown");
+        myLog("PlayActivity : SpeedDown");
     }
 
     private void setSpeed(double speed) {
@@ -374,7 +374,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
      ********************************************************************************
      */
     private void loadPlayListIntoService() {
-        myLog("+++++++++ loading PlayList Into Service - GetZikFiles - Folder : " + zikFile.getIdFolder());
+        myLog("PlayActivity : +++++++++ loading PlayList Into Service - GetZikFiles - Folder : " + zikFile.getIdFolder());
         Observable.fromCallable(() -> DatabaseClient
                 .getInstance(getApplicationContext())
                 .getAppDatabase()
@@ -382,8 +382,8 @@ public class PlayActivity extends LifecycleLoggingActivity {
                 .getNextZikFiles(zikFile.getIdFolder(), zikFile.getName())).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe((result) -> mService.loadFiles(result), throwable -> {
-                    myToastE("Error Loading playlist");
-                    myLogE("Error Loading playlist :" + throwable.getMessage());
+                    myToastE("PlayActivity : Error Loading playlist");
+                    myLogE("PlayActivity : Error Loading playlist :" + throwable.getMessage());
                     throwable.printStackTrace();
                 });
     }

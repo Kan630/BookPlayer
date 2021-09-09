@@ -148,6 +148,7 @@ public class AudioService extends Service {
 
         loadZeFile();
         //TODO remplace par PlayAudio() ??
+        myLog("AudioService : mediaPlayer.start() -- nextrack");
         mediaPlayer.start();
         setSpeed(getSpeed());
         alertNewTrack();
@@ -332,6 +333,7 @@ public class AudioService extends Service {
 
             mAudioManager.requestAudioFocus(afChangeListener, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
 
+            myLog("AudioService : mediaPlayer.start() -- playAudio");
             mediaPlayer.start();
             setSpeed(getSpeed());
             startTimer();

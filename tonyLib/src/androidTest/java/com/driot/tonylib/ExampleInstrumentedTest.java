@@ -2,6 +2,7 @@ package com.driot.tonylib;
 
 import android.content.Context;
 import android.os.Build;
+import android.util.Log;
 
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -32,9 +33,8 @@ public class ExampleInstrumentedTest {
     public void getFingerPrint() {
         // Context of the app under test.
         //Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        String str = ""; String str2 = "";
+        String str = "";
         str = Build.FINGERPRINT;
-        str2 = MD5(str);
         assertEquals("xxxxxxxx", str);
 
     }
@@ -45,6 +45,7 @@ public class ExampleInstrumentedTest {
         String str = ""; String str2 = "";
         str = Build.FINGERPRINT;
         str2 = MD5(str);
+        Log.i("toto","MD5 Phone : " + str2);
         assertEquals("xxxxxxxx2", str2);
     }
 
