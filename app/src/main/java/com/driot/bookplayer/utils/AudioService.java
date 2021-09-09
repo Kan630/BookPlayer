@@ -621,9 +621,8 @@ public class AudioService extends Service {
         } catch (Exception e) {
             myLogE("AudioService : error getting speed from prefs");
             myLogE(e.getMessage());
+            return 1.0;
         }
     }
 
-
-}
 }

@@ -374,7 +374,6 @@ public class PlayActivity extends LifecycleLoggingActivity {
      ********************************************************************************
      */
     private void loadPlayListIntoService() {
-        myLog("tqdfqsdfsdfoti");
         myLog("PlayActivity : +++++++++ loading PlayList Into Service - GetZikFiles - Folder : " + zikFile.getIdFolder());
         Observable.fromCallable(() -> DatabaseClient
                 .getInstance(getApplicationContext())
