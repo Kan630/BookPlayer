@@ -80,10 +80,8 @@ public class AudioService extends Service {
 
 
     //private boolean fileHasBeenLoaded = false;
-    private int numSong = 0;
     private double speed = 1.0;
 
-    private ZikFile[] zikFilePlayList;
     private File tempFile = null;
 
     private boolean ErrorLoadingFile = false;
@@ -110,7 +108,7 @@ public class AudioService extends Service {
                 alertTrackFinished();
                 //fileHasBeenLoaded=false;
 
-                if (numSong+1 == zikFilePlayList.length) {
+                if (PlayList.getNumZikFile()+1 == PlayList.getZikFilesList().size()) {
                     myLog("AudioService - mediaPlayer.OnCompletionListener  => calling PlayListFinish");
 
                     // 3 bips
@@ -136,10 +134,10 @@ public class AudioService extends Service {
 
     void nextTrack() {
         myLog("Audio Service : Next track");
-        numSong++;
+        PlayList.setNumZikFile(PlayList.getNumZikFile()+1);
         mediaPlayer.reset();
-        int curNum = numSong + 1;
-        myLog("AudioService - loading next track : n°" + curNum + "/" + zikFilePlayList.length );
+        int curNum = PlayList.getNumZikFile() + 1;
+        myLog("AudioService - loading next track : n°" + curNum + "/" + PlayList.getZikFilesList().size() );
 
         // petit bip
         ToneGenerator toneGen1 = new ToneGenerator(AudioManager.STREAM_MUSIC, 100);
@@ -155,14 +153,14 @@ public class AudioService extends Service {
 
     private void alertNewTrack() {
         Intent intent = new Intent(NOTIFICATION_NEWTRACK);
-        intent.putExtra(TRACKNUMBER, numSong);
+        intent.putExtra(TRACKNUMBER, PlayList.getNumZikFile());
         sendBroadcast(intent);
         myLog("AudioService - sendBroadcast alertNewTrack ");
     }
 
     private void alertError() {
         Intent intent = new Intent(NOTIFICATION_ERROR);
-        intent.putExtra(TRACKNUMBER, numSong);
+        intent.putExtra(TRACKNUMBER, PlayList.getNumZikFile());
         sendBroadcast(intent);
         myLog("AudioService - sendBroadcast alertError");
     }
@@ -224,29 +222,12 @@ public class AudioService extends Service {
 
     public void loadFiles(ZikFile[] zikFiles) {
         myLog("AudioService - loadFiles(array) - folder : " + zikFiles[0].getIdFolder());
-        // sorte de constructeur
-
-        // on ne charge que si on avait pas deja chargé avant le meme rep
-        //if (!(zikFiles[0].getIdFolder()==zikFilePlayList[0].getIdFolder())) {
-            numSong = 0;
-            zikFilePlayList = zikFiles;
-
-            // on charge le premier fichier
-            loadZeFile();
-        //} else {
-        //    myLog("AudioService - loadFiles -- no need, already loaded");
-        //}
-
+        loadZeFile();
     }
 
     private void loadZeFile() {
-        myLog("AudioService.loadZeFile()");
-        ZikFile zf = zikFilePlayList[numSong];
-        if (!(PlayList.currentZikFile.getId()==zf.getId())) {
-            PlayList.currentZikFile = zf; //update global var because new file
-            myLog("AudioService.loadZeFile() - Updating PlayList.currentZikFile");
-        }
-
+        myLog("AudioService - loadZeFile()");
+        ZikFile zf = PlayList.getZikFile();
         if (zf.isIszipfile()) {
             loadFile(GetTempFilePathFromZipFile(zf));
         } else {
@@ -289,16 +270,14 @@ public class AudioService extends Service {
             ErrorLoadingFile=true;
             return false;
         }
-        //if (fileHasBeenLoaded) {
-        //    myLog("loadFile(sPath) : ERROR -- File was already loaded !! " + sPath);
-        //    return false;
-        //}
+
         myLog("AudioService - loadFile(" + sPath + ")");
         try {
             mediaPlayer.stop();
             mediaPlayer.reset();
             mediaPlayer.setDataSource(sPath);
             mediaPlayer.prepare();
+            mediaPlayer.seekTo((int) PlayList.getZikFile().getPosition());
             //fileHasBeenLoaded = true;
             Intent intent = new Intent(NOTIFICATION_FILELOADED);
             sendBroadcast(intent);
@@ -421,10 +400,14 @@ public class AudioService extends Service {
     }
 
     public int getPosition() {
-        if (LOG_TRACE_ALL) myLog("AudioService.getPosition()");
-        int curPos = mediaPlayer.getCurrentPosition();
-        getCurrentZikFile().setPosition(curPos);
-        return curPos;
+        //return mediaPlayer.getCurrentPosition();
+        int curPosMediaPlayer = mediaPlayer.getCurrentPosition();
+        int curPosGlobalVar = (int) PlayList.getZikFile().getPosition();
+        int diff = curPosGlobalVar-curPosMediaPlayer;
+        if (LOG_TRACE_ALL) myLog("AudioService.getPosition() Saved/PlayerCurrent  " + curPosGlobalVar + "/" + curPosMediaPlayer + "  -  Diff = " + diff);
+        //int pos = Math.max(curPosGlobalVar,curPosMediaPlayer);
+        int pos = curPosMediaPlayer;
+        return pos;
     }
 
     public int getDuration() {
@@ -459,7 +442,7 @@ public class AudioService extends Service {
             return null;
         }
 */
-        ZikFile zf = PlayList.currentZikFile;
+        ZikFile zf = PlayList.getZikFile();
         if (!(zf==null)) {
             if (LOG_TRACE_ALL) myLog( "AudioService.getCurrentZikFile() : " + zf.getName());
             return zf;
@@ -561,7 +544,7 @@ public class AudioService extends Service {
                 timer.purge();
                 timer = null;
                 String str;
-                if (!(zikFilePlayList==null)) {
+                if (!(PlayList.getZikFilesList()==null)) {
                     str = getCurrentZikFile().getFolderName() + " : " + FormatTime(tempsEcoule*1000);
                 } else {
                     str = "AudioService.killTimer : ERROR zikFilePlayList==null";
@@ -593,7 +576,7 @@ public class AudioService extends Service {
                 zf.setPercentdone(100);
                 zf.setFinished(true);
             } else {
-                //zf.setPosition(getPosition());
+                zf.setPosition(getPosition());
                 zf.setPercentdone(FormatPercentDouble((double) getPosition() / getDuration()));
                 //if (zf.getDuration() == 0) zf.setDuration(getDuration());
             }

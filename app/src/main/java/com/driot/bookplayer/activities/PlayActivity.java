@@ -73,9 +73,6 @@ public class PlayActivity extends LifecycleLoggingActivity {
     private boolean AnimationNow;
     private boolean HasBeenInitializedService = false;
     private boolean HasBeenInitializedUI = false;
-    private ZikFile zikFileFromIntent;
-    private ZikFile zikFileFromService;
-    private ZikFile zikFile;
     private Intent intentMusicService;
     private boolean ShitHappensFlee = false;
     private Timer autoUpdate;
@@ -150,10 +147,8 @@ public class PlayActivity extends LifecycleLoggingActivity {
                 case NOTIFICATION_FILELOADED:
                     myLog("PlayActivity : broadcast received FILE LOADED");
                     myLog("PlayActivity : fileloaded - DrawUI");
-                    myLog("PlayActivity : zikFile " + zikFile.getPosition());
-                    myLog("PlayActivity : PlayList.zikFile " + PlayList.currentZikFile.getPosition());
                     DrawUI();
-                    mService.setPosition((int) zikFile.getPosition());
+                    //mService.setPosition((int) PlayList.getZikFile().getPosition());
                     HideProgressAnim();
                     break;
             }
@@ -189,25 +184,28 @@ public class PlayActivity extends LifecycleLoggingActivity {
         myLog("PlayActivity.onCreate() -- Launching Music Service");
         launchService();
 
-        // TODO, use Parcelable
-        //ZikFile zikFile = getIntent().getParcelableExtra("zikFile");
-
-        zikFileFromIntent = (ZikFile) getIntent().getSerializableExtra("ZikFile");
-        zikFileFromService = PlayList.currentZikFile;
-        if (!(zikFileFromService==null)) {
-            zikFile = zikFileFromService;
-            myLog("PlayActivity.onCreate -- ZikFile from service : " + zikFile.toString());
-        } else if (!(zikFileFromIntent==null)) {
-            zikFile = zikFileFromIntent;
-            myLog("PlayActivity.onCreate -- ZikFile from intent : " + zikFile.toString());
-        } else {
-            zikFile = null;
-            myLog("PlayActivity.onCreate -- ZikFile = null");
-        }
-        isZipFile = zikFile.isIszipfile();
-        if (isZipFile) ShowProgressAnim();
+        if (PlayList.getZikFile().isIszipfile()) ShowProgressAnim();
 
         //setPlaybackState(0);
+
+        //-*******************************************************************************
+        //-***       CHOOSE RIGHT FILE
+        //-*******************************************************************************
+        // which one to take, the one from the intent (click on recyclerview)
+        //                 or the one from the globals var
+        //
+        // ancien systeme : on recupere de l'intent :
+        //                zikFileFromIntent = (ZikFile) getIntent().getSerializableExtra("ZikFile");"
+        //
+        // nouveau systeme, on recupere des global vars,
+        //          (si besoin, on recree depuis le save en fichiers de conf)
+        //
+        //
+        //-*******************************************************************************
+
+
+
+
 
         //-*******************************************************************************
         //-***       SEEKBAR
@@ -262,6 +260,8 @@ public class PlayActivity extends LifecycleLoggingActivity {
         if (mBound) {
             if (mService != null && mService.exist()) {
                 if (mService.isPlaying()) {
+
+                    /////////   PAUSE
                     myLog("PlayActivity : pause");
                     mService.pauseAudio();
                     myLog("PlayActivity : unbinding service");
@@ -272,11 +272,14 @@ public class PlayActivity extends LifecycleLoggingActivity {
                         myLogE(e.getMessage());
                         e.printStackTrace();
                     }
+
+                    /////// PLAY
                 } else {
                     myLog("PlayActivity : play");
                     launchService();
                     myLog("PlayActivity : service has been launched");
                     mService.playAudio();
+
                 }
             } else {
                 myLogE("PlayActivity playMe() mService KO");
@@ -319,9 +322,8 @@ public class PlayActivity extends LifecycleLoggingActivity {
      */
     @Override
     protected void onResume() {
-        myLog("PlayActivity.onResume");
+        myLog("PlayActivity.onResume... registering receiver");
         super.onResume();
-        myLog("PlayActivity.onResume, super done, then registering receiver");
 
         registerReceiver(receiver, new IntentFilter(NOTIFICATION_NEWTRACK));
         registerReceiver(receiver, new IntentFilter(NOTIFICATION_TRACKFINISHED));
@@ -334,15 +336,8 @@ public class PlayActivity extends LifecycleLoggingActivity {
         registerReceiver(receiver, new IntentFilter(NOTIFICATION_PLAYBACK_MAXTIMEREACH));
 
         myLog("PlayActivity.onResume, creating new timer");
-        autoUpdate = new Timer();
-        autoUpdate.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                runOnUiThread(() -> redrawSeekBar());
-            }
-        }, 0, INTERVAL_REDRAW_SEEKBAR);
+        runTimerForDisplay();
 
-        myLog("PlayActivity.onResume, end");
     }
 
     @Override
@@ -351,6 +346,13 @@ public class PlayActivity extends LifecycleLoggingActivity {
         unregisterReceiver(receiver);
         //stopService(intentMusicService);
         //if (connection != null) { unbindService(connection); }
+        //killTimerForDisplay();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        killTimerForDisplay();
     }
 
     @Override
@@ -367,12 +369,12 @@ public class PlayActivity extends LifecycleLoggingActivity {
      ********************************************************************************
      */
     private void loadPlayListIntoService() {
-        myLog("PlayActivity : +++++++++ loading PlayList Into Service - GetZikFiles - Folder : " + zikFile.getIdFolder());
+        myLog("PlayActivity : +++++++++ loading PlayList Into Service - GetZikFiles - Folder : " + PlayList.getZikFile().getIdFolder());
         Observable.fromCallable(() -> DatabaseClient
                 .getInstance(getApplicationContext())
                 .getAppDatabase()
                 .ZikFileDao()
-                .getNextZikFiles(zikFile.getIdFolder(), zikFile.getName())).subscribeOn(Schedulers.io())
+                .getNextZikFiles(PlayList.getZikFile().getIdFolder(), PlayList.getZikFile().getName())).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe((result) -> mService.loadFiles(result), throwable -> {
                     myToastE("PlayActivity : Error Loading playlist");
@@ -383,19 +385,17 @@ public class PlayActivity extends LifecycleLoggingActivity {
 
     private void DrawUI() {
         try {
-            myLog("PlayActivity : DrawUI zf : " + zikFile.getName() + " -- " + zikFile.getPosition());
-            myLog("PlayActivity : DrawUI pl : " + PlayList.currentZikFile.getName() + " -- " + PlayList.currentZikFile.getPosition());
-            zikFile = PlayList.currentZikFile;
-            txSubTitle.setText(FormatNameForDisplay(zikFile.getName()));
-            txTitle.setText(zikFile.getFolderName());
+            myLog("PlayActivity : DrawUI : " + PlayList.getZikFile().getName() + " -- " + PlayList.getZikFile().getPosition());
+            txSubTitle.setText(FormatNameForDisplay(PlayList.getZikFile().getName()));
+            txTitle.setText(PlayList.getZikFile().getFolderName());
             txNomFichier.setText("");
-            txTempsTotal.setText(FormatTime(zikFile.getDuration()));
-            seekbar.setMax((int) zikFile.getDuration());
-            txSeekBar.setText(FormatTime(zikFile.getPosition()));
-            seekbar.setProgress((int) zikFile.getPosition());
+            txTempsTotal.setText(FormatTime(PlayList.getZikFile().getDuration()));
+            seekbar.setMax((int) PlayList.getZikFile().getDuration());
+            txSeekBar.setText(FormatTime(PlayList.getZikFile().getPosition()));
+            seekbar.setProgress((int) PlayList.getZikFile().getPosition());
             txSpeed.setText(FormatPercentStringForSpeed( mService.getSpeed() * 100));
             HideProgressAnim();
-            myLog("PlayActivity : ----------------------------- play screen drawn " + zikFile.getPosition());
+            myLog("PlayActivity : ----------------------------- play screen drawn " + PlayList.getZikFile().getPosition());
         } catch (Exception e) {
             myLog("PlayActivity :----------------------------- play screen drawn ERROR");
             myLogE(e.getMessage());
@@ -407,7 +407,21 @@ public class PlayActivity extends LifecycleLoggingActivity {
      ********************************************************************************
      */
 
-    private void redrawSeekBar() {
+    private void runTimerForDisplay() {
+        autoUpdate = new Timer();
+        autoUpdate.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                runOnUiThread(() -> redrawSeekBar());
+            }
+        }, 0, INTERVAL_REDRAW_SEEKBAR);
+
+    }
+    private void killTimerForDisplay() {
+        autoUpdate.cancel();
+    }
+
+        private void redrawSeekBar() {
         if (mService != null && mService.exist()) {
             if (mService.isPlaying()) {
                 bPlay.setText(R.string.pause);
@@ -417,6 +431,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
             int iPosition = mService.getPosition();
             txSeekBar.setText(FormatTime(iPosition));
             seekbar.setProgress(iPosition);
+
         }
         //myLog("PlayActivity :----------------------------- redraw Seek Bar");
     }

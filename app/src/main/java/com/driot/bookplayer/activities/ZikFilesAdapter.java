@@ -125,8 +125,10 @@ public class ZikFilesAdapter extends RecyclerView.Adapter<ZikFilesAdapter.ZikFil
             }
 
             if (FileOkForPlay) {
-                PlayList.currentZikFile = zikFile; //global var
-                //TODO pass an object, check parcelable
+                //PlayList.setZikFile(zikFile); //global var
+                PlayList.setNumZikFile(getAdapterPosition()); //global var
+
+                //pass an object, check parcelable
                 Intent intent = new Intent(mCtx, PlayActivity.class);
                 intent.putExtra("ZikFile", zikFile);
                 mCtx.startActivity(intent);

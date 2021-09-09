@@ -33,10 +33,10 @@ public class FolderContentActivity extends LifecycleLoggingActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_foldercontent);
 
-        TextView mTextViewTitle = findViewById(R.id.textViewTitle);
         recyclerView = findViewById(R.id.recyclerview_zikfiles);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
+        TextView mTextViewTitle = findViewById(R.id.textViewTitle);
         mTextViewTitle.setText(getIntent().getStringExtra("FolderName"));
 
         myLog("recyclerview idFolder onCreate - getDATA");
@@ -45,8 +45,8 @@ public class FolderContentActivity extends LifecycleLoggingActivity {
 
     private void createMap() {
         map = new HashMap<>();
-        for (int i = 0; i < PlayList.zikFilesList.size(); i++) {
-            int id = PlayList.zikFilesList.get(i).getId(); // id of the model
+        for (int i = 0; i < PlayList.getZikFilesList().size(); i++) {
+            int id = PlayList.getZikFilesList().get(i).getId(); // id of the model
             map.put(id, i); // i is the position of adapter
         }
     }
@@ -73,7 +73,7 @@ public class FolderContentActivity extends LifecycleLoggingActivity {
         Date d_max = new Date(0);
         int id_max = 0;
         try {
-            for (ZikFile z : PlayList.zikFilesList) {
+            for (ZikFile z : PlayList.getZikFilesList()) {
                 if (z.getLastaccess() != null) d = z.getLastaccess();
                 if (d.after(d_max)) {
                     d_max = d;
@@ -107,7 +107,7 @@ public class FolderContentActivity extends LifecycleLoggingActivity {
                         .getAppDatabase()
                         .ZikFileDao()
                         .getZikFiles(idFolder);
-                PlayList.zikFilesList = zikFilesList; // GLOBAL
+                PlayList.setZikFilesList(zikFilesList); // GLOBAL
                 return zikFilesList;
             }
 

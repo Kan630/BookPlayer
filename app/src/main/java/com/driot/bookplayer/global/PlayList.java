@@ -15,16 +15,17 @@ import static com.driot.tonylib.KanLogger.myLogE;
  */
 public class PlayList {
 
-    public static double playSpeed;
+    private static List<ZikFile> zikFilesList;
+    private static int numZikFile; // old numSong
 
+    private static int idFolder;
+    private static int idZikFile;
+    private static double positionZikFile;
 
-    public static List<ZikFile> zikFilesList;
-    public static ZikFile currentZikFile;
-
-    public static int idFolder;
-    public static int idZikFile;
-    public static int numZikFile;
-    public static double positionZikFile;
+    public static void setZikFilesList(List<ZikFile> zikFilesList) {
+        PlayList.zikFilesList = zikFilesList;
+        myLog("PlayList.SetZikFileList() .. size = " + zikFilesList.size());
+    }
 
     public static List<ZikFile> getZikFilesList() {
         if (zikFilesList==null) {
@@ -35,14 +36,31 @@ public class PlayList {
         }
     }
 
-    public static ZikFile getZikFile() {
-        if (currentZikFile==null) {
-            myLogE("currentZikFile==null");
-            return null;
-        } else {
-            return currentZikFile;
-        }
+    public static int getNumZikFile() {
+        return numZikFile;
     }
+
+    public static void setNumZikFile(int numZikFile) {
+        PlayList.numZikFile = numZikFile;
+        myLog("PlayList.SetNumZikFile() - n°" + numZikFile);
+    }
+
+
+
+    public static ZikFile getZikFile() {
+        return getZikFilesList().get(numZikFile);
+    }
+/*
+    public static void setZikFile(ZikFile zikFile) {
+        // set ZikFileList and numZikFile
+        if (!(getZikFile() == zikFile)) {
+
+        }
+        return getZikFilesList().get(numZikFile);
+    }
+
+ */
+
 
 
     //public PlayList(ZikFile)
