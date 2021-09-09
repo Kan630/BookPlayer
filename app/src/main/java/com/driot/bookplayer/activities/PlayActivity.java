@@ -374,6 +374,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
      ********************************************************************************
      */
     private void loadPlayListIntoService() {
+        myLog("tqdfqsdfsdfoti");
         myLog("PlayActivity : +++++++++ loading PlayList Into Service - GetZikFiles - Folder : " + zikFile.getIdFolder());
         Observable.fromCallable(() -> DatabaseClient
                 .getInstance(getApplicationContext())
@@ -390,8 +391,8 @@ public class PlayActivity extends LifecycleLoggingActivity {
 
     private void DrawUI() {
         try {
-            myLog("Play Activity : DrawUI zf : " + zikFile.getName());
-            myLog("Play Activity : DrawUI pl : " + PlayList.currentZikFile.getName());
+            myLog("PlayActivity : DrawUI zf : " + zikFile.getName());
+            myLog("PlayActivity : DrawUI pl : " + PlayList.currentZikFile.getName());
             zikFile = PlayList.currentZikFile;
             txSubTitle.setText(FormatNameForDisplay(zikFile.getName()));
             txTitle.setText(zikFile.getFolderName());
@@ -402,9 +403,9 @@ public class PlayActivity extends LifecycleLoggingActivity {
             seekbar.setProgress((int) zikFile.getPosition());
             txSpeed.setText(FormatPercentStringForSpeed( mService.getSpeed() * 100));
             HideProgressAnim();
-            myLog("Play Activity : ----------------------------- play screen drawn " + zikFile.getPosition());
+            myLog("PlayActivity : ----------------------------- play screen drawn " + zikFile.getPosition());
         } catch (Exception e) {
-            myLog("Play Activity :----------------------------- play screen drawn ERROR");
+            myLog("PlayActivity :----------------------------- play screen drawn ERROR");
             myLogE(e.getMessage());
         }
     }
@@ -425,7 +426,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
             txSeekBar.setText(FormatTime(iPosition));
             seekbar.setProgress(iPosition);
         }
-        //myLog("Play Activity :----------------------------- redraw Seek Bar");
+        //myLog("PlayActivity :----------------------------- redraw Seek Bar");
     }
 
     /********************************************************************************

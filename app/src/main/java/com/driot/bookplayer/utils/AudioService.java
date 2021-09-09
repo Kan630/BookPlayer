@@ -391,7 +391,9 @@ public class AudioService extends Service {
             myLogE("AudioService Error setting Speed");
             e.printStackTrace();
         }
-        saveSpeedToPref(speed);
+        if (!(getCurrentZikFile()==null)) {
+            saveSpeedToPref(speed);
+        }
     }
 
     public double getSpeed() {
@@ -439,7 +441,7 @@ public class AudioService extends Service {
             if (LOG_TRACE_ALL) myLog( "AudioService.getCurrentZikFile() : " + zf.getName());
             return zf;
         } else {
-            myLog( "AudioService.getCurrentZikFile() : ERROR empty playlist");
+            myLogE( "AudioService.getCurrentZikFile() : ERROR empty playlist");
             return null;
         }
     }
@@ -603,12 +605,25 @@ public class AudioService extends Service {
     }
 
     private void saveSpeedToPref(double speed) {
-        SharedPreferences.Editor editor = this.getSharedPreferences(SHARED_PREFERENCE_SPEED, MODE_PRIVATE).edit();
-        editor.putString(String.valueOf(getCurrentZikFile().getIdFolder()),Double.toString(speed)).apply();
+        try {
+            SharedPreferences.Editor editor = this.getSharedPreferences(SHARED_PREFERENCE_SPEED, MODE_PRIVATE).edit();
+            editor.putString(String.valueOf(getCurrentZikFile().getIdFolder()),Double.toString(speed)).apply();
+        } catch (Exception e) {
+            myLogE("AudioService : error saving speed in prefs");
+            myLogE(e.getMessage());
+        }
     }
 
     private double getSpeedFromPref() {
-        SharedPreferences prefs = this.getSharedPreferences(SHARED_PREFERENCE_SPEED, MODE_PRIVATE);
-        return Double.parseDouble(prefs.getString(String.valueOf(getCurrentZikFile().getIdFolder()), "1.0"));
+        try {
+            SharedPreferences prefs = this.getSharedPreferences(SHARED_PREFERENCE_SPEED, MODE_PRIVATE);
+            return Double.parseDouble(prefs.getString(String.valueOf(getCurrentZikFile().getIdFolder()), "1.0"));
+        } catch (Exception e) {
+            myLogE("AudioService : error getting speed from prefs");
+            myLogE(e.getMessage());
+        }
     }
+
+
+}
 }
