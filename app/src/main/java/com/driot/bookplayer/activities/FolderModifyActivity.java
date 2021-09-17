@@ -1,6 +1,7 @@
 package com.driot.bookplayer.activities;
 
 import android.content.DialogInterface;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -11,13 +12,20 @@ import androidx.appcompat.app.AlertDialog;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.DatabaseClient;
+import com.driot.bookplayer.global.PlayList;
+
+import java.io.File;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
+import static com.driot.bookplayer.utils.Utils.recursiveRemove;
+import static com.driot.tonylib.KanLogger.myLog;
+import static com.driot.tonylib.KanLogger.myLogE;
 import static com.driot.tonylib.KanLogger.myLogInFile;
 import static com.driot.tonylib.KanLogger.myToast;
+import static com.driot.tonylib.KanLogger.myToastE;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 15/11/20
@@ -65,13 +73,37 @@ public class FolderModifyActivity extends LifecycleLoggingActivity {
                 .setTitle(getString(R.string.ModifyFolder_AskDeleteTitle))
                 .setMessage(getString(R.string.ModifyFolder_AskDeleteText))
                 .setCancelable(false)
-                .setPositiveButton("ok", (dialog, which) -> deleteFolder())
+                .setPositiveButton("ok", (dialog, which) -> deleteFolder1())
                 .setNegativeButton("cancel", (dialogInterface, i) -> {})
                 .show();
     }
 
 
-    private void deleteFolder() {
+    private void deleteFolder1() {
+        // delete folder if exist in app memory
+        String myErr = "FolderModifyActivity : Error getting uri from folder for deleting file in memory";
+        Observable.fromCallable(() -> DatabaseClient
+                .getInstance(getApplicationContext())
+                .getAppDatabase()
+                .ZikFileDao()
+                .getFolderUri(idFolder)).subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe((result) -> {
+                    if (eraseFolderAndFiles(result)) {
+                        myLog("Ok files deleted");
+                        deleteFolder2();
+                    } else {
+                        myLog("Error deleting files");
+                    }
+                }, throwable -> {
+                    myToastE(myErr);
+                    myLogE(myErr + " :" + throwable.getMessage());
+                    throwable.printStackTrace();
+                });
+    }
+
+    private void deleteFolder2() {
+        // delete folder in database
         Observable.fromCallable(() -> {
             DatabaseClient
                     .getInstance(getApplicationContext())
@@ -90,11 +122,36 @@ public class FolderModifyActivity extends LifecycleLoggingActivity {
                 .subscribe((result) -> {
                     if (result) {
                         myToast(getString(R.string.Folder_Deleted));
-                        myLogInFile(getString(R.string.Folder_Deleted) + " : " + FolderName);
+                        myLog(getString(R.string.Folder_Deleted) + " : " + FolderName);
                         finish();
                     }
                 });
+    }
 
+
+    private boolean eraseFolderAndFiles(String strPath) {
+        String starter = "file:///";
+        myLog("Deleting folder : " +strPath);
+        if (strPath.length()>5) {
+            if (strPath.startsWith(starter)) {
+                strPath = strPath.replace(starter,"");
+                try {
+                    File folderToDelete = new File(strPath);
+                    myLog("is directory :    " + folderToDelete.isDirectory());
+                    recursiveRemove(folderToDelete);
+                    return true;
+                } catch (Exception e) {
+                    myLogE("Error remove folder & files from user data");
+                    return false;
+                }
+            } else {
+                myLog("Not a folder in user data, skip deletion of folder");
+                return true;
+            }
+        } else {
+            myLogE("should not happen uri less than 5 chars");
+            return false;
+        }
     }
 
     private void bRenameOkClick(String newName) {

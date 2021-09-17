@@ -53,6 +53,9 @@ public interface ZikFileDao {
     @Query("UPDATE ZikFile SET firstaccess=:firstAccess WHERE id = :id")
     void updateFirstAccess(Time firstAccess, int id);
 
+    @Query("SELECT uri FROM Folder WHERE id = :id")
+    String getFolderUri(int id);
+
 
 
     // Exemple avec dates :

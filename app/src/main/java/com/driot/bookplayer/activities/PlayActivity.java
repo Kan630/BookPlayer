@@ -266,7 +266,8 @@ public class PlayActivity extends LifecycleLoggingActivity {
                     mService.pauseAudio();
                     myLog("PlayActivity : unbinding service");
                     try {
-                        unbindService(connection);
+                        // CHECK
+                        //unbindService(connection);
                     } catch (Exception e) {
                         myLogE("PlayActivity : unbinding service ERROR");
                         myLogE(e.getMessage());
@@ -432,6 +433,9 @@ public class PlayActivity extends LifecycleLoggingActivity {
             txSeekBar.setText(FormatTime(iPosition));
             seekbar.setProgress(iPosition);
 
+        } else {
+            bPlay.setText(R.string.pause);
+            myLog("PlayActivity : redrawSeekBar => service KO => drawing play button");
         }
         //myLog("PlayActivity :----------------------------- redraw Seek Bar");
     }

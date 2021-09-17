@@ -2,6 +2,7 @@ package com.driot.bookplayer.activities;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -51,6 +52,7 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
             if (checkIfPermissionsReadStorage()) {
                 Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
                 intent.setType("application/zip");
+                intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_WRITE_URI_PERMISSION|Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
                 intent.addCategory(Intent.CATEGORY_OPENABLE);
                 startActivityForResult(intent, OPEN_ZIP_FILE_REQUEST_CODE);
             } else {
@@ -98,6 +100,7 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
                     Intent intent = new Intent(getApplicationContext(), AddResourceActivity.class);
                     intent.putExtra("Uri", uri);
                     intent.putExtra("type", "ZIP");
+                    //this.getContentResolver().takePersistableUriPermission(Uri,)
                     startActivityForResult(intent, ADD_RESOURCE_REQUEST_CODE);
                 }
                 break;

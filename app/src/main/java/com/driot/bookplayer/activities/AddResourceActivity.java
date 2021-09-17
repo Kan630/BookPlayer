@@ -61,6 +61,8 @@ public class AddResourceActivity extends LifecycleLoggingActivity {
         putTitle(uri.getLastPathSegment());
 
         intentAddResourceService = new Intent(AddResourceActivity.this, AddResourceService.class);
+        intentAddResourceService.putExtra("Uri", uri);
+        intentAddResourceService.putExtra("type", type);
         startService(intentAddResourceService);
         boundToService = bindService(intentAddResourceService, connection, Context.BIND_AUTO_CREATE); //error Log : Activity XXX has leaked ServiceConnection
         myLog("call start & bind to Service in Activity.onCreate() - bound result :" + boundToService + "");
@@ -78,8 +80,13 @@ public class AddResourceActivity extends LifecycleLoggingActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        unregisterReceiver(receiver);
-        stopService(intentAddResourceService);
+        try {
+            unregisterReceiver(receiver);
+            unbindService(connection);
+            //stopService(intentAddResourceService);
+        } catch (Exception e) {
+            myLogE("error stopping service");
+        }
     }
 
     private BroadcastReceiver receiver = new BroadcastReceiver() {
@@ -133,7 +140,7 @@ public class AddResourceActivity extends LifecycleLoggingActivity {
             mBound = true;
 
             // Get PlayList
-            if (!HasBeenInitializedService) { mService.init(uri, type); }
+            if (!HasBeenInitializedService) { mService.init(); }
             HasBeenInitializedService = true;
 
         }

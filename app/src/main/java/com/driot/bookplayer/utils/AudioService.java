@@ -8,6 +8,7 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.ToneGenerator;
 import android.media.session.MediaSession;
+import android.net.Uri;
 import android.os.Binder;
 import android.os.IBinder;
 import android.view.KeyEvent;
@@ -98,7 +99,7 @@ public class AudioService extends Service {
         myLog("Audio Service : onCreate()");
         super.onCreate();
         mediaPlayer = new MediaPlayer();
-        mediaSession = new MediaSession(this, "MyMediaSession");
+        mediaSession = new MediaSession(this, "MyTotoMediaSession");
         configureMediaSession();
         setMaxTimeBeforeSleep();
 
@@ -219,7 +220,6 @@ public class AudioService extends Service {
      ********************************************************************************
      */
 
-
     public void loadFiles(ZikFile[] zikFiles) {
         myLog("AudioService - loadFiles(array) - folder : " + zikFiles[0].getIdFolder());
         loadZeFile();
@@ -237,6 +237,7 @@ public class AudioService extends Service {
     }
 
     private String GetTempFilePathFromZipFile(ZikFile file) {
+        myLog("AudioService : ZIP, createTempFile " + file.getPath() );
         String pathOfTempFile = "";
         String zipFilePath = file.getPath();
         String fileName = file.getName();
@@ -244,15 +245,27 @@ public class AudioService extends Service {
 
         try {
             if (tempFile != null && tempFile.exists()) { tempFile.delete();tempFile=null;}
-            ZipFile zipFile = new ZipFile(zipFilePath);
-            InputStream inputStream = zipFile.getInputStream(zipFile.getEntry(fileName));
+
+            myLog("AudioService : ZIP, instantiate ZipFile");
+            //ZipFile zipFile = new ZipFile(zipFilePath);
+
+            Uri uri = Uri.fromFile(new File(file.getPath()));
+            myLog("Uri : "+ uri);
+
+            InputStream inputStream = getContentResolver().openInputStream(Uri.fromFile(new File(file.getPath())));
+
+            myLog("AudioService : ZIP, about to create InputStream");
+            //InputStream inputStream = zipFile.getInputStream(zipFile.getEntry(fileName));
             tempFile = File.createTempFile("_AUDIO_", getExtension(fileName));
+
             //tempFile.deleteOnExit();
             FileOutputStream out = new FileOutputStream(tempFile);
+            myLog("AudioService : ZIP, about to copy stream");
             copyStream(inputStream,out);
             pathOfTempFile = tempFile.getPath();
 
         } catch (IOException e) {
+            myLogE("AudioService : ZIP, Error creating temp file : " + e.getMessage());
             e.printStackTrace();
         } finally {
             Intent intent = new Intent(NOTIFICATION_ZIP_FILE_LOADED);
@@ -307,7 +320,7 @@ public class AudioService extends Service {
                 if(focusChange<=0) {
                     myLog("Audio Service : Audio Focus Lost");
                     AudioService.this.pauseAudio();
-                    mediaSession.setActive(false);
+                    //mediaSession.setActive(false); // CHECK
                     Intent intent = new Intent(NOTIFICATION_AUDIOFOCUS_LOST);
                     sendBroadcast(intent);
                 } else {
@@ -416,7 +429,12 @@ public class AudioService extends Service {
 
     public boolean isPlaying() {
         if (LOG_TRACE_ALL) myLog("AudioService.isPlaying()");
-        return mediaPlayer.isPlaying();
+        if (exist()) {
+            return mediaPlayer.isPlaying();
+        } else {
+            return false;
+        }
+
     }
     public boolean exist() {
         if (LOG_TRACE_ALL) myLog("AudioService.exist");
@@ -428,20 +446,6 @@ public class AudioService extends Service {
     }
 
     private ZikFile getCurrentZikFile() {
-        /*
-        if (!(zikFilePlayList==null)) {
-            //if (fileHasBeenLoaded) {
-            //ZikFile zf = zikFilePlayList[numSong];
-            //PlayList.currentZikFile = zf; //update global var
-
-            ZikFile zf = PlayList.currentZikFile;
-            if (LOG_TRACE_ALL) myLog( "AudioService.getCurrentZikFile() : " + zf.getName());
-            return zf;
-        } else {
-            myLogE( "AudioService.getCurrentZikFile() : ERROR empty playlist");
-            return null;
-        }
-*/
         ZikFile zf = PlayList.getZikFile();
         if (!(zf==null)) {
             if (LOG_TRACE_ALL) myLog( "AudioService.getCurrentZikFile() : " + zf.getName());
@@ -451,20 +455,11 @@ public class AudioService extends Service {
             return null;
         }
     }
-/*
-    public ZikFile getLastZikFile() {
-        myLog( "getLastZikFile()");
-        if (fileHasBeenLoaded) {
-            if (numSong > 0) {
-                return zikFilePlayList[numSong - 1];
-            } else {
-                return null;
-            }
-        } else {
-            return null;
-        }
-    }
-*/
+
+    /********************************************************************************
+     ***       MEDIA SESSION
+     ********************************************************************************
+     */
     private void configureMediaSession() {
         myLog("Audio Service : configureMediaSession()");
 
@@ -473,31 +468,31 @@ public class AudioService extends Service {
             @Override
             public boolean onMediaButtonEvent(Intent mediaButtonIntent) {
                 KeyEvent ke = mediaButtonIntent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
-                myLog("AudioService - onMediaButtonEvent Received command: " + ke);
+                myLog("AudioService - mediaSession Callback onMediaButtonEvent -- Received command = " + ke);
                 if (ke != null && ke.getAction() == KeyEvent.ACTION_DOWN) {
                     switch (ke.getKeyCode()) {
                         case KeyEvent.KEYCODE_MEDIA_PLAY:
-                            myLog("AudioService - onMediaButtonEvent --- Play pressed --- KEYCODE_MEDIA_PLAY");
+                            myLog("AudioService - mediaSession Callback onMediaButtonEvent -- Play pressed --- KEYCODE_MEDIA_PLAY");
                             playPauseAudio();
                             break;
                         case KeyEvent.KEYCODE_MEDIA_PAUSE:
-                            myLog("AudioService - onMediaButtonEvent --- Pause pressed --- KEYCODE_MEDIA_PAUSE");
+                            myLog("AudioService - mediaSession Callback onMediaButtonEvent -- Pause pressed --- KEYCODE_MEDIA_PAUSE");
                             playPauseAudio();
                             break;
                         case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
-                            myLog("AudioService - onMediaButtonEvent --- PlayPause pressed --- KEYCODE_MEDIA_PLAY_PAUSE");
+                            myLog("AudioService - mediaSession Callback onMediaButtonEvent -- PlayPause pressed --- KEYCODE_MEDIA_PLAY_PAUSE");
                             playPauseAudio();
                             break;
                         case KeyEvent.KEYCODE_HEADSETHOOK:
-                            myLog("AudioService - onMediaButtonEvent --- PlayPause pressed --- KEYCODE_HEADSETHOOK");
+                            myLog("AudioService - mediaSession Callback onMediaButtonEvent -- PlayPause pressed --- KEYCODE_HEADSETHOOK");
                             playPauseAudio();
                             break;
                         case KeyEvent.KEYCODE_MEDIA_NEXT:
-                            myLog("AudioService - onMediaButtonEvent --- Next pressed --- KEYCODE_MEDIA_NEXT");
+                            myLog("AudioService - mediaSession Callback onMediaButtonEvent -- Next pressed --- KEYCODE_MEDIA_NEXT");
                             forwardAudio();
                             break;
                         case KeyEvent.KEYCODE_MEDIA_PREVIOUS:
-                            myLog("AudioService - onMediaButtonEvent --- Previous pressed --- KEYCODE_MEDIA_PREVIOUS");
+                            myLog("AudioService - mediaSession Callback onMediaButtonEvent -- Previous pressed --- KEYCODE_MEDIA_PREVIOUS");
                             backwardAudio();
                             break;
 
@@ -510,6 +505,11 @@ public class AudioService extends Service {
         mediaSession.setActive(true);
     }
 
+
+    /********************************************************************************
+     ***       TIMER
+     ********************************************************************************
+     */
 
     private void startTimer() {
         timer = new Timer();
@@ -605,6 +605,10 @@ public class AudioService extends Service {
     }
 
 
+    /** ----------------------------------------------------------------
+    **           SHARED PREFS
+    ** ----------------------------------------------------------------
+    **/
     private void setMaxTimeBeforeSleep() {
         SharedPreferences prefs = this.getSharedPreferences(SHARED_PREFERENCE_TIME_BEFORE_SLEEP, MODE_PRIVATE);
         maxTimeBeforeSleep = prefs.getInt("TIME_BEFORE_SLEEP", DEFAULT_TIME_BEFORE_SLEEP);

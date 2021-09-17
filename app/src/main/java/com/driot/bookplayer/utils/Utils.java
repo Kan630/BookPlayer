@@ -2,10 +2,14 @@ package com.driot.bookplayer.utils;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.content.Context;
 import android.view.View;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -14,6 +18,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+
+import static com.driot.tonylib.KanLogger.myLog;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 08/11/20
@@ -102,5 +108,94 @@ public class Utils {
         }
     }
 
+    public static void unzip(File zipFile, File targetDirectory) throws IOException {
+        myLog("unzipping in : " + targetDirectory);
+        myLog("unzipping in : " + targetDirectory.getName());
+        ZipInputStream zis = new ZipInputStream(
+                new BufferedInputStream(new FileInputStream(zipFile)));
+        try {
+            ZipEntry ze;
+            int count;
+            byte[] buffer = new byte[8192];
+
+            while ((ze = zis.getNextEntry()) != null) {
+                myLog("unzipping : " + ze.getName());
+
+                if (ze.getName().equals(targetDirectory.getName()+"/")) {
+                    //bypass if zip contains only folder with same name at first level
+                    targetDirectory = new File(targetDirectory.getParent());
+                    myLog("unzipping : bypassing first directory");
+
+                } else {
+
+                    File file = new File(targetDirectory, ze.getName());
+                    File dir = ze.isDirectory() ? file : file.getParentFile();
+
+                    if (!dir.isDirectory() && !dir.mkdirs())
+                        throw new FileNotFoundException("Failed to ensure directory: " +
+                                dir.getAbsolutePath());
+                    if (ze.isDirectory())
+                        continue;
+                    FileOutputStream fout = new FileOutputStream(file);
+                    try {
+                        while ((count = zis.read(buffer)) != -1)
+                            fout.write(buffer, 0, count);
+                    } finally {
+                        fout.close();
+                    }
+
+                }
+            /* if time should be restored as well
+            long time = ze.getTime();
+            if (time > 0)
+                file.setLastModified(time);
+            */
+            }
+        } finally {
+            zis.close();
+        }
+    }
+
+    public static boolean recursiveRemove(File file) {
+        if(file == null  || !file.exists()) {
+            return false;
+        }
+
+        if(file.isDirectory()) {
+            File[] list = file.listFiles();
+
+            if(list != null) {
+
+                for(File item : list) {
+                    recursiveRemove(item);
+                }
+
+            }
+        }
+
+        if(file.exists()) {
+            file.delete();
+        }
+
+        return !file.exists();
+    }
+
+
+    public static boolean deleteDir(File dir) {
+        if (dir != null && dir.isDirectory()) {
+            String[] children = dir.list();
+            for (int i = 0; i < children.length; i++) {
+                boolean success = deleteDir(new File(dir, children[i]));
+                if (!success) {
+                    return false;
+                }
+            }
+            return dir.delete();
+        } else if(dir!= null && dir.isFile()) {
+            return dir.delete();
+        } else {
+            return false;
+        }
+    }
 
 }

@@ -25,7 +25,7 @@ import static com.driot.tonylib.TonioCommonStuff.MD5;
 public class KanLogger {
 
     private static final String LOG_FILE_FOLDER = "log";
-    private static final String LOG_FILE_NAME = "kanlog4";
+    private static final String LOG_FILE_NAME = "kanlog";
     private static final String USER_LOG_FILE_FOLDER = "log";
     private static final String USER_LOG_FILE_NAME = "kanlog";
     private static final boolean LOG_THEM_ALL = true;
@@ -37,6 +37,7 @@ public class KanLogger {
             ,"ed8acdf5617d368dce4175a6597197a2" //"samsung/j5y17ltexx/j5y17lte:9/PPR1.180610.011/J530FXXS9CUE5:user/release-keys" // 09/09/2021
             ,"56db55f6c978892e2f3a55563fcb6f80" //"OPPO/CPH2065EEA/OP4BDCL1:11/RP1A.200720.011/1718335401248:user/release-keys"
             ,"f440eedc21b7e92490e9ad90e4a93215" //"OPPO/CPH2065EEA/OP4BDCL1:11/RP1A.200720.011/1624562435949:user/release-keys" //oppo-cph2065-P7LFRGOFKVKRLNPF
+            ,"eb621dde2a2672e66b6e6ef5acbbbb99" //"OPPO/CPH2065EEA/OP4BDCL1:11/RP1A.200720.011/1629728339857:user/release-keys"
     };
 
     private static Context appContext;
@@ -53,8 +54,9 @@ public class KanLogger {
 
     public static void myLog(String str) {
         if (TextUtils.isEmpty(str)) {str = "...";}
-        writeToLogFile(str);
+
         if (isMyPhoneDev()) {
+            writeToLogFile(str);
             Log.d("toto", str);
         } else {
             if (LOG_THEM_ALL) Log.d("", str);
@@ -91,7 +93,7 @@ public class KanLogger {
         myLogE(str);
     }
 
-    private static boolean isMyPhoneDev() {
+    public static boolean isMyPhoneDev() {
         boolean ret = false;
         //return MD5_MY_PHONE.equals(MD5(Build.FINGERPRINT));
         String strToCheck = MD5(Build.FINGERPRINT);

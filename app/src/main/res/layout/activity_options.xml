@@ -68,6 +68,9 @@
             android:text="Max = 1440"
             android:textSize="12sp"
             />
+
+
+
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

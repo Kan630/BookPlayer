@@ -36,7 +36,7 @@ public class FolderAttrib {
 
     private boolean fromDownloadFolder;
 
-    public FolderAttrib(Context context, Uri uri, boolean isZipFolder) {
+    public FolderAttrib(Context context, Uri uri, boolean isZipFolder, String forceName) {
 
         this.uri = uri;
         this.isZipFolder = isZipFolder;
@@ -115,6 +115,10 @@ public class FolderAttrib {
                     }
                 }
             }
+        }
+
+        if (forceName.length()>0) {
+            sFolderName = forceName;
         }
 
         myLog("..." + "\n" +

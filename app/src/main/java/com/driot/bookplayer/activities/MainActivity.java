@@ -1,5 +1,6 @@
 package com.driot.bookplayer.activities;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.os.Bundle;
@@ -26,6 +27,7 @@ import com.google.android.play.core.install.model.InstallStatus;
 import com.google.android.play.core.install.model.UpdateAvailability;
 import com.google.android.play.core.tasks.Task;
 
+import java.io.File;
 import java.util.List;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
@@ -34,6 +36,8 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 
 import static com.driot.bookplayer.utils.Tonio2.loadBiggerText;
 import static com.driot.bookplayer.utils.Tonio2.writeToFile;
+import static com.driot.bookplayer.utils.Utils.deleteDir;
+import static com.driot.tonylib.KanLogger.isMyPhoneDev;
 import static com.driot.tonylib.KanLogger.myLog;
 import static com.driot.tonylib.KanLogger.myLogE;
 
@@ -64,6 +68,7 @@ public class MainActivity extends LifecycleLoggingActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        ClearCacheData();
         checkForUpdate();
         KanLogger.setContext(getApplicationContext());
         KanLogger.myLog("");
@@ -94,6 +99,12 @@ public class MainActivity extends LifecycleLoggingActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
+        if (isMyPhoneDev()) {
+            menu.findItem(R.id.menu_seelog).setVisible(true);
+        } else {
+            menu.findItem(R.id.menu_seelog).setVisible(false);
+        }
+
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -101,13 +112,13 @@ public class MainActivity extends LifecycleLoggingActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int itemId = item.getItemId();
         if (itemId == R.id.menu_options) {
-            startActivity(new Intent(getApplicationContext(),OptionActivity.class));
+            startActivity(new Intent(getApplicationContext(), OptionActivity.class));
         } else if (itemId == R.id.menu_manual) {
-            startActivity(new Intent(getApplicationContext(),HelpActivity.class));
+            startActivity(new Intent(getApplicationContext(), HelpActivity.class));
         } else if (itemId == R.id.menu_otherapp) {
-            startActivity(new Intent(getApplicationContext(),AutresApplisActivity.class));
+            startActivity(new Intent(getApplicationContext(), AutresApplisActivity.class));
         } else if (itemId == R.id.menu_seelog) {
-            startActivity(new Intent(this,LogListActivity.class));
+            startActivity(new Intent(this, LogListActivity.class));
         } else {
             myLogE("menu click : action inconnue");
         }
@@ -127,9 +138,9 @@ public class MainActivity extends LifecycleLoggingActivity {
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe((result) -> {
-                    if (result.size()==0) {
+                    if (result.size() == 0) {
                         if (!HasBeenProposedToOpenFile) performFileSearch();
-                        HasBeenProposedToOpenFile=true;
+                        HasBeenProposedToOpenFile = true;
                     } else {
                         FoldersAdapter adapter = new FoldersAdapter(MainActivity.this, result);
                         recyclerView.setAdapter(adapter);
@@ -141,6 +152,18 @@ public class MainActivity extends LifecycleLoggingActivity {
         Intent intent = new Intent(getApplicationContext(), GetResourceActivity.class);
         startActivity(intent);
     }
+
+    private void ClearCacheData() {
+        myLog("Clearing Cache Data");
+        try {
+            deleteDir(getApplicationContext().getCacheDir());
+            deleteDir(getApplicationContext().getCodeCacheDir());
+        } catch (Exception e) {
+            e.printStackTrace();
+            myLogE("Error while clearing cache data");
+        }
+    }
+
 
     private void checkForUpdate() {
         boolean DoZeUpdateIMMEDIATE = false;

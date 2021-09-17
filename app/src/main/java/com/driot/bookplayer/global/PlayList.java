@@ -1,12 +1,9 @@
 package com.driot.bookplayer.global;
 
-import android.content.SharedPreferences;
-
 import com.driot.bookplayer.db.ZikFile;
 
 import java.util.List;
 
-import static com.driot.bookplayer.activities.PlayActivity.SHARED_PREFERENCE_SPEED;
 import static com.driot.tonylib.KanLogger.myLog;
 import static com.driot.tonylib.KanLogger.myLogE;
 
@@ -16,11 +13,7 @@ import static com.driot.tonylib.KanLogger.myLogE;
 public class PlayList {
 
     private static List<ZikFile> zikFilesList;
-    private static int numZikFile; // old numSong
-
-    private static int idFolder;
-    private static int idZikFile;
-    private static double positionZikFile;
+    private static int numZikFile=-1; // old numSong
 
     public static void setZikFilesList(List<ZikFile> zikFilesList) {
         PlayList.zikFilesList = zikFilesList;
@@ -48,7 +41,25 @@ public class PlayList {
 
 
     public static ZikFile getZikFile() {
-        return getZikFilesList().get(numZikFile);
+        if (numZikFile>=0) {
+            if (!(zikFilesList==null)) {
+                try {
+                    return getZikFilesList().get(numZikFile);
+                } catch (Exception e) {
+                    myLogE("PlayList.getZikFile() ERROR - try-catch -- " + e.getMessage());
+                    e.printStackTrace();
+                    return null;
+                }
+            } else {
+                myLogE("PlayList.getZikFile() ERROR - zikFilesList==null");
+                return null;
+            }
+        } else {
+            myLogE("PlayList.getZikFile() ERROR - numZikFile = " + numZikFile);
+            return null;
+
+        }
+
     }
 /*
     public static void setZikFile(ZikFile zikFile) {

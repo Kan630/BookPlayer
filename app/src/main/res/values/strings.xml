@@ -69,6 +69,20 @@
     <string name="Error_Getting_Ressource_Name_from_Download_Folder">Error while accessing resource in Downloads location</string>
     <string name="Add_resource_reading_file">reading file</string>
 
+    <string name="Import_Progress_copying_zip_file">"copying ZIP file from external memory to internal Bookplayer memory"</string>
+    <string name="Import_Progress_unzipping_file">"unzipping file (may take some time)"</string>
+
+    <string name="Error_Import_UnableToUnzip_line1">Error unzipping compressed file"</string>
+    <string name="Error_Import_UnableToUnzip_line2">Sorry, You may try to import an already unzipped folder instead"</string>
+
+    <string name="Error_Import_NotEnoughMemory_line1">"Not enough memory on device"</string>
+    <string name="Error_Import_NotEnoughMemory_line2">"available : "</string>
+    <string name="Error_Import_NotEnoughMemory_line3">"zip file : "</string>
+    <string name="Error_Import_NotEnoughMemory_line4_1">"(you need at least "</string>
+    <string name="Error_Import_NotEnoughMemory_line4_2">" time the size of the zip file)"</string>
+    <string name="Error_Import_NotEnoughMemory_line5">"Import a mp3 folder and not the zip file to bypass this limitation"</string>
+
+
 
     <string name="Import_Success">Import Successful</string>
 
