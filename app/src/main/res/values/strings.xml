@@ -69,7 +69,7 @@
     <string name="Error_Getting_Ressource_Name_from_Download_Folder">Error while accessing resource in Downloads location</string>
     <string name="Add_resource_reading_file">reading file</string>
 
-    <string name="Import_Progress_copying_zip_file">"copying ZIP file from external memory to internal Bookplayer memory"</string>
+    <string name="Import_Progress_copying_zip_file">"copying ZIP file from Device External Memory " + "\n" + "to Bookplayer app internal memory"</string>
     <string name="Import_Progress_unzipping_file">"unzipping file (may take some time)"</string>
 
     <string name="Error_Import_UnableToUnzip_line1">Error unzipping compressed file"</string>

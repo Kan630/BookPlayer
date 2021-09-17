@@ -29,7 +29,10 @@ import com.driot.bookplayer.db.ZikFile;
 
 import org.apache.commons.io.FileUtils;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -41,6 +44,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
@@ -63,6 +67,12 @@ import static com.driot.tonylib.KanLogger.myLogE;
  * created by Antoine Driot -- antoine.driot.com -- on 23/11/20
  */
 public class AddResourceService extends Service {
+
+    public static final int PROGRESS_ZIP_BUFFER_COPY = 1024;
+    public static final int PROGRESS_ZIP_START_COPY = 3;
+    public static final int PROGRESS_ZIP_END_COPY = 20;
+    public static final int PROGRESS_ZIP_START_UNZIP = 20;
+    public static final int PROGRESS_ZIP_END_UNZIP = 80;
 
     private final IBinder binder = new AddResourceService.BackgroundBinder();
     static final String TAG = "AddResourceServ.";
@@ -147,6 +157,9 @@ public class AddResourceService extends Service {
         myLog("init() - **" + type + "**");
         final DocumentFile[] pickedDir = new DocumentFile[1];
         final boolean[] resourceSelected = {false};
+
+        // TODO First thing check if folder already exists
+
         switch (type) {
             ///---------------------------------------------
             /// FOLDER
@@ -219,12 +232,12 @@ public class AddResourceService extends Service {
                             public void run() {
                                 ContentResolver resolver = getContentResolver();
                                 InputStream is = null;
-                                tellProgress(20,getResources().getString(R.string.Import_Progress_copying_zip_file)
+                                tellProgress(PROGRESS_ZIP_START_COPY,getResources().getString(R.string.Import_Progress_copying_zip_file)
                                         + "\n"
                                         + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line3) + file_size + "Mo"
                                         + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line2) + availableMegs + "Mo"
                                 );
-
+                                int nbBuffCopied = 0;
                                 // copy of Zip file
                                 try {
                                     is = resolver.openInputStream(uri);
@@ -236,10 +249,24 @@ public class AddResourceService extends Service {
 
                                         try {
                                             // Transfer bytes from in to out
-                                            byte[] buf = new byte[1024];
+                                            byte[] buf = new byte[PROGRESS_ZIP_BUFFER_COPY];
                                             int len;
                                             while ((len = is.read(buf)) > 0) {
+                                                nbBuffCopied++;
                                                 out.write(buf, 0, len);
+
+                                                //display progress
+                                                if (nbBuffCopied % 1024 == 0) {
+                                                    int nbMoCopied = nbBuffCopied*PROGRESS_ZIP_BUFFER_COPY/1024/1024;
+                                                    double progressValue = (double) nbMoCopied / (file_size) * 100;
+                                                    tellProgress( PROGRESS_ZIP_START_COPY + (int)progressValue*(PROGRESS_ZIP_END_COPY-PROGRESS_ZIP_START_COPY)/100,
+                                                            getResources().getString(R.string.Import_Progress_copying_zip_file)
+                                                                    + "\n"
+                                                                    + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line3) + nbMoCopied + "Mo/" + file_size + "Mo"
+                                                                    + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line2) + availableMegs + "Mo"
+                                                    );
+                                                }
+
                                             }
                                             myLog("okay stream write");
                                         } catch (Exception e) {
@@ -261,20 +288,85 @@ public class AddResourceService extends Service {
 
                                 myLog("file has been copied from " + uri.toString() + " to " + destination);
 
-                                tellProgress(40,getResources().getString(R.string.Import_Progress_unzipping_file));
+
 
                                 fileZipFile[0] = new File(destination.getAbsolutePath());
                                 folder[0] = new File(stripExtension(fileZipFile[0].getAbsolutePath().replace(" ","_")));
 
+                                ////////////////////////////////////////////////////////////////////////////////
+                                /// unzipping....
+                                ////////////////////////////////////////////////////////////////////////////////
+                                //tellProgress(40,getResources().getString(R.string.Import_Progress_unzipping_file));
+                                //unzip(fileZipFile[0], folder[0]);
+
                                 try {
-                                    /// unzipping....
+                                    File targetDirectory = folder[0];
+                                    File zipFile = fileZipFile[0];
+                                    ZipInputStream zis = new ZipInputStream(new BufferedInputStream(new FileInputStream(zipFile)));
+                                    myLog("unzipping in : " + targetDirectory);
+                                    myLog("unzipping in : " + targetDirectory.getName());
 
+                                    // check number of file in zip
+                                    int nbZip;
+                                    try {
+                                        ZipFile zf= new ZipFile(destination.getAbsolutePath());
+                                        nbZip = zf.size();
+                                    } catch (Exception e) {
+                                        myLogE("Couln't count element of zip file");
+                                        nbZip = 10;
+                                    }
+                                    myLog("Zip file has : " + nbZip + " entries");
 
+                                    int numCurZip = 0;
 
-                                    /// unzipping....
+                                    try {
+                                        ZipEntry ze;
+                                        int count;
+                                        byte[] buffer = new byte[8192];
 
+                                        while ((ze = zis.getNextEntry()) != null) {
+                                            myLog("unzipping : " + ze.getName());
 
-                                    unzip(fileZipFile[0], folder[0]);
+                                            if (ze.getName().equals(targetDirectory.getName()+"/")) {
+                                                //bypass if zip contains only folder with same name at first level
+                                                targetDirectory = new File(targetDirectory.getParent());
+                                                myLog("unzipping : bypassing first directory");
+
+                                            } else {
+                                                numCurZip = numCurZip + 1;
+                                                tellProgress(PROGRESS_ZIP_START_UNZIP + numCurZip/nbZip*(PROGRESS_ZIP_END_UNZIP-PROGRESS_ZIP_START_UNZIP) ,
+                                                        getResources().getString(R.string.Import_Progress_unzipping_file)
+                                                                + "\n" + "\n" + numCurZip + "/" + nbZip + " : " + ze.getName());
+
+                                                File file = new File(targetDirectory, ze.getName());
+                                                File dir = ze.isDirectory() ? file : file.getParentFile();
+
+                                                if (!dir.isDirectory() && !dir.mkdirs())
+                                                    throw new FileNotFoundException("Failed to ensure directory: " +
+                                                            dir.getAbsolutePath());
+                                                if (ze.isDirectory())
+                                                    continue;
+                                                FileOutputStream fout = new FileOutputStream(file);
+                                                try {
+                                                    while ((count = zis.read(buffer)) != -1)
+                                                        fout.write(buffer, 0, count);
+                                                } finally {
+                                                    fout.close();
+                                                }
+
+                                            }
+            /* if time should be restored as well
+            long time = ze.getTime();
+            if (time > 0)
+                file.setLastModified(time);
+            */
+                                        }
+                                    } finally {
+                                        zis.close();
+                                    }
+                                    ////////////////////////////////////////////////////////////////////////////////
+                                    ////////////////////////////////////////////////////////////////////////////////
+
                                 } catch (Exception e) {
                                     tellError(getResources().getString(R.string.Error_Import_UnableToUnzip_line1) + " : " + e.getMessage()
                                     + "\n" + "\n" + getResources().getString(R.string.Error_Import_UnableToUnzip_line2));
