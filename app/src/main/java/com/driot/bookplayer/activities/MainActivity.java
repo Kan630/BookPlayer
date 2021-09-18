@@ -68,7 +68,7 @@ public class MainActivity extends LifecycleLoggingActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        ClearCacheData();
+        //ClearCacheData();
         checkForUpdate();
         KanLogger.setContext(getApplicationContext());
         KanLogger.myLog("");

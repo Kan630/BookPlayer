@@ -95,12 +95,12 @@ public class AddResourceActivity extends LifecycleLoggingActivity {
         public void onReceive(Context context, Intent intent) {
             switch (intent.getAction()) {
                 case NOTIFICATION_ADDRESOURCE_NAME:
-                    myLog("broadcast received NAME");
+                    myLog("broadcast received NAME : " + intent.getStringExtra("name"));
                     putTitle(intent.getStringExtra("name"));
                     break;
 
                 case NOTIFICATION_ADDRESOURCE_PROGRESS:
-                    myLog("broadcast received PROGRESS");
+                    myLog("broadcast received PROGRESS : " + intent.getIntExtra("progress",0));
                     progressBar.setProgress(intent.getIntExtra("progress",0));
                     progressBarText.setText(intent.getStringExtra("progressText"));
                     break;

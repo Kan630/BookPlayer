@@ -69,8 +69,21 @@
     <string name="Error_Getting_Ressource_Name_from_Download_Folder">Error while accessing resource in Downloads location</string>
     <string name="Add_resource_reading_file">reading file</string>
 
-    <string name="Import_Progress_copying_zip_file">"copying ZIP file from Device External Memory " + "\n" + "to Bookplayer app internal memory"</string>
-    <string name="Import_Progress_unzipping_file">"unzipping file (may take some time)"</string>
+    <string name="Import_Progress_copying_zip_file">"copying ZIP file from Device External Memory\nto Bookplayer app internal memory"</string>
+    <string name="Import_Progress_unzipping_file">"unzipping file : "</string>
+    <string name="Import_Progress_check_not_already_imported">"Checking Folder has not already been imported"</string>
+    <string name="Import_Progress_checkingFiles">"Folder Saved - checking files"</string>
+    <string name="Import_Progress_scanningFile">"scanning file"</string>
+
+
+    <string name="Error_Import_Creating_Folders">"Couldn't create folders for path : "</string>
+    <string name="Error_Import_checking_Folder_Exists">"ERROR checking if folder already exist in database : "</string>
+    <string name="Error_Import_saving_file_DB">"Error Saving File in Database"</string>
+    <string name="Error_Import_updating_track_duration">"Error updating Track length"</string>
+
+
+
+
 
     <string name="Error_Import_UnableToUnzip_line1">Error unzipping compressed file"</string>
     <string name="Error_Import_UnableToUnzip_line2">Sorry, You may try to import an already unzipped folder instead"</string>
@@ -81,6 +94,9 @@
     <string name="Error_Import_NotEnoughMemory_line4_1">"(you need at least "</string>
     <string name="Error_Import_NotEnoughMemory_line4_2">" time the size of the zip file)"</string>
     <string name="Error_Import_NotEnoughMemory_line5">"Import a mp3 folder and not the zip file to bypass this limitation"</string>
+
+    <string name="Error_Import_general_error">"Something bad happened, import has been stopped"</string>
+
 
 
 

@@ -13,6 +13,8 @@ import com.driot.bookplayer.R;
 import java.io.File;
 
 import static com.driot.bookplayer.utils.Tonio.FormatNameForDisplay;
+import static com.driot.bookplayer.utils.Tonio.FormatNameForDisplay_withUnderscore;
+import static com.driot.tonylib.KanLogger.myLogE;
 
 
 /**
@@ -31,12 +33,14 @@ public class FolderAttrib {
     private final String sFolderHash;
     private String sFolderPath;
     private String sFolderName;
+    private String sFolderName_withUnderscore;
 
     private String sRealFolderPath;
 
     private boolean fromDownloadFolder;
 
-    public FolderAttrib(Context context, Uri uri, boolean isZipFolder, String forceName) {
+    //public FolderAttrib(Context context, Uri uri, boolean isZipFolder, String forceName) {
+    public FolderAttrib(Context context, Uri uri, boolean isZipFolder) {
 
         this.uri = uri;
         this.isZipFolder = isZipFolder;
@@ -105,22 +109,29 @@ public class FolderAttrib {
             int pos1 = str.lastIndexOf("/");
             if (isZipFolder) {
                 sFolderName = FormatNameForDisplay(str.substring(pos1 + 1));
+                sFolderName_withUnderscore = FormatNameForDisplay_withUnderscore(str.substring(pos1 + 1));
             } else {
                 if (pos1 > -1) {
                     int pos2 = str.substring(0, pos1).lastIndexOf("/", pos1);
                     if (pos2 > -1) {
-                        sFolderName = str.substring(pos2 + 1);
+                        sFolderName = FormatNameForDisplay(str.substring(pos2 + 1));
+                        sFolderName_withUnderscore = FormatNameForDisplay_withUnderscore(str.substring(pos2 + 1));
                     } else {
-                        sFolderName = str.substring(pos1 + 1);
+                        sFolderName = FormatNameForDisplay(str.substring(pos1 + 1));
+                        sFolderName_withUnderscore = FormatNameForDisplay_withUnderscore(str.substring(pos1 + 1));
                     }
+                } else {
+                    // especially when foldername is just a string without slash (Android 11 zip local copy)
+                    sFolderName = FormatNameForDisplay(str);
+                    sFolderName_withUnderscore = FormatNameForDisplay_withUnderscore(str);
                 }
             }
         }
-
+/*
         if (forceName.length()>0) {
             sFolderName = forceName;
         }
-
+*/
         myLog("..." + "\n" +
                 this.toString() + "\n" +
                 "...");
@@ -136,6 +147,10 @@ public class FolderAttrib {
 
     public String getsFolderName() {
         return sFolderName;
+    }
+
+    public String getsFolderName_withUnderscore() {
+        return sFolderName_withUnderscore;
     }
 
     public String getsFolderPath() {
@@ -173,6 +188,7 @@ public class FolderAttrib {
                 "isZipFolder         =" + isZipFolder + "\n" +
                 "isFolderKO          =" + FolderKO + "\n" +
                 "sFolderName         ='" + sFolderName + '\'' + "\n" +
+                "sFolderName_withUn. ='" + sFolderName_withUnderscore + '\'' + "\n" +
                 '}';
     }
 
@@ -209,11 +225,15 @@ public class FolderAttrib {
         }
         if (result == null) {
             result = uri.getPath();
+            if (result.endsWith("/")) {
+                result = result.substring(0,result.length()-1);
+            }
             int cut = result.lastIndexOf('/');
             if (cut != -1) {
                 result = result.substring(cut + 1);
             }
         }
+        if (result == null) {myLogE("FolderAttrib.getFileName -- " + uri.getPath());}
         return result;
     }
 

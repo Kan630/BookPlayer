@@ -144,6 +144,12 @@ public class Tonio {
         return s;
     }
 
+    public static String FormatNameForDisplay_withUnderscore(String s) {
+        s = stripExtension(s);
+        s = s.replace(" ", "_");
+        return s;
+    }
+
     public static String stripExtension(String fileName) {
         String s = fileName;
         if (s.indexOf(".") > 0) {
