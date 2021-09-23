@@ -1,7 +1,7 @@
 package com.driot.bookplayer.activities;
 
 /**
- * created by Antoine Driot -- antoine.driot.com -- on 30/10/20
+ * created by Antoine Driot -- antoine.driot.com -- on 30/10/2020
  * <p>
  * onCreate
  * bindToService

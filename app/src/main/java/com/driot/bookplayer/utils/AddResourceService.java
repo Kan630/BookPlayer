@@ -214,7 +214,8 @@ public class AddResourceService extends Service {
                     ////////////////////////////////////////////////////////////////////////////////////////////////////////
                     ////////////////////////////////////////////////////////////////////////////////////////////////////////
                     //// ANDROID 11 (R and up)
-                    if (SDK_INT >= Build.VERSION_CODES.R) {
+                    //if (SDK_INT >= Build.VERSION_CODES.R) {
+                    if (true) {
                         myLog("====> Android 11");
                         //String destinationPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/TongueTwister/tt_1A.3gp";
 

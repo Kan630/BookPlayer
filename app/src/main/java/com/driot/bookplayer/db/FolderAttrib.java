@@ -64,9 +64,11 @@ public class FolderAttrib {
                 String sRealFolderName = getFileName(context,uri);
                 sRealFolderPath = sFolderPath + "/" + sRealFolderName;
                 sFolderName = FormatNameForDisplay(sRealFolderName);
+                sFolderName_withUnderscore = FormatNameForDisplay_withUnderscore(sRealFolderName);
             } else {
                 sRealFolderPath = uri.getLastPathSegment().replace("raw:","");
                 sFolderName = FormatNameForDisplay(sRealFolderPath.substring(sRealFolderPath.lastIndexOf("/")+1));
+                sFolderName_withUnderscore = FormatNameForDisplay_withUnderscore(sRealFolderPath.substring(sRealFolderPath.lastIndexOf("/")+1));
             }
             fromDownloadFolder=true;
 
