@@ -32,6 +32,10 @@
     <string name="option_timeBeforeSleep_min">min.</string>
     <string name="option_timeBeforeSleep_outOfBound">Argg : La pause automatique a été définie hors de sa plage autorisée, elle sera réinitialisée à sa valeur par défaut</string>
 
+    <string name="option_zip">Import de fichiers Zip</string>
+    <string name="option_copyzip_local">"Copier les fichiers dans la mémoire réservée de l'application BookPlayer (obligatoire pour Android 11 et supérieurs)."</string>
+    <string name="option_unzip_local">"Décompresser les fichiers (prend de l'espace sur l'appareil, mais la lecture des pistes audios est plus rapide et meilleure)"</string>
+
 
     <!-- ********************************** -->
     <!-- Get Resources -->
@@ -68,6 +72,34 @@
     <string name="Error_Import_ParsingZipFile_advice">"Vous pourriez d'abord essayer de décompresser le fichier Zip, puis de chargez le dossier"</string>
     <string name="Error_Getting_Ressource_Name_from_Download_Folder">Erreur lors de la récupération du nom du fichier choisi dans le répertoire de téléchargements</string>
     <string name="Add_resource_reading_file">lecture du fichier</string>
+
+    <string name="Import_Progress_copying_zip_file">"copie du fichier ZIP en cours \n- de la mémoire de l'appareil\n- à la mémoire interne de l'application Bookplayer"</string>
+    <string name="Import_Progress_unzipping_file">"décompression : "</string>
+    <string name="Import_Progress_check_not_already_imported">"Contrôle que le dossier n'a pas déjà été importé"</string>
+    <string name="Import_Progress_checkingFiles">"Dossier sauvegardé - contrôle des fichiers"</string>
+    <string name="Import_Progress_scanningFile">"scan des pistes audios"</string>
+
+    <string name="Import_Progress_onGoing">"Occupé… importation en cours…"</string>
+
+    <string name="Error_Import_Creating_Folders">"Impossible de créer les dossiers"</string>
+    <string name="Error_Import_checking_Folder_Exists">"ERREUR pendant le contrôle (de si le dossier existe déjà) : "</string>
+    <string name="Error_Import_saving_file_DB">"Erreur lors de la sauvegarde de la piste audioç dans la base de données"</string>
+    <string name="Error_Import_updating_track_duration">"Erreur lors de la sauvegarde de la durée de la piste audio"</string>
+
+    <string name="Error_Import_UnableToUnzip_line1">Erreur lors de la décopression du fichier Zip"</string>
+    <string name="Error_Import_UnableToUnzip_line2">"Désolé, Vous pouvez, à la place, essayer d'importer un dossier déjà décompressé"</string>
+
+    <string name="Error_Import_NotEnoughMemory_line1">"Pas assez de mémoire sur votre appareil"</string>
+    <string name="Error_Import_NotEnoughMemory_line2_1">"mémoire disponible : "</string>
+    <string name="Error_Import_NotEnoughMemory_line2_2">"mémoire interne disponible : "</string>
+    <string name="Error_Import_NotEnoughMemory_line3">"fichier zip : "</string>
+    <string name="Error_Import_NotEnoughMemory_line4_1">"(Vous avez besoin d'au moins "</string>
+    <string name="Error_Import_NotEnoughMemory_line4_2">" fois la taille du fichier Zip)"</string>
+    <string name="Error_Import_NotEnoughMemory_line5">"Importez un dossier mp3 et pas directement le fichier zip pour passer outre cette limite"</string>
+
+    <string name="Error_Import_general_error">"Une erreur s'est produite, l'importation a été annulée"</string>
+
+
 
     <string name="Import_Success">Importation effectuée</string>
 
