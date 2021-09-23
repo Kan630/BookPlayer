@@ -9,7 +9,7 @@
         android:orientation="vertical"
         >
 
-        <TextView
+    <TextView
             style="@style/myStyleTextTitle2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -71,6 +71,74 @@
 
 
 
+
+
+        <LinearLayout
+            android:id="@+id/ll_ZipOptions"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                style="@style/myStyleTextTitle2"
+                android:id="@+id/txt_zip_header"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="50sp"
+                android:layout_marginTop="50sp"
+                android:text="@string/option_zip"
+            />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginStart="20sp"
+                android:layout_marginTop="20sp"
+                >
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/chk_copyzip_local"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    />
+                <TextView
+                    style="@style/myStyle"
+                    android:id="@+id/txt_copyzip_local"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="textEnd"
+                    android:layout_marginStart="10sp"
+                    android:text="@string/option_copyzip_local"
+                    android:textSize="16sp"
+                    />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginStart="20sp"
+                android:layout_marginTop="20sp"
+                >
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/chk_unzip_local"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    />
+                <TextView
+                    style="@style/myStyle"
+                    android:id="@+id/txt_unzip_local"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="textEnd"
+                    android:layout_marginStart="10sp"
+                    android:text="@string/option_unzip_local"
+                    android:textSize="16sp"
+                    />
+            </LinearLayout>
+        </LinearLayout>
+
     </LinearLayout>
+
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

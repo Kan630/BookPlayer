@@ -6,6 +6,7 @@ package com.driot.bookplayer.global;
 public class Var {
 
     public static final String  FOLDER_UNZIPPED = "unzipped";
+    public static final String  FOLDER_ZIPPED = "zipped";
 
     public static final int  ZIP_SIZE_MAX_COEF = 10;
 }
