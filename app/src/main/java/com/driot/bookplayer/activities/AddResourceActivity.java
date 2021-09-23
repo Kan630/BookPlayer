@@ -58,6 +58,8 @@ public class AddResourceActivity extends LifecycleLoggingActivity {
         uri = getIntent().getParcelableExtra("Uri");
         type =  getIntent().getStringExtra("type");
 
+        this.getContentResolver().takePersistableUriPermission(uri,Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+
         putTitle(uri.getLastPathSegment());
 
         intentAddResourceService = new Intent(AddResourceActivity.this, AddResourceService.class);
@@ -83,7 +85,6 @@ public class AddResourceActivity extends LifecycleLoggingActivity {
         try {
             unregisterReceiver(receiver);
             unbindService(connection);
-            //stopService(intentAddResourceService);
         } catch (Exception e) {
             myLogE("error stopping service");
         }
@@ -109,7 +110,7 @@ public class AddResourceActivity extends LifecycleLoggingActivity {
                     String errorMessage = getString(R.string.ERROR) + " :" + intent.getStringExtra("message");
                     progressBarText.setText(errorMessage);
                     progressBarText.setTextColor(Color.RED);
-                    myToast(errorMessage);
+                    //myToast(errorMessage);
                     myLogE("broadcast received ERROR : " + errorMessage);
                     break;
 

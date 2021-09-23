@@ -2,13 +2,17 @@ package com.driot.bookplayer.activities;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -16,7 +20,11 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.utils.AddResourceService;
 import com.driot.bookplayer.utils.PermissionRequest;
+
+import java.util.Timer;
+import java.util.TimerTask;
 
 import static com.driot.tonylib.KanLogger.myLog;
 import static com.driot.tonylib.KanLogger.myLogE;
@@ -52,7 +60,7 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
             if (checkIfPermissionsReadStorage()) {
                 Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
                 intent.setType("application/zip");
-                intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_WRITE_URI_PERMISSION|Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION);
+                intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_WRITE_URI_PERMISSION|Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION|Intent.FLAG_GRANT_PREFIX_URI_PERMISSION);
                 intent.addCategory(Intent.CATEGORY_OPENABLE);
                 startActivityForResult(intent, OPEN_ZIP_FILE_REQUEST_CODE);
             } else {
@@ -64,6 +72,7 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
         bOpenFolder.setOnClickListener(view -> {
             if (checkIfPermissionsReadStorage()) {
                 Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+                intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_WRITE_URI_PERMISSION|Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION|Intent.FLAG_GRANT_PREFIX_URI_PERMISSION);
                 startActivityForResult(intent, OPEN_FOLDER_REQUEST_CODE);
             } else {
                 myToast(getString(R.string.permissions_denied_sorry_cannot));
@@ -79,6 +88,49 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
             startActivity(intent);
         });
+
+        //create timer to check progress
+        Timer timer = new Timer();
+        timer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                runOnUiThread(checkServiceRunningRunnable);
+            }
+        }, 0, 500);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        checkServiceRunning();
+    }
+
+    final Runnable checkServiceRunningRunnable = new Runnable() { // sinon Error :  Animators may only be run on Looper threads
+        public void run() {
+            checkServiceRunning();
+        }
+    };
+
+    private void checkServiceRunning() {
+        try {
+            TextView tv1 = findViewById(R.id.bOpenFolder_desc);
+            TextView tv2 = findViewById(R.id.message_import_currently_running);
+
+            //if (isMyServiceRunning(AddResourceService.class)) {
+            if (AddResourceService.isBusy) {
+                bOpenZipFile.setEnabled(false);
+                bOpenFolder.setEnabled(false);
+                tv1.setVisibility(View.INVISIBLE);
+                tv2.setVisibility(View.VISIBLE);
+            } else {
+                bOpenZipFile.setEnabled(true);
+                bOpenFolder.setEnabled(true);
+                tv1.setVisibility(View.VISIBLE);
+                tv2.setVisibility(View.INVISIBLE);
+            }
+        } catch (Exception e) {
+            myLogE("Error while checking if service is running : " + e.getMessage());
+        }
     }
 
     @Override
@@ -100,7 +152,6 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
                     Intent intent = new Intent(getApplicationContext(), AddResourceActivity.class);
                     intent.putExtra("Uri", uri);
                     intent.putExtra("type", "ZIP");
-                    //this.getContentResolver().takePersistableUriPermission(Uri,)
                     startActivityForResult(intent, ADD_RESOURCE_REQUEST_CODE);
                 }
                 break;
@@ -171,6 +222,16 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
                     grantResults);
             mPermissionRequest = null; // request no longer needed
         }
+    }
+
+    private boolean isMyServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(getApplicationContext().ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

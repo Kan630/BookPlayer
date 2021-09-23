@@ -1,5 +1,7 @@
 package com.driot.bookplayer.utils;
 
+import android.os.Environment;
+import android.os.StatFs;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
@@ -8,6 +10,7 @@ import androidx.annotation.NonNull;
 import java.io.File;
 import java.sql.Date;
 import java.sql.Time;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
@@ -183,6 +186,16 @@ public class Tonio {
         return file.exists();
     }
 
+    public static long getAvailableInternalMemorySize() {
+        File path = Environment.getDataDirectory();
+        StatFs stat = new StatFs(path.getPath());
+        long blockSize = stat.getBlockSizeLong();
+        long availableBlocks = stat.getAvailableBlocksLong();
+        return availableBlocks * blockSize;
+    }
 
+    public static String formatMem(long mem){
+        return NumberFormat.getNumberInstance(Locale.getDefault()).format(mem);
+    }
 
 }

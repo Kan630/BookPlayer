@@ -78,6 +78,7 @@
     <string name="Import_Progress_checkingFiles">"Folder Saved - checking files"</string>
     <string name="Import_Progress_scanningFile">"scanning file"</string>
 
+    <string name="Import_Progress_onGoing">"Busy... ongoing import..."</string>
 
     <string name="Error_Import_Creating_Folders">"Couldn't create folders"</string>
     <string name="Error_Import_checking_Folder_Exists">"ERROR checking if folder already exist in database : "</string>
@@ -92,7 +93,8 @@
     <string name="Error_Import_UnableToUnzip_line2">Sorry, You may try to import an already unzipped folder instead"</string>
 
     <string name="Error_Import_NotEnoughMemory_line1">"Not enough memory on device"</string>
-    <string name="Error_Import_NotEnoughMemory_line2">"available : "</string>
+    <string name="Error_Import_NotEnoughMemory_line2_1">"available total memory : "</string>
+    <string name="Error_Import_NotEnoughMemory_line2_2">"available internal memory : "</string>
     <string name="Error_Import_NotEnoughMemory_line3">"zip file : "</string>
     <string name="Error_Import_NotEnoughMemory_line4_1">"(you need at least "</string>
     <string name="Error_Import_NotEnoughMemory_line4_2">" time the size of the zip file)"</string>
