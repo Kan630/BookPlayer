@@ -1,6 +1,5 @@
 package com.driot.bookplayer.activities;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.os.Bundle;
@@ -27,15 +26,12 @@ import com.google.android.play.core.install.model.InstallStatus;
 import com.google.android.play.core.install.model.UpdateAvailability;
 import com.google.android.play.core.tasks.Task;
 
-import java.io.File;
 import java.util.List;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
-import static com.driot.bookplayer.utils.Tonio2.loadBiggerText;
-import static com.driot.bookplayer.utils.Tonio2.writeToFile;
 import static com.driot.bookplayer.utils.Utils.deleteDir;
 import static com.driot.tonylib.KanLogger.isMyPhoneDev;
 import static com.driot.tonylib.KanLogger.myLog;
@@ -116,7 +112,7 @@ public class MainActivity extends LifecycleLoggingActivity {
         } else if (itemId == R.id.menu_manual) {
             startActivity(new Intent(getApplicationContext(), HelpActivity.class));
         } else if (itemId == R.id.menu_otherapp) {
-            startActivity(new Intent(getApplicationContext(), AutresApplisActivity.class));
+            startActivity(new Intent(getApplicationContext(), OtherAppsActivity.class));
         } else if (itemId == R.id.menu_seelog) {
             startActivity(new Intent(this, LogListActivity.class));
         } else {
