@@ -68,6 +68,7 @@ public class FolderContentActivity extends LifecycleLoggingActivity {
         }
     }
 
+    // scroll to specific position in recyclerview
     private void goToLastAudio() {
         Date d = new Date(0);
         Date d_max = new Date(0);

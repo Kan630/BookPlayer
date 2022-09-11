@@ -37,13 +37,11 @@ public class AddResourceActivity extends LifecycleLoggingActivity {
     private TextView progressBarText;
     private TextView tvTitle;
 
-    private Intent intentAddResourceService;
     boolean boundToService;
     AddResourceService mService;
     boolean mBound = false;
     private boolean HasBeenInitializedService = false;
 
-    private Uri uri;
     private String type;
 
     @Override
@@ -55,14 +53,14 @@ public class AddResourceActivity extends LifecycleLoggingActivity {
         progressBarText = findViewById(R.id.progressBarText);
         tvTitle = findViewById(R.id.tvTitle);
 
-        uri = getIntent().getParcelableExtra("Uri");
+        Uri uri = getIntent().getParcelableExtra("Uri");
         type =  getIntent().getStringExtra("type");
 
         this.getContentResolver().takePersistableUriPermission(uri,Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
 
         putTitle(uri.getLastPathSegment());
 
-        intentAddResourceService = new Intent(AddResourceActivity.this, AddResourceService.class);
+        Intent intentAddResourceService = new Intent(AddResourceActivity.this, AddResourceService.class);
         intentAddResourceService.putExtra("Uri", uri);
         intentAddResourceService.putExtra("type", type);
         startService(intentAddResourceService);
@@ -90,7 +88,7 @@ public class AddResourceActivity extends LifecycleLoggingActivity {
         }
     }
 
-    private BroadcastReceiver receiver = new BroadcastReceiver() {
+    private final BroadcastReceiver receiver = new BroadcastReceiver() {
 
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -131,7 +129,7 @@ public class AddResourceActivity extends LifecycleLoggingActivity {
             }
         }
     };
-    private ServiceConnection connection = new ServiceConnection() {
+    private final ServiceConnection connection = new ServiceConnection() {
 
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
