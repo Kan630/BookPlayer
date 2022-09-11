@@ -83,7 +83,10 @@
     <string name="Error_Import_Creating_Folders">"Couldn't create folders"</string>
     <string name="Error_Import_checking_Folder_Exists">"ERROR checking if folder already exist in database : "</string>
     <string name="Error_Import_saving_file_DB">"Error Saving File in Database"</string>
-    <string name="Error_Import_updating_track_duration">"Error updating Track length"</string>
+    <string name="Error_Import_track_duration_zero">"Error getting Track duration (duration = 0sec.)"</string>
+    <string name="Error_Import_track_duration_nofile">"Error getting Track duration (file not found)"</string>
+    <string name="Error_Import_track_duration_extraction">"Error getting Track duration"</string>
+    <string name="Error_Import_computing_folder_duration">"Error computing sum of assets duration"</string>
 
     <string name="Error_Import_UnableToUnzip_line1">Error unzipping compressed file"</string>
     <string name="Error_Import_UnableToUnzip_line2">Sorry, You may try to import an already unzipped folder instead"</string>

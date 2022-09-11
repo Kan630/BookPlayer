@@ -67,7 +67,7 @@ public class MyTextChunkAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         public MyViewHolder(View itemView) {
             super(itemView);
 
-            tvText = itemView.findViewById(R.id.tvText);
+           /* tvText = itemView.findViewById(R.id.tvText);    ATD - so it compiles (project rebirth after long time) */
 
         }
     }

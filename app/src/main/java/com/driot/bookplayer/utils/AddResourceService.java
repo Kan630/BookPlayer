@@ -167,8 +167,8 @@ public class AddResourceService extends Service {
                 // filter audio file
                 for (String s : zipFileListing) {
                     if (getMimeType(s).equals("audio/mpeg")) {
-                        myLog(s);
-                        audioFileArrayList.add(s); //this adds an element to the list.
+                        myLog("adding to audioFileArrayList, audio file : [" + s + ']');
+                        audioFileArrayList.add(s);
                     }
                 }
             }
@@ -185,7 +185,7 @@ public class AddResourceService extends Service {
 
 
     private boolean populateArrayListOfTracksFromFolder() {
-        myLog("populateArrayListOfTracks " + pickedDir.getUri().toString());
+        myLog("populateArrayListOfTracksFromFolder " + pickedDir.getUri().toString());
         boolean resourceSelected = false;
 
         uri = pickedDir.getUri();
@@ -212,25 +212,61 @@ public class AddResourceService extends Service {
                 tellError(error);
             } else {
                 myLog("folder ok");
+                myLog("scanning for audio file recursively from folder [" + pickedDir.getName() + "]");
 
                 audioFileArrayList = new ArrayList<String>();
+                addAudioFileRecursive(pickedDir);
+
+                /*
                 myZikFileList = pickedDir.listFiles();
+
                 if (myZikFileList.length > 0) {
                     for (DocumentFile f : myZikFileList) { //check myZikFileList.length > 0 ??
+                        myLog("Scanning : [" + f.getName() + "] => type : [" + f.getType() + ']');
                         if (f.getType() != null) {
                             if (f.getType().equals("audio/mpeg")) {
-                                myLog(f.getName());
-                                audioFileArrayList.add(f.getName()); //this adds an element to the list.
+                                myLog("adding to audioFileArrayList : [" + f.getName() + ']');
+                                audioFileArrayList.add(f.getName());
                             }
                         }
                     }
+                } else {
+                    myLog("no File found in directory : [" + pickedDir.getName() + ']');
                 }
+                */
+                if (audioFileArrayList.size()==0) {
+                    myLog("No File found in directory : [" + pickedDir.getName() + ']');
+                } else {
+                    myLog(audioFileArrayList.size() + " files found in directory : [" + pickedDir.getName() + ']');
+                }
+
+
                 resourceSelected = true;
             }
         } else {
             tellError(getString(R.string.Error_Import_IsNotFolder));
         }
         return resourceSelected;
+    }
+
+    private void addAudioFileRecursive(DocumentFile f0) {
+        addAudioFileRecursive(f0,"");
+    }
+    private void addAudioFileRecursive(DocumentFile f0, String recursivFolder) {
+        String l_audioFilePath;
+        for (DocumentFile f1 : f0.listFiles()) {
+            if (f1.isDirectory()) {
+                addAudioFileRecursive(f1,recursivFolder + f1.getName() + '/');
+            } else {
+                if (f1.getType() != null) {
+                    if (f1.getType().equals("audio/mpeg")) {
+                        l_audioFilePath = recursivFolder + f1.getName();
+                        myLog("* New Audio File : [" + l_audioFilePath + ']');
+                        audioFileArrayList.add(l_audioFilePath);
+                    }
+                }
+            }
+        }
     }
 
     public void init() {
@@ -556,7 +592,7 @@ public class AddResourceService extends Service {
         if (time > 0)
             file.setLastModified(time);
         */
-                }
+                } // end du while
             } finally {
                 zis.close();
                 localUnzipFolder = new File(destinationFolder); // on reaffecte a la bonne valeur
@@ -567,6 +603,7 @@ public class AddResourceService extends Service {
         } catch (Exception e) {
             tellError(getResources().getString(R.string.Error_Import_UnableToUnzip_line1) + " : " + e.getMessage()
                     + "\n" + "\n" + getResources().getString(R.string.Error_Import_UnableToUnzip_line2));
+            e.printStackTrace();
             killLocalUnzipFolder(); //delete files after error
             return false;
         } finally {
@@ -692,12 +729,12 @@ public class AddResourceService extends Service {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe((result) -> {
                     if (result) {
-                        myLog("Folder Saved - checking files");
+                        myLog("Folder Saved in DB - checking files");
                         tellProgress(8,getResources().getString(R.string.Import_Progress_checkingFiles));
                         saveFiles();
                     }
                 }, throwable -> {
-                    myLogE("create Folder : " + throwable.getMessage());
+                    myLogE("creating Folder in DB : " + throwable.getMessage());
                     tellError(getResources().getString(R.string.Error_Import_Creating_Folders) + " for path : " + throwable.getMessage());
                 })
         ;
@@ -713,32 +750,13 @@ public class AddResourceService extends Service {
                 int i = 0;
                 int progress = 0;
                 String txtProgress = "";
-                //ZIP
-                if (myFolder.isZipFolder()) {
-                    for (String s : audioFileArrayList) {
-                        i++;
-                        progress = (int) i * 100 / audioFileArrayList.size();
-                        txtProgress = progress + "% - " + getString(R.string.Add_resource_reading_file) + " n°" + i + "/" + audioFileArrayList.size() + "\n" + getFileNameFromPath(s);
-                        myLog("Call save " + s);
-                        saveFile(s, InsertedFolderId[0], progress, txtProgress);
-
-                        tellProgress(progress,txtProgress);
-                    }
-                    //FOLDER
-                } else {
-                    for (DocumentFile f :myZikFileList) {
-                        if (f.getType() != null) {
-                            if (f.getType().equals("audio/mpeg")) {
-                                i++;
-                                progress = (int) i * 100 / audioFileArrayList.size();
-                                txtProgress = progress + "% - " + getResources().getString(R.string.Import_Progress_scanningFile) + " n°" + i + "/" + audioFileArrayList.size() + "\n" + f.getName();
-                                myLog("saving file " + f.getName());
-                                saveFile(f.getName(), InsertedFolderId[0], progress, txtProgress);
-
-                                tellProgress(progress,txtProgress);
-                            }
-                        }
-                    }
+                for (String s : audioFileArrayList) {
+                    i++;
+                    progress = (int) i * 100 / audioFileArrayList.size();
+                    txtProgress = progress + "% - " + getString(R.string.Add_resource_reading_file) + " n°" + i + "/" + audioFileArrayList.size() + "\n" + getFileNameFromPath(s);
+                    myLog("Registering file [" + s + "]");
+                    saveFile(s, InsertedFolderId[0], progress, txtProgress);
+                    tellProgress(progress,txtProgress);
                 }
             }
         };
@@ -772,32 +790,41 @@ public class AddResourceService extends Service {
             myLogE("Error getting media duration : " + e.getMessage());
         }
 
-        Observable.fromCallable(() -> {
-            //adding to database
-            return DatabaseClient
-                    .getInstance(getApplicationContext())
-                    .getAppDatabase()
-                    .ZikFileDao()
-                    .insert(zikFile);
+        if (zikFile.getDuration() == 0) {
+            myLog("File Not Added.... (Duration = 0)");
+            nbFileSaved++;
+            if (nbFileSaved == nbFileToSave) {
+                myLog("************All files have been processed.");
+                updateFolderDuration();
+            }
+        } else {
+            Observable.fromCallable(() -> {
+                        //adding to database
+                        return DatabaseClient
+                                .getInstance(getApplicationContext())
+                                .getAppDatabase()
+                                .ZikFileDao()
+                                .insert(zikFile);
 
-        })
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe((result) -> {
-                            if (result != null) {
-                                myLog("File Added - SQL result = " + result);
-                                nbFileSaved++;
-                                if (nbFileSaved == nbFileToSave) {
-                                    myLog("All files have been saved ");
-                                    updateFolderDuration();
+                    })
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe((result) -> {
+                                if (result != null) {
+                                    myLog("File Added - SQL result = " + result);
+                                    nbFileSaved++;
+                                    if (nbFileSaved == nbFileToSave) {
+                                        myLog("************All files have been processed.");
+                                        updateFolderDuration();
+                                    }
+                                } else {
+                                    tellError("error saving ZikFile in DB");
                                 }
-                            } else {
-                                tellError("error saving ZikFile in DB");
+                            }, throwable -> {
+                                tellError(getResources().getString(R.string.Error_Import_saving_file_DB) + sZikFileName + " : " + throwable.getMessage());
                             }
-                        }, throwable -> {
-                            tellError(getResources().getString(R.string.Error_Import_saving_file_DB) + sZikFileName + " : " + throwable.getMessage());
-                        }
-                );
+                    );
+        }
     }
 
 
@@ -820,7 +847,7 @@ public class AddResourceService extends Service {
                     myLog("Folder Duration Updated : runRawSQL result = " + result);
                     tellEnd();
                 }, throwable -> {
-                    tellError(getResources().getString(R.string.Error_Import_updating_track_duration) + throwable.getMessage());
+                    tellError(getResources().getString(R.string.Error_Import_computing_folder_duration) + throwable.getMessage());
                 });
     }
 
@@ -857,10 +884,16 @@ public class AddResourceService extends Service {
             }
         } else {
             if (fileExists(zePath)) {
-                mediaMetadataRetriever.setDataSource(zePath);
-                duration = Long.parseLong(mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
+                try {
+                    mediaMetadataRetriever.setDataSource(zePath);
+                    duration = Long.parseLong(mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    tellError(getResources().getString(R.string.Error_Import_track_duration_extraction) + " // path : " + zePath);
+                    myLogE("error getting duration of media : " + e.getMessage() + " for " + zePath);
+                }
             } else {
-                tellError(getResources().getString(R.string.Error_Import_updating_track_duration) + " // path : " + zePath);
+                tellError(getResources().getString(R.string.Error_Import_track_duration_nofile) + " // path : " + zePath);
                 myLogE("error getting duration of media, file does not exist in path : " + zePath);
             }
         }

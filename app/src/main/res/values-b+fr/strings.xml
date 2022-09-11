@@ -84,7 +84,10 @@
     <string name="Error_Import_Creating_Folders">"Impossible de créer les dossiers"</string>
     <string name="Error_Import_checking_Folder_Exists">"ERREUR pendant le contrôle (de si le dossier existe déjà) : "</string>
     <string name="Error_Import_saving_file_DB">"Erreur lors de la sauvegarde de la piste audioç dans la base de données"</string>
-    <string name="Error_Import_updating_track_duration">"Erreur lors de la sauvegarde de la durée de la piste audio"</string>
+    <string name="Error_Import_track_duration_zero">"Erreur à la lecture de la piste audio (durée = 0sec.)"</string>
+    <string name="Error_Import_track_duration_nofile">"Erreur à la lecture de la piste audio (fichier non trouvé)"</string>
+    <string name="Error_Import_track_duration_extraction">"Erreur à la lecture de la piste audio (impossible d'extraire la durée de l'enregistrement)"</string>
+    <string name="Error_Import_computing_folder_duration">"Erreur lors du calcul de la durée totale"</string>
 
     <string name="Error_Import_UnableToUnzip_line1">Erreur lors de la décopression du fichier Zip"</string>
     <string name="Error_Import_UnableToUnzip_line2">"Désolé, Vous pouvez, à la place, essayer d'importer un dossier déjà décompressé"</string>
