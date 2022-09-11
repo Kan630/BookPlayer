@@ -20,8 +20,8 @@ android {
         applicationId "com.driot.bookplayer"
         minSdkVersion 23 //  23 = android 6.0
         targetSdkVersion 31 //31-32 =  = android 11.0       //  30 = android 11.0
-        versionCode 20
-        versionName "20 - bugs corrected + logs menu hide"
+        versionCode 21
+        versionName "21 - Phoenix + better zip management (recursiv)"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         signingConfig signingConfigs.debug
