@@ -79,12 +79,12 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
             }
         });
         bSearchLibrivox.setOnClickListener(view -> {
-            String url = "https://librivox.org/search";
+            String url = "https://librivox.org";
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
             startActivity(intent);
         });
         bSearchLitteratureaudio.setOnClickListener(view -> {
-            String url = "http://www.litteratureaudio.com/classement-de-nos-livres-audio-gratuits-les-plus-apprecies";
+            String url = "https://www.litteratureaudio.com";
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
             startActivity(intent);
         });
