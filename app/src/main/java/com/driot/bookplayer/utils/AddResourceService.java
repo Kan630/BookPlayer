@@ -166,7 +166,7 @@ public class AddResourceService extends Service {
             if (zipFileListing.size() != 0) {
                 // filter audio file
                 for (String s : zipFileListing) {
-                    if (getMimeType(s).equals("audio/mpeg")) {
+                    if (getMimeType(s).equals("audio/mpeg") || getMimeType(s).equals("audio/mp4")) {
                         myLog("adding to audioFileArrayList, audio file : [" + s + ']');
                         audioFileArrayList.add(s);
                     }
@@ -259,7 +259,7 @@ public class AddResourceService extends Service {
                 addAudioFileRecursive(f1,recursivFolder + f1.getName() + '/');
             } else {
                 if (f1.getType() != null) {
-                    if (f1.getType().equals("audio/mpeg")) {
+                    if (f1.getType().equals("audio/mpeg") || f1.getType().equals("audio/mp4")) {
                         l_audioFilePath = recursivFolder + f1.getName();
                         myLog("* New Audio File : [" + l_audioFilePath + ']');
                         audioFileArrayList.add(l_audioFilePath);
@@ -755,7 +755,7 @@ public class AddResourceService extends Service {
                     progress = (int) i * 100 / audioFileArrayList.size();
                     txtProgress = progress + "% - " + getString(R.string.Add_resource_reading_file) + " n°" + i + "/" + audioFileArrayList.size() + "\n" + getFileNameFromPath(s);
                     myLog("Registering file [" + s + "]");
-                    saveFile(s, InsertedFolderId[0], progress, txtProgress);
+                    saveFile(s, InsertedFolderId[0], i, progress, txtProgress);
                     tellProgress(progress,txtProgress);
                 }
             }
@@ -763,11 +763,12 @@ public class AddResourceService extends Service {
         one.start();
     }
 
-    private void saveFile(String sZikFileName, int mFolderId, int progress, String txtProgress) {
+    private void saveFile(String sZikFileName, int mFolderId, int zeorder, int progress, String txtProgress) {
         // creating file
         ZikFile zikFile = new ZikFile();
         zikFile.setName(sZikFileName);
         zikFile.setIdFolder(mFolderId);
+        zikFile.setZeorder(zeorder);
         zikFile.setFolderName(myFolder.getsFolderName());
         zikFile.setPercentdone(0.0);
         zikFile.setPosition(0);

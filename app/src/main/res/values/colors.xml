@@ -38,4 +38,19 @@
     <color name="color_Juri_TriCon">#bbaacc</color>
     <color name="color_Juri_default">#bbbbbb</color>
 
+    <color name="colorRedButtonAccent">#880000</color>
+    <color name="colorRedButtonAccentLight">#b73080</color>
+    <color name="colorRedButtonRipple">#770000</color>
+
+    <color name="colorBlueButtonAccent">#1e88e5</color>
+    <color name="colorBlueButtonAccentLight">#6ab7ff</color>
+    <color name="colorBlueButtonRipple">#0000cd</color>
+
+    <color name="colorPurpleButtonAccent">#881ee5</color>
+    <color name="colorPurpleButtonAccentLight">#b76aff</color>
+    <color name="colorPurpleButtonRipple">#7700b2</color>
+
+    <color name="colorGreenButtonAccent">#228822</color>
+    <color name="colorGreenButtonAccentLight">#33bb33</color>
+    <color name="colorGreenButtonRipple">#003300</color>
 </resources>

@@ -15,6 +15,7 @@ import com.driot.bookplayer.global.PlayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 import static com.driot.tonylib.KanLogger.myLog;
 import static com.driot.tonylib.KanLogger.myLogE;
@@ -22,7 +23,7 @@ import static com.driot.tonylib.KanLogger.myLogE;
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 30/10/20
  */
-public class FolderContentActivity extends LifecycleLoggingActivity {
+public class ZikFileActivity extends LifecycleLoggingActivity {
 
     private RecyclerView recyclerView;
     private ZikFilesAdapter adapter;
@@ -45,7 +46,7 @@ public class FolderContentActivity extends LifecycleLoggingActivity {
 
     private void createMap() {
         map = new HashMap<>();
-        for (int i = 0; i < PlayList.getZikFilesList().size(); i++) {
+        for (int i = 0; i < Objects.requireNonNull(PlayList.getZikFilesList()).size(); i++) {
             int id = PlayList.getZikFilesList().get(i).getId(); // id of the model
             map.put(id, i); // i is the position of adapter
         }
@@ -115,7 +116,7 @@ public class FolderContentActivity extends LifecycleLoggingActivity {
             @Override
             protected void onPostExecute(List<ZikFile> zikFiles) {
                 super.onPostExecute(zikFiles);
-                adapter = new ZikFilesAdapter(FolderContentActivity.this, zikFiles);
+                adapter = new ZikFilesAdapter(ZikFileActivity.this, zikFiles);
                 recyclerView.setAdapter(adapter);
                 createMap();
                 goToLastAudio();

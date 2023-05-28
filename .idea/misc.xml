@@ -3,12 +3,19 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
-        <entry key="..\:/Users/adrio/StudioProjects/BookPlayer/app/src/main/res/layout/activity_addresource.xml" value="0.1" />
+        <entry key="..\:/Users/adrio/StudioProjects/BookPlayer/app/src/main/res/drawable/button_selector_blue.xml" value="0.1855" />
+        <entry key="..\:/Users/adrio/StudioProjects/BookPlayer/app/src/main/res/layout/activity_addresource.xml" value="0.22" />
         <entry key="..\:/Users/adrio/StudioProjects/BookPlayer/app/src/main/res/layout/activity_autresapplis.xml" value="0.25905797101449274" />
+        <entry key="..\:/Users/adrio/StudioProjects/BookPlayer/app/src/main/res/layout/activity_biggertext.xml" value="0.17395833333333333" />
+        <entry key="..\:/Users/adrio/StudioProjects/BookPlayer/app/src/main/res/layout/activity_db_backup.xml" value="0.17395833333333333" />
         <entry key="..\:/Users/adrio/StudioProjects/BookPlayer/app/src/main/res/layout/activity_getressource.xml" value="0.1140625" />
         <entry key="..\:/Users/adrio/StudioProjects/BookPlayer/app/src/main/res/layout/activity_log_list.xml" value="0.13854166666666667" />
+        <entry key="..\:/Users/adrio/StudioProjects/BookPlayer/app/src/main/res/layout/activity_modifyfolder.xml" value="0.5" />
+        <entry key="..\:/Users/adrio/StudioProjects/BookPlayer/app/src/main/res/layout/activity_modifytrack.xml" value="0.26458333333333334" />
+        <entry key="..\:/Users/adrio/StudioProjects/BookPlayer/app/src/main/res/layout/activity_modifyzikfile.xml" value="0.19479166666666667" />
         <entry key="..\:/Users/adrio/StudioProjects/BookPlayer/app/src/main/res/layout/recyclerview_file.xml" value="0.25" />
         <entry key="..\:/Users/adrio/StudioProjects/BookPlayer/app/src/main/res/layout/recyclerview_item.xml" value="0.2171875" />
+        <entry key="..\:/Users/adrio/StudioProjects/BookPlayer/app/src/main/res/layout/recyclerview_zikfiles.xml" value="0.14375" />
       </map>
     </option>
   </component>

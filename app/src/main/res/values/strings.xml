@@ -101,6 +101,8 @@
 
     <string name="Error_Import_general_error">"Something bad happened, import has been stopped"</string>
 
+    <string name="Error_ZikFilePositionOnlyDigits">"You can only enter digits here"</string>
+    <string name="Error_NameTooShort">"This name is too short"</string>
 
 
 
@@ -111,22 +113,28 @@
     <!-- FolderModifyActivity -->
 
     <string name="bDelete">"Delete"</string>
-    <string name="bRename">"Rename Folder"</string>
+    <string name="bRenameFolder">"Rename Folder"</string>
+    <string name="bRenameTrack">"Rename Track"</string>
     <string name="bRenameOk">"Rename"</string>
+    <string name="bMove">"Change position"</string>
+    <string name="bMoveOk">"Move"</string>
     <string name="bReset">"Reset Progress"</string>
     <string name="Folder_Deleted">"Folder has been deleted"</string>
     <string name="Folder_Renamed">"Folder has been renamed"</string>
     <string name="Error_FolderNameTooShort">"Folder Name should be at least 2 characters"</string>
     <string name="Folder_Reset">"Folder progress has been reset"</string>
+    <string name="ZikFile_RePositioned">"Track has been put in new position"</string>
+    <string name="ZikFile_Renamed">"Track has been renamed"</string>
+    <string name="ZikFile_Deleted">"Track has been deleted"</string>
 
-    <string name="ModifyFolder_AskDeleteTitle">Confirm Delete</string>
-    <string name="ModifyFolder_AskDeleteText">"You are about to delete this folder " + "\n" +
-                        "You will loose all progress attached to it." + "\n" +
+    <string name="AskDelete_popupTitle">Confirm Delete</string>
+    <string name="AskReset_popupTitle">Confirm Reset</string>
+    <string name="ModifyFolder_AskDelete">"You are about to delete this folder and all the tracks" + "\n" +
                         "Are you sure ?"</string>
-    <string name="ModifyFolder_AskResetTitle">Confirm Reset</string>
-    <string name="ModifyFolder_AskResetText">"You are about to reset progression for this folder " + "\n" +
+    <string name="ModifyFolder_AskReset">"You are about to reset progression for this folder " + "\n" +
                         "Are you sure ?"</string>
-
+    <string name="ModifyZikFile_AskDelete">"You are about to delete this audio track " + "\n" +
+                        "Are you sure ?"</string>
 
     <!-- ********************************** -->
     <!-- Zik File Adapter -->

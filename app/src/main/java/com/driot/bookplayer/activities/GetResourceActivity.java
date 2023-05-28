@@ -26,6 +26,9 @@ import com.driot.bookplayer.utils.PermissionRequest;
 import java.util.Timer;
 import java.util.TimerTask;
 
+//import com.nbsp.materialfilepicker.MaterialFilePicker;
+//import com.nbsp.materialfilepicker.ui.FilePickerActivity;
+
 import static com.driot.tonylib.KanLogger.myLog;
 import static com.driot.tonylib.KanLogger.myLogE;
 
@@ -63,6 +66,14 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
                 intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_WRITE_URI_PERMISSION|Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION|Intent.FLAG_GRANT_PREFIX_URI_PERMISSION);
                 intent.addCategory(Intent.CATEGORY_OPENABLE);
                 startActivityForResult(intent, OPEN_ZIP_FILE_REQUEST_CODE);
+                /*
+                new MaterialFilePicker()
+                        .withActivity(this)
+                        .withRequestCode(PICK_FILE_REQUEST_CODE)
+                        .withHiddenFiles(true)
+                        .start();
+
+                 */
             } else {
                 myToast(getString(R.string.permissions_denied_sorry_cannot));
             }
@@ -86,6 +97,7 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
         bSearchLitteratureaudio.setOnClickListener(view -> {
             String url = "https://www.litteratureaudio.com";
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+            //Intent intent = new Intent(getApplicationContext(), DbBackupActivity.class);
             startActivity(intent);
         });
 

@@ -14,14 +14,14 @@ android {
     }
 
      */
-    compileSdkVersion 31
+    compileSdkVersion 33
 
     defaultConfig {
         applicationId "com.driot.bookplayer"
         minSdkVersion 23 //  23 = android 6.0
         targetSdkVersion 31 //31-32 =  = android 11.0       //  30 = android 11.0
-        versionCode 21
-        versionName "21 - Phoenix + better zip management (recursiv)"
+        versionCode 24
+        versionName "24 - Going further"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         signingConfig signingConfigs.debug
@@ -32,7 +32,6 @@ android {
             }
         }
     }
-
     buildTypes {
         release {
             // Enables code shrinking, obfuscation, and optimization for only
@@ -49,6 +48,7 @@ android {
             //signingConfig signingConfigs.release
             //debuggable true
         }
+
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -65,11 +65,17 @@ dependencies {
     implementation 'com.google.android.play:core:1.10.3'
     implementation project(path: ':tonyLib')
 
+    //implementation 'com.nbsp:library:filepicker:2.4.1'
+    //implementation 'com.nbsp:library:filepicker:1.2.1'
+    //implementation 'com.github.arteaprogramar:Android_MaterialFilePicker:1.0.0'
+    //implementation 'com.nabinbhandari.android:filepicker:2.2.2'
+
     //implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'com.google.android.material:material:1.6.1' //snackBar, recyclerView
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
     implementation "androidx.room:room-runtime:2.4.3"
+    implementation 'androidx.core:core:1.10.1'
     annotationProcessor "androidx.room:room-compiler:2.4.3"
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'

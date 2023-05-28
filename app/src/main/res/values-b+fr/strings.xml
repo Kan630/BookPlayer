@@ -102,7 +102,8 @@
 
     <string name="Error_Import_general_error">"Une erreur s'est produite, l'importation a été annulée"</string>
 
-
+    <string name="Error_ZikFilePositionOnlyDigits">"Vous devez uniquement saisir des chiffres pour spécifier la position"</string>
+    <string name="Error_NameTooShort">"Ce nom est trop court"</string>
 
     <string name="Import_Success">Importation effectuée</string>
 
@@ -111,22 +112,30 @@
     <!-- FolderModifyActivity -->
 
     <string name="bDelete">"Supprimer le dossier"</string>
-    <string name="bRename">"Renommer le dossier"</string>
+    <string name="bRenameFolder">"Renommer le dossier"</string>
+    <string name="bRenameTrack">"Renommer la piste"</string>
     <string name="bRenameOk">"Renommer"</string>
+    <string name="bMove">"Changer la position"</string>
+    <string name="bMoveOk">"Déplacer"</string>
+    <string name="ZikFile_RePositioned">"La piste audio a été déplacée"</string>
+    <string name="ZikFile_Renamed">"La piste audio a été renommée"</string>
+    <string name="ZikFile_Deleted">"La piste audio a été supprimée"</string>
+
     <string name="bReset">"Effacer la progression"</string>
     <string name="Folder_Deleted">"le dossier a été supprimé"</string>
     <string name="Folder_Renamed">"le dossier a été renommé"</string>
     <string name="Folder_Reset">"la progression du dossier a été remise à zéro"</string>
     <string name="Error_FolderNameTooShort">"Le nom du dossier doit être au minimum de 2 caractères"</string>
 
-    <string name="ModifyFolder_AskDeleteTitle">Confirmation de Suppression</string>
-    <string name="ModifyFolder_AskDeleteText">"Attention, vous êtes sur le point d'effacer ce dossier " +
-                        "et de perdre toute la progression qui y est rattachée." + "\n" +
-                        "êtes vous certain ?"</string>
-    <string name="ModifyFolder_AskResetTitle">Confirmation de RAZ</string>
-    <string name="ModifyFolder_AskResetText">"Attention, vous êtes sur le point de remettre à zéro " + "\n" +
+    <string name="AskDelete_popupTitle">Confirmation de Suppression</string>
+    <string name="AskReset_popupTitle">Confirmation de RAZ</string>
+    <string name="ModifyFolder_AskDelete">"Attention, vous êtes sur le point d'effacer ce dossier " +
+                        "Etes vous sûr ?"</string>
+    <string name="ModifyFolder_AskReset">"Attention, vous êtes sur le point de remettre à zéro " + "\n" +
                                 "toute la progression de ce dossier." + "\n" +
-                        "êtes vous certain ?"</string>
+                                "Etes vous sûr ?"</string>
+    <string name="ModifyZikFile_AskDelete">"Attention, vous êtes sur le point d'effacer cette piste audio " +
+                        "Etes vous sûr ?"</string>
 
 
     <!-- ********************************** -->

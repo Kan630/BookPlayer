@@ -18,4 +18,27 @@
 
     </style>
 
+    <style name="BlueButton" parent="myButton">
+        <item name="android:background">@drawable/button_selector_blue</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+    <style name="GreenButton" parent="myButton">
+        <item name="android:background">@drawable/button_selector_green</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+    <style name="RedButton" parent="myButton">
+        <item name="android:background">@drawable/button_selector_red</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+    <style name="PurpleButton" parent="myButton">
+        <item name="android:background">@drawable/button_selector_purple</item>
+        <item name="android:textColor">@color/white</item>
+    </style>
+    <style name="myButton" parent="Widget.AppCompat.Button">
+        <item name="android:paddingStart">24sp</item>
+        <item name="android:paddingEnd">24sp</item>
+        <item name="android:layout_marginStart">50sp</item>
+        <item name="android:layout_marginEnd">50sp</item>
+    </style>
+
 </resources>

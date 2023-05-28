@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "f7e6b9c2f0270475b19098e6d018ec97",
+    "identityHash": "d04a14da5bd024c3762064fad2f06a2a",
     "entities": [
       {
         "tableName": "Folder",
@@ -98,7 +98,7 @@
       },
       {
         "tableName": "ZikFile",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `idFolder` INTEGER NOT NULL, `name` TEXT, `path` TEXT, `folderName` TEXT, `position` REAL NOT NULL, `duration` REAL NOT NULL, `size` REAL NOT NULL, `percentdone` REAL NOT NULL, `firstaccess` INTEGER, `lastaccess` INTEGER, `lastaccessTime` INTEGER, `iszipfile` INTEGER NOT NULL, `finished` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `idFolder` INTEGER NOT NULL, `name` TEXT, `path` TEXT, `folderName` TEXT, `position` REAL NOT NULL, `duration` REAL NOT NULL, `size` REAL NOT NULL, `percentdone` REAL NOT NULL, `firstaccess` INTEGER, `lastaccess` INTEGER, `lastaccessTime` INTEGER, `iszipfile` INTEGER NOT NULL, `finished` INTEGER NOT NULL, `zeorder` REAL NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -183,6 +183,12 @@
             "columnName": "finished",
             "affinity": "INTEGER",
             "notNull": true
+          },
+          {
+            "fieldPath": "zeorder",
+            "columnName": "zeorder",
+            "affinity": "REAL",
+            "notNull": true
           }
         ],
         "primaryKey": {
@@ -198,7 +204,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'f7e6b9c2f0270475b19098e6d018ec97')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'd04a14da5bd024c3762064fad2f06a2a')"
     ]
   }
 }

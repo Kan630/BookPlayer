@@ -70,8 +70,8 @@ public class FolderModifyActivity extends LifecycleLoggingActivity {
 
     private void bDeleteClick() {
         new AlertDialog.Builder(FolderModifyActivity.this)
-                .setTitle(getString(R.string.ModifyFolder_AskDeleteTitle))
-                .setMessage(getString(R.string.ModifyFolder_AskDeleteText))
+                .setTitle(getString(R.string.AskDelete_popupTitle))
+                .setMessage(getString(R.string.ModifyFolder_AskDelete))
                 .setCancelable(false)
                 .setPositiveButton("ok", (dialog, which) -> deleteFolder1())
                 .setNegativeButton("cancel", (dialogInterface, i) -> {})
@@ -180,8 +180,8 @@ public class FolderModifyActivity extends LifecycleLoggingActivity {
 
     private void bResetClick() {
         new AlertDialog.Builder(FolderModifyActivity.this)
-                .setTitle(getString((R.string.ModifyFolder_AskResetTitle)))
-                .setMessage(getString((R.string.ModifyFolder_AskResetText)))
+                .setTitle(getString((R.string.AskReset_popupTitle)))
+                .setMessage(getString((R.string.ModifyFolder_AskReset)))
                 .setCancelable(true)
                 .setPositiveButton("ok", (dialog, which) -> resetFolder())
                 .show();

@@ -20,10 +20,10 @@ public interface ZikFileDao {
     @Query("SELECT * FROM ZikFile")
     List<ZikFile> getAll();
 
-    @Query("SELECT * FROM ZikFile WHERE idFolder = :idFolder ORDER BY name")
+    @Query("SELECT * FROM ZikFile WHERE idFolder = :idFolder ORDER BY zeorder, name")
     List<ZikFile> getZikFiles(long idFolder);
 
-    @Query("SELECT * FROM ZikFile WHERE idFolder = :idFolder AND name >= :startFromName ORDER BY name")
+    @Query("SELECT * FROM ZikFile WHERE idFolder = :idFolder AND name >= :startFromName ORDER BY zeorder, name")
     ZikFile[] getNextZikFiles(long idFolder, String startFromName);
 
     @Query("SELECT * FROM ZikFile WHERE id = :id")
@@ -38,6 +38,9 @@ public interface ZikFileDao {
     @Query("DELETE FROM ZikFile WHERE idFolder = :idFolder")
     void deleteFolder(int idFolder);
 
+    @Query("DELETE FROM ZikFile WHERE id = :idZikFile")
+    void deleteZikFile(int idZikFile);
+
     @Query("UPDATE ZikFile SET position = 0, percentdone = 0, firstAccess = null, lastAccess=null, lastAccessTime=null, finished=0 WHERE idFolder =:idFolder")
     void resetFolderProgression(int idFolder);
 
@@ -50,11 +53,24 @@ public interface ZikFileDao {
     @Query("UPDATE ZikFile SET FolderName=:folderName WHERE id = :id")
     void updateFolderName(String folderName, int id);
 
+    @Query("UPDATE ZikFile SET name=:zikFileName WHERE id = :id")
+    void updateZikFileName(String zikFileName, int id);
+
     @Query("UPDATE ZikFile SET firstaccess=:firstAccess WHERE id = :id")
     void updateFirstAccess(Time firstAccess, int id);
 
     @Query("SELECT uri FROM Folder WHERE id = :id")
     String getFolderUri(int id);
+
+    @Query("SELECT path FROM ZikFile WHERE id = :id")
+    String getZikFilePath(int id);
+
+    @Query("UPDATE ZikFile SET name = :newName WHERE id =:id")
+    void changeName(int id, String newName);
+
+    @Query("UPDATE ZikFile SET zeorder = :zeorder WHERE id =:id")
+    void changePosition(int id, Double zeorder);
+
 
 
 

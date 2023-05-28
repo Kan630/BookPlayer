@@ -142,7 +142,14 @@ public class ZikFilesAdapter extends RecyclerView.Adapter<ZikFilesAdapter.ZikFil
         @Override
         public boolean onLongClick(View view) {
             ZikFile zikFile = zikFileList.get(getAdapterPosition());
-            bDeleteLongClick(zikFile.getIdFolder(), zikFile.getName());
+            //bDeleteLongClick(zikFile.getIdFolder(), zikFile.getName());
+
+            Intent intent = new Intent(mCtx, ZikFileModifyActivity.class);
+            intent.putExtra("ZikFileName", zikFile.getName());
+            intent.putExtra("ZikFileId", zikFile.getId());
+            intent.putExtra("zikFilePosition", zikFile.getZeorder());
+
+            mCtx.startActivity(intent);
             return false;
         }
     }
@@ -184,7 +191,7 @@ public class ZikFilesAdapter extends RecyclerView.Adapter<ZikFilesAdapter.ZikFil
     }
 
     private void reLoad(int idFolder) {
-        ((FolderContentActivity)mCtx).getZikFiles(idFolder);
+        ((ZikFileActivity)mCtx).getZikFiles(idFolder);
     }
 
 }

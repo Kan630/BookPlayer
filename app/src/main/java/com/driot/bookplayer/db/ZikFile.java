@@ -70,6 +70,11 @@ public class ZikFile implements Serializable {
     @ColumnInfo(name = "finished")
     private boolean finished;
 
+    @ColumnInfo(name = "zeorder")
+    private double zeorder;
+
+
+
     public int getId() {
         return id;
     }
@@ -181,12 +186,21 @@ public class ZikFile implements Serializable {
         this.iszipfile = iszipfile;
     }
 
+    public double getZeorder() {
+        return zeorder;
+    }
+
+    public void setZeorder(double zeorder) {
+        this.zeorder = zeorder;
+    }
+
     @Override
     public String toString() {
         return "ZikFile{" +
                 "id=" + id +
                 ", idFolder=" + idFolder +
                 ", name='" + name + '\'' +
+                ", name='" + zeorder + '\'' +
                 ", path='" + path + '\'' +
                 ", folderName='" + folderName + '\'' +
                 ", position=" + position +

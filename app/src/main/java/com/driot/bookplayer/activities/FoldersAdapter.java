@@ -83,7 +83,7 @@ public class FoldersAdapter extends RecyclerView.Adapter<FoldersAdapter.FoldersV
         public void onClick(View view) {
             Folder folder = FolderList.get(getAdapterPosition());
 
-            Intent intent = new Intent(mCtx, FolderContentActivity.class);
+            Intent intent = new Intent(mCtx, ZikFileActivity.class);
             intent.putExtra("FolderId", folder.getId());
             intent.putExtra("FolderName", folder.getName());
             mCtx.startActivity(intent);
