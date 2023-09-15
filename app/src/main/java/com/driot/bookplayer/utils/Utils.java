@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.zip.ZipEntry;
@@ -195,6 +196,35 @@ public class Utils {
             return dir.delete();
         } else {
             return false;
+        }
+    }
+
+    public static class AlphanumericComparator implements Comparator<String> {
+        public int compare(String s1, String s2) {
+            String[] arr1 = s1.split("(?<=\\D)(?=\\d)|(?<=\\d)(?=\\D)");
+            String[] arr2 = s2.split("(?<=\\D)(?=\\d)|(?<=\\d)(?=\\D)");
+
+            int i = 0;
+            while (i < arr1.length && i < arr2.length) {
+                if (arr1[i].equals(arr2[i])) {
+                    i++;
+                    continue;
+                }
+
+                if (isNumeric(arr1[i]) && isNumeric(arr2[i])) {
+                    int num1 = Integer.parseInt(arr1[i]);
+                    int num2 = Integer.parseInt(arr2[i]);
+                    return Integer.compare(num1, num2);
+                }
+
+                return arr1[i].compareTo(arr2[i]);
+            }
+
+            return Integer.compare(arr1.length, arr2.length);
+        }
+
+        private boolean isNumeric(String s) {
+            return s.matches("\\d+");
         }
     }
 

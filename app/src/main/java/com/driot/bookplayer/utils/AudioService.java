@@ -1,19 +1,24 @@
 package com.driot.bookplayer.utils;
 
+import android.app.Notification;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.Icon;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.ToneGenerator;
 import android.media.session.MediaSession;
+import android.media.session.PlaybackState;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.IBinder;
 import android.view.KeyEvent;
 
 import androidx.annotation.Nullable;
+import androidx.core.app.NotificationCompat;
 
 import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.global.PlayList;
@@ -45,11 +50,14 @@ import static com.driot.bookplayer.utils.Utils.copyStream;
 import static com.driot.tonylib.KanLogger.myLog;
 import static com.driot.tonylib.KanLogger.myLogE;
 
+import com.driot.bookplayer.R;
+
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 01/11/20
  */
 public class AudioService extends Service {
 
+    private static final String CHANNEL_ID = "mychanelID129111";
     private Timer timer;
     private int tempsEcoule = 0;
     public static final int DELAY_MAXPLAYBACK = 1000*60*60; //1h
@@ -77,6 +85,7 @@ public class AudioService extends Service {
     private AudioManager mAudioManager;
     private AudioManager.OnAudioFocusChangeListener afChangeListener;
     private MediaSession mediaSession;
+    private PlaybackState.Builder stateBuilder;
     private int maxTimeBeforeSleep;
 
 
@@ -102,6 +111,11 @@ public class AudioService extends Service {
         mediaSession = new MediaSession(this, "MyTotoMediaSession");
         configureMediaSession();
         setMaxTimeBeforeSleep();
+        createNotificationWhenLocked();
+
+        // Create a new PlaybackState.Builder
+        stateBuilder = new PlaybackState.Builder().setActions(PlaybackState.ACTION_PLAY | PlaybackState.ACTION_PAUSE);
+        mediaSession.setPlaybackState(stateBuilder.build());
 
         mediaPlayer.setOnCompletionListener(mediaPlayer -> {
             if (!ErrorLoadingFile) {
@@ -182,7 +196,7 @@ public class AudioService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         myLog("Audio Service : onStartCommand()" + intent.toString());
-        return START_NOT_STICKY;
+        return START_NOT_STICKY; //TODO maybe to change... because memory pressure could kill it
     }
     @Override
     public void onDestroy() {
@@ -193,6 +207,7 @@ public class AudioService extends Service {
         if (mAudioManager != null) { mAudioManager.abandonAudioFocus(afChangeListener); }
         if (tempFile != null && tempFile.exists()) { tempFile.delete();tempFile=null;}
         if (timer != null) this.timer.cancel();
+        if(mediaSession != null) { mediaSession.release(); }
     }
 
     @Nullable
@@ -503,6 +518,28 @@ public class AudioService extends Service {
         });
         mediaSession.setFlags(MediaSession.FLAG_HANDLES_MEDIA_BUTTONS | MediaSession.FLAG_HANDLES_TRANSPORT_CONTROLS);
         mediaSession.setActive(true);
+    }
+
+    /********************************************************************************
+     ***       LOCKED SCREEN BUTTONS
+     ********************************************************************************
+     */
+
+    private void createNotificationWhenLocked() {
+        Notification.Builder builder = new Notification.Builder(this, CHANNEL_ID)
+                //.setSmallIcon(R.drawable.notification_icon)
+                .setSmallIcon(R.drawable.vd_pause)
+                .setContentTitle("My notification")
+                .setContentText("Hello World!")
+                //.setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.large_icon))
+                .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.vd_pause))
+                .setStyle(new Notification.MediaStyle()
+                        .setMediaSession(mediaSession.getSessionToken())
+                        .setShowActionsInCompactView(0,1))
+                //.addAction(new Notification.Action.Builder(Icon.createWithResource(this, R.drawable.vd_play), "Previous", prevPendingIntent).build())
+                .addAction(new Notification.Action.Builder(Icon.createWithResource(this, R.drawable.vd_play), "Previous", prevPendingIntent).build())
+                .addAction(new Notification.Action.Builder(Icon.createWithResource(this, R.drawable.vd_pause), "Pause", pausePendingIntent).build())
+                .setPriority(Notification.PRIORITY_LOW);
     }
 
 

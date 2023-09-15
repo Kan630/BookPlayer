@@ -18,10 +18,10 @@ android {
 
     defaultConfig {
         applicationId "com.driot.bookplayer"
-        minSdkVersion 23 //  23 = android 6.0
+        minSdkVersion 26 //  23 = android 6.0 Marshmallow 2015 // 26 = android 8.0 - Oreo - 2017
         targetSdkVersion 31 //31-32 =  = android 11.0       //  30 = android 11.0
-        versionCode 24
-        versionName "24 - Going further"
+        versionCode 25
+        versionName "25 - LockedPhoneNotification"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         signingConfig signingConfigs.debug
@@ -76,6 +76,7 @@ dependencies {
     implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
     implementation "androidx.room:room-runtime:2.4.3"
     implementation 'androidx.core:core:1.10.1'
+    implementation 'androidx.media:media:1.6.0'
     annotationProcessor "androidx.room:room-compiler:2.4.3"
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'

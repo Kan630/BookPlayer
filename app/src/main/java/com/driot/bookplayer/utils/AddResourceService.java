@@ -172,7 +172,7 @@ public class AddResourceService extends Service {
                     }
                 }
             }
-            Collections.sort(audioFileArrayList);
+            Collections.sort(audioFileArrayList, new Utils.AlphanumericComparator());
 
             resourceSelected = true;
 
@@ -215,31 +215,16 @@ public class AddResourceService extends Service {
                 myLog("scanning for audio file recursively from folder [" + pickedDir.getName() + "]");
 
                 audioFileArrayList = new ArrayList<String>();
+
                 addAudioFileRecursive(pickedDir);
 
-                /*
-                myZikFileList = pickedDir.listFiles();
+                Collections.sort(audioFileArrayList, new Utils.AlphanumericComparator());
 
-                if (myZikFileList.length > 0) {
-                    for (DocumentFile f : myZikFileList) { //check myZikFileList.length > 0 ??
-                        myLog("Scanning : [" + f.getName() + "] => type : [" + f.getType() + ']');
-                        if (f.getType() != null) {
-                            if (f.getType().equals("audio/mpeg")) {
-                                myLog("adding to audioFileArrayList : [" + f.getName() + ']');
-                                audioFileArrayList.add(f.getName());
-                            }
-                        }
-                    }
-                } else {
-                    myLog("no File found in directory : [" + pickedDir.getName() + ']');
-                }
-                */
                 if (audioFileArrayList.size()==0) {
                     myLog("No File found in directory : [" + pickedDir.getName() + ']');
                 } else {
                     myLog(audioFileArrayList.size() + " files found in directory : [" + pickedDir.getName() + ']');
                 }
-
 
                 resourceSelected = true;
             }
