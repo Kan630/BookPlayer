@@ -7,6 +7,7 @@ public class Var {
 
     public static final String  FOLDER_UNZIPPED = "unzipped";
     public static final String  FOLDER_ZIPPED = "zipped";
+    public static final String  FOLDER_MP4 = "mp4_split";
 
     public static final int  ZIP_SIZE_MAX_COEF = 4;
 }

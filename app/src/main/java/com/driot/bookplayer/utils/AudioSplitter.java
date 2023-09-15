@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 public class AudioSplitter {
-    public static void splitM4BToMP3(String m4bFilePath) {
+    public static void splitM4BToMP3(String m4bFilePath, String OutFolderPath) {
         try {
             MediaExtractor extractor = new MediaExtractor();
             extractor.setDataSource(m4bFilePath);
@@ -31,34 +31,41 @@ public class AudioSplitter {
             if (audioTrackIndex >= 0) {
                 extractor.selectTrack(audioTrackIndex);
 
-                String outputDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).getPath();
-                File mp3File = new File(outputDir, "output.mp3");
+                //String outputDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).getPath();
+                String outputDir = OutFolderPath;
+                int fileIndex = 1;
 
-                MediaMuxer muxer = new MediaMuxer(mp3File.getPath(), MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
-                int audioTrack = muxer.addTrack(extractor.getTrackFormat(audioTrackIndex));
-                muxer.start();
+                String outputFileName = "output" + fileIndex + ".mp3";
+                File mp3File = new File(outputDir, outputFileName);
 
-                ByteBuffer buffer = ByteBuffer.allocate(1024 * 1024); // Adjust buffer size as needed
+                if (!mp3File.exists()) {
+                    MediaMuxer muxer = new MediaMuxer(mp3File.getPath(), MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
+                    int audioTrack = muxer.addTrack(extractor.getTrackFormat(audioTrackIndex));
+                    muxer.start();
 
-                MediaCodec.BufferInfo bufferInfo = new MediaCodec.BufferInfo();
-                while (true) {
-                    int sampleSize = extractor.readSampleData(buffer, 0);
-                    if (sampleSize < 0) {
-                        break;
+                    ByteBuffer buffer = ByteBuffer.allocate(1024 * 1024); // Adjust buffer size as needed
+
+                    MediaCodec.BufferInfo bufferInfo = new MediaCodec.BufferInfo();
+                    int sampleSize;
+
+                    while ((sampleSize = extractor.readSampleData(buffer, 0)) >= 0) {
+
+                        bufferInfo.offset = 0;
+                        bufferInfo.size = sampleSize;
+                        bufferInfo.presentationTimeUs = extractor.getSampleTime();
+                        //bufferInfo.flags = extractor.getSampleFlags();
+                        muxer.writeSampleData(audioTrack, buffer, bufferInfo);
+
+                        extractor.advance();
                     }
 
-                    bufferInfo.offset = 0;
-                    bufferInfo.size = sampleSize;
-                    bufferInfo.presentationTimeUs = extractor.getSampleTime();
-                    bufferInfo.flags = extractor.getSampleFlags();
-                    muxer.writeSampleData(audioTrack, buffer, bufferInfo);
+                    muxer.stop();
+                    muxer.release();
 
-                    extractor.advance();
+                    fileIndex++;
                 }
 
                 extractor.release();
-                muxer.stop();
-                muxer.release();
             }
         } catch (IOException e) {
             e.printStackTrace();

@@ -45,6 +45,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
@@ -72,6 +73,7 @@ import static com.driot.bookplayer.utils.Utils.recursiveRemove;
 import static com.driot.bookplayer.utils.Utils.unzip;
 import static com.driot.tonylib.KanLogger.myLog;
 import static com.driot.tonylib.KanLogger.myLogE;
+import static com.driot.tonylib.KanLogger.myToastE;
 import static com.driot.tonylib.TonioCommonStuff.MD5;
 
 /**
@@ -278,12 +280,8 @@ public class AddResourceService extends Service {
     }
 
     private void addAudioFileUnique(DocumentFile df) {
-        if (df.getType() != null) {
-            if (df.getType().equals("audio/mpeg") || df.getType().equals("audio/mp4")) {
-                myLog("* New Audio File : [" +  df.getName() + ']');
-                audioFileArrayList.add(df.getName());
-            }
-        }
+        myLog("* New Audio File : [" +  df.getName() + ']');
+        audioFileArrayList.add(df.getName());
     }
 
     private void addAudioFileRecursive(DocumentFile f0) {
@@ -313,6 +311,8 @@ public class AddResourceService extends Service {
     public void init() {
         myLog("init() - **" + type + "**");
         isBusy = true;
+        String mime;
+        resourceSelected = false;
 
         switch (type) {
             ///---------------------------------------------
@@ -322,11 +322,47 @@ public class AddResourceService extends Service {
                 try {
                     pickedDir = DocumentFile.fromSingleUri(this, uri);
                 } catch (Exception e) {
-                    myLogE("error getting DocumentFile.fromSingleUri : " + e.getMessage());
+                    myToastE("error getting DocumentFile.fromSingleUri : " + e.getMessage());
                     break;
                 }
-                resourceSelected = populateArrayListOfTracksFromFile();
+                try {
+                    mime = pickedDir.getType();
+                } catch (Exception e) {
+                    myToastE("Mime Type could not be found");
+                    break;
+                }
+
+                if (mime.equals("audio/mp4")) { //   application/mp4
+
+                    myLog("MP4 : [" + pickedDir.getType() + "]");
+                    resourceSelected = populateArrayListOfTracksFromFile();
+
+                    // TODO
+                    /*
+                    /// EXPLODE MP4 in MP3s in local folder...
+                    /// then use the import folder thing
+                    destinationFolder = getFilesDir().getAbsolutePath() + "/" + FOLDER_MP4 + "/" + myFolder.getsFolderName_withUnderscore();
+                    AudioSplitter.splitM4BToMP3(m4bFilePath, destinationFolder);
+
+                    localUnzipFolder = new File(destinationFolder);
+                    futureUri = Uri.fromFile(localUnzipFolder).toString();
+                    String destinationPath = getFilesDir().getAbsolutePath() + "/" + FOLDER_MP4 + "/" + myFolder.getsFolderName_withUnderscore() + ".zip";
+                    internalZipFile = new File(destinationPath);
+                    finalLocalFolder = localUnzipFolder;
+                    resourceSelected = populateArrayListOfTracksFromFolder();
+                    */
+
+                } else if (mime.startsWith("audio/")) {     // audio/mpeg
+
+                    myLog("not MP4 : [" + mime + "]");
+                    resourceSelected = populateArrayListOfTracksFromFile();
+
+                } else {
+                    myToastE("This MIME type is not supported : [" + mime + "]");
+                }
                 break;
+
+
 
             ///---------------------------------------------
             /// FOLDER
