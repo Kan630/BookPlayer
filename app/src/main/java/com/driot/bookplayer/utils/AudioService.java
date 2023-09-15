@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Date;
 import java.sql.Time;
+import java.text.DecimalFormat;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.zip.ZipFile;
@@ -354,6 +355,7 @@ public class AudioService extends Service {
             setSpeed(getSpeed());
             startTimer();
        }
+        myLogE("mediaPlayer was already Playing ... going out of .playAudio()");
     }
 
     public void pauseAudio() {
@@ -599,6 +601,7 @@ public class AudioService extends Service {
      ********************************************************************************
      */
     private void updateZikFileState(boolean bFinished) {
+        DecimalFormat myFormat = new DecimalFormat("#,###.");
         ZikFile zf = getCurrentZikFile();
         try {
             if (zf.getFirstaccess() == null) {
@@ -628,7 +631,7 @@ public class AudioService extends Service {
             })
                     .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
                     .subscribe(result -> {
-                        myLog("Audio Service : ---------- zikFile updated (" + zf.getName() + ")- position : " + zf.getPosition());
+                        myLog("Audio Service : ---------- zikFile updated (" + zf.getName() + ")- position : " + myFormat.format(zf.getPosition()));
                         Sql.calculateFolderProgress(getApplicationContext(), zf.getIdFolder());
                     }, throwable -> {
                         myLog("Audio Service : error sql updating zikFile :" + throwable.getMessage());

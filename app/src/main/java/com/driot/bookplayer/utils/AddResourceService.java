@@ -72,6 +72,7 @@ import static com.driot.bookplayer.utils.Utils.recursiveRemove;
 import static com.driot.bookplayer.utils.Utils.unzip;
 import static com.driot.tonylib.KanLogger.myLog;
 import static com.driot.tonylib.KanLogger.myLogE;
+import static com.driot.tonylib.TonioCommonStuff.MD5;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 23/11/20
@@ -136,6 +137,48 @@ public class AddResourceService extends Service {
         return START_NOT_STICKY;
     }
 
+
+    private boolean populateArrayListOfTracksFromFile() {
+        myLog("populateArrayListOfTracksFromFile " + pickedDir.getUri().toString());
+        boolean resourceSelected = false;
+
+        uri = pickedDir.getUri();
+
+        try { myLog(DocumentFile.fromTreeUri(this, uri).getParentFile().getName()); }
+        catch (Exception e) {
+            myLogE("ko " + e.getMessage());
+        }
+
+        if (pickedDir != null && !(pickedDir.isDirectory())) {
+
+            // constructeur pour mon pti folder
+            myFolder = new FolderAttrib(getApplicationContext(), uri, false, true);
+            if (myFolder.getsFolderName()==null) {
+                tellError("Error while creating record, cancelling operation");
+                return false;
+            }
+            tellName(myFolder.getsFolderName());
+
+            if (myFolder.isFolderKO()) {
+                String error = getString(R.string.Error_Import_FilePathKO);
+                //if (myFolder.isLocatedInDownloadFolder())  error += "/n" + getString(R.string.Error_Import_BetterTryNoDownloadFolder);
+                tellError(error);
+            } else {
+                myLog("file ok");
+
+                audioFileArrayList = new ArrayList<String>();
+
+                addAudioFileUnique(pickedDir);
+
+                resourceSelected = true;
+            }
+        } else {
+            tellError(getString(R.string.Error_Import_IsNotFile));
+        }
+        return resourceSelected;
+    }
+
+
     private boolean populateArrayListOfTracksFromZipFile() {
         boolean resourceSelected = false;
 
@@ -199,7 +242,7 @@ public class AddResourceService extends Service {
         if (pickedDir != null && pickedDir.isDirectory()) {
 
             // constructeur pour mon pti folder
-            myFolder = new FolderAttrib(getApplicationContext(), uri, false);
+            myFolder = new FolderAttrib(getApplicationContext(), uri, false, false);
             if (myFolder.getsFolderName()==null) {
                 tellError("Error while creating record, cancelling operation");
                 return false;
@@ -208,7 +251,7 @@ public class AddResourceService extends Service {
 
             if (myFolder.isFolderKO()) {
                 String error = getString(R.string.Error_Import_FolderPathKO);
-                if (myFolder.isLocatedInDownloadFolder())  error += "/n" + getString(R.string.Error_Import_BetterTryNoDownloadFolder);
+                if (myFolder.isLocatedInDownloadFolder())  error += "... " + getString(R.string.Error_Import_BetterTryNoDownloadFolder);
                 tellError(error);
             } else {
                 myLog("folder ok");
@@ -234,6 +277,15 @@ public class AddResourceService extends Service {
         return resourceSelected;
     }
 
+    private void addAudioFileUnique(DocumentFile df) {
+        if (df.getType() != null) {
+            if (df.getType().equals("audio/mpeg") || df.getType().equals("audio/mp4")) {
+                myLog("* New Audio File : [" +  df.getName() + ']');
+                audioFileArrayList.add(df.getName());
+            }
+        }
+    }
+
     private void addAudioFileRecursive(DocumentFile f0) {
         addAudioFileRecursive(f0,"");
     }
@@ -254,11 +306,28 @@ public class AddResourceService extends Service {
         }
     }
 
+    ///////////////////////////////////////
+    // INIT
+    ///////////////////////////////////////
+
     public void init() {
         myLog("init() - **" + type + "**");
         isBusy = true;
 
         switch (type) {
+            ///---------------------------------------------
+            /// FILE
+            ///---------------------------------------------
+            case "File":
+                try {
+                    pickedDir = DocumentFile.fromSingleUri(this, uri);
+                } catch (Exception e) {
+                    myLogE("error getting DocumentFile.fromSingleUri : " + e.getMessage());
+                    break;
+                }
+                resourceSelected = populateArrayListOfTracksFromFile();
+                break;
+
             ///---------------------------------------------
             /// FOLDER
             ///---------------------------------------------
@@ -268,6 +337,7 @@ public class AddResourceService extends Service {
 
                 try {
                     pickedDir = DocumentFile.fromTreeUri(this, uri);
+
                 } catch (Exception e) {
                     myLogE("error getting DocumentFile.fromTreeUri : " + e.getMessage());
                     break;
@@ -286,7 +356,7 @@ public class AddResourceService extends Service {
                 ///         copy zip en local, unzip en local, et lecture local folder
 
                 myLog("Entry case ZipFile");
-                myFolder = new FolderAttrib(getApplicationContext(), uri, true);
+                myFolder = new FolderAttrib(getApplicationContext(), uri, true, false);
                 tellName(myFolder.getsFolderName());
 
                 if (myFolder.isFolderKO()) {
@@ -649,7 +719,7 @@ public class AddResourceService extends Service {
             if (result) {
                 tellEnd(getString(R.string.Error_Import_FolderAlreadyImported));
             } else {
-                myLog("ok on continue");
+                myLog("ok on continue -       (folder does not already exist)");
                 tellProgress(5,getResources().getString(R.string.Import_Progress_check_not_already_imported));
                 saveFolder();
             }
@@ -765,6 +835,8 @@ public class AddResourceService extends Service {
         String sFileFullPath;
         if (myFolder.isZipFolder()) {
             sFileFullPath = sZikFileName;
+        //} else if (myFolder.isSingleFile()) {
+        //    sFileFullPath = myFolder.getsRealFolderPath();
         } else {
             sFileFullPath = myFolder.getsRealFolderPath() + File.separator + sZikFileName;
         }

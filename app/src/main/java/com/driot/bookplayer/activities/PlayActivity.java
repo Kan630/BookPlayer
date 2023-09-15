@@ -267,7 +267,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
                     myLog("PlayActivity : unbinding service");
                     try {
                         // CHECK
-                        //unbindService(connection);
+                        //unbindService(connection); // TODO some random comment on ze net :  You bind in onResume but unbind in onDestroy. You should do the unbinding in onPause instead, so that there are always matching pairs of bind/unbind calls. Your intermittent errors will be where your activity is paused but not destroyed, and then resumed again.
                     } catch (Exception e) {
                         myLogE("PlayActivity : unbinding service ERROR");
                         myLogE(e.getMessage());
@@ -361,6 +361,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
         if (mService.isPlaying()) {
             //myToast(getResources().getString(R.string.no_back_while_play));
             playMe();
+            if (connection != null) { unbindService(connection); }
         }
         super.onBackPressed();
     }

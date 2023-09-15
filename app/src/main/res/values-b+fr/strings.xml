@@ -65,8 +65,10 @@
     <string name="bAddRessource">Ajouter une ressource</string>
 
     <string name="Error_Import_IsNotFolder">"Cet élément n\'est pas reconnu comme un dossier"</string>
+    <string name="Error_Import_IsNotFile">Cet élément n\'est pas reconnu comme un fichier</string>
     <string name="Error_Import_FolderAlreadyImported">Ce dossier a déjà été importé</string>
     <string name="Error_Import_NoMediaInFolder">Pas de medias dans ce dossier</string>
+    <string name="Error_Import_FilePathKO">Impossible de trouver le chemin du fichier </string>
     <string name="Error_Import_FolderPathKO">Impossible de trouver le chemin du dossier </string>
     <string name="Error_Import_ZipFilePathKO">Impossible de trouver le chemin du fichier zip </string>
     <string name="Error_Import_BetterTryNoDownloadFolder">Essayer de deplacer votre ressource audio ailleurs que dans le répertoire téléchargement</string>

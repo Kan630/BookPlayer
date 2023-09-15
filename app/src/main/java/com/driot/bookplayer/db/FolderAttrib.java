@@ -11,10 +11,14 @@ import android.widget.Toast;
 import com.driot.bookplayer.R;
 
 import java.io.File;
+import java.util.List;
 
+import static com.driot.bookplayer.utils.FileHelper.getRealPathFromURI;
 import static com.driot.bookplayer.utils.Tonio.FormatNameForDisplay;
 import static com.driot.bookplayer.utils.Tonio.FormatNameForDisplay_withUnderscore;
 import static com.driot.tonylib.KanLogger.myLogE;
+
+import androidx.documentfile.provider.DocumentFile;
 
 
 /**
@@ -24,6 +28,7 @@ public class FolderAttrib {
 
     private final Uri uri;
     private final boolean isZipFolder;
+    private final boolean isSingleFile;
     private boolean isLocatedInDownloadFolder = false;
     private Context mCtx;
 
@@ -35,15 +40,18 @@ public class FolderAttrib {
     private String sFolderName;
     private String sFolderName_withUnderscore;
 
+    private String sRealPathFromUriNew;
+
     private String sRealFolderPath;
 
     private boolean fromDownloadFolder;
 
     //public FolderAttrib(Context context, Uri uri, boolean isZipFolder, String forceName) {
-    public FolderAttrib(Context context, Uri uri, boolean isZipFolder) {
+    public FolderAttrib(Context context, Uri uri, boolean isZipFolder, boolean isSingleFile) {
 
         this.uri = uri;
         this.isZipFolder = isZipFolder;
+        this.isSingleFile = isSingleFile;
         this.mCtx = context;
 
         sFolderUri = uri.toString();
@@ -56,8 +64,14 @@ public class FolderAttrib {
 
         fromDownloadFolder=false;
 
-            // from DOWNLOAD
+        sRealPathFromUriNew = getRealPathFromURI(context,uri);
+        myLog("new method to find path : [" + sRealPathFromUriNew + "]");
+
+        myLog(PrintManyPaths());
+
+        // from DOWNLOAD
         if (uri.getAuthority().equals("com.android.providers.downloads.documents")) {
+            myLog("Doc is in Download Folder");
             isLocatedInDownloadFolder=true;
             sFolderPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getPath();
             if (isZipFolder) {
@@ -65,8 +79,16 @@ public class FolderAttrib {
                 sRealFolderPath = sFolderPath + "/" + sRealFolderName;
                 sFolderName = FormatNameForDisplay(sRealFolderName);
                 sFolderName_withUnderscore = FormatNameForDisplay_withUnderscore(sRealFolderName);
+            } else if (isSingleFile) {
+                //String sRealFolderName = getFileName(context,uri);
+                //sRealFolderPath = sFolderPath
+                sRealFolderPath = sFolderPath;
+                sFolderName = FormatNameForDisplay(getFileName(context,uri));
+                sFolderName_withUnderscore = FormatNameForDisplay_withUnderscore(getFileName(context,uri));
             } else {
-                sRealFolderPath = uri.getLastPathSegment().replace("raw:","");
+                //sRealFolderPath = uri.getLastPathSegment().replace("raw:","");
+                String sRealFolderName = getFileName(context,uri);
+                sRealFolderPath = sFolderPath + "/" + sRealFolderName;
                 sFolderName = FormatNameForDisplay(sRealFolderPath.substring(sRealFolderPath.lastIndexOf("/")+1));
                 sFolderName_withUnderscore = FormatNameForDisplay_withUnderscore(sRealFolderPath.substring(sRealFolderPath.lastIndexOf("/")+1));
             }
@@ -89,18 +111,18 @@ public class FolderAttrib {
         File f = new File(sRealFolderPath);
         if (!f.exists())  {
             FolderKO = true;
-            myLog("====== File not exists");
+            myLogE("====== Path cannot be retrieved       ....  error with: --new File("+sRealFolderPath+")--");
         }
 
         if (isZipFolder) {
             if (!f.isFile())  {
                 FolderKO = true;
-                myLog("====== Is not File");
+                myLogE("====== Is not File");
             }
-        } else {
+        } else if (!(isSingleFile)) {
             if (!f.isDirectory()) {
                 FolderKO = true;
-                myLog("====== Is not Folder");
+                myLogE("====== Is not Folder");
             }
         }
 
@@ -163,6 +185,10 @@ public class FolderAttrib {
         return sRealFolderPath;
     }
 
+    public boolean isSingleFile() {
+        return isSingleFile;
+    }
+
     public boolean isZipFolder() {
         return isZipFolder;
     }
@@ -183,11 +209,13 @@ public class FolderAttrib {
                 "uri.getLastPathSeg  =" + uri.getLastPathSegment() + "\n" +
                 "uri.getAuthority    =" + uri.getAuthority() + "\n" +
                 "uri.getFragment     =" + uri.getFragment() + "\n" +
+                "sRealPathFromUriNew ='" + sRealPathFromUriNew + '\'' + "\n" +
                 "sFolderUri          ='" + sFolderUri + '\'' + "\n" +
                 "sFolderHash         ='" + sFolderHash + '\'' + "\n" +
                 "sFolderPath         ='" + sFolderPath + '\'' + "\n" +
                 "sRealFolderPath     ='" + sRealFolderPath + '\'' + "\n" +
                 "isZipFolder         =" + isZipFolder + "\n" +
+                "isSingleFile        =" + isSingleFile + "\n" +
                 "isFolderKO          =" + FolderKO + "\n" +
                 "sFolderName         ='" + sFolderName + '\'' + "\n" +
                 "sFolderName_withUn. ='" + sFolderName_withUnderscore + '\'' + "\n" +
@@ -195,6 +223,7 @@ public class FolderAttrib {
     }
 
     public String PrintManyPaths() {
+        List<String> segments = uri.getPathSegments();
         String ss =
                 "..." + "\n" +
                         "uri                : " + uri + "\n" +
@@ -203,7 +232,11 @@ public class FolderAttrib {
                         "uri.getLastPathSeg : " + uri.getLastPathSegment() + "\n" +
                         "uri.getAuthority   : " + uri.getAuthority() + "\n" +
                         "uri.getHost        : " + uri.getHost() + "\n" +
+                        "uri.getLastPathSeg : " + uri.getPathSegments() + "\n" +
                 "";
+        for (int i = 0; i < segments.size() - 1; i++) {
+            ss += "uri.getPathSegment("+ i +") : " + segments.get(i) + "\n";
+        }
 
         return ss;
     }
@@ -236,6 +269,7 @@ public class FolderAttrib {
             }
         }
         if (result == null) {myLogE("FolderAttrib.getFileName -- " + uri.getPath());}
+        else {myLog("FolderAttrib.getFileName : [" + result + "]");}
         return result;
     }
 

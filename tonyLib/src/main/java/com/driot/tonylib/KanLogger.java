@@ -38,6 +38,7 @@ public class KanLogger {
             ,"56db55f6c978892e2f3a55563fcb6f80" //"OPPO/CPH2065EEA/OP4BDCL1:11/RP1A.200720.011/1718335401248:user/release-keys"
             ,"f440eedc21b7e92490e9ad90e4a93215" //"OPPO/CPH2065EEA/OP4BDCL1:11/RP1A.200720.011/1624562435949:user/release-keys" //oppo-cph2065-P7LFRGOFKVKRLNPF
             ,"eb621dde2a2672e66b6e6ef5acbbbb99" //"OPPO/CPH2065EEA/OP4BDCL1:11/RP1A.200720.011/1629728339857:user/release-keys"
+            ,"3dcf828fa24be7a49a361c4f4ba3dfd4" // RedMi sept 2023
     };
 
     private static Context appContext;
@@ -95,7 +96,6 @@ public class KanLogger {
 
     public static boolean isMyPhoneDev() {
         boolean ret = false;
-        //return MD5_MY_PHONE.equals(MD5(Build.FINGERPRINT));
         String strToCheck = MD5(Build.FINGERPRINT);
         if (strToCheck != null) {
             for (String s : MD5_MY_PHONE) {

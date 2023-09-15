@@ -65,6 +65,7 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
 
         // SINGLE FILE
         bOpenFile.setOnClickListener(view -> {
+            myLog("single file");
             if (checkIfPermissionsReadStorage()) {
                 Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
                 intent.setType("audio/*");
@@ -107,6 +108,14 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
                 myToast(getString(R.string.permissions_denied_sorry_cannot));
             }
         });
+
+
+
+
+        ////////////////////////////////
+        ///// LINKS
+        ////////////////////////////////
+
         bSearchLibrivox.setOnClickListener(view -> {
             String url = "https://librivox.org";
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
@@ -172,27 +181,30 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
-            case OPEN_FILE_REQUEST_CODE:
+            case OPEN_FILE_REQUEST_CODE:  // return of intent ACTION_OPEN_DOCUMENT
                 if (resultCode == RESULT_OK) {
                     Uri uri = data.getData();
+                    myLog("picked data : " + uri.getPath() );
                     Intent intent = new Intent(getApplicationContext(), AddResourceActivity.class);
                     intent.putExtra("Uri", uri);
                     intent.putExtra("type", "File");
                     startActivityForResult(intent,ADD_RESOURCE_REQUEST_CODE);
                 }
                 break;
-            case OPEN_FOLDER_REQUEST_CODE:
+            case OPEN_FOLDER_REQUEST_CODE: // return of ACTION_OPEN_DOCUMENT_TREE
                 if (resultCode == RESULT_OK) {
                     Uri uri = data.getData();
+                    myLog("picked data : " + uri.getPath() );
                     Intent intent = new Intent(getApplicationContext(), AddResourceActivity.class);
                     intent.putExtra("Uri", uri);
                     intent.putExtra("type", "Folder");
                     startActivityForResult(intent,ADD_RESOURCE_REQUEST_CODE);
                 }
                 break;
-            case OPEN_ZIP_FILE_REQUEST_CODE:
+            case OPEN_ZIP_FILE_REQUEST_CODE: // return of ACTION_OPEN_DOCUMENT
                 if (resultCode == RESULT_OK) {
                     Uri uri = data.getData();
+                    myLog("picked data : " + uri.getPath() );
                     Intent intent = new Intent(getApplicationContext(), AddResourceActivity.class);
                     intent.putExtra("Uri", uri);
                     intent.putExtra("type", "ZIP");
