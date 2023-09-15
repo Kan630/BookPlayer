@@ -48,6 +48,7 @@
     <string name="bSearchGutenberg">https://marhamilresearch4.blob.core.windows.net/gutenberg-public/Website/index.html</string>
 
     <string name="TextHeaderOpen">Ouvrir un audio sur mon appareil</string>
+    <string name="bOpenFile_desc">Si votre audio est composé d\'un seul fichier, pressez ce bouton pour le sélectionner :</string>
     <string name="bOpenFolder_desc">Si vos fichiers audios sont localisés dans un répertoire, pressez ce bouton et sélectionnez le dossier :</string>
     <string name="bOpenZipFile_desc">Si vos fichiers audios sont localisés dans un fichier ZIP, pressez ce bouton et sélectionnez le Zip :</string>
 

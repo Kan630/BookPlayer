@@ -38,13 +38,16 @@ import static com.driot.tonylib.KanLogger.myLogE;
 public class GetResourceActivity extends LifecycleLoggingActivity {
 
     private static final int OPEN_ZIP_FILE_REQUEST_CODE = 24;
+    private static final int OPEN_FILE_REQUEST_CODE = 2444;
     private static final int OPEN_FOLDER_REQUEST_CODE = 25;
     public static final int ADD_RESOURCE_REQUEST_CODE = 26;
 
+    private Button bOpenFile;
     private Button bOpenFolder;
     private Button bOpenZipFile;
     private Button bSearchLibrivox;
     private Button bSearchLitteratureaudio;
+    private Button bSearchGutenberg;
 
     private PermissionRequest mPermissionRequest;
 
@@ -53,10 +56,25 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_getressource);
 
+        bOpenFile = findViewById(R.id.bOpenFile);
         bOpenFolder = findViewById(R.id.bOpenFolder);
         bOpenZipFile = findViewById(R.id.bOpenZipFile);
         bSearchLibrivox = findViewById(R.id.bSearchLibrivox);
         bSearchLitteratureaudio = findViewById(R.id.bSearchLitteratureaudio);
+        bSearchGutenberg = findViewById(R.id.bSearchGutenberg);
+
+        // SINGLE FILE
+        bOpenFile.setOnClickListener(view -> {
+            if (checkIfPermissionsReadStorage()) {
+                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                intent.setType("audio/*");
+                intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_WRITE_URI_PERMISSION|Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION|Intent.FLAG_GRANT_PREFIX_URI_PERMISSION);
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                startActivityForResult(intent, OPEN_FILE_REQUEST_CODE);
+            } else {
+                myToast(getString(R.string.permissions_denied_sorry_cannot));
+            }
+        });
 
         // ZIP
         bOpenZipFile.setOnClickListener(view -> {
@@ -98,6 +116,11 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
             String url = "https://www.litteratureaudio.com";
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
             //Intent intent = new Intent(getApplicationContext(), DbBackupActivity.class);
+            startActivity(intent);
+        });
+        bSearchGutenberg.setOnClickListener(view -> {
+            String url = "https://marhamilresearch4.blob.core.windows.net/gutenberg-public/Website/index.html";
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
             startActivity(intent);
         });
 
@@ -149,6 +172,15 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
+            case OPEN_FILE_REQUEST_CODE:
+                if (resultCode == RESULT_OK) {
+                    Uri uri = data.getData();
+                    Intent intent = new Intent(getApplicationContext(), AddResourceActivity.class);
+                    intent.putExtra("Uri", uri);
+                    intent.putExtra("type", "File");
+                    startActivityForResult(intent,ADD_RESOURCE_REQUEST_CODE);
+                }
+                break;
             case OPEN_FOLDER_REQUEST_CODE:
                 if (resultCode == RESULT_OK) {
                     Uri uri = data.getData();
