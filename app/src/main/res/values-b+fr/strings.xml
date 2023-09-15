@@ -55,7 +55,7 @@
     <string name="bSearchLibrivox_desc">Chercher puis téléchargez un livre depuis Librivox.org (anglais) :</string>
     <string name="bSearchlitteratureaudio_desc">Chercher puis téléchargez un livre depuis litteratureaudio.com (français) :</string>
     <string name="bSearchGutenberg_desc">Chercher puis téléchargez un livre depuis le projet Gutenberg (anglais - audio généré par une IA) : :</string>
-    <string name="bSearchExampleText">"Les 2 sites web ci-dessus sont là pour l\'exemple, il y a de multiples ressources audios sur internet, vous pourriez tout aussi bien télécharger des cours magistraux d'université."</string>
+    <string name="bSearchExampleText">"Les sites web ci-dessus sont là pour l\'exemple, il y a de multiples ressources audios sur internet, vous pourriez tout aussi bien télécharger des cours magistraux d'université."</string>
 
 
     <!-- ********************************** -->

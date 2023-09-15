@@ -111,7 +111,7 @@ public class AudioService extends Service {
         mediaSession = new MediaSession(this, "MyTotoMediaSession");
         configureMediaSession();
         setMaxTimeBeforeSleep();
-        createNotificationWhenLocked();
+        //createNotificationWhenLocked(); //commented because half dev juin 2023 - reprise de code sept 2023
 
         // Create a new PlaybackState.Builder
         stateBuilder = new PlaybackState.Builder().setActions(PlaybackState.ACTION_PLAY | PlaybackState.ACTION_PAUSE);
@@ -523,7 +523,6 @@ public class AudioService extends Service {
     /********************************************************************************
      ***       LOCKED SCREEN BUTTONS
      ********************************************************************************
-     */
 
     private void createNotificationWhenLocked() {
         Notification.Builder builder = new Notification.Builder(this, CHANNEL_ID)
@@ -541,6 +540,7 @@ public class AudioService extends Service {
                 .addAction(new Notification.Action.Builder(Icon.createWithResource(this, R.drawable.vd_pause), "Pause", pausePendingIntent).build())
                 .setPriority(Notification.PRIORITY_LOW);
     }
+     */
 
 
     /********************************************************************************
