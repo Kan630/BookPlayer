@@ -58,6 +58,7 @@ import static android.os.Build.VERSION.SDK_INT;
 import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_COPY_ZIP_LOCAL;
 import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_UNZIP_LOCAL;
 import static com.driot.bookplayer.activities.OptionActivity.SHARED_PREFERENCE_ZIP_OPTIONS;
+import static com.driot.bookplayer.global.Var.FOLDER_MP4;
 import static com.driot.bookplayer.global.Var.FOLDER_UNZIPPED;
 import static com.driot.bookplayer.global.Var.FOLDER_ZIPPED;
 import static com.driot.bookplayer.global.Var.ZIP_SIZE_MAX_COEF;
@@ -341,8 +342,12 @@ public class AddResourceService extends Service {
                     /*
                     /// EXPLODE MP4 in MP3s in local folder...
                     /// then use the import folder thing
-                    destinationFolder = getFilesDir().getAbsolutePath() + "/" + FOLDER_MP4 + "/" + myFolder.getsFolderName_withUnderscore();
-                    AudioSplitter.splitM4BToMP3(m4bFilePath, destinationFolder);
+                    destinationFolder = getFilesDir().getAbsolutePath() + "/" + FOLDER_MP4 + "/" + pickedDir.getName(); // myFolder.getsFolderName_withUnderscore();
+                    destinationFolder = destinationFolder.replace(".m4b","");
+                    myLog("destinationFolder : [" + destinationFolder + "]");
+                    String sourceFile = pickedDir.getUri().getPath();
+                    myLog("sourceFile : [" + sourceFile + "]");
+                    AudioSplitter.splitM4BToMP3(sourceFile, destinationFolder);
 
                     localUnzipFolder = new File(destinationFolder);
                     futureUri = Uri.fromFile(localUnzipFolder).toString();
