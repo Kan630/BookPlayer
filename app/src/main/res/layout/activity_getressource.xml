@@ -40,7 +40,7 @@
         app:layout_constraintTop_toBottomOf="@id/TextHeaderOpen"
         />
     <TextView
-        android:id="@+id/bOpenFolder_desc"
+        android:id="@+id/bOpenFile_desc"
         style="@style/myStyleTextExplainButton"
         android:text="@string/bOpenFolder_desc"
         android:layout_width="wrap_content"
@@ -49,6 +49,28 @@
         android:paddingHorizontal="50dp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@id/TextHeaderOpen"
+        />
+
+    <Button
+        android:id="@+id/bOpenFile"
+        android:text="@string/bOpenFile"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/GetRessource320_vertical_margin_text2button"
+        android:layout_marginStart="50dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/bOpenFile_desc"
+        />
+    <TextView
+        android:id="@+id/bOpenFolder_desc"
+        style="@style/myStyleTextExplainButton"
+        android:text="@string/bOpenFolder_desc"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/GetRessource320_vertical_margin_title2text"
+        android:paddingHorizontal="50dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/bOpenFile"
         />
 
     <Button
@@ -92,7 +114,7 @@
         style="@style/myStyleTextTitle2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/GetRessource320_vertical_margin_high"
+        android:layout_marginTop="30dp"
         android:paddingHorizontal="20dp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@id/bOpenZipFile"
@@ -114,6 +136,7 @@
         android:id="@+id/bSearchLibrivox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:textColor="@color/black"
         android:text="@string/bSearchLibrivox"
         android:layout_marginTop="@dimen/GetRessource320_vertical_margin_text2button"
         android:layout_marginStart="50dp"
@@ -122,9 +145,9 @@
         />
 
     <TextView
+        android:id="@+id/bSearchlitteratureaudio_desc"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/bSearchlitteratureaudio_desc"
         style="@style/myStyleTextExplainButton"
         android:text="@string/bSearchlitteratureaudio_desc"
         android:paddingHorizontal="50dp"
@@ -137,6 +160,7 @@
         android:id="@+id/bSearchLitteratureaudio"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:textColor="@color/black"
         android:text="@string/bSearchLitteratureaudio"
         android:layout_marginTop="@dimen/GetRessource320_vertical_margin_text2button"
         android:layout_marginStart="50dp"
@@ -145,11 +169,11 @@
         />
 
     <TextView
+        android:id="@+id/bSearchGutenberg_desc"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/bSearchExempleText"
         style="@style/myStyleTextExplainButton"
-        android:text="@string/bSearchExampleText"
+        android:text="@string/bSearchGutenberg_desc"
         android:textStyle="italic"
         android:paddingHorizontal="50dp"
         android:layout_marginTop="@dimen/GetRessource320_vertical_margin_low"
@@ -157,6 +181,30 @@
         app:layout_constraintTop_toBottomOf="@id/bSearchLitteratureaudio"
         />
 
+    <Button
+        android:id="@+id/bSearchGutenberg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/black"
+        android:text="Gutenberg Project"
+        android:layout_marginTop="@dimen/GetRessource320_vertical_margin_text2button"
+        android:layout_marginStart="50dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/bSearchGutenberg_desc"
+        />
+
+    <TextView
+        android:id="@+id/bSearchExempleText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        style="@style/myStyleTextExplainButton"
+        android:text="@string/bSearchExampleText"
+        android:textStyle="italic"
+        android:paddingHorizontal="50dp"
+        android:layout_marginTop="@dimen/GetRessource320_vertical_margin_low"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/bSearchGutenberg"
+        />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

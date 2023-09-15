@@ -41,10 +41,13 @@
     <!-- ********************************** -->
     <!-- Get Resources -->
 
+    <string name="bOpenFile">Open single file</string>
     <string name="bOpenFolder">Open Folder</string>
     <string name="bOpenZipFile">Open Zip File</string>
     <string name="bSearchLibrivox">Librivox.org</string>
     <string name="bSearchLitteratureaudio">Litteratureaudio.com</string>
+    <string name="bSearchGutenberg">https://marhamilresearch4.blob.core.windows.net/gutenberg-public/Website/index.html</string>
+
 
     <string name="TextHeaderOpen">Open an audio on my device</string>
     <string name="bOpenFolder_desc">If your audios files are located inside a folder, press this button and select this folder :</string>
@@ -53,6 +56,7 @@
     <string name="TextHeaderSearch">Search for free audio on internet</string>
     <string name="bSearchLibrivox_desc">Search then Download a book from Librivox.org (english mostly) :</string>
     <string name="bSearchlitteratureaudio_desc">Search then Download a book from litteratureaudio.com (french) :</string>
+    <string name="bSearchGutenberg_desc">Search then Download a book from Gutenberg project (AI speaker / generated audio) :</string>
     <string name="bSearchExampleText">These 2 website above are only examples, there is tons of audio on the web, you could also download university lectures.</string>
 
     <!-- Add Resources -->

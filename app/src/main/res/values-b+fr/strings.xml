@@ -40,10 +40,12 @@
     <!-- ********************************** -->
     <!-- Get Resources -->
 
+    <string name="bOpenFile">Ouvrir un fichier unique</string>
     <string name="bOpenFolder">Ouvrir un dossier</string>
     <string name="bOpenZipFile">Ouvrir un fichier Zip</string>
     <string name="bSearchLibrivox">Librivox.org</string>
     <string name="bSearchLitteratureaudio">Litteratureaudio.com</string>
+    <string name="bSearchGutenberg">https://marhamilresearch4.blob.core.windows.net/gutenberg-public/Website/index.html</string>
 
     <string name="TextHeaderOpen">Ouvrir un audio sur mon appareil</string>
     <string name="bOpenFolder_desc">Si vos fichiers audios sont localisés dans un répertoire, pressez ce bouton et sélectionnez le dossier :</string>
@@ -51,7 +53,8 @@
 
     <string name="TextHeaderSearch">Rechercher un livre audio gratuit sur le Web</string>
     <string name="bSearchLibrivox_desc">Chercher puis téléchargez un livre depuis Librivox.org (anglais) :</string>
-    <string name="bSearchlitteratureaudio_desc">Chercher puis Téléchargez un livre depuis litteratureaudio.com (français) :</string>
+    <string name="bSearchlitteratureaudio_desc">Chercher puis téléchargez un livre depuis litteratureaudio.com (français) :</string>
+    <string name="bSearchGutenberg_desc">Chercher puis téléchargez un livre depuis le projet Gutenberg (anglais - audio généré par une IA) : :</string>
     <string name="bSearchExampleText">"Les 2 sites web ci-dessus sont là pour l\'exemple, il y a de multiples ressources audios sur internet, vous pourriez tout aussi bien télécharger des cours magistraux d'université."</string>
 
 
