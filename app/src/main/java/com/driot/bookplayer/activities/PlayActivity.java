@@ -41,7 +41,6 @@ import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_SCREEN_ORIENTATION_LOCK;
-import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_TIME_BEFORE_SLEEP;
 import static com.driot.bookplayer.activities.OptionActivity.SHARED_PREFERENCES_OPTIONS;
 import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_AUDIOFOCUS_GAIN;
 import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_AUDIOFOCUS_LOST;
@@ -413,7 +412,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
             HideProgressAnim();
             myLog("PlayActivity : ----------------------------- play screen drawn " + PlayList.getZikFile().getPosition());
         } catch (Exception e) {
-            myLog("PlayActivity :----------------------------- play screen drawn ERROR");
+            myLogE("PlayActivity :----------------------------- play screen drawn ERROR");
             myLogE(e.getMessage());
         }
     }
@@ -450,9 +449,8 @@ public class PlayActivity extends LifecycleLoggingActivity {
 
         } else {
             bPlay.setText(R.string.pause);
-            myLog("PlayActivity : redrawSeekBar => service KO => drawing play button");
+            myLog("PlayActivity : redrawSeekBar => service KO => drawing pause button");
         }
-        //myLog("PlayActivity :----------------------------- redraw Seek Bar");
     }
 
     /********************************************************************************

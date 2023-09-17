@@ -320,6 +320,7 @@ public class AudioService extends Service {
             for (MediaPlayer.TrackInfo trackInfo : trackInfoArray) {
                 myLog("trackInfo.toString() : " + trackInfo.toString());
             }
+            mediaPlayer.
 
         } catch (Exception e) {
             myLogE("AudioService : LoadFile - " + e.getMessage());
