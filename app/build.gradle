@@ -22,7 +22,8 @@ android {
         targetSdkVersion 33 //31-32 =  = android 11.0       //  30 = android 11.0
 
         versionCode 25
-        versionName "25 - LockedPhoneNotification"
+        versionName "25 - M4B and friends"
+        //versionName "25 - LockedPhoneNotification"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         signingConfig signingConfigs.debug
