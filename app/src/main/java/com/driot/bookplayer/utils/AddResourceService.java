@@ -57,7 +57,7 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 import static android.os.Build.VERSION.SDK_INT;
 import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_COPY_ZIP_LOCAL;
 import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_UNZIP_LOCAL;
-import static com.driot.bookplayer.activities.OptionActivity.SHARED_PREFERENCE_ZIP_OPTIONS;
+import static com.driot.bookplayer.activities.OptionActivity.SHARED_PREFERENCES_OPTIONS;
 import static com.driot.bookplayer.global.Var.FOLDER_MP4;
 import static com.driot.bookplayer.global.Var.FOLDER_UNZIPPED;
 import static com.driot.bookplayer.global.Var.FOLDER_ZIPPED;
@@ -1049,7 +1049,7 @@ public class AddResourceService extends Service {
 
 
     private void loadOptionValues() {
-        SharedPreferences prefs = this.getSharedPreferences(SHARED_PREFERENCE_ZIP_OPTIONS, MODE_PRIVATE);
+        SharedPreferences prefs = this.getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE);
         Zip_DoUnzip = prefs.getBoolean("UNZIP_LOCAL", DEFAULT_UNZIP_LOCAL);
         Zip_DoCopylocal = prefs.getBoolean("COPY_ZIP_LOCAL", DEFAULT_COPY_ZIP_LOCAL);
     }

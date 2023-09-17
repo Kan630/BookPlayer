@@ -136,6 +136,46 @@
             </LinearLayout>
         </LinearLayout>
 
+        <LinearLayout
+            android:id="@+id/ll_OrientationOption"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                style="@style/myStyleTextTitle2"
+                android:id="@+id/txt_orientation_header"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="50sp"
+                android:layout_marginTop="50sp"
+                android:text="@string/option_orientation"
+                />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginStart="20sp"
+                android:layout_marginTop="20sp"
+                >
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/chk_lock_orientation"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    />
+                <TextView
+                    style="@style/myStyle"
+                    android:id="@+id/txt_orientation_lock"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="textEnd"
+                    android:layout_marginStart="10sp"
+                    android:text="@string/option_orientation_lock"
+                    android:textSize="16sp"
+                    />
+            </LinearLayout>
+        </LinearLayout>
+
     </LinearLayout>
 
 

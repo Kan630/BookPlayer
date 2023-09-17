@@ -37,6 +37,9 @@
     <string name="option_copyzip_local">Copy files in app memory (mandatory for Android 11 and up).</string>
     <string name="option_unzip_local">Unzip files (takes storage space, but smoother listening experience)</string>
 
+    <string name="option_orientation">Screen Orientation</string>
+    <string name="option_orientation_lock">Lock the screen orientation when playing</string>
+
 
     <!-- ********************************** -->
     <!-- Get Resources -->

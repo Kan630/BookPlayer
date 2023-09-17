@@ -36,6 +36,9 @@
     <string name="option_copyzip_local">"Copier les fichiers dans la mémoire réservée de l'application BookPlayer (obligatoire pour Android 11 et supérieurs)."</string>
     <string name="option_unzip_local">"Décompresser les fichiers (prend de l'espace sur l'appareil, mais la lecture des pistes audios est plus rapide et meilleure)"</string>
 
+    <string name="option_orientation">Orientation de l\'écran</string>
+    <string name="option_orientation_lock">Verrouiller lors de la lecture</string>
+
 
     <!-- ********************************** -->
     <!-- Get Resources -->

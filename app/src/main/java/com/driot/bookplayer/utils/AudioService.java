@@ -44,7 +44,7 @@ import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_TIME_BEFORE_SLEEP;
-import static com.driot.bookplayer.activities.OptionActivity.SHARED_PREFERENCE_TIME_BEFORE_SLEEP;
+import static com.driot.bookplayer.activities.OptionActivity.SHARED_PREFERENCES_OPTIONS;
 import static com.driot.bookplayer.activities.PlayActivity.SHARED_PREFERENCE_SPEED;
 import static com.driot.bookplayer.utils.Tonio.FormatPercentDouble;
 import static com.driot.bookplayer.utils.Tonio.FormatTime;
@@ -653,7 +653,7 @@ public class AudioService extends Service {
     ** ----------------------------------------------------------------
     **/
     private void setMaxTimeBeforeSleep() {
-        SharedPreferences prefs = this.getSharedPreferences(SHARED_PREFERENCE_TIME_BEFORE_SLEEP, MODE_PRIVATE);
+        SharedPreferences prefs = this.getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE);
         maxTimeBeforeSleep = prefs.getInt("TIME_BEFORE_SLEEP", DEFAULT_TIME_BEFORE_SLEEP);
     }
 
