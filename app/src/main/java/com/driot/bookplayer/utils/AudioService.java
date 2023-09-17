@@ -10,6 +10,7 @@ import android.content.SharedPreferences;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Icon;
 import android.media.AudioManager;
+import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.media.ToneGenerator;
 import android.media.session.MediaSession;
@@ -314,6 +315,12 @@ public class AudioService extends Service {
             //fileHasBeenLoaded = true;
             Intent intent = new Intent(NOTIFICATION_FILELOADED);
             sendBroadcast(intent);
+            myLog("------------------------------------------------------------"); // to get the chapters of a .m4b, you need ffmpeg...
+            MediaPlayer.TrackInfo[] trackInfoArray = mediaPlayer.getTrackInfo();
+            for (MediaPlayer.TrackInfo trackInfo : trackInfoArray) {
+                myLog("trackInfo.toString() : " + trackInfo.toString());
+            }
+
         } catch (Exception e) {
             myLogE("AudioService : LoadFile - " + e.getMessage());
             myLogE(" +++++***+++++ ERROR LOADING FILE +++++***+++++ (" + sPath + ")");
