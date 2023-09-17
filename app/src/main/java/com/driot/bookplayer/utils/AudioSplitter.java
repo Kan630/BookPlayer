@@ -17,17 +17,20 @@ import com.driot.bookplayer.db.ZikFile;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.List;
 
 public class AudioSplitter {
     public static void splitM4BToMP3(String m4bFilePath, String outFolderPath) {
         myLog("AudioSplitter Start");
-        List<String> found_tracks = null;
+        List<Integer> found_tracks = new ArrayList<Integer>();
         try {
             MediaExtractor extractor = new MediaExtractor();
             myLog("AudioSplitter 01");
             //extractor.setDataSource(m4bFilePath);
-            extractor.setDataSource("/data/user/0/com.driot.bookplayer/cache/CountOfMonteCristoPart1-32kb_librivox.m4b");
+            //extractor.setDataSource("/data/user/0/com.driot.bookplayer/cache/CountOfMonteCristoPart1-32kb_librivox.m4b");
+            extractor.setDataSource("/storage/sdcard0/AudioBooks/test_m4b/CountOfMonteCristo109-117_librivox.m4b");
+
             myLog("AudioSplitter 02");
             int trackCount = extractor.getTrackCount();
             myLog("AudioSplitter 03 -- found [" + trackCount + "] tracks.");
@@ -38,12 +41,13 @@ public class AudioSplitter {
                 String mime = format.getString(MediaFormat.KEY_MIME);
                 if (mime.startsWith("audio/")) {
                     audioTrackIndex = i;
-                    found_tracks.add(Integer.toString(i));
+                    found_tracks.add(i);
                     break;
                 }
             }
 
             myLog("m4b AudioTrackIndex = [" + audioTrackIndex + "]");
+            myLog("m4b found tracks = [" + found_tracks.size() + "]");
 
             if (audioTrackIndex >= 0) {
                 extractor.selectTrack(audioTrackIndex);
@@ -74,6 +78,7 @@ public class AudioSplitter {
                         bufferInfo.size = sampleSize;
                         bufferInfo.presentationTimeUs = extractor.getSampleTime();
                         //bufferInfo.flags = extractor.getSampleFlags();
+                        bufferInfo.flags = 0;
                         muxer.writeSampleData(audioTrack, buffer, bufferInfo);
 
                         extractor.advance();

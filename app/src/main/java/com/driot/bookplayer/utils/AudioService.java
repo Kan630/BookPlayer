@@ -1,5 +1,7 @@
 package com.driot.bookplayer.utils;
 
+import static android.media.MediaPlayer.SEEK_CLOSEST;
+
 import android.app.Notification;
 import android.app.Service;
 import android.content.Context;
@@ -14,6 +16,7 @@ import android.media.session.MediaSession;
 import android.media.session.PlaybackState;
 import android.net.Uri;
 import android.os.Binder;
+import android.os.Build;
 import android.os.IBinder;
 import android.view.KeyEvent;
 
@@ -97,6 +100,7 @@ public class AudioService extends Service {
 
     private boolean ErrorLoadingFile = false;
 
+    DecimalFormat myDF = new DecimalFormat("#,###.");
 
     /********************************************************************************
      ***       NATIVE METHODS
@@ -300,13 +304,13 @@ public class AudioService extends Service {
             return false;
         }
 
-        myLog("AudioService - loadFile(" + sPath + ")");
+        myLog("AudioService.loadFile(sPath) [" + sPath + "]");
         try {
             mediaPlayer.stop();
             mediaPlayer.reset();
             mediaPlayer.setDataSource(sPath);
             mediaPlayer.prepare();
-            mediaPlayer.seekTo((int) PlayList.getZikFile().getPosition());
+            mediaPlayer.seekTo((int) PlayList.getZikFile().getPosition(),SEEK_CLOSEST); //seek_closest needed for m4b...
             //fileHasBeenLoaded = true;
             Intent intent = new Intent(NOTIFICATION_FILELOADED);
             sendBroadcast(intent);
@@ -328,7 +332,7 @@ public class AudioService extends Service {
 
 
     public void playAudio() {
-        myLog("AudioService.playAudio()");
+        myLog("AudioService.playAudio() - start");
         if (!mediaPlayer.isPlaying()) {
 
             mAudioManager = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
@@ -348,14 +352,13 @@ public class AudioService extends Service {
                 }
             };
 
+            myLog("AudioService.playAudio() : mAudioManager.requestAudioFocus, mediaPlayer.start()");
             mAudioManager.requestAudioFocus(afChangeListener, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
-
-            myLog("AudioService : mediaPlayer.start() -- playAudio");
             mediaPlayer.start();
             setSpeed(getSpeed());
             startTimer();
        }
-        myLogE("mediaPlayer was already Playing ... going out of .playAudio()");
+        myLogE("mediaPlayer was already Playing ... going out of AudioService.playAudio()");
     }
 
     public void pauseAudio() {
@@ -369,6 +372,7 @@ public class AudioService extends Service {
     }
 
     public void playPauseAudio() {
+        myLog("AudioService : playPauseAudio()");
         if (isPlaying()) {
             pauseAudio();
         } else {
@@ -425,8 +429,8 @@ public class AudioService extends Service {
     }
 
     public void setPosition(int position) {
-        //myLog("setPosition-seekTo(" + position + ")");
-        mediaPlayer.seekTo(position);
+        mediaPlayer.seekTo(position, SEEK_CLOSEST);  //seek_closest needed for m4b...
+        myLog("AudioService.set Position : " + myDF.format(position));
     }
 
     public int getPosition() {
@@ -601,7 +605,6 @@ public class AudioService extends Service {
      ********************************************************************************
      */
     private void updateZikFileState(boolean bFinished) {
-        DecimalFormat myFormat = new DecimalFormat("#,###.");
         ZikFile zf = getCurrentZikFile();
         try {
             if (zf.getFirstaccess() == null) {
@@ -631,7 +634,7 @@ public class AudioService extends Service {
             })
                     .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
                     .subscribe(result -> {
-                        myLog("Audio Service : ---------- zikFile updated (" + zf.getName() + ")- position : " + myFormat.format(zf.getPosition()));
+                        myLog("Audio Service : ---------- zikFile updated (" + zf.getName() + ")- position : " + myDF.format(zf.getPosition()));
                         Sql.calculateFolderProgress(getApplicationContext(), zf.getIdFolder());
                     }, throwable -> {
                         myLog("Audio Service : error sql updating zikFile :" + throwable.getMessage());

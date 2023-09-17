@@ -337,9 +337,8 @@ public class AddResourceService extends Service {
 
                     myLog("MP4 : [" + pickedDir.getType() + "]");
                     resourceSelected = populateArrayListOfTracksFromFile();
-
+/*
                     // TODO
-                    /*
                     /// EXPLODE MP4 in MP3s in local folder...
                     /// then use the import folder thing
                     destinationFolder = getFilesDir().getAbsolutePath() + "/" + FOLDER_MP4 + "/" + pickedDir.getName(); // myFolder.getsFolderName_withUnderscore();
@@ -348,6 +347,7 @@ public class AddResourceService extends Service {
                     String sourceFile = pickedDir.getUri().getPath();
                     myLog("sourceFile : [" + sourceFile + "]");
                     AudioSplitter.splitM4BToMP3(sourceFile, destinationFolder);
+
 
                     localUnzipFolder = new File(destinationFolder);
                     futureUri = Uri.fromFile(localUnzipFolder).toString();
@@ -893,7 +893,7 @@ public class AddResourceService extends Service {
             myLog("File Not Added.... (Duration = 0)");
             nbFileSaved++;
             if (nbFileSaved == nbFileToSave) {
-                myLog("************All files have been processed.");
+                myLog("************All files have been processed. dur0");
                 updateFolderDuration();
             }
         } else {
@@ -946,7 +946,7 @@ public class AddResourceService extends Service {
                     myLog("Folder Duration Updated : runRawSQL result = " + result);
                     tellEnd();
                 }, throwable -> {
-                    tellError(getResources().getString(R.string.Error_Import_computing_folder_duration) + throwable.getMessage());
+                    tellError(getResources().getString(R.string.Error_Import_computing_folder_duration) + " : " +  throwable.getMessage());
                 });
     }
 
