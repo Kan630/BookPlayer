@@ -38,7 +38,7 @@
     <string name="option_unzip_local">Unzip files (takes storage space, but smoother listening experience)</string>
 
     <string name="option_orientation">Screen Orientation</string>
-    <string name="option_orientation_lock">Lock the screen orientation when playing</string>
+    <string name="option_orientation_lock">Lock the screen orientation when playing (portrait)</string>
 
 
     <!-- ********************************** -->
