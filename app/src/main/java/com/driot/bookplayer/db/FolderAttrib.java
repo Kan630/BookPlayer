@@ -243,13 +243,19 @@ public class FolderAttrib {
 
 
     public String getFileName(Context context, Uri uri) {
+        int tmp_int;
         String result = null;
         if (uri.getScheme().equals("content")) {
             Cursor cursor = null;
             try {
                 cursor = context.getContentResolver().query(uri, null, null, null, null);
                 if (cursor != null && cursor.moveToFirst()) {
-                    result = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+                    tmp_int = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                    if (tmp_int < 0) {
+                        myLogE("cannot get path/name of file with ...   context.getContentResolver().query(uri...");
+                    } else {
+                        result = cursor.getString(tmp_int);
+                    }
                 }
             } catch (Exception e) {
                 e.printStackTrace();

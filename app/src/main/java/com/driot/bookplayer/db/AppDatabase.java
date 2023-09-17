@@ -11,7 +11,10 @@ import androidx.room.TypeConverters;
                         Folder.class,
                         ZikFile.class
                      }
-                     , version = 2)
+                     , version = 3)
+
+// v2 for field zeOrder
+// v3 for field displayName
 
 @TypeConverters({Converters.class})
 

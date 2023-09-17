@@ -32,7 +32,7 @@ public class DatabaseClient {
                 //                              modif version BDD => truncate all tables !!
                 //-------------------------------------------------------
 
-                .addMigrations(new MyMigration(1, 2))
+                .addMigrations(new MyMigration(1, 3))
                 .build();
 
     }
