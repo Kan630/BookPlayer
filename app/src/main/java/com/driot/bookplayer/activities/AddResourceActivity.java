@@ -30,6 +30,9 @@ import static com.driot.tonylib.KanLogger.myLogE;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 23/11/20
+ *
+ * it is a waiting screen with progressbar
+ *
  */
 public class AddResourceActivity extends LifecycleLoggingActivity {
 

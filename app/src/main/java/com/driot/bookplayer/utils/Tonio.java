@@ -1,5 +1,7 @@
 package com.driot.bookplayer.utils;
 
+import static com.driot.bookplayer.utils.Tonio2.removeLongDuplicates;
+
 import android.os.Environment;
 import android.os.StatFs;
 import android.util.Log;
@@ -143,12 +145,14 @@ public class Tonio {
 
     public static String FormatNameForDisplay(String s) {
         s = stripExtension(s);
+        s = removeLongDuplicates(s,10);
         s = s.replace("_", " ");
         return s;
     }
 
     public static String FormatNameForDisplay_withUnderscore(String s) {
         s = stripExtension(s);
+        s = removeLongDuplicates(s,10);
         s = s.replace(" ", "_");
         return s;
     }

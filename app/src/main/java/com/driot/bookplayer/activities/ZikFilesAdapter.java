@@ -69,7 +69,7 @@ public class ZikFilesAdapter extends RecyclerView.Adapter<ZikFilesAdapter.ZikFil
     public void RedrawViewHolderElements(ZikFilesViewHolder holder, int position) {
         ZikFile t = zikFileList.get(position);
 
-        holder.textViewFileName.setText(FormatNameForDisplay(t.getName()));
+        holder.textViewFileName.setText(t.getDisplayName());
 
         holder.textViewFilePercent.setText(FormatPercentString(t.getPercentdone()));
 
@@ -128,7 +128,7 @@ public class ZikFilesAdapter extends RecyclerView.Adapter<ZikFilesAdapter.ZikFil
                 //PlayList.setZikFile(zikFile); //global var
                 PlayList.setNumZikFile(getAdapterPosition()); //global var
 
-                //pass an object, check parcelable
+                //pass an object, check parcelable //on s'en sert plus.... tout semble passer par les global var ci dessus
                 Intent intent = new Intent(mCtx, PlayActivity.class);
                 intent.putExtra("ZikFile", zikFile);
                 mCtx.startActivity(intent);
@@ -142,12 +142,9 @@ public class ZikFilesAdapter extends RecyclerView.Adapter<ZikFilesAdapter.ZikFil
         @Override
         public boolean onLongClick(View view) {
             ZikFile zikFile = zikFileList.get(getAdapterPosition());
-            //bDeleteLongClick(zikFile.getIdFolder(), zikFile.getName());
 
             Intent intent = new Intent(mCtx, ZikFileModifyActivity.class);
-            intent.putExtra("ZikFileName", zikFile.getName());
-            intent.putExtra("ZikFileId", zikFile.getId());
-            intent.putExtra("zikFilePosition", zikFile.getZeorder());
+            intent.putExtra("ZikFile", zikFile);
 
             mCtx.startActivity(intent);
             return false;

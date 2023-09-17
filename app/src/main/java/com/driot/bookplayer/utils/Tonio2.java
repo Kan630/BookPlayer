@@ -16,6 +16,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static android.content.Context.MODE_PRIVATE;
 import static com.driot.tonylib.KanLogger.myLog;
@@ -199,7 +201,18 @@ public class Tonio2 {
 
     }
 
+    public static String removeLongDuplicates(String input, int duplicate_min_length) {
+        // Define a regex pattern to match duplicate substrings longer than 10 characters
+        Pattern pattern = Pattern.compile("(.{"+duplicate_min_length+",}).*\\1");
 
+        Matcher matcher = pattern.matcher(input);
+        while (matcher.find()) {
+            String duplicate = matcher.group(1);
+            input = input.replaceFirst(Pattern.quote(duplicate), ""); // Remove the first occurrence of the duplicate
+        }
+
+        return input;
+    }
 
 
 

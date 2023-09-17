@@ -53,8 +53,13 @@ public interface ZikFileDao {
     @Query("UPDATE ZikFile SET FolderName=:folderName WHERE id = :id")
     void updateFolderName(String folderName, int id);
 
+    /*
+
+    NEVER CHANGE THE NAME... or TRACK will not be able to play, file not found !
+
     @Query("UPDATE ZikFile SET name=:zikFileName WHERE id = :id")
     void updateZikFileName(String zikFileName, int id);
+    */
 
     @Query("UPDATE ZikFile SET firstaccess=:firstAccess WHERE id = :id")
     void updateFirstAccess(Time firstAccess, int id);
@@ -65,8 +70,11 @@ public interface ZikFileDao {
     @Query("SELECT path FROM ZikFile WHERE id = :id")
     String getZikFilePath(int id);
 
-    @Query("UPDATE ZikFile SET name = :newName WHERE id =:id")
-    void changeName(int id, String newName);
+    @Query("UPDATE ZikFile SET displayname = :newDisplayName WHERE id =:id")
+    void setDisplayName(int id, String newDisplayName);
+
+    @Query("SELECT displayName FROM ZikFile WHERE id = :id")
+    String getDisplayName(int id);
 
     @Query("UPDATE ZikFile SET zeorder = :zeorder WHERE id =:id")
     void changePosition(int id, Double zeorder);

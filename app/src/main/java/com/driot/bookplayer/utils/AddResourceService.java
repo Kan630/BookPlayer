@@ -62,6 +62,7 @@ import static com.driot.bookplayer.global.Var.FOLDER_MP4;
 import static com.driot.bookplayer.global.Var.FOLDER_UNZIPPED;
 import static com.driot.bookplayer.global.Var.FOLDER_ZIPPED;
 import static com.driot.bookplayer.global.Var.ZIP_SIZE_MAX_COEF;
+import static com.driot.bookplayer.utils.Tonio.FormatNameForDisplay;
 import static com.driot.bookplayer.utils.Tonio.fileExists;
 import static com.driot.bookplayer.utils.Tonio.getAvailableInternalMemorySize;
 import static com.driot.bookplayer.utils.Tonio.getExtension;
@@ -851,7 +852,7 @@ public class AddResourceService extends Service {
                     progress = (int) i * 100 / audioFileArrayList.size();
                     txtProgress = progress + "% - " + getString(R.string.Add_resource_reading_file) + " n°" + i + "/" + audioFileArrayList.size() + "\n" + getFileNameFromPath(s);
                     myLog("Registering file [" + s + "]");
-                    saveFile(s, InsertedFolderId[0], i, progress, txtProgress);
+                    saveFile(s, InsertedFolderId[0], i);
                     tellProgress(progress,txtProgress);
                 }
             }
@@ -859,10 +860,11 @@ public class AddResourceService extends Service {
         one.start();
     }
 
-    private void saveFile(String sZikFileName, int mFolderId, int zeorder, int progress, String txtProgress) {
+    private void saveFile(String sZikFileName, int mFolderId, int zeorder) {
         // creating file
         ZikFile zikFile = new ZikFile();
         zikFile.setName(sZikFileName);
+        zikFile.setDisplayName(FormatNameForDisplay(sZikFileName));
         zikFile.setIdFolder(mFolderId);
         zikFile.setZeorder(zeorder);
         zikFile.setFolderName(myFolder.getsFolderName());

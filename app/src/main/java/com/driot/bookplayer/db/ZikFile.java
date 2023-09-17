@@ -34,6 +34,9 @@ public class ZikFile implements Serializable {
     @ColumnInfo(name = "idFolder")
     private int idFolder;
 
+    @ColumnInfo(name = "displayName")
+    private String displayName;
+
     @ColumnInfo(name = "name")
     private String name;
 
@@ -78,7 +81,6 @@ public class ZikFile implements Serializable {
     public int getId() {
         return id;
     }
-
     public void setId(int id) {
         this.id = id;
     }
@@ -86,15 +88,20 @@ public class ZikFile implements Serializable {
     public String getFolderName() {
         return folderName;
     }
-
     public void setFolderName(String folderName) {
         this.folderName = folderName;
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
     }
 
     public String getName() {
         return name;
     }
-
     public void setName(String name) {
         this.name = name;
     }
@@ -102,7 +109,6 @@ public class ZikFile implements Serializable {
     public String getPath() {
         return path;
     }
-
     public void setPath(String path) {
         this.path = path;
     }
@@ -110,7 +116,6 @@ public class ZikFile implements Serializable {
     public double getPosition() {
         return position;
     }
-
     public void setPosition(double position) {
         this.position = position;
     }
@@ -118,7 +123,6 @@ public class ZikFile implements Serializable {
     public double getDuration() {
         return duration;
     }
-
     public void setDuration(double duration) {
         this.duration = duration;
     }
@@ -126,7 +130,6 @@ public class ZikFile implements Serializable {
     public double getPercentdone() {
         return percentdone;
     }
-
     public void setPercentdone(double percentdone) {
         this.percentdone = percentdone;
     }
@@ -134,7 +137,6 @@ public class ZikFile implements Serializable {
     public Date getFirstaccess() {
         return firstaccess;
     }
-
     public void setFirstaccess(Date firstaccess) {
         this.firstaccess = firstaccess;
     }
@@ -142,7 +144,6 @@ public class ZikFile implements Serializable {
     public Date getLastaccess() {
         return lastaccess;
     }
-
     public void setLastaccess(Date lastaccess) {
         this.lastaccess = lastaccess;
     }
@@ -157,7 +158,6 @@ public class ZikFile implements Serializable {
     public boolean isFinished() {
         return finished;
     }
-
     public void setFinished(boolean finished) {
         this.finished = finished;
     }
@@ -165,7 +165,6 @@ public class ZikFile implements Serializable {
     public int getIdFolder() {
         return idFolder;
     }
-
     public void setIdFolder(int idFolder) {
         this.idFolder = idFolder;
     }
@@ -173,7 +172,6 @@ public class ZikFile implements Serializable {
     public double getSize() {
         return size;
     }
-
     public void setSize(double size) {
         this.size = size;
     }
@@ -181,15 +179,11 @@ public class ZikFile implements Serializable {
     public boolean isIszipfile() {
         return iszipfile;
     }
-
     public void setIszipfile(boolean iszipfile) {
         this.iszipfile = iszipfile;
     }
 
-    public double getZeorder() {
-        return zeorder;
-    }
-
+    public double getZeorder() { return zeorder; }
     public void setZeorder(double zeorder) {
         this.zeorder = zeorder;
     }
@@ -200,7 +194,7 @@ public class ZikFile implements Serializable {
                 "id=" + id +
                 ", idFolder=" + idFolder +
                 ", name='" + name + '\'' +
-                ", name='" + zeorder + '\'' +
+                ", zeorder='" + zeorder + '\'' +
                 ", path='" + path + '\'' +
                 ", folderName='" + folderName + '\'' +
                 ", position=" + position +

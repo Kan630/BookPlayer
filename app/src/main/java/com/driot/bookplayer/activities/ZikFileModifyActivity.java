@@ -36,9 +36,12 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
  */
 public class ZikFileModifyActivity extends LifecycleLoggingActivity {
 
-    private int idZikFile;
+    private ZikFile zikFile;
+
+    private int zikFileId;
+    private String zikFileName;
+    private String zikFileDisplayName;
     private double zikFilePosition;
-    private String ZikFileName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,11 +57,14 @@ public class ZikFileModifyActivity extends LifecycleLoggingActivity {
         Button bMove = findViewById(R.id.bMove);
         Button bMoveOk = findViewById(R.id.bMoveOk);
 
-        idZikFile = getIntent().getIntExtra("ZikFileId", 0);
-        zikFilePosition = getIntent().getIntExtra("ZikFilePosition", 0);
-        ZikFileName = getIntent().getStringExtra("ZikFileName");
-        tvTitle.setText(ZikFileName);
-        tvRename.setText(ZikFileName);
+        zikFile = (ZikFile) getIntent().getSerializableExtra("ZikFile");
+        zikFileId = zikFile.getId();
+        zikFileName = zikFile.getName();
+        zikFileDisplayName = zikFile.getDisplayName();
+        zikFilePosition = zikFile.getZeorder();
+
+        tvTitle.setText(zikFileDisplayName);
+        tvRename.setText(zikFileDisplayName);
         etChangePosition.setText(String.valueOf(zikFilePosition));
 
         tvRename.setVisibility(View.INVISIBLE);
@@ -113,7 +119,7 @@ public class ZikFileModifyActivity extends LifecycleLoggingActivity {
                                 .getInstance(getApplicationContext())
                                 .getAppDatabase()
                                 .ZikFileDao()
-                                .changePosition(idZikFile, (double) newPos);
+                                .changePosition(zikFileId, (double) newPos);
                         return true;
                     })
                     .subscribeOn(Schedulers.io())
@@ -121,7 +127,7 @@ public class ZikFileModifyActivity extends LifecycleLoggingActivity {
                     .subscribe((result) -> {
                         if (result) {
                             myToast(getString(R.string.ZikFile_RePositioned));
-                            myLogInFile( getString(R.string.ZikFile_RePositioned) + " [" + newPosStr + "] : " + ZikFileName);
+                            myLogInFile( getString(R.string.ZikFile_RePositioned) + " [" + newPosStr + "] : " + zikFileName);
                             finish();
                         }
                     });
@@ -157,7 +163,7 @@ public class ZikFileModifyActivity extends LifecycleLoggingActivity {
                     .getInstance(getApplicationContext())
                     .getAppDatabase()
                     .ZikFileDao()
-                    .deleteZikFile(idZikFile);
+                    .deleteZikFile(zikFileId);
             return true;
         })
                 .subscribeOn(Schedulers.io())
@@ -165,7 +171,7 @@ public class ZikFileModifyActivity extends LifecycleLoggingActivity {
                 .subscribe((result) -> {
                     if (result) {
                         myToast(getString(R.string.ZikFile_Deleted));
-                        myLog(getString(R.string.ZikFile_Deleted) + " : " + ZikFileName);
+                        myLog(getString(R.string.ZikFile_Deleted) + " : " + zikFileName);
                         finish();
                     }
                 });
@@ -177,7 +183,7 @@ public class ZikFileModifyActivity extends LifecycleLoggingActivity {
                             .getInstance(getApplicationContext())
                             .getAppDatabase()
                             .ZikFileDao()
-                            .getZikFilePath(idZikFile)).subscribeOn(Schedulers.io())
+                            .getZikFilePath(zikFileId)).subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.mainThread())
         .subscribe((result) -> {
                 eraseFileFromDisk("file://" + result);
@@ -212,8 +218,8 @@ public class ZikFileModifyActivity extends LifecycleLoggingActivity {
         }
     }
 
-    private void bRenameOkClick(String newName) {
-        if (newName.length() < 2) {
+    private void bRenameOkClick(String newDisplayName) {
+        if (newDisplayName.length() < 2) {
             myToast(getString(R.string.Error_NameTooShort));
         } else {
             Observable.fromCallable(() -> {
@@ -221,7 +227,7 @@ public class ZikFileModifyActivity extends LifecycleLoggingActivity {
                         .getInstance(getApplicationContext())
                         .getAppDatabase()
                         .ZikFileDao()
-                        .changeName(idZikFile, newName);
+                        .setDisplayName(zikFileId, newDisplayName);
                 return true;
             })
                     .subscribeOn(Schedulers.io())
@@ -229,7 +235,7 @@ public class ZikFileModifyActivity extends LifecycleLoggingActivity {
                     .subscribe((result) -> {
                         if (result) {
                             myToast(getString(R.string.ZikFile_Renamed));
-                            myLogInFile(getString(R.string.ZikFile_Renamed) + " : " + ZikFileName);
+                            myLogInFile(getString(R.string.ZikFile_Renamed) + " : " + zikFileName);
                             finish();
                         }
                     });
