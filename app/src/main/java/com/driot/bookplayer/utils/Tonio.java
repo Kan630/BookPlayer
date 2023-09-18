@@ -216,13 +216,24 @@ public class Tonio {
             applicationInfo = pm.getApplicationInfo(c.getPackageName(), 0);
             File file = new File(applicationInfo.publicSourceDir);
             size = file.length();
-        } catch (PackageManager.NameNotFoundException e) {
+        } catch (Exception e) {
             myLogE("Error getting size taken by app : " + e.getMessage());
             e.printStackTrace();
         }
         return size;
     }
 
+    public static long getFolderSize(Context c, String folderName) {
+        long size = 0;
+        try {
+            File dir = new File(c.getFilesDir(), folderName);
+            size = dir.length();
+        } catch (Exception e) {
+            myLogE("Error getting size taken by folder [" + folderName + "] : " + e.getMessage());
+            e.printStackTrace();
+        }
+        return size;
+    }
 
 
     public static String formatMem(long mem){
