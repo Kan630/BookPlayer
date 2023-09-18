@@ -1,7 +1,11 @@
 package com.driot.bookplayer.utils;
 
 import static com.driot.bookplayer.utils.Tonio2.removeLongDuplicates;
+import static com.driot.tonylib.KanLogger.myLogE;
 
+import android.content.Context;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.os.Environment;
 import android.os.StatFs;
 import android.webkit.MimeTypeMap;
@@ -203,6 +207,23 @@ public class Tonio {
         long availableBlocks = stat.getAvailableBlocksLong();
         return availableBlocks * blockSize;
     }
+
+    public static long getAppSize(Context c) {
+        long size = 0;
+        final PackageManager pm = c.getPackageManager();
+        ApplicationInfo applicationInfo = null;
+        try {
+            applicationInfo = pm.getApplicationInfo(c.getPackageName(), 0);
+            File file = new File(applicationInfo.publicSourceDir);
+            size = file.length();
+        } catch (PackageManager.NameNotFoundException e) {
+            myLogE("Error getting size taken by app : " + e.getMessage());
+            e.printStackTrace();
+        }
+        return size;
+    }
+
+
 
     public static String formatMem(long mem){
         return NumberFormat.getNumberInstance(Locale.getDefault()).format(mem);

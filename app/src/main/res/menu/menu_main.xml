@@ -26,4 +26,9 @@
         app:showAsAction="ifRoom"
         />
 
+    <item android:id="@+id/menu_stats"
+        android:title="Stats"
+        app:showAsAction="ifRoom"
+        />
+
 </menu>

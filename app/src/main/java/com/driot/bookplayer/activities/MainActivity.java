@@ -119,6 +119,8 @@ public class MainActivity extends LifecycleLoggingActivity {
             startActivity(new Intent(getApplicationContext(), OtherAppsActivity.class));
         } else if (itemId == R.id.menu_seelog) {
             startActivity(new Intent(this, LogListActivity.class));
+        } else if (itemId == R.id.menu_stats) {
+            startActivity(new Intent(this, StatsActivity.class));
         } else {
             myLogE("MainActivity.onOptionsItemSelected : unknown Item selected in Menu");
         }

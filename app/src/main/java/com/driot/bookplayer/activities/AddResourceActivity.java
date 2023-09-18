@@ -26,6 +26,7 @@ import static com.driot.bookplayer.utils.Tonio.getFileNameFromPath;
 import static com.driot.bookplayer.utils.Tonio.FormatNameForDisplay;
 import static com.driot.tonylib.KanLogger.myLog;
 import static com.driot.tonylib.KanLogger.myLogE;
+import static com.driot.tonylib.KanLogger.myToast;
 
 
 /**
@@ -102,7 +103,7 @@ public class AddResourceActivity extends LifecycleLoggingActivity {
                     break;
 
                 case NOTIFICATION_ADDRESOURCE_PROGRESS:
-                    myLog("broadcast received PROGRESS : " + intent.getIntExtra("progress",0));
+                    //myLog("broadcast received PROGRESS : " + intent.getIntExtra("progress",0));
                     progressBar.setProgress(intent.getIntExtra("progress",0));
                     progressBarText.setText(intent.getStringExtra("progressText"));
                     break;
@@ -160,8 +161,4 @@ public class AddResourceActivity extends LifecycleLoggingActivity {
         tvTitle.setText(name);
     }
 
-    private void myToast(String str) {
-        myLog(str);
-        Toast.makeText(getApplicationContext(),str,Toast.LENGTH_SHORT).show();
-    }
 }
