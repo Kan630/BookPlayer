@@ -283,14 +283,25 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
     }
 
     private void checkPermissionsReadStorage2() {
-        mPermissionRequest = PermissionRequest
-                .with(this)
-                .permissions(Manifest.permission.READ_MEDIA_AUDIO) //Manifest.permission.READ_EXTERNAL_STORAGE,
-                .rationale(R.string.permission_read_write_rationale)
-                //.granted(R.string.permission_read_write_granted)  // Tonio no need to display message if granted OK
-                .denied(R.string.permission_read_write_denied)
-                .snackbar((ViewGroup)findViewById(android.R.id.content))
-                .submit();
+        if(Build.VERSION.SDK_INT < 33) {
+            mPermissionRequest = PermissionRequest
+                    .with(this)
+                    .permissions(Manifest.permission.READ_EXTERNAL_STORAGE) //Manifest.permission.READ_EXTERNAL_STORAGE,
+                    .rationale(R.string.permission_read_write_rationale)
+                    //.granted(R.string.permission_read_write_granted)  // Tonio no need to display message if granted OK
+                    .denied(R.string.permission_read_write_denied)
+                    .snackbar((ViewGroup) findViewById(android.R.id.content))
+                    .submit();
+        } else {
+            mPermissionRequest = PermissionRequest
+                    .with(this)
+                    .permissions(Manifest.permission.READ_MEDIA_AUDIO) //Manifest.permission.READ_EXTERNAL_STORAGE,
+                    .rationale(R.string.permission_read_write_rationale)
+                    //.granted(R.string.permission_read_write_granted)  // Tonio no need to display message if granted OK
+                    .denied(R.string.permission_read_write_denied)
+                    .snackbar((ViewGroup) findViewById(android.R.id.content))
+                    .submit();
+        }
     }
     @Override
     public void onRequestPermissionsResult(int requestCode,
