@@ -120,7 +120,7 @@ public class MainActivity extends LifecycleLoggingActivity {
         } else if (itemId == R.id.menu_seelog) {
             startActivity(new Intent(this, LogListActivity.class));
         } else {
-            myLogE("menu click : action inconnue");
+            myLogE("MainActivity.onOptionsItemSelected : unknown Item selected in Menu");
         }
         return super.onOptionsItemSelected(item);
     }

@@ -138,6 +138,8 @@
 
     <string name="AskDelete_popupTitle">Confirmation de Suppression</string>
     <string name="AskReset_popupTitle">Confirmation de RAZ</string>
+    <string name="DeleteLogs_AskConfirm">"Attention, vous êtes sur le point d'effacer tous les logs." + "\n" +
+                        "Etes vous sûr ?"</string>
     <string name="ModifyFolder_AskDelete">"Attention, vous êtes sur le point d'effacer ce dossier " +
                         "Etes vous sûr ?"</string>
     <string name="ModifyFolder_AskReset">"Attention, vous êtes sur le point de remettre à zéro " + "\n" +

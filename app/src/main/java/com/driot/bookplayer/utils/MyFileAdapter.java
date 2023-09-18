@@ -19,6 +19,9 @@ import static com.driot.tonylib.KanLogger.myLog;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 02/12/20
+ *
+ * Adapter for listing the logs ( =listing the files in log folder)
+ *
  */
 public class MyFileAdapter extends RecyclerView.Adapter<MyFileAdapter.MyFileViewHolder> {
 
@@ -52,7 +55,7 @@ public class MyFileAdapter extends RecyclerView.Adapter<MyFileAdapter.MyFileView
 
     public class MyFileViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        AppCompatTextView tvDate, tvTitle, tvAutorite;
+        AppCompatTextView tvDate, tvTitle;
 
         public MyFileViewHolder(View itemView) {
             super(itemView);

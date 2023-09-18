@@ -49,7 +49,7 @@ public class BiggerTextActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_biggertext);
 
-        recyclerView = findViewById(R.id.rec);
+        recyclerView = findViewById(R.id.recyclerView);
 
         layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
@@ -59,8 +59,8 @@ public class BiggerTextActivity extends AppCompatActivity {
         setSupportActionBar(myToolbar);
         */
 
-        setTitle(getIntent().getStringExtra("title"));
         file = getIntent().getStringExtra("file");
+        setTitle(getIntent().getStringExtra("title") + " - " + file);
         typeStorage = getIntent().getStringExtra("typeStorage");
 
         textOptions = new TextOptions(this);
@@ -79,6 +79,7 @@ public class BiggerTextActivity extends AppCompatActivity {
         myTextChunkArrayList = getTextFileContentInArrayList(this, typeStorage, file,"log", textOptions.getCharSize());
         recyclerView.setAdapter(new MyTextChunkAdapter(myTextChunkArrayList));
         textOptions.setScrollPosition(this, file, recyclerView);
+        myLog("BiggerTextActivity - RecyclerView Loaded");
     }
 
     private void createMap() {

@@ -59,7 +59,6 @@ public class Tonio2 {
     public static ArrayList<MyFile> getFileInArrayList(Context c) {
         ArrayList<String> fileNameArrayList = new ArrayList<>();
         ArrayList<MyFile> myFileArrayList = new ArrayList<>();
-        //listAssetFiles(c, "Jurisprudence", fileNameArrayList);
         listClassicFiles(c, "log", fileNameArrayList);
         if (fileNameArrayList.size() == 0) myLogE("Warning fileNameArrayList empty");
         for (String s : fileNameArrayList) {
@@ -98,14 +97,16 @@ public class Tonio2 {
             int i = 0;
             while ((str = reader.readLine()) != null) {
                 //if (!(str.contains("redraw Seek Bar"))) { //TODO temp for log analysis
-                    arrayList.add(new MyTextChunk(i, str, charSize));
+                arrayList.add(new MyTextChunk(i, str, charSize));
                     i++;
                 //}
             }
             reader.close();
+            myLog("Getting file lines into array...    array dim = nb line = [" + arrayList.size() + "]");
             return arrayList;
 
         } catch (IOException e) {
+            myLogE("Problem getting file lines into array - Tonio public static ArrayList<MyTextChunk> getTextFileContentInArrayList... " + e.getMessage());
             e.printStackTrace();
         }
         return null;

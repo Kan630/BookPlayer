@@ -139,6 +139,8 @@
 
     <string name="AskDelete_popupTitle">Confirm Delete</string>
     <string name="AskReset_popupTitle">Confirm Reset</string>
+    <string name="DeleteLogs_AskConfirm">"You are about to delete all logs." + "\n" +
+                        "Are you sure ?"</string>
     <string name="ModifyFolder_AskDelete">"You are about to delete this folder and all the tracks" + "\n" +
                         "Are you sure ?"</string>
     <string name="ModifyFolder_AskReset">"You are about to reset progression for this folder " + "\n" +
