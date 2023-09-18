@@ -119,6 +119,13 @@ public class ZikFilesAdapter extends RecyclerView.Adapter<ZikFilesAdapter.ZikFil
                 myLog("Adapater : zikFile is zip");
             } else {
                 // check file exists
+/*
+                if (zikFile.isIsSingleFile()) {
+                    String fullPath = zikFile.getPath();
+                } else {
+                    String fullPath = zikFile.getPath() + "/" + zikFile.getName();
+                }
+*/
                 String fullPath = zikFile.getPath() + "/" + zikFile.getName();
                 myLog("Adapater : full path zikFile to open PlayActivity : " + fullPath);
                 if (fileExists(fullPath)) FileOkForPlay = true;

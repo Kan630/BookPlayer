@@ -16,6 +16,7 @@ import java.util.List;
 import static com.driot.bookplayer.utils.FileHelper.getRealPathFromURI;
 import static com.driot.bookplayer.utils.Tonio.FormatNameForDisplay;
 import static com.driot.bookplayer.utils.Tonio.FormatNameForDisplay_withUnderscore;
+import static com.driot.bookplayer.utils.Tonio.stripFileName;
 import static com.driot.tonylib.KanLogger.myLogE;
 
 import androidx.documentfile.provider.DocumentFile;
@@ -44,8 +45,6 @@ public class FolderAttrib {
 
     private String sRealFolderPath;
 
-    private boolean fromDownloadFolder;
-
     //public FolderAttrib(Context context, Uri uri, boolean isZipFolder, String forceName) {
     public FolderAttrib(Context context, Uri uri, boolean isZipFolder, boolean isSingleFile) {
 
@@ -62,7 +61,7 @@ public class FolderAttrib {
 
         sRealFolderPath="";
 
-        fromDownloadFolder=false;
+        isLocatedInDownloadFolder = false;
 
         sRealPathFromUriNew = getRealPathFromURI(context,uri);
         myLog("new method to find path : [" + sRealPathFromUriNew + "]");
@@ -71,40 +70,39 @@ public class FolderAttrib {
 
         // from DOWNLOAD
         if (uri.getAuthority().equals("com.android.providers.downloads.documents")) {
-            myLog("Doc is in Download Folder");
+            myLog("location : Download Folder");
             isLocatedInDownloadFolder=true;
             sFolderPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getPath();
             if (isZipFolder) {
                 String sRealFolderName = getFileName(context,uri);
                 sRealFolderPath = sFolderPath + "/" + sRealFolderName;
                 sFolderName = FormatNameForDisplay(sRealFolderName);
-                sFolderName_withUnderscore = FormatNameForDisplay_withUnderscore(sRealFolderName);
             } else if (isSingleFile) {
                 //String sRealFolderName = getFileName(context,uri);
-                //sRealFolderPath = sFolderPath
                 sRealFolderPath = sFolderPath;
                 sFolderName = FormatNameForDisplay(getFileName(context,uri));
-                sFolderName_withUnderscore = FormatNameForDisplay_withUnderscore(getFileName(context,uri));
             } else {
                 //sRealFolderPath = uri.getLastPathSegment().replace("raw:","");
                 String sRealFolderName = getFileName(context,uri);
                 sRealFolderPath = sFolderPath + "/" + sRealFolderName;
                 sFolderName = FormatNameForDisplay(sRealFolderPath.substring(sRealFolderPath.lastIndexOf("/")+1));
-                sFolderName_withUnderscore = FormatNameForDisplay_withUnderscore(sRealFolderPath.substring(sRealFolderPath.lastIndexOf("/")+1));
             }
-            fromDownloadFolder=true;
 
             // from MAIN MEMORY
         } else if (uri.getLastPathSegment().startsWith("primary")) {
+            myLog("location : main memory");
             sRealFolderPath = uri.getLastPathSegment()
                     .replace("primary:","/storage/emulated/0/");
+            if (isSingleFile) { sRealFolderPath = stripFileName(sRealFolderPath); }
 
             // from SD CARD
         } else {
+            myLog("location : else - sdcard");
             sRealFolderPath = uri.getPath()
                     .replace("document", "storage")
                     .replace("tree", "storage")
                     .replace(":", "/");
+            if (isSingleFile) { sRealFolderPath = stripFileName(sRealFolderPath); }
         }
 
         // controle de l'exitence du fullPath
@@ -126,36 +124,37 @@ public class FolderAttrib {
             }
         }
 
-        if (!fromDownloadFolder) {
+        if (!isLocatedInDownloadFolder) {
             // nom par défaut = les deux derniers folders :
             // ex  : "S3 - Finances publiques/Audios"
             String str = sFolderPath.replace(":", "/");
             int pos1 = str.lastIndexOf("/");
             if (isZipFolder) {
                 sFolderName = FormatNameForDisplay(str.substring(pos1 + 1));
-                sFolderName_withUnderscore = FormatNameForDisplay_withUnderscore(str.substring(pos1 + 1));
             } else {
                 if (pos1 > -1) {
                     int pos2 = str.substring(0, pos1).lastIndexOf("/", pos1);
                     if (pos2 > -1) {
                         sFolderName = FormatNameForDisplay(str.substring(pos2 + 1));
-                        sFolderName_withUnderscore = FormatNameForDisplay_withUnderscore(str.substring(pos2 + 1));
                     } else {
                         sFolderName = FormatNameForDisplay(str.substring(pos1 + 1));
-                        sFolderName_withUnderscore = FormatNameForDisplay_withUnderscore(str.substring(pos1 + 1));
                     }
                 } else {
                     // especially when foldername is just a string without slash (Android 11 zip local copy)
                     sFolderName = FormatNameForDisplay(str);
-                    sFolderName_withUnderscore = FormatNameForDisplay_withUnderscore(str);
                 }
             }
+            if (sFolderName.startsWith("Download/")) { sFolderName = sFolderName.substring(9); }
         }
 /*
+        // TODO : Allow to rename folder ??
         if (forceName.length()>0) {
             sFolderName = forceName;
         }
 */
+        sFolderName_withUnderscore = sFolderName.replace(" ", "_");
+
+
         myLog("..." + "\n" +
                 this.toString() + "\n" +
                 "...");

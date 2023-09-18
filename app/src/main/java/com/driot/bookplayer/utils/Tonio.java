@@ -157,6 +157,13 @@ public class Tonio {
         return s;
     }
 
+    public static String stripFileName(String fullPath) {
+            // Find the last index of the file separator (either backslash or forward slash)
+            int lastIndex = fullPath.lastIndexOf(File.separator);
+            // Check if a file separator was found and get the directory path
+            return (lastIndex != -1) ? fullPath.substring(0, lastIndex) : fullPath;
+    }
+
     public static String stripExtension(String fileName) {
         String s = fileName;
         if (s.indexOf(".") > 0) {

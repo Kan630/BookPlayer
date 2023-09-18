@@ -141,9 +141,10 @@ public class AddResourceService extends Service {
         return START_NOT_STICKY;
     }
 
-
+    // single file
+    ///////////////////////////
     private boolean populateArrayListOfTracksFromFile() {
-        myLog("populateArrayListOfTracksFromFile " + pickedDir.getUri().toString());
+        myLog("populateArrayListOfTracksFromFile [" + pickedDir.getUri().toString() + "] - single file");
         boolean resourceSelected = false;
 
         uri = pickedDir.getUri();
@@ -878,8 +879,6 @@ public class AddResourceService extends Service {
         String sFileFullPath;
         if (myFolder.isZipFolder()) {
             sFileFullPath = sZikFileName;
-        //} else if (myFolder.isSingleFile()) {
-        //    sFileFullPath = myFolder.getsRealFolderPath();
         } else {
             sFileFullPath = myFolder.getsRealFolderPath() + File.separator + sZikFileName;
         }

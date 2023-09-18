@@ -65,7 +65,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAlignment="textEnd"
-            android:text="Max = 1440"
+            android:text="Max = 1440 (24h)"
             android:textSize="12sp"
             />
 
