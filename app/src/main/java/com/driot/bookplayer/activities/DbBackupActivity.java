@@ -6,7 +6,6 @@ import static com.driot.tonylib.KanLogger.myLogE;
 import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 
@@ -54,7 +53,7 @@ public class DbBackupActivity extends LifecycleLoggingActivity {
                 copyFile(dbShm, dbShm2);
                 copyFile(dbWal, dbWal2);
             } catch (Exception e) {
-                myLogE("SAVEDB " + e.toString());
+                myLogE("SAVEDB " + e);
             }
         } else {
             Snackbar.make(bt1, "Please allow access to your storage", Snackbar.LENGTH_LONG)
@@ -81,7 +80,7 @@ public class DbBackupActivity extends LifecycleLoggingActivity {
                 copyFile(dbShm, dbShm2);
                 copyFile(dbWal, dbWal2);
             } catch (Exception e) {
-                myLogE("RESTOREDB " +  e.toString());
+                myLogE("RESTOREDB " + e);
             }
         } else {
             Snackbar.make(bt1, "Please allow access to your storage", Snackbar.LENGTH_LONG)

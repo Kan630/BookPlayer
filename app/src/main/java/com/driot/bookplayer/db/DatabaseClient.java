@@ -32,11 +32,11 @@ public class DatabaseClient {
             database.execSQL("UPDATE ZikFile SET displayName = Name");        }
     };
 
-    private Context mCtx;
+    private final Context mCtx;
     private static DatabaseClient mInstance;
 
     //our app database object
-    private AppDatabase appDatabase;
+    private final AppDatabase appDatabase;
 
     private DatabaseClient(Context mCtx) {
         this.mCtx = mCtx;

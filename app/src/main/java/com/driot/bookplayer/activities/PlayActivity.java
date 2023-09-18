@@ -17,7 +17,6 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
-import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.view.View;
@@ -30,7 +29,6 @@ import android.widget.Toast;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.global.PlayList;
-import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.utils.AudioService;
 
 import java.util.Timer;
@@ -77,18 +75,18 @@ public class PlayActivity extends LifecycleLoggingActivity {
     private ImageView iv;
     private boolean AnimationNow;
     private boolean HasBeenInitializedService = false;
-    private boolean HasBeenInitializedUI = false;
+    private final boolean HasBeenInitializedUI = false;
     private Intent intentMusicService;
     private boolean ShitHappensFlee = false;
     private Timer autoUpdate;
-    private int currentScreenOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
+    private final int currentScreenOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
 
     /********************************************************************************
      ***       SERVICE
      ********************************************************************************
      */
 
-    private ServiceConnection connection = new ServiceConnection() {
+    private final ServiceConnection connection = new ServiceConnection() {
 
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
@@ -117,7 +115,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
         }
 
     };
-    private BroadcastReceiver receiver = new BroadcastReceiver() {
+    private final BroadcastReceiver receiver = new BroadcastReceiver() {
 
         @Override
         public void onReceive(Context context, Intent intent) {

@@ -1,24 +1,17 @@
 package com.driot.bookplayer.utils;
 
-import android.app.ActivityManager;
-import android.app.DownloadManager;
 import android.app.Service;
 import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Build;
-import android.os.Environment;
-import android.os.Handler;
 import android.os.IBinder;
-import android.provider.DocumentsContract;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
-import androidx.core.content.FileProvider;
 import androidx.documentfile.provider.DocumentFile;
 import androidx.sqlite.db.SimpleSQLiteQuery;
 
@@ -27,8 +20,6 @@ import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.FolderAttrib;
 import com.driot.bookplayer.db.ZikFile;
-
-//import org.apache.commons.io.FileUtils;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -40,12 +31,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.Date;
 import java.sql.Time;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.Locale;
-import java.util.Objects;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
@@ -58,7 +46,6 @@ import static android.os.Build.VERSION.SDK_INT;
 import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_COPY_ZIP_LOCAL;
 import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_UNZIP_LOCAL;
 import static com.driot.bookplayer.activities.OptionActivity.SHARED_PREFERENCES_OPTIONS;
-import static com.driot.bookplayer.global.Var.FOLDER_MP4;
 import static com.driot.bookplayer.global.Var.FOLDER_UNZIPPED;
 import static com.driot.bookplayer.global.Var.FOLDER_ZIPPED;
 import static com.driot.bookplayer.global.Var.ZIP_SIZE_MAX_COEF;
@@ -68,15 +55,10 @@ import static com.driot.bookplayer.utils.Tonio.getAvailableInternalMemorySize;
 import static com.driot.bookplayer.utils.Tonio.getExtension;
 import static com.driot.bookplayer.utils.Tonio.getFileNameFromPath;
 import static com.driot.bookplayer.utils.Tonio.getMimeType;
-import static com.driot.bookplayer.utils.Tonio.stripExtension;
 import static com.driot.bookplayer.utils.Tonio.formatMem;
 import static com.driot.bookplayer.utils.Utils.copyStream;
 import static com.driot.bookplayer.utils.Utils.recursiveRemove;
-import static com.driot.bookplayer.utils.Utils.unzip;
-import static com.driot.tonylib.KanLogger.myLog;
-import static com.driot.tonylib.KanLogger.myLogE;
 import static com.driot.tonylib.KanLogger.myToastE;
-import static com.driot.tonylib.TonioCommonStuff.MD5;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 23/11/20
@@ -104,7 +86,7 @@ public class AddResourceService extends Service {
     private FolderAttrib myFolder;
     private ZipFile zipFile;
     private ArrayList<String> audioFileArrayList;
-    private int[] InsertedFolderId = {0};
+    private final int[] InsertedFolderId = {0};
     private DocumentFile[] myZikFileList;
 
     private int nbFileSaved, nbFileToSave;
@@ -144,7 +126,7 @@ public class AddResourceService extends Service {
     // single file
     ///////////////////////////
     private boolean populateArrayListOfTracksFromFile() {
-        myLog("populateArrayListOfTracksFromFile [" + pickedDir.getUri().toString() + "] - single file");
+        myLog("populateArrayListOfTracksFromFile [" + pickedDir.getUri() + "] - single file");
         boolean resourceSelected = false;
 
         uri = pickedDir.getUri();
@@ -233,7 +215,7 @@ public class AddResourceService extends Service {
 
 
     private boolean populateArrayListOfTracksFromFolder() {
-        myLog("populateArrayListOfTracksFromFolder " + pickedDir.getUri().toString());
+        myLog("populateArrayListOfTracksFromFolder " + pickedDir.getUri());
         boolean resourceSelected = false;
 
         uri = pickedDir.getUri();

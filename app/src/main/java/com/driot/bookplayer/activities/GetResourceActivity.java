@@ -3,10 +3,8 @@ package com.driot.bookplayer.activities;
 import android.Manifest;
 import android.app.Activity;
 import android.app.ActivityManager;
-import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -14,29 +12,21 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.utils.AddResourceService;
 import com.driot.bookplayer.utils.PermissionRequest;
 
-import java.security.Permission;
 import java.util.Timer;
 import java.util.TimerTask;
 
-//import com.nbsp.materialfilepicker.MaterialFilePicker;
-//import com.nbsp.materialfilepicker.ui.FilePickerActivity;
-
 import static com.driot.tonylib.KanLogger.myLog;
 import static com.driot.tonylib.KanLogger.myLogE;
-import static com.driot.tonylib.KanLogger.myToast;
 import static com.driot.tonylib.KanLogger.myToastE;
-import static com.driot.tonylib.TonioCommonStuff.MD5;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 08/11/20

@@ -2,16 +2,13 @@ package com.driot.bookplayer.activities;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.text.InputFilter;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
 
 import com.driot.bookplayer.R;
 
-import static com.driot.tonylib.KanLogger.myLog;
 import static com.driot.tonylib.KanLogger.myLongToast;
-import static com.driot.tonylib.KanLogger.myToast;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 20/12/20

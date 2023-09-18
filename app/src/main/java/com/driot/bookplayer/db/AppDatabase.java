@@ -3,7 +3,6 @@ package com.driot.bookplayer.db;
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 28/10/20
  */
-import androidx.room.AutoMigration;
 import androidx.room.Database;
 import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;

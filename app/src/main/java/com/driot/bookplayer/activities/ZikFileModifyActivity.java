@@ -1,11 +1,9 @@
 package com.driot.bookplayer.activities;
 
-import static com.driot.bookplayer.utils.Utils.recursiveRemove;
 import static com.driot.tonylib.KanLogger.myLog;
 import static com.driot.tonylib.KanLogger.myLogE;
 import static com.driot.tonylib.KanLogger.myLogInFile;
 import static com.driot.tonylib.KanLogger.myToast;
-import static com.driot.tonylib.KanLogger.myToastE;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -20,9 +18,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.AlertDialog;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.DatabaseClient;
-import com.driot.bookplayer.db.FolderDao;
 import com.driot.bookplayer.db.ZikFile;
 
 import java.io.File;

@@ -29,7 +29,6 @@ import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 import static com.driot.bookplayer.utils.Tonio.FormatLastAccess;
-import static com.driot.bookplayer.utils.Tonio.FormatNameForDisplay;
 import static com.driot.bookplayer.utils.Tonio.FormatPercentForProgressBar;
 import static com.driot.bookplayer.utils.Tonio.FormatPercentString;
 import static com.driot.bookplayer.utils.Tonio.FormatTime;
@@ -43,8 +42,8 @@ import static com.driot.tonylib.KanLogger.myToastE;
 
 public class ZikFilesAdapter extends RecyclerView.Adapter<ZikFilesAdapter.ZikFilesViewHolder> {
 
-    private Context mCtx;
-    private List<ZikFile> zikFileList;
+    private final Context mCtx;
+    private final List<ZikFile> zikFileList;
 
     public ZikFilesAdapter(Context mCtx, List<ZikFile> zikFileList) {
         this.mCtx = mCtx;

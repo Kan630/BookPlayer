@@ -27,10 +27,6 @@ public class LogListActivity extends AppCompatActivity {
 
     private String file;
 
-    //private TextOptions textOptions;
-
-    //private String highlightedWord;
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

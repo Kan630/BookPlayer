@@ -10,7 +10,6 @@ import android.view.View;
 import android.widget.Toolbar;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -104,11 +103,7 @@ public class MainActivity extends LifecycleLoggingActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
-        if (isMyPhoneDev()) {
-            menu.findItem(R.id.menu_seelog).setVisible(true);
-        } else {
-            menu.findItem(R.id.menu_seelog).setVisible(false);
-        }
+        menu.findItem(R.id.menu_seelog).setVisible(isMyPhoneDev());
 
         return super.onCreateOptionsMenu(menu);
     }

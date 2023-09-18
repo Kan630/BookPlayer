@@ -15,11 +15,8 @@ import java.util.List;
 
 import static com.driot.bookplayer.utils.FileHelper.getRealPathFromURI;
 import static com.driot.bookplayer.utils.Tonio.FormatNameForDisplay;
-import static com.driot.bookplayer.utils.Tonio.FormatNameForDisplay_withUnderscore;
 import static com.driot.bookplayer.utils.Tonio.stripFileName;
 import static com.driot.tonylib.KanLogger.myLogE;
-
-import androidx.documentfile.provider.DocumentFile;
 
 
 /**
@@ -31,7 +28,7 @@ public class FolderAttrib {
     private final boolean isZipFolder;
     private final boolean isSingleFile;
     private boolean isLocatedInDownloadFolder = false;
-    private Context mCtx;
+    private final Context mCtx;
 
     private boolean FolderKO;
 
@@ -39,9 +36,9 @@ public class FolderAttrib {
     private final String sFolderHash;
     private String sFolderPath;
     private String sFolderName;
-    private String sFolderName_withUnderscore;
+    private final String sFolderName_withUnderscore;
 
-    private String sRealPathFromUriNew;
+    private final String sRealPathFromUriNew;
 
     private String sRealFolderPath;
 
@@ -156,7 +153,7 @@ public class FolderAttrib {
 
 
         myLog("..." + "\n" +
-                this.toString() + "\n" +
+                this + "\n" +
                 "...");
     }
 

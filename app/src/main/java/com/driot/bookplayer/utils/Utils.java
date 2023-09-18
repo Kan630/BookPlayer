@@ -2,7 +2,6 @@ package com.driot.bookplayer.utils;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.content.Context;
 import android.view.View;
 
 import java.io.BufferedInputStream;

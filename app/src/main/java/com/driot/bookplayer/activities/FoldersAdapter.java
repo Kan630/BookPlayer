@@ -23,8 +23,8 @@ import static com.driot.bookplayer.utils.Tonio.*;
 
 public class FoldersAdapter extends RecyclerView.Adapter<FoldersAdapter.FoldersViewHolder> {
 
-    private Context mCtx;
-    private List<Folder> FolderList;
+    private final Context mCtx;
+    private final List<Folder> FolderList;
 
     public FoldersAdapter(Context mCtx, List<Folder> FolderList) {
         this.mCtx = mCtx;

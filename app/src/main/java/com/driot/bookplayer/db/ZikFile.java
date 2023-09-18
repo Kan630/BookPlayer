@@ -4,23 +4,13 @@ package com.driot.bookplayer.db;
  * created by Antoine Driot -- antoine.driot.com -- on 30/10/20
  */
 
-import android.content.Context;
-import android.content.res.AssetManager;
-import android.os.AsyncTask;
-import android.os.Parcel;
-import android.os.Parcelable;
-
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
-import com.driot.bookplayer.activities.PlayActivity;
-
 import java.io.Serializable;
 import java.sql.Date;
 import java.sql.Time;
-
-import static com.driot.bookplayer.utils.Tonio.FormatPercentDouble;
 
 @Entity
 public class ZikFile implements Serializable {

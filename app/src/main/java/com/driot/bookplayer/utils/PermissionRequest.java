@@ -1,7 +1,6 @@
 package com.driot.bookplayer.utils;
 import static com.driot.tonylib.KanLogger.myLog;
 
-import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -39,7 +38,7 @@ public class PermissionRequest {
     /**
      * Generic permission code used by this class.
      */
-    private static AtomicInteger mRequestId = new AtomicInteger(0);
+    private static final AtomicInteger mRequestId = new AtomicInteger(0);
 
     private final Activity mActivity;
     private final ViewGroup mLayout;

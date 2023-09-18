@@ -9,17 +9,14 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.io.Reader;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static android.content.Context.MODE_PRIVATE;
 import static com.driot.tonylib.KanLogger.myLog;
 import static com.driot.tonylib.KanLogger.myLogE;
 
@@ -130,7 +127,7 @@ public class Tonio2 {
             outputStreamWriter.write(data);
             outputStreamWriter.close();
         } catch (IOException e) {
-            myLogE("File write failed: " + e.toString());
+            myLogE("File write failed: " + e);
         }
     }
 
@@ -156,9 +153,9 @@ public class Tonio2 {
             }
         }
         catch (FileNotFoundException e) {
-            myLogE("File not found: " + e.toString());
+            myLogE("File not found: " + e);
         } catch (IOException e) {
-            myLogE("Can not read file: " + e.toString());
+            myLogE("Can not read file: " + e);
         }
 
         return ret;

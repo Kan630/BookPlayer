@@ -2,27 +2,21 @@ package com.driot.bookplayer.utils;
 
 import static android.media.MediaPlayer.SEEK_CLOSEST;
 
-import android.app.Notification;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.Icon;
 import android.media.AudioManager;
-import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.media.ToneGenerator;
 import android.media.session.MediaSession;
 import android.media.session.PlaybackState;
 import android.net.Uri;
 import android.os.Binder;
-import android.os.Build;
 import android.os.IBinder;
 import android.view.KeyEvent;
 
 import androidx.annotation.Nullable;
-import androidx.core.app.NotificationCompat;
 
 import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.global.PlayList;
@@ -38,7 +32,6 @@ import java.sql.Time;
 import java.text.DecimalFormat;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.zip.ZipFile;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
@@ -55,7 +48,6 @@ import static com.driot.bookplayer.utils.Utils.copyStream;
 import static com.driot.tonylib.KanLogger.myLog;
 import static com.driot.tonylib.KanLogger.myLogE;
 
-import com.driot.bookplayer.R;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 01/11/20
@@ -466,11 +458,7 @@ public class AudioService extends Service {
     }
     public boolean exist() {
         if (LOG_TRACE_ALL) myLog("AudioService.exist");
-        if (mediaPlayer == null) {
-            return false;
-        } else {
-            return true;
-        }
+        return mediaPlayer != null;
     }
 
     private ZikFile getCurrentZikFile() {

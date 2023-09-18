@@ -4,7 +4,6 @@ import static com.driot.bookplayer.utils.Tonio2.removeLongDuplicates;
 
 import android.os.Environment;
 import android.os.StatFs;
-import android.util.Log;
 import android.webkit.MimeTypeMap;
 
 import androidx.annotation.NonNull;
