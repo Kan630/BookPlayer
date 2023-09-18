@@ -21,8 +21,8 @@ android {
         minSdkVersion 26 //  23 = android 6.0 Marshmallow 2015 // 26 = android 8.0 - Oreo - 2017
         targetSdkVersion 34 //31-32 =  = android 11.0       //  30 = android 11.0
 
-        versionCode 26
-        versionName "26 - single file fix"
+        versionCode 27
+        versionName "27 - permissions fix"
         //versionName "25 - LockedPhoneNotification"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -82,8 +82,6 @@ dependencies {
     implementation 'androidx.core:core:1.12.0'
     implementation 'androidx.media:media:1.6.0'
     implementation 'androidx.annotation:annotation:1.7.0'
-//    implementation 'androidx.activity:activity:1.7.2' //permissions
-//    implementation 'androidx.fragment:fragment:1.6.1' //permissions
 
     implementation "androidx.room:room-runtime:2.5.2"
     annotationProcessor "androidx.room:room-compiler:2.5.2"

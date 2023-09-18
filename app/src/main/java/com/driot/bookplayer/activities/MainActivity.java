@@ -2,6 +2,7 @@ package com.driot.bookplayer.activities;
 
 import android.content.Intent;
 import android.content.IntentSender;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -9,6 +10,7 @@ import android.view.View;
 import android.widget.Toolbar;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -59,6 +61,7 @@ public class MainActivity extends LifecycleLoggingActivity {
         HasBeenProposedToOpenFile = savedInstanceState.getBoolean("HasBeenProposedToOpenFile", false);
     }
 
+    //@RequiresApi(api = Build.VERSION_CODES.R)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,7 +71,13 @@ public class MainActivity extends LifecycleLoggingActivity {
         checkForUpdate();
         KanLogger.setContext(getApplicationContext());
         KanLogger.myLog("");
-        KanLogger.myLog("============================================> Let's go");
+        KanLogger.myLog("================================================> Let's go");
+        KanLogger.myLog("");
+        KanLogger.myLog("Build Version SDK = " + Build.VERSION.SDK_INT);
+        KanLogger.myLog("Release = " + Build.VERSION.RELEASE);
+        KanLogger.myLog("Base OS = " + Build.VERSION.BASE_OS);
+        KanLogger.myLog("");
+        KanLogger.myLog("===========================================================");
         KanLogger.myLog("");
 
         Toolbar toolbar = findViewById(R.id.toolbar);
