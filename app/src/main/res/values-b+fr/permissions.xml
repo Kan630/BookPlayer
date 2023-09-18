@@ -11,6 +11,6 @@
     <string name="permission_read_write_granted">La permission de lire le stockage externe a été accordée.</string>
     <string name="permission_read_write_denied">"BookPlayer ne pourra pas lire l'audio."</string>
 
-    <string name="permissions_denied_sorry_cannot">"Les permissions n'ont pas été accordées, BookPlayer ne peut pas lire l'audio".</string>
+    <string name="permissions_denied_sorry_cannot">"Permissions non accordées, Lecture impossible".</string>
 
 </resources>

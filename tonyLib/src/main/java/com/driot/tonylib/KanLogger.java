@@ -39,6 +39,7 @@ public class KanLogger {
             ,"f440eedc21b7e92490e9ad90e4a93215" //"OPPO/CPH2065EEA/OP4BDCL1:11/RP1A.200720.011/1624562435949:user/release-keys" //oppo-cph2065-P7LFRGOFKVKRLNPF
             ,"eb621dde2a2672e66b6e6ef5acbbbb99" //"OPPO/CPH2065EEA/OP4BDCL1:11/RP1A.200720.011/1629728339857:user/release-keys"
             ,"3dcf828fa24be7a49a361c4f4ba3dfd4" // RedMi sept 2023
+            ,"3a53d8836f50d0826c99bca3900fbc24" // RedMi sept 2023, after upate
     };
 
     private static Context appContext;

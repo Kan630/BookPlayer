@@ -22,6 +22,7 @@
     <color name="red">#FF990000</color>
     <color name="green">#FF009900</color>
     <color name="blue">#FF000099</color>
+    <color name="yellow">#FF999900</color>
 
     <color name="seek_bar_background">#343434</color>
     <color name="seek_bar_secondary_progress">#009900</color>

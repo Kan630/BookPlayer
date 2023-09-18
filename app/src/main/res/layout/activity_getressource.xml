@@ -29,15 +29,17 @@
         android:id="@+id/message_import_currently_running"
         style="@style/myStyleTextExplainButton"
         android:text="@string/Import_Progress_onGoing"
-        android:textSize="20sp"
+        android:textSize="40dp"
         android:textColor="@color/red"
+        android:background="@color/yellow"
         android:visibility="invisible"
+        android:elevation="5dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/GetRessource320_vertical_margin_title2text"
         android:paddingHorizontal="50dp"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/TextHeaderOpen"
+        app:layout_constraintTop_toBottomOf="@id/bOpenFolder"
         />
     <TextView
         android:id="@+id/bOpenFile_desc"
@@ -85,9 +87,9 @@
         />
 
     <TextView
+        android:id="@+id/bOpenZiFile_desc"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/bOpenZiFile_desc"
         style="@style/myStyleTextExplainButton"
         android:text="@string/bOpenZipFile_desc"
         android:paddingHorizontal="50dp"
