@@ -156,7 +156,7 @@ public class AudioService extends Service {
         ToneGenerator toneGen1 = new ToneGenerator(AudioManager.STREAM_MUSIC, 100);
         toneGen1.startTone(ToneGenerator.TONE_CDMA_PIP,150);
 
-        loadZeFile();
+        loadZeFile(true);
         //TODO remplace par PlayAudio() ??
         myLog("AudioService : mediaPlayer.start() -- nextrack");
         mediaPlayer.start();
@@ -235,17 +235,17 @@ public class AudioService extends Service {
 
     public void loadFiles(ZikFile[] zikFiles) {
         myLog("AudioService - loadFiles(array) - folder : " + zikFiles[0].getIdFolder());
-        loadZeFile();
+        loadZeFile(false);
     }
 
-    private void loadZeFile() {
+    private void loadZeFile(boolean startAtZero) {
         myLog("AudioService - loadZeFile()");
         ZikFile zf = PlayList.getZikFile();
         if (zf.isIszipfile()) {
-            loadFile(GetTempFilePathFromZipFile(zf));
+            loadFile(GetTempFilePathFromZipFile(zf), startAtZero);
         } else {
             String mPath = zf.getPath() + "/" + zf.getName();
-            loadFile(mPath);
+            loadFile(mPath, startAtZero);
         }
     }
 
@@ -289,7 +289,7 @@ public class AudioService extends Service {
 
 
     // TODO, use openFileDescriptor & remove legacy from manifest
-    public boolean loadFile(String sPath) {
+    public boolean loadFile(String sPath, boolean startAtZero) {
         ErrorLoadingFile = false; // for onCompletion Next Track...
         if (!fileExists(sPath)) {
             myLogE("AudioService - loadFile(sPath) : ERROR -- File doesn't exist !! " + sPath);
@@ -303,7 +303,11 @@ public class AudioService extends Service {
             mediaPlayer.reset();
             mediaPlayer.setDataSource(sPath);
             mediaPlayer.prepare();
-            mediaPlayer.seekTo((int) PlayList.getZikFile().getPosition(),SEEK_CLOSEST); //seek_closest needed for m4b...
+            if (startAtZero) {
+                mediaPlayer.seekTo(0,SEEK_CLOSEST);
+            } else {
+                mediaPlayer.seekTo((int) PlayList.getZikFile().getPosition(),SEEK_CLOSEST); //seek_closest needed for m4b...
+            }
             //fileHasBeenLoaded = true;
             Intent intent = new Intent(NOTIFICATION_FILELOADED);
             sendBroadcast(intent);
