@@ -3,7 +3,9 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/adrio/StudioProjects/BookPlayer/app/src/main/res/drawable-v24/redprogress.xml" value="0.189" />
         <entry key="..\:/Users/adrio/StudioProjects/BookPlayer/app/src/main/res/drawable/button_selector_blue.xml" value="0.1855" />
+        <entry key="..\:/Users/adrio/StudioProjects/BookPlayer/app/src/main/res/drawable/progress_bar_green.xml" value="0.189" />
         <entry key="..\:/Users/adrio/StudioProjects/BookPlayer/app/src/main/res/drawable/vd_pause.xml" value="0.25" />
         <entry key="..\:/Users/adrio/StudioProjects/BookPlayer/app/src/main/res/drawable/vd_play.xml" value="0.2655" />
         <entry key="..\:/Users/adrio/StudioProjects/BookPlayer/app/src/main/res/layout/activity_addresource.xml" value="0.22" />
@@ -18,6 +20,7 @@
         <entry key="..\:/Users/adrio/StudioProjects/BookPlayer/app/src/main/res/layout/activity_options.xml" value="0.33" />
         <entry key="..\:/Users/adrio/StudioProjects/BookPlayer/app/src/main/res/layout/activity_play.xml" value="0.15175332527206772" />
         <entry key="..\:/Users/adrio/StudioProjects/BookPlayer/app/src/main/res/layout/activity_stats.xml" value="0.365625" />
+        <entry key="..\:/Users/adrio/StudioProjects/BookPlayer/app/src/main/res/layout/include_progressbar_overlay.xml" value="0.19270833333333334" />
         <entry key="..\:/Users/adrio/StudioProjects/BookPlayer/app/src/main/res/layout/recyclerview_file.xml" value="0.25" />
         <entry key="..\:/Users/adrio/StudioProjects/BookPlayer/app/src/main/res/layout/recyclerview_folders.xml" value="0.19739583333333333" />
         <entry key="..\:/Users/adrio/StudioProjects/BookPlayer/app/src/main/res/layout/recyclerview_item.xml" value="0.2171875" />

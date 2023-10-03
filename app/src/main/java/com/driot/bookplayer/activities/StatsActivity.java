@@ -26,14 +26,17 @@ public class StatsActivity extends LifecycleLoggingActivity {
 
         long availableMegs2 = getAvailableInternalMemorySize() / 1048576L;
         long currentAppSize = getAppSize(this) / 1048576L;
-        long currentAudiosSize = getFolderSize(this, "cache") / 1048576L;
-        long currentLogsSize = getFolderSize(this, "log") / 1048576L;
+        //long currentAudiosSize = getFolderSize(this, "cache") / 1048576L;
+        long currentAudiosSize = getFolderSize(this, "/data/data/com.driot.bookplayer/files/unzipped") / 1048576L;
+        //long currentLogsSize = getFolderSize(this, "log") / 1048576L;
+        long currentLogsSize = getFolderSize(this, "/data/data/com.driot.bookplayer/files/log") / 1048576L;
+
 
         zeText = formatMem(currentAppSize) + " Mo : taken by BookPlayer app" + "\n" + "\n" +
-                //formatMem(currentAudiosSize) + " Mo : taken by Audios" + "\n" + "\n" +
-                "---" + " Mo : taken by Audios" + "\n" + "\n" +
-                //formatMem(currentLogsSize) + " Mo :  taken by Logs" + "\n" + "\n" +
-                "---" + " Mo :  taken by Logs" + "\n" + "\n" +
+                formatMem(currentAudiosSize) + " Mo : taken by Audios" + "\n" + "\n" +
+                //"---" + " Mo : taken by Audios" + "\n" + "\n" +
+                formatMem(currentLogsSize) + " Mo :  taken by Logs" + "\n" + "\n" +
+                //"---" + " Mo :  taken by Logs" + "\n" + "\n" +
                 formatMem(availableMegs2) + " Mo : left on the device"
                 ;
 

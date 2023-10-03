@@ -1,6 +1,7 @@
 package com.driot.bookplayer.utils;
 
 import static com.driot.bookplayer.utils.Tonio2.removeLongDuplicates;
+import static com.driot.tonylib.KanLogger.myLog;
 import static com.driot.tonylib.KanLogger.myLogE;
 
 import android.content.Context;
@@ -225,6 +226,7 @@ public class Tonio {
 
     public static long getFolderSize(Context c, String folderName) {
         long size = 0;
+        /*
         try {
             File dir = new File(c.getFilesDir(), folderName);
             size = dir.length();
@@ -232,9 +234,37 @@ public class Tonio {
             myLogE("Error getting size taken by folder [" + folderName + "] : " + e.getMessage());
             e.printStackTrace();
         }
+         */
+        myLog("getFolderSize for [" + folderName + "]  (from path)");
+        size = getFolderSize(c, new File(folderName));
         return size;
     }
 
+    public static long getFolderSize(Context c, File dir) {
+        long size = 0;
+        //override
+        //dir = c.getCacheDir();
+        myLog("getFolderSize for [\" + dir.getAbsolutePath() + \"]  (from File object)");
+
+        File[] files = dir.listFiles();
+
+        if (files != null) {
+            for (File file : files) {
+                if (file.isFile()) {
+                    size += file.length(); // Get the file size and add it to the total
+                } else if (file.isDirectory()) {
+                    size += getFolderSize(c, file); // Recursively calculate the size of subdirectories
+                }
+            }
+        } else {
+            myLogE("ko Folder Not Found [" + dir.getAbsolutePath() + "]");
+        }
+        if (size == 0) {
+            myLogE("ko Folder returns zero size - Seems empty [" + dir.getAbsolutePath() + "]");
+        }
+
+        return size;
+    }
 
     public static String formatMem(long mem){
         return NumberFormat.getNumberInstance(Locale.getDefault()).format(mem);
