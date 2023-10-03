@@ -77,14 +77,22 @@
             android:id="@+id/ll_ZipOptions"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:layout_marginTop="20sp"
+            >
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@android:color/darker_gray" />
+
             <TextView
                 style="@style/myStyleTextTitle2"
                 android:id="@+id/txt_zip_header"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="50sp"
-                android:layout_marginTop="50sp"
+                android:layout_marginTop="20sp"
                 android:text="@string/option_zip"
             />
 
@@ -140,14 +148,22 @@
             android:id="@+id/ll_OrientationOption"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:layout_marginTop="20sp"
+            >
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@android:color/darker_gray" />
+
             <TextView
                 style="@style/myStyleTextTitle2"
                 android:id="@+id/txt_orientation_header"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="50sp"
-                android:layout_marginTop="50sp"
+                android:layout_marginTop="20sp"
                 android:text="@string/option_orientation"
                 />
 
@@ -176,6 +192,81 @@
             </LinearLayout>
         </LinearLayout>
 
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_marginTop="20sp"
+        >
+
+        <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray" />
+
+        <TextView
+        style="@style/myStyleTextTitle2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="50sp"
+        android:layout_marginTop="20sp"
+        android:text="BackWard/Forward Buttons"
+        />
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginStart="50sp"
+        android:layout_marginTop="20sp"
+        >
+        <TextView
+            style="@style/myStyleTextExplainButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="timelapse :"
+            android:layout_marginStart="50sp"
+            android:textSize="24sp"
+            />
+        <EditText
+            style="@style/myStyleTextExplainButton"
+            android:layout_width="70sp"
+            android:layout_height="wrap_content"
+            android:id="@+id/etForwardSeconds"
+            android:inputType="number"
+            android:textAlignment="textEnd"
+            android:paddingStart="4sp"
+            android:paddingEnd="4sp"
+            android:textSize="24sp"
+            />
+        <TextView
+            style="@style/myStyleTextExplainButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="sec."
+            android:textSize="24sp"
+            />
+
+
+    </LinearLayout>
+        <TextView
+            style="@style/myStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="textEnd"
+            android:text="Min = 1"
+            android:textSize="12sp"
+            />
+        <TextView
+            style="@style/myStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="textEnd"
+            android:text="Max = 300 (5min)"
+            android:textSize="12sp"
+            />
+
+    </LinearLayout>
     </LinearLayout>
 
 

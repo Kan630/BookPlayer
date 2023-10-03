@@ -37,6 +37,7 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
+import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_FORWARD_SECONDS;
 import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_TIME_BEFORE_SLEEP;
 import static com.driot.bookplayer.activities.OptionActivity.SHARED_PREFERENCES_OPTIONS;
 import static com.driot.bookplayer.activities.PlayActivity.SHARED_PREFERENCE_SPEED;
@@ -75,8 +76,8 @@ public class AudioService extends Service {
     public static final String NOTIFICATION_PLAYLISTFINISHED = "NOTIFICATION_PLAYLISTFINISHED";
     public static final String NOTIFICATION_PLAYBACK_MAXTIMEREACH = "NOTIFICATION_PLAYBACK_MAXTIMEREACH";
 
-    private static final int FORWARD_TIME = 5*1000;
-    private static final int BACKWARD_TIME = 5*1000;
+    //private static final int FORWARD_TIME = 5*1000;
+    //private static final int BACKWARD_TIME = 5*1000;
 
     private MediaPlayer mediaPlayer;
     private AudioManager mAudioManager;
@@ -383,19 +384,26 @@ public class AudioService extends Service {
         }
     }
 
+    private int get_ForwardSeconds() {
+        SharedPreferences prefs = this.getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE);
+        return prefs.getInt("FORWARD_SECONDS", DEFAULT_FORWARD_SECONDS);
+    }
+
     public void forwardAudio() {
         myLog("AudioService.forwardAudio()");
         int temp = getPosition();
-        if ((temp + FORWARD_TIME ) <= getDuration()) {
-            setPosition(temp + FORWARD_TIME );
+        int lag = get_ForwardSeconds()*1000;
+        if ((temp + lag ) <= getDuration()) {
+            setPosition(temp + lag );
         }
     }
 
     public void backwardAudio() {
         myLog("AudioService.backwardAudio()");
         int temp = getPosition();
-        if ((temp - BACKWARD_TIME) > 0) {
-            setPosition(temp - BACKWARD_TIME);
+        int lag = get_ForwardSeconds()*1000;
+        if ((temp - lag) > 0) {
+            setPosition(temp - lag);
         }
     }
 
