@@ -110,6 +110,19 @@
         />
 
     <!-- PlayBack Speed -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray"
+        android:layout_above="@+id/textViewNomFichier"
+        />
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray"
+        android:layout_above="@+id/bSpeedUp"
+        android:layout_marginTop = "10dp"
+        />
     <TextView
         android:id="@+id/textViewSpeedDesc"
         android:text="@string/tvSpeed"
@@ -119,6 +132,7 @@
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:layout_toStartOf="@id/bSpeedDown"
         android:layout_marginEnd="20sp"
+        android:layout_marginBottom="5sp"
         android:layout_above="@+id/textViewNomFichier"
         />
     <Button
@@ -129,19 +143,20 @@
         android:layout_toStartOf="@id/textViewSpeed"
         android:layout_above="@+id/textViewNomFichier"
         />
+
     <TextView
         android:id="@+id/textViewSpeed"
-        android:text="100%"
         style="@style/myStyle"
-        android:textSize="@dimen/playactivity_PlaybackText_Height"
-        android:paddingStart="10sp"
-        android:paddingEnd="10sp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:layout_centerHorizontal="true"
         android:layout_above="@+id/textViewNomFichier"
-        />
+        android:layout_centerHorizontal="true"
+        android:paddingStart="10sp"
+        android:paddingEnd="10sp"
+        android:layout_marginBottom="5sp"
+        android:text="100%"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textSize="@dimen/playactivity_PlaybackText_Height" />
     <Button
         android:id="@+id/bSpeedUp"
         android:text="+"
