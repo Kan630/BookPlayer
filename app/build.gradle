@@ -21,9 +21,8 @@ android {
         minSdkVersion 26 //  23 = android 6.0 Marshmallow 2015 // 26 = android 8.0 - Oreo - 2017
         targetSdkVersion 34 //31-32 =  = android 11.0       //  30 = android 11.0
 
-        versionCode 27
-        versionName "27 - permissions fix"
-        //versionName "25 - LockedPhoneNotification"
+        versionCode 28
+        versionName "28 - bug fixes oct 2023"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         signingConfig signingConfigs.debug
