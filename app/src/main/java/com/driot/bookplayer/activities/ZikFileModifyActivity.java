@@ -4,6 +4,7 @@ import static com.driot.tonylib.KanLogger.myLog;
 import static com.driot.tonylib.KanLogger.myLogE;
 import static com.driot.tonylib.KanLogger.myLogInFile;
 import static com.driot.tonylib.KanLogger.myToast;
+import static com.driot.tonylib.KanLogger.myToastE;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -19,6 +20,7 @@ import androidx.appcompat.app.AlertDialog;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.DatabaseClient;
+import com.driot.bookplayer.db.Sql;
 import com.driot.bookplayer.db.ZikFile;
 
 import java.io.File;
@@ -43,12 +45,16 @@ public class ZikFileModifyActivity extends LifecycleLoggingActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_modifyzikfile);
+        TextView tvTitle = findViewById(R.id.title);
+
+        Button bReset = findViewById(R.id.bReset);
 
         Button bDelete = findViewById(R.id.bDelete);
+
         Button bRename = findViewById(R.id.bRename);
         Button bRenameOk = findViewById(R.id.bRenameOk);
-        TextView tvTitle = findViewById(R.id.title);
         TextView tvRename = findViewById(R.id.tvRename);
+
         EditText etChangePosition = findViewById(R.id.etChangePosition);
         Button bMove = findViewById(R.id.bMove);
         Button bMoveOk = findViewById(R.id.bMoveOk);
@@ -93,13 +99,17 @@ public class ZikFileModifyActivity extends LifecycleLoggingActivity {
             etChangePosition.setSelection(0, etChangePosition.getText().length());
         });
 
-        bMoveOk.setOnClickListener(view -> bMoveOkClick(etChangePosition.getText().toString()));
+        bReset.setOnClickListener(view -> bResetClick(zikFile.getIdFolder(), zikFileName));
 
         bDelete.setOnClickListener(view -> bDeleteClick());
 
         bRenameOk.setOnClickListener(view -> bRenameOkClick(tvRename.getText().toString()));
 
+        bMoveOk.setOnClickListener(view -> bMoveOkClick(etChangePosition.getText().toString()));
+
     }
+
+    /////////////////// MOVE POSITION ///////////////
 
     private void bMoveOkClick(String newPosStr) {
         try
@@ -129,6 +139,8 @@ public class ZikFileModifyActivity extends LifecycleLoggingActivity {
                     });
         }
     }
+
+    /////////////////// ERASE-DELETE ///////////////
 
     private void bDeleteClick() {
         new AlertDialog.Builder(ZikFileModifyActivity.this)
@@ -214,6 +226,8 @@ public class ZikFileModifyActivity extends LifecycleLoggingActivity {
         }
     }
 
+    /////////////////// RENAME ///////////////
+
     private void bRenameOkClick(String newDisplayName) {
         if (newDisplayName.length() < 2) {
             myToast(getString(R.string.Error_NameTooShort));
@@ -238,5 +252,44 @@ public class ZikFileModifyActivity extends LifecycleLoggingActivity {
         }
     }
 
+
+    /////////////////// RESET PROGRESS ///////////////
+
+    private void bResetClick(int idFolder, String zikFileName) {
+        new AlertDialog.Builder(ZikFileModifyActivity.this)
+                .setTitle(ZikFileModifyActivity.this.getString(R.string.ModifyFolder_AskDeleteProgressFromZikFile_Title))
+                .setMessage(ZikFileModifyActivity.this.getString(R.string.ModifyFolder_AskDeleteProgressFromZikFile_Text))
+                .setCancelable(false)
+                .setPositiveButton(ZikFileModifyActivity.this.getString(R.string.yes), (dialog, which) -> deleteProgressFromThisZikFile(idFolder, zikFileName))
+                .setNegativeButton(ZikFileModifyActivity.this.getString(R.string.cancel), (dialogInterface, i) -> {})
+                .show();
+    }
+    private void deleteProgressFromThisZikFile(int idFolder, String zikFileName) {
+        Observable.fromCallable(() -> {
+                    DatabaseClient
+                            .getInstance(ZikFileModifyActivity.this.getApplicationContext())
+                            .getAppDatabase()
+                            .ZikFileDao()
+                            .resetProgressionFromThisZikFile(idFolder, zikFileName);
+                    return true;
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe((result) -> {
+                    if (result) {
+                        myToast(ZikFileModifyActivity.this.getString(R.string.Progression_reset_done));
+                        myLogInFile(ZikFileModifyActivity.this.getString(R.string.Progression_reset_done) + " beggining on " + zikFileName);
+                        Sql.calculateFolderProgress(ZikFileModifyActivity.this, idFolder);
+                        finish(); //close activity
+                    }
+                }, throwable -> {
+                    myToastE("Adapater : error deleting progress");
+                    myLogE("Adapater : error deleteProgressFromThisZikFile :" + throwable.getMessage());
+                    throwable.printStackTrace();
+                });
+
+    }
+
+    /////////////////// ----------- ///////////////
 
 }

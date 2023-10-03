@@ -157,42 +157,6 @@ public class ZikFilesAdapter extends RecyclerView.Adapter<ZikFilesAdapter.ZikFil
         }
     }
 
-    private void bDeleteLongClick(int idFolder, String zikFileName) {
-        new AlertDialog.Builder(mCtx)
-                .setTitle(mCtx.getString(R.string.ModifyFolder_AskDeleteProgressFromZikFile_Title))
-                .setMessage(mCtx.getString(R.string.ModifyFolder_AskDeleteProgressFromZikFile_Text))
-                .setCancelable(false)
-                .setPositiveButton(mCtx.getString(R.string.yes), (dialog, which) -> deleteProgressFromThisZikFile(idFolder, zikFileName))
-                .setNegativeButton(mCtx.getString(R.string.cancel), (dialogInterface, i) -> {})
-                .show();
-    }
-
-    private void deleteProgressFromThisZikFile(int idFolder, String zikFileName) {
-        Observable.fromCallable(() -> {
-            DatabaseClient
-                    .getInstance(mCtx.getApplicationContext())
-                    .getAppDatabase()
-                    .ZikFileDao()
-                    .resetProgressionFromThisZikFile(idFolder, zikFileName);
-            return true;
-        })
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe((result) -> {
-                    if (result) {
-                        myToast(mCtx.getString(R.string.Progression_reset_done));
-                        myLogInFile(mCtx.getString(R.string.Progression_reset_done) + " beggining on " + zikFileName);
-                        Sql.calculateFolderProgress(mCtx, idFolder);
-                        reLoad(idFolder);
-                    }
-                }, throwable -> {
-                    myToastE("Adapater : error deleting progress");
-                    myLogE("Adapater : error deleteProgressFromThisZikFile :" + throwable.getMessage());
-                    throwable.printStackTrace();
-                });
-
-    }
-
     private void reLoad(int idFolder) {
         ((ZikFileActivity)mCtx).getZikFiles(idFolder);
     }

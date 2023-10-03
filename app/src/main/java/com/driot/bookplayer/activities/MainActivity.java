@@ -76,8 +76,8 @@ public class MainActivity extends LifecycleLoggingActivity {
         KanLogger.myLog("Build.Version SDK = " + Build.VERSION.SDK_INT);
         KanLogger.myLog("Build.Release = " + Build.VERSION.RELEASE);
         KanLogger.myLog("Build.Base_OS = " + Build.VERSION.BASE_OS);
-        KanLogger.myLog("BuildConfig.VERSION_NAME = " + BuildConfig.VERSION_NAME);
         KanLogger.myLog("BuildConfig.VERSION_CODE = " + BuildConfig.VERSION_CODE);
+        KanLogger.myLog("BuildConfig.VERSION_NAME = " + BuildConfig.VERSION_NAME);
         KanLogger.myLog("BuildConfig.BUILD_TYPE = " + BuildConfig.BUILD_TYPE);
         KanLogger.myLog("BuildConfig.APPLICATION_ID = " + BuildConfig.APPLICATION_ID);
         KanLogger.myLog("");
