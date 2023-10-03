@@ -13,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.driot.bookplayer.BuildConfig;
 import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.R;
@@ -70,13 +71,17 @@ public class MainActivity extends LifecycleLoggingActivity {
         checkForUpdate();
         KanLogger.setContext(getApplicationContext());
         KanLogger.myLog("");
-        KanLogger.myLog("================================================> Let's go");
+        KanLogger.myLog("==========================");
         KanLogger.myLog("");
-        KanLogger.myLog("Build Version SDK = " + Build.VERSION.SDK_INT);
-        KanLogger.myLog("Release = " + Build.VERSION.RELEASE);
-        KanLogger.myLog("Base OS = " + Build.VERSION.BASE_OS);
+        KanLogger.myLog("Build.Version SDK = " + Build.VERSION.SDK_INT);
+        KanLogger.myLog("Build.Release = " + Build.VERSION.RELEASE);
+        KanLogger.myLog("Build.Base_OS = " + Build.VERSION.BASE_OS);
+        KanLogger.myLog("BuildConfig.VERSION_NAME = " + BuildConfig.VERSION_NAME);
+        KanLogger.myLog("BuildConfig.VERSION_CODE = " + BuildConfig.VERSION_CODE);
+        KanLogger.myLog("BuildConfig.BUILD_TYPE = " + BuildConfig.BUILD_TYPE);
+        KanLogger.myLog("BuildConfig.APPLICATION_ID = " + BuildConfig.APPLICATION_ID);
         KanLogger.myLog("");
-        KanLogger.myLog("===========================================================");
+        KanLogger.myLog("==========================");
         KanLogger.myLog("");
 
         Toolbar toolbar = findViewById(R.id.toolbar);
