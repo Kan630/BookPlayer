@@ -113,10 +113,5 @@ public class LogListActivity extends AppCompatActivity {
     private void deleteLogs() {
         File dir = new File(this.getFilesDir(), "log");
         recursiveRemove(dir);
-        //TODO - refresh the screen after delete
-        /*
         finish();
-        Intent refresh = new Intent(this, LogListActivity.class);
-        startActivity(refresh);
-        */
     }}
