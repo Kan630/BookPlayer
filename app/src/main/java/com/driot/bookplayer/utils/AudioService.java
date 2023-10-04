@@ -47,6 +47,7 @@ import static com.driot.bookplayer.utils.Tonio.fileExists;
 import static com.driot.bookplayer.utils.Tonio.getExtension;
 import static com.driot.bookplayer.utils.Utils.copyStream;
 import static com.driot.tonylib.KanLogger.myLog;
+import static com.driot.tonylib.KanLogger.myLogD;
 import static com.driot.tonylib.KanLogger.myLogE;
 
 
@@ -566,7 +567,7 @@ public class AudioService extends Service {
         tempsEcoule = 0;
         timer.scheduleAtFixedRate(new TimerTask() {
             public void run() {
-                //myLog("Audio Service ----------------------------------------------------------------------------- " + tempsEcoule + "s. since timer started " );
+                myLogD("Audio Service ----------------------------------------------------------------------------- " + tempsEcoule + "s. since timer started " );
                 updateZikFileState(false);
                 
                 if (tempsEcoule > maxTimeBeforeSleep*60) {
@@ -641,7 +642,7 @@ public class AudioService extends Service {
             })
                     .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
                     .subscribe(result -> {
-                        myLog("Audio Service : ---------- zikFile updated (" + zf.getName() + ")- position : " + myDF.format(zf.getPosition()));
+                        myLogD("Audio Service : ---------- zikFile updated (" + zf.getName() + ")- position : " + myDF.format(zf.getPosition()));
                         Sql.calculateFolderProgress(getApplicationContext(), zf.getIdFolder());
                     }, throwable -> {
                         myLog("Audio Service : error sql updating zikFile :" + throwable.getMessage());
