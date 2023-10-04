@@ -17,10 +17,10 @@
 
     <string name="help">Help</string>
     <string name="help_folder">Folder :</string>
-    <string name="help_folder_text">"a long click on a folder opens the 'modify folder' page."
+    <string name="help_folder_text">"A long click on a folder opens the 'modify folder' page."
     "Then you will be able to rename / delete / reset progress</string>
     <string name="help_file">Track :</string>
-    <string name="help_file_text">"a long click on a track opens the 'modify folder' page."
+    <string name="help_file_text">"A long click on a track opens the 'modify track' page."
     "Then you will be able to rename / change order / delete / reset progress</string>
     <string name="help_import">Import :</string>
     <string name="help_import_text">"Zip file are always a bit slower, to import, to load, to play"</string>
