@@ -5,8 +5,6 @@ import static com.driot.bookplayer.utils.Tonio.getAppSize;
 import static com.driot.bookplayer.utils.Tonio.getAvailableInternalMemorySize;
 import static com.driot.bookplayer.utils.Tonio.getFolderSize;
 import static com.driot.bookplayer.utils.Tonio.getTotaLInternalMemorySize;
-import static com.driot.tonylib.KanLogger.isMyPhoneDev;
-import static com.driot.tonylib.TonioCommonStuff.MD5;
 
 import android.os.Build;
 import android.os.Bundle;
@@ -14,7 +12,6 @@ import android.widget.TextView;
 
 import com.driot.bookplayer.BuildConfig;
 import com.driot.bookplayer.R;
-import com.driot.tonylib.KanLogger;
 
 public class StatsActivity extends LifecycleLoggingActivity {
 
@@ -23,15 +20,15 @@ public class StatsActivity extends LifecycleLoggingActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_stats);
 
+        String zeText;
+        TextView tv_head;
+        TextView tv_body;
+
         long totalMemory = getTotaLInternalMemorySize() / 1048576L;
         long availableMegs2 = getAvailableInternalMemorySize() / 1048576L;
         long currentAppSize = getAppSize(this) / 1048576L;
         long currentAudiosSize = getFolderSize(this, "/data/data/com.driot.bookplayer/files/unzipped") / 1048576L;
         long currentLogsSize = getFolderSize(this, "/data/data/com.driot.bookplayer/files/log") / 1048576L;
-
-        String zeText;
-        TextView tv_head;
-        TextView tv_body;
 
         zeText = formatMem(currentAppSize) + " Mo : taken by BookPlayer app" + "\n" + "\n" +
                 formatMem(currentAudiosSize) + " Mo : taken by Audios" + "\n" + "\n" +
