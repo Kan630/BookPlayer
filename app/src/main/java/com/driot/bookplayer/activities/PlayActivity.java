@@ -402,7 +402,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
             txSubTitle.setText(FormatNameForDisplay(PlayList.getZikFile().getName()));
             txTitle.setText(PlayList.getZikFile().getFolderName());
             txNomFichier.setText("");
-            txTempsTotal.setText(FormatTime(PlayList.getZikFile().getDuration()));
+            txTempsTotal.setText(FormatTime(PlayList.getZikFile().getDuration(),true));
             seekbar.setMax((int) PlayList.getZikFile().getDuration());
             txSeekBar.setText(FormatTime(PlayList.getZikFile().getPosition()));
             seekbar.setProgress((int) PlayList.getZikFile().getPosition());
@@ -442,7 +442,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
                 bPlay.setText(R.string.play);
             }
             int iPosition = mService.getPosition();
-            txSeekBar.setText(FormatTime(iPosition));
+            txSeekBar.setText(FormatTime(iPosition,true));
             seekbar.setProgress(iPosition);
 
         } else {

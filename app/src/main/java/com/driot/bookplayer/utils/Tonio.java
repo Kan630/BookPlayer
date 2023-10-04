@@ -34,6 +34,10 @@ import java.util.concurrent.TimeUnit;
 public class Tonio {
 
     public static String FormatTime(double doubleTime) {
+        return FormatTime(doubleTime,false);
+    }
+
+    public static String FormatTime(double doubleTime, boolean doDisplaySec) {
         String s;
         long sec,min,hou;
         if (doubleTime>0) {
@@ -42,7 +46,11 @@ public class Tonio {
             min = TimeUnit.MILLISECONDS.toMinutes((long) doubleTime)-TimeUnit.HOURS.toMinutes(hou);
             sec = TimeUnit.MILLISECONDS.toSeconds((long) doubleTime)-TimeUnit.HOURS.toSeconds(hou)-TimeUnit.MINUTES.toSeconds(min);
             if (hou !=0) {
-                s = String.format(Locale.getDefault(),"%dh %dm", hou, min);
+                if (doDisplaySec) {
+                    s = String.format(Locale.getDefault(),"%dh %dm %ds", hou, min, sec);
+                } else {
+                    s = String.format(Locale.getDefault(),"%dh %dm", hou, min);
+                }
             } else if (min !=0) {
                 s = String.format(Locale.getDefault(), "%dm %ds", min, sec);
             } else {
