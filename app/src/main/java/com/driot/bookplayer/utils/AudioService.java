@@ -67,6 +67,7 @@ public class AudioService extends Service {
 
     private final IBinder binder = new BackgroundBinder();
     public static final String TRACKNUMBER = "tracknumber";
+    public static final String TIMER_VALUE = "TIMER_VALUE";
     public static final String NOTIFICATION_FILELOADED = "NOTIFICATION_FILELOADED";
     public static final String NOTIFICATION_NEWTRACK = "NOTIFICATION_NEWTRACK";
     public static final String NOTIFICATION_TRACKFINISHED = "NOTIFICATION_TRACKFINISHED";
@@ -76,6 +77,7 @@ public class AudioService extends Service {
     public static final String NOTIFICATION_ZIP_FILE_LOADED = "NOTIFICATION_ZIP_FILE_LOADED";
     public static final String NOTIFICATION_PLAYLISTFINISHED = "NOTIFICATION_PLAYLISTFINISHED";
     public static final String NOTIFICATION_PLAYBACK_MAXTIMEREACH = "NOTIFICATION_PLAYBACK_MAXTIMEREACH";
+    public static final String NOTIFICATION_PLAYBACK_TIMER_VALUE = "NOTIFICATION_PLAYBACK_TIMER_VALUE";
 
     //private static final int FORWARD_TIME = 5*1000;
     //private static final int BACKWARD_TIME = 5*1000;
@@ -583,6 +585,11 @@ public class AudioService extends Service {
                     stopSelf();
 
                 }
+
+                Intent intent = new Intent(NOTIFICATION_PLAYBACK_TIMER_VALUE);
+                intent.putExtra(TIMER_VALUE, tempsEcoule);
+                sendBroadcast(intent);
+
                 tempsEcoule = tempsEcoule + DELAY_CHECK_TIMER/1000;
             }
         }, 0,DELAY_CHECK_TIMER);

@@ -173,6 +173,7 @@
     <string name="forward"><![CDATA[>>]]></string>
     <string name="pause">||</string>
     <string name="tvSpeed">playback speed</string>
+    <string name="tv_ListeningTime">Listening since</string>
     <string name="PlayActivity_ErrorOpeningTrack_FileNotFound">"ERROR OPENING TRACK - FILE NOT FOUND !"</string>
     <string name="error_reading_track">"ERROR READING TRACK !"</string>
     <string name="no_back_while_play">"Cannot go back while playing audio"</string>

@@ -46,14 +46,17 @@ import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_ERROR;
 import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_FILELOADED;
 import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_NEWTRACK;
 import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_PLAYBACK_MAXTIMEREACH;
+import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_PLAYBACK_TIMER_VALUE;
 import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_PLAYLISTFINISHED;
 import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_TRACKFINISHED;
 import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_ZIP_FILE_LOADED;
+import static com.driot.bookplayer.utils.AudioService.TIMER_VALUE;
 import static com.driot.bookplayer.utils.Tonio.FormatNameForDisplay;
 import static com.driot.bookplayer.utils.Tonio.FormatPercentStringForSpeed;
 import static com.driot.bookplayer.utils.Tonio.FormatTime;
 import static com.driot.bookplayer.utils.Utils.animateView;
 import static com.driot.tonylib.KanLogger.myLog;
+import static com.driot.tonylib.KanLogger.myLogD;
 import static com.driot.tonylib.KanLogger.myLogE;
 import static com.driot.tonylib.KanLogger.myToastE;
 
@@ -70,7 +73,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
     boolean mBound = false;
     private Button bForward, bPlay, bRewind, bSpeedUp, bSpeedDown;
     private SeekBar seekbar;
-    private TextView txSeekBar, txTempsTotal, txNomFichier, txTitle, txSubTitle, txSpeed;
+    private TextView txSeekBar, txTempsTotal, txNomFichier, txTitle, txSubTitle, txSpeed, txListeningTime;
     private View progressOverlay;
     private ImageView iv;
     private boolean AnimationNow;
@@ -140,6 +143,10 @@ public class PlayActivity extends LifecycleLoggingActivity {
                     myLog("PlayActivity : broadcast received PLAYBACK_MAXTIMEREACH");
                     finish();
                     break;
+                case NOTIFICATION_PLAYBACK_TIMER_VALUE:
+                    myLogD("PlayActivity : broadcast received PLAYBACK_TIMER_VALUE");
+                    reDrawListeningSince(intent.getIntExtra(TIMER_VALUE,-999));
+                    break;
                 case NOTIFICATION_AUDIOFOCUS_LOST:
                     myLog("PlayActivity : broadcast received AUDIO FOCUS LOST");
                     //SetInterfacePausingMode();
@@ -191,6 +198,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
         txSubTitle = findViewById(R.id.textViewSubTitle);
         txSpeed = findViewById(R.id.textViewSpeed);
         seekbar = findViewById(R.id.seekBar);
+        txListeningTime = findViewById(R.id.tv_ListeningTime);
 
         myLog("PlayActivity.onCreate() -- Launching Music Service");
         launchService();
@@ -275,6 +283,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
                     /////////   PAUSE
                     myLog("PlayActivity : pause");
                     mService.pauseAudio();
+                    reDrawListeningSince(0);
                     myLog("PlayActivity : unbinding service");
                     try {
                         // CHECK
@@ -291,7 +300,6 @@ public class PlayActivity extends LifecycleLoggingActivity {
                     launchService();
                     myLog("PlayActivity : service has been launched");
                     mService.playAudio();
-
                 }
             } else {
                 myLogE("PlayActivity playMe() mService KO");
@@ -346,8 +354,9 @@ public class PlayActivity extends LifecycleLoggingActivity {
         registerReceiver(receiver, new IntentFilter(NOTIFICATION_ZIP_FILE_LOADED));
         registerReceiver(receiver, new IntentFilter(NOTIFICATION_PLAYLISTFINISHED));
         registerReceiver(receiver, new IntentFilter(NOTIFICATION_PLAYBACK_MAXTIMEREACH));
+        registerReceiver(receiver, new IntentFilter(NOTIFICATION_PLAYBACK_TIMER_VALUE));
 
-        myLog("PlayActivity.onResume, creating new timer");
+        myLog("PlayActivity.onResume, creating new timer for Display");
         runTimerForDisplay();
 
     }
@@ -408,12 +417,22 @@ public class PlayActivity extends LifecycleLoggingActivity {
             seekbar.setProgress((int) PlayList.getZikFile().getPosition());
             txSpeed.setText(FormatPercentStringForSpeed( mService.getSpeed() * 100));
             HideProgressAnim();
-            myLog("PlayActivity : ----------------------------- play screen drawn " + PlayList.getZikFile().getPosition());
+            myLogD("PlayActivity : ----------------------------- play screen drawn " + PlayList.getZikFile().getPosition());
         } catch (Exception e) {
             myLogE("PlayActivity :----------------------------- play screen drawn ERROR");
             myLogE(e.getMessage());
         }
     }
+    private void reDrawListeningSince(int tempsEcoule) {
+        String zeText;
+        if (tempsEcoule > 0) {
+            zeText = getString(R.string.tv_ListeningTime) + " " + FormatTime(tempsEcoule*1000,true);
+            txListeningTime.setText(zeText);
+        } else {
+            txListeningTime.setText("");
+        }
+    }
+
 
     /********************************************************************************
      ***       UPDATE SEEKBAR

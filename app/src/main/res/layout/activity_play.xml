@@ -151,9 +151,9 @@
         android:layout_height="wrap_content"
         android:layout_above="@+id/textViewNomFichier"
         android:layout_centerHorizontal="true"
+        android:layout_marginBottom="5sp"
         android:paddingStart="10sp"
         android:paddingEnd="10sp"
-        android:layout_marginBottom="5sp"
         android:text="100%"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textSize="@dimen/playactivity_PlaybackText_Height" />
@@ -164,6 +164,26 @@
         android:layout_height="@dimen/playactivity_Playback_Height"
         android:layout_toEndOf="@id/textViewSpeed"
         android:layout_above="@+id/textViewNomFichier"
+        />
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_above="@+id/bSpeedUp"
+        android:layout_marginTop="10dp"
+        android:background="@android:color/darker_gray" />
+    <TextView
+        android:id="@+id/tv_ListeningTime"
+        android:text="..."
+        style="@style/myStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:layout_alignParentEnd="true"
+        android:textStyle="italic"
+        android:textSize="10sp"
+        android:layout_marginEnd="20sp"
+        android:layout_marginBottom="5sp"
+        android:layout_above="@+id/bSpeedDown"
         />
 
 </RelativeLayout>
