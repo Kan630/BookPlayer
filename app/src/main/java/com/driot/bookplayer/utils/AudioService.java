@@ -566,7 +566,7 @@ public class AudioService extends Service {
         tempsEcoule = 0;
         timer.scheduleAtFixedRate(new TimerTask() {
             public void run() {
-                myLog("Audio Service ----------------------------------------------------------------------------- " + tempsEcoule + "s. since timer started " );
+                //myLog("Audio Service ----------------------------------------------------------------------------- " + tempsEcoule + "s. since timer started " );
                 updateZikFileState(false);
                 
                 if (tempsEcoule > maxTimeBeforeSleep*60) {

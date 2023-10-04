@@ -468,7 +468,7 @@ public class AddResourceService extends Service {
                         myLogE("Unzip File KO");
                         return;
                     }
-                    // chekc le delete sur internalZikFile
+                    // check le delete sur internalZikFile
 
                     // create new ref to new set of files
                     try {
@@ -595,7 +595,7 @@ public class AddResourceService extends Service {
                 is.close();
             }
         } catch (Exception e) {
-            myLogE("ca chie a la lecture");
+            myLogE("Cannot get StreamIn for ZIP file");
             myLogE(e.getMessage());
             return false;
         }

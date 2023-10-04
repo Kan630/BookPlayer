@@ -4,16 +4,22 @@ import static com.driot.bookplayer.utils.Tonio2.removeLongDuplicates;
 import static com.driot.tonylib.KanLogger.myLog;
 import static com.driot.tonylib.KanLogger.myLogE;
 
+import android.app.ActivityManager;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.os.Build;
+import android.os.Debug;
 import android.os.Environment;
 import android.os.StatFs;
 import android.webkit.MimeTypeMap;
 
 import androidx.annotation.NonNull;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.sql.Date;
 import java.sql.Time;
 import java.text.NumberFormat;
@@ -209,6 +215,14 @@ public class Tonio {
         return availableBlocks * blockSize;
     }
 
+    public static long getTotaLInternalMemorySize() {
+        File path = Environment.getDataDirectory();
+        StatFs stat = new StatFs(path.getPath());
+        long blockSize = stat.getBlockSizeLong();
+        long allBlocks = stat.getBlockCountLong();
+        return allBlocks * blockSize;
+    }
+
     public static long getAppSize(Context c) {
         long size = 0;
         final PackageManager pm = c.getPackageManager();
@@ -226,15 +240,6 @@ public class Tonio {
 
     public static long getFolderSize(Context c, String folderName) {
         long size = 0;
-        /*
-        try {
-            File dir = new File(c.getFilesDir(), folderName);
-            size = dir.length();
-        } catch (Exception e) {
-            myLogE("Error getting size taken by folder [" + folderName + "] : " + e.getMessage());
-            e.printStackTrace();
-        }
-         */
         myLog("getFolderSize for [" + folderName + "]  (from path)");
         size = getFolderSize(c, new File(folderName));
         return size;
@@ -242,9 +247,7 @@ public class Tonio {
 
     public static long getFolderSize(Context c, File dir) {
         long size = 0;
-        //override
-        //dir = c.getCacheDir();
-        myLog("getFolderSize for [\" + dir.getAbsolutePath() + \"]  (from File object)");
+        myLog("getFolderSize for [" + dir.getAbsolutePath() + "]  (from File object)");
 
         File[] files = dir.listFiles();
 
@@ -260,7 +263,7 @@ public class Tonio {
             myLogE("ko Folder Not Found [" + dir.getAbsolutePath() + "]");
         }
         if (size == 0) {
-            myLogE("ko Folder returns zero size - Seems empty [" + dir.getAbsolutePath() + "]");
+            myLogE("getFolderSize returns zero size - Seems empty [" + dir.getAbsolutePath() + "]");
         }
 
         return size;
