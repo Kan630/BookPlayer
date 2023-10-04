@@ -340,32 +340,37 @@ public class AudioService extends Service {
 
     public void playAudio() {
         myLog("AudioService.playAudio() - start");
-        if (!mediaPlayer.isPlaying()) {
+        if (mediaPlayer != null) {
+            if (!mediaPlayer.isPlaying()) {
 
-            mAudioManager = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
-            afChangeListener = focusChange -> {
-                if(focusChange<=0) {
-                    myLog("Audio Service : Audio Focus Lost");
-                    AudioService.this.pauseAudio();
-                    //mediaSession.setActive(false); // CHECK
-                    Intent intent = new Intent(NOTIFICATION_AUDIOFOCUS_LOST);
-                    sendBroadcast(intent);
-                } else {
-                    myLog("Audio Service : Audio Focus Gain");
-                    AudioService.this.playAudio();
-                    mediaSession.setActive(true);
-                    Intent intent = new Intent(NOTIFICATION_AUDIOFOCUS_GAIN);
-                    sendBroadcast(intent);
-                }
-            };
+                mAudioManager = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
+                afChangeListener = focusChange -> {
+                    if (focusChange <= 0) {
+                        myLog("Audio Service : Audio Focus Lost");
+                        AudioService.this.pauseAudio();
+                        //mediaSession.setActive(false); // CHECK
+                        Intent intent = new Intent(NOTIFICATION_AUDIOFOCUS_LOST);
+                        sendBroadcast(intent);
+                    } else {
+                        myLog("Audio Service : Audio Focus Gain");
+                        AudioService.this.playAudio();
+                        mediaSession.setActive(true);
+                        Intent intent = new Intent(NOTIFICATION_AUDIOFOCUS_GAIN);
+                        sendBroadcast(intent);
+                    }
+                };
 
-            myLog("AudioService.playAudio() : mAudioManager.requestAudioFocus, mediaPlayer.start()");
-            mAudioManager.requestAudioFocus(afChangeListener, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
-            mediaPlayer.start();
-            setSpeed(getSpeed());
-            startTimer();
-       }
-        myLogE("mediaPlayer was already Playing ... going out of AudioService.playAudio()");
+                myLog("AudioService.playAudio() : mAudioManager.requestAudioFocus, mediaPlayer.start()");
+                mAudioManager.requestAudioFocus(afChangeListener, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
+                mediaPlayer.start();
+                setSpeed(getSpeed());
+                startTimer();
+            } else {
+                myLogE("mediaPlayer was already Playing ... going out of AudioService.playAudio()");
+            }
+        } else { // car ca bug sur v27 on android sdk 27 (8.1) OPPO CPH1909
+            myLogE("mediaPlayer was not instantiated ... going out of AudioService.playAudio()");
+        }
     }
 
     public void pauseAudio() {
@@ -581,14 +586,14 @@ public class AudioService extends Service {
                     Intent intent = new Intent(NOTIFICATION_PLAYBACK_MAXTIMEREACH);
                     sendBroadcast(intent);
                     killTimer();
-                    if (mediaPlayer.isPlaying()) {mediaPlayer.stop();}
+                    if (mediaPlayer != null && mediaPlayer.isPlaying()) {mediaPlayer.stop();}
                     stopSelf();
 
+                } else {
+                    Intent intent = new Intent(NOTIFICATION_PLAYBACK_TIMER_VALUE);
+                    intent.putExtra(TIMER_VALUE, tempsEcoule);
+                    sendBroadcast(intent);
                 }
-
-                Intent intent = new Intent(NOTIFICATION_PLAYBACK_TIMER_VALUE);
-                intent.putExtra(TIMER_VALUE, tempsEcoule);
-                sendBroadcast(intent);
 
                 tempsEcoule = tempsEcoule + DELAY_CHECK_TIMER/1000;
             }
