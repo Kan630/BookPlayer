@@ -27,15 +27,19 @@ public class StatsActivity extends LifecycleLoggingActivity {
         long totalMemory = getTotaLInternalMemorySize() / 1048576L;
         long availableMegs2 = getAvailableInternalMemorySize() / 1048576L;
         long currentAppSize = getAppSize(this) / 1048576L;
-        long currentAudiosSize = getFolderSize(this, "/data/data/com.driot.bookplayer/files/unzipped") / 1048576L;
-        long currentLogsSize = getFolderSize(this, "/data/data/com.driot.bookplayer/files/log") / 1048576L;
+
+        // Hard Coded                        => "/data/data/com.driot.bookplayer/files/"
+        // Context.getFilesDir().getPath()   =>  /data/user/0/com.driot.bookplayer/files/
+
+        long currentAudiosSize = getFolderSize(this, this.getFilesDir().getPath() + "/unzipped") / 1048576L;
+        long currentLogsSize = getFolderSize(this, this.getFilesDir().getPath() + "/log") / 1048576L;
 
         zeText = formatMem(currentAppSize) + " Mo : taken by BookPlayer app" + "\n" + "\n" +
-                formatMem(currentAudiosSize) + " Mo : taken by Audios" + "\n" + "\n" +
+                formatMem(currentAudiosSize) + " Mo : taken by Audios files" + "\n" + "\n" +
                 formatMem(currentLogsSize) + " Mo :  taken by Logs" + "\n" + "\n" +
                 "----" + "\n" +
-                formatMem(availableMegs2) + " Mo : left on the device" + "\n" + "\n" +
-                formatMem(totalMemory) + " Mo : Total memory on the device."
+                formatMem(availableMegs2) + " Mo : Available on the device" + "\n" + "\n" +
+                formatMem(totalMemory) + " Mo : Total memory of the device."
                 ;
 
         tv_head = findViewById(R.id.tv1_head);
