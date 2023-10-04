@@ -27,6 +27,9 @@
     <string name="help_import_text2">"If you have trouble importing your audio\nTry tp unzip them if zipped\nTry to move them out of 'Download' folder if they are in"</string>
     <string name="help_head_10">Permissions :</string>
     <string name="help_text_10">"BookPlayer only need one permission : Access to phone storage/memory, in order to retrieve and play audio files"</string>
+    <string name="help_head_20">Options :</string>
+    <string name="help_text_20">"AutoSleep  => BookPlayer will stop playing after XX minutes of inactivities (usefull if you fall asleep)"</string>
+    <string name="help_text_21">"Custom duration for >> and &lt;&lt; buttons"</string>
 
 
     <!-- ********************************** -->

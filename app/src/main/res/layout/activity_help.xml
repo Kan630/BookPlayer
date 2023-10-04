@@ -104,6 +104,36 @@
             android:background="@android:color/darker_gray"
             />
 
+        <TextView
+            style="@style/myStyleTextTitle2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20sp"
+            android:text="@string/help_head_20"
+            />
+        <TextView
+            style="@style/myStyleTextExplainButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10sp"
+            android:layout_marginTop="20sp"
+            android:text="@string/help_text_20"
+            />
+        <TextView
+            style="@style/myStyleTextExplainButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10sp"
+            android:layout_marginTop="20sp"
+            android:text="@string/help_text_21"
+            />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="10sp"
+            android:background="@android:color/darker_gray"
+            />
+
     </LinearLayout>
     </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>
