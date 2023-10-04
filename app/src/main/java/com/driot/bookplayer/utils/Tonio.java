@@ -4,22 +4,16 @@ import static com.driot.bookplayer.utils.Tonio2.removeLongDuplicates;
 import static com.driot.tonylib.KanLogger.myLog;
 import static com.driot.tonylib.KanLogger.myLogE;
 
-import android.app.ActivityManager;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
-import android.os.Build;
-import android.os.Debug;
 import android.os.Environment;
 import android.os.StatFs;
 import android.webkit.MimeTypeMap;
 
 import androidx.annotation.NonNull;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 import java.sql.Date;
 import java.sql.Time;
 import java.text.NumberFormat;
@@ -137,8 +131,6 @@ public class Tonio {
                 s = s.substring(0, 5);
                 // check if yesterday
             } else if (s1.equals(s3)) {
-                //RelativeDateTimeFormatter fmt = RelativeDateTimeFormatter.getInstance(); // require API 24
-                //fmt.format(Direction.LAST, AbsoluteUnit.DAY);
                 s = NameForYesterday;
                 // give name of the day
             } else if ((d2.getTime()-d.getTime())/ (1000 * 60 * 60 * 24)<7) {
@@ -147,7 +139,7 @@ public class Tonio {
                 s = outFormat.format(d);
             } else {
                 //give date :
-                SimpleDateFormat simpleDate =  new SimpleDateFormat("dd/MM/yyyy");
+                SimpleDateFormat simpleDate =  new SimpleDateFormat("yyyy-MM-dd");
                 s = simpleDate.format(d);
             }
         } else {
@@ -203,7 +195,7 @@ public class Tonio {
 
     @NonNull
     public static String getMimeType(String fileName) {
-        String type = null;
+        String type;
         final String extension = getExtension(fileName);
             type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension.toLowerCase());
         if (type == null) type = "*/*";
@@ -234,7 +226,7 @@ public class Tonio {
     public static long getAppSize(Context c) {
         long size = 0;
         final PackageManager pm = c.getPackageManager();
-        ApplicationInfo applicationInfo = null;
+        ApplicationInfo applicationInfo;
         try {
             applicationInfo = pm.getApplicationInfo(c.getPackageName(), 0);
             File file = new File(applicationInfo.publicSourceDir);
@@ -246,14 +238,12 @@ public class Tonio {
         return size;
     }
 
-    public static long getFolderSize(Context c, String folderName) {
-        long size = 0;
+    public static long getFolderSize(String folderName) {
         myLog("getFolderSize for [" + folderName + "]  (from path)");
-        size = getFolderSize(c, new File(folderName));
-        return size;
+        return getFolderSize(new File(folderName));
     }
 
-    public static long getFolderSize(Context c, File dir) {
+    public static long getFolderSize(File dir) {
         long size = 0;
         myLog("getFolderSize for [" + dir.getAbsolutePath() + "]  (from File object)");
 
@@ -264,7 +254,7 @@ public class Tonio {
                 if (file.isFile()) {
                     size += file.length(); // Get the file size and add it to the total
                 } else if (file.isDirectory()) {
-                    size += getFolderSize(c, file); // Recursively calculate the size of subdirectories
+                    size += getFolderSize(file); // Recursively calculate the size of subdirectories
                 }
             }
         } else {
