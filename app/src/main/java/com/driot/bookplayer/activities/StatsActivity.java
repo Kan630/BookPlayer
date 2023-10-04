@@ -31,8 +31,8 @@ public class StatsActivity extends LifecycleLoggingActivity {
         // Hard Coded                        => "/data/data/com.driot.bookplayer/files/"
         // Context.getFilesDir().getPath()   =>  /data/user/0/com.driot.bookplayer/files/
 
-        long currentAudiosSize = getFolderSize(this, this.getFilesDir().getPath() + "/unzipped") / 1048576L;
-        long currentLogsSize = getFolderSize(this, this.getFilesDir().getPath() + "/log") / 1048576L;
+        long currentAudiosSize = getFolderSize(this.getFilesDir().getPath() + "/unzipped") / 1048576L;
+        long currentLogsSize = getFolderSize(this.getFilesDir().getPath() + "/log") / 1048576L;
 
         zeText = formatMem(currentAppSize) + " Mo : taken by BookPlayer app" + "\n" + "\n" +
                 formatMem(currentAudiosSize) + " Mo : taken by Audios files" + "\n" + "\n" +

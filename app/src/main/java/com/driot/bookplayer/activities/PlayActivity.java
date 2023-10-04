@@ -228,7 +228,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
                 if (fromUser) {
                     myLog("PlayActivity : SeekBar");
                     mService.setPosition(progress);
-                    txSeekBar.setText(FormatTime(progress));
+                    txSeekBar.setText(FormatTime(progress,true));
                 }
             }
 
@@ -404,7 +404,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
             txNomFichier.setText("");
             txTempsTotal.setText(FormatTime(PlayList.getZikFile().getDuration(),true));
             seekbar.setMax((int) PlayList.getZikFile().getDuration());
-            txSeekBar.setText(FormatTime(PlayList.getZikFile().getPosition()));
+            txSeekBar.setText(FormatTime(PlayList.getZikFile().getPosition(),true));
             seekbar.setProgress((int) PlayList.getZikFile().getPosition());
             txSpeed.setText(FormatPercentStringForSpeed( mService.getSpeed() * 100));
             HideProgressAnim();
