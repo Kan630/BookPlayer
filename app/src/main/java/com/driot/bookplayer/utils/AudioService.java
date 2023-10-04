@@ -581,7 +581,7 @@ public class AudioService extends Service {
                     Intent intent = new Intent(NOTIFICATION_PLAYBACK_MAXTIMEREACH);
                     sendBroadcast(intent);
                     killTimer();
-                    mediaPlayer.stop();
+                    if (mediaPlayer.isPlaying()) {mediaPlayer.stop();}
                     stopSelf();
 
                 }

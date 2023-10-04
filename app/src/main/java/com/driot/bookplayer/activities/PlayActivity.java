@@ -203,7 +203,11 @@ public class PlayActivity extends LifecycleLoggingActivity {
         myLog("PlayActivity.onCreate() -- Launching Music Service");
         launchService();
 
-        if (PlayList.getZikFile().isIszipfile()) ShowProgressAnim();
+        try {
+            if (PlayList.getZikFile().isIszipfile()) ShowProgressAnim();
+        } catch (Exception e) {
+            myLogE("ERR ShowProgressAnim()  " + e.getMessage());
+        }
 
         //setPlaybackState(0);
 
