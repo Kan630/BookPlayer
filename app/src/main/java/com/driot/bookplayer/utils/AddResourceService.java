@@ -454,6 +454,7 @@ public class AddResourceService extends Service {
                 if (Zip_DoCopylocal) {
                     if (!copyZipLocal()) {
                         myLogE("copyZipFile KO");
+                        //tellError(getResources().getString(R.string.Error_Import_Copying_zip_local));
                         return;
                     }
                     // create new ref to new zip file
@@ -505,7 +506,9 @@ public class AddResourceService extends Service {
     private boolean copyZipLocal() {
         myLog("copyZipLocal - from externalZipFile to internalZipFile");
 
+        //___________________________________
         // == Make Folder
+        //___________________________________
         try {
             if (!finalLocalFolder.exists()) {
                 if (!finalLocalFolder.mkdirs()) {
@@ -519,36 +522,48 @@ public class AddResourceService extends Service {
         }
         myLog("copyZipLocal - okay folder");
 
-        // == Checking memory before copy
-        int file_size = Integer.parseInt(String.valueOf(externalZipFile.length() / 1024 / 1024));
-        long availableMegs = externalZipFile.getUsableSpace() / 1048576L;
-        long availableMegs2 = getAvailableInternalMemorySize() / 1048576L;
-        myLog("file size : " + file_size + "Mo" + "\navailable memory : " + availableMegs + " Mo" + "\navailable memory2 : " + availableMegs2 + " Mo");
 
-        if (file_size * ZIP_SIZE_MAX_COEF > availableMegs2) {
-            tellError(getResources().getString(R.string.Error_Import_NotEnoughMemory_line1) + "\n"
-                    + getResources().getString(R.string.Error_Import_NotEnoughMemory_line2_1) + formatMem(availableMegs)  + "Mo" + "\n"
-                    + getResources().getString(R.string.Error_Import_NotEnoughMemory_line2_2) + formatMem( availableMegs2) + "Mo" + "\n"
-                    + getResources().getString(R.string.Error_Import_NotEnoughMemory_line3) + file_size + "Mo" + "\n"
-                    + getResources().getString(R.string.Error_Import_NotEnoughMemory_line4_1) + ZIP_SIZE_MAX_COEF + getResources().getString(R.string.Error_Import_NotEnoughMemory_line4_2) + "\n"
-                    + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line5)
+        //___________________________________
+        // == Checking memory before copy
+        //___________________________________
+        InputStream is = null;
+        int file_size;
+        long availableMegs;
+        long availableMegs2;
+        try {
+            file_size = Integer.parseInt(String.valueOf(externalZipFile.length() / 1024 / 1024));
+            availableMegs = externalZipFile.getUsableSpace() / 1048576L;
+            availableMegs2 = getAvailableInternalMemorySize() / 1048576L;
+            myLog("file size : " + file_size + "Mo" + "\navailable memory : " + availableMegs + " Mo" + "\navailable memory2 : " + availableMegs2 + " Mo");
+
+            if (file_size * ZIP_SIZE_MAX_COEF > availableMegs2) {
+                tellError(getResources().getString(R.string.Error_Import_NotEnoughMemory_line1) + "\n"
+                        + getResources().getString(R.string.Error_Import_NotEnoughMemory_line2_1) + formatMem(availableMegs)  + "Mo" + "\n"
+                        + getResources().getString(R.string.Error_Import_NotEnoughMemory_line2_2) + formatMem( availableMegs2) + "Mo" + "\n"
+                        + getResources().getString(R.string.Error_Import_NotEnoughMemory_line3) + file_size + "Mo" + "\n"
+                        + getResources().getString(R.string.Error_Import_NotEnoughMemory_line4_1) + ZIP_SIZE_MAX_COEF + getResources().getString(R.string.Error_Import_NotEnoughMemory_line4_2) + "\n"
+                        + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line5)
+                );
+                return false;
+            }
+            tellProgress(PROGRESS_ZIP_START_COPY, getResources().getString(R.string.Import_Progress_copying_zip_file)
+                    + "\n"
+                    + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line3) + file_size + "Mo"
+                    + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line2_1) + formatMem(availableMegs) + "Mo"
+                    + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line2_2) + formatMem(availableMegs2) + "Mo"
             );
+        } catch (Exception e) {
+            e.printStackTrace();
+            tellError("Error while checking available space for local ZIP copy  -  " + e.getMessage());
             return false;
         }
-        //if (true) return false;
+        myLog("copyZipLocal - okay check storage space");
 
-        ContentResolver resolver = getContentResolver();
-        InputStream is = null;
-        tellProgress(PROGRESS_ZIP_START_COPY, getResources().getString(R.string.Import_Progress_copying_zip_file)
-                + "\n"
-                + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line3) + file_size + "Mo"
-                + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line2_1) + formatMem(availableMegs) + "Mo"
-                + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line2_2) + formatMem(availableMegs2) + "Mo"
-        );
-        int nbBuffCopied = 0;
         ////////////////////////////////////////////////////////////////////////////////////////
         // copy of Zip file
         ////////////////////////////////////////////////////////////////////////////////////////
+        int nbBuffCopied = 0;
+        ContentResolver resolver = getContentResolver();
         try {
             is = resolver.openInputStream(uri);
             myLog("okay stream in");
@@ -581,24 +596,25 @@ public class AddResourceService extends Service {
                     }
                     myLog("okay stream write");
                 } catch (Exception e) {
-                    myLogE("1 Copy of ZIP file from External Dir to Internal Dir failed.  -  " + e.getMessage());
+                    tellError("1 Copy of ZIP file from External Dir to Internal Dir failed.  -  " + e.getMessage());
                     e.printStackTrace();
                     return false;
                 } finally {
                     out.close();
                 }
             } catch (Exception e) {
-                myLogE("2 Copy of ZIP file from External Dir to Internal Dir failed.  -  " + e.getMessage());
+                tellError("2 Copy of ZIP file from External Dir to Internal Dir failed.  -  " + e.getMessage());
                 e.printStackTrace();
                 return false;
             } finally {
                 is.close();
             }
         } catch (Exception e) {
-            myLogE("Cannot get StreamIn for ZIP file");
+            tellError("Cannot get StreamIn for ZIP file... \nMaybe this is a broken zip file \n(could be a half downloaded file)      \n\nTechnical message = [" + e.getMessage() + "]");
             myLogE(e.getMessage());
             return false;
         }
+        myLog("copyZipLocal - okay copy");
 
         myLog("file has been copied \nfrom " + uri.toString() + " \nto " + internalZipFile);
         myLog("file has been copied \nfrom " + externalZipFile + " \nto " + internalZipFile);

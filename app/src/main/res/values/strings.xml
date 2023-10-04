@@ -74,6 +74,7 @@
 
     <string name="bAddRessource">Add Content</string>
 
+    <string name="Error_Import_Copying_zip_local">Could not copy zip from device memory to reserved app storage memory</string>
     <string name="Error_Import_IsNotFolder">This doesn\'t look like a folder</string>
     <string name="Error_Import_IsNotFile">This doesn\'t look like a file</string>
     <string name="Error_Import_FolderAlreadyImported">This folder has already been loaded</string>

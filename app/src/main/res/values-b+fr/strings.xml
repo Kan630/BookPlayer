@@ -72,6 +72,7 @@
 
     <string name="bAddRessource">Ajouter une ressource</string>
 
+    <string name="Error_Import_Copying_zip_local">La copie du fichier Zip a échoué</string>
     <string name="Error_Import_IsNotFolder">"Cet élément n\'est pas reconnu comme un dossier"</string>
     <string name="Error_Import_IsNotFile">Cet élément n\'est pas reconnu comme un fichier</string>
     <string name="Error_Import_FolderAlreadyImported">Ce dossier a déjà été importé</string>
