@@ -23,6 +23,8 @@
     <string name="help_import">Import :</string>
     <string name="help_import_text">"Les audios Zip sont toujours un peu plus long à importer, à charger, à jouer."</string>
     <string name="help_import_text2">"Si vous rencontrez des problèmes pour importer vos audios:\n- Essayez de les décompresser si ils sont 'zippés'.\n- Essayez de les déplacer si ils sont dans le répertoire 'téléchargement'"</string>
+    <string name="help_head_10">Permissions :</string>
+    <string name="help_text_10">"BookPlayer nécessite une seule permission : l'accès au stockage/mémoire, pour lire les fichiers audios"</string>
 
     <!-- ********************************** -->
     <!-- Options Screen -->
