@@ -29,11 +29,6 @@ import static com.driot.tonylib.KanLogger.myLog;
 public class LogListActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
-    private RecyclerView.LayoutManager layoutManager;
-    private ArrayList<MyFile> myItemArrayList;
-
-    private String file;
-    private Button btnDeleteLogs;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -41,26 +36,22 @@ public class LogListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_log_list);
 
         recyclerView = findViewById(R.id.rec);
-
-        layoutManager = new LinearLayoutManager(this);
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
 
-        btnDeleteLogs = findViewById(R.id.btnDeleteLogs);
+        Button btnDeleteLogs = findViewById(R.id.btnDeleteLogs);
         btnDeleteLogs.setOnClickListener(view -> btnDeleteLogsClick());
-
-        //Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
-        //setSupportActionBar(myToolbar);
 
         setTitle(getIntent().getStringExtra("title"));
 
-        file = getIntent().getStringExtra("file");
+        String file = getIntent().getStringExtra("file");
 
         //textOptions = new TextOptions(this);
         loadRecyclerView();
     }
 
     private void loadRecyclerView() {
-        myItemArrayList = getFileInArrayList(this);
+        ArrayList<MyFile> myItemArrayList = getFileInArrayList(this, "log");
         recyclerView.setAdapter(new MyFileAdapter(this, myItemArrayList));
     }
 
@@ -69,37 +60,6 @@ public class LogListActivity extends AppCompatActivity {
         super.onBackPressed();
         myLog("LogListActivity back press");
     }
-/*
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.action_bar, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_tailleCharPlus:
-                textOptions.charSizePlus(this);
-                loadRecyclerView();
-                return true;
-
-            case R.id.action_tailleCharMoins:
-                textOptions.charSizeMoins(this);
-                loadRecyclerView();
-                return true;
-
-            case R.id.action_search:
-                myToast(this, "! Not yet implemented !");
-                return true;
-
-            default:
-                myLog("default : " + item.toString());
-                return super.onOptionsItemSelected(item);
-
-        }
-    }
-*/
 
     private void btnDeleteLogsClick() {
         new AlertDialog.Builder(this)

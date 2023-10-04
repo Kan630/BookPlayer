@@ -55,11 +55,10 @@ public class Tonio2 {
         return null;
     }
 
-
-    public static ArrayList<MyFile> getFileInArrayList(Context c) {
+    public static ArrayList<MyFile> getFileInArrayList(Context c, String path) {
         ArrayList<String> fileNameArrayList = new ArrayList<>();
         ArrayList<MyFile> myFileArrayList = new ArrayList<>();
-        listClassicFiles(c, "log", fileNameArrayList);
+        listClassicFiles(c, path, fileNameArrayList);
         if (fileNameArrayList.size() == 0) myLogE("Warning fileNameArrayList empty");
         for (String s : fileNameArrayList) {
             myFileArrayList.add(new MyFile(c, s));
