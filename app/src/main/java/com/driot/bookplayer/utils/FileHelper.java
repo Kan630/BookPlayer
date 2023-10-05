@@ -3,6 +3,9 @@
 
 package com.driot.bookplayer.utils;
 
+import static com.driot.tonylib.KanLogger.myLog;
+import static com.driot.tonylib.KanLogger.myLogE;
+
 import android.annotation.TargetApi;
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -25,22 +28,27 @@ public class FileHelper {
         String path = "";
         try {
             path = processUri(context, uri);
-        } catch (Exception exception) {
-            exception.printStackTrace();
+        } catch (Exception e) {
+            myLogE("error in getRealPathFromURI __ : " + e.getMessage());
+            e.printStackTrace();
         }
         if (TextUtils.isEmpty(path)) {
+            myLog("getRealPathFromURI is empty => get from copyFile to cache");
             path = copyFile(context, uri);
+            myLog("getRealPathFromURI is empty => get from copyFile to cache - path = [" + path + "]");
         }
         return path;
     }
 
     private static String processUri(Context context, Uri uri) {
         final boolean isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
+        myLog("processUri - isKitKat : " + String.valueOf(isKitKat));
         String path = "";
         // DocumentProvider
         if (isKitKat && DocumentsContract.isDocumentUri(context, uri)) {
             // ExternalStorageProvider
             if (isExternalStorageDocument(uri)) {
+                myLog("processUri ExternalStorageProvider");
                 final String docId = DocumentsContract.getDocumentId(uri);
                 final String[] split = docId.split(":");
                 final String type = split[0];
@@ -49,7 +57,9 @@ public class FileHelper {
                     path = Environment.getExternalStorageDirectory() + "/" + split[1];
                 }
             } else if (isDownloadsDocument(uri)) { // DownloadsProvider
+                myLog("processUri DownloadsProvider");
                 final String id = DocumentsContract.getDocumentId(uri);
+                myLog("DocumentsContract.getDocumentId(uri) : [" + id + "]");
                 //Starting with Android O, this "id" is not necessarily a long (row number),
                 //but might also be a "raw:/some/file/path" URL
                 if (id != null && id.startsWith("raw:/")) {
@@ -70,6 +80,7 @@ public class FileHelper {
                     }
                 }
             } else if (isMediaDocument(uri)) { // MediaProvider
+                myLog("processUri MediaProvider");
                 final String docId = DocumentsContract.getDocumentId(uri);
                 final String[] split = docId.split(":");
                 final String type = split[0];
@@ -89,11 +100,14 @@ public class FileHelper {
 
                 path = getDataColumn(context, contentUri, selection, selectionArgs);
             }  else if ("content".equalsIgnoreCase(uri.getScheme())) {
+                myLog("processUri content");
                 path = getDataColumn(context, uri, null, null);
             }
         } else if ("content".equalsIgnoreCase(uri.getScheme())) { // MediaStore (and general)
+            myLog("processUri general content (MediaStore (and general))");
             path = getDataColumn(context, uri, null, null);
         } else if ("file".equalsIgnoreCase(uri.getScheme())) { // File
+            myLog("processUri file content");
             path = uri.getPath();
         }
         return path;
@@ -117,6 +131,7 @@ public class FileHelper {
                 }
             }
         } catch (Exception e) {
+            myLogE("ERR copyFile : " + e.getMessage());
             return null;
         }
         return null;

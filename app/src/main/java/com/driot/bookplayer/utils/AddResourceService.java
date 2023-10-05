@@ -382,6 +382,7 @@ public class AddResourceService extends Service {
 
                 myLog("Entry case ZipFile");
                 myFolder = new FolderAttrib(getApplicationContext(), uri, true, false);
+                myLog("Entry case ZipFile 2");
                 tellName(myFolder.getsFolderName());
 
                 if (myFolder.isFolderKO()) {
@@ -669,9 +670,10 @@ public class AddResourceService extends Service {
                         File file = new File(localUnzipFolder, ze.getName());
                         File dir = ze.isDirectory() ? file : file.getParentFile();
 
-                        if (!dir.isDirectory() && !dir.mkdirs())
-                            throw new FileNotFoundException("Failed to ensure directory: " +
-                                    dir.getAbsolutePath());
+                        if (!dir.isDirectory() && !dir.mkdirs()) {
+                            myLogE("Failed to ensure directory: " + dir.getAbsolutePath());
+                            throw new FileNotFoundException("Failed to ensure directory: " + dir.getAbsolutePath());
+                        }
                         if (ze.isDirectory())
                             continue;
                         FileOutputStream fout = new FileOutputStream(file);
@@ -690,6 +692,7 @@ public class AddResourceService extends Service {
         */
                 } // end du while
             } finally {
+                myLog("End Zip while loop");
                 zis.close();
                 localUnzipFolder = new File(destinationFolder); // on reaffecte a la bonne valeur
             }
@@ -697,6 +700,7 @@ public class AddResourceService extends Service {
             ////////////////////////////////////////////////////////////////////////////////
 
         } catch (Exception e) {
+            myLogE(getResources().getString(R.string.Error_Import_UnableToUnzip_line1) + " : " + e.getMessage());
             tellError(getResources().getString(R.string.Error_Import_UnableToUnzip_line1) + " : " + e.getMessage()
                     + "\n" + "\n" + getResources().getString(R.string.Error_Import_UnableToUnzip_line2));
             e.printStackTrace();

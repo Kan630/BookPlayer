@@ -265,12 +265,14 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
      *
      * @param savedInstanceState A saved state or null.
      */
+    /*
     @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
         myLog("Checking Permissions 2 - GetRessourceActivity.OnPostCreate()");
         checkPermissionsReadStorage2();
         super.onPostCreate(savedInstanceState);
     }
+    */
 
     private void checkPermissionsReadStorage2() {
         if(Build.VERSION.SDK_INT < 33) {

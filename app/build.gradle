@@ -3,17 +3,7 @@ plugins {
 }
 
 android {
-    /*
-    signingConfigs {
-        release {
-            storeFile file('/home/tony/TAF/APPS/BookPlayer ressources/keystore/bbb.jks')
-            storePassword '****'
-            keyAlias 'key0'
-            keyPassword '****'
-        }
-    }
 
-     */
     compileSdkVersion 34 // compile version 34 where target version is only 33,  for implementation 'androidx.core:core:1.12.0' to work
 
     defaultConfig {
@@ -36,6 +26,18 @@ android {
             }
         }
     }
+/*
+    signingConfigs {
+        release {
+            //storeFile file('/home/tony/TAF/APPS/BookPlayer ressources/keystore/bbb.jks')
+            //storeFile file('C:/Users/adrio/StudioProjects/keystore/ccc.jks')
+            storeFile file('C:/Users/adrio/StudioProjects/BookPlayer ressources/keystore/bbb.jks')
+            storePassword '****'
+            keyAlias 'key0'
+            keyPassword '****'
+        }
+    }
+*/
     buildTypes {
         release {
             // Enables code shrinking, obfuscation, and optimization for only
