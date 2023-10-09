@@ -1205,7 +1205,7 @@ public class AddResourceService
     @Override
     public void tellEndClient_fromUnzip() {
         myLog("tell End - go do something else");
-        unzipZipLocal();
+        startOverCaseFolder();
     }
 
 }
