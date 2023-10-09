@@ -29,6 +29,22 @@ public class TonioCommonStuff {
         }
     }
 
+    public static String extractPath(String fullFilePath) {
+        if (fullFilePath.lastIndexOf("/") > 0) {
+            return fullFilePath.substring(0,fullFilePath.lastIndexOf("/"));
+        } else {
+            return fullFilePath;
+        }
+    }
+
+    public static String extractName(String fullFilePath) {
+        if (fullFilePath.lastIndexOf("/") > 0) {
+            return fullFilePath.substring(fullFilePath.lastIndexOf("/")+1);
+        } else {
+            return fullFilePath;
+        }
+    }
+
     public static String getExtention(String fileName) {
         if (fileName.lastIndexOf(".") > 0) {
             return fileName.substring(fileName.lastIndexOf(".") + 1);

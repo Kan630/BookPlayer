@@ -1,5 +1,5 @@
 package com.driot.bookplayer.utils;
-import static com.driot.tonylib.KanLogger.myLog;
+//import static com.driot.tonylib.KanLogger.myLog;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -7,6 +7,8 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.os.Build;
+
+import com.driot.tonylib.KanLogger;
 import com.google.android.material.snackbar.Snackbar;
 
 import androidx.annotation.MainThread;
@@ -413,7 +415,7 @@ public class PermissionRequest {
          */
         @NonNull
         public PermissionRequest submit() {
-            myLog("PermissionRequest.java.submit");
+            KanLogger.myLog("PermissionRequest.java.submit"); //static...
             // Validate required fields.
             if (mActivity == null) {
                 throw new NullPointerException("An activity must be set.");
@@ -440,4 +442,6 @@ public class PermissionRequest {
             return new PermissionRequest(this).submit();
         }
     }
+    private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
+    private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
 }

@@ -41,7 +41,12 @@
         <service
             android:name=".utils.AddResourceService"
             android:stopWithTask="true" />
-
+        <service
+            android:name=".utils.CopyFileService"
+            android:stopWithTask="true" />
+        <service
+            android:name=".utils.UnzipService"
+            android:stopWithTask="true" />
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.FileProvider"

@@ -20,6 +20,7 @@ import androidx.core.content.ContextCompat;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.utils.AddResourceService;
 import com.driot.bookplayer.utils.PermissionRequest;
+import com.driot.tonylib.KanLogger;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -265,14 +266,13 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
      *
      * @param savedInstanceState A saved state or null.
      */
-    /*
+
     @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
         myLog("Checking Permissions 2 - GetRessourceActivity.OnPostCreate()");
         checkPermissionsReadStorage2();
         super.onPostCreate(savedInstanceState);
     }
-    */
 
     private void checkPermissionsReadStorage2() {
         if(Build.VERSION.SDK_INT < 33) {
@@ -320,4 +320,6 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
         return false;
     }
 
+    private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
+    private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
 }

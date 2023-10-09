@@ -113,28 +113,45 @@ public class FileHelper {
         return path;
     }
 
+    private static String destFilePath;
     static String copyFile(Context context, Uri uri) {
-        try {
-            InputStream attachment = context.getContentResolver().openInputStream(uri);
-            if (attachment != null) {
-                String filename = getContentName(context.getContentResolver(), uri);
-                if (filename != null) {
-                    File file = new File(context.getCacheDir(), filename);
-                    FileOutputStream tmp = new FileOutputStream(file);
-                    byte[] buffer = new byte[1024];
-                    while (attachment.read(buffer) > 0) {
-                        tmp.write(buffer);
+        Thread thread_one;
+        thread_one = new Thread() {
+            @Override
+            public void run() {
+                try {
+                    InputStream attachment = context.getContentResolver().openInputStream(uri);
+                    if (attachment != null) {
+                        String filename = getContentName(context.getContentResolver(), uri);
+                        if (filename != null) {
+                            File file = new File(context.getCacheDir(), filename);
+                            FileOutputStream tmp = new FileOutputStream(file);
+                            byte[] buffer = new byte[1024];
+                            while (attachment.read(buffer) > 0) {
+                                tmp.write(buffer);
+                            }
+                            tmp.close();
+                            attachment.close();
+                            destFilePath = file.getAbsolutePath();
+                        }
                     }
-                    tmp.close();
-                    attachment.close();
-                    return file.getAbsolutePath();
+                } catch (Exception e) {
+                    myLogE("ERR copyFile : " + e.getMessage());
                 }
             }
-        } catch (Exception e) {
-            myLogE("ERR copyFile : " + e.getMessage());
-            return null;
+
+        }    ;
+        thread_one.start();
+        /*
+        try {
+            thread_one.join(); // Wait for the thread to finish
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
-        return null;
+
+         */
+        myLog(" ho yeah : " + destFilePath);
+        return destFilePath;
     }
 
     private static String getContentName(ContentResolver resolver, Uri uri) {

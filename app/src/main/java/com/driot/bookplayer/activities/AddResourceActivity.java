@@ -11,12 +11,13 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.utils.AddResourceService;
+import com.driot.tonylib.KanLogger;
 
 import static com.driot.bookplayer.utils.AddResourceService.NOTIFICATION_ADDRESOURCE_NAME;
 import static com.driot.bookplayer.utils.AddResourceService.NOTIFICATION_ADDRESOURCE_PROGRESS;
@@ -24,9 +25,9 @@ import static com.driot.bookplayer.utils.AddResourceService.NOTIFICATION_ADDRESO
 import static com.driot.bookplayer.utils.AddResourceService.NOTIFICATION_ADDRESOURCE_END;
 import static com.driot.bookplayer.utils.Tonio.getFileNameFromPath;
 import static com.driot.bookplayer.utils.Tonio.FormatNameForDisplay;
-import static com.driot.tonylib.KanLogger.myLog;
-import static com.driot.tonylib.KanLogger.myLogE;
 import static com.driot.tonylib.KanLogger.myToast;
+
+import androidx.core.content.ContextCompat;
 
 
 /**
@@ -35,18 +36,26 @@ import static com.driot.tonylib.KanLogger.myToast;
  * it is a waiting screen with progressbar
  *
  */
-public class AddResourceActivity extends LifecycleLoggingActivity {
+public class AddResourceActivity
+        extends LifecycleLoggingActivity
+        implements AddResourceService.Callbacks
+{
+
+    static final String TAG = "AddResourceActivity";
+    private static final boolean LOG_TRACE = true;
 
     private ProgressBar progressBar;
     private TextView progressBarText;
     private TextView tvTitle;
 
-    boolean boundToService;
+    boolean boundToAddResourceService;
     AddResourceService mService;
     boolean mBound = false;
     private boolean HasBeenInitializedService = false;
 
     private String type;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,31 +77,39 @@ public class AddResourceActivity extends LifecycleLoggingActivity {
         intentAddResourceService.putExtra("Uri", uri);
         intentAddResourceService.putExtra("type", type);
         startService(intentAddResourceService);
-        boundToService = bindService(intentAddResourceService, connection, Context.BIND_AUTO_CREATE); //error Log : Activity XXX has leaked ServiceConnection
-        myLog("call start & bind to Service in Activity.onCreate() - bound result :" + boundToService + "");
+        boundToAddResourceService = bindService(intentAddResourceService, addResourceServiceConnection, Context.BIND_AUTO_CREATE); //error Log : Activity XXX has leaked ServiceConnection
+        myLog("call start & bind to AddResourceService from AddResourceActivity.onCreate() - bound result :" + boundToAddResourceService + "");
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        registerReceiver(receiver, new IntentFilter(NOTIFICATION_ADDRESOURCE_NAME));
-        registerReceiver(receiver, new IntentFilter(NOTIFICATION_ADDRESOURCE_PROGRESS));
-        registerReceiver(receiver, new IntentFilter(NOTIFICATION_ADDRESOURCE_ERROR));
-        registerReceiver(receiver, new IntentFilter(NOTIFICATION_ADDRESOURCE_END));
+        /*
+        registerReceiver(addResourceActivityBroadcastReceiver, new IntentFilter(NOTIFICATION_ADDRESOURCE_NAME)); // RECEIVER_NOT_EXPORTED
+        registerReceiver(addResourceActivityBroadcastReceiver, new IntentFilter(NOTIFICATION_ADDRESOURCE_PROGRESS));
+        registerReceiver(addResourceActivityBroadcastReceiver, new IntentFilter(NOTIFICATION_ADDRESOURCE_ERROR));
+        registerReceiver(addResourceActivityBroadcastReceiver, new IntentFilter(NOTIFICATION_ADDRESOURCE_END));
+        */
+        //registerReceiver(addResourceActivityBroadcastReceiver, new IntentFilter(NOTIFICATION_COPYFILE_SERVICE_PROGRESS));
+        //registerReceiver(addResourceActivityBroadcastReceiver, new IntentFilter(NOTIFICATION_UNZIP_SERVICE_PROGRESS));
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         try {
-            unregisterReceiver(receiver);
-            unbindService(connection);
+            unregisterReceiver(addResourceActivityBroadcastReceiver);
         } catch (Exception e) {
-            myLogE("error stopping service");
+            myLogE("onDestroy - error unregisterReceiver");
+        }
+        try { //TODO should we.... ?
+            unbindService(addResourceServiceConnection);
+        } catch (Exception e) {
+            myLogE("onDestroy - error unbindService");
         }
     }
 
-    private final BroadcastReceiver receiver = new BroadcastReceiver() {
+    private final BroadcastReceiver addResourceActivityBroadcastReceiver = new BroadcastReceiver() {
 
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -103,11 +120,28 @@ public class AddResourceActivity extends LifecycleLoggingActivity {
                     break;
 
                 case NOTIFICATION_ADDRESOURCE_PROGRESS:
-                    //myLog("broadcast received PROGRESS : " + intent.getIntExtra("progress",0));
-                    progressBar.setProgress(intent.getIntExtra("progress",0));
+                    progressBar.setProgress(intent.getIntExtra("progressVal",0));
                     progressBarText.setText(intent.getStringExtra("progressText"));
                     break;
+/*
+                case NOTIFICATION_COPYFILE_SERVICE_PROGRESS:
+                    int ProgressBarVal =  intent.getIntExtra("progressVal",0);
+                    //myLog("broadcast received PROGRESS : " + intent.getIntExtra("progress",0));
+                    progressBar.setProgress(intent.getIntExtra("progressVal",0));
+                    progressBarText.setText(intent.getStringExtra("progressText"));
+                    //progressBar.setProgress(20);
+                    //progressBarText.setText("hello toto copy");
+                    myLog("Progess CopyFile received : " + intent.getIntExtra("progressVal",0) + " - " + intent.getStringExtra("progressText"));
+                    break;
 
+                case NOTIFICATION_UNZIP_SERVICE_PROGRESS:
+                    progressBar.setProgress(intent.getIntExtra("progressVal",0));
+                    progressBarText.setText(intent.getStringExtra("progressText"));
+                    //progressBar.setProgress(50);
+                    //progressBarText.setText("hello toto unzip");
+                    myLog("Progess Unzip received : " + intent.getIntExtra("progressVal",0) + " - " + intent.getStringExtra("progressText"));
+                    break;
+*/
                 case NOTIFICATION_ADDRESOURCE_ERROR:
                     String errorMessage = getString(R.string.ERROR) + " :" + intent.getStringExtra("message");
                     progressBarText.setText(errorMessage);
@@ -133,13 +167,14 @@ public class AddResourceActivity extends LifecycleLoggingActivity {
             }
         }
     };
-    private final ServiceConnection connection = new ServiceConnection() {
+    private final ServiceConnection addResourceServiceConnection = new ServiceConnection() {
 
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
-            myLog("onServiceConnected");
-            AddResourceService.BackgroundBinder binder = (AddResourceService.BackgroundBinder) service;
+            myLog("AddResourceService - onServiceConnected");
+            AddResourceService.AddResourceServiceBackgroundBinder binder = (AddResourceService.AddResourceServiceBackgroundBinder) service;
             mService = binder.getService();
+            mService.registerClient(AddResourceActivity.this); //to get the CallBacks
             mBound = true;
 
             // Get PlayList
@@ -150,7 +185,7 @@ public class AddResourceActivity extends LifecycleLoggingActivity {
 
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
-            myLog("OnServiceDisconnected");
+            myLog("AddResourceService - OnServiceDisconnected");
             mBound = false;
         }
 
@@ -161,4 +196,31 @@ public class AddResourceActivity extends LifecycleLoggingActivity {
         tvTitle.setText(name);
     }
 
+    //-----------------------------
+    private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
+    private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
+
+    // callback override
+    @Override
+    public void updateProgress(String progressText, int progressVal) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                // Update UI elements here
+                progressBar.setProgress(progressVal);
+                progressBarText.setText(progressText);
+            }
+        });
+    }
+    @Override
+    public void updateError(String errorText) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                // Update UI elements here
+                progressBarText.setText(errorText);
+                progressBarText.setTextColor(Color.RED);
+            }
+        });
+    }
 }

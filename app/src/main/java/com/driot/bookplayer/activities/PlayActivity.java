@@ -275,7 +275,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
             myLogE("PlayActivity : ERROR bindService");
             myLogE(e.getMessage());
         }
-        myLog("PlayActivity : call start & bind to Service in Activity.onCreate() - bound result :" + boundToService + "");
+        myLog("PlayActivity : call start & bind to AudioService in PlayActivity.onCreate() - bound result :" + boundToService + "");
     }
 
     private void playMe() {

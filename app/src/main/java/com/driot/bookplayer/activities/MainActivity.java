@@ -264,4 +264,6 @@ public class MainActivity extends LifecycleLoggingActivity {
         }
     }
 
+    private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
+    private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
 }

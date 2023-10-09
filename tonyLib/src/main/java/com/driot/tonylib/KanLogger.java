@@ -24,6 +24,7 @@ import static com.driot.tonylib.TonioCommonStuff.MD5;
  */
 public class KanLogger {
 
+    private static final String PREFIX_DELETE = "com.driot.bookplayer.";
     private static final String LOG_FILE_FOLDER = "log";
     private static final String LOG_FILE_NAME = "kanlog";
     private static final String USER_LOG_FILE_FOLDER = "log";
@@ -56,13 +57,17 @@ public class KanLogger {
     }
 
     public static void myLog(String str) {
+        myLog("",str);
+    }
+    public static void myLog(String prefix, String str) {
+        prefix = prefix.replace(PREFIX_DELETE,"");
+        //this.getClass().getName()
         if (TextUtils.isEmpty(str)) {str = "...";}
-
         if (isMyPhoneDev()) {
             writeToLogFile(str);
-            Log.d("toto", str);
+            Log.d("toto " + prefix, str);
         } else {
-            if (LOG_THEM_ALL) Log.d("", str);
+            if (LOG_THEM_ALL) Log.d(prefix, str);
         }
     }
 
@@ -74,10 +79,14 @@ public class KanLogger {
     }
 
     public static void myLogE(String str) {
+        myLogE("",str);
+    }
+    public static void myLogE(String prefix, String str) {
+        prefix = prefix.replace(PREFIX_DELETE,"");
         if (TextUtils.isEmpty(str)) {str = "...";}
         if (isMyPhoneDev()) {
-            writeToLogFile("ERR: " + str);
-            Log.e("toto", str);
+            writeToLogFile(prefix + ".ERR: " + str);
+            Log.e("toto " + prefix, str);
         } else {
             if (LOG_THEM_ALL) Log.e("", str);
         }

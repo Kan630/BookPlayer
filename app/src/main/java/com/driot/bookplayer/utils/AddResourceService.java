@@ -1,15 +1,20 @@
 package com.driot.bookplayer.utils;
 
+import android.app.Activity;
 import android.app.Service;
+import android.content.ComponentName;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
-import android.util.Log;
+import android.provider.MediaStore;
 
 import androidx.annotation.Nullable;
 import androidx.documentfile.provider.DocumentFile;
@@ -20,23 +25,20 @@ import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.FolderAttrib;
 import com.driot.bookplayer.db.ZikFile;
+import com.driot.tonylib.KanLogger;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.sql.Date;
 import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.Objects;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-import java.util.zip.ZipInputStream;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
@@ -48,17 +50,15 @@ import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_UNZIP_LOCAL
 import static com.driot.bookplayer.activities.OptionActivity.SHARED_PREFERENCES_OPTIONS;
 import static com.driot.bookplayer.global.Var.FOLDER_UNZIPPED;
 import static com.driot.bookplayer.global.Var.FOLDER_ZIPPED;
-import static com.driot.bookplayer.global.Var.ZIP_SIZE_MAX_COEF;
 import static com.driot.bookplayer.utils.Tonio.FormatNameForDisplay;
 import static com.driot.bookplayer.utils.Tonio.fileExists;
-import static com.driot.bookplayer.utils.Tonio.getAvailableInternalMemorySize;
 import static com.driot.bookplayer.utils.Tonio.getExtension;
 import static com.driot.bookplayer.utils.Tonio.getFileNameFromPath;
 import static com.driot.bookplayer.utils.Tonio.getMimeType;
-import static com.driot.bookplayer.utils.Tonio.formatMem;
+import static com.driot.bookplayer.utils.Tonio.stripExtension;
 import static com.driot.bookplayer.utils.Utils.copyStream;
-import static com.driot.bookplayer.utils.Utils.recursiveRemove;
 import static com.driot.tonylib.KanLogger.myToastE;
+import static com.driot.tonylib.TonioCommonStuff.extractName;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 23/11/20
@@ -66,17 +66,30 @@ import static com.driot.tonylib.KanLogger.myToastE;
 
 // TODO check if Service is Busy before starting another import
 
-public class AddResourceService extends Service {
+public class AddResourceService
+        extends Service
+        implements CopyFileService.Callbacks, UnzipService.Callbacks
+{
 
-    public static final int PROGRESS_ZIP_BUFFER_COPY = 1024;
-    public static final int PROGRESS_ZIP_START_COPY = 3;
-    public static final int PROGRESS_ZIP_END_COPY = 20;
-    public static final int PROGRESS_ZIP_START_UNZIP = 20;
-    public static final int PROGRESS_ZIP_END_UNZIP = 80;
+    AddResourceService.Callbacks mCallBacks;
 
-    private final IBinder binder = new AddResourceService.BackgroundBinder();
-    static final String TAG = "AddResourceServ.";
-    private static final boolean LOG_TRACE = true;
+    CopyFileService mCopyFileService;
+    Boolean mCopyFileServiceBound;
+    boolean boundToCopyFileService;
+
+    UnzipService mUnzipService;
+    Boolean mUnzipServiceBound;
+    boolean boundToUnzipService;
+
+    private String copiedZipFileFullPath;
+    private String zipFileFullPath;
+
+    public static final int PROGRESS_COPY_START = 3;
+    public static final int PROGRESS_COPY_END = 20;
+    public static final int PROGRESS_UNZIP_START = 20;
+    public static final int PROGRESS_UNZIP_END = 80;
+
+    private final IBinder binder = new AddResourceServiceBackgroundBinder();
 
     public static final String NOTIFICATION_ADDRESOURCE_NAME = "NOTIFICATION_ADDRESOURCE_NAME";
     public static final String NOTIFICATION_ADDRESOURCE_PROGRESS = "NOTIFICATION_ADDRESOURCE_PROGRESS";
@@ -87,7 +100,6 @@ public class AddResourceService extends Service {
     private ZipFile zipFile;
     private ArrayList<String> audioFileArrayList;
     private final int[] InsertedFolderId = {0};
-    private DocumentFile[] myZikFileList;
 
     private int nbFileSaved, nbFileToSave;
 
@@ -109,12 +121,40 @@ public class AddResourceService extends Service {
 
     public static boolean isBusy;
 
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        myLog("onCreate()");
+    // Callbacks
+    //-----------------------------
+    public interface Callbacks{
+        void updateProgress(String progressText, int progressVal);
+        void updateError(String errorText);
+    }
+    public void registerClient(Activity activity){
+        this.mCallBacks = (AddResourceService.Callbacks)activity;
     }
 
+    // binder
+    //-----------------------------
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        myLog("onBind()    intent:" + intent.getDataString());
+        return binder;
+    }
+    @Override
+    public boolean onUnbind(Intent intent) {
+        myLog("onUnBind()    intent:" + intent.getDataString());
+        return super.onUnbind(intent);
+    }
+    public class AddResourceServiceBackgroundBinder extends Binder {
+        public AddResourceService getService() {
+            myLog("class AddResourceService BackgroundBinder.getService(); ");
+            return AddResourceService.this;
+        }
+    }
+    @Override
+    public void onCreate() {
+        myLog("onCreate()");
+        super.onCreate();
+    }
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         uri = intent.getParcelableExtra("Uri");
@@ -122,8 +162,158 @@ public class AddResourceService extends Service {
         myLog("onStartCommand()");
         return START_NOT_STICKY;
     }
+/*
+    private final BroadcastReceiver receiver = new BroadcastReceiver() {
 
-    // single file
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            int progressOverall = 0;
+            switch (intent.getAction()) {
+*/
+/*
+                case NOTIFICATION_UNZIP_SERVICE_PROGRESS:
+                    progressOverall = PROGRESS_UNZIP_START + intent.getIntExtra("progressVal", 0) * (PROGRESS_UNZIP_END - PROGRESS_UNZIP_START) ;
+                    tellProgress(progressOverall, intent.getStringExtra("progressText"));
+                    myLog("NOTIFICATION_UNZIP_SERVICE_PROGRESS : " + progressOverall);
+                    break;
+
+                case NOTIFICATION_COPYFILE_SERVICE_PROGRESS:
+                    progressOverall = PROGRESS_COPY_START + intent.getIntExtra("progressVal", 0) * (PROGRESS_COPY_END - PROGRESS_COPY_START) ;
+                    tellProgress(progressOverall, intent.getStringExtra("progressText"));
+                    myLog("NOTIFICATION_COPYFILE_SERVICE_PROGRESS : " + progressOverall);
+                    break;
+*/
+    /*
+                case NOTIFICATION_COPYFILE_SERVICE_ERROR:
+                    myLog("broadcast received " + NOTIFICATION_COPYFILE_SERVICE_ERROR);
+                    tellError(intent.getStringExtra("errorText"));
+                    stopSelf();
+                    break;
+
+                case NOTIFICATION_COPYFILE_SERVICE_END:
+                    myLog("broadcast received " + NOTIFICATION_COPYFILE_SERVICE_END);
+                    if (intent.getBooleanExtra("ok",false)) {
+                        //myToast("getString(R.string.CopyFile_Success)");
+                        //AddResourceActivity.this.setResult(Activity.RESULT_OK);
+                        tellProgress(PROGRESS_COPY_END, intent.getStringExtra("progressText"));
+                        unzipZipLocal();
+                    } else {
+                        tellError("NOTIFICATION_COPYFILE_SERVICE_END : Shit Happens");
+*/
+                        /*
+                        String message = intent.getStringExtra("message");
+                        if (!message.equals("")) {
+                            myToast(message);
+                        } else {
+                            myToast("IMPORT CANCELLED !");
+                        }
+
+                         */
+    /*
+                    }
+                    break;
+                    //finish();
+
+                case NOTIFICATION_UNZIP_SERVICE_ERROR:
+                    myLog("broadcast received " + NOTIFICATION_UNZIP_SERVICE_ERROR);
+                    tellError(intent.getStringExtra("errorText"));
+                    stopSelf();
+                    break;
+
+                case NOTIFICATION_UNZIP_SERVICE_END:
+                    myLog("broadcast received " + NOTIFICATION_UNZIP_SERVICE_END);
+                    if (intent.getBooleanExtra("ok",false)) {
+                        tellProgress(PROGRESS_UNZIP_END, intent.getStringExtra("progressText"));
+                        unzipZipLocal();
+                    } else {
+                        tellError("NOTIFICATION_UNZIP_SERVICE_END : Shit Happens");
+                    }
+                    break;
+
+            }
+        }
+    };
+*/
+    private final ServiceConnection copyFileServiceConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            myLog("copyFileServiceConnection - onServiceConnected");
+            CopyFileService.CopyFileServiceBackgroundBinder binder = (CopyFileService.CopyFileServiceBackgroundBinder) service;
+            mCopyFileService = binder.getService();
+            mCopyFileService.registerClient(AddResourceService.this);
+            mCopyFileServiceBound = true;
+
+            myLog("copyFileServiceConnection - launch init()");
+            mCopyFileService.init();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            myLog("copyFileServiceConnection - OnServiceDisconnected");
+            mCopyFileServiceBound = false;
+        }
+    };
+
+    private final ServiceConnection unzipServiceConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            myLog("unzipServiceConnection - onServiceConnected");
+            UnzipService.UnzipServiceBackgroundBinder binder = (UnzipService.UnzipServiceBackgroundBinder) service;
+            mUnzipService = binder.getService();
+            mUnzipService.registerClient(AddResourceService.this);
+            mUnzipServiceBound = true;
+            myLog("unzipServiceConnection - launch init()");
+            mUnzipService.init();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            myLog("unzipServiceConnection - OnServiceDisconnected");
+            mCopyFileServiceBound = false;
+        }
+
+    };
+
+    private void launchCopyFileService(Uri uri, String destinationFolderPath, String destinationFileName) {
+        myLog("launchCopyFileService");
+        //Intent intentCopyFileService = new Intent(AddResourceService.this, CopyFileService.class);
+        Intent intentCopyFileService = new Intent(this, CopyFileService.class);
+        intentCopyFileService.putExtra("Uri", uri);
+        intentCopyFileService.putExtra("destinationFolderPath", destinationFolderPath);
+        intentCopyFileService.putExtra("destinationFileName", destinationFileName);
+        copiedZipFileFullPath = destinationFolderPath + "/" + destinationFileName;
+        startService(intentCopyFileService);
+        boundToCopyFileService = false;
+        try {
+            boundToCopyFileService = bindService(intentCopyFileService, copyFileServiceConnection, Context.BIND_AUTO_CREATE); //error Log : Activity XXX has leaked ServiceConnection
+        } catch (Exception e) {
+            myLogE("ERROR bind to Service in launchCopyFileService ");
+            myLogE(e.getMessage());
+        }
+        myLog("call start & bind to copyFileService from launchCopyFileService - bound result :" + boundToCopyFileService + "");
+    }
+
+    private void launchUnzipService(String zipFilePath, String destinationFolderPath) {
+        myLog("launchUnzipService");
+        Intent intentUnzipService = new Intent(this, UnzipService.class);
+        intentUnzipService.putExtra("zipFilePath", zipFilePath);
+        intentUnzipService.putExtra("destinationFolderPath", destinationFolderPath);
+        startService(intentUnzipService);
+
+        boundToUnzipService = false;
+        try {
+            boundToUnzipService = bindService(intentUnzipService, unzipServiceConnection, Context.BIND_AUTO_CREATE); //error Log : Activity XXX has leaked ServiceConnection
+        } catch (Exception e) {
+            myLogE("ERROR bind to Service in launchUnzipService ");
+            myLogE(e.getMessage());
+        }
+        myLog("call start & bind to unzipService from launchUnzipService - bound result :" + boundToUnzipService + "");
+    }
+
+
+        // single file
     ///////////////////////////
     private boolean populateArrayListOfTracksFromFile() {
         myLog("populateArrayListOfTracksFromFile [" + pickedDir.getUri() + "] - single file");
@@ -299,6 +489,16 @@ public class AddResourceService extends Service {
         String mime;
         resourceSelected = false;
 
+        /*
+        registerReceiver(receiver, new IntentFilter(NOTIFICATION_COPYFILE_SERVICE_ERROR));
+        registerReceiver(receiver, new IntentFilter(NOTIFICATION_COPYFILE_SERVICE_END));
+        registerReceiver(receiver, new IntentFilter(NOTIFICATION_COPYFILE_SERVICE_PROGRESS));
+        registerReceiver(receiver, new IntentFilter(NOTIFICATION_UNZIP_SERVICE_ERROR));
+        registerReceiver(receiver, new IntentFilter(NOTIFICATION_UNZIP_SERVICE_END));
+        registerReceiver(receiver, new IntentFilter(NOTIFICATION_UNZIP_SERVICE_PROGRESS));
+         */
+        //registerReceiver(receiver, new IntentFilter(NOTIFICATION_COPYFILE_SERVICE_END));
+
         switch (type) {
             ///---------------------------------------------
             /// FILE
@@ -380,6 +580,49 @@ public class AddResourceService extends Service {
                 ///         copy zip en local et lecture directe
                 ///         copy zip en local, unzip en local, et lecture local folder
 
+                ////*****************************************************************************************************
+                //if Android >= 11, on copie direct en local avant toute chose.
+                if (Build.VERSION.SDK_INT >= 30) {
+                    myLog("Android >= 11, copy locally before everything else");
+                    String newPathFromCopy = "";
+                    myLog("Android >= 11, Picked Uri = [" + uri.toString() + "]");
+                    String zipFileName = "";
+                    try {
+                        InputStream attachment = this.getContentResolver().openInputStream(uri);
+                        if (attachment != null) {
+                            zipFileName = getContentName(this.getContentResolver(), uri);
+                            if (zipFileName != null) {
+                                myLog("Android >= 11, zipFileName = [" + zipFileName + "]");
+                            }
+                            attachment.close();
+                        } else {
+                            tellError("Could not open input stream from selected Uri [" + uri.toString() + "]");
+                        }
+                    } catch (Exception e) {
+                        tellError("error dealing with selected Uri : " + e.getMessage());
+                        e.printStackTrace();
+                    }
+
+                    // check Not Already Imported
+                    //*****************************
+                    String localFolderName = getsFolderName_withUnderscore_fromZipFileName(zipFileName);
+                    myLog("Android >= 11, Future Folder Name : [" + localFolderName + "]");
+                    String destinationFolderPath = getFilesDir().getAbsolutePath() + "/" + FOLDER_UNZIPPED + "/" + localFolderName;
+                    myLog("Android >= 11, Future Folder Path : [" + destinationFolderPath + "]");
+                    localUnzipFolder = new File(destinationFolderPath);
+                    String futureUri = Uri.fromFile(localUnzipFolder).toString();
+                    myLog("Android >= 11, futureUri = [" + futureUri + "]");
+
+                    internalZipFile = new File(destinationFolderPath + "/" + localFolderName + ".zip");
+                    finalLocalFolder = new File(destinationFolderPath);
+                    finalZipFile = internalZipFile;
+                    destinationFolder = destinationFolderPath;
+                    checkIfFolderAlreadyExist3(futureUri, localFolderName); //TODO without underscores ???
+                    return;
+                    // c'est la fin, on passe a continue3 si c'est good
+                    // (pour eviter le W/MIUIScout App:APP_SCOUT_WARNING et le HANG) on doit faire le lourd dans un backgroundThread (meme depuis un service... car il s'execute de base sur le MainUi)
+        }
+/*
                 myLog("Entry case ZipFile");
                 myFolder = new FolderAttrib(getApplicationContext(), uri, true, false);
                 myLog("Entry case ZipFile 2");
@@ -438,7 +681,7 @@ public class AddResourceService extends Service {
                 // == check if already imported
                 checkIfFolderAlreadyExist2(futureUri);
                 break;
-
+*/
             default:
                 myLogE("Incorrect type : **" + type + "**");
         }
@@ -453,23 +696,32 @@ public class AddResourceService extends Service {
             @Override
             public void run() {
                 if (Zip_DoCopylocal) {
+                    copyZipLocal();
+/*
                     if (!copyZipLocal()) {
+                    {
                         myLogE("copyZipFile KO");
                         //tellError(getResources().getString(R.string.Error_Import_Copying_zip_local));
                         return;
                     }
                     // create new ref to new zip file
                     //....
+
+ */
                     finalZipFile = internalZipFile;
                 } else {
                     finalZipFile = externalZipFile;
                 }
 
                 if (Zip_DoUnzip) {
+                    unzipZipLocal();
+/*
                     if (!unzipZipLocal()) {
                         myLogE("Unzip File KO");
                         return;
                     }
+
+ */
                     // check le delete sur internalZikFile
 
                     // create new ref to new set of files
@@ -486,7 +738,7 @@ public class AddResourceService extends Service {
                         go1();
                     } else {
                         tellError(getResources().getString(R.string.Error_Import_general_error));
-                        killLocalUnzipFolder();
+                        //TODO killLocalUnzipFolder();
                     }
 
                 } else {
@@ -496,237 +748,12 @@ public class AddResourceService extends Service {
                         go1();
                     } else {
                         tellError(getResources().getString(R.string.Error_Import_general_error));
-                        killLocalZipFile();
+                        //TODO killLocalZipFile();
                     }
                 }
             }
         };
         thread_one.start();
-    }
-
-    private boolean copyZipLocal() {
-        myLog("copyZipLocal - from externalZipFile to internalZipFile");
-
-        //___________________________________
-        // == Make Folder
-        //___________________________________
-        try {
-            if (!finalLocalFolder.exists()) {
-                if (!finalLocalFolder.mkdirs()) {
-                    tellError(getResources().getString(R.string.Error_Import_Creating_Folders) + " for path : " + finalLocalFolder);
-                    return false;
-                }
-            }
-        } catch (Exception e) {
-            tellError(getResources().getString(R.string.Error_Import_Creating_Folders));
-            return false;
-        }
-        myLog("copyZipLocal - okay folder");
-
-
-        //___________________________________
-        // == Checking memory before copy
-        //___________________________________
-        InputStream is = null;
-        int file_size;
-        long availableMegs;
-        long availableMegs2;
-        try {
-            file_size = Integer.parseInt(String.valueOf(externalZipFile.length() / 1024 / 1024));
-            availableMegs = externalZipFile.getUsableSpace() / 1048576L;
-            availableMegs2 = getAvailableInternalMemorySize() / 1048576L;
-            myLog("file size : " + file_size + "Mo" + "\navailable memory : " + availableMegs + " Mo" + "\navailable memory2 : " + availableMegs2 + " Mo");
-
-            if (file_size * ZIP_SIZE_MAX_COEF > availableMegs2) {
-                tellError(getResources().getString(R.string.Error_Import_NotEnoughMemory_line1) + "\n"
-                        + getResources().getString(R.string.Error_Import_NotEnoughMemory_line2_1) + formatMem(availableMegs)  + "Mo" + "\n"
-                        + getResources().getString(R.string.Error_Import_NotEnoughMemory_line2_2) + formatMem( availableMegs2) + "Mo" + "\n"
-                        + getResources().getString(R.string.Error_Import_NotEnoughMemory_line3) + file_size + "Mo" + "\n"
-                        + getResources().getString(R.string.Error_Import_NotEnoughMemory_line4_1) + ZIP_SIZE_MAX_COEF + getResources().getString(R.string.Error_Import_NotEnoughMemory_line4_2) + "\n"
-                        + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line5)
-                );
-                return false;
-            }
-            tellProgress(PROGRESS_ZIP_START_COPY, getResources().getString(R.string.Import_Progress_copying_zip_file)
-                    + "\n"
-                    + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line3) + file_size + "Mo"
-                    + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line2_1) + formatMem(availableMegs) + "Mo"
-                    + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line2_2) + formatMem(availableMegs2) + "Mo"
-            );
-        } catch (Exception e) {
-            e.printStackTrace();
-            tellError("Error while checking available space for local ZIP copy  -  " + e.getMessage());
-            return false;
-        }
-        myLog("copyZipLocal - okay check storage space");
-
-        ////////////////////////////////////////////////////////////////////////////////////////
-        // copy of Zip file
-        ////////////////////////////////////////////////////////////////////////////////////////
-        int nbBuffCopied = 0;
-        ContentResolver resolver = getContentResolver();
-        try {
-            is = resolver.openInputStream(uri);
-            myLog("okay stream in");
-
-            try {
-                OutputStream out = new FileOutputStream(internalZipFile);
-                myLog("okay stream out");
-
-                try {
-                    // Transfer bytes from in to out
-                    byte[] buf = new byte[PROGRESS_ZIP_BUFFER_COPY];
-                    int len;
-                    while ((len = is.read(buf)) > 0) {
-                        nbBuffCopied++;
-                        out.write(buf, 0, len);
-
-                        //display progress
-                        if (nbBuffCopied % 1024 == 0) {
-                            int nbMoCopied = nbBuffCopied * PROGRESS_ZIP_BUFFER_COPY / 1024 / 1024;
-                            double progressValue = (double) nbMoCopied / (file_size) * 100;
-                            tellProgress(PROGRESS_ZIP_START_COPY + (int) progressValue * (PROGRESS_ZIP_END_COPY - PROGRESS_ZIP_START_COPY) / 100,
-                                    getResources().getString(R.string.Import_Progress_copying_zip_file)
-                                            + "\n"
-                                            + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line3) + nbMoCopied + "Mo/" + file_size + "Mo"
-                                            + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line2_1) + formatMem(availableMegs) + "Mo"
-                                            + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line2_2) + formatMem(availableMegs2) + "Mo"
-                            );
-                        }
-
-                    }
-                    myLog("okay stream write");
-                } catch (Exception e) {
-                    tellError("1 Copy of ZIP file from External Dir to Internal Dir failed.  -  " + e.getMessage());
-                    e.printStackTrace();
-                    return false;
-                } finally {
-                    out.close();
-                }
-            } catch (Exception e) {
-                tellError("2 Copy of ZIP file from External Dir to Internal Dir failed.  -  " + e.getMessage());
-                e.printStackTrace();
-                return false;
-            } finally {
-                is.close();
-            }
-        } catch (Exception e) {
-            tellError("Cannot get StreamIn for ZIP file... \nMaybe this is a broken zip file \n(could be a half downloaded file)      \n\nTechnical message = [" + e.getMessage() + "]");
-            myLogE(e.getMessage());
-            return false;
-        }
-        myLog("copyZipLocal - okay copy");
-
-        myLog("file has been copied \nfrom " + uri.toString() + " \nto " + internalZipFile);
-        myLog("file has been copied \nfrom " + externalZipFile + " \nto " + internalZipFile);
-        return true;
-
-    }
-
-    private boolean unzipZipLocal() {
-        ////////////////////////////////////////////////////////////////////////////////
-        /// unzipping....
-        ////////////////////////////////////////////////////////////////////////////////
-        //tellProgress(40,getResources().getString(R.string.Import_Progress_unzipping_file));
-        //unzip(externalZipFile[0], folder[0]);
-        try {
-            ZipInputStream zis = new ZipInputStream(new BufferedInputStream(new FileInputStream(finalZipFile)));
-            myLog("unzipping in : " + localUnzipFolder);
-            myLog("unzipping in : " + localUnzipFolder.getName());
-
-            // check number of file in zip
-            int nbZip;
-            try {
-                ZipFile zf = new ZipFile(finalZipFile.getAbsolutePath());
-                nbZip = zf.size();
-            } catch (Exception e) {
-                myLogE("Couln't count element of zip file");
-                nbZip = 10;
-            }
-            myLog("Zip file has : " + nbZip + " entries");
-
-            int numCurZip = 0;
-
-            try {
-                ZipEntry ze;
-                int count;
-                byte[] buffer = new byte[8192];
-
-                while ((ze = zis.getNextEntry()) != null) {
-                    myLog("unzipping : " + ze.getName());
-
-                    //bypass if zip contains only folder with same name at first level (doublons de dossier enchevetrés)
-                    if (ze.getName().equals(localUnzipFolder.getName() + "/")) {
-                        localUnzipFolder = new File(localUnzipFolder.getParent()); //attention faut le remettre à localUnzipFolder = new File(destinationFolder); après
-                        myLog("unzipping : bypassing first directory");
-
-                    } else {
-                        numCurZip = numCurZip + 1;
-                        double zeProgress = PROGRESS_ZIP_START_UNZIP + (double) numCurZip / nbZip * (PROGRESS_ZIP_END_UNZIP - PROGRESS_ZIP_START_UNZIP);
-                        tellProgress((int) zeProgress,
-                                getResources().getString(R.string.Import_Progress_unzipping_file) + numCurZip + "/" + nbZip
-                                        + "\n" + "\n" + ze.getName());
-
-                        File file = new File(localUnzipFolder, ze.getName());
-                        File dir = ze.isDirectory() ? file : file.getParentFile();
-
-                        if (!dir.isDirectory() && !dir.mkdirs()) {
-                            myLogE("Failed to ensure directory: " + dir.getAbsolutePath());
-                            throw new FileNotFoundException("Failed to ensure directory: " + dir.getAbsolutePath());
-                        }
-                        if (ze.isDirectory())
-                            continue;
-                        FileOutputStream fout = new FileOutputStream(file);
-                        try {
-                            while ((count = zis.read(buffer)) != -1)
-                                fout.write(buffer, 0, count);
-                        } finally {
-                            fout.close();
-                        }
-
-                    }
-        /* if time should be restored as well
-        long time = ze.getTime();
-        if (time > 0)
-            file.setLastModified(time);
-        */
-                } // end du while
-            } finally {
-                myLog("End Zip while loop");
-                zis.close();
-                localUnzipFolder = new File(destinationFolder); // on reaffecte a la bonne valeur
-            }
-            ////////////////////////////////////////////////////////////////////////////////
-            ////////////////////////////////////////////////////////////////////////////////
-
-        } catch (Exception e) {
-            myLogE(getResources().getString(R.string.Error_Import_UnableToUnzip_line1) + " : " + e.getMessage());
-            tellError(getResources().getString(R.string.Error_Import_UnableToUnzip_line1) + " : " + e.getMessage()
-                    + "\n" + "\n" + getResources().getString(R.string.Error_Import_UnableToUnzip_line2));
-            e.printStackTrace();
-            killLocalUnzipFolder(); //delete files after error
-            return false;
-        } finally {
-            if (internalZipFile.delete()) {
-                myLog("unzip done in folder, internal zip file deleted");
-            } else {
-                myLogE("unzip done in folder, ERROR deleting internal zip file");
-            }
-        }
-        myLog("file has been unzipped");
-        return true;
-    }
-
-    private void killLocalUnzipFolder() {
-        if (!(recursiveRemove(localUnzipFolder))) {
-            myLogE("killLocalUnzipFolder, AfterError, recursiveRemove(localUnzipFolder) KO");
-        }
-    }
-
-    private void killLocalZipFile() {
-        if (!internalZipFile.delete()) {
-            myLogE("killLocalZipFile, AfterError");
-        }
     }
 
     private void go1() {
@@ -797,6 +824,63 @@ public class AddResourceService extends Service {
         }, throwable -> {
             tellError(getResources().getString(R.string.Error_Import_checking_Folder_Exists) + throwable.getMessage());
         });
+    }
+
+    private void checkIfFolderAlreadyExist3(String uriFolder, String folderName) {
+        // For Android 11 zip file copied in local folder
+        myLog("3.Checking uri doesn't exist in DB : " + uriFolder);
+        Observable.fromCallable(() -> {
+            boolean bcheckIfFolderExist = false;
+            long lcheckIfFolderExist = DatabaseClient
+                    .getInstance(getApplicationContext())
+                    .getAppDatabase()
+                    .FolderDao()
+                    .folderAlreadyExist3(uriFolder, folderName);
+            if (lcheckIfFolderExist>0) { bcheckIfFolderExist = true;}
+            return bcheckIfFolderExist;
+            //TODO if only name the same, just import with a new name... but is this possible ? wanted ?
+        }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(result -> {
+            if (result) {
+                myLog("KO, folder does already exist in DB");
+                tellError(getString(R.string.Error_Import_FolderAlreadyImported));
+            } else {
+                myLog("OK, folder doesn't already exist in DB");
+                tellProgress(1,getResources().getString(R.string.Import_Progress_check_not_already_imported));
+                copyZipLocal();
+            }
+        }, throwable -> {
+            tellError(getResources().getString(R.string.Error_Import_checking_Folder_Exists) + throwable.getMessage());
+        });
+    }
+
+    private void copyZipLocal() {
+        Long zipFileSize = -1L;
+        String originalZipFilePath = uri.getPath();
+        String destinationFolderPathForZip = finalLocalFolder.getPath();
+        String destinationFileNameForZip = extractName(originalZipFilePath);
+        copiedZipFileFullPath = destinationFolderPathForZip + "/" + destinationFileNameForZip;
+
+        if (originalZipFilePath != null) externalZipFile = new File(originalZipFilePath);
+        if (externalZipFile.exists()) zipFileSize = externalZipFile.length();
+        if (zipFileSize > 0) {
+            myLog("ze Size : " + zipFileSize);
+        } else {
+            myLog("ERR : Cannot Check Size .... Size = " + zipFileSize + " .... Never Mind... let's copy");
+        }
+        myLog("\nfrom " + externalZipFile + " \nto " + internalZipFile + " \nusing " + finalLocalFolder);
+
+        launchCopyFileService(uri, destinationFolderPathForZip, destinationFileNameForZip);
+    }
+
+    private void unzipZipLocal() {
+        String destinationFolderPathForMp3 = finalLocalFolder.getPath();
+        //getFilesDir().getAbsolutePath() + "/" + FOLDER_UNZIPPED;
+        if (!Objects.equals(copiedZipFileFullPath, "")) {
+            zipFileFullPath = copiedZipFileFullPath;
+        }
+        myLog("copiedZipFileFullPath : " + copiedZipFileFullPath);
+        myLog("zipFileFullPath : " + zipFileFullPath);
+        launchUnzipService(zipFileFullPath, destinationFolderPathForMp3);
     }
 
     private void saveFolder() {
@@ -1002,14 +1086,19 @@ public class AddResourceService extends Service {
         return duration;
     }
 
-    public void tellProgress(int val, String txt) {
+    public void tellProgress(int progressVal,String progressText) {
         //new Handler(getApplicationContext().getMainLooper()).postDelayed(new Runnable(){
         //    @Override
         //    public void run(){
-                Intent intent = new Intent(NOTIFICATION_ADDRESOURCE_PROGRESS);
-                intent.putExtra("progressText",txt);
-                intent.putExtra("progress",val);
+        //myLog("test callbacks " + progressText.substring(0,10) + " - " + progressVal);
+        mCallBacks.updateProgress(progressText, progressVal);
+        /*
+        Intent intent = new Intent(NOTIFICATION_ADDRESOURCE_PROGRESS);
+                intent.putExtra("progressText",progressText);
+                intent.putExtra("progressVal",progressVal); //entre 0 et 100
                 sendBroadcast(intent);
+
+         */
                 //myLog("broadcast progress sent " + val + " - " + txt);
          //   }
         //}, 0);
@@ -1034,6 +1123,7 @@ public class AddResourceService extends Service {
     }
 
     private void tellError(String txt) {
+        mCallBacks.updateError(txt);
         Intent intent = new Intent(NOTIFICATION_ADDRESOURCE_ERROR);
         intent.putExtra("message",txt);
         sendBroadcast(intent);
@@ -1057,26 +1147,65 @@ public class AddResourceService extends Service {
         Zip_DoCopylocal = prefs.getBoolean("COPY_ZIP_LOCAL", DEFAULT_COPY_ZIP_LOCAL);
     }
 
-    // binder
-    //-----------------------------
-    @Nullable
-    @Override
-    public IBinder onBind(Intent intent) {
-        myLog("onBind()");
-        return binder;
-    }
-    public class BackgroundBinder extends Binder {
-        public AddResourceService getService() {
-            return AddResourceService.this;
-        }
-    }
-    //-----------------------------
 
-    private void myLog(String str) {
-        if (LOG_TRACE) { Log.d("toto " + TAG + " ",str); }
+
+    // from FileHelper... used to copy zip locally in Android 11+
+    private static String getContentName(ContentResolver resolver, Uri uri) {
+        Cursor cursor = resolver.query(uri, null, null, null, null);
+        if (cursor != null) {
+            cursor.moveToFirst();
+            int nameIndex = cursor.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME);
+            if (nameIndex >= 0) {
+                String name = cursor.getString(nameIndex);
+                cursor.close();
+                return name;
+            }
+        }
+        return null;
     }
-    private void myLogE(String str) {
-        Log.e("toto " + TAG + " ",str);
+
+    private static String getsFolderName_withUnderscore_fromZipFileName(String zipFileName) {
+        String tmp = zipFileName.replace(" ","_");
+        tmp = stripExtension(tmp);
+        return tmp;
+    }
+
+    //-----------------------------
+    private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
+    private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
+
+
+    // Copy CallBacks
+    //---------------------
+    @Override
+    public void tellProgressClient_fromCopy(String progressText, int progressVal) {
+        tellProgress(PROGRESS_COPY_START + progressVal * (PROGRESS_COPY_END - PROGRESS_COPY_START) / 100, progressText);
+    }
+    @Override
+    public void tellEndClient_fromCopy() {
+        myLog("tell End - go unzip");
+        unzipZipLocal();
+    }
+    @Override
+    public void tellErrorClient_fromCopy(String errorText) {
+        tellError(errorText);
+        myLogE("tell Error Copy");
+    }
+    // Unzip CallBacks
+    //---------------------
+    @Override
+    public void tellProgressClient_fromUnzip(String progressText, int progressVal) {
+        tellProgress(PROGRESS_UNZIP_START + progressVal * (PROGRESS_UNZIP_END - PROGRESS_UNZIP_START) / 100, progressText);
+    }
+    @Override
+    public void tellErrorClient_fromUnzip(String errorText) {
+        tellError(errorText);
+        myLogE("tell Error unzip");
+    }
+    @Override
+    public void tellEndClient_fromUnzip() {
+        myLog("tell End - go do something else");
+        unzipZipLocal();
     }
 
 }

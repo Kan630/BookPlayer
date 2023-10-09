@@ -27,6 +27,9 @@ public interface FolderDao {
     @Query("SELECT COUNT(id) FROM Folder WHERE uri LIKE :sUri")
     long folderAlreadyExist2(String sUri);
 
+    @Query("SELECT COUNT(id) FROM Folder WHERE uri LIKE :sUri OR name LIKE :sFolderName")
+    long folderAlreadyExist3(String sUri, String sFolderName);
+
     @RawQuery
     int runRawSql(SupportSQLiteQuery query);
 
