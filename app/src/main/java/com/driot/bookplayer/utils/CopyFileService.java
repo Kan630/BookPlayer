@@ -75,6 +75,7 @@ public class CopyFileService extends Service {  //IntentService are designed to 
     @Override
     public IBinder onBind(Intent intent) {
         myLog("onBind()    intent:" + intent.getDataString());
+        parseIntent(intent);
         return binder;
     }
 
@@ -84,56 +85,58 @@ public class CopyFileService extends Service {  //IntentService are designed to 
         return super.onUnbind(intent);
     }
 
-    //-----------------------------
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        uri = intent.getParcelableExtra("Uri");
-        destinationFolderPath = intent.getStringExtra("destinationFolderPath");
-        destinationFileName = intent.getStringExtra("destinationFileName");
-        myLog("onStartCommand() ..   \nfrom uri=[" + uri.toString() + "] \nto destinationFolderPath=[" + destinationFolderPath + "] \nwith name=[" + destinationFileName + "]");
-        return super.onStartCommand(intent, flags, startId);
-        //return START_NOT_STICKY;
-    }
-
     @Override
     public void onDestroy() {
-        myLog("onDestroy() - unbinding");
+        myLog("onDestroy()");
         super.onDestroy();
         //unbindService(add);
     }
+    //-----------------------------
+    /*
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        parseIntent(intent);
+        return super.onStartCommand(intent, flags, startId);
+        //return START_NOT_STICKY;
+    }
+     */
 
+    private void parseIntent(Intent intent) {
+        uri = intent.getParcelableExtra("Uri");
+        destinationFolderPath = intent.getStringExtra("destinationFolderPath");
+        destinationFileName = intent.getStringExtra("destinationFileName");
+        myLog("onStartCommand() ..   " +
+                "\nfrom uri=[" + uri.toString() + "] " +
+                "\nto destinationFolderPath=[" + destinationFolderPath + "] " +
+                "\nwith name=[" + destinationFileName + "]");
+    }
 
     public void init() {
         myLog("init()");
         isBusy = true;
 
-            // TOUT CA CA MARCHE PAS AVEC DES URI....
-
+// All the Stuff around inFile is non mandatory...
+// will later use Uri anyway
+//*************
         String originalFilePath = uri.getPath();
         if (originalFilePath != null) {
             inFile = new File(originalFilePath);
         } else {
-            myLogE("Could not get Uri Path");
+            myLog("Could not get Uri Path");
         }
         if (inFile.exists()) {
-            myLog("inFile.length() : " + inFile.length());
+            myLog("inFile correctly populated from Uri - Length = " + inFile.length());
         } else {
-            myLogE("Uri Path gives non existing file");
+            myLog("Uri Path gives non existing file");
         }
-
+//*************
         outFile = new File(destinationFolderPath + "/" + destinationFileName);
-
         String destinationFolderPath = outFile.getParent();
         destinationFolderFile = new File(destinationFolderPath);
 
-        myLog("init() - ** INIT DONE - let's copy **");
-
-        // le lourd dans une background Thread.... Hyper Important !!
-        Thread backgroundThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                Boolean ret = copyLocal();
-            }
+        myLog("init() - ** INIT DONE ** launching backThread copy ");
+        Thread backgroundThread = new Thread(() -> {
+            Boolean ret = copyLocal();
         });
         backgroundThread.start();
     }
@@ -145,7 +148,7 @@ public class CopyFileService extends Service {  //IntentService are designed to 
 
     private boolean copyLocal(boolean doCheckSize) {
         myLog("copyLocal - from inFile to outFile " +
-                "\nfrom [" + inFile + "] " +
+                "\nfrom [" + uri + "] " +
                 "\nto [" + outFile + "] " +
                 "\nusing [" + destinationFolderFile + "]");
 
@@ -172,7 +175,7 @@ public class CopyFileService extends Service {  //IntentService are designed to 
         int file_size = 0;
         long availableMegs;
         long availableMegs2;
-        availableMegs = inFile.getUsableSpace() / 1048576L;
+        availableMegs = outFile.getUsableSpace() / 1048576L;
         availableMegs2 = getAvailableInternalMemorySize() / 1048576L;
         if (doCheckSize) {
             try {
@@ -216,7 +219,9 @@ public class CopyFileService extends Service {  //IntentService are designed to 
             } else { // file_size < 0
                 myLogE("Could not get size of original file to be copied");
             }
-            myLog("file size : " + file_size + "Mo" + "\navailable memory : " + availableMegs + " Mo" + "\navailable memory2 : " + availableMegs2 + " Mo");
+            myLog("file size : " + file_size + "Mo" +
+                    "\navailable memory : " + availableMegs + " Mo" +
+                    "\navailable memory2 : " + availableMegs2 + " Mo");
             myLog("copyLocal - okay check storage space");
         } else {
             file_size = -1;
@@ -231,15 +236,11 @@ public class CopyFileService extends Service {  //IntentService are designed to 
         ContentResolver resolver = getContentResolver();
         try {
             is = resolver.openInputStream(uri);
-
             myLog("okay stream in");
-
             try {
                 OutputStream out = new FileOutputStream(outFile);
                 myLog("okay stream out");
-
                 try {
-                    // Transfer bytes from in to out
                     byte[] buf = new byte[COPY_BUFFER_SIZE];
                     int len;
                     while ((len = is.read(buf)) > 0) {
@@ -267,14 +268,14 @@ public class CopyFileService extends Service {  //IntentService are designed to 
                     }
                     myLog("okay stream write");
                 } catch (Exception e) {
-                    tellError("1 Copy of ZIP file from External Dir to Internal Dir failed.  -  " + e.getMessage());
+                    tellError("An error occurred while Copying the ZIP file from External Dir to Internal Dir.\n   -  \n" + e.getMessage());
                     e.printStackTrace();
                     return false;
                 } finally {
                     out.close();
                 }
             } catch (Exception e) {
-                tellError("2 Copy of ZIP file from External Dir to Internal Dir failed.  -  " + e.getMessage());
+                tellError("Cannot get StreamOut for ZIP file \nZIP file copy from External Dir to Internal Dir aborted.\n  -  \n" + e.getMessage());
                 e.printStackTrace();
                 return false;
             } finally {

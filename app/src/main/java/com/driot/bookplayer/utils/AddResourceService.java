@@ -44,12 +44,10 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
-import static android.os.Build.VERSION.SDK_INT;
 import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_COPY_ZIP_LOCAL;
 import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_UNZIP_LOCAL;
 import static com.driot.bookplayer.activities.OptionActivity.SHARED_PREFERENCES_OPTIONS;
 import static com.driot.bookplayer.global.Var.FOLDER_UNZIPPED;
-import static com.driot.bookplayer.global.Var.FOLDER_ZIPPED;
 import static com.driot.bookplayer.utils.Tonio.FormatNameForDisplay;
 import static com.driot.bookplayer.utils.Tonio.fileExists;
 import static com.driot.bookplayer.utils.Tonio.getExtension;
@@ -88,13 +86,10 @@ public class AddResourceService
     public static final int PROGRESS_COPY_END = 20;
     public static final int PROGRESS_UNZIP_START = 20;
     public static final int PROGRESS_UNZIP_END = 80;
+    public static final int PROGRESS_SAVE_DB_START = 80;
+    public static final int PROGRESS_SAVE_DB_END = 100;
 
     private final IBinder binder = new AddResourceServiceBackgroundBinder();
-
-    public static final String NOTIFICATION_ADDRESOURCE_NAME = "NOTIFICATION_ADDRESOURCE_NAME";
-    public static final String NOTIFICATION_ADDRESOURCE_PROGRESS = "NOTIFICATION_ADDRESOURCE_PROGRESS";
-    public static final String NOTIFICATION_ADDRESOURCE_ERROR = "NOTIFICATION_ADDRESOURCE_ERROR";
-    public static final String NOTIFICATION_ADDRESOURCE_END = "NOTIFICATION_ADDRESOURCE_END";
 
     private FolderAttrib myFolder;
     private ZipFile zipFile;
@@ -126,6 +121,9 @@ public class AddResourceService
     public interface Callbacks{
         void updateProgress(String progressText, int progressVal);
         void updateError(String errorText);
+        void updateEnd();
+        void tellHeader(String txt);
+        void tellNonBlockingError(String txt);
     }
     public void registerClient(Activity activity){
         this.mCallBacks = (AddResourceService.Callbacks)activity;
@@ -142,6 +140,8 @@ public class AddResourceService
     @Override
     public boolean onUnbind(Intent intent) {
         myLog("onUnBind()    intent:" + intent.getDataString());
+        unbindService(unzipServiceConnection);
+        unbindService(copyFileServiceConnection);
         return super.onUnbind(intent);
     }
     public class AddResourceServiceBackgroundBinder extends Binder {
@@ -251,6 +251,7 @@ public class AddResourceService
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
             myLog("copyFileServiceConnection - OnServiceDisconnected");
+            mCopyFileService.unbindService(copyFileServiceConnection);
             mCopyFileServiceBound = false;
         }
     };
@@ -271,6 +272,7 @@ public class AddResourceService
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
             myLog("unzipServiceConnection - OnServiceDisconnected");
+            mCopyFileService.unbindService(unzipServiceConnection);
             mCopyFileServiceBound = false;
         }
 
@@ -284,7 +286,7 @@ public class AddResourceService
         intentCopyFileService.putExtra("destinationFolderPath", destinationFolderPath);
         intentCopyFileService.putExtra("destinationFileName", destinationFileName);
         copiedZipFileFullPath = destinationFolderPath + "/" + destinationFileName;
-        startService(intentCopyFileService);
+        //startService(intentCopyFileService);
         boundToCopyFileService = false;
         try {
             boundToCopyFileService = bindService(intentCopyFileService, copyFileServiceConnection, Context.BIND_AUTO_CREATE); //error Log : Activity XXX has leaked ServiceConnection
@@ -300,8 +302,7 @@ public class AddResourceService
         Intent intentUnzipService = new Intent(this, UnzipService.class);
         intentUnzipService.putExtra("zipFilePath", zipFilePath);
         intentUnzipService.putExtra("destinationFolderPath", destinationFolderPath);
-        startService(intentUnzipService);
-
+        //startService(intentUnzipService);
         boundToUnzipService = false;
         try {
             boundToUnzipService = bindService(intentUnzipService, unzipServiceConnection, Context.BIND_AUTO_CREATE); //error Log : Activity XXX has leaked ServiceConnection
@@ -311,6 +312,7 @@ public class AddResourceService
         }
         myLog("call start & bind to unzipService from launchUnzipService - bound result :" + boundToUnzipService + "");
     }
+
 
 
         // single file
@@ -334,7 +336,7 @@ public class AddResourceService
                 tellError("Error while creating record, cancelling operation");
                 return false;
             }
-            tellName(myFolder.getsFolderName());
+            mCallBacks.tellHeader(myFolder.getsFolderName());
 
             if (myFolder.isFolderKO()) {
                 String error = getString(R.string.Error_Import_FilePathKO);
@@ -424,7 +426,7 @@ public class AddResourceService
                 tellError("Error while creating record, cancelling operation");
                 return false;
             }
-            tellName(myFolder.getsFolderName());
+            mCallBacks.tellHeader(myFolder.getsFolderName());
 
             if (myFolder.isFolderKO()) {
                 String error = getString(R.string.Error_Import_FolderPathKO);
@@ -789,7 +791,7 @@ public class AddResourceService
             return bcheckIfFolderExist;
         }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(result -> {
             if (result) {
-                tellEnd(getString(R.string.Error_Import_FolderAlreadyImported));
+                tellError(getString(R.string.Error_Import_FolderAlreadyImported));
             } else {
                 myLog("ok on continue -       (folder does not already exist)");
                 tellProgress(5,getResources().getString(R.string.Import_Progress_check_not_already_imported));
@@ -928,22 +930,19 @@ public class AddResourceService
         nbFileToSave = audioFileArrayList.size();
         nbFileSaved = 0;
         Thread one;
-        one = new Thread() {
-            @Override
-            public void run() {
-                int i = 0;
-                int progress = 0;
-                String txtProgress = "";
-                for (String s : audioFileArrayList) {
-                    i++;
-                    progress = (int) i * 100 / audioFileArrayList.size();
-                    txtProgress = progress + "% - " + getString(R.string.Add_resource_reading_file) + " n°" + i + "/" + audioFileArrayList.size() + "\n" + getFileNameFromPath(s);
-                    myLog("Registering file [" + s + "]");
-                    saveFile(s, InsertedFolderId[0], i);
-                    tellProgress(progress,txtProgress);
-                }
+        one = new Thread(() -> {
+            int i = 0;
+            int progress = 0;
+            String txtProgress = "";
+            for (String s : audioFileArrayList) {
+                i++;
+                progress = (int) PROGRESS_SAVE_DB_START + (i * 100 / audioFileArrayList.size())*(PROGRESS_SAVE_DB_END-PROGRESS_SAVE_DB_START)/100;
+                txtProgress = progress + "% - " + getString(R.string.Add_resource_reading_file) + " n°" + i + "/" + audioFileArrayList.size() + "\n" + getFileNameFromPath(s);
+                myLog("Registering file [" + s + "]");
+                saveFile(s, InsertedFolderId[0], i);
+                tellProgress(progress,txtProgress);
             }
-        };
+        });
         one.start();
     }
 
@@ -1033,7 +1032,9 @@ public class AddResourceService
                     myLog("Folder Duration Updated : runRawSQL result = " + result);
                     tellEnd();
                 }, throwable -> {
-                    tellError(getResources().getString(R.string.Error_Import_computing_folder_duration) + " : " +  throwable.getMessage());
+                    myLogE("Error in Folder Duration Update. " + throwable.getMessage());
+                    tellNonBlockingError(getResources().getString(R.string.Error_Import_computing_folder_duration) + " : " +  throwable.getMessage());
+                    tellEnd();
                 });
     }
 
@@ -1087,58 +1088,21 @@ public class AddResourceService
     }
 
     public void tellProgress(int progressVal,String progressText) {
-        //new Handler(getApplicationContext().getMainLooper()).postDelayed(new Runnable(){
-        //    @Override
-        //    public void run(){
-        //myLog("test callbacks " + progressText.substring(0,10) + " - " + progressVal);
         mCallBacks.updateProgress(progressText, progressVal);
-        /*
-        Intent intent = new Intent(NOTIFICATION_ADDRESOURCE_PROGRESS);
-                intent.putExtra("progressText",progressText);
-                intent.putExtra("progressVal",progressVal); //entre 0 et 100
-                sendBroadcast(intent);
-
-         */
-                //myLog("broadcast progress sent " + val + " - " + txt);
-         //   }
-        //}, 0);
     }
-
     private void tellEnd() {
-        Intent intent = new Intent(NOTIFICATION_ADDRESOURCE_END);
-        intent.putExtra("ok",true);
-        sendBroadcast(intent);
-        myLog("broadcast end sent");
+        mCallBacks.updateEnd();
         isBusy = false;
+        myLog("killing Service");
         stopSelf();
     }
-
-    private void tellEnd(String KO_message) { // my first overload... ^^
-        Intent intent = new Intent(NOTIFICATION_ADDRESOURCE_END);
-        intent.putExtra("message",KO_message);
-        sendBroadcast(intent);
-        myLog("broadcast end sent");
-        isBusy = false;
-        stopSelf();
-    }
-
     private void tellError(String txt) {
         mCallBacks.updateError(txt);
-        Intent intent = new Intent(NOTIFICATION_ADDRESOURCE_ERROR);
-        intent.putExtra("message",txt);
-        sendBroadcast(intent);
-        myLogE("broadcast error sent :" + txt);
+        myLogE("callback error sent :" + txt);
         isBusy = false;
+        myLog("killing Service");
         stopSelf();
     }
-
-    private void tellName(String txt) {
-        Intent intent = new Intent(NOTIFICATION_ADDRESOURCE_NAME);
-        intent.putExtra("name",txt);
-        sendBroadcast(intent);
-        myLog("broadcast name sent :" + txt);
-    }
-
 
 
     private void loadOptionValues() {
@@ -1183,13 +1147,13 @@ public class AddResourceService
     }
     @Override
     public void tellEndClient_fromCopy() {
-        myLog("tell End - go unzip");
+        myLog("Copyfile tell End - go unzip");
         unzipZipLocal();
     }
     @Override
     public void tellErrorClient_fromCopy(String errorText) {
+        myLogE("Copyfile tell Error");
         tellError(errorText);
-        myLogE("tell Error Copy");
     }
     // Unzip CallBacks
     //---------------------
@@ -1200,12 +1164,22 @@ public class AddResourceService
     @Override
     public void tellErrorClient_fromUnzip(String errorText) {
         tellError(errorText);
-        myLogE("tell Error unzip");
+        myLogE("Unzip tell Error");
     }
     @Override
-    public void tellEndClient_fromUnzip() {
-        myLog("tell End - go do something else");
-        startOverCaseFolder();
+    public void tellEndClient_fromUnzip(String destinationFolderPath) {
+        myLog("Unzip tell End - go do something else");
+        try {
+            pickedDir = DocumentFile.fromFile(new File(destinationFolderPath));
+        } catch (Exception e) {
+            myLogE("error getting DocumentFile.fromFile : " + e.getMessage());
+        }
+        resourceSelected = populateArrayListOfTracksFromFolder();
+        if (resourceSelected) go1();
+    }
+    @Override
+    public void tellNonBlockingError(String txt) {
+        mCallBacks.tellNonBlockingError(txt);
     }
 
 }

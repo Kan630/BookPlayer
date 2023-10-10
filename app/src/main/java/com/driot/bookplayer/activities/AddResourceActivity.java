@@ -1,17 +1,15 @@
 package com.driot.bookplayer.activities;
 
 import android.app.Activity;
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
-import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -19,15 +17,10 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.utils.AddResourceService;
 import com.driot.tonylib.KanLogger;
 
-import static com.driot.bookplayer.utils.AddResourceService.NOTIFICATION_ADDRESOURCE_NAME;
-import static com.driot.bookplayer.utils.AddResourceService.NOTIFICATION_ADDRESOURCE_PROGRESS;
-import static com.driot.bookplayer.utils.AddResourceService.NOTIFICATION_ADDRESOURCE_ERROR;
-import static com.driot.bookplayer.utils.AddResourceService.NOTIFICATION_ADDRESOURCE_END;
 import static com.driot.bookplayer.utils.Tonio.getFileNameFromPath;
 import static com.driot.bookplayer.utils.Tonio.FormatNameForDisplay;
 import static com.driot.tonylib.KanLogger.myToast;
-
-import androidx.core.content.ContextCompat;
+import static com.driot.tonylib.KanLogger.myToastE;
 
 
 /**
@@ -41,12 +34,11 @@ public class AddResourceActivity
         implements AddResourceService.Callbacks
 {
 
-    static final String TAG = "AddResourceActivity";
-    private static final boolean LOG_TRACE = true;
-
-    private ProgressBar progressBar;
-    private TextView progressBarText;
     private TextView tvTitle;
+    private TextView progressBarText;
+    private ProgressBar progressBar;
+    private TextView tvErrorText;
+
 
     boolean boundToAddResourceService;
     AddResourceService mService;
@@ -62,9 +54,10 @@ public class AddResourceActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_addresource);
 
-        progressBar = findViewById(R.id.progressBar);
-        progressBarText = findViewById(R.id.progressBarText);
         tvTitle = findViewById(R.id.tvTitle);
+        progressBarText = findViewById(R.id.progressBarText);
+        progressBar = findViewById(R.id.progressBar);
+        tvErrorText = findViewById(R.id.errorText);
 
         Uri uri = getIntent().getParcelableExtra("Uri");
         type =  getIntent().getStringExtra("type");
@@ -84,91 +77,33 @@ public class AddResourceActivity
     @Override
     protected void onResume() {
         super.onResume();
-        /*
-        registerReceiver(addResourceActivityBroadcastReceiver, new IntentFilter(NOTIFICATION_ADDRESOURCE_NAME)); // RECEIVER_NOT_EXPORTED
-        registerReceiver(addResourceActivityBroadcastReceiver, new IntentFilter(NOTIFICATION_ADDRESOURCE_PROGRESS));
-        registerReceiver(addResourceActivityBroadcastReceiver, new IntentFilter(NOTIFICATION_ADDRESOURCE_ERROR));
-        registerReceiver(addResourceActivityBroadcastReceiver, new IntentFilter(NOTIFICATION_ADDRESOURCE_END));
-        */
-        //registerReceiver(addResourceActivityBroadcastReceiver, new IntentFilter(NOTIFICATION_COPYFILE_SERVICE_PROGRESS));
-        //registerReceiver(addResourceActivityBroadcastReceiver, new IntentFilter(NOTIFICATION_UNZIP_SERVICE_PROGRESS));
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        try {
-            unregisterReceiver(addResourceActivityBroadcastReceiver);
-        } catch (Exception e) {
-            myLogE("onDestroy - error unregisterReceiver");
-        }
         try { //TODO should we.... ?
-            unbindService(addResourceServiceConnection);
+            if (mBound) unbindService(addResourceServiceConnection);
+            mBound = false;
         } catch (Exception e) {
-            myLogE("onDestroy - error unbindService");
+            myLogE("onDestroy - error unbindService : " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    @Override
+    protected void onStop() {
+        myLog("onStop - unbinding Services");
+        super.onStop();
+        try {
+            if (mBound) unbindService(addResourceServiceConnection);
+            mBound = false;
+        } catch (Exception e) {
+            myLogE("onDestroy - error unbindService : " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
-    private final BroadcastReceiver addResourceActivityBroadcastReceiver = new BroadcastReceiver() {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            switch (intent.getAction()) {
-                case NOTIFICATION_ADDRESOURCE_NAME:
-                    myLog("broadcast received NAME : " + intent.getStringExtra("name"));
-                    putTitle(intent.getStringExtra("name"));
-                    break;
-
-                case NOTIFICATION_ADDRESOURCE_PROGRESS:
-                    progressBar.setProgress(intent.getIntExtra("progressVal",0));
-                    progressBarText.setText(intent.getStringExtra("progressText"));
-                    break;
-/*
-                case NOTIFICATION_COPYFILE_SERVICE_PROGRESS:
-                    int ProgressBarVal =  intent.getIntExtra("progressVal",0);
-                    //myLog("broadcast received PROGRESS : " + intent.getIntExtra("progress",0));
-                    progressBar.setProgress(intent.getIntExtra("progressVal",0));
-                    progressBarText.setText(intent.getStringExtra("progressText"));
-                    //progressBar.setProgress(20);
-                    //progressBarText.setText("hello toto copy");
-                    myLog("Progess CopyFile received : " + intent.getIntExtra("progressVal",0) + " - " + intent.getStringExtra("progressText"));
-                    break;
-
-                case NOTIFICATION_UNZIP_SERVICE_PROGRESS:
-                    progressBar.setProgress(intent.getIntExtra("progressVal",0));
-                    progressBarText.setText(intent.getStringExtra("progressText"));
-                    //progressBar.setProgress(50);
-                    //progressBarText.setText("hello toto unzip");
-                    myLog("Progess Unzip received : " + intent.getIntExtra("progressVal",0) + " - " + intent.getStringExtra("progressText"));
-                    break;
-*/
-                case NOTIFICATION_ADDRESOURCE_ERROR:
-                    String errorMessage = getString(R.string.ERROR) + " :" + intent.getStringExtra("message");
-                    progressBarText.setText(errorMessage);
-                    progressBarText.setTextColor(Color.RED);
-                    //myToast(errorMessage);
-                    myLogE("broadcast received ERROR : " + errorMessage);
-                    break;
-
-                case NOTIFICATION_ADDRESOURCE_END:
-                    myLog("broadcast received END");
-                    if (intent.getBooleanExtra("ok",false)) {
-                        myToast(getString(R.string.Import_Success));
-                        AddResourceActivity.this.setResult(Activity.RESULT_OK);
-                    } else {
-                        String message = intent.getStringExtra("message");
-                        if (!message.equals("")) {
-                            myToast(message);
-                        } else {
-                            myToast("IMPORT CANCELLED !");
-                        }
-                    }
-                    finish();
-            }
-        }
-    };
     private final ServiceConnection addResourceServiceConnection = new ServiceConnection() {
-
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
             myLog("AddResourceService - onServiceConnected");
@@ -176,19 +111,16 @@ public class AddResourceActivity
             mService = binder.getService();
             mService.registerClient(AddResourceActivity.this); //to get the CallBacks
             mBound = true;
-
             // Get PlayList
             if (!HasBeenInitializedService) { mService.init(); }
             HasBeenInitializedService = true;
-
         }
-
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
             myLog("AddResourceService - OnServiceDisconnected");
+            mService.unbindService(addResourceServiceConnection);
             mBound = false;
         }
-
     };
 
     private void putTitle(String name) {
@@ -202,25 +134,50 @@ public class AddResourceActivity
 
     // callback override
     @Override
+    public void tellNonBlockingError(String txt) {
+        runOnUiThread(() -> {
+            myToastE(txt);
+            tvErrorText.setText(txt);
+            tvErrorText.setTextColor(Color.RED);
+        });
+    }
+    @Override
     public void updateProgress(String progressText, int progressVal) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                // Update UI elements here
-                progressBar.setProgress(progressVal);
-                progressBarText.setText(progressText);
-            }
+        runOnUiThread(() -> {
+            progressBar.setProgress(progressVal);
+            progressBarText.setText(progressText);
         });
     }
     @Override
     public void updateError(String errorText) {
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                // Update UI elements here
-                progressBarText.setText(errorText);
-                progressBarText.setTextColor(Color.RED);
+        runOnUiThread(() -> {
+            progressBarText.setText(errorText);
+            progressBarText.setTextColor(Color.RED);
+        });
+    }
+    @Override
+    public void tellHeader(String txt) {
+        runOnUiThread(() -> putTitle(txt));
+    }
+    @Override
+    public void updateEnd() {
+        runOnUiThread(() -> {
+            AddResourceActivity.this.setResult(Activity.RESULT_OK);
+            if (tvErrorText.getText().length() > 0) {
+
+                //wait some sec
+                final Handler handler = new Handler();
+                Runnable runnable = () -> {
+                    myToast("Import finished with errors");
+                    finish();                        };
+                myLog("Let's wait some sec to display error... [" + tvErrorText.getText() + "]");
+                handler.postDelayed(runnable, 5000);
+
+            } else {
+                myToast(getString(R.string.Import_Success));
+                finish();
             }
         });
     }
+
 }
