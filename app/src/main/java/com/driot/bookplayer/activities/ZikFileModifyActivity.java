@@ -22,6 +22,7 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.db.Sql;
 import com.driot.bookplayer.db.ZikFile;
+import com.driot.tonylib.KanLogger;
 
 import java.io.File;
 
@@ -155,7 +156,7 @@ public class ZikFileModifyActivity extends LifecycleLoggingActivity {
 
     private void deleteZikFile1() {
         // delete ZikFile if exist in app memory
-        String myErr = "ZikFileModifyActivity : Error getting uri from ZikFile for deleting file in memory";
+        String myErr = "Error getting uri from ZikFile for deleting file in memory";
         if (DeleteZikFileFromDisk()) {
             myLog("Ok file deleted");
             deleteZikFileFromDB(); // to delete from DB
@@ -283,13 +284,16 @@ public class ZikFileModifyActivity extends LifecycleLoggingActivity {
                         finish(); //close activity
                     }
                 }, throwable -> {
-                    myToastE("Adapater : error deleting progress");
-                    myLogE("Adapater : error deleteProgressFromThisZikFile :" + throwable.getMessage());
+                    myToastE("error deleting progress");
+                    myLogE("error deleteProgressFromThisZikFile :" + throwable.getMessage());
                     throwable.printStackTrace();
                 });
 
     }
 
     /////////////////// ----------- ///////////////
+    //--- LOG --------------------------
+    private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
+    private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
 
 }

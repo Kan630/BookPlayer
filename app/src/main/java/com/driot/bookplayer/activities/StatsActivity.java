@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import com.driot.bookplayer.BuildConfig;
 import com.driot.bookplayer.R;
+import com.driot.tonylib.KanLogger;
 
 public class StatsActivity extends LifecycleLoggingActivity {
 

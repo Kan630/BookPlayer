@@ -120,7 +120,6 @@ public class AudioService extends Service {
             if (!ErrorLoadingFile) {
                 updateZikFileState(true);
                 alertTrackFinished();
-                //fileHasBeenLoaded=false;
 
                 if (PlayList.getNumZikFile()+1 == PlayList.getZikFilesList().size()) {
                     myLog("AudioService - mediaPlayer.OnCompletionListener  => calling PlayListFinish");

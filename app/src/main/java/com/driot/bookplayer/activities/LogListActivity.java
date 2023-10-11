@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.utils.MyFile;
 import com.driot.bookplayer.utils.MyFileAdapter;
+import com.driot.tonylib.KanLogger;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -57,8 +58,8 @@ public class LogListActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
+        myLog("onBackPressed()");
         super.onBackPressed();
-        myLog("LogListActivity back press");
     }
 
     private void btnDeleteLogsClick() {
@@ -74,4 +75,8 @@ public class LogListActivity extends AppCompatActivity {
         File dir = new File(this.getFilesDir(), "log");
         recursiveRemove(dir);
         finish();
-    }}
+    }
+    //--- LOG --------------------------
+    private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
+    private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
+}

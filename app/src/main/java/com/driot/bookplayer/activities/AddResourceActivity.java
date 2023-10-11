@@ -129,10 +129,6 @@ public class AddResourceActivity
         tvTitle.setText(name);
     }
 
-    //-----------------------------
-    private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
-    private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
-
     // callback override
     @Override
     public void tellNonBlockingError(String txt) {
@@ -180,5 +176,8 @@ public class AddResourceActivity
             }
         });
     }
+    //--- LOG --------------------------
+    private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
+    private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
 
 }

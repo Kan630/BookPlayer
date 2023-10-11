@@ -15,10 +15,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import static com.driot.bookplayer.utils.Tonio2.getTextFileContentInArrayList;
-import static com.driot.tonylib.KanLogger.myLog;
-import static com.driot.tonylib.KanLogger.myLogE;
 
 import com.driot.bookplayer.R;
+import com.driot.tonylib.KanLogger;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 21/08/21
@@ -69,7 +68,7 @@ public class BiggerTextActivity extends AppCompatActivity {
         try {
             int zesize = myTextChunkArrayList.size();
         } catch (Exception e) {
-            myLogE("Ca chie, fichier vide : " + e.getMessage());
+            myLogE("Error, empty file : " + e.getMessage());
         }
 
         createMap();
@@ -79,7 +78,7 @@ public class BiggerTextActivity extends AppCompatActivity {
         myTextChunkArrayList = getTextFileContentInArrayList(this, typeStorage, file,"log", textOptions.getCharSize());
         recyclerView.setAdapter(new MyTextChunkAdapter(myTextChunkArrayList));
         textOptions.setScrollPosition(this, file, recyclerView);
-        myLog("BiggerTextActivity - RecyclerView Loaded");
+        myLog("loadRecyclerView()");
     }
 
     private void createMap() {
@@ -95,13 +94,13 @@ public class BiggerTextActivity extends AppCompatActivity {
         try {
             textOptions.saveScrollPosition(this, file, ((LinearLayoutManager) layoutManager).findFirstCompletelyVisibleItemPosition());
         } catch (Exception e) {
-            myLogE("BiggerText.onDestroy  saveScrollPosition : " + e.getMessage());
+            myLogE("onDestroy() -  saveScrollPosition : " + e.getMessage());
         }
         if (!destroyedByFlip) {
             try {
                 textOptions.saveHighlightedText(this, file, ""); // supprime highLightedWord si on quitte et que c'est pas un flip
             } catch (Exception e) {
-                myLogE("BiggerText.onDestroy  saveHighlightedText : " + e.getMessage());
+                myLogE("onDestroy() -  saveHighlightedText : " + e.getMessage());
             }
         }
         super.onDestroy();
@@ -109,8 +108,8 @@ public class BiggerTextActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
+        myLog("onBackPressed()");
         super.onBackPressed();
-        myLog("BiggerTextActivity back press");
     }
 
     /*
@@ -187,6 +186,9 @@ public class BiggerTextActivity extends AppCompatActivity {
     }
 
      */
+    //--- LOG --------------------------
+    private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
+    private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
 
 }
 

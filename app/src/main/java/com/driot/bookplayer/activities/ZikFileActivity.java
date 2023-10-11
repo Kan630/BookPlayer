@@ -11,6 +11,7 @@ import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.PlayList;
+import com.driot.tonylib.KanLogger;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -40,7 +41,7 @@ public class ZikFileActivity extends LifecycleLoggingActivity {
         TextView mTextViewTitle = findViewById(R.id.textViewTitle);
         mTextViewTitle.setText(getIntent().getStringExtra("FolderName"));
 
-        myLog("recyclerview idFolder onCreate - getDATA");
+        myLog("onCreate() - getDATA");
         getDATA();
     }
 
@@ -55,17 +56,17 @@ public class ZikFileActivity extends LifecycleLoggingActivity {
     @Override
     protected void onRestart() {
         super.onRestart();
-        myLog("recyclerview idFolder onRestart - getDATA");
+        myLog("onRestart() - getDATA");
         getDATA();
     }
 
     private void getDATA() {
         long idFolder = getIntent().getIntExtra("FolderId",0);
-        myLog("recyclerview idFolder = " + idFolder);
+        myLog("getData() - recyclerview idFolder = " + idFolder);
         if (idFolder != 0) {
             getZikFiles(idFolder);
         } else {
-            myLogE("FolderContentActivity.onCreate id Folder = 0");
+            myLogE("getDATA() - id Folder = 0");
         }
     }
 
@@ -122,23 +123,11 @@ public class ZikFileActivity extends LifecycleLoggingActivity {
                 goToLastAudio();
             }
         }
-
         GetZikFiles gt = new GetZikFiles();
         gt.execute();
     }
-
-    /********************
-     *
-     * END STUFF
-     */
-
-/*
-// Save state
-private Parcelable recyclerViewState;
-        recyclerViewState = recyclerView.getLayoutManager().onSaveInstanceState();
-
-// Restore state
-        recyclerView.getLayoutManager().onRestoreInstanceState(recyclerViewState);
-*/
+    //--- LOG --------------------------
+    private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
+    private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
 }
 

@@ -21,6 +21,7 @@ import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.global.PlayList;
 import com.driot.bookplayer.db.Sql;
 import com.driot.bookplayer.db.ZikFile;
+import com.driot.tonylib.KanLogger;
 
 import java.util.List;
 
@@ -109,13 +110,13 @@ public class ZikFilesAdapter extends RecyclerView.Adapter<ZikFilesAdapter.ZikFil
         @Override
         public void onClick(View view) {
             ZikFile zikFile = zikFileList.get(getAdapterPosition());
-            myLog("Adapater : onClick() : " + zikFile.getName());
+            myLog("onClick() : " + zikFile.getName());
 
             boolean FileOkForPlay = false;
             // check First that zikFile is proper zikFile and is playable
             if (zikFile.isIszipfile()) {
                 FileOkForPlay = true;
-                myLog("Adapater : zikFile is zip");
+                myLog("zikFile is zip");
             } else {
                 // check file exists
 /*
@@ -126,12 +127,11 @@ public class ZikFilesAdapter extends RecyclerView.Adapter<ZikFilesAdapter.ZikFil
                 }
 */
                 String fullPath = zikFile.getPath() + "/" + zikFile.getName();
-                myLog("Adapater : full path zikFile to open PlayActivity : " + fullPath);
+                myLog("full path zikFile to open PlayActivity : " + fullPath);
                 if (fileExists(fullPath)) FileOkForPlay = true;
             }
 
             if (FileOkForPlay) {
-                //PlayList.setZikFile(zikFile); //global var
                 PlayList.setNumZikFile(getAdapterPosition()); //global var
 
                 //pass an object, check parcelable //on s'en sert plus.... tout semble passer par les global var ci dessus
@@ -139,7 +139,7 @@ public class ZikFilesAdapter extends RecyclerView.Adapter<ZikFilesAdapter.ZikFil
                 intent.putExtra("ZikFile", zikFile);
                 mCtx.startActivity(intent);
             } else {
-                myLogE("Adapater : opening PlayActivity -- ERROR OPENING TRACK - FILE NOT FOUND !");
+                myLogE("opening PlayActivity -- ERROR OPENING TRACK - FILE NOT FOUND !");
                 Toast.makeText(mCtx, mCtx.getString(R.string.PlayActivity_ErrorOpeningTrack_FileNotFound), Toast.LENGTH_SHORT).show();
             }
         }
@@ -161,4 +161,7 @@ public class ZikFilesAdapter extends RecyclerView.Adapter<ZikFilesAdapter.ZikFil
         ((ZikFileActivity)mCtx).getZikFiles(idFolder);
     }
 
+    //--- LOG --------------------------
+    private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
+    private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
 }
