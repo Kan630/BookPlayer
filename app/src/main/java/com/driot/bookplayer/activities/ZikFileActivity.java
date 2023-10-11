@@ -18,9 +18,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
-import static com.driot.tonylib.KanLogger.myLog;
-import static com.driot.tonylib.KanLogger.myLogE;
-
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 30/10/20
  */

@@ -18,8 +18,8 @@ android {
         minSdkVersion 24  //24 seems to be minimum for ZipFile, but 21 (autoMultiDex) seemed to be working as well
         targetSdkVersion 34
 
-        versionCode 31
-        versionName "31 - bug fixes oct 2023"
+        versionCode 32
+        versionName "32 - bug fixes oct 2023"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         signingConfig signingConfigs.debug

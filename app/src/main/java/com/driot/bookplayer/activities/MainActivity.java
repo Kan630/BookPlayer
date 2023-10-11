@@ -13,9 +13,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toolbar;
 
+import androidx.activity.ComponentActivity;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -39,7 +38,7 @@ import com.google.android.play.core.tasks.Task;
 
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements LifecycleOwner {
+public class MainActivity extends ComponentActivity { //ComponentActivity used for this activity to be a LifecycleOwner in Observer
 
     private RecyclerView recyclerView;
 
@@ -150,6 +149,24 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
         }
     }
 
+    ////////////////////////////////////////////////////////////////////////////////////////
+    // UPDATE STUFF
+    ////////////////////////////////////////////////////////////////////////////////////////
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == UPDATE_APP_REQUEST_CODE) {
+            if (resultCode != RESULT_OK) {
+                // normalement on chope ca que pour les Flexibles, (pour les immédiates, on a poas le focus avant fin de l'update)
+
+                myLogE("Update flow failed! Result code: " + resultCode);
+                // If the update is cancelled or fails,
+                // you can request to start the update again.
+            } else {
+                myLog("Update success");
+            }
+        }
+    }
     private void checkForUpdate() {
         boolean DoZeUpdateIMMEDIATE = false;
         boolean DoZeUpdateFLEXIBLE = false;
@@ -225,23 +242,9 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
             e.printStackTrace();
         }
     }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == UPDATE_APP_REQUEST_CODE) {
-            if (resultCode != RESULT_OK) {
-                // normalement on chope ca que pour les Flexibles, (pour les immédiates, on a poas le focus avant fin de l'update)
-
-                myLogE("Update flow failed! Result code: " + resultCode);
-                // If the update is cancelled or fails,
-                // you can request to start the update again.
-            } else {
-                myLog("Update success");
-            }
-        }
-    }
-
+    ////////////////////////////////////////////////////////////////////////////////////////
+    // INIT
+    ////////////////////////////////////////////////////////////////////////////////////////
     private void init() {
         KanLogger.setContext(getApplicationContext());
         //ClearCacheData();

@@ -153,7 +153,6 @@ public class UnzipService extends Service {
                     myLog(String.valueOf(numCurZip+1) + " - Zip entry : " + ze.getName());
 
                     //bypass if zip contains only folder with same name at first level
-                    // // (doublons de dossier enchevetrés)
                     if (ze.isDirectory()) {
                         myLog("ze.isDirectory... goto next record");
                         if (ze.getName().equals(unzipFolder.getName() + "/")) {

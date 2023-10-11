@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
@@ -30,13 +31,6 @@
         android:layout_below="@+id/textviewTitle"
         android:layout_centerHorizontal="true"
         />
-
-    <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/textViewSubTitle"
-        android:layout_centerHorizontal="true" />
 
     <LinearLayout android:id="@+id/llCommandButtons"
         android:layout_height="wrap_content"
@@ -123,18 +117,18 @@
         android:layout_above="@+id/bSpeedUp"
         android:layout_marginTop="10dp"
         android:background="@android:color/darker_gray" />
+
     <TextView
         android:id="@+id/textViewSpeedDesc"
-        android:text="@string/tvSpeed"
         style="@style/myStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:layout_toStartOf="@id/bSpeedDown"
+        android:layout_above="@+id/textViewNomFichier"
         android:layout_marginEnd="20sp"
         android:layout_marginBottom="5sp"
-        android:layout_above="@+id/textViewNomFichier"
-        />
+        android:layout_toStartOf="@id/bSpeedDown"
+        android:text="@string/tvSpeed"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
     <Button
         android:id="@+id/bSpeedDown"
         android:text="-"

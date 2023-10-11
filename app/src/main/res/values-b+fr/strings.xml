@@ -174,7 +174,7 @@
     <string name="rewind"><![CDATA[<<]]></string>
     <string name="forward"><![CDATA[>>]]></string>
     <string name="pause">||</string>
-    <string name="tvSpeed">Vitesse de lecture</string>
+    <string name="tvSpeed">Vitesse</string>
     <string name="tv_ListeningTime">Lecture depuis</string>
     <string name="PlayActivity_ErrorOpeningTrack_FileNotFound">"ERREUR PISTE AUDIO - Fichier non trouvé !"</string>
     <string name="error_reading_track">"ERREUR A LA LECTURE DE LA PISTE AUDIO !"</string>

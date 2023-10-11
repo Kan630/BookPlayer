@@ -175,7 +175,7 @@
     <string name="rewind"><![CDATA[<<]]></string>
     <string name="forward"><![CDATA[>>]]></string>
     <string name="pause">||</string>
-    <string name="tvSpeed">playback speed</string>
+    <string name="tvSpeed">Speed</string>
     <string name="tv_ListeningTime">Listening since</string>
     <string name="PlayActivity_ErrorOpeningTrack_FileNotFound">"ERROR OPENING TRACK - FILE NOT FOUND !"</string>
     <string name="error_reading_track">"ERROR READING TRACK !"</string>
