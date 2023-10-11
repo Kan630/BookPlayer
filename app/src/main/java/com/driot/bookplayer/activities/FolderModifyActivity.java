@@ -9,6 +9,7 @@ import androidx.appcompat.app.AlertDialog;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.DatabaseClient;
+import com.driot.tonylib.KanLogger;
 
 import java.io.File;
 
@@ -17,8 +18,6 @@ import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 import static com.driot.bookplayer.utils.Utils.recursiveRemove;
-import static com.driot.tonylib.KanLogger.myLog;
-import static com.driot.tonylib.KanLogger.myLogE;
 import static com.driot.tonylib.KanLogger.myLogInFile;
 import static com.driot.tonylib.KanLogger.myToast;
 import static com.driot.tonylib.KanLogger.myToastE;
@@ -77,7 +76,7 @@ public class FolderModifyActivity extends LifecycleLoggingActivity {
 
     private void deleteFolder1() {
         // delete folder if exist in app memory
-        String myErr = "FolderModifyActivity : Error getting uri from folder for deleting file in memory";
+        String myErr = "Error getting uri from folder for deleting file in memory";
         Observable.fromCallable(() -> DatabaseClient
                 .getInstance(getApplicationContext())
                 .getAppDatabase()
@@ -208,5 +207,8 @@ public class FolderModifyActivity extends LifecycleLoggingActivity {
                 });
     }
 
+    //--- LOG --------------------------
+    private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
+    private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
 
 }
