@@ -75,7 +75,7 @@ public class KanLogger {
         prefix = prefix.replace(PREFIX_DELETE,"");
         if (LOG_DEBUG && isMyPhoneDev()) {
             writeToLogFile(str);
-            Log.d("totoD", str);
+            Log.d("totoD " + prefix, str);
         }
     }
 
