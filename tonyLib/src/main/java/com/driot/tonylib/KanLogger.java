@@ -61,7 +61,6 @@ public class KanLogger {
     }
     public static void myLog(String prefix, String str) {
         prefix = prefix.replace(PREFIX_DELETE,"");
-        //this.getClass().getName()
         if (TextUtils.isEmpty(str)) {str = "...";}
         if (isMyPhoneDev()) {
             writeToLogFile(str);
@@ -71,7 +70,9 @@ public class KanLogger {
         }
     }
 
-    public static void myLogD(String str) {
+    public static void myLogD(String str)  { myLogD("",str); }
+    public static void myLogD(String prefix, String str) {
+        prefix = prefix.replace(PREFIX_DELETE,"");
         if (LOG_DEBUG && isMyPhoneDev()) {
             writeToLogFile(str);
             Log.d("totoD", str);

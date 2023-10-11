@@ -22,6 +22,7 @@ import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.global.PlayList;
 import com.driot.bookplayer.db.Sql;
 import com.driot.bookplayer.db.ZikFile;
+import com.driot.tonylib.KanLogger;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -46,10 +47,6 @@ import static com.driot.bookplayer.utils.Tonio.FormatTime;
 import static com.driot.bookplayer.utils.Tonio.fileExists;
 import static com.driot.bookplayer.utils.Tonio.getExtension;
 import static com.driot.bookplayer.utils.Utils.copyStream;
-import static com.driot.tonylib.KanLogger.myLog;
-import static com.driot.tonylib.KanLogger.myLogD;
-import static com.driot.tonylib.KanLogger.myLogE;
-
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 01/11/20
@@ -107,7 +104,7 @@ public class AudioService extends Service {
      */
     @Override
     public void onCreate() {
-        myLog("Audio Service : onCreate()");
+        myLog("onCreate()");
         super.onCreate();
         mediaPlayer = new MediaPlayer();
         mediaSession = new MediaSession(this, "MyTotoMediaSession");
@@ -150,7 +147,7 @@ public class AudioService extends Service {
     }
 
     void nextTrack() {
-        myLog("Audio Service : Next track");
+        myLog("Next track");
         PlayList.setNumZikFile(PlayList.getNumZikFile()+1);
         mediaPlayer.reset();
         int curNum = PlayList.getNumZikFile() + 1;
@@ -197,12 +194,12 @@ public class AudioService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        myLog("Audio Service : onStartCommand()" + intent.toString());
+        myLog("onStartCommand()" + intent.toString());
         return START_NOT_STICKY; //TODO maybe to change... because memory pressure could kill it
     }
     @Override
     public void onDestroy() {
-        myLog("Audio Service : onDestroy()");
+        myLog("onDestroy()");
         if (mediaPlayer.isPlaying()) {mediaPlayer.stop();}
         mediaPlayer.release();
         mediaPlayer = null;
@@ -215,13 +212,13 @@ public class AudioService extends Service {
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        myLog("Audio Service : onBind()");
+        myLog("onBind()");
         return binder;
     }
 
     @Override
     public boolean onUnbind(Intent intent) {
-        myLog("Audio Service : onUnBind()  " + intent.getDataString());
+        myLog("onUnBind()  " + intent.getDataString());
         return super.onUnbind(intent);
     }
 
@@ -346,13 +343,13 @@ public class AudioService extends Service {
                 mAudioManager = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
                 afChangeListener = focusChange -> {
                     if (focusChange <= 0) {
-                        myLog("Audio Service : Audio Focus Lost");
+                        myLog("Audio Focus Lost");
                         AudioService.this.pauseAudio();
                         //mediaSession.setActive(false); // CHECK
                         Intent intent = new Intent(NOTIFICATION_AUDIOFOCUS_LOST);
                         sendBroadcast(intent);
                     } else {
-                        myLog("Audio Service : Audio Focus Gain");
+                        myLog("Audio Focus Gain");
                         AudioService.this.playAudio();
                         mediaSession.setActive(true);
                         Intent intent = new Intent(NOTIFICATION_AUDIOFOCUS_GAIN);
@@ -497,7 +494,7 @@ public class AudioService extends Service {
      ********************************************************************************
      */
     private void configureMediaSession() {
-        myLog("Audio Service : configureMediaSession()");
+        myLog("configureMediaSession()");
 
         // Overridden methods in the MediaSession.Callback class.
         mediaSession.setCallback(new MediaSession.Callback() {
@@ -578,7 +575,7 @@ public class AudioService extends Service {
                 updateZikFileState(false);
                 
                 if (tempsEcoule > maxTimeBeforeSleep*60) {
-                    myLog( "Audio Service : Max Playback Time Reached -- Stopping Service");
+                    myLog( "Max Playback Time Reached -- Stopping Service");
 
                     ToneGenerator toneGen2 = new ToneGenerator(AudioManager.STREAM_MUSIC, 50);
                     toneGen2.startTone(ToneGenerator.TONE_DTMF_0,1000);
@@ -654,10 +651,10 @@ public class AudioService extends Service {
             })
                     .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
                     .subscribe(result -> {
-                        myLogD("Audio Service : ---------- zikFile updated (" + zf.getName() + ")- position : " + myDF.format(zf.getPosition()));
+                        myLogD("---------- zikFile updated (" + zf.getName() + ")- position : " + myDF.format(zf.getPosition()));
                         Sql.calculateFolderProgress(getApplicationContext(), zf.getIdFolder());
                     }, throwable -> {
-                        myLog("Audio Service : error sql updating zikFile :" + throwable.getMessage());
+                        myLog("error sql updating zikFile :" + throwable.getMessage());
                     });
 
         } catch (Exception e) {
@@ -697,5 +694,10 @@ public class AudioService extends Service {
             return 1.0;
         }
     }
+
+    //--- LOG --------------------------
+    private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
+    private void myLogD(String str) { KanLogger.myLogD(this.getClass().getName(), str); }
+    private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
 
 }

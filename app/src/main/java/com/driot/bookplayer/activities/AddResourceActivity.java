@@ -81,8 +81,9 @@ public class AddResourceActivity
 
     @Override
     protected void onDestroy() {
+        myLog("onDestroy - unbinding Services");
         super.onDestroy();
-        try { //TODO should we.... ?
+        try {
             if (mBound) unbindService(addResourceServiceConnection);
             mBound = false;
         } catch (Exception e) {
@@ -98,7 +99,7 @@ public class AddResourceActivity
             if (mBound) unbindService(addResourceServiceConnection);
             mBound = false;
         } catch (Exception e) {
-            myLogE("onDestroy - error unbindService : " + e.getMessage());
+            myLogE("onStop - error unbindService : " + e.getMessage());
             e.printStackTrace();
         }
     }

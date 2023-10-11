@@ -96,11 +96,8 @@ public class UnzipService extends Service {
         }
 
         // le lourd dans une background Thread.... Hyper Important !!
-        Thread backgroundThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                Boolean ret = unzipZipLocal();
-            }
+        Thread backgroundThread = new Thread(() -> {
+            Boolean ret = unzipZipLocal();
         });
         backgroundThread.start();
 

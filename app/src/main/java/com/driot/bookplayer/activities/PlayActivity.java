@@ -21,7 +21,6 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -30,6 +29,7 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.global.PlayList;
 import com.driot.bookplayer.utils.AudioService;
+import com.driot.tonylib.KanLogger;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -55,45 +55,36 @@ import static com.driot.bookplayer.utils.Tonio.FormatNameForDisplay;
 import static com.driot.bookplayer.utils.Tonio.FormatPercentStringForSpeed;
 import static com.driot.bookplayer.utils.Tonio.FormatTime;
 import static com.driot.bookplayer.utils.Utils.animateView;
-import static com.driot.tonylib.KanLogger.myLog;
-import static com.driot.tonylib.KanLogger.myLogD;
-import static com.driot.tonylib.KanLogger.myLogE;
 import static com.driot.tonylib.KanLogger.myToastE;
 
 public class PlayActivity extends LifecycleLoggingActivity {
 
     public static final String SHARED_PREFERENCE_SPEED="SHARED_PREFERENCE_SPEED";
-    private static final boolean DO_PLAY_NEXT_SONG = true;
     private static final int INTERVAL_REDRAW_SEEKBAR = 500; //  because looks like it happens erraticly when choosing value of 100 for this constant
     private static final int DELAY_ANIMATION = 200;
     private static final float INCREMENT_SPEED = 0.05f;
-    private static boolean isZipFile;
     boolean boundToService;
     AudioService mService;
     boolean mBound = false;
-    private Button bForward, bPlay, bRewind, bSpeedUp, bSpeedDown;
+    private Button bPlay;
     private SeekBar seekbar;
     private TextView txSeekBar, txTempsTotal, txNomFichier, txTitle, txSubTitle, txSpeed, txListeningTime;
     private View progressOverlay;
-    private ImageView iv;
     private boolean AnimationNow;
     private boolean HasBeenInitializedService = false;
-    private final boolean HasBeenInitializedUI = false;
     private Intent intentMusicService;
-    private boolean ShitHappensFlee = false;
-    private Timer autoUpdate;
-    private final int currentScreenOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED;
+    private Timer timerRedrawUI;
 
     /********************************************************************************
      ***       SERVICE
      ********************************************************************************
      */
 
-    private final ServiceConnection connection = new ServiceConnection() {
+    private final ServiceConnection audioServiceConnection = new ServiceConnection() {
 
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
-            myLog("PlayActivity : onServiceConnected");
+            myLog("onServiceConnected");
             AudioService.BackgroundBinder binder = (AudioService.BackgroundBinder) service;
             mService = binder.getService();
             mBound = true;
@@ -107,57 +98,55 @@ public class PlayActivity extends LifecycleLoggingActivity {
             HasBeenInitializedService = true;
 
             // retour de flip ecran
-            myLog("PlayActivity : onServiceConnected - DrawUI");
+            myLog("onServiceConnected - DrawUI");
             DrawUI(); //utile pour suppression progressBar
         }
 
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
-            myLog("PlayActivity : OnServiceDisconnected");
+            myLog("OnServiceDisconnected");
             mBound = false;
         }
 
     };
-    private final BroadcastReceiver receiver = new BroadcastReceiver() {
+    private final BroadcastReceiver broadCastReceiver = new BroadcastReceiver() {
 
         @Override
         public void onReceive(Context context, Intent intent) {
             switch (intent.getAction()) {
                 case NOTIFICATION_NEWTRACK:
-                    myLog("PlayActivity : broadcast received NEW TRACK");
-                    //if (isZipFile) ShowProgressAnim();
+                    myLog("broadcast received NEW TRACK");
                     break;
                 case NOTIFICATION_ERROR:
-                    ShitHappensFlee = true;
-                    myLog("PlayActivity : broadcast received ERROR");
+                    myLog("broadcast received ERROR");
                     Toast.makeText(getApplicationContext(), getString(R.string.error_reading_track), Toast.LENGTH_SHORT).show();
                     finish();
                 case NOTIFICATION_TRACKFINISHED:
-                    myLog("PlayActivity : broadcast received TRACK FINISHED");
+                    myLog("broadcast received TRACK FINISHED");
                     break;
                 case NOTIFICATION_PLAYLISTFINISHED:
-                    myLog("PlayActivity : broadcast received PLAYLIST FINISHED");
+                    myLog("broadcast received PLAYLIST FINISHED");
                     finish();
                     break;
                 case NOTIFICATION_PLAYBACK_MAXTIMEREACH:
-                    myLog("PlayActivity : broadcast received PLAYBACK_MAXTIMEREACH");
+                    myLog("broadcast received PLAYBACK_MAXTIMEREACH");
                     finish();
                     break;
                 case NOTIFICATION_PLAYBACK_TIMER_VALUE:
-                    myLogD("PlayActivity : broadcast received PLAYBACK_TIMER_VALUE");
+                    myLogD("broadcast received PLAYBACK_TIMER_VALUE");
                     reDrawListeningSince(intent.getIntExtra(TIMER_VALUE,-999));
                     break;
                 case NOTIFICATION_AUDIOFOCUS_LOST:
-                    myLog("PlayActivity : broadcast received AUDIO FOCUS LOST");
+                    myLog("broadcast received AUDIO FOCUS LOST");
                     //SetInterfacePausingMode();
                     break;
                 case NOTIFICATION_AUDIOFOCUS_GAIN:
-                    myLog("PlayActivity : broadcast received AUDIO FOCUS GAIN");
+                    myLog("broadcast received AUDIO FOCUS GAIN");
                     //SetInterfacePlayingMode();
                     break;
                 case NOTIFICATION_FILELOADED:
-                    myLog("PlayActivity : broadcast received FILE LOADED");
-                    myLog("PlayActivity : fileloaded - DrawUI");
+                    myLog("broadcast received FILE LOADED");
+                    myLog("fileloaded - DrawUI");
                     DrawUI();
                     //mService.setPosition((int) PlayList.getZikFile().getPosition());
                     HideProgressAnim();
@@ -182,13 +171,12 @@ public class PlayActivity extends LifecycleLoggingActivity {
 
         setContentView(R.layout.activity_play);
 
-        bRewind = findViewById(R.id.buttonRewind);
+        Button bRewind = findViewById(R.id.buttonRewind);
         bPlay = findViewById(R.id.buttonPlay);
-        bForward = findViewById(R.id.buttonForward);
-        bSpeedUp = findViewById(R.id.bSpeedUp);
-        bSpeedDown = findViewById(R.id.bSpeedDown);
+        Button bForward = findViewById(R.id.buttonForward);
+        Button bSpeedUp = findViewById(R.id.bSpeedUp);
+        Button bSpeedDown = findViewById(R.id.bSpeedDown);
 
-        iv = findViewById(R.id.imageView);
         progressOverlay = findViewById(R.id.progress_overlay);
 
         txSeekBar = findViewById(R.id.textViewSeekBar);
@@ -200,7 +188,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
         seekbar = findViewById(R.id.seekBar);
         txListeningTime = findViewById(R.id.tv_ListeningTime);
 
-        myLog("PlayActivity.onCreate() -- Launching Music Service");
+        myLog("onCreate() -- Launching Music Service");
         launchService();
 
         try {
@@ -238,7 +226,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 if (fromUser) {
-                    myLog("PlayActivity : SeekBar");
+                    myLog("SeekBar");
                     mService.setPosition(progress);
                     txSeekBar.setText(FormatTime(progress,true));
                 }
@@ -270,67 +258,54 @@ public class PlayActivity extends LifecycleLoggingActivity {
         startService(intentMusicService);
         boundToService=false;
         try {
-            boundToService = bindService(intentMusicService, connection, Context.BIND_AUTO_CREATE);
+            boundToService = bindService(intentMusicService, audioServiceConnection, Context.BIND_AUTO_CREATE);
         } catch (Exception e) {
-            myLogE("PlayActivity : ERROR bindService");
+            myLogE("ERROR bindService");
             myLogE(e.getMessage());
         }
-        myLog("PlayActivity : call start & bind to AudioService in PlayActivity.onCreate() - bound result :" + boundToService + "");
+        myLog("call start & bind to AudioService in onCreate() - bound result :" + boundToService + "");
     }
 
     private void playMe() {
-        myLog("PlayActivity.PlayMe()");
+        myLog("PlayMe()");
         if (mBound) {
             if (mService != null && mService.exist()) {
                 if (mService.isPlaying()) {
-
                     /////////   PAUSE
-                    myLog("PlayActivity : pause");
+                    myLog("pause");
                     mService.pauseAudio();
                     reDrawListeningSince(0);
-                    myLog("PlayActivity : unbinding service");
-                    try {
-                        // CHECK
-                        //unbindService(connection); // TODO some random comment on ze net :  You bind in onResume but unbind in onDestroy. You should do the unbinding in onPause instead, so that there are always matching pairs of bind/unbind calls. Your intermittent errors will be where your activity is paused but not destroyed, and then resumed again.
-                    } catch (Exception e) {
-                        myLogE("PlayActivity : unbinding service ERROR");
-                        myLogE(e.getMessage());
-                        e.printStackTrace();
-                    }
-
                     /////// PLAY
                 } else {
-                    myLog("PlayActivity : play");
-                    launchService();
-                    myLog("PlayActivity : service has been launched");
+                    myLog("play");
                     mService.playAudio();
                 }
             } else {
-                myLogE("PlayActivity playMe() mService KO");
+                myLogE("playMe() mService KO");
             }
         } else {
-            myLogE("PlayActivity playMe() mBound False");
+            myLogE("playMe() mBound False");
         }
     }
 
     private void forwardMe() {
         mService.forwardAudio();
-        myLog("PlayActivity : Forward");
+        myLog("Forward");
     }
 
     private void backwardMe() {
         mService.backwardAudio();
-        myLog("PlayActivity : Backward");
+        myLog("Backward");
     }
 
     private void SpeedMeUp() {
         setSpeed(mService.getSpeed() + INCREMENT_SPEED);
-        myLog("PlayActivity : SpeedUp");
+        myLog("SpeedUp");
     }
 
     private void SpeedMeDown() {
         setSpeed(mService.getSpeed() - INCREMENT_SPEED);
-        myLog("PlayActivity : SpeedDown");
+        myLog("SpeedDown");
     }
 
     private void setSpeed(double speed) {
@@ -346,48 +321,54 @@ public class PlayActivity extends LifecycleLoggingActivity {
      */
     @Override
     protected void onResume() {
-        myLog("PlayActivity.onResume... registering receiver");
-        super.onResume();
+        myLog("onResume()... registering broadCastReceiver");
 
-        registerReceiver(receiver, new IntentFilter(NOTIFICATION_NEWTRACK));
-        registerReceiver(receiver, new IntentFilter(NOTIFICATION_TRACKFINISHED));
-        registerReceiver(receiver, new IntentFilter(NOTIFICATION_AUDIOFOCUS_GAIN));
-        registerReceiver(receiver, new IntentFilter(NOTIFICATION_AUDIOFOCUS_LOST));
-        registerReceiver(receiver, new IntentFilter(NOTIFICATION_FILELOADED));
-        registerReceiver(receiver, new IntentFilter(NOTIFICATION_ERROR));
-        registerReceiver(receiver, new IntentFilter(NOTIFICATION_ZIP_FILE_LOADED));
-        registerReceiver(receiver, new IntentFilter(NOTIFICATION_PLAYLISTFINISHED));
-        registerReceiver(receiver, new IntentFilter(NOTIFICATION_PLAYBACK_MAXTIMEREACH));
-        registerReceiver(receiver, new IntentFilter(NOTIFICATION_PLAYBACK_TIMER_VALUE));
+        registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_NEWTRACK));
+        registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_TRACKFINISHED));
+        registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_AUDIOFOCUS_GAIN));
+        registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_AUDIOFOCUS_LOST));
+        registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_FILELOADED));
+        registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_ERROR));
+        registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_ZIP_FILE_LOADED));
+        registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_PLAYLISTFINISHED));
+        registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_PLAYBACK_MAXTIMEREACH));
+        registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_PLAYBACK_TIMER_VALUE));
 
-        myLog("PlayActivity.onResume, creating new timer for Display");
+        myLog("onResume() - creating new timer for Display");
         runTimerForDisplay();
-
+        myLog("onResume() - bind to service");
+        boundToService = bindService(intentMusicService, audioServiceConnection, Context.BIND_AUTO_CREATE);
+        super.onResume();
     }
 
     @Override
     protected void onDestroy() {
+        myLog("onDestroy - unregister Broadcast Receiver");
+        unregisterReceiver(broadCastReceiver);
         super.onDestroy();
-        unregisterReceiver(receiver);
-        //stopService(intentMusicService);
-        //if (connection != null) { unbindService(connection); }
-        //killTimerForDisplay();
     }
 
     @Override
     protected void onPause() {
-        super.onPause();
+        myLog("onPause() - killing display timer + unbinding Audio Service");
         killTimerForDisplay();
+        unbindService(audioServiceConnection);
+        super.onPause();
     }
 
     @Override
     public void onBackPressed() {
+        myLog("onBackPressed() - stop playing");
         if (mService.isPlaying()) {
-            //myToast(getResources().getString(R.string.no_back_while_play));
             playMe();
-            if (connection != null) { unbindService(connection); }
         }
         super.onBackPressed();
+    }
+
+    @Override
+    protected void onStop() {
+        myLog("onStop()");
+        super.onStop();
     }
 
     /********************************************************************************
@@ -395,7 +376,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
      ********************************************************************************
      */
     private void loadPlayListIntoService() {
-        myLog("PlayActivity : +++++++++ loading PlayList Into Service - GetZikFiles - Folder : " + PlayList.getZikFile().getIdFolder());
+        myLog("+++++++++ loading PlayList Into Service - GetZikFiles - Folder : " + PlayList.getZikFile().getIdFolder());
         Observable.fromCallable(() -> DatabaseClient
                 .getInstance(getApplicationContext())
                 .getAppDatabase()
@@ -403,15 +384,15 @@ public class PlayActivity extends LifecycleLoggingActivity {
                 .getNextZikFiles(PlayList.getZikFile().getIdFolder(), PlayList.getZikFile().getName())).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe((result) -> mService.loadFiles(result), throwable -> {
-                    myToastE("PlayActivity : Error Loading playlist");
-                    myLogE("PlayActivity : Error Loading playlist :" + throwable.getMessage());
+                    myToastE("Error Loading playlist");
+                    myLogE("Error Loading playlist :" + throwable.getMessage());
                     throwable.printStackTrace();
                 });
     }
 
     private void DrawUI() {
         try {
-            myLog("PlayActivity : DrawUI : " + PlayList.getZikFile().getName() + " -- " + PlayList.getZikFile().getPosition());
+            myLog("DrawUI : " + PlayList.getZikFile().getName() + " -- " + PlayList.getZikFile().getPosition());
             txSubTitle.setText(FormatNameForDisplay(PlayList.getZikFile().getName()));
             txTitle.setText(PlayList.getZikFile().getFolderName());
             txNomFichier.setText("");
@@ -421,9 +402,9 @@ public class PlayActivity extends LifecycleLoggingActivity {
             seekbar.setProgress((int) PlayList.getZikFile().getPosition());
             txSpeed.setText(FormatPercentStringForSpeed( mService.getSpeed() * 100));
             HideProgressAnim();
-            myLogD("PlayActivity : ----------------------------- play screen drawn " + PlayList.getZikFile().getPosition());
+            myLogD("----------------------------- play screen drawn " + PlayList.getZikFile().getPosition());
         } catch (Exception e) {
-            myLogE("PlayActivity :----------------------------- play screen drawn ERROR");
+            myLogE(":----------------------------- play screen drawn ERROR");
             myLogE(e.getMessage());
         }
     }
@@ -444,8 +425,8 @@ public class PlayActivity extends LifecycleLoggingActivity {
      */
 
     private void runTimerForDisplay() {
-        autoUpdate = new Timer();
-        autoUpdate.schedule(new TimerTask() {
+        timerRedrawUI = new Timer();
+        timerRedrawUI.schedule(new TimerTask() {
             @Override
             public void run() {
                 runOnUiThread(() -> redrawSeekBar());
@@ -454,7 +435,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
 
     }
     private void killTimerForDisplay() {
-        autoUpdate.cancel();
+        timerRedrawUI.cancel();
     }
 
         private void redrawSeekBar() {
@@ -470,7 +451,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
 
         } else {
             bPlay.setText(R.string.pause);
-            myLog("PlayActivity : redrawSeekBar => service KO => drawing pause button");
+            myLog("redrawSeekBar => service KO => drawing pause button");
         }
     }
 
@@ -492,5 +473,9 @@ public class PlayActivity extends LifecycleLoggingActivity {
 
     }
 
+    //--- LOG --------------------------
+    private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
+    private void myLogD(String str) { KanLogger.myLogD(this.getClass().getName(), str); }
+    private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
 
 }
