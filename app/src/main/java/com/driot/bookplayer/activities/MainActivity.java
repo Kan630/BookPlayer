@@ -1,5 +1,9 @@
 package com.driot.bookplayer.activities;
 
+import static com.driot.bookplayer.utils.Utils.deleteDir;
+import static com.driot.tonylib.KanLogger.isMyPhoneDev;
+import static com.driot.tonylib.TonioCommonStuff.MD5;
+
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.IntentSender;
@@ -18,9 +22,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.BuildConfig;
+import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.db.Folder;
-import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.FolderDao;
 import com.driot.tonylib.KanLogger;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -34,10 +38,6 @@ import com.google.android.play.core.install.model.UpdateAvailability;
 import com.google.android.play.core.tasks.Task;
 
 import java.util.List;
-
-import static com.driot.bookplayer.utils.Utils.deleteDir;
-import static com.driot.tonylib.KanLogger.isMyPhoneDev;
-import static com.driot.tonylib.TonioCommonStuff.MD5;
 
 public class MainActivity extends AppCompatActivity implements LifecycleOwner {
 
@@ -118,15 +118,12 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
         return super.onOptionsItemSelected(item);
     }
 
-
-
     private void getFolders() {
         myLog("getFolders()");
         FolderDao folderDao = DatabaseClient.getInstance(getApplicationContext()).getAppDatabase().FolderDao();
         LiveData<List<Folder>> foldersLiveData = folderDao.getAllLiveData();
         foldersLiveData.observe(this, (Observer<List<Folder>>) folders -> { //getLifecycle()
-            myLog("LiveData : [" + folders.size() + "]");
-            // Handle the data here
+            myLog("LiveData onChange observed - List<Folders>");
             if (folders.size() == 0) {
                 if (!HasBeenProposedToOpenFile) openGetResourceActivity();
                 HasBeenProposedToOpenFile = true;
@@ -152,7 +149,6 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
             myLogE("Error while clearing cache data");
         }
     }
-
 
     private void checkForUpdate() {
         boolean DoZeUpdateIMMEDIATE = false;
@@ -252,16 +248,16 @@ public class MainActivity extends AppCompatActivity implements LifecycleOwner {
         KanLogger.myLog("Checking for Updates");
         checkForUpdate();
         KanLogger.myLog("");
-        KanLogger.myLog("==========================");
+        KanLogger.myLog("========================== Fingerprint :");
         KanLogger.myLog("===");
         KanLogger.myLog("Build.FINGERPRINT = " + Build.FINGERPRINT);
         KanLogger.myLog("Build.FINGERPRINT MD5 = " + MD5(Build.FINGERPRINT));
         KanLogger.myLog("Phone is Dev ? => " + String.valueOf(isMyPhoneDev()));
-        KanLogger.myLog("==========================");
+        KanLogger.myLog("========================== Device info :");
         KanLogger.myLog("Build.Version SDK = " + Build.VERSION.SDK_INT);
         KanLogger.myLog("Build.Release = " + Build.VERSION.RELEASE);
         KanLogger.myLog("Build.Base_OS = " + Build.VERSION.BASE_OS);
-        KanLogger.myLog("==========================");
+        KanLogger.myLog("========================== App info :");
         KanLogger.myLog("BuildConfig.VERSION_CODE = " + BuildConfig.VERSION_CODE);
         KanLogger.myLog("BuildConfig.VERSION_NAME = " + BuildConfig.VERSION_NAME);
         KanLogger.myLog("BuildConfig.BUILD_TYPE = " + BuildConfig.BUILD_TYPE);

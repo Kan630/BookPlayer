@@ -65,7 +65,7 @@ public class StatsActivity extends LifecycleLoggingActivity {
 
 
     }
-
+    //minSdkVersion
     public static String getVersionName(int sdkVersion) {
         switch (sdkVersion) {
             case Build.VERSION_CODES.BASE:

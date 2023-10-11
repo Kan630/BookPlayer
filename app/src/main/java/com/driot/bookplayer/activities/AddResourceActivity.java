@@ -141,8 +141,12 @@ public class AddResourceActivity
     @Override
     public void updateProgress(String progressText, int progressVal) {
         runOnUiThread(() -> {
-            progressBar.setProgress(progressVal);
-            progressBarText.setText(progressText);
+            if (progressVal >= 0 && progressVal <= 100) {
+                progressBar.setProgress(progressVal);
+            }
+            if (progressText.length() > 0) {
+                progressBarText.setText(progressText);
+            }
         });
     }
     @Override

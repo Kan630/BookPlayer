@@ -18,6 +18,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.zip.ZipEntry;
@@ -116,7 +119,6 @@ public class UnzipService extends Service {
         ////////////////////////////////////////////////////////////////////////////////
         tellProgress(0,getResources().getString(R.string.Import_Progress_unzipping_file));
         try {
-            ZipInputStream zis = new ZipInputStream(new BufferedInputStream(new FileInputStream(zipFile)));
             myLog("unzipping in : " + unzipFolder);
 
             // check number of file in zip
@@ -130,29 +132,17 @@ public class UnzipService extends Service {
             }
             myLog("Zip file has : " + nbZip + " entries");
             myLog("---------------------------------------------------------");
-            // un pti enum pour verif en log...
-            try {
-                for (Enumeration<? extends ZipEntry> e = new ZipFile(zipFile).entries(); e.hasMoreElements(); ) {
-                    ZipEntry entry = (ZipEntry) e.nextElement();
-                    String zeName = entry.getName();
-                    if (!entry.isDirectory()) {
-                        //zipFileListing.add(zeName);
-                        myLog("Enumeration zipFile.entries : [" + zeName + "]");
-                    } else {
-                        myLog("Enumeration zipFile.entries isDIR : [" + zeName + "]");
-                    }
-                }
-            } catch (Exception e) {
-                myLogE("Couln't do enumeration of zip file : " + e.getMessage());
-            }
-
-            int numCurZip = 0;
-            myLog("---------------------------------------------------------");
 
             ////////////////////////////////////////////////////////////////////////////////
             /// Looping on Entries
             ////////////////////////////////////////////////////////////////////////////////
+            int numCurZip = 0;
+            Charset charset = getCharset(zipFile);
+            if (charset == null) { charset = Charset.defaultCharset(); }
+            myLog("---------------------------------------------------------");
+            ZipInputStream zis = null;
             try {
+                zis = new ZipInputStream(new BufferedInputStream(new FileInputStream(zipFile)), charset);
                 ZipEntry ze;
                 int count;
                 byte[] buffer = new byte[8192];
@@ -214,7 +204,7 @@ public class UnzipService extends Service {
 // end loop
             } finally { //of the try of the loop
                 myLog("End Zip while loop");
-                zis.close();
+                if (zis != null) zis.close();
                 if (zipFile.delete()) { // if Exception, the catch delete the all folder...
                     myLog("unzip done in folder, internal zip file deleted");
                 } else {
@@ -243,6 +233,7 @@ public class UnzipService extends Service {
 
     private String shortenAudioFileName(String audioFileName, String folderName) {
         String tmp = audioFileName;
+        //tmp = Paths.get(tmp).normalize().toString();
         if (tmp.toLowerCase(Locale.ROOT).startsWith(folderName.toLowerCase(Locale.ROOT))) {
             tmp = tmp.substring((folderName).length());
         }
@@ -265,6 +256,41 @@ public class UnzipService extends Service {
             myLog("name shortened : [" + tmp + "] => [" + audioFileName + "]");
         }
         return tmp;
+    }
+
+    private Charset getCharset(File zipFile) {
+        Charset charset;
+        charset = StandardCharsets.UTF_8;
+        if (checkCharset(zipFile, charset)) { return charset; }
+        charset = StandardCharsets.ISO_8859_1;
+        if (checkCharset(zipFile, charset)) { return charset; }
+        charset = StandardCharsets.US_ASCII;
+        if (checkCharset(zipFile, charset)) { return charset; }
+        charset = StandardCharsets.UTF_16;
+        if (checkCharset(zipFile, charset)) { return charset; }
+        charset = StandardCharsets.UTF_16BE;
+        if (checkCharset(zipFile, charset)) { return charset; }
+        charset = StandardCharsets.UTF_16LE;
+        if (checkCharset(zipFile, charset)) { return charset; }
+        charset = Charset.defaultCharset();
+        if (checkCharset(zipFile, charset)) { return charset; }
+        myLogE("No correct charset found for zipFile");
+        return null;
+    }
+
+    private boolean checkCharset(File zipFile, Charset charset) {
+        int i = 1;
+        try {
+            for (Enumeration<? extends ZipEntry> e = new ZipFile(zipFile, charset).entries(); e.hasMoreElements(); ) {
+                ZipEntry entry = (ZipEntry) e.nextElement();
+                i = i + 1;
+            }
+            myLog("Charset found : [" + charset.toString() + "]");
+            return true;
+        } catch (Exception e) {
+            myLog("Charset tested : [" + charset.toString() + "] => KO after " + i + " entries.");
+            return false;
+        }
     }
 
 

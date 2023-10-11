@@ -518,7 +518,6 @@ public class AddResourceService
             } else {
                 tellProgress(PROGRESS_SORTING_NO_ZIP, "checking if not already imported");
             }
-
             checkIfFolderAlreadyExist();
         }
     }
@@ -630,7 +629,7 @@ public class AddResourceService
                 .subscribe((result) -> {
                     if (result) {
                         myLog("Folder Saved in DB - checking files");
-                        tellProgress(8,getResources().getString(R.string.Import_Progress_checkingFiles));
+                        tellProgress(-1,getResources().getString(R.string.Import_Progress_checkingFiles));
                         saveFiles();
                     }
                 }, throwable -> {
