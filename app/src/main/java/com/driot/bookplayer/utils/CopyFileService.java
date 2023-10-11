@@ -50,13 +50,6 @@ public class CopyFileService extends Service {  //IntentService are designed to 
 
     private File inFile;
 
-    /*
-    private File destinationFolderFile;
-    private File inFile;
-    private File outFile;
-
-     */
-
     // Callbacks
     //-----------------------------
     public interface Callbacks {
@@ -97,14 +90,6 @@ public class CopyFileService extends Service {  //IntentService are designed to 
         //unbindService(add);
     }
     //-----------------------------
-    /*
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        parseIntent(intent);
-        return super.onStartCommand(intent, flags, startId);
-        //return START_NOT_STICKY;
-    }
-     */
 
     private void parseIntent(Intent intent) {
         uri = intent.getParcelableExtra("Uri");
@@ -155,12 +140,6 @@ public class CopyFileService extends Service {  //IntentService are designed to 
     }
 
     private boolean copyLocal(boolean doCheckSize) {
-        /*
-        myLog("copyLocal - from inFile to outFile " +
-                "\nfrom [" + uri + "] " +
-                "\nto [" + outFile + "] " +
-                "\nusing [" + destinationFolderFile + "]");
-*/
         //___________________________________
         // == Make Folder
         //___________________________________

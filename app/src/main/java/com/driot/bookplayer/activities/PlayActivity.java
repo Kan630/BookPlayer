@@ -1,14 +1,5 @@
 package com.driot.bookplayer.activities;
 
-/**
- * created by Antoine Driot -- antoine.driot.com -- on 30/10/2020
- * <p>
- * onCreate
- * bindToService
- * getZikFiles
- * initialize
- */
-
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -36,6 +27,7 @@ import java.util.TimerTask;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_SCREEN_ORIENTATION_LOCK;
@@ -57,6 +49,14 @@ import static com.driot.bookplayer.utils.Tonio.FormatTime;
 import static com.driot.bookplayer.utils.Utils.animateView;
 import static com.driot.tonylib.KanLogger.myToastE;
 
+/**
+ * created by Antoine Driot -- antoine.driot.com -- on 30/10/2020
+ * <p>
+ * onCreate
+ * bindToService
+ * getZikFiles
+ * initialize
+ */
 public class PlayActivity extends LifecycleLoggingActivity {
 
     public static final String SHARED_PREFERENCE_SPEED="SHARED_PREFERENCE_SPEED";
@@ -192,7 +192,11 @@ public class PlayActivity extends LifecycleLoggingActivity {
         launchService();
 
         try {
-            if (PlayList.getZikFile().isIszipfile()) ShowProgressAnim();
+            if (PlayList.getZikFile() == null) {
+                myToastE("Cannot get Playlist - PlayList.getZikFile() is null");
+            } else {
+                if (PlayList.getZikFile().isIszipfile()) ShowProgressAnim();
+            }
         } catch (Exception e) {
             myLogE("ERR ShowProgressAnim()  " + e.getMessage());
         }
@@ -376,6 +380,10 @@ public class PlayActivity extends LifecycleLoggingActivity {
      ********************************************************************************
      */
     private void loadPlayListIntoService() {
+        if (PlayList.getZikFile() == null) {
+            myToastE("Cannot get Playlist - PlayList.getZikFile() is null");
+            return;
+        }
         myLog("+++++++++ loading PlayList Into Service - GetZikFiles - Folder : " + PlayList.getZikFile().getIdFolder());
         Observable.fromCallable(() -> DatabaseClient
                 .getInstance(getApplicationContext())
@@ -391,6 +399,9 @@ public class PlayActivity extends LifecycleLoggingActivity {
     }
 
     private void DrawUI() {
+        if (PlayList.getZikFile() == null) {
+            myToastE("Cannot get Playlist - PlayList.getZikFile() is null");
+        }
         try {
             myLog("DrawUI : " + PlayList.getZikFile().getName() + " -- " + PlayList.getZikFile().getPosition());
             txSubTitle.setText(FormatNameForDisplay(PlayList.getZikFile().getName()));

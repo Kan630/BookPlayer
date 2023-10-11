@@ -78,9 +78,6 @@ public class AddResourceService
     Boolean mUnzipServiceBound;
     boolean boundToUnzipService;
 
-    private String copiedZipFileFullPath;
-    private String zipFileFullPath;
-
     public static final int PROGRESS_CHECK_FOLDER_EXIST_ZIP = 1;
     public static final int PROGRESS_COPY_START = 3;
     public static final int PROGRESS_COPY_END = 20;
@@ -111,8 +108,6 @@ public class AddResourceService
     private String type;
 
     private DocumentFile pickedDir;
-
-    private File externalZipFile;
 
     private String destinationFolderName;
     private String destinationFolderPath;
@@ -583,7 +578,7 @@ public class AddResourceService
     private void copyZipLocal() {
         long zipFileSize = -1L;
 
-        externalZipFile = new File(uri.getPath());
+        File externalZipFile = new File(uri.getPath());
         if (externalZipFile.exists()) zipFileSize = externalZipFile.length();
         if (zipFileSize > 0) {
             myLog("ze Size : " + zipFileSize);

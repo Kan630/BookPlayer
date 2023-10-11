@@ -1,9 +1,6 @@
 package com.driot.bookplayer.db;
 
-/**
- * created by Antoine Driot -- antoine.driot.com -- on 28/10/20
- */
-
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
@@ -14,12 +11,19 @@ import androidx.sqlite.db.SupportSQLiteQuery;
 
 import java.util.List;
 
+/**
+ * created by Antoine Driot -- antoine.driot.com -- on 28/10/20
+ * LiveData added oct 2023
+ */
 
 @Dao
 public interface FolderDao {
 
     @Query("SELECT * FROM Folder ORDER BY lastaccess DESC")
     List<Folder> getAll();
+
+    @Query("SELECT * FROM Folder ORDER BY lastaccess DESC")
+    LiveData<List<Folder>> getAllLiveData();
 
     @Query("SELECT COUNT(id) FROM Folder WHERE uri LIKE :sUri AND hash LIKE :iHash")
     long folderAlreadyExist(String sUri, String iHash);
