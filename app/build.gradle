@@ -15,7 +15,7 @@ android {
         //  30   = android 11.0
         // 31-32 = android 12.0
         //  33   = android 13.0 Tiramisu
-        minSdkVersion 24  //24 seems to be minimum for ZipFile, but 21 (autoMultiDex) seems to be working as well
+        minSdkVersion 24  //24 seems to be minimum for ZipFile, but 21 (autoMultiDex) seemed to be working as well
         targetSdkVersion 34
 
         versionCode 31
