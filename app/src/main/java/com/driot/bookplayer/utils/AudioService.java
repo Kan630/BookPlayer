@@ -13,6 +13,7 @@ import android.media.session.MediaSession;
 import android.media.session.PlaybackState;
 import android.net.Uri;
 import android.os.Binder;
+import android.os.Build;
 import android.os.IBinder;
 import android.view.KeyEvent;
 
@@ -51,6 +52,15 @@ import static com.driot.bookplayer.utils.Utils.copyStream;
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 01/11/20
  */
+class CustomMediaPlayer extends MediaPlayer {
+    public void customSeekTo(int posMilliSec) {
+        if (Build.VERSION.SDK_INT >= 26) {
+            seekTo(posMilliSec, SEEK_CLOSEST);  //seek_closest needed for m4b...
+        } else {
+            seekTo(posMilliSec);
+        }
+    }
+}
 public class AudioService extends Service {
 
     private static final String CHANNEL_ID = "mychanelID129111";
@@ -59,7 +69,6 @@ public class AudioService extends Service {
     public static final int DELAY_MAXPLAYBACK = 1000*60*60; //1h
     public static final int DELAY_CHECK_TIMER = 1000*5;
 
-    static final String TAG = "MusicService";
     private static final boolean LOG_TRACE_ALL = false;
 
     private final IBinder binder = new BackgroundBinder();
@@ -76,16 +85,12 @@ public class AudioService extends Service {
     public static final String NOTIFICATION_PLAYBACK_MAXTIMEREACH = "NOTIFICATION_PLAYBACK_MAXTIMEREACH";
     public static final String NOTIFICATION_PLAYBACK_TIMER_VALUE = "NOTIFICATION_PLAYBACK_TIMER_VALUE";
 
-    //private static final int FORWARD_TIME = 5*1000;
-    //private static final int BACKWARD_TIME = 5*1000;
-
-    private MediaPlayer mediaPlayer;
+    private CustomMediaPlayer mediaPlayer; //enhanced class by Tony
     private AudioManager mAudioManager;
     private AudioManager.OnAudioFocusChangeListener afChangeListener;
     private MediaSession mediaSession;
     private PlaybackState.Builder stateBuilder;
     private int maxTimeBeforeSleep;
-
 
     //private boolean fileHasBeenLoaded = false;
     private double speed = 1.0;
@@ -106,7 +111,7 @@ public class AudioService extends Service {
     public void onCreate() {
         myLog("onCreate()");
         super.onCreate();
-        mediaPlayer = new MediaPlayer();
+        mediaPlayer = new CustomMediaPlayer();
         mediaSession = new MediaSession(this, "MyTotoMediaSession");
         configureMediaSession();
         setMaxTimeBeforeSleep();
@@ -287,7 +292,6 @@ public class AudioService extends Service {
         return pathOfTempFile;
     }
 
-
     // TODO, use openFileDescriptor & remove legacy from manifest
     public boolean loadFile(String sPath, boolean startAtZero) {
         ErrorLoadingFile = false; // for onCompletion Next Track...
@@ -304,9 +308,9 @@ public class AudioService extends Service {
             mediaPlayer.setDataSource(sPath);
             mediaPlayer.prepare();
             if (startAtZero) {
-                mediaPlayer.seekTo(0,SEEK_CLOSEST);
+                mediaPlayer.customSeekTo(0);
             } else {
-                mediaPlayer.seekTo((int) PlayList.getZikFile().getPosition(),SEEK_CLOSEST); //seek_closest needed for m4b...
+                mediaPlayer.customSeekTo((int) PlayList.getZikFile().getPosition());
             }
             //fileHasBeenLoaded = true;
             Intent intent = new Intent(NOTIFICATION_FILELOADED);
@@ -444,7 +448,7 @@ public class AudioService extends Service {
     }
 
     public void setPosition(int position) {
-        mediaPlayer.seekTo(position, SEEK_CLOSEST);  //seek_closest needed for m4b...
+        mediaPlayer.customSeekTo(position);
         myLog("AudioService.set Position : " + myDF.format(position));
     }
 

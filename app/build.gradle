@@ -4,10 +4,11 @@ plugins {
 
 android {
 
-    compileSdkVersion 34 // compile version 34 where target version is only 33,  for implementation 'androidx.core:core:1.12.0' to work
+    compileSdkVersion 34 // Previous Note : compile version 34 where target version is only 33,  for implementation 'androidx.core:core:1.12.0' to work
 
     defaultConfig {
         applicationId "com.driot.bookplayer"
+
         //  16   = android 4.1 Jelly Bean    2012
         //  21   = android 5.0 Lollipop      2014
         //  23   = android 6.0 Marshmallow   2015
@@ -15,11 +16,18 @@ android {
         //  30   = android 11.0
         // 31-32 = android 12.0
         //  33   = android 13.0 Tiramisu
+
         minSdkVersion 24  //24 seems to be minimum for ZipFile, but 21 (autoMultiDex) seemed to be working as well
+        //note : 26 needed for mediaPlayer.seekTo => but custom code added
+
         targetSdkVersion 34
 
-        versionCode 32
-        versionName "32 - bug fixes oct 2023"
+        /////////////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////////////
+        versionCode 33
+        versionName "33 - bug fixes oct 2023"
+        /////////////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////////////
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         signingConfig signingConfigs.debug

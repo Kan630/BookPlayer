@@ -1,12 +1,10 @@
 package com.driot.bookplayer.activities;
 
-import static com.driot.bookplayer.utils.Utils.deleteDir;
 import static com.driot.tonylib.KanLogger.isMyPhoneDev;
 import static com.driot.tonylib.TonioCommonStuff.MD5;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.content.IntentSender;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
@@ -27,6 +25,7 @@ import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.FolderDao;
 import com.driot.tonylib.KanLogger;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+/*
 import com.google.android.play.core.appupdate.AppUpdateInfo;
 import com.google.android.play.core.appupdate.AppUpdateManager;
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory;
@@ -35,7 +34,7 @@ import com.google.android.play.core.install.model.AppUpdateType;
 import com.google.android.play.core.install.model.InstallStatus;
 import com.google.android.play.core.install.model.UpdateAvailability;
 import com.google.android.play.core.tasks.Task;
-
+*/
 import java.util.List;
 
 public class MainActivity extends ComponentActivity { //ComponentActivity used for this activity to be a LifecycleOwner in Observer
@@ -138,118 +137,119 @@ public class MainActivity extends ComponentActivity { //ComponentActivity used f
         startActivity(intent);
     }
 
-    private void ClearCacheData() {
-        myLog("Clearing Cache Data");
-        try {
-            deleteDir(getApplicationContext().getCacheDir());
-            deleteDir(getApplicationContext().getCodeCacheDir());
-        } catch (Exception e) {
-            e.printStackTrace();
-            myLogE("Error while clearing cache data");
-        }
-    }
-
-    ////////////////////////////////////////////////////////////////////////////////////////
-    // UPDATE STUFF
-    ////////////////////////////////////////////////////////////////////////////////////////
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == UPDATE_APP_REQUEST_CODE) {
-            if (resultCode != RESULT_OK) {
-                // normalement on chope ca que pour les Flexibles, (pour les immédiates, on a poas le focus avant fin de l'update)
-
-                myLogE("Update flow failed! Result code: " + resultCode);
-                // If the update is cancelled or fails,
-                // you can request to start the update again.
-            } else {
-                myLog("Update success");
+    /*
+        private void ClearCacheData() {
+            myLog("Clearing Cache Data");
+            try {
+                deleteDir(getApplicationContext().getCacheDir());
+                deleteDir(getApplicationContext().getCodeCacheDir());
+            } catch (Exception e) {
+                e.printStackTrace();
+                myLogE("Error while clearing cache data");
             }
         }
-    }
-    private void checkForUpdate() {
-        boolean DoZeUpdateIMMEDIATE = false;
-        boolean DoZeUpdateFLEXIBLE = false;
-        try {
-            // Creates instance of the manager.
-            AppUpdateManager appUpdateManager = AppUpdateManagerFactory.create(getApplicationContext());
+        ////////////////////////////////////////////////////////////////////////////////////////
+        // UPDATE STUFF
+        ////////////////////////////////////////////////////////////////////////////////////////
+        @Override
+        public void onActivityResult(int requestCode, int resultCode, Intent data) {
+            super.onActivityResult(requestCode, resultCode, data);
+            if (requestCode == UPDATE_APP_REQUEST_CODE) {
+                if (resultCode != RESULT_OK) {
+                    // normalement on chope ca que pour les Flexibles, (pour les immédiates, on a poas le focus avant fin de l'update)
 
-            // Returns an intent object that you use to check for an update.
-            Task<AppUpdateInfo> appUpdateInfoTask = appUpdateManager.getAppUpdateInfo();
-
-            // Checks that the platform will allow the specified type of update.
-            appUpdateInfoTask.addOnSuccessListener(appUpdateInfo -> {
-                myLog(appUpdateInfo.toString());
-                if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
-                        && appUpdateInfo.clientVersionStalenessDays() != null
-                        && appUpdateInfo.clientVersionStalenessDays() >= DAYS_FOR_FLEXIBLE_UPDATE
-                        && appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.FLEXIBLE)) {
-
-                    //appUpdateInfo.updatePriority() >= HIGH_PRIORITY_UPDATE
-                    //        && appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE)) {
-
-                    // Request the update.
-                    myLog("Update should be launched");
-
-                    if (DoZeUpdateIMMEDIATE) {
-                        try {
-                            appUpdateManager.startUpdateFlowForResult(
-                                    // Pass the intent that is returned by 'getAppUpdateInfo()'.
-                                    appUpdateInfo,
-                                    // Or 'AppUpdateType.FLEXIBLE' for flexible updates.
-                                    AppUpdateType.IMMEDIATE,
-                                    // The current activity making the update request.
-                                    this,
-                                    // Include a request code to later monitor this update request.
-                                    UPDATE_APP_REQUEST_CODE);
-                        } catch (IntentSender.SendIntentException e) {
-                            e.printStackTrace();
-                        }
-
-                        if (DoZeUpdateFLEXIBLE) {
-
-                            // Create a listener to track request state updates.
-                            InstallStateUpdatedListener listener = state -> {
-                                // (Optional) Provide a download progress bar.
-                                if (state.installStatus() == InstallStatus.DOWNLOADING) {
-                                    long bytesDownloaded = state.bytesDownloaded();
-                                    long totalBytesToDownload = state.totalBytesToDownload();
-                                    // Implement progress bar.
-                                }
-                                if (state.installStatus() == InstallStatus.DOWNLOADED) {
-                                    // Log state or install the update.
-                                    myLog("update downloaded !");
-                                }
-                            };
-
-                            // Before starting an update, register a listener for updates.
-                            appUpdateManager.registerListener(listener);
-
-                            // Start an update.
-
-                            // When status updates are no longer needed, unregister the listener.
-                            appUpdateManager.unregisterListener(listener);
-                        }
-                    }
-
+                    myLogE("Update flow failed! Result code: " + resultCode);
+                    // If the update is cancelled or fails,
+                    // you can request to start the update again.
                 } else {
-                    myLog("Update will not be launched");
+                    myLog("Update success");
                 }
-            });
-
-        } catch (Exception e) {
-            myLogE("error ocurred while checking Updates : " + e.getMessage());
-            e.printStackTrace();
+            }
         }
-    }
+        private void checkForUpdate() {
+            boolean DoZeUpdateIMMEDIATE = false;
+            boolean DoZeUpdateFLEXIBLE = false;
+            try {
+                // Creates instance of the manager.
+                AppUpdateManager appUpdateManager = AppUpdateManagerFactory.create(getApplicationContext());
+
+                // Returns an intent object that you use to check for an update.
+                Task<AppUpdateInfo> appUpdateInfoTask = appUpdateManager.getAppUpdateInfo();
+
+                // Checks that the platform will allow the specified type of update.
+                appUpdateInfoTask.addOnSuccessListener(appUpdateInfo -> {
+                    myLog(appUpdateInfo.toString());
+                    if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
+                            && appUpdateInfo.clientVersionStalenessDays() != null
+                            && appUpdateInfo.clientVersionStalenessDays() >= DAYS_FOR_FLEXIBLE_UPDATE
+                            && appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.FLEXIBLE)) {
+
+                        //appUpdateInfo.updatePriority() >= HIGH_PRIORITY_UPDATE
+                        //        && appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE)) {
+
+                        // Request the update.
+                        myLog("Update should be launched");
+
+                        if (DoZeUpdateIMMEDIATE) {
+                            try {
+                                appUpdateManager.startUpdateFlowForResult(
+                                        // Pass the intent that is returned by 'getAppUpdateInfo()'.
+                                        appUpdateInfo,
+                                        // Or 'AppUpdateType.FLEXIBLE' for flexible updates.
+                                        AppUpdateType.IMMEDIATE,
+                                        // The current activity making the update request.
+                                        this,
+                                        // Include a request code to later monitor this update request.
+                                        UPDATE_APP_REQUEST_CODE);
+                            } catch (IntentSender.SendIntentException e) {
+                                e.printStackTrace();
+                            }
+
+                            if (DoZeUpdateFLEXIBLE) {
+
+                                // Create a listener to track request state updates.
+                                InstallStateUpdatedListener listener = state -> {
+                                    // (Optional) Provide a download progress bar.
+                                    if (state.installStatus() == InstallStatus.DOWNLOADING) {
+                                        long bytesDownloaded = state.bytesDownloaded();
+                                        long totalBytesToDownload = state.totalBytesToDownload();
+                                        // Implement progress bar.
+                                    }
+                                    if (state.installStatus() == InstallStatus.DOWNLOADED) {
+                                        // Log state or install the update.
+                                        myLog("update downloaded !");
+                                    }
+                                };
+
+                                // Before starting an update, register a listener for updates.
+                                appUpdateManager.registerListener(listener);
+
+                                // Start an update.
+
+                                // When status updates are no longer needed, unregister the listener.
+                                appUpdateManager.unregisterListener(listener);
+                            }
+                        }
+
+                    } else {
+                        myLog("Update will not be launched");
+                    }
+                });
+
+            } catch (Exception e) {
+                myLogE("error ocurred while checking Updates : " + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+      */
     ////////////////////////////////////////////////////////////////////////////////////////
     // INIT
     ////////////////////////////////////////////////////////////////////////////////////////
     private void init() {
         KanLogger.setContext(getApplicationContext());
         //ClearCacheData();
-        KanLogger.myLog("Checking for Updates");
-        checkForUpdate();
+        //KanLogger.myLog("Checking for Updates");
+        //checkForUpdate();
         KanLogger.myLog("");
         KanLogger.myLog("========================== Fingerprint :");
         KanLogger.myLog("===");

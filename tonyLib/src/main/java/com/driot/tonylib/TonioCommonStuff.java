@@ -1,23 +1,13 @@
 package com.driot.tonylib;
 
-import android.content.Context;
-import android.os.Build;
-import android.util.Log;
-import android.widget.Toast;
-
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 
-import static com.driot.tonylib.KanLogger.myLog;
 import static com.driot.tonylib.KanLogger.myLogE;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 10/12/20
  */
+
 public class TonioCommonStuff {
 
 
@@ -56,21 +46,20 @@ public class TonioCommonStuff {
     public static String MD5(String md5) {
         try {
             java.security.MessageDigest md = java.security.MessageDigest.getInstance("MD5");
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {   // > 16
-                byte[] array = new byte[0];
+                byte[] array;
                 array = md.digest(md5.getBytes(StandardCharsets.UTF_8));
-                for (int i = 0; i < array.length; ++i) {
-                    sb.append(Integer.toHexString((array[i] & 0xFF) | 0x100).substring(1, 3));
+                for (byte b : array) {
+                    sb.append(Integer.toHexString((b & 0xFF) | 0x100).substring(1, 3));
                 }
             } else {
                 return null;
             }
             return sb.toString();
-        } catch (java.security.NoSuchAlgorithmException e) {
+        } catch (Exception e) {
+            myLogE("MD5 failed");
         }
         return null;
     }
-
-
 }

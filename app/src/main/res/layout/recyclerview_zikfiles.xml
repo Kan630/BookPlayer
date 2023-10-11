@@ -87,7 +87,7 @@
 
         <TextView
             android:id="@+id/textViewFileLastAccess"
-            android:textAlignment="textEnd"
+            android:text="..."
             android:layout_width="0dp"
             android:layout_height="20dp"
             android:layout_marginTop="@dimen/recyclerview_elements_bottom"
@@ -97,12 +97,13 @@
             android:paddingBottom="@dimen/recyclerview_padding_text_vertical"
             android:paddingStart="@dimen/recyclerview_padding_text_horizontal"
             android:paddingEnd="@dimen/recyclerview_padding_text_horizontal"
+            android:gravity="center_vertical"
             android:textColor="@color/black"
             android:background="@color/verylightgray"
             app:layout_constraintTop_toBottomOf="@id/textViewFileName"
             app:layout_constraintLeft_toLeftOf="@+id/guideline"
             app:layout_constraintRight_toRightOf="parent"
-            android:text="..."/>
+            />
 
 
 
