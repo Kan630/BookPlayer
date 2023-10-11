@@ -66,6 +66,10 @@
     <string name="bSearchGutenberg_desc">Chercher puis téléchargez un livre depuis le projet Gutenberg (anglais - audio généré par une IA) : :</string>
     <string name="bSearchExampleText">"Les sites web ci-dessus sont là pour l\'exemple, il y a de multiples ressources audios sur internet, vous pourriez tout aussi bien télécharger des cours magistraux d'université."</string>
 
+    <string name="AutoTest_title">Auto Test (pas encore dispo)</string>
+    <string name="AutoTest_desc">Téléchargement et Intégration d\'une selection de livres audio pour test</string>
+    <string name="AutoTest_b1_text">selection 1</string>
+
 
     <!-- ********************************** -->
     <!-- Add Resources -->
@@ -109,7 +113,6 @@
 
     <string name="Error_Import_NotEnoughMemory_line1">"Pas assez de mémoire sur votre appareil"</string>
     <string name="Error_Import_NotEnoughMemory_line2_1">"mémoire disponible : "</string>
-    <string name="Error_Import_NotEnoughMemory_line2_2">"mémoire interne disponible : "</string>
     <string name="Error_Import_NotEnoughMemory_line3">"fichier zip : "</string>
     <string name="Error_Import_NotEnoughMemory_line4_1">"(Vous avez besoin d'au moins "</string>
     <string name="Error_Import_NotEnoughMemory_line4_2">" fois la taille du fichier Zip)"</string>

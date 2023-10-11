@@ -19,6 +19,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.Enumeration;
+import java.util.Locale;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
@@ -28,12 +29,9 @@ public class UnzipService extends Service {
     private final IBinder binder = new UnzipService.UnzipServiceBackgroundBinder();
     Callbacks mCallBacks;
 
+    // Intents
     private String zipFilePath;
     private String destinationFolderPath;
-
-    private File zipFile;
-    private File unzipFolder;
-
 
     public interface Callbacks{
         void tellProgressClient_fromUnzip(String progressText, int progressVal);
@@ -77,24 +75,13 @@ public class UnzipService extends Service {
     private void parseIntent(Intent intent) {
         zipFilePath = intent.getStringExtra("zipFilePath");
         destinationFolderPath =  intent.getStringExtra("destinationFolderPath");
-        myLog("onStartCommand() ..   " +
-                "\nfrom zipFilePath=[" + zipFilePath + "] " +
-                "\nto destinationFolderPath=[" + destinationFolderPath + "]");
+        myLog("parse intent :   " +
+                "\nfrom zipFilePath = [" + zipFilePath + "] " +
+                "\nto destinationFolderPath = [" + destinationFolderPath + "]");
     }
     public void init() {
         myLog("init()");
         //-----------------------------
-        try {
-            unzipFolder = new File(destinationFolderPath);
-        } catch (Exception e) {
-            tellError("Bad Destination Folder Path - " + e.getMessage());
-        }
-        try {
-            zipFile = new File(zipFilePath);
-        } catch (Exception e) {
-            tellError("Bad Zip File Path - " + e.getMessage());
-        }
-
         // le lourd dans une background Thread.... Hyper Important !!
         Thread backgroundThread = new Thread(() -> {
             Boolean ret = unzipZipLocal();
@@ -106,11 +93,28 @@ public class UnzipService extends Service {
 
     private boolean unzipZipLocal() {
         ////////////////////////////////////////////////////////////////////////////////
-        /// unzipping....
+        /// getting Args....
         ////////////////////////////////////////////////////////////////////////////////
         myLog("unzipZipLocal()");
+        File zipFile = null;
+        File unzipFolder = null;
+        try {
+            unzipFolder = new File(destinationFolderPath);
+        } catch (Exception e) {
+            tellError("Bad Destination Folder Path - " + e.getMessage());
+        }
+        try {
+            zipFile = new File(zipFilePath);
+        } catch (Exception e) {
+            tellError("Bad Zip File Path - " + e.getMessage());
+        }
+        if (zipFile == null || unzipFolder == null) {
+            tellError("Bad Arguments");
+        }
+        ////////////////////////////////////////////////////////////////////////////////
+        /// Reading Zip File
+        ////////////////////////////////////////////////////////////////////////////////
         tellProgress(0,getResources().getString(R.string.Import_Progress_unzipping_file));
-        //unzip(externalZipFile[0], folder[0]);
         try {
             ZipInputStream zis = new ZipInputStream(new BufferedInputStream(new FileInputStream(zipFile)));
             myLog("unzipping in : " + unzipFolder);
@@ -125,7 +129,7 @@ public class UnzipService extends Service {
                 nbZip = 10;
             }
             myLog("Zip file has : " + nbZip + " entries");
-
+            myLog("---------------------------------------------------------");
             // un pti enum pour verif en log...
             try {
                 for (Enumeration<? extends ZipEntry> e = new ZipFile(zipFile).entries(); e.hasMoreElements(); ) {
@@ -143,8 +147,11 @@ public class UnzipService extends Service {
             }
 
             int numCurZip = 0;
+            myLog("---------------------------------------------------------");
 
-// Loop
+            ////////////////////////////////////////////////////////////////////////////////
+            /// Looping on Entries
+            ////////////////////////////////////////////////////////////////////////////////
             try {
                 ZipEntry ze;
                 int count;
@@ -152,54 +159,43 @@ public class UnzipService extends Service {
                 ze = zis.getNextEntry();
 
                 while (ze != null) {
-                    String AudioFileName = ze.getName();
-                    myLog("unzipping : " + ze.getName());
+                    String audioFileName = ze.getName();
+                    myLog(String.valueOf(numCurZip+1) + " - Zip entry : " + ze.getName());
 
-                    //bypass if zip contains only folder with same name at first level (doublons de dossier enchevetrés)
+                    //bypass if zip contains only folder with same name at first level
+                    // // (doublons de dossier enchevetrés)
                     if (ze.isDirectory()) {
-                        myLog("ze.isDirectory... ");
+                        myLog("ze.isDirectory... goto next record");
                         if (ze.getName().equals(unzipFolder.getName() + "/")) {
-                            myLog("ze.isDirectory and same name... ");
-                            myLog("continue... ");
-                            continue;
+                            myLogE("ze.isDirectory and same name !!... ");
+                        }
+                    } else {
+                        //shorter the audio file name if it contains the folder name
+                        audioFileName = shortenAudioFileName(audioFileName, unzipFolder.getName());
+
+                        numCurZip = numCurZip + 1;
+                        double zeProgress = (double) numCurZip / nbZip * 100;
+                        tellProgress((int) zeProgress,
+                                getResources().getString(R.string.Import_Progress_unzipping_file) + numCurZip + "/" + nbZip
+                                        + "\n" + "\n" + audioFileName);
+
+                        File unzippedAudioFile = new File(unzipFolder, audioFileName);
+
+                        if (!unzipFolder.isDirectory() && !unzipFolder.mkdirs()) {
+                            myLogE("Failed to ensure directory: " + unzipFolder.getAbsolutePath());
+                            throw new FileNotFoundException("Failed to ensure directory: " + unzipFolder.getAbsolutePath());
+                        }
+// TODO.... should only unzip actual audio files ... or delete non audio files after unzip
+
+                        FileOutputStream fout = new FileOutputStream(unzippedAudioFile);
+                        try {
+                            while ((count = zis.read(buffer)) != -1)
+                                fout.write(buffer, 0, count);
+                        } finally {
+                            fout.close();
                         }
                     }
-
-                    //shorter the audio file name if it contains the folder name
-                    if (ze.getName().startsWith(unzipFolder.getName() + "/")) {
-                        AudioFileName = ze.getName().substring((unzipFolder.getName() + "/").length());
-                    }
-
-                    numCurZip = numCurZip + 1;
-                    double zeProgress = (double) numCurZip / nbZip * 100;
-                    tellProgress((int) zeProgress,
-                            getResources().getString(R.string.Import_Progress_unzipping_file) + numCurZip + "/" + nbZip
-                                    + "\n" + "\n" + AudioFileName);
-
-                    File file = new File(unzipFolder, AudioFileName);
-
-                    if (unzipFolder != null && !unzipFolder.isDirectory() && !unzipFolder.mkdirs()) {
-                        myLogE("Failed to ensure directory: " + unzipFolder.getAbsolutePath());
-                        throw new FileNotFoundException("Failed to ensure directory: " + unzipFolder.getAbsolutePath());
-                    }
-                    if (ze.isDirectory()) {
-                        myLog("ze.isDirectory... continue");
-                        continue;
-                    }
-
-                    FileOutputStream fout = new FileOutputStream(file);
-                    try {
-                        while ((count = zis.read(buffer)) != -1)
-                            fout.write(buffer, 0, count);
-                    } finally {
-                        fout.close();
-                    }
-
-        /* if time should be restored as well
-        long time = ze.getTime();
-        if (time > 0)
-            file.setLastModified(time);
-        */
+                    // end of loop - get next record
                     ze = null;
                     try {
                         ze = zis.getNextEntry();
@@ -213,7 +209,6 @@ public class UnzipService extends Service {
                         } catch (Exception e2) {
                             myLogE("error getting next next zip file entry : " + e2.getMessage());
                         }
-                        continue;
                     }
                 }
 // end loop
@@ -245,6 +240,33 @@ public class UnzipService extends Service {
         tellEnd(destinationFolderPath);
         return true;
     }
+
+    private String shortenAudioFileName(String audioFileName, String folderName) {
+        String tmp = audioFileName;
+        if (tmp.toLowerCase(Locale.ROOT).startsWith(folderName.toLowerCase(Locale.ROOT))) {
+            tmp = tmp.substring((folderName).length());
+        }
+        if (tmp.startsWith("/") || tmp.startsWith("\\")) {
+            tmp = tmp.substring(1);
+        } // a second time, needed sometimes...
+        if (tmp.toLowerCase(Locale.ROOT).startsWith(folderName.toLowerCase(Locale.ROOT))) {
+            tmp = tmp.substring((folderName).length());
+        }
+        tmp = tmp.replace("\\","_");
+        tmp = tmp.replace("/","_");
+        if (tmp.startsWith("_") || tmp.startsWith(" ")) {
+            tmp = tmp.substring(1);
+        }
+        if (tmp.length() < 2 ) {
+            tmp = audioFileName;
+        }
+        //// tell result
+        if (!tmp.equals(audioFileName)) {
+            myLog("name shortened : [" + tmp + "] => [" + audioFileName + "]");
+        }
+        return tmp;
+    }
+
 
     //////////////////////////////////////////////////////////////////////////////////////////
     // Callbacks

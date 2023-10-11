@@ -70,6 +70,10 @@
     <string name="bSearchGutenberg_desc">Search then Download a book from Gutenberg project (AI speaker / generated audio) :</string>
     <string name="bSearchExampleText">These websites above are only examples, there is tons of audio on the web, you could also download university lectures.</string>
 
+    <string name="AutoTest_title">Auto Test (Not Active Yet)</string>
+    <string name="AutoTest_desc">Automatic download and integration of an audiobooks test selection</string>
+    <string name="AutoTest_b1_text">selection 1</string>
+
     <!-- Add Resources -->
 
     <string name="bAddRessource">Add Content</string>
@@ -110,8 +114,7 @@
     <string name="Error_Import_UnableToUnzip_line2">Sorry, You may try to import an already unzipped folder instead"</string>
 
     <string name="Error_Import_NotEnoughMemory_line1">"Not enough memory on device"</string>
-    <string name="Error_Import_NotEnoughMemory_line2_1">"available total memory : "</string>
-    <string name="Error_Import_NotEnoughMemory_line2_2">"available internal memory : "</string>
+    <string name="Error_Import_NotEnoughMemory_line2_1">"available memory : "</string>
     <string name="Error_Import_NotEnoughMemory_line3">"zip file : "</string>
     <string name="Error_Import_NotEnoughMemory_line4_1">"(you need at least "</string>
     <string name="Error_Import_NotEnoughMemory_line4_2">" time the size of the zip file)"</string>

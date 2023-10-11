@@ -202,12 +202,52 @@
         style="@style/myStyleTextExplainButton"
         android:text="@string/bSearchExampleText"
         android:textStyle="italic"
+        android:textSize="12sp"
         android:paddingHorizontal="50dp"
         android:layout_marginTop="@dimen/GetRessource320_vertical_margin_low"
         android:layout_marginLeft="20dp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@id/bSearchGutenberg"
         />
+
+
+
+    <TextView
+        android:id="@+id/AutoTest_title"
+        android:text="@string/AutoTest_title"
+        style="@style/myStyleTextTitle2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:paddingHorizontal="20dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/bSearchExempleText"
+        />
+
+    <TextView
+        android:id="@+id/AutoTest_desc"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/AutoTest_desc"
+        style="@style/myStyleTextExplainButton"
+        android:paddingHorizontal="50dp"
+        android:layout_marginTop="@dimen/GetRessource320_vertical_margin_title2text"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/AutoTest_title"
+        />
+
+    <Button
+        android:id="@+id/AutoTest_b1_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/green"
+        android:text="@string/AutoTest_b1_text"
+        android:layout_marginTop="@dimen/GetRessource320_vertical_margin_text2button"
+        android:layout_marginStart="50dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/AutoTest_desc"
+        />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

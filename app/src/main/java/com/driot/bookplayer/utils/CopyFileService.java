@@ -48,9 +48,14 @@ public class CopyFileService extends Service {  //IntentService are designed to 
     private String destinationFolderPath;
     private String destinationFileName;
 
+    private File inFile;
+
+    /*
     private File destinationFolderFile;
     private File inFile;
     private File outFile;
+
+     */
 
     // Callbacks
     //-----------------------------
@@ -106,9 +111,9 @@ public class CopyFileService extends Service {  //IntentService are designed to 
         destinationFolderPath = intent.getStringExtra("destinationFolderPath");
         destinationFileName = intent.getStringExtra("destinationFileName");
         myLog("onStartCommand() ..   " +
-                "\nfrom uri=[" + uri.toString() + "] " +
-                "\nto destinationFolderPath=[" + destinationFolderPath + "] " +
-                "\nwith name=[" + destinationFileName + "]");
+                "\nfrom uri = [" + uri.toString() + "] " +
+                "\nto folder = [" + destinationFolderPath + "] " +
+                "\nwith name = [" + destinationFileName + "]");
     }
 
     public void init() {
@@ -124,15 +129,18 @@ public class CopyFileService extends Service {  //IntentService are designed to 
         } else {
             myLog("Could not get Uri Path");
         }
-        if (inFile.exists()) {
+        if (inFile != null && inFile.exists()) {
             myLog("inFile correctly populated from Uri - Length = " + inFile.length());
         } else {
             myLog("Uri Path gives non existing file");
         }
 //*************
+        /*
         outFile = new File(destinationFolderPath + "/" + destinationFileName);
         String destinationFolderPath = outFile.getParent();
         destinationFolderFile = new File(destinationFolderPath);
+
+         */
 
         myLog("init() - ** INIT DONE ** launching backThread copy ");
         Thread backgroundThread = new Thread(() -> {
@@ -147,36 +155,38 @@ public class CopyFileService extends Service {  //IntentService are designed to 
     }
 
     private boolean copyLocal(boolean doCheckSize) {
+        /*
         myLog("copyLocal - from inFile to outFile " +
                 "\nfrom [" + uri + "] " +
                 "\nto [" + outFile + "] " +
                 "\nusing [" + destinationFolderFile + "]");
-
+*/
         //___________________________________
         // == Make Folder
         //___________________________________
+        File destinationFolderFile = new File(destinationFolderPath);
         try {
             if (!destinationFolderFile.exists()) {
                 if (!destinationFolderFile.mkdirs()) {
                     tellError(getResources().getString(R.string.Error_Import_Creating_Folders) + " for path : " + destinationFolderFile);
                     return false;
+                } else {
+                    myLog("folder created : [" +  destinationFolderPath + "]");
                 }
             }
         } catch (Exception e) {
             tellError(getResources().getString(R.string.Error_Import_Creating_Folders));
             return false;
         }
-        myLog("copyLocal - okay folder");
+        myLog("okay folder");
 
 
         //___________________________________
         // == Checking memory before copy
         //___________________________________
+        File outFile = new File(destinationFolderPath + "/" + destinationFileName);
         int file_size = 0;
-        long availableMegs;
-        long availableMegs2;
-        availableMegs = outFile.getUsableSpace() / 1048576L;
-        availableMegs2 = getAvailableInternalMemorySize() / 1048576L;
+        long availableMegs = getAvailableInternalMemorySize() / 1048576L;
         if (doCheckSize) {
             try {
                 file_size = Integer.parseInt(String.valueOf(inFile.length() / 1024 / 1024));
@@ -192,13 +202,12 @@ public class CopyFileService extends Service {  //IntentService are designed to 
                     e.printStackTrace();
                 }
             }
-            if (file_size > 0) {
+            if (file_size > 0 || availableMegs > 0) {
 
                 try {
-                    if (file_size * ZIP_SIZE_MAX_COEF > availableMegs2) {
+                    if (file_size * ZIP_SIZE_MAX_COEF > availableMegs) {
                         tellError(getResources().getString(R.string.Error_Import_NotEnoughMemory_line1) + "\n"
                                 + getResources().getString(R.string.Error_Import_NotEnoughMemory_line2_1) + formatMem(availableMegs) + "Mo" + "\n"
-                                + getResources().getString(R.string.Error_Import_NotEnoughMemory_line2_2) + formatMem(availableMegs2) + "Mo" + "\n"
                                 + getResources().getString(R.string.Error_Import_NotEnoughMemory_line3) + file_size + "Mo" + "\n"
                                 + getResources().getString(R.string.Error_Import_NotEnoughMemory_line4_1) + ZIP_SIZE_MAX_COEF + getResources().getString(R.string.Error_Import_NotEnoughMemory_line4_2) + "\n"
                                 + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line5)
@@ -209,7 +218,6 @@ public class CopyFileService extends Service {  //IntentService are designed to 
                             + "\n"
                             + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line3) + file_size + "Mo"
                             + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line2_1) + formatMem(availableMegs) + "Mo"
-                            + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line2_2) + formatMem(availableMegs2) + "Mo"
                     );
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -220,8 +228,7 @@ public class CopyFileService extends Service {  //IntentService are designed to 
                 myLogE("Could not get size of original file to be copied");
             }
             myLog("file size : " + file_size + "Mo" +
-                    "\navailable memory : " + availableMegs + " Mo" +
-                    "\navailable memory2 : " + availableMegs2 + " Mo");
+                    "\navailable memory : " + availableMegs + " Mo");
             myLog("copyLocal - okay check storage space");
         } else {
             file_size = -1;
@@ -261,7 +268,6 @@ public class CopyFileService extends Service {  //IntentService are designed to 
                                             + "\n"
                                             + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line3) + nbMoCopied + "Mo/" + file_size + "Mo"
                                             + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line2_1) + formatMem(availableMegs) + "Mo"
-                                            + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line2_2) + formatMem(availableMegs2) + "Mo"
                             );
                         }
 
@@ -286,14 +292,9 @@ public class CopyFileService extends Service {  //IntentService are designed to 
             myLogE(e.getMessage());
             return false;
         }
-        myLog("copyLocal - okay copy");
-
-        myLog("file has been copied \nfrom " + inFile + " \nto " + outFile);
-
+        myLog("file has been copied");
         tellEnd();
-
         return true;
-
     }
 
     //-----------------------------

@@ -54,6 +54,7 @@ import static com.driot.bookplayer.utils.Tonio.getFileNameFromPath;
 import static com.driot.bookplayer.utils.Tonio.getMimeType;
 import static com.driot.bookplayer.utils.Tonio.stripExtension;
 import static com.driot.bookplayer.utils.Utils.copyStream;
+import static com.driot.tonylib.TonioCommonStuff.deleteExtention;
 import static com.driot.tonylib.TonioCommonStuff.extractName;
 
 /**
@@ -80,21 +81,29 @@ public class AddResourceService
     private String copiedZipFileFullPath;
     private String zipFileFullPath;
 
+    public static final int PROGRESS_CHECK_FOLDER_EXIST_ZIP = 1;
     public static final int PROGRESS_COPY_START = 3;
     public static final int PROGRESS_COPY_END = 20;
     public static final int PROGRESS_UNZIP_START = 20;
     public static final int PROGRESS_UNZIP_END = 80;
-    public static final int PROGRESS_SAVE_DB_START = 80;
-    public static final int PROGRESS_SAVE_DB_END = 100;
-    public static final int PROGRESS_CHECK_FOLDER_EXIST = 50;
+    public static final int PROGRESS_SORTING_ZIP = 80;
+    public static final int PROGRESS_SAVE_DB_START_ZIP = 90;
+    public static final int PROGRESS_SAVE_DB_END_ZIP = 100;
+
+    public static final int PROGRESS_CHECKING_NO_ZIP = 10;
+    public static final int PROGRESS_SORTING_NO_ZIP = 20;
+    public static final int PROGRESS_CHECK_FOLDER_EXIST_NO_ZIP = 30;
+    public static final int PROGRESS_SAVE_DB_START_NO_ZIP = 30;
+    public static final int PROGRESS_SAVE_DB_END_NO_ZIP = 100;
 
 
     private final IBinder binder = new AddResourceServiceBackgroundBinder();
 
     private FolderAttrib myFolder;
-    private ZipFile zipFile;
     private ArrayList<String> audioFileArrayList;
     private final int[] InsertedFolderId = {0};
+
+    private boolean comingFromZip = false;
 
     private int nbFileSaved, nbFileToSave;
 
@@ -102,13 +111,11 @@ public class AddResourceService
     private String type;
 
     private DocumentFile pickedDir;
-    private boolean resourceSelected;
 
     private File externalZipFile;
-    private File internalZipFile;
-    private File finalZipFile;
-    private File localUnzipFolder;
-    private File finalLocalFolder;
+
+    private String destinationFolderName;
+    private String destinationFolderPath;
 
     private boolean Zip_DoCopylocal;
     private boolean Zip_DoUnzip;
@@ -204,13 +211,12 @@ public class AddResourceService
         }
     };
     private void launchCopyFileService(Uri uri, String destinationFolderPath, String destinationFileName) {
-        myLog("launchCopyFileService");
-        //Intent intentCopyFileService = new Intent(AddResourceService.this, CopyFileService.class);
+        myLog("launchCopyFileService - prepare intent");
         Intent intentCopyFileService = new Intent(this, CopyFileService.class);
         intentCopyFileService.putExtra("Uri", uri);
         intentCopyFileService.putExtra("destinationFolderPath", destinationFolderPath);
         intentCopyFileService.putExtra("destinationFileName", destinationFileName);
-        copiedZipFileFullPath = destinationFolderPath + "/" + destinationFileName;
+        //copiedZipFileFullPath = destinationFolderPath + "/" + destinationFileName;
         boundToCopyFileService = false;
         try {
             boundToCopyFileService = bindService(intentCopyFileService, copyFileServiceConnection, Context.BIND_AUTO_CREATE); //error Log : Activity XXX has leaked ServiceConnection
@@ -218,6 +224,7 @@ public class AddResourceService
             myLogE("ERROR bind to Service in launchCopyFileService ");
             myLogE(e.getMessage());
         }
+        mCallBacks.tellHeader(destinationFileName);
         myLog("call start & bind to copyFileService from launchCopyFileService - bound result :" + boundToCopyFileService + "");
     }
     private void launchUnzipService(String zipFilePath, String destinationFolderPath) {
@@ -281,7 +288,6 @@ public class AddResourceService
 
                 addAudioFileUnique(pickedDir);
 
-                resourceSelected = true;
             }
         } else {
             tellError(getString(R.string.Error_Import_IsNotFile));
@@ -291,6 +297,11 @@ public class AddResourceService
 
     private void populateArrayListOfTracksFromFolder() {
         myLog("populateArrayListOfTracksFromFolder " + pickedDir.getUri());
+        if (comingFromZip) {
+            tellProgress(PROGRESS_SORTING_ZIP, "sorting Tracks");
+        } else {
+            tellProgress(PROGRESS_SORTING_NO_ZIP, "sorting Tracks");
+        }
 
         uri = pickedDir.getUri();
 
@@ -326,7 +337,6 @@ public class AddResourceService
 
                 Thread backgroundThread = new Thread(() -> {
                     addAudioFileRecursive(pickedDir);
-                    tellProgress(30, "sorting Tracks");
                     Collections.sort(audioFileArrayList, new Utils.AlphanumericComparator());
 
                     if (audioFileArrayList.size()==0) {
@@ -374,8 +384,7 @@ public class AddResourceService
     public void init() {
         myLog("init() - **" + type + "**");
         isBusy = true;
-        String mime;
-        resourceSelected = false;
+        String mime = null;
 
         switch (type) {
             ///---------------------------------------------
@@ -390,6 +399,7 @@ public class AddResourceService
                 }
                 if (pickedDir == null) {
                     tellError("error getting DocumentFile.fromSingleUri");
+                    break;
                 }
                 try {
                     mime = pickedDir.getType();
@@ -399,6 +409,7 @@ public class AddResourceService
                 }
                 if (mime == null) {
                     tellError("Mime Type could not be found");
+                    break;
                 }
                 if (mime.equals("audio/mp4")) { //   application/mp4
 
@@ -431,6 +442,7 @@ public class AddResourceService
 
                 } else {
                     tellError("Not an audio ?   ... This MIME type is not supported : [" + mime + "]");
+                    break;
                 }
                 break;
 
@@ -443,7 +455,7 @@ public class AddResourceService
                 // TODO First thing : check if folder already exists, now checked after scan of files, just before DB insertion
                 //checkIfFolderAlreadyExist2();
 
-                tellProgress(10, "checking Folder.");
+                tellProgress(PROGRESS_CHECKING_NO_ZIP, "checking Folder.");
                 try {
                     pickedDir = DocumentFile.fromTreeUri(this, uri);
 
@@ -451,7 +463,7 @@ public class AddResourceService
                     tellError("error getting DocumentFile.fromTreeUri : " + e.getMessage());
                     break;
                 }
-                tellProgress(20, "listing Tracks");
+                tellProgress(PROGRESS_SORTING_NO_ZIP, "listing Tracks");
                 populateArrayListOfTracksFromFolder();
                 break;
 
@@ -459,6 +471,7 @@ public class AddResourceService
             /// ZIP FILE
             ///---------------------------------------------
             case "ZIP":
+                comingFromZip = true;
                 /// multiples possibilities
                 //          lecture direct du zip tel quel (KO android 11)
                 ///         unzip en local, et lecture local folder (KO android 11)
@@ -468,19 +481,18 @@ public class AddResourceService
                 ////*****************************************************************************************************
                 //if Android >= 11, on copie direct en local avant toute chose.
                 //if (Build.VERSION.SDK_INT >= 30) {
-                myLog("Android >= 11, copy locally before everything else");
-                myLog("Android >= 11, Picked Uri = [" + uri.toString() + "]");
-                String zipFileName = "";
+                myLog("copy locally before everything else");
+                myLog("Picked Uri = [" + uri.toString() + "]");
+                // get the folder name = the zip file true Name without extension
+                destinationFolderName = "";
                 try {
-                    InputStream attachment = this.getContentResolver().openInputStream(uri);
-                    if (attachment != null) {
-                        zipFileName = getContentName(this.getContentResolver(), uri);
-                        if (zipFileName != null) {
-                            myLog("Android >= 11, zipFileName = [" + zipFileName + "]");
-                        } else {
-                            tellError("could not get name of zipfile");
-                        }
-                        attachment.close();
+                    InputStream uriInputStream = this.getContentResolver().openInputStream(uri);
+                    if (uriInputStream != null) {
+                        destinationFolderName = getContentName(this.getContentResolver(), uri);
+                        if (destinationFolderName == null) { tellError("could not get name of zipfile"); }
+                        myLog("destinationFolderName = [" + destinationFolderName + "] - with getContentName(getContentResolver...");
+                        destinationFolderName = pruneZipFileName(destinationFolderName);
+                        uriInputStream.close();
                     } else {
                         tellError("Could not open input stream from selected Uri [" + uri.toString() + "]");
                     }
@@ -491,18 +503,7 @@ public class AddResourceService
 
                 // check Not Already Imported
                 //*****************************
-                String localFolderName = getsFolderName_withUnderscore_fromZipFileName(zipFileName);
-                myLog("Android >= 11, Future Folder Name : [" + localFolderName + "]");
-                String destinationFolderPath = getFilesDir().getAbsolutePath() + "/" + FOLDER_UNZIPPED + "/" + localFolderName;
-                myLog("Android >= 11, Future Folder Path : [" + destinationFolderPath + "]");
-                localUnzipFolder = new File(destinationFolderPath);
-                String futureUri = Uri.fromFile(localUnzipFolder).toString();
-                myLog("Android >= 11, futureUri = [" + futureUri + "]");
-
-                internalZipFile = new File(destinationFolderPath + "/" + localFolderName + ".zip");
-                finalLocalFolder = new File(destinationFolderPath);
-                finalZipFile = internalZipFile;
-                checkIfFolderAlreadyExist3(futureUri, localFolderName); //TODO without underscores ???
+                checkIfFolderAlreadyExist_fromFolderName(destinationFolderName); //TODO without underscores ???
                 return;
                 // c'est la fin, on passe a continue3 si c'est good
                 // (pour eviter le W/MIUIScout App:APP_SCOUT_WARNING et le HANG) on doit faire le lourd dans un backgroundThread (meme depuis un service... car il s'execute de base sur le MainUi)
@@ -517,7 +518,12 @@ public class AddResourceService
             tellError(getString(R.string.Error_Import_NoMediaInFolder));
         } else {
             myLog(audioFileArrayList.size() + " " + getString(R.string.Import_nMediaInFolder));
-            tellProgress(40, "checking if not already imported");
+            if (comingFromZip) {
+                tellProgress(PROGRESS_SORTING_ZIP, "checking if not already imported");
+            } else {
+                tellProgress(PROGRESS_SORTING_NO_ZIP, "checking if not already imported");
+            }
+
             checkIfFolderAlreadyExist();
         }
     }
@@ -537,7 +543,9 @@ public class AddResourceService
                 tellError(getString(R.string.Error_Import_FolderAlreadyImported));
             } else {
                 myLog("ok on continue -       (folder does not already exist)");
-                tellProgress(PROGRESS_CHECK_FOLDER_EXIST,getResources().getString(R.string.Import_Progress_check_not_already_imported));
+                if (!comingFromZip) {
+                    tellProgress(PROGRESS_CHECK_FOLDER_EXIST_NO_ZIP,getResources().getString(R.string.Import_Progress_check_not_already_imported));
+                }
                 saveFolder();
             }
         }, throwable -> {
@@ -545,16 +553,16 @@ public class AddResourceService
         });
     }
 
-    private void checkIfFolderAlreadyExist3(String uriFolder, String folderName) {
+    private void checkIfFolderAlreadyExist_fromFolderName(String folderName) {
         // For Android 11 zip file copied in local folder
-        myLog("3.Checking uri doesn't exist in DB : " + uriFolder);
+        myLog("Checking Folder doesn't already exist in DB : " + folderName);
         Observable.fromCallable(() -> {
             boolean bcheckIfFolderExist = false;
             long lcheckIfFolderExist = DatabaseClient
                     .getInstance(getApplicationContext())
                     .getAppDatabase()
                     .FolderDao()
-                    .folderAlreadyExist3(uriFolder, folderName);
+                    .folderAlreadyExist_checkFolderName(folderName);
             if (lcheckIfFolderExist>0) { bcheckIfFolderExist = true;}
             return bcheckIfFolderExist;
             //TODO if only name the same, just import with a new name... but is this possible ? wanted ?
@@ -564,7 +572,7 @@ public class AddResourceService
                 tellError(getString(R.string.Error_Import_FolderAlreadyImported));
             } else {
                 myLog("OK, folder doesn't already exist in DB");
-                tellProgress(1,getResources().getString(R.string.Import_Progress_check_not_already_imported));
+                tellProgress(PROGRESS_CHECK_FOLDER_EXIST_ZIP,getResources().getString(R.string.Import_Progress_check_not_already_imported));
                 copyZipLocal();
             }
         }, throwable -> {
@@ -574,31 +582,25 @@ public class AddResourceService
 
     private void copyZipLocal() {
         long zipFileSize = -1L;
-        String originalZipFilePath = uri.getPath();
-        String destinationFolderPathForZip = finalLocalFolder.getPath();
-        String destinationFileNameForZip = extractName(originalZipFilePath);
-        copiedZipFileFullPath = destinationFolderPathForZip + "/" + destinationFileNameForZip;
 
-        externalZipFile = new File(originalZipFilePath);
+        externalZipFile = new File(uri.getPath());
         if (externalZipFile.exists()) zipFileSize = externalZipFile.length();
         if (zipFileSize > 0) {
             myLog("ze Size : " + zipFileSize);
         } else {
             myLog("ERR : Cannot Check Size .... Size = " + zipFileSize + " .... Never Mind... let's copy");
         }
-        myLog("\nfrom " + externalZipFile + " \nto " + internalZipFile + " \nusing " + finalLocalFolder);
 
-        launchCopyFileService(uri, destinationFolderPathForZip, destinationFileNameForZip);
+        destinationFolderPath = getFilesDir().getAbsolutePath() + "/" + FOLDER_UNZIPPED + "/" + destinationFolderName;
+        myLog("Future Folder Path : [" + destinationFolderPath + "]");
+
+        myLog("call to launchCopyFileService \nfrom Uri [" + uri + "] \nto Folder [" + destinationFolderPath + "] \nwith Name [" + destinationFolderName + ".zip" + "]");
+        launchCopyFileService(uri, destinationFolderPath, destinationFolderName + ".zip");
     }
 
     private void unzipZipLocal() {
-        String destinationFolderPathForMp3 = finalLocalFolder.getPath();
-        //getFilesDir().getAbsolutePath() + "/" + FOLDER_UNZIPPED;
-        if (!Objects.equals(copiedZipFileFullPath, "")) {
-            zipFileFullPath = copiedZipFileFullPath;
-        }
-        myLog("copiedZipFileFullPath : " + copiedZipFileFullPath);
-        myLog("zipFileFullPath : " + zipFileFullPath);
+        String destinationFolderPathForMp3 = destinationFolderPath;
+        String zipFileFullPath = destinationFolderPath + "/" + destinationFolderName + ".zip";
         launchUnzipService(zipFileFullPath, destinationFolderPathForMp3);
     }
 
@@ -653,7 +655,11 @@ public class AddResourceService
             String txtProgress;
             for (String s : audioFileArrayList) {
                 i++;
-                progress = (int) PROGRESS_SAVE_DB_START + (i * 100 / audioFileArrayList.size())*(PROGRESS_SAVE_DB_END-PROGRESS_SAVE_DB_START)/100;
+                if (comingFromZip) {
+                    progress = (int) PROGRESS_SAVE_DB_START_ZIP + (i * 100 / audioFileArrayList.size())*(PROGRESS_SAVE_DB_END_ZIP-PROGRESS_SAVE_DB_START_ZIP)/100;
+                } else {
+                    progress = (int) PROGRESS_SAVE_DB_START_NO_ZIP + (i * 100 / audioFileArrayList.size())*(PROGRESS_SAVE_DB_END_NO_ZIP-PROGRESS_SAVE_DB_START_NO_ZIP)/100;
+                }
                 txtProgress = progress + "% - " + getString(R.string.Add_resource_reading_file) + " n°" + i + "/" + audioFileArrayList.size() + "\n" + getFileNameFromPath(s);
                 myLog("Registering file [" + s + "]");
                 saveFile(s, InsertedFolderId[0], i);
@@ -755,53 +761,22 @@ public class AddResourceService
                 });
     }
 
-
     // DUREE AUDIO
     private long getMediaDurationFromPath(String zePath) throws IOException {
         MediaMetadataRetriever mediaMetadataRetriever = new MediaMetadataRetriever();
         long duration = 0;
-        if (myFolder.isZipFolder()) {
-            InputStream inputStream = null;
-            FileOutputStream out = null;
+        if (fileExists(zePath)) {
             try {
-                inputStream = zipFile.getInputStream(zipFile.getEntry(zePath));
-                File f = File.createTempFile("_AUDIO_", getExtension(zePath));
-                f.deleteOnExit();
-                out = new FileOutputStream(f);
-                copyStream(inputStream,out);
-
-                mediaMetadataRetriever.setDataSource(f.getPath());
+                mediaMetadataRetriever.setDataSource(zePath);
                 duration = Long.parseLong(mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
-
-                if (!f.delete()) {
-                    myLogE("error deleting temp file : [" + f.getName() + "]");
-                }
-
             } catch (Exception e) {
                 e.printStackTrace();
-            } finally {
-                mediaMetadataRetriever.release();
-                if (inputStream != null) {
-                    inputStream.close();
-                }
-                if (out != null) {
-                    out.close();
-                }
+                tellError(getResources().getString(R.string.Error_Import_track_duration_extraction) + " // path : " + zePath);
+                myLogE("error getting duration of media : " + e.getMessage() + " for " + zePath);
             }
         } else {
-            if (fileExists(zePath)) {
-                try {
-                    mediaMetadataRetriever.setDataSource(zePath);
-                    duration = Long.parseLong(mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    tellError(getResources().getString(R.string.Error_Import_track_duration_extraction) + " // path : " + zePath);
-                    myLogE("error getting duration of media : " + e.getMessage() + " for " + zePath);
-                }
-            } else {
-                tellError(getResources().getString(R.string.Error_Import_track_duration_nofile) + " // path : " + zePath);
-                myLogE("error getting duration of media, file does not exist in path : " + zePath);
-            }
+            tellError(getResources().getString(R.string.Error_Import_track_duration_nofile) + " // path : " + zePath);
+            myLogE("error getting duration of media, file does not exist in path : " + zePath);
         }
         return duration;
     }
@@ -845,6 +820,18 @@ public class AddResourceService
             }
         }
         return null;
+    }
+    private String pruneZipFileName(String destinationFolderName) {
+        String tmp = destinationFolderName;
+        tmp = tmp.replace(" (1)","");
+        tmp = tmp.replace(" (2)","");
+        tmp = tmp.replace(" (3)","");
+        tmp = tmp.replace(":"," ");
+        tmp = deleteExtention(tmp);
+        if (tmp !=  destinationFolderName) {
+            myLog("destinationFolderName has been pruned : [" + tmp + "]");
+        }
+        return tmp;
     }
 
     private static String getsFolderName_withUnderscore_fromZipFileName(String zipFileName) {
