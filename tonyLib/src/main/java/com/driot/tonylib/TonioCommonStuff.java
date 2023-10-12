@@ -11,7 +11,7 @@ import static com.driot.tonylib.KanLogger.myLogE;
 public class TonioCommonStuff {
 
 
-    public static String deleteExtention(String fileName) {
+    public static String deleteExtension(String fileName) {
         if (fileName.lastIndexOf(".") > 0) {
             return fileName.substring(0,fileName.lastIndexOf("."));
         } else {
@@ -35,7 +35,7 @@ public class TonioCommonStuff {
         }
     }
 
-    public static String getExtention(String fileName) {
+    public static String getExtension(String fileName) {
         if (fileName.lastIndexOf(".") > 0) {
             return fileName.substring(fileName.lastIndexOf(".") + 1);
         } else {

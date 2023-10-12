@@ -5,7 +5,7 @@ import android.content.Context;
 import java.util.Arrays;
 
 import static com.driot.tonylib.KanLogger.myLogE;
-import static com.driot.tonylib.TonioCommonStuff.deleteExtention;
+import static com.driot.tonylib.TonioCommonStuff.deleteExtension;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 21/08/21
@@ -30,7 +30,7 @@ public class MyFile {
         String[] separated = new String[4];
         Arrays.fill(separated, "");
         try {
-            str = deleteExtention(fileName);
+            str = deleteExtension(fileName);
             separated = str.split("_");
         } catch (Exception e) {
             myLogE("error constructeur MyFile :" + e.getMessage());

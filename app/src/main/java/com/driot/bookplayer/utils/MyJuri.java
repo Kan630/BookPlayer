@@ -9,7 +9,7 @@ import java.util.Arrays;
 import com.driot.bookplayer.R;
 
 import static com.driot.tonylib.KanLogger.myLogE;
-import static com.driot.tonylib.TonioCommonStuff.deleteExtention;
+import static com.driot.tonylib.TonioCommonStuff.deleteExtension;
 
 
 /**
@@ -50,7 +50,7 @@ public class MyJuri {
         String[] separated = new String[4];
         Arrays.fill(separated, "");
         try {
-            str = deleteExtention(fileName);
+            str = deleteExtension(fileName);
             separated = str.split("-");
         } catch (Exception e) {
             myLogE("error constructeur MyJuri :" + e.getMessage());

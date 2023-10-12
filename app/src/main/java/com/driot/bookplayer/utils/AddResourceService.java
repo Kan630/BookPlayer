@@ -27,17 +27,12 @@ import com.driot.bookplayer.db.ZikFile;
 import com.driot.tonylib.KanLogger;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Date;
 import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Enumeration;
-import java.util.Objects;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
@@ -49,13 +44,9 @@ import static com.driot.bookplayer.activities.OptionActivity.SHARED_PREFERENCES_
 import static com.driot.bookplayer.global.Var.FOLDER_UNZIPPED;
 import static com.driot.bookplayer.utils.Tonio.FormatNameForDisplay;
 import static com.driot.bookplayer.utils.Tonio.fileExists;
-import static com.driot.bookplayer.utils.Tonio.getExtension;
 import static com.driot.bookplayer.utils.Tonio.getFileNameFromPath;
-import static com.driot.bookplayer.utils.Tonio.getMimeType;
 import static com.driot.bookplayer.utils.Tonio.stripExtension;
-import static com.driot.bookplayer.utils.Utils.copyStream;
-import static com.driot.tonylib.TonioCommonStuff.deleteExtention;
-import static com.driot.tonylib.TonioCommonStuff.extractName;
+import static com.driot.tonylib.TonioCommonStuff.deleteExtension;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 23/11/20
@@ -821,7 +812,7 @@ public class AddResourceService
         tmp = tmp.replace(" (2)","");
         tmp = tmp.replace(" (3)","");
         tmp = tmp.replace(":"," ");
-        tmp = deleteExtention(tmp);
+        tmp = deleteExtension(tmp);
         if (tmp !=  destinationFolderName) {
             myLog("destinationFolderName has been pruned : [" + tmp + "]");
         }
