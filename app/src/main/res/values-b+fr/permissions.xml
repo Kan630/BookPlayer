@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Default permission strings -->
-    <string name="permission_rationale" formatted="false">Cette application a besoin de ces permissions: %1$s</string>
-    <string name="permissions_granted">Permissions ont été accordées .</string>
+    <!-- <string name="permission_rationale" formatted="false">Cette application a besoin de ces permissions: %1$s</string> -->
+    <string name="permission_rationale">Cette application a besoin de ces permissions: </string>
+    <string name="permissions_granted">Permissions accordées .</string>
     <string name="permissions_denied">Permissions refusées.</string>
     <string name="permissions_ok_button">OK</string>
 

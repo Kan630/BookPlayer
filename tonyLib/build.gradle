@@ -14,14 +14,14 @@ android {
     }
 
      */
-    compileSdkVersion 34
+    compileSdk 34
 
     defaultConfig {
         minSdkVersion 16
         targetSdkVersion 34
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        consumerProguardFiles "consumer-rules.pro"
+//        consumerProguardFiles "consumer-rules.pro"
     }
 
     buildTypes {
@@ -29,9 +29,10 @@ android {
             minifyEnabled true // Enables code shrinking, obfuscation, and optimization
             shrinkResources false // not possible for library
 
-            proguardFiles getDefaultProguardFile(
-                    'proguard-android-optimize.txt'),
-                    'proguard-rules.pro'
+//            proguardFiles getDefaultProguardFile(
+//                    'proguard-android-optimize.txt'),
+//                    'proguard-rules.pro'
+
             //signingConfig signingConfigs.release
             //debuggable true
         }
@@ -40,6 +41,7 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+    namespace 'com.driot.tonylib'
 }
 
 dependencies {

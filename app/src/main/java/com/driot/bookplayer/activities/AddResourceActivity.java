@@ -62,7 +62,11 @@ public class AddResourceActivity
         Uri uri = getIntent().getParcelableExtra("Uri");
         type =  getIntent().getStringExtra("type");
 
-        this.getContentResolver().takePersistableUriPermission(uri,Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        try {
+            this.getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        } catch (Exception e) {
+            myLogE("error while using takePersistableUriPermission for selected URI");
+        }
 
         putTitle(uri.getLastPathSegment());
 

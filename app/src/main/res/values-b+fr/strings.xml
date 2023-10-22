@@ -22,12 +22,16 @@
     <string name="help_file_text">"Un click long sur une piste audio permet d'ouvrir un menu pour cette piste, que vous pourrez renommer, supprimer, déplacer, etc..."</string>
     <string name="help_import">Import :</string>
     <string name="help_import_text">"Les audios Zip sont toujours un peu plus long à importer, à charger, à jouer."</string>
-    <string name="help_import_text2">"Si vous rencontrez des problèmes pour importer vos audios:\n- Essayez de les décompresser si ils sont 'zippés'.\n- Essayez de les déplacer si ils sont dans le répertoire 'téléchargement'"</string>
+    <string name="help_import_text2">"Si vous rencontrez des problèmes pour importer vos audios:
+        \nZIP : Si lors de la selection du fichier ZIP, le selecteur vous montre le contenu du fichier ZIP au lieu de le selectionner, essayez un click long sur le fichier zip.
+        \nZIP : Essayez de les décompresser avec une autre application si le problème apparait lors de la décompression.
+        \n- Essayez de les déplacer si ils sont dans le répertoire 'téléchargement'"</string>
     <string name="help_head_10">Permissions :</string>
     <string name="help_text_10">"BookPlayer nécessite une seule permission : l'accès au stockage/mémoire, pour lire les fichiers audios"</string>
     <string name="help_head_20">Options :</string>
-    <string name="help_text_20">"AutoSleep  => BookPlayer arrête l'audio après XX minutes d'inactivité (utile si on s'endort)"</string>
-    <string name="help_text_21">"Durée parametrable pour les boutons >> et &lt;&lt;."</string>
+    <string name="help_text_20">"1/* AutoSleep  => BookPlayer arrête l'audio après XX minutes d'inactivité. (utile si on s'endort)
+    \n2/* Durée parametrable pour les boutons >> et &lt;&lt;.
+    \n3*/ Bloquer l'orientation de BookPlayer en mode Portrait lors de l'écoute."</string>
 
     <!-- ********************************** -->
     <!-- Options Screen -->
@@ -43,6 +47,9 @@
 
     <string name="option_orientation">Orientation de l\'écran</string>
     <string name="option_orientation_lock">Verrouiller lors de la lecture (mode portrait)</string>
+
+    <string name="option_mail_method">Envoi d\'emails</string>
+    <string name="option_mail_method_default">Utiliser l\'application par défaut. Décochez pour choisir l\'application à utiliser lors de l\'envoi d\'un mail.</string>
 
 
     <!-- ********************************** -->
@@ -101,7 +108,7 @@
     <string name="Import_Progress_onGoing">"Occupé… importation en cours…"</string>
 
     <string name="Error_Import_Creating_Folders">"Impossible de créer les dossiers"</string>
-    <string name="Error_Import_checking_Folder_Exists">"ERREUR pendant le contrôle (de si le dossier existe déjà) : "</string>
+    <string name="Error_Import_checking_Folder_Exists">"erreur en contrôlant si le dossier existe déjà"</string>
     <string name="Error_Import_saving_file_DB">"Erreur lors de la sauvegarde de la piste audioç dans la base de données"</string>
     <string name="Error_Import_track_duration_zero">"Erreur à la lecture de la piste audio (durée = 0sec.)"</string>
     <string name="Error_Import_track_duration_nofile">"Erreur à la lecture de la piste audio (fichier non trouvé)"</string>
@@ -147,15 +154,14 @@
 
     <string name="AskDelete_popupTitle">Confirmation de Suppression</string>
     <string name="AskReset_popupTitle">Confirmation de RAZ</string>
-    <string name="DeleteLogs_AskConfirm">"Attention, vous êtes sur le point d'effacer tous les logs." + "\n" +
-                        "Etes vous sûr ?"</string>
-    <string name="ModifyFolder_AskDelete">"Attention, vous êtes sur le point d'effacer ce dossier " +
-                        "Etes vous sûr ?"</string>
-    <string name="ModifyFolder_AskReset">"Attention, vous êtes sur le point de remettre à zéro " + "\n" +
-                                "toute la progression de ce dossier." + "\n" +
-                                "Etes vous sûr ?"</string>
-    <string name="ModifyZikFile_AskDelete">"Attention, vous êtes sur le point d'effacer cette piste audio " +
-                        "Etes vous sûr ?"</string>
+    <string name="DeleteLogs_AskConfirm">"Attention, vous êtes sur le point d'effacer tous les logs.
+                        \nEtes vous sûr ?"</string>
+    <string name="ModifyFolder_AskDelete">"Attention, vous êtes sur le point d'effacer ce dossier.
+                        \nEtes vous sûr ?"</string>
+    <string name="ModifyFolder_AskReset">"Attention, vous êtes sur le point de remettre à zéro toute la progression de ce dossier.
+                        \nEtes vous sûr ?"</string>
+    <string name="ModifyZikFile_AskDelete">"Attention, vous êtes sur le point d'effacer cette piste audio.
+                        \nEtes vous sûr ?"</string>
 
 
     <!-- ********************************** -->
@@ -187,7 +193,7 @@
     <string name="menu_manual">"mode d'emploi"</string>
     <string name="menu_options">options</string>
     <string name="menu_otherapp">autres apps</string>
-    <string name="menu_send">mail au developpeur</string>
+    <string name="menu_sendmail">email développeur</string>
     <string name="menu_seeLog">Voir le Log</string>
 
     <!-- ********************************** -->

@@ -31,4 +31,9 @@
         app:showAsAction="ifRoom"
         />
 
+    <item android:id="@+id/menu_sendmail"
+        android:title="@string/menu_sendmail"
+        app:showAsAction="ifRoom"
+        />
+
 </menu>

@@ -5,6 +5,7 @@ import static com.driot.tonylib.TonioCommonStuff.MD5;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
@@ -24,6 +25,7 @@ import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.FolderDao;
 import com.driot.tonylib.KanLogger;
+import com.driot.tonylib.KanMail;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 /*
 import com.google.android.play.core.appupdate.AppUpdateInfo;
@@ -61,6 +63,7 @@ public class MainActivity extends ComponentActivity { //ComponentActivity used f
     @SuppressLint("UseSupportActionBar")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        KanLogger.setKanContext(getApplicationContext());
         KanLogger.myLog("------------------------------------------------------------------");
         KanLogger.myLog("----------------     Main Activity onCreate()     ----------------");
         KanLogger.myLog("------------------------------------------------------------------");
@@ -110,6 +113,8 @@ public class MainActivity extends ComponentActivity { //ComponentActivity used f
             startActivity(new Intent(this, LogListActivity.class));
         } else if (itemId == R.id.menu_stats) {
             startActivity(new Intent(this, StatsActivity.class));
+        } else if (itemId == R.id.menu_sendmail) {
+            KanMail.sendDaMail(this, "bookplayer@driot.com", "**Bookplayer**", "Dear developer...\n\n");
         } else {
             myLogE("MainActivity.onOptionsItemSelected : unknown Item selected in Menu");
         }
@@ -246,7 +251,6 @@ public class MainActivity extends ComponentActivity { //ComponentActivity used f
     // INIT
     ////////////////////////////////////////////////////////////////////////////////////////
     private void init() {
-        KanLogger.setContext(getApplicationContext());
         //ClearCacheData();
         //KanLogger.myLog("Checking for Updates");
         //checkForUpdate();

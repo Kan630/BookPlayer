@@ -8,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -19,14 +20,13 @@ import androidx.core.content.ContextCompat;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.utils.AddResourceService;
+import com.driot.bookplayer.utils.MediaScanner2;
 import com.driot.bookplayer.utils.PermissionRequest;
 import com.driot.tonylib.KanLogger;
 
 import java.util.Timer;
 import java.util.TimerTask;
 
-import static com.driot.tonylib.KanLogger.myLog;
-import static com.driot.tonylib.KanLogger.myLogE;
 import static com.driot.tonylib.KanLogger.myToastE;
 
 /**
@@ -42,9 +42,6 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
     private Button bOpenFile;
     private Button bOpenFolder;
     private Button bOpenZipFile;
-    private Button bSearchLibrivox;
-    private Button bSearchLitteratureaudio;
-    private Button bSearchGutenberg;
 
     private PermissionRequest mPermissionRequest;
 
@@ -56,9 +53,9 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
         bOpenFile = findViewById(R.id.bOpenFile);
         bOpenFolder = findViewById(R.id.bOpenFolder);
         bOpenZipFile = findViewById(R.id.bOpenZipFile);
-        bSearchLibrivox = findViewById(R.id.bSearchLibrivox);
-        bSearchLitteratureaudio = findViewById(R.id.bSearchLitteratureaudio);
-        bSearchGutenberg = findViewById(R.id.bSearchGutenberg);
+        Button bSearchLibrivox = findViewById(R.id.bSearchLibrivox);
+        Button bSearchLitteratureaudio = findViewById(R.id.bSearchLitteratureaudio);
+        Button bSearchGutenberg = findViewById(R.id.bSearchGutenberg);
 
         // SINGLE FILE
         bOpenFile.setOnClickListener(view -> {
@@ -67,32 +64,28 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
                 askPermissionsReadStorage();
             } else {
                 //myToastE(getString(R.string.permissions_denied_sorry_cannot));
-
                 Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
                 intent.setType("audio/*");
                 intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_WRITE_URI_PERMISSION|Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION|Intent.FLAG_GRANT_PREFIX_URI_PERMISSION);
                 intent.addCategory(Intent.CATEGORY_OPENABLE);
+                //CATEGORY_OPENABLE => able to use : ContentResolver#openFileDescriptor(Uri, String)
+                //can be opened as a File object i.e. with read and write permissions and have complete access to the physical location of the data
                 startActivityForResult(intent, OPEN_FILE_REQUEST_CODE);
             }
         });
 
         // ZIP
         bOpenZipFile.setOnClickListener(view -> {
+            scanThatShit();
             myLog("Button click : ZIP file");
             if (checkIfPermissionsReadStorage()) {
                 Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                // TODO ACTION_GET_CONTENT should be enough since we copy locally...
+                // ACTION_PICK could be interesting.... as an option..
                 intent.setType("application/zip");
                 intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_WRITE_URI_PERMISSION|Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION|Intent.FLAG_GRANT_PREFIX_URI_PERMISSION);
                 intent.addCategory(Intent.CATEGORY_OPENABLE);
                 startActivityForResult(intent, OPEN_ZIP_FILE_REQUEST_CODE);
-                /*
-                new MaterialFilePicker()
-                        .withActivity(this)
-                        .withRequestCode(PICK_FILE_REQUEST_CODE)
-                        .withHiddenFiles(true)
-                        .start();
-
-                 */
             } else {
                 myToastE(getString(R.string.permissions_denied_sorry_cannot));
             }
@@ -102,7 +95,7 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
         bOpenFolder.setOnClickListener(view -> {
             myLog("Button click : FOLDER");
             if (checkIfPermissionsReadStorage()) {
-                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE); //API 21
                 intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_WRITE_URI_PERMISSION|Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION|Intent.FLAG_GRANT_PREFIX_URI_PERMISSION);
                 startActivityForResult(intent, OPEN_FOLDER_REQUEST_CODE);
             } else {
@@ -165,6 +158,7 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
 
             //if (isMyServiceRunning(AddResourceService.class)) {
             if (AddResourceService.isBusy) {
+                myLog("AddResourceService.isBusy => displaying banner, disabling buttons");
                 bOpenFile.setEnabled(false);
                 bOpenZipFile.setEnabled(false);
                 bOpenFolder.setEnabled(false);
@@ -182,12 +176,26 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
         }
     }
 
+    private boolean checkDataOk(Intent data) {
+        try {
+            Uri uri = data.getData();
+            if (uri == null || uri.getPath() == null) {
+                myToastE("Error getting URI of selected item.");
+                return false;
+            }
+            return true;
+        } catch (Exception e) {
+            myLogE("checkDataOk is KO : " + e.getMessage());
+            return false;
+        }
+    }
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
             case OPEN_FILE_REQUEST_CODE:  // return of intent ACTION_OPEN_DOCUMENT
                 if (resultCode == RESULT_OK) {
+                    if (!checkDataOk(data)) break;
                     Uri uri = data.getData();
                     myLog("picked data : " + uri.getPath() );
                     Intent intent = new Intent(getApplicationContext(), AddResourceActivity.class);
@@ -198,6 +206,7 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
                 break;
             case OPEN_FOLDER_REQUEST_CODE: // return of ACTION_OPEN_DOCUMENT_TREE
                 if (resultCode == RESULT_OK) {
+                    if (!checkDataOk(data)) break;
                     Uri uri = data.getData();
                     myLog("picked data : " + uri.getPath() );
                     Intent intent = new Intent(getApplicationContext(), AddResourceActivity.class);
@@ -208,6 +217,7 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
                 break;
             case OPEN_ZIP_FILE_REQUEST_CODE: // return of ACTION_OPEN_DOCUMENT
                 if (resultCode == RESULT_OK) {
+                    if (!checkDataOk(data)) break;
                     Uri uri = data.getData();
                     myLog("picked data : " + uri.getPath() );
                     Intent intent = new Intent(getApplicationContext(), AddResourceActivity.class);
@@ -217,9 +227,9 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
                 }
                 break;
             case ADD_RESOURCE_REQUEST_CODE:
-                myLog("retour activity");
+                myLog("return from Add_Resource_Activity");
                 if (resultCode == Activity.RESULT_OK) {
-                    myLog("result ok");
+                    myLog("result ok - closing activity");
                     finish();
                 }
                 break;
@@ -228,6 +238,11 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
         }
     }
 
+    private void scanThatShit() {
+        String[] paths = {Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath()}; // Replace with the actual file path
+        String[] mimeTypes = {"*/*"}; // Replace with the appropriate MIME type
+        MediaScanner2.scanFileAndNotifyMediaScanner(this, paths[0], mimeTypes[0]);
+    }
 
 
 

@@ -193,6 +193,33 @@ public class Tonio {
         return s;
     }
 
+    public static String getSubFolders(String strFrom, String strPath) {
+        myLog("getSubFolders key = " + strFrom + " , Path = " + strPath);
+        String ret = strPath;
+        ret = Tonio.stripFileName(ret);
+        int pos = ret.indexOf(strFrom);
+        if (pos>0) {
+            ret = ret.substring(pos + strFrom.length());
+        } else {
+            ret = "";
+        }
+        myLog("getSubFolders => " + ret);
+        return ret;
+    }
+
+    public static String getLastFolder(String strFolderPath) {
+        String ret = strFolderPath;
+        myLog("getLastFolder - Path = " + ret);
+        int pos = ret.lastIndexOf("/");
+        if (pos>0) {
+            ret = ret.substring(pos + 1);
+        } else {
+            ret = "";
+        }
+        myLog("getLastFolder => " + ret);
+        return ret;
+    }
+
     @NonNull
     public static String getMimeType(String fileName) {
         String type;

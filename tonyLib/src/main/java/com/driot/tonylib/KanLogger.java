@@ -29,8 +29,9 @@ public class KanLogger {
     private static final String LOG_FILE_NAME = "kanlog";
     private static final String USER_LOG_FILE_FOLDER = "log";
     private static final String USER_LOG_FILE_NAME = "kanlog";
+    private static final String kanLogger_TAG = "toto KanLogger";
     private static final boolean LOG_THEM_ALL = true;
-    private static final boolean LOG_DEBUG = false;
+    private static final boolean LOG_DEBUG = true;
 
     public static final String[] MD5_MY_PHONE = {
              "5ef4fa41375ff615e0fd81940d929294" //"HUAWEI/POT-LX1EEA/HWPOT-H:10/HUAWEIPOT-L21/10.0.0.238C431:user/release-keys"
@@ -44,12 +45,44 @@ public class KanLogger {
             ,"3a53d8836f50d0826c99bca3900fbc24" // RedMi sept 2023, after upate
     };
 
-    private static Context appContext;
 
-    public static void setContext(Context c) {
+
+    /////////////////////////////////
+    /// CONTEXT - needed for * Writing log files * Toasts *
+    /////////////////////////////////-----------------------------------------------------------
+    private static Context appContext;
+    private static Context getMyAppContext() {
+        if (KanLogger.appContext != null) {
+            return KanLogger.appContext;
+        } else {
+            Log.e(kanLogger_TAG, "getMyAppContext is null.");
+            return null;
+        }
+    }
+    public static void setKanContext(Context c) {
         KanLogger.appContext = c;
     }
 
+    /////////////////////////////////
+    /// IS DEV
+    /////////////////////////////////-----------------------------------------------------------
+    public static boolean isMyPhoneDev() {
+        boolean ret = false;
+        String strToCheck = MD5(Build.FINGERPRINT);
+        if (strToCheck != null) {
+            for (String s : MD5_MY_PHONE) {
+                if (s.contains(strToCheck)) {
+                    ret = true;
+                    break;
+                }
+            }
+        }
+        return ret;
+    }
+
+    /////////////////////////////////
+    /// LOG
+    /////////////////////////////////-----------------------------------------------------------
     public static void myLogInFile(String str) {
         myLog(str);
     }
@@ -91,55 +124,55 @@ public class KanLogger {
         }
     }
 
+
+
+
+    /////////////////////////////////
+    /// TOAST
+    /////////////////////////////////-----------------------------------------------------------
     public static void myToast(String str) {
-        Toast.makeText(appContext, str, Toast.LENGTH_SHORT).show();
-        myLog(str);
+        myLog("TOASTING : " + str);
+        if (getMyAppContext() != null) {
+            Toast.makeText(getMyAppContext(), str, Toast.LENGTH_SHORT).show();
+        }
     }
 
     public static void myLongToast(String str) {
-        Toast.makeText(appContext, str, Toast.LENGTH_LONG).show();
-        myLog(str);
+        myLog("TOASTING : " + str);
+        if (getMyAppContext() != null) {
+            Toast.makeText(getMyAppContext(), str, Toast.LENGTH_LONG).show();
+        }
     }
 
     public static void myToastE(String str) {
-        Toast.makeText(appContext, str, Toast.LENGTH_SHORT).show();
-        myLogE(str);
+        myLogE("TOASTING : " + str);
+        if (getMyAppContext() != null) {
+            Toast.makeText(getMyAppContext(), str, Toast.LENGTH_SHORT).show();
+        }
     }
 
     public static void myLongToastE(String str) {
-        Toast.makeText(appContext, str, Toast.LENGTH_LONG).show();
-        myLogE(str);
-    }
-
-    public static boolean isMyPhoneDev() {
-        boolean ret = false;
-        String strToCheck = MD5(Build.FINGERPRINT);
-        if (strToCheck != null) {
-            for (String s : MD5_MY_PHONE) {
-                if (s.contains(strToCheck)) {
-                    ret = true;
-                    break;
-                }
-            }
+        myLogE("TOASTING : " + str);
+        if (getMyAppContext() != null) {
+            Toast.makeText(getMyAppContext(), str, Toast.LENGTH_LONG).show();
         }
-        return ret;
     }
 
 
 
-
-
-
+    /////////////////////////////////
+    /// LOG FILES
+    /////////////////////////////////-----------------------------------------------------------
     private static void writeToLogFile(String message)
     {
-        if (appContext != null) {
+        if (getMyAppContext() != null) {
             String date = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
             String time = new SimpleDateFormat("HH:mm:ss.SSS", Locale.getDefault()).format(new Date());
             //String time = new SimpleDateFormat("HH:mm", Locale.getDefault()).format(new Date());
             String fileName = LOG_FILE_NAME + "_" + date + ".txt";
             try {
-                //FileOutputStream fileOutputStream = appContext.openFileOutput( fileName, Context.MODE_PRIVATE + Context.MODE_APPEND);
-                File dir = new File(appContext.getFilesDir(), LOG_FILE_FOLDER);
+                //FileOutputStream fileOutputStream = getMyAppContext.openFileOutput( fileName, Context.MODE_PRIVATE + Context.MODE_APPEND);
+                File dir = new File(getMyAppContext().getFilesDir(), LOG_FILE_FOLDER);
                 dir.mkdirs();
                 FileOutputStream fileOutputStream = new FileOutputStream(new File(dir, fileName),true);
 
@@ -149,9 +182,13 @@ public class KanLogger {
 
             } catch(FileNotFoundException e) {
                 e.printStackTrace();
+                Log.e(kanLogger_TAG, "writeToLogFile() : [" + e.getMessage() + "]");
             } catch (IOException e) {
                 e.printStackTrace();
+                Log.e(kanLogger_TAG, "writeToLogFile() : [" + e.getMessage() + "]");
             }
+        } else {
+            Log.e(kanLogger_TAG, "writeToLogFile() KO : getMyAppContext is null");
         }
     }
 

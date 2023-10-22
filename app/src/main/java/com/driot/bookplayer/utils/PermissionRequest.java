@@ -222,10 +222,7 @@ public class PermissionRequest {
             for (final String permission : mPermissions) {
                 permissionStrings += "\n" + permission;
             }
-
-            msg = String.format(
-                    mActivity.getString(R.string.permission_rationale),
-                    permissionStrings);
+            msg = String.format(mActivity.getString(R.string.permission_rationale) + permissionStrings);
         } else {
             // App supplied rationale.
             msg = mActivity.getString(mRationaleId);
@@ -240,13 +237,8 @@ public class PermissionRequest {
 
             snackbar.setAction(
                     R.string.permissions_ok_button,
-                    new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            /// Submit the request.
-                            ActivityCompat.requestPermissions(
-                                    mActivity, mPermissions, mRequestCode);
-                        }
+                    view -> {
+                        ActivityCompat.requestPermissions(mActivity, mPermissions, mRequestCode);
                     });
 
             snackbar.show();
@@ -262,12 +254,8 @@ public class PermissionRequest {
             alertDialogBuilder.setCancelable(true);
             alertDialogBuilder.setPositiveButton(
                     R.string.permissions_ok_button,
-                    new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            /// Submit the request.
-                            ActivityCompat.requestPermissions(
-                                    mActivity, mPermissions, mRequestCode);
-                        }
+                    (dialog, id) -> {
+                        ActivityCompat.requestPermissions(mActivity, mPermissions, mRequestCode);
                     });
 
             // Create alert dialog.
@@ -346,6 +334,8 @@ public class PermissionRequest {
          * @param id A string resource displaying a granted message.
          * @return A reference to this Builder
          */
+
+        // Tonio : no need to display message if granted OK
         @NonNull
         public Builder granted(@StringRes int id) {
             if (mGrantedId != 0) {

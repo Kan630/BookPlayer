@@ -24,12 +24,16 @@
     "Then you will be able to rename / change order / delete / reset progress</string>
     <string name="help_import">Import :</string>
     <string name="help_import_text">"Zip file are always a bit slower, to import, to load, to play"</string>
-    <string name="help_import_text2">"If you have trouble importing your audio\nTry tp unzip them if zipped\nTry to move them out of 'Download' folder if they are in"</string>
+    <string name="help_import_text2">"If you have trouble importing your audio :
+        \nZIP : In filepicker, if a click on a zip shows the content of the zip instead of letting you select the zip , try a long click on the zip.
+        \nZIP : If Unzip fails, try tp unzip them before with another app.
+        \nIf problem with picking audios from Download folder, try to move them out of 'Download' folder."</string>
     <string name="help_head_10">Permissions :</string>
-    <string name="help_text_10">"BookPlayer only need one permission : Access to phone storage/memory, in order to retrieve and play audio files"</string>
+    <string name="help_text_10">"BookPlayer will only need one permission : Right to read phone storage/memory, in order to retrieve and play audio files"</string>
     <string name="help_head_20">Options :</string>
-    <string name="help_text_20">"AutoSleep  => BookPlayer will stop playing after XX minutes of inactivities (usefull if you fall asleep)"</string>
-    <string name="help_text_21">"Custom duration for >> and &lt;&lt; buttons"</string>
+    <string name="help_text_20">"1*/ AutoSleep  => BookPlayer will stop playing after XX minutes of inactivities. (usefull if you fall asleep)
+        \n2*/ Custom duration for >> and &lt;&lt; buttons.
+        \n3*/ Freeze Bookplayer Orientation in Portrait Mode while playing audios."</string>
 
 
     <!-- ********************************** -->
@@ -46,6 +50,10 @@
 
     <string name="option_orientation">Screen Orientation</string>
     <string name="option_orientation_lock">Lock the screen orientation when playing (portrait)</string>
+
+    <string name="option_mail_method">Sending mail</string>
+    <string name="option_mail_method_default">Use default mailing app. Uncheck to be asked which app to use.</string>
+
 
 
     <!-- ********************************** -->
@@ -103,7 +111,7 @@
     <string name="Import_Progress_onGoing">"Busy… ongoing import…"</string>
 
     <string name="Error_Import_Creating_Folders">"Couldn't create folders"</string>
-    <string name="Error_Import_checking_Folder_Exists">"ERROR checking if folder already exist in database : "</string>
+    <string name="Error_Import_checking_Folder_Exists">"error while checking if folder already exist in database"</string>
     <string name="Error_Import_saving_file_DB">"Error Saving File in Database"</string>
     <string name="Error_Import_track_duration_zero">"Error getting Track duration (duration = 0sec.)"</string>
     <string name="Error_Import_track_duration_nofile">"Error getting Track duration (file not found)"</string>
@@ -189,7 +197,7 @@
     <string name="menu_manual">manual</string>
     <string name="menu_options">options</string>
     <string name="menu_otherapp">other apps</string>
-    <string name="menu_send">tell developper</string>
+    <string name="menu_sendmail">mail developer</string>
     <string name="menu_seeLog">See Log</string>
 
     <!-- ********************************** -->

@@ -5,18 +5,19 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.OpenableColumns;
-import android.util.Log;
-import android.widget.Toast;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.utils.Tonio;
+import com.driot.bookplayer.utils.Tonio2;
+import com.driot.tonylib.KanLogger;
 
 import java.io.File;
 import java.util.List;
 
-import static com.driot.bookplayer.utils.FileHelper.getRealPathFromURI;
 import static com.driot.bookplayer.utils.Tonio.FormatNameForDisplay;
+import static com.driot.bookplayer.utils.Tonio.getLastFolder;
+import static com.driot.bookplayer.utils.Tonio.getSubFolders;
 import static com.driot.bookplayer.utils.Tonio.stripFileName;
-import static com.driot.tonylib.KanLogger.myLogE;
 
 
 /**
@@ -24,197 +25,143 @@ import static com.driot.tonylib.KanLogger.myLogE;
  */
 public class FolderAttrib {
 
-    private final Uri uri;
-    private final boolean isZipFolder;
-    private final boolean isSingleFile;
-    private boolean isLocatedInDownloadFolder = false;
+// constructor args
     private final Context mCtx;
+    private final Uri uri;
+    private final boolean isSingleFile;
 
-    private boolean FolderKO;
-
-    private final String sFolderUri;
-    private final String sFolderHash;
+    // Folder Path and display name
     private String sFolderPath;
     private String sFolderName;
-    private final String sFolderName_withUnderscore;
 
-    private final String sRealPathFromUriNew;
+    // some internal stuff
+    private boolean FolderKO;
 
-    private String sRealFolderPath;
 
-    //public FolderAttrib(Context context, Uri uri, boolean isZipFolder, String forceName) {
-    public FolderAttrib(Context context, Uri uri, boolean isZipFolder, boolean isSingleFile) {
+    // Constructor
+    public FolderAttrib(Context context, Uri uri, boolean isSingleFile) { //String forceName ?
 
         this.uri = uri;
-        this.isZipFolder = isZipFolder;
         this.isSingleFile = isSingleFile;
         this.mCtx = context;
 
-        sFolderUri = uri.toString();
+        //myLog(PrintManyPaths());
 
-        sFolderHash = Integer.toString(uri.hashCode());
+        // ******************************************
+        // getting FolderPath
+        // ******************************************
 
-        sFolderPath = uri.getLastPathSegment();
-
-        sRealFolderPath="";
-
-        isLocatedInDownloadFolder = false;
-
-        sRealPathFromUriNew = getRealPathFromURI(context,uri);
-        myLog("new method to find path : [" + sRealPathFromUriNew + "]");
-
-        myLog(PrintManyPaths());
-
-        // from DOWNLOAD
+            // from DOWNLOAD
         if (uri.getAuthority().equals("com.android.providers.downloads.documents")) {
             myLog("location : Download Folder");
-            isLocatedInDownloadFolder=true;
-            sFolderPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getPath();
-            if (isZipFolder) {
-                String sRealFolderName = getFileName(context,uri);
-                sRealFolderPath = sFolderPath + "/" + sRealFolderName;
-                sFolderName = FormatNameForDisplay(sRealFolderName);
-            } else if (isSingleFile) {
-                //String sRealFolderName = getFileName(context,uri);
-                sRealFolderPath = sFolderPath;
-                sFolderName = FormatNameForDisplay(getFileName(context,uri));
-            } else {
-                //sRealFolderPath = uri.getLastPathSegment().replace("raw:","");
-                String sRealFolderName = getFileName(context,uri);
-                sRealFolderPath = sFolderPath + "/" + sRealFolderName;
-                sFolderName = FormatNameForDisplay(sRealFolderPath.substring(sRealFolderPath.lastIndexOf("/")+1));
+            sFolderPath =
+                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getPath()
+                    + getSubFolders("/Download", uri.getPath()) ;
+            if (!isSingleFile) {
+                sFolderPath = sFolderPath + "/" + getFileName(context,uri);;
             }
 
             // from MAIN MEMORY
         } else if (uri.getLastPathSegment().startsWith("primary")) {
             myLog("location : main memory");
-            sRealFolderPath = uri.getLastPathSegment()
+            sFolderPath = uri.getLastPathSegment()
                     .replace("primary:","/storage/emulated/0/");
-            if (isSingleFile) { sRealFolderPath = stripFileName(sRealFolderPath); }
+            if (isSingleFile) { sFolderPath = stripFileName(sFolderPath); }
+
+            // from MAIN MEMORY old
+        } else if (uri.getLastPathSegment().startsWith("0000-0000:")) {
+            myLog("location : main memory old");
+            sFolderPath = uri.getLastPathSegment()
+                    .replace("0000-0000:","/storage/0000-0000/");
+            if (isSingleFile) { sFolderPath = stripFileName(sFolderPath); }
 
             // from SD CARD
         } else {
             myLog("location : else - sdcard");
-            sRealFolderPath = uri.getPath()
+            sFolderPath = uri.getPath()
                     .replace("document", "storage")
                     .replace("tree", "storage")
                     .replace(":", "/");
-            if (isSingleFile) { sRealFolderPath = stripFileName(sRealFolderPath); }
+            if (isSingleFile) { sFolderPath = stripFileName(sFolderPath); }
         }
 
-        // controle de l'exitence du fullPath
-        File f = new File(sRealFolderPath);
+        // controle de l'existence du fullPath
+        File f = new File(sFolderPath);
         if (!f.exists())  {
             FolderKO = true;
-            myLogE("====== Path cannot be retrieved       ....  error with: --new File("+sRealFolderPath+")--");
+            myLogE("====== Path cannot be retrieved       ....  error with: --new File("+sFolderPath+")--");
         }
 
-        if (isZipFolder) {
-            if (!f.isFile())  {
-                FolderKO = true;
-                myLogE("====== Is not File");
-            }
-        } else if (!(isSingleFile)) {
+        if (!(isSingleFile)) {
             if (!f.isDirectory()) {
                 FolderKO = true;
                 myLogE("====== Is not Folder");
             }
         }
 
-        if (!isLocatedInDownloadFolder) {
+        // ******************************************
+        // getting FolderPath
+        // ******************************************
+
+        if (isSingleFile) {
+            sFolderName = FormatNameForDisplay(getLastFolder(sFolderPath) + "/" + getFileName(context,uri));
+        } else {
             // nom par défaut = les deux derniers folders :
             // ex  : "S3 - Finances publiques/Audios"
             String str = sFolderPath.replace(":", "/");
             int pos1 = str.lastIndexOf("/");
-            if (isZipFolder) {
-                sFolderName = FormatNameForDisplay(str.substring(pos1 + 1));
-            } else {
-                if (pos1 > -1) {
-                    int pos2 = str.substring(0, pos1).lastIndexOf("/", pos1);
-                    if (pos2 > -1) {
-                        sFolderName = FormatNameForDisplay(str.substring(pos2 + 1));
-                    } else {
-                        sFolderName = FormatNameForDisplay(str.substring(pos1 + 1));
-                    }
+            if (pos1 > -1) {
+                int pos2 = str.substring(0, pos1).lastIndexOf("/", pos1);
+                if (pos2 > -1) {
+                    sFolderName = FormatNameForDisplay(str.substring(pos2 + 1));
                 } else {
-                    // especially when foldername is just a string without slash (Android 11 zip local copy)
-                    sFolderName = FormatNameForDisplay(str);
+                    sFolderName = FormatNameForDisplay(str.substring(pos1 + 1));
                 }
+            } else {
+                // especially when foldername is just a string without slash (Android 11 zip local copy)
+                sFolderName = FormatNameForDisplay(str);
             }
-            if (sFolderName.startsWith("Download/")) { sFolderName = sFolderName.substring(9); }
         }
-/*
-        // TODO : Allow to rename folder ??
-        if (forceName.length()>0) {
-            sFolderName = forceName;
-        }
-*/
-        sFolderName_withUnderscore = sFolderName.replace(" ", "_");
+        if (sFolderName.startsWith("Download/")) { sFolderName = sFolderName.substring(9); }
+        if (sFolderName.startsWith("unzipped/")) { sFolderName = sFolderName.substring(9); }
 
-
-        myLog("..." + "\n" +
-                this + "\n" +
-                "...");
+        // display all bunch of values = implicit getString
+        myLog("..." + "\n" + this + "\n" + "...");
     }
 
-    public String getsFolderUri() {
-        return sFolderUri;
-    }
-
-    public String getsFolderHash() {
-        return sFolderHash;
-    }
-
-    public String getsFolderName() {
-        return sFolderName;
-    }
-
-    public String getsFolderName_withUnderscore() {
-        return sFolderName_withUnderscore;
-    }
-
-    public String getsFolderPath() {
-        return sFolderPath;
-    }
-
-    public String getsRealFolderPath() {
-        return sRealFolderPath;
-    }
-
-    public boolean isSingleFile() {
-        return isSingleFile;
-    }
-
-    public boolean isZipFolder() {
-        return isZipFolder;
-    }
-
+    public String getFolderName() { return sFolderName; }
+    public String getFolderPath() { return sFolderPath; } // Dao
     public boolean isFolderKO() {
         return FolderKO;
     }
-
+    public boolean isSingleFile() {
+        return isSingleFile;
+    }
+    public String getUriString() {
+        return uri.toString();
+    }
     public boolean isLocatedInDownloadFolder() {
-        return isLocatedInDownloadFolder;
+        if (uri.getPath().toLowerCase().contains("/download")) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     @Override
     public String toString() {
         return "FolderAttrib{" + "\n" +
                 "uri                 ='" + uri + '\'' + "\n" +
+                "uri.getAuthority    ='" + uri.getAuthority() + '\'' + "\n" +
                 "uri.getPath         ='" + uri.getPath() + '\'' + "\n" +
-                "uri.getLastPathSeg  =" + uri.getLastPathSegment() + "\n" +
-                "uri.getAuthority    =" + uri.getAuthority() + "\n" +
                 "uri.getFragment     =" + uri.getFragment() + "\n" +
-                "sRealPathFromUriNew ='" + sRealPathFromUriNew + '\'' + "\n" +
-                "sFolderUri          ='" + sFolderUri + '\'' + "\n" +
-                "sFolderHash         ='" + sFolderHash + '\'' + "\n" +
+                "uri.getPathSegments " + uri.getPathSegments() + "\n" +
+                "uri.getLastPathSeg  =" + uri.getLastPathSegment() + "\n" +
+                ".........................." + "\n" +
                 "sFolderPath         ='" + sFolderPath + '\'' + "\n" +
-                "sRealFolderPath     ='" + sRealFolderPath + '\'' + "\n" +
-                "isZipFolder         =" + isZipFolder + "\n" +
+                "sFolderName         ='" + sFolderName + '\'' + "\n" +
                 "isSingleFile        =" + isSingleFile + "\n" +
                 "isFolderKO          =" + FolderKO + "\n" +
-                "sFolderName         ='" + sFolderName + '\'' + "\n" +
-                "sFolderName_withUn. ='" + sFolderName_withUnderscore + '\'' + "\n" +
                 '}';
     }
 
@@ -239,6 +186,7 @@ public class FolderAttrib {
 
 
     public String getFileName(Context context, Uri uri) {
+        myLog("getFileName(context, uri) start");
         int tmp_int;
         String result = null;
         if (uri.getScheme().equals("content")) {
@@ -262,28 +210,28 @@ public class FolderAttrib {
         }
         if (result == null) {
             result = uri.getPath();
-            if (result.endsWith("/")) {
-                result = result.substring(0,result.length()-1);
-            }
-            int cut = result.lastIndexOf('/');
-            if (cut != -1) {
-                result = result.substring(cut + 1);
+            if (result != null) {
+                if (result.endsWith("/")) {
+                    result = result.substring(0, result.length() - 1);
+                }
+                int cut = result.lastIndexOf('/');
+                if (cut != -1) {
+                    result = result.substring(cut + 1);
+                }
             }
         }
-        if (result == null) {myLogE("FolderAttrib.getFileName -- " + uri.getPath());}
-        else {myLog("FolderAttrib.getFileName : [" + result + "]");}
+        if (result == null) {
+            myLogE("FolderAttrib.getFileName -- " + uri.getPath());
+        } else {
+            myLog("FolderAttrib.getFileName : [" + result + "]");
+        }
         return result;
     }
 
-    private void myToast(String str) {
-        myLog(str);
-        Toast.makeText(mCtx,str,Toast.LENGTH_SHORT).show();
-    }
+    private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
+    private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
+    private void myToast(String str) { KanLogger.myToast(str); }
 
-    protected void myLog(String str) {
-        Log.d("toto FolderAttrib -- ", str);
-        System.out.println(str);
-    }
 
 
 }

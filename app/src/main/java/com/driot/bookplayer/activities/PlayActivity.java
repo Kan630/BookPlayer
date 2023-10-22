@@ -8,6 +8,7 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.view.View;
@@ -16,6 +17,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.driot.bookplayer.BuildConfig;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.global.PlayList;
@@ -327,16 +329,30 @@ public class PlayActivity extends LifecycleLoggingActivity {
     protected void onResume() {
         myLog("onResume()... registering broadCastReceiver");
 
-        registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_NEWTRACK));
-        registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_TRACKFINISHED));
-        registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_AUDIOFOCUS_GAIN));
-        registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_AUDIOFOCUS_LOST));
-        registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_FILELOADED));
-        registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_ERROR));
-        registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_ZIP_FILE_LOADED));
-        registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_PLAYLISTFINISHED));
-        registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_PLAYBACK_MAXTIMEREACH));
-        registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_PLAYBACK_TIMER_VALUE));
+
+        if (Build.VERSION.SDK_INT >= 33) {
+            registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_NEWTRACK), RECEIVER_NOT_EXPORTED);
+            registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_TRACKFINISHED), RECEIVER_NOT_EXPORTED);
+            registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_AUDIOFOCUS_GAIN), RECEIVER_NOT_EXPORTED);
+            registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_AUDIOFOCUS_LOST), RECEIVER_NOT_EXPORTED);
+            registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_FILELOADED), RECEIVER_NOT_EXPORTED);
+            registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_ERROR), RECEIVER_NOT_EXPORTED);
+            registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_ZIP_FILE_LOADED), RECEIVER_NOT_EXPORTED);
+            registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_PLAYLISTFINISHED), RECEIVER_NOT_EXPORTED);
+            registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_PLAYBACK_MAXTIMEREACH), RECEIVER_NOT_EXPORTED);
+            registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_PLAYBACK_TIMER_VALUE), RECEIVER_NOT_EXPORTED);
+        } else {
+            registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_NEWTRACK));
+            registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_TRACKFINISHED));
+            registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_AUDIOFOCUS_GAIN));
+            registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_AUDIOFOCUS_LOST));
+            registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_FILELOADED));
+            registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_ERROR));
+            registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_ZIP_FILE_LOADED));
+            registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_PLAYLISTFINISHED));
+            registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_PLAYBACK_MAXTIMEREACH));
+            registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_PLAYBACK_TIMER_VALUE));
+        }
 
         myLog("onResume() - creating new timer for Display");
         runTimerForDisplay();
@@ -354,9 +370,12 @@ public class PlayActivity extends LifecycleLoggingActivity {
 
     @Override
     protected void onPause() {
-        myLog("onPause() - killing display timer + unbinding Audio Service");
+        myLog("onPause() - killing display timer");
         killTimerForDisplay();
-        unbindService(audioServiceConnection);
+        //unbindService(audioServiceConnection);
+        ////// SURTOUT PAS !!!
+        // c'est l'ecran qui s'eteint.. ca call onPause, on UnBind null, on stop, puis 1min apres ca call on Destroy et plus de son
+        // du coup, si on reste bind, on passe pas par destroy...
         super.onPause();
     }
 

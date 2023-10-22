@@ -25,9 +25,6 @@ public interface FolderDao {
     @Query("SELECT * FROM Folder ORDER BY lastaccess DESC")
     LiveData<List<Folder>> getAllLiveData();
 
-    @Query("SELECT COUNT(id) FROM Folder WHERE uri LIKE :sUri AND hash LIKE :iHash")
-    long folderAlreadyExist(String sUri, String iHash);
-
     @Query("SELECT COUNT(id) FROM Folder WHERE name LIKE :sFolderName")
     long folderAlreadyExist_checkFolderName(String sFolderName);
 

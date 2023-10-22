@@ -23,7 +23,7 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 
 public class FileHelper {
-    @TargetApi(19)
+    //@TargetApi(19)
     public static String getRealPathFromURI(final Context context, final Uri uri) {
         String path = "";
         try {
@@ -35,7 +35,7 @@ public class FileHelper {
         if (TextUtils.isEmpty(path)) {
             myLog("getRealPathFromURI is empty => get from copyFile to cache");
             path = copyFile(context, uri);
-            myLog("getRealPathFromURI is empty => get from copyFile to cache - path = [" + path + "]");
+            myLog("getRealPathFromURI is empty => returned path = [" + path + "]");
         }
         return path;
     }
@@ -150,7 +150,7 @@ public class FileHelper {
         }
 
          */
-        myLog(" ho yeah : " + destFilePath);
+        myLog("copy started (finding uri) to : [" + destFilePath + "]");
         return destFilePath;
     }
 
@@ -191,8 +191,9 @@ public class FileHelper {
                 final int index = cursor.getColumnIndexOrThrow(column);
                 result = cursor.getString(index);
             }
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        } catch (Exception e) {
+            myLogE("error with getDataColumn : [" + e.getMessage() + "]");
+            e.printStackTrace();
             return null;
         } finally {
             if (cursor != null)

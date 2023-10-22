@@ -84,6 +84,8 @@ public class AddResourceService
     public static final int PROGRESS_SAVE_DB_START_NO_ZIP = 30;
     public static final int PROGRESS_SAVE_DB_END_NO_ZIP = 100;
 
+    public static final String PROGRESS_SORTING_TEXT = "listing and sorting Tracks";
+
 
     private final IBinder binder = new AddResourceServiceBackgroundBinder();
 
@@ -95,11 +97,8 @@ public class AddResourceService
 
     private int nbFileSaved, nbFileToSave;
 
-    private Uri uri;
-    private String type;
-
-    private DocumentFile pickedDir;
-
+    private Uri uri_given;
+    private String type_given;
     private String destinationFolderName;
     private String destinationFolderPath;
 
@@ -237,9 +236,9 @@ public class AddResourceService
     }
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        uri = intent.getParcelableExtra("Uri");
-        type =  intent.getStringExtra("type");
-        myLog("onStartCommand()");
+        uri_given = intent.getParcelableExtra("Uri");
+        type_given =  intent.getStringExtra("type");
+        myLog("onStartCommand() - setting module private var from intent extras");
         return START_NOT_STICKY;
     }
 
@@ -250,19 +249,21 @@ public class AddResourceService
 
         // single file
     ///////////////////////////
-    private void populateArrayListOfTracksFromFile() {
-        myLog("populateArrayListOfTracksFromFile [" + pickedDir.getUri() + "] - single file");
+    private void populateArrayListOfTracksFromFile(DocumentFile dfPickedDir) {
+        myLog("populateArrayListOfTracksFromFile [" + dfPickedDir.getUri() + "] - single file");
 
-        uri = pickedDir.getUri();
+        //resetting uri
+        Uri uri;
+        uri = dfPickedDir.getUri();
 
-        if (pickedDir != null && !(pickedDir.isDirectory())) {
+        if (dfPickedDir != null && !(dfPickedDir.isDirectory())) {
 
             // constructeur pour mon pti folder
-            myFolder = new FolderAttrib(getApplicationContext(), uri, false, true);
-            if (myFolder.getsFolderName()==null) {
+            myFolder = new FolderAttrib(getApplicationContext(), uri, true);
+            if (myFolder.getFolderName()==null) {
                 tellError("Error while creating record, cancelling operation");
             }
-            mCallBacks.tellHeader(myFolder.getsFolderName());
+            mCallBacks.tellHeader(myFolder.getFolderName());
 
             if (myFolder.isFolderKO()) {
                 String error = getString(R.string.Error_Import_FilePathKO);
@@ -272,7 +273,7 @@ public class AddResourceService
 
                 audioFileArrayList = new ArrayList<>();
 
-                addAudioFileUnique(pickedDir);
+                addAudioFileUnique(dfPickedDir);
 
             }
         } else {
@@ -281,54 +282,59 @@ public class AddResourceService
         goFolder();
     }
 
-    private void populateArrayListOfTracksFromFolder() {
-        myLog("populateArrayListOfTracksFromFolder " + pickedDir.getUri());
+    private void populateArrayListOfTracksFromFolder(DocumentFile dfPickedDir, boolean comingFromZip) {
+        myLog("populateArrayListOfTracksFromFolder - DocumentFile [" + dfPickedDir.toString() + "]");
+        //resetting uri
+        Uri uri;
         if (comingFromZip) {
-            tellProgress(PROGRESS_SORTING_ZIP, "sorting Tracks");
+            uri = dfPickedDir.getUri();
         } else {
-            tellProgress(PROGRESS_SORTING_NO_ZIP, "sorting Tracks");
+            //uri = uri_given;
+            uri = dfPickedDir.getUri();
         }
 
-        uri = pickedDir.getUri();
+        myLog("populateArrayListOfTracksFromFolder - New Uri deducted [" + uri.toString() + "]");
 
         // Si c'est pas un dossier, on prend le dossier parent...
-        if (!pickedDir.isDirectory()) {
+        if (!dfPickedDir.isDirectory()) {
             DocumentFile df0 = DocumentFile.fromTreeUri(this, uri);
             if (df0 != null) {
-                pickedDir = df0.getParentFile();
+                dfPickedDir = df0.getParentFile();
             } else {
                 tellError("could not get parent directory");
             }
             myLog("Parent Folder taken in place");
         }
 
-        if (pickedDir != null && pickedDir.isDirectory()) {
+        if (dfPickedDir != null && dfPickedDir.isDirectory()) {
 
             // constructeur pour mon pti folder
-            myFolder = new FolderAttrib(getApplicationContext(), uri, false, false);
-            if (myFolder.getsFolderName()==null) {
+            myFolder = new FolderAttrib(getApplicationContext(), uri, false);
+            if (myFolder.getFolderName()==null) {
                 tellError("Error while creating record, cancelling operation");
             }
-            mCallBacks.tellHeader(myFolder.getsFolderName());
+            mCallBacks.tellHeader(myFolder.getFolderName());
 
             if (myFolder.isFolderKO()) {
                 String error = getString(R.string.Error_Import_FolderPathKO);
                 if (myFolder.isLocatedInDownloadFolder())  error += "... " + getString(R.string.Error_Import_BetterTryNoDownloadFolder);
                 tellError(error);
             } else {
-                myLog("folder ok");
-                myLog("scanning for audio file recursively from folder [" + pickedDir.getName() + "]");
+                myLog("myFolder constructor ok - [" + myFolder.getFolderName() + "]");
+                myLog("running recursive scan for audio file in a background thread");
 
                 audioFileArrayList = new ArrayList<>();
 
+                DocumentFile finalDfPickedDir = dfPickedDir; //thread needs 'final' arg
                 Thread backgroundThread = new Thread(() -> {
-                    addAudioFileRecursive(pickedDir);
+                    addAudioFileRecursive(finalDfPickedDir);
+                    myLog("addAudioFileRecursive done, sorting now...");
                     Collections.sort(audioFileArrayList, new Utils.AlphanumericComparator());
 
                     if (audioFileArrayList.size()==0) {
-                        myLog("No File found in directory : [" + pickedDir.getName() + ']');
+                        myLog("No File found in directory : [" + finalDfPickedDir.getName() + ']');
                     } else {
-                        myLog(audioFileArrayList.size() + " files found in directory : [" + pickedDir.getName() + ']');
+                        myLog(audioFileArrayList.size() + " files found in directory : [" + finalDfPickedDir.getName() + ']');
                     }
                     goFolder();
                 });
@@ -368,27 +374,31 @@ public class AddResourceService
     ///////////////////////////////////////
 
     public void init() {
-        myLog("init() - **" + type + "**");
+        myLog("*****************************************************************");
+        myLog("init() - ** type = " + type_given + " **");
+        myLog("init() - ** uri = " + uri_given.toString() + " **");
+        myLog("*****************************************************************");
         isBusy = true;
+        DocumentFile dfPickedDir;
         String mime = null;
 
-        switch (type) {
+        switch (type_given) {
             ///---------------------------------------------
             /// FILE
             ///---------------------------------------------
             case "File":
                 try {
-                    pickedDir = DocumentFile.fromSingleUri(this, uri);
+                    dfPickedDir = DocumentFile.fromSingleUri(this, uri_given);
                 } catch (Exception e) {
                     tellError("error getting DocumentFile.fromSingleUri : " + e.getMessage());
                     break;
                 }
-                if (pickedDir == null) {
+                if (dfPickedDir == null) {
                     tellError("error getting DocumentFile.fromSingleUri");
                     break;
                 }
                 try {
-                    mime = pickedDir.getType();
+                    mime = dfPickedDir.getType();
                 } catch (Exception e) {
                     tellError("Mime Type could not be found");
                     break;
@@ -397,18 +407,22 @@ public class AddResourceService
                     tellError("Mime Type could not be found");
                     break;
                 }
-                if (mime.equals("audio/mp4")) { //   application/mp4
 
-                    myLog("MP4 : [" + pickedDir.getType() + "]");
-                    populateArrayListOfTracksFromFile();
+            // ok mime found
+                if (mime.equals("audio/mp4")) { //   application/mp4   .m4b
+
+                    myLog("MP4 : [" + dfPickedDir.getType() + "]");
+                    populateArrayListOfTracksFromFile(dfPickedDir);
 /*
+                    //TODO : maybe you can just unzip it...
+                    
                     // TODO
                     /// EXPLODE MP4 in MP3s in local folder...
                     /// then use the import folder thing
-                    destinationFolder = getFilesDir().getAbsolutePath() + "/" + FOLDER_MP4 + "/" + pickedDir.getName(); // myFolder.getsFolderName_withUnderscore();
+                    destinationFolder = getFilesDir().getAbsolutePath() + "/" + FOLDER_MP4 + "/" + dfPickedDir.getName(); // myFolder.getsFolderName_withUnderscore();
                     destinationFolder = destinationFolder.replace(".m4b","");
                     myLog("destinationFolder : [" + destinationFolder + "]");
-                    String sourceFile = pickedDir.getUri().getPath();
+                    String sourceFile = dfPickedDir.getUri().getPath();
                     myLog("sourceFile : [" + sourceFile + "]");
                     AudioSplitter.splitM4BToMP3(sourceFile, destinationFolder);
 
@@ -424,7 +438,7 @@ public class AddResourceService
                 } else if (mime.startsWith("audio/")) {     // audio/mpeg
 
                     myLog("not MP4 : [" + mime + "]");
-                    populateArrayListOfTracksFromFile();
+                    populateArrayListOfTracksFromFile(dfPickedDir);
 
                 } else {
                     tellError("Not an audio ?   ... This MIME type is not supported : [" + mime + "]");
@@ -443,14 +457,17 @@ public class AddResourceService
 
                 tellProgress(PROGRESS_CHECKING_NO_ZIP, "checking Folder.");
                 try {
-                    pickedDir = DocumentFile.fromTreeUri(this, uri);
-
+                    dfPickedDir = DocumentFile.fromTreeUri(this, uri_given);
                 } catch (Exception e) {
-                    tellError("error getting DocumentFile.fromTreeUri : " + e.getMessage());
+                    tellError("Error reading picked Folder.... DocumentFile.fromTreeUri : " + e.getMessage());
                     break;
                 }
-                tellProgress(PROGRESS_SORTING_NO_ZIP, "listing Tracks");
-                populateArrayListOfTracksFromFolder();
+                tellProgress(PROGRESS_SORTING_NO_ZIP, PROGRESS_SORTING_TEXT);
+                if (dfPickedDir == null) {
+                    tellError("Error reading picked Folder... dfPickedDir is null");
+                } else {
+                    populateArrayListOfTracksFromFolder(dfPickedDir, false);
+                }
                 break;
 
             ///---------------------------------------------
@@ -458,29 +475,21 @@ public class AddResourceService
             ///---------------------------------------------
             case "ZIP":
                 comingFromZip = true;
-                /// multiples possibilities
-                //          lecture direct du zip tel quel (KO android 11)
-                ///         unzip en local, et lecture local folder (KO android 11)
-                ///         copy zip en local et lecture directe
-                ///         copy zip en local, unzip en local, et lecture local folder
+                myLog("ZIP : copy locally before everything else");
+                myLog("Picked Uri = [" + uri_given.toString() + "]");
 
-                ////*****************************************************************************************************
-                //if Android >= 11, on copie direct en local avant toute chose.
-                //if (Build.VERSION.SDK_INT >= 30) {
-                myLog("copy locally before everything else");
-                myLog("Picked Uri = [" + uri.toString() + "]");
                 // get the folder name = the zip file true Name without extension
                 destinationFolderName = "";
                 try {
-                    InputStream uriInputStream = this.getContentResolver().openInputStream(uri);
+                    InputStream uriInputStream = this.getContentResolver().openInputStream(uri_given);
                     if (uriInputStream != null) {
-                        destinationFolderName = getContentName(this.getContentResolver(), uri);
+                        destinationFolderName = getContentName(this.getContentResolver(), uri_given);
                         if (destinationFolderName == null) { tellError("could not get name of zipfile"); }
                         myLog("destinationFolderName = [" + destinationFolderName + "] - with getContentName(getContentResolver...");
                         destinationFolderName = pruneZipFileName(destinationFolderName);
                         uriInputStream.close();
                     } else {
-                        tellError("Could not open input stream from selected Uri [" + uri.toString() + "]");
+                        tellError("Could not open input stream from selected Uri [" + uri_given.toString() + "]");
                     }
                 } catch (Exception e) {
                     tellError("error dealing with selected Uri : " + e.getMessage());
@@ -489,13 +498,32 @@ public class AddResourceService
 
                 // check Not Already Imported
                 //*****************************
-                checkIfFolderAlreadyExist_fromFolderName(destinationFolderName); //TODO without underscores ???
+                myLog("Checking Folder doesn't already exist in DB : " + destinationFolderName);
+                Observable.fromCallable(() -> {
+                    boolean bcheckIfFolderExist = false;
+                    long lcheckIfFolderExist = DatabaseClient
+                            .getInstance(getApplicationContext())
+                            .getAppDatabase()
+                            .FolderDao()
+                            .folderAlreadyExist_checkFolderName(destinationFolderName);
+                    if (lcheckIfFolderExist>0) { bcheckIfFolderExist = true;}
+                    return bcheckIfFolderExist;
+                    //TODO if only name the same, just import with a new name... but is this possible ? wanted ?
+                }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(result -> {
+                    if (result) {
+                        myLog("KO, folder does already exist in DB : [" + destinationFolderName + "]");
+                        tellError(getString(R.string.Error_Import_FolderAlreadyImported) + "  [" + destinationFolderName + "]");
+                    } else {
+                        myLog("OK, folder doesn't already exist in DB");
+                        tellProgress(PROGRESS_CHECK_FOLDER_EXIST_ZIP,getResources().getString(R.string.Import_Progress_check_not_already_imported));
+                        copyZipLocal(uri_given); //launch a service, next step through callbacks
+                    }
+                }, throwable -> {
+                    tellError(getResources().getString(R.string.Error_Import_checking_Folder_Exists) + " : [" + throwable.getMessage() + "]");
+                });
                 return;
-                // c'est la fin, on passe a continue3 si c'est good
-                // (pour eviter le W/MIUIScout App:APP_SCOUT_WARNING et le HANG) on doit faire le lourd dans un backgroundThread (meme depuis un service... car il s'execute de base sur le MainUi)
-            //}
         default:
-                myLogE("Incorrect type : **" + type + "**");
+                myLogE("Incorrect type : **" + type_given + "**");
         }
     }
 
@@ -520,7 +548,7 @@ public class AddResourceService
                     .getInstance(getApplicationContext())
                     .getAppDatabase()
                     .FolderDao()
-                    .folderAlreadyExist(myFolder.getsFolderUri(),myFolder.getsFolderHash());
+                    .folderAlreadyExist_checkFolderName(myFolder.getFolderName());
             if (lcheckIfFolderExist>0) { bcheckIfFolderExist = true;}
             return bcheckIfFolderExist;
         }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(result -> {
@@ -538,34 +566,8 @@ public class AddResourceService
         });
     }
 
-    private void checkIfFolderAlreadyExist_fromFolderName(String folderName) {
-        // For Android 11 zip file copied in local folder
-        myLog("Checking Folder doesn't already exist in DB : " + folderName);
-        Observable.fromCallable(() -> {
-            boolean bcheckIfFolderExist = false;
-            long lcheckIfFolderExist = DatabaseClient
-                    .getInstance(getApplicationContext())
-                    .getAppDatabase()
-                    .FolderDao()
-                    .folderAlreadyExist_checkFolderName(folderName);
-            if (lcheckIfFolderExist>0) { bcheckIfFolderExist = true;}
-            return bcheckIfFolderExist;
-            //TODO if only name the same, just import with a new name... but is this possible ? wanted ?
-        }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(result -> {
-            if (result) {
-                myLog("KO, folder does already exist in DB");
-                tellError(getString(R.string.Error_Import_FolderAlreadyImported));
-            } else {
-                myLog("OK, folder doesn't already exist in DB");
-                tellProgress(PROGRESS_CHECK_FOLDER_EXIST_ZIP,getResources().getString(R.string.Import_Progress_check_not_already_imported));
-                copyZipLocal();
-            }
-        }, throwable -> {
-            tellError(getResources().getString(R.string.Error_Import_checking_Folder_Exists) + throwable.getMessage());
-        });
-    }
 
-    private void copyZipLocal() {
+    private void copyZipLocal(Uri uri) {
         long zipFileSize = -1L;
 
         File externalZipFile = new File(uri.getPath());
@@ -598,16 +600,16 @@ public class AddResourceService
         Observable.fromCallable(() -> {
             //creating a Folder
             Folder folder = new Folder();
-            folder.setName(myFolder.getsFolderName());
-            folder.setPath(myFolder.getsFolderPath());
-            folder.setUri(myFolder.getsFolderUri());
-            folder.setHash(myFolder.getsFolderHash());
+            folder.setName(myFolder.getFolderName());
+            folder.setPath(myFolder.getFolderPath());
+            folder.setUri(myFolder.getUriString()); //2023-10-22
+            folder.setHash("0"); //2023-10-22 code removed
             folder.setPercentdone(0.0);
             folder.setFirstaccess(sFirstAccess);
             folder.setLastaccess(sLastAccess);
             folder.setLastaccessTime(sLastAccessTime);
             folder.setFinished(false);
-            folder.setIszipfile(myFolder.isZipFolder());
+            folder.setIszipfile(false); //2023-10-22 code removed for live zip reading
 
             //adding to database
             InsertedFolderId[0] = (int) DatabaseClient.getInstance(getApplicationContext()).getAppDatabase()
@@ -661,19 +663,20 @@ public class AddResourceService
         zikFile.setDisplayName(FormatNameForDisplay(sZikFileName));
         zikFile.setIdFolder(mFolderId);
         zikFile.setZeorder(zeorder);
-        zikFile.setFolderName(myFolder.getsFolderName());
+        zikFile.setFolderName(myFolder.getFolderName());
         zikFile.setPercentdone(0.0);
         zikFile.setPosition(0);
-        zikFile.setPath(myFolder.getsRealFolderPath());
-        zikFile.setIszipfile(myFolder.isZipFolder());
+        zikFile.setPath(myFolder.getFolderPath());
+        zikFile.setIszipfile(false); //2023-10-22 code removed for live zip reading
 
         // get Media Duration
         //--------------------------------
         String sFileFullPath;
-        if (myFolder.isZipFolder()) {
-            sFileFullPath = sZikFileName;
+
+        if (myFolder.isSingleFile()) {
+            sFileFullPath = myFolder.getFolderPath() + File.separator + sZikFileName;
         } else {
-            sFileFullPath = myFolder.getsRealFolderPath() + File.separator + sZikFileName;
+            sFileFullPath = myFolder.getFolderPath() + File.separator + sZikFileName;
         }
         try {
             myLog("Get Media Duration : " + sFileFullPath);
@@ -859,13 +862,16 @@ public class AddResourceService
     }
     @Override
     public void tellEndClient_fromUnzip(String destinationFolderPath) {
-        myLog("Unzip tell End - go do something else");
+        myLog("Unzip Service tells End : [" + destinationFolderPath + "]");
+        tellProgress(PROGRESS_SORTING_ZIP, PROGRESS_SORTING_TEXT);
+        DocumentFile dfPickedDir;
         try {
-            pickedDir = DocumentFile.fromFile(new File(destinationFolderPath));
+            dfPickedDir = DocumentFile.fromFile(new File(destinationFolderPath));
         } catch (Exception e) {
             myLogE("error getting DocumentFile.fromFile : " + e.getMessage());
+            return;
         }
-        populateArrayListOfTracksFromFolder();
+        populateArrayListOfTracksFromFolder(dfPickedDir, true);
     }
     @Override
     public void tellNonBlockingError(String txt) {
