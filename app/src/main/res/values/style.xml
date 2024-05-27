@@ -13,6 +13,10 @@
     <style name="myStyleTextTitle2" parent="myStyle">
         <item name="android:textStyle">bold</item>
         <item name="android:textSize">20sp</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginStart">50sp</item>
+        <item name="android:layout_marginTop">20sp</item>
     </style>
 
     <style name="myStyleTextExplainButton" parent="myStyle">

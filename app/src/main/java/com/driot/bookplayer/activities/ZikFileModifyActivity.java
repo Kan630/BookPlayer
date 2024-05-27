@@ -92,8 +92,8 @@ public class ZikFileModifyActivity extends LifecycleLoggingActivity {
             bMoveOk.setVisibility(View.VISIBLE);
             bMove.setVisibility(View.INVISIBLE);
             etChangePosition.requestFocus();
-            etChangePosition.setInputType(InputType.TYPE_CLASS_NUMBER);
-            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            etChangePosition.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             if (imm != null) {
                 imm.showSoftInput(etChangePosition, InputMethodManager.SHOW_IMPLICIT);
             }

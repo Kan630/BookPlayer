@@ -179,5 +179,19 @@
         android:layout_marginBottom="5sp"
         android:layout_above="@+id/bSpeedDown"
         />
+    <TextView
+        android:id="@+id/tv_TimeLeft"
+        android:text="..."
+        style="@style/myStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:layout_alignParentEnd="true"
+        android:textStyle="italic"
+        android:textSize="10sp"
+        android:layout_marginEnd="20sp"
+        android:layout_marginBottom="5sp"
+        android:layout_above="@+id/tv_ListeningTime"
+        />
 
 </RelativeLayout>

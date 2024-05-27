@@ -1,12 +1,20 @@
 package com.driot.bookplayer.db;
 
 /**
- * created by Antoine Driot -- antoine.driot.com -- on 28/10/20
+ * created by Antoine Driot -- antoine.driot.com -- on 28/10/2020  -
+ *
+ * modified 05/2024
  */
+import static com.driot.bookplayer.db.DatabaseClient.DATABASE_NAME;
+
+import android.content.Context;
+
 import androidx.room.Database;
+import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
-
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 @Database(entities = {
                         Folder.class,
                         ZikFile.class
@@ -24,5 +32,24 @@ import androidx.room.TypeConverters;
 public abstract class AppDatabase extends RoomDatabase {
     public abstract FolderDao FolderDao();
     public abstract ZikFileDao ZikFileDao();
+
+
+
+    private static volatile AppDatabase INSTANCE;
+    private static final int NUMBER_OF_THREADS = 4;
+    static final ExecutorService databaseWriteExecutor = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
+
+    public static AppDatabase getDatabase(final Context context) {
+        if (INSTANCE == null) {
+            synchronized (AppDatabase.class) {
+                if (INSTANCE == null) {
+                    INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
+                                    AppDatabase.class, DATABASE_NAME)
+                            .build();
+                }
+            }
+        }
+        return INSTANCE;
+    }
 }
 

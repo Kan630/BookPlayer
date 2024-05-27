@@ -13,6 +13,8 @@ import android.webkit.MimeTypeMap;
 
 import androidx.annotation.NonNull;
 
+import com.driot.tonylib.KanLogger;
+
 import java.io.File;
 import java.sql.Date;
 import java.sql.Time;
@@ -22,10 +24,14 @@ import java.util.Calendar;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
+
+
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 31/10/20
  */
 public class Tonio {
+    private static final String LOG_PREFIX = "Tonio.java";
+
 
     public static String FormatTime(double doubleTime) {
         return FormatTime(doubleTime,false);
@@ -295,7 +301,16 @@ public class Tonio {
     }
 
     public static String formatMem(long mem){
-        return NumberFormat.getNumberInstance(Locale.getDefault()).format(mem);
+        return formatMem(mem,7);
     }
+    public static String formatMem(long mem, int padding){
+        // %3s => left padding
+        return String.format("%" + padding + "s", NumberFormat.getNumberInstance(Locale.getDefault()).format(mem));
+    }
+
+
+
+    private static void myLog(String str) { KanLogger.myLog(LOG_PREFIX, str); }
+    private static void myLogE(String str) { KanLogger.myLogE(LOG_PREFIX, str); }
 
 }

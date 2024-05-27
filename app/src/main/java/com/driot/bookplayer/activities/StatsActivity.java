@@ -37,7 +37,7 @@ public class StatsActivity extends LifecycleLoggingActivity {
 
         zeText = formatMem(currentAppSize) + " Mo : taken by BookPlayer app" + "\n" + "\n" +
                 formatMem(currentAudiosSize) + " Mo : taken by Audios files" + "\n" + "\n" +
-                formatMem(currentLogsSize) + " Mo :  taken by Logs" + "\n" + "\n" +
+                formatMem(currentLogsSize) + " Mo : taken by Logs" + "\n" + "\n" +
                 "----" + "\n" +
                 formatMem(availableMegs2) + " Mo : Available on the device" + "\n" + "\n" +
                 formatMem(totalMemory) + " Mo : Total memory of the device."

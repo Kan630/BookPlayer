@@ -1,11 +1,12 @@
 package com.driot.bookplayer.activities;
 
 import static com.driot.tonylib.KanLogger.isMyPhoneDev;
+import static com.driot.tonylib.KanLogger.myToast;
 import static com.driot.tonylib.TonioCommonStuff.MD5;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.net.Uri;
+
 import android.os.Build;
 import android.os.Bundle;
 import android.view.Menu;
@@ -14,6 +15,8 @@ import android.widget.Toolbar;
 
 import androidx.activity.ComponentActivity;
 import androidx.annotation.NonNull;
+import androidx.credentials.CredentialManager;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -45,6 +48,8 @@ public class MainActivity extends ComponentActivity { //ComponentActivity used f
 
     public static final int DAYS_FOR_FLEXIBLE_UPDATE = 10;
     public static final int UPDATE_APP_REQUEST_CODE = 6354;
+
+    private CredentialManager credentialManager;
 
     private boolean HasBeenProposedToOpenFile;
 
@@ -82,8 +87,63 @@ public class MainActivity extends ComponentActivity { //ComponentActivity used f
         FloatingActionButton btn_Add = findViewById(R.id.FAB_Add);
         btn_Add.setOnClickListener(view -> openGetResourceActivity());
 
+
+        /*
+        //doCredentialStuff;
+        DataProvider dp = new DataProvider(this);
+        if (dp.isSignedIn()) {
+            myToast("Logged");
+        } else {
+            myToast("NOT Logged");
+        }
+        credentialManager = CredentialManager.create(this);
+        res = credentialManager.createCredential(this,)
+
+import androidx.fragment.app.FragmentActivity;
+import com.google.android.gms.fido.fido2.api.common.CreatePublicKeyCredentialRequest;
+import com.google.android.gms.fido.fido2.api.common.CreatePublicKeyCredentialResponse;
+import com.google.android.gms.fido.fido2.api.common.CreateCredentialException;
+import com.google.android.gms.fido.fido2.Fido2ApiClient;
+import com.google.android.gms.fido.Fido;
+import android.view.View;
+
+// Assuming 'credentialManager' is an instance of Fido2ApiClient and 'fetchRegistrationJsonFromServer' is a method that returns a JSON string.
+// Also assuming 'configureProgress' and 'handlePasskeyFailure' are methods defined elsewhere in your Java class.
+
+        private CreatePublicKeyCredentialResponse createPasskey(FragmentActivity activity) {
+            CreatePublicKeyCredentialRequest request = new CreatePublicKeyCredentialRequest(fetchRegistrationJsonFromServer());
+            CreatePublicKeyCredentialResponse response = null;
+            try {
+                Fido2ApiClient credentialManager = Fido.getFido2ApiClient(activity);
+                response = credentialManager.createCredential(request).getResult();
+            } catch (CreateCredentialException e) {
+                configureProgress(View.INVISIBLE);
+                handlePasskeyFailure(e);
+            }
+            return response;
+        }
+
+// Note: The above Java method assumes synchronous execution. If you need to handle this asynchronously,
+// you would need to use callbacks or futures to handle the result of 'createCredential'.
+
+
+         */
+
+
+
         getFolders();
     }
+
+    /*
+    private void doCredentialStuff() {
+        if (DataProvider.isSignedInThroughPasskeys(this)) {
+            binding.signedInText.text = LOGGED_IN_THROUGH_PASSKEYS
+        } else {
+            binding.signedInText.text = LOGGED_IN_THROUGH_PASSWORD
+        }
+    }
+
+     */
 
     @Override
     protected void onRestart() {
@@ -115,6 +175,8 @@ public class MainActivity extends ComponentActivity { //ComponentActivity used f
             startActivity(new Intent(this, StatsActivity.class));
         } else if (itemId == R.id.menu_sendmail) {
             KanMail.sendDaMail(this, "bookplayer@driot.com", "**Bookplayer**", "Dear developer...\n\n");
+        } else if (itemId == R.id.menu_cacheFiles) {
+            startActivity(new Intent(this, CacheFilesActivity.class));
         } else {
             myLogE("MainActivity.onOptionsItemSelected : unknown Item selected in Menu");
         }
@@ -273,7 +335,8 @@ public class MainActivity extends ComponentActivity { //ComponentActivity used f
         KanLogger.myLog("==========================");
         KanLogger.myLog("");
     }
-    
+
+
     private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
     private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
 

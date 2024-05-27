@@ -33,6 +33,7 @@ import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_SCREEN_ORIENTATION_LOCK;
+import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_TIME_BEFORE_SLEEP;
 import static com.driot.bookplayer.activities.OptionActivity.SHARED_PREFERENCES_OPTIONS;
 import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_AUDIOFOCUS_GAIN;
 import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_AUDIOFOCUS_LOST;
@@ -70,7 +71,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
     boolean mBound = false;
     private Button bPlay;
     private SeekBar seekbar;
-    private TextView txSeekBar, txTempsTotal, txNomFichier, txTitle, txSubTitle, txSpeed, txListeningTime;
+    private TextView txSeekBar, txTempsTotal, txNomFichier, txTitle, txSubTitle, txSpeed, txListeningTime, txTimeLeft;
     private View progressOverlay;
     private boolean AnimationNow;
     private boolean HasBeenInitializedService = false;
@@ -189,6 +190,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
         txSpeed = findViewById(R.id.textViewSpeed);
         seekbar = findViewById(R.id.seekBar);
         txListeningTime = findViewById(R.id.tv_ListeningTime);
+        txTimeLeft = findViewById(R.id.tv_TimeLeft);
 
         myLog("onCreate() -- Launching Music Service");
         launchService();
@@ -438,13 +440,19 @@ public class PlayActivity extends LifecycleLoggingActivity {
             myLogE(e.getMessage());
         }
     }
-    private void reDrawListeningSince(int tempsEcoule) {
-        String zeText;
+    private void reDrawListeningSince(int tempsEcoule) { // le call vient d'1 timer dans le service...
+        String zeText_since;
+        String zeText_left;
+        SharedPreferences prefs = this.getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE);
+        int time_before_sleep = prefs.getInt("TIME_BEFORE_SLEEP", DEFAULT_TIME_BEFORE_SLEEP);
         if (tempsEcoule > 0) {
-            zeText = getString(R.string.tv_ListeningTime) + " " + FormatTime(tempsEcoule*1000,true);
-            txListeningTime.setText(zeText);
+            zeText_since = getString(R.string.tv_ListeningTime) + " " + FormatTime(tempsEcoule*1000,true);
+            zeText_left = getString(R.string.tv_TimeLeft) + " " + FormatTime(time_before_sleep*1000*60-tempsEcoule*1000,true);
+            txListeningTime.setText(zeText_since);
+            txTimeLeft.setText(zeText_left);
         } else {
             txListeningTime.setText("");
+            txTimeLeft.setText("");
         }
     }
 

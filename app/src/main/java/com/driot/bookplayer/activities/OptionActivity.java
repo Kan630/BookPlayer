@@ -27,13 +27,15 @@ public class OptionActivity extends LifecycleLoggingActivity {
     public static final int MAXIMUM_FORWARD_SECONDS = 300;
 
     public static final int DEFAULT_TIME_BEFORE_SLEEP = 120;
-    public static final int MINIMUM_TIME_BEFORE_SLEEP = 10;
+    public static final int MINIMUM_TIME_BEFORE_SLEEP = 1;
     public static final int MAXIMUM_TIME_BEFORE_SLEEP = 60*24;
 
     public static final boolean DEFAULT_UNZIP_LOCAL  = true;
     public static final boolean DEFAULT_COPY_ZIP_LOCAL  = true;
     public static final boolean DEFAULT_SCREEN_ORIENTATION_LOCK  = true;
-
+    public static final boolean DEFAULT_BEEP_CHAPTER = true;
+    public static final boolean DEFAULT_BEEP_BOOKEND = true;
+    public static final boolean DEFAULT_BEEP_AUTOSTOP = true;
 
     EditText et_timeBeforeSleep;
     EditText et_ForwardSeconds;
@@ -41,6 +43,9 @@ public class OptionActivity extends LifecycleLoggingActivity {
     CheckBox chk_UnZip;
     CheckBox chk_ScreenLock;
     CheckBox chk_MailMethod;
+    CheckBox chk_beep_chapter;
+    CheckBox chk_beep_bookend;
+    CheckBox chk_beep_autostop;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +61,9 @@ public class OptionActivity extends LifecycleLoggingActivity {
         chk_UnZip = findViewById(R.id.chk_unzip_local);
         chk_ScreenLock = findViewById(R.id.chk_lock_orientation);
         chk_MailMethod = findViewById(R.id.chk_mail_method_default);
+        chk_beep_chapter = findViewById(R.id.chk_beep_chapter_default);
+        chk_beep_bookend = findViewById(R.id.chk_beep_bookend_defaut);
+        chk_beep_autostop = findViewById(R.id.chk_beep_autostop_defaut);
 
         int i = getTimeBeforeSleep();
         et_timeBeforeSleep.setText(String.valueOf(i));
@@ -80,6 +88,15 @@ public class OptionActivity extends LifecycleLoggingActivity {
 
         chk_MailMethod.setChecked(getMailMethodDefault());
         chk_MailMethod.setOnCheckedChangeListener((buttonView, isChecked) -> setMailMethodDefault(isChecked));
+
+        chk_beep_chapter.setChecked(getBeepChapterDefault());
+        chk_beep_chapter.setOnCheckedChangeListener((buttonView, isChecked) -> setBeepChapterDefault(isChecked));
+
+        chk_beep_bookend.setChecked(getBeepBookEndDefault());
+        chk_beep_bookend.setOnCheckedChangeListener((buttonView, isChecked) -> setBeepBookEndDefault(isChecked));
+
+        chk_beep_autostop.setChecked(getBeepAutoStopDefault());
+        chk_beep_autostop.setOnCheckedChangeListener((buttonView, isChecked) -> setBeepAutoStopDefault(isChecked));
 
         // TODO : allows options
         chk_UnZip.setEnabled(false);
@@ -145,4 +162,13 @@ public class OptionActivity extends LifecycleLoggingActivity {
         myLog("bool : " + String.valueOf(bool));
         }
     private Boolean getMailMethodDefault() {return prefsOptions.getBoolean("SEND_MAIL_METHOD_DEFAULT", DEFAULT_SEND_MAIL_METHOD_DEFAULT);}
+
+    /////////////////// BEEP options ///////////////////
+    private void setBeepChapterDefault(boolean bool) {editorOptions.putBoolean("BEEP_CHAPTER",bool).apply();}
+    private Boolean getBeepChapterDefault() {return prefsOptions.getBoolean("BEEP_CHAPTER", DEFAULT_BEEP_CHAPTER);}
+
+    private void setBeepBookEndDefault(boolean bool) {editorOptions.putBoolean("BEEP_BOOKEND",bool).apply();}
+    private Boolean getBeepBookEndDefault() {return prefsOptions.getBoolean("BEEP_BOOKEND", DEFAULT_BEEP_BOOKEND);}
+    private void setBeepAutoStopDefault(boolean bool) {editorOptions.putBoolean("BEEP_AUTOSTOP",bool).apply();}
+    private Boolean getBeepAutoStopDefault() {return prefsOptions.getBoolean("BEEP_AUTOSTOP", DEFAULT_BEEP_AUTOSTOP);}
 }

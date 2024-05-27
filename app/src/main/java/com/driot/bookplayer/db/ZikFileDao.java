@@ -8,6 +8,7 @@ package com.driot.bookplayer.db;
  *
  */
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
@@ -56,6 +57,9 @@ public interface ZikFileDao {
 
     @Query("UPDATE ZikFile SET FolderName=:folderName WHERE id = :id")
     void updateFolderName(String folderName, int id);
+
+    @Query("select distinct z.path, z.folderName, f.percentdone as percentdone, z.idFolder, null as id, null as position, null as duration, null as size, null as iszipfile, null as finished, null as zeorder from ZikFile z inner join Folder f on z.idFolder = f.id")
+    LiveData<List<ZikFile>> getZikFileDistinctLocations(); // for cache files cleaning activity...
 
     /*
 

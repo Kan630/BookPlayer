@@ -25,6 +25,8 @@ public class KanMail {
     public static final String SHARED_PREFERENCES_OPTIONS = "SHARED_PREFERENCES_OPTIONS"; // shared prefs xml file
     public static final boolean DEFAULT_SEND_MAIL_METHOD_DEFAULT = true;
 
+
+
     public static void sendDaMail(Context c, String listRecipients, String subject, String body) {
         myLog("Preparing mail for " + listRecipients);
 
