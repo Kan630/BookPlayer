@@ -10,6 +10,7 @@
     <string name="yes">"yes"</string>
     <string name="no">"no"</string>
     <string name="cancel">"cancel"</string>
+    <string name="are_you_sure">"Are you sure ?"</string>
 
     <string name="asset_statements" translatable="false">
     [{
@@ -179,8 +180,8 @@
     <string name="ModifyZikFile_AskDelete">"You are about to delete this audio track " + "\n" +
                         "Are you sure ?"</string>
 
-    <string name="CacheFiles_AskDelete">"You are about to delete this audio book " + "\n" +
-                        "Are you sure ?"</string>
+    <string name="CacheFiles_AskDeleteAudioBook">"You are about to delete this audio book"</string>
+
 
 
     <!-- ********************************** -->

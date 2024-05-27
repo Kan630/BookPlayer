@@ -1,6 +1,7 @@
 package com.driot.bookplayer.activities;
 
-import android.app.Activity;
+import static com.driot.bookplayer.utils.Utils.recursiveRemove;
+
 import android.app.Application;
 
 import androidx.annotation.NonNull;
@@ -9,7 +10,6 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.driot.bookplayer.db.AppDatabase;
-import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.db.FolderDao;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.db.ZikFileDao;
@@ -19,19 +19,17 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
-import io.reactivex.rxjava3.core.Observable;
-import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class CacheFilesViewModel extends AndroidViewModel {
-    //private CacheFilesRepository repository;
-    private LiveData<List<ZikFile>> distinctZikFilePaths;
+    private LiveData<List<ZikFile>> filesFromDb;
     private MutableLiveData<List<File>> filesFromDisk;
     private final ZikFileDao zikFileDao;
     private final FolderDao folderDao;
+    private CacheFilesRepository cacheFilesRepository; // manage deletions
 
     public CacheFilesViewModel(@NonNull Application application) {
         super(application);
+        cacheFilesRepository = new CacheFilesRepository(application);
         AppDatabase db = AppDatabase.getDatabase(application);
         zikFileDao = db.ZikFileDao();
         folderDao = db.FolderDao();
@@ -40,10 +38,11 @@ public class CacheFilesViewModel extends AndroidViewModel {
 
     public LiveData<List<ZikFile>> getFilesOnDb() {
         myLog("LiveData<List<ZikFile>> getFilesOnDb()");
-        return zikFileDao.getZikFileDistinctLocations();
+        filesFromDb = zikFileDao.getZikFileDistinctLocations();
+        return filesFromDb;
     }
 
-    public LiveData<List<File>> getFilesOnDisk() {
+    public MutableLiveData<List<File>> getFilesOnDisk() {
         myLog("LiveData<List<ZikFile>> getFilesOnDisk()");
             String cachePath = getApplication().getFilesDir().getPath() + "/unzipped";
             File cacheDir = new File(cachePath);
@@ -59,6 +58,8 @@ public class CacheFilesViewModel extends AndroidViewModel {
     public void deleteAudio(File file) {
         myLog("deleting file : [" + file.getPath() + "]");
         if (deleteBookFromDisk(file.getPath())) {
+            getFilesOnDisk();
+            //filesFromDisk.notify(); => java.lang.IllegalMonitorStateException: object not locked by thread before notify()
             myLog("File deleted from Disk, launching DB deletion...");
             int idFolder = getBookFolderId(file);
             if (idFolder > 0) {
@@ -72,17 +73,16 @@ public class CacheFilesViewModel extends AndroidViewModel {
         }
     }
     private int getBookFolderId(File file) {
-        boolean bFound = false;
         int idFolder = 0;
-        String zeAudioStatus = "...";
-        if (!(distinctZikFilePaths == null)) {
-            for (ZikFile f : distinctZikFilePaths.getValue()) {
+        if (!(filesFromDb == null)) {
+            for (ZikFile f : filesFromDb.getValue()) {
                 if (file.getPath().equals(f.getPath())) {
                     idFolder = f.getIdFolder();
-                    bFound = true;
                     break;
                 }
             }
+        } else {
+            myLogE("distinctZikFilePaths == null");
         }
         myLog("getBookFolderId for [" + file.getPath() + "] => [" + idFolder + "]");
         return idFolder;
@@ -90,16 +90,23 @@ public class CacheFilesViewModel extends AndroidViewModel {
 
     private boolean deleteBookFromDisk(String strPath) {
         String starter = "file:///";
-        myLog("Deleting ZikFile : " +strPath);
         if (strPath.length()>5) {
             //if (strPath.startsWith(starter)) {
                 strPath = strPath.replace(starter,"");
                 try {
                     File zikFileToDelete = new File(strPath);
                     if(zikFileToDelete.exists()) {
-                        zikFileToDelete.delete();
+                        if (recursiveRemove(zikFileToDelete)) {
+                            myLog("Deleted from Disk");
+                            return true;
+                        } else {
+                            myLog("NOT Deleted from Disk");
+                            return false;
+                        }
+                    } else {
+                        myLog("file does not exist");
+                        return false;
                     }
-                    return true;
                 } catch (Exception e) {
                     myLogE("Error remove ZikFile from Disk: " + e.getMessage());
                     return false;
@@ -113,6 +120,19 @@ public class CacheFilesViewModel extends AndroidViewModel {
             return false;
         }
     }
+
+    private void deleteBookFromDB(int idFolder) {
+        cacheFilesRepository.deleteBookFromDB(idFolder, success -> {
+            if (success) {
+                getFilesOnDisk();
+                filesFromDisk.notify();
+                myLog("Successful deletion from DB");
+            } else {
+                myLog("Error deleting from DB");
+            }
+        });
+    }
+/*
     private void deleteBookFromDB(int idFolder) {
         new Thread(() -> {
             zikFileDao.deleteFolder(idFolder);
@@ -121,6 +141,8 @@ public class CacheFilesViewModel extends AndroidViewModel {
             folderDao.delete(idFolder);
         }).start();
     }
+
+ */
 
 
 

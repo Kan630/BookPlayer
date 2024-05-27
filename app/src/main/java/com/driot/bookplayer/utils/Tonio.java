@@ -276,9 +276,9 @@ public class Tonio {
         return getFolderSize(new File(folderName));
     }
 
-    public static long getFolderSize(File dir) {
+    public   static long getFolderSize(File dir) {
         long size = 0;
-        myLog("getFolderSize for [" + dir.getAbsolutePath() + "]  (from File object)");
+        //myLog("getFolderSize for [" + dir.getAbsolutePath() + "]  (from File object)");
 
         File[] files = dir.listFiles();
 

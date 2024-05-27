@@ -10,7 +10,7 @@
     <string name="yes">"oui"</string>
     <string name="no">"non"</string>
     <string name="cancel">"annuler"</string>
-
+    <string name="are_you_sure">"Etes vous sûr ?"</string>
 
     <!-- ********************************** -->
     <!-- HELP Screen -->
@@ -170,8 +170,7 @@
     <string name="ModifyZikFile_AskDelete">"Attention, vous êtes sur le point d'effacer cette piste audio.
                         \nEtes vous sûr ?"</string>
 
-    <string name="CacheFiles_AskDelete">"Attention, vous êtes sur le point d'effacer ce livre audio.
-                        \nEtes vous sûr ?"</string>
+    <string name="CacheFiles_AskDeleteAudioBook">"Attention, vous êtes sur le point d'effacer ce livre audio."</string>
 
     <!-- ********************************** -->
     <!-- Zik File Adapter -->
