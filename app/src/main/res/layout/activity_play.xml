@@ -177,7 +177,7 @@
         android:textSize="10sp"
         android:layout_marginEnd="20sp"
         android:layout_marginBottom="5sp"
-        android:layout_above="@+id/bSpeedDown"
+        android:layout_above="@+id/tv_TimeLeft"
         />
     <TextView
         android:id="@+id/tv_TimeLeft"
@@ -191,7 +191,7 @@
         android:textSize="10sp"
         android:layout_marginEnd="20sp"
         android:layout_marginBottom="5sp"
-        android:layout_above="@+id/tv_ListeningTime"
+        android:layout_above="@+id/bSpeedUp"
         />
 
 </RelativeLayout>

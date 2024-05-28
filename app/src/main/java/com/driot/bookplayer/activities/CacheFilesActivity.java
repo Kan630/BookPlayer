@@ -72,7 +72,7 @@ public class CacheFilesActivity extends AppCompatActivity implements CacheFilesA
         long totalMemory = getTotaLInternalMemorySize() / 1048576L;
         long availableMegs2 = getAvailableInternalMemorySize() / 1048576L;
         String zeText = formatMem(currentAudiosSize) + " Mo : taken by books" + "\n" + "\n" +
-                        formatMem(availableMegs2) + " Mo : left" + "\n" + "\n" +
+                        formatMem(availableMegs2) + " Mo : left on the device" + "\n" + "\n" +
                         formatMem(totalMemory) + " Mo : Total phone memory.";
         TextView tv_txt = findViewById(R.id.cachefiles_stats_text);
         tv_txt.setText(zeText);

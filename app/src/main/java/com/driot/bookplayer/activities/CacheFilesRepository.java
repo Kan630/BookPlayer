@@ -5,6 +5,7 @@ import android.app.Application;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.FolderDao;
 import com.driot.bookplayer.db.ZikFileDao;
+import com.driot.tonylib.KanLogger;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -26,12 +27,16 @@ public class CacheFilesRepository {
     }
 
     public void deleteBookFromDB(int idFolder, DeletionCallback callback) {
+        myLog("deleteBookFromDB => executorService.execute()");
         executorService.execute(() -> {
             try {
                 zikFileDao.deleteFolder(idFolder);
+                myLog("deleteBookFromDB => deletion in ZikFile - done");
                 folderDao.delete(idFolder);
+                myLog("deleteBookFromDB => deletion in Folder - done");
                 callback.onDeletionComplete(true);
             } catch (Exception e) {
+                myLogE("deleteBookFromDB - " + e.getMessage());
                 callback.onDeletionComplete(false);
             }
         });
@@ -40,5 +45,14 @@ public class CacheFilesRepository {
     // Nested interface
     public interface DeletionCallback {
         void onDeletionComplete(boolean success);
+    }
+
+    //--- LOG --------------------------
+    private void myLog(String str) {
+        KanLogger.myLog(this.getClass().getName(), str);
+    }
+
+    private void myLogE(String str) {
+        KanLogger.myLogE(this.getClass().getName(), str);
     }
 }

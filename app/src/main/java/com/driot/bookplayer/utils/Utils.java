@@ -227,4 +227,30 @@ public class Utils {
         }
     }
 
+
+
+    public static long getCustomLength(File file) {
+        if (file.isFile()) {
+            return file.length();
+        } else if (file.isDirectory()) {
+            return getFolderSize(file);
+        }
+        return 0;
+    }
+
+    private static long getFolderSize(File folder) {
+        long totalSize = 0;
+        File[] files = folder.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                if (file.isFile()) {
+                    totalSize += file.length();
+                } else if (file.isDirectory()) {
+                    totalSize += getFolderSize(file);
+                }
+            }
+        }
+        return totalSize;
+    }
+
 }

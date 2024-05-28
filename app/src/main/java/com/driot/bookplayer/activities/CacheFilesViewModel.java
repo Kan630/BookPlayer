@@ -1,5 +1,6 @@
 package com.driot.bookplayer.activities;
 
+import static com.driot.bookplayer.utils.Utils.getCustomLength;
 import static com.driot.bookplayer.utils.Utils.recursiveRemove;
 
 import android.app.Application;
@@ -8,15 +9,19 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.FolderDao;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.db.ZikFileDao;
+import com.driot.bookplayer.utils.FileSorter;
 import com.driot.tonylib.KanLogger;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 
@@ -26,7 +31,7 @@ public class CacheFilesViewModel extends AndroidViewModel {
     private final ZikFileDao zikFileDao;
     private final FolderDao folderDao;
     private CacheFilesRepository cacheFilesRepository; // manage deletions
-
+    private FileSorter fileSorter;
     public CacheFilesViewModel(@NonNull Application application) {
         super(application);
         cacheFilesRepository = new CacheFilesRepository(application);
@@ -44,15 +49,23 @@ public class CacheFilesViewModel extends AndroidViewModel {
 
     public MutableLiveData<List<File>> getFilesOnDisk() {
         myLog("LiveData<List<ZikFile>> getFilesOnDisk()");
-            String cachePath = getApplication().getFilesDir().getPath() + "/unzipped";
-            File cacheDir = new File(cachePath);
-            if (!(cacheDir.listFiles() == null)) {
-                filesFromDisk = new MutableLiveData<List<File>>(Arrays.asList(cacheDir.listFiles()));
-                return filesFromDisk;
-            } else {
-                myLogE("no files found on Disk in " + cacheDir.getPath());
-                return null;
-            }
+        String cachePath = getApplication().getFilesDir().getPath() + "/unzipped";
+        File cacheDir = new File(cachePath);
+        if (!(cacheDir.listFiles() == null)) {
+            List<File> files = Arrays.asList(cacheDir.listFiles());
+            files.sort(new Comparator<File>() {
+                @Override
+                public int compare(File file1, File file2) {
+                    return Long.compare(getCustomLength(file1), getCustomLength(file2));
+                }
+            });
+            Collections.reverse(files);
+            filesFromDisk = new MutableLiveData<List<File>>(files);
+            return filesFromDisk;
+        } else {
+            myLogE("no files found on Disk in " + cacheDir.getPath());
+            return null;
+        }
     }
 
     public void deleteAudio(File file) {
@@ -124,11 +137,9 @@ public class CacheFilesViewModel extends AndroidViewModel {
     private void deleteBookFromDB(int idFolder) {
         cacheFilesRepository.deleteBookFromDB(idFolder, success -> {
             if (success) {
-                getFilesOnDisk();
-                filesFromDisk.notify();
                 myLog("Successful deletion from DB");
             } else {
-                myLog("Error deleting from DB");
+                myLogE("Error deleting from DB");
             }
         });
     }

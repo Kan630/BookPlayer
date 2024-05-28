@@ -1,0 +1,232 @@
+<resources>
+    <string name="yesterday">\"ayer\"</string>
+    <string name="ERROR">\"ERROR\"</string>
+
+    <string name="title_FolderList">Lista de carpetas</string>
+    <string name="title_FolderContent">Lista de archivos</string>
+
+    <string name="yes">\"Sí\"</string>
+    <string name="no">\"No\"</string>
+    <string name="cancel">\"Cancelar\"</string>
+    <string name="are_you_sure">\"Está seguro \?\"</string>
+
+
+    <!-- ********************************** -->
+    <!-- HELP Screen -->
+
+    <string name="help">Ayuda</string>
+    <string name="help_folder">Carpeta:</string>
+    <string name="help_folder_text">\"Un clic prolongado en una carpeta abre la página \'modificar carpeta\'\".
+    \"Entonces podrás cambiar el nombre/eliminar/restablecer el progreso</string>
+    <string name="help_file">Pista :</string>
+    <string name="help_file_text">\"Un clic prolongado en una pista abre la página \'modificar pista\'\".
+    \"Entonces podrás cambiar el nombre/cambiar el orden/eliminar/restablecer el progreso</string>
+    <string name="help_import">Importar :</string>
+    <string name="help_import_text">\"Los archivos zip siempre son un poco más lentos para importar, cargar y reproducir\"</string>
+    <string name="help_import_text2">\"Si tienes problemas para importar tu audio:
+        \nZIP: en el selector de archivos, si un clic en un zip muestra el contenido del zip en lugar de permitirle seleccionar el zip, intente hacer un clic prolongado en el zip.
+        \nZIP: si falla la descompresión, intente descomprimirlos antes con otra aplicación.
+        \nSi tiene problemas para seleccionar audios de la carpeta de Descargas, intente sacarlos de la carpeta \'Descargas\'.\"</string>
+    <string name="help_head_10">Permisos:</string>
+    <string name="help_text_10">\"BookPlayer sólo necesitará un permiso: derecho a leer el almacenamiento/la memoria del teléfono para poder recuperar y reproducir archivos de audio\"</string>
+    <string name="help_head_20">Opciones:</string>
+    <string name="help_text_20"><![CDATA[\"1*/ AutoSleep => BookPlayer dejará de reproducirse después de XX minutos de inactividad (útil si te quedas dormido)
+        \n2*/ Duración personalizada para los botones >> y <<.
+        \n3*/ Congele la orientación del reproductor de libros en modo vertical mientras reproduce audios.\"]]></string>
+
+
+    <!-- ********************************** -->
+    <!-- Options Screen -->
+
+    <string name="option_timeBeforeSleep">Pausa automática</string>
+    <string name="option_timeBeforeSleep_text">después :</string>
+    <string name="option_timeBeforeSleep_min">mín.</string>
+    <string name="option_timeBeforeSleep_outOfBound">Argg: duración de la pausa automática fuera de los límites, restablecida a los valores predeterminados</string>
+
+    <string name="option_zip">Archivos Zip</string>
+    <string name="option_copyzip_local">Copie archivos en la memoria de la aplicación (obligatorio para Android 11 y versiones posteriores).</string>
+    <string name="option_unzip_local">Descomprimir archivos (ocupa espacio de almacenamiento, pero una experiencia auditiva más fluida)</string>
+
+    <string name="option_orientation">Orientación de la pantalla</string>
+    <string name="option_orientation_lock">Bloquear la orientación de la pantalla al jugar (vertical)</string>
+
+    <string name="option_delete_source_file_title">Eliminación automática del archivo fuente</string>
+    <string name="option_delete_source_file_text">Elimina automáticamente el archivo/carpeta previamente seleccionado una vez cargado en Bookplayer</string>
+
+    <string name="option_mail_method">Enviando correo</string>
+    <string name="option_mail_method_default">Utilice la aplicación de correo predeterminada. Desmarque para que se le pregunte qué aplicación usar.</string>
+
+    <string name="option_beep_title">Pitido</string>
+    <string name="option_beep_between_chapters">Produce un pitido al final de los capítulos.</string>
+    <string name="option_beep_for_autostop">Produce un pitido largo al entrar en modo de suspensión (pausa automática personalizada).</string>
+    <string name="option_beep_at_the_end">Produzca un triple pitido al final del libro.</string>
+
+    <!-- ********************************** -->
+    <!-- Get Resources -->
+
+    <string name="bOpenFile">Abrir un solo archivo</string>
+    <string name="bOpenFolder">Carpeta abierta</string>
+    <string name="bOpenZipFile">Abrir archivo zip</string>
+    <string name="bSearchLibrivox">Librivox.org</string>
+    <string name="bSearchLitteratureaudio">Literaturaaudio.com</string>
+    <string name="bSearchGutenberg">https://marhamilresearch4.blob.core.windows.net/gutenberg-public/Website/index.html</string>
+
+
+    <string name="TextHeaderOpen">Abrir un audio en mi dispositivo</string>
+    <string name="bOpenFile_desc">Si su audio consta de un solo archivo, presione este botón para seleccionar ese archivo:</string>
+    <string name="bOpenFolder_desc">Si sus archivos de audio se encuentran dentro de una carpeta, presione este botón y seleccione esta carpeta:</string>
+    <string name="bOpenZipFile_desc">Si sus archivos de audio se encuentran dentro de un archivo ZIP, presione este botón y seleccione este archivo:</string>
+
+    <string name="TextHeaderSearch">Buscar audio gratis en internet</string>
+    <string name="bSearchLibrivox_desc">Busque y luego descargue un libro de Librivox.org (principalmente en inglés):</string>
+    <string name="bSearchlitteratureaudio_desc">Busque y luego descargue un libro de litteratureaudio.com (francés):</string>
+    <string name="bSearchGutenberg_desc">Busque y luego descargue un libro del proyecto Gutenberg (altavoz de IA/audio generado):</string>
+    <string name="bSearchExampleText">Estos sitios web anteriores son sólo ejemplos, hay toneladas de audio en la web, también puedes descargar conferencias universitarias.</string>
+
+    <string name="AutoTest_title">Prueba automática (aún no activa)</string>
+    <string name="AutoTest_desc">Descarga automática e integración de una selección de prueba de audiolibros.</string>
+    <string name="AutoTest_b1_text">selección 1</string>
+
+    <!-- Add Resources -->
+
+    <string name="bAddRessource">Agregar contenido</string>
+
+    <string name="Error_Import_Copying_zip_local">No se pudo copiar el zip de la memoria del dispositivo a la memoria de almacenamiento de la aplicación reservada</string>
+    <string name="Error_Import_IsNotFolder">Esto no parece una carpeta</string>
+    <string name="Error_Import_IsNotFile">Esto no parece un archivo</string>
+    <string name="Error_Import_FolderAlreadyImported">Esta carpeta ya ha sido cargada.</string>
+    <string name="Error_Import_NoMediaInFolder">No se encontraron medios en esta carpeta.</string>
+    <string name="Error_Import_FilePathKO">No se puede encontrar la ruta del archivo</string>
+    <string name="Error_Import_FolderPathKO">No se puede encontrar la ruta de la carpeta</string>
+    <string name="Error_Import_ZipFilePathKO">No se puede encontrar la ruta del archivo zip</string>
+    <string name="Error_Import_BetterTryNoDownloadFolder">Intente mover el recurso de audio a otra ubicación (no en la carpeta de descargas)</string>
+    <string name="Import_nMediaInFolder">Se han encontrado medios en esta carpeta.</string>
+    <string name="Error_Import_ParsingZipFile">Error al analizar el archivo zip</string>
+    <string name="Error_Import_ParsingZipFile2">Lo sentimos, no puedo leer el archivo zip</string>
+    <string name="Error_Import_ParsingZipFile_advice">Primero puedes descomprimir el audiolibro y luego cargar la carpeta.</string>
+    <string name="Error_Getting_Ressource_Name_from_Download_Folder">Error al acceder al recurso en la ubicación de Descargas</string>
+    <string name="Add_resource_reading_file">leyendo archivo</string>
+
+    <string name="Import_Progress_copying_zip_file">\"copiando el archivo ZIP \n- desde la memoria externa del dispositivo\n- a la memoria interna de la aplicación Bookplayer\"</string>
+    <string name="Import_Progress_unzipping_file">\"descomprimir archivo: \"</string>
+    <string name="Import_Progress_check_not_already_imported">\"La carpeta de comprobación aún no se ha importado\"</string>
+    <string name="Import_Progress_checkingFiles">\"Carpeta guardada: comprobando archivos\"</string>
+    <string name="Import_Progress_scanningFile">\"escanear archivo\"</string>
+
+    <string name="Import_Progress_onGoing">\"Ocupado... importación en curso...\"</string>
+
+    <string name="Error_Import_Creating_Folders">\"No se pudieron crear carpetas\"</string>
+    <string name="Error_Import_checking_Folder_Exists">\"Error al comprobar si la carpeta ya existe en la base de datos\"</string>
+    <string name="Error_Import_saving_file_DB">\"Error al guardar el archivo en la base de datos\"</string>
+    <string name="Error_Import_track_duration_zero">\"Error al obtener la duración de la pista (duración = 0 segundos)\"</string>
+    <string name="Error_Import_track_duration_nofile">\"Error al obtener la duración de la pista (archivo no encontrado)\"</string>
+    <string name="Error_Import_track_duration_extraction">\"Error al obtener la duración de la pista\"</string>
+    <string name="Error_Import_computing_folder_duration">\"Error al calcular la suma de la duración de los activos\"</string>
+
+    <string name="Error_Import_UnableToUnzip_line1">Error al descomprimir el archivo comprimido\"</string>
+    <string name="Error_Import_UnableToUnzip_line2">Lo sentimos, puedes intentar importar una carpeta ya descomprimida\".</string>
+
+    <string name="Error_Import_NotEnoughMemory_line1">\"No hay suficiente memoria en el dispositivo\"</string>
+    <string name="Error_Import_NotEnoughMemory_line2_1">\"memoria disponible : \"</string>
+    <string name="Error_Import_NotEnoughMemory_line3">\"archivo zip : \"</string>
+    <string name="Error_Import_NotEnoughMemory_line4_1">\"(necesitas al menos \"</string>
+    <string name="Error_Import_NotEnoughMemory_line4_2">\"tiempo el tamaño del archivo zip)\"</string>
+    <string name="Error_Import_NotEnoughMemory_line5">\"Importa una carpeta mp3 y no el archivo zip para evitar esta limitación\"</string>
+
+    <string name="Error_Import_general_error">\"Algo malo pasó, se detuvo la importación\"</string>
+
+    <string name="Error_ZikFilePositionOnlyDigits">\"Aquí sólo puedes introducir dígitos\"</string>
+    <string name="Error_NameTooShort">\"Este nombre es demasiado corto\"</string>
+
+
+
+    <string name="Import_Success">Importación exitosa</string>
+
+
+    <!-- ********************************** -->
+    <!-- FolderModifyActivity -->
+
+    <string name="bDelete">\"Borrar\"</string>
+    <string name="bRenameFolder">\"Renombrar carpeta\"</string>
+    <string name="bRenameTrack">"Rename Track"</string>
+    <string name="bRenameOk">"Rename"</string>
+    <string name="bMove">"Change position"</string>
+    <string name="bMoveOk">"Move"</string>
+    <string name="bReset">"Reset Progress"</string>
+    <string name="Folder_Deleted">"Folder has been deleted"</string>
+    <string name="Folder_Renamed">"Folder has been renamed"</string>
+    <string name="Error_FolderNameTooShort">"Folder Name should be at least 2 characters"</string>
+    <string name="Folder_Reset">"Folder progress has been reset"</string>
+    <string name="ZikFile_RePositioned">"Track has been put in new position"</string>
+    <string name="ZikFile_Renamed">"Track has been renamed"</string>
+    <string name="ZikFile_Deleted">"Track has been deleted"</string>
+
+    <string name="AskDelete_popupTitle">Confirm Delete</string>
+    <string name="AskReset_popupTitle">Confirm Reset</string>
+    <string name="DeleteLogs_AskConfirm">"You are about to delete all logs." + "\n" +
+                        "Are you sure ?"</string>
+    <string name="ModifyFolder_AskDelete">"You are about to delete this folder and all the tracks" + "\n" +
+                        "Are you sure ?"</string>
+    <string name="ModifyFolder_AskReset">"You are about to reset progression for this folder " + "\n" +
+                        "Are you sure ?"</string>
+    <string name="ModifyZikFile_AskDelete">"You are about to delete this audio track " + "\n" +
+                        "Are you sure ?"</string>
+
+    <string name="CacheFiles_AskDeleteAudioBook">"You are about to delete this audio book"</string>
+
+
+
+    <!-- ********************************** -->
+    <!-- Zik File Adapter -->
+
+    <string name="Progression_reset_done">"Progress has been reset"</string>
+    <string name="ModifyFolder_AskDeleteProgressFromZikFile_Title">"Confirm Reset"</string>
+    <string name="ModifyFolder_AskDeleteProgressFromZikFile_Text">"You are about to reset progression from this audio\nAre you sure ?"</string>
+
+
+    <!-- ********************************** -->
+    <!-- PlayActivity -->
+
+    <string name="back"><![CDATA[<]]></string>
+    <string name="play"><![CDATA[>]]></string>
+    <string name="rewind"><![CDATA[<<]]></string>
+    <string name="forward"><![CDATA[>>]]></string>
+    <string name="pause">||</string>
+    <string name="tvSpeed">Speed</string>
+    <string name="tv_ListeningTime">No user action since</string>
+    <string name="tv_TimeLeft">Time left before auto sleep</string>
+    <string name="PlayActivity_ErrorOpeningTrack_FileNotFound">"ERROR OPENING TRACK - FILE NOT FOUND !"</string>
+    <string name="error_reading_track">"ERROR READING TRACK !"</string>
+    <string name="no_back_while_play">"Cannot go back while playing audio"</string>
+
+
+    <!-- ********************************** -->
+    <!-- Menus -->
+
+    <string name="menu_three_dot">Menu</string>
+    <string name="menu_manual">manual</string>
+    <string name="menu_options">options</string>
+    <string name="menu_otherapp">other apps</string>
+    <string name="menu_sendmail">mail developer</string>
+    <string name="menu_seeLog">See Log</string>
+    <string name="menu_cacheFiles">Cleaning</string>
+
+    <!-- ********************************** -->
+    <!-- OTHER APPS -->
+
+    <string name="otherApp_title">"My other apps :-)"</string>
+    <string name="otherApp_droitpositif">Droit Positif</string>
+    <string name="otherApp_droitpositif_txt">Major French law texts, available even offline</string>
+    <string name="otherApp_deces">Dead Frogs</string>
+    <string name="otherApp_deces_txt">People dead in France since the 70\'</string>
+    <string name="otherApp_kankwiz">Kan Kwiz</string>
+    <string name="otherApp_kankwiz_txt">Vocabulary and Language Quiz</string>
+
+    <!-- Action Bar -->
+
+    <string name="action_tailleCharPlus">Chars Size +</string>
+    <string name="action_tailleCharMoins">Chars Size -</string>
+    <string name="action_search">Search</string>
+    <string name="action_debutTexte">Goto Top</string>
+
+</resources>

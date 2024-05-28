@@ -9,7 +9,9 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.media.AudioManager;
 import android.media.MediaMetadataRetriever;
+import android.media.ToneGenerator;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.IBinder;
@@ -38,7 +40,9 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
+import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_BEEP_BOOKEND;
 import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_COPY_ZIP_LOCAL;
+import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_DELETE_SOURCE_FILE;
 import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_UNZIP_LOCAL;
 import static com.driot.bookplayer.activities.OptionActivity.SHARED_PREFERENCES_OPTIONS;
 import static com.driot.bookplayer.global.Var.FOLDER_UNZIPPED;
@@ -712,6 +716,10 @@ public class AddResourceService
                                     if (nbFileSaved == nbFileToSave) {
                                         myLog("************All files have been processed.");
                                         updateFolderDuration();
+                                        SharedPreferences prefs = this.getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE);
+                                        if (prefs.getBoolean("DELETE_SOURCE_FILE", DEFAULT_DELETE_SOURCE_FILE)) {
+                                            deleteSourceFile();
+                                        }
                                     }
                                 } else {
                                     tellError("error saving ZikFile in DB");
@@ -747,6 +755,43 @@ public class AddResourceService
                     tellNonBlockingError(getResources().getString(R.string.Error_Import_computing_folder_duration) + " : " +  throwable.getMessage());
                     tellEnd();
                 });
+    }
+
+    private void deleteSourceFile() {
+        myLog("deleteSourceFile() - uri = [" + uri_given + "] [" + type_given + "]");
+        DocumentFile dfPickedDir = null;
+        switch (type_given) {
+            case "File":
+            case "ZIP":
+                try {
+                    dfPickedDir = DocumentFile.fromSingleUri(this, uri_given);
+                } catch (Exception e) {
+                    tellError("error getting DocumentFile.fromSingleUri : " + e.getMessage());
+                    break;
+                }
+                break;
+            case "Folder":
+                try {
+                    dfPickedDir = DocumentFile.fromTreeUri(this, uri_given);
+                } catch (Exception e) {
+                    tellError("Error reading picked Folder.... DocumentFile.fromTreeUri : " + e.getMessage());
+                    break;
+                }
+                break;
+            default:
+                myLogE("Incorrect type : **" + type_given + "**");
+                break;
+        }
+        if (!(dfPickedDir == null)) {
+            boolean okDelete = dfPickedDir.delete();
+            if (okDelete) {
+                myLog("source file deletion ok");
+            } else {
+                myLogE("Error during source file deletion");
+            }
+        } else {
+            myLogE("deleteSourceFile() => could not get ref to picked file");
+        }
     }
 
     // DUREE AUDIO

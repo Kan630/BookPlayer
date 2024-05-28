@@ -447,7 +447,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
         int time_before_sleep = prefs.getInt("TIME_BEFORE_SLEEP", DEFAULT_TIME_BEFORE_SLEEP);
         if (tempsEcoule > 0) {
             zeText_since = getString(R.string.tv_ListeningTime) + " " + FormatTime(tempsEcoule*1000,true);
-            zeText_left = getString(R.string.tv_TimeLeft) + " " + FormatTime(time_before_sleep*1000*60-tempsEcoule*1000,true);
+            zeText_left = getString(R.string.tv_TimeLeft) + " : " + FormatTime(time_before_sleep*1000*60-tempsEcoule*1000,true);
             txListeningTime.setText(zeText_since);
             txTimeLeft.setText(zeText_left);
         } else {

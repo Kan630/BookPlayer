@@ -36,6 +36,7 @@ public class OptionActivity extends LifecycleLoggingActivity {
     public static final boolean DEFAULT_BEEP_CHAPTER = true;
     public static final boolean DEFAULT_BEEP_BOOKEND = true;
     public static final boolean DEFAULT_BEEP_AUTOSTOP = true;
+    public static final boolean DEFAULT_DELETE_SOURCE_FILE = false;
 
     EditText et_timeBeforeSleep;
     EditText et_ForwardSeconds;
@@ -46,6 +47,7 @@ public class OptionActivity extends LifecycleLoggingActivity {
     CheckBox chk_beep_chapter;
     CheckBox chk_beep_bookend;
     CheckBox chk_beep_autostop;
+    CheckBox chk_delete_source_file;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +66,7 @@ public class OptionActivity extends LifecycleLoggingActivity {
         chk_beep_chapter = findViewById(R.id.chk_beep_chapter_default);
         chk_beep_bookend = findViewById(R.id.chk_beep_bookend_defaut);
         chk_beep_autostop = findViewById(R.id.chk_beep_autostop_defaut);
+        chk_delete_source_file = findViewById(R.id.chk_delete_source_file);
 
         int i = getTimeBeforeSleep();
         et_timeBeforeSleep.setText(String.valueOf(i));
@@ -97,6 +100,9 @@ public class OptionActivity extends LifecycleLoggingActivity {
 
         chk_beep_autostop.setChecked(getBeepAutoStopDefault());
         chk_beep_autostop.setOnCheckedChangeListener((buttonView, isChecked) -> setBeepAutoStopDefault(isChecked));
+
+        chk_delete_source_file.setChecked(getDeleteSourceFileDefault());
+        chk_delete_source_file.setOnCheckedChangeListener((buttonView, isChecked) -> setDeleteSourceFileDefault(isChecked));
 
         // TODO : allows options
         chk_UnZip.setEnabled(false);
@@ -171,4 +177,9 @@ public class OptionActivity extends LifecycleLoggingActivity {
     private Boolean getBeepBookEndDefault() {return prefsOptions.getBoolean("BEEP_BOOKEND", DEFAULT_BEEP_BOOKEND);}
     private void setBeepAutoStopDefault(boolean bool) {editorOptions.putBoolean("BEEP_AUTOSTOP",bool).apply();}
     private Boolean getBeepAutoStopDefault() {return prefsOptions.getBoolean("BEEP_AUTOSTOP", DEFAULT_BEEP_AUTOSTOP);}
+
+    /////////////////// DELETE SOURCE FILE option ///////////////////
+    private void setDeleteSourceFileDefault(boolean bool) {editorOptions.putBoolean("DELETE_SOURCE_FILE",bool).apply();}
+    private Boolean getDeleteSourceFileDefault() {return prefsOptions.getBoolean("DELETE_SOURCE_FILE", DEFAULT_DELETE_SOURCE_FILE);}
+
 }

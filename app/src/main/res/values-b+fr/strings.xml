@@ -1,11 +1,9 @@
 <resources>
-    <string name="app_name">BookPlayer</string>
     <string name="yesterday">"hier"</string>
     <string name="ERROR">"ERREUR"</string>
 
     <string name="title_FolderList">Liste des dossiers</string>
     <string name="title_FolderContent">Liste des fichiers</string>
-    <string name="PlayerActivity_Title">TextBook Player</string>
 
     <string name="yes">"oui"</string>
     <string name="no">"non"</string>
@@ -56,7 +54,7 @@
 
     <string name="option_beep_title">Beeps</string>
     <string name="option_beep_between_chapters">Emettre un bip à chaque fin de chapitre.</string>
-    <string name="option_beep_for_autostop">Emettre un double bip en cas de pause automatique.</string>
+    <string name="option_beep_for_autostop">Emettre un long bip lors de la mise en veille. (pause automatique).</string>
     <string name="option_beep_at_the_end">Emettre un triple bip à la fin du livre.</string>
 
     <!-- ********************************** -->
@@ -189,8 +187,8 @@
     <string name="forward"><![CDATA[>>]]></string>
     <string name="pause">||</string>
     <string name="tvSpeed">Vitesse</string>
-    <string name="tv_ListeningTime">Lecture depuis</string>
-    <string name="tv_TimeLeft">Temps restant</string>
+    <string name="tv_ListeningTime">Aucune action utilisateur depuis</string>
+    <string name="tv_TimeLeft">Temps restant avant mise en veille</string>
     <string name="PlayActivity_ErrorOpeningTrack_FileNotFound">"ERREUR PISTE AUDIO - Fichier non trouvé !"</string>
     <string name="error_reading_track">"ERREUR A LA LECTURE DE LA PISTE AUDIO !"</string>
     <string name="no_back_while_play">"retour impossible pendant la lecture"</string>

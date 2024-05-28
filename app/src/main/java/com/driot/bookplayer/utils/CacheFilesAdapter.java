@@ -2,6 +2,7 @@ package com.driot.bookplayer.utils;
 
 import static android.provider.Settings.System.getString;
 import static com.driot.bookplayer.utils.Tonio.formatMem;
+import static com.driot.bookplayer.utils.Utils.getCustomLength;
 import static com.driot.tonylib.KanLogger.myLog;
 import static com.driot.tonylib.KanLogger.myLogInFile;
 import static com.driot.tonylib.KanLogger.myToast;
@@ -91,32 +92,6 @@ public class CacheFilesAdapter extends RecyclerView.Adapter<CacheFilesAdapter.Fi
             myLog("Delete Click on " + file.getName());
             onDeleteClickListener.onDeleteClick(file);
         });
-    }
-
-
-
-    public static long getCustomLength(File file) {
-        if (file.isFile()) {
-            return file.length();
-        } else if (file.isDirectory()) {
-            return getFolderSize(file);
-        }
-        return 0;
-    }
-
-    private static long getFolderSize(File folder) {
-        long totalSize = 0;
-        File[] files = folder.listFiles();
-        if (files != null) {
-            for (File file : files) {
-                if (file.isFile()) {
-                    totalSize += file.length();
-                } else if (file.isDirectory()) {
-                    totalSize += getFolderSize(file);
-                }
-            }
-        }
-        return totalSize;
     }
 
     private String getAudioStatus(File file) {
