@@ -760,27 +760,20 @@ public class AddResourceService
     private void deleteSourceFile() {
         myLog("deleteSourceFile() - uri = [" + uri_given + "] [" + type_given + "]");
         DocumentFile dfPickedDir = null;
-        switch (type_given) {
-            case "File":
-            case "ZIP":
-                try {
-                    dfPickedDir = DocumentFile.fromSingleUri(this, uri_given);
-                } catch (Exception e) {
-                    tellError("error getting DocumentFile.fromSingleUri : " + e.getMessage());
-                    break;
-                }
-                break;
-            case "Folder":
-                try {
-                    dfPickedDir = DocumentFile.fromTreeUri(this, uri_given);
-                } catch (Exception e) {
-                    tellError("Error reading picked Folder.... DocumentFile.fromTreeUri : " + e.getMessage());
-                    break;
-                }
-                break;
-            default:
-                myLogE("Incorrect type : **" + type_given + "**");
-                break;
+        if (type_given.equals("File") || type_given.equals("ZIP")) {
+            try {
+                dfPickedDir = DocumentFile.fromSingleUri(this, uri_given);
+            } catch (Exception e) {
+                tellError("error getting DocumentFile.fromSingleUri : " + e.getMessage());
+            }
+        } else if (type_given.equals("Folder")) {
+            try {
+                dfPickedDir = DocumentFile.fromTreeUri(this, uri_given);
+            } catch (Exception e) {
+                tellError("Error reading picked Folder.... DocumentFile.fromTreeUri : " + e.getMessage());
+            }
+        } else {
+            myLogE("Incorrect type : **" + type_given + "**");
         }
         if (!(dfPickedDir == null)) {
             boolean okDelete = dfPickedDir.delete();
