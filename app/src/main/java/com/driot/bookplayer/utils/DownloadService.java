@@ -1,16 +1,11 @@
 package com.driot.bookplayer.utils;
 
-import static androidx.core.app.ActivityCompat.startActivityForResult;
-import static com.driot.bookplayer.activities.GetResourceActivity.ADD_RESOURCE_REQUEST_CODE;
-import static com.driot.bookplayer.global.Var.FOLDER_UNZIPPED;
 import static com.driot.bookplayer.utils.Tonio.formatMem;
 import static com.driot.bookplayer.utils.Tonio.getFileNameFromPath;
-import static com.driot.bookplayer.utils.Tonio.stripFileName;
 
 import android.app.IntentService;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Environment;
 
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
@@ -165,20 +160,16 @@ public class DownloadService extends IntentService {
         }
         if (!(uri == null)) {
             try {
-                //Intent intentRunIntegration = new Intent(getApplicationContext(), AddResourceActivity.class);
+                // TODO : If screen is black or user have BookPlayer only in background, the integration will run only when focus back on Bookplayer... it should launch the service directly and not the activity
+                //boolean isDestroyed = AddResourceActivity.getLifecycleObserver().isActivityDestroyed();  un truc du style, mais je viens d'y passer 30min, j'y arrive pas
                 Intent intentRunIntegration = new Intent(this, AddResourceActivity.class);
-                myLog("0");
                 intentRunIntegration.putExtra("Uri", uri);
                 intentRunIntegration.putExtra("type", "ZIP");
-                myLog("1");
                 intentRunIntegration.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                myLog("2");
                 AddResourceActivity ara = new AddResourceActivity();
-                myLog("3");
-                //startActivityForResult(ara, intentRunIntegration, ADD_RESOURCE_REQUEST_CODE,null);
                 startActivity(intentRunIntegration);
             } catch (Exception e) {
-                myLogE("cannot start Inegration (AddResourceActivity) " + e.getMessage());
+                myLogE("cannot start Integration (AddResourceActivity) " + e.getMessage());
                 e.printStackTrace();
             }
         }

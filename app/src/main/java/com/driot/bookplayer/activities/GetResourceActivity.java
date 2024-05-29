@@ -25,8 +25,6 @@ import com.driot.bookplayer.utils.MediaScanner2;
 import com.driot.bookplayer.utils.PermissionRequest;
 import com.driot.tonylib.KanLogger;
 
-import java.io.File;
-import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -182,14 +180,12 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
     };
 
 
-    // TODO : Better display of waiting message when loading books
     private void checkServiceRunning() {
         try {
             lopperForLog = lopperForLog + 1;
             TextView tv1 = findViewById(R.id.bOpenFolder_desc);
             TextView tv2 = findViewById(R.id.message_import_currently_running);
 
-            //if (isMyServiceRunning(AddResourceService.class)) {
             if (AddResourceService.isBusy || DownloadService.isBusy) {
                 if (lopperForLog%10==0) myLog("AddResourceService.isBusy => displaying banner, disabling buttons");
                 bOpenFile.setEnabled(false);
@@ -332,7 +328,7 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
         boolean HasPermission = false;
         int permissionCheck1 = ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE);
         if (permissionCheck1 == PackageManager.PERMISSION_GRANTED) HasPermission = true;
-        myLog("Checking Permissions 1 - GetRessourceActivity.checkIfPermissionsReadStorage() : [" + HasPermission + "]");
+        myLog("Checking Permissions 1 - GetResourceActivity.checkIfPermissionsReadStorage() : [" + HasPermission + "]");
         return HasPermission;
     }
 
@@ -341,7 +337,7 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
         int permissionCheck1 = ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_EXTERNAL_STORAGE);
         int permissionCheck2 = ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_MEDIA_AUDIO);
         if (permissionCheck1 == PackageManager.PERMISSION_GRANTED || permissionCheck2 == PackageManager.PERMISSION_GRANTED) HasPermission = true;
-        myLog("Checking Permissions 1 - GetRessourceActivity.checkIfPermissionsReadStorage() : [" + HasPermission + "]");
+        myLog("Checking Permissions 1 - GetResourceActivity.checkIfPermissionsReadStorage() : [" + HasPermission + "]");
         return HasPermission;
     }
 
@@ -368,7 +364,7 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
 
     @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
-        myLog("Checking Permissions 2 - GetRessourceActivity.OnPostCreate()");
+        myLog("Checking Permissions 2 - GetResourceActivity.OnPostCreate()");
         checkPermissionsReadStorage2();
         super.onPostCreate(savedInstanceState);
     }
@@ -398,7 +394,7 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
     public void onRequestPermissionsResult(int requestCode,
                                            @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
-        myLog("Checking Permissions 2 - GetRessourceActivity.onRequestPermissionsResult()");
+        myLog("Checking Permissions 2 - GetResourceActivity.onRequestPermissionsResult()");
         myLog("Checking Permissions 2 : " + permissions[0] + " - " + requestCode + " - " + grantResults[0]);
         // Redirect hook call to permission helper method.
         if (mPermissionRequest != null) {

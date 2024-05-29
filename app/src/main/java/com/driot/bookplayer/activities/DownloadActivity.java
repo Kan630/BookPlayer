@@ -4,7 +4,6 @@ package com.driot.bookplayer.activities;
  * 
  */
 
-import static com.driot.bookplayer.global.Var.AUTOTEST_FILE_01;
 import static com.driot.bookplayer.global.Var.FOLDER_DOWNLOAD;
 
 import android.content.BroadcastReceiver;
