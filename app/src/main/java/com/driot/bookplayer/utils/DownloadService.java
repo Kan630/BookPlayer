@@ -1,6 +1,7 @@
 package com.driot.bookplayer.utils;
 
 import static com.driot.bookplayer.global.Var.FOLDER_UNZIPPED;
+import static com.driot.bookplayer.utils.Tonio.formatMem;
 import static com.driot.bookplayer.utils.Tonio.getFileNameFromPath;
 import static com.driot.bookplayer.utils.Tonio.stripFileName;
 
@@ -26,7 +27,8 @@ public class DownloadService extends IntentService {
     public static final String EXTRA_URL = "file_url";
     public static final String EXTRA_DESTINATION_FOLDER = "destination_folder";
     public static final String ACTION_PROGRESS = "download_progress";
-    public static final String EXTRA_PROGRESS = "progress";
+    public static final String EXTRA_PROGRESS_VALUE = "progress_value";
+    public static final String EXTRA_PROGRESS_TEXT = "progress_text";
     public static final String ACTION_COMPLETE = "download_complete";
     public DownloadService() {
         super("DownloadService");
@@ -75,7 +77,9 @@ public class DownloadService extends IntentService {
                 total += count;
                 if (fileLength > 0) {
                     int progress = (int) (total * 100 / fileLength);
-                    sendProgressUpdate(progress);
+                    String progress_text = "total length : " + formatMem(fileLength/1024/1024) + " Mo\n"
+                                         + progress + "%    *copied=" + formatMem(total/1024/1024,0) + " Mo";
+                    sendProgressUpdate(progress, progress_text);
                 }
                 output.write(data, 0, count);
             }
@@ -123,9 +127,10 @@ public class DownloadService extends IntentService {
         }
         return true;
     }
-    private void sendProgressUpdate(int progress) {
+    private void sendProgressUpdate(int progress_value, String progress_text) {
         Intent intent = new Intent(ACTION_PROGRESS);
-        intent.putExtra(EXTRA_PROGRESS, progress);
+        intent.putExtra(EXTRA_PROGRESS_VALUE, progress_value);
+        intent.putExtra(EXTRA_PROGRESS_TEXT, progress_text);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 

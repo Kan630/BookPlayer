@@ -15,6 +15,7 @@ import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -31,30 +32,27 @@ import java.util.Collections;
 public class DownloadActivity extends AppCompatActivity {
 
     private ProgressBar progressBar;
+    private TextView tv_belowProgressBar;
 
     private BroadcastReceiver downloadReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            if (DownloadService.ACTION_PROGRESS.equals(action)) {
-                int progress = intent.getIntExtra(DownloadService.EXTRA_PROGRESS, 0);
-                progressBar.setProgress(progress);
-            } else if (DownloadService.ACTION_COMPLETE.equals(action)) {
-                myLog("BroadcastReceiver ACTION_COMPLETE");
-                endThisActivity(intent.getStringExtra(DownloadService.EXTRA_URL), intent.getStringExtra(DownloadService.EXTRA_URL));
-            }
+        String action = intent.getAction();
+        if (DownloadService.ACTION_PROGRESS.equals(action)) {
+            int progress = intent.getIntExtra(DownloadService.EXTRA_PROGRESS_VALUE, 0);
+            String txt_progress = intent.getStringExtra(DownloadService.EXTRA_PROGRESS_TEXT);
+            progressBar.setProgress(progress);
+            tv_belowProgressBar.setText(txt_progress);
+        } else if (DownloadService.ACTION_COMPLETE.equals(action)) {
+            myLog("BroadcastReceiver ACTION_COMPLETE");
+            endThisActivity(intent.getStringExtra(DownloadService.EXTRA_URL));
+        }
         }
     };
 
-    private void endThisActivity(String endMessage, String downloadedFilePath) {
-
-        //Toast.makeText(context, "Download complete: " + fileName, Toast.LENGTH_SHORT).show();
-        //KanLogger.setKanContext(getApplicationContext());
-        //myLog("endThisActivity - endMessage = [" + endMessage + "]");
+    private void endThisActivity(String downloadedFilePath) {
         myLog("endThisActivity - endMessage = [" + downloadedFilePath + "]");
         Intent resultIntent = new Intent();
-        //resultIntent.putExtra("endMessage", endMessage);
-        //resultIntent.putExtra("uri", Uri.fromFile(new File(downloadedFilePath)));
         ArrayList<String> aa = new ArrayList<>(Collections.singleton(downloadedFilePath));
         resultIntent.putStringArrayListExtra("data", aa);
         Uri uri = Uri.fromFile(new File(downloadedFilePath));
@@ -69,6 +67,7 @@ public class DownloadActivity extends AppCompatActivity {
         setContentView(R.layout.activity_download);
 
         progressBar = findViewById(R.id.download_progressBar);
+        tv_belowProgressBar = findViewById(R.id.tv_textBelowProgressBar);
 
         LocalBroadcastManager.getInstance(this).registerReceiver(downloadReceiver,
                 new IntentFilter(DownloadService.ACTION_PROGRESS));
