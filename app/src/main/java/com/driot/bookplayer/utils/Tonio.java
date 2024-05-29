@@ -306,7 +306,17 @@ public class Tonio {
     }
     public static String formatMem(long mem, int padding){
         // %3s => left padding
-        return String.format("%" + padding + "s", NumberFormat.getNumberInstance(Locale.getDefault()).format(mem));
+        if (padding<1) {
+            return String.valueOf(mem);
+        } else {
+            try {
+                return String.format("%" + padding + "s", NumberFormat.getNumberInstance(Locale.getDefault()).format(mem));
+            } catch (Exception e) {
+                myLogE("formatMem...   " + e.getMessage());
+                e.printStackTrace();
+                return String.valueOf(mem);
+            }
+        }
     }
 
 

@@ -20,7 +20,7 @@ public class Var {
 
     public static final String  FOLDER_DOWNLOAD = "download";
     public static final String  PATH_CHECK_AUTOTEST = "bookplayer/files/download";
-    public static final String  AUTOTEST_FILE_01 = "https://bookplayer.driot.com/autotest/nathaniel-hawtorne-_-l-experience-du-dr-heidegger.zip ";
-//public static final String  AUTOTEST_FILE_01 = "https://bookplayer.driot.com/autotest/file_example_MP3_700KB.zip";
+    //public static final String  AUTOTEST_FILE_01 = "https://bookplayer.driot.com/autotest/nathaniel-hawtorne-_-l-experience-du-dr-heidegger.zip ";
+public static final String  AUTOTEST_FILE_01 = "https://bookplayer.driot.com/autotest/file_example_MP3_700KB.zip";
 
 }
