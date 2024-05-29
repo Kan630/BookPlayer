@@ -242,6 +242,7 @@ public class AudioService extends Service {
                     }
 
                     alertPlaylistFinished();
+                    killTimer();
                 } else {
                     myLog("mediaPlayer.OnCompletionListener => calling nextTrack");
                     nextTrack();
@@ -652,6 +653,7 @@ public class AudioService extends Service {
                 
                 if (tempsEcoule > maxTimeBeforeSleep*60) {
                     myLog( "Max Playback Time Reached -- Stopping Service");
+                    killTimer();
 
                     // 2 bips
                     if (prefs.getBoolean("BEEP_BOOKEND", DEFAULT_BEEP_BOOKEND)) {
@@ -661,7 +663,6 @@ public class AudioService extends Service {
 
                     Intent intent = new Intent(NOTIFICATION_PLAYBACK_MAXTIMEREACH);
                     sendBroadcast(intent);
-                    killTimer();
                     if (mediaPlayer != null && mediaPlayer.isPlaying()) {mediaPlayer.stop();}
                     stopSelf();
 
@@ -756,7 +757,8 @@ public class AudioService extends Service {
                     });
  */
         } catch (Exception e) {
-            myLog("updateZikFileState - Updating File progress in Initialization - " + e.getMessage());
+            myLogE("updateZikFileState - Updating File progress in Initialization - " + e.getMessage());
+            e.printStackTrace();
         }
 
 

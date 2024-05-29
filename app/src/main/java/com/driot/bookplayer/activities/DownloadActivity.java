@@ -7,7 +7,6 @@ package com.driot.bookplayer.activities;
 import static com.driot.bookplayer.global.Var.AUTOTEST_FILE_01;
 import static com.driot.bookplayer.global.Var.FOLDER_DOWNLOAD;
 
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -16,7 +15,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -65,6 +63,8 @@ public class DownloadActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_download);
+        Intent receivedIntent = getIntent();
+        String filePathToDownload = receivedIntent.getStringExtra("filePathToDownload");
 
         progressBar = findViewById(R.id.download_progressBar);
         tv_belowProgressBar = findViewById(R.id.tv_textBelowProgressBar);
@@ -76,7 +76,7 @@ public class DownloadActivity extends AppCompatActivity {
 
         // Start the download service
         Intent intent = new Intent(this, DownloadService.class);
-        intent.putExtra(DownloadService.EXTRA_URL, AUTOTEST_FILE_01);
+        intent.putExtra(DownloadService.EXTRA_URL, filePathToDownload);
         intent.putExtra(DownloadService.EXTRA_DESTINATION_FOLDER, getFilesDir().getAbsolutePath() + "/" + FOLDER_DOWNLOAD);
         startService(intent);
 

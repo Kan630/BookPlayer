@@ -78,9 +78,11 @@
     <string name="bSearchGutenberg_desc">Chercher puis téléchargez un livre depuis le projet Gutenberg (anglais - audio généré par une IA) : :</string>
     <string name="bSearchExampleText">"Les sites web ci-dessus sont là pour l\'exemple, il y a de multiples ressources audios sur internet, vous pourriez tout aussi bien télécharger des cours magistraux d'université."</string>
 
-    <string name="AutoTest_title">Auto Test (pas encore dispo)</string>
+    <string name="AutoTest_title">Auto Test</string>
     <string name="AutoTest_desc">Téléchargement et Intégration d\'une selection de livres audio pour test</string>
-    <string name="AutoTest_b1_text">selection 1</string>
+    <string name="AutoTest_b1_text">selection 1 - petit fichier</string>
+    <string name="AutoTest_b2_text">selection 2 - fichier moyen</string>
+    <string name="AutoTest_b3_text">selection 2 - gros fichier</string>
 
 
     <!-- ********************************** -->

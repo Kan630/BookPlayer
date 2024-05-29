@@ -83,9 +83,12 @@
     <string name="bSearchGutenberg_desc">Busque y luego descargue un libro del proyecto Gutenberg (altavoz de IA/audio generado):</string>
     <string name="bSearchExampleText">Estos sitios web anteriores son sólo ejemplos, hay toneladas de audio en la web, también puedes descargar conferencias universitarias.</string>
 
-    <string name="AutoTest_title">Prueba automática (aún no activa)</string>
+    <string name="AutoTest_title">Prueba automática</string>
     <string name="AutoTest_desc">Descarga automática e integración de una selección de prueba de audiolibros.</string>
-    <string name="AutoTest_b1_text">selección 1</string>
+    <string name="AutoTest_b1_text">selección 1 - small file</string>
+    <string name="AutoTest_b2_text">selección 2 - medium file</string>
+    <string name="AutoTest_b3_text">selección 3 - large file</string>
+
 
     <!-- Add Resources -->
 

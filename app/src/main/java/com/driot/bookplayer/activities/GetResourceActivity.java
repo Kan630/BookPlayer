@@ -20,6 +20,7 @@ import androidx.core.content.ContextCompat;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.utils.AddResourceService;
+import com.driot.bookplayer.utils.DownloadService;
 import com.driot.bookplayer.utils.MediaScanner2;
 import com.driot.bookplayer.utils.PermissionRequest;
 import com.driot.tonylib.KanLogger;
@@ -29,6 +30,9 @@ import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import static com.driot.bookplayer.global.Var.AUTOTEST_FILE_01;
+import static com.driot.bookplayer.global.Var.AUTOTEST_FILE_02;
+import static com.driot.bookplayer.global.Var.AUTOTEST_FILE_03;
 import static com.driot.tonylib.KanLogger.myToastE;
 
 /**
@@ -45,9 +49,10 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
     private Button bOpenFile;
     private Button bOpenFolder;
     private Button bOpenZipFile;
-    private Button bAutoTest_b1;
+    private Button bAutoTest_b1, bAutoTest_b2, bAutoTest_b3;
 
     private PermissionRequest mPermissionRequest;
+    private int lopperForLog = 0;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -61,6 +66,8 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
         Button bSearchLitteratureaudio = findViewById(R.id.bSearchLitteratureaudio);
         Button bSearchGutenberg = findViewById(R.id.bSearchGutenberg);
         bAutoTest_b1 = findViewById(R.id.bAutoTest_b1);
+        bAutoTest_b2 = findViewById(R.id.bAutoTest_b2);
+        bAutoTest_b3 = findViewById(R.id.bAutoTest_b3);
 
         // SINGLE FILE
         bOpenFile.setOnClickListener(view -> {
@@ -134,15 +141,23 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
         ////////////////////////////////
 
         bAutoTest_b1.setOnClickListener(view -> {
-            myLog("Button click : AUTOTEST"); // maybe not need write permission since writing inside app folders....
-            //if (checkIfPermissionsWriteStorage()) {
-                Intent intent = new Intent(getApplicationContext(), DownloadActivity.class);
-                //intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_WRITE_URI_PERMISSION|Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION|Intent.FLAG_GRANT_PREFIX_URI_PERMISSION);
-                startActivityForResult(intent, AUTOTEST_REQUEST_CODE);
-            //} else {
-            //    myToastE(getString(R.string.permissions_denied_sorry_cannot));
-            //}
-            });
+            myLog("Button click : AUTOTEST 1"); // maybe not need write permission since writing inside app folders....
+            Intent intent = new Intent(getApplicationContext(), DownloadActivity.class);
+            intent.putExtra("filePathToDownload", AUTOTEST_FILE_01);
+            startActivityForResult(intent, AUTOTEST_REQUEST_CODE);
+        });
+        bAutoTest_b2.setOnClickListener(view -> {
+            myLog("Button click : AUTOTEST 2");
+            Intent intent = new Intent(getApplicationContext(), DownloadActivity.class);
+            intent.putExtra("filePathToDownload", AUTOTEST_FILE_02);
+            startActivityForResult(intent, AUTOTEST_REQUEST_CODE);
+        });
+        bAutoTest_b3.setOnClickListener(view -> {
+            myLog("Button click : AUTOTEST 3");
+            Intent intent = new Intent(getApplicationContext(), DownloadActivity.class);
+            intent.putExtra("filePathToDownload", AUTOTEST_FILE_03);
+            startActivityForResult(intent, AUTOTEST_REQUEST_CODE);
+        });
 
         //create timer to check progress
         Timer timer = new Timer();
@@ -170,16 +185,19 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
     // TODO : Better display of waiting message when loading books
     private void checkServiceRunning() {
         try {
+            lopperForLog = lopperForLog + 1;
             TextView tv1 = findViewById(R.id.bOpenFolder_desc);
             TextView tv2 = findViewById(R.id.message_import_currently_running);
 
             //if (isMyServiceRunning(AddResourceService.class)) {
-            if (AddResourceService.isBusy) {
-                myLog("AddResourceService.isBusy => displaying banner, disabling buttons");
+            if (AddResourceService.isBusy || DownloadService.isBusy) {
+                if (lopperForLog%10==0) myLog("AddResourceService.isBusy => displaying banner, disabling buttons");
                 bOpenFile.setEnabled(false);
                 bOpenZipFile.setEnabled(false);
                 bOpenFolder.setEnabled(false);
                 bAutoTest_b1.setEnabled(false);
+                bAutoTest_b2.setEnabled(false);
+                bAutoTest_b3.setEnabled(false);
                 tv1.setVisibility(View.INVISIBLE);
                 tv2.setVisibility(View.VISIBLE);
             } else {
@@ -187,11 +205,14 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
                 bOpenZipFile.setEnabled(true);
                 bOpenFolder.setEnabled(true);
                 bAutoTest_b1.setEnabled(true);
+                bAutoTest_b2.setEnabled(true);
+                bAutoTest_b3.setEnabled(true);
                 tv1.setVisibility(View.VISIBLE);
                 tv2.setVisibility(View.INVISIBLE);
             }
         } catch (Exception e) {
             myLogE("Error while checking if service is running : " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -253,9 +274,12 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
                     finish();
                 }
                 break;
+                // TODO problem if Activity is closed... like in case of 'back' action from user....
             case AUTOTEST_REQUEST_CODE:
                 myLog("return from Download_Activity : ResultCode=" + resultCode);
                 if (resultCode == RESULT_OK) {
+                    myLog("return from Download_Activity : Result Code OK");
+                    /*
                     ArrayList<String> aa = data.getStringArrayListExtra("data");
                     String downloadedFilePath;
                     try {
@@ -277,6 +301,8 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
                     intent.putExtra("Uri", uri);
                     intent.putExtra("type", "ZIP");
                     startActivityForResult(intent, ADD_RESOURCE_REQUEST_CODE);
+
+                     */
                 } else {
                     myLogE("return from Download_Activity : Result NOT ok");
                 }

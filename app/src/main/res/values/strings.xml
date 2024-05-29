@@ -91,9 +91,11 @@
     <string name="bSearchGutenberg_desc">Search then Download a book from Gutenberg project (AI speaker / generated audio) :</string>
     <string name="bSearchExampleText">These websites above are only examples, there is tons of audio on the web, you could also download university lectures.</string>
 
-    <string name="AutoTest_title">Auto Test (Not Active Yet)</string>
-    <string name="AutoTest_desc">Automatic download and integration of an audiobooks test selection</string>
-    <string name="AutoTest_b1_text">selection 1</string>
+    <string name="AutoTest_title">Auto Test</string>
+    <string name="AutoTest_desc">Automatic download and integration of audiobooks, for testing purpose</string>
+    <string name="AutoTest_b1_text">selection 1 - small file</string>
+    <string name="AutoTest_b2_text">selection 2 - medium file</string>
+    <string name="AutoTest_b3_text">selection 3 - large file</string>
 
     <!-- Add Resources -->
 
