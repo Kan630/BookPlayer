@@ -25,11 +25,12 @@
         \nZIP : Essayez de les décompresser avec une autre application si le problème apparait lors de la décompression.
         \n- Essayez de les déplacer si ils sont dans le répertoire 'téléchargement'"</string>
     <string name="help_head_10">Permissions :</string>
-    <string name="help_text_10">"BookPlayer nécessite une seule permission : l'accès au stockage/mémoire, pour lire les fichiers audios"</string>
+    <string name="help_text_10">"BookPlayer nécessite peu de permissions : Notamment, l'accès au stockage/mémoire, pour lire les fichiers audios"</string>
     <string name="help_head_20">Options :</string>
     <string name="help_text_20">"1/* AutoSleep  => BookPlayer arrête l'audio après XX minutes d'inactivité. (utile si on s'endort)
-    \n2/* Durée parametrable pour les boutons >> et &lt;&lt;.
-    \n3*/ Bloquer l'orientation de BookPlayer en mode Portrait lors de l'écoute."</string>
+        \n2*/ Suppression automatique du fichier source => Lorsque vous importez un fichier ZIP dans Bookplayer, qui se trouvait par example dans le dossier Téléchargement de votre téléphone; Une fois l'importation réussie, ce fichier sera supprimé. (pour économiser la mémoire de stockage)
+        \n3*/ Bloquer l'orientation de BookPlayer en mode Portrait lors de l'écoute.
+        \n4/* Durée parametrable pour les boutons >> et &lt;&lt;."</string>
 
     <!-- ********************************** -->
     <!-- Options Screen -->
@@ -47,7 +48,7 @@
     <string name="option_orientation_lock">Verrouiller lors de la lecture (mode portrait)</string>
 
     <string name="option_delete_source_file_title">Suppression du fichier original</string>
-    <string name="option_delete_source_file_text">Supprimer automatiquement le fichier/dossier précédemment sélectionné après son chargement dans BookPlayer</string>
+    <string name="option_delete_source_file_text">Supprimer automatiquement le fichier précédemment sélectionné après son chargement dans BookPlayer (uniquement pour les fichiers ZIP)</string>
 
     <string name="option_mail_method">Envoi d\'emails</string>
     <string name="option_mail_method_default">Utiliser l\'application par défaut. Décochez pour choisir l\'application à utiliser lors de l\'envoi d\'un mail.</string>

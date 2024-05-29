@@ -36,11 +36,13 @@
         \nZIP : If Unzip fails, try tp unzip them before with another app.
         \nIf problem with picking audios from Download folder, try to move them out of 'Download' folder."</string>
     <string name="help_head_10">Permissions :</string>
-    <string name="help_text_10">"BookPlayer will only need one permission : Right to read phone storage/memory, in order to retrieve and play audio files"</string>
+    <string name="help_text_10">"BookPlayer will need only a few permission : Notably the right to read phone storage/memory, in order to retrieve and play audio files"</string>
     <string name="help_head_20">Options :</string>
-    <string name="help_text_20">"1*/ AutoSleep  => BookPlayer will stop playing after XX minutes of inactivities. (usefull if you fall asleep)
-        \n2*/ Custom duration for >> and &lt;&lt; buttons.
-        \n3*/ Freeze Bookplayer Orientation in Portrait Mode while playing audios."</string>
+    <string name="help_text_20">"1*/ AutoSleep/AutomaticPause  => BookPlayer will stop playing after XX minutes of inactivities. (useful if you fall asleep)
+        \n2*/ Automatic source file deletion => When you import a Zip file in Bookplayer, for example from your phone Download folder, Bookplayer will then, upon successful integration, delete this file
+        \n3*/ Freeze Bookplayer Orientation in Portrait Mode while playing audios.
+        \n4*/ Custom duration for >> and &lt;&lt; buttons."
+    </string>
 
 
     <!-- ********************************** -->
@@ -59,7 +61,7 @@
     <string name="option_orientation_lock">Lock the screen orientation when playing (portrait)</string>
 
     <string name="option_delete_source_file_title">Automatic Source file deletion</string>
-    <string name="option_delete_source_file_text">Automatically delete the previously picked file/folder once loaded into Bookplayer</string>
+    <string name="option_delete_source_file_text">Automatically delete the previously picked file once loaded into Bookplayer (only for ZIP)</string>
 
     <string name="option_mail_method">Sending mail</string>
     <string name="option_mail_method_default">Use default mailing app. Uncheck to be asked which app to use.</string>

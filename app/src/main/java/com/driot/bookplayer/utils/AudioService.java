@@ -107,6 +107,7 @@ public class AudioService extends Service {
     private Handler handler;
     private Runnable updateRunnable;
     private MediaSessionCompat.Callback callback = new MediaSessionCompat.Callback() {
+
         @Override
         public void onPlay() { // is called by headset button pressed !!!
             myLog("mediaSession Callback onPlay()");

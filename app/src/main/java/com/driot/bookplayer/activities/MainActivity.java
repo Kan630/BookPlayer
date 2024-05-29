@@ -5,10 +5,12 @@ import static com.driot.tonylib.KanLogger.myToast;
 import static com.driot.tonylib.TonioCommonStuff.MD5;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 
 import android.os.Build;
 import android.os.Bundle;
+import android.telephony.TelephonyManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toolbar;
@@ -41,6 +43,8 @@ import com.google.android.play.core.install.model.UpdateAvailability;
 import com.google.android.play.core.tasks.Task;
 */
 import java.util.List;
+import java.util.Locale;
+import java.util.TimeZone;
 
 public class MainActivity extends ComponentActivity { //ComponentActivity used for this activity to be a LifecycleOwner in Observer
 
@@ -331,11 +335,20 @@ import android.view.View;
         KanLogger.myLog("BuildConfig.VERSION_NAME = " + BuildConfig.VERSION_NAME);
         KanLogger.myLog("BuildConfig.BUILD_TYPE = " + BuildConfig.BUILD_TYPE);
         KanLogger.myLog("BuildConfig.APPLICATION_ID = " + BuildConfig.APPLICATION_ID);
+        KanLogger.myLog("========================== Miscellaneous :");
+        KanLogger.myLog("Locale.getDefault = " + Locale.getDefault().getCountry());
+        KanLogger.myLog("TimeZone.getDefault = " + TimeZone.getDefault().getID());
+        KanLogger.myLog("TelephonyManager country = " + getCountryFromTelephonyManager(this));
         KanLogger.myLog("===");
         KanLogger.myLog("==========================");
         KanLogger.myLog("");
     }
 
+    private static String getCountryFromTelephonyManager(Context context) {
+        TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+        String countryIso = telephonyManager.getNetworkCountryIso(); // returns the country code, e.g., "us"
+        return countryIso != null ? countryIso.toUpperCase() : null;
+    }
 
     private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
     private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }

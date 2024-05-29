@@ -721,7 +721,7 @@ public class AddResourceService
                                         myLog("************All files have been processed.");
                                         updateFolderDuration();
                                         SharedPreferences prefs = this.getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE);
-                                        if (prefs.getBoolean("DELETE_SOURCE_FILE", DEFAULT_DELETE_SOURCE_FILE)) {
+                                        if (prefs.getBoolean("DELETE_SOURCE_FILE", DEFAULT_DELETE_SOURCE_FILE) && type_given=="ZIP") {
                                             deleteSourceFile();
                                         }
                                     }

@@ -51,7 +51,7 @@
     <string name="option_orientation_lock">Bloquear la orientación de la pantalla al jugar (vertical)</string>
 
     <string name="option_delete_source_file_title">Eliminación automática del archivo fuente</string>
-    <string name="option_delete_source_file_text">Elimina automáticamente el archivo/carpeta previamente seleccionado una vez cargado en Bookplayer</string>
+    <string name="option_delete_source_file_text">Elimina automáticamente el archivo/carpeta previamente seleccionado una vez cargado en Bookplayer (only for ZIP)</string>
 
     <string name="option_mail_method">Enviando correo</string>
     <string name="option_mail_method_default">Utilice la aplicación de correo predeterminada. Desmarque para que se le pregunte qué aplicación usar.</string>

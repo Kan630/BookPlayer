@@ -44,6 +44,8 @@ public class KanLogger {
             ,"3dcf828fa24be7a49a361c4f4ba3dfd4" // RedMi sept 2023
             ,"3a53d8836f50d0826c99bca3900fbc24" // RedMi sept 2023, after upate
             ,"a35ba9d541e15b9ff7b017b7fef54430" // Redmi/veux_eea/veux:13/TKQ1.221114.001/V816.0.1.0.TKCEUXM:user/release-keys
+            ,"dabe9f1966e715f8d0cdf81561647f7c" // OPPO/CPH2065EEA/OP4BDCL1:12/SP1A.210812.016/Q.GDPR.132c99b-1ff9d:user/release-keys
+
     };
 
 
