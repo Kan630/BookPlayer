@@ -213,7 +213,7 @@
 
 
     <TextView
-        android:id="@+id/AutoTest_title"
+        android:id="@+id/txtAutoTest_title"
         android:text="@string/AutoTest_title"
         style="@style/myStyleTextTitle2"
         android:layout_width="wrap_content"
@@ -225,7 +225,7 @@
         />
 
     <TextView
-        android:id="@+id/AutoTest_desc"
+        android:id="@+id/txtAutoTest_desc"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/AutoTest_desc"
@@ -233,11 +233,11 @@
         android:paddingHorizontal="50dp"
         android:layout_marginTop="@dimen/GetRessource320_vertical_margin_title2text"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/AutoTest_title"
+        app:layout_constraintTop_toBottomOf="@id/txtAutoTest_title"
         />
 
     <Button
-        android:id="@+id/AutoTest_b1_text"
+        android:id="@+id/bAutoTest_b1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textColor="@color/green"
@@ -245,7 +245,7 @@
         android:layout_marginTop="@dimen/GetRessource320_vertical_margin_text2button"
         android:layout_marginStart="50dp"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/AutoTest_desc"
+        app:layout_constraintTop_toBottomOf="@id/txtAutoTest_desc"
         />
 
 

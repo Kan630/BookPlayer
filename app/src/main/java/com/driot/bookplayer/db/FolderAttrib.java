@@ -7,14 +7,12 @@ import android.os.Environment;
 import android.provider.OpenableColumns;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.utils.Tonio;
-import com.driot.bookplayer.utils.Tonio2;
 import com.driot.tonylib.KanLogger;
 
 import java.io.File;
 import java.util.List;
 
-import static com.driot.bookplayer.utils.Tonio.FormatNameForDisplay;
+import static com.driot.bookplayer.utils.Tonio.formatNameForDisplay;
 import static com.driot.bookplayer.utils.Tonio.getLastFolder;
 import static com.driot.bookplayer.utils.Tonio.getSubFolders;
 import static com.driot.bookplayer.utils.Tonio.stripFileName;
@@ -104,7 +102,7 @@ public class FolderAttrib {
         // ******************************************
 
         if (isSingleFile) {
-            sFolderName = FormatNameForDisplay(getLastFolder(sFolderPath) + "/" + getFileName(context,uri));
+            sFolderName = formatNameForDisplay(getLastFolder(sFolderPath) + "/" + getFileName(context,uri));
         } else {
             // nom par défaut = les deux derniers folders :
             // ex  : "S3 - Finances publiques/Audios"
@@ -113,13 +111,13 @@ public class FolderAttrib {
             if (pos1 > -1) {
                 int pos2 = str.substring(0, pos1).lastIndexOf("/", pos1);
                 if (pos2 > -1) {
-                    sFolderName = FormatNameForDisplay(str.substring(pos2 + 1));
+                    sFolderName = formatNameForDisplay(str.substring(pos2 + 1));
                 } else {
-                    sFolderName = FormatNameForDisplay(str.substring(pos1 + 1));
+                    sFolderName = formatNameForDisplay(str.substring(pos1 + 1));
                 }
             } else {
                 // especially when foldername is just a string without slash (Android 11 zip local copy)
-                sFolderName = FormatNameForDisplay(str);
+                sFolderName = formatNameForDisplay(str);
             }
         }
         if (sFolderName.startsWith("Download/")) { sFolderName = sFolderName.substring(9); }

@@ -9,9 +9,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.media.AudioManager;
 import android.media.MediaMetadataRetriever;
-import android.media.ToneGenerator;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.IBinder;
@@ -40,13 +38,13 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
-import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_BEEP_BOOKEND;
 import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_COPY_ZIP_LOCAL;
 import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_DELETE_SOURCE_FILE;
 import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_UNZIP_LOCAL;
 import static com.driot.bookplayer.activities.OptionActivity.SHARED_PREFERENCES_OPTIONS;
 import static com.driot.bookplayer.global.Var.FOLDER_UNZIPPED;
-import static com.driot.bookplayer.utils.Tonio.FormatNameForDisplay;
+import static com.driot.bookplayer.global.Var.PATH_CHECK_AUTOTEST;
+import static com.driot.bookplayer.utils.Tonio.formatNameForDisplay;
 import static com.driot.bookplayer.utils.Tonio.fileExists;
 import static com.driot.bookplayer.utils.Tonio.getFileNameFromPath;
 import static com.driot.bookplayer.utils.Tonio.stripExtension;
@@ -484,20 +482,26 @@ public class AddResourceService
 
                 // get the folder name = the zip file true Name without extension
                 destinationFolderName = "";
-                try {
-                    InputStream uriInputStream = this.getContentResolver().openInputStream(uri_given);
-                    if (uriInputStream != null) {
-                        destinationFolderName = getContentName(this.getContentResolver(), uri_given);
-                        if (destinationFolderName == null) { tellError("could not get name of zipfile"); }
-                        myLog("destinationFolderName = [" + destinationFolderName + "] - with getContentName(getContentResolver...");
-                        destinationFolderName = pruneZipFileName(destinationFolderName);
-                        uriInputStream.close();
-                    } else {
-                        tellError("Could not open input stream from selected Uri [" + uri_given.toString() + "]");
+                if (uri_given.getPath().contains(PATH_CHECK_AUTOTEST)) {  // <-- autotest
+                    destinationFolderName =  formatNameForDisplay(getFileNameFromPath(uri_given.getPath()));
+                } else {
+                    try {
+                        InputStream uriInputStream = this.getContentResolver().openInputStream(uri_given);
+                        if (uriInputStream != null) {
+                            destinationFolderName = getContentName(this.getContentResolver(), uri_given);
+                            if (destinationFolderName == null) {
+                                tellError("could not get name of zipfile");
+                            }
+                            myLog("destinationFolderName = [" + destinationFolderName + "] - with getContentName(getContentResolver...");
+                            destinationFolderName = pruneZipFileName(destinationFolderName);
+                            uriInputStream.close();
+                        } else {
+                            tellError("Could not open input stream from selected Uri [" + uri_given.toString() + "]");
+                        }
+                    } catch (Exception e) {
+                        tellError("error dealing with selected Uri : " + e.getMessage());
+                        e.printStackTrace();
                     }
-                } catch (Exception e) {
-                    tellError("error dealing with selected Uri : " + e.getMessage());
-                    e.printStackTrace();
                 }
 
                 // check Not Already Imported
@@ -664,7 +668,7 @@ public class AddResourceService
         // creating file
         ZikFile zikFile = new ZikFile();
         zikFile.setName(sZikFileName);
-        zikFile.setDisplayName(FormatNameForDisplay(sZikFileName));
+        zikFile.setDisplayName(formatNameForDisplay(sZikFileName));
         zikFile.setIdFolder(mFolderId);
         zikFile.setZeorder(zeorder);
         zikFile.setFolderName(myFolder.getFolderName());

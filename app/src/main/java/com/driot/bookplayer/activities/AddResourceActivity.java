@@ -18,7 +18,7 @@ import com.driot.bookplayer.utils.AddResourceService;
 import com.driot.tonylib.KanLogger;
 
 import static com.driot.bookplayer.utils.Tonio.getFileNameFromPath;
-import static com.driot.bookplayer.utils.Tonio.FormatNameForDisplay;
+import static com.driot.bookplayer.utils.Tonio.formatNameForDisplay;
 import static com.driot.tonylib.KanLogger.myToast;
 import static com.driot.tonylib.KanLogger.myToastE;
 
@@ -129,7 +129,7 @@ public class AddResourceActivity
     };
 
     private void putTitle(String name) {
-        name = type + " - " + FormatNameForDisplay(getFileNameFromPath(name));
+        name = type + " - " + formatNameForDisplay(getFileNameFromPath(name));
         tvTitle.setText(name);
     }
 

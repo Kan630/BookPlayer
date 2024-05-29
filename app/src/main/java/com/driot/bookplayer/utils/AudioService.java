@@ -28,7 +28,9 @@ import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.media.session.MediaButtonReceiver;
 
+import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.DatabaseClient;
+import com.driot.bookplayer.db.ZikFileDao;
 import com.driot.bookplayer.global.PlayList;
 import com.driot.bookplayer.db.Sql;
 import com.driot.bookplayer.db.ZikFile;
@@ -59,6 +61,7 @@ import static com.driot.bookplayer.utils.Tonio.FormatPercentDouble;
 import static com.driot.bookplayer.utils.Tonio.FormatTime;
 import static com.driot.bookplayer.utils.Tonio.fileExists;
 import static com.driot.bookplayer.utils.Tonio.getExtension;
+import static com.driot.bookplayer.utils.Tonio.getFileNameFromPath;
 import static com.driot.bookplayer.utils.Utils.copyStream;
 
 /**
@@ -716,7 +719,26 @@ public class AudioService extends Service {
                 zf.setPercentdone(FormatPercentDouble((double) getPosition() / getDuration()));
                 //if (zf.getDuration() == 0) zf.setDuration(getDuration());
             }
-
+            Thread one;
+            one = new Thread(() -> {
+                try {
+                    int mySqlresponse=0;
+                    AppDatabase db = AppDatabase.getDatabase(getApplicationContext());
+                    ZikFileDao zikFileDao = db.ZikFileDao();
+                    mySqlresponse = zikFileDao.update(zf);
+                    if (mySqlresponse>0) {
+                        myLogD("updateZikFileState---------- zikFile updated (" + zf.getName() + ")- position : " + myDF.format(zf.getPosition()));
+                        Sql.calculateFolderProgress(getApplicationContext(), zf.getIdFolder());
+                        myLogD("updateZikFileState---------- Folder Progress updated");
+                    } else {
+                        myLogE("updateZikFileState---------- ZikFile NOT updated");
+                    }
+                } catch (Exception e) {
+                    myLogE("updateZikFileState - Exception while Updating File progress in Thread - " + e.getMessage());
+                }
+            });
+            one.start();
+/*
             Observable.fromCallable(() -> {
                 DatabaseClient
                         .getInstance(getApplicationContext())
@@ -732,9 +754,9 @@ public class AudioService extends Service {
                     }, throwable -> {
                         myLog("error sql updating zikFile :" + throwable.getMessage());
                     });
-
+ */
         } catch (Exception e) {
-            myLog("AudioService  ==== ERROR ==== Updating File progress ");
+            myLog("updateZikFileState - Updating File progress in Initialization - " + e.getMessage());
         }
 
 

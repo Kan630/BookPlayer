@@ -159,7 +159,7 @@ public class Tonio {
         return file.getName();
     }
 
-    public static String FormatNameForDisplay(String s) {
+    public static String formatNameForDisplay(String s) {
         s = stripExtension(s);
         s = removeLongDuplicates(s,10);
         s = s.replace("_", " ");
@@ -173,6 +173,7 @@ public class Tonio {
         return s;
     }
 
+    // Garde que le path
     public static String stripFileName(String fullPath) {
             // Find the last index of the file separator (either backslash or forward slash)
             int lastIndex = fullPath.lastIndexOf(File.separator);

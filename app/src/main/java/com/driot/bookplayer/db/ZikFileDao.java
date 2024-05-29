@@ -6,6 +6,7 @@ package com.driot.bookplayer.db;
  *
  * when you add a column.... remake the DB...
  *
+ * when you change method signature (par ex: void => int), do Build>Clean Project
  */
 
 import androidx.lifecycle.LiveData;
@@ -53,7 +54,7 @@ public interface ZikFileDao {
     void resetProgressionFromThisZikFile(int idFolder, String name);
 
     @Update
-    void update(ZikFile zikFile);
+    int update(ZikFile zikFile);
 
     @Query("UPDATE ZikFile SET FolderName=:folderName WHERE id = :id")
     void updateFolderName(String folderName, int id);

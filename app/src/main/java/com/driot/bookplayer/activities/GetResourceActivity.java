@@ -24,6 +24,8 @@ import com.driot.bookplayer.utils.MediaScanner2;
 import com.driot.bookplayer.utils.PermissionRequest;
 import com.driot.tonylib.KanLogger;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -32,16 +34,18 @@ import static com.driot.tonylib.KanLogger.myToastE;
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 08/11/20
  */
-public class GetResourceActivity extends LifecycleLoggingActivity {
+public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatActivity
 
     private static final int OPEN_ZIP_FILE_REQUEST_CODE = 24;
     private static final int OPEN_FILE_REQUEST_CODE = 2444;
     private static final int OPEN_FOLDER_REQUEST_CODE = 25;
     public static final int ADD_RESOURCE_REQUEST_CODE = 26;
+    public static final int AUTOTEST_REQUEST_CODE = 987;
 
     private Button bOpenFile;
     private Button bOpenFolder;
     private Button bOpenZipFile;
+    private Button bAutoTest_b1;
 
     private PermissionRequest mPermissionRequest;
 
@@ -56,6 +60,7 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
         Button bSearchLibrivox = findViewById(R.id.bSearchLibrivox);
         Button bSearchLitteratureaudio = findViewById(R.id.bSearchLitteratureaudio);
         Button bSearchGutenberg = findViewById(R.id.bSearchGutenberg);
+        bAutoTest_b1 = findViewById(R.id.bAutoTest_b1);
 
         // SINGLE FILE
         bOpenFile.setOnClickListener(view -> {
@@ -103,9 +108,6 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
             }
         });
 
-
-
-
         ////////////////////////////////
         ///// LINKS
         ////////////////////////////////
@@ -126,6 +128,21 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
             startActivity(intent);
         });
+
+        ////////////////////////////////
+        ///// AUTO TEST
+        ////////////////////////////////
+
+        bAutoTest_b1.setOnClickListener(view -> {
+            myLog("Button click : AUTOTEST"); // maybe not need write permission since writing inside app folders....
+            //if (checkIfPermissionsWriteStorage()) {
+                Intent intent = new Intent(getApplicationContext(), DownloadActivity.class);
+                //intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_WRITE_URI_PERMISSION|Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION|Intent.FLAG_GRANT_PREFIX_URI_PERMISSION);
+                startActivityForResult(intent, AUTOTEST_REQUEST_CODE);
+            //} else {
+            //    myToastE(getString(R.string.permissions_denied_sorry_cannot));
+            //}
+            });
 
         //create timer to check progress
         Timer timer = new Timer();
@@ -162,12 +179,14 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
                 bOpenFile.setEnabled(false);
                 bOpenZipFile.setEnabled(false);
                 bOpenFolder.setEnabled(false);
+                bAutoTest_b1.setEnabled(false);
                 tv1.setVisibility(View.INVISIBLE);
                 tv2.setVisibility(View.VISIBLE);
             } else {
                 bOpenFile.setEnabled(true);
                 bOpenZipFile.setEnabled(true);
                 bOpenFolder.setEnabled(true);
+                bAutoTest_b1.setEnabled(true);
                 tv1.setVisibility(View.VISIBLE);
                 tv2.setVisibility(View.INVISIBLE);
             }
@@ -176,16 +195,17 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
         }
     }
 
-    private boolean checkDataOk(Intent data) {
+    private boolean isReturnedUriOk(Intent data) {
         try {
             Uri uri = data.getData();
             if (uri == null || uri.getPath() == null) {
-                myToastE("Error getting URI of selected item.");
+                myToastE("checkDataOk : Error getting URI of selected item.");
                 return false;
             }
             return true;
         } catch (Exception e) {
             myLogE("checkDataOk is KO : " + e.getMessage());
+            e.printStackTrace();
             return false;
         }
     }
@@ -195,7 +215,7 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
         switch (requestCode) {
             case OPEN_FILE_REQUEST_CODE:  // return of intent ACTION_OPEN_DOCUMENT
                 if (resultCode == RESULT_OK) {
-                    if (!checkDataOk(data)) break;
+                    if (!isReturnedUriOk(data)) break;
                     Uri uri = data.getData();
                     myLog("picked data : " + uri.getPath() );
                     Intent intent = new Intent(getApplicationContext(), AddResourceActivity.class);
@@ -206,7 +226,7 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
                 break;
             case OPEN_FOLDER_REQUEST_CODE: // return of ACTION_OPEN_DOCUMENT_TREE
                 if (resultCode == RESULT_OK) {
-                    if (!checkDataOk(data)) break;
+                    if (!isReturnedUriOk(data)) break;
                     Uri uri = data.getData();
                     myLog("picked data : " + uri.getPath() );
                     Intent intent = new Intent(getApplicationContext(), AddResourceActivity.class);
@@ -217,7 +237,7 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
                 break;
             case OPEN_ZIP_FILE_REQUEST_CODE: // return of ACTION_OPEN_DOCUMENT
                 if (resultCode == RESULT_OK) {
-                    if (!checkDataOk(data)) break;
+                    if (!isReturnedUriOk(data)) break;
                     Uri uri = data.getData();
                     myLog("picked data : " + uri.getPath() );
                     Intent intent = new Intent(getApplicationContext(), AddResourceActivity.class);
@@ -233,9 +253,39 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
                     finish();
                 }
                 break;
-            default:
+            case AUTOTEST_REQUEST_CODE:
+                myLog("return from Download_Activity : ResultCode=" + resultCode);
+                if (resultCode == RESULT_OK) {
+                    ArrayList<String> aa = data.getStringArrayListExtra("data");
+                    String downloadedFilePath;
+                    try {
+                        downloadedFilePath = aa.get(0).toString();
+                    } catch (Exception e) {
+                        myLogE("bad extra data returned - " + e.getMessage());
+                        myLogE("bad extra data returned : [" + aa.toString() + "] - " + e.getMessage());
+                        break;
+                    }
+                    Uri uri;
+                    try {
+                        uri = Uri.fromFile(new File(downloadedFilePath));
+                    } catch (Exception e) {
+                        myLogE("cannot build Uri for [" + aa.toString() + "] - " + e.getMessage());
+                        break;
+                    }
+                    myLog("AutoTest - picked data : [" + uri.getPath() + "] - now launching AddResourceActivity...");
+                    Intent intent = new Intent(getApplicationContext(), AddResourceActivity.class);
+                    intent.putExtra("Uri", uri);
+                    intent.putExtra("type", "ZIP");
+                    startActivityForResult(intent, ADD_RESOURCE_REQUEST_CODE);
+                } else {
+                    myLogE("return from Download_Activity : Result NOT ok");
+                }
+                break;
+
+                default:
                 myLogE("Bad Activity Request Result Code");
         }
+        myLog("end return from Activity");
     }
 
     private void scanThatShit() {
@@ -251,6 +301,14 @@ public class GetResourceActivity extends LifecycleLoggingActivity {
     // --     PERMISSIONS
     // -------------------------------------------------------------------------------------------
     // -------------------------------------------------------------------------------------------
+
+    private boolean checkIfPermissionsWriteStorage() {
+        boolean HasPermission = false;
+        int permissionCheck1 = ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        if (permissionCheck1 == PackageManager.PERMISSION_GRANTED) HasPermission = true;
+        myLog("Checking Permissions 1 - GetRessourceActivity.checkIfPermissionsReadStorage() : [" + HasPermission + "]");
+        return HasPermission;
+    }
 
     private boolean checkIfPermissionsReadStorage() {
         boolean HasPermission = false;

@@ -15,7 +15,7 @@ import android.widget.Toolbar;
 
 import androidx.activity.ComponentActivity;
 import androidx.annotation.NonNull;
-import androidx.credentials.CredentialManager;
+//import androidx.credentials.CredentialManager;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
@@ -49,7 +49,7 @@ public class MainActivity extends ComponentActivity { //ComponentActivity used f
     public static final int DAYS_FOR_FLEXIBLE_UPDATE = 10;
     public static final int UPDATE_APP_REQUEST_CODE = 6354;
 
-    private CredentialManager credentialManager;
+    //private CredentialManager credentialManager;  => KO after implementation commented in gradle
 
     private boolean HasBeenProposedToOpenFile;
 

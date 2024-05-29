@@ -23,7 +23,10 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 
+import static com.driot.bookplayer.global.Var.LOG_LIFECYCLE_TRACE;
 import static com.driot.tonylib.KanLogger.myLog;
+
+import com.driot.tonylib.KanLogger;
 
 
 /**
@@ -33,12 +36,7 @@ import static com.driot.tonylib.KanLogger.myLog;
 public abstract class LifecycleLoggingActivity 
        extends Activity {
 
-    //------------------------------------------------------------------------
-    //------------------------------------------------------------------------
-    private static final boolean LOG_TRACE = false;
-    //------------------------------------------------------------------------
-    //------------------------------------------------------------------------
-
+    private static final String LOG_TAG = "LifecycleLoggingActivity"; //this.getClass().getName()
     protected final String TAG = getClass().getSimpleName();
     //String TAG = this.getClass().getName().substring(this.getClass().getName().lastIndexOf(".")+1);
 
@@ -61,12 +59,12 @@ public abstract class LifecycleLoggingActivity
             // The activity is being re-created. Use the
             // savedInstanceState bundle for initializations either
             // during onCreate or onRestoreInstanceState().
-            if (LOG_TRACE) myLog(TAG + "onCreate(): activity re-created");
+            if (LOG_LIFECYCLE_TRACE) myLog(TAG + "onCreate(): activity re-created");
 
         } else {
             // Activity is being created anew. No prior saved
             // instance state information available in Bundle object.
-            if (LOG_TRACE) myLog(TAG + "onCreate(): activity created anew");
+            if (LOG_LIFECYCLE_TRACE) myLog(TAG + "onCreate(): activity created anew");
         }
 
     }
@@ -82,7 +80,7 @@ public abstract class LifecycleLoggingActivity
         // Always call super class for necessary
         // initialization/implementation.
         super.onStart();
-        if (LOG_TRACE) myLog(TAG + "onStart() - the activity is about to become visible");
+        if (LOG_LIFECYCLE_TRACE) myLog(TAG + "onStart() - the activity is about to become visible");
     }
 
     /**
@@ -99,7 +97,7 @@ public abstract class LifecycleLoggingActivity
         // initialization/implementation and then log which lifecycle
         // hook method is being called.
         super.onResume();
-        if (LOG_TRACE) myLog(TAG + "onResume() - the activity has become visible (it is now \"resumed\")");
+        if (LOG_LIFECYCLE_TRACE) myLog(TAG + "onResume() - the activity has become visible (it is now \"resumed\")");
     }
 
     /**
@@ -115,7 +113,7 @@ public abstract class LifecycleLoggingActivity
         // initialization/implementation and then log which lifecycle
         // hook method is being called.
         super.onPause();
-        if (LOG_TRACE) myLog(TAG + "onPause() - another activity is taking focus (this activity is about to be \"paused\")");
+        if (LOG_LIFECYCLE_TRACE) myLog(TAG + "onPause() - another activity is taking focus (this activity is about to be \"paused\")");
     }
 
     /**
@@ -129,7 +127,7 @@ public abstract class LifecycleLoggingActivity
         // initialization/implementation and then log which lifecycle
         // hook method is being called.
         super.onStop();
-        if (LOG_TRACE) myLog(TAG + "onStop() - the activity is no longer visible (it is now \"stopped\")");
+        if (LOG_LIFECYCLE_TRACE) myLog(TAG + "onStop() - the activity is no longer visible (it is now \"stopped\")");
     }
 
     /**
@@ -142,7 +140,7 @@ public abstract class LifecycleLoggingActivity
         // initialization/implementation and then log which lifecycle
         // hook method is being called.
         super.onRestart();
-        if (LOG_TRACE) myLog(TAG + "onRestart() - the activity is about to be restarted()");
+        if (LOG_LIFECYCLE_TRACE) myLog(TAG + "onRestart() - the activity is about to be restarted()");
     }
 
     /**
@@ -156,7 +154,7 @@ public abstract class LifecycleLoggingActivity
         // initialization/implementation and then log which lifecycle
         // hook method is being called.
         super.onDestroy();
-        if (LOG_TRACE) myLog(TAG + "onDestroy() - the activity is about to be destroyed");
+        if (LOG_LIFECYCLE_TRACE) myLog(TAG + "onDestroy() - the activity is about to be destroyed");
     }
 
     // Ajouts Tonio
@@ -164,25 +162,29 @@ public abstract class LifecycleLoggingActivity
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        if (LOG_TRACE) myLog(TAG + "onSaveInstanceState()");
+        if (LOG_LIFECYCLE_TRACE) myLog(TAG + "onSaveInstanceState()");
     }
 
     @Override
     protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        if (LOG_TRACE) myLog(TAG + "onRestoreInstanceState()");
+        if (LOG_LIFECYCLE_TRACE) myLog(TAG + "onRestoreInstanceState()");
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (LOG_TRACE) myLog(TAG + "onActivityResult() - request code " + requestCode);
+        if (LOG_LIFECYCLE_TRACE) myLog(TAG + "onActivityResult() - request code " + requestCode);
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        if (LOG_TRACE) myLog(TAG + "onNewIntent() + intent : " + intent.getAction());
+        if (LOG_LIFECYCLE_TRACE) myLog(TAG + "onNewIntent() + intent : " + intent.getAction());
     }
 
+
+    //private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
+    private void myLog(String str) { KanLogger.myLog(LOG_TAG, str); }
+    private void myLogE(String str) { KanLogger.myLogE(LOG_TAG, str); }
 }

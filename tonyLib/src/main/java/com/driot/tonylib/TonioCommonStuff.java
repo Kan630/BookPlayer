@@ -4,6 +4,8 @@ import java.nio.charset.StandardCharsets;
 
 import static com.driot.tonylib.KanLogger.myLogE;
 
+import android.util.Log;
+
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 10/12/20
  */
@@ -54,12 +56,16 @@ public class TonioCommonStuff {
                     sb.append(Integer.toHexString((b & 0xFF) | 0x100).substring(1, 3));
                 }
             } else {
+                Log.d("toto", "MD5 N/A - android sdk < 16");
                 return null;
             }
+            //Log.d("toto", "MD5 ok");
             return sb.toString();
         } catch (Exception e) {
-            myLogE("MD5 failed");
+            Log.e ("toto", "MD5 failed :" + e.getMessage());
+            e.printStackTrace();
+            return null;
         }
-        return null;
     }
+
 }

@@ -40,6 +40,7 @@
         <activity android:name=".activities.DbBackupActivity" />
         <activity android:name=".activities.StatsActivity" />
         <activity android:name=".activities.CacheFilesActivity" />
+        <activity android:name=".activities.DownloadActivity" />
 
         <service
             android:name=".utils.AudioService"
@@ -58,6 +59,9 @@
         <service
             android:name=".utils.UnzipService"
             android:stopWithTask="true" />
+        <service
+            android:name=".utils.DownloadService"
+            android:exported="false"/>
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.FileProvider"

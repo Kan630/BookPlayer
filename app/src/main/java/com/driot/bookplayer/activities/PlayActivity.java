@@ -17,7 +17,6 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.driot.bookplayer.BuildConfig;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.global.PlayList;
@@ -29,7 +28,6 @@ import java.util.TimerTask;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
-import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_SCREEN_ORIENTATION_LOCK;
@@ -46,7 +44,7 @@ import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_PLAYLISTFINIS
 import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_TRACKFINISHED;
 import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_ZIP_FILE_LOADED;
 import static com.driot.bookplayer.utils.AudioService.TIMER_VALUE;
-import static com.driot.bookplayer.utils.Tonio.FormatNameForDisplay;
+import static com.driot.bookplayer.utils.Tonio.formatNameForDisplay;
 import static com.driot.bookplayer.utils.Tonio.FormatPercentStringForSpeed;
 import static com.driot.bookplayer.utils.Tonio.FormatTime;
 import static com.driot.bookplayer.utils.Utils.animateView;
@@ -425,7 +423,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
         }
         try {
             myLog("DrawUI : " + PlayList.getZikFile().getName() + " -- " + PlayList.getZikFile().getPosition());
-            txSubTitle.setText(FormatNameForDisplay(PlayList.getZikFile().getName()));
+            txSubTitle.setText(formatNameForDisplay(PlayList.getZikFile().getName()));
             txTitle.setText(PlayList.getZikFile().getFolderName());
             txNomFichier.setText("");
             txTempsTotal.setText(FormatTime(PlayList.getZikFile().getDuration(),true));
