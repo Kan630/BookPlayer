@@ -30,12 +30,8 @@
             android:layout_marginTop="20sp"
             android:text="@string/help_folder_text"
             />
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginTop="10sp"
-            android:background="@android:color/darker_gray"
-            />
+        <View style="@style/myStyleViewSimpleHorizontalBar"/>
+
         <TextView
             style="@style/myStyleTextTitle2"
             android:layout_width="wrap_content"
@@ -51,13 +47,7 @@
             android:layout_marginTop="20sp"
             android:text="@string/help_file_text"
             />
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginTop="10sp"
-            android:background="@android:color/darker_gray"
-            />
-
+        <View style="@style/myStyleViewSimpleHorizontalBar"/>
 
         <TextView
             style="@style/myStyleTextTitle2"
@@ -74,13 +64,7 @@
             android:layout_marginTop="20sp"
             android:text="@string/help_import_text2"
             />
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginTop="10sp"
-            android:background="@android:color/darker_gray"
-            />
-
+        <View style="@style/myStyleViewSimpleHorizontalBar"/>
 
         <TextView
             style="@style/myStyleTextTitle2"
@@ -97,12 +81,8 @@
             android:layout_marginTop="20sp"
             android:text="@string/help_text_10"
             />
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginTop="10sp"
-            android:background="@android:color/darker_gray"
-            />
+        <View style="@style/myStyleViewSimpleHorizontalBar"/>
+
 
         <TextView
             style="@style/myStyleTextTitle2"
@@ -119,12 +99,28 @@
             android:layout_marginTop="20sp"
             android:text="@string/help_text_20"
             />
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginTop="10sp"
-            android:background="@android:color/darker_gray"
+
+        <View style="@style/myStyleViewSimpleHorizontalBar"/>
+
+        <TextView
+            style="@style/myStyleTextTitle2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20sp"
+            android:text="@string/help_head_30"
             />
+        <TextView
+            style="@style/myStyleTextExplainButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10sp"
+            android:layout_marginTop="20sp"
+            android:text="@string/help_text_30"
+            />
+        <View style="@style/myStyleViewSimpleHorizontalBar"
+            android:layout_marginBottom="30dp"
+            />
+
 
     </LinearLayout>
     </ScrollView>

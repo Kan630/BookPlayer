@@ -43,6 +43,10 @@
         \n3*/ Freeze Bookplayer Orientation in Portrait Mode while playing audios.
         \n4*/ Custom duration for >> and &lt;&lt; buttons."
     </string>
+    <string name="help_head_30">Memory Cleaning :</string>
+    <string name="help_text_30">"A specific view to check the content of the Bookplayer internal memory does now exist. It allows to see which book take a lot of room. You can delete some of them from here.
+        \nPlease note that, only books that you have loaded through a zip file, are copied inside this reserved Bookplayer memory section. Other books (integrated as a single file, or as a folder) are not stored inside the reserved Bookplayer memory. They should still be located where they were originally (that is to say on the general device memory, like the 'Download' directory) providing they haven't been deleted by another app or user."
+    </string>
 
 
     <!-- ********************************** -->

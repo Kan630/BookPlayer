@@ -31,6 +31,10 @@
         \n2*/ Suppression automatique du fichier source => Lorsque vous importez un fichier ZIP dans Bookplayer, qui se trouvait par example dans le dossier Téléchargement de votre téléphone; Une fois l'importation réussie, ce fichier sera supprimé. (pour économiser la mémoire de stockage)
         \n3*/ Bloquer l'orientation de BookPlayer en mode Portrait lors de l'écoute.
         \n4/* Durée parametrable pour les boutons >> et &lt;&lt;."</string>
+    <string name="help_head_30">Nettoyage mémoire :</string>
+    <string name="help_text_30">"Un écran spécifique existe pour contrôler le contenu de la mémoire reservée de Bookplayer. Cet écran permet de voir les livres audio qui prennent beaucoup de place, et permet de les supprimer si besoin.
+        \nVeuillez noter que seuls les livres audios récupérés sous forme de fichier ZIP sont ainsi listés. Ce sont les seuls qui sont copiés dans la mémoire interne de l'application. Les livres audios récupéré sous forme de fichier unique, ou de dossier, ne sont pas copiés dans la mémoire interne et devraient toujours se trouver oú ils résidaient initialement (comme par exemple dans le dossier 'téléchargements'), si personne ne les a supprimé!"
+    </string>
 
     <!-- ********************************** -->
     <!-- Options Screen -->

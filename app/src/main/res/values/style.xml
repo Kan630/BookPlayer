@@ -40,6 +40,12 @@
         <item name="android:textAlignment">textEnd</item>
     </style>>
 
+    <style name="myStyleViewSimpleHorizontalBar">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">1dp</item>
+        <item name="android:layout_marginTop">10sp</item>
+        <item name="android:background">@android:color/darker_gray</item>
+    </style>>
 
 
 </resources>

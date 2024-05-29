@@ -831,7 +831,7 @@ public class AudioService extends Service {
                 .setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
                         .setMediaSession(mediaSession.getSessionToken())
                         .setShowActionsInCompactView(0, 1));
-        startForeground(1, builder.build());
+        startForeground(1, builder.build()); //TODO : on android 14 : java.lang.RuntimeException: Unable to create service com.driot.bookplayer.utils.AudioService: android.app.MissingForegroundServiceTypeException: Starting FGS without a type  callerApp=ProcessRecord{c49c1a0 24695:com.driot.bookplayer/u0a277} targetSDK=34
     }
     private void createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
