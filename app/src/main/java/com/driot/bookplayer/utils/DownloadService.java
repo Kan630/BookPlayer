@@ -77,7 +77,6 @@ public class DownloadService extends IntentService {
                 total += count;
                 if (fileLength > 0) {
                     int progress = (int) (total * 100 / fileLength);
-                    //String progress_text = "book name : [" + destinationFileName + "]\n"
                     String progress_text = "book name : [" + destinationFileName + "]\n"
                             + "book size : " + formatMem(fileLength/1024/1024) + " Mo\n"
                             + progress + "%    *copied=" + formatMem(total/1024/1024,1) + " Mo";
