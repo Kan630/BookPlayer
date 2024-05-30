@@ -32,6 +32,12 @@
         android:layout_centerHorizontal="true"
         />
 
+    <com.driot.bookplayer.utils.FrequencyVisualizerView
+        android:id="@+id/frequencyVisualizerView"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_centerInParent="true"/>
+
     <LinearLayout android:id="@+id/llCommandButtons"
         android:layout_height="wrap_content"
         android:layout_width="fill_parent"

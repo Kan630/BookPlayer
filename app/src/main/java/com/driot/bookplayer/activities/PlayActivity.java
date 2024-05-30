@@ -1,5 +1,6 @@
 package com.driot.bookplayer.activities;
 
+import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -8,10 +9,14 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
+import android.media.AudioManager;
+import android.media.ToneGenerator;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -21,6 +26,8 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.global.PlayList;
 import com.driot.bookplayer.utils.AudioService;
+import com.driot.bookplayer.utils.FrequencyVisualizerView;
+import com.driot.bookplayer.utils.PermissionRequest;
 import com.driot.tonylib.KanLogger;
 
 import java.util.Timer;
@@ -30,8 +37,10 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
+import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_BEEP_BOOKEND;
 import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_SCREEN_ORIENTATION_LOCK;
 import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_TIME_BEFORE_SLEEP;
+import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_VISUALIZER_ON;
 import static com.driot.bookplayer.activities.OptionActivity.SHARED_PREFERENCES_OPTIONS;
 import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_AUDIOFOCUS_GAIN;
 import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_AUDIOFOCUS_LOST;
@@ -50,6 +59,11 @@ import static com.driot.bookplayer.utils.Tonio.FormatTime;
 import static com.driot.bookplayer.utils.Utils.animateView;
 import static com.driot.tonylib.KanLogger.myToastE;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 30/10/2020
  * <p>
@@ -65,16 +79,20 @@ public class PlayActivity extends LifecycleLoggingActivity {
     private static final int DELAY_ANIMATION = 200;
     private static final float INCREMENT_SPEED = 0.05f;
     boolean boundToService;
-    AudioService mService;
-    boolean mBound = false;
+    AudioService audioService;
+    boolean audioServiceBound = false;
     private Button bPlay;
     private SeekBar seekbar;
     private TextView txSeekBar, txTempsTotal, txNomFichier, txTitle, txSubTitle, txSpeed, txListeningTime, txTimeLeft;
     private View progressOverlay;
+    private FrequencyVisualizerView frequencyVisualizerView;
     private boolean AnimationNow;
     private boolean HasBeenInitializedService = false;
     private Intent intentMusicService;
     private Timer timerRedrawUI;
+
+    private PermissionRequest mPermissionRequest;
+
 
     /********************************************************************************
      ***       SERVICE
@@ -87,12 +105,12 @@ public class PlayActivity extends LifecycleLoggingActivity {
         public void onServiceConnected(ComponentName className, IBinder service) {
             myLog("onServiceConnected");
             AudioService.BackgroundBinder binder = (AudioService.BackgroundBinder) service;
-            mService = binder.getService();
-            mBound = true;
+            audioService = binder.getService();
+            audioServiceBound = true;
 
             // Get PlayList
             if (!HasBeenInitializedService) {
-                if (!(mService.isPlaying())) {
+                if (!(audioService.isPlaying())) {
                     loadPlayListIntoService();
                 }
             }
@@ -106,7 +124,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
             myLog("OnServiceDisconnected");
-            mBound = false;
+            audioServiceBound = false;
         }
 
     };
@@ -172,8 +190,8 @@ public class PlayActivity extends LifecycleLoggingActivity {
 
         setContentView(R.layout.activity_play);
 
-        Button bRewind = findViewById(R.id.buttonRewind);
         bPlay = findViewById(R.id.buttonPlay);
+        Button bRewind = findViewById(R.id.buttonRewind);
         Button bForward = findViewById(R.id.buttonForward);
         Button bSpeedUp = findViewById(R.id.bSpeedUp);
         Button bSpeedDown = findViewById(R.id.bSpeedDown);
@@ -189,6 +207,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
         seekbar = findViewById(R.id.seekBar);
         txListeningTime = findViewById(R.id.tv_ListeningTime);
         txTimeLeft = findViewById(R.id.tv_TimeLeft);
+        frequencyVisualizerView = findViewById(R.id.frequencyVisualizerView);
 
         myLog("onCreate() -- Launching Music Service");
         launchService();
@@ -233,7 +252,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 if (fromUser) {
                     myLog("SeekBar");
-                    mService.setPosition(progress);
+                    audioService.setPosition(progress);
                     txSeekBar.setText(FormatTime(progress,true));
                 }
             }
@@ -264,7 +283,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
         startService(intentMusicService);
         boundToService=false;
         try {
-            boundToService = bindService(intentMusicService, audioServiceConnection, Context.BIND_AUTO_CREATE);
+            boundToService = bindService(intentMusicService, audioServiceConnection, Context.BIND_AUTO_CREATE); //TODO leaked ServiceConnection if user press back
         } catch (Exception e) {
             myLogE("ERROR bindService");
             myLogE(e.getMessage());
@@ -274,17 +293,18 @@ public class PlayActivity extends LifecycleLoggingActivity {
 
     private void playMe() {
         myLog("PlayMe()");
-        if (mBound) {
-            if (mService != null && mService.exist()) {
-                if (mService.isPlaying()) {
+        if (audioServiceBound) {
+            if (audioService != null && audioService.exist()) {
+                if (audioService.isPlaying()) {
                     /////////   PAUSE
                     myLog("pause");
-                    mService.pauseAudio();
+                    audioService.pauseAudio();
                     reDrawListeningSince(0);
                     /////// PLAY
                 } else {
                     myLog("play");
-                    mService.playAudio();
+                    audioService.playAudio();
+                    runVisualizer();
                 }
             } else {
                 myLogE("playMe() mService KO");
@@ -295,27 +315,27 @@ public class PlayActivity extends LifecycleLoggingActivity {
     }
 
     private void forwardMe() {
-        mService.forwardAudio();
+        audioService.forwardAudio();
         myLog("Forward");
     }
 
     private void backwardMe() {
-        mService.backwardAudio();
+        audioService.backwardAudio();
         myLog("Backward");
     }
 
     private void SpeedMeUp() {
-        setSpeed(mService.getSpeed() + INCREMENT_SPEED);
+        setSpeed(audioService.getSpeed() + INCREMENT_SPEED);
         myLog("SpeedUp");
     }
 
     private void SpeedMeDown() {
-        setSpeed(mService.getSpeed() - INCREMENT_SPEED);
+        setSpeed(audioService.getSpeed() - INCREMENT_SPEED);
         myLog("SpeedDown");
     }
 
     private void setSpeed(double speed) {
-        mService.setSpeed(speed);
+        audioService.setSpeed(speed);
         String txt = FormatPercentStringForSpeed((double) speed * 100);
         txSpeed.setText(txt);
     }
@@ -382,7 +402,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
     @Override
     public void onBackPressed() {
         myLog("onBackPressed() - stop playing");
-        if (mService.isPlaying()) {
+        if (audioService.isPlaying()) {
             playMe();
         }
         super.onBackPressed();
@@ -410,7 +430,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
                 .ZikFileDao()
                 .getNextZikFiles(PlayList.getZikFile().getIdFolder(), PlayList.getZikFile().getName())).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe((result) -> mService.loadFiles(result), throwable -> {
+                .subscribe((result) -> audioService.loadFiles(result), throwable -> {
                     myToastE("Error Loading playlist");
                     myLogE("Error Loading playlist :" + throwable.getMessage());
                     throwable.printStackTrace();
@@ -430,7 +450,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
             seekbar.setMax((int) PlayList.getZikFile().getDuration());
             txSeekBar.setText(FormatTime(PlayList.getZikFile().getPosition(),true));
             seekbar.setProgress((int) PlayList.getZikFile().getPosition());
-            txSpeed.setText(FormatPercentStringForSpeed( mService.getSpeed() * 100));
+            txSpeed.setText(FormatPercentStringForSpeed( audioService.getSpeed() * 100));
             HideProgressAnim();
             myLogD("----------------------------- play screen drawn " + PlayList.getZikFile().getPosition());
         } catch (Exception e) {
@@ -475,13 +495,13 @@ public class PlayActivity extends LifecycleLoggingActivity {
     }
 
         private void redrawSeekBar() {
-        if (mService != null && mService.exist()) {
-            if (mService.isPlaying()) {
+        if (audioService != null && audioService.exist()) {
+            if (audioService.isPlaying()) {
                 bPlay.setText(R.string.pause);
             } else {
                 bPlay.setText(R.string.play);
             }
-            int iPosition = mService.getPosition();
+            int iPosition = audioService.getPosition();
             txSeekBar.setText(FormatTime(iPosition,true));
             seekbar.setProgress(iPosition);
 
@@ -509,7 +529,28 @@ public class PlayActivity extends LifecycleLoggingActivity {
 
     }
 
-    //--- LOG --------------------------
+    private void runVisualizer() {
+        SharedPreferences prefs = this.getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE);
+        if (prefs.getBoolean("VISUALIZER_ON", DEFAULT_VISUALIZER_ON)) {
+            if (checkIfPermissionsRecordAudio()) {
+                try {
+                    frequencyVisualizerView.link(audioService.getAudioSessionId());
+                } catch (Exception e) {
+                    myLogE("runVisualizer - " + e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+    private boolean checkIfPermissionsRecordAudio() {
+        boolean HasPermission = false;
+        int permissionCheck1 = ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.RECORD_AUDIO);
+        if (permissionCheck1 == PackageManager.PERMISSION_GRANTED) HasPermission = true;
+        myLog("checkIfPermissionsRecordAudio() : [" + HasPermission + "]");
+        return HasPermission;
+    }
+
+   //--- LOG --------------------------
     private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
     private void myLogD(String str) { KanLogger.myLogD(this.getClass().getName(), str); }
     private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }

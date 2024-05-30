@@ -813,25 +813,30 @@ public class AudioService extends Service {
     private void createNotification() {
         if (mediaPlayer == null) {return;}
         myLog("createNotification()");
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "music_channel")
-                .setContentTitle(getCurrentZikFile().getFolderName())
-                .setContentText(getCurrentZikFile().getDisplayName())
-   //             .setProgress(100,50, true)
-                .setSmallIcon(R.drawable.ic_sound)
-                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setOnlyAlertOnce(true)
-                .setOngoing(true)
-                .addAction(new NotificationCompat.Action(
-                        R.drawable.ic_pause, "Pause",
-                        MediaButtonReceiver.buildMediaButtonPendingIntent(this, PlaybackStateCompat.ACTION_PAUSE)))
-                .addAction(new NotificationCompat.Action(
-                        R.drawable.ic_play, "Play",
-                        MediaButtonReceiver.buildMediaButtonPendingIntent(this, PlaybackStateCompat.ACTION_PLAY)))
-                .setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
-                        .setMediaSession(mediaSession.getSessionToken())
-                        .setShowActionsInCompactView(0, 1));
-        startForeground(1, builder.build()); //TODO : on android 14 : java.lang.RuntimeException: Unable to create service com.driot.bookplayer.utils.AudioService: android.app.MissingForegroundServiceTypeException: Starting FGS without a type  callerApp=ProcessRecord{c49c1a0 24695:com.driot.bookplayer/u0a277} targetSDK=34
+        try {
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "music_channel")
+                    .setContentTitle(getCurrentZikFile().getFolderName())
+                    .setContentText(getCurrentZikFile().getDisplayName())
+                    //             .setProgress(100,50, true)
+                    .setSmallIcon(R.drawable.ic_sound)
+                    .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                    .setPriority(NotificationCompat.PRIORITY_HIGH)
+                    .setOnlyAlertOnce(true)
+                    .setOngoing(true)
+                    .addAction(new NotificationCompat.Action(
+                            R.drawable.ic_pause, "Pause",
+                            MediaButtonReceiver.buildMediaButtonPendingIntent(this, PlaybackStateCompat.ACTION_PAUSE)))
+                    .addAction(new NotificationCompat.Action(
+                            R.drawable.ic_play, "Play",
+                            MediaButtonReceiver.buildMediaButtonPendingIntent(this, PlaybackStateCompat.ACTION_PLAY)))
+                    .setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
+                            .setMediaSession(mediaSession.getSessionToken())
+                            .setShowActionsInCompactView(0, 1));
+            startForeground(1, builder.build()); //TODO : on android 14 : java.lang.RuntimeException: Unable to create service com.driot.bookplayer.utils.AudioService: android.app.MissingForegroundServiceTypeException: Starting FGS without a type  callerApp=ProcessRecord{c49c1a0 24695:com.driot.bookplayer/u0a277} targetSDK=34
+        } catch (Exception e) {
+            myLogE("createNotification() - " + e.getMessage());
+            e.printStackTrace();
+        }
     }
     private void createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -849,6 +854,14 @@ public class AudioService extends Service {
         stopForeground(true);
         stopSelf();
     }
+    public int getAudioSessionId() {
+        if (!(mediaPlayer==null)) {
+            return mediaPlayer.getAudioSessionId();
+        } else {
+            return 0;
+        }
+    }
+
     //--- LOG --------------------------
     private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
     private void myLogD(String str) { KanLogger.myLogD(this.getClass().getName(), str); }

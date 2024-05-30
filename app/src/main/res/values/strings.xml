@@ -75,6 +75,9 @@
     <string name="option_beep_for_autostop">Produce a long beep when entering sleep mode (automatic pause).</string>
     <string name="option_beep_at_the_end">Produce a triple beep at the book end.</string>
 
+    <string name="option_visualizer_title">Spectrum Visualizer</string>
+    <string name="option_visualizer_text">minimalist frequency visualizer displayed when audio is playing. (will ask for "record_audio" permission)</string>
+
     <!-- ********************************** -->
     <!-- Get Resources -->
 

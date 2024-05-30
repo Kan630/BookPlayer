@@ -1,16 +1,22 @@
 package com.driot.bookplayer.activities;
 
+import android.Manifest;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.EditText;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.utils.PermissionRequest;
+import com.driot.tonylib.KanLogger;
 
 import static com.driot.tonylib.KanLogger.myLog;
 import static com.driot.tonylib.KanLogger.myLongToast;
 import static com.driot.tonylib.KanMail.DEFAULT_SEND_MAIL_METHOD_DEFAULT;
+
+import androidx.annotation.NonNull;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 20/12/20
@@ -37,17 +43,18 @@ public class OptionActivity extends LifecycleLoggingActivity {
     public static final boolean DEFAULT_BEEP_BOOKEND = true;
     public static final boolean DEFAULT_BEEP_AUTOSTOP = true;
     public static final boolean DEFAULT_DELETE_SOURCE_FILE = false;
+    public static final boolean DEFAULT_VISUALIZER_ON = false;
 
     EditText et_timeBeforeSleep;
     EditText et_ForwardSeconds;
-    CheckBox chk_copyZip;
-    CheckBox chk_UnZip;
+    CheckBox chk_copyZip, chk_UnZip;
     CheckBox chk_ScreenLock;
     CheckBox chk_MailMethod;
-    CheckBox chk_beep_chapter;
-    CheckBox chk_beep_bookend;
-    CheckBox chk_beep_autostop;
+    CheckBox chk_beep_chapter, chk_beep_bookend, chk_beep_autostop;
     CheckBox chk_delete_source_file;
+    CheckBox chk_visualizer_on;
+    private PermissionRequest mPermissionRequest;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +74,7 @@ public class OptionActivity extends LifecycleLoggingActivity {
         chk_beep_bookend = findViewById(R.id.chk_beep_bookend_defaut);
         chk_beep_autostop = findViewById(R.id.chk_beep_autostop_defaut);
         chk_delete_source_file = findViewById(R.id.chk_delete_source_file);
+        chk_visualizer_on = findViewById(R.id.chk_visualizer_on);
 
         int i = getTimeBeforeSleep();
         et_timeBeforeSleep.setText(String.valueOf(i));
@@ -103,6 +111,11 @@ public class OptionActivity extends LifecycleLoggingActivity {
 
         chk_delete_source_file.setChecked(getDeleteSourceFileDefault());
         chk_delete_source_file.setOnCheckedChangeListener((buttonView, isChecked) -> setDeleteSourceFileDefault(isChecked));
+
+        chk_visualizer_on.setChecked(getVisualizerOnDefault());
+        chk_visualizer_on.setOnCheckedChangeListener((buttonView, isChecked) -> {setVisualizerOnDefault(isChecked);
+            requestPermissions();});
+
 
         // TODO : allows options
         chk_UnZip.setEnabled(false);
@@ -144,6 +157,31 @@ public class OptionActivity extends LifecycleLoggingActivity {
         super.onDestroy();
     }
 
+    private void requestPermissions() {
+        mPermissionRequest = PermissionRequest
+                .with(this)
+                .permissions(Manifest.permission.RECORD_AUDIO) //Manifest.permission.READ_EXTERNAL_STORAGE,
+                .rationale(R.string.permission_read_write_rationale)
+                //.granted(R.string.permission_read_write_granted)  // Tonio no need to display message if granted OK
+                .denied(R.string.permission_read_write_denied)
+                .snackbar((ViewGroup) findViewById(android.R.id.content))
+                .submit();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        myLog("onRequestPermissionsResult()" + permissions[0] + " - " + requestCode + " - " + grantResults[0]);
+        // Redirect hook call to permission helper method.
+        if (mPermissionRequest != null) {
+            mPermissionRequest.onRequestPermissionsResult(requestCode, permissions, grantResults);
+            mPermissionRequest = null; // request no longer needed
+        } else {
+            myLogE("onRequestPermissionsResult() - mPermissionRequest is null ! bad hook");
+        }
+    }
+
     /////////////////// SLEEP - AUTOMATIC PAUSE ///////////////////
     private void setTimeBeforeSleep(int i) {editorOptions.putInt("TIME_BEFORE_SLEEP",i).apply();}
     private int getTimeBeforeSleep() {return prefsOptions.getInt("TIME_BEFORE_SLEEP", DEFAULT_TIME_BEFORE_SLEEP);}
@@ -182,4 +220,12 @@ public class OptionActivity extends LifecycleLoggingActivity {
     private void setDeleteSourceFileDefault(boolean bool) {editorOptions.putBoolean("DELETE_SOURCE_FILE",bool).apply();}
     private Boolean getDeleteSourceFileDefault() {return prefsOptions.getBoolean("DELETE_SOURCE_FILE", DEFAULT_DELETE_SOURCE_FILE);}
 
+    /////////////////// VISUALIZER option ///////////////////
+    private void setVisualizerOnDefault(boolean bool) {editorOptions.putBoolean("VISUALIZER_ON",bool).apply();}
+    private Boolean getVisualizerOnDefault() {return prefsOptions.getBoolean("VISUALIZER_ON", DEFAULT_VISUALIZER_ON);}
+
+    //--- LOG --------------------------
+    private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
+    private void myLogD(String str) { KanLogger.myLogD(this.getClass().getName(), str); }
+    private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
 }

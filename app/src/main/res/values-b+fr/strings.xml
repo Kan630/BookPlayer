@@ -62,6 +62,10 @@
     <string name="option_beep_for_autostop">Emettre un long bip lors de la mise en veille. (pause automatique).</string>
     <string name="option_beep_at_the_end">Emettre un triple bip à la fin du livre.</string>
 
+    <string name="option_visualizer_title">Effet spectromètre</string>
+    <string name="option_visualizer_text">Un visualisuer de fréquences, assez minimaliste, est affiché lors de la lecture audio. (la permission "record_audio" est nécessaire et sera demandée)</string>
+
+
     <!-- ********************************** -->
     <!-- Get Resources -->
 
