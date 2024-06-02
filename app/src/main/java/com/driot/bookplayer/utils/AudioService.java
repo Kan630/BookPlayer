@@ -46,6 +46,7 @@ import java.io.InputStream;
 import java.sql.Date;
 import java.sql.Time;
 import java.text.DecimalFormat;
+import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -353,6 +354,9 @@ public class AudioService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         myLog("onStartCommand()" + intent.toString());
+        if (Objects.equals(intent.getAction(), Intent.ACTION_MEDIA_BUTTON)) {
+            playPauseAudio();
+        };
         return START_NOT_STICKY; //TODO maybe to change... because memory pressure could kill it
     }
     @Override
@@ -795,10 +799,11 @@ public class AudioService extends Service {
             stateBuilder.setState(PlaybackStateCompat.STATE_PAUSED, mediaPlayer.getCurrentPosition(), 1.0f);
         }
         mediaSession.setPlaybackState(stateBuilder.build());
+        createNotification();
     }
     private void createNotification() {
-        if (mediaPlayer == null) {return;}
         myLog("createNotification()");
+        if (mediaPlayer == null) {return;}
         try {
             PendingIntent playPauseAction;
             String actionName;

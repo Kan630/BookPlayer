@@ -442,6 +442,11 @@ public class PermissionRequest {
                 || ContextCompat.checkSelfPermission(context, Manifest.permission.READ_MEDIA_AUDIO) == PackageManager.PERMISSION_GRANTED);
     }
 
+    public static boolean isForegroundServicePermissionGranted(Context context) {
+        return ContextCompat.checkSelfPermission(context, Manifest.permission.FOREGROUND_SERVICE) == PackageManager.PERMISSION_GRANTED;
+    }
+
+
 
     private void myLog(String str) { KanLogger.myLog(TAG, str); }
     private void myLogE(String str) { KanLogger.myLogE(TAG, str); }
