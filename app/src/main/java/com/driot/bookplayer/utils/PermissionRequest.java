@@ -1,9 +1,11 @@
 package com.driot.bookplayer.utils;
 //import static com.driot.tonylib.KanLogger.myLog;
 
+import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -104,17 +106,16 @@ public class PermissionRequest {
      */
     private PermissionRequest submit() {
         int showRationale = 0;
-        myLog("PermissionRequest.java.PermissionRequest");
         ArrayList<String> requests = new ArrayList<>();
 
         for (final String permission : mPermissions) {
             //if (mActivity.checkSelfPermission(permission)   // Tonio
             if (ContextCompat.checkSelfPermission(mActivity.getApplicationContext(), permission) != PackageManager.PERMISSION_GRANTED) {
-                myLog("PermissionRequest.java.PermissionRequest - add request for [" + permission + "]");
+                myLog("PermissionRequest submit() - add request for [" + permission + "]");
                 requests.add(permission);
                 if (ActivityCompat.shouldShowRequestPermissionRationale( //TODO - why shouldShowRequestPermissionRationale returns false on my new phone sept 2023 ??
                         mActivity, permission)) {
-                    myLog("PermissionRequest.java.PermissionRequest - and should show rationale");
+                    myLog("PermissionRequest submit() - and should show rationale");
                     showRationale++;
                 }
             }
@@ -133,11 +134,11 @@ public class PermissionRequest {
             // Permission has not been granted yet, so submit a request.
             if (showRationale == 0) {
                 // No rationale required; submit the request.
-                myLog("PermissionRequest.java.PermissionRequest - some requests, no rationale => ActivityCompat.requestPermissions");
+                myLog("PermissionRequest submit() - some requests, no rationale => ActivityCompat.requestPermissions");
                 ActivityCompat.requestPermissions(mActivity, mPermissions, mRequestCode);
                 //ActivtyCompat.requestPermissions(mActivity, new String[]{Manifest.permission.READ_PHONE_STATE}, 635434);
             } else {
-                myLog("PermissionRequest.java.PermissionRequest - some requests, rationale => showRationale()");
+                myLog("PermissionRequest submit() - some requests, rationale => showRationale()");
                 // Provide an additional rationale to the user if the permission
                 // was not granted and the user would benefit from additional
                 // context for the use of the permission. For example if the
@@ -171,8 +172,7 @@ public class PermissionRequest {
             @NonNull int[] grantResults) {
         // display the grant or denial of this permission request
         // via an unobtrusive toast message.
-        myLog("PermissionRequest.java.onRequestPermissionsResult");
-        myLog("PermissionRequest.java : " + permissions[0] + " - " + requestCode + " - " + grantResults[0]);
+        myLog("onRequestPermissionsResult : " + permissions[0] + " - " + requestCode + " - " + grantResults[0]);
         if (verifyPermissions(grantResults)) {
             // Show granted message.
             //showMessage(mGrantedId); // Tonio no need to display message if granted ok
@@ -405,7 +405,7 @@ public class PermissionRequest {
          */
         @NonNull
         public PermissionRequest submit() {
-            KanLogger.myLog("PermissionRequest.java.submit"); //static...
+            KanLogger.myLog(TAG,"public PermissionRequest submit()"); //static...
             // Validate required fields.
             if (mActivity == null) {
                 throw new NullPointerException("An activity must be set.");
@@ -432,6 +432,19 @@ public class PermissionRequest {
             return new PermissionRequest(this).submit();
         }
     }
-    private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
-    private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
+
+    // New method to check if RECORD_AUDIO permission is granted
+    public static boolean isRecordAudioPermissionGranted(Context context) {
+        return ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED;
+    }
+    public static boolean isReadAudioPermissionGranted(Context context) {
+        return (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+                || ContextCompat.checkSelfPermission(context, Manifest.permission.READ_MEDIA_AUDIO) == PackageManager.PERMISSION_GRANTED);
+    }
+
+
+    private void myLog(String str) { KanLogger.myLog(TAG, str); }
+    private void myLogE(String str) { KanLogger.myLogE(TAG, str); }
+
+
 }

@@ -64,7 +64,7 @@
 
     <string name="option_visualizer_title">Effet spectromètre</string>
     <string name="option_visualizer_text">Un visualisuer de fréquences, assez minimaliste, est affiché lors de la lecture audio. (la permission "record_audio" est nécessaire et sera demandée)</string>
-
+    <string name="option_visualizer_no_permissions">-- permission non accordée --</string>
 
     <!-- ********************************** -->
     <!-- Get Resources -->
@@ -202,6 +202,7 @@
     <string name="tv_TimeLeft">Temps restant avant mise en veille</string>
     <string name="PlayActivity_ErrorOpeningTrack_FileNotFound">"ERREUR PISTE AUDIO - Fichier non trouvé !"</string>
     <string name="error_reading_track">"ERREUR A LA LECTURE DE LA PISTE AUDIO !"</string>
+    <string name="error_file_not_found">"ERREUR, FICHIER SOURCE DISPARU !"</string>
     <string name="no_back_while_play">"retour impossible pendant la lecture"</string>
 
     <!-- ********************************** -->

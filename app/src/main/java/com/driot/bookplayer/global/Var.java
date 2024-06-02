@@ -20,6 +20,7 @@ public class Var {
 
     public static final String  FOLDER_DOWNLOAD = "download";
     public static final String  PATH_CHECK_AUTOTEST = "bookplayer/files/download";
+    public static final String  PATH_CHECK_APPLICATION = "bookplayer/files/";
 
     public static final String  PATH_AUTOTEST_URL = "https://bookplayer.driot.com/autotest/";
     public static final String  AUTOTEST_FILE_01 = PATH_AUTOTEST_URL + "file_example_MP3_700KB.zip";

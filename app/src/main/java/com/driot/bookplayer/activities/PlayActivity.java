@@ -1,6 +1,5 @@
 package com.driot.bookplayer.activities;
 
-import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -9,14 +8,10 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
-import android.content.pm.PackageManager;
-import android.media.AudioManager;
-import android.media.ToneGenerator;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -30,6 +25,8 @@ import com.driot.bookplayer.utils.FrequencyVisualizerView;
 import com.driot.bookplayer.utils.PermissionRequest;
 import com.driot.tonylib.KanLogger;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -42,8 +39,10 @@ import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_SCREEN_ORIE
 import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_TIME_BEFORE_SLEEP;
 import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_VISUALIZER_ON;
 import static com.driot.bookplayer.activities.OptionActivity.SHARED_PREFERENCES_OPTIONS;
+import static com.driot.bookplayer.global.Var.PATH_CHECK_APPLICATION;
 import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_AUDIOFOCUS_GAIN;
 import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_AUDIOFOCUS_LOST;
+import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_FILENOTFOUND;
 import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_ERROR;
 import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_FILELOADED;
 import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_NEWTRACK;
@@ -53,16 +52,13 @@ import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_PLAYLISTFINIS
 import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_TRACKFINISHED;
 import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_ZIP_FILE_LOADED;
 import static com.driot.bookplayer.utils.AudioService.TIMER_VALUE;
+import static com.driot.bookplayer.utils.PermissionRequest.isReadAudioPermissionGranted;
+import static com.driot.bookplayer.utils.PermissionRequest.isRecordAudioPermissionGranted;
 import static com.driot.bookplayer.utils.Tonio.formatNameForDisplay;
 import static com.driot.bookplayer.utils.Tonio.FormatPercentStringForSpeed;
 import static com.driot.bookplayer.utils.Tonio.FormatTime;
 import static com.driot.bookplayer.utils.Utils.animateView;
 import static com.driot.tonylib.KanLogger.myToastE;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 30/10/2020
@@ -78,13 +74,13 @@ public class PlayActivity extends LifecycleLoggingActivity {
     private static final int INTERVAL_REDRAW_SEEKBAR = 500; //  because looks like it happens erraticly when choosing value of 100 for this constant
     private static final int DELAY_ANIMATION = 200;
     private static final float INCREMENT_SPEED = 0.05f;
-    boolean boundToService;
     AudioService audioService;
     boolean audioServiceBound = false;
-    private Button bPlay;
+    private Button bPlay, bRewind, bForward, bSpeedUp, bSpeedDown;
+    List<Button> buttonsToLock;
     private SeekBar seekbar;
     private TextView txSeekBar, txTempsTotal, txNomFichier, txTitle, txSubTitle, txSpeed, txListeningTime, txTimeLeft;
-    private View progressOverlay;
+    private View progressOverlay, messageOverlay;
     private FrequencyVisualizerView frequencyVisualizerView;
     private boolean AnimationNow;
     private boolean HasBeenInitializedService = false;
@@ -140,6 +136,10 @@ public class PlayActivity extends LifecycleLoggingActivity {
                     myLog("broadcast received ERROR");
                     Toast.makeText(getApplicationContext(), getString(R.string.error_reading_track), Toast.LENGTH_SHORT).show();
                     finish();
+                case NOTIFICATION_FILENOTFOUND:
+                    myLog("broadcast received FILENOTFOUND");
+                    Toast.makeText(getApplicationContext(), getString(R.string.error_reading_track), Toast.LENGTH_SHORT).show();
+                    lockButtonAndDisplayErrorMessage();
                 case NOTIFICATION_TRACKFINISHED:
                     myLog("broadcast received TRACK FINISHED");
                     break;
@@ -191,12 +191,15 @@ public class PlayActivity extends LifecycleLoggingActivity {
         setContentView(R.layout.activity_play);
 
         bPlay = findViewById(R.id.buttonPlay);
-        Button bRewind = findViewById(R.id.buttonRewind);
-        Button bForward = findViewById(R.id.buttonForward);
-        Button bSpeedUp = findViewById(R.id.bSpeedUp);
-        Button bSpeedDown = findViewById(R.id.bSpeedDown);
+        bRewind = findViewById(R.id.buttonRewind);
+        bForward = findViewById(R.id.buttonForward);
+        bSpeedUp = findViewById(R.id.bSpeedUp);
+        bSpeedDown = findViewById(R.id.bSpeedDown);
+
+        buttonsToLock = Arrays.asList(bPlay, bRewind, bForward, bSpeedUp, bSpeedDown);
 
         progressOverlay = findViewById(R.id.progress_overlay);
+        messageOverlay = findViewById(R.id.message_overlay);
 
         txSeekBar = findViewById(R.id.textViewSeekBar);
         txTempsTotal = findViewById(R.id.textViewTempsTotal);
@@ -281,14 +284,14 @@ public class PlayActivity extends LifecycleLoggingActivity {
     private void launchService() {
         intentMusicService = new Intent(PlayActivity.this, AudioService.class);
         startService(intentMusicService);
-        boundToService=false;
+        audioServiceBound = false;
         try {
-            boundToService = bindService(intentMusicService, audioServiceConnection, Context.BIND_AUTO_CREATE); //TODO leaked ServiceConnection if user press back
+            audioServiceBound = bindService(intentMusicService, audioServiceConnection, Context.BIND_AUTO_CREATE); //TODO leaked ServiceConnection if user press back
         } catch (Exception e) {
             myLogE("ERROR bindService");
             myLogE(e.getMessage());
         }
-        myLog("call start & bind to AudioService in onCreate() - bound result :" + boundToService + "");
+        myLog("call start & bind to AudioService in onCreate() - bound result :" + audioServiceBound + "");
     }
 
     private void playMe() {
@@ -361,6 +364,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
             registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_PLAYLISTFINISHED), RECEIVER_NOT_EXPORTED);
             registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_PLAYBACK_MAXTIMEREACH), RECEIVER_NOT_EXPORTED);
             registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_PLAYBACK_TIMER_VALUE), RECEIVER_NOT_EXPORTED);
+            registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_FILENOTFOUND), RECEIVER_NOT_EXPORTED);
         } else {
             registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_NEWTRACK));
             registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_TRACKFINISHED));
@@ -372,19 +376,29 @@ public class PlayActivity extends LifecycleLoggingActivity {
             registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_PLAYLISTFINISHED));
             registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_PLAYBACK_MAXTIMEREACH));
             registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_PLAYBACK_TIMER_VALUE));
+            registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_FILENOTFOUND));
         }
 
         myLog("onResume() - creating new timer for Display");
         runTimerForDisplay();
         myLog("onResume() - bind to service");
-        boundToService = bindService(intentMusicService, audioServiceConnection, Context.BIND_AUTO_CREATE);
+        audioServiceBound = bindService(intentMusicService, audioServiceConnection, Context.BIND_AUTO_CREATE);
         super.onResume();
     }
 
     @Override
     protected void onDestroy() {
         myLog("onDestroy - unregister Broadcast Receiver");
-        unregisterReceiver(broadCastReceiver);
+//should let the system continue playing, even if activity is destroyed, by let's say, phone os battery saver routine
+        if (audioServiceBound) {
+            try {
+                unbindService(audioServiceConnection);
+                unregisterReceiver(broadCastReceiver);
+            } catch (Exception e) {
+                myLogE("onBackPressed() - " + e.getMessage());
+            }
+        }
+
         super.onDestroy();
     }
 
@@ -400,10 +414,18 @@ public class PlayActivity extends LifecycleLoggingActivity {
     }
 
     @Override
-    public void onBackPressed() {
-        myLog("onBackPressed() - stop playing");
+    public void onBackPressed() { // user presses back
+        myLog("onBackPressed() -- (should be user action)");
         if (audioService.isPlaying()) {
             playMe();
+        }
+        if (audioServiceBound) {
+            try {
+                unbindService(audioServiceConnection);
+                unregisterReceiver(broadCastReceiver);
+            } catch (Exception e) {
+                myLogE("onBackPressed() - " + e.getMessage());
+            }
         }
         super.onBackPressed();
     }
@@ -526,31 +548,73 @@ public class PlayActivity extends LifecycleLoggingActivity {
             animateView(progressOverlay, View.GONE, 0, DELAY_ANIMATION);
             AnimationNow = false;
         }
-
+    }
+    private void ShowMessageOverlay() {
+        animateView(messageOverlay, View.VISIBLE, 1f, DELAY_ANIMATION);
+        AnimationNow = true;
     }
 
-    private void runVisualizer() {
+    private void HideMessageOverlay() {
+        if (AnimationNow) {
+            animateView(messageOverlay, View.GONE, 0, DELAY_ANIMATION);
+            AnimationNow = false;
+        }
+    }
+
+    private void runVisualizer() { // check option + permission
         SharedPreferences prefs = this.getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE);
         if (prefs.getBoolean("VISUALIZER_ON", DEFAULT_VISUALIZER_ON)) {
-            if (checkIfPermissionsRecordAudio()) {
+            if (isRecordAudioPermissionGranted(this)) {
                 try {
-                    frequencyVisualizerView.link(audioService.getAudioSessionId());
+                    //frequencyVisualizerView.setEnabled(false);
+                    frequencyVisualizerView.link_toto(audioService.getAudioSessionId());
                 } catch (Exception e) {
                     myLogE("runVisualizer - " + e.getMessage());
-                    e.printStackTrace();
                 }
             }
         }
     }
-    private boolean checkIfPermissionsRecordAudio() {
-        boolean HasPermission = false;
-        int permissionCheck1 = ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.RECORD_AUDIO);
-        if (permissionCheck1 == PackageManager.PERMISSION_GRANTED) HasPermission = true;
-        myLog("checkIfPermissionsRecordAudio() : [" + HasPermission + "]");
-        return HasPermission;
+
+    private void lockButtonAndDisplayErrorMessage() {
+        myLog("lockButtonAndDisplayErrorMessage");
+        unregisterReceiver(broadCastReceiver);
+        bPlay.setEnabled(false);
+        for (Button b : buttonsToLock) {
+                b.setEnabled(false);
+        }
+        seekbar.setEnabled(false);
+        ShowMessageOverlay();
+        TextView tv = findViewById(R.id.textViewOverlayedMessage);
+        TextView tv2 = findViewById(R.id.textViewOverlayedMessageDetails);
+        //Button b1 = findViewById(R.id.btOverlayedPermission01);
+        tv.setText("The source file could not be found or read.\n"); // in case bug later
+        try {
+            //b1.setVisibility(View.INVISIBLE);
+            String zePath = PlayList.getZikFile().getPath();
+            String pathText = "Path of source file = [" + zePath + "]";
+            if (zePath.contains(PATH_CHECK_APPLICATION)) {
+                tv.setText("The source file could not be found or read.\n");
+                myLog("Source file is inside app memory");
+            } else if (isReadAudioPermissionGranted(this)) {
+                tv.setText("The source file could not be found. It may have been deleted.");
+                tv2.setText(pathText);
+            } else {
+                tv.setText("The permission is not set.");
+                tv2.setText("Click on the add book button on the main page to reset.\n\nPermission is needed because the source file to read is not in Bookplayer internal memory.\n\n" + pathText);
+                //b1.setVisibility(View.VISIBLE);
+                //b1.setOnClickListener(v -> askForReadAudioPermission(););
+            }
+        } catch (Exception e) {
+            myLogE("lockButtonAndDisplayErrorMessage - " + e.getMessage());
+        }
+        unbindService(audioServiceConnection);
+        killTimerForDisplay();
     }
 
-   //--- LOG --------------------------
+
+
+
+    //--- LOG --------------------------
     private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
     private void myLogD(String str) { KanLogger.myLogD(this.getClass().getName(), str); }
     private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }

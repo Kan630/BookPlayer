@@ -9,8 +9,8 @@
 
     <!-- Application specific permission strings -->
     <string name="permission_read_write_rationale">"Pour lire les fichiers, l'application necessite votre permission d'accès."</string>
-    <string name="permission_read_write_granted">La permission de lire le stockage externe a été accordée.</string>
-    <string name="permission_read_write_denied">"BookPlayer ne pourra pas lire l'audio."</string>
+    <string name="permission_read_write_granted">La permission de lire la mémoire de l\'appareil a été accordée.</string>
+    <string name="permission_read_write_denied">"BookPlayer ne pourra pas lire l'audio sur la mémoire externe. Seuls les ZIP (car copiés en interne) seront OK"</string>
 
     <string name="permissions_denied_sorry_cannot">"Permissions non accordées, Lecture impossible".</string>
 

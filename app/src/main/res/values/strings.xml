@@ -77,6 +77,7 @@
 
     <string name="option_visualizer_title">Spectrum Visualizer</string>
     <string name="option_visualizer_text">minimalist frequency visualizer displayed when audio is playing. (will ask for "record_audio" permission)</string>
+    <string name="option_visualizer_no_permissions">-- permission not granted --</string>
 
     <!-- ********************************** -->
     <!-- Get Resources -->
@@ -216,6 +217,7 @@
     <string name="tv_TimeLeft">Time left before auto sleep</string>
     <string name="PlayActivity_ErrorOpeningTrack_FileNotFound">"ERROR OPENING TRACK - FILE NOT FOUND !"</string>
     <string name="error_reading_track">"ERROR READING TRACK !"</string>
+    <string name="error_file_not_found">"FILE NOT FOUND !"</string>
     <string name="no_back_while_play">"Cannot go back while playing audio"</string>
 
 

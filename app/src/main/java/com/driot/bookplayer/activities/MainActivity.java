@@ -152,6 +152,7 @@ import android.view.View;
     @Override
     protected void onRestart() {
         super.onRestart();
+        KanLogger.setKanContext(getApplicationContext());
         getFolders();
         myLog("recyclerview drawing through setAdapter on restart");
     }

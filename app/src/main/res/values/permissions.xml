@@ -10,7 +10,11 @@
     <!-- Application specific permission strings -->
     <string name="permission_read_write_rationale">To listen to files, this application requires your permission to read storage.</string>
     <string name="permission_read_write_granted">External storage read permissions have been granted.</string>
-    <string name="permission_read_write_denied">BookPlayer will not be able to load audio. Permission to read storage has been denied.</string>
+    <string name="permission_read_write_denied">BookPlayer will not be able to read main memory audio. (only ZIP on internal app memory will be OK).</string>
+
+    <string name="permission_record_audio_rationale">To display the spectrum visualizer, this app requires your permission to record audio.</string>
+    <string name="permission_record_audio_granted">record audio permission has been granted.</string>
+    <string name="permission_record_audio_denied">Spectrum visualizer will not be displayed. Permission to record audio has been denied.</string>
 
     <string name="permissions_denied_sorry_cannot">Permissions are not granted, cannot play audio.</string>
 

@@ -1,22 +1,29 @@
 package com.driot.bookplayer.activities;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.utils.PermissionRequest;
 import com.driot.tonylib.KanLogger;
 
+import static com.driot.bookplayer.utils.PermissionRequest.isRecordAudioPermissionGranted;
 import static com.driot.tonylib.KanLogger.myLog;
 import static com.driot.tonylib.KanLogger.myLongToast;
 import static com.driot.tonylib.KanMail.DEFAULT_SEND_MAIL_METHOD_DEFAULT;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
+
+import org.w3c.dom.Text;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 20/12/20
@@ -53,6 +60,7 @@ public class OptionActivity extends LifecycleLoggingActivity {
     CheckBox chk_beep_chapter, chk_beep_bookend, chk_beep_autostop;
     CheckBox chk_delete_source_file;
     CheckBox chk_visualizer_on;
+    TextView tx_Visualizer_on;
     private PermissionRequest mPermissionRequest;
 
 
@@ -75,6 +83,8 @@ public class OptionActivity extends LifecycleLoggingActivity {
         chk_beep_autostop = findViewById(R.id.chk_beep_autostop_defaut);
         chk_delete_source_file = findViewById(R.id.chk_delete_source_file);
         chk_visualizer_on = findViewById(R.id.chk_visualizer_on);
+        tx_Visualizer_on = findViewById(R.id.tx_Visualizer_on);
+        setVisualizerPermissionText();
 
         int i = getTimeBeforeSleep();
         et_timeBeforeSleep.setText(String.valueOf(i));
@@ -113,14 +123,32 @@ public class OptionActivity extends LifecycleLoggingActivity {
         chk_delete_source_file.setOnCheckedChangeListener((buttonView, isChecked) -> setDeleteSourceFileDefault(isChecked));
 
         chk_visualizer_on.setChecked(getVisualizerOnDefault());
-        chk_visualizer_on.setOnCheckedChangeListener((buttonView, isChecked) -> {setVisualizerOnDefault(isChecked);
-            requestPermissions();});
+        chk_visualizer_on.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            setVisualizerOnDefault(isChecked);
+            if (isChecked && !isRecordAudioPermissionGranted(this)) {requestPermissions();}
+        });
 
+
+        if (isRecordAudioPermissionGranted(this)) {
+            tx_Visualizer_on.setText(getString(R.string.option_visualizer_text));
+        } else {
+            String txt = getString(R.string.option_visualizer_text) + "\n" + getString(R.string.option_visualizer_no_permissions);
+            tx_Visualizer_on.setText(txt);
+        }
 
         // TODO : allows options
         chk_UnZip.setEnabled(false);
         chk_copyZip.setEnabled(false);
         findViewById(R.id.ll_ZipOptions_vert).setVisibility(View.INVISIBLE);
+    }
+
+    private void setVisualizerPermissionText() {
+        if (isRecordAudioPermissionGranted(this)) {
+            tx_Visualizer_on.setText(getString(R.string.option_visualizer_text));
+        } else {
+            String txt = getString(R.string.option_visualizer_text) + "\n" + getString(R.string.option_visualizer_no_permissions);
+            tx_Visualizer_on.setText(txt);
+        }
     }
 
     @Override
@@ -157,13 +185,17 @@ public class OptionActivity extends LifecycleLoggingActivity {
         super.onDestroy();
     }
 
+    // PERMISSIONS REMOVAL
+    // adb shell pm revoke com.driot.bookplayer android.permissions.RECORD_AUDIO
+    // C:\Users\adrio\AppData\Local\Android\Sdk\platform-tools\
+    // Developer Options => Security settings of USB debugging... = OFF
     private void requestPermissions() {
         mPermissionRequest = PermissionRequest
                 .with(this)
                 .permissions(Manifest.permission.RECORD_AUDIO) //Manifest.permission.READ_EXTERNAL_STORAGE,
-                .rationale(R.string.permission_read_write_rationale)
+                .rationale(R.string.permission_record_audio_rationale)
                 //.granted(R.string.permission_read_write_granted)  // Tonio no need to display message if granted OK
-                .denied(R.string.permission_read_write_denied)
+                .denied(R.string.permission_record_audio_denied)
                 .snackbar((ViewGroup) findViewById(android.R.id.content))
                 .submit();
     }
@@ -180,6 +212,7 @@ public class OptionActivity extends LifecycleLoggingActivity {
         } else {
             myLogE("onRequestPermissionsResult() - mPermissionRequest is null ! bad hook");
         }
+        setVisualizerPermissionText();
     }
 
     /////////////////// SLEEP - AUTOMATIC PAUSE ///////////////////

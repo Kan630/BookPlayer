@@ -11,6 +11,7 @@
 
     <!-- Progress bar overlay; shown while login is in progress -->
     <include layout="@layout/include_progress_overlay"/>
+    <include layout="@layout/include_message_overlay"/>
 
     <TextView
         android:id="@+id/textviewTitle"

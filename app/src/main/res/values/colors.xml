@@ -19,6 +19,8 @@
     <color name="lightgray2">#FF999999</color>
     <color name="verylightgray">#FFCDCDCD</color>
 
+    <color name="lightred">#FFFF2222</color>
+
     <color name="red">#FF990000</color>
     <color name="green">#FF009900</color>
     <color name="blue">#FF000099</color>

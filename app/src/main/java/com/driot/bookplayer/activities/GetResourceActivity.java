@@ -3,6 +3,8 @@ package com.driot.bookplayer.activities;
 import android.Manifest;
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -25,12 +27,15 @@ import com.driot.bookplayer.utils.MediaScanner2;
 import com.driot.bookplayer.utils.PermissionRequest;
 import com.driot.tonylib.KanLogger;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import static com.driot.bookplayer.global.Var.AUTOTEST_FILE_01;
 import static com.driot.bookplayer.global.Var.AUTOTEST_FILE_02;
 import static com.driot.bookplayer.global.Var.AUTOTEST_FILE_03;
+import static com.driot.bookplayer.utils.PermissionRequest.isReadAudioPermissionGranted;
 import static com.driot.tonylib.KanLogger.myToastE;
 
 /**
@@ -44,13 +49,14 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
     public static final int ADD_RESOURCE_REQUEST_CODE = 26;
     public static final int AUTOTEST_REQUEST_CODE = 987;
 
-    private Button bOpenFile;
-    private Button bOpenFolder;
-    private Button bOpenZipFile;
+    private Button bOpenFile, bOpenFolder, bOpenZipFile;
     private Button bAutoTest_b1, bAutoTest_b2, bAutoTest_b3;
+    List<Button> buttonsToLock;
 
     private PermissionRequest mPermissionRequest;
     private int lopperForLog = 0;
+    private Timer timer;
+    private boolean isActivityActive = true;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -66,13 +72,12 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
         bAutoTest_b1 = findViewById(R.id.bAutoTest_b1);
         bAutoTest_b2 = findViewById(R.id.bAutoTest_b2);
         bAutoTest_b3 = findViewById(R.id.bAutoTest_b3);
+        buttonsToLock = Arrays.asList(bOpenFile, bOpenFolder, bOpenZipFile, bAutoTest_b1, bAutoTest_b2, bAutoTest_b3);
 
-        // SINGLE FILE
+            // SINGLE FILE
         bOpenFile.setOnClickListener(view -> {
             myLog("Button click : single file");
-            if (!checkIfPermissionsReadStorage()) {
-                askPermissionsReadStorage();
-            } else {
+            if (isReadAudioPermissionGranted(this)) {
                 //myToastE(getString(R.string.permissions_denied_sorry_cannot));
                 Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
                 intent.setType("audio/*");
@@ -81,21 +86,6 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
                 //CATEGORY_OPENABLE => able to use : ContentResolver#openFileDescriptor(Uri, String)
                 //can be opened as a File object i.e. with read and write permissions and have complete access to the physical location of the data
                 startActivityForResult(intent, OPEN_FILE_REQUEST_CODE);
-            }
-        });
-
-        // ZIP
-        bOpenZipFile.setOnClickListener(view -> {
-            scanThatShit();
-            myLog("Button click : ZIP file");
-            if (checkIfPermissionsReadStorage()) {
-                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-                // TODO ACTION_GET_CONTENT should be enough since we copy locally...
-                // ACTION_PICK could be interesting.... as an option..
-                intent.setType("application/zip");
-                intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_WRITE_URI_PERMISSION|Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION|Intent.FLAG_GRANT_PREFIX_URI_PERMISSION);
-                intent.addCategory(Intent.CATEGORY_OPENABLE);
-                startActivityForResult(intent, OPEN_ZIP_FILE_REQUEST_CODE);
             } else {
                 myToastE(getString(R.string.permissions_denied_sorry_cannot));
             }
@@ -104,13 +94,30 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
         // FOLDER
         bOpenFolder.setOnClickListener(view -> {
             myLog("Button click : FOLDER");
-            if (checkIfPermissionsReadStorage()) {
+            if (isReadAudioPermissionGranted(this)) {
                 Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE); //API 21
                 intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_WRITE_URI_PERMISSION|Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION|Intent.FLAG_GRANT_PREFIX_URI_PERMISSION);
                 startActivityForResult(intent, OPEN_FOLDER_REQUEST_CODE);
             } else {
                 myToastE(getString(R.string.permissions_denied_sorry_cannot));
             }
+        });
+
+        // ZIP
+        bOpenZipFile.setOnClickListener(view -> {
+            scanThatShit();
+            myLog("Button click : ZIP file");
+            //if (isReadAudioPermissionGranted(this)) {
+                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                // TODO ACTION_GET_CONTENT should be enough since we copy locally...
+                // ACTION_PICK could be interesting.... as an option..
+                intent.setType("application/zip");
+                intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_WRITE_URI_PERMISSION|Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION|Intent.FLAG_GRANT_PREFIX_URI_PERMISSION);
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                startActivityForResult(intent, OPEN_ZIP_FILE_REQUEST_CODE);
+            //} else {
+            //    myToastE(getString(R.string.permissions_denied_sorry_cannot));
+            //}
         });
 
         ////////////////////////////////
@@ -157,8 +164,12 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
             startActivityForResult(intent, AUTOTEST_REQUEST_CODE);
         });
 
-        //create timer to check progress
-        Timer timer = new Timer();
+        startTimer(); // used to lock buttons if service running
+    }
+
+    private void startTimer() {
+        isActivityActive = true;
+        timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
@@ -166,18 +177,37 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
             }
         }, 0, 500);
     }
-
+    final Runnable checkServiceRunningRunnable = new Runnable() { // sinon Error :  Animators may only be run on Looper threads
+        public void run() {
+            if (isActivityActive) { //needed because if not, the run() continue after activity is destroyed
+                checkServiceRunning();
+            }
+        }
+    };
+    private void stopTimer() {
+        isActivityActive = false;
+        if (timer != null) {
+            try { timer.cancel(); timer.purge(); timer=null; }
+            catch (Exception e) { myLogE("stopTimer() - " + e.getMessage());}
+        }
+    }
     @Override
     protected void onResume() {
         super.onResume();
-        checkServiceRunning();
+        startTimer();
     }
 
-    final Runnable checkServiceRunningRunnable = new Runnable() { // sinon Error :  Animators may only be run on Looper threads
-        public void run() {
-            checkServiceRunning();
-        }
-    };
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        stopTimer();
+    }
+    @Override
+    protected void onPause() {
+        super.onPause();
+        stopTimer();
+    }
+
 
 
     private void checkServiceRunning() {
@@ -188,27 +218,16 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
 
             if (AddResourceService.isBusy || DownloadService.isBusy) {
                 if (lopperForLog%10==0) myLog("AddResourceService.isBusy => displaying banner, disabling buttons");
-                bOpenFile.setEnabled(false);
-                bOpenZipFile.setEnabled(false);
-                bOpenFolder.setEnabled(false);
-                bAutoTest_b1.setEnabled(false);
-                bAutoTest_b2.setEnabled(false);
-                bAutoTest_b3.setEnabled(false);
+                for (Button b: buttonsToLock) { b.setEnabled(false); }
                 tv1.setVisibility(View.INVISIBLE);
                 tv2.setVisibility(View.VISIBLE);
             } else {
-                bOpenFile.setEnabled(true);
-                bOpenZipFile.setEnabled(true);
-                bOpenFolder.setEnabled(true);
-                bAutoTest_b1.setEnabled(true);
-                bAutoTest_b2.setEnabled(true);
-                bAutoTest_b3.setEnabled(true);
+                for (Button b: buttonsToLock) { b.setEnabled(true); }
                 tv1.setVisibility(View.VISIBLE);
                 tv2.setVisibility(View.INVISIBLE);
             }
         } catch (Exception e) {
             myLogE("Error while checking if service is running : " + e.getMessage());
-            e.printStackTrace();
         }
     }
 
@@ -323,21 +342,12 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
     // --     PERMISSIONS
     // -------------------------------------------------------------------------------------------
     // -------------------------------------------------------------------------------------------
-
+/*
     private boolean checkIfPermissionsWriteStorage() {
         boolean HasPermission = false;
         int permissionCheck1 = ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE);
         if (permissionCheck1 == PackageManager.PERMISSION_GRANTED) HasPermission = true;
-        myLog("Checking Permissions 1 - GetResourceActivity.checkIfPermissionsReadStorage() : [" + HasPermission + "]");
-        return HasPermission;
-    }
-
-    private boolean checkIfPermissionsReadStorage() {
-        boolean HasPermission = false;
-        int permissionCheck1 = ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_EXTERNAL_STORAGE);
-        int permissionCheck2 = ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_MEDIA_AUDIO);
-        if (permissionCheck1 == PackageManager.PERMISSION_GRANTED || permissionCheck2 == PackageManager.PERMISSION_GRANTED) HasPermission = true;
-        myLog("Checking Permissions 1 - GetResourceActivity.checkIfPermissionsReadStorage() : [" + HasPermission + "]");
+        myLog("Checking Permissions 1 - GetResourceActivity.checkPermissionsReadStorage() : [" + HasPermission + "]");
         return HasPermission;
     }
 
@@ -347,7 +357,7 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
         checkPermissionsReadStorage2();
         return true;
     }
-
+*/
 
     /**
      * Handle the onPostCreate() hook to call permission helper to handle all
@@ -364,13 +374,17 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
 
     @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
-        myLog("Checking Permissions 2 - GetResourceActivity.OnPostCreate()");
-        checkPermissionsReadStorage2();
+        myLog("onPostCreate()");
+        if (!isReadAudioPermissionGranted(this)) {
+            myLog("Permission not granted, checking....");
+            checkPermissionsReadStorage();
+        }
         super.onPostCreate(savedInstanceState);
     }
 
-    private void checkPermissionsReadStorage2() {
+    private void checkPermissionsReadStorage() {
         if(Build.VERSION.SDK_INT < 33) {
+            myLog("checkPermissionsReadStorage() < 33");
             mPermissionRequest = PermissionRequest
                     .with(this)
                     .permissions(Manifest.permission.READ_EXTERNAL_STORAGE) //Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -380,6 +394,7 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
                     .snackbar((ViewGroup) findViewById(android.R.id.content))
                     .submit();
         } else {
+            myLog("checkPermissionsReadStorage() >= 33");
             mPermissionRequest = PermissionRequest
                     .with(this)
                     .permissions(Manifest.permission.READ_MEDIA_AUDIO) //Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -387,23 +402,52 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
                     //.granted(R.string.permission_read_write_granted)  // Tonio no need to display message if granted OK
                     .denied(R.string.permission_read_write_denied)
                     .snackbar((ViewGroup) findViewById(android.R.id.content))
+                    .callback(new PermissionRequest.Callback() {
+                        @Override
+                        public void onPermissionsGranted() {
+                            myLog("Granted");
+                        }
+
+                        @Override
+                        public void onPermissionsDenied() {
+                            myLog("Denied");
+                            //showPermissionDeniedDialog(); //ask user again... //not working yet...
+                        }
+                    })
                     .submit();
         }
+    }
+    private void showPermissionDeniedDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle("Permission Required")
+                .setMessage(R.string.permission_read_write_denied)
+                .setPositiveButton("Retry", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 3438634);//REQUEST_CODE // Request permissions again
+                    }
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
-        myLog("Checking Permissions 2 - GetResourceActivity.onRequestPermissionsResult()");
-        myLog("Checking Permissions 2 : " + permissions[0] + " - " + requestCode + " - " + grantResults[0]);
+
+        for (int i=0;i<grantResults.length;i++) {
+            myLog(permissions[i] + " => " + grantResults[i] + "   -requestCode=" + requestCode);
+        }
+        myLog("onRequestPermissionsResult() : " + permissions[0] + " - " + requestCode + " - " + grantResults[0]);
         // Redirect hook call to permission helper method.
         if (mPermissionRequest != null) {
             mPermissionRequest.onRequestPermissionsResult(requestCode, permissions, grantResults);
             mPermissionRequest = null; // request no longer needed
         } else {
-            myLogE("Checking Permissions 2 - mPermissionRequest is null ! bad hook");
+            myLogE("onRequestPermissionsResult() - mPermissionRequest is null ! bad hook");
         }
     }
+
 
     private boolean isMyServiceRunning(Class<?> serviceClass) {
         ActivityManager manager = (ActivityManager) getSystemService(getApplicationContext().ACTIVITY_SERVICE);
