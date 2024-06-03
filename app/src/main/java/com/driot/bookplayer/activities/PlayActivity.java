@@ -415,7 +415,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
 
     @Override
     public void onBackPressed() { // user presses back
-        myLog("onBackPressed() -- (should be user action)");
+        myLogI("onBackPressed() -- (should be user action)");
         if (audioService.isPlaying()) {
             playMe();
         }
@@ -428,6 +428,10 @@ public class PlayActivity extends LifecycleLoggingActivity {
             }
         }
         super.onBackPressed();
+    }
+
+    public void onBackInvoked() {
+        myLog("onBackInvoked() -- (should be user action)");
     }
 
     @Override
@@ -617,6 +621,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
     //--- LOG --------------------------
     private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
     private void myLogD(String str) { KanLogger.myLogD(this.getClass().getName(), str); }
+    private void myLogI(String str) { KanLogger.myLogI(this.getClass().getName(), str); }
     private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
 
 }

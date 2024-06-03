@@ -1,10 +1,7 @@
 package com.driot.bookplayer.utils;
 
-import static android.media.session.PlaybackState.ACTION_PAUSE;
-
 import com.driot.bookplayer.R;
 
-import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -16,12 +13,9 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.ToneGenerator;
 import android.media.session.MediaSession;
-import android.media.session.PlaybackState;
 import android.net.Uri;
 import android.os.Binder;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
 import android.os.ResultReceiver;
 import android.support.v4.media.session.MediaSessionCompat;
@@ -34,7 +28,6 @@ import androidx.core.app.NotificationManagerCompat;
 import androidx.media.session.MediaButtonReceiver;
 
 import com.driot.bookplayer.db.AppDatabase;
-import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.db.ZikFileDao;
 import com.driot.bookplayer.global.PlayList;
 import com.driot.bookplayer.db.Sql;
@@ -101,10 +94,8 @@ public class AudioService extends Service {
     private CustomMediaPlayer mediaPlayer; //enhanced class by Tony
     private AudioManager audioManager;
     private AudioManager.OnAudioFocusChangeListener afChangeListener;
-    //private MediaSessionCompat mediaSession;
-    private MediaSession mediaSession;
-    //private MediaSessionCompat.Callback callback = new MediaSessionCompat.Callback() {
-    private MediaSession.Callback callback = new MediaSession.Callback() {
+    private MediaSessionCompat mediaSession;
+    private MediaSessionCompat.Callback callback = new MediaSessionCompat.Callback() {
 
         @Override
         public void onPlay() { // is called by headset button pressed !!!
@@ -118,16 +109,13 @@ public class AudioService extends Service {
             myLog("MediaSessionCompat.Callback - onPause()");
             super.onPause();
             playPauseAudio();
-            //updatePlaybackState();
-            //stopUpdatingPlaybackState();
         }
         @Override
         public void onStop() {
             myLog("MediaSessionCompat.Callback - onStop()");
             super.onStop();
             mediaPlayer.stop();
-            updatePlaybackState();
-            //stopUpdatingPlaybackState();
+            createNotification();
             removeNotification(); // Remove notification when playback is stopped
         }
         @Override
@@ -177,14 +165,9 @@ public class AudioService extends Service {
 
     private PlaybackStateCompat.Builder stateBuilder;
     private int maxTimeBeforeSleep;
-
-    //private boolean fileHasBeenLoaded = false;
     private double speed = 1.0;
-
     private File tempFile = null;
-
     private boolean ErrorLoadingFile = false;
-
     DecimalFormat myDF = new DecimalFormat("#,###.");
 
     /********************************************************************************
@@ -198,17 +181,14 @@ public class AudioService extends Service {
         myLog("onCreate()");
         super.onCreate();
         mediaPlayer = new CustomMediaPlayer();
-        //mediaSession = new MediaSessionCompat(this, "MyTotoMediaSession");
-        mediaSession = new MediaSession(this, "MyTotoMediaSession");
+        mediaSession = new MediaSessionCompat(this, "MyTotoMediaSession");
 
         myLog("configureMediaSession()");
 
         // Overridden methods in the MediaSession.Callback class.
         mediaSession.setCallback(callback);
-        //mediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS); //useless ?
-        mediaSession.setFlags(MediaSession.FLAG_HANDLES_MEDIA_BUTTONS | MediaSession.FLAG_HANDLES_TRANSPORT_CONTROLS); //useless ?
+        mediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS); //useless ?
         mediaSession.setActive(true); //useless ?
-
 
         setMaxTimeBeforeSleep();
 
@@ -267,7 +247,7 @@ public class AudioService extends Service {
 
     private void alertNewTrack() {
         sendBroadcast(new Intent(NOTIFICATION_NEWTRACK).putExtra(TRACKNUMBER, PlayList.getNumZikFile()));
-        updatePlaybackState();
+        createNotification();
         myLog("sendBroadcast alertNewTrack ");
     }
 
@@ -379,7 +359,8 @@ public class AudioService extends Service {
 
     @Override
     public boolean onUnbind(Intent intent) {
-        myLog("onUnBind()  " + intent.getDataString());
+        myLog("onUnBind() - intent.DataString = " + intent.getDataString());
+        removeNotification();
         return super.onUnbind(intent);
     }
 
@@ -500,7 +481,7 @@ public class AudioService extends Service {
                 mediaPlayer.start();
                 setSpeed(getSpeed());
                 startTimer();
-                updatePlaybackState();
+                createNotification();
             } else {
                 myLogE("mediaPlayer was already Playing ... going out of AudioService.playAudio()");
             }
@@ -516,7 +497,7 @@ public class AudioService extends Service {
             updateZikFileState(false);
             if (audioManager != null) { audioManager.abandonAudioFocus(afChangeListener); }
             killTimer();
-            updatePlaybackState();
+            createNotification();
         }
     }
 
@@ -540,7 +521,7 @@ public class AudioService extends Service {
         int lag = get_ForwardSeconds()*1000;
         if ((temp + lag ) <= getDuration()) {
             setPosition(temp + lag );
-            updatePlaybackState();
+            createNotification();
         }
     }
 
@@ -550,7 +531,7 @@ public class AudioService extends Service {
         int lag = get_ForwardSeconds()*1000;
         if ((temp - lag) > 0) {
             setPosition(temp - lag);
-            updatePlaybackState();
+            createNotification();
         }
     }
 
@@ -620,33 +601,6 @@ public class AudioService extends Service {
     }
 
     /********************************************************************************
-     ***       MEDIA SESSION
-     ********************************************************************************
-     */
-    /********************************************************************************
-     ***       LOCKED SCREEN BUTTONS
-     ********************************************************************************
-
-    private void createNotificationWhenLocked() {
-        Notification.Builder builder = new Notification.Builder(this, CHANNEL_ID)
-                //.setSmallIcon(R.drawable.notification_icon)
-                .setSmallIcon(R.drawable.vd_pause)
-                .setContentTitle("My notification")
-                .setContentText("Hello World!")
-                //.setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.large_icon))
-                .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.drawable.vd_pause))
-                .setStyle(new Notification.MediaStyle()
-                        .setMediaSession(mediaSession.getSessionToken())
-                        .setShowActionsInCompactView(0,1))
-                //.addAction(new Notification.Action.Builder(Icon.createWithResource(this, R.drawable.vd_play), "Previous", prevPendingIntent).build())
-                .addAction(new Notification.Action.Builder(Icon.createWithResource(this, R.drawable.vd_play), "Previous", prevPendingIntent).build())
-                .addAction(new Notification.Action.Builder(Icon.createWithResource(this, R.drawable.vd_pause), "Pause", pausePendingIntent).build())
-                .setPriority(Notification.PRIORITY_LOW);
-    }
-     */
-
-
-    /********************************************************************************
      ***       TIMER
      ********************************************************************************
      */
@@ -686,7 +640,7 @@ public class AudioService extends Service {
                 int progress = PlayList.getZikFile() == null ? 0 : (int) PlayList.getZikFile().getPosition();
                 int max = getDuration();
                 myLogD("updating notification in Runnable - " + progress + "/" + max);
-                updatePlaybackState();
+                createNotification();
                 //updateNotificationProgress(max, progress); //seems useless in MediaSession => keep code for Download and other services
 
 
@@ -789,30 +743,13 @@ public class AudioService extends Service {
             return 1.0;
         }
     }
-    //Lock Screen Actions
-    private void updatePlaybackState() {
-        myLog("updatePlaybackState()");
-        //
-        // PlaybackStateCompat.Builder
-        /*
-        stateBuilder = new PlaybackStateCompat.Builder().setActions(
-                PlaybackStateCompat.ACTION_PLAY
-                        | PlaybackStateCompat.ACTION_PAUSE
-                        | PlaybackStateCompat.ACTION_FAST_FORWARD
-                        | PlaybackStateCompat.ACTION_REWIND
-        );
-        // | PlaybackStateCompat.ACTION_STOP | PlaybackStateCompat.ACTION_SKIP_TO_NEXT);
-        if (mediaPlayer.isPlaying()) {
-            stateBuilder.setState(PlaybackStateCompat.STATE_PLAYING, mediaPlayer.getCurrentPosition(), 1.0f);
-        } else {
-            //arg pour ci dessous :   (long) PlayList.getZikFile().getPosition(), ((float) getSpeed()) => ca change rien !
-            stateBuilder.setState(PlaybackStateCompat.STATE_PAUSED, mediaPlayer.getCurrentPosition(), 1.0f);
-        }
-        mediaSession.setPlaybackState(stateBuilder.build());
 
-         */
-        createNotification();
-    }
+    /********************************************************************************
+     ***       MEDIA SESSION - Lock Screen Actions
+     ********************************************************************************
+     */
+    /*
+    // Keep code for Download version
     private void updateNotificationProgress(int maxProgress, int currentProgress) {
         if (isPostNotificationPermissionGranted(this)){
             try {
@@ -829,6 +766,8 @@ public class AudioService extends Service {
             myLogE("PostNotification Permission NOT granted");
         }
     }
+
+     */
     private void createNotification() {
         myLog("createNotification()");
         if (mediaPlayer == null) {return;}
@@ -854,26 +793,19 @@ public class AudioService extends Service {
             int progress = 50;
             int max = 100;
 
-            //NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
-            Notification.Builder builder = new Notification.Builder(this, CHANNEL_ID)
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID) // channel is used for user to be able to disable all notifications from that channel, starting android 8
                     .setContentTitle(getCurrentZikFile().getFolderName())
                     .setContentText(getCurrentZikFile().getDisplayName())
                     //             .setProgress(100,50, true)
                     .setSmallIcon(R.drawable.ic_launcher)
                     //.setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                    //.setPriority(NotificationCompat.PRIORITY_HIGH)
-                    .setVisibility(Notification.VISIBILITY_PUBLIC)
-                    .setPriority(Notification.PRIORITY_HIGH)
+                    .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                     .setOnlyAlertOnce(true)
                     .setOngoing(true)
-                    //.addAction(new NotificationCompat.Action(android.R.drawable.ic_media_rew, "backward", MediaButtonReceiver.buildMediaButtonPendingIntent(this, PlaybackStateCompat.ACTION_REWIND)))
-                    //.addAction(new NotificationCompat.Action(actionIcon, actionName, playPauseAction))
-                    //.addAction(new NotificationCompat.Action(android.R.drawable.ic_media_ff, "fastForward", MediaButtonReceiver.buildMediaButtonPendingIntent(this, PlaybackStateCompat.ACTION_FAST_FORWARD)))
-                    .addAction(new Notification.Action(android.R.drawable.ic_media_rew, "backward", MediaButtonReceiver.buildMediaButtonPendingIntent(this, PlaybackStateCompat.ACTION_REWIND)))
-                    .addAction(new Notification.Action(actionIcon, actionName, playPauseAction))
-                    .addAction(new Notification.Action(android.R.drawable.ic_media_ff, "fastForward", MediaButtonReceiver.buildMediaButtonPendingIntent(this, PlaybackStateCompat.ACTION_FAST_FORWARD)))
-                    //.setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
-                    .setStyle(new Notification.MediaStyle()
+                    .addAction(new NotificationCompat.Action(android.R.drawable.ic_media_rew, "backward", MediaButtonReceiver.buildMediaButtonPendingIntent(this, PlaybackStateCompat.ACTION_REWIND)))
+                    .addAction(new NotificationCompat.Action(actionIcon, actionName, playPauseAction))
+                    .addAction(new NotificationCompat.Action(android.R.drawable.ic_media_ff, "fastForward", MediaButtonReceiver.buildMediaButtonPendingIntent(this, PlaybackStateCompat.ACTION_FAST_FORWARD)))
+                    .setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
                             .setMediaSession(mediaSession.getSessionToken())
                             .setShowActionsInCompactView(0,1,2))
                     .setProgress(max, progress, false)
@@ -894,7 +826,7 @@ public class AudioService extends Service {
         NotificationChannel channel = new NotificationChannel(
                 CHANNEL_ID, "Music Playback",
                 NotificationManager.IMPORTANCE_LOW); //LOW = no sound
-        channel.setDescription("Music Playback Controls");
+        channel.setDescription("Bookplayer Music Playback Controls");
         NotificationManager manager = getSystemService(NotificationManager.class);
         if (manager != null) {
             manager.createNotificationChannel(channel);

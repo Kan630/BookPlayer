@@ -20,7 +20,7 @@ android {
 
         minSdkVersion 26
         //24 seems to be minimum for ZipFile
-        //note : 26 needed for mediaPlayer.seekTo => but custom code added
+        //note : 26 needed for special mediaPlayer.seekTo (m4b)
         //note : 26 needed for NotificationChannel
         //note : 26 needed for xml adaptable icons
 
