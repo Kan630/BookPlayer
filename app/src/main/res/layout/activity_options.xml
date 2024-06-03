@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:id="@+id/scrollView"
+    >
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -229,6 +231,41 @@
                     android:text="Rewind a few seconds when resuming play (afterPause / after open)" />
             </LinearLayout>
         </LinearLayout>
+
+
+        <View style="@style/myStyleViewSimpleHorizontalBar" />
+
+        <LinearLayout style="@style/LinearLayoutOptionsVertical">
+            <TextView
+                style="@style/myStyleTextTitle2"
+                android:text="Pick your app color theme" />
+            <LinearLayout android:id="@+id/llCommandButtons"
+                android:layout_height="wrap_content"
+                android:layout_width="fill_parent"
+                android:layout_marginTop="20sp"
+                >
+                <ImageButton
+                    android:id="@+id/btn_color_01"
+                    style="@style/OptionsColorButtons"
+                    android:background="@color/purple_700"/>
+                <ImageButton
+                    android:id="@+id/btn_color_02"
+                    style="@style/OptionsColorButtons"
+                    android:background="@color/teal_700"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginEnd="5dp"
+                    />
+                <ImageButton
+                    android:id="@+id/btn_color_03"
+                    style="@style/OptionsColorButtons"
+                    android:background="@color/colorGreenButtonAccent"/>
+            </LinearLayout>
+        </LinearLayout>
+
+
+
+
+
 
 
         <!-- ZIP PART-->

@@ -35,6 +35,7 @@ import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_BEEP_BOOKEND;
+import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_CUSTOM_THEME;
 import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_SCREEN_ORIENTATION_LOCK;
 import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_TIME_BEFORE_SLEEP;
 import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_VISUALIZER_ON;
@@ -183,10 +184,11 @@ public class PlayActivity extends LifecycleLoggingActivity {
         super.onCreate(savedInstanceState);
 
         // Screen Orientation Locking
-        SharedPreferences prefs = this.getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE);
-        if (prefs.getBoolean("LOCK_SCREEN_ORIENTATION", DEFAULT_SCREEN_ORIENTATION_LOCK)) {
+        if (getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE).getBoolean("LOCK_SCREEN_ORIENTATION", DEFAULT_SCREEN_ORIENTATION_LOCK)) {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
         }
+
+        setTheme(getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE).getInt("CUSTOM_THEME", DEFAULT_CUSTOM_THEME));
 
         setContentView(R.layout.activity_play);
 

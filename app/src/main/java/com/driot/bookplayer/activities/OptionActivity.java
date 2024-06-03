@@ -4,11 +4,15 @@ import android.Manifest;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
+import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.driot.bookplayer.R;
@@ -18,9 +22,11 @@ import com.driot.tonylib.KanLogger;
 import static com.driot.bookplayer.utils.PermissionRequest.isRecordAudioPermissionGranted;
 import static com.driot.tonylib.KanLogger.myLog;
 import static com.driot.tonylib.KanLogger.myLongToast;
+import static com.driot.tonylib.KanLogger.myToast;
 import static com.driot.tonylib.KanMail.DEFAULT_SEND_MAIL_METHOD_DEFAULT;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.StyleRes;
 import androidx.core.content.ContextCompat;
 
 import org.w3c.dom.Text;
@@ -51,6 +57,11 @@ public class OptionActivity extends LifecycleLoggingActivity {
     public static final boolean DEFAULT_BEEP_AUTOSTOP = true;
     public static final boolean DEFAULT_DELETE_SOURCE_FILE = false;
     public static final boolean DEFAULT_VISUALIZER_ON = false;
+    public static final int DEFAULT_CUSTOM_THEME = R.style.Theme_BookPlayer;
+
+    public static final int  theme_01 = R.style.Theme_BookPlayer_Gray;
+    public static final int  theme_02 = R.style.Theme_BookPlayer_Purple;
+    public static final int  theme_03 = R.style.Theme_BookPlayer_Green;
 
     EditText et_timeBeforeSleep;
     EditText et_ForwardSeconds;
@@ -61,6 +72,7 @@ public class OptionActivity extends LifecycleLoggingActivity {
     CheckBox chk_delete_source_file;
     CheckBox chk_visualizer_on;
     TextView tx_Visualizer_on;
+    ImageButton btn_Color_01, btn_Color_02, btn_Color_03;
     private PermissionRequest mPermissionRequest;
 
 
@@ -68,6 +80,8 @@ public class OptionActivity extends LifecycleLoggingActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_options);
+
+        setTheme(getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE).getInt("CUSTOM_THEME", DEFAULT_CUSTOM_THEME));
 
         prefsOptions = this.getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE);
         editorOptions = this.getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE).edit();
@@ -85,6 +99,9 @@ public class OptionActivity extends LifecycleLoggingActivity {
         chk_visualizer_on = findViewById(R.id.chk_visualizer_on);
         tx_Visualizer_on = findViewById(R.id.tx_Visualizer_on);
         setVisualizerPermissionText();
+        btn_Color_01 = findViewById(R.id.btn_color_01);
+        btn_Color_02 = findViewById(R.id.btn_color_02);
+        btn_Color_03 = findViewById(R.id.btn_color_03);
 
         int i = getTimeBeforeSleep();
         et_timeBeforeSleep.setText(String.valueOf(i));
@@ -128,6 +145,15 @@ public class OptionActivity extends LifecycleLoggingActivity {
             if (isChecked && !isRecordAudioPermissionGranted(this)) {requestPermissions();}
         });
 
+        int color_01 = getPrimaryColorFromTheme(this, theme_01);
+        int color_02 = getPrimaryColorFromTheme(this, theme_02);
+        int color_03 = getPrimaryColorFromTheme(this, theme_03);
+        btn_Color_01.setBackgroundColor(color_01);
+        btn_Color_02.setBackgroundColor(color_02);
+        btn_Color_03.setBackgroundColor(color_03);
+        btn_Color_01.setOnClickListener(v -> changeBaseTheme(theme_01));
+        btn_Color_02.setOnClickListener(v -> changeBaseTheme(theme_02));
+        btn_Color_03.setOnClickListener(v -> changeBaseTheme(theme_03));
 
         if (isRecordAudioPermissionGranted(this)) {
             tx_Visualizer_on.setText(getString(R.string.option_visualizer_text));
@@ -256,6 +282,48 @@ public class OptionActivity extends LifecycleLoggingActivity {
     /////////////////// VISUALIZER option ///////////////////
     private void setVisualizerOnDefault(boolean bool) {editorOptions.putBoolean("VISUALIZER_ON",bool).apply();}
     private Boolean getVisualizerOnDefault() {return prefsOptions.getBoolean("VISUALIZER_ON", DEFAULT_VISUALIZER_ON);}
+
+
+    // Method to get colorPrimary from a specific theme
+    public int getPrimaryColorFromTheme(Context context, @StyleRes int themeResId) {
+        // Create a new theme based on the specified theme resource ID
+        Resources.Theme theme = context.getResources().newTheme();
+        theme.applyStyle(themeResId, true);
+
+        // Obtain the colorPrimary attribute
+        TypedArray typedArray = theme.obtainStyledAttributes(new int[]{androidx.appcompat.R.attr.colorPrimary});
+        int primaryColor = typedArray.getColor(0, ContextCompat.getColor(context, android.R.color.black)); // Default to black if not found
+        typedArray.recycle(); // Always recycle the TypedArray
+
+        return primaryColor;
+    }
+    private void changeBaseTheme(int new_base_theme) {
+        myLog("new Base theme is [" + new_base_theme + "]" );
+        setTheme(new_base_theme);
+        editorOptions.putInt("CUSTOM_THEME", new_base_theme).apply();
+        recreate();
+        myToast("Base color has been changed.");
+    }
+
+    private void setCustomTheme() {
+        int customTheme = getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE).getInt("CUSTOM_THEME", DEFAULT_CUSTOM_THEME);
+        if (customTheme != R.style.Theme_BookPlayer) setTheme(customTheme);
+    }
+
+    //// Saving scroll position where reloading activity (after applying theme color change)
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        ScrollView scrollView = findViewById(R.id.scrollView);
+        outState.putInt("scroll_position", scrollView.getScrollY());
+    }
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        final ScrollView scrollView = findViewById(R.id.scrollView);
+        final int scrollPosition = savedInstanceState.getInt("scroll_position");
+        scrollView.post(() -> scrollView.scrollTo(0, scrollPosition));
+    }
 
     //--- LOG --------------------------
     private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
