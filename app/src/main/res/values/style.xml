@@ -1,8 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <!-- ***************** COMMON ***************** -->
+
     <style name="myStyle" parent="TextAppearance.AppCompat">
         <item name="android:textColor">@color/text_default</item>
+    </style>
+
+    <style name="myStyleTextExplainButton" parent="myStyle">
+    </style>
+
+    <style name="myButton" parent="android:Widget.Button">
+    </style>
+
+    <style name="myBigButton" parent="Widget.AppCompat.Button">
+        <item name="android:paddingStart">24sp</item>
+        <item name="android:paddingEnd">24sp</item>
+        <item name="android:layout_marginStart">50sp</item>
+        <item name="android:layout_marginEnd">50sp</item>
     </style>
 
     <style name="myStyleTitle" parent="myStyle">
@@ -19,7 +34,14 @@
         <item name="android:layout_marginTop">20sp</item>
     </style>
 
-    <style name="myStyleTextExplainButton" parent="myStyle">
+    <!-- ***************** PLAY ACTIVITY ***************** -->
+
+    <style name="PlayActivityActionButtons" parent="BluePlayActivityActionButton">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_height">60sp</item>
+        <item name="android:textSize">32sp</item>
+        <item name="android:layout_marginStart">0sp</item>
     </style>
 
     <style name="myStyleTextSubTitlePlay" parent="myStyle">
@@ -28,24 +50,15 @@
     </style>
 
 
-    <style name="folderStyle">
-        <item name="android:background">@drawable/rounded_corner</item>
-        <item name="android:textColor">@color/black</item>
-    </style>>
+    <!-- ***************** LAYOUT ***************** -->
 
-    <style name="audioName" parent="folderStyle">
-    </style>>
-
-    <style name="lastAccess" parent="folderStyle">
-        <item name="android:textAlignment">textEnd</item>
-    </style>>
-
-    <style name="myStyleViewSimpleHorizontalBar">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">1dp</item>
-        <item name="android:layout_marginTop">10sp</item>
-        <item name="android:background">@android:color/darker_gray</item>
-    </style>>
+    <style name="LayoutWrapContentMargin20horizontal">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">20dp</item>
+        <item name="android:layout_marginStart">20dp</item>
+        <item name="android:orientation">horizontal</item>
+    </style>
 
     <style name="LinearLayoutOptionsVertical">
         <item name="android:layout_width">wrap_content</item>
@@ -62,7 +75,10 @@
         <item name="android:orientation">horizontal</item>
         <item name="android:layout_marginStart">0sp</item>
         <item name="android:layout_marginTop">20sp</item>
-    </style>>
+    </style>
+
+
+    <!-- ***************** OPTIONS ***************** -->
 
     <style name="TextForCheckBoxOption" parent="myStyle">
         <item name="android:layout_width">match_parent</item>
@@ -79,5 +95,32 @@
         <item name="android:layout_marginStart">0sp</item>
         <item name="android:textSize">12sp</item>
     </style>>
+
+    <!-- ***************** FOLDERS ***************** -->
+
+    <style name="folderStyle">
+        <item name="android:background">@drawable/rounded_corner</item>
+        <item name="android:textColor">@color/black</item>
+    </style>>
+
+    <style name="audioName" parent="folderStyle">
+    </style>>
+
+    <style name="lastAccess" parent="folderStyle">
+        <item name="android:textAlignment">textEnd</item>
+    </style>>
+
+
+    <!-- ***************** DIVERS ***************** -->
+
+    <style name="myStyleViewSimpleHorizontalBar">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">1dp</item>
+        <item name="android:layout_marginTop">10sp</item>
+        <item name="android:background">@android:color/darker_gray</item>
+    </style>>
+
+
+
 
 </resources>

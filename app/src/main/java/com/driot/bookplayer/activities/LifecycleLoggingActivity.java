@@ -22,6 +22,9 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
 import static com.driot.bookplayer.global.Var.LOG_LIFECYCLE_TRACE;
 import static com.driot.tonylib.KanLogger.myLog;
@@ -34,7 +37,7 @@ import com.driot.tonylib.KanLogger;
  * lifecycle callbacks for logging various lifecycle events.
  */
 public abstract class LifecycleLoggingActivity 
-       extends Activity {
+       extends AppCompatActivity { //Activity
 
     private static final String LOG_TAG = "LifecycleLoggingActivity"; //this.getClass().getName()
     protected final String TAG = getClass().getSimpleName();

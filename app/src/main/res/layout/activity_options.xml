@@ -5,13 +5,12 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_marginStart="10sp"
         android:layout_marginEnd="10sp"
         android:orientation="vertical">
 
         <LinearLayout
-            android:id="@+id/ll_MailMethod_vert"
             style="@style/LinearLayoutOptionsVertical">
             <TextView
                 style="@style/myStyleTextTitle2"
@@ -212,66 +211,83 @@
                     style="@style/TextForCheckBoxOption"
                     android:text="@string/option_visualizer_text" />
             </LinearLayout>
+        </LinearLayout>
+
+        <View style="@style/myStyleViewSimpleHorizontalBar" />
+
+        <LinearLayout style="@style/LinearLayoutOptionsVertical">
+            <TextView
+                style="@style/myStyleTextTitle2"
+                android:text="Rewind a few seconds when resuming play" />
+            <LinearLayout style="@style/LinearLayoutOptionsCheckBoxHorizontal">
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/chk_rewindSomeWhenResumePlay"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp" />
+                <TextView
+                    style="@style/TextForCheckBoxOption"
+                    android:text="Rewind a few seconds when resuming play (afterPause / after open)" />
+            </LinearLayout>
+        </LinearLayout>
 
 
-            <!-- ZIP PART-->
-            <View style="@style/myStyleViewSimpleHorizontalBar" />
+        <!-- ZIP PART-->
+        <View style="@style/myStyleViewSimpleHorizontalBar" />
+
+        <LinearLayout
+            android:id="@+id/ll_ZipOptions_vert"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20sp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/txt_zip_header"
+                style="@style/myStyleTextTitle2"
+                android:text="@string/option_zip" />
 
             <LinearLayout
-                android:id="@+id/ll_ZipOptions_vert"
+                android:id="@+id/ll_ZipOptions_horizon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="20sp"
                 android:layout_marginTop="20sp"
-                android:orientation="vertical">
+                android:orientation="horizontal">
+
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/chk_copyzip_local"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp" />
 
                 <TextView
-                    android:id="@+id/txt_zip_header"
-                    style="@style/myStyleTextTitle2"
-                    android:text="@string/option_zip" />
-
-                <LinearLayout
-                    android:id="@+id/ll_ZipOptions_horizon"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="20sp"
-                    android:layout_marginTop="20sp"
-                    android:orientation="horizontal">
-
-                    <com.google.android.material.checkbox.MaterialCheckBox
-                        android:id="@+id/chk_copyzip_local"
-                        android:layout_width="30dp"
-                        android:layout_height="30dp" />
-
-                    <TextView
-                        android:id="@+id/txt_copyzip_local"
-                        style="@style/TextForCheckBoxOption"
-                        android:text="@string/option_copyzip_local" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/ll_ZipOptions_horizon2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="20sp"
-                    android:layout_marginTop="20sp"
-                    android:orientation="horizontal">
-
-                    <com.google.android.material.checkbox.MaterialCheckBox
-                        android:id="@+id/chk_unzip_local"
-                        android:layout_width="30dp"
-                        android:layout_height="30dp" />
-
-                    <TextView
-                        android:id="@+id/txt_unzip_local"
-                        style="@style/TextForCheckBoxOption"
-                        android:text="@string/option_unzip_local" />
-                </LinearLayout>
+                    android:id="@+id/txt_copyzip_local"
+                    style="@style/TextForCheckBoxOption"
+                    android:text="@string/option_copyzip_local" />
             </LinearLayout>
 
-            <View
-                style="@style/myStyleViewSimpleHorizontalBar"
-                android:layout_marginBottom="30dp" />
+            <LinearLayout
+                android:id="@+id/ll_ZipOptions_horizon2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20sp"
+                android:layout_marginTop="20sp"
+                android:orientation="horizontal">
 
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/chk_unzip_local"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp" />
+
+                <TextView
+                    android:id="@+id/txt_unzip_local"
+                    style="@style/TextForCheckBoxOption"
+                    android:text="@string/option_unzip_local" />
+            </LinearLayout>
         </LinearLayout>
+
+        <View
+            style="@style/myStyleViewSimpleHorizontalBar"
+            android:layout_marginBottom="30dp" />
+
     </LinearLayout>
 </ScrollView>

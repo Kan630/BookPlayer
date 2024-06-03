@@ -47,26 +47,19 @@
     <Button
         android:id="@+id/buttonRewind"
         android:text="@string/rewind"
-        android:layout_weight="1"
-        android:layout_width="0dp"
-        android:layout_height="60sp"
-        android:textSize="18sp"
+        style="@style/PlayActivityActionButtons"
         />
     <Button
         android:id="@+id/buttonPlay"
         android:text="@string/play"
-        android:layout_weight="1"
-        android:layout_width="0dp"
-        android:layout_height="60sp"
-        android:textSize="18sp"
+        style="@style/PlayActivityActionButtons"
+        android:layout_marginStart="5dp"
+        android:layout_marginEnd="5dp"
         />
     <Button
         android:id="@+id/buttonForward"
         android:text="@string/forward"
-        android:layout_weight="1"
-        android:layout_width="0dp"
-        android:layout_height="60sp"
-        android:textSize="18sp"
+        style="@style/PlayActivityActionButtons"
         />
     </LinearLayout>
 

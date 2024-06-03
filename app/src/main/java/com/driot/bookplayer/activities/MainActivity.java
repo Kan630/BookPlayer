@@ -5,6 +5,7 @@ import static com.driot.tonylib.KanLogger.myToast;
 import static com.driot.tonylib.TonioCommonStuff.MD5;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 
@@ -46,7 +47,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
-public class MainActivity extends ComponentActivity { //ComponentActivity used for this activity to be a LifecycleOwner in Observer
+public class MainActivity extends ComponentActivity {//LifecycleLoggingActivity //ComponentActivity used for this activity to be a LifecycleOwner in Observer
 
     private RecyclerView recyclerView;
 
