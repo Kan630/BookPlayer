@@ -12,14 +12,13 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <android.widget.Toolbar
+        <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
-            android:logo="@mipmap/ic_launcher_round"
             android:layout_width="match_parent"
-            android:layout_height="50sp"
-            android:background="@color/lightgray"
-            android:titleTextColor="@color/white"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
             android:elevation="4dp"
+            android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
             />
 
         <!-- Progress bar overlay; shown while login is in progress -->

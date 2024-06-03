@@ -3,7 +3,6 @@ package com.driot.bookplayer.activities;
 import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_CUSTOM_THEME;
 import static com.driot.bookplayer.activities.OptionActivity.SHARED_PREFERENCES_OPTIONS;
 import static com.driot.tonylib.KanLogger.isMyPhoneDev;
-import static com.driot.tonylib.KanLogger.myToast;
 import static com.driot.tonylib.TonioCommonStuff.MD5;
 
 import android.annotation.SuppressLint;
@@ -18,15 +17,13 @@ import android.os.Bundle;
 import android.telephony.TelephonyManager;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toolbar;
 
-import androidx.activity.ComponentActivity;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 //import androidx.credentials.CredentialManager;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -54,14 +51,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
-public class MainActivity extends ComponentActivity {//LifecycleLoggingActivity //ComponentActivity used for this activity to be a LifecycleOwner in Observer
+public class MainActivity extends AppCompatActivity {//LifecycleLoggingActivity //ComponentActivity used for this activity to be a LifecycleOwner in Observer
 
     private RecyclerView recyclerView;
-
-    private ActivityResultLauncher<Intent> optionActivityLauncher;
-
+    Toolbar toolbar;
     private static final int REQUEST_CODE_OPTION = 34343;
-
     public static final int DAYS_FOR_FLEXIBLE_UPDATE = 10;
     public static final int UPDATE_APP_REQUEST_CODE = 6354;
 
@@ -81,7 +75,7 @@ public class MainActivity extends ComponentActivity {//LifecycleLoggingActivity 
         HasBeenProposedToOpenFile = savedInstanceState.getBoolean("HasBeenProposedToOpenFile", false);
     }
 
-    @SuppressLint("UseSupportActionBar")
+    //@SuppressLint("UseSupportActionBar")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         KanLogger.setKanContext(getApplicationContext());
@@ -91,28 +85,16 @@ public class MainActivity extends ComponentActivity {//LifecycleLoggingActivity 
         setTheme(getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE).getInt("CUSTOM_THEME", DEFAULT_CUSTOM_THEME));
         super.onCreate(savedInstanceState);
 
-        init();
-        
-        setContentView(R.layout.activity_main);
-/*
-        optionActivityLauncher = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    myLog("optionActivityLauncher : resultCode=[" + result.getResultCode() + "] Activity.RESULT_OK=[" + Activity.RESULT_OK + "]");
-                    if (result.getResultCode() == Activity.RESULT_OK) {
-                        // Recreate the activity to apply changes (when coming back from OptionActivity and Color has been changed...)
-                        recreate();
-                    }
-                }
-        );
+        printSomeStuffAboutDevice();
 
- */
+        setContentView(R.layout.activity_main);
+
+        toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        toolbar.setTitle("BookPlayer");
 
         recyclerView = findViewById(R.id.recyclerview_folders);
         if (recyclerView != null) recyclerView.setLayoutManager(new LinearLayoutManager(this));
-
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setActionBar(toolbar);
 
         FloatingActionButton btn_Add = findViewById(R.id.FAB_Add);
         btn_Add.setOnClickListener(view -> openGetResourceActivity());
@@ -182,20 +164,18 @@ import android.view.View;
         myLog("recyclerview drawing through setAdapter on restart");
     }
 
+    @SuppressLint("RestrictedApi")
     @Override
-    public boolean onCreateOptionsMenu(@NonNull Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        menu.findItem(R.id.menu_seelog).setVisible(isMyPhoneDev());
-
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.action_bar, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int itemId = item.getItemId();
-        if (itemId == R.id.menu_options) {
-            //optionActivityLauncher.launch(new Intent(this, OptionActivity.class));
-            //startActivity(new Intent(this, OptionActivity.class));
+        if (itemId == R.id.action_menu_three_dot) {
+        } else if (itemId == R.id.menu_options) {
             SharedPreferences.Editor editorOptions = this.getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE).edit();
             editorOptions.putBoolean("ACTIVITY_OPTION_HAS_RESULT", false).apply();
             startActivityForResult(new Intent(this, OptionActivity.class), REQUEST_CODE_OPTION);
@@ -355,7 +335,7 @@ import android.view.View;
     ////////////////////////////////////////////////////////////////////////////////////////
     // INIT
     ////////////////////////////////////////////////////////////////////////////////////////
-    private void init() {
+    private void printSomeStuffAboutDevice() {
         //ClearCacheData();
         //KanLogger.myLog("Checking for Updates");
         //checkForUpdate();

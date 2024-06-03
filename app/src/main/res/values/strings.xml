@@ -224,6 +224,7 @@
     <!-- ********************************** -->
     <!-- Menus -->
 
+    <string name="action_menu_three_dot">Menu</string>
     <string name="menu_three_dot">Menu</string>
     <string name="menu_manual">manual</string>
     <string name="menu_options">options</string>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+    <menu xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        tools:context=".MainActivity">
+
+    <item
+        android:id="@+id/action_menu_three_dot"
+        android:icon="@drawable/ic_baseline_more_vert_24"
+        android:title="@string/action_menu_three_dot"
+        app:showAsAction="ifRoom">
+        <menu>
+
+        <item android:id="@+id/menu_manual"
+            android:title="@string/menu_manual"
+            android:icon="@android:drawable/ic_menu_view"
+            app:showAsAction="ifRoom"
+            />
+
+        <item android:id="@+id/menu_options"
+            android:title="@string/menu_options"
+            android:icon="@android:drawable/ic_menu_preferences"
+            app:showAsAction="ifRoom"
+            />
+
+        <item android:id="@+id/menu_otherapp"
+            android:title="@string/menu_otherapp"
+            android:icon="@android:drawable/ic_menu_gallery"
+            app:showAsAction="ifRoom"
+            />
+
+        <item android:id="@+id/menu_seelog"
+            android:title="@string/menu_seeLog"
+            android:icon="@android:drawable/ic_menu_recent_history"
+            app:showAsAction="ifRoom"
+            />
+
+        <item android:id="@+id/menu_stats"
+            android:title="Stats"
+            android:icon="@android:drawable/ic_menu_view"
+            app:showAsAction="ifRoom"
+            />
+
+        <item android:id="@+id/menu_sendmail"
+            android:title="@string/menu_sendmail"
+            android:icon="@android:drawable/ic_menu_send"
+            app:showAsAction="ifRoom"
+            />
+        <item android:id="@+id/menu_cacheFiles"
+            android:title="@string/menu_cacheFiles"
+            android:icon="@android:drawable/ic_menu_delete"
+            app:showAsAction="ifRoom"
+            />
+
+        </menu>
+    </item>
+</menu>
