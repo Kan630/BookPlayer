@@ -1,9 +1,9 @@
 package com.driot.bookplayer.activities;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.os.Bundle;
@@ -20,16 +20,12 @@ import com.driot.bookplayer.utils.PermissionRequest;
 import com.driot.tonylib.KanLogger;
 
 import static com.driot.bookplayer.utils.PermissionRequest.isRecordAudioPermissionGranted;
-import static com.driot.tonylib.KanLogger.myLog;
 import static com.driot.tonylib.KanLogger.myLongToast;
-import static com.driot.tonylib.KanLogger.myToast;
 import static com.driot.tonylib.KanMail.DEFAULT_SEND_MAIL_METHOD_DEFAULT;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.StyleRes;
 import androidx.core.content.ContextCompat;
-
-import org.w3c.dom.Text;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 20/12/20
@@ -79,9 +75,7 @@ public class OptionActivity extends LifecycleLoggingActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_options);
-
-        setTheme(getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE).getInt("CUSTOM_THEME", DEFAULT_CUSTOM_THEME));
+        setContentView(R.layout.activity_options); //trigers AutofillManager notifyValueChanged  ignoring on state UNKNOWN  (pollute log in Android 12)
 
         prefsOptions = this.getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE);
         editorOptions = this.getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE).edit();
@@ -166,6 +160,7 @@ public class OptionActivity extends LifecycleLoggingActivity {
         chk_UnZip.setEnabled(false);
         chk_copyZip.setEnabled(false);
         findViewById(R.id.ll_ZipOptions_vert).setVisibility(View.INVISIBLE);
+
     }
 
     private void setVisualizerPermissionText() {
@@ -176,13 +171,15 @@ public class OptionActivity extends LifecycleLoggingActivity {
             tx_Visualizer_on.setText(txt);
         }
     }
-
+/*
     @Override
     public void onBackPressed() {
         super.onBackPressed();
         saveTimeBeforeSleep();
         saveForwardSeconds();
     }
+
+ */
 
     private void saveTimeBeforeSleep() {
         String str = et_timeBeforeSleep.getText().toString().trim();
@@ -230,6 +227,7 @@ public class OptionActivity extends LifecycleLoggingActivity {
     public void onRequestPermissionsResult(int requestCode,
                                            @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         myLog("onRequestPermissionsResult()" + permissions[0] + " - " + requestCode + " - " + grantResults[0]);
         // Redirect hook call to permission helper method.
         if (mPermissionRequest != null) {
@@ -284,7 +282,11 @@ public class OptionActivity extends LifecycleLoggingActivity {
     private Boolean getVisualizerOnDefault() {return prefsOptions.getBoolean("VISUALIZER_ON", DEFAULT_VISUALIZER_ON);}
 
 
-    // Method to get colorPrimary from a specific theme
+
+
+    // ***********************************
+    //           THEMES - COLORS
+    // ***********************************
     public int getPrimaryColorFromTheme(Context context, @StyleRes int themeResId) {
         // Create a new theme based on the specified theme resource ID
         Resources.Theme theme = context.getResources().newTheme();
@@ -299,15 +301,17 @@ public class OptionActivity extends LifecycleLoggingActivity {
     }
     private void changeBaseTheme(int new_base_theme) {
         myLog("new Base theme is [" + new_base_theme + "]" );
-        setTheme(new_base_theme);
         editorOptions.putInt("CUSTOM_THEME", new_base_theme).apply();
+        editorOptions.putBoolean("ACTIVITY_OPTION_HAS_RESULT", true).apply();
         recreate();
-        myToast("Base color has been changed.");
     }
 
-    private void setCustomTheme() {
-        int customTheme = getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE).getInt("CUSTOM_THEME", DEFAULT_CUSTOM_THEME);
-        if (customTheme != R.style.Theme_BookPlayer) setTheme(customTheme);
+    @Override
+    public void finish() { //needed because of recreate()
+        if (prefsOptions.getBoolean("ACTIVITY_OPTION_HAS_RESULT", false)) {
+            setResult(Activity.RESULT_OK);
+        }
+        super.finish();
     }
 
     //// Saving scroll position where reloading activity (after applying theme color change)

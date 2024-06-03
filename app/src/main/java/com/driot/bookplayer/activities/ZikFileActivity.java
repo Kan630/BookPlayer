@@ -1,9 +1,13 @@
 package com.driot.bookplayer.activities;
 
+import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_CUSTOM_THEME;
+import static com.driot.bookplayer.activities.OptionActivity.SHARED_PREFERENCES_OPTIONS;
+
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -21,7 +25,7 @@ import java.util.Objects;
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 30/10/20
  */
-public class ZikFileActivity extends LifecycleLoggingActivity {
+public class ZikFileActivity extends LifecycleLoggingActivity { //AppCompatActivity
 
     private RecyclerView recyclerView;
     private ZikFilesAdapter adapter;
@@ -30,6 +34,7 @@ public class ZikFileActivity extends LifecycleLoggingActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_foldercontent);
 
         recyclerView = findViewById(R.id.recyclerview_zikfiles);

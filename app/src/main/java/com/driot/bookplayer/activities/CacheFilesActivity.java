@@ -1,5 +1,7 @@
 package com.driot.bookplayer.activities;
 
+import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_CUSTOM_THEME;
+import static com.driot.bookplayer.activities.OptionActivity.SHARED_PREFERENCES_OPTIONS;
 import static com.driot.bookplayer.utils.Tonio.formatMem;
 import static com.driot.bookplayer.utils.Tonio.getAvailableInternalMemorySize;
 import static com.driot.bookplayer.utils.Tonio.getFolderSize;
@@ -31,7 +33,7 @@ import java.util.List;
  *
  * implement OneDeleteClickListener because : event is in adapter, confirmation message in activity, deletion in viewmodel
  */
-public class CacheFilesActivity extends AppCompatActivity implements CacheFilesAdapter.OnDeleteClickListener {
+public class CacheFilesActivity extends LifecycleLoggingActivity implements CacheFilesAdapter.OnDeleteClickListener {
     private CacheFilesAdapter cacheFilesAdapter;
 
     private CacheFilesViewModel cacheFilesViewModel;
@@ -41,7 +43,10 @@ public class CacheFilesActivity extends AppCompatActivity implements CacheFilesA
     protected void onCreate(Bundle savedInstanceState) {
         myLog("onCreate()");
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_cache_files);
+
+
 
 // get the data in DB (async) -- LiveData stored in ViewModel
         cacheFilesViewModel = new ViewModelProvider(this).get(CacheFilesViewModel.class);

@@ -1,5 +1,7 @@
 package com.driot.bookplayer.activities;
 
+import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_CUSTOM_THEME;
+import static com.driot.bookplayer.activities.OptionActivity.SHARED_PREFERENCES_OPTIONS;
 import static com.driot.tonylib.KanLogger.isMyPhoneDev;
 import static com.driot.tonylib.KanLogger.myToast;
 import static com.driot.tonylib.TonioCommonStuff.MD5;
@@ -9,6 +11,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 
+import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
@@ -17,9 +21,12 @@ import android.view.MenuItem;
 import android.widget.Toolbar;
 
 import androidx.activity.ComponentActivity;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 //import androidx.credentials.CredentialManager;
 
+import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -51,6 +58,10 @@ public class MainActivity extends ComponentActivity {//LifecycleLoggingActivity 
 
     private RecyclerView recyclerView;
 
+    private ActivityResultLauncher<Intent> optionActivityLauncher;
+
+    private static final int REQUEST_CODE_OPTION = 34343;
+
     public static final int DAYS_FOR_FLEXIBLE_UPDATE = 10;
     public static final int UPDATE_APP_REQUEST_CODE = 6354;
 
@@ -77,11 +88,25 @@ public class MainActivity extends ComponentActivity {//LifecycleLoggingActivity 
         KanLogger.myLog("------------------------------------------------------------------");
         KanLogger.myLog("----------------     Main Activity onCreate()     ----------------");
         KanLogger.myLog("------------------------------------------------------------------");
+        setTheme(getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE).getInt("CUSTOM_THEME", DEFAULT_CUSTOM_THEME));
         super.onCreate(savedInstanceState);
 
         init();
         
         setContentView(R.layout.activity_main);
+/*
+        optionActivityLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    myLog("optionActivityLauncher : resultCode=[" + result.getResultCode() + "] Activity.RESULT_OK=[" + Activity.RESULT_OK + "]");
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        // Recreate the activity to apply changes (when coming back from OptionActivity and Color has been changed...)
+                        recreate();
+                    }
+                }
+        );
+
+ */
 
         recyclerView = findViewById(R.id.recyclerview_folders);
         if (recyclerView != null) recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -91,7 +116,6 @@ public class MainActivity extends ComponentActivity {//LifecycleLoggingActivity 
 
         FloatingActionButton btn_Add = findViewById(R.id.FAB_Add);
         btn_Add.setOnClickListener(view -> openGetResourceActivity());
-
 
         /*
         //doCredentialStuff;
@@ -170,7 +194,11 @@ import android.view.View;
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int itemId = item.getItemId();
         if (itemId == R.id.menu_options) {
-            startActivity(new Intent(getApplicationContext(), OptionActivity.class));
+            //optionActivityLauncher.launch(new Intent(this, OptionActivity.class));
+            //startActivity(new Intent(this, OptionActivity.class));
+            SharedPreferences.Editor editorOptions = this.getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE).edit();
+            editorOptions.putBoolean("ACTIVITY_OPTION_HAS_RESULT", false).apply();
+            startActivityForResult(new Intent(this, OptionActivity.class), REQUEST_CODE_OPTION);
         } else if (itemId == R.id.menu_manual) {
             startActivity(new Intent(getApplicationContext(), HelpActivity.class));
         } else if (itemId == R.id.menu_otherapp) {
@@ -188,7 +216,16 @@ import android.view.View;
         }
         return super.onOptionsItemSelected(item);
     }
-
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CODE_OPTION) {
+            myLog("coming back from OptionActivity - resultCode=[" + resultCode + "] Activity.RESULT_OK=[" + Activity.RESULT_OK + "]");
+            if (resultCode == Activity.RESULT_OK) {
+                recreate();
+            }
+        }
+    }
     private void getFolders() {
         myLog("getFolders()");
         FolderDao folderDao = DatabaseClient.getInstance(getApplicationContext()).getAppDatabase().FolderDao();
@@ -337,10 +374,12 @@ import android.view.View;
         KanLogger.myLog("BuildConfig.VERSION_NAME = " + BuildConfig.VERSION_NAME);
         KanLogger.myLog("BuildConfig.BUILD_TYPE = " + BuildConfig.BUILD_TYPE);
         KanLogger.myLog("BuildConfig.APPLICATION_ID = " + BuildConfig.APPLICATION_ID);
-        KanLogger.myLog("========================== Miscellaneous :");
+        KanLogger.myLog("========================== Region :");
         KanLogger.myLog("Locale.getDefault = " + Locale.getDefault().getCountry());
         KanLogger.myLog("TimeZone.getDefault = " + TimeZone.getDefault().getID());
         KanLogger.myLog("TelephonyManager country = " + getCountryFromTelephonyManager(this));
+        KanLogger.myLog("========================== Miscellaneous :");
+        KanLogger.myLog("Theme = " + getKindOfTheme());
         KanLogger.myLog("===");
         KanLogger.myLog("==========================");
         KanLogger.myLog("");
@@ -350,6 +389,15 @@ import android.view.View;
         TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
         String countryIso = telephonyManager.getNetworkCountryIso(); // returns the country code, e.g., "us"
         return countryIso != null ? countryIso.toUpperCase() : null;
+    }
+
+    private String getKindOfTheme() {
+        int nightModeFlags = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES) {
+            return "Dark";
+        } else {
+            return "Light";
+        }
     }
 
     private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }

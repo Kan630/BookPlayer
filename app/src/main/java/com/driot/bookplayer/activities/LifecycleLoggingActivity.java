@@ -26,6 +26,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
+import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_CUSTOM_THEME;
+import static com.driot.bookplayer.activities.OptionActivity.SHARED_PREFERENCES_OPTIONS;
 import static com.driot.bookplayer.global.Var.LOG_LIFECYCLE_TRACE;
 import static com.driot.tonylib.KanLogger.myLog;
 
@@ -57,6 +59,7 @@ public abstract class LifecycleLoggingActivity
         // Always call super class for necessary
         // initialization/implementation.
         super.onCreate(savedInstanceState);
+        setTheme(getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE).getInt("CUSTOM_THEME", DEFAULT_CUSTOM_THEME));
 
         if (savedInstanceState != null) {
             // The activity is being re-created. Use the

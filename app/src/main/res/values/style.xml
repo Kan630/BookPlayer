@@ -34,9 +34,11 @@
         <item name="android:layout_marginTop">20sp</item>
     </style>
 
+    <style name="emptyStyle">
+    </style>
     <!-- ***************** PLAY ACTIVITY ***************** -->
 
-    <style name="PlayActivityActionButtons" parent="BluePlayActivityActionButton">
+    <style name="PlayActivityActionButtons">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_weight">1</item>
         <item name="android:layout_height">60sp</item>
@@ -115,6 +117,29 @@
         <item name="android:textAlignment">textEnd</item>
     </style>>
 
+
+    <!-- ***************** GET RESOURCES ***************** -->
+
+    <style name="GetResourceButton">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">10dp</item>
+        <item name="android:layout_marginStart">50dp</item>
+    </style>
+
+    <style name="GetResourceTextTopOfButton" parent="myStyleTextExplainButton">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">@dimen/GetRessource320_vertical_margin_low</item>
+        <item name="android:paddingHorizontal">50dp</item>
+    </style>
+
+    <style name="GetResourceTextSectionTitle" parent="myStyleTextTitle2">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">30dp</item>
+        <item name="android:paddingHorizontal">10dp</item>
+    </style>
 
     <!-- ***************** DIVERS ***************** -->
 

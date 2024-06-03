@@ -33,6 +33,8 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_CUSTOM_THEME;
+import static com.driot.bookplayer.activities.OptionActivity.SHARED_PREFERENCES_OPTIONS;
 import static com.driot.bookplayer.global.Var.AUTOTEST_FILE_01;
 import static com.driot.bookplayer.global.Var.AUTOTEST_FILE_02;
 import static com.driot.bookplayer.global.Var.AUTOTEST_FILE_03;
@@ -447,6 +449,7 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
         } else {
             myLogE("onRequestPermissionsResult() - mPermissionRequest is null ! bad hook");
         }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
 

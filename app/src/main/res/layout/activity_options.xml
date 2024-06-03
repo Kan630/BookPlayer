@@ -228,7 +228,7 @@
                     android:layout_height="30dp" />
                 <TextView
                     style="@style/TextForCheckBoxOption"
-                    android:text="Rewind a few seconds when resuming play (afterPause / after open)" />
+                    android:text="Rewind a few seconds when resuming play (afterPause / after open)\nNOT READY, SOON AVAILABLE" />
             </LinearLayout>
         </LinearLayout>
 
@@ -246,19 +246,16 @@
                 >
                 <ImageButton
                     android:id="@+id/btn_color_01"
-                    style="@style/OptionsColorButtons"
-                    android:background="@color/purple_700"/>
+                    style="@style/OptionsColorButtons"/>
                 <ImageButton
                     android:id="@+id/btn_color_02"
                     style="@style/OptionsColorButtons"
-                    android:background="@color/teal_700"
                     android:layout_marginStart="5dp"
                     android:layout_marginEnd="5dp"
                     />
                 <ImageButton
                     android:id="@+id/btn_color_03"
-                    style="@style/OptionsColorButtons"
-                    android:background="@color/colorGreenButtonAccent"/>
+                    style="@style/OptionsColorButtons"/>
             </LinearLayout>
         </LinearLayout>
 
