@@ -1,7 +1,10 @@
 package com.driot.bookplayer.utils;
 
+import static android.media.session.PlaybackState.ACTION_PAUSE;
+
 import com.driot.bookplayer.R;
 
+import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -12,6 +15,8 @@ import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.ToneGenerator;
+import android.media.session.MediaSession;
+import android.media.session.PlaybackState;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Build;
@@ -65,11 +70,7 @@ import static com.driot.bookplayer.utils.Utils.copyStream;
  */
 class CustomMediaPlayer extends MediaPlayer {
     public void customSeekTo(int posMilliSec) {
-        if (Build.VERSION.SDK_INT >= 26) {
             seekTo(posMilliSec, SEEK_CLOSEST);  //seek_closest needed for m4b...
-        } else {
-            seekTo(posMilliSec);
-        }
     }
 }
 public class AudioService extends Service {
@@ -100,10 +101,10 @@ public class AudioService extends Service {
     private CustomMediaPlayer mediaPlayer; //enhanced class by Tony
     private AudioManager audioManager;
     private AudioManager.OnAudioFocusChangeListener afChangeListener;
-    private MediaSessionCompat mediaSession;
-    private Handler handler;
-    private Runnable updateRunnable;
-    private MediaSessionCompat.Callback callback = new MediaSessionCompat.Callback() {
+    //private MediaSessionCompat mediaSession;
+    private MediaSession mediaSession;
+    //private MediaSessionCompat.Callback callback = new MediaSessionCompat.Callback() {
+    private MediaSession.Callback callback = new MediaSession.Callback() {
 
         @Override
         public void onPlay() { // is called by headset button pressed !!!
@@ -133,6 +134,7 @@ public class AudioService extends Service {
         public boolean onMediaButtonEvent(Intent mediaButtonIntent) {
             KeyEvent ke = mediaButtonIntent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
             myLog("MediaSessionCompat.Callback - onMediaButtonEvent -- Received command = " + ke);
+            if (ke != null && ke.getAction() == KeyEvent.ACTION_DOWN) handleKeyEvent(ke.getKeyCode());
             return super.onMediaButtonEvent(mediaButtonIntent);
         }
 
@@ -171,44 +173,6 @@ public class AudioService extends Service {
             myLog("MediaSessionCompat.Callback - onSkipToPrevious()");
             super.onSkipToPrevious();
         }
-        /*
-        @Override
-        public boolean onMediaButtonEvent(Intent mediaButtonIntent) {
-            KeyEvent ke = mediaButtonIntent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
-            myLog("MediaSessionCompat.Callback - onMediaButtonEvent -- Received command = " + ke);
-            if (ke != null && ke.getAction() == KeyEvent.ACTION_DOWN) {
-                switch (ke.getKeyCode()) {
-                    case KeyEvent.KEYCODE_MEDIA_PLAY:
-                        myLog("MediaSessionCompat.Callback - onMediaButtonEvent -- Play pressed --- KEYCODE_MEDIA_PLAY");
-                        playPauseAudio();
-                        break;
-                    case KeyEvent.KEYCODE_MEDIA_PAUSE:
-                        myLog("MediaSessionCompat.Callback - onMediaButtonEvent -- Pause pressed --- KEYCODE_MEDIA_PAUSE");
-                        playPauseAudio();
-                        break;
-                    case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
-                        myLog("MediaSessionCompat.Callback - onMediaButtonEvent -- PlayPause pressed --- KEYCODE_MEDIA_PLAY_PAUSE");
-                        playPauseAudio();
-                        break;
-                    case KeyEvent.KEYCODE_HEADSETHOOK:
-                        myLog("MediaSessionCompat.Callback - onMediaButtonEvent -- PlayPause pressed --- KEYCODE_HEADSETHOOK");
-                        playPauseAudio();
-                        break;
-                    case KeyEvent.KEYCODE_MEDIA_NEXT:
-                        myLog("MediaSessionCompat.Callback - onMediaButtonEvent -- Next pressed --- KEYCODE_MEDIA_NEXT");
-                        forwardAudio();
-                        break;
-                    case KeyEvent.KEYCODE_MEDIA_PREVIOUS:
-                        myLog("MediaSessionCompat.Callback - onMediaButtonEvent -- Previous pressed --- KEYCODE_MEDIA_PREVIOUS");
-                        backwardAudio();
-                        break;
-
-                }
-            }
-            return super.onMediaButtonEvent(mediaButtonIntent);
-        }
-
-         */
     };
 
     private PlaybackStateCompat.Builder stateBuilder;
@@ -234,46 +198,19 @@ public class AudioService extends Service {
         myLog("onCreate()");
         super.onCreate();
         mediaPlayer = new CustomMediaPlayer();
-        mediaSession = new MediaSessionCompat(this, "MyTotoMediaSession");
+        //mediaSession = new MediaSessionCompat(this, "MyTotoMediaSession");
+        mediaSession = new MediaSession(this, "MyTotoMediaSession");
 
         myLog("configureMediaSession()");
 
         // Overridden methods in the MediaSession.Callback class.
         mediaSession.setCallback(callback);
-        mediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS); //useless ?
+        //mediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS); //useless ?
+        mediaSession.setFlags(MediaSession.FLAG_HANDLES_MEDIA_BUTTONS | MediaSession.FLAG_HANDLES_TRANSPORT_CONTROLS); //useless ?
         mediaSession.setActive(true); //useless ?
 
-        /*
-        handler = new Handler();
-        updateRunnable = new Runnable() {
-            @Override
-            public void run() {
-                //int progress = getPosition();
-                int progress = PlayList.getZikFile() == null ? 0 : (int) PlayList.getZikFile().getPosition();
-                int max = getDuration();
-                myLogD("updating notification in Runnable - " + progress + "/" + max);
-                //updatePlaybackState();
-                updateNotificationProgress(max, progress);
-                handler.postDelayed(this, 1000);
-            }
-        };
-        updateRunnable.run();
-
-         */
 
         setMaxTimeBeforeSleep();
-
-        // Create a new PlaybackState.Builder => obligatoire, sinon il affiche les ic_play et il bug
-        /*
-        stateBuilder = new PlaybackStateCompat.Builder().setActions(
-                  PlaybackStateCompat.ACTION_PLAY
-                | PlaybackStateCompat.ACTION_PAUSE
-                | PlaybackStateCompat.ACTION_FAST_FORWARD
-                | PlaybackStateCompat.ACTION_REWIND
-        );
-        mediaSession.setPlaybackState(stateBuilder.build());
-
-         */
 
         mediaPlayer.setOnCompletionListener(mediaPlayer -> {
             if (!ErrorLoadingFile) {
@@ -296,7 +233,7 @@ public class AudioService extends Service {
                 }
             }
         });
-        createNotificationChannel(); //useless in mediaSession ?
+        //createNotificationChannel(); //useless in mediaSession ?
         createNotification();
 
         mediaPlayer.setOnErrorListener((mediaPlayer, i, i1) -> {
@@ -376,9 +313,21 @@ public class AudioService extends Service {
                 // Handle the fast forward action
                 forwardAudio();
                 break;
+            case KeyEvent.KEYCODE_HEADSETHOOK:
+                myLog("KEYCODE_HEADSETHOOK pressed");
+                playPauseAudio();
+                break;
+            case KeyEvent.KEYCODE_MEDIA_NEXT:
+                myLog("KEYCODE_MEDIA_NEXT pressed");
+                forwardAudio();
+                break;
+            case KeyEvent.KEYCODE_MEDIA_PREVIOUS:
+                myLog("KEYCODE_MEDIA_PREVIOUS pressed");
+                backwardAudio();
+                break;
             // Add other cases for additional key codes as needed
             default:
-                myLog("Unknown key code: " + keyCode);
+                myLogE("Unknown key code: " + keyCode);
                 break;
         }
     }
@@ -397,32 +346,11 @@ public class AudioService extends Service {
             }
         }
 /*
-        try {
-            myLogI(intent.getBundleExtra("KEY_EVENT").get("KeyCode").toString());
-        } catch (Exception e) {
-            myLog("yo");
-        }
-        if (Objects.equals(intent.getAction(), Intent.ACTION_MEDIA_BUTTON)) {
-            //KeyEvent ke = () intent.getParcelableExtra(Intent.EXTRA_KEY_EVENT, KeyEvent.class);
-            //if (ke != null && ke.getAction() == KeyEvent.ACTION_DOWN) {
-            if (intent.getExtras().keySet().contains(KeyEvent.KEYCODE_MEDIA_REWIND)) {
-                myLogI("KEYCODE_MEDIA_REWIND");
-            } else if (Objects.equals(intent.getIntExtra("KeyCode",0),KeyEvent.KEYCODE_MEDIA_FAST_FORWARD)) {
-                myLogI("KEYCODE_MEDIA_FAST_FORWARD");
-            } else if (Objects.equals(intent.getIntExtra("KeyCode",0),KeyEvent.KEYCODE_MEDIA_PLAY)
-            || Objects.equals(intent.getIntExtra("KeyCode",0),KeyEvent.KEYCODE_MEDIA_PAUSE)
-            || Objects.equals(intent.getIntExtra("KeyCode",0),KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE)) {
-                myLogI("KEYCODE_MEDIA_PLAY_PAUSE");
-                //playPauseAudio();
-            }
             Bundle bundle = intent.getExtras();
             Set<String> bundleKeySet = bundle.keySet(); // string key set
             for(String key : bundleKeySet){ // traverse and print pairs
                 myLogI(key + " : " + bundle.get(key));
             }
-            playPauseAudio();
-        };
-
  */
         return START_NOT_STICKY; //TODO maybe to change... because memory pressure could kill it
     }
@@ -926,19 +854,26 @@ public class AudioService extends Service {
             int progress = 50;
             int max = 100;
 
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
+            //NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
+            Notification.Builder builder = new Notification.Builder(this, CHANNEL_ID)
                     .setContentTitle(getCurrentZikFile().getFolderName())
                     .setContentText(getCurrentZikFile().getDisplayName())
                     //             .setProgress(100,50, true)
                     .setSmallIcon(R.drawable.ic_launcher)
-                    .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                    .setPriority(NotificationCompat.PRIORITY_HIGH)
+                    //.setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                    //.setPriority(NotificationCompat.PRIORITY_HIGH)
+                    .setVisibility(Notification.VISIBILITY_PUBLIC)
+                    .setPriority(Notification.PRIORITY_HIGH)
                     .setOnlyAlertOnce(true)
                     .setOngoing(true)
-                    .addAction(new NotificationCompat.Action(android.R.drawable.ic_media_rew, "backward", MediaButtonReceiver.buildMediaButtonPendingIntent(this, PlaybackStateCompat.ACTION_REWIND)))
-                    .addAction(new NotificationCompat.Action(actionIcon, actionName, playPauseAction))
-                    .addAction(new NotificationCompat.Action(android.R.drawable.ic_media_ff, "fastForward", MediaButtonReceiver.buildMediaButtonPendingIntent(this, PlaybackStateCompat.ACTION_FAST_FORWARD)))
-                    .setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
+                    //.addAction(new NotificationCompat.Action(android.R.drawable.ic_media_rew, "backward", MediaButtonReceiver.buildMediaButtonPendingIntent(this, PlaybackStateCompat.ACTION_REWIND)))
+                    //.addAction(new NotificationCompat.Action(actionIcon, actionName, playPauseAction))
+                    //.addAction(new NotificationCompat.Action(android.R.drawable.ic_media_ff, "fastForward", MediaButtonReceiver.buildMediaButtonPendingIntent(this, PlaybackStateCompat.ACTION_FAST_FORWARD)))
+                    .addAction(new Notification.Action(android.R.drawable.ic_media_rew, "backward", MediaButtonReceiver.buildMediaButtonPendingIntent(this, PlaybackStateCompat.ACTION_REWIND)))
+                    .addAction(new Notification.Action(actionIcon, actionName, playPauseAction))
+                    .addAction(new Notification.Action(android.R.drawable.ic_media_ff, "fastForward", MediaButtonReceiver.buildMediaButtonPendingIntent(this, PlaybackStateCompat.ACTION_FAST_FORWARD)))
+                    //.setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
+                    .setStyle(new Notification.MediaStyle()
                             .setMediaSession(mediaSession.getSessionToken())
                             .setShowActionsInCompactView(0,1,2))
                     .setProgress(max, progress, false)
