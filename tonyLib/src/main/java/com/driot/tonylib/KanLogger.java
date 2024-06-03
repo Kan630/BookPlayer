@@ -105,6 +105,20 @@ public class KanLogger {
         }
     }
 
+    public static void myLogI(String str) {
+        myLogI("",str);
+    }
+    public static void myLogI(String prefix, String str) {
+        prefix = prefix.replace(PREFIX_DELETE,"");
+        if (TextUtils.isEmpty(str)) {str = "...";}
+        if (isMyPhoneDev()) {
+            writeToLogFile(str);
+            Log.i("toto " + prefix, str);
+        } else {
+            if (LOG_THEM_ALL) Log.i(prefix, str);
+        }
+    }
+
     public static void myLogD(String str)  { myLogD("",str); }
     public static void myLogD(String prefix, String str) {
         prefix = prefix.replace(PREFIX_DELETE,"");

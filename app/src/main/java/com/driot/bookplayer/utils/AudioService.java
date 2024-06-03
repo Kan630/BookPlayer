@@ -1,6 +1,5 @@
 package com.driot.bookplayer.utils;
 
-import static android.media.MediaPlayer.SEEK_CLOSEST;
 import com.driot.bookplayer.R;
 
 import android.app.NotificationChannel;
@@ -10,12 +9,9 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.ActivityInfo;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.ToneGenerator;
-import android.media.session.MediaSession;
-import android.media.session.PlaybackState;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Build;
@@ -29,6 +25,7 @@ import android.view.KeyEvent;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.media.session.MediaButtonReceiver;
 
 import com.driot.bookplayer.db.AppDatabase;
@@ -50,22 +47,17 @@ import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
-import io.reactivex.rxjava3.core.Observable;
-import io.reactivex.rxjava3.schedulers.Schedulers;
-
 import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_BEEP_BOOKEND;
 import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_BEEP_CHAPTER;
 import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_FORWARD_SECONDS;
-import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_SCREEN_ORIENTATION_LOCK;
 import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_TIME_BEFORE_SLEEP;
 import static com.driot.bookplayer.activities.OptionActivity.SHARED_PREFERENCES_OPTIONS;
 import static com.driot.bookplayer.activities.PlayActivity.SHARED_PREFERENCE_SPEED;
+import static com.driot.bookplayer.utils.PermissionRequest.isPostNotificationPermissionGranted;
 import static com.driot.bookplayer.utils.Tonio.FormatPercentDouble;
 import static com.driot.bookplayer.utils.Tonio.FormatTime;
 import static com.driot.bookplayer.utils.Tonio.fileExists;
 import static com.driot.bookplayer.utils.Tonio.getExtension;
-import static com.driot.bookplayer.utils.Tonio.getFileNameFromPath;
 import static com.driot.bookplayer.utils.Utils.copyStream;
 
 /**
@@ -256,10 +248,16 @@ public class AudioService extends Service {
         updateRunnable = new Runnable() {
             @Override
             public void run() {
+                //int progress = getPosition();
+                int progress = PlayList.getZikFile() == null ? 0 : (int) PlayList.getZikFile().getPosition();
+                int max = getDuration();
+                myLogD("updating notification in Runnable - " + progress + "/" + max);
                 //updatePlaybackState();
+                updateNotificationProgress(max, progress);
                 handler.postDelayed(this, 1000);
             }
         };
+        updateRunnable.run();
 
          */
 
@@ -298,7 +296,7 @@ public class AudioService extends Service {
                 }
             }
         });
-        createNotificationChannel();
+        createNotificationChannel(); //useless in mediaSession ?
         createNotification();
 
         mediaPlayer.setOnErrorListener((mediaPlayer, i, i1) -> {
@@ -332,6 +330,7 @@ public class AudioService extends Service {
 
     private void alertNewTrack() {
         sendBroadcast(new Intent(NOTIFICATION_NEWTRACK).putExtra(TRACKNUMBER, PlayList.getNumZikFile()));
+        updatePlaybackState();
         myLog("sendBroadcast alertNewTrack ");
     }
 
@@ -350,13 +349,81 @@ public class AudioService extends Service {
         myLog("sendBroadcast alertPlaylistFinished");
     }
 
+    private void handleKeyEvent(int keyCode) {
+        switch (keyCode) {
+            case KeyEvent.KEYCODE_MEDIA_REWIND:
+                myLog("KEYCODE_MEDIA_REWIND pressed");
+                // Handle the rewind action
+                backwardAudio();
+                break;
+            case KeyEvent.KEYCODE_MEDIA_PLAY:
+                myLog("KEYCODE_MEDIA_PLAY pressed");
+                // Handle the play action
+                playPauseAudio();
+                break;
+            case KeyEvent.KEYCODE_MEDIA_PAUSE:
+                myLog("KEYCODE_MEDIA_PAUSE pressed");
+                // Handle the pause action
+                playPauseAudio();
+                break;
+            case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
+                myLog("KEYCODE_MEDIA_PLAY_PAUSE pressed");
+                // Handle the pause action
+                playPauseAudio();
+                break;
+            case KeyEvent.KEYCODE_MEDIA_FAST_FORWARD:
+                myLog("KEYCODE_MEDIA_FAST_FORWARD pressed");
+                // Handle the fast forward action
+                forwardAudio();
+                break;
+            // Add other cases for additional key codes as needed
+            default:
+                myLog("Unknown key code: " + keyCode);
+                break;
+        }
+    }
+
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         myLog("onStartCommand()" + intent.toString());
         if (Objects.equals(intent.getAction(), Intent.ACTION_MEDIA_BUTTON)) {
+            if (intent.hasExtra(Intent.EXTRA_KEY_EVENT)) {
+                KeyEvent keyEvent = intent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
+                if (keyEvent != null) {
+                    int keyCode = keyEvent.getKeyCode();
+                    handleKeyEvent(keyCode);
+                }
+            }
+        }
+/*
+        try {
+            myLogI(intent.getBundleExtra("KEY_EVENT").get("KeyCode").toString());
+        } catch (Exception e) {
+            myLog("yo");
+        }
+        if (Objects.equals(intent.getAction(), Intent.ACTION_MEDIA_BUTTON)) {
+            //KeyEvent ke = () intent.getParcelableExtra(Intent.EXTRA_KEY_EVENT, KeyEvent.class);
+            //if (ke != null && ke.getAction() == KeyEvent.ACTION_DOWN) {
+            if (intent.getExtras().keySet().contains(KeyEvent.KEYCODE_MEDIA_REWIND)) {
+                myLogI("KEYCODE_MEDIA_REWIND");
+            } else if (Objects.equals(intent.getIntExtra("KeyCode",0),KeyEvent.KEYCODE_MEDIA_FAST_FORWARD)) {
+                myLogI("KEYCODE_MEDIA_FAST_FORWARD");
+            } else if (Objects.equals(intent.getIntExtra("KeyCode",0),KeyEvent.KEYCODE_MEDIA_PLAY)
+            || Objects.equals(intent.getIntExtra("KeyCode",0),KeyEvent.KEYCODE_MEDIA_PAUSE)
+            || Objects.equals(intent.getIntExtra("KeyCode",0),KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE)) {
+                myLogI("KEYCODE_MEDIA_PLAY_PAUSE");
+                //playPauseAudio();
+            }
+            Bundle bundle = intent.getExtras();
+            Set<String> bundleKeySet = bundle.keySet(); // string key set
+            for(String key : bundleKeySet){ // traverse and print pairs
+                myLogI(key + " : " + bundle.get(key));
+            }
             playPauseAudio();
         };
+
+ */
         return START_NOT_STICKY; //TODO maybe to change... because memory pressure could kill it
     }
     @Override
@@ -499,8 +566,9 @@ public class AudioService extends Service {
                     }
                 };
 
-                myLog("playAudio() : audioManager.requestAudioFocus, mediaPlayer.start()");
-                audioManager.requestAudioFocus(afChangeListener, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
+                //myLog("playAudio() : audioManager.requestAudioFocus, mediaPlayer.start()");
+                //audioManager.requestAudioFocus(afChangeListener, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN); //looks useless now
+
                 mediaPlayer.start();
                 setSpeed(getSpeed());
                 startTimer();
@@ -544,6 +612,7 @@ public class AudioService extends Service {
         int lag = get_ForwardSeconds()*1000;
         if ((temp + lag ) <= getDuration()) {
             setPosition(temp + lag );
+            updatePlaybackState();
         }
     }
 
@@ -553,6 +622,7 @@ public class AudioService extends Service {
         int lag = get_ForwardSeconds()*1000;
         if ((temp - lag) > 0) {
             setPosition(temp - lag);
+            updatePlaybackState();
         }
     }
 
@@ -653,7 +723,7 @@ public class AudioService extends Service {
      ********************************************************************************
      */
 
-    private void startTimer() { // Auto Sleep Option
+    private void startTimer() {
         timer = new Timer();
         elapsedSeconds = 0;
         SharedPreferences prefs = this.getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE);
@@ -661,7 +731,8 @@ public class AudioService extends Service {
             public void run() {
                 myLogD("----------------------------------------------------------------------------- " + elapsedSeconds + "s. since timer started " );
                 updateZikFileState(false);
-                
+
+                // Auto Sleep Option
                 if (elapsedSeconds > maxTimeBeforeSleep*60) {
                     myLog( "Max Playback Time Reached -- Stopping Service");
                     killTimer();
@@ -682,6 +753,15 @@ public class AudioService extends Service {
                 }
 
                 elapsedSeconds = elapsedSeconds + DELAY_CHECK_TIMER/1000;
+
+                // Notification Update
+                int progress = PlayList.getZikFile() == null ? 0 : (int) PlayList.getZikFile().getPosition();
+                int max = getDuration();
+                myLogD("updating notification in Runnable - " + progress + "/" + max);
+                updatePlaybackState();
+                //updateNotificationProgress(max, progress); //seems useless in MediaSession => keep code for Download and other services
+
+
             }
         }, 0,DELAY_CHECK_TIMER);
     }
@@ -695,10 +775,11 @@ public class AudioService extends Service {
                 String str;
                 if (!(PlayList.getZikFilesList()==null)) {
                     str = getCurrentZikFile().getFolderName() + " : " + FormatTime(elapsedSeconds*1000);
+                    myLog("----------------------------------------------------------------------------- " + elapsedSeconds + "s. since timer started -- STOPPED -- " + str );
                 } else {
                     str = "killTimer : ERROR zikFilePlayList==null";
+                    myLogE("----------------------------------------------------------------------------- " + elapsedSeconds + "s. since timer started -- STOPPED -- " + str );
                 }
-                myLog("----------------------------------------------------------------------------- " + elapsedSeconds + "s. since timer started -- STOPPED -- " + str );
             } catch (Exception e) {
                 myLogE("killTimer, nothing to kill ?");
                 e.printStackTrace();
@@ -785,6 +866,7 @@ public class AudioService extends Service {
         myLog("updatePlaybackState()");
         //
         // PlaybackStateCompat.Builder
+        /*
         stateBuilder = new PlaybackStateCompat.Builder().setActions(
                 PlaybackStateCompat.ACTION_PLAY
                         | PlaybackStateCompat.ACTION_PAUSE
@@ -799,7 +881,25 @@ public class AudioService extends Service {
             stateBuilder.setState(PlaybackStateCompat.STATE_PAUSED, mediaPlayer.getCurrentPosition(), 1.0f);
         }
         mediaSession.setPlaybackState(stateBuilder.build());
+
+         */
         createNotification();
+    }
+    private void updateNotificationProgress(int maxProgress, int currentProgress) {
+        if (isPostNotificationPermissionGranted(this)){
+            try {
+                NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+                NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID);
+                builder.setProgress(maxProgress, currentProgress, false);
+                builder.setSmallIcon(R.drawable.ic_sound);
+                builder.setSilent(true);
+                notificationManager.notify(99, builder.build());
+            } catch (Exception e) {
+                myLogE("updateNotificationProgress - " + e.getMessage());
+            }
+        } else {
+            myLogE("PostNotification Permission NOT granted");
+        }
     }
     private void createNotification() {
         myLog("createNotification()");
@@ -808,15 +908,23 @@ public class AudioService extends Service {
             PendingIntent playPauseAction;
             String actionName;
             int actionIcon;
+
             if (mediaPlayer.isPlaying()) {
                 actionName = "Pause";
-                actionIcon = R.drawable.ic_pause;
+                actionIcon = android.R.drawable.ic_media_pause; //custom : R.drawable.ic_pause;
                 playPauseAction = MediaButtonReceiver.buildMediaButtonPendingIntent(this, PlaybackStateCompat.ACTION_PAUSE);
             } else {
                 actionName = "Play";
-                actionIcon = R.drawable.ic_play;
+                actionIcon = android.R.drawable.ic_media_play;
                 playPauseAction = MediaButtonReceiver.buildMediaButtonPendingIntent(this, PlaybackStateCompat.ACTION_PLAY);
             }
+
+            //int progress = getPosition();
+            //int progress = PlayList.getZikFile() == null ? 0 : (int) PlayList.getZikFile().getPosition();
+            //int max = getDuration();
+
+            int progress = 50;
+            int max = 100;
 
             NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
                     .setContentTitle(getCurrentZikFile().getFolderName())
@@ -827,10 +935,20 @@ public class AudioService extends Service {
                     .setPriority(NotificationCompat.PRIORITY_HIGH)
                     .setOnlyAlertOnce(true)
                     .setOngoing(true)
+                    .addAction(new NotificationCompat.Action(android.R.drawable.ic_media_rew, "backward", MediaButtonReceiver.buildMediaButtonPendingIntent(this, PlaybackStateCompat.ACTION_REWIND)))
                     .addAction(new NotificationCompat.Action(actionIcon, actionName, playPauseAction))
+                    .addAction(new NotificationCompat.Action(android.R.drawable.ic_media_ff, "fastForward", MediaButtonReceiver.buildMediaButtonPendingIntent(this, PlaybackStateCompat.ACTION_FAST_FORWARD)))
                     .setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
                             .setMediaSession(mediaSession.getSessionToken())
-                            .setShowActionsInCompactView(0));
+                            .setShowActionsInCompactView(0,1,2))
+                    .setProgress(max, progress, false)
+                    //.setOngoing(true) //only effective android >= 14, maybe useless on mediaSession
+                    //.setUsesChronometer(true)
+            ;
+
+            //val mediaMetadata = MediaMetadata.Builder().putLong(MediaMetadata.METADATA_KEY_DURATION, mp.duration.toLong()).build()
+            //mediaSession.setMetadata(MediaMetadataCompat.fromMediaMetadata(mediaMetadata))
+
             startForeground(1, builder.build());
         } catch (Exception e) {
             myLogE("createNotification() - " + e.getMessage());
@@ -840,7 +958,7 @@ public class AudioService extends Service {
     private void createNotificationChannel() {
         NotificationChannel channel = new NotificationChannel(
                 CHANNEL_ID, "Music Playback",
-                NotificationManager.IMPORTANCE_DEFAULT); //IMPORTANCE_LOW
+                NotificationManager.IMPORTANCE_LOW); //LOW = no sound
         channel.setDescription("Music Playback Controls");
         NotificationManager manager = getSystemService(NotificationManager.class);
         if (manager != null) {
@@ -858,6 +976,7 @@ public class AudioService extends Service {
     //--- LOG --------------------------
     private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
     private void myLogD(String str) { KanLogger.myLogD(this.getClass().getName(), str); }
+    private void myLogI(String str) { KanLogger.myLogI(this.getClass().getName(), str); }
     private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
 
 }

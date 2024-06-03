@@ -442,8 +442,8 @@ public class PermissionRequest {
                 || ContextCompat.checkSelfPermission(context, Manifest.permission.READ_MEDIA_AUDIO) == PackageManager.PERMISSION_GRANTED);
     }
 
-    public static boolean isForegroundServicePermissionGranted(Context context) {
-        return ContextCompat.checkSelfPermission(context, Manifest.permission.FOREGROUND_SERVICE) == PackageManager.PERMISSION_GRANTED;
+    public static boolean isPostNotificationPermissionGranted(Context context) {
+        return ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED;
     }
 
 

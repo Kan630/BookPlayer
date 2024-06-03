@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" /> <!-- indeed not set on sdk 33 -->
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
-    <uses-permission android:name="android.permission.WAKE_LOCK" /> <!-- what is that ?  not changeable through adb shell-->
+    <uses-permission android:name="android.permission.WAKE_LOCK" /> <!-- prevent battery saver ?  not changeable through adb shell-->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" /> <!--Notification on lock screen   - not changeable through adb shell -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />  <!-- Needed for Android >= 14 -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />  <!-- Needed for Android >= 13 -->
     <uses-permission android:name="android.permission.RECORD_AUDIO"/> <!--Visualizer-->
 
     <application
@@ -46,7 +46,7 @@
             android:name=".utils.AudioService"
             android:enabled="true"
             android:foregroundServiceType="mediaPlayback"
-            android:exported="true"
+            android:exported="false"
             android:stopWithTask="false">
             <intent-filter>
                 <action android:name="android.intent.action.MEDIA_BUTTON" />
