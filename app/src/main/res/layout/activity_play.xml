@@ -134,6 +134,9 @@
     <Button
         android:id="@+id/bSpeedDown"
         android:text="-"
+        android:textSize="30dp"
+        android:paddingVertical="0dp"
+        android:textAlignment="gravity"
         android:layout_width="@dimen/playactivity_Playback_Height"
         android:layout_height="@dimen/playactivity_Playback_Height"
         android:layout_toStartOf="@id/textViewSpeed"
@@ -156,6 +159,7 @@
     <Button
         android:id="@+id/bSpeedUp"
         android:text="+"
+        android:textSize="24dp"
         android:layout_width="@dimen/playactivity_Playback_Height"
         android:layout_height="@dimen/playactivity_Playback_Height"
         android:layout_toEndOf="@id/textViewSpeed"
