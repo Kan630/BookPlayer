@@ -33,12 +33,7 @@
             android:fontFamily="monospace"
             />
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginTop="10sp"
-            android:background="@android:color/darker_gray"
-            />
+        <View style="@style/myStyleViewSimpleHorizontalBar"/>
 
         <TextView
             android:id="@+id/tv2_head"
@@ -59,13 +54,51 @@
             android:layout_marginTop="20sp"
             />
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginTop="10sp"
-            android:background="@android:color/darker_gray"
+        <View style="@style/myStyleViewSimpleHorizontalBar"/>
+
+        <TextView
+            android:id="@+id/tv3_head"
+            style="@style/myStyleTextTitle2"
+            android:layout_marginTop="50sp"
+            android:layout_marginStart="15dp"
+            android:layout_marginEnd="15dp"
+            android:textStyle="bold"
             />
 
+        <TextView
+            android:id="@+id/tv3_body"
+            style="@style/myStyleTextExplainButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10sp"
+            android:layout_marginTop="20sp"
+            />
+
+        <View style="@style/myStyleViewSimpleHorizontalBar"/>
+
+        <Button
+            android:id="@+id/bt_01"
+            android:layout_marginTop="40sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:textAlignment="center"
+            android:textSize="16dp"
+            android:text="App Info"
+            android:layout_margin="10dp"
+            />
+
+        <Button
+            android:id="@+id/bt_02"
+            android:layout_marginTop="40sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:textAlignment="center"
+            android:textSize="16dp"
+            android:text="delete Logs"
+            android:layout_margin="10dp"
+            />
     </LinearLayout>
     </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>

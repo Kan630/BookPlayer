@@ -5,14 +5,28 @@ import static com.driot.bookplayer.utils.Tonio.getAppSize;
 import static com.driot.bookplayer.utils.Tonio.getAvailableInternalMemorySize;
 import static com.driot.bookplayer.utils.Tonio.getFolderSize;
 import static com.driot.bookplayer.utils.Tonio.getTotaLInternalMemorySize;
+import static com.driot.bookplayer.utils.Utils.recursiveRemove;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.res.Configuration;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
+import android.telephony.TelephonyManager;
+import android.widget.Button;
 import android.widget.TextView;
+
+import androidx.appcompat.app.AlertDialog;
 
 import com.driot.bookplayer.BuildConfig;
 import com.driot.bookplayer.R;
 import com.driot.tonylib.KanLogger;
+
+import java.io.File;
+import java.util.Locale;
+import java.util.TimeZone;
 
 public class StatsActivity extends LifecycleLoggingActivity {
 
@@ -55,15 +69,67 @@ public class StatsActivity extends LifecycleLoggingActivity {
                         + "---" + "\n" + "\n"
                         + "App version = " + BuildConfig.VERSION_CODE + "\n" + "\n"
                         + "App label = " + BuildConfig.VERSION_NAME
-                ;
+        ;
 
         tv_head = findViewById(R.id.tv2_head);
         tv_body = findViewById(R.id.tv2_body);
         tv_head.setText("Version");
         tv_body.setText(zeText);
 
+        zeText ="Region Locale = " + Locale.getDefault().getCountry() + "\n" + "\n"
+                + "Region TimeZone = " + TimeZone.getDefault().getID() + "\n" + "\n"
+                + "Region SimCard = " + getCountryFromTelephonyManager(this)
+                + "---" + "\n" + "\n"
+                + "Theme = " + getKindOfTheme()
+                ;
 
+        tv_head = findViewById(R.id.tv3_head);
+        tv_body = findViewById(R.id.tv3_body);
+        tv_head.setText("Miscellaneous");
+        tv_body.setText(zeText);
 
+        findViewById(R.id.bt_01).setOnClickListener(v -> openAppInfo());
+        findViewById(R.id.bt_02).setOnClickListener(v -> deleteLogsClick());
+    }
+
+    public void openAppInfo() {
+        try {
+            Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+            Uri uri = Uri.fromParts("package", getPackageName(), null);
+            intent.setData(uri);
+            startActivity(intent);
+        } catch (Exception e) {
+            myLogE("openAppSettingsOnPhone() => " + e.getMessage());
+        }
+    }
+    private static String getCountryFromTelephonyManager(Context context) {
+        TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+        String countryIso = telephonyManager.getNetworkCountryIso(); // returns the country code, e.g., "us"
+        return countryIso != null ? countryIso.toUpperCase() : null;
+    }
+
+    private String getKindOfTheme() {
+        int nightModeFlags = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES) {
+            return "Dark";
+        } else {
+            return "Light";
+        }
+    }
+
+    private void deleteLogsClick() {
+            new AlertDialog.Builder(this)
+                    .setTitle(getString(R.string.AskDelete_popupTitle))
+                    .setMessage(getString(R.string.DeleteLogs_AskConfirm))
+                    .setCancelable(false)
+                    .setPositiveButton("ok", (dialog, which) -> deleteLogs())
+                    .setNegativeButton("cancel", (dialogInterface, i) -> {})
+                    .show();
+    }
+    private void deleteLogs() {
+        File dir = new File(this.getFilesDir(), "log");
+        recursiveRemove(dir);
+        recreate();
     }
     //minSdkVersion
     public static String getVersionName(int sdkVersion) {
@@ -118,7 +184,7 @@ public class StatsActivity extends LifecycleLoggingActivity {
                 return "Nougat";
             case Build.VERSION_CODES.N_MR1:
                 return "Nougat MR1";
-            case Build.VERSION_CODES.O:
+            case Build.VERSION_CODES.O: //New minimum for BookPlayer as of 2024
                 return "Oreo";
             case Build.VERSION_CODES.O_MR1:
                 return "Oreo MR1";
@@ -141,4 +207,8 @@ public class StatsActivity extends LifecycleLoggingActivity {
         }
     }
 
+    //--- LOG --------------------------
+    private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
+    private void myLogD(String str) { KanLogger.myLogD(this.getClass().getName(), str); }
+    private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
 }

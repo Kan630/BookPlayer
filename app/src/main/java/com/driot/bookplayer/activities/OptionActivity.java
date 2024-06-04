@@ -4,13 +4,11 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.view.View;
@@ -31,10 +29,7 @@ import static com.driot.tonylib.KanMail.DEFAULT_SEND_MAIL_METHOD_DEFAULT;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.StyleRes;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-
-import java.util.ArrayList;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 20/12/20
@@ -62,6 +57,7 @@ public class OptionActivity extends LifecycleLoggingActivity {
     public static final boolean DEFAULT_BEEP_AUTOSTOP = true;
     public static final boolean DEFAULT_DELETE_SOURCE_FILE = false;
     public static final boolean DEFAULT_VISUALIZER_ON = false;
+    public static final boolean DEFAULT_REWIND_AFTER_PAUSE = true;
     public static final int DEFAULT_CUSTOM_THEME = R.style.Theme_BookPlayer;
 
     public static final int  theme_01 = R.style.Theme_BookPlayer_Gray;
@@ -85,6 +81,7 @@ public class OptionActivity extends LifecycleLoggingActivity {
     TextView tx_Visualizer_on;
     ImageButton btn_Color_01, btn_Color_02, btn_Color_03, btn_Color_04, btn_Color_05, btn_Color_06;
     Object[][] themesAndColors;
+    CheckBox chk_rewind_after_pause;
     private PermissionRequest mPermissionRequest;
 
 
@@ -120,6 +117,7 @@ public class OptionActivity extends LifecycleLoggingActivity {
         btn_Color_04 = findViewById(R.id.btn_color_04);
         btn_Color_05 = findViewById(R.id.btn_color_05);
         btn_Color_06 = findViewById(R.id.btn_color_06);
+        chk_rewind_after_pause = findViewById(R.id.chk_rewind_after_pause);
 
         int i = getTimeBeforeSleep();
         et_timeBeforeSleep.setText(String.valueOf(i));
@@ -165,6 +163,10 @@ public class OptionActivity extends LifecycleLoggingActivity {
                 requestPermissions();
             }
         });
+
+        chk_rewind_after_pause.setChecked(getRewindAfterPauseDefault());
+        chk_rewind_after_pause.setOnCheckedChangeListener((buttonView, isChecked) -> setRewindAfterPauseDefault(isChecked));
+
 
         themesAndColors = new Object[][] {
                 {btn_Color_01, theme_01, color_01},
@@ -285,18 +287,10 @@ public class OptionActivity extends LifecycleLoggingActivity {
                 .setTitle("Permission Required")
                 .setMessage(getString(R.string.permission_record_audio_rationale) + "\n\n" + getString(R.string.permission_record_audio_rationale_after_denied))
                 .setPositiveButton("Retry", (dialog, which) -> {
-                    //requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO}, 3438994);//REQUEST_CODE // Request permissions again
-                    //requestPermissions();//REQUEST_CODE // Request permissions again
-                    //askAgainForPermission();
                     openAppSettingsOnPhone();
                 })
                 .setNegativeButton("Cancel", null)
                 .show();
-    }
-    private void askAgainForPermission() {
-    //    requestPermissions(this, new String[] { Manifest.permission.RECORD_AUDIO }, 123654);
-        //
-        //ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO}, 3438994);
     }
     private void openAppSettingsOnPhone() {
         myLog("openAppSettingsOnPhone()");
@@ -367,6 +361,10 @@ public class OptionActivity extends LifecycleLoggingActivity {
     /////////////////// VISUALIZER option ///////////////////
     private void setVisualizerOnDefault(boolean bool) {editorOptions.putBoolean("VISUALIZER_ON",bool).apply();}
     private Boolean getVisualizerOnDefault() {return prefsOptions.getBoolean("VISUALIZER_ON", DEFAULT_VISUALIZER_ON);}
+
+    /////////////////// REWIND AFTER PAUSE option ///////////////////
+    private void setRewindAfterPauseDefault(boolean bool) {editorOptions.putBoolean("REWIND_AFTER_PAUSE",bool).apply();}
+    private Boolean getRewindAfterPauseDefault() {return prefsOptions.getBoolean("REWIND_AFTER_PAUSE", DEFAULT_REWIND_AFTER_PAUSE);}
 
 
 

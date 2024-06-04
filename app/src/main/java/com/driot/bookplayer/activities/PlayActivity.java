@@ -8,9 +8,11 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.provider.Settings;
 import android.view.View;
 import android.widget.Button;
 import android.widget.SeekBar;
@@ -285,6 +287,13 @@ public class PlayActivity extends LifecycleLoggingActivity {
 
     private void launchService() {
         intentMusicService = new Intent(PlayActivity.this, AudioService.class);
+        //TODO when flip screen the second time, service is destroyed....
+/*
+        if (isServiceRunning(AudioService.class)) {
+            myLog("Starting Service");
+            startService(intentMusicService);
+        }
+ */
         startService(intentMusicService);
         audioServiceBound = false;
         try {
@@ -293,8 +302,19 @@ public class PlayActivity extends LifecycleLoggingActivity {
             myLogE("ERROR bindService");
             myLogE(e.getMessage());
         }
-        myLog("call start & bind to AudioService in onCreate() - bound result :" + audioServiceBound + "");
+            myLog("call start & bind to AudioService in onCreate() - bound result :" + audioServiceBound + "");
     }
+/*
+    private boolean isServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+ */
 
     private void playMe() {
         myLog("PlayMe()");
@@ -391,13 +411,13 @@ public class PlayActivity extends LifecycleLoggingActivity {
     @Override
     protected void onDestroy() {
         myLog("onDestroy - unregister Broadcast Receiver");
-//should let the system continue playing, even if activity is destroyed, by let's say, phone os battery saver routine
+//should let the system continue playing, even if activity is destroyed, by let's say, phone os battery saver routine -- also flip screen...
         if (audioServiceBound) {
             try {
                 unbindService(audioServiceConnection);
                 unregisterReceiver(broadCastReceiver);
             } catch (Exception e) {
-                myLogE("onBackPressed() - " + e.getMessage());
+                myLogE("onDestroy() - " + e.getMessage());
             }
         }
 
@@ -592,7 +612,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
         ShowMessageOverlay();
         TextView tv = findViewById(R.id.textViewOverlayedMessage);
         TextView tv2 = findViewById(R.id.textViewOverlayedMessageDetails);
-        //Button b1 = findViewById(R.id.btOverlayedPermission01);
+        Button b1 = findViewById(R.id.btOverlayed01);
         tv.setText("The source file could not be found or read.\n"); // in case bug later
         try {
             //b1.setVisibility(View.INVISIBLE);
@@ -606,15 +626,28 @@ public class PlayActivity extends LifecycleLoggingActivity {
                 tv2.setText(pathText);
             } else {
                 tv.setText("The permission is not set.");
-                tv2.setText("Click on the add book button on the main page to reset.\n\nPermission is needed because the source file to read is not in Bookplayer internal memory.\n\n" + pathText);
-                //b1.setVisibility(View.VISIBLE);
-                //b1.setOnClickListener(v -> askForReadAudioPermission(););
+                tv2.setText("To set, click on the below button to display App info, then go to \'App Permissions\' section and manually set \'MUSIC AND AUDIO\'.\n\nPermission is needed because the source file to read is not in Bookplayer internal memory.\n\n" + pathText);
+                b1.setVisibility(View.VISIBLE);
+                b1.setText("Device Settings for Bookplayer ");
+                b1.setOnClickListener(v -> openAppSettingsOnPhone());
             }
         } catch (Exception e) {
             myLogE("lockButtonAndDisplayErrorMessage - " + e.getMessage());
         }
         unbindService(audioServiceConnection);
         killTimerForDisplay();
+    }
+
+    private void openAppSettingsOnPhone() {
+        myLog("openAppSettingsOnPhone()");
+        try {
+            Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+            Uri uri = Uri.fromParts("package", getPackageName(), null);
+            intent.setData(uri);
+            startActivity(intent);
+        } catch (Exception e) {
+            myLogE("openAppSettingsOnPhone() => " + e.getMessage());
+        }
     }
 
 

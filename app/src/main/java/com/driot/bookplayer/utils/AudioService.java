@@ -48,6 +48,8 @@ import java.util.TimerTask;
 import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_BEEP_BOOKEND;
 import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_BEEP_CHAPTER;
 import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_FORWARD_SECONDS;
+import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_REWIND_AFTER_PAUSE;
+import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_SCREEN_ORIENTATION_LOCK;
 import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_TIME_BEFORE_SLEEP;
 import static com.driot.bookplayer.activities.OptionActivity.SHARED_PREFERENCES_OPTIONS;
 import static com.driot.bookplayer.activities.PlayActivity.SHARED_PREFERENCE_SPEED;
@@ -73,6 +75,9 @@ public class AudioService extends Service {
     private int elapsedSeconds = 0;
     public static final int DELAY_MAXPLAYBACK = 1000*60*60; //1h
     public static final int DELAY_CHECK_TIMER = 1000*5;
+
+    public static final int REWIND_AFTER_PAUSE_MILLISECONDS = 3000;
+    public static final int REWIND_AFTER_PAUSE_IF_DIFF_IN_MIN = 2;
 
     private static final boolean LOG_TRACE_ALL = false;
 
@@ -370,7 +375,6 @@ public class AudioService extends Service {
         }
     }
 
-
     /********************************************************************************
      ***       LOADING FILES
      ********************************************************************************
@@ -478,6 +482,22 @@ public class AudioService extends Service {
                 //myLog("playAudio() : audioManager.requestAudioFocus, mediaPlayer.start()");
                 //audioManager.requestAudioFocus(afChangeListener, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN); //looks useless now
 
+                // Rewind After Pause
+                if (getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE).getBoolean("REWIND_AFTER_PAUSE", DEFAULT_REWIND_AFTER_PAUSE)) {
+                    if (PlayList.getZikFile() != null) {
+                        Time lastAccessTime = PlayList.getZikFile().getLastaccessTime();
+                        if (lastAccessTime != null) {
+                            Time nowTime = new Time(System.currentTimeMillis());
+                            long timeDiff = nowTime.getTime() - lastAccessTime.getTime();
+                            if (timeDiff > REWIND_AFTER_PAUSE_IF_DIFF_IN_MIN*60*1000) {
+                                myLog("Rewind after Pause - last play was " + timeDiff/1000/60 + " minutes ago.   - Threshold is " + REWIND_AFTER_PAUSE_IF_DIFF_IN_MIN + " min.   - Rewind Value is " + REWIND_AFTER_PAUSE_MILLISECONDS/1000 + " seconds.");
+                                backwardAudio(REWIND_AFTER_PAUSE_MILLISECONDS);
+                            } else {
+                                myLog("NO Rewind after Pause - last play was " + timeDiff/1000/60 + " minutes ago.   - Threshold is " + REWIND_AFTER_PAUSE_IF_DIFF_IN_MIN + " min.   - Rewind Value is " + REWIND_AFTER_PAUSE_MILLISECONDS/1000 + " seconds.");
+                            }
+                        }
+                    }
+                }
                 mediaPlayer.start();
                 setSpeed(getSpeed());
                 startTimer();
@@ -516,9 +536,11 @@ public class AudioService extends Service {
     }
 
     public void forwardAudio() {
+        forwardAudio(get_ForwardSeconds()*1000);
+    }
+    public void forwardAudio(int lag) {
         myLog("forwardAudio()");
         int temp = getPosition();
-        int lag = get_ForwardSeconds()*1000;
         if ((temp + lag ) <= getDuration()) {
             setPosition(temp + lag );
             createNotification();
@@ -526,9 +548,11 @@ public class AudioService extends Service {
     }
 
     public void backwardAudio() {
+        backwardAudio(get_ForwardSeconds()*1000);
+    }
+    public void backwardAudio(int lag) {
         myLog("backwardAudio()");
         int temp = getPosition();
-        int lag = get_ForwardSeconds()*1000;
         if ((temp - lag) > 0) {
             setPosition(temp - lag);
             createNotification();
@@ -639,7 +663,7 @@ public class AudioService extends Service {
                 // Notification Update
                 int progress = PlayList.getZikFile() == null ? 0 : (int) PlayList.getZikFile().getPosition();
                 int max = getDuration();
-                myLogD("updating notification in Runnable - " + progress + "/" + max);
+                myLogD("updating notification in Runnable - " + progress + "/" + max + " ---- Position : " + PlayList.getZikFile().getPosition());
                 createNotification();
                 //updateNotificationProgress(max, progress); //seems useless in MediaSession => keep code for Download and other services
 
