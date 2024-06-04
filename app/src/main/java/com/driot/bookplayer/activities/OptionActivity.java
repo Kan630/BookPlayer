@@ -67,7 +67,7 @@ public class OptionActivity extends LifecycleLoggingActivity {
     public static final int  theme_05 = R.style.Theme_BookPlayer_Blue;
     public static final int  theme_06 = R.style.Theme_BookPlayer_Orange;
 
-    private int color_01, color_02, color_03, color_04, color_05, color_06;
+    private int color_01, color_02, color_03, color_04, color_05, color_06; //look useless, the Object array could get rid of it....
 
 
     EditText et_timeBeforeSleep;
@@ -119,17 +119,8 @@ public class OptionActivity extends LifecycleLoggingActivity {
         btn_Color_06 = findViewById(R.id.btn_color_06);
         chk_rewind_after_pause = findViewById(R.id.chk_rewind_after_pause);
 
-        int i = getTimeBeforeSleep();
-        et_timeBeforeSleep.setText(String.valueOf(i));
-        et_timeBeforeSleep.setOnFocusChangeListener((view, b) -> {
-            if (!b) saveTimeBeforeSleep();
-        });
-
-        int intForwardSec = get_ForwardSeconds();
-        et_ForwardSeconds.setText(String.valueOf(intForwardSec));
-        et_ForwardSeconds.setOnFocusChangeListener((view, b) -> {
-            if (!b) saveForwardSeconds();
-        });
+        et_timeBeforeSleep.setText(String.valueOf(getTimeBeforeSleep()));
+        et_ForwardSeconds.setText(String.valueOf(get_ForwardSeconds()));
 
         chk_copyZip.setChecked(getCopyZipLocal());
         chk_copyZip.setOnCheckedChangeListener((buttonView, isChecked) -> setCopyZipLocal(isChecked));
@@ -179,8 +170,7 @@ public class OptionActivity extends LifecycleLoggingActivity {
         for (int color_iterator = 0; color_iterator < themesAndColors.length; color_iterator++) {
             ImageButton button = (ImageButton) themesAndColors[color_iterator][0];
             int themeId = (int) themesAndColors[color_iterator][1];
-            int mainColor;
-            mainColor = getPrimaryColorFromTheme(this, themeId);
+            int mainColor = getPrimaryColorFromTheme(this, themeId);
             button.setBackgroundColor(mainColor);
             button.setOnClickListener(v -> changeBaseTheme(themeId));
         }
@@ -236,6 +226,8 @@ public class OptionActivity extends LifecycleLoggingActivity {
 
     @Override
     protected void onDestroy() {
+        saveForwardSeconds();
+        saveTimeBeforeSleep();
         super.onDestroy();
     }
 

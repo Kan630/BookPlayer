@@ -2,8 +2,8 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/scrollView"
-    >
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/scrollView">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -30,13 +30,14 @@
                     android:textSize="24sp" />
                 <EditText
                     android:id="@+id/etTimeBeforeSleep"
-                    style="@style/myStyleTextExplainButton"
                     android:layout_width="70sp"
                     android:layout_height="wrap_content"
                     android:inputType="number"
                     android:paddingStart="4sp"
                     android:paddingEnd="4sp"
                     android:textAlignment="textEnd"
+                    android:background="@drawable/rounded_corner_theme"
+                    android:textColor="?colorOnSecondary"
                     android:textSize="24sp" />
                 <TextView
                     style="@style/myStyleTextExplainButton"
@@ -109,13 +110,14 @@
                     android:textSize="24sp" />
                 <EditText
                     android:id="@+id/etForwardSeconds"
-                    style="@style/myStyleTextExplainButton"
                     android:layout_width="70sp"
                     android:layout_height="wrap_content"
                     android:inputType="number"
                     android:paddingStart="4sp"
                     android:paddingEnd="4sp"
                     android:textAlignment="textEnd"
+                    android:background="@drawable/rounded_corner_theme"
+                    android:textColor="?colorOnSecondary"
                     android:textSize="24sp" />
                 <TextView
                     style="@style/myStyleTextExplainButton"
