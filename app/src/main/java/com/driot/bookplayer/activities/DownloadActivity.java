@@ -1,8 +1,9 @@
 package com.driot.bookplayer.activities;
 
-/** 2024-05-29
- * 
- */
+/******  Antoine Driot
+ * 2024-05-29
+ *
+ **/
 
 import static com.driot.bookplayer.global.Var.FOLDER_DOWNLOAD;
 
@@ -31,19 +32,25 @@ public class DownloadActivity extends AppCompatActivity {
     private ProgressBar progressBar;
     private TextView tv_belowProgressBar;
 
-    private BroadcastReceiver downloadReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver downloadReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-        String action = intent.getAction();
-        if (DownloadService.ACTION_PROGRESS.equals(action)) {
-            int progress = intent.getIntExtra(DownloadService.EXTRA_PROGRESS_VALUE, 0);
-            String txt_progress = intent.getStringExtra(DownloadService.EXTRA_PROGRESS_TEXT);
-            progressBar.setProgress(progress);
-            tv_belowProgressBar.setText(txt_progress);
-        } else if (DownloadService.ACTION_COMPLETE.equals(action)) {
-            myLog("BroadcastReceiver ACTION_COMPLETE");
-            endThisActivity(intent.getStringExtra(DownloadService.EXTRA_URL));
-        }
+            String action = intent.getAction();
+            if (DownloadService.ACTION_PROGRESS.equals(action)) {
+                int progress = intent.getIntExtra(DownloadService.EXTRA_PROGRESS_VALUE, 0);
+                String txt_progress = intent.getStringExtra(DownloadService.EXTRA_PROGRESS_TEXT);
+                progressBar.setProgress(progress);
+                tv_belowProgressBar.setText(txt_progress);
+            } else if (DownloadService.ACTION_COMPLETE.equals(action)) {
+                myLog("BroadcastReceiver ACTION_COMPLETE");
+                endThisActivity(intent.getStringExtra(DownloadService.EXTRA_URL));
+            } else if (DownloadService.ACTION_ERROR.equals(action)) {
+                myLog("BroadcastReceiver ACTION_ERROR");
+                tv_belowProgressBar.setText(intent.getStringExtra(DownloadService.EXTRA_ERROR_STRING));
+                tv_belowProgressBar.setTextColor(getResources().getColor(R.color.lightred));
+            } else {
+                myLogE("BroadcastReceiver - unknown received broadcast");
+            }
         }
     };
 
@@ -68,10 +75,9 @@ public class DownloadActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.download_progressBar);
         tv_belowProgressBar = findViewById(R.id.tv_textBelowProgressBar);
 
-        LocalBroadcastManager.getInstance(this).registerReceiver(downloadReceiver,
-                new IntentFilter(DownloadService.ACTION_PROGRESS));
-        LocalBroadcastManager.getInstance(this).registerReceiver(downloadReceiver,
-                new IntentFilter(DownloadService.ACTION_COMPLETE));
+        LocalBroadcastManager.getInstance(this).registerReceiver(downloadReceiver, new IntentFilter(DownloadService.ACTION_PROGRESS));
+        LocalBroadcastManager.getInstance(this).registerReceiver(downloadReceiver, new IntentFilter(DownloadService.ACTION_COMPLETE));
+        LocalBroadcastManager.getInstance(this).registerReceiver(downloadReceiver, new IntentFilter(DownloadService.ACTION_ERROR));
 
         // Start the download service
         Intent intent = new Intent(this, DownloadService.class);

@@ -2,6 +2,7 @@ package com.driot.bookplayer.utils;
 
 import static com.driot.bookplayer.utils.Tonio.formatMem;
 import static com.driot.bookplayer.utils.Tonio.getFileNameFromPath;
+import static com.driot.tonylib.KanLogger.myToast;
 
 import android.app.IntentService;
 import android.content.Intent;
@@ -19,6 +20,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.InetAddress;
 import java.net.URL;
 
 public class DownloadService extends IntentService {
@@ -29,12 +31,35 @@ public class DownloadService extends IntentService {
     public static final String EXTRA_PROGRESS_VALUE = "progress_value";
     public static final String EXTRA_PROGRESS_TEXT = "progress_text";
     public static final String ACTION_COMPLETE = "download_complete";
+    public static final String ACTION_ERROR = "download_error";
+    public static final String EXTRA_ERROR_STRING = "EXTRA_ERROR_STRING";
     public DownloadService() {
         super("DownloadService");
     }
     public static boolean isBusy;
 
+    private String err_txt;
+
     private int lopperForLog;
+
+    public boolean isInternetAvailable() {
+        try {
+            InetAddress ipAddr = InetAddress.getByName("www.google.com");
+            //You can replace it with your name
+            myLog("isInternetAvailable() - ipAdress=[" + ipAddr + "]");
+            err_txt = "Internet DNS resolution failed";
+            return !ipAddr.toString().equals("");
+
+        } catch (SecurityException e) {
+            myLogE("isInternetAvailable() - [" + e.getClass() + "] - [" +  e.getMessage() + "]");
+            err_txt = "No internet Permission";
+            return false;
+        } catch (Exception e) {
+            myLogE("isInternetAvailable() - [" + e.getClass() + "] - [" +  e.getMessage() + "]");
+            err_txt = "Not connected to Internet";
+            return false;
+        }
+    }
 
     @Override
     protected void onHandleIntent(Intent intent) {
@@ -52,6 +77,13 @@ public class DownloadService extends IntentService {
         HttpURLConnection connection = null;
         String destinationFileName = getFileNameFromPath(fileUrl);
         lopperForLog=0;
+        
+        if (!isInternetAvailable()) {
+            LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(ACTION_ERROR).putExtra(EXTRA_ERROR_STRING, err_txt));
+            myLogE(err_txt);
+            isBusy = false;
+            return;
+        }
 
         try {
             URL url = new URL(fileUrl);
@@ -91,8 +123,10 @@ public class DownloadService extends IntentService {
             sendDownloadComplete(destFullPath);
             myLog("File downloaded: [" + destinationFileName + "] into [" + destinationFolder + "]");
         } catch (Exception e) {
-            myLogE("Error downloading file [" + destinationFileName + "]" + e.getMessage());
-            e.printStackTrace();
+            err_txt = "Bookplayer Test Server not available";
+            myLogE("Error downloading file [" + destinationFileName + "]   => " + e.getMessage());
+            myLogE(err_txt);
+            LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(ACTION_ERROR).putExtra(EXTRA_ERROR_STRING, err_txt));
         } finally {
             try {
                 if (output != null) {
@@ -108,6 +142,7 @@ public class DownloadService extends IntentService {
                 connection.disconnect();
             }
             isBusy = false;
+            myLog("downloadFile, Finally.... => isBusy = false");
         }
     }
 
@@ -146,9 +181,7 @@ public class DownloadService extends IntentService {
         myLog("sendDownloadComplete()");
 
         // update download activity (if displayed.. aka not close by user)
-        Intent intentUpdateDownloadActivity = new Intent(ACTION_COMPLETE);
-        intentUpdateDownloadActivity.putExtra(EXTRA_URL, destFullPath);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intentUpdateDownloadActivity);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(ACTION_COMPLETE).putExtra(EXTRA_URL, destFullPath));
 
         // start integration
         Uri uri = null;
@@ -158,7 +191,7 @@ public class DownloadService extends IntentService {
             myLogE("cannot build Uri for [" + destFullPath + "] - " + e.getMessage());
             e.printStackTrace();
         }
-        if (!(uri == null)) {
+        if (uri != null) {
             try {
                 // TODO : If screen is black or user have BookPlayer only in background, the integration will run only when focus back on Bookplayer... it should launch the service directly and not the activity
                 //boolean isDestroyed = AddResourceActivity.getLifecycleObserver().isActivityDestroyed();  un truc du style, mais je viens d'y passer 30min, j'y arrive pas
@@ -166,7 +199,6 @@ public class DownloadService extends IntentService {
                 intentRunIntegration.putExtra("Uri", uri);
                 intentRunIntegration.putExtra("type", "ZIP");
                 intentRunIntegration.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                AddResourceActivity ara = new AddResourceActivity();
                 startActivity(intentRunIntegration);
             } catch (Exception e) {
                 myLogE("cannot start Integration (AddResourceActivity) " + e.getMessage());

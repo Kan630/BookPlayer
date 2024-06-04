@@ -8,6 +8,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />  <!-- Needed for Android >= 14 -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />  <!-- Needed for Android >= 13 -->
     <uses-permission android:name="android.permission.RECORD_AUDIO"/> <!--Visualizer-->
+    <uses-permission android:name="android.permission.INTERNET"/> <!-- to test internet access -->
 
     <application
         android:allowBackup="true"
