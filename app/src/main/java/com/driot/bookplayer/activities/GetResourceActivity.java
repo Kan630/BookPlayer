@@ -414,7 +414,7 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
                         @Override
                         public void onPermissionsDenied() {
                             myLog("Denied");
-                            //showPermissionDeniedDialog(); //ask user again... //not working yet...
+                            showPermissionDeniedDialog(); //ask user again... //not working yet...
                         }
                     })
                     .submit();

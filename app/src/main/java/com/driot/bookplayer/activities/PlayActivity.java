@@ -597,7 +597,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
         try {
             //b1.setVisibility(View.INVISIBLE);
             String zePath = PlayList.getZikFile().getPath();
-            String pathText = "Path of source file = [" + zePath + "]";
+            String pathText = "Path of source file = \n[" + zePath + "]";
             if (zePath.contains(PATH_CHECK_APPLICATION)) {
                 tv.setText("The source file could not be found or read.\n");
                 myLog("Source file is inside app memory");

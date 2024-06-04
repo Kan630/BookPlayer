@@ -2,11 +2,17 @@ package com.driot.bookplayer.activities;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
@@ -25,6 +31,7 @@ import static com.driot.tonylib.KanMail.DEFAULT_SEND_MAIL_METHOD_DEFAULT;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.StyleRes;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import java.util.ArrayList;
@@ -88,6 +95,12 @@ public class OptionActivity extends LifecycleLoggingActivity {
 
         prefsOptions = this.getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE);
         editorOptions = this.getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE).edit();
+/*
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            this.revokeSelfPermissionOnKill(Manifest.permission.POST_NOTIFICATIONS);
+        }
+
+ */
 
         et_timeBeforeSleep = findViewById(R.id.etTimeBeforeSleep);
         et_ForwardSeconds = findViewById(R.id.etForwardSeconds);
@@ -101,7 +114,6 @@ public class OptionActivity extends LifecycleLoggingActivity {
         chk_delete_source_file = findViewById(R.id.chk_delete_source_file);
         chk_visualizer_on = findViewById(R.id.chk_visualizer_on);
         tx_Visualizer_on = findViewById(R.id.tx_Visualizer_on);
-        setVisualizerPermissionText();
         btn_Color_01 = findViewById(R.id.btn_color_01);
         btn_Color_02 = findViewById(R.id.btn_color_02);
         btn_Color_03 = findViewById(R.id.btn_color_03);
@@ -148,7 +160,10 @@ public class OptionActivity extends LifecycleLoggingActivity {
         chk_visualizer_on.setChecked(getVisualizerOnDefault());
         chk_visualizer_on.setOnCheckedChangeListener((buttonView, isChecked) -> {
             setVisualizerOnDefault(isChecked);
-            if (isChecked && !isRecordAudioPermissionGranted(this)) {requestPermissions();}
+            if (isChecked && !isRecordAudioPermissionGranted(this)) {
+                myLog("checkBox ticked and permission not granted => requesting");
+                requestPermissions();
+            }
         });
 
         themesAndColors = new Object[][] {
@@ -168,12 +183,7 @@ public class OptionActivity extends LifecycleLoggingActivity {
             button.setOnClickListener(v -> changeBaseTheme(themeId));
         }
 
-        if (isRecordAudioPermissionGranted(this)) {
-            tx_Visualizer_on.setText(getString(R.string.option_visualizer_text));
-        } else {
-            String txt = getString(R.string.option_visualizer_text) + "\n" + getString(R.string.option_visualizer_no_permissions);
-            tx_Visualizer_on.setText(txt);
-        }
+        setVisualizerPermissionText();
 
         // TODO : allows options
         chk_UnZip.setEnabled(false);
@@ -228,10 +238,27 @@ public class OptionActivity extends LifecycleLoggingActivity {
     }
 
     // PERMISSIONS REMOVAL
-    // adb shell pm revoke com.driot.bookplayer android.permissions.RECORD_AUDIO
-    // C:\Users\adrio\AppData\Local\Android\Sdk\platform-tools\
+    // adb shell pm revoke com.driot.bookplayer android.permission.RECORD_AUDIO
+    // cd C:\Users\adrio\AppData\Local\Android\Sdk\platform-tools\
     // Developer Options => Security settings of USB debugging... = OFF
+
+    //adb shell dumpsys package com.driot.bookplayer
+    //adb -s P7LFRGOFKVKRLNPF shell dumpsys package com.driot.bookplayer
+
+    //adb devices
+
+    // tablet
+    //R9JT308QFNA
+
+    // old Oppo
+    //P7LFRGOFKVKRLNPF
+
+    // Xiaomi Redmi
+    //36085d331d5c
+
+
     private void requestPermissions() {
+
         mPermissionRequest = PermissionRequest
                 .with(this)
                 .permissions(Manifest.permission.RECORD_AUDIO) //Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -239,7 +266,48 @@ public class OptionActivity extends LifecycleLoggingActivity {
                 //.granted(R.string.permission_read_write_granted)  // Tonio no need to display message if granted OK
                 .denied(R.string.permission_record_audio_denied)
                 .snackbar((ViewGroup) findViewById(android.R.id.content))
+                .callback(new PermissionRequest.Callback() {
+                    @Override
+                    public void onPermissionsGranted() {
+                        myLog("Granted");
+                    }
+
+                    @Override
+                    public void onPermissionsDenied() {
+                        myLog("Denied");
+                        showPermissionDeniedDialog(); //ask user again... //not working yet...
+                    }
+                })
                 .submit();
+    }
+    private void showPermissionDeniedDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle("Permission Required")
+                .setMessage(getString(R.string.permission_record_audio_rationale) + "\n\n" + getString(R.string.permission_record_audio_rationale_after_denied))
+                .setPositiveButton("Retry", (dialog, which) -> {
+                    //requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO}, 3438994);//REQUEST_CODE // Request permissions again
+                    //requestPermissions();//REQUEST_CODE // Request permissions again
+                    //askAgainForPermission();
+                    openAppSettingsOnPhone();
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+    private void askAgainForPermission() {
+    //    requestPermissions(this, new String[] { Manifest.permission.RECORD_AUDIO }, 123654);
+        //
+        //ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO}, 3438994);
+    }
+    private void openAppSettingsOnPhone() {
+        myLog("openAppSettingsOnPhone()");
+        try {
+            Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+            Uri uri = Uri.fromParts("package", getPackageName(), null);
+            intent.setData(uri);
+            startActivity(intent);
+        } catch (Exception e) {
+            myLogE("openAppSettingsOnPhone() => " + e.getMessage());
+        }
     }
 
     @Override
@@ -346,6 +414,12 @@ public class OptionActivity extends LifecycleLoggingActivity {
         final ScrollView scrollView = findViewById(R.id.scrollView);
         final int scrollPosition = savedInstanceState.getInt("scroll_position");
         scrollView.post(() -> scrollView.scrollTo(0, scrollPosition));
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        setVisualizerPermissionText();
     }
 
     //--- LOG --------------------------

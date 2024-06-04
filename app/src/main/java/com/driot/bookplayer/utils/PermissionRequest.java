@@ -1,13 +1,16 @@
 package com.driot.bookplayer.utils;
 //import static com.driot.tonylib.KanLogger.myLog;
 
+
 import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 
 import com.driot.tonylib.KanLogger;
@@ -19,6 +22,7 @@ import androidx.annotation.StringRes;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,7 +36,7 @@ import com.driot.bookplayer.R;
 /**
  * Support methods used to implement the API permission code model.
  */
-@TargetApi(Build.VERSION_CODES.M)
+
 public class PermissionRequest {
     /**
      * Logging tag.
@@ -180,6 +184,7 @@ public class PermissionRequest {
                 mCallback.onPermissionsGranted();
             }
         } else {
+
             // Show denied message.
             showMessage(mDeniedId);
             if (mCallback != null) {
@@ -445,6 +450,7 @@ public class PermissionRequest {
     public static boolean isPostNotificationPermissionGranted(Context context) {
         return ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED;
     }
+
 
 
 

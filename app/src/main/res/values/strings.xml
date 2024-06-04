@@ -76,7 +76,7 @@
     <string name="option_beep_at_the_end">Produce a triple beep at the book end.</string>
 
     <string name="option_visualizer_title">Spectrum Visualizer</string>
-    <string name="option_visualizer_text">minimalist frequency visualizer displayed when audio is playing. (will ask for "record_audio" permission)</string>
+    <string name="option_visualizer_text">minimalist frequency visualizer displayed when audio is playing. (needs permission -record_audio or microphone-)</string>
     <string name="option_visualizer_no_permissions">-- permission not granted --</string>
 
     <!-- ********************************** -->

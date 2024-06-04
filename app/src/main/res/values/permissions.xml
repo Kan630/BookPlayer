@@ -15,6 +15,7 @@
     <string name="permission_record_audio_rationale">To display the spectrum visualizer, this app requires your permission to record audio.</string>
     <string name="permission_record_audio_granted">record audio permission has been granted.</string>
     <string name="permission_record_audio_denied">Spectrum visualizer will not be displayed. Permission to record audio has been denied.</string>
+    <string name="permission_record_audio_rationale_after_denied">BookPlayer can not ask again for an already denied permission.\nYou can bypass by clicking -Retry-.\nThat will open the application settings on the device.\n\nThen go in "Permissions" section and manually allow "Microphone".</string>
 
     <string name="permissions_denied_sorry_cannot">Permissions are not granted, cannot play audio.</string>
 

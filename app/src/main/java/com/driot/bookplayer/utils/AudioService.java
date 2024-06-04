@@ -213,7 +213,7 @@ public class AudioService extends Service {
                 }
             }
         });
-        //createNotificationChannel(); //useless in mediaSession ?
+        createNotificationChannel(); // for Android 14+ ( if not crash = CannotPostForegroundServiceNotificationException)
         createNotification();
 
         mediaPlayer.setOnErrorListener((mediaPlayer, i, i1) -> {
@@ -823,13 +823,18 @@ public class AudioService extends Service {
         }
     }
     private void createNotificationChannel() {
-        NotificationChannel channel = new NotificationChannel(
-                CHANNEL_ID, "Music Playback",
-                NotificationManager.IMPORTANCE_LOW); //LOW = no sound
-        channel.setDescription("Bookplayer Music Playback Controls");
-        NotificationManager manager = getSystemService(NotificationManager.class);
-        if (manager != null) {
-            manager.createNotificationChannel(channel);
+        myLog("createNotificationChannel()");
+        try {
+            NotificationChannel channel = new NotificationChannel(
+                    CHANNEL_ID, "Music Playback",
+                    NotificationManager.IMPORTANCE_LOW); //LOW = no sound
+            channel.setDescription("Bookplayer Music Playback Controls");
+            NotificationManager manager = getSystemService(NotificationManager.class);
+            if (manager != null) {
+                manager.createNotificationChannel(channel);
+            }
+        } catch (Exception e) {
+            myLogE("createNotificationChannel() - " + e.getMessage());
         }
     }
     private void removeNotification() {
