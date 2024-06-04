@@ -46,10 +46,9 @@ public class CacheFilesActivity extends LifecycleLoggingActivity implements Cach
 
         setContentView(R.layout.activity_cache_files);
 
-
+        cacheFilesViewModel = new ViewModelProvider(this).get(CacheFilesViewModel.class);
 
 // get the data in DB (async) -- LiveData stored in ViewModel
-        cacheFilesViewModel = new ViewModelProvider(this).get(CacheFilesViewModel.class);
         final Observer<List<ZikFile>> myObserverOnDB = distinctZikFilePaths -> {
             myLog("LiveData 'onChange()' observed - count of distinct path in DB = " + distinctZikFilePaths.size());
             cacheFilesAdapter.setDistinctZikFilePaths(distinctZikFilePaths);
@@ -94,6 +93,7 @@ public class CacheFilesActivity extends LifecycleLoggingActivity implements Cach
                 .setNegativeButton("cancel", (dialogInterface, i) -> {
                 })
                 .show();
+        cacheFilesAdapter.notifyDataSetChanged();
         }
 
     //--- LOG --------------------------

@@ -19,6 +19,7 @@ import com.driot.bookplayer.utils.FileSorter;
 import com.driot.tonylib.KanLogger;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
@@ -27,7 +28,7 @@ import java.util.List;
 
 public class CacheFilesViewModel extends AndroidViewModel {
     private LiveData<List<ZikFile>> filesFromDb;
-    private MutableLiveData<List<File>> filesFromDisk;
+    private MutableLiveData<List<File>> filesFromDisk = new MutableLiveData<>();
     private final ZikFileDao zikFileDao;
     private final FolderDao folderDao;
     private CacheFilesRepository cacheFilesRepository; // manage deletions
@@ -38,6 +39,7 @@ public class CacheFilesViewModel extends AndroidViewModel {
         AppDatabase db = AppDatabase.getDatabase(application);
         zikFileDao = db.ZikFileDao();
         folderDao = db.FolderDao();
+        loadFilesFromDisk();
         myLog("CacheFilesViewModel instantiated");
     }
 
@@ -48,32 +50,38 @@ public class CacheFilesViewModel extends AndroidViewModel {
     }
 
     public MutableLiveData<List<File>> getFilesOnDisk() {
+        return filesFromDisk;
+    }
+    private void loadFilesFromDisk() {
         myLog("LiveData<List<ZikFile>> getFilesOnDisk()");
         String cachePath = getApplication().getFilesDir().getPath() + "/unzipped";
         File cacheDir = new File(cachePath);
-        if (!(cacheDir.listFiles() == null)) {
-            List<File> files = Arrays.asList(cacheDir.listFiles());
-            files.sort(new Comparator<File>() {
-                @Override
-                public int compare(File file1, File file2) {
-                    return Long.compare(getCustomLength(file1), getCustomLength(file2));
-                }
-            });
-            Collections.reverse(files);
-            filesFromDisk = new MutableLiveData<List<File>>(files);
-            return filesFromDisk;
+        if (cacheDir.exists() && cacheDir.isDirectory()) {
+            if (!(cacheDir.listFiles() == null)) {
+                List<File> files = Arrays.asList(cacheDir.listFiles());
+                files.sort(new Comparator<File>() {
+                    @Override
+                    public int compare(File file1, File file2) {
+                        return Long.compare(getCustomLength(file1), getCustomLength(file2));
+                    }
+                });
+                Collections.reverse(files);
+                filesFromDisk.setValue(files); // = new MutableLiveData<List<File>>(files);
+            } else {
+                filesFromDisk.setValue(new ArrayList<>()); // Set an empty list if no files found
+            }
         } else {
+            filesFromDisk.setValue(new ArrayList<>());
             myLogE("no files found on Disk in " + cacheDir.getPath());
-            return null;
         }
     }
 
     public void deleteAudio(File file) {
         myLog("deleting file : [" + file.getPath() + "]");
         if (deleteBookFromDisk(file.getPath())) {
-            getFilesOnDisk();
             //filesFromDisk.notify(); => java.lang.IllegalMonitorStateException: object not locked by thread before notify()
             myLog("File deleted from Disk, launching DB deletion...");
+            loadFilesFromDisk();
             int idFolder = getBookFolderId(file);
             if (idFolder > 0) {
                 deleteBookFromDB(idFolder);
@@ -87,7 +95,7 @@ public class CacheFilesViewModel extends AndroidViewModel {
     }
     private int getBookFolderId(File file) {
         int idFolder = 0;
-        if (!(filesFromDb == null)) {
+        if (filesFromDb != null) {
             for (ZikFile f : filesFromDb.getValue()) {
                 if (file.getPath().equals(f.getPath())) {
                     idFolder = f.getIdFolder();
