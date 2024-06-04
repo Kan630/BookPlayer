@@ -6,7 +6,6 @@ import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -18,8 +17,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.utils.AddResourceService;
@@ -33,8 +30,6 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_CUSTOM_THEME;
-import static com.driot.bookplayer.activities.OptionActivity.SHARED_PREFERENCES_OPTIONS;
 import static com.driot.bookplayer.global.Var.AUTOTEST_FILE_01;
 import static com.driot.bookplayer.global.Var.AUTOTEST_FILE_02;
 import static com.driot.bookplayer.global.Var.AUTOTEST_FILE_03;
@@ -297,30 +292,6 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
                 myLog("return from Download_Activity : ResultCode=" + resultCode);
                 if (resultCode == RESULT_OK) {
                     myLog("return from Download_Activity : Result Code OK");
-                    /*
-                    ArrayList<String> aa = data.getStringArrayListExtra("data");
-                    String downloadedFilePath;
-                    try {
-                        downloadedFilePath = aa.get(0).toString();
-                    } catch (Exception e) {
-                        myLogE("bad extra data returned - " + e.getMessage());
-                        myLogE("bad extra data returned : [" + aa.toString() + "] - " + e.getMessage());
-                        break;
-                    }
-                    Uri uri;
-                    try {
-                        uri = Uri.fromFile(new File(downloadedFilePath));
-                    } catch (Exception e) {
-                        myLogE("cannot build Uri for [" + aa.toString() + "] - " + e.getMessage());
-                        break;
-                    }
-                    myLog("AutoTest - picked data : [" + uri.getPath() + "] - now launching AddResourceActivity...");
-                    Intent intent = new Intent(getApplicationContext(), AddResourceActivity.class);
-                    intent.putExtra("Uri", uri);
-                    intent.putExtra("type", "ZIP");
-                    startActivityForResult(intent, ADD_RESOURCE_REQUEST_CODE);
-
-                     */
                 } else {
                     myLogE("return from Download_Activity : Result NOT ok");
                 }

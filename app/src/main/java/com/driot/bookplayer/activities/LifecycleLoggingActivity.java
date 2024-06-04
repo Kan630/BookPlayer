@@ -17,20 +17,16 @@ package com.driot.bookplayer.activities;
  *
  */
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 
-import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_CUSTOM_THEME;
-import static com.driot.bookplayer.activities.OptionActivity.SHARED_PREFERENCES_OPTIONS;
 import static com.driot.bookplayer.global.Var.LOG_LIFECYCLE_TRACE;
 import static com.driot.tonylib.KanLogger.myLog;
 
+import com.driot.bookplayer.global.Option;
 import com.driot.tonylib.KanLogger;
 
 
@@ -38,8 +34,7 @@ import com.driot.tonylib.KanLogger;
  * This abstract class extends the Activity class and overrides
  * lifecycle callbacks for logging various lifecycle events.
  */
-public abstract class LifecycleLoggingActivity 
-       extends AppCompatActivity { //Activity
+public abstract class LifecycleLoggingActivity extends AppCompatActivity {
 
     private static final String LOG_TAG = "LifecycleLoggingActivity"; //this.getClass().getName()
     protected final String TAG = getClass().getSimpleName();
@@ -59,7 +54,7 @@ public abstract class LifecycleLoggingActivity
         // Always call super class for necessary
         // initialization/implementation.
         super.onCreate(savedInstanceState);
-        setTheme(getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE).getInt("CUSTOM_THEME", DEFAULT_CUSTOM_THEME));
+        setTheme(Option.getTheme(this));
 
         if (savedInstanceState != null) {
             // The activity is being re-created. Use the

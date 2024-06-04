@@ -21,6 +21,7 @@ import android.widget.Toast;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.DatabaseClient;
+import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.PlayList;
 import com.driot.bookplayer.utils.AudioService;
 import com.driot.bookplayer.utils.FrequencyVisualizerView;
@@ -36,12 +37,6 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
-import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_BEEP_BOOKEND;
-import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_CUSTOM_THEME;
-import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_SCREEN_ORIENTATION_LOCK;
-import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_TIME_BEFORE_SLEEP;
-import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_VISUALIZER_ON;
-import static com.driot.bookplayer.activities.OptionActivity.SHARED_PREFERENCES_OPTIONS;
 import static com.driot.bookplayer.global.Var.PATH_CHECK_APPLICATION;
 import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_AUDIOFOCUS_GAIN;
 import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_AUDIOFOCUS_LOST;
@@ -186,11 +181,9 @@ public class PlayActivity extends LifecycleLoggingActivity {
         super.onCreate(savedInstanceState);
 
         // Screen Orientation Locking
-        if (getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE).getBoolean("LOCK_SCREEN_ORIENTATION", DEFAULT_SCREEN_ORIENTATION_LOCK)) {
+        if (Option.getScreenOrientationLock(this)) {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
         }
-
-        setTheme(getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE).getInt("CUSTOM_THEME", DEFAULT_CUSTOM_THEME));
 
         setContentView(R.layout.activity_play);
 
@@ -509,8 +502,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
     private void reDrawListeningSince(int tempsEcoule) { // le call vient d'1 timer dans le service...
         String zeText_since;
         String zeText_left;
-        SharedPreferences prefs = this.getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE);
-        int time_before_sleep = prefs.getInt("TIME_BEFORE_SLEEP", DEFAULT_TIME_BEFORE_SLEEP);
+        int time_before_sleep = Option.getTimeBeforeSleep(this);
         if (tempsEcoule > 0) {
             zeText_since = getString(R.string.tv_ListeningTime) + " " + FormatTime(tempsEcoule*1000,true);
             zeText_left = getString(R.string.tv_TimeLeft) + " : " + FormatTime(time_before_sleep*1000*60-tempsEcoule*1000,true);
@@ -588,8 +580,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
     }
 
     private void runVisualizer() { // check option + permission
-        SharedPreferences prefs = this.getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE);
-        if (prefs.getBoolean("VISUALIZER_ON", DEFAULT_VISUALIZER_ON)) {
+        if (Option.getVisualizerOn(this)) {
             if (isRecordAudioPermissionGranted(this)) {
                 try {
                     //frequencyVisualizerView.setEnabled(false);

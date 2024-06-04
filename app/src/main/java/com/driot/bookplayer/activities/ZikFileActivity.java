@@ -1,13 +1,9 @@
 package com.driot.bookplayer.activities;
 
-import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_CUSTOM_THEME;
-import static com.driot.bookplayer.activities.OptionActivity.SHARED_PREFERENCES_OPTIONS;
-
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.widget.TextView;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 

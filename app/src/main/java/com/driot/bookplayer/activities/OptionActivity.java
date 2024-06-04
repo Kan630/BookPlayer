@@ -20,9 +20,12 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.utils.PermissionRequest;
 import com.driot.tonylib.KanLogger;
 
+import static com.driot.bookplayer.global.Option.DEFAULT_FORWARD_SECONDS;
+import static com.driot.bookplayer.global.Option.DEFAULT_TIME_BEFORE_SLEEP;
 import static com.driot.bookplayer.utils.PermissionRequest.isRecordAudioPermissionGranted;
 import static com.driot.tonylib.KanLogger.myLongToast;
 import static com.driot.tonylib.KanMail.DEFAULT_SEND_MAIL_METHOD_DEFAULT;
@@ -36,29 +39,12 @@ import androidx.core.content.ContextCompat;
  */
 public class OptionActivity extends LifecycleLoggingActivity {
 
-    public SharedPreferences prefsOptions;
-    public SharedPreferences.Editor editorOptions;
-
-    public static final String SHARED_PREFERENCES_OPTIONS = "SHARED_PREFERENCES_OPTIONS"; // shared prefs xml file
-
-    public static final int DEFAULT_FORWARD_SECONDS = 5;
     public static final int MINIMUM_FORWARD_SECONDS = 1;
     public static final int MAXIMUM_FORWARD_SECONDS = 300;
 
-    public static final int DEFAULT_TIME_BEFORE_SLEEP = 120;
     public static final int MINIMUM_TIME_BEFORE_SLEEP = 1;
     public static final int MAXIMUM_TIME_BEFORE_SLEEP = 60*24;
 
-    public static final boolean DEFAULT_UNZIP_LOCAL  = true;
-    public static final boolean DEFAULT_COPY_ZIP_LOCAL  = true;
-    public static final boolean DEFAULT_SCREEN_ORIENTATION_LOCK  = true;
-    public static final boolean DEFAULT_BEEP_CHAPTER = true;
-    public static final boolean DEFAULT_BEEP_BOOKEND = true;
-    public static final boolean DEFAULT_BEEP_AUTOSTOP = true;
-    public static final boolean DEFAULT_DELETE_SOURCE_FILE = false;
-    public static final boolean DEFAULT_VISUALIZER_ON = false;
-    public static final boolean DEFAULT_REWIND_AFTER_PAUSE = true;
-    public static final int DEFAULT_CUSTOM_THEME = R.style.Theme_BookPlayer;
 
     public static final int  theme_01 = R.style.Theme_BookPlayer_Gray;
     public static final int  theme_02 = R.style.Theme_BookPlayer_Purple;
@@ -90,8 +76,6 @@ public class OptionActivity extends LifecycleLoggingActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_options); //trigers AutofillManager notifyValueChanged  ignoring on state UNKNOWN  (pollute log in Android 12)
 
-        prefsOptions = this.getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE);
-        editorOptions = this.getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE).edit();
 /*
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             this.revokeSelfPermissionOnKill(Manifest.permission.POST_NOTIFICATIONS);
@@ -119,44 +103,44 @@ public class OptionActivity extends LifecycleLoggingActivity {
         btn_Color_06 = findViewById(R.id.btn_color_06);
         chk_rewind_after_pause = findViewById(R.id.chk_rewind_after_pause);
 
-        et_timeBeforeSleep.setText(String.valueOf(getTimeBeforeSleep()));
-        et_ForwardSeconds.setText(String.valueOf(get_ForwardSeconds()));
+        et_timeBeforeSleep.setText(String.valueOf(Option.getTimeBeforeSleep(this)));
+        et_ForwardSeconds.setText(String.valueOf(Option.get_ForwardSeconds(this)));
 
-        chk_copyZip.setChecked(getCopyZipLocal());
-        chk_copyZip.setOnCheckedChangeListener((buttonView, isChecked) -> setCopyZipLocal(isChecked));
+        chk_copyZip.setChecked(Option.getCopyZipLocal(this));
+        chk_copyZip.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setCopyZipLocal(this, isChecked));
 
-        chk_UnZip.setChecked(getUnZipLocal());
-        chk_UnZip.setOnCheckedChangeListener((buttonView, isChecked) -> setUnZipLocal(isChecked));
+        chk_UnZip.setChecked(Option.getUnZipLocal(this));
+        chk_UnZip.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setUnZipLocal(this, isChecked));
 
-        chk_ScreenLock.setChecked(getScreenOrientationLock());
-        chk_ScreenLock.setOnCheckedChangeListener((buttonView, isChecked) -> setScreenOrientationLock(isChecked));
+        chk_ScreenLock.setChecked(Option.getScreenOrientationLock(this));
+        chk_ScreenLock.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setScreenOrientationLock(this, isChecked));
 
-        chk_MailMethod.setChecked(getMailMethodDefault());
-        chk_MailMethod.setOnCheckedChangeListener((buttonView, isChecked) -> setMailMethodDefault(isChecked));
+        chk_MailMethod.setChecked(Option.getMailMethod(this));
+        chk_MailMethod.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setMailMethod(this, isChecked));
 
-        chk_beep_chapter.setChecked(getBeepChapterDefault());
-        chk_beep_chapter.setOnCheckedChangeListener((buttonView, isChecked) -> setBeepChapterDefault(isChecked));
+        chk_beep_chapter.setChecked(Option.getBeepChapter(this));
+        chk_beep_chapter.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setBeepChapter(this, isChecked));
 
-        chk_beep_bookend.setChecked(getBeepBookEndDefault());
-        chk_beep_bookend.setOnCheckedChangeListener((buttonView, isChecked) -> setBeepBookEndDefault(isChecked));
+        chk_beep_bookend.setChecked(Option.getBeepBookEnd(this));
+        chk_beep_bookend.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setBeepBookEnd(this, isChecked));
 
-        chk_beep_autostop.setChecked(getBeepAutoStopDefault());
-        chk_beep_autostop.setOnCheckedChangeListener((buttonView, isChecked) -> setBeepAutoStopDefault(isChecked));
+        chk_beep_autostop.setChecked(Option.getBeepAutoStop(this));
+        chk_beep_autostop.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setBeepAutoStop(this, isChecked));
 
-        chk_delete_source_file.setChecked(getDeleteSourceFileDefault());
-        chk_delete_source_file.setOnCheckedChangeListener((buttonView, isChecked) -> setDeleteSourceFileDefault(isChecked));
+        chk_delete_source_file.setChecked(Option.getDeleteSourceFile(this));
+        chk_delete_source_file.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setDeleteSourceFile(this, isChecked));
 
-        chk_visualizer_on.setChecked(getVisualizerOnDefault());
+        chk_visualizer_on.setChecked(Option.getVisualizerOn(this));
         chk_visualizer_on.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            setVisualizerOnDefault(isChecked);
+            Option.setVisualizerOn(this, isChecked);
             if (isChecked && !isRecordAudioPermissionGranted(this)) {
                 myLog("checkBox ticked and permission not granted => requesting");
                 requestPermissions();
             }
         });
 
-        chk_rewind_after_pause.setChecked(getRewindAfterPauseDefault());
-        chk_rewind_after_pause.setOnCheckedChangeListener((buttonView, isChecked) -> setRewindAfterPauseDefault(isChecked));
+        chk_rewind_after_pause.setChecked(Option.getRewindAfterPause(this));
+        chk_rewind_after_pause.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setRewindAfterPause(this, isChecked));
 
 
         themesAndColors = new Object[][] {
@@ -210,7 +194,7 @@ public class OptionActivity extends LifecycleLoggingActivity {
             i = DEFAULT_TIME_BEFORE_SLEEP;
             myLongToast(getString(R.string.option_timeBeforeSleep_outOfBound));
         }
-        setTimeBeforeSleep(i);
+        Option.setTimeBeforeSleep(this, i);
     }
 
     private void saveForwardSeconds() {
@@ -221,7 +205,7 @@ public class OptionActivity extends LifecycleLoggingActivity {
             i = DEFAULT_FORWARD_SECONDS;
             myLongToast("out of bounds - must be between 1 and 300");
         }
-        set_ForwardSeconds(i);
+        Option.set_ForwardSeconds(this, i);
     }
 
     @Override
@@ -312,53 +296,6 @@ public class OptionActivity extends LifecycleLoggingActivity {
         setVisualizerPermissionText();
     }
 
-    /////////////////// SLEEP - AUTOMATIC PAUSE ///////////////////
-    private void setTimeBeforeSleep(int i) {editorOptions.putInt("TIME_BEFORE_SLEEP",i).apply();}
-    private int getTimeBeforeSleep() {return prefsOptions.getInt("TIME_BEFORE_SLEEP", DEFAULT_TIME_BEFORE_SLEEP);}
-
-    /////////////////// FORWARD-BACKWARD DURATION ///////////////////
-    private void set_ForwardSeconds(int i) {editorOptions.putInt("FORWARD_SECONDS",i).apply();}
-    private int get_ForwardSeconds() {return prefsOptions.getInt("FORWARD_SECONDS", DEFAULT_FORWARD_SECONDS);}
-
-    /////////////////// ZIP options ///////////////////
-    private void setUnZipLocal(boolean bool) {editorOptions.putBoolean("UNZIP_LOCAL",bool).apply();}
-    private void setCopyZipLocal(boolean bool) {editorOptions.putBoolean("COPY_ZIP_LOCAL",bool).apply();}
-    private boolean getUnZipLocal() {return prefsOptions.getBoolean("UNZIP_LOCAL", DEFAULT_UNZIP_LOCAL);}
-    private boolean getCopyZipLocal() {return prefsOptions.getBoolean("COPY_ZIP_LOCAL", DEFAULT_COPY_ZIP_LOCAL);}
-
-    /////////////////// SCREEN ORIENTATION options ///////////////////
-    private void setScreenOrientationLock(boolean bool) {editorOptions.putBoolean("LOCK_SCREEN_ORIENTATION",bool).apply();}
-    private boolean getScreenOrientationLock() {return prefsOptions.getBoolean("LOCK_SCREEN_ORIENTATION", DEFAULT_SCREEN_ORIENTATION_LOCK);}
-
-    /////////////////// SEND MAIL options ///////////////////
-    private void setMailMethodDefault(boolean bool) {
-        editorOptions.putBoolean("SEND_MAIL_METHOD_DEFAULT",bool).apply();
-        myLog("bool : " + String.valueOf(bool));
-        }
-    private Boolean getMailMethodDefault() {return prefsOptions.getBoolean("SEND_MAIL_METHOD_DEFAULT", DEFAULT_SEND_MAIL_METHOD_DEFAULT);}
-
-    /////////////////// BEEP options ///////////////////
-    private void setBeepChapterDefault(boolean bool) {editorOptions.putBoolean("BEEP_CHAPTER",bool).apply();}
-    private Boolean getBeepChapterDefault() {return prefsOptions.getBoolean("BEEP_CHAPTER", DEFAULT_BEEP_CHAPTER);}
-
-    private void setBeepBookEndDefault(boolean bool) {editorOptions.putBoolean("BEEP_BOOKEND",bool).apply();}
-    private Boolean getBeepBookEndDefault() {return prefsOptions.getBoolean("BEEP_BOOKEND", DEFAULT_BEEP_BOOKEND);}
-    private void setBeepAutoStopDefault(boolean bool) {editorOptions.putBoolean("BEEP_AUTOSTOP",bool).apply();}
-    private Boolean getBeepAutoStopDefault() {return prefsOptions.getBoolean("BEEP_AUTOSTOP", DEFAULT_BEEP_AUTOSTOP);}
-
-    /////////////////// DELETE SOURCE FILE option ///////////////////
-    private void setDeleteSourceFileDefault(boolean bool) {editorOptions.putBoolean("DELETE_SOURCE_FILE",bool).apply();}
-    private Boolean getDeleteSourceFileDefault() {return prefsOptions.getBoolean("DELETE_SOURCE_FILE", DEFAULT_DELETE_SOURCE_FILE);}
-
-    /////////////////// VISUALIZER option ///////////////////
-    private void setVisualizerOnDefault(boolean bool) {editorOptions.putBoolean("VISUALIZER_ON",bool).apply();}
-    private Boolean getVisualizerOnDefault() {return prefsOptions.getBoolean("VISUALIZER_ON", DEFAULT_VISUALIZER_ON);}
-
-    /////////////////// REWIND AFTER PAUSE option ///////////////////
-    private void setRewindAfterPauseDefault(boolean bool) {editorOptions.putBoolean("REWIND_AFTER_PAUSE",bool).apply();}
-    private Boolean getRewindAfterPauseDefault() {return prefsOptions.getBoolean("REWIND_AFTER_PAUSE", DEFAULT_REWIND_AFTER_PAUSE);}
-
-
 
 
     // ***********************************
@@ -371,21 +308,21 @@ public class OptionActivity extends LifecycleLoggingActivity {
 
         // Obtain the colorPrimary attribute
         TypedArray typedArray = theme.obtainStyledAttributes(new int[]{androidx.appcompat.R.attr.colorPrimary});
-        int primaryColor = typedArray.getColor(0, ContextCompat.getColor(context, android.R.color.black)); // Default to black if not found
+        int primaryColor = typedArray.getColor(0, ContextCompat.getColor(context, android.R.color.black)); // Option to black if not found
         typedArray.recycle(); // Always recycle the TypedArray
 
         return primaryColor;
     }
     private void changeBaseTheme(int new_base_theme) {
         myLog("new Base theme is [" + new_base_theme + "]" );
-        editorOptions.putInt("CUSTOM_THEME", new_base_theme).apply();
-        editorOptions.putBoolean("ACTIVITY_OPTION_HAS_RESULT", true).apply();
+        Option.setTheme(this, new_base_theme);
+        this.getSharedPreferences(Option.SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE).edit().putBoolean("ACTIVITY_OPTION_HAS_RESULT", true).apply(); //trick to reload MainActivity if color change
         recreate();
     }
 
     @Override
     public void finish() { //needed because of recreate()
-        if (prefsOptions.getBoolean("ACTIVITY_OPTION_HAS_RESULT", false)) {
+        if (this.getSharedPreferences(Option.SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE).getBoolean("ACTIVITY_OPTION_HAS_RESULT", false)) { //trick to reload MainActivity if color change
             setResult(Activity.RESULT_OK);
         }
         super.finish();

@@ -24,6 +24,7 @@ import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.FolderAttrib;
 import com.driot.bookplayer.db.ZikFile;
+import com.driot.bookplayer.global.Option;
 import com.driot.tonylib.KanLogger;
 
 import java.io.File;
@@ -38,10 +39,6 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
-import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_COPY_ZIP_LOCAL;
-import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_DELETE_SOURCE_FILE;
-import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_UNZIP_LOCAL;
-import static com.driot.bookplayer.activities.OptionActivity.SHARED_PREFERENCES_OPTIONS;
 import static com.driot.bookplayer.global.Var.FOLDER_UNZIPPED;
 import static com.driot.bookplayer.global.Var.PATH_CHECK_AUTOTEST;
 import static com.driot.bookplayer.utils.Tonio.formatNameForDisplay;
@@ -103,9 +100,6 @@ public class AddResourceService
     private String type_given;
     private String destinationFolderName;
     private String destinationFolderPath;
-
-    private boolean Zip_DoCopylocal;
-    private boolean Zip_DoUnzip;
 
     public static boolean isBusy;
 
@@ -720,8 +714,7 @@ public class AddResourceService
                                     if (nbFileSaved == nbFileToSave) {
                                         myLog("************All files have been processed.");
                                         updateFolderDuration();
-                                        SharedPreferences prefs = this.getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE);
-                                        if (prefs.getBoolean("DELETE_SOURCE_FILE", DEFAULT_DELETE_SOURCE_FILE) && type_given=="ZIP") {
+                                        if (Option.getDeleteSourceFile(this) && type_given=="ZIP") {
                                             deleteSourceFile();
                                         }
                                     }
@@ -827,14 +820,6 @@ public class AddResourceService
         myLog("killing Service");
         stopSelf();
     }
-
-
-    private void loadOptionValues() {
-        SharedPreferences prefs = this.getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE);
-        Zip_DoUnzip = prefs.getBoolean("UNZIP_LOCAL", DEFAULT_UNZIP_LOCAL);
-        Zip_DoCopylocal = prefs.getBoolean("COPY_ZIP_LOCAL", DEFAULT_COPY_ZIP_LOCAL);
-    }
-
 
 
     // from FileHelper... used to copy zip locally in Android 11+

@@ -1,7 +1,5 @@
 package com.driot.bookplayer.activities;
 
-import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_CUSTOM_THEME;
-import static com.driot.bookplayer.activities.OptionActivity.SHARED_PREFERENCES_OPTIONS;
 import static com.driot.tonylib.KanLogger.isMyPhoneDev;
 import static com.driot.tonylib.TonioCommonStuff.MD5;
 
@@ -10,7 +8,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 
-import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
@@ -22,7 +19,6 @@ import androidx.annotation.NonNull;
 //import androidx.credentials.CredentialManager;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
@@ -34,6 +30,7 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.FolderDao;
+import com.driot.bookplayer.global.Option;
 import com.driot.tonylib.KanLogger;
 import com.driot.tonylib.KanMail;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -51,7 +48,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
-public class MainActivity extends AppCompatActivity {//LifecycleLoggingActivity //ComponentActivity used for this activity to be a LifecycleOwner in Observer
+public class MainActivity extends LifecycleLoggingActivity {//AppCompatActivity //ComponentActivity used for this activity to be a LifecycleOwner in Observer
 
     private RecyclerView recyclerView;
     Toolbar toolbar;
@@ -82,7 +79,7 @@ public class MainActivity extends AppCompatActivity {//LifecycleLoggingActivity 
         KanLogger.myLog("------------------------------------------------------------------");
         KanLogger.myLog("----------------     Main Activity onCreate()     ----------------");
         KanLogger.myLog("------------------------------------------------------------------");
-        setTheme(getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE).getInt("CUSTOM_THEME", DEFAULT_CUSTOM_THEME));
+
         super.onCreate(savedInstanceState);
 
         printSomeStuffAboutDevice();
@@ -160,7 +157,7 @@ import android.view.View;
     @Override
     protected void onRestart() {
         super.onRestart();
-        KanLogger.setKanContext(getApplicationContext());
+        KanLogger.setKanContext(getApplicationContext()); //TODO this is shit
         getFolders();
         myLog("recyclerview drawing through setAdapter on restart");
     }
@@ -178,8 +175,7 @@ import android.view.View;
         int itemId = item.getItemId();
         if (itemId == R.id.action_menu_three_dot) {
         } else if (itemId == R.id.menu_options) {
-            SharedPreferences.Editor editorOptions = this.getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE).edit();
-            editorOptions.putBoolean("ACTIVITY_OPTION_HAS_RESULT", false).apply();
+            this.getSharedPreferences(Option.SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE).edit().putBoolean("ACTIVITY_OPTION_HAS_RESULT", false).apply(); //trick to reload MainActivity if color changed in OptionActivity, by allowing to set Result=OK only if color is changed
             startActivityForResult(new Intent(this, OptionActivity.class), REQUEST_CODE_OPTION);
         } else if (itemId == R.id.menu_manual) {
             startActivity(new Intent(getApplicationContext(), HelpActivity.class));

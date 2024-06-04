@@ -12,7 +12,6 @@ import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.ToneGenerator;
-import android.media.session.MediaSession;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Bundle;
@@ -24,11 +23,11 @@ import android.view.KeyEvent;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
-import androidx.core.app.NotificationManagerCompat;
 import androidx.media.session.MediaButtonReceiver;
 
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.ZikFileDao;
+import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.PlayList;
 import com.driot.bookplayer.db.Sql;
 import com.driot.bookplayer.db.ZikFile;
@@ -45,13 +44,6 @@ import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_BEEP_BOOKEND;
-import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_BEEP_CHAPTER;
-import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_FORWARD_SECONDS;
-import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_REWIND_AFTER_PAUSE;
-import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_SCREEN_ORIENTATION_LOCK;
-import static com.driot.bookplayer.activities.OptionActivity.DEFAULT_TIME_BEFORE_SLEEP;
-import static com.driot.bookplayer.activities.OptionActivity.SHARED_PREFERENCES_OPTIONS;
 import static com.driot.bookplayer.activities.PlayActivity.SHARED_PREFERENCE_SPEED;
 import static com.driot.bookplayer.utils.PermissionRequest.isPostNotificationPermissionGranted;
 import static com.driot.bookplayer.utils.Tonio.FormatPercentDouble;
@@ -73,7 +65,6 @@ public class AudioService extends Service {
     private static final String CHANNEL_ID = "audio_channel_of_toto";
     private Timer timer;
     private int elapsedSeconds = 0;
-    public static final int DELAY_MAXPLAYBACK = 1000*60*60; //1h
     public static final int DELAY_CHECK_TIMER = 1000*5;
 
     public static final int REWIND_AFTER_PAUSE_MILLISECONDS = 3000;
@@ -176,8 +167,8 @@ public class AudioService extends Service {
     DecimalFormat myDF = new DecimalFormat("#,###.");
 
     /********************************************************************************
-     ***       NATIVE METHODS
-     ********************************************************************************
+     *       NATIVE METHODS
+     *
      *  Because service always runs in the same process as clients, no need IPC.
      *
      */
@@ -195,8 +186,6 @@ public class AudioService extends Service {
         mediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS); //useless ?
         mediaSession.setActive(true); //useless ?
 
-        setMaxTimeBeforeSleep();
-
         mediaPlayer.setOnCompletionListener(mediaPlayer -> {
             if (!ErrorLoadingFile) {
                 updateZikFileState(true);
@@ -206,7 +195,7 @@ public class AudioService extends Service {
                     myLog("mediaPlayer.OnCompletionListener  => calling PlayListFinish");
 
                     // 3 bips
-                    if (getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE).getBoolean("BEEP_BOOKEND", DEFAULT_BEEP_BOOKEND)) {
+                    if (Option.getBeepBookEnd(this)) {
                         new ToneGenerator(AudioManager.STREAM_MUSIC, 100).startTone(ToneGenerator.TONE_CDMA_PIP, 500);
                     }
 
@@ -238,7 +227,7 @@ public class AudioService extends Service {
         myLog("loading next track : n°" + curNum + "/" + PlayList.getZikFilesList().size() );
 
         // petit bip
-        if (getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE).getBoolean("BEEP_CHAPTER", DEFAULT_BEEP_CHAPTER)) {
+        if (Option.getBeepChapter(this)) {
             new ToneGenerator(AudioManager.STREAM_MUSIC, 100).startTone(ToneGenerator.TONE_CDMA_PIP, 150);
         }
 
@@ -483,7 +472,7 @@ public class AudioService extends Service {
                 //audioManager.requestAudioFocus(afChangeListener, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN); //looks useless now
 
                 // Rewind After Pause
-                if (getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE).getBoolean("REWIND_AFTER_PAUSE", DEFAULT_REWIND_AFTER_PAUSE)) {
+                if (Option.getRewindAfterPause(this)) {
                     if (PlayList.getZikFile() != null) {
                         Time lastAccessTime = PlayList.getZikFile().getLastaccessTime();
                         if (lastAccessTime != null) {
@@ -529,14 +518,8 @@ public class AudioService extends Service {
             playAudio();
         }
     }
-
-    private int get_ForwardSeconds() {
-        SharedPreferences prefs = this.getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE);
-        return prefs.getInt("FORWARD_SECONDS", DEFAULT_FORWARD_SECONDS);
-    }
-
     public void forwardAudio() {
-        forwardAudio(get_ForwardSeconds()*1000);
+        forwardAudio(Option.get_ForwardSeconds(this)*1000);
     }
     public void forwardAudio(int lag) {
         myLog("forwardAudio()");
@@ -546,9 +529,8 @@ public class AudioService extends Service {
             createNotification();
         }
     }
-
     public void backwardAudio() {
-        backwardAudio(get_ForwardSeconds()*1000);
+        backwardAudio(Option.get_ForwardSeconds(this)*1000);
     }
     public void backwardAudio(int lag) {
         myLog("backwardAudio()");
@@ -630,21 +612,22 @@ public class AudioService extends Service {
      */
 
     private void startTimer() {
+        boolean doBeep = Option.getBeepAutoStop(this);
+        int timeBeforeSleep = Option.getTimeBeforeSleep(this);
         timer = new Timer();
         elapsedSeconds = 0;
-        SharedPreferences prefs = this.getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE);
         timer.scheduleAtFixedRate(new TimerTask() {
             public void run() {
                 myLogD("----------------------------------------------------------------------------- " + elapsedSeconds + "s. since timer started " );
                 updateZikFileState(false);
 
                 // Auto Sleep Option
-                if (elapsedSeconds > maxTimeBeforeSleep*60) {
+                if (elapsedSeconds > timeBeforeSleep*60) {
                     myLog( "Max Playback Time Reached -- Stopping Service");
                     killTimer();
 
                     // 2 bips
-                    if (getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE).getBoolean("BEEP_BOOKEND", DEFAULT_BEEP_BOOKEND)) {
+                    if (doBeep) {
                         new ToneGenerator(AudioManager.STREAM_MUSIC, 50).startTone(ToneGenerator.TONE_DTMF_0, 1000);
                     }
 
@@ -739,15 +722,10 @@ public class AudioService extends Service {
         }
     }
 
-
-    /** ----------------------------------------------------------------
-    **           SHARED PREFS
-    ** ----------------------------------------------------------------
-    **/
-    private void setMaxTimeBeforeSleep() {
-        SharedPreferences prefs = getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE);
-        maxTimeBeforeSleep = prefs.getInt("TIME_BEFORE_SLEEP", DEFAULT_TIME_BEFORE_SLEEP);
-    }
+    /********************************************************************************
+     ***       MEDIA SESSION - Lock Screen Actions
+     ********************************************************************************
+     */
 
     private void saveSpeedToPref(double speed) {
         try {
@@ -767,6 +745,7 @@ public class AudioService extends Service {
             return 1.0;
         }
     }
+
 
     /********************************************************************************
      ***       MEDIA SESSION - Lock Screen Actions
