@@ -1,13 +1,19 @@
 package com.driot.bookplayer.utils;
 
+import static com.google.android.material.color.MaterialColors.getColor;
+
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.media.audiofx.Visualizer;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.View;
 
+import androidx.core.content.ContextCompat;
+
+import com.driot.bookplayer.R;
 import com.driot.tonylib.KanLogger;
 
 
@@ -27,7 +33,10 @@ public class FrequencyVisualizerView extends View {
 
     private void init() {
         myLog("init()");
-        paint.setColor(Color.GREEN);
+        TypedValue typedValue = new TypedValue();
+        this.getContext().getTheme().resolveAttribute(android.R.attr.colorPrimary, typedValue, true);
+        int primaryColor = typedValue.data;
+        paint.setColor(primaryColor);
         paint.setStrokeWidth(5f);
     }
 

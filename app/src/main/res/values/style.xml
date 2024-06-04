@@ -47,8 +47,8 @@
         <item name="android:paddingVertical">0dp</item>
     </style>
 
-    <style name="myStyleTextSubTitlePlay" parent="myStyle">
-        <item name="android:textColor">@color/play_sub_title</item>
+    <style name="PlayActivity_TrackName" parent="myStyle">
+        <item name="android:textColor">?colorPrimary</item>
         <item name="android:textSize">25sp</item>
     </style>
 

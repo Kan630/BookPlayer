@@ -91,7 +91,8 @@ public class MainActivity extends AppCompatActivity {//LifecycleLoggingActivity 
 
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        toolbar.setTitle("BookPlayer");
+        toolbar.setTitle("Books");
+        toolbar.setLogo(R.drawable.ic_launcher);
 
         recyclerView = findViewById(R.id.recyclerview_folders);
         if (recyclerView != null) recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -167,6 +168,7 @@ import android.view.View;
     @SuppressLint("RestrictedApi")
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        myLog("onCreateOptionsMenu()");
         getMenuInflater().inflate(R.menu.action_bar, menu);
         return super.onCreateOptionsMenu(menu);
     }

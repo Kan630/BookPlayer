@@ -27,6 +27,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.StyleRes;
 import androidx.core.content.ContextCompat;
 
+import java.util.ArrayList;
+
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 20/12/20
  */
@@ -58,6 +60,12 @@ public class OptionActivity extends LifecycleLoggingActivity {
     public static final int  theme_01 = R.style.Theme_BookPlayer_Gray;
     public static final int  theme_02 = R.style.Theme_BookPlayer_Purple;
     public static final int  theme_03 = R.style.Theme_BookPlayer_Green;
+    public static final int  theme_04 = R.style.Theme_BookPlayer_Pink;
+    public static final int  theme_05 = R.style.Theme_BookPlayer_Blue;
+    public static final int  theme_06 = R.style.Theme_BookPlayer_Orange;
+
+    private int color_01, color_02, color_03, color_04, color_05, color_06;
+
 
     EditText et_timeBeforeSleep;
     EditText et_ForwardSeconds;
@@ -68,7 +76,8 @@ public class OptionActivity extends LifecycleLoggingActivity {
     CheckBox chk_delete_source_file;
     CheckBox chk_visualizer_on;
     TextView tx_Visualizer_on;
-    ImageButton btn_Color_01, btn_Color_02, btn_Color_03;
+    ImageButton btn_Color_01, btn_Color_02, btn_Color_03, btn_Color_04, btn_Color_05, btn_Color_06;
+    Object[][] themesAndColors;
     private PermissionRequest mPermissionRequest;
 
 
@@ -96,6 +105,9 @@ public class OptionActivity extends LifecycleLoggingActivity {
         btn_Color_01 = findViewById(R.id.btn_color_01);
         btn_Color_02 = findViewById(R.id.btn_color_02);
         btn_Color_03 = findViewById(R.id.btn_color_03);
+        btn_Color_04 = findViewById(R.id.btn_color_04);
+        btn_Color_05 = findViewById(R.id.btn_color_05);
+        btn_Color_06 = findViewById(R.id.btn_color_06);
 
         int i = getTimeBeforeSleep();
         et_timeBeforeSleep.setText(String.valueOf(i));
@@ -139,15 +151,22 @@ public class OptionActivity extends LifecycleLoggingActivity {
             if (isChecked && !isRecordAudioPermissionGranted(this)) {requestPermissions();}
         });
 
-        int color_01 = getPrimaryColorFromTheme(this, theme_01);
-        int color_02 = getPrimaryColorFromTheme(this, theme_02);
-        int color_03 = getPrimaryColorFromTheme(this, theme_03);
-        btn_Color_01.setBackgroundColor(color_01);
-        btn_Color_02.setBackgroundColor(color_02);
-        btn_Color_03.setBackgroundColor(color_03);
-        btn_Color_01.setOnClickListener(v -> changeBaseTheme(theme_01));
-        btn_Color_02.setOnClickListener(v -> changeBaseTheme(theme_02));
-        btn_Color_03.setOnClickListener(v -> changeBaseTheme(theme_03));
+        themesAndColors = new Object[][] {
+                {btn_Color_01, theme_01, color_01},
+                {btn_Color_02, theme_02, color_02},
+                {btn_Color_03, theme_03, color_03},
+                {btn_Color_04, theme_04, color_04},
+                {btn_Color_05, theme_05, color_05},
+                {btn_Color_06, theme_06, color_06}
+        };
+        for (int color_iterator = 0; color_iterator < themesAndColors.length; color_iterator++) {
+            ImageButton button = (ImageButton) themesAndColors[color_iterator][0];
+            int themeId = (int) themesAndColors[color_iterator][1];
+            int mainColor;
+            mainColor = getPrimaryColorFromTheme(this, themeId);
+            button.setBackgroundColor(mainColor);
+            button.setOnClickListener(v -> changeBaseTheme(themeId));
+        }
 
         if (isRecordAudioPermissionGranted(this)) {
             tx_Visualizer_on.setText(getString(R.string.option_visualizer_text));

@@ -61,25 +61,50 @@
         <item name="android:windowBackground">@color/activityBackground</item>
     </style>
 
-    <style name="BlueButton" parent="myButton">
-        <item name="android:background">@drawable/button_selector_blue</item>
-        <item name="android:textColor">@color/white</item>
+
+    <style name="Theme.BookPlayer.Orange" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/orange_500</item>
+        <item name="colorPrimaryVariant">@color/orange_700</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">@color/orange_300</item>
+        <item name="colorSecondaryVariant">@color/orange_900</item>
+        <item name="colorOnSecondary">@color/black</item>
+        <!-- Status bar color. -->
+        <item name="android:statusBarColor">@color/orange_700</item>
+        <!-- Customize your theme here. -->
+        <item name="android:windowBackground">@color/activityBackground</item>
     </style>
-    <style name="BluePlayActivityActionButton" parent="myButton">
-        <item name="android:background">@drawable/button_selector_blue</item>
-        <item name="android:textColor">@color/white</item>
+
+    <style name="Theme.BookPlayer.Pink" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/pink_500</item>
+        <item name="colorPrimaryVariant">@color/pink_700</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">@color/pink_300</item>
+        <item name="colorSecondaryVariant">@color/pink_900</item>
+        <item name="colorOnSecondary">@color/black</item>
+        <!-- Status bar color. -->
+        <item name="android:statusBarColor">@color/pink_700</item>
+        <!-- Customize your theme here. -->
+        <item name="android:windowBackground">@color/activityBackground</item>
     </style>
-    <style name="GreenButton" parent="myButton">
-        <item name="android:background">@drawable/button_selector_green</item>
-        <item name="android:textColor">@color/white</item>
-    </style>
-    <style name="RedButton" parent="myButton">
-        <item name="android:background">@drawable/button_selector_red</item>
-        <item name="android:textColor">@color/white</item>
-    </style>
-    <style name="PurpleButton" parent="myButton">
-        <item name="android:background">@drawable/button_selector_purple</item>
-        <item name="android:textColor">@color/white</item>
+
+    <style name="Theme.BookPlayer.Blue" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/pastel_blue_500</item>
+        <item name="colorPrimaryVariant">@color/pastel_blue_700</item>
+        <item name="colorOnPrimary">@color/black</item>
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">@color/pastel_blue_300</item>
+        <item name="colorSecondaryVariant">@color/pastel_blue_900</item>
+        <item name="colorOnSecondary">@color/black</item>
+        <!-- Status bar color. -->
+        <item name="android:statusBarColor">@color/pastel_blue_700</item>
+        <!-- Customize your theme here. -->
+        <item name="android:windowBackground">@color/activityBackground</item>
     </style>
 
 </resources>
