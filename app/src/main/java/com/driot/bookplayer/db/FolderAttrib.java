@@ -27,6 +27,8 @@ public class FolderAttrib {
     private final Context mCtx;
     private final Uri uri;
     private final boolean isSingleFile;
+    private final boolean internalCopy;
+    private final String zeType;
 
     // Folder Path and display name
     private String sFolderPath;
@@ -37,11 +39,13 @@ public class FolderAttrib {
 
 
     // Constructor
-    public FolderAttrib(Context context, Uri uri, boolean isSingleFile) { //String forceName ?
+    public FolderAttrib(Context context, Uri uri, boolean internalCopy, String zeType) { //String forceName ?
 
         this.uri = uri;
-        this.isSingleFile = isSingleFile;
         this.mCtx = context;
+        this.internalCopy = internalCopy;
+        this.zeType = zeType;
+        this.isSingleFile = !zeType.equals("Folder");
 
         //myLog(PrintManyPaths());
 
@@ -98,11 +102,15 @@ public class FolderAttrib {
         }
 
         // ******************************************
-        // getting FolderPath
+        // getting Folder Name
         // ******************************************
 
         if (isSingleFile) {
-            sFolderName = formatNameForDisplay(getLastFolder(sFolderPath) + "/" + getFileName());
+            if (internalCopy) {
+                sFolderName = formatNameForDisplay(getFileName());
+            } else {
+                sFolderName = formatNameForDisplay(getLastFolder(sFolderPath) + "/" + getFileName());
+            }
         } else {
             // nom par défaut = les deux derniers folders :
             // ex  : "S3 - Finances publiques/Audios"
@@ -122,6 +130,10 @@ public class FolderAttrib {
         }
         if (sFolderName.startsWith("Download/")) { sFolderName = sFolderName.substring(9); }
         if (sFolderName.startsWith("unzipped/")) { sFolderName = sFolderName.substring(9); }
+
+        if (internalCopy && zeType.equals("Folder")) {
+            sFolderName = sFolderName.replace("/"," - "); // Pas de sous dossier en interne
+        }
 
         // display all bunch of values = implicit getString
         myLog("..." + "\n" + this + "\n" + "...");
@@ -152,16 +164,19 @@ public class FolderAttrib {
     @Override
     public String toString() {
         return "FolderAttrib{" + "\n" +
+                "Type                ='" + zeType + '\'' + "\n" +
+                "CopyFile            ='" + internalCopy + '\'' + "\n" +
+                "isSingleFile        ='" + isSingleFile + '\'' + "\n" +
+                ".........................." + "\n" +
                 "uri                 ='" + uri + '\'' + "\n" +
                 "uri.getAuthority    ='" + uri.getAuthority() + '\'' + "\n" +
                 "uri.getPath         ='" + uri.getPath() + '\'' + "\n" +
-                "uri.getFragment     =" + uri.getFragment() + "\n" +
-                "uri.getPathSegments " + uri.getPathSegments() + "\n" +
-                "uri.getLastPathSeg  =" + uri.getLastPathSegment() + "\n" +
+                "uri.getFragment     ='" + uri.getFragment() + '\'' + "\n" +
+                "uri.getPathSegments ='" + uri.getPathSegments() + '\'' + "\n" +
+                "uri.getLastPathSeg  ='" + uri.getLastPathSegment() + '\'' + "\n" +
                 ".........................." + "\n" +
                 "sFolderPath         ='" + sFolderPath + '\'' + "\n" +
                 "sFolderName         ='" + sFolderName + '\'' + "\n" +
-                "isSingleFile        =" + isSingleFile + "\n" +
                 "isFolderKO          =" + FolderKO + "\n" +
                 '}';
     }

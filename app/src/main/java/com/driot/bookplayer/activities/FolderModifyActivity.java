@@ -17,6 +17,7 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
+import static com.driot.bookplayer.global.Var.PATH_CHECK_APPLICATION;
 import static com.driot.bookplayer.utils.Utils.recursiveRemove;
 import static com.driot.tonylib.KanLogger.myLogInFile;
 import static com.driot.tonylib.KanLogger.myToast;
@@ -81,14 +82,14 @@ public class FolderModifyActivity extends LifecycleLoggingActivity {
                 .getInstance(getApplicationContext())
                 .getAppDatabase()
                 .ZikFileDao()
-                .getFolderUri(idFolder)).subscribeOn(Schedulers.io())
+                .getFolderPath(idFolder)).subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe((result) -> {
                     if (eraseFolderAndFiles(result)) {
-                        myLog("Ok files deleted");
+                        myLog("Ok files deleted from Disk");
                         deleteFolder2();
                     } else {
-                        myLog("Error deleting files");
+                        myLogE("Error deleting files from Disk");
                     }
                 }, throwable -> {
                     myToastE(myErr);
@@ -116,8 +117,8 @@ public class FolderModifyActivity extends LifecycleLoggingActivity {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe((result) -> {
                     if (result) {
-                        myToast(getString(R.string.Folder_Deleted));
-                        myLog(getString(R.string.Folder_Deleted) + " : " + FolderName);
+                        myToast(getString(R.string.Folder_Deleted_DB));
+                        myLog(getString(R.string.Folder_Deleted_DB) + " : " + FolderName);
                         finish();
                     }
                 });
@@ -125,27 +126,38 @@ public class FolderModifyActivity extends LifecycleLoggingActivity {
 
 
     private boolean eraseFolderAndFiles(String strPath) {
+        if (strPath.endsWith("files/unzipped") || strPath.endsWith("files/unzipped/")) {
+            myLogE("You are not deleting all the books, malheureux !!");
+            return false;
+        }
         String starter = "file:///";
-        myLog("Deleting folder : " +strPath);
+        myLog("Deleting folder from Disk : [" + strPath + "]");
         if (strPath.length()>5) {
-            if (strPath.startsWith(starter)) {
-                strPath = strPath.replace(starter,"");
-                try {
-                    File folderToDelete = new File(strPath);
-                    myLog("is directory :    " + folderToDelete.isDirectory());
-                    recursiveRemove(folderToDelete);
-                    return true;
-                } catch (Exception e) {
-                    myLogE("Error remove folder & files from user data");
-                    return false;
-                }
-            } else {
-                myLog("Not a folder in user data, skip deletion of folder");
+            if (!strPath.contains(PATH_CHECK_APPLICATION) ) { //strPath.startsWith(starter)
+                myLog("NO DISK DELETE : Not a folder in user data (" + PATH_CHECK_APPLICATION + "), skip deletion of folder");
                 return true;
+            } else {
+                //if (strPath.startsWith(starter)) {
+                    strPath = strPath.replace(starter, ""); //was a prefix in Folder table, field has been deprecated, now fill with dummies
+                    try {
+                        File folderToDelete = new File(strPath);
+                        myLog("is directory :    " + folderToDelete.isDirectory());
+                        recursiveRemove(folderToDelete);
+                        return true;
+                    } catch (Exception e) {
+                        myToastE("Error remove folder & files from Disk - user data");
+                        myLogE("Error remove folder & files from Disk - user data");
+                        return false;
+                    }
+                //} else {
+                //    myLog("NO DISK DELETE : weird Path, does not starts with [" + starter + "]");
+                //    return true;
+                //}
             }
         } else {
-            myLogE("should not happen uri less than 5 chars");
-            return false;
+            myToastE("Weird error while removing file from Disk");
+            myLogE("should not happen : Path less than 5 chars");
+            return true;
         }
     }
 

@@ -47,6 +47,7 @@ public class CopyFileService extends Service {  //IntentService are designed to 
     private Uri uri;
     private String destinationFolderPath;
     private String destinationFileName;
+    private String type;
 
     private File inFile;
 
@@ -95,10 +96,13 @@ public class CopyFileService extends Service {  //IntentService are designed to 
         uri = intent.getParcelableExtra("Uri");
         destinationFolderPath = intent.getStringExtra("destinationFolderPath");
         destinationFileName = intent.getStringExtra("destinationFileName");
+        type = intent.getStringExtra("type");
         myLog("onStartCommand() ..   " +
-                "\nfrom uri = [" + uri.toString() + "] " +
-                "\nto folder = [" + destinationFolderPath + "] " +
-                "\nwith name = [" + destinationFileName + "]");
+                "\n.    from uri = [" + uri.toString() + "] " +
+                "\n.    to folder = [" + destinationFolderPath + "] " +
+                "\n.    with name = [" + destinationFileName + "]" +
+                "\n.    for type = [" + type + "]"
+        );
     }
 
     public void init() {
@@ -163,34 +167,52 @@ public class CopyFileService extends Service {  //IntentService are designed to 
         //___________________________________
         // == Checking memory before copy
         //___________________________________
-        File outFile = new File(destinationFolderPath + "/" + destinationFileName);
-        int file_size = 0;
+        long file_size = 0;
         long availableMegs = getAvailableInternalMemorySize() / 1048576L;
         if (doCheckSize) {
-            try {
-                file_size = Integer.parseInt(String.valueOf(inFile.length() / 1024 / 1024));
-            } catch (Exception e) {
-                myLogE("getting FileSize raise an error...");
-                file_size = -2;
-            }
-            if (!(file_size > 0 )) {
+            long size_coef = type.equals("ZIP") ? ZIP_SIZE_MAX_COEF : 1;
+//Folder
+            if (type.equals("Folder")) {
                 try {
-                    file_size = (int) getFileSize(uri);
-                } catch (IOException e) {
-                    myLogE("getting FileSize From URI raise an error... " + e.getMessage() );
-                    e.printStackTrace();
+                    file_size = FileUtils.calculateFolderSize(this, uri);
+                } catch (Exception e) {
+                    myLogE("Folder getSize - KO : " + e.getMessage());
+                }
+//File
+            } else {
+                try {
+                    file_size = Integer.parseInt(String.valueOf(inFile.length() / 1048576L));
+                } catch (Exception e) {
+                    myLogE("getting FileSize raise an error...");
+                    file_size = -2;
+                }
+                if (!(file_size > 0)) {
+                    try {
+                        file_size = (int) getFileSize(uri);
+                    } catch (IOException e) {
+                        myLogE("getting FileSize From URI raise an error... " + e.getMessage());
+                        e.printStackTrace();
+                    }
                 }
             }
+            file_size = file_size / 1024 / 1024;
+            myLog("file size : " + file_size + "Mo" +
+                    "\navailable memory : " + availableMegs + " Mo");
+//////
             if (file_size > 0 || availableMegs > 0) {
-
                 try {
-                    if (file_size * ZIP_SIZE_MAX_COEF > availableMegs) {
-                        tellError(getResources().getString(R.string.Error_Import_NotEnoughMemory_line1) + "\n"
-                                + getResources().getString(R.string.Error_Import_NotEnoughMemory_line2_1) + formatMem(availableMegs) + "Mo" + "\n"
-                                + getResources().getString(R.string.Error_Import_NotEnoughMemory_line3) + file_size + "Mo" + "\n"
-                                + getResources().getString(R.string.Error_Import_NotEnoughMemory_line4_1) + ZIP_SIZE_MAX_COEF + getResources().getString(R.string.Error_Import_NotEnoughMemory_line4_2) + "\n"
-                                + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line5)
-                        );
+                    if (file_size * size_coef > availableMegs) {
+                        String strErr =
+                                getResources().getString(R.string.Error_Import_NotEnoughMemory_line1)
+                                        + "\n\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line2_1) + formatMem(availableMegs) + "Mo"
+                                        + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line3) + formatMem(file_size) + "Mo" + "\n";
+                        if (size_coef > 1) strErr = strErr + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line4_1) + size_coef + getResources().getString(R.string.Error_Import_NotEnoughMemory_line4_2);
+                        if (type.equals("ZIP")) {
+                            strErr = strErr + "\n\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line5_zip);
+                        } else {
+                            strErr = strErr + "\n\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line5_other);
+                        }
+                        tellError(strErr);
                         return false;
                     }
                     tellProgress(0, getResources().getString(R.string.Import_Progress_copying_zip_file)
@@ -203,77 +225,106 @@ public class CopyFileService extends Service {  //IntentService are designed to 
                     tellError("Error while checking available space for local ZIP copy  -  " + e.getMessage());
                     return false;
                 }
-            } else { // file_size < 0
-                myLogE("Could not get size of original file to be copied");
+            } else {
+                myLogE("Could not get size of source file [" + file_size + "] or available space [" + availableMegs + "]");
             }
-            myLog("file size : " + file_size + "Mo" +
-                    "\navailable memory : " + availableMegs + " Mo");
             myLog("copyLocal - okay check storage space");
         } else {
             file_size = -1;
-            myLog("copyLocal - bypass check storage space");
+            myLog("WARNING - copyLocal - bypass check storage space");
         }
 
-        ////////////////////////////////////////////////////////////////////////////////////////
-        // copy of Zip file
-        ////////////////////////////////////////////////////////////////////////////////////////
-        int nbBuffCopied = 0;
-        InputStream is = null;
-        ContentResolver resolver = getContentResolver();
-        try {
-            is = resolver.openInputStream(uri);
-            myLog("okay stream in");
-            try {
-                OutputStream out = new FileOutputStream(outFile);
-                myLog("okay stream out");
-                try {
-                    byte[] buf = new byte[COPY_BUFFER_SIZE];
-                    int len;
-                    while ((len = is.read(buf)) > 0) {
-                        nbBuffCopied++;
-                        out.write(buf, 0, len);
 
-                        //display progress
-                        if (nbBuffCopied % 1024 == 0) {
-                            int nbMoCopied = nbBuffCopied * COPY_BUFFER_SIZE / 1024 / 1024;
-                            double progressValue = 0;
-                            if (file_size > 0) {
-                                progressValue = (double) nbMoCopied / file_size * 100;
-                            } else {
-                                progressValue = 50;
-                            }
-                            tellProgress((int) progressValue,
+
+
+//Folder
+        if (type.equals("Folder")) {
+            try {
+                //FileUtils.copyFolder(this, uri, destinationFolderPath , progress -> runOnUiThread(() ->
+                long finalFile_size = file_size;
+                FileUtils.copyFolder(this, uri, new File(destinationFolderPath), (progress, nbMoCopied) -> {
+                            //this.progress = progress;
+                            //this.mbCopied = mbCopied;
+                            //runOnUiThread(() -> { Updating the UI with progress and MB copied values, like progressBar.setProgress(progress);
+                            tellProgress((int) progress,
                                     getResources().getString(R.string.Import_Progress_copying_zip_file)
                                             + "\n"
-                                            + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line3) + nbMoCopied + "Mo/" + file_size + "Mo"
+                                            + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line3) + nbMoCopied + "Mo/" + finalFile_size + "Mo"
                                             + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line2_1) + formatMem(availableMegs) + "Mo"
                             );
                         }
+                );
+            } catch (Exception e) {
+                tellError("Folder copy - KO : " + e.getMessage());
+                return false;
+            }
+            myLog("Folder has been copied");
+            tellEnd();
+            return true;
+//File
+        } else {
+            ////////////////////////////////////////////////////////////////////////////////////////
+            // copy of Zip file
+            ////////////////////////////////////////////////////////////////////////////////////////
+            int nbBuffCopied = 0;
+            InputStream is = null;
+            ContentResolver resolver = getContentResolver();
+            File outFile = new File(destinationFolderPath + "/" + destinationFileName);
+            try {
+                is = resolver.openInputStream(uri);
+                myLog("okay stream in");
+                try {
+                    OutputStream out = new FileOutputStream(outFile);
+                    myLog("okay stream out");
+                    try {
+                        byte[] buf = new byte[COPY_BUFFER_SIZE];
+                        int len;
+                        while ((len = is.read(buf)) > 0) {
+                            nbBuffCopied++;
+                            out.write(buf, 0, len);
 
+                            //display progress
+                            if (nbBuffCopied % 1024 == 0) {
+                                int nbMoCopied = nbBuffCopied * COPY_BUFFER_SIZE / 1024 / 1024;
+                                double progressValue = 0;
+                                if (file_size > 0) {
+                                    progressValue = (double) nbMoCopied / file_size * 100;
+                                } else {
+                                    progressValue = 50;
+                                }
+                                tellProgress((int) progressValue,
+                                        getResources().getString(R.string.Import_Progress_copying_zip_file)
+                                                + "\n"
+                                                + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line3) + nbMoCopied + "Mo/" + file_size + "Mo"
+                                                + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line2_1) + formatMem(availableMegs) + "Mo"
+                                );
+                            }
+
+                        }
+                        myLog("okay stream write");
+                    } catch (Exception e) {
+                        tellError("An error occurred while Copying the ZIP file from External Dir to Internal Dir. (nb Buffer copied = " + nbBuffCopied + ")\n   -  \n" + e.getMessage());
+                        e.printStackTrace();
+                        return false;
+                    } finally {
+                        out.close();
                     }
-                    myLog("okay stream write");
                 } catch (Exception e) {
-                    tellError("An error occurred while Copying the ZIP file from External Dir to Internal Dir.\n   -  \n" + e.getMessage());
+                    tellError("Cannot get StreamOut for ZIP file \nZIP file copy from External Dir to Internal Dir aborted.\n  -  \n" + e.getMessage());
                     e.printStackTrace();
                     return false;
                 } finally {
-                    out.close();
+                    is.close();
                 }
             } catch (Exception e) {
-                tellError("Cannot get StreamOut for ZIP file \nZIP file copy from External Dir to Internal Dir aborted.\n  -  \n" + e.getMessage());
-                e.printStackTrace();
+                tellError("Cannot get StreamIn for ZIP file... \nMaybe this is a broken zip file \n(could be a half downloaded file)      \n\nTechnical message = [" + e.getMessage() + "]");
+                myLogE(e.getMessage());
                 return false;
-            } finally {
-                is.close();
             }
-        } catch (Exception e) {
-            tellError("Cannot get StreamIn for ZIP file... \nMaybe this is a broken zip file \n(could be a half downloaded file)      \n\nTechnical message = [" + e.getMessage() + "]");
-            myLogE(e.getMessage());
-            return false;
+            myLog("file has been copied");
+            tellEnd();
+            return true;
         }
-        myLog("file has been copied");
-        tellEnd();
-        return true;
     }
 
     //-----------------------------
@@ -307,13 +358,13 @@ public class CopyFileService extends Service {  //IntentService are designed to 
             FileInputStream fileInputStream = new FileInputStream(fileDescriptor);
             long size = fileInputStream.getChannel().size();
 
-            if (size > 0) size = size  / 1024 / 1024;
+            //if (size > 0) size = size  / 1024 / 1024;
 
             // Close resources
             fileInputStream.close();
             parcelFileDescriptor.close();
 
-            myLog("parcelFileDescriptor return size : " + size);
+            myLog("parcelFileDescriptor return size : " + formatMem(size, 0)  + " Mo.");
             return size;
         } else {
             myLogE("parcelFileDescriptor is null");

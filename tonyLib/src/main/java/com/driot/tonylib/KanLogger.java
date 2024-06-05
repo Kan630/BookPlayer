@@ -31,7 +31,7 @@ public class KanLogger {
     private static final String USER_LOG_FILE_NAME = "kanlog";
     private static final String kanLogger_TAG = "toto KanLogger";
     private static final boolean LOG_THEM_ALL = true;
-    private static final boolean LOG_DEBUG = true;
+    private static final boolean LOG_DEBUG = false;
 
     public static final String[] MD5_MY_PHONE = {
              "5ef4fa41375ff615e0fd81940d929294" //"HUAWEI/POT-LX1EEA/HWPOT-H:10/HUAWEIPOT-L21/10.0.0.238C431:user/release-keys"

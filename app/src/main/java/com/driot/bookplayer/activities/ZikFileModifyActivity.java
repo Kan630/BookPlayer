@@ -1,5 +1,6 @@
 package com.driot.bookplayer.activities;
 
+import static com.driot.bookplayer.global.Var.PATH_CHECK_APPLICATION;
 import static com.driot.tonylib.KanLogger.myLog;
 import static com.driot.tonylib.KanLogger.myLogE;
 import static com.driot.tonylib.KanLogger.myLogInFile;
@@ -205,21 +206,26 @@ public class ZikFileModifyActivity extends LifecycleLoggingActivity {
         String starter = "file:///";
         myLog("Deleting ZikFile : " +strPath);
         if (strPath.length()>5) {
-            if (strPath.startsWith(starter)) {
-                strPath = strPath.replace(starter,"");
-                try {
-                    File zikFileToDelete = new File(strPath);
-                    if(zikFileToDelete.exists()) {
-                        zikFileToDelete.delete();
-                    }
-                    return true;
-                } catch (Exception e) {
-                    myLogE("Error remove ZikFile from Disk");
-                    return false;
-                }
-            } else {
-                myLog("Not a ZikFile in user data, skip deletion of ZikFile");
+            if (!strPath.contains(PATH_CHECK_APPLICATION) ) { //strPath.startsWith(starter)
+                myLog("NO DISK DELETE : Not a folder in user data (" + PATH_CHECK_APPLICATION + "), skip deletion of folder");
                 return true;
+            } else {
+                if (strPath.startsWith(starter)) {
+                    strPath = strPath.replace(starter, "");
+                    try {
+                        File zikFileToDelete = new File(strPath);
+                        if (zikFileToDelete.exists()) {
+                            zikFileToDelete.delete();
+                        }
+                        return true;
+                    } catch (Exception e) {
+                        myLogE("Error remove ZikFile from Disk");
+                        return false;
+                    }
+                } else {
+                    myLog("NO DISK DELETE : weird Path, does not starts with [" + starter + "]");
+                    return true;
+                }
             }
         } else {
             myLogE("should not happen uri less than 5 chars");

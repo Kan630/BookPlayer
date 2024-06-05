@@ -7,7 +7,6 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
@@ -68,6 +67,25 @@ public class AddResourceService
     Boolean mUnzipServiceBound;
     boolean boundToUnzipService;
 
+    /**
+     * steps are
+     *   1  Init
+     *   2  Scan for Audio Files
+     *   3  Check Folder already exist
+     *   4  Check Available space
+     *   5  Copy
+     *   6  Unzip
+     *   7  Get File Duration
+     *   8  finish
+     */
+    public static final int[] PROGRESS_ZIP_COPY = {5, 5, 10, 20, 25, 50, 75, 90};
+    public static final int[] PROGRESS_ZIP_NOCOPY = {5, 5, 10, 20, 25, 50, 75, 90};
+    public static final int[] PROGRESS_FILE_COPY = {5, 5, 15, 30, 45, 90, 90, 95};
+    public static final int[] PROGRESS_FILE_NOCOPY = {5, 20, 40, 60, 90, 90, 90, 95};
+    public static final int[] PROGRESS_FOLDER_COPY = {5, 5, 15, 30, 45, 90, 90, 95};
+    public static final int[] PROGRESS_FOLDER_NOCOPY = {5, 20, 30, 40, 40, 40, 50, 95};
+    public static int[] PROGRESS;
+/*
     public static final int PROGRESS_CHECK_FOLDER_EXIST_ZIP = 1;
     public static final int PROGRESS_COPY_START = 3;
     public static final int PROGRESS_COPY_END = 20;
@@ -82,6 +100,8 @@ public class AddResourceService
     public static final int PROGRESS_CHECK_FOLDER_EXIST_NO_ZIP = 30;
     public static final int PROGRESS_SAVE_DB_START_NO_ZIP = 30;
     public static final int PROGRESS_SAVE_DB_END_NO_ZIP = 100;
+
+ */
 
     public static final String PROGRESS_SORTING_TEXT = "listing and sorting Tracks";
 
@@ -100,6 +120,8 @@ public class AddResourceService
     private String type_given;
     private String destinationFolderName;
     private String destinationFolderPath;
+    private String zipDestinationFolderPath;
+    private String zipDestinationFolderName;
 
     private String fullPath;
 
@@ -115,7 +137,7 @@ public class AddResourceService
         void tellNonBlockingError(String txt);
     }
     public void registerClient(Activity activity){
-        this.mCallBacks = (AddResourceService.Callbacks)activity;
+        this.mCallBacks = (AddResourceService.Callbacks)activity; // done in onServiceConnected()
     }
 
     // binder
@@ -193,12 +215,13 @@ public class AddResourceService
             }
         }
     };
-    private void launchCopyFileService(Uri uri, String destinationFolderPath, String destinationFileName) {
+    private void launchCopyFileService(Uri uri, String destinationFolderPath, String destinationFileName, String type) {
         myLog("launchCopyFileService - prepare intent");
         Intent intentCopyFileService = new Intent(this, CopyFileService.class);
         intentCopyFileService.putExtra("Uri", uri);
         intentCopyFileService.putExtra("destinationFolderPath", destinationFolderPath);
         intentCopyFileService.putExtra("destinationFileName", destinationFileName);
+        intentCopyFileService.putExtra("type", type);
         //copiedZipFileFullPath = destinationFolderPath + "/" + destinationFileName;
         boundToCopyFileService = false;
         try {
@@ -257,7 +280,7 @@ public class AddResourceService
         if (dfPickedDir != null && !(dfPickedDir.isDirectory())) {
 
             // constructeur pour mon pti folder
-            myFolder = new FolderAttrib(getApplicationContext(), uri, true);
+            myFolder = new FolderAttrib(getApplicationContext(), uri, Option.getCopyFile(this), type_given);
             if (myFolder.getFolderName()==null) {
                 tellError("Error while creating record, cancelling operation");
             }
@@ -282,6 +305,7 @@ public class AddResourceService
 
     private void populateArrayListOfTracksFromFolder(DocumentFile dfPickedDir, boolean comingFromZip) {
         myLog("populateArrayListOfTracksFromFolder - DocumentFile [" + dfPickedDir.toString() + "]");
+        tellProgress(PROGRESS[1], "analysing folder content...");
         //resetting uri
         Uri uri;
         if (comingFromZip) {
@@ -307,7 +331,7 @@ public class AddResourceService
         if (dfPickedDir != null && dfPickedDir.isDirectory()) {
 
             // constructeur pour mon pti folder
-            myFolder = new FolderAttrib(getApplicationContext(), uri, false);
+            myFolder = new FolderAttrib(getApplicationContext(), uri, Option.getCopyFile(this), type_given);
             if (myFolder.getFolderName()==null) {
                 tellError("Error while creating record, cancelling operation");
             }
@@ -360,6 +384,7 @@ public class AddResourceService
                     if (f1.getType().equals("audio/mpeg") || f1.getType().equals("audio/mp4")) {
                         l_audioFilePath = recursivFolder + f1.getName();
                         myLog("* New Audio File : [" + l_audioFilePath + ']');
+                        tellProgress(20, "Scanning for Audio Files..... \n[" +  l_audioFilePath + ']');
                         audioFileArrayList.add(l_audioFilePath);
                     }
                 }
@@ -372,19 +397,27 @@ public class AddResourceService
     ///////////////////////////////////////
 
     public void init() {
-        myLog("*****************************************************************");
+        myLog("....");
+        myLog("....");
+        myLog("*********************************************************************************************************");
         myLog("init() - ** type = " + type_given + " **");
         myLog("init() - ** uri = " + uri_given.toString() + " **");
-        myLog("*****************************************************************");
+        myLog("*********************************************************************************************************");
         isBusy = true;
         DocumentFile dfPickedDir;
         String mime = null;
+
+
+        if (Option.getCopyFile(this)) {
+
+        }
 
         switch (type_given) {
             ///---------------------------------------------
             /// FILE
             ///---------------------------------------------
             case "File":
+                PROGRESS = Option.getCopyFile(this) ? PROGRESS_FILE_COPY : PROGRESS_FILE_NOCOPY;
                 try {
                     dfPickedDir = DocumentFile.fromSingleUri(this, uri_given);
                 } catch (Exception e) {
@@ -451,17 +484,19 @@ public class AddResourceService
             /// FOLDER
             ///---------------------------------------------
             case "Folder":
+                PROGRESS = Option.getCopyFile(this) ? PROGRESS_FOLDER_COPY : PROGRESS_FOLDER_NOCOPY;
+
                 // TODO First thing : check if folder already exists, now checked after scan of files, just before DB insertion
                 //checkIfFolderAlreadyExist2();
 
-                tellProgress(PROGRESS_CHECKING_NO_ZIP, "checking Folder.");
+                tellProgress(PROGRESS[0], "checking Folder.");
                 try {
                     dfPickedDir = DocumentFile.fromTreeUri(this, uri_given);
                 } catch (Exception e) {
                     tellError("Error reading picked Folder.... DocumentFile.fromTreeUri : " + e.getMessage());
                     break;
                 }
-                tellProgress(PROGRESS_SORTING_NO_ZIP, PROGRESS_SORTING_TEXT);
+                tellProgress(PROGRESS[1], PROGRESS_SORTING_TEXT);
                 if (dfPickedDir == null) {
                     tellError("Error reading picked Folder... dfPickedDir is null");
                 } else {
@@ -473,6 +508,7 @@ public class AddResourceService
             /// ZIP FILE
             ///---------------------------------------------
             case "ZIP":
+                PROGRESS = Option.getCopyFile(this) ? PROGRESS_ZIP_COPY : PROGRESS_ZIP_NOCOPY;
                 comingFromZip = true;
                 myLog("ZIP : copy locally before everything else");
                 myLog("Picked Uri = [" + uri_given.toString() + "]");
@@ -520,10 +556,11 @@ public class AddResourceService
                         tellError(getString(R.string.Error_Import_FolderAlreadyImported) + "  [" + destinationFolderName + "]");
                     } else {
                         myLog("OK, folder doesn't already exist in DB");
-                        tellProgress(PROGRESS_CHECK_FOLDER_EXIST_ZIP,getResources().getString(R.string.Import_Progress_check_not_already_imported));
+                        tellProgress(PROGRESS[2], getResources().getString(R.string.Import_Progress_check_not_already_imported));
                         copyFileLocal(uri_given
                                 , getFilesDir().getAbsolutePath() + "/" + FOLDER_UNZIPPED + "/" + destinationFolderName
                                 , destinationFolderName + ".zip"
+                                , type_given
                                 ); //launch a service, next step through callbacks
                     }
                 }, throwable -> {
@@ -541,11 +578,6 @@ public class AddResourceService
                 tellError(getString(R.string.Error_Import_NoMediaInFolder));
             } else {
                 myLog(audioFileArrayList.size() + " " + getString(R.string.Import_nMediaInFolder));
-                if (comingFromZip) {
-                    tellProgress(PROGRESS_SORTING_ZIP, "checking if not already imported");
-                } else {
-                    tellProgress(PROGRESS_SORTING_NO_ZIP, "checking if not already imported");
-                }
                 checkIfFolderAlreadyExist();
             }
         } else {
@@ -554,6 +586,8 @@ public class AddResourceService
     }
 
     private void checkIfFolderAlreadyExist() {
+        tellProgress(PROGRESS[2], getResources().getString(R.string.Import_Progress_check_not_already_imported));
+        myLog("checkIfFolderAlreadyExist() - FolderName = [" + myFolder.getFolderName() + "]");
         Observable.fromCallable(() -> {
             boolean bcheckIfFolderExist = false;
             long lcheckIfFolderExist = DatabaseClient
@@ -568,34 +602,49 @@ public class AddResourceService
                 tellError(getString(R.string.Error_Import_FolderAlreadyImported));
             } else {
                 myLog("ok on continue -       (folder does not already exist)");
-                if (!comingFromZip) {
-                    tellProgress(PROGRESS_CHECK_FOLDER_EXIST_NO_ZIP,getResources().getString(R.string.Import_Progress_check_not_already_imported));
-                }
                 copyFolder();
             }
         }, throwable -> {
-            tellError(getResources().getString(R.string.Error_Import_checking_Folder_Exists) + throwable.getMessage());
+            tellError(getResources().getString(R.string.Error_Import_checking_Folder_Exists) + " - folderName = [" + myFolder.getFolderName() + "] - error message : [" + throwable.getMessage() + "]");
         });
     }
     private void copyFolder() {
         if (Option.getCopyFile(this)) {
-            String folderPath = getFilesDir().getAbsolutePath() + "/" + FOLDER_UNZIPPED + "/" + myFolder.getFolderName();
-            String fileName = myFolder.getFileName(this);
-            fullPath = folderPath + fileName;
-            myLog("**** fullPath = [" + fullPath + "]");
-            copyFileLocal(myFolder.getUri()
+            tellProgress(PROGRESS[3], "preparing Folder copy...");
+            if (type_given.equals("Folder")) {
+                String folderPath = getFilesDir().getAbsolutePath() + "/" + FOLDER_UNZIPPED + "/" + myFolder.getFolderName();
+                String fileName = myFolder.getFileName(this);
+                fullPath = folderPath;
+                myLog("**** fullPath = [" + fullPath + "]");
+                copyFileLocal(myFolder.getUri()
                         , folderPath
-                        , fileName);
+                        , "tutu" // fileName needed to check if already exist in DB
+                        , type_given);
+            } else if (type_given.equals("File")) {
+                String folderPath = getFilesDir().getAbsolutePath() + "/" + FOLDER_UNZIPPED + "/" + myFolder.getFolderName();
+                String fileName = myFolder.getFileName(this);
+                fullPath = folderPath + "/" + fileName;
+                myLog("**** fullPath = [" + fullPath + "]");
+                copyFileLocal(myFolder.getUri()
+                        , folderPath
+                        , fileName
+                        , type_given
+                );
+            } else {
+                myLogE("Wrong file type : " + type_given);
+            }
         } else {
             saveFolder();
         }
-
-
     }
 
 
 
-    private void copyFileLocal(Uri uri, String destinationFolderPath, String destinationName) {
+    private void copyFileLocal(Uri uri, String destinationFolderPath, String destinationName, String type_given) {
+        if (type_given.equals("ZIP")) { //reset variable because was done in observable stuff
+            this.zipDestinationFolderPath = destinationFolderPath;
+            this.zipDestinationFolderName = destinationName;
+        }
         long fileSize = -1L;
         File externalFile = new File(uri.getPath());
         if (externalFile.exists()) fileSize = externalFile.length();
@@ -605,17 +654,26 @@ public class AddResourceService
             myLog("ERR : Cannot Check Size .... Size = " + fileSize + " .... Never Mind... let's copy");
         }
         myLog("Future Folder Path : [" + destinationFolderPath + "]");
-        myLog("call to launchCopyFileService \nfrom Uri [" + uri + "] \nto Folder [" + destinationFolderPath + "] \nwith Name [" + destinationName + "]");
-        launchCopyFileService(uri, destinationFolderPath, destinationName);
+        myLog("call to launchCopyFileService " +
+                "\n.   from Uri [" + uri + "] " +
+                "\n.   to Folder [" + destinationFolderPath + "] " +
+                "\n.   with Name [" + destinationName + "]" +
+                "\n.   for type = [" + type_given + "]");
+        launchCopyFileService(uri, destinationFolderPath, destinationName, type_given);
     }
 
     private void unzipZipLocal() {
-        String destinationFolderPathForMp3 = destinationFolderPath;
-        String zipFileFullPath = destinationFolderPath + "/" + destinationFolderName + ".zip";
-        launchUnzipService(zipFileFullPath, destinationFolderPathForMp3);
+        String zeZipFilePath = zipDestinationFolderPath + "/" + zipDestinationFolderName;
+        String zeDestinationFolderPath = zipDestinationFolderPath;
+        myLog("Launching Unzip service with arguments" +
+                "\n.    ZipFilePath = [" + zeZipFilePath + "]" +
+                "\n.    DestinationFolderPath = [" + zeDestinationFolderPath + "]"
+        );
+        launchUnzipService(zeZipFilePath, zeDestinationFolderPath);
     }
 
     private void saveFolder() {
+        tellProgress(PROGRESS[6], "preparing Folder copy...");
 
         final Time sFirstAccess = new Time(System.currentTimeMillis());
         final Date sLastAccess = new Date(System.currentTimeMillis());
@@ -626,7 +684,8 @@ public class AddResourceService
             Folder folder = new Folder();
             folder.setName(myFolder.getFolderName());
             folder.setPath(myFolder.getFolderPath());
-            folder.setUri(myFolder.getUriString()); //2023-10-22
+            //folder.setUri(myFolder.getUriString()); //2023-10-22
+            folder.setUri("tototititata/dksjgf"); //2024-06-05
             folder.setHash("0"); //2023-10-22 code removed
             folder.setPercentdone(0.0);
             folder.setFirstaccess(sFirstAccess);
@@ -646,7 +705,7 @@ public class AddResourceService
                 .subscribe((result) -> {
                     if (result) {
                         myLog("Folder Saved in DB - checking files");
-                        tellProgress(-1,getResources().getString(R.string.Import_Progress_checkingFiles));
+                        tellProgress(PROGRESS[6],getResources().getString(R.string.Import_Progress_checkingFiles));
                         saveFiles();
                     }
                 }, throwable -> {
@@ -666,11 +725,7 @@ public class AddResourceService
             String txtProgress;
             for (String s : audioFileArrayList) {
                 i++;
-                if (comingFromZip) {
-                    progress = (int) PROGRESS_SAVE_DB_START_ZIP + (i * 100 / audioFileArrayList.size())*(PROGRESS_SAVE_DB_END_ZIP-PROGRESS_SAVE_DB_START_ZIP)/100;
-                } else {
-                    progress = (int) PROGRESS_SAVE_DB_START_NO_ZIP + (i * 100 / audioFileArrayList.size())*(PROGRESS_SAVE_DB_END_NO_ZIP-PROGRESS_SAVE_DB_START_NO_ZIP)/100;
-                }
+                progress = (int) PROGRESS[6] + (i * 100 / audioFileArrayList.size())*(PROGRESS[7]-PROGRESS[6])/100;
                 txtProgress = progress + "% - " + getString(R.string.Add_resource_reading_file) + " n°" + i + "/" + audioFileArrayList.size() + "\n" + getFileNameFromPath(s);
                 myLog("Registering file [" + s + "]");
                 saveFile(s, InsertedFolderId[0], i);
@@ -714,7 +769,7 @@ public class AddResourceService
             myLog("File Not Added.... (Duration = 0)");
             nbFileSaved++;
             if (nbFileSaved == nbFileToSave) {
-                myLog("************All files have been processed. dur0");
+                myLog("*************************** All files have been processed. -- duration=0");
                 updateFolderDuration();
             }
         } else {
@@ -731,10 +786,10 @@ public class AddResourceService
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe((result) -> {
                                 if (result != null) {
-                                    myLog("File Added - SQL result = " + result);
+                                    myLog("File Added.... SQL result (=id) = [" + result + "]");
                                     nbFileSaved++;
                                     if (nbFileSaved == nbFileToSave) {
-                                        myLog("************All files have been processed.");
+                                        myLog("*************************** All files have been processed. -- OK");
                                         updateFolderDuration();
                                         if (Option.getDeleteSourceFile(this) && type_given=="ZIP") {
                                             deleteSourceFile();
@@ -823,10 +878,12 @@ public class AddResourceService
             tellError(getResources().getString(R.string.Error_Import_track_duration_nofile) + " // path : " + zePath);
             myLogE("error getting duration of media, file does not exist in path : " + zePath);
         }
+        myLogD("duration for [" + zePath + "] is " + duration);
         return duration;
     }
 
     public void tellProgress(int progressVal,String progressText) {
+        myLogD("tellProgress : " + progressVal + " - " + progressText);
         mCallBacks.updateProgress(progressText, progressVal);
     }
     private void tellEnd() {
@@ -837,9 +894,9 @@ public class AddResourceService
     }
     private void tellError(String txt) {
         mCallBacks.updateError(txt);
-        myLogE("tellError : [" + txt + "]");
+        myLogE("tellError... [" + txt + "]");
         isBusy = false;
-        myLog("killing Service");
+        myLog("tellError... killing Service");
         stopSelf();
     }
 
@@ -877,24 +934,23 @@ public class AddResourceService
         return tmp;
     }
 
-    //--- LOG --------------------------
-    private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
-    private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
-
-
-    // Copy CallBacks
-    //---------------------
+    /**
+     **********************************
+     *    COPY CALLBACKS received
+     *********************************
+     */
     @Override
     public void tellProgressClient_fromCopy(String progressText, int progressVal) {
-        tellProgress(PROGRESS_COPY_START + progressVal * (PROGRESS_COPY_END - PROGRESS_COPY_START) / 100, progressText);
+        tellProgress(PROGRESS[4] + progressVal * (PROGRESS[5] - PROGRESS[4]) / 100, progressText);
     }
     @Override
     public void tellEndClient_fromCopy() {
-        myLog("Copyfile tell End - go unzip");
-        if (type_given == "ZIP") {
+        myLog("Copyfile tell End " + type_given);
+        if (type_given.equals("ZIP")) {
+            myLog("launch unzipZipLocal()");
             unzipZipLocal();
         } else {
-            myFolder = new FolderAttrib(this, Uri.fromFile(new File(fullPath)), true);
+            myFolder = new FolderAttrib(this, Uri.fromFile(new File(fullPath)), Option.getCopyFile(this), type_given);
             saveFolder();
         }
 
@@ -904,21 +960,24 @@ public class AddResourceService
         myLogE("Copyfile tell Error");
         tellError(errorText);
     }
-    // Unzip CallBacks
-    //---------------------
+    /**
+     **********************************
+     *    UNZIP CALLBACKS received
+     *********************************
+     */
     @Override
     public void tellProgressClient_fromUnzip(String progressText, int progressVal) {
-        tellProgress(PROGRESS_UNZIP_START + progressVal * (PROGRESS_UNZIP_END - PROGRESS_UNZIP_START) / 100, progressText);
+        tellProgress(PROGRESS[5] + progressVal * (PROGRESS[6] - PROGRESS[5]) / 100, progressText);
     }
     @Override
     public void tellErrorClient_fromUnzip(String errorText) {
+        myLogE("Unzip service tell Error");
         tellError(errorText);
-        myLogE("Unzip tell Error");
     }
     @Override
     public void tellEndClient_fromUnzip(String destinationFolderPath) {
         myLog("Unzip Service tells End : [" + destinationFolderPath + "]");
-        tellProgress(PROGRESS_SORTING_ZIP, PROGRESS_SORTING_TEXT);
+        tellProgress(PROGRESS[6], PROGRESS_SORTING_TEXT);
         DocumentFile dfPickedDir;
         try {
             dfPickedDir = DocumentFile.fromFile(new File(destinationFolderPath));
@@ -928,9 +987,19 @@ public class AddResourceService
         }
         populateArrayListOfTracksFromFolder(dfPickedDir, true);
     }
+    /**
+     **********************************
+     *    CALLBACKS sent
+     *********************************
+     */
     @Override
     public void tellNonBlockingError(String txt) {
         mCallBacks.tellNonBlockingError(txt);
     }
+
+    //--- LOG --------------------------
+    private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
+    private void myLogD(String str) { KanLogger.myLogD(this.getClass().getName(), str); }
+    private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
 
 }

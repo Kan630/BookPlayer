@@ -31,6 +31,7 @@ public class UnzipService extends Service {
 
     private final IBinder binder = new UnzipService.UnzipServiceBackgroundBinder();
     Callbacks mCallBacks;
+    Thread backgroundThread;
 
     // Intents
     private String zipFilePath;
@@ -78,6 +79,9 @@ public class UnzipService extends Service {
     private void parseIntent(Intent intent) {
         zipFilePath = intent.getStringExtra("zipFilePath");
         destinationFolderPath =  intent.getStringExtra("destinationFolderPath");
+        if (zipFilePath==null || destinationFolderPath==null) {
+            tellError("Wrong arguments for Unzip Service");
+        }
         myLog("parse intent :   " +
                 "\nfrom zipFilePath = [" + zipFilePath + "] " +
                 "\nto destinationFolderPath = [" + destinationFolderPath + "]");
@@ -85,8 +89,8 @@ public class UnzipService extends Service {
     public void init() {
         myLog("init()");
         //-----------------------------
-        // le lourd dans une background Thread.... Hyper Important !!
-        Thread backgroundThread = new Thread(() -> {
+        // le lourd dans une background Thread.... Hyper Important !! // TODO how to kill such thread in cae of error ?
+        backgroundThread = new Thread(() -> {
             Boolean ret = unzipZipLocal();
         });
         backgroundThread.start();
@@ -297,9 +301,14 @@ public class UnzipService extends Service {
     // Callbacks
     //////////////////////////////////////////////////////////////////////////////////////////
     private void tellError(String errorText) {
-        mCallBacks.tellErrorClient_fromUnzip(errorText);
         myLogE(errorText);
+        if (mCallBacks != null) {
+            mCallBacks.tellErrorClient_fromUnzip(errorText);
+        }
         myLog("killing Service");
+        if (backgroundThread != null && backgroundThread.isAlive()) {
+            backgroundThread.interrupt();
+        }
         stopSelf();
     }
     private void tellEnd(String destinationFolderPath) {

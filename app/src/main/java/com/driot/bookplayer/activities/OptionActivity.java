@@ -68,6 +68,7 @@ public class OptionActivity extends LifecycleLoggingActivity {
     ImageButton btn_Color_01, btn_Color_02, btn_Color_03, btn_Color_04, btn_Color_05, btn_Color_06;
     Object[][] themesAndColors;
     CheckBox chk_rewind_after_pause;
+    CheckBox chk_copy_file;
     private PermissionRequest mPermissionRequest;
 
 
@@ -102,6 +103,7 @@ public class OptionActivity extends LifecycleLoggingActivity {
         btn_Color_05 = findViewById(R.id.btn_color_05);
         btn_Color_06 = findViewById(R.id.btn_color_06);
         chk_rewind_after_pause = findViewById(R.id.chk_rewind_after_pause);
+        chk_copy_file = findViewById(R.id.chk_copy_file);
 
         et_timeBeforeSleep.setText(String.valueOf(Option.getTimeBeforeSleep(this)));
         et_ForwardSeconds.setText(String.valueOf(Option.get_ForwardSeconds(this)));
@@ -141,6 +143,9 @@ public class OptionActivity extends LifecycleLoggingActivity {
 
         chk_rewind_after_pause.setChecked(Option.getRewindAfterPause(this));
         chk_rewind_after_pause.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setRewindAfterPause(this, isChecked));
+
+        chk_copy_file.setChecked(Option.getCopyFile(this));
+        chk_copy_file.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setCopyFile(this, isChecked));
 
 
         themesAndColors = new Object[][] {

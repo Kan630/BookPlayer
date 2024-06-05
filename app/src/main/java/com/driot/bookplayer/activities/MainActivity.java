@@ -89,7 +89,7 @@ public class MainActivity extends LifecycleLoggingActivity {//AppCompatActivity 
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toolbar.setTitle("Books");
-        toolbar.setLogo(R.drawable.ic_launcher);
+        toolbar.setLogo(R.drawable.ic_launcher); // TODO transparent background OK but image is cropped : ic_launcher_theme
 
         recyclerView = findViewById(R.id.recyclerview_folders);
         if (recyclerView != null) recyclerView.setLayoutManager(new LinearLayoutManager(this));

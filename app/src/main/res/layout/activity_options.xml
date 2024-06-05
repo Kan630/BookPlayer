@@ -59,6 +59,23 @@
         <LinearLayout style="@style/LinearLayoutOptionsVertical">
             <TextView
                 style="@style/myStyleTextTitle2"
+                android:text="copy file internally" />
+            <LinearLayout style="@style/LayoutWrapContentMargin20horizontal">
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/chk_copy_file"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp" />
+                <TextView
+                    style="@style/TextForCheckBoxOption"
+                    android:text="Copy all files in the internal, reserved BookPlayer memory.\nThat way, \'no read_audio\' permission is needed.\nAnd no risk to loose audio if source file get accidentally deleted/moved." />
+            </LinearLayout>
+        </LinearLayout>
+
+        <View style="@style/myStyleViewSimpleHorizontalBar" />
+
+        <LinearLayout style="@style/LinearLayoutOptionsVertical">
+            <TextView
+                style="@style/myStyleTextTitle2"
                 android:text="@string/option_delete_source_file_title" />
             <LinearLayout style="@style/LayoutWrapContentMargin20horizontal">
                 <com.google.android.material.checkbox.MaterialCheckBox

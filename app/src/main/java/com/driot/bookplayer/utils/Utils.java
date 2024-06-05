@@ -1,5 +1,8 @@
 package com.driot.bookplayer.utils;
 
+import static com.driot.tonylib.KanLogger.myLog;
+import static com.driot.tonylib.KanLogger.myLogE;
+
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.view.View;
@@ -19,12 +22,15 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import static com.driot.tonylib.KanLogger.myLog;
+import com.driot.tonylib.KanLogger;
+
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 08/11/20
  */
 public class Utils {
+
+    private static final String TAG = "Utils";
 
     /**
      * @param view         View to animate
@@ -109,8 +115,8 @@ public class Utils {
     }
 
     public static void unzip(File zipFile, File targetDirectory) throws IOException {
-        myLog("unzipping in : " + targetDirectory);
-        myLog("unzipping in : " + targetDirectory.getName());
+        myLog(TAG, "unzipping in : " + targetDirectory);
+        myLog(TAG, "unzipping in : " + targetDirectory.getName());
         ZipInputStream zis = new ZipInputStream(
                 new BufferedInputStream(new FileInputStream(zipFile)));
         try {
@@ -119,12 +125,12 @@ public class Utils {
             byte[] buffer = new byte[8192];
 
             while ((ze = zis.getNextEntry()) != null) {
-                myLog("unzipping : " + ze.getName());
+                myLog(TAG, "unzipping : " + ze.getName());
 
                 if (ze.getName().equals(targetDirectory.getName()+"/")) {
                     //bypass if zip contains only folder with same name at first level
                     targetDirectory = new File(targetDirectory.getParent());
-                    myLog("unzipping : bypassing first directory");
+                    myLog(TAG, "unzipping : bypassing first directory");
 
                 } else {
 
@@ -158,25 +164,25 @@ public class Utils {
 
     public static boolean recursiveRemove(File file) {
         if(file == null  || !file.exists()) {
+            myLogE(TAG, "recursiveRemove() => File does not exist.... [" + file.toString() + "]");
             return false;
         }
 
         if(file.isDirectory()) {
             File[] list = file.listFiles();
-
             if(list != null) {
-
                 for(File item : list) {
                     recursiveRemove(item);
                 }
-
             }
         }
-
         if(file.exists()) {
-            file.delete();
+            if (file.delete()) {
+                myLog(TAG, "recursiveRemove() => delete OK.... [" + file.toString() + "]");
+            } else {
+                myLogE(TAG, "recursiveRemove() => delete KO.... [" + file.toString() + "]");
+            }
         }
-
         return !file.exists();
     }
 
@@ -252,5 +258,4 @@ public class Utils {
         }
         return totalSize;
     }
-
 }

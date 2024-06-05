@@ -125,7 +125,7 @@ public class CacheFilesViewModel extends AndroidViewModel {
                             return false;
                         }
                     } else {
-                        myLog("file does not exist");
+                        myLogE("file does not exist");
                         return false;
                     }
                 } catch (Exception e) {

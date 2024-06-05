@@ -81,7 +81,7 @@ public class CacheFilesActivity extends LifecycleLoggingActivity implements Cach
     }
 
     public void onDeleteClick(File file) {
-        myLog("Delete Click on " + file.getName());
+        myLog("Delete Click on [" + file.getName() + "]");
         new AlertDialog.Builder(this)
                 .setTitle(R.string.AskDelete_popupTitle)
                 .setMessage(getString(R.string.CacheFiles_AskDeleteAudioBook) + ":\n [" + file.getName() + "]\n    " + getString(R.string.are_you_sure))

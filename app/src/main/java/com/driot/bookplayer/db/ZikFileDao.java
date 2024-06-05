@@ -76,6 +76,9 @@ public interface ZikFileDao {
     @Query("SELECT uri FROM Folder WHERE id = :id")
     String getFolderUri(int id);
 
+    @Query("SELECT path FROM Folder WHERE id = :id")
+    String getFolderPath(int id);
+
     @Query("SELECT path FROM ZikFile WHERE id = :id")
     String getZikFilePath(int id);
 
