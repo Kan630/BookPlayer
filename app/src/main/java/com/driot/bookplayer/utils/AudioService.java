@@ -405,7 +405,9 @@ public class AudioService extends Service {
         ErrorLoadingFile = false; // for onCompletion Next Track...
         if (!fileExists(sPath)) {
             myLogE("loadFile(sPath) : ERROR -- File doesn't exist !! " + sPath);
+            sendBroadcast(new Intent(NOTIFICATION_FILENOTFOUND));
             ErrorLoadingFile=true;
+            stopSelf();
             return false;
         }
 

@@ -136,7 +136,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
                     finish();
                 case NOTIFICATION_FILENOTFOUND:
                     myLog("broadcast received FILENOTFOUND");
-                    Toast.makeText(getApplicationContext(), getString(R.string.error_reading_track), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), getString(R.string.error_reading_track) + "\n" + getString(R.string.error_file_not_found), Toast.LENGTH_SHORT).show();
                     lockButtonAndDisplayErrorMessage();
                 case NOTIFICATION_TRACKFINISHED:
                     myLog("broadcast received TRACK FINISHED");

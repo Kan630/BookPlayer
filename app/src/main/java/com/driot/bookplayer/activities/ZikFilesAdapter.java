@@ -114,10 +114,10 @@ public class ZikFilesAdapter extends RecyclerView.Adapter<ZikFilesAdapter.ZikFil
 
             boolean FileOkForPlay = false;
             // check First that zikFile is proper zikFile and is playable
-            if (zikFile.isIszipfile()) {
-                FileOkForPlay = true;
-                myLog("zikFile is zip");
-            } else {
+            //if (zikFile.isIszipfile()) {
+            //    FileOkForPlay = true;
+            //    myLog("zikFile is zip");
+            //} else {
                 // check file exists
 /*
                 if (zikFile.isIsSingleFile()) {
@@ -128,20 +128,20 @@ public class ZikFilesAdapter extends RecyclerView.Adapter<ZikFilesAdapter.ZikFil
 */
                 String fullPath = zikFile.getPath() + "/" + zikFile.getName();
                 myLog("full path zikFile to open PlayActivity : " + fullPath);
-                if (fileExists(fullPath)) FileOkForPlay = true;
-            }
+                //if (fileExists(fullPath)) FileOkForPlay = true;
+            //}
 
-            if (FileOkForPlay) {
+            //if (FileOkForPlay) {
                 PlayList.setNumZikFile(getAdapterPosition()); //global var
 
                 //pass an object, check parcelable //on s'en sert plus.... tout semble passer par les global var ci dessus
                 Intent intent = new Intent(mCtx, PlayActivity.class);
                 intent.putExtra("ZikFile", zikFile);
                 mCtx.startActivity(intent);
-            } else {
-                myLogE("opening PlayActivity -- ERROR OPENING TRACK - FILE NOT FOUND !");
-                Toast.makeText(mCtx, mCtx.getString(R.string.PlayActivity_ErrorOpeningTrack_FileNotFound), Toast.LENGTH_SHORT).show();
-            }
+            //} else {
+            //    myLogE("opening PlayActivity -- ERROR OPENING TRACK - FILE NOT FOUND !");
+            //    Toast.makeText(mCtx, mCtx.getString(R.string.PlayActivity_ErrorOpeningTrack_FileNotFound), Toast.LENGTH_SHORT).show();
+            //}
         }
 
 
