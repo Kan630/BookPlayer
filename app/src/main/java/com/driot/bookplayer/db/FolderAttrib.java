@@ -7,6 +7,7 @@ import android.os.Environment;
 import android.provider.OpenableColumns;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.utils.FileUtils;
 import com.driot.tonylib.KanLogger;
 
 import java.io.File;
@@ -87,9 +88,16 @@ public class FolderAttrib {
             if (isSingleFile) { sFolderPath = stripFileName(sFolderPath); }
         }
 
-        // controle de l'existence du fullPath
+        //let's try the new function....
         File f = new File(sFolderPath);
-        if (!f.exists())  {
+        if (!f.exists()) {
+            sFolderPath = FileUtils.getRealPathFromURI(mCtx, uri);
+            sFolderPath = stripFileName(sFolderPath);
+            f = new File(sFolderPath);
+        }
+
+        // controle de l'existence du fullPath
+        if (!f.exists()) {
             FolderKO = true;
             myLogE("====== Path cannot be retrieved       ....  error with: --new File("+sFolderPath+")--");
         }
