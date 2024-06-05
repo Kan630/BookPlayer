@@ -101,6 +101,8 @@ public class AddResourceService
     private String destinationFolderName;
     private String destinationFolderPath;
 
+    private String fullPath;
+
     public static boolean isBusy;
 
     // Callbacks
@@ -408,6 +410,7 @@ public class AddResourceService
                 if (mime.equals("audio/mp4")) { //   application/mp4   .m4b
 
                     myLog("MP4 : [" + dfPickedDir.getType() + "]");
+
                     populateArrayListOfTracksFromFile(dfPickedDir);
 /*
                     //TODO : maybe you can just unzip it...
@@ -513,12 +516,15 @@ public class AddResourceService
                     //TODO if only name the same, just import with a new name... but is this possible ? wanted ?
                 }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(result -> {
                     if (result) {
-                        myLog("KO, folder does already exist in DB : [" + destinationFolderName + "]");
+                        myLogE("KO, folder does already exist in DB : [" + destinationFolderName + "]");
                         tellError(getString(R.string.Error_Import_FolderAlreadyImported) + "  [" + destinationFolderName + "]");
                     } else {
                         myLog("OK, folder doesn't already exist in DB");
                         tellProgress(PROGRESS_CHECK_FOLDER_EXIST_ZIP,getResources().getString(R.string.Import_Progress_check_not_already_imported));
-                        copyZipLocal(uri_given); //launch a service, next step through callbacks
+                        copyFileLocal(uri_given
+                                , getFilesDir().getAbsolutePath() + "/" + FOLDER_UNZIPPED + "/" + destinationFolderName
+                                , destinationFolderName + ".zip"
+                                ); //launch a service, next step through callbacks
                     }
                 }, throwable -> {
                     tellError(getResources().getString(R.string.Error_Import_checking_Folder_Exists) + " : [" + throwable.getMessage() + "]");
@@ -530,16 +536,20 @@ public class AddResourceService
     }
 
     private void goFolder() {
-        if (audioFileArrayList.size() == 0) {
-            tellError(getString(R.string.Error_Import_NoMediaInFolder));
-        } else {
-            myLog(audioFileArrayList.size() + " " + getString(R.string.Import_nMediaInFolder));
-            if (comingFromZip) {
-                tellProgress(PROGRESS_SORTING_ZIP, "checking if not already imported");
+        if (audioFileArrayList != null) {
+            if (audioFileArrayList.size() == 0) {
+                tellError(getString(R.string.Error_Import_NoMediaInFolder));
             } else {
-                tellProgress(PROGRESS_SORTING_NO_ZIP, "checking if not already imported");
+                myLog(audioFileArrayList.size() + " " + getString(R.string.Import_nMediaInFolder));
+                if (comingFromZip) {
+                    tellProgress(PROGRESS_SORTING_ZIP, "checking if not already imported");
+                } else {
+                    tellProgress(PROGRESS_SORTING_NO_ZIP, "checking if not already imported");
+                }
+                checkIfFolderAlreadyExist();
             }
-            checkIfFolderAlreadyExist();
+        } else {
+            tellError(getString(R.string.Error_Import_NoMediaInFolder));
         }
     }
 
@@ -561,30 +571,42 @@ public class AddResourceService
                 if (!comingFromZip) {
                     tellProgress(PROGRESS_CHECK_FOLDER_EXIST_NO_ZIP,getResources().getString(R.string.Import_Progress_check_not_already_imported));
                 }
-                saveFolder();
+                copyFolder();
             }
         }, throwable -> {
             tellError(getResources().getString(R.string.Error_Import_checking_Folder_Exists) + throwable.getMessage());
         });
     }
-
-
-    private void copyZipLocal(Uri uri) {
-        long zipFileSize = -1L;
-
-        File externalZipFile = new File(uri.getPath());
-        if (externalZipFile.exists()) zipFileSize = externalZipFile.length();
-        if (zipFileSize > 0) {
-            myLog("ze Size : " + zipFileSize);
+    private void copyFolder() {
+        if (Option.getCopyFile(this)) {
+            String folderPath = getFilesDir().getAbsolutePath() + "/" + FOLDER_UNZIPPED + "/" + myFolder.getFolderName();
+            String fileName = myFolder.getFileName(this);
+            fullPath = folderPath + fileName;
+            myLog("**** fullPath = [" + fullPath + "]");
+            copyFileLocal(myFolder.getUri()
+                        , folderPath
+                        , fileName);
         } else {
-            myLog("ERR : Cannot Check Size .... Size = " + zipFileSize + " .... Never Mind... let's copy");
+            saveFolder();
         }
 
-        destinationFolderPath = getFilesDir().getAbsolutePath() + "/" + FOLDER_UNZIPPED + "/" + destinationFolderName;
-        myLog("Future Folder Path : [" + destinationFolderPath + "]");
 
-        myLog("call to launchCopyFileService \nfrom Uri [" + uri + "] \nto Folder [" + destinationFolderPath + "] \nwith Name [" + destinationFolderName + ".zip" + "]");
-        launchCopyFileService(uri, destinationFolderPath, destinationFolderName + ".zip");
+    }
+
+
+
+    private void copyFileLocal(Uri uri, String destinationFolderPath, String destinationName) {
+        long fileSize = -1L;
+        File externalFile = new File(uri.getPath());
+        if (externalFile.exists()) fileSize = externalFile.length();
+        if (fileSize > 0) {
+            myLog("ze Size : " + fileSize);
+        } else {
+            myLog("ERR : Cannot Check Size .... Size = " + fileSize + " .... Never Mind... let's copy");
+        }
+        myLog("Future Folder Path : [" + destinationFolderPath + "]");
+        myLog("call to launchCopyFileService \nfrom Uri [" + uri + "] \nto Folder [" + destinationFolderPath + "] \nwith Name [" + destinationName + "]");
+        launchCopyFileService(uri, destinationFolderPath, destinationName);
     }
 
     private void unzipZipLocal() {
@@ -869,7 +891,13 @@ public class AddResourceService
     @Override
     public void tellEndClient_fromCopy() {
         myLog("Copyfile tell End - go unzip");
-        unzipZipLocal();
+        if (type_given == "ZIP") {
+            unzipZipLocal();
+        } else {
+            myFolder = new FolderAttrib(this, Uri.fromFile(new File(fullPath)), true);
+            saveFolder();
+        }
+
     }
     @Override
     public void tellErrorClient_fromCopy(String errorText) {

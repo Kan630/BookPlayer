@@ -56,7 +56,7 @@ public class FolderAttrib {
                     Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getPath()
                     + getSubFolders("/Download", uri.getPath()) ;
             if (!isSingleFile) {
-                sFolderPath = sFolderPath + "/" + getFileName(context,uri);;
+                sFolderPath = sFolderPath + "/" + getFileName();
             }
 
             // from MAIN MEMORY
@@ -102,7 +102,7 @@ public class FolderAttrib {
         // ******************************************
 
         if (isSingleFile) {
-            sFolderName = formatNameForDisplay(getLastFolder(sFolderPath) + "/" + getFileName(context,uri));
+            sFolderName = formatNameForDisplay(getLastFolder(sFolderPath) + "/" + getFileName());
         } else {
             // nom par défaut = les deux derniers folders :
             // ex  : "S3 - Finances publiques/Audios"
@@ -134,6 +134,9 @@ public class FolderAttrib {
     }
     public boolean isSingleFile() {
         return isSingleFile;
+    }
+    public Uri getUri() {
+        return uri;
     }
     public String getUriString() {
         return uri.toString();
@@ -183,8 +186,12 @@ public class FolderAttrib {
     }
 
 
-    public String getFileName(Context context, Uri uri) {
-        myLog("getFileName(context, uri) start");
+
+    private String getFileName() {
+        return getFileName(mCtx);
+    }
+    public String getFileName(Context context) {
+        myLog("getFileName() start");
         int tmp_int;
         String result = null;
         if (uri.getScheme().equals("content")) {
