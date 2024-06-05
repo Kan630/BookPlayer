@@ -609,32 +609,38 @@ public class AddResourceService
         });
     }
     private void copyFolder() {
-        if (Option.getCopyFile(this)) {
-            tellProgress(PROGRESS[3], "preparing Folder copy...");
-            if (type_given.equals("Folder")) {
-                String folderPath = getFilesDir().getAbsolutePath() + "/" + FOLDER_UNZIPPED + "/" + myFolder.getFolderName();
-                String fileName = myFolder.getFileName(this);
-                fullPath = folderPath;
-                myLog("**** fullPath = [" + fullPath + "]");
-                copyFileLocal(myFolder.getUri()
-                        , folderPath
-                        , "tutu" // fileName needed to check if already exist in DB
-                        , type_given);
-            } else if (type_given.equals("File")) {
-                String folderPath = getFilesDir().getAbsolutePath() + "/" + FOLDER_UNZIPPED + "/" + myFolder.getFolderName();
-                String fileName = myFolder.getFileName(this);
-                fullPath = folderPath + "/" + fileName;
-                myLog("**** fullPath = [" + fullPath + "]");
-                copyFileLocal(myFolder.getUri()
-                        , folderPath
-                        , fileName
-                        , type_given
-                );
-            } else {
-                myLogE("Wrong file type : " + type_given);
-            }
-        } else {
+        if (type_given.equals("ZIP")) {
+            // Has already been copied and unzipped...
+            myFolder.setForceFolderPath(zipDestinationFolderPath);
             saveFolder();
+        } else {
+            if (Option.getCopyFile(this)) {
+                tellProgress(PROGRESS[3], "preparing Folder copy...");
+                if (type_given.equals("Folder")) {
+                    String folderPath = getFilesDir().getAbsolutePath() + "/" + FOLDER_UNZIPPED + "/" + myFolder.getFolderName();
+                    String fileName = myFolder.getFileName(this);
+                    fullPath = folderPath;
+                    myLog("**** fullPath = [" + fullPath + "]");
+                    copyFileLocal(myFolder.getUri()
+                            , folderPath
+                            , "tutu" // fileName needed to check if already exist in DB
+                            , type_given);
+                } else if (type_given.equals("File")) {
+                    String folderPath = getFilesDir().getAbsolutePath() + "/" + FOLDER_UNZIPPED + "/" + myFolder.getFolderName();
+                    String fileName = myFolder.getFileName(this);
+                    fullPath = folderPath + "/" + fileName;
+                    myLog("**** fullPath = [" + fullPath + "]");
+                    copyFileLocal(myFolder.getUri()
+                            , folderPath
+                            , fileName
+                            , type_given
+                    );
+                } else {
+                    myLogE("Wrong file type : " + type_given);
+                }
+            } else {
+                saveFolder();
+            }
         }
     }
 

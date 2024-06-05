@@ -12,6 +12,7 @@ import android.os.StatFs;
 import android.webkit.MimeTypeMap;
 
 import androidx.annotation.NonNull;
+import androidx.documentfile.provider.DocumentFile;
 
 import com.driot.tonylib.KanLogger;
 
@@ -229,11 +230,24 @@ public class Tonio {
 
     @NonNull
     public static String getMimeType(String fileName) {
+        //other possibility : library that read the beggining of file like "Apache Tika"
+        //DocumentContract
+        //DocumentFile.fromSingleUri(this, uri_given).getType;
         String type;
         final String extension = getExtension(fileName);
             type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension.toLowerCase());
         if (type == null) type = "*/*";
         return type;
+    }
+
+    public static String getMimeType(File f) {
+        String m = "*/*";
+        try {
+            m = DocumentFile.fromFile(f).getType();
+        } catch (Exception e) {
+            myLogE("getMimeType - " + e.getMessage());
+        }
+        return m;
     }
 
     public static boolean fileExists(String filePath) {

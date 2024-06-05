@@ -90,6 +90,7 @@ public class FolderModifyActivity extends LifecycleLoggingActivity {
                         deleteFolder2();
                     } else {
                         myLogE("Error deleting files from Disk");
+                        deleteFolder2(); // on supprime quand meme, on va pas laisser des fantomes, et puis il y a une interface pour les fichiers sur le disk
                     }
                 }, throwable -> {
                     myToastE(myErr);

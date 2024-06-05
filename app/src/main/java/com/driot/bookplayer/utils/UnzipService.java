@@ -1,6 +1,7 @@
 package com.driot.bookplayer.utils;
 
 
+import static com.driot.bookplayer.utils.Tonio.getMimeType;
 import static com.driot.bookplayer.utils.Utils.recursiveRemove;
 
 import android.app.Service;
@@ -230,6 +231,23 @@ public class UnzipService extends Service {
             return false;
         }
         myLog("file has been unzipped");
+
+        // Lets delete non audio files
+        try {
+            for (File f : new File(destinationFolderPath).listFiles()) {
+                String mime = getMimeType(f);
+                if (!mime.startsWith("audio/")) {
+                    if (f.delete()) {
+                        myLog("deleting non audio file [" + f.getName() + "] - [" + mime + "]");
+                    } else {
+                        myLogE("error deleting non audio file " + f.getName());
+                    }
+                }
+            }
+        } catch (Exception e) {
+            myLogE("error getting MIME and deleting non audio files - " + e.getMessage());
+        }
+        myLog("unzipped folder has been pruned of non audio files");
         tellEnd(destinationFolderPath);
         return true;
     }
