@@ -5,10 +5,13 @@ import static com.driot.tonylib.KanLogger.myLog;
 import static com.driot.tonylib.KanLogger.myLogE;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Environment;
 import android.os.StatFs;
+import android.provider.Settings;
 import android.webkit.MimeTypeMap;
 
 import androidx.annotation.NonNull;

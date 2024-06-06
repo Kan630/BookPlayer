@@ -767,7 +767,6 @@ public class AddResourceService
             myLog("Get Media Duration : " + sFileFullPath);
             zikFile.setDuration(getMediaDurationFromPath(sFileFullPath));
         } catch (IOException e) {
-            e.printStackTrace();
             myLogE("Error getting media duration : " + e.getMessage());
         }
 

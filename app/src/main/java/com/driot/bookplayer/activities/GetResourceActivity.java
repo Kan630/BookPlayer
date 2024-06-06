@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.Settings;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -19,6 +20,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.utils.AddResourceService;
 import com.driot.bookplayer.utils.CopyFileService;
@@ -77,8 +79,7 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
             // SINGLE FILE
         bOpenFile.setOnClickListener(view -> {
             myLog("Button click : single file");
-            if (isReadAudioPermissionGranted(this)) {
-                //myToastE(getString(R.string.permissions_denied_sorry_cannot));
+            if (isReadAudioPermissionGranted(this) || Option.getCopyFile(this)) {
                 Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
                 intent.setType("audio/*");
                 intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_WRITE_URI_PERMISSION|Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION|Intent.FLAG_GRANT_PREFIX_URI_PERMISSION);
@@ -87,19 +88,19 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
                 //can be opened as a File object i.e. with read and write permissions and have complete access to the physical location of the data
                 startActivityForResult(intent, OPEN_FILE_REQUEST_CODE);
             } else {
-                myToastE(getString(R.string.permissions_denied_sorry_cannot));
+                askForPermission();
             }
         });
 
         // FOLDER
         bOpenFolder.setOnClickListener(view -> {
             myLog("Button click : FOLDER");
-            if (isReadAudioPermissionGranted(this)) {
+            if (isReadAudioPermissionGranted(this) || Option.getCopyFile(this)) {
                 Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE); //API 21
                 intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_WRITE_URI_PERMISSION|Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION|Intent.FLAG_GRANT_PREFIX_URI_PERMISSION);
                 startActivityForResult(intent, OPEN_FOLDER_REQUEST_CODE);
             } else {
-                myToastE(getString(R.string.permissions_denied_sorry_cannot));
+                askForPermission();
             }
         });
 
@@ -107,7 +108,6 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
         bOpenZipFile.setOnClickListener(view -> {
             scanThatShit();
             myLog("Button click : ZIP file");
-            //if (isReadAudioPermissionGranted(this)) {
                 Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
                 // TODO ACTION_GET_CONTENT should be enough since we copy locally...
                 // ACTION_PICK could be interesting.... as an option..
@@ -115,9 +115,6 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
                 intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_WRITE_URI_PERMISSION|Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION|Intent.FLAG_GRANT_PREFIX_URI_PERMISSION);
                 intent.addCategory(Intent.CATEGORY_OPENABLE);
                 startActivityForResult(intent, OPEN_ZIP_FILE_REQUEST_CODE);
-            //} else {
-            //    myToastE(getString(R.string.permissions_denied_sorry_cannot));
-            //}
         });
 
         ////////////////////////////////
@@ -311,6 +308,24 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
         MediaScanner2.scanFileAndNotifyMediaScanner(this, paths[0], mimeTypes[0]);
     }
 
+    public void openAppInfo() {
+        try {
+            Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+            Uri uri = Uri.fromParts("package", getPackageName(), null);
+            intent.setData(uri);
+            startActivity(intent);
+        } catch (Exception e) {
+            myLogE("openAppSettingsOnPhone() => " + e.getMessage());
+        }
+    }
+    public void openOptionActivity() {
+        try {
+            startActivity(new Intent(this, OptionActivity.class).putExtra("CopyFileSetRed",true));
+        } catch (Exception e) {
+            myLogE("openOptionActivity() => " + e.getMessage());
+        }
+    }
+
 
 
     // -------------------------------------------------------------------------------------------
@@ -348,6 +363,16 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
      * @param savedInstanceState A saved state or null.
      */
 
+    private void askForPermission() {
+        if (!isReadAudioPermissionGranted(this)) {
+            myLog("askForPermission() -- NOT already granted => asking...");
+            checkPermissionsReadStorage();
+        } else {
+            myLog("askForPermission() -- already granted...");
+        }
+    }
+
+/*
     @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
         myLog("onPostCreate()");
@@ -357,6 +382,7 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
         }
         super.onPostCreate(savedInstanceState);
     }
+ */
 
     private void checkPermissionsReadStorage() {
         if(Build.VERSION.SDK_INT < 33) {
@@ -397,12 +423,8 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
         new AlertDialog.Builder(this)
                 .setTitle("Permission Required")
                 .setMessage(R.string.permission_read_write_denied)
-                .setPositiveButton("Retry", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 3438634);//REQUEST_CODE // Request permissions again
-                    }
-                })
+                .setPositiveButton("App Info", (dialog, which) -> openAppInfo())
+                .setNeutralButton("Options", (dialog, which) -> openOptionActivity())
                 .setNegativeButton("Cancel", null)
                 .show();
     }

@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -20,6 +21,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.utils.PermissionRequest;
 import com.driot.tonylib.KanLogger;
@@ -165,6 +167,11 @@ public class OptionActivity extends LifecycleLoggingActivity {
         }
 
         setVisualizerPermissionText();
+
+        if (getIntent().getBooleanExtra("CopyFileSetRed", false)) {
+            TextView tv = findViewById(R.id.txtCopyFileHead);
+            tv.setTextColor(Color.RED);
+        }
 
         // TODO : allows options
         chk_UnZip.setEnabled(false);

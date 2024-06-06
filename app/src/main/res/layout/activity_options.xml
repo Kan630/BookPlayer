@@ -58,6 +58,7 @@
 
         <LinearLayout style="@style/LinearLayoutOptionsVertical">
             <TextView
+                android:id="@+id/txtCopyFileHead"
                 style="@style/myStyleTextTitle2"
                 android:text="copy file internally" />
             <LinearLayout style="@style/LayoutWrapContentMargin20horizontal">
