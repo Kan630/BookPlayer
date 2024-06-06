@@ -20,8 +20,8 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
-## AUTHENTICATION   :   https://developer.android.com/training/sign-in/passkeys
--if class androidx.credentials.CredentialManager
--keep class androidx.credentials.playservices.** {
-  *;
-}
+## AUTHENTICATION   :   https://developer.android.com/training/sign-in/passkeys   ##### ca marche plus ce truc
+#-if class androidx.credentials.CredentialManager
+#-keep class androidx.credentials.playservices.** {
+#  *;
+#}

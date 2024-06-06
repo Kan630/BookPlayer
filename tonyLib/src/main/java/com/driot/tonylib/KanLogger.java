@@ -20,7 +20,7 @@ import static com.driot.tonylib.TonioCommonStuff.MD5;
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 20/12/20
  *
- * Utility Class = Helper class = contains just static methods => cannot be instanciated
+ * Utility Class = Helper class = contains just static methods => cannot be instantiated
  */
 public class KanLogger {
 
@@ -35,6 +35,7 @@ public class KanLogger {
 
     private static final String LOG_PREFIX = "toto";
 
+    @SuppressWarnings("SpellCheckingInspection")
     public static final String[] MD5_MY_PHONE = {""
             ,"eb621dde2a2672e66b6e6ef5acbbbb99" //"OPPO/CPH2065EEA/OP4BDCL1:11/RP1A.200720.011/1629728339857:user/release-keys"
             ,"a35ba9d541e15b9ff7b017b7fef54430" // Redmi/veux_eea/veux:13/TKQ1.221114.001/V816.0.1.0.TKCEUXM:user/release-keys

@@ -145,11 +145,11 @@ public class Tonio {
                 // give name of the day
             } else if ((d2.getTime()-d.getTime())/ (1000 * 60 * 60 * 24)<7) {
                 // give name of the day
-                SimpleDateFormat outFormat = new SimpleDateFormat("EEEE");
+                SimpleDateFormat outFormat = new SimpleDateFormat("EEEE", Locale.getDefault());
                 s = outFormat.format(d);
             } else {
                 //give date :
-                SimpleDateFormat simpleDate =  new SimpleDateFormat("yyyy-MM-dd");
+                SimpleDateFormat simpleDate =  new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
                 s = simpleDate.format(d);
             }
         } else {

@@ -135,7 +135,6 @@
                 style="@style/LinearLayoutOptionsCheckBoxHorizontal"
                 android:gravity="center"
                 android:layout_width="match_parent">
-                >
                 <TextView
                     style="@style/myStyleTextExplainButton"
                     android:layout_width="wrap_content"
