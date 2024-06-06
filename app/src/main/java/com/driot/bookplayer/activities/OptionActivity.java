@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Color;
@@ -21,7 +20,6 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.utils.PermissionRequest;
 import com.driot.tonylib.KanLogger;
@@ -30,7 +28,6 @@ import static com.driot.bookplayer.global.Option.DEFAULT_FORWARD_SECONDS;
 import static com.driot.bookplayer.global.Option.DEFAULT_TIME_BEFORE_SLEEP;
 import static com.driot.bookplayer.utils.PermissionRequest.isRecordAudioPermissionGranted;
 import static com.driot.tonylib.KanLogger.myLongToast;
-import static com.driot.tonylib.KanMail.DEFAULT_SEND_MAIL_METHOD_DEFAULT;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.StyleRes;
@@ -95,7 +92,7 @@ public class OptionActivity extends LifecycleLoggingActivity {
         chk_beep_chapter = findViewById(R.id.chk_beep_chapter_default);
         chk_beep_bookend = findViewById(R.id.chk_beep_bookend_defaut);
         chk_beep_autostop = findViewById(R.id.chk_beep_autostop_defaut);
-        chk_delete_source_file = findViewById(R.id.chk_delete_source_file);
+        chk_delete_source_file = findViewById(R.id.chk_delete_source_file_zip);
         chk_visualizer_on = findViewById(R.id.chk_visualizer_on);
         tx_Visualizer_on = findViewById(R.id.tx_Visualizer_on);
         btn_Color_01 = findViewById(R.id.btn_color_01);

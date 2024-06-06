@@ -56,6 +56,7 @@ import static com.driot.bookplayer.utils.Tonio.formatNameForDisplay;
 import static com.driot.bookplayer.utils.Tonio.FormatPercentStringForSpeed;
 import static com.driot.bookplayer.utils.Tonio.FormatTime;
 import static com.driot.bookplayer.utils.Utils.animateView;
+import static com.driot.tonylib.KanLogger.myToast;
 import static com.driot.tonylib.KanLogger.myToastE;
 
 /**
@@ -297,17 +298,6 @@ public class PlayActivity extends LifecycleLoggingActivity {
         }
             myLog("call start & bind to AudioService in onCreate() - bound result :" + audioServiceBound + "");
     }
-/*
-    private boolean isServiceRunning(Class<?> serviceClass) {
-        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-            if (serviceClass.getName().equals(service.service.getClassName())) {
-                return true;
-            }
-        }
-        return false;
-    }
- */
 
     private void playMe() {
         myLog("PlayMe()");
@@ -588,6 +578,8 @@ public class PlayActivity extends LifecycleLoggingActivity {
                 } catch (Exception e) {
                     myLogE("runVisualizer - " + e.getMessage());
                 }
+            } else {
+                myLog("frequencyVisualizerView is On, but permission is not granted");
             }
         }
     }

@@ -61,22 +61,44 @@
     <string name="option_copyzip_local">Copy files in app memory (mandatory for Android 11 and up).</string>
     <string name="option_unzip_local">Unzip files (takes storage space, but smoother listening experience)</string>
 
+    <string name="option_copy_file_title">Copy file internally</string>
+    <string name="option_copy_file_subtitle"><i>Pro :
+        \n* [Read Audio] permission is not needed.
+        \n* No risk to loose audio book and progress if its source file get accidentally deleted/moved.
+        \nCons :
+        \nMore memory will be needed if you do not delete the source file.</i>
+    </string>
+    <string name="option_copy_file_text">Copy all files in the internal, reserved, BookPlayer app memory.</string>
+
+    <string name="option_backward_forward_title">BackWard/Forward buttons</string>
+    <string name="option_backward_forward_text">timelapse :</string>
+
+    <string name="option_rewind_after_pause_title">Rewind a few seconds when resuming play</string>
+    <string name="option_rewind_after_pause_text">"Rewind audio 3 seconds before resuming play, if pause was more than 2 minutes."</string>
+
+    <string name="option_pick_theme_color_title">Pick your app color theme</string>
+
     <string name="option_orientation">Screen Orientation</string>
-    <string name="option_orientation_lock">Lock the screen orientation when playing (portrait)</string>
+    <string name="option_orientation_lock">Lock the screen orientation when playing (better to keep it on)</string>
 
     <string name="option_delete_source_file_title">Automatic Source file deletion</string>
-    <string name="option_delete_source_file_text">Automatically delete the previously picked file once loaded into Bookplayer (only for ZIP)</string>
+    <string name="option_delete_source_file_subtitle"><i>After a file/folder/zip has been loaded into BookPlayer, the source file/folder/zip you picked can be deleted automatically.
+        \nNote that this is only possible if the audio has been copied in the internal memory.
+        \n* ZIP files are always copied internally.
+        \n* Single audio file, and audio Folders, are copied only if the above option [copy file internally] is set.</i></string>
+    <string name="option_delete_source_file_text_01">ZIP: Automatically delete picked ZIP file once loaded into Bookplayer.</string>
+    <string name="option_delete_source_file_text_02">Others: Automatically delete picked file/folder once loaded into Bookplayer.</string>
 
     <string name="option_mail_method">Sending mail</string>
-    <string name="option_mail_method_default">Use default mailing app. Uncheck to be asked which app to use.</string>
+    <string name="option_mail_method_default">Use default mailing app.\n<i>Uncheck to be asked which app to use.</i></string>
 
     <string name="option_beep_title">Beep Sound</string>
     <string name="option_beep_between_chapters">Produce a beep at chapters end.</string>
-    <string name="option_beep_for_autostop">Produce a long beep when entering sleep mode (automatic pause).</string>
+    <string name="option_beep_for_autostop">Produce a long beep when entering sleep mode <i>(automatic pause after XX minutes)</i></string>
     <string name="option_beep_at_the_end">Produce a triple beep at the book end.</string>
 
     <string name="option_visualizer_title">Spectrum Visualizer</string>
-    <string name="option_visualizer_text">minimalist frequency visualizer displayed when audio is playing. (needs permission -record_audio or microphone-)</string>
+    <string name="option_visualizer_text">Minimalist frequency visualizer displayed when audio is playing. <i>([Record Audio]/[Microphone] permission needed)</i></string>
     <string name="option_visualizer_no_permissions">-- permission not granted --</string>
 
     <!-- ********************************** -->

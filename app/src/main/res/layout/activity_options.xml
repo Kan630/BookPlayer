@@ -60,15 +60,22 @@
             <TextView
                 android:id="@+id/txtCopyFileHead"
                 style="@style/myStyleTextTitle2"
-                android:text="copy file internally" />
-            <LinearLayout style="@style/LayoutWrapContentMargin20horizontal">
+                android:text="@string/option_copy_file_title" />
+            <LinearLayout style="@style/LayoutWrapContentMargin20horizontal"
+                android:layout_height="wrap_content"
+                >
+
                 <com.google.android.material.checkbox.MaterialCheckBox
                     android:id="@+id/chk_copy_file"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp" />
+                    style="@style/CheckBoxOption"/>
                 <TextView
-                    style="@style/TextForCheckBoxOption"
-                    android:text="Copy all files in the internal, reserved BookPlayer memory.\nThat way, \'no read_audio\' permission is needed.\nAnd no risk to loose audio if source file get accidentally deleted/moved." />
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="textEnd"
+                    android:layout_marginStart="10sp"
+                    android:textSize="16sp"
+                    android:textColor="@color/text_default"
+                    android:text="@string/option_copy_file_text"/>
             </LinearLayout>
         </LinearLayout>
 
@@ -78,15 +85,28 @@
             <TextView
                 style="@style/myStyleTextTitle2"
                 android:text="@string/option_delete_source_file_title" />
+            <TextView
+                style="@style/OptionSubTitle"
+                android:layout_marginTop="10dp"
+                android:textSize="14dp"
+                android:text="@string/option_delete_source_file_subtitle" />
             <LinearLayout style="@style/LayoutWrapContentMargin20horizontal">
                 <com.google.android.material.checkbox.MaterialCheckBox
-                    android:id="@+id/chk_delete_source_file"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp" />
+                    android:id="@+id/chk_delete_source_file_zip"
+                    style="@style/CheckBoxOption"/>
                 <TextView
-                    android:id="@+id/txt_delete_source_file"
+                    android:id="@+id/txt_delete_source_file_zip"
                     style="@style/TextForCheckBoxOption"
-                    android:text="@string/option_delete_source_file_text" />
+                    android:text="@string/option_delete_source_file_text_01" />
+            </LinearLayout>
+            <LinearLayout style="@style/LayoutWrapContentMargin20horizontal">
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/chk_delete_source_file_others"
+                    style="@style/CheckBoxOption"/>
+                <TextView
+                    android:id="@+id/txt_delete_source_file_others"
+                    style="@style/TextForCheckBoxOption"
+                    android:text="@string/option_delete_source_file_text_02" />
             </LinearLayout>
         </LinearLayout>
 
@@ -99,8 +119,7 @@
             <LinearLayout style="@style/LayoutWrapContentMargin20horizontal">
                 <com.google.android.material.checkbox.MaterialCheckBox
                     android:id="@+id/chk_lock_orientation"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp" />
+                    style="@style/CheckBoxOption"/>
                 <TextView
                     android:id="@+id/txt_orientation_lock"
                     style="@style/TextForCheckBoxOption"
@@ -115,7 +134,7 @@
             style="@style/LinearLayoutOptionsVertical">
             <TextView
                 style="@style/myStyleTextTitle2"
-                android:text="BackWard/Forward Buttons" />
+                android:text="@string/option_backward_forward_title" />
             <LinearLayout
                 android:id="@+id/ll_BackwardForward_horizon"
                 style="@style/LinearLayoutOptionsCheckBoxHorizontal">
@@ -124,7 +143,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="50sp"
-                    android:text="timelapse :"
+                    android:text="@string/option_backward_forward_text"
                     android:textSize="24sp" />
                 <EditText
                     android:id="@+id/etForwardSeconds"
@@ -165,8 +184,7 @@
                 style="@style/LinearLayoutOptionsCheckBoxHorizontal">
                 <com.google.android.material.checkbox.MaterialCheckBox
                     android:id="@+id/chk_mail_method_default"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp" />
+                    style="@style/CheckBoxOption"/>
                 <TextView
                     android:id="@+id/txt_mail_method_default"
                     style="@style/TextForCheckBoxOption"
@@ -187,8 +205,7 @@
                 style="@style/LinearLayoutOptionsCheckBoxHorizontal">
                 <com.google.android.material.checkbox.MaterialCheckBox
                     android:id="@+id/chk_beep_chapter_default"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp" />
+                    style="@style/CheckBoxOption"/>
                 <TextView
                     style="@style/TextForCheckBoxOption"
                     android:text="@string/option_beep_between_chapters" />
@@ -198,8 +215,7 @@
                 style="@style/LinearLayoutOptionsCheckBoxHorizontal">
                 <com.google.android.material.checkbox.MaterialCheckBox
                     android:id="@+id/chk_beep_autostop_defaut"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp" />
+                    style="@style/CheckBoxOption"/>
                 <TextView
                     style="@style/TextForCheckBoxOption"
                     android:text="@string/option_beep_for_autostop" />
@@ -209,8 +225,7 @@
                 style="@style/LinearLayoutOptionsCheckBoxHorizontal">
                 <com.google.android.material.checkbox.MaterialCheckBox
                     android:id="@+id/chk_beep_bookend_defaut"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp" />
+                    style="@style/CheckBoxOption"/>
                 <TextView
                     style="@style/TextForCheckBoxOption"
                     android:text="@string/option_beep_at_the_end" />
@@ -226,8 +241,7 @@
             <LinearLayout style="@style/LinearLayoutOptionsCheckBoxHorizontal">
                 <com.google.android.material.checkbox.MaterialCheckBox
                     android:id="@+id/chk_visualizer_on"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp" />
+                    style="@style/CheckBoxOption"/>
                 <TextView
                     android:id="@+id/tx_Visualizer_on"
                     style="@style/TextForCheckBoxOption"
@@ -240,15 +254,14 @@
         <LinearLayout style="@style/LinearLayoutOptionsVertical">
             <TextView
                 style="@style/myStyleTextTitle2"
-                android:text="Rewind a few seconds when resuming play" />
+                android:text="@string/option_rewind_after_pause_title" />
             <LinearLayout style="@style/LinearLayoutOptionsCheckBoxHorizontal">
                 <com.google.android.material.checkbox.MaterialCheckBox
                     android:id="@+id/chk_rewind_after_pause"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp" />
+                    style="@style/CheckBoxOption"/>
                 <TextView
                     style="@style/TextForCheckBoxOption"
-                    android:text="Rewind audio 3 seconds before resuming play, if pause was more than 2 minutes." />
+                    android:text="@string/option_rewind_after_pause_text" />
             </LinearLayout>
         </LinearLayout>
 
@@ -258,7 +271,7 @@
         <LinearLayout style="@style/LinearLayoutOptionsVertical">
             <TextView
                 style="@style/myStyleTextTitle2"
-                android:text="Pick your app color theme" />
+                android:text="@string/option_pick_theme_color_title" />
             <LinearLayout
                 android:layout_height="wrap_content"
                 android:layout_width="fill_parent"
@@ -328,8 +341,7 @@
 
                 <com.google.android.material.checkbox.MaterialCheckBox
                     android:id="@+id/chk_copyzip_local"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp" />
+                    style="@style/CheckBoxOption"/>
 
                 <TextView
                     android:id="@+id/txt_copyzip_local"
@@ -347,8 +359,7 @@
 
                 <com.google.android.material.checkbox.MaterialCheckBox
                     android:id="@+id/chk_unzip_local"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp" />
+                    style="@style/CheckBoxOption"/>
 
                 <TextView
                     android:id="@+id/txt_unzip_local"

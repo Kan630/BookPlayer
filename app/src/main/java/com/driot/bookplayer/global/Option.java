@@ -23,7 +23,7 @@ public class Option {
     private static final boolean DEFAULT_BEEP_BOOKEND = true;
     private static final boolean DEFAULT_BEEP_AUTOSTOP = true;
     private static final boolean DEFAULT_DELETE_SOURCE_FILE = false;
-    private static final boolean DEFAULT_VISUALIZER_ON = false;
+    private static final boolean DEFAULT_VISUALIZER_ON = true;
     private static final boolean DEFAULT_REWIND_AFTER_PAUSE = true;
     private static final int DEFAULT_CUSTOM_THEME = R.style.Theme_BookPlayer;
     private static final boolean DEFAULT_COPY_FILES = true;
