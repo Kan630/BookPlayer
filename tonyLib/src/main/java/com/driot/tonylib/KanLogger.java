@@ -33,20 +33,13 @@ public class KanLogger {
     private static final boolean LOG_THEM_ALL = true;
     private static final boolean LOG_DEBUG = false;
 
-    public static final String[] MD5_MY_PHONE = {
-             "5ef4fa41375ff615e0fd81940d929294" //"HUAWEI/POT-LX1EEA/HWPOT-H:10/HUAWEIPOT-L21/10.0.0.238C431:user/release-keys"
-            ,"540eb3b4c6a4140193519e66f9cc29e4" //"Logicom/Le_Hello/Le_Hello:7.0/NRD90M/1527151208:user/release-keys"
-            ,"dc785c43b8f9a6fcefc067a0050cb370" //"samsung/j5y17ltexx/j5y17lte:9/PPR1.180610.011/J530FXXS7CTF1:user/release-keys"
-            ,"ed8acdf5617d368dce4175a6597197a2" //"samsung/j5y17ltexx/j5y17lte:9/PPR1.180610.011/J530FXXS9CUE5:user/release-keys" // 09/09/2021
-            ,"56db55f6c978892e2f3a55563fcb6f80" //"OPPO/CPH2065EEA/OP4BDCL1:11/RP1A.200720.011/1718335401248:user/release-keys"
-            ,"f440eedc21b7e92490e9ad90e4a93215" //"OPPO/CPH2065EEA/OP4BDCL1:11/RP1A.200720.011/1624562435949:user/release-keys" //oppo-cph2065-P7LFRGOFKVKRLNPF
+    private static final String LOG_PREFIX = "toto";
+
+    public static final String[] MD5_MY_PHONE = {""
             ,"eb621dde2a2672e66b6e6ef5acbbbb99" //"OPPO/CPH2065EEA/OP4BDCL1:11/RP1A.200720.011/1629728339857:user/release-keys"
-            ,"3dcf828fa24be7a49a361c4f4ba3dfd4" // RedMi sept 2023
-            ,"3a53d8836f50d0826c99bca3900fbc24" // RedMi sept 2023, after upate
             ,"a35ba9d541e15b9ff7b017b7fef54430" // Redmi/veux_eea/veux:13/TKQ1.221114.001/V816.0.1.0.TKCEUXM:user/release-keys
             ,"dabe9f1966e715f8d0cdf81561647f7c" // OPPO/CPH2065EEA/OP4BDCL1:12/SP1A.210812.016/Q.GDPR.132c99b-1ff9d:user/release-keys
-            ,"0007afcfe985a7220ba08a8a15fbd5a7" // samsung/gta8wifieea/gta8wifi:14/UP1A.231005.007/X200XXU3DXB3:user/release-keys
-
+            ,"177d74d79a466e1713c2d0bac3a533cb" // samsung/gta8wifieea/gta8wifi:14/UP1A.231005.007/X200XXS3DXD5:user/release-keys
     };
 
 
@@ -99,7 +92,7 @@ public class KanLogger {
         if (TextUtils.isEmpty(str)) {str = "...";}
         if (isMyPhoneDev()) {
             writeToLogFile(str);
-            Log.d("toto " + prefix, str);
+            Log.d(LOG_PREFIX + " " + prefix, str);
         } else {
             if (LOG_THEM_ALL) Log.d(prefix, str);
         }
@@ -113,7 +106,7 @@ public class KanLogger {
         if (TextUtils.isEmpty(str)) {str = "...";}
         if (isMyPhoneDev()) {
             writeToLogFile(str);
-            Log.i("toto " + prefix, str);
+            Log.i(LOG_PREFIX + " " + prefix, str);
         } else {
             if (LOG_THEM_ALL) Log.i(prefix, str);
         }
@@ -124,7 +117,7 @@ public class KanLogger {
         prefix = prefix.replace(PREFIX_DELETE,"");
         if (LOG_DEBUG && isMyPhoneDev()) {
             writeToLogFile(str);
-            Log.d("totoD " + prefix, str);
+            Log.d(LOG_PREFIX + "D " + prefix, str);
         }
     }
 
@@ -136,7 +129,7 @@ public class KanLogger {
         if (TextUtils.isEmpty(str)) {str = "...";}
         if (isMyPhoneDev()) {
             writeToLogFile(prefix + ".ERR: " + str);
-            Log.e("toto " + prefix, str);
+            Log.e(LOG_PREFIX + " " + prefix, str);
         } else {
             if (LOG_THEM_ALL) Log.e("", str);
         }

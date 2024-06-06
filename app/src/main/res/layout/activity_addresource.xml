@@ -19,7 +19,7 @@
 
     <TextView
         android:id="@+id/progressBarText"
-        style="@style/myStyle"
+        style="@style/textColor"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="15dp"
@@ -43,7 +43,7 @@
 
     <TextView
         android:id="@+id/errorText"
-        style="@style/myStyle"
+        style="@style/textColor"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="15dp"

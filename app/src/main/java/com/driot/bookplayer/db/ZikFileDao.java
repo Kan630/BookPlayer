@@ -91,6 +91,13 @@ public interface ZikFileDao {
     @Query("UPDATE ZikFile SET zeorder = :zeorder WHERE id =:id")
     void changePosition(int id, Double zeorder);
 
+    @Query("SELECT count(*) FROM ZikFile WHERE idFolder = :idFolder ")
+    int getCountOfZikFiles(int idFolder);
+
+    @Query("SELECT * FROM ZikFile WHERE idFolder = :idFolder")
+    ZikFile getSingleZikFile(long idFolder);
+
+
 
 
 

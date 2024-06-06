@@ -11,6 +11,7 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.text.Html;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
@@ -178,12 +179,14 @@ public class OptionActivity extends LifecycleLoggingActivity {
     }
 
     private void setVisualizerPermissionText() {
+        String txt;
+        txt = getString(R.string.option_visualizer_text_01) + "<br><i>" + getString(R.string.option_visualizer_text_02);
         if (isRecordAudioPermissionGranted(this)) {
-            tx_Visualizer_on.setText(getString(R.string.option_visualizer_text));
+            txt = txt + ": <font color='green'>" + getString(R.string.option_visualizer_permissions_granted) + "</font></i>";
         } else {
-            String txt = getString(R.string.option_visualizer_text) + "\n" + getString(R.string.option_visualizer_no_permissions);
-            tx_Visualizer_on.setText(txt);
+            txt = txt + ": <font color='red'>" + getString(R.string.option_visualizer_permissions_denied_01) + "</font><br>" + getString(R.string.option_visualizer_permissions_denied_02) + "</i>";
         }
+        tx_Visualizer_on.setText(Html.fromHtml(txt, Html.FROM_HTML_MODE_LEGACY));;
     }
 /*
     @Override
@@ -271,7 +274,7 @@ public class OptionActivity extends LifecycleLoggingActivity {
         new AlertDialog.Builder(this)
                 .setTitle("Permission Required")
                 .setMessage(getString(R.string.permission_record_audio_rationale) + "\n\n" + getString(R.string.permission_record_audio_rationale_after_denied))
-                .setPositiveButton("Retry", (dialog, which) -> {
+                .setPositiveButton("App Info", (dialog, which) -> {
                     openAppSettingsOnPhone();
                 })
                 .setNegativeButton("Cancel", null)

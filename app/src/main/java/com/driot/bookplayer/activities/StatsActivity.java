@@ -67,8 +67,8 @@ public class StatsActivity extends LifecycleLoggingActivity {
                         + "Android version = " + Build.VERSION.RELEASE + "\n" + "\n"
                         + "Android version name = " + getVersionName(Build.VERSION.SDK_INT) + "\n" + "\n"
                         + "---" + "\n" + "\n"
-                        + "App version = " + BuildConfig.VERSION_CODE + "\n" + "\n"
-                        + "App label = " + BuildConfig.VERSION_NAME
+                        + "Bookplayer version number = " + BuildConfig.VERSION_CODE + "\n" + "\n"
+                        + "Bookplayer version label = " + BuildConfig.VERSION_NAME
         ;
 
         tv_head = findViewById(R.id.tv2_head);
@@ -76,11 +76,11 @@ public class StatsActivity extends LifecycleLoggingActivity {
         tv_head.setText("Version");
         tv_body.setText(zeText);
 
-        zeText ="Region Locale = " + Locale.getDefault().getCountry() + "\n" + "\n"
-                + "Region TimeZone = " + TimeZone.getDefault().getID() + "\n" + "\n"
-                + "Region SimCard = " + getCountryFromTelephonyManager(this)
-                + "---" + "\n" + "\n"
-                + "Theme = " + getKindOfTheme()
+        zeText = "Region Locale = " + Locale.getDefault().getCountry()
+                + "\n" + "\n" + "Region TimeZone = " + TimeZone.getDefault().getID()
+                + "\n" + "\n" + "Region SimCard = " + getCountryFromTelephonyManager(this)
+                + "\n" + "\n" + "---"
+                + "\n" + "\n" + "Theme = " + getKindOfTheme()
                 ;
 
         tv_head = findViewById(R.id.tv3_head);

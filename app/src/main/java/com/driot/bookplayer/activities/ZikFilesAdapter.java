@@ -136,7 +136,7 @@ public class ZikFilesAdapter extends RecyclerView.Adapter<ZikFilesAdapter.ZikFil
 
                 //pass an object, check parcelable //on s'en sert plus.... tout semble passer par les global var ci dessus
                 Intent intent = new Intent(mCtx, PlayActivity.class);
-                intent.putExtra("ZikFile", zikFile);
+            intent.putExtra("ZikFile", zikFile);
                 mCtx.startActivity(intent);
             //} else {
             //    myLogE("opening PlayActivity -- ERROR OPENING TRACK - FILE NOT FOUND !");

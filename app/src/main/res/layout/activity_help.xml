@@ -15,107 +15,53 @@
         android:layout_marginStart="50sp"
         >
 
-        <TextView
-            style="@style/myStyleTextTitle2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="50sp"
+        <TextView style="@style/HelpTitle"
             android:text="@string/help_folder"
             />
-        <TextView
-            style="@style/myStyleTextExplainButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="10sp"
-            android:layout_marginTop="20sp"
+        <TextView style="@style/HelpText"
             android:text="@string/help_folder_text"
             />
         <View style="@style/myStyleViewSimpleHorizontalBar"/>
 
-        <TextView
-            style="@style/myStyleTextTitle2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20sp"
+        <TextView style="@style/HelpTitle"
             android:text="@string/help_file"
             />
-        <TextView
-            style="@style/myStyleTextExplainButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="10sp"
-            android:layout_marginTop="20sp"
+        <TextView style="@style/HelpText"
             android:text="@string/help_file_text"
             />
         <View style="@style/myStyleViewSimpleHorizontalBar"/>
 
-        <TextView
-            style="@style/myStyleTextTitle2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20sp"
+        <TextView style="@style/HelpTitle"
             android:text="@string/help_import"
             />
-        <TextView
-            style="@style/myStyleTextExplainButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="10sp"
-            android:layout_marginTop="20sp"
-            android:text="@string/help_import_text2"
+        <TextView style="@style/HelpText"
+            android:text="@string/help_import_text"
             />
         <View style="@style/myStyleViewSimpleHorizontalBar"/>
 
-        <TextView
-            style="@style/myStyleTextTitle2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20sp"
-            android:text="@string/help_head_10"
+        <TextView style="@style/HelpTitle"
+            android:text="@string/help_trouble"
             />
-        <TextView
-            style="@style/myStyleTextExplainButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="10sp"
-            android:layout_marginTop="20sp"
-            android:text="@string/help_text_10"
+        <TextView style="@style/HelpText"
+            android:text="@string/help_trouble_text"
             />
         <View style="@style/myStyleViewSimpleHorizontalBar"/>
 
 
-        <TextView
-            style="@style/myStyleTextTitle2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20sp"
-            android:text="@string/help_head_20"
+        <TextView style="@style/HelpTitle"
+            android:text="@string/help_cachefiles"
             />
-        <TextView
-            style="@style/myStyleTextExplainButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="10sp"
-            android:layout_marginTop="20sp"
-            android:text="@string/help_text_20"
+        <TextView style="@style/HelpText"
+            android:text="@string/help_cachefiles_text"
             />
 
         <View style="@style/myStyleViewSimpleHorizontalBar"/>
 
-        <TextView
-            style="@style/myStyleTextTitle2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20sp"
-            android:text="@string/help_head_30"
+        <TextView style="@style/HelpTitle"
+            android:text="@string/help_permission"
             />
-        <TextView
-            style="@style/myStyleTextExplainButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="10sp"
-            android:layout_marginTop="20sp"
-            android:text="@string/help_text_30"
+        <TextView style="@style/HelpText"
+            android:text="@string/help_permission_text"
             />
         <View style="@style/myStyleViewSimpleHorizontalBar"
             android:layout_marginBottom="30dp"

@@ -89,7 +89,12 @@ public class MainActivity extends LifecycleLoggingActivity {//AppCompatActivity 
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toolbar.setTitle("Books");
-        toolbar.setLogo(R.drawable.ic_launcher); // TODO transparent background OK but image is cropped : ic_launcher_theme
+        try {
+            toolbar.setLogo(R.drawable.ic_launcher); // TODO transparent background OK but image is cropped : ic_launcher_theme
+        } catch (Exception e) {
+            myLogE("error setting logo in menu bar - " + e.getMessage());
+        }
+
 
         recyclerView = findViewById(R.id.recyclerview_folders);
         if (recyclerView != null) recyclerView.setLayoutManager(new LinearLayoutManager(this));

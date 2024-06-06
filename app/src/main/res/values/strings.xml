@@ -23,30 +23,67 @@
     <!-- HELP Screen -->
 
     <string name="help">Help</string>
+
     <string name="help_folder">Folder :</string>
-    <string name="help_folder_text">"A long click on a folder opens the 'modify folder' page."
-    "Then you will be able to rename / delete / reset progress</string>
+    <string name="help_folder_text">A long click on a folder opens the [modify folder] page.
+    \nThen you will be able to rename / delete / reset progress</string>
+
     <string name="help_file">Track :</string>
-    <string name="help_file_text">"A long click on a track opens the 'modify track' page."
-    "Then you will be able to rename / change order / delete / reset progress</string>
+    <string name="help_file_text">A long click on a track opens the [modify track] page.
+    \nThen you will be able to rename / change order / delete / reset progress</string>
+
     <string name="help_import">Import :</string>
-    <string name="help_import_text">"Zip file are always a bit slower, to import, to load, to play"</string>
-    <string name="help_import_text2">"If you have trouble importing your audio :
+    <string name="help_import_text">It starts with you picking a single file / folder / zip.
+        \nThen, depending on your settings (in menu/options) there is 2 possibilities :
+        \n
+        \n<b>option 1 :</b> Bookplayer will first, copy the audio inside Bookplayer internal app memory, and then read it from there.
+        \n
+        \n<b>option 2 :</b> Bookplayer will just register the location so as to directly play audio from the general device memory (E.g. from the Download folder, the Music folder or any folder)
+        \n
+        \n<i>(Note that ZIP file contents are always copied. This option is only for single files and folders)</i>
+        \n
+        \n<b>With option 1/</b>, you won\'t even need the [Read Audio] permission.
+        \nAlso, if you delete the file from main memory, or move it, that won\'t matter. You will not loose your book and progress.
+        \n
+        \n<b>With option 2/</b>, you will save space. (but if you then delete the source file from the main memory, it will be even.)
+        \n
+        \nThere is another setting, in menu/options, that allows you to automatically delete the source file, once it has been imported.
+        \nActivate that one if all the books you load into Bookplayer will not be needed by another app.
+    </string>
+
+    <string name="help_trouble">Import troubles :</string>
+    <string name="help_trouble_text">"If you have troubles importing your audio :
         \nZIP : In filepicker, if a click on a zip shows the content of the zip instead of letting you select the zip , try a long click on the zip.
         \nZIP : If Unzip fails, try tp unzip them before with another app.
         \nIf problem with picking audios from Download folder, try to move them out of 'Download' folder."</string>
-    <string name="help_head_10">Permissions :</string>
-    <string name="help_text_10">"BookPlayer will need only a few permission : Notably the right to read phone storage/memory, in order to retrieve and play audio files"</string>
+
+    <string name="help_cachefiles">Memory Cleaning :</string>
+    <string name="help_cachefiles_text">A specific view to check the content of the Bookplayer internal memory does now exist.
+        \n
+        \nIt allows you to see which books do take a lot of room. You can delete some of them from here.
+        \n
+        \nPlease note that will show there, only books that have been copied inside Bookplayer internal reserved memory.
+        \nThat is to say, all audios from ZIP file, + all audios from Single File / Folder, that have been loaded with the [copy] setting on (in menu/options)
+    </string>
+
+    <string name="help_permission">Permissions :</string>
+    <string name="help_permission_text">"BookPlayer can run without any permission.
+        \nThere is 3 main permissions :
+        \n<b>[Music and Audio]</b> (= [Read Audio] = [External Storage]) to read audio from the general device memory (like thew download folder, the music folder, or any other one)
+        \n\n<b>[Microphone]</b> (= [Record Audio]) is needed to display a frequency visualizer (sound spectrum display). If it is denied, it will just not show, no problem.
+        \n\n<b>[Notifications]</b> may be needed on some devices (Android 14+). It is used to display the command widget on the lock screen. <i>(Usually it displays straight away without permission being even asked.)</i>
+
+    </string>
+<!--
     <string name="help_head_20">Options :</string>
-    <string name="help_text_20">"1*/ AutoSleep/AutomaticPause  => BookPlayer will stop playing after XX minutes of inactivities. (useful if you fall asleep)
-        \n2*/ Automatic source file deletion => When you import a Zip file in Bookplayer, for example from your phone Download folder, Bookplayer will then, upon successful integration, delete this file
-        \n3*/ Freeze Bookplayer Orientation in Portrait Mode while playing audios.
-        \n4*/ Custom duration for >> and &lt;&lt; buttons."
+    <string name="help_text_20">
+        */ <b>AutoSleep/AutomaticPause</b>  => BookPlayer will stop playing after XX minutes of inactivities. (useful if you fall asleep)
+        */ <b>Copy files internally</b> => When you import a Zip file in Bookplayer, for example from your phone Download folder, Bookplayer will then, upon successful integration, delete this file
+        */ <b>Automatic source file deletion</b> => When you import a Zip file in Bookplayer, for example from your phone Download folder, Bookplayer will then, upon successful integration, delete this file
+        */ <b>Freeze Bookplayer Orientation</b> in Portrait Mode while playing audios.
+        */ <b>Custom duration</b> for fast forward (>>) and rewind (&lt;&lt;) buttons.
     </string>
-    <string name="help_head_30">Memory Cleaning :</string>
-    <string name="help_text_30">"A specific view to check the content of the Bookplayer internal memory does now exist. It allows to see which book take a lot of room. You can delete some of them from here.
-        \nPlease note that, only books that you have loaded through a zip file, are copied inside this reserved Bookplayer memory section. Other books (integrated as a single file, or as a folder) are not stored inside the reserved Bookplayer memory. They should still be located where they were originally (that is to say on the general device memory, like the 'Download' directory) providing they haven't been deleted by another app or user."
-    </string>
+-->
 
 
     <!-- ********************************** -->
@@ -62,13 +99,13 @@
     <string name="option_unzip_local">Unzip files (takes storage space, but smoother listening experience)</string>
 
     <string name="option_copy_file_title">Copy file internally</string>
-    <string name="option_copy_file_subtitle"><i>Pro :
+    <string name="option_copy_file_subtitle"><i>Pros :
         \n* [Read Audio] permission is not needed.
         \n* No risk to loose audio book and progress if its source file get accidentally deleted/moved.
         \nCons :
-        \nMore memory will be needed if you do not delete the source file.</i>
+        \n* More memory will be needed if you do not delete the source file.</i>
     </string>
-    <string name="option_copy_file_text">Copy all files in the internal, reserved, BookPlayer app memory.</string>
+    <string name="option_copy_file_text">Copy audio files in the internal, reserved, BookPlayer app memory.</string>
 
     <string name="option_backward_forward_title">BackWard/Forward buttons</string>
     <string name="option_backward_forward_text">timelapse :</string>
@@ -98,8 +135,11 @@
     <string name="option_beep_at_the_end">Produce a triple beep at the book end.</string>
 
     <string name="option_visualizer_title">Spectrum Visualizer</string>
-    <string name="option_visualizer_text">Minimalist frequency visualizer displayed when audio is playing. <i>([Record Audio]/[Microphone] permission needed)</i></string>
-    <string name="option_visualizer_no_permissions">-- permission not granted --</string>
+    <string name="option_visualizer_text_01">Minimalist frequency visualizer displayed when audio is playing.</string>
+    <string name="option_visualizer_text_02">Needs [Record Audio]/[Microphone] permission</string>
+    <string name="option_visualizer_permissions_granted">granted</string>
+    <string name="option_visualizer_permissions_denied_01">denied</string>
+    <string name="option_visualizer_permissions_denied_02">click again the checkbox to ask permission</string>
 
     <!-- ********************************** -->
     <!-- Get Resources -->

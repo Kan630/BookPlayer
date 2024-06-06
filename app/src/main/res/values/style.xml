@@ -3,11 +3,11 @@
 
     <!-- ***************** COMMON ***************** -->
 
-    <style name="myStyle" parent="TextAppearance.AppCompat">
+    <style name="textColor" parent="TextAppearance.AppCompat">
         <item name="android:textColor">@color/text_default</item>
     </style>
 
-    <style name="myStyleTextExplainButton" parent="myStyle">
+    <style name="myStyleTextExplainButton" parent="textColor">
     </style>
 
     <style name="myButton" parent="android:Widget.Button">
@@ -20,12 +20,12 @@
         <item name="android:layout_marginEnd">50sp</item>
     </style>
 
-    <style name="myStyleTitle" parent="myStyle">
+    <style name="myStyleTitle" parent="textColor">
         <item name="android:textAlignment">center</item>
         <item name="android:textSize">24sp</item>
     </style>
 
-    <style name="myStyleTextTitle2" parent="myStyle">
+    <style name="myStyleTextTitle2" parent="textColor">
         <item name="android:textStyle">bold</item>
         <item name="android:textSize">20sp</item>
         <item name="android:layout_width">wrap_content</item>
@@ -47,7 +47,7 @@
         <item name="android:paddingVertical">0dp</item>
     </style>
 
-    <style name="PlayActivity_TrackName" parent="myStyle">
+    <style name="PlayActivity_TrackName" parent="textColor">
         <item name="android:textColor">?colorPrimary</item>
         <item name="android:textSize">25sp</item>
     </style>
@@ -63,10 +63,9 @@
     </style>
 
     <style name="LinearLayoutOptionsVertical">
-        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:orientation">vertical</item>
-        <item name="android:layout_marginStart">20sp</item>
         <item name="android:layout_marginTop">20sp</item>
         <item name="android:layout_marginBottom">20sp</item>
     </style>>
@@ -82,31 +81,18 @@
 
     <!-- ***************** OPTIONS ***************** -->
 
-    <style name="TextForCheckBoxOption" parent="myStyle">
-        <item name="android:layout_width">match_parent</item>
+    <style name="OptionTitle" parent="textColor">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">22sp</item>
+        <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_gravity">center</item>
-        <item name="android:layout_marginStart">10sp</item>
-        <item name="android:textAlignment">textEnd</item>
-        <item name="android:textSize">16sp</item>
-    </style>>
-
-    <style name="CheckBoxOption">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_gravity">center</item>
+        <item name="android:layout_marginStart">50sp</item>
+        <item name="android:layout_marginTop">20sp</item>
     </style>
 
-    <style name="MiniText" parent="myStyle">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:textAlignment">textEnd</item>
-        <item name="android:layout_marginStart">0sp</item>
-        <item name="android:textSize">12sp</item>
-    </style>
-
-    <style name="OptionSubTitle" parent="myStyle">
+    <style name="OptionSubTitle" parent="textColor">
         <item name="android:layout_marginTop">10sp</item>
+        <item name="android:layout_marginEnd">5sp</item>
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_gravity">center</item>
@@ -115,11 +101,53 @@
         <item name="android:textSize">14sp</item>
     </style>
 
+    <style name="OptionCheckBox">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_gravity">center</item>
+    </style>
+
+    <style name="OptionCheckBoxText" parent="textColor">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_gravity">center</item>
+        <item name="android:layout_marginStart">10sp</item>
+        <item name="android:layout_marginStart">3sp</item>
+        <item name="android:textAlignment">textEnd</item>
+        <item name="android:textSize">16sp</item>
+    </style>>
+
+    <style name="OptionMiniText" parent="textColor">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textAlignment">textEnd</item>
+        <item name="android:layout_marginStart">0sp</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+
     <style name="OptionsColorButtons">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_weight">1</item>
         <item name="android:layout_height">40sp</item>
     </style>
+
+    <!-- ***************** HELP ***************** -->
+
+    <style name="HelpTitle" parent="textColor">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginStart">50sp</item>
+        <item name="android:layout_marginTop">20sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">20sp</item>
+    </style>
+
+    <style name="HelpText" parent="textColor">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginStart">10sp</item>
+        <item name="android:layout_marginTop">20sp</item>
+    </style>>
 
     <!-- ***************** FOLDERS ***************** -->
 

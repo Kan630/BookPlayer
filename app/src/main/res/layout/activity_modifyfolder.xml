@@ -30,7 +30,7 @@
 
     <EditText
         android:id="@+id/tvRename"
-        style="@style/myStyle"
+        style="@style/textColor"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="70dp"

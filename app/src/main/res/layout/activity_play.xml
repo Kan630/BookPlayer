@@ -77,7 +77,7 @@
     <TextView
         android:id="@+id/textViewSeekBar"
         android:text="Current position"
-        style="@style/myStyle"
+        style="@style/textColor"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@+id/seekBar"
@@ -86,7 +86,7 @@
     <TextView
         android:id="@+id/textViewTempsTotal"
         android:text="Temps total"
-        style="@style/myStyle"
+        style="@style/textColor"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceSmall"
@@ -98,7 +98,7 @@
     <TextView
         android:id="@+id/textViewNomFichier"
         android:text="Nom Fichier"
-        style="@style/myStyle"
+        style="@style/textColor"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
@@ -122,7 +122,7 @@
 
     <TextView
         android:id="@+id/textViewSpeedDesc"
-        style="@style/myStyle"
+        style="@style/textColor"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@+id/textViewNomFichier"
@@ -145,7 +145,7 @@
 
     <TextView
         android:id="@+id/textViewSpeed"
-        style="@style/myStyle"
+        style="@style/textColor"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@+id/textViewNomFichier"
@@ -174,7 +174,7 @@
     <TextView
         android:id="@+id/tv_ListeningTime"
         android:text="..."
-        style="@style/myStyle"
+        style="@style/textColor"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
@@ -188,7 +188,7 @@
     <TextView
         android:id="@+id/tv_TimeLeft"
         android:text="..."
-        style="@style/myStyle"
+        style="@style/textColor"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
