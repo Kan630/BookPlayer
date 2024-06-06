@@ -194,8 +194,8 @@ public class FolderAttrib {
 
     public String PrintManyPaths() {
         List<String> segments = uri.getPathSegments();
-        String ss =
-                "..." + "\n" +
+        StringBuilder ss =
+                new StringBuilder("..." + "\n" +
                         "uri                : " + uri + "\n" +
                         "uri.getPath        : " + uri.getPath() + "\n" +
                         "uri.getEncodedPath : " + uri.getEncodedPath() + "\n" +
@@ -203,12 +203,12 @@ public class FolderAttrib {
                         "uri.getAuthority   : " + uri.getAuthority() + "\n" +
                         "uri.getHost        : " + uri.getHost() + "\n" +
                         "uri.getLastPathSeg : " + uri.getPathSegments() + "\n" +
-                "";
+                        "");
         for (int i = 0; i < segments.size() - 1; i++) {
-            ss += "uri.getPathSegment("+ i +") : " + segments.get(i) + "\n";
+            ss.append("uri.getPathSegment(").append(i).append(") : ").append(segments.get(i)).append("\n");
         }
 
-        return ss;
+        return ss.toString();
     }
 
 

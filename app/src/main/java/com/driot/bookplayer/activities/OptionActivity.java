@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
@@ -130,7 +131,19 @@ public class OptionActivity extends LifecycleLoggingActivity {
         chk_beep_autostop.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setBeepAutoStop(this, isChecked));
 
         chk_delete_source_file.setChecked(Option.getDeleteSourceFile(this));
-        chk_delete_source_file.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setDeleteSourceFile(this, isChecked));
+        chk_delete_source_file.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
+                new AlertDialog.Builder(this)
+                        .setTitle(getString(R.string.option_alert_delete_source_file_title))
+                        .setMessage(getString(R.string.option_alert_delete_source_file_message))
+                        .setCancelable(false)
+                        .setPositiveButton("ok", (dialog, which) -> Option.setDeleteSourceFile(this, true))
+                        .setNegativeButton("cancel", (dialogInterface, i) -> {})
+                        .show();
+            } else {
+                Option.setDeleteSourceFile(this, false);
+            }
+        });
 
         chk_visualizer_on.setChecked(Option.getVisualizerOn(this));
         chk_visualizer_on.setOnCheckedChangeListener((buttonView, isChecked) -> {

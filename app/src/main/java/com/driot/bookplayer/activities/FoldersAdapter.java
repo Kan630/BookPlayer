@@ -12,11 +12,11 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
-import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.db.ZikFileDao;
@@ -24,6 +24,7 @@ import com.driot.bookplayer.global.PlayList;
 import com.driot.tonylib.KanLogger;
 
 import java.util.List;
+import java.util.Locale;
 
 import static com.driot.bookplayer.utils.Tonio.*;
 
@@ -37,27 +38,28 @@ public class FoldersAdapter extends RecyclerView.Adapter<FoldersAdapter.FoldersV
         this.FolderList = FolderList;
     }
 
+    @NonNull
     @Override
-    public FoldersViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public FoldersViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(mCtx).inflate(R.layout.recyclerview_folders, parent, false);
         return new FoldersViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(FoldersViewHolder holder, int position) {
-        Folder t = FolderList.get(position);
-        holder.textViewFileName.setText(t.getName());
-        holder.textViewFilePercent.setText(t.getPercentdone().toString());
+        Folder folder = FolderList.get(position);
+        holder.textViewFileName.setText(folder.getName());
+        holder.textViewFilePercent.setText(String.format(folder.getPercentdone().toString(), Locale.getDefault()));
 
-        if (t.getLastaccess() != null) holder.textViewFileLastAccess.setText(t.getLastaccess().toString());
+        if (folder.getLastaccess() != null) holder.textViewFileLastAccess.setText(folder.getLastaccess().toString());
 
-        holder.textViewFilePercent.setText(FormatPercentString(t.getPercentdone()));
+        holder.textViewFilePercent.setText(FormatPercentString(folder.getPercentdone()));
 
-        holder.mProgressBar.setProgress(FormatPercentForProgressBar(t.getPercentdone()));
+        holder.mProgressBar.setProgress(FormatPercentForProgressBar(folder.getPercentdone()));
 
-        if (t.getLastaccess() != null) holder.textViewFileLastAccess.setText(FormatLastAccess(t.getLastaccess(),t.getLastaccessTime(), mCtx.getString(R.string.yesterday)));
+        if (folder.getLastaccess() != null) holder.textViewFileLastAccess.setText(FormatLastAccess(folder.getLastaccess(),folder.getLastaccessTime(), mCtx.getString(R.string.yesterday)));
 
-        holder.textViewDuration.setText(FormatTime(t.getDuration()));
+        holder.textViewDuration.setText(FormatTime(folder.getDuration()));
 
 
     }
@@ -88,7 +90,6 @@ public class FoldersAdapter extends RecyclerView.Adapter<FoldersAdapter.FoldersV
         @Override
         public void onClick(View view) {
             Folder folder = FolderList.get(getAdapterPosition());
-            PlayList playlist = new PlayList();
             new Thread(() -> {
                 try {
                     AppDatabase db = AppDatabase.getDatabase(mCtx);

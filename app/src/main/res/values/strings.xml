@@ -135,6 +135,9 @@
         \n* Single audio file, and audio Folders, are copied only if the above option [copy file internally] is set.</i></string>
     <string name="option_delete_source_file_text_01">ZIP: Automatically delete picked ZIP file once loaded into Bookplayer.</string>
     <string name="option_delete_source_file_text_02">Others: Automatically delete picked file/folder once loaded into Bookplayer.</string>
+    <string name="option_alert_delete_source_file_title">Every file loaded into Bookplayer will be wiped out from device.</string>
+    <string name="option_alert_delete_source_file_message">Are you sure ?.</string>
+
 
     <string name="option_mail_method">Sending mail</string>
     <string name="option_mail_method_default">Use default mailing app.\n<i>Uncheck to be asked which app to use.</i></string>

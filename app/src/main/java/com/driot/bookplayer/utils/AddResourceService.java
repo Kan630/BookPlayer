@@ -19,9 +19,11 @@ import androidx.documentfile.provider.DocumentFile;
 import androidx.sqlite.db.SimpleSQLiteQuery;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.FolderAttrib;
+import com.driot.bookplayer.db.FolderDao;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Option;
 import com.driot.tonylib.KanLogger;
@@ -588,25 +590,21 @@ public class AddResourceService
     private void checkIfFolderAlreadyExist() {
         tellProgress(PROGRESS[2], getResources().getString(R.string.Import_Progress_check_not_already_imported));
         myLog("checkIfFolderAlreadyExist() - FolderName = [" + myFolder.getFolderName() + "]");
-        Observable.fromCallable(() -> {
-            boolean bcheckIfFolderExist = false;
-            long lcheckIfFolderExist = DatabaseClient
-                    .getInstance(getApplicationContext())
-                    .getAppDatabase()
-                    .FolderDao()
-                    .folderAlreadyExist_checkFolderName(myFolder.getFolderName());
-            if (lcheckIfFolderExist>0) { bcheckIfFolderExist = true;}
-            return bcheckIfFolderExist;
-        }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(result -> {
-            if (result) {
-                tellError(getString(R.string.Error_Import_FolderAlreadyImported));
-            } else {
-                myLog("ok on continue -       (folder does not already exist)");
-                copyFolder();
+        new Thread(() -> {
+            try {
+                FolderDao folderDao = AppDatabase.getDatabase(this).FolderDao();
+                long lFolderAlreadyExist = folderDao.folderAlreadyExist_checkFolderName(myFolder.getFolderName());
+                if (lFolderAlreadyExist>0) {
+                    tellError(getString(R.string.Error_Import_FolderAlreadyImported));
+                } else {
+                    myLog("ok on continue -       (folder does not already exist)");
+                    copyFolder();
+                }
+            } catch (Exception e) {
+                myLogE("checkIfFolderAlreadyExist() - " + e.getMessage());
             }
-        }, throwable -> {
-            tellError(getResources().getString(R.string.Error_Import_checking_Folder_Exists) + " - folderName = [" + myFolder.getFolderName() + "] - error message : [" + throwable.getMessage() + "]");
-        });
+        }).start();
+
     }
     private void copyFolder() {
         if (type_given.equals("ZIP")) {
@@ -645,100 +643,45 @@ public class AddResourceService
     }
 
 
-
-    private void copyFileLocal(Uri uri, String destinationFolderPath, String destinationName, String type_given) {
-        if (type_given.equals("ZIP")) { //reset variable because was done in observable stuff
-            this.zipDestinationFolderPath = destinationFolderPath;
-            this.zipDestinationFolderName = destinationName;
-        }
-        long fileSize = -1L;
-        File externalFile = new File(uri.getPath());
-        if (externalFile.exists()) fileSize = externalFile.length();
-        if (fileSize > 0) {
-            myLog("ze Size : " + fileSize);
-        } else {
-            myLog("ERR : Cannot Check Size .... Size = " + fileSize + " .... Never Mind... let's copy");
-        }
-        myLog("Future Folder Path : [" + destinationFolderPath + "]");
-        myLog("call to launchCopyFileService " +
-                "\n.   from Uri [" + uri + "] " +
-                "\n.   to Folder [" + destinationFolderPath + "] " +
-                "\n.   with Name [" + destinationName + "]" +
-                "\n.   for type = [" + type_given + "]");
-        launchCopyFileService(uri, destinationFolderPath, destinationName, type_given);
-    }
-
-    private void unzipZipLocal() {
-        String zeZipFilePath = zipDestinationFolderPath + "/" + zipDestinationFolderName;
-        String zeDestinationFolderPath = zipDestinationFolderPath;
-        myLog("Launching Unzip service with arguments" +
-                "\n.    ZipFilePath = [" + zeZipFilePath + "]" +
-                "\n.    DestinationFolderPath = [" + zeDestinationFolderPath + "]"
-        );
-        launchUnzipService(zeZipFilePath, zeDestinationFolderPath);
-    }
-
     private void saveFolder() {
-        tellProgress(PROGRESS[6], "preparing Folder copy...");
+        tellProgress(PROGRESS[6], "saving Book...");
 
         final Time sFirstAccess = new Time(System.currentTimeMillis());
         final Date sLastAccess = new Date(System.currentTimeMillis());
         final Time sLastAccessTime = new Time(System.currentTimeMillis());
 
-        Observable.fromCallable(() -> {
-            //creating a Folder
-            Folder folder = new Folder();
-            folder.setName(myFolder.getFolderName());
-            folder.setPath(myFolder.getFolderPath());
-            //folder.setUri(myFolder.getUriString()); //2023-10-22
-            folder.setUri("tototititata/dksjgf"); //2024-06-05
-            folder.setHash("0"); //2023-10-22 code removed
-            folder.setPercentdone(0.0);
-            folder.setFirstaccess(sFirstAccess);
-            folder.setLastaccess(sLastAccess);
-            folder.setLastaccessTime(sLastAccessTime);
-            folder.setFinished(false);
-            folder.setIszipfile(false); //2023-10-22 code removed for live zip reading
+        Folder folder = new Folder();
+        folder.setName(myFolder.getFolderName());
+        folder.setPath(myFolder.getFolderPath());
+        folder.setUri("****"); //2023-10-22 deprecated
+        folder.setHash("0"); //2023-10-22 deprecated
+        folder.setPercentdone(0.0);
+        folder.setFirstaccess(sFirstAccess);
+        folder.setLastaccess(sLastAccess);
+        folder.setLastaccessTime(sLastAccessTime);
+        folder.setFinished(false);
+        folder.setIszipfile(false); //2023-10-22 deprecated (live zip reading - code has been removed)
 
-            //adding to database
-            InsertedFolderId[0] = (int) DatabaseClient.getInstance(getApplicationContext()).getAppDatabase()
-                    .FolderDao()
-                    .insert(folder);
-            return true;
-        })
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe((result) -> {
-                    if (result) {
-                        myLog("Folder Saved in DB - checking files");
-                        tellProgress(PROGRESS[6],getResources().getString(R.string.Import_Progress_checkingFiles));
-                        saveFiles();
-                    }
-                }, throwable -> {
-                    myLogE("creating Folder in DB : " + throwable.getMessage());
-                    tellError(getResources().getString(R.string.Error_Import_Creating_Folders) + " for path : " + throwable.getMessage());
-                })
-        ;
+        InsertedFolderId[0] = (int) DatabaseClient.getInstance(this).getAppDatabase().FolderDao().insert(folder);
+        myLog("Folder Saved in DB, ID=[" + InsertedFolderId[0] + "] - checking files");
+        tellProgress(PROGRESS[6],getResources().getString(R.string.Import_Progress_checkingFiles));
+        saveFiles();
     }
 
     private void saveFiles() {
         nbFileToSave = audioFileArrayList.size();
         nbFileSaved = 0;
-        Thread one;
-        one = new Thread(() -> {
-            int i = 0;
-            int progress;
-            String txtProgress;
-            for (String s : audioFileArrayList) {
-                i++;
-                progress = (int) PROGRESS[6] + (i * 100 / audioFileArrayList.size())*(PROGRESS[7]-PROGRESS[6])/100;
-                txtProgress = progress + "% - " + getString(R.string.Add_resource_reading_file) + " n°" + i + "/" + audioFileArrayList.size() + "\n" + getFileNameFromPath(s);
-                myLog("Registering file [" + s + "]");
-                saveFile(s, InsertedFolderId[0], i);
-                tellProgress(progress,txtProgress);
-            }
-        });
-        one.start();
+        int i = 0;
+        int progress;
+        String txtProgress;
+        for (String s : audioFileArrayList) {
+            i++;
+            progress = (int) PROGRESS[6] + (i * 100 / audioFileArrayList.size())*(PROGRESS[7]-PROGRESS[6])/100;
+            txtProgress = progress + "% - " + getString(R.string.Add_resource_reading_file) + " n°" + i + "/" + audioFileArrayList.size() + "\n" + getFileNameFromPath(s);
+            myLog("Registering track [" + s + "]");
+            saveFile(s, InsertedFolderId[0], i);
+            tellProgress(progress,txtProgress);
+        }
     }
 
     private void saveFile(String sZikFileName, int mFolderId, int zeorder) {
@@ -774,39 +717,24 @@ public class AddResourceService
             myLog("File Not Added.... (Duration = 0)");
             nbFileSaved++;
             if (nbFileSaved == nbFileToSave) {
-                myLog("*************************** All files have been processed. -- duration=0");
+                myLog("*************************** All files have been processed. -- last file duration=0");
                 updateFolderDuration();
             }
         } else {
-            Observable.fromCallable(() -> {
-                        //adding to database
-                        return DatabaseClient
-                                .getInstance(getApplicationContext())
-                                .getAppDatabase()
-                                .ZikFileDao()
-                                .insert(zikFile);
-
-                    })
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe((result) -> {
-                                if (result != null) {
-                                    myLog("File Added.... SQL result (=id) = [" + result + "]");
-                                    nbFileSaved++;
-                                    if (nbFileSaved == nbFileToSave) {
-                                        myLog("*************************** All files have been processed. -- OK");
-                                        updateFolderDuration();
-                                        if (Option.getDeleteSourceFile(this) && type_given=="ZIP") {
-                                            deleteSourceFile();
-                                        }
-                                    }
-                                } else {
-                                    tellError("error saving ZikFile in DB");
-                                }
-                            }, throwable -> {
-                                tellError(getResources().getString(R.string.Error_Import_saving_file_DB) + sZikFileName + " : " + throwable.getMessage());
-                            }
-                    );
+            long zikFileId = AppDatabase.getDatabase(this).ZikFileDao().insert(zikFile);
+            if (zikFileId>0) {
+                myLog("ZikFile Added.... SQL result (=id) = [" + zikFileId + "]");
+                nbFileSaved++;
+                if (nbFileSaved == nbFileToSave) {
+                    myLog("*************************** All files have been processed. -- OK");
+                    updateFolderDuration();
+                    if (Option.getDeleteSourceFile(this)) {
+                        deleteSourceFile();
+                    }
+                }
+            } else {
+                tellError("error saving ZikFile in DB [" + sZikFileName + "]");
+            }
         }
     }
 
@@ -937,6 +865,40 @@ public class AddResourceService
         String tmp = zipFileName.replace(" ","_");
         tmp = stripExtension(tmp);
         return tmp;
+    }
+
+
+
+    private void copyFileLocal(Uri uri, String destinationFolderPath, String destinationName, String type_given) {
+        if (type_given.equals("ZIP")) { //reset variable because was done in observable stuff
+            this.zipDestinationFolderPath = destinationFolderPath;
+            this.zipDestinationFolderName = destinationName;
+        }
+        long fileSize = -1L;
+        File externalFile = new File(uri.getPath());
+        if (externalFile.exists()) fileSize = externalFile.length();
+        if (fileSize > 0) {
+            myLog("ze Size : " + fileSize);
+        } else {
+            myLog("ERR : Cannot Check Size .... Size = " + fileSize + " .... Never Mind... let's copy");
+        }
+        myLog("Future Folder Path : [" + destinationFolderPath + "]");
+        myLog("call to launchCopyFileService " +
+                "\n.   from Uri [" + uri + "] " +
+                "\n.   to Folder [" + destinationFolderPath + "] " +
+                "\n.   with Name [" + destinationName + "]" +
+                "\n.   for type = [" + type_given + "]");
+        launchCopyFileService(uri, destinationFolderPath, destinationName, type_given);
+    }
+
+    private void unzipZipLocal() {
+        String zeZipFilePath = zipDestinationFolderPath + "/" + zipDestinationFolderName;
+        String zeDestinationFolderPath = zipDestinationFolderPath;
+        myLog("Launching Unzip service with arguments" +
+                "\n.    ZipFilePath = [" + zeZipFilePath + "]" +
+                "\n.    DestinationFolderPath = [" + zeDestinationFolderPath + "]"
+        );
+        launchUnzipService(zeZipFilePath, zeDestinationFolderPath);
     }
 
     /**

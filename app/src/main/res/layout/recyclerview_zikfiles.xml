@@ -56,7 +56,7 @@
             android:layout_marginTop="@dimen/recyclerview_elements_bottom"
             android:layout_marginLeft="@dimen/recyclerview_elements_sides"
             android:layout_marginRight="@dimen/recyclerview_elements_sides"
-            android:progressDrawable="@drawable/progress_bar_with_theme_colors"
+            android:progressDrawable="@drawable/progress_bar_theme"
             app:layout_constraintTop_toBottomOf="@id/textViewFileName"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toLeftOf="@+id/guideline"/>

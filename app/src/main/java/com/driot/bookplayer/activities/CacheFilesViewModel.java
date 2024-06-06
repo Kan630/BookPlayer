@@ -1,5 +1,6 @@
 package com.driot.bookplayer.activities;
 
+import static com.driot.bookplayer.global.Var.FOLDER_UNZIPPED;
 import static com.driot.bookplayer.utils.Utils.getCustomLength;
 import static com.driot.bookplayer.utils.Utils.recursiveRemove;
 
@@ -16,6 +17,7 @@ import com.driot.bookplayer.db.FolderDao;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.db.ZikFileDao;
 import com.driot.bookplayer.utils.FileSorter;
+import com.driot.bookplayer.utils.Utils;
 import com.driot.tonylib.KanLogger;
 
 import java.io.File;
@@ -54,17 +56,12 @@ public class CacheFilesViewModel extends AndroidViewModel {
     }
     private void loadFilesFromDisk() {
         myLog("LiveData<List<ZikFile>> getFilesOnDisk()");
-        String cachePath = getApplication().getFilesDir().getPath() + "/unzipped";
+        String cachePath = getApplication().getFilesDir().getPath() + "/" + FOLDER_UNZIPPED;
         File cacheDir = new File(cachePath);
         if (cacheDir.exists() && cacheDir.isDirectory()) {
-            if (!(cacheDir.listFiles() == null)) {
+            if (cacheDir.listFiles() != null) {
                 List<File> files = Arrays.asList(cacheDir.listFiles());
-                files.sort(new Comparator<File>() {
-                    @Override
-                    public int compare(File file1, File file2) {
-                        return Long.compare(getCustomLength(file1), getCustomLength(file2));
-                    }
-                });
+                files.sort(Comparator.comparingLong(Utils::getCustomLength));
                 Collections.reverse(files);
                 filesFromDisk.setValue(files); // = new MutableLiveData<List<File>>(files);
             } else {
@@ -72,7 +69,6 @@ public class CacheFilesViewModel extends AndroidViewModel {
             }
         } else {
             filesFromDisk.setValue(new ArrayList<>());
-            myLogE("no files found on Disk in " + cacheDir.getPath());
         }
     }
 
@@ -112,7 +108,6 @@ public class CacheFilesViewModel extends AndroidViewModel {
     private boolean deleteBookFromDisk(String strPath) {
         String starter = "file:///";
         if (strPath.length()>5) {
-            //if (strPath.startsWith(starter)) {
                 strPath = strPath.replace(starter,"");
                 try {
                     File zikFileToDelete = new File(strPath);
@@ -132,10 +127,6 @@ public class CacheFilesViewModel extends AndroidViewModel {
                     myLogE("Error remove ZikFile from Disk: " + e.getMessage());
                     return false;
                 }
-            //} else {
-            //    myLog("Not a ZikFile in user data, skip deletion of ZikFile");
-            //    return true;
-            //}
         } else {
             myLogE("should not happen uri less than 5 chars");
             return false;
@@ -151,17 +142,6 @@ public class CacheFilesViewModel extends AndroidViewModel {
             }
         });
     }
-/*
-    private void deleteBookFromDB(int idFolder) {
-        new Thread(() -> {
-            zikFileDao.deleteFolder(idFolder);
-        }).start();
-        new Thread(() -> {
-            folderDao.delete(idFolder);
-        }).start();
-    }
-
- */
 
 
 
