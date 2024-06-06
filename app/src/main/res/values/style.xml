@@ -10,16 +10,6 @@
     <style name="myStyleTextExplainButton" parent="textColor">
     </style>
 
-    <style name="myButton" parent="android:Widget.Button">
-    </style>
-
-    <style name="myBigButton" parent="Widget.AppCompat.Button">
-        <item name="android:paddingStart">24sp</item>
-        <item name="android:paddingEnd">24sp</item>
-        <item name="android:layout_marginStart">50sp</item>
-        <item name="android:layout_marginEnd">50sp</item>
-    </style>
-
     <style name="myStyleTitle" parent="textColor">
         <item name="android:textAlignment">center</item>
         <item name="android:textSize">24sp</item>
@@ -34,8 +24,6 @@
         <item name="android:layout_marginTop">20sp</item>
     </style>
 
-    <style name="emptyStyle">
-    </style>
     <!-- ***************** PLAY ACTIVITY ***************** -->
 
     <style name="PlayActivityActionButtons">

@@ -49,17 +49,11 @@ public class TonioCommonStuff {
         try {
             java.security.MessageDigest md = java.security.MessageDigest.getInstance("MD5");
             StringBuilder sb = new StringBuilder();
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {   // > 16
-                byte[] array;
-                array = md.digest(md5.getBytes(StandardCharsets.UTF_8));
-                for (byte b : array) {
-                    sb.append(Integer.toHexString((b & 0xFF) | 0x100).substring(1, 3));
-                }
-            } else {
-                Log.d("toto", "MD5 N/A - android sdk < 16");
-                return null;
+            byte[] array;
+            array = md.digest(md5.getBytes(StandardCharsets.UTF_8));
+            for (byte b : array) {
+                sb.append(Integer.toHexString((b & 0xFF) | 0x100).substring(1, 3));
             }
-            //Log.d("toto", "MD5 ok");
             return sb.toString();
         } catch (Exception e) {
             Log.e ("toto", "MD5 failed :" + e.getMessage());

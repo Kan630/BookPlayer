@@ -70,7 +70,8 @@
             android:textColor="@color/black"
             app:layout_constraintTop_toBottomOf="@id/textViewFileName"
             app:layout_constraintRight_toRightOf="@id/guideline"
-            android:layout_marginRight="20dp"
+            android:layout_marginStart="0dp"
+            android:layout_marginEnd="20dp"
             android:text="...xx%..." />
 
         <TextView
@@ -78,8 +79,8 @@
             android:layout_width="0dp"
             android:layout_height="20dp"
             android:layout_marginTop="@dimen/recyclerview_elements_bottom"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="@dimen/recyclerview_elements_sides"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="@dimen/recyclerview_elements_sides"
             android:textColor="@color/black"
             app:layout_constraintTop_toBottomOf="@id/textViewFileName"
             app:layout_constraintLeft_toLeftOf="parent"

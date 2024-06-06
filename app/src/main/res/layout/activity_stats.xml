@@ -9,7 +9,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
         android:layout_marginEnd="20sp"
         android:layout_marginStart="20sp"
@@ -83,8 +83,8 @@
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
             android:textAlignment="center"
-            android:textSize="16dp"
-            android:text="App Info"
+            android:textSize="16sp"
+            android:text="@string/app_info"
             android:layout_margin="10dp"
             />
 
@@ -95,8 +95,8 @@
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
             android:textAlignment="center"
-            android:textSize="16dp"
-            android:text="delete Logs"
+            android:textSize="16sp"
+            android:text="@string/delete_logs"
             android:layout_margin="10dp"
             />
     </LinearLayout>

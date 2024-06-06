@@ -38,7 +38,6 @@
         <activity android:name=".activities.OtherAppsActivity" />
         <activity android:name=".activities.BiggerTextActivity" />
         <activity android:name=".activities.LogListActivity" />
-        <activity android:name=".activities.DbBackupActivity" />
         <activity android:name=".activities.StatsActivity" />
         <activity android:name=".activities.CacheFilesActivity" />
         <activity android:name=".activities.DownloadActivity" />

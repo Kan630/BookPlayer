@@ -59,7 +59,7 @@ public class StatsActivity extends LifecycleLoggingActivity {
 
         tv_head = findViewById(R.id.tv1_head);
         tv_body = findViewById(R.id.tv1_body);
-        tv_head.setText("Physical Storage Memory");
+        tv_head.setText("@string/physical_storage_memory");
         tv_body.setText(zeText);
 
         zeText =
@@ -73,7 +73,7 @@ public class StatsActivity extends LifecycleLoggingActivity {
 
         tv_head = findViewById(R.id.tv2_head);
         tv_body = findViewById(R.id.tv2_body);
-        tv_head.setText("Version");
+        tv_head.setText("@string/version");
         tv_body.setText(zeText);
 
         zeText = "Region Locale = " + Locale.getDefault().getCountry()
@@ -85,7 +85,7 @@ public class StatsActivity extends LifecycleLoggingActivity {
 
         tv_head = findViewById(R.id.tv3_head);
         tv_body = findViewById(R.id.tv3_body);
-        tv_head.setText("Miscellaneous");
+        tv_head.setText("@string/miscellaneous");
         tv_body.setText(zeText);
 
         findViewById(R.id.bt_01).setOnClickListener(v -> openAppInfo());

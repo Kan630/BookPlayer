@@ -333,35 +333,6 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
     // --     PERMISSIONS
     // -------------------------------------------------------------------------------------------
     // -------------------------------------------------------------------------------------------
-/*
-    private boolean checkIfPermissionsWriteStorage() {
-        boolean HasPermission = false;
-        int permissionCheck1 = ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        if (permissionCheck1 == PackageManager.PERMISSION_GRANTED) HasPermission = true;
-        myLog("Checking Permissions 1 - GetResourceActivity.checkPermissionsReadStorage() : [" + HasPermission + "]");
-        return HasPermission;
-    }
-
-    private boolean askPermissionsReadStorage() { //new Permission starting Android 33
-        myLog("Permissions - askPermissionsReadStorage");
-        //ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_MEDIA_AUDIO}, 1357);
-        checkPermissionsReadStorage2();
-        return true;
-    }
-*/
-
-    /**
-     * Handle the onPostCreate() hook to call permission helper to handle all
-     * permission requests using the API 23 permission model framework.
-     * <p>
-     * The framework will callback to request this application to provide a
-     * descriptive reason for the permission request that is then displayed to
-     * the user. The user has the opportunity to grant or deny the permission
-     * request. The callback is also handled automatically by the permission
-     * helper class.
-     *
-     * @param savedInstanceState A saved state or null.
-     */
 
     private void askForPermission() {
         if (!isReadAudioPermissionGranted(this)) {
@@ -371,18 +342,6 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
             myLog("askForPermission() -- already granted...");
         }
     }
-
-/*
-    @Override
-    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
-        myLog("onPostCreate()");
-        if (!isReadAudioPermissionGranted(this)) {
-            myLog("Permission not granted, checking....");
-            checkPermissionsReadStorage();
-        }
-        super.onPostCreate(savedInstanceState);
-    }
- */
 
     private void checkPermissionsReadStorage() {
         if(Build.VERSION.SDK_INT < 33) {

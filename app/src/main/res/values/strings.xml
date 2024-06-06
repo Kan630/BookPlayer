@@ -1,7 +1,17 @@
 <resources>
     <string name="app_name" translatable="false">BookPlayer</string>
+    <string name="three_dots" translatable="false">…</string>
+
     <string name="yesterday">"yesterday"</string>
     <string name="ERROR">"ERROR"</string>
+    <string name="downloading">Downloading…</string>
+    <string name="app_info">App Info</string>
+    <string name="delete_logs">Delete Logs</string>
+    <string name="delete">Delete</string>
+
+
+
+
 
     <string name="title_FolderList">Folders List</string>
     <string name="title_FolderContent">Files List</string>
@@ -150,6 +160,7 @@
     <string name="bSearchLibrivox" translatable="false">Librivox.org</string>
     <string name="bSearchLitteratureaudio" translatable="false">Litteratureaudio.com</string>
     <string name="bSearchGutenberg" translatable="false">https://marhamilresearch4.blob.core.windows.net/gutenberg-public/Website/index.html</string>
+    <string name="gutenberg_project">Gutenberg Project</string>
 
 
     <string name="TextHeaderOpen">Open an audio on my device</string>
@@ -283,6 +294,17 @@
     <string name="error_reading_track">"ERROR READING TRACK !"</string>
     <string name="error_file_not_found">"FILE NOT FOUND !"</string>
     <string name="no_back_while_play">"Cannot go back while playing audio"</string>
+    <string name="current_position">Current position</string>
+    <string name="total_time">Temps total</string>
+    <string name="file_name">Nom Fichier</string>
+
+
+    <!-- ********************************** -->
+    <!-- STATS activity -->
+
+    <string name="physical_storage_memory">Physical Storage Memory</string>
+    <string name="version">Version</string>
+    <string name="miscellaneous">Miscellaneous</string>
 
 
     <!-- ********************************** -->
@@ -294,6 +316,7 @@
     <string name="menu_options">options</string>
     <string name="menu_otherapp">other apps</string>
     <string name="menu_sendmail">mail developer</string>
+    <string name="stats">Stats</string>
     <string name="menu_seeLog">See Log</string>
     <string name="menu_cacheFiles">Cleaning</string>
 
@@ -314,5 +337,33 @@
     <string name="action_tailleCharMoins">Chars Size -</string>
     <string name="action_search">Search</string>
     <string name="action_debutTexte">Goto Top</string>
+
+    <!-- ********************************** -->
+    <!-- PERMISSIONS -->
+
+    <string name="permission_rationale">This activity requires the following permissions: </string>
+    <string name="permissions_granted">Permissions were granted.</string>
+    <string name="permissions_denied">Permissions were not granted.</string>
+    <string name="permissions_ok_button">OK</string>
+
+    <!-- Application specific permission strings -->
+    <string name="permission_read_write_rationale">Bookplayer needs [Read Audio] permission (or set [Copy File] option).</string>
+    <string name="permission_read_write_granted">[Read Audio] permission granted.</string>
+    <string name="permission_read_write_denied">[Read Audio] permission was denied.
+        \n\nClick [App Info] to activate permissions manually.
+        \n\nOr
+        \n\nClick [Options] to activate app \'Copy File internally\' option.
+        \n<i>Then, your audio files will be copied inside Bookplayer internal memory and you won\'t need any permission to read them.</i>
+    </string>
+
+    <string name="permission_record_audio_rationale">Spectrum visualizer requires [record audio] permission.</string>
+    <string name="permission_record_audio_granted">[record audio] permission has been granted.</string>
+    <string name="permission_record_audio_denied">Spectrum visualizer will not be displayed. [record audio] permission has been denied.</string>
+    <string name="permission_record_audio_rationale_after_denied">BookPlayer can not ask again for an already denied permission.
+        \n\nYou can bypass by clicking [App Info].
+        \nThat will open the Bookplayer settings on the device.
+        \n\nThen go in "Permissions" section and manually allow "Microphone".</string>
+
+    <string name="permissions_denied_sorry_cannot">Permissions are not granted, cannot play audio.</string>
 
 </resources>

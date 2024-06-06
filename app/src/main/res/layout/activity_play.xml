@@ -76,7 +76,7 @@
 
     <TextView
         android:id="@+id/textViewSeekBar"
-        android:text="Current position"
+        android:text="@string/current_position"
         style="@style/textColor"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -85,7 +85,7 @@
 
     <TextView
         android:id="@+id/textViewTempsTotal"
-        android:text="Temps total"
+        android:text="@string/total_time"
         style="@style/textColor"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -97,7 +97,7 @@
 
     <TextView
         android:id="@+id/textViewNomFichier"
-        android:text="Nom Fichier"
+        android:text="@string/file_name"
         style="@style/textColor"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -134,7 +134,7 @@
     <Button
         android:id="@+id/bSpeedDown"
         android:text="-"
-        android:textSize="30dp"
+        android:textSize="30sp"
         android:paddingVertical="0dp"
         android:textAlignment="gravity"
         android:layout_width="@dimen/playactivity_Playback_Height"
@@ -159,7 +159,7 @@
     <Button
         android:id="@+id/bSpeedUp"
         android:text="+"
-        android:textSize="24dp"
+        android:textSize="24sp"
         android:layout_width="@dimen/playactivity_Playback_Height"
         android:layout_height="@dimen/playactivity_Playback_Height"
         android:layout_toEndOf="@id/textViewSpeed"
@@ -180,7 +180,7 @@
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:layout_alignParentEnd="true"
         android:textStyle="italic"
-        android:textSize="10sp"
+        android:textSize="11sp"
         android:layout_marginEnd="20sp"
         android:layout_marginBottom="5sp"
         android:layout_above="@+id/tv_TimeLeft"
@@ -194,7 +194,7 @@
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:layout_alignParentEnd="true"
         android:textStyle="italic"
-        android:textSize="10sp"
+        android:textSize="11sp"
         android:layout_marginEnd="20sp"
         android:layout_marginBottom="5sp"
         android:layout_above="@+id/bSpeedUp"

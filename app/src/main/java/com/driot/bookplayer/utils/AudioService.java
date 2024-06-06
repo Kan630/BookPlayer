@@ -45,7 +45,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import static com.driot.bookplayer.activities.PlayActivity.SHARED_PREFERENCE_SPEED;
-import static com.driot.bookplayer.utils.PermissionRequest.isPostNotificationPermissionGranted;
 import static com.driot.bookplayer.utils.Tonio.FormatPercentDouble;
 import static com.driot.bookplayer.utils.Tonio.FormatTime;
 import static com.driot.bookplayer.utils.Tonio.fileExists;

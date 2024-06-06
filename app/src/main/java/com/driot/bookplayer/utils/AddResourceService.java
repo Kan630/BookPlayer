@@ -623,7 +623,7 @@ public class AddResourceService
                     myLog("**** fullPath = [" + fullPath + "]");
                     copyFileLocal(myFolder.getUri()
                             , folderPath
-                            , "tutu" // fileName needed to check if already exist in DB
+                            , fileName
                             , type_given);
                 } else if (type_given.equals("File")) {
                     String folderPath = getFilesDir().getAbsolutePath() + "/" + FOLDER_UNZIPPED + "/" + myFolder.getFolderName();

@@ -6,6 +6,7 @@ package com.driot.bookplayer.utils;
 import static com.driot.tonylib.KanLogger.myLog;
 import static com.driot.tonylib.KanLogger.myLogE;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -41,7 +42,7 @@ public class FileHelper {
     }
 
     private static String processUri(Context context, Uri uri) {
-        final boolean isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
+        @SuppressLint("ObsoleteSdkInt") final boolean isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT; // unecessary but keeping for later reuse....
         myLog("processUri - isKitKat : " + String.valueOf(isKitKat));
         String path = "";
         // DocumentProvider

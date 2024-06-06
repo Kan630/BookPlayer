@@ -32,8 +32,8 @@
         <ImageView
             android:layout_width="100sp"
             android:layout_height="100sp"
-            android:src="@drawable/img_droitpositif"
             />
+        <!-- android:src="@drawable/img_droitpositif" -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -71,8 +71,8 @@
             <ImageView
                 android:layout_width="100sp"
                 android:layout_height="100sp"
-                android:src="@drawable/img_deces"
                 />
+            <!-- android:src="@drawable/img_deces" -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"

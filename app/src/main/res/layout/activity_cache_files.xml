@@ -12,7 +12,7 @@
         android:textSize="16sp"
         android:fontFamily="monospace"
         android:textColor="@android:color/white"
-        android:gravity="left"
+        android:gravity="start"
         android:padding="8dp"
         android:lineSpacingMultiplier="0.5"
         android:background="?attr/colorPrimary" />
