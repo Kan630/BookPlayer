@@ -61,7 +61,7 @@ public class ZikFileActivity extends LifecycleLoggingActivity { //AppCompatActiv
 
     private void getDATA() {
         long idFolder = getIntent().getIntExtra("FolderId",0);
-        myLog("getData() - recyclerview idFolder = " + idFolder);
+        myLog("getData() - idFolder = " + idFolder);
         if (idFolder != 0) {
             getZikFiles(idFolder);
         } else {
@@ -93,18 +93,15 @@ public class ZikFileActivity extends LifecycleLoggingActivity { //AppCompatActiv
         }
     }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-    }
-
     public void getZikFiles(long idFolder) {
         new Thread(() -> {
             List<ZikFile> zikFilesList = AppDatabase.getDatabase(this).ZikFileDao().getZikFiles(idFolder);
-            adapter = new ZikFilesAdapter(ZikFileActivity.this, zikFilesList);
-            recyclerView.setAdapter(adapter);
-            createMap();
-            goToLastAudio();
+            runOnUiThread(() -> {
+                adapter = new ZikFilesAdapter(ZikFileActivity.this, zikFilesList);
+                recyclerView.setAdapter(adapter);
+                createMap();
+                goToLastAudio();
+            });
         }).start();
     }
 

@@ -116,7 +116,7 @@
     <string name="Import_Progress_checkingFiles">\"Carpeta guardada: comprobando archivos\"</string>
     <string name="Import_Progress_scanningFile">\"escanear archivo\"</string>
 
-    <string name="Import_Progress_onGoing">\"Ocupado... importación en curso...\"</string>
+    <string name="Import_Progress_onGoing">\"Ocupado… importación en curso…\"</string>
 
     <string name="Error_Import_Creating_Folders">\"No se pudieron crear carpetas\"</string>
     <string name="Error_Import_checking_Folder_Exists">\"Error al comprobar si la carpeta ya existe en la base de datos\"</string>

@@ -13,7 +13,7 @@
         android:orientation="vertical"
         android:gravity="center">
     <TextView
-        android:id="@+id/textViewOverlayedMessage"
+        android:id="@+id/textViewOverlaidMessage"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textColor="@color/lightred"
@@ -22,7 +22,7 @@
         android:layout_margin="10dp"
         />
         <TextView
-            android:id="@+id/textViewOverlayedMessageDetails"
+            android:id="@+id/textViewOverlaidMessageDetails"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="@color/lightred"
@@ -31,7 +31,7 @@
             android:layout_margin="10dp"
             />
         <Button
-            android:id="@+id/btOverlayed01"
+            android:id="@+id/btOverlaid01"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAlignment="center"

@@ -11,35 +11,21 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import androidx.appcompat.app.AlertDialog;
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.global.PlayList;
-import com.driot.bookplayer.db.Sql;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.tonylib.KanLogger;
 
 import java.util.List;
 
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
-import io.reactivex.rxjava3.core.Observable;
-import io.reactivex.rxjava3.schedulers.Schedulers;
-
 import static com.driot.bookplayer.utils.Tonio.FormatLastAccess;
 import static com.driot.bookplayer.utils.Tonio.FormatPercentForProgressBar;
 import static com.driot.bookplayer.utils.Tonio.FormatPercentString;
 import static com.driot.bookplayer.utils.Tonio.FormatTime;
-import static com.driot.bookplayer.utils.Tonio.fileExists;
-import static com.driot.tonylib.KanLogger.myLog;
-import static com.driot.tonylib.KanLogger.myLogE;
-import static com.driot.tonylib.KanLogger.myLogInFile;
-import static com.driot.tonylib.KanLogger.myToast;
-import static com.driot.tonylib.KanLogger.myToastE;
-
 
 public class ZikFilesAdapter extends RecyclerView.Adapter<ZikFilesAdapter.ZikFilesViewHolder> {
 
@@ -51,8 +37,9 @@ public class ZikFilesAdapter extends RecyclerView.Adapter<ZikFilesAdapter.ZikFil
         this.zikFileList = zikFileList;
     }
 
+    @NonNull
     @Override
-    public ZikFilesViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ZikFilesViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(mCtx).inflate(R.layout.recyclerview_zikfiles, parent, false);
         return new ZikFilesViewHolder(view);
     }
@@ -62,7 +49,7 @@ public class ZikFilesAdapter extends RecyclerView.Adapter<ZikFilesAdapter.ZikFil
      ********************************************************************************
      */
     @Override
-    public void onBindViewHolder(ZikFilesViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ZikFilesViewHolder holder, int position) {
         RedrawViewHolderElements(holder, position);
     }
 
@@ -70,15 +57,10 @@ public class ZikFilesAdapter extends RecyclerView.Adapter<ZikFilesAdapter.ZikFil
         ZikFile t = zikFileList.get(position);
 
         holder.textViewFileName.setText(t.getDisplayName());
-
         holder.textViewFilePercent.setText(FormatPercentString(t.getPercentdone()));
-
         holder.mProgressBar.setProgress(FormatPercentForProgressBar(t.getPercentdone()));
-
         holder.textViewFileLastAccess.setText(FormatLastAccess(t.getLastaccess(), t.getLastaccessTime(), mCtx.getString(R.string.yesterday)));
-
         holder.textViewDuration.setText(FormatTime(t.getDuration()));
-
     }
 
 
@@ -106,60 +88,26 @@ public class ZikFilesAdapter extends RecyclerView.Adapter<ZikFilesAdapter.ZikFil
             itemView.setOnLongClickListener(this);
         }
 
-        ////////////////////// CLICK
         @Override
         public void onClick(View view) {
-            ZikFile zikFile = zikFileList.get(getAdapterPosition());
-            myLog("onClick() : " + zikFile.getName());
+            ZikFile zikFile = zikFileList.get(getBindingAdapterPosition());
+            myLog("onClick() : [" + zikFile.getName() + "] - [" + zikFile.getPath() + "/" + zikFile.getName() + "]");
 
-            boolean FileOkForPlay = false;
-            // check First that zikFile is proper zikFile and is playable
-            //if (zikFile.isIszipfile()) {
-            //    FileOkForPlay = true;
-            //    myLog("zikFile is zip");
-            //} else {
-                // check file exists
-/*
-                if (zikFile.isIsSingleFile()) {
-                    String fullPath = zikFile.getPath();
-                } else {
-                    String fullPath = zikFile.getPath() + "/" + zikFile.getName();
-                }
-*/
-                String fullPath = zikFile.getPath() + "/" + zikFile.getName();
-                myLog("full path zikFile to open PlayActivity : " + fullPath);
-                //if (fileExists(fullPath)) FileOkForPlay = true;
-            //}
+            PlayList.setNumZikFile(getBindingAdapterPosition()); //global var
 
-            //if (FileOkForPlay) {
-                PlayList.setNumZikFile(getAdapterPosition()); //global var
-
-                //pass an object, check parcelable //on s'en sert plus.... tout semble passer par les global var ci dessus
-                Intent intent = new Intent(mCtx, PlayActivity.class);
-            intent.putExtra("ZikFile", zikFile);
-                mCtx.startActivity(intent);
-            //} else {
-            //    myLogE("opening PlayActivity -- ERROR OPENING TRACK - FILE NOT FOUND !");
-            //    Toast.makeText(mCtx, mCtx.getString(R.string.PlayActivity_ErrorOpeningTrack_FileNotFound), Toast.LENGTH_SHORT).show();
-            //}
+            mCtx.startActivity(new Intent(mCtx, PlayActivity.class).putExtra("ZikFile", zikFile));
         }
-
 
         @Override
         public boolean onLongClick(View view) {
-            ZikFile zikFile = zikFileList.get(getAdapterPosition());
+            ZikFile zikFile = zikFileList.get(getBindingAdapterPosition());
+            myLog("onLongClick() : [" + zikFile.getName() + "] - [" + zikFile.getPath() + "/" + zikFile.getName() + "]");
 
-            Intent intent = new Intent(mCtx, ZikFileModifyActivity.class);
-            intent.putExtra("ZikFile", zikFile);
-
-            mCtx.startActivity(intent);
+            mCtx.startActivity(new Intent(mCtx, ZikFileModifyActivity.class).putExtra("ZikFile", zikFile));
             return false;
         }
     }
 
-    private void reLoad(int idFolder) {
-        ((ZikFileActivity)mCtx).getZikFiles(idFolder);
-    }
 
     //--- LOG --------------------------
     private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }

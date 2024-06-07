@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.Build;
@@ -20,7 +19,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.DatabaseClient;
+import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.PlayList;
 import com.driot.bookplayer.utils.AudioService;
@@ -56,8 +57,9 @@ import static com.driot.bookplayer.utils.Tonio.formatNameForDisplay;
 import static com.driot.bookplayer.utils.Tonio.FormatPercentStringForSpeed;
 import static com.driot.bookplayer.utils.Tonio.FormatTime;
 import static com.driot.bookplayer.utils.Utils.animateView;
-import static com.driot.tonylib.KanLogger.myToast;
 import static com.driot.tonylib.KanLogger.myToastE;
+
+import androidx.core.content.ContextCompat;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 30/10/2020
@@ -75,7 +77,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
     private static final float INCREMENT_SPEED = 0.05f;
     AudioService audioService;
     boolean audioServiceBound = false;
-    private Button bPlay, bRewind, bForward, bSpeedUp, bSpeedDown;
+    private Button bPlay;
     List<Button> buttonsToLock;
     private SeekBar seekbar;
     private TextView txSeekBar, txTempsTotal, txNomFichier, txTitle, txSubTitle, txSpeed, txListeningTime, txTimeLeft;
@@ -85,6 +87,19 @@ public class PlayActivity extends LifecycleLoggingActivity {
     private boolean HasBeenInitializedService = false;
     private Intent intentMusicService;
     private Timer timerRedrawUI;
+
+    String[] broadcastNotifications = {
+            NOTIFICATION_TRACKFINISHED
+            ,NOTIFICATION_AUDIOFOCUS_GAIN
+            ,NOTIFICATION_AUDIOFOCUS_LOST
+            ,NOTIFICATION_FILELOADED
+            ,NOTIFICATION_ERROR
+            ,NOTIFICATION_ZIP_FILE_LOADED
+            ,NOTIFICATION_PLAYLISTFINISHED
+            ,NOTIFICATION_PLAYBACK_MAXTIMEREACH
+            ,NOTIFICATION_PLAYBACK_TIMER_VALUE
+            ,NOTIFICATION_FILENOTFOUND
+    };
 
     private PermissionRequest mPermissionRequest;
 
@@ -138,7 +153,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
                 case NOTIFICATION_FILENOTFOUND:
                     myLog("broadcast received FILENOTFOUND");
                     Toast.makeText(getApplicationContext(), getString(R.string.error_reading_track) + "\n" + getString(R.string.error_file_not_found), Toast.LENGTH_SHORT).show();
-                    lockButtonAndDisplayErrorMessage();
+                    lockButtonAndDisplayErrorMessage(null);
                 case NOTIFICATION_TRACKFINISHED:
                     myLog("broadcast received TRACK FINISHED");
                     break;
@@ -189,10 +204,18 @@ public class PlayActivity extends LifecycleLoggingActivity {
         setContentView(R.layout.activity_play);
 
         bPlay = findViewById(R.id.buttonPlay);
+
+        Button bRewind, bForward, bSpeedUp, bSpeedDown;
         bRewind = findViewById(R.id.buttonRewind);
         bForward = findViewById(R.id.buttonForward);
         bSpeedUp = findViewById(R.id.bSpeedUp);
         bSpeedDown = findViewById(R.id.bSpeedDown);
+
+        bPlay.setOnClickListener(v -> playMe());
+        bForward.setOnClickListener(v -> forwardMe());
+        bRewind.setOnClickListener(v -> backwardMe());
+        bSpeedUp.setOnClickListener(v -> SpeedMeUp());
+        bSpeedDown.setOnClickListener(v -> SpeedMeDown());
 
         buttonsToLock = Arrays.asList(bPlay, bRewind, bForward, bSpeedUp, bSpeedDown);
 
@@ -223,27 +246,6 @@ public class PlayActivity extends LifecycleLoggingActivity {
             myLogE("ERR ShowProgressAnim()  " + e.getMessage());
         }
 
-        //setPlaybackState(0);
-
-        //-*******************************************************************************
-        //-***       CHOOSE RIGHT FILE
-        //-*******************************************************************************
-        // which one to take, the one from the intent (click on recyclerview)
-        //                 or the one from the globals var
-        //
-        // ancien systeme : on recupere de l'intent :
-        //                zikFileFromIntent = (ZikFile) getIntent().getSerializableExtra("ZikFile");"
-        //
-        // nouveau systeme, on recupere des global vars,
-        //          (si besoin, on recree depuis le save en fichiers de conf)
-        //
-        //
-        //-*******************************************************************************
-
-
-
-
-
         //-*******************************************************************************
         //-***       SEEKBAR
         //-*******************************************************************************
@@ -257,7 +259,6 @@ public class PlayActivity extends LifecycleLoggingActivity {
                     txSeekBar.setText(FormatTime(progress,true));
                 }
             }
-
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
             }
@@ -266,17 +267,6 @@ public class PlayActivity extends LifecycleLoggingActivity {
             public void onStopTrackingTouch(SeekBar seekBar) {
             }
         });
-
-        //-*******************************************************************************
-        //-***       BUTTONS
-        //-*******************************************************************************
-
-        bPlay.setOnClickListener(v -> playMe());
-        bForward.setOnClickListener(v -> forwardMe());
-        bRewind.setOnClickListener(v -> backwardMe());
-        bSpeedUp.setOnClickListener(v -> SpeedMeUp());
-        bSpeedDown.setOnClickListener(v -> SpeedMeDown());
-
     }
 
     private void launchService() {
@@ -357,31 +347,8 @@ public class PlayActivity extends LifecycleLoggingActivity {
     protected void onResume() {
         myLog("onResume()... registering broadCastReceiver");
 
-
-        if (Build.VERSION.SDK_INT >= 33) {
-            registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_NEWTRACK), RECEIVER_NOT_EXPORTED);
-            registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_TRACKFINISHED), RECEIVER_NOT_EXPORTED);
-            registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_AUDIOFOCUS_GAIN), RECEIVER_NOT_EXPORTED);
-            registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_AUDIOFOCUS_LOST), RECEIVER_NOT_EXPORTED);
-            registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_FILELOADED), RECEIVER_NOT_EXPORTED);
-            registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_ERROR), RECEIVER_NOT_EXPORTED);
-            registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_ZIP_FILE_LOADED), RECEIVER_NOT_EXPORTED);
-            registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_PLAYLISTFINISHED), RECEIVER_NOT_EXPORTED);
-            registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_PLAYBACK_MAXTIMEREACH), RECEIVER_NOT_EXPORTED);
-            registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_PLAYBACK_TIMER_VALUE), RECEIVER_NOT_EXPORTED);
-            registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_FILENOTFOUND), RECEIVER_NOT_EXPORTED);
-        } else {
-            registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_NEWTRACK));
-            registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_TRACKFINISHED));
-            registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_AUDIOFOCUS_GAIN));
-            registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_AUDIOFOCUS_LOST));
-            registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_FILELOADED));
-            registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_ERROR));
-            registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_ZIP_FILE_LOADED));
-            registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_PLAYLISTFINISHED));
-            registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_PLAYBACK_MAXTIMEREACH));
-            registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_PLAYBACK_TIMER_VALUE));
-            registerReceiver(broadCastReceiver, new IntentFilter(NOTIFICATION_FILENOTFOUND));
+        for (String broadcastNotification : broadcastNotifications) {
+            ContextCompat.registerReceiver(this, broadCastReceiver, new IntentFilter(broadcastNotification), ContextCompat.RECEIVER_NOT_EXPORTED);
         }
 
         myLog("onResume() - creating new timer for Display");
@@ -452,20 +419,19 @@ public class PlayActivity extends LifecycleLoggingActivity {
     private void loadPlayListIntoService() {
         if (PlayList.getZikFile() == null) {
             myToastE("Cannot get Playlist - PlayList.getZikFile() is null");
+            lockButtonAndDisplayErrorMessage("Cannot get Playlist - PlayList.getZikFile() is null");
             return;
         }
         myLog("+++++++++ loading PlayList Into Service - GetZikFiles - Folder : " + PlayList.getZikFile().getIdFolder());
-        Observable.fromCallable(() -> DatabaseClient
-                .getInstance(getApplicationContext())
-                .getAppDatabase()
-                .ZikFileDao()
-                .getNextZikFiles(PlayList.getZikFile().getIdFolder(), PlayList.getZikFile().getName())).subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe((result) -> audioService.loadFiles(result), throwable -> {
-                    myToastE("Error Loading playlist");
-                    myLogE("Error Loading playlist :" + throwable.getMessage());
-                    throwable.printStackTrace();
-                });
+        new Thread(() -> {
+            try {
+                ZikFile[] zikFiles = AppDatabase.getDatabase(this).ZikFileDao().getNextZikFiles(PlayList.getZikFile().getIdFolder(), PlayList.getZikFile().getName());
+                audioService.loadFiles(zikFiles);
+            } catch (Exception e) {
+                myToastE("Error Loading playlist");
+                myLogE("Error Loading playlist :" + e.getMessage());
+            }
+        }).start();
     }
 
     private void DrawUI() {
@@ -584,7 +550,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
         }
     }
 
-    private void lockButtonAndDisplayErrorMessage() {
+    private void lockButtonAndDisplayErrorMessage(String errMessage) {
         myLog("lockButtonAndDisplayErrorMessage");
         unregisterReceiver(broadCastReceiver);
         bPlay.setEnabled(false);
@@ -593,26 +559,32 @@ public class PlayActivity extends LifecycleLoggingActivity {
         }
         seekbar.setEnabled(false);
         ShowMessageOverlay();
-        TextView tv = findViewById(R.id.textViewOverlayedMessage);
-        TextView tv2 = findViewById(R.id.textViewOverlayedMessageDetails);
-        Button b1 = findViewById(R.id.btOverlayed01);
+        TextView tv = findViewById(R.id.textViewOverlaidMessage);
+        TextView tv2 = findViewById(R.id.textViewOverlaidMessageDetails);
+        Button b1 = findViewById(R.id.btOverlaid01);
         tv.setText("The source file could not be found or read.\n"); // in case bug later
         try {
-            //b1.setVisibility(View.INVISIBLE);
-            String zePath = PlayList.getZikFile().getPath();
-            String pathText = "Path of source file = \n[" + zePath + "]";
-            if (zePath.contains(PATH_CHECK_APPLICATION)) {
-                tv.setText("The source file could not be found or read.\n");
-                myLog("Source file is inside app memory");
-            } else if (isReadAudioPermissionGranted(this)) {
-                tv.setText("The source file could not be found. It may have been deleted.");
-                tv2.setText(pathText);
+            if (errMessage != null) {
+                tv.setText(errMessage);
+                myLogE(errMessage);
             } else {
-                tv.setText("The permission is not set.");
-                tv2.setText("To set, click on the below button to display App info, then go to \'App Permissions\' section and manually set \'MUSIC AND AUDIO\'.\n\nPermission is needed because the source file to read is not in Bookplayer internal memory.\n\n" + pathText);
-                b1.setVisibility(View.VISIBLE);
-                b1.setText("Device Settings for Bookplayer ");
-                b1.setOnClickListener(v -> openAppSettingsOnPhone());
+                //b1.setVisibility(View.INVISIBLE);
+                String zePath = PlayList.getZikFile().getPath();
+                String pathText = getText(R.string.source_file_path) + " = \n[" + zePath + "]";
+                if (zePath.contains(PATH_CHECK_APPLICATION)) {
+                    tv.setText(getText(R.string.source_not_found));
+                    myLog("Source file is inside app memory");
+                } else if (isReadAudioPermissionGranted(this)) {
+                    tv.setText(R.string.source_not_found_deleted);
+                    tv2.setText(pathText);
+                } else {
+                    tv.setText(R.string.permission_not_set);
+                    String msg = R.string.permission_to_set + pathText;
+                    tv2.setText(msg);
+                    b1.setVisibility(View.VISIBLE);
+                    b1.setText(R.string.device_settings);
+                    b1.setOnClickListener(v -> openAppSettingsOnPhone());
+                }
             }
         } catch (Exception e) {
             myLogE("lockButtonAndDisplayErrorMessage - " + e.getMessage());

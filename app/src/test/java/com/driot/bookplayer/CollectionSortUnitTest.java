@@ -16,12 +16,10 @@ import java.util.Collections;
  */
 public class CollectionSortUnitTest {
 
-    private ArrayList<String> audioFileArrayList;
-
     @Test
     public void checkMe() {
 
-        audioFileArrayList = new ArrayList<String>();
+        ArrayList<String> audioFileArrayList = new ArrayList<String>();
         /*
         audioFileArrayList.add("toto 04");
         audioFileArrayList.add("toto 01");

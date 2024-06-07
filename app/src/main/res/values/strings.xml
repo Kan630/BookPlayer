@@ -17,10 +17,10 @@
     <string name="title_FolderContent">Files List</string>
     <string name="PlayerActivity_Title" translatable="false">TextBook Player</string>
 
-    <string name="yes">"yes"</string>
-    <string name="no">"no"</string>
-    <string name="cancel">"cancel"</string>
-    <string name="are_you_sure">"Are you sure ?"</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="cancel">Cancel</string>
+    <string name="are_you_sure">Are you sure ?</string>
 
     <string name="asset_statements" translatable="false">
     [{
@@ -300,6 +300,14 @@
     <string name="current_position">Current position</string>
     <string name="total_time">Temps total</string>
     <string name="file_name">Nom Fichier</string>
+    <string name="source_not_found">The source file could not be found or read.</string>
+    <string name="source_not_found_deleted">The source file could not be found. It may have been deleted.</string>
+    <string name="source_file_path">Path of source file</string>
+    <string name="permission_not_set">The permission is not set.</string>
+    <string name="permission_to_set">To set, click on the below button to display App info, then go to [App Permissions] section and manually set [MUSIC AND AUDIO].
+        \n\nPermission is needed because the source file to read is not in Bookplayer internal memory.</string>
+    <string name="device_settings">Device Settings for Bookplayer</string>
+
 
 
     <!-- ********************************** -->

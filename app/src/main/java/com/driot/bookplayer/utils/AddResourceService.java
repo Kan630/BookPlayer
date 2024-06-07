@@ -46,7 +46,6 @@ import static com.driot.bookplayer.global.Var.PATH_CHECK_AUTOTEST;
 import static com.driot.bookplayer.utils.Tonio.formatNameForDisplay;
 import static com.driot.bookplayer.utils.Tonio.fileExists;
 import static com.driot.bookplayer.utils.Tonio.getFileNameFromPath;
-import static com.driot.bookplayer.utils.Tonio.stripExtension;
 import static com.driot.tonylib.TonioCommonStuff.deleteExtension;
 
 /**
@@ -88,23 +87,6 @@ public class AddResourceService
     public static final int[] PROGRESS_FOLDER_COPY = {5, 5, 15, 30, 45, 90, 90, 95};
     public static final int[] PROGRESS_FOLDER_NOCOPY = {5, 20, 30, 40, 40, 40, 50, 95};
     public static int[] PROGRESS;
-/*
-    public static final int PROGRESS_CHECK_FOLDER_EXIST_ZIP = 1;
-    public static final int PROGRESS_COPY_START = 3;
-    public static final int PROGRESS_COPY_END = 20;
-    public static final int PROGRESS_UNZIP_START = 20;
-    public static final int PROGRESS_UNZIP_END = 80;
-    public static final int PROGRESS_SORTING_ZIP = 80;
-    public static final int PROGRESS_SAVE_DB_START_ZIP = 90;
-    public static final int PROGRESS_SAVE_DB_END_ZIP = 100;
-
-    public static final int PROGRESS_CHECKING_NO_ZIP = 10;
-    public static final int PROGRESS_SORTING_NO_ZIP = 20;
-    public static final int PROGRESS_CHECK_FOLDER_EXIST_NO_ZIP = 30;
-    public static final int PROGRESS_SAVE_DB_START_NO_ZIP = 30;
-    public static final int PROGRESS_SAVE_DB_END_NO_ZIP = 100;
-
- */
 
     public static final String PROGRESS_SORTING_TEXT = "listing and sorting Tracks";
 
@@ -114,9 +96,6 @@ public class AddResourceService
     private FolderAttrib myFolder;
     private ArrayList<String> audioFileArrayList;
     private final int[] InsertedFolderId = {0};
-
-    private boolean comingFromZip = false;
-
     private int nbFileSaved, nbFileToSave;
 
     private Uri uri_given;
@@ -512,7 +491,6 @@ public class AddResourceService
             ///---------------------------------------------
             case "ZIP":
                 PROGRESS = Option.getCopyFile(this) ? PROGRESS_ZIP_COPY : PROGRESS_ZIP_NOCOPY;
-                comingFromZip = true;
                 myLog("ZIP : copy locally before everything else");
                 myLog("Picked Uri = [" + uri_given.toString() + "]");
 
