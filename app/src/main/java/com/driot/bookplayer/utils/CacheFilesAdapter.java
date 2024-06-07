@@ -12,7 +12,6 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.activities.CacheFilesViewModel;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.tonylib.KanLogger;
 
@@ -31,12 +30,10 @@ import java.util.Locale;
 public class CacheFilesAdapter extends RecyclerView.Adapter<CacheFilesAdapter.FileViewHolder> {
     private List<File> filesOnDisk;
     private List<ZikFile> distinctZikFilePaths;
-    private final CacheFilesViewModel cacheFilesViewModel;
     private final OnDeleteClickListener onDeleteClickListener;
 
 
-    public CacheFilesAdapter(CacheFilesViewModel cacheFilesViewModel, OnDeleteClickListener onDeleteClickListener) {
-        this.cacheFilesViewModel = cacheFilesViewModel;
+    public CacheFilesAdapter(OnDeleteClickListener onDeleteClickListener) {
         this.onDeleteClickListener = onDeleteClickListener;
     }
 
@@ -70,7 +67,7 @@ public class CacheFilesAdapter extends RecyclerView.Adapter<CacheFilesAdapter.Fi
 
         holder.deleteButton.setOnClickListener(v -> {
             myLog("Delete Click on " + file.getName());
-            onDeleteClickListener.onDeleteClick(file);
+            onDeleteClickListener.onDeleteClick(file, position);
         });
     }
 
@@ -125,7 +122,7 @@ public class CacheFilesAdapter extends RecyclerView.Adapter<CacheFilesAdapter.Fi
     }
 
     public interface OnDeleteClickListener {
-        void onDeleteClick(File file);
+        void onDeleteClick(File file, int position);
     }
 
     //--- LOG --------------------------

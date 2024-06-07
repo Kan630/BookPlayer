@@ -19,7 +19,6 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.ZikFile;
-import com.driot.bookplayer.db.ZikFileDao;
 import com.driot.bookplayer.global.PlayList;
 import com.driot.tonylib.KanLogger;
 
@@ -61,7 +60,6 @@ public class FoldersAdapter extends RecyclerView.Adapter<FoldersAdapter.FoldersV
 
         holder.textViewDuration.setText(FormatTime(folder.getDuration()));
 
-
     }
 
     @Override
@@ -89,17 +87,17 @@ public class FoldersAdapter extends RecyclerView.Adapter<FoldersAdapter.FoldersV
 
         @Override
         public void onClick(View view) {
-            Folder folder = FolderList.get(getAdapterPosition());
+            Folder folder = FolderList.get(getBindingAdapterPosition());
             new Thread(() -> {
                 try {
-                    AppDatabase db = AppDatabase.getDatabase(mCtx);
-                    ZikFileDao zikFileDao = db.ZikFileDao();
-                    List<ZikFile> zikFilesList = zikFileDao.getZikFiles(folder.getId());
+                    List<ZikFile> zikFilesList = AppDatabase.getDatabase(mCtx).ZikFileDao().getZikFiles(folder.getId());
                     myLog("nb ZikFiles in that Book : " + zikFilesList.size());
+                    PlayList.setZikFilesList(zikFilesList);
                     if (zikFilesList.size() > 1) {
-                        openZikFileActvity(folder);
+                        mCtx.startActivity(new Intent(mCtx, ZikFileActivity.class).putExtra("FolderId", folder.getId()).putExtra("FolderName", folder.getName()));
                     } else {
-                        openPlayActivity(zikFilesList);
+                        PlayList.setNumZikFile(0);
+                        mCtx.startActivity(new Intent(mCtx, PlayActivity.class).putExtra("ZikFile", zikFilesList.get(0)));
                     }
                 } catch (Exception e) {
                     myLogE("error getting nb of ZikFiles - " + e.getMessage());
@@ -107,24 +105,10 @@ public class FoldersAdapter extends RecyclerView.Adapter<FoldersAdapter.FoldersV
             }).start();
         }
 
-        private void openZikFileActvity(Folder folder) {
-            mCtx.startActivity(new Intent(mCtx, ZikFileActivity.class).putExtra("FolderId", folder.getId()).putExtra("FolderName", folder.getName()));
-        }
-        private void openPlayActivity(List<ZikFile> zikFilesList) {
-            PlayList.setZikFilesList(zikFilesList);
-            PlayList.setNumZikFile(0);
-            mCtx.startActivity(new Intent(mCtx, PlayActivity.class).putExtra("ZikFile", zikFilesList.get(0)));
-        }
-
         @Override
         public boolean onLongClick(View view) {
-            Folder folder = FolderList.get(getAdapterPosition());
-
-            Intent intent = new Intent(mCtx, FolderModifyActivity.class);
-            intent.putExtra("FolderName", folder.getName());
-            intent.putExtra("FolderId", folder.getId());
-
-            mCtx.startActivity(intent);
+            Folder folder = FolderList.get(getBindingAdapterPosition());
+            mCtx.startActivity(new Intent(mCtx, FolderModifyActivity.class).putExtra("FolderName", folder.getName()).putExtra("FolderId", folder.getId()));
             return false;
         }
 

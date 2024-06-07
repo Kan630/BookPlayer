@@ -7,6 +7,7 @@ import android.widget.TextView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.ZikFile;
@@ -98,32 +99,15 @@ public class ZikFileActivity extends LifecycleLoggingActivity { //AppCompatActiv
     }
 
     public void getZikFiles(long idFolder) {
-
-        class GetZikFiles extends AsyncTask<Void, Void, List<ZikFile>> {
-
-            @Override
-            protected List<ZikFile> doInBackground(Void... voids) {
-                List<ZikFile> zikFilesList = DatabaseClient
-                        .getInstance(getApplicationContext())
-                        .getAppDatabase()
-                        .ZikFileDao()
-                        .getZikFiles(idFolder);
-                PlayList.setZikFilesList(zikFilesList); // GLOBAL
-                return zikFilesList;
-            }
-
-            @Override
-            protected void onPostExecute(List<ZikFile> zikFiles) {
-                super.onPostExecute(zikFiles);
-                adapter = new ZikFilesAdapter(ZikFileActivity.this, zikFiles);
-                recyclerView.setAdapter(adapter);
-                createMap();
-                goToLastAudio();
-            }
-        }
-        GetZikFiles gt = new GetZikFiles();
-        gt.execute();
+        new Thread(() -> {
+            List<ZikFile> zikFilesList = AppDatabase.getDatabase(this).ZikFileDao().getZikFiles(idFolder);
+            adapter = new ZikFilesAdapter(ZikFileActivity.this, zikFilesList);
+            recyclerView.setAdapter(adapter);
+            createMap();
+            goToLastAudio();
+        }).start();
     }
+
     //--- LOG --------------------------
     private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
     private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }

@@ -60,7 +60,7 @@ public class CacheFilesActivity extends LifecycleLoggingActivity implements Cach
         cacheFilesViewModel.getFilesOnDisk().observe(this, myObserverOnDisk);
 
 //RecyclerView
-        cacheFilesAdapter = new CacheFilesAdapter(cacheFilesViewModel,this);
+        cacheFilesAdapter = new CacheFilesAdapter(this);
         RecyclerView recyclerView = findViewById(R.id.recyclerView_cacheFiles);
         recyclerView.setAdapter(cacheFilesAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -80,7 +80,7 @@ public class CacheFilesActivity extends LifecycleLoggingActivity implements Cach
 
     }
 
-    public void onDeleteClick(File file) {
+    public void onDeleteClick(File file, int position) {
         myLog("Delete Click on [" + file.getName() + "]");
         new AlertDialog.Builder(this)
                 .setTitle(R.string.AskDelete_popupTitle)
@@ -90,8 +90,7 @@ public class CacheFilesActivity extends LifecycleLoggingActivity implements Cach
                 .setNegativeButton("cancel", (dialogInterface, i) -> {
                 })
                 .show();
-        cacheFilesAdapter.notifyDataSetChanged();
-        }
+    }
 
     //--- LOG --------------------------
     private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
