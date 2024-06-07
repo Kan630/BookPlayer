@@ -4,7 +4,6 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
@@ -16,14 +15,15 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.utils.AddResourceService;
-import com.driot.bookplayer.utils.CopyFileService;
 import com.driot.bookplayer.utils.DownloadService;
 import com.driot.bookplayer.utils.MediaScanner2;
 import com.driot.bookplayer.utils.PermissionRequest;
@@ -59,6 +59,21 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
     private int lopperForLog = 0;
     private Timer timer;
     private boolean isActivityActive = true;
+    private ActivityResultLauncher<Intent> bOpenFileActivityResultLauncher,bOpenFolderActivityResultLauncher,bOpenZipActivityResultLauncher;
+    private ActivityResultLauncher<Intent> addResourceActivityResultLauncher;
+
+    private void launchAddResource(ActivityResult result, String type) {
+        if (result.getResultCode() == RESULT_OK) {
+            if (isReturnedUriOk(result.getData())) {
+                Uri uri = result.getData().getData();
+                myLog("picked data : " + uri.getPath() );
+                Intent intent = new Intent(getApplicationContext(), AddResourceActivity.class);
+                intent.putExtra("Uri", uri);
+                intent.putExtra("type", type);
+                addResourceActivityResultLauncher.launch(intent);
+            }
+        }
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -76,7 +91,20 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
         bAutoTest_b3 = findViewById(R.id.bAutoTest_b3);
         buttonsToLock = Arrays.asList(bOpenFile, bOpenFolder, bOpenZipFile, bAutoTest_b1, bAutoTest_b2, bAutoTest_b3);
 
-            // SINGLE FILE
+// ADD RESOURCE
+        addResourceActivityResultLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    myLog("return from Add_Resource_Activity");
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        myLog("result ok - closing activity");
+                        finish();
+                    }
+            });
+
+// SINGLE FILE
+        bOpenFileActivityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+                result -> { launchAddResource(result, "File"); });
         bOpenFile.setOnClickListener(view -> {
             myLog("Button click : single file");
             if (isReadAudioPermissionGranted(this) || Option.getCopyFile(this)) {
@@ -86,35 +114,39 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
                 intent.addCategory(Intent.CATEGORY_OPENABLE);
                 //CATEGORY_OPENABLE => able to use : ContentResolver#openFileDescriptor(Uri, String)
                 //can be opened as a File object i.e. with read and write permissions and have complete access to the physical location of the data
-                startActivityForResult(intent, OPEN_FILE_REQUEST_CODE);
+                bOpenFileActivityResultLauncher.launch(intent);
             } else {
                 askForPermission();
             }
         });
 
-        // FOLDER
+// FOLDER
+        bOpenFolderActivityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+                result -> { launchAddResource(result, "Folder"); });
         bOpenFolder.setOnClickListener(view -> {
             myLog("Button click : FOLDER");
             if (isReadAudioPermissionGranted(this) || Option.getCopyFile(this)) {
                 Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE); //API 21
                 intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_WRITE_URI_PERMISSION|Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION|Intent.FLAG_GRANT_PREFIX_URI_PERMISSION);
-                startActivityForResult(intent, OPEN_FOLDER_REQUEST_CODE);
+                bOpenFolderActivityResultLauncher.launch(intent);
             } else {
                 askForPermission();
             }
         });
 
-        // ZIP
+// ZIP
+        bOpenZipActivityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+                result -> { launchAddResource(result, "ZIP"); });
         bOpenZipFile.setOnClickListener(view -> {
             scanThatShit();
             myLog("Button click : ZIP file");
-                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-                // TODO ACTION_GET_CONTENT should be enough since we copy locally...
-                // ACTION_PICK could be interesting.... as an option..
-                intent.setType("application/zip");
-                intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_WRITE_URI_PERMISSION|Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION|Intent.FLAG_GRANT_PREFIX_URI_PERMISSION);
-                intent.addCategory(Intent.CATEGORY_OPENABLE);
-                startActivityForResult(intent, OPEN_ZIP_FILE_REQUEST_CODE);
+            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            // TODO ACTION_GET_CONTENT should be enough since we copy locally...
+            // ACTION_PICK could be interesting.... as an option..
+            intent.setType("application/zip");
+            intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_WRITE_URI_PERMISSION|Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION|Intent.FLAG_GRANT_PREFIX_URI_PERMISSION);
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            bOpenZipActivityResultLauncher.launch(intent);
         });
 
         ////////////////////////////////
@@ -143,22 +175,13 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
         ////////////////////////////////
 
         bAutoTest_b1.setOnClickListener(view -> {
-            myLog("Button click : AUTOTEST 1"); // maybe not need write permission since writing inside app folders....
-            Intent intent = new Intent(getApplicationContext(), DownloadActivity.class);
-            intent.putExtra("filePathToDownload", AUTOTEST_FILE_01);
-            startActivityForResult(intent, AUTOTEST_REQUEST_CODE);
+            startActivity(new Intent(getApplicationContext(), DownloadActivity.class).putExtra("filePathToDownload", AUTOTEST_FILE_01));
         });
         bAutoTest_b2.setOnClickListener(view -> {
-            myLog("Button click : AUTOTEST 2");
-            Intent intent = new Intent(getApplicationContext(), DownloadActivity.class);
-            intent.putExtra("filePathToDownload", AUTOTEST_FILE_02);
-            startActivityForResult(intent, AUTOTEST_REQUEST_CODE);
+            startActivity(new Intent(getApplicationContext(), DownloadActivity.class).putExtra("filePathToDownload", AUTOTEST_FILE_02));
         });
         bAutoTest_b3.setOnClickListener(view -> {
-            myLog("Button click : AUTOTEST 3");
-            Intent intent = new Intent(getApplicationContext(), DownloadActivity.class);
-            intent.putExtra("filePathToDownload", AUTOTEST_FILE_03);
-            startActivityForResult(intent, AUTOTEST_REQUEST_CODE);
+            startActivity(new Intent(getApplicationContext(), DownloadActivity.class).putExtra("filePathToDownload", AUTOTEST_FILE_03));
         });
 
         startTimer(); // used to lock buttons if service running
@@ -205,8 +228,6 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
         stopTimer();
     }
 
-
-
     private void checkServiceRunning() {
         try {
             lopperForLog = lopperForLog + 1;
@@ -241,65 +262,6 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
             e.printStackTrace();
             return false;
         }
-    }
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        switch (requestCode) {
-            case OPEN_FILE_REQUEST_CODE:  // return of intent ACTION_OPEN_DOCUMENT
-                if (resultCode == RESULT_OK) {
-                    if (!isReturnedUriOk(data)) break;
-                    Uri uri = data.getData();
-                    myLog("picked data : " + uri.getPath() );
-                    Intent intent = new Intent(getApplicationContext(), AddResourceActivity.class);
-                    intent.putExtra("Uri", uri);
-                    intent.putExtra("type", "File");
-                    startActivityForResult(intent,ADD_RESOURCE_REQUEST_CODE);
-                }
-                break;
-            case OPEN_FOLDER_REQUEST_CODE: // return of ACTION_OPEN_DOCUMENT_TREE
-                if (resultCode == RESULT_OK) {
-                    if (!isReturnedUriOk(data)) break;
-                    Uri uri = data.getData();
-                    myLog("picked data : " + uri.getPath() );
-                    Intent intent = new Intent(getApplicationContext(), AddResourceActivity.class);
-                    intent.putExtra("Uri", uri);
-                    intent.putExtra("type", "Folder");
-                    startActivityForResult(intent,ADD_RESOURCE_REQUEST_CODE);
-                }
-                break;
-            case OPEN_ZIP_FILE_REQUEST_CODE: // return of ACTION_OPEN_DOCUMENT
-                if (resultCode == RESULT_OK) {
-                    if (!isReturnedUriOk(data)) break;
-                    Uri uri = data.getData();
-                    myLog("picked data : " + uri.getPath() );
-                    Intent intent = new Intent(getApplicationContext(), AddResourceActivity.class);
-                    intent.putExtra("Uri", uri);
-                    intent.putExtra("type", "ZIP");
-                    startActivityForResult(intent, ADD_RESOURCE_REQUEST_CODE);
-                }
-                break;
-            case ADD_RESOURCE_REQUEST_CODE:
-                myLog("return from Add_Resource_Activity");
-                if (resultCode == Activity.RESULT_OK) {
-                    myLog("result ok - closing activity");
-                    finish();
-                }
-                break;
-                // TODO problem if Activity is closed... like in case of 'back' action from user....
-            case AUTOTEST_REQUEST_CODE:
-                myLog("return from Download_Activity : ResultCode=" + resultCode);
-                if (resultCode == RESULT_OK) {
-                    myLog("return from Download_Activity : Result Code OK");
-                } else {
-                    myLogE("return from Download_Activity : Result NOT ok");
-                }
-                break;
-
-                default:
-                myLogE("Bad Activity Request Result Code");
-        }
-        myLog("end return from Activity");
     }
 
     private void scanThatShit() {

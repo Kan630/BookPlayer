@@ -307,6 +307,10 @@
     <string name="permission_to_set">To set, click on the below button to display App info, then go to [App Permissions] section and manually set [MUSIC AND AUDIO].
         \n\nPermission is needed because the source file to read is not in Bookplayer internal memory.</string>
     <string name="device_settings">Device Settings for Bookplayer</string>
+    <string name="notification_playlist_finished">"Book Finished !"</string>
+    <string name="notification_auto_sleep">"Auto Sleep !"</string>
+
+
 
 
 

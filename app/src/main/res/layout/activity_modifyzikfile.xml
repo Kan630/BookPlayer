@@ -1,106 +1,82 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/scrollView"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/title"
-        style="@style/myStyleTitle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:paddingHorizontal="20dp"
-        />
+    <LinearLayout
+        style="@style/LinearLayoutOptionsVertical"
+        android:layout_marginStart="10sp"
+        android:layout_marginEnd="10sp"
+        android:gravity="center">
 
-    <Button
-        android:id="@+id/bReset"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/bReset"
-        android:layout_marginTop="70dp"
-        app:layout_constraintTop_toBottomOf="@id/title"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        />
+        <TextView
+            android:id="@+id/title"
+            style="@style/myStyleTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            android:paddingHorizontal="20dp" />
 
-    <Button
-        android:id="@+id/bDelete"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/bDelete"
-        android:layout_marginTop="50dp"
-        app:layout_constraintTop_toBottomOf="@id/bReset"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        />
+        <View style="@style/myStyleViewSimpleHorizontalBar" />
 
+        <Button
+            android:id="@+id/bReset"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="20dp"
+            android:text="@string/bReset" />
 
-    <EditText
-        android:id="@+id/tvRename"
-        style="@style/textColor"
-        android:inputType="text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="70dp"
-        app:layout_constraintTop_toBottomOf="@id/bDelete"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/bRenameOk"
-        />
-    <Button
-        android:id="@+id/bRenameOk"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/bRenameOk"
-        android:layout_marginTop="70dp"
-        app:layout_constraintTop_toBottomOf="@id/bDelete"
-        app:layout_constraintStart_toEndOf="@id/tvRename"
-        app:layout_constraintEnd_toEndOf="parent"
-        />
-    <Button
-        android:id="@+id/bRename"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/bRenameTrack"
-        android:layout_marginTop="70dp"
-        app:layout_constraintTop_toBottomOf="@id/bDelete"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        />
+        <View style="@style/myStyleViewSimpleHorizontalBar" />
 
-    <EditText
-        android:id="@+id/etChangePosition"
-        style="@style/textColor"
-        android:inputType="text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="70dp"
-        app:layout_constraintTop_toBottomOf="@id/bRename"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/bRenameOk"
-        />
-    <Button
-        android:id="@+id/bMoveOk"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/bMoveOk"
-        android:layout_marginTop="70dp"
-        app:layout_constraintTop_toBottomOf="@id/bRename"
-        app:layout_constraintStart_toEndOf="@id/tvRename"
-        app:layout_constraintEnd_toEndOf="parent"
-        />
-    <Button
-        android:id="@+id/bMove"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/bMove"
-        android:layout_marginTop="70dp"
-        app:layout_constraintTop_toBottomOf="@id/bRename"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        />
+        <Button
+            android:id="@+id/bDelete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="20dp"
+            android:text="@string/bDelete" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <View style="@style/myStyleViewSimpleHorizontalBar" />
+
+        <EditText style="@style/EditText"
+            android:id="@+id/etRename"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="30dp"
+            android:layout_marginTop="30dp"
+            android:inputType="textMultiLine"
+            android:textSize="20sp" />
+
+        <Button
+            android:id="@+id/bRename"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="20dp"
+            android:text="@string/bRenameTrack" />
+
+        <View style="@style/myStyleViewSimpleHorizontalBar" />
+
+        <EditText style="@style/EditText"
+            android:id="@+id/etChangePosition"
+            android:layout_width="wrap_content"
+            android:paddingHorizontal="20sp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:inputType="numberDecimal"
+            android:textSize="20sp" />
+
+        <Button
+            android:id="@+id/bMove"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="20dp"
+            android:text="@string/bMove" />
+
+        <View style="@style/myStyleViewSimpleHorizontalBar" />
+
+    </LinearLayout>
+</ScrollView>

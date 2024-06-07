@@ -30,7 +30,7 @@
                     android:layout_marginStart="50sp"
                     android:text="@string/option_timeBeforeSleep_text"
                     android:textSize="24sp" />
-                <EditText
+                <EditText style="@style/EditText"
                     android:id="@+id/etTimeBeforeSleep"
                     android:layout_width="70sp"
                     android:layout_height="wrap_content"
@@ -38,8 +38,6 @@
                     android:paddingStart="4sp"
                     android:paddingEnd="4sp"
                     android:textAlignment="textEnd"
-                    android:background="@drawable/rounded_corner_theme"
-                    android:textColor="?colorOnSecondary"
                     android:textSize="24sp" />
                 <TextView
                     style="@style/myStyleTextExplainButton"
@@ -142,7 +140,7 @@
                     android:layout_marginStart="50sp"
                     android:text="@string/option_backward_forward_text"
                     android:textSize="24sp" />
-                <EditText
+                <EditText style="@style/EditText"
                     android:id="@+id/etForwardSeconds"
                     android:layout_width="70sp"
                     android:layout_height="wrap_content"
@@ -150,8 +148,6 @@
                     android:paddingStart="4sp"
                     android:paddingEnd="4sp"
                     android:textAlignment="textEnd"
-                    android:background="@drawable/rounded_corner_theme"
-                    android:textColor="?colorOnSecondary"
                     android:textSize="24sp" />
                 <TextView
                     style="@style/myStyleTextExplainButton"

@@ -1,6 +1,5 @@
 package com.driot.bookplayer.activities;
 
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.widget.TextView;
 
@@ -8,7 +7,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.db.AppDatabase;
-import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.PlayList;
@@ -22,7 +20,7 @@ import java.util.Objects;
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 30/10/20
  */
-public class ZikFileActivity extends LifecycleLoggingActivity { //AppCompatActivity
+public class ZikFileActivity extends LifecycleLoggingActivity {
 
     private RecyclerView recyclerView;
     private ZikFilesAdapter adapter;
@@ -89,7 +87,7 @@ public class ZikFileActivity extends LifecycleLoggingActivity { //AppCompatActiv
                 myLog("scrolling to  :" + map.get(id_max));
             }
         } catch (Exception e) {
-            myLogE("goToLastCurrentAudio :" + e.getMessage());
+            myLogE("goToLastCurrentAudio() - " + e.getMessage());
         }
     }
 

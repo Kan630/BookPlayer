@@ -8,7 +8,6 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.ActivityInfo;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.Settings;
@@ -20,23 +19,18 @@ import android.widget.Toast;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
-import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.PlayList;
 import com.driot.bookplayer.utils.AudioService;
 import com.driot.bookplayer.utils.FrequencyVisualizerView;
-import com.driot.bookplayer.utils.PermissionRequest;
 import com.driot.tonylib.KanLogger;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
-
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
-import io.reactivex.rxjava3.core.Observable;
-import io.reactivex.rxjava3.schedulers.Schedulers;
 
 import static com.driot.bookplayer.global.Var.PATH_CHECK_APPLICATION;
 import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_AUDIOFOCUS_GAIN;
@@ -59,6 +53,7 @@ import static com.driot.bookplayer.utils.Tonio.FormatTime;
 import static com.driot.bookplayer.utils.Utils.animateView;
 import static com.driot.tonylib.KanLogger.myToastE;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.core.content.ContextCompat;
 
 /**
@@ -72,7 +67,7 @@ import androidx.core.content.ContextCompat;
 public class PlayActivity extends LifecycleLoggingActivity {
 
     public static final String SHARED_PREFERENCE_SPEED="SHARED_PREFERENCE_SPEED";
-    private static final int INTERVAL_REDRAW_SEEKBAR = 500; //  because looks like it happens erraticly when choosing value of 100 for this constant
+    private static final int INTERVAL_REDRAW_SEEKBAR = 500; //  because looks like it happens erratically when choosing value of 100 for this constant
     private static final int DELAY_ANIMATION = 200;
     private static final float INCREMENT_SPEED = 0.05f;
     AudioService audioService;
@@ -80,7 +75,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
     private Button bPlay;
     List<Button> buttonsToLock;
     private SeekBar seekbar;
-    private TextView txSeekBar, txTempsTotal, txNomFichier, txTitle, txSubTitle, txSpeed, txListeningTime, txTimeLeft;
+    private TextView tvSeekBar, tvTotalTime, tvFileName, tvTitle, tvSubTitle, tvSpeed, tvListeningTime, tvTimeLeft;
     private View progressOverlay, messageOverlay;
     private FrequencyVisualizerView frequencyVisualizerView;
     private boolean AnimationNow;
@@ -89,19 +84,18 @@ public class PlayActivity extends LifecycleLoggingActivity {
     private Timer timerRedrawUI;
 
     String[] broadcastNotifications = {
-            NOTIFICATION_TRACKFINISHED
-            ,NOTIFICATION_AUDIOFOCUS_GAIN
-            ,NOTIFICATION_AUDIOFOCUS_LOST
+             NOTIFICATION_TRACKFINISHED //useless ?
+            ,NOTIFICATION_AUDIOFOCUS_GAIN //useless ?
+            ,NOTIFICATION_AUDIOFOCUS_LOST //useless ?
             ,NOTIFICATION_FILELOADED
             ,NOTIFICATION_ERROR
-            ,NOTIFICATION_ZIP_FILE_LOADED
+            ,NOTIFICATION_ZIP_FILE_LOADED //useless ?
             ,NOTIFICATION_PLAYLISTFINISHED
             ,NOTIFICATION_PLAYBACK_MAXTIMEREACH
             ,NOTIFICATION_PLAYBACK_TIMER_VALUE
             ,NOTIFICATION_FILENOTFOUND
+            ,NOTIFICATION_NEWTRACK //useless ?
     };
-
-    private PermissionRequest mPermissionRequest;
 
 
     /********************************************************************************
@@ -139,51 +133,33 @@ public class PlayActivity extends LifecycleLoggingActivity {
 
     };
     private final BroadcastReceiver broadCastReceiver = new BroadcastReceiver() {
-
         @Override
         public void onReceive(Context context, Intent intent) {
-            switch (intent.getAction()) {
-                case NOTIFICATION_NEWTRACK:
-                    myLog("broadcast received NEW TRACK");
-                    break;
-                case NOTIFICATION_ERROR:
-                    myLog("broadcast received ERROR");
-                    Toast.makeText(getApplicationContext(), getString(R.string.error_reading_track), Toast.LENGTH_SHORT).show();
-                    finish();
-                case NOTIFICATION_FILENOTFOUND:
-                    myLog("broadcast received FILENOTFOUND");
-                    Toast.makeText(getApplicationContext(), getString(R.string.error_reading_track) + "\n" + getString(R.string.error_file_not_found), Toast.LENGTH_SHORT).show();
-                    lockButtonAndDisplayErrorMessage(null);
-                case NOTIFICATION_TRACKFINISHED:
-                    myLog("broadcast received TRACK FINISHED");
-                    break;
-                case NOTIFICATION_PLAYLISTFINISHED:
-                    myLog("broadcast received PLAYLIST FINISHED");
-                    finish();
-                    break;
-                case NOTIFICATION_PLAYBACK_MAXTIMEREACH:
-                    myLog("broadcast received PLAYBACK_MAXTIMEREACH");
-                    finish();
-                    break;
-                case NOTIFICATION_PLAYBACK_TIMER_VALUE:
-                    myLogD("broadcast received PLAYBACK_TIMER_VALUE");
-                    reDrawListeningSince(intent.getIntExtra(TIMER_VALUE,-999));
-                    break;
-                case NOTIFICATION_AUDIOFOCUS_LOST:
-                    myLog("broadcast received AUDIO FOCUS LOST");
-                    //SetInterfacePausingMode();
-                    break;
-                case NOTIFICATION_AUDIOFOCUS_GAIN:
-                    myLog("broadcast received AUDIO FOCUS GAIN");
-                    //SetInterfacePlayingMode();
-                    break;
-                case NOTIFICATION_FILELOADED:
-                    myLog("broadcast received FILE LOADED");
-                    myLog("fileloaded - DrawUI");
-                    DrawUI();
-                    //mService.setPosition((int) PlayList.getZikFile().getPosition());
-                    HideProgressAnim();
-                    break;
+            String action = intent.getAction();
+            if (!Objects.equals(action, NOTIFICATION_PLAYBACK_TIMER_VALUE)) myLog("broadcast received : [" + action + "]");
+
+            if (Objects.equals(action, NOTIFICATION_ERROR)) {
+                Toast.makeText(getApplicationContext(), getString(R.string.error_reading_track), Toast.LENGTH_SHORT).show();
+                finish();
+
+            } else if (Objects.equals(action, NOTIFICATION_FILENOTFOUND)) {
+                Toast.makeText(getApplicationContext(), getString(R.string.error_reading_track) + "\n" + getString(R.string.error_file_not_found), Toast.LENGTH_SHORT).show();
+                lockButtonAndDisplayErrorMessage(null);
+
+            } else if (Objects.equals(action, NOTIFICATION_PLAYLISTFINISHED)) {
+                Toast.makeText(getApplicationContext(), R.string.notification_playlist_finished, Toast.LENGTH_SHORT).show();
+                finish();
+
+            } else if (Objects.equals(action, NOTIFICATION_PLAYBACK_MAXTIMEREACH)) {
+                Toast.makeText(getApplicationContext(), R.string.notification_auto_sleep, Toast.LENGTH_SHORT).show();
+                finish();
+
+            } else if (Objects.equals(action, NOTIFICATION_PLAYBACK_TIMER_VALUE)) {
+                reDrawListeningSince(intent.getIntExtra(TIMER_VALUE,-999));
+
+            } else if (Objects.equals(action, NOTIFICATION_FILELOADED)) {
+                DrawUI();
+                HideProgressAnim();
             }
         }
     };
@@ -196,7 +172,6 @@ public class PlayActivity extends LifecycleLoggingActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Screen Orientation Locking
         if (Option.getScreenOrientationLock(this)) {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
         }
@@ -222,15 +197,15 @@ public class PlayActivity extends LifecycleLoggingActivity {
         progressOverlay = findViewById(R.id.progress_overlay);
         messageOverlay = findViewById(R.id.message_overlay);
 
-        txSeekBar = findViewById(R.id.textViewSeekBar);
-        txTempsTotal = findViewById(R.id.textViewTempsTotal);
-        txNomFichier = findViewById(R.id.textViewNomFichier);
-        txTitle = findViewById(R.id.textviewTitle);
-        txSubTitle = findViewById(R.id.textViewSubTitle);
-        txSpeed = findViewById(R.id.textViewSpeed);
+        tvSeekBar = findViewById(R.id.textViewSeekBar);
+        tvTotalTime = findViewById(R.id.textViewTempsTotal);
+        tvFileName = findViewById(R.id.textViewNomFichier);
+        tvTitle = findViewById(R.id.textviewTitle);
+        tvSubTitle = findViewById(R.id.textViewSubTitle);
+        tvSpeed = findViewById(R.id.textViewSpeed);
         seekbar = findViewById(R.id.seekBar);
-        txListeningTime = findViewById(R.id.tv_ListeningTime);
-        txTimeLeft = findViewById(R.id.tv_TimeLeft);
+        tvListeningTime = findViewById(R.id.tv_ListeningTime);
+        tvTimeLeft = findViewById(R.id.tv_TimeLeft);
         frequencyVisualizerView = findViewById(R.id.frequencyVisualizerView);
 
         myLog("onCreate() -- Launching Music Service");
@@ -256,7 +231,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
                 if (fromUser) {
                     myLog("SeekBar");
                     audioService.setPosition(progress);
-                    txSeekBar.setText(FormatTime(progress,true));
+                    tvSeekBar.setText(FormatTime(progress,true));
                 }
             }
             @Override
@@ -265,6 +240,25 @@ public class PlayActivity extends LifecycleLoggingActivity {
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
+            }
+        });
+
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                myLog("onBackPressed() -- (should be user action)");
+                if (audioService.isPlaying()) {
+                    playMe();
+                }
+                if (audioServiceBound) {
+                    try {
+                        unbindService(audioServiceConnection);
+                        unregisterReceiver(broadCastReceiver);
+                    } catch (Exception e) {
+                        myLogE("onBackPressed() - " + e.getMessage());
+                    }
+                }
+                finish();
             }
         });
     }
@@ -335,7 +329,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
     private void setSpeed(double speed) {
         audioService.setSpeed(speed);
         String txt = FormatPercentStringForSpeed((double) speed * 100);
-        txSpeed.setText(txt);
+        tvSpeed.setText(txt);
     }
 
     /********************************************************************************
@@ -386,27 +380,6 @@ public class PlayActivity extends LifecycleLoggingActivity {
     }
 
     @Override
-    public void onBackPressed() { // user presses back
-        myLogI("onBackPressed() -- (should be user action)");
-        if (audioService.isPlaying()) {
-            playMe();
-        }
-        if (audioServiceBound) {
-            try {
-                unbindService(audioServiceConnection);
-                unregisterReceiver(broadCastReceiver);
-            } catch (Exception e) {
-                myLogE("onBackPressed() - " + e.getMessage());
-            }
-        }
-        super.onBackPressed();
-    }
-
-    public void onBackInvoked() {
-        myLog("onBackInvoked() -- (should be user action)");
-    }
-
-    @Override
     protected void onStop() {
         myLog("onStop()");
         super.onStop();
@@ -440,14 +413,14 @@ public class PlayActivity extends LifecycleLoggingActivity {
         }
         try {
             myLog("DrawUI : " + PlayList.getZikFile().getName() + " -- " + PlayList.getZikFile().getPosition());
-            txSubTitle.setText(formatNameForDisplay(PlayList.getZikFile().getName()));
-            txTitle.setText(PlayList.getZikFile().getFolderName());
-            txNomFichier.setText("");
-            txTempsTotal.setText(FormatTime(PlayList.getZikFile().getDuration(),true));
+            tvSubTitle.setText(formatNameForDisplay(PlayList.getZikFile().getName()));
+            tvTitle.setText(PlayList.getZikFile().getFolderName());
+            tvFileName.setText("");
+            tvTotalTime.setText(FormatTime(PlayList.getZikFile().getDuration(),true));
             seekbar.setMax((int) PlayList.getZikFile().getDuration());
-            txSeekBar.setText(FormatTime(PlayList.getZikFile().getPosition(),true));
+            tvSeekBar.setText(FormatTime(PlayList.getZikFile().getPosition(),true));
             seekbar.setProgress((int) PlayList.getZikFile().getPosition());
-            txSpeed.setText(FormatPercentStringForSpeed( audioService.getSpeed() * 100));
+            tvSpeed.setText(FormatPercentStringForSpeed( audioService.getSpeed() * 100));
             HideProgressAnim();
             myLogD("----------------------------- play screen drawn " + PlayList.getZikFile().getPosition());
         } catch (Exception e) {
@@ -462,11 +435,11 @@ public class PlayActivity extends LifecycleLoggingActivity {
         if (tempsEcoule > 0) {
             zeText_since = getString(R.string.tv_ListeningTime) + " " + FormatTime(tempsEcoule*1000,true);
             zeText_left = getString(R.string.tv_TimeLeft) + " : " + FormatTime(time_before_sleep*1000*60-tempsEcoule*1000,true);
-            txListeningTime.setText(zeText_since);
-            txTimeLeft.setText(zeText_left);
+            tvListeningTime.setText(zeText_since);
+            tvTimeLeft.setText(zeText_left);
         } else {
-            txListeningTime.setText("");
-            txTimeLeft.setText("");
+            tvListeningTime.setText("");
+            tvTimeLeft.setText("");
         }
     }
 
@@ -498,7 +471,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
                 bPlay.setText(R.string.play);
             }
             int iPosition = audioService.getPosition();
-            txSeekBar.setText(FormatTime(iPosition,true));
+            tvSeekBar.setText(FormatTime(iPosition,true));
             seekbar.setProgress(iPosition);
 
         } else {
@@ -526,13 +499,6 @@ public class PlayActivity extends LifecycleLoggingActivity {
     private void ShowMessageOverlay() {
         animateView(messageOverlay, View.VISIBLE, 1f, DELAY_ANIMATION);
         AnimationNow = true;
-    }
-
-    private void HideMessageOverlay() {
-        if (AnimationNow) {
-            animateView(messageOverlay, View.GONE, 0, DELAY_ANIMATION);
-            AnimationNow = false;
-        }
     }
 
     private void runVisualizer() { // check option + permission
@@ -569,7 +535,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
                 myLogE(errMessage);
             } else {
                 //b1.setVisibility(View.INVISIBLE);
-                String zePath = PlayList.getZikFile().getPath();
+                String zePath = PlayList.getZikFile()==null ? "PlayList.getZikFile()==null" : PlayList.getZikFile().getPath();
                 String pathText = getText(R.string.source_file_path) + " = \n[" + zePath + "]";
                 if (zePath.contains(PATH_CHECK_APPLICATION)) {
                     tv.setText(getText(R.string.source_not_found));
@@ -611,7 +577,6 @@ public class PlayActivity extends LifecycleLoggingActivity {
     //--- LOG --------------------------
     private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
     private void myLogD(String str) { KanLogger.myLogD(this.getClass().getName(), str); }
-    private void myLogI(String str) { KanLogger.myLogI(this.getClass().getName(), str); }
     private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
 
 }
