@@ -54,9 +54,9 @@ public class CopyFileService extends Service {  //IntentService are designed to 
     // Callbacks
     //-----------------------------
     public interface Callbacks {
-        void tellProgressClient_fromCopy(String progressText, int progressVal);
-        void tellErrorClient_fromCopy(String errorText);
-        void tellEndClient_fromCopy();
+        void copyFileService_tellProgress(String progressText, int progressVal);
+        void copyFileService_tellError(String errorText);
+        void copyFileService_tellEnd();
     }
     public void registerClient(Service service) {
         this.mCallBacks = (Callbacks) service;
@@ -331,17 +331,17 @@ public class CopyFileService extends Service {  //IntentService are designed to 
     // Callbacks
     //-----------------------------
     private void tellError(String errorText) {
-        mCallBacks.tellErrorClient_fromCopy(errorText);
+        mCallBacks.copyFileService_tellError(errorText);
         isBusy = false;
         stopSelf();
     }
     private void tellEnd() {
-        mCallBacks.tellEndClient_fromCopy();
+        mCallBacks.copyFileService_tellEnd();
         isBusy = false;
         stopSelf();
     }
     public void tellProgress(int progressVal, String progressText) {
-        mCallBacks.tellProgressClient_fromCopy(progressText,  progressVal);
+        mCallBacks.copyFileService_tellProgress(progressText,  progressVal);
     }
 
     //-----------------------------

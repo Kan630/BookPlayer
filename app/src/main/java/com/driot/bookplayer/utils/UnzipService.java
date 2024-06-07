@@ -21,7 +21,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Paths;
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.zip.ZipEntry;
@@ -34,14 +33,14 @@ public class UnzipService extends Service {
     Callbacks mCallBacks;
     Thread backgroundThread;
 
-    // Intents
+    // Intent Extras
     private String zipFilePath;
     private String destinationFolderPath;
 
     public interface Callbacks{
-        void tellProgressClient_fromUnzip(String progressText, int progressVal);
-        void tellErrorClient_fromUnzip(String errorText);
-        void tellEndClient_fromUnzip(String destinationFolderPath);
+        void unzipService_tellProgress(String progressText, int progressVal);
+        void unzipService_tellError(String errorText);
+        void unzipService_tellEnd(String destinationFolderPath);
         void tellNonBlockingError(String txt);
     }
     public void registerClient(Service service){
@@ -69,14 +68,6 @@ public class UnzipService extends Service {
         myLog("onDestroy()");
         super.onDestroy();
     }
-    /*
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        parseIntent(intent);
-        return super.onStartCommand(intent,flags,startId);
-        //return START_NOT_STICKY;
-    }
-     */
     private void parseIntent(Intent intent) {
         zipFilePath = intent.getStringExtra("zipFilePath");
         destinationFolderPath =  intent.getStringExtra("destinationFolderPath");
@@ -321,7 +312,7 @@ public class UnzipService extends Service {
     private void tellError(String errorText) {
         myLogE(errorText);
         if (mCallBacks != null) {
-            mCallBacks.tellErrorClient_fromUnzip(errorText);
+            mCallBacks.unzipService_tellError(errorText);
         }
         myLog("killing Service");
         if (backgroundThread != null && backgroundThread.isAlive()) {
@@ -330,12 +321,12 @@ public class UnzipService extends Service {
         stopSelf();
     }
     private void tellEnd(String destinationFolderPath) {
-        mCallBacks.tellEndClient_fromUnzip(destinationFolderPath);
+        mCallBacks.unzipService_tellEnd(destinationFolderPath);
         myLog("killing Service");
         stopSelf();
     }
     public void tellProgress(int progressVal, String progressText) {
-        mCallBacks.tellProgressClient_fromUnzip(progressText, progressVal);
+        mCallBacks.unzipService_tellProgress(progressText, progressVal);
     }
     //////////////////////////////////////////////////////////////////////////////////////////
     private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }

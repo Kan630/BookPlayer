@@ -35,6 +35,7 @@ import java.sql.Date;
 import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Objects;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
@@ -738,30 +739,20 @@ public class AddResourceService
         }
     }
 
-
     private void updateFolderDuration() {
-        Observable.fromCallable(() -> {
-            String strSQL = "UPDATE Folder " +
-                    " SET duration = (SELECT SUM(duration) " +
-                    " FROM ZikFile " +
-                    " WHERE Folder.id = ZikFile.idFolder )";
-            SimpleSQLiteQuery query = new SimpleSQLiteQuery(strSQL);
-            return DatabaseClient
-                    .getInstance(getApplicationContext())
-                    .getAppDatabase()
-                    .FolderDao()
-                    .runRawSql(query);
-        })
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(result -> {
-                    myLog("Folder Duration Updated : runRawSQL result = " + result);
-                    tellEnd();
-                }, throwable -> {
-                    myLogE("Error in Folder Duration Update. " + throwable.getMessage());
-                    tellNonBlockingError(getResources().getString(R.string.Error_Import_computing_folder_duration) + " : " +  throwable.getMessage());
-                    tellEnd();
-                });
+        String strSQL = "UPDATE Folder " +
+                " SET duration = (SELECT SUM(duration) " +
+                " FROM ZikFile " +
+                " WHERE Folder.id = ZikFile.idFolder )";
+        SimpleSQLiteQuery query = new SimpleSQLiteQuery(strSQL);
+        try {
+            int sqlResult = DatabaseClient.getInstance(getApplicationContext()).getAppDatabase().FolderDao().runRawSql(query);
+            myLog("Folder Duration Updated : runRawSQL result = " + sqlResult);
+            tellEnd();
+        } catch (Exception e) {
+            tellNonBlockingError(getResources().getString(R.string.Error_Import_computing_folder_duration) + " : " +  e.getMessage());
+            tellEnd();
+        }
     }
 
     private void deleteSourceFile() {
@@ -796,10 +787,10 @@ public class AddResourceService
 
     // DUREE AUDIO
     private long getMediaDurationFromPath(String zePath) throws IOException {
-        MediaMetadataRetriever mediaMetadataRetriever = new MediaMetadataRetriever();
         long duration = 0;
         if (fileExists(zePath)) {
             try {
+                MediaMetadataRetriever mediaMetadataRetriever = new MediaMetadataRetriever();
                 mediaMetadataRetriever.setDataSource(zePath);
                 duration = Long.parseLong(mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
             } catch (Exception e) {
@@ -813,24 +804,6 @@ public class AddResourceService
         }
         myLogD("duration for [" + zePath + "] is " + duration);
         return duration;
-    }
-
-    public void tellProgress(int progressVal,String progressText) {
-        myLogD("tellProgress : " + progressVal + " - " + progressText);
-        mCallBacks.updateProgress(progressText, progressVal);
-    }
-    private void tellEnd() {
-        mCallBacks.updateEnd();
-        isBusy = false;
-        myLog("killing Service");
-        stopSelf();
-    }
-    private void tellError(String txt) {
-        mCallBacks.updateError(txt);
-        myLogE("tellError... [" + txt + "]");
-        isBusy = false;
-        myLog("tellError... killing Service");
-        stopSelf();
     }
 
 
@@ -855,27 +828,19 @@ public class AddResourceService
         tmp = tmp.replace(" (3)","");
         tmp = tmp.replace(":"," ");
         tmp = deleteExtension(tmp);
-        if (tmp !=  destinationFolderName) {
+        if (!tmp.equals(destinationFolderName)) {
             myLog("destinationFolderName has been pruned : [" + tmp + "]");
         }
         return tmp;
     }
 
-    private static String getsFolderName_withUnderscore_fromZipFileName(String zipFileName) {
-        String tmp = zipFileName.replace(" ","_");
-        tmp = stripExtension(tmp);
-        return tmp;
-    }
-
-
-
     private void copyFileLocal(Uri uri, String destinationFolderPath, String destinationName, String type_given) {
-        if (type_given.equals("ZIP")) { //reset variable because was done in observable stuff
+        if ("ZIP".equals(type_given)) { //reset variable because was done in observable stuff
             this.zipDestinationFolderPath = destinationFolderPath;
             this.zipDestinationFolderName = destinationName;
         }
         long fileSize = -1L;
-        File externalFile = new File(uri.getPath());
+        File externalFile = new File(Objects.requireNonNull(uri.getPath()));
         if (externalFile.exists()) fileSize = externalFile.length();
         if (fileSize > 0) {
             myLog("ze Size : " + fileSize);
@@ -907,11 +872,11 @@ public class AddResourceService
      *********************************
      */
     @Override
-    public void tellProgressClient_fromCopy(String progressText, int progressVal) {
+    public void copyFileService_tellProgress(String progressText, int progressVal) {
         tellProgress(PROGRESS[4] + progressVal * (PROGRESS[5] - PROGRESS[4]) / 100, progressText);
     }
     @Override
-    public void tellEndClient_fromCopy() {
+    public void copyFileService_tellEnd() {
         myLog("Copyfile tell End " + type_given);
         if (type_given.equals("ZIP")) {
             myLog("launch unzipZipLocal()");
@@ -920,10 +885,9 @@ public class AddResourceService
             myFolder = new FolderAttrib(this, Uri.fromFile(new File(fullPath)), Option.getCopyFile(this), type_given);
             saveFolder();
         }
-
     }
     @Override
-    public void tellErrorClient_fromCopy(String errorText) {
+    public void copyFileService_tellError(String errorText) {
         myLogE("Copyfile tell Error");
         tellError(errorText);
     }
@@ -933,16 +897,16 @@ public class AddResourceService
      *********************************
      */
     @Override
-    public void tellProgressClient_fromUnzip(String progressText, int progressVal) {
+    public void unzipService_tellProgress(String progressText, int progressVal) {
         tellProgress(PROGRESS[5] + progressVal * (PROGRESS[6] - PROGRESS[5]) / 100, progressText);
     }
     @Override
-    public void tellErrorClient_fromUnzip(String errorText) {
+    public void unzipService_tellError(String errorText) {
         myLogE("Unzip service tell Error");
         tellError(errorText);
     }
     @Override
-    public void tellEndClient_fromUnzip(String destinationFolderPath) {
+    public void unzipService_tellEnd(String destinationFolderPath) {
         myLog("Unzip Service tells End : [" + destinationFolderPath + "]");
         tellProgress(PROGRESS[6], PROGRESS_SORTING_TEXT);
         DocumentFile dfPickedDir;
@@ -959,6 +923,23 @@ public class AddResourceService
      *    CALLBACKS sent
      *********************************
      */
+    public void tellProgress(int progressVal,String progressText) {
+        myLogD("tellProgress : " + progressVal + " - " + progressText);
+        mCallBacks.updateProgress(progressText, progressVal);
+    }
+    private void tellEnd() {
+        mCallBacks.updateEnd();
+        isBusy = false;
+        myLog("killing Service");
+        stopSelf();
+    }
+    private void tellError(String txt) {
+        mCallBacks.updateError(txt);
+        myLogE("tellError... [" + txt + "]");
+        isBusy = false;
+        myLog("tellError... killing Service");
+        stopSelf();
+    }
     @Override
     public void tellNonBlockingError(String txt) {
         mCallBacks.tellNonBlockingError(txt);

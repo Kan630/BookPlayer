@@ -11,13 +11,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * created 2024-05-27 (re-created from 2 days ago)
+ * 2024-05-27
  */
 public class CacheFilesRepository {
 
-    private ZikFileDao zikFileDao;
-    private FolderDao folderDao;
-    private ExecutorService executorService;
+    private final ZikFileDao zikFileDao;
+    private final FolderDao folderDao;
+    private final ExecutorService executorService;
 
     public CacheFilesRepository(Application application) {
         AppDatabase db = AppDatabase.getDatabase(application);

@@ -1,7 +1,6 @@
 package com.driot.bookplayer.activities;
 
 import static com.driot.bookplayer.global.Var.FOLDER_UNZIPPED;
-import static com.driot.bookplayer.utils.Utils.getCustomLength;
 import static com.driot.bookplayer.utils.Utils.recursiveRemove;
 
 import android.app.Application;
@@ -10,13 +9,9 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Observer;
 
 import com.driot.bookplayer.db.AppDatabase;
-import com.driot.bookplayer.db.FolderDao;
 import com.driot.bookplayer.db.ZikFile;
-import com.driot.bookplayer.db.ZikFileDao;
-import com.driot.bookplayer.utils.FileSorter;
 import com.driot.bookplayer.utils.Utils;
 import com.driot.tonylib.KanLogger;
 
@@ -26,41 +21,41 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 
 public class CacheFilesViewModel extends AndroidViewModel {
     private LiveData<List<ZikFile>> filesFromDb;
-    private MutableLiveData<List<File>> filesFromDisk = new MutableLiveData<>();
-    private final ZikFileDao zikFileDao;
-    private final FolderDao folderDao;
-    private CacheFilesRepository cacheFilesRepository; // manage deletions
-    private FileSorter fileSorter;
+    private final MutableLiveData<List<File>> filesFromDisk = new MutableLiveData<>();
+    private final CacheFilesRepository cacheFilesRepository; // manage deletions
     public CacheFilesViewModel(@NonNull Application application) {
         super(application);
         cacheFilesRepository = new CacheFilesRepository(application);
-        AppDatabase db = AppDatabase.getDatabase(application);
-        zikFileDao = db.ZikFileDao();
-        folderDao = db.FolderDao();
         loadFilesFromDisk();
+        loadBookFromDB();
         myLog("CacheFilesViewModel instantiated");
     }
 
     public LiveData<List<ZikFile>> getFilesOnDb() {
-        myLog("LiveData<List<ZikFile>> getFilesOnDb()");
-        filesFromDb = zikFileDao.getZikFileDistinctLocations();
         return filesFromDb;
     }
 
     public MutableLiveData<List<File>> getFilesOnDisk() {
         return filesFromDisk;
     }
+
+    private void loadBookFromDB() {
+        myLog("LiveData<List<ZikFile>> loadBookFromDB()");
+        filesFromDb = AppDatabase.getDatabase(getApplication()).ZikFileDao().getZikFileDistinctLocations();
+    }
+
     private void loadFilesFromDisk() {
-        myLog("LiveData<List<ZikFile>> getFilesOnDisk()");
+        myLog("MutableLiveData<List<ZikFile>> loadFilesFromDisk()");
         String cachePath = getApplication().getFilesDir().getPath() + "/" + FOLDER_UNZIPPED;
         File cacheDir = new File(cachePath);
         if (cacheDir.exists() && cacheDir.isDirectory()) {
             if (cacheDir.listFiles() != null) {
-                List<File> files = Arrays.asList(cacheDir.listFiles());
+                List<File> files = Arrays.asList(Objects.requireNonNull(cacheDir.listFiles()));
                 files.sort(Comparator.comparingLong(Utils::getCustomLength));
                 Collections.reverse(files);
                 filesFromDisk.setValue(files); // = new MutableLiveData<List<File>>(files);
@@ -81,6 +76,7 @@ public class CacheFilesViewModel extends AndroidViewModel {
             int idFolder = getBookFolderId(file);
             if (idFolder > 0) {
                 deleteBookFromDB(idFolder);
+                loadBookFromDB();
             } else {
                 myLogE("Error getting book reference in database, so no deletion in database");
             }
