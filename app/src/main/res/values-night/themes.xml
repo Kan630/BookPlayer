@@ -105,5 +105,4 @@
             <!-- Customize your theme here. -->
             <item name="android:windowBackground">@color/activityBackground</item>
         </style>
-
     </resources>

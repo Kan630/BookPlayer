@@ -89,12 +89,8 @@ public class MainActivity extends LifecycleLoggingActivity {//AppCompatActivity 
 
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        toolbar.setTitle("Books");
-        try {
-            toolbar.setLogo(R.mipmap.ic_launcher);
-        } catch (Exception e) {
-            myLogE("error setting logo in menu bar - " + e.getMessage());
-        }
+        //toolbar.setTitle("Books");
+        toolbar.setLogo(R.mipmap.ic_launcher);
 
         recyclerView = findViewById(R.id.recyclerview_folders);
         if (recyclerView != null) recyclerView.setLayoutManager(new LinearLayoutManager(this));
