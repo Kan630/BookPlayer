@@ -5,7 +5,7 @@
 
     <string name="yesterday">"yesterday"</string>
     <string name="ERROR">"ERROR"</string>
-    <string name="downloading">Downloading…</string>
+    <string name="downloading" translatable="false">Downloading…</string>
     <string name="app_info">App Info</string>
     <string name="delete_logs">Delete Logs</string>
     <string name="delete">Delete</string>
@@ -109,7 +109,7 @@
     <string name="option_copyzip_local">Copy files in app memory (mandatory for Android 11 and up).</string>
     <string name="option_unzip_local">Unzip files (takes storage space, but smoother listening experience)</string>
 
-    <string name="option_copy_file_title">Copy file internally</string>
+    <string name="option_copy_file_title">Copy files internally</string>
     <string name="option_copy_file_subtitle"><i>Pros :
         \n* [Read Audio] permission is not needed.
         \n* No risk to loose audio book and progress if its source file get accidentally deleted/moved.

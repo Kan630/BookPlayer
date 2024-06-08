@@ -49,12 +49,12 @@ public class StatsActivity extends LifecycleLoggingActivity {
         long currentAudiosSize = getFolderSize(this.getFilesDir().getPath() + "/unzipped") / 1048576L;
         long currentLogsSize = getFolderSize(this.getFilesDir().getPath() + "/log") / 1048576L;
 
-        zeText = formatMem(currentAppSize) + " Mo : taken by BookPlayer app" + "\n" + "\n" +
-                formatMem(currentAudiosSize) + " Mo : taken by Audios files" + "\n" + "\n" +
-                formatMem(currentLogsSize) + " Mo : taken by Logs" + "\n" + "\n" +
+        zeText = formatMem(currentAppSize) + " Mo taken by BookPlayer app" + "\n" + "\n" +
+                formatMem(currentAudiosSize) + " Mo taken by Audios files" + "\n" + "\n" +
+                formatMem(currentLogsSize) + " Mo taken by Logs" + "\n" + "\n" +
                 "----" + "\n" +
-                formatMem(availableMegs2) + " Mo : Available on the device" + "\n" + "\n" +
-                formatMem(totalMemory) + " Mo : Total memory of the device."
+                formatMem(availableMegs2) + " Mo : available on device" + "\n" + "\n" +
+                formatMem(totalMemory) + " Mo : Device memory"
                 ;
 
         tv_head = findViewById(R.id.tv1_head);
