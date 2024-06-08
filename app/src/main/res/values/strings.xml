@@ -169,7 +169,8 @@
 
     <string name="TextHeaderOpen">Open an audio on my device</string>
     <string name="bOpenFile_desc">If your audio consist of a single file, press this button to select that file :</string>
-    <string name="bOpenFolder_desc">If your audios files are located inside a folder, press this button and select this folder :</string>
+    <string name="bOpenFolder_desc">If your audios files are located inside a folder, press this button and select this folder :
+    \n<i>Beware : all audios, included those in subfolders, will be loaded.</i></string>
     <string name="bOpenZipFile_desc">If your audios files are located inside a ZIP file, press this button and select this archive :</string>
 
     <string name="TextHeaderSearch">Search for free audio on internet</string>

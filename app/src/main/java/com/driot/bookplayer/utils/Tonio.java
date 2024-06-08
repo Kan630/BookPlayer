@@ -319,7 +319,7 @@ public class Tonio {
     }
 
     public static String formatMem(long mem){
-        return formatMem(mem,7);
+        return formatMem(mem,9);
     }
     public static String formatMem(long mem, int padding){
         // %3s => left padding

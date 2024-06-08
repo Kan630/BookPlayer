@@ -205,7 +205,7 @@ public class CopyFileService extends LifecycleLoggingService {  //IntentService 
                     }
                     tellProgress(0, getResources().getString(R.string.Import_Progress_copying_zip_file)
                             + "\n"
-                            + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line3) + file_size + "Mo"
+                            + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line3) + formatMem(file_size,0) + "Mo"
                             + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line2_1) + formatMem(availableMegs) + "Mo"
                     );
                 } catch (Exception e) {
@@ -260,7 +260,7 @@ public class CopyFileService extends LifecycleLoggingService {  //IntentService 
                             tellProgress((int) progress,
                                     getResources().getString(R.string.Import_Progress_copying_zip_file)
                                             + "\n"
-                                            + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line3) + nbMoCopied + "Mo/" + finalFile_size + "Mo"
+                                            + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line3) + formatMem(nbMoCopied,0) + "Mo/" + formatMem(finalFile_size,0) + "Mo"
                                             + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line2_1) + formatMem(availableMegs) + "Mo"
                             );
                         }
@@ -306,7 +306,7 @@ public class CopyFileService extends LifecycleLoggingService {  //IntentService 
                                 tellProgress((int) progressValue,
                                         getResources().getString(R.string.Import_Progress_copying_zip_file)
                                                 + "\n"
-                                                + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line3) + nbMoCopied + "Mo/" + file_size + "Mo"
+                                                + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line3) + formatMem(nbMoCopied,0) + "Mo/" + formatMem(file_size,0) + "Mo"
                                                 + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line2_1) + formatMem(availableMegs) + "Mo"
                                 );
                             }
