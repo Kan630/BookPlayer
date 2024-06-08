@@ -11,6 +11,7 @@ public class Var {
     //------------------------------------------------------------------------
     //------------------------------------------------------------------------
 
+    public static final String ONLY_MIME = "audio/";
 
     public static final String  FOLDER_UNZIPPED = "unzipped";
     public static final String  FOLDER_ZIPPED = "zipped";

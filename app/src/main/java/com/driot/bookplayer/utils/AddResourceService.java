@@ -39,6 +39,7 @@ import java.util.Objects;
 
 import static com.driot.bookplayer.global.Var.FOLDER_DOWNLOAD;
 import static com.driot.bookplayer.global.Var.FOLDER_UNZIPPED;
+import static com.driot.bookplayer.global.Var.ONLY_MIME;
 import static com.driot.bookplayer.global.Var.PATH_CHECK_AUTOTEST;
 import static com.driot.bookplayer.utils.Tonio.formatMem;
 import static com.driot.bookplayer.utils.Tonio.formatNameForDisplay;
@@ -426,7 +427,8 @@ public class AddResourceService
                 addAudioFileRecursive(f1,recursivFolder + f1.getName() + '/');
             } else {
                 if (f1.getType() != null) {
-                    if (f1.getType().equals("audio/mpeg") || f1.getType().equals("audio/mp4")) {
+                    //if (f1.getType().equals("audio/mpeg") || f1.getType().equals("audio/mp4")) {
+                    if (f1.getType().startsWith(ONLY_MIME)) {
                         nbFileScan = nbFileScan + 1;
                         l_audioFilePath = recursivFolder + f1.getName();
                         l_audioSize = f1.length();
@@ -534,7 +536,7 @@ public class AddResourceService
                     resourceSelected = populateArrayListOfTracksFromFolder();
                     */
 
-                } else if (mime.startsWith("audio/")) {     // audio/mpeg
+                } else if (mime.startsWith(ONLY_MIME)) {     // audio/mpeg
 
                     myLog("not MP4 : [" + mime + "]");
                     populateArrayListOfTracksFromFile(dfPickedDir);

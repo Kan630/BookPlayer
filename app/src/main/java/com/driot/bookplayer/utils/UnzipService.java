@@ -1,6 +1,7 @@
 package com.driot.bookplayer.utils;
 
 
+import static com.driot.bookplayer.global.Var.ONLY_MIME;
 import static com.driot.bookplayer.utils.Tonio.getMimeType;
 import static com.driot.bookplayer.utils.Utils.recursiveRemove;
 
@@ -228,7 +229,7 @@ public class UnzipService extends LifecycleLoggingService {
         try {
             for (File f : new File(destinationFolderPath).listFiles()) {
                 String mime = getMimeType(f);
-                if (!mime.startsWith("audio/")) {
+                if (!mime.startsWith(ONLY_MIME)) {
                     if (f.delete()) {
                         myLog("deleting non audio file [" + f.getName() + "] - [" + mime + "]");
                     } else {

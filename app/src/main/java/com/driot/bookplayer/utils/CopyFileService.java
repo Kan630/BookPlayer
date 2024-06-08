@@ -9,6 +9,7 @@ package com.driot.bookplayer.utils;
  *
  */
 
+import static com.driot.bookplayer.global.Var.ONLY_MIME;
 import static com.driot.bookplayer.global.Var.ZIP_SIZE_MAX_COEF;
 import static com.driot.bookplayer.utils.Tonio.formatMem;
 import static com.driot.bookplayer.utils.Tonio.getAvailableInternalMemorySize;
@@ -252,7 +253,7 @@ public class CopyFileService extends LifecycleLoggingService {  //IntentService 
             try {
                 //FileUtils.copyFolder(this, uri, destinationFolderPath , progress -> runOnUiThread(() ->
                 long finalFile_size = file_size;
-                FileUtils.copyFolder(this, uri, new File(destinationFolderPath), forceSize, (progress, nbMoCopied) -> {
+                FileUtils.copyFolder(this, uri, new File(destinationFolderPath), null , forceSize, ONLY_MIME, (progress, nbMoCopied) -> {
                             //this.progress = progress;
                             //this.mbCopied = mbCopied;
                             //runOnUiThread(() -> { Updating the UI with progress and MB copied values, like progressBar.setProgress(progress);
