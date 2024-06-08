@@ -802,7 +802,7 @@ public class AudioService extends LifecycleLoggingService {
                     .setContentTitle(getCurrentZikFile().getFolderName())
                     .setContentText(getCurrentZikFile().getDisplayName())
                     //             .setProgress(100,50, true)
-                    .setSmallIcon(R.drawable.ic_launcher)
+                    .setSmallIcon(R.mipmap.ic_launcher)
                     //.setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                     .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                     .setOnlyAlertOnce(true)

@@ -19,6 +19,7 @@ import androidx.annotation.NonNull;
 //import androidx.credentials.CredentialManager;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
@@ -90,11 +91,10 @@ public class MainActivity extends LifecycleLoggingActivity {//AppCompatActivity 
         setSupportActionBar(toolbar);
         toolbar.setTitle("Books");
         try {
-            toolbar.setLogo(R.drawable.ic_launcher); // TODO transparent background OK but image is cropped : ic_launcher_theme
+            toolbar.setLogo(R.mipmap.ic_launcher);
         } catch (Exception e) {
             myLogE("error setting logo in menu bar - " + e.getMessage());
         }
-
 
         recyclerView = findViewById(R.id.recyclerview_folders);
         if (recyclerView != null) recyclerView.setLayoutManager(new LinearLayoutManager(this));
