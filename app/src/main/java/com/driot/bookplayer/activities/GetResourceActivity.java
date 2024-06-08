@@ -29,6 +29,7 @@ import com.driot.bookplayer.utils.MediaScanner2;
 import com.driot.bookplayer.utils.PermissionRequest;
 import com.driot.tonylib.KanLogger;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Timer;
@@ -44,33 +45,51 @@ import static com.driot.tonylib.KanLogger.myToastE;
  * created by Antoine Driot -- antoine.driot.com -- on 08/11/20
  */
 public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatActivity
-
-    private static final int OPEN_ZIP_FILE_REQUEST_CODE = 24;
-    private static final int OPEN_FILE_REQUEST_CODE = 2444;
-    private static final int OPEN_FOLDER_REQUEST_CODE = 25;
-    public static final int ADD_RESOURCE_REQUEST_CODE = 26;
-    public static final int AUTOTEST_REQUEST_CODE = 987;
-
     private Button bOpenFile, bOpenFolder, bOpenZipFile;
     private Button bAutoTest_b1, bAutoTest_b2, bAutoTest_b3;
+    private TextView tv_message_import_currently_running;
+
     List<Button> buttonsToLock;
+    List<TextView> textViewToHide;
 
     private PermissionRequest mPermissionRequest;
     private int lopperForLog = 0;
     private Timer timer;
     private boolean isActivityActive = true;
     private ActivityResultLauncher<Intent> bOpenFileActivityResultLauncher,bOpenFolderActivityResultLauncher,bOpenZipActivityResultLauncher;
+    private ActivityResultLauncher<Intent> bAutoTest_01_ResultLauncher,bAutoTest_02_ResultLauncher,bAutoTest_03_ResultLauncher;
+
     private ActivityResultLauncher<Intent> addResourceActivityResultLauncher;
 
     private void launchAddResource(ActivityResult result, String type) {
-        if (result.getResultCode() == RESULT_OK) {
-            if (isReturnedUriOk(result.getData())) {
-                Uri uri = result.getData().getData();
-                myLog("picked data : " + uri.getPath() );
-                Intent intent = new Intent(getApplicationContext(), AddResourceActivity.class);
-                intent.putExtra("Uri", uri);
-                intent.putExtra("type", type);
-                addResourceActivityResultLauncher.launch(intent);
+        launchAddResource(result, type, null);
+    }
+    private void launchAddResource(ActivityResult result, String type, String url) {
+        myLog("launchAddResource()-----------------------------------------------------------------------------------------------------");
+        if (url != null) {
+            Intent intentAddResourceService = new Intent(this, AddResourceService.class);
+            intentAddResourceService.putExtra("url", url);
+            startService(intentAddResourceService);
+
+            Intent intent = new Intent(getApplicationContext(), AddResourceActivity.class);
+            intent.putExtra("url", url);
+            addResourceActivityResultLauncher.launch(intent);
+        } else {
+            if (result.getResultCode() == RESULT_OK) {
+                if (isReturnedUriOk(result.getData())) {
+                    Uri uri = result.getData().getData();
+                    myLog("picked data : " + uri.getPath());
+
+                    Intent intentAddResourceService = new Intent(this, AddResourceService.class);
+                    intentAddResourceService.putExtra("uri", uri);
+                    intentAddResourceService.putExtra("type", type);
+                    startService(intentAddResourceService);
+
+                    Intent intent = new Intent(getApplicationContext(), AddResourceActivity.class);
+                    intent.putExtra("uri", uri);
+                    intent.putExtra("type", type);
+                    addResourceActivityResultLauncher.launch(intent);
+                }
             }
         }
     }
@@ -83,13 +102,14 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
         bOpenFile = findViewById(R.id.bOpenFile);
         bOpenFolder = findViewById(R.id.bOpenFolder);
         bOpenZipFile = findViewById(R.id.bOpenZipFile);
-        Button bSearchLibrivox = findViewById(R.id.bSearchLibrivox);
-        Button bSearchLitteratureaudio = findViewById(R.id.bSearchLitteratureaudio);
-        Button bSearchGutenberg = findViewById(R.id.bSearchGutenberg);
+        Button bInternetAudioRessource_01 = findViewById(R.id.bInternetAudioRessource_01);
+        Button bInternetAudioRessource_02 = findViewById(R.id.bInternetAudioRessource_02);
+        Button bInternetAudioRessource_03 = findViewById(R.id.bInternetAudioRessource_03);
         bAutoTest_b1 = findViewById(R.id.bAutoTest_b1);
         bAutoTest_b2 = findViewById(R.id.bAutoTest_b2);
         bAutoTest_b3 = findViewById(R.id.bAutoTest_b3);
         buttonsToLock = Arrays.asList(bOpenFile, bOpenFolder, bOpenZipFile, bAutoTest_b1, bAutoTest_b2, bAutoTest_b3);
+        tv_message_import_currently_running = findViewById(R.id.message_import_currently_running);
 
 // ADD RESOURCE
         addResourceActivityResultLauncher = registerForActivityResult(
@@ -152,20 +172,30 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
         ////////////////////////////////
         ///// LINKS
         ////////////////////////////////
-
-        bSearchLibrivox.setOnClickListener(view -> {
-            String url = "https://librivox.org";
+        TextView tv;
+        bInternetAudioRessource_01.setText("Internet Archive");
+        tv = findViewById(R.id.tvInternetAudioRessource_01);
+        tv.setText("Surf the vast Internet Archive for audio files, and download some !");
+        bInternetAudioRessource_01.setOnClickListener(view -> {
+            String url = "https://archive.org/details/audio";
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
             startActivity(intent);
         });
-        bSearchLitteratureaudio.setOnClickListener(view -> {
+
+        bInternetAudioRessource_02.setText("Litterature Audio");
+        tv = findViewById(R.id.tvInternetAudioRessource_02);
+        tv.setText(R.string.bSearchlitteratureaudio_desc);
+        bInternetAudioRessource_02.setOnClickListener(view -> {
             String url = "https://www.litteratureaudio.com";
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
             //Intent intent = new Intent(getApplicationContext(), DbBackupActivity.class);
             startActivity(intent);
         });
-        bSearchGutenberg.setOnClickListener(view -> {
-            String url = "https://marhamilresearch4.blob.core.windows.net/gutenberg-public/Website/index.html";
+        bInternetAudioRessource_03.setText("Open Culture");
+        tv = findViewById(R.id.tvInternetAudioRessource_03);
+        tv.setText(R.string.bSearchOpenCulture_desc);
+        bInternetAudioRessource_03.setOnClickListener(view -> {
+            String url = "https://www.openculture.com/";
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
             startActivity(intent);
         });
@@ -173,21 +203,25 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
         ////////////////////////////////
         ///// AUTO TEST
         ////////////////////////////////
-
         bAutoTest_b1.setOnClickListener(view -> {
-            startActivity(new Intent(getApplicationContext(), DownloadActivity.class).putExtra("filePathToDownload", AUTOTEST_FILE_01));
+            myLog("Button click : AUTO TEST 01");
+            launchAddResource(null, null,  AUTOTEST_FILE_01);
         });
         bAutoTest_b2.setOnClickListener(view -> {
-            startActivity(new Intent(getApplicationContext(), DownloadActivity.class).putExtra("filePathToDownload", AUTOTEST_FILE_02));
+            myLog("Button click : AUTO TEST 02");
+            launchAddResource(null, null,  AUTOTEST_FILE_02);
         });
         bAutoTest_b3.setOnClickListener(view -> {
-            startActivity(new Intent(getApplicationContext(), DownloadActivity.class).putExtra("filePathToDownload", AUTOTEST_FILE_03));
+            myLog("Button click : AUTO TEST 03");
+            launchAddResource(null, null,  AUTOTEST_FILE_03);
         });
 
-        startTimer(); // used to lock buttons if service running
+        tv_message_import_currently_running.setOnClickListener(v -> startActivity(new Intent(this, AddResourceActivity.class)));
+
     }
 
     private void startTimer() {
+        myLog("startTimer()");
         isActivityActive = true;
         timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask() {
@@ -205,6 +239,7 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
         }
     };
     private void stopTimer() {
+        myLog("stopTimer()");
         isActivityActive = false;
         if (timer != null) {
             try { timer.cancel(); timer.purge(); timer=null; }
@@ -229,20 +264,27 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
     }
 
     private void checkServiceRunning() {
+        if (lopperForLog%10==0) myLog("checkServiceRunning()");
         try {
             lopperForLog = lopperForLog + 1;
-            TextView tv1 = findViewById(R.id.bOpenFolder_desc);
-            TextView tv2 = findViewById(R.id.message_import_currently_running);
+            textViewToHide = Arrays.asList(
+                     findViewById(R.id.TextHeaderOpen)
+                    ,findViewById(R.id.bOpenFile_desc)
+                    ,findViewById(R.id.bOpenFolder_desc)
+                    ,findViewById(R.id.bOpenZiFile_desc)
+                    ,findViewById(R.id.txtAutoTest_title)
+                    ,findViewById(R.id.txtAutoTest_desc)
+            );
 
             if (AddResourceService.isBusy || DownloadService.isBusy) {
-                if (lopperForLog%10==0) myLog("AddResourceService.isBusy => displaying banner, disabling buttons");
+                if (lopperForLog%20==0) myLog("AddResourceService.isBusy => displaying banner, disabling buttons");
                 for (Button b: buttonsToLock) { b.setEnabled(false); }
-                tv1.setVisibility(View.INVISIBLE);
-                tv2.setVisibility(View.VISIBLE);
+                for (TextView tv: textViewToHide) { tv.setVisibility(View.INVISIBLE); }
+                tv_message_import_currently_running.setVisibility(View.VISIBLE);
             } else {
                 for (Button b: buttonsToLock) { b.setEnabled(true); }
-                tv1.setVisibility(View.VISIBLE);
-                tv2.setVisibility(View.INVISIBLE);
+                for (TextView tv: textViewToHide) { tv.setVisibility(View.VISIBLE); }
+                tv_message_import_currently_running.setVisibility(View.INVISIBLE);
             }
         } catch (Exception e) {
             myLogE("Error while checking if service is running : " + e.getMessage());
@@ -368,16 +410,6 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
-
-    private boolean isMyServiceRunning(Class<?> serviceClass) {
-        ActivityManager manager = (ActivityManager) getSystemService(getApplicationContext().ACTIVITY_SERVICE);
-        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-            if (serviceClass.getName().equals(service.service.getClassName())) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
     private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }

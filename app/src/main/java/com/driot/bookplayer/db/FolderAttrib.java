@@ -150,6 +150,7 @@ public class FolderAttrib {
     public String getFolderName() { return sFolderName; }
     public String getFolderPath() { return sFolderPath; } // Dao
     public void setForceFolderPath(String newPath) {
+        myLog("Forcing Folder Path = [" + newPath + "]");
         this.sFolderPath = newPath; // in case of unzipped files...
     }
     public boolean isFolderKO() {

@@ -17,6 +17,7 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.utils.AddResourceService;
 import com.driot.tonylib.KanLogger;
 
+import static com.driot.bookplayer.global.Var.PATH_CHECK_APPLICATION;
 import static com.driot.bookplayer.utils.Tonio.getFileNameFromPath;
 import static com.driot.bookplayer.utils.Tonio.formatNameForDisplay;
 import static com.driot.tonylib.KanLogger.myToast;
@@ -59,28 +60,29 @@ public class AddResourceActivity
         progressBar = findViewById(R.id.progressBar);
         tvErrorText = findViewById(R.id.errorText);
 
-        Uri uri = getIntent().getParcelableExtra("Uri");
-        type =  getIntent().getStringExtra("type");
-
-        try {
-            this.getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-        } catch (Exception e) {
-            myLogE("error while using takePersistableUriPermission for selected URI");
+        String url = getIntent().getStringExtra("url");
+        if (url != null) {
+            myLog("onCreate() - going for download");
+            type =  "Download";
+            putTitle(url);
+        } else {
+            Uri uri = getIntent().getParcelableExtra("uri");
+            type =  getIntent().getStringExtra("type");
+            String str2 = uri==null ? "null" : uri.toString();
+            myLog("onCreate() - args =  - uri=[" + str2 + "] - type=[" + type + "]");
+            if (!str2.contains(PATH_CHECK_APPLICATION)) {
+                try {
+                    this.getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                } catch (Exception e) {
+                    myLogE("error while using takePersistableUriPermission for selected URI - " + e.getMessage());
+                }
+            }
+            putTitle(uri.getLastPathSegment());
         }
 
-        putTitle(uri.getLastPathSegment());
-
-        Intent intentAddResourceService = new Intent(AddResourceActivity.this, AddResourceService.class);
-        intentAddResourceService.putExtra("Uri", uri);
-        intentAddResourceService.putExtra("type", type);
-        startService(intentAddResourceService);
+        Intent intentAddResourceService = new Intent(this, AddResourceService.class);
         boundToAddResourceService = bindService(intentAddResourceService, addResourceServiceConnection, Context.BIND_AUTO_CREATE); //error Log : Activity XXX has leaked ServiceConnection
         myLog("call start & bind to AddResourceService from AddResourceActivity.onCreate() - bound result :" + boundToAddResourceService + "");
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
     }
 
     @Override
@@ -92,7 +94,6 @@ public class AddResourceActivity
             mBound = false;
         } catch (Exception e) {
             myLogE("onDestroy - error unbindService : " + e.getMessage());
-            e.printStackTrace();
         }
     }
     @Override
@@ -111,7 +112,7 @@ public class AddResourceActivity
     private final ServiceConnection addResourceServiceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
-            myLog("AddResourceService - onServiceConnected");
+            myLog("AddResourceService - onServiceConnected : [" + className.toString() + "]");
             AddResourceService.AddResourceServiceBackgroundBinder binder = (AddResourceService.AddResourceServiceBackgroundBinder) service;
             mService = binder.getService();
             mService.registerClient(AddResourceActivity.this); //to get the CallBacks
@@ -122,7 +123,7 @@ public class AddResourceActivity
         }
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
-            myLog("AddResourceService - OnServiceDisconnected");
+            myLog("AddResourceService - OnServiceDisconnected : [" + arg0.toString() + "]");
             mService.unbindService(addResourceServiceConnection);
             mBound = false;
         }

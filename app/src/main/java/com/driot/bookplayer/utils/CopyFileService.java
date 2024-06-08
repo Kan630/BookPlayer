@@ -24,6 +24,7 @@ import android.os.ParcelFileDescriptor;
 import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.activities.LifecycleLoggingService;
 import com.driot.tonylib.KanLogger;
 
 import java.io.File;
@@ -35,7 +36,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 
-public class CopyFileService extends Service {  //IntentService are designed to run in the background....   but let's use an executor or thread
+public class CopyFileService extends LifecycleLoggingService {  //IntentService are designed to run in the background....   but let's use an executor or thread
 
     private final IBinder binder = new CopyFileService.CopyFileServiceBackgroundBinder();
     Callbacks mCallBacks;
@@ -97,7 +98,7 @@ public class CopyFileService extends Service {  //IntentService are designed to 
         destinationFolderPath = intent.getStringExtra("destinationFolderPath");
         destinationFileName = intent.getStringExtra("destinationFileName");
         type = intent.getStringExtra("type");
-        myLog("onStartCommand() ..   " +
+        myLog("parseIntent() ..   " +
                 "\n.    from uri = [" + uri.toString() + "] " +
                 "\n.    to folder = [" + destinationFolderPath + "] " +
                 "\n.    with name = [" + destinationFileName + "]" +

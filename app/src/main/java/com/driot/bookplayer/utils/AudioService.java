@@ -25,6 +25,7 @@ import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.media.session.MediaButtonReceiver;
 
+import com.driot.bookplayer.activities.LifecycleLoggingService;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.ZikFileDao;
 import com.driot.bookplayer.global.Option;
@@ -59,7 +60,7 @@ class CustomMediaPlayer extends MediaPlayer {
             seekTo(posMilliSec, SEEK_CLOSEST);  //seek_closest needed for m4b...
     }
 }
-public class AudioService extends Service {
+public class AudioService extends LifecycleLoggingService {
 
     private static final String CHANNEL_ID = "audio_channel_of_toto";
     private Timer timer;

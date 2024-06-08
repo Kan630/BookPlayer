@@ -27,7 +27,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 
-public class DownloadActivity extends AppCompatActivity {
+public class DownloadActivity extends LifecycleLoggingActivity {
 
     private ProgressBar progressBar;
     private TextView tv_belowProgressBar;
@@ -57,10 +57,10 @@ public class DownloadActivity extends AppCompatActivity {
     private void endThisActivity(String downloadedFilePath) {
         myLog("endThisActivity - endMessage = [" + downloadedFilePath + "]");
         Intent resultIntent = new Intent();
-        ArrayList<String> aa = new ArrayList<>(Collections.singleton(downloadedFilePath));
-        resultIntent.putStringArrayListExtra("data", aa);
-        Uri uri = Uri.fromFile(new File(downloadedFilePath));
-        myLog("uri = " + uri.toString());
+        ArrayList<String> al = new ArrayList<>(Collections.singleton(downloadedFilePath));
+        resultIntent.putStringArrayListExtra("data", al);
+        //Uri uri = Uri.fromFile(new File(downloadedFilePath));
+        //myLog("uri = " + uri.toString());
         setResult(RESULT_OK, resultIntent);
         finish();
     }

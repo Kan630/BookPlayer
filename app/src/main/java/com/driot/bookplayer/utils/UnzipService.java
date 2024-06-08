@@ -12,6 +12,7 @@ import android.os.IBinder;
 import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.activities.LifecycleLoggingService;
 import com.driot.tonylib.KanLogger;
 
 import java.io.BufferedInputStream;
@@ -27,7 +28,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
-public class UnzipService extends Service {
+public class UnzipService extends LifecycleLoggingService {
 
     private final IBinder binder = new UnzipService.UnzipServiceBackgroundBinder();
     Callbacks mCallBacks;
@@ -260,7 +261,7 @@ public class UnzipService extends Service {
         if (tmp.startsWith("_") || tmp.startsWith(" ")) {
             tmp = tmp.substring(1);
         }
-        if (tmp.length() < 2 ) {
+        if (tmp.length() < 5 ) {
             tmp = audioFileName;
         }
         //// tell result

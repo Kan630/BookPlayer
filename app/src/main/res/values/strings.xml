@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name" translatable="false">BookPlayer</string>
     <string name="three_dots" translatable="false">…</string>
+    <string name="lorem_ipsum" translatable="false">lorem ipsum</string>
 
     <string name="yesterday">"yesterday"</string>
     <string name="ERROR">"ERROR"</string>
@@ -175,6 +176,7 @@
     <string name="bSearchLibrivox_desc">Search then Download a book from Librivox.org (english mostly) :</string>
     <string name="bSearchlitteratureaudio_desc">Search then Download a book from litteratureaudio.com (french) :</string>
     <string name="bSearchGutenberg_desc">Search then Download a book from Gutenberg project (AI speaker / generated audio) :</string>
+    <string name="bSearchOpenCulture_desc">Search some audios on Open Culture :</string>
     <string name="bSearchExampleText">These websites above are only examples, there is tons of audio on the web, you could also download university lectures.</string>
 
     <string name="AutoTest_title">Auto Test</string>

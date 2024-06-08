@@ -106,52 +106,52 @@
         />
 
     <TextView
-        android:id="@+id/bSearchLibrivox_desc"
-        android:text="@string/bSearchLibrivox_desc"
+        android:id="@+id/tvInternetAudioRessource_01"
+        android:text="@string/lorem_ipsum"
         style="@style/GetResourceTextTopOfButton"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@id/TextHeaderSearch"
         />
 
     <Button
-        android:id="@+id/bSearchLibrivox"
-        android:text="@string/bSearchLibrivox"
+        android:id="@+id/bInternetAudioRessource_01"
+        android:text="@string/lorem_ipsum"
         style="@style/GetResourceButton"
         android:layout_marginTop="@dimen/GetRessource320_vertical_margin_text2button"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/bSearchLibrivox_desc"
+        app:layout_constraintTop_toBottomOf="@id/tvInternetAudioRessource_01"
         />
 
     <TextView
-        android:id="@+id/bSearchlitteratureaudio_desc"
+        android:id="@+id/tvInternetAudioRessource_02"
         style="@style/GetResourceTextTopOfButton"
-        android:text="@string/bSearchlitteratureaudio_desc"
+        android:text="@string/lorem_ipsum"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/bSearchLibrivox"
+        app:layout_constraintTop_toBottomOf="@id/bInternetAudioRessource_01"
         />
 
     <Button
-        android:id="@+id/bSearchLitteratureaudio"
-        android:text="@string/bSearchLitteratureaudio"
+        android:id="@+id/bInternetAudioRessource_02"
+        android:text="@string/lorem_ipsum"
         style="@style/GetResourceButton"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/bSearchlitteratureaudio_desc"
+        app:layout_constraintTop_toBottomOf="@id/tvInternetAudioRessource_02"
         />
 
     <TextView
-        android:id="@+id/bSearchGutenberg_desc"
+        android:id="@+id/tvInternetAudioRessource_03"
         style="@style/GetResourceTextTopOfButton"
-        android:text="@string/bSearchGutenberg_desc"
+        android:text="@string/lorem_ipsum"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/bSearchLitteratureaudio"
+        app:layout_constraintTop_toBottomOf="@id/bInternetAudioRessource_02"
         />
 
     <Button
-        android:id="@+id/bSearchGutenberg"
-        android:text="@string/gutenberg_project"
+        android:id="@+id/bInternetAudioRessource_03"
+        android:text="@string/lorem_ipsum"
         style="@style/GetResourceButton"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/bSearchGutenberg_desc"
+        app:layout_constraintTop_toBottomOf="@id/tvInternetAudioRessource_03"
         />
 
     <TextView
@@ -162,7 +162,7 @@
         android:textSize="12sp"
         android:layout_marginStart="20dp"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/bSearchGutenberg"
+        app:layout_constraintTop_toBottomOf="@id/bInternetAudioRessource_03"
         />
 
     <View style="@style/myStyleViewSimpleHorizontalBar"

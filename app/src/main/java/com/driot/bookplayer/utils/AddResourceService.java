@@ -1,7 +1,6 @@
 package com.driot.bookplayer.utils;
 
 import android.app.Activity;
-import android.app.Service;
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -19,6 +18,7 @@ import androidx.documentfile.provider.DocumentFile;
 import androidx.sqlite.db.SimpleSQLiteQuery;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.activities.LifecycleLoggingService;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.db.Folder;
@@ -41,12 +41,15 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
+import static com.driot.bookplayer.global.Var.FOLDER_DOWNLOAD;
 import static com.driot.bookplayer.global.Var.FOLDER_UNZIPPED;
 import static com.driot.bookplayer.global.Var.PATH_CHECK_AUTOTEST;
 import static com.driot.bookplayer.utils.Tonio.formatNameForDisplay;
 import static com.driot.bookplayer.utils.Tonio.fileExists;
 import static com.driot.bookplayer.utils.Tonio.getFileNameFromPath;
+import static com.driot.bookplayer.utils.Tonio.stripExtension;
 import static com.driot.tonylib.TonioCommonStuff.deleteExtension;
+import static com.driot.tonylib.TonioCommonStuff.extractName;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 23/11/20
@@ -55,8 +58,8 @@ import static com.driot.tonylib.TonioCommonStuff.deleteExtension;
 // TODO check if Service is Busy before starting another import
 
 public class AddResourceService
-        extends Service
-        implements CopyFileService.Callbacks, UnzipService.Callbacks
+        extends LifecycleLoggingService
+        implements CopyFileService.Callbacks, UnzipService.Callbacks, DownloadService.Callbacks
 {
 
     AddResourceService.Callbacks mCallBacks;
@@ -68,6 +71,10 @@ public class AddResourceService
     UnzipService mUnzipService;
     Boolean mUnzipServiceBound;
     boolean boundToUnzipService;
+
+    DownloadService mDownloadService;
+    Boolean mDownloadServiceBound;
+    boolean boundToDownloadService;
 
     /**
      * steps are
@@ -99,6 +106,7 @@ public class AddResourceService
     private int nbFileSaved, nbFileToSave;
 
     private Uri uri_given;
+    private String url_given;
     private String type_given;
     private String destinationFolderName;
     private String destinationFolderPath;
@@ -147,6 +155,13 @@ public class AddResourceService
             myLogE("onUnbind - error unbindService CopyFile : " + e.getMessage());
             e.printStackTrace();
         }
+        try {
+            if (mDownloadServiceBound != null && mDownloadServiceBound) unbindService(downloadServiceConnection);
+            mDownloadServiceBound = false;
+        } catch (Exception e) {
+            myLogE("onUnbind - error unbindService Download : " + e.getMessage());
+            e.printStackTrace();
+        }
         return super.onUnbind(intent);
     }
     public class AddResourceServiceBackgroundBinder extends Binder {
@@ -157,10 +172,11 @@ public class AddResourceService
     }
     // services
     //-----------------------------
+//COPY FILE
     private final ServiceConnection copyFileServiceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
-            myLog("copyFileServiceConnection - onServiceConnected");
+            myLog("copyFileServiceConnection - onServiceConnected : [" + className.toString() + "]");
             CopyFileService.CopyFileServiceBackgroundBinder binder = (CopyFileService.CopyFileServiceBackgroundBinder) service;
             mCopyFileService = binder.getService();
             mCopyFileService.registerClient(AddResourceService.this);
@@ -170,35 +186,15 @@ public class AddResourceService
         }
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
-            myLog("copyFileServiceConnection - OnServiceDisconnected");
+            myLog("copyFileServiceConnection - OnServiceDisconnected : [" + arg0.toString() + "]");
             if (mCopyFileServiceBound != null && mCopyFileServiceBound) {
                 mCopyFileService.unbindService(copyFileServiceConnection);
                 mCopyFileServiceBound = false;
             }
         }
     };
-    private final ServiceConnection unzipServiceConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName className, IBinder service) {
-            myLog("unzipServiceConnection - onServiceConnected");
-            UnzipService.UnzipServiceBackgroundBinder binder = (UnzipService.UnzipServiceBackgroundBinder) service;
-            mUnzipService = binder.getService();
-            mUnzipService.registerClient(AddResourceService.this);
-            mUnzipServiceBound = true;
-            myLog("unzipServiceConnection - launch init()");
-            mUnzipService.init();
-        }
-        @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-            myLog("unzipServiceConnection - OnServiceDisconnected");
-            if (mUnzipServiceBound != null && mUnzipServiceBound) {
-                mUnzipService.unbindService(unzipServiceConnection);
-                mUnzipServiceBound = false;
-            }
-        }
-    };
     private void launchCopyFileService(Uri uri, String destinationFolderPath, String destinationFileName, String type) {
-        myLog("launchCopyFileService - prepare intent");
+        myLog("launchCopyFileService()");
         Intent intentCopyFileService = new Intent(this, CopyFileService.class);
         intentCopyFileService.putExtra("Uri", uri);
         intentCopyFileService.putExtra("destinationFolderPath", destinationFolderPath);
@@ -215,8 +211,29 @@ public class AddResourceService
         mCallBacks.tellHeader(destinationFileName);
         myLog("call start & bind to copyFileService from launchCopyFileService - bound result :" + boundToCopyFileService + "");
     }
+//UNZIP
+    private final ServiceConnection unzipServiceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            myLog("unzipServiceConnection - onServiceConnected : [" + className.toString() + "]");
+            UnzipService.UnzipServiceBackgroundBinder binder = (UnzipService.UnzipServiceBackgroundBinder) service;
+            mUnzipService = binder.getService();
+            mUnzipService.registerClient(AddResourceService.this);
+            mUnzipServiceBound = true;
+            myLog("unzipServiceConnection - launch init()");
+            mUnzipService.init();
+        }
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            myLog("unzipServiceConnection - OnServiceDisconnected : [" + arg0.toString() + "]");
+            if (mUnzipServiceBound != null && mUnzipServiceBound) {
+                mUnzipService.unbindService(unzipServiceConnection);
+                mUnzipServiceBound = false;
+            }
+        }
+    };
     private void launchUnzipService(String zipFilePath, String destinationFolderPath) {
-        myLog("launchUnzipService");
+        myLog("launchUnzipService()");
         Intent intentUnzipService = new Intent(this, UnzipService.class);
         intentUnzipService.putExtra("zipFilePath", zipFilePath);
         intentUnzipService.putExtra("destinationFolderPath", destinationFolderPath);
@@ -229,19 +246,50 @@ public class AddResourceService
         }
         myLog("call start & bind to unzipService from launchUnzipService - bound result :" + boundToUnzipService + "");
     }
+//DOWNLOAD
+    private final ServiceConnection downloadServiceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            myLog("downloadServiceConnection - onServiceConnected : [" + className.toString() + "]");
+            DownloadService.DownloadServiceBackgroundBinder binder = (DownloadService.DownloadServiceBackgroundBinder) service;
+            mDownloadService = binder.getService();
+            mDownloadService.registerClient(AddResourceService.this);
+            mDownloadServiceBound = true;
+            myLog("downloadServiceServiceConnection - launch init()");
+            mDownloadService.init();
+        }
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            myLog("downloadServiceConnection - OnServiceDisconnected : [" + arg0.toString() + "]");
+            if (mDownloadServiceBound != null && mDownloadServiceBound) {
+                mDownloadService.unbindService(downloadServiceConnection);
+                mDownloadServiceBound = false;
+            }
+        }
+    };
+    private void launchDownloadService(String fileUrl, String destinationFolder) {
+        myLog("launchDownloadService()");
+        Intent intentDownloadService = new Intent(this, DownloadService.class);
+        intentDownloadService.putExtra("fileUrl", fileUrl);
+        intentDownloadService.putExtra("destinationFolder", destinationFolder);
+        boundToDownloadService = false;
+        try {
+            boundToDownloadService = bindService(intentDownloadService, downloadServiceConnection, Context.BIND_AUTO_CREATE); //error Log : Activity XXX has leaked ServiceConnection
+        } catch (Exception e) {
+            myLogE("ERROR bind to Service in launchDownloadService ");
+            myLogE(e.getMessage());
+        }
+        myLog("call start & bind to downloadService from launchDownloadService - bound result :" + boundToDownloadService + "");
+    }
 
     // native methods
     //-----------------------------
-    @Override
-    public void onCreate() {
-        myLog("onCreate()");
-        super.onCreate();
-    }
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        uri_given = intent.getParcelableExtra("Uri");
-        type_given =  intent.getStringExtra("type");
-        myLog("onStartCommand() - setting module private var from intent extras");
+        url_given = intent.getStringExtra("url");
+        uri_given = intent.getParcelableExtra("uri");
+        type_given = intent.getStringExtra("type");
         return START_NOT_STICKY;
     }
 
@@ -379,20 +427,35 @@ public class AddResourceService
     ///////////////////////////////////////
 
     public void init() {
-        myLog("....");
-        myLog("....");
-        myLog("*********************************************************************************************************");
-        myLog("init() - ** type = " + type_given + " **");
-        myLog("init() - ** uri = " + uri_given.toString() + " **");
-        myLog("*********************************************************************************************************");
+        if (url_given==null && (type_given==null || uri_given==null)) {myLogE("init() - args=null");tellError("Init failed, args are null");return;}
         isBusy = true;
+        String strUriLog = uri_given==null ? "null" : uri_given.toString();
+
+        myLog("....");
+        myLog("....");
+        myLog("*********************************************************************************************************");
+        myLog("init() - ** uri = " + strUriLog + " **");
+        myLog("init() - ** type = " + type_given + " **");
+        myLog("init() - ** url = " + url_given + " **");
+        myLog("*********************************************************************************************************");
+
+        if (!Objects.equals(url_given, null)) {
+            //Check not already imported
+            new Thread(() ->  {
+                String strFolderName =  stripExtension(getFileNameFromPath(url_given));
+                long folderId = AppDatabase.getDatabase(this).FolderDao().folderAlreadyExist_checkFolderName(strFolderName);
+                if (folderId>0) {
+                    tellError("This book has already been downloaded and imported as [" + strFolderName + "]");
+                    return;
+                }
+                PROGRESS = PROGRESS_FILE_COPY;
+                launchDownloadService(url_given,getFilesDir().getAbsolutePath() + "/" + FOLDER_DOWNLOAD);
+            }).start();
+            return;
+        }
+
         DocumentFile dfPickedDir;
         String mime = null;
-
-
-        if (Option.getCopyFile(this)) {
-
-        }
 
         switch (type_given) {
             ///---------------------------------------------
@@ -559,14 +622,14 @@ public class AddResourceService
                 tellError(getString(R.string.Error_Import_NoMediaInFolder));
             } else {
                 myLog(audioFileArrayList.size() + " " + getString(R.string.Import_nMediaInFolder));
-                checkIfFolderAlreadyExist();
+                checkIfFolderAlreadyExist_inDB();
             }
         } else {
             tellError(getString(R.string.Error_Import_NoMediaInFolder));
         }
     }
 
-    private void checkIfFolderAlreadyExist() {
+    private void checkIfFolderAlreadyExist_inDB() {
         tellProgress(PROGRESS[2], getResources().getString(R.string.Import_Progress_check_not_already_imported));
         myLog("checkIfFolderAlreadyExist() - FolderName = [" + myFolder.getFolderName() + "]");
         new Thread(() -> {
@@ -834,15 +897,38 @@ public class AddResourceService
         launchCopyFileService(uri, destinationFolderPath, destinationName, type_given);
     }
 
-    private void unzipZipLocal() {
-        String zeZipFilePath = zipDestinationFolderPath + "/" + zipDestinationFolderName;
-        String zeDestinationFolderPath = zipDestinationFolderPath;
+    private void unzipZipLocal(String zeZipFilePath, String zeDestinationFolderPath) {
         myLog("Launching Unzip service with arguments" +
                 "\n.    ZipFilePath = [" + zeZipFilePath + "]" +
                 "\n.    DestinationFolderPath = [" + zeDestinationFolderPath + "]"
         );
         launchUnzipService(zeZipFilePath, zeDestinationFolderPath);
     }
+
+    /**
+     **********************************
+     *    DOWNLOAD CALLBACKS received
+     *********************************
+     */
+    @Override
+    public void downloadService_tellProgress(String progressText, int progressVal) {
+        tellProgress(PROGRESS[4] + progressVal * (PROGRESS[5] - PROGRESS[4]) / 100, progressText);
+    }
+    @Override
+    public void downloadService_tellEnd(String downloadedFileFullPath) {
+        myLog("Download tell End -> [" + downloadedFileFullPath + "]");
+        type_given = "ZIP";
+        uri_given = Uri.fromFile(new File(downloadedFileFullPath));
+        String fileName = deleteExtension(extractName(downloadedFileFullPath));
+        this.zipDestinationFolderPath = getFilesDir().getAbsolutePath() + "/" + FOLDER_UNZIPPED + "/" + fileName;
+        unzipZipLocal(downloadedFileFullPath, getFilesDir().getAbsolutePath() + "/" + FOLDER_UNZIPPED + "/" + fileName);
+    }
+    @Override
+    public void downloadService_tellError(String errorText) {
+        myLogE("Download tell Error");
+        tellError(errorText);
+    }
+
 
     /**
      **********************************
@@ -858,7 +944,7 @@ public class AddResourceService
         myLog("Copyfile tell End " + type_given);
         if (type_given.equals("ZIP")) {
             myLog("launch unzipZipLocal()");
-            unzipZipLocal();
+            unzipZipLocal(zipDestinationFolderPath + "/" + zipDestinationFolderName, zipDestinationFolderPath);
         } else {
             myFolder = new FolderAttrib(this, Uri.fromFile(new File(fullPath)), Option.getCopyFile(this), type_given);
             saveFolder();

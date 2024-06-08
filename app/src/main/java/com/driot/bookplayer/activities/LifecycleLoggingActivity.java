@@ -24,7 +24,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import static com.driot.bookplayer.global.Var.LOG_LIFECYCLE_TRACE;
-import static com.driot.tonylib.KanLogger.myLog;
 
 import com.driot.bookplayer.global.Option;
 import com.driot.tonylib.KanLogger;
@@ -37,7 +36,7 @@ import com.driot.tonylib.KanLogger;
 public abstract class LifecycleLoggingActivity extends AppCompatActivity {
 
     private static final String LOG_TAG = "LifecycleLoggingActivity"; //this.getClass().getName()
-    protected final String TAG = getClass().getSimpleName();
+    protected final String TAG = "[" + getClass().getSimpleName() + "]: ";
     //String TAG = this.getClass().getName().substring(this.getClass().getName().lastIndexOf(".")+1);
 
     /**
@@ -56,16 +55,18 @@ public abstract class LifecycleLoggingActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setTheme(Option.getTheme(this));
 
+        String str1 = this.getCallingActivity()==null ? "null" : this.getCallingActivity().toString();
+
         if (savedInstanceState != null) {
             // The activity is being re-created. Use the
             // savedInstanceState bundle for initializations either
             // during onCreate or onRestoreInstanceState().
-            if (LOG_LIFECYCLE_TRACE) myLog(TAG + "onCreate(): activity re-created");
+            if (LOG_LIFECYCLE_TRACE) myLog(TAG + "onCreate(): activity re-created. - Called by [" + str1 + "]");
 
         } else {
             // Activity is being created anew. No prior saved
             // instance state information available in Bundle object.
-            if (LOG_LIFECYCLE_TRACE) myLog(TAG + "onCreate(): activity created anew");
+            if (LOG_LIFECYCLE_TRACE) myLog(TAG + "onCreate(): activity created anew. - Called by [" + str1 + "]");
         }
 
     }

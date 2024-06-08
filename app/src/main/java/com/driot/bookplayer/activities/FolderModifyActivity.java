@@ -77,12 +77,13 @@ public class FolderModifyActivity extends LifecycleLoggingActivity {
     }
 
     private boolean eraseFolderAndFiles(String strPath) {
+        myLog("Deleting folder from Disk : [" + strPath + "]");
+        if (strPath==null) return false;
         if (strPath.endsWith("files/unzipped") || strPath.endsWith("files/unzipped/")) {
-            myLogE("You are not deleting all the books, malheureux !!");
+            myLogE("You are not deleting all the books, fucking dickhead !!");
             return false;
         }
         String starter = "file:///";
-        myLog("Deleting folder from Disk : [" + strPath + "]");
         if (strPath.length()>5) {
             if (!strPath.contains(PATH_CHECK_APPLICATION) ) { //strPath.startsWith(starter)
                 myLog("NO DISK DELETE : Not a folder in user data (" + PATH_CHECK_APPLICATION + "), skip deletion of folder");
