@@ -180,7 +180,7 @@ public class AddResourceActivity
                 handler.postDelayed(runnable, 5000);
 
             } else {
-                myToast(getString(R.string.Import_Success));
+                myToast(getString(R.string.Import_Success) + "\n" + tvTitle.getText());
                 finish();
             }
         });

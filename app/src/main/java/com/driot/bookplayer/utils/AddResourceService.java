@@ -78,7 +78,8 @@ public class AddResourceService
 
     /**
      * steps are
-     *   1  Init
+     *   0  Init
+     *   1  Download
      *   2  Scan for Audio Files
      *   3  Check Folder already exist
      *   4  Check Available space
@@ -87,15 +88,25 @@ public class AddResourceService
      *   7  Get File Duration
      *   8  finish
      */
-    public static final int[] PROGRESS_ZIP_COPY = {5, 5, 10, 20, 25, 50, 75, 90};
-    public static final int[] PROGRESS_ZIP_NOCOPY = {5, 5, 10, 20, 25, 50, 75, 90};
-    public static final int[] PROGRESS_FILE_COPY = {5, 5, 15, 30, 45, 90, 90, 95};
-    public static final int[] PROGRESS_FILE_NOCOPY = {5, 20, 40, 60, 90, 90, 90, 95};
-    public static final int[] PROGRESS_FOLDER_COPY = {5, 5, 15, 30, 45, 90, 90, 95};
-    public static final int[] PROGRESS_FOLDER_NOCOPY = {5, 20, 30, 40, 40, 40, 50, 95};
+    public static final int[] PROGRESS_DOWNLOAD = {2, 10, 50, 55, 65, 65, 65, 90, 99};
+    public static final int[] PROGRESS_ZIP_COPY = {5, 5, 5, 10, 20, 25, 50, 75, 90};
+    public static final int[] PROGRESS_ZIP_NOCOPY = {5, 5, 5, 10, 20, 25, 50, 75, 90};
+    public static final int[] PROGRESS_FILE_COPY = {5, 5, 5, 15, 30, 45, 90, 90, 95};
+    public static final int[] PROGRESS_FILE_NOCOPY = {5, 5, 20, 40, 60, 90, 90, 90, 95};
+    public static final int[] PROGRESS_FOLDER_COPY = {2, 2, 2, 15, 30, 45, 90, 90, 95};
+    public static final int[] PROGRESS_FOLDER_NOCOPY = {5, 5, 20, 30, 40, 40, 40, 50, 95};
+    public static final String[] PROGRESS_TEXT = {
+              "Initialization"
+            , "Download"
+            , "listing and sorting Tracks"
+            , "Check DB"
+            , "Check Disk"
+            , "Copy"
+            , "Unzip"
+            , "Duration"
+            , "End"
+    };
     public static int[] PROGRESS;
-
-    public static final String PROGRESS_SORTING_TEXT = "listing and sorting Tracks";
 
 
     private final IBinder binder = new AddResourceServiceBackgroundBinder();
@@ -103,7 +114,7 @@ public class AddResourceService
     private FolderAttrib myFolder;
     private ArrayList<String> audioFileArrayList;
     private final int[] InsertedFolderId = {0};
-    private int nbFileSaved, nbFileToSave;
+    private int nbFileSaved, nbFileToSave, nbFileScan;
 
     private Uri uri_given;
     private String url_given;
@@ -335,7 +346,7 @@ public class AddResourceService
 
     private void populateArrayListOfTracksFromFolder(DocumentFile dfPickedDir, boolean comingFromZip) {
         myLog("populateArrayListOfTracksFromFolder - DocumentFile [" + dfPickedDir.toString() + "]");
-        tellProgress(PROGRESS[1], "analysing folder content...");
+        tellProgress(PROGRESS[2], PROGRESS_TEXT[2]);
         //resetting uri
         Uri uri;
         if (comingFromZip) {
@@ -402,6 +413,8 @@ public class AddResourceService
         audioFileArrayList.add(df.getName());
     }
     private void addAudioFileRecursive(DocumentFile f0) {
+        tellProgress(PROGRESS[2], PROGRESS_TEXT[2]);
+        nbFileScan = 0;
         addAudioFileRecursive(f0,"");
     }
     private void addAudioFileRecursive(DocumentFile f0, String recursivFolder) {
@@ -412,9 +425,11 @@ public class AddResourceService
             } else {
                 if (f1.getType() != null) {
                     if (f1.getType().equals("audio/mpeg") || f1.getType().equals("audio/mp4")) {
+                        nbFileScan = nbFileScan + 1;
                         l_audioFilePath = recursivFolder + f1.getName();
                         myLog("* New Audio File : [" + l_audioFilePath + ']');
-                        tellProgress(20, "Scanning for Audio Files..... \n[" +  l_audioFilePath + ']');
+                        double progress = (double) nbFileScan%10/10;
+                        tellProgress((int) (PROGRESS[2] + (PROGRESS[3] - PROGRESS[2]) * progress), "Scanning for Audio Files..... \n[" +  l_audioFilePath + ']');
                         audioFileArrayList.add(l_audioFilePath);
                     }
                 }
@@ -429,6 +444,8 @@ public class AddResourceService
     public void init() {
         if (url_given==null && (type_given==null || uri_given==null)) {myLogE("init() - args=null");tellError("Init failed, args are null");return;}
         isBusy = true;
+        PROGRESS = PROGRESS_DOWNLOAD; // dummy progress, before real init
+        tellProgress(PROGRESS[0], PROGRESS_TEXT[0]);
         String strUriLog = uri_given==null ? "null" : uri_given.toString();
 
         myLog("....");
@@ -448,7 +465,8 @@ public class AddResourceService
                     tellError("This book has already been downloaded and imported as [" + strFolderName + "]");
                     return;
                 }
-                PROGRESS = PROGRESS_FILE_COPY;
+                PROGRESS = PROGRESS_DOWNLOAD;
+                tellProgress(PROGRESS[1], PROGRESS_TEXT[1]);
                 launchDownloadService(url_given,getFilesDir().getAbsolutePath() + "/" + FOLDER_DOWNLOAD);
             }).start();
             return;
@@ -534,14 +552,14 @@ public class AddResourceService
                 // TODO First thing : check if folder already exists, now checked after scan of files, just before DB insertion
                 //checkIfFolderAlreadyExist2();
 
-                tellProgress(PROGRESS[0], "checking Folder.");
+                tellProgress(PROGRESS[1], PROGRESS_TEXT[1]);
                 try {
                     dfPickedDir = DocumentFile.fromTreeUri(this, uri_given);
                 } catch (Exception e) {
                     tellError("Error reading picked Folder.... DocumentFile.fromTreeUri : " + e.getMessage());
                     break;
                 }
-                tellProgress(PROGRESS[1], PROGRESS_SORTING_TEXT);
+                tellProgress(PROGRESS[2], PROGRESS_TEXT[2]);
                 if (dfPickedDir == null) {
                     tellError("Error reading picked Folder... dfPickedDir is null");
                 } else {
@@ -600,7 +618,7 @@ public class AddResourceService
                         tellError(getString(R.string.Error_Import_FolderAlreadyImported) + "  [" + destinationFolderName + "]");
                     } else {
                         myLog("OK, folder doesn't already exist in DB");
-                        tellProgress(PROGRESS[2], getResources().getString(R.string.Import_Progress_check_not_already_imported));
+                        tellProgress(PROGRESS[3], PROGRESS_TEXT[3]);
                         copyFileLocal(uri_given
                                 , getFilesDir().getAbsolutePath() + "/" + FOLDER_UNZIPPED + "/" + destinationFolderName
                                 , destinationFolderName + ".zip"
@@ -630,7 +648,7 @@ public class AddResourceService
     }
 
     private void checkIfFolderAlreadyExist_inDB() {
-        tellProgress(PROGRESS[2], getResources().getString(R.string.Import_Progress_check_not_already_imported));
+        tellProgress(PROGRESS[3], PROGRESS_TEXT[3]);
         myLog("checkIfFolderAlreadyExist() - FolderName = [" + myFolder.getFolderName() + "]");
         new Thread(() -> {
             try {
@@ -655,7 +673,7 @@ public class AddResourceService
             saveFolder();
         } else {
             if (Option.getCopyFile(this)) {
-                tellProgress(PROGRESS[3], "preparing Folder copy...");
+                tellProgress(PROGRESS[4], PROGRESS_TEXT[4]);
                 if (type_given.equals("Folder")) {
                     String folderPath = getFilesDir().getAbsolutePath() + "/" + FOLDER_UNZIPPED + "/" + myFolder.getFolderName();
                     String fileName = myFolder.getFileName(this);
@@ -686,7 +704,7 @@ public class AddResourceService
 
 
     private void saveFolder() {
-        tellProgress(PROGRESS[6], "saving Book...");
+        tellProgress(PROGRESS[7], PROGRESS_TEXT[7]);
 
         final Time sFirstAccess = new Time(System.currentTimeMillis());
         final Date sLastAccess = new Date(System.currentTimeMillis());
@@ -706,7 +724,7 @@ public class AddResourceService
 
         InsertedFolderId[0] = (int) DatabaseClient.getInstance(this).getAppDatabase().FolderDao().insert(folder);
         myLog("Folder Saved in DB, ID=[" + InsertedFolderId[0] + "] - checking files");
-        tellProgress(PROGRESS[6],getResources().getString(R.string.Import_Progress_checkingFiles));
+        tellProgress(PROGRESS[7], PROGRESS_TEXT[7]);
         saveFiles();
     }
 
@@ -718,7 +736,7 @@ public class AddResourceService
         String txtProgress;
         for (String s : audioFileArrayList) {
             i++;
-            progress = (int) PROGRESS[6] + (i * 100 / audioFileArrayList.size())*(PROGRESS[7]-PROGRESS[6])/100;
+            progress = (int) PROGRESS[7] + (i * 100 / audioFileArrayList.size())*(PROGRESS[8]-PROGRESS[7])/100;
             txtProgress = progress + "% - " + getString(R.string.Add_resource_reading_file) + " n°" + i + "/" + audioFileArrayList.size() + "\n" + getFileNameFromPath(s);
             myLog("Registering track [" + s + "]");
             saveFile(s, InsertedFolderId[0], i);
@@ -912,7 +930,7 @@ public class AddResourceService
      */
     @Override
     public void downloadService_tellProgress(String progressText, int progressVal) {
-        tellProgress(PROGRESS[4] + progressVal * (PROGRESS[5] - PROGRESS[4]) / 100, progressText);
+        tellProgress(PROGRESS[1] + progressVal * (PROGRESS[2] - PROGRESS[1]) / 100, progressText);
     }
     @Override
     public void downloadService_tellEnd(String downloadedFileFullPath) {
@@ -937,7 +955,7 @@ public class AddResourceService
      */
     @Override
     public void copyFileService_tellProgress(String progressText, int progressVal) {
-        tellProgress(PROGRESS[4] + progressVal * (PROGRESS[5] - PROGRESS[4]) / 100, progressText);
+        tellProgress(PROGRESS[5] + progressVal * (PROGRESS[6] - PROGRESS[5]) / 100, progressText);
     }
     @Override
     public void copyFileService_tellEnd() {
@@ -962,7 +980,7 @@ public class AddResourceService
      */
     @Override
     public void unzipService_tellProgress(String progressText, int progressVal) {
-        tellProgress(PROGRESS[5] + progressVal * (PROGRESS[6] - PROGRESS[5]) / 100, progressText);
+        tellProgress(PROGRESS[6] + progressVal * (PROGRESS[7] - PROGRESS[6]) / 100, progressText);
     }
     @Override
     public void unzipService_tellError(String errorText) {
@@ -972,7 +990,7 @@ public class AddResourceService
     @Override
     public void unzipService_tellEnd(String destinationFolderPath) {
         myLog("Unzip Service tells End : [" + destinationFolderPath + "]");
-        tellProgress(PROGRESS[6], PROGRESS_SORTING_TEXT);
+        tellProgress(PROGRESS[7], PROGRESS_TEXT[7]);
         DocumentFile dfPickedDir;
         try {
             dfPickedDir = DocumentFile.fromFile(new File(destinationFolderPath));

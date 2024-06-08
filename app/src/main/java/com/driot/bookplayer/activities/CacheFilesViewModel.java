@@ -87,7 +87,7 @@ public class CacheFilesViewModel extends AndroidViewModel {
     }
     private int getBookFolderId(File file) {
         int idFolder = 0;
-        if (filesFromDb != null) {
+        if (filesFromDb != null && filesFromDb.getValue() != null) {
             for (ZikFile f : filesFromDb.getValue()) {
                 if (file.getPath().equals(f.getPath())) {
                     idFolder = f.getIdFolder();
@@ -95,7 +95,7 @@ public class CacheFilesViewModel extends AndroidViewModel {
                 }
             }
         } else {
-            myLogE("distinctZikFilePaths == null");
+            myLogE("getBookFolderId() -> 0");
         }
         myLog("getBookFolderId for [" + file.getPath() + "] => [" + idFolder + "]");
         return idFolder;

@@ -40,7 +40,6 @@
         <activity android:name=".activities.LogListActivity" />
         <activity android:name=".activities.StatsActivity" />
         <activity android:name=".activities.CacheFilesActivity" />
-        <activity android:name=".activities.DownloadActivity" />
 
         <service
             android:name=".utils.AudioService"

@@ -133,6 +133,7 @@ public class FolderModifyActivity extends LifecycleLoggingActivity {
     }
 
     private void resetFolder() {
+        myLog("resetFolder()");
         new Thread(() -> {
             AppDatabase.getDatabase(this).FolderDao().resetProgression(idFolder);
             AppDatabase.getDatabase(this).ZikFileDao().resetFolderProgression(idFolder);
@@ -141,7 +142,7 @@ public class FolderModifyActivity extends LifecycleLoggingActivity {
                 myToast(getString(R.string.Folder_Reset));
                 finish();
             });
-        });
+        }).start();
     }
 
     //--- LOG --------------------------
