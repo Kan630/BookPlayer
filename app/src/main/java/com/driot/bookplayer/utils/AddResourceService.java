@@ -37,13 +37,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Objects;
 
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
-import io.reactivex.rxjava3.core.Observable;
-import io.reactivex.rxjava3.schedulers.Schedulers;
-
 import static com.driot.bookplayer.global.Var.FOLDER_DOWNLOAD;
 import static com.driot.bookplayer.global.Var.FOLDER_UNZIPPED;
 import static com.driot.bookplayer.global.Var.PATH_CHECK_AUTOTEST;
+import static com.driot.bookplayer.utils.Tonio.formatMem;
 import static com.driot.bookplayer.utils.Tonio.formatNameForDisplay;
 import static com.driot.bookplayer.utils.Tonio.fileExists;
 import static com.driot.bookplayer.utils.Tonio.getFileNameFromPath;
@@ -100,7 +97,7 @@ public class AddResourceService
             , "Download"
             , "listing and sorting Tracks"
             , "Check DB"
-            , "Check Disk"
+            , "Check enough space on Disk"
             , "Copy"
             , "Unzip"
             , "Duration"
@@ -113,6 +110,7 @@ public class AddResourceService
 
     private FolderAttrib myFolder;
     private ArrayList<String> audioFileArrayList;
+    private long fullFolderSize;
     private final int[] InsertedFolderId = {0};
     private int nbFileSaved, nbFileToSave, nbFileScan;
 
@@ -120,7 +118,6 @@ public class AddResourceService
     private String url_given;
     private String type_given;
     private String destinationFolderName;
-    private String destinationFolderPath;
     private String zipDestinationFolderPath;
     private String zipDestinationFolderName;
 
@@ -204,13 +201,15 @@ public class AddResourceService
             }
         }
     };
-    private void launchCopyFileService(Uri uri, String destinationFolderPath, String destinationFileName, String type) {
+    private void launchCopyFileService(Uri uri, String destinationFolderPath, String destinationFileName, String type, boolean checkSize, long forceSize) {
         myLog("launchCopyFileService()");
         Intent intentCopyFileService = new Intent(this, CopyFileService.class);
         intentCopyFileService.putExtra("Uri", uri);
         intentCopyFileService.putExtra("destinationFolderPath", destinationFolderPath);
         intentCopyFileService.putExtra("destinationFileName", destinationFileName);
         intentCopyFileService.putExtra("type", type);
+        intentCopyFileService.putExtra("checkSize", checkSize);
+        intentCopyFileService.putExtra("forceSize", forceSize);
         //copiedZipFileFullPath = destinationFolderPath + "/" + destinationFileName;
         boundToCopyFileService = false;
         try {
@@ -398,6 +397,7 @@ public class AddResourceService
                         myLog("No File found in directory : [" + finalDfPickedDir.getName() + ']');
                     } else {
                         myLog(audioFileArrayList.size() + " files found in directory : [" + finalDfPickedDir.getName() + ']');
+                        myLog("Full directoy size : [" + formatMem(fullFolderSize/1024/1024,0) + " Mo]");
                     }
                     goFolder();
                 });
@@ -415,10 +415,12 @@ public class AddResourceService
     private void addAudioFileRecursive(DocumentFile f0) {
         tellProgress(PROGRESS[2], PROGRESS_TEXT[2]);
         nbFileScan = 0;
+        fullFolderSize = 0;
         addAudioFileRecursive(f0,"");
     }
     private void addAudioFileRecursive(DocumentFile f0, String recursivFolder) {
         String l_audioFilePath;
+        long l_audioSize;
         for (DocumentFile f1 : f0.listFiles()) {
             if (f1.isDirectory()) {
                 addAudioFileRecursive(f1,recursivFolder + f1.getName() + '/');
@@ -427,10 +429,12 @@ public class AddResourceService
                     if (f1.getType().equals("audio/mpeg") || f1.getType().equals("audio/mp4")) {
                         nbFileScan = nbFileScan + 1;
                         l_audioFilePath = recursivFolder + f1.getName();
-                        myLog("* New Audio File : [" + l_audioFilePath + ']');
+                        l_audioSize = f1.length();
+                        myLog("* New Audio File : [" + l_audioFilePath + "] - size = [" + l_audioSize + "]");
                         double progress = (double) nbFileScan%10/10;
                         tellProgress((int) (PROGRESS[2] + (PROGRESS[3] - PROGRESS[2]) * progress), "Scanning for Audio Files..... \n[" +  l_audioFilePath + ']');
                         audioFileArrayList.add(l_audioFilePath);
+                        fullFolderSize = fullFolderSize + l_audioSize;
                     }
                 }
             }
@@ -602,18 +606,9 @@ public class AddResourceService
                 // check Not Already Imported
                 //*****************************
                 myLog("Checking Folder doesn't already exist in DB : " + destinationFolderName);
-                Observable.fromCallable(() -> {
-                    boolean bcheckIfFolderExist = false;
-                    long lcheckIfFolderExist = DatabaseClient
-                            .getInstance(getApplicationContext())
-                            .getAppDatabase()
-                            .FolderDao()
-                            .folderAlreadyExist_checkFolderName(destinationFolderName);
-                    if (lcheckIfFolderExist>0) { bcheckIfFolderExist = true;}
-                    return bcheckIfFolderExist;
-                    //TODO if only name the same, just import with a new name... but is this possible ? wanted ?
-                }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(result -> {
-                    if (result) {
+                new Thread(() -> {
+                    long lCheck = AppDatabase.getDatabase(this).FolderDao().folderAlreadyExist_checkFolderName(destinationFolderName);
+                    if (lCheck>0) {
                         myLogE("KO, folder does already exist in DB : [" + destinationFolderName + "]");
                         tellError(getString(R.string.Error_Import_FolderAlreadyImported) + "  [" + destinationFolderName + "]");
                     } else {
@@ -623,11 +618,9 @@ public class AddResourceService
                                 , getFilesDir().getAbsolutePath() + "/" + FOLDER_UNZIPPED + "/" + destinationFolderName
                                 , destinationFolderName + ".zip"
                                 , type_given
-                                ); //launch a service, next step through callbacks
+                        ); //launch a service, next step through callbacks
                     }
-                }, throwable -> {
-                    tellError(getResources().getString(R.string.Error_Import_checking_Folder_Exists) + " : [" + throwable.getMessage() + "]");
-                });
+                }).start();
                 return;
         default:
                 myLogE("Incorrect type : **" + type_given + "**");
@@ -898,21 +891,23 @@ public class AddResourceService
             this.zipDestinationFolderPath = destinationFolderPath;
             this.zipDestinationFolderName = destinationName;
         }
-        long fileSize = -1L;
-        File externalFile = new File(Objects.requireNonNull(uri.getPath()));
-        if (externalFile.exists()) fileSize = externalFile.length();
-        if (fileSize > 0) {
-            myLog("ze Size : " + fileSize);
-        } else {
-            myLog("ERR : Cannot Check Size .... Size = " + fileSize + " .... Never Mind... let's copy");
+        boolean checkSize = true;
+        long forceSize = -1;
+        if ("Folder".equals(type_given)) {
+            checkSize = true;
+            forceSize = fullFolderSize;
         }
+
         myLog("Future Folder Path : [" + destinationFolderPath + "]");
         myLog("call to launchCopyFileService " +
                 "\n.   from Uri [" + uri + "] " +
                 "\n.   to Folder [" + destinationFolderPath + "] " +
                 "\n.   with Name [" + destinationName + "]" +
-                "\n.   for type = [" + type_given + "]");
-        launchCopyFileService(uri, destinationFolderPath, destinationName, type_given);
+                "\n.   for type = [" + type_given + "]" +
+                "\n.   checkSize = [" + checkSize + "]" +
+                "\n.   checkSize = [" + forceSize + "]"
+        );
+        launchCopyFileService(uri, destinationFolderPath, destinationName, type_given, checkSize, forceSize);
     }
 
     private void unzipZipLocal(String zeZipFilePath, String zeDestinationFolderPath) {

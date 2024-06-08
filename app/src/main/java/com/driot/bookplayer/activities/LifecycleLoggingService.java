@@ -57,13 +57,13 @@ public abstract class LifecycleLoggingService extends Service {
 
     @Override
     public void onTrimMemory (int level) {
-        myLog("onTrimMemory() - level=[" + level + "]  (should not be compared, cf doc)");
+        myLogE("onTrimMemory() - level=[" + level + "]  (should not be compared, cf doc)");
         super.onTrimMemory(level);
     }
 
     @Override
     public void onLowMemory() {
-        myLog("onLowMemory()");
+        myLogE("onLowMemory()");
         super.onLowMemory();
     }
 
@@ -75,7 +75,7 @@ public abstract class LifecycleLoggingService extends Service {
 
     @Override
     public void onTimeout(int startId) {
-        myLog("onTrimMemory() - startId=[" + startId + "]");
+        myLogE("onTrimMemory() - startId=[" + startId + "]");
         super.onTimeout(startId);
     }
 

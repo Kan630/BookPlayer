@@ -1,10 +1,15 @@
 package com.driot.bookplayer.utils;
 
+import static android.os.FileUtils.closeQuietly;
+import static com.driot.tonylib.KanLogger.myLog;
+import static com.driot.tonylib.KanLogger.myLogE;
+
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.ContentResolver;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.ParcelFileDescriptor;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
@@ -21,6 +26,7 @@ public class FileUtils {
     }
 
     public static long calculateFolderSize(Context context, Uri uri) throws IOException {
+        myLog("calculateFolderSize()");
         long totalSize = 0;
         ContentResolver contentResolver = context.getContentResolver();
         Uri childrenUri = DocumentsContract.buildChildDocumentsUriUsingTree(uri, DocumentsContract.getTreeDocumentId(uri));
@@ -44,32 +50,67 @@ public class FileUtils {
         return totalSize;
     }
 
-    public static void copyFolder(Context context, Uri sourceUri, File destinationFolder, ProgressListener listener) throws IOException {
+    public static void copyFolder(Context context, Uri sourceUri, File destinationFolder, long forceSize, ProgressListener listener) throws IOException {
         if (!destinationFolder.exists()) {
             destinationFolder.mkdirs();
         }
 
         ContentResolver contentResolver = context.getContentResolver();
-        Uri childrenUri = DocumentsContract.buildChildDocumentsUriUsingTree(sourceUri, DocumentsContract.getTreeDocumentId(sourceUri));
-        long totalSize = calculateFolderSize(context, sourceUri);
-        long[] copiedSize = {0};
+        Uri childrenUri;
+        try {
+            //for childs and sub child dirs
+            childrenUri = DocumentsContract.buildChildDocumentsUriUsingTree(sourceUri, DocumentsContract.getDocumentId(sourceUri));
+        } catch (Exception e) {
+            //for parent dir
+            childrenUri = DocumentsContract.buildChildDocumentsUriUsingTree(sourceUri, DocumentsContract.getTreeDocumentId(sourceUri));
+        }
 
-        try (Cursor cursor = contentResolver.query(childrenUri, new String[]{DocumentsContract.Document.COLUMN_DOCUMENT_ID, DocumentsContract.Document.COLUMN_DISPLAY_NAME, DocumentsContract.Document.COLUMN_MIME_TYPE}, null, null, null)) {
+
+
+        myLog("copyFolder() - " + childrenUri.toString());
+
+        listener.onProgressUpdate(0, 0);
+
+        long totalSize; //used to update progressBar
+        if (forceSize>0) {
+            totalSize = forceSize;
+            listener.onProgressUpdate(20, 0);
+        } else {
+            totalSize = calculateFolderSize(context, sourceUri);
+        }
+        long[] copiedSize = {0};
+        Cursor cursor = null;
+        try {
+            cursor = contentResolver.query(childrenUri,
+                    new String[]{DocumentsContract.Document.COLUMN_DOCUMENT_ID
+                            , DocumentsContract.Document.COLUMN_DISPLAY_NAME
+                            , DocumentsContract.Document.COLUMN_MIME_TYPE}
+                    , null, null, null);
             if (cursor != null) {
                 while (cursor.moveToNext()) {
                     String documentId = cursor.getString(0);
                     String displayName = cursor.getString(1);
                     String mimeType = cursor.getString(2);
+                    myLog(documentId + " /// " + displayName + " /// " + mimeType);
 
                     Uri documentUri = DocumentsContract.buildDocumentUriUsingTree(sourceUri, documentId);
 
                     if (DocumentsContract.Document.MIME_TYPE_DIR.equals(mimeType)) {
+                        //File subDir = new File(destinationFolder, displayName);
                         File subDir = new File(destinationFolder, displayName);
-                        copyFolder(context, documentUri, subDir, listener);
+                        copyFolder(context, documentUri, subDir, forceSize, listener);
                     } else {
                         copyFile(context, documentUri, new File(destinationFolder, displayName), totalSize, copiedSize, listener);
                     }
                 }
+            } else {
+                myLog("cursor is null");
+            }
+        } catch (Exception e) {
+            myLogE("error + " + e.getMessage());
+        } finally {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                closeQuietly(cursor);
             }
         }
     }
@@ -161,4 +202,5 @@ public class FileUtils {
         }
         return null;
     }
+
 }

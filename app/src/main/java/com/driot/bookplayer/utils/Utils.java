@@ -5,6 +5,7 @@ import static com.driot.tonylib.KanLogger.myLogE;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.util.Pair;
 import android.view.View;
 
 import java.io.BufferedInputStream;

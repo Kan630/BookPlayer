@@ -49,6 +49,8 @@ public class CopyFileService extends LifecycleLoggingService {  //IntentService 
     private String destinationFolderPath;
     private String destinationFileName;
     private String type;
+    private boolean checkSize;
+    private long forceSize;
 
     private File inFile;
 
@@ -98,11 +100,15 @@ public class CopyFileService extends LifecycleLoggingService {  //IntentService 
         destinationFolderPath = intent.getStringExtra("destinationFolderPath");
         destinationFileName = intent.getStringExtra("destinationFileName");
         type = intent.getStringExtra("type");
+        checkSize = intent.getBooleanExtra("checkSize", true);
+        forceSize = intent.getLongExtra("forceSize", 0);
         myLog("parseIntent() ..   " +
                 "\n.    from uri = [" + uri.toString() + "] " +
                 "\n.    to folder = [" + destinationFolderPath + "] " +
                 "\n.    with name = [" + destinationFileName + "]" +
-                "\n.    for type = [" + type + "]"
+                "\n.    for type = [" + type + "]" +
+                "\n.    check size = [" + checkSize + "]" +
+                "\n.    force size = [" + forceSize + "]"
         );
     }
 
@@ -134,37 +140,14 @@ public class CopyFileService extends LifecycleLoggingService {  //IntentService 
 
         myLog("init() - ** INIT DONE ** launching backThread copy ");
         Thread backgroundThread = new Thread(() -> {
-            Boolean ret = copyLocal();
+            Boolean ret = copyLocal(checkSize);
         });
         backgroundThread.start();
     }
 
 
-    private boolean copyLocal() {
-        return copyLocal(true);
-    }
 
     private boolean copyLocal(boolean doCheckSize) {
-        //___________________________________
-        // == Make Folder
-        //___________________________________
-        File destinationFolderFile = new File(destinationFolderPath);
-        try {
-            if (!destinationFolderFile.exists()) {
-                if (!destinationFolderFile.mkdirs()) {
-                    tellError(getResources().getString(R.string.Error_Import_Creating_Folders) + " for path : " + destinationFolderFile);
-                    return false;
-                } else {
-                    myLog("folder created : [" +  destinationFolderPath + "]");
-                }
-            }
-        } catch (Exception e) {
-            tellError(getResources().getString(R.string.Error_Import_Creating_Folders));
-            return false;
-        }
-        myLog("okay folder");
-
-
         //___________________________________
         // == Checking memory before copy
         //___________________________________
@@ -174,11 +157,14 @@ public class CopyFileService extends LifecycleLoggingService {  //IntentService 
             long size_coef = type.equals("ZIP") ? ZIP_SIZE_MAX_COEF : 1;
 //Folder
             if (type.equals("Folder")) {
+                file_size = forceSize;
+                /*   // Below produce StackOverFlow !!
                 try {
                     file_size = FileUtils.calculateFolderSize(this, uri);
                 } catch (Exception e) {
                     myLogE("Folder getSize - KO : " + e.getMessage());
                 }
+                 */
 //File
             } else {
                 try {
@@ -235,15 +221,38 @@ public class CopyFileService extends LifecycleLoggingService {  //IntentService 
             myLog("WARNING - copyLocal - bypass check storage space");
         }
 
+        //___________________________________
+        // == Make Folder
+        //___________________________________
+        File destinationFolderFile = new File(destinationFolderPath);
+        try {
+            if (!destinationFolderFile.exists()) {
+                if (!destinationFolderFile.mkdirs()) {
+                    tellError(getResources().getString(R.string.Error_Import_Creating_Folders) + " for path : " + destinationFolderFile);
+                    return false;
+                } else {
+                    myLog("folder created : [" +  destinationFolderPath + "]");
+                }
+            }
+        } catch (Exception e) {
+            tellError(getResources().getString(R.string.Error_Import_Creating_Folders));
+            return false;
+        }
+        myLog("okay folder");
 
 
+
+        //___________________________________
+        // == start COPY
+        //___________________________________
 
 //Folder
         if (type.equals("Folder")) {
+            tellProgress(0,"starting copy");
             try {
                 //FileUtils.copyFolder(this, uri, destinationFolderPath , progress -> runOnUiThread(() ->
                 long finalFile_size = file_size;
-                FileUtils.copyFolder(this, uri, new File(destinationFolderPath), (progress, nbMoCopied) -> {
+                FileUtils.copyFolder(this, uri, new File(destinationFolderPath), forceSize, (progress, nbMoCopied) -> {
                             //this.progress = progress;
                             //this.mbCopied = mbCopied;
                             //runOnUiThread(() -> { Updating the UI with progress and MB copied values, like progressBar.setProgress(progress);

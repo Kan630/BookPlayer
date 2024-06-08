@@ -4,11 +4,10 @@ import android.content.Context;
 
 import androidx.sqlite.db.SimpleSQLiteQuery;
 
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
-import io.reactivex.rxjava3.core.Observable;
-import io.reactivex.rxjava3.schedulers.Schedulers;
-
+import static com.driot.tonylib.KanLogger.myLog;
 import static com.driot.tonylib.KanLogger.myLogE;
+
+import com.driot.tonylib.KanLogger;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 10/12/20
@@ -31,19 +30,17 @@ public class Sql {
 
         SimpleSQLiteQuery query = new SimpleSQLiteQuery(strSQL);
 
-        Observable.fromCallable(() -> DatabaseClient
-                .getInstance(c)
-                .getAppDatabase()
-                .FolderDao()
-                .runRawSql(query))
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(result -> {
-                    //myLog("calculateFolderProgress done");
-                }, throwable -> {
-                    myLogE("calculateFolderProgress error :" + throwable.getMessage());
-                    throwable.printStackTrace();
-                });
-
+        new Thread(() -> {
+            try {
+                int result = AppDatabase.getDatabase(c).FolderDao().runRawSql(query);
+                if (result > 0) {
+                    myLog("calculateFolderProgress done");
+                } else {
+                    myLogE("calculateFolderProgress error from result SQL");
+                }
+            } catch (Exception e) {
+                myLogE("calculateFolderProgress - Exception : " + e.getMessage());
+            }
+        }).start();
     }
 }
