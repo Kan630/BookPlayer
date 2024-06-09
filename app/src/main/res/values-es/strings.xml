@@ -340,7 +340,7 @@
     <string name="permission_read_write_denied">Permiso [Leer Audio] denegado.
         \n\nHaz clic en [Información de la aplicación] para activar los permisos manualmente.
         \n\nO
-        \n\nHaz clic en [Opciones] para activar la opción 'Copiar archivo internamente' de la aplicación.
+        \n\nHaz clic en [Opciones] para activar la opción [Copiar archivo internamente] de la aplicación.
         \n<i>Luego, tus archivos de audio se copiarán en la memoria interna de Bookplayer y no necesitarás ningún permiso para leerlos.</i>
     </string>
 

@@ -338,7 +338,7 @@
     <string name="permission_read_write_denied">Autorisation [Lire Audio] refusée.
         \n\nCliquez sur [Infos App] pour activer les autorisations manuellement.
         \n\nOu
-        \n\nCliquez sur [Options] pour activer l\'option de l\'application \'Copier Fichier en interne\'.
+        \n\nCliquez sur [Options] pour activer l\'option de l\'application [Copier Fichier en interne].
         \n<i>Ensuite, vos fichiers audio seront copiés dans la mémoire interne de Bookplayer et vous n\'aurez plus besoin d\'aucune autorisation pour les lire.</i>
     </string>
 
