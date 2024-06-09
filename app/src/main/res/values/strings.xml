@@ -85,16 +85,6 @@
         \n\n<b>[Notifications]</b> may be needed on some devices (Android 14+). It is used to display the command widget on the lock screen. <i>(Usually it displays straight away without permission being even asked.)</i>
 
     </string>
-<!--
-    <string name="help_head_20">Options :</string>
-    <string name="help_text_20">
-        */ <b>AutoSleep/AutomaticPause</b>  => BookPlayer will stop playing after XX minutes of inactivities. (useful if you fall asleep)
-        */ <b>Copy files internally</b> => When you import a Zip file in Bookplayer, for example from your phone Download folder, Bookplayer will then, upon successful integration, delete this file
-        */ <b>Automatic source file deletion</b> => When you import a Zip file in Bookplayer, for example from your phone Download folder, Bookplayer will then, upon successful integration, delete this file
-        */ <b>Freeze Bookplayer Orientation</b> in Portrait Mode while playing audios.
-        */ <b>Custom duration</b> for fast forward (>>) and rewind (&lt;&lt;) buttons.
-    </string>
--->
 
 
     <!-- ********************************** -->
