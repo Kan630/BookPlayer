@@ -15,6 +15,7 @@ import android.provider.Settings;
 import android.text.Html;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -183,6 +184,13 @@ public class OptionActivity extends LifecycleLoggingActivity {
             TextView tv = findViewById(R.id.txtCopyFileHead);
             tv.setTextColor(Color.RED);
         }
+
+        Button btn_color_picker = findViewById(R.id.btn_color_picker);
+        btn_color_picker.setOnClickListener(view -> {
+            Intent intent = new Intent(this, ColorPickerActivity.class);
+            startActivity(intent);
+
+        });
 
         // TODO : allows options
         chk_UnZip.setEnabled(false);
