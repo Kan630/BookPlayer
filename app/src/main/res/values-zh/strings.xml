@@ -1,0 +1,357 @@
+<resources>
+    <string name="app_name" translatable="false">BookPlayer</string>
+    <string name="three_dots" translatable="false">…</string>
+    <string name="lorem_ipsum" translatable="false">lorem ipsum</string>
+
+    <string name="yesterday">"昨天"</string>
+    <string name="ERROR">"错误"</string>
+    <string name="downloading" translatable="false">下载中…</string>
+    <string name="app_info">应用信息</string>
+    <string name="delete_logs">删除日志</string>
+    <string name="delete">删除</string>
+    <string name="title_FolderList">文件夹列表</string>
+    <string name="title_FolderContent">文件列表</string>
+    <string name="PlayerActivity_Title" translatable="false">TextBook Player</string>
+
+    <string name="yes">是</string>
+    <string name="no">否</string>
+    <string name="cancel">取消</string>
+    <string name="are_you_sure">"你确定吗？"</string>
+
+    <string name="asset_statements" translatable="false">
+    [{
+      \"include\": \"https://bookplayer.driot.com/.well-known/assetlinks.json\"
+    }]
+    </string>
+
+    <!-- ********************************** -->
+    <!-- HELP Screen -->
+
+    <string name="help">帮助</string>
+
+    <string name="help_folder">文件夹：</string>
+    <string name="help_folder_text">"长按文件夹会打开[修改文件夹]页面。
+    \n然后您可以重命名/删除/重置进度"</string>
+
+    <string name="help_file">音轨：</string>
+    <string name="help_file_text">"长按音轨会打开[修改音轨]页面。
+    \n然后您可以重命名/更改顺序/删除/重置进度"</string>
+
+    <string name="help_import">导入：</string>
+    <string name="help_import_text">"首先选择一个文件/文件夹/zip。
+        \n然后，根据您的设置（在菜单/选项中），有两种可能：
+        \n
+        \n<b>选项1：</b> Bookplayer将首先将音频复制到Bookplayer的内部存储，然后从那里读取。
+        \n
+        \n<b>选项2：</b> Bookplayer将只记录位置以便直接从设备的一般存储中播放音频（例如，从下载文件夹、音乐文件夹或任何文件夹中）
+        \n
+        \n<i>（注意，ZIP文件内容始终被复制。此选项仅适用于单个文件和文件夹）</i>
+        \n
+        \n<b>选项1：</b> 您甚至不需要[读取音频]权限。
+        \n此外，如果您从主存储中删除文件或移动它，那都无关紧要。您不会丢失您的书籍和进度。
+        \n
+        \n<b>选项2：</b> 您将节省空间。（但如果您随后从主存储中删除源文件，也将如此）。
+        \n
+        \n菜单/选项中还有另一个设置，允许您在导入后自动删除源文件。
+        \n如果您加载到Bookplayer中的所有书籍不需要被其他应用使用，请激活该选项。
+    </string>
+
+    <string name="help_trouble">导入问题：</string>
+    <string name="help_trouble_text">"如果导入音频时遇到问题：
+        \nZIP：在文件选择器中，如果点击ZIP显示ZIP内容而不是让您选择ZIP，请尝试长按ZIP。
+        \nZIP：如果解压失败，请尝试使用其他应用程序先解压。
+        \n如果从下载文件夹中选择音频时有问题，请尝试将它们移出'下载'文件夹。" </string>
+
+    <string name="help_cachefiles">内存清理：</string>
+    <string name="help_cachefiles_text">现在有一个特定视图来检查Bookplayer内部存储的内容。
+        \n
+        \n它允许您查看哪些书籍占用大量空间。您可以在此处删除其中一些。
+        \n
+        \n请注意，这里只会显示已复制到Bookplayer内部保留存储中的书籍。
+        \n即，所有来自ZIP文件的音频，+所有从单个文件/文件夹加载且已启用[复制]设置的音频（在菜单/选项中）
+    </string>
+
+    <string name="help_permission">权限：</string>
+    <string name="help_permission_text">"BookPlayer可以在没有任何权限的情况下运行。
+        \n有3个主要权限：
+        \n<b>[音乐和音频]</b>（= [读取音频] = [外部存储]）从设备的一般存储中读取音频（例如下载文件夹，音乐文件夹或任何其他文件夹）
+        \n\n<b>[麦克风]</b>（= [录音]）需要显示频谱可视化工具（声音频谱显示）。如果被拒绝，只是不会显示，没有问题。
+        \n\n<b>[通知]</b>在某些设备上可能需要（Android 14+）。用于在锁屏上显示命令小部件。<i>（通常它会立即显示，无需请求权限。）</i>
+    </string>
+
+    <!-- ********************************** -->
+    <!-- Options Screen -->
+
+    <string name="option_timeBeforeSleep">自动暂停</string>
+    <string name="option_timeBeforeSleep_text">后：</string>
+    <string name="option_timeBeforeSleep_min">分钟</string>
+    <string name="option_timeBeforeSleep_outOfBound">Argg：自动暂停时长超出范围，重置为默认值</string>
+
+    <string name="option_zip">ZIP文件</string>
+    <string name="option_copyzip_local">将文件复制到应用程序内存中（Android 11及以上必需）。</string>
+    <string name="option_unzip_local">解压文件（占用存储空间，但提供更流畅的聆听体验）</string>
+
+    <string name="option_copy_file_title">内部复制文件</string>
+    <string name="option_copy_file_subtitle"><i>优点：
+        \n* 无需[读取音频]权限。
+        \n* 如果源文件被意外删除/移动，无风险丢失有声书和进度。
+        \n缺点：
+        \n* 如果您不删除源文件，将需要更多内存。</i>
+    </string>
+    <string name="option_copy_file_text">将音频文件复制到内部保留的BookPlayer应用程序内存中。</string>
+
+    <string name="option_backward_forward_title">后退/前进按钮</string>
+    <string name="option_backward_forward_text">时间：</string>
+
+    <string name="option_rewind_after_pause_title">恢复播放时后退几秒</string>
+    <string name="option_rewind_after_pause_text">"如果暂停超过2分钟，恢复播放前后退3秒。" </string>
+
+    <string name="option_pick_theme_color_title">选择应用程序颜色主题</string>
+
+    <string name="option_orientation">屏幕方向</string>
+    <string name="option_orientation_lock">播放时锁定屏幕方向（最好保持开启）</string>
+
+    <string name="option_delete_source_file_title">自动删除源文件</string>
+    <string name="option_delete_source_file_subtitle"><i>将文件/文件夹/zip加载到BookPlayer后，可以自动删除所选的源文件/文件夹/zip。
+        \n注意，只有当音频已复制到内部存储中时才可能。
+        \n* ZIP文件始终内部复制。
+        \n* 单个音频文件和音频文件夹仅在启用上述选项[内部复制文件]时复制。</i></string>
+    <string name="option_delete_source_file_text_01">ZIP：将ZIP文件加载到Bookplayer后自动删除。</string>
+    <string name="option_delete_source_file_text_02">其他：将文件/文件夹加载到Bookplayer后自动删除。</string>
+    <string name="option_alert_delete_source_file_title">加载到Bookplayer的每个文件都将从设备中删除。</string>
+    <string name="option_alert_delete_source_file_message">你确定吗？</string>
+
+    <string name="option_mail_method">发送邮件</string>
+    <string name="option_mail_method_default">使用默认邮件应用程序。\n<i>取消选中以选择要使用的应用程序。</i></string>
+
+    <string name="option_beep_title">哔哔声</string>
+    <string name="option_beep_between_chapters">在章节结尾处发出哔哔声。</string>
+    <string name="option_beep_for_autostop">进入睡眠模式时发出长哔声<i>（XX分钟后自动暂停）</i></string>
+    <string name="option_beep_at_the_end">在书籍结束时发出三声哔声。</string>
+
+    <string name="option_visualizer_title">频谱可视化</string>
+    <string name="option_visualizer_text_01">播放音频时显示的简约频谱可视化工具。</string>
+    <string name="option_visualizer_text_02">需要[录音]/[麦克风]权限</string>
+    <string name="option_visualizer_permissions_granted">已授权</string>
+    <string name="option_visualizer_permissions_denied_01">已拒绝</string>
+    <string name="option_visualizer_permissions_denied_02">再次点击复选框以请求权限</string>
+
+    <!-- ********************************** -->
+    <!-- Get Resources -->
+
+    <string name="bOpenFile">打开单个文件</string>
+    <string name="bOpenFolder">打开文件夹</string>
+    <string name="bOpenZipFile">打开ZIP文件</string>
+    <string name="bSearchLibrivox" translatable="false">Librivox.org</string>
+    <string name="bSearchLitteratureaudio" translatable="false">Litteratureaudio.com</string>
+    <string name="bSearchGutenberg" translatable="false">https://marhamilresearch4.blob.core.windows.net/gutenberg-public/Website/index.html</string>
+    <string name="gutenberg_project">古腾堡计划</string>
+
+    <string name="TextHeaderOpen">打开设备上的音频</string>
+    <string name="bOpenFile_desc">如果您的音频由单个文件组成，请按此按钮选择该文件：</string>
+    <string name="bOpenFolder_desc">如果您的音频文件位于文件夹中，请按此按钮并选择该文件夹：
+    \n<i>注意：将加载所有音频，包括子文件夹中的音频。</i></string>
+    <string name="bOpenZipFile_desc">如果您的音频文件位于ZIP文件中，请按此按钮并选择该存档：</string>
+
+    <string name="TextHeaderSearch">在互联网上搜索免费有声书</string>
+    <string name="bSearchLibrivox_desc">从Librivox.org（主要是英语）搜索并下载一本书：</string>
+    <string name="bSearchlitteratureaudio_desc">从litteratureaudio.com（法语）搜索并下载一本书：</string>
+    <string name="bSearchGutenberg_desc">从古腾堡计划搜索并下载一本书（由AI生成的音频）：</string>
+    <string name="bSearchOpenCulture_desc">在Open Culture上搜索音频：</string>
+    <string name="bSearchExampleText">"上述网站仅为示例，互联网上有大量音频资源，您还可以下载大学讲座。" </string>
+
+    <string name="AutoTest_title">自动测试</string>
+    <string name="AutoTest_desc">自动下载和集成有声书，用于测试目的</string>
+    <string name="AutoTest_b1_text">选择1 - 小文件</string>
+    <string name="AutoTest_b2_text">选择2 - 中文件</string>
+    <string name="AutoTest_b3_text">选择3 - 大文件</string>
+
+    <!-- Add Resources -->
+
+    <string name="bAddRessource">添加内容</string>
+
+    <string name="Error_Import_Copying_zip_local">无法将zip从设备存储复制到保留的应用程序存储</string>
+    <string name="Error_Import_IsNotFolder">这看起来不像是一个文件夹</string>
+    <string name="Error_Import_IsNotFile">这看起来不像是一个文件</string>
+    <string name="Error_Import_FolderAlreadyImported">此文件夹已加载</string>
+    <string name="Error_Import_NoMediaInFolder">在此文件夹中找不到媒体</string>
+    <string name="Error_Import_FilePathKO">找不到文件路径 </string>
+    <string name="Error_Import_FolderPathKO">找不到文件夹路径 </string>
+    <string name="Error_Import_ZipFilePathKO">找不到zip文件路径 </string>
+    <string name="Error_Import_BetterTryNoDownloadFolder">尝试将音频资源移到其他位置（不是在下载文件夹中）</string>
+    <string name="Import_nMediaInFolder">在此文件夹中找到媒体</string>
+    <string name="Error_Import_ParsingZipFile">解析zip文件时出错</string>
+    <string name="Error_Import_ParsingZipFile2">抱歉，无法读取zip文件</string>
+    <string name="Error_Import_ParsingZipFile_advice">您可以先解压有声书，然后加载文件夹</string>
+    <string name="Error_Getting_Ressource_Name_from_Download_Folder">访问下载位置的资源时出错</string>
+    <string name="Add_resource_reading_file">分析文件</string>
+
+    <string name="Import_Progress_copying_zip_file">"正在复制源文件 \n- 从设备外部存储\n- 到Bookplayer应用程序内存"</string>
+    <string name="Import_Progress_unzipping_file">"正在解压文件：" </string>
+    <string name="Import_Progress_check_not_already_imported">"检查文件夹未被导入"</string>
+    <string name="Import_Progress_checkingFiles">"文件夹已保存 - 正在检查文件"</string>
+    <string name="Import_Progress_scanningFile">"正在扫描文件"</string>
+
+    <string name="Import_Progress_onGoing">"忙碌中…正在导入…"</string>
+
+    <string name="Error_Import_Creating_Folders">"无法创建文件夹"</string>
+    <string name="Error_Import_checking_Folder_Exists">"检查文件夹是否已存在于数据库中时出错"</string>
+    <string name="Error_Import_saving_file_DB">"将文件保存到数据库时出错"</string>
+    <string name="Error_Import_track_duration_zero">"获取音轨持续时间时出错（持续时间=0秒）"</string>
+    <string name="Error_Import_track_duration_nofile">"获取音轨持续时间时出错（文件未找到）"</string>
+    <string name="Error_Import_track_duration_extraction">"获取音轨持续时间时出错"</string>
+    <string name="Error_Import_computing_folder_duration">"计算文件夹持续时间总和时出错"</string>
+
+    <string name="Error_Import_UnableToUnzip_line1">解压文件时出错</string>
+    <string name="Error_Import_UnableToUnzip_line2">抱歉，您可以尝试导入已解压的文件夹</string>
+
+    <string name="Error_Import_NotEnoughMemory_line1">设备内存不足</string>
+    <string name="Error_Import_NotEnoughMemory_line2_1">可用内存： </string>
+    <string name="Error_Import_NotEnoughMemory_line3">要复制的源文件： </string>
+    <string name="Error_Import_NotEnoughMemory_line4_1">（您需要至少 </string>
+    <string name="Error_Import_NotEnoughMemory_line4_2"> 倍的源文件大小）</string>
+    <string name="Error_Import_NotEnoughMemory_line5_zip">您可以导入解压的mp3文件夹，而不是这个zip文件，以绕过此限制因素。</string>
+    <string name="Error_Import_NotEnoughMemory_line5_other">"您可以禁用'复制文件'步骤（在选项菜单中），以直接从主内存读取您的音频。"</string>
+
+    <string name="Error_Import_general_error">"发生错误，导入已停止"</string>
+
+    <string name="Error_ZikFilePositionOnlyDigits">"这里只能输入数字"</string>
+    <string name="Error_NameTooShort">"此名称太短"</string>
+
+    <string name="Import_Success">导入成功</string>
+
+    <!-- ********************************** -->
+    <!-- FolderModifyActivity -->
+
+    <string name="bDelete">"删除文件夹"</string>
+    <string name="bRenameFolder">"重命名文件夹"</string>
+    <string name="bRenameTrack">"重命名音轨"</string>
+    <string name="bRenameOk">"重命名"</string>
+    <string name="bMove">"更改位置"</string>
+    <string name="bMoveOk">"移动"</string>
+    <string name="bReset">"重置进度"</string>
+    <string name="Folder_Deleted_DB">书籍已删除！</string>
+    <string name="Folder_Deleted">"文件夹已删除"</string>
+    <string name="Folder_Renamed">"文件夹已重命名"</string>
+    <string name="Error_FolderNameTooShort">"文件夹名称至少应为2个字符"</string>
+    <string name="Folder_Reset">"文件夹进度已重置"</string>
+    <string name="ZikFile_RePositioned">"音轨已移动"</string>
+    <string name="ZikFile_Renamed">"音轨已重命名"</string>
+    <string name="ZikFile_Deleted">"音轨已删除"</string>
+
+    <string name="AskDelete_popupTitle">确认删除</string>
+    <string name="AskReset_popupTitle">确认重置</string>
+    <string name="DeleteLogs_AskConfirm">"您即将删除所有日志。
+                        \n你确定吗？"</string>
+    <string name="ModifyFolder_AskDelete">"您即将删除此文件夹及所有音轨
+                        \n你确定吗？"</string>
+    <string name="ModifyFolder_AskReset">"您即将重置此文件夹的进度
+                        \n你确定吗？"</string>
+    <string name="ModifyZikFile_AskDelete">"您即将删除此音轨
+                        \n你确定吗？"</string>
+
+    <string name="CacheFiles_AskDeleteAudioBook">"您即将删除此有声书"</string>
+
+    <!-- ********************************** -->
+    <!-- Zik File Adapter -->
+
+    <string name="Progression_reset_done">"进度已重置"</string>
+    <string name="ModifyFolder_AskDeleteProgressFromZikFile_Title">"确认重置"</string>
+    <string name="ModifyFolder_AskDeleteProgressFromZikFile_Text">"您即将重置此音频的进度
+                        \n你确定吗？"</string>
+
+    <!-- ********************************** -->
+    <!-- PlayActivity -->
+
+    <string name="back" translatable="false"><![CDATA[<]]></string>
+    <string name="play" translatable="false"><![CDATA[>]]></string>
+    <string name="rewind" translatable="false"><![CDATA[<<]]></string>
+    <string name="forward" translatable="false"><![CDATA[>>]]></string>
+    <string name="pause" translatable="false">||</string>
+    <string name="tvSpeed">速度</string>
+    <string name="tv_ListeningTime">用户未操作时长</string>
+    <string name="tv_TimeLeft">自动暂停前的剩余时间</string>
+    <string name="PlayActivity_ErrorOpeningTrack_FileNotFound">"打开音轨错误 - 文件未找到！"</string>
+    <string name="error_reading_track">"读取音轨错误！"</string>
+    <string name="error_file_not_found">"错误，文件未找到！"</string>
+    <string name="no_back_while_play">"播放音频时无法返回"</string>
+    <string name="current_position">当前位置</string>
+    <string name="total_time">时长</string>
+    <string name="file_name">文件名</string>
+    <string name="source_not_found">找不到或无法读取源文件。</string>
+    <string name="source_not_found_deleted">找不到源文件。它可能已被删除。</string>
+    <string name="source_file_path">源文件路径</string>
+    <string name="permission_not_set">未设置权限。</string>
+    <string name="permission_to_set">要设置，请点击下方按钮显示应用信息，然后转到[应用权限]部分并手动设置[音乐和音频]。
+        \n\n需要权限，因为读取的源文件不在Bookplayer的内部存储中。</string>
+    <string name="device_settings">Bookplayer设备设置</string>
+    <string name="notification_playlist_finished">书籍已完成！</string>
+    <string name="notification_auto_sleep">自动暂停！</string>
+
+    <!-- ********************************** -->
+    <!-- STATS activity -->
+
+    <string name="physical_storage_memory">物理存储内存</string>
+    <string name="version">版本</string>
+    <string name="miscellaneous">杂项</string>
+
+    <!-- ********************************** -->
+    <!-- Menus -->
+
+    <string name="action_menu_three_dot">菜单</string>
+    <string name="menu_three_dot">菜单</string>
+    <string name="menu_manual">手册</string>
+    <string name="menu_options">选项</string>
+    <string name="menu_otherapp">其他应用</string>
+    <string name="menu_sendmail">邮件开发者</string>
+    <string name="stats">统计</string>
+    <string name="menu_seeLog">查看日志</string>
+    <string name="menu_cacheFiles">清理</string>
+
+    <!-- ********************************** -->
+    <!-- OTHER APPS -->
+
+    <string name="otherApp_title">我的其他应用 :-)</string>
+    <string name="otherApp_droitpositif" translatable="false">Droit Positif</string>
+    <string name="otherApp_droitpositif_txt">主要的法国法律文本，即使离线也可用</string>
+    <string name="otherApp_deces" translatable="false">Dead Frogs</string>
+    <string name="otherApp_deces_txt">自70年代以来在法国去世的人</string>
+    <string name="otherApp_kankwiz" translatable="false">Kan Kwiz</string>
+    <string name="otherApp_kankwiz_txt">词汇和语言测验</string>
+
+    <!-- Action Bar -->
+
+    <string name="action_tailleCharPlus">字符大小 +</string>
+    <string name="action_tailleCharMoins">字符大小 -</string>
+    <string name="action_search">搜索</string>
+    <string name="action_debutTexte">回到顶部</string>
+
+    <!-- ********************************** -->
+    <!-- PERMISSIONS -->
+
+    <string name="permission_rationale">此活动需要以下权限：</string>
+    <string name="permissions_granted">权限已授予。</string>
+    <string name="permissions_denied">权限未授予。</string>
+    <string name="permissions_ok_button" translatable="false">OK</string>
+
+    <!-- Application specific permission strings -->
+    <string name="permission_read_write_rationale">Bookplayer需要[读取音频]权限（或设置[复制文件]选项）。</string>
+    <string name="permission_read_write_granted">已授予[读取音频]权限。</string>
+    <string name="permission_read_write_denied">已拒绝[读取音频]权限。
+        \n\n点击[应用信息]手动激活权限。
+        \n\n或者
+        \n\n点击[选项]激活应用的“内部复制文件”选项。
+        \n<i>然后，您的音频文件将被复制到Bookplayer的内部存储中，您无需任何权限即可读取它们。</i>
+    </string>
+
+    <string name="permission_record_audio_rationale">频谱可视化工具需要[录音]权限。</string>
+    <string name="permission_record_audio_granted">已授予[录音]权限。</string>
+    <string name="permission_record_audio_denied">频谱可视化工具将不显示。已拒绝[录音]权限。</string>
+    <string name="permission_record_audio_rationale_after_denied">BookPlayer无法再次请求已拒绝的权限。
+        \n\n您可以通过点击[应用信息]来绕过这一点。
+        \n这将打开设备上的Bookplayer设置。
+        \n\n然后转到“权限”部分，手动允许“麦克风”。</string>
+
+    <string name="permissions_denied_sorry_cannot">权限未授予，无法播放音频。</string>
+
+</resources>
