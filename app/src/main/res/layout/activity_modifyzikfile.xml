@@ -46,6 +46,7 @@
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="30dp"
             android:layout_marginTop="30dp"
+            android:paddingVertical="10sp"
             android:inputType="textMultiLine"
             android:textSize="20sp" />
 
@@ -66,6 +67,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="30dp"
             android:inputType="numberDecimal"
+            android:paddingVertical="6sp"
             android:textSize="20sp" />
 
         <Button

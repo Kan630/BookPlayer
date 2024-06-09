@@ -18,6 +18,7 @@ package com.driot.bookplayer.activities;
  */
 
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -188,6 +189,11 @@ public abstract class LifecycleLoggingActivity extends AppCompatActivity {
         if (LOG_LIFECYCLE_TRACE) myLog(TAG + "onNewIntent() + intent : " + intent.getAction());
     }
 
+    @Override
+    public void onConfigurationChanged(@NonNull Configuration newConfig) { //Notamment le changement de Locale
+        super.onConfigurationChanged(newConfig);
+        if (LOG_LIFECYCLE_TRACE) myLog(TAG + "onConfigurationChanged() newConfig=" + newConfig.toString());
+    }
 
     //private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
     private void myLog(String str) { KanLogger.myLog(LOG_TAG, str); }
