@@ -824,7 +824,6 @@ public class AudioService extends LifecycleLoggingService {
             startForeground(1, builder.build());
         } catch (Exception e) {
             myLogE("createNotification() - " + e.getMessage());
-            e.printStackTrace();
         }
     }
     private void createNotificationChannel() {
