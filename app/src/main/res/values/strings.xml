@@ -231,7 +231,7 @@
     <string name="Error_Import_NotEnoughMemory_line4_1">"(you need at least "</string>
     <string name="Error_Import_NotEnoughMemory_line4_2">" time the size of the source file)"</string>
     <string name="Error_Import_NotEnoughMemory_line5_zip">"You may import an unzipped mp3 folder instead of this zip file, to bypass this limiting factor."</string>
-    <string name="Error_Import_NotEnoughMemory_line5_other">"You may disable the 'CopyFile' step (in the option menu), so as to read directly your audios from main memory."</string>
+    <string name="Error_Import_NotEnoughMemory_line5_other">"You may disable the [CopyFile] step (in the option menu), so as to read directly your audios from main memory."</string>
 
     <string name="Error_Import_general_error">"Something bad happened, import has been stopped"</string>
 
