@@ -10,10 +10,6 @@
     <string name="delete_logs">Delete Logs</string>
     <string name="delete">Delete</string>
 
-
-
-
-
     <string name="title_FolderList">Folders List</string>
     <string name="title_FolderContent">Files List</string>
     <string name="PlayerActivity_Title" translatable="false">TextBook Player</string>

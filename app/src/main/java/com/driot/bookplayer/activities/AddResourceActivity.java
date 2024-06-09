@@ -77,7 +77,9 @@ public class AddResourceActivity
                     myLogE("error while using takePersistableUriPermission for selected URI - " + e.getMessage());
                 }
             }
-            putTitle(uri.getLastPathSegment());
+            if (uri != null) {
+                putTitle(uri.getLastPathSegment());
+            }
         }
 
         Intent intentAddResourceService = new Intent(this, AddResourceService.class);
