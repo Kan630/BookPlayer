@@ -185,13 +185,6 @@ public class OptionActivity extends LifecycleLoggingActivity {
             tv.setTextColor(Color.RED);
         }
 
-        Button btn_color_picker = findViewById(R.id.btn_color_picker);
-        btn_color_picker.setOnClickListener(view -> {
-            Intent intent = new Intent(this, ColorPickerActivity.class);
-            startActivity(intent);
-
-        });
-
         // TODO : allows options
         chk_UnZip.setEnabled(false);
         chk_copyZip.setEnabled(false);

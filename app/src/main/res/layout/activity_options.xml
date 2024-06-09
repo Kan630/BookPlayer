@@ -303,16 +303,6 @@
                     android:id="@+id/btn_color_06"
                     style="@style/OptionsColorButtons"/>
             </LinearLayout>
-            <LinearLayout
-                android:layout_height="wrap_content"
-                android:layout_width="fill_parent"
-                android:layout_marginTop="10sp"
-                >
-                <Button
-                    android:id="@+id/btn_color_picker"
-                    android:text="color_picker"
-                    style="@style/OptionsColorButtons"/>
-            </LinearLayout>
         </LinearLayout>
 
 
