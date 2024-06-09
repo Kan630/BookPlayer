@@ -1,20 +1,15 @@
 <resources>
     <string name="app_name" translatable="false">BookPlayer</string>
-    <string name="three_dots" translatable="false">…</string>
     <string name="lorem_ipsum" translatable="false">lorem ipsum</string>
 
     <string name="yesterday">"вчера"</string>
-    <string name="ERROR">"ОШИБКА"</string>
-    <string name="downloading" translatable="false">Загрузка…</string>
     <string name="app_info">Информация о приложении</string>
     <string name="delete_logs">Удалить логи</string>
     <string name="delete">Удалить</string>
-    <string name="title_FolderList">Список папок</string>
     <string name="title_FolderContent">Список файлов</string>
     <string name="PlayerActivity_Title" translatable="false">TextBook Player</string>
 
     <string name="yes">Да</string>
-    <string name="no">Нет</string>
     <string name="cancel">Отмена</string>
     <string name="are_you_sure">"Вы уверены?"</string>
 
@@ -26,8 +21,6 @@
 
     <!-- ********************************** -->
     <!-- HELP Screen -->
-
-    <string name="help">Помощь</string>
 
     <string name="help_folder">Папка :</string>
     <string name="help_folder_text">"Долгое нажатие на папку открывает страницу [изменить папку].
@@ -142,10 +135,6 @@
     <string name="bOpenFile">Открыть один файл</string>
     <string name="bOpenFolder">Открыть папку</string>
     <string name="bOpenZipFile">Открыть ZIP-файл</string>
-    <string name="bSearchLibrivox" translatable="false">Librivox.org</string>
-    <string name="bSearchLitteratureaudio" translatable="false">Litteratureaudio.com</string>
-    <string name="bSearchGutenberg" translatable="false">https://marhamilresearch4.blob.core.windows.net/gutenberg-public/Website/index.html</string>
-    <string name="gutenberg_project">Проект Гутенберг</string>
 
     <string name="TextHeaderOpen">Открыть аудиофайл на моем устройстве</string>
     <string name="bOpenFile_desc">Если ваш аудио состоит из одного файла, нажмите эту кнопку, чтобы выбрать его:</string>
@@ -154,9 +143,7 @@
     <string name="bOpenZipFile_desc">Если ваши аудиофайлы находятся в ZIP-файле, нажмите эту кнопку и выберите архив:</string>
 
     <string name="TextHeaderSearch">Поиск бесплатных аудиокниг в Интернете</string>
-    <string name="bSearchLibrivox_desc">Поиск и загрузка книги с Librivox.org (в основном на английском):</string>
     <string name="bSearchlitteratureaudio_desc">Поиск и загрузка книги с litteratureaudio.com (на французском):</string>
-    <string name="bSearchGutenberg_desc">Поиск и загрузка книги с проекта Гутенберг (аудио, сгенерированное ИИ):</string>
     <string name="bSearchOpenCulture_desc">Поиск аудио на Open Culture:</string>
     <string name="bSearchExampleText">"Указанные выше веб-сайты приведены в качестве примера, существует множество аудиоресурсов в Интернете, вы также можете загрузить университетские лекции."</string>
 
@@ -170,34 +157,23 @@
 
     <string name="bAddRessource">Добавить контент</string>
 
-    <string name="Error_Import_Copying_zip_local">Не удалось скопировать zip из памяти устройства в зарезервированную память приложения</string>
     <string name="Error_Import_IsNotFolder">Это не похоже на папку</string>
     <string name="Error_Import_IsNotFile">Это не похоже на файл</string>
     <string name="Error_Import_FolderAlreadyImported">Эта папка уже загружена</string>
     <string name="Error_Import_NoMediaInFolder">Медиафайлы в этой папке не найдены</string>
     <string name="Error_Import_FilePathKO">Не удается найти путь к файлу </string>
     <string name="Error_Import_FolderPathKO">Не удается найти путь к папке </string>
-    <string name="Error_Import_ZipFilePathKO">Не удается найти путь к zip-файлу </string>
     <string name="Error_Import_BetterTryNoDownloadFolder">Попробуйте переместить аудиоресурс в другое место (не в папку Загрузки) </string>
     <string name="Import_nMediaInFolder">медиафайлы найдены в этой папке</string>
-    <string name="Error_Import_ParsingZipFile">Ошибка разбора zip-файла</string>
-    <string name="Error_Import_ParsingZipFile2">Извините, не удается прочитать zip-файл</string>
-    <string name="Error_Import_ParsingZipFile_advice">Вы можете сначала распаковать аудиокнигу, а затем загрузить папку</string>
     <string name="Error_Getting_Ressource_Name_from_Download_Folder">Ошибка при доступе к ресурсу в папке Загрузки</string>
     <string name="Add_resource_reading_file">анализ файла</string>
 
     <string name="Import_Progress_copying_zip_file">"копирование исходного файла \n- из внешней памяти устройства\n- в внутреннюю память приложения Bookplayer"</string>
     <string name="Import_Progress_unzipping_file">"распаковка файла : "</string>
-    <string name="Import_Progress_check_not_already_imported">"Проверка, что папка не была уже импортирована"</string>
-    <string name="Import_Progress_checkingFiles">"Папка сохранена - проверка файлов"</string>
-    <string name="Import_Progress_scanningFile">"сканирование файла"</string>
 
     <string name="Import_Progress_onGoing">"Занято… идет импорт…"</string>
 
     <string name="Error_Import_Creating_Folders">"Не удалось создать папки"</string>
-    <string name="Error_Import_checking_Folder_Exists">"ошибка при проверке, существует ли папка в базе данных"</string>
-    <string name="Error_Import_saving_file_DB">"Ошибка при сохранении файла в базе данных"</string>
-    <string name="Error_Import_track_duration_zero">"Ошибка при получении продолжительности трека (продолжительность = 0 сек.)"</string>
     <string name="Error_Import_track_duration_nofile">"Ошибка при получении продолжительности трека (файл не найден)"</string>
     <string name="Error_Import_track_duration_extraction">"Ошибка при получении продолжительности трека"</string>
     <string name="Error_Import_computing_folder_duration">"Ошибка при расчете общей продолжительности элементов"</string>
@@ -213,8 +189,6 @@
     <string name="Error_Import_NotEnoughMemory_line5_zip">Вы можете импортировать распакованную папку mp3 вместо этого zip-файла, чтобы избежать этого ограничения.</string>
     <string name="Error_Import_NotEnoughMemory_line5_other">"Вы можете отключить шаг 'Копирование файла' (в меню опций), чтобы читать ваши аудио напрямую из основной памяти."</string>
 
-    <string name="Error_Import_general_error">"Что-то пошло не так, импорт был остановлен"</string>
-
     <string name="Error_ZikFilePositionOnlyDigits">"Здесь можно вводить только цифры"</string>
     <string name="Error_NameTooShort">"Это имя слишком короткое"</string>
 
@@ -226,12 +200,9 @@
     <string name="bDelete">"Удалить папку"</string>
     <string name="bRenameFolder">"Переименовать папку"</string>
     <string name="bRenameTrack">"Переименовать трек"</string>
-    <string name="bRenameOk">"Переименовать"</string>
     <string name="bMove">"Изменить позицию"</string>
-    <string name="bMoveOk">"Переместить"</string>
     <string name="bReset">"Сбросить прогресс"</string>
     <string name="Folder_Deleted_DB">Книга удалена!</string>
-    <string name="Folder_Deleted">"Папка была удалена"</string>
     <string name="Folder_Renamed">"Папка была переименована"</string>
     <string name="Error_FolderNameTooShort">"Имя папки должно содержать не менее 2 символов"</string>
     <string name="Folder_Reset">"Прогресс папки был сброшен"</string>
@@ -263,7 +234,6 @@
     <!-- ********************************** -->
     <!-- PlayActivity -->
 
-    <string name="back" translatable="false"><![CDATA[<]]></string>
     <string name="play" translatable="false"><![CDATA[>]]></string>
     <string name="rewind" translatable="false"><![CDATA[<<]]></string>
     <string name="forward" translatable="false"><![CDATA[>>]]></string>
@@ -271,10 +241,8 @@
     <string name="tvSpeed">Скорость</string>
     <string name="tv_ListeningTime">Нет действий пользователя с</string>
     <string name="tv_TimeLeft">Время до автоматической паузы</string>
-    <string name="PlayActivity_ErrorOpeningTrack_FileNotFound">"ОШИБКА ОТКРЫТИЯ ТРЕКА - ФАЙЛ НЕ НАЙДЕН!"</string>
     <string name="error_reading_track">"ОШИБКА ПРИ ЧТЕНИИ ТРЕКА!"</string>
     <string name="error_file_not_found">"ОШИБКА, ФАЙЛ НЕ НАЙДЕН!"</string>
-    <string name="no_back_while_play">"Нельзя вернуться назад во время воспроизведения аудио"</string>
     <string name="current_position">Текущая позиция</string>
     <string name="total_time">Продолжительность</string>
     <string name="file_name">Имя файла</string>
@@ -299,11 +267,10 @@
     <!-- Menus -->
 
     <string name="action_menu_three_dot">Меню</string>
-    <string name="menu_three_dot">Меню</string>
     <string name="menu_manual">Руководство</string>
     <string name="menu_options">Настройки</string>
     <string name="menu_otherapp">Другие приложения</string>
-    <string name="menu_sendmail">Отправить письмо разработчику</string>
+    <string name="menu_sendmail">почтовый разработчик</string>
     <string name="stats">Статистика</string>
     <string name="menu_seeLog">Просмотр лога</string>
     <string name="menu_cacheFiles">Очистка</string>
@@ -316,15 +283,8 @@
     <string name="otherApp_droitpositif_txt">Основные тексты французского права, доступные даже в оффлайн режиме</string>
     <string name="otherApp_deces" translatable="false">Dead Frogs</string>
     <string name="otherApp_deces_txt">Люди, умершие во Франции с 70-х годов</string>
-    <string name="otherApp_kankwiz" translatable="false">Kan Kwiz</string>
-    <string name="otherApp_kankwiz_txt">Викторина по словарю и языку</string>
 
     <!-- Action Bar -->
-
-    <string name="action_tailleCharPlus">Увеличить размер шрифта</string>
-    <string name="action_tailleCharMoins">Уменьшить размер шрифта</string>
-    <string name="action_search">Поиск</string>
-    <string name="action_debutTexte">В начало текста</string>
 
     <!-- ********************************** -->
     <!-- PERMISSIONS -->
@@ -336,7 +296,6 @@
 
     <!-- Application specific permission strings -->
     <string name="permission_read_write_rationale">Bookplayer нуждается в разрешении [Чтение Аудио] (или установите опцию [Копирование файла]).</string>
-    <string name="permission_read_write_granted">Разрешение [Чтение Аудио] предоставлено.</string>
     <string name="permission_read_write_denied">Разрешение [Чтение Аудио] было отклонено.
         \n\nНажмите [Информация о приложении], чтобы вручную активировать разрешения.
         \n\nИли
@@ -345,13 +304,10 @@
     </string>
 
     <string name="permission_record_audio_rationale">Визуализатор спектра требует разрешения [запись аудио].</string>
-    <string name="permission_record_audio_granted">Разрешение [запись аудио] предоставлено.</string>
     <string name="permission_record_audio_denied">Визуализатор спектра не будет отображаться. Разрешение [запись аудио] было отклонено.</string>
     <string name="permission_record_audio_rationale_after_denied">BookPlayer не может снова запросить уже отклоненное разрешение.
         \n\nВы можете обойти это, нажав [Информация о приложении].
         \nЭто откроет настройки Bookplayer на устройстве.
         \n\nЗатем перейдите в раздел "Разрешения" и вручную разрешите "Микрофон".</string>
-
-    <string name="permissions_denied_sorry_cannot">Разрешения не предоставлены, невозможно воспроизвести аудио.</string>
 
 </resources>

@@ -5,6 +5,7 @@ import static com.driot.tonylib.KanMail.DEFAULT_SEND_MAIL_METHOD_DEFAULT;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.TypedValue;
 
 import com.driot.bookplayer.R;
 
@@ -25,7 +26,7 @@ public class Option {
     private static final boolean DEFAULT_DELETE_SOURCE_FILE = false;
     private static final boolean DEFAULT_VISUALIZER_ON = true;
     private static final boolean DEFAULT_REWIND_AFTER_PAUSE = true;
-    private static final int DEFAULT_CUSTOM_THEME = R.style.Theme_BookPlayer;
+    private static final int DEFAULT_CUSTOM_THEME = 0;
     private static final boolean DEFAULT_COPY_FILES = true;
 
 
@@ -71,7 +72,16 @@ public class Option {
 
     /////////////////// THEME ///////////////////
     public static void setTheme(Context context, int i) {context.getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE).edit().putInt("CUSTOM_THEME",i).apply();}
-    public static int getTheme(Context context) {return context.getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE).getInt("CUSTOM_THEME", DEFAULT_CUSTOM_THEME);}
+    public static int getTheme(Context context) {
+        int themeId = context.getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE).getInt("CUSTOM_THEME", DEFAULT_CUSTOM_THEME);
+        if (themeId == 0) {
+            TypedValue typedValue = new TypedValue();
+            context.getTheme().resolveAttribute(android.R.attr.theme, typedValue, true);
+            return typedValue.resourceId;
+        } else {
+            return themeId;
+        }
+    }
 
 
     /////////////////// REWIND AFTER PAUSE option ///////////////////

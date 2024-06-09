@@ -3,7 +3,6 @@
     <dimen name="activity_horizontal_margin">10dp</dimen>
     <dimen name="activity_vertical_margin">10dp</dimen>
 
-    <dimen name="recyclerview_margin">3dp</dimen>
     <dimen name="recyclerview_between_cardView">5dp</dimen>
     <dimen name="recyclerview_elements_top">5dp</dimen>
     <dimen name="recyclerview_elements_bottom">5dp</dimen>
@@ -11,15 +10,9 @@
     <dimen name="recyclerview_padding_text_vertical">0dp</dimen>
     <dimen name="recyclerview_padding_text_horizontal">2dp</dimen>
 
-    <dimen name="GetRessource_vertical_margin_low">20dp</dimen>
-    <dimen name="GetRessource_vertical_margin_title2text">15dp</dimen>
-    <dimen name="GetRessource_vertical_margin_text2button">5dp</dimen>
-    <dimen name="GetRessource_vertical_margin_high">25dp</dimen>
-
     <dimen name="GetRessource320_vertical_margin_low">3dp</dimen>
     <dimen name="GetRessource320_vertical_margin_title2text">2dp</dimen>
     <dimen name="GetRessource320_vertical_margin_text2button">0dp</dimen>
-    <dimen name="GetRessource320_vertical_margin_high">5dp</dimen>
 
     <dimen name="playactivity_Playback_Height">50sp</dimen>
     <dimen name="playactivity_PlaybackText_Height">30sp</dimen>

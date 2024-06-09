@@ -1,21 +1,16 @@
 <resources>
     <string name="app_name" translatable="false">BookPlayer</string>
-    <string name="three_dots" translatable="false">…</string>
     <string name="lorem_ipsum" translatable="false">lorem ipsum</string>
 
     <string name="yesterday">"yesterday"</string>
-    <string name="ERROR">"ERROR"</string>
-    <string name="downloading" translatable="false">Downloading…</string>
     <string name="app_info">App Info</string>
     <string name="delete_logs">Delete Logs</string>
     <string name="delete">Delete</string>
 
-    <string name="title_FolderList">Folders List</string>
     <string name="title_FolderContent">Files List</string>
     <string name="PlayerActivity_Title" translatable="false">TextBook Player</string>
 
     <string name="yes">Yes</string>
-    <string name="no">No</string>
     <string name="cancel">Cancel</string>
     <string name="are_you_sure">Are you sure ?</string>
 
@@ -28,8 +23,6 @@
 
     <!-- ********************************** -->
     <!-- HELP Screen -->
-
-    <string name="help">Help</string>
 
     <string name="help_folder">Folder :</string>
     <string name="help_folder_text">A long click on a folder opens the [modify folder] page.
@@ -147,10 +140,6 @@
     <string name="bOpenFile">Open single file</string>
     <string name="bOpenFolder">Open Folder</string>
     <string name="bOpenZipFile">Open Zip File</string>
-    <string name="bSearchLibrivox" translatable="false">Librivox.org</string>
-    <string name="bSearchLitteratureaudio" translatable="false">Litteratureaudio.com</string>
-    <string name="bSearchGutenberg" translatable="false">https://marhamilresearch4.blob.core.windows.net/gutenberg-public/Website/index.html</string>
-    <string name="gutenberg_project">Gutenberg Project</string>
 
 
     <string name="TextHeaderOpen">Open an audio on my device</string>
@@ -160,9 +149,7 @@
     <string name="bOpenZipFile_desc">If your audios files are located inside a ZIP file, press this button and select this archive :</string>
 
     <string name="TextHeaderSearch">Search for free audio on internet</string>
-    <string name="bSearchLibrivox_desc">Search then Download a book from Librivox.org (english mostly) :</string>
     <string name="bSearchlitteratureaudio_desc">Search then Download a book from litteratureaudio.com (french) :</string>
-    <string name="bSearchGutenberg_desc">Search then Download a book from Gutenberg project (AI speaker / generated audio) :</string>
     <string name="bSearchOpenCulture_desc">Search some audios on Open Culture :</string>
     <string name="bSearchExampleText">These websites above are only examples, there is tons of audio on the web, you could also download university lectures.</string>
 
@@ -176,34 +163,23 @@
 
     <string name="bAddRessource">Add Content</string>
 
-    <string name="Error_Import_Copying_zip_local">Could not copy zip from device memory to reserved app storage memory</string>
     <string name="Error_Import_IsNotFolder">This doesn\'t look like a folder</string>
     <string name="Error_Import_IsNotFile">This doesn\'t look like a file</string>
     <string name="Error_Import_FolderAlreadyImported">This folder has already been loaded</string>
     <string name="Error_Import_NoMediaInFolder">No media found in this folder</string>
     <string name="Error_Import_FilePathKO">Cannot find path of file </string>
     <string name="Error_Import_FolderPathKO">Cannot find path of folder </string>
-    <string name="Error_Import_ZipFilePathKO">Cannot find path of zip file </string>
     <string name="Error_Import_BetterTryNoDownloadFolder">Try to move the audio resource in another location (not in Download Folder) </string>
     <string name="Import_nMediaInFolder">medias have been found in this folder</string>
-    <string name="Error_Import_ParsingZipFile">Error parsing zip file</string>
-    <string name="Error_Import_ParsingZipFile2">Sorry, Cannot read zip file</string>
-    <string name="Error_Import_ParsingZipFile_advice">You could first unzip the audio book and then load the folder</string>
     <string name="Error_Getting_Ressource_Name_from_Download_Folder">Error while accessing resource in Downloads location</string>
     <string name="Add_resource_reading_file">analysing file</string>
 
     <string name="Import_Progress_copying_zip_file">"copying source file \n- from Device External Memory\n- to Bookplayer app internal memory"</string>
     <string name="Import_Progress_unzipping_file">"unzipping file : "</string>
-    <string name="Import_Progress_check_not_already_imported">"Checking Folder has not already been imported"</string>
-    <string name="Import_Progress_checkingFiles">"Folder Saved - checking files"</string>
-    <string name="Import_Progress_scanningFile">"scanning file"</string>
 
     <string name="Import_Progress_onGoing">"Busy… ongoing import…"</string>
 
     <string name="Error_Import_Creating_Folders">"Couldn't create folders"</string>
-    <string name="Error_Import_checking_Folder_Exists">"error while checking if folder already exist in database"</string>
-    <string name="Error_Import_saving_file_DB">"Error Saving File in Database"</string>
-    <string name="Error_Import_track_duration_zero">"Error getting Track duration (duration = 0sec.)"</string>
     <string name="Error_Import_track_duration_nofile">"Error getting Track duration (file not found)"</string>
     <string name="Error_Import_track_duration_extraction">"Error getting Track duration"</string>
     <string name="Error_Import_computing_folder_duration">"Error computing sum of assets duration"</string>
@@ -219,8 +195,6 @@
     <string name="Error_Import_NotEnoughMemory_line5_zip">"You may import an unzipped mp3 folder instead of this zip file, to bypass this limiting factor."</string>
     <string name="Error_Import_NotEnoughMemory_line5_other">"You may disable the [CopyFile] step (in the option menu), so as to read directly your audios from main memory."</string>
 
-    <string name="Error_Import_general_error">"Something bad happened, import has been stopped"</string>
-
     <string name="Error_ZikFilePositionOnlyDigits">"You can only enter digits here"</string>
     <string name="Error_NameTooShort">"This name is too short"</string>
 
@@ -235,12 +209,9 @@
     <string name="bDelete">"Delete"</string>
     <string name="bRenameFolder">"Rename Folder"</string>
     <string name="bRenameTrack">"Rename Track"</string>
-    <string name="bRenameOk">"Rename"</string>
     <string name="bMove">"Change position"</string>
-    <string name="bMoveOk">"Move"</string>
     <string name="bReset">"Reset Progress"</string>
     <string name="Folder_Deleted_DB">"Book deleted !"</string>
-    <string name="Folder_Deleted">"Folder has been deleted"</string>
     <string name="Folder_Renamed">"Folder has been renamed"</string>
     <string name="Error_FolderNameTooShort">"Folder Name should be at least 2 characters"</string>
     <string name="Folder_Reset">"Folder progress has been reset"</string>
@@ -274,7 +245,6 @@
     <!-- ********************************** -->
     <!-- PlayActivity -->
 
-    <string name="back" translatable="false"><![CDATA[<]]></string>
     <string name="play" translatable="false"><![CDATA[>]]></string>
     <string name="rewind" translatable="false"><![CDATA[<<]]></string>
     <string name="forward" translatable="false"><![CDATA[>>]]></string>
@@ -282,10 +252,8 @@
     <string name="tvSpeed">Speed</string>
     <string name="tv_ListeningTime">No user action since</string>
     <string name="tv_TimeLeft">Time left before auto sleep</string>
-    <string name="PlayActivity_ErrorOpeningTrack_FileNotFound">"ERROR OPENING TRACK - FILE NOT FOUND !"</string>
     <string name="error_reading_track">"ERROR READING TRACK !"</string>
     <string name="error_file_not_found">"FILE NOT FOUND !"</string>
-    <string name="no_back_while_play">"Cannot go back while playing audio"</string>
     <string name="current_position">Current position</string>
     <string name="total_time">Duration</string>
     <string name="file_name">File name</string>
@@ -315,13 +283,12 @@
     <!-- Menus -->
 
     <string name="action_menu_three_dot">Menu</string>
-    <string name="menu_three_dot">Menu</string>
     <string name="menu_manual">manual</string>
     <string name="menu_options">options</string>
     <string name="menu_otherapp">other apps</string>
     <string name="menu_sendmail">mail developer</string>
     <string name="stats">Stats</string>
-    <string name="menu_seeLog">See Log</string>
+    <string name="menu_seeLog" translatable="false">See Logs</string>
     <string name="menu_cacheFiles">Cleaning</string>
 
     <!-- ********************************** -->
@@ -332,15 +299,8 @@
     <string name="otherApp_droitpositif_txt">Major French law texts, available even offline</string>
     <string name="otherApp_deces" translatable="false">Dead Frogs</string>
     <string name="otherApp_deces_txt">People dead in France since the 70\'</string>
-    <string name="otherApp_kankwiz" translatable="false">Kan Kwiz</string>
-    <string name="otherApp_kankwiz_txt">Vocabulary and Language Quiz</string>
 
     <!-- Action Bar -->
-
-    <string name="action_tailleCharPlus">Chars Size +</string>
-    <string name="action_tailleCharMoins">Chars Size -</string>
-    <string name="action_search">Search</string>
-    <string name="action_debutTexte">Goto Top</string>
 
     <!-- ********************************** -->
     <!-- PERMISSIONS -->
@@ -352,7 +312,6 @@
 
     <!-- Application specific permission strings -->
     <string name="permission_read_write_rationale">Bookplayer needs [Read Audio] permission (or set [Copy File] option).</string>
-    <string name="permission_read_write_granted">[Read Audio] permission granted.</string>
     <string name="permission_read_write_denied">[Read Audio] permission was denied.
         \n\nClick [App Info] to activate permissions manually.
         \n\nOr
@@ -361,13 +320,10 @@
     </string>
 
     <string name="permission_record_audio_rationale">Spectrum visualizer requires [record audio] permission.</string>
-    <string name="permission_record_audio_granted">[record audio] permission has been granted.</string>
     <string name="permission_record_audio_denied">Spectrum visualizer will not be displayed. [record audio] permission has been denied.</string>
     <string name="permission_record_audio_rationale_after_denied">BookPlayer can not ask again for an already denied permission.
         \n\nYou can bypass by clicking [App Info].
         \nThat will open the Bookplayer settings on the device.
         \n\nThen go in "Permissions" section and manually allow "Microphone".</string>
-
-    <string name="permissions_denied_sorry_cannot">Permissions are not granted, cannot play audio.</string>
 
 </resources>

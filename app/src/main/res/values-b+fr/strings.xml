@@ -1,20 +1,15 @@
 <resources>
     <string name="app_name" translatable="false">BookPlayer</string>
-    <string name="three_dots" translatable="false">…</string>
     <string name="lorem_ipsum" translatable="false">lorem ipsum</string>
 
     <string name="yesterday">"hier"</string>
-    <string name="ERROR">"ERREUR"</string>
-    <string name="downloading" translatable="false">Téléchargement…</string>
     <string name="app_info">Info Appli</string>
     <string name="delete_logs">Effacer les logs</string>
     <string name="delete">Supprimer</string>
-    <string name="title_FolderList">Liste des dossiers</string>
     <string name="title_FolderContent">Liste des fichiers</string>
     <string name="PlayerActivity_Title" translatable="false">TextBook Player</string>
 
     <string name="yes">Oui</string>
-    <string name="no">Non</string>
     <string name="cancel">Annuler</string>
     <string name="are_you_sure">"Êtes-vous sûr ?"</string>
 
@@ -26,8 +21,6 @@
 
     <!-- ********************************** -->
     <!-- HELP Screen -->
-
-    <string name="help">Aide</string>
 
     <string name="help_folder">Dossier :</string>
     <string name="help_folder_text">"Un clic long sur un dossier ouvre le menu [modifier dossier]. Vous pourrez alors le renommer / supprimer / réinitialiser la progression"</string>
@@ -140,10 +133,6 @@
     <string name="bOpenFile">Ouvrir un fichier unique</string>
     <string name="bOpenFolder">Ouvrir un dossier</string>
     <string name="bOpenZipFile">Ouvrir un fichier Zip</string>
-    <string name="bSearchLibrivox" translatable="false">Librivox.org</string>
-    <string name="bSearchLitteratureaudio" translatable="false">Litteratureaudio.com</string>
-    <string name="bSearchGutenberg" translatable="false">https://marhamilresearch4.blob.core.windows.net/gutenberg-public/Website/index.html</string>
-    <string name="gutenberg_project">Projet Gutenberg</string>
 
     <string name="TextHeaderOpen">Ouvrir un audio sur mon appareil</string>
     <string name="bOpenFile_desc">Si votre audio est composé d\'un seul fichier, appuyez sur ce bouton pour le sélectionner :</string>
@@ -152,9 +141,7 @@
     <string name="bOpenZipFile_desc">Si vos fichiers audios sont localisés dans un fichier ZIP, appuyez sur ce bouton et sélectionnez cette archive :</string>
 
     <string name="TextHeaderSearch">Rechercher un livre audio gratuit sur Internet</string>
-    <string name="bSearchLibrivox_desc">Chercher puis télécharger un livre depuis Librivox.org (principalement en anglais) :</string>
     <string name="bSearchlitteratureaudio_desc">Chercher puis télécharger un livre depuis litteratureaudio.com (français) :</string>
-    <string name="bSearchGutenberg_desc">Chercher puis télécharger un livre depuis le projet Gutenberg (audio généré par une IA) :</string>
     <string name="bSearchOpenCulture_desc">Chercher des audios sur Open Culture :</string>
     <string name="bSearchExampleText">"Les sites web ci-dessus sont des exemples, il existe de nombreuses ressources audios sur le web, vous pourriez également télécharger des cours universitaires."</string>
 
@@ -168,34 +155,23 @@
 
     <string name="bAddRessource">Ajouter une ressource</string>
 
-    <string name="Error_Import_Copying_zip_local">Impossible de copier le zip de la mémoire de l\'appareil à la mémoire réservée de l\'application</string>
     <string name="Error_Import_IsNotFolder">Cela ne ressemble pas à un dossier</string>
     <string name="Error_Import_IsNotFile">Cela ne ressemble pas à un fichier</string>
     <string name="Error_Import_FolderAlreadyImported">Ce dossier a déjà été chargé</string>
     <string name="Error_Import_NoMediaInFolder">Aucun média trouvé dans ce dossier</string>
     <string name="Error_Import_FilePathKO">Impossible de trouver le chemin du fichier </string>
     <string name="Error_Import_FolderPathKO">Impossible de trouver le chemin du dossier </string>
-    <string name="Error_Import_ZipFilePathKO">Impossible de trouver le chemin du fichier zip </string>
     <string name="Error_Import_BetterTryNoDownloadFolder">Essayez de déplacer la ressource audio dans un autre emplacement (pas dans le dossier Téléchargements) </string>
     <string name="Import_nMediaInFolder">médias trouvés dans ce dossier</string>
-    <string name="Error_Import_ParsingZipFile">Erreur d\'analyse du fichier zip</string>
-    <string name="Error_Import_ParsingZipFile2">Désolé, impossible de lire le fichier zip</string>
-    <string name="Error_Import_ParsingZipFile_advice">Vous pouvez d\'abord décompresser le livre audio, puis charger le dossier</string>
     <string name="Error_Getting_Ressource_Name_from_Download_Folder">Erreur lors de l\'accès à la ressource dans le dossier Téléchargements</string>
     <string name="Add_resource_reading_file">analyse du fichier</string>
 
     <string name="Import_Progress_copying_zip_file">"copie du fichier source \n- de la mémoire externe de l\'appareil\n- à la mémoire interne de l\'application Bookplayer"</string>
     <string name="Import_Progress_unzipping_file">"décompression du fichier : "</string>
-    <string name="Import_Progress_check_not_already_imported">"Vérification que le dossier n\'a pas déjà été importé"</string>
-    <string name="Import_Progress_checkingFiles">"Dossier enregistré - vérification des fichiers"</string>
-    <string name="Import_Progress_scanningFile">"analyse du fichier"</string>
 
     <string name="Import_Progress_onGoing">"Occupé… importation en cours…"</string>
 
     <string name="Error_Import_Creating_Folders">"Impossible de créer les dossiers"</string>
-    <string name="Error_Import_checking_Folder_Exists">"erreur lors de la vérification si le dossier existe déjà dans la base de données"</string>
-    <string name="Error_Import_saving_file_DB">"Erreur lors de la sauvegarde du fichier dans la base de données"</string>
-    <string name="Error_Import_track_duration_zero">"Erreur de durée de piste (durée = 0sec.)"</string>
     <string name="Error_Import_track_duration_nofile">"Erreur de durée de piste (fichier non trouvé)"</string>
     <string name="Error_Import_track_duration_extraction">"Erreur de durée de piste"</string>
     <string name="Error_Import_computing_folder_duration">"Erreur lors du calcul de la durée totale des éléments"</string>
@@ -211,8 +187,6 @@
     <string name="Error_Import_NotEnoughMemory_line5_zip">Vous pouvez importer un dossier mp3 décompressé au lieu de ce fichier zip pour contourner ce facteur limitant.</string>
     <string name="Error_Import_NotEnoughMemory_line5_other">Vous pouvez désactiver l\'étape \'Copie de fichier\' (dans le menu options), afin de lire directement vos audios depuis la mémoire principale.</string>
 
-    <string name="Error_Import_general_error">"Quelque chose s\'est mal passé, l\'importation a été arrêtée"</string>
-
     <string name="Error_ZikFilePositionOnlyDigits">"Vous ne pouvez saisir que des chiffres ici"</string>
     <string name="Error_NameTooShort">"Ce nom est trop court"</string>
 
@@ -224,12 +198,9 @@
     <string name="bDelete">"Supprimer le dossier"</string>
     <string name="bRenameFolder">"Renommer le dossier"</string>
     <string name="bRenameTrack">"Renommer la piste"</string>
-    <string name="bRenameOk">"Renommer"</string>
     <string name="bMove">"Changer la position"</string>
-    <string name="bMoveOk">"Déplacer"</string>
     <string name="bReset">"Effacer la progression"</string>
     <string name="Folder_Deleted_DB">Livre effacé !</string>
-    <string name="Folder_Deleted">"Le dossier a été supprimé"</string>
     <string name="Folder_Renamed">"Le dossier a été renommé"</string>
     <string name="Error_FolderNameTooShort">"Le nom du dossier doit être au moins de 2 caractères"</string>
     <string name="Folder_Reset">"La progression du dossier a été réinitialisée"</string>
@@ -261,7 +232,6 @@
     <!-- ********************************** -->
     <!-- PlayActivity -->
 
-    <string name="back" translatable="false"><![CDATA[<]]></string>
     <string name="play" translatable="false"><![CDATA[>]]></string>
     <string name="rewind" translatable="false"><![CDATA[<<]]></string>
     <string name="forward" translatable="false"><![CDATA[>>]]></string>
@@ -269,10 +239,8 @@
     <string name="tvSpeed">Vitesse</string>
     <string name="tv_ListeningTime">Aucune action utilisateur depuis</string>
     <string name="tv_TimeLeft">Temps restant avant mise en veille</string>
-    <string name="PlayActivity_ErrorOpeningTrack_FileNotFound">"ERREUR PISTE AUDIO - Fichier non trouvé !"</string>
     <string name="error_reading_track">"ERREUR LECTURE PISTE AUDIO !"</string>
     <string name="error_file_not_found">"ERREUR, FICHIER SOURCE NON TROUVÉ !"</string>
-    <string name="no_back_while_play">"Retour impossible pendant la lecture audio"</string>
     <string name="current_position">Position actuelle</string>
     <string name="total_time">Durée</string>
     <string name="file_name">Nom du fichier</string>
@@ -297,13 +265,12 @@
     <!-- Menus -->
 
     <string name="action_menu_three_dot">Menu</string>
-    <string name="menu_three_dot">Menu</string>
     <string name="menu_manual">Mode d\'emploi</string>
     <string name="menu_options">Options</string>
-    <string name="menu_otherapp">Autres applications</string>
-    <string name="menu_sendmail">Envoyer un email au développeur</string>
+    <string name="menu_otherapp">Autres apps</string>
+    <string name="menu_sendmail">email développeur</string>
     <string name="stats">Stats</string>
-    <string name="menu_seeLog">Voir le journal</string>
+    <string name="menu_seeLog">Logs</string>
     <string name="menu_cacheFiles">Nettoyage</string>
 
     <!-- ********************************** -->
@@ -314,15 +281,8 @@
     <string name="otherApp_droitpositif_txt">Les principaux textes de droit français, disponibles même hors ligne</string>
     <string name="otherApp_deces" translatable="false">Dead Frogs</string>
     <string name="otherApp_deces_txt">Personnes décédées en France depuis les années 70</string>
-    <string name="otherApp_kankwiz" translatable="false">Kan Kwiz</string>
-    <string name="otherApp_kankwiz_txt">Quiz de vocabulaire et de langue</string>
 
     <!-- Action Bar -->
-
-    <string name="action_tailleCharPlus">Taille des caractères +</string>
-    <string name="action_tailleCharMoins">Taille des caractères -</string>
-    <string name="action_search">Recherche</string>
-    <string name="action_debutTexte">Aller en haut</string>
 
     <!-- ********************************** -->
     <!-- PERMISSIONS -->
@@ -334,7 +294,6 @@
 
     <!-- Application specific permission strings -->
     <string name="permission_read_write_rationale">Bookplayer a besoin de l\'autorisation [Lire Audio] (ou définir l\'option [Copier Fichier]).</string>
-    <string name="permission_read_write_granted">Autorisation [Lire Audio] accordée.</string>
     <string name="permission_read_write_denied">Autorisation [Lire Audio] refusée.
         \n\nCliquez sur [Infos App] pour activer les autorisations manuellement.
         \n\nOu
@@ -343,12 +302,10 @@
     </string>
 
     <string name="permission_record_audio_rationale">Le visualiseur de spectre nécessite l\'autorisation [Enregistrer Audio].</string>
-    <string name="permission_record_audio_granted">Autorisation [Enregistrer Audio] accordée.</string>
     <string name="permission_record_audio_denied">Le visualiseur de spectre ne sera pas affiché. Autorisation [Enregistrer Audio] refusée.</string>
     <string name="permission_record_audio_rationale_after_denied">BookPlayer ne peut pas demander à nouveau une autorisation déjà refusée.
         \n\nVous pouvez contourner cela en cliquant sur [Infos App].
         \nCela ouvrira les paramètres de Bookplayer sur l\'appareil.
         \n\nEnsuite, allez dans la section "Autorisations" et activez manuellement "Microphone".</string>
 
-    <string name="permissions_denied_sorry_cannot">Autorisations non accordées, impossible de lire l\'audio.</string>
 </resources>

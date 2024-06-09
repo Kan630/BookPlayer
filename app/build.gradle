@@ -28,8 +28,8 @@ android {
 
         /////////////////////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////////////////////
-        versionCode 43
-        versionName "43 - Big Update"
+        versionCode 44
+        versionName "44 - Big Update"
         /////////////////////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////////////////////
 
@@ -41,6 +41,11 @@ android {
                 arguments = ["room.schemaLocation": "$projectDir/schemas".toString()]
             }
         }
+
+        androidResources {
+            generateLocaleConfig = true
+        }
+
     }
 /*
     signingConfigs {

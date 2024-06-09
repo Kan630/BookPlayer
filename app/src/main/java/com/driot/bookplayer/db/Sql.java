@@ -7,7 +7,6 @@ import androidx.sqlite.db.SimpleSQLiteQuery;
 import static com.driot.tonylib.KanLogger.myLog;
 import static com.driot.tonylib.KanLogger.myLogE;
 
-import com.driot.tonylib.KanLogger;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 10/12/20
@@ -34,9 +33,9 @@ public class Sql {
             try {
                 int result = AppDatabase.getDatabase(c).FolderDao().runRawSql(query);
                 if (result > 0) {
-                    myLog("calculateFolderProgress done");
+                    myLog("calculateFolderProgress done - result=[" + result + "]");
                 } else {
-                    myLogE("calculateFolderProgress error from result SQL");
+                    myLog("calculateFolderProgress error from result SQL - result=[" + result + "]"); // - [" + strSQL + "]"); // TODO check why return 0
                 }
             } catch (Exception e) {
                 myLogE("calculateFolderProgress - Exception : " + e.getMessage());
