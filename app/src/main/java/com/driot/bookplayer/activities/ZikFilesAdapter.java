@@ -90,11 +90,22 @@ public class ZikFilesAdapter extends RecyclerView.Adapter<ZikFilesAdapter.ZikFil
 
         @Override
         public void onClick(View view) {
-            ZikFile zikFile = zikFileList.get(getBindingAdapterPosition());
+            int position = getBindingAdapterPosition();
+            ZikFile zikFile = zikFileList.get(position);
             myLog("onClick() : [" + zikFile.getName() + "] - [" + zikFile.getPath() + "/" + zikFile.getName() + "]");
 
-            PlayList.setNumZikFile(getBindingAdapterPosition()); //global var
-
+            //check if click on already read => reset
+            double lagBeforeEnd = zikFile.getDuration() - zikFile.getPosition();
+            if (lagBeforeEnd < 1000) {
+                myLog("lagBeforeEnd : [" + lagBeforeEnd + "]");
+                if (position>1) {
+                    zikFile = zikFileList.get(position-1);
+                    PlayList.setNumZikFile(position-1);
+                    myLog("changing for previous file : [" + zikFile.getName() + "] - [" + zikFile.getPath() + "/" + zikFile.getName() + "]");
+                } else {
+                    PlayList.setNumZikFile(position);
+                }
+            }
             mCtx.startActivity(new Intent(mCtx, PlayActivity.class).putExtra("ZikFile", zikFile));
         }
 
