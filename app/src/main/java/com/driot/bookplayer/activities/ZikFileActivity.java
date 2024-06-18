@@ -15,7 +15,6 @@ import com.driot.tonylib.KanLogger;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 30/10/20
@@ -30,7 +29,7 @@ public class ZikFileActivity extends LifecycleLoggingActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_foldercontent);
+        setContentView(R.layout.activity_zikfile);
 
         recyclerView = findViewById(R.id.recyclerview_zikfiles);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -44,9 +43,12 @@ public class ZikFileActivity extends LifecycleLoggingActivity {
 
     private void createMap() {
         map = new HashMap<>();
-        for (int i = 0; i < Objects.requireNonNull(PlayList.getZikFilesList()).size(); i++) {
-            int id = PlayList.getZikFilesList().get(i).getId(); // id of the model
-            map.put(id, i); // i is the position of adapter
+        List<ZikFile> zikFilesList = PlayList.getZikFilesList(); // TODO already gathered via getZikFiles() through DAO, why ask it again through Playlist ?
+        if (zikFilesList != null && zikFilesList.size() != 0) {
+            for (int i = 0; i < PlayList.getZikFilesList().size(); i++) {
+                int id = PlayList.getZikFilesList().get(i).getId(); // id of the model
+                map.put(id, i); // i is the position of adapter
+            }
         }
     }
 
@@ -72,22 +74,28 @@ public class ZikFileActivity extends LifecycleLoggingActivity {
         Date d = new Date(0);
         Date d_max = new Date(0);
         int id_max = 0;
-        try {
-            for (ZikFile z : PlayList.getZikFilesList()) {
-                if (z.getLastaccess() != null) d = z.getLastaccess();
-                if (d.after(d_max)) {
-                    d_max = d;
-                    id_max = z.getId();
+        List<ZikFile> zikFilesList = PlayList.getZikFilesList(); // TODO already gathered via getZikFiles() through DAO, why ask it again through Playlist
+        if (zikFilesList != null && map != null) {
+            try {
+                for (ZikFile z : PlayList.getZikFilesList()) {
+                    if (z.getLastaccess() != null) d = z.getLastaccess();
+                    if (d.after(d_max)) {
+                        d_max = d;
+                        id_max = z.getId();
+                    }
                 }
+                if (id_max != 0) {
+                    Integer posInteger = map.get(id_max);
+                    if (posInteger != null) {
+                        int pos = posInteger;
+                        if ((pos)>1) pos = pos-1;
+                        recyclerView.scrollToPosition(pos);
+                        myLog("scrolling to  :" + map.get(id_max));
+                    }
+                }
+            } catch (Exception e) {
+                myLogE("goToLastCurrentAudio() - " + e.getMessage());
             }
-            if (id_max != 0) {
-                int pos = map.get(id_max);
-                if ((pos)>1) pos = pos-1;
-                if (id_max != 0) recyclerView.scrollToPosition(pos);
-                myLog("scrolling to  :" + map.get(id_max));
-            }
-        } catch (Exception e) {
-            myLogE("goToLastCurrentAudio() - " + e.getMessage());
         }
     }
 
@@ -97,8 +105,13 @@ public class ZikFileActivity extends LifecycleLoggingActivity {
             runOnUiThread(() -> {
                 adapter = new ZikFilesAdapter(ZikFileActivity.this, zikFilesList);
                 recyclerView.setAdapter(adapter);
-                createMap();
-                goToLastAudio();
+                if (zikFilesList != null) {
+                    createMap();
+                    goToLastAudio();
+                } else {
+                    myLogE("getZikFiles() - error :  zikFilesList == null");
+                }
+
             });
         }).start();
     }

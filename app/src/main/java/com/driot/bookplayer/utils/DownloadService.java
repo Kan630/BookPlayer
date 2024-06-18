@@ -147,10 +147,10 @@ public class DownloadService extends LifecycleLoggingService {
             URL url = new URL(fileUrl);
             connection = (HttpURLConnection) url.openConnection();
             connection.connect();
-            myLog("trying to connect to server  - fileUrl = [" + fileUrl + "]");
+            myLog("trying to connect to server  - fileUrl = [\" + fileUrl + \"]");
 
             if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-                myLogE("Server returned HTTP " + connection.getResponseCode() + " " + connection.getResponseMessage());
+                tellError("downloading [" + fileUrl + "]\nServer returned HTTP " + connection.getResponseCode() + " " + connection.getResponseMessage());
                 return;
             } else {
                 myLog("connected to server  - fileUrl = [" + fileUrl + "]");

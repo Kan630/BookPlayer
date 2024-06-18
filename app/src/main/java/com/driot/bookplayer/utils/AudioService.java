@@ -196,7 +196,7 @@ public class AudioService extends LifecycleLoggingService {
 
                     // 3 bips
                     if (Option.getBeepBookEnd(this)) {
-                        new ToneGenerator(AudioManager.STREAM_MUSIC, 100).startTone(ToneGenerator.TONE_CDMA_PIP, 500);
+                        playBeep("3beeps");
                     }
 
                     alertPlaylistFinished();
@@ -227,9 +227,7 @@ public class AudioService extends LifecycleLoggingService {
         myLog("loading next track : n°" + curNum + "/" + PlayList.getZikFilesList().size() );
 
         // petit bip
-        if (Option.getBeepChapter(this)) {
-            new ToneGenerator(AudioManager.STREAM_MUSIC, 100).startTone(ToneGenerator.TONE_CDMA_PIP, 150);
-        }
+        if (Option.getBeepChapter(this)) playBeep("1beep");
 
         loadZeFile(true);
         //TODO remplace par PlayAudio() ??
@@ -628,10 +626,8 @@ public class AudioService extends LifecycleLoggingService {
                     myLog( "Max Playback Time Reached -- Stopping Service");
                     killTimer();
 
-                    // 2 bips
-                    if (doBeep) {
-                        new ToneGenerator(AudioManager.STREAM_MUSIC, 50).startTone(ToneGenerator.TONE_DTMF_0, 1000);
-                    }
+                    // 2 beeps
+                    if (doBeep) playBeep("2beeps");
 
                     sendBroadcast(new Intent(NOTIFICATION_PLAYBACK_MAXTIMEREACH));
                     if (mediaPlayer != null && mediaPlayer.isPlaying()) {mediaPlayer.stop();}
@@ -646,13 +642,16 @@ public class AudioService extends LifecycleLoggingService {
                 elapsedSeconds = elapsedSeconds + DELAY_CHECK_TIMER/1000;
 
                 // Notification Update
-                int progress = PlayList.getZikFile() == null ? 0 : (int) PlayList.getZikFile().getPosition();
-                int max = getDuration();
-                myLogD("updating notification in Runnable - " + progress + "/" + max + " ---- Position : " + PlayList.getZikFile().getPosition());
+                int progress = 0;
+                int max;
+                if (PlayList.getZikFile() != null) {
+                    progress = (int) PlayList.getZikFile().getPosition();
+                    max = getDuration();
+                    myLogD("updating notification in Runnable - " + progress + "/" + max + " ---- Position : " + PlayList.getZikFile().getPosition());
+                }
+
                 createNotification();
                 //updateNotificationProgress(max, progress); //seems useless in MediaSession => keep code for Download and other services
-
-
             }
         }, 0,DELAY_CHECK_TIMER);
     }
@@ -848,6 +847,24 @@ public class AudioService extends LifecycleLoggingService {
     public int getAudioSessionId() {
         return mediaPlayer != null ? mediaPlayer.getAudioSessionId() : 0;
     }
+
+    @SuppressWarnings("IfCanBeSwitch")
+    private void playBeep(String beepType) {
+        try {
+            if (beepType.equals("1beep")) {
+                new ToneGenerator(AudioManager.STREAM_MUSIC, 100).startTone(ToneGenerator.TONE_CDMA_PIP, 150);
+            } else if (beepType.equals("2beeps")) {
+                new ToneGenerator(AudioManager.STREAM_MUSIC, 50).startTone(ToneGenerator.TONE_DTMF_0, 1000); // actually a long beep
+            } else if (beepType.equals("3beeps")) {
+                new ToneGenerator(AudioManager.STREAM_MUSIC, 100).startTone(ToneGenerator.TONE_CDMA_PIP, 500);
+            } else {
+                myLogE("playBeep - wrong argument : " + beepType);
+            }
+        } catch (Exception e) {
+            myLogE("playBeep(" + beepType + ") - " + e.getMessage());
+        }
+    }
+
 
     //--- LOG --------------------------
     private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }

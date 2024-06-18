@@ -14,6 +14,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -161,6 +162,7 @@ public class Tonio2 {
         return ret;
     }
 
+    /*
     private static boolean listAssetFiles(Context c, String path, ArrayList<String> arrayList) {
 
         String[] list;
@@ -184,18 +186,22 @@ public class Tonio2 {
         return true;
     }
 
+     */
+
     private static boolean listClassicFiles(Context c, String path, ArrayList<String> arrayList) {
-
         File dir = new File(c.getFilesDir(), path);
-        for (File f : dir.listFiles()) {
-            if (f.isFile()) {
-                String name = f.getName();
-                arrayList.add(name);
+        File[] fileList = dir.listFiles();
+        if (fileList != null) {
+            for (File f : fileList) {
+                if (f.isFile()) {
+                    String name = f.getName();
+                    arrayList.add(name);
+                }
             }
+        } else {
+            myLogE("listClassicFiles : no file found in path [" + path + "]");
         }
-
         return arrayList.size() > 0;
-
     }
 
     public static String removeLongDuplicates(String input, int duplicate_min_length) {
