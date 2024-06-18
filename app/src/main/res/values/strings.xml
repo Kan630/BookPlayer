@@ -290,6 +290,7 @@
     <string name="stats">Stats</string>
     <string name="menu_seeLog" translatable="false">See Logs</string>
     <string name="menu_cacheFiles">Cleaning</string>
+    <string name="menu_synchro">Synchronization</string>
 
     <!-- ********************************** -->
     <!-- OTHER APPS -->

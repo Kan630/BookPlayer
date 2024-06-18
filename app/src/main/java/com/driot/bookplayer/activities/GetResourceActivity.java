@@ -2,7 +2,6 @@ package com.driot.bookplayer.activities;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.net.Uri;
@@ -29,7 +28,6 @@ import com.driot.bookplayer.utils.MediaScanner2;
 import com.driot.bookplayer.utils.PermissionRequest;
 import com.driot.tonylib.KanLogger;
 
-import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Timer;
@@ -102,9 +100,9 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
         bOpenFile = findViewById(R.id.bOpenFile);
         bOpenFolder = findViewById(R.id.bOpenFolder);
         bOpenZipFile = findViewById(R.id.bOpenZipFile);
-        Button bInternetAudioRessource_01 = findViewById(R.id.bInternetAudioRessource_01);
-        Button bInternetAudioRessource_02 = findViewById(R.id.bInternetAudioRessource_02);
-        Button bInternetAudioRessource_03 = findViewById(R.id.bInternetAudioRessource_03);
+        Button bInternetAudioResource_01 = findViewById(R.id.bInternetAudioResource_01);
+        Button bInternetAudioResource_02 = findViewById(R.id.bInternetAudioResource_02);
+        Button bInternetAudioResource_03 = findViewById(R.id.bInternetAudioResource_03);
         bAutoTest_b1 = findViewById(R.id.bAutoTest_b1);
         bAutoTest_b2 = findViewById(R.id.bAutoTest_b2);
         bAutoTest_b3 = findViewById(R.id.bAutoTest_b3);
@@ -173,28 +171,28 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
         ///// LINKS
         ////////////////////////////////
         TextView tv;
-        bInternetAudioRessource_01.setText("Internet Archive");
+        bInternetAudioResource_01.setText("Internet Archive");
         tv = findViewById(R.id.tvInternetAudioRessource_01);
         tv.setText("Surf the vast Internet Archive for audio files, and download some !");
-        bInternetAudioRessource_01.setOnClickListener(view -> {
+        bInternetAudioResource_01.setOnClickListener(view -> {
             String url = "https://archive.org/details/audio";
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
             startActivity(intent);
         });
 
-        bInternetAudioRessource_02.setText("Litterature Audio");
+        bInternetAudioResource_02.setText("Litterature Audio");
         tv = findViewById(R.id.tvInternetAudioRessource_02);
         tv.setText(R.string.bSearchlitteratureaudio_desc);
-        bInternetAudioRessource_02.setOnClickListener(view -> {
+        bInternetAudioResource_02.setOnClickListener(view -> {
             String url = "https://www.litteratureaudio.com";
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
             //Intent intent = new Intent(getApplicationContext(), DbBackupActivity.class);
             startActivity(intent);
         });
-        bInternetAudioRessource_03.setText("Open Culture");
+        bInternetAudioResource_03.setText("Open Culture");
         tv = findViewById(R.id.tvInternetAudioRessource_03);
         tv.setText(R.string.bSearchOpenCulture_desc);
-        bInternetAudioRessource_03.setOnClickListener(view -> {
+        bInternetAudioResource_03.setOnClickListener(view -> {
             String url = "https://www.openculture.com/";
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
             startActivity(intent);
@@ -224,7 +222,7 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
         myLog("startTimer()");
         isActivityActive = true;
         timer = new Timer();
-        timer.scheduleAtFixedRate(new TimerTask() {
+        timer.schedule(new TimerTask() {
             @Override
             public void run() {
                 runOnUiThread(checkServiceRunningRunnable);
@@ -301,7 +299,6 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
             return true;
         } catch (Exception e) {
             myLogE("checkDataOk is KO : " + e.getMessage());
-            e.printStackTrace();
             return false;
         }
     }

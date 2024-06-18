@@ -114,7 +114,7 @@
         />
 
     <Button
-        android:id="@+id/bInternetAudioRessource_01"
+        android:id="@+id/bInternetAudioResource_01"
         android:text="@string/lorem_ipsum"
         style="@style/GetResourceButton"
         android:layout_marginTop="@dimen/GetRessource320_vertical_margin_text2button"
@@ -127,11 +127,11 @@
         style="@style/GetResourceTextTopOfButton"
         android:text="@string/lorem_ipsum"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/bInternetAudioRessource_01"
+        app:layout_constraintTop_toBottomOf="@id/bInternetAudioResource_01"
         />
 
     <Button
-        android:id="@+id/bInternetAudioRessource_02"
+        android:id="@+id/bInternetAudioResource_02"
         android:text="@string/lorem_ipsum"
         style="@style/GetResourceButton"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -143,11 +143,11 @@
         style="@style/GetResourceTextTopOfButton"
         android:text="@string/lorem_ipsum"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/bInternetAudioRessource_02"
+        app:layout_constraintTop_toBottomOf="@id/bInternetAudioResource_02"
         />
 
     <Button
-        android:id="@+id/bInternetAudioRessource_03"
+        android:id="@+id/bInternetAudioResource_03"
         android:text="@string/lorem_ipsum"
         style="@style/GetResourceButton"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -162,7 +162,7 @@
         android:textSize="12sp"
         android:layout_marginStart="20dp"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/bInternetAudioRessource_03"
+        app:layout_constraintTop_toBottomOf="@id/bInternetAudioResource_03"
         />
 
     <View style="@style/myStyleViewSimpleHorizontalBar"
