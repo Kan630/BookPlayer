@@ -106,19 +106,13 @@
         />
 
     <!-- PlayBack Speed -->
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@android:color/darker_gray"
+    <View style="@style/myStyleViewSimpleHorizontalBar"
         android:layout_above="@+id/textViewNomFichier"
         />
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_above="@+id/bSpeedUp"
+    <View style="@style/myStyleViewSimpleHorizontalBar"
         android:layout_marginTop="10dp"
-        android:background="@android:color/darker_gray" />
+        android:layout_above="@+id/bSpeedUp" />
 
     <TextView
         android:id="@+id/textViewSpeedDesc"
@@ -165,12 +159,8 @@
         android:layout_toEndOf="@id/textViewSpeed"
         android:layout_above="@+id/textViewNomFichier"
         />
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_above="@+id/bSpeedUp"
-        android:layout_marginTop="10dp"
-        android:background="@android:color/darker_gray" />
+
+
     <TextView
         android:id="@+id/tv_ListeningTime"
         android:text="..."
