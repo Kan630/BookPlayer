@@ -36,16 +36,16 @@
     <string name="help_import_text">It starts with you picking a single file / folder / zip.
         \nThen, depending on your settings (in menu/options) there is 2 possibilities :
         \n
-        \n<b>option 1 :</b> Bookplayer will first, copy the audio inside Bookplayer internal app memory, and then read it from there.
+        \n<b>option 1 [copy] :</b><i>default</i> Bookplayer will first, copy the audio inside Bookplayer internal app memory, and then read it from there.
         \n
-        \n<b>option 2 :</b> Bookplayer will just register the location so as to directly play audio from the general device memory (E.g. from the Download folder, the Music folder or any folder)
+        \n<b>option 2 [no copy] :</b> Bookplayer will just register the location so as to directly play audio from the general device memory (E.g. from the Download folder, the Music folder or any folder)
         \n
-        \n<i>(Note that ZIP file contents are always copied. This option is only for single files and folders)</i>
+        \n<i>(Note that ZIP files are always copied. This option is only for single files and folders)</i>
         \n
-        \n<b>With option 1/</b>, you won\'t even need the [Read Audio] permission.
+        \n<b>With option 1 (copy)</b>, you won\'t need the [Read Audio] permission.
         \nAlso, if you delete the file from main memory, or move it, that won\'t matter. You will not loose your book and progress.
         \n
-        \n<b>With option 2/</b>, you will save space. (but if you then delete the source file from the main memory, it will be even.)
+        \n<b>With option 2 (no copy)</b>, you may save space.
         \n
         \nThere is another setting, in menu/options, that allows you to automatically delete the source file, once it has been imported.
         \nActivate that one if all the books you load into Bookplayer will not be needed by another app.
@@ -69,8 +69,8 @@
     <string name="help_permission">Permissions :</string>
     <string name="help_permission_text">"BookPlayer can run without any permission.
         \nThere is 3 main permissions :
-        \n<b>[Music and Audio]</b> (= [Read Audio] = [External Storage]) to read audio from the general device memory (like thew download folder, the music folder, or any other one)
-        \n\n<b>[Microphone]</b> (= [Record Audio]) is needed to display a frequency visualizer (sound spectrum display). If it is denied, it will just not show, no problem.
+        \n<b>[Music and Audio]</b> = [Read Audio] = [External Storage] : Allows to read audio from the general device memory, if copy option was unselected (like from the download folder, the music folder, or any other one)
+        \n\n<b>[Microphone]</b> (= [Record Audio]) is needed to display a frequency visualizer animation (sound spectrum display). If it is denied, it will just not show, no problem.
         \n\n<b>[Notifications]</b> may be needed on some devices (Android 14+). It is used to display the command widget on the lock screen. <i>(Usually it displays straight away without permission being even asked.)</i>
 
     </string>

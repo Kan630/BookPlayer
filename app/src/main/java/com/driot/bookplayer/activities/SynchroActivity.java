@@ -1,13 +1,12 @@
 package com.driot.bookplayer.activities;
 
-
 import static com.driot.tonylib.KanLogger.myLogE;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -32,7 +31,7 @@ import com.google.android.gms.nearby.connection.Strategy;
 import java.io.File;
 import java.io.FileNotFoundException;
 
-public class SynchroActivity extends AppCompatActivity {
+public class SynchroActivity extends LifecycleLoggingActivity {
     private static final String TAG = "SynchroActivity";
     private static final String SERVICE_ID = "com.example.bookplayer.SERVICE_ID";
     private static final int REQUEST_PERMISSIONS_CODE = 1;
@@ -56,13 +55,30 @@ public class SynchroActivity extends AppCompatActivity {
     }
 
     private void requestPermissions() {
-        String[] requiredPermissions = new String[]{
-                Manifest.permission.BLUETOOTH,
-                Manifest.permission.BLUETOOTH_ADMIN,
-                Manifest.permission.ACCESS_WIFI_STATE,
-                Manifest.permission.CHANGE_WIFI_STATE,
-                Manifest.permission.INTERNET
-        };
+        String[] requiredPermissions;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            requiredPermissions = new String[]{
+                    Manifest.permission.BLUETOOTH,
+                    Manifest.permission.BLUETOOTH_ADMIN,
+                    Manifest.permission.ACCESS_WIFI_STATE,
+                    Manifest.permission.CHANGE_WIFI_STATE,
+                    Manifest.permission.INTERNET,
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.BLUETOOTH_SCAN,
+                    Manifest.permission.BLUETOOTH_CONNECT,
+                    Manifest.permission.BLUETOOTH_ADVERTISE,
+                    Manifest.permission.NEARBY_WIFI_DEVICES
+            };
+        } else {
+            requiredPermissions = new String[]{
+                    Manifest.permission.BLUETOOTH,
+                    Manifest.permission.BLUETOOTH_ADMIN,
+                    Manifest.permission.ACCESS_WIFI_STATE,
+                    Manifest.permission.CHANGE_WIFI_STATE,
+                    Manifest.permission.INTERNET,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+            };
+        }
 
         boolean allPermissionsGranted = true;
         for (String permission : requiredPermissions) {
@@ -74,6 +90,32 @@ public class SynchroActivity extends AppCompatActivity {
 
         if (!allPermissionsGranted) {
             ActivityCompat.requestPermissions(this, requiredPermissions, REQUEST_PERMISSIONS_CODE);
+        } else {
+            // Permissions already granted, start advertising and discovery
+            startAdvertising();
+            startDiscovery();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_PERMISSIONS_CODE) {
+            boolean allPermissionsGranted = true;
+            for (int grantResult : grantResults) {
+                if (grantResult != PackageManager.PERMISSION_GRANTED) {
+                    allPermissionsGranted = false;
+                    break;
+                }
+            }
+
+            if (allPermissionsGranted) {
+                // Permissions granted, start advertising and discovery
+                startAdvertising();
+                startDiscovery();
+            } else {
+                Log.e(TAG, "Permission not granted!");
+            }
         }
     }
 
@@ -99,6 +141,9 @@ public class SynchroActivity extends AppCompatActivity {
     private final ConnectionLifecycleCallback connectionLifecycleCallback = new ConnectionLifecycleCallback() {
         @Override
         public void onConnectionInitiated(@NonNull String endpointId, @NonNull ConnectionInfo connectionInfo) {
+            // Log the endpoint name and ID
+            Log.d(TAG, "Connection initiated with endpoint: " + connectionInfo.getEndpointName() + " (ID: " + endpointId + ")");
+
             connectionsClient.acceptConnection(endpointId, payloadCallback);
         }
 
@@ -156,17 +201,4 @@ public class SynchroActivity extends AppCompatActivity {
             Log.d(TAG, "Payload transfer update: " + update.getStatus());
         }
     };
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == REQUEST_PERMISSIONS_CODE) {
-            for (int grantResult : grantResults) {
-                if (grantResult != PackageManager.PERMISSION_GRANTED) {
-                    Log.e(TAG, "Permission not granted!");
-                    return;
-                }
-            }
-        }
-    }
 }
