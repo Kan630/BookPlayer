@@ -79,6 +79,9 @@
     <!-- ********************************** -->
     <!-- Options Screen -->
 
+    <string name="option_hide_advanced_options">"Hide Advanced Options"</string>
+    <string name="option_show_advanced_options">"Show Advanced Options"</string>
+
     <string name="option_timeBeforeSleep">Automatic Pause</string>
     <string name="option_timeBeforeSleep_text">after :</string>
     <string name="option_timeBeforeSleep_min">min.</string>

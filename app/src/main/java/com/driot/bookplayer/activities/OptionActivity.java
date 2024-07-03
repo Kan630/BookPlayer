@@ -4,7 +4,6 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
@@ -15,6 +14,7 @@ import android.provider.Settings;
 import android.text.Html;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewStub;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -60,8 +60,6 @@ public class OptionActivity extends LifecycleLoggingActivity {
 
     EditText et_timeBeforeSleep;
     EditText et_ForwardSeconds;
-    CheckBox chk_copyZip, chk_UnZip;
-    CheckBox chk_ScreenLock;
     CheckBox chk_MailMethod;
     CheckBox chk_beep_chapter, chk_beep_bookend, chk_beep_autostop;
     CheckBox chk_delete_source_file;
@@ -73,29 +71,16 @@ public class OptionActivity extends LifecycleLoggingActivity {
     CheckBox chk_copy_file;
     private PermissionRequest mPermissionRequest;
 
+    private boolean areAdvancedOptionsVisible = false;
+    private View advancedOptionsView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_options); //trigers AutofillManager notifyValueChanged  ignoring on state UNKNOWN  (pollute log in Android 12)
 
-/*
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            this.revokeSelfPermissionOnKill(Manifest.permission.POST_NOTIFICATIONS);
-        }
-
- */
-
         et_timeBeforeSleep = findViewById(R.id.etTimeBeforeSleep);
         et_ForwardSeconds = findViewById(R.id.etForwardSeconds);
-        chk_copyZip = findViewById(R.id.chk_copyzip_local);
-        chk_UnZip = findViewById(R.id.chk_unzip_local);
-        chk_ScreenLock = findViewById(R.id.chk_lock_orientation);
-        chk_MailMethod = findViewById(R.id.chk_mail_method_default);
-        chk_beep_chapter = findViewById(R.id.chk_beep_chapter_default);
-        chk_beep_bookend = findViewById(R.id.chk_beep_bookend_defaut);
-        chk_beep_autostop = findViewById(R.id.chk_beep_autostop_defaut);
-        chk_delete_source_file = findViewById(R.id.chk_delete_source_file_zip);
         chk_visualizer_on = findViewById(R.id.chk_visualizer_on);
         tx_Visualizer_on = findViewById(R.id.tx_Visualizer_on);
         btn_Color_01 = findViewById(R.id.btn_color_01);
@@ -104,20 +89,56 @@ public class OptionActivity extends LifecycleLoggingActivity {
         btn_Color_04 = findViewById(R.id.btn_color_04);
         btn_Color_05 = findViewById(R.id.btn_color_05);
         btn_Color_06 = findViewById(R.id.btn_color_06);
-        chk_rewind_after_pause = findViewById(R.id.chk_rewind_after_pause);
-        chk_copy_file = findViewById(R.id.chk_copy_file);
 
         et_timeBeforeSleep.setText(String.valueOf(Option.getTimeBeforeSleep(this)));
         et_ForwardSeconds.setText(String.valueOf(Option.get_ForwardSeconds(this)));
 
-        chk_copyZip.setChecked(Option.getCopyZipLocal(this));
-        chk_copyZip.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setCopyZipLocal(this, isChecked));
+        chk_visualizer_on.setChecked(Option.getVisualizerOn(this));
+        chk_visualizer_on.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            Option.setVisualizerOn(this, isChecked);
+            if (isChecked && !isRecordAudioPermissionGranted(this)) {
+                myLog("checkBox ticked and permission not granted => requesting");
+                requestPermissions();
+            }
+        });
 
-        chk_UnZip.setChecked(Option.getUnZipLocal(this));
-        chk_UnZip.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setUnZipLocal(this, isChecked));
+        themesAndColors = new Object[][] {
+                {btn_Color_01, theme_01, color_01},
+                {btn_Color_02, theme_02, color_02},
+                {btn_Color_03, theme_03, color_03},
+                {btn_Color_04, theme_04, color_04},
+                {btn_Color_05, theme_05, color_05},
+                {btn_Color_06, theme_06, color_06}
+        };
+        for (int color_iterator = 0; color_iterator < themesAndColors.length; color_iterator++) {
+            ImageButton button = (ImageButton) themesAndColors[color_iterator][0];
+            int themeId = (int) themesAndColors[color_iterator][1];
+            int mainColor = getPrimaryColorFromTheme(this, themeId);
+            button.setBackgroundColor(mainColor);
+            button.setOnClickListener(v -> changeBaseTheme(themeId));
+        }
 
-        chk_ScreenLock.setChecked(Option.getScreenOrientationLock(this));
-        chk_ScreenLock.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setScreenOrientationLock(this, isChecked));
+        setVisualizerPermissionText();
+
+        if (getIntent().getBooleanExtra("CopyFileSetRed", false)) {
+            TextView tv = findViewById(R.id.txtCopyFileHead);
+            tv.setTextColor(Color.RED);
+        }
+
+
+        Button btnShowAdvanced = findViewById(R.id.btn_show_advanced);
+        btnShowAdvanced.setOnClickListener(v -> toggleAdvancedOptions());
+
+    }
+
+    private void initializeAdvancedOptions() {
+        chk_MailMethod = findViewById(R.id.chk_mail_method_default);
+        chk_beep_chapter = findViewById(R.id.chk_beep_chapter_default);
+        chk_beep_bookend = findViewById(R.id.chk_beep_bookend_defaut);
+        chk_beep_autostop = findViewById(R.id.chk_beep_autostop_defaut);
+        chk_delete_source_file = findViewById(R.id.chk_delete_source_file_zip);
+        chk_rewind_after_pause = findViewById(R.id.chk_rewind_after_pause);
+        chk_copy_file = findViewById(R.id.chk_copy_file);
 
         chk_MailMethod.setChecked(Option.getMailMethod(this));
         chk_MailMethod.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setMailMethod(this, isChecked));
@@ -145,50 +166,11 @@ public class OptionActivity extends LifecycleLoggingActivity {
                 Option.setDeleteSourceFile(this, false);
             }
         });
-
-        chk_visualizer_on.setChecked(Option.getVisualizerOn(this));
-        chk_visualizer_on.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            Option.setVisualizerOn(this, isChecked);
-            if (isChecked && !isRecordAudioPermissionGranted(this)) {
-                myLog("checkBox ticked and permission not granted => requesting");
-                requestPermissions();
-            }
-        });
-
         chk_rewind_after_pause.setChecked(Option.getRewindAfterPause(this));
         chk_rewind_after_pause.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setRewindAfterPause(this, isChecked));
 
         chk_copy_file.setChecked(Option.getCopyFile(this));
         chk_copy_file.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setCopyFile(this, isChecked));
-
-
-        themesAndColors = new Object[][] {
-                {btn_Color_01, theme_01, color_01},
-                {btn_Color_02, theme_02, color_02},
-                {btn_Color_03, theme_03, color_03},
-                {btn_Color_04, theme_04, color_04},
-                {btn_Color_05, theme_05, color_05},
-                {btn_Color_06, theme_06, color_06}
-        };
-        for (int color_iterator = 0; color_iterator < themesAndColors.length; color_iterator++) {
-            ImageButton button = (ImageButton) themesAndColors[color_iterator][0];
-            int themeId = (int) themesAndColors[color_iterator][1];
-            int mainColor = getPrimaryColorFromTheme(this, themeId);
-            button.setBackgroundColor(mainColor);
-            button.setOnClickListener(v -> changeBaseTheme(themeId));
-        }
-
-        setVisualizerPermissionText();
-
-        if (getIntent().getBooleanExtra("CopyFileSetRed", false)) {
-            TextView tv = findViewById(R.id.txtCopyFileHead);
-            tv.setTextColor(Color.RED);
-        }
-
-        // TODO : allows options
-        chk_UnZip.setEnabled(false);
-        chk_copyZip.setEnabled(false);
-        findViewById(R.id.ll_ZipOptions_vert).setVisibility(View.INVISIBLE);
 
     }
 
@@ -373,6 +355,33 @@ public class OptionActivity extends LifecycleLoggingActivity {
     protected void onResume() {
         super.onResume();
         setVisualizerPermissionText();
+    }
+
+    private void toggleAdvancedOptions() {
+        ViewStub stub = findViewById(R.id.viewStub_advanced_options);
+        Button btnShowAdvanced = findViewById(R.id.btn_show_advanced);
+        ScrollView scrollView = findViewById(R.id.scrollView);
+        if (!areAdvancedOptionsVisible) {
+            if (advancedOptionsView == null) {
+                advancedOptionsView = stub.inflate();
+                initializeAdvancedOptions();
+            }
+            advancedOptionsView.setVisibility(View.VISIBLE);
+            ((Button) findViewById(R.id.btn_show_advanced)).setText(getString(R.string.option_hide_advanced_options));
+            btnShowAdvanced.post(() -> {
+                int y = btnShowAdvanced.getTop();
+                scrollView.smoothScrollTo(0, y);
+            });
+        } else {
+            if (advancedOptionsView != null) {
+                advancedOptionsView.setVisibility(View.GONE);
+            }
+            ((Button) findViewById(R.id.btn_show_advanced)).setText(getString(R.string.option_show_advanced_options));
+            btnShowAdvanced.post(() -> {
+                //scrollView.smoothScrollTo(0, 0);
+            });
+        }
+        areAdvancedOptionsVisible = !areAdvancedOptionsVisible;
     }
 
     //--- LOG --------------------------
