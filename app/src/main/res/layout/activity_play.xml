@@ -34,12 +34,6 @@
         android:layout_centerHorizontal="true"
         />
 
-    <com.driot.bookplayer.utils.FrequencyVisualizerView
-        android:id="@+id/frequencyVisualizerView"
-        android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:layout_centerInParent="true"/>
-
     <LinearLayout android:id="@+id/llCommandButtons"
         android:layout_height="wrap_content"
         android:layout_width="fill_parent"
@@ -64,12 +58,16 @@
         />
     </LinearLayout>
 
+    <View style="@style/myStyleViewSimpleHorizontalBar"
+        android:layout_above="@+id/llCommandButtons"
+        />
+
     <SeekBar
         android:id="@+id/seekBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_above="@+id/llCommandButtons"
-        android:layout_marginBottom="5dp"
+        android:layout_marginBottom="10sp"
         android:progressDrawable="@drawable/seek_bar"
         android:thumb="@drawable/seek_thumb"
         />
@@ -95,22 +93,13 @@
         android:layout_alignParentEnd="true"
         />
 
-    <TextView
-        android:id="@+id/textViewNomFichier"
-        android:text="@string/file_name"
-        style="@style/textColor"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:layout_above="@+id/textViewSeekBar"
-        />
-
     <!-- PlayBack Speed -->
     <View style="@style/myStyleViewSimpleHorizontalBar"
-        android:layout_above="@+id/textViewNomFichier"
+        android:layout_above="@+id/textViewTempsTotal"
         />
 
     <View style="@style/myStyleViewSimpleHorizontalBar"
+        android:id="@+id/horizontalBarTopOfSpeed"
         android:layout_marginTop="10dp"
         android:layout_above="@+id/bSpeedUp" />
 
@@ -119,7 +108,7 @@
         style="@style/textColor"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/textViewNomFichier"
+        android:layout_above="@+id/textViewTempsTotal"
         android:layout_marginEnd="20sp"
         android:layout_marginBottom="15sp"
         android:layout_toStartOf="@id/bSpeedDown"
@@ -134,7 +123,7 @@
         android:layout_width="@dimen/playactivity_Playback_Height"
         android:layout_height="@dimen/playactivity_Playback_Height"
         android:layout_toStartOf="@id/textViewSpeed"
-        android:layout_above="@+id/textViewNomFichier"
+        android:layout_above="@+id/textViewTempsTotal"
         />
 
     <TextView
@@ -142,12 +131,12 @@
         style="@style/textColor"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/textViewNomFichier"
+        android:layout_above="@+id/textViewTempsTotal"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="5sp"
         android:paddingStart="10sp"
         android:paddingEnd="10sp"
-        android:text="100%"
+        android:text="...%"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textSize="@dimen/playactivity_PlaybackText_Height" />
     <Button
@@ -157,9 +146,40 @@
         android:layout_width="@dimen/playactivity_Playback_Height"
         android:layout_height="@dimen/playactivity_Playback_Height"
         android:layout_toEndOf="@id/textViewSpeed"
-        android:layout_above="@+id/textViewNomFichier"
+        android:layout_above="@+id/textViewTempsTotal"
         />
 
+
+    <!-- Sleep and Timer -->
+    <View style="@style/myStyleViewSimpleHorizontalBar"
+        android:id="@+id/horizontalBarTopOfSleep"
+        android:layout_marginBottom="40dp"
+        android:layout_above="@+id/horizontalBarTopOfSpeed" />
+
+    <TextView
+        android:id="@+id/textViewSleepDesc"
+        style="@style/textColor"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/horizontalBarTopOfSleep"
+        android:layout_marginTop="-25sp"
+        android:layout_marginEnd="20sp"
+        android:layout_marginStart="20sp"
+        android:text="@string/tvSleep"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+    <Button
+        android:id="@+id/bSleep"
+        android:text="@string/btnSleepSet"
+        android:textSize="13sp"
+        android:paddingVertical="0dp"
+        android:textAlignment="gravity"
+        android:layout_width="60sp"
+        android:layout_height="50sp"
+        android:layout_below="@+id/horizontalBarTopOfSleep"
+        android:layout_marginTop="-40sp"
+        android:layout_alignStart="@+id/textViewSleepDesc"
+        android:layout_marginStart="50sp"
+        />
 
     <TextView
         android:id="@+id/tv_ListeningTime"
@@ -189,5 +209,70 @@
         android:layout_marginBottom="5sp"
         android:layout_above="@+id/bSpeedUp"
         />
+
+
+
+    <!-- Sleep and Timer -->
+    <View style="@style/myStyleViewSimpleHorizontalBar"
+        android:id="@+id/horizontalBarTopOfVolume"
+        android:layout_marginBottom="40dp"
+        android:layout_above="@+id/horizontalBarTopOfSleep" />
+
+    <TextView
+        android:id="@+id/tvVolumeDesc"
+        style="@style/textColor"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/horizontalBarTopOfVolume"
+        android:layout_marginTop="-25sp"
+        android:layout_marginEnd="20sp"
+        android:layout_marginStart="20sp"
+        android:text="@string/tvVolume"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+    <Button
+        android:id="@+id/bVolumeDown"
+        android:text="-"
+        android:textSize="30sp"
+        android:paddingVertical="0dp"
+        android:textAlignment="gravity"
+        android:layout_width="@dimen/playactivity_Playback_Height"
+        android:layout_height="@dimen/playactivity_Playback_Height"
+        android:layout_toStartOf="@id/tvVolume"
+        android:layout_below="@+id/horizontalBarTopOfVolume"
+        android:layout_marginTop="-40sp"
+        />
+    <TextView
+        android:id="@+id/tvVolume"
+        style="@style/textColor"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/horizontalBarTopOfVolume"
+        android:layout_marginTop="-35sp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="5sp"
+        android:paddingStart="10sp"
+        android:paddingEnd="10sp"
+        android:text="...%"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textSize="@dimen/playactivity_PlaybackText_Height" />
+    <Button
+        android:id="@+id/bVolumeUp"
+        android:text="+"
+        android:textSize="24sp"
+        android:layout_width="@dimen/playactivity_Playback_Height"
+        android:layout_height="@dimen/playactivity_Playback_Height"
+        android:layout_toEndOf="@id/textViewSpeed"
+        android:layout_below="@+id/horizontalBarTopOfVolume"
+        android:layout_marginTop="-40sp"
+        />
+
+    <com.driot.bookplayer.utils.FrequencyVisualizerView
+        android:id="@+id/frequencyVisualizerView"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_below="@+id/textViewSubTitle"
+        android:layout_above="@+id/horizontalBarTopOfVolume"
+        android:layout_centerInParent="true"/>
+
 
 </RelativeLayout>

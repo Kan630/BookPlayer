@@ -76,6 +76,17 @@ public class Tonio {
         return str;
     }
 
+    public static String FormatPercentStringForVolume(Double d) {
+        String str = "";
+        if (d != null) {
+            str = Math.round(d) + "%";
+        }
+        if (str.equals("-100%")) {
+            str = "...";
+        }
+        return str;
+    }
+
     public static String FormatPercentString(Double d) {
         String str;
         if (d != null) {

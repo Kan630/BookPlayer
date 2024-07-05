@@ -47,6 +47,7 @@ import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_ZIP_FILE_LOAD
 import static com.driot.bookplayer.utils.AudioService.TIMER_VALUE;
 import static com.driot.bookplayer.utils.PermissionRequest.isReadAudioPermissionGranted;
 import static com.driot.bookplayer.utils.PermissionRequest.isRecordAudioPermissionGranted;
+import static com.driot.bookplayer.utils.Tonio.FormatPercentStringForVolume;
 import static com.driot.bookplayer.utils.Tonio.formatNameForDisplay;
 import static com.driot.bookplayer.utils.Tonio.FormatPercentStringForSpeed;
 import static com.driot.bookplayer.utils.Tonio.FormatTime;
@@ -75,7 +76,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
     private Button bPlay;
     List<Button> buttonsToLock;
     private SeekBar seekbar;
-    private TextView tvSeekBar, tvTotalTime, tvFileName, tvTitle, tvSubTitle, tvSpeed, tvListeningTime, tvTimeLeft;
+    private TextView tvSeekBar, tvTotalTime, tvVolume, tvTitle, tvSubTitle, tvSpeed, tvListeningTime, tvTimeLeft;
     private View progressOverlay, messageOverlay;
     private FrequencyVisualizerView frequencyVisualizerView;
     private boolean AnimationNow;
@@ -180,17 +181,21 @@ public class PlayActivity extends LifecycleLoggingActivity {
 
         bPlay = findViewById(R.id.buttonPlay);
 
-        Button bRewind, bForward, bSpeedUp, bSpeedDown;
+        Button bRewind, bForward, bSpeedUp, bSpeedDown, bVolumeUp, bVolumeDown;
         bRewind = findViewById(R.id.buttonRewind);
         bForward = findViewById(R.id.buttonForward);
         bSpeedUp = findViewById(R.id.bSpeedUp);
         bSpeedDown = findViewById(R.id.bSpeedDown);
+        bVolumeUp = findViewById(R.id.bVolumeUp);
+        bVolumeDown = findViewById(R.id.bVolumeDown);
 
         bPlay.setOnClickListener(v -> playMe());
         bForward.setOnClickListener(v -> forwardMe());
         bRewind.setOnClickListener(v -> backwardMe());
         bSpeedUp.setOnClickListener(v -> SpeedMeUp());
         bSpeedDown.setOnClickListener(v -> SpeedMeDown());
+        bVolumeUp.setOnClickListener(v -> volumeUp());
+        bVolumeDown.setOnClickListener(v -> volumeDown());
 
         buttonsToLock = Arrays.asList(bPlay, bRewind, bForward, bSpeedUp, bSpeedDown);
 
@@ -199,14 +204,15 @@ public class PlayActivity extends LifecycleLoggingActivity {
 
         tvSeekBar = findViewById(R.id.textViewSeekBar);
         tvTotalTime = findViewById(R.id.textViewTempsTotal);
-        tvFileName = findViewById(R.id.textViewNomFichier);
         tvTitle = findViewById(R.id.textviewTitle);
         tvSubTitle = findViewById(R.id.textViewSubTitle);
         tvSpeed = findViewById(R.id.textViewSpeed);
+        tvVolume = findViewById(R.id.tvVolume);
         seekbar = findViewById(R.id.seekBar);
         tvListeningTime = findViewById(R.id.tv_ListeningTime);
         tvTimeLeft = findViewById(R.id.tv_TimeLeft);
         frequencyVisualizerView = findViewById(R.id.frequencyVisualizerView);
+        frequencyVisualizerView.setOnClickListener(v -> playMe());
 
         myLog("onCreate() -- Launching Music Service");
         launchService();
@@ -320,16 +326,30 @@ public class PlayActivity extends LifecycleLoggingActivity {
         setSpeed(audioService.getSpeed() + INCREMENT_SPEED);
         myLog("SpeedUp");
     }
-
     private void SpeedMeDown() {
         setSpeed(audioService.getSpeed() - INCREMENT_SPEED);
         myLog("SpeedDown");
     }
-
     private void setSpeed(double speed) {
         audioService.setSpeed(speed);
         String txt = FormatPercentStringForSpeed((double) speed * 100);
         tvSpeed.setText(txt);
+    }
+
+    private void volumeUp() {
+        audioService.changeVolume(true);
+        setVolume();
+        myLog("VolumeUp");
+    }
+    private void volumeDown() {
+        audioService.changeVolume(false);
+        setVolume();
+        myLog("VolumeDown");
+    }
+    private void setVolume() {
+        double volume = audioService.getVolume();
+        String txt = FormatPercentStringForVolume(volume * 100);
+        tvVolume.setText(txt);
     }
 
     /********************************************************************************
@@ -415,14 +435,14 @@ public class PlayActivity extends LifecycleLoggingActivity {
             myLog("DrawUI : " + PlayList.getZikFile().getName() + " -- " + PlayList.getZikFile().getPosition());
             tvSubTitle.setText(formatNameForDisplay(PlayList.getZikFile().getName()));
             tvTitle.setText(PlayList.getZikFile().getFolderName());
-            tvFileName.setText("");
             tvTotalTime.setText(FormatTime(PlayList.getZikFile().getDuration(),true));
             seekbar.setMax((int) PlayList.getZikFile().getDuration());
             tvSeekBar.setText(FormatTime(PlayList.getZikFile().getPosition(),true));
             seekbar.setProgress((int) PlayList.getZikFile().getPosition());
             tvSpeed.setText(FormatPercentStringForSpeed( audioService.getSpeed() * 100));
+            tvVolume.setText(FormatPercentStringForVolume( audioService.getVolume() * 100));
             HideProgressAnim();
-            myLogD("----------------------------- play screen drawn " + PlayList.getZikFile().getPosition());
+            myLog("----------------------------- play screen drawn " + PlayList.getZikFile().getPosition());
         } catch (Exception e) {
             myLogE(":----------------------------- play screen drawn ERROR");
             myLogE(e.getMessage());

@@ -5,7 +5,6 @@ import com.driot.bookplayer.R;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -586,6 +585,30 @@ public class AudioService extends LifecycleLoggingService {
             myLog("getPosition() Saved/PlayerCurrent  " + curPosGlobalVar + "/" + curPosMediaPlayer + "  -  Diff = " + diff);
         }
         return curPosMediaPlayer;
+    }
+
+    public void changeVolume(boolean increase) {
+        if (audioManager != null) {
+            if (increase) {
+                audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_RAISE, AudioManager.FLAG_SHOW_UI);
+            } else {
+                audioManager.adjustStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_LOWER, AudioManager.FLAG_SHOW_UI);
+            }
+        }
+    }
+    public double getVolume() {
+        double zeValue;
+        if (audioManager != null) {
+            int maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+            int curVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+            if (maxVolume != 0) {
+                zeValue = (double) curVolume / (double)  maxVolume;
+            } else {
+                zeValue = (double)  curVolume / 10.0;
+            }
+            return zeValue;
+        }
+        return -1.0;
     }
 
     public int getDuration() {
