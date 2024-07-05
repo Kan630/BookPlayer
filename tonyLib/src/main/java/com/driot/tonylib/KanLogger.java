@@ -24,6 +24,10 @@ import static com.driot.tonylib.TonioCommonStuff.MD5;
  */
 public class KanLogger {
 
+
+    private static final boolean LOG_DEBUG = true;
+
+
     private static final String PREFIX_DELETE = "com.driot.bookplayer.";
     private static final String LOG_FILE_FOLDER = "log";
     private static final String LOG_FILE_NAME = "kanlog";
@@ -31,7 +35,6 @@ public class KanLogger {
     private static final String USER_LOG_FILE_NAME = "kanlog";
     private static final String kanLogger_TAG = "toto KanLogger";
     private static final boolean LOG_THEM_ALL = true;
-    private static final boolean LOG_DEBUG = false;
 
     private static final String LOG_PREFIX = "toto";
 

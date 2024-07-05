@@ -36,7 +36,7 @@
     <style name="PlayActivityActionButtons">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_weight">1</item>
-        <item name="android:layout_height">60sp</item>
+        <item name="android:layout_height">80sp</item>
         <item name="android:textSize">32sp</item>
         <item name="android:layout_marginStart">0sp</item>
         <item name="android:paddingVertical">0dp</item>
@@ -45,6 +45,11 @@
     <style name="PlayActivity_TrackName" parent="textColor">
         <item name="android:textColor">?colorPrimary</item>
         <item name="android:textSize">25sp</item>
+    </style>
+
+    <style name="PlayActivityActionButtonsPlusMinus">
+        <item name="android:layout_width">@dimen/playactivity_Playback_Height</item>
+        <item name="android:layout_height">@dimen/playactivity_Playback_Height</item>
     </style>
 
     <!-- ***************** LAYOUT ***************** -->

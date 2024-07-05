@@ -14,6 +14,7 @@ import android.media.ToneGenerator;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.ResultReceiver;
 import android.support.v4.media.session.MediaSessionCompat;
@@ -41,8 +42,6 @@ import java.sql.Date;
 import java.sql.Time;
 import java.text.DecimalFormat;
 import java.util.Objects;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import static com.driot.bookplayer.activities.PlayActivity.SHARED_PREFERENCE_SPEED;
 import static com.driot.bookplayer.utils.Tonio.FormatPercentDouble;
@@ -62,9 +61,12 @@ class CustomMediaPlayer extends MediaPlayer {
 public class AudioService extends LifecycleLoggingService {
 
     private static final String CHANNEL_ID = "audio_channel_of_toto";
-    private Timer timer;
+
+    private Handler handler;
+    private Runnable timerRunnable;
     private int elapsedSeconds = 0;
-    public static final int DELAY_CHECK_TIMER = 1000*5;
+    private int customSleepTime = 0;
+    public static final int DELAY_CHECK_TIMER = 1000;
 
     public static final int REWIND_AFTER_PAUSE_MILLISECONDS = 3000;
     public static final int REWIND_AFTER_PAUSE_IF_DIFF_IN_MIN = 2;
@@ -178,6 +180,8 @@ public class AudioService extends LifecycleLoggingService {
         mediaPlayer = new CustomMediaPlayer();
         mediaSession = new MediaSessionCompat(this, "MyTotoMediaSession");
 
+        handler = new Handler(); // for sleep timer
+
         myLog("configureMediaSession()");
 
         // Overridden methods in the MediaSession.Callback class.
@@ -199,7 +203,7 @@ public class AudioService extends LifecycleLoggingService {
                     }
 
                     alertPlaylistFinished();
-                    killTimer();
+                    stopSleepTimer();
                 } else {
                     myLog("mediaPlayer.OnCompletionListener => calling nextTrack");
                     nextTrack();
@@ -330,12 +334,12 @@ public class AudioService extends LifecycleLoggingService {
         myLog("onDestroy()");
         super.onDestroy();
         if (mediaPlayer.isPlaying()) {mediaPlayer.stop();}
-        killTimer();
+        stopSleepTimer();
         mediaPlayer.release();
         mediaPlayer = null;
         if (audioManager != null) { audioManager.abandonAudioFocus(afChangeListener); }
         if (tempFile != null && tempFile.exists()) { tempFile.delete();tempFile=null;}
-        if (timer != null) this.timer.cancel();
+        stopSleepTimer();
         if(mediaSession != null) { mediaSession.release(); }
         //stopUpdatingPlaybackState();
         removeNotification();
@@ -488,7 +492,7 @@ public class AudioService extends LifecycleLoggingService {
                 }
                 mediaPlayer.start();
                 setSpeed(getSpeed());
-                startTimer();
+                startSleepTimer();
                 createNotification();
             } else {
                 myLogE("mediaPlayer was already Playing ... going out of AudioService.playAudio()");
@@ -504,7 +508,7 @@ public class AudioService extends LifecycleLoggingService {
             mediaPlayer.pause();
             updateZikFileState(false);
             if (audioManager != null) { audioManager.abandonAudioFocus(afChangeListener); }
-            killTimer();
+            stopSleepTimer();
             createNotification();
         }
     }
@@ -634,69 +638,84 @@ public class AudioService extends LifecycleLoggingService {
      ********************************************************************************
      */
 
-    private void startTimer() {
+    private void startSleepTimer() {
         boolean doBeep = Option.getBeepAutoStop(this);
-        int timeBeforeSleep = Option.getTimeBeforeSleep(this);
-        timer = new Timer();
+        int timeBeforeSleep = customSleepTime == 0 ? Option.getTimeBeforeSleep(this) : customSleepTime;
+
         elapsedSeconds = 0;
-        timer.scheduleAtFixedRate(new TimerTask() {
+
+        timerRunnable = new Runnable() {
+            @Override
             public void run() {
-                myLogD("----------------------------------------------------------------------------- " + elapsedSeconds + "s. since timer started " );
+                myLogD("----------------------------------------------------------------------------- " + elapsedSeconds + "s. since timer started.....      (AutoSleep in " + timeBeforeSleep + "min.)");
                 updateZikFileState(false);
 
                 // Auto Sleep Option
-                if (elapsedSeconds > timeBeforeSleep*60) {
-                    myLog( "Max Playback Time Reached -- Stopping Service");
-                    killTimer();
+                if (elapsedSeconds > timeBeforeSleep * 60) {
+                    myLog("Max Playback Time Reached -- Stopping Service");
+                    stopSleepTimer();
 
                     // 2 beeps
                     if (doBeep) playBeep("2beeps");
 
                     sendBroadcast(new Intent(NOTIFICATION_PLAYBACK_MAXTIMEREACH));
-                    if (mediaPlayer != null && mediaPlayer.isPlaying()) {mediaPlayer.stop();}
+                    if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+                        mediaPlayer.stop();
+                    }
                     stopSelf();
-
                 } else {
                     Intent intent = new Intent(NOTIFICATION_PLAYBACK_TIMER_VALUE);
                     intent.putExtra(TIMER_VALUE, elapsedSeconds);
                     sendBroadcast(intent);
+
+                    elapsedSeconds += DELAY_CHECK_TIMER / 1000;
+
+                    // Notification Update
+                    int progress = 0;
+                    int max;
+                    if (PlayList.getZikFile() != null) {
+                        progress = (int) PlayList.getZikFile().getPosition();
+                        max = getDuration();
+                        myLogD("updating notification in Runnable - " + progress + "/" + max + " ---- Position : " + PlayList.getZikFile().getPosition());
+                    }
+
+                    createNotification();
+                    // updateNotificationProgress(max, progress); // seems useless in MediaSession => keep code for Download and other services
+
+                    // Schedule next run
+                    handler.postDelayed(this, DELAY_CHECK_TIMER);
                 }
-
-                elapsedSeconds = elapsedSeconds + DELAY_CHECK_TIMER/1000;
-
-                // Notification Update
-                int progress = 0;
-                int max;
-                if (PlayList.getZikFile() != null) {
-                    progress = (int) PlayList.getZikFile().getPosition();
-                    max = getDuration();
-                    myLogD("updating notification in Runnable - " + progress + "/" + max + " ---- Position : " + PlayList.getZikFile().getPosition());
-                }
-
-                createNotification();
-                //updateNotificationProgress(max, progress); //seems useless in MediaSession => keep code for Download and other services
             }
-        }, 0,DELAY_CHECK_TIMER);
+        };
+
+        handler.postDelayed(timerRunnable, DELAY_CHECK_TIMER);
     }
 
-    private void killTimer() {
-        if (!(timer == null)) {
-            try {
-                timer.cancel();
-                timer.purge();
-                timer = null;
-                String str;
-                if (!(PlayList.getZikFilesList()==null)) {
-                    str = getCurrentZikFile().getFolderName() + " : " + FormatTime(elapsedSeconds*1000);
-                    myLog("----------------------------------------------------------------------------- " + elapsedSeconds + "s. since timer started -- STOPPED -- " + str );
-                } else {
-                    str = "killTimer : ERROR zikFilePlayList==null";
-                    myLogE("----------------------------------------------------------------------------- " + elapsedSeconds + "s. since timer started -- STOPPED -- " + str );
-                }
-            } catch (Exception e) {
-                myLogE("killTimer, nothing to kill ?");
-                e.printStackTrace();
+    // Call this method when the user sets a new custom sleep time
+    public void updateSleepTimer(int customSleepTime) {
+        this.customSleepTime = customSleepTime;
+        stopSleepTimer();
+        startSleepTimer();
+    }
+    public int getCustomSleepTime() {
+        return customSleepTime;
+    }
+
+    private void stopSleepTimer() {
+        try {
+            if (handler != null && timerRunnable != null) {
+                handler.removeCallbacks(timerRunnable);
             }
+            String str;
+            if (!(PlayList.getZikFilesList()==null)) {
+                str = getCurrentZikFile().getFolderName() + " : " + FormatTime(elapsedSeconds*1000);
+                myLog("----------------------------------------------------------------------------- " + elapsedSeconds + "s. since timer started -- STOPPED -- " + str );
+            } else {
+                str = "killTimer : ERROR zikFilePlayList==null";
+                myLogE("----------------------------------------------------------------------------- " + elapsedSeconds + "s. since timer started -- STOPPED -- " + str );
+            }
+        } catch (Exception e) {
+            myLogE("killTimer, nothing to kill ?");
         }
     }
 
@@ -796,7 +815,6 @@ public class AudioService extends LifecycleLoggingService {
 
      */
     private void createNotification() {
-        myLog("createNotification()");
         if (mediaPlayer == null) {return;}
         try {
             PendingIntent playPauseAction;

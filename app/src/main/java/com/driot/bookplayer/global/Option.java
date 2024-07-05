@@ -30,7 +30,6 @@ public class Option {
     private static final boolean DEFAULT_COPY_FILES = true;
 
 
-
     /////////////////// SLEEP - AUTOMATIC PAUSE ///////////////////
     public static void setTimeBeforeSleep(Context context, int i) {context.getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE).edit().putInt("TIME_BEFORE_SLEEP",i).apply();}
     public static int getTimeBeforeSleep(Context context) {return context.getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE).getInt("TIME_BEFORE_SLEEP", DEFAULT_TIME_BEFORE_SLEEP);}

@@ -33,9 +33,9 @@ public class Sql {
             try {
                 int result = AppDatabase.getDatabase(c).FolderDao().runRawSql(query);
                 if (result > 0) {
-                    myLog("calculateFolderProgress done - result=[" + result + "]");
+                    //myLog("calculateFolderProgress done - result=[" + result + "]");
                 } else {
-                    myLog("calculateFolderProgress error from result SQL - result=[" + result + "]"); // - [" + strSQL + "]"); // TODO check why return 0
+                    //myLog("calculateFolderProgress error from result SQL - result=[" + result + "]"); // - [" + strSQL + "]"); // TODO check why return 0
                 }
             } catch (Exception e) {
                 myLogE("calculateFolderProgress - Exception : " + e.getMessage());

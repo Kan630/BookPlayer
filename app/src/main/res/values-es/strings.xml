@@ -239,7 +239,7 @@
     <string name="forward" translatable="false"><![CDATA[>>]]></string>
     <string name="pause" translatable="false">||</string>
     <string name="tvSpeed">Velocidad</string>
-    <string name="tv_ListeningTime">No hay acción del usuario desde</string>
+    <string name="tv_ListeningTimeWithNoUserAction">No hay acción del usuario desde</string>
     <string name="tv_TimeLeft">Tiempo restante antes de dormir automáticamente</string>
     <string name="error_reading_track">"¡ERROR AL LEER LA PISTA!"</string>
     <string name="error_file_not_found">"¡ERROR, ARCHIVO NO ENCONTRADO!"</string>

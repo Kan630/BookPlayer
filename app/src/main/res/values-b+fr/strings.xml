@@ -237,7 +237,7 @@
     <string name="forward" translatable="false"><![CDATA[>>]]></string>
     <string name="pause" translatable="false">||</string>
     <string name="tvSpeed">Vitesse</string>
-    <string name="tv_ListeningTime">Aucune action utilisateur depuis</string>
+    <string name="tv_ListeningTimeWithNoUserAction">Aucune action utilisateur depuis</string>
     <string name="tv_TimeLeft">Temps restant avant mise en veille</string>
     <string name="error_reading_track">"ERREUR LECTURE PISTE AUDIO !"</string>
     <string name="error_file_not_found">"ERREUR, FICHIER SOURCE NON TROUVÉ !"</string>

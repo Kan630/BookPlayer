@@ -239,7 +239,7 @@
     <string name="forward" translatable="false"><![CDATA[>>]]></string>
     <string name="pause" translatable="false">||</string>
     <string name="tvSpeed">السرعة</string>
-    <string name="tv_ListeningTime">لا يوجد تفاعل للمستخدم منذ</string>
+    <string name="tv_ListeningTimeWithNoUserAction">لا يوجد تفاعل للمستخدم منذ</string>
     <string name="tv_TimeLeft">الوقت المتبقي قبل الإيقاف التلقائي</string>
     <string name="error_reading_track">"خطأ في قراءة المسار!"</string>
     <string name="error_file_not_found">"خطأ، الملف المصدر غير موجود!"</string>

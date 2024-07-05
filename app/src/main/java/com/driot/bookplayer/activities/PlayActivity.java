@@ -1,8 +1,10 @@
 package com.driot.bookplayer.activities;
 
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
@@ -11,8 +13,10 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.Settings;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -181,13 +185,14 @@ public class PlayActivity extends LifecycleLoggingActivity {
 
         bPlay = findViewById(R.id.buttonPlay);
 
-        Button bRewind, bForward, bSpeedUp, bSpeedDown, bVolumeUp, bVolumeDown;
+        Button bRewind, bForward, bSpeedUp, bSpeedDown, bVolumeUp, bVolumeDown, bSetSleep;
         bRewind = findViewById(R.id.buttonRewind);
         bForward = findViewById(R.id.buttonForward);
         bSpeedUp = findViewById(R.id.bSpeedUp);
         bSpeedDown = findViewById(R.id.bSpeedDown);
         bVolumeUp = findViewById(R.id.bVolumeUp);
         bVolumeDown = findViewById(R.id.bVolumeDown);
+        bSetSleep = findViewById(R.id.bSetSleep);
 
         bPlay.setOnClickListener(v -> playMe());
         bForward.setOnClickListener(v -> forwardMe());
@@ -196,6 +201,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
         bSpeedDown.setOnClickListener(v -> SpeedMeDown());
         bVolumeUp.setOnClickListener(v -> volumeUp());
         bVolumeDown.setOnClickListener(v -> volumeDown());
+        bSetSleep.setOnClickListener(v -> setSleep());
 
         buttonsToLock = Arrays.asList(bPlay, bRewind, bForward, bSpeedUp, bSpeedDown);
 
@@ -297,7 +303,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
                     /////////   PAUSE
                     myLog("pause");
                     audioService.pauseAudio();
-                    reDrawListeningSince(0);
+                    //reDrawListeningSince(0);
                     /////// PLAY
                 } else {
                     myLog("play");
@@ -351,7 +357,41 @@ public class PlayActivity extends LifecycleLoggingActivity {
         String txt = FormatPercentStringForVolume(volume * 100);
         tvVolume.setText(txt);
     }
+    private void setSleep() {
+        // Create an alert dialog builder
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Set Custom Sleep Timer");
 
+        // Inflate and set the custom layout for the dialog
+        LayoutInflater inflater = getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.dialog_set_sleep, null);
+        builder.setView(dialogView);
+
+        // Find the EditText in the dialog layout
+        EditText inputMinutes = dialogView.findViewById(R.id.inputMinutes);
+
+        // Set up the buttons
+        builder.setPositiveButton("Set", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // Get the input value
+                String input = inputMinutes.getText().toString().trim();
+                if (!input.isEmpty()) {
+                    int minutes = Integer.parseInt(input);
+                    // Update the AudioService with the new sleep time
+                    audioService.updateSleepTimer(minutes);
+                }
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        builder.show();
+    }
     /********************************************************************************
      ***       EVENTS
      * Destroy = Fleche Retour Arriere ou Change Inclinaison
@@ -451,10 +491,11 @@ public class PlayActivity extends LifecycleLoggingActivity {
     private void reDrawListeningSince(int tempsEcoule) { // le call vient d'1 timer dans le service...
         String zeText_since;
         String zeText_left;
-        int time_before_sleep = Option.getTimeBeforeSleep(this);
+        int timeBeforeSleep = audioService.getCustomSleepTime() == 0 ? Option.getTimeBeforeSleep(this) : audioService.getCustomSleepTime();
         if (tempsEcoule > 0) {
-            zeText_since = getString(R.string.tv_ListeningTime) + " " + FormatTime(tempsEcoule*1000,true);
-            zeText_left = getString(R.string.tv_TimeLeft) + " : " + FormatTime(time_before_sleep*1000*60-tempsEcoule*1000,true);
+            String str = audioService.getCustomSleepTime() == 0 ? getString(R.string.tv_ListeningTimeWithNoUserAction) : getString(R.string.tv_ListeningTimeWithCustomSleep);
+            zeText_since = str + " " + FormatTime(tempsEcoule*1000,true);
+            zeText_left = getString(R.string.tv_TimeLeft) + " : " + FormatTime(timeBeforeSleep*1000*60-tempsEcoule*1000,true);
             tvListeningTime.setText(zeText_since);
             tvTimeLeft.setText(zeText_left);
         } else {
