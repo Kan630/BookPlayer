@@ -329,6 +329,8 @@
         \n<i>Then, your audio files will be copied inside Bookplayer internal memory and you won\'t need any permission to read them.</i>
     </string>
 
+
+    <string name="permission_record_audio_rationale_01">"Optional permission : Show spectrum animation during audio."</string>
     <string name="permission_record_audio_rationale">Spectrum visualizer requires [record audio] permission.</string>
     <string name="permission_record_audio_denied">Spectrum visualizer will not be displayed. [record audio] permission has been denied.</string>
     <string name="permission_record_audio_rationale_after_denied">BookPlayer can not ask again for an already denied permission.

@@ -1,19 +1,27 @@
 package com.driot.bookplayer.activities;
 
 import static com.driot.tonylib.KanLogger.isMyPhoneDev;
+import static com.driot.tonylib.KanLogger.myToast;
 import static com.driot.tonylib.TonioCommonStuff.MD5;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 //import androidx.credentials.CredentialManager;
@@ -21,6 +29,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -32,9 +42,11 @@ import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.FolderDao;
 import com.driot.bookplayer.global.Option;
+import com.driot.bookplayer.utils.PermissionRequest;
 import com.driot.tonylib.KanLogger;
 import com.driot.tonylib.KanMail;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 /*
 import com.google.android.play.core.appupdate.AppUpdateInfo;
 import com.google.android.play.core.appupdate.AppUpdateManager;
@@ -59,6 +71,7 @@ public class MainActivity extends LifecycleLoggingActivity {//AppCompatActivity 
 
     //private CredentialManager credentialManager;  => KO after implementation commented in gradle
 
+    private PermissionRequest mPermissionRequest;
     private boolean HasBeenProposedToOpenFile;
 
     @Override
@@ -215,7 +228,12 @@ import android.view.View;
         foldersLiveData.observe(this, (Observer<List<Folder>>) folders -> { //getLifecycle()
             myLog("LiveData onChange observed - List<Folders>");
             if (folders.size() == 0) {
-                if (!HasBeenProposedToOpenFile) openGetResourceActivity();
+                if (!HasBeenProposedToOpenFile) {
+                    if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+                        showPermissionSnackbar();
+                    }
+                    openGetResourceActivity();
+                }
                 HasBeenProposedToOpenFile = true;
             } else {
                 FoldersAdapter adapter = new FoldersAdapter(MainActivity.this, folders);
@@ -223,6 +241,20 @@ import android.view.View;
             }
         });
     }
+
+    private void showPermissionSnackbar() {
+        View view = findViewById(android.R.id.content);
+        Snackbar snackbar = Snackbar.make(view, getString(R.string.permission_record_audio_rationale_01), Snackbar.LENGTH_INDEFINITE);
+        snackbar.setAction("OK", v -> {
+            snackbar.dismiss();
+            askPermission();
+        });
+        snackbar.show();
+    }
+    private void askPermission() {
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO}, 2399843);
+    }
+
 
     public void openGetResourceActivity() {
         Intent intent = new Intent(getApplicationContext(), GetResourceActivity.class);
