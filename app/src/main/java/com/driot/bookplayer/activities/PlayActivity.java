@@ -89,7 +89,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
     private Timer timerRedrawUI;
 
     String[] broadcastNotifications = {
-             NOTIFICATION_TRACKFINISHED //useless ?
+            NOTIFICATION_TRACKFINISHED //useless ?
             ,NOTIFICATION_AUDIOFOCUS_GAIN //useless ?
             ,NOTIFICATION_AUDIOFOCUS_LOST //useless ?
             ,NOTIFICATION_FILELOADED
@@ -233,6 +233,13 @@ public class PlayActivity extends LifecycleLoggingActivity {
             myLogE("ERR ShowProgressAnim()  " + e.getMessage());
         }
 
+        // Check if progress bar is at the end and reset if necessary
+        if (PlayList.getZikFile() != null && PlayList.getZikFile().getPosition() >= PlayList.getZikFile().getDuration()) {
+            PlayList.getZikFile().setPosition(0);
+            tvSeekBar.setText(FormatTime(0, true));
+            seekbar.setProgress(0);
+        }
+
         //-*******************************************************************************
         //-***       SEEKBAR
         //-*******************************************************************************
@@ -292,7 +299,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
             myLogE("ERROR bindService");
             myLogE(e.getMessage());
         }
-            myLog("call start & bind to AudioService in onCreate() - bound result :" + audioServiceBound + "");
+        myLog("call start & bind to AudioService in onCreate() - bound result :" + audioServiceBound + "");
     }
 
     private void playMe() {
@@ -390,7 +397,10 @@ public class PlayActivity extends LifecycleLoggingActivity {
             }
         });
 
-        builder.show();
+        AlertDialog dialog = builder.create();
+        dialog.show();
+        // Request focus for the EditText
+        inputMinutes.post(() -> inputMinutes.requestFocus());
     }
     /********************************************************************************
      ***       EVENTS
@@ -524,7 +534,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
         timerRedrawUI.cancel();
     }
 
-        private void redrawSeekBar() {
+    private void redrawSeekBar() {
         if (audioService != null && audioService.exist()) {
             if (audioService.isPlaying()) {
                 bPlay.setText(R.string.pause);
@@ -582,7 +592,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
         unregisterReceiver(broadCastReceiver);
         bPlay.setEnabled(false);
         for (Button b : buttonsToLock) {
-                b.setEnabled(false);
+            b.setEnabled(false);
         }
         seekbar.setEnabled(false);
         ShowMessageOverlay();
