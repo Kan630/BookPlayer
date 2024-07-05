@@ -204,8 +204,8 @@ import android.view.View;
             KanMail.sendDaMail(this, "bookplayer@driot.com", "**Bookplayer**", "Dear developer...\n\n");
         } else if (itemId == R.id.menu_cacheFiles) {
             startActivity(new Intent(this, CacheFilesActivity.class));
-        } else if (itemId == R.id.menu_synchro) {
-            startActivity(new Intent(this, SynchroActivity.class));
+       // } else if (itemId == R.id.menu_synchro) {
+       //     startActivity(new Intent(this, SynchroActivity.class));
         } else {
             myLogE("MainActivity.onOptionsItemSelected : unknown Item selected in Menu");
         }

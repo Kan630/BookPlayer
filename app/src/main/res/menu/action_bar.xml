@@ -52,11 +52,6 @@
                 android:icon="@android:drawable/ic_menu_delete"
                 app:showAsAction="ifRoom"
                 />
-            <item android:id="@+id/menu_synchro"
-                android:title="@string/menu_synchro"
-                android:icon="@android:drawable/ic_menu_revert"
-                app:showAsAction="ifRoom"
-                />
 
         </menu>
     </item>
