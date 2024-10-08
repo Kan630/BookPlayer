@@ -48,8 +48,8 @@
     </style>
 
     <style name="PlayActivityActionButtonsPlusMinus">
-        <item name="android:layout_width">@dimen/playactivity_Playback_Height</item>
-        <item name="android:layout_height">@dimen/playactivity_Playback_Height</item>
+        <item name="android:layout_width">50sp</item>
+        <item name="android:layout_height">50sp</item>
     </style>
 
     <!-- ***************** LAYOUT ***************** -->
@@ -169,14 +169,13 @@
     <style name="GetResourceButton">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginTop">10dp</item>
         <item name="android:layout_marginStart">50dp</item>
     </style>
 
     <style name="GetResourceTextTopOfButton" parent="myStyleTextExplainButton">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginTop">@dimen/GetRessource320_vertical_margin_low</item>
+        <item name="android:layout_marginTop">15dp</item>
         <item name="android:paddingHorizontal">50dp</item>
     </style>
 

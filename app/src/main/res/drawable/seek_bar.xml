@@ -4,7 +4,7 @@
             android:shape="line">
             <stroke
                 android:color="@color/seek_bar_background"
-                android:width="@dimen/seek_bar_thickness"/>
+                android:width="20dp"/>
         </shape>
     </item>
     <item android:id="@android:id/secondaryProgress">
@@ -13,7 +13,7 @@
                 android:shape="line">
                 <stroke
                     android:color="?colorSecondaryVariant"
-                    android:width="@dimen/seek_bar_thickness"/>
+                    android:width="4dp"/>
             </shape>
         </clip>
     </item>
@@ -24,7 +24,7 @@
                 android:shape="line">
                 <stroke
                     android:color="?colorSecondary"
-                    android:width="@dimen/seek_bar_thickness"/>
+                    android:width="4dp"/>
             </shape>
         </clip>
     </item>

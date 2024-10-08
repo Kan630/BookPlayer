@@ -1,4 +1,3 @@
 include ':tonyLib'
 include ':app'
 rootProject.name = "BookPlayer"
-include ':baselib'

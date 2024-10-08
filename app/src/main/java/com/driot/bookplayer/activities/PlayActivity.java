@@ -37,6 +37,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import static com.driot.bookplayer.global.Var.PATH_CHECK_APPLICATION;
+import static com.driot.bookplayer.global.Var.SLEEP_PRESET_VALUES;
 import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_AUDIOFOCUS_GAIN;
 import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_AUDIOFOCUS_LOST;
 import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_FILENOTFOUND;
@@ -367,21 +368,23 @@ public class PlayActivity extends LifecycleLoggingActivity {
     private void setSleep() {
         // Create an alert dialog builder
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Set Custom Sleep Timer");
+        builder.setTitle("Sleep Timer");
 
         // Inflate and set the custom layout for the dialog
         LayoutInflater inflater = getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.dialog_set_sleep, null);
         builder.setView(dialogView);
 
-        // Find the EditText in the dialog layout
+        // Find the EditText and buttons in the dialog layout
         EditText inputMinutes = dialogView.findViewById(R.id.inputMinutes);
+        Button btnPreset1 = dialogView.findViewById(R.id.btn_preset_01);
+        Button btnPreset2 = dialogView.findViewById(R.id.btn_preset_02);
+        Button btnPreset3 = dialogView.findViewById(R.id.btn_preset_03);
+        Button btnPreset4 = dialogView.findViewById(R.id.btn_preset_04);
 
-        // Set up the buttons
-        builder.setPositiveButton("Set", new DialogInterface.OnClickListener() {
+        DialogInterface.OnClickListener setSleepAction = new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                // Get the input value
                 String input = inputMinutes.getText().toString().trim();
                 if (!input.isEmpty()) {
                     int minutes = Integer.parseInt(input);
@@ -389,16 +392,31 @@ public class PlayActivity extends LifecycleLoggingActivity {
                     audioService.updateSleepTimer(minutes);
                 }
             }
-        });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
+        };
+        builder.setPositiveButton("Set", setSleepAction);
+        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
 
+        // Show the dialog
         AlertDialog dialog = builder.create();
         dialog.show();
+
+        // Array of buttons
+        Button[] presetButtons = {btnPreset1, btnPreset2, btnPreset3, btnPreset4};
+
+        // Set labels for buttons based on PRESET_VALUES and set their onClick listeners
+        for (int i = 0; i < SLEEP_PRESET_VALUES.length; i++) {
+            final int presetValue = SLEEP_PRESET_VALUES[i];
+            presetButtons[i].setText(presetValue + " min");
+
+            // Set button click listener
+            presetButtons[i].setOnClickListener(v -> {
+                inputMinutes.setText(String.valueOf(presetValue));
+                setSleepAction.onClick(dialog, DialogInterface.BUTTON_POSITIVE);
+                dialog.cancel();
+            });
+        }
+
+
         // Request focus for the EditText
         inputMinutes.post(() -> inputMinutes.requestFocus());
     }

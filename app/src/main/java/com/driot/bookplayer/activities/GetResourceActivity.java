@@ -25,6 +25,7 @@ import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.utils.AddResourceService;
 import com.driot.bookplayer.utils.DownloadService;
 import com.driot.bookplayer.utils.MediaScanner2;
+import com.driot.bookplayer.utils.NetworkUtils;
 import com.driot.bookplayer.utils.PermissionRequest;
 import com.driot.tonylib.KanLogger;
 
@@ -37,6 +38,7 @@ import static com.driot.bookplayer.global.Var.AUTOTEST_FILE_01;
 import static com.driot.bookplayer.global.Var.AUTOTEST_FILE_02;
 import static com.driot.bookplayer.global.Var.AUTOTEST_FILE_03;
 import static com.driot.bookplayer.utils.PermissionRequest.isReadAudioPermissionGranted;
+import static com.driot.tonylib.KanLogger.myToast;
 import static com.driot.tonylib.KanLogger.myToastE;
 
 /**
@@ -203,20 +205,56 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
         ////////////////////////////////
         bAutoTest_b1.setOnClickListener(view -> {
             myLog("Button click : AUTO TEST 01");
-            launchAddResource(null, null,  AUTOTEST_FILE_01);
+            checkWWW(canReach -> {
+                if (canReach) {
+                    launchAddResource(null, null, AUTOTEST_FILE_01);
+                }
+            });
         });
         bAutoTest_b2.setOnClickListener(view -> {
             myLog("Button click : AUTO TEST 02");
-            launchAddResource(null, null,  AUTOTEST_FILE_02);
+            checkWWW(canReach -> {
+                if (canReach) {
+                    launchAddResource(null, null,  AUTOTEST_FILE_02);
+                }
+            });
         });
         bAutoTest_b3.setOnClickListener(view -> {
             myLog("Button click : AUTO TEST 03");
-            launchAddResource(null, null,  AUTOTEST_FILE_03);
+            checkWWW(canReach -> {
+                if (canReach) {
+                    launchAddResource(null, null,  AUTOTEST_FILE_03);
+                }
+            });
         });
 
         tv_message_import_currently_running.setOnClickListener(v -> startActivity(new Intent(this, AddResourceActivity.class)));
 
     }
+
+    public interface WWWCheckCallback {
+        void onResult(boolean canReach);
+    }
+    private void checkWWW(WWWCheckCallback callback) {
+        if (!NetworkUtils.isNetworkAvailable(this)) {
+            myToast("Aie. Network not available.");
+            callback.onResult(false); // Notify failure
+            return;
+        }
+
+        new Thread(() -> {
+            boolean canReach = NetworkUtils.canReachUrl("https://bookplayer.driot.com");
+            runOnUiThread(() -> {
+                if (canReach) {
+                    callback.onResult(true); // Notify success
+                } else {
+                    myToast("Aie. bookplayer.driot.com not reachable.");
+                    callback.onResult(false); // Notify failure
+                }
+            });
+        }).start();
+    }
+
 
     private void startTimer() {
         myLog("startTimer()");

@@ -139,7 +139,7 @@
         android:paddingEnd="10sp"
         android:text="...%"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textSize="@dimen/playactivity_PlaybackText_Height" />
+        android:textSize="30sp" />
     <Button
         android:id="@+id/bSpeedUp"
         android:text="+"
@@ -190,7 +190,7 @@
         android:paddingEnd="10sp"
         android:text="...%"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textSize="@dimen/playactivity_PlaybackText_Height" />
+        android:textSize="30sp" />
     <Button
         android:id="@+id/bVolumeUp"
         android:text="+"

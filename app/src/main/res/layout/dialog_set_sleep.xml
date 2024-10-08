@@ -1,24 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:orientation="vertical"
     android:padding="20dp">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/tv_CustomSleepDialog_EnterMinutesBeforeSleep"
-        android:textSize="18sp" />
 
     <EditText
         android:id="@+id/inputMinutes"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="number"
-        android:hint="Minutes"
+        android:hint="custom value in minutes"
         android:padding="10dp"
         android:layout_marginTop="10dp"/>
+
+    <!-- GridLayout for the preset buttons -->
+    <GridLayout
+        android:id="@+id/presetButtonsGrid"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:rowCount="2"
+        android:columnCount="2"
+        android:layout_marginTop="10dp"
+        android:layout_gravity="center">
+
+        <Button
+            android:id="@+id/btn_preset_01"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_columnWeight="1"
+            android:layout_rowWeight="1" />
+
+        <Button
+            android:id="@+id/btn_preset_02"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_columnWeight="1"
+            android:layout_rowWeight="1" />
+
+        <Button
+            android:id="@+id/btn_preset_03"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_columnWeight="1"
+            android:layout_rowWeight="1" />
+
+        <Button
+            android:id="@+id/btn_preset_04"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_columnWeight="1"
+            android:layout_rowWeight="1" />
+
+    </GridLayout>
 
     <TextView
         android:layout_width="wrap_content"
@@ -27,6 +70,5 @@
         android:textSize="10sp"
         android:padding="10dp"
         android:layout_marginTop="10dp"/>
-
 
 </LinearLayout>
