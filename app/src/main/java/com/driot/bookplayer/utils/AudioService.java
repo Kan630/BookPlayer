@@ -167,6 +167,8 @@ public class AudioService extends LifecycleLoggingService {
     private boolean ErrorLoadingFile = false;
     DecimalFormat myDF = new DecimalFormat("#,###.");
 
+    private boolean isTimerRunning = false;
+
     /********************************************************************************
      *       NATIVE METHODS
      *
@@ -639,10 +641,16 @@ public class AudioService extends LifecycleLoggingService {
      */
 
     private void startSleepTimer() {
+        if (isTimerRunning) {
+            myLogD("Timer is already running....   should we really start it again... TODO check if needed (aka if param like sleep duration changes)");
+            //return; // Do not start again if already running
+        }
+
         boolean doBeep = Option.getBeepAutoStop(this);
         int timeBeforeSleep = customSleepTime == 0 ? Option.getTimeBeforeSleep(this) : customSleepTime;
 
         elapsedSeconds = 0;
+        isTimerRunning = true;
 
         timerRunnable = new Runnable() {
             @Override
@@ -694,8 +702,10 @@ public class AudioService extends LifecycleLoggingService {
     // Call this method when the user sets a new custom sleep time
     public void updateSleepTimer(int customSleepTime) {
         this.customSleepTime = customSleepTime;
-        stopSleepTimer();
-        startSleepTimer();
+        if (isTimerRunning) {
+            stopSleepTimer();
+            startSleepTimer();
+        }
     }
     public int getCustomSleepTime() {
         return customSleepTime;
@@ -707,6 +717,7 @@ public class AudioService extends LifecycleLoggingService {
             if (handler != null && timerRunnable != null) {
                 handler.removeCallbacks(timerRunnable);
             }
+            isTimerRunning = false;
             String str;
             if (!(PlayList.getZikFilesList()==null)) {
                 str = getCurrentZikFile().getFolderName() + " : " + FormatTime(elapsedSeconds*1000);
@@ -718,6 +729,7 @@ public class AudioService extends LifecycleLoggingService {
         } catch (Exception e) {
             myLogE("killTimer, nothing to kill ?");
         }
+
     }
 
     /********************************************************************************
