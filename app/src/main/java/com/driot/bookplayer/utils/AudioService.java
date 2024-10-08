@@ -702,6 +702,7 @@ public class AudioService extends LifecycleLoggingService {
     }
 
     private void stopSleepTimer() {
+        myLog("stopSleepTimer()");
         try {
             if (handler != null && timerRunnable != null) {
                 handler.removeCallbacks(timerRunnable);

@@ -191,8 +191,6 @@ public class PlayActivity extends LifecycleLoggingActivity {
         bForward = findViewById(R.id.buttonForward);
         bSpeedUp = findViewById(R.id.bSpeedUp);
         bSpeedDown = findViewById(R.id.bSpeedDown);
-        bVolumeUp = findViewById(R.id.bVolumeUp);
-        bVolumeDown = findViewById(R.id.bVolumeDown);
         bSetSleep = findViewById(R.id.bSetSleep);
 
         bPlay.setOnClickListener(v -> playMe());
@@ -200,8 +198,6 @@ public class PlayActivity extends LifecycleLoggingActivity {
         bRewind.setOnClickListener(v -> backwardMe());
         bSpeedUp.setOnClickListener(v -> SpeedMeUp());
         bSpeedDown.setOnClickListener(v -> SpeedMeDown());
-        bVolumeUp.setOnClickListener(v -> volumeUp());
-        bVolumeDown.setOnClickListener(v -> volumeDown());
         bSetSleep.setOnClickListener(v -> setSleep());
 
         buttonsToLock = Arrays.asList(bPlay, bRewind, bForward, bSpeedUp, bSpeedDown);
@@ -214,7 +210,6 @@ public class PlayActivity extends LifecycleLoggingActivity {
         tvTitle = findViewById(R.id.textviewTitle);
         tvSubTitle = findViewById(R.id.textViewSubTitle);
         tvSpeed = findViewById(R.id.textViewSpeed);
-        tvVolume = findViewById(R.id.tvVolume);
         seekbar = findViewById(R.id.seekBar);
         tvListeningTime = findViewById(R.id.tv_ListeningTime);
         tvTimeLeft = findViewById(R.id.tv_TimeLeft);
@@ -350,21 +345,6 @@ public class PlayActivity extends LifecycleLoggingActivity {
         tvSpeed.setText(txt);
     }
 
-    private void volumeUp() {
-        audioService.changeVolume(true);
-        setVolume();
-        myLog("VolumeUp");
-    }
-    private void volumeDown() {
-        audioService.changeVolume(false);
-        setVolume();
-        myLog("VolumeDown");
-    }
-    private void setVolume() {
-        double volume = audioService.getVolume();
-        String txt = FormatPercentStringForVolume(volume * 100);
-        tvVolume.setText(txt);
-    }
     private void setSleep() {
         // Create an alert dialog builder
         AlertDialog.Builder builder = new AlertDialog.Builder(this);

@@ -255,7 +255,7 @@
     <string name="tvSpeed">Speed</string>
     <string name="tvSleep">Sleep</string>
     <string name="tvVolume">Volume</string>
-    <string name="btnSleepSet" translatable="false">Set</string>
+    <string name="btnSleepSet" translatable="false">Sleep</string>
     <string name="tv_ListeningTimeWithNoUserAction">No break since</string>
     <string name="tv_ListeningTimeWithCustomSleep">Custom sleep set since</string>
     <string name="tv_CustomSleepDialog_generalInfo">"<i>Note that this value will only be used for the current playing session.\nThe global Auto Sleep Value is located in Options (in the menu, accessible on the app start page)</i>"</string>

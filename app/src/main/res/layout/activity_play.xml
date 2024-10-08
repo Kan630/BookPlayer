@@ -149,82 +149,19 @@
         android:layout_above="@+id/textViewTempsTotal"
         />
 
-
-    <!-- Volume -->
-    <View style="@style/myStyleViewSimpleHorizontalBar"
-        android:id="@+id/horizontalBarTopOfVolume"
-        android:layout_marginBottom="40dp"
-        android:layout_above="@+id/horizontalBarTopOfSpeed" />
-
-    <TextView
-        android:id="@+id/tvVolumeDesc"
-        style="@style/textColor"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/horizontalBarTopOfVolume"
-        android:layout_marginTop="-25sp"
-        android:layout_marginEnd="20sp"
-        android:layout_marginStart="20sp"
-        android:text="@string/tvVolume"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
-    <Button
-        android:id="@+id/bVolumeDown"
-        android:text="-"
-        android:textSize="30sp"
-        android:paddingVertical="0dp"
-        android:textAlignment="gravity"
-        style="@style/PlayActivityActionButtonsPlusMinus"
-        android:layout_alignStart="@id/bSpeedDown"
-        android:layout_above="@+id/bSpeedDown"
-        />
-    <TextView
-        android:id="@+id/tvVolume"
-        style="@style/textColor"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/horizontalBarTopOfVolume"
-        android:layout_marginTop="-35sp"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="5sp"
-        android:paddingStart="10sp"
-        android:paddingEnd="10sp"
-        android:text="...%"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textSize="30sp" />
-    <Button
-        android:id="@+id/bVolumeUp"
-        android:text="+"
-        android:textSize="24sp"
-        style="@style/PlayActivityActionButtonsPlusMinus"
-        android:layout_above="@+id/bSpeedUp"
-        android:layout_alignStart="@+id/bSpeedUp"
-        />
-
-
     <!-- Sleep and Timer -->
     <View style="@style/myStyleViewSimpleHorizontalBar"
         android:id="@+id/horizontalBarTopOfSleep"
         android:layout_marginBottom="40dp"
-        android:layout_above="@+id/horizontalBarTopOfVolume" />
+        android:layout_above="@+id/horizontalBarTopOfSpeed" />
 
-    <TextView
-        android:id="@+id/textViewSleepDesc"
-        style="@style/textColor"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/horizontalBarTopOfSleep"
-        android:layout_marginTop="-25sp"
-        android:layout_marginEnd="20sp"
-        android:layout_marginStart="20sp"
-        android:text="@string/tvSleep"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
     <Button
         android:id="@+id/bSetSleep"
         android:text="@string/btnSleepSet"
         android:textSize="13sp"
         android:paddingVertical="0dp"
         android:textAlignment="gravity"
-        android:layout_width="60sp"
+        android:layout_width="wrap_content"
         android:layout_height="50sp"
         android:layout_below="@+id/horizontalBarTopOfSleep"
         android:layout_marginTop="-40sp"
@@ -257,7 +194,7 @@
         android:textSize="11sp"
         android:layout_marginEnd="20sp"
         android:layout_marginBottom="-4sp"
-        android:layout_above="@+id/horizontalBarTopOfVolume"
+        android:layout_above="@+id/horizontalBarTopOfSpeed"
         />
 
 
