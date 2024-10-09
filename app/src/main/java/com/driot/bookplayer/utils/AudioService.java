@@ -680,7 +680,6 @@ public class AudioService extends LifecycleLoggingService {
                     Intent intent = new Intent(NOTIFICATION_PLAYBACK_TIMER_VALUE);
                     intent.putExtra(TIMER_VALUE, elapsedSeconds);
                     LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(intent);
-                    myLog("sendBroadcast");
 
                     elapsedSeconds += DELAY_CHECK_TIMER / 1000;
 
