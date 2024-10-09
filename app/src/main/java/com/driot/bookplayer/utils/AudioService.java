@@ -26,6 +26,7 @@ import androidx.core.app.NotificationCompat;
 import androidx.media.session.MediaButtonReceiver;
 
 import com.driot.bookplayer.activities.LifecycleLoggingService;
+import com.driot.bookplayer.activities.PlayActivity;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.ZikFileDao;
 import com.driot.bookplayer.global.Option;
@@ -844,6 +845,11 @@ public class AudioService extends LifecycleLoggingService {
                 playPauseAction = MediaButtonReceiver.buildMediaButtonPendingIntent(this, PlaybackStateCompat.ACTION_PLAY);
             }
 
+            // Create an intent to open the app when the notification is tapped
+            Intent openAppIntent = new Intent(this, PlayActivity.class);
+            openAppIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP); // Ensures only one instance
+            PendingIntent contentIntent = PendingIntent.getActivity(this, 0, openAppIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+
             //int progress = getPosition();
             //int progress = PlayList.getZikFile() == null ? 0 : (int) PlayList.getZikFile().getPosition();
             //int max = getDuration();
@@ -856,10 +862,10 @@ public class AudioService extends LifecycleLoggingService {
                     .setContentText(getCurrentZikFile().getDisplayName())
                     //             .setProgress(100,50, true)
                     .setSmallIcon(R.mipmap.ic_launcher)
-                    //.setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                     .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                     .setOnlyAlertOnce(true)
                     .setOngoing(true)
+                    .setContentIntent(contentIntent)
                     .addAction(new NotificationCompat.Action(android.R.drawable.ic_media_rew, "backward", MediaButtonReceiver.buildMediaButtonPendingIntent(this, PlaybackStateCompat.ACTION_REWIND)))
                     .addAction(new NotificationCompat.Action(actionIcon, actionName, playPauseAction))
                     .addAction(new NotificationCompat.Action(android.R.drawable.ic_media_ff, "fastForward", MediaButtonReceiver.buildMediaButtonPendingIntent(this, PlaybackStateCompat.ACTION_FAST_FORWARD)))
