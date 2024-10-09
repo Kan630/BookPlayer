@@ -36,10 +36,10 @@
     <color name="colorGreenButtonAccent">#228822</color>
     <color name="colorGreenButtonAccentLight">#33bb33</color>
 
-    <color name="pink_300">#F8BBD0</color> <!-- Lighter shade of pink -->
-    <color name="pink_500">#F48FB1</color> <!-- Lighter than previous 500 -->
-    <color name="pink_700">#EC407A</color> <!-- Lighter than previous 700 -->
-    <color name="pink_900">#D81B60</color> <!-- Lighter than previous 900 -->
+    <color name="pink_300">#F8BBD0</color>
+    <color name="pink_500">#F48FB1</color>
+    <color name="pink_700">#EC407A</color>
+    <color name="pink_900">#D81B60</color>
 
     <color name="pastel_blue_300">#81D4FA</color>
     <color name="pastel_blue_500">#4FC3F7</color>
