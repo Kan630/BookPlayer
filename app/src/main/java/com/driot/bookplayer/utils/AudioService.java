@@ -324,13 +324,6 @@ public class AudioService extends LifecycleLoggingService {
                 }
             }
         }
-/*
-            Bundle bundle = intent.getExtras();
-            Set<String> bundleKeySet = bundle.keySet(); // string key set
-            for(String key : bundleKeySet){ // traverse and print pairs
-                myLogI(key + " : " + bundle.get(key));
-            }
- */
         return START_NOT_STICKY; //TODO maybe to change... because memory pressure could kill it
     }
     @Override
@@ -691,7 +684,7 @@ public class AudioService extends LifecycleLoggingService {
                         max = getDuration();
                     }
                     createNotification();
-                    // updateNotificationProgress(max, progress); // seems useless in MediaSession => keep code for Download and other services
+                    //updateNotificationProgress(max, progress); // seems useless in MediaSession => keep code for Download and other services
 
                     handler.postDelayed(this, DELAY_CHECK_TIMER);
                 }
@@ -808,26 +801,7 @@ public class AudioService extends LifecycleLoggingService {
      ***       MEDIA SESSION - Lock Screen Actions
      ********************************************************************************
      */
-    /*
-    // Keep code for Download version
-    private void updateNotificationProgress(int maxProgress, int currentProgress) {
-        if (isPostNotificationPermissionGranted(this)){
-            try {
-                NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
-                NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID);
-                builder.setProgress(maxProgress, currentProgress, false);
-                builder.setSmallIcon(R.drawable.ic_sound);
-                builder.setSilent(true);
-                notificationManager.notify(99, builder.build());
-            } catch (Exception e) {
-                myLogE("updateNotificationProgress - " + e.getMessage());
-            }
-        } else {
-            myLogE("PostNotification Permission NOT granted");
-        }
-    }
 
-     */
     private void createNotification() {
         if (mediaPlayer == null) {return;}
         try {
@@ -871,7 +845,7 @@ public class AudioService extends LifecycleLoggingService {
                     .setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
                             .setMediaSession(mediaSession.getSessionToken())
                             .setShowActionsInCompactView(0,1,2))
-                    //             .setProgress(100,50, true)
+                    //.setProgress(100,0, true)
                     //.setProgress(max, progress, false)  => TODO : check on samsung Tab, it seems to show there.. even without any code !!
                     //.setOngoing(true) //only effective android >= 14, maybe useless on mediaSession
                     //.setUsesChronometer(true)
