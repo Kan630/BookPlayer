@@ -52,7 +52,6 @@ import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_ZIP_FILE_LOAD
 import static com.driot.bookplayer.utils.AudioService.TIMER_VALUE;
 import static com.driot.bookplayer.utils.PermissionRequest.isReadAudioPermissionGranted;
 import static com.driot.bookplayer.utils.PermissionRequest.isRecordAudioPermissionGranted;
-import static com.driot.bookplayer.utils.Tonio.FormatPercentStringForVolume;
 import static com.driot.bookplayer.utils.Tonio.formatNameForDisplay;
 import static com.driot.bookplayer.utils.Tonio.FormatPercentStringForSpeed;
 import static com.driot.bookplayer.utils.Tonio.FormatTime;
@@ -81,7 +80,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
     private Button bPlay;
     List<Button> buttonsToLock;
     private SeekBar seekbar;
-    private TextView tvSeekBar, tvTotalTime, tvVolume, tvTitle, tvSubTitle, tvSpeed, tvListeningTime, tvTimeLeft;
+    private TextView tvSeekBar, tvTotalTime, tvTitle, tvSubTitle, tvSpeed, tvListeningTime, tvTimeLeft;
     private View progressOverlay, messageOverlay;
     private FrequencyVisualizerView frequencyVisualizerView;
     private boolean AnimationNow;
@@ -187,7 +186,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
 
         bPlay = findViewById(R.id.buttonPlay);
 
-        Button bRewind, bForward, bSpeedUp, bSpeedDown, bVolumeUp, bVolumeDown, bSetSleep;
+        Button bRewind, bForward, bSpeedUp, bSpeedDown, bSetSleep;
         bRewind = findViewById(R.id.buttonRewind);
         bForward = findViewById(R.id.buttonForward);
         bSpeedUp = findViewById(R.id.bSpeedUp);
@@ -494,7 +493,6 @@ public class PlayActivity extends LifecycleLoggingActivity {
             tvSeekBar.setText(FormatTime(PlayList.getZikFile().getPosition(),true));
             seekbar.setProgress((int) PlayList.getZikFile().getPosition());
             tvSpeed.setText(FormatPercentStringForSpeed( audioService.getSpeed() * 100));
-            tvVolume.setText(FormatPercentStringForVolume( audioService.getVolume() * 100));
             HideProgressAnim();
             myLog("----------------------------- play screen drawn " + PlayList.getZikFile().getPosition());
         } catch (Exception e) {
