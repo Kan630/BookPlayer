@@ -309,6 +309,8 @@
     <string name="otherApp_droitpositif_txt">Major French law texts, available even offline</string>
     <string name="otherApp_deces" translatable="false">Dead Frogs</string>
     <string name="otherApp_deces_txt">People dead in France since the 70\'</string>
+    <string name="otherApp_scanner" translatable="false">Scanner</string>
+    <string name="otherApp_scanner_txt">QR-codes and barcodes scanner</string>
 
     <!-- Action Bar -->
 

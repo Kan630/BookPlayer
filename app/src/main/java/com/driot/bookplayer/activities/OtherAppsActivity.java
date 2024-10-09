@@ -14,10 +14,11 @@ public class OtherAppsActivity extends LifecycleLoggingActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_autresapplis);
+        setContentView(R.layout.activity_otherapps);
 
         findViewById(R.id.ll_DroitPositif).setOnClickListener(view -> openPlayStoreApp("com.driot.droitpositif"));
         findViewById(R.id.ll_Deces).setOnClickListener(view -> openPlayStoreApp("com.driot.deces"));
+        findViewById(R.id.ll_Scanner).setOnClickListener(view -> openPlayStoreApp("com.driot.scanner"));
        /* findViewById(R.id.ll_KanKwiz).setOnClickListener(view -> openPlayStoreApp("com.driot.KanKwiz"));*/
     }
 
