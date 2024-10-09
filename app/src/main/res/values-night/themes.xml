@@ -105,4 +105,187 @@
             <!-- Customize your theme here. -->
             <item name="android:windowBackground">@color/activityBackground</item>
         </style>
+
+
+        <style name="Theme.BookPlayer.Red" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+            <!-- Primary brand color. -->
+            <item name="colorPrimary">@color/red_500</item>
+            <item name="colorPrimaryVariant">@color/red_700</item>
+            <item name="colorOnPrimary">@color/white</item>
+            <!-- Secondary brand color. -->
+            <item name="colorSecondary">@color/red_300</item>
+            <item name="colorSecondaryVariant">@color/red_900</item>
+            <item name="colorOnSecondary">@color/black</item>
+            <!-- Status bar color. -->
+            <item name="android:statusBarColor">@color/red_700</item>
+            <!-- Customize your theme here. -->
+            <item name="android:windowBackground">@color/activityBackground</item>
+        </style>
+
+        <style name="Theme.BookPlayer.Yellow" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+            <!-- Primary brand color. -->
+            <item name="colorPrimary">@color/yellow_500</item>
+            <item name="colorPrimaryVariant">@color/yellow_700</item>
+            <item name="colorOnPrimary">@color/black</item>
+            <!-- Secondary brand color. -->
+            <item name="colorSecondary">@color/yellow_300</item>
+            <item name="colorSecondaryVariant">@color/yellow_900</item>
+            <item name="colorOnSecondary">@color/black</item>
+            <!-- Status bar color. -->
+            <item name="android:statusBarColor">@color/yellow_700</item>
+            <!-- Customize your theme here. -->
+            <item name="android:windowBackground">@color/activityBackground</item>
+        </style>
+
+        <style name="Theme.BookPlayer.Cyan" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+            <!-- Primary brand color. -->
+            <item name="colorPrimary">@color/cyan_500</item>
+            <item name="colorPrimaryVariant">@color/cyan_700</item>
+            <item name="colorOnPrimary">@color/black</item>
+            <!-- Secondary brand color. -->
+            <item name="colorSecondary">@color/cyan_300</item>
+            <item name="colorSecondaryVariant">@color/cyan_900</item>
+            <item name="colorOnSecondary">@color/black</item>
+            <!-- Status bar color. -->
+            <item name="android:statusBarColor">@color/cyan_700</item>
+            <!-- Customize your theme here. -->
+            <item name="android:windowBackground">@color/activityBackground</item>
+        </style>
+
+        <style name="Theme.BookPlayer.Brown" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+            <!-- Primary brand color. -->
+            <item name="colorPrimary">@color/brown_500</item>
+            <item name="colorPrimaryVariant">@color/brown_700</item>
+            <item name="colorOnPrimary">@color/white</item>
+            <!-- Secondary brand color. -->
+            <item name="colorSecondary">@color/brown_300</item>
+            <item name="colorSecondaryVariant">@color/brown_900</item>
+            <item name="colorOnSecondary">@color/white</item>
+            <!-- Status bar color. -->
+            <item name="android:statusBarColor">@color/brown_700</item>
+            <!-- Customize your theme here. -->
+            <item name="android:windowBackground">@color/activityBackground</item>
+        </style>
+
+        <style name="Theme.BookPlayer.Indigo" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+            <!-- Primary brand color. -->
+            <item name="colorPrimary">@color/indigo_500</item>
+            <item name="colorPrimaryVariant">@color/indigo_700</item>
+            <item name="colorOnPrimary">@color/white</item>
+            <!-- Secondary brand color. -->
+            <item name="colorSecondary">@color/indigo_300</item>
+            <item name="colorSecondaryVariant">@color/indigo_900</item>
+            <item name="colorOnSecondary">@color/white</item>
+            <!-- Status bar color. -->
+            <item name="android:statusBarColor">@color/indigo_700</item>
+            <!-- Customize your theme here. -->
+            <item name="android:windowBackground">@color/activityBackground</item>
+        </style>
+
+        <style name="Theme.BookPlayer.Turquoise" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+            <!-- Primary brand color. -->
+            <item name="colorPrimary">@color/turquoise_500</item>
+            <item name="colorPrimaryVariant">@color/turquoise_700</item>
+            <item name="colorOnPrimary">@color/white</item>
+            <!-- Secondary brand color. -->
+            <item name="colorSecondary">@color/turquoise_300</item>
+            <item name="colorSecondaryVariant">@color/turquoise_900</item>
+            <item name="colorOnSecondary">@color/black</item>
+            <!-- Status bar color. -->
+            <item name="android:statusBarColor">@color/turquoise_700</item>
+            <!-- Customize your theme here. -->
+            <item name="android:windowBackground">@color/activityBackground</item>
+        </style>
+
+        <style name="Theme.BookPlayer.GreenLight" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+            <!-- Primary brand color. -->
+            <item name="colorPrimary">@color/green_light_500</item>
+            <item name="colorPrimaryVariant">@color/green_light_700</item>
+            <item name="colorOnPrimary">@color/black</item>
+            <!-- Secondary brand color. -->
+            <item name="colorSecondary">@color/green_light_300</item>
+            <item name="colorSecondaryVariant">@color/green_light_900</item>
+            <item name="colorOnSecondary">@color/black</item>
+            <!-- Status bar color. -->
+            <item name="android:statusBarColor">@color/green_light_700</item>
+            <!-- Customize your theme here. -->
+            <item name="android:windowBackground">@color/activityBackground</item>
+        </style>
+
+        <style name="Theme.BookPlayer.GreenDark" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+            <!-- Primary brand color. -->
+            <item name="colorPrimary">@color/green_dark_500</item>
+            <item name="colorPrimaryVariant">@color/green_dark_700</item>
+            <item name="colorOnPrimary">@color/white</item>
+            <!-- Secondary brand color. -->
+            <item name="colorSecondary">@color/green_dark_300</item>
+            <item name="colorSecondaryVariant">@color/green_dark_900</item>
+            <item name="colorOnSecondary">@color/white</item>
+            <!-- Status bar color. -->
+            <item name="android:statusBarColor">@color/green_dark_700</item>
+            <!-- Customize your theme here. -->
+            <item name="android:windowBackground">@color/activityBackground</item>
+        </style>
+
+        <style name="Theme.BookPlayer.PinkLight" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+            <!-- Primary brand color. -->
+            <item name="colorPrimary">@color/pink_light_500</item>
+            <item name="colorPrimaryVariant">@color/pink_light_700</item>
+            <item name="colorOnPrimary">@color/white</item>
+            <!-- Secondary brand color. -->
+            <item name="colorSecondary">@color/pink_light_300</item>
+            <item name="colorSecondaryVariant">@color/pink_light_900</item>
+            <item name="colorOnSecondary">@color/black</item>
+            <!-- Status bar color. -->
+            <item name="android:statusBarColor">@color/pink_light_700</item>
+            <!-- Customize your theme here. -->
+            <item name="android:windowBackground">@color/activityBackground</item>
+        </style>
+
+        <style name="Theme.BookPlayer.PinkDark" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+            <!-- Primary brand color. -->
+            <item name="colorPrimary">@color/pink_dark_500</item>
+            <item name="colorPrimaryVariant">@color/pink_dark_700</item>
+            <item name="colorOnPrimary">@color/white</item>
+            <!-- Secondary brand color. -->
+            <item name="colorSecondary">@color/pink_dark_300</item>
+            <item name="colorSecondaryVariant">@color/pink_dark_900</item>
+            <item name="colorOnSecondary">@color/black</item>
+            <!-- Status bar color. -->
+            <item name="android:statusBarColor">@color/pink_dark_700</item>
+            <!-- Customize your theme here. -->
+            <item name="android:windowBackground">@color/activityBackground</item>
+        </style>
+
+        <style name="Theme.BookPlayer.YellowDark" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+            <!-- Primary brand color. -->
+            <item name="colorPrimary">@color/yellow_dark_500</item>
+            <item name="colorPrimaryVariant">@color/yellow_dark_700</item>
+            <item name="colorOnPrimary">@color/black</item>
+            <!-- Secondary brand color. -->
+            <item name="colorSecondary">@color/yellow_dark_300</item>
+            <item name="colorSecondaryVariant">@color/yellow_dark_900</item>
+            <item name="colorOnSecondary">@color/black</item>
+            <!-- Status bar color. -->
+            <item name="android:statusBarColor">@color/yellow_dark_700</item>
+            <!-- Customize your theme here. -->
+            <item name="android:windowBackground">@color/activityBackground</item>
+        </style>
+
+        <style name="Theme.BookPlayer.RedDark" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+            <!-- Primary brand color. -->
+            <item name="colorPrimary">@color/red_dark_500</item>
+            <item name="colorPrimaryVariant">@color/red_dark_700</item>
+            <item name="colorOnPrimary">@color/white</item>
+            <!-- Secondary brand color. -->
+            <item name="colorSecondary">@color/red_dark_300</item>
+            <item name="colorSecondaryVariant">@color/red_dark_900</item>
+            <item name="colorOnSecondary">@color/white</item>
+            <!-- Status bar color. -->
+            <item name="android:statusBarColor">@color/red_dark_700</item>
+            <!-- Customize your theme here. -->
+            <item name="android:windowBackground">@color/activityBackground</item>
+        </style>
+
+
     </resources>
