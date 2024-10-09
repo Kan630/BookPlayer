@@ -166,6 +166,8 @@ public class PlayActivity extends LifecycleLoggingActivity {
             } else if (Objects.equals(action, NOTIFICATION_FILELOADED)) {
                 DrawUI();
                 HideProgressAnim();
+            } else {
+                myLogE("Unknown Broadcast : " + action);
             }
         }
     };
@@ -268,6 +270,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
                 }
                 if (audioServiceBound) {
                     try {
+                        myLog("unbinding service - unregistering receiver");
                         unbindService(audioServiceConnection);
                         unregisterReceiver(broadCastReceiver);
                     } catch (Exception e) {

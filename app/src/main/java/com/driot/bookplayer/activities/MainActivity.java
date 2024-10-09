@@ -81,7 +81,7 @@ public class MainActivity extends LifecycleLoggingActivity {
         setContentView(R.layout.activity_main);
 
         toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        setSupportActionBar(toolbar); //si ca plante, check le color theme saved ???
         //toolbar.setTitle("Books");
         toolbar.setLogo(R.mipmap.ic_launcher);
         toolbar.setLogo(R.mipmap.ic_launcher);

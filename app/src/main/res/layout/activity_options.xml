@@ -16,7 +16,7 @@
             style="@style/LinearLayoutOptionsVertical">
             <TextView
                 style="@style/OptionTitle"
-                android:layout_marginTop="50sp"
+                android:layout_marginTop="20sp"
                 android:text="@string/option_timeBeforeSleep" />
             <LinearLayout
                 android:id="@+id/ll_autosleep_horizon"

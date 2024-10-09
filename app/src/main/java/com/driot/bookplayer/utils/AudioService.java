@@ -653,6 +653,9 @@ public class AudioService extends LifecycleLoggingService {
         elapsedSeconds = 0;
         isTimerRunning = true;
 
+        myLog("----------------------------------------------------------------------------- timer STARTED -- ");
+        sendBroadcast(new Intent(NOTIFICATION_PLAYBACK_TIMER_VALUE).putExtra(TIMER_VALUE, elapsedSeconds));
+
         timerRunnable = new Runnable() {
             @Override
             public void run() {
@@ -676,6 +679,7 @@ public class AudioService extends LifecycleLoggingService {
                     Intent intent = new Intent(NOTIFICATION_PLAYBACK_TIMER_VALUE);
                     intent.putExtra(TIMER_VALUE, elapsedSeconds);
                     sendBroadcast(intent);
+                    myLog("broadcast Sent  -- " + elapsedSeconds);
 
                     elapsedSeconds += DELAY_CHECK_TIMER / 1000;
 
@@ -860,7 +864,6 @@ public class AudioService extends LifecycleLoggingService {
             NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID) // channel is used for user to be able to disable all notifications from that channel, starting android 8
                     .setContentTitle(getCurrentZikFile().getFolderName())
                     .setContentText(getCurrentZikFile().getDisplayName())
-                    //             .setProgress(100,50, true)
                     .setSmallIcon(R.mipmap.ic_launcher)
                     .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                     .setOnlyAlertOnce(true)
@@ -872,7 +875,8 @@ public class AudioService extends LifecycleLoggingService {
                     .setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
                             .setMediaSession(mediaSession.getSessionToken())
                             .setShowActionsInCompactView(0,1,2))
-                    .setProgress(max, progress, false)
+                    //             .setProgress(100,50, true)
+                    //.setProgress(max, progress, false)  => TODO : check on samsung Tab, it seems to show there.. even without any code !!
                     //.setOngoing(true) //only effective android >= 14, maybe useless on mediaSession
                     //.setUsesChronometer(true)
             ;
@@ -882,7 +886,7 @@ public class AudioService extends LifecycleLoggingService {
 
             startForeground(1, builder.build());
         } catch (Exception e) {
-            myLogE("createNotification() - " + e.getMessage());
+            myLogE("Error createNotification() - " + e.getMessage());
         }
     }
     private void createNotificationChannel() {
