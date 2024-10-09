@@ -23,6 +23,7 @@ import android.view.KeyEvent;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.media.session.MediaButtonReceiver;
 
 import com.driot.bookplayer.activities.LifecycleLoggingService;
@@ -244,23 +245,23 @@ public class AudioService extends LifecycleLoggingService {
     }
 
     private void alertNewTrack() {
-        sendBroadcast(new Intent(NOTIFICATION_NEWTRACK).putExtra(TRACKNUMBER, PlayList.getNumZikFile()));
+        LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(new Intent(NOTIFICATION_NEWTRACK).putExtra(TRACKNUMBER, PlayList.getNumZikFile()));
         createNotification();
         myLog("sendBroadcast alertNewTrack ");
     }
 
     private void alertError() {
-        sendBroadcast(new Intent(NOTIFICATION_ERROR).putExtra(TRACKNUMBER, PlayList.getNumZikFile()));
+        LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(new Intent(NOTIFICATION_ERROR).putExtra(TRACKNUMBER, PlayList.getNumZikFile()));
         myLog("sendBroadcast alertError");
     }
 
     private void alertTrackFinished() {
-        sendBroadcast(new Intent(NOTIFICATION_TRACKFINISHED));
+        LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(new Intent(NOTIFICATION_TRACKFINISHED));
         myLog("--------------------------------------------------------------------------------- sendBroadcast alertTrackFinished --------------------------------------------------------------------------------");
     }
 
     private void alertPlaylistFinished() {
-        sendBroadcast(new Intent(NOTIFICATION_PLAYLISTFINISHED));
+        LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(new Intent(NOTIFICATION_PLAYLISTFINISHED));
         myLog("sendBroadcast alertPlaylistFinished");
     }
 
@@ -399,7 +400,7 @@ public class AudioService extends LifecycleLoggingService {
         } catch (IOException e) {
             myLogE("ZIP, Error creating temp file : " + e.getMessage());
         } finally {
-            sendBroadcast(new Intent(NOTIFICATION_ZIP_FILE_LOADED));
+            LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(new Intent(NOTIFICATION_ZIP_FILE_LOADED));
         }
         return pathOfTempFile;
     }
@@ -409,7 +410,7 @@ public class AudioService extends LifecycleLoggingService {
         ErrorLoadingFile = false; // for onCompletion Next Track...
         if (!fileExists(sPath)) {
             myLogE("loadFile(sPath) : ERROR -- File doesn't exist !! " + sPath);
-            sendBroadcast(new Intent(NOTIFICATION_FILENOTFOUND));
+            LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(new Intent(NOTIFICATION_FILENOTFOUND));
             ErrorLoadingFile=true;
             stopSelf();
             return false;
@@ -426,7 +427,7 @@ public class AudioService extends LifecycleLoggingService {
             } else {
                 mediaPlayer.customSeekTo((int) PlayList.getZikFile().getPosition());
             }
-            sendBroadcast(new Intent(NOTIFICATION_FILELOADED));
+            LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(new Intent(NOTIFICATION_FILELOADED));
             myLog("------------------------------------------------------------"); // to get the chapters of a .m4b, you need ffmpeg...
             MediaPlayer.TrackInfo[] trackInfoArray = mediaPlayer.getTrackInfo();
             for (MediaPlayer.TrackInfo trackInfo : trackInfoArray) {
@@ -437,7 +438,7 @@ public class AudioService extends LifecycleLoggingService {
         } catch (IOException e) {
             myLogE("LoadFile - " + e.getMessage());
             myLogE(" +++++***+++++ ERROR LOADING FILE +++++***+++++ (" + sPath + ")");
-            sendBroadcast(new Intent(NOTIFICATION_FILENOTFOUND));
+            LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(new Intent(NOTIFICATION_FILENOTFOUND));
             ErrorLoadingFile=true;
             stopSelf();
             return false;
@@ -464,13 +465,13 @@ public class AudioService extends LifecycleLoggingService {
                         AudioService.this.pauseAudio();
                         //mediaSession.setActive(false); // CHECK
                         Intent intent = new Intent(NOTIFICATION_AUDIOFOCUS_LOST);
-                        sendBroadcast(intent);
+                        LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(intent);
                     } else {
                         myLog("Audio Focus Gain");
                         AudioService.this.playAudio();
                         mediaSession.setActive(true);
                         Intent intent = new Intent(NOTIFICATION_AUDIOFOCUS_GAIN);
-                        sendBroadcast(intent);
+                        LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(intent);
                     }
                 };
 
@@ -654,7 +655,7 @@ public class AudioService extends LifecycleLoggingService {
         isTimerRunning = true;
 
         myLog("----------------------------------------------------------------------------- timer STARTED -- ");
-        sendBroadcast(new Intent(NOTIFICATION_PLAYBACK_TIMER_VALUE).putExtra(TIMER_VALUE, elapsedSeconds));
+        LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(new Intent(NOTIFICATION_PLAYBACK_TIMER_VALUE).putExtra(TIMER_VALUE, elapsedSeconds));
 
         timerRunnable = new Runnable() {
             @Override
@@ -670,7 +671,7 @@ public class AudioService extends LifecycleLoggingService {
                     // 2 beeps
                     if (doBeep) playBeep("2beeps");
 
-                    sendBroadcast(new Intent(NOTIFICATION_PLAYBACK_MAXTIMEREACH));
+                    LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(new Intent(NOTIFICATION_PLAYBACK_MAXTIMEREACH));
                     if (mediaPlayer != null && mediaPlayer.isPlaying()) {
                         mediaPlayer.stop();
                     }
@@ -678,8 +679,8 @@ public class AudioService extends LifecycleLoggingService {
                 } else {
                     Intent intent = new Intent(NOTIFICATION_PLAYBACK_TIMER_VALUE);
                     intent.putExtra(TIMER_VALUE, elapsedSeconds);
-                    sendBroadcast(intent);
-                    myLog("broadcast Sent  -- " + elapsedSeconds);
+                    LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(intent);
+                    myLog("sendBroadcast");
 
                     elapsedSeconds += DELAY_CHECK_TIMER / 1000;
 

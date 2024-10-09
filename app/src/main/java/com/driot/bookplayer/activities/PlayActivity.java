@@ -60,6 +60,7 @@ import static com.driot.tonylib.KanLogger.myToastE;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.core.content.ContextCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 30/10/2020
@@ -272,7 +273,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
                     try {
                         myLog("unbinding service - unregistering receiver");
                         unbindService(audioServiceConnection);
-                        unregisterReceiver(broadCastReceiver);
+                        LocalBroadcastManager.getInstance(PlayActivity.this).unregisterReceiver(broadCastReceiver);
                     } catch (Exception e) {
                         myLogE("onBackPressed() - " + e.getMessage());
                     }
@@ -418,7 +419,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
         myLog("onResume()... registering broadCastReceiver");
 
         for (String broadcastNotification : broadcastNotifications) {
-            ContextCompat.registerReceiver(this, broadCastReceiver, new IntentFilter(broadcastNotification), ContextCompat.RECEIVER_NOT_EXPORTED);
+            LocalBroadcastManager.getInstance(this).registerReceiver(broadCastReceiver, new IntentFilter(broadcastNotification));
         }
 
         myLog("onResume() - creating new timer for Display");
@@ -435,7 +436,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
         if (audioServiceBound) {
             try {
                 unbindService(audioServiceConnection);
-                unregisterReceiver(broadCastReceiver);
+                LocalBroadcastManager.getInstance(this).unregisterReceiver(broadCastReceiver);
             } catch (Exception e) {
                 myLogE("onDestroy() - " + e.getMessage());
             }
@@ -595,7 +596,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
 
     private void lockButtonAndDisplayErrorMessage(String errMessage) {
         myLog("lockButtonAndDisplayErrorMessage");
-        unregisterReceiver(broadCastReceiver);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(broadCastReceiver);
         bPlay.setEnabled(false);
         for (Button b : buttonsToLock) {
             b.setEnabled(false);
