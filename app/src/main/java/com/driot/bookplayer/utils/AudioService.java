@@ -642,7 +642,7 @@ public class AudioService extends LifecycleLoggingService {
 
     private void startSleepTimer() {
         if (isTimerRunning) {
-            myLogD("Timer is already running....   should we really start it again... TODO check if needed (aka if param like sleep duration changes)");
+            myLogE("Timer is already running....   should we really start it again... TODO check if needed (aka if param like sleep duration changes)");
             //return; // Do not start again if already running
         }
 

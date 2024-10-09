@@ -36,10 +36,10 @@
     <color name="colorGreenButtonAccent">#228822</color>
     <color name="colorGreenButtonAccentLight">#33bb33</color>
 
-    <color name="pink_300">#F06292</color>
-    <color name="pink_500">#E91E63</color>
-    <color name="pink_700">#C2185B</color>
-    <color name="pink_900">#880E4F</color>
+    <color name="pink_300">#F8BBD0</color> <!-- Lighter shade of pink -->
+    <color name="pink_500">#F48FB1</color> <!-- Lighter than previous 500 -->
+    <color name="pink_700">#EC407A</color> <!-- Lighter than previous 700 -->
+    <color name="pink_900">#D81B60</color> <!-- Lighter than previous 900 -->
 
     <color name="pastel_blue_300">#81D4FA</color>
     <color name="pastel_blue_500">#4FC3F7</color>
@@ -55,4 +55,76 @@
     <color name="green_500">#4CAF50</color>
     <color name="green_700">#388E3C</color>
     <color name="green_900">#1B5E20</color>
+
+    <!-- Red Theme Colors -->
+    <color name="red_500">#F44336</color>
+    <color name="red_700">#D32F2F</color>
+    <color name="red_300">#E57373</color>
+    <color name="red_900">#B71C1C</color>
+
+    <!-- Yellow Theme Colors -->
+    <color name="yellow_500">#FFEB3B</color>
+    <color name="yellow_700">#FBC02D</color>
+    <color name="yellow_300">#FFF176</color>
+    <color name="yellow_900">#F57F17</color>
+
+    <!-- Cyan Theme Colors -->
+    <color name="cyan_500">#00BCD4</color>
+    <color name="cyan_700">#0097A7</color>
+    <color name="cyan_300">#4DD0E1</color>
+    <color name="cyan_900">#006064</color>
+
+    <!-- Brown Theme Colors -->
+    <color name="brown_500">#795548</color>
+    <color name="brown_700">#5D4037</color>
+    <color name="brown_300">#A1887F</color>
+    <color name="brown_900">#3E2723</color>
+
+    <!-- Indigo Theme Colors -->
+    <color name="indigo_500">#3F51B5</color>
+    <color name="indigo_700">#303F9F</color>
+    <color name="indigo_300">#7986CB</color>
+    <color name="indigo_900">#1A237E</color>
+
+    <!-- Turquoise Theme Colors -->
+    <color name="turquoise_500">#40E0D0</color>
+    <color name="turquoise_700">#008080</color>
+    <color name="turquoise_300">#48D1CC</color>
+    <color name="turquoise_900">#004C4C</color>
+
+    <!-- Green Light Theme -->
+    <color name="green_light_500">#8BC34A</color>
+    <color name="green_light_700">#689F38</color>
+    <color name="green_light_300">#AED581</color>
+    <color name="green_light_900">#33691E</color>
+
+    <!-- Green Dark Theme -->
+    <color name="green_dark_500">#388E3C</color>
+    <color name="green_dark_700">#2E7D32</color>
+    <color name="green_dark_300">#81C784</color>
+    <color name="green_dark_900">#1B5E20</color>
+
+    <!-- Pink Light Theme -->
+    <color name="pink_light_500">#FFCDD2</color>
+    <color name="pink_light_700">#F48FB1</color>
+    <color name="pink_light_300">#F8BBD0</color>
+    <color name="pink_light_900">#C2185B</color>
+
+    <!-- Pink Dark Theme -->
+    <color name="pink_dark_500">#E91E63</color>
+    <color name="pink_dark_700">#C2185B</color>
+    <color name="pink_dark_300">#F06292</color>
+    <color name="pink_dark_900">#880E4F</color>
+
+    <!-- Yellow Dark Theme -->
+    <color name="yellow_dark_500">#FFC107</color>
+    <color name="yellow_dark_700">#FFA000</color>
+    <color name="yellow_dark_300">#FFD54F</color>
+    <color name="yellow_dark_900">#FF6F00</color>
+
+    <!-- Red Dark Theme -->
+    <color name="red_dark_500">#D32F2F</color>
+    <color name="red_dark_700">#B71C1C</color>
+    <color name="red_dark_300">#EF5350</color>
+    <color name="red_dark_900">#B71C1C</color>
 </resources>

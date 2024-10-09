@@ -47,17 +47,6 @@ public class OptionActivity extends LifecycleLoggingActivity {
     public static final int MINIMUM_TIME_BEFORE_SLEEP = 1;
     public static final int MAXIMUM_TIME_BEFORE_SLEEP = 60*24;
 
-
-    public static final int  theme_01 = R.style.Theme_BookPlayer_Gray;
-    public static final int  theme_02 = R.style.Theme_BookPlayer_Purple;
-    public static final int  theme_03 = R.style.Theme_BookPlayer_Green;
-    public static final int  theme_04 = R.style.Theme_BookPlayer_Pink;
-    public static final int  theme_05 = R.style.Theme_BookPlayer_Blue;
-    public static final int  theme_06 = R.style.Theme_BookPlayer_Orange;
-
-    private int color_01, color_02, color_03, color_04, color_05, color_06; //look useless, the Object array could get rid of it....
-
-
     EditText et_timeBeforeSleep;
     EditText et_ForwardSeconds;
     CheckBox chk_MailMethod;
@@ -66,6 +55,8 @@ public class OptionActivity extends LifecycleLoggingActivity {
     CheckBox chk_visualizer_on;
     TextView tx_Visualizer_on;
     ImageButton btn_Color_01, btn_Color_02, btn_Color_03, btn_Color_04, btn_Color_05, btn_Color_06;
+    ImageButton btn_Color_07, btn_Color_08, btn_Color_09, btn_Color_10, btn_Color_11, btn_Color_12;
+    ImageButton btn_Color_13, btn_Color_14, btn_Color_15, btn_Color_16, btn_Color_17, btn_Color_18;
     Object[][] themesAndColors;
     CheckBox chk_rewind_after_pause;
     CheckBox chk_copy_file;
@@ -89,6 +80,18 @@ public class OptionActivity extends LifecycleLoggingActivity {
         btn_Color_04 = findViewById(R.id.btn_color_04);
         btn_Color_05 = findViewById(R.id.btn_color_05);
         btn_Color_06 = findViewById(R.id.btn_color_06);
+        btn_Color_07 = findViewById(R.id.btn_color_07);
+        btn_Color_08 = findViewById(R.id.btn_color_08);
+        btn_Color_09 = findViewById(R.id.btn_color_09);
+        btn_Color_10 = findViewById(R.id.btn_color_10);
+        btn_Color_11 = findViewById(R.id.btn_color_11);
+        btn_Color_12 = findViewById(R.id.btn_color_12);
+        btn_Color_13 = findViewById(R.id.btn_color_13);
+        btn_Color_14 = findViewById(R.id.btn_color_14);
+        btn_Color_15 = findViewById(R.id.btn_color_15);
+        btn_Color_16 = findViewById(R.id.btn_color_16);
+        btn_Color_17 = findViewById(R.id.btn_color_17);
+        btn_Color_18 = findViewById(R.id.btn_color_18);
 
         et_timeBeforeSleep.setText(String.valueOf(Option.getTimeBeforeSleep(this)));
         et_ForwardSeconds.setText(String.valueOf(Option.get_ForwardSeconds(this)));
@@ -101,15 +104,43 @@ public class OptionActivity extends LifecycleLoggingActivity {
                 requestPermissions();
             }
         });
+/*
+    public static final int  theme_01 = R.style.Theme_BookPlayer_Gray;
+    public static final int  theme_02 = R.style.Theme_BookPlayer_Purple;
+    public static final int  theme_03 = R.style.Theme_BookPlayer_Green;
+    public static final int  theme_04 = R.style.Theme_BookPlayer_Pink;
+    public static final int  theme_05 = R.style.Theme_BookPlayer_Blue;
+    public static final int  theme_06 = R.style.Theme_BookPlayer_Orange;
+
+    public static final int  theme_07 = R.style.Theme_BookPlayer_Red;
+    public static final int  theme_08 = R.style.Theme_BookPlayer_Yellow;
+    public static final int  theme_09 = R.style.Theme_BookPlayer_Cyan;
+    public static final int  theme_10 = R.style.Theme_BookPlayer_Brown;
+    public static final int  theme_11 = R.style.Theme_BookPlayer_Indigo;
+    public static final int  theme_12 = R.style.Theme_BookPlayer_Turquoise;
+ */
 
         themesAndColors = new Object[][] {
-                {btn_Color_01, theme_01, color_01},
-                {btn_Color_02, theme_02, color_02},
-                {btn_Color_03, theme_03, color_03},
-                {btn_Color_04, theme_04, color_04},
-                {btn_Color_05, theme_05, color_05},
-                {btn_Color_06, theme_06, color_06}
+                {btn_Color_01, R.style.Theme_BookPlayer_Gray},
+                {btn_Color_02, R.style.Theme_BookPlayer_Purple},
+                {btn_Color_03, R.style.Theme_BookPlayer_Brown},
+                {btn_Color_04, R.style.Theme_BookPlayer_Blue},
+                {btn_Color_05, R.style.Theme_BookPlayer_Cyan},
+                {btn_Color_06, R.style.Theme_BookPlayer_Turquoise},
+                {btn_Color_07, R.style.Theme_BookPlayer_Orange},
+                {btn_Color_08, R.style.Theme_BookPlayer_Yellow},
+                {btn_Color_09, R.style.Theme_BookPlayer_YellowDark},
+                {btn_Color_10, R.style.Theme_BookPlayer_Red},
+                {btn_Color_11, R.style.Theme_BookPlayer_RedDark},
+                {btn_Color_12, R.style.Theme_BookPlayer_Indigo},
+                {btn_Color_13, R.style.Theme_BookPlayer_PinkLight},
+                {btn_Color_14, R.style.Theme_BookPlayer_Pink},
+                {btn_Color_15, R.style.Theme_BookPlayer_PinkDark},
+                {btn_Color_16, R.style.Theme_BookPlayer_GreenLight},
+                {btn_Color_17, R.style.Theme_BookPlayer_Green},
+                {btn_Color_18, R.style.Theme_BookPlayer_GreenDark},
         };
+
         for (int color_iterator = 0; color_iterator < themesAndColors.length; color_iterator++) {
             ImageButton button = (ImageButton) themesAndColors[color_iterator][0];
             int themeId = (int) themesAndColors[color_iterator][1];

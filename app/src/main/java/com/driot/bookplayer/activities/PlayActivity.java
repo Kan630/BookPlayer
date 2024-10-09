@@ -88,6 +88,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
     private boolean HasBeenInitializedService = false;
     private Intent intentMusicService;
     private Timer timerRedrawUI;
+    private String tvListeningTimeBaseText;
 
     String[] broadcastNotifications = {
             NOTIFICATION_TRACKFINISHED //useless ?
@@ -212,6 +213,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
         tvSpeed = findViewById(R.id.textViewSpeed);
         seekbar = findViewById(R.id.seekBar);
         tvListeningTime = findViewById(R.id.tv_ListeningTime);
+        tvListeningTimeBaseText = getString(R.string.tv_ListeningTimeWithNoUserAction);
         tvTimeLeft = findViewById(R.id.tv_TimeLeft);
         frequencyVisualizerView = findViewById(R.id.frequencyVisualizerView);
         frequencyVisualizerView.setOnClickListener(v -> playMe());
@@ -306,6 +308,9 @@ public class PlayActivity extends LifecycleLoggingActivity {
                     /////////   PAUSE
                     myLog("pause");
                     audioService.pauseAudio();
+                    tvListeningTimeBaseText = getString(R.string.tv_ListeningTimeWithNoUserAction);
+                    tvListeningTime.setText("");
+                    tvTimeLeft.setText("");
                     //reDrawListeningSince(0);
                     /////// PLAY
                 } else {
@@ -370,6 +375,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
                     int minutes = Integer.parseInt(input);
                     // Update the AudioService with the new sleep time
                     audioService.updateSleepTimer(minutes);
+                    tvListeningTimeBaseText = getString(R.string.tv_ListeningTimeWithCustomSleep);
                 }
             }
         };
@@ -501,7 +507,8 @@ public class PlayActivity extends LifecycleLoggingActivity {
         String zeText_left;
         int timeBeforeSleep = audioService.getCustomSleepTime() == 0 ? Option.getTimeBeforeSleep(this) : audioService.getCustomSleepTime();
         if (tempsEcoule > 0) {
-            String str = audioService.getCustomSleepTime() == 0 ? getString(R.string.tv_ListeningTimeWithNoUserAction) : getString(R.string.tv_ListeningTimeWithCustomSleep);
+            //String str = audioService.getCustomSleepTime() == 0 ? getString(R.string.tv_ListeningTimeWithNoUserAction) : getString(R.string.tv_ListeningTimeWithCustomSleep);
+            String str = tvListeningTimeBaseText;
             zeText_since = str + " " + FormatTime(tempsEcoule*1000,true);
             zeText_left = getString(R.string.tv_TimeLeft) + " : " + FormatTime(timeBeforeSleep*1000*60-tempsEcoule*1000,true);
             tvListeningTime.setText(zeText_since);
