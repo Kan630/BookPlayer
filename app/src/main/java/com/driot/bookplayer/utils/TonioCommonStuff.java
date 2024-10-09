@@ -1,8 +1,8 @@
-package com.driot.tonylib;
+package com.driot.bookplayer.utils;
 
 import java.nio.charset.StandardCharsets;
 
-import static com.driot.tonylib.KanLogger.myLogE;
+import static com.driot.bookplayer.utils.KanLogger.myLogE;
 
 import android.util.Log;
 

@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import com.driot.bookplayer.R;
 
 import static com.driot.bookplayer.utils.Tonio2.loadBiggerText;
-import static com.driot.tonylib.KanLogger.myLog;
+import static com.driot.bookplayer.utils.KanLogger.myLog;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 02/12/20

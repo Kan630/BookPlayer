@@ -1,6 +1,6 @@
 package com.driot.bookplayer.utils;
 
-import static com.driot.tonylib.KanLogger.myLog;
+import static com.driot.bookplayer.utils.KanLogger.myLog;
 
 import android.content.Context;
 import android.media.MediaScannerConnection;

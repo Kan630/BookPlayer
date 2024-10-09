@@ -6,7 +6,7 @@ import android.os.Environment;
 import java.io.File;
 import java.io.IOException;
 
-import static com.driot.tonylib.KanLogger.myLog;
+import static com.driot.bookplayer.utils.KanLogger.myLog;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 15/06/21

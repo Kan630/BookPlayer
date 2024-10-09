@@ -28,7 +28,7 @@ import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.PlayList;
 import com.driot.bookplayer.utils.AudioService;
 import com.driot.bookplayer.utils.FrequencyVisualizerView;
-import com.driot.tonylib.KanLogger;
+import com.driot.bookplayer.utils.KanLogger;
 
 import java.util.Arrays;
 import java.util.List;
@@ -56,10 +56,9 @@ import static com.driot.bookplayer.utils.Tonio.formatNameForDisplay;
 import static com.driot.bookplayer.utils.Tonio.FormatPercentStringForSpeed;
 import static com.driot.bookplayer.utils.Tonio.FormatTime;
 import static com.driot.bookplayer.utils.Utils.animateView;
-import static com.driot.tonylib.KanLogger.myToastE;
+import static com.driot.bookplayer.utils.KanLogger.myToastE;
 
 import androidx.activity.OnBackPressedCallback;
-import androidx.core.content.ContextCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 /**

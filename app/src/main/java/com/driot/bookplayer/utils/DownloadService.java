@@ -2,13 +2,9 @@ package com.driot.bookplayer.utils;
 
 import static com.driot.bookplayer.utils.Tonio.formatMem;
 import static com.driot.bookplayer.utils.Tonio.getFileNameFromPath;
-import static com.driot.tonylib.KanLogger.myToast;
 
-import android.app.IntentService;
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Binder;
 import android.os.IBinder;
 
@@ -16,9 +12,7 @@ import androidx.annotation.Nullable;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.activities.AddResourceActivity;
 import com.driot.bookplayer.activities.LifecycleLoggingService;
-import com.driot.tonylib.KanLogger;
 
 import java.io.BufferedInputStream;
 import java.io.File;

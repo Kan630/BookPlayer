@@ -25,12 +25,12 @@ import android.widget.TextView;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.utils.PermissionRequest;
-import com.driot.tonylib.KanLogger;
+import com.driot.bookplayer.utils.KanLogger;
 
 import static com.driot.bookplayer.global.Option.DEFAULT_FORWARD_SECONDS;
 import static com.driot.bookplayer.global.Option.DEFAULT_TIME_BEFORE_SLEEP;
 import static com.driot.bookplayer.utils.PermissionRequest.isRecordAudioPermissionGranted;
-import static com.driot.tonylib.KanLogger.myLongToast;
+import static com.driot.bookplayer.utils.KanLogger.myLongToast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.StyleRes;

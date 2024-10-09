@@ -15,13 +15,13 @@ import android.widget.TextView;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.utils.AddResourceService;
-import com.driot.tonylib.KanLogger;
+import com.driot.bookplayer.utils.KanLogger;
 
 import static com.driot.bookplayer.global.Var.PATH_CHECK_APPLICATION;
 import static com.driot.bookplayer.utils.Tonio.getFileNameFromPath;
 import static com.driot.bookplayer.utils.Tonio.formatNameForDisplay;
-import static com.driot.tonylib.KanLogger.myToast;
-import static com.driot.tonylib.KanLogger.myToastE;
+import static com.driot.bookplayer.utils.KanLogger.myToast;
+import static com.driot.bookplayer.utils.KanLogger.myToastE;
 
 
 /**

@@ -8,8 +8,8 @@ import java.util.Arrays;
 
 import com.driot.bookplayer.R;
 
-import static com.driot.tonylib.KanLogger.myLogE;
-import static com.driot.tonylib.TonioCommonStuff.deleteExtension;
+import static com.driot.bookplayer.utils.KanLogger.myLogE;
+import static com.driot.bookplayer.utils.TonioCommonStuff.deleteExtension;
 
 
 /**

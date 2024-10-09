@@ -1,7 +1,7 @@
 package com.driot.bookplayer.global;
 
 import com.driot.bookplayer.db.ZikFile;
-import com.driot.tonylib.KanLogger;
+import com.driot.bookplayer.utils.KanLogger;
 
 import java.util.List;
 

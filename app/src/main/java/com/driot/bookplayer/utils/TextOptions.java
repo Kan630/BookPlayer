@@ -13,8 +13,8 @@ import java.io.IOException;
 import java.io.StringReader;
 
 import static android.content.Context.MODE_PRIVATE;
-import static com.driot.tonylib.KanLogger.myLog;
-import static com.driot.tonylib.KanLogger.myLogE;
+import static com.driot.bookplayer.utils.KanLogger.myLog;
+import static com.driot.bookplayer.utils.KanLogger.myLogE;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 02/12/20

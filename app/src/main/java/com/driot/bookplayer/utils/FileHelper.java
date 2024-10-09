@@ -3,11 +3,10 @@
 
 package com.driot.bookplayer.utils;
 
-import static com.driot.tonylib.KanLogger.myLog;
-import static com.driot.tonylib.KanLogger.myLogE;
+import static com.driot.bookplayer.utils.KanLogger.myLog;
+import static com.driot.bookplayer.utils.KanLogger.myLogE;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;

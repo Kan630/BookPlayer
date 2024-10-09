@@ -17,7 +17,7 @@ import java.util.HashMap;
 import static com.driot.bookplayer.utils.Tonio2.getTextFileContentInArrayList;
 
 import com.driot.bookplayer.R;
-import com.driot.tonylib.KanLogger;
+import com.driot.bookplayer.utils.KanLogger;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 21/08/21

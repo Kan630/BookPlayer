@@ -10,9 +10,6 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 
-import com.driot.tonylib.KanLogger;
-
-
 
 public class FrequencyVisualizerView extends View {
 

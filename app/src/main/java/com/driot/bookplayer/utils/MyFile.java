@@ -4,8 +4,8 @@ import android.content.Context;
 
 import java.util.Arrays;
 
-import static com.driot.tonylib.KanLogger.myLogE;
-import static com.driot.tonylib.TonioCommonStuff.deleteExtension;
+import static com.driot.bookplayer.utils.KanLogger.myLogE;
+import static com.driot.bookplayer.utils.TonioCommonStuff.deleteExtension;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 21/08/21

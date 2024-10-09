@@ -1,23 +1,18 @@
 package com.driot.bookplayer.utils;
 
 import static com.driot.bookplayer.utils.Tonio2.removeLongDuplicates;
-import static com.driot.tonylib.KanLogger.myLog;
-import static com.driot.tonylib.KanLogger.myLogE;
+import static com.driot.bookplayer.utils.KanLogger.myLog;
+import static com.driot.bookplayer.utils.KanLogger.myLogE;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Environment;
 import android.os.StatFs;
-import android.provider.Settings;
 import android.webkit.MimeTypeMap;
 
 import androidx.annotation.NonNull;
 import androidx.documentfile.provider.DocumentFile;
-
-import com.driot.tonylib.KanLogger;
 
 import java.io.File;
 import java.sql.Date;

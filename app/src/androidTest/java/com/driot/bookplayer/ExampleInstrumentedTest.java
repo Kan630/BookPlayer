@@ -6,13 +6,11 @@ import android.os.Build;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.driot.tonylib.KanLogger;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static com.driot.tonylib.KanLogger.myLog;
-import static com.driot.tonylib.TonioCommonStuff.MD5;
+import static com.driot.bookplayer.utils.KanLogger.myLog;
+import static com.driot.bookplayer.utils.TonioCommonStuff.MD5;
 import static org.junit.Assert.*;
 
 /**

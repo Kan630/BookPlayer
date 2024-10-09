@@ -1,19 +1,14 @@
 package com.driot.bookplayer.utils;
-//import static com.driot.tonylib.KanLogger.myLog;
+//import static com.driot.bookplayer.utils.KanLogger.myLog;
 
 
 import android.Manifest;
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Build;
 
-import com.driot.tonylib.KanLogger;
 import com.google.android.material.snackbar.Snackbar;
 
 import androidx.annotation.MainThread;
@@ -23,9 +18,7 @@ import androidx.annotation.StringRes;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import android.provider.Settings;
 import android.util.Log;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 

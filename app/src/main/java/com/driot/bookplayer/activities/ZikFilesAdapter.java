@@ -18,7 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.PlayList;
 import com.driot.bookplayer.db.ZikFile;
-import com.driot.tonylib.KanLogger;
+import com.driot.bookplayer.utils.KanLogger;
 
 import java.util.List;
 

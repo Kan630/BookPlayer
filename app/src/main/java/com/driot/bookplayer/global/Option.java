@@ -1,14 +1,10 @@
 package com.driot.bookplayer.global;
 
 import static android.content.Context.MODE_PRIVATE;
-import static com.driot.tonylib.KanMail.DEFAULT_SEND_MAIL_METHOD_DEFAULT;
+import static com.driot.bookplayer.utils.KanMail.DEFAULT_SEND_MAIL_METHOD_DEFAULT;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.util.TypedValue;
-
-import com.driot.bookplayer.R;
-
 
 
 public class Option {

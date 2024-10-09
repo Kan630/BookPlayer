@@ -1,7 +1,7 @@
-package com.driot.tonylib;
+package com.driot.bookplayer.utils;
 
 import static android.content.Context.MODE_PRIVATE;
-import static com.driot.tonylib.KanLogger.myToast;
+import static com.driot.bookplayer.utils.KanLogger.myToast;
 
 import android.content.ComponentName;
 import android.content.Context;

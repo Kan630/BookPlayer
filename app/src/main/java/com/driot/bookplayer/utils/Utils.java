@@ -1,11 +1,10 @@
 package com.driot.bookplayer.utils;
 
-import static com.driot.tonylib.KanLogger.myLog;
-import static com.driot.tonylib.KanLogger.myLogE;
+import static com.driot.bookplayer.utils.KanLogger.myLog;
+import static com.driot.bookplayer.utils.KanLogger.myLogE;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.util.Pair;
 import android.view.View;
 
 import java.io.BufferedInputStream;
@@ -22,8 +21,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-
-import com.driot.tonylib.KanLogger;
 
 
 /**

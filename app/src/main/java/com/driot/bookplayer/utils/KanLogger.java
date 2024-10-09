@@ -1,4 +1,4 @@
-package com.driot.tonylib;
+package com.driot.bookplayer.utils;
 
 import android.content.Context;
 import android.os.Build;
@@ -15,7 +15,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import static com.driot.tonylib.TonioCommonStuff.MD5;
+import static com.driot.bookplayer.utils.TonioCommonStuff.MD5;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 20/12/20

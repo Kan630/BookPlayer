@@ -4,7 +4,7 @@ package com.driot.bookplayer.db;
  * created by Antoine Driot -- antoine.driot.com -- on 28/10/20
  */
 
-import static com.driot.tonylib.KanLogger.myLog;
+import static com.driot.bookplayer.utils.KanLogger.myLog;
 
 import android.content.Context;
 

@@ -27,7 +27,7 @@ import com.driot.bookplayer.utils.DownloadService;
 import com.driot.bookplayer.utils.MediaScanner2;
 import com.driot.bookplayer.utils.NetworkUtils;
 import com.driot.bookplayer.utils.PermissionRequest;
-import com.driot.tonylib.KanLogger;
+import com.driot.bookplayer.utils.KanLogger;
 
 import java.util.Arrays;
 import java.util.List;
@@ -38,8 +38,8 @@ import static com.driot.bookplayer.global.Var.AUTOTEST_FILE_01;
 import static com.driot.bookplayer.global.Var.AUTOTEST_FILE_02;
 import static com.driot.bookplayer.global.Var.AUTOTEST_FILE_03;
 import static com.driot.bookplayer.utils.PermissionRequest.isReadAudioPermissionGranted;
-import static com.driot.tonylib.KanLogger.myToast;
-import static com.driot.tonylib.KanLogger.myToastE;
+import static com.driot.bookplayer.utils.KanLogger.myToast;
+import static com.driot.bookplayer.utils.KanLogger.myToastE;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 08/11/20

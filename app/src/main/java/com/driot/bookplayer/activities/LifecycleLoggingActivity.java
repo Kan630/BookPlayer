@@ -27,7 +27,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import static com.driot.bookplayer.global.Var.LOG_LIFECYCLE_TRACE;
 
 import com.driot.bookplayer.global.Option;
-import com.driot.tonylib.KanLogger;
+import com.driot.bookplayer.utils.KanLogger;
 
 
 /**

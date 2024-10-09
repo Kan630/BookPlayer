@@ -26,7 +26,6 @@ import com.driot.bookplayer.db.FolderAttrib;
 import com.driot.bookplayer.db.FolderDao;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Option;
-import com.driot.tonylib.KanLogger;
 
 import java.io.File;
 import java.io.IOException;
@@ -46,8 +45,8 @@ import static com.driot.bookplayer.utils.Tonio.formatNameForDisplay;
 import static com.driot.bookplayer.utils.Tonio.fileExists;
 import static com.driot.bookplayer.utils.Tonio.getFileNameFromPath;
 import static com.driot.bookplayer.utils.Tonio.stripExtension;
-import static com.driot.tonylib.TonioCommonStuff.deleteExtension;
-import static com.driot.tonylib.TonioCommonStuff.extractName;
+import static com.driot.bookplayer.utils.TonioCommonStuff.deleteExtension;
+import static com.driot.bookplayer.utils.TonioCommonStuff.extractName;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 23/11/20

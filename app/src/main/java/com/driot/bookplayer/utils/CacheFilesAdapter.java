@@ -13,7 +13,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.ZikFile;
-import com.driot.tonylib.KanLogger;
 
 import java.io.File;
 import java.text.SimpleDateFormat;

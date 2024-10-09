@@ -4,8 +4,8 @@ import android.content.Context;
 
 import androidx.sqlite.db.SimpleSQLiteQuery;
 
-import static com.driot.tonylib.KanLogger.myLog;
-import static com.driot.tonylib.KanLogger.myLogE;
+import static com.driot.bookplayer.utils.KanLogger.myLog;
+import static com.driot.bookplayer.utils.KanLogger.myLogE;
 
 
 /**

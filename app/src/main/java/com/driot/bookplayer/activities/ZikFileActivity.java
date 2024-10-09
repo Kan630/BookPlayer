@@ -10,7 +10,7 @@ import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.PlayList;
-import com.driot.tonylib.KanLogger;
+import com.driot.bookplayer.utils.KanLogger;
 
 import java.util.Date;
 import java.util.HashMap;

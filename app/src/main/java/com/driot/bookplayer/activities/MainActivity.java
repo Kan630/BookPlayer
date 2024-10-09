@@ -1,7 +1,7 @@
 package com.driot.bookplayer.activities;
 
-import static com.driot.tonylib.KanLogger.isMyPhoneDev;
-import static com.driot.tonylib.TonioCommonStuff.MD5;
+import static com.driot.bookplayer.utils.KanLogger.isMyPhoneDev;
+import static com.driot.bookplayer.utils.TonioCommonStuff.MD5;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -38,8 +38,8 @@ import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.FolderDao;
 import com.driot.bookplayer.global.Option;
-import com.driot.tonylib.KanLogger;
-import com.driot.tonylib.KanMail;
+import com.driot.bookplayer.utils.KanLogger;
+import com.driot.bookplayer.utils.KanMail;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 

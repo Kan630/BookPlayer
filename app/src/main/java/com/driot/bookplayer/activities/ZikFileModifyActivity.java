@@ -1,8 +1,8 @@
 package com.driot.bookplayer.activities;
 
 import static com.driot.bookplayer.global.Var.PATH_CHECK_APPLICATION;
-import static com.driot.tonylib.KanLogger.myLogInFile;
-import static com.driot.tonylib.KanLogger.myToast;
+import static com.driot.bookplayer.utils.KanLogger.myLogInFile;
+import static com.driot.bookplayer.utils.KanLogger.myToast;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -19,7 +19,7 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Sql;
 import com.driot.bookplayer.db.ZikFile;
-import com.driot.tonylib.KanLogger;
+import com.driot.bookplayer.utils.KanLogger;
 
 import java.io.File;
 

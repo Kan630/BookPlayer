@@ -9,7 +9,7 @@ import android.os.IBinder;
 
 import androidx.annotation.Nullable;
 
-import com.driot.tonylib.KanLogger;
+import com.driot.bookplayer.utils.KanLogger;
 
 
 public abstract class LifecycleLoggingService extends Service {

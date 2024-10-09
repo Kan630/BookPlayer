@@ -34,7 +34,6 @@ import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.PlayList;
 import com.driot.bookplayer.db.Sql;
 import com.driot.bookplayer.db.ZikFile;
-import com.driot.tonylib.KanLogger;
 
 import java.io.File;
 import java.io.FileOutputStream;

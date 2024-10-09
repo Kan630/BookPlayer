@@ -26,7 +26,6 @@ import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.LifecycleLoggingService;
-import com.driot.tonylib.KanLogger;
 
 import java.io.File;
 import java.io.FileDescriptor;
