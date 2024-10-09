@@ -689,13 +689,10 @@ public class AudioService extends LifecycleLoggingService {
                     if (PlayList.getZikFile() != null) {
                         progress = (int) PlayList.getZikFile().getPosition();
                         max = getDuration();
-                        myLogD("updating notification in Runnable - " + progress + "/" + max + " ---- Position : " + PlayList.getZikFile().getPosition());
                     }
-
                     createNotification();
                     // updateNotificationProgress(max, progress); // seems useless in MediaSession => keep code for Download and other services
 
-                    // Schedule next run
                     handler.postDelayed(this, DELAY_CHECK_TIMER);
                 }
             }
@@ -767,11 +764,10 @@ public class AudioService extends LifecycleLoggingService {
                     ZikFileDao zikFileDao = db.ZikFileDao();
                     mySqlresponse = zikFileDao.update(zf);
                     if (mySqlresponse > 0) {
-                        myLogD("updateZikFileState---------- zikFile updated (" + zf.getName() + ")- position : " + myDF.format(zf.getPosition()));
+                        myLogD("---------- zikFile updated (" + zf.getName() + ")- position : " + myDF.format(zf.getPosition()));
                         Sql.calculateFolderProgress(getApplicationContext(), zf.getIdFolder());
-                        myLogD("updateZikFileState---------- Folder Progress updated");
                     } else {
-                        myLogE("updateZikFileState---------- ZikFile NOT updated");
+                        myLogE("updateZikFileState - Error sql response ---------- ZikFile NOT updated");
                     }
                 } catch (Exception e) {
                     myLogE("updateZikFileState - Exception while Updating File progress in Thread - " + e.getMessage());
