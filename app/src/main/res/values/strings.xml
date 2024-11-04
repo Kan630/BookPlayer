@@ -140,9 +140,9 @@
     <!-- ********************************** -->
     <!-- Get Resources -->
 
-    <string name="bOpenFile">Open single file</string>
-    <string name="bOpenFolder">Open Folder</string>
-    <string name="bOpenZipFile">Open Zip File</string>
+    <string name="bOpenFile">File</string>
+    <string name="bOpenFolder">Folder</string>
+    <string name="bOpenZipFile">Zip File</string>
 
 
     <string name="TextHeaderOpen">Open an audio on my device</string>

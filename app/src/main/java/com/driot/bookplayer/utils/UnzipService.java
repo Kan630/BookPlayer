@@ -273,6 +273,10 @@ public class UnzipService extends LifecycleLoggingService {
 
     private Charset getCharset(File zipFile) {
         Charset charset;
+        charset = Charset.forName("CP437"); //=IBM437
+        if (checkCharset(zipFile, charset)) { return charset; }
+        charset = Charset.forName("IBM850");
+        if (checkCharset(zipFile, charset)) { return charset; }
         charset = StandardCharsets.UTF_8;
         if (checkCharset(zipFile, charset)) { return charset; }
         charset = StandardCharsets.ISO_8859_1;
