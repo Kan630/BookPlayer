@@ -17,6 +17,8 @@ import java.util.Locale;
 
 import static com.driot.bookplayer.utils.TonioCommonStuff.MD5;
 
+import com.driot.bookplayer.global.Var;
+
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 20/12/20
  *
@@ -67,6 +69,7 @@ public class KanLogger {
     /// IS DEV
     /////////////////////////////////-----------------------------------------------------------
     public static boolean isMyPhoneDev() {
+        if (Var.THIS_PHONE_IS_DEV) return true;
         boolean ret = false;
         String strToCheck = MD5(Build.FINGERPRINT);
         if (strToCheck != null) {

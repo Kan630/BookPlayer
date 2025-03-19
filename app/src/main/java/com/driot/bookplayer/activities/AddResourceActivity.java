@@ -49,11 +49,20 @@ public class AddResourceActivity
     private String type;
 
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        myLog("onNewIntent() - going for download");
+        // Handle the new intent in case the activity is already running
+        handleIncomingIntent(intent);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_addresource);
+
+        handleIncomingIntent(getIntent());
 
         tvTitle = findViewById(R.id.tvTitle);
         progressBarText = findViewById(R.id.progressBarText);
@@ -187,6 +196,17 @@ public class AddResourceActivity
             }
         });
     }
+
+    private void handleIncomingIntent(Intent intent) {
+        if (intent != null && Intent.ACTION_VIEW.equals(intent.getAction())) {
+            Uri fileUri = intent.getData();
+            if (fileUri != null) {
+                // Process the file here, e.g., load and play the audio file
+                myLog("File URI: " + fileUri.toString());
+            }
+        }
+    }
+
     //--- LOG --------------------------
     private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
     private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }

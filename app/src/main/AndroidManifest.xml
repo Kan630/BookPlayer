@@ -35,7 +35,21 @@
         <activity android:name=".activities.GetResourceActivity" />
         <activity android:name=".activities.FolderModifyActivity" />
         <activity android:name=".activities.ZikFileModifyActivity" />
-        <activity android:name=".activities.AddResourceActivity" />
+        <activity android:name=".activities.AddResourceActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="content" />
+                <data android:scheme="file" />
+
+                <data android:mimeType="audio/*" />
+                <data android:host="*" />
+            </intent-filter>
+        </activity>
         <activity android:name=".activities.HelpActivity" />
         <activity android:name=".activities.OptionActivity" />
         <activity android:name=".activities.OtherAppsActivity" />
