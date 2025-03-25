@@ -1,6 +1,11 @@
 package com.driot.bookplayer.activities;
 
-// TEST commit branches, HEAD, master, origin/master and cie
+
+//
+/** COMMIT / REVERT tests
+ * second test, a new comment, last one disapear by clicking
+ * "reset current branch to here..."  --> "HARD"         on a previous commit
+ */
 
 import static com.driot.bookplayer.utils.KanLogger.isMyPhoneDev;
 import static com.driot.bookplayer.utils.TonioCommonStuff.MD5;
