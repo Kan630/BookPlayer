@@ -5,6 +5,7 @@ package com.driot.bookplayer.activities;
 /** COMMIT / REVERT tests
  * second test, a new comment, last one disapear by clicking
  * "reset current branch to here..."  --> "HARD"         on a previous commit
+ * doing so then on next commit, choosed "Rebase", then "Accept yours"   => History LOST !!!
  */
 
 import static com.driot.bookplayer.utils.KanLogger.isMyPhoneDev;
