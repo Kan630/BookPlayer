@@ -13,6 +13,7 @@ import android.media.MediaPlayer;
 import android.media.ToneGenerator;
 import android.net.Uri;
 import android.os.Binder;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -45,6 +46,7 @@ import java.text.DecimalFormat;
 import java.util.Objects;
 
 import static com.driot.bookplayer.activities.PlayActivity.SHARED_PREFERENCE_SPEED;
+import static com.driot.bookplayer.utils.KanLogger.myLogE;
 import static com.driot.bookplayer.utils.Tonio.FormatPercentDouble;
 import static com.driot.bookplayer.utils.Tonio.FormatTime;
 import static com.driot.bookplayer.utils.Tonio.fileExists;
@@ -56,7 +58,11 @@ import static com.driot.bookplayer.utils.Utils.copyStream;
  */
 class CustomMediaPlayer extends MediaPlayer {
     public void customSeekTo(int posMilliSec) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            seekTo(posMilliSec);
+        } else {
             seekTo(posMilliSec, SEEK_CLOSEST);  //seek_closest needed for m4b...
+        }
     }
 }
 public class AudioService extends LifecycleLoggingService {
@@ -859,18 +865,22 @@ public class AudioService extends LifecycleLoggingService {
         }
     }
     private void createNotificationChannel() {
-        myLog("createNotificationChannel()");
-        try {
-            NotificationChannel channel = new NotificationChannel(
-                    CHANNEL_ID, "Music Playback",
-                    NotificationManager.IMPORTANCE_LOW); //LOW = no sound
-            channel.setDescription("Bookplayer Music Playback Controls");
-            NotificationManager manager = getSystemService(NotificationManager.class);
-            if (manager != null) {
-                manager.createNotificationChannel(channel);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            myLogE("Device with Android < 8, will not do createNotificationChannel()");
+        } else {
+            myLog("createNotificationChannel()");
+            try {
+                NotificationChannel channel = new NotificationChannel(
+                        CHANNEL_ID, "Music Playback",
+                        NotificationManager.IMPORTANCE_LOW); //LOW = no sound
+                channel.setDescription("Bookplayer Music Playback Controls");
+                NotificationManager manager = getSystemService(NotificationManager.class);
+                if (manager != null) {
+                    manager.createNotificationChannel(channel);
+                }
+            } catch (Exception e) {
+                myLogE("createNotificationChannel() - " + e.getMessage());
             }
-        } catch (Exception e) {
-            myLogE("createNotificationChannel() - " + e.getMessage());
         }
     }
     private void removeNotification() {
