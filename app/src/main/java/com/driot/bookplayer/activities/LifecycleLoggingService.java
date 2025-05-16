@@ -33,7 +33,7 @@ public abstract class LifecycleLoggingService extends Service {
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        myLog("onUnbind() -Intent=[" + intent.toString() + "]");
+        myLog("onBind() -Intent=[" + intent.toString() + "]");
         return null;
     }
 
@@ -57,7 +57,7 @@ public abstract class LifecycleLoggingService extends Service {
 
     @Override
     public void onTrimMemory (int level) {
-        myLogE("onTrimMemory() - level=[" + level + "]  (should not be compared, cf doc)");
+        myLogE("onTrimMemory() - level=[" + level + "]");
         super.onTrimMemory(level);
     }
 
@@ -70,12 +70,12 @@ public abstract class LifecycleLoggingService extends Service {
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        myLog("onTrimMemory() - newConfig=[" + newConfig.toString() + "]");
+        myLog("onConfigurationChanged() - newConfig=[" + newConfig.toString() + "]");
     }
 
     @Override
     public void onTimeout(int startId) {
-        myLogE("onTrimMemory() - startId=[" + startId + "]");
+        myLogE("onTimeout() - startId=[" + startId + "]");
         super.onTimeout(startId);
     }
 
