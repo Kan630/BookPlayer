@@ -19,6 +19,7 @@ public class KanMail {
     private static String s_listRecipients;
     private static String s_subject;
     private static String s_body;
+    private static Uri u_attachment;
     private static Context appContext;
 
     //cannot get import, maybe because the java class is in another Lib...
@@ -26,6 +27,20 @@ public class KanMail {
     public static final boolean DEFAULT_SEND_MAIL_METHOD_DEFAULT = true;
 
 
+    public static void sendDaMail(Context c, String listRecipients, String subject, String body, Uri attachmentUri) {
+        appContext = c;
+        s_listRecipients = listRecipients;
+        s_subject = subject;
+        s_body = body;
+        u_attachment = attachmentUri;
+
+        SharedPreferences prefs = appContext.getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE);
+        if (prefs.getBoolean("SEND_MAIL_METHOD_DEFAULT", DEFAULT_SEND_MAIL_METHOD_DEFAULT)) {
+            sendMail_DefaultApp();
+        } else {
+            sendMail_andLetUserChooseEmailApp();
+        }
+    }
 
     public static void sendDaMail(Context c, String listRecipients, String subject, String body) {
         myLog("Preparing mail for " + listRecipients);
@@ -44,14 +59,18 @@ public class KanMail {
     }
 
     private static void sendMail_DefaultApp() {
-        String uriText =
-                "mailto:" + s_listRecipients +
-                        "?subject=" + Uri.encode(s_subject) +
-                        "&body=" + Uri.encode(s_body);
-        Uri uri = Uri.parse(uriText);
-        Intent sendIntent = new Intent(Intent.ACTION_SENDTO);
-        sendIntent.setData(uri);
-        appContext.startActivity(Intent.createChooser(sendIntent, "Send email"));
+        Intent emailIntent = new Intent(Intent.ACTION_SEND);
+        emailIntent.setType("message/rfc822");
+        emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{s_listRecipients});
+        emailIntent.putExtra(Intent.EXTRA_SUBJECT, s_subject);
+        emailIntent.putExtra(Intent.EXTRA_TEXT, s_body);
+
+        if (u_attachment != null) {
+            emailIntent.putExtra(Intent.EXTRA_STREAM, u_attachment);
+            emailIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        }
+
+        appContext.startActivity(Intent.createChooser(emailIntent, "Send email"));
     }
 
     private static void sendMail_andLetUserChooseAnyApp() {
@@ -61,6 +80,10 @@ public class KanMail {
         emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{s_listRecipients});
         emailIntent.putExtra(Intent.EXTRA_SUBJECT, s_subject);
         emailIntent.putExtra(Intent.EXTRA_TEXT, s_body);
+        if (u_attachment != null) {
+            emailIntent.putExtra(Intent.EXTRA_STREAM, u_attachment);
+            emailIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        }
         appContext.startActivity(emailIntent);
     }
 
@@ -99,6 +122,26 @@ public class KanMail {
         }
 
     }
+    /* chatGPT me dit de remplacer par ca mais je vais pas le faire !
+private static void sendMail_andLetUserChooseEmailApp(Uri attachmentUri) {
+    myToast("Please select an email app");
+
+    Intent emailIntent = new Intent(Intent.ACTION_SEND);
+    emailIntent.setType("message/rfc822");
+    emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{s_listRecipients});
+    emailIntent.putExtra(Intent.EXTRA_SUBJECT, s_subject);
+    emailIntent.putExtra(Intent.EXTRA_TEXT, s_body);
+
+    if (attachmentUri != null) {
+        emailIntent.putExtra(Intent.EXTRA_STREAM, attachmentUri);
+        emailIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+    }
+
+    appContext.startActivity(Intent.createChooser(emailIntent, "Send Email"));
+}
+     */
+
+
     ////////////////////////////////////////////////////////
     ///////// Loggers
     ////////////////////////////////////////////////////////

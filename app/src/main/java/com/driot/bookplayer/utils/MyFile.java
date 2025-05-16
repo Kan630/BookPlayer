@@ -1,11 +1,15 @@
 package com.driot.bookplayer.utils;
 
 import android.content.Context;
+import android.net.Uri;
 
+import java.io.File;
 import java.util.Arrays;
 
 import static com.driot.bookplayer.utils.KanLogger.myLogE;
 import static com.driot.bookplayer.utils.TonioCommonStuff.deleteExtension;
+
+import androidx.core.content.FileProvider;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 21/08/21
@@ -61,5 +65,21 @@ public class MyFile {
     //public String getExtention() {
     //return extention;
     //}
+
+    public static Uri getUriFromMyFile(Context context, MyFile myFile) {
+        File file = new File(context.getFilesDir(), "log/" + myFile.getFileName());
+                  //new File(context.getFilesDir(), "subfolder/" + myFile.getFileName());
+
+        if (!file.exists()) {
+            KanLogger.myLogE("getUriFromMyFile: File does not exist -> " + file.getAbsolutePath());
+            return null;
+        }
+
+        return FileProvider.getUriForFile(
+                context,
+                context.getPackageName() + ".FileProvider",
+                file
+        );
+    }
 
 }

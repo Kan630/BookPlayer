@@ -2,6 +2,7 @@ package com.driot.bookplayer.utils;
 
 import android.app.Activity;
 import android.content.Context;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +15,8 @@ import java.util.ArrayList;
 
 import com.driot.bookplayer.R;
 
+import static com.driot.bookplayer.utils.KanLogger.myLogE;
+import static com.driot.bookplayer.utils.KanLogger.myToast;
 import static com.driot.bookplayer.utils.Tonio2.loadBiggerText;
 import static com.driot.bookplayer.utils.KanLogger.myLog;
 
@@ -71,6 +74,16 @@ public class MyFileAdapter extends RecyclerView.Adapter<MyFileAdapter.MyFileView
             myLog("MyFileAdapter.onClick()");
             MyFile myFile = myFileArrayList.get(getAdapterPosition());
             loadBiggerText(mContext, "classic", myFile.getFileName(), "Log");
+
+            // send it by mail also !!
+            Uri fileUri = MyFile.getUriFromMyFile(mContext, myFile);
+            if (fileUri != null) {
+                KanMail.sendDaMail(mContext, "bookplayer@driot.com", "**BookplayerLog**", myFile.getFileName() , fileUri);
+            } else {
+                myLogE("File not found, cannot attach.... [" + myFile.getFileName() + "]");
+                myToast("File not found, cannot attach.");
+            }
+
         }
     }
 }
