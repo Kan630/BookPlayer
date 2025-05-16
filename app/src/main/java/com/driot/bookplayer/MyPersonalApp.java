@@ -9,6 +9,7 @@ import java.io.IOException;
 import static com.driot.bookplayer.utils.KanLogger.myLog;
 
 import com.driot.bookplayer.global.PlayList;
+import com.driot.bookplayer.utils.KanLogger;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 15/06/21
@@ -25,7 +26,8 @@ public class MyPersonalApp extends Application {
         super.onCreate();
         myLog("onCreate for myLogExtendApp");
 
-        PlayList.init(getApplicationContext());   //TODO, do the same for KanLogger....
+        PlayList.init(getApplicationContext());
+        KanLogger.init(getApplicationContext());
 
         if ( isExternalStorageWritable() ) {
 

@@ -62,8 +62,11 @@ public class KanLogger {
             return null;
         }
     }
-    public static void setKanContext(Context c) {
-        KanLogger.appContext = c;
+    //public static void setKanContext(Context c) {    // Now using MyPersonalApp
+    //    KanLogger.appContext = c;
+    //}
+    public static void init(Context context) {
+        appContext = context.getApplicationContext();
     }
 
     /////////////////////////////////

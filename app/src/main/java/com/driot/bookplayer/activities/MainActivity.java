@@ -74,7 +74,7 @@ public class MainActivity extends LifecycleLoggingActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        KanLogger.setKanContext(getApplicationContext());
+        //KanLogger.setKanContext(getApplicationContext()); // Now using MyPersonalApp
         KanLogger.myLog("------------------------------------------------------------------");
         KanLogger.myLog("----------------     Main Activity onCreate()     ----------------");
         KanLogger.myLog("------------------------------------------------------------------");
@@ -104,7 +104,7 @@ public class MainActivity extends LifecycleLoggingActivity {
     protected void onRestart() {
         super.onRestart();
         myLog("about to reset KanContext");
-        KanLogger.setKanContext(getApplicationContext()); //TODO this is shit
+        //KanLogger.setKanContext(getApplicationContext()); //TODO this is shit    // Now using MyPersonalApp
         getFolders();
         myLog("recyclerview drawing through setAdapter on restart");
     }
