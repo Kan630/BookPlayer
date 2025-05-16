@@ -4,7 +4,7 @@ plugins {
 
 android {
 
-    compileSdk 34 // Previous Note : compile version 34 where target version is only 33,  for implementation 'androidx.core:core:1.12.0' to work
+    compileSdk 35 // Previous Note : compile version 34 where target version is only 33,  for implementation 'androidx.core:core:1.12.0' to work
 
     defaultConfig {
         applicationId "com.driot.bookplayer"
@@ -19,6 +19,8 @@ android {
         //  30   = android 11.0
         // 31-32 = android 12.0
         //  33   = android 13.0 Tiramisu
+        //  34   = android 14.0 Upside Down Cake        2023
+        //  35   = android 15.0 Vanilla Ice Cream       2025
 
         minSdkVersion 24
         //24 seems to be minimum for ZipFile
@@ -26,12 +28,12 @@ android {
         //note : 26 needed for NotificationChannel
         //note : 26 needed for xml adaptable icons
 
-        targetSdkVersion 34
+        targetSdkVersion 35
 
         /////////////////////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////////////////////
-        versionCode 50
-        versionName "50 - PlayList==null bugfix"
+        versionCode 51
+        versionName "51 - Gradle and Dependencies upgraded"
         /////////////////////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////////////////////
 
@@ -97,20 +99,20 @@ dependencies {
     implementation 'org.apache.commons:commons-io:1.3.2'
     implementation 'com.google.android.material:material:1.12.0' //snackBar, recyclerView, actionBar?  => update to 1.10 breaks Observer and LifecycleOwner
     // => so try to import only snack-bar and recycler view.... or from there better ? :  implementation 'androidx.recyclerview:recyclerview:1.2.1'
-    implementation 'androidx.recyclerview:recyclerview:1.3.2'
+    implementation 'androidx.recyclerview:recyclerview:1.4.0'
     
-    implementation 'androidx.documentfile:documentfile:1.0.1'
-    implementation 'androidx.core:core:1.13.1'
+    implementation 'androidx.documentfile:documentfile:1.1.0'
+    implementation 'androidx.core:core:1.16.0'
     implementation 'androidx.media:media:1.7.0'
-    implementation 'androidx.annotation:annotation:1.8.2'
-    implementation "androidx.room:room-runtime:2.6.1"
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'androidx.annotation:annotation:1.9.1'
+    implementation "androidx.room:room-runtime:2.7.1"
+    implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
 
     implementation 'com.google.android.gms:play-services-nearby:19.3.0'
 
-    implementation 'com.google.code.gson:gson:2.10.1'  // for storing PlayList Serializable in prefs
+    implementation 'com.google.code.gson:gson:2.11.0'  // for storing PlayList Serializable in prefs
 
-    annotationProcessor "androidx.room:room-compiler:2.6.1"
+    annotationProcessor "androidx.room:room-compiler:2.7.1"
 
 
     // Import the BoM for the Firebase platform

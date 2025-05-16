@@ -189,7 +189,7 @@ public class StatsActivity extends LifecycleLoggingActivity {
                 return "Oreo MR1";
             case Build.VERSION_CODES.P:
                 return "Pie";
-            case Build.VERSION_CODES.Q:
+            case Build.VERSION_CODES.Q:  // SDK 28  // Android 9
                 return "Android 10";
             case Build.VERSION_CODES.R:
                 return "Android 11";
@@ -201,6 +201,8 @@ public class StatsActivity extends LifecycleLoggingActivity {
                 return "Tiramisu";
             case Build.VERSION_CODES.UPSIDE_DOWN_CAKE:
                 return "Upside Down Cake";
+            case Build.VERSION_CODES.VANILLA_ICE_CREAM: // SDK 35  // Android 15
+                return "Vanilla Ice Cream";
             default:
                 return "Unknown";
         }
