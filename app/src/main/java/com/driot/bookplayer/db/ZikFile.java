@@ -4,6 +4,8 @@ package com.driot.bookplayer.db;
  * created by Antoine Driot -- antoine.driot.com -- on 30/10/20
  */
 
+import static com.driot.bookplayer.utils.Tonio.getExtension;
+
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
@@ -172,6 +174,11 @@ public class ZikFile implements Serializable {
     public void setIszipfile(boolean iszipfile) {
         this.iszipfile = iszipfile;
     }
+
+    public boolean isM4b() {
+        return getExtension(name).equals("m4b");
+    }
+
 
     public double getZeorder() { return zeorder; }
     public void setZeorder(double zeorder) {

@@ -61,7 +61,12 @@ class CustomMediaPlayer extends MediaPlayer {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
             seekTo(posMilliSec);
         } else {
-            seekTo(posMilliSec, SEEK_CLOSEST);  //seek_closest needed for m4b...
+            if (PlayList.getZikFile() != null && PlayList.getZikFile().isM4b()) {
+                seekTo(posMilliSec, SEEK_CLOSEST);  //seek_closest needed for m4b...
+            } else {
+                seekTo(posMilliSec);
+            }
+
         }
     }
 }
@@ -579,7 +584,7 @@ public class AudioService extends LifecycleLoggingService {
 
     public void setPosition(int position) {
         mediaPlayer.customSeekTo(position);
-        myLog("set Position : " + myDF.format(position));
+        myLog("setPosition() : " + myDF.format(position));
     }
 
     public int getPosition() {
