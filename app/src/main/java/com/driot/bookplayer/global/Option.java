@@ -24,7 +24,7 @@ public class Option {
     private static final boolean DEFAULT_REWIND_AFTER_PAUSE = true;
     private static final int DEFAULT_CUSTOM_THEME = 0;
     private static final boolean DEFAULT_COPY_FILES = true;
-    private static final boolean DEFAULT_CLICK_VISUALIZER_PLAYPAUSE = true;
+    private static final boolean DEFAULT_CLICK_VISUALIZER_PLAYPAUSE = false;
 
 
     /////////////////// SLEEP - AUTOMATIC PAUSE ///////////////////
