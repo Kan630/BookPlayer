@@ -103,6 +103,7 @@ public class MainActivity extends LifecycleLoggingActivity {
     @Override
     protected void onRestart() {
         super.onRestart();
+        myLog("about to reset KanContext");
         KanLogger.setKanContext(getApplicationContext()); //TODO this is shit
         getFolders();
         myLog("recyclerview drawing through setAdapter on restart");

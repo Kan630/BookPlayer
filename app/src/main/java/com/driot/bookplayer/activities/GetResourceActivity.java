@@ -155,6 +155,9 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
         });
 
 // ZIP
+        // TODO sadly, honor with android 7 wont let you select a zip file, the file picker will open the content... instead of selecting it
+        // TODO => try ACTION_PICK ?
+
         bOpenZipActivityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
                 result -> { launchAddResource(result, "ZIP"); });
         bOpenZipFile.setOnClickListener(view -> {
