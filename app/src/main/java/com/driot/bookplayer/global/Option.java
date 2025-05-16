@@ -24,6 +24,7 @@ public class Option {
     private static final boolean DEFAULT_REWIND_AFTER_PAUSE = true;
     private static final int DEFAULT_CUSTOM_THEME = 0;
     private static final boolean DEFAULT_COPY_FILES = true;
+    private static final boolean DEFAULT_CLICK_VISUALIZER_PLAYPAUSE = true;
 
 
     /////////////////// SLEEP - AUTOMATIC PAUSE ///////////////////
@@ -64,6 +65,9 @@ public class Option {
     /////////////////// VISUALIZER option ///////////////////
     public static void setVisualizerOn(Context context, boolean bool) {context.getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE).edit().putBoolean("VISUALIZER_ON",bool).apply();}
     public static Boolean getVisualizerOn(Context context) {return context.getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE).getBoolean("VISUALIZER_ON", DEFAULT_VISUALIZER_ON);}
+
+    public static void setClickVisualizerPlayPause(Context context, boolean bool) {context.getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE).edit().putBoolean("CLICK_VISUALIZER_PLAYPAUSE",bool).apply();}
+    public static Boolean getClickVisualizerPlayPause(Context context) {return context.getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE).getBoolean("CLICK_VISUALIZER_PLAYPAUSE", DEFAULT_CLICK_VISUALIZER_PLAYPAUSE);}
 
     /////////////////// THEME ///////////////////
     public static void setTheme(Context context, int i) {context.getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE).edit().putInt("CUSTOM_THEME",i).apply();}

@@ -137,6 +137,8 @@
     <string name="option_visualizer_permissions_denied_01">denied</string>
     <string name="option_visualizer_permissions_denied_02">click again the checkbox to ask permission</string>
 
+    <string name="option_click_visualizer_playpause_text_01">Clicking on the visualizer also functions as a play/pause button.</string>
+
     <!-- ********************************** -->
     <!-- Get Resources -->
 

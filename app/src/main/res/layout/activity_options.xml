@@ -116,6 +116,15 @@
                     style="@style/OptionCheckBoxText"
                     android:text="@string/option_visualizer_text_01" />
             </LinearLayout>
+            <LinearLayout style="@style/LinearLayoutOptionsCheckBoxHorizontal">
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/chk_click_visualizer_playpause"
+                    style="@style/OptionCheckBox"/>
+                <TextView
+                    android:id="@+id/tx_click_visualizer_playpause"
+                    style="@style/OptionCheckBoxText"
+                    android:text="@string/option_click_visualizer_playpause_text_01" />
+            </LinearLayout>
         </LinearLayout>
 
 

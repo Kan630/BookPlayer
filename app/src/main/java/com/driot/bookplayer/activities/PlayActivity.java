@@ -217,7 +217,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
         tvListeningTimeBaseText = getString(R.string.tv_ListeningTimeWithNoUserAction);
         tvTimeLeft = findViewById(R.id.tv_TimeLeft);
         frequencyVisualizerView = findViewById(R.id.frequencyVisualizerView);
-        frequencyVisualizerView.setOnClickListener(v -> playMe());
+        frequencyVisualizerView.setOnClickListener(v -> visualizerClick());
 
         myLog("onCreate() -- Launching Music Service");
         launchService();
@@ -300,6 +300,13 @@ public class PlayActivity extends LifecycleLoggingActivity {
             myLogE(e.getMessage());
         }
         myLog("call start & bind to AudioService in onCreate() - bound result :" + audioServiceBound + "");
+    }
+
+    private void visualizerClick() {
+        myLog("visualizerClick()");
+        if (Option.getClickVisualizerPlayPause(this)) {
+            playMe();
+        }
     }
 
     private void playMe() {

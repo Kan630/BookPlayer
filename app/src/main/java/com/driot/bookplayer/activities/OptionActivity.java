@@ -60,6 +60,7 @@ public class OptionActivity extends LifecycleLoggingActivity {
     Object[][] themesAndColors;
     CheckBox chk_rewind_after_pause;
     CheckBox chk_copy_file;
+    CheckBox chk_click_visualizer_playpause;
     private PermissionRequest mPermissionRequest;
 
     private boolean areAdvancedOptionsVisible = false;
@@ -104,21 +105,10 @@ public class OptionActivity extends LifecycleLoggingActivity {
                 requestPermissions();
             }
         });
-/*
-    public static final int  theme_01 = R.style.Theme_BookPlayer_Gray;
-    public static final int  theme_02 = R.style.Theme_BookPlayer_Purple;
-    public static final int  theme_03 = R.style.Theme_BookPlayer_Green;
-    public static final int  theme_04 = R.style.Theme_BookPlayer_Pink;
-    public static final int  theme_05 = R.style.Theme_BookPlayer_Blue;
-    public static final int  theme_06 = R.style.Theme_BookPlayer_Orange;
 
-    public static final int  theme_07 = R.style.Theme_BookPlayer_Red;
-    public static final int  theme_08 = R.style.Theme_BookPlayer_Yellow;
-    public static final int  theme_09 = R.style.Theme_BookPlayer_Cyan;
-    public static final int  theme_10 = R.style.Theme_BookPlayer_Brown;
-    public static final int  theme_11 = R.style.Theme_BookPlayer_Indigo;
-    public static final int  theme_12 = R.style.Theme_BookPlayer_Turquoise;
- */
+        chk_click_visualizer_playpause = findViewById(R.id.chk_click_visualizer_playpause);
+        chk_click_visualizer_playpause.setChecked(Option.getClickVisualizerPlayPause(this));
+        chk_click_visualizer_playpause.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setClickVisualizerPlayPause(this, isChecked));
 
         themesAndColors = new Object[][] {
                 {btn_Color_01, R.style.Theme_BookPlayer_Gray},
