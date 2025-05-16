@@ -47,6 +47,9 @@ public class KanLogger {
     };
 
 
+    // TODO use the same logic as Playlist Context init, coupled with MyPersonalApp class
+
+
     /////////////////////////////////
     /// CONTEXT - needed for * Writing log files * Toasts *
     /////////////////////////////////-----------------------------------------------------------

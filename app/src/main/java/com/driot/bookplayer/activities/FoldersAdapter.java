@@ -92,7 +92,7 @@ public class FoldersAdapter extends RecyclerView.Adapter<FoldersAdapter.FoldersV
                 try {
                     List<ZikFile> zikFilesList = AppDatabase.getDatabase(mCtx).ZikFileDao().getZikFiles(folder.getId());
                     myLog("nb ZikFiles in that Book : " + zikFilesList.size());
-                    PlayList.setZikFilesList(zikFilesList);
+                    PlayList.setZikFilesList(zikFilesList, mCtx);
                     if (zikFilesList.size() > 1) {
                         mCtx.startActivity(new Intent(mCtx, ZikFileActivity.class).putExtra("FolderId", folder.getId()).putExtra("FolderName", folder.getName()));
                     } else {

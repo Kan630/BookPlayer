@@ -8,6 +8,8 @@ import java.io.IOException;
 
 import static com.driot.bookplayer.utils.KanLogger.myLog;
 
+import com.driot.bookplayer.global.PlayList;
+
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 15/06/21
  * from https://stackoverflow.com/questions/19565685/saving-logcat-to-a-text-file-in-android-device
@@ -22,6 +24,8 @@ public class MyPersonalApp extends Application {
     public void onCreate() {
         super.onCreate();
         myLog("onCreate for myLogExtendApp");
+
+        PlayList.init(getApplicationContext());   //TODO, do the same for KanLogger....
 
         if ( isExternalStorageWritable() ) {
 
