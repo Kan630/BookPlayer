@@ -538,7 +538,7 @@ public class AudioService extends LifecycleLoggingService {
         backwardAudio(Option.get_ForwardSeconds(this)*1000);
     }
     public void backwardAudio(int lag) {
-        myLog("backwardAudio()");
+        myLog("backwardAudio() : " + lag);
         int temp = getPosition();
         if ((temp - lag) > 0) {
             setPosition(temp - lag);
@@ -558,7 +558,7 @@ public class AudioService extends LifecycleLoggingService {
             if (mediaPlayer!=null && mediaPlayer.isPlaying()) {
                 mediaPlayer.setPlaybackParams(mediaPlayer.getPlaybackParams().setSpeed((float) speed));
             }
-            myLog("setSpeed(" + speed + ")");
+            myLog("setSpeed() : " + speed);
         } catch (Exception e) {
             myLogE("AudioService Error setting Speed");
         }
@@ -893,6 +893,7 @@ public class AudioService extends LifecycleLoggingService {
 
     @SuppressWarnings("IfCanBeSwitch")
     private void playBeep(String beepType) {
+        myLogE("playBeep - argument : " + beepType);
         try {
             if (beepType.equals("1beep")) {
                 new ToneGenerator(AudioManager.STREAM_MUSIC, 100).startTone(ToneGenerator.TONE_CDMA_PIP, 150);

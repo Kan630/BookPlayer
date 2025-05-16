@@ -34,7 +34,7 @@ public abstract class LifecycleLoggingService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         myLog("onBind() -Intent=[" + intent.toString() + "]");
-        return null;
+        return null; //TODO sure ?? not super ??
     }
 
     @Override
