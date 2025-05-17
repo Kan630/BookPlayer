@@ -534,6 +534,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
      */
 
     private void runTimerForDisplay() {
+        killTimerForDisplay();
         timerRedrawUI = new Timer();
         timerRedrawUI.schedule(new TimerTask() {
             @Override
@@ -544,7 +545,11 @@ public class PlayActivity extends LifecycleLoggingActivity {
 
     }
     private void killTimerForDisplay() {
-        timerRedrawUI.cancel();
+        if (timerRedrawUI != null) {
+            timerRedrawUI.cancel();
+            timerRedrawUI.purge(); // Optional: removes canceled tasks from the queue
+            timerRedrawUI = null;  // Helps with garbage collection
+        }
     }
 
     private void redrawSeekBar() {
