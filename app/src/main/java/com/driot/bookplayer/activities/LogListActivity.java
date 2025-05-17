@@ -27,7 +27,7 @@ import static com.driot.bookplayer.utils.KanLogger.myLog;
  * Show list of logs, 1 log per day
  *
  */
-public class LogListActivity extends AppCompatActivity {
+public class LogListActivity extends LifecycleLoggingActivity {
 
     private RecyclerView recyclerView;
 
