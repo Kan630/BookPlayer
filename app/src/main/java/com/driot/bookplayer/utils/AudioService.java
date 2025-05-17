@@ -58,15 +58,16 @@ import static com.driot.bookplayer.utils.Utils.copyStream;
  */
 class CustomMediaPlayer extends MediaPlayer {
     public void customSeekTo(int posMilliSec) {
+        KanLogger.myLog("customSeekTo() : " + posMilliSec);
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
             seekTo(posMilliSec);
         } else {
             if (PlayList.getZikFile() != null && PlayList.getZikFile().isM4b()) {
                 seekTo(posMilliSec, SEEK_CLOSEST);  //seek_closest needed for m4b...
+                KanLogger.myLog("SEEK_CLOSEST (m4b)");
             } else {
                 seekTo(posMilliSec);
             }
-
         }
     }
 }
@@ -497,6 +498,7 @@ public class AudioService extends LifecycleLoggingService {
                         }
                     }
                 }
+                KanLogger.myLog("about to do mediaPlayer.start()...  mediaPlayer.getCurrentPosition : " + mediaPlayer.getCurrentPosition());
                 mediaPlayer.start();
                 setSpeed(getSpeed());
                 startSleepTimer();
@@ -583,6 +585,7 @@ public class AudioService extends LifecycleLoggingService {
     }
 
     public void setPosition(int position) {
+
         mediaPlayer.customSeekTo(position);
         myLog("setPosition() : " + myDF.format(position));
     }
