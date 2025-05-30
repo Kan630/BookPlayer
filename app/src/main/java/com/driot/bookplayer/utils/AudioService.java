@@ -46,7 +46,6 @@ import java.text.DecimalFormat;
 import java.util.Objects;
 
 import static com.driot.bookplayer.activities.PlayActivity.SHARED_PREFERENCE_SPEED;
-import static com.driot.bookplayer.utils.KanLogger.myLogE;
 import static com.driot.bookplayer.utils.Tonio.FormatPercentDouble;
 import static com.driot.bookplayer.utils.Tonio.FormatTime;
 import static com.driot.bookplayer.utils.Tonio.fileExists;
@@ -58,7 +57,7 @@ import static com.driot.bookplayer.utils.Utils.copyStream;
  */
 class CustomMediaPlayer extends MediaPlayer {
     public void customSeekTo(int posMilliSec) {
-        KanLogger.myLog("customSeekTo() : " + posMilliSec);
+        myLog("customSeekTo() : " + posMilliSec);
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
             seekTo(posMilliSec);
         } else {
@@ -70,6 +69,7 @@ class CustomMediaPlayer extends MediaPlayer {
             }
         }
     }
+    private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
 }
 public class AudioService extends LifecycleLoggingService {
 
@@ -498,7 +498,7 @@ public class AudioService extends LifecycleLoggingService {
                         }
                     }
                 }
-                KanLogger.myLog("about to do mediaPlayer.start()...  mediaPlayer.getCurrentPosition : " + mediaPlayer.getCurrentPosition());
+                myLog("about to do mediaPlayer.start()...  mediaPlayer.getCurrentPosition : " + mediaPlayer.getCurrentPosition());
                 mediaPlayer.start();
                 setSpeed(getSpeed());
                 startSleepTimer();

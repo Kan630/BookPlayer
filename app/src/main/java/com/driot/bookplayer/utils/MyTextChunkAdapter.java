@@ -1,7 +1,5 @@
 package com.driot.bookplayer.utils;
 
-import static com.driot.bookplayer.utils.KanLogger.myLog;
-
 import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;

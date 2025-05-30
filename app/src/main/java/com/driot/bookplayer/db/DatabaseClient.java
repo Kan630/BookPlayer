@@ -65,4 +65,5 @@ public class DatabaseClient {
     public AppDatabase getAppDatabase() {
         return appDatabase;
     }
+
 }

@@ -14,9 +14,6 @@ import java.io.File;
 
 import static com.driot.bookplayer.global.Var.PATH_CHECK_APPLICATION;
 import static com.driot.bookplayer.utils.Utils.recursiveRemove;
-import static com.driot.bookplayer.utils.KanLogger.myLogInFile;
-import static com.driot.bookplayer.utils.KanLogger.myToast;
-import static com.driot.bookplayer.utils.KanLogger.myToastE;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 15/11/20
@@ -116,7 +113,7 @@ public class FolderModifyActivity extends LifecycleLoggingActivity {
                 AppDatabase.getDatabase(this).FolderDao().changeName(idFolder, newName);
                 runOnUiThread(() -> {
                     myToast(getString(R.string.Folder_Renamed));
-                    myLogInFile(getString(R.string.Folder_Renamed) + " : " + FolderName);
+                    myLogInFile(getString(R.string.Folder_Renamed) + " : [" + FolderName + "] - > [" + newName + "]");
                     finish();
                 });
             }).start();
@@ -147,6 +144,9 @@ public class FolderModifyActivity extends LifecycleLoggingActivity {
 
     //--- LOG --------------------------
     private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
+    private void myLogInFile(String str) { KanLogger.myLogInFile(this.getClass().getName(), str); }
     private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
+    private void myToast(String str) { KanLogger.myToast(this.getClass().getName(), str); }
+    private void myToastE(String str) { KanLogger.myToastE(this.getClass().getName(), str); }
 
 }

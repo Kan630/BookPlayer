@@ -6,8 +6,6 @@ import android.os.Environment;
 import java.io.File;
 import java.io.IOException;
 
-import static com.driot.bookplayer.utils.KanLogger.myLog;
-
 import com.driot.bookplayer.global.PlayList;
 import com.driot.bookplayer.utils.KanLogger;
 
@@ -24,12 +22,12 @@ public class MyPersonalApp extends Application {
      */
     public void onCreate() {
         super.onCreate();
-        myLog("MyPersonalApp", "onCreate()... for myLogExtendApp");
+        myLog("onCreate()... for myLogExtendApp");
 
         PlayList.init(getApplicationContext());
         KanLogger.init(getApplicationContext());
 
-        myLog("MyPersonalApp", "Context has been initialized");
+        myLog("Context has been initialized");
 
         if ( isExternalStorageWritable() ) {
 
@@ -74,4 +72,8 @@ public class MyPersonalApp extends Application {
         return Environment.MEDIA_MOUNTED.equals(state) ||
                 Environment.MEDIA_MOUNTED_READ_ONLY.equals(state);
     }
+
+    //--- LOG --------------------------
+    private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
+
 }

@@ -107,7 +107,10 @@ public class KanLogger {
     /// LOG
     /////////////////////////////////-----------------------------------------------------------
     public static void myLogInFile(String str) {
-        myLog(str);
+        myLogInFile("", str);
+    }
+    public static void myLogInFile(String prefix, String str) {
+        myLog(prefix, str);
     }
 
     public static void myLog(String str) {
@@ -168,28 +171,44 @@ public class KanLogger {
     /// TOAST
     /////////////////////////////////-----------------------------------------------------------
     public static void myToast(String str) {
-        myLog("TOASTING : " + str);
+        myToast("", str);
+    }
+
+    public static void myToast(String prefix, String str) {
+        myLog(prefix, "TOASTING : " + str);
         if (getMyAppContext() != null) {
             Toast.makeText(getMyAppContext(), str, Toast.LENGTH_SHORT).show();
         }
     }
 
     public static void myLongToast(String str) {
-        myLog("TOASTING : " + str);
+        myLongToast("", str);
+    }
+
+    public static void myLongToast(String prefix, String str) {
+        myLog(prefix,"TOASTING : " + str);
         if (getMyAppContext() != null) {
             Toast.makeText(getMyAppContext(), str, Toast.LENGTH_LONG).show();
         }
     }
 
     public static void myToastE(String str) {
-        myLogE("TOASTING : " + str);
+        myToastE("", str);
+    }
+
+    public static void myToastE(String prefix, String str) {
+        myLogE(prefix,"TOASTING : " + str);
         if (getMyAppContext() != null) {
             Toast.makeText(getMyAppContext(), str, Toast.LENGTH_SHORT).show();
         }
     }
 
     public static void myLongToastE(String str) {
-        myLogE("TOASTING : " + str);
+        myLongToastE("", str);
+    }
+
+    public static void myLongToastE(String prefix, String str) {
+        myLogE(prefix,"TOASTING : " + str);
         if (getMyAppContext() != null) {
             Toast.makeText(getMyAppContext(), str, Toast.LENGTH_LONG).show();
         }

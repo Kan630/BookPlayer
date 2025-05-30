@@ -56,7 +56,6 @@ import static com.driot.bookplayer.utils.Tonio.formatNameForDisplay;
 import static com.driot.bookplayer.utils.Tonio.FormatPercentStringForSpeed;
 import static com.driot.bookplayer.utils.Tonio.FormatTime;
 import static com.driot.bookplayer.utils.Utils.animateView;
-import static com.driot.bookplayer.utils.KanLogger.myToastE;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -667,5 +666,6 @@ public class PlayActivity extends LifecycleLoggingActivity {
     private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
     private void myLogD(String str) { KanLogger.myLogD(this.getClass().getName(), str); }
     private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
+    private void myToastE(String str) { KanLogger.myToastE(this.getClass().getName(), str); }
 
 }

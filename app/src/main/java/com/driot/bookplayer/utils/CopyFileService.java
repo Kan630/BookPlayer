@@ -57,6 +57,7 @@ public class CopyFileService extends LifecycleLoggingService {  //IntentService 
     // Callbacks
     //-----------------------------
     public interface Callbacks {
+        void copyFileService_tellProgressNoLog(String progressText, int progressVal);
         void copyFileService_tellProgress(String progressText, int progressVal);
         void copyFileService_tellError(String errorText);
         void copyFileService_tellEnd();
@@ -252,17 +253,24 @@ public class CopyFileService extends LifecycleLoggingService {  //IntentService 
             try {
                 //FileUtils.copyFolder(this, uri, destinationFolderPath , progress -> runOnUiThread(() ->
                 long finalFile_size = file_size;
+                long[] lastLoggedProgress = {-1}; // effectively final, could have used new AtomicLong(-1);
                 FileUtils.copyFolder(this, uri, new File(destinationFolderPath), null , forceSize, ONLY_MIME, (progress, nbMoCopied) -> {
                             //this.progress = progress;
                             //this.mbCopied = mbCopied;
                             //runOnUiThread(() -> { Updating the UI with progress and MB copied values, like progressBar.setProgress(progress);
-                            tellProgress((int) progress,
-                                    getResources().getString(R.string.Import_Progress_copying_zip_file)
-                                            + "\n"
-                                            + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line3) + formatMem(nbMoCopied,0) + "Mo/" + formatMem(finalFile_size,0) + "Mo"
-                                            + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line2_1) + formatMem(availableMegs) + "Mo"
-                            );
-                        }
+
+                            String progress_text = getResources().getString(R.string.Import_Progress_copying_zip_file)
+                            + "\n"
+                            + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line3) + formatMem(nbMoCopied,0) + "Mo/" + formatMem(finalFile_size,0) + "Mo"
+                            + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line2_1) + formatMem(availableMegs) + "Mo";
+
+                            if (progress != lastLoggedProgress[0]) {
+                                lastLoggedProgress[0] = progress;
+                                String singleLineLog = ("..." + progress + "%\n" + progress_text).replace("\n", " - ");
+                                myLog(singleLineLog);
+                            }
+                    tellProgressNoLog((int) progress, progress_text);
+                }
                 );
             } catch (Exception e) {
                 tellError("Folder copy - KO : " + e.getMessage());
@@ -289,25 +297,36 @@ public class CopyFileService extends LifecycleLoggingService {  //IntentService 
                     try {
                         byte[] buf = new byte[COPY_BUFFER_SIZE];
                         int len;
+                        int last_logged_progress_percent = -1;
                         while ((len = is.read(buf)) > 0) {
                             nbBuffCopied++;
                             out.write(buf, 0, len);
 
                             //display progress
                             if (nbBuffCopied % 1024 == 0) {
-                                int nbMoCopied = nbBuffCopied * COPY_BUFFER_SIZE / 1024 / 1024;
-                                double progressValue = 0;
+                                long nbBytesCopied = (long) nbBuffCopied * COPY_BUFFER_SIZE;
+                                long nbMoCopied = nbBytesCopied / 1024 / 1024;
+
+                                double progress_percent = 0;
                                 if (file_size > 0) {
-                                    progressValue = (double) nbMoCopied / file_size * 100;
+                                    progress_percent = (double) nbMoCopied / file_size * 100;
                                 } else {
-                                    progressValue = 50;
+                                    progress_percent = 50;
                                 }
-                                tellProgress((int) progressValue,
-                                        getResources().getString(R.string.Import_Progress_copying_zip_file)
-                                                + "\n"
-                                                + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line3) + formatMem(nbMoCopied,0) + "Mo/" + formatMem(file_size,0) + "Mo"
-                                                + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line2_1) + formatMem(availableMegs) + "Mo"
-                                );
+                                int current_progress_percent = (int) progress_percent;
+
+                                String progress_text = getResources().getString(R.string.Import_Progress_copying_zip_file)
+                                        + "\n"
+                                        + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line3) + formatMem(nbMoCopied,0) + "Mo/" + formatMem(file_size,0) + "Mo"
+                                        + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line2_1) + formatMem(availableMegs) + "Mo";
+
+                                if (current_progress_percent != last_logged_progress_percent) {
+                                    last_logged_progress_percent = current_progress_percent;
+                                    String singleLineLog = ("..." + current_progress_percent + "%\n" + progress_text).replace("\n", " - ");
+                                    myLog(singleLineLog);
+                                }
+
+                                tellProgressNoLog(current_progress_percent, progress_text);
                             }
 
                         }
@@ -350,14 +369,12 @@ public class CopyFileService extends LifecycleLoggingService {  //IntentService 
         isBusy = false;
         stopSelf();
     }
+    public void tellProgressNoLog(int progressVal, String progressText) {
+        mCallBacks.copyFileService_tellProgressNoLog(progressText,  progressVal);
+    }
     public void tellProgress(int progressVal, String progressText) {
         mCallBacks.copyFileService_tellProgress(progressText,  progressVal);
     }
-
-    //-----------------------------
-    private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
-    private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
-    //-----------------------------
 
     public long getFileSize(Uri uri) throws IOException {
         ContentResolver contentResolver = this.getContentResolver();
@@ -381,4 +398,12 @@ public class CopyFileService extends LifecycleLoggingService {  //IntentService 
         }
        return -3;
     }
+
+    //-----------------------------
+    private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
+    private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
+    private void myToast(String str) { KanLogger.myToast(this.getClass().getName(), str); }
+    //-----------------------------
+
+
 }

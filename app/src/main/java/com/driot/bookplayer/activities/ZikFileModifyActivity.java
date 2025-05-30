@@ -1,8 +1,6 @@
 package com.driot.bookplayer.activities;
 
 import static com.driot.bookplayer.global.Var.PATH_CHECK_APPLICATION;
-import static com.driot.bookplayer.utils.KanLogger.myLogInFile;
-import static com.driot.bookplayer.utils.KanLogger.myToast;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -189,7 +187,7 @@ public class ZikFileModifyActivity extends LifecycleLoggingActivity {
                 AppDatabase.getDatabase(this).ZikFileDao().setDisplayName(zikFileId, newDisplayName);
                 runOnUiThread(() -> {
                     myToast(getString(R.string.ZikFile_Renamed));
-                    myLog(getString(R.string.ZikFile_Renamed) + " : " + zikFileName);
+                    myLog(getString(R.string.ZikFile_Renamed) + " : [" + zikFileName + "] -> [" + newDisplayName + "]");
                     finish();
                 });
             }).start();
@@ -220,5 +218,8 @@ public class ZikFileModifyActivity extends LifecycleLoggingActivity {
     //--- LOG --------------------------
     private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
     private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
+    private void myToast(String str) { KanLogger.myToast(this.getClass().getName(), str); }
+    private void myLogInFile(String str) { KanLogger.myLogInFile(this.getClass().getName(), str); }
+
 
 }

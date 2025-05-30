@@ -19,7 +19,6 @@ import java.util.ArrayList;
 
 import static com.driot.bookplayer.utils.Tonio2.getFileInArrayList;
 import static com.driot.bookplayer.utils.Utils.recursiveRemove;
-import static com.driot.bookplayer.utils.KanLogger.myLog;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 02/12/20

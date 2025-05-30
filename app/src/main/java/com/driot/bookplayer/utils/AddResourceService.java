@@ -954,6 +954,10 @@ public class AddResourceService
      *********************************
      */
     @Override
+    public void copyFileService_tellProgressNoLog(String progressText, int progressVal) {
+        tellProgressNoLog(PROGRESS[5] + progressVal * (PROGRESS[6] - PROGRESS[5]) / 100, progressText);
+    }
+    @Override
     public void copyFileService_tellProgress(String progressText, int progressVal) {
         tellProgress(PROGRESS[5] + progressVal * (PROGRESS[6] - PROGRESS[5]) / 100, progressText);
     }
@@ -1034,5 +1038,6 @@ public class AddResourceService
     private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
     private void myLogD(String str) { KanLogger.myLogD(this.getClass().getName(), str); }
     private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
+    private void myToast(String str) { KanLogger.myToast(this.getClass().getName(), str); }
 
 }

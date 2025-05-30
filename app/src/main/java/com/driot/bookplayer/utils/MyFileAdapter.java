@@ -15,10 +15,7 @@ import java.util.ArrayList;
 
 import com.driot.bookplayer.R;
 
-import static com.driot.bookplayer.utils.KanLogger.myLogE;
-import static com.driot.bookplayer.utils.KanLogger.myToast;
 import static com.driot.bookplayer.utils.Tonio2.loadBiggerText;
-import static com.driot.bookplayer.utils.KanLogger.myLog;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 02/12/20
@@ -86,4 +83,14 @@ public class MyFileAdapter extends RecyclerView.Adapter<MyFileAdapter.MyFileView
 
         }
     }
+    //--- FULL LOG --------------------------
+    private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
+    private void myLogInFile(String str) { KanLogger.myLogInFile(this.getClass().getName(), str); }
+    private void myLogD(String str) { KanLogger.myLogD(this.getClass().getName(), str); }
+    private void myLogI(String str) { KanLogger.myLogI(this.getClass().getName(), str); }
+    private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
+    private void myToast(String str) { KanLogger.myToast(this.getClass().getName(), str); }
+    private void myToastE(String str) { KanLogger.myToastE(this.getClass().getName(), str); }
+
+
 }

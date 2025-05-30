@@ -30,7 +30,6 @@ import com.driot.bookplayer.utils.KanLogger;
 import static com.driot.bookplayer.global.Option.DEFAULT_FORWARD_SECONDS;
 import static com.driot.bookplayer.global.Option.DEFAULT_TIME_BEFORE_SLEEP;
 import static com.driot.bookplayer.utils.PermissionRequest.isRecordAudioPermissionGranted;
-import static com.driot.bookplayer.utils.KanLogger.myLongToast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.StyleRes;
@@ -414,4 +413,5 @@ public class OptionActivity extends LifecycleLoggingActivity {
     private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
     private void myLogD(String str) { KanLogger.myLogD(this.getClass().getName(), str); }
     private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
+    private void myLongToast(String str) { KanLogger.myLongToast(this.getClass().getName(), str); }
 }

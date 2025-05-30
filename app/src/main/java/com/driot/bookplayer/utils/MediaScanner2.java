@@ -19,11 +19,11 @@ public class MediaScanner2 {
         scanFile(context, filePath, mimeType, (path, uri) -> {
             // The file at 'path' has been scanned and is now accessible to other apps
             // You can add additional handling here if needed
-            myLog("Medias have been scanned : " + path);
+            myLog( "MediaScanner2", "Medias have been scanned : " + path);
             if (uri != null) {
-                myLog("uri found : " + uri.toString());
+                myLog("MediaScanner2", "uri found : [" + uri.toString() + "]");
             } else {
-                myLog("no uri found");
+                myLog("MediaScanner2", "no uri found");
             }
 
         });

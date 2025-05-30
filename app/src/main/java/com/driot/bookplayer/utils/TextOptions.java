@@ -13,8 +13,6 @@ import java.io.IOException;
 import java.io.StringReader;
 
 import static android.content.Context.MODE_PRIVATE;
-import static com.driot.bookplayer.utils.KanLogger.myLog;
-import static com.driot.bookplayer.utils.KanLogger.myLogE;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 02/12/20
@@ -277,4 +275,12 @@ public class TextOptions {
         return newline;
     }
 
+    //--- FULL LOG --------------------------
+    private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
+    private void myLogInFile(String str) { KanLogger.myLogInFile(this.getClass().getName(), str); }
+    private void myLogD(String str) { KanLogger.myLogD(this.getClass().getName(), str); }
+    private void myLogI(String str) { KanLogger.myLogI(this.getClass().getName(), str); }
+    private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
+    private void myToast(String str) { KanLogger.myToast(this.getClass().getName(), str); }
+    private void myToastE(String str) { KanLogger.myToastE(this.getClass().getName(), str); }
 }

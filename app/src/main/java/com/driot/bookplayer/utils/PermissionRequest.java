@@ -1,6 +1,4 @@
 package com.driot.bookplayer.utils;
-//import static com.driot.bookplayer.utils.KanLogger.myLog;
-
 
 import android.Manifest;
 import android.app.Activity;

@@ -38,8 +38,6 @@ import static com.driot.bookplayer.global.Var.AUTOTEST_FILE_01;
 import static com.driot.bookplayer.global.Var.AUTOTEST_FILE_02;
 import static com.driot.bookplayer.global.Var.AUTOTEST_FILE_03;
 import static com.driot.bookplayer.utils.PermissionRequest.isReadAudioPermissionGranted;
-import static com.driot.bookplayer.utils.KanLogger.myToast;
-import static com.driot.bookplayer.utils.KanLogger.myToastE;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 08/11/20
@@ -451,4 +449,6 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
 
     private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
     private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
+    private void myToast(String str) { KanLogger.myToast(this.getClass().getName(), str); }
+    private void myToastE(String str) { KanLogger.myToastE(this.getClass().getName(), str); }
 }

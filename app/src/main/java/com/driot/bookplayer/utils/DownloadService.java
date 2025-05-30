@@ -173,7 +173,7 @@ public class DownloadService extends LifecycleLoggingService {
                     //sendProgressUpdate(progress, progress_text);
                     if (progress != lastLoggedProgress) {
                         lastLoggedProgress = progress;
-                        String singleLineLog = (progress + "\n" + progress_text).replace("\n", " - ");
+                        String singleLineLog = ("..." + progress + "%\n" + progress_text).replace("\n", " - ");
                         myLog(singleLineLog);
                     }
                     tellProgressNoLog(progress, progress_text);
