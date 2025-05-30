@@ -37,7 +37,7 @@ public class KanLogger {
     private static final String kanLogger_TAG = "toto KanLogger";
     private static final boolean LOG_THEM_ALL = true;
 
-    private static final String LOG_PREFIX = "toto";
+    private static final String LOGCAT_PREFIX = "toto";
 
     @SuppressWarnings("SpellCheckingInspection")
     public static final String[] MD5_MY_PHONE = {""
@@ -118,9 +118,9 @@ public class KanLogger {
         if (TextUtils.isEmpty(str)) {str = "...";}
         if (writeTechLogs()) {
             writeToLogFile(str);
-            Log.d(LOG_PREFIX + " " + prefix, str);
+            Log.d(LOGCAT_PREFIX + " " + prefix, str);
         } else {
-            if (LOG_THEM_ALL) Log.d(prefix, str);
+            if (LOG_THEM_ALL) Log.d(LOGCAT_PREFIX + " " + prefix, str);
         }
     }
 
@@ -132,9 +132,9 @@ public class KanLogger {
         if (TextUtils.isEmpty(str)) {str = "...";}
         if (writeTechLogs()) {
             writeToLogFile(str);
-            Log.i(LOG_PREFIX + " " + prefix, str);
+            Log.i(LOGCAT_PREFIX + " " + prefix, str);
         } else {
-            if (LOG_THEM_ALL) Log.i(prefix, str);
+            if (LOG_THEM_ALL) Log.i(LOGCAT_PREFIX + " " + prefix, str);
         }
     }
 
@@ -143,7 +143,7 @@ public class KanLogger {
         prefix = prefix.replace(PREFIX_DELETE,"");
         if (LOG_DEBUG && writeTechLogs()) {
             writeToLogFile(str);
-            Log.d(LOG_PREFIX + "D " + prefix, str);
+            Log.d(LOGCAT_PREFIX + "D " + prefix, str);
         }
     }
 
@@ -155,9 +155,9 @@ public class KanLogger {
         if (TextUtils.isEmpty(str)) {str = "...";}
         if (writeTechLogs()) {
             writeToLogFile(prefix + ".ERR: " + str);
-            Log.e(LOG_PREFIX + " " + prefix, str);
+            Log.e(LOGCAT_PREFIX + " " + prefix, str);
         } else {
-            if (LOG_THEM_ALL) Log.e("", str);
+            if (LOG_THEM_ALL) Log.e(LOGCAT_PREFIX + " " + prefix, str);
         }
     }
 

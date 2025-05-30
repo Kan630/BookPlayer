@@ -24,10 +24,12 @@ public class MyPersonalApp extends Application {
      */
     public void onCreate() {
         super.onCreate();
-        myLog("onCreate for myLogExtendApp");
+        myLog("MyPersonalApp", "onCreate()... for myLogExtendApp");
 
         PlayList.init(getApplicationContext());
         KanLogger.init(getApplicationContext());
+
+        myLog("MyPersonalApp", "Context has been initialized");
 
         if ( isExternalStorageWritable() ) {
 
