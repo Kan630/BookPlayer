@@ -48,6 +48,7 @@ public class DownloadService extends LifecycleLoggingService {
     //-----------------------------
     public interface Callbacks {
         void downloadService_tellProgress(String progressText, int progressVal);
+        void downloadService_tellProgressNoLog(String progressText, int progressVal);
         void downloadService_tellError(String errorText);
         void downloadService_tellEnd(String downloadedFileFullPath);
     }
@@ -161,16 +162,21 @@ public class DownloadService extends LifecycleLoggingService {
             byte[] data = new byte[4096];
             long total = 0;
             int count;
+            int lastLoggedProgress = -1;
             while ((count = input.read(data)) != -1) {
                 total += count;
                 if (fileLength > 0) {
                     int progress = (int) (total * 100 / fileLength);
                     String progress_text = "book name : [" + destinationFileName + "]\n"
                             + "book size : " + formatMem(fileLength/1024/1024) + " Mo\n"
-                            + progress + "%    *copied=" + formatMem(total/1024/1024,1) + " Mo";
+                            + progress + "%    *downloaded=" + formatMem(total/1024/1024,1) + " Mo";
                     //sendProgressUpdate(progress, progress_text);
-                    myLog(progress + "\n" + progress_text);
-                    tellProgress(progress, progress_text);
+                    if (progress != lastLoggedProgress) {
+                        lastLoggedProgress = progress;
+                        String singleLineLog = (progress + "\n" + progress_text).replace("\n", " - ");
+                        myLog(singleLineLog);
+                    }
+                    tellProgressNoLog(progress, progress_text);
                 }
                 output.write(data, 0, count);
             }
@@ -294,7 +300,10 @@ public class DownloadService extends LifecycleLoggingService {
     public void tellProgress(int progressVal, String progressText) {
         mCallBacks.downloadService_tellProgress(progressText, progressVal);
     }
-    
+    public void tellProgressNoLog(int progressVal, String progressText) {
+        mCallBacks.downloadService_tellProgressNoLog(progressText, progressVal);
+    }
+
     
     private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
     private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }

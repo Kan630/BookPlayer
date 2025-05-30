@@ -134,5 +134,26 @@
         </LinearLayout>
     </LinearLayout>
 
+    <View style="@style/myStyleViewSimpleHorizontalBar" />
+
+    <LinearLayout style="@style/LinearLayoutOptionsVertical">
+        <TextView
+            android:id="@+id/txtLog"
+            style="@style/OptionTitle"
+            android:text="@string/option_log" />
+        <TextView
+            style="@style/OptionSubTitle"
+            android:text="@string/option_tech_log_subtitle" />
+        <LinearLayout style="@style/LayoutWrapContentMargin20horizontal"
+            android:layout_height="wrap_content">
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/chk_tech_log_file"
+                style="@style/OptionCheckBox"/>
+            <TextView style="@style/OptionCheckBoxText"
+                android:text="@string/option_tech_log_text"/>
+        </LinearLayout>
+    </LinearLayout>
+
+
 
 </LinearLayout>

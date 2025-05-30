@@ -15,6 +15,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import static com.driot.bookplayer.global.Option.getTechLog;
 import static com.driot.bookplayer.utils.TonioCommonStuff.MD5;
 
 /**
@@ -59,7 +60,7 @@ public class KanLogger {
         if (KanLogger.appContext != null) {
             return KanLogger.appContext;
         } else {
-            Log.e(kanLogger_TAG, "getMyAppContext is null.");
+            Log.e(kanLogger_TAG, "KanLogger.appContext = null.");
             return null;
         }
     }
@@ -84,7 +85,21 @@ public class KanLogger {
                 }
             }
         }
-        //Log.d("toto", "IsMyPhoneDev : End");
+        //Log.d("toto", "writeTechLogs : End");
+        return ret;
+    }
+
+    /////////////////////////////////
+    /// IS DEV
+    /////////////////////////////////-----------------------------------------------------------
+    public static boolean writeTechLogs() {
+        boolean ret = false;
+        if (getMyAppContext() != null) {
+            ret = getTechLog(getMyAppContext());
+        } else {
+            ret = isMyPhoneDev();
+            Log.e(kanLogger_TAG,"writeTechLogs() => ERROR in getting Context => using isMyPhoneDev()");
+        }
         return ret;
     }
 
@@ -101,7 +116,7 @@ public class KanLogger {
     public static void myLog(String prefix, String str) {
         prefix = prefix.replace(PREFIX_DELETE,"");
         if (TextUtils.isEmpty(str)) {str = "...";}
-        if (isMyPhoneDev()) {
+        if (writeTechLogs()) {
             writeToLogFile(str);
             Log.d(LOG_PREFIX + " " + prefix, str);
         } else {
@@ -115,7 +130,7 @@ public class KanLogger {
     public static void myLogI(String prefix, String str) {
         prefix = prefix.replace(PREFIX_DELETE,"");
         if (TextUtils.isEmpty(str)) {str = "...";}
-        if (isMyPhoneDev()) {
+        if (writeTechLogs()) {
             writeToLogFile(str);
             Log.i(LOG_PREFIX + " " + prefix, str);
         } else {
@@ -126,7 +141,7 @@ public class KanLogger {
     public static void myLogD(String str)  { myLogD("",str); }
     public static void myLogD(String prefix, String str) {
         prefix = prefix.replace(PREFIX_DELETE,"");
-        if (LOG_DEBUG && isMyPhoneDev()) {
+        if (LOG_DEBUG && writeTechLogs()) {
             writeToLogFile(str);
             Log.d(LOG_PREFIX + "D " + prefix, str);
         }
@@ -138,7 +153,7 @@ public class KanLogger {
     public static void myLogE(String prefix, String str) {
         prefix = prefix.replace(PREFIX_DELETE,"");
         if (TextUtils.isEmpty(str)) {str = "...";}
-        if (isMyPhoneDev()) {
+        if (writeTechLogs()) {
             writeToLogFile(prefix + ".ERR: " + str);
             Log.e(LOG_PREFIX + " " + prefix, str);
         } else {

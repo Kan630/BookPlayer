@@ -6,6 +6,7 @@ package com.driot.bookplayer.activities;
 
 
 import static com.driot.bookplayer.utils.KanLogger.isMyPhoneDev;
+import static com.driot.bookplayer.utils.KanLogger.writeTechLogs;
 import static com.driot.bookplayer.utils.TonioCommonStuff.MD5;
 
 import android.Manifest;
@@ -118,6 +119,16 @@ public class MainActivity extends LifecycleLoggingActivity {
     }
 
     @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        MenuItem seeLogItem = menu.findItem(R.id.menu_seelog);
+        if (seeLogItem != null) {
+            boolean showLog = Option.getTechLog(this); // <-- your shared preference method
+            seeLogItem.setVisible(showLog);
+        }
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int itemId = item.getItemId();
         if (itemId == R.id.action_menu_three_dot) {
@@ -159,7 +170,7 @@ public class MainActivity extends LifecycleLoggingActivity {
         LiveData<List<Folder>> foldersLiveData = folderDao.getAllLiveData();
         foldersLiveData.observe(this, (Observer<List<Folder>>) folders -> { //getLifecycle()
             myLog("LiveData onChange observed - List<Folders>");
-            if (folders.size() == 0) {
+            if (folders.isEmpty()) {
                 if (!HasBeenProposedToOpenFile) {
                     if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
                         showPermissionSnackbar();
@@ -205,6 +216,7 @@ public class MainActivity extends LifecycleLoggingActivity {
             KanLogger.myLog("Build.FINGERPRINT = " + Build.FINGERPRINT);
             KanLogger.myLog("Build.FINGERPRINT MD5 = " + MD5(Build.FINGERPRINT));
             KanLogger.myLog("Phone is Dev ? => " + String.valueOf(isMyPhoneDev()));
+            KanLogger.myLog("Write Tech Logs ? => " + String.valueOf(writeTechLogs()));
             KanLogger.myLog("========================== Device info :");
             KanLogger.myLog("Build.Version SDK = " + Build.VERSION.SDK_INT);
             KanLogger.myLog("Build.Release = " + Build.VERSION.RELEASE);

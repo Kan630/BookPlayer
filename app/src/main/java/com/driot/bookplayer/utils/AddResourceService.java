@@ -929,6 +929,10 @@ public class AddResourceService
         tellProgress(PROGRESS[1] + progressVal * (PROGRESS[2] - PROGRESS[1]) / 100, progressText);
     }
     @Override
+    public void downloadService_tellProgressNoLog(String progressText, int progressVal) {
+        tellProgressNoLog(PROGRESS[1] + progressVal * (PROGRESS[2] - PROGRESS[1]) / 100, progressText);
+    }
+    @Override
     public void downloadService_tellEnd(String downloadedFileFullPath) {
         myLog("Download tell End -> [" + downloadedFileFullPath + "]");
         type_given = "ZIP";
@@ -1001,6 +1005,9 @@ public class AddResourceService
      *    CALLBACKS sent
      *********************************
      */
+    public void tellProgressNoLog(int progressVal,String progressText) {
+        mCallBacks.updateProgress(progressText, progressVal);
+    }
     public void tellProgress(int progressVal,String progressText) {
         myLogD("tellProgress : " + progressVal + " - " + progressText);
         mCallBacks.updateProgress(progressText, progressVal);

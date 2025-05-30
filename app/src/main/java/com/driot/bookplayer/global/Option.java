@@ -25,6 +25,7 @@ public class Option {
     private static final int DEFAULT_CUSTOM_THEME = 0;
     private static final boolean DEFAULT_COPY_FILES = true;
     private static final boolean DEFAULT_CLICK_VISUALIZER_PLAYPAUSE = false;
+    private static final boolean DEFAULT_TECH_LOG = false;
 
 
     /////////////////// SLEEP - AUTOMATIC PAUSE ///////////////////
@@ -90,6 +91,10 @@ public class Option {
     /////////////////// COPY FILES ///////////////////
     public static void setCopyFile(Context context, boolean bool) {context.getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE).edit().putBoolean("COPY_FILES",bool).apply();}
     public static Boolean getCopyFile(Context context) {return context.getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE).getBoolean("COPY_FILES", DEFAULT_COPY_FILES);}
+
+    /////////////////// LOG ///////////////////
+    public static void setTechLog(Context context, boolean bool) {context.getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE).edit().putBoolean("TECH_LOG",bool).apply();}
+    public static Boolean getTechLog(Context context) {return context.getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE).getBoolean("TECH_LOG", DEFAULT_TECH_LOG);}
 
 
 }

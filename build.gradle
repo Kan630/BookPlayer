@@ -5,7 +5,7 @@ buildscript {
         mavenCentral() //previously jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.10.0'
+        classpath 'com.android.tools.build:gradle:8.10.1'
 
         // Required -- JUnit 4 framework
         //testImplementation 'junit:junit:4.13.1'
