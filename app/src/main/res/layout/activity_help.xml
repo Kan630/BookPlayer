@@ -40,6 +40,14 @@
         <View style="@style/myStyleViewSimpleHorizontalBar"/>
 
         <TextView style="@style/HelpTitle"
+            android:text="@string/help_tellme"
+            />
+        <TextView style="@style/HelpText"
+            android:text="@string/help_tellme_text"
+            />
+        <View style="@style/myStyleViewSimpleHorizontalBar"/>
+
+        <TextView style="@style/HelpTitle"
             android:text="@string/help_trouble"
             />
         <TextView style="@style/HelpText"

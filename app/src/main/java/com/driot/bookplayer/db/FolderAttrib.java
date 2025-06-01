@@ -41,6 +41,7 @@ public class FolderAttrib {
 
     // Constructor
     public FolderAttrib(Context context, Uri uri, boolean internalCopy, String zeType) { //String forceName ?
+        myLog("FolderAttrib" + "\n" + uri.toString() + "\n" + zeType + "\n" + internalCopy);
 
         this.uri = uri;
         this.mCtx = context;
@@ -81,29 +82,44 @@ public class FolderAttrib {
             // from SD CARD
         } else {
             myLog("location : else - sdcard");
-            sFolderPath = uri.getPath()
-                    .replace("document", "storage")
-                    .replace("tree", "storage")
-                    .replace(":", "/");
+            sFolderPath = uri.getPath();
+            if (sFolderPath != null) {
+                sFolderPath = sFolderPath.replace("document", "storage")
+                        .replace("tree", "storage")
+                        .replace(":", "/");
+            }
             if (isSingleFile) { sFolderPath = stripFileName(sFolderPath); }
         }
 
-        //let's try the new function....
-        File f = new File(sFolderPath);
-        if (!f.exists()) {
-            sFolderPath = FileUtils.getRealPathFromURI(mCtx, uri);
-            sFolderPath = stripFileName(sFolderPath);
+        File f = null;
+
+        if (sFolderPath != null) {
             f = new File(sFolderPath);
         }
 
+        if (f == null || !f.exists()) {
+            myLog("Shit, still nothing..., let's try the new function.... FileUtils.getRealPathFromURI");
+            //let's try the new function....
+            String realPath = FileUtils.getRealPathFromURI(mCtx, uri);
+            sFolderPath = stripFileName(realPath);
+            if (sFolderPath != null) {
+                f = new File(sFolderPath);
+            }
+        }
+
+        if (f == null) {
+            myLogE("f == null");
+        }
+
+
         // controle de l'existence du fullPath
-        if (!f.exists()) {
+        if (f == null || !f.exists()) {
             FolderKO = true;
             myLogE("====== Path cannot be retrieved       ....  error with: --new File("+sFolderPath+")--");
         }
 
         if (!(isSingleFile)) {
-            if (!f.isDirectory()) {
+            if (f == null || !f.isDirectory()) {
                 FolderKO = true;
                 myLogE("====== Is not Folder");
             }

@@ -57,6 +57,11 @@
         \nZIP : If Unzip fails, try tp unzip them before with another app.
         \nIf problem with picking audios from Download folder, try to move them out of 'Download' folder."</string>
 
+    <string name="help_tellme">Tell me !</string>
+    <string name="help_tellme_text">"If you still have troubles (or if the app crashes) :
+        \nPlease send me a message with the file you try to import, or the link to that file.
+        \nSo that I can check and try to improve my app !"</string>
+
     <string name="help_cachefiles">Memory Cleaning :</string>
     <string name="help_cachefiles_text">A specific view to check the content of the Bookplayer internal memory does now exist.
         \n
