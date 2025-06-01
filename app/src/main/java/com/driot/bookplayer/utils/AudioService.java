@@ -326,6 +326,10 @@ public class AudioService extends LifecycleLoggingService {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         myLog("onStartCommand()" + intent.toString());
+
+        // Call createNotification() early to ensure startForeground is called
+        createNotification();  // <- this triggers startForeground()           2025-06-01
+
         if (Objects.equals(intent.getAction(), Intent.ACTION_MEDIA_BUTTON)) {
             if (intent.hasExtra(Intent.EXTRA_KEY_EVENT)) {
                 KeyEvent keyEvent = intent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
