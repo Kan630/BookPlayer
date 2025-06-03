@@ -17,6 +17,7 @@ import android.content.Intent;
 
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
@@ -44,6 +45,7 @@ import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.FolderDao;
 import com.driot.bookplayer.global.Option;
+import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.utils.KanLogger;
 import com.driot.bookplayer.utils.KanMail;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -147,6 +149,12 @@ public class MainActivity extends LifecycleLoggingActivity {
             KanMail.sendDaMail(this, "bookplayer@driot.com", "**Bookplayer**", "Dear developer...\n\n");
         } else if (itemId == R.id.menu_cacheFiles) {
             startActivity(new Intent(this, CacheFilesActivity.class));
+        } else if (itemId == R.id.menu_forum) {
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(Var.FORUM_URL));
+            startActivity(browserIntent);
+        } else if (itemId == R.id.menu_website) {
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(Var.WEBSITE_URL));
+            startActivity(browserIntent);
        // } else if (itemId == R.id.menu_synchro) {
        //     startActivity(new Intent(this, SynchroActivity.class));
         } else {

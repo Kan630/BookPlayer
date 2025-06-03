@@ -31,6 +31,11 @@ public class Var {
     public static final String  AUTOTEST_FILE_02 = PATH_AUTOTEST_URL + "file_02.zip";
     public static final String  AUTOTEST_FILE_03 = PATH_AUTOTEST_URL + "file_03.zip";
 
+    public static final String  FORUM_URL = "https://bookplayer.flarum.cloud/";
+    public static final String  WEBSITE_URL = "https://bookplayer.driot.com/";
+
+
+
     public static final int[] SLEEP_PRESET_VALUES = {10, 20, 30, 45};
 
 }
