@@ -48,6 +48,7 @@ import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.utils.KanLogger;
 import com.driot.bookplayer.utils.KanMail;
+import com.driot.bookplayer.utils.NetworkUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -150,8 +151,7 @@ public class MainActivity extends LifecycleLoggingActivity {
         } else if (itemId == R.id.menu_cacheFiles) {
             startActivity(new Intent(this, CacheFilesActivity.class));
         } else if (itemId == R.id.menu_forum) {
-            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(Var.FORUM_URL));
-            startActivity(browserIntent);
+            openForum(this);
         } else if (itemId == R.id.menu_website) {
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(Var.WEBSITE_URL));
             startActivity(browserIntent);
@@ -162,6 +162,17 @@ public class MainActivity extends LifecycleLoggingActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
+    public void openForum(Context context) {
+        new Thread(() -> {
+            String urlToOpen = NetworkUtils.isUrlReachable(Var.FORUM_URL) ? Var.FORUM_URL : Var.FORUM_URL_2;
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(urlToOpen));
+            browserIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(browserIntent);
+        }).start();
+    }
+
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);

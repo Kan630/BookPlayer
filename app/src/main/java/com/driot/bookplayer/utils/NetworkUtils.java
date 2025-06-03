@@ -37,4 +37,19 @@ public class NetworkUtils {
             return false;
         }
     }
+
+    // Check if URL is reachable (with short timeout)
+    public static boolean isUrlReachable(String urlString) {
+        try {
+            URL url = new URL(urlString);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setConnectTimeout(2000); // 2 seconds timeout
+            connection.setReadTimeout(2000);
+            connection.setRequestMethod("HEAD");
+            int responseCode = connection.getResponseCode();
+            return (responseCode >= 200 && responseCode < 400);
+        } catch (Exception e) {
+            return false;
+        }
+    }
 }
