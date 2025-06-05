@@ -58,10 +58,11 @@ android {
         }
         ndk {
             // Si tu veux définir une version spécifique :
-            abiFilters "armeabi-v7a", "arm64-v8a", "x86_64"
+            //abiFilters "armeabi-v7a", "arm64-v8a", "x86_64"
+            abiFilters "arm64-v8a"
         }
     }
-    
+
     externalNativeBuild {
         cmake {
             path "src/main/cpp/CMakeLists.txt"

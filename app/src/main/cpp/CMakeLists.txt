@@ -13,6 +13,8 @@ add_library(swscale SHARED IMPORTED)
 add_library(avfilter SHARED IMPORTED)
 add_library(avdevice SHARED IMPORTED)
 
+add_library(ffmpeg-jni SHARED ffmpeg-jni.c)
+
 set_target_properties(avcodec PROPERTIES IMPORTED_LOCATION
         ${CMAKE_SOURCE_DIR}/../jniLibs/arm64-v8a/libavcodec.so)
 set_target_properties(avformat PROPERTIES IMPORTED_LOCATION
@@ -33,7 +35,8 @@ include_directories(${CMAKE_SOURCE_DIR}/include)
 
 find_library(log-lib log)
 
-target_link_libraries(native-lib
+target_link_libraries(ffmpeg-jni
+		native-lib
         avcodec
         avformat
         avutil
