@@ -109,8 +109,7 @@
         \nTen en cuenta que esto solo es posible si el audio se ha copiado en la memoria interna.
         \n* Los archivos ZIP siempre se copian internamente.
         \n* Los archivos de audio únicos y las carpetas de audio se copian solo si la opción [copiar internamente] está activada.</i></string>
-    <string name="option_delete_source_file_text_01">ZIP: Eliminar automáticamente el archivo ZIP una vez cargado en BookPlayer.</string>
-    <string name="option_delete_source_file_text_02">Otros: Eliminar automáticamente el archivo/carpeta una vez cargado en BookPlayer.</string>
+    <string name="option_delete_source_file_text_02">Eliminar automáticamente el archivo/carpeta una vez cargado en BookPlayer.</string>
     <string name="option_alert_delete_source_file_title">Todo archivo cargado en BookPlayer se eliminará del dispositivo.</string>
     <string name="option_alert_delete_source_file_message">¿Estás seguro?</string>
 

@@ -109,8 +109,7 @@
         \n注意，只有当音频已复制到内部存储中时才可能。
         \n* ZIP文件始终内部复制。
         \n* 单个音频文件和音频文件夹仅在启用上述选项[内部复制文件]时复制。</i></string>
-    <string name="option_delete_source_file_text_01">ZIP：将ZIP文件加载到Bookplayer后自动删除。</string>
-    <string name="option_delete_source_file_text_02">其他：将文件/文件夹加载到Bookplayer后自动删除。</string>
+    <string name="option_delete_source_file_text_02">将文件/文件夹加载到Bookplayer后自动删除。</string>
     <string name="option_alert_delete_source_file_title">加载到Bookplayer的每个文件都将从设备中删除。</string>
     <string name="option_alert_delete_source_file_message">你确定吗？</string>
 

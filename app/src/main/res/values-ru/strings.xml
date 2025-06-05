@@ -109,8 +109,7 @@
         \nУчтите, что это возможно только если аудио скопировано во внутреннюю память.
         \n* ZIP-файлы всегда копируются внутрь.
         \n* Отдельные аудиофайлы и папки копируются только если включена опция [копировать внутрь].</i></string>
-    <string name="option_delete_source_file_text_01">ZIP: Автоматически удалять выбранный ZIP-файл после загрузки в BookPlayer.</string>
-    <string name="option_delete_source_file_text_02">Другие: Автоматически удалять выбранный файл/папку после загрузки в BookPlayer.</string>
+    <string name="option_delete_source_file_text_02">Автоматически удалять выбранный файл/папку после загрузки в BookPlayer.</string>
     <string name="option_alert_delete_source_file_title">Все файлы, загруженные в BookPlayer, будут удалены с устройства.</string>
     <string name="option_alert_delete_source_file_message">Вы уверены?</string>
 
