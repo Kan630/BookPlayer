@@ -50,7 +50,24 @@ android {
             generateLocaleConfig = true
         }
 
+        // Custom FFMPEG Stuff
+        externalNativeBuild {
+            cmake {
+                abiFilters "armeabi-v7a", "arm64-v8a", "x86_64"
+            }
+        }
+        ndk {
+            // Si tu veux définir une version spécifique :
+            abiFilters "armeabi-v7a", "arm64-v8a", "x86_64"
+        }
     }
+    
+    externalNativeBuild {
+        cmake {
+            path "src/main/cpp/CMakeLists.txt"
+        }
+    }
+
 /*
     signingConfigs {
         release {
@@ -111,6 +128,14 @@ dependencies {
     implementation 'com.google.android.gms:play-services-nearby:19.3.0'
 
     implementation 'com.google.code.gson:gson:2.11.0'  // for storing PlayList Serializable in prefs
+
+    //implementation 'com.arthenica:ffmpegkit-full-gpl:5.1.1'
+    //implementation 'com.arthenica:ffmpeg-kit-full-gpl:4.5.LTS'
+
+    //implementation 'com.googlecode.mp4parser:isoparser:1.9.41'
+    implementation 'org.mp4parser:isoparser:1.9.27'
+
+    //implementation 'com.github.bravobit:FFmpeg-Android:0.3.2'
 
     annotationProcessor "androidx.room:room-compiler:2.7.1"
 

@@ -57,6 +57,12 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 public class MainActivity extends LifecycleLoggingActivity {
+    static {
+        System.loadLibrary("native-lib");
+    }
+
+    public native String stringFromJNI();
+
 
     private RecyclerView recyclerView;
     Toolbar toolbar;
@@ -86,6 +92,13 @@ public class MainActivity extends LifecycleLoggingActivity {
         super.onCreate(savedInstanceState);
 
         printSomeStuffAboutDevice();
+
+        myLog("before FFMPEG test");
+        //FFMPEG test
+        String message = stringFromJNI();
+        myLog("JNI message : " + message);
+        myLog("after FFMPEG test");
+
 
         setContentView(R.layout.activity_main);
 

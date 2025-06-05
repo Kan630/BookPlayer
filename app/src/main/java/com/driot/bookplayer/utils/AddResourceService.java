@@ -28,15 +28,20 @@ import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Option;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.sql.Date;
 import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 import static com.driot.bookplayer.global.Var.FOLDER_DOWNLOAD;
+import static com.driot.bookplayer.global.Var.FOLDER_MP4;
 import static com.driot.bookplayer.global.Var.FOLDER_UNZIPPED;
 import static com.driot.bookplayer.global.Var.ONLY_MIME;
 import static com.driot.bookplayer.global.Var.PATH_CHECK_AUTOTEST;
@@ -508,14 +513,62 @@ public class AddResourceService
                 }
 
             // ok mime found
-                if (mime.equals("audio/mp4")) { //   application/mp4   .m4b
+                if (mime.equals("audio/mp4") || mime.equals("video/mp4"))  { //   application/mp4   .m4b
 
                     myLog("MP4 : [" + dfPickedDir.getType() + "]");
 
-                    populateArrayListOfTracksFromFile(dfPickedDir);
-/*
+                    String sourceFile = copyToLocalFile(this, dfPickedDir);
+                    myLog("sourceFile : [" + sourceFile + "]");
+
+                    String m4bPath = sourceFile;
+
+                    // Optional: Validate path is accessible
+                    if (m4bPath == null) {
+                        tellError("Unable to resolve real path for M4B file");
+                        break;
+                    }
+
+                    // Step 1: Extract chapters using FFprobe
+                    List<ChapterInfo> chapters = FFmpegHelper.extractChapters(m4bPath);
+
+                    if (chapters == null || chapters.size() == 0) {
+
+                        myLog("No chapters found in m4b file, using as single file.");
+                        populateArrayListOfTracksFromFile(dfPickedDir);
+
+                    } else {
+
+                        String destinationFolder = getFilesDir().getAbsolutePath() + "/" + FOLDER_MP4 + "/" + dfPickedDir.getName(); // myFolder.getsFolderName_withUnderscore();
+                        destinationFolder = destinationFolder.replace(".m4b","");
+
+                        myLog("destinationFolder : [" + destinationFolder + "]");
+
+                        // Step 2: Create destination folder (in same parent)
+                        File outputFolder = new File(destinationFolder);
+                        if (!outputFolder.exists()) outputFolder.mkdirs();
+
+                        // Step 3: For each chapter, extract with FFmpeg
+                        for (int i = 0; i < chapters.size(); i++) {
+                            ChapterInfo chapter = chapters.get(i);
+                            String outPath = new File(outputFolder, String.format(Locale.US, "chapter_%02d.m4b", i + 1)).getAbsolutePath();
+
+                            FFmpegHelper.splitChapter(m4bPath, outPath, chapter.startTime, chapter.endTime);
+                        }
+
+                        myLog("Chapters successfully split into: " + outputFolder.getAbsolutePath());
+
+                        dfPickedDir = DocumentFile.fromFile(outputFolder);
+                        populateArrayListOfTracksFromFolder(dfPickedDir, false);
+                    }
+
+
+
+
+
                     //TODO : maybe you can just unzip it...
-                    
+
+
+/*
                     // TODO
                     /// EXPLODE MP4 in MP3s in local folder...
                     /// then use the import folder thing
@@ -1039,5 +1092,28 @@ public class AddResourceService
     private void myLogD(String str) { KanLogger.myLogD(this.getClass().getName(), str); }
     private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
     private void myToast(String str) { KanLogger.myToast(this.getClass().getName(), str); }
+
+    private String copyToLocalFile(Context context, DocumentFile docFile) {
+        try {
+            String fileName = docFile.getName();
+            File destFile = new File(context.getFilesDir(), fileName);
+            InputStream in = context.getContentResolver().openInputStream(docFile.getUri());
+            OutputStream out = new FileOutputStream(destFile);
+
+            byte[] buffer = new byte[4096];
+            int bytesRead;
+            while ((bytesRead = in.read(buffer)) != -1) {
+                out.write(buffer, 0, bytesRead);
+            }
+
+            in.close();
+            out.close();
+
+            return destFile.getAbsolutePath(); // this is a true path FFmpeg/FFprobe can use
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 
 }
