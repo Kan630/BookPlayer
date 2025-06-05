@@ -157,7 +157,7 @@ public class OptionActivity extends LifecycleLoggingActivity {
         chk_beep_chapter = findViewById(R.id.chk_beep_chapter_default);
         chk_beep_bookend = findViewById(R.id.chk_beep_bookend_defaut);
         chk_beep_autostop = findViewById(R.id.chk_beep_autostop_defaut);
-        chk_delete_source_file = findViewById(R.id.chk_delete_source_file_zip);
+        chk_delete_source_file = findViewById(R.id.chk_delete_source_file);
         chk_rewind_after_pause = findViewById(R.id.chk_rewind_after_pause);
         chk_copy_file = findViewById(R.id.chk_copy_file);
         chk_tech_log_file = findViewById(R.id.chk_tech_log_file);

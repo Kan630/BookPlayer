@@ -780,10 +780,17 @@ public class AddResourceService
                 myLog("ZikFile Added.... SQL result (=id) = [" + zikFileId + "]");
                 nbFileSaved++;
                 if (nbFileSaved == nbFileToSave) {
-                    myLog("*************************** All files have been processed. -- OK");
+                    myLog("******************************************************************************************************************");
+                    myLog("******************************************************************************************************************");
+                    myLog("***************************      All files have been processed. -- OK      ***************************************");
+                    myLog("******************************************************************************************************************");
+                    myLog("******************************************************************************************************************");
                     updateFolderDuration();
-                    if (Option.getDeleteSourceFile(this) && Option.getCopyFile(this) ) {
-                        myLog("deleting source\n" + "Option.getDeleteSourceFile(this) : " + Option.getDeleteSourceFile(this) + "\n" + Option.getCopyFile(this));
+                    myLog("deleting source ??"
+                            + "\nOption CopyFile : " + Option.getCopyFile(this) + "  -  is a ZIP : " + type_given.equals("ZIP")
+                            + "\nOption DeleteSourceFile : " + Option.getDeleteSourceFile(this));
+                    if ((Option.getCopyFile(this) || type_given.equals("ZIP")) && Option.getDeleteSourceFile(this)) {
+                        myLog("deleting source => YES");
                         deleteSourceFile();
                     }
                 }

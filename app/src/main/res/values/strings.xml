@@ -110,6 +110,8 @@
         \n* More memory will be needed if you do not delete the source file.</i>
     </string>
     <string name="option_copy_file_text">Copy audio files in the internal, reserved, BookPlayer app memory.</string>
+    <string name="option_copy_file_special_zip"><i>zip files are always copied</i></string>
+
 
     <string name="option_backward_forward_title">BackWard/Forward buttons</string>
     <string name="option_backward_forward_text">timelapse :</string>
@@ -123,13 +125,11 @@
     <string name="option_orientation_lock">Lock the screen orientation when playing (better to keep it on)</string>
 
     <string name="option_delete_source_file_title">Automatic Source file deletion</string>
-    <string name="option_delete_source_file_subtitle"><i>After a file/folder/zip has been loaded into BookPlayer, the source file/folder/zip you picked can be deleted automatically.
-        \nNote that this is only possible if the audio has been copied in the internal memory.
-        \n* ZIP files are always copied internally.
-        \n* Single audio file, and audio Folders, are copied only if the above option [copy file internally] is set.</i></string>
-    <string name="option_delete_source_file_text_01">ZIP: Automatically delete picked ZIP file once loaded into Bookplayer.</string>
-    <string name="option_delete_source_file_text_02">Others: Automatically delete picked file/folder once loaded into Bookplayer.</string>
-    <string name="option_alert_delete_source_file_title">Every file loaded into Bookplayer will be wiped out from device.</string>
+    <string name="option_delete_source_file_subtitle"><i>After an audiobook has been loaded into BookPlayer, the source file/folder you picked can be deleted automatically.
+        \nNote that this is only possible for zip or if the option just above is ticked (if audios are copied in Bookplayer reserved memory).
+        </i></string>
+    <string name="option_delete_source_file_text_02">Automatically delete picked file/folder once loaded into Bookplayer.</string>
+    <string name="option_alert_delete_source_file_title">Every file loaded into Bookplayer will be wiped out from device memory.</string>
     <string name="option_alert_delete_source_file_message">Are you sure ?.</string>
 
 
