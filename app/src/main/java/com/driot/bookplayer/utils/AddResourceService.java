@@ -782,7 +782,8 @@ public class AddResourceService
                 if (nbFileSaved == nbFileToSave) {
                     myLog("*************************** All files have been processed. -- OK");
                     updateFolderDuration();
-                    if (Option.getDeleteSourceFile(this)) {
+                    if (Option.getDeleteSourceFile(this) && Option.getCopyFile(this) ) {
+                        myLog("deleting source\n" + "Option.getDeleteSourceFile(this) : " + Option.getDeleteSourceFile(this) + "\n" + Option.getCopyFile(this));
                         deleteSourceFile();
                     }
                 }
