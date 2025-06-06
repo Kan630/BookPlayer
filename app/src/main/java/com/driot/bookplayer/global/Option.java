@@ -26,6 +26,7 @@ public class Option {
     private static final boolean DEFAULT_COPY_FILES = true;
     private static final boolean DEFAULT_CLICK_VISUALIZER_PLAYPAUSE = false;
     private static final boolean DEFAULT_TECH_LOG = false;
+    private static final boolean DEFAULT_OPEN_WITH = false;
 
 
     /////////////////// SLEEP - AUTOMATIC PAUSE ///////////////////
@@ -95,6 +96,10 @@ public class Option {
     /////////////////// LOG ///////////////////
     public static void setTechLog(Context context, boolean bool) {context.getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE).edit().putBoolean("TECH_LOG",bool).apply();}
     public static Boolean getTechLog(Context context) {return context.getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE).getBoolean("TECH_LOG", DEFAULT_TECH_LOG);}
+
+    /////////////////// OPEN WITH ///////////////////
+    public static void setOpenWith(Context context, boolean bool) {context.getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE).edit().putBoolean("OPEN_WITH",bool).apply();}
+    public static Boolean getOpenWith(Context context) {return context.getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE).getBoolean("OPEN_WITH", DEFAULT_OPEN_WITH);}
 
 
 }

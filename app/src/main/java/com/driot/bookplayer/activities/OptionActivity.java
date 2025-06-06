@@ -61,6 +61,7 @@ public class OptionActivity extends LifecycleLoggingActivity {
     CheckBox chk_copy_file;
     CheckBox chk_click_visualizer_playpause;
     CheckBox chk_tech_log_file;
+    CheckBox chk_open_with;
     private PermissionRequest mPermissionRequest;
 
     private boolean areAdvancedOptionsVisible = false;
@@ -161,6 +162,7 @@ public class OptionActivity extends LifecycleLoggingActivity {
         chk_rewind_after_pause = findViewById(R.id.chk_rewind_after_pause);
         chk_copy_file = findViewById(R.id.chk_copy_file);
         chk_tech_log_file = findViewById(R.id.chk_tech_log_file);
+        chk_open_with = findViewById(R.id.chk_open_with);
 
         chk_MailMethod.setChecked(Option.getMailMethod(this));
         chk_MailMethod.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setMailMethod(this, isChecked));
@@ -196,6 +198,9 @@ public class OptionActivity extends LifecycleLoggingActivity {
 
         chk_tech_log_file.setChecked(Option.getTechLog(this));
         chk_tech_log_file.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setTechLog(this, isChecked));
+
+        chk_open_with.setChecked(Option.getOpenWith(this));
+        chk_open_with.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setOpenWith(this, isChecked));
 
     }
 

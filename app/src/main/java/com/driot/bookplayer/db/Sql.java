@@ -1,11 +1,16 @@
 package com.driot.bookplayer.db;
 
 import android.content.Context;
+import android.database.Cursor;
 
 import androidx.sqlite.db.SimpleSQLiteQuery;
 
 import static com.driot.bookplayer.utils.KanLogger.myLog;
+import static com.driot.bookplayer.utils.KanLogger.myLogI;
 import static com.driot.bookplayer.utils.KanLogger.myLogE;
+
+import java.util.List;
+import java.util.Locale;
 
 
 /**
@@ -42,4 +47,44 @@ public class Sql {
             }
         }).start();
     }
+
+    public static void log_all_Folders(Context c) {
+        String TAG = "SQL log";
+        new Thread(() -> {
+            try {
+                List<Folder> folders = AppDatabase.getDatabase(c)
+                        .FolderDao()
+                        .getAll();
+
+                if (folders == null || folders.isEmpty()) {
+                    myLogE(TAG, "No folders found in database");
+                    return;
+                }
+
+                // Log column headers (optional)
+                myLogI(TAG, "Folders (sorted by last access):");
+                myLogI(TAG, "ID | Name | Path | Last Access...");
+                myLogI(TAG, "----------------------------------------");
+
+                // Log each folder
+                for (Folder folder : folders) {
+                    String logEntry = String.format(Locale.getDefault(),
+                            "%d | %s | %s",  // Adjust format as needed
+                            folder.getId(),
+                            folder.getName(),
+                            folder.getPath());
+                    myLogI(TAG, logEntry);
+
+                    // Or simply: myLogD(folder.toString());
+                }
+
+                myLogI(TAG, "Total folders: " + folders.size());
+
+            } catch (Exception e) {
+                myLogE(TAG, "logAllFolders - Exception: " + e.getMessage());
+            }
+        }).start();
+    }
+
+
 }

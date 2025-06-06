@@ -96,12 +96,6 @@
     <string name="option_copyzip_local">Copy files in app memory (mandatory for Android 11 and up).</string>
     <string name="option_unzip_local">Unzip files (takes storage space, but smoother listening experience)</string>
 
-    <string name="option_log">Logging</string>
-    <string name="option_tech_log_subtitle"><i>
-        should the app create technical debug log files.
-    </i></string>
-    <string name="option_tech_log_text">Technical logging.</string>
-
     <string name="option_copy_file_title">Copy files internally</string>
     <string name="option_copy_file_subtitle"><i>Pros :
         \n* [Read Audio] permission is not needed.
@@ -128,18 +122,18 @@
     <string name="option_delete_source_file_subtitle"><i>After an audiobook has been loaded into BookPlayer, the source file/folder you picked can be deleted automatically.
         \nNote that this is only possible for zip or if the option just above is ticked (if audios are copied in Bookplayer reserved memory).
         </i></string>
-    <string name="option_delete_source_file_text_02">Automatically delete picked file/folder once loaded into Bookplayer.</string>
+    <string name="option_delete_source_file_text">Automatically delete picked file/folder once loaded into Bookplayer.</string>
     <string name="option_alert_delete_source_file_title">Every file loaded into Bookplayer will be wiped out from device memory.</string>
     <string name="option_alert_delete_source_file_message">Are you sure ?.</string>
-
-
-    <string name="option_mail_method">Sending mail</string>
-    <string name="option_mail_method_default">Use default mailing app.\n<i>Uncheck to be asked which app to use.</i></string>
 
     <string name="option_beep_title">Beep Sound</string>
     <string name="option_beep_between_chapters">Produce a beep at chapters end.</string>
     <string name="option_beep_for_autostop">Produce a long beep when entering sleep mode <i>(automatic pause after XX minutes)</i></string>
     <string name="option_beep_at_the_end">Produce a triple beep at the book end.</string>
+
+    <string name="option_open_with_title">Open With / Choose App</string>
+    <string name="option_open_with_subtitle"><i>Make Android propose Bookplayer among the other proposed options when clicking/downloading an audio / zip file</i></string>
+    <string name="option_open_with_text">Add Bookplayer to \'Open With\' Choices.</string>
 
     <string name="option_visualizer_title">Spectrum Visualizer</string>
     <string name="option_visualizer_text_01">Minimalist frequency visualizer displayed when audio is playing.</string>
@@ -149,6 +143,16 @@
     <string name="option_visualizer_permissions_denied_02">click again the checkbox to ask permission</string>
 
     <string name="option_click_visualizer_playpause_text_01">Clicking on the visualizer also functions as a play/pause button.</string>
+
+    <string name="option_log">Logging</string>
+    <string name="option_tech_log_subtitle"><i>
+        should the app create technical debug log files.
+    </i></string>
+    <string name="option_tech_log_text">Technical logging.</string>
+
+    <string name="option_mail_method">Sending mail</string>
+    <string name="option_mail_method_default">Use default mailing app.\n<i>Uncheck to be asked which app to use.</i></string>
+
 
     <!-- ********************************** -->
     <!-- Get Resources -->

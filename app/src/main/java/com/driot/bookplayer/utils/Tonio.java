@@ -4,11 +4,16 @@ import static com.driot.bookplayer.utils.Tonio2.removeLongDuplicates;
 import static com.driot.bookplayer.utils.KanLogger.myLog;
 import static com.driot.bookplayer.utils.KanLogger.myLogE;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Environment;
 import android.os.StatFs;
+import android.provider.MediaStore;
+import android.provider.OpenableColumns;
 import android.webkit.MimeTypeMap;
 
 import androidx.annotation.NonNull;
@@ -262,6 +267,69 @@ public class Tonio {
         return m;
     }
 
+    public static String getFileNameFromUri(Context c, @NonNull Uri uri) {
+            String name = null;
+
+            // Try modern way first
+            if ("content".equals(uri.getScheme())) {
+                try (Cursor cursor = c.getContentResolver().query(uri, null, null, null, null)) {
+                    if (cursor != null && cursor.moveToFirst()) {
+                        int index = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                        if (index != -1) {
+                            name = cursor.getString(index);
+                        }
+                    }
+                } catch (Exception e) {
+                    myLogE("Modern filename fetch failed: " + e.getMessage());
+                }
+            }
+
+            // Fallback for Android 8
+            if (name == null) {
+                name = getFileNameFromMediaUri(c, uri);
+            }
+
+            return name;
+        }
+
+    public static String getFileNameFromMediaUri(Context c, @NonNull Uri uri) {
+        String[] projection = { MediaStore.MediaColumns.DATA };
+        Cursor cursor = c.getContentResolver().query(uri, projection, null, null, null);
+        if (cursor != null) {
+            try {
+                int index = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA);
+                if (cursor.moveToFirst()) {
+                    String filePath = cursor.getString(index);
+                    return new File(filePath).getName();
+                }
+            } catch (Exception e) {
+                myLogE("getFileNameFromMediaUri failed: " + e.getMessage());
+            } finally {
+                cursor.close();
+            }
+        }
+        return uri.getLastPathSegment(); // Fallback
+    }
+/* Old Code...
+    // from FileHelper... used to copy zip locally in Android 11+
+    private static String getContentName(ContentResolver resolver, Uri uri) {
+        Cursor cursor = resolver.query(uri, null, null, null, null);
+        if (cursor != null) {
+            cursor.moveToFirst();
+            int nameIndex = cursor.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME);
+            if (nameIndex >= 0) {
+                String name = cursor.getString(nameIndex);
+                cursor.close();
+                return name;
+            }
+        }
+        return null;
+    }
+
+ */
+
+
+
     public static boolean fileExists(String filePath) {
         File file = new File(filePath);
         return file.exists();
@@ -344,7 +412,6 @@ public class Tonio {
             }
         }
     }
-
 
 
     private static void myLog(String str) { KanLogger.myLog(LOG_PREFIX, str); }

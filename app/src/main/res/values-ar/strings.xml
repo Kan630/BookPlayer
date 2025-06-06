@@ -109,7 +109,7 @@
         \nيرجى ملاحظة أن هذا ممكن فقط إذا تم نسخ الصوت إلى الذاكرة الداخلية.
         \n* ملفات ZIP دائمًا ما تُنسخ داخليًا.
         \n* الملفات الصوتية الفردية والمجلدات الصوتية تُنسخ فقط إذا كان خيار [نسخ داخليًا] مفعلًا.</i></string>
-    <string name="option_delete_source_file_text_02"> حذف الملف/المجلد المختار تلقائيًا بمجرد تحميله في BookPlayer.</string>
+    <string name="option_delete_source_file_text"> حذف الملف/المجلد المختار تلقائيًا بمجرد تحميله في BookPlayer.</string>
     <string name="option_alert_delete_source_file_title">سيتم مسح كل ملف محمل في BookPlayer من الجهاز.</string>
     <string name="option_alert_delete_source_file_message">هل أنت متأكد؟</string>
 

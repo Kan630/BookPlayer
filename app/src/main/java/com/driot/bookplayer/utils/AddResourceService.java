@@ -24,6 +24,7 @@ import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.FolderAttrib;
 import com.driot.bookplayer.db.FolderDao;
+import com.driot.bookplayer.db.Sql;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Option;
 
@@ -117,6 +118,7 @@ public class AddResourceService
     private Uri uri_given;
     private String url_given;
     private String type_given;
+    private String title_given;
     private String destinationFolderName;
     private String zipDestinationFolderPath;
     private String zipDestinationFolderName;
@@ -300,6 +302,7 @@ public class AddResourceService
         url_given = intent.getStringExtra("url");
         uri_given = intent.getParcelableExtra("uri");
         type_given = intent.getStringExtra("type");
+        title_given = intent.getStringExtra("title");
         return START_NOT_STICKY;
     }
 
@@ -447,19 +450,22 @@ public class AddResourceService
     ///////////////////////////////////////
 
     public void init() {
-        if (url_given==null && (type_given==null || uri_given==null)) {myLogE("init() - args=null");tellError("Init failed, args are null");return;}
-        isBusy = true;
-        PROGRESS = PROGRESS_DOWNLOAD; // dummy progress, before real init
-        tellProgress(PROGRESS[0], PROGRESS_TEXT[0]);
         String strUriLog = uri_given==null ? "null" : uri_given.toString();
 
         myLog("....");
         myLog("....");
         myLog("*********************************************************************************************************");
         myLog("init() - ** uri = " + strUriLog + " **");
+        myLog("init() - ** title = " + title_given + " **");
         myLog("init() - ** type = " + type_given + " **");
         myLog("init() - ** url = " + url_given + " **");
         myLog("*********************************************************************************************************");
+
+        if (type_given==null || (url_given==null && uri_given==null)) {myLogE("init() - args=null");tellError("Init failed, args are null");return;}
+
+        isBusy = true;
+        PROGRESS = PROGRESS_DOWNLOAD; // dummy progress, before real init
+        tellProgress(PROGRESS[0], PROGRESS_TEXT[0]);
 
         if (!Objects.equals(url_given, null)) {
             //Check not already imported
@@ -585,28 +591,12 @@ public class AddResourceService
                 if (uri_given.getPath().contains(PATH_CHECK_AUTOTEST)) {  // <-- autotest
                     destinationFolderName =  formatNameForDisplay(getFileNameFromPath(uri_given.getPath()));
                 } else {
-                    try {
-                        InputStream uriInputStream = this.getContentResolver().openInputStream(uri_given);
-                        if (uriInputStream != null) {
-                            destinationFolderName = getContentName(this.getContentResolver(), uri_given);
-                            if (destinationFolderName == null) {
-                                tellError("could not get name of zipfile");
-                            }
-                            myLog("destinationFolderName = [" + destinationFolderName + "] - with getContentName(getContentResolver...");
-                            destinationFolderName = pruneZipFileName(destinationFolderName);
-                            uriInputStream.close();
-                        } else {
-                            tellError("Could not open input stream from selected Uri [" + uri_given.toString() + "]");
-                        }
-                    } catch (Exception e) {
-                        tellError("error dealing with selected Uri : " + e.getMessage());
-                        e.printStackTrace();
-                    }
+                    destinationFolderName = title_given;
                 }
 
                 // check Not Already Imported
                 //*****************************
-                myLog("Checking Folder doesn't already exist in DB : " + destinationFolderName);
+                myLog("Checking Folder doesn't already exist in DB (pre-check Zip) : " + destinationFolderName);
                 new Thread(() -> {
                     long lCheck = AppDatabase.getDatabase(this).FolderDao().folderAlreadyExist_checkFolderName(destinationFolderName);
                     if (lCheck>0) {
@@ -868,20 +858,6 @@ public class AddResourceService
     }
 
 
-    // from FileHelper... used to copy zip locally in Android 11+
-    private static String getContentName(ContentResolver resolver, Uri uri) {
-        Cursor cursor = resolver.query(uri, null, null, null, null);
-        if (cursor != null) {
-            cursor.moveToFirst();
-            int nameIndex = cursor.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME);
-            if (nameIndex >= 0) {
-                String name = cursor.getString(nameIndex);
-                cursor.close();
-                return name;
-            }
-        }
-        return null;
-    }
     private String pruneZipFileName(String destinationFolderName) {
         String tmp = destinationFolderName;
         tmp = tmp.replace(" (1)","");

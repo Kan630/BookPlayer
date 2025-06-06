@@ -36,8 +36,29 @@
         <activity android:name=".activities.GetResourceActivity" />
         <activity android:name=".activities.FolderModifyActivity" />
         <activity android:name=".activities.ZikFileModifyActivity" />
-        <activity android:name=".activities.AddResourceActivity" />
-        <activity android:name=".activities.HelpActivity" />
+        <activity android:name=".activities.AddResourceActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <!-- ZIP files -->
+                <data android:scheme="content" android:mimeType="application/zip" />
+                <data android:scheme="file" android:mimeType="application/zip" />
+
+                <!-- M4B files -->
+                <data android:scheme="content" android:mimeType="audio/x-m4b" />
+                <data android:scheme="file" android:mimeType="audio/x-m4b" />
+
+                <!-- Some fallback extensions -->
+                <data android:scheme="content" android:pathPattern=".*\\.zip" />
+                <data android:scheme="file" android:pathPattern=".*\\.zip" />
+                <data android:scheme="content" android:pathPattern=".*\\.m4b" />
+                <data android:scheme="file" android:pathPattern=".*\\.m4b" />
+            </intent-filter>
+        </activity>        <activity android:name=".activities.HelpActivity" />
         <activity android:name=".activities.OptionActivity" />
         <activity android:name=".activities.OtherAppsActivity" />
         <activity android:name=".activities.BiggerTextActivity" />

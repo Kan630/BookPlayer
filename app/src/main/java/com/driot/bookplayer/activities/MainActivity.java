@@ -44,6 +44,7 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.FolderDao;
+import com.driot.bookplayer.db.Sql;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.utils.KanLogger;
@@ -78,7 +79,6 @@ public class MainActivity extends LifecycleLoggingActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        //KanLogger.setKanContext(getApplicationContext()); // Now using MyPersonalApp
         KanLogger.myLog("------------------------------------------------------------------");
         KanLogger.myLog("----------------     Main Activity onCreate()     ----------------");
         KanLogger.myLog("------------------------------------------------------------------");
@@ -87,11 +87,12 @@ public class MainActivity extends LifecycleLoggingActivity {
 
         printSomeStuffAboutDevice();
 
+        Sql.log_all_Folders(this);
+
         setContentView(R.layout.activity_main);
 
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar); //si ca plante, check le color theme saved ???
-        //toolbar.setTitle("Books");
         toolbar.setLogo(R.mipmap.ic_launcher);
         toolbar.setLogo(R.mipmap.ic_launcher);
 
@@ -107,8 +108,6 @@ public class MainActivity extends LifecycleLoggingActivity {
     @Override
     protected void onRestart() {
         super.onRestart();
-        myLog("about to reset KanContext");
-        //KanLogger.setKanContext(getApplicationContext()); //TODO this is shit    // Now using MyPersonalApp
         getFolders();
         myLog("recyclerview drawing through setAdapter on restart");
     }

@@ -38,6 +38,8 @@ import static com.driot.bookplayer.global.Var.AUTOTEST_FILE_01;
 import static com.driot.bookplayer.global.Var.AUTOTEST_FILE_02;
 import static com.driot.bookplayer.global.Var.AUTOTEST_FILE_03;
 import static com.driot.bookplayer.utils.PermissionRequest.isReadAudioPermissionGranted;
+import static com.driot.bookplayer.utils.Tonio.formatNameForDisplay;
+import static com.driot.bookplayer.utils.Tonio.getFileNameFromUri;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 08/11/20
@@ -64,28 +66,36 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
     }
     private void launchAddResource(ActivityResult result, String type, String url) {
         myLog("launchAddResource()-----------------------------------------------------------------------------------------------------");
+
+            // DOWNLOAD CASE
         if (url != null) {
             Intent intentAddResourceService = new Intent(this, AddResourceService.class);
             intentAddResourceService.putExtra("url", url);
+            intentAddResourceService.putExtra("type", "ZIP"); // TODO... allows others than ZIP !!!
             startService(intentAddResourceService);
 
             Intent intent = new Intent(getApplicationContext(), AddResourceActivity.class);
             intent.putExtra("url", url);
             addResourceActivityResultLauncher.launch(intent);
+
+            // FILE PICKER CASE
         } else {
             if (result.getResultCode() == RESULT_OK) {
                 if (isReturnedUriOk(result.getData())) {
                     Uri uri = result.getData().getData();
                     myLog("picked data : " + uri.getPath());
+                    String title = formatNameForDisplay(getFileNameFromUri(this, uri));
 
                     Intent intentAddResourceService = new Intent(this, AddResourceService.class);
                     intentAddResourceService.putExtra("uri", uri);
                     intentAddResourceService.putExtra("type", type);
+                    intentAddResourceService.putExtra("title", title);
                     startService(intentAddResourceService);
 
                     Intent intent = new Intent(getApplicationContext(), AddResourceActivity.class);
                     intent.putExtra("uri", uri);
                     intent.putExtra("type", type);
+                    intent.putExtra("title", title);
                     addResourceActivityResultLauncher.launch(intent);
                 }
             }

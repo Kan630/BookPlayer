@@ -23,7 +23,7 @@ public class PlayList {
     private static List<ZikFile> zikFilesList;
     private static int numZikFile=-1; // old numSong
 
-    private static final String PREF_NAME = "playlist_storage";
+    private static final String PREF_PLAYLIST_STORAGE = "playlist_storage";
     private static final String KEY_ZIKFILES = "zikfiles_list";
 
 
@@ -82,7 +82,7 @@ public class PlayList {
 
     private static void saveToStorage(List<ZikFile> list) {
         if (appContext == null) return;
-        SharedPreferences prefs = appContext.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        SharedPreferences prefs = appContext.getSharedPreferences(PREF_PLAYLIST_STORAGE, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
         Gson gson = new Gson();
         String json = gson.toJson(list);
@@ -92,7 +92,7 @@ public class PlayList {
 
     private static List<ZikFile> loadFromStorage() {
         if (appContext == null) return null;
-        SharedPreferences prefs = appContext.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        SharedPreferences prefs = appContext.getSharedPreferences(PREF_PLAYLIST_STORAGE, Context.MODE_PRIVATE);
         String json = prefs.getString(KEY_ZIKFILES, null);
         if (json == null) return null;
 
