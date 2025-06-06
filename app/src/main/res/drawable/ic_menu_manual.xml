@@ -1,0 +1,22 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24"
+    android:tint="?android:attr/colorControlNormal">
+
+    <!-- Book shape: two pages open -->
+    <path
+        android:fillColor="#55000000"
+        android:pathData="M3,4c-0.55,0 -1,0.45 -1,1v14c0,0.55 0.45,1 1,1h8c0.55,0 1,0.45 1,1V5c0,-0.55 -0.45,-1 -1,-1H3zM13,4c-0.55,0 -1,0.45 -1,1v16c0,-0.55 0.45,-1 1,-1h8c0.55,0 1,-0.45 1,-1V5c0,-0.55 -0.45,-1 -1,-1h-8z" />
+
+    <!-- Left page lines -->
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M4.5,6.5h5v0.8h-5zM4.5,9h5v0.8h-5zM4.5,11.5h5v0.8h-5zM4.5,14h5v0.8h-5z" />
+
+    <!-- Right page lines -->
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M14.5,6.5h5v0.8h-5zM14.5,9h5v0.8h-5zM14.5,11.5h5v0.8h-5zM14.5,14h5v0.8h-5z" />
+</vector>

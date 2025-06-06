@@ -76,8 +76,14 @@
         \nThere is 3 main permissions :
         \n<b>[Music and Audio]</b> = [Read Audio] = [External Storage] : Allows to read audio from the general device memory, if copy option was unselected (like from the download folder, the music folder, or any other one)
         \n\n<b>[Microphone]</b> (= [Record Audio]) is needed to display a frequency visualizer animation (sound spectrum display). If it is denied, it will just not show, no problem.
-        \n\n<b>[Notifications]</b> may be needed on some devices (Android 14+). It is used to display the command widget on the lock screen. <i>(Usually it displays straight away without permission being even asked.)</i>
+        \n\n<b>[Notifications]</b> may be needed on some devices (Android 14+). It is used to display the command widget on the lock screen. <i>(Usually it displays straight away without permission being even asked.)"</i>
+    </string>
 
+    <string name="help_forum">Forum :</string>
+    <string name="help_forum_text">I\'ve just set up a forum for users to discuss this app. (June 2025).
+        \nAnyone can read posts, but you\'ll need to register your email to participate.
+        \nFeel free to suggest improvements, share ideas, or report bugs.
+        \nYou can also exchange tips—like where to find quality audiobooks and more.
     </string>
 
 
@@ -309,6 +315,7 @@
     <!-- Menus -->
 
     <string name="action_menu_three_dot">Menu</string>
+    <string name="menu_open">open</string>
     <string name="menu_manual">manual</string>
     <string name="menu_options">options</string>
     <string name="menu_otherapp">other apps</string>

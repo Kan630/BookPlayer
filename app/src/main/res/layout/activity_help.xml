@@ -75,6 +75,18 @@
             android:layout_marginBottom="30dp"
             />
 
+        <View style="@style/myStyleViewSimpleHorizontalBar"/>
+
+        <TextView style="@style/HelpTitle"
+            android:text="@string/help_forum"
+            />
+        <TextView style="@style/HelpText"
+            android:text="@string/help_forum_text"
+            />
+        <View style="@style/myStyleViewSimpleHorizontalBar"
+            android:layout_marginBottom="30dp"
+            />
+
 
     </LinearLayout>
     </ScrollView>

@@ -12,6 +12,12 @@
 
         <menu>
 
+            <item android:id="@+id/menu_open"
+                android:title="@string/menu_open"
+                android:icon="@drawable/ic_menu_open"
+                app:showAsAction="ifRoom"
+                />
+
             <item android:id="@+id/menu_manual"
                 android:title="@string/menu_manual"
                 android:icon="@android:drawable/ic_menu_view"
@@ -21,12 +27,6 @@
             <item android:id="@+id/menu_options"
                 android:title="@string/menu_options"
                 android:icon="@android:drawable/ic_menu_preferences"
-                app:showAsAction="ifRoom"
-                />
-
-            <item android:id="@+id/menu_otherapp"
-                android:title="@string/menu_otherapp"
-                android:icon="@android:drawable/ic_menu_gallery"
                 app:showAsAction="ifRoom"
                 />
 
@@ -54,12 +54,12 @@
                 />
             <item android:id="@+id/menu_forum"
                 android:title="@string/menu_forum"
-                android:icon="@drawable/ic_forum"
+                android:icon="@drawable/ic_menu_forum"
                 app:showAsAction="ifRoom"
                 />
             <item android:id="@+id/menu_website"
                 android:title="@string/menu_website"
-                android:icon="@drawable/ic_website"
+                android:icon="@drawable/ic_menu_website"
                 app:showAsAction="ifRoom"
                 />
 

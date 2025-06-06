@@ -99,9 +99,6 @@ public class MainActivity extends LifecycleLoggingActivity {
         recyclerView = findViewById(R.id.recyclerview_folders);
         if (recyclerView != null) recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        FloatingActionButton btn_Add = findViewById(R.id.FAB_Add);
-        btn_Add.setOnClickListener(view -> openGetResourceActivity());
-
         getFolders();
     }
 
@@ -139,8 +136,8 @@ public class MainActivity extends LifecycleLoggingActivity {
             startActivityForResult(new Intent(this, OptionActivity.class), REQUEST_CODE_OPTION);
         } else if (itemId == R.id.menu_manual) {
             startActivity(new Intent(getApplicationContext(), HelpActivity.class));
-        } else if (itemId == R.id.menu_otherapp) {
-            startActivity(new Intent(getApplicationContext(), OtherAppsActivity.class));
+        //} else if (itemId == R.id.menu_otherapp) {
+        //    startActivity(new Intent(getApplicationContext(), OtherAppsActivity.class));
         } else if (itemId == R.id.menu_seelog) {
             startActivity(new Intent(this, LogListActivity.class));
         } else if (itemId == R.id.menu_stats) {
@@ -154,7 +151,9 @@ public class MainActivity extends LifecycleLoggingActivity {
         } else if (itemId == R.id.menu_website) {
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(Var.WEBSITE_URL));
             startActivity(browserIntent);
-       // } else if (itemId == R.id.menu_synchro) {
+        } else if (itemId == R.id.menu_open) {
+            startActivity(new Intent(getApplicationContext(), GetResourceActivity.class));
+     // } else if (itemId == R.id.menu_synchro) {
        //     startActivity(new Intent(this, SynchroActivity.class));
         } else {
             myLogE("MainActivity.onOptionsItemSelected : unknown Item selected in Menu");
