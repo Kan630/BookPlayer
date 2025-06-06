@@ -52,6 +52,8 @@ public class AddResourceActivity
     private String type;
     private String original_type;
 
+    private static final long MAX_TIME_BETWEEN_OPEN_WIDTH_LOADS = 20000;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,6 +66,7 @@ public class AddResourceActivity
 
         String url = getIntent().getStringExtra("url");
         String action = getIntent().getAction();
+        boolean GoLaunchService = true;
 
         if (url != null) {   // DIRECT DOWNLOAD
 
@@ -80,44 +83,39 @@ public class AddResourceActivity
             String str_Uri = (uri == null) ? "null" : uri.toString();
             myLog("onCreate() - from Open With :\nuri=[" + str_Uri + "]\ntype=[" + type + "]");
 
-            if (Pref.get_Last_OpenWith_FileUri(this).equals(str_Uri)) {
-                myLog("Already loaded....");
+            long lastLoadTimeDiff = System.currentTimeMillis() - Pref.get_Last_OpenWith_File_Time(this);
+            myLog("Last load : " + Pref.get_Last_OpenWith_FileUri(this) + ", " + lastLoadTimeDiff + " ms ago.");
+            if (Pref.get_Last_OpenWith_FileUri(this).equals(str_Uri) && lastLoadTimeDiff < MAX_TIME_BETWEEN_OPEN_WIDTH_LOADS) {
+                myLog("Already loaded.... (max time = " + MAX_TIME_BETWEEN_OPEN_WIDTH_LOADS + " ms.)  \nLast Time = " + Pref.get_Last_OpenWith_File_Time(this) + "\ncurrent time = " + System.currentTimeMillis() + "\nDiff = " + lastLoadTimeDiff);
+                GoLaunchService = false;
+                Intent mainIntent = new Intent(this, MainActivity.class);
+                mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(mainIntent);
                 finish();
-            }
-            Pref.set_Last_OpenWith_FileUri(this, str_Uri);
 
-            if (uri != null) {
+            } else {
+                Pref.set_Last_OpenWith_FileUri(this, str_Uri);
+                Pref.set_Last_OpenWith_File_Time(this);
 
-                String fileNameFromUri = Tonio.getFileNameFromUri(this, uri);
-                boolean isZip = fileNameFromUri != null && fileNameFromUri.toLowerCase().endsWith(".zip");
-                if (isZip) {
-                    type = "ZIP";
-                } else {
-                    type = "File";
-                }
-                String title = formatNameForDisplay(fileNameFromUri);
+                if (uri != null) {
 
-                Intent intentAddResourceService = new Intent(this, AddResourceService.class);
-                intentAddResourceService.putExtra("uri", uri);
-                intentAddResourceService.putExtra("type", type);
-                intentAddResourceService.putExtra("title", title);
-                startService(intentAddResourceService);
-
-                putTitle(title);
-
-                /*
-                if ("content".equals(uri.getScheme())) {
-                    try {
-                        getContentResolver().takePersistableUriPermission(
-                                uri,
-                                Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-                        );
-                    } catch (Exception e) {
-                        myLogE("error while using takePersistableUriPermission for file\nmessage : " + e.getMessage());
+                    String fileNameFromUri = Tonio.getFileNameFromUri(this, uri);
+                    boolean isZip = fileNameFromUri != null && fileNameFromUri.toLowerCase().endsWith(".zip");
+                    if (isZip) {
+                        type = "ZIP";
+                    } else {
+                        type = "File";
                     }
-                }
-                 */
+                    String title = formatNameForDisplay(fileNameFromUri);
 
+                    Intent intentAddResourceService = new Intent(this, AddResourceService.class);
+                    intentAddResourceService.putExtra("uri", uri);
+                    intentAddResourceService.putExtra("type", type);
+                    intentAddResourceService.putExtra("title", title);
+                    startService(intentAddResourceService);
+
+                    putTitle(title);
+                }
             }
 
         } else {  // FILE PICKER
@@ -140,9 +138,11 @@ public class AddResourceActivity
             }
         }
 
-        Intent intentAddResourceService = new Intent(this, AddResourceService.class);
-        boundToAddResourceService = bindService(intentAddResourceService, addResourceServiceConnection, Context.BIND_AUTO_CREATE); //error Log : Activity XXX has leaked ServiceConnection
-        myLog("call start & bind to AddResourceService from AddResourceActivity.onCreate() - bound result :" + boundToAddResourceService + "");
+        if (GoLaunchService) {
+            Intent intentAddResourceService = new Intent(this, AddResourceService.class);
+            boundToAddResourceService = bindService(intentAddResourceService, addResourceServiceConnection, Context.BIND_AUTO_CREATE); //error Log : Activity XXX has leaked ServiceConnection
+            myLog("call start & bind to AddResourceService from AddResourceActivity.onCreate() - bound result :" + boundToAddResourceService + "");
+        }
     }
 
     @Override

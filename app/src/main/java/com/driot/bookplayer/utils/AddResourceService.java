@@ -45,6 +45,7 @@ import static com.driot.bookplayer.utils.Tonio.formatMem;
 import static com.driot.bookplayer.utils.Tonio.formatNameForDisplay;
 import static com.driot.bookplayer.utils.Tonio.fileExists;
 import static com.driot.bookplayer.utils.Tonio.getFileNameFromPath;
+import static com.driot.bookplayer.utils.Tonio.getMimeType;
 import static com.driot.bookplayer.utils.Tonio.stripExtension;
 import static com.driot.bookplayer.utils.TonioCommonStuff.deleteExtension;
 import static com.driot.bookplayer.utils.TonioCommonStuff.extractName;
@@ -492,31 +493,36 @@ public class AddResourceService
             ///---------------------------------------------
             case "File":
                 PROGRESS = Option.getCopyFile(this) ? PROGRESS_FILE_COPY : PROGRESS_FILE_NOCOPY;
+
                 try {
                     dfPickedDir = DocumentFile.fromSingleUri(this, uri_given);
                 } catch (Exception e) {
                     tellError("error getting DocumentFile.fromSingleUri : " + e.getMessage());
                     break;
                 }
-                if (dfPickedDir == null) {
-                    tellError("error getting DocumentFile.fromSingleUri");
-                    break;
-                }
+
                 try {
-                    mime = dfPickedDir.getType();
+                    mime = getMimeType(this, uri_given);
                 } catch (Exception e) {
-                    tellError("Mime Type could not be found");
-                    break;
+                    try {
+                        mime = dfPickedDir.getType();
+                    } catch (Exception e2) {
+                        tellError("Mime Type could not be found..." + e.getMessage());
+                        break;
+                    }
                 }
+
                 if (mime == null) {
-                    tellError("Mime Type could not be found");
+                    tellError("Mime Type could not be found... mime is null");
                     break;
                 }
+
+                myLog("mime = [" + mime + "]");
 
             // ok mime found
                 if (mime.equals("audio/mp4")) { //   application/mp4   .m4b
 
-                    myLog("MP4 : [" + dfPickedDir.getType() + "]");
+                    myLog("mime => MP4");
 
                     populateArrayListOfTracksFromFile(dfPickedDir);
 /*
