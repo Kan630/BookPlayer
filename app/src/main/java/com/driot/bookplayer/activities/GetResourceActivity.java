@@ -174,7 +174,10 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
             Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
             // TODO ACTION_GET_CONTENT should be enough since we copy locally...
             // ACTION_PICK could be interesting.... as an option..
-            intent.setType("application/zip");
+            //intent.setType("application/zip");
+            intent.setType("*/*");
+            String[] mimeTypes = {"application/zip", "application/x-zip-compressed"};
+            intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
             intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_WRITE_URI_PERMISSION|Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION|Intent.FLAG_GRANT_PREFIX_URI_PERMISSION);
             intent.addCategory(Intent.CATEGORY_OPENABLE);
             bOpenZipActivityResultLauncher.launch(intent);

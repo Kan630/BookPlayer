@@ -94,7 +94,7 @@ public class AddResourceService
               "Initialization"
             , "Download"
             , "listing and sorting Tracks"
-            , "Check DB"
+            , "Checking audio hasn't already been added"
             , "Check enough space on Disk"
             , "Copy"
             , "Unzip"
@@ -539,13 +539,14 @@ public class AddResourceService
                         String future_folder_name = myFolder.getFolderName();
 
                         new Thread(() -> {
+                            tellProgress(PROGRESS[3], PROGRESS_TEXT[1] + " ...reading on cloud");
                             long lCheck = AppDatabase.getDatabase(this).FolderDao().folderAlreadyExist_checkFolderName(future_folder_name);
                             if (lCheck>0) {
                                 myLogE("KO, folder does already exist in DB : [" + future_folder_name + "]");
                                 tellError(getString(R.string.Error_Import_FolderAlreadyImported) + "  [" + future_folder_name + "]");
                             } else {
                                 myLog("OK, folder doesn't already exist in DB");
-                                tellProgress(PROGRESS[3], PROGRESS_TEXT[3]);
+                                tellProgress(PROGRESS[3], PROGRESS_TEXT[2]);
                                 String folderPath = getFilesDir().getAbsolutePath() + "/" + FOLDER_UNZIPPED + "/" + myFolder.getFolderName();
                                 String fileName = myFolder.getFileName(this);
                                 fullPath = folderPath + "/" + fileName;
