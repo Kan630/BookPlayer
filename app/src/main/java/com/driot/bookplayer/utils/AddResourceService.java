@@ -326,7 +326,7 @@ public class AddResourceService
             // constructeur pour mon pti folder
             myFolder = new FolderAttrib(getApplicationContext(), uri, Option.getCopyFile(this), type_given);
             if (myFolder.getFolderName()==null) {
-                tellError("Error while creating record, cancelling operation");
+                tellError(getString(R.string.Error_Import_CannotParseFile));
             }
             mCallBacks.tellHeader(myFolder.getFolderName());
 
@@ -367,7 +367,7 @@ public class AddResourceService
             if (df0 != null) {
                 dfPickedDir = df0.getParentFile();
             } else {
-                tellError("could not get parent directory");
+                tellError(getString(R.string.Error_Import_CannotGetParentDir));
             }
             myLog("Parent Folder taken in place");
         }
@@ -377,7 +377,7 @@ public class AddResourceService
             // constructeur pour mon pti folder
             myFolder = new FolderAttrib(getApplicationContext(), uri, Option.getCopyFile(this), type_given);
             if (myFolder.getFolderName()==null) {
-                tellError("Error while creating record, cancelling operation");
+                tellError(getString(R.string.Error_Import_CannotParseFile));
             }
             mCallBacks.tellHeader(myFolder.getFolderName());
 
@@ -472,9 +472,10 @@ public class AddResourceService
             //Check not already imported
             new Thread(() ->  {
                 String strFolderName =  stripExtension(getFileNameFromPath(url_given));
+                myLog("Checking Folder doesn't already exist in DB (URL init check) : " + strFolderName);
                 long folderId = AppDatabase.getDatabase(this).FolderDao().folderAlreadyExist_checkFolderName(strFolderName);
                 if (folderId>0) {
-                    tellError("This book has already been downloaded and imported as [" + strFolderName + "]");
+                    tellError(getString(R.string.Error_Import_AlreadyImported) + " [" + strFolderName + "]");
                     return;
                 }
                 PROGRESS = PROGRESS_DOWNLOAD;
@@ -497,7 +498,8 @@ public class AddResourceService
                 try {
                     dfPickedDir = DocumentFile.fromSingleUri(this, uri_given);
                 } catch (Exception e) {
-                    tellError("error getting DocumentFile.fromSingleUri : " + e.getMessage());
+                    myLogE("Error reading picked File.... DocumentFile.fromSingleUri : " + e.getMessage());
+                    tellError(getString(R.string.Error_Import_CannotReadFile));
                     break;
                 }
 
@@ -507,13 +509,14 @@ public class AddResourceService
                     try {
                         mime = dfPickedDir.getType();
                     } catch (Exception e2) {
-                        tellError("Mime Type could not be found..." + e.getMessage());
+                        tellError(getString(R.string.Error_Import_CannotDetermineType) + "...  " + e.getMessage());
                         break;
                     }
                 }
 
                 if (mime == null) {
-                    tellError("Mime Type could not be found... mime is null");
+                    myLogE("mime == null");
+                    tellError(getString(R.string.Error_Import_CannotDetermineType));
                     break;
                 }
 
@@ -549,11 +552,11 @@ public class AddResourceService
 
                 } else if (mime.startsWith(ONLY_MIME)) {     // audio/mpeg
 
-                    myLog("not MP4 : [" + mime + "]");
+                    myLog("mime not MP4 : [" + mime + "]");
                     populateArrayListOfTracksFromFile(dfPickedDir);
 
                 } else {
-                    tellError("Not an audio ?   ... This MIME type is not supported : [" + mime + "]");
+                    tellError( getString(R.string.Error_Import_NotAnAudio) + "...  " + getString(R.string.Error_Import_TypeNotSupported) + " [" + mime + "]");
                     break;
                 }
                 break;
@@ -573,12 +576,14 @@ public class AddResourceService
                 try {
                     dfPickedDir = DocumentFile.fromTreeUri(this, uri_given);
                 } catch (Exception e) {
-                    tellError("Error reading picked Folder.... DocumentFile.fromTreeUri : " + e.getMessage());
+                    myLogE("Error reading picked Folder.... DocumentFile.fromTreeUri : " + e.getMessage());
+                    tellError(getString(R.string.Error_Import_CannotReadFolder));
                     break;
                 }
                 tellProgress(PROGRESS[2], PROGRESS_TEXT[2]);
                 if (dfPickedDir == null) {
-                    tellError("Error reading picked Folder... dfPickedDir is null");
+                    myLogE("dfPickedDir == null");
+                    tellError(getString(R.string.Error_Import_CannotReadFolder));
                 } else {
                     populateArrayListOfTracksFromFolder(dfPickedDir, false);
                 }
@@ -791,7 +796,7 @@ public class AddResourceService
                     }
                 }
             } else {
-                tellError("error saving ZikFile in DB [" + sZikFileName + "]");
+                tellError(getString(R.string.Error_Import_CannotSaveInDB) + " [" + sZikFileName + "]");
             }
         }
     }
@@ -819,13 +824,15 @@ public class AddResourceService
             try {
                 dfPickedDir = DocumentFile.fromSingleUri(this, uri_given);
             } catch (Exception e) {
-                tellError("error getting DocumentFile.fromSingleUri : " + e.getMessage());
+                myLogE("deleting - error getting DocumentFile.fromSingleUri : " + e.getMessage());
+                tellError(getString(R.string.Error_Import_CannotDeleteSource));
             }
         } else if (type_given.equals("Folder")) {
             try {
                 dfPickedDir = DocumentFile.fromTreeUri(this, uri_given);
             } catch (Exception e) {
-                tellError("Error reading picked Folder.... DocumentFile.fromTreeUri : " + e.getMessage());
+                myLogE("deleting - error getting DocumentFile.fromTreeUri : " + e.getMessage());
+                tellError(getString(R.string.Error_Import_CannotDeleteSource));
             }
         } else {
             myLogE("Incorrect type : **" + type_given + "**");
