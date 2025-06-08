@@ -2,16 +2,13 @@ package com.driot.bookplayer.utils;
 
 import android.app.Activity;
 import android.content.ComponentName;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.database.Cursor;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.IBinder;
-import android.provider.MediaStore;
 
 import androidx.annotation.Nullable;
 import androidx.documentfile.provider.DocumentFile;
@@ -24,13 +21,11 @@ import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.FolderAttrib;
 import com.driot.bookplayer.db.FolderDao;
-import com.driot.bookplayer.db.Sql;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Option;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.sql.Date;
 import java.sql.Time;
 import java.util.ArrayList;
@@ -39,7 +34,7 @@ import java.util.Objects;
 
 import static com.driot.bookplayer.global.Var.FOLDER_DOWNLOAD;
 import static com.driot.bookplayer.global.Var.FOLDER_UNZIPPED;
-import static com.driot.bookplayer.global.Var.ONLY_MIME;
+import static com.driot.bookplayer.global.Var.ONLY_MIME_AUDIO;
 import static com.driot.bookplayer.global.Var.PATH_CHECK_AUTOTEST;
 import static com.driot.bookplayer.utils.Tonio.formatMem;
 import static com.driot.bookplayer.utils.Tonio.formatNameForDisplay;
@@ -436,7 +431,7 @@ public class AddResourceService
             } else {
                 if (f1.getType() != null) {
                     //if (f1.getType().equals("audio/mpeg") || f1.getType().equals("audio/mp4")) {
-                    if (f1.getType().startsWith(ONLY_MIME)) {
+                    if (f1.getType().startsWith(ONLY_MIME_AUDIO)) {
                         nbFileScan = nbFileScan + 1;
                         l_audioFilePath = recursivFolder + f1.getName();
                         l_audioSize = f1.length();
@@ -507,6 +502,7 @@ public class AddResourceService
                     tellError(getString(R.string.Error_Import_CannotReadFile));
                     break;
                 }
+                myLog("isVirtual = " + dfPickedDir.isVirtual());
 
                 try {
                     mime = getMimeType(this, uri_given);
@@ -526,40 +522,43 @@ public class AddResourceService
                 }
 
                 myLog("mime = [" + mime + "]");
+                if (mime.equals("audio/mp4")) { myLog("mime => MP4"); } // TODO : Chapter Stuff....
 
-            // ok mime found
-                if (mime.equals("audio/mp4")) { //   application/mp4   .m4b
 
-                    myLog("mime => MP4");
+                if (mime.startsWith(ONLY_MIME_AUDIO)) {
+
+
+                    dfqsdtertaerg
+
+                    String uriAuthority = uri_given.getAuthority();
+                    //cloudAuthorities.add("com.google.android.apps.docs.storage"); // Google Drive
+                    //cloudAuthorities.add("com.microsoft.skydrive.content");       // OneDrive
+                    if (uriAuthority != null && uriAuthority.equals("com.google.android.apps.docs.storage")) {
+                        // should copy here first
+                        new Thread(() -> {
+                            long lCheck = AppDatabase.getDatabase(this).FolderDao().folderAlreadyExist_checkFolderName(destinationFolderName);
+                            if (lCheck>0) {
+                                myLogE("KO, folder does already exist in DB : [" + destinationFolderName + "]");
+                                tellError(getString(R.string.Error_Import_FolderAlreadyImported) + "  [" + destinationFolderName + "]");
+                            } else {
+                                myLog("OK, folder doesn't already exist in DB");
+                                tellProgress(PROGRESS[3], PROGRESS_TEXT[3]);
+                                copyFileLocal(uri_given
+                                        , getFilesDir().getAbsolutePath() + "/" + FOLDER_UNZIPPED + "/" + destinationFolderName
+                                        , destinationFolderName + ".zip"
+                                        , type_given
+                                ); //launch a service, next step through callbacks
+                            }
+                        }).start();
+                        return;                    }
+
+
+
+
+
+
 
                     populateArrayListOfTracksFromFile(dfPickedDir);
-/*
-                    //TODO : maybe you can just unzip it...
-                    
-                    // TODO
-                    /// EXPLODE MP4 in MP3s in local folder...
-                    /// then use the import folder thing
-                    destinationFolder = getFilesDir().getAbsolutePath() + "/" + FOLDER_MP4 + "/" + dfPickedDir.getName(); // myFolder.getsFolderName_withUnderscore();
-                    destinationFolder = destinationFolder.replace(".m4b","");
-                    myLog("destinationFolder : [" + destinationFolder + "]");
-                    String sourceFile = dfPickedDir.getUri().getPath();
-                    myLog("sourceFile : [" + sourceFile + "]");
-                    AudioSplitter.splitM4BToMP3(sourceFile, destinationFolder);
-
-
-                    localUnzipFolder = new File(destinationFolder);
-                    futureUri = Uri.fromFile(localUnzipFolder).toString();
-                    String destinationPath = getFilesDir().getAbsolutePath() + "/" + FOLDER_MP4 + "/" + myFolder.getsFolderName_withUnderscore() + ".zip";
-                    internalZipFile = new File(destinationPath);
-                    finalLocalFolder = localUnzipFolder;
-                    resourceSelected = populateArrayListOfTracksFromFolder();
-                    */
-
-                } else if (mime.startsWith(ONLY_MIME)) {     // audio/mpeg
-
-                    myLog("mime not MP4 : [" + mime + "]");
-                    populateArrayListOfTracksFromFile(dfPickedDir);
-
                 } else {
                     tellError( getString(R.string.Error_Import_NotAnAudio) + "...  " + getString(R.string.Error_Import_TypeNotSupported) + " [" + mime + "]");
                     break;
