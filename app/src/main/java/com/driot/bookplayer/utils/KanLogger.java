@@ -2,6 +2,8 @@ package com.driot.bookplayer.utils;
 
 import android.content.Context;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
@@ -175,20 +177,19 @@ public class KanLogger {
     }
 
     public static void myToast(String prefix, String str) {
-        myLog(prefix, "TOASTING : " + str);
-        if (getMyAppContext() != null) {
-            Toast.makeText(getMyAppContext(), str, Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    public static void myLongToast(String str) {
-        myLongToast("", str);
+        myToast(prefix, str, Toast.LENGTH_SHORT);
     }
 
     public static void myLongToast(String prefix, String str) {
-        myLog(prefix,"TOASTING : " + str);
+        myToast(prefix, str, Toast.LENGTH_LONG);
+    }
+
+    public static void myToast(String prefix, String str, int toastLength) {
+        myLog(prefix, "TOASTING : " + str);
         if (getMyAppContext() != null) {
-            Toast.makeText(getMyAppContext(), str, Toast.LENGTH_LONG).show();
+            new Handler(Looper.getMainLooper()).post(() ->
+                Toast.makeText(getMyAppContext(), str, toastLength).show()
+            );
         }
     }
 
@@ -197,20 +198,15 @@ public class KanLogger {
     }
 
     public static void myToastE(String prefix, String str) {
-        myLogE(prefix,"TOASTING : " + str);
-        if (getMyAppContext() != null) {
-            Toast.makeText(getMyAppContext(), str, Toast.LENGTH_SHORT).show();
-        }
+        myToastE(prefix, str, Toast.LENGTH_SHORT);
     }
 
-    public static void myLongToastE(String str) {
-        myLongToastE("", str);
-    }
-
-    public static void myLongToastE(String prefix, String str) {
+    public static void myToastE(String prefix, String str, int toastLength) {
         myLogE(prefix,"TOASTING : " + str);
         if (getMyAppContext() != null) {
-            Toast.makeText(getMyAppContext(), str, Toast.LENGTH_LONG).show();
+            new Handler(Looper.getMainLooper()).post(() ->
+                    Toast.makeText(getMyAppContext(), str, toastLength).show()
+            );
         }
     }
 

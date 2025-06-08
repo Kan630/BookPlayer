@@ -25,6 +25,7 @@ import com.driot.bookplayer.utils.KanLogger;
 import java.util.List;
 import java.util.Locale;
 
+import static com.driot.bookplayer.utils.KanLogger.myToastE;
 import static com.driot.bookplayer.utils.Tonio.*;
 
 public class FoldersAdapter extends RecyclerView.Adapter<FoldersAdapter.FoldersViewHolder> {
@@ -101,6 +102,7 @@ public class FoldersAdapter extends RecyclerView.Adapter<FoldersAdapter.FoldersV
                     }
                 } catch (Exception e) {
                     myLogE("error getting nb of ZikFiles - " + e.getMessage());
+                    myToastE("ERROR - Could not load audios.");
                 }
             }).start();
         }
