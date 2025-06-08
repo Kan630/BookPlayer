@@ -41,7 +41,11 @@ public class FolderAttrib {
 
     // Constructor
     public FolderAttrib(Context context, Uri uri, boolean internalCopy, String zeType) { //String forceName ?
-        myLog("FolderAttrib" + "\n" + uri.toString() + "\n" + zeType + "\n" + internalCopy);
+        myLog("-----------------------------------------------------"
+                + "\nFolderAttrib    (constructor)"
+                + "\nUri : [" + uri.toString() + "]"
+                + "\nType : " + zeType + "    -    internalCopy : " + internalCopy
+                + "\n-----------------------------------------------------");
 
         this.uri = uri;
         this.mCtx = context;
@@ -73,11 +77,16 @@ public class FolderAttrib {
             if (isSingleFile) { sFolderPath = stripFileName(sFolderPath); }
 
             // from MAIN MEMORY old
-        } else if (uri.getLastPathSegment().startsWith("0000-0000:")) {
+        } else if (uri.getLastPathSegment().startsWith("com.google.android.apps.docs.storage")) {
             myLog("location : main memory old");
             sFolderPath = uri.getLastPathSegment()
                     .replace("0000-0000:","/storage/0000-0000/");
             if (isSingleFile) { sFolderPath = stripFileName(sFolderPath); }
+
+            // from google drive
+        } else if (uri.getAuthority().equals("com.google.android.apps.docs.storage")) {
+            myLog("location : Google Drive");
+            sFolderPath = "***"; // cannot be null...
 
             // from SD CARD
         } else {

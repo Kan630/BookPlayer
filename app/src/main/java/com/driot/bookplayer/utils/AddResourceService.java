@@ -327,12 +327,14 @@ public class AddResourceService
             myFolder = new FolderAttrib(getApplicationContext(), uri, Option.getCopyFile(this), type_given);
             if (myFolder.getFolderName()==null) {
                 tellError(getString(R.string.Error_Import_CannotParseFile));
+                return;
             }
             mCallBacks.tellHeader(myFolder.getFolderName());
 
             if (myFolder.isFolderKO()) {
                 String error = getString(R.string.Error_Import_FilePathKO);
                 tellError(error);
+                return;
             } else {
                 myLog("file ok");
 
@@ -343,6 +345,7 @@ public class AddResourceService
             }
         } else {
             tellError(getString(R.string.Error_Import_IsNotFile));
+            return;
         }
         goFolder();
     }
@@ -368,6 +371,7 @@ public class AddResourceService
                 dfPickedDir = df0.getParentFile();
             } else {
                 tellError(getString(R.string.Error_Import_CannotGetParentDir));
+                return;
             }
             myLog("Parent Folder taken in place");
         }
@@ -378,6 +382,7 @@ public class AddResourceService
             myFolder = new FolderAttrib(getApplicationContext(), uri, Option.getCopyFile(this), type_given);
             if (myFolder.getFolderName()==null) {
                 tellError(getString(R.string.Error_Import_CannotParseFile));
+                return;
             }
             mCallBacks.tellHeader(myFolder.getFolderName());
 
@@ -631,7 +636,7 @@ public class AddResourceService
 
     private void goFolder() {
         if (audioFileArrayList != null) {
-            if (audioFileArrayList.size() == 0) {
+            if (audioFileArrayList.isEmpty()) {
                 tellError(getString(R.string.Error_Import_NoMediaInFolder));
             } else {
                 myLog(audioFileArrayList.size() + " " + getString(R.string.Import_nMediaInFolder));
@@ -662,6 +667,7 @@ public class AddResourceService
 
     }
     private void copyFolder() {
+        myLog("copyFolder()");
         if (type_given.equals("ZIP")) {
             // Has already been copied and unzipped...
             myFolder.setForceFolderPath(zipDestinationFolderPath);
@@ -1035,6 +1041,5 @@ public class AddResourceService
     private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
     private void myLogD(String str) { KanLogger.myLogD(this.getClass().getName(), str); }
     private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
-    private void myToast(String str) { KanLogger.myToast(this.getClass().getName(), str); }
 
 }

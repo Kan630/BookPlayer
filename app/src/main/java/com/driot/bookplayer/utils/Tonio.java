@@ -232,17 +232,22 @@ public class Tonio {
         return ret;
     }
 
-    public static String getLastFolder(String strFolderPath) {
-        String ret = strFolderPath;
-        myLog("getLastFolder - Path = " + ret);
-        int pos = ret.lastIndexOf("/");
-        if (pos>0) {
-            ret = ret.substring(pos + 1);
-        } else {
-            ret = "";
+    public static String getLastFolder(@NonNull String strFolderPath) {
+        try {
+            String ret = strFolderPath;
+            myLog("getLastFolder - Path = " + ret);
+            int pos = ret.lastIndexOf("/");
+            if (pos>0) {
+                ret = ret.substring(pos + 1);
+            } else {
+                ret = "";
+            }
+            myLog("getLastFolder => " + ret);
+            return ret;
+        } catch (Exception e) {
+            myLogE("getLastFolder()... " + e.getMessage());
+            return "";
         }
-        myLog("getLastFolder => " + ret);
-        return ret;
     }
 
     @NonNull
