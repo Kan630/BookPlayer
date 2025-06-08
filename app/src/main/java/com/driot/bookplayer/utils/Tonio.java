@@ -25,7 +25,10 @@ import java.sql.Time;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.HashSet;
 import java.util.Locale;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 
@@ -260,6 +263,21 @@ public class Tonio {
             type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension.toLowerCase());
         if (type == null) type = "*/*";
         return type;
+    }
+
+    public static String getSourceLocation(Uri uri) {
+        if (!Objects.isNull(uri) &&  !Objects.isNull(uri.getAuthority())) {
+            String uriAuthority = uri.getAuthority();
+            Set<String> cloudAuthorities = new HashSet<>();
+            cloudAuthorities.add("com.google.android.apps.docs.storage"); // Google Drive
+            cloudAuthorities.add("com.microsoft.skydrive.content");       // OneDrive
+            if (uriAuthority != null && cloudAuthorities.contains(uriAuthority)) {
+                return "cloud";
+            } else {
+                return "local";
+            }
+        }
+        return "xxx";
     }
 
     public static String getMimeType(Context context, Uri uri) {

@@ -26,6 +26,8 @@ import static com.driot.bookplayer.global.Var.PATH_CHECK_APPLICATION;
 import static com.driot.bookplayer.utils.Tonio.getFileNameFromPath;
 import static com.driot.bookplayer.utils.Tonio.formatNameForDisplay;
 
+import java.util.Objects;
+
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 23/11/20
@@ -50,7 +52,7 @@ public class AddResourceActivity
     private boolean HasBeenInitializedService = false;
 
     private String type;
-    private String original_type;
+    private String original_type = "xx";
 
     private static final long MAX_TIME_BETWEEN_OPEN_WIDTH_LOADS = 20000;
 

@@ -41,6 +41,7 @@ import static com.driot.bookplayer.utils.Tonio.formatNameForDisplay;
 import static com.driot.bookplayer.utils.Tonio.fileExists;
 import static com.driot.bookplayer.utils.Tonio.getFileNameFromPath;
 import static com.driot.bookplayer.utils.Tonio.getMimeType;
+import static com.driot.bookplayer.utils.Tonio.getSourceLocation;
 import static com.driot.bookplayer.utils.Tonio.stripExtension;
 import static com.driot.bookplayer.utils.TonioCommonStuff.deleteExtension;
 import static com.driot.bookplayer.utils.TonioCommonStuff.extractName;
@@ -120,6 +121,8 @@ public class AddResourceService
     private String zipDestinationFolderName;
 
     private String fullPath;
+
+    private String sourceLocation;
 
     public static boolean isBusy;
 
@@ -309,7 +312,7 @@ public class AddResourceService
 
         // single file
     ///////////////////////////
-    private void populateArrayListOfTracksFromFile(DocumentFile dfPickedDir) {
+    private void populateArrayListOfTracksFromFile(DocumentFile dfPickedDir, boolean optionCopyFile) {
         myLog("populateArrayListOfTracksFromFile [" + dfPickedDir.getUri() + "] - single file");
 
         //resetting uri
@@ -319,7 +322,7 @@ public class AddResourceService
         if (dfPickedDir != null && !(dfPickedDir.isDirectory())) {
 
             // constructeur pour mon pti folder
-            myFolder = new FolderAttrib(getApplicationContext(), uri, Option.getCopyFile(this), type_given);
+            myFolder = new FolderAttrib(getApplicationContext(), uri, optionCopyFile, type_given);
             if (myFolder.getFolderName()==null) {
                 tellError(getString(R.string.Error_Import_CannotParseFile));
                 return;
@@ -468,8 +471,8 @@ public class AddResourceService
         PROGRESS = PROGRESS_DOWNLOAD; // dummy progress, before real init
         tellProgress(PROGRESS[0], PROGRESS_TEXT[0]);
 
+        // Special URL
         if (!Objects.equals(url_given, null)) {
-            //Check not already imported
             new Thread(() ->  {
                 String strFolderName =  stripExtension(getFileNameFromPath(url_given));
                 myLog("Checking Folder doesn't already exist in DB (URL init check) : " + strFolderName);
@@ -493,6 +496,7 @@ public class AddResourceService
             /// FILE
             ///---------------------------------------------
             case "File":
+                boolean optionCopyFile = Option.getCopyFile(this);
                 PROGRESS = Option.getCopyFile(this) ? PROGRESS_FILE_COPY : PROGRESS_FILE_NOCOPY;
 
                 try {
@@ -527,38 +531,36 @@ public class AddResourceService
 
                 if (mime.startsWith(ONLY_MIME_AUDIO)) {
 
+                    sourceLocation = getSourceLocation(uri_given);
+                    myLog("Source Location = [" + sourceLocation + "]");
 
-                    dfqsdtertaerg
+                    if (sourceLocation.equals("cloud")) {
+                        myFolder = new FolderAttrib(this, uri_given, true, type_given);
+                        String future_folder_name = myFolder.getFolderName();
 
-                    String uriAuthority = uri_given.getAuthority();
-                    //cloudAuthorities.add("com.google.android.apps.docs.storage"); // Google Drive
-                    //cloudAuthorities.add("com.microsoft.skydrive.content");       // OneDrive
-                    if (uriAuthority != null && uriAuthority.equals("com.google.android.apps.docs.storage")) {
-                        // should copy here first
                         new Thread(() -> {
-                            long lCheck = AppDatabase.getDatabase(this).FolderDao().folderAlreadyExist_checkFolderName(destinationFolderName);
+                            long lCheck = AppDatabase.getDatabase(this).FolderDao().folderAlreadyExist_checkFolderName(future_folder_name);
                             if (lCheck>0) {
-                                myLogE("KO, folder does already exist in DB : [" + destinationFolderName + "]");
-                                tellError(getString(R.string.Error_Import_FolderAlreadyImported) + "  [" + destinationFolderName + "]");
+                                myLogE("KO, folder does already exist in DB : [" + future_folder_name + "]");
+                                tellError(getString(R.string.Error_Import_FolderAlreadyImported) + "  [" + future_folder_name + "]");
                             } else {
                                 myLog("OK, folder doesn't already exist in DB");
                                 tellProgress(PROGRESS[3], PROGRESS_TEXT[3]);
-                                copyFileLocal(uri_given
-                                        , getFilesDir().getAbsolutePath() + "/" + FOLDER_UNZIPPED + "/" + destinationFolderName
-                                        , destinationFolderName + ".zip"
+                                String folderPath = getFilesDir().getAbsolutePath() + "/" + FOLDER_UNZIPPED + "/" + myFolder.getFolderName();
+                                String fileName = myFolder.getFileName(this);
+                                fullPath = folderPath + "/" + fileName;
+                                myLog("**** fullPath = [" + fullPath + "]");
+                                copyFileLocal(myFolder.getUri()
+                                        , folderPath
+                                        , fileName
                                         , type_given
-                                ); //launch a service, next step through callbacks
+                                );
+                                //launch the service, NEXT STEP through CALLBACKS
                             }
                         }).start();
-                        return;                    }
-
-
-
-
-
-
-
-                    populateArrayListOfTracksFromFile(dfPickedDir);
+                    } else {
+                        populateArrayListOfTracksFromFile(dfPickedDir, optionCopyFile);
+                    }
                 } else {
                     tellError( getString(R.string.Error_Import_NotAnAudio) + "...  " + getString(R.string.Error_Import_TypeNotSupported) + " [" + mime + "]");
                     break;
@@ -624,7 +626,7 @@ public class AddResourceService
                                 , getFilesDir().getAbsolutePath() + "/" + FOLDER_UNZIPPED + "/" + destinationFolderName
                                 , destinationFolderName + ".zip"
                                 , type_given
-                        ); //launch a service, next step through callbacks
+                        ); //launch the service, NEXT STEP through CALLBACKS
                     }
                 }).start();
                 return;
@@ -723,12 +725,16 @@ public class AddResourceService
         folder.setIszipfile(false); //2023-10-22 deprecated (live zip reading - code has been removed)
 
         InsertedFolderId[0] = (int) DatabaseClient.getInstance(this).getAppDatabase().FolderDao().insert(folder);
-        myLog("Folder Saved in DB, ID=[" + InsertedFolderId[0] + "] - checking files");
+        myLog("Folder Saved in DB, ID=[" + InsertedFolderId[0] + "] - [" + myFolder.getFolderName() + "]");
         tellProgress(PROGRESS[7], PROGRESS_TEXT[7]);
         saveFiles();
     }
 
     private void saveFiles() {
+        if (Objects.equals(audioFileArrayList, null)) {
+            tellError("audioFileArrayList is null");
+            return;
+        }
         nbFileToSave = audioFileArrayList.size();
         nbFileSaved = 0;
         int i = 0;
@@ -970,7 +976,13 @@ public class AddResourceService
             myLog("launch unzipZipLocal()");
             unzipZipLocal(zipDestinationFolderPath + "/" + zipDestinationFolderName, zipDestinationFolderPath);
         } else {
-            myFolder = new FolderAttrib(this, Uri.fromFile(new File(fullPath)), Option.getCopyFile(this), type_given);
+            if (sourceLocation.equals("cloud")) {
+                myFolder = new FolderAttrib(this, Uri.fromFile(new File(fullPath)), true, type_given);
+                audioFileArrayList = new ArrayList<>();
+                audioFileArrayList.add(myFolder.getFileName(this));
+            } else {
+                myFolder = new FolderAttrib(this, Uri.fromFile(new File(fullPath)), Option.getCopyFile(this), type_given);
+            }
             saveFolder();
         }
     }

@@ -13,6 +13,7 @@ import static com.driot.bookplayer.global.Var.ONLY_MIME_AUDIO;
 import static com.driot.bookplayer.global.Var.ZIP_SIZE_MAX_COEF;
 import static com.driot.bookplayer.utils.Tonio.formatMem;
 import static com.driot.bookplayer.utils.Tonio.getAvailableInternalMemorySize;
+import static com.driot.bookplayer.utils.Tonio.getSourceLocation;
 
 import android.app.Service;
 import android.content.ContentResolver;
@@ -34,6 +35,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Objects;
 
 
 public class CopyFileService extends LifecycleLoggingService {  //IntentService are designed to run in the background....   but let's use an executor or thread
@@ -51,6 +53,7 @@ public class CopyFileService extends LifecycleLoggingService {  //IntentService 
     private String type;
     private boolean checkSize;
     private long forceSize;
+    private String sourceLocation;
 
     private File inFile;
 
@@ -103,13 +106,16 @@ public class CopyFileService extends LifecycleLoggingService {  //IntentService 
         type = intent.getStringExtra("type");
         checkSize = intent.getBooleanExtra("checkSize", true);
         forceSize = intent.getLongExtra("forceSize", 0);
+        sourceLocation = getSourceLocation(uri);
+
         myLog("parseIntent() ..   " +
                 "\n.    from uri = [" + uri.toString() + "] " +
                 "\n.    to folder = [" + destinationFolderPath + "] " +
                 "\n.    with name = [" + destinationFileName + "]" +
                 "\n.    for type = [" + type + "]" +
                 "\n.    check size = [" + checkSize + "]" +
-                "\n.    force size = [" + forceSize + "]"
+                "\n.    force size = [" + forceSize + "]" +
+                "\n.    source Location = [" + sourceLocation + "]"
         );
     }
 
@@ -129,7 +135,7 @@ public class CopyFileService extends LifecycleLoggingService {  //IntentService 
         if (inFile != null && inFile.exists()) {
             myLog("inFile correctly populated from Uri - Length = " + inFile.length());
         } else {
-            myLog("Uri Path gives non existing file");
+            myLog("Uri Path gives non existing file (cloud?)");
         }
 //*************
         /*
@@ -203,7 +209,9 @@ public class CopyFileService extends LifecycleLoggingService {  //IntentService 
                         tellError(strErr);
                         return false;
                     }
-                    tellProgress(0, getResources().getString(R.string.Import_Progress_copying_zip_file)
+                    String progressMsgSource = getResources().getString(R.string.Import_Progress_copying_zip_file);
+                    if (sourceLocation.equals("cloud")) {progressMsgSource = getResources().getString(R.string.Import_Progress_copying_zip_file_cloud);}
+                    tellProgress(0, progressMsgSource
                             + "\n"
                             + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line3) + formatMem(file_size,0) + "Mo"
                             + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line2_1) + formatMem(availableMegs) + "Mo"
@@ -259,7 +267,9 @@ public class CopyFileService extends LifecycleLoggingService {  //IntentService 
                             //this.mbCopied = mbCopied;
                             //runOnUiThread(() -> { Updating the UI with progress and MB copied values, like progressBar.setProgress(progress);
 
-                            String progress_text = getResources().getString(R.string.Import_Progress_copying_zip_file)
+                            String progressMsgSource = getResources().getString(R.string.Import_Progress_copying_zip_file);
+                            if (sourceLocation.equals("cloud")) {progressMsgSource = getResources().getString(R.string.Import_Progress_copying_zip_file_cloud);}
+                            String progress_text = progressMsgSource
                             + "\n"
                             + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line3) + formatMem(nbMoCopied,0) + "Mo/" + formatMem(finalFile_size,0) + "Mo"
                             + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line2_1) + formatMem(availableMegs) + "Mo";
@@ -315,7 +325,9 @@ public class CopyFileService extends LifecycleLoggingService {  //IntentService 
                                 }
                                 int current_progress_percent = (int) progress_percent;
 
-                                String progress_text = getResources().getString(R.string.Import_Progress_copying_zip_file)
+                                String progressMsgSource = getResources().getString(R.string.Import_Progress_copying_zip_file);
+                                if (sourceLocation.equals("cloud")) {progressMsgSource = getResources().getString(R.string.Import_Progress_copying_zip_file_cloud);}
+                                String progress_text = progressMsgSource
                                         + "\n"
                                         + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line3) + formatMem(nbMoCopied,0) + "Mo/" + formatMem(file_size,0) + "Mo"
                                         + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line2_1) + formatMem(availableMegs) + "Mo";
