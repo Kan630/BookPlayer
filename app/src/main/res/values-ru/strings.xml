@@ -6,6 +6,7 @@
     <string name="app_info">Информация о приложении</string>
     <string name="delete_logs">Удалить логи</string>
     <string name="delete">Удалить</string>
+
     <string name="title_FolderContent">Список файлов</string>
     <string name="PlayerActivity_Title" translatable="false">TextBook Player</string>
 
@@ -19,135 +20,165 @@
     }]
     </string>
 
+
     <!-- ********************************** -->
     <!-- HELP Screen -->
 
-    <string name="help_folder">Папка :</string>
+    <string name="help_folder">Папка:</string>
     <string name="help_folder_text">"Долгое нажатие на папку открывает страницу [изменить папку].
-    \nЗдесь вы сможете переименовать / удалить / сбросить прогресс"</string>
+    \nЗатем вы сможете переименовать/удалить/сбросить прогресс"</string>
 
-    <string name="help_file">Трек :</string>
+    <string name="help_file">Трек:</string>
     <string name="help_file_text">"Долгое нажатие на трек открывает страницу [изменить трек].
-    \nЗдесь вы сможете переименовать / изменить порядок / удалить / сбросить прогресс"</string>
+    \nЗатем вы сможете переименовать/изменить порядок/удалить/сбросить прогресс"</string>
 
-    <string name="help_import">Импорт :</string>
-    <string name="help_import_text">"Начните с выбора одного файла / папки / zip.
-        \nЗатем, в зависимости от ваших настроек (в меню/опциях), есть 2 варианта:
+    <string name="help_import">Импорт:</string>
+    <string name="help_import_text">"Начните с выбора файла/папки/zip.
+        \nЗатем, в зависимости от ваших настроек (в меню/опции) есть 2 варианта:
         \n
-        \n<b>вариант 1 :</b> Bookplayer сначала скопирует аудио во внутреннюю память приложения, а затем будет воспроизводить его оттуда.
+        \n<b>вариант 1 [копировать]:</b><i>по умолчанию</i> Bookplayer сначала скопирует аудио во внутреннюю память приложения, а затем будет читать оттуда.
         \n
-        \n<b>вариант 2 :</b> Bookplayer просто зарегистрирует местоположение, чтобы напрямую воспроизводить аудио из общей памяти устройства (например, из папки Загрузки, Музыка или любой другой папки)
+        \n<b>вариант 2 [не копировать]:</b> Bookplayer просто запомнит расположение, чтобы воспроизводить аудио напрямую из основной памяти устройства (например, из папки Загрузки, Музыки или любой другой)
         \n
-        \n<i>(Обратите внимание, что содержимое ZIP-файлов всегда копируется. Эта опция касается только отдельных файлов и папок)</i>
+        \n<i>(Примечание: ZIP-файлы всегда копируются. Эта опция только для отдельных файлов и папок)</i>
         \n
-        \n<b>С вариантом 1/</b>, вам даже не потребуется разрешение [Чтение Аудио].
-        \nКроме того, если вы удалите или переместите файл из основной памяти, это не будет иметь значения. Вы не потеряете свою книгу и прогресс.
+        \n<b>С вариантом 1 (копировать)</b> вам не понадобится разрешение [Чтение аудио].
+        \nКроме того, если вы удалите файл из основной памяти или переместите его, это не будет иметь значения. Вы не потеряете свою книгу и прогресс.
         \n
-        \n<b>С вариантом 2/</b>, вы сэкономите место. (но если вы затем удалите исходный файл из основной памяти, это будет равноценно).
+        \n<b>С вариантом 2 (не копировать)</b> вы можете сэкономить место.
         \n
-        \nСуществует еще одна настройка в меню/опциях, которая позволяет автоматически удалять исходный файл после его импорта.
-        \nАктивируйте ее, если все книги, которые вы загружаете в Bookplayer, не будут нужны для других приложений.
-    </string>
+        \nЕсть еще одна настройка в меню/опции, которая позволяет автоматически удалять исходный файл после импорта.
+        \nАктивируйте ее, если все книги, которые вы загружаете в Bookplayer, не понадобятся другому приложению."</string>
 
-    <string name="help_trouble">Проблемы с импортом :</string>
-    <string name="help_trouble_text">"Если у вас возникают проблемы с импортом аудио:
-        \nZIP: В файловом менеджере, если при клике на zip отображается содержимое zip вместо его выбора, попробуйте долгое нажатие на zip.
-        \nZIP: Если распаковка не удается, попробуйте сначала распаковать их с помощью другого приложения.
-        \nЕсли проблема при выборе аудио из папки Загрузки, попробуйте переместить их из папки 'Загрузки'."</string>
+    <string name="help_trouble">Проблемы с импортом:</string>
+    <string name="help_trouble_text">"Если у вас проблемы с импортом аудио:
+        \nZIP: В файловом менеджере, если нажатие на zip показывает содержимое zip вместо выбора zip, попробуйте долгое нажатие на zip.
+        \nZIP: Если распаковка не удалась, попробуйте распаковать их заранее другим приложением.
+        \nЕсли проблема с выбором аудио из папки Загрузки, попробуйте переместить их из папки \'Загрузки\'."</string>
 
-    <string name="help_cachefiles">Очистка памяти :</string>
-    <string name="help_cachefiles_text">Теперь существует специальный вид для проверки содержимого внутренней памяти Bookplayer.
-        \n
-        \nОн позволяет видеть, какие книги занимают много места. Вы можете удалить некоторые из них здесь.
-        \n
-        \nОбратите внимание, что здесь будут показаны только книги, которые были скопированы во внутреннюю зарезервированную память Bookplayer.
-        \nТо есть, все аудио из ZIP-файлов, + все аудио из отдельных файлов / папок, которые были загружены с включенной опцией [копировать] (в меню/опциях)
-    </string>
+    <string name="help_tellme">Сообщите мне!</string>
+    <string name="help_tellme_text">"Если у вас все еще есть проблемы (или приложение зависает):
+        \nПожалуйста, отправьте мне сообщение с файлом, который вы пытаетесь импортировать, или ссылкой на этот файл. (Или что вы делали, когда приложение зависло)
+        \nЧтобы я мог проверить и попытаться улучшить свое приложение!"</string>
 
-    <string name="help_permission">Разрешения :</string>
+    <string name="help_cachefiles">Очистка памяти:</string>
+    <string name="help_cachefiles_text">"Теперь есть специальный просмотр содержимого внутренней памяти Bookplayer.
+        \n
+        \nОн позволяет увидеть, какие книги занимают много места. Вы можете удалить некоторые из них отсюда.
+        \n
+        \nОбратите внимание, что здесь будут показаны только книги, которые были скопированы во внутреннюю выделенную память Bookplayer.
+        \nТо есть все аудио из ZIP-файлов + все аудио из Отдельных Файлов/Папок, которые были загружены с включенной опцией [копировать] (в меню/опции)"</string>
+
+    <string name="help_permission">Разрешения:</string>
     <string name="help_permission_text">"BookPlayer может работать без каких-либо разрешений.
-        \nСуществует 3 основных разрешения:
-        \n<b>[Музыка и Аудио]</b> (= [Чтение Аудио] = [Внешнее хранилище]) для чтения аудио из общей памяти устройства (например, из папки Загрузки, папки Музыка или любой другой)
-        \n\n<b>[Микрофон]</b> (= [Запись Аудио]) необходимо для отображения визуализатора частот (отображение спектра звука). Если оно будет отклонено, он просто не будет отображаться, без проблем.
-        \n\n<b>[Уведомления]</b> может потребоваться на некоторых устройствах (Android 14+). Оно используется для отображения виджета управления на экране блокировки. <i>(Обычно оно отображается сразу без запроса разрешения.)</i>
+        \nЕсть 3 основных разрешения:
+        \n<b>[Музыка и аудио]</b> = [Чтение аудио] = [Внешнее хранилище]: Позволяет читать аудио из основной памяти устройства, если опция копирования была отключена (например, из папки загрузок, музыки или других)
+        \n\n<b>[Микрофон]</b> (= [Запись аудио]) нужен для отображения визуализатора частот (отображение звукового спектра). Если он запрещен, он просто не будет отображаться, нет проблем.
+        \n\n<b>[Уведомления]</b> могут понадобиться на некоторых устройствах (Android 14+). Используются для отображения виджета управления на экране блокировки. <i>(Обычно отображается сразу без даже запроса разрешения.)"</i>
     </string>
+
+    <string name="help_forum">Форум:</string>
+    <string name="help_forum_text">"Я только что создал форум для обсуждения этого приложения. (Июнь 2025).
+        \nЛюбой может читать сообщения, но вам нужно будет зарегистрировать свой email для участия.
+        \nНе стесняйтесь предлагать улучшения, делиться идеями или сообщать об ошибках.
+        \nВы также можете обмениваться советами - например, где найти качественные аудиокниги и многое другое.
+    </string>
+
 
     <!-- ********************************** -->
     <!-- Options Screen -->
 
-    <string name="option_timeBeforeSleep">Автоматическая пауза</string>
-    <string name="option_timeBeforeSleep_text">через :</string>
+    <string name="option_hide_advanced_options">"Скрыть расширенные настройки"</string>
+    <string name="option_show_advanced_options">"Показать расширенные настройки"</string>
+
+    <string name="option_timeBeforeSleep">Автопауза</string>
+    <string name="option_timeBeforeSleep_text">через:</string>
     <string name="option_timeBeforeSleep_min">мин.</string>
-    <string name="option_timeBeforeSleep_outOfBound">Argg: Продолжительность автоматической паузы выходит за пределы, сброс к значениям по умолчанию</string>
+    <string name="option_timeBeforeSleep_outOfBound">Ой: время автопаузы вне диапазона, сброс к значениям по умолчанию</string>
 
     <string name="option_zip">ZIP-файлы</string>
-    <string name="option_copyzip_local">Копировать файлы во внутреннюю память приложения (обязательно для Android 11 и выше).</string>
-    <string name="option_unzip_local">Распаковать файлы (занимает место в хранилище, но обеспечивает более плавное прослушивание)</string>
+    <string name="option_copyzip_local">Копировать файлы в память приложения (обязательно для Android 11 и выше).</string>
+    <string name="option_unzip_local">Распаковывать файлы (занимает место, но более плавное воспроизведение)</string>
 
     <string name="option_copy_file_title">Копировать файлы внутрь</string>
     <string name="option_copy_file_subtitle"><i>Плюсы:
-        \n* Разрешение [Чтение Аудио] не требуется.
-        \n* Нет риска потери аудиокниги и прогресса, если исходный файл случайно удален/перемещен.
+        \n* Не требуется разрешение [Чтение аудио].
+        \n* Нет риска потери аудиокниги и прогресса, если исходный файл будет случайно удален/перемещен.
         \nМинусы:
         \n* Потребуется больше памяти, если вы не удалите исходный файл.</i>
     </string>
-    <string name="option_copy_file_text">Копировать аудиофайлы во внутреннюю, зарезервированную, память приложения BookPlayer.</string>
+    <string name="option_copy_file_text">Копировать аудиофайлы во внутреннюю выделенную память BookPlayer.</string>
+    <string name="option_copy_file_special_zip"><i>ZIP-файлы всегда копируются</i></string>
+
 
     <string name="option_backward_forward_title">Кнопки Назад/Вперед</string>
-    <string name="option_backward_forward_text">время:</string>
+    <string name="option_backward_forward_text">перемотка:</string>
 
-    <string name="option_rewind_after_pause_title">Перемотка на несколько секунд при возобновлении воспроизведения</string>
-    <string name="option_rewind_after_pause_text">"Перемотка на 3 секунды перед возобновлением воспроизведения, если пауза длилась более 2 минут."</string>
+    <string name="option_rewind_after_pause_title">Автоперемотка при возобновлении</string>
+    <string name="option_rewind_after_pause_text">"Перемотать аудио на несколько секунд назад перед возобновлением воспроизведения (пауза 5 мин = перемотка 3 сек, пауза 1 ч = 5 сек, ...)"</string>
 
-    <string name="option_pick_theme_color_title">Выберите цветовую тему приложения</string>
+    <string name="option_pick_theme_color_title">Выберите цветовую тему</string>
 
     <string name="option_orientation">Ориентация экрана</string>
-    <string name="option_orientation_lock">Блокировать ориентацию экрана при воспроизведении (лучше держать включенной)</string>
+    <string name="option_orientation_lock">Фиксировать ориентацию экрана при воспроизведении (лучше оставить включенным)</string>
 
-    <string name="option_delete_source_file_title">Автоматическое удаление исходного файла</string>
-    <string name="option_delete_source_file_subtitle"><i>После загрузки файла/папки/zip в BookPlayer, исходный файл/папка/zip может быть автоматически удален.
-        \nУчтите, что это возможно только если аудио скопировано во внутреннюю память.
-        \n* ZIP-файлы всегда копируются внутрь.
-        \n* Отдельные аудиофайлы и папки копируются только если включена опция [копировать внутрь].</i></string>
-    <string name="option_delete_source_file_text">Автоматически удалять выбранный файл/папку после загрузки в BookPlayer.</string>
-    <string name="option_alert_delete_source_file_title">Все файлы, загруженные в BookPlayer, будут удалены с устройства.</string>
-    <string name="option_alert_delete_source_file_message">Вы уверены?</string>
-
-    <string name="option_mail_method">Отправка писем</string>
-    <string name="option_mail_method_default">Использовать приложение для электронной почты по умолчанию.\n<i>Снимите флажок, чтобы выбрать приложение для использования.</i></string>
+    <string name="option_delete_source_file_title">Автоудаление исходного файла</string>
+    <string name="option_delete_source_file_subtitle"><i>После загрузки аудиокниги в BookPlayer, выбранный файл/папка может быть автоматически удален.
+        \nОбратите внимание, что это возможно только для zip или если включена опция выше (если аудио копируется в выделенную память Bookplayer).
+        </i></string>
+    <string name="option_delete_source_file_text">Автоматически удалять выбранный файл/папку после загрузки в Bookplayer.</string>
+    <string name="option_alert_delete_source_file_title">!! Внимание - Автоудаление !!</string>
+    <string name="option_alert_delete_source_file_message">Все файлы, загруженные в Bookplayer, будут удалены из памяти устройства.\n\nВы уверены?.</string>
 
     <string name="option_beep_title">Звуковой сигнал</string>
-    <string name="option_beep_between_chapters">Издавать сигнал в конце главы.</string>
-    <string name="option_beep_for_autostop">Издавать длинный сигнал при входе в режим сна <i>(автоматическая пауза после XX минут)</i></string>
-    <string name="option_beep_at_the_end">Издавать тройной сигнал в конце книги.</string>
+    <string name="option_beep_between_chapters">Подавать сигнал в конце глав.</string>
+    <string name="option_beep_for_autostop">Подавать длинный сигнал при включении спящего режима <i>(автопауза через XX минут)</i></string>
+    <string name="option_beep_at_the_end">Подавать тройной сигнал в конце книги.</string>
+
+    <string name="option_open_with_title">Открыть с помощью / Выбор приложения</string>
+    <string name="option_open_with_subtitle"><i>Сделать так, чтобы Android предлагал Bookplayer среди вариантов при нажатии/загрузке аудио/zip-файла</i></string>
+    <string name="option_open_with_text">Добавить Bookplayer в варианты \'Открыть с помощью\'.</string>
 
     <string name="option_visualizer_title">Визуализатор спектра</string>
     <string name="option_visualizer_text_01">Минималистичный визуализатор частот, отображаемый при воспроизведении аудио.</string>
-    <string name="option_visualizer_text_02">Требуется разрешение [Запись Аудио]/[Микрофон]</string>
-    <string name="option_visualizer_permissions_granted">разрешено</string>
-    <string name="option_visualizer_permissions_denied_01">отказано</string>
-    <string name="option_visualizer_permissions_denied_02">нажмите снова на флажок, чтобы запросить разрешение</string>
+    <string name="option_visualizer_text_02">Требуется разрешение [Запись аудио]/[Микрофон]</string>
+    <string name="option_visualizer_permissions_granted">предоставлено</string>
+    <string name="option_visualizer_permissions_denied_01">отклонено</string>
+    <string name="option_visualizer_permissions_denied_02">нажмите снова на чекбокс, чтобы запросить разрешение</string>
+
+    <string name="option_click_visualizer_playpause_text_01">Нажатие на визуализатор также работает как кнопка play/pause.</string>
+
+    <string name="option_log">Логирование</string>
+    <string name="option_tech_log_subtitle"><i>
+        должно ли приложение создавать технические логи.
+    </i></string>
+    <string name="option_tech_log_text">Техническое логирование.</string>
+
+    <string name="option_mail_method">Способ отправки почты</string>
+    <string name="option_mail_method_default">Использовать почтовое приложение по умолчанию.\n<i>Снимите флажок, чтобы выбрать приложение.</i></string>
+
 
     <!-- ********************************** -->
     <!-- Get Resources -->
 
-    <string name="bOpenFile">Открыть один файл</string>
-    <string name="bOpenFolder">Открыть папку</string>
-    <string name="bOpenZipFile">Открыть ZIP-файл</string>
+    <string name="bOpenFile">Файл</string>
+    <string name="bOpenFolder">Папка</string>
+    <string name="bOpenZipFile">ZIP-файл</string>
 
-    <string name="TextHeaderOpen">Открыть аудиофайл на моем устройстве</string>
-    <string name="bOpenFile_desc">Если ваш аудио состоит из одного файла, нажмите эту кнопку, чтобы выбрать его:</string>
-    <string name="bOpenFolder_desc">Если ваши аудиофайлы находятся в папке, нажмите эту кнопку и выберите папку:
-    \n<i>Осторожно: будут загружены все аудиофайлы, включая те, что в подпапках.</i></string>
-    <string name="bOpenZipFile_desc">Если ваши аудиофайлы находятся в ZIP-файле, нажмите эту кнопку и выберите архив:</string>
 
-    <string name="TextHeaderSearch">Поиск бесплатных аудиокниг в Интернете</string>
-    <string name="bSearchlitteratureaudio_desc">Поиск и загрузка книги с litteratureaudio.com (на французском):</string>
-    <string name="bSearchOpenCulture_desc">Поиск аудио на Open Culture:</string>
-    <string name="bSearchExampleText">"Указанные выше веб-сайты приведены в качестве примера, существует множество аудиоресурсов в Интернете, вы также можете загрузить университетские лекции."</string>
+    <string name="TextHeaderOpen">Открыть аудио на моем устройстве</string>
+    <string name="bOpenFile_desc">Если ваше аудио состоит из одного файла, нажмите эту кнопку, чтобы выбрать его:</string>
+    <string name="bOpenFolder_desc">Если ваши аудиофайлы находятся в папке, нажмите эту кнопку и выберите эту папку:
+    \n<i>Внимание: все аудио, включая вложенные папки, будут загружены.</i></string>
+    <string name="bOpenZipFile_desc">Если ваши аудиофайлы находятся в ZIP-архиве, нажмите эту кнопку и выберите этот архив:</string>
+
+    <string name="TextHeaderSearch">Искать бесплатное аудио в интернете</string>
+    <string name="bSearchlitteratureaudio_desc">Найти и скачать книгу с litteratureaudio.com (французский):</string>
+    <string name="bSearchOpenCulture_desc">Найти аудио на Open Culture:</string>
+    <string name="bSearchExampleText">Эти сайты приведены только как примеры, в интернете есть множество аудио, вы также можете скачивать университетские лекции.</string>
 
     <string name="AutoTest_title">Автотест</string>
-    <string name="AutoTest_desc">Автоматическая загрузка и интеграция аудиокниг, для тестирования</string>
+    <string name="AutoTest_desc">Автоматическая загрузка и интеграция аудиокниг для тестирования</string>
     <string name="AutoTest_b1_text">выбор 1 - маленький файл</string>
     <string name="AutoTest_b2_text">выбор 2 - средний файл</string>
     <string name="AutoTest_b3_text">выбор 3 - большой файл</string>
@@ -158,77 +189,93 @@
 
     <string name="Error_Import_IsNotFolder">Это не похоже на папку</string>
     <string name="Error_Import_IsNotFile">Это не похоже на файл</string>
-    <string name="Error_Import_FolderAlreadyImported">Эта папка уже загружена</string>
-    <string name="Error_Import_NoMediaInFolder">Медиафайлы в этой папке не найдены</string>
-    <string name="Error_Import_FilePathKO">Не удается найти путь к файлу </string>
-    <string name="Error_Import_FolderPathKO">Не удается найти путь к папке </string>
-    <string name="Error_Import_BetterTryNoDownloadFolder">Попробуйте переместить аудиоресурс в другое место (не в папку Загрузки) </string>
-    <string name="Import_nMediaInFolder">медиафайлы найдены в этой папке</string>
-    <string name="Error_Getting_Ressource_Name_from_Download_Folder">Ошибка при доступе к ресурсу в папке Загрузки</string>
+    <string name="Error_Import_FolderAlreadyImported">Эта папка уже была импортирована</string>
+    <string name="Error_Import_NoMediaInFolder">В этой папке не найдено медиафайлов</string>
+    <string name="Error_Import_FilePathKO">Не удается найти путь к файлу</string>
+    <string name="Error_Import_FolderPathKO">Не удается найти путь к папке</string>
+    <string name="Error_Import_CannotReadFile">Ошибка чтения выбранного файла</string>
+    <string name="Error_Import_CannotReadFolder">Ошибка чтения выбранной папки</string>
+    <string name="Error_Import_CannotParseFile">Ошибка при разборе аудиоисточника</string>
+    <string name="Error_Import_CannotGetParentDir">Не удалось получить родительский каталог</string>
+    <string name="Error_Import_TypeNotSupported">Этот тип не поддерживается</string>
+    <string name="Error_Import_CannotDetermineType">Не удается определить тип файла</string>
+    <string name="Error_Import_NotAnAudio">Не аудиофайл?</string>
+    <string name="Error_Import_CannotSaveInDB">Ошибка сохранения аудиофайла в локальной базе данных</string>
+    <string name="Error_Import_CannotDeleteSource">Ошибка при удалении аудиоисточника</string>
+    <string name="Error_Import_AlreadyImported">Эта книга уже была скачана и импортирована как</string>
+    <string name="Error_Import_BetterTryNoDownloadFolder">Попробуйте переместить аудиоресурс в другое место (не в папку Загрузки)</string>
+    <string name="Import_nMediaInFolder">медиафайлов найдено в этой папке</string>
+    <string name="Error_Getting_Ressource_Name_from_Download_Folder">Ошибка доступа к ресурсу в папке Загрузки</string>
     <string name="Add_resource_reading_file">анализ файла</string>
 
-    <string name="Import_Progress_copying_zip_file">"копирование исходного файла \n- из внешней памяти устройства\n- в внутреннюю память приложения Bookplayer"</string>
-    <string name="Import_Progress_unzipping_file">"распаковка файла : "</string>
+    <string name="Import_Progress_copying_zip_file">"копирование исходного файла \n- из Внешней памяти устройства\n- во внутреннюю память приложения Bookplayer"</string>
+    <string name="Import_Progress_copying_zip_file_cloud">"копирование исходного файла \n- из Облака\n- во внутреннюю память приложения Bookplayer"</string>
+    <string name="Import_Progress_unzipping_file">"распаковка файла: "</string>
 
-    <string name="Import_Progress_onGoing">"Занято… идет импорт…"</string>
+    <string name="Import_Progress_onGoing">"Занято... идет импорт..."</string>
 
     <string name="Error_Import_Creating_Folders">"Не удалось создать папки"</string>
-    <string name="Error_Import_track_duration_nofile">"Ошибка при получении продолжительности трека (файл не найден)"</string>
-    <string name="Error_Import_track_duration_extraction">"Ошибка при получении продолжительности трека"</string>
-    <string name="Error_Import_computing_folder_duration">"Ошибка при расчете общей продолжительности элементов"</string>
+    <string name="Error_Import_track_duration_nofile">"Ошибка получения длительности трека (файл не найден)"</string>
+    <string name="Error_Import_track_duration_extraction">"Ошибка получения длительности трека"</string>
+    <string name="Error_Import_computing_folder_duration">"Ошибка вычисления суммы длительности элементов"</string>
 
-    <string name="Error_Import_UnableToUnzip_line1">Ошибка при распаковке файла</string>
-    <string name="Error_Import_UnableToUnzip_line2">Извините, попробуйте импортировать уже распакованную папку вместо этого</string>
+    <string name="Error_Import_UnableToUnzip_line1">Ошибка распаковки сжатого файла"</string>
+    <string name="Error_Import_UnableToUnzip_line2">Извините, вы можете попробовать импортировать уже распакованную папку"</string>
 
-    <string name="Error_Import_NotEnoughMemory_line1">Недостаточно памяти на устройстве</string>
-    <string name="Error_Import_NotEnoughMemory_line2_1">доступная память: </string>
-    <string name="Error_Import_NotEnoughMemory_line3">исходный файл: </string>
-    <string name="Error_Import_NotEnoughMemory_line4_1">(вам нужно по крайней мере </string>
-    <string name="Error_Import_NotEnoughMemory_line4_2"> раза больше размера исходного файла)</string>
-    <string name="Error_Import_NotEnoughMemory_line5_zip">Вы можете импортировать распакованную папку mp3 вместо этого zip-файла, чтобы избежать этого ограничения.</string>
-    <string name="Error_Import_NotEnoughMemory_line5_other">"Вы можете отключить шаг 'Копирование файла' (в меню опций), чтобы читать ваши аудио напрямую из основной памяти."</string>
+    <string name="Error_Import_NotEnoughMemory_line1">"Недостаточно памяти на устройстве"</string>
+    <string name="Error_Import_NotEnoughMemory_line2_1">"доступная память: "</string>
+    <string name="Error_Import_NotEnoughMemory_line3">"источник для копирования: "</string>
+    <string name="Error_Import_NotEnoughMemory_line4_1">"(вам нужно как минимум "</string>
+    <string name="Error_Import_NotEnoughMemory_line4_2">" раза больше размера исходного файла)"</string>
+    <string name="Error_Import_NotEnoughMemory_line5_zip">"Вы можете импортировать распакованную папку mp3 вместо этого zip-файла, чтобы обойти это ограничение."</string>
+    <string name="Error_Import_NotEnoughMemory_line5_other">"Вы можете отключить шаг [КопироватьФайл] (в меню опций), чтобы читать ваши аудио прямо из основной памяти."</string>
 
     <string name="Error_ZikFilePositionOnlyDigits">"Здесь можно вводить только цифры"</string>
     <string name="Error_NameTooShort">"Это имя слишком короткое"</string>
 
-    <string name="Import_Success">Импорт завершен успешно</string>
+    <string name="Import_Success">Импорт успешен</string>
+
 
     <!-- ********************************** -->
     <!-- FolderModifyActivity -->
 
-    <string name="bDelete">"Удалить папку"</string>
+    <string name="bDelete">"Удалить"</string>
     <string name="bRenameFolder">"Переименовать папку"</string>
     <string name="bRenameTrack">"Переименовать трек"</string>
     <string name="bMove">"Изменить позицию"</string>
     <string name="bReset">"Сбросить прогресс"</string>
-    <string name="Folder_Deleted_DB">Книга удалена!</string>
+    <string name="Folder_Deleted_DB">"Книга удалена!"</string>
     <string name="Folder_Renamed">"Папка была переименована"</string>
-    <string name="Error_FolderNameTooShort">"Имя папки должно содержать не менее 2 символов"</string>
+    <string name="Error_FolderNameTooShort">"Имя папки должно содержать минимум 2 символа"</string>
     <string name="Folder_Reset">"Прогресс папки был сброшен"</string>
-    <string name="ZikFile_RePositioned">"Трек был перемещен"</string>
+    <string name="ZikFile_RePositioned">"Трек был перемещен на новую позицию"</string>
     <string name="ZikFile_Renamed">"Трек был переименован"</string>
     <string name="ZikFile_Deleted">"Трек был удален"</string>
 
-    <string name="AskDelete_popupTitle">Подтверждение удаления</string>
-    <string name="AskReset_popupTitle">Подтверждение сброса</string>
-    <string name="DeleteLogs_AskConfirm">"Вы собираетесь удалить все логи.
-                        \nВы уверены?"</string>
-    <string name="ModifyFolder_AskDelete">"Вы собираетесь удалить эту папку и все треки
-                        \nВы уверены?"</string>
-    <string name="ModifyFolder_AskReset">"Вы собираетесь сбросить прогресс для этой папки
-                        \nВы уверены?"</string>
-    <string name="ModifyZikFile_AskDelete">"Вы собираетесь удалить этот трек
-                        \nВы уверены?"</string>
+    <string name="AskDelete_popupTitle">Подтвердите удаление</string>
+    <string name="AskReset_popupTitle">Подтвердите сброс</string>
+    <string name="DeleteLogs_AskConfirm">"Вы собираетесь удалить все логи." + "\n" +
+                        "Вы уверены?"</string>
+    <string name="ModifyFolder_AskDelete">"Вы собираетесь удалить эту папку и все треки" + "\n" +
+                        "Вы уверены?"</string>
+    <string name="ModifyFolder_AskReset">"Вы собираетесь сбросить прогресс для этой папки " + "\n" +
+                        "Вы уверены?"</string>
+    <string name="ModifyZikFile_AskDelete">"Вы собираетесь удалить этот аудиотрек " + "\n" +
+                        "Вы уверены?"</string>
 
     <string name="CacheFiles_AskDeleteAudioBook">"Вы собираетесь удалить эту аудиокнигу"</string>
+
+    <string name="ImportedOn">"Импортировано"</string>
+    <string name="LastAccess">"Последний доступ"</string>
+    <string name="AudioLocation">"Расположение аудио"</string>
 
     <!-- ********************************** -->
     <!-- Zik File Adapter -->
 
     <string name="Progression_reset_done">"Прогресс сброшен"</string>
-    <string name="ModifyFolder_AskDeleteProgressFromZikFile_Title">"Подтверждение сброса"</string>
-    <string name="ModifyFolder_AskDeleteProgressFromZikFile_Text">"Вы собираетесь сбросить прогресс для этого аудио.
-                        \nВы уверены?"</string>
+    <string name="ModifyFolder_AskDeleteProgressFromZikFile_Title">"Подтвердите сброс"</string>
+    <string name="ModifyFolder_AskDeleteProgressFromZikFile_Text">"Вы собираетесь сбросить прогресс для этого аудио\nВы уверены?"</string>
+
 
     <!-- ********************************** -->
     <!-- PlayActivity -->
@@ -238,75 +285,90 @@
     <string name="forward" translatable="false"><![CDATA[>>]]></string>
     <string name="pause" translatable="false">||</string>
     <string name="tvSpeed">Скорость</string>
+    <string name="tvSleep">Сон</string>
+    <string name="tvVolume">Громкость</string>
+    <string name="btnSleepSet" translatable="false">Sleep</string>
     <string name="tv_ListeningTimeWithNoUserAction">Нет действий пользователя с</string>
-    <string name="tv_TimeLeft">Время до автоматической паузы</string>
-    <string name="error_reading_track">"ОШИБКА ПРИ ЧТЕНИИ ТРЕКА!"</string>
-    <string name="error_file_not_found">"ОШИБКА, ФАЙЛ НЕ НАЙДЕН!"</string>
+    <string name="tv_ListeningTimeWithCustomSleep">Установлен таймер сна с</string>
+    <string name="tv_CustomSleepDialog_generalInfo">"<i>Примечание: это значение будет использоваться только для текущего сеанса воспроизведения.\nГлобальное значение автосна находится в Настройках (в меню на главной странице приложения)</i>"</string>
+    <string name="tv_CustomSleepDialog_EnterMinutesBeforeSleep">"Укажите количество минут до сна:"</string>
+    <string name="tv_TimeLeft">Время до сна</string>
+    <string name="error_reading_track">"ОШИБКА ЧТЕНИЯ ТРЕКА!"</string>
+    <string name="error_file_not_found">"ФАЙЛ НЕ НАЙДЕН!"</string>
     <string name="current_position">Текущая позиция</string>
-    <string name="total_time">Продолжительность</string>
+    <string name="total_time">Длительность</string>
     <string name="file_name">Имя файла</string>
     <string name="source_not_found">Исходный файл не найден или не может быть прочитан.</string>
     <string name="source_not_found_deleted">Исходный файл не найден. Возможно, он был удален.</string>
     <string name="source_file_path">Путь к исходному файлу</string>
-    <string name="permission_not_set">Разрешение не установлено.</string>
-    <string name="permission_to_set">Для установки нажмите кнопку ниже, чтобы открыть информацию о приложении, затем перейдите в раздел [Разрешения приложения] и вручную установите [МУЗЫКА И АУДИО].
-        \n\nРазрешение необходимо, потому что исходный файл для чтения не находится во внутренней памяти Bookplayer.</string>
+    <string name="permission_not_set">Разрешение не предоставлено.</string>
+    <string name="permission_to_set">Для настройки нажмите кнопку ниже, чтобы открыть информацию о приложении, затем перейдите в раздел [Разрешения приложения] и вручную установите [Музыка и аудио].
+    \n\nРазрешение требуется, потому что исходный файл для чтения не находится во внутренней памяти Bookplayer.</string>
     <string name="device_settings">Настройки устройства для Bookplayer</string>
-    <string name="notification_playlist_finished">Книга завершена!</string>
-    <string name="notification_auto_sleep">Автоматическая пауза!</string>
+    <string name="notification_playlist_finished">"Книга завершена!"</string>
+    <string name="notification_auto_sleep">"Автосон!"</string>
 
     <!-- ********************************** -->
     <!-- STATS activity -->
 
-    <string name="physical_storage_memory">Физическая память</string>
+    <string name="physical_storage_memory">Физическая память хранилища</string>
     <string name="version">Версия</string>
     <string name="miscellaneous">Разное</string>
+
 
     <!-- ********************************** -->
     <!-- Menus -->
 
     <string name="action_menu_three_dot">Меню</string>
-    <string name="menu_manual">Руководство</string>
-    <string name="menu_options">Настройки</string>
-    <string name="menu_otherapp">Другие приложения</string>
-    <string name="menu_sendmail">почтовый разработчик</string>
+    <string name="menu_open">открыть</string>
+    <string name="menu_manual">руководство</string>
+    <string name="menu_options">настройки</string>
+    <string name="menu_otherapp">другие приложения</string>
+    <string name="menu_sendmail">написать разработчику</string>
     <string name="stats">Статистика</string>
-    <string name="menu_seeLog">Просмотр лога</string>
+    <string name="menu_seeLog" translatable="false">See Logs</string>
     <string name="menu_cacheFiles">Очистка</string>
+    <string name="menu_forum">Форум</string>
+    <string name="menu_website">Сайт</string>
+    <string name="menu_synchro">Синхронизация</string>
 
     <!-- ********************************** -->
     <!-- OTHER APPS -->
 
-    <string name="otherApp_title">Мои другие приложения :-)</string>
+    <string name="otherApp_title">"Мои другие приложения :-)"</string>
     <string name="otherApp_droitpositif" translatable="false">Droit Positif</string>
-    <string name="otherApp_droitpositif_txt">Основные тексты французского права, доступные даже в оффлайн режиме</string>
+    <string name="otherApp_droitpositif_txt">Основные французские законодательные тексты, доступные оффлайн</string>
     <string name="otherApp_deces" translatable="false">Dead Frogs</string>
-    <string name="otherApp_deces_txt">Люди, умершие во Франции с 70-х годов</string>
+    <string name="otherApp_deces_txt">Смерти во Франции с 70-х годов</string>
+    <string name="otherApp_scanner" translatable="false">Сканер</string>
+    <string name="otherApp_scanner_txt">Сканер QR-кодов и штрих-кодов</string>
 
     <!-- Action Bar -->
 
     <!-- ********************************** -->
     <!-- PERMISSIONS -->
 
-    <string name="permission_rationale">Эта активность требует следующих разрешений: </string>
-    <string name="permissions_granted">Разрешения были предоставлены.</string>
-    <string name="permissions_denied">Разрешения не были предоставлены.</string>
+    <string name="permission_rationale">Для этого действия требуются следующие разрешения:</string>
+    <string name="permissions_granted">Разрешения предоставлены.</string>
+    <string name="permissions_denied">Разрешения не предоставлены.</string>
     <string name="permissions_ok_button" translatable="false">OK</string>
 
     <!-- Application specific permission strings -->
-    <string name="permission_read_write_rationale">Bookplayer нуждается в разрешении [Чтение Аудио] (или установите опцию [Копирование файла]).</string>
-    <string name="permission_read_write_denied">Разрешение [Чтение Аудио] было отклонено.
-        \n\nНажмите [Информация о приложении], чтобы вручную активировать разрешения.
-        \n\nИли
-        \n\nНажмите [Настройки], чтобы активировать опцию приложения [Копирование файла во внутреннюю память].
-        \n<i>Затем ваши аудиофайлы будут скопированы во внутреннюю память Bookplayer, и вам не потребуется никаких разрешений для их чтения.</i>
-    </string>
+    <string name="permission_read_write_rationale">Bookplayer требует разрешения [Чтение аудио] (или включите опцию [Копировать файл]).</string>
+    <string name="permission_read_write_denied">В разрешении [Чтение аудио] отказано.
+    \n\nНажмите [Информация о приложении], чтобы вручную активировать разрешения.
+    \n\nИли
+    \n\nНажмите [Настройки], чтобы активировать опцию [Копировать файл во внутреннюю память].
+    \n<i>Тогда ваши аудиофайлы будут скопированы во внутреннюю память Bookplayer, и вам не потребуются разрешения для их чтения.</i>
+</string>
 
-    <string name="permission_record_audio_rationale">Визуализатор спектра требует разрешения [запись аудио].</string>
-    <string name="permission_record_audio_denied">Визуализатор спектра не будет отображаться. Разрешение [запись аудио] было отклонено.</string>
-    <string name="permission_record_audio_rationale_after_denied">BookPlayer не может снова запросить уже отклоненное разрешение.
-        \n\nВы можете обойти это, нажав [Информация о приложении].
-        \nЭто откроет настройки Bookplayer на устройстве.
-        \n\nЗатем перейдите в раздел "Разрешения" и вручную разрешите "Микрофон".</string>
+
+    <string name="permission_record_audio_rationale_01">"Следующее разрешение требуется для отображения спектрограммы."</string>
+    <string name="permission_record_audio_rationale">Для спектрограммы требуется разрешение [запись аудио].</string>
+    <string name="permission_record_audio_denied">Спектрограмма отображаться не будет. В разрешении [запись аудио] отказано.</string>
+    <string name="permission_record_audio_rationale_after_denied">BookPlayer не может повторно запрашивать уже отклоненное разрешение.
+    \n\nВы можете обойти это, нажав [Информация о приложении].
+    \nЭто откроет настройки Bookplayer на устройстве.
+    \n\nЗатем перейдите в раздел "Разрешения" и вручную разрешите "Микрофон".</string>
 
 </resources>

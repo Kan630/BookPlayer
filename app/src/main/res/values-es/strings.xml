@@ -3,15 +3,16 @@
     <string name="lorem_ipsum" translatable="false">lorem ipsum</string>
 
     <string name="yesterday">"ayer"</string>
-    <string name="app_info">Información de la aplicación</string>
+    <string name="app_info">Información de la App</string>
     <string name="delete_logs">Eliminar registros</string>
     <string name="delete">Eliminar</string>
+
     <string name="title_FolderContent">Lista de archivos</string>
     <string name="PlayerActivity_Title" translatable="false">TextBook Player</string>
 
     <string name="yes">Sí</string>
     <string name="cancel">Cancelar</string>
-    <string name="are_you_sure">¿Estás seguro?</string>
+    <string name="are_you_sure">"¿Estás seguro?"</string>
 
     <string name="asset_statements" translatable="false">
     [{
@@ -19,132 +20,162 @@
     }]
     </string>
 
+
     <!-- ********************************** -->
     <!-- HELP Screen -->
 
-    <string name="help_folder">Carpeta :</string>
-    <string name="help_folder_text">"Una pulsación larga en una carpeta abre la página [modificar carpeta].
-    \nEntonces podrás renombrar / eliminar / restablecer progreso"</string>
+    <string name="help_folder">Carpeta:</string>
+    <string name="help_folder_text">"Un clic largo sobre una carpeta abre la página [modificar carpeta].
+    \nPodrás renombrarla/eliminarla/reiniciar progreso"</string>
 
-    <string name="help_file">Pista :</string>
-    <string name="help_file_text">"Una pulsación larga en una pista abre la página [modificar pista].
-    \nEntonces podrás renombrar / cambiar el orden / eliminar / restablecer progreso"</string>
+    <string name="help_file">Pista:</string>
+    <string name="help_file_text">"Un clic largo sobre una pista abre la página [modificar pista].
+    \nPodrás renombrarla/cambiar orden/eliminarla/reiniciar progreso"</string>
 
-    <string name="help_import">Importar :</string>
-    <string name="help_import_text">"Comienza eligiendo un archivo / carpeta / zip.
-        \nLuego, dependiendo de tus ajustes (en menú/opciones), hay 2 posibilidades:
+    <string name="help_import">Importar:</string>
+    <string name="help_import_text">"Comienza seleccionando un archivo/carpeta/zip.
+        \nLuego, según tu configuración (en menú/opciones) hay 2 posibilidades:
         \n
-        \n<b>opción 1 :</b> Bookplayer primero copiará el audio dentro de la memoria interna de la aplicación, y luego lo reproducirá desde allí.
+        \n<b>opción 1 [copiar]:</b><i>por defecto</i> Bookplayer primero copiará el audio en la memoria interna de la app, y luego lo leerá desde allí.
         \n
-        \n<b>opción 2 :</b> Bookplayer solo registrará la ubicación para reproducir el audio directamente desde la memoria general del dispositivo (por ejemplo, desde la carpeta Descargas, la carpeta Música o cualquier carpeta)
+        \n<b>opción 2 [no copiar]:</b> Bookplayer solo registrará la ubicación para reproducir directamente el audio desde la memoria general del dispositivo (ej. desde la carpeta Descargas, Música o cualquier carpeta)
         \n
-        \n<i>(Nota: el contenido de los archivos ZIP siempre se copia. Esta opción es solo para archivos y carpetas individuales)</i>
+        \n<i>(Nota que los archivos ZIP siempre se copian. Esta opción es solo para archivos individuales y carpetas)</i>
         \n
-        \n<b>Con la opción 1/</b>, ni siquiera necesitarás el permiso [Leer Audio].
-        \nAdemás, si eliminas el archivo de la memoria principal o lo mueves, eso no importará. No perderás tu libro ni tu progreso.
+        \n<b>Con opción 1 (copiar)</b>, no necesitarás el permiso [Leer Audio].
+        \nAdemás, si borras el archivo de la memoria principal, o lo mueves, no importará. No perderás tu libro y progreso.
         \n
-        \n<b>Con la opción 2/</b>, ahorrarás espacio. (pero si luego eliminas el archivo fuente de la memoria principal, será lo mismo).
+        \n<b>Con opción 2 (no copiar)</b>, puedes ahorrar espacio.
         \n
-        \nHay otro ajuste, en menú/opciones, que te permite eliminar automáticamente el archivo fuente una vez que ha sido importado.
-        \nActiva esta opción si todos los libros que cargas en Bookplayer no serán necesarios para otra aplicación.
-    </string>
+        \nHay otra configuración, en menú/opciones, que te permite borrar automáticamente el archivo fuente después de importarlo.
+        \nActívala si todos los libros que cargas en Bookplayer no serán necesitados por otra app."</string>
 
-    <string name="help_trouble">Problemas de importación :</string>
-    <string name="help_trouble_text">"Si tienes problemas para importar tu audio:
-        \nZIP: En el selector de archivos, si al hacer clic en un zip se muestra el contenido del zip en lugar de permitirte seleccionar el zip, intenta una pulsación larga en el zip.
-        \nZIP: Si la descompresión falla, intenta descomprimirlos primero con otra aplicación.
-        \nSi tienes problemas al seleccionar audios desde la carpeta Descargas, intenta moverlos fuera de la carpeta 'Descargas'."</string>
+    <string name="help_trouble">Problemas al importar:</string>
+    <string name="help_trouble_text">"Si tienes problemas importando tu audio:
+        \nZIP: En el selector de archivos, si al hacer clic en un zip muestra su contenido en lugar de dejarte seleccionar el zip, intenta un clic largo sobre el zip.
+        \nZIP: Si falla al descomprimir, intenta descomprimirlos antes con otra app.
+        \nSi hay problema al seleccionar audios de la carpeta Descargas, intenta moverlos fuera de esa carpeta."</string>
 
-    <string name="help_cachefiles">Limpieza de memoria :</string>
-    <string name="help_cachefiles_text">Ahora existe una vista específica para comprobar el contenido de la memoria interna de Bookplayer.
-        \n
-        \nTe permite ver qué libros ocupan mucho espacio. Puedes eliminar algunos de ellos aquí.
-        \n
-        \nTen en cuenta que solo se mostrarán aquí los libros que se hayan copiado dentro de la memoria interna reservada de Bookplayer.
-        \nEs decir, todos los audios de archivos ZIP, + todos los audios de archivos únicos / carpetas, que se hayan cargado con la opción [copiar] activada (en menú/opciones)
-    </string>
+    <string name="help_tellme">¡Dímelo!</string>
+    <string name="help_tellme_text">"Si aún tienes problemas (o si la app se cierra):
+        \nPor favor envíame un mensaje con el archivo que intentas importar, o el enlace a ese archivo. (O qué estabas haciendo cuando la app se cerró)
+        \n¡Así podré revisarlo e intentar mejorar mi app!"</string>
 
-    <string name="help_permission">Permisos :</string>
-    <string name="help_permission_text">"BookPlayer puede funcionar sin ningún permiso.
+    <string name="help_cachefiles">Limpieza de memoria:</string>
+    <string name="help_cachefiles_text">"Ahora existe una vista específica para revisar el contenido de la memoria interna de Bookplayer.
+        \n
+        \nTe permite ver qué libros ocupan mucho espacio. Puedes borrar algunos desde aquí.
+        \n
+        \nNota que solo mostrará aquí los libros que han sido copiados dentro de la memoria interna reservada de Bookplayer.
+        \nEs decir, todos los audios de archivos ZIP + todos los audios de Archivos/Carpetas individuales que se cargaron con la opción [copiar] activada (en menú/opciones)"</string>
+
+    <string name="help_permission">Permisos:</string>
+    <string name="help_permission_text">"BookPlayer puede funcionar sin permisos.
         \nHay 3 permisos principales:
-        \n<b>[Música y Audio]</b> (= [Leer Audio] = [Almacenamiento Externo]) para leer audio desde la memoria general del dispositivo (como la carpeta Descargas, la carpeta Música o cualquier otra)
-        \n\n<b>[Micrófono]</b> (= [Grabar Audio]) es necesario para mostrar un visualizador de frecuencia (visualización del espectro de sonido). Si se deniega, simplemente no se mostrará, no hay problema.
-        \n\n<b>[Notificaciones]</b> puede ser necesario en algunos dispositivos (Android 14+). Se usa para mostrar el widget de comando en la pantalla de bloqueo. <i>(Generalmente se muestra de inmediato sin que se solicite el permiso.)</i>
+        \n<b>[Música y Audio]</b> = [Leer Audio] = [Almacenamiento Externo]: Permite leer audio desde la memoria general del dispositivo, si la opción copiar estaba desactivada (como desde la carpeta descargas, música u otras)
+        \n\n<b>[Micrófono]</b> (= [Grabar Audio]) es necesario para mostrar un visualizador de frecuencias (espectro de sonido). Si se deniega, simplemente no se mostrará, no hay problema.
+        \n\n<b>[Notificaciones]</b> puede ser necesario en algunos dispositivos (Android 14+). Se usa para mostrar el widget de control en la pantalla de bloqueo. <i>(Normalmente se muestra directamente sin siquiera pedir permiso.)"</i>
     </string>
+
+    <string name="help_forum">Foro:</string>
+    <string name="help_forum_text">"Acabo de crear un foro para que los usuarios discutan sobre esta app. (Junio 2025).
+        \nCualquiera puede leer publicaciones, pero necesitarás registrar tu email para participar.
+        \nSiéntete libre de sugerir mejoras, compartir ideas o reportar errores.
+        \nTambién puedes intercambiar consejos, como dónde encontrar audiolibros de calidad y más.
+    </string>
+
 
     <!-- ********************************** -->
     <!-- Options Screen -->
 
-    <string name="option_timeBeforeSleep">Pausa Automática</string>
-    <string name="option_timeBeforeSleep_text">después de :</string>
+    <string name="option_hide_advanced_options">"Ocultar opciones avanzadas"</string>
+    <string name="option_show_advanced_options">"Mostrar opciones avanzadas"</string>
+
+    <string name="option_timeBeforeSleep">Pausa automática</string>
+    <string name="option_timeBeforeSleep_text">después de:</string>
     <string name="option_timeBeforeSleep_min">min.</string>
-    <string name="option_timeBeforeSleep_outOfBound">Argg: La duración de la pausa automática está fuera de los límites, restableciendo al valor predeterminado</string>
+    <string name="option_timeBeforeSleep_outOfBound">Argh: duración de pausa automática fuera de límites, restablecer a valores por defecto</string>
 
     <string name="option_zip">Archivos Zip</string>
-    <string name="option_copyzip_local">Copiar archivos en la memoria interna de la aplicación (obligatorio para Android 11 y superiores).</string>
-    <string name="option_unzip_local">Descomprimir archivos (ocupa espacio de almacenamiento, pero proporciona una experiencia de escucha más fluida)</string>
+    <string name="option_copyzip_local">Copiar archivos en memoria interna (obligatorio para Android 11 y superior).</string>
+    <string name="option_unzip_local">Descomprimir archivos (ocupa espacio, pero mejor experiencia de escucha)</string>
 
     <string name="option_copy_file_title">Copiar archivos internamente</string>
     <string name="option_copy_file_subtitle"><i>Pros:
-        \n* No se necesita el permiso [Leer Audio].
-        \n* No hay riesgo de perder el libro de audio y el progreso si el archivo fuente se elimina/mueve accidentalmente.
+        \n* No se necesita permiso [Leer Audio].
+        \n* No hay riesgo de perder audiolibro y progreso si su archivo fuente se borra/mueve accidentalmente.
         \nContras:
-        \n* Se necesitará más memoria si no eliminas el archivo fuente.</i>
+        \n* Se necesitará más memoria si no borras el archivo fuente.</i>
     </string>
-    <string name="option_copy_file_text">Copiar archivos de audio en la memoria interna reservada de la aplicación BookPlayer.</string>
+    <string name="option_copy_file_text">Copiar archivos de audio en la memoria interna reservada de BookPlayer.</string>
+    <string name="option_copy_file_special_zip"><i>los archivos zip siempre se copian</i></string>
 
-    <string name="option_backward_forward_title">Botones Rewind/Forward</string>
-    <string name="option_backward_forward_text">duración :</string>
 
-    <string name="option_rewind_after_pause_title">Retroceder unos segundos al reanudar</string>
-    <string name="option_rewind_after_pause_text">"Retroceder 3 segundos antes de reanudar la reproducción, si la pausa duró más de 2 minutos."</string>
+    <string name="option_backward_forward_title">Botones Retroceder/Avanzar</string>
+    <string name="option_backward_forward_text">avance rápido:</string>
 
-    <string name="option_pick_theme_color_title">Elige el tema de color de tu aplicación</string>
+    <string name="option_rewind_after_pause_title">Rebobinar al reanudar</string>
+    <string name="option_rewind_after_pause_text">"Rebobinar audio unos segundos antes de reanudar reproducción, (pausa de 5 min = rebobinar 3 seg, pausa de 1h = 5 seg, ...)"</string>
 
-    <string name="option_orientation">Orientación de la pantalla</string>
-    <string name="option_orientation_lock">Bloquear la orientación de la pantalla al reproducir (mejor mantenerlo activado)</string>
+    <string name="option_pick_theme_color_title">Elige tu tema de color</string>
 
-    <string name="option_delete_source_file_title">Eliminación automática del archivo fuente</string>
-    <string name="option_delete_source_file_subtitle"><i>Después de que un archivo/carpeta/zip se haya cargado en BookPlayer, el archivo/carpeta/zip fuente puede eliminarse automáticamente.
-        \nTen en cuenta que esto solo es posible si el audio se ha copiado en la memoria interna.
-        \n* Los archivos ZIP siempre se copian internamente.
-        \n* Los archivos de audio únicos y las carpetas de audio se copian solo si la opción [copiar internamente] está activada.</i></string>
-    <string name="option_delete_source_file_text">Eliminar automáticamente el archivo/carpeta una vez cargado en BookPlayer.</string>
-    <string name="option_alert_delete_source_file_title">Todo archivo cargado en BookPlayer se eliminará del dispositivo.</string>
-    <string name="option_alert_delete_source_file_message">¿Estás seguro?</string>
+    <string name="option_orientation">Orientación de pantalla</string>
+    <string name="option_orientation_lock">Bloquear orientación de pantalla al reproducir (mejor mantener activado)</string>
 
-    <string name="option_mail_method">Envío de correos electrónicos</string>
-    <string name="option_mail_method_default">Usar la aplicación de correo predeterminada.\n<i>Desmarcar para seleccionar la aplicación a usar.</i></string>
+    <string name="option_delete_source_file_title">Borrado automático de archivo fuente</string>
+    <string name="option_delete_source_file_subtitle"><i>Después de cargar un audiolibro en BookPlayer, el archivo/carpeta fuente seleccionado puede borrarse automáticamente.
+        \nNota que esto solo es posible para zip o si la opción anterior está marcada (si los audios se copian en memoria reservada de Bookplayer).
+        </i></string>
+    <string name="option_delete_source_file_text">Borrar automáticamente archivo/carpeta seleccionado una vez cargado en Bookplayer.</string>
+    <string name="option_alert_delete_source_file_title">!! Advertencia - Auto-Borrado !!</string>
+    <string name="option_alert_delete_source_file_message">Todos los archivos cargados en Bookplayer se eliminarán de la memoria del dispositivo.\n\n¿Estás seguro?.</string>
 
-    <string name="option_beep_title">Sonido Beep</string>
-    <string name="option_beep_between_chapters">Emitir un bip al final de los capítulos.</string>
-    <string name="option_beep_for_autostop">Emitir un bip largo al entrar en modo de suspensión <i>(pausa automática después de XX minutos)</i></string>
-    <string name="option_beep_at_the_end">Emitir un triple bip al final del libro.</string>
+    <string name="option_beep_title">Sonido de bip</string>
+    <string name="option_beep_between_chapters">Emitir un bip al final de capítulos.</string>
+    <string name="option_beep_for_autostop">Emitir un bip largo al entrar en modo sueño <i>(pausa automática después de XX minutos)</i></string>
+    <string name="option_beep_at_the_end">Emitir triple bip al final del libro.</string>
+
+    <string name="option_open_with_title">Abrir con / Elegir app</string>
+    <string name="option_open_with_subtitle"><i>Hacer que Android proponga Bookplayer entre las opciones al hacer clic/descargar un archivo de audio/zip</i></string>
+    <string name="option_open_with_text">Añadir Bookplayer a opciones \'Abrir con\'.</string>
 
     <string name="option_visualizer_title">Visualizador de espectro</string>
-    <string name="option_visualizer_text_01">Visualizador de frecuencia minimalista que se muestra al reproducir audio.</string>
+    <string name="option_visualizer_text_01">Visualizador de frecuencias minimalista mostrado durante reproducción de audio.</string>
     <string name="option_visualizer_text_02">Requiere permiso [Grabar Audio]/[Micrófono]</string>
-    <string name="option_visualizer_permissions_granted">permitido</string>
+    <string name="option_visualizer_permissions_granted">concedido</string>
     <string name="option_visualizer_permissions_denied_01">denegado</string>
-    <string name="option_visualizer_permissions_denied_02">haz clic de nuevo en la casilla para solicitar el permiso</string>
+    <string name="option_visualizer_permissions_denied_02">haz clic otra vez en la casilla para pedir permiso</string>
+
+    <string name="option_click_visualizer_playpause_text_01">Hacer clic en el visualizador también funciona como botón play/pause.</string>
+
+    <string name="option_log">Registro</string>
+    <string name="option_tech_log_subtitle"><i>
+        ¿debe la app crear archivos de registro técnico?
+    </i></string>
+    <string name="option_tech_log_text">Registro técnico.</string>
+
+    <string name="option_mail_method">Método de envío de correo</string>
+    <string name="option_mail_method_default">Usar app de correo predeterminada.\n<i>Desmarcar para elegir qué app usar.</i></string>
+
 
     <!-- ********************************** -->
     <!-- Get Resources -->
 
-    <string name="bOpenFile">Abrir archivo único</string>
-    <string name="bOpenFolder">Abrir carpeta</string>
-    <string name="bOpenZipFile">Abrir archivo Zip</string>
+    <string name="bOpenFile">Archivo</string>
+    <string name="bOpenFolder">Carpeta</string>
+    <string name="bOpenZipFile">Archivo Zip</string>
+
 
     <string name="TextHeaderOpen">Abrir un audio en mi dispositivo</string>
-    <string name="bOpenFile_desc">Si tu audio consiste en un solo archivo, presiona este botón para seleccionarlo:</string>
-    <string name="bOpenFolder_desc">Si tus archivos de audio están ubicados dentro de una carpeta, presiona este botón y selecciona esa carpeta:
-    \n<i>Cuidado: se cargarán todos los audios, incluidos los de las subcarpetas.</i></string>
-    <string name="bOpenZipFile_desc">Si tus archivos de audio están ubicados dentro de un archivo ZIP, presiona este botón y selecciona esta carpeta:</string>
+    <string name="bOpenFile_desc">Si tu audio consiste en un solo archivo, pulsa este botón para seleccionarlo:</string>
+    <string name="bOpenFolder_desc">Si tus archivos de audio están en una carpeta, pulsa este botón y selecciona esa carpeta:
+    \n<i>Atención: todos los audios, incluidos los de subcarpetas, se cargarán.</i></string>
+    <string name="bOpenZipFile_desc">Si tus archivos de audio están en un archivo ZIP, pulsa este botón y selecciona ese archivo:</string>
 
-    <string name="TextHeaderSearch">Buscar un libro de audio gratuito en Internet</string>
-    <string name="bSearchlitteratureaudio_desc">Buscar y descargar un libro desde litteratureaudio.com (francés):</string>
-    <string name="bSearchOpenCulture_desc">Buscar audios en Open Culture:</string>
-    <string name="bSearchExampleText">"Los sitios web anteriores son solo ejemplos, hay muchas más audios en la web, también podrías descargar conferencias universitarias."</string>
+    <string name="TextHeaderSearch">Buscar audio gratis en internet</string>
+    <string name="bSearchlitteratureaudio_desc">Buscar y descargar un libro de litteratureaudio.com (francés):</string>
+    <string name="bSearchOpenCulture_desc">Buscar algunos audios en Open Culture:</string>
+    <string name="bSearchExampleText">Estos sitios web son solo ejemplos, hay toneladas de audio en la web, también podrías descargar conferencias universitarias.</string>
 
     <string name="AutoTest_title">Prueba Automática</string>
     <string name="AutoTest_desc">Descarga e integración automática de audiolibros, para propósitos de prueba</string>
@@ -154,7 +185,7 @@
 
     <!-- Add Resources -->
 
-    <string name="bAddRessource">Agregar recurso</string>
+    <string name="bAddRessource">Añadir Contenido</string>
 
     <string name="Error_Import_IsNotFolder">Esto no parece una carpeta</string>
     <string name="Error_Import_IsNotFile">Esto no parece un archivo</string>
@@ -162,73 +193,89 @@
     <string name="Error_Import_NoMediaInFolder">No se encontraron medios en esta carpeta</string>
     <string name="Error_Import_FilePathKO">No se puede encontrar la ruta del archivo</string>
     <string name="Error_Import_FolderPathKO">No se puede encontrar la ruta de la carpeta</string>
-    <string name="Error_Import_BetterTryNoDownloadFolder">Intenta mover el recurso de audio a otra ubicación (no en la carpeta de descargas)</string>
+    <string name="Error_Import_CannotReadFile">Error leyendo archivo seleccionado</string>
+    <string name="Error_Import_CannotReadFolder">Error leyendo carpeta seleccionada</string>
+    <string name="Error_Import_CannotParseFile">Error al analizar fuente de audio</string>
+    <string name="Error_Import_CannotGetParentDir">No se pudo obtener directorio padre</string>
+    <string name="Error_Import_TypeNotSupported">Este tipo no es soportado</string>
+    <string name="Error_Import_CannotDetermineType">No se puede determinar el tipo de archivo</string>
+    <string name="Error_Import_NotAnAudio">¿No es un audio?</string>
+    <string name="Error_Import_CannotSaveInDB">Error guardando archivo de audio en base de datos local</string>
+    <string name="Error_Import_CannotDeleteSource">Error al borrar fuente de audio</string>
+    <string name="Error_Import_AlreadyImported">Este libro ya ha sido descargado e importado como</string>
+    <string name="Error_Import_BetterTryNoDownloadFolder">Intenta mover el recurso de audio a otra ubicación (no en Carpeta de Descargas)</string>
     <string name="Import_nMediaInFolder">medios encontrados en esta carpeta</string>
-    <string name="Error_Getting_Ressource_Name_from_Download_Folder">Error al acceder al recurso en la carpeta Descargas</string>
+    <string name="Error_Getting_Ressource_Name_from_Download_Folder">Error al acceder al recurso en ubicación de Descargas</string>
     <string name="Add_resource_reading_file">analizando archivo</string>
 
-    <string name="Import_Progress_copying_zip_file">"copiando archivo fuente \n- desde la memoria externa del dispositivo\n- a la memoria interna de la aplicación Bookplayer"</string>
-    <string name="Import_Progress_unzipping_file">"descomprimiendo archivo : "</string>
+    <string name="Import_Progress_copying_zip_file">"copiando archivo fuente \n- desde Memoria Externa del Dispositivo\n- a memoria interna de la app Bookplayer"</string>
+    <string name="Import_Progress_copying_zip_file_cloud">"copiando archivo fuente \n- desde la Nube\n- a memoria interna de la app Bookplayer"</string>
+    <string name="Import_Progress_unzipping_file">"descomprimiendo archivo: "</string>
 
     <string name="Import_Progress_onGoing">"Ocupado… importación en curso…"</string>
 
-    <string name="Error_Import_Creating_Folders">"No se pudieron crear las carpetas"</string>
-    <string name="Error_Import_track_duration_nofile">"Error al obtener la duración de la pista (archivo no encontrado)"</string>
-    <string name="Error_Import_track_duration_extraction">"Error al obtener la duración de la pista"</string>
-    <string name="Error_Import_computing_folder_duration">"Error al calcular la duración total de los elementos"</string>
+    <string name="Error_Import_Creating_Folders">"No se pudieron crear carpetas"</string>
+    <string name="Error_Import_track_duration_nofile">"Error obteniendo duración de pista (archivo no encontrado)"</string>
+    <string name="Error_Import_track_duration_extraction">"Error obteniendo duración de pista"</string>
+    <string name="Error_Import_computing_folder_duration">"Error calculando suma de duración de elementos"</string>
 
-    <string name="Error_Import_UnableToUnzip_line1">Error al descomprimir el archivo comprimido</string>
-    <string name="Error_Import_UnableToUnzip_line2">Lo siento, intenta importar una carpeta descomprimida en su lugar</string>
+    <string name="Error_Import_UnableToUnzip_line1">Error descomprimiendo archivo comprimido"</string>
+    <string name="Error_Import_UnableToUnzip_line2">Lo siento, puedes intentar importar una carpeta ya descomprimida en su lugar"</string>
 
-    <string name="Error_Import_NotEnoughMemory_line1">No hay suficiente memoria en el dispositivo</string>
-    <string name="Error_Import_NotEnoughMemory_line2_1">memoria disponible: </string>
-    <string name="Error_Import_NotEnoughMemory_line3">fuente a copiar: </string>
-    <string name="Error_Import_NotEnoughMemory_line4_1">(necesitas al menos </string>
-    <string name="Error_Import_NotEnoughMemory_line4_2"> veces el tamaño del archivo fuente)</string>
-    <string name="Error_Import_NotEnoughMemory_line5_zip">Puedes importar una carpeta mp3 descomprimida en lugar de este archivo zip para evitar este factor limitante.</string>
-    <string name="Error_Import_NotEnoughMemory_line5_other">"Puedes desactivar la opción 'Copiar archivo' (en el menú opciones), para leer directamente tus audios desde la memoria principal."</string>
+    <string name="Error_Import_NotEnoughMemory_line1">"No hay suficiente memoria en el dispositivo"</string>
+    <string name="Error_Import_NotEnoughMemory_line2_1">"memoria disponible: "</string>
+    <string name="Error_Import_NotEnoughMemory_line3">"fuente a copiar: "</string>
+    <string name="Error_Import_NotEnoughMemory_line4_1">"(necesitas al menos "</string>
+    <string name="Error_Import_NotEnoughMemory_line4_2">" veces el tamaño del archivo fuente)"</string>
+    <string name="Error_Import_NotEnoughMemory_line5_zip">"Puedes importar una carpeta mp3 descomprimida en lugar de este zip, para evitar esta limitación."</string>
+    <string name="Error_Import_NotEnoughMemory_line5_other">"Puedes desactivar el paso [CopiarArchivo] (en el menú opciones), para leer directamente tus audios desde la memoria principal."</string>
 
     <string name="Error_ZikFilePositionOnlyDigits">"Solo puedes ingresar dígitos aquí"</string>
-    <string name="Error_NameTooShort">"Este nombre es demasiado corto"</string>
+    <string name="Error_NameTooShort">"Este nombre es muy corto"</string>
 
     <string name="Import_Success">Importación exitosa</string>
+
 
     <!-- ********************************** -->
     <!-- FolderModifyActivity -->
 
-    <string name="bDelete">"Eliminar carpeta"</string>
-    <string name="bRenameFolder">"Renombrar carpeta"</string>
-    <string name="bRenameTrack">"Renombrar pista"</string>
+    <string name="bDelete">"Eliminar"</string>
+    <string name="bRenameFolder">"Renombrar Carpeta"</string>
+    <string name="bRenameTrack">"Renombrar Pista"</string>
     <string name="bMove">"Cambiar posición"</string>
-    <string name="bReset">"Restablecer progreso"</string>
-    <string name="Folder_Deleted_DB">¡Libro eliminado!</string>
+    <string name="bReset">"Reiniciar Progreso"</string>
+    <string name="Folder_Deleted_DB">"¡Libro eliminado!"</string>
     <string name="Folder_Renamed">"La carpeta ha sido renombrada"</string>
     <string name="Error_FolderNameTooShort">"El nombre de la carpeta debe tener al menos 2 caracteres"</string>
-    <string name="Folder_Reset">"El progreso de la carpeta se ha restablecido"</string>
-    <string name="ZikFile_RePositioned">"La pista de audio ha sido movida"</string>
-    <string name="ZikFile_Renamed">"La pista de audio ha sido renombrada"</string>
-    <string name="ZikFile_Deleted">"La pista de audio ha sido eliminada"</string>
+    <string name="Folder_Reset">"El progreso de la carpeta ha sido reiniciado"</string>
+    <string name="ZikFile_RePositioned">"La pista ha sido colocada en nueva posición"</string>
+    <string name="ZikFile_Renamed">"La pista ha sido renombrada"</string>
+    <string name="ZikFile_Deleted">"La pista ha sido eliminada"</string>
 
-    <string name="AskDelete_popupTitle">Confirmar eliminación</string>
-    <string name="AskReset_popupTitle">Confirmar restablecimiento</string>
-    <string name="DeleteLogs_AskConfirm">"Estás a punto de eliminar todos los registros.
-                        \n¿Estás seguro?"</string>
-    <string name="ModifyFolder_AskDelete">"Estás a punto de eliminar esta carpeta y todas las pistas
-                        \n¿Estás seguro?"</string>
-    <string name="ModifyFolder_AskReset">"Estás a punto de restablecer el progreso de esta carpeta
-                        \n¿Estás seguro?"</string>
-    <string name="ModifyZikFile_AskDelete">"Estás a punto de eliminar esta pista de audio
-                        \n¿Estás seguro?"</string>
+    <string name="AskDelete_popupTitle">Confirmar Eliminación</string>
+    <string name="AskReset_popupTitle">Confirmar Reinicio</string>
+    <string name="DeleteLogs_AskConfirm">"Estás a punto de eliminar todos los registros." + "\n" +
+                        "¿Estás seguro?"</string>
+    <string name="ModifyFolder_AskDelete">"Estás a punto de eliminar esta carpeta y todas las pistas" + "\n" +
+                        "¿Estás seguro?"</string>
+    <string name="ModifyFolder_AskReset">"Estás a punto de reiniciar el progreso para esta carpeta " + "\n" +
+                        "¿Estás seguro?"</string>
+    <string name="ModifyZikFile_AskDelete">"Estás a punto de eliminar esta pista de audio " + "\n" +
+                        "¿Estás seguro?"</string>
 
-    <string name="CacheFiles_AskDeleteAudioBook">"Estás a punto de eliminar este libro de audio"</string>
+    <string name="CacheFiles_AskDeleteAudioBook">"Estás a punto de eliminar este audiolibro"</string>
+
+    <string name="ImportedOn">"Importado el"</string>
+    <string name="LastAccess">"Último acceso"</string>
+    <string name="AudioLocation">"Ubicación del audio"</string>
 
     <!-- ********************************** -->
     <!-- Zik File Adapter -->
 
-    <string name="Progression_reset_done">"Progreso restablecido"</string>
-    <string name="ModifyFolder_AskDeleteProgressFromZikFile_Title">"Confirmar restablecimiento"</string>
-    <string name="ModifyFolder_AskDeleteProgressFromZikFile_Text">"Estás a punto de restablecer el progreso de este audio
-                        \n¿Estás seguro?"</string>
+    <string name="Progression_reset_done">"Progreso reiniciado"</string>
+    <string name="ModifyFolder_AskDeleteProgressFromZikFile_Title">"Confirmar reinicio"</string>
+    <string name="ModifyFolder_AskDeleteProgressFromZikFile_Text">"Estás a punto de reiniciar el progreso de este audio\n¿Estás seguro?"</string>
+
 
     <!-- ********************************** -->
     <!-- PlayActivity -->
@@ -238,22 +285,28 @@
     <string name="forward" translatable="false"><![CDATA[>>]]></string>
     <string name="pause" translatable="false">||</string>
     <string name="tvSpeed">Velocidad</string>
-    <string name="tv_ListeningTimeWithNoUserAction">No hay acción del usuario desde</string>
-    <string name="tv_TimeLeft">Tiempo restante antes de dormir automáticamente</string>
-    <string name="error_reading_track">"¡ERROR AL LEER LA PISTA!"</string>
-    <string name="error_file_not_found">"¡ERROR, ARCHIVO NO ENCONTRADO!"</string>
+    <string name="tvSleep">Suspensión</string>
+    <string name="tvVolume">Volumen</string>
+    <string name="btnSleepSet" translatable="false">Sleep</string>
+    <string name="tv_ListeningTimeWithNoUserAction">Sin acción del usuario desde</string>
+    <string name="tv_ListeningTimeWithCustomSleep">Suspensión personalizada activa desde</string>
+    <string name="tv_CustomSleepDialog_generalInfo">"<i>Nota: este valor solo se usará para la sesión actual.\nEl valor global de suspensión automática está en Opciones (accesible desde el menú en la página principal)</i>"</string>
+    <string name="tv_CustomSleepDialog_EnterMinutesBeforeSleep">"Ingresa los minutos antes de la suspensión:"</string>
+    <string name="tv_TimeLeft">Tiempo hasta suspensión</string>
+    <string name="error_reading_track">"¡ERROR LEYENDO EL ARCHIVO!"</string>
+    <string name="error_file_not_found">"¡ARCHIVO NO ENCONTRADO!"</string>
     <string name="current_position">Posición actual</string>
     <string name="total_time">Duración</string>
     <string name="file_name">Nombre del archivo</string>
-    <string name="source_not_found">El archivo fuente no se pudo encontrar o leer.</string>
-    <string name="source_not_found_deleted">El archivo fuente no se pudo encontrar. Puede haber sido eliminado.</string>
+    <string name="source_not_found">No se pudo encontrar o leer el archivo fuente.</string>
+    <string name="source_not_found_deleted">No se pudo encontrar el archivo fuente. Puede haber sido eliminado.</string>
     <string name="source_file_path">Ruta del archivo fuente</string>
-    <string name="permission_not_set">El permiso no está establecido.</string>
-    <string name="permission_to_set">Para establecer, haz clic en el botón de abajo para mostrar la información de la aplicación, luego ve a la sección [Permisos de la aplicación] y establece manualmente [MÚSICA Y AUDIO].
-        \n\nEl permiso es necesario porque el archivo fuente a leer no está en la memoria interna de Bookplayer.</string>
+    <string name="permission_not_set">El permiso no está concedido.</string>
+    <string name="permission_to_set">Para configurar, haz clic en el botón para mostrar la info de la app, luego ve a [Permisos] y activa manualmente [MÚSICA Y AUDIO].
+    \n\nSe necesita el permiso porque el archivo fuente no está en la memoria interna de Bookplayer.</string>
     <string name="device_settings">Configuración del dispositivo para Bookplayer</string>
-    <string name="notification_playlist_finished">¡Libro terminado!</string>
-    <string name="notification_auto_sleep">¡Auto-sueño!</string>
+    <string name="notification_playlist_finished">"¡Libro terminado!"</string>
+    <string name="notification_auto_sleep">"¡Suspensión automática!"</string>
 
     <!-- ********************************** -->
     <!-- STATS activity -->
@@ -262,26 +315,33 @@
     <string name="version">Versión</string>
     <string name="miscellaneous">Varios</string>
 
+
     <!-- ********************************** -->
     <!-- Menus -->
 
     <string name="action_menu_three_dot">Menú</string>
-    <string name="menu_manual">Manual</string>
-    <string name="menu_options">Opciones</string>
-    <string name="menu_otherapp">Otras aplicaciones</string>
-    <string name="menu_sendmail">Correo desarrollador</string>
+    <string name="menu_open">abrir</string>
+    <string name="menu_manual">manual</string>
+    <string name="menu_options">opciones</string>
+    <string name="menu_otherapp">otras apps</string>
+    <string name="menu_sendmail">enviar correo</string>
     <string name="stats">Estadísticas</string>
-    <string name="menu_seeLog">Ver registro</string>
+    <string name="menu_seeLog" translatable="false">See Logs</string>
     <string name="menu_cacheFiles">Limpieza</string>
+    <string name="menu_forum">Foro</string>
+    <string name="menu_website">Sitio web</string>
+    <string name="menu_synchro">Sincronización</string>
 
     <!-- ********************************** -->
     <!-- OTHER APPS -->
 
-    <string name="otherApp_title">Mis otras aplicaciones :-)</string>
+    <string name="otherApp_title">"Mis otras apps :-)"</string>
     <string name="otherApp_droitpositif" translatable="false">Droit Positif</string>
-    <string name="otherApp_droitpositif_txt">Textos principales de la ley francesa, disponibles incluso sin conexión</string>
+    <string name="otherApp_droitpositif_txt">Principales textos legales franceses, disponibles sin conexión</string>
     <string name="otherApp_deces" translatable="false">Dead Frogs</string>
-    <string name="otherApp_deces_txt">Personas fallecidas en Francia desde los años 70</string>
+    <string name="otherApp_deces_txt">Fallecidos en Francia desde los años 70</string>
+    <string name="otherApp_scanner" translatable="false">Escáner</string>
+    <string name="otherApp_scanner_txt">Lector de códigos QR y códigos de barras</string>
 
     <!-- Action Bar -->
 
@@ -290,23 +350,24 @@
 
     <string name="permission_rationale">Esta actividad requiere los siguientes permisos: </string>
     <string name="permissions_granted">Permisos concedidos.</string>
-    <string name="permissions_denied">Permisos denegados.</string>
+    <string name="permissions_denied">Permisos no concedidos.</string>
     <string name="permissions_ok_button" translatable="false">OK</string>
 
     <!-- Application specific permission strings -->
-    <string name="permission_read_write_rationale">Bookplayer necesita el permiso [Leer Audio] (o establecer la opción [Copiar archivo]).</string>
-    <string name="permission_read_write_denied">Permiso [Leer Audio] denegado.
-        \n\nHaz clic en [Información de la aplicación] para activar los permisos manualmente.
-        \n\nO
-        \n\nHaz clic en [Opciones] para activar la opción [Copiar archivo internamente] de la aplicación.
-        \n<i>Luego, tus archivos de audio se copiarán en la memoria interna de Bookplayer y no necesitarás ningún permiso para leerlos.</i>
-    </string>
+    <string name="permission_read_write_rationale">Bookplayer necesita permiso [Leer audio] (o activar la opción [Copiar archivo]).</string>
+    <string name="permission_read_write_denied">El permiso [Leer audio] fue denegado.
+    \n\nHaz clic en [Info app] para activar permisos manualmente.
+    \n\nO
+    \n\nHaz clic en [Opciones] para activar [Copiar archivo internamente].
+    \n<i>Así tus archivos de audio se copiarán en la memoria interna y no necesitarás permisos para leerlos.</i>
+</string>
 
-    <string name="permission_record_audio_rationale">El visualizador de espectro requiere el permiso [grabar audio].</string>
-    <string name="permission_record_audio_denied">El visualizador de espectro no se mostrará. Permiso [grabar audio] denegado.</string>
-    <string name="permission_record_audio_rationale_after_denied">BookPlayer no puede solicitar nuevamente un permiso ya denegado.
-        \n\nPuedes evitar esto haciendo clic en [Información de la aplicación].
-        \nEsto abrirá los ajustes de Bookplayer en el dispositivo.
-        \n\nLuego ve a la sección "Permisos" y permite manualmente "Micrófono".</string>
 
+    <string name="permission_record_audio_rationale_01">"El siguiente permiso opcional es para el visualizador de espectro."</string>
+    <string name="permission_record_audio_rationale">El visualizador de espectro requiere permiso [grabar audio].</string>
+    <string name="permission_record_audio_denied">No se mostrará el visualizador de espectro. Se denegó el permiso [grabar audio].</string>
+    <string name="permission_record_audio_rationale_after_denied">BookPlayer no puede volver a solicitar un permiso ya denegado.
+    \n\nPuedes solucionarlo haciendo clic en [Info app].
+    \nEsto abrirá la configuración de Bookplayer en el dispositivo.
+    \n\nLuego ve a "Permisos" y activa manualmente "Micrófono".</string>
 </resources>
