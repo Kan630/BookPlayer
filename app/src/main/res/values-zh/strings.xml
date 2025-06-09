@@ -137,7 +137,7 @@
 
     <string name="option_open_with_title">打开方式/选择应用</string>
     <string name="option_open_with_subtitle"><i>让Android在点击/下载音频/zip文件时将Bookplayer列为可选应用之一</i></string>
-    <string name="option_open_with_text">将Bookplayer添加到'打开方式'选项中。</string>
+    <string name="option_open_with_text">将 Bookplayer 添加到“打开方式”选项中。</string>
 
     <string name="option_visualizer_title">频谱可视化</string>
     <string name="option_visualizer_text_01">播放音频时显示极简频率可视化。</string>

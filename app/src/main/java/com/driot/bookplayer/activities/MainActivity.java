@@ -86,7 +86,7 @@ public class MainActivity extends LifecycleLoggingActivity {
 
         printSomeStuffAboutDevice();
 
-        Sql.log_all_Folders(this);
+        //Sql.log_all_Folders(this);
 
         setContentView(R.layout.activity_main);
 
