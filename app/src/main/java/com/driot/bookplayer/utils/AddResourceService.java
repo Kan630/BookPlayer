@@ -532,7 +532,7 @@ public class AddResourceService
                 if (mime.startsWith(ONLY_MIME_AUDIO)) {
 
                     sourceLocation = getSourceLocation(uri_given);
-                    myLog("Source Location = [" + sourceLocation + "]");
+                    myLog("Source Location = [" + sourceLocation + "]");   // Only needed when Option "Copy" internally is unselected....
 
                     if (sourceLocation.equals("cloud")) {
                         myFolder = new FolderAttrib(this, uri_given, true, type_given);

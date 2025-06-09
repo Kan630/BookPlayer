@@ -271,6 +271,8 @@ public class Tonio {
             Set<String> cloudAuthorities = new HashSet<>();
             cloudAuthorities.add("com.google.android.apps.docs.storage"); // Google Drive
             cloudAuthorities.add("com.microsoft.skydrive.content");       // OneDrive
+            cloudAuthorities.add("com.microsoft.skydrive.content.StorageAccessProvider");       // OneDrive
+            cloudAuthorities.add("com.dropbox.product.android.dbapp.document_provider.documents");  // DropBox
             if (uriAuthority != null && cloudAuthorities.contains(uriAuthority)) {
                 return "cloud";
             } else {
