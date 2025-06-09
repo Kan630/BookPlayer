@@ -4,6 +4,11 @@ package com.driot.bookplayer.db;
  * created by Antoine Driot -- antoine.driot.com -- on 28/10/20
  */
 
+import static com.driot.bookplayer.global.Var.FOLDER_UNZIPPED;
+import static com.driot.bookplayer.global.Var.MEMORY_ICON_BOOKPLAYER_INTERNAL;
+import static com.driot.bookplayer.global.Var.MEMORY_ICON_SMARTPHONE_GENERAL;
+import static com.driot.bookplayer.utils.Tonio.formatTime;
+
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
@@ -165,6 +170,21 @@ public class Folder implements Serializable {
 
     public void setFinished(boolean finished) {
         this.finished = finished;
+    }
+
+    public int getMemoryLocationIcon() {
+        if (path.contains(FOLDER_UNZIPPED)) {
+            return MEMORY_ICON_BOOKPLAYER_INTERNAL;
+        } else {
+            return MEMORY_ICON_SMARTPHONE_GENERAL;
+        }
+    }
+    public String getMemoryLocationText() {
+        if (path.contains(FOLDER_UNZIPPED)) {
+            return "Bookplayer reserved storage";
+        } else {
+            return "Smartphone shared storage";
+        }
     }
 
 }

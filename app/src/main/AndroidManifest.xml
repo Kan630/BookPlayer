@@ -36,9 +36,18 @@
         <activity android:name=".activities.GetResourceActivity" />
         <activity android:name=".activities.FolderModifyActivity" />
         <activity android:name=".activities.ZikFileModifyActivity" />
-        <activity android:name=".activities.AddResourceActivity"
+        <activity android:name=".activities.AddResourceActivity" />
+        <activity android:name=".activities.HelpActivity" />
+        <activity android:name=".activities.OptionActivity" />
+        <activity android:name=".activities.OtherAppsActivity" />
+        <activity android:name=".activities.BiggerTextActivity" />
+        <activity android:name=".activities.LogListActivity" />
+        <activity android:name=".activities.StatsActivity" />
+        <activity android:name=".activities.CacheFilesActivity" />
+        <activity
+            android:name=".activities.OpenWithProxyActivity"
+            android:enabled="false"
             android:exported="true">
-
             <!-- ZIP support -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -51,7 +60,17 @@
                 <data android:pathPattern=".*\\.zip" />
             </intent-filter>
 
-            <!-- Standard m4b (audio/m4b) -->
+            <!-- Standard audio -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="file" android:host="*" />
+                <data android:scheme="content" android:host="*" />
+                <data android:mimeType="audio/*" />
+            </intent-filter>
+
+            <!-- Standard m4b (audio/m) -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -80,15 +99,7 @@
                 <data android:scheme="content" android:host="*" android:pathPattern=".*\\.m4b" />
                 <data android:mimeType="*/*" />
             </intent-filter>
-
         </activity>
-        <activity android:name=".activities.HelpActivity" />
-        <activity android:name=".activities.OptionActivity" />
-        <activity android:name=".activities.OtherAppsActivity" />
-        <activity android:name=".activities.BiggerTextActivity" />
-        <activity android:name=".activities.LogListActivity" />
-        <activity android:name=".activities.StatsActivity" />
-        <activity android:name=".activities.CacheFilesActivity" />
 
         <service
             android:name=".utils.AudioService"

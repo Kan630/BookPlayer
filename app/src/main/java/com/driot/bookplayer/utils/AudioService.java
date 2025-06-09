@@ -47,7 +47,7 @@ import java.util.Objects;
 
 import static com.driot.bookplayer.activities.PlayActivity.SHARED_PREFERENCE_SPEED;
 import static com.driot.bookplayer.utils.Tonio.FormatPercentDouble;
-import static com.driot.bookplayer.utils.Tonio.FormatTime;
+import static com.driot.bookplayer.utils.Tonio.formatTime;
 import static com.driot.bookplayer.utils.Tonio.fileExists;
 import static com.driot.bookplayer.utils.Tonio.getExtension;
 import static com.driot.bookplayer.utils.Utils.copyStream;
@@ -749,7 +749,7 @@ public class AudioService extends LifecycleLoggingService {
             isTimerRunning = false;
             String str;
             if (!(PlayList.getZikFilesList()==null)) {
-                str = getCurrentZikFile().getFolderName() + " : " + FormatTime(elapsedSeconds*1000);
+                str = getCurrentZikFile().getFolderName() + " : " + Tonio.formatTime(elapsedSeconds*1000);
                 myLog("----------------------------------------------------------------------------- " + elapsedSeconds + "s. since timer started -- STOPPED -- " + str );
             } else {
                 str = "killTimer : ERROR zikFilePlayList==null";

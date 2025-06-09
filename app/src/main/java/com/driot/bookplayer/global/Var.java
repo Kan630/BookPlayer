@@ -1,5 +1,9 @@
 package com.driot.bookplayer.global;
 
+import android.graphics.drawable.Drawable;
+
+import com.driot.bookplayer.R;
+
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 15/09/21
  */
@@ -38,5 +42,10 @@ public class Var {
 
 
     public static final int[] SLEEP_PRESET_VALUES = {10, 20, 30, 45};
+
+
+
+    public static final int MEMORY_ICON_BOOKPLAYER_INTERNAL = R.drawable.ic_memory_internal_bookplayer;
+    public static final int MEMORY_ICON_SMARTPHONE_GENERAL = R.drawable.ic_memory_general_smartphone;
 
 }

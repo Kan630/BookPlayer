@@ -1,13 +1,18 @@
 package com.driot.bookplayer.db;
 
 import android.content.Context;
-import android.database.Cursor;
 
 import androidx.sqlite.db.SimpleSQLiteQuery;
 
 import static com.driot.bookplayer.utils.KanLogger.myLog;
 import static com.driot.bookplayer.utils.KanLogger.myLogI;
 import static com.driot.bookplayer.utils.KanLogger.myLogE;
+import static com.driot.bookplayer.utils.Tonio.FormatLastAccess;
+import static com.driot.bookplayer.utils.Tonio.formatLastAccessInDays;
+import static com.driot.bookplayer.utils.Tonio.formatTime;
+
+import com.driot.bookplayer.R;
+import com.driot.bookplayer.utils.Tonio;
 
 import java.util.List;
 import java.util.Locale;
@@ -69,10 +74,14 @@ public class Sql {
                 // Log each folder
                 for (Folder folder : folders) {
                     String logEntry = String.format(Locale.getDefault(),
-                            "%d | %s | %s",  // Adjust format as needed
-                            folder.getId(),
-                            folder.getName(),
-                            folder.getPath());
+                            "%d | %s | %s | %s | %s | %s"
+                            ,folder.getId()
+                            ,folder.getName()
+                            ,folder.getPath()
+                            ,formatTime(folder.getDuration())
+                            ,FormatLastAccess(folder.getLastaccess(), folder.getLastaccessTime(), c.getString(R.string.yesterday))
+                            ,formatLastAccessInDays(folder.getLastaccess())
+                    );
                     myLogI(TAG, logEntry);
 
                     // Or simply: myLogD(folder.toString());

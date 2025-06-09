@@ -12,12 +12,53 @@
 
         <TextView
             android:id="@+id/title"
+            android:text="Folder Title"
             style="@style/myStyleTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:layout_marginBottom="20dp"
             android:paddingHorizontal="20dp" />
+
+        <TextView
+            android:id="@+id/lastAccess"
+            android:text="last access : xxxxx"
+            style="@style/myStyleinfo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:paddingHorizontal="20dp" />
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="20dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginStart="20dp"
+            android:gravity="center_vertical"
+            android:baselineAligned="true"
+            >
+            <TextView
+                android:id="@+id/textViewStorageIcon"
+                android:text="Audio Location : xxxxxx"
+                style="@style/myStyleinfo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="0dp"
+                android:paddingEnd="0dp"
+                android:includeFontPadding="false"
+                />
+            <ImageView
+                android:id="@+id/imageViewStorageIcon"
+                android:layout_width="wrap_content"
+                android:layout_height="20dp"
+                android:layout_marginStart="0dp"
+                android:backgroundTint="@color/brown_300"
+                android:backgroundTintMode="screen"
+                />
+        </LinearLayout>
 
         <View style="@style/myStyleViewSimpleHorizontalBar" />
 
@@ -62,5 +103,5 @@
 
         <View style="@style/myStyleViewSimpleHorizontalBar" />
 
-    </LinearLayout>
+        </LinearLayout>
 </ScrollView>

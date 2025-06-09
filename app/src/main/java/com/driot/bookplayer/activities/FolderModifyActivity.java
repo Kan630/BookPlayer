@@ -2,6 +2,7 @@ package com.driot.bookplayer.activities;
 
 import android.os.Bundle;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
@@ -13,6 +14,7 @@ import com.driot.bookplayer.utils.KanLogger;
 import java.io.File;
 
 import static com.driot.bookplayer.global.Var.PATH_CHECK_APPLICATION;
+import static com.driot.bookplayer.utils.Tonio.formatLastAccessInDays;
 import static com.driot.bookplayer.utils.Utils.recursiveRemove;
 
 /**
@@ -32,12 +34,27 @@ public class FolderModifyActivity extends LifecycleLoggingActivity {
         Button bReset = findViewById(R.id.bReset);
         Button bRename = findViewById(R.id.bRename);
         TextView tvTitle = findViewById(R.id.title);
+        //TextView tvImportedOn = findViewById(R.id.importedOn);
+        TextView tvLastAccess = findViewById(R.id.lastAccess);
         TextView tvRename = findViewById(R.id.etRename);
+        ImageView ivStorageIcon = findViewById(R.id.imageViewStorageIcon);
+        TextView tvStorageIcon = findViewById(R.id.textViewStorageIcon);
 
         idFolder = getIntent().getIntExtra("FolderId", 0);
         FolderName = getIntent().getStringExtra("FolderName");
         tvTitle.setText(FolderName);
         tvRename.setText(FolderName);
+
+        //String importedOn = getString(R.string.ImportedOn) + " : " + getIntent().getStringExtra("ImportedOn");   /// Only time is saved in Folder, could get date from ZokFile
+        //tvImportedOn.setText(importedOn);
+        String lastAccess = getString(R.string.LastAccess) + " : " + getIntent().getStringExtra("LastAccessInDays") + " (" + getIntent().getStringExtra("LastAccess") + ")";
+        tvLastAccess.setText(lastAccess);
+
+        String memoryLocationText = getString(R.string.AudioLocation) + " : " + getIntent().getStringExtra("MemoryLocationText");
+        int memoryLocationIcon = getIntent().getIntExtra("MemoryLocation",0);
+        myLog("Audio Location : " + memoryLocationText + " - Icon : [" + memoryLocationIcon + "]" );
+        ivStorageIcon.setImageResource(memoryLocationIcon);
+        tvStorageIcon.setText(memoryLocationText);
 
         bDelete.setOnClickListener(view -> bDeleteClick());
 

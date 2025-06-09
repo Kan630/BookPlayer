@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -59,7 +60,9 @@ public class FoldersAdapter extends RecyclerView.Adapter<FoldersAdapter.FoldersV
 
         if (folder.getLastaccess() != null) holder.textViewFileLastAccess.setText(FormatLastAccess(folder.getLastaccess(),folder.getLastaccessTime(), mCtx.getString(R.string.yesterday)));
 
-        holder.textViewDuration.setText(FormatTime(folder.getDuration()));
+        holder.textViewDuration.setText(formatTime(folder.getDuration()));
+
+        holder.ivMemory.setImageResource(folder.getMemoryLocationIcon());
 
     }
 
@@ -72,6 +75,7 @@ public class FoldersAdapter extends RecyclerView.Adapter<FoldersAdapter.FoldersV
 
         TextView textViewFileName, textViewFileLastAccess, textViewFilePercent, textViewDuration;
         ProgressBar mProgressBar;
+        ImageView ivMemory;
 
         public FoldersViewHolder(View itemView) {
             super(itemView);
@@ -81,6 +85,7 @@ public class FoldersAdapter extends RecyclerView.Adapter<FoldersAdapter.FoldersV
             textViewFileLastAccess = itemView.findViewById(R.id.textViewFileLastAccess);
             textViewDuration =  itemView.findViewById(R.id.textViewDuration);
             mProgressBar = itemView.findViewById(R.id.progressBar);
+            ivMemory = itemView.findViewById(R.id.imageViewStorageIcon);
 
             itemView.setOnClickListener(this);
             itemView.setOnLongClickListener(this);
@@ -95,7 +100,10 @@ public class FoldersAdapter extends RecyclerView.Adapter<FoldersAdapter.FoldersV
                     myLog("nb ZikFiles in that Book : " + zikFilesList.size());
                     PlayList.setZikFilesList(zikFilesList, mCtx);
                     if (zikFilesList.size() > 1) {
-                        mCtx.startActivity(new Intent(mCtx, ZikFileActivity.class).putExtra("FolderId", folder.getId()).putExtra("FolderName", folder.getName()));
+                        mCtx.startActivity(new Intent(mCtx, ZikFileActivity.class)
+                                .putExtra("FolderId", folder.getId())
+                                .putExtra("FolderName", folder.getName())
+                        );
                     } else {
                         PlayList.setNumZikFile(0);
                         mCtx.startActivity(new Intent(mCtx, PlayActivity.class).putExtra("ZikFile", zikFilesList.get(0)));
@@ -107,10 +115,19 @@ public class FoldersAdapter extends RecyclerView.Adapter<FoldersAdapter.FoldersV
             }).start();
         }
 
+
         @Override
         public boolean onLongClick(View view) {
             Folder folder = FolderList.get(getBindingAdapterPosition());
-            mCtx.startActivity(new Intent(mCtx, FolderModifyActivity.class).putExtra("FolderName", folder.getName()).putExtra("FolderId", folder.getId()));
+            mCtx.startActivity(new Intent(mCtx, FolderModifyActivity.class)
+                    .putExtra("FolderName", folder.getName())
+                    .putExtra("FolderId", folder.getId())
+                    .putExtra("ImportedOn", folder.getFirstaccess())
+                    .putExtra("LastAccessInDays",  formatLastAccessInDays(folder.getLastaccess()))
+                    .putExtra("LastAccess",  FormatLastAccess(folder.getLastaccess(), folder.getLastaccessTime(), mCtx.getString(R.string.yesterday)))
+                    .putExtra("MemoryLocation", folder.getMemoryLocationIcon())
+                    .putExtra("MemoryLocationText", folder.getMemoryLocationText())
+            );
             return false;
         }
 

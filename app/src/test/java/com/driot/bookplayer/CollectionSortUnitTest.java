@@ -1,6 +1,6 @@
 package com.driot.bookplayer;
 
-import static com.driot.bookplayer.utils.Tonio.FormatTime;
+import static com.driot.bookplayer.utils.Tonio.formatTime;
 import static org.junit.Assert.assertEquals;
 
 import com.driot.bookplayer.utils.Utils;

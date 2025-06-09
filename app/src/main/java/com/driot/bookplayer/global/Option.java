@@ -26,7 +26,7 @@ public class Option {
     private static final boolean DEFAULT_COPY_FILES = true;
     private static final boolean DEFAULT_CLICK_VISUALIZER_PLAYPAUSE = false;
     private static final boolean DEFAULT_TECH_LOG = false;
-    private static final boolean DEFAULT_OPEN_WITH = false;
+    private static final boolean DEFAULT_OPEN_WITH = true;
 
 
     /////////////////// SLEEP - AUTOMATIC PAUSE ///////////////////

@@ -19,7 +19,8 @@
             style="@style/OptionSubTitle"
             android:text="@string/option_copy_file_subtitle" />
         <LinearLayout style="@style/LayoutWrapContentMargin20horizontal"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:id="@+id/ll_copy_file">
             <com.google.android.material.checkbox.MaterialCheckBox
                 android:id="@+id/chk_copy_file"
                 style="@style/OptionCheckBox"/>
@@ -41,7 +42,8 @@
         <TextView
             style="@style/OptionSubTitle"
             android:text="@string/option_delete_source_file_subtitle" />
-        <LinearLayout style="@style/LayoutWrapContentMargin20horizontal">
+        <LinearLayout style="@style/LayoutWrapContentMargin20horizontal"
+            android:id="@+id/ll_delete_source_file">
             <com.google.android.material.checkbox.MaterialCheckBox
                 android:id="@+id/chk_delete_source_file"
                 style="@style/OptionCheckBox"/>
@@ -61,7 +63,8 @@
         <TextView
             style="@style/OptionSubTitle"
             android:text="@string/option_open_with_subtitle" />
-        <LinearLayout style="@style/LayoutWrapContentMargin20horizontal">
+        <LinearLayout style="@style/LayoutWrapContentMargin20horizontal"
+            android:id="@+id/ll_open_with">
             <com.google.android.material.checkbox.MaterialCheckBox
                 android:id="@+id/chk_open_with"
                 style="@style/OptionCheckBox"/>
@@ -81,30 +84,30 @@
             style="@style/OptionTitle"
             android:text="@string/option_beep_title" />
         <LinearLayout
-            android:id="@+id/ll_beep_horizon"
-            style="@style/LinearLayoutOptionsCheckBoxHorizontal">
+            style="@style/LinearLayoutOptionsCheckBoxHorizontal"
+            android:id="@+id/ll_beep_chapter">
             <com.google.android.material.checkbox.MaterialCheckBox
-                android:id="@+id/chk_beep_chapter_default"
+                android:id="@+id/chk_beep_chapter"
                 style="@style/OptionCheckBox"/>
             <TextView
                 style="@style/OptionCheckBoxText"
                 android:text="@string/option_beep_between_chapters" />
         </LinearLayout>
         <LinearLayout
-            android:id="@+id/ll_beep_horizon2"
+            android:id="@+id/ll_beep_autostop"
             style="@style/LinearLayoutOptionsCheckBoxHorizontal">
             <com.google.android.material.checkbox.MaterialCheckBox
-                android:id="@+id/chk_beep_autostop_defaut"
+                android:id="@+id/chk_beep_autostop"
                 style="@style/OptionCheckBox"/>
             <TextView
                 style="@style/OptionCheckBoxText"
                 android:text="@string/option_beep_for_autostop" />
         </LinearLayout>
         <LinearLayout
-            android:id="@+id/ll_beep_horizon3"
+            android:id="@+id/ll_beep_bookend"
             style="@style/LinearLayoutOptionsCheckBoxHorizontal">
             <com.google.android.material.checkbox.MaterialCheckBox
-                android:id="@+id/chk_beep_bookend_defaut"
+                android:id="@+id/chk_beep_bookend"
                 style="@style/OptionCheckBox"/>
             <TextView
                 style="@style/OptionCheckBoxText"
@@ -118,7 +121,8 @@
         <TextView
             style="@style/OptionTitle"
             android:text="@string/option_rewind_after_pause_title" />
-        <LinearLayout style="@style/LinearLayoutOptionsCheckBoxHorizontal">
+        <LinearLayout style="@style/LinearLayoutOptionsCheckBoxHorizontal"
+            android:id="@+id/ll_rewind_after_pause">
             <com.google.android.material.checkbox.MaterialCheckBox
                 android:id="@+id/chk_rewind_after_pause"
                 style="@style/OptionCheckBox"/>
@@ -139,7 +143,8 @@
             style="@style/OptionSubTitle"
             android:text="@string/option_tech_log_subtitle" />
         <LinearLayout style="@style/LayoutWrapContentMargin20horizontal"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:id="@+id/ll_tech_log_file">
             <com.google.android.material.checkbox.MaterialCheckBox
                 android:id="@+id/chk_tech_log_file"
                 style="@style/OptionCheckBox"/>
@@ -157,7 +162,7 @@
             style="@style/OptionTitle"
             android:text="@string/option_mail_method" />
         <LinearLayout
-            android:id="@+id/ll_MailMethod_horizon"
+            android:id="@+id/ll_mail_method_default"
             style="@style/LinearLayoutOptionsCheckBoxHorizontal">
             <com.google.android.material.checkbox.MaterialCheckBox
                 android:id="@+id/chk_mail_method_default"

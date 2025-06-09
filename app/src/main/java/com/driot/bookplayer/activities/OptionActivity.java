@@ -19,6 +19,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
@@ -29,6 +30,7 @@ import com.driot.bookplayer.utils.KanLogger;
 
 import static com.driot.bookplayer.global.Option.DEFAULT_FORWARD_SECONDS;
 import static com.driot.bookplayer.global.Option.DEFAULT_TIME_BEFORE_SLEEP;
+import static com.driot.bookplayer.utils.ComponentUtils.setOpenWithProxyEnabled;
 import static com.driot.bookplayer.utils.PermissionRequest.isRecordAudioPermissionGranted;
 
 import androidx.annotation.NonNull;
@@ -67,6 +69,9 @@ public class OptionActivity extends LifecycleLoggingActivity {
     private boolean areAdvancedOptionsVisible = false;
     private View advancedOptionsView;
 
+    LinearLayout ll_visualizer_on, ll_visualizer_playpause, ll_copy_file, ll_delete_source_file, ll_open_with;
+    LinearLayout ll_beep_chapter, ll_beep_bookend, ll_beep_autostop, ll_rewind_after_pause, ll_tech_log_file, ll_mail_method_default;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,7 +80,10 @@ public class OptionActivity extends LifecycleLoggingActivity {
         et_timeBeforeSleep = findViewById(R.id.etTimeBeforeSleep);
         et_ForwardSeconds = findViewById(R.id.etForwardSeconds);
         chk_visualizer_on = findViewById(R.id.chk_visualizer_on);
+        ll_visualizer_on = findViewById(R.id.ll_visualizer_on);
         tx_Visualizer_on = findViewById(R.id.tx_Visualizer_on);
+        chk_click_visualizer_playpause = findViewById(R.id.chk_click_visualizer_playpause);
+        ll_visualizer_playpause = findViewById(R.id.ll_visualizer_playpause);
         btn_Color_01 = findViewById(R.id.btn_color_01);
         btn_Color_02 = findViewById(R.id.btn_color_02);
         btn_Color_03 = findViewById(R.id.btn_color_03);
@@ -99,6 +107,7 @@ public class OptionActivity extends LifecycleLoggingActivity {
         et_ForwardSeconds.setText(String.valueOf(Option.get_ForwardSeconds(this)));
 
         chk_visualizer_on.setChecked(Option.getVisualizerOn(this));
+        ll_visualizer_on.setOnClickListener(v -> chk_visualizer_on.toggle());
         chk_visualizer_on.setOnCheckedChangeListener((buttonView, isChecked) -> {
             Option.setVisualizerOn(this, isChecked);
             if (isChecked && !isRecordAudioPermissionGranted(this)) {
@@ -107,8 +116,8 @@ public class OptionActivity extends LifecycleLoggingActivity {
             }
         });
 
-        chk_click_visualizer_playpause = findViewById(R.id.chk_click_visualizer_playpause);
         chk_click_visualizer_playpause.setChecked(Option.getClickVisualizerPlayPause(this));
+        ll_visualizer_playpause.setOnClickListener(v -> chk_click_visualizer_playpause.toggle());
         chk_click_visualizer_playpause.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setClickVisualizerPlayPause(this, isChecked));
 
         themesAndColors = new Object[][] {
@@ -155,28 +164,42 @@ public class OptionActivity extends LifecycleLoggingActivity {
 
     private void initializeAdvancedOptions() {
         chk_MailMethod = findViewById(R.id.chk_mail_method_default);
-        chk_beep_chapter = findViewById(R.id.chk_beep_chapter_default);
-        chk_beep_bookend = findViewById(R.id.chk_beep_bookend_defaut);
-        chk_beep_autostop = findViewById(R.id.chk_beep_autostop_defaut);
+        chk_beep_chapter = findViewById(R.id.chk_beep_chapter);
+        chk_beep_bookend = findViewById(R.id.chk_beep_bookend);
+        chk_beep_autostop = findViewById(R.id.chk_beep_autostop);
         chk_delete_source_file = findViewById(R.id.chk_delete_source_file);
         chk_rewind_after_pause = findViewById(R.id.chk_rewind_after_pause);
         chk_copy_file = findViewById(R.id.chk_copy_file);
         chk_tech_log_file = findViewById(R.id.chk_tech_log_file);
         chk_open_with = findViewById(R.id.chk_open_with);
+        ll_copy_file = findViewById(R.id.ll_copy_file);
+        ll_delete_source_file = findViewById(R.id.ll_delete_source_file);
+        ll_open_with = findViewById(R.id.ll_open_with);
+        ll_beep_chapter = findViewById(R.id.ll_beep_chapter);
+        ll_beep_bookend = findViewById(R.id.ll_beep_bookend);
+        ll_beep_autostop = findViewById(R.id.ll_beep_autostop);
+        ll_rewind_after_pause = findViewById(R.id.ll_rewind_after_pause);
+        ll_tech_log_file = findViewById(R.id.ll_tech_log_file);
+        ll_mail_method_default = findViewById(R.id.ll_mail_method_default);
 
         chk_MailMethod.setChecked(Option.getMailMethod(this));
+        ll_mail_method_default.setOnClickListener(v -> chk_MailMethod.toggle());
         chk_MailMethod.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setMailMethod(this, isChecked));
 
         chk_beep_chapter.setChecked(Option.getBeepChapter(this));
+        ll_beep_chapter.setOnClickListener(v -> chk_beep_chapter.toggle());
         chk_beep_chapter.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setBeepChapter(this, isChecked));
 
         chk_beep_bookend.setChecked(Option.getBeepBookEnd(this));
+        ll_beep_bookend.setOnClickListener(v -> chk_beep_bookend.toggle());
         chk_beep_bookend.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setBeepBookEnd(this, isChecked));
 
         chk_beep_autostop.setChecked(Option.getBeepAutoStop(this));
+        ll_beep_autostop.setOnClickListener(v -> chk_beep_autostop.toggle());
         chk_beep_autostop.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setBeepAutoStop(this, isChecked));
 
         chk_delete_source_file.setChecked(Option.getDeleteSourceFile(this));
+        ll_delete_source_file.setOnClickListener(v -> chk_delete_source_file.toggle());
         chk_delete_source_file.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
                 new AlertDialog.Builder(this)
@@ -184,23 +207,31 @@ public class OptionActivity extends LifecycleLoggingActivity {
                         .setMessage(getString(R.string.option_alert_delete_source_file_message))
                         .setCancelable(false)
                         .setPositiveButton("ok", (dialog, which) -> Option.setDeleteSourceFile(this, true))
-                        .setNegativeButton("cancel", (dialogInterface, i) -> {})
+                        .setNegativeButton("cancel", (dialogInterface, i) -> chk_delete_source_file.setChecked(Option.getDeleteSourceFile(this)))
                         .show();
             } else {
                 Option.setDeleteSourceFile(this, false);
             }
         });
+
         chk_rewind_after_pause.setChecked(Option.getRewindAfterPause(this));
+        ll_rewind_after_pause.setOnClickListener(v -> chk_rewind_after_pause.toggle());
         chk_rewind_after_pause.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setRewindAfterPause(this, isChecked));
 
         chk_copy_file.setChecked(Option.getCopyFile(this));
+        ll_copy_file.setOnClickListener(v -> chk_copy_file.toggle());
         chk_copy_file.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setCopyFile(this, isChecked));
 
         chk_tech_log_file.setChecked(Option.getTechLog(this));
+        ll_tech_log_file.setOnClickListener(v -> chk_tech_log_file.toggle());
         chk_tech_log_file.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setTechLog(this, isChecked));
 
         chk_open_with.setChecked(Option.getOpenWith(this));
-        chk_open_with.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setOpenWith(this, isChecked));
+        ll_open_with.setOnClickListener(v -> chk_open_with.toggle());
+        chk_open_with.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            Option.setOpenWith(this, isChecked);
+            setOpenWithProxyEnabled(this, isChecked);  // dynamically enable/disable the component
+        });
 
     }
 
@@ -214,19 +245,10 @@ public class OptionActivity extends LifecycleLoggingActivity {
         }
         tx_Visualizer_on.setText(Html.fromHtml(txt, Html.FROM_HTML_MODE_LEGACY));;
     }
-/*
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-        saveTimeBeforeSleep();
-        saveForwardSeconds();
-    }
-
- */
 
     private void saveTimeBeforeSleep() {
         String str = et_timeBeforeSleep.getText().toString().trim();
-        if (str.equals("")) str = String.valueOf(DEFAULT_TIME_BEFORE_SLEEP);
+        if (str.isEmpty()) str = String.valueOf(DEFAULT_TIME_BEFORE_SLEEP);
         int i = Integer.parseInt(str);
         if (i < MINIMUM_TIME_BEFORE_SLEEP | i > MAXIMUM_TIME_BEFORE_SLEEP) {
             i = DEFAULT_TIME_BEFORE_SLEEP;
@@ -237,7 +259,7 @@ public class OptionActivity extends LifecycleLoggingActivity {
 
     private void saveForwardSeconds() {
         String str = et_ForwardSeconds.getText().toString().trim();
-        if (str.equals("")) str = String.valueOf(DEFAULT_FORWARD_SECONDS);
+        if (str.isEmpty()) str = String.valueOf(DEFAULT_FORWARD_SECONDS);
         int i = Integer.parseInt(str);
         if (i < MINIMUM_FORWARD_SECONDS | i > MAXIMUM_FORWARD_SECONDS) {
             i = DEFAULT_FORWARD_SECONDS;

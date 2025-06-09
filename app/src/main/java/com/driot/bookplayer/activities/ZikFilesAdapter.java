@@ -19,13 +19,14 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.PlayList;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.utils.KanLogger;
+import com.driot.bookplayer.utils.Tonio;
 
 import java.util.List;
 
 import static com.driot.bookplayer.utils.Tonio.FormatLastAccess;
 import static com.driot.bookplayer.utils.Tonio.FormatPercentForProgressBar;
 import static com.driot.bookplayer.utils.Tonio.FormatPercentString;
-import static com.driot.bookplayer.utils.Tonio.FormatTime;
+import static com.driot.bookplayer.utils.Tonio.formatTime;
 
 public class ZikFilesAdapter extends RecyclerView.Adapter<ZikFilesAdapter.ZikFilesViewHolder> {
 
@@ -60,7 +61,7 @@ public class ZikFilesAdapter extends RecyclerView.Adapter<ZikFilesAdapter.ZikFil
         holder.textViewFilePercent.setText(FormatPercentString(t.getPercentdone()));
         holder.mProgressBar.setProgress(FormatPercentForProgressBar(t.getPercentdone()));
         holder.textViewFileLastAccess.setText(FormatLastAccess(t.getLastaccess(), t.getLastaccessTime(), mCtx.getString(R.string.yesterday)));
-        holder.textViewDuration.setText(FormatTime(t.getDuration()));
+        holder.textViewDuration.setText(Tonio.formatTime(t.getDuration()));
     }
 
 

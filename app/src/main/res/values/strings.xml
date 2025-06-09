@@ -116,8 +116,8 @@
     <string name="option_backward_forward_title">BackWard/Forward buttons</string>
     <string name="option_backward_forward_text">timelapse :</string>
 
-    <string name="option_rewind_after_pause_title">Rewind a few seconds when resuming play</string>
-    <string name="option_rewind_after_pause_text">"Rewind audio 3 seconds before resuming play, if pause was more than 2 minutes."</string>
+    <string name="option_rewind_after_pause_title">Auto Rewind on Resume</string>
+    <string name="option_rewind_after_pause_text">"Rewind audio a few seconds before resuming play, (pause of 5 minutes leads to rewind of 3 sec, pause of 1h leads to 5 sec, …)"</string>
 
     <string name="option_pick_theme_color_title">Pick your app color theme</string>
 
@@ -129,8 +129,8 @@
         \nNote that this is only possible for zip or if the option just above is ticked (if audios are copied in Bookplayer reserved memory).
         </i></string>
     <string name="option_delete_source_file_text">Automatically delete picked file/folder once loaded into Bookplayer.</string>
-    <string name="option_alert_delete_source_file_title">Every file loaded into Bookplayer will be wiped out from device memory.</string>
-    <string name="option_alert_delete_source_file_message">Are you sure ?.</string>
+    <string name="option_alert_delete_source_file_title">!! Warning - Auto-Delete !!</string>
+    <string name="option_alert_delete_source_file_message">Every file loaded into Bookplayer will be wiped out from device memory.\n\nAre you sure ?.</string>
 
     <string name="option_beep_title">Beep Sound</string>
     <string name="option_beep_between_chapters">Produce a beep at chapters end.</string>
@@ -235,8 +235,6 @@
     <string name="Error_ZikFilePositionOnlyDigits">"You can only enter digits here"</string>
     <string name="Error_NameTooShort">"This name is too short"</string>
 
-
-
     <string name="Import_Success">Import Successful</string>
 
 
@@ -268,6 +266,10 @@
                         "Are you sure ?"</string>
 
     <string name="CacheFiles_AskDeleteAudioBook">"You are about to delete this audio book"</string>
+
+    <string name="ImportedOn">"Imported on"</string>
+    <string name="LastAccess">"Last access"</string>
+    <string name="AudioLocation">"Audio location"</string>
 
 
 

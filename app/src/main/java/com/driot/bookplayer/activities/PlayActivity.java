@@ -54,7 +54,7 @@ import static com.driot.bookplayer.utils.PermissionRequest.isReadAudioPermission
 import static com.driot.bookplayer.utils.PermissionRequest.isRecordAudioPermissionGranted;
 import static com.driot.bookplayer.utils.Tonio.formatNameForDisplay;
 import static com.driot.bookplayer.utils.Tonio.FormatPercentStringForSpeed;
-import static com.driot.bookplayer.utils.Tonio.FormatTime;
+import static com.driot.bookplayer.utils.Tonio.formatTime;
 import static com.driot.bookplayer.utils.Utils.animateView;
 
 import androidx.activity.OnBackPressedCallback;
@@ -234,7 +234,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
         // Check if progress bar is at the end and reset if necessary
         if (PlayList.getZikFile() != null && PlayList.getZikFile().getPosition() >= PlayList.getZikFile().getDuration()) {
             PlayList.getZikFile().setPosition(0);
-            tvSeekBar.setText(FormatTime(0, true));
+            tvSeekBar.setText(formatTime(0, true));
             seekbar.setProgress(0);
         }
 
@@ -248,7 +248,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
                 if (fromUser) {
                     myLog("SeekBar");
                     audioService.setPosition(progress);
-                    tvSeekBar.setText(FormatTime(progress,true));
+                    tvSeekBar.setText(formatTime(progress,true));
                 }
             }
             @Override
@@ -497,9 +497,9 @@ public class PlayActivity extends LifecycleLoggingActivity {
             myLog("DrawUI : " + PlayList.getZikFile().getName() + " -- " + PlayList.getZikFile().getPosition());
             tvSubTitle.setText(formatNameForDisplay(PlayList.getZikFile().getName()));
             tvTitle.setText(PlayList.getZikFile().getFolderName());
-            tvTotalTime.setText(FormatTime(PlayList.getZikFile().getDuration(),true));
+            tvTotalTime.setText(formatTime(PlayList.getZikFile().getDuration(),true));
             seekbar.setMax((int) PlayList.getZikFile().getDuration());
-            tvSeekBar.setText(FormatTime(PlayList.getZikFile().getPosition(),true));
+            tvSeekBar.setText(formatTime(PlayList.getZikFile().getPosition(),true));
             seekbar.setProgress((int) PlayList.getZikFile().getPosition());
             tvSpeed.setText(FormatPercentStringForSpeed( audioService.getSpeed() * 100));
             HideProgressAnim();
@@ -516,8 +516,8 @@ public class PlayActivity extends LifecycleLoggingActivity {
         if (tempsEcoule > 0) {
             //String str = audioService.getCustomSleepTime() == 0 ? getString(R.string.tv_ListeningTimeWithNoUserAction) : getString(R.string.tv_ListeningTimeWithCustomSleep);
             String str = tvListeningTimeBaseText;
-            zeText_since = str + " " + FormatTime(tempsEcoule*1000,true);
-            zeText_left = getString(R.string.tv_TimeLeft) + " : " + FormatTime(timeBeforeSleep*1000*60-tempsEcoule*1000,true);
+            zeText_since = str + " " + formatTime(tempsEcoule*1000,true);
+            zeText_left = getString(R.string.tv_TimeLeft) + " : " + formatTime(timeBeforeSleep*1000*60-tempsEcoule*1000,true);
             tvListeningTime.setText(zeText_since);
             tvTimeLeft.setText(zeText_left);
         } else {
@@ -559,7 +559,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
                 bPlay.setText(R.string.play);
             }
             int iPosition = audioService.getPosition();
-            tvSeekBar.setText(FormatTime(iPosition,true));
+            tvSeekBar.setText(formatTime(iPosition,true));
             seekbar.setProgress(iPosition);
 
         } else {

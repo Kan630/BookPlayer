@@ -4,7 +4,6 @@ import static com.driot.bookplayer.utils.Tonio2.removeLongDuplicates;
 import static com.driot.bookplayer.utils.KanLogger.myLog;
 import static com.driot.bookplayer.utils.KanLogger.myLogE;
 
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -40,11 +39,11 @@ public class Tonio {
     private static final String LOG_PREFIX = "Tonio.java";
 
 
-    public static String FormatTime(double doubleTime) {
-        return FormatTime(doubleTime,false);
+    public static String formatTime(double doubleTime) {
+        return formatTime(doubleTime,false);
     }
 
-    public static String FormatTime(double doubleTime, boolean doDisplaySec) {
+    public static String formatTime(double doubleTime, boolean doDisplaySec) {
         String s;
         long sec,min,hou;
         if (doubleTime>0) {
@@ -170,6 +169,29 @@ public class Tonio {
             s = " ";
         }
         return s;
+    }
+
+    public static String formatLastAccessInDays(Date lastAccessDate) {
+        String zeReturn;
+        if (lastAccessDate == null) {
+            zeReturn = "Never accessed";
+        }
+
+        Date currentDate = new Date(System.currentTimeMillis());
+
+        long diffInMillis = currentDate.getTime() - lastAccessDate.getTime();
+        long diffInDays = diffInMillis / (1000 * 60 * 60 * 24);
+
+        if (diffInDays > 400) {
+            int years = (int) (diffInDays / 365);
+            zeReturn = years + (years == 1 ? " year ago" : " years ago");
+        } else if (diffInDays > 50) {
+            int months = (int) (diffInDays / 30);
+            zeReturn = months + (months == 1 ? " month ago" : " months ago");
+        } else {
+            zeReturn = diffInDays + (diffInDays == 1 ? " day ago" : " days ago");
+        }
+        return zeReturn;
     }
 
     public static String getFileNameFromPath(String fileName) {
@@ -369,20 +391,24 @@ public class Tonio {
         }
 
     public static String getFileNameFromMediaUri(Context c, @NonNull Uri uri) {
-        String[] projection = { MediaStore.MediaColumns.DATA };
-        Cursor cursor = c.getContentResolver().query(uri, projection, null, null, null);
-        if (cursor != null) {
-            try {
-                int index = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA);
-                if (cursor.moveToFirst()) {
-                    String filePath = cursor.getString(index);
-                    return new File(filePath).getName();
+        try {
+            String[] projection = { MediaStore.MediaColumns.DATA };
+            Cursor cursor = c.getContentResolver().query(uri, projection, null, null, null);
+            if (cursor != null) {
+                try {
+                    int index = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA);
+                    if (cursor.moveToFirst()) {
+                        String filePath = cursor.getString(index);
+                        return new File(filePath).getName();
+                    }
+                } catch (Exception e) {
+                    myLogE("getFileNameFromMediaUri failed: " + e.getMessage());
+                } finally {
+                    cursor.close();
                 }
-            } catch (Exception e) {
-                myLogE("getFileNameFromMediaUri failed: " + e.getMessage());
-            } finally {
-                cursor.close();
             }
+        } catch (Exception e) {
+            myLogE("getFileNameFromMediaUri failed: " + e.getMessage());
         }
         return uri.getLastPathSegment(); // Fallback
     }

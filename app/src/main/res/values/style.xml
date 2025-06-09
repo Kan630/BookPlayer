@@ -22,6 +22,10 @@
         <item name="android:textSize">24sp</item>
     </style>
 
+    <style name="myStyleinfo" parent="textColor">
+        <item name="android:textSize">12sp</item>
+    </style>
+
     <style name="myStyleTextTitle2" parent="textColor">
         <item name="android:textStyle">bold</item>
         <item name="android:textSize">20sp</item>

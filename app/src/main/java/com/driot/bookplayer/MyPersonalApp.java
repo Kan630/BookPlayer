@@ -1,12 +1,16 @@
 package com.driot.bookplayer;
 
+import static com.driot.bookplayer.utils.ComponentUtils.setOpenWithProxyEnabled;
+
 import android.app.Application;
 import android.os.Environment;
 
 import java.io.File;
 import java.io.IOException;
 
+import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.PlayList;
+import com.driot.bookplayer.utils.ComponentUtils;
 import com.driot.bookplayer.utils.KanLogger;
 
 /**
@@ -28,6 +32,10 @@ public class MyPersonalApp extends Application {
         KanLogger.init(getApplicationContext());
 
         myLog("Context has been initialized");
+
+        boolean openWithEnabled = Option.getOpenWith(this);
+        setOpenWithProxyEnabled(this, openWithEnabled);
+
 
         if ( isExternalStorageWritable() ) {
 
@@ -72,6 +80,7 @@ public class MyPersonalApp extends Application {
         return Environment.MEDIA_MOUNTED.equals(state) ||
                 Environment.MEDIA_MOUNTED_READ_ONLY.equals(state);
     }
+
 
     //--- LOG --------------------------
     private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
