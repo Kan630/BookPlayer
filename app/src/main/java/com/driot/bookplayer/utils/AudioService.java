@@ -81,8 +81,14 @@ public class AudioService extends LifecycleLoggingService {
     private int customSleepTime = 0;
     public static final int DELAY_CHECK_TIMER = 1000;
 
-    public static final int REWIND_AFTER_PAUSE_MILLISECONDS = 3000;
-    public static final int REWIND_AFTER_PAUSE_IF_DIFF_IN_MIN = 2;
+    public static final int[][] REWIND_AFTER_PAUSE = {  // stopped listening since (in min)  ,  rewind delay (in ms)
+            {2, 3000},
+            {30, 5000},
+            {60*12, 10000},
+            {60*36, 15000},
+            {60*24*3, 20000},
+            {60*24*30, 30000},
+    };
 
     private static final boolean LOG_TRACE_ALL = false;
 
@@ -492,12 +498,23 @@ public class AudioService extends LifecycleLoggingService {
                         Time lastAccessTime = PlayList.getZikFile().getLastaccessTime();
                         if (lastAccessTime != null) {
                             Time nowTime = new Time(System.currentTimeMillis());
-                            long timeDiff = nowTime.getTime() - lastAccessTime.getTime();
-                            if (timeDiff > REWIND_AFTER_PAUSE_IF_DIFF_IN_MIN*60*1000) {
-                                myLog("Rewind after Pause - last play was " + timeDiff/1000/60 + " minutes ago.   - Threshold is " + REWIND_AFTER_PAUSE_IF_DIFF_IN_MIN + " min.   - Rewind Value is " + REWIND_AFTER_PAUSE_MILLISECONDS/1000 + " seconds.");
-                                backwardAudio(REWIND_AFTER_PAUSE_MILLISECONDS);
+                            long timeDiffMillis = nowTime.getTime() - lastAccessTime.getTime();
+                            long timeDiffMinutes = timeDiffMillis / (60 * 1000);
+
+                            int rewindDelay = 0; // default: no rewind
+                            for (int i = 0; i < REWIND_AFTER_PAUSE.length; i++) {
+                                if (timeDiffMinutes >= REWIND_AFTER_PAUSE[i][0]) {
+                                    rewindDelay = REWIND_AFTER_PAUSE[i][1];
+                                } else {
+                                    break; // stop at the first value that exceeds timeDiff
+                                }
+                            }
+
+                            if (rewindDelay > 0) {
+                                myLog("Rewind after Pause - last play was " + timeDiffMinutes + " minutes ago. Rewind value is " + (rewindDelay / 1000) + " seconds.");
+                                backwardAudio(rewindDelay);
                             } else {
-                                myLog("NO Rewind after Pause - last play was " + timeDiff/1000/60 + " minutes ago.   - Threshold is " + REWIND_AFTER_PAUSE_IF_DIFF_IN_MIN + " min.   - Rewind Value is " + REWIND_AFTER_PAUSE_MILLISECONDS/1000 + " seconds.");
+                                myLog("NO Rewind after Pause - last play was " + timeDiffMinutes + " minutes ago. No matching rewind rule found.");
                             }
                         }
                     }
