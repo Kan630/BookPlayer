@@ -3,8 +3,10 @@ package com.driot.bookplayer.activities;
 import static com.driot.bookplayer.utils.Tonio.formatMem;
 import static com.driot.bookplayer.utils.Tonio.getAppSize;
 import static com.driot.bookplayer.utils.Tonio.getAvailableInternalMemorySize;
+import static com.driot.bookplayer.utils.Tonio.getAvailableRemovableSDCardSize;
 import static com.driot.bookplayer.utils.Tonio.getFolderSize;
 import static com.driot.bookplayer.utils.Tonio.getTotaLInternalMemorySize;
+import static com.driot.bookplayer.utils.Tonio.getTotalRemovableSDCardSize;
 import static com.driot.bookplayer.utils.Utils.recursiveRemove;
 
 import android.content.Context;
@@ -55,6 +57,14 @@ public class StatsActivity extends LifecycleLoggingActivity {
                 formatMem(availableMegs2) + " Mo : available on device" + "\n" + "\n" +
                 formatMem(totalMemory) + " Mo : Device memory"
                 ;
+        long total = getTotalRemovableSDCardSize(this) / 1048576L;;
+        if (total > 0) {
+            long available = getAvailableRemovableSDCardSize(this) / 1048576L;;
+            zeText = zeText
+                    + "\n\n----"
+                    + "\n" + formatMem(available) + " Mo : available on SD card"
+                    + "\n\n" + formatMem(total) + " Mo : SD card memory";
+        }
 
         tv_head = findViewById(R.id.tv1_head);
         tv_body = findViewById(R.id.tv1_body);

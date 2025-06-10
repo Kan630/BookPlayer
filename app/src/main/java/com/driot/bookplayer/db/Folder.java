@@ -179,6 +179,10 @@ public class Folder implements Serializable {
             return MEMORY_ICON_SMARTPHONE_GENERAL;
         }
     }
+
+    // TODO : create a new column to store the location in DB
+    // and use StorageManager (API 24+) to check if storage is removable (aka SD card)
+
     public String getMemoryLocationText() {
         if (path.contains(FOLDER_UNZIPPED)) {
             return "Bookplayer reserved storage";

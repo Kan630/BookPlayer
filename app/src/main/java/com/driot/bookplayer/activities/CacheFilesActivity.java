@@ -4,6 +4,7 @@ import static com.driot.bookplayer.utils.Tonio.formatMem;
 import static com.driot.bookplayer.utils.Tonio.getAvailableInternalMemorySize;
 import static com.driot.bookplayer.utils.Tonio.getFolderSize;
 import static com.driot.bookplayer.utils.Tonio.getTotaLInternalMemorySize;
+import static com.driot.bookplayer.utils.Tonio.getTotalRemovableSDCardSize;
 
 import android.os.Bundle;
 import android.widget.TextView;

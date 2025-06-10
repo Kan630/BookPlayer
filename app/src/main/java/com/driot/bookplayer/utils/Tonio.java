@@ -453,6 +453,42 @@ public class Tonio {
         return allBlocks * blockSize;
     }
 
+    // Returns the total size in bytes of the removable SD card, or -1 if not found
+    public static long getTotalRemovableSDCardSize(Context context) {
+        File sdCard = getRemovableSDCardPath(context);
+        if (sdCard != null) {
+            StatFs stat = new StatFs(sdCard.getPath());
+            long blockSize = stat.getBlockSizeLong();
+            long totalBlocks = stat.getBlockCountLong();
+            return totalBlocks * blockSize;
+        }
+        return -1;
+    }
+
+    // Returns the available size in bytes of the removable SD card, or -1 if not found
+    public static long getAvailableRemovableSDCardSize(Context context) {
+        File sdCard = getRemovableSDCardPath(context);
+        if (sdCard != null) {
+            StatFs stat = new StatFs(sdCard.getPath());
+            long blockSize = stat.getBlockSizeLong();
+            long availableBlocks = stat.getAvailableBlocksLong();
+            return availableBlocks * blockSize;
+        }
+        return -1;
+    }
+
+    // Helper method to find the removable SD card directory
+    private static File getRemovableSDCardPath(Context context) {
+        File[] externalDirs = context.getExternalFilesDirs(null);
+        for (File file : externalDirs) {
+            if (file != null && Environment.isExternalStorageRemovable(file)) {
+                return file;
+            }
+        }
+        return null;
+    }
+
+
     public static long getAppSize(Context c) {
         long size = 0;
         final PackageManager pm = c.getPackageManager();
