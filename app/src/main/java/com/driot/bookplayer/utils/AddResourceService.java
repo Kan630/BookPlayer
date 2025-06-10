@@ -977,7 +977,7 @@ public class AddResourceService
             myLog("launch unzipZipLocal()");
             unzipZipLocal(zipDestinationFolderPath + "/" + zipDestinationFolderName, zipDestinationFolderPath);
         } else {
-            if (sourceLocation.equals("cloud")) {
+            if (!Objects.isNull(sourceLocation) && sourceLocation.equals("cloud")) {
                 myFolder = new FolderAttrib(this, Uri.fromFile(new File(fullPath)), true, type_given);
                 audioFileArrayList = new ArrayList<>();
                 audioFileArrayList.add(myFolder.getFileName(this));

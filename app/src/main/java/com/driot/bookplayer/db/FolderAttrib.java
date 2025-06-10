@@ -59,8 +59,13 @@ public class FolderAttrib {
         // getting FolderPath
         // ******************************************
 
+        String uriAuthority = uri.getAuthority();
+        myLog("uri authority = [" + uriAuthority + "]");
+        String uriLastPathSegment = uri.getLastPathSegment();
+        myLog("uri Last Path Segment = [" + uriLastPathSegment + "]");
+
             // from DOWNLOAD
-        if (uri.getAuthority().equals("com.android.providers.downloads.documents")) {
+        if (uriAuthority.equals("com.android.providers.downloads.documents")) {
             myLog("location : Download Folder");
             sFolderPath =
                     Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getPath()
@@ -70,21 +75,21 @@ public class FolderAttrib {
             }
 
             // from MAIN MEMORY
-        } else if (uri.getLastPathSegment().startsWith("primary")) {
+        } else if (uriLastPathSegment.startsWith("primary")) {
             myLog("location : main memory");
             sFolderPath = uri.getLastPathSegment()
                     .replace("primary:","/storage/emulated/0/");
             if (isSingleFile) { sFolderPath = stripFileName(sFolderPath); }
 
             // from MAIN MEMORY old
-        } else if (uri.getLastPathSegment().startsWith("com.google.android.apps.docs.storage")) {
+        } else if (uriLastPathSegment.startsWith("0000-0000:")) {     // used on old Stella Samsung (direct link to folder on sdcard)
             myLog("location : main memory old");
             sFolderPath = uri.getLastPathSegment()
                     .replace("0000-0000:","/storage/0000-0000/");
             if (isSingleFile) { sFolderPath = stripFileName(sFolderPath); }
 
             // from google drive
-        } else if (uri.getAuthority().equals("com.google.android.apps.docs.storage")) {
+        } else if (uriAuthority.equals("com.google.android.apps.docs.storage")) {
             myLog("location : Google Drive");
             sFolderPath = "***"; // cannot be null...
 
@@ -104,6 +109,8 @@ public class FolderAttrib {
 
         if (sFolderPath != null) {
             f = new File(sFolderPath);
+        } else {
+            myLogE("sFolderPath == null");
         }
 
         if (f == null || !f.exists()) {
