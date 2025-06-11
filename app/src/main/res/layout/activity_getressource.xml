@@ -1,216 +1,164 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Mini // Fait pour logicom LeHello - ideal 480x800 WVGA   -->
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:fillViewport="true"
-    tools:context=".activities.MainActivity"
-    >
-<androidx.constraintlayout.widget.ConstraintLayout
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    >
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    tools:context=".activities.MainActivity">
 
-    <!-- Progress bar overlay; shown while login is in progress -->
-    <include layout="@layout/include_progressbar_overlay"/>
-
-    <TextView
-        android:id="@+id/TextHeaderOpen"
-        style="@style/GetResourceTextSectionTitle"
-        android:text="@string/TextHeaderOpen"
-        android:layout_marginTop="10dp"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        />
-
-    <TextView
-        android:id="@+id/message_import_currently_running"
-        style="@style/GetResourceTextTopOfButton"
-        android:text="@string/Import_Progress_onGoing"
-        android:textSize="40sp"
-        android:textColor="@color/red"
-        android:background="@color/yellow"
-        android:visibility="invisible"
-        android:elevation="5dp"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/GetRessource320_vertical_margin_title2text"
-        android:paddingHorizontal="50dp"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/bOpenFolder"
-        />
-    <TextView
-        android:id="@+id/bOpenFile_desc"
-        style="@style/GetResourceTextTopOfButton"
-        android:text="@string/bOpenFile_desc"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/TextHeaderOpen"
-        />
+        android:orientation="vertical"
+        android:padding="16dp">
 
-    <Button
-        android:id="@+id/bOpenFile"
-        android:text="@string/bOpenFile"
-        style="@style/GetResourceButton"
-        android:layout_marginTop="@dimen/GetRessource320_vertical_margin_text2button"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/bOpenFile_desc"
-        />
-    <TextView
-        android:id="@+id/bOpenFolder_desc"
-        style="@style/GetResourceTextTopOfButton"
-        android:text="@string/bOpenFolder_desc"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/bOpenFile"
-        />
+        <include
+            layout="@layout/include_progressbar_overlay" />
 
-    <Button
-        android:id="@+id/bOpenFolder"
-        android:text="@string/bOpenFolder"
-        style="@style/GetResourceButton"
-        android:layout_marginTop="@dimen/GetRessource320_vertical_margin_text2button"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/bOpenFolder_desc"
-        />
+        <TextView
+            style="@style/GetResourceTextSectionTitle"
+            android:text="@string/TextHeaderOpen"
+            android:layout_marginTop="10dp" />
 
-    <TextView
-        android:id="@+id/bOpenZiFile_desc"
-        style="@style/GetResourceTextTopOfButton"
-        android:text="@string/bOpenZipFile_desc"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/bOpenFolder"
-        />
+        <TextView
+            style="@style/GetResourceTextTopOfButton"
+            android:text="@string/bOpenFile_desc" />
 
-    <Button
-        android:id="@+id/bOpenZipFile"
-        android:text="@string/bOpenZipFile"
-        style="@style/GetResourceButton"
-        android:layout_marginTop="@dimen/GetRessource320_vertical_margin_text2button"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/bOpenZiFile_desc"
-        />
+        <Button
+            android:id="@+id/bOpenFile"
+            android:text="@string/bOpenFile"
+            style="@style/GetResourceButton"
+            android:layout_marginTop="@dimen/GetRessource320_vertical_margin_text2button" />
 
-    <View style="@style/myStyleViewSimpleHorizontalBar"
-        android:layout_marginBottom="10dp"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/TextHeaderSearch"/>
+        <TextView
+            style="@style/GetResourceTextTopOfButton"
+            android:text="@string/bOpenFolder_desc" />
 
-    <TextView
-        android:id="@+id/TextHeaderSearch"
-        android:text="@string/TextHeaderSearch"
-        style="@style/GetResourceTextSectionTitle"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/bOpenZipFile"
-        />
+        <Button
+            android:id="@+id/bOpenFolder"
+            android:text="@string/bOpenFolder"
+            style="@style/GetResourceButton"
+            android:layout_marginTop="@dimen/GetRessource320_vertical_margin_text2button" />
 
-    <TextView
-        android:id="@+id/tvInternetAudioRessource_01"
-        android:text="@string/lorem_ipsum"
-        style="@style/GetResourceTextTopOfButton"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/TextHeaderSearch"
-        />
+        <TextView
+            style="@style/GetResourceTextTopOfButton"
+            android:text="@string/bOpenZipFile_desc" />
 
-    <Button
-        android:id="@+id/bInternetAudioResource_01"
-        android:text="@string/lorem_ipsum"
-        style="@style/GetResourceButton"
-        android:layout_marginTop="@dimen/GetRessource320_vertical_margin_text2button"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvInternetAudioRessource_01"
-        />
+        <Button
+            android:id="@+id/bOpenZipFile"
+            android:text="@string/bOpenZipFile"
+            style="@style/GetResourceButton"
+            android:layout_marginTop="@dimen/GetRessource320_vertical_margin_text2button" />
 
-    <TextView
-        android:id="@+id/tvInternetAudioRessource_02"
-        style="@style/GetResourceTextTopOfButton"
-        android:text="@string/lorem_ipsum"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/bInternetAudioResource_01"
-        />
-
-    <Button
-        android:id="@+id/bInternetAudioResource_02"
-        android:text="@string/lorem_ipsum"
-        style="@style/GetResourceButton"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvInternetAudioRessource_02"
-        />
-
-    <TextView
-        android:id="@+id/tvInternetAudioRessource_03"
-        style="@style/GetResourceTextTopOfButton"
-        android:text="@string/lorem_ipsum"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/bInternetAudioResource_02"
-        />
-
-    <Button
-        android:id="@+id/bInternetAudioResource_03"
-        android:text="@string/lorem_ipsum"
-        style="@style/GetResourceButton"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvInternetAudioRessource_03"
-        />
-
-    <TextView
-        android:id="@+id/bSearchExempleText"
-        style="@style/GetResourceTextTopOfButton"
-        android:text="@string/bSearchExampleText"
-        android:textStyle="italic"
-        android:textSize="12sp"
-        android:layout_marginStart="20dp"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/bInternetAudioResource_03"
-        />
-
-    <View style="@style/myStyleViewSimpleHorizontalBar"
-        android:layout_marginBottom="10dp"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/txtAutoTest_title"
-        />
-
-    <TextView
-        android:id="@+id/txtAutoTest_title"
-        android:text="@string/AutoTest_title"
-        style="@style/GetResourceTextSectionTitle"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/bSearchExempleText"
-        />
-
-    <TextView
-        android:id="@+id/txtAutoTest_desc"
-        android:text="@string/AutoTest_desc"
-        style="@style/GetResourceTextTopOfButton"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/txtAutoTest_title"
-        />
-
-    <Button
-        android:id="@+id/bAutoTest_b1"
-        android:text="@string/AutoTest_b1_text"
-        style="@style/GetResourceButton"
-        android:layout_marginTop="@dimen/GetRessource320_vertical_margin_text2button"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/txtAutoTest_desc"
-        />
-
-    <Button
-        android:id="@+id/bAutoTest_b2"
-        android:text="@string/AutoTest_b2_text"
-        style="@style/GetResourceButton"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/bAutoTest_b1"
-        />
-    <Button
-        android:id="@+id/bAutoTest_b3"
-        android:text="@string/AutoTest_b3_text"
-        style="@style/GetResourceButton"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/bAutoTest_b2"
-        />
+        <TextView
+            android:id="@+id/message_import_currently_running"
+            style="@style/GetResourceTextTopOfButton"
+            android:text="@string/Import_Progress_onGoing"
+            android:textSize="40sp"
+            android:textColor="@color/red"
+            android:background="@color/yellow"
+            android:visibility="invisible"
+            android:elevation="5dp"
+            android:paddingHorizontal="50dp"
+            android:layout_marginTop="@dimen/GetRessource320_vertical_margin_title2text" />
 
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+        <View style="@style/GetResourceHorizontalBar"/>
+
+        <TextView
+            android:text="@string/TextHeaderSearch"
+            style="@style/GetResourceTextSectionTitle" />
+
+        <TextView
+            android:text="@string/lorem_ipsum"
+            style="@style/GetResourceTextTopOfButton" />
+
+        <Button
+            android:id="@+id/bInternetAudioResource_01"
+            android:text="@string/lorem_ipsum"
+            style="@style/GetResourceButton"
+            android:layout_marginTop="@dimen/GetRessource320_vertical_margin_text2button" />
+
+        <TextView
+            android:text="@string/lorem_ipsum"
+            style="@style/GetResourceTextTopOfButton" />
+
+        <Button
+            android:id="@+id/bInternetAudioResource_02"
+            android:text="@string/lorem_ipsum"
+            style="@style/GetResourceButton" />
+
+        <TextView
+            android:text="@string/lorem_ipsum"
+            style="@style/GetResourceTextTopOfButton" />
+
+        <Button
+            android:id="@+id/bInternetAudioResource_03"
+            android:text="@string/lorem_ipsum"
+            style="@style/GetResourceButton" />
+
+        <TextView
+            android:id="@+id/bSearchExempleText"
+            style="@style/GetResourceTextTopOfButton"
+            android:text="@string/bSearchExampleText"
+            android:textStyle="italic"
+            android:textSize="12sp"
+            android:layout_marginStart="20dp" />
+
+
+<!--
+
+        <View style="@style/GetResourceHorizontalBar"/>
+
+        <TextView
+            android:text="@string/OnlineSearch_title"
+            style="@style/GetResourceTextSectionTitle" />
+
+        <TextView
+            android:text="@string/OnlineSearch_desc"
+            style="@style/GetResourceTextTopOfButton" />
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="20dp"
+            android:hint="@string/OnlineSearch_hint"
+            style="@style/GetResourceEditText"
+            />
+        <Button
+            android:id="@+id/bOnlineSearch"
+            android:text="@string/OnlineSearch_button"
+            style="@style/GetResourceButton" />
+
+-->
+
+        <View style="@style/GetResourceHorizontalBar"/>
+
+        <TextView
+            android:text="@string/AutoTest_title"
+            style="@style/GetResourceTextSectionTitle" />
+
+        <TextView
+            android:text="@string/AutoTest_desc"
+            style="@style/GetResourceTextTopOfButton" />
+
+        <Button
+            android:id="@+id/bAutoTest_b1"
+            android:text="@string/AutoTest_b1_text"
+            style="@style/GetResourceButton"
+            android:layout_marginTop="@dimen/GetRessource320_vertical_margin_text2button" />
+
+        <Button
+            android:id="@+id/bAutoTest_b2"
+            android:text="@string/AutoTest_b2_text"
+            style="@style/GetResourceButton" />
+
+        <Button
+            android:id="@+id/bAutoTest_b3"
+            android:text="@string/AutoTest_b3_text"
+            style="@style/GetResourceButton" />
+    </LinearLayout>
 </ScrollView>

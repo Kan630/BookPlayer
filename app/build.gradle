@@ -28,6 +28,8 @@ android {
         //note : 26 needed for NotificationChannel
         //note : 26 needed for xml adaptable icons
 
+        //note : 26 needed for paddingHorizontal in xml files   ====> maybe it is why it does not work on android 7 ?
+
         targetSdkVersion 35
 
         /////////////////////////////////////////////////////////////////////////

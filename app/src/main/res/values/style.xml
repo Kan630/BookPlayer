@@ -190,6 +190,19 @@
         <item name="android:paddingHorizontal">10dp</item>
     </style>
 
+    <style name="GetResourceEditText" parent="EditText">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">15dp</item>
+        <item name="android:paddingHorizontal">10dp</item>
+        <item name="android:layout_marginStart">50dp</item>
+        <item name="android:layout_marginEnd">50dp</item>
+    </style>
+
+    <style name="GetResourceHorizontalBar" parent="myStyleViewSimpleHorizontalBar">
+        <item name="android:layout_marginBottom">10dp</item>
+    </style>
+
     <!-- ***************** DIVERS ***************** -->
 
     <style name="myStyleViewSimpleHorizontalBar">
