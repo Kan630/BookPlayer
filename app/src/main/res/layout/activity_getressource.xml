@@ -17,11 +17,13 @@
             layout="@layout/include_progressbar_overlay" />
 
         <TextView
+            android:id="@+id/TextHeaderOpen"
             style="@style/GetResourceTextSectionTitle"
             android:text="@string/TextHeaderOpen"
             android:layout_marginTop="10dp" />
 
         <TextView
+            android:id="@+id/bOpenFile_desc"
             style="@style/GetResourceTextTopOfButton"
             android:text="@string/bOpenFile_desc" />
 
@@ -32,6 +34,7 @@
             android:layout_marginTop="@dimen/GetRessource320_vertical_margin_text2button" />
 
         <TextView
+            android:id="@+id/bOpenFolder_desc"
             style="@style/GetResourceTextTopOfButton"
             android:text="@string/bOpenFolder_desc" />
 
@@ -42,6 +45,7 @@
             android:layout_marginTop="@dimen/GetRessource320_vertical_margin_text2button" />
 
         <TextView
+            android:id="@+id/bOpenZiFile_desc"
             style="@style/GetResourceTextTopOfButton"
             android:text="@string/bOpenZipFile_desc" />
 
@@ -70,6 +74,7 @@
         <View style="@style/GetResourceHorizontalBar"/>
 
         <TextView
+            android:id="@+id/tvInternetAudioRessource_01"
             android:text="@string/TextHeaderSearch"
             style="@style/GetResourceTextSectionTitle" />
 
@@ -84,6 +89,7 @@
             android:layout_marginTop="@dimen/GetRessource320_vertical_margin_text2button" />
 
         <TextView
+            android:id="@+id/tvInternetAudioRessource_02"
             android:text="@string/lorem_ipsum"
             style="@style/GetResourceTextTopOfButton" />
 
@@ -93,6 +99,7 @@
             style="@style/GetResourceButton" />
 
         <TextView
+            android:id="@+id/tvInternetAudioRessource_03"
             android:text="@string/lorem_ipsum"
             style="@style/GetResourceTextTopOfButton" />
 
@@ -138,11 +145,12 @@
         <View style="@style/GetResourceHorizontalBar"/>
 
         <TextView
+            android:id="@+id/txtAutoTest_title"
             android:text="@string/AutoTest_title"
             style="@style/GetResourceTextSectionTitle" />
 
         <TextView
-            android:text="@string/AutoTest_desc"
+            android:id="@+id/txtAutoTest_desc"
             style="@style/GetResourceTextTopOfButton" />
 
         <Button
