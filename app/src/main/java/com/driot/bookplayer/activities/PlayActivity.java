@@ -361,7 +361,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
     private void setSleep() {
         // Create an alert dialog builder
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Sleep Timer");
+        builder.setTitle(getString(R.string.SleepTimer));
 
         // Inflate and set the custom layout for the dialog
         LayoutInflater inflater = getLayoutInflater();
@@ -384,9 +384,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
                 if (!input.isEmpty()) {
                     try {
                         int minutes = Integer.parseInt(input);
-                        // Update the AudioService with the new sleep time
                         audioService.updateSleepTimer(minutes);
-                        tvListeningTimeBaseText = getString(R.string.tv_ListeningTimeWithCustomSleep);
                     } catch (NumberFormatException e) {
                         myToastE(getString(R.string.SleepTimerWrongInt));
                     } catch (Exception e) {
@@ -521,13 +519,13 @@ public class PlayActivity extends LifecycleLoggingActivity {
         String zeText_since;
         String zeText_left;
         int timeBeforeSleep = audioService.getCustomSleepTime() == 0 ? Option.getTimeBeforeSleep(this) : audioService.getCustomSleepTime();
-        if (tempsEcoule > 0) {
+        if (tempsEcoule >= 0) {
             //String str = audioService.getCustomSleepTime() == 0 ? getString(R.string.tv_ListeningTimeWithNoUserAction) : getString(R.string.tv_ListeningTimeWithCustomSleep);
             String str = tvListeningTimeBaseText;
             zeText_since = str + " " + formatTime(tempsEcoule*1000,true);
             zeText_left = getString(R.string.tv_TimeLeft) + " : " + formatTime(timeBeforeSleep*1000*60-tempsEcoule*1000,true);
-            tvListeningTime.setText(zeText_since);
             tvTimeLeft.setText(zeText_left);
+            if (tempsEcoule>0) { tvListeningTime.setText(zeText_since); }
         } else {
             tvListeningTime.setText("");
             tvTimeLeft.setText("");
@@ -674,6 +672,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
     private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
     private void myLogD(String str) { KanLogger.myLogD(this.getClass().getName(), str); }
     private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
+    private void myToast(String str) { KanLogger.myToast(this.getClass().getName(), str); }
     private void myToastE(String str) { KanLogger.myToastE(this.getClass().getName(), str); }
 
 }

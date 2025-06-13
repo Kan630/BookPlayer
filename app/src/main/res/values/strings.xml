@@ -179,11 +179,6 @@
     <string name="bSearchOpenCulture_desc">Search some audios on Open Culture :</string>
     <string name="bSearchExampleText">These websites above are only examples, there is tons of audio on the web, you could also download university lectures.</string>
 
-    <string name="OnlineSearch_title">Direct integration - beta test</string>
-    <string name="OnlineSearch_desc">Use this search capability to find the audiobook you are looking for. Then, on the next page, select the one you want to import, it should download and add itself directly inside bookplayer !</string>
-    <string name="OnlineSearch_hint">Jack London</string>
-    <string name="OnlineSearch_button">Search…</string>
-
 
     <string name="AutoTest_title">Auto Test</string>
     <string name="AutoTest_desc">Automatic download and integration of audiobooks, for testing purpose</string>
@@ -386,8 +381,17 @@
 
 
 
+    // Get Resources
+    <string name="OnlineSearch_title">Direct integration - beta test</string>
+    <string name="OnlineSearch_desc">Use this search capability to find the audiobook you are looking for. Then, on the next page, select the one you want to import, it should download and add itself directly inside bookplayer !</string>
+    <string name="OnlineSearch_hint">Jack London</string>
+    <string name="OnlineSearch_button">Search…</string>
+
+
+
+    <string name="SleepTimer">Sleep Timer</string>
+    <string name="SleepTimerNewTime">New sleep time</string>
     <string name="SleepTimerWrongInt">Invalid input. Please enter a valid number.</string>
     <string name="SleepTimerGeneralError">Error happened while setting Sleep Timer.</string>
-
 
 </resources>
