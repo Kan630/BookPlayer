@@ -384,4 +384,10 @@
         \nThat will open the Bookplayer settings on the device.
         \n\nThen go in "Permissions" section and manually allow "Microphone".</string>
 
+
+
+    <string name="SleepTimerWrongInt">Invalid input. Please enter a valid number.</string>
+    <string name="SleepTimerGeneralError">Error happened while setting Sleep Timer.</string>
+
+
 </resources>

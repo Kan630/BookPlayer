@@ -41,7 +41,7 @@ public class Var {
 
 
 
-    public static final int[] SLEEP_PRESET_VALUES = {10, 20, 30, 45};
+    public static final int[] SLEEP_PRESET_VALUES = {10, 20, 30, 45, 90, 180};
 
 
 

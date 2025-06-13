@@ -61,6 +61,24 @@
             android:layout_columnWeight="1"
             android:layout_rowWeight="1" />
 
+        <Button
+            android:id="@+id/btn_preset_05"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_columnWeight="1"
+            android:layout_rowWeight="1" />
+
+        <Button
+            android:id="@+id/btn_preset_06"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_columnWeight="1"
+            android:layout_rowWeight="1" />
+
     </GridLayout>
 
     <TextView

@@ -374,16 +374,24 @@ public class PlayActivity extends LifecycleLoggingActivity {
         Button btnPreset2 = dialogView.findViewById(R.id.btn_preset_02);
         Button btnPreset3 = dialogView.findViewById(R.id.btn_preset_03);
         Button btnPreset4 = dialogView.findViewById(R.id.btn_preset_04);
+        Button btnPreset5 = dialogView.findViewById(R.id.btn_preset_05);
+        Button btnPreset6 = dialogView.findViewById(R.id.btn_preset_06);
 
         DialogInterface.OnClickListener setSleepAction = new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 String input = inputMinutes.getText().toString().trim();
                 if (!input.isEmpty()) {
-                    int minutes = Integer.parseInt(input);
-                    // Update the AudioService with the new sleep time
-                    audioService.updateSleepTimer(minutes);
-                    tvListeningTimeBaseText = getString(R.string.tv_ListeningTimeWithCustomSleep);
+                    try {
+                        int minutes = Integer.parseInt(input);
+                        // Update the AudioService with the new sleep time
+                        audioService.updateSleepTimer(minutes);
+                        tvListeningTimeBaseText = getString(R.string.tv_ListeningTimeWithCustomSleep);
+                    } catch (NumberFormatException e) {
+                        myToastE(getString(R.string.SleepTimerWrongInt));
+                    } catch (Exception e) {
+                        myToastE(getString(R.string.SleepTimerGeneralError));
+                    }
                 }
             }
         };
@@ -395,7 +403,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
         dialog.show();
 
         // Array of buttons
-        Button[] presetButtons = {btnPreset1, btnPreset2, btnPreset3, btnPreset4};
+        Button[] presetButtons = {btnPreset1, btnPreset2, btnPreset3, btnPreset4, btnPreset5, btnPreset6};
 
         // Set labels for buttons based on PRESET_VALUES and set their onClick listeners
         for (int i = 0; i < SLEEP_PRESET_VALUES.length; i++) {
