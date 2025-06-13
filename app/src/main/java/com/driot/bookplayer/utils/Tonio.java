@@ -172,24 +172,22 @@ public class Tonio {
     }
 
     public static String formatLastAccessInDays(Date lastAccessDate) {
-        String zeReturn;
-        if (lastAccessDate == null) {
-            zeReturn = "Never accessed";
-        }
-
-        Date currentDate = new Date(System.currentTimeMillis());
-
-        long diffInMillis = currentDate.getTime() - lastAccessDate.getTime();
-        long diffInDays = diffInMillis / (1000 * 60 * 60 * 24);
-
-        if (diffInDays > 400) {
-            int years = (int) (diffInDays / 365);
-            zeReturn = years + (years == 1 ? " year ago" : " years ago");
-        } else if (diffInDays > 50) {
-            int months = (int) (diffInDays / 30);
-            zeReturn = months + (months == 1 ? " month ago" : " months ago");
-        } else {
-            zeReturn = diffInDays + (diffInDays == 1 ? " day ago" : " days ago");
+        String zeReturn = "Never accessed";;
+        try {
+            Date currentDate = new Date(System.currentTimeMillis());
+            long diffInMillis = currentDate.getTime() - lastAccessDate.getTime();
+            long diffInDays = diffInMillis / (1000 * 60 * 60 * 24);
+            if (diffInDays > 400) {
+                int years = (int) (diffInDays / 365);
+                zeReturn = years + (years == 1 ? " year ago" : " years ago");
+            } else if (diffInDays > 50) {
+                int months = (int) (diffInDays / 30);
+                zeReturn = months + (months == 1 ? " month ago" : " months ago");
+            } else {
+                zeReturn = diffInDays + (diffInDays == 1 ? " day ago" : " days ago");
+            }
+        } catch (Exception e) {
+            myLogE("formatLastAccessInDays : " + e.getMessage());
         }
         return zeReturn;
     }
