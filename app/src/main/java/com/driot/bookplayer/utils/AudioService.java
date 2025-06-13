@@ -35,6 +35,7 @@ import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.PlayList;
 import com.driot.bookplayer.db.Sql;
 import com.driot.bookplayer.db.ZikFile;
+import com.driot.bookplayer.global.Pref;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -256,6 +257,7 @@ public class AudioService extends LifecycleLoggingService {
         loadZeFile(true);
         //TODO remplace par PlayAudio() ??
         myLog("mediaPlayer.start() -- nextrack");
+        dointroCut();
         mediaPlayer.start();
         setSpeed(getSpeed());
         alertNewTrack();
@@ -519,6 +521,7 @@ public class AudioService extends LifecycleLoggingService {
                         }
                     }
                 }
+                dointroCut();
                 myLog("about to do mediaPlayer.start()...  mediaPlayer.getCurrentPosition : " + mediaPlayer.getCurrentPosition());
                 mediaPlayer.start();
                 setSpeed(getSpeed());
@@ -529,6 +532,23 @@ public class AudioService extends LifecycleLoggingService {
             }
         } else { // car ca bug sur v27 on android sdk 27 (8.1) OPPO CPH1909
             myLogE("mediaPlayer was not instantiated ... going out of AudioService.playAudio()");
+        }
+    }
+
+    private void dointroCut() {
+        int introCut = 0;
+        try {
+            introCut = Pref.getIntroCutFromPref(this,PlayList.getZikFile().getIdFolder()) * 1000;
+        } catch (Exception e) {
+            myLogE("Error getting introCut from Pref - getIdFolder null ?");
+        }
+        if (introCut > 0) {
+            int position = getPosition();
+            myLog("position : [" + position + "]  introCut : [" + introCut + "]");
+            if (position < introCut) {
+                forwardAudioTo(introCut);
+                myLogI("=> Intro Cut");
+            }
         }
     }
 
@@ -555,10 +575,17 @@ public class AudioService extends LifecycleLoggingService {
         forwardAudio(Option.get_ForwardSeconds(this)*1000);
     }
     public void forwardAudio(int lag) {
-        myLog("forwardAudio()");
+        myLog("forwardAudio of " + lag);
         int temp = getPosition();
         if ((temp + lag ) <= getDuration()) {
             setPosition(temp + lag );
+            createNotification();
+        }
+    }
+    public void forwardAudioTo(int lag) {
+        myLog("forwardAudio to " + lag);
+        if (lag <= getDuration()) {
+            setPosition(lag);
             createNotification();
         }
     }

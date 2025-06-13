@@ -62,13 +62,66 @@
 
         <View style="@style/myStyleViewSimpleHorizontalBar" />
 
+        <TextView
+            android:id="@+id/IntroCutText"
+            android:text="@string/IntroCut"
+            style="@style/OptionTitle"
+            android:textStyle="normal"
+            android:textSize="20sp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="10dp"
+            android:paddingHorizontal="20dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:gravity="center"
+            >
+            <EditText
+                android:id="@+id/etIntroCut"
+                style="@style/EditText"
+                android:inputType="number"
+                android:layout_width="50dp"
+                android:layout_height="30dp"
+                android:textSize="20sp"
+                android:padding="5dp"
+                />
+            <TextView
+                android:text="sec."
+                android:textSize="12sp"
+                style="@style/OptionSubTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="-2dp"
+                />
+        </LinearLayout>
+
+        <TextView
+            android:text="@string/IntroCutText"
+            android:textSize="12sp"
+            style="@style/OptionSubTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="20dp"
+            android:paddingHorizontal="20dp" />
+
+
+        <View style="@style/myStyleViewSimpleHorizontalBar" />
+
         <Button
-            android:id="@+id/bDelete"
+            android:id="@+id/bReset"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:layout_marginBottom="20dp"
-            android:text="@string/bDelete" />
+            android:text="@string/bReset" />
+
 
         <View style="@style/myStyleViewSimpleHorizontalBar" />
 
@@ -81,6 +134,7 @@
             android:layout_marginTop="30sp"
             android:paddingVertical="10sp"
             android:inputType="textMultiLine"
+            android:padding="10dp"
             android:textSize="20sp" />
 
         <Button
@@ -94,14 +148,15 @@
         <View style="@style/myStyleViewSimpleHorizontalBar" />
 
         <Button
-            android:id="@+id/bReset"
+            android:id="@+id/bDelete"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:layout_marginBottom="20dp"
-            android:text="@string/bReset" />
+            android:text="@string/bDelete" />
 
         <View style="@style/myStyleViewSimpleHorizontalBar" />
 
-        </LinearLayout>
+
+    </LinearLayout>
 </ScrollView>

@@ -2,6 +2,7 @@ package com.driot.bookplayer.activities;
 
 import android.os.Bundle;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -9,6 +10,8 @@ import androidx.appcompat.app.AlertDialog;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
+import com.driot.bookplayer.global.Option;
+import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.utils.KanLogger;
 
 import java.io.File;
@@ -24,6 +27,8 @@ public class FolderModifyActivity extends LifecycleLoggingActivity {
 
     private int idFolder;
     private String FolderName;
+
+    EditText etIntroCut;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +66,9 @@ public class FolderModifyActivity extends LifecycleLoggingActivity {
         bRename.setOnClickListener(view -> bRenameClick(tvRename.getText().toString()));
 
         bReset.setOnClickListener(view -> bResetClick());
+
+        etIntroCut = findViewById(R.id.etIntroCut);
+        etIntroCut.setText(String.valueOf(Pref.getIntroCutFromPref(this, idFolder)));
     }
 
     private void bDeleteClick() {
@@ -142,7 +150,8 @@ public class FolderModifyActivity extends LifecycleLoggingActivity {
                 .setTitle(getString((R.string.AskReset_popupTitle)))
                 .setMessage(getString((R.string.ModifyFolder_AskReset)))
                 .setCancelable(true)
-                .setPositiveButton("ok", (dialog, which) -> resetFolder())
+                .setPositiveButton("ok", (dialog, i) -> resetFolder())
+                .setNegativeButton("cancel", (dialog, i) -> {})
                 .show();
     }
 
@@ -157,6 +166,18 @@ public class FolderModifyActivity extends LifecycleLoggingActivity {
                 finish();
             });
         }).start();
+    }
+
+    @Override
+    protected void onDestroy() {
+        int introCut = 0;
+        try {
+            introCut = Integer.parseInt(etIntroCut.getText().toString());
+        } catch (Exception e) {
+            myLogE("Bad introCut value");
+        }
+        Pref.saveIntroCutToPref(this, idFolder, introCut);
+        super.onDestroy();
     }
 
     //--- LOG --------------------------

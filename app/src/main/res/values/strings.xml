@@ -26,7 +26,8 @@
 
     <string name="help_folder">Folder :</string>
     <string name="help_folder_text">A long click on a folder opens the [modify folder] page.
-    \nThen you will be able to rename / delete / reset progress</string>
+    \nThen you will be able to rename / delete / reset progress
+    \nand set an automatic trim/cut at the beginning of each track.</string>
 
     <string name="help_file">Track :</string>
     <string name="help_file_text">A long click on a track opens the [modify track] page.
@@ -244,6 +245,8 @@
 
     <string name="bDelete">"Delete"</string>
     <string name="bRenameFolder">"Rename Folder"</string>
+    <string name="IntroCut">"Intro Cut"</string>
+    <string name="IntroCutText"><i>"Trims the first seconds of each chapter while playing."</i></string>
     <string name="bRenameTrack">"Rename Track"</string>
     <string name="bMove">"Change position"</string>
     <string name="bReset">"Reset Progress"</string>
@@ -390,7 +393,6 @@
 
 
     <string name="SleepTimer">Sleep Timer</string>
-    <string name="SleepTimerNewTime">New sleep time</string>
     <string name="SleepTimerWrongInt">Invalid input. Please enter a valid number.</string>
     <string name="SleepTimerGeneralError">Error happened while setting Sleep Timer.</string>
 
