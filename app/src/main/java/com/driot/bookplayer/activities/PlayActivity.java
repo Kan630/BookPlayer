@@ -450,6 +450,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
     protected void onDestroy() {
         myLog("onDestroy - unregister Broadcast Receiver");
 //should let the system continue playing, even if activity is destroyed, by let's say, phone os battery saver routine -- also flip screen...
+/*
         if (audioServiceBound) {
             try {
                 unbindService(audioServiceConnection);
@@ -457,6 +458,8 @@ public class PlayActivity extends LifecycleLoggingActivity {
                 myLogE("onDestroy() - unbindService - " + e.getMessage());
             }
         }
+
+ */
         try {
             LocalBroadcastManager.getInstance(this).unregisterReceiver(broadCastReceiver);
         } catch (Exception e) {

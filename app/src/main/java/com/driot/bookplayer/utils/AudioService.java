@@ -238,6 +238,7 @@ public class AudioService extends LifecycleLoggingService {
                 }
             }
         });
+        // TODO solve this fucking -38 error.....
         mediaPlayer.setOnErrorListener((mediaPlayer, what, extra) -> {
             ErrorLoadingFile = true;
 
@@ -487,7 +488,9 @@ public class AudioService extends LifecycleLoggingService {
 
         myLog("loadFile(sPath) [" + sPath + "]");
         try {
-            //mediaPlayer.stop();
+            if (mediaPlayer.isPlaying()) {
+                mediaPlayer.stop();
+            }
             mediaPlayer.reset();
             myLogD("mediaPlayer.reset - done");
             mediaPlayer.setDataSource(sPath);
@@ -516,6 +519,7 @@ public class AudioService extends LifecycleLoggingService {
             stopSelf();
             return false;
         }
+        myLog("loadFile - END");
         return true;
     }
 
@@ -966,7 +970,7 @@ public class AudioService extends LifecycleLoggingService {
                     .setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
                             .setMediaSession(mediaSession.getSessionToken())
                             .setShowActionsInCompactView(0,1,2))
-                    //.setProgress(100,0, true)
+                    .setProgress(100,50, false)
                     //.setProgress(max, progress, false)  => TODO : check on samsung Tab, it seems to show there.. even without any code !!
                     //.setOngoing(true) //only effective android >= 14, maybe useless on mediaSession
                     //.setUsesChronometer(true)
@@ -1012,7 +1016,7 @@ public class AudioService extends LifecycleLoggingService {
 
     @SuppressWarnings("IfCanBeSwitch")
     private void playBeep(String beepType) {
-        myLogE("playBeep - argument : " + beepType);
+        myLogI("playBeep - argument : " + beepType);
         try {
             if (beepType.equals("1beep")) {
                 new ToneGenerator(AudioManager.STREAM_MUSIC, 100).startTone(ToneGenerator.TONE_CDMA_PIP, 150);
