@@ -15,6 +15,7 @@ import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.PowerManager;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.widget.TextView;
@@ -35,6 +36,9 @@ public class StatsActivity extends LifecycleLoggingActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_stats);
+
+        String strPowerManagement = getStringPowerManagement();
+        myLogI("Power Management :" + strPowerManagement);
 
         String zeText;
         TextView tv_head;
@@ -140,7 +144,7 @@ public class StatsActivity extends LifecycleLoggingActivity {
         recursiveRemove(dir);
         recreate();
     }
-    //minSdkVersion
+
     public static String getVersionName(int sdkVersion) {
         switch (sdkVersion) {
             case Build.VERSION_CODES.BASE:
@@ -218,8 +222,22 @@ public class StatsActivity extends LifecycleLoggingActivity {
         }
     }
 
+    private String getStringPowerManagement() {
+        // SDK23 min
+        String strPowerManagement = "";
+        PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
+        if (powerManager != null && powerManager.isIgnoringBatteryOptimizations(getPackageName())) {
+            strPowerManagement = "App is exempt from battery optimizations (good)";
+        } else {
+            strPowerManagement = "App is subject to battery optimizations (may be killed in background)";
+            // Consider prompting the user to disable optimizations
+        }
+        return strPowerManagement;
+    }
+
     //--- LOG --------------------------
     private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
     private void myLogD(String str) { KanLogger.myLogD(this.getClass().getName(), str); }
+    private void myLogI(String str) { KanLogger.myLogI(this.getClass().getName(), str); }
     private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
 }

@@ -390,7 +390,8 @@
     <string name="OnlineSearch_hint">Jack London</string>
     <string name="OnlineSearch_button">Search…</string>
 
-
+    <string name="help_file_types_title">File Types :</string>
+    <string name="help_file_types_text">Always prefer [mp3] files, or zip/folder containing [mp3] files. Bookplayer can now read the new [m4b] file type but I am still working on the code to display the chapters inside.</string>
 
     <string name="SleepTimer">Sleep Timer</string>
     <string name="SleepTimerWrongInt">Invalid input. Please enter a valid number.</string>

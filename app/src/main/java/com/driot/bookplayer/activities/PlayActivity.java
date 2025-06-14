@@ -10,6 +10,7 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.ActivityInfo;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.Settings;
@@ -290,7 +291,12 @@ public class PlayActivity extends LifecycleLoggingActivity {
             startService(intentMusicService);
         }
  */
-        startService(intentMusicService);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) { //min SDK 26
+            startForegroundService(intentMusicService);
+        } else {
+            startService(intentMusicService);
+        }
+
         audioServiceBound = false;
         try {
             audioServiceBound = bindService(intentMusicService, audioServiceConnection, Context.BIND_AUTO_CREATE); //TODO leaked ServiceConnection if user press back
@@ -447,10 +453,14 @@ public class PlayActivity extends LifecycleLoggingActivity {
         if (audioServiceBound) {
             try {
                 unbindService(audioServiceConnection);
-                LocalBroadcastManager.getInstance(this).unregisterReceiver(broadCastReceiver);
             } catch (Exception e) {
-                myLogE("onDestroy() - " + e.getMessage());
+                myLogE("onDestroy() - unbindService - " + e.getMessage());
             }
+        }
+        try {
+            LocalBroadcastManager.getInstance(this).unregisterReceiver(broadCastReceiver);
+        } catch (Exception e) {
+            myLogE("onDestroy() - unregisterReceiver - " + e.getMessage());
         }
 
         super.onDestroy();

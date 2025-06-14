@@ -9,12 +9,6 @@ import com.driot.bookplayer.R;
  */
 public class Var {
 
-    //------------------------------------------------------------------------
-    //------------------------------------------------------------------------
-    public static final boolean LOG_LIFECYCLE_TRACE = true;
-    //------------------------------------------------------------------------
-    //------------------------------------------------------------------------
-
     public static final String ONLY_MIME_AUDIO = "audio/";
 
     public static final String  FOLDER_UNZIPPED = "unzipped";

@@ -76,11 +76,11 @@
         <View style="@style/GetResourceHorizontalBar"/>
 
         <TextView
-            android:id="@+id/tvInternetAudioRessource_01"
             android:text="@string/TextHeaderSearch"
             style="@style/GetResourceTextSectionTitle" />
 
         <TextView
+            android:id="@+id/tvInternetAudioRessource_01"
             android:text="@string/lorem_ipsum"
             style="@style/GetResourceTextTopOfButton" />
 

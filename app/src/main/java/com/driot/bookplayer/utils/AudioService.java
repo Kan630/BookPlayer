@@ -2,6 +2,7 @@ package com.driot.bookplayer.utils;
 
 import com.driot.bookplayer.R;
 
+import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -74,7 +75,7 @@ class CustomMediaPlayer extends MediaPlayer {
 }
 public class AudioService extends LifecycleLoggingService {
 
-    private static final String CHANNEL_ID = "audio_channel_of_toto";
+    private static final String CHANNEL_ID = "audio_channel_of_bookplayer";
 
     private Handler handler;
     private Runnable timerRunnable;
@@ -132,8 +133,10 @@ public class AudioService extends LifecycleLoggingService {
             myLog("MediaSessionCompat.Callback - onStop()");
             super.onStop();
             mediaPlayer.stop();
-            createNotification();
-            removeNotification(); // Remove notification when playback is stopped
+            //createNotification();
+            //removeNotification(); // Remove notification when playback is stopped
+            stopForeground(false);
+            //stopSelf();
         }
         @Override
         public boolean onMediaButtonEvent(Intent mediaButtonIntent) {
@@ -199,9 +202,11 @@ public class AudioService extends LifecycleLoggingService {
     public void onCreate() {
         myLog("onCreate()");
         super.onCreate();
+        createNotificationChannel();
+
+        // Initialize MediaPlayer and MediaSession first
         mediaPlayer = new CustomMediaPlayer();
         mediaSession = new MediaSessionCompat(this, "MyTotoMediaSession");
-
         handler = new Handler(); // for sleep timer
 
         myLog("configureMediaSession()");
@@ -209,8 +214,9 @@ public class AudioService extends LifecycleLoggingService {
         // Overridden methods in the MediaSession.Callback class.
         mediaSession.setCallback(callback);
         mediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS); //useless ?
-        mediaSession.setActive(true); //useless ?
+        mediaSession.setActive(true); // Needed for media button handling
 
+        // Set up MediaPlayer listeners
         mediaPlayer.setOnCompletionListener(mediaPlayer -> {
             if (!ErrorLoadingFile) {
                 updateZikFileState(true);
@@ -232,16 +238,56 @@ public class AudioService extends LifecycleLoggingService {
                 }
             }
         });
-        createNotificationChannel(); // for Android 14+ ( if not crash = CannotPostForegroundServiceNotificationException)
-        createNotification();
-
-        mediaPlayer.setOnErrorListener((mediaPlayer, i, i1) -> {
+        mediaPlayer.setOnErrorListener((mediaPlayer, what, extra) -> {
             ErrorLoadingFile = true;
-            myLog("mediaPlayer.OnErrorListener Fired : " + i + " : " + i1 );
+
+            // Convert error codes to human-readable strings
+            String whatString;
+            switch (what) {
+                case MediaPlayer.MEDIA_ERROR_UNKNOWN:
+                    whatString = "MEDIA_ERROR_UNKNOWN";
+                    break;
+                case MediaPlayer.MEDIA_ERROR_SERVER_DIED:
+                    whatString = "MEDIA_ERROR_SERVER_DIED";
+                    break;
+                case MediaPlayer.MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK:
+                    whatString = "MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK";
+                    break;
+                case MediaPlayer.MEDIA_ERROR_IO:
+                    whatString = "MEDIA_ERROR_IO";  // Network/file I/O error
+                    break;
+                case MediaPlayer.MEDIA_ERROR_MALFORMED:
+                    whatString = "MEDIA_ERROR_MALFORMED";  // Corrupted file
+                    break;
+                case MediaPlayer.MEDIA_ERROR_UNSUPPORTED:
+                    whatString = "MEDIA_ERROR_UNSUPPORTED";  // Format not supported
+                    break;
+                case MediaPlayer.MEDIA_ERROR_TIMED_OUT:
+                    whatString = "MEDIA_ERROR_TIMED_OUT";
+                    break;
+                default:
+                    whatString = "UNKNOWN_CODE_" + what;
+            }
+
+            String extraString = "EXTRA_CODE_" + extra;
+
+            // Build comprehensive log message
+            StringBuilder errorLog = new StringBuilder();
+            errorLog.append("MediaPlayer Error:\n")
+                    .append("Type: ").append(whatString).append(" (").append(what).append(")\n")
+                    .append("Extra: ").append(extra).append("\n");
+
+            myLogE(errorLog.toString());
             alertError();
-            return false;
+            return false;  // Let onCompletionListener be called if needed
         });
 
+        // Create notification channel (only once)
+        createNotificationChannel(); // Moved after initialization to ensure everything is ready
+        // Kan previous comment : for Android 14+ ( if not crash = CannotPostForegroundServiceNotificationException)
+
+        // Create initial notification (required for foreground service)
+        createNotification();
     }
 
     void nextTrack() {
@@ -271,7 +317,7 @@ public class AudioService extends LifecycleLoggingService {
 
     private void alertError() {
         LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(new Intent(NOTIFICATION_ERROR).putExtra(TRACKNUMBER, PlayList.getNumZikFile()));
-        myLog("sendBroadcast alertError");
+        myLogE("sendBroadcast alertError");
     }
 
     private void alertTrackFinished() {
@@ -335,6 +381,13 @@ public class AudioService extends LifecycleLoggingService {
     public int onStartCommand(Intent intent, int flags, int startId) {
         myLog("onStartCommand()" + intent.toString());
 
+        // Start with a minimal notification immediately
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
+                .setContentTitle("Loading...")
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setPriority(NotificationCompat.PRIORITY_LOW);
+        startForeground(1, builder.build());
+
         // Call createNotification() early to ensure startForeground is called
         createNotification();  // <- this triggers startForeground()           2025-06-01
 
@@ -352,7 +405,6 @@ public class AudioService extends LifecycleLoggingService {
     @Override
     public void onDestroy() {
         myLog("onDestroy()");
-        super.onDestroy();
         if (mediaPlayer.isPlaying()) {mediaPlayer.stop();}
         stopSleepTimer();
         mediaPlayer.release();
@@ -362,7 +414,9 @@ public class AudioService extends LifecycleLoggingService {
         stopSleepTimer();
         if(mediaSession != null) { mediaSession.release(); }
         //stopUpdatingPlaybackState();
-        removeNotification();
+        stopForeground(true);
+        stopSelf();
+        super.onDestroy();
     }
 
     @Nullable
@@ -375,7 +429,6 @@ public class AudioService extends LifecycleLoggingService {
     @Override
     public boolean onUnbind(Intent intent) {
         myLog("onUnBind() - intent.DataString = " + intent.getDataString());
-        removeNotification();
         return super.onUnbind(intent);
     }
 
@@ -436,13 +489,17 @@ public class AudioService extends LifecycleLoggingService {
         try {
             //mediaPlayer.stop();
             mediaPlayer.reset();
+            myLogD("mediaPlayer.reset - done");
             mediaPlayer.setDataSource(sPath);
+            myLogD("mediaPlayer.setDataSource - done");
             mediaPlayer.prepare();
+            myLogD("mediaPlayer.prepare - done");
             if (startAtZero || PlayList.getZikFile() == null) {
                 mediaPlayer.customSeekTo(0);
             } else {
                 mediaPlayer.customSeekTo((int) PlayList.getZikFile().getPosition());
             }
+            myLogD("mediaPlayer.customSeekTo - done");
             LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(new Intent(NOTIFICATION_FILELOADED));
             myLog("------------------------------------------------------------"); // to get the chapters of a .m4b, you need ffmpeg...
             MediaPlayer.TrackInfo[] trackInfoArray = mediaPlayer.getTrackInfo();
@@ -864,7 +921,10 @@ public class AudioService extends LifecycleLoggingService {
      */
 
     private void createNotification() {
-        if (mediaPlayer == null) {return;}
+        if (mediaPlayer == null || mediaSession == null) {
+            myLogE("MediaPlayer or MediaSession is null, skipping notification");
+            return;
+        }
         try {
             PendingIntent playPauseAction;
             String actionName;
@@ -915,11 +975,17 @@ public class AudioService extends LifecycleLoggingService {
             //val mediaMetadata = MediaMetadata.Builder().putLong(MediaMetadata.METADATA_KEY_DURATION, mp.duration.toLong()).build()
             //mediaSession.setMetadata(MediaMetadataCompat.fromMediaMetadata(mediaMetadata))
 
-            startForeground(1, builder.build());
+            Notification notification = builder.build();
+            try {
+                startForeground(1, notification);
+            } catch (Exception e) {
+                myLogE("startForeground failed: " + e.getMessage());
+            }
         } catch (Exception e) {
-            myLogE("Error createNotification() - " + e.getMessage());
+            myLogE("Notification creation failed: " + e.getMessage());
         }
     }
+
     private void createNotificationChannel() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
             myLogE("Device with Android < 8, will not do createNotificationChannel()");
@@ -939,10 +1005,7 @@ public class AudioService extends LifecycleLoggingService {
             }
         }
     }
-    private void removeNotification() {
-        stopForeground(true);
-        stopSelf();
-    }
+
     public int getAudioSessionId() {
         return mediaPlayer != null ? mediaPlayer.getAudioSessionId() : 0;
     }

@@ -1,6 +1,6 @@
 package com.driot.bookplayer.activities;
 
-import static com.driot.bookplayer.global.Var.LOG_LIFECYCLE_TRACE;
+import static com.driot.bookplayer.utils.KanLogger.LOG_LIFECYCLE_TRACE;
 
 import android.app.Service;
 import android.content.Intent;

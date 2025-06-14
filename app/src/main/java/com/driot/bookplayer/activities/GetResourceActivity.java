@@ -314,7 +314,7 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
     }
 
     private void checkServiceRunning() {
-        if (lopperForLog%10==0) myLog("checkServiceRunning()");
+        if (lopperForLog%10==0) myLogD("checkServiceRunning()");
         try {
             lopperForLog = lopperForLog + 1;
             textViewToHide = Arrays.asList(
@@ -329,12 +329,12 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
             if (AddResourceService.isBusy || DownloadService.isBusy) {
                 if (lopperForLog%20==0) myLog("AddResourceService.isBusy => displaying banner, disabling buttons");
                 for (Button b: buttonsToLock) { b.setEnabled(false); }
-                for (TextView tv: textViewToHide) { tv.setVisibility(View.INVISIBLE); }
+                for (TextView tv: textViewToHide) { tv.setVisibility(View.GONE); }
                 tv_message_import_currently_running.setVisibility(View.VISIBLE);
             } else {
                 for (Button b: buttonsToLock) { b.setEnabled(true); }
                 for (TextView tv: textViewToHide) { tv.setVisibility(View.VISIBLE); }
-                tv_message_import_currently_running.setVisibility(View.INVISIBLE);
+                tv_message_import_currently_running.setVisibility(View.GONE);
             }
         } catch (Exception e) {
             myLogE("Error while checking if service is running : " + e.getMessage());
@@ -462,6 +462,7 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
 
     private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
     private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
+    private void myLogD(String str) { KanLogger.myLogD(this.getClass().getName(), str); }
     private void myLogI(String str) { KanLogger.myLogI(this.getClass().getName(), str); }
     private void myToast(String str) { KanLogger.myToast(this.getClass().getName(), str); }
     private void myToastE(String str) { KanLogger.myToastE(this.getClass().getName(), str); }

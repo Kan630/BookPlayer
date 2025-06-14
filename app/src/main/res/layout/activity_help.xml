@@ -33,6 +33,14 @@
         <View style="@style/myStyleViewSimpleHorizontalBar"/>
 
         <TextView style="@style/HelpTitle"
+            android:text="@string/help_file_types_title"
+            />
+        <TextView style="@style/HelpText"
+            android:text="@string/help_file_types_text"
+            />
+        <View style="@style/myStyleViewSimpleHorizontalBar"/>
+
+        <TextView style="@style/HelpTitle"
             android:text="@string/help_import"
             />
         <TextView style="@style/HelpText"
@@ -71,9 +79,6 @@
             />
         <TextView style="@style/HelpText"
             android:text="@string/help_permission_text"
-            />
-        <View style="@style/myStyleViewSimpleHorizontalBar"
-            android:layout_marginBottom="30dp"
             />
 
         <View style="@style/myStyleViewSimpleHorizontalBar"/>
