@@ -2,6 +2,8 @@ package com.driot.bookplayer.activities;
 
 import android.os.Bundle;
 
+import androidx.core.view.WindowCompat;
+
 import com.driot.bookplayer.R;
 
 /**
@@ -13,6 +15,9 @@ public class HelpActivity extends LifecycleLoggingActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_help);
+
+        //// -> To test Android 15, overlapping system bars dy default... (Solution adds to xml : android:fitsSystemWindows="true")
+        //WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
 
         //Toolbar toolbar = findViewById(R.id.toolbar);
         //toolbar.setTitle(R.string.help);

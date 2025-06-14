@@ -36,6 +36,7 @@ import static com.driot.bookplayer.utils.PermissionRequest.isRecordAudioPermissi
 import androidx.annotation.NonNull;
 import androidx.annotation.StyleRes;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.WindowCompat;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 20/12/20
@@ -76,6 +77,7 @@ public class OptionActivity extends LifecycleLoggingActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_options); //trigers AutofillManager notifyValueChanged  ignoring on state UNKNOWN  (pollute log in Android 12)
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);  // -> To test Android 15, overlapping system bars dy default... Solution adds to xml : android:fitsSystemWindows="true"
 
         et_timeBeforeSleep = findViewById(R.id.etTimeBeforeSleep);
         et_ForwardSeconds = findViewById(R.id.etForwardSeconds);
