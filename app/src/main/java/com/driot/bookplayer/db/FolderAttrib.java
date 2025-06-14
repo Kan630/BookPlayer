@@ -154,6 +154,7 @@ public class FolderAttrib {
         } else {
             // nom par défaut = les deux derniers folders :
             // ex  : "S3 - Finances publiques/Audios"
+            if (sFolderPath == null) {sFolderPath = "";}
             String str = sFolderPath.replace(":", "/");
             int pos1 = str.lastIndexOf("/");
             if (pos1 > -1) {
@@ -168,6 +169,7 @@ public class FolderAttrib {
                 sFolderName = formatNameForDisplay(str);
             }
         }
+
         if (sFolderName.startsWith("Download/")) { sFolderName = sFolderName.substring(9); }
         if (sFolderName.startsWith("unzipped/")) { sFolderName = sFolderName.substring(9); }
 
