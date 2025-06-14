@@ -39,6 +39,8 @@ import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+//import com.arthenica.ffmpegkit.FFmpegKit;
+//import com.arthenica.ffmpegkit.ReturnCode;
 import com.driot.bookplayer.BuildConfig;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.DatabaseClient;
@@ -85,6 +87,20 @@ public class MainActivity extends LifecycleLoggingActivity {
         super.onCreate(savedInstanceState);
 
         printSomeStuffAboutDevice();
+/*
+        FFmpegKit.executeAsync("-version", session -> {
+            try {
+                ReturnCode returnCode = session.getReturnCode();
+                if (returnCode.isValueSuccess()) {
+                    myLog("FFmpeg Success:\n" + session.getOutput());
+                } else {
+                    myLogE("FFmpeg Failure:\n" + session.getOutput());
+                }
+            } catch (Exception e) {
+                myLogE("FFmpeg Crash : " + e.getMessage());
+            }
+        });
+ */
 
         //Sql.log_all_Folders(this);
 

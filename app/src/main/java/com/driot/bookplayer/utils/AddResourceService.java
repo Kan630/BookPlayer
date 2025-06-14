@@ -525,10 +525,48 @@ public class AddResourceService
                     break;
                 }
 
+                ///---------------------------------------------
+                /// M4B FILE
+                ///---------------------------------------------
                 myLog("mime = [" + mime + "]");
-                if (mime.equals("audio/mp4")) { myLog("mime => MP4"); } // TODO : Chapter Stuff....
+                if (mime.equals("audio/mp4")) {
+                    myLog("mime => MP4");
 
+/*
+                    type_given = "M4B";
 
+                    PROGRESS = Option.getCopyFile(this) ? PROGRESS_ZIP_COPY : PROGRESS_ZIP_NOCOPY;
+                    myLog("M4B : copy locally before everything else");
+                    myLog("Picked Uri = [" + uri_given.toString() + "]");
+
+                    // get the folder name = the zip file true Name without extension
+                    destinationFolderName = title_given;
+
+                    // check Not Already Imported
+                    //*****************************
+                    myLog("Checking Folder doesn't already exist in DB (pre-check M4b) : " + destinationFolderName);
+                    new Thread(() -> {
+                        long lCheck = AppDatabase.getDatabase(this).FolderDao().folderAlreadyExist_checkFolderName(destinationFolderName);
+                        if (lCheck>0) {
+                            myLogE("KO, folder does already exist in DB : [" + destinationFolderName + "]");
+                            tellError(getString(R.string.Error_Import_FolderAlreadyImported) + "  [" + destinationFolderName + "]");
+                        } else {
+                            myLog("OK, folder doesn't already exist in DB");
+                            tellProgress(PROGRESS[3], PROGRESS_TEXT[3]);
+                            copyFileLocal(uri_given
+                                    , getFilesDir().getAbsolutePath() + "/" + FOLDER_UNZIPPED + "/" + destinationFolderName
+                                    , destinationFolderName + ".m4b"
+                                    , type_given
+                            ); //launch the service, NEXT STEP through CALLBACKS
+                        }
+                    }).start();
+                    return;
+  */
+                }
+
+                ///---------------------------------------------
+                /// other unique files
+                ///---------------------------------------------
                 if (mime.startsWith(ONLY_MIME_AUDIO)) {
 
                     sourceLocation = getSourceLocation(uri_given);
@@ -897,7 +935,7 @@ public class AddResourceService
     }
 
     private void copyFileLocal(Uri uri, String destinationFolderPath, String destinationName, String type_given) {
-        if ("ZIP".equals(type_given)) { //reset variable because was done in observable stuff
+        if ("ZIP".equals(type_given) || "M4B".equals(type_given)) { //reset variable because was done in observable stuff
             this.zipDestinationFolderPath = destinationFolderPath;
             this.zipDestinationFolderName = destinationName;
         }
@@ -927,6 +965,18 @@ public class AddResourceService
         );
         launchUnzipService(zeZipFilePath, zeDestinationFolderPath);
     }
+/*
+    private void extractM4bLocal(String zeZipFilePath, String zeDestinationFolderPath) {
+        myLog("Launching extractM4b with arguments" +
+                "\n.    ZipFilePath = [" + zeZipFilePath + "]" +
+                "\n.    DestinationFolderPath = [" + zeDestinationFolderPath + "]"
+        );
+        File outputDir = new File(zeDestinationFolderPath);
+
+        M4BChapterExtractor.extractChapters(zeZipFilePath, outputDir);
+    }
+
+ */
 
     /**
      **********************************
@@ -976,6 +1026,11 @@ public class AddResourceService
         if (type_given.equals("ZIP")) {
             myLog("launch unzipZipLocal()");
             unzipZipLocal(zipDestinationFolderPath + "/" + zipDestinationFolderName, zipDestinationFolderPath);
+/*
+        } else if (type_given.equals("M4B")) {
+            myLog("launch extractM4bLocal()");
+            extractM4bLocal(zipDestinationFolderPath + "/" + zipDestinationFolderName, zipDestinationFolderPath);
+*/
         } else {
             if (!Objects.isNull(sourceLocation) && sourceLocation.equals("cloud")) {
                 myFolder = new FolderAttrib(this, Uri.fromFile(new File(fullPath)), true, type_given);
