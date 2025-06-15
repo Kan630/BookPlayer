@@ -120,6 +120,7 @@ dependencies {
 
     //implementation 'org.mp4parser:isoparser:1.9.27'
     implementation 'com.googlecode.mp4parser:isoparser:1.1.22'
+    //implementation 'org.mp4parser:isoparser:1.9.62'
 
 
     // Import the BoM for the Firebase platform

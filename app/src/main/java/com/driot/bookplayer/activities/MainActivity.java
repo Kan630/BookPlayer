@@ -5,10 +5,9 @@ package com.driot.bookplayer.activities;
  */
 
 
-import static com.driot.bookplayer.MyPersonalApp.APP_FOLDER;
-import static com.driot.bookplayer.global.Var.FOLDER_UNZIPPED;
 import static com.driot.bookplayer.utils.KanLogger.isMyPhoneDev;
 import static com.driot.bookplayer.utils.KanLogger.writeTechLogs;
+import static com.driot.bookplayer.utils.Mp4Parser.extractAacTrackAsAdts;
 import static com.driot.bookplayer.utils.Mp4Parser.extractChapters;
 import static com.driot.bookplayer.utils.Mp4Parser.inspect;
 import static com.driot.bookplayer.utils.TonioCommonStuff.MD5;
@@ -60,6 +59,7 @@ import com.driot.bookplayer.utils.NetworkUtils;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -110,12 +110,16 @@ public class MainActivity extends LifecycleLoggingActivity {
 
         String strFilePath =  getFilesDir().getAbsolutePath() + "/FrostTonight_librivox.m4b";
         //String strFilePath = getFilesDir().getAbsolutePath() + "/unzipped/CountOfMonteCristo109-117 librivox/CountOfMonteCristo109-117_librivox.m4b";
+        String strDestinationFilePath = getFilesDir().getAbsolutePath() + "/unzipped/test.aac";
 
 
         inspect(strFilePath);
         extractChapters(strFilePath);
-
-
+        try {
+            extractAacTrackAsAdts(strFilePath, strDestinationFilePath);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
 
         //Sql.log_all_Folders(this);
