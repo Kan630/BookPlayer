@@ -116,7 +116,10 @@ dependencies {
 
     annotationProcessor "androidx.room:room-compiler:2.7.1"
 
-    //implementation "io.github.maitrungduc1410:ffmpeg-kit-min:6.0.1"
+    //implementation "io.github.maitrungduc1410:ffmpeg-kit-min:6.0.1"    // + 30Mo !!!!
+
+    //implementation 'org.mp4parser:isoparser:1.9.27'
+    implementation 'com.googlecode.mp4parser:isoparser:1.1.22'
 
 
     // Import the BoM for the Firebase platform

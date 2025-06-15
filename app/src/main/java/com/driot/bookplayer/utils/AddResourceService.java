@@ -34,12 +34,15 @@ import java.util.Objects;
 
 import static com.driot.bookplayer.global.Var.FOLDER_DOWNLOAD;
 import static com.driot.bookplayer.global.Var.FOLDER_UNZIPPED;
+import static com.driot.bookplayer.global.Var.ONLY_FILE_TYPE;
 import static com.driot.bookplayer.global.Var.ONLY_MIME_AUDIO;
 import static com.driot.bookplayer.global.Var.PATH_CHECK_AUTOTEST;
 import static com.driot.bookplayer.utils.Tonio.formatMem;
 import static com.driot.bookplayer.utils.Tonio.formatNameForDisplay;
 import static com.driot.bookplayer.utils.Tonio.fileExists;
+import static com.driot.bookplayer.utils.Tonio.getExtension;
 import static com.driot.bookplayer.utils.Tonio.getFileNameFromPath;
+import static com.driot.bookplayer.utils.Tonio.getFileNameFromUri;
 import static com.driot.bookplayer.utils.Tonio.getMimeType;
 import static com.driot.bookplayer.utils.Tonio.getSourceLocation;
 import static com.driot.bookplayer.utils.Tonio.stripExtension;
@@ -525,11 +528,15 @@ public class AddResourceService
                     break;
                 }
 
+                String pickedFileName = getFileNameFromUri(this, uri_given);
+                String pickedFileExtension = getExtension(pickedFileName);
+                myLog("pickedFile = [" + pickedFileName + "] --  Extension = [" + pickedFileExtension + "]");
+
                 ///---------------------------------------------
                 /// M4B FILE
                 ///---------------------------------------------
                 myLog("mime = [" + mime + "]");
-                if (mime.equals("audio/mp4")) {
+                if (mime.equals("audio/mp4") || pickedFileExtension.equals("m4b")) {
                     myLog("mime => MP4");
 
 /*
@@ -567,7 +574,7 @@ public class AddResourceService
                 ///---------------------------------------------
                 /// other unique files
                 ///---------------------------------------------
-                if (mime.startsWith(ONLY_MIME_AUDIO)) {
+                if (mime.startsWith(ONLY_MIME_AUDIO) || ONLY_FILE_TYPE.contains(pickedFileExtension)) {
 
                     sourceLocation = getSourceLocation(uri_given);
                     myLog("Source Location = [" + sourceLocation + "]");   // Only needed when Option "Copy" internally is unselected....

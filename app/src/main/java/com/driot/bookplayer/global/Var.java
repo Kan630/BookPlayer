@@ -10,6 +10,7 @@ import com.driot.bookplayer.R;
 public class Var {
 
     public static final String ONLY_MIME_AUDIO = "audio/";
+    public static final String ONLY_FILE_TYPE = "mp3,m4b,mp4,aac";
 
     public static final String  FOLDER_UNZIPPED = "unzipped";
     public static final String  FOLDER_ZIPPED = "zipped";

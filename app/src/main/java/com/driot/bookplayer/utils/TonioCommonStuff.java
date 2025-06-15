@@ -37,14 +37,6 @@ public class TonioCommonStuff {
         }
     }
 
-    public static String getExtension(String fileName) {
-        if (fileName.lastIndexOf(".") > 0) {
-            return fileName.substring(fileName.lastIndexOf(".") + 1);
-        } else {
-            return "";
-        }
-    }
-
     public static String MD5(String md5) {
         try {
             java.security.MessageDigest md = java.security.MessageDigest.getInstance("MD5");

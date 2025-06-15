@@ -5,8 +5,12 @@ package com.driot.bookplayer.activities;
  */
 
 
+import static com.driot.bookplayer.MyPersonalApp.APP_FOLDER;
+import static com.driot.bookplayer.global.Var.FOLDER_UNZIPPED;
 import static com.driot.bookplayer.utils.KanLogger.isMyPhoneDev;
 import static com.driot.bookplayer.utils.KanLogger.writeTechLogs;
+import static com.driot.bookplayer.utils.Mp4Parser.extractChapters;
+import static com.driot.bookplayer.utils.Mp4Parser.inspect;
 import static com.driot.bookplayer.utils.TonioCommonStuff.MD5;
 
 import android.Manifest;
@@ -20,6 +24,7 @@ import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.telephony.TelephonyManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -54,6 +59,7 @@ import com.driot.bookplayer.utils.KanMail;
 import com.driot.bookplayer.utils.NetworkUtils;
 import com.google.android.material.snackbar.Snackbar;
 
+import java.io.File;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -101,6 +107,16 @@ public class MainActivity extends LifecycleLoggingActivity {
             }
         });
  */
+
+        String strFilePath =  getFilesDir().getAbsolutePath() + "/FrostTonight_librivox.m4b";
+        //String strFilePath = getFilesDir().getAbsolutePath() + "/unzipped/CountOfMonteCristo109-117 librivox/CountOfMonteCristo109-117_librivox.m4b";
+
+
+        inspect(strFilePath);
+        extractChapters(strFilePath);
+
+
+
 
         //Sql.log_all_Folders(this);
 
