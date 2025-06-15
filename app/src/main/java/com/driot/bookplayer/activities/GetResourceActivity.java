@@ -137,7 +137,7 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
             myLogI("Button click : single file");
             if (isReadAudioPermissionGranted(this) || Option.getCopyFile(this)) {
                 Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-                //intent.setType("audio/*");
+                //intent.setType("audio/*");   //TODO.... not sure this is a good idea.....
                 intent.setType("*/*");
                 intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_WRITE_URI_PERMISSION|Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION|Intent.FLAG_GRANT_PREFIX_URI_PERMISSION);
                 intent.addCategory(Intent.CATEGORY_OPENABLE);
