@@ -13,6 +13,7 @@ import com.googlecode.mp4parser.boxes.mp4.objectdescriptors.DecoderSpecificInfo;
 import com.googlecode.mp4parser.boxes.mp4.objectdescriptors.ESDescriptor;
 import com.googlecode.mp4parser.util.Path;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -136,8 +137,6 @@ public class Mp4Parser {
 
         myLog("AAC config: AOT=" + audioObjectType + ", FreqIdx=" + samplingFreqIndex + ", Channels=" + channelConfig);
 
-
-
         try (FileOutputStream fos = new FileOutputStream(outputAacPath)) {
             for (Sample sample : aacTrack.getSamples()) {
                 ByteBuffer buffer = sample.asByteBuffer();
@@ -198,6 +197,80 @@ public class Mp4Parser {
             throw new RuntimeException("Unable to access AudioSpecificConfig", e);
         }
     }
+
+
+    public static void extractChaptersAsAac(String mp4Path, String outputDirPath) throws IOException {
+        File outputDir = new File(outputDirPath);
+        if (!outputDir.exists()) outputDir.mkdirs();
+
+        Movie movie = MovieCreator.build(mp4Path);
+        Track aacTrack = null;
+        Track chapterTrack = null;
+
+        for (Track track : movie.getTracks()) {
+            if ("soun".equals(track.getHandler()) &&
+                    track.getSampleDescriptionBox().getSampleEntry().getType().equals("mp4a")) {
+                aacTrack = track;
+            } else if ("text".equals(track.getHandler()) || "sbtl".equals(track.getHandler())) {
+                chapterTrack = track;
+            }
+        }
+
+        if (aacTrack == null || chapterTrack == null) {
+            throw new RuntimeException("Required audio or chapter track not found");
+        }
+
+        long audioTimescale = aacTrack.getTrackMetaData().getTimescale();
+        long[] audioDurations = aacTrack.getSampleDurations();
+        List<Sample> audioSamples = aacTrack.getSamples();
+
+        long chapterTime = 0;
+        int chapterIndex = 1;
+
+        List<Sample> chapterSamples = chapterTrack.getSamples();
+        long[] chapterDurations = chapterTrack.getSampleDurations();
+        long chapterTimescale = chapterTrack.getTrackMetaData().getTimescale();
+
+        for (int c = 0; c < chapterSamples.size(); c++) {
+            long chapterStartTime = chapterTime;
+            long chapterDuration = chapterDurations[c];
+            chapterTime += chapterDuration;
+
+            double startSec = (double) chapterStartTime / chapterTimescale;
+            double endSec = (double) chapterTime / chapterTimescale;
+
+            int startSample = findSampleIndexForTime(audioDurations, audioTimescale, startSec);
+            int endSample = findSampleIndexForTime(audioDurations, audioTimescale, endSec);
+
+            myLog("Chapter " + chapterIndex + ": samples " + startSample + " to " + endSample);
+
+            // Write to AAC file
+            FileOutputStream fos = new FileOutputStream(new File(outputDirPath, "chapter" + chapterIndex + ".aac"));
+            for (int i = startSample; i < endSample && i < audioSamples.size(); i++) {
+                ByteBuffer buffer = audioSamples.get(i).asByteBuffer();
+                byte[] frame = new byte[buffer.remaining()];
+                buffer.get(frame);
+                byte[] adtsHeader = buildAdtsHeader(frame.length, 2, 4, 2); // You may want to extract real values
+                fos.write(adtsHeader);
+                fos.write(frame);
+            }
+            fos.close();
+            chapterIndex++;
+        }
+    }
+
+    private static int findSampleIndexForTime(long[] durations, long timescale, double timeInSec) {
+        long targetTime = (long) (timeInSec * timescale);
+        long accumulated = 0;
+        for (int i = 0; i < durations.length; i++) {
+            if (accumulated >= targetTime) {
+                return i;
+            }
+            accumulated += durations[i];
+        }
+        return durations.length - 1;
+    }
+
 
 
     //--- FULL STATIC LOG --------------------------

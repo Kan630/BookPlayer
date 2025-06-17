@@ -27,6 +27,7 @@ public class Option {
     private static final boolean DEFAULT_CLICK_VISUALIZER_PLAYPAUSE = false;
     private static final boolean DEFAULT_TECH_LOG = false;
     private static final boolean DEFAULT_OPEN_WITH = true;
+    private static final boolean DEFAULT_SPLIT_M4B = true;
 
 
     /////////////////// SLEEP - AUTOMATIC PAUSE ///////////////////
@@ -100,6 +101,10 @@ public class Option {
     /////////////////// OPEN WITH ///////////////////
     public static void setOpenWith(Context context, boolean bool) {context.getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE).edit().putBoolean("OPEN_WITH",bool).apply();}
     public static Boolean getOpenWith(Context context) {return context.getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE).getBoolean("OPEN_WITH", DEFAULT_OPEN_WITH);}
+
+    /////////////////// SPLIT M4B ///////////////////
+    public static void setSplitM4b(Context context, boolean bool) {context.getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE).edit().putBoolean("SPLIT_M4B",bool).apply();}
+    public static Boolean getSplitM4b(Context context) {return context.getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE).getBoolean("SPLIT_M4B", DEFAULT_SPLIT_M4B);}
 
 
 }

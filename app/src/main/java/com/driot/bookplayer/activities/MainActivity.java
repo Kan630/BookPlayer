@@ -9,6 +9,7 @@ import static com.driot.bookplayer.utils.KanLogger.isMyPhoneDev;
 import static com.driot.bookplayer.utils.KanLogger.writeTechLogs;
 import static com.driot.bookplayer.utils.Mp4Parser.extractAacTrackAsAdts;
 import static com.driot.bookplayer.utils.Mp4Parser.extractChapters;
+import static com.driot.bookplayer.utils.Mp4Parser.extractChaptersAsAac;
 import static com.driot.bookplayer.utils.Mp4Parser.inspect;
 import static com.driot.bookplayer.utils.TonioCommonStuff.MD5;
 
@@ -108,9 +109,11 @@ public class MainActivity extends LifecycleLoggingActivity {
         });
  */
 
-        String strFilePath =  getFilesDir().getAbsolutePath() + "/FrostTonight_librivox.m4b";
-        //String strFilePath = getFilesDir().getAbsolutePath() + "/unzipped/CountOfMonteCristo109-117 librivox/CountOfMonteCristo109-117_librivox.m4b";
-        String strDestinationFilePath = getFilesDir().getAbsolutePath() + "/unzipped/test.aac";
+        //String strFilePath =  getFilesDir().getAbsolutePath() + "/FrostTonight_librivox.m4b";
+        String strFilePath = getFilesDir().getAbsolutePath() + "/unzipped/CountOfMonteCristo109-117 librivox/CountOfMonteCristo109-117_librivox.m4b";
+
+        String strDestinationFilePath = getFilesDir().getAbsolutePath() + "/unzipped/test2.aac";
+        String strDestinationFolderPath = getFilesDir().getAbsolutePath() + "/unzipped/chapters/";
 
 
         inspect(strFilePath);
@@ -120,6 +123,14 @@ public class MainActivity extends LifecycleLoggingActivity {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
+        try {
+            extractChaptersAsAac(strFilePath, strDestinationFolderPath);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+
 
 
         //Sql.log_all_Folders(this);

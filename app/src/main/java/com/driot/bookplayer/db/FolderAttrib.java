@@ -116,8 +116,13 @@ public class FolderAttrib {
         if (f == null || !f.exists()) {
             myLog("Shit, still nothing..., let's try the new function.... FileUtils.getRealPathFromURI");
             //let's try the new function....
-            String realPath = FileUtils.getRealPathFromURI(mCtx, uri);
-            sFolderPath = stripFileName(realPath);
+            try {
+                String realPath = FileUtils.getRealPathFromURI(mCtx, uri);
+                sFolderPath = stripFileName(realPath);
+            } catch (Exception e) {
+                myLogE("FileUtils.getRealPathFromURI(mCtx, uri);   " +  e.getMessage());
+            }
+
             if (sFolderPath != null) {
                 f = new File(sFolderPath);
             }

@@ -529,19 +529,24 @@ public class PlayActivity extends LifecycleLoggingActivity {
         }
     }
     private void reDrawListeningSince(int tempsEcoule) { // le call vient d'1 timer dans le service...
-        String zeText_since;
-        String zeText_left;
-        int timeBeforeSleep = audioService.getCustomSleepTime() == 0 ? Option.getTimeBeforeSleep(this) : audioService.getCustomSleepTime();
-        if (tempsEcoule >= 0) {
-            //String str = audioService.getCustomSleepTime() == 0 ? getString(R.string.tv_ListeningTimeWithNoUserAction) : getString(R.string.tv_ListeningTimeWithCustomSleep);
-            String str = tvListeningTimeBaseText;
-            zeText_since = str + " " + formatTime(tempsEcoule*1000,true);
-            zeText_left = getString(R.string.tv_TimeLeft) + " : " + formatTime(timeBeforeSleep*1000*60-tempsEcoule*1000,true);
-            tvTimeLeft.setText(zeText_left);
-            if (tempsEcoule>0) { tvListeningTime.setText(zeText_since); }
-        } else {
-            tvListeningTime.setText("");
-            tvTimeLeft.setText("");
+        try {
+            String zeText_since;
+            String zeText_left;
+            int timeBeforeSleep = audioService.getCustomSleepTime() == 0 ? Option.getTimeBeforeSleep(this) : audioService.getCustomSleepTime();
+            if (tempsEcoule >= 0) {
+                //String str = audioService.getCustomSleepTime() == 0 ? getString(R.string.tv_ListeningTimeWithNoUserAction) : getString(R.string.tv_ListeningTimeWithCustomSleep);
+                String str = tvListeningTimeBaseText;
+                zeText_since = str + " " + formatTime(tempsEcoule*1000,true);
+                zeText_left = getString(R.string.tv_TimeLeft) + " : " + formatTime(timeBeforeSleep*1000*60-tempsEcoule*1000,true);
+                tvTimeLeft.setText(zeText_left);
+                if (tempsEcoule>0) { tvListeningTime.setText(zeText_since); }
+            } else {
+                tvListeningTime.setText("");
+                tvTimeLeft.setText("");
+            }
+        } catch (Exception e) {
+            myLogE("reDrawListeningSince(" + tempsEcoule + ") - " + e.getMessage());
+            myLogE(e.getMessage());
         }
     }
 

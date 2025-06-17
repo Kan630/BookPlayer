@@ -111,7 +111,6 @@
         \n* More memory will be needed if you do not delete the source file.</i>
     </string>
     <string name="option_copy_file_text">Copy audio files in the internal, reserved, BookPlayer app memory.</string>
-    <string name="option_copy_file_special_zip"><i>zip files are always copied</i></string>
 
 
     <string name="option_backward_forward_title">BackWard/Forward buttons</string>
@@ -396,5 +395,11 @@
     <string name="SleepTimer">Sleep Timer</string>
     <string name="SleepTimerWrongInt">Invalid input. Please enter a valid number.</string>
     <string name="SleepTimerGeneralError">Error happened while setting Sleep Timer.</string>
+
+    <string name="option_split_m4b">.m4b splitting</string>
+    <string name="option_split_m4b_text">Splits m4b files (new audiobook format) into chapters. - Still Experimental -</string>
+
+    <string name="option_copy_file_special_zip"><i>zip and split m4b are always copied</i></string>
+
 
 </resources>
