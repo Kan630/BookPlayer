@@ -109,12 +109,12 @@ public class MainActivity extends LifecycleLoggingActivity {
         });
  */
 
+/*
         //String strFilePath =  getFilesDir().getAbsolutePath() + "/FrostTonight_librivox.m4b";
         String strFilePath = getFilesDir().getAbsolutePath() + "/unzipped/CountOfMonteCristo109-117 librivox/CountOfMonteCristo109-117_librivox.m4b";
 
         String strDestinationFilePath = getFilesDir().getAbsolutePath() + "/unzipped/test2.aac";
         String strDestinationFolderPath = getFilesDir().getAbsolutePath() + "/unzipped/chapters/";
-
 
         inspect(strFilePath);
         extractChapters(strFilePath);
@@ -129,6 +129,8 @@ public class MainActivity extends LifecycleLoggingActivity {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
+ */
 
 
 

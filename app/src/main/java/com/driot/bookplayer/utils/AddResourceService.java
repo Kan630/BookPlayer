@@ -37,6 +37,7 @@ import static com.driot.bookplayer.global.Var.FOLDER_UNZIPPED;
 import static com.driot.bookplayer.global.Var.ONLY_FILE_TYPE;
 import static com.driot.bookplayer.global.Var.ONLY_MIME_AUDIO;
 import static com.driot.bookplayer.global.Var.PATH_CHECK_AUTOTEST;
+import static com.driot.bookplayer.utils.Mp4Parser.extractChaptersAsAac;
 import static com.driot.bookplayer.utils.Tonio.formatMem;
 import static com.driot.bookplayer.utils.Tonio.formatNameForDisplay;
 import static com.driot.bookplayer.utils.Tonio.fileExists;
@@ -57,7 +58,7 @@ import static com.driot.bookplayer.utils.TonioCommonStuff.extractName;
 
 public class AddResourceService
         extends LifecycleLoggingService
-        implements CopyFileService.Callbacks, UnzipService.Callbacks, DownloadService.Callbacks
+        implements CopyFileService.Callbacks, UnzipService.Callbacks, DownloadService.Callbacks, SplitM4bService.Callbacks
 {
 
     AddResourceService.Callbacks mCallBacks;
@@ -73,6 +74,10 @@ public class AddResourceService
     DownloadService mDownloadService;
     Boolean mDownloadServiceBound;
     boolean boundToDownloadService;
+
+    SplitM4bService mSplitM4bService;
+    Boolean mSplitM4bServiceBound;
+    boolean boundToSplitM4bService;
 
     /**
      * steps are
@@ -174,6 +179,13 @@ public class AddResourceService
             myLogE("onUnbind - error unbindService Download : " + e.getMessage());
             e.printStackTrace();
         }
+        try {
+            if (mSplitM4bServiceBound != null && mSplitM4bServiceBound) unbindService(splitM4bServiceConnection);
+            mSplitM4bServiceBound = false;
+        } catch (Exception e) {
+            myLogE("onUnbind - error unbindService Split M4B : " + e.getMessage());
+            e.printStackTrace();
+        }
         return super.onUnbind(intent);
     }
     public class AddResourceServiceBackgroundBinder extends Binder {
@@ -225,7 +237,7 @@ public class AddResourceService
         mCallBacks.tellHeader(destinationFileName);
         myLog("call start & bind to copyFileService from launchCopyFileService - bound result :" + boundToCopyFileService + "");
     }
-//UNZIP
+// UNZIP
     private final ServiceConnection unzipServiceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
@@ -258,7 +270,42 @@ public class AddResourceService
             myLogE("ERROR bind to Service in launchUnzipService ");
             myLogE(e.getMessage());
         }
-        myLog("call start & bind to unzipService from launchUnzipService - bound result :" + boundToUnzipService + "");
+        myLog("call start & bind to unzipService from launchUnzipService - bound result :" + boundToUnzipService);
+    }
+// M4B
+    private final ServiceConnection splitM4bServiceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            myLog("SplitM4bServiceConnection - onServiceConnected : [" + className.toString() + "]");
+            SplitM4bService.SplitM4bServiceBackgroundBinder binder = (SplitM4bService.SplitM4bServiceBackgroundBinder) service;
+            mSplitM4bService = binder.getService();
+            mSplitM4bService.registerClient(AddResourceService.this);
+            mSplitM4bServiceBound = true;
+            myLog("SplitM4bServiceConnection - launch init()");
+            mSplitM4bService.init();
+        }
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            myLog("SplitM4bServiceConnection - OnServiceDisconnected : [" + arg0.toString() + "]");
+            if (mSplitM4bServiceBound != null && mSplitM4bServiceBound) {
+                mSplitM4bService.unbindService(splitM4bServiceConnection);
+                mSplitM4bServiceBound = false;
+            }
+        }
+    };
+    private void launchSplitM4bService(String m4bFilePath, String destinationFolderPath) {
+        myLog("launchSplitM4bService()");
+        Intent intentSplitM4bService = new Intent(this, SplitM4bService.class);
+        intentSplitM4bService.putExtra("m4bFilePath", m4bFilePath);
+        intentSplitM4bService.putExtra("destinationFolderPath", destinationFolderPath);
+        boundToSplitM4bService = false;
+        try {
+            boundToSplitM4bService = bindService(intentSplitM4bService, splitM4bServiceConnection, Context.BIND_AUTO_CREATE); //error Log : Activity XXX has leaked ServiceConnection
+        } catch (Exception e) {
+            myLogE("ERROR bind to Service in launchsplitM4bService ");
+            myLogE(e.getMessage());
+        }
+        myLog("call start & bind to splitM4bService from launchsplitM4bService - bound result :" + boundToSplitM4bService);
     }
 //DOWNLOAD
     private final ServiceConnection downloadServiceConnection = new ServiceConnection() {
@@ -538,37 +585,35 @@ public class AddResourceService
                 myLog("mime = [" + mime + "]");
                 if (mime.equals("audio/mp4") || pickedFileExtension.equals("m4b")) {
                     myLog("mime => MP4");
+                    if (Option.getSplitM4b(this)) {
+                        type_given = "M4B";
+                        PROGRESS = Option.getCopyFile(this) ? PROGRESS_ZIP_COPY : PROGRESS_ZIP_NOCOPY;
+                        myLog("M4B : copy locally before everything else");
+                        myLog("Picked Uri = [" + uri_given.toString() + "]");
 
-/*
-                    type_given = "M4B";
+                        // get the folder name = the zip file true Name without extension
+                        destinationFolderName = title_given;
 
-                    PROGRESS = Option.getCopyFile(this) ? PROGRESS_ZIP_COPY : PROGRESS_ZIP_NOCOPY;
-                    myLog("M4B : copy locally before everything else");
-                    myLog("Picked Uri = [" + uri_given.toString() + "]");
-
-                    // get the folder name = the zip file true Name without extension
-                    destinationFolderName = title_given;
-
-                    // check Not Already Imported
-                    //*****************************
-                    myLog("Checking Folder doesn't already exist in DB (pre-check M4b) : " + destinationFolderName);
-                    new Thread(() -> {
-                        long lCheck = AppDatabase.getDatabase(this).FolderDao().folderAlreadyExist_checkFolderName(destinationFolderName);
-                        if (lCheck>0) {
-                            myLogE("KO, folder does already exist in DB : [" + destinationFolderName + "]");
-                            tellError(getString(R.string.Error_Import_FolderAlreadyImported) + "  [" + destinationFolderName + "]");
-                        } else {
-                            myLog("OK, folder doesn't already exist in DB");
-                            tellProgress(PROGRESS[3], PROGRESS_TEXT[3]);
-                            copyFileLocal(uri_given
-                                    , getFilesDir().getAbsolutePath() + "/" + FOLDER_UNZIPPED + "/" + destinationFolderName
-                                    , destinationFolderName + ".m4b"
-                                    , type_given
-                            ); //launch the service, NEXT STEP through CALLBACKS
-                        }
-                    }).start();
-                    return;
-  */
+                        // check Not Already Imported
+                        //*****************************
+                        myLog("Checking Folder doesn't already exist in DB (pre-check M4b) : " + destinationFolderName);
+                        new Thread(() -> {
+                            long lCheck = AppDatabase.getDatabase(this).FolderDao().folderAlreadyExist_checkFolderName(destinationFolderName);
+                            if (lCheck>0) {
+                                myLogE("KO, folder does already exist in DB : [" + destinationFolderName + "]");
+                                tellError(getString(R.string.Error_Import_FolderAlreadyImported) + "  [" + destinationFolderName + "]");
+                            } else {
+                                myLog("OK, folder doesn't already exist in DB");
+                                tellProgress(PROGRESS[3], PROGRESS_TEXT[3]);
+                                copyFileLocal(uri_given
+                                        , getFilesDir().getAbsolutePath() + "/" + FOLDER_UNZIPPED + "/" + destinationFolderName
+                                        , destinationFolderName + ".m4b"
+                                        , type_given
+                                ); //launch the service, NEXT STEP through CALLBACKS
+                            }
+                        }).start();
+                        return;
+                    }
                 }
 
                 ///---------------------------------------------
@@ -708,7 +753,7 @@ public class AddResourceService
                     copyFolder();
                 }
             } catch (Exception e) {
-                myLogE("checkIfFolderAlreadyExist() - " + e.getMessage());
+                tellError(getString(R.string.Technical_Error) + "...  " + "checkIfFolderAlreadyExist() - " + e.getMessage());
             }
         }).start();
 
@@ -716,6 +761,10 @@ public class AddResourceService
     private void copyFolder() {
         myLog("copyFolder()");
         if (type_given.equals("ZIP")) {
+            // Has already been copied and unzipped...
+            myFolder.setForceFolderPath(zipDestinationFolderPath);
+            saveFolder();
+        } else if (type_given.equals("M4B")) {
             // Has already been copied and unzipped...
             myFolder.setForceFolderPath(zipDestinationFolderPath);
             saveFolder();
@@ -742,7 +791,7 @@ public class AddResourceService
                             , type_given
                     );
                 } else {
-                    myLogE("Wrong file type : " + type_given);
+                    tellError(getString(R.string.Technical_Error) + "...  " + "Wrong file type : " + type_given);
                 }
             } else {
                 saveFolder();
@@ -822,7 +871,7 @@ public class AddResourceService
             myLog("Get Media Duration : " + sFileFullPath);
             zikFile.setDuration(getMediaDurationFromPath(sFileFullPath));
         } catch (IOException e) {
-            myLogE("Error getting media duration : " + e.getMessage());
+            tellNonBlockingError("Error getting/setting media duration : " + e.getMessage());
         }
 
         if (zikFile.getDuration() == 0) {
@@ -972,18 +1021,15 @@ public class AddResourceService
         );
         launchUnzipService(zeZipFilePath, zeDestinationFolderPath);
     }
-/*
     private void extractM4bLocal(String zeZipFilePath, String zeDestinationFolderPath) {
         myLog("Launching extractM4b with arguments" +
                 "\n.    ZipFilePath = [" + zeZipFilePath + "]" +
                 "\n.    DestinationFolderPath = [" + zeDestinationFolderPath + "]"
         );
-        File outputDir = new File(zeDestinationFolderPath);
+        launchSplitM4bService(zeZipFilePath, zeDestinationFolderPath);
 
-        M4BChapterExtractor.extractChapters(zeZipFilePath, outputDir);
     }
 
- */
 
     /**
      **********************************
@@ -1033,11 +1079,9 @@ public class AddResourceService
         if (type_given.equals("ZIP")) {
             myLog("launch unzipZipLocal()");
             unzipZipLocal(zipDestinationFolderPath + "/" + zipDestinationFolderName, zipDestinationFolderPath);
-/*
         } else if (type_given.equals("M4B")) {
             myLog("launch extractM4bLocal()");
             extractM4bLocal(zipDestinationFolderPath + "/" + zipDestinationFolderName, zipDestinationFolderPath);
-*/
         } else {
             if (!Objects.isNull(sourceLocation) && sourceLocation.equals("cloud")) {
                 myFolder = new FolderAttrib(this, Uri.fromFile(new File(fullPath)), true, type_given);
@@ -1071,6 +1115,33 @@ public class AddResourceService
     @Override
     public void unzipService_tellEnd(String destinationFolderPath) {
         myLog("Unzip Service tells End : [" + destinationFolderPath + "]");
+        tellProgress(PROGRESS[7], PROGRESS_TEXT[7]);
+        DocumentFile dfPickedDir;
+        try {
+            dfPickedDir = DocumentFile.fromFile(new File(destinationFolderPath));
+        } catch (Exception e) {
+            myLogE("error getting DocumentFile.fromFile : " + e.getMessage());
+            return;
+        }
+        populateArrayListOfTracksFromFolder(dfPickedDir, true);
+    }
+    /**
+     **********************************
+     *    SPLIT M4B CALLBACKS received
+     *********************************
+     */
+    @Override
+    public void splitM4bService_tellProgress(String progressText, int progressVal) {
+        tellProgress(PROGRESS[6] + progressVal * (PROGRESS[7] - PROGRESS[6]) / 100, progressText);
+    }
+    @Override
+    public void splitM4bService_tellError(String errorText) {
+        myLogE("SplitM4b service tell Error");
+        tellError(errorText);
+    }
+    @Override
+    public void splitM4bService_tellEnd(String destinationFolderPath) {
+        myLog("SplitM4b Service tells End : [" + destinationFolderPath + "]");
         tellProgress(PROGRESS[7], PROGRESS_TEXT[7]);
         DocumentFile dfPickedDir;
         try {

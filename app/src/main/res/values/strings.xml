@@ -401,5 +401,11 @@
 
     <string name="option_copy_file_special_zip"><i>zip and split m4b are always copied</i></string>
 
+    <string name="Error_Import_Split_M4B"><i>An error occurred while splitting m4b file. You could try to uncheck the "split m4b" option in menu/options, or also convert that m4b file into a folder of mp3 files manually with another app/tool, and then import that folder.</i></string>
+    <string name="Import_Progress_splitting_m4b_files">"Splitting m4b files"</string>
+    <string name="Import_Progress_splitting_m4b_file">"splitting m4b file : "</string>
+
+    <string name="Technical_Error">"Technical Error"</string>
+
 
 </resources>
