@@ -376,7 +376,7 @@
     <string name="OnlineSearch_button">Rechercher…</string>
 
     <string name="help_file_types_title">Types de fichiers :</string>
-    <string name="help_file_types_text">Préférez toujours les fichiers [mp3], ou les archives zip/dossiers contenant des fichiers [mp3]. Bookplayer peut désormais lire le nouveau format [m4b], mais je travaille encore sur l'affichage des chapitres à l'intérieur.</string>
+    <string name="help_file_types_text">"Préférez toujours les fichiers [mp3], ou les archives zip/dossiers contenant des fichiers [mp3]. Bookplayer peut désormais lire le nouveau format [m4b], mais je travaille encore sur l'affichage des chapitres à l'intérieur."</string>
 
     <string name="SleepTimer">Minuteur de sommeil</string>
     <string name="SleepTimerWrongInt">Entrée invalide. Veuillez entrer un nombre valide.</string>
