@@ -108,7 +108,6 @@
         \n* Потребуется больше памяти, если вы не удалите исходный файл.</i>
     </string>
     <string name="option_copy_file_text">Копировать аудиофайлы во внутреннюю выделенную память BookPlayer.</string>
-    <string name="option_copy_file_special_zip"><i>ZIP-файлы всегда копируются</i></string>
 
 
     <string name="option_backward_forward_title">Кнопки Назад/Вперед</string>
@@ -360,7 +359,7 @@
     \n\nИли
     \n\nНажмите [Настройки], чтобы активировать опцию [Копировать файл во внутреннюю память].
     \n<i>Тогда ваши аудиофайлы будут скопированы во внутреннюю память Bookplayer, и вам не потребуются разрешения для их чтения.</i>
-</string>
+    </string>
 
 
     <string name="permission_record_audio_rationale_01">"Следующее разрешение требуется для отображения спектрограммы."</string>
@@ -370,5 +369,34 @@
     \n\nВы можете обойти это, нажав [Информация о приложении].
     \nЭто откроет настройки Bookplayer на устройстве.
     \n\nЗатем перейдите в раздел "Разрешения" и вручную разрешите "Микрофон".</string>
+
+    <string name="OnlineSearch_title">Прямая интеграция — бета-тест</string>
+    <string name="OnlineSearch_desc">Используйте эту функцию поиска, чтобы найти нужную аудиокнигу. Затем на следующей странице выберите нужную — она будет загружена и автоматически добавлена в Bookplayer!</string>
+    <string name="OnlineSearch_hint">Джек Лондон</string>
+    <string name="OnlineSearch_button">Поиск…</string>
+
+    <string name="help_file_types_title">Типы файлов:</string>
+    <string name="help_file_types_text">Всегда предпочтительнее использовать файлы [mp3] или архивы zip/папки, содержащие файлы [mp3]. Bookplayer теперь поддерживает новый формат [m4b], но отображение глав всё ещё в разработке.</string>
+
+    <string name="SleepTimer">Таймер сна</string>
+    <string name="SleepTimerWrongInt">Неверный ввод. Пожалуйста, введите корректное число.</string>
+    <string name="SleepTimerGeneralError">Произошла ошибка при установке таймера сна.</string>
+
+    <string name="option_split_m4b">Разделение .m4b</string>
+    <string name="option_split_m4b_text">Извлечение глав из m4b (новый формат аудиокниг). — Всё ещё экспериментально —</string>
+
+    <string name="option_copy_file_special_zip"><i>zip-файлы и разделённые m4b всегда копируются</i></string>
+
+    <string name="Error_Import_Split_M4B"><i>Произошла ошибка при разделении файла m4b.</i></string>
+    <string name="Import_Experimental_M4B_warning">Предупреждение: <b>извлечение глав из m4b</b> всё ещё <b>экспериментальное</b>.</string>
+    <string name="Import_Experimental_M4B_iferror">Если возникнут ошибки</string>
+    <string name="Import_Experimental_M4B_solution_1">Вы можете отключить опцию «разделение m4b» в меню/настройках.</string>
+    <string name="Import_Experimental_M4B_solution_2"><i>Вы также можете воспользоваться сторонним инструментом для конвертации файла m4b в папку с mp3-файлами, а затем импортировать эту папку в Bookplayer.</i></string>
+    <string name="Import_Progress_splitting_m4b_files">"Разделение файлов m4b"</string>
+    <string name="Import_Progress_splitting_m4b_file">"Разделение файла m4b: "</string>
+
+    <string name="Technical_Error">"Техническая ошибка"</string>
+
+
 
 </resources>

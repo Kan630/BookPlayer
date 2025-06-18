@@ -108,7 +108,6 @@
         \n* 如果不删除源文件，将需要更多内存。</i>
     </string>
     <string name="option_copy_file_text">将音频文件复制到BookPlayer应用内部保留内存中。</string>
-    <string name="option_copy_file_special_zip"><i>zip文件总是会被复制</i></string>
 
 
     <string name="option_backward_forward_title">后退/前进按钮</string>
@@ -369,5 +368,33 @@
     \n\n您可以点击[应用信息]手动设置。
     \n这将打开设备的Bookplayer设置页面。
     \n\n然后进入"权限"部分手动启用"麦克风"权限</string>
+
+    <string name="OnlineSearch_title">直接集成 - 测试版</string>
+    <string name="OnlineSearch_desc">使用此搜索功能查找您想要的有声书。然后在下一页中选择要导入的那一本，它将自动下载并添加到 Bookplayer 中！</string>
+    <string name="OnlineSearch_hint">杰克·伦敦</string>
+    <string name="OnlineSearch_button">搜索…</string>
+
+    <string name="help_file_types_title">文件类型：</string>
+    <string name="help_file_types_text">优先使用 [mp3] 文件，或包含 [mp3] 文件的 zip 压缩包/文件夹。Bookplayer 现在也支持新的 [m4b] 文件类型，但章节显示功能仍在开发中。</string>
+
+    <string name="SleepTimer">睡眠定时器</string>
+    <string name="SleepTimerWrongInt">输入无效。请输入一个有效的数字。</string>
+    <string name="SleepTimerGeneralError">设置睡眠定时器时发生错误。</string>
+
+    <string name="option_split_m4b">.m4b 文件分割</string>
+    <string name="option_split_m4b_text">从 m4b 文件中提取章节（新型有声书格式） - 仍为实验功能 -</string>
+
+    <string name="option_copy_file_special_zip"><i>zip 文件和分割的 m4b 文件将始终被复制</i></string>
+
+    <string name="Error_Import_Split_M4B"><i>分割 m4b 文件时发生错误。</i></string>
+    <string name="Import_Experimental_M4B_warning">警告：<b>m4b 章节提取</b> 仍处于 <b>实验阶段</b>。</string>
+    <string name="Import_Experimental_M4B_iferror">如果遇到错误</string>
+    <string name="Import_Experimental_M4B_solution_1">您可以在菜单/选项中取消勾选“分割 m4b”选项。</string>
+    <string name="Import_Experimental_M4B_solution_2"><i>您也可以使用第三方工具将 m4b 文件转换为包含 mp3 文件的文件夹，然后将该文件夹导入 Bookplayer。</i></string>
+    <string name="Import_Progress_splitting_m4b_files">“正在分割 m4b 文件”</string>
+    <string name="Import_Progress_splitting_m4b_file">“正在分割 m4b 文件：”</string>
+
+    <string name="Technical_Error">“技术错误”</string>
+
 
 </resources>

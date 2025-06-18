@@ -108,7 +108,6 @@
         \n* Se necesitará más memoria si no borras el archivo fuente.</i>
     </string>
     <string name="option_copy_file_text">Copiar archivos de audio en la memoria interna reservada de BookPlayer.</string>
-    <string name="option_copy_file_special_zip"><i>los archivos zip siempre se copian</i></string>
 
 
     <string name="option_backward_forward_title">Botones Retroceder/Avanzar</string>
@@ -360,7 +359,7 @@
     \n\nO
     \n\nHaz clic en [Opciones] para activar [Copiar archivo internamente].
     \n<i>Así tus archivos de audio se copiarán en la memoria interna y no necesitarás permisos para leerlos.</i>
-</string>
+    </string>
 
 
     <string name="permission_record_audio_rationale_01">"El siguiente permiso opcional es para el visualizador de espectro."</string>
@@ -370,4 +369,33 @@
     \n\nPuedes solucionarlo haciendo clic en [Info app].
     \nEsto abrirá la configuración de Bookplayer en el dispositivo.
     \n\nLuego ve a "Permisos" y activa manualmente "Micrófono".</string>
+
+    <string name="OnlineSearch_title">Integración directa - prueba beta</string>
+    <string name="OnlineSearch_desc">Utiliza esta función de búsqueda para encontrar el audiolibro que estás buscando. Luego, en la página siguiente, selecciona el que deseas importar; ¡debería descargarse y añadirse directamente dentro de Bookplayer!</string>
+    <string name="OnlineSearch_hint">Jack London</string>
+    <string name="OnlineSearch_button">Buscar…</string>
+
+    <string name="help_file_types_title">Tipos de archivos:</string>
+    <string name="help_file_types_text">Prefiere siempre archivos [mp3], o archivos zip/carpetas que contengan archivos [mp3]. Bookplayer ahora puede leer el nuevo formato [m4b], pero todavía estoy trabajando en el código para mostrar los capítulos internos.</string>
+
+    <string name="SleepTimer">Temporizador de sueño</string>
+    <string name="SleepTimerWrongInt">Entrada inválida. Por favor, introduce un número válido.</string>
+    <string name="SleepTimerGeneralError">Se produjo un error al configurar el temporizador de sueño.</string>
+
+    <string name="option_split_m4b">División de .m4b</string>
+    <string name="option_split_m4b_text">Extraer capítulos de archivos m4b (nuevo formato de audiolibro). - Aún experimental -</string>
+
+    <string name="option_copy_file_special_zip"><i>los archivos zip y los m4b divididos siempre se copian</i></string>
+
+    <string name="Error_Import_Split_M4B"><i>Ocurrió un error al dividir el archivo m4b.</i></string>
+    <string name="Import_Experimental_M4B_warning">Advertencia: la <b>extracción de capítulos m4b</b> aún está en <b>fase experimental</b>.</string>
+    <string name="Import_Experimental_M4B_iferror">Si encuentras errores</string>
+    <string name="Import_Experimental_M4B_solution_1">Puedes desmarcar la opción "división m4b" en el menú/opciones.</string>
+    <string name="Import_Experimental_M4B_solution_2"><i>También puedes usar una herramienta externa para convertir ese archivo m4b en una carpeta con archivos mp3, y luego importar esa carpeta en Bookplayer.</i></string>
+    <string name="Import_Progress_splitting_m4b_files">"Dividiendo archivos m4b"</string>
+    <string name="Import_Progress_splitting_m4b_file">"Dividiendo archivo m4b: "</string>
+
+    <string name="Technical_Error">"Error técnico"</string>
+
+
 </resources>

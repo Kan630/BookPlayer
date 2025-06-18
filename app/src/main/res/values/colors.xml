@@ -20,6 +20,7 @@
     <color name="lightred">#FFFF2222</color>
 
     <color name="red">#FF990000</color>
+    <color name="orange">#FFff8800</color>
     <color name="yellow">#FF999900</color>
 
     <color name="seek_bar_background">#343434</color>

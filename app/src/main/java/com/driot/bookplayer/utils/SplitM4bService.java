@@ -38,6 +38,8 @@ public class SplitM4bService extends LifecycleLoggingService {
     public interface Callbacks{
         void splitM4bService_tellProgress(String progressText, int progressVal);
         void splitM4bService_tellError(String errorText);
+        void splitM4bService_tellNonBlockingError(String errorText);
+        void splitM4bService_tellWarning(String warningText);
         void splitM4bService_tellEnd(String destinationFolderPath);
         void tellNonBlockingError(String txt);
     }
@@ -91,6 +93,11 @@ public class SplitM4bService extends LifecycleLoggingService {
 
 
     private boolean splitM4bZipLocal() {
+
+        tellWarning(getResources().getString(R.string.Import_Experimental_M4B_warning)
+                + "\n\n" + getResources().getString(R.string.Import_Experimental_M4B_iferror)
+                + ", " + getResources().getString(R.string.Import_Experimental_M4B_solution_1)
+                + "\n" + getResources().getString(R.string.Import_Experimental_M4B_solution_2));
 
 
         ////////////////////////////////////////////////////////////////////////////////
@@ -232,7 +239,10 @@ public class SplitM4bService extends LifecycleLoggingService {
 
         } catch (Exception e) {
 
-            tellError(getString(R.string.Error_Import_Split_M4B) + "\n\n" + e.getMessage());
+            tellError(getString(R.string.Error_Import_Split_M4B)
+                    + "   " + getString(R.string.Import_Experimental_M4B_solution_1)
+                    + "\n" + getString(R.string.Import_Experimental_M4B_solution_2)
+                    + "\n\n" + e.getMessage());
             //mCallBacks.tellNonBlockingError("Error : blablabla... " + e.getMessage());
 
         } finally {
@@ -334,6 +344,13 @@ public class SplitM4bService extends LifecycleLoggingService {
     public void tellProgress(int progressVal, String progressText) {
         mCallBacks.splitM4bService_tellProgress(progressText, progressVal);
     }
+    public void tellNonBlockingError(String errorText) {
+        mCallBacks.splitM4bService_tellNonBlockingError(errorText);
+    }
+    public void tellWarning(String errorText) {
+        mCallBacks.splitM4bService_tellWarning(errorText);
+    }
+
     //////////////////////////////////////////////////////////////////////////////////////////
     private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
     private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }

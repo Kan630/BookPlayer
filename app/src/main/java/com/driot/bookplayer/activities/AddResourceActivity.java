@@ -43,7 +43,7 @@ public class AddResourceActivity
     private TextView tvTitle;
     private TextView progressBarText;
     private ProgressBar progressBar;
-    private TextView tvErrorText;
+    private TextView tvErrorText, tvWarning;
 
 
     boolean boundToAddResourceService;
@@ -65,6 +65,7 @@ public class AddResourceActivity
         progressBarText = findViewById(R.id.progressBarText);
         progressBar = findViewById(R.id.progressBar);
         tvErrorText = findViewById(R.id.errorText);
+        tvWarning = findViewById(R.id.warningText);
 
         String url = getIntent().getStringExtra("url");
         String action = getIntent().getAction();
@@ -202,7 +203,14 @@ public class AddResourceActivity
         runOnUiThread(() -> {
             myToastE(txt);
             tvErrorText.setText(txt);
-            tvErrorText.setTextColor(Color.RED);
+            tvErrorText.setTextColor(getColor(R.color.red_500));
+        });
+    }
+    @Override
+    public void tellWarning(String txt) {
+        runOnUiThread(() -> {
+            tvWarning.setText(txt);
+            tvWarning.setTextColor(getColor(R.color.orange));
         });
     }
     @Override

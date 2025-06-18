@@ -108,7 +108,6 @@
         \n* سيحتاج لمساحة أكبر إذا لم تحذف الملف المصدر.</i>
     </string>
     <string name="option_copy_file_text">نسخ ملفات الصوت في الذاكرة الداخلية المخصصة لـ BookPlayer.</string>
-    <string name="option_copy_file_special_zip"><i>ملفات zip يتم نسخها دائماً</i></string>
 
 
     <string name="option_backward_forward_title">أزرار الرجوع/التقدم</string>
@@ -360,7 +359,7 @@
     \n\nأو
     \n\nانقر على [خيارات] لتفعيل خيار [نسخ الملف داخليًا].
     \n<i>بعد ذلك، سيتم نسخ ملفاتك الصوتية داخل الذاكرة الداخلية لـ Bookplayer ولن تحتاج إلى أي إذن لقراءتها.</i>
-</string>
+    </string>
 
 
     <string name="permission_record_audio_rationale_01">"الإذن التالي اختياري لعرض مرسم الطيف."</string>
@@ -370,5 +369,34 @@
     \n\nيمكنك تجاوز ذلك بالنقر على [معلومات التطبيق].
     \nسيؤدي ذلك إلى فتح إعدادات Bookplayer على الجهاز.
     \n\nثم انتقل إلى قسم "الأذونات" واسمح يدويًا بـ "الميكروفون".</string>
+
+
+    <string name="OnlineSearch_title">دمج مباشر - اختبار تجريبي</string>
+    <string name="OnlineSearch_desc">استخدم هذه الميزة للبحث عن الكتاب الصوتي الذي تريده. ثم في الصفحة التالية، اختر الكتاب الذي ترغب في استيراده؛ سيتم تنزيله وإضافته مباشرةً إلى Bookplayer!</string>
+    <string name="OnlineSearch_hint">جاك لندن</string>
+    <string name="OnlineSearch_button">بحث…</string>
+
+    <string name="help_file_types_title">أنواع الملفات:</string>
+    <string name="help_file_types_text">يُفضل دائمًا ملفات [mp3]، أو ملفات zip / مجلدات تحتوي على ملفات [mp3]. يستطيع Bookplayer الآن قراءة نوع الملف الجديد [m4b]، لكن لا يزال العمل جارٍ على عرض الفصول بداخله.</string>
+
+    <string name="SleepTimer">مؤقت النوم</string>
+    <string name="SleepTimerWrongInt">إدخال غير صالح. يرجى إدخال رقم صحيح.</string>
+    <string name="SleepTimerGeneralError">حدث خطأ أثناء إعداد مؤقت النوم.</string>
+
+    <string name="option_split_m4b">تقسيم ملفات .m4b</string>
+    <string name="option_split_m4b_text">استخراج الفصول من ملف m4b (تنسيق كتاب صوتي جديد). - ما زال في المرحلة التجريبية -</string>
+
+    <string name="option_copy_file_special_zip"><i>يتم دائمًا نسخ ملفات zip وملفات m4b المقسّمة</i></string>
+
+    <string name="Error_Import_Split_M4B"><i>حدث خطأ أثناء تقسيم ملف m4b.</i></string>
+    <string name="Import_Experimental_M4B_warning">تحذير: <b>استخراج فصول m4b</b> لا يزال <b>تجريبيًا</b>.</string>
+    <string name="Import_Experimental_M4B_iferror">إذا واجهت مشاكل</string>
+    <string name="Import_Experimental_M4B_solution_1">يمكنك إلغاء تفعيل خيار "تقسيم m4b" من القائمة/الإعدادات.</string>
+    <string name="Import_Experimental_M4B_solution_2"><i>يمكنك أيضًا استخدام أداة خارجية لتحويل ملف m4b إلى مجلد يحتوي على ملفات mp3، ثم استيراد هذا المجلد إلى Bookplayer.</i></string>
+    <string name="Import_Progress_splitting_m4b_files">"جارٍ تقسيم ملفات m4b"</string>
+    <string name="Import_Progress_splitting_m4b_file">"جارٍ تقسيم الملف m4b: "</string>
+
+    <string name="Technical_Error">"خطأ تقني"</string>
+
 
 </resources>

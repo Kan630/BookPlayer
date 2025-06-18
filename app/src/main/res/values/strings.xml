@@ -397,11 +397,15 @@
     <string name="SleepTimerGeneralError">Error happened while setting Sleep Timer.</string>
 
     <string name="option_split_m4b">.m4b splitting</string>
-    <string name="option_split_m4b_text">Splits m4b files (new audiobook format) into chapters. - Still Experimental -</string>
+    <string name="option_split_m4b_text">Extract chapters from m4b (new audiobook format). - Still Experimental -</string>
 
     <string name="option_copy_file_special_zip"><i>zip and split m4b are always copied</i></string>
 
-    <string name="Error_Import_Split_M4B"><i>An error occurred while splitting m4b file. You could try to uncheck the "split m4b" option in menu/options, or also convert that m4b file into a folder of mp3 files manually with another app/tool, and then import that folder.</i></string>
+    <string name="Error_Import_Split_M4B"><i>An error occurred while splitting m4b file.</i></string>
+    <string name="Import_Experimental_M4B_warning">Warning : <b>m4b chapters extraction</b> is still <b>experimental</b>.</string>
+    <string name="Import_Experimental_M4B_iferror">If you encounter errors</string>
+    <string name="Import_Experimental_M4B_solution_1">You can uncheck the "split m4b" option in menu/options.</string>
+    <string name="Import_Experimental_M4B_solution_2"><i>You could also use a third party tool to first convert that m4b file into a folder of mp3 files, and then import that folder into Bookplayer.</i></string>
     <string name="Import_Progress_splitting_m4b_files">"Splitting m4b files"</string>
     <string name="Import_Progress_splitting_m4b_file">"splitting m4b file : "</string>
 

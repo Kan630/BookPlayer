@@ -141,6 +141,7 @@ public class AddResourceService
         void updateEnd();
         void tellHeader(String txt);
         void tellNonBlockingError(String txt);
+        void tellWarning(String txt);
     }
     public void registerClient(Activity activity){
         this.mCallBacks = (AddResourceService.Callbacks)activity; // done in onServiceConnected()
@@ -1139,6 +1140,17 @@ public class AddResourceService
         tellError(errorText);
     }
     @Override
+    public void splitM4bService_tellNonBlockingError(String errorText) {
+        myLog("SplitM4b service tell Non Blocking Error");
+        tellNonBlockingError(errorText);
+    }
+    @Override
+    public void splitM4bService_tellWarning(String warningText) {
+        myLog("SplitM4b service tell Non Blocking Error");
+        tellWarning(warningText);
+    }
+
+    @Override
     public void splitM4bService_tellEnd(String destinationFolderPath) {
         myLog("SplitM4b Service tells End : [" + destinationFolderPath + "]");
         tellProgress(PROGRESS[7], PROGRESS_TEXT[7]);
@@ -1179,6 +1191,9 @@ public class AddResourceService
     @Override
     public void tellNonBlockingError(String txt) {
         mCallBacks.tellNonBlockingError(txt);
+    }
+    public void tellWarning(String txt) {
+        mCallBacks.tellWarning(txt);
     }
 
     //--- LOG --------------------------
