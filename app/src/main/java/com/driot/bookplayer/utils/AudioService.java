@@ -243,6 +243,7 @@ public class AudioService extends LifecycleLoggingService {
             ErrorLoadingFile = true;
 
             // Convert error codes to human-readable strings
+            boolean alertUser = true;
             String whatString;
             switch (what) {
                 case MediaPlayer.MEDIA_ERROR_UNKNOWN:
@@ -268,6 +269,7 @@ public class AudioService extends LifecycleLoggingService {
                     break;
                 default:
                     whatString = "UNKNOWN_CODE_" + what;
+                    alertUser = false;
             }
 
             String extraString = "EXTRA_CODE_" + extra;
@@ -279,7 +281,7 @@ public class AudioService extends LifecycleLoggingService {
                     .append("Extra: ").append(extra).append("\n");
 
             myLogE(errorLog.toString());
-            alertError();
+            if (alertUser) alertError();
             return false;  // Let onCompletionListener be called if needed
         });
 

@@ -63,6 +63,7 @@ public class OptionActivity extends LifecycleLoggingActivity {
     CheckBox chk_rewind_after_pause;
     CheckBox chk_copy_file;
     CheckBox chk_click_visualizer_playpause;
+    CheckBox chk_split_m4b;
     CheckBox chk_tech_log_file;
     CheckBox chk_open_with;
     private PermissionRequest mPermissionRequest;
@@ -70,8 +71,10 @@ public class OptionActivity extends LifecycleLoggingActivity {
     private boolean areAdvancedOptionsVisible = false;
     private View advancedOptionsView;
 
-    LinearLayout ll_visualizer_on, ll_visualizer_playpause, ll_copy_file, ll_delete_source_file, ll_open_with;
-    LinearLayout ll_beep_chapter, ll_beep_bookend, ll_beep_autostop, ll_rewind_after_pause, ll_tech_log_file, ll_mail_method_default;
+    LinearLayout ll_visualizer_on, ll_visualizer_playpause, ll_copy_file, ll_delete_source_file;
+    LinearLayout ll_open_with, ll_beep_chapter, ll_beep_bookend, ll_beep_autostop;
+    LinearLayout ll_rewind_after_pause, ll_tech_log_file, ll_mail_method_default;
+    LinearLayout ll_split_m4b;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,6 +89,8 @@ public class OptionActivity extends LifecycleLoggingActivity {
         tx_Visualizer_on = findViewById(R.id.tx_Visualizer_on);
         chk_click_visualizer_playpause = findViewById(R.id.chk_click_visualizer_playpause);
         ll_visualizer_playpause = findViewById(R.id.ll_visualizer_playpause);
+        chk_split_m4b = findViewById(R.id.chk_split_m4b);
+        ll_split_m4b = findViewById(R.id.ll_split_m4b);
         btn_Color_01 = findViewById(R.id.btn_color_01);
         btn_Color_02 = findViewById(R.id.btn_color_02);
         btn_Color_03 = findViewById(R.id.btn_color_03);
@@ -121,6 +126,10 @@ public class OptionActivity extends LifecycleLoggingActivity {
         chk_click_visualizer_playpause.setChecked(Option.getClickVisualizerPlayPause(this));
         ll_visualizer_playpause.setOnClickListener(v -> chk_click_visualizer_playpause.toggle());
         chk_click_visualizer_playpause.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setClickVisualizerPlayPause(this, isChecked));
+
+        chk_split_m4b.setChecked(Option.getSplitM4b(this));
+        ll_split_m4b.setOnClickListener(v -> chk_split_m4b.toggle());
+        chk_split_m4b.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setSplitM4b(this, isChecked));
 
         themesAndColors = new Object[][] {
                 {btn_Color_01, R.style.Theme_BookPlayer_Gray},

@@ -19,6 +19,7 @@ import java.io.FileOutputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -158,19 +159,37 @@ public class SplitM4bService extends LifecycleLoggingService {
             DecimalFormat chapterFormat = new DecimalFormat("000");
 
             for (int c = 0; c < chapterSamples.size(); c++) {
-
+/*
                 ByteBuffer buffer = chapterSamples.get(c).asByteBuffer();
                 byte[] data = new byte[buffer.remaining()];
                 buffer.get(data);
 
-                String raw = new String(data, StandardCharsets.UTF_8);
+                // some hex logging for debug....
+                StringBuilder hex = new StringBuilder();
+                for (byte b : data) {
+                    hex.append(String.format("%02X ", b));
+                }
+                myLog("Chapter sample raw bytes (hex): " + hex.toString());
+
+                // Skip first 2 bytes (likely length or style info)
+                int offset = 2;
+                if (data.length <= offset) return "chapter";
+
+                byte[] trimmed = Arrays.copyOfRange(data, offset, data.length);
+                String raw = new String(trimmed, StandardCharsets.UTF_8);
+
                 String cleaned = raw.replaceAll("[^\\x20-\\x7E]", "").trim(); // Remove non-printables
 
-                if (cleaned.toLowerCase().endsWith("encd")) {
-                    cleaned = cleaned.substring(0, cleaned.length() - 4).trim();
-                }
+
+                //if (cleaned.toLowerCase().endsWith("encd")) {
+                //    cleaned = cleaned.substring(0, cleaned.length() - 4).trim();
+                //}
+
+                cleaned = cleaned.replaceAll("encd.*$", "").trim();
 
                 String chapterFileName = cleaned.replaceAll("[\\\\/:*?\"<>|]", "_"); // Windows-safe  -- sanitize filename to avoid illegal characters
+*/
+                String chapterFileName = extractCleanChapterTitle(chapterSamples.get(c));
 
                 if (usedNames.contains(chapterFileName) || chapterFileName.isEmpty()) {
                     chapterFileName = "chapter" + chapterFormat.format(c + 1); // e.g., chapter001
@@ -178,8 +197,8 @@ public class SplitM4bService extends LifecycleLoggingService {
                 usedNames.add(chapterFileName);
                 String aacFileName = chapterFileName + ".aac";
 
-                myLog("Using chapter title: [" + raw + "] -> filename: [" + aacFileName + "]");
-
+                //myLog("Using chapter title: [" + raw + "] -> filename: [" + aacFileName + "]");
+                myLog("=> filename: [" + aacFileName + "]");
                 long chapterStartTime = chapterTime;
                 long chapterDuration = chapterDurations[c];
                 chapterTime += chapterDuration;
@@ -216,10 +235,15 @@ public class SplitM4bService extends LifecycleLoggingService {
             tellError(getString(R.string.Error_Import_Split_M4B) + "\n\n" + e.getMessage());
             //mCallBacks.tellNonBlockingError("Error : blablabla... " + e.getMessage());
 
-            if (m4bFile.delete()) { // if Exception, the catch delete the all folder...
-                myLog("M4b split done in folder, internal m4b file deleted");
-            } else {
-                myLogE("M4b split done in folder, ERROR deleting internal m4b file");
+        } finally {
+            try {
+                if (m4bFile.delete()) { // if Exception, the catch delete the all folder...
+                    myLog("M4b split done in folder, internal m4b file deleted");
+                } else {
+                    myLogE("M4b split done in folder, ERROR deleting internal m4b file");
+                }
+            } catch (Exception e2) {
+                myLogE("could not delete the original m4b file - " + e2.getMessage());
             }
         }
 
@@ -257,6 +281,36 @@ public class SplitM4bService extends LifecycleLoggingService {
 
         return header;
     }
+
+    private String extractCleanChapterTitle(Sample sample) {
+        ByteBuffer buffer = sample.asByteBuffer();
+        byte[] data = new byte[buffer.remaining()];
+        buffer.get(data);
+
+        // Log hex for debugging (optional)
+        StringBuilder hex = new StringBuilder();
+        for (byte b : data) {
+            hex.append(String.format("%02X ", b));
+        }
+        myLog("Chapter sample raw bytes (hex): " + hex.toString());
+        myLog("Chapter sample ASCII Text: " + new String(data, StandardCharsets.UTF_8));
+
+        // Skip first 2 bytes (likely length or style info)
+        int offset = 2;
+        if (data.length <= offset) return "chapter";
+
+        byte[] trimmed = Arrays.copyOfRange(data, offset, data.length);
+        String raw = new String(trimmed, StandardCharsets.UTF_8);
+
+        // Clean trailing junk: remove 'encd' and anything after
+        raw = raw.replaceAll("encd.*$", "");
+
+        // Remove non-printable characters, BOM, etc.
+        String cleaned = raw.replaceAll("[\\p{Cntrl}&&[^\r\n\t]]", "").replace("\uFEFF", "").trim();
+
+        return cleaned.isEmpty() ? "chapter" : cleaned;
+    }
+
 
     //////////////////////////////////////////////////////////////////////////////////////////
     // Callbacks

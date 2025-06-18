@@ -191,4 +191,9 @@ public class Folder implements Serializable {
         }
     }
 
+    public void setLastAccessToNow() {
+        this.lastaccess = new Date(System.currentTimeMillis());
+        this.lastaccessTime = new Time(System.currentTimeMillis());
+    }
+
 }
