@@ -10,6 +10,7 @@ package com.driot.bookplayer.utils;
  */
 
 import static com.driot.bookplayer.global.Var.ONLY_MIME_AUDIO;
+import static com.driot.bookplayer.global.Var.SUPPORTED_AUDIO_EXTENSIONS;
 import static com.driot.bookplayer.global.Var.ZIP_SIZE_MAX_COEF;
 import static com.driot.bookplayer.utils.Tonio.formatMem;
 import static com.driot.bookplayer.utils.Tonio.getAvailableInternalMemorySize;
@@ -262,7 +263,10 @@ public class CopyFileService extends LifecycleLoggingService {  //IntentService 
                 //FileUtils.copyFolder(this, uri, destinationFolderPath , progress -> runOnUiThread(() ->
                 long finalFile_size = file_size;
                 long[] lastLoggedProgress = {-1}; // effectively final, could have used new AtomicLong(-1);
-                FileUtils.copyFolder(this, uri, new File(destinationFolderPath), null , forceSize, ONLY_MIME_AUDIO, (progress, nbMoCopied) -> {
+                FileUtils.copyFolder(this, uri, new File(destinationFolderPath)
+                        , null , forceSize
+                        , ONLY_MIME_AUDIO, SUPPORTED_AUDIO_EXTENSIONS
+                        , (progress, nbMoCopied) -> {
                             //this.progress = progress;
                             //this.mbCopied = mbCopied;
                             //runOnUiThread(() -> { Updating the UI with progress and MB copied values, like progressBar.setProgress(progress);

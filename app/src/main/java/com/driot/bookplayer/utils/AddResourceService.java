@@ -34,10 +34,9 @@ import java.util.Objects;
 
 import static com.driot.bookplayer.global.Var.FOLDER_DOWNLOAD;
 import static com.driot.bookplayer.global.Var.FOLDER_UNZIPPED;
-import static com.driot.bookplayer.global.Var.ONLY_FILE_TYPE;
 import static com.driot.bookplayer.global.Var.ONLY_MIME_AUDIO;
 import static com.driot.bookplayer.global.Var.PATH_CHECK_AUTOTEST;
-import static com.driot.bookplayer.utils.Mp4Parser.extractChaptersAsAac;
+import static com.driot.bookplayer.global.Var.SUPPORTED_AUDIO_EXTENSIONS;
 import static com.driot.bookplayer.utils.Tonio.formatMem;
 import static com.driot.bookplayer.utils.Tonio.formatNameForDisplay;
 import static com.driot.bookplayer.utils.Tonio.fileExists;
@@ -450,11 +449,11 @@ public class AddResourceService
                     myLog("addAudioFileRecursive done, sorting now...");
                     Collections.sort(audioFileArrayList, new Utils.AlphanumericComparator());
 
-                    if (audioFileArrayList.size()==0) {
+                    if (audioFileArrayList.isEmpty()) {
                         myLog("No File found in directory : [" + finalDfPickedDir.getName() + ']');
                     } else {
                         myLog(audioFileArrayList.size() + " files found in directory : [" + finalDfPickedDir.getName() + ']');
-                        myLog("Full directoy size : [" + formatMem(fullFolderSize/1024/1024,0) + " Mo]");
+                        myLog("Full directory size : [" + formatMem(fullFolderSize/1024/1024,0) + " Mo]");
                     }
                     goFolder();
                 });
@@ -482,18 +481,18 @@ public class AddResourceService
             if (f1.isDirectory()) {
                 addAudioFileRecursive(f1,recursivFolder + f1.getName() + '/');
             } else {
-                if (f1.getType() != null) {
-                    //if (f1.getType().equals("audio/mpeg") || f1.getType().equals("audio/mp4")) {
-                    if (f1.getType().startsWith(ONLY_MIME_AUDIO)) {
-                        nbFileScan = nbFileScan + 1;
-                        l_audioFilePath = recursivFolder + f1.getName();
-                        l_audioSize = f1.length();
-                        myLog("* New Audio File : [" + l_audioFilePath + "] - size = [" + l_audioSize + "]");
-                        double progress = (double) nbFileScan%10/10;
-                        tellProgress((int) (PROGRESS[2] + (PROGRESS[3] - PROGRESS[2]) * progress), "Scanning for Audio Files..... \n[" +  l_audioFilePath + ']');
-                        audioFileArrayList.add(l_audioFilePath);
-                        fullFolderSize = fullFolderSize + l_audioSize;
-                    }
+                String fileExtension = getExtension(f1.getName());
+                String mimeType = Objects.toString(f1.getType());
+                if (mimeType.startsWith(ONLY_MIME_AUDIO) || SUPPORTED_AUDIO_EXTENSIONS.contains(fileExtension)
+                ) {
+                    nbFileScan = nbFileScan + 1;
+                    l_audioFilePath = recursivFolder + f1.getName();
+                    l_audioSize = f1.length();
+                    myLog("* New Audio File : [" + l_audioFilePath + "] - size = [" + l_audioSize + "]");
+                    double progress = (double) nbFileScan%10/10;
+                    tellProgress((int) (PROGRESS[2] + (PROGRESS[3] - PROGRESS[2]) * progress), "Scanning for Audio Files..... \n[" +  l_audioFilePath + ']');
+                    audioFileArrayList.add(l_audioFilePath);
+                    fullFolderSize = fullFolderSize + l_audioSize;
                 }
             }
         }
@@ -619,7 +618,7 @@ public class AddResourceService
                 ///---------------------------------------------
                 /// other unique files
                 ///---------------------------------------------
-                if (mime.startsWith(ONLY_MIME_AUDIO) || ONLY_FILE_TYPE.contains(pickedFileExtension)) {
+                if (mime.startsWith(ONLY_MIME_AUDIO) || SUPPORTED_AUDIO_EXTENSIONS.contains(pickedFileExtension)) {
 
                     sourceLocation = getSourceLocation(uri_given);
                     myLog("Source Location = [" + sourceLocation + "]");   // Only needed when Option "Copy" internally is unselected....
@@ -868,7 +867,7 @@ public class AddResourceService
             sFileFullPath = myFolder.getFolderPath() + File.separator + sZikFileName;
         }
         try {
-            myLog("Get Media Duration : " + sFileFullPath);
+            myLog("Get Media Duration : [" + sFileFullPath + "]");
             zikFile.setDuration(getMediaDurationFromPath(sFileFullPath));
         } catch (IOException e) {
             tellNonBlockingError("Error getting/setting media duration : " + e.getMessage());

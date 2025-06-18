@@ -4,13 +4,15 @@ import android.graphics.drawable.Drawable;
 
 import com.driot.bookplayer.R;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 15/09/21
  */
 public class Var {
 
-    public static final String ONLY_MIME_AUDIO = "audio/";
-    public static final String ONLY_FILE_TYPE = "mp3,m4b,mp4,aac";
 
     public static final String  FOLDER_UNZIPPED = "unzipped";
     public static final String  FOLDER_ZIPPED = "zipped";
@@ -43,4 +45,49 @@ public class Var {
     public static final int MEMORY_ICON_BOOKPLAYER_INTERNAL = R.drawable.ic_memory_internal_bookplayer;
     public static final int MEMORY_ICON_SMARTPHONE_GENERAL = R.drawable.ic_memory_general_smartphone;
 
+
+    public static final String ONLY_MIME_AUDIO = "audio/";
+    public static final Set<String> SUPPORTED_AUDIO_EXTENSIONS = new HashSet<>(
+            Arrays.asList(
+                    // Common Formats
+                    "mp3",   // MPEG-1/2 Audio Layer 3 (universal support)
+                    "m4a",   // AAC in MP4 container (Apple/iTunes default)
+                    "aac",   // Raw AAC (less common than .m4a)
+                    "mp4",   // MP4 container (may contain AAC/ALAC)
+                    "m4b",   // Audiobook variant of .m4a
+                    "wav",   // Uncompressed PCM/WAVE
+                    "ogg",   // Ogg Vorbis (open alternative to MP3)
+                    "oga",   // Ogg Audio (legacy, rarely used)
+                    "flac",  // Free Lossless Audio Codec (Android 3.1+)
+                    "opus"  // Opus (Android 5.0+, efficient for voice/streaming)
+/*
+                    // MIDI/Synthetic Audio
+                    "mid",   // Standard MIDI
+                    "midi",  // Alternate MIDI extension
+                    "smf",   // Standard MIDI File
+                    "xmf",   // Extended MIDI
+                    "imy",   // iMelody ringtones (rare)
+
+                    // Voice/Telephony Formats
+                    "amr",   // Adaptive Multi-Rate (common for voice recordings)
+                    "3ga",   // 3GPP Audio (AMR/AAC in 3GPP container)
+                    "awb",   // AMR-WB (Wideband voice)
+
+                    // Legacy/Obscure Formats
+                    "mkv",   // Matroska container (may contain AAC/Opus/Vorbis)
+                    "aif",   // AIFF (uncompressed, Apple)
+                    "aiff",  // AIFF alternate extension
+                    "gsm",   // GSM 6.10 (telephony codec, rare)
+                    "mka",   // Matroska Audio (rare)
+                    "qcp",   // Qualcomm PureVoice (very rare)
+
+                    // Android-Specific
+                    "mxmf",  // Mobile XMF (ringtone format)
+                    "rtttl", // Ring Tone Text Transfer Language
+                    "rtx",   // Ringtone Extension
+                    "ota"    // Over-the-Air ringtone
+
+ */
+            )
+    );
 }

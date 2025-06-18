@@ -1,8 +1,10 @@
 package com.driot.bookplayer.utils;
 
 import static android.os.FileUtils.closeQuietly;
+import static com.driot.bookplayer.global.Var.SUPPORTED_AUDIO_EXTENSIONS;
 import static com.driot.bookplayer.utils.KanLogger.myLog;
 import static com.driot.bookplayer.utils.KanLogger.myLogE;
+import static com.driot.bookplayer.utils.Tonio.getExtension;
 
 import android.content.ContentUris;
 import android.content.Context;
@@ -17,6 +19,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Set;
 
 public class FileUtils {
 
@@ -58,7 +61,10 @@ public class FileUtils {
         return totalSize;
     }
 
-    public static void copyFolder(Context context, Uri sourceUri, File destinationFolder, long[] copiedSize, long forceSize, String onlyMime, ProgressListener listener) throws IOException {
+    public static void copyFolder(Context context, Uri sourceUri, File destinationFolder
+            , long[] copiedSize, long forceSize
+            , String onlyMime, Set<String> onlyExtension
+            , ProgressListener listener) throws IOException {
         if (!destinationFolder.exists()) {
             destinationFolder.mkdirs();
         }
@@ -94,18 +100,28 @@ public class FileUtils {
                     String documentId = cursor.getString(0);
                     String displayName = cursor.getString(1);
                     String mimeType = cursor.getString(2);
+                    String fileExtension = getExtension(displayName);
 
                     Uri documentUri = DocumentsContract.buildDocumentUriUsingTree(sourceUri, documentId);
 
                     if (DocumentsContract.Document.MIME_TYPE_DIR.equals(mimeType)) {
                         File subDir = new File(destinationFolder, displayName);
-                        copyFolder(context, documentUri, subDir, copiedSize, forceSize, onlyMime, listener);  // Corrected parameters
+                        copyFolder(context, documentUri, subDir, copiedSize, forceSize, onlyMime, onlyExtension, listener);  // Corrected parameters
                     } else {
                         myLog(displayName + "  ///  " + mimeType);
-                        if (onlyMime != null && onlyMime.length()>0) {
+                        boolean doCopy = false;
+                        if (onlyMime != null && !onlyMime.isEmpty()) {
                             if (mimeType.startsWith(onlyMime)) {
-                                copyFile(context, documentUri, new File(destinationFolder, displayName), totalSize, copiedSize, listener);
+                                doCopy = true;
                             }
+                        } else {
+                            doCopy = true;
+                        }
+                        if (!onlyExtension.isEmpty() && onlyExtension.contains(fileExtension)) {
+                            doCopy = true;
+                        }
+                        if (doCopy) {
+                            copyFile(context, documentUri, new File(destinationFolder, displayName), totalSize, copiedSize, listener);
                         }
                     }
                 }

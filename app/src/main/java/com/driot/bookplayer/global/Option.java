@@ -27,7 +27,7 @@ public class Option {
     private static final boolean DEFAULT_CLICK_VISUALIZER_PLAYPAUSE = false;
     private static final boolean DEFAULT_TECH_LOG = false;
     private static final boolean DEFAULT_OPEN_WITH = true;
-    private static final boolean DEFAULT_SPLIT_M4B = true;
+    private static final boolean DEFAULT_SPLIT_M4B = false;
 
 
     /////////////////// SLEEP - AUTOMATIC PAUSE ///////////////////

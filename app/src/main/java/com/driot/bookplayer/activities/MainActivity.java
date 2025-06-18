@@ -7,10 +7,13 @@ package com.driot.bookplayer.activities;
 
 import static com.driot.bookplayer.utils.KanLogger.isMyPhoneDev;
 import static com.driot.bookplayer.utils.KanLogger.writeTechLogs;
+/*
 import static com.driot.bookplayer.utils.Mp4Parser.extractAacTrackAsAdts;
 import static com.driot.bookplayer.utils.Mp4Parser.extractChapters;
 import static com.driot.bookplayer.utils.Mp4Parser.extractChaptersAsAac;
 import static com.driot.bookplayer.utils.Mp4Parser.inspect;
+
+ */
 import static com.driot.bookplayer.utils.TonioCommonStuff.MD5;
 
 import android.Manifest;
