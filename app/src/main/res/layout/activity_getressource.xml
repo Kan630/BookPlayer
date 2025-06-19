@@ -47,7 +47,7 @@
             android:layout_marginTop="@dimen/GetRessource320_vertical_margin_text2button" />
 
         <TextView
-            android:id="@+id/bOpenZiFile_desc"
+            android:id="@+id/bOpenZipFile_desc"
             style="@style/GetResourceTextTopOfButton"
             android:text="@string/bOpenZipFile_desc" />
 
@@ -56,6 +56,19 @@
             android:text="@string/bOpenZipFile"
             style="@style/GetResourceButton"
             android:layout_marginTop="@dimen/GetRessource320_vertical_margin_text2button" />
+
+        <TextView
+            android:id="@+id/bOpenM4bFile_desc"
+            style="@style/GetResourceTextTopOfButton"
+            android:text="@string/bOpenM4bFile_desc" />
+
+        <Button
+            android:id="@+id/bOpenM4bFile"
+            android:text="@string/bOpenM4bFile"
+            style="@style/GetResourceButton"
+            android:layout_marginTop="@dimen/GetRessource320_vertical_margin_text2button" />
+
+
 
         <TextView
             android:id="@+id/message_import_currently_running"
@@ -68,10 +81,6 @@
             android:elevation="5dp"
             android:paddingHorizontal="50dp"
             android:layout_marginTop="@dimen/GetRessource320_vertical_margin_title2text" />
-
-
-
-
 
         <View style="@style/GetResourceHorizontalBar"/>
 

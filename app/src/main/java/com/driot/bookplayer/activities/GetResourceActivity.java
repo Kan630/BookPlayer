@@ -45,7 +45,7 @@ import static com.driot.bookplayer.utils.Tonio.getFileNameFromUri;
  * created by Antoine Driot -- antoine.driot.com -- on 08/11/20
  */
 public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatActivity
-    private Button bOpenFile, bOpenFolder, bOpenZipFile;
+    private Button bOpenFile, bOpenFolder, bOpenZipFile, bOpenM4bFile;
     private Button bAutoTest_b1, bAutoTest_b2, bAutoTest_b3;
     private TextView tv_message_import_currently_running;
 
@@ -56,8 +56,10 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
     private int lopperForLog = 0;
     private Timer timer;
     private boolean isActivityActive = true;
-    private ActivityResultLauncher<Intent> bOpenFileActivityResultLauncher,bOpenFolderActivityResultLauncher,bOpenZipActivityResultLauncher;
-    private ActivityResultLauncher<Intent> bAutoTest_01_ResultLauncher,bAutoTest_02_ResultLauncher,bAutoTest_03_ResultLauncher;
+    private ActivityResultLauncher<Intent> bOpenFileActivityResultLauncher
+            ,bOpenFolderActivityResultLauncher
+            ,bOpenZipActivityResultLauncher
+            ,bOpenM4bActivityResultLauncher;
 
     private ActivityResultLauncher<Intent> addResourceActivityResultLauncher;
 
@@ -82,21 +84,25 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
         } else {
             if (result.getResultCode() == RESULT_OK) {
                 if (isReturnedUriOk(result.getData())) {
-                    Uri uri = result.getData().getData();
-                    myLog("picked data : " + uri.getPath());
-                    String title = formatNameForDisplay(getFileNameFromUri(this, uri));
+                    try {
+                        Uri uri = result.getData().getData();
+                        myLog("picked data : " + uri.getPath());
+                        String title = formatNameForDisplay(getFileNameFromUri(this, uri));
 
-                    Intent intentAddResourceService = new Intent(this, AddResourceService.class);
-                    intentAddResourceService.putExtra("uri", uri);
-                    intentAddResourceService.putExtra("type", type);
-                    intentAddResourceService.putExtra("title", title);
-                    startService(intentAddResourceService);
+                        Intent intentAddResourceService = new Intent(this, AddResourceService.class);
+                        intentAddResourceService.putExtra("uri", uri);
+                        intentAddResourceService.putExtra("type", type);
+                        intentAddResourceService.putExtra("title", title);
+                        startService(intentAddResourceService);
 
-                    Intent intent = new Intent(getApplicationContext(), AddResourceActivity.class);
-                    intent.putExtra("uri", uri);
-                    intent.putExtra("type", type);
-                    intent.putExtra("title", title);
-                    addResourceActivityResultLauncher.launch(intent);
+                        Intent intent = new Intent(getApplicationContext(), AddResourceActivity.class);
+                        intent.putExtra("uri", uri);
+                        intent.putExtra("type", type);
+                        intent.putExtra("title", title);
+                        addResourceActivityResultLauncher.launch(intent);
+                    } catch (Exception e) {
+                        myToastE("Error reading picked object : " + e.getMessage());
+                    }
                 }
             }
         }
@@ -110,13 +116,14 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
         bOpenFile = findViewById(R.id.bOpenFile);
         bOpenFolder = findViewById(R.id.bOpenFolder);
         bOpenZipFile = findViewById(R.id.bOpenZipFile);
+        bOpenM4bFile = findViewById(R.id.bOpenM4bFile);
         Button bInternetAudioResource_01 = findViewById(R.id.bInternetAudioResource_01);
         Button bInternetAudioResource_02 = findViewById(R.id.bInternetAudioResource_02);
         Button bInternetAudioResource_03 = findViewById(R.id.bInternetAudioResource_03);
         bAutoTest_b1 = findViewById(R.id.bAutoTest_b1);
         bAutoTest_b2 = findViewById(R.id.bAutoTest_b2);
         bAutoTest_b3 = findViewById(R.id.bAutoTest_b3);
-        buttonsToLock = Arrays.asList(bOpenFile, bOpenFolder, bOpenZipFile, bAutoTest_b1, bAutoTest_b2, bAutoTest_b3);
+        buttonsToLock = Arrays.asList(bOpenFile, bOpenFolder, bOpenZipFile, bOpenM4bFile, bAutoTest_b1, bAutoTest_b2, bAutoTest_b3);
         tv_message_import_currently_running = findViewById(R.id.message_import_currently_running);
 
 // ADD RESOURCE
@@ -137,7 +144,6 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
             myLogI("Button click : single file");
             if (isReadAudioPermissionGranted(this) || Option.getCopyFile(this)) {
                 Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-                //intent.setType("audio/*");   //TODO.... not sure this is a good idea.....
                 intent.setType("*/*");
                 intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_WRITE_URI_PERMISSION|Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION|Intent.FLAG_GRANT_PREFIX_URI_PERMISSION);
                 intent.addCategory(Intent.CATEGORY_OPENABLE);
@@ -183,6 +189,38 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
             intent.addCategory(Intent.CATEGORY_OPENABLE);
             bOpenZipActivityResultLauncher.launch(intent);
         });
+
+// M4B
+
+            bOpenM4bActivityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+                    result -> { launchAddResource(result, "M4B"); });
+        bOpenM4bFile.setOnClickListener(view -> {
+            scanThatShit();
+            myLog("Button click : M4B file");
+
+            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            intent.setType("*/*");
+
+            // Use a broader list of supported MIME types
+            String[] mimeTypes = {
+                    "audio/mp4",       // common for m4b/m4a
+                    "audio/x-m4a",     // fallback
+                    "audio/mpeg",      // in case some mislabel it
+                    "application/octet-stream" // catch-all
+            };
+            intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
+
+            intent.setFlags(
+                    Intent.FLAG_GRANT_READ_URI_PERMISSION
+                            | Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                            | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION
+                            | Intent.FLAG_GRANT_PREFIX_URI_PERMISSION
+            );
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+
+            bOpenM4bActivityResultLauncher.launch(intent);
+        });
+
 
         ////////////////////////////////
         ///// LINKS
@@ -322,7 +360,7 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
                      findViewById(R.id.TextHeaderOpen)
                     ,findViewById(R.id.bOpenFile_desc)
                     ,findViewById(R.id.bOpenFolder_desc)
-                    ,findViewById(R.id.bOpenZiFile_desc)
+                    ,findViewById(R.id.bOpenZipFile_desc)
                     ,findViewById(R.id.txtAutoTest_title)
                     ,findViewById(R.id.txtAutoTest_desc)
             );

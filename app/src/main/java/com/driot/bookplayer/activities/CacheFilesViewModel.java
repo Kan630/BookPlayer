@@ -59,11 +59,14 @@ public class CacheFilesViewModel extends AndroidViewModel {
                 files.sort(Comparator.comparingLong(Utils::getCustomLength));
                 Collections.reverse(files);
                 filesFromDisk.setValue(files); // = new MutableLiveData<List<File>>(files);
+                myLog(files.size() + " files in cachePath : [" + cachePath + "]");
             } else {
                 filesFromDisk.setValue(new ArrayList<>()); // Set an empty list if no files found
+                myLog("no file in cachePath : [" + cachePath + "]");
             }
         } else {
             filesFromDisk.setValue(new ArrayList<>());
+            myLog("directory cachePath does not exist: [" + cachePath + "]");
         }
     }
 
@@ -109,22 +112,22 @@ public class CacheFilesViewModel extends AndroidViewModel {
                     File zikFileToDelete = new File(strPath);
                     if(zikFileToDelete.exists()) {
                         if (recursiveRemove(zikFileToDelete)) {
-                            myLog("Deleted from Disk");
+                            myLog("Deleted from Disk : [" + strPath + "]");
                             return true;
                         } else {
-                            myLog("NOT Deleted from Disk");
+                            myLog("NOT Deleted from Disk : [" + strPath + "]");
                             return false;
                         }
                     } else {
-                        myLogE("file does not exist");
+                        myLogE("file does not exist : [" + strPath + "]");
                         return false;
                     }
                 } catch (Exception e) {
-                    myLogE("Error remove ZikFile from Disk: " + e.getMessage());
+                    myLogE("Error remove ZikFile from Disk : [" + strPath + "] - " + e.getMessage());
                     return false;
                 }
         } else {
-            myLogE("should not happen uri less than 5 chars");
+            myLogE("should not happen uri less than 5 chars for path [" + strPath + "]");
             return false;
         }
     }

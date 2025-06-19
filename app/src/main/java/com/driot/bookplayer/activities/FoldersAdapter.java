@@ -62,7 +62,7 @@ public class FoldersAdapter extends RecyclerView.Adapter<FoldersAdapter.FoldersV
 
         holder.textViewDuration.setText(formatTime(folder.getDuration()));
 
-        holder.ivMemory.setImageResource(folder.getMemoryLocationIcon());
+        holder.ivMemory.setImageResource(folder.getMemoryLocationIcon(mCtx));
 
     }
 
@@ -125,8 +125,8 @@ public class FoldersAdapter extends RecyclerView.Adapter<FoldersAdapter.FoldersV
                     .putExtra("ImportedOn", folder.getFirstaccess())
                     .putExtra("LastAccessInDays",  formatLastAccessInDays(folder.getLastaccess()))
                     .putExtra("LastAccess",  FormatLastAccess(folder.getLastaccess(), folder.getLastaccessTime(), mCtx.getString(R.string.yesterday)))
-                    .putExtra("MemoryLocation", folder.getMemoryLocationIcon())
-                    .putExtra("MemoryLocationText", folder.getMemoryLocationText())
+                    .putExtra("MemoryLocation", folder.getMemoryLocationIcon(mCtx))
+                    .putExtra("MemoryLocationText", folder.getMemoryLocationText(mCtx))
             );
             return false;
         }

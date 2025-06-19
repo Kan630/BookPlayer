@@ -1,6 +1,7 @@
 package com.driot.bookplayer.activities;
 
 import android.os.Bundle;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -72,6 +73,8 @@ public class FolderModifyActivity extends LifecycleLoggingActivity {
 
         etIntroCut = findViewById(R.id.etIntroCut);
         etIntroCut.setText(String.valueOf(Pref.getIntroCutFromPref(this, idFolder)));
+
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN); // Avoid keyboard on opening
     }
 
     private void bDeleteClick() {

@@ -340,7 +340,7 @@ public class AddResourceService
             myLogE("ERROR bind to Service in launchDownloadService ");
             myLogE(e.getMessage());
         }
-        myLog("call start & bind to downloadService from launchDownloadService - bound result :" + boundToDownloadService + "");
+        myLog("call start & bind to downloadService from launchDownloadService - bound result :" + boundToDownloadService );
     }
 
     // native methods
@@ -480,10 +480,13 @@ public class AddResourceService
         long l_audioSize;
         for (DocumentFile f1 : f0.listFiles()) {
             if (f1.isDirectory()) {
+                myLog("increase recursive depth for Directory : [" + f1.getName() + "]");
                 addAudioFileRecursive(f1,recursivFolder + f1.getName() + '/');
             } else {
-                String fileExtension = getExtension(f1.getName());
+                String fileName = Objects.toString(f1.getName());
+                String fileExtension = getExtension(fileName);
                 String mimeType = Objects.toString(f1.getType());
+                myLog("* Checking File : [" + fileName + "] - mime = [" + mimeType + "] - extension = [" + fileExtension + "] - folder : [" + recursivFolder + "]");
                 if (mimeType.startsWith(ONLY_MIME_AUDIO) || SUPPORTED_AUDIO_EXTENSIONS.contains(fileExtension)
                 ) {
                     nbFileScan = nbFileScan + 1;
@@ -546,6 +549,7 @@ public class AddResourceService
             /// FILE
             ///---------------------------------------------
             case "File":
+            case "M4B":
                 boolean optionCopyFile = Option.getCopyFile(this);
                 PROGRESS = Option.getCopyFile(this) ? PROGRESS_FILE_COPY : PROGRESS_FILE_NOCOPY;
 
@@ -577,14 +581,15 @@ public class AddResourceService
 
                 String pickedFileName = getFileNameFromUri(this, uri_given);
                 String pickedFileExtension = getExtension(pickedFileName);
-                myLog("pickedFile = [" + pickedFileName + "] --  Extension = [" + pickedFileExtension + "]");
+                myLog("pickedFile = [" + pickedFileName + "] " +
+                        "\nExtension = [" + pickedFileExtension + "]");
+                myLog("\nMime = [" + mime + "]");
 
                 ///---------------------------------------------
                 /// M4B FILE
                 ///---------------------------------------------
-                myLog("mime = [" + mime + "]");
                 if (mime.equals("audio/mp4") || pickedFileExtension.equals("m4b")) {
-                    myLog("mime => MP4");
+                    myLog("=> MP4 <=");
                     if (Option.getSplitM4b(this)) {
                         type_given = "M4B";
                         PROGRESS = Option.getCopyFile(this) ? PROGRESS_ZIP_COPY : PROGRESS_ZIP_NOCOPY;
@@ -613,7 +618,16 @@ public class AddResourceService
                             }
                         }).start();
                         return;
+                    } else {
+                        myLog("Option Split M4B disabled");
                     }
+                }
+
+                if (mime.equals("application/zip") || pickedFileExtension.equals("zip")) {
+                    myLog("=> ZIP <=");
+                    type_given = "ZIP";
+                    goZipCase();
+                    return;
                 }
 
                 ///---------------------------------------------
@@ -653,7 +667,7 @@ public class AddResourceService
                         populateArrayListOfTracksFromFile(dfPickedDir, optionCopyFile);
                     }
                 } else {
-                    tellError( getString(R.string.Error_Import_NotAnAudio) + "...  " + getString(R.string.Error_Import_TypeNotSupported) + " [" + mime + "]");
+                    tellError( getString(R.string.Error_Import_NotAnAudio) + "...  " + getString(R.string.Error_Import_TypeNotSupported) + " [" + mime + "] - [" + pickedFileExtension + "]");
                     break;
                 }
                 break;
@@ -690,40 +704,45 @@ public class AddResourceService
             /// ZIP FILE
             ///---------------------------------------------
             case "ZIP":
-                PROGRESS = Option.getCopyFile(this) ? PROGRESS_ZIP_COPY : PROGRESS_ZIP_NOCOPY;
-                myLog("ZIP : copy locally before everything else");
-                myLog("Picked Uri = [" + uri_given.toString() + "]");
-
-                // get the folder name = the zip file true Name without extension
-                destinationFolderName = "";
-                if (uri_given.getPath().contains(PATH_CHECK_AUTOTEST)) {  // <-- autotest
-                    destinationFolderName =  formatNameForDisplay(getFileNameFromPath(uri_given.getPath()));
-                } else {
-                    destinationFolderName = title_given;
-                }
-
-                // check Not Already Imported
-                //*****************************
-                myLog("Checking Folder doesn't already exist in DB (pre-check Zip) : " + destinationFolderName);
-                new Thread(() -> {
-                    long lCheck = AppDatabase.getDatabase(this).FolderDao().folderAlreadyExist_checkFolderName(destinationFolderName);
-                    if (lCheck>0) {
-                        myLogE("KO, folder does already exist in DB : [" + destinationFolderName + "]");
-                        tellError(getString(R.string.Error_Import_FolderAlreadyImported) + "  [" + destinationFolderName + "]");
-                    } else {
-                        myLog("OK, folder doesn't already exist in DB");
-                        tellProgress(PROGRESS[3], PROGRESS_TEXT[3]);
-                        copyFileLocal(uri_given
-                                , getFilesDir().getAbsolutePath() + "/" + FOLDER_UNZIPPED + "/" + destinationFolderName
-                                , destinationFolderName + ".zip"
-                                , type_given
-                        ); //launch the service, NEXT STEP through CALLBACKS
-                    }
-                }).start();
-                return;
+                goZipCase();
+                break;
         default:
                 myLogE("Incorrect type : **" + type_given + "**");
         }
+    }
+    /// ///////// END INIT
+
+    private void goZipCase() {
+        PROGRESS = Option.getCopyFile(this) ? PROGRESS_ZIP_COPY : PROGRESS_ZIP_NOCOPY;
+        myLog("ZIP : copy locally before everything else");
+        myLog("Picked Uri = [" + uri_given.toString() + "]");
+
+        // get the folder name = the zip file true Name without extension
+        destinationFolderName = "";
+        if (uri_given.getPath().contains(PATH_CHECK_AUTOTEST)) {  // <-- autotest
+            destinationFolderName =  formatNameForDisplay(getFileNameFromPath(uri_given.getPath()));
+        } else {
+            destinationFolderName = title_given;
+        }
+
+        // check Not Already Imported
+        //*****************************
+        myLog("Checking Folder doesn't already exist in DB (pre-check Zip) : " + destinationFolderName);
+        new Thread(() -> {
+            long lCheck = AppDatabase.getDatabase(this).FolderDao().folderAlreadyExist_checkFolderName(destinationFolderName);
+            if (lCheck>0) {
+                myLogE("KO, folder does already exist in DB : [" + destinationFolderName + "]");
+                tellError(getString(R.string.Error_Import_FolderAlreadyImported) + "  [" + destinationFolderName + "]");
+            } else {
+                myLog("OK, folder doesn't already exist in DB");
+                tellProgress(PROGRESS[3], PROGRESS_TEXT[3]);
+                copyFileLocal(uri_given
+                        , getFilesDir().getAbsolutePath() + "/" + FOLDER_UNZIPPED + "/" + destinationFolderName
+                        , destinationFolderName + ".zip"
+                        , type_given
+                ); //launch the service, NEXT STEP through CALLBACKS
+            }
+        }).start();
     }
 
     private void goFolder() {

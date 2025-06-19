@@ -42,10 +42,6 @@ public class Var {
 
 
 
-    public static final int MEMORY_ICON_BOOKPLAYER_INTERNAL = R.drawable.ic_memory_internal_bookplayer;
-    public static final int MEMORY_ICON_SMARTPHONE_GENERAL = R.drawable.ic_memory_general_smartphone;
-
-
     public static final String ONLY_MIME_AUDIO = "audio/";
     public static final Set<String> SUPPORTED_AUDIO_EXTENSIONS = new HashSet<>(
             Arrays.asList(

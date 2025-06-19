@@ -5,13 +5,15 @@ package com.driot.bookplayer.db;
  */
 
 import static com.driot.bookplayer.global.Var.FOLDER_UNZIPPED;
-import static com.driot.bookplayer.global.Var.MEMORY_ICON_BOOKPLAYER_INTERNAL;
-import static com.driot.bookplayer.global.Var.MEMORY_ICON_SMARTPHONE_GENERAL;
-import static com.driot.bookplayer.utils.Tonio.formatTime;
+
+import android.content.Context;
 
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
+
+import com.driot.bookplayer.R;
+import com.driot.bookplayer.utils.KanLogger;
 
 import java.io.Serializable;
 import java.sql.Date;
@@ -172,22 +174,39 @@ public class Folder implements Serializable {
         this.finished = finished;
     }
 
-    public int getMemoryLocationIcon() {
-        if (path.contains(FOLDER_UNZIPPED)) {
-            return MEMORY_ICON_BOOKPLAYER_INTERNAL;
-        } else {
-            return MEMORY_ICON_SMARTPHONE_GENERAL;
+
+    public static final int MEMORY_ICON_BOOKPLAYER_INTERNAL = R.drawable.ic_memory_internal_bookplayer;
+    public static final int MEMORY_ICON_SMARTPHONE_GENERAL = R.drawable.ic_memory_general_smartphone;
+    public static final int MEMORY_ICON_SMARTPHONE_NOTFOUND = R.drawable.ic_memory_general_notfound;
+
+
+
+    public int getMemoryLocationIcon(Context c) {
+        try {
+            if (path.contains(FOLDER_UNZIPPED)) {
+                return R.drawable.ic_memory_internal_bookplayer;
+            } else {
+                return R.drawable.ic_memory_general_smartphone;
+            }
+        } catch (Exception e) {
+            myLogE("getMemoryLocationIcon() - error : " + e.getMessage());
+            return R.drawable.ic_memory_general_notfound;
         }
     }
 
     // TODO : create a new column to store the location in DB
     // and use StorageManager (API 24+) to check if storage is removable (aka SD card)
 
-    public String getMemoryLocationText() {
-        if (path.contains(FOLDER_UNZIPPED)) {
-            return "Bookplayer reserved storage";
-        } else {
-            return "Smartphone shared storage";
+    public String getMemoryLocationText(Context c) {
+        try {
+            if (path.contains(FOLDER_UNZIPPED)) {
+                return c.getString(R.string.audio_location_bookplayer_reserved_storage);
+            } else {
+                return c.getString(R.string.audio_location_smartphone_shared_storage);
+            }
+        } catch (Exception e) {
+            myLogE("getMemoryLocationText() - error : " + e.getMessage());
+            return c.getString(R.string.audio_location_audiobook_not_found);
         }
     }
 
@@ -195,5 +214,11 @@ public class Folder implements Serializable {
         this.lastaccess = new Date(System.currentTimeMillis());
         this.lastaccessTime = new Time(System.currentTimeMillis());
     }
+    //--- LOG --------------------------
+    private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
+    private void myLogInFile(String str) { KanLogger.myLogInFile(this.getClass().getName(), str); }
+    private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
+    private void myToast(String str) { KanLogger.myToast(this.getClass().getName(), str); }
+    private void myToastE(String str) { KanLogger.myToastE(this.getClass().getName(), str); }
 
 }
