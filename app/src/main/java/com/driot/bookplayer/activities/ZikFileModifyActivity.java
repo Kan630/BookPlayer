@@ -6,6 +6,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.text.InputType;
 import android.text.Spannable;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
@@ -82,6 +83,7 @@ public class ZikFileModifyActivity extends LifecycleLoggingActivity {
 
         bMove.setOnClickListener(view -> bMoveClick(etChangePosition.getText().toString()));
 
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN); // Avoid keyboard on opening
     }
 
     private void bMoveClick(String newPosStr) {

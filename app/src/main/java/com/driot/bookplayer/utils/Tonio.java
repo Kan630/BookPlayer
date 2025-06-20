@@ -313,40 +313,43 @@ public class Tonio {
         // If null, fallback using extension
         if (mime == null) {
             String extension = null;
-
-            // Try to get file name from uri
-            if ("content".equals(uri.getScheme())) {
-                Cursor cursor = context.getContentResolver().query(uri, null, null, null, null);
-                if (cursor != null) {
-                    try {
-                        int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
-                        if (nameIndex != -1 && cursor.moveToFirst()) {
-                            String fileName = cursor.getString(nameIndex);
-                            int dotIndex = fileName.lastIndexOf('.');
-                            if (dotIndex >= 0) {
-                                extension = fileName.substring(dotIndex + 1).toLowerCase();
+            try {
+                // Try to get file name from uri
+                if ("content".equals(uri.getScheme())) {
+                    Cursor cursor = context.getContentResolver().query(uri, null, null, null, null);
+                    if (cursor != null) {
+                        try {
+                            int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                            if (nameIndex != -1 && cursor.moveToFirst()) {
+                                String fileName = cursor.getString(nameIndex);
+                                int dotIndex = fileName.lastIndexOf('.');
+                                if (dotIndex >= 0) {
+                                    extension = fileName.substring(dotIndex + 1).toLowerCase();
+                                }
                             }
+                        } finally {
+                            cursor.close();
                         }
-                    } finally {
-                        cursor.close();
+                    }
+                } else if ("file".equals(uri.getScheme())) {
+                    String path = uri.getPath();
+                    if (path != null) {
+                        int dotIndex = path.lastIndexOf('.');
+                        if (dotIndex >= 0) {
+                            extension = path.substring(dotIndex + 1).toLowerCase();
+                        }
                     }
                 }
-            } else if ("file".equals(uri.getScheme())) {
-                String path = uri.getPath();
-                if (path != null) {
-                    int dotIndex = path.lastIndexOf('.');
-                    if (dotIndex >= 0) {
-                        extension = path.substring(dotIndex + 1).toLowerCase();
-                    }
-                }
-            }
 
-            // Use extension to guess mime type
-            if (extension != null) {
-                mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
-                if (mime == null && extension.equals("m4b")) {
-                    mime = "audio/m4b"; // custom fallback for m4b
+                // Use extension to guess mime type
+                if (extension != null) {
+                    mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
+                    if (mime == null && extension.equals("m4b")) {
+                        mime = "audio/m4b"; // custom fallback for m4b
+                    }
                 }
+            } catch (Exception e) {
+                myLogE("getMimeType - " + e.getMessage());
             }
         }
 

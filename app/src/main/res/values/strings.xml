@@ -426,5 +426,8 @@
     <string name="audio_location_smartphone_shared_storage">Smartphone shared storage</string>
     <string name="audio_location_audiobook_not_found">Audiobook not found</string>
 
+    <string name="option_alert_delete_picked_source_file_title">!! Warning - Source-Deletion !!</string>
+    <string name="option_alert_delete_picked_source_file_message">This picked file will be wiped out from device memory after being loaded inside bookplayer app internal memory.\n\nAre you sure ?.</string>
+
 
 </resources>

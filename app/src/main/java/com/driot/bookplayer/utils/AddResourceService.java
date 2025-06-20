@@ -133,6 +133,11 @@ public class AddResourceService
 
     public static boolean isBusy;
 
+    private boolean optionCopyFile;
+    private boolean optionSplitM4b;
+    private boolean optionDeleteSource;
+
+
     // Callbacks
     //-----------------------------
     public interface Callbacks{
@@ -352,6 +357,9 @@ public class AddResourceService
         uri_given = intent.getParcelableExtra("uri");
         type_given = intent.getStringExtra("type");
         title_given = intent.getStringExtra("title");
+        optionCopyFile = intent.getBooleanExtra("copy", Option.getCopyFile(this));
+        optionSplitM4b = intent.getBooleanExtra("split", Option.getSplitM4b(this));
+        optionDeleteSource = intent.getBooleanExtra("delete", Option.getDeleteSourceFile(this));
         return START_NOT_STICKY;
     }
 
@@ -427,7 +435,7 @@ public class AddResourceService
         if (dfPickedDir != null && dfPickedDir.isDirectory()) {
 
             // constructeur pour mon pti folder
-            myFolder = new FolderAttrib(getApplicationContext(), uri, Option.getCopyFile(this), type_given);
+            myFolder = new FolderAttrib(getApplicationContext(), uri, optionCopyFile, type_given);
             if (myFolder.getFolderName()==null) {
                 tellError(getString(R.string.Error_Import_CannotParseFile));
                 return;
@@ -516,6 +524,9 @@ public class AddResourceService
         myLog("init() - ** title = " + title_given + " **");
         myLog("init() - ** type = " + type_given + " **");
         myLog("init() - ** url = " + url_given + " **");
+        myLog("option copy file = " + optionCopyFile);
+        myLog("option split m4b = " + optionSplitM4b);
+        myLog("option delete source = " + optionDeleteSource);
         myLog("*********************************************************************************************************");
 
         if (type_given==null || (url_given==null && uri_given==null)) {myLogE("init() - args=null");tellError("Init failed, args are null");return;}
@@ -550,8 +561,7 @@ public class AddResourceService
             ///---------------------------------------------
             case "File":
             case "M4B":
-                boolean optionCopyFile = Option.getCopyFile(this);
-                PROGRESS = Option.getCopyFile(this) ? PROGRESS_FILE_COPY : PROGRESS_FILE_NOCOPY;
+                PROGRESS = optionCopyFile ? PROGRESS_FILE_COPY : PROGRESS_FILE_NOCOPY;
 
                 try {
                     dfPickedDir = DocumentFile.fromSingleUri(this, uri_given);
@@ -590,9 +600,9 @@ public class AddResourceService
                 ///---------------------------------------------
                 if (mime.equals("audio/mp4") || pickedFileExtension.equals("m4b")) {
                     myLog("=> MP4 <=");
-                    if (Option.getSplitM4b(this)) {
+                    if (optionSplitM4b) {
                         type_given = "M4B";
-                        PROGRESS = Option.getCopyFile(this) ? PROGRESS_ZIP_COPY : PROGRESS_ZIP_NOCOPY;
+                        PROGRESS = optionCopyFile ? PROGRESS_ZIP_COPY : PROGRESS_ZIP_NOCOPY;
                         myLog("M4B : copy locally before everything else");
                         myLog("Picked Uri = [" + uri_given.toString() + "]");
 
@@ -678,7 +688,7 @@ public class AddResourceService
             /// FOLDER
             ///---------------------------------------------
             case "Folder":
-                PROGRESS = Option.getCopyFile(this) ? PROGRESS_FOLDER_COPY : PROGRESS_FOLDER_NOCOPY;
+                PROGRESS = optionCopyFile ? PROGRESS_FOLDER_COPY : PROGRESS_FOLDER_NOCOPY;
 
                 // TODO First thing : check if folder already exists, now checked after scan of files, just before DB insertion
                 //checkIfFolderAlreadyExist2();
@@ -713,7 +723,7 @@ public class AddResourceService
     /// ///////// END INIT
 
     private void goZipCase() {
-        PROGRESS = Option.getCopyFile(this) ? PROGRESS_ZIP_COPY : PROGRESS_ZIP_NOCOPY;
+        PROGRESS = optionCopyFile ? PROGRESS_ZIP_COPY : PROGRESS_ZIP_NOCOPY;
         myLog("ZIP : copy locally before everything else");
         myLog("Picked Uri = [" + uri_given.toString() + "]");
 
@@ -788,7 +798,7 @@ public class AddResourceService
             myFolder.setForceFolderPath(zipDestinationFolderPath);
             saveFolder();
         } else {
-            if (Option.getCopyFile(this)) {
+            if (optionCopyFile) {
                 tellProgress(PROGRESS[4], PROGRESS_TEXT[4]);
                 if (type_given.equals("Folder")) {
                     String folderPath = getFilesDir().getAbsolutePath() + "/" + FOLDER_UNZIPPED + "/" + myFolder.getFolderName();
@@ -913,9 +923,9 @@ public class AddResourceService
                     myLog("******************************************************************************************************************");
                     updateFolderDuration();
                     myLog("deleting source ??"
-                            + "\nOption CopyFile : " + Option.getCopyFile(this) + "  -  is a ZIP : " + type_given.equals("ZIP")
-                            + "\nOption DeleteSourceFile : " + Option.getDeleteSourceFile(this));
-                    if ((Option.getCopyFile(this) || type_given.equals("ZIP")) && Option.getDeleteSourceFile(this)) {
+                            + "\nOption CopyFile : " + optionCopyFile + "  -  is a ZIP : " + type_given.equals("ZIP")
+                            + "\nOption DeleteSourceFile : " + optionDeleteSource);
+                    if ((optionCopyFile || type_given.equals("ZIP")) && optionDeleteSource) {
                         myLog("deleting source => YES");
                         deleteSourceFile();
                     }
@@ -1107,7 +1117,7 @@ public class AddResourceService
                 audioFileArrayList = new ArrayList<>();
                 audioFileArrayList.add(myFolder.getFileName(this));
             } else {
-                myFolder = new FolderAttrib(this, Uri.fromFile(new File(fullPath)), Option.getCopyFile(this), type_given);
+                myFolder = new FolderAttrib(this, Uri.fromFile(new File(fullPath)), optionCopyFile, type_given);
             }
             saveFolder();
         }

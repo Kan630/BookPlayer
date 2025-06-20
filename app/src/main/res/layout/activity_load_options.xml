@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- File name display -->
+        <TextView
+            android:id="@+id/tvFileName"
+            style="@style/OptionTitle"
+            android:text="Selected file or folder"
+            android:layout_marginBottom="12dp" />
+
+        <!-- Horizontal divider -->
+        <View style="@style/myStyleViewSimpleHorizontalBar" />
+
+    <LinearLayout style="@style/LinearLayoutOptionsVertical"
+        android:id="@+id/llMimeExtension">
+        <TextView
+            android:id="@+id/tvMimeExtension"
+            style="@style/OptionTitle"
+            android:textSize="14sp"
+            android:text="[mime] - .toto"
+            android:layout_marginBottom="12dp" />
+        <View style="@style/myStyleViewSimpleHorizontalBar" />
+    </LinearLayout>
+
+        <!-- Options group -->
+        <LinearLayout style="@style/LinearLayoutOptionsVertical">
+
+            <!-- Split M4B option -->
+            <LinearLayout
+                style="@style/LinearLayoutOptionsCheckBoxHorizontal"
+                android:id="@+id/ll_split_m4b">
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/cbSplitM4B"
+                    style="@style/OptionCheckBox" />
+                <TextView
+                    android:id="@+id/tx_split_m4b"
+                    style="@style/OptionCheckBoxText"
+                    android:text="Split M4B into chapters" />
+            </LinearLayout>
+
+            <!-- Copy internally -->
+            <LinearLayout
+                style="@style/LinearLayoutOptionsCheckBoxHorizontal"
+                android:id="@+id/ll_copy_internal">
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/cbCopyInternal"
+                    style="@style/OptionCheckBox" />
+                <TextView
+                    android:id="@+id/tx_copy_internal"
+                    style="@style/OptionCheckBoxText"
+                    android:text="Copy to internal storage" />
+            </LinearLayout>
+
+            <!-- Delete source file -->
+            <LinearLayout
+                style="@style/LinearLayoutOptionsCheckBoxHorizontal"
+                android:id="@+id/ll_delete_source">
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/cbDeleteSource"
+                    style="@style/OptionCheckBox" />
+                <TextView
+                    android:id="@+id/tx_delete_source"
+                    style="@style/OptionCheckBoxText"
+                    android:text="Delete original after import" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <View style="@style/myStyleViewSimpleHorizontalBar" />
+
+
+        <!-- Buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="20dp"
+            >
+
+            <Button
+                android:id="@+id/btnCancel"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="Cancel" />
+
+            <View android:layout_width="16dp"
+                android:layout_height="match_parent" />
+
+            <Button
+                android:id="@+id/btnConfirm"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="Confirm" />
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

@@ -59,7 +59,9 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
     private ActivityResultLauncher<Intent> bOpenFileActivityResultLauncher
             ,bOpenFolderActivityResultLauncher
             ,bOpenZipActivityResultLauncher
-            ,bOpenM4bActivityResultLauncher;
+            ,bOpenM4bActivityResultLauncher
+            ,loadOptionsActivityResultLauncher
+            ;
 
     private ActivityResultLauncher<Intent> addResourceActivityResultLauncher;
 
@@ -68,7 +70,6 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
     }
     private void launchAddResource(ActivityResult result, String type, String url) {
         myLog("launchAddResource()-----------------------------------------------------------------------------------------------------");
-
             // DOWNLOAD CASE
         if (url != null) {
             Intent intentAddResourceService = new Intent(this, AddResourceService.class);
@@ -89,6 +90,14 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
                         myLog("picked data : " + uri.getPath());
                         String title = formatNameForDisplay(getFileNameFromUri(this, uri));
 
+
+                        Intent intent = new Intent(this, LoadOptionsActivity.class);
+                        intent.putExtra(LoadOptionsActivity.EXTRA_URI, uri);
+                        intent.putExtra(LoadOptionsActivity.EXTRA_TYPE, type);
+                        //intent.putExtra(LoadOptionsActivity.EXTRA_TITLE, title);
+                        loadOptionsActivityResultLauncher.launch(intent);
+
+/*
                         Intent intentAddResourceService = new Intent(this, AddResourceService.class);
                         intentAddResourceService.putExtra("uri", uri);
                         intentAddResourceService.putExtra("type", type);
@@ -100,6 +109,8 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
                         intent.putExtra("type", type);
                         intent.putExtra("title", title);
                         addResourceActivityResultLauncher.launch(intent);
+
+ */
                     } catch (Exception e) {
                         myToastE("Error reading picked object : " + e.getMessage());
                     }
@@ -174,7 +185,7 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
         // TODO => try ACTION_PICK ?
 
         bOpenZipActivityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
-                result -> { launchAddResource(result, "ZIP"); });
+                result -> { launchAddResource(result, "File"); });
         bOpenZipFile.setOnClickListener(view -> {
             scanThatShit();
             myLog("Button click : ZIP file");
@@ -193,7 +204,7 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
 // M4B
 
             bOpenM4bActivityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
-                    result -> { launchAddResource(result, "M4B"); });
+                    result -> { launchAddResource(result, "File"); });
         bOpenM4bFile.setOnClickListener(view -> {
             scanThatShit();
             myLog("Button click : M4B file");
@@ -220,6 +231,38 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
 
             bOpenM4bActivityResultLauncher.launch(intent);
         });
+
+        loadOptionsActivityResultLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK) {
+                        Intent data = result.getData();
+                        if (data == null) return;
+
+                        Uri uri = data.getParcelableExtra("uri");
+                        String type = data.getStringExtra("type");
+                        String title = data.getStringExtra("title");
+                        boolean split = data.getBooleanExtra("split", false);
+                        boolean copy = data.getBooleanExtra("copy", false);
+                        boolean delete = data.getBooleanExtra("delete", false);
+
+                        Intent intentService = new Intent(this, AddResourceService.class);
+                        intentService.putExtra("uri", uri);
+                        intentService.putExtra("type", type);
+                        intentService.putExtra("title", title);
+                        intentService.putExtra("split", split);
+                        intentService.putExtra("copy", copy);
+                        intentService.putExtra("delete", delete);
+                        startService(intentService);
+
+                        Intent intentActivity = new Intent(this, AddResourceActivity.class);
+                        intentActivity.putExtra("uri", uri);
+                        intentActivity.putExtra("type", type);
+                        intentActivity.putExtra("title", title);
+                        startActivity(intentActivity);
+                    }
+                }
+        );
 
 
         ////////////////////////////////

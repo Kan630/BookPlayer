@@ -15,6 +15,7 @@ import android.text.Html;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -171,6 +172,7 @@ public class OptionActivity extends LifecycleLoggingActivity {
         Button btnShowAdvanced = findViewById(R.id.btn_show_advanced);
         btnShowAdvanced.setOnClickListener(v -> toggleAdvancedOptions());
 
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN); // Avoid keyboard on opening
     }
 
     private void initializeAdvancedOptions() {
