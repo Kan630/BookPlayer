@@ -88,8 +88,6 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
                     try {
                         Uri uri = result.getData().getData();
                         myLog("picked data : " + uri.getPath());
-                        String title = formatNameForDisplay(getFileNameFromUri(this, uri));
-
 
                         Intent intent = new Intent(this, LoadOptionsActivity.class);
                         intent.putExtra(LoadOptionsActivity.EXTRA_URI, uri);

@@ -77,6 +77,8 @@ public class AddResourceActivity
             type =  "Download";
             putTitle(url);
 
+
+        /*
         } else if (Intent.ACTION_VIEW.equals(action)) { // OPEN WITH
 
             Uri uri = getIntent().getData();
@@ -119,7 +121,9 @@ public class AddResourceActivity
 
                     putTitle(title);
                 }
+
             }
+             */
 
         } else {  // FILE PICKER
 
