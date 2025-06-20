@@ -14,23 +14,38 @@
         <!-- File name display -->
         <TextView
             android:id="@+id/tvFileName"
-            style="@style/OptionTitle"
+            style="@style/OptionAfterPickedTitle"
             android:text="Selected file or folder"
             android:layout_marginBottom="12dp" />
 
+        <TextView
+            android:id="@+id/errorTextView"
+            style="@style/OptionAfterPickedInfo"
+            android:textColor="@color/orange"
+            android:text="error text ..."
+            />
         <!-- Horizontal divider -->
         <View style="@style/myStyleViewSimpleHorizontalBar" />
 
-    <LinearLayout style="@style/LinearLayoutOptionsVertical"
-        android:id="@+id/llMimeExtension">
-        <TextView
-            android:id="@+id/tvMimeExtension"
-            style="@style/OptionTitle"
-            android:textSize="14sp"
-            android:text="[mime] - .toto"
-            android:layout_marginBottom="12dp" />
+        <LinearLayout style="@style/LinearLayoutOptionsVertical"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="0dp"
+            android:id="@+id/llLocation">
+            <TextView
+                android:id="@+id/tvLocation"
+                style="@style/OptionAfterPickedInfo"
+                android:text="[cloud]"
+                />
+        </LinearLayout>
+        <LinearLayout style="@style/LinearLayoutOptionsVertical"
+            android:id="@+id/llMimeExtension">
+            <TextView
+                android:id="@+id/tvMimeExtension"
+                style="@style/OptionAfterPickedInfo"
+                android:text="[mime] - .toto"
+                />
+        </LinearLayout>
         <View style="@style/myStyleViewSimpleHorizontalBar" />
-    </LinearLayout>
 
         <!-- Options group -->
         <LinearLayout style="@style/LinearLayoutOptionsVertical">

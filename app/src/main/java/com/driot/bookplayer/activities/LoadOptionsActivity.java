@@ -1,5 +1,6 @@
 package com.driot.bookplayer.activities;
 
+import static com.driot.bookplayer.global.Var.FOLDER_UNZIPPED;
 import static com.driot.bookplayer.global.Var.ONLY_MIME_AUDIO;
 import static com.driot.bookplayer.global.Var.SUPPORTED_AUDIO_EXTENSIONS;
 import static com.driot.bookplayer.utils.Tonio.formatNameForDisplay;
@@ -7,6 +8,8 @@ import static com.driot.bookplayer.utils.Tonio.getExtension;
 import static com.driot.bookplayer.utils.Tonio.getFileNameFromPath;
 import static com.driot.bookplayer.utils.Tonio.getFileNameFromUri;
 import static com.driot.bookplayer.utils.Tonio.getMimeType;
+import static com.driot.bookplayer.utils.Tonio.getSourceLocation;
+import static com.driot.bookplayer.utils.Tonio.stripExtension;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -22,6 +25,7 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.utils.KanLogger;
 
@@ -31,11 +35,13 @@ public class LoadOptionsActivity extends Activity {
 
     public static final String EXTRA_URI = "uri";
     public static final String EXTRA_TYPE = "type";  // File or Folder
-    //public static final String EXTRA_TITLE = "title";
 
     private Uri uri;
-    private String type, title;
+    private String type;
 
+    private String audioBookTitle, sourceLocation;
+
+    private TextView errorTextView;
     private CheckBox cbSplit, cbCopy, cbDelete;
     private LinearLayout llSplit, llCopy, llDelete;
 
@@ -58,12 +64,21 @@ public class LoadOptionsActivity extends Activity {
             myToastE("Unrecognized picked object : [uri is null]");
             finish();
         }
-        //title = getIntent().getStringExtra(EXTRA_TITLE);
+
+        sourceLocation = getSourceLocation(uri);
+        String sourceLocationText = "Source Location = [" + sourceLocation + "]";
+        myLog(sourceLocationText);
+        TextView tvLocation = findViewById(R.id.tvLocation);
+        tvLocation.setText(sourceLocationText);
+
 
         TextView tvFileName = findViewById(R.id.tvFileName);
         TextView tvMimeExtension = findViewById(R.id.tvMimeExtension);
         Button btnConfirm = findViewById(R.id.btnConfirm);
         Button btnCancel = findViewById(R.id.btnCancel);
+
+        errorTextView = findViewById(R.id.errorTextView);
+        errorTextView.setVisibility(View.GONE);
 
 
         String uriPath = uri.getPath();
@@ -73,8 +88,7 @@ public class LoadOptionsActivity extends Activity {
             String mimeType = Objects.toString(getMimeType(this, uri),"");
             String fileName = getFileNameFromUri(this, uri);
             String fileExtension = getExtension(fileName);
-            String infoMimeExtension = "[" + mimeType + "] - [." + fileExtension + "]";
-            tvMimeExtension.setText(infoMimeExtension);
+
             if (Objects.toString(fileExtension,"").isEmpty()) {
                 myToastE("Error : file extension not found");
                 finish();
@@ -86,23 +100,46 @@ public class LoadOptionsActivity extends Activity {
                 type = "M4B";
             }
 
+            String infoMimeExtension = "Type = [" + type + "] :    [" + mimeType + "] - [." + fileExtension + "]";
+            tvMimeExtension.setText(infoMimeExtension);
+
             if (mimeType.startsWith(ONLY_MIME_AUDIO) || SUPPORTED_AUDIO_EXTENSIONS.contains(fileExtension)) {
                 myLog("ok mime - " + infoMimeExtension);
             } else {
                 myLogE("mime ko - " + infoMimeExtension);
             }
+
+            audioBookTitle = stripExtension(getFileNameFromUri(this, uri));
+
         } else if (type.equals("Folder")) {
+
             findViewById(R.id.llMimeExtension).setVisibility(View.GONE);
+            audioBookTitle = formatNameForDisplay(getFileNameFromPath(uriPath));
         }
 
-        title = "[" + type + "] - " + formatNameForDisplay(getFileNameFromPath(uriPath));
-        myLog("title : " + title);
-        tvFileName.setText(title);
+        tvFileName.setText(audioBookTitle);
+
+//----------------------------------------------------------------------------------------------------------------------------------
+// check Not Already Imported
+//*****************************
+        myLog("Checking Folder doesn't already exist in DB : [" + audioBookTitle + "]");
+        new Thread(() -> {
+            long lCheck = AppDatabase.getDatabase(this).FolderDao().folderAlreadyExist_checkFolderName(audioBookTitle);
+            if (lCheck>0) {
+                myLogE("KO, folder does already exist in DB : [" + audioBookTitle + "]");
+                runOnUiThread(() -> {
+                    errorTextView.setText(getString(R.string.error_media_already_loaded));
+                    errorTextView.setVisibility(View.VISIBLE);
+                });
+            } else {
+                myLog("OK, folder doesn't already exist in DB");
+            }
+        }).start();
 
 
-
-
-/// /// OPTIONS
+//----------------------------------------------------------------------------------------------------------------------------------
+/// OPTIONS CHECKBOXES
+//----------------------------------------------------------------------------------------------------------------------------------
         cbSplit = findViewById(R.id.cbSplitM4B);
         cbCopy = findViewById(R.id.cbCopyInternal);
         cbDelete = findViewById(R.id.cbDeleteSource);
@@ -140,18 +177,16 @@ public class LoadOptionsActivity extends Activity {
                 }
             }
         });
-
-/// /// OPTIONS
-
-
-
+//-------------------------------------------------------------------------------------------------------------------------------------------------
+// ACTION BUTTONS
+//-------------------------------------------------------------------------------------------------------------------------------------------------
         btnCancel.setOnClickListener(v -> finish());
 
         btnConfirm.setOnClickListener(v -> {
             Intent data = new Intent();
             data.putExtra("uri", uri);
             data.putExtra("type", type);
-            data.putExtra("title", title);
+            data.putExtra("title", audioBookTitle);
             data.putExtra("split", cbSplit.isChecked());
             data.putExtra("copy", cbCopy.isChecked());
             data.putExtra("delete", cbDelete.isChecked());
@@ -159,6 +194,10 @@ public class LoadOptionsActivity extends Activity {
             finish();
         });
     }
+
+//-------------------------------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------------------------------
 
     private void calculateCheckboxState() {
         internalCheckBoxStateCalculationInProgress = true;
@@ -182,6 +221,13 @@ public class LoadOptionsActivity extends Activity {
             cbCopy.setChecked(true);
         }
 
+        if (sourceLocation.equals("cloud")) {
+            cbCopy.setEnabled(false);
+            llCopy.setEnabled(false);
+            cbCopy.setChecked(true);
+        }
+
+        // delete
         if (cbCopy.isChecked()) {
             cbDelete.setEnabled(true);
             llDelete.setEnabled(true);
@@ -190,6 +236,7 @@ public class LoadOptionsActivity extends Activity {
             cbDelete.setEnabled(false);
             llDelete.setEnabled(false);
         }
+
         internalCheckBoxStateCalculationInProgress = false;
     }
 

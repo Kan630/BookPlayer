@@ -94,23 +94,8 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
                         Intent intent = new Intent(this, LoadOptionsActivity.class);
                         intent.putExtra(LoadOptionsActivity.EXTRA_URI, uri);
                         intent.putExtra(LoadOptionsActivity.EXTRA_TYPE, type);
-                        //intent.putExtra(LoadOptionsActivity.EXTRA_TITLE, title);
                         loadOptionsActivityResultLauncher.launch(intent);
 
-/*
-                        Intent intentAddResourceService = new Intent(this, AddResourceService.class);
-                        intentAddResourceService.putExtra("uri", uri);
-                        intentAddResourceService.putExtra("type", type);
-                        intentAddResourceService.putExtra("title", title);
-                        startService(intentAddResourceService);
-
-                        Intent intent = new Intent(getApplicationContext(), AddResourceActivity.class);
-                        intent.putExtra("uri", uri);
-                        intent.putExtra("type", type);
-                        intent.putExtra("title", title);
-                        addResourceActivityResultLauncher.launch(intent);
-
- */
                     } catch (Exception e) {
                         myToastE("Error reading picked object : " + e.getMessage());
                     }

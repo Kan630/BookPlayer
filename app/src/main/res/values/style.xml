@@ -203,6 +203,25 @@
         <item name="android:layout_marginBottom">10dp</item>
     </style>
 
+    <!-- ***************** LOAD OPTION AFTER FILE PICKED ***************** -->
+
+    <style name="OptionAfterPickedTitle" parent="textColor">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">22sp</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginStart">20sp</item>
+        <item name="android:layout_marginTop">20sp</item>
+    </style>
+
+    <style name="OptionAfterPickedInfo" parent="textColor">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+
     <!-- ***************** DIVERS ***************** -->
 
     <style name="myStyleViewSimpleHorizontalBar">

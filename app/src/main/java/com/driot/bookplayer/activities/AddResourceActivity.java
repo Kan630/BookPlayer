@@ -252,15 +252,15 @@ public class AddResourceActivity
             } else {
                 myToast(getString(R.string.Import_Success) + "\n" + tvTitle.getText());
 
-                if (original_type.equals("OpenWith")) {
+                //if (original_type.equals("OpenWith")) {
                     // Go back to main screen and keep app visible
                     Intent mainIntent = new Intent(this, MainActivity.class);
                     mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(mainIntent);
                     finish();
-                }
+                //}
 
-                finish();
+                //finish();
             }
         });
     }

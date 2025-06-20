@@ -520,6 +520,7 @@ public class AddResourceService
         myLog("....");
         myLog("....");
         myLog("*********************************************************************************************************");
+        myLog("*********************************************************************************************************");
         myLog("init() - ** uri = " + strUriLog + " **");
         myLog("init() - ** title = " + title_given + " **");
         myLog("init() - ** type = " + type_given + " **");
@@ -527,6 +528,7 @@ public class AddResourceService
         myLog("option copy file = " + optionCopyFile);
         myLog("option split m4b = " + optionSplitM4b);
         myLog("option delete source = " + optionDeleteSource);
+        myLog("*********************************************************************************************************");
         myLog("*********************************************************************************************************");
 
         if (type_given==null || (url_given==null && uri_given==null)) {myLogE("init() - args=null");tellError("Init failed, args are null");return;}
@@ -1108,7 +1110,7 @@ public class AddResourceService
         if (type_given.equals("ZIP")) {
             myLog("launch unzipZipLocal()");
             unzipZipLocal(zipDestinationFolderPath + "/" + zipDestinationFolderName, zipDestinationFolderPath);
-        } else if (type_given.equals("M4B")) {
+        } else if (type_given.equals("M4B") && optionSplitM4b) {
             myLog("launch extractM4bLocal()");
             extractM4bLocal(zipDestinationFolderPath + "/" + zipDestinationFolderName, zipDestinationFolderPath);
         } else {
