@@ -44,6 +44,12 @@ public class CacheFilesViewModel extends AndroidViewModel {
         return filesFromDisk;
     }
 
+    private MutableLiveData<Boolean> memoryStats = new MutableLiveData<>();
+    public LiveData<Boolean> getMemoryStats() {
+        return memoryStats;
+    }
+
+
     private void loadBookFromDB() {
         myLog("LiveData<List<ZikFile>> loadBookFromDB()");
         filesFromDb = AppDatabase.getDatabase(getApplication()).ZikFileDao().getZikFileDistinctLocations();
@@ -68,6 +74,7 @@ public class CacheFilesViewModel extends AndroidViewModel {
             filesFromDisk.setValue(new ArrayList<>());
             myLog("directory cachePath does not exist: [" + cachePath + "]");
         }
+        memoryStats.postValue(true); // notify for header update
     }
 
     public void deleteAudio(File file) {
@@ -83,7 +90,6 @@ public class CacheFilesViewModel extends AndroidViewModel {
             } else {
                 myLogE("Error getting book reference in database, so no deletion in database");
             }
-
         } else {
             myLogE("Error deleting book from internal app memory");
         }

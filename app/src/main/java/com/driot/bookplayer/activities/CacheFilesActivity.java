@@ -36,7 +36,6 @@ public class CacheFilesActivity extends LifecycleLoggingActivity implements Cach
 
     private CacheFilesViewModel cacheFilesViewModel;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         myLog("onCreate()");
@@ -66,7 +65,14 @@ public class CacheFilesActivity extends LifecycleLoggingActivity implements Cach
         recyclerView.setAdapter(cacheFilesAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        FillTextViewMemoryStats();
+// Memory stats at the top
+        cacheFilesViewModel.getMemoryStats().observe(this, updated -> {
+            if (updated != null && updated) {
+                FillTextViewMemoryStats();
+                // Reset the value so we don't trigger again unnecessarily
+                //cacheFilesViewModel.getMemoryStats().setValue(false); // should use MutableLiveData for this
+            }
+        });
     }
 
     private void FillTextViewMemoryStats() {
@@ -78,7 +84,7 @@ public class CacheFilesActivity extends LifecycleLoggingActivity implements Cach
                         formatMem(totalMemory) + " Mo : Device memory";
         TextView tv_txt = findViewById(R.id.cachefiles_stats_text);
         tv_txt.setText(zeText);
-
+        myLog("FillTextViewMemoryStats()\n" + zeText);
     }
 
     public void onDeleteClick(File file, int position) {

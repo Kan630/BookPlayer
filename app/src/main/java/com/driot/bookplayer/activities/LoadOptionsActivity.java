@@ -57,12 +57,14 @@ public class LoadOptionsActivity extends Activity {
         type = Objects.toString(getIntent().getStringExtra(EXTRA_TYPE),"");
 
         if (!(type.equals("File")) && !(type.equals("Folder"))) {
-            myToastE("Unsupported type : [" + type + "]");
+            myToastE("Error picking audio - unsupported type : [" + type + "]");
             finish();
+            return; //if not, on create code continues...
         }
         if (Objects.isNull(uri)) {
-            myToastE("Unrecognized picked object : [uri is null]");
+            myToastE("Error picking audio : [uri is null]");
             finish();
+            return; //if not, on create code continues...
         }
 
         sourceLocation = getSourceLocation(uri);

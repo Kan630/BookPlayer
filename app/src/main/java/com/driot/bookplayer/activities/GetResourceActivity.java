@@ -12,6 +12,7 @@ import android.provider.Settings;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.activity.result.ActivityResult;
@@ -31,6 +32,7 @@ import com.driot.bookplayer.utils.KanLogger;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -38,67 +40,50 @@ import static com.driot.bookplayer.global.Var.AUTOTEST_FILE_01;
 import static com.driot.bookplayer.global.Var.AUTOTEST_FILE_02;
 import static com.driot.bookplayer.global.Var.AUTOTEST_FILE_03;
 import static com.driot.bookplayer.utils.PermissionRequest.isReadAudioPermissionGranted;
-import static com.driot.bookplayer.utils.Tonio.formatNameForDisplay;
-import static com.driot.bookplayer.utils.Tonio.getFileNameFromUri;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 08/11/20
  */
 public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatActivity
     private Button bOpenFile, bOpenFolder, bOpenZipFile, bOpenM4bFile;
-    private Button bAutoTest_b1, bAutoTest_b2, bAutoTest_b3;
+    private Button bAutoTest_b1, bAutoTest_b2, bAutoTest_b3, bDirectDownload;
+
     private TextView tv_message_import_currently_running;
 
-    List<Button> buttonsToLock;
-    List<TextView> textViewToHide;
+    private EditText etDirectDownload;
 
     private PermissionRequest mPermissionRequest;
     private int lopperForLog = 0;
     private Timer timer;
     private boolean isActivityActive = true;
-    private ActivityResultLauncher<Intent> bOpenFileActivityResultLauncher
+    private ActivityResultLauncher<Intent>
+             bOpenFileActivityResultLauncher
             ,bOpenFolderActivityResultLauncher
-            ,bOpenZipActivityResultLauncher
-            ,bOpenM4bActivityResultLauncher
             ,loadOptionsActivityResultLauncher
             ;
 
     private ActivityResultLauncher<Intent> addResourceActivityResultLauncher;
 
     private void launchAddResource(ActivityResult result, String type) {
-        launchAddResource(result, type, null);
-    }
-    private void launchAddResource(ActivityResult result, String type, String url) {
         myLog("launchAddResource()-----------------------------------------------------------------------------------------------------");
-            // DOWNLOAD CASE
-        if (url != null) {
-            Intent intentAddResourceService = new Intent(this, AddResourceService.class);
-            intentAddResourceService.putExtra("url", url);
-            intentAddResourceService.putExtra("type", "ZIP"); // TODO... allows others than ZIP !!!
-            startService(intentAddResourceService);
-
-            Intent intent = new Intent(getApplicationContext(), AddResourceActivity.class);
-            intent.putExtra("url", url);
-            addResourceActivityResultLauncher.launch(intent);
-
-            // FILE PICKER CASE
-        } else {
+        try {
             if (result.getResultCode() == RESULT_OK) {
                 if (isReturnedUriOk(result.getData())) {
-                    try {
-                        Uri uri = result.getData().getData();
-                        myLog("picked data : " + uri.getPath());
+                    Uri uri = result.getData().getData();
+                    myLog("picked data : " + uri.getPath());
 
-                        Intent intent = new Intent(this, LoadOptionsActivity.class);
-                        intent.putExtra(LoadOptionsActivity.EXTRA_URI, uri);
-                        intent.putExtra(LoadOptionsActivity.EXTRA_TYPE, type);
-                        loadOptionsActivityResultLauncher.launch(intent);
-
-                    } catch (Exception e) {
-                        myToastE("Error reading picked object : " + e.getMessage());
-                    }
+                    Intent intent = new Intent(this, LoadOptionsActivity.class);
+                    intent.putExtra(LoadOptionsActivity.EXTRA_URI, uri);
+                    intent.putExtra(LoadOptionsActivity.EXTRA_TYPE, type);
+                    loadOptionsActivityResultLauncher.launch(intent);
+                } else {
+                    myLogE("returned Uri not OK");
                 }
+            } else {
+                myLogE("result code not OK");
             }
+        } catch (Exception e) {
+            myToastE("Error reading picked object : " + e.getMessage());
         }
     }
 
@@ -117,7 +102,9 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
         bAutoTest_b1 = findViewById(R.id.bAutoTest_b1);
         bAutoTest_b2 = findViewById(R.id.bAutoTest_b2);
         bAutoTest_b3 = findViewById(R.id.bAutoTest_b3);
-        buttonsToLock = Arrays.asList(bOpenFile, bOpenFolder, bOpenZipFile, bOpenM4bFile, bAutoTest_b1, bAutoTest_b2, bAutoTest_b3);
+        bDirectDownload = findViewById(R.id.bDirectDownload);
+        etDirectDownload = findViewById(R.id.etDirectDownload);
+
         tv_message_import_currently_running = findViewById(R.id.message_import_currently_running);
 
 // ADD RESOURCE
@@ -166,9 +153,6 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
 // ZIP
         // TODO sadly, honor with android 7 wont let you select a zip file, the file picker will open the content... instead of selecting it
         // TODO => try ACTION_PICK ?
-
-        bOpenZipActivityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
-                result -> { launchAddResource(result, "File"); });
         bOpenZipFile.setOnClickListener(view -> {
             scanThatShit();
             myLog("Button click : ZIP file");
@@ -181,13 +165,10 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
             intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
             intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_WRITE_URI_PERMISSION|Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION|Intent.FLAG_GRANT_PREFIX_URI_PERMISSION);
             intent.addCategory(Intent.CATEGORY_OPENABLE);
-            bOpenZipActivityResultLauncher.launch(intent);
+            bOpenFileActivityResultLauncher.launch(intent);
         });
 
 // M4B
-
-            bOpenM4bActivityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
-                    result -> { launchAddResource(result, "File"); });
         bOpenM4bFile.setOnClickListener(view -> {
             scanThatShit();
             myLog("Button click : M4B file");
@@ -212,7 +193,34 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
             );
             intent.addCategory(Intent.CATEGORY_OPENABLE);
 
-            bOpenM4bActivityResultLauncher.launch(intent);
+            bOpenFileActivityResultLauncher.launch(intent);
+        });
+
+
+// DIRECT DOWNLOAD - JUST GET IT
+        bDirectDownload.setOnClickListener(view -> {
+            myLog("Button click : DIRECT DOWNLOAD");
+            String url = etDirectDownload.getText().toString();
+
+            if (url.isEmpty()) {
+                myToast("Please enter a URL.");
+                return;
+            }
+            myLog("url : [" + url + "]");
+
+            Uri uri = Uri.parse(url);
+            myLog("uri : [" + uri.toString() + "]");
+
+            if (uri.getPath() == null) {
+                myToastE("Error parsing url.");
+                return;
+            }
+            String type = "File";
+
+            Intent intent = new Intent(this, LoadOptionsActivity.class);
+            intent.putExtra(LoadOptionsActivity.EXTRA_URI, uri);
+            intent.putExtra(LoadOptionsActivity.EXTRA_TYPE, type);
+            loadOptionsActivityResultLauncher.launch(intent);
         });
 
         loadOptionsActivityResultLauncher = registerForActivityResult(
@@ -286,7 +294,10 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
             myLog("Button click : AUTO TEST 01");
             checkWWW(canReach -> {
                 if (canReach) {
-                    launchAddResource(null, null, AUTOTEST_FILE_01);
+                    Intent intent = new Intent(this, LoadOptionsActivity.class);
+                    intent.putExtra(LoadOptionsActivity.EXTRA_URI, Uri.parse(AUTOTEST_FILE_01));
+                    intent.putExtra(LoadOptionsActivity.EXTRA_TYPE, "File");
+                    loadOptionsActivityResultLauncher.launch(intent);
                 }
             });
         });
@@ -294,7 +305,10 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
             myLog("Button click : AUTO TEST 02");
             checkWWW(canReach -> {
                 if (canReach) {
-                    launchAddResource(null, null,  AUTOTEST_FILE_02);
+                    Intent intent = new Intent(this, LoadOptionsActivity.class);
+                    intent.putExtra(LoadOptionsActivity.EXTRA_URI, Uri.parse(AUTOTEST_FILE_02));
+                    intent.putExtra(LoadOptionsActivity.EXTRA_TYPE, "File");
+                    loadOptionsActivityResultLauncher.launch(intent);
                 }
             });
         });
@@ -302,7 +316,10 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
             myLog("Button click : AUTO TEST 03");
             checkWWW(canReach -> {
                 if (canReach) {
-                    launchAddResource(null, null,  AUTOTEST_FILE_03);
+                    Intent intent = new Intent(this, LoadOptionsActivity.class);
+                    intent.putExtra(LoadOptionsActivity.EXTRA_URI, Uri.parse(AUTOTEST_FILE_03));
+                    intent.putExtra(LoadOptionsActivity.EXTRA_TYPE, "File");
+                    loadOptionsActivityResultLauncher.launch(intent);
                 }
             });
         });
@@ -382,14 +399,18 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
         if (lopperForLog%10==0) myLogD("checkServiceRunning()");
         try {
             lopperForLog = lopperForLog + 1;
-            textViewToHide = Arrays.asList(
+            List<TextView> textViewToHide = Arrays.asList(
                      findViewById(R.id.TextHeaderOpen)
                     ,findViewById(R.id.bOpenFile_desc)
                     ,findViewById(R.id.bOpenFolder_desc)
                     ,findViewById(R.id.bOpenZipFile_desc)
                     ,findViewById(R.id.txtAutoTest_title)
                     ,findViewById(R.id.txtAutoTest_desc)
+                    ,findViewById(R.id.txtDirectDownload_title)
+                    ,findViewById(R.id.txtDirectDownload_desc)
             );
+            List<Button> buttonsToLock = Arrays.asList(bOpenFile, bOpenFolder, bOpenZipFile, bOpenM4bFile
+                    , bAutoTest_b1, bAutoTest_b2, bAutoTest_b3, bDirectDownload);
 
             if (AddResourceService.isBusy || DownloadService.isBusy) {
                 if (lopperForLog%20==0) myLog("AddResourceService.isBusy => displaying banner, disabling buttons");

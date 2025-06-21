@@ -128,30 +128,58 @@
             android:layout_marginStart="20dp" />
 
 
-<!--
-
         <View style="@style/GetResourceHorizontalBar"/>
 
         <TextView
-            android:text="@string/OnlineSearch_title"
+            android:id="@+id/txtDirectDownload_title"
+            android:text="@string/DirectDownload_title"
             style="@style/GetResourceTextSectionTitle" />
 
         <TextView
-            android:text="@string/OnlineSearch_desc"
+            android:id="@+id/txtDirectDownload_desc"
+            android:text="@string/DirectDownload_desc"
             style="@style/GetResourceTextTopOfButton" />
 
         <EditText
+            android:id="@+id/etDirectDownload"
             android:layout_width="match_parent"
-            android:layout_height="20dp"
-            android:hint="@string/OnlineSearch_hint"
+            android:layout_height="wrap_content"
+            android:autofillHints=""
+            android:hint="@string/DirectDownload_hint"
+            android:inputType="textMultiLine"
             style="@style/GetResourceEditText"
+            android:text="@string/DirectDownload_hint"
             />
         <Button
-            android:id="@+id/bOnlineSearch"
-            android:text="@string/OnlineSearch_button"
+            android:id="@+id/bDirectDownload"
+            android:text="@string/DirectDownload_button"
             style="@style/GetResourceButton" />
 
--->
+
+        <!--
+
+                <View style="@style/GetResourceHorizontalBar"/>
+
+                <TextView
+                    android:text="@string/OnlineSearch_title"
+                    style="@style/GetResourceTextSectionTitle" />
+
+                <TextView
+                    android:text="@string/OnlineSearch_desc"
+                    style="@style/GetResourceTextTopOfButton" />
+
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="20dp"
+                    android:hint="@string/OnlineSearch_hint"
+                    style="@style/GetResourceEditText"
+                    />
+                <Button
+                    android:id="@+id/bOnlineSearch"
+                    android:text="@string/OnlineSearch_button"
+                    style="@style/GetResourceButton" />
+
+        -->
 
         <View style="@style/GetResourceHorizontalBar"/>
 

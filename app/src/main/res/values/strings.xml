@@ -431,5 +431,12 @@
 
     <string name="error_media_already_loaded">This media has already been loaded</string>
 
+    <string name="DirectDownload_title">Direct Download</string>
+    <string name="DirectDownload_desc">Paste a link hereunder and press the button to download and integrate an audiobook in one go.</string>
+    <string name="DirectDownload_hint">https://bookplayer.driot.com/autotest/file_01.zip</string>
+    <string name="DirectDownload_button">Just Get It</string>
+
+
+
 
 </resources>

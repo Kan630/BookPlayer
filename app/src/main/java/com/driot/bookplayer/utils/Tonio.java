@@ -286,6 +286,11 @@ public class Tonio {
     }
 
     public static String getSourceLocation(Uri uri) {
+        if (Objects.isNull(uri) || uri.toString().isEmpty()) {
+            myLogE("getSourceLocation - empty uri");
+            return "xxx";
+        }
+        myLog("getSourceLocation - uri = [" + uri + "] - Authority = " + uri.getAuthority());
         if (!Objects.isNull(uri) &&  !Objects.isNull(uri.getAuthority())) {
             String uriAuthority = uri.getAuthority();
             Set<String> cloudAuthorities = new HashSet<>();
@@ -295,6 +300,8 @@ public class Tonio {
             cloudAuthorities.add("com.dropbox.product.android.dbapp.document_provider.documents");  // DropBox
             if (uriAuthority != null && cloudAuthorities.contains(uriAuthority)) {
                 return "cloud";
+            } else if (uri.toString().startsWith("http")) {
+                return "web";
             } else {
                 return "local";
             }
