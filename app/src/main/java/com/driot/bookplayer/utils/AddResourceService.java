@@ -37,6 +37,7 @@ import static com.driot.bookplayer.global.Var.FOLDER_UNZIPPED;
 import static com.driot.bookplayer.global.Var.ONLY_MIME_AUDIO;
 import static com.driot.bookplayer.global.Var.PATH_CHECK_AUTOTEST;
 import static com.driot.bookplayer.global.Var.SUPPORTED_AUDIO_EXTENSIONS;
+import static com.driot.bookplayer.utils.FileUtils.buildFileUri;
 import static com.driot.bookplayer.utils.Tonio.formatMem;
 import static com.driot.bookplayer.utils.Tonio.formatNameForDisplay;
 import static com.driot.bookplayer.utils.Tonio.fileExists;
@@ -496,7 +497,7 @@ public class AddResourceService
                 String fileName = Objects.toString(f1.getName());
                 String fileExtension = getExtension(fileName);
                 String mimeType = Objects.toString(f1.getType());
-                myLog("* Checking File : [" + fileName + "] - mime = [" + mimeType + "] - extension = [" + fileExtension + "] - folder : [" + recursivFolder + "]");
+                myLog("* Checking File : [" + fileName + "] - mime = [" + mimeType + "] - extension = [" + fileExtension + "] - subfolder : [" + recursivFolder + "]");
                 if (mimeType.startsWith(ONLY_MIME_AUDIO) || SUPPORTED_AUDIO_EXTENSIONS.contains(fileExtension)
                 ) {
                     nbFileScan = nbFileScan + 1;
@@ -892,28 +893,34 @@ public class AddResourceService
         zikFile.setPath(myFolder.getFolderPath());
         zikFile.setIszipfile(false); //2023-10-22 code removed for live zip reading
 
+/*
         // get Media Duration
         //--------------------------------
         String sFileFullPath;
-
         if (myFolder.isSingleFile()) {
             sFileFullPath = myFolder.getFolderPath() + File.separator + sZikFileName;
         } else {
             sFileFullPath = myFolder.getFolderPath() + File.separator + sZikFileName;
         }
-        try {
+      try {
             myLog("Get Media Duration : [" + sFileFullPath + "]");
             zikFile.setDuration(getMediaDurationFromPath(sFileFullPath));
         } catch (IOException e) {
             tellNonBlockingError("Error getting/setting media duration : " + e.getMessage());
         }
 
+ */
+        myLog("myFolder.getUri().toString() : " + myFolder.getUri().toString());
+
+        Uri fileUri = buildFileUri(myFolder.getUri(), sZikFileName);
+        zikFile.setDuration(getMediaDurationFromUri(this, fileUri));
+
         if (zikFile.getDuration() == 0) {
             myLog("File Not Added.... (Duration = 0)");
             nbFileSaved++;
             if (nbFileSaved == nbFileToSave) {
                 myLog("*************************** All files have been processed. -- last file duration=0");
-                updateFolderDuration();
+                updateFolderDuration(mFolderId);
             }
         } else {
             long zikFileId = AppDatabase.getDatabase(this).ZikFileDao().insert(zikFile);
@@ -926,7 +933,7 @@ public class AddResourceService
                     myLog("***************************      All files have been processed. -- OK      ***************************************");
                     myLog("******************************************************************************************************************");
                     myLog("******************************************************************************************************************");
-                    updateFolderDuration();
+                    updateFolderDuration(mFolderId);
                     myLog("deleting source ??"
                             + "\nOption CopyFile : " + optionCopyFile + "  -  is a ZIP : " + type_given.equals("ZIP")
                             + "\nOption DeleteSourceFile : " + optionDeleteSource);
@@ -941,11 +948,12 @@ public class AddResourceService
         }
     }
 
-    private void updateFolderDuration() {
+    private void updateFolderDuration(int mFolderId) {
         String strSQL = "UPDATE Folder " +
                 " SET duration = (SELECT SUM(duration) " +
                 " FROM ZikFile " +
-                " WHERE Folder.id = ZikFile.idFolder )";
+                " WHERE Folder.id = ZikFile.idFolder " +
+                " AND Folder.id = " + mFolderId + " )";
         SimpleSQLiteQuery query = new SimpleSQLiteQuery(strSQL);
         try {
             int sqlResult = DatabaseClient.getInstance(getApplicationContext()).getAppDatabase().FolderDao().runRawSql(query);
@@ -1009,7 +1017,20 @@ public class AddResourceService
         myLogD("duration for [" + zePath + "] is " + duration);
         return duration;
     }
-
+    private long getMediaDurationFromUri(Context context, Uri uri) {
+        long duration = 0;
+        try {
+            MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+            retriever.setDataSource(context, uri);
+            String durStr = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+            duration = Long.parseLong(durStr);
+        } catch (Exception e) {
+            tellError(getResources().getString(R.string.Error_Import_track_duration_extraction) + " // uri: " + uri);
+            myLogE("error getting duration of media: [" + e.getMessage() + "] for uri: [" + uri + "]");
+        }
+        myLogD("duration for [" + uri + "] is " + duration);
+        return duration;
+    }
 
     private String pruneZipFileName(String destinationFolderName) {
         String tmp = destinationFolderName;

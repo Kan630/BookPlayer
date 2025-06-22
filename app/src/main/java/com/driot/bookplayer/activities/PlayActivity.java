@@ -166,6 +166,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
             } else if (Objects.equals(action, NOTIFICATION_FILELOADED)) {
                 DrawUI();
                 HideProgressAnim();
+                lockUserActions(false);
             } else {
                 myLogE("Unknown Broadcast : " + action);
             }
@@ -202,7 +203,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
         bSpeedDown.setOnClickListener(v -> SpeedMeDown());
         bSetSleep.setOnClickListener(v -> setSleep());
 
-        buttonsToLock = Arrays.asList(bPlay, bRewind, bForward, bSpeedUp, bSpeedDown);
+        buttonsToLock = Arrays.asList(bPlay, bRewind, bForward, bSpeedUp, bSpeedDown, bSetSleep);
 
         progressOverlay = findViewById(R.id.progress_overlay);
         messageOverlay = findViewById(R.id.message_overlay);
@@ -612,6 +613,10 @@ public class PlayActivity extends LifecycleLoggingActivity {
         animateView(messageOverlay, View.VISIBLE, 1f, DELAY_ANIMATION);
         AnimationNow = true;
     }
+    private void HideMessageOverlay() {
+        animateView(messageOverlay, View.GONE, 1f, DELAY_ANIMATION);
+        AnimationNow = true;
+    }
 
     private void runVisualizer() { // check option + permission
         if (Option.getVisualizerOn(this)) {
@@ -628,15 +633,26 @@ public class PlayActivity extends LifecycleLoggingActivity {
         }
     }
 
+    private void lockUserActions(boolean doLock) {
+        for (Button b : buttonsToLock) {
+            b.setEnabled(!doLock);
+        }
+        frequencyVisualizerView.setEnabled(!doLock);
+        seekbar.setEnabled(!doLock);
+        if (doLock) {
+            findViewById(R.id.dim_background).setVisibility(View.VISIBLE);
+            ShowMessageOverlay();
+        } else {
+            findViewById(R.id.dim_background).setVisibility(View.GONE);
+            HideMessageOverlay();
+        }
+
+    }
+
     private void lockButtonAndDisplayErrorMessage(String errMessage) {
         myLog("lockButtonAndDisplayErrorMessage");
         LocalBroadcastManager.getInstance(this).unregisterReceiver(broadCastReceiver);
-        bPlay.setEnabled(false);
-        for (Button b : buttonsToLock) {
-            b.setEnabled(false);
-        }
-        seekbar.setEnabled(false);
-        ShowMessageOverlay();
+        lockUserActions(true);
         TextView tv = findViewById(R.id.textViewOverlaidMessage);
         TextView tv2 = findViewById(R.id.textViewOverlaidMessageDetails);
         Button b1 = findViewById(R.id.btOverlaid01);
@@ -648,19 +664,19 @@ public class PlayActivity extends LifecycleLoggingActivity {
             } else {
                 //b1.setVisibility(View.INVISIBLE);
                 String zePath = PlayList.getZikFile()==null ? "PlayList.getZikFile()==null" : PlayList.getZikFile().getPath();
-                String pathText = getText(R.string.source_file_path) + " = \n[" + zePath + "]";
+                String pathText = getString(R.string.source_file_path) + " = \n[" + zePath + "]";
                 if (zePath.contains(PATH_CHECK_APPLICATION)) {
-                    tv.setText(getText(R.string.source_not_found));
+                    tv.setText(getString(R.string.source_not_found));
                     myLog("Source file is inside app memory");
                 } else if (isReadAudioPermissionGranted(this)) {
-                    tv.setText(R.string.source_not_found_deleted);
+                    tv.setText(getString(R.string.source_not_found_deleted));
                     tv2.setText(pathText);
                 } else {
-                    tv.setText(R.string.permission_not_set);
-                    String msg = R.string.permission_to_set + pathText;
+                    tv.setText(getString(R.string.permission_not_set));
+                    String msg = getString(R.string.permission_to_set) + "\n" + pathText;
                     tv2.setText(msg);
                     b1.setVisibility(View.VISIBLE);
-                    b1.setText(R.string.device_settings);
+                    b1.setText(getString(R.string.device_settings));
                     b1.setOnClickListener(v -> openAppSettingsOnPhone());
                 }
             }

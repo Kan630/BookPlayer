@@ -206,7 +206,7 @@ public class AudioService extends LifecycleLoggingService {
 
         // Initialize MediaPlayer and MediaSession first
         mediaPlayer = new CustomMediaPlayer();
-        mediaSession = new MediaSessionCompat(this, "MyTotoMediaSession");
+        mediaSession = new MediaSessionCompat(this, "BookplayerMediaSession");
         handler = new Handler(); // for sleep timer
 
         myLog("configureMediaSession()");

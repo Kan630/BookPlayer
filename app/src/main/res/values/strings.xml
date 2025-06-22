@@ -439,6 +439,16 @@
     <string name="ErrorCouldNotLoadAudios">ERROR - Could not load audios.</string>
     <string name="ErrorCouldNotLoadAudios_emptyfolder">ERROR - no audios found in that folder.</string>
 
+    <string name="Permission">Permission</string>
+    <string name="permission_read_denied_short_text_on_load">[Music and Audio] permission was previously denied.
+        \n\nYou will need to click [App Info] and activate that permission manually.
+        \n\n<i>It is needed to directly read from smartphone general storage.</i>
+    </string>
+    <string name="permission_read_write_rationale_short_text_on_load">[Music and Audio] permission needed to play from smartphone general storage.</string>
+
+    <string name="option_on_load_copy_internal">"Copy to Bookplayer internal storage"</string>
+    <string name="option_on_load_split_m4b">"Split M4B into chapters"</string>
+    <string name="option_on_load_delete_source">"Delete source file after import"</string>
 
 
 

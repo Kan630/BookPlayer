@@ -120,7 +120,7 @@ public class OptionActivity extends LifecycleLoggingActivity {
             Option.setVisualizerOn(this, isChecked);
             if (isChecked && !isRecordAudioPermissionGranted(this)) {
                 myLog("checkBox ticked and permission not granted => requesting");
-                requestPermissions();
+                requestRecordAudioPermission();
             }
         });
 
@@ -308,8 +308,7 @@ public class OptionActivity extends LifecycleLoggingActivity {
     //36085d331d5c
 
 
-    private void requestPermissions() {
-
+    private void requestRecordAudioPermission() {
         mPermissionRequest = PermissionRequest
                 .with(this)
                 .permissions(Manifest.permission.RECORD_AUDIO) //Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -320,12 +319,12 @@ public class OptionActivity extends LifecycleLoggingActivity {
                 .callback(new PermissionRequest.Callback() {
                     @Override
                     public void onPermissionsGranted() {
-                        myLog("Granted");
+                        myLog("RecordAudio Permission Granted");
                     }
 
                     @Override
                     public void onPermissionsDenied() {
-                        myLog("Denied");
+                        myLog("RecordAudio Permission Granted");
                         showPermissionDeniedDialog(); //ask user again... //not working yet...
                     }
                 })

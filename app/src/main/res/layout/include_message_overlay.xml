@@ -3,8 +3,18 @@
     android:id="@+id/message_overlay"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:alpha="0.8"
-    android:animateLayoutChanges="true">
+    android:alpha="1"
+    android:animateLayoutChanges="true"
+    android:clickable="true"
+    android:focusable="true"
+    >
+
+    <View
+        android:id="@+id/dim_background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#B0000000"
+        android:visibility="gone" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -25,7 +35,7 @@
             android:id="@+id/textViewOverlaidMessageDetails"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="@color/lightred"
+            android:textColor="@color/orange"
             android:textAlignment="center"
             android:textSize="16sp"
             android:layout_margin="10dp"

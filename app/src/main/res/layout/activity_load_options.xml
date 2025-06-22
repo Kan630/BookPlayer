@@ -60,7 +60,7 @@
                 <TextView
                     android:id="@+id/tx_split_m4b"
                     style="@style/OptionCheckBoxText"
-                    android:text="Split M4B into chapters" />
+                    android:text="@string/option_on_load_split_m4b" />
             </LinearLayout>
 
             <!-- Copy internally -->
@@ -73,7 +73,7 @@
                 <TextView
                     android:id="@+id/tx_copy_internal"
                     style="@style/OptionCheckBoxText"
-                    android:text="Copy to internal storage" />
+                    android:text="@string/option_on_load_copy_internal" />
             </LinearLayout>
 
             <!-- Delete source file -->
@@ -86,7 +86,7 @@
                 <TextView
                     android:id="@+id/tx_delete_source"
                     style="@style/OptionCheckBoxText"
-                    android:text="Delete original after import" />
+                    android:text="@string/option_on_load_delete_source" />
             </LinearLayout>
 
         </LinearLayout>

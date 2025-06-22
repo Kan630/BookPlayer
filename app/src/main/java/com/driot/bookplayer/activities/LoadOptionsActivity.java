@@ -3,6 +3,7 @@ package com.driot.bookplayer.activities;
 import static com.driot.bookplayer.global.Var.FOLDER_UNZIPPED;
 import static com.driot.bookplayer.global.Var.ONLY_MIME_AUDIO;
 import static com.driot.bookplayer.global.Var.SUPPORTED_AUDIO_EXTENSIONS;
+import static com.driot.bookplayer.utils.PermissionRequest.isReadAudioPermissionGranted;
 import static com.driot.bookplayer.utils.Tonio.formatNameForDisplay;
 import static com.driot.bookplayer.utils.Tonio.getExtension;
 import static com.driot.bookplayer.utils.Tonio.getFileNameFromPath;
@@ -11,23 +12,29 @@ import static com.driot.bookplayer.utils.Tonio.getMimeType;
 import static com.driot.bookplayer.utils.Tonio.getSourceLocation;
 import static com.driot.bookplayer.utils.Tonio.stripExtension;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.utils.KanLogger;
+import com.driot.bookplayer.utils.PermissionRequest;
 
 import java.util.Objects;
 
@@ -47,6 +54,7 @@ public class LoadOptionsActivity extends Activity {
 
     private boolean internalCheckBoxStateCalculationInProgress;
 
+    private PermissionRequest mPermissionRequest;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -162,6 +170,9 @@ public class LoadOptionsActivity extends Activity {
             if (!internalCheckBoxStateCalculationInProgress) calculateCheckboxState();
         });
         cbCopy.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (!isChecked) {
+                askForPermission();
+            }
             if (!internalCheckBoxStateCalculationInProgress) calculateCheckboxState();
         });
         cbDelete.setOnCheckedChangeListener((buttonView, isChecked) -> {
@@ -241,6 +252,99 @@ public class LoadOptionsActivity extends Activity {
 
         internalCheckBoxStateCalculationInProgress = false;
     }
+
+
+    // -------------------------------------------------------------------------------------------
+    // -------------------------------------------------------------------------------------------
+    // --     PERMISSIONS
+    // -------------------------------------------------------------------------------------------
+    // -------------------------------------------------------------------------------------------
+
+    private void askForPermission() {
+        if (!isReadAudioPermissionGranted(this)) {
+            myLog("askForPermission() -- NOT already granted => asking...");
+            checkPermissionsReadStorage();
+        } else {
+            myLog("askForPermission() -- already granted...");
+        }
+    }
+
+    private void checkPermissionsReadStorage() {
+        if(Build.VERSION.SDK_INT < 33) {
+            myLog("checkPermissionsReadStorage() < 33");
+            mPermissionRequest = PermissionRequest
+                    .with(this)
+                    .permissions(Manifest.permission.READ_EXTERNAL_STORAGE) //Manifest.permission.READ_EXTERNAL_STORAGE,
+                    .rationale(R.string.permission_read_write_rationale_short_text_on_load)
+                    //.granted(R.string.permission_read_write_granted)  // Tonio no need to display message if granted OK
+                    .denied(R.string.permission_read_write_denied)
+                    .snackbar((ViewGroup) findViewById(android.R.id.content))
+                    .submit();
+        } else {
+            myLog("checkPermissionsReadStorage() >= 33");
+            mPermissionRequest = PermissionRequest
+                    .with(this)
+                    .permissions(Manifest.permission.READ_MEDIA_AUDIO) //Manifest.permission.READ_EXTERNAL_STORAGE,
+                    .rationale(R.string.permission_read_write_rationale_short_text_on_load)
+                    //.granted(R.string.permission_read_write_granted)  // Tonio no need to display message if granted OK
+                    .denied(R.string.permission_read_write_denied)
+                    .snackbar((ViewGroup) findViewById(android.R.id.content))
+                    .callback(new PermissionRequest.Callback() {
+                        @Override
+                        public void onPermissionsGranted() {
+                            cbCopy.setChecked(false);
+                            myLog("Granted");
+                        }
+
+                        @Override
+                        public void onPermissionsDenied() {
+                            cbCopy.setChecked(true);
+                            myLog("Denied");
+                            showPermissionDeniedDialog();
+                        }
+                    })
+                    .submit();
+        }
+    }
+    private void showPermissionDeniedDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle(getString(R.string.Permission))
+                .setMessage(getString(R.string.permission_read_denied_short_text_on_load))
+                .setPositiveButton("App Info", (dialog, which) -> openAppInfo())
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+
+        for (int i=0;i<grantResults.length;i++) {
+            myLog(permissions[i] + " => " + grantResults[i] + "   -requestCode=" + requestCode);
+        }
+        myLog("onRequestPermissionsResult() : " + permissions[0] + " - " + requestCode + " - " + grantResults[0]);
+        // Redirect hook call to permission helper method.
+        if (mPermissionRequest != null) {
+            mPermissionRequest.onRequestPermissionsResult(requestCode, permissions, grantResults);
+            mPermissionRequest = null; // request no longer needed
+        } else {
+            myLogE("onRequestPermissionsResult() - mPermissionRequest is null ! bad hook");
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    public void openAppInfo() {
+        try {
+            Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+            Uri uri = Uri.fromParts("package", getPackageName(), null);
+            intent.setData(uri);
+            startActivity(intent);
+        } catch (Exception e) {
+            myLogE("openAppSettingsOnPhone() => " + e.getMessage());
+        }
+    }
+
+
 
     //--- LOG --------------------------
     private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }

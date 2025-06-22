@@ -12,10 +12,6 @@
     android:fitsSystemWindows="true"
     >
 
-    <!-- Progress bar overlay; shown while login is in progress -->
-    <include layout="@layout/include_progress_overlay"/>
-    <include layout="@layout/include_message_overlay"/>
-
     <TextView
         android:id="@+id/textviewTitle"
         android:text="@string/PlayerActivity_Title"
@@ -211,6 +207,12 @@
         android:layout_below="@+id/textViewSubTitle"
         android:layout_above="@+id/horizontalBarTopOfSleep"
         android:layout_centerInParent="true"/>
+
+
+    <!-- Progress bar overlay; shown while login is in progress -->
+    <include layout="@layout/include_progress_overlay"/>
+    <include layout="@layout/include_message_overlay"/>
+
 
 
 </RelativeLayout>

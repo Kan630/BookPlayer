@@ -16,6 +16,8 @@ import android.os.ParcelFileDescriptor;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 
+import androidx.annotation.Nullable;
+
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
@@ -154,6 +156,7 @@ public class FileUtils {
             return pfd.getStatSize();
         }
     }
+
 /*
     public static long getFileSize(Context context, Uri uri) throws IOException {
         ContentResolver contentResolver = context.getContentResolver();
@@ -179,6 +182,19 @@ public class FileUtils {
     }
 
  */
+
+    @Nullable
+    public static Uri buildFileUri(Uri folderUri, String fileName) {
+        // SAF documents URI are like content://com.android.externalstorage.documents/tree/...
+        // We need to build a child document Uri using DocumentsContract
+        if (DocumentsContract.isTreeUri(folderUri)) {
+            return DocumentsContract.buildDocumentUriUsingTree(
+                    folderUri,
+                    DocumentsContract.getDocumentId(folderUri) + "/" + fileName
+            );
+        }
+        return null;
+    }
 
     public static String getRealPathFromURI(Context context, Uri uri) {
         String path = null;
