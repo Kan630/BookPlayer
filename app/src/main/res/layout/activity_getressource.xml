@@ -109,6 +109,7 @@
             android:text="@string/lorem_ipsum"
             style="@style/GetResourceButton" />
 
+        <!--
         <TextView
             android:id="@+id/tvInternetAudioRessource_03"
             android:text="@string/lorem_ipsum"
@@ -118,7 +119,7 @@
             android:id="@+id/bInternetAudioResource_03"
             android:text="@string/lorem_ipsum"
             style="@style/GetResourceButton" />
-
+-->
         <TextView
             android:id="@+id/bSearchExempleText"
             style="@style/GetResourceTextTopOfButton"

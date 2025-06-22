@@ -98,7 +98,6 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
         bOpenM4bFile = findViewById(R.id.bOpenM4bFile);
         Button bInternetAudioResource_01 = findViewById(R.id.bInternetAudioResource_01);
         Button bInternetAudioResource_02 = findViewById(R.id.bInternetAudioResource_02);
-        Button bInternetAudioResource_03 = findViewById(R.id.bInternetAudioResource_03);
         bAutoTest_b1 = findViewById(R.id.bAutoTest_b1);
         bAutoTest_b2 = findViewById(R.id.bAutoTest_b2);
         bAutoTest_b3 = findViewById(R.id.bAutoTest_b3);
@@ -279,6 +278,8 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
             //Intent intent = new Intent(getApplicationContext(), DbBackupActivity.class);
             startActivity(intent);
         });
+        /*
+        Button bInternetAudioResource_03 = findViewById(R.id.bInternetAudioResource_03);
         bInternetAudioResource_03.setText("Open Culture");
         tv = findViewById(R.id.tvInternetAudioRessource_03);
         tv.setText(R.string.bSearchOpenCulture_desc);
@@ -287,6 +288,8 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
             startActivity(intent);
         });
+
+         */
 
         ////////////////////////////////
         ///// AUTO TEST
