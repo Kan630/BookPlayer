@@ -107,14 +107,14 @@ dependencies {
     implementation 'androidx.core:core:1.16.0'
     implementation 'androidx.media:media:1.7.0'
     implementation 'androidx.annotation:annotation:1.9.1'
-    implementation "androidx.room:room-runtime:2.7.1"
+    implementation "androidx.room:room-runtime:2.7.2"
     implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
 
     implementation 'com.google.android.gms:play-services-nearby:19.3.0'
 
     implementation 'com.google.code.gson:gson:2.11.0'  // for storing PlayList Serializable in prefs
 
-    annotationProcessor "androidx.room:room-compiler:2.7.1"
+    annotationProcessor "androidx.room:room-compiler:2.7.2"
 
     //implementation "io.github.maitrungduc1410:ffmpeg-kit-min:6.0.1"    // + 30Mo !!!!
 

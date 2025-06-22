@@ -13,6 +13,22 @@ import com.googlecode.mp4parser.authoring.Movie;
 import com.googlecode.mp4parser.authoring.Sample;
 import com.googlecode.mp4parser.authoring.Track;
 import com.googlecode.mp4parser.authoring.container.mp4.MovieCreator;
+/*
+import com.googlecode.mp4parser.DataSource;
+import com.googlecode.mp4parser.FileDataSourceImpl;
+import com.googlecode.mp4parser.boxes.mp4.objectdescriptors.DecoderConfigDescriptor;
+
+import com.googlecode.mp4parser.boxes.mp4.objectdescriptors.BitReaderBuffer;
+import com.googlecode.mp4parser.boxes.mp4.objectdescriptors.ESDescriptorBox;
+
+import com.googlecode.mp4parser.boxes.mp4.ESDescriptorBox;
+
+ */
+import com.coremedia.iso.boxes.sampleentry.AudioSampleEntry;
+import com.googlecode.mp4parser.boxes.mp4.objectdescriptors.AudioSpecificConfig;
+import com.googlecode.mp4parser.boxes.mp4.ESDescriptorBox;
+
+
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -149,6 +165,20 @@ public class SplitM4bService extends LifecycleLoggingService {
                 throw new RuntimeException("Required audio or chapter track not found");
             }
 
+            // After selecting aacTrack:
+            AudioSampleEntry ase = (AudioSampleEntry) aacTrack
+                    .getSampleDescriptionBox()
+                    .getSampleEntry();
+            ESDescriptorBox esds = ase.getBoxes(ESDescriptorBox.class, true)
+                    .get(0);
+            AudioSpecificConfig asc = esds.getEsDescriptor()
+                    .getDecoderConfigDescriptor()
+                    .getAudioSpecificInfo();
+
+            int aot = asc.getAudioObjectType();
+            int sfi = asc.samplingFrequencyIndex;
+            int cc = asc.getChannelConfiguration();
+
             long audioTimescale = aacTrack.getTrackMetaData().getTimescale();
             long[] audioDurations = aacTrack.getSampleDurations();
             List<Sample> audioSamples = aacTrack.getSamples();
@@ -166,36 +196,7 @@ public class SplitM4bService extends LifecycleLoggingService {
             DecimalFormat chapterFormat = new DecimalFormat("000");
 
             for (int c = 0; c < chapterSamples.size(); c++) {
-/*
-                ByteBuffer buffer = chapterSamples.get(c).asByteBuffer();
-                byte[] data = new byte[buffer.remaining()];
-                buffer.get(data);
 
-                // some hex logging for debug....
-                StringBuilder hex = new StringBuilder();
-                for (byte b : data) {
-                    hex.append(String.format("%02X ", b));
-                }
-                myLog("Chapter sample raw bytes (hex): " + hex.toString());
-
-                // Skip first 2 bytes (likely length or style info)
-                int offset = 2;
-                if (data.length <= offset) return "chapter";
-
-                byte[] trimmed = Arrays.copyOfRange(data, offset, data.length);
-                String raw = new String(trimmed, StandardCharsets.UTF_8);
-
-                String cleaned = raw.replaceAll("[^\\x20-\\x7E]", "").trim(); // Remove non-printables
-
-
-                //if (cleaned.toLowerCase().endsWith("encd")) {
-                //    cleaned = cleaned.substring(0, cleaned.length() - 4).trim();
-                //}
-
-                cleaned = cleaned.replaceAll("encd.*$", "").trim();
-
-                String chapterFileName = cleaned.replaceAll("[\\\\/:*?\"<>|]", "_"); // Windows-safe  -- sanitize filename to avoid illegal characters
-*/
                 String chapterFileName = extractCleanChapterTitle(chapterSamples.get(c));
 
                 if (usedNames.contains(chapterFileName) || chapterFileName.isEmpty()) {
@@ -229,7 +230,8 @@ public class SplitM4bService extends LifecycleLoggingService {
                     ByteBuffer audioBuffer = audioSamples.get(i).asByteBuffer();
                     byte[] frame = new byte[audioBuffer.remaining()];
                     audioBuffer.get(frame);
-                    byte[] adtsHeader = buildAdtsHeader(frame.length, 2, 4, 2);
+                    //byte[] adtsHeader = buildAdtsHeader(frame.length, 2, 4, 2);
+                    byte[] adtsHeader = buildAdtsHeader(frame.length, aot, sfi, cc);
                     fos.write(adtsHeader);
                     fos.write(frame);
                 }
