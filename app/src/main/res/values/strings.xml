@@ -408,7 +408,7 @@
     <string name="bOpenFile">Any File</string>
     <string name="bOpenFolder">Folder</string>
     <string name="bOpenZipFile">Zip File</string>
-    <string name="bOpenM4bFile">M4b File</string>
+    <string name="bOpenM4bFile">Audio File</string>
 
 
     <string name="TextHeaderOpen">Open an audio on my device</string>
@@ -417,7 +417,7 @@
         \nAll audios from that folder will be imported.
         \n<i>Beware all audios located in subfolders, if any, will also be imported, recursively.</i></string>
     <string name="bOpenZipFile_desc">filter : only zip files</string>
-    <string name="bOpenM4bFile_desc">filter : only m4b files
+    <string name="bOpenM4bFile_desc">filter : only audio files
         \n<i>Beware this filter is not perfect, use top button [any file] if problems.</i></string>
 
     <string name="audio_location_bookplayer_reserved_storage">Bookplayer reserved storage</string>

@@ -178,10 +178,11 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
 
             // Use a broader list of supported MIME types
             String[] mimeTypes = {
-                    "audio/mp4",       // common for m4b/m4a
-                    "audio/x-m4a",     // fallback
-                    "audio/mpeg",      // in case some mislabel it
-                    "application/octet-stream" // catch-all
+                    "audio/*"
+                    //,"audio/mp4"       // common for m4b/m4a
+                    //,"audio/x-m4a"     // fallback
+                    //,"audio/mpeg"      // in case some mislabel it
+                    //,"application/octet-stream" // catch-all
             };
             intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
 
