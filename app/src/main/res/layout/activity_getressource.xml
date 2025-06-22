@@ -149,7 +149,6 @@
             android:hint="@string/DirectDownload_hint"
             android:inputType="textMultiLine"
             style="@style/GetResourceEditText"
-            android:text="@string/DirectDownload_hint"
             />
         <Button
             android:id="@+id/bDirectDownload"
