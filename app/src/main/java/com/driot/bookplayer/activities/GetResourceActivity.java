@@ -404,6 +404,7 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
                     ,findViewById(R.id.bOpenFile_desc)
                     ,findViewById(R.id.bOpenFolder_desc)
                     ,findViewById(R.id.bOpenZipFile_desc)
+                    ,findViewById(R.id.bOpenM4bFile_desc)
                     ,findViewById(R.id.txtAutoTest_title)
                     ,findViewById(R.id.txtAutoTest_desc)
                     ,findViewById(R.id.txtDirectDownload_title)

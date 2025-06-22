@@ -799,8 +799,8 @@ public class AddResourceService
             // Has already been copied and unzipped...
             myFolder.setForceFolderPath(zipDestinationFolderPath);
             saveFolder();
-        } else if (type_given.equals("M4B")) {
-            // Has already been copied and unzipped...
+        } else if (type_given.equals("M4B") && optionSplitM4b) {
+            // Has already been copied and split...
             myFolder.setForceFolderPath(destinationFolderPath);
             saveFolder();
         } else {
@@ -815,7 +815,7 @@ public class AddResourceService
                             , folderPath
                             , fileName
                             , type_given);
-                } else if (type_given.equals("File")) {
+                } else if (type_given.equals("File") || type_given.equals("M4B")) {
                     String folderPath = getFilesDir().getAbsolutePath() + "/" + FOLDER_UNZIPPED + "/" + myFolder.getFolderName();
                     String fileName = myFolder.getFileName(this);
                     fullPath = folderPath + "/" + fileName;
@@ -910,10 +910,31 @@ public class AddResourceService
         }
 
  */
-        myLog("myFolder.getUri().toString() : " + myFolder.getUri().toString());
+        myLog("saveFile : Get Media Duration");
+        try {
+            String folderUri = myFolder.getUri().toString();
+            myLog("myFolder.getUri().toString() : [" + folderUri + "]");
 
-        Uri fileUri = buildFileUri(myFolder.getUri(), sZikFileName);
-        zikFile.setDuration(getMediaDurationFromUri(this, fileUri));
+            if (folderUri.contains("com.driot.bookplayer/files")) {
+                myLog("Bookplayer reserved memory, use old way");
+                String sFileFullPath = myFolder.getFolderPath() + File.separator + sZikFileName;
+                zikFile.setDuration(getMediaDurationFromPath(sFileFullPath));
+            } else {
+                myLog("Smartphone General Memory, use Uri");
+                Uri fileUri;
+                if (myFolder.isSingleFile()) {
+                    fileUri = myFolder.getUri();
+                } else {
+                    fileUri = buildFileUri(myFolder.getUri(), sZikFileName);
+                }
+                myLog("fileUri : " + fileUri.toString());
+                zikFile.setDuration(getMediaDurationFromUri(this, fileUri));
+            }
+        } catch (IOException e) {
+            tellNonBlockingError("Error getting/setting media duration : " + e.getMessage());
+            e.printStackTrace();
+        }
+
 
         if (zikFile.getDuration() == 0) {
             myLog("File Not Added.... (Duration = 0)");
@@ -950,14 +971,16 @@ public class AddResourceService
 
     private void updateFolderDuration(int mFolderId) {
         String strSQL = "UPDATE Folder " +
-                " SET duration = (SELECT SUM(duration) " +
-                " FROM ZikFile " +
-                " WHERE Folder.id = ZikFile.idFolder " +
-                " AND Folder.id = " + mFolderId + " )";
-        SimpleSQLiteQuery query = new SimpleSQLiteQuery(strSQL);
+                "SET duration = (" +
+                "   SELECT IFNULL(SUM(duration), 0) " +
+                "   FROM ZikFile " +
+                "   WHERE ZikFile.idFolder = Folder.id" +
+                ") " +
+                "WHERE id = ?";
+        SimpleSQLiteQuery query = new SimpleSQLiteQuery(strSQL, new Object[]{mFolderId});
         try {
             int sqlResult = DatabaseClient.getInstance(getApplicationContext()).getAppDatabase().FolderDao().runRawSql(query);
-            myLog("Folder Duration Updated : runRawSQL result = " + sqlResult);
+            myLog("Folder Duration Updated for ID " + mFolderId + " → runRawSQL result = " + sqlResult);
             tellEnd();
         } catch (Exception e) {
             tellNonBlockingError(getResources().getString(R.string.Error_Import_computing_folder_duration) + " : " +  e.getMessage());

@@ -200,8 +200,6 @@
     <string name="Error_Getting_Ressource_Name_from_Download_Folder">Error while accessing resource in Downloads location</string>
     <string name="Add_resource_reading_file">analysing file</string>
 
-    <string name="Import_Progress_copying_zip_file">"copying source file \n- from Device External Memory\n- to Bookplayer app internal memory"</string>
-    <string name="Import_Progress_copying_zip_file_cloud">"copying source file \n- from Cloud\n- to Bookplayer app internal memory"</string>
     <string name="Import_Progress_unzipping_file">"unzipping file : "</string>
 
     <string name="Import_Progress_onGoing">"Busy… ongoing import…"</string>
@@ -393,7 +391,7 @@
     <string name="Error_Import_Split_M4B"><i>An error occurred while splitting m4b file.</i></string>
     <string name="Import_Experimental_M4B_warning">Warning : <b>m4b chapters extraction</b> is still <b>experimental</b>.</string>
     <string name="Import_Experimental_M4B_iferror">If you encounter errors</string>
-    <string name="Import_Experimental_M4B_solution_1">You can uncheck the "split m4b" option in menu/options.</string>
+    <string name="Import_Experimental_M4B_solution_1">Uncheck the "split m4b" option.</string>
     <string name="Import_Experimental_M4B_solution_2"><i>You could also use a third party tool to first convert that m4b file into a folder of mp3 files, and then import that folder into Bookplayer.</i></string>
     <string name="Import_Progress_splitting_m4b_files">"Splitting m4b files"</string>
     <string name="Import_Progress_splitting_m4b_file">"splitting m4b file : "</string>
@@ -450,6 +448,8 @@
     <string name="option_on_load_split_m4b">"Split M4B into chapters"</string>
     <string name="option_on_load_delete_source">"Delete source file after import"</string>
 
+    <string name="Import_Progress_copying_zip_file">"copying source file \n- from Device General Storage\n- to Bookplayer app internal memory"</string>
+    <string name="Import_Progress_copying_zip_file_cloud">"copying source file \n- from Cloud\n- to Bookplayer app internal memory"</string>
 
 
 

@@ -230,7 +230,7 @@
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/pink_light_500</item>
         <item name="colorPrimaryVariant">@color/pink_light_700</item>
-        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorOnPrimary">@color/black</item>
         <!-- Secondary brand color. -->
         <item name="colorSecondary">@color/pink_light_300</item>
         <item name="colorSecondaryVariant">@color/pink_light_900</item>
