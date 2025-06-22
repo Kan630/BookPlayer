@@ -12,6 +12,7 @@ package com.driot.bookplayer.utils;
 import static com.driot.bookplayer.global.Var.ONLY_MIME_AUDIO;
 import static com.driot.bookplayer.global.Var.SUPPORTED_AUDIO_EXTENSIONS;
 import static com.driot.bookplayer.global.Var.ZIP_SIZE_MAX_COEF;
+import static com.driot.bookplayer.utils.FileUtils.getFileSize;
 import static com.driot.bookplayer.utils.Tonio.formatMem;
 import static com.driot.bookplayer.utils.Tonio.getAvailableInternalMemorySize;
 import static com.driot.bookplayer.utils.Tonio.getSourceLocation;
@@ -22,7 +23,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.IBinder;
-import android.os.ParcelFileDescriptor;
 
 import androidx.annotation.Nullable;
 
@@ -30,13 +30,10 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.LifecycleLoggingService;
 
 import java.io.File;
-import java.io.FileDescriptor;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Objects;
 
 
 public class CopyFileService extends LifecycleLoggingService {  //IntentService are designed to run in the background....   but let's use an executor or thread
@@ -64,7 +61,7 @@ public class CopyFileService extends LifecycleLoggingService {  //IntentService 
         void copyFileService_tellProgressNoLog(String progressText, int progressVal);
         void copyFileService_tellProgress(String progressText, int progressVal);
         void copyFileService_tellError(String errorText);
-        void copyFileService_tellEnd();
+        void copyFileService_tellEnd(String destinationFolderPath, String destinationFolderName);
     }
     public void registerClient(Service service) {
         this.mCallBacks = (Callbacks) service;
@@ -183,10 +180,9 @@ public class CopyFileService extends LifecycleLoggingService {  //IntentService 
                 }
                 if (!(file_size > 0)) {
                     try {
-                        file_size = (int) getFileSize(uri);
+                        file_size = (int) getFileSize(this, uri);
                     } catch (IOException e) {
-                        myLogE("getting FileSize From URI raise an error... " + e.getMessage());
-                        e.printStackTrace();
+                        myLogE("copyLocal() - getting FileSize From URI raise an error... " + e.getMessage());
                     }
                 }
             }
@@ -291,7 +287,7 @@ public class CopyFileService extends LifecycleLoggingService {  //IntentService 
                 return false;
             }
             myLog("Folder has been copied");
-            tellEnd();
+            tellEnd(destinationFolderPath,null);
             return true;
 //File
         } else {
@@ -367,7 +363,7 @@ public class CopyFileService extends LifecycleLoggingService {  //IntentService 
                 return false;
             }
             myLog("file has been copied");
-            tellEnd();
+            tellEnd(destinationFolderPath, destinationFileName);
             return true;
         }
     }
@@ -380,8 +376,8 @@ public class CopyFileService extends LifecycleLoggingService {  //IntentService 
         isBusy = false;
         stopSelf();
     }
-    private void tellEnd() {
-        mCallBacks.copyFileService_tellEnd();
+    private void tellEnd(String destinationFolderPath, String destinationFolderName) {
+        mCallBacks.copyFileService_tellEnd(destinationFolderPath, destinationFolderName);
         isBusy = false;
         stopSelf();
     }
@@ -392,28 +388,6 @@ public class CopyFileService extends LifecycleLoggingService {  //IntentService 
         mCallBacks.copyFileService_tellProgress(progressText,  progressVal);
     }
 
-    public long getFileSize(Uri uri) throws IOException {
-        ContentResolver contentResolver = this.getContentResolver();
-        ParcelFileDescriptor parcelFileDescriptor = contentResolver.openFileDescriptor(uri, "r");
-
-        if (parcelFileDescriptor != null) {
-            FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
-            FileInputStream fileInputStream = new FileInputStream(fileDescriptor);
-            long size = fileInputStream.getChannel().size();
-
-            //if (size > 0) size = size  / 1024 / 1024;
-
-            // Close resources
-            fileInputStream.close();
-            parcelFileDescriptor.close();
-
-            myLog("parcelFileDescriptor return size : " + formatMem(size, 0)  + " Mo.");
-            return size;
-        } else {
-            myLogE("parcelFileDescriptor is null");
-        }
-       return -3;
-    }
 
     //-----------------------------
     private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }

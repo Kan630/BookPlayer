@@ -104,13 +104,16 @@ public class FoldersAdapter extends RecyclerView.Adapter<FoldersAdapter.FoldersV
                                 .putExtra("FolderId", folder.getId())
                                 .putExtra("FolderName", folder.getName())
                         );
-                    } else {
+                    } else if (zikFilesList.size() == 1) {
                         PlayList.setNumZikFile(0);
                         mCtx.startActivity(new Intent(mCtx, PlayActivity.class).putExtra("ZikFile", zikFilesList.get(0)));
+                    } else {
+                        myLogE("no ZikFiles in that folder !");
+                        myToastE(mCtx.getString(R.string.ErrorCouldNotLoadAudios_emptyfolder));
                     }
                 } catch (Exception e) {
                     myLogE("error getting nb of ZikFiles - " + e.getMessage());
-                    myToastE("ERROR - Could not load audios.");
+                    myToastE(mCtx.getString(R.string.ErrorCouldNotLoadAudios));
                 }
             }).start();
         }

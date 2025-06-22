@@ -138,6 +138,7 @@ public class DownloadService extends LifecycleLoggingService {
             return;
         }
 
+        String destFullPath;
         try {
             URL url = new URL(fileUrl);
             connection = (HttpURLConnection) url.openConnection();
@@ -154,7 +155,7 @@ public class DownloadService extends LifecycleLoggingService {
             int fileLength = connection.getContentLength();
             myLog("File length = [" + fileLength + "]");
             input = new BufferedInputStream(connection.getInputStream());
-            String destFullPath = destinationFolder + "/" + destinationFileName;
+            destFullPath = destinationFolder + "/" + destinationFileName;
             if (!(checkFolderExist(destinationFolder))) return;
             output = new FileOutputStream(destFullPath);
             myLog("streams open - destination = [" + destFullPath + "]");
@@ -181,10 +182,12 @@ public class DownloadService extends LifecycleLoggingService {
                 output.write(data, 0, count);
             }
             myLog("File downloaded: [" + destinationFileName + "] into [" + destinationFolder + "]");
-            sendDownloadComplete(destFullPath);
         } catch (Exception e) {
-            err_txt = "Bookplayer Test Server not available ??" + "\n" + "Error downloading file [" + destinationFileName + "]" + "\n\n" + e.getMessage();
+            err_txt = "Bookplayer Test Server not available ??"
+                    + "\n" + "Error downloading file [" + destinationFileName + "] into [" + destinationFolder + "]"
+                    + "\n\n" + e.getMessage();
             //LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(ACTION_ERROR).putExtra(EXTRA_ERROR_STRING, err_txt));
+            destFullPath = null;
             tellError(err_txt);
         } finally {
             try {
@@ -203,6 +206,7 @@ public class DownloadService extends LifecycleLoggingService {
             isBusy = false;
             myLog("downloadFile() - END - reaching Finally.... => isBusy = false");
         }
+        if (destFullPath != null) sendDownloadComplete(destFullPath);
     }
 
     private boolean checkFolderExist(String destinationFolderPath) {

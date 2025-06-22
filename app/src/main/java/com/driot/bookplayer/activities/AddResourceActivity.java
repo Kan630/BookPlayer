@@ -223,7 +223,7 @@ public class AddResourceActivity
             if (progressVal >= 0 && progressVal <= 100) {
                 progressBar.setProgress(progressVal);
             }
-            if (progressText.length() > 0) {
+            if (!progressText.isEmpty()) {
                 progressBarText.setText(progressText);
             }
         });
@@ -256,15 +256,10 @@ public class AddResourceActivity
             } else {
                 myToast(getString(R.string.Import_Success) + "\n" + tvTitle.getText());
 
-                //if (original_type.equals("OpenWith")) {
-                    // Go back to main screen and keep app visible
-                    Intent mainIntent = new Intent(this, MainActivity.class);
-                    mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(mainIntent);
-                    finish();
-                //}
-
-                //finish();
+                Intent mainIntent = new Intent(this, MainActivity.class);
+                mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(mainIntent);
+                finish();
             }
         });
     }

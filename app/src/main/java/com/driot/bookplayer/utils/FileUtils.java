@@ -4,6 +4,7 @@ import static android.os.FileUtils.closeQuietly;
 import static com.driot.bookplayer.global.Var.SUPPORTED_AUDIO_EXTENSIONS;
 import static com.driot.bookplayer.utils.KanLogger.myLog;
 import static com.driot.bookplayer.utils.KanLogger.myLogE;
+import static com.driot.bookplayer.utils.Tonio.formatMem;
 import static com.driot.bookplayer.utils.Tonio.getExtension;
 
 import android.content.ContentUris;
@@ -16,6 +17,7 @@ import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 
 import java.io.File;
+import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -147,11 +149,36 @@ public class FileUtils {
         }
     }
 
-    private static long getFileSize(Context context, Uri uri) throws IOException {
+    public static long getFileSize(Context context, Uri uri) throws IOException {
         try (ParcelFileDescriptor pfd = context.getContentResolver().openFileDescriptor(uri, "r")) {
             return pfd.getStatSize();
         }
     }
+/*
+    public static long getFileSize(Context context, Uri uri) throws IOException {
+        ContentResolver contentResolver = context.getContentResolver();
+        ParcelFileDescriptor parcelFileDescriptor = contentResolver.openFileDescriptor(uri, "r");
+
+        if (parcelFileDescriptor != null) {
+            FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
+            FileInputStream fileInputStream = new FileInputStream(fileDescriptor);
+            long size = fileInputStream.getChannel().size();
+
+            //if (size > 0) size = size  / 1024 / 1024;
+
+            // Close resources
+            fileInputStream.close();
+            parcelFileDescriptor.close();
+
+            myLog("parcelFileDescriptor return size : " + formatMem(size, 0)  + " Mo.");
+            return size;
+        } else {
+            myLogE("parcelFileDescriptor is null");
+        }
+        return -3;
+    }
+
+ */
 
     public static String getRealPathFromURI(Context context, Uri uri) {
         String path = null;

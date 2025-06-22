@@ -120,12 +120,14 @@ public class AddResourceService
     private int nbFileSaved, nbFileToSave, nbFileScan;
 
     private Uri uri_given;
-    //private String url_given;
     private String type_given;
     private String title_given;
     private String destinationFolderName;
     private String zipDestinationFolderPath;
     private String zipDestinationFolderName;
+
+    private String downloadedFilePath;
+    private String destinationFolderPath;
 
     private String fullPath;
 
@@ -515,7 +517,9 @@ public class AddResourceService
     ///////////////////////////////////////
 
     public void init() {
+        if (type_given==null || uri_given==null) {myLogE("init() - args=null");tellError("Init failed, args are null");return;}
         String strUriLog = uri_given==null ? "null" : uri_given.toString();
+        sourceLocation = getSourceLocation(uri_given);
 
         myLog("....");
         myLog("....");
@@ -524,15 +528,13 @@ public class AddResourceService
         myLog("init() - ** uri = " + strUriLog + " **");
         myLog("init() - ** title = " + title_given + " **");
         myLog("init() - ** type = " + type_given + " **");
-        //myLog("init() - ** url = " + url_given + " **");
         myLog("option copy file = " + optionCopyFile);
         myLog("option split m4b = " + optionSplitM4b);
         myLog("option delete source = " + optionDeleteSource);
+        myLog("Source Location = [" + sourceLocation + "]");
         myLog("*********************************************************************************************************");
         myLog("*********************************************************************************************************");
 
-        //if (type_given==null || (url_given==null && uri_given==null)) {myLogE("init() - args=null");tellError("Init failed, args are null");return;}
-        if (type_given==null || uri_given==null) {myLogE("init() - args=null");tellError("Init failed, args are null");return;}
 
         isBusy = true;
         PROGRESS = PROGRESS_DOWNLOAD; // dummy progress, before real init
@@ -650,9 +652,6 @@ public class AddResourceService
                 /// other unique files
                 ///---------------------------------------------
                 if (mime.startsWith(ONLY_MIME_AUDIO) || SUPPORTED_AUDIO_EXTENSIONS.contains(pickedFileExtension)) {
-
-                    sourceLocation = getSourceLocation(uri_given);
-                    myLog("Source Location = [" + sourceLocation + "]");   // Only needed when Option "Copy" internally is unselected....
 
                     if (sourceLocation.equals("cloud")) {
                         myFolder = new FolderAttrib(this, uri_given, true, type_given);
@@ -801,7 +800,7 @@ public class AddResourceService
             saveFolder();
         } else if (type_given.equals("M4B")) {
             // Has already been copied and unzipped...
-            myFolder.setForceFolderPath(zipDestinationFolderPath);
+            myFolder.setForceFolderPath(destinationFolderPath);
             saveFolder();
         } else {
             if (optionCopyFile) {
@@ -999,7 +998,7 @@ public class AddResourceService
                 mediaMetadataRetriever.setDataSource(zePath);
                 duration = Long.parseLong(mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
             } catch (Exception e) {
-                e.printStackTrace();
+                e.printStackTrace(); // could be access right : Permission to access file: /storage/emulated/0/Audiobooks/Folder Fun letters/ازة-بالقراءات-العش.mp3 is denied
                 tellError(getResources().getString(R.string.Error_Import_track_duration_extraction) + " // path : " + zePath);
                 myLogE("error getting duration of media : " + e.getMessage() + " for " + zePath);
             }
@@ -1056,31 +1055,41 @@ public class AddResourceService
         );
         launchUnzipService(zeZipFilePath, zeDestinationFolderPath);
     }
-    private void extractM4bLocal(String zeZipFilePath, String zeDestinationFolderPath) {
+    private void splitM4bLocal(String sourceFilePath, String destinationFolderPath) {
         myLog("Launching extractM4b with arguments" +
-                "\n.    ZipFilePath = [" + zeZipFilePath + "]" +
-                "\n.    DestinationFolderPath = [" + zeDestinationFolderPath + "]"
+                "\n.    sourceFilePath = [" + sourceFilePath + "]" +
+                "\n.    DestinationFolderPath = [" + destinationFolderPath + "]"
         );
-        launchSplitM4bService(zeZipFilePath, zeDestinationFolderPath);
+        launchSplitM4bService(sourceFilePath, destinationFolderPath);
 
     }
 
 
-    private void proceedAfterCopyLocal() {
-        myLog("proceedAfterCopyLocal() - Type : [" + type_given + "]");
+    private void proceedAfterCopyLocal(String localCopyFullPath) {
+        myLog("proceedAfterCopyLocal() - Type : [" + type_given + "]"
+                + "\nsourceLocation = [" + sourceLocation + "]"
+                + "\n localCopyFullPath = [" + localCopyFullPath + "]");
         if (type_given.equals("ZIP")) {
             myLog("launch unzipZipLocal()");
-            unzipZipLocal(zipDestinationFolderPath + "/" + zipDestinationFolderName, zipDestinationFolderPath);
+            unzipZipLocal(localCopyFullPath, zipDestinationFolderPath);
+        //}
+        //if (type_given.equals("ZIP")) {
+        //    myLog("launch unzipZipLocal()");
+        //    unzipZipLocal(zipDestinationFolderPath + "/" + zipDestinationFolderName, zipDestinationFolderPath);
         } else if (type_given.equals("M4B") && optionSplitM4b) {
             myLog("launch extractM4bLocal()");
-            extractM4bLocal(zipDestinationFolderPath + "/" + zipDestinationFolderName, zipDestinationFolderPath);
+            destinationFolderPath = getFilesDir().getAbsolutePath() + "/" + FOLDER_UNZIPPED + "/" + title_given;
+            //splitM4bLocal(downloadedFilePath, destinationFolderPath);
+            splitM4bLocal(localCopyFullPath, destinationFolderPath);
         } else {
-            if (!Objects.isNull(sourceLocation) && sourceLocation.equals("cloud")) {
-                myFolder = new FolderAttrib(this, Uri.fromFile(new File(fullPath)), true, type_given);
+            if (!Objects.isNull(sourceLocation) && (sourceLocation.equals("cloud") || sourceLocation.equals("web"))) {
+                //myFolder = new FolderAttrib(this, Uri.fromFile(new File(fullPath)), true, type_given);
+                myFolder = new FolderAttrib(this, Uri.fromFile(new File(localCopyFullPath)), true, type_given);
                 audioFileArrayList = new ArrayList<>();
                 audioFileArrayList.add(myFolder.getFileName(this));
             } else {
-                myFolder = new FolderAttrib(this, Uri.fromFile(new File(fullPath)), optionCopyFile, type_given);
+                //myFolder = new FolderAttrib(this, Uri.fromFile(new File(fullPath)), optionCopyFile, type_given);
+                myFolder = new FolderAttrib(this, Uri.fromFile(new File(localCopyFullPath)), optionCopyFile, type_given);
             }
             saveFolder();
         }
@@ -1101,6 +1110,7 @@ public class AddResourceService
     }
     @Override
     public void downloadService_tellEnd(String downloadedFileFullPath) {
+        downloadedFilePath = downloadedFileFullPath;
         myLog("Download tell End -> [" + downloadedFileFullPath + "]");
         if (Objects.equals(type_given, "ZIP")) {
             uri_given = Uri.fromFile(new File(downloadedFileFullPath));
@@ -1108,7 +1118,7 @@ public class AddResourceService
             this.zipDestinationFolderPath = getFilesDir().getAbsolutePath() + "/" + FOLDER_UNZIPPED + "/" + fileName;
             unzipZipLocal(downloadedFileFullPath, getFilesDir().getAbsolutePath() + "/" + FOLDER_UNZIPPED + "/" + fileName);
         } else {
-            proceedAfterCopyLocal();
+            proceedAfterCopyLocal(downloadedFileFullPath);
         }
     }
     @Override
@@ -1132,9 +1142,9 @@ public class AddResourceService
         tellProgress(PROGRESS[5] + progressVal * (PROGRESS[6] - PROGRESS[5]) / 100, progressText);
     }
     @Override
-    public void copyFileService_tellEnd() {
+    public void copyFileService_tellEnd(String destinationFolderPath, String destinationFolderName) {
         myLog("Copyfile tell End " + type_given);
-        proceedAfterCopyLocal();
+        proceedAfterCopyLocal(destinationFolderPath + "/" + destinationFolderName);
     }
     @Override
     public void copyFileService_tellError(String errorText) {

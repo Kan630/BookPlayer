@@ -436,6 +436,10 @@
     <string name="DirectDownload_hint">https://bookplayer.driot.com/autotest/file_01.zip</string>
     <string name="DirectDownload_button">Just Get It</string>
 
+    <string name="ErrorCouldNotLoadAudios">ERROR - Could not load audios.</string>
+    <string name="ErrorCouldNotLoadAudios_emptyfolder">ERROR - no audios found in that folder.</string>
+
+
 
 
 

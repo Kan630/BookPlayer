@@ -223,14 +223,14 @@ public class LoadOptionsActivity extends Activity {
             cbCopy.setChecked(true);
         }
 
-        if (sourceLocation.equals("cloud")) {
+        if (sourceLocation.equals("cloud") || sourceLocation.equals("web")) {
             cbCopy.setEnabled(false);
             llCopy.setEnabled(false);
             cbCopy.setChecked(true);
         }
 
         // delete
-        if (cbCopy.isChecked()) {
+        if (cbCopy.isChecked() && !sourceLocation.equals("cloud") && !sourceLocation.equals("web")) {
             cbDelete.setEnabled(true);
             llDelete.setEnabled(true);
         } else {

@@ -97,48 +97,8 @@ public class MainActivity extends LifecycleLoggingActivity {
         super.onCreate(savedInstanceState);
 
         printSomeStuffAboutDevice();
-/*
-        FFmpegKit.executeAsync("-version", session -> {
-            try {
-                ReturnCode returnCode = session.getReturnCode();
-                if (returnCode.isValueSuccess()) {
-                    myLog("FFmpeg Success:\n" + session.getOutput());
-                } else {
-                    myLogE("FFmpeg Failure:\n" + session.getOutput());
-                }
-            } catch (Exception e) {
-                myLogE("FFmpeg Crash : " + e.getMessage());
-            }
-        });
- */
 
-/*
-        //String strFilePath =  getFilesDir().getAbsolutePath() + "/FrostTonight_librivox.m4b";
-        String strFilePath = getFilesDir().getAbsolutePath() + "/unzipped/CountOfMonteCristo109-117 librivox/CountOfMonteCristo109-117_librivox.m4b";
-
-        String strDestinationFilePath = getFilesDir().getAbsolutePath() + "/unzipped/test2.aac";
-        String strDestinationFolderPath = getFilesDir().getAbsolutePath() + "/unzipped/chapters/";
-
-        inspect(strFilePath);
-        extractChapters(strFilePath);
-        try {
-            extractAacTrackAsAdts(strFilePath, strDestinationFilePath);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        try {
-            extractChaptersAsAac(strFilePath, strDestinationFolderPath);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
- */
-
-
-
-
-        //Sql.log_all_Folders(this);
+        Sql.log_all_Folders(this);
 
         setContentView(R.layout.activity_main);
 
