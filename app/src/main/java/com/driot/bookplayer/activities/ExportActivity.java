@@ -148,7 +148,7 @@ public class ExportActivity extends Activity {
     private void prepareNotificationStuff() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel("export_channel",
-                    "Export Notifications", NotificationManager.IMPORTANCE_HIGH);
+                    "Export Notifications", NotificationManager.IMPORTANCE_LOW);
             NotificationManager manager = getSystemService(NotificationManager.class);
             if (manager != null) manager.createNotificationChannel(channel);
         }

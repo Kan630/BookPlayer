@@ -25,32 +25,12 @@
     <!-- HELP Screen -->
 
     <string name="help_folder">Folder :</string>
-    <string name="help_folder_text">A long click on a folder opens the [modify folder] page.
-    \nThen you will be able to rename / delete / reset progress
-    \nand set an automatic trim/cut at the beginning of each track.</string>
 
     <string name="help_file">Track :</string>
     <string name="help_file_text">A long click on a track opens the [modify track] page.
     \nThen you will be able to rename / change order / delete / reset progress</string>
 
     <string name="help_import">Import :</string>
-    <string name="help_import_text">It starts with you picking a single file / folder / zip.
-        \nThen, depending on your settings (in menu/options) there is 2 possibilities :
-        \n
-        \n<b>option 1 [copy] :</b><i>default</i> Bookplayer will first, copy the audio inside Bookplayer internal app memory, and then read it from there.
-        \n
-        \n<b>option 2 [no copy] :</b> Bookplayer will just register the location so as to directly play audio from the general device memory (E.g. from the Download folder, the Music folder or any folder)
-        \n
-        \n<i>(Note that ZIP files are always copied. This option is only for single files and folders)</i>
-        \n
-        \n<b>With option 1 (copy)</b>, you won\'t need the [Read Audio] permission.
-        \nAlso, if you delete the file from main memory, or move it, that won\'t matter. You will not loose your book and progress.
-        \n
-        \n<b>With option 2 (no copy)</b>, you may save space.
-        \n
-        \nThere is another setting, in menu/options, that allows you to automatically delete the source file, once it has been imported.
-        \nActivate that one if all the books you load into Bookplayer will not be needed by another app.
-    </string>
 
     <string name="help_trouble">Import troubles :</string>
     <string name="help_trouble_text">"If you have troubles importing your audio :
@@ -59,9 +39,6 @@
         \nIf problem with picking audios from Download folder, try to move them out of 'Download' folder."</string>
 
     <string name="help_tellme">Tell me !</string>
-    <string name="help_tellme_text">"If you still have troubles (or if the app crashes) :
-        \nPlease send me a message with the file you try to import, or the link to that file. (Or what you were doing when the app did crash)
-        \nSo that I can check and try to improve my app !"</string>
 
     <string name="help_cachefiles">Memory Cleaning :</string>
     <string name="help_cachefiles_text">A specific view to check the content of the Bookplayer internal memory does now exist.
@@ -373,9 +350,6 @@
     <string name="OnlineSearch_hint">Jack London</string>
     <string name="OnlineSearch_button">Search…</string>
 
-    <string name="help_file_types_title">File Types :</string>
-    <string name="help_file_types_text">Always prefer [mp3] files, or zip/folder containing [mp3] files. Bookplayer can now read the new [m4b] file type but I am still working on the code to display the chapters inside.</string>
-
     <string name="SleepTimer">Sleep Timer</string>
     <string name="SleepTimerWrongInt">Invalid input. Please enter a valid number.</string>
     <string name="SleepTimerGeneralError">Error happened while setting Sleep Timer.</string>
@@ -449,7 +423,7 @@
     <string name="Import_Progress_copying_zip_file">"copying source file \n- from Device General Storage\n- to Bookplayer app internal memory"</string>
     <string name="Import_Progress_copying_zip_file_cloud">"copying source file \n- from Cloud\n- to Bookplayer app internal memory"</string>
 
-    <string name="Export">"Export"</string>
+    <string name="Export">"Export…"</string>
 
     <string name="bRenameFolder">"Rename Book"</string>
     <string name="IntroCut">"Intro Cut"</string>
@@ -465,7 +439,36 @@
     <string name="Export_display_text_exporting_audiobook">"Exporting zipped audiobook"</string>
     <string name="Export_display_text_processing">"Processing"</string>
 
+    <string name="help_folder_text">A long click on a folder opens the [modify folder] page.
+        \nThen you will be able to rename / delete / reset progress
+        \nNEW : Set an automatic trim/cut for each track beginning (to avoid annoying credits).
+        \nNEW : Or Export the audiobook as a zip file, to your device download folder.
+    </string>
 
+    <string name="help_file_types_title">File Types :</string>
+    <string name="help_file_types_text">Bookplayer can read many type of audios, even videos. Just try to load them! Best choice will always be [mp3] files, as a zip or in a folder. But Bookplayer can now read the new [m4b] file type. It will try to detect the chapters inside if any. If you use the new export capability, from a previously loaded m4b file, you will get a zip with chapters as aac audio files.</string>
+
+    <string name="help_import_text">This activity starts with you picking a file or a folder.
+        \nThen, 2 main possibilities :
+        \n
+        \n<b>option 1 [copy] :</b><i>default</i> Bookplayer will first, copy the audio inside Bookplayer internal app memory, and then read it from there.
+        \n
+        \n<b>option 2 [no copy] :</b> Bookplayer will just register the location so as to directly play audio from the general device memory (E.g. from the Download folder, the Music folder or any folder)
+        \n
+        \n<i>(Note that ZIP files are always copied, Split M4B as well. This option is only for direct read of simple audio files)</i>
+        \n
+        \n<b>With option 1 (copy)</b>, you won\'t need the [Read Audio] permission.
+        \nAlso, if you delete the file from main memory, or move it, that won\'t matter. You will not loose your book and progress.
+        \n
+        \n<b>With option 2 (no copy)</b>, you may save space.
+        \n
+        \n<i>There is another setting, in menu/options, that allows you to automatically delete the source file, once it has been imported.
+            \nActivate that one if all the books you load into Bookplayer will not be needed by another app.</i>
+    </string>
+
+    <string name="help_tellme_text">"If you have troubles or if the app crashes :
+        \nPlease send me a message stating your concern
+        \nSo that I can check that up and try to improve my app !"</string>
 
 
 </resources>
