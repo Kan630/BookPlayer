@@ -54,20 +54,20 @@ public class StatsActivity extends LifecycleLoggingActivity {
         long currentAudiosSize = getFolderSize(this.getFilesDir().getPath() + "/unzipped") / 1048576L;
         long currentLogsSize = getFolderSize(this.getFilesDir().getPath() + "/log") / 1048576L;
 
-        zeText = formatMem(currentAppSize) + " Mo taken by BookPlayer app" + "\n" + "\n" +
-                formatMem(currentAudiosSize) + " Mo taken by Audios files" + "\n" + "\n" +
-                formatMem(currentLogsSize) + " Mo taken by Logs" + "\n" + "\n" +
+        zeText = formatMem(currentAppSize) + " MB taken by BookPlayer app" + "\n" + "\n" +
+                formatMem(currentAudiosSize) + " MB taken by Audios files" + "\n" + "\n" +
+                formatMem(currentLogsSize) + " MB taken by Logs" + "\n" + "\n" +
                 "----" + "\n" +
-                formatMem(availableMegs2) + " Mo : available on device" + "\n" + "\n" +
-                formatMem(totalMemory) + " Mo : Device memory"
+                formatMem(availableMegs2) + " MB : available on device" + "\n" + "\n" +
+                formatMem(totalMemory) + " MB : Device memory"
                 ;
         long total = getTotalRemovableSDCardSize(this) / 1048576L;;
         if (total > 0) {
             long available = getAvailableRemovableSDCardSize(this) / 1048576L;;
             zeText = zeText
                     + "\n\n----"
-                    + "\n" + formatMem(available) + " Mo : available on SD card"
-                    + "\n\n" + formatMem(total) + " Mo : SD card memory";
+                    + "\n" + formatMem(available) + " MB : available on SD card"
+                    + "\n\n" + formatMem(total) + " MB : SD card memory";
         }
 
         tv_head = findViewById(R.id.tv1_head);
