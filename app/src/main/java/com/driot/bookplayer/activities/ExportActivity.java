@@ -1,7 +1,11 @@
 package com.driot.bookplayer.activities;
 
 import android.app.Activity;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.*;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.widget.*;
 
@@ -38,6 +42,19 @@ public class ExportActivity extends Activity {
             progressBar.setProgress(progress);
         }
     };
+    private final BroadcastReceiver exportDoneReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Uri zipUri = intent.getParcelableExtra("zipUri");
+            if (zipUri != null) {
+                Intent shareIntent = new Intent(Intent.ACTION_SEND);
+                shareIntent.setType("application/zip");
+                shareIntent.putExtra(Intent.EXTRA_STREAM, zipUri);
+                shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                startActivity(Intent.createChooser(shareIntent, "Share ZIP file"));
+            }
+        }
+    };
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -69,6 +86,13 @@ public class ExportActivity extends Activity {
             folder = new File(folderPath);
             onFolderPathLoaded();
         }).start();
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel("export_channel",
+                    "Export Notifications", NotificationManager.IMPORTANCE_HIGH);
+            NotificationManager manager = getSystemService(NotificationManager.class);
+            if (manager != null) manager.createNotificationChannel(channel);
+        }
     }
 
     private void onFolderPathLoaded() {
@@ -95,14 +119,15 @@ public class ExportActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        LocalBroadcastManager.getInstance(this)
-                .registerReceiver(exportProgressReceiver, new IntentFilter("EXPORT_PROGRESS"));
+        LocalBroadcastManager.getInstance(this).registerReceiver(exportProgressReceiver, new IntentFilter("EXPORT_PROGRESS"));
+        LocalBroadcastManager.getInstance(this).registerReceiver(exportDoneReceiver, new IntentFilter("EXPORT_DONE"));
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         LocalBroadcastManager.getInstance(this).unregisterReceiver(exportProgressReceiver);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(exportDoneReceiver);
     }
     //--- LOG --------------------------
     private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }

@@ -1,10 +1,15 @@
 package com.driot.bookplayer.utils;
 
+import com.driot.bookplayer.R;
+
 import android.app.Service;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Environment;
 import android.os.IBinder;
 
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.driot.bookplayer.activities.ExportActivity;
@@ -69,6 +74,24 @@ public class ExportService extends Service {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        Intent doneIntent = new Intent("EXPORT_DONE");
+        doneIntent.putExtra("zipUri", Uri.fromFile(output));
+        LocalBroadcastManager.getInstance(this).sendBroadcast(doneIntent);
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "export_channel")
+                .setSmallIcon(R.drawable.ic_download_24dp)
+                .setContentTitle("Export complete")
+                .setContentText("Audiobook exported to ZIP")
+                .setPriority(NotificationCompat.PRIORITY_HIGH);
+
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+        try {
+            notificationManager.notify(1001, builder.build());
+        } catch (Exception e) {
+            myLogE("notificationManager - no right ??   - Exception : " + e.getMessage());
+        }
+
     }
 
     private void sendProgress(String currentTrack, long zippedSoFar, int fileIndex) {
@@ -87,4 +110,9 @@ public class ExportService extends Service {
     public IBinder onBind(Intent intent) {
         return null;
     }
+    //--- LOG --------------------------
+    private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
+    private void myLogD(String str) { KanLogger.myLogD(this.getClass().getName(), str); }
+    private void myLogI(String str) { KanLogger.myLogI(this.getClass().getName(), str); }
+    private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
 }
