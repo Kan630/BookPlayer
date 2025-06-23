@@ -763,6 +763,7 @@ public class AudioService extends LifecycleLoggingService {
         if (isTimerRunning) {
             myLogE("Timer is already running....   should we really start it again... TODO check if needed (aka if param like sleep duration changes)");
             //return; // Do not start again if already running
+            stopSleepTimer();
         }
 
         boolean doBeep = Option.getBeepAutoStop(this);
