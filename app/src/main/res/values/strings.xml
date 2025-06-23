@@ -369,7 +369,6 @@
 
     <string name="Technical_Error">"Technical Error"</string>
 
-
 <!-- if suppress open ZIP
     <string name="bOpenFile_desc">Grab a single file.</string>
     <string name="bOpenFolder_desc">Grab a folder.
