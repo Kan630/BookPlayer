@@ -167,7 +167,9 @@
             android:layout_marginBottom="20dp"
             android:text="@string/Export" />
 
-        <View style="@style/myStyleViewSimpleHorizontalBar" />
+        <View style="@style/myStyleViewSimpleHorizontalBar"
+            android:layout_marginBottom="20dp"
+            />
 
 
     </LinearLayout>

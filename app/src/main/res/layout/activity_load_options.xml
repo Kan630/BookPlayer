@@ -22,7 +22,6 @@
             android:id="@+id/errorTextView"
             style="@style/OptionAfterPickedInfo"
             android:textColor="@color/orange"
-            android:text="error text ..."
             />
         <!-- Horizontal divider -->
         <View style="@style/myStyleViewSimpleHorizontalBar" />

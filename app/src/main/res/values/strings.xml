@@ -438,7 +438,7 @@
     <string name="Permission">Permission</string>
     <string name="permission_read_denied_short_text_on_load">[Music and Audio] permission was previously denied.
         \n\nYou will need to click [App Info] and activate that permission manually.
-        \n\n<i>It is needed to directly read from smartphone general storage.</i>
+        \n\n<i>It is needed if you want to directly read audio from smartphone general storage (copy option disabled).</i>
     </string>
     <string name="permission_read_write_rationale_short_text_on_load">[Music and Audio] permission needed to play from smartphone general storage.</string>
 
@@ -454,6 +454,18 @@
     <string name="bRenameFolder">"Rename Book"</string>
     <string name="IntroCut">"Intro Cut"</string>
     <string name="IntroCutText"><i>"Trims the first seconds of each chapter while playing."</i></string>
+
+    <string name="Export_notification_title">"Audiobook exported"</string>
+    <string name="Export_notification_text">"in Download folder"</string>
+    <string name="Export_share_title">"Share ZIP file"</string>
+
+    <string name="Export_display_text_loading">"Loading folder info..."</string>
+    <string name="Export_display_text_prepapring_export">"Preparing export..."</string>
+    <string name="Export_display_no_valid_audiobook">"Error getting audiobook audios."</string>
+    <string name="Export_display_text_exporting_audiobook">"Exporting zipped audiobook"</string>
+    <string name="Export_display_text_processing">"Processing"</string>
+
+
 
 
 </resources>

@@ -5,11 +5,13 @@ import com.driot.bookplayer.R;
 import android.app.Service;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
 import android.os.IBinder;
 
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.core.content.FileProvider;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.driot.bookplayer.activities.ExportActivity;
@@ -22,6 +24,9 @@ public class ExportService extends Service {
 
     private int totalFiles = 0;
     private long totalSize = 0;
+
+    private long lastUpdateTime = 0;
+    private static final long MIN_UPDATE_INTERVAL = 100; // milliseconds
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -75,35 +80,49 @@ public class ExportService extends Service {
             e.printStackTrace();
         }
 
+
+
+        Uri zipUri = FileProvider.getUriForFile(
+                this,
+                "com.driot.bookplayer.FileProvider",  // must match your AndroidManifest
+                output
+        );
         Intent doneIntent = new Intent("EXPORT_DONE");
-        doneIntent.putExtra("zipUri", Uri.fromFile(output));
+        doneIntent.putExtra("zipUri", zipUri);
+        doneIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         LocalBroadcastManager.getInstance(this).sendBroadcast(doneIntent);
 
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "export_channel")
-                .setSmallIcon(R.drawable.ic_download_24dp)
-                .setContentTitle("Export complete")
-                .setContentText("Audiobook exported to ZIP")
-                .setPriority(NotificationCompat.PRIORITY_HIGH);
 
-        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
-        try {
-            notificationManager.notify(1001, builder.build());
-        } catch (Exception e) {
-            myLogE("notificationManager - no right ??   - Exception : " + e.getMessage());
+        String notifTxt = getString(R.string.Export_notification_text) + " (" + output.getName() + ")";
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
+                NotificationManagerCompat.from(this).areNotificationsEnabled()) {
+
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "export_channel")
+                    .setSmallIcon(R.drawable.ic_download_24dp)
+                    .setContentTitle(getString(R.string.Export_notification_title))
+                    .setContentText(notifTxt)
+                    .setPriority(NotificationCompat.PRIORITY_HIGH);
+
+            NotificationManagerCompat.from(this).notify(1001, builder.build());
+        } else {
+            myToast(notifTxt);
         }
-
     }
 
     private void sendProgress(String currentTrack, long zippedSoFar, int fileIndex) {
-        int percent = totalSize == 0 ? 0 : (int) ((zippedSoFar * 100) / totalSize);
-        String display = "Track " + fileIndex + " of " + totalFiles +
-                "\n" + (zippedSoFar / 1024) + " KB / " + (totalSize / 1024) + " KB";
+        long currentTime = System.currentTimeMillis();
+        if (currentTime - lastUpdateTime > MIN_UPDATE_INTERVAL || zippedSoFar == totalSize) {
+            int percent = totalSize == 0 ? 0 : (int) ((zippedSoFar * 100) / totalSize);
+            String display = "Track " + fileIndex + " of " + totalFiles +
+                    "\n" + (zippedSoFar / 1024) + " KB / " + (totalSize / 1024) + " KB";
 
-        Intent intent = new Intent("EXPORT_PROGRESS");
-        intent.putExtra("currentTrack", currentTrack);
-        intent.putExtra("progressPercent", percent);
-        intent.putExtra("displayText", display);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+            Intent intent = new Intent("EXPORT_PROGRESS");
+            intent.putExtra("currentTrack", currentTrack);
+            intent.putExtra("progressPercent", percent);
+            intent.putExtra("displayText", display);
+            LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+            lastUpdateTime = currentTime;
+        }
     }
 
     @Override
@@ -115,4 +134,6 @@ public class ExportService extends Service {
     private void myLogD(String str) { KanLogger.myLogD(this.getClass().getName(), str); }
     private void myLogI(String str) { KanLogger.myLogI(this.getClass().getName(), str); }
     private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
+    private void myToast(String str) { KanLogger.myToast(this.getClass().getName(), str); }
+    private void myToastE(String str) { KanLogger.myToastE(this.getClass().getName(), str); }
 }
