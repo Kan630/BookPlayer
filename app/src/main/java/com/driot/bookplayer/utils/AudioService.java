@@ -22,6 +22,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.ResultReceiver;
+import android.service.notification.StatusBarNotification;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.view.KeyEvent;
@@ -81,7 +82,6 @@ class CustomMediaPlayer extends MediaPlayer {
 public class AudioService extends LifecycleLoggingService {
 
     private static final String CHANNEL_ID = "audio_channel_of_bookplayer";
-    private boolean isForeground = false;
 
     private Handler handler;
     private Runnable timerRunnable;
@@ -427,7 +427,6 @@ public class AudioService extends LifecycleLoggingService {
         //stopUpdatingPlaybackState();
         stopForeground(true);
         stopSelf();
-        isForeground = false;
         super.onDestroy();
     }
 
@@ -971,8 +970,8 @@ public class AudioService extends LifecycleLoggingService {
             //int progress = PlayList.getZikFile() == null ? 0 : (int) PlayList.getZikFile().getPosition();
             //int max = getDuration();
 
-            int progress = 50;
-            int max = 100;
+            //int progress = 50;
+            //int max = 100;
 
             NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID) // channel is used for user to be able to disable all notifications from that channel, starting android 8
                     .setContentTitle(getCurrentZikFile().getFolderName())
@@ -982,14 +981,14 @@ public class AudioService extends LifecycleLoggingService {
                     .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                     .setPriority(NotificationCompat.PRIORITY_LOW)
                     .setOnlyAlertOnce(true)
-                    //.setOngoing(true)
-                    .setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
-                            .setMediaSession(mediaSession.getSessionToken())
-                            .setShowActionsInCompactView(0,1,2))
+                    .setOngoing(true) //put it back
                     .addAction(new NotificationCompat.Action(android.R.drawable.ic_media_rew, "Rewind", MediaButtonReceiver.buildMediaButtonPendingIntent(this, PlaybackStateCompat.ACTION_REWIND)))
                     .addAction(new NotificationCompat.Action(actionIcon, actionName, playPauseAction))
                     .addAction(new NotificationCompat.Action(android.R.drawable.ic_media_ff, "Forward", MediaButtonReceiver.buildMediaButtonPendingIntent(this, PlaybackStateCompat.ACTION_FAST_FORWARD)))
-                    .setProgress(100,50, false)
+                    .setStyle(new androidx.media.app.NotificationCompat.MediaStyle()  //that's the shit that fuck with the progressBar... but yeah...
+                            .setMediaSession(mediaSession.getSessionToken())
+                            .setShowActionsInCompactView(0,1,2))
+                    //.setProgress(100,50, false)
                     //.setProgress(max, progress, false)  => TODO : check on samsung Tab, it seems to show there.. even without any code !!
                     //.setOngoing(true) //only effective android >= 14, maybe useless on mediaSession
                     //.setUsesChronometer(true)
@@ -1001,17 +1000,16 @@ public class AudioService extends LifecycleLoggingService {
             Notification notification = builder.build();
 
 
-
-            if (!isForeground) {
+        // MAYBE useless...... maybe startForeground always is good enough
+            if (!isNotificationActive(this, 1)) {
                 myLog("notification : startForeground");
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) { // sdk 29 (28 is Android 9)
                     startForeground(1, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK);
                 } else {
                     startForeground(1, notification);
                 }
-                isForeground = true;
             } else {
-                //myLog("notification : manager.notify");
+                myLog("notification : manager.notify");
                 NotificationManagerCompat.from(this).notify(1, notification); // update without restarting
             }
 
@@ -1069,7 +1067,16 @@ public class AudioService extends LifecycleLoggingService {
             myLogE("playBeep(" + beepType + ") - " + e.getMessage());
         }
     }
-
+    private boolean isNotificationActive(Context context, int notificationId) {
+        NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        StatusBarNotification[] notifications = ((NotificationManager) manager).getActiveNotifications();
+        for (StatusBarNotification sbn : notifications) {
+            if (sbn.getId() == notificationId) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     //--- LOG --------------------------
     private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
