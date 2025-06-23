@@ -159,6 +159,16 @@
 
         <View style="@style/myStyleViewSimpleHorizontalBar" />
 
+        <Button
+            android:id="@+id/bExport"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="20dp"
+            android:text="@string/Export" />
+
+        <View style="@style/myStyleViewSimpleHorizontalBar" />
+
 
     </LinearLayout>
 </ScrollView>

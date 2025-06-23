@@ -45,6 +45,7 @@
         <activity android:name=".activities.LogListActivity" />
         <activity android:name=".activities.StatsActivity" />
         <activity android:name=".activities.CacheFilesActivity" />
+        <activity android:name=".activities.ExportActivity" />
         <activity
             android:name=".activities.OpenWithProxyActivity"
             android:enabled="false"
@@ -133,6 +134,10 @@
         <service
             android:name=".utils.SplitM4bService"
             android:exported="false"/>
+        <service
+            android:name=".utils.ExportService"
+            android:exported="false"
+            android:stopWithTask="true" />
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.FileProvider"

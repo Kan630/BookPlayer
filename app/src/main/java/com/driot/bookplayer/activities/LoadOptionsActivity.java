@@ -132,20 +132,9 @@ public class LoadOptionsActivity extends Activity {
 //----------------------------------------------------------------------------------------------------------------------------------
 // check Not Already Imported
 //*****************************
-        myLog("Checking Folder doesn't already exist in DB : [" + audioBookTitle + "]");
-        new Thread(() -> {
-            long lCheck = AppDatabase.getDatabase(this).FolderDao().folderAlreadyExist_checkFolderName(audioBookTitle);
-            if (lCheck>0) {
-                myLogE("KO, folder does already exist in DB : [" + audioBookTitle + "]");
-                runOnUiThread(() -> {
-                    errorTextView.setText(getString(R.string.error_media_already_loaded));
-                    errorTextView.setVisibility(View.VISIBLE);
-                });
-            } else {
-                myLog("OK, folder doesn't already exist in DB");
-            }
-        }).start();
 
+        checkPathDoesNotAlreadyExist(cbCopy.isChecked());
+        checkNameDoesNotAlreadyExist();
 
 //----------------------------------------------------------------------------------------------------------------------------------
 /// OPTIONS CHECKBOXES
@@ -170,7 +159,9 @@ public class LoadOptionsActivity extends Activity {
             if (!internalCheckBoxStateCalculationInProgress) calculateCheckboxState();
         });
         cbCopy.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (!isChecked) {
+            if (isChecked) {
+                checkPathDoesNotAlreadyExist(isChecked);
+            } else {
                 askForPermission();
             }
             if (!internalCheckBoxStateCalculationInProgress) calculateCheckboxState();
@@ -344,6 +335,47 @@ public class LoadOptionsActivity extends Activity {
         }
     }
 
+    private void ShowWarning(String warningTxt) {
+        String previousTxt = errorTextView.getText().toString();
+        String newTxt = previousTxt.isEmpty() ? warningTxt : previousTxt + "\n" + warningTxt;
+        errorTextView.setText(newTxt);
+        errorTextView.setVisibility(View.VISIBLE);
+    }
+
+    private void checkPathDoesNotAlreadyExist(boolean copy) {
+        String strPath;
+        if (copy) {
+            strPath = getFilesDir().getAbsolutePath() + "/" + FOLDER_UNZIPPED + "/" + audioBookTitle;
+        } else {
+            strPath = uri.getPath();
+        }
+        myLog("Checking Folder Path doesn't already exist in DB : [" + strPath + "]");
+        new Thread(() -> {
+            long lCheck = AppDatabase.getDatabase(this).FolderDao().folderAlreadyExist_checkFolderPath(strPath);
+            if (lCheck>0) {
+                myLogE("KO, folder path does already exist in DB : [" + strPath + "]");
+                runOnUiThread(() -> {
+                    ShowWarning (getString(R.string.error_media_already_loaded_samePath));
+                });
+            } else {
+                myLog("OK, folder path doesn't already exist in DB");
+            }
+        }).start();    }
+
+    private void checkNameDoesNotAlreadyExist() {
+        myLog("Checking Folder Name doesn't already exist in DB : [" + audioBookTitle + "]");
+        new Thread(() -> {
+            long lCheck = AppDatabase.getDatabase(this).FolderDao().folderAlreadyExist_checkFolderName(audioBookTitle);
+            if (lCheck>0) {
+                myLogE("KO, folder name does already exist in DB : [" + audioBookTitle + "]");
+                runOnUiThread(() -> {
+                    ShowWarning (getString(R.string.error_media_already_loaded_sameName));
+                });
+            } else {
+                myLog("OK, folder name doesn't already exist in DB");
+            }
+        }).start();
+    }
 
 
     //--- LOG --------------------------

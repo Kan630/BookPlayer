@@ -230,9 +230,6 @@
     <!-- FolderModifyActivity -->
 
     <string name="bDelete">"Delete"</string>
-    <string name="bRenameFolder">"Rename Folder"</string>
-    <string name="IntroCut">"Intro Cut"</string>
-    <string name="IntroCutText"><i>"Trims the first seconds of each chapter while playing."</i></string>
     <string name="bRenameTrack">"Rename Track"</string>
     <string name="bMove">"Change position"</string>
     <string name="bReset">"Reset Progress"</string>
@@ -427,7 +424,8 @@
     <string name="option_alert_delete_picked_source_file_title">!! Warning - Source-Deletion !!</string>
     <string name="option_alert_delete_picked_source_file_message">This picked file will be wiped out from device memory after being loaded inside bookplayer app internal memory.\n\nAre you sure ?.</string>
 
-    <string name="error_media_already_loaded">This media has already been loaded</string>
+    <string name="error_media_already_loaded_samePath">This media has already been loaded</string>
+    <string name="error_media_already_loaded_sameName">A book with this name already exist in Bookplayer</string>
 
     <string name="DirectDownload_title">Direct Download</string>
     <string name="DirectDownload_desc">Paste a link hereunder and press the button to download and integrate an audiobook in one go.</string>
@@ -451,6 +449,11 @@
     <string name="Import_Progress_copying_zip_file">"copying source file \n- from Device General Storage\n- to Bookplayer app internal memory"</string>
     <string name="Import_Progress_copying_zip_file_cloud">"copying source file \n- from Cloud\n- to Bookplayer app internal memory"</string>
 
+    <string name="Export">"Export"</string>
+
+    <string name="bRenameFolder">"Rename Book"</string>
+    <string name="IntroCut">"Intro Cut"</string>
+    <string name="IntroCutText"><i>"Trims the first seconds of each chapter while playing."</i></string>
 
 
 </resources>

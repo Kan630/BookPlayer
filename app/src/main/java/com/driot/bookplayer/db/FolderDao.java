@@ -29,6 +29,12 @@ public interface FolderDao {
     @Query("SELECT COUNT(id) FROM Folder WHERE name LIKE :sFolderName")
     long folderAlreadyExist_checkFolderName(String sFolderName);
 
+    @Query("SELECT COUNT(id) FROM Folder WHERE path LIKE :sFolderPath")
+    long folderAlreadyExist_checkFolderPath(String sFolderPath);
+
+    @Query("SELECT path FROM Folder WHERE id =:folderId")
+    long getFolderPath(int folderId);
+
     @RawQuery
     int runRawSql(SupportSQLiteQuery query);
 

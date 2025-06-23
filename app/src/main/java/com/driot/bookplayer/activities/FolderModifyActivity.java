@@ -1,5 +1,6 @@
 package com.driot.bookplayer.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -20,6 +21,7 @@ import java.io.File;
 import java.sql.Date;
 import java.sql.Time;
 
+import static com.driot.bookplayer.activities.ExportActivity.EXTRA_FOLDER_PATH;
 import static com.driot.bookplayer.global.Var.PATH_CHECK_APPLICATION;
 import static com.driot.bookplayer.utils.Tonio.formatLastAccessInDays;
 import static com.driot.bookplayer.utils.Utils.recursiveRemove;
@@ -42,6 +44,7 @@ public class FolderModifyActivity extends LifecycleLoggingActivity {
         Button bDelete = findViewById(R.id.bDelete);
         Button bReset = findViewById(R.id.bReset);
         Button bRename = findViewById(R.id.bRename);
+        Button bExport = findViewById(R.id.bExport);
         TextView tvTitle = findViewById(R.id.title);
         //TextView tvImportedOn = findViewById(R.id.importedOn);
         TextView tvLastAccess = findViewById(R.id.lastAccess);
@@ -70,6 +73,8 @@ public class FolderModifyActivity extends LifecycleLoggingActivity {
         bRename.setOnClickListener(view -> bRenameClick(tvRename.getText().toString()));
 
         bReset.setOnClickListener(view -> bResetClick());
+
+        bExport.setOnClickListener(view -> bExportClick());
 
         etIntroCut = findViewById(R.id.etIntroCut);
         etIntroCut.setText(String.valueOf(Pref.getIntroCutFromPref(this, idFolder)));
@@ -160,6 +165,13 @@ public class FolderModifyActivity extends LifecycleLoggingActivity {
                 .setNegativeButton("cancel", (dialog, i) -> {})
                 .show();
     }
+
+    private void bExportClick() {
+        Intent intent = new Intent(this, ExportActivity.class);
+        intent.putExtra(ExportActivity.EXTRA_FOLDER_ID, idFolder);
+        this.startActivity(intent);
+    }
+
 
     private void resetFolder() {
         myLog("resetFolder()");
