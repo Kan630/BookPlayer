@@ -35,7 +35,7 @@ public class ExportActivity extends Activity {
     File folder;
     private String folderPath;
     private ProgressBar progressBar;
-    private TextView progressText, fileInfoText, tvCurrentTrack;
+    private TextView progressText, tvCurrentTrack, tvExportAudioBookName;
     private Button btnExport, btnCancel;
 
     private final Handler uiHandler = new Handler(Looper.getMainLooper());
@@ -48,7 +48,7 @@ public class ExportActivity extends Activity {
             int progress = intent.getIntExtra("progressPercent", 0);
             String displayText = intent.getStringExtra("displayText");
             uiHandler.post(() -> {
-                String zeText = getString(R.string.Export_display_text_processing) + ": " + currentTrack;
+                String zeText = getString(R.string.Export_display_text_processing) + ":\n" + currentTrack;
                 tvCurrentTrack.setText(zeText);
                 progressText.setText(displayText);
                 progressBar.setProgress(progress);
@@ -82,14 +82,16 @@ public class ExportActivity extends Activity {
 
         progressBar = findViewById(R.id.progressBarExport);
         progressText = findViewById(R.id.tvProgressText);
-        fileInfoText = findViewById(R.id.tvExportInfo);
+        TextView tvExportTitle = findViewById(R.id.tvExportTitle);
+        tvExportAudioBookName = findViewById(R.id.tvExportAudioBookName);
         tvCurrentTrack = findViewById(R.id.tvCurrentTrack);
         btnExport = findViewById(R.id.btnStartExport);
         btnCancel = findViewById(R.id.btnCancelExport);
 
         // Initially disable the export button and show loading message
         btnExport.setEnabled(false);
-        fileInfoText.setText(getString(R.string.Export_display_text_loading));
+        tvExportTitle.setText(getString(R.string.Export_display_text_export_title));
+        tvExportAudioBookName.setText("---");
         progressText.setText("");
         tvCurrentTrack.setText("");
 
@@ -111,13 +113,13 @@ public class ExportActivity extends Activity {
     private void onFolderPathLoaded() {
         runOnUiThread(() -> {
             if (folderPath == null || !folder.exists()) {
-                fileInfoText.setText(getString(R.string.Export_display_no_valid_audiobook));
+                tvExportAudioBookName.setText(getString(R.string.Export_display_no_valid_audiobook));
+                tvExportAudioBookName.setTextColor(getColor(R.color.red_700));
                 btnExport.setEnabled(false);
                 return;
             }
 
-            String zeText = getString(R.string.Export_display_text_exporting_audiobook) + ": " + "\n\n[" + folder.getName() + "]";
-            fileInfoText.setText(zeText);
+            tvExportAudioBookName.setText(folder.getName());
             btnExport.setEnabled(true);
 
             btnExport.setOnClickListener(v -> {

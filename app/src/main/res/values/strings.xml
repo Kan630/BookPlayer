@@ -429,6 +429,7 @@
     <string name="IntroCut">"Intro Cut"</string>
     <string name="IntroCutText"><i>"Trims the first seconds of each chapter while playing."</i></string>
 
+    <string name="Export_display_text_export_title">"Export audiobook as ZIP"</string>
     <string name="Export_notification_title">"Audiobook exported"</string>
     <string name="Export_notification_text">"in Download folder"</string>
     <string name="Export_share_title">"Share ZIP file"</string>
@@ -436,7 +437,7 @@
     <string name="Export_display_text_loading">"Loading folder info..."</string>
     <string name="Export_display_text_prepapring_export">"Preparing export..."</string>
     <string name="Export_display_no_valid_audiobook">"Error getting audiobook audios."</string>
-    <string name="Export_display_text_exporting_audiobook">"Exporting zipped audiobook"</string>
+
     <string name="Export_display_text_processing">"Processing"</string>
 
     <string name="help_folder_text">A long click on a folder opens the [modify folder] page.

@@ -7,7 +7,8 @@
     android:layout_height="wrap_content">
 
     <TextView
-        android:id="@+id/tvExportInfo"
+        android:id="@+id/tvExportTitle"
+        style="@style/ExportTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Export audiobook:"
@@ -18,39 +19,65 @@
         />
 
     <TextView
+        android:id="@+id/tvExportAudioBookName"
+        style="@style/ExportTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="audiobook name"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="@color/green_300"
+        android:layout_marginBottom="12dp"
+        android:layout_marginTop="20dp"
+        />
+
+    <TextView
         android:id="@+id/tvCurrentTrack"
+        style="@style/ExportProgressText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Zipping: "
         android:textSize="16sp"
-        android:layout_marginBottom="8dp" />
+        android:layout_marginBottom="28dp" />
 
     <ProgressBar
         android:id="@+id/progressBarExport"
         style="@android:style/Widget.ProgressBar.Horizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="50dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginEnd="5dp"
         android:max="100"
+        android:progressDrawable="@drawable/progress_bar_theme"
         android:layout_marginBottom="8dp" />
+
 
     <TextView
         android:id="@+id/tvProgressText"
+        style="@style/ExportProgressText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Progress info..."
         android:textSize="14sp"
-        android:layout_marginBottom="20dp" />
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="40dp"
+        />
 
-    <Button
-        android:id="@+id/btnStartExport"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Start Export" />
+    <LinearLayout
+        style="@style/LinearLayoutOptionsCheckBoxHorizontal"
+        android:gravity="center"
+        android:layout_width="match_parent">
 
-    <Button
-        android:id="@+id/btnCancelExport"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Cancel"
-        android:layout_marginTop="12dp" />
+        <Button
+            android:id="@+id/btnCancelExport"
+            style="@style/GetResourceButton"
+            android:text="Cancel" />
+
+        <Button
+            android:id="@+id/btnStartExport"
+            style="@style/GetResourceButton"
+            android:text="Start Export" />
+
+    </LinearLayout>
+
 </LinearLayout>

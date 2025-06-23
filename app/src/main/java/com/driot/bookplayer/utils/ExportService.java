@@ -114,7 +114,7 @@ public class ExportService extends Service {
         if (currentTime - lastUpdateTime > MIN_UPDATE_INTERVAL || zippedSoFar == totalSize) {
             int percent = totalSize == 0 ? 0 : (int) ((zippedSoFar * 100) / totalSize);
             String display = "Track " + fileIndex + " of " + totalFiles +
-                    "\n" + (zippedSoFar / 1024) + " KB / " + (totalSize / 1024) + " KB";
+                    "\n" + (zippedSoFar / 1024 / 1024) + " MB / " + (totalSize / 1024 / 1024) + " MB";
 
             Intent intent = new Intent("EXPORT_PROGRESS");
             intent.putExtra("currentTrack", currentTrack);

@@ -170,12 +170,6 @@
 
     <!-- ***************** GET RESOURCES ***************** -->
 
-    <style name="GetResourceButton">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginStart">50dp</item>
-    </style>
-
     <style name="GetResourceTextTopOfButton" parent="myStyleTextExplainButton">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
@@ -222,6 +216,34 @@
         <item name="android:textSize">14sp</item>
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
+    </style>
+
+
+    <!-- ***************** EXPORT ***************** -->
+
+    <style name="ExportTitle" parent="textColor">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginStart">20sp</item>
+        <item name="android:layout_marginTop">20sp</item>
+    </style>
+
+    <style name="ExportProgressText" parent="textColor">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginStart">20sp</item>
+        <item name="android:layout_marginTop">20sp</item>
+    </style>
+
+    <style name="GetResourceButton">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginStart">20dp</item>
+        <item name="android:layout_marginEnd">20dp</item>
     </style>
 
 

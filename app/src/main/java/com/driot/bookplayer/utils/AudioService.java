@@ -1011,7 +1011,7 @@ public class AudioService extends LifecycleLoggingService {
                 }
                 isForeground = true;
             } else {
-                myLog("notification : manager.notify");
+                //myLog("notification : manager.notify");
                 NotificationManagerCompat.from(this).notify(1, notification); // update without restarting
             }
 
