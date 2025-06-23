@@ -25,30 +25,12 @@
     <!-- HELP Screen -->
 
     <string name="help_folder">Dossier :</string>
-    <string name="help_folder_text">"Un clic long sur un dossier ouvre la page [modifier dossier].
-    \nVous pourrez alors le renommer / supprimer / réinitialiser la progression"</string>
 
     <string name="help_file">Piste :</string>
     <string name="help_file_text">"Un clic long sur une piste ouvre la page [modifier piste].
     \nVous pourrez alors la renommer / changer l\'ordre / supprimer / réinitialiser la progression"</string>
 
     <string name="help_import">Import :</string>
-    <string name="help_import_text">"Cela commence par la sélection d\'un fichier / dossier / zip.
-        \nEnsuite, selon vos paramètres (dans menu/options) il y a 2 possibilités :
-        \n
-        \n<b>option 1 [copie] :</b><i>par défaut</i> Bookplayer va d\'abord copier l\'audio dans la mémoire interne de l\'application, puis le lire à partir de là.
-        \n
-        \n<b>option 2 [pas de copie] :</b> Bookplayer enregistrera simplement l\'emplacement pour lire directement l\'audio depuis la mémoire générale du périphérique (par ex. depuis le dossier Téléchargements, Musique ou tout autre dossier)
-        \n
-        \n<i>(Notez que les fichiers ZIP sont toujours copiés. Cette option ne concerne que les fichiers uniques et dossiers)</i>
-        \n
-        \n<b>Avec l\'option 1 (copie)</b>, vous n\'aurez pas besoin de la permission [Lire Audio].
-        \nDe plus, si vous supprimez le fichier de la mémoire principale, ou le déplacez, cela n\'aura pas d\'importance. Vous ne perdrez pas votre livre et sa progression.
-        \n
-        \n<b>Avec l\'option 2 (pas de copie)</b>, vous pouvez économiser de l\'espace.
-        \n
-        \nIl y a un autre paramètre, dans menu/options, qui vous permet de supprimer automatiquement le fichier source une fois importé.
-        \nActivez-le si tous les livres que vous chargez dans Bookplayer ne seront pas nécessaires pour une autre application."</string>
 
     <string name="help_trouble">Problèmes d\'import :</string>
     <string name="help_trouble_text">"Si vous avez des problèmes pour importer votre audio :
@@ -57,9 +39,6 @@
         \nSi problème pour sélectionner des audios dans le dossier Téléchargements, essayez de les déplacer hors de ce dossier."</string>
 
     <string name="help_tellme">Dites-le moi !</string>
-    <string name="help_tellme_text">"Si vous avez toujours des problèmes (ou si l\'application plante) :
-        \nMerci de m\'envoyer un message avec le fichier que vous essayez d\'importer, ou le lien vers ce fichier. (Ou ce que vous faisiez quand l\'application a planté)
-        \nAinsi je pourrai vérifier et essayer d\'améliorer mon application !"</string>
 
     <string name="help_cachefiles">Nettoyage mémoire :</string>
     <string name="help_cachefiles_text">"Une vue spécifique pour vérifier le contenu de la mémoire interne de Bookplayer existe maintenant.
@@ -159,16 +138,6 @@
     <!-- ********************************** -->
     <!-- Get Resources -->
 
-    <string name="bOpenFile">Fichier</string>
-    <string name="bOpenFolder">Dossier</string>
-    <string name="bOpenZipFile">Fichier Zip</string>
-
-
-    <string name="TextHeaderOpen">Ouvrir un audio sur mon appareil</string>
-    <string name="bOpenFile_desc">Si votre audio consiste en un seul fichier, cliquez sur ce bouton pour le sélectionner :</string>
-    <string name="bOpenFolder_desc">Si vos fichiers audio sont dans un dossier, cliquez sur ce bouton et sélectionnez ce dossier :
-    \n<i>Attention : tous les audios, y compris ceux des sous-dossiers, seront chargés.</i></string>
-    <string name="bOpenZipFile_desc">Si vos fichiers audio sont dans un fichier ZIP, cliquez sur ce bouton et sélectionnez cette archive :</string>
 
     <string name="TextHeaderSearch">Rechercher des audios gratuits sur internet</string>
     <string name="bSearchlitteratureaudio_desc">Rechercher puis télécharger un livre depuis litteratureaudio.com (français) :</string>
@@ -206,8 +175,6 @@
     <string name="Error_Getting_Ressource_Name_from_Download_Folder">Erreur lors de l\'accès à la ressource dans le dossier Téléchargements</string>
     <string name="Add_resource_reading_file">analyse du fichier</string>
 
-    <string name="Import_Progress_copying_zip_file">"copie du fichier source \n- depuis la Mémoire Externe de l\'appareil\n- vers la mémoire interne de l\'application Bookplayer"</string>
-    <string name="Import_Progress_copying_zip_file_cloud">"copie du fichier source \n- depuis le Cloud\n- vers la mémoire interne de l\'application Bookplayer"</string>
     <string name="Import_Progress_unzipping_file">"dézippage du fichier : "</string>
 
     <string name="Import_Progress_onGoing">"Occupé… import en cours…"</string>
@@ -238,7 +205,6 @@
     <!-- FolderModifyActivity -->
 
     <string name="bDelete">"Supprimer"</string>
-    <string name="bRenameFolder">"Renommer le dossier"</string>
     <string name="bRenameTrack">"Renommer la piste"</string>
     <string name="bMove">"Changer la position"</string>
     <string name="bReset">"Réinitialiser la progression"</string>
@@ -369,36 +335,122 @@
     \nCela ouvrira les paramètres de Bookplayer sur l\'appareil.
     \n\nAllez ensuite dans la section "Permissions" et autorisez manuellement "Microphone".</string>
 
-
     <string name="OnlineSearch_title">Intégration directe - test bêta</string>
-    <string name="OnlineSearch_desc">Utilisez cette fonction de recherche pour trouver le livre audio que vous cherchez. Ensuite, sur la page suivante, sélectionnez celui que vous souhaitez importer ; il sera téléchargé et ajouté directement dans Bookplayer !</string>
+    <string name="OnlineSearch_desc">Utilisez cette fonction de recherche pour trouver le livre audio que vous cherchez. Ensuite, à l'écran suivant, sélectionnez celui à importer, il sera téléchargé et ajouté directement dans Bookplayer !</string>
     <string name="OnlineSearch_hint">Jack London</string>
     <string name="OnlineSearch_button">Rechercher…</string>
-
-    <string name="help_file_types_title">Types de fichiers :</string>
-    <string name="help_file_types_text">"Préférez toujours les fichiers [mp3], ou les archives zip/dossiers contenant des fichiers [mp3]. Bookplayer peut désormais lire le nouveau format [m4b], mais je travaille encore sur l'affichage des chapitres à l'intérieur."</string>
 
     <string name="SleepTimer">Minuteur de sommeil</string>
     <string name="SleepTimerWrongInt">Entrée invalide. Veuillez entrer un nombre valide.</string>
     <string name="SleepTimerGeneralError">Une erreur est survenue lors de la configuration du minuteur de sommeil.</string>
 
     <string name="option_split_m4b">Découpage .m4b</string>
-    <string name="option_split_m4b_text">Extraire les chapitres depuis un fichier m4b (nouveau format de livre audio). - Encore expérimental -</string>
+    <string name="option_split_m4b_text">Extraire les chapitres des fichiers m4b (nouveau format de livre audio). - Encore expérimental -</string>
 
     <string name="option_copy_file_special_zip"><i>les fichiers zip et les m4b découpés sont toujours copiés</i></string>
 
-    <string name="Error_Import_Split_M4B"><i>Une erreur est survenue lors du découpage du fichier m4b.</i></string>
-    <string name="Import_Experimental_M4B_warning">Avertissement : <b>l’extraction des chapitres m4b</b> est encore <b>expérimentale</b>.</string>
+    <string name="Error_Import_Split_M4B"><i>Une erreur s'est produite lors du découpage du fichier m4b.</i></string>
+    <string name="Import_Experimental_M4B_warning">Attention : <b>l'extraction des chapitres m4b</b> est encore <b>expérimentale</b>.</string>
     <string name="Import_Experimental_M4B_iferror">Si vous rencontrez des erreurs</string>
-    <string name="Import_Experimental_M4B_solution_1">Vous pouvez décocher l’option "découpage m4b" dans menu/options.</string>
-    <string name="Import_Experimental_M4B_solution_2"><i>Vous pouvez également utiliser un outil tiers pour convertir ce fichier m4b en un dossier contenant des fichiers mp3, puis importer ce dossier dans Bookplayer.</i></string>
+    <string name="Import_Experimental_M4B_solution_1">"Décochez l'option "découper m4b"."</string>
+    <string name="Import_Experimental_M4B_solution_2"><i>Vous pouvez aussi utiliser un outil tiers pour convertir ce fichier m4b en dossier de fichiers mp3, puis importer ce dossier dans Bookplayer.</i></string>
     <string name="Import_Progress_splitting_m4b_files">"Découpage des fichiers m4b"</string>
-    <string name="Import_Progress_splitting_m4b_file">"Découpage du fichier m4b : "</string>
+    <string name="Import_Progress_splitting_m4b_file">"découpage du fichier m4b : "</string>
 
     <string name="Technical_Error">"Erreur technique"</string>
 
+    <string name="bOpenFile">"N'importe quel fichier"</string>
+    <string name="bOpenFolder">Dossier</string>
+    <string name="bOpenZipFile">Fichier Zip</string>
+    <string name="bOpenM4bFile">Fichier Audio</string>
 
+    <string name="TextHeaderOpen">Ouvrir un audio sur mon appareil</string>
+    <string name="bOpenFile_desc">Choisir un fichier quelconque.</string>
+    <string name="bOpenFolder_desc">Choisir un dossier.
+\nTous les audios de ce dossier seront importés.
+\n<i>Attention : tous les audios dans les sous-dossiers, s’il y en a, seront aussi importés récursivement.</i></string>
+    <string name="bOpenZipFile_desc">filtre : uniquement les fichiers zip</string>
+    <string name="bOpenM4bFile_desc">filtre : uniquement les fichiers audio
+\n<i>Ce filtre n'est pas parfait, utilisez le bouton du haut [n'importe quel fichier] en cas de problème.</i></string>
 
+    <string name="audio_location_bookplayer_reserved_storage">Stockage réservé à Bookplayer</string>
+    <string name="audio_location_smartphone_shared_storage">Stockage partagé du smartphone</string>
+    <string name="audio_location_audiobook_not_found">Livre audio introuvable</string>
 
+    <string name="option_alert_delete_picked_source_file_title">!! Avertissement - Suppression de la source !!</string>
+    <string name="option_alert_delete_picked_source_file_message">Ce fichier sera supprimé de la mémoire de l'appareil après avoir été chargé dans la mémoire interne de Bookplayer.\n\nÊtes-vous sûr ?</string>
+
+    <string name="error_media_already_loaded_samePath">Ce média a déjà été chargé</string>
+    <string name="error_media_already_loaded_sameName">Un livre avec ce nom existe déjà dans Bookplayer</string>
+
+    <string name="DirectDownload_title">Téléchargement direct</string>
+    <string name="DirectDownload_desc">Collez un lien ci-dessous et appuyez sur le bouton pour télécharger et intégrer un livre audio en une seule étape.</string>
+    <string name="DirectDownload_hint">https://bookplayer.driot.com/autotest/file_01.zip</string>
+    <string name="DirectDownload_button">Télécharger</string>
+
+    <string name="ErrorCouldNotLoadAudios">ERREUR - Impossible de charger les audios.</string>
+    <string name="ErrorCouldNotLoadAudios_emptyfolder">ERREUR - Aucun audio trouvé dans ce dossier.</string>
+
+    <string name="Permission">Permission</string>
+    <string name="permission_read_denied_short_text_on_load">La permission [Musique et Audio] a été précédemment refusée.
+\n\nVous devez cliquer sur [Infos App] et activer manuellement cette permission.
+\n\n<i>Elle est nécessaire pour lire directement des fichiers depuis le stockage général du téléphone (quand l’option de copie est désactivée).</i></string>
+    <string name="permission_read_write_rationale_short_text_on_load">La permission [Musique et Audio] est nécessaire pour lire depuis le stockage général du smartphone.</string>
+
+    <string name="option_on_load_copy_internal">"Copier dans la mémoire interne de Bookplayer"</string>
+    <string name="option_on_load_split_m4b">"Découper le M4B en chapitres"</string>
+    <string name="option_on_load_delete_source">"Supprimer le fichier source après import"</string>
+
+    <string name="Import_Progress_copying_zip_file">"copie du fichier source \n- depuis le stockage général de l'appareil\n- vers la mémoire interne de l'application Bookplayer"</string>
+    <string name="Import_Progress_copying_zip_file_cloud">"copie du fichier source \n- depuis le Cloud\n- vers la mémoire interne de l'application Bookplayer"</string>
+
+    <string name="Export">"Exporter…"</string>
+
+    <string name="bRenameFolder">"Renommer le livre"</string>
+    <string name="IntroCut">"Coupe d’intro"</string>
+    <string name="IntroCutText"><i>"Coupe les premières secondes de chaque chapitre pendant la lecture."</i></string>
+
+    <string name="Export_display_text_export_title">"Exporter le livre audio en ZIP"</string>
+    <string name="Export_notification_title">"Livre audio exporté"</string>
+    <string name="Export_notification_text">"dans le dossier Téléchargements"</string>
+    <string name="Export_share_title">"Partager le fichier ZIP"</string>
+
+    <string name="Export_display_text_loading">"Chargement des informations du dossier..."</string>
+    <string name="Export_display_text_prepapring_export">"Préparation de l’export..."</string>
+    <string name="Export_display_no_valid_audiobook">"Erreur lors de la récupération des audios du livre."</string>
+
+    <string name="Export_display_text_processing">"Traitement en cours"</string>
+
+    <string name="help_folder_text">Un appui long sur un dossier ouvre la page [modifier le dossier].
+\nVous pourrez renommer / supprimer / réinitialiser la progression
+\nNOUVEAU : Définir une coupe automatique en début de piste (pour retirer les crédits gênants).
+\nNOUVEAU : Ou exporter le livre audio en fichier zip, dans le dossier Téléchargements de l’appareil.</string>
+
+    <string name="help_file_types_title">Types de fichiers :</string>
+    <string name="help_file_types_text">Bookplayer peut lire de nombreux types de fichiers audio, même des vidéos. Essayez de les charger ! Le meilleur choix reste les fichiers [mp3], zippés ou dans un dossier. Bookplayer peut aussi lire le nouveau type de fichier [m4b]. Il essaiera d’en détecter les chapitres s’ils existent. Si vous utilisez la nouvelle fonction d’export, à partir d’un fichier m4b déjà chargé, vous obtiendrez un zip avec les chapitres sous forme de fichiers audio aac.</string>
+
+    <string name="help_import_text">Cette activité commence par le choix d’un fichier ou d’un dossier.
+\nEnsuite, deux possibilités :
+\n
+\n<b>option 1 [copie] :</b><i>par défaut</i> Bookplayer copiera d’abord l’audio dans la mémoire interne de l’application, puis le lira depuis là.
+\n
+\n<b>option 2 [sans copie] :</b> Bookplayer enregistrera simplement l’emplacement pour lire l’audio directement depuis la mémoire générale de l’appareil (ex. dossier Téléchargements, Musique ou autre)
+\n
+\n<i>(Note : les fichiers ZIP sont toujours copiés, les m4b découpés aussi. Cette option ne concerne que la lecture directe de fichiers audio simples)</i>
+\n
+\n<b>Avec l’option 1 (copie)</b>, vous n’aurez pas besoin de la permission [Lire les fichiers audio].
+\nEt si vous supprimez ou déplacez le fichier de la mémoire principale, cela n’aura aucun impact. Vous ne perdrez ni le livre ni votre progression.
+\n
+\n<b>Avec l’option 2 (sans copie)</b>, vous économisez de l’espace.
+\n
+\n<i>Une autre option, dans le menu, permet de supprimer automatiquement le fichier source après son import.
+\nActivez-la si vous ne souhaitez pas utiliser le livre dans une autre application.</i>
+</string>
+
+    <string name="help_tellme_text">"Si vous rencontrez des problèmes ou si l'application plante :
+\nMerci de m'envoyer un message en décrivant le souci
+\nPour que je puisse analyser et améliorer l'application !"</string>
+
+    <string name="StillExperimental">"- Encore expérimental -"</string>
 
 </resources>

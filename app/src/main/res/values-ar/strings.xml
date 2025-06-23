@@ -25,30 +25,12 @@
     <!-- HELP Screen -->
 
     <string name="help_folder">المجلد:</string>
-    <string name="help_folder_text">"النقر المطول على مجلد يفتح صفحة [تعديل المجلد].
-    \nثم يمكنك إعادة تسميته/حذفه/إعادة تعيين التقدم"</string>
 
     <string name="help_file">المسار:</string>
     <string name="help_file_text">"النقر المطول على مسار يفتح صفحة [تعديل المسار].
     \nثم يمكنك إعادة تسميته/تغيير الترتيب/حذفه/إعادة تعيين التقدم"</string>
 
     <string name="help_import">استيراد:</string>
-    <string name="help_import_text">"يبدأ باختيار ملف/مجلد/zip.
-        \nثم، حسب إعداداتك (في القائمة/الخيارات) هناك احتمالان:
-        \n
-        \n<b>الخيار 1 [نسخ]:</b><i>افتراضي</i> سيتم أولاً نسخ الصوت داخل الذاكرة الداخلية للتطبيق، ثم قراءته من هناك.
-        \n
-        \n<b>الخيار 2 [لا نسخ]:</b> سيسجل فقط الموقع لتشغيل الصوت مباشرة من الذاكرة العامة للجهاز (مثل مجلد التنزيلات، مجلد الموسيقى أو أي مجلد)
-        \n
-        \n<i>(ملاحظة: ملفات ZIP يتم نسخها دائماً. هذا الخيار فقط للملفات والمجلدات الفردية)</i>
-        \n
-        \n<b>مع الخيار 1 (نسخ)</b>، لن تحتاج إلى إذن [قراءة الصوت].
-        \nأيضاً، إذا حذفت الملف من الذاكرة الرئيسية، أو نقلته، لن يهم ذلك. لن تفقد كتابك وتقدمك.
-        \n
-        \n<b>مع الخيار 2 (لا نسخ)</b>، قد توفر مساحة.
-        \n
-        \nهناك إعداد آخر، في القائمة/الخيارات، يسمح لك بحذف الملف المصدر تلقائياً بعد استيراده.
-        \nقم بتنشيط هذا إذا كانت جميع الكتب التي تحملها في Bookplayer لن تكون مطلوبة من قبل تطبيق آخر."</string>
 
     <string name="help_trouble">مشاكل الاستيراد:</string>
     <string name="help_trouble_text">"إذا واجهت مشاكل في استيراد الصوت:
@@ -57,9 +39,6 @@
         \nإذا كانت هناك مشكلة في اختيار الصوت من مجلد التنزيلات، حاول نقلها خارج مجلد \'التنزيلات\'."</string>
 
     <string name="help_tellme">أخبرني!</string>
-    <string name="help_tellme_text">"إذا ما زلت تواجه مشاكل (أو إذا تعطل التطبيق):
-        \nالرجاء إرسال رسالة مع الملف الذي تحاول استيراده، أو الرابط لهذا الملف. (أو ما كنت تفعله عندما تعطل التطبيق)
-        \nحتى أتمكن من التحقق ومحاولة تحسين تطبيقي!"</string>
 
     <string name="help_cachefiles">تنظيف الذاكرة:</string>
     <string name="help_cachefiles_text">"توجد الآن واجهة محددة للتحقق من محتوى الذاكرة الداخلية لـ Bookplayer.
@@ -160,16 +139,6 @@
     <!-- ********************************** -->
     <!-- Get Resources -->
 
-    <string name="bOpenFile">ملف</string>
-    <string name="bOpenFolder">مجلد</string>
-    <string name="bOpenZipFile">ملف Zip</string>
-
-
-    <string name="TextHeaderOpen">فتح صوت على جهازي</string>
-    <string name="bOpenFile_desc">إذا كان صوتك يتكون من ملف واحد، اضغط هذا الزر لتحديد ذلك الملف:</string>
-    <string name="bOpenFolder_desc">إذا كانت ملفات الصوت موجودة داخل مجلد، اضغط هذا الزر وحدد هذا المجلد:
-    \n<i>انتبه: سيتم تحميل جميع ملفات الصوت، بما في ذلك تلك في المجلدات الفرعية.</i></string>
-    <string name="bOpenZipFile_desc">إذا كانت ملفات الصوت موجودة داخل ملف ZIP، اضغط هذا الزر وحدد هذا الأرشيف:</string>
 
     <string name="TextHeaderSearch">البحث عن صوت مجاني على الإنترنت</string>
     <string name="bSearchlitteratureaudio_desc">ابحث ثم حمل كتاباً من litteratureaudio.com (فرنسي):</string>
@@ -207,8 +176,6 @@
     <string name="Error_Getting_Ressource_Name_from_Download_Folder">خطأ في الوصول إلى المورد في موقع التنزيلات</string>
     <string name="Add_resource_reading_file">تحليل الملف</string>
 
-    <string name="Import_Progress_copying_zip_file">"نسخ الملف المصدر \n- من الذاكرة الخارجية للجهاز\n- إلى الذاكرة الداخلية لتطبيق Bookplayer"</string>
-    <string name="Import_Progress_copying_zip_file_cloud">"نسخ الملف المصدر \n- من السحابة\n- إلى الذاكرة الداخلية لتطبيق Bookplayer"</string>
     <string name="Import_Progress_unzipping_file">"فك ضغط الملف: "</string>
 
     <string name="Import_Progress_onGoing">"جاري... الاستيراد قيد التقدم..."</string>
@@ -239,7 +206,6 @@
     <!-- FolderModifyActivity -->
 
     <string name="bDelete">"حذف"</string>
-    <string name="bRenameFolder">"إعادة تسمية المجلد"</string>
     <string name="bRenameTrack">"إعادة تسمية المسار"</string>
     <string name="bMove">"تغيير الموضع"</string>
     <string name="bReset">"إعادة تعيين التقدم"</string>
@@ -371,32 +337,123 @@
     \n\nثم انتقل إلى قسم "الأذونات" واسمح يدويًا بـ "الميكروفون".</string>
 
 
-    <string name="OnlineSearch_title">دمج مباشر - اختبار تجريبي</string>
-    <string name="OnlineSearch_desc">استخدم هذه الميزة للبحث عن الكتاب الصوتي الذي تريده. ثم في الصفحة التالية، اختر الكتاب الذي ترغب في استيراده؛ سيتم تنزيله وإضافته مباشرةً إلى Bookplayer!</string>
+    <string name="OnlineSearch_title">تكامل مباشر - اختبار تجريبي</string>
+    <string name="OnlineSearch_desc">استخدم ميزة البحث هذه للعثور على الكتاب الصوتي الذي تبحث عنه. ثم، في الصفحة التالية، اختر الكتاب المراد استيراده، وسيتم تحميله وإضافته مباشرة إلى Bookplayer!</string>
     <string name="OnlineSearch_hint">جاك لندن</string>
     <string name="OnlineSearch_button">بحث…</string>
 
-    <string name="help_file_types_title">أنواع الملفات:</string>
-    <string name="help_file_types_text">يُفضل دائمًا ملفات [mp3]، أو ملفات zip / مجلدات تحتوي على ملفات [mp3]. يستطيع Bookplayer الآن قراءة نوع الملف الجديد [m4b]، لكن لا يزال العمل جارٍ على عرض الفصول بداخله.</string>
-
     <string name="SleepTimer">مؤقت النوم</string>
-    <string name="SleepTimerWrongInt">إدخال غير صالح. يرجى إدخال رقم صحيح.</string>
+    <string name="SleepTimerWrongInt">إدخال غير صالح. الرجاء إدخال رقم صحيح.</string>
     <string name="SleepTimerGeneralError">حدث خطأ أثناء إعداد مؤقت النوم.</string>
 
-    <string name="option_split_m4b">تقسيم ملفات .m4b</string>
-    <string name="option_split_m4b_text">استخراج الفصول من ملف m4b (تنسيق كتاب صوتي جديد). - ما زال في المرحلة التجريبية -</string>
+    <string name="option_split_m4b">تقسيم .m4b</string>
+    <string name="option_split_m4b_text">استخراج الفصول من ملف m4b (تنسيق كتب صوتية جديد). - لا يزال تجريبيًا -</string>
 
-    <string name="option_copy_file_special_zip"><i>يتم دائمًا نسخ ملفات zip وملفات m4b المقسّمة</i></string>
+    <string name="option_copy_file_special_zip"><i>يتم دائمًا نسخ ملفات zip وملفات m4b المُقسّمة</i></string>
 
     <string name="Error_Import_Split_M4B"><i>حدث خطأ أثناء تقسيم ملف m4b.</i></string>
     <string name="Import_Experimental_M4B_warning">تحذير: <b>استخراج فصول m4b</b> لا يزال <b>تجريبيًا</b>.</string>
-    <string name="Import_Experimental_M4B_iferror">إذا واجهت مشاكل</string>
-    <string name="Import_Experimental_M4B_solution_1">يمكنك إلغاء تفعيل خيار "تقسيم m4b" من القائمة/الإعدادات.</string>
-    <string name="Import_Experimental_M4B_solution_2"><i>يمكنك أيضًا استخدام أداة خارجية لتحويل ملف m4b إلى مجلد يحتوي على ملفات mp3، ثم استيراد هذا المجلد إلى Bookplayer.</i></string>
-    <string name="Import_Progress_splitting_m4b_files">"جارٍ تقسيم ملفات m4b"</string>
-    <string name="Import_Progress_splitting_m4b_file">"جارٍ تقسيم الملف m4b: "</string>
+    <string name="Import_Experimental_M4B_iferror">إذا واجهت أخطاء</string>
+    <string name="Import_Experimental_M4B_solution_1">قم بإلغاء تحديد خيار \"تقسيم m4b\".</string>
+    <string name="Import_Experimental_M4B_solution_2"><i>يمكنك استخدام أداة خارجية لتحويل ملف m4b إلى مجلد يحتوي على ملفات mp3، ثم استيراد هذا المجلد في Bookplayer.</i></string>
+    <string name="Import_Progress_splitting_m4b_files">"جاري تقسيم ملفات m4b"</string>
+    <string name="Import_Progress_splitting_m4b_file">"تقسيم ملف m4b: "</string>
 
     <string name="Technical_Error">"خطأ تقني"</string>
+
+    <string name="bOpenFile">أي ملف</string>
+    <string name="bOpenFolder">مجلد</string>
+    <string name="bOpenZipFile">ملف Zip</string>
+    <string name="bOpenM4bFile">ملف صوتي</string>
+
+    <string name="TextHeaderOpen">فتح ملف صوتي من جهازي</string>
+    <string name="bOpenFile_desc">اختر أي ملف.</string>
+    <string name="bOpenFolder_desc">اختر مجلدًا.
+\nسيتم استيراد جميع الملفات الصوتية فيه.
+\n<i>انتبه: سيتم أيضًا استيراد الملفات الصوتية الموجودة في المجلدات الفرعية إن وجدت.</i></string>
+    <string name="bOpenZipFile_desc">تصفية: ملفات zip فقط</string>
+    <string name="bOpenM4bFile_desc">تصفية: ملفات صوتية فقط
+\n<i>هذه التصفية ليست مثالية. استخدم الزر العلوي [أي ملف] إذا واجهت مشاكل.</i></string>
+
+    <string name="audio_location_bookplayer_reserved_storage">مساحة Bookplayer المحجوزة</string>
+    <string name="audio_location_smartphone_shared_storage">مساحة التخزين المشتركة للهاتف</string>
+    <string name="audio_location_audiobook_not_found">الكتاب الصوتي غير موجود</string>
+
+    <string name="option_alert_delete_picked_source_file_title">!! تحذير - حذف المصدر !!</string>
+    <string name="option_alert_delete_picked_source_file_message">سيتم حذف هذا الملف من ذاكرة الجهاز بعد تحميله إلى الذاكرة الداخلية لتطبيق Bookplayer.\n\nهل أنت متأكد؟</string>
+
+    <string name="error_media_already_loaded_samePath">تم تحميل هذا الملف مسبقًا</string>
+    <string name="error_media_already_loaded_sameName">يوجد كتاب بهذا الاسم بالفعل في Bookplayer</string>
+
+    <string name="DirectDownload_title">تحميل مباشر</string>
+    <string name="DirectDownload_desc">الصق رابطًا في الأسفل واضغط الزر لتحميل وإضافة كتاب صوتي مباشرة.</string>
+    <string name="DirectDownload_hint">https://bookplayer.driot.com/autotest/file_01.zip</string>
+    <string name="DirectDownload_button">تحميل الآن</string>
+
+    <string name="ErrorCouldNotLoadAudios">خطأ - تعذر تحميل الملفات الصوتية.</string>
+    <string name="ErrorCouldNotLoadAudios_emptyfolder">خطأ - لم يتم العثور على ملفات صوتية في هذا المجلد.</string>
+
+    <string name="Permission">الصلاحيات</string>
+    <string name="permission_read_denied_short_text_on_load">تم رفض صلاحية [الموسيقى والصوت] سابقًا.
+\n\nيجب عليك النقر على [معلومات التطبيق] وتفعيل هذه الصلاحية يدويًا.
+\n\n<i>مطلوبة إذا كنت تريد تشغيل الصوت مباشرة من مساحة التخزين العامة للجهاز (عند تعطيل خيار النسخ).</i></string>
+    <string name="permission_read_write_rationale_short_text_on_load">مطلوب صلاحية [الموسيقى والصوت] لتشغيل الملفات من مساحة التخزين العامة للهاتف.</string>
+
+    <string name="option_on_load_copy_internal">"نسخ إلى المساحة الداخلية لـ Bookplayer"</string>
+    <string name="option_on_load_split_m4b">"تقسيم ملف M4B إلى فصول"</string>
+    <string name="option_on_load_delete_source">"حذف الملف المصدر بعد الاستيراد"</string>
+
+    <string name="Import_Progress_copying_zip_file">"نسخ الملف المصدر \n- من مساحة تخزين الجهاز\n- إلى الذاكرة الداخلية لتطبيق Bookplayer"</string>
+    <string name="Import_Progress_copying_zip_file_cloud">"نسخ الملف المصدر \n- من السحابة\n- إلى الذاكرة الداخلية لتطبيق Bookplayer"</string>
+
+    <string name="Export">"تصدير…"</string>
+
+    <string name="bRenameFolder">"إعادة تسمية الكتاب"</string>
+    <string name="IntroCut">"قص المقدمة"</string>
+    <string name="IntroCutText"><i>"يُزيل الثواني الأولى من كل فصل أثناء التشغيل."</i></string>
+
+    <string name="Export_display_text_export_title">"تصدير الكتاب الصوتي كملف ZIP"</string>
+    <string name="Export_notification_title">"تم تصدير الكتاب الصوتي"</string>
+    <string name="Export_notification_text">"في مجلد التنزيلات"</string>
+    <string name="Export_share_title">"مشاركة ملف ZIP"</string>
+
+    <string name="Export_display_text_loading">"جاري تحميل معلومات المجلد..."</string>
+    <string name="Export_display_text_prepapring_export">"جاري تحضير التصدير..."</string>
+    <string name="Export_display_no_valid_audiobook">"خطأ أثناء الحصول على ملفات الكتاب الصوتي."</string>
+
+    <string name="Export_display_text_processing">"جاري المعالجة"</string>
+
+    <string name="help_folder_text">الضغط المطول على مجلد يفتح صفحة [تعديل المجلد].
+\nمن هناك يمكنك إعادة التسمية / الحذف / إعادة تعيين التقدم.
+\nجديد: إعداد قطع تلقائي في بداية كل مقطع صوتي (لتجنب المقدمات المزعجة).
+\nجديد: أو تصدير الكتاب الصوتي كملف zip إلى مجلد التنزيلات في جهازك.</string>
+
+    <string name="help_file_types_title">أنواع الملفات:</string>
+    <string name="help_file_types_text">Bookplayer يمكنه تشغيل العديد من أنواع ملفات الصوت، وحتى الفيديو. فقط جرب! الخيار الأفضل هو ملفات [mp3]، مضغوطة أو داخل مجلد. يمكن لـ Bookplayer الآن تشغيل نوع الملفات الجديد [m4b]. إذا كانت تحتوي على فصول، فسيحاول اكتشافها. وإذا استخدمت ميزة التصدير الجديدة على ملف m4b، فستحصل على ملف zip يحتوي على الفصول كملفات صوتية بصيغة aac.</string>
+
+    <string name="help_import_text">تبدأ هذه الشاشة باختيارك لملف أو مجلد.
+\nثم هناك خياران رئيسيان:
+\n
+\n<b>الخيار 1 [نسخ]:</b><i>افتراضيًا</i> سيقوم Bookplayer أولًا بنسخ الملف الصوتي إلى ذاكرته الداخلية، ثم تشغيله من هناك.
+\n
+\n<b>الخيار 2 [بدون نسخ]:</b> سيقوم Bookplayer فقط بتسجيل الموقع لتشغيل الصوت مباشرة من ذاكرة الجهاز (مثل مجلد التنزيلات أو الموسيقى).
+\n
+\n<i>(ملاحظة: يتم دائمًا نسخ الملفات المضغوطة، وكذلك ملفات m4b المقسّمة. هذا الخيار خاص بالملفات الصوتية البسيطة).</i>
+\n
+\n<b>باستخدام الخيار 1 (نسخ)</b>، لن تحتاج إلى صلاحية [قراءة الصوت].
+\nوإذا قمت بحذف الملف من الذاكرة الرئيسية أو نقله، فلن تتأثر. لن تفقد الكتاب أو التقدم.
+\n
+\n<b>باستخدام الخيار 2 (بدون نسخ)</b>، يمكنك توفير مساحة تخزين.
+\n
+\n<i>يوجد إعداد آخر في القائمة يسمح بحذف الملف المصدر تلقائيًا بعد استيراده.
+\nقم بتفعيله إذا لم تكن بحاجة لاستخدام الكتاب في تطبيق آخر.</i>
+</string>
+
+    <string name="help_tellme_text">"إذا واجهت مشاكل أو تعطلت التطبيق:
+\nمن فضلك أرسل لي رسالة تشرح فيها ما حدث
+\nلكي أتمكن من التحقق وتحسين التطبيق!"</string>
+
+    <string name="StillExperimental">"- لا يزال تجريبيًا -"</string>
 
 
 </resources>

@@ -25,30 +25,12 @@
     <!-- HELP Screen -->
 
     <string name="help_folder">Папка:</string>
-    <string name="help_folder_text">"Долгое нажатие на папку открывает страницу [изменить папку].
-    \nЗатем вы сможете переименовать/удалить/сбросить прогресс"</string>
 
     <string name="help_file">Трек:</string>
     <string name="help_file_text">"Долгое нажатие на трек открывает страницу [изменить трек].
     \nЗатем вы сможете переименовать/изменить порядок/удалить/сбросить прогресс"</string>
 
     <string name="help_import">Импорт:</string>
-    <string name="help_import_text">"Начните с выбора файла/папки/zip.
-        \nЗатем, в зависимости от ваших настроек (в меню/опции) есть 2 варианта:
-        \n
-        \n<b>вариант 1 [копировать]:</b><i>по умолчанию</i> Bookplayer сначала скопирует аудио во внутреннюю память приложения, а затем будет читать оттуда.
-        \n
-        \n<b>вариант 2 [не копировать]:</b> Bookplayer просто запомнит расположение, чтобы воспроизводить аудио напрямую из основной памяти устройства (например, из папки Загрузки, Музыки или любой другой)
-        \n
-        \n<i>(Примечание: ZIP-файлы всегда копируются. Эта опция только для отдельных файлов и папок)</i>
-        \n
-        \n<b>С вариантом 1 (копировать)</b> вам не понадобится разрешение [Чтение аудио].
-        \nКроме того, если вы удалите файл из основной памяти или переместите его, это не будет иметь значения. Вы не потеряете свою книгу и прогресс.
-        \n
-        \n<b>С вариантом 2 (не копировать)</b> вы можете сэкономить место.
-        \n
-        \nЕсть еще одна настройка в меню/опции, которая позволяет автоматически удалять исходный файл после импорта.
-        \nАктивируйте ее, если все книги, которые вы загружаете в Bookplayer, не понадобятся другому приложению."</string>
 
     <string name="help_trouble">Проблемы с импортом:</string>
     <string name="help_trouble_text">"Если у вас проблемы с импортом аудио:
@@ -57,9 +39,6 @@
         \nЕсли проблема с выбором аудио из папки Загрузки, попробуйте переместить их из папки \'Загрузки\'."</string>
 
     <string name="help_tellme">Сообщите мне!</string>
-    <string name="help_tellme_text">"Если у вас все еще есть проблемы (или приложение зависает):
-        \nПожалуйста, отправьте мне сообщение с файлом, который вы пытаетесь импортировать, или ссылкой на этот файл. (Или что вы делали, когда приложение зависло)
-        \nЧтобы я мог проверить и попытаться улучшить свое приложение!"</string>
 
     <string name="help_cachefiles">Очистка памяти:</string>
     <string name="help_cachefiles_text">"Теперь есть специальный просмотр содержимого внутренней памяти Bookplayer.
@@ -160,16 +139,6 @@
     <!-- ********************************** -->
     <!-- Get Resources -->
 
-    <string name="bOpenFile">Файл</string>
-    <string name="bOpenFolder">Папка</string>
-    <string name="bOpenZipFile">ZIP-файл</string>
-
-
-    <string name="TextHeaderOpen">Открыть аудио на моем устройстве</string>
-    <string name="bOpenFile_desc">Если ваше аудио состоит из одного файла, нажмите эту кнопку, чтобы выбрать его:</string>
-    <string name="bOpenFolder_desc">Если ваши аудиофайлы находятся в папке, нажмите эту кнопку и выберите эту папку:
-    \n<i>Внимание: все аудио, включая вложенные папки, будут загружены.</i></string>
-    <string name="bOpenZipFile_desc">Если ваши аудиофайлы находятся в ZIP-архиве, нажмите эту кнопку и выберите этот архив:</string>
 
     <string name="TextHeaderSearch">Искать бесплатное аудио в интернете</string>
     <string name="bSearchlitteratureaudio_desc">Найти и скачать книгу с litteratureaudio.com (французский):</string>
@@ -207,8 +176,6 @@
     <string name="Error_Getting_Ressource_Name_from_Download_Folder">Ошибка доступа к ресурсу в папке Загрузки</string>
     <string name="Add_resource_reading_file">анализ файла</string>
 
-    <string name="Import_Progress_copying_zip_file">"копирование исходного файла \n- из Внешней памяти устройства\n- во внутреннюю память приложения Bookplayer"</string>
-    <string name="Import_Progress_copying_zip_file_cloud">"копирование исходного файла \n- из Облака\n- во внутреннюю память приложения Bookplayer"</string>
     <string name="Import_Progress_unzipping_file">"распаковка файла: "</string>
 
     <string name="Import_Progress_onGoing">"Занято... идет импорт..."</string>
@@ -239,7 +206,6 @@
     <!-- FolderModifyActivity -->
 
     <string name="bDelete">"Удалить"</string>
-    <string name="bRenameFolder">"Переименовать папку"</string>
     <string name="bRenameTrack">"Переименовать трек"</string>
     <string name="bMove">"Изменить позицию"</string>
     <string name="bReset">"Сбросить прогресс"</string>
@@ -371,32 +337,122 @@
     \n\nЗатем перейдите в раздел "Разрешения" и вручную разрешите "Микрофон".</string>
 
     <string name="OnlineSearch_title">Прямая интеграция — бета-тест</string>
-    <string name="OnlineSearch_desc">Используйте эту функцию поиска, чтобы найти нужную аудиокнигу. Затем на следующей странице выберите нужную — она будет загружена и автоматически добавлена в Bookplayer!</string>
+    <string name="OnlineSearch_desc">Используйте эту функцию поиска, чтобы найти нужную аудиокнигу. Затем на следующей странице выберите её — она загрузится и автоматически добавится в Bookplayer!</string>
     <string name="OnlineSearch_hint">Джек Лондон</string>
     <string name="OnlineSearch_button">Поиск…</string>
 
-    <string name="help_file_types_title">Типы файлов:</string>
-    <string name="help_file_types_text">Всегда предпочтительнее использовать файлы [mp3] или архивы zip/папки, содержащие файлы [mp3]. Bookplayer теперь поддерживает новый формат [m4b], но отображение глав всё ещё в разработке.</string>
-
     <string name="SleepTimer">Таймер сна</string>
-    <string name="SleepTimerWrongInt">Неверный ввод. Пожалуйста, введите корректное число.</string>
+    <string name="SleepTimerWrongInt">Недопустимый ввод. Пожалуйста, введите корректное число.</string>
     <string name="SleepTimerGeneralError">Произошла ошибка при установке таймера сна.</string>
 
     <string name="option_split_m4b">Разделение .m4b</string>
-    <string name="option_split_m4b_text">Извлечение глав из m4b (новый формат аудиокниг). — Всё ещё экспериментально —</string>
+    <string name="option_split_m4b_text">Извлечь главы из .m4b (новый формат аудиокниг). – Всё ещё экспериментально –</string>
 
-    <string name="option_copy_file_special_zip"><i>zip-файлы и разделённые m4b всегда копируются</i></string>
+    <string name="option_copy_file_special_zip"><i>файлы zip и разделённые m4b всегда копируются</i></string>
 
     <string name="Error_Import_Split_M4B"><i>Произошла ошибка при разделении файла m4b.</i></string>
-    <string name="Import_Experimental_M4B_warning">Предупреждение: <b>извлечение глав из m4b</b> всё ещё <b>экспериментальное</b>.</string>
+    <string name="Import_Experimental_M4B_warning">Внимание: <b>извлечение глав из m4b</b> всё ещё <b>экспериментальное</b>.</string>
     <string name="Import_Experimental_M4B_iferror">Если возникнут ошибки</string>
-    <string name="Import_Experimental_M4B_solution_1">Вы можете отключить опцию «разделение m4b» в меню/настройках.</string>
-    <string name="Import_Experimental_M4B_solution_2"><i>Вы также можете воспользоваться сторонним инструментом для конвертации файла m4b в папку с mp3-файлами, а затем импортировать эту папку в Bookplayer.</i></string>
+    <string name="Import_Experimental_M4B_solution_1">Отключите опцию \"разделить m4b\".</string>
+    <string name="Import_Experimental_M4B_solution_2"><i>Вы также можете использовать стороннюю программу, чтобы сначала преобразовать файл m4b в папку с mp3-файлами, а затем импортировать её в Bookplayer.</i></string>
     <string name="Import_Progress_splitting_m4b_files">"Разделение файлов m4b"</string>
-    <string name="Import_Progress_splitting_m4b_file">"Разделение файла m4b: "</string>
+    <string name="Import_Progress_splitting_m4b_file">"разделение файла m4b: "</string>
 
     <string name="Technical_Error">"Техническая ошибка"</string>
 
+    <string name="bOpenFile">Любой файл</string>
+    <string name="bOpenFolder">Папка</string>
+    <string name="bOpenZipFile">Файл ZIP</string>
+    <string name="bOpenM4bFile">Аудиофайл</string>
+
+    <string name="TextHeaderOpen">Открыть аудио с устройства</string>
+    <string name="bOpenFile_desc">Выбрать любой файл.</string>
+    <string name="bOpenFolder_desc">Выбрать папку.
+\nВсе аудиофайлы из неё будут импортированы.
+\n<i>Внимание: аудио из вложенных папок также будет импортировано.</i></string>
+    <string name="bOpenZipFile_desc">фильтр: только ZIP-файлы</string>
+    <string name="bOpenM4bFile_desc">фильтр: только аудиофайлы
+\n<i>Этот фильтр не идеален. Используйте кнопку выше [любой файл], если возникнут проблемы.</i></string>
+
+    <string name="audio_location_bookplayer_reserved_storage">Зарезервированное хранилище Bookplayer</string>
+    <string name="audio_location_smartphone_shared_storage">Общее хранилище устройства</string>
+    <string name="audio_location_audiobook_not_found">Аудиокнига не найдена</string>
+
+    <string name="option_alert_delete_picked_source_file_title">!! Внимание – удаление источника !!</string>
+    <string name="option_alert_delete_picked_source_file_message">Выбранный файл будет удалён из памяти устройства после загрузки во внутреннюю память приложения Bookplayer.\n\nВы уверены?</string>
+
+    <string name="error_media_already_loaded_samePath">Этот файл уже был загружен</string>
+    <string name="error_media_already_loaded_sameName">Книга с таким названием уже существует в Bookplayer</string>
+
+    <string name="DirectDownload_title">Прямая загрузка</string>
+    <string name="DirectDownload_desc">Вставьте ссылку ниже и нажмите кнопку, чтобы загрузить и сразу импортировать аудиокнигу.</string>
+    <string name="DirectDownload_hint">https://bookplayer.driot.com/autotest/file_01.zip</string>
+    <string name="DirectDownload_button">Скачать сейчас</string>
+
+    <string name="ErrorCouldNotLoadAudios">ОШИБКА — Не удалось загрузить аудио.</string>
+    <string name="ErrorCouldNotLoadAudios_emptyfolder">ОШИБКА — В выбранной папке не найдено аудиофайлов.</string>
+
+    <string name="Permission">Разрешения</string>
+    <string name="permission_read_denied_short_text_on_load">Разрешение [Музыка и аудио] ранее было отклонено.
+\n\nНеобходимо перейти в [Сведения о приложении] и включить разрешение вручную.
+\n\n<i>Оно нужно для прямого воспроизведения аудио из общего хранилища (если отключено копирование).</i></string>
+    <string name="permission_read_write_rationale_short_text_on_load">Разрешение [Музыка и аудио] необходимо для воспроизведения из общего хранилища.</string>
+
+    <string name="option_on_load_copy_internal">"Копировать во внутреннюю память Bookplayer"</string>
+    <string name="option_on_load_split_m4b">"Разделить M4B на главы"</string>
+    <string name="option_on_load_delete_source">"Удалить исходный файл после импорта"</string>
+
+    <string name="Import_Progress_copying_zip_file">"копирование исходного файла \n– из общего хранилища\n– во внутреннюю память приложения"</string>
+    <string name="Import_Progress_copying_zip_file_cloud">"копирование исходного файла \n– из облака\n– во внутреннюю память приложения"</string>
+
+    <string name="Export">"Экспорт…"</string>
+
+    <string name="bRenameFolder">"Переименовать книгу"</string>
+    <string name="IntroCut">"Обрезка вступления"</string>
+    <string name="IntroCutText"><i>"Обрезает первые секунды каждой главы при воспроизведении."</i></string>
+
+    <string name="Export_display_text_export_title">"Экспорт аудиокниги в ZIP"</string>
+    <string name="Export_notification_title">"Аудиокнига экспортирована"</string>
+    <string name="Export_notification_text">"в папку Загрузки"</string>
+    <string name="Export_share_title">"Поделиться ZIP-файлом"</string>
+
+    <string name="Export_display_text_loading">"Загрузка информации о папке..."</string>
+    <string name="Export_display_text_prepapring_export">"Подготовка к экспорту..."</string>
+    <string name="Export_display_no_valid_audiobook">"Ошибка при получении аудиофайлов книги."</string>
+
+    <string name="Export_display_text_processing">"Обработка"</string>
+
+    <string name="help_folder_text">Долгое нажатие на папку открывает страницу [редактировать папку].
+\nВы сможете переименовать / удалить / сбросить прогресс.
+\nНОВОЕ: Установить автоматическую обрезку начала каждой дорожки (для удаления вступлений).
+\nНОВОЕ: Или экспортировать аудиокнигу как zip-файл в папку загрузок устройства.</string>
+
+    <string name="help_file_types_title">Типы файлов:</string>
+    <string name="help_file_types_text">Bookplayer поддерживает множество аудиоформатов, даже видео. Просто попробуйте! Лучший выбор — файлы [mp3], в zip или в папке. Также поддерживается формат [m4b]. При наличии глав, они будут обнаружены. Если вы используете экспорт на загруженном m4b, вы получите zip-файл с главами в формате aac.</string>
+
+    <string name="help_import_text">Эта активность начинается с выбора файла или папки.
+\nЗатем — два варианта:
+\n
+\n<b>вариант 1 [копировать]:</b><i>по умолчанию</i> Bookplayer сначала копирует аудио во внутреннюю память, а затем воспроизводит его оттуда.
+\n
+\n<b>вариант 2 [без копирования]:</b> Bookplayer просто запоминает путь и воспроизводит напрямую из общего хранилища (например, из папки Загрузки или Музыка).
+\n
+\n<i>(Примечание: файлы ZIP и разделённые M4B всегда копируются. Эта опция только для обычных аудиофайлов).</i>
+\n
+\n<b>С вариантом 1 (копирование)</b> разрешение на чтение аудио не требуется.
+\nУдаление или перемещение файла не повлияет — книга и прогресс сохранятся.
+\n
+\n<b>С вариантом 2 (без копирования)</b> можно сэкономить место.
+\n
+\n<i>Есть настройка в меню, позволяющая автоматически удалять исходный файл после импорта.
+\nПолезно, если книга больше не нужна в других приложениях.</i>
+</string>
+
+    <string name="help_tellme_text">"Если возникнут проблемы или приложение аварийно завершится:
+\nПожалуйста, напишите мне с описанием ситуации —
+\nЯ постараюсь разобраться и улучшить приложение!"</string>
+
+    <string name="StillExperimental">"- Всё ещё экспериментально -"</string>
 
 
 </resources>

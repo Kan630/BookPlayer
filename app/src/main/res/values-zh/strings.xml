@@ -25,30 +25,12 @@
     <!-- HELP Screen -->
 
     <string name="help_folder">文件夹：</string>
-    <string name="help_folder_text">"长按文件夹打开[修改文件夹]页面。
-    \n然后您可以重命名/删除/重置进度"</string>
 
     <string name="help_file">音轨：</string>
     <string name="help_file_text">"长按音轨打开[修改音轨]页面。
     \n然后您可以重命名/改变顺序/删除/重置进度"</string>
 
     <string name="help_import">导入：</string>
-    <string name="help_import_text">"首先选择单个文件/文件夹/压缩包。
-        \n然后根据您的设置(在菜单/选项中)有两种可能：
-        \n
-        \n<b>选项1 [复制]：</b><i>默认</i> Bookplayer会先将音频复制到应用内部存储，然后从那里读取。
-        \n
-        \n<b>选项2 [不复制]：</b> Bookplayer只会记录位置直接从设备主存播放音频(例如从下载文件夹、音乐文件夹或其他任何文件夹)
-        \n
-        \n<i>(注意：ZIP文件总是会被复制。此选项仅适用于单个文件和文件夹)</i>
-        \n
-        \n<b>使用选项1(复制)</b>，您不需要[读取音频]权限。
-        \n另外，如果您从主存删除文件或移动它，不会有影响。您不会丢失书籍和进度。
-        \n
-        \n<b>使用选项2(不复制)</b>，您可以节省空间。
-        \n
-        \n菜单/选项中还有另一个设置，允许您在导入后自动删除源文件。
-        \n如果您加载到Bookplayer的所有书籍不会被其他应用需要，请激活此选项。"</string>
 
     <string name="help_trouble">导入问题：</string>
     <string name="help_trouble_text">"如果导入音频时遇到问题：
@@ -57,9 +39,6 @@
         \n如果从下载文件夹选择音频有问题，请尝试将它们移出\'下载\'文件夹。"</string>
 
     <string name="help_tellme">告诉我！</string>
-    <string name="help_tellme_text">"如果仍有问题(或应用崩溃)：
-        \n请发送消息告诉我您尝试导入的文件，或该文件的链接。(或应用崩溃时您在做什么)
-        \n这样我可以检查并尝试改进我的应用！"</string>
 
     <string name="help_cachefiles">内存清理：</string>
     <string name="help_cachefiles_text">"现在有专门查看Bookplayer内部存储内容的界面。
@@ -160,16 +139,6 @@
     <!-- ********************************** -->
     <!-- Get Resources -->
 
-    <string name="bOpenFile">文件</string>
-    <string name="bOpenFolder">文件夹</string>
-    <string name="bOpenZipFile">Zip文件</string>
-
-
-    <string name="TextHeaderOpen">打开设备上的音频</string>
-    <string name="bOpenFile_desc">如果您的音频是单个文件，点击此按钮选择该文件：</string>
-    <string name="bOpenFolder_desc">如果您的音频文件位于文件夹中，点击此按钮并选择该文件夹：
-    \n<i>注意：包括子文件夹中的所有音频都将被加载。</i></string>
-    <string name="bOpenZipFile_desc">如果您的音频文件位于ZIP文件中，点击此按钮并选择该压缩包：</string>
 
     <string name="TextHeaderSearch">在互联网上搜索免费音频</string>
     <string name="bSearchlitteratureaudio_desc">从litteratureaudio.com(法语)搜索并下载书籍：</string>
@@ -207,8 +176,6 @@
     <string name="Error_Getting_Ressource_Name_from_Download_Folder">访问下载位置的资源时出错</string>
     <string name="Add_resource_reading_file">正在分析文件</string>
 
-    <string name="Import_Progress_copying_zip_file">"正在复制源文件\n- 从设备外部内存\n- 到Bookplayer应用内部内存"</string>
-    <string name="Import_Progress_copying_zip_file_cloud">"正在复制源文件\n- 从云端\n- 到Bookplayer应用内部内存"</string>
     <string name="Import_Progress_unzipping_file">"正在解压文件："</string>
 
     <string name="Import_Progress_onGoing">"忙碌中...导入进行中..."</string>
@@ -239,7 +206,6 @@
     <!-- FolderModifyActivity -->
 
     <string name="bDelete">"删除"</string>
-    <string name="bRenameFolder">"重命名文件夹"</string>
     <string name="bRenameTrack">"重命名音轨"</string>
     <string name="bMove">"更改位置"</string>
     <string name="bReset">"重置进度"</string>
@@ -370,31 +336,122 @@
     \n\n然后进入"权限"部分手动启用"麦克风"权限</string>
 
     <string name="OnlineSearch_title">直接集成 - 测试版</string>
-    <string name="OnlineSearch_desc">使用此搜索功能查找您想要的有声书。然后在下一页中选择要导入的那一本，它将自动下载并添加到 Bookplayer 中！</string>
+    <string name="OnlineSearch_desc">使用此搜索功能查找您想要的有声书。接下来，在下一页中选择要导入的书籍，它将被下载并直接添加到 Bookplayer 中！</string>
     <string name="OnlineSearch_hint">杰克·伦敦</string>
     <string name="OnlineSearch_button">搜索…</string>
 
-    <string name="help_file_types_title">文件类型：</string>
-    <string name="help_file_types_text">优先使用 [mp3] 文件，或包含 [mp3] 文件的 zip 压缩包/文件夹。Bookplayer 现在也支持新的 [m4b] 文件类型，但章节显示功能仍在开发中。</string>
+    <string name="SleepTimer">睡眠计时器</string>
+    <string name="SleepTimerWrongInt">无效输入。请输入有效数字。</string>
+    <string name="SleepTimerGeneralError">设置睡眠计时器时发生错误。</string>
 
-    <string name="SleepTimer">睡眠定时器</string>
-    <string name="SleepTimerWrongInt">输入无效。请输入一个有效的数字。</string>
-    <string name="SleepTimerGeneralError">设置睡眠定时器时发生错误。</string>
+    <string name="option_split_m4b">.m4b 拆分</string>
+    <string name="option_split_m4b_text">从 m4b 文件中提取章节（新格式有声书） - 仍处于试验阶段 -</string>
 
-    <string name="option_split_m4b">.m4b 文件分割</string>
-    <string name="option_split_m4b_text">从 m4b 文件中提取章节（新型有声书格式） - 仍为实验功能 -</string>
+    <string name="option_copy_file_special_zip"><i>zip 和已拆分的 m4b 文件总是会被复制</i></string>
 
-    <string name="option_copy_file_special_zip"><i>zip 文件和分割的 m4b 文件将始终被复制</i></string>
-
-    <string name="Error_Import_Split_M4B"><i>分割 m4b 文件时发生错误。</i></string>
-    <string name="Import_Experimental_M4B_warning">警告：<b>m4b 章节提取</b> 仍处于 <b>实验阶段</b>。</string>
+    <string name="Error_Import_Split_M4B"><i>拆分 m4b 文件时发生错误。</i></string>
+    <string name="Import_Experimental_M4B_warning">警告：<b>m4b 章节提取</b>仍处于<b>试验阶段</b>。</string>
     <string name="Import_Experimental_M4B_iferror">如果遇到错误</string>
-    <string name="Import_Experimental_M4B_solution_1">您可以在菜单/选项中取消勾选“分割 m4b”选项。</string>
-    <string name="Import_Experimental_M4B_solution_2"><i>您也可以使用第三方工具将 m4b 文件转换为包含 mp3 文件的文件夹，然后将该文件夹导入 Bookplayer。</i></string>
-    <string name="Import_Progress_splitting_m4b_files">“正在分割 m4b 文件”</string>
-    <string name="Import_Progress_splitting_m4b_file">“正在分割 m4b 文件：”</string>
+    <string name="Import_Experimental_M4B_solution_1">取消选中“拆分 m4b”选项。</string>
+    <string name="Import_Experimental_M4B_solution_2"><i>您也可以使用第三方工具将 m4b 文件转换为 mp3 文件夹，然后导入该文件夹。</i></string>
+    <string name="Import_Progress_splitting_m4b_files">"正在拆分 m4b 文件"</string>
+    <string name="Import_Progress_splitting_m4b_file">"正在拆分 m4b 文件："</string>
 
-    <string name="Technical_Error">“技术错误”</string>
+    <string name="Technical_Error">"技术错误"</string>
+
+    <string name="bOpenFile">任意文件</string>
+    <string name="bOpenFolder">文件夹</string>
+    <string name="bOpenZipFile">ZIP 文件</string>
+    <string name="bOpenM4bFile">音频文件</string>
+
+    <string name="TextHeaderOpen">从设备打开音频</string>
+    <string name="bOpenFile_desc">选择任意文件。</string>
+    <string name="bOpenFolder_desc">选择一个文件夹。
+\n将导入该文件夹内的所有音频文件。
+\n<i>注意：如果有子文件夹，其中文件也将被递归导入。</i></string>
+    <string name="bOpenZipFile_desc">过滤：仅 ZIP 文件</string>
+    <string name="bOpenM4bFile_desc">过滤：仅音频文件
+\n<i>此过滤器不完美，若遇问题，请使用顶部的【任意文件】按钮。</i></string>
+
+    <string name="audio_location_bookplayer_reserved_storage">Bookplayer 专用存储</string>
+    <string name="audio_location_smartphone_shared_storage">手机共享存储</string>
+    <string name="audio_location_audiobook_not_found">未找到有声书</string>
+
+    <string name="option_alert_delete_picked_source_file_title">!! 警告 - 删除源文件 !!</string>
+    <string name="option_alert_delete_picked_source_file_message">此选中文件将在导入到 Bookplayer 应用的内部存储后从设备内存中删除。\n\n您确定吗？</string>
+
+    <string name="error_media_already_loaded_samePath">此媒体文件已加载</string>
+    <string name="error_media_already_loaded_sameName">Bookplayer 中已存在同名书籍</string>
+
+    <string name="DirectDownload_title">直接下载</string>
+    <string name="DirectDownload_desc">在下方粘贴链接并点击按钮，一键下载并导入有声书。</string>
+    <string name="DirectDownload_hint">https://bookplayer.driot.com/autotest/file_01.zip</string>
+    <string name="DirectDownload_button">立即获取</string>
+
+    <string name="ErrorCouldNotLoadAudios">错误 - 无法加载音频文件。</string>
+    <string name="ErrorCouldNotLoadAudios_emptyfolder">错误 - 文件夹中未找到音频文件。</string>
+
+    <string name="Permission">权限</string>
+    <string name="permission_read_denied_short_text_on_load">已拒绝[音乐和音频]权限。
+\n\n您需要点击【应用信息】并手动启用该权限。
+\n\n<i>如需直接从手机共享存储播放音频（关闭复制选项时）将需要此权限。</i></string>
+    <string name="permission_read_write_rationale_short_text_on_load">播放来自共享存储的音频需要[音乐和音频]权限。</string>
+
+    <string name="option_on_load_copy_internal">"复制到 Bookplayer 内部存储"</string>
+    <string name="option_on_load_split_m4b">"将 M4B 拆分为章节"</string>
+    <string name="option_on_load_delete_source">"导入后删除源文件"</string>
+
+    <string name="Import_Progress_copying_zip_file">"正在复制源文件 \n- 从设备共享存储\n- 到 Bookplayer 应用内部存储"</string>
+    <string name="Import_Progress_copying_zip_file_cloud">"正在复制源文件 \n- 从云端\n- 到 Bookplayer 应用内部存储"</string>
+
+    <string name="Export">"导出…"</string>
+
+    <string name="bRenameFolder">"重命名书籍"</string>
+    <string name="IntroCut">"剪切片头"</string>
+    <string name="IntroCutText"><i>"播放时裁剪每章前几秒。"</i></string>
+
+    <string name="Export_display_text_export_title">"将有声书导出为 ZIP"</string>
+    <string name="Export_notification_title">"有声书已导出"</string>
+    <string name="Export_notification_text">"已保存至下载文件夹"</string>
+    <string name="Export_share_title">"分享 ZIP 文件"</string>
+
+    <string name="Export_display_text_loading">"正在加载文件夹信息…"</string>
+    <string name="Export_display_text_prepapring_export">"正在准备导出…"</string>
+    <string name="Export_display_no_valid_audiobook">"获取有声书音频文件时出错。"</string>
+
+    <string name="Export_display_text_processing">"处理中"</string>
+
+    <string name="help_folder_text">长按文件夹可打开【编辑文件夹】页面。
+\n您可以重命名 / 删除 / 重置进度。
+\n新增：可设置每个音频片段的自动裁剪（去掉烦人的片头）。
+\n新增：可将有声书导出为 zip 文件，保存至设备的下载文件夹。</string>
+
+    <string name="help_file_types_title">支持的文件类型：</string>
+    <string name="help_file_types_text">Bookplayer 支持多种音频格式，甚至是视频文件。请大胆尝试！最佳选择仍是 [mp3] 文件，可以是 zip 格式或放在文件夹中。Bookplayer 现在也支持新的 [m4b] 格式。如果该文件有章节，将尝试自动识别。如果您导入了 m4b 文件并使用导出功能，将获得一个包含章节的 aac 格式 zip 文件。</string>
+
+    <string name="help_import_text">该页面开始于您选择一个文件或文件夹。
+\n接下来有两种主要导入方式：
+\n
+\n<b>方式一【复制】：</b><i>默认</i> Bookplayer 会先将音频复制到内部存储，然后从那里播放。
+\n
+\n<b>方式二【不复制】：</b> Bookplayer 仅记录路径，直接从共享存储播放（例如下载文件夹、音乐文件夹等）。
+\n
+\n<i>（注意：zip 文件和已拆分的 m4b 文件始终会复制。该选项仅适用于普通音频文件）</i>
+\n
+\n<b>方式一（复制）</b> 无需[读取音频]权限。
+\n即使删除或移动原始文件，也不会影响进度或播放。
+\n
+\n<b>方式二（不复制）</b> 可节省设备存储空间。
+\n
+\n<i>还有一个设置选项，导入后可自动删除源文件。
+\n如您不打算用其他应用再次打开该书，可启用此功能。</i>
+</string>
+
+    <string name="help_tellme_text">"如果遇到问题或应用崩溃：
+\n请向我发送消息说明您的问题，
+\n我将检查并尝试改进应用！"</string>
+
+    <string name="StillExperimental">"- 仍处于试验阶段 -"</string>
 
 
 </resources>
