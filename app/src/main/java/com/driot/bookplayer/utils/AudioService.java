@@ -2,6 +2,7 @@ package com.driot.bookplayer.utils;
 
 import com.driot.bookplayer.R;
 
+import android.Manifest;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -9,6 +10,8 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.content.pm.ServiceInfo;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.ToneGenerator;
@@ -24,7 +27,9 @@ import android.support.v4.media.session.PlaybackStateCompat;
 import android.view.KeyEvent;
 
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.media.session.MediaButtonReceiver;
 
@@ -76,6 +81,7 @@ class CustomMediaPlayer extends MediaPlayer {
 public class AudioService extends LifecycleLoggingService {
 
     private static final String CHANNEL_ID = "audio_channel_of_bookplayer";
+    private boolean isForeground = false;
 
     private Handler handler;
     private Runnable timerRunnable;
@@ -384,12 +390,14 @@ public class AudioService extends LifecycleLoggingService {
     public int onStartCommand(Intent intent, int flags, int startId) {
         myLog("onStartCommand()" + intent.toString());
 
+/*  ----> this make the flickering
         // Start with a minimal notification immediately
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle("Loading...")
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setPriority(NotificationCompat.PRIORITY_LOW);
         startForeground(1, builder.build());
+ */
 
         // Call createNotification() early to ensure startForeground is called
         createNotification();  // <- this triggers startForeground()           2025-06-01
@@ -419,6 +427,7 @@ public class AudioService extends LifecycleLoggingService {
         //stopUpdatingPlaybackState();
         stopForeground(true);
         stopSelf();
+        isForeground = false;
         super.onDestroy();
     }
 
@@ -589,6 +598,9 @@ public class AudioService extends LifecycleLoggingService {
                 mediaPlayer.start();
                 setSpeed(getSpeed());
                 startSleepTimer();
+                if (mediaSession != null) {
+                    mediaSession.setActive(true);
+                }
                 createNotification();
             } else {
                 myLogE("mediaPlayer was already Playing ... going out of AudioService.playAudio()");
@@ -619,6 +631,9 @@ public class AudioService extends LifecycleLoggingService {
         myLog("pauseAudio()");
         if (mediaPlayer != null && mediaPlayer.isPlaying()) {
             mediaPlayer.pause();
+            if (mediaSession != null) {
+                mediaSession.setActive(false);
+            }
             updateZikFileState(false);
             if (audioManager != null) { audioManager.abandonAudioFocus(afChangeListener); }
             stopSleepTimer();
@@ -963,16 +978,17 @@ public class AudioService extends LifecycleLoggingService {
                     .setContentTitle(getCurrentZikFile().getFolderName())
                     .setContentText(getCurrentZikFile().getDisplayName())
                     .setSmallIcon(R.mipmap.ic_launcher)
-                    .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                    .setOnlyAlertOnce(true)
-                    .setOngoing(true)
                     .setContentIntent(contentIntent)
-                    .addAction(new NotificationCompat.Action(android.R.drawable.ic_media_rew, "backward", MediaButtonReceiver.buildMediaButtonPendingIntent(this, PlaybackStateCompat.ACTION_REWIND)))
-                    .addAction(new NotificationCompat.Action(actionIcon, actionName, playPauseAction))
-                    .addAction(new NotificationCompat.Action(android.R.drawable.ic_media_ff, "fastForward", MediaButtonReceiver.buildMediaButtonPendingIntent(this, PlaybackStateCompat.ACTION_FAST_FORWARD)))
+                    .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                    .setPriority(NotificationCompat.PRIORITY_LOW)
+                    .setOnlyAlertOnce(true)
+                    //.setOngoing(true)
                     .setStyle(new androidx.media.app.NotificationCompat.MediaStyle()
                             .setMediaSession(mediaSession.getSessionToken())
                             .setShowActionsInCompactView(0,1,2))
+                    .addAction(new NotificationCompat.Action(android.R.drawable.ic_media_rew, "Rewind", MediaButtonReceiver.buildMediaButtonPendingIntent(this, PlaybackStateCompat.ACTION_REWIND)))
+                    .addAction(new NotificationCompat.Action(actionIcon, actionName, playPauseAction))
+                    .addAction(new NotificationCompat.Action(android.R.drawable.ic_media_ff, "Forward", MediaButtonReceiver.buildMediaButtonPendingIntent(this, PlaybackStateCompat.ACTION_FAST_FORWARD)))
                     .setProgress(100,50, false)
                     //.setProgress(max, progress, false)  => TODO : check on samsung Tab, it seems to show there.. even without any code !!
                     //.setOngoing(true) //only effective android >= 14, maybe useless on mediaSession
@@ -983,11 +999,30 @@ public class AudioService extends LifecycleLoggingService {
             //mediaSession.setMetadata(MediaMetadataCompat.fromMediaMetadata(mediaMetadata))
 
             Notification notification = builder.build();
+
+
+
+            if (!isForeground) {
+                myLog("notification : startForeground");
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    startForeground(1, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK);
+                } else {
+                    startForeground(1, notification);
+                }
+                isForeground = true;
+            } else {
+                myLog("notification : manager.notify");
+                NotificationManagerCompat.from(this).notify(1, notification); // update without restarting
+            }
+
+            /*
             try {
                 startForeground(1, notification);
             } catch (Exception e) {
                 myLogE("startForeground failed: " + e.getMessage());
             }
+
+             */
         } catch (Exception e) {
             myLogE("Notification creation failed: " + e.getMessage());
         }
