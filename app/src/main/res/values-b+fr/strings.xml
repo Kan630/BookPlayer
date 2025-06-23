@@ -92,7 +92,7 @@
     <string name="option_backward_forward_text">avance rapide :</string>
 
     <string name="option_rewind_after_pause_title">Retour arrière automatique à la reprise</string>
-    <string name="option_rewind_after_pause_text">"Rembobiner l\'audio de quelques secondes avant de reprendre la lecture, (pause de 5 minutes = retour de 3 sec, pause de 1h = 5 sec, ...)"</string>
+    <string name="option_rewind_after_pause_text">"Rembobiner l'audio de quelques secondes avant de reprendre la lecture, (pause de 5 minutes = retour de 3 sec, pause de 1h = 5 sec, …)"</string>
 
     <string name="option_pick_theme_color_title">Choisissez votre thème de couleur</string>
 
@@ -336,7 +336,7 @@
     \n\nAllez ensuite dans la section "Permissions" et autorisez manuellement "Microphone".</string>
 
     <string name="OnlineSearch_title">Intégration directe - test bêta</string>
-    <string name="OnlineSearch_desc">"Utilisez cette fonction de recherche pour trouver le livre audio que vous cherchez. Ensuite, à l'écran suivant, sélectionnez celui à importer, il sera téléchargé et ajouté directement dans Bookplayer !"</string>
+    <string name="OnlineSearch_desc">Utilisez cette fonction de recherche pour trouver le livre audio que vous cherchez. Ensuite, à l\'écran suivant, sélectionnez celui à importer, il sera téléchargé et ajouté directement dans Bookplayer !</string>
     <string name="OnlineSearch_hint">Jack London</string>
     <string name="OnlineSearch_button">Rechercher…</string>
 
@@ -349,36 +349,33 @@
 
     <string name="option_copy_file_special_zip"><i>les fichiers zip et les m4b découpés sont toujours copiés</i></string>
 
-    <string name="Error_Import_Split_M4B"><i>Une erreur s'est produite lors du découpage du fichier m4b.</i></string>
-    <string name="Import_Experimental_M4B_warning">Attention : <b>l'extraction des chapitres m4b</b> est encore <b>expérimentale</b>.</string>
+    <string name="Error_Import_Split_M4B"><i>Une erreur s\'est produite lors du découpage du fichier m4b.</i></string>
+    <string name="Import_Experimental_M4B_warning">Attention : <b>l\'extraction des chapitres m4b</b> est encore <b>expérimentale</b>.</string>
     <string name="Import_Experimental_M4B_iferror">Si vous rencontrez des erreurs</string>
-    <string name="Import_Experimental_M4B_solution_1">"Décochez l'option "découper m4b"."</string>
+    <string name="Import_Experimental_M4B_solution_1">Décochez l\'option « découper m4b ».</string>
     <string name="Import_Experimental_M4B_solution_2"><i>Vous pouvez aussi utiliser un outil tiers pour convertir ce fichier m4b en dossier de fichiers mp3, puis importer ce dossier dans Bookplayer.</i></string>
-    <string name="Import_Progress_splitting_m4b_files">"Découpage des fichiers m4b"</string>
-    <string name="Import_Progress_splitting_m4b_file">"découpage du fichier m4b : "</string>
+    <string name="Import_Progress_splitting_m4b_files">Découpage des fichiers m4b</string>
+    <string name="Import_Progress_splitting_m4b_file">Découpage du fichier m4b :</string>
 
-    <string name="Technical_Error">"Erreur technique"</string>
+    <string name="Technical_Error">Erreur technique</string>
 
-    <string name="bOpenFile">"N'importe quel fichier"</string>
+    <string name="bOpenFile">N\'importe quel fichier</string>
     <string name="bOpenFolder">Dossier</string>
     <string name="bOpenZipFile">Fichier Zip</string>
     <string name="bOpenM4bFile">Fichier Audio</string>
 
     <string name="TextHeaderOpen">Ouvrir un audio sur mon appareil</string>
     <string name="bOpenFile_desc">Choisir un fichier quelconque.</string>
-    <string name="bOpenFolder_desc">Choisir un dossier.
-\nTous les audios de ce dossier seront importés.
-\n<i>Attention : tous les audios dans les sous-dossiers, s’il y en a, seront aussi importés récursivement.</i></string>
+    <string name="bOpenFolder_desc">Choisir un dossier.\nTous les audios de ce dossier seront importés.\n<i>Attention : tous les audios dans les sous-dossiers, s\'il y en a, seront aussi importés récursivement.</i></string>
     <string name="bOpenZipFile_desc">filtre : uniquement les fichiers zip</string>
-    <string name="bOpenM4bFile_desc">filtre : uniquement les fichiers audio
-\n<i>Ce filtre n'est pas parfait, utilisez le bouton du haut [n'importe quel fichier] en cas de problème.</i></string>
+    <string name="bOpenM4bFile_desc">filtre : uniquement les fichiers audio\n<i>Ce filtre n\'est pas parfait, utilisez le bouton du haut [n\'importe quel fichier] en cas de problème.</i></string>
 
     <string name="audio_location_bookplayer_reserved_storage">Stockage réservé à Bookplayer</string>
     <string name="audio_location_smartphone_shared_storage">Stockage partagé du smartphone</string>
     <string name="audio_location_audiobook_not_found">Livre audio introuvable</string>
 
     <string name="option_alert_delete_picked_source_file_title">!! Avertissement - Suppression de la source !!</string>
-    <string name="option_alert_delete_picked_source_file_message">"Ce fichier sera supprimé de la mémoire de l'appareil après avoir été chargé dans la mémoire interne de Bookplayer.\n\nÊtes-vous sûr ?"</string>
+    <string name="option_alert_delete_picked_source_file_message">Ce fichier sera supprimé de la mémoire de l\'appareil après avoir été chargé dans la mémoire interne de Bookplayer.\n\nÊtes-vous sûr ?</string>
 
     <string name="error_media_already_loaded_samePath">Ce média a déjà été chargé</string>
     <string name="error_media_already_loaded_sameName">Un livre avec ce nom existe déjà dans Bookplayer</string>
@@ -392,65 +389,43 @@
     <string name="ErrorCouldNotLoadAudios_emptyfolder">ERREUR - Aucun audio trouvé dans ce dossier.</string>
 
     <string name="Permission">Permission</string>
-    <string name="permission_read_denied_short_text_on_load">La permission [Musique et Audio] a été précédemment refusée.
-\n\nVous devez cliquer sur [Infos App] et activer manuellement cette permission.
-\n\n<i>Elle est nécessaire pour lire directement des fichiers depuis le stockage général du téléphone (quand l’option de copie est désactivée).</i></string>
+    <string name="permission_read_denied_short_text_on_load">La permission [Musique et Audio] a été précédemment refusée.\n\nVous devez cliquer sur [Infos App] et activer manuellement cette permission.\n\n<i>Elle est nécessaire pour lire directement des fichiers depuis le stockage général du téléphone (quand l\'option de copie est désactivée).</i></string>
     <string name="permission_read_write_rationale_short_text_on_load">La permission [Musique et Audio] est nécessaire pour lire depuis le stockage général du smartphone.</string>
 
-    <string name="option_on_load_copy_internal">"Copier dans la mémoire interne de Bookplayer"</string>
-    <string name="option_on_load_split_m4b">"Découper le M4B en chapitres"</string>
-    <string name="option_on_load_delete_source">"Supprimer le fichier source après import"</string>
+    <string name="option_on_load_copy_internal">Copier dans la mémoire interne de Bookplayer</string>
+    <string name="option_on_load_split_m4b">Découper le M4B en chapitres</string>
+    <string name="option_on_load_delete_source">Supprimer le fichier source après import</string>
 
-    <string name="Import_Progress_copying_zip_file">"copie du fichier source \n- depuis le stockage général de l'appareil\n- vers la mémoire interne de l'application Bookplayer"</string>
-    <string name="Import_Progress_copying_zip_file_cloud">"copie du fichier source \n- depuis le Cloud\n- vers la mémoire interne de l'application Bookplayer"</string>
+    <string name="Import_Progress_copying_zip_file">copie du fichier source \n- depuis le stockage général de l\'appareil\n- vers la mémoire interne de l\'application Bookplayer</string>
+    <string name="Import_Progress_copying_zip_file_cloud">copie du fichier source \n- depuis le Cloud\n- vers la mémoire interne de l\'application Bookplayer</string>
 
-    <string name="Export">"Exporter…"</string>
+    <string name="Export">Exporter…</string>
 
-    <string name="bRenameFolder">"Renommer le livre"</string>
-    <string name="IntroCut">"Coupe d’intro"</string>
-    <string name="IntroCutText"><i>"Coupe les premières secondes de chaque chapitre pendant la lecture."</i></string>
+    <string name="bRenameFolder">Renommer le livre</string>
+    <string name="IntroCut">Coupe d\'intro</string>
+    <string name="IntroCutText"><i>Coupe les premières secondes de chaque chapitre pendant la lecture.</i></string>
 
-    <string name="Export_display_text_export_title">"Exporter le livre audio en ZIP"</string>
-    <string name="Export_notification_title">"Livre audio exporté"</string>
-    <string name="Export_notification_text">"dans le dossier Téléchargements"</string>
-    <string name="Export_share_title">"Partager le fichier ZIP"</string>
+    <string name="Export_display_text_export_title">Exporter le livre audio en ZIP</string>
+    <string name="Export_notification_title">Livre audio exporté</string>
+    <string name="Export_notification_text">dans le dossier Téléchargements</string>
+    <string name="Export_share_title">Partager le fichier ZIP</string>
 
-    <string name="Export_display_text_loading">"Chargement des informations du dossier..."</string>
-    <string name="Export_display_text_prepapring_export">"Préparation de l’export..."</string>
-    <string name="Export_display_no_valid_audiobook">"Erreur lors de la récupération des audios du livre."</string>
+    <string name="Export_display_text_loading">Chargement des informations du dossier…</string>
+    <string name="Export_display_text_prepapring_export">Préparation de l\'export…</string>
+    <string name="Export_display_no_valid_audiobook">Erreur lors de la récupération des audios du livre.</string>
 
-    <string name="Export_display_text_processing">"Traitement en cours"</string>
+    <string name="Export_display_text_processing">Traitement en cours</string>
 
-    <string name="help_folder_text">Un appui long sur un dossier ouvre la page [modifier le dossier].
-\nVous pourrez renommer / supprimer / réinitialiser la progression
-\nNOUVEAU : Définir une coupe automatique en début de piste (pour retirer les crédits gênants).
-\nNOUVEAU : Ou exporter le livre audio en fichier zip, dans le dossier Téléchargements de l’appareil.</string>
+    <string name="help_folder_text">Un appui long sur un dossier ouvre la page [modifier le dossier].\nVous pourrez renommer / supprimer / réinitialiser la progression\nNOUVEAU : Définir une coupe automatique en début de piste (pour retirer les crédits gênants).\nNOUVEAU : Ou exporter le livre audio en fichier zip, dans le dossier Téléchargements de l\'appareil.</string>
 
     <string name="help_file_types_title">Types de fichiers :</string>
-    <string name="help_file_types_text">Bookplayer peut lire de nombreux types de fichiers audio, même des vidéos. Essayez de les charger ! Le meilleur choix reste les fichiers [mp3], zippés ou dans un dossier. Bookplayer peut aussi lire le nouveau type de fichier [m4b]. Il essaiera d’en détecter les chapitres s’ils existent. Si vous utilisez la nouvelle fonction d’export, à partir d’un fichier m4b déjà chargé, vous obtiendrez un zip avec les chapitres sous forme de fichiers audio aac.</string>
+    <string name="help_file_types_text">Bookplayer peut lire de nombreux types de fichiers audio, même des vidéos. Essayez de les charger ! Le meilleur choix reste les fichiers [mp3], zippés ou dans un dossier. Bookplayer peut aussi lire le nouveau type de fichier [m4b]. Il essaiera d\'en détecter les chapitres s\'ils existent. Si vous utilisez la nouvelle fonction d\'export, à partir d\'un fichier m4b déjà chargé, vous obtiendrez un zip avec les chapitres sous forme de fichiers audio aac.</string>
 
-    <string name="help_import_text">Cette activité commence par le choix d’un fichier ou d’un dossier.
-\nEnsuite, deux possibilités :
-\n
-\n<b>option 1 [copie] :</b><i>par défaut</i> Bookplayer copiera d’abord l’audio dans la mémoire interne de l’application, puis le lira depuis là.
-\n
-\n<b>option 2 [sans copie] :</b> Bookplayer enregistrera simplement l’emplacement pour lire l’audio directement depuis la mémoire générale de l’appareil (ex. dossier Téléchargements, Musique ou autre)
-\n
-\n<i>(Note : les fichiers ZIP sont toujours copiés, les m4b découpés aussi. Cette option ne concerne que la lecture directe de fichiers audio simples)</i>
-\n
-\n<b>Avec l’option 1 (copie)</b>, vous n’aurez pas besoin de la permission [Lire les fichiers audio].
-\nEt si vous supprimez ou déplacez le fichier de la mémoire principale, cela n’aura aucun impact. Vous ne perdrez ni le livre ni votre progression.
-\n
-\n<b>Avec l’option 2 (sans copie)</b>, vous économisez de l’espace.
-\n
-\n<i>Une autre option, dans le menu, permet de supprimer automatiquement le fichier source après son import.
-\nActivez-la si vous ne souhaitez pas utiliser le livre dans une autre application.</i>
-</string>
+    <string name="help_import_text">Cette activité commence par le choix d\'un fichier ou d\'un dossier.\nEnsuite, deux possibilités :\n\n<b>option 1 [copie]</b> : <i>par défaut</i> Bookplayer copiera d\'abord l\'audio dans la mémoire interne de l\'application, puis le lira depuis là.\n\n<b>option 2 [sans copie]</b> : Bookplayer enregistrera simplement l\'emplacement pour lire l\'audio directement depuis la mémoire générale de l\'appareil (ex. dossier Téléchargements, Musique ou autre)\n\n<i>(Note : les fichiers ZIP sont toujours copiés, les m4b découpés aussi. Cette option ne concerne que la lecture directe de fichiers audio simples)</i>\n\n<b>Avec l\'option 1 (copie)</b>, vous n\'aurez pas besoin de la permission [Lire les fichiers audio].\nEt si vous supprimez ou déplacez le fichier de la mémoire principale, cela n\'aura aucun impact. Vous ne perdrez ni le livre ni votre progression.\n\n<b>Avec l\'option 2 (sans copie)</b>, vous économisez de l\'espace.\n\n<i>Une autre option, dans le menu, permet de supprimer automatiquement le fichier source après son import.\nActivez-la si vous ne souhaitez pas utiliser le livre dans une autre application.</i></string>
 
-    <string name="help_tellme_text">"Si vous rencontrez des problèmes ou si l'application plante :
-\nMerci de m'envoyer un message en décrivant le souci
-\nPour que je puisse analyser et améliorer l'application !"</string>
+    <string name="help_tellme_text">Si vous rencontrez des problèmes ou si l\'application plante :\nMerci de m\'envoyer un message en décrivant le souci\nPour que je puisse analyser et améliorer l\'application !</string>
 
-    <string name="StillExperimental">"- Encore expérimental -"</string>
+    <string name="StillExperimental">- Encore expérimental -</string>
+
 
 </resources>
