@@ -274,6 +274,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
                         myLog("unbinding service - unregistering receiver");
                         unbindService(audioServiceConnection);
                         LocalBroadcastManager.getInstance(PlayActivity.this).unregisterReceiver(broadCastReceiver);
+                        stopService(intentMusicService);
                     } catch (Exception e) {
                         myLogE("onBackPressed() - " + e.getMessage());
                     }
