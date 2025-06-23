@@ -336,7 +336,7 @@
     \n\nAllez ensuite dans la section "Permissions" et autorisez manuellement "Microphone".</string>
 
     <string name="OnlineSearch_title">Intégration directe - test bêta</string>
-    <string name="OnlineSearch_desc">Utilisez cette fonction de recherche pour trouver le livre audio que vous cherchez. Ensuite, à l'écran suivant, sélectionnez celui à importer, il sera téléchargé et ajouté directement dans Bookplayer !</string>
+    <string name="OnlineSearch_desc">"Utilisez cette fonction de recherche pour trouver le livre audio que vous cherchez. Ensuite, à l'écran suivant, sélectionnez celui à importer, il sera téléchargé et ajouté directement dans Bookplayer !"</string>
     <string name="OnlineSearch_hint">Jack London</string>
     <string name="OnlineSearch_button">Rechercher…</string>
 
@@ -378,7 +378,7 @@
     <string name="audio_location_audiobook_not_found">Livre audio introuvable</string>
 
     <string name="option_alert_delete_picked_source_file_title">!! Avertissement - Suppression de la source !!</string>
-    <string name="option_alert_delete_picked_source_file_message">Ce fichier sera supprimé de la mémoire de l'appareil après avoir été chargé dans la mémoire interne de Bookplayer.\n\nÊtes-vous sûr ?</string>
+    <string name="option_alert_delete_picked_source_file_message">"Ce fichier sera supprimé de la mémoire de l'appareil après avoir été chargé dans la mémoire interne de Bookplayer.\n\nÊtes-vous sûr ?"</string>
 
     <string name="error_media_already_loaded_samePath">Ce média a déjà été chargé</string>
     <string name="error_media_already_loaded_sameName">Un livre avec ce nom existe déjà dans Bookplayer</string>

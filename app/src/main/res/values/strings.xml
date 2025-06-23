@@ -396,7 +396,7 @@
     <string name="audio_location_audiobook_not_found">Audiobook not found</string>
 
     <string name="option_alert_delete_picked_source_file_title">!! Warning - Source-Deletion !!</string>
-    <string name="option_alert_delete_picked_source_file_message">This picked file will be wiped out from device memory after being loaded inside bookplayer app internal memory.\n\nAre you sure ?.</string>
+    <string name="option_alert_delete_picked_source_file_message">"This picked file will be wiped out from device memory after being loaded inside bookplayer app internal memory.\n\nAre you sure ?."</string>
 
     <string name="error_media_already_loaded_samePath">This media has already been loaded</string>
     <string name="error_media_already_loaded_sameName">A book with this name already exist in Bookplayer</string>
