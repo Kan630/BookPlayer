@@ -167,6 +167,8 @@ public class PlayActivity extends LifecycleLoggingActivity {
                 DrawUI();
                 HideProgressAnim();
                 lockUserActions(false);
+            } else if (Objects.equals(action, NOTIFICATION_NEWTRACK) || Objects.equals(action, NOTIFICATION_TRACKFINISHED)) {
+                myLog("ok, nothing to do for this Broadcast");
             } else {
                 myLogE("Unknown Broadcast : " + action);
             }
