@@ -718,7 +718,6 @@ public class AudioService extends LifecycleLoggingService {
             speed = getSpeedFromPref();
         }
         if (speed == 0) speed = 1.0;
-        myLog("getSpeed() : " + speed);
         return speed;
     }
 
