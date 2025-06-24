@@ -5,10 +5,13 @@ import static com.driot.bookplayer.utils.Tonio.getFileNameFromPath;
 
 import android.app.Service;
 import android.content.Intent;
+import android.content.pm.ServiceInfo;
 import android.os.Binder;
+import android.os.Build;
 import android.os.IBinder;
 
 import androidx.annotation.Nullable;
+import androidx.core.app.NotificationCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.driot.bookplayer.R;
@@ -24,6 +27,8 @@ import java.net.InetAddress;
 import java.net.URL;
 
 public class DownloadService extends LifecycleLoggingService {
+
+    public static final String CHANNEL_ID_DOWNLOAD = "bookplayer_download_channel";
 
     public static final String EXTRA_URL = "file_url";
     public static final String EXTRA_DESTINATION_FOLDER = "destination_folder";
@@ -104,6 +109,8 @@ public class DownloadService extends LifecycleLoggingService {
     public void init() {
         myLog("init()");
         isBusy = true;
+
+        startForegroundNotification();
 
         Thread backgroundThread = new Thread(() -> {
             downloadFile();
@@ -204,6 +211,7 @@ public class DownloadService extends LifecycleLoggingService {
                 connection.disconnect();
             }
             isBusy = false;
+            stopForeground(true);
             myLog("downloadFile() - END - reaching Finally.... => isBusy = false");
         }
         if (destFullPath != null) sendDownloadComplete(destFullPath);
@@ -281,6 +289,21 @@ public class DownloadService extends LifecycleLoggingService {
  */
     }
 
+    private void startForegroundNotification() {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID_DOWNLOAD)
+                .setContentTitle("Book Download")
+                .setContentText("Downloading your audiobook…")
+                .setSmallIcon(R.drawable.ic_download_24dp)  // use a valid icon
+                .setPriority(NotificationCompat.PRIORITY_LOW)
+                .setOngoing(true);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            startForeground(2, builder.build(), ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC);
+        } else {
+            startForeground(2, builder.build());
+        }
+    }
+
     //////////////////////////////////////////////////////////////////////////////////////////
     // Callbacks
     //////////////////////////////////////////////////////////////////////////////////////////
@@ -294,11 +317,13 @@ public class DownloadService extends LifecycleLoggingService {
         //if (backgroundThread != null && backgroundThread.isAlive()) {
         //    backgroundThread.interrupt();
         //}
+        stopForeground(true);
         stopSelf();
     }
     private void downloadService_tellEnd(String downloadedFileFullPath) {
         mCallBacks.downloadService_tellEnd(downloadedFileFullPath);
         myLog("killing Service");
+        stopForeground(true);
         stopSelf();
     }
     public void tellProgress(int progressVal, String progressText) {

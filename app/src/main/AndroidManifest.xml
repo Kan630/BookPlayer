@@ -11,6 +11,8 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />  <!-- Needed for Android >= 13 if no mediaSession -->
     <uses-permission android:name="android.permission.RECORD_AUDIO"/> <!--Visualizer-->
     <uses-permission android:name="android.permission.INTERNET"/> <!-- to test internet access -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" /> <!-- for Downloads... -->
 
 
     <application
@@ -131,6 +133,7 @@
             android:stopWithTask="true" />
         <service
             android:name=".utils.DownloadService"
+            android:foregroundServiceType="dataSync"
             android:exported="false"/>
         <service
             android:name=".utils.SplitM4bService"
