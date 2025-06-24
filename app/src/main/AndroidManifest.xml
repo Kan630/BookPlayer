@@ -3,6 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" /> <!-- indeed not set on sdk 33 -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="29" /> <!-- needed to export to download on old devices -->
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
     <uses-permission android:name="android.permission.WAKE_LOCK" /> <!-- prevent battery saver ?  not changeable through adb shell-->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" /> <!--Notification on lock screen   - not changeable through adb shell -->

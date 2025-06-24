@@ -411,7 +411,8 @@ public class AudioService extends LifecycleLoggingService {
                 }
             }
         }
-        return START_NOT_STICKY; //TODO maybe to change... because memory pressure could kill it
+        //return START_NOT_STICKY; //TODO maybe to change... because memory pressure could kill it
+        return START_STICKY;
     }
     @Override
     public void onDestroy() {
@@ -981,7 +982,7 @@ public class AudioService extends LifecycleLoggingService {
                     .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                     .setPriority(NotificationCompat.PRIORITY_LOW)
                     .setOnlyAlertOnce(true)
-                    .setOngoing(true) //if not, Notification get destroyed by system
+                    .setOngoing(true) //if not, Notification may get destroyed by system
                     .addAction(new NotificationCompat.Action(android.R.drawable.ic_media_rew, "Rewind", MediaButtonReceiver.buildMediaButtonPendingIntent(this, PlaybackStateCompat.ACTION_REWIND)))
                     .addAction(new NotificationCompat.Action(actionIcon, actionName, playPauseAction))
                     .addAction(new NotificationCompat.Action(android.R.drawable.ic_media_ff, "Forward", MediaButtonReceiver.buildMediaButtonPendingIntent(this, PlaybackStateCompat.ACTION_FAST_FORWARD)))
@@ -1001,17 +1002,17 @@ public class AudioService extends LifecycleLoggingService {
 
 
         // MAYBE useless...... maybe startForeground always is good enough
-            if (!isNotificationActive(this, 1)) {
-                myLog("notification : startForeground");
+            //if (!isNotificationActive(this, 1)) {
+            //    myLog("notification : startForeground");
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) { // sdk 29 (28 is Android 9)
                     startForeground(1, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK);
                 } else {
                     startForeground(1, notification);
                 }
-            } else {
-                myLog("notification : manager.notify");
-                NotificationManagerCompat.from(this).notify(1, notification); // update without restarting
-            }
+            //} else {
+            //    myLog("notification : manager.notify");
+            //    NotificationManagerCompat.from(this).notify(1, notification); // update without restarting
+            //}
 
             /*
             try {
@@ -1071,6 +1072,7 @@ public class AudioService extends LifecycleLoggingService {
         NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         StatusBarNotification[] notifications = ((NotificationManager) manager).getActiveNotifications();
         for (StatusBarNotification sbn : notifications) {
+            myLog(sbn.toString());
             if (sbn.getId() == notificationId) {
                 return true;
             }

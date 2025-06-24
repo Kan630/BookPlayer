@@ -417,7 +417,7 @@
     <string name="Export_share_title">"Поделиться ZIP-файлом"</string>
 
     <string name="Export_display_text_loading">"Загрузка информации о папке..."</string>
-    <string name="Export_display_text_prepapring_export">"Подготовка к экспорту..."</string>
+    <string name="Export_display_text_preparing_export">"Подготовка к экспорту..."</string>
     <string name="Export_display_no_valid_audiobook">"Ошибка при получении аудиофайлов книги."</string>
 
     <string name="Export_display_text_processing">"Обработка"</string>

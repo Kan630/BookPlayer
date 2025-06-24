@@ -416,7 +416,7 @@
     <string name="Export_share_title">"Compartir archivo ZIP"</string>
 
     <string name="Export_display_text_loading">"Cargando información de la carpeta..."</string>
-    <string name="Export_display_text_prepapring_export">"Preparando la exportación..."</string>
+    <string name="Export_display_text_preparing_export">"Preparando la exportación..."</string>
     <string name="Export_display_no_valid_audiobook">"Error al obtener los audios del libro."</string>
 
     <string name="Export_display_text_processing">"Procesando"</string>

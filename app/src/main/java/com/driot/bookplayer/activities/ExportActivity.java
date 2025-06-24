@@ -1,8 +1,7 @@
 package com.driot.bookplayer.activities;
 
+import android.Manifest;
 import android.app.Activity;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
 import android.content.*;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -12,7 +11,10 @@ import android.os.Handler;
 import android.os.Looper;
 import android.widget.*;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.driot.bookplayer.R;
@@ -26,7 +28,7 @@ import java.io.File;
 
 public class ExportActivity extends Activity {
 
-    private static final int REQUEST_CODE_POST_NOTIFICATIONS = 2025;
+    //private static final int REQUEST_CODE_POST_NOTIFICATIONS = 2025;
 
     public static final String EXTRA_FOLDER_ID = "EXTRA_FOLDER_ID";
     public static final String EXTRA_FOLDER_PATH = "EXTRA_FOLDER_PATH";
@@ -106,7 +108,7 @@ public class ExportActivity extends Activity {
             onFolderPathLoaded();
         }).start();
 
-        prepareNotificationStuff();
+        //prepareNotificationStuff();
 
     }
 
@@ -120,15 +122,33 @@ public class ExportActivity extends Activity {
             }
 
             tvExportAudioBookName.setText(folder.getName());
-            btnExport.setEnabled(true);
 
-            btnExport.setOnClickListener(v -> {
-                Intent serviceIntent = new Intent(this, ExportService.class);
-                serviceIntent.putExtra(EXTRA_FOLDER_PATH, folderPath);
-                startService(serviceIntent);
-                btnExport.setEnabled(false);
-                progressText.setText(getString(R.string.Export_display_text_prepapring_export));
-            });
+            // below Android 10, need permission to write to Downloads
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                        != PackageManager.PERMISSION_GRANTED) {
+
+                    ActivityCompat.requestPermissions(this,
+                            new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                            123); // arbitrary request code
+                    return; // wait for user to accept before continuing
+                }
+            }
+
+            allowExport();
+
+        });
+    }
+
+    private void allowExport() {
+        btnExport.setEnabled(true);
+
+        btnExport.setOnClickListener(v -> {
+            Intent serviceIntent = new Intent(this, ExportService.class);
+            serviceIntent.putExtra(EXTRA_FOLDER_PATH, folderPath);
+            startService(serviceIntent);
+            btnExport.setEnabled(false);
+            progressText.setText(getString(R.string.Export_display_text_preparing_export));
         });
     }
 
@@ -146,7 +166,22 @@ public class ExportActivity extends Activity {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(exportDoneReceiver);
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
+        if (requestCode == 123) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                allowExport();
+            } else {
+                myToastE("Permission denied, cannot export to Downloads.");
+            }
+        }
+    }
+
+/* Notification not really needed...
     private void prepareNotificationStuff() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel("export_channel",
@@ -163,6 +198,9 @@ public class ExportActivity extends Activity {
             }
         }
     }
+ */
+
+
 
 
     //--- LOG --------------------------

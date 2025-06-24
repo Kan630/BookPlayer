@@ -428,13 +428,12 @@
     <string name="IntroCut">"Intro Cut"</string>
     <string name="IntroCutText"><i>"Trims the first seconds of each chapter while playing."</i></string>
 
-    <string name="Export_display_text_export_title">"Export audiobook as ZIP"</string>
     <string name="Export_notification_title">"Audiobook exported"</string>
     <string name="Export_notification_text">"in Download folder"</string>
     <string name="Export_share_title">"Share ZIP file"</string>
 
     <string name="Export_display_text_loading">"Loading folder info..."</string>
-    <string name="Export_display_text_prepapring_export">"Preparing export..."</string>
+    <string name="Export_display_text_preparing_export">"Preparing export..."</string>
     <string name="Export_display_no_valid_audiobook">"Error getting audiobook audios."</string>
 
     <string name="Export_display_text_processing">"Processing"</string>
@@ -471,6 +470,13 @@
         \nSo that I can check that up and try to improve my app !"</string>
 
     <string name="StillExperimental">"- Still Experimental -"</string>
+
+
+
+    <string name="Export_display_text_export_title">"ZIP Export"</string>
+    <string name="Export_done">"Done, exported in [Downloads] folder"</string>
+    <string name="Export_error">"Export Error"</string>
+
 
 
 </resources>

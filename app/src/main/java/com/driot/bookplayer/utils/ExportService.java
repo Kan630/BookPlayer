@@ -1,19 +1,16 @@
 package com.driot.bookplayer.utils;
 
-import com.driot.bookplayer.R;
-
 import android.app.Service;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Environment;
 import android.os.IBinder;
+import android.os.Parcelable;
 
-import androidx.core.app.NotificationCompat;
-import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.FileProvider;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.ExportActivity;
 
 import java.io.*;
@@ -51,7 +48,7 @@ public class ExportService extends Service {
         }
 
         File output = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-                folder.getName() + ".zip");
+                "BookplayerExport_" + folder.getName() + ".zip");
 
         try (ZipOutputStream zos = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(output)))) {
             long zippedSoFar = 0;
@@ -74,25 +71,42 @@ public class ExportService extends Service {
             }
 
             zos.flush();
-            sendProgress("Done", totalSize, totalFiles);
+            sendProgress(getString(R.string.Export_done), totalSize, totalFiles);
 
         } catch (IOException e) {
-            e.printStackTrace();
+            myToastE( getString(R.string.Export_error) + ": " + e.getMessage());
         }
 
+        long minSize = 1024; // 1 KB
 
+        if (output.exists() && output.length() >= minSize) {
+            Uri zipUri = FileProvider.getUriForFile(
+                    this,
+                    "com.driot.bookplayer.FileProvider",
+                    output
+            );
+            Intent doneIntent = new Intent("EXPORT_DONE");
+            doneIntent.putExtra("zipUri", zipUri);
+            doneIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            LocalBroadcastManager.getInstance(this).sendBroadcast(doneIntent);
 
-        Uri zipUri = FileProvider.getUriForFile(
-                this,
-                "com.driot.bookplayer.FileProvider",  // must match your AndroidManifest
-                output
-        );
-        Intent doneIntent = new Intent("EXPORT_DONE");
-        doneIntent.putExtra("zipUri", zipUri);
-        doneIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(doneIntent);
+        } else {
+            myLogE("Export failed or incomplete: file too small or missing.");
 
+            // Clean up the bad file
+            if (output.exists() && output.length() < minSize) {
+                boolean deleted = output.delete();
+                myLog("Deleted bad ZIP: " + deleted);
+            }
 
+            // Inform UI of failure
+            Intent failIntent = new Intent("EXPORT_DONE");
+            failIntent.putExtra("zipUri", (Parcelable) null);
+            LocalBroadcastManager.getInstance(this).sendBroadcast(failIntent);
+        }
+
+/*
+// Notification => To intrusive, Toast Okay, but right now Sharing opens...so useless
         String notifTxt = getString(R.string.Export_notification_text) + " (" + output.getName() + ")";
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
                 NotificationManagerCompat.from(this).areNotificationsEnabled()) {
@@ -107,6 +121,7 @@ public class ExportService extends Service {
         } else {
             myToast(notifTxt);
         }
+ */
     }
 
     private void sendProgress(String currentTrack, long zippedSoFar, int fileIndex) {

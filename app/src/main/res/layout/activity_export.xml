@@ -15,6 +15,7 @@
         android:textStyle="bold"
         android:textColor="@color/orange"
         android:layout_marginTop="20dp"
+        android:layout_marginStart="40dp"
         />
 
     <TextView
@@ -26,7 +27,8 @@
         android:textSize="18sp"
         android:textStyle="bold"
         android:layout_marginBottom="12dp"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginStart="30dp"
         />
 
     <TextView
@@ -37,7 +39,7 @@
         android:text="audiobook name"
         android:textSize="18sp"
         android:textStyle="bold"
-        android:textColor="@color/green_300"
+        android:textColor="@color/pastel_blue_300"
         android:layout_marginBottom="12dp"
         android:layout_marginTop="20dp"
         />

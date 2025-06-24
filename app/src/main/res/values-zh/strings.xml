@@ -416,7 +416,7 @@
     <string name="Export_share_title">"分享 ZIP 文件"</string>
 
     <string name="Export_display_text_loading">"正在加载文件夹信息…"</string>
-    <string name="Export_display_text_prepapring_export">"正在准备导出…"</string>
+    <string name="Export_display_text_preparing_export">"正在准备导出…"</string>
     <string name="Export_display_no_valid_audiobook">"获取有声书音频文件时出错。"</string>
 
     <string name="Export_display_text_processing">"处理中"</string>

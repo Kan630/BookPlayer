@@ -418,7 +418,7 @@
     <string name="Export_share_title">"مشاركة ملف ZIP"</string>
 
     <string name="Export_display_text_loading">"جاري تحميل معلومات المجلد..."</string>
-    <string name="Export_display_text_prepapring_export">"جاري تحضير التصدير..."</string>
+    <string name="Export_display_text_preparing_export">"جاري تحضير التصدير..."</string>
     <string name="Export_display_no_valid_audiobook">"خطأ أثناء الحصول على ملفات الكتاب الصوتي."</string>
 
     <string name="Export_display_text_processing">"جاري المعالجة"</string>
