@@ -328,7 +328,11 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
             });
         });
 
-        tv_message_import_currently_running.setOnClickListener(v -> startActivity(new Intent(this, AddResourceActivity.class)));
+        tv_message_import_currently_running.setOnClickListener(v -> {
+            Intent intent = new Intent(this, AddResourceActivity.class);
+            intent.putExtra("doLaunchService", false);
+            startActivity(intent);
+        });
 
     }
 

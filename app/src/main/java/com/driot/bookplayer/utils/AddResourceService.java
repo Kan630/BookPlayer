@@ -518,6 +518,12 @@ public class AddResourceService
     ///////////////////////////////////////
 
     public void init() {
+
+        if (isBusy) {
+            myLog("service already running, skipping init()");
+            return;
+        }
+
         if (type_given==null || uri_given==null) {myLogE("init() - args=null");tellError("Init failed, args are null");return;}
         String strUriLog = uri_given==null ? "null" : uri_given.toString();
         sourceLocation = getSourceLocation(uri_given);

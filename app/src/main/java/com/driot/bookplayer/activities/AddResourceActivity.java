@@ -68,88 +68,41 @@ public class AddResourceActivity
         tvWarning = findViewById(R.id.warningText);
 
         String url = getIntent().getStringExtra("url");
+        boolean doLaunchService = getIntent().getBooleanExtra("doLaunchService",true);
         String action = getIntent().getAction();
-        boolean GoLaunchService = true;
 
-        if (url != null) {   // DIRECT DOWNLOAD
+        if (doLaunchService) {
 
-            myLog("onCreate() - Download\nurl=[" + url + "]");
-            type =  "Download";
-            putTitle(url);
+            if (url != null) {   // DIRECT DOWNLOAD
 
+                myLog("onCreate() - Download\nurl=[" + url + "]");
+                type =  "Download";
+                putTitle(url);
 
-        /*
-        } else if (Intent.ACTION_VIEW.equals(action)) { // OPEN WITH
+            } else {  // FILE PICKER
 
-            Uri uri = getIntent().getData();
-            type = "OpenWith";
-            original_type = "OpenWith";
+                //Huawei Folder : uri=[content://com.android.externalstorage.documents/tree/primary%3Aaudiobooks%2FHarry%20Potter%20Audio%20Books%201-7%3B%20Read%20by%20Stephen%20Fry%20%5BMP3%5D%2FBook%2002%20-%20Harry%20Potter%20and%20the%20Chamber%20of%20Secrets] - type=[Folder]
 
-            String str_Uri = (uri == null) ? "null" : uri.toString();
-            myLog("onCreate() - from Open With :\nuri=[" + str_Uri + "]\ntype=[" + type + "]");
-
-            long lastLoadTimeDiff = System.currentTimeMillis() - Pref.get_Last_OpenWith_File_Time(this);
-            myLog("Last load : " + Pref.get_Last_OpenWith_FileUri(this) + ", " + lastLoadTimeDiff + " ms ago.");
-            if (Pref.get_Last_OpenWith_FileUri(this).equals(str_Uri) && lastLoadTimeDiff < MAX_TIME_BETWEEN_OPEN_WIDTH_LOADS) {
-                myLog("Already loaded.... (max time = " + MAX_TIME_BETWEEN_OPEN_WIDTH_LOADS + " ms.)  \nLast Time = " + Pref.get_Last_OpenWith_File_Time(this) + "\ncurrent time = " + System.currentTimeMillis() + "\nDiff = " + lastLoadTimeDiff);
-                GoLaunchService = false;
-                Intent mainIntent = new Intent(this, MainActivity.class);
-                mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(mainIntent);
-                finish();
-
-            } else {
-                Pref.set_Last_OpenWith_FileUri(this, str_Uri);
-                Pref.set_Last_OpenWith_File_Time(this);
-
-                if (uri != null) {
-
-                    String fileNameFromUri = Tonio.getFileNameFromUri(this, uri);
-                    boolean isZip = fileNameFromUri != null && fileNameFromUri.toLowerCase().endsWith(".zip");
-                    if (isZip) {
-                        type = "ZIP";
-                    } else {
-                        type = "File";
+                Uri uri = getIntent().getParcelableExtra("uri");
+                type =  getIntent().getStringExtra("type");
+                String str_Uri = uri==null ? "null" : uri.toString();
+                myLog("onCreate() - from File Picker\nuri=[" + str_Uri + "]\ntype=[" + type + "]");
+                if (!str_Uri.contains(PATH_CHECK_APPLICATION)) {
+                    try {
+                        this.getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                    } catch (Exception e) {
+                        myLogE("error while using takePersistableUriPermission for selected URI - " + e.getMessage());
                     }
-                    String title = formatNameForDisplay(fileNameFromUri);
-
-                    Intent intentAddResourceService = new Intent(this, AddResourceService.class);
-                    intentAddResourceService.putExtra("uri", uri);
-                    intentAddResourceService.putExtra("type", type);
-                    intentAddResourceService.putExtra("title", title);
-                    startService(intentAddResourceService);
-
-                    putTitle(title);
                 }
-
-            }
-             */
-
-        } else {  // FILE PICKER
-
-            //Huawei Folder : uri=[content://com.android.externalstorage.documents/tree/primary%3Aaudiobooks%2FHarry%20Potter%20Audio%20Books%201-7%3B%20Read%20by%20Stephen%20Fry%20%5BMP3%5D%2FBook%2002%20-%20Harry%20Potter%20and%20the%20Chamber%20of%20Secrets] - type=[Folder]
-
-            Uri uri = getIntent().getParcelableExtra("uri");
-            type =  getIntent().getStringExtra("type");
-            String str_Uri = uri==null ? "null" : uri.toString();
-            myLog("onCreate() - from File Picker\nuri=[" + str_Uri + "]\ntype=[" + type + "]");
-            if (!str_Uri.contains(PATH_CHECK_APPLICATION)) {
-                try {
-                    this.getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                } catch (Exception e) {
-                    myLogE("error while using takePersistableUriPermission for selected URI - " + e.getMessage());
+                if (uri != null) {
+                    putTitle(uri.getLastPathSegment());
                 }
             }
-            if (uri != null) {
-                putTitle(uri.getLastPathSegment());
-            }
-        }
 
-        if (GoLaunchService) {
-            Intent intentAddResourceService = new Intent(this, AddResourceService.class);
-            boundToAddResourceService = bindService(intentAddResourceService, addResourceServiceConnection, Context.BIND_AUTO_CREATE); //error Log : Activity XXX has leaked ServiceConnection
-            myLog("call start & bind to AddResourceService from AddResourceActivity.onCreate() - bound result :" + boundToAddResourceService + "");
         }
+        Intent intentAddResourceService = new Intent(this, AddResourceService.class);
+        boundToAddResourceService = bindService(intentAddResourceService, addResourceServiceConnection, Context.BIND_AUTO_CREATE); //error Log : Activity XXX has leaked ServiceConnection
+        myLog("call start & bind to AddResourceService from AddResourceActivity.onCreate() - bound result :" + boundToAddResourceService);
     }
 
     @Override
