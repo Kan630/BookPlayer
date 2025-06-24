@@ -968,12 +968,12 @@ public class AudioService extends LifecycleLoggingService {
                 actionName = "Pause";
                 actionIcon = android.R.drawable.ic_media_pause;
                 playPauseAction = MediaButtonReceiver.buildMediaButtonPendingIntent(this, PlaybackStateCompat.ACTION_PAUSE);
-                //updatePlaybackState(PlaybackStateCompat.STATE_PAUSED, mediaPlayer.getCurrentPosition(), (float) getSpeed());
+                updatePlaybackState(PlaybackStateCompat.STATE_PLAYING, mediaPlayer.getCurrentPosition(), (float) getSpeed()); //to force update of the notification progressBar
             } else {
                 actionName = "Play";
                 actionIcon = android.R.drawable.ic_media_play;
                 playPauseAction = MediaButtonReceiver.buildMediaButtonPendingIntent(this, PlaybackStateCompat.ACTION_PLAY);
-                //updatePlaybackState(PlaybackStateCompat.STATE_PLAYING, mediaPlayer.getCurrentPosition(), (float) getSpeed());
+                updatePlaybackState(PlaybackStateCompat.STATE_PAUSED, mediaPlayer.getCurrentPosition(), (float) getSpeed()); //to force update of the notification progressBar
             }
 
 
