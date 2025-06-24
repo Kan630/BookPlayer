@@ -11,6 +11,7 @@
         <item name="android:background">@drawable/rounded_corner_theme</item>
         <item name="android:textColor">?colorOnSecondary</item>
         <item name="android:textColorHighlight">?colorSecondaryVariant</item>
+        <item name="android:textCursorDrawable">@drawable/edittext_cursor</item>
     </style>
 
 
