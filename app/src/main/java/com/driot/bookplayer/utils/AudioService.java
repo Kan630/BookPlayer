@@ -23,6 +23,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.ResultReceiver;
 import android.service.notification.StatusBarNotification;
+import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.view.KeyEvent;
@@ -97,6 +98,17 @@ public class AudioService extends LifecycleLoggingService {
             {60*24*3, 20000},
             {60*24*30, 30000},
     };
+    long playbackStateCompatAction = PlaybackStateCompat.ACTION_PLAY |
+            PlaybackStateCompat.ACTION_PAUSE |
+            PlaybackStateCompat.ACTION_STOP |
+            PlaybackStateCompat.ACTION_REWIND |
+            PlaybackStateCompat.ACTION_FAST_FORWARD |
+            PlaybackStateCompat.ACTION_SKIP_TO_NEXT |
+            PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS |
+            PlaybackStateCompat.ACTION_PLAY_PAUSE
+            ;
+
+
 
     private static final boolean LOG_TRACE_ALL = false;
 
@@ -138,7 +150,7 @@ public class AudioService extends LifecycleLoggingService {
         public void onStop() {
             myLog("MediaSessionCompat.Callback - onStop()");
             super.onStop();
-            mediaPlayer.stop();
+            mediaPlayerStop();
             //createNotification();
             //removeNotification(); // Remove notification when playback is stopped
             stopForeground(false);
@@ -178,18 +190,20 @@ public class AudioService extends LifecycleLoggingService {
 
         @Override
         public void onSkipToNext() {
+            forwardAudio();
             myLog("MediaSessionCompat.Callback - onSkipToNext()");
             super.onSkipToNext();
         }
 
         @Override
         public void onSkipToPrevious() {
+            backwardAudio();
             myLog("MediaSessionCompat.Callback - onSkipToPrevious()");
             super.onSkipToPrevious();
         }
     };
 
-    private PlaybackStateCompat.Builder stateBuilder;
+    //private PlaybackStateCompat.Builder stateBuilder;
     private int maxTimeBeforeSleep;
     private double speed = 1.0;
     private File tempFile = null;
@@ -313,8 +327,7 @@ public class AudioService extends LifecycleLoggingService {
         //TODO remplace par PlayAudio() ??
         myLog("mediaPlayer.start() -- nextrack");
         dointroCut();
-        mediaPlayer.start();
-        setSpeed(getSpeed());
+        mediaPlayerStart();
         alertNewTrack();
     }
 
@@ -412,12 +425,12 @@ public class AudioService extends LifecycleLoggingService {
             }
         }
         //return START_NOT_STICKY; //TODO maybe to change... because memory pressure could kill it
-        return START_STICKY;
+        return START_STICKY; // 2025-06-24
     }
     @Override
     public void onDestroy() {
         myLog("onDestroy()");
-        if (mediaPlayer.isPlaying()) {mediaPlayer.stop();}
+        if (mediaPlayer.isPlaying()) {mediaPlayerStop();}
         stopSleepTimer();
         mediaPlayer.release();
         mediaPlayer = null;
@@ -500,7 +513,7 @@ public class AudioService extends LifecycleLoggingService {
         myLog("loadFile(sPath) [" + sPath + "]");
         try {
             if (mediaPlayer.isPlaying()) {
-                mediaPlayer.stop();
+                mediaPlayerStop();
             }
             mediaPlayer.reset();
             myLogD("mediaPlayer.reset - done");
@@ -595,8 +608,7 @@ public class AudioService extends LifecycleLoggingService {
                 }
                 dointroCut();
                 myLog("about to do mediaPlayer.start()...  mediaPlayer.getCurrentPosition : " + mediaPlayer.getCurrentPosition());
-                mediaPlayer.start();
-                setSpeed(getSpeed());
+                mediaPlayerStart();
                 startSleepTimer();
                 if (mediaSession != null) {
                     mediaSession.setActive(true);
@@ -630,7 +642,7 @@ public class AudioService extends LifecycleLoggingService {
     public void pauseAudio() {
         myLog("pauseAudio()");
         if (mediaPlayer != null && mediaPlayer.isPlaying()) {
-            mediaPlayer.pause();
+            mediaPlayerPause();
             if (mediaSession != null) {
                 mediaSession.setActive(false);
             }
@@ -806,7 +818,7 @@ public class AudioService extends LifecycleLoggingService {
 
                     LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(new Intent(NOTIFICATION_PLAYBACK_MAXTIMEREACH));
                     if (mediaPlayer != null && mediaPlayer.isPlaying()) {
-                        mediaPlayer.stop();
+                        mediaPlayerStop();
                     }
                     stopSelf();
                 } else {
@@ -948,31 +960,35 @@ public class AudioService extends LifecycleLoggingService {
             return;
         }
         try {
+            // custom addAction only ok on old Android devices... KO with Android 13+
             PendingIntent playPauseAction;
             String actionName;
             int actionIcon;
-
             if (mediaPlayer.isPlaying()) {
                 actionName = "Pause";
-                actionIcon = android.R.drawable.ic_media_pause; //custom : R.drawable.ic_pause;
+                actionIcon = android.R.drawable.ic_media_pause;
                 playPauseAction = MediaButtonReceiver.buildMediaButtonPendingIntent(this, PlaybackStateCompat.ACTION_PAUSE);
+                //updatePlaybackState(PlaybackStateCompat.STATE_PAUSED, mediaPlayer.getCurrentPosition(), (float) getSpeed());
             } else {
                 actionName = "Play";
                 actionIcon = android.R.drawable.ic_media_play;
                 playPauseAction = MediaButtonReceiver.buildMediaButtonPendingIntent(this, PlaybackStateCompat.ACTION_PLAY);
+                //updatePlaybackState(PlaybackStateCompat.STATE_PLAYING, mediaPlayer.getCurrentPosition(), (float) getSpeed());
             }
+
+
 
             // Create an intent to open the app when the notification is tapped
             Intent openAppIntent = new Intent(this, PlayActivity.class);
             openAppIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP); // Ensures only one instance
             PendingIntent contentIntent = PendingIntent.getActivity(this, 0, openAppIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
-            //int progress = getPosition();
-            //int progress = PlayList.getZikFile() == null ? 0 : (int) PlayList.getZikFile().getPosition();
-            //int max = getDuration();
-
-            //int progress = 50;
-            //int max = 100;
+            MediaMetadataCompat metadata = new MediaMetadataCompat.Builder()
+                    //.putString(MediaMetadataCompat.METADATA_KEY_TITLE, getCurrentZikFile().getDisplayName())
+                    //.putString(MediaMetadataCompat.METADATA_KEY_ARTIST, getCurrentZikFile().getFolderName())
+                    .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, mediaPlayer.getDuration())  //Shows the fucking progressBar !!
+                    .build();
+            mediaSession.setMetadata(metadata);
 
             NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID) // channel is used for user to be able to disable all notifications from that channel, starting android 8
                     .setContentTitle(getCurrentZikFile().getFolderName())
@@ -983,23 +999,20 @@ public class AudioService extends LifecycleLoggingService {
                     .setPriority(NotificationCompat.PRIORITY_LOW)
                     .setOnlyAlertOnce(true)
                     .setOngoing(true) //if not, Notification may get destroyed by system
+                    // custom addAction only ok on old Android devices... KO with Android 13+
                     .addAction(new NotificationCompat.Action(android.R.drawable.ic_media_rew, "Rewind", MediaButtonReceiver.buildMediaButtonPendingIntent(this, PlaybackStateCompat.ACTION_REWIND)))
                     .addAction(new NotificationCompat.Action(actionIcon, actionName, playPauseAction))
                     .addAction(new NotificationCompat.Action(android.R.drawable.ic_media_ff, "Forward", MediaButtonReceiver.buildMediaButtonPendingIntent(this, PlaybackStateCompat.ACTION_FAST_FORWARD)))
                     .setStyle(new androidx.media.app.NotificationCompat.MediaStyle()  //that's the shit that fuck with the progressBar... but yeah...
                             .setMediaSession(mediaSession.getSessionToken())
-                            .setShowActionsInCompactView(0,1,2))
-                    //.setProgress(100,50, false)
-                    //.setProgress(max, progress, false)  => TODO : check on samsung Tab, it seems to show there.. even without any code !!
-                    //.setOngoing(true) //only effective android >= 14, maybe useless on mediaSession
-                    //.setUsesChronometer(true)
+                            .setShowActionsInCompactView(0,1,2)
+                    )
             ;
 
             //val mediaMetadata = MediaMetadata.Builder().putLong(MediaMetadata.METADATA_KEY_DURATION, mp.duration.toLong()).build()
             //mediaSession.setMetadata(MediaMetadataCompat.fromMediaMetadata(mediaMetadata))
 
             Notification notification = builder.build();
-
 
         // MAYBE useless...... maybe startForeground always is good enough
             //if (!isNotificationActive(this, 1)) {
@@ -1022,6 +1035,13 @@ public class AudioService extends LifecycleLoggingService {
             }
 
              */
+/*
+            boolean toto = isNotificationActive(this, 1);
+            myLog("active : " + toto);
+            myLog("PlaybackStateCompat actions = " + mediaSession.getController().getPlaybackState().getActions());
+
+ */
+
         } catch (Exception e) {
             myLogE("Notification creation failed: " + e.getMessage());
         }
@@ -1047,6 +1067,32 @@ public class AudioService extends LifecycleLoggingService {
         }
     }
 
+    private void mediaPlayerStart() {
+        mediaPlayer.start();
+        updatePlaybackState(PlaybackStateCompat.STATE_PLAYING, mediaPlayer.getCurrentPosition(), 1.0f);
+        setSpeed(getSpeed());
+        if (!mediaSession.isActive()) {
+            mediaSession.setActive(true);
+        }
+    }
+    private void mediaPlayerPause() {
+        mediaPlayer.pause();
+        updatePlaybackState(PlaybackStateCompat.STATE_PAUSED, mediaPlayer.getCurrentPosition(), 0.0f);
+    }
+    private void mediaPlayerStop() {
+        mediaPlayer.stop();
+        updatePlaybackState(PlaybackStateCompat.STATE_STOPPED, 0, 0.0f);
+        mediaSession.setActive(false);
+    }
+
+    private void updatePlaybackState(int playbackState, long position, float playbackSpeed) {
+        PlaybackStateCompat playbackStateCompat = new PlaybackStateCompat.Builder()
+                .setState(playbackState, position, playbackSpeed)
+                .setActions(playbackStateCompatAction)
+                .build();
+        mediaSession.setPlaybackState(playbackStateCompat);
+    }
+
     public int getAudioSessionId() {
         return mediaPlayer != null ? mediaPlayer.getAudioSessionId() : 0;
     }
@@ -1068,6 +1114,11 @@ public class AudioService extends LifecycleLoggingService {
             myLogE("playBeep(" + beepType + ") - " + e.getMessage());
         }
     }
+
+    // 13-56
+    // StatusBarNotification(pkg=com.driot.bookplayer user=UserHandle{0} id=1 tag=null key=0|com.driot.bookplayer|1|null|10333:
+    // Notification(channel=audio_channel_of_bookplayer shortcut=null contentView=null vibrate=null sound=null defaults=0
+    // flags=ONGOING_EVENT|ONLY_ALERT_ONCE|NO_CLEAR|FOREGROUND_SERVICE color=0x00000000 category=transport actions=3 vis=PUBLIC semFlags=0x0 semPriority=0 semMissedCount=0))
     private boolean isNotificationActive(Context context, int notificationId) {
         NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         StatusBarNotification[] notifications = ((NotificationManager) manager).getActiveNotifications();
