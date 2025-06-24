@@ -405,7 +405,6 @@
     <string name="IntroCut">Coupe d\'intro</string>
     <string name="IntroCutText"><i>Coupe les premières secondes de chaque chapitre pendant la lecture.</i></string>
 
-    <string name="Export_display_text_export_title">Exporter le livre audio en ZIP</string>
     <string name="Export_notification_title">Livre audio exporté</string>
     <string name="Export_notification_text">dans le dossier Téléchargements</string>
     <string name="Export_share_title">Partager le fichier ZIP</string>
@@ -427,5 +426,8 @@
 
     <string name="StillExperimental">- Encore expérimental -</string>
 
+    <string name="Export_display_text_export_title">"Export ZIP"</string>
+    <string name="Export_done">"OK, exporté dans le répertoire [Téléchargements]"</string>
+    <string name="Export_error">"Erreur pendant l\'export"</string>
 
 </resources>

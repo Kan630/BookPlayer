@@ -410,7 +410,6 @@
     <string name="IntroCut">"Corte de introducción"</string>
     <string name="IntroCutText"><i>"Recorta los primeros segundos de cada capítulo durante la reproducción."</i></string>
 
-    <string name="Export_display_text_export_title">"Exportar audiolibro como ZIP"</string>
     <string name="Export_notification_title">"Audiolibro exportado"</string>
     <string name="Export_notification_text">"en la carpeta Descargas"</string>
     <string name="Export_share_title">"Compartir archivo ZIP"</string>
@@ -453,5 +452,7 @@
 
     <string name="StillExperimental">"- Aún experimental -"</string>
 
-
+    <string name="Export_display_text_export_title">"Exportar ZIP"</string>
+    <string name="Export_done">"Hecho, exportado a la carpeta [Descargas]"</string>
+    <string name="Export_error">"Error de exportación"</string>
 </resources>

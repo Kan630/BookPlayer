@@ -412,7 +412,6 @@
     <string name="IntroCut">"قص المقدمة"</string>
     <string name="IntroCutText"><i>"يُزيل الثواني الأولى من كل فصل أثناء التشغيل."</i></string>
 
-    <string name="Export_display_text_export_title">"تصدير الكتاب الصوتي كملف ZIP"</string>
     <string name="Export_notification_title">"تم تصدير الكتاب الصوتي"</string>
     <string name="Export_notification_text">"في مجلد التنزيلات"</string>
     <string name="Export_share_title">"مشاركة ملف ZIP"</string>
@@ -455,5 +454,7 @@
 
     <string name="StillExperimental">"- لا يزال تجريبيًا -"</string>
 
-
+    <string name="Export_display_text_export_title">"تصدير ZIP"</string>
+    <string name="Export_done">"تم التصدير في مجلد [التنزيلات]"</string>
+    <string name="Export_error">"خطأ في التصدير"</string>
 </resources>

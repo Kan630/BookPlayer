@@ -411,7 +411,6 @@
     <string name="IntroCut">"Обрезка вступления"</string>
     <string name="IntroCutText"><i>"Обрезает первые секунды каждой главы при воспроизведении."</i></string>
 
-    <string name="Export_display_text_export_title">"Экспорт аудиокниги в ZIP"</string>
     <string name="Export_notification_title">"Аудиокнига экспортирована"</string>
     <string name="Export_notification_text">"в папку Загрузки"</string>
     <string name="Export_share_title">"Поделиться ZIP-файлом"</string>
@@ -454,5 +453,7 @@
 
     <string name="StillExperimental">"- Всё ещё экспериментально -"</string>
 
-
+    <string name="Export_display_text_export_title">"Экспорт в ZIP"</string>
+    <string name="Export_done">"Готово, экспортировано в папку [Загрузки]"</string>
+    <string name="Export_error">"Ошибка экспорта"</string>
 </resources>

@@ -410,7 +410,6 @@
     <string name="IntroCut">"剪切片头"</string>
     <string name="IntroCutText"><i>"播放时裁剪每章前几秒。"</i></string>
 
-    <string name="Export_display_text_export_title">"将有声书导出为 ZIP"</string>
     <string name="Export_notification_title">"有声书已导出"</string>
     <string name="Export_notification_text">"已保存至下载文件夹"</string>
     <string name="Export_share_title">"分享 ZIP 文件"</string>
@@ -453,5 +452,7 @@
 
     <string name="StillExperimental">"- 仍处于试验阶段 -"</string>
 
-
+    <string name="Export_display_text_export_title">"ZIP 导出"</string>
+    <string name="Export_done">"已完成，已导出到 [下载] 文件夹"</string>
+    <string name="Export_error">"导出错误"</string>
 </resources>
