@@ -3,7 +3,9 @@ package com.driot.bookplayer.utils;
 import static com.driot.bookplayer.utils.Tonio.formatMem;
 import static com.driot.bookplayer.utils.Tonio.getFileNameFromPath;
 
+import android.app.NotificationManager;
 import android.app.Service;
+import android.app.NotificationChannel;
 import android.content.Intent;
 import android.content.pm.ServiceInfo;
 import android.os.Binder;
@@ -42,6 +44,7 @@ public class DownloadService extends LifecycleLoggingService {
 
     private String fileUrl;
     private String destinationFolder;
+    private String audioBookTitle;
     private String err_txt;
 
     private int lopperForLog;
@@ -77,16 +80,25 @@ public class DownloadService extends LifecycleLoggingService {
     private void parseIntent(Intent intent) {
         fileUrl = intent.getStringExtra("fileUrl");
         destinationFolder = intent.getStringExtra("destinationFolder");
+        audioBookTitle = intent.getStringExtra("audioBookTitle");
         myLog("parseIntent() ..   " +
                 "\n.    fileUrl = [" + fileUrl + "]" +
-                "\n.    destinationFolder = [" + destinationFolder + "]"
+                "\n.    destinationFolder = [" + destinationFolder + "]" +
+                "\n.    audioBookTitle = [" + audioBookTitle + "]"
         );
         if (fileUrl==null || destinationFolder== null) {
             myLogE("Null Intents !!");
             stopSelf();
         }
     }
-    
+    @Override
+    public void onCreate() {
+        myLog("onCreate()");
+        //super.onCreate();
+        createNotificationChannel();
+        startForegroundNotification();
+    }
+
     private boolean isInternetAvailable() {
         try {
             InetAddress ipAddr = InetAddress.getByName("www.google.com");
@@ -109,26 +121,9 @@ public class DownloadService extends LifecycleLoggingService {
     public void init() {
         myLog("init()");
         isBusy = true;
-
-        startForegroundNotification();
-
-        Thread backgroundThread = new Thread(() -> {
-            downloadFile();
-        });
+        Thread backgroundThread = new Thread(this::downloadFile);
         backgroundThread.start();
     }
-/*
-    @Override
-    protected void onHandleIntent(Intent intent) {
-        if (intent != null) {
-            isBusy = true;
-            String fileUrl = intent.getStringExtra(EXTRA_URL);
-            String destinationFolder = intent.getStringExtra(EXTRA_DESTINATION_FOLDER);
-            downloadFile(fileUrl, destinationFolder);
-        }
-    }
-    
- */
 
     private void downloadFile() {
         myLog("downloadFile()");
@@ -147,6 +142,7 @@ public class DownloadService extends LifecycleLoggingService {
 
         String destFullPath;
         try {
+            startForegroundNotification();
             URL url = new URL(fileUrl);
             connection = (HttpURLConnection) url.openConnection();
             connection.connect();
@@ -249,50 +245,29 @@ public class DownloadService extends LifecycleLoggingService {
 
     private void sendDownloadComplete(String downloadedFileFullPath) {
         myLog("sendDownloadComplete()");
-
-        // update download activity (if displayed.. aka not close by user)
-        // LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(ACTION_COMPLETE).putExtra(EXTRA_URL, destFullPath));
         downloadService_tellEnd(downloadedFileFullPath);
-/*
-        // start integration
-        Uri uri = null;
-        try {
-            uri = Uri.fromFile(new File(destFullPath));
-        } catch (Exception e) {
-            myLogE("cannot build Uri for [" + destFullPath + "] - " + e.getMessage());
-            e.printStackTrace();
-        }
-        if (uri != null) {
-            try {
-                /*
-                myLog("Launching AddResourceService");
-                // TODO : If screen is black or user have BookPlayer only in background, the integration will run only when focus back on Bookplayer... it should launch the service directly and not the activity
-                //boolean isDestroyed = AddResourceActivity.getLifecycleObserver().isActivityDestroyed();  un truc du style, mais je viens d'y passer 30min, j'y arrive pas
-
-                Intent intentRunIntegration = new Intent(this, AddResourceService.class);
-                intentRunIntegration.putExtra("Uri", uri);
-                intentRunIntegration.putExtra("type", "ZIP");
-                startService(intentRunIntegration);
-
-                Intent intentRunIntegration = new Intent(this, AddResourceActivity.class);
-                intentRunIntegration.putExtra("Uri", uri);
-                intentRunIntegration.putExtra("type", "ZIP");
-                intentRunIntegration.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intentRunIntegration);
-
-
-            } catch (Exception e) {
-                myLogE("cannot start Integration " + e.getMessage());
-            }
-        }
-
- */
     }
 
+    private void createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            String channelName = "Download Notifications";
+            NotificationChannel channel = new NotificationChannel(
+                    CHANNEL_ID_DOWNLOAD,
+                    channelName,
+                    NotificationManager.IMPORTANCE_LOW
+            );
+            channel.setDescription("Used for download progress");
+
+            NotificationManager manager = getSystemService(NotificationManager.class);
+            if (manager != null) {
+                manager.createNotificationChannel(channel);
+            }
+        }
+    }
     private void startForegroundNotification() {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID_DOWNLOAD)
-                .setContentTitle("Book Download")
-                .setContentText("Downloading your audiobook…")
+                .setContentTitle("AudioBook Download")
+                .setContentText(audioBookTitle)
                 .setSmallIcon(R.drawable.ic_download_24dp)  // use a valid icon
                 .setPriority(NotificationCompat.PRIORITY_LOW)
                 .setOngoing(true);

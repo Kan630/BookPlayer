@@ -336,11 +336,12 @@ public class AddResourceService
             }
         }
     };
-    private void launchDownloadService(String fileUrl, String destinationFolder) {
+    private void launchDownloadService(String fileUrl, String destinationFolder, String audioBookTitle) {
         myLog("launchDownloadService()");
         Intent intentDownloadService = new Intent(this, DownloadService.class);
         intentDownloadService.putExtra("fileUrl", fileUrl);
         intentDownloadService.putExtra("destinationFolder", destinationFolder);
+        intentDownloadService.putExtra("audioBookTitle", audioBookTitle);
         boundToDownloadService = false;
         try {
             boundToDownloadService = bindService(intentDownloadService, downloadServiceConnection, Context.BIND_AUTO_CREATE); //error Log : Activity XXX has leaked ServiceConnection
@@ -562,7 +563,7 @@ public class AddResourceService
                 PROGRESS = PROGRESS_DOWNLOAD;
                 tellProgress(PROGRESS[1], PROGRESS_TEXT[1]);
                 //launchDownloadService(url_given,getFilesDir().getAbsolutePath() + "/" + FOLDER_DOWNLOAD);
-                launchDownloadService(uri_given.toString(),getFilesDir().getAbsolutePath() + "/" + FOLDER_DOWNLOAD);
+                launchDownloadService(uri_given.toString(),getFilesDir().getAbsolutePath() + "/" + FOLDER_DOWNLOAD, title_given);
             }).start();
             return;
         }
