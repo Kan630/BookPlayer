@@ -6,11 +6,16 @@ import static com.driot.bookplayer.utils.Tonio.getFileNameFromPath;
 import android.app.NotificationManager;
 import android.app.Service;
 import android.app.NotificationChannel;
+import android.app.job.JobInfo;
+import android.app.job.JobScheduler;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ServiceInfo;
 import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
+import android.os.PersistableBundle;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
@@ -32,14 +37,6 @@ public class DownloadService extends LifecycleLoggingService {
 
     public static final String CHANNEL_ID_DOWNLOAD = "bookplayer_download_channel";
 
-    public static final String EXTRA_URL = "file_url";
-    public static final String EXTRA_DESTINATION_FOLDER = "destination_folder";
-    public static final String ACTION_PROGRESS = "download_progress";
-    public static final String EXTRA_PROGRESS_VALUE = "progress_value";
-    public static final String EXTRA_PROGRESS_TEXT = "progress_text";
-    public static final String ACTION_COMPLETE = "download_complete";
-    public static final String ACTION_ERROR = "download_error";
-    public static final String EXTRA_ERROR_STRING = "EXTRA_ERROR_STRING";
     public static boolean isBusy;
 
     private String fileUrl;
@@ -96,7 +93,7 @@ public class DownloadService extends LifecycleLoggingService {
         myLog("onCreate()");
         //super.onCreate();
         createNotificationChannel();
-        startForegroundNotification();
+        //startForegroundNotification();
     }
 
     private boolean isInternetAvailable() {
@@ -127,6 +124,9 @@ public class DownloadService extends LifecycleLoggingService {
 
     private void downloadFile() {
         myLog("downloadFile()");
+
+        startDownloadJob(this, fileUrl, destinationFolder, audioBookTitle);
+/*
         InputStream input = null;
         FileOutputStream output = null;
         HttpURLConnection connection = null;
@@ -134,8 +134,7 @@ public class DownloadService extends LifecycleLoggingService {
         lopperForLog=0;
         
         if (!isInternetAvailable()) {
-            LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(ACTION_ERROR).putExtra(EXTRA_ERROR_STRING, err_txt));
-            myLogE(err_txt);
+            tellError("No Internet");
             isBusy = false;
             return;
         }
@@ -210,7 +209,13 @@ public class DownloadService extends LifecycleLoggingService {
             stopForeground(true);
             myLog("downloadFile() - END - reaching Finally.... => isBusy = false");
         }
-        if (destFullPath != null) sendDownloadComplete(destFullPath);
+        if (destFullPath != null) {
+            downloadService_tellEnd(destFullPath);
+        } else {
+            tellError("destination empty");
+        }
+
+ */
     }
 
     private boolean checkFolderExist(String destinationFolderPath) {
@@ -234,18 +239,32 @@ public class DownloadService extends LifecycleLoggingService {
         }
         return true;
     }
-    private void sendProgressUpdate(int progress_value, String progress_text) {
-        lopperForLog = lopperForLog + 1;
-        Intent intent = new Intent(ACTION_PROGRESS);
-        intent.putExtra(EXTRA_PROGRESS_VALUE, progress_value);
-        intent.putExtra(EXTRA_PROGRESS_TEXT, progress_text);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-        if (lopperForLog%50==0) myLog("...downloading " + progress_value + "%");
-    }
 
-    private void sendDownloadComplete(String downloadedFileFullPath) {
-        myLog("sendDownloadComplete()");
-        downloadService_tellEnd(downloadedFileFullPath);
+    public void startDownloadJob(Context context, String fileUrl, String folderPath, String title) {
+        ComponentName componentName = new ComponentName(context, DownloadJobService.class);
+        PersistableBundle extras = new PersistableBundle();
+        extras.putString("fileUrl", fileUrl);
+        extras.putString("destinationFolder", folderPath);
+        extras.putString("audioBookTitle", title);
+
+        JobInfo.Builder builder = new JobInfo.Builder(123, componentName)
+                .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+                .setExtras(extras);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            builder.setExpedited(true); // User-initiated, fast execution
+        } else {
+            builder.setOverrideDeadline(0); // For older devices, trigger immediately
+        }
+
+        JobScheduler scheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
+        int resultCode = scheduler.schedule(builder.build());
+
+        if (resultCode == JobScheduler.RESULT_SUCCESS) {
+            myLogI("Download job scheduled");
+        } else {
+            myLogE("Download job failed to schedule");
+        }
     }
 
     private void createNotificationChannel() {
@@ -264,20 +283,7 @@ public class DownloadService extends LifecycleLoggingService {
             }
         }
     }
-    private void startForegroundNotification() {
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID_DOWNLOAD)
-                .setContentTitle("AudioBook Download")
-                .setContentText(audioBookTitle)
-                .setSmallIcon(R.drawable.ic_download_24dp)  // use a valid icon
-                .setPriority(NotificationCompat.PRIORITY_LOW)
-                .setOngoing(true);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            startForeground(2, builder.build(), ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC);
-        } else {
-            startForeground(2, builder.build());
-        }
-    }
 
     //////////////////////////////////////////////////////////////////////////////////////////
     // Callbacks
@@ -310,5 +316,6 @@ public class DownloadService extends LifecycleLoggingService {
 
     
     private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
+    private void myLogI(String str) { KanLogger.myLogI(this.getClass().getName(), str); }
     private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
 }

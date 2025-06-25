@@ -1,9 +1,11 @@
 package com.driot.bookplayer.utils;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
@@ -12,6 +14,7 @@ import android.os.IBinder;
 
 import androidx.annotation.Nullable;
 import androidx.documentfile.provider.DocumentFile;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.sqlite.db.SimpleSQLiteQuery;
 
 import com.driot.bookplayer.R;
@@ -153,6 +156,22 @@ public class AddResourceService
     }
     public void registerClient(Activity activity){
         this.mCallBacks = (AddResourceService.Callbacks)activity; // done in onServiceConnected()
+    }
+
+    //used for JobService who seems to not like Callbacks...
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        myLog("onCreate()");
+        LocalBroadcastManager.getInstance(this).registerReceiver(downloadReceiver, new IntentFilter("BOOKPLAYER_DOWNLOAD_FINISHED"));
+        LocalBroadcastManager.getInstance(this).registerReceiver(downloadReceiver, new IntentFilter("BOOKPLAYER_DOWNLOAD_ERROR"));
+        LocalBroadcastManager.getInstance(this).registerReceiver(downloadReceiver, new IntentFilter("BOOKPLAYER_DOWNLOAD_PROGRESS"));
+    }
+    @Override
+    public void onDestroy() {
+        myLog("onDestroy()");
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(downloadReceiver);
+        super.onDestroy();
     }
 
     // binder
@@ -1299,6 +1318,34 @@ public class AddResourceService
     public void tellWarning(String txt) {
         mCallBacks.tellWarning(txt);
     }
+    /**
+     **********************************
+     *    DOWNLOAD JOB.SERVICE BROADCASTS
+     *********************************
+     */
+    private final BroadcastReceiver downloadReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            switch (Objects.requireNonNull(intent.getAction())) {
+                case "BOOKPLAYER_DOWNLOAD_PROGRESS":
+                    int progress = intent.getIntExtra("progress", 0);
+                    String txtProgress = intent.getStringExtra("txtProgress");
+                    downloadService_tellProgress(txtProgress, progress);
+                    break;
+                case "BOOKPLAYER_DOWNLOAD_FINISHED":
+                    String filePath = intent.getStringExtra("downloadedFileFullPath");
+                    if (filePath != null) {
+                        downloadService_tellEnd(filePath);
+                    }
+                    break;
+                case "BOOKPLAYER_DOWNLOAD_ERROR":
+                    String errorText = intent.getStringExtra("errorText");
+                    downloadService_tellError(errorText);
+                    break;
+            }
+        }
+    };
+
 
     //--- LOG --------------------------
     private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }

@@ -1,13 +1,16 @@
 package com.driot.bookplayer.activities;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -25,6 +28,8 @@ import com.google.gson.Gson;
 import static com.driot.bookplayer.global.Var.PATH_CHECK_APPLICATION;
 import static com.driot.bookplayer.utils.Tonio.getFileNameFromPath;
 import static com.driot.bookplayer.utils.Tonio.formatNameForDisplay;
+
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import java.util.Objects;
 
@@ -68,9 +73,10 @@ public class AddResourceActivity
         tvWarning = findViewById(R.id.warningText);
 
         String url = getIntent().getStringExtra("url");
-        boolean doLaunchService = getIntent().getBooleanExtra("doLaunchService",true);
+        boolean doLaunchService = getIntent().getBooleanExtra("doLaunchService",true); //case going back from UI action (user click on 'onGoing Import')
         String action = getIntent().getAction();
 
+        doLaunchService = true;
         if (doLaunchService) {
 
             if (url != null) {   // DIRECT DOWNLOAD
@@ -216,6 +222,8 @@ public class AddResourceActivity
             }
         });
     }
+
+
     //--- FULL LOG --------------------------
     private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
     private void myLogInFile(String str) { KanLogger.myLogInFile(this.getClass().getName(), str); }
