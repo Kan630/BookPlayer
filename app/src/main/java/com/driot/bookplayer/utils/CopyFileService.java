@@ -186,7 +186,7 @@ public class CopyFileService extends LifecycleLoggingService {  //IntentService 
                     }
                 }
             }
-            //file_size = file_size / 1024 / 1024;
+            file_size = file_size / 1024 / 1024;
             myLog("file size : " + file_size + "Mo" +
                     "\navailable memory : " + availableMegs + " Mo");
 //////

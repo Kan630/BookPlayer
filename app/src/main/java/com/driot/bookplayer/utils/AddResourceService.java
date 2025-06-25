@@ -568,6 +568,7 @@ public class AddResourceService
             myLog("service already running, skipping init()");
             return;
         }
+        isBusy = true;
 
         LoadBookTaskState state = getLoadBookTaskState(this);
         if (state != null) {
@@ -605,7 +606,6 @@ public class AddResourceService
         myLog("*********************************************************************************************************");
 
 
-        isBusy = true;
         PROGRESS = PROGRESS_DOWNLOAD; // dummy progress, before real init
         tellProgress(PROGRESS[0], PROGRESS_TEXT[0]);
 
