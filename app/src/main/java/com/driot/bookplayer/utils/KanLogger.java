@@ -29,7 +29,7 @@ public class KanLogger {
 
 
     private static final boolean LOG_DEBUG = true;
-    public static final boolean LOG_LIFECYCLE_TRACE = false;
+    public static final boolean LOG_LIFECYCLE_TRACE = true;
 
 
     private static final String PREFIX_DELETE = "com.driot.bookplayer.";
@@ -48,7 +48,8 @@ public class KanLogger {
             ,"a35ba9d541e15b9ff7b017b7fef54430" // Redmi/veux_eea/veux:13/TKQ1.221114.001/V816.0.1.0.TKCEUXM:user/release-keys
             ,"dabe9f1966e715f8d0cdf81561647f7c" // OPPO/CPH2065EEA/OP4BDCL1:12/SP1A.210812.016/Q.GDPR.132c99b-1ff9d:user/release-keys
             ,"177d74d79a466e1713c2d0bac3a533cb" // samsung/gta8wifieea/gta8wifi:14/UP1A.231005.007/X200XXS3DXD5:user/release-keys
-            ,"6ae8f378ae8663ef65b459119615d98e" //HONOR/LLD-L31/HWLLD-H:9/HONORLLD-L31/9.1.0.158C432:user/release-keys
+            ,"6ae8f378ae8663ef65b459119615d98e" // HONOR/LLD-L31/HWLLD-H:9/HONORLLD-L31/9.1.0.158C432:user/release-keys
+            ,"075791181e0710a32a2ed10e04f32b26" // samsung/a16nseea/a16:15/AP3A.240905.015.A2/A165FXXU3BYEC:user/release-keys
     };
 
 

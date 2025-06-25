@@ -91,9 +91,6 @@ public class DownloadService extends LifecycleLoggingService {
     @Override
     public void onCreate() {
         myLog("onCreate()");
-        //super.onCreate();
-        createNotificationChannel();
-        //startForegroundNotification();
     }
 
     private boolean isInternetAvailable() {
@@ -125,6 +122,12 @@ public class DownloadService extends LifecycleLoggingService {
     private void downloadFile() {
         myLog("downloadFile()");
 
+        if (!isInternetAvailable()) {
+            tellError("No Internet");
+            isBusy = false;
+            return;
+        }
+
         startDownloadJob(this, fileUrl, destinationFolder, audioBookTitle);
 /*
         InputStream input = null;
@@ -133,11 +136,6 @@ public class DownloadService extends LifecycleLoggingService {
         String destinationFileName = getFileNameFromPath(fileUrl);
         lopperForLog=0;
         
-        if (!isInternetAvailable()) {
-            tellError("No Internet");
-            isBusy = false;
-            return;
-        }
 
         String destFullPath;
         try {
@@ -267,22 +265,7 @@ public class DownloadService extends LifecycleLoggingService {
         }
     }
 
-    private void createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            String channelName = "Download Notifications";
-            NotificationChannel channel = new NotificationChannel(
-                    CHANNEL_ID_DOWNLOAD,
-                    channelName,
-                    NotificationManager.IMPORTANCE_LOW
-            );
-            channel.setDescription("Used for download progress");
 
-            NotificationManager manager = getSystemService(NotificationManager.class);
-            if (manager != null) {
-                manager.createNotificationChannel(channel);
-            }
-        }
-    }
 
 
     //////////////////////////////////////////////////////////////////////////////////////////

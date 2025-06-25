@@ -1,5 +1,7 @@
 package com.driot.bookplayer.utils;
 
+import static com.driot.bookplayer.utils.Utils.recursiveRemove;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -29,6 +31,40 @@ public class KanFiles {
             os.close();
         }
     }
+
+
+    public static boolean deleteFolderRecursive(String strPath) {
+        String starter = "file:///";
+        if (strPath.length()>5) {
+            strPath = strPath.replace(starter,"");
+            try {
+                File zikFileToDelete = new File(strPath);
+                if(zikFileToDelete.exists()) {
+                    if (recursiveRemove(zikFileToDelete)) {
+                        myLog("Deleted from Disk : [" + strPath + "]");
+                        return true;
+                    } else {
+                        myLog("NOT Deleted from Disk : [" + strPath + "]");
+                        return false;
+                    }
+                } else {
+                    myLogE("file does not exist : [" + strPath + "]");
+                    return false;
+                }
+            } catch (Exception e) {
+                myLogE("Error remove ZikFile from Disk : [" + strPath + "] - " + e.getMessage());
+                return false;
+            }
+        } else {
+            myLogE("should not happen uri less than 5 chars for path [" + strPath + "]");
+            return false;
+        }
+    }
+
+    ////////////////////////////////////////////////////////
+    private static final String TAG = "KanFiles";
+    private static void myLog(String str) { KanLogger.myLog(TAG, str); }
+    private static void myLogE(String str) { KanLogger.myLogE(TAG, str); }
 
 
 }

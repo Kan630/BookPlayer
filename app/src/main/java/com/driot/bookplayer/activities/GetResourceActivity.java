@@ -22,6 +22,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.db.LoadBookTaskState;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.utils.AddResourceService;
 import com.driot.bookplayer.utils.DownloadService;
@@ -32,14 +33,15 @@ import com.driot.bookplayer.utils.KanLogger;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import static com.driot.bookplayer.global.Pref.setLoadBookTaskState;
 import static com.driot.bookplayer.global.Var.AUTOTEST_FILE_01;
 import static com.driot.bookplayer.global.Var.AUTOTEST_FILE_02;
 import static com.driot.bookplayer.global.Var.AUTOTEST_FILE_03;
 import static com.driot.bookplayer.utils.PermissionRequest.isReadAudioPermissionGranted;
+import static com.driot.bookplayer.utils.WorkFlow.maybeResumeWorkFlow;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 08/11/20
@@ -237,19 +239,22 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
                         boolean copy = data.getBooleanExtra("copy", false);
                         boolean delete = data.getBooleanExtra("delete", false);
 
+                        LoadBookTaskState state = new LoadBookTaskState();
+                        state.uri = uri;
+                        state.type = type;
+                        state.title = title;
+                        state.split = split;
+                        state.copy = copy;
+                        state.delete = delete;
+
+                        setLoadBookTaskState(this, state); // save in SharedPrefs
+
                         Intent intentService = new Intent(this, AddResourceService.class);
-                        intentService.putExtra("uri", uri);
-                        intentService.putExtra("type", type);
-                        intentService.putExtra("title", title);
-                        intentService.putExtra("split", split);
-                        intentService.putExtra("copy", copy);
-                        intentService.putExtra("delete", delete);
+                        intentService.putExtra("LoadBookTaskState", state);
                         startService(intentService);
 
                         Intent intentActivity = new Intent(this, AddResourceActivity.class);
-                        intentActivity.putExtra("uri", uri);
-                        intentActivity.putExtra("type", type);
-                        intentActivity.putExtra("title", title);
+                        intentActivity.putExtra("LoadBookTaskState", state);
                         startActivity(intentActivity);
                     }
                 }
@@ -329,8 +334,8 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
         });
 
         tv_message_import_currently_running.setOnClickListener(v -> {
+            myLogI("Click on [OnGoing Import] message !");
             Intent intent = new Intent(this, AddResourceActivity.class);
-            intent.putExtra("doLaunchService", false);
             startActivity(intent);
         });
 
@@ -389,6 +394,7 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
     @Override
     protected void onResume() {
         super.onResume();
+        maybeResumeWorkFlow(this);
         startTimer();
     }
 
@@ -406,7 +412,6 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
     private void checkServiceRunning() {
         if (lopperForLog%10==0) myLogD("checkServiceRunning()");
         try {
-            lopperForLog = lopperForLog + 1;
             List<TextView> textViewToHide = Arrays.asList(
                      findViewById(R.id.TextHeaderOpen)
                     ,findViewById(R.id.bOpenFile_desc)
@@ -421,8 +426,10 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
             List<Button> buttonsToLock = Arrays.asList(bOpenFile, bOpenFolder, bOpenZipFile, bOpenM4bFile
                     , bAutoTest_b1, bAutoTest_b2, bAutoTest_b3, bDirectDownload);
 
-            if (AddResourceService.isBusy || DownloadService.isBusy) {
-                if (lopperForLog%20==0) myLog("AddResourceService.isBusy => displaying banner, disabling buttons");
+            if (AddResourceService.isBusy) {
+                if (lopperForLog%20==0) {
+                     myLog("AddResourceService.isBusy => displaying banner, disabling buttons");
+                }
                 for (Button b: buttonsToLock) { b.setEnabled(false); }
                 for (TextView tv: textViewToHide) { tv.setVisibility(View.GONE); }
                 tv_message_import_currently_running.setVisibility(View.VISIBLE);
@@ -431,6 +438,7 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
                 for (TextView tv: textViewToHide) { tv.setVisibility(View.VISIBLE); }
                 tv_message_import_currently_running.setVisibility(View.GONE);
             }
+            lopperForLog = lopperForLog + 1;
         } catch (Exception e) {
             myLogE("Error while checking if service is running : " + e.getMessage());
         }

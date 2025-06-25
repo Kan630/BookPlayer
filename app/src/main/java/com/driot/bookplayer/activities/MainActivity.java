@@ -5,6 +5,8 @@ package com.driot.bookplayer.activities;
  */
 
 
+import static com.driot.bookplayer.global.Pref.clearLoadBookTaskState;
+import static com.driot.bookplayer.global.Pref.setLoadBookTaskState;
 import static com.driot.bookplayer.utils.KanLogger.isMyPhoneDev;
 import static com.driot.bookplayer.utils.KanLogger.writeTechLogs;
 /*
@@ -15,6 +17,7 @@ import static com.driot.bookplayer.utils.Mp4Parser.inspect;
 
  */
 import static com.driot.bookplayer.utils.TonioCommonStuff.MD5;
+import static com.driot.bookplayer.utils.WorkFlow.maybeResumeWorkFlow;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -27,7 +30,6 @@ import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.telephony.TelephonyManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -54,7 +56,7 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.FolderDao;
-import com.driot.bookplayer.db.Sql;
+import com.driot.bookplayer.db.LoadBookTaskState;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.utils.KanLogger;
@@ -62,8 +64,6 @@ import com.driot.bookplayer.utils.KanMail;
 import com.driot.bookplayer.utils.NetworkUtils;
 import com.google.android.material.snackbar.Snackbar;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -99,6 +99,18 @@ public class MainActivity extends LifecycleLoggingActivity {
         printSomeStuffAboutDevice();
 
         //Sql.log_all_Folders(this);
+/*
+        //clearLoadBookTaskState(this);
+        LoadBookTaskState lbts = new LoadBookTaskState();
+        lbts.downloadedFilePath = getApplication().getFilesDir().getPath() + "/download/Harry_Potter_1.zip";
+        lbts.downloadedFileReady = true;
+        lbts.type = "ZIP";
+        lbts.title = "toto";
+        lbts.uri = Uri.parse("https://bookplayer.driot.com/audiobooks/quick_family_share/Harry_Potter_1.zip");
+        setLoadBookTaskState(this, lbts);
+
+ */
+
 
         setContentView(R.layout.activity_main);
 
@@ -118,6 +130,12 @@ public class MainActivity extends LifecycleLoggingActivity {
         super.onRestart();
         getFolders();
         myLog("recyclerview drawing through setAdapter on restart");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        maybeResumeWorkFlow(this);
     }
 
     @SuppressLint("RestrictedApi")

@@ -24,8 +24,8 @@ import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.FolderAttrib;
 import com.driot.bookplayer.db.FolderDao;
+import com.driot.bookplayer.db.LoadBookTaskState;
 import com.driot.bookplayer.db.ZikFile;
-import com.driot.bookplayer.global.Option;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Objects;
 
+import static com.driot.bookplayer.global.Pref.getLoadBookTaskState;
 import static com.driot.bookplayer.global.Var.FOLDER_DOWNLOAD;
 import static com.driot.bookplayer.global.Var.FOLDER_UNZIPPED;
 import static com.driot.bookplayer.global.Var.ONLY_MIME_AUDIO;
@@ -52,6 +53,8 @@ import static com.driot.bookplayer.utils.Tonio.getSourceLocation;
 import static com.driot.bookplayer.utils.Tonio.stripExtension;
 import static com.driot.bookplayer.utils.TonioCommonStuff.deleteExtension;
 import static com.driot.bookplayer.utils.TonioCommonStuff.extractName;
+import static com.driot.bookplayer.utils.WorkFlow.clearDownloadFinished;
+import static com.driot.bookplayer.utils.WorkFlow.setWorkFlowFinished;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 23/11/20
@@ -112,7 +115,7 @@ public class AddResourceService
             , "Duration"
             , "End"
     };
-    public static int[] PROGRESS;
+    public static int[] PROGRESS = PROGRESS_DOWNLOAD;
 
 
     private final IBinder binder = new AddResourceServiceBackgroundBinder();
@@ -130,7 +133,6 @@ public class AddResourceService
     private String zipDestinationFolderPath;
     private String zipDestinationFolderName;
 
-    private String downloadedFilePath;
     private String destinationFolderPath;
 
     private String fullPath;
@@ -143,6 +145,9 @@ public class AddResourceService
     private boolean optionSplitM4b;
     private boolean optionDeleteSource;
 
+    private String downloadedFilePath;
+    private boolean downloadFileReady;
+    private boolean onGoing;
 
     // Callbacks
     //-----------------------------
@@ -171,6 +176,7 @@ public class AddResourceService
     public void onDestroy() {
         myLog("onDestroy()");
         LocalBroadcastManager.getInstance(this).unregisterReceiver(downloadReceiver);
+        isBusy = false;
         super.onDestroy();
     }
 
@@ -376,13 +382,32 @@ public class AddResourceService
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        //url_given = intent.getStringExtra("url");
-        uri_given = intent.getParcelableExtra("uri");
-        type_given = intent.getStringExtra("type");
-        title_given = intent.getStringExtra("title");
-        optionCopyFile = intent.getBooleanExtra("copy", Option.getCopyFile(this));
-        optionSplitM4b = intent.getBooleanExtra("split", Option.getSplitM4b(this));
-        optionDeleteSource = intent.getBooleanExtra("delete", Option.getDeleteSourceFile(this));
+        myLog("onStartCommand");
+
+        LoadBookTaskState state = intent.getParcelableExtra("LoadBookTaskState");
+        if (state != null) {
+            uri_given = state.uri;
+            type_given = state.type;
+            title_given = state.title;
+            optionCopyFile = state.copy;
+            optionSplitM4b = state.split;
+            optionDeleteSource = state.delete;
+        }
+/*
+            downloadedFilePath = state.downloadedFilePath;
+            downloadFileReady = state.downloadedFileReady;
+            onGoing = state.onGoing;
+
+            if (downloadFileReady && downloadedFilePath != null) {
+                myLog("back with finished Downloaded File");
+                downloadService_tellEnd(downloadedFilePath);
+            }
+        } else {
+            myLogE("no args - LoadBookTaskState = null");
+        }
+
+ */
+
         return START_NOT_STICKY;
     }
 
@@ -542,6 +567,23 @@ public class AddResourceService
         if (isBusy) {
             myLog("service already running, skipping init()");
             return;
+        }
+
+        LoadBookTaskState state = getLoadBookTaskState(this);
+        if (state != null) {
+            if (state.downloadedFileReady && state.downloadedFilePath != null) {
+                myLog("back with finished Downloaded File");
+                uri_given = state.uri;
+                type_given = state.type;
+                title_given = state.title;
+                optionCopyFile = state.copy;
+                optionSplitM4b = state.split;
+                optionDeleteSource = state.delete;
+                downloadService_tellEnd(state.downloadedFilePath);
+                return;
+            }
+        } else {
+            myLog("LoadBookTaskState = null");
         }
 
         if (type_given==null || uri_given==null) {myLogE("init() - args=null");tellError("Init failed, args are null");return;}
@@ -1139,26 +1181,23 @@ public class AddResourceService
         myLog("proceedAfterCopyLocal() - Type : [" + type_given + "]"
                 + "\nsourceLocation = [" + sourceLocation + "]"
                 + "\n localCopyFullPath = [" + localCopyFullPath + "]");
+
         if (type_given.equals("ZIP")) {
             myLog("launch unzipZipLocal()");
             unzipZipLocal(localCopyFullPath, zipDestinationFolderPath);
-        //}
-        //if (type_given.equals("ZIP")) {
-        //    myLog("launch unzipZipLocal()");
-        //    unzipZipLocal(zipDestinationFolderPath + "/" + zipDestinationFolderName, zipDestinationFolderPath);
+
         } else if (type_given.equals("M4B") && optionSplitM4b) {
             myLog("launch extractM4bLocal()");
             destinationFolderPath = getFilesDir().getAbsolutePath() + "/" + FOLDER_UNZIPPED + "/" + title_given;
-            //splitM4bLocal(downloadedFilePath, destinationFolderPath);
             splitM4bLocal(localCopyFullPath, destinationFolderPath);
+
         } else {
             if (!Objects.isNull(sourceLocation) && (sourceLocation.equals("cloud") || sourceLocation.equals("web"))) {
-                //myFolder = new FolderAttrib(this, Uri.fromFile(new File(fullPath)), true, type_given);
                 myFolder = new FolderAttrib(this, Uri.fromFile(new File(localCopyFullPath)), true, type_given);
                 audioFileArrayList = new ArrayList<>();
                 audioFileArrayList.add(myFolder.getFileName(this));
+
             } else {
-                //myFolder = new FolderAttrib(this, Uri.fromFile(new File(fullPath)), optionCopyFile, type_given);
                 myFolder = new FolderAttrib(this, Uri.fromFile(new File(localCopyFullPath)), optionCopyFile, type_given);
             }
             saveFolder();
@@ -1180,7 +1219,7 @@ public class AddResourceService
     }
     @Override
     public void downloadService_tellEnd(String downloadedFileFullPath) {
-        downloadedFilePath = downloadedFileFullPath;
+        clearDownloadFinished(this);
         myLog("Download tell End -> [" + downloadedFileFullPath + "]");
         if (Objects.equals(type_given, "ZIP")) {
             uri_given = Uri.fromFile(new File(downloadedFileFullPath));
@@ -1193,6 +1232,7 @@ public class AddResourceService
     }
     @Override
     public void downloadService_tellError(String errorText) {
+        clearDownloadFinished(this);
         myLogE("Download tell Error");
         tellError(errorText);
     }
@@ -1299,12 +1339,14 @@ public class AddResourceService
         mCallBacks.updateProgress(progressText, progressVal);
     }
     private void tellEnd() {
+        setWorkFlowFinished(this);
         mCallBacks.updateEnd();
         isBusy = false;
         myLog("killing Service");
         stopSelf();
     }
     private void tellError(String txt) {
+        setWorkFlowFinished(this);
         mCallBacks.updateError(txt);
         myLogE("tellError... [" + txt + "]");
         isBusy = false;
@@ -1318,6 +1360,9 @@ public class AddResourceService
     public void tellWarning(String txt) {
         mCallBacks.tellWarning(txt);
     }
+    public void tellheader(String txt) {
+        mCallBacks.tellHeader(txt);
+    }
     /**
      **********************************
      *    DOWNLOAD JOB.SERVICE BROADCASTS
@@ -1326,6 +1371,7 @@ public class AddResourceService
     private final BroadcastReceiver downloadReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+            String audioBookTitle = intent.getStringExtra("audioBookTitle");
             switch (Objects.requireNonNull(intent.getAction())) {
                 case "BOOKPLAYER_DOWNLOAD_PROGRESS":
                     int progress = intent.getIntExtra("progress", 0);

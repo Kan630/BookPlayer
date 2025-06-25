@@ -10,12 +10,22 @@ import static com.driot.bookplayer.utils.KanLogger.myLogE;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Parcel;
+import android.os.Parcelable;
+import android.util.Base64;
+
+import com.driot.bookplayer.db.LoadBookTaskState;
+import com.driot.bookplayer.utils.KanLogger;
 
 public class Pref {
 
 
     private static final String SHARED_PREFERENCES_DIVERSE = "SHARED_PREFERENCES_DIVERSE";
     private static final String SHARED_PREFERENCE_INTROCUT = "SHARED_PREFERENCE_INTROCUT";
+
+    private static final String SHARED_PREFERENCES_DOWNLOAD = "SHARED_PREFERENCES_DOWNLOAD";
+    private static final String KEY_LOAD_BOOK_TASK_STATE = "loadBookTaskState";
+
 
 
     /////////////////// OPEN WITH ... LAST IMPORTED FILE ///////////////////
@@ -46,6 +56,52 @@ public class Pref {
             return 0;
         }
     }
+
+
+
+    public static void setLoadBookTaskState(Context context, LoadBookTaskState loadBookTaskState) {
+        Parcel parcel = Parcel.obtain();
+        loadBookTaskState.writeToParcel(parcel, 0);
+        byte[] bytes = parcel.marshall();
+        parcel.recycle();
+
+        String encoded = Base64.encodeToString(bytes, Base64.DEFAULT);
+
+        SharedPreferences prefs = context.getSharedPreferences(SHARED_PREFERENCES_DOWNLOAD, Context.MODE_PRIVATE);
+        prefs.edit().putString(KEY_LOAD_BOOK_TASK_STATE, encoded).apply();
+    }
+
+    public static LoadBookTaskState getLoadBookTaskState(Context context) {
+        return getLoadBookTaskState(context, false);
+    }
+    public static LoadBookTaskState getLoadBookTaskState(Context context, boolean doPrint) {
+        SharedPreferences prefs = context.getSharedPreferences(SHARED_PREFERENCES_DOWNLOAD, Context.MODE_PRIVATE);
+        String encoded = prefs.getString(KEY_LOAD_BOOK_TASK_STATE, null);
+
+        if (encoded == null) return null;
+
+        byte[] bytes = Base64.decode(encoded, Base64.DEFAULT);
+        Parcel parcel = Parcel.obtain();
+        parcel.unmarshall(bytes, 0, bytes.length);
+        parcel.setDataPosition(0);
+
+        LoadBookTaskState result = LoadBookTaskState.CREATOR.createFromParcel(parcel);
+        parcel.recycle();
+
+        if (doPrint) myLog(result.toString());
+
+        return result;
+    }
+
+    public static void clearLoadBookTaskState(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(SHARED_PREFERENCES_DOWNLOAD, Context.MODE_PRIVATE);
+        prefs.edit().remove(KEY_LOAD_BOOK_TASK_STATE).apply();
+    }
+
+
+
+
+    private static void myLog(String str) { KanLogger.myLog("Pref", str); }
 
 
 }

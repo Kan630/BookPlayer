@@ -1,16 +1,11 @@
 package com.driot.bookplayer.activities;
 
 import android.app.Activity;
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -18,20 +13,13 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.db.ZikFile;
-import com.driot.bookplayer.global.Pref;
+import com.driot.bookplayer.db.LoadBookTaskState;
 import com.driot.bookplayer.utils.AddResourceService;
 import com.driot.bookplayer.utils.KanLogger;
-import com.driot.bookplayer.utils.Tonio;
-import com.google.gson.Gson;
 
-import static com.driot.bookplayer.global.Var.PATH_CHECK_APPLICATION;
 import static com.driot.bookplayer.utils.Tonio.getFileNameFromPath;
 import static com.driot.bookplayer.utils.Tonio.formatNameForDisplay;
-
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-
-import java.util.Objects;
+import static com.driot.bookplayer.utils.WorkFlow.maybeResumeWorkFlow;
 
 
 /**
@@ -57,9 +45,6 @@ public class AddResourceActivity
     private boolean HasBeenInitializedService = false;
 
     private String type;
-    private String original_type = "xx";
-
-    private static final long MAX_TIME_BETWEEN_OPEN_WIDTH_LOADS = 20000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,40 +57,30 @@ public class AddResourceActivity
         tvErrorText = findViewById(R.id.errorText);
         tvWarning = findViewById(R.id.warningText);
 
-        String url = getIntent().getStringExtra("url");
-        boolean doLaunchService = getIntent().getBooleanExtra("doLaunchService",true); //case going back from UI action (user click on 'onGoing Import')
-        String action = getIntent().getAction();
-
-        doLaunchService = true;
-        if (doLaunchService) {
-
-            if (url != null) {   // DIRECT DOWNLOAD
-
-                myLog("onCreate() - Download\nurl=[" + url + "]");
-                type =  "Download";
-                putTitle(url);
-
-            } else {  // FILE PICKER
-
-                //Huawei Folder : uri=[content://com.android.externalstorage.documents/tree/primary%3Aaudiobooks%2FHarry%20Potter%20Audio%20Books%201-7%3B%20Read%20by%20Stephen%20Fry%20%5BMP3%5D%2FBook%2002%20-%20Harry%20Potter%20and%20the%20Chamber%20of%20Secrets] - type=[Folder]
-
-                Uri uri = getIntent().getParcelableExtra("uri");
-                type =  getIntent().getStringExtra("type");
-                String str_Uri = uri==null ? "null" : uri.toString();
-                myLog("onCreate() - from File Picker\nuri=[" + str_Uri + "]\ntype=[" + type + "]");
-                if (!str_Uri.contains(PATH_CHECK_APPLICATION)) {
-                    try {
-                        this.getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                    } catch (Exception e) {
-                        myLogE("error while using takePersistableUriPermission for selected URI - " + e.getMessage());
-                    }
-                }
-                if (uri != null) {
-                    putTitle(uri.getLastPathSegment());
-                }
-            }
-
+        LoadBookTaskState state = getIntent().getParcelableExtra("LoadBookTaskState");
+        if (state != null) {
+            type = state.type;
+            putTitle(state.title);
         }
+
+/*
+        Uri uri = state.uri;
+        String str_Uri = uri==null ? "null" : uri.toString();
+        myLog("onCreate() - from File Picker\nuri=[" + str_Uri + "]\ntype=[" + type + "]");
+        if (!str_Uri.contains(PATH_CHECK_APPLICATION)) {
+            try {
+                this.getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+            } catch (Exception e) {
+                myLogE("error while using takePersistableUriPermission for selected URI - " + e.getMessage());
+            }
+        }
+        if (uri != null) {
+            putTitle(uri.getLastPathSegment());
+        }
+
+ */
+
+
         Intent intentAddResourceService = new Intent(this, AddResourceService.class);
         boundToAddResourceService = bindService(intentAddResourceService, addResourceServiceConnection, Context.BIND_AUTO_CREATE); //error Log : Activity XXX has leaked ServiceConnection
         myLog("call start & bind to AddResourceService from AddResourceActivity.onCreate() - bound result :" + boundToAddResourceService);
@@ -133,6 +108,12 @@ public class AddResourceActivity
             myLogE("onStop - error unbindService : " + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        maybeResumeWorkFlow(this);
     }
 
     private final ServiceConnection addResourceServiceConnection = new ServiceConnection() {

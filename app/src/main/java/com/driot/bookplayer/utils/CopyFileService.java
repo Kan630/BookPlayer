@@ -173,7 +173,7 @@ public class CopyFileService extends LifecycleLoggingService {  //IntentService 
 //File
             } else {
                 try {
-                    file_size = Integer.parseInt(String.valueOf(inFile.length() / 1048576L));
+                    file_size = Long.parseLong(String.valueOf(inFile.length() / 1048576L));
                 } catch (Exception e) {
                     myLogE("getting FileSize raise an error...");
                     file_size = -2;
@@ -186,7 +186,7 @@ public class CopyFileService extends LifecycleLoggingService {  //IntentService 
                     }
                 }
             }
-            file_size = file_size / 1024 / 1024;
+            //file_size = file_size / 1024 / 1024;
             myLog("file size : " + file_size + "Mo" +
                     "\navailable memory : " + availableMegs + " Mo");
 //////
