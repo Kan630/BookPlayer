@@ -141,19 +141,14 @@ public class AudioService extends LifecycleLoggingService {
             myLog("MediaSessionCompat.Callback - onStop()");
             super.onStop();
             mediaPlayerStop();
-            //createNotification();
-            //removeNotification(); // Remove notification when playback is stopped
             stopForeground(false);
-            //stopSelf();
         }
         @Override
         public boolean onMediaButtonEvent(Intent mediaButtonIntent) {
             KeyEvent ke = mediaButtonIntent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
             myLog("MediaSessionCompat.Callback - onMediaButtonEvent -- Received command = " + ke);
-
             // not needed anymore
             //if (ke != null && ke.getAction() == KeyEvent.ACTION_DOWN) handleKeyEvent(ke.getKeyCode());
-
             return super.onMediaButtonEvent(mediaButtonIntent);
         }
 
@@ -196,7 +191,6 @@ public class AudioService extends LifecycleLoggingService {
         }
     };
 
-    private int maxTimeBeforeSleep;
     private double speed = 1.0;
     private boolean ErrorLoadingFile = false;
     DecimalFormat myDF = new DecimalFormat("#,###.");
@@ -393,7 +387,7 @@ public class AudioService extends LifecycleLoggingService {
         createNotification();  // <- this triggers startForeground()           2025-06-01
 
         if (intent != null) {
-            myLog("onStartCommand()" + intent.toString());
+            myLog("onStartCommand()" + intent);
             if (Objects.equals(intent.getAction(), Intent.ACTION_MEDIA_BUTTON)) {
                 if (intent.hasExtra(Intent.EXTRA_KEY_EVENT)) {
                     KeyEvent keyEvent = intent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
@@ -840,10 +834,9 @@ public class AudioService extends LifecycleLoggingService {
             }
             new Thread(() -> {
                 try {
-                    int mySqlresponse = 0 ;
                     AppDatabase db = AppDatabase.getDatabase(getApplicationContext());
                     ZikFileDao zikFileDao = db.ZikFileDao();
-                    mySqlresponse = zikFileDao.update(zf);
+                    int mySqlresponse = zikFileDao.update(zf);
                     if (mySqlresponse > 0) {
                         myLogD("---------- zikFile updated (" + zf.getName() + ")- position : " + myDF.format(zf.getPosition()));
                         Sql.calculateFolderProgress(getApplicationContext(), zf.getIdFolder());
