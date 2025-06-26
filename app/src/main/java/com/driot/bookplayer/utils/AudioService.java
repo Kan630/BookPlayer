@@ -150,7 +150,10 @@ public class AudioService extends LifecycleLoggingService {
         public boolean onMediaButtonEvent(Intent mediaButtonIntent) {
             KeyEvent ke = mediaButtonIntent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
             myLog("MediaSessionCompat.Callback - onMediaButtonEvent -- Received command = " + ke);
-            if (ke != null && ke.getAction() == KeyEvent.ACTION_DOWN) handleKeyEvent(ke.getKeyCode());
+
+            // not needed anymore
+            //if (ke != null && ke.getAction() == KeyEvent.ACTION_DOWN) handleKeyEvent(ke.getKeyCode());
+
             return super.onMediaButtonEvent(mediaButtonIntent);
         }
 
@@ -341,17 +344,17 @@ public class AudioService extends LifecycleLoggingService {
             case KeyEvent.KEYCODE_MEDIA_REWIND:
                 myLog("KEYCODE_MEDIA_REWIND pressed");
                 // Handle the rewind action
-                //backwardAudio();
+                backwardAudio();
                 break;
             case KeyEvent.KEYCODE_MEDIA_PLAY:
                 myLog("KEYCODE_MEDIA_PLAY pressed");
                 // Handle the play action
-                //playPauseAudio();
+                playPauseAudio();
                 break;
             case KeyEvent.KEYCODE_MEDIA_PAUSE:
                 myLog("KEYCODE_MEDIA_PAUSE pressed");
                 // Handle the pause action
-                //playPauseAudio();
+                playPauseAudio();
                 break;
             case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
                 myLog("KEYCODE_MEDIA_PLAY_PAUSE pressed");
@@ -361,19 +364,19 @@ public class AudioService extends LifecycleLoggingService {
             case KeyEvent.KEYCODE_MEDIA_FAST_FORWARD:
                 myLog("KEYCODE_MEDIA_FAST_FORWARD pressed");
                 // Handle the fast forward action
-                //forwardAudio();
+                forwardAudio();
                 break;
             case KeyEvent.KEYCODE_HEADSETHOOK:
                 myLog("KEYCODE_HEADSETHOOK pressed");
-                //playPauseAudio();
+                playPauseAudio();
                 break;
             case KeyEvent.KEYCODE_MEDIA_NEXT:
                 myLog("KEYCODE_MEDIA_NEXT pressed");
-                //forwardAudio();
+                forwardAudio();
                 break;
             case KeyEvent.KEYCODE_MEDIA_PREVIOUS:
                 myLog("KEYCODE_MEDIA_PREVIOUS pressed");
-                //backwardAudio();
+                backwardAudio();
                 break;
             // Add other cases for additional key codes as needed
             default:
@@ -385,6 +388,7 @@ public class AudioService extends LifecycleLoggingService {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        //is called when user press icons buttons on Notification
 
         createNotification();  // <- this triggers startForeground()           2025-06-01
 
