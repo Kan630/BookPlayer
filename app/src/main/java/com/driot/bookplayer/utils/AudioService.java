@@ -410,8 +410,9 @@ public class AudioService extends LifecycleLoggingService {
 
         // Call createNotification() early to ensure startForeground is called
 
-        //return START_NOT_STICKY; //TODO maybe to change... because memory pressure could kill it
-        return START_STICKY; // 2025-06-24
+        //TODO maybe to change... because memory pressure could kill it
+        return START_NOT_STICKY; //2025-06-27 - open test (v86)
+        //return START_STICKY; // 2025-06-24 - production
     }
     @Override
     public void onDestroy() {
