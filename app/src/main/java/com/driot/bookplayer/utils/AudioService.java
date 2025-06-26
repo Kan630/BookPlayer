@@ -307,7 +307,7 @@ public class AudioService extends LifecycleLoggingService {
         loadZeFile(true);
         //TODO remplace par PlayAudio() ??
         myLog("mediaPlayer.start() -- nextrack");
-        dointroCut();
+        doIntroCut();
         mediaPlayerStart();
         alertNewTrack();
     }
@@ -569,8 +569,8 @@ public class AudioService extends LifecycleLoggingService {
                         }
                     }
                 }
-                dointroCut();
-                myLog("about to do mediaPlayer.start()...  mediaPlayer.getCurrentPosition : " + mediaPlayer.getCurrentPosition());
+                doIntroCut();
+                myLog("about to call mediaPlayer.start()...  mediaPlayer.getCurrentPosition : " + mediaPlayer.getCurrentPosition());
                 mediaPlayerStart();
                 startSleepTimer();
                 if (mediaSession != null) {
@@ -585,7 +585,7 @@ public class AudioService extends LifecycleLoggingService {
         }
     }
 
-    private void dointroCut() {
+    private void doIntroCut() {
         int introCut = 0;
         try {
             if (PlayList.getZikFile()!=null) {
@@ -744,7 +744,7 @@ public class AudioService extends LifecycleLoggingService {
         timerRunnable = new Runnable() {
             @Override
             public void run() {
-                myLogD("----------------------------------------------------------------------------- " + elapsedSeconds + "s. since timer started.....      (AutoSleep in " + timeBeforeSleep + "min.)");
+                myLogD("----------------------------------------------------------------------------- " + elapsedSeconds + "s. since timer started.....      (AutoSleep set to " + timeBeforeSleep + "min.)");
                 updateZikFileState(false);
 
                 // Auto Sleep Option
