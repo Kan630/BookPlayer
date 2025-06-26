@@ -401,7 +401,21 @@ public class AudioService extends LifecycleLoggingService {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        myLog("onStartCommand()" + intent.toString());
+
+        createNotification();  // <- this triggers startForeground()           2025-06-01
+
+        if (intent != null) {
+            myLog("onStartCommand()" + intent.toString());
+            if (Objects.equals(intent.getAction(), Intent.ACTION_MEDIA_BUTTON)) {
+                if (intent.hasExtra(Intent.EXTRA_KEY_EVENT)) {
+                    KeyEvent keyEvent = intent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
+                    if (keyEvent != null) {
+                        int keyCode = keyEvent.getKeyCode();
+                        handleKeyEvent(keyCode);
+                    }
+                }
+            }
+        }
 
 /*  ----> this make the flickering
         // Start with a minimal notification immediately
@@ -413,17 +427,7 @@ public class AudioService extends LifecycleLoggingService {
  */
 
         // Call createNotification() early to ensure startForeground is called
-        createNotification();  // <- this triggers startForeground()           2025-06-01
 
-        if (Objects.equals(intent.getAction(), Intent.ACTION_MEDIA_BUTTON)) {
-            if (intent.hasExtra(Intent.EXTRA_KEY_EVENT)) {
-                KeyEvent keyEvent = intent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
-                if (keyEvent != null) {
-                    int keyCode = keyEvent.getKeyCode();
-                    handleKeyEvent(keyCode);
-                }
-            }
-        }
         //return START_NOT_STICKY; //TODO maybe to change... because memory pressure could kill it
         return START_STICKY; // 2025-06-24
     }

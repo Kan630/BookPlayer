@@ -115,7 +115,12 @@ public class MainActivity extends LifecycleLoggingActivity {
         setContentView(R.layout.activity_main);
 
         toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar); //si ca plante, check le color theme saved ???
+        try {
+            setSupportActionBar(toolbar); //si ca plante, check le color theme saved ???
+        } catch (Exception e) {
+            KanLogger.myLogE("Action bar error"); // on a Samsung S20 FE, android 13
+        }
+
         toolbar.setLogo(R.mipmap.ic_launcher);
         toolbar.setLogo(R.mipmap.ic_launcher);
 
