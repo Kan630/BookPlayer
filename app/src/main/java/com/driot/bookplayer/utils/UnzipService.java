@@ -33,6 +33,8 @@ import java.util.zip.ZipInputStream;
 
 public class UnzipService extends LifecycleLoggingService {
 
+    public static volatile boolean isUnzipRunning = false;
+
     private final IBinder binder = new UnzipService.UnzipServiceBackgroundBinder();
     Callbacks mCallBacks;
     Thread backgroundThread;
@@ -84,6 +86,7 @@ public class UnzipService extends LifecycleLoggingService {
     }
     public void init() {
         myLog("init()");
+        isUnzipRunning = true;
         //-----------------------------
         // le lourd dans une background Thread.... Hyper Important !! // TODO how to kill such thread in cae of error ?
         backgroundThread = new Thread(() -> {
@@ -149,6 +152,11 @@ public class UnzipService extends LifecycleLoggingService {
                 ze = zis.getNextEntry();
 
                 while (ze != null) {
+                    if (!UnzipService.isUnzipRunning) {
+                        myLog("Unzip canceled during entry loop");
+                        throw new InterruptedException("Unzip canceled");
+                    }
+
                     String audioFileName = ze.getName();
                     myLog(String.valueOf(numCurZip+1) + " - Zip entry : " + ze.getName());
 
@@ -178,8 +186,17 @@ public class UnzipService extends LifecycleLoggingService {
 
                         FileOutputStream fout = new FileOutputStream(unzippedAudioFile);
                         try {
-                            while ((count = zis.read(buffer)) != -1)
+                            while ((count = zis.read(buffer)) != -1) {
+                                if (!UnzipService.isUnzipRunning) {
+                                    myLog("Unzip canceled during stream write");
+                                    throw new InterruptedException("Unzip canceled");
+                                }
                                 fout.write(buffer, 0, count);
+                            }
+                        } catch (InterruptedException e) {
+                            myLogE("Unzip was canceled");
+                            tellError("Unzip canceled.");
+                            return false;
                         } finally {
                             fout.close();
                         }
@@ -328,11 +345,13 @@ public class UnzipService extends LifecycleLoggingService {
             backgroundThread.interrupt();
         }
         stopSelf();
+        isUnzipRunning = false;
     }
     private void tellEnd(String destinationFolderPath) {
         mCallBacks.unzipService_tellEnd(destinationFolderPath);
         myLog("killing Service");
         stopSelf();
+        isUnzipRunning = false;
     }
     public void tellProgress(int progressVal, String progressText) {
         mCallBacks.unzipService_tellProgress(progressText, progressVal);

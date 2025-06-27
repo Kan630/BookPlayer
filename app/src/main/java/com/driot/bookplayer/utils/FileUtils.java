@@ -101,6 +101,10 @@ public class FileUtils {
 
             if (cursor != null) {
                 while (cursor.moveToNext()) {
+                    if (!CopyFileService.isCopyRunning) {
+                        myLog("copyFolder() canceled");
+                        throw new IOException("Copy canceled"); // will be catch by calling line in CopyFileService
+                    }
                     String documentId = cursor.getString(0);
                     String displayName = cursor.getString(1);
                     String mimeType = cursor.getString(2);
@@ -109,6 +113,10 @@ public class FileUtils {
                     Uri documentUri = DocumentsContract.buildDocumentUriUsingTree(sourceUri, documentId);
 
                     if (DocumentsContract.Document.MIME_TYPE_DIR.equals(mimeType)) {
+                        if (!CopyFileService.isCopyRunning) {
+                            myLog("cancel before recursive copyFolder() call");
+                            throw new IOException("Copy canceled");
+                        }
                         File subDir = new File(destinationFolder, displayName);
                         copyFolder(context, documentUri, subDir, copiedSize, forceSize, onlyMime, onlyExtension, listener);  // Corrected parameters
                     } else {
@@ -125,6 +133,10 @@ public class FileUtils {
                             doCopy = true;
                         }
                         if (doCopy) {
+                            if (!CopyFileService.isCopyRunning) {
+                                myLog("cancel before copyFile()");
+                                throw new IOException("Copy canceled");
+                            }
                             copyFile(context, documentUri, new File(destinationFolder, displayName), totalSize, copiedSize, listener);
                         }
                     }

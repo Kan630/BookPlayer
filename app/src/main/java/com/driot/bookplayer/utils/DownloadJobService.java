@@ -1,8 +1,6 @@
 package com.driot.bookplayer.utils;
 
-import static android.system.Os.mkdir;
 import static com.driot.bookplayer.global.Var.FOLDER_DOWNLOAD;
-import static com.driot.bookplayer.global.Var.FOLDER_UNZIPPED;
 import static com.driot.bookplayer.utils.DownloadService.CHANNEL_ID_DOWNLOAD;
 import static com.driot.bookplayer.utils.KanFiles.deleteFolderRecursive;
 import static com.driot.bookplayer.utils.WorkFlow.setDownloadFinished;
@@ -34,9 +32,10 @@ import java.util.Locale;
 public class DownloadJobService extends JobService {
 
     private long lastUpdateTime = 0;
+    private int lastPercentProgress = 0;
     private static final long MIN_UPDATE_INTERVAL = 100; // milliseconds
 
-    private boolean isJobRunning = false;
+    public static volatile boolean isJobRunning = false;
 
     String audioBookTitle;
 
@@ -81,6 +80,7 @@ public class DownloadJobService extends JobService {
     @Override
     public boolean onStopJob(JobParameters params) {
         isJobRunning = false;
+        cancelDownloadNotification();
         return true; // Retry the job if it was killed
     }
 
@@ -120,33 +120,36 @@ public class DownloadJobService extends JobService {
             createNotificationChannel(); // Optional: ensure channel exists
 
             while ((count = input.read(data)) != -1) {
-                if (!isJobRunning) return false;
+                if (!isJobRunning) {
+                    myLogE("================= Download cancelled by user.");
+                    tellError(getString(R.string.Download_cancelled));
+                    return false;
+                }
 
                 total += count;
                 output.write(data, 0, count);
 
                 if (fileLength > 0) {
                     int progress = (int) (total * 100 / fileLength);
-                    if (progress != lastProgress) {
-                        lastProgress = progress;
+                    //if (progress != lastProgress) {
+                    //    lastProgress = progress;
 
                         String strSize = formatSizeMB(total) + " / " + formatSizeMB(fileLength);
                         showDownloadNotification(title, progress, strSize);
-                    }
+                    //}
                 }
             }
 
             myLogI("Downloaded to " + destFile.getAbsolutePath());
 
-            // Optional: cancel the notif at the end
-            NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            if (nm != null) nm.cancel(1);
+            cancelDownloadNotification();
 
             return true;
 
         } catch (Exception e) {
             myLogE("Download failed: " + e.getMessage());
-            tellError("Download failed: " + e.getMessage());
+            tellError( getString(R.string.Download_failed) + e.getMessage());
+            cancelDownloadNotification();
             return false;
 
         } finally {
@@ -171,9 +174,9 @@ public class DownloadJobService extends JobService {
     private void showDownloadNotification(String title, int progress, String strSize) {
         long currentTime = System.currentTimeMillis();
         if (currentTime - lastUpdateTime > MIN_UPDATE_INTERVAL || progress==100) {
-            String txtProgress = progress + "% downloaded (" + strSize + ")";
+            String txtProgress = progress + "% " + getString(R.string.downloaded) + " (" + strSize + ")";
             NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID_DOWNLOAD)
-                    .setContentTitle("Downloading: " + title)
+                    .setContentTitle(getString(R.string.Downloading) + ": " + title)
                     .setContentText(txtProgress)
                     .setSmallIcon(R.drawable.ic_download_24dp)
                     .setPriority(NotificationCompat.PRIORITY_LOW)
@@ -192,7 +195,10 @@ public class DownloadJobService extends JobService {
             intent.putExtra("audioBookTitle", audioBookTitle);
             LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
 
+            if (lastPercentProgress!=progress) myLogD("tellProgress : " + progress + " - " + txtProgress);
+
             lastUpdateTime = currentTime;
+            lastPercentProgress = progress;
         }
     }
 
@@ -220,9 +226,17 @@ public class DownloadJobService extends JobService {
         }
     }
 
+    private void cancelDownloadNotification() {
+        NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        if (nm != null) {
+            nm.cancel(1); // Match the ID used in showDownloadNotification()
+        }
+    }
+
     //--- LOG --------------------------
     private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
     private void myLogInFile(String str) { KanLogger.myLogInFile(this.getClass().getName(), str); }
+    private void myLogD(String str) { KanLogger.myLogD(this.getClass().getName(), str); }
     private void myLogI(String str) { KanLogger.myLogI(this.getClass().getName(), str); }
     private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
     private void myToast(String str) { KanLogger.myToast(this.getClass().getName(), str); }

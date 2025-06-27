@@ -33,6 +33,8 @@ import java.util.Set;
 
 public class SplitM4bService extends LifecycleLoggingService {
 
+    public static volatile boolean isSplitRunning = false;
+
     private final IBinder binder = new SplitM4bService.SplitM4bServiceBackgroundBinder();
     Callbacks mCallBacks;
     Thread backgroundThread;
@@ -88,6 +90,7 @@ public class SplitM4bService extends LifecycleLoggingService {
 
     public void init() {
         myLog("init()");
+        isSplitRunning = true;
         //-----------------------------
         // heavy stuff in background Thread.... Hyper Important !! // TODO how to kill such thread in cae of error ?
         backgroundThread = new Thread(() -> {
@@ -186,6 +189,11 @@ public class SplitM4bService extends LifecycleLoggingService {
             DecimalFormat chapterFormat = new DecimalFormat("000");
 
             for (int c = 0; c < chapterSamples.size(); c++) {
+                if (!isSplitRunning) {
+                    myLog("Split cancelled by user");
+                    tellError("Split cancelled");
+                    return false;
+                }
 
                 String chapterFileName = extractCleanChapterTitle(chapterSamples.get(c));
 
@@ -327,11 +335,13 @@ public class SplitM4bService extends LifecycleLoggingService {
             backgroundThread.interrupt();
         }
         stopSelf();
+        isSplitRunning = false;
     }
     private void tellEnd(String destinationFolderPath) {
         mCallBacks.splitM4bService_tellEnd(destinationFolderPath);
         myLog("killing Service");
         stopSelf();
+        isSplitRunning = false;
     }
     public void tellProgress(int progressVal, String progressText) {
         mCallBacks.splitM4bService_tellProgress(progressText, progressVal);

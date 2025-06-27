@@ -38,10 +38,10 @@ import java.io.OutputStream;
 
 public class CopyFileService extends LifecycleLoggingService {  //IntentService are designed to run in the background....   but let's use an executor or thread
 
+    public static volatile boolean isCopyRunning = false;
+
     private final IBinder binder = new CopyFileService.CopyFileServiceBackgroundBinder();
     Callbacks mCallBacks;
-
-    public static boolean isBusy;
 
     private static final int COPY_BUFFER_SIZE = 1024;
 
@@ -119,7 +119,7 @@ public class CopyFileService extends LifecycleLoggingService {  //IntentService 
 
     public void init() {
         myLog("init()");
-        isBusy = true;
+        isCopyRunning = true;
 
 // All the Stuff around inFile is non mandatory...
 // will later use Uri anyway
@@ -283,7 +283,12 @@ public class CopyFileService extends LifecycleLoggingService {  //IntentService 
                 }
                 );
             } catch (Exception e) {
-                tellError("Folder copy - KO : " + e.getMessage());
+                if (e.getMessage()!=null && e.getMessage().equals("Copy canceled")) {
+                    myLog("Copy was canceled by user.");
+                    tellError("Copy canceled.");
+                } else {
+                    tellError("Folder copy failed: " + e.getMessage());
+                }
                 return false;
             }
             myLog("Folder has been copied");
@@ -309,6 +314,11 @@ public class CopyFileService extends LifecycleLoggingService {  //IntentService 
                         int len;
                         int last_logged_progress_percent = -1;
                         while ((len = is.read(buf)) > 0) {
+                            if (!isCopyRunning) {
+                                myLog("Copy canceled by user.");
+                                tellError("Copy canceled.");
+                                return false;
+                            }
                             nbBuffCopied++;
                             out.write(buf, 0, len);
 
@@ -373,12 +383,12 @@ public class CopyFileService extends LifecycleLoggingService {  //IntentService 
     //-----------------------------
     private void tellError(String errorText) {
         mCallBacks.copyFileService_tellError(errorText);
-        isBusy = false;
+        isCopyRunning = false;
         stopSelf();
     }
     private void tellEnd(String destinationFolderPath, String destinationFolderName) {
         mCallBacks.copyFileService_tellEnd(destinationFolderPath, destinationFolderName);
-        isBusy = false;
+        isCopyRunning = false;
         stopSelf();
     }
     public void tellProgressNoLog(int progressVal, String progressText) {

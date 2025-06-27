@@ -33,6 +33,13 @@
         android:orientation="horizontal"
         app:layout_constraintGuide_percent="0.75" />
 
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline_vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.70" />
+
     <TextView
         android:id="@+id/tvTitle"
         style="@style/myStyleTextTitle2"
@@ -69,13 +76,25 @@
         android:progressDrawable="@drawable/progress_bar_theme"
         />
 
+    <Button
+        android:id="@+id/bCancel"
+        android:text="@string/cancel"
+        style="@style/GetResourceButton"
+        app:layout_constraintLeft_toRightOf="@id/guideline_vertical"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/progressBar"
+        app:layout_constraintBottom_toBottomOf="@id/warningText"
+        />
+
     <TextView
         android:id="@+id/errorText"
         style="@style/textColor"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="15dp"
         android:layout_marginEnd="15dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/guideline_vertical"
         app:layout_constraintTop_toBottomOf="@id/progressBar"
         app:layout_constraintBottom_toBottomOf="@id/warningText"
         android:textStyle="bold"

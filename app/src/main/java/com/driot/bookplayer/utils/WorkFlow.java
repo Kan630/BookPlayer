@@ -3,12 +3,17 @@ package com.driot.bookplayer.utils;
 import static com.driot.bookplayer.global.Pref.clearLoadBookTaskState;
 import static com.driot.bookplayer.global.Pref.getLoadBookTaskState;
 import static com.driot.bookplayer.global.Pref.setLoadBookTaskState;
+import static com.driot.bookplayer.global.Var.FOLDER_DOWNLOAD;
+import static com.driot.bookplayer.utils.KanFiles.deleteFolderRecursive;
 
+import android.app.job.JobScheduler;
 import android.content.Context;
 import android.content.Intent;
 
 import com.driot.bookplayer.activities.AddResourceActivity;
 import com.driot.bookplayer.db.LoadBookTaskState;
+
+import java.io.File;
 
 public class WorkFlow {
 
@@ -69,7 +74,33 @@ public class WorkFlow {
 
 
 
+    public static void cancelAllOngoingTasks(Context context) {
+        // Cancel JobService (e.g., download)
+        DownloadJobService.isJobRunning = false;
 
+        // Cancel heavy stuff
+        UnzipService.isUnzipRunning = false;
+        SplitM4bService.isSplitRunning = false;
+        CopyFileService.isCopyRunning = false;
+
+        // Also stop foreground/background services
+        context.stopService(new Intent(context, AddResourceService.class));
+        context.stopService(new Intent(context, CopyFileService.class));
+        context.stopService(new Intent(context, UnzipService.class));
+        context.stopService(new Intent(context, SplitM4bService.class));
+
+        // Cancel jobs if any are registered with JobScheduler
+        JobScheduler scheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
+        if (scheduler != null) {
+            scheduler.cancelAll();  // OR scheduler.cancel(jobId);
+        }
+
+        //Ensure nothing left in Download Folder
+        String downloadDirPath = context.getFilesDir().getAbsolutePath() + "/" + FOLDER_DOWNLOAD;
+        deleteFolderRecursive(downloadDirPath);
+        File outputDir = new File(downloadDirPath);
+        if (!outputDir.exists()) outputDir.mkdirs();
+    }
 
 
 

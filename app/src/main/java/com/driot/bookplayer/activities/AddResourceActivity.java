@@ -9,6 +9,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -16,6 +17,7 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.LoadBookTaskState;
 import com.driot.bookplayer.utils.AddResourceService;
 import com.driot.bookplayer.utils.KanLogger;
+import com.driot.bookplayer.utils.WorkFlow;
 
 import static com.driot.bookplayer.utils.Tonio.getFileNameFromPath;
 import static com.driot.bookplayer.utils.Tonio.formatNameForDisplay;
@@ -80,6 +82,8 @@ public class AddResourceActivity
 
  */
 
+        Button bCancel = findViewById(R.id.bCancel);
+        bCancel.setOnClickListener(v -> { performCancel(); });
 
         Intent intentAddResourceService = new Intent(this, AddResourceService.class);
         boundToAddResourceService = bindService(intentAddResourceService, addResourceServiceConnection, Context.BIND_AUTO_CREATE); //error Log : Activity XXX has leaked ServiceConnection
@@ -202,6 +206,10 @@ public class AddResourceActivity
                 finish();
             }
         });
+    }
+
+    private void performCancel() {
+        WorkFlow.cancelAllOngoingTasks(this);
     }
 
 

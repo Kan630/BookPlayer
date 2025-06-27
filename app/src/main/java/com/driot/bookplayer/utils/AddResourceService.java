@@ -145,10 +145,6 @@ public class AddResourceService
     private boolean optionSplitM4b;
     private boolean optionDeleteSource;
 
-    private String downloadedFilePath;
-    private boolean downloadFileReady;
-    private boolean onGoing;
-
     // Callbacks
     //-----------------------------
     public interface Callbacks{
@@ -1376,7 +1372,7 @@ public class AddResourceService
                 case "BOOKPLAYER_DOWNLOAD_PROGRESS":
                     int progress = intent.getIntExtra("progress", 0);
                     String txtProgress = intent.getStringExtra("txtProgress");
-                    downloadService_tellProgress(txtProgress, progress);
+                    downloadService_tellProgressNoLog(txtProgress, progress);
                     break;
                 case "BOOKPLAYER_DOWNLOAD_FINISHED":
                     String filePath = intent.getStringExtra("downloadedFileFullPath");
