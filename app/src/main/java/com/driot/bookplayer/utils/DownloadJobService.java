@@ -15,6 +15,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Build;
 
+import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
@@ -41,6 +42,7 @@ public class DownloadJobService extends JobService {
 
     @Override
     public boolean onStartJob(JobParameters params) {
+        myLog("onStartJob");
         isJobRunning = true;
 
         String fileUrl = params.getExtras().getString("fileUrl");
@@ -79,9 +81,64 @@ public class DownloadJobService extends JobService {
 
     @Override
     public boolean onStopJob(JobParameters params) {
+        myLog("onStopJob");
         isJobRunning = false;
         cancelDownloadNotification();
         return true; // Retry the job if it was killed
+    }
+
+    @Override
+    public void onTrimMemory(int level) {
+        super.onTrimMemory(level);
+        myLog("onTrimMemory - level = " + level);
+    }
+
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+        myLog("onLowMemory");
+    }
+
+    @Override
+    public void onConfigurationChanged(android.content.res.Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        myLog("onConfigurationChanged " + newConfig);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        myLog("onDestroy");
+    }
+
+    @Override
+    public void onTaskRemoved(Intent rootIntent) {
+        super.onTaskRemoved(rootIntent);
+        myLog("onTaskRemoved " + rootIntent);
+    }
+
+    @Override
+    public boolean onUnbind(Intent intent) {
+        myLog("onUnbind " + intent);
+        return super.onUnbind(intent);
+    }
+
+    @Override
+    public void onRebind(Intent intent) {
+        super.onRebind(intent);
+        myLog("onRebind");
+    }
+
+    @Override
+    public void onNetworkChanged(@NonNull JobParameters params) {
+        super.onNetworkChanged(params);
+        myLog("onNetworkChanged " + params);
+    }
+
+    @Override
+    public void onTimeout(int startId) {
+        super.onTimeout(startId);
+        myLog("onTimeout " + startId);
     }
 
     private boolean performDownload(String fileUrl, String destinationFolder, String title) {
