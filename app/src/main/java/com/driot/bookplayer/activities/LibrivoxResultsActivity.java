@@ -2,6 +2,8 @@ package com.driot.bookplayer.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -33,9 +35,11 @@ public class LibrivoxResultsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_librivox_results); // ✅ use the XML
+        setContentView(R.layout.activity_librivox_results);
 
-        recyclerView = findViewById(R.id.recyclerViewLibrivox);
+        recyclerView = findViewById(R.id.recyclerViewResults);
+        ProgressBar progressBar = findViewById(R.id.progressBarLoading);
+
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         adapter = new LibrivoxAdapter(item -> {
@@ -76,13 +80,15 @@ public class LibrivoxResultsActivity extends AppCompatActivity {
         List<String> fields = Arrays.asList("identifier", "title", "date", "avg_rating", "num_reviews");
         String fullQuery = "collection:librivoxaudio AND language:(" + lang + ") AND title:(" + query + ")";
 
+        progressBar.setVisibility(View.VISIBLE);
         api.search(fullQuery, fields, 100, 1, "json").enqueue(new Callback<ApiResponse>() {
             @Override
             public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
+                progressBar.setVisibility(View.GONE);
                 if (response.body() != null && response.body().response != null) {
                     List<LibrivoxItem> results = response.body().response.docs;
                     if (results.isEmpty()) {
-                        myToast("No audiobook found for search terms [" + query + "] and language: " + lang);
+                        myToast("No [" + lang + "] audiobook found for search terms [" + query + "]");
                         finish();
                     } else {
                         myLog(results.size() + " results found for search terms [" + query + "] and language: " + lang);
@@ -96,6 +102,7 @@ public class LibrivoxResultsActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<ApiResponse> call, Throwable t) {
+                progressBar.setVisibility(View.GONE);
                 t.printStackTrace();
             }
         });
