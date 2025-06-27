@@ -3,10 +3,13 @@
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:padding="8dp"
-    android:gravity="center_vertical">
+    android:gravity="center_vertical"
+    android:color="?colorSecondary"
+    >
 
     <TextView
         android:id="@+id/textViewLanguage"
+        style="@style/GetResourceSpinnerText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"

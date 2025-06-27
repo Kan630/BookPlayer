@@ -11,6 +11,7 @@ import android.os.Environment;
 import android.provider.Settings;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -27,21 +28,20 @@ import com.driot.bookplayer.db.LanguageItem;
 import com.driot.bookplayer.db.LoadBookTaskState;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.utils.AddResourceService;
-import com.driot.bookplayer.utils.DownloadService;
-import com.driot.bookplayer.utils.LanguageSpinnerAdapter;
+import com.driot.bookplayer.adapter.LanguageSpinnerAdapter;
 import com.driot.bookplayer.utils.MediaScanner2;
 import com.driot.bookplayer.utils.NetworkUtils;
 import com.driot.bookplayer.utils.PermissionRequest;
 import com.driot.bookplayer.utils.KanLogger;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import static com.driot.bookplayer.global.Pref.get_Audio_Language;
 import static com.driot.bookplayer.global.Pref.setLoadBookTaskState;
+import static com.driot.bookplayer.global.Pref.set_Audio_Language;
 import static com.driot.bookplayer.global.Var.AUTOTEST_FILE_01;
 import static com.driot.bookplayer.global.Var.AUTOTEST_FILE_02;
 import static com.driot.bookplayer.global.Var.AUTOTEST_FILE_03;
@@ -204,32 +204,6 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
         });
 
 
-// DIRECT DOWNLOAD - JUST GET IT
-        bDirectDownload.setOnClickListener(view -> {
-            myLog("Button click : DIRECT DOWNLOAD");
-            String url = etDirectDownload.getText().toString();
-
-            if (url.isEmpty()) {
-                myToast("Please enter a URL.");
-                return;
-            }
-            myLog("url : [" + url + "]");
-
-            Uri uri = Uri.parse(url);
-            myLog("uri : [" + uri.toString() + "]");
-
-            if (uri.getPath() == null) {
-                myToastE("Error parsing url.");
-                return;
-            }
-            String type = "File";
-
-            Intent intent = new Intent(this, LoadOptionsActivity.class);
-            intent.putExtra(LoadOptionsActivity.EXTRA_URI, uri);
-            intent.putExtra(LoadOptionsActivity.EXTRA_TYPE, type);
-            loadOptionsActivityResultLauncher.launch(intent);
-        });
-
         loadOptionsActivityResultLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
@@ -345,18 +319,73 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
         });
 
 
-        /// // LIBRIVOX SEARCH
+        ////////////////////////////////
+        //// DIRECT DOWNLOAD - JUST GET IT
+        ////////////////////////////////
 
+        bDirectDownload.setOnClickListener(view -> {
+            myLog("Button click : DIRECT DOWNLOAD");
+            String url = etDirectDownload.getText().toString();
+
+            if (url.isEmpty()) {
+                myToast("Please enter a URL.");
+                return;
+            }
+            myLog("url : [" + url + "]");
+
+            Uri uri = Uri.parse(url);
+            myLog("uri : [" + uri.toString() + "]");
+
+            if (uri.getPath() == null) {
+                myToastE("Error parsing url.");
+                return;
+            }
+            String type = "File";
+
+            Intent intent = new Intent(this, LoadOptionsActivity.class);
+            intent.putExtra(LoadOptionsActivity.EXTRA_URI, uri);
+            intent.putExtra(LoadOptionsActivity.EXTRA_TYPE, type);
+            loadOptionsActivityResultLauncher.launch(intent);
+        });
+
+        ////////////////////////////////
+        /// // LIBRIVOX SEARCH
+        ////////////////////////////////
         Spinner spinnerLanguage = findViewById(R.id.spinnerLanguage);
+        String pref_audio_language = get_Audio_Language(this);
         List<LanguageItem> languageItems = Arrays.asList(
                  new LanguageItem("eng", "English", R.drawable.flag_uk)
-                ,new LanguageItem("fre", "French", R.drawable.flag_fr)
                 ,new LanguageItem("ger", "German", R.drawable.flag_de)
                 ,new LanguageItem("spa", "Spanish", R.drawable.flag_es)
+                ,new LanguageItem("fre", "French", R.drawable.flag_fr)
+                ,new LanguageItem("por", "Portuguese", R.drawable.flag_pt)
                 ,new LanguageItem("ita", "Italian", R.drawable.flag_it)
+                ,new LanguageItem("rus", "Russian", R.drawable.flag_ru)
         );
         LanguageSpinnerAdapter adapter = new LanguageSpinnerAdapter(this, languageItems);
         spinnerLanguage.setAdapter(adapter);
+        // Set spinner initial selection to saved language code
+        int selectedPosition = 0;
+        for (int i = 0; i < languageItems.size(); i++) {
+            if (languageItems.get(i).threeLetterCode.equals(pref_audio_language)) {
+                selectedPosition = i;
+                break;
+            }
+        }
+        spinnerLanguage.setSelection(selectedPosition);
+        // Save the selected language when user changes selection
+        spinnerLanguage.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                LanguageItem selected = (LanguageItem) parent.getItemAtPosition(position);
+                set_Audio_Language(parent.getContext(), selected.threeLetterCode);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                // Optional: do nothing or handle no selection
+            }
+        });
 
         EditText editTextQuery;
         Button buttonSearch;
@@ -380,6 +409,9 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
             intent.putExtra("lang", lang);
             startActivity(intent);
         });
+        ////////////////////////////////
+        ////////////////////////////////
+
 
     }
 

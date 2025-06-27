@@ -1,4 +1,4 @@
-package com.driot.bookplayer.utils;
+package com.driot.bookplayer.adapter;
 
 import android.content.Context;
 import android.view.LayoutInflater;

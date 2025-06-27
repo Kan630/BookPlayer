@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Locale;
 
 public class DownloadJobService extends JobService {
 
@@ -128,7 +129,9 @@ public class DownloadJobService extends JobService {
                     int progress = (int) (total * 100 / fileLength);
                     if (progress != lastProgress) {
                         lastProgress = progress;
-                        showDownloadNotification(title, progress);
+
+                        String strSize = formatSizeMB(total) + " / " + formatSizeMB(fileLength);
+                        showDownloadNotification(title, progress, strSize);
                     }
                 }
             }
@@ -156,14 +159,19 @@ public class DownloadJobService extends JobService {
         }
     }
 
+    private String formatSizeMB(long bytes) {
+        double mb = bytes / (1024.0 * 1024.0);
+        return String.format(Locale.US, "%.1fMB", mb);
+    }
+
     private String getFileNameFromPath(String url) {
         return Uri.parse(url).getLastPathSegment(); // same as your helper
     }
 
-    private void showDownloadNotification(String title, int progress) {
+    private void showDownloadNotification(String title, int progress, String strSize) {
         long currentTime = System.currentTimeMillis();
         if (currentTime - lastUpdateTime > MIN_UPDATE_INTERVAL || progress==100) {
-            String txtProgress = progress + "% downloaded";
+            String txtProgress = progress + "% downloaded (" + strSize + ")";
             NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID_DOWNLOAD)
                     .setContentTitle("Downloading: " + title)
                     .setContentText(txtProgress)

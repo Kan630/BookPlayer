@@ -101,6 +101,15 @@ public class Pref {
 
 
 
+
+    /////////////////// OPEN WITH ... LAST IMPORTED FILE ///////////////////
+    public static void set_Audio_Language(Context c, String audioLanguage) {c.getSharedPreferences(SHARED_PREFERENCES_DIVERSE, MODE_PRIVATE).edit().putString("AUDIO_LANGUAGE",audioLanguage).apply();}
+    public static String get_Audio_Language(Context c) {return c.getSharedPreferences(SHARED_PREFERENCES_DIVERSE, MODE_PRIVATE).getString("AUDIO_LANGUAGE", "eng");}
+
+
+
+
+
     private static void myLog(String str) { KanLogger.myLog("Pref", str); }
 
 

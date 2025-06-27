@@ -5,8 +5,6 @@ package com.driot.bookplayer.activities;
  */
 
 
-import static com.driot.bookplayer.global.Pref.clearLoadBookTaskState;
-import static com.driot.bookplayer.global.Pref.setLoadBookTaskState;
 import static com.driot.bookplayer.utils.KanLogger.isMyPhoneDev;
 import static com.driot.bookplayer.utils.KanLogger.writeTechLogs;
 /*
@@ -53,10 +51,10 @@ import androidx.recyclerview.widget.RecyclerView;
 //import com.arthenica.ffmpegkit.ReturnCode;
 import com.driot.bookplayer.BuildConfig;
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.adapter.FoldersAdapter;
 import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.FolderDao;
-import com.driot.bookplayer.db.LoadBookTaskState;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.utils.KanLogger;

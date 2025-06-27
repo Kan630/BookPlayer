@@ -5,13 +5,12 @@ import android.widget.Button;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.utils.MyFile;
-import com.driot.bookplayer.utils.MyFileAdapter;
+import com.driot.bookplayer.adapter.MyFileAdapter;
 import com.driot.bookplayer.utils.KanLogger;
 
 import java.io.File;

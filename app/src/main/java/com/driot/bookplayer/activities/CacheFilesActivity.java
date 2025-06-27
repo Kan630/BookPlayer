@@ -4,7 +4,6 @@ import static com.driot.bookplayer.utils.Tonio.formatMem;
 import static com.driot.bookplayer.utils.Tonio.getAvailableInternalMemorySize;
 import static com.driot.bookplayer.utils.Tonio.getFolderSize;
 import static com.driot.bookplayer.utils.Tonio.getTotaLInternalMemorySize;
-import static com.driot.bookplayer.utils.Tonio.getTotalRemovableSDCardSize;
 
 import android.os.Bundle;
 import android.widget.TextView;
@@ -17,7 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.ZikFile;
-import com.driot.bookplayer.utils.CacheFilesAdapter;
+import com.driot.bookplayer.adapter.CacheFilesAdapter;
 import com.driot.bookplayer.utils.KanLogger;
 
 import java.io.File;

@@ -1,4 +1,4 @@
-package com.driot.bookplayer.utils;
+package com.driot.bookplayer.adapter;
 
 import android.app.Activity;
 import android.content.Context;
@@ -14,6 +14,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.utils.KanLogger;
+import com.driot.bookplayer.utils.KanMail;
+import com.driot.bookplayer.utils.MyFile;
 
 import static com.driot.bookplayer.utils.Tonio2.loadBiggerText;
 

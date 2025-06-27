@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -15,7 +16,7 @@ import com.driot.bookplayer.db.ApiResponse;
 import com.driot.bookplayer.db.LibrivoxApi;
 import com.driot.bookplayer.db.LibrivoxItem;
 import com.driot.bookplayer.utils.KanLogger;
-import com.driot.bookplayer.utils.LibrivoxAdapter;
+import com.driot.bookplayer.adapter.LibrivoxResultAdapter;
 
 import java.util.Arrays;
 import java.util.List;
@@ -30,19 +31,23 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class LibrivoxResultsActivity extends AppCompatActivity {
     RecyclerView recyclerView;
-    LibrivoxAdapter adapter;
+    LibrivoxResultAdapter adapter;
+    TextView tvSearchTerms, tvLanguage, tvResultsCount;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_librivox_results);
 
-        recyclerView = findViewById(R.id.recyclerViewResults);
-        ProgressBar progressBar = findViewById(R.id.progressBarLoading);
+        recyclerView = findViewById(R.id.recyclerView);
+        ProgressBar progressBar = findViewById(R.id.progressBar);
+        tvSearchTerms = findViewById(R.id.tvSearchTerms);
+        tvLanguage = findViewById(R.id.tvLanguage);
+        tvResultsCount = findViewById(R.id.tvResultsCount);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        adapter = new LibrivoxAdapter(item -> {
+        adapter = new LibrivoxResultAdapter(item -> {
             // On item click, open detail activity
             Intent intent = new Intent(this, LibrivoxDetailActivity.class);
             intent.putExtra("identifier", item.identifier);
@@ -54,7 +59,10 @@ public class LibrivoxResultsActivity extends AppCompatActivity {
         String query = getIntent().getStringExtra("query");
         String lang = getIntent().getStringExtra("lang");
 
-        // ✅ Add HTTP logging interceptor
+        tvSearchTerms.setText("Search: " + query);
+        tvLanguage.setText("Language: " + lang);
+        tvResultsCount.setText("Results: ...");
+
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor(new HttpLoggingInterceptor.Logger() {
             @Override
             public void log(@NonNull String message) {
@@ -68,7 +76,6 @@ public class LibrivoxResultsActivity extends AppCompatActivity {
                 .addInterceptor(logging)
                 .build();
 
-        // ✅ Build Retrofit with the custom client
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://archive.org/")
                 .client(client) // <--- custom OkHttp client with logging
@@ -93,6 +100,7 @@ public class LibrivoxResultsActivity extends AppCompatActivity {
                     } else {
                         myLog(results.size() + " results found for search terms [" + query + "] and language: " + lang);
                         adapter.setItems(results);
+                        tvResultsCount.setText("Nb of audio found: " + results.size());
                     }
                 } else {
                     myToastE("Invalid response");

@@ -6,6 +6,7 @@ import android.widget.TextView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.driot.bookplayer.adapter.ZikFilesAdapter;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.ZikFile;

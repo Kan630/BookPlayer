@@ -203,6 +203,7 @@
 
     <style name="GetResourceSpinner" parent="textColor">
         <item name="android:background">@drawable/rounded_corner_theme</item>
+        <item name="android:popupBackground">?colorSecondary</item>
         <item name="android:textColor">?colorOnSecondary</item>
         <item name="android:textColorHighlight">?colorSecondaryVariant</item>
         <item name="android:layout_marginTop">15dp</item>
@@ -211,6 +212,13 @@
         <item name="android:layout_marginStart">20dp</item>
         <item name="android:layout_marginEnd">20dp</item>
     </style>
+
+    <style name="GetResourceSpinnerText" parent="textColor">
+        <item name="android:textColor">?colorOnSecondary</item>
+    </style>
+
+
+
 
     <!-- ***************** LOAD OPTION AFTER FILE PICKED ***************** -->
 

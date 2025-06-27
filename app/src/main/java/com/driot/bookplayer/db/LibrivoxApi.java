@@ -4,6 +4,7 @@ import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
+import retrofit2.http.Path;
 import retrofit2.http.Query;
 
 public interface LibrivoxApi {
@@ -13,4 +14,7 @@ public interface LibrivoxApi {
                              @Query("rows") int rows,
                              @Query("page") int page,
                              @Query("output") String output);
+
+    @GET("metadata/{identifier}")
+    Call<ItemMetadata> getItemMetadata(@Path("identifier") String identifier);
 }

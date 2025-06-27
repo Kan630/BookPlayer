@@ -1,4 +1,4 @@
-package com.driot.bookplayer.activities;
+package com.driot.bookplayer.adapter;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 28/10/20
@@ -17,6 +17,9 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.activities.FolderModifyActivity;
+import com.driot.bookplayer.activities.PlayActivity;
+import com.driot.bookplayer.activities.ZikFileActivity;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.ZikFile;

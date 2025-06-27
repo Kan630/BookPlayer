@@ -1,24 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/rootLayout"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    >
+    android:padding="16dp"
+    android:fitsSystemWindows="true">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerViewResults"
+    <LinearLayout
+        android:id="@+id/headerLayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:clipToPadding="false"
-        />
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingBottom="12dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="10dp"
+        >
+
+        <TextView
+            android:id="@+id/tvSearchTerms"
+            style="@style/myStyleTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Search: "/>
+
+        <TextView
+            android:id="@+id/tvLanguage"
+            style="@style/myStyleinfo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Language: "/>
+
+        <TextView
+            android:id="@+id/tvResultsCount"
+            style="@style/myStyleinfo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Results: "/>
+    </LinearLayout>
 
     <ProgressBar
-        android:id="@+id/progressBarLoading"
+        android:id="@+id/progressBar"
         style="?android:attr/progressBarStyleLarge"
-        android:layout_width="64dp"
-        android:layout_height="64dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:visibility="visible" />
+        android:visibility="gone"
+        android:indeterminate="true" />
 
-</FrameLayout>
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+</LinearLayout>
