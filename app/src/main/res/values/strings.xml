@@ -506,6 +506,16 @@
     <string name="Downloading">"Downloading"</string>">
     <string name="book_cover">"book cover"</string>">
 
+    <string name="MB_taken_by_BookPlayer_app">" MB taken by BookPlayer app"</string>
+    <string name="MB_taken_by_audio_files">" MB taken by audios files"</string>
+    <string name="MB_taken_by_logs">" MB taken by logs"</string>
+    <string name="MB_available_on_device">" MB : available on device"</string>
+    <string name="MB_device_memory">" MB : Device memory"</string>
+    <string name="MB_available_on_SD_card">" MB : available on SD card"</string>
+    <string name="MB_SD_card_memory">" MB : SD card memory"</string>
+    <string name="audio_location_sdcard">SD card</string>
+
+
 
 
 

@@ -175,22 +175,18 @@ public class Folder implements Serializable {
     }
 
 
-    public static final int MEMORY_ICON_BOOKPLAYER_INTERNAL = R.drawable.ic_memory_internal_bookplayer;
-    public static final int MEMORY_ICON_SMARTPHONE_GENERAL = R.drawable.ic_memory_general_smartphone;
-    public static final int MEMORY_ICON_SMARTPHONE_NOTFOUND = R.drawable.ic_memory_general_notfound;
-
-
-
     public int getMemoryLocationIcon(Context c) {
         try {
             if (path.contains(FOLDER_UNZIPPED)) {
                 return R.drawable.ic_memory_internal_bookplayer;
+            } else if (isSdCardPath(path)) {
+                return R.drawable.ic_memory_sdcard;
             } else {
                 return R.drawable.ic_memory_general_smartphone;
             }
         } catch (Exception e) {
             myLogE("getMemoryLocationIcon() - error : " + e.getMessage());
-            return R.drawable.ic_memory_general_notfound;
+            return R.drawable.ic_memory_notfound;
         }
     }
 
@@ -201,6 +197,8 @@ public class Folder implements Serializable {
         try {
             if (path.contains(FOLDER_UNZIPPED)) {
                 return c.getString(R.string.audio_location_bookplayer_reserved_storage);
+            } else if (isSdCardPath(path)) {
+                return c.getString(R.string.audio_location_sdcard);
             } else {
                 return c.getString(R.string.audio_location_smartphone_shared_storage);
             }
@@ -208,6 +206,10 @@ public class Folder implements Serializable {
             myLogE("getMemoryLocationText() - error : " + e.getMessage());
             return c.getString(R.string.audio_location_audiobook_not_found);
         }
+    }
+    private boolean isSdCardPath(String path) {
+        // Known external/removable SD card mount points
+        return path.contains("/storage/") && path.matches(".*/[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}/.*");
     }
 
     public void setLastAccessToNow() {
