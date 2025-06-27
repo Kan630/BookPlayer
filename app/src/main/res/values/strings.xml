@@ -492,7 +492,7 @@
         <item>japanese</item>
         <item>russian</item>
     </string-array>
-    <string name="LibrivoxSearch_title">"Librivox Direct"</string>
+    <string name="LibrivoxSearch_title">"Librivox Direct - experimental -"</string>
     <string name="LibrivoxSearch_desc">"Make a search to directly get your book from a free world class audiobooks repository (essentially english)"</string>
     <string name="LibrivoxSearch_hint">"Alexandre+Dumas"</string>
     <string name="LibrivoxSearch_button">"Search"</string>

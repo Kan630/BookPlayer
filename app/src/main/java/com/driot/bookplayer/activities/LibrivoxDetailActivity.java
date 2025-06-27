@@ -213,8 +213,8 @@ public class LibrivoxDetailActivity extends AppCompatActivity {
 
 
     private void checkDownloadFile(String identifier) {
-        //String url = "https://archive.org/download/" + identifier + "/" + identifier + "_64kb_mp3.zip";
-        String url = "https://archive.org/compress/" + identifier + "/formats=64KBPS%20MP3&file=/" + identifier + ".zip";
+        String url = "https://archive.org/download/" + identifier + "/" + identifier + "_64kb_mp3.zip";
+        //String url = "https://archive.org/compress/" + identifier + "/formats=64KBPS%20MP3&file=/" + identifier + ".zip";
         myLog("checking existence for [" + url + "]");
 
         new Thread(() -> {

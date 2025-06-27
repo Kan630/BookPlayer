@@ -100,6 +100,8 @@ public class WorkFlow {
         deleteFolderRecursive(downloadDirPath);
         File outputDir = new File(downloadDirPath);
         if (!outputDir.exists()) outputDir.mkdirs();
+
+        setWorkFlowFinished(context);
     }
 
 

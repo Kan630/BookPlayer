@@ -29,6 +29,7 @@ import com.driot.bookplayer.db.LoadBookTaskState;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.utils.AddResourceService;
 import com.driot.bookplayer.adapter.LanguageSpinnerAdapter;
+import com.driot.bookplayer.utils.DownloadJobService;
 import com.driot.bookplayer.utils.MediaScanner2;
 import com.driot.bookplayer.utils.NetworkUtils;
 import com.driot.bookplayer.utils.PermissionRequest;
@@ -500,7 +501,7 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
             List<Button> buttonsToLock = Arrays.asList(bOpenFile, bOpenFolder, bOpenZipFile, bOpenM4bFile
                     , bAutoTest_b1, bAutoTest_b2, bAutoTest_b3, bDirectDownload);
 
-            if (AddResourceService.isBusy) {
+            if (AddResourceService.isBusy || DownloadJobService.isJobRunning) {
                 if (lopperForLog%20==0) {
                      myLog("AddResourceService.isBusy => displaying banner, disabling buttons");
                 }
