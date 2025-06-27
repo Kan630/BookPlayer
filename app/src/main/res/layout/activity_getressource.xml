@@ -137,6 +137,13 @@
             style="@style/GetResourceTextSectionTitle" />
 
         <TextView
+            android:id="@+id/txtLibrivoxSearch_warning"
+            android:text="@string/LibrivoxSearch_warning"
+            style="@style/GetResourceTextTopOfButton"
+            android:textColor="@color/orange_700"
+            />
+
+        <TextView
             android:id="@+id/txtDirectDownload_desc"
             android:text="@string/DirectDownload_desc"
             style="@style/GetResourceTextTopOfButton" />
@@ -165,17 +172,16 @@
             style="@style/GetResourceTextSectionTitle" />
 
         <TextView
-            android:id="@+id/txtLibrivoxSearch_desc"
-            android:text="@string/LibrivoxSearch_desc"
-            style="@style/GetResourceTextTopOfButton" />
-
-        <TextView
             android:id="@+id/txtLibrivoxSearch_warning"
             android:text="@string/LibrivoxSearch_warning"
             style="@style/GetResourceTextTopOfButton"
             android:textColor="@color/orange_700"
             />
 
+        <TextView
+            android:id="@+id/txtLibrivoxSearch_desc"
+            android:text="@string/LibrivoxSearch_desc"
+            style="@style/GetResourceTextTopOfButton" />
 
         <EditText
             android:id="@+id/etLibrivoxSearch"
@@ -198,7 +204,7 @@
 
         <Button
             android:id="@+id/bLibrivoxSearch"
-            android:text="@string/LibrivoxSearch_button"
+            android:text="@string/Search"
             style="@style/GetResourceButton"/>
 
 

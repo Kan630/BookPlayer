@@ -59,6 +59,11 @@ public class LibrivoxResultsActivity extends AppCompatActivity {
         String query = getIntent().getStringExtra("query");
         String lang = getIntent().getStringExtra("lang");
 
+        if (query==null || lang==null) {
+            myLogE("bad arguments");
+            return;
+        }
+
         tvSearchTerms.setText("Search: " + query);
         tvLanguage.setText("Language: " + lang);
         tvResultsCount.setText("Results: ...");
@@ -85,7 +90,9 @@ public class LibrivoxResultsActivity extends AppCompatActivity {
         LibrivoxApi api = retrofit.create(LibrivoxApi.class);
 
         List<String> fields = Arrays.asList("identifier", "title", "date", "avg_rating", "num_reviews");
-        String fullQuery = "collection:librivoxaudio AND language:(" + lang + ") AND title:(" + query + ")";
+
+        String normalizedQuery = query.toLowerCase().replace(",", "");
+        String fullQuery = "collection:librivoxaudio AND language:(" + lang + ") AND (title:(" + normalizedQuery + ") OR creator:(" + normalizedQuery + "))";
 
         progressBar.setVisibility(View.VISIBLE);
         api.search(fullQuery, fields, 100, 1, "json").enqueue(new Callback<ApiResponse>() {

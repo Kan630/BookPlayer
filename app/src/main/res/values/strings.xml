@@ -480,22 +480,10 @@
 
 
 
-    <string-array name="language_array">
-        <item>english</item>
-        <item>french</item>
-        <item>german</item>
-        <item>spanish</item>
-        <item>italian</item>
-        <item>dutch</item>
-        <item>portuguese</item>
-        <item>chinese</item>
-        <item>japanese</item>
-        <item>russian</item>
-    </string-array>
-    <string name="LibrivoxSearch_title">"Librivox Direct - experimental -"</string>
+    <string name="LibrivoxSearch_title">"Librivox Direct"</string>
     <string name="LibrivoxSearch_desc">"Make a search to directly get your book from a free world class audiobooks repository (essentially english)"</string>
-    <string name="LibrivoxSearch_hint">"Alexandre+Dumas"</string>
-    <string name="LibrivoxSearch_button">"Search"</string>
+    <string name="LibrivoxSearch_hint">"Alexandre Dumas"</string>
+    <string name="Search">"Search"</string>
     <string name="LibrivoxResultItem_audio_available_since">"audio available since"</string>">
     <string name="LibrivoxResultitem_nb_of_reviews">"Nb of reviews"</string>">
     <string name="LibrivoxResultitem_avg_rating">"Avg rating"</string>">
