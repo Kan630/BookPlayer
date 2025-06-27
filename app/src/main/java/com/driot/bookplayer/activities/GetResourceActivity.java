@@ -80,6 +80,11 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
                     Uri uri = result.getData().getData();
                     myLog("picked data : " + uri.getPath());
 
+                    getContentResolver().takePersistableUriPermission(
+                            uri,
+                            Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                    );
+
                     Intent intent = new Intent(this, LoadOptionsActivity.class);
                     intent.putExtra(LoadOptionsActivity.EXTRA_URI, uri);
                     intent.putExtra(LoadOptionsActivity.EXTRA_TYPE, type);

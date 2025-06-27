@@ -500,6 +500,8 @@
     <string name="LibrivoxResultitem_nb_of_reviews">"Nb of reviews"</string>">
     <string name="LibrivoxResultitem_avg_rating">"Avg rating"</string>">
     <string name="Librivox_bGetAudioBook">"Get Audiobook"</string>">
+    <string name="LibrivoxSearch_warning">"Warning - Beta Test\nStill experimental"</string>">
+
     <string name="Download_cancelled">"Download cancelled"</string>">
     <string name="Download_failed">"Download failed"</string>">
     <string name="downloaded">"downloaded"</string>">

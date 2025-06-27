@@ -81,7 +81,6 @@ public class LoadOptionsActivity extends Activity {
         TextView tvLocation = findViewById(R.id.tvLocation);
         tvLocation.setText(sourceLocationText);
 
-
         TextView tvFileName = findViewById(R.id.tvFileName);
         TextView tvMimeExtension = findViewById(R.id.tvMimeExtension);
         Button btnConfirm = findViewById(R.id.btnConfirm);
@@ -89,7 +88,6 @@ public class LoadOptionsActivity extends Activity {
 
         errorTextView = findViewById(R.id.errorTextView);
         errorTextView.setVisibility(View.GONE);
-
 
         String uriPath = uri.getPath();
         myLog("picked data : " + uriPath);
@@ -361,7 +359,8 @@ public class LoadOptionsActivity extends Activity {
             } else {
                 myLog("OK, folder path doesn't already exist in DB");
             }
-        }).start();    }
+        }).start();
+    }
 
     private void checkNameDoesNotAlreadyExist() {
         myLog("Checking Folder Name doesn't already exist in DB : [" + audioBookTitle + "]");

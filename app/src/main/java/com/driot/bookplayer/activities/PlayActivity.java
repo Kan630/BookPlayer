@@ -287,19 +287,24 @@ public class PlayActivity extends LifecycleLoggingActivity {
     }
 
     private void launchService() {
+        myLog("launchService");
         intentMusicService = new Intent(PlayActivity.this, AudioService.class);
         //TODO when flip screen the second time, service is destroyed....
+        startService(intentMusicService);
 /*
         if (isServiceRunning(AudioService.class)) {
             myLog("Starting Service");
             startService(intentMusicService);
         }
  */
+        /*
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) { //min SDK 26
             startForegroundService(intentMusicService);
         } else {
             startService(intentMusicService);
         }
+
+         */
 
         audioServiceBound = false;
         try {
@@ -308,7 +313,7 @@ public class PlayActivity extends LifecycleLoggingActivity {
             myLogE("ERROR bindService");
             myLogE(e.getMessage());
         }
-        myLog("call start & bind to AudioService in onCreate() - bound result :" + audioServiceBound + "");
+        myLog("call start & bind to AudioService in onCreate() - bound result :" + audioServiceBound);
     }
 
     private void visualizerClick() {

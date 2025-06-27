@@ -559,6 +559,18 @@ public class Tonio {
         }
     }
 
+    public static boolean isFolder(Context context, Uri uri) {
+        if ("file".equals(uri.getScheme())) {
+            File file = new File(uri.getPath());
+            return file.exists() && file.isDirectory();
+        } else {
+            DocumentFile docFile = DocumentFile.fromTreeUri(context, uri);
+            return docFile != null && docFile.exists() && docFile.isDirectory();
+        }
+    }
+
+
+
 
     private static void myLog(String str) { KanLogger.myLog(LOG_PREFIX, str); }
     private static void myLogE(String str) { KanLogger.myLogE(LOG_PREFIX, str); }

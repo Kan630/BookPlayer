@@ -9,6 +9,7 @@ import android.provider.OpenableColumns;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.utils.FileUtils;
 import com.driot.bookplayer.utils.KanLogger;
+import com.driot.bookplayer.utils.Tonio;
 
 import java.io.File;
 import java.util.List;
@@ -29,6 +30,7 @@ public class FolderAttrib {
     private final Uri uri;
     private final boolean isSingleFile;
     private final boolean internalCopy;
+    private final boolean isFolder;
     private final String zeType;
 
     // Folder Path and display name
@@ -40,7 +42,11 @@ public class FolderAttrib {
 
 
     // Constructor
-    public FolderAttrib(Context context, Uri uri, boolean internalCopy, String zeType) { //String forceName ?
+    public FolderAttrib(Context context
+            , Uri uri
+            , boolean internalCopy
+            , String zeType
+    ) { //String forceName ?
         myLog("-----------------------------------------------------"
                 + "\nFolderAttrib    (constructor)"
                 + "\nUri : [" + uri.toString() + "]"
@@ -52,6 +58,7 @@ public class FolderAttrib {
         this.internalCopy = internalCopy;
         this.zeType = zeType;
         this.isSingleFile = !zeType.equals("Folder");
+        this.isFolder = Tonio.isFolder(context, uri);
 
         //myLog(PrintManyPaths());
 
@@ -63,6 +70,8 @@ public class FolderAttrib {
         myLog("uri authority = [" + uriAuthority + "]");
         String uriLastPathSegment = uri.getLastPathSegment();
         myLog("uri Last Path Segment = [" + uriLastPathSegment + "]");
+
+
 
             // from DOWNLOAD
         if (uriAuthority.equals("com.android.providers.downloads.documents")) {
@@ -157,22 +166,7 @@ public class FolderAttrib {
                 sFolderName = formatNameForDisplay(getLastFolder(sFolderPath) + "/" + getFileName());
             }
         } else {
-            // nom par défaut = les deux derniers folders :
-            // ex  : "S3 - Finances publiques/Audios"
-            if (sFolderPath == null) {sFolderPath = "";}
-            String str = sFolderPath.replace(":", "/");
-            int pos1 = str.lastIndexOf("/");
-            if (pos1 > -1) {
-                int pos2 = str.substring(0, pos1).lastIndexOf("/", pos1);
-                if (pos2 > -1) {
-                    sFolderName = formatNameForDisplay(str.substring(pos2 + 1));
-                } else {
-                    sFolderName = formatNameForDisplay(str.substring(pos1 + 1));
-                }
-            } else {
-                // especially when foldername is just a string without slash (Android 11 zip local copy)
-                sFolderName = formatNameForDisplay(str);
-            }
+            sFolderName = get2folderName(sFolderPath);
         }
 
         if (sFolderName.startsWith("Download/")) { sFolderName = sFolderName.substring(9); }
@@ -297,6 +291,28 @@ public class FolderAttrib {
             myLog("FolderAttrib.getFileName : [" + result + "]");
         }
         return result;
+    }
+
+    private String get2folderName(String sFolderPath) {
+        // nom par défaut = les deux derniers folders :
+        // ex  : "S3 - Finances publiques/Audios"
+        String str = sFolderPath;
+        String zeReturn;
+        if (str == null) {str = "";}
+        str = str.replace(":", "/");
+        int pos1 = str.lastIndexOf("/");
+        if (pos1 > -1) {
+            int pos2 = str.substring(0, pos1).lastIndexOf("/", pos1);
+            if (pos2 > -1) {
+                zeReturn = formatNameForDisplay(str.substring(pos2 + 1));
+            } else {
+                zeReturn = formatNameForDisplay(str.substring(pos1 + 1));
+            }
+        } else {
+            // especially when foldername is just a string without slash (Android 11 zip local copy)
+            zeReturn = formatNameForDisplay(str);
+        }
+        return zeReturn;
     }
 
     private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }

@@ -169,6 +169,13 @@
             android:text="@string/LibrivoxSearch_desc"
             style="@style/GetResourceTextTopOfButton" />
 
+        <TextView
+            android:id="@+id/txtLibrivoxSearch_warning"
+            android:text="@string/LibrivoxSearch_warning"
+            style="@style/GetResourceTextTopOfButton"
+            android:textColor="@color/orange_700"
+            />
+
 
         <EditText
             android:id="@+id/etLibrivoxSearch"
@@ -179,7 +186,6 @@
             android:inputType="textMultiLine"
             style="@style/GetResourceEditText"
             android:textSize="18sp"
-            android:text="Dracula"
             />
 
         <Spinner

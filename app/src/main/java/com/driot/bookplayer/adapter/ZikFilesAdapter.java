@@ -96,7 +96,7 @@ public class ZikFilesAdapter extends RecyclerView.Adapter<ZikFilesAdapter.ZikFil
             int position = getBindingAdapterPosition();
             ZikFile zikFile = zikFileList.get(position);
             myLog("onClick() : [" + zikFile.getName() + "] - [" + zikFile.getPath() + "/" + zikFile.getName() + "]");
-            PlayList.setNumZikFile(position);
+            PlayList.setNumZikFile(mCtx, position);
             mCtx.startActivity(new Intent(mCtx, PlayActivity.class).putExtra("ZikFile", zikFile));
         }
 

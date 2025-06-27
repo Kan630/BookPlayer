@@ -100,7 +100,7 @@ public class FoldersAdapter extends RecyclerView.Adapter<FoldersAdapter.FoldersV
             new Thread(() -> {
                 try {
                     List<ZikFile> zikFilesList = AppDatabase.getDatabase(mCtx).ZikFileDao().getZikFiles(folder.getId());
-                    myLog("nb ZikFiles in that Book : " + zikFilesList.size());
+                    myLog("nb ZikFiles in that Book : " + zikFilesList.size() + " - [" + folder.getName() + "]");
                     PlayList.setZikFilesList(zikFilesList, mCtx);
                     if (zikFilesList.size() > 1) {
                         mCtx.startActivity(new Intent(mCtx, ZikFileActivity.class)
@@ -108,7 +108,7 @@ public class FoldersAdapter extends RecyclerView.Adapter<FoldersAdapter.FoldersV
                                 .putExtra("FolderName", folder.getName())
                         );
                     } else if (zikFilesList.size() == 1) {
-                        PlayList.setNumZikFile(0);
+                        PlayList.setNumZikFile(mCtx,0);
                         mCtx.startActivity(new Intent(mCtx, PlayActivity.class).putExtra("ZikFile", zikFilesList.get(0)));
                     } else {
                         myLogE("no ZikFiles in that folder !");

@@ -450,20 +450,20 @@ public class AddResourceService
         goFolder();
     }
 
-    private void populateArrayListOfTracksFromFolder(DocumentFile dfPickedDir, boolean comingFromZip) {
-        myLog("populateArrayListOfTracksFromFolder - DocumentFile [" + dfPickedDir.toString() + "]");
-        tellProgress(PROGRESS[2], PROGRESS_TEXT[2]);
-        //resetting uri
-        Uri uri;
-        if (comingFromZip) {
-            uri = dfPickedDir.getUri();
-        } else {
-            //uri = uri_given;
-            uri = dfPickedDir.getUri();
+    private void populateArrayListOfTracksFromFolder(DocumentFile dfPickedDir) {
+        if (dfPickedDir == null) {
+            myLogE("dfPickedDir == null");
+            tellError(getString(R.string.Error_Import_CannotReadFolder));
+            return;
         }
 
-        myLog("populateArrayListOfTracksFromFolder - New Uri deducted [" + uri.toString() + "]");
+        myLog("populateArrayListOfTracksFromFolder - DocumentFile [" + dfPickedDir + "]");
+        tellProgress(PROGRESS[2], PROGRESS_TEXT[2]);
 
+        Uri uri = dfPickedDir.getUri();
+        myLog("New Uri deducted [" + uri + "]");
+
+/*
         // Si c'est pas un dossier, on prend le dossier parent...
         if (!dfPickedDir.isDirectory()) {
             DocumentFile df0 = DocumentFile.fromTreeUri(this, uri);
@@ -474,12 +474,16 @@ public class AddResourceService
                 return;
             }
             myLog("Parent Folder taken in place");
+            uri = dfPickedDir.getUri();
+            myLog("New Uri deducted [" + uri + "]");
         }
 
-        if (dfPickedDir != null && dfPickedDir.isDirectory()) {
+ */
+
+        if (dfPickedDir.isDirectory()) {
 
             // constructeur pour mon pti folder
-            myFolder = new FolderAttrib(getApplicationContext(), uri, optionCopyFile, type_given);
+            myFolder = new FolderAttrib(this, uri, optionCopyFile, type_given);
             if (myFolder.getFolderName()==null) {
                 tellError(getString(R.string.Error_Import_CannotParseFile));
                 return;
@@ -500,7 +504,7 @@ public class AddResourceService
                 Thread backgroundThread = new Thread(() -> {
                     addAudioFileRecursive(finalDfPickedDir);
                     myLog("addAudioFileRecursive done, sorting now...");
-                    Collections.sort(audioFileArrayList, new Utils.AlphanumericComparator());
+                    audioFileArrayList.sort(new Utils.AlphanumericComparator());
 
                     if (audioFileArrayList.isEmpty()) {
                         myLog("No File found in directory : [" + finalDfPickedDir.getName() + ']');
@@ -760,9 +764,6 @@ public class AddResourceService
             case "Folder":
                 PROGRESS = optionCopyFile ? PROGRESS_FOLDER_COPY : PROGRESS_FOLDER_NOCOPY;
 
-                // TODO First thing : check if folder already exists, now checked after scan of files, just before DB insertion
-                //checkIfFolderAlreadyExist2();
-
                 tellProgress(PROGRESS[1], PROGRESS_TEXT[1]);
                 try {
                     dfPickedDir = DocumentFile.fromTreeUri(this, uri_given);
@@ -771,13 +772,7 @@ public class AddResourceService
                     tellError(getString(R.string.Error_Import_CannotReadFolder));
                     break;
                 }
-                tellProgress(PROGRESS[2], PROGRESS_TEXT[2]);
-                if (dfPickedDir == null) {
-                    myLogE("dfPickedDir == null");
-                    tellError(getString(R.string.Error_Import_CannotReadFolder));
-                } else {
-                    populateArrayListOfTracksFromFolder(dfPickedDir, false);
-                }
+                populateArrayListOfTracksFromFolder(dfPickedDir);
                 break;
 
             ///---------------------------------------------
@@ -1282,7 +1277,7 @@ public class AddResourceService
             myLogE("error getting DocumentFile.fromFile : " + e.getMessage());
             return;
         }
-        populateArrayListOfTracksFromFolder(dfPickedDir, true);
+        populateArrayListOfTracksFromFolder(dfPickedDir);
     }
     /**
      **********************************
@@ -1320,7 +1315,7 @@ public class AddResourceService
             myLogE("error getting DocumentFile.fromFile : " + e.getMessage());
             return;
         }
-        populateArrayListOfTracksFromFolder(dfPickedDir, true);
+        populateArrayListOfTracksFromFolder(dfPickedDir);
     }
     /**
      **********************************

@@ -21,10 +21,11 @@ public class PlayList {
     private static Context appContext;
 
     private static List<ZikFile> zikFilesList;
-    private static int numZikFile=-1; // old numSong
+    private static int numZikFile = -1; // old numSong
 
-    private static final String PREF_PLAYLIST_STORAGE = "playlist_storage";
-    private static final String KEY_ZIKFILES = "zikfiles_list";
+    private static final String PREF_PLAYLIST_STORAGE = "PREF_PLAYLIST_STORAGE";
+    private static final String KEY_ZIK_FILES_LIST = "KEY_ZIK_FILES_LIST";
+    private static final String KEY_ZIK_FILE = "KEY_ZIK_FILE";
 
 
     public static void init(Context context) {
@@ -51,13 +52,17 @@ public class PlayList {
         }
     }
 
-    public static int getNumZikFile() {
+    public static int getNumZikFile(Context c) {
+        if (numZikFile < 0) {
+            numZikFile = loadFromStorage(c);
+        }
         return numZikFile;
     }
 
-    public static void setNumZikFile(int numZikFile) {
+    public static void setNumZikFile(Context c, int numZikFile) {
         PlayList.numZikFile = numZikFile;
         myLog("SetNumZikFile() - n°" + numZikFile);
+        saveToStorage(c, numZikFile);
     }
 
     public static ZikFile getZikFile() {
@@ -67,7 +72,6 @@ public class PlayList {
                     return getZikFilesList().get(numZikFile);
                 } catch (Exception e) {
                     myLogE("getZikFile() ERROR - try-catch -- " + e.getMessage());
-                    e.printStackTrace();
                     return null;
                 }
             } else {
@@ -80,22 +84,30 @@ public class PlayList {
         }
     }
 
+
+    // -----------------------------------
+    // ...FAIL SAFE STORAGE...
+    // -----------------------------------
+    private static void saveToStorage(Context c, int numZikFile) {
+        c.getSharedPreferences(PREF_PLAYLIST_STORAGE, Context.MODE_PRIVATE).edit().putInt(KEY_ZIK_FILE, numZikFile).apply();
+    }
+    private static int loadFromStorage(Context c) {
+        return c.getSharedPreferences(PREF_PLAYLIST_STORAGE, Context.MODE_PRIVATE).getInt(KEY_ZIK_FILE, -1);
+    }
     private static void saveToStorage(List<ZikFile> list) {
-        if (appContext == null) return;
+        if (appContext == null) myLogE("saveToStorage - null context");
         SharedPreferences prefs = appContext.getSharedPreferences(PREF_PLAYLIST_STORAGE, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
         Gson gson = new Gson();
         String json = gson.toJson(list);
-        editor.putString(KEY_ZIKFILES, json);
+        editor.putString(KEY_ZIK_FILES_LIST, json);
         editor.apply();
     }
-
     private static List<ZikFile> loadFromStorage() {
         if (appContext == null) return null;
         SharedPreferences prefs = appContext.getSharedPreferences(PREF_PLAYLIST_STORAGE, Context.MODE_PRIVATE);
-        String json = prefs.getString(KEY_ZIKFILES, null);
+        String json = prefs.getString(KEY_ZIK_FILES_LIST, null);
         if (json == null) return null;
-
         Gson gson = new Gson();
         Type type = new TypeToken<List<ZikFile>>() {}.getType();
         return gson.fromJson(json, type);

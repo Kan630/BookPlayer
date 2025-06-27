@@ -69,6 +69,7 @@ class CustomMediaPlayer extends MediaPlayer {
         }
     }
     private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
+
 }
 public class AudioService extends LifecycleLoggingService {
 
@@ -207,7 +208,7 @@ public class AudioService extends LifecycleLoggingService {
     public void onCreate() {
         myLog("onCreate()");
         super.onCreate();
-        createNotificationChannel();
+        //createNotificationChannel();
 
         // Initialize MediaPlayer and MediaSession first
         mediaPlayer = new CustomMediaPlayer();
@@ -220,13 +221,15 @@ public class AudioService extends LifecycleLoggingService {
         mediaSession.setCallback(callback);
         mediaSession.setActive(true); // Needed for media button handling
 
+        myLog("configureMediaSession()2");
+
         // Set up MediaPlayer listeners
         mediaPlayer.setOnCompletionListener(mediaPlayer -> {
             if (!ErrorLoadingFile) {
                 updateZikFileState(true);
                 alertTrackFinished();
 
-                if (PlayList.getZikFilesList()!= null && PlayList.getNumZikFile()+1 == PlayList.getZikFilesList().size()) {
+                if (PlayList.getZikFilesList()!= null && PlayList.getNumZikFile(this)+1 == PlayList.getZikFilesList().size()) {
                     myLog("mediaPlayer.OnCompletionListener  => calling PlayListFinish");
 
                     // 3 beeps
@@ -283,43 +286,52 @@ public class AudioService extends LifecycleLoggingService {
 
             myLogE(errorLog);
             if (alertUser) alertError();
+
+            /*
+            //Try again - Reload
+            try {
+                loadZeFile(false);
+            } catch (Exception e) {
+                myLogE("not good");
+            }
+
+             */
+
+
             return false;  // Let onCompletionListener be called if needed
         });
 
         // Create notification channel (only once)
-        createNotificationChannel(); // Moved after initialization to ensure everything is ready
+        //createNotificationChannel(); // Moved after initialization to ensure everything is ready
         // Kan previous comment : for Android 14+ ( if not crash = CannotPostForegroundServiceNotificationException)
 
         // Create initial notification (required for foreground service)
-        createNotification();
+
+        //HOHO
+        //createNotification();
     }
 
     void nextTrack() {
         myLog("Next track");
-        PlayList.setNumZikFile(PlayList.getNumZikFile()+1);
+        PlayList.setNumZikFile(this, PlayList.getNumZikFile(this)+1);
         mediaPlayer.reset();
-        int curNum = PlayList.getNumZikFile() + 1;
+        int curNum = PlayList.getNumZikFile(this) + 1;
         if (PlayList.getZikFilesList()!=null) myLog("loading next track : n°" + curNum + "/" + PlayList.getZikFilesList().size() );
 
         // petit bip
         if (Option.getBeepChapter(this)) playBeep("1beep");
-
-        loadZeFile(true);
-        //TODO remplace par PlayAudio() ??
-        myLog("mediaPlayer.start() -- nextrack");
-        doIntroCut();
-        mediaPlayerStart();
+        loadZeFile(true, true, true);
         alertNewTrack();
     }
 
     private void alertNewTrack() {
-        LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(new Intent(NOTIFICATION_NEWTRACK).putExtra(TRACKNUMBER, PlayList.getNumZikFile()));
+        LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(new Intent(NOTIFICATION_NEWTRACK).putExtra(TRACKNUMBER, PlayList.getNumZikFile(this)));
         createNotification();
         myLog("sendBroadcast alertNewTrack ");
     }
 
     private void alertError() {
-        LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(new Intent(NOTIFICATION_ERROR).putExtra(TRACKNUMBER, PlayList.getNumZikFile()));
+        LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(new Intent(NOTIFICATION_ERROR).putExtra(TRACKNUMBER, PlayList.getNumZikFile(this)));
         myLogE("sendBroadcast alertError");
     }
 
@@ -382,9 +394,10 @@ public class AudioService extends LifecycleLoggingService {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        myLog("onStartCommand()");
         //is called when user press icons buttons on Notification
 
-        createNotification();  // <- this triggers startForeground()           2025-06-01
+        //createNotification();  // <- this triggers startForeground()           2025-06-01
 
         if (intent != null) {
             myLog("onStartCommand()" + intent);
@@ -411,8 +424,8 @@ public class AudioService extends LifecycleLoggingService {
         // Call createNotification() early to ensure startForeground is called
 
         //TODO maybe to change... because memory pressure could kill it
-        return START_NOT_STICKY; //2025-06-27 - open test (v86)
-        //return START_STICKY; // 2025-06-24 - production
+        //return START_NOT_STICKY; //2025-06-27 - open test (v86)
+        return START_STICKY; // 2025-06-24 - production
     }
     @Override
     public void onDestroy() {
@@ -455,20 +468,22 @@ public class AudioService extends LifecycleLoggingService {
 
     public void loadFiles(ZikFile[] zikFiles) {
         myLog("loadFiles(array) - folder : " + zikFiles[0].getIdFolder());
-        loadZeFile(false);
+        loadZeFile(false, false, false);
     }
 
-    private void loadZeFile(boolean startAtZero) {
+    private void loadZeFile(boolean startAtZero, boolean directPlay, boolean doIntroCut) {
         myLog("loadZeFile()");
         ZikFile zf = PlayList.getZikFile();
         if (zf!=null) {
             String mPath = zf.getPath() + "/" + zf.getName();
-            loadFile(mPath, startAtZero);
+            loadFile(mPath, startAtZero, directPlay, doIntroCut);
         }
     }
 
     // TODO, use openFileDescriptor & remove legacy from manifest
-    public void loadFile(String sPath, boolean startAtZero) {
+    public void loadFile(String sPath, boolean startAtZero, boolean directPlay, boolean doIntroCut) {
+        myLogI("loadFile : [" + sPath + "]\nStart At Zero : " + startAtZero + "\nDirect Play : " + directPlay + "\nIntro cut : " + doIntroCut);
+
         ErrorLoadingFile = false; // for onCompletion Next Track...
         if (!fileExists(sPath)) {
             myLogE("loadFile(sPath) : ERROR -- File doesn't exist !! " + sPath);
@@ -478,30 +493,37 @@ public class AudioService extends LifecycleLoggingService {
             return;
         }
 
-        myLog("loadFile(sPath) [" + sPath + "]");
         try {
             if (mediaPlayer.isPlaying()) {
                 mediaPlayerStop();
             }
             mediaPlayer.reset();
-            myLogD("mediaPlayer.reset - done");
             mediaPlayer.setDataSource(sPath);
-            myLogD("mediaPlayer.setDataSource - done");
-            mediaPlayer.prepare();
-            myLogD("mediaPlayer.prepare - done");
-            if (startAtZero || PlayList.getZikFile() == null) {
-                mediaPlayer.customSeekTo(0);
-            } else {
-                mediaPlayer.customSeekTo((int) PlayList.getZikFile().getPosition());
-            }
-            myLogD("mediaPlayer.customSeekTo - done");
-            LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(new Intent(NOTIFICATION_FILELOADED));
+            mediaPlayer.prepareAsync();
+            mediaPlayer.setOnPreparedListener(mp -> {
+                myLogD("mediaPlayer.prepare - done");
+                if (startAtZero || PlayList.getZikFile() == null) {
+                    mediaPlayer.customSeekTo(0);
+                } else {
+                    mediaPlayer.customSeekTo((int) PlayList.getZikFile().getPosition());
+                }
+                myLogD("mediaPlayer.customSeekTo - done");
+                LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(new Intent(NOTIFICATION_FILELOADED));
+                if (directPlay) {
+                    if (doIntroCut) doIntroCut();
+                    playAudio();
+                    //mediaPlayerStart();
+                }
+            });
+/*
             myLog("------------------------------------------------------------"); // to get the chapters of a .m4b, you need ffmpeg...
             MediaPlayer.TrackInfo[] trackInfoArray = mediaPlayer.getTrackInfo();
             for (MediaPlayer.TrackInfo trackInfo : trackInfoArray) {
                 myLog("trackInfo.toString() : " + trackInfo.toString());
             }
             myLog("------------------------------------------------------------"); // to get the chapters of a .m4b, you need ffmpeg...
+
+ */
 
         } catch (IOException e) {
             myLogE("LoadFile - " + e.getMessage());
@@ -512,6 +534,7 @@ public class AudioService extends LifecycleLoggingService {
             return;
         }
         myLog("loadFile - END");
+
     }
 
 
@@ -519,7 +542,6 @@ public class AudioService extends LifecycleLoggingService {
      ***       PLAY-PAUSE
      ********************************************************************************
      */
-
 
     public void playAudio() {
         myLog("playAudio() - start");
@@ -577,6 +599,7 @@ public class AudioService extends LifecycleLoggingService {
                 if (mediaSession != null) {
                     mediaSession.setActive(true);
                 }
+                createNotificationChannel();
                 createNotification();
             } else {
                 myLogE("mediaPlayer was already Playing ... going out of AudioService.playAudio()");
@@ -768,7 +791,8 @@ public class AudioService extends LifecycleLoggingService {
 
                     elapsedSeconds += DELAY_CHECK_TIMER / 1000;
 
-                    createNotification();
+                    //HOHO
+                    //createNotification();
 
                     handler.postDelayed(this, DELAY_CHECK_TIMER);
                 }

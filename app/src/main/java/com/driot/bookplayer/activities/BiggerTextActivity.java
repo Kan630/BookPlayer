@@ -78,6 +78,7 @@ public class BiggerTextActivity extends AppCompatActivity {
         myTextChunkArrayList = getTextFileContentInArrayList(this, typeStorage, file,"log", textOptions.getCharSize());
         recyclerView.setAdapter(new MyTextChunkAdapter(myTextChunkArrayList));
         textOptions.setScrollPosition(this, file, recyclerView);
+        recyclerView.scrollToPosition(myTextChunkArrayList.size() - 1);
         myLog("loadRecyclerView()");
     }
 
