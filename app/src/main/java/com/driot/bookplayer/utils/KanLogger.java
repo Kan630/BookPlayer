@@ -17,6 +17,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import static com.driot.bookplayer.global.Option.getClickVisualizerPlayPause;
 import static com.driot.bookplayer.global.Option.getTechLog;
 import static com.driot.bookplayer.utils.TonioCommonStuff.MD5;
 
@@ -121,13 +122,13 @@ public class KanLogger {
         myLog("",str);
     }
     public static void myLog(String prefix, String str) {
-        prefix = prefix.replace(PREFIX_DELETE,"");
+        String newPrefix = parsePrefix(LOGCAT_PREFIX + " " + prefix);
         if (TextUtils.isEmpty(str)) {str = "...";}
         if (writeTechLogs()) {
             writeToLogFile(str);
-            Log.d(LOGCAT_PREFIX + " " + prefix, str);
+            Log.d(newPrefix, str);
         } else {
-            if (LOG_THEM_ALL) Log.d(LOGCAT_PREFIX + " " + prefix, str);
+            if (LOG_THEM_ALL) Log.d(newPrefix, str);
         }
     }
 
@@ -135,22 +136,22 @@ public class KanLogger {
         myLogI("",str);
     }
     public static void myLogI(String prefix, String str) {
-        prefix = prefix.replace(PREFIX_DELETE,"");
+        String newPrefix = parsePrefix(LOGCAT_PREFIX + " " + prefix);
         if (TextUtils.isEmpty(str)) {str = "...";}
         if (writeTechLogs()) {
             writeToLogFile(str);
-            Log.i(LOGCAT_PREFIX + " " + prefix, str);
+            Log.i(newPrefix, str);
         } else {
-            if (LOG_THEM_ALL) Log.i(LOGCAT_PREFIX + " " + prefix, str);
+            if (LOG_THEM_ALL) Log.i(newPrefix, str);
         }
     }
 
     public static void myLogD(String str)  { myLogD("",str); }
     public static void myLogD(String prefix, String str) {
-        prefix = prefix.replace(PREFIX_DELETE,"");
+        String newPrefix = parsePrefix(LOGCAT_PREFIX + " " + prefix);
         if (LOG_DEBUG && writeTechLogs()) {
             writeToLogFile(str);
-            Log.d(LOGCAT_PREFIX + "D " + prefix, str);
+            Log.d(newPrefix, str);
         }
     }
 
@@ -158,13 +159,13 @@ public class KanLogger {
         myLogE("",str);
     }
     public static void myLogE(String prefix, String str) {
-        prefix = prefix.replace(PREFIX_DELETE,"");
+        String newPrefix = parsePrefix(LOGCAT_PREFIX + " " + prefix);
         if (TextUtils.isEmpty(str)) {str = "...";}
         if (writeTechLogs()) {
-            writeToLogFile(prefix + ".ERR: " + str);
-            Log.e(LOGCAT_PREFIX + " " + prefix, str);
+            writeToLogFile(newPrefix + ".ERR: " + str);
+            Log.e(newPrefix, str);
         } else {
-            if (LOG_THEM_ALL) Log.e(LOGCAT_PREFIX + " " + prefix, str);
+            if (LOG_THEM_ALL) Log.e(newPrefix, str);
         }
     }
 
@@ -246,4 +247,12 @@ public class KanLogger {
         }
     }
 
+    private static String parsePrefix(String str) {
+        String zeReturn = str;
+        zeReturn = zeReturn.replace(PREFIX_DELETE,"");
+        zeReturn = zeReturn.replace(" activities.", " a.");
+        return zeReturn;
+    }
+
 }
+
