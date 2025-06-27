@@ -48,6 +48,9 @@
         <activity android:name=".activities.StatsActivity" />
         <activity android:name=".activities.CacheFilesActivity" />
         <activity android:name=".activities.ExportActivity" />
+        <activity android:name=".activities.LibrivoxResultsActivity" />
+        <activity android:name=".activities.LibrivoxDetailActivity" />
+
         <activity
             android:name=".activities.OpenWithProxyActivity"
             android:enabled="false"

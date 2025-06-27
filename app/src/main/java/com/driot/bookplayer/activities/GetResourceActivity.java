@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.activity.result.ActivityResult;
@@ -22,17 +23,21 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.db.LanguageItem;
 import com.driot.bookplayer.db.LoadBookTaskState;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.utils.AddResourceService;
 import com.driot.bookplayer.utils.DownloadService;
+import com.driot.bookplayer.utils.LanguageSpinnerAdapter;
 import com.driot.bookplayer.utils.MediaScanner2;
 import com.driot.bookplayer.utils.NetworkUtils;
 import com.driot.bookplayer.utils.PermissionRequest;
 import com.driot.bookplayer.utils.KanLogger;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -339,6 +344,43 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
             startActivity(intent);
         });
 
+
+        /// // LIBRIVOX SEARCH
+
+        Spinner spinnerLanguage = findViewById(R.id.spinnerLanguage);
+        List<LanguageItem> languageItems = Arrays.asList(
+                 new LanguageItem("eng", "English", R.drawable.flag_uk)
+                ,new LanguageItem("fre", "French", R.drawable.flag_fr)
+                ,new LanguageItem("ger", "German", R.drawable.flag_de)
+                ,new LanguageItem("spa", "Spanish", R.drawable.flag_es)
+                ,new LanguageItem("ita", "Italian", R.drawable.flag_it)
+        );
+        LanguageSpinnerAdapter adapter = new LanguageSpinnerAdapter(this, languageItems);
+        spinnerLanguage.setAdapter(adapter);
+
+        EditText editTextQuery;
+        Button buttonSearch;
+        editTextQuery = findViewById(R.id.etLibrivoxSearch);
+        buttonSearch = findViewById(R.id.bLibrivoxSearch);
+        buttonSearch.setOnClickListener(v -> {
+            String query = editTextQuery.getText().toString();
+            String lang = spinnerLanguage.getSelectedItem().toString().toLowerCase();
+
+            if (lang.isEmpty()) {
+                myToast("selected language error");
+                return;
+            }
+            if (query.isEmpty()) {
+                myToast("Please enter some text to search.");
+                return;
+            }
+
+            Intent intent = new Intent(this, LibrivoxResultsActivity.class);
+            intent.putExtra("query", query);
+            intent.putExtra("lang", lang);
+            startActivity(intent);
+        });
+
     }
 
     public interface WWWCheckCallback {
@@ -481,6 +523,11 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
             myLogE("openOptionActivity() => " + e.getMessage());
         }
     }
+
+
+
+
+
 
 
 
