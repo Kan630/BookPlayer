@@ -5,11 +5,13 @@ import android.graphics.Typeface;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.RatingBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.LibrivoxItem;
 
 import java.util.ArrayList;
@@ -35,12 +37,14 @@ public class LibrivoxAdapter extends RecyclerView.Adapter<LibrivoxAdapter.ViewHo
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView title, date, rating;
+        RatingBar ratingBar;
 
         public ViewHolder(LinearLayout layout) {
             super(layout);
             this.title = (TextView) layout.getChildAt(0);
             this.date = (TextView) layout.getChildAt(1);
             this.rating = (TextView) layout.getChildAt(2);
+            this.ratingBar = (RatingBar) layout.getChildAt(3);
         }
     }
 
@@ -60,9 +64,14 @@ public class LibrivoxAdapter extends RecyclerView.Adapter<LibrivoxAdapter.ViewHo
         TextView date = new TextView(context);
         TextView rating = new TextView(context);
 
+        RatingBar ratingBar = new RatingBar(context);
+        ratingBar.setScaleX(0.5f);
+        ratingBar.setScaleY(0.5f);
+
         layout.addView(title);
         layout.addView(date);
         layout.addView(rating);
+        layout.addView(ratingBar);
 
         return new ViewHolder(layout);
     }
@@ -71,15 +80,30 @@ public class LibrivoxAdapter extends RecyclerView.Adapter<LibrivoxAdapter.ViewHo
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         LibrivoxItem item = items.get(position);
         holder.title.setText(item.title);
-        holder.date.setText("Date: " + item.date);
-        holder.rating.setText("Rating: " + item.avg_rating + " (" + item.num_reviews + ")");
+        String zeDate = "audio available since " + extractYear(item.date);
+        holder.date.setText(zeDate);
+        String zeRating = "Nb of reviews : " + item.num_reviews + "  -  Avg rating : " + item.avg_rating;
+        holder.rating.setText(zeRating);
 
         holder.itemView.setOnClickListener(v -> listener.onItemClick(item));
+
+        float ratingValue = 0f;
+        try {
+            ratingValue = item.avg_rating;
+        } catch (NumberFormatException e) {
+            // fallback if parsing fails, keep ratingValue = 0f
+        }
+        holder.ratingBar.setRating(ratingValue);
     }
 
     @Override
     public int getItemCount() {
         return items.size();
+    }
+
+    private String extractYear(String fullDate) {
+        if (fullDate == null || fullDate.length() < 4) return "";  // safety check
+        return fullDate.substring(0, 4);  // first 4 chars are the year
     }
 
     //--- LOG --------------------------
