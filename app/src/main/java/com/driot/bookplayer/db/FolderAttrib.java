@@ -92,7 +92,7 @@ public class FolderAttrib {
             // A16 - Android 15 - SD CARD  // direct link, not copied
         } else if (uriAuthority.equals("com.android.externalstorage.documents")) {
             myLog("location : External SD card (android 15)");
-            
+
             sFolderPath = uri.toString();
             sFolderName = getFileName(context);
             folderKO = false;
@@ -119,7 +119,7 @@ public class FolderAttrib {
 
             // from SD CARD
         } else {
-            myLog("location : else - sdcard");
+            myLog("location : else - sdcard - (or bookplayer reserved memory)");
             sFolderPath = uri.getPath();
             if (sFolderPath != null) {
                 sFolderPath = sFolderPath.replace("document", "storage")
@@ -245,6 +245,7 @@ public class FolderAttrib {
                 "uri.getFragment     ='" + uri.getFragment() + '\'' + "\n" +
                 "uri.getPathSegments ='" + uri.getPathSegments() + '\'' + "\n" +
                 "uri.getLastPathSeg  ='" + uri.getLastPathSegment() + '\'' + "\n" +
+                "uri.getScheme       ='" + uri.getScheme() + '\'' + "\n" +
                 ".........................." + "\n" +
                 "sFolderPath         ='" + sFolderPath + '\'' + "\n" +
                 "sFolderName         ='" + sFolderName + '\'' + "\n" +
@@ -338,7 +339,7 @@ public class FolderAttrib {
             // especially when foldername is just a string without slash (Android 11 zip local copy)
             zeReturn = formatNameForDisplay(str, stripExtension);
         }
-        myLog("get2folderName : [" + zeReturn + "]\nFrom : [" + sFolderPath + "]");
+        myLog("getBookName_with2folders : [" + zeReturn + "]\nFrom : [" + sFolderPath + "]");
         return zeReturn;
     }
 

@@ -564,12 +564,17 @@ public class Tonio {
     }
 
     public static boolean isFolder(Context context, Uri uri) {
-        if ("file".equals(uri.getScheme())) {
-            File file = new File(uri.getPath());
-            return file.exists() && file.isDirectory();
-        } else {
-            DocumentFile docFile = DocumentFile.fromTreeUri(context, uri);
-            return docFile != null && docFile.exists() && docFile.isDirectory();
+        try {
+            if ("file".equals(uri.getScheme())) {
+                File file = new File(uri.getPath());
+                return file.exists() && file.isDirectory();
+            } else {
+                DocumentFile docFile = DocumentFile.fromTreeUri(context, uri);
+                return docFile != null && docFile.exists() && docFile.isDirectory();
+            }
+        } catch (Exception e) {
+            myLogE("isFolder.. " + e.getMessage());
+            return false;
         }
     }
 

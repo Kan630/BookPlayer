@@ -1246,8 +1246,13 @@ public class AddResourceService
     }
     @Override
     public void copyFileService_tellEnd(String destinationFolderPath, String destinationFolderName) {
-        myLog("Copyfile tell End " + type_given);
-        proceedAfterCopyLocal(destinationFolderPath + "/" + destinationFolderName);
+        myLog("Copyfile tell End for type : " + type_given);
+        if (Objects.equals(type_given, "Folder")) {
+            proceedAfterCopyLocal(destinationFolderPath);
+        } else {
+            proceedAfterCopyLocal(destinationFolderPath + "/" + destinationFolderName);
+        }
+
     }
     @Override
     public void copyFileService_tellError(String errorText) {

@@ -511,7 +511,7 @@ public class AudioService extends LifecycleLoggingService {
 // OLD SCHOOL PATHS
         } else {
             pathToPlay = zf.getPath() + "/" + zf.getName();
-            myLog(pathToPlay);
+            myLog("Good Old Way, Path style : " + pathToPlay);
             //check....
             if (!fileExists(pathToPlay)) {
                 myLogE("loadFile(sPath) : ERROR -- File doesn't exist !! " + pathToPlay);
