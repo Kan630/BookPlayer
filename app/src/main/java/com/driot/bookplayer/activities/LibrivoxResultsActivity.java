@@ -34,6 +34,9 @@ public class LibrivoxResultsActivity extends AppCompatActivity {
     LibrivoxResultAdapter adapter;
     TextView tvSearchTerms, tvLanguage, tvResultsCount;
 
+    public static final String API_SORT = "downloads desc";
+    public static final int API_MAX_RESULTS = 100;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,12 +62,13 @@ public class LibrivoxResultsActivity extends AppCompatActivity {
         String query = getIntent().getStringExtra("query");
         String lang = getIntent().getStringExtra("lang");
 
-        if (query==null || lang==null) {
+        if (lang==null || query==null || lang.isEmpty()) {
             myLogE("bad arguments");
             return;
         }
 
-        tvSearchTerms.setText("Search: " + query);
+        String zeSearch = query.isEmpty() ? "Nothing Specified" : query;
+        tvSearchTerms.setText("Search: " + zeSearch);
         tvLanguage.setText("Language: " + lang);
         tvResultsCount.setText("Results: ...");
 
@@ -91,11 +95,16 @@ public class LibrivoxResultsActivity extends AppCompatActivity {
 
         List<String> fields = Arrays.asList("identifier", "title", "date", "avg_rating", "num_reviews");
 
-        String normalizedQuery = query.toLowerCase().replace(",", "");
-        String fullQuery = "collection:librivoxaudio AND language:(" + lang + ") AND (title:(" + normalizedQuery + ") OR creator:(" + normalizedQuery + "))";
+
+        String fullQuery = "collection:librivoxaudio AND language:(" + lang + ")";
+        if (!(query==null) && !query.isEmpty()) {
+            String normalizedQuery = query.toLowerCase().replace(",", "");
+            fullQuery = fullQuery + " AND (title:(" + normalizedQuery + ") OR creator:(" + normalizedQuery + "))";
+        }
+
 
         progressBar.setVisibility(View.VISIBLE);
-        api.search(fullQuery, fields, 100, 1, "json").enqueue(new Callback<ApiResponse>() {
+        api.search(fullQuery, fields, API_MAX_RESULTS, 1, "json", API_SORT).enqueue(new Callback<ApiResponse>() {
             @Override
             public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
                 progressBar.setVisibility(View.GONE);
@@ -107,7 +116,12 @@ public class LibrivoxResultsActivity extends AppCompatActivity {
                     } else {
                         myLog(results.size() + " results found for search terms [" + query + "] and language: " + lang);
                         adapter.setItems(results);
-                        tvResultsCount.setText("Nb of audio found: " + results.size());
+                        if (results.size()==API_MAX_RESULTS) {
+                            tvResultsCount.setText("Max number of results reached (" + results.size() + ")");
+                        } else {
+                            tvResultsCount.setText("Nb of audio found: " + results.size());
+                        }
+
                     }
                 } else {
                     myToastE("Invalid response");

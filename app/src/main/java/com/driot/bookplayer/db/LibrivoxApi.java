@@ -9,11 +9,13 @@ import retrofit2.http.Query;
 
 public interface LibrivoxApi {
     @GET("advancedsearch.php")
-    Call<ApiResponse> search(@Query("q") String query,
-                             @Query("fl[]") List<String> fields,
-                             @Query("rows") int rows,
-                             @Query("page") int page,
-                             @Query("output") String output);
+    Call<ApiResponse> search(@Query("q") String query
+            , @Query("fl[]") List<String> fields
+            , @Query("rows") int rows
+            , @Query("page") int page
+            , @Query("output") String output
+            , @Query("sort") String sort
+    );
 
     @GET("metadata/{identifier}")
     Call<ItemMetadata> getItemMetadata(@Path("identifier") String identifier);

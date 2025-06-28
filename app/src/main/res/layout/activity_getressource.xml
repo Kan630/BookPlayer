@@ -137,7 +137,6 @@
             style="@style/GetResourceTextSectionTitle" />
 
         <TextView
-            android:id="@+id/txtLibrivoxSearch_warning"
             android:text="@string/LibrivoxSearch_warning"
             style="@style/GetResourceTextTopOfButton"
             android:textColor="@color/orange_700"
@@ -172,7 +171,6 @@
             style="@style/GetResourceTextSectionTitle" />
 
         <TextView
-            android:id="@+id/txtLibrivoxSearch_warning"
             android:text="@string/LibrivoxSearch_warning"
             style="@style/GetResourceTextTopOfButton"
             android:textColor="@color/orange_700"

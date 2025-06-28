@@ -508,8 +508,10 @@ public class PlayActivity extends LifecycleLoggingActivity {
         myLog("+++++++++ loading PlayList Into Service - GetZikFiles - Folder : " + PlayList.getZikFile().getIdFolder());
         new Thread(() -> {
             try {
-                ZikFile[] zikFiles = AppDatabase.getDatabase(this).ZikFileDao().getNextZikFiles(PlayList.getZikFile().getIdFolder(), PlayList.getZikFile().getName());
-                audioService.loadFiles(zikFiles);
+                audioService.loadFile(false, false, false);
+                //ZikFile[] zikFiles = AppDatabase.getDatabase(this).ZikFileDao().getNextZikFiles(PlayList.getZikFile().getIdFolder(), PlayList.getZikFile().getName());
+                //audioService.loadFiles(zikFiles);
+
             } catch (Exception e) {
                 myToastE("Error Loading playlist");
                 myLogE("Error Loading playlist :" + e.getMessage());

@@ -7,13 +7,16 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.ComponentCallbacks2;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ServiceInfo;
+import android.content.res.AssetFileDescriptor;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.ToneGenerator;
+import android.net.Uri;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Bundle;
@@ -28,6 +31,7 @@ import android.view.KeyEvent;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
+import androidx.documentfile.provider.DocumentFile;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.media.session.MediaButtonReceiver;
 
@@ -41,6 +45,7 @@ import com.driot.bookplayer.db.Sql;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Pref;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.Date;
 import java.sql.Time;
@@ -48,6 +53,7 @@ import java.text.DecimalFormat;
 import java.util.Objects;
 
 import static com.driot.bookplayer.activities.PlayActivity.SHARED_PREFERENCE_SPEED;
+import static com.driot.bookplayer.utils.FileUtils.buildFileUri;
 import static com.driot.bookplayer.utils.Tonio.FormatPercentDouble;
 import static com.driot.bookplayer.utils.Tonio.fileExists;
 
@@ -320,7 +326,7 @@ public class AudioService extends LifecycleLoggingService {
 
         // petit bip
         if (Option.getBeepChapter(this)) playBeep("1beep");
-        loadZeFile(true, true, true);
+        loadFile(true, true, true);
         alertNewTrack();
     }
 
@@ -466,39 +472,82 @@ public class AudioService extends LifecycleLoggingService {
      ********************************************************************************
      */
 
+/*
     public void loadFiles(ZikFile[] zikFiles) {
         myLog("loadFiles(array) - folder : " + zikFiles[0].getIdFolder());
-        loadZeFile(false, false, false);
+        loadFile(false, false, false);
     }
 
-    private void loadZeFile(boolean startAtZero, boolean directPlay, boolean doIntroCut) {
-        myLog("loadZeFile()");
-        ZikFile zf = PlayList.getZikFile();
-        if (zf!=null) {
-            String mPath = zf.getPath() + "/" + zf.getName();
-            loadFile(mPath, startAtZero, directPlay, doIntroCut);
-        }
-    }
+ */
+
 
     // TODO, use openFileDescriptor & remove legacy from manifest
-    public void loadFile(String sPath, boolean startAtZero, boolean directPlay, boolean doIntroCut) {
-        myLogI("loadFile : [" + sPath + "]\nStart At Zero : " + startAtZero + "\nDirect Play : " + directPlay + "\nIntro cut : " + doIntroCut);
+    public void loadFile(boolean startAtZero, boolean directPlay, boolean doIntroCut) {
+        myLogI("loadingFile....... Start At Zero : " + startAtZero + " - Direct Play : " + directPlay + " - Intro cut : " + doIntroCut);
+        Uri uriToPlay = null;
+        String pathToPlay = null;
 
-        ErrorLoadingFile = false; // for onCompletion Next Track...
-        if (!fileExists(sPath)) {
-            myLogE("loadFile(sPath) : ERROR -- File doesn't exist !! " + sPath);
-            LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(new Intent(NOTIFICATION_FILENOTFOUND));
-            ErrorLoadingFile=true;
-            stopSelf();
+        ZikFile zf = PlayList.getZikFile();
+        if (zf==null) {
+            myLogE("PlayList.getZikFile==null");
+            killIt();
             return;
         }
+
+        myLog(zf.toString());
+        myLogD(zf.toString().replace(",","\n"));
+
+// NEW SAF URI
+        if (zf.getPath().startsWith("content://")) {
+            myLog("New SAF file, content...");
+            uriToPlay = buildFileUri(Uri.parse(zf.getPath()),zf.getName());
+            //check...
+            DocumentFile file = DocumentFile.fromSingleUri(this, uriToPlay);
+            if (!file.exists() || !file.isFile()) {
+                myLogE("Invalid or non-file Uri: " + uriToPlay);
+                killIt();
+                return;
+            }
+// OLD SCHOOL PATHS
+        } else {
+            pathToPlay = zf.getPath() + "/" + zf.getName();
+            myLog(pathToPlay);
+            //check....
+            if (!fileExists(pathToPlay)) {
+                myLogE("loadFile(sPath) : ERROR -- File doesn't exist !! " + pathToPlay);
+                killIt();
+                return;
+            }
+        }
+
+        if (uriToPlay==null && pathToPlay==null) {
+            myLogE("cannot get file to play : null");
+            killIt();
+            return;
+        }
+
+        /*
+        ContentResolver resolver = this.getContentResolver();
+        AssetFileDescriptor afd;
+        try {
+            afd = resolver.openAssetFileDescriptor(uriToPlay, "r");
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+            //mediaPlayer.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
+            //afd.close();
+ */
 
         try {
             if (mediaPlayer.isPlaying()) {
                 mediaPlayerStop();
             }
             mediaPlayer.reset();
-            mediaPlayer.setDataSource(sPath);
+            if (uriToPlay!=null) {
+                mediaPlayer.setDataSource(this, uriToPlay);
+            } else {
+                mediaPlayer.setDataSource(pathToPlay);
+            }
             mediaPlayer.prepareAsync();
             mediaPlayer.setOnPreparedListener(mp -> {
                 myLogD("mediaPlayer.prepare - done");
@@ -515,22 +564,11 @@ public class AudioService extends LifecycleLoggingService {
                     //mediaPlayerStart();
                 }
             });
-/*
-            myLog("------------------------------------------------------------"); // to get the chapters of a .m4b, you need ffmpeg...
-            MediaPlayer.TrackInfo[] trackInfoArray = mediaPlayer.getTrackInfo();
-            for (MediaPlayer.TrackInfo trackInfo : trackInfoArray) {
-                myLog("trackInfo.toString() : " + trackInfo.toString());
-            }
-            myLog("------------------------------------------------------------"); // to get the chapters of a .m4b, you need ffmpeg...
-
- */
 
         } catch (IOException e) {
             myLogE("LoadFile - " + e.getMessage());
-            myLogE(" +++++***+++++ ERROR LOADING FILE +++++***+++++ (" + sPath + ")");
-            LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(new Intent(NOTIFICATION_FILENOTFOUND));
-            ErrorLoadingFile=true;
-            stopSelf();
+            myLogE(" +++++***+++++ ERROR LOADING PLAYLIST +++++***+++++ ");
+            killIt();
             return;
         }
         myLog("loadFile - END");
@@ -996,6 +1034,23 @@ public class AudioService extends LifecycleLoggingService {
         }
     }
 
+    private void removeNotification() {
+        try {
+            stopForeground(true); // Remove the notification and stop being a foreground service
+
+            if (mediaSession != null) {
+                mediaSession.setActive(false); // Deactivate media session
+            }
+
+            NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            notificationManager.cancel(1); // ID 1 matches the one used in startForeground()
+
+            myLogI("Notification removed");
+        } catch (Exception e) {
+            myLogE("Failed to remove notification: " + e.getMessage());
+        }
+    }
+
     @Override
     public void onTrimMemory(int level) {
         super.onTrimMemory(level);
@@ -1075,6 +1130,13 @@ public class AudioService extends LifecycleLoggingService {
             }
         }
         return false;
+    }
+
+    private void killIt() {
+        LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(new Intent(NOTIFICATION_FILENOTFOUND));
+        ErrorLoadingFile=true;
+        removeNotification();
+        stopSelf();
     }
 
     //--- LOG --------------------------

@@ -1,5 +1,7 @@
 package com.driot.bookplayer.utils;
 
+import static com.driot.bookplayer.global.Var.FOLDER_DOWNLOAD;
+import static com.driot.bookplayer.utils.KanFiles.deleteFolderRecursive;
 import static com.driot.bookplayer.utils.Tonio.formatMem;
 import static com.driot.bookplayer.utils.Tonio.getFileNameFromPath;
 
@@ -127,6 +129,12 @@ public class DownloadService extends LifecycleLoggingService {
             isBusy = false;
             return;
         }
+
+        //Ensure clean state
+        String downloadDirPath = getFilesDir().getAbsolutePath() + "/" + FOLDER_DOWNLOAD;
+        deleteFolderRecursive(downloadDirPath);
+        File outputDir = new File(downloadDirPath);
+        if (!outputDir.exists()) outputDir.mkdirs();
 
         startDownloadJob(this, fileUrl, destinationFolder, audioBookTitle);
 /*

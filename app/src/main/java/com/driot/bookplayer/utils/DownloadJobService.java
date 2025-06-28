@@ -34,7 +34,7 @@ public class DownloadJobService extends JobService {
 
     private long lastUpdateTime = 0;
     private int lastPercentProgress = 0;
-    private static final long MIN_UPDATE_INTERVAL = 100; // milliseconds
+    private static final long MIN_UPDATE_INTERVAL = 250; // milliseconds
 
     public static volatile boolean isJobRunning = false;
 
@@ -50,12 +50,6 @@ public class DownloadJobService extends JobService {
         audioBookTitle = params.getExtras().getString("audioBookTitle");
 
         new Thread(() -> {
-
-            //Ensure clean state
-            String downloadDirPath = getFilesDir().getAbsolutePath() + "/" + FOLDER_DOWNLOAD;
-            deleteFolderRecursive(downloadDirPath);
-            File outputDir = new File(downloadDirPath);
-            if (!outputDir.exists()) outputDir.mkdirs();
 
             boolean success = performDownload(fileUrl, destinationFolder, audioBookTitle);
 

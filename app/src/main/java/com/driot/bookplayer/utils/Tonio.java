@@ -198,7 +198,11 @@ public class Tonio {
     }
 
     public static String formatNameForDisplay(String s) {
-        s = stripExtension(s);
+        return formatNameForDisplay(s, true);
+    }
+
+    public static String formatNameForDisplay(String s, boolean stripExtension) {
+        if (stripExtension) s = stripExtension(s);
         s = removeLongDuplicates(s,10);
         s = s.replace("_", " ");
         return s;

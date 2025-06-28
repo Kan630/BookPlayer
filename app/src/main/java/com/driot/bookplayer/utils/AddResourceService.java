@@ -32,7 +32,6 @@ import java.io.IOException;
 import java.sql.Date;
 import java.sql.Time;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Objects;
 
 import static com.driot.bookplayer.global.Pref.getLoadBookTaskState;
@@ -489,12 +488,15 @@ public class AddResourceService
                 return;
             }
             mCallBacks.tellHeader(myFolder.getFolderName());
-
+            /*
             if (myFolder.isFolderKO()) {
                 String error = getString(R.string.Error_Import_FolderPathKO);
                 if (myFolder.isLocatedInDownloadFolder())  error += "... " + getString(R.string.Error_Import_BetterTryNoDownloadFolder);
                 tellError(error);
             } else {
+
+             */
+
                 myLog("myFolder constructor ok - [" + myFolder.getFolderName() + "]");
                 myLog("running recursive scan for audio file in a background thread");
 
@@ -515,7 +517,7 @@ public class AddResourceService
                     goFolder();
                 });
                 backgroundThread.start();
-            }
+            //}
         } else {
             tellError(getString(R.string.Error_Import_IsNotFolder));
         }

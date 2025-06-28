@@ -405,10 +405,13 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
                 myToast("selected language error");
                 return;
             }
+            /*
             if (query.isEmpty()) {
                 myToast("Please enter some text to search.");
                 return;
             }
+
+             */
 
             Intent intent = new Intent(this, LibrivoxResultsActivity.class);
             intent.putExtra("query", query);

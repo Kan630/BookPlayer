@@ -14,6 +14,7 @@ import com.driot.bookplayer.utils.Tonio;
 import java.io.File;
 import java.util.List;
 
+import static com.driot.bookplayer.utils.FileUtils.buildFileUri;
 import static com.driot.bookplayer.utils.Tonio.formatNameForDisplay;
 import static com.driot.bookplayer.utils.Tonio.getLastFolder;
 import static com.driot.bookplayer.utils.Tonio.getSubFolders;
@@ -38,7 +39,7 @@ public class FolderAttrib {
     private String sFolderName;
 
     // some internal stuff
-    private boolean FolderKO;
+    private boolean folderKO;
 
 
     // Constructor
@@ -59,6 +60,7 @@ public class FolderAttrib {
         this.zeType = zeType;
         this.isSingleFile = !zeType.equals("Folder");
         this.isFolder = Tonio.isFolder(context, uri);
+        myLog("isFolder : " + isFolder);
 
         //myLog(PrintManyPaths());
 
@@ -71,7 +73,11 @@ public class FolderAttrib {
         String uriLastPathSegment = uri.getLastPathSegment();
         myLog("uri Last Path Segment = [" + uriLastPathSegment + "]");
 
-
+        if (uriAuthority==null) {
+            myLogE("uriAuthority==null");
+            folderKO=true;
+            return;
+        }
 
             // from DOWNLOAD
         if (uriAuthority.equals("com.android.providers.downloads.documents")) {
@@ -83,7 +89,16 @@ public class FolderAttrib {
                 sFolderPath = sFolderPath + "/" + getFileName();
             }
 
-            // from MAIN MEMORY
+            // A16 - Android 15 - SD CARD  // direct link, not copied
+        } else if (uriAuthority.equals("com.android.externalstorage.documents")) {
+            myLog("location : External SD card (android 15)");
+            
+            sFolderPath = uri.toString();
+            sFolderName = getFileName(context);
+            folderKO = false;
+            return;
+
+            // from MAIN MEMORY old
         } else if (uriLastPathSegment.startsWith("primary")) {
             myLog("location : main memory");
             sFolderPath = uri.getLastPathSegment()
@@ -144,13 +159,13 @@ public class FolderAttrib {
 
         // controle de l'existence du fullPath
         if (f == null || !f.exists()) {
-            FolderKO = true;
+            folderKO = true;
             myLogE("====== Path cannot be retrieved       ....  error with: --new File("+sFolderPath+")--");
         }
 
         if (!(isSingleFile)) {
             if (f == null || !f.isDirectory()) {
-                FolderKO = true;
+                folderKO = true;
                 myLogE("====== Is not Folder");
             }
         }
@@ -166,19 +181,27 @@ public class FolderAttrib {
                 sFolderName = formatNameForDisplay(getLastFolder(sFolderPath) + "/" + getFileName());
             }
         } else {
-            sFolderName = get2folderName(sFolderPath);
+            if (isFolder) {
+                sFolderName = getBookName_with2folders(sFolderPath, false);
+            } else {
+                sFolderName = getBookName_with2folders(sFolderPath, true);
+            }
+
         }
 
-        if (sFolderName.startsWith("Download/")) { sFolderName = sFolderName.substring(9); }
-        if (sFolderName.startsWith("unzipped/")) { sFolderName = sFolderName.substring(9); }
+        if (sFolderName.toLowerCase().startsWith("download/")) { sFolderName = sFolderName.substring(9); }
+        if (sFolderName.toLowerCase().startsWith("unzipped/")) { sFolderName = sFolderName.substring(9); }
 
         if (internalCopy && zeType.equals("Folder")) {
             sFolderName = sFolderName.replace("/"," - "); // Pas de sous dossier en interne
         }
 
+
         // display all bunch of values = implicit getString
         myLog("..." + "\n" + this + "\n" + "...");
     }
+    /// /////////////////// /////////////////// /////////////////// /////////////////// /////////////////// /////////////////// /////////////////// ////////////////
+    /// /// /////////////////// /////////////////// /////////////////// /////////////////// /////////////////// /////////////////// /////////////////// ////////////
 
     public String getFolderName() { return sFolderName; }
     public String getFolderPath() { return sFolderPath; } // Dao
@@ -187,7 +210,10 @@ public class FolderAttrib {
         this.sFolderPath = newPath; // in case of unzipped files...
     }
     public boolean isFolderKO() {
-        return FolderKO;
+        return folderKO;
+    }
+    public boolean isFolder() {
+        return isFolder;
     }
     public boolean isSingleFile() {
         return isSingleFile;
@@ -222,7 +248,7 @@ public class FolderAttrib {
                 ".........................." + "\n" +
                 "sFolderPath         ='" + sFolderPath + '\'' + "\n" +
                 "sFolderName         ='" + sFolderName + '\'' + "\n" +
-                "isFolderKO          =" + FolderKO + "\n" +
+                "isFolderKO          =" + folderKO + "\n" +
                 '}';
     }
 
@@ -293,7 +319,7 @@ public class FolderAttrib {
         return result;
     }
 
-    private String get2folderName(String sFolderPath) {
+    private String getBookName_with2folders(String sFolderPath, boolean stripExtension) {
         // nom par défaut = les deux derniers folders :
         // ex  : "S3 - Finances publiques/Audios"
         String str = sFolderPath;
@@ -304,14 +330,15 @@ public class FolderAttrib {
         if (pos1 > -1) {
             int pos2 = str.substring(0, pos1).lastIndexOf("/", pos1);
             if (pos2 > -1) {
-                zeReturn = formatNameForDisplay(str.substring(pos2 + 1));
+                zeReturn = formatNameForDisplay(str.substring(pos2 + 1), stripExtension);
             } else {
-                zeReturn = formatNameForDisplay(str.substring(pos1 + 1));
+                zeReturn = formatNameForDisplay(str.substring(pos1 + 1), stripExtension);
             }
         } else {
             // especially when foldername is just a string without slash (Android 11 zip local copy)
-            zeReturn = formatNameForDisplay(str);
+            zeReturn = formatNameForDisplay(str, stripExtension);
         }
+        myLog("get2folderName : [" + zeReturn + "]\nFrom : [" + sFolderPath + "]");
         return zeReturn;
     }
 

@@ -59,12 +59,6 @@ public class AddResourceActivity
         tvErrorText = findViewById(R.id.errorText);
         tvWarning = findViewById(R.id.warningText);
 
-        LoadBookTaskState state = getIntent().getParcelableExtra("LoadBookTaskState");
-        if (state != null) {
-            type = state.type;
-            putTitle(state.title);
-        }
-
 /*
         Uri uri = state.uri;
         String str_Uri = uri==null ? "null" : uri.toString();
@@ -88,6 +82,8 @@ public class AddResourceActivity
         Intent intentAddResourceService = new Intent(this, AddResourceService.class);
         boundToAddResourceService = bindService(intentAddResourceService, addResourceServiceConnection, Context.BIND_AUTO_CREATE); //error Log : Activity XXX has leaked ServiceConnection
         myLog("call start & bind to AddResourceService from AddResourceActivity.onCreate() - bound result :" + boundToAddResourceService);
+
+
     }
 
     @Override
@@ -117,7 +113,14 @@ public class AddResourceActivity
     @Override
     protected void onResume() {
         super.onResume();
-        maybeResumeWorkFlow(this);
+/*
+        Intent intentAddResourceService = new Intent(this, AddResourceService.class);
+        boundToAddResourceService = bindService(intentAddResourceService, addResourceServiceConnection, Context.BIND_AUTO_CREATE);
+        myLog("call start & bind to AddResourceService from AddResourceActivity.onResume() - bound result :" + boundToAddResourceService);
+
+ */
+
+        //maybeResumeWorkFlow(this);
     }
 
     private final ServiceConnection addResourceServiceConnection = new ServiceConnection() {
