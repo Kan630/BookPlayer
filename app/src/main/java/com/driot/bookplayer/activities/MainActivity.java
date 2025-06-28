@@ -94,7 +94,9 @@ public class MainActivity extends LifecycleLoggingActivity {
 
         super.onCreate(savedInstanceState);
 
-        printSomeStuffAboutDevice();
+        if (savedInstanceState == null) {
+            printSomeStuffAboutDevice();
+        }
 
         //Sql.log_all_Folders(this);
 /*

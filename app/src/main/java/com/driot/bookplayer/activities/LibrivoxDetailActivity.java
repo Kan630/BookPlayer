@@ -4,6 +4,7 @@ import static com.driot.bookplayer.global.Pref.setLoadBookTaskState;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.opengl.Visibility;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -23,7 +24,9 @@ import com.driot.bookplayer.activities.LibrivoxDetailViewModel;
 
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
@@ -41,7 +44,8 @@ public class LibrivoxDetailActivity extends LifecycleLoggingActivity {
     private TextView titleView, idView, infoView;
     private ImageView coverView;
     private Button bGet;
-    private TextView tvLinkArchive, tvLinkLibrivox;
+    private TextView tvLinkArchive, tvLinkLibrivox, tvOtherInfo, tvDownloadLink;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +59,9 @@ public class LibrivoxDetailActivity extends LifecycleLoggingActivity {
         bGet = findViewById(R.id.bGet);
         tvLinkArchive = findViewById(R.id.tvLinkArchive);
         tvLinkLibrivox = findViewById(R.id.tvLinkLibrivox);
+        tvDownloadLink = findViewById(R.id.tvDownloadLink);
+        tvOtherInfo = findViewById(R.id.tvOtherInfo);
+        tvOtherInfo.setVisibility(View.GONE); // for later
         bGet.setEnabled(false);
 
         // Init ViewModel
@@ -84,10 +91,10 @@ public class LibrivoxDetailActivity extends LifecycleLoggingActivity {
             if (exists != null) {
                 if (exists) {
                     long size = viewModel.zipFileSizeBytes.getValue() != null ? viewModel.zipFileSizeBytes.getValue() : 0;
-                    infoView.append("\n✅ ZIP-MP3 file available (" + formatFileSize(size) + ")");
+                    tvDownloadLink.setText("\n✅ ZIP-MP3 file available (" + formatFileSize(size) + ")");
                     bGet.setEnabled(true);
                 } else {
-                    infoView.append("\n❌ ZIP-MP3 file not found.");
+                    tvDownloadLink.setText("\n❌ ZIP-MP3 file not found.");
                 }
             }
         });
@@ -135,13 +142,57 @@ public class LibrivoxDetailActivity extends LifecycleLoggingActivity {
             }
         }
 
-        for (ItemMetadata.FileEntry file : metadata.files) {
-            myLog("file: " + file.name + " - " + getReadableSizeInMB(file.size));
-            if (file.format != null && file.format.toLowerCase().contains("mp3") && file.name.contains("64kb")) {
-                myLog("download file found : " + file.name + " - " + getReadableSizeInMB(file.size));
-            }
+        Map<String, Integer> countMap = new HashMap<>();
+        Map<String, Long> sizeMap = new HashMap<>();
 
+        for (ItemMetadata.FileEntry file : metadata.files) {
+            myLogD("file: " + file.name + " - format:[" + file.format + "] - " + getReadableSize(file.size));
+
+            if (file.format != null && file.size != null) {
+                String format = file.format.toLowerCase();
+                String name = file.name.toLowerCase();
+
+                String type = null;
+                if (name.endsWith(".mp3")) type = "mp3";
+                else if (name.endsWith(".m4b")) type = "m4b";
+
+                if (type != null) {
+                    String bitrate;
+                    if (name.contains("32kb") || format.contains("32kb")) bitrate = "32";
+                    else if (name.contains("64kb") || format.contains("46kb")) bitrate = "64";
+                    else if (name.contains("128kb") || format.contains("128kb")) bitrate = "128";
+                    else bitrate = "other";
+
+                    String key = type + "_" + bitrate;
+
+                    try {
+                        long sizeBytes = Long.parseLong(file.size);
+
+                        countMap.put(key, countMap.getOrDefault(key, 0) + 1);
+                        sizeMap.put(key, sizeMap.getOrDefault(key, 0L) + sizeBytes);
+                    } catch (Exception e) {
+                        myLog("Invalid file size: " + file.size + " for file: " + file.name);
+                    }
+                }
+            }
         }
+
+// Summary Log
+        String[] formats = {"mp3", "m4b"};
+        String[] bitrates = {"32", "64", "128", "other"};
+
+        for (String format : formats) {
+            for (String bitrate : bitrates) {
+                String key = format + "_" + bitrate;
+                int count = countMap.getOrDefault(key, 0);
+                long size = sizeMap.getOrDefault(key, 0L);
+                if (count > 0) {
+                    myLogI(format.toUpperCase() + " -- " + bitrate + "kbps: " + count + " file(s), " + getReadableSize(size));
+                }
+            }
+        }
+
+
 
         infoView.setText(sb.toString());
         tvLinkArchive.setText("https://archive.org/details/" + viewModel.identifier);
@@ -225,14 +276,22 @@ public class LibrivoxDetailActivity extends LifecycleLoggingActivity {
         finish();
     }
 
-    private String getReadableSizeInMB(String size) {
+    private String getReadableSize(String size) {
         try {
             long bytes = Long.parseLong(size);
-            return String.format(Locale.US, "%.1f MB", bytes / (1024.0 * 1024.0));
+            return getReadableSize(bytes);
         } catch (Exception e) {
             return "Unknown size";
         }
     }
+
+    private String getReadableSize(long sizeBytes) {
+        if (sizeBytes <= 0) return "0 B";
+        if (sizeBytes < 1024) return sizeBytes + " B";
+        if (sizeBytes < 1024 * 1024) return String.format(Locale.US, "%.1f KB", sizeBytes / 1024.0);
+        return String.format(Locale.US, "%.1f MB", sizeBytes / (1024.0 * 1024.0));
+    }
+
 
     private String formatFileSize(long sizeBytes) {
         if (sizeBytes < 1024) return sizeBytes + " B";
@@ -241,5 +300,7 @@ public class LibrivoxDetailActivity extends LifecycleLoggingActivity {
     }
 
     private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
+    private void myLogD(String str) { KanLogger.myLogD(this.getClass().getName(), str); }
+    private void myLogI(String str) { KanLogger.myLogI(this.getClass().getName(), str); }
     private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
 }
