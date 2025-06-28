@@ -216,6 +216,7 @@ public class AddResourceActivity
 
     private void performCancel() {
         cancelAllOngoingTasks(this);
+        finish();
     }
 
 
