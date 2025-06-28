@@ -15,7 +15,7 @@ import com.driot.bookplayer.utils.KanLogger;
 
 
 
-public class OpenWithProxyActivity extends AppCompatActivity {
+public class OpenWithProxyActivity extends LifecycleLoggingActivity {
 
     private static final int REQUEST_LOAD_OPTIONS = 1641;
 

@@ -43,6 +43,12 @@ public class DownloadJobService extends JobService {
     @Override
     public boolean onStartJob(JobParameters params) {
         myLog("onStartJob");
+        // Verify that job actually has to run (can be called after a crash !)
+        if (isJobRunning) {
+            myLog("Job already running");
+            return false;
+        }
+
         isJobRunning = true;
 
         String fileUrl = params.getExtras().getString("fileUrl");

@@ -242,7 +242,7 @@ public class Tonio {
         } else {
             s="";
         }
-        return s;
+        return s.toLowerCase();
     }
 
     public static String getSubFolders(String strFrom, String strPath) {

@@ -26,7 +26,7 @@ import java.io.File;
 
 
 
-public class ExportActivity extends Activity {
+public class ExportActivity extends LifecycleLoggingActivity {
 
     //private static final int REQUEST_CODE_POST_NOTIFICATIONS = 2025;
 

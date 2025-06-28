@@ -6,6 +6,8 @@ import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
 
+import com.driot.bookplayer.utils.KanLogger;
+
 public class LoadBookTaskState implements Parcelable {
     public Uri uri;
     public String type;
@@ -17,7 +19,9 @@ public class LoadBookTaskState implements Parcelable {
     public boolean downloadedFileReady; //so that you never get stuck if app crashes
     public boolean onGoing;
 
-    public LoadBookTaskState() {}
+    public LoadBookTaskState() {
+        myLog("LoadBookTaskState() constructor - creating new Workflow");
+    }
 
     protected LoadBookTaskState(Parcel in) {
         uri = in.readParcelable(Uri.class.getClassLoader());  // ✅ Read Uri
@@ -77,4 +81,12 @@ public class LoadBookTaskState implements Parcelable {
                 '}';
     }
 
+    ////////////////////////////////////////////////////////
+    ///////// Loggers
+    ////////////////////////////////////////////////////////
+    private static final String TAG = "LoadBookTaskState";
+    private static void myLog(String str) { KanLogger.myLog(TAG, str); }
+    private static void myLogD(String str) { KanLogger.myLogD(TAG, str); }
+    private static void myLogI(String str) { KanLogger.myLogI(TAG, str); }
+    private static void myLogE(String str) { KanLogger.myLogE(TAG, str); }
 }

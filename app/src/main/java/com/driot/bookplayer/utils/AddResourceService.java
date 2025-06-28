@@ -857,17 +857,18 @@ public class AddResourceService
     private void copyFolder() {
         myLog("copyFolder()");
         if (type_given.equals("ZIP")) {
-            // Has already been copied and unzipped...
+            myLog("=> Has already been copied and unzipped...");
             myFolder.setForceFolderPath(zipDestinationFolderPath);
             saveFolder();
         } else if (type_given.equals("M4B") && optionSplitM4b) {
-            // Has already been copied and split...
+            myLog("=> Has already been copied and split...");
             myFolder.setForceFolderPath(destinationFolderPath);
             saveFolder();
         } else {
             if (optionCopyFile) {
                 tellProgress(PROGRESS[4], PROGRESS_TEXT[4]);
                 if (type_given.equals("Folder")) {
+                    myLog("=> copyFile Folder...");
                     String folderPath = getFilesDir().getAbsolutePath() + "/" + FOLDER_UNZIPPED + "/" + myFolder.getFolderName();
                     String fileName = myFolder.getFileName(this);
                     fullPath = folderPath;
@@ -877,6 +878,7 @@ public class AddResourceService
                             , fileName
                             , type_given);
                 } else if (type_given.equals("File") || type_given.equals("M4B")) {
+                    myLog("=> copyFile Single File...");
                     String folderPath = getFilesDir().getAbsolutePath() + "/" + FOLDER_UNZIPPED + "/" + myFolder.getFolderName();
                     String fileName = myFolder.getFileName(this);
                     fullPath = folderPath + "/" + fileName;
@@ -915,10 +917,12 @@ public class AddResourceService
         folder.setFinished(false);
         folder.setIszipfile(false); //2023-10-22 deprecated (live zip reading - code has been removed)
 
-        InsertedFolderId[0] = (int) DatabaseClient.getInstance(this).getAppDatabase().FolderDao().insert(folder);
-        myLog("Folder Saved in DB, ID=[" + InsertedFolderId[0] + "] - [" + myFolder.getFolderName() + "]");
-        tellProgress(PROGRESS[7], PROGRESS_TEXT[7]);
-        saveFiles();
+        new Thread(() -> {
+            InsertedFolderId[0] = (int) DatabaseClient.getInstance(this).getAppDatabase().FolderDao().insert(folder);
+            myLog("Folder Saved in DB, ID=[" + InsertedFolderId[0] + "] - [" + myFolder.getFolderName() + "]");
+            tellProgress(PROGRESS[7], PROGRESS_TEXT[7]);
+            saveFiles();
+        }).start();
     }
 
     private void saveFiles() {
@@ -1214,6 +1218,7 @@ public class AddResourceService
     public void downloadService_tellEnd(String downloadedFileFullPath) {
         clearDownloadFinished(this);
         myLog("Download tell End -> [" + downloadedFileFullPath + "]");
+        if (getExtension(downloadedFileFullPath).equals("zip")) type_given = "ZIP"; // case direct download from Librivox
         if (Objects.equals(type_given, "ZIP")) {
             uri_given = Uri.fromFile(new File(downloadedFileFullPath));
             String fileName = deleteExtension(extractName(downloadedFileFullPath));

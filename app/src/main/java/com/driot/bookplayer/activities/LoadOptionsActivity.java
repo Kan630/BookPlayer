@@ -38,7 +38,7 @@ import com.driot.bookplayer.utils.PermissionRequest;
 
 import java.util.Objects;
 
-public class LoadOptionsActivity extends Activity {
+public class LoadOptionsActivity extends LifecycleLoggingActivity {
 
     public static final String EXTRA_URI = "uri";
     public static final String EXTRA_TYPE = "type";  // File or Folder

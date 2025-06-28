@@ -17,7 +17,6 @@ import java.io.File;
 
 public class WorkFlow {
 
-
     public static void maybeResumeWorkFlow(Context c) {
         myLog("maybeResumeDownloadFlow() - called from " + c.getClass().getSimpleName());
         LoadBookTaskState state = getLoadBookTaskState(c, true);
@@ -75,6 +74,8 @@ public class WorkFlow {
 
 
     public static void cancelAllOngoingTasks(Context context) {
+        myLog("...cancelAllOngoingTasks() - called from " + context.getClass().getSimpleName());
+
         // Cancel JobService (e.g., download)
         DownloadJobService.isJobRunning = false;
 
@@ -82,6 +83,7 @@ public class WorkFlow {
         UnzipService.isUnzipRunning = false;
         SplitM4bService.isSplitRunning = false;
         CopyFileService.isCopyRunning = false;
+        AddResourceService.isBusy = false;
 
         // Also stop foreground/background services
         context.stopService(new Intent(context, AddResourceService.class));
@@ -102,6 +104,8 @@ public class WorkFlow {
         if (!outputDir.exists()) outputDir.mkdirs();
 
         setWorkFlowFinished(context);
+
+
     }
 
 

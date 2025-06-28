@@ -8,15 +8,17 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.adapter.LibrivoxResultAdapter;
 import com.driot.bookplayer.db.ApiResponse;
 import com.driot.bookplayer.db.LibrivoxApi;
 import com.driot.bookplayer.db.LibrivoxItem;
 import com.driot.bookplayer.utils.KanLogger;
-import com.driot.bookplayer.adapter.LibrivoxResultAdapter;
+import com.driot.bookplayer.activities.LibrivoxResultsViewModel; // ✅ ADDED
 
 import java.util.Arrays;
 import java.util.List;
@@ -29,13 +31,18 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class LibrivoxResultsActivity extends AppCompatActivity {
+public class LibrivoxResultsActivity extends LifecycleLoggingActivity {
+
     RecyclerView recyclerView;
     LibrivoxResultAdapter adapter;
     TextView tvSearchTerms, tvLanguage, tvResultsCount;
 
+    ProgressBar progressBar;
+
     public static final String API_SORT = "downloads desc";
     public static final int API_MAX_RESULTS = 100;
+
+    private LibrivoxResultsViewModel viewModel; // ✅ ADDED
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,7 +50,7 @@ public class LibrivoxResultsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_librivox_results);
 
         recyclerView = findViewById(R.id.recyclerView);
-        ProgressBar progressBar = findViewById(R.id.progressBar);
+        progressBar = findViewById(R.id.progressBar);
         tvSearchTerms = findViewById(R.id.tvSearchTerms);
         tvLanguage = findViewById(R.id.tvLanguage);
         tvResultsCount = findViewById(R.id.tvResultsCount);
@@ -51,7 +58,6 @@ public class LibrivoxResultsActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         adapter = new LibrivoxResultAdapter(item -> {
-            // On item click, open detail activity
             Intent intent = new Intent(this, LibrivoxDetailActivity.class);
             intent.putExtra("identifier", item.identifier);
             intent.putExtra("title", item.title);
@@ -59,27 +65,56 @@ public class LibrivoxResultsActivity extends AppCompatActivity {
         });
         recyclerView.setAdapter(adapter);
 
-        String query = getIntent().getStringExtra("query");
-        String lang = getIntent().getStringExtra("lang");
+        // ✅ INIT VIEWMODEL
+        viewModel = new ViewModelProvider(this).get(LibrivoxResultsViewModel.class);
 
-        if (lang==null || query==null || lang.isEmpty()) {
-            myLogE("bad arguments");
-            return;
-        }
-
-        String zeSearch = query.isEmpty() ? "Nothing Specified" : query;
-        tvSearchTerms.setText("Search: " + zeSearch);
-        tvLanguage.setText("Language: " + lang);
-        tvResultsCount.setText("Results: ...");
-
-        HttpLoggingInterceptor logging = new HttpLoggingInterceptor(new HttpLoggingInterceptor.Logger() {
-            @Override
-            public void log(@NonNull String message) {
-                myLog(message);  // your custom method
+        // ✅ OBSERVE RESULTS
+        viewModel.getResults().observe(this, items -> {
+            adapter.setItems(items);
+            progressBar.setVisibility(View.GONE);
+            if (items != null && items.size() == API_MAX_RESULTS) {
+                tvResultsCount.setText("Max number of results reached (" + items.size() + ")");
+            } else {
+                tvResultsCount.setText("Nb of audio found: " + (items == null ? 0 : items.size()));
             }
         });
 
-        logging.setLevel(HttpLoggingInterceptor.Level.BODY); // Log full request/response
+        // ✅ OBSERVE FINISH REQUEST
+        viewModel.getShouldFinish().observe(this, shouldFinish -> {
+            if (shouldFinish != null && shouldFinish) finish();
+        });
+
+        // 🔄 GET SEARCH PARAMS
+        String query = getIntent().getStringExtra("query");
+        String lang = getIntent().getStringExtra("lang");
+
+        if (query == null || lang == null || lang.isEmpty()) {
+            myLogE("bad arguments");
+            finish();
+            return;
+        }
+
+        tvSearchTerms.setText("Search: " + (query.isEmpty() ? "Nothing Specified" : query));
+        tvLanguage.setText("Language: " + lang);
+        tvResultsCount.setText("Results: ...");
+
+        // 🔄 Check cache
+        if (viewModel.getResults().getValue() != null &&
+                query.equals(viewModel.getLastQuery()) &&
+                lang.equals(viewModel.getLastLang())) {
+            myLogI("Using cached results");
+            return;
+        } else {
+            myLogI("No cache, let's query again");
+        }
+
+        // ✅ Store last search
+        viewModel.setLastQuery(query);
+        viewModel.setLastLang(lang);
+
+        // ✅ API call
+        HttpLoggingInterceptor logging = new HttpLoggingInterceptor(this::myLog);
+        logging.setLevel(HttpLoggingInterceptor.Level.BODY);
 
         OkHttpClient client = new OkHttpClient.Builder()
                 .addInterceptor(logging)
@@ -87,7 +122,7 @@ public class LibrivoxResultsActivity extends AppCompatActivity {
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://archive.org/")
-                .client(client) // <--- custom OkHttp client with logging
+                .client(client)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
@@ -95,15 +130,14 @@ public class LibrivoxResultsActivity extends AppCompatActivity {
 
         List<String> fields = Arrays.asList("identifier", "title", "date", "avg_rating", "num_reviews");
 
-
         String fullQuery = "collection:librivoxaudio AND language:(" + lang + ")";
-        if (!(query==null) && !query.isEmpty()) {
+        if (!query.isEmpty()) {
             String normalizedQuery = query.toLowerCase().replace(",", "");
-            fullQuery = fullQuery + " AND (title:(" + normalizedQuery + ") OR creator:(" + normalizedQuery + "))";
+            fullQuery += " AND (title:(" + normalizedQuery + ") OR creator:(" + normalizedQuery + "))";
         }
 
-
         progressBar.setVisibility(View.VISIBLE);
+
         api.search(fullQuery, fields, API_MAX_RESULTS, 1, "json", API_SORT).enqueue(new Callback<ApiResponse>() {
             @Override
             public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
@@ -112,20 +146,14 @@ public class LibrivoxResultsActivity extends AppCompatActivity {
                     List<LibrivoxItem> results = response.body().response.docs;
                     if (results.isEmpty()) {
                         myToast("No [" + lang + "] audiobook found for search terms [" + query + "]");
-                        finish();
+                        viewModel.requestFinish(); // ✅ trigger finish
                     } else {
-                        myLog(results.size() + " results found for search terms [" + query + "] and language: " + lang);
-                        adapter.setItems(results);
-                        if (results.size()==API_MAX_RESULTS) {
-                            tvResultsCount.setText("Max number of results reached (" + results.size() + ")");
-                        } else {
-                            tvResultsCount.setText("Nb of audio found: " + results.size());
-                        }
-
+                        viewModel.setResults(results); // ✅ store results
+                        myLog(results.size() + " results found");
                     }
                 } else {
                     myToastE("Invalid response");
-                    finish();
+                    viewModel.requestFinish(); // ✅ trigger finish
                 }
             }
 
@@ -133,11 +161,10 @@ public class LibrivoxResultsActivity extends AppCompatActivity {
             public void onFailure(Call<ApiResponse> call, Throwable t) {
                 progressBar.setVisibility(View.GONE);
                 t.printStackTrace();
+                viewModel.requestFinish(); // ✅ trigger finish
             }
         });
     }
-
-
 
     private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
     private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }

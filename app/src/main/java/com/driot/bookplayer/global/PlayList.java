@@ -23,7 +23,7 @@ public class PlayList {
     private static List<ZikFile> zikFilesList;
     private static int numZikFile = -1; // old numSong
 
-    private static final String PREF_PLAYLIST_STORAGE = "PREF_PLAYLIST_STORAGE";
+    private static final String SHARED_PREFERENCE_CURRENT_PLAYLIST = "SHARED_PREFERENCE_CURRENT_PLAYLIST";
     private static final String KEY_ZIK_FILES_LIST = "KEY_ZIK_FILES_LIST";
     private static final String KEY_ZIK_FILE = "KEY_ZIK_FILE";
 
@@ -89,14 +89,14 @@ public class PlayList {
     // ...FAIL SAFE STORAGE...
     // -----------------------------------
     private static void saveToStorage(Context c, int numZikFile) {
-        c.getSharedPreferences(PREF_PLAYLIST_STORAGE, Context.MODE_PRIVATE).edit().putInt(KEY_ZIK_FILE, numZikFile).apply();
+        c.getSharedPreferences(SHARED_PREFERENCE_CURRENT_PLAYLIST, Context.MODE_PRIVATE).edit().putInt(KEY_ZIK_FILE, numZikFile).apply();
     }
     private static int loadFromStorage(Context c) {
-        return c.getSharedPreferences(PREF_PLAYLIST_STORAGE, Context.MODE_PRIVATE).getInt(KEY_ZIK_FILE, -1);
+        return c.getSharedPreferences(SHARED_PREFERENCE_CURRENT_PLAYLIST, Context.MODE_PRIVATE).getInt(KEY_ZIK_FILE, -1);
     }
     private static void saveToStorage(List<ZikFile> list) {
         if (appContext == null) myLogE("saveToStorage - null context");
-        SharedPreferences prefs = appContext.getSharedPreferences(PREF_PLAYLIST_STORAGE, Context.MODE_PRIVATE);
+        SharedPreferences prefs = appContext.getSharedPreferences(SHARED_PREFERENCE_CURRENT_PLAYLIST, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
         Gson gson = new Gson();
         String json = gson.toJson(list);
@@ -105,7 +105,7 @@ public class PlayList {
     }
     private static List<ZikFile> loadFromStorage() {
         if (appContext == null) return null;
-        SharedPreferences prefs = appContext.getSharedPreferences(PREF_PLAYLIST_STORAGE, Context.MODE_PRIVATE);
+        SharedPreferences prefs = appContext.getSharedPreferences(SHARED_PREFERENCE_CURRENT_PLAYLIST, Context.MODE_PRIVATE);
         String json = prefs.getString(KEY_ZIK_FILES_LIST, null);
         if (json == null) return null;
         Gson gson = new Gson();

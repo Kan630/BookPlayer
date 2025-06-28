@@ -21,6 +21,7 @@ import com.driot.bookplayer.utils.WorkFlow;
 
 import static com.driot.bookplayer.utils.Tonio.getFileNameFromPath;
 import static com.driot.bookplayer.utils.Tonio.formatNameForDisplay;
+import static com.driot.bookplayer.utils.WorkFlow.cancelAllOngoingTasks;
 import static com.driot.bookplayer.utils.WorkFlow.maybeResumeWorkFlow;
 
 
@@ -202,6 +203,8 @@ public class AddResourceActivity
 
             } else {
                 myToast(getString(R.string.Import_Success) + "\n" + tvTitle.getText());
+                cancelAllOngoingTasks(this);
+
 
                 Intent mainIntent = new Intent(this, MainActivity.class);
                 mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -212,7 +215,7 @@ public class AddResourceActivity
     }
 
     private void performCancel() {
-        WorkFlow.cancelAllOngoingTasks(this);
+        cancelAllOngoingTasks(this);
     }
 
 

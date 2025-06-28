@@ -231,6 +231,7 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
                         state.split = split;
                         state.copy = copy;
                         state.delete = delete;
+                        myLog("LoadBookTaskState : " + state);
 
                         setLoadBookTaskState(this, state); // save in SharedPrefs
 
