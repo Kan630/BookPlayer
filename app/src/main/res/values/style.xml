@@ -23,7 +23,7 @@
         <item name="android:textSize">24sp</item>
     </style>
 
-    <style name="myStyleinfo" parent="textColor">
+    <style name="myStyleInfo" parent="textColor">
         <item name="android:textSize">12sp</item>
     </style>
 

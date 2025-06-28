@@ -25,7 +25,7 @@
         <TextView
             android:id="@+id/lastAccess"
             android:text="last access : xxxxx"
-            style="@style/myStyleinfo"
+            style="@style/myStyleInfo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
@@ -45,7 +45,7 @@
             <TextView
                 android:id="@+id/textViewStorageIcon"
                 android:text="Audio Location : xxxxxx"
-                style="@style/myStyleinfo"
+                style="@style/myStyleInfo"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="0dp"

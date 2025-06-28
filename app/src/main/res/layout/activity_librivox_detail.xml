@@ -16,21 +16,26 @@
 
     <TextView
         android:id="@+id/textDetailTitle"
+        style="@style/myStyleTitle"
         android:textSize="30sp"
         android:textStyle="bold"
         android:layout_marginBottom="10dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="50dp"
+        text="title..."
         />
 
     <TextView
         android:id="@+id/textDetailIdentifier"
+        style="@style/myStyleInfo"
         android:textSize="14sp"
         android:layout_marginBottom="20dp"
         android:textColor="#888888"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        text="info..."
+        />
 
     <Button
         android:id="@+id/bGet"
@@ -50,12 +55,12 @@
 
     <TextView
         android:id="@+id/textDetailInfo"
+        style="@style/myStyleInfo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="12dp"
         android:text="Loading details..."
         android:textSize="14sp"
-        android:textColor="?android:textColorPrimary"
         android:layout_marginTop="30dp"
         android:layout_marginStart="20dp"
         android:layout_marginEnd="20dp"
@@ -63,12 +68,12 @@
 
     <TextView
         android:id="@+id/tvDownloadLink"
+        style="@style/myStyleInfo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="12dp"
         android:text="Checking download Link..."
         android:textSize="14sp"
-        android:textColor="?android:textColorPrimary"
         android:layout_marginTop="10dp"
         android:layout_marginStart="20dp"
         android:layout_marginEnd="20dp"
@@ -76,6 +81,7 @@
 
     <TextView
         android:id="@+id/tvLinkArchive"
+        style="@style/myStyleInfo"
         android:autoLink="web"
         android:linksClickable="true"
         android:layout_width="match_parent"
@@ -83,7 +89,6 @@
         android:padding="12dp"
         android:text="web link archive.org..."
         android:textSize="14sp"
-        android:textColor="?android:textColorPrimary"
         android:layout_marginTop="20dp"
         android:layout_marginStart="20dp"
         android:layout_marginEnd="20dp"
@@ -91,6 +96,7 @@
 
     <TextView
         android:id="@+id/tvLinkLibrivox"
+        style="@style/myStyleInfo"
         android:autoLink="web"
         android:linksClickable="true"
         android:layout_width="match_parent"
@@ -98,7 +104,6 @@
         android:padding="12dp"
         android:text="web link librivox.org..."
         android:textSize="14sp"
-        android:textColor="?android:textColorPrimary"
         android:layout_marginTop="10dp"
         android:layout_marginStart="20dp"
         android:layout_marginEnd="20dp"
@@ -106,12 +111,12 @@
 
     <TextView
         android:id="@+id/tvOtherInfo"
+        style="@style/myStyleInfo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="12dp"
         android:text="Miscallenous..."
         android:textSize="14sp"
-        android:textColor="?android:textColorPrimary"
         android:layout_marginTop="20dp"
         android:layout_marginStart="20dp"
         android:layout_marginEnd="20dp"

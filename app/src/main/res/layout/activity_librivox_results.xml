@@ -28,14 +28,14 @@
 
         <TextView
             android:id="@+id/tvLanguage"
-            style="@style/myStyleinfo"
+            style="@style/myStyleInfo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Language: "/>
 
         <TextView
             android:id="@+id/tvResultsCount"
-            style="@style/myStyleinfo"
+            style="@style/myStyleInfo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Results: "/>

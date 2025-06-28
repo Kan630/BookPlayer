@@ -362,12 +362,23 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
         String pref_audio_language = get_Audio_Language(this);
         List<LanguageItem> languageItems = Arrays.asList(
                  new LanguageItem("eng", "English", R.drawable.flag_uk)
-                ,new LanguageItem("ger", "German", R.drawable.flag_de)
+                ,new LanguageItem("deu", "German", R.drawable.flag_de)
                 ,new LanguageItem("spa", "Spanish", R.drawable.flag_es)
                 ,new LanguageItem("fre", "French", R.drawable.flag_fr)
                 ,new LanguageItem("por", "Portuguese", R.drawable.flag_pt)
                 ,new LanguageItem("ita", "Italian", R.drawable.flag_it)
                 ,new LanguageItem("rus", "Russian", R.drawable.flag_ru)
+                ,new LanguageItem("zho", "Chinese", R.drawable.flag_cn)
+                ,new LanguageItem("ara", "Arabic", R.drawable.flag_sa)
+                ,new LanguageItem("jpn", "Japanese", R.drawable.flag_jp)
+                //,new LanguageItem("hin", "Hindi", R.drawable.flag_in) // y a rien !
+                ,new LanguageItem("ell", "Greek", R.drawable.flag_gr)
+                ,new LanguageItem("heb", "Hebrew", R.drawable.flag_il)
+                ,new LanguageItem("swe", "Swedish", R.drawable.flag_se)
+                ,new LanguageItem("pol", "Polish", R.drawable.flag_pl)
+                ,new LanguageItem("nld", "Dutch", R.drawable.flag_nl)
+                ,new LanguageItem("mul", "Multiple", R.drawable.flag_globe)
+                //,new LanguageItem("", "Any", R.drawable.flag_all)
         );
         LanguageSpinnerAdapter adapter = new LanguageSpinnerAdapter(this, languageItems);
         spinnerLanguage.setAdapter(adapter);
