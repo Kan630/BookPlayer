@@ -457,4 +457,30 @@
     <string name="Export_display_text_export_title">"تصدير ZIP"</string>
     <string name="Export_done">"تم التصدير في مجلد [التنزيلات]"</string>
     <string name="Export_error">"خطأ في التصدير"</string>
+
+    <string name="LibrivoxSearch_title">"ليبرفوكس مباشر"</string>
+    <string name="LibrivoxSearch_desc">"ابحث مباشرة للحصول على كتابك من أرشيف كتب صوتية مجاني عالمي المستوى (معظمها باللغة الإنجليزية)"</string>
+    <string name="LibrivoxSearch_hint">"ألكسندر دوما"</string>
+    <string name="Search">"بحث"</string>
+    <string name="LibrivoxResultItem_audio_available_since">"الصوت متوفر منذ"</string>
+    <string name="LibrivoxResultitem_nb_of_reviews">"عدد المراجعات"</string>
+    <string name="LibrivoxResultitem_avg_rating">"متوسط التقييم"</string>
+    <string name="Librivox_bGetAudioBook">"الحصول على الكتاب الصوتي"</string>
+    <string name="LibrivoxSearch_warning">"تحذير - إصدار تجريبي\nلا يزال تحت التجربة"</string>
+
+    <string name="Download_cancelled">"تم إلغاء التنزيل"</string>
+    <string name="Download_failed">"فشل في التنزيل"</string>
+    <string name="downloaded">"تم التنزيل"</string>
+    <string name="Downloading">"جارٍ التنزيل"</string>
+    <string name="book_cover">"غلاف الكتاب"</string>
+
+    <string name="MB_taken_by_BookPlayer_app">" ميغابايت مستخدمة بواسطة تطبيق BookPlayer"</string>
+    <string name="MB_taken_by_audio_files">" ميغابايت مستخدمة بواسطة الملفات الصوتية"</string>
+    <string name="MB_taken_by_logs">" ميغابايت مستخدمة بواسطة السجلات"</string>
+    <string name="MB_available_on_device">" ميغابايت: متوفرة على الجهاز"</string>
+    <string name="MB_device_memory">" ميغابايت: ذاكرة الجهاز"</string>
+    <string name="MB_available_on_SD_card">" ميغابايت: متوفرة على بطاقة SD"</string>
+    <string name="MB_SD_card_memory">" ميغابايت: ذاكرة بطاقة SD"</string>
+    <string name="audio_location_sdcard">"بطاقة SD"</string>
+
 </resources>

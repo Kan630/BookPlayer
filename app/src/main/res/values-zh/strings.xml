@@ -455,4 +455,30 @@
     <string name="Export_display_text_export_title">"ZIP 导出"</string>
     <string name="Export_done">"已完成，已导出到 [下载] 文件夹"</string>
     <string name="Export_error">"导出错误"</string>
+
+    <string name="LibrivoxSearch_title">"Librivox 直达"</string>
+    <string name="LibrivoxSearch_desc">"搜索并直接从全球免费有声书资源库中获取你的书籍（主要为英文）"</string>
+    <string name="LibrivoxSearch_hint">"大仲马"</string>
+    <string name="Search">"搜索"</string>
+    <string name="LibrivoxResultItem_audio_available_since">"音频上线时间"</string>
+    <string name="LibrivoxResultitem_nb_of_reviews">"评论数量"</string>
+    <string name="LibrivoxResultitem_avg_rating">"平均评分"</string>
+    <string name="Librivox_bGetAudioBook">"获取有声书"</string>
+    <string name="LibrivoxSearch_warning">"警告 - 测试版\n功能仍在实验中"</string>
+
+    <string name="Download_cancelled">"下载已取消"</string>
+    <string name="Download_failed">"下载失败"</string>
+    <string name="downloaded">"已下载"</string>
+    <string name="Downloading">"正在下载"</string>
+    <string name="book_cover">"书籍封面"</string>
+
+    <string name="MB_taken_by_BookPlayer_app">" MB 已被 BookPlayer 占用"</string>
+    <string name="MB_taken_by_audio_files">" MB 被音频文件占用"</string>
+    <string name="MB_taken_by_logs">" MB 被日志占用"</string>
+    <string name="MB_available_on_device">" MB：设备可用空间"</string>
+    <string name="MB_device_memory">" MB：设备内存"</string>
+    <string name="MB_available_on_SD_card">" MB：SD 卡可用空间"</string>
+    <string name="MB_SD_card_memory">" MB：SD 卡内存"</string>
+    <string name="audio_location_sdcard">"SD 卡"</string>
+
 </resources>

@@ -455,4 +455,29 @@
     <string name="Export_display_text_export_title">"Exportar ZIP"</string>
     <string name="Export_done">"Hecho, exportado a la carpeta [Descargas]"</string>
     <string name="Export_error">"Error de exportación"</string>
+
+    <string name="LibrivoxSearch_title">"Librivox Directo"</string>
+    <string name="LibrivoxSearch_desc">"Haz una búsqueda para obtener directamente tu libro desde un repositorio gratuito de audiolibros de clase mundial (principalmente en inglés)"</string>
+    <string name="LibrivoxSearch_hint">"Alexandre Dumas"</string>
+    <string name="Search">"Buscar"</string>
+    <string name="LibrivoxResultItem_audio_available_since">"audio disponible desde"</string>
+    <string name="LibrivoxResultitem_nb_of_reviews">"Número de reseñas"</string>
+    <string name="LibrivoxResultitem_avg_rating">"Valoración media"</string>
+    <string name="Librivox_bGetAudioBook">"Obtener audiolibro"</string>
+    <string name="LibrivoxSearch_warning">"Atención - Prueba beta\nTodavía experimental"</string>
+
+    <string name="Download_cancelled">"Descarga cancelada"</string>
+    <string name="Download_failed">"Fallo en la descarga"</string>
+    <string name="downloaded">"descargado"</string>
+    <string name="Downloading">"Descargando"</string>
+    <string name="book_cover">"portada del libro"</string>
+
+    <string name="MB_taken_by_BookPlayer_app">" MB usados por la app BookPlayer"</string>
+    <string name="MB_taken_by_audio_files">" MB usados por archivos de audio"</string>
+    <string name="MB_taken_by_logs">" MB usados por registros"</string>
+    <string name="MB_available_on_device">" MB: disponibles en el dispositivo"</string>
+    <string name="MB_device_memory">" MB: memoria del dispositivo"</string>
+    <string name="MB_available_on_SD_card">" MB: disponibles en la tarjeta SD"</string>
+    <string name="MB_SD_card_memory">" MB: memoria de la tarjeta SD"</string>
+    <string name="audio_location_sdcard">"Tarjeta SD"</string>
 </resources>

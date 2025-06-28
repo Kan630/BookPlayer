@@ -430,4 +430,29 @@
     <string name="Export_done">"OK, exporté dans le répertoire [Téléchargements]"</string>
     <string name="Export_error">"Erreur pendant l\'export"</string>
 
+    <string name="LibrivoxSearch_title">"Librivox Direct"</string>
+    <string name="LibrivoxSearch_desc">"Effectuez une recherche pour obtenir directement votre livre depuis un dépôt d\'audiobooks gratuit de classe mondiale (essentiellement en anglais)"</string>
+    <string name="LibrivoxSearch_hint">"Alexandre Dumas"</string>
+    <string name="Search">"Rechercher"</string>
+    <string name="LibrivoxResultItem_audio_available_since">"audio disponible depuis"</string>
+    <string name="LibrivoxResultitem_nb_of_reviews">"Nb d\'avis"</string>
+    <string name="LibrivoxResultitem_avg_rating">"Note moyenne"</string>
+    <string name="Librivox_bGetAudioBook">"Obtenir l\'audiobook"</string>
+    <string name="LibrivoxSearch_warning">"Attention - Test Bêta\nEncore expérimental"</string>
+
+    <string name="Download_cancelled">"Téléchargement annulé"</string>
+    <string name="Download_failed">"Échec du téléchargement"</string>
+    <string name="downloaded">"téléchargé"</string>
+    <string name="Downloading">"Téléchargement en cours"</string>
+    <string name="book_cover">"couverture du livre"</string>
+
+    <string name="MB_taken_by_BookPlayer_app">" Mo utilisés par l\'appli BookPlayer"</string>
+    <string name="MB_taken_by_audio_files">" Mo utilisés par les fichiers audio"</string>
+    <string name="MB_taken_by_logs">" Mo utilisés par les journaux"</string>
+    <string name="MB_available_on_device">" Mo : disponibles sur l\'appareil"</string>
+    <string name="MB_device_memory">" Mo : Mémoire de l\'appareil"</string>
+    <string name="MB_available_on_SD_card">" Mo : disponibles sur la carte SD"</string>
+    <string name="MB_SD_card_memory">" Mo : Mémoire de la carte SD"</string>
+    <string name="audio_location_sdcard">"Carte SD"</string>
+
 </resources>

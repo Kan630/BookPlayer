@@ -456,4 +456,30 @@
     <string name="Export_display_text_export_title">"Экспорт в ZIP"</string>
     <string name="Export_done">"Готово, экспортировано в папку [Загрузки]"</string>
     <string name="Export_error">"Ошибка экспорта"</string>
+
+    <string name="LibrivoxSearch_title">"Прямой доступ к Librivox"</string>
+    <string name="LibrivoxSearch_desc">"Выполните поиск, чтобы сразу получить книгу из бесплатного мирового архива аудиокниг (в основном на английском языке)"</string>
+    <string name="LibrivoxSearch_hint">"Александр Дюма"</string>
+    <string name="Search">"Поиск"</string>
+    <string name="LibrivoxResultItem_audio_available_since">"аудио доступно с"</string>
+    <string name="LibrivoxResultitem_nb_of_reviews">"Количество отзывов"</string>
+    <string name="LibrivoxResultitem_avg_rating">"Средняя оценка"</string>
+    <string name="Librivox_bGetAudioBook">"Получить аудиокнигу"</string>
+    <string name="LibrivoxSearch_warning">"Внимание — бета-тест\nФункция в стадии эксперимента"</string>
+
+    <string name="Download_cancelled">"Загрузка отменена"</string>
+    <string name="Download_failed">"Ошибка загрузки"</string>
+    <string name="downloaded">"загружено"</string>
+    <string name="Downloading">"Загрузка"</string>
+    <string name="book_cover">"обложка книги"</string>
+
+    <string name="MB_taken_by_BookPlayer_app">" МБ использовано приложением BookPlayer"</string>
+    <string name="MB_taken_by_audio_files">" МБ использовано аудиофайлами"</string>
+    <string name="MB_taken_by_logs">" МБ использовано журналами"</string>
+    <string name="MB_available_on_device">" МБ: доступно на устройстве"</string>
+    <string name="MB_device_memory">" МБ: память устройства"</string>
+    <string name="MB_available_on_SD_card">" МБ: доступно на SD-карте"</string>
+    <string name="MB_SD_card_memory">" МБ: память SD-карты"</string>
+    <string name="audio_location_sdcard">"SD-карта"</string>
+
 </resources>
