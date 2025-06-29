@@ -79,14 +79,6 @@
     <string name="option_unzip_local">Dézipper les fichiers (prend de l\'espace mais meilleure expérience d\'écoute)</string>
 
     <string name="option_copy_file_title">Copier les fichiers en interne</string>
-    <string name="option_copy_file_subtitle"><i>Avantages :
-        \n* La permission [Lire Audio] n\'est pas nécessaire.
-        \n* Pas de risque de perdre le livre audio et sa progression si le fichier source est accidentellement supprimé/déplacé.
-        \nInconvénients :
-        \n* Plus de mémoire sera nécessaire si vous ne supprimez pas le fichier source.</i>
-    </string>
-    <string name="option_copy_file_text">Copier les fichiers audio dans la mémoire interne réservée à BookPlayer.</string>
-
 
     <string name="option_backward_forward_title">Boutons Avancer/Reculer</string>
     <string name="option_backward_forward_text">avance rapide :</string>
@@ -454,5 +446,30 @@
     <string name="MB_available_on_SD_card">" Mo : disponibles sur la carte SD"</string>
     <string name="MB_SD_card_memory">" Mo : Mémoire de la carte SD"</string>
     <string name="audio_location_sdcard">"Carte SD"</string>
+
+    <string name="librivox_no_audiobook_found_for_search">Aucun livre audio trouvé pour ces termes de recherche</string>
+    <string name="librivox_invalid_response">Réponse invalide du serveur Librivox</string>
+    <string name="loading_details">Chargement des détails…</string>
+    <string name="loading_detail_failed">Échec du chargement des détails</string>
+    <string name="librivox_zip_mp3_available">Fichier ZIP-MP3 disponible</string>
+    <string name="librivox_zip_mp3_not_found">Fichier ZIP-MP3 introuvable</string>
+    <string name="librivox_wait_integration">Veuillez patienter, un autre livre est encore en cours de téléchargement/chargement.</string>
+    <string name="Creator">Créateur</string>
+    <string name="Available_since">Disponible depuis</string>
+    <string name="Error_checking_file">Erreur lors de la vérification du fichier</string>
+
+    <string name="Error_Import_OutOfMemory">Erreur générale : mémoire insuffisante</string>
+    <string name="Error_Import_This_folder_may_contain_too_many_books">Ce dossier contient peut-être trop de livres ou de sous-dossiers pour être chargés en une seule fois.</string>
+
+    <string name="default_for">défaut pour</string>
+
+    <string name="option_copy_file_subtitle">Avantages :
+\n* La permission [Lire les fichiers audio] n\'est pas nécessaire.
+\n* Aucun risque de perdre un livre audio et sa progression si son fichier source est accidentellement supprimé/déplacé.
+\n\nInconvénients :
+\n* Plus de mémoire sera utilisée si vous ne supprimez pas le fichier source.</string>
+
+    <string name="option_copy_file_text">Copier les fichiers audio dans la mémoire interne réservée de l\'application BookPlayer.</string>
+
 
 </resources>

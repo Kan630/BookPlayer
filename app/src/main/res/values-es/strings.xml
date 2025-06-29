@@ -80,13 +80,6 @@
     <string name="option_unzip_local">Descomprimir archivos (ocupa espacio, pero mejor experiencia de escucha)</string>
 
     <string name="option_copy_file_title">Copiar archivos internamente</string>
-    <string name="option_copy_file_subtitle"><i>Pros:
-        \n* No se necesita permiso [Leer Audio].
-        \n* No hay riesgo de perder audiolibro y progreso si su archivo fuente se borra/mueve accidentalmente.
-        \nContras:
-        \n* Se necesitará más memoria si no borras el archivo fuente.</i>
-    </string>
-    <string name="option_copy_file_text">Copiar archivos de audio en la memoria interna reservada de BookPlayer.</string>
 
 
     <string name="option_backward_forward_title">Botones Retroceder/Avanzar</string>
@@ -480,4 +473,29 @@
     <string name="MB_available_on_SD_card">" MB: disponibles en la tarjeta SD"</string>
     <string name="MB_SD_card_memory">" MB: memoria de la tarjeta SD"</string>
     <string name="audio_location_sdcard">"Tarjeta SD"</string>
+
+    <string name="librivox_no_audiobook_found_for_search">No se encontró ningún audiolibro con esos términos de búsqueda</string>
+    <string name="librivox_invalid_response">Respuesta no válida del servidor de Librivox</string>
+    <string name="loading_details">Cargando detalles…</string>
+    <string name="loading_detail_failed">Error al cargar los detalles</string>
+    <string name="librivox_zip_mp3_available">Archivo ZIP-MP3 disponible</string>
+    <string name="librivox_zip_mp3_not_found">Archivo ZIP-MP3 no encontrado</string>
+    <string name="librivox_wait_integration">Por favor espera, otro libro aún se está descargando o cargando.</string>
+    <string name="Creator">Creador</string>
+    <string name="Available_since">Disponible desde</string>
+    <string name="Error_checking_file">Error al verificar el archivo</string>
+
+    <string name="Error_Import_OutOfMemory">Error general: memoria insuficiente</string>
+    <string name="Error_Import_This_folder_may_contain_too_many_books">Esta carpeta puede contener demasiados libros o subcarpetas para cargarse de una sola vez.</string>
+
+    <string name="default_for">predeterminado para</string>
+
+    <string name="option_copy_file_subtitle">Ventajas:
+\n* No se necesita el permiso [Leer archivos de audio].
+\n* No hay riesgo de perder el audiolibro ni el progreso si el archivo fuente se elimina o se mueve accidentalmente.
+\n\nDesventajas:
+\n* Se necesitará más memoria si no eliminas el archivo original.</string>
+
+    <string name="option_copy_file_text">Copiar los archivos de audio a la memoria interna reservada de la aplicación BookPlayer.</string>
+
 </resources>

@@ -81,11 +81,11 @@
     <string name="option_unzip_local">Unzip files (takes storage space, but smoother listening experience)</string>
 
     <string name="option_copy_file_title">Copy files internally</string>
-    <string name="option_copy_file_subtitle"><i>Pros :
+    <string name="option_copy_file_subtitle">Pros :
         \n* [Read Audio] permission is not needed.
         \n* No risk to loose audio book and progress if its source file get accidentally deleted/moved.
-        \nCons :
-        \n* More memory will be needed if you do not delete the source file.</i>
+        \n\nCons :
+        \n* More memory will be needed if you do not delete the source file.
     </string>
     <string name="option_copy_file_text">Copy audio files in the internal, reserved, BookPlayer app memory.</string>
 
@@ -520,6 +520,15 @@
     <string name="Error_Import_OutOfMemory">General Error : Out of Memory</string>
     <string name="Error_Import_This_folder_may_contain_too_many_books">This folder may contain too many books or subfolders to be loaded in one go.</string>
 
+    <string name="default_for">default for</string>
+
+    <string name="option_copy_file_subtitle">Pros :
+        \n* [Read Audio] permission is not needed.
+        \n* No risk to loose audio book and progress if its source file get accidentally deleted/moved.
+        \n\nCons :
+        \n* More memory will be needed if you do not delete the source file.
+    </string>
+    <string name="option_copy_file_text">Copy audio files in the internal, reserved, BookPlayer app memory.</string>
 
 
 

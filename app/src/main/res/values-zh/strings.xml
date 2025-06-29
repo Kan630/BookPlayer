@@ -80,13 +80,6 @@
     <string name="option_unzip_local">解压文件(占用存储空间，但播放体验更流畅)</string>
 
     <string name="option_copy_file_title">内部复制文件</string>
-    <string name="option_copy_file_subtitle"><i>优点：
-        \n* 不需要[读取音频]权限。
-        \n* 如果源文件被意外删除/移动，不会丢失有声书和进度。
-        \n缺点：
-        \n* 如果不删除源文件，将需要更多内存。</i>
-    </string>
-    <string name="option_copy_file_text">将音频文件复制到BookPlayer应用内部保留内存中。</string>
 
 
     <string name="option_backward_forward_title">后退/前进按钮</string>
@@ -480,5 +473,30 @@
     <string name="MB_available_on_SD_card">" MB：SD 卡可用空间"</string>
     <string name="MB_SD_card_memory">" MB：SD 卡内存"</string>
     <string name="audio_location_sdcard">"SD 卡"</string>
+
+    <string name="librivox_no_audiobook_found_for_search">未找到符合搜索条件的有声书</string>
+    <string name="librivox_invalid_response">来自 Librivox 服务器的响应无效</string>
+    <string name="loading_details">正在加载详细信息…</string>
+    <string name="loading_detail_failed">加载详细信息失败</string>
+    <string name="librivox_zip_mp3_available">可用的 ZIP-MP3 文件</string>
+    <string name="librivox_zip_mp3_not_found">未找到 ZIP-MP3 文件</string>
+    <string name="librivox_wait_integration">请稍候，另一本书仍在下载或加载中。</string>
+    <string name="Creator">创作者</string>
+    <string name="Available_since">可用日期</string>
+    <string name="Error_checking_file">检查文件时出错</string>
+
+    <string name="Error_Import_OutOfMemory">通用错误：内存不足</string>
+    <string name="Error_Import_This_folder_may_contain_too_many_books">此文件夹可能包含太多书籍或子文件夹，无法一次性加载。</string>
+
+    <string name="default_for">默认用于</string>
+
+    <string name="option_copy_file_subtitle">优点：
+\n* 不需要 [读取音频] 权限。
+\n* 如果源文件被意外删除或移动，音频书籍和进度不会丢失。
+\n\n缺点：
+\n* 如果不删除源文件，将需要更多内存。</string>
+
+    <string name="option_copy_file_text">将音频文件复制到 BookPlayer 应用的内部专用存储中。</string>
+
 
 </resources>

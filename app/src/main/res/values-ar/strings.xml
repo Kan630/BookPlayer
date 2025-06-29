@@ -80,13 +80,6 @@
     <string name="option_unzip_local">فك ضغط الملفات (يستهلك مساحة تخزين، لكن تجربة استماع أفضل)</string>
 
     <string name="option_copy_file_title">نسخ الملفات داخلياً</string>
-    <string name="option_copy_file_subtitle"><i>إيجابيات:
-        \n* لا حاجة لإذن [قراءة الصوت].
-        \n* لا خطر فقدان الكتاب الصوتي وتقدمك إذا تم حذف/نقل ملفه المصدر.
-        \nسلبيات:
-        \n* سيحتاج لمساحة أكبر إذا لم تحذف الملف المصدر.</i>
-    </string>
-    <string name="option_copy_file_text">نسخ ملفات الصوت في الذاكرة الداخلية المخصصة لـ BookPlayer.</string>
 
 
     <string name="option_backward_forward_title">أزرار الرجوع/التقدم</string>
@@ -482,5 +475,31 @@
     <string name="MB_available_on_SD_card">" ميغابايت: متوفرة على بطاقة SD"</string>
     <string name="MB_SD_card_memory">" ميغابايت: ذاكرة بطاقة SD"</string>
     <string name="audio_location_sdcard">"بطاقة SD"</string>
+
+    <string name="librivox_no_audiobook_found_for_search">لم يتم العثور على أي كتاب صوتي لمصطلحات البحث</string>
+    <string name="librivox_invalid_response">استجابة غير صالحة من خادم Librivox</string>
+    <string name="loading_details">جارٍ تحميل التفاصيل…</string>
+    <string name="loading_detail_failed">فشل في تحميل التفاصيل</string>
+    <string name="librivox_zip_mp3_available">ملف ZIP-MP3 متاح</string>
+    <string name="librivox_zip_mp3_not_found">ملف ZIP-MP3 غير موجود</string>
+    <string name="librivox_wait_integration">يرجى الانتظار، لا يزال هناك كتاب آخر قيد التنزيل أو التحميل.</string>
+    <string name="Creator">المؤلف</string>
+    <string name="Available_since">متاح منذ</string>
+    <string name="Error_checking_file">خطأ أثناء التحقق من الملف</string>
+
+    <string name="Error_Import_OutOfMemory">خطأ عام: نفاد الذاكرة</string>
+    <string name="Error_Import_This_folder_may_contain_too_many_books">قد يحتوي هذا المجلد على عدد كبير جدًا من الكتب أو المجلدات الفرعية ليتم تحميلها دفعة واحدة.</string>
+
+    <string name="default_for">الإعداد الافتراضي لـ</string>
+
+    <string name="option_copy_file_subtitle">الإيجابيات:
+\n* لا حاجة إلى إذن [قراءة الصوتيات].
+\n* لا يوجد خطر لفقدان الكتاب الصوتي أو التقدم إذا تم حذف الملف المصدر أو نقله عن طريق الخطأ.
+\n\nالسلبيات:
+\n* ستحتاج إلى مزيد من الذاكرة إذا لم تقم بحذف الملف المصدر.</string>
+
+    <string name="option_copy_file_text">نسخ الملفات الصوتية إلى ذاكرة التطبيق الداخلية المحجوزة لـ BookPlayer.</string>
+
+
 
 </resources>

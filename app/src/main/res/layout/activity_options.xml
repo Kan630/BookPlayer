@@ -134,25 +134,6 @@
 
 
 
-        <View style="@style/myStyleViewSimpleHorizontalBar" />
-
-        <LinearLayout style="@style/LinearLayoutOptionsVertical">
-            <TextView
-                style="@style/OptionTitle"
-                android:text="@string/option_split_m4b" />
-            <LinearLayout style="@style/LinearLayoutOptionsCheckBoxHorizontal"
-                android:id="@+id/ll_split_m4b">
-                <com.google.android.material.checkbox.MaterialCheckBox
-                    android:id="@+id/chk_split_m4b"
-                    style="@style/OptionCheckBox"/>
-                <TextView
-                    android:id="@+id/tx_split_m4b"
-                    style="@style/OptionCheckBoxText"
-                    android:text="@string/option_split_m4b_text" />
-            </LinearLayout>
-        </LinearLayout>
-
-
 
 
         <View style="@style/myStyleViewSimpleHorizontalBar" />
@@ -282,7 +263,9 @@
             android:layout_height="wrap_content"
             android:text="Show Advanced Options"
             android:layout_gravity="center"
-            android:layout_marginTop="20sp" />
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="20dp"
+            />
 
         <!-- Advanced Options wrapped in a ViewStub -->
         <ViewStub

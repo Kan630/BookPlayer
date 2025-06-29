@@ -80,13 +80,6 @@
     <string name="option_unzip_local">Распаковывать файлы (занимает место, но более плавное воспроизведение)</string>
 
     <string name="option_copy_file_title">Копировать файлы внутрь</string>
-    <string name="option_copy_file_subtitle"><i>Плюсы:
-        \n* Не требуется разрешение [Чтение аудио].
-        \n* Нет риска потери аудиокниги и прогресса, если исходный файл будет случайно удален/перемещен.
-        \nМинусы:
-        \n* Потребуется больше памяти, если вы не удалите исходный файл.</i>
-    </string>
-    <string name="option_copy_file_text">Копировать аудиофайлы во внутреннюю выделенную память BookPlayer.</string>
 
 
     <string name="option_backward_forward_title">Кнопки Назад/Вперед</string>
@@ -481,5 +474,30 @@
     <string name="MB_available_on_SD_card">" МБ: доступно на SD-карте"</string>
     <string name="MB_SD_card_memory">" МБ: память SD-карты"</string>
     <string name="audio_location_sdcard">"SD-карта"</string>
+
+    <string name="librivox_no_audiobook_found_for_search">Аудиокниги по запросу не найдены</string>
+    <string name="librivox_invalid_response">Недопустимый ответ от сервера Librivox</string>
+    <string name="loading_details">Загрузка деталей…</string>
+    <string name="loading_detail_failed">Не удалось загрузить детали</string>
+    <string name="librivox_zip_mp3_available">Файл ZIP-MP3 доступен</string>
+    <string name="librivox_zip_mp3_not_found">Файл ZIP-MP3 не найден</string>
+    <string name="librivox_wait_integration">Пожалуйста, подождите, пока загружается другой файл.</string>
+    <string name="Creator">Автор</string>
+    <string name="Available_since">Доступно с</string>
+    <string name="Error_checking_file">Ошибка при проверке файла</string>
+
+    <string name="Error_Import_OutOfMemory">Общая ошибка: недостаточно памяти</string>
+    <string name="Error_Import_This_folder_may_contain_too_many_books">Эта папка может содержать слишком много книг или подпапок для одновременной загрузки.</string>
+
+    <string name="default_for">по умолчанию для</string>
+
+    <string name="option_copy_file_subtitle">Плюсы:
+\n* Не требуется разрешение [Чтение аудиофайлов].
+\n* Нет риска потерять аудиокнигу и прогресс, если исходный файл будет случайно удалён или перемещён.
+\n\nМинусы:
+\n* Потребуется больше памяти, если вы не удалите исходный файл.</string>
+
+    <string name="option_copy_file_text">Копировать аудиофайлы во внутреннюю память приложения BookPlayer.</string>
+
 
 </resources>

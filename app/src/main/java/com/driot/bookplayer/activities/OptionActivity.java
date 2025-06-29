@@ -64,9 +64,9 @@ public class OptionActivity extends LoggingActivity {
     CheckBox chk_rewind_after_pause;
     CheckBox chk_copy_file;
     CheckBox chk_click_visualizer_playpause;
-    CheckBox chk_split_m4b;
     CheckBox chk_tech_log_file;
     CheckBox chk_open_with;
+    CheckBox chk_split_m4b;
     private PermissionRequest mPermissionRequest;
 
     private boolean areAdvancedOptionsVisible = false;
@@ -90,8 +90,6 @@ public class OptionActivity extends LoggingActivity {
         tx_Visualizer_on = findViewById(R.id.tx_Visualizer_on);
         chk_click_visualizer_playpause = findViewById(R.id.chk_click_visualizer_playpause);
         ll_visualizer_playpause = findViewById(R.id.ll_visualizer_playpause);
-        chk_split_m4b = findViewById(R.id.chk_split_m4b);
-        ll_split_m4b = findViewById(R.id.ll_split_m4b);
         btn_Color_01 = findViewById(R.id.btn_color_01);
         btn_Color_02 = findViewById(R.id.btn_color_02);
         btn_Color_03 = findViewById(R.id.btn_color_03);
@@ -128,10 +126,6 @@ public class OptionActivity extends LoggingActivity {
         ll_visualizer_playpause.setOnClickListener(v -> chk_click_visualizer_playpause.toggle());
         chk_click_visualizer_playpause.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setClickVisualizerPlayPause(this, isChecked));
 
-        chk_split_m4b.setChecked(Option.getSplitM4b(this));
-        ll_split_m4b.setOnClickListener(v -> chk_split_m4b.toggle());
-        chk_split_m4b.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setSplitM4b(this, isChecked));
-
         themesAndColors = new Object[][] {
                 {btn_Color_01, R.style.Theme_BookPlayer_Gray},
                 {btn_Color_02, R.style.Theme_BookPlayer_Purple},
@@ -163,9 +157,13 @@ public class OptionActivity extends LoggingActivity {
 
         setVisualizerPermissionText();
 
-        if (getIntent().getBooleanExtra("CopyFileSetRed", false)) {
-            TextView tv = findViewById(R.id.txtCopyFileHead);
-            tv.setTextColor(Color.RED);
+        try {
+            if (getIntent().getBooleanExtra("CopyFileSetRed", false)) {
+                TextView tv = findViewById(R.id.txtCopyFileHead);
+                tv.setTextColor(Color.RED);
+            }
+        } catch (Exception e) {
+            myLogEE(e, "not sure but you should maybe open the viewstub here....");
         }
 
 
@@ -185,6 +183,8 @@ public class OptionActivity extends LoggingActivity {
         chk_copy_file = findViewById(R.id.chk_copy_file);
         chk_tech_log_file = findViewById(R.id.chk_tech_log_file);
         chk_open_with = findViewById(R.id.chk_open_with);
+        chk_split_m4b = findViewById(R.id.chk_split_m4b);
+        ll_split_m4b = findViewById(R.id.ll_split_m4b);
         ll_copy_file = findViewById(R.id.ll_copy_file);
         ll_delete_source_file = findViewById(R.id.ll_delete_source_file);
         ll_open_with = findViewById(R.id.ll_open_with);
@@ -210,6 +210,10 @@ public class OptionActivity extends LoggingActivity {
         chk_beep_autostop.setChecked(Option.getBeepAutoStop(this));
         ll_beep_autostop.setOnClickListener(v -> chk_beep_autostop.toggle());
         chk_beep_autostop.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setBeepAutoStop(this, isChecked));
+
+        chk_split_m4b.setChecked(Option.getSplitM4b(this));
+        ll_split_m4b.setOnClickListener(v -> chk_split_m4b.toggle());
+        chk_split_m4b.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setSplitM4b(this, isChecked));
 
         chk_delete_source_file.setChecked(Option.getDeleteSourceFile(this));
         ll_delete_source_file.setOnClickListener(v -> chk_delete_source_file.toggle());
