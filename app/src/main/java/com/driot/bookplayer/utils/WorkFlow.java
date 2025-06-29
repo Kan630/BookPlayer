@@ -17,6 +17,45 @@ import java.io.File;
 
 public class WorkFlow {
 
+
+    public static boolean isSomeWorkFlowRunning(Context c) {
+        myLogD("isSomeWorkFlowRunning() - called from " + c.getClass().getSimpleName());
+        LoadBookTaskState state = getLoadBookTaskState(c, false);
+        if (state==null) {
+            myLogD("LoadBookTaskState : null instance...");
+        } else {
+            if (state.downloadedFileReady || state.downloadedFilePath != null) {
+                myLog("LoadBookTaskState : Downloading...");
+                return true;
+            }
+        }
+        if (DownloadJobService.isJobRunning) {
+            myLog("yes : DownloadJobService...");
+            return true;
+        }
+        if (SplitM4bService.isSplitRunning) {
+            myLog("yes : SplitM4bService...");
+            return true;
+        }
+        if (UnzipService.isUnzipRunning) {
+            myLog("yes : UnzipService...");
+            return true;
+        }
+        if (CopyFileService.isCopyRunning) {
+            myLog("yes : CopyFileService...");
+            return true;
+        }
+        if (DownloadService.isBusy) {
+            myLog("yes : DownloadService...");
+            return true;
+        }
+        if (AddResourceService.isBusy) {
+            myLog("yes : AddResourceService...");
+            return true;
+        }
+        return false;
+    }
+
     public static void maybeResumeWorkFlow(Context c) {
         myLog("maybeResumeDownloadFlow() - called from " + c.getClass().getSimpleName());
         LoadBookTaskState state = getLoadBookTaskState(c, true);
@@ -62,6 +101,8 @@ public class WorkFlow {
             setLoadBookTaskState(context, state);
             myLog("downloadedFilePath set to null");
         }
+        DownloadJobService.isJobRunning = false;
+        DownloadService.isBusy = false;
     }
 
     public static void setWorkFlowFinished(Context context) {
@@ -84,6 +125,7 @@ public class WorkFlow {
         SplitM4bService.isSplitRunning = false;
         CopyFileService.isCopyRunning = false;
         AddResourceService.isBusy = false;
+        DownloadService.isBusy = false;
 
         // Also stop foreground/background services
         context.stopService(new Intent(context, AddResourceService.class));

@@ -6,13 +6,10 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.ComponentCallbacks2;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ServiceInfo;
-import android.content.res.AssetFileDescriptor;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.ToneGenerator;
@@ -45,7 +42,6 @@ import com.driot.bookplayer.db.Sql;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Pref;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.Date;
 import java.sql.Time;
@@ -79,7 +75,10 @@ class CustomMediaPlayer extends MediaPlayer {
 }
 public class AudioService extends LifecycleLoggingService {
 
-    private static final String CHANNEL_ID = "audio_channel_of_bookplayer";
+    public static volatile boolean isRunning = false;
+
+    private static final String ID_NOTIFICATION_PLAY_AUDIO_CHANNEL = "audio_channel_of_bookplayer";
+    private static final int ID_NOTIFICATION_PLAY_AUDIO_INT = 2;
 
     private Handler handler;
     private Runnable timerRunnable;
@@ -128,6 +127,10 @@ public class AudioService extends LifecycleLoggingService {
     private AudioManager audioManager;
     private AudioManager.OnAudioFocusChangeListener afChangeListener;
     private MediaSessionCompat mediaSession;
+
+
+
+
     private final MediaSessionCompat.Callback callback = new MediaSessionCompat.Callback() {
 
         @Override
@@ -198,6 +201,9 @@ public class AudioService extends LifecycleLoggingService {
         }
     };
 
+
+
+
     private double speed = 1.0;
     private boolean ErrorLoadingFile = false;
     DecimalFormat myDF = new DecimalFormat("#,###.");
@@ -213,6 +219,7 @@ public class AudioService extends LifecycleLoggingService {
     @Override
     public void onCreate() {
         myLog("onCreate()");
+        isRunning = true;
         super.onCreate();
         //createNotificationChannel();
 
@@ -435,6 +442,7 @@ public class AudioService extends LifecycleLoggingService {
     }
     @Override
     public void onDestroy() {
+        isRunning = false;
         myLog("onDestroy()");
         if (mediaPlayer.isPlaying()) {mediaPlayerStop();}
         stopSleepTimer();
@@ -915,10 +923,6 @@ public class AudioService extends LifecycleLoggingService {
         }
     }
 
-    /********************************************************************************
-     ***       MEDIA SESSION - Lock Screen Actions
-     ********************************************************************************
-     */
 
     private void saveSpeedToPref(double speed) {
         try {
@@ -939,9 +943,8 @@ public class AudioService extends LifecycleLoggingService {
         }
     }
 
-
     /********************************************************************************
-     ***       MEDIA SESSION - Lock Screen Actions
+     ***       NOTIFICATIONS
      ********************************************************************************
      */
 
@@ -981,7 +984,7 @@ public class AudioService extends LifecycleLoggingService {
                     .build();
             mediaSession.setMetadata(metadata);
 
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID) // channel is used for user to be able to disable all notifications from that channel, starting android 8
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(this, ID_NOTIFICATION_PLAY_AUDIO_CHANNEL) // channel is used for user to be able to disable all notifications from that channel, starting android 8
                     .setContentTitle(getCurrentZikFile().getFolderName())
                     .setContentText(getCurrentZikFile().getDisplayName())
                     .setSmallIcon(R.mipmap.ic_launcher)
@@ -1003,9 +1006,9 @@ public class AudioService extends LifecycleLoggingService {
             Notification notification = builder.build();
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) { // sdk 29 (28 is Android 9)
-                startForeground(1, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK);
+                startForeground(ID_NOTIFICATION_PLAY_AUDIO_INT, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK);
             } else {
-                startForeground(1, notification);
+                startForeground(ID_NOTIFICATION_PLAY_AUDIO_INT, notification);
             }
 
 
@@ -1021,7 +1024,7 @@ public class AudioService extends LifecycleLoggingService {
             myLog("createNotificationChannel()");
             try {
                 NotificationChannel channel = new NotificationChannel(
-                        CHANNEL_ID, "Music Playback",
+                        ID_NOTIFICATION_PLAY_AUDIO_CHANNEL, "Music Playback",
                         NotificationManager.IMPORTANCE_LOW); //LOW = no sound
                 channel.setDescription("Bookplayer Music Playback Controls");
                 NotificationManager manager = getSystemService(NotificationManager.class);
@@ -1043,7 +1046,7 @@ public class AudioService extends LifecycleLoggingService {
             }
 
             NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            notificationManager.cancel(1); // ID 1 matches the one used in startForeground()
+            notificationManager.cancel(ID_NOTIFICATION_PLAY_AUDIO_INT); // ID 1 matches the one used in startForeground()
 
             myLogI("Notification removed");
         } catch (Exception e) {
@@ -1055,6 +1058,7 @@ public class AudioService extends LifecycleLoggingService {
     public void onTrimMemory(int level) {
         super.onTrimMemory(level);
         myLogE("onTrimMemory() - level=[" + level + "]");
+        /*
         if (level >= ComponentCallbacks2.TRIM_MEMORY_MODERATE) {
             if (mediaPlayer != null) {
                 try {
@@ -1066,7 +1070,10 @@ public class AudioService extends LifecycleLoggingService {
                 }
             }
         }
+
+         */
     }
+
 
     private void mediaPlayerStart() {
         mediaPlayer.start();
@@ -1133,6 +1140,7 @@ public class AudioService extends LifecycleLoggingService {
     }
 
     private void killIt() {
+        myLogI("killIt()");
         LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(new Intent(NOTIFICATION_FILENOTFOUND));
         ErrorLoadingFile=true;
         removeNotification();

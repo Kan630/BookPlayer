@@ -4,7 +4,6 @@ import static com.driot.bookplayer.global.Pref.setLoadBookTaskState;
 
 import android.content.Intent;
 import android.net.Uri;
-import android.opengl.Visibility;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -20,7 +19,7 @@ import com.driot.bookplayer.db.LibrivoxApi;
 import com.driot.bookplayer.db.LoadBookTaskState;
 import com.driot.bookplayer.utils.AddResourceService;
 import com.driot.bookplayer.utils.KanLogger;
-import com.driot.bookplayer.activities.LibrivoxDetailViewModel;
+import com.driot.bookplayer.utils.WorkFlow;
 
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -71,7 +70,7 @@ public class LibrivoxDetailActivity extends LifecycleLoggingActivity {
 
         titleView.setText(viewModel.title);
         idView.setText("ID: " + viewModel.identifier);
-        infoView.setText("Loading details...");
+        infoView.setText(getString(R.string.loading_details));
 
         // Setup Retrofit
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor(this::myLog);
@@ -91,10 +90,14 @@ public class LibrivoxDetailActivity extends LifecycleLoggingActivity {
             if (exists != null) {
                 if (exists) {
                     long size = viewModel.zipFileSizeBytes.getValue() != null ? viewModel.zipFileSizeBytes.getValue() : 0;
-                    tvDownloadLink.setText("\n✅ ZIP-MP3 file available (" + formatFileSize(size) + ")");
-                    bGet.setEnabled(true);
+                    tvDownloadLink.setText("\n✅ " + getString(R.string.librivox_zip_mp3_available) + " (" + formatFileSize(size) + ")");
+                    if (WorkFlow.isSomeWorkFlowRunning(this)) {
+                        tvDownloadLink.append("\n❌ " + getString(R.string.librivox_wait_integration));
+                    } else {
+                        bGet.setEnabled(true);
+                    }
                 } else {
-                    tvDownloadLink.setText("\n❌ ZIP-MP3 file not found.");
+                    tvDownloadLink.setText("\n❌ " + getString(R.string.librivox_zip_mp3_not_found));
                 }
             }
         });
@@ -116,13 +119,13 @@ public class LibrivoxDetailActivity extends LifecycleLoggingActivity {
                 if (response.isSuccessful() && response.body() != null) {
                     viewModel.metadata.setValue(response.body());
                 } else {
-                    infoView.setText("Failed to load details");
+                    infoView.setText(getString(R.string.loading_detail_failed));
                 }
             }
 
             @Override
             public void onFailure(Call<ItemMetadata> call, Throwable t) {
-                infoView.setText("Error loading details: " + t.getMessage());
+                infoView.setText(getString(R.string.loading_detail_failed) + ": " + t.getMessage());
             }
         });
     }
@@ -130,8 +133,8 @@ public class LibrivoxDetailActivity extends LifecycleLoggingActivity {
     private void showMetadata(ItemMetadata metadata) {
         StringBuilder sb = new StringBuilder();
         if (metadata.metadata != null) {
-            sb.append("Creator: ").append(metadata.metadata.creator).append("\n");
-            sb.append("Date: ").append(metadata.metadata.date).append("\n");
+            sb.append(getString(R.string.Creator) + ": ").append(metadata.metadata.creator).append("\n");
+            sb.append(getString(R.string.Available_since) + ": ").append(metadata.metadata.date).append("\n");
         }
 
         for (ItemMetadata.FileEntry file : metadata.files) {
@@ -246,7 +249,7 @@ public class LibrivoxDetailActivity extends LifecycleLoggingActivity {
 
             } catch (Exception e) {
                 runOnUiThread(() -> {
-                    infoView.append("\n⚠ Error checking file: " + e.getMessage());
+                    infoView.append("\n⚠ " + getString(R.string.Error_checking_file) + ": " + e.getMessage());
                     myLogE("Error checking file: " + e.getMessage());
                     viewModel.zipExists.setValue(false);
                 });

@@ -47,6 +47,7 @@ import static com.driot.bookplayer.global.Var.AUTOTEST_FILE_01;
 import static com.driot.bookplayer.global.Var.AUTOTEST_FILE_02;
 import static com.driot.bookplayer.global.Var.AUTOTEST_FILE_03;
 import static com.driot.bookplayer.utils.PermissionRequest.isReadAudioPermissionGranted;
+import static com.driot.bookplayer.utils.WorkFlow.isSomeWorkFlowRunning;
 import static com.driot.bookplayer.utils.WorkFlow.maybeResumeWorkFlow;
 
 /**
@@ -521,9 +522,12 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
             List<Button> buttonsToLock = Arrays.asList(bOpenFile, bOpenFolder, bOpenZipFile, bOpenM4bFile
                     , bAutoTest_b1, bAutoTest_b2, bAutoTest_b3, bDirectDownload);
 
-            if (AddResourceService.isBusy || DownloadJobService.isJobRunning) {
+            //if (AddResourceService.isBusy || DownloadJobService.isJobRunning) {
+
+            //TODO, it should be a listener, listening to Workflows... instead of a dumb timer....
+            if (isSomeWorkFlowRunning(this)) {
                 if (lopperForLog%20==0) {
-                     myLog("AddResourceService.isBusy => displaying banner, disabling buttons");
+                     myLog("SomeWorkFlowRunning => displaying banner, disabling buttons");
                 }
                 for (Button b: buttonsToLock) { b.setEnabled(false); }
                 for (TextView tv: textViewToHide) { tv.setVisibility(View.GONE); }

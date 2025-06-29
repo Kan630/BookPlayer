@@ -1,8 +1,5 @@
 package com.driot.bookplayer.utils;
 
-import static com.driot.bookplayer.global.Var.FOLDER_DOWNLOAD;
-import static com.driot.bookplayer.utils.DownloadService.CHANNEL_ID_DOWNLOAD;
-import static com.driot.bookplayer.utils.KanFiles.deleteFolderRecursive;
 import static com.driot.bookplayer.utils.WorkFlow.setDownloadFinished;
 
 import android.app.NotificationChannel;
@@ -31,6 +28,10 @@ import java.net.URL;
 import java.util.Locale;
 
 public class DownloadJobService extends JobService {
+
+    private static final int ID_NOTIFICATION_DOWNLOAD_INT = 1;
+    public static final String ID_NOTIFICATION_DOWNLOAD_CHANNEL = "bookplayer_download_channel";
+
 
     private long lastUpdateTime = 0;
     private int lastPercentProgress = 0;
@@ -232,7 +233,7 @@ public class DownloadJobService extends JobService {
         long currentTime = System.currentTimeMillis();
         if (currentTime - lastUpdateTime > MIN_UPDATE_INTERVAL || progress==100) {
             String txtProgress = progress + "% " + getString(R.string.downloaded) + " (" + strSize + ")";
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID_DOWNLOAD)
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(this, ID_NOTIFICATION_DOWNLOAD_CHANNEL)
                     .setContentTitle(getString(R.string.Downloading) + ": " + title)
                     .setContentText(txtProgress)
                     .setSmallIcon(R.drawable.ic_download_24dp)
@@ -242,7 +243,7 @@ public class DownloadJobService extends JobService {
 
             NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
             if (notificationManager != null) {
-                notificationManager.notify(1, builder.build());
+                notificationManager.notify(ID_NOTIFICATION_DOWNLOAD_INT, builder.build());
             }
 
             //Update UI
@@ -270,7 +271,7 @@ public class DownloadJobService extends JobService {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             String channelName = "Download Notifications";
             NotificationChannel channel = new NotificationChannel(
-                    CHANNEL_ID_DOWNLOAD,
+                    ID_NOTIFICATION_DOWNLOAD_CHANNEL,
                     channelName,
                     NotificationManager.IMPORTANCE_LOW
             );
@@ -286,7 +287,7 @@ public class DownloadJobService extends JobService {
     private void cancelDownloadNotification() {
         NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         if (nm != null) {
-            nm.cancel(1); // Match the ID used in showDownloadNotification()
+            nm.cancel(ID_NOTIFICATION_DOWNLOAD_INT); // Match the ID used in showDownloadNotification()
         }
     }
 

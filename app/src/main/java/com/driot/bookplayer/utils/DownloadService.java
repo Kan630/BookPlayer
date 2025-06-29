@@ -37,8 +37,6 @@ import java.net.URL;
 
 public class DownloadService extends LifecycleLoggingService {
 
-    public static final String CHANNEL_ID_DOWNLOAD = "bookplayer_download_channel";
-
     public static boolean isBusy;
 
     private String fileUrl;

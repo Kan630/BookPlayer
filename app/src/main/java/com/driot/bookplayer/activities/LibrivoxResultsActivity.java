@@ -6,8 +6,6 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -18,7 +16,6 @@ import com.driot.bookplayer.db.ApiResponse;
 import com.driot.bookplayer.db.LibrivoxApi;
 import com.driot.bookplayer.db.LibrivoxItem;
 import com.driot.bookplayer.utils.KanLogger;
-import com.driot.bookplayer.activities.LibrivoxResultsViewModel; // ✅ ADDED
 
 import java.util.Arrays;
 import java.util.List;
@@ -145,14 +142,14 @@ public class LibrivoxResultsActivity extends LifecycleLoggingActivity {
                 if (response.body() != null && response.body().response != null) {
                     List<LibrivoxItem> results = response.body().response.docs;
                     if (results.isEmpty()) {
-                        myToast("No [" + lang + "] audiobook found for search terms [" + query + "]");
+                        myToast("[" + lang + "] " + getString(R.string.librivox_no_audiobook_found_for_search) + " [" + query + "]");
                         viewModel.requestFinish(); // ✅ trigger finish
                     } else {
                         viewModel.setResults(results); // ✅ store results
                         myLog(results.size() + " results found");
                     }
                 } else {
-                    myToastE("Invalid response");
+                    myToastE(getString(R.string.librivox_invalid_response));
                     viewModel.requestFinish(); // ✅ trigger finish
                 }
             }

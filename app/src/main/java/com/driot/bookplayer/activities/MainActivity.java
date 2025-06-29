@@ -20,14 +20,17 @@ import static com.driot.bookplayer.utils.WorkFlow.maybeResumeWorkFlow;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.telephony.TelephonyManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -57,6 +60,7 @@ import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.FolderDao;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.utils.AudioService;
 import com.driot.bookplayer.utils.KanLogger;
 import com.driot.bookplayer.utils.KanMail;
 import com.driot.bookplayer.utils.NetworkUtils;
@@ -86,6 +90,28 @@ public class MainActivity extends LifecycleLoggingActivity {
         HasBeenProposedToOpenFile = savedInstanceState.getBoolean("HasBeenProposedToOpenFile", false);
     }
 
+    // Just in case we are here while we shouldn't, because isPlaying...
+    AudioService audioService;
+    //boolean audioServiceBound;
+    private final ServiceConnection audioServiceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            AudioService.BackgroundBinder binder = (AudioService.BackgroundBinder) service;
+            audioService = binder.getService();
+            if (audioService.isPlaying()) {
+                myLogE("AudioService.isPlaying => return to PlayActivity");
+                startActivity(new Intent(MainActivity.this, PlayActivity.class));
+            }
+            //audioServiceBound = true;
+        }
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            //audioServiceBound = false;
+        }
+
+    };
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         KanLogger.myLog("------------------------------------------------------------------");
@@ -97,6 +123,13 @@ public class MainActivity extends LifecycleLoggingActivity {
         if (savedInstanceState == null) {
             printSomeStuffAboutDevice();
         }
+
+        myLog("Checking AudioService");
+        if (AudioService.isRunning) {
+            myLog("AudioService.isRunning");
+            bindService(new Intent(this, AudioService.class), audioServiceConnection, 0);
+        }
+
 
         //Sql.log_all_Folders(this);
 /*
@@ -316,6 +349,7 @@ public class MainActivity extends LifecycleLoggingActivity {
     }
 
     private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
+    private void myLogW(String str) { KanLogger.myLogW(this.getClass().getName(), str); }
     private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
 
 }

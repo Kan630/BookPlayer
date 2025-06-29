@@ -155,6 +155,20 @@ public class KanLogger {
         }
     }
 
+    public static void myLogW(String str) {
+        myLogE("",str);
+    }
+    public static void myLogW(String prefix, String str) {
+        String newPrefix = parsePrefix(LOGCAT_PREFIX + " " + prefix);
+        if (TextUtils.isEmpty(str)) {str = "...";}
+        if (writeTechLogs()) {
+            writeToLogFile(newPrefix + ".WAR: " + str);
+            Log.w(newPrefix, str);
+        } else {
+            if (LOG_THEM_ALL) Log.w(newPrefix, str);
+        }
+    }
+
     public static void myLogE(String str) {
         myLogE("",str);
     }

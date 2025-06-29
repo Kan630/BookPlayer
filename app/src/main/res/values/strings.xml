@@ -506,6 +506,19 @@
     <string name="audio_location_sdcard">SD card</string>
 
 
+    <string name="librivox_no_audiobook_found_for_search">No audiobook found for search terms</string>
+    <string name="librivox_invalid_response">Invalid response from Librivox Server</string>
+    <string name="loading_details">Loading details…</string>
+    <string name="loading_detail_failed">Failed to load details</string>
+    <string name="librivox_zip_mp3_available">ZIP-MP3 file available</string>
+    <string name="librivox_zip_mp3_not_found">ZIP-MP3 file not found</string>
+    <string name="librivox_wait_integration">But please wait as an another book is still being downloaded/loaded.</string>
+    <string name="Creator">Creator</string>
+    <string name="Available_since">Available since</string>
+    <string name="Error_checking_file">Error checking file</string>
+
+
+
 
 
 
