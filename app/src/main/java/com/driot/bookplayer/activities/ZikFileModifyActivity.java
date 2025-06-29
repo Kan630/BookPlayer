@@ -18,7 +18,7 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Sql;
 import com.driot.bookplayer.db.ZikFile;
-import com.driot.bookplayer.utils.KanLogger;
+import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import java.io.File;
 

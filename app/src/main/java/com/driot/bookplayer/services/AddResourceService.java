@@ -18,7 +18,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.sqlite.db.SimpleSQLiteQuery;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.activities.LoggingService;
+import com.driot.bookplayer.utils.log.LoggingService;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.db.Folder;

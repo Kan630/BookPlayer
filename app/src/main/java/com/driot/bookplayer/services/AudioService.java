@@ -33,7 +33,7 @@ import androidx.documentfile.provider.DocumentFile;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.media.session.MediaButtonReceiver;
 
-import com.driot.bookplayer.activities.LoggingService;
+import com.driot.bookplayer.utils.log.LoggingService;
 import com.driot.bookplayer.activities.PlayActivity;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.ZikFileDao;

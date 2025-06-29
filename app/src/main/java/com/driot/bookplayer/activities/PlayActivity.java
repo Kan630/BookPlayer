@@ -26,6 +26,7 @@ import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.objects.PlayList;
 import com.driot.bookplayer.services.AudioService;
 import com.driot.bookplayer.utils.FrequencyVisualizerView;
+import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import java.util.Arrays;
 import java.util.List;

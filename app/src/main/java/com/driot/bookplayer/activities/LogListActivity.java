@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.objects.MyFile;
 import com.driot.bookplayer.adapter.MyFileAdapter;
+import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import java.io.File;
 import java.util.ArrayList;

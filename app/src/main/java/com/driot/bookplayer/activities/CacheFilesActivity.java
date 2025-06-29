@@ -17,7 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.adapter.CacheFilesAdapter;
-import com.driot.bookplayer.utils.KanLogger;
+import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import java.io.File;
 import java.util.List;

@@ -24,7 +24,7 @@ import androidx.appcompat.app.AlertDialog;
 
 import com.driot.bookplayer.BuildConfig;
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.utils.KanLogger;
+import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import java.io.File;
 import java.util.Locale;

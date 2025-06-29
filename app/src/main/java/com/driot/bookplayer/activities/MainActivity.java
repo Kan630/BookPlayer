@@ -64,6 +64,7 @@ import com.driot.bookplayer.services.AudioService;
 import com.driot.bookplayer.utils.KanLogger;
 import com.driot.bookplayer.utils.KanMail;
 import com.driot.bookplayer.utils.NetworkUtils;
+import com.driot.bookplayer.utils.log.LoggingActivity;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.List;

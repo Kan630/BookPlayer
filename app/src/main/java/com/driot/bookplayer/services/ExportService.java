@@ -11,7 +11,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.ExportActivity;
-import com.driot.bookplayer.activities.LoggingService;
+import com.driot.bookplayer.utils.log.LoggingService;
 
 import java.io.*;
 import java.util.zip.ZipEntry;

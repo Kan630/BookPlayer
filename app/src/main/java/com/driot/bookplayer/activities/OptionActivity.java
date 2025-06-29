@@ -27,7 +27,7 @@ import android.widget.TextView;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.utils.PermissionRequest;
-import com.driot.bookplayer.utils.KanLogger;
+import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import static com.driot.bookplayer.global.Option.DEFAULT_FORWARD_SECONDS;
 import static com.driot.bookplayer.global.Option.DEFAULT_TIME_BEFORE_SLEEP;

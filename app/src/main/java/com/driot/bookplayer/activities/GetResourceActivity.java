@@ -32,6 +32,7 @@ import com.driot.bookplayer.adapter.LanguageSpinnerAdapter;
 import com.driot.bookplayer.utils.MediaScanner2;
 import com.driot.bookplayer.utils.NetworkUtils;
 import com.driot.bookplayer.utils.PermissionRequest;
+import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import java.util.Arrays;
 import java.util.List;

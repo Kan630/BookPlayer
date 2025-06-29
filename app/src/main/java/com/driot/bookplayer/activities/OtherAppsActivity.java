@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.os.Bundle;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.utils.log.LoggingActivity;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 20/12/20

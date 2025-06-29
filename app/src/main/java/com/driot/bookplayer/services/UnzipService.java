@@ -15,7 +15,7 @@ import android.os.IBinder;
 import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.activities.LoggingService;
+import com.driot.bookplayer.utils.log.LoggingService;
 
 import java.io.BufferedInputStream;
 import java.io.File;

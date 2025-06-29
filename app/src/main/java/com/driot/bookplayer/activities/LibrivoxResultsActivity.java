@@ -15,6 +15,7 @@ import com.driot.bookplayer.adapter.LibrivoxResultAdapter;
 import com.driot.bookplayer.objects.ApiResponse;
 import com.driot.bookplayer.objects.LibrivoxApi;
 import com.driot.bookplayer.objects.LibrivoxItem;
+import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import java.util.Arrays;
 import java.util.List;

@@ -13,7 +13,7 @@ import androidx.appcompat.app.AlertDialog;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.global.Pref;
-import com.driot.bookplayer.utils.KanLogger;
+import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import java.io.File;
 

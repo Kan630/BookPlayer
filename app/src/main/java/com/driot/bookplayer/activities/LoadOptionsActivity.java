@@ -32,8 +32,8 @@ import androidx.annotation.Nullable;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.global.Option;
-import com.driot.bookplayer.utils.KanLogger;
 import com.driot.bookplayer.utils.PermissionRequest;
+import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import java.util.Objects;
 

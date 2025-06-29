@@ -8,7 +8,7 @@ import android.os.IBinder;
 import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.activities.LoggingService;
+import com.driot.bookplayer.utils.log.LoggingService;
 import com.googlecode.mp4parser.authoring.Movie;
 import com.googlecode.mp4parser.authoring.Sample;
 import com.googlecode.mp4parser.authoring.Track;

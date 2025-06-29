@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.services.AddResourceService;
+import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import static com.driot.bookplayer.utils.Tonio.getFileNameFromPath;
 import static com.driot.bookplayer.utils.Tonio.formatNameForDisplay;

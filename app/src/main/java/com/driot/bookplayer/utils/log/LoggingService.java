@@ -1,4 +1,4 @@
-package com.driot.bookplayer.activities;
+package com.driot.bookplayer.utils.log;
 
 import static com.driot.bookplayer.utils.KanLogger.LOG_LIFECYCLE_TRACE;
 
