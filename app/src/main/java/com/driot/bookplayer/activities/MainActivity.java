@@ -66,9 +66,11 @@ import com.driot.bookplayer.utils.KanMail;
 import com.driot.bookplayer.utils.NetworkUtils;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.TimeZone;
 
 public class MainActivity extends LoggingActivity {
@@ -329,10 +331,15 @@ public class MainActivity extends LoggingActivity {
             KanLogger.myLog("===");
             KanLogger.myLog("==========================");
             KanLogger.myLog("");
+
+            FirebaseCrashlytics.getInstance().setCustomKey("Locale.getDefault", Locale.getDefault().getCountry());
+            FirebaseCrashlytics.getInstance().setCustomKey("TelephonyManager country", Objects.toString(getCountryFromTelephonyManager(this)));
+
         } catch (Exception e) {
-            Log.e("toto INIT", " " + e.getMessage());
+            myLogEE(e, "printSomeStuffAboutDevice : " + e.getMessage());
         }
     }
+
 
     private static String getCountryFromTelephonyManager(Context context) {
         TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);

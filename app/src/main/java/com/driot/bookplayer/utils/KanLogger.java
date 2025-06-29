@@ -172,11 +172,13 @@ public class KanLogger {
 
     public static void myLogEE(Throwable t, String prefix, String str) {
         myLogE(prefix, str);
+        FirebaseCrashlytics.getInstance().setCustomKey("prefix",prefix);
+        String strFirebaseLog =  prefix + " " + str;
         if (t!=null) {
             FirebaseCrashlytics.getInstance().recordException(t);
-        } else {
-            FirebaseCrashlytics.getInstance().log(prefix + " " + str);
+            strFirebaseLog = strFirebaseLog + " - " + t.getMessage();
         }
+        FirebaseCrashlytics.getInstance().log(strFirebaseLog);
     }
 
     public static void myLogE(String str) {

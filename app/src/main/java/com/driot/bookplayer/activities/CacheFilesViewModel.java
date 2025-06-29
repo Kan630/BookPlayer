@@ -58,24 +58,28 @@ public class CacheFilesViewModel extends LoggingViewModel {
 
     private void loadFilesFromDisk() {
         myLog("MutableLiveData<List<ZikFile>> loadFilesFromDisk()");
-        String cachePath = getApplication().getFilesDir().getPath() + "/" + FOLDER_UNZIPPED;
-        File cacheDir = new File(cachePath);
-        if (cacheDir.exists() && cacheDir.isDirectory()) {
-            if (cacheDir.listFiles() != null) {
-                List<File> files = Arrays.asList(Objects.requireNonNull(cacheDir.listFiles()));
-                files.sort(Comparator.comparingLong(Utils::getCustomLength));
-                Collections.reverse(files);
-                filesFromDisk.setValue(files); // = new MutableLiveData<List<File>>(files);
-                myLog(files.size() + " files in cachePath : [" + cachePath + "]");
+        try {
+            String cachePath = getApplication().getFilesDir().getPath() + "/" + FOLDER_UNZIPPED;
+            File cacheDir = new File(cachePath);
+            if (cacheDir.exists() && cacheDir.isDirectory()) {
+                if (cacheDir.listFiles() != null && cacheDir.listFiles()!=null) {
+                    List<File> files = Arrays.asList(cacheDir.listFiles());
+                    files.sort(Comparator.comparingLong(Utils::getCustomLength));
+                    Collections.reverse(files);
+                    filesFromDisk.setValue(files); // = new MutableLiveData<List<File>>(files);
+                    myLog(files.size() + " files in cachePath : [" + cachePath + "]");
+                } else {
+                    filesFromDisk.setValue(new ArrayList<>()); // Set an empty list if no files found
+                    myLog("no file in cachePath : [" + cachePath + "]");
+                }
             } else {
-                filesFromDisk.setValue(new ArrayList<>()); // Set an empty list if no files found
-                myLog("no file in cachePath : [" + cachePath + "]");
+                filesFromDisk.setValue(new ArrayList<>());
+                myLog("directory cachePath does not exist: [" + cachePath + "]");
             }
-        } else {
-            filesFromDisk.setValue(new ArrayList<>());
-            myLog("directory cachePath does not exist: [" + cachePath + "]");
+            memoryStats.postValue(true); // notify for header update
+        } catch (Exception e) {
+            myLogEE(e, "loadFilesFromDisk");
         }
-        memoryStats.postValue(true); // notify for header update
     }
 
     public void deleteAudio(File file) {

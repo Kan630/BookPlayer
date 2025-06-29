@@ -1389,7 +1389,7 @@ public class AddResourceService
         @Override
         public void onReceive(Context context, Intent intent) {
             String audioBookTitle = intent.getStringExtra("audioBookTitle");
-            switch (Objects.requireNonNull(intent.getAction())) {
+            switch (Objects.toString(intent.getAction())) {
                 case "BOOKPLAYER_DOWNLOAD_PROGRESS":
                     int progress = intent.getIntExtra("progress", 0);
                     String txtProgress = intent.getStringExtra("txtProgress");

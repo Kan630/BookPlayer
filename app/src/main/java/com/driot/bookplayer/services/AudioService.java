@@ -1008,15 +1008,19 @@ public class AudioService extends LoggingService {
 
             Notification notification = builder.build();
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) { // sdk 29 (28 is Android 9)
-                startForeground(ID_NOTIFICATION_PLAY_AUDIO_INT, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK);
-            } else {
-                startForeground(ID_NOTIFICATION_PLAY_AUDIO_INT, notification);
+            try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) { // sdk 29 (28 is Android 9)
+                    startForeground(ID_NOTIFICATION_PLAY_AUDIO_INT, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK);
+                } else {
+                    startForeground(ID_NOTIFICATION_PLAY_AUDIO_INT, notification);
+                }
+            } catch (Throwable t) {
+                myLogEE(t,"Notification startForeground failed : " + t.getMessage());
             }
 
 
-        } catch (Exception e) {
-            myLogEE(e,"Notification creation failed: " + e.getMessage());
+        } catch (Exception t) {
+            myLogEE(t,"Notification creation failed: " + t.getMessage());
         }
     }
 
