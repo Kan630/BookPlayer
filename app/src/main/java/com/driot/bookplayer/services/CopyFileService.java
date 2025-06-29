@@ -346,7 +346,7 @@ public class CopyFileService extends LoggingService {  //IntentService are desig
                                 if (current_progress_percent != last_logged_progress_percent) {
                                     last_logged_progress_percent = current_progress_percent;
                                     String singleLineLog = ("..." + current_progress_percent + "%\n" + progress_text).replace("\n", " - ");
-                                    myLog(singleLineLog);
+                                    myLogD(singleLineLog);
                                 }
 
                                 tellProgressNoLog(current_progress_percent, progress_text);

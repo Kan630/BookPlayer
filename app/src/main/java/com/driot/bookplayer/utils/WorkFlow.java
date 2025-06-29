@@ -63,7 +63,7 @@ public class WorkFlow {
     }
 
     public static void maybeResumeWorkFlow(Context c) {
-        myLog("maybeResumeDownloadFlow() - called from " + c.getClass().getSimpleName());
+        myLogD("maybeResumeDownloadFlow() - called from " + c.getClass().getSimpleName());
         LoadBookTaskState state = getLoadBookTaskState(c, true);
 
         if (state != null && state.downloadedFileReady && state.downloadedFilePath != null && !state.onGoing) {
@@ -99,7 +99,7 @@ public class WorkFlow {
     }
 
     public static void clearDownloadFinished(Context context) {
-        myLog("...clearDownloadFinished() - called from " + context.getClass().getSimpleName());
+        myLogD("...clearDownloadFinished() - called from " + context.getClass().getSimpleName());
         LoadBookTaskState state = getLoadBookTaskState(context);
         if (state != null) {
             state.downloadedFileReady = false;
@@ -112,7 +112,7 @@ public class WorkFlow {
     }
 
     public static void setWorkFlowFinished(Context context) {
-        myLog("...clear ALL - called from " + context.getClass().getSimpleName());
+        myLogD("...clear ALL - called from " + context.getClass().getSimpleName());
         clearLoadBookTaskState(context);
     }
 

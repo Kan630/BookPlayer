@@ -2,8 +2,17 @@ package com.driot.bookplayer.utils.log;
 
 import com.driot.bookplayer.utils.KanLogger;
 
-public class LoggerHelper {
+/**
+ * not used right now, because I would need to add this line at the top od each activity/service/adapter
+ *    private final LoggerHelper log = new LoggerHelper(this);
+ * and furthermore prefix all my call to myLog => logger.myLog
+ * ..
+ * so for now using inheritance with Services and Activities, and old school hardcoding with others
+ * and furthermore prefix all my call to myLog => logger.myLog
+ */
 
+public class LoggerHelper {
+/*
     private final String tag;
     private final String tagBracket;
     private final String logTag = "Lifecycle";
@@ -39,4 +48,6 @@ public class LoggerHelper {
     public void myLifecycleLogEE(Throwable t, String str) {
         if (KanLogger.LOG_LIFECYCLE_TRACE) KanLogger.myLogEE(t, logTag, tagBracket + str);
     }
+
+ */
 }

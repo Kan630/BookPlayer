@@ -558,13 +558,13 @@ public class AddResourceService
                 String fileName = Objects.toString(f1.getName());
                 String fileExtension = getExtension(fileName);
                 String mimeType = Objects.toString(f1.getType());
-                myLog("* Checking File : [" + fileName + "] - mime = [" + mimeType + "] - extension = [" + fileExtension + "] - subfolder : [" + recursivFolder + "]");
+                myLogD("* Checking File : [" + fileName + "] - mime = [" + mimeType + "] - extension = [" + fileExtension + "] - subfolder : [" + recursivFolder + "]");
                 if (mimeType.startsWith(ONLY_MIME_AUDIO) || SUPPORTED_AUDIO_EXTENSIONS.contains(fileExtension)
                 ) {
                     nbFileScan = nbFileScan + 1;
                     l_audioFilePath = recursivFolder + f1.getName();
                     l_audioSize = f1.length();
-                    myLog("* New Audio File : [" + l_audioFilePath + "] - size = [" + l_audioSize + "]");
+                    myLogD("* New Audio File : [" + l_audioFilePath + "] - size = [" + l_audioSize + "]");
                     double progress = (double) nbFileScan%10/10;
                     tellProgress((int) (PROGRESS[2] + (PROGRESS[3] - PROGRESS[2]) * progress), "Scanning for Audio Files..... \n[" +  l_audioFilePath + ']');
                     audioFileArrayList.add(l_audioFilePath);
@@ -989,24 +989,24 @@ public class AddResourceService
         }
 
  */
-        myLog("saveFile : Get Media Duration");
+        myLogD("saveFile : Get Media Duration");
         try {
             String folderUri = myFolder.getUri().toString();
-            myLog("myFolder.getUri().toString() : [" + folderUri + "]");
+            myLogD("myFolder.getUri().toString() : [" + folderUri + "]");
 
             if (folderUri.contains("com.driot.bookplayer/files")) {
-                myLog("Bookplayer reserved memory, use old way");
+                myLogD("Bookplayer reserved memory, use old way");
                 String sFileFullPath = myFolder.getFolderPath() + File.separator + sZikFileName;
                 zikFile.setDuration(getMediaDurationFromPath(sFileFullPath));
             } else {
-                myLog("Smartphone General Memory, use Uri");
+                myLogD("Smartphone General Memory, use Uri");
                 Uri fileUri;
                 if (myFolder.isSingleFile()) {
                     fileUri = myFolder.getUri();
                 } else {
                     fileUri = buildFileUri(myFolder.getUri(), sZikFileName);
                 }
-                myLog("fileUri : " + fileUri.toString());
+                myLogD("fileUri : " + fileUri.toString());
                 zikFile.setDuration(getMediaDurationFromUri(this, fileUri));
             }
         } catch (IOException e) {
@@ -1028,17 +1028,17 @@ public class AddResourceService
                 myLog("ZikFile Added.... SQL result (=id) = [" + zikFileId + "]");
                 nbFileSaved++;
                 if (nbFileSaved == nbFileToSave) {
-                    myLog("******************************************************************************************************************");
-                    myLog("******************************************************************************************************************");
-                    myLog("***************************      All files have been processed. -- OK      ***************************************");
-                    myLog("******************************************************************************************************************");
-                    myLog("******************************************************************************************************************");
+                    myLogD("******************************************************************************************************************");
+                    myLogD("******************************************************************************************************************");
+                    myLogD("***************************      All files have been processed. -- OK      ***************************************");
+                    myLogD("******************************************************************************************************************");
+                    myLogD("******************************************************************************************************************");
                     updateFolderDuration(mFolderId);
-                    myLog("deleting source ??"
+                    myLogD("deleting source ??"
                             + "\nOption CopyFile : " + optionCopyFile + "  -  is a ZIP : " + type_given.equals("ZIP")
                             + "\nOption DeleteSourceFile : " + optionDeleteSource);
                     if ((optionCopyFile || type_given.equals("ZIP")) && optionDeleteSource) {
-                        myLog("deleting source => YES");
+                        myLogD("deleting source => YES");
                         deleteSourceFile();
                     }
                 }
@@ -1059,7 +1059,7 @@ public class AddResourceService
         SimpleSQLiteQuery query = new SimpleSQLiteQuery(strSQL, new Object[]{mFolderId});
         try {
             int sqlResult = DatabaseClient.getInstance(getApplicationContext()).getAppDatabase().FolderDao().runRawSql(query);
-            myLog("Folder Duration Updated for ID " + mFolderId + " → runRawSQL result = " + sqlResult);
+            myLogD("Folder Duration Updated for ID " + mFolderId + " → runRawSQL result = " + sqlResult);
             tellEnd();
         } catch (Exception e) {
             tellNonBlockingError(getResources().getString(R.string.Error_Import_computing_folder_duration) + " : " +  e.getMessage());
@@ -1090,7 +1090,7 @@ public class AddResourceService
         if (!(dfPickedDir == null)) {
             boolean okDelete = dfPickedDir.delete();
             if (okDelete) {
-                myLog("source file deletion ok");
+                myLogD("source file deletion ok");
             } else {
                 myLogEE(null,"Error during source file deletion");
             }

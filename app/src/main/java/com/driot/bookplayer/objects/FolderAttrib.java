@@ -68,12 +68,12 @@ public class FolderAttrib {
         // ******************************************
 
         String uriAuthority = uri.getAuthority();
-        myLog("uri authority = [" + uriAuthority + "]");
+        myLogD("uri authority = [" + uriAuthority + "]");
         String uriLastPathSegment = uri.getLastPathSegment();
-        myLog("uri Last Path Segment = [" + uriLastPathSegment + "]");
+        myLogD("uri Last Path Segment = [" + uriLastPathSegment + "]");
 
         if (uriAuthority==null) {
-            myLogE("uriAuthority==null");
+            myLogEE(null,"uriAuthority==null");
             folderKO=true;
             return;
         }
@@ -143,7 +143,7 @@ public class FolderAttrib {
                 String realPath = FileUtils.getRealPathFromURI(mCtx, uri);
                 sFolderPath = stripFileName(realPath);
             } catch (Exception e) {
-                myLogE("FileUtils.getRealPathFromURI(mCtx, uri);   " +  e.getMessage());
+                myLogEE(e,"FileUtils.getRealPathFromURI(mCtx, uri);   " +  e.getMessage());
             }
 
             if (sFolderPath != null) {
@@ -293,8 +293,7 @@ public class FolderAttrib {
                     }
                 }
             } catch (Exception e) {
-                e.printStackTrace();
-                myToast(context.getString(R.string.Error_Getting_Ressource_Name_from_Download_Folder));
+                myToastEE(e, context.getString(R.string.Error_Getting_Ressource_Name_from_Download_Folder));
             } finally {
                 if (cursor != null) cursor.close();
             }
@@ -343,8 +342,11 @@ public class FolderAttrib {
     }
 
     private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
+    private void myLogD(String str) { KanLogger.myLogD(this.getClass().getName(), str); }
+    private void myLogI(String str) { KanLogger.myLogI(this.getClass().getName(), str); }
     private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
-    private void myToast(String str) { KanLogger.myToast(str); }
+    private void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, this.getClass().getName(), str); }
+    private void myToastEE(Throwable t, String str) { KanLogger.myToastEE(t, this.getClass().getName(), str); }
 
 
 
