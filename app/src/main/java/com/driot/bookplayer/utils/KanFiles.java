@@ -65,6 +65,8 @@ public class KanFiles {
     private static final String TAG = "KanFiles";
     private static void myLog(String str) { KanLogger.myLog(TAG, str); }
     private static void myLogE(String str) { KanLogger.myLogE(TAG, str); }
+    private void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, TAG, str); }
+    private void myToastEE(Throwable t, String str) { KanLogger.myToastEE(t, TAG, str); }
 
 
 }

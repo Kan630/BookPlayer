@@ -129,7 +129,7 @@ public abstract class LoggingService extends Service {
     }
 
     protected void myLongToast(String str) {
-        KanLogger.myLongToast(TAG_FROM, str);
+        KanLogger.myToastLong(TAG_FROM, str);
     }
 
     /// ///////////////////////////////////////////////////////////////////

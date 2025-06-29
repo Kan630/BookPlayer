@@ -20,8 +20,8 @@ import com.driot.bookplayer.activities.PlayActivity;
 import com.driot.bookplayer.activities.ZikFileModifyActivity;
 import com.driot.bookplayer.objects.PlayList;
 import com.driot.bookplayer.db.ZikFile;
-import com.driot.bookplayer.utils.KanLogger;
 import com.driot.bookplayer.utils.Tonio;
+import com.driot.bookplayer.utils.log.LoggingRVAdapter;
 
 import java.util.List;
 
@@ -30,12 +30,12 @@ import static com.driot.bookplayer.utils.Tonio.FormatPercentForProgressBar;
 import static com.driot.bookplayer.utils.Tonio.FormatPercentString;
 import static com.driot.bookplayer.utils.Tonio.formatTime;
 
-public class ZikFilesAdapter extends RecyclerView.Adapter<ZikFilesAdapter.ZikFilesViewHolder> {
+public class ZikFilesRVAdapter extends LoggingRVAdapter<ZikFilesRVAdapter.ZikFilesViewHolder> {
 
     private final Context mCtx;
     private final List<ZikFile> zikFileList;
 
-    public ZikFilesAdapter(Context mCtx, List<ZikFile> zikFileList) {
+    public ZikFilesRVAdapter(Context mCtx, List<ZikFile> zikFileList) {
         this.mCtx = mCtx;
         this.zikFileList = zikFileList;
     }
@@ -110,8 +110,4 @@ public class ZikFilesAdapter extends RecyclerView.Adapter<ZikFilesAdapter.ZikFil
         }
     }
 
-
-    //--- LOG --------------------------
-    private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
-    private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
 }

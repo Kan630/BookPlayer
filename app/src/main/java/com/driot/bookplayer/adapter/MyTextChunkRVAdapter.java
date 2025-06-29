@@ -13,6 +13,7 @@ import java.util.ArrayList;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.objects.MyTextChunk;
+import com.driot.bookplayer.utils.log.LoggingRVAdapter;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 02/12/20
@@ -20,12 +21,12 @@ import com.driot.bookplayer.objects.MyTextChunk;
  * Adapter for displaying content of a file
  *
  */
-public class MyTextChunkAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class MyTextChunkRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHolder> {
 
     private final ArrayList<MyTextChunk> myTextChunkArrayList;
 
 
-    public MyTextChunkAdapter(ArrayList<MyTextChunk> storeMyTextChunkArrayList) {
+    public MyTextChunkRVAdapter(ArrayList<MyTextChunk> storeMyTextChunkArrayList) {
         this.myTextChunkArrayList = storeMyTextChunkArrayList;
     }
 
@@ -41,7 +42,7 @@ public class MyTextChunkAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         //myLog("MyTextChunkAdapter.onBindViewHolder");
         final MyTextChunk myTextChunk = getValueAt(position);
-        MyTextChunkAdapter.MyViewHolder myViewHolder = (MyTextChunkAdapter.MyViewHolder) holder;
+        MyTextChunkRVAdapter.MyViewHolder myViewHolder = (MyTextChunkRVAdapter.MyViewHolder) holder;
         if (myTextChunk != null) {
             setupValuesInWidgets(myViewHolder, myTextChunk);
         }
@@ -57,7 +58,7 @@ public class MyTextChunkAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         return myTextChunkArrayList.size();
     }
 
-    private void setupValuesInWidgets(MyTextChunkAdapter.MyViewHolder itemHolder, MyTextChunk myTextChunk) {
+    private void setupValuesInWidgets(MyTextChunkRVAdapter.MyViewHolder itemHolder, MyTextChunk myTextChunk) {
         if (myTextChunk != null) {
             //myLog("zetext : " + myTextChunk.getText());
             //itemHolder.tvText.setText(myTextChunk.getText());

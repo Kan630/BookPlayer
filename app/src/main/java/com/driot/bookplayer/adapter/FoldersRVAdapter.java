@@ -24,7 +24,7 @@ import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.objects.PlayList;
-import com.driot.bookplayer.utils.KanLogger;
+import com.driot.bookplayer.utils.log.LoggingRVAdapter;
 
 import java.util.List;
 import java.util.Locale;
@@ -32,12 +32,12 @@ import java.util.Locale;
 import static com.driot.bookplayer.utils.KanLogger.myToastE;
 import static com.driot.bookplayer.utils.Tonio.*;
 
-public class FoldersAdapter extends RecyclerView.Adapter<FoldersAdapter.FoldersViewHolder> {
+public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersViewHolder> {
 
     private final Context mCtx;
     private final List<Folder> FolderList;
 
-    public FoldersAdapter(Context mCtx, List<Folder> FolderList) {
+    public FoldersRVAdapter(Context mCtx, List<Folder> FolderList) {
         this.mCtx = mCtx;
         this.FolderList = FolderList;
     }
@@ -115,7 +115,7 @@ public class FoldersAdapter extends RecyclerView.Adapter<FoldersAdapter.FoldersV
                         myToastE(mCtx.getString(R.string.ErrorCouldNotLoadAudios_emptyfolder));
                     }
                 } catch (Exception e) {
-                    myLogE("error getting nb of ZikFiles - " + e.getMessage());
+                    myLogEE(e,"error getting nb of ZikFiles - " + e.getMessage());
                     myToastE(mCtx.getString(R.string.ErrorCouldNotLoadAudios));
                 }
             }).start();
@@ -142,8 +142,5 @@ public class FoldersAdapter extends RecyclerView.Adapter<FoldersAdapter.FoldersV
     }
 
 
-
-    private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
-    private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
 
 }

@@ -6,6 +6,7 @@ import static com.driot.bookplayer.utils.Utils.getCustomLength;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -13,7 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.ZikFile;
-import com.driot.bookplayer.utils.KanLogger;
+import com.driot.bookplayer.utils.log.LoggingRVAdapter;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -27,13 +28,14 @@ import java.util.Locale;
  *
  *RecyclerViewAdapter
  */
-public class CacheFilesAdapter extends RecyclerView.Adapter<CacheFilesAdapter.FileViewHolder> {
+public class CacheFilesRVAdapter extends LoggingRVAdapter<CacheFilesRVAdapter.FileViewHolder> {
+
     private List<File> filesOnDisk;
     private List<ZikFile> distinctZikFilePaths;
     private final OnDeleteClickListener onDeleteClickListener;
 
 
-    public CacheFilesAdapter(OnDeleteClickListener onDeleteClickListener) {
+    public CacheFilesRVAdapter(OnDeleteClickListener onDeleteClickListener) {
         this.onDeleteClickListener = onDeleteClickListener;
     }
 
@@ -108,7 +110,8 @@ public class CacheFilesAdapter extends RecyclerView.Adapter<CacheFilesAdapter.Fi
         TextView fileName;
         TextView fileSize;
         TextView fileDate;
-        androidx.appcompat.widget.AppCompatImageButton deleteButton;
+        //androidx.appcompat.widget.AppCompatImageButton deleteButton;
+        ImageButton deleteButton;
         TextView audioStatus;
 
         public FileViewHolder(@NonNull View itemView) {
@@ -125,11 +128,4 @@ public class CacheFilesAdapter extends RecyclerView.Adapter<CacheFilesAdapter.Fi
         void onDeleteClick(File file, int position);
     }
 
-    //--- LOG --------------------------
-    private void myLog(String str) {
-        KanLogger.myLog(this.getClass().getName(), str);
-    }
-    private void myLogE(String str) {
-        KanLogger.myLogE(this.getClass().getName(), str);
-    }
-}
+ }

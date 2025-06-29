@@ -248,7 +248,7 @@ public abstract class LoggingActivity extends AppCompatActivity {
     }
 
     protected void myLongToast(String str) {
-        KanLogger.myLongToast(TAG_FROM, str);
+        KanLogger.myToastLong(TAG_FROM, str);
     }
 
 

@@ -11,12 +11,12 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.objects.LibrivoxItem;
-import com.driot.bookplayer.utils.KanLogger;
+import com.driot.bookplayer.utils.log.LoggingRVAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class LibrivoxResultAdapter extends RecyclerView.Adapter<LibrivoxResultAdapter.ViewHolder> {
+public class LibrivoxResultRVAdapter extends LoggingRVAdapter<LibrivoxResultRVAdapter.ViewHolder> {
     private List<LibrivoxItem> items = new ArrayList<>();
 
     public interface OnItemClickListener {
@@ -25,7 +25,7 @@ public class LibrivoxResultAdapter extends RecyclerView.Adapter<LibrivoxResultAd
 
     private final OnItemClickListener listener;
 
-    public LibrivoxResultAdapter(OnItemClickListener listener) {
+    public LibrivoxResultRVAdapter(OnItemClickListener listener) {
         this.listener = listener;
     }
 
@@ -78,11 +78,4 @@ public class LibrivoxResultAdapter extends RecyclerView.Adapter<LibrivoxResultAd
         return fullDate.substring(0, 4);
     }
 
-    //--- LOG --------------------------
-    private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
-    private void myLogD(String str) { KanLogger.myLogD(this.getClass().getName(), str); }
-    private void myLogI(String str) { KanLogger.myLogI(this.getClass().getName(), str); }
-    private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
-    private void myToast(String str) { KanLogger.myToast(this.getClass().getName(), str); }
-    private void myToastE(String str) { KanLogger.myToastE(this.getClass().getName(), str); }
 }

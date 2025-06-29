@@ -12,7 +12,7 @@ import com.driot.bookplayer.utils.KanLogger;
  */
 
 public class LoggerHelper {
-/*
+
     private final String tag;
     private final String tagBracket;
     private final String logTag = "Lifecycle";
@@ -34,7 +34,7 @@ public class LoggerHelper {
     public void myToast(String str) { KanLogger.myToast(tag, str); }
     public void myToastE(String str) { KanLogger.myToastE(tag, str); }
     public void myToastEE(Throwable t, String str) { KanLogger.myToastEE(t, tag, str); }
-    public void myLongToast(String str) { KanLogger.myLongToast(tag, str); }
+    public void myToastLong(String str) { KanLogger.myToastLong(tag, str); }
 
     // Lifecycle-specific internal log (optional)
     public void myLifecycleLog(String str) {
@@ -49,5 +49,4 @@ public class LoggerHelper {
         if (KanLogger.LOG_LIFECYCLE_TRACE) KanLogger.myLogEE(t, logTag, tagBracket + str);
     }
 
- */
 }

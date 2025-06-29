@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.objects.MyFile;
-import com.driot.bookplayer.adapter.MyFileAdapter;
+import com.driot.bookplayer.adapter.MyFileRVAdapter;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import java.io.File;
@@ -51,7 +51,7 @@ public class LogListActivity extends LoggingActivity {
 
     private void loadRecyclerView() {
         ArrayList<MyFile> myItemArrayList = getFileInArrayList(this, "log");
-        recyclerView.setAdapter(new MyFileAdapter(this, myItemArrayList));
+        recyclerView.setAdapter(new MyFileRVAdapter(this, myItemArrayList));
     }
 
     @Override

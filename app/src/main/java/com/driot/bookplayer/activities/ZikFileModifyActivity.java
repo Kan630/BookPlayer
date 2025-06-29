@@ -167,16 +167,16 @@ public class ZikFileModifyActivity extends LoggingActivity {
                         }
                         return true;
                     } catch (Exception e) {
-                        myLogE("Error remove ZikFile from Disk");
+                        myLogEE(e,"Error remove ZikFile from Disk");
                         return false;
                     }
                 } else {
-                    myLog("NO DISK DELETE : weird Path, does not starts with [" + starter + "]");
+                    myLogEE(null, "NO DISK DELETE : weird Path, does not starts with [" + starter + "]");
                     return true;
                 }
             }
         } else {
-            myLogE("should not happen uri less than 5 chars");
+            myLogEE(null,"should not happen uri less than 5 chars");
             return false;
         }
     }

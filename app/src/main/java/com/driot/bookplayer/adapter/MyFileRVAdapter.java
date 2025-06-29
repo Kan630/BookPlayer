@@ -14,9 +14,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.utils.KanLogger;
 import com.driot.bookplayer.utils.KanMail;
 import com.driot.bookplayer.objects.MyFile;
+import com.driot.bookplayer.utils.log.LoggingRVAdapter;
 
 import static com.driot.bookplayer.utils.Tonio2.loadBiggerText;
 
@@ -26,12 +26,12 @@ import static com.driot.bookplayer.utils.Tonio2.loadBiggerText;
  * Adapter for listing the logs ( =listing the files in log folder)
  *
  */
-public class MyFileAdapter extends RecyclerView.Adapter<MyFileAdapter.MyFileViewHolder> {
+public class MyFileRVAdapter extends LoggingRVAdapter<MyFileRVAdapter.MyFileViewHolder> {
 
     private final Context mContext;
     private final ArrayList<MyFile> myFileArrayList;
 
-    public MyFileAdapter(Activity activity, ArrayList<MyFile> storeMyFileArrayList) {
+    public MyFileRVAdapter(Activity activity, ArrayList<MyFile> storeMyFileArrayList) {
         this.mContext = activity;
         this.myFileArrayList = storeMyFileArrayList;
 
@@ -86,14 +86,5 @@ public class MyFileAdapter extends RecyclerView.Adapter<MyFileAdapter.MyFileView
 
         }
     }
-    //--- FULL LOG --------------------------
-    private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
-    private void myLogInFile(String str) { KanLogger.myLogInFile(this.getClass().getName(), str); }
-    private void myLogD(String str) { KanLogger.myLogD(this.getClass().getName(), str); }
-    private void myLogI(String str) { KanLogger.myLogI(this.getClass().getName(), str); }
-    private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
-    private void myToast(String str) { KanLogger.myToast(this.getClass().getName(), str); }
-    private void myToastE(String str) { KanLogger.myToastE(this.getClass().getName(), str); }
-
 
 }

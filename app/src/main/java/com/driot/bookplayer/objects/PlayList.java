@@ -35,9 +35,9 @@ public class PlayList {
 
     public static void setZikFilesList(List<ZikFile> zikFilesList, Context c) {
         PlayList.zikFilesList = zikFilesList;
-        myLog("SetZikFileList() .. size = " + zikFilesList.size());
+        myLogD("SetZikFileList() .. size = " + zikFilesList.size());
         saveToStorage(zikFilesList);
-        myLog("SetZikFileList() .. zikFilesList saved in prefs");
+        myLogD("SetZikFileList() .. zikFilesList saved in prefs");
     }
 
     public static List<ZikFile> getZikFilesList() {
@@ -72,7 +72,7 @@ public class PlayList {
                 try {
                     return getZikFilesList().get(numZikFile);
                 } catch (Exception e) {
-                    myLogE("getZikFile() ERROR - try-catch -- " + e.getMessage());
+                    myLogEE(e,"getZikFile() ERROR - try-catch -- " + e.getMessage());
                     return null;
                 }
             } else {
@@ -118,6 +118,11 @@ public class PlayList {
 
 
     //--- LOG --------------------------
-    private static void myLog(String str) { KanLogger.myLog("PlayList", str); }
-    private static void myLogE(String str) { KanLogger.myLogE("PlayList", str); }
+    private static final String TAG = "PlayList";
+    private static void myLog(String str) { KanLogger.myLog(TAG, str); }
+    private static void myLogD(String str) { KanLogger.myLogD(TAG, str); }
+    private static void myLogE(String str) { KanLogger.myLogE(TAG, str); }
+    private static void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, TAG, str); }
+    private static void myToastEE(Throwable t, String str) { KanLogger.myToastEE(t, TAG, str); }
+
 }

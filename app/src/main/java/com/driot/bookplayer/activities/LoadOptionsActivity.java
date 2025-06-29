@@ -111,9 +111,9 @@ public class LoadOptionsActivity extends LoggingActivity {
             tvMimeExtension.setText(infoMimeExtension);
 
             if (mimeType.startsWith(ONLY_MIME_AUDIO) || SUPPORTED_AUDIO_EXTENSIONS.contains(fileExtension)) {
-                myLog("ok mime - " + infoMimeExtension);
+                myLog("Mime/Extension OK - " + infoMimeExtension);
             } else {
-                myLogE("mime ko - " + infoMimeExtension);
+                myLogEE(null,"Mime/Extension KO - " + infoMimeExtension);
             }
 
             audioBookTitle = stripExtension(getFileNameFromUri(this, uri));
@@ -317,7 +317,7 @@ public class LoadOptionsActivity extends LoggingActivity {
             mPermissionRequest.onRequestPermissionsResult(requestCode, permissions, grantResults);
             mPermissionRequest = null; // request no longer needed
         } else {
-            myLogE("onRequestPermissionsResult() - mPermissionRequest is null ! bad hook");
+            myLogEE(null,"onRequestPermissionsResult() - mPermissionRequest is null ! bad hook");
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
@@ -329,7 +329,7 @@ public class LoadOptionsActivity extends LoggingActivity {
             intent.setData(uri);
             startActivity(intent);
         } catch (Exception e) {
-            myLogE("openAppSettingsOnPhone() => " + e.getMessage());
+            myLogEE(e,"openAppSettingsOnPhone() => " + e.getMessage());
         }
     }
 
@@ -351,7 +351,7 @@ public class LoadOptionsActivity extends LoggingActivity {
         new Thread(() -> {
             long lCheck = AppDatabase.getDatabase(this).FolderDao().folderAlreadyExist_checkFolderPath(strPath);
             if (lCheck>0) {
-                myLogE("KO, folder path does already exist in DB : [" + strPath + "]");
+                myLogW("KO, folder path does already exist in DB : [" + strPath + "]");
                 runOnUiThread(() -> {
                     ShowWarning (getString(R.string.error_media_already_loaded_samePath));
                 });
@@ -366,7 +366,7 @@ public class LoadOptionsActivity extends LoggingActivity {
         new Thread(() -> {
             long lCheck = AppDatabase.getDatabase(this).FolderDao().folderAlreadyExist_checkFolderName(audioBookTitle);
             if (lCheck>0) {
-                myLogE("KO, folder name does already exist in DB : [" + audioBookTitle + "]");
+                myLogW("KO, folder name does already exist in DB : [" + audioBookTitle + "]");
                 runOnUiThread(() -> {
                     ShowWarning (getString(R.string.error_media_already_loaded_sameName));
                 });

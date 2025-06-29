@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.objects.MyTextChunk;
-import com.driot.bookplayer.adapter.MyTextChunkAdapter;
+import com.driot.bookplayer.adapter.MyTextChunkRVAdapter;
 import com.driot.bookplayer.utils.TextOptions;
 
 import java.util.ArrayList;
@@ -75,7 +75,7 @@ public class BiggerTextActivity extends LoggingActivity {
 
     private void loadRecyclerView() {
         myTextChunkArrayList = getTextFileContentInArrayList(this, typeStorage, file,"log", textOptions.getCharSize());
-        recyclerView.setAdapter(new MyTextChunkAdapter(myTextChunkArrayList));
+        recyclerView.setAdapter(new MyTextChunkRVAdapter(myTextChunkArrayList));
         textOptions.setScrollPosition(this, file, recyclerView);
         recyclerView.scrollToPosition(myTextChunkArrayList.size() - 1);
         myLog("loadRecyclerView()");

@@ -6,7 +6,7 @@ import android.widget.TextView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.driot.bookplayer.adapter.ZikFilesAdapter;
+import com.driot.bookplayer.adapter.ZikFilesRVAdapter;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.ZikFile;
@@ -23,7 +23,7 @@ import java.util.List;
 public class ZikFileActivity extends LoggingActivity {
 
     private RecyclerView recyclerView;
-    private ZikFilesAdapter adapter;
+    private ZikFilesRVAdapter adapter;
     private HashMap<Integer, Integer> map;
 
     @Override
@@ -66,7 +66,7 @@ public class ZikFileActivity extends LoggingActivity {
         if (idFolder != 0) {
             getZikFiles(idFolder);
         } else {
-            myLogE("getDATA() - id Folder = 0");
+            myLogEE(null,"getDATA() - id Folder = 0");
         }
     }
 
@@ -95,7 +95,7 @@ public class ZikFileActivity extends LoggingActivity {
                     }
                 }
             } catch (Exception e) {
-                myLogE("goToLastCurrentAudio() - " + e.getMessage());
+                myLogEE(e,"goToLastCurrentAudio() - " + e.getMessage());
             }
         }
     }
@@ -104,13 +104,13 @@ public class ZikFileActivity extends LoggingActivity {
         new Thread(() -> {
             List<ZikFile> zikFilesList = AppDatabase.getDatabase(this).ZikFileDao().getZikFiles(idFolder);
             runOnUiThread(() -> {
-                adapter = new ZikFilesAdapter(ZikFileActivity.this, zikFilesList);
+                adapter = new ZikFilesRVAdapter(ZikFileActivity.this, zikFilesList);
                 recyclerView.setAdapter(adapter);
                 if (zikFilesList != null) {
                     createMap();
                     goToLastAudio();
                 } else {
-                    myLogE("getZikFiles() - error :  zikFilesList == null");
+                    myLogEE(null,"getZikFiles() - error :  zikFilesList == null");
                 }
 
             });

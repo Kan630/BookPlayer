@@ -16,7 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.ZikFile;
-import com.driot.bookplayer.adapter.CacheFilesAdapter;
+import com.driot.bookplayer.adapter.CacheFilesRVAdapter;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import java.io.File;
@@ -30,14 +30,13 @@ import java.util.List;
  *
  * implement OneDeleteClickListener because : event is in adapter, confirmation message in activity, deletion in viewmodel
  */
-public class CacheFilesActivity extends LoggingActivity implements CacheFilesAdapter.OnDeleteClickListener {
-    private CacheFilesAdapter cacheFilesAdapter;
+public class CacheFilesActivity extends LoggingActivity implements CacheFilesRVAdapter.OnDeleteClickListener {
+    private CacheFilesRVAdapter cacheFilesAdapter;
 
     private CacheFilesViewModel cacheFilesViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        myLog("onCreate()");
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_cache_files);
@@ -46,20 +45,20 @@ public class CacheFilesActivity extends LoggingActivity implements CacheFilesAda
 
 // get the data in DB (async) -- LiveData stored in ViewModel
         final Observer<List<ZikFile>> myObserverOnDB = distinctZikFilePaths -> {
-            myLog("LiveData 'onChange()' observed - count of distinct path in DB = " + distinctZikFilePaths.size());
+            myLogD("LiveData 'onChange()' observed - count of distinct path in DB = " + distinctZikFilePaths.size());
             cacheFilesAdapter.setDistinctZikFilePaths(distinctZikFilePaths);
         };
         cacheFilesViewModel.getFilesOnDb().observe(this, myObserverOnDB);
 
 //get the data on DISK
         final Observer<List<File>> myObserverOnDisk = filesOnDisk -> {
-            myLog("LiveData 'onChange()' observed - count of distinct folders on Disk = " + filesOnDisk.size());
+            myLogD("LiveData 'onChange()' observed - count of distinct folders on Disk = " + filesOnDisk.size());
             cacheFilesAdapter.setFilesOnDisk(filesOnDisk);
         };
         cacheFilesViewModel.getFilesOnDisk().observe(this, myObserverOnDisk);
 
 //RecyclerView
-        cacheFilesAdapter = new CacheFilesAdapter(this);
+        cacheFilesAdapter = new CacheFilesRVAdapter(this);
         RecyclerView recyclerView = findViewById(R.id.recyclerView_cacheFiles);
         recyclerView.setAdapter(cacheFilesAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -83,11 +82,11 @@ public class CacheFilesActivity extends LoggingActivity implements CacheFilesAda
                         formatMem(totalMemory) + " MB : Device memory";
         TextView tv_txt = findViewById(R.id.cachefiles_stats_text);
         tv_txt.setText(zeText);
-        myLog("FillTextViewMemoryStats()\n" + zeText);
+        myLogD("FillTextViewMemoryStats()\n" + zeText);
     }
 
     public void onDeleteClick(File file, int position) {
-        myLog("Delete Click on [" + file.getName() + "]");
+        myLogI("Delete Click on [" + file.getName() + "]");
         new AlertDialog.Builder(this)
                 .setTitle(R.string.AskDelete_popupTitle)
                 .setMessage(getString(R.string.CacheFiles_AskDeleteAudioBook) + ":\n [" + file.getName() + "]\n    " + getString(R.string.are_you_sure))

@@ -167,7 +167,7 @@ public class PlayActivity extends LoggingActivity {
             } else if (Objects.equals(action, NOTIFICATION_NEWTRACK) || Objects.equals(action, NOTIFICATION_TRACKFINISHED)) {
                 myLog("ok, nothing to do for this Broadcast");
             } else {
-                myLogE("Unknown Broadcast : " + action);
+                myLogEE(null,"Unknown Broadcast : " + action);
             }
         }
     };
@@ -229,7 +229,7 @@ public class PlayActivity extends LoggingActivity {
                 if (PlayList.getZikFile().isIszipfile()) ShowProgressAnim();
             }
         } catch (Exception e) {
-            myLogE("ERR ShowProgressAnim()  " + e.getMessage());
+            myLogEE(e,"ERR ShowProgressAnim()  " + e.getMessage());
         }
 
         // Check if progress bar is at the end and reset if necessary
@@ -275,7 +275,7 @@ public class PlayActivity extends LoggingActivity {
                         LocalBroadcastManager.getInstance(PlayActivity.this).unregisterReceiver(broadCastReceiver);
                         stopService(intentMusicService);
                     } catch (Exception e) {
-                        myLogE("onBackPressed() - " + e.getMessage());
+                        myLogEE(e,"onBackPressed() - " + e.getMessage());
                     }
                 }
                 finish();
@@ -307,8 +307,8 @@ public class PlayActivity extends LoggingActivity {
         try {
             audioServiceBound = bindService(intentMusicService, audioServiceConnection, Context.BIND_AUTO_CREATE); //TODO leaked ServiceConnection if user press back
         } catch (Exception e) {
-            myLogE("ERROR bindService");
-            myLogE(e.getMessage());
+            myLogEE(e,"ERROR bindService");
+            myLogEE(e,e.getMessage());
         }
         myLog("call start & bind to AudioService in onCreate() - bound result :" + audioServiceBound);
     }
@@ -339,10 +339,10 @@ public class PlayActivity extends LoggingActivity {
                     runVisualizer();
                 }
             } else {
-                myLogE("playMe() mService KO");
+                myLogEE(null,"playMe() mService KO");
             }
         } else {
-            myLogE("playMe() mBound False");
+            myLogEE(null,"playMe() mBound False");
         }
     }
 
@@ -461,7 +461,7 @@ public class PlayActivity extends LoggingActivity {
             try {
                 unbindService(audioServiceConnection);
             } catch (Exception e) {
-                myLogE("onDestroy() - unbindService - " + e.getMessage());
+                myLogEE(e,"onDestroy() - unbindService - " + e.getMessage());
             }
         }
 
@@ -469,7 +469,7 @@ public class PlayActivity extends LoggingActivity {
         try {
             LocalBroadcastManager.getInstance(this).unregisterReceiver(broadCastReceiver);
         } catch (Exception e) {
-            myLogE("onDestroy() - unregisterReceiver - " + e.getMessage());
+            myLogEE(e,"onDestroy() - unregisterReceiver - " + e.getMessage());
         }
 
         super.onDestroy();
@@ -511,7 +511,7 @@ public class PlayActivity extends LoggingActivity {
 
             } catch (Exception e) {
                 myToastE("Error Loading playlist");
-                myLogE("Error Loading playlist :" + e.getMessage());
+                myLogEE(e,"Error Loading playlist :" + e.getMessage());
             }
         }).start();
     }
@@ -532,8 +532,8 @@ public class PlayActivity extends LoggingActivity {
             HideProgressAnim();
             myLog("----------------------------- play screen drawn " + PlayList.getZikFile().getPosition());
         } catch (Exception e) {
-            myLogE(":----------------------------- play screen drawn ERROR");
-            myLogE(e.getMessage());
+            myLogEE(e,":----------------------------- play screen drawn ERROR");
+            myLogEE(e,e.getMessage());
         }
     }
     private void reDrawListeningSince(int tempsEcoule) { // le call vient d'1 timer dans le service...
@@ -553,8 +553,8 @@ public class PlayActivity extends LoggingActivity {
                 tvTimeLeft.setText("");
             }
         } catch (Exception e) {
-            myLogE("reDrawListeningSince(" + tempsEcoule + ") - " + e.getMessage());
-            myLogE(e.getMessage());
+            myLogEE(e,"reDrawListeningSince(" + tempsEcoule + ") - " + e.getMessage());
+            myLogEE(e,e.getMessage());
         }
     }
 
@@ -632,7 +632,7 @@ public class PlayActivity extends LoggingActivity {
                     //frequencyVisualizerView.setEnabled(false);
                     frequencyVisualizerView.link_toto(audioService.getAudioSessionId());
                 } catch (Exception e) {
-                    myLogE("runVisualizer - " + e.getMessage());
+                    myLogEE(e,"runVisualizer - " + e.getMessage());
                 }
             } else {
                 myLog("frequencyVisualizerView is On, but permission is not granted");
@@ -667,7 +667,7 @@ public class PlayActivity extends LoggingActivity {
         try {
             if (errMessage != null) {
                 tv.setText(errMessage);
-                myLogE(errMessage);
+                myLogEE(null,errMessage);
             } else {
                 //b1.setVisibility(View.INVISIBLE);
                 String zePath = PlayList.getZikFile()==null ? "PlayList.getZikFile()==null" : PlayList.getZikFile().getPath();
@@ -688,7 +688,7 @@ public class PlayActivity extends LoggingActivity {
                 }
             }
         } catch (Exception e) {
-            myLogE("lockButtonAndDisplayErrorMessage - " + e.getMessage());
+            myLogEE(e,"lockButtonAndDisplayErrorMessage - " + e.getMessage());
         }
         unbindService(audioServiceConnection);
         killTimerForDisplay();
@@ -702,7 +702,7 @@ public class PlayActivity extends LoggingActivity {
             intent.setData(uri);
             startActivity(intent);
         } catch (Exception e) {
-            myLogE("openAppSettingsOnPhone() => " + e.getMessage());
+            myLogEE(e,"openAppSettingsOnPhone() => " + e.getMessage());
         }
     }
 

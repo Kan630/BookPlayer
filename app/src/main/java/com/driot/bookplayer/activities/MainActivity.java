@@ -54,7 +54,7 @@ import androidx.recyclerview.widget.RecyclerView;
 //import com.arthenica.ffmpegkit.ReturnCode;
 import com.driot.bookplayer.BuildConfig;
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.adapter.FoldersAdapter;
+import com.driot.bookplayer.adapter.FoldersRVAdapter;
 import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.FolderDao;
@@ -100,7 +100,7 @@ public class MainActivity extends LoggingActivity {
             AudioService.BackgroundBinder binder = (AudioService.BackgroundBinder) service;
             audioService = binder.getService();
             if (audioService.isPlaying()) {
-                myLogE("AudioService.isPlaying => return to PlayActivity");
+                myLogW("AudioService.isPlaying => return to PlayActivity");
                 startActivity(new Intent(MainActivity.this, PlayActivity.class));
             }
             //audioServiceBound = true;
@@ -152,7 +152,7 @@ public class MainActivity extends LoggingActivity {
         try {
             setSupportActionBar(toolbar); //si ca plante, check le color theme saved ???
         } catch (Exception e) {
-            KanLogger.myLogE("Action bar error"); // on a Samsung S20 FE, android 13
+            myLogEE(e,"Action bar error"); // on a Samsung S20 FE, android 13
         }
 
         toolbar.setLogo(R.mipmap.ic_launcher);
@@ -180,7 +180,7 @@ public class MainActivity extends LoggingActivity {
     @SuppressLint("RestrictedApi")
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        myLog("onCreateOptionsMenu()");
+        myLogD("onCreateOptionsMenu()");
         getMenuInflater().inflate(R.menu.action_bar, menu);
         return super.onCreateOptionsMenu(menu);
     }
@@ -214,8 +214,8 @@ public class MainActivity extends LoggingActivity {
             KanMail.sendDaMail(this, "bookplayer@driot.com", "**Bookplayer**", "Dear developer...\n\n");
         } else if (itemId == R.id.menu_cacheFiles) {
             startActivity(new Intent(this, CacheFilesActivity.class));
-        } else if (itemId == R.id.menu_forum) {
-            openForum(this);
+//        } else if (itemId == R.id.menu_forum) {
+//            openForum(this);
         } else if (itemId == R.id.menu_website) {
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(Var.WEBSITE_URL));
             startActivity(browserIntent);
@@ -224,7 +224,7 @@ public class MainActivity extends LoggingActivity {
      // } else if (itemId == R.id.menu_synchro) {
        //     startActivity(new Intent(this, SynchroActivity.class));
         } else {
-            myLogE("MainActivity.onOptionsItemSelected : unknown Item selected in Menu");
+            myLogEE(null,"MainActivity.onOptionsItemSelected : unknown Item selected in Menu");
         }
         return super.onOptionsItemSelected(item);
     }
@@ -254,7 +254,7 @@ public class MainActivity extends LoggingActivity {
         FolderDao folderDao = DatabaseClient.getInstance(getApplicationContext()).getAppDatabase().FolderDao();
         LiveData<List<Folder>> foldersLiveData = folderDao.getAllLiveData();
         foldersLiveData.observe(this, (Observer<List<Folder>>) folders -> { //getLifecycle()
-            myLog("LiveData onChange observed - List<Folders>");
+            myLogD("LiveData onChange observed - List<Folders>");
             if (folders.isEmpty()) {
                 if (!HasBeenProposedToOpenFile) {
                     if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
@@ -264,7 +264,7 @@ public class MainActivity extends LoggingActivity {
                 }
                 HasBeenProposedToOpenFile = true;
             } else {
-                FoldersAdapter adapter = new FoldersAdapter(MainActivity.this, folders);
+                FoldersRVAdapter adapter = new FoldersRVAdapter(MainActivity.this, folders);
                 recyclerView.setAdapter(adapter);
             }
         });

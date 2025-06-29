@@ -14,6 +14,7 @@ import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.utils.Utils;
 import com.driot.bookplayer.utils.KanLogger;
+import com.driot.bookplayer.utils.log.LoggingViewModel;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -24,7 +25,7 @@ import java.util.List;
 import java.util.Objects;
 
 
-public class CacheFilesViewModel extends AndroidViewModel {
+public class CacheFilesViewModel extends LoggingViewModel {
     private LiveData<List<ZikFile>> filesFromDb;
     private final MutableLiveData<List<File>> filesFromDisk = new MutableLiveData<>();
     private final CacheFilesRepository cacheFilesRepository; // manage deletions
@@ -148,13 +149,4 @@ public class CacheFilesViewModel extends AndroidViewModel {
         });
     }
 
-
-
-    //--- LOG --------------------------
-    private void myLog(String str) {
-        KanLogger.myLog(this.getClass().getName(), str);
-    }
-    private void myLogE(String str) {
-        KanLogger.myLogE(this.getClass().getName(), str);
-    }
 }

@@ -17,7 +17,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import static com.driot.bookplayer.global.Option.getClickVisualizerPlayPause;
 import static com.driot.bookplayer.global.Option.getTechLog;
 import static com.driot.bookplayer.utils.TonioCommonStuff.MD5;
 
@@ -208,7 +207,7 @@ public class KanLogger {
         myToast(prefix, str, Toast.LENGTH_SHORT);
     }
 
-    public static void myLongToast(String prefix, String str) {
+    public static void myToastLong(String prefix, String str) {
         myToast(prefix, str, Toast.LENGTH_LONG);
     }
 

@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.adapter.LibrivoxResultAdapter;
+import com.driot.bookplayer.adapter.LibrivoxResultRVAdapter;
 import com.driot.bookplayer.objects.ApiResponse;
 import com.driot.bookplayer.objects.LibrivoxApi;
 import com.driot.bookplayer.objects.LibrivoxItem;
@@ -31,7 +31,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class LibrivoxResultsActivity extends LoggingActivity {
 
     RecyclerView recyclerView;
-    LibrivoxResultAdapter adapter;
+    LibrivoxResultRVAdapter adapter;
     TextView tvSearchTerms, tvLanguage, tvResultsCount;
 
     ProgressBar progressBar;
@@ -54,7 +54,7 @@ public class LibrivoxResultsActivity extends LoggingActivity {
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        adapter = new LibrivoxResultAdapter(item -> {
+        adapter = new LibrivoxResultRVAdapter(item -> {
             Intent intent = new Intent(this, LibrivoxDetailActivity.class);
             intent.putExtra("identifier", item.identifier);
             intent.putExtra("title", item.title);
