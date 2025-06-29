@@ -24,16 +24,14 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.db.LanguageItem;
-import com.driot.bookplayer.db.LoadBookTaskState;
+import com.driot.bookplayer.objects.LanguageItem;
+import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.global.Option;
-import com.driot.bookplayer.utils.AddResourceService;
+import com.driot.bookplayer.services.AddResourceService;
 import com.driot.bookplayer.adapter.LanguageSpinnerAdapter;
-import com.driot.bookplayer.utils.DownloadJobService;
 import com.driot.bookplayer.utils.MediaScanner2;
 import com.driot.bookplayer.utils.NetworkUtils;
 import com.driot.bookplayer.utils.PermissionRequest;
-import com.driot.bookplayer.utils.KanLogger;
 
 import java.util.Arrays;
 import java.util.List;
@@ -53,7 +51,7 @@ import static com.driot.bookplayer.utils.WorkFlow.maybeResumeWorkFlow;
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 08/11/20
  */
-public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatActivity
+public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
     private Button bOpenFile, bOpenFolder, bOpenZipFile, bOpenM4bFile;
     private Button bAutoTest_b1, bAutoTest_b2, bAutoTest_b3, bDirectDownload;
 
@@ -665,12 +663,4 @@ public class GetResourceActivity extends LifecycleLoggingActivity { //AppCompatA
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
-
-
-    private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
-    private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
-    private void myLogD(String str) { KanLogger.myLogD(this.getClass().getName(), str); }
-    private void myLogI(String str) { KanLogger.myLogI(this.getClass().getName(), str); }
-    private void myToast(String str) { KanLogger.myToast(this.getClass().getName(), str); }
-    private void myToastE(String str) { KanLogger.myToastE(this.getClass().getName(), str); }
 }

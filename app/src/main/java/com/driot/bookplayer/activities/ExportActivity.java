@@ -1,7 +1,6 @@
 package com.driot.bookplayer.activities;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.*;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -19,14 +18,13 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
-import com.driot.bookplayer.utils.ExportService;
-import com.driot.bookplayer.utils.KanLogger;
+import com.driot.bookplayer.services.ExportService;
 
 import java.io.File;
 
 
 
-public class ExportActivity extends LifecycleLoggingActivity {
+public class ExportActivity extends LoggingActivity {
 
     //private static final int REQUEST_CODE_POST_NOTIFICATIONS = 2025;
 
@@ -202,11 +200,4 @@ public class ExportActivity extends LifecycleLoggingActivity {
 
 
 
-
-    //--- LOG --------------------------
-    private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
-    private void myLogInFile(String str) { KanLogger.myLogInFile(this.getClass().getName(), str); }
-    private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
-    private void myToast(String str) { KanLogger.myToast(this.getClass().getName(), str); }
-    private void myToastE(String str) { KanLogger.myToastE(this.getClass().getName(), str); }
 }

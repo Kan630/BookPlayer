@@ -1,4 +1,4 @@
-package com.driot.bookplayer.utils;
+package com.driot.bookplayer.services;
 
 import static com.driot.bookplayer.utils.WorkFlow.setDownloadFinished;
 
@@ -17,6 +17,7 @@ import androidx.core.app.NotificationCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.utils.KanLogger;
 
 import java.io.BufferedInputStream;
 import java.io.File;

@@ -12,10 +12,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.adapter.LibrivoxResultAdapter;
-import com.driot.bookplayer.db.ApiResponse;
-import com.driot.bookplayer.db.LibrivoxApi;
-import com.driot.bookplayer.db.LibrivoxItem;
-import com.driot.bookplayer.utils.KanLogger;
+import com.driot.bookplayer.objects.ApiResponse;
+import com.driot.bookplayer.objects.LibrivoxApi;
+import com.driot.bookplayer.objects.LibrivoxItem;
 
 import java.util.Arrays;
 import java.util.List;
@@ -28,7 +27,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class LibrivoxResultsActivity extends LifecycleLoggingActivity {
+public class LibrivoxResultsActivity extends LoggingActivity {
 
     RecyclerView recyclerView;
     LibrivoxResultAdapter adapter;
@@ -163,10 +162,4 @@ public class LibrivoxResultsActivity extends LifecycleLoggingActivity {
         });
     }
 
-    private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
-    private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
-    private void myLogD(String str) { KanLogger.myLogD(this.getClass().getName(), str); }
-    private void myLogI(String str) { KanLogger.myLogI(this.getClass().getName(), str); }
-    private void myToast(String str) { KanLogger.myToast(this.getClass().getName(), str); }
-    private void myToastE(String str) { KanLogger.myToastE(this.getClass().getName(), str); }
 }

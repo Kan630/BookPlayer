@@ -13,7 +13,6 @@ import static com.driot.bookplayer.utils.Tonio.getSourceLocation;
 import static com.driot.bookplayer.utils.Tonio.stripExtension;
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.net.Uri;
@@ -38,7 +37,7 @@ import com.driot.bookplayer.utils.PermissionRequest;
 
 import java.util.Objects;
 
-public class LoadOptionsActivity extends LifecycleLoggingActivity {
+public class LoadOptionsActivity extends LoggingActivity {
 
     public static final String EXTRA_URI = "uri";
     public static final String EXTRA_TYPE = "type";  // File or Folder
@@ -377,12 +376,4 @@ public class LoadOptionsActivity extends LifecycleLoggingActivity {
         }).start();
     }
 
-
-    //--- LOG --------------------------
-    private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
-    private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
-    private void myLogD(String str) { KanLogger.myLogD(this.getClass().getName(), str); }
-    private void myLogI(String str) { KanLogger.myLogI(this.getClass().getName(), str); }
-    private void myToast(String str) { KanLogger.myToast(this.getClass().getName(), str); }
-    private void myToastE(String str) { KanLogger.myToastE(this.getClass().getName(), str); }
 }

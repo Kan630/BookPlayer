@@ -60,7 +60,7 @@ import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.FolderDao;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
-import com.driot.bookplayer.utils.AudioService;
+import com.driot.bookplayer.services.AudioService;
 import com.driot.bookplayer.utils.KanLogger;
 import com.driot.bookplayer.utils.KanMail;
 import com.driot.bookplayer.utils.NetworkUtils;
@@ -70,7 +70,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
-public class MainActivity extends LifecycleLoggingActivity {
+public class MainActivity extends LoggingActivity {
 
     private RecyclerView recyclerView;
     Toolbar toolbar;
@@ -347,9 +347,5 @@ public class MainActivity extends LifecycleLoggingActivity {
             return "Light";
         }
     }
-
-    private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
-    private void myLogW(String str) { KanLogger.myLogW(this.getClass().getName(), str); }
-    private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
 
 }

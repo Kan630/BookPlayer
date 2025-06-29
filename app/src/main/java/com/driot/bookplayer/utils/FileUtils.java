@@ -1,7 +1,6 @@
 package com.driot.bookplayer.utils;
 
 import static android.os.FileUtils.closeQuietly;
-import static com.driot.bookplayer.global.Var.SUPPORTED_AUDIO_EXTENSIONS;
 import static com.driot.bookplayer.utils.KanLogger.myLog;
 import static com.driot.bookplayer.utils.KanLogger.myLogE;
 import static com.driot.bookplayer.utils.Tonio.formatMem;
@@ -18,8 +17,9 @@ import android.provider.MediaStore;
 
 import androidx.annotation.Nullable;
 
+import com.driot.bookplayer.services.CopyFileService;
+
 import java.io.File;
-import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;

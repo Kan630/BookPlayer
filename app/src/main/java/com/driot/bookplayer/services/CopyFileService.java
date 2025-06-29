@@ -1,4 +1,4 @@
-package com.driot.bookplayer.utils;
+package com.driot.bookplayer.services;
 /**
  *  2023-10-09 - Tonio
  *
@@ -27,7 +27,8 @@ import android.os.IBinder;
 import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.activities.LifecycleLoggingService;
+import com.driot.bookplayer.activities.LoggingService;
+import com.driot.bookplayer.utils.FileUtils;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -36,7 +37,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 
-public class CopyFileService extends LifecycleLoggingService {  //IntentService are designed to run in the background....   but let's use an executor or thread
+public class CopyFileService extends LoggingService {  //IntentService are designed to run in the background....   but let's use an executor or thread
 
     public static volatile boolean isCopyRunning = false;
 
@@ -397,13 +398,6 @@ public class CopyFileService extends LifecycleLoggingService {  //IntentService 
     public void tellProgress(int progressVal, String progressText) {
         mCallBacks.copyFileService_tellProgress(progressText,  progressVal);
     }
-
-
-    //-----------------------------
-    private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
-    private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
-    private void myToast(String str) { KanLogger.myToast(this.getClass().getName(), str); }
-    //-----------------------------
 
 
 }

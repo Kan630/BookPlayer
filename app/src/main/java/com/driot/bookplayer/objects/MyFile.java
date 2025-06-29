@@ -1,4 +1,4 @@
-package com.driot.bookplayer.utils;
+package com.driot.bookplayer.objects;
 
 import android.content.Context;
 import android.net.Uri;
@@ -10,6 +10,8 @@ import static com.driot.bookplayer.utils.KanLogger.myLogE;
 import static com.driot.bookplayer.utils.TonioCommonStuff.deleteExtension;
 
 import androidx.core.content.FileProvider;
+
+import com.driot.bookplayer.utils.KanLogger;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 21/08/21

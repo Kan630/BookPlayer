@@ -30,7 +30,7 @@ import java.util.List;
  *
  * implement OneDeleteClickListener because : event is in adapter, confirmation message in activity, deletion in viewmodel
  */
-public class CacheFilesActivity extends LifecycleLoggingActivity implements CacheFilesAdapter.OnDeleteClickListener {
+public class CacheFilesActivity extends LoggingActivity implements CacheFilesAdapter.OnDeleteClickListener {
     private CacheFilesAdapter cacheFilesAdapter;
 
     private CacheFilesViewModel cacheFilesViewModel;
@@ -97,8 +97,4 @@ public class CacheFilesActivity extends LifecycleLoggingActivity implements Cach
                 })
                 .show();
     }
-
-    //--- LOG --------------------------
-    private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
-    private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
 }

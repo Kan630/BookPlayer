@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.utils.KanLogger;
 import com.driot.bookplayer.utils.KanMail;
-import com.driot.bookplayer.utils.MyFile;
+import com.driot.bookplayer.objects.MyFile;
 
 import static com.driot.bookplayer.utils.Tonio2.loadBiggerText;
 

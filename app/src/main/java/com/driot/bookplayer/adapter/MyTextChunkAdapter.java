@@ -1,4 +1,4 @@
-package com.driot.bookplayer.utils;
+package com.driot.bookplayer.adapter;
 
 import android.text.Html;
 import android.view.LayoutInflater;
@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.objects.MyTextChunk;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 02/12/20

@@ -109,7 +109,7 @@
         </activity>
 
         <service
-            android:name=".utils.AudioService"
+            android:name=".services.AudioService"
             android:enabled="true"
             android:foregroundServiceType="mediaPlayback"
             android:exported="false"
@@ -125,26 +125,26 @@
             </intent-filter>
         </receiver>
         <service
-            android:name=".utils.AddResourceService"
+            android:name=".services.AddResourceService"
             android:stopWithTask="true" />
         <service
-            android:name=".utils.CopyFileService"
+            android:name=".services.CopyFileService"
             android:stopWithTask="true" />
         <service
-            android:name=".utils.UnzipService"
+            android:name=".services.UnzipService"
             android:stopWithTask="true" />
         <service
-            android:name=".utils.DownloadService"
+            android:name=".services.DownloadService"
             android:exported="false"/>
         <service
-            android:name=".utils.DownloadJobService"
+            android:name=".services.DownloadJobService"
             android:permission="android.permission.BIND_JOB_SERVICE"
             android:exported="false"/>
         <service
-            android:name=".utils.SplitM4bService"
+            android:name=".services.SplitM4bService"
             android:exported="false"/>
         <service
-            android:name=".utils.ExportService"
+            android:name=".services.ExportService"
             android:exported="false"
             android:stopWithTask="true" />
         <provider

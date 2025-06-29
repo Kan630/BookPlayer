@@ -9,9 +9,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.utils.MyFile;
+import com.driot.bookplayer.objects.MyFile;
 import com.driot.bookplayer.adapter.MyFileAdapter;
-import com.driot.bookplayer.utils.KanLogger;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -25,7 +24,7 @@ import static com.driot.bookplayer.utils.Utils.recursiveRemove;
  * Show list of logs, 1 log per day
  *
  */
-public class LogListActivity extends LifecycleLoggingActivity {
+public class LogListActivity extends LoggingActivity {
 
     private RecyclerView recyclerView;
 
@@ -74,7 +73,4 @@ public class LogListActivity extends LifecycleLoggingActivity {
         recursiveRemove(dir);
         finish();
     }
-    //--- LOG --------------------------
-    private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
-    private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
 }

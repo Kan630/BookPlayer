@@ -5,17 +5,15 @@ import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 
-import com.driot.bookplayer.utils.AddResourceService;
-import com.driot.bookplayer.utils.KanLogger;
+import com.driot.bookplayer.services.AddResourceService;
 
 // 2025-06-09    ---   Used so that the user can enable/disable openWith capability in Options, by enabling/disabling this activity
 
 
 
 
-public class OpenWithProxyActivity extends LifecycleLoggingActivity {
+public class OpenWithProxyActivity extends LoggingActivity {
 
     private static final int REQUEST_LOAD_OPTIONS = 1641;
 
@@ -82,12 +80,4 @@ public class OpenWithProxyActivity extends LifecycleLoggingActivity {
 
         finish(); // Close proxy in all cases
     }
-
-    //--- LOG --------------------------
-    private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
-    private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
-    private void myLogD(String str) { KanLogger.myLogD(this.getClass().getName(), str); }
-    private void myLogI(String str) { KanLogger.myLogI(this.getClass().getName(), str); }
-    private void myToast(String str) { KanLogger.myToast(this.getClass().getName(), str); }
-    private void myToastE(String str) { KanLogger.myToastE(this.getClass().getName(), str); }
 }

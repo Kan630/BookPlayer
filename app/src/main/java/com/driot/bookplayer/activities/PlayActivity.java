@@ -10,7 +10,6 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.ActivityInfo;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.Settings;
@@ -23,13 +22,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.db.AppDatabase;
-import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Option;
-import com.driot.bookplayer.global.PlayList;
-import com.driot.bookplayer.utils.AudioService;
+import com.driot.bookplayer.objects.PlayList;
+import com.driot.bookplayer.services.AudioService;
 import com.driot.bookplayer.utils.FrequencyVisualizerView;
-import com.driot.bookplayer.utils.KanLogger;
 
 import java.util.Arrays;
 import java.util.List;
@@ -39,18 +35,18 @@ import java.util.TimerTask;
 
 import static com.driot.bookplayer.global.Var.PATH_CHECK_APPLICATION;
 import static com.driot.bookplayer.global.Var.SLEEP_PRESET_VALUES;
-import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_AUDIOFOCUS_GAIN;
-import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_AUDIOFOCUS_LOST;
-import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_FILENOTFOUND;
-import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_ERROR;
-import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_FILELOADED;
-import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_NEWTRACK;
-import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_PLAYBACK_MAXTIMEREACH;
-import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_PLAYBACK_TIMER_VALUE;
-import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_PLAYLISTFINISHED;
-import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_TRACKFINISHED;
-import static com.driot.bookplayer.utils.AudioService.NOTIFICATION_ZIP_FILE_LOADED;
-import static com.driot.bookplayer.utils.AudioService.TIMER_VALUE;
+import static com.driot.bookplayer.services.AudioService.NOTIFICATION_AUDIOFOCUS_GAIN;
+import static com.driot.bookplayer.services.AudioService.NOTIFICATION_AUDIOFOCUS_LOST;
+import static com.driot.bookplayer.services.AudioService.NOTIFICATION_FILENOTFOUND;
+import static com.driot.bookplayer.services.AudioService.NOTIFICATION_ERROR;
+import static com.driot.bookplayer.services.AudioService.NOTIFICATION_FILELOADED;
+import static com.driot.bookplayer.services.AudioService.NOTIFICATION_NEWTRACK;
+import static com.driot.bookplayer.services.AudioService.NOTIFICATION_PLAYBACK_MAXTIMEREACH;
+import static com.driot.bookplayer.services.AudioService.NOTIFICATION_PLAYBACK_TIMER_VALUE;
+import static com.driot.bookplayer.services.AudioService.NOTIFICATION_PLAYLISTFINISHED;
+import static com.driot.bookplayer.services.AudioService.NOTIFICATION_TRACKFINISHED;
+import static com.driot.bookplayer.services.AudioService.NOTIFICATION_ZIP_FILE_LOADED;
+import static com.driot.bookplayer.services.AudioService.TIMER_VALUE;
 import static com.driot.bookplayer.utils.PermissionRequest.isReadAudioPermissionGranted;
 import static com.driot.bookplayer.utils.PermissionRequest.isRecordAudioPermissionGranted;
 import static com.driot.bookplayer.utils.Tonio.formatNameForDisplay;
@@ -69,7 +65,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
  * getZikFiles
  * initialize
  */
-public class PlayActivity extends LifecycleLoggingActivity {
+public class PlayActivity extends LoggingActivity {
 
     public static final String SHARED_PREFERENCE_SPEED="SHARED_PREFERENCE_SPEED";
     private static final int INTERVAL_REDRAW_SEEKBAR = 500; //  because looks like it happens erratically when choosing value of 100 for this constant
@@ -708,16 +704,5 @@ public class PlayActivity extends LifecycleLoggingActivity {
             myLogE("openAppSettingsOnPhone() => " + e.getMessage());
         }
     }
-
-
-
-
-    //--- LOG --------------------------
-    private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
-    private void myLogD(String str) { KanLogger.myLogD(this.getClass().getName(), str); }
-    private void myLogI(String str) { KanLogger.myLogI(this.getClass().getName(), str); }
-    private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
-    private void myToast(String str) { KanLogger.myToast(this.getClass().getName(), str); }
-    private void myToastE(String str) { KanLogger.myToastE(this.getClass().getName(), str); }
 
 }

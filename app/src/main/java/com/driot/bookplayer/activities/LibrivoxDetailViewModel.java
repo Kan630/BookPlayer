@@ -6,7 +6,7 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.MutableLiveData;
 
-import com.driot.bookplayer.db.ItemMetadata;
+import com.driot.bookplayer.objects.ItemMetadata;
 
 public class LibrivoxDetailViewModel extends AndroidViewModel {
 

@@ -9,7 +9,7 @@ import com.driot.bookplayer.R;
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 20/12/20
  */
-public class OtherAppsActivity extends LifecycleLoggingActivity {
+public class OtherAppsActivity extends LoggingActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

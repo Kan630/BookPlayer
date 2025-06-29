@@ -1,4 +1,4 @@
-package com.driot.bookplayer.utils;
+package com.driot.bookplayer.services;
 
 
 import static com.driot.bookplayer.global.Var.ONLY_MIME_AUDIO;
@@ -15,7 +15,7 @@ import android.os.IBinder;
 import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.activities.LifecycleLoggingService;
+import com.driot.bookplayer.activities.LoggingService;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -26,12 +26,11 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
-public class UnzipService extends LifecycleLoggingService {
+public class UnzipService extends LoggingService {
 
     public static volatile boolean isUnzipRunning = false;
 
@@ -356,8 +355,5 @@ public class UnzipService extends LifecycleLoggingService {
     public void tellProgress(int progressVal, String progressText) {
         mCallBacks.unzipService_tellProgress(progressText, progressVal);
     }
-    //////////////////////////////////////////////////////////////////////////////////////////
-    private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
-    private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
 
 }

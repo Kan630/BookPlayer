@@ -1,6 +1,5 @@
-package com.driot.bookplayer.utils;
+package com.driot.bookplayer.services;
 
-import android.app.Service;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Environment;
@@ -12,12 +11,13 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.ExportActivity;
+import com.driot.bookplayer.activities.LoggingService;
 
 import java.io.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-public class ExportService extends Service {
+public class ExportService extends LoggingService {
 
     private int totalFiles = 0;
     private long totalSize = 0;
@@ -74,7 +74,7 @@ public class ExportService extends Service {
             sendProgress(getString(R.string.Export_done), totalSize, totalFiles);
 
         } catch (IOException e) {
-            myToastE( getString(R.string.Export_error) + ": " + e.getMessage());
+            myToastEE(e, getString(R.string.Export_error) + ": " + e.getMessage());
         }
 
         long minSize = 1024; // 1 KB
@@ -91,7 +91,7 @@ public class ExportService extends Service {
             LocalBroadcastManager.getInstance(this).sendBroadcast(doneIntent);
 
         } else {
-            myLogE("Export failed or incomplete: file too small or missing.");
+            myLogEE(null,"Export failed or incomplete: file too small or missing.");
 
             // Clean up the bad file
             if (output.exists() && output.length() < minSize) {
@@ -144,11 +144,4 @@ public class ExportService extends Service {
     public IBinder onBind(Intent intent) {
         return null;
     }
-    //--- LOG --------------------------
-    private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
-    private void myLogD(String str) { KanLogger.myLogD(this.getClass().getName(), str); }
-    private void myLogI(String str) { KanLogger.myLogI(this.getClass().getName(), str); }
-    private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
-    private void myToast(String str) { KanLogger.myToast(this.getClass().getName(), str); }
-    private void myToastE(String str) { KanLogger.myToastE(this.getClass().getName(), str); }
 }

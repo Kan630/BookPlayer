@@ -11,7 +11,13 @@ import android.content.Context;
 import android.content.Intent;
 
 import com.driot.bookplayer.activities.AddResourceActivity;
-import com.driot.bookplayer.db.LoadBookTaskState;
+import com.driot.bookplayer.objects.LoadBookTaskState;
+import com.driot.bookplayer.services.AddResourceService;
+import com.driot.bookplayer.services.CopyFileService;
+import com.driot.bookplayer.services.DownloadJobService;
+import com.driot.bookplayer.services.DownloadService;
+import com.driot.bookplayer.services.SplitM4bService;
+import com.driot.bookplayer.services.UnzipService;
 
 import java.io.File;
 

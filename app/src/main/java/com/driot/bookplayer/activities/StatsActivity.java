@@ -18,9 +18,6 @@ import android.os.Bundle;
 import android.os.PowerManager;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
@@ -33,7 +30,7 @@ import java.io.File;
 import java.util.Locale;
 import java.util.TimeZone;
 
-public class StatsActivity extends LifecycleLoggingActivity {
+public class StatsActivity extends LoggingActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -239,9 +236,4 @@ public class StatsActivity extends LifecycleLoggingActivity {
         return strPowerManagement;
     }
 
-    //--- LOG --------------------------
-    private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
-    private void myLogD(String str) { KanLogger.myLogD(this.getClass().getName(), str); }
-    private void myLogI(String str) { KanLogger.myLogI(this.getClass().getName(), str); }
-    private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
 }

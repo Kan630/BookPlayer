@@ -1,4 +1,4 @@
-package com.driot.bookplayer.global;
+package com.driot.bookplayer.objects;
 
 import android.content.Context;
 import android.content.SharedPreferences;

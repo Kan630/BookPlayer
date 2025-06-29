@@ -10,7 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.db.LibrivoxItem;
+import com.driot.bookplayer.objects.LibrivoxItem;
 import com.driot.bookplayer.utils.KanLogger;
 
 import java.util.ArrayList;

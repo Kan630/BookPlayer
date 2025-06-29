@@ -1,4 +1,4 @@
-package com.driot.bookplayer.utils;
+package com.driot.bookplayer.objects;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 02/12/20

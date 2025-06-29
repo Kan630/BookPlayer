@@ -25,7 +25,7 @@ import java.io.File;
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 2023-05-27
  */
-public class ZikFileModifyActivity extends LifecycleLoggingActivity {
+public class ZikFileModifyActivity extends LoggingActivity {
 
     private ZikFile zikFile;
     private int zikFileId;
@@ -216,12 +216,5 @@ public class ZikFileModifyActivity extends LifecycleLoggingActivity {
             });
         }).start();
     }
-
-    //--- LOG --------------------------
-    private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
-    private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
-    private void myToast(String str) { KanLogger.myToast(this.getClass().getName(), str); }
-    private void myLogInFile(String str) { KanLogger.myLogInFile(this.getClass().getName(), str); }
-
 
 }

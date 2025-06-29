@@ -11,10 +11,9 @@ import static com.driot.bookplayer.utils.KanLogger.myLogE;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Parcel;
-import android.os.Parcelable;
 import android.util.Base64;
 
-import com.driot.bookplayer.db.LoadBookTaskState;
+import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.utils.KanLogger;
 
 public class Pref {

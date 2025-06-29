@@ -7,6 +7,8 @@ import android.content.Context;
 import android.content.Intent;
 
 import com.driot.bookplayer.activities.BiggerTextActivity;
+import com.driot.bookplayer.objects.MyFile;
+import com.driot.bookplayer.objects.MyTextChunk;
 
 import java.io.BufferedReader;
 import java.io.File;

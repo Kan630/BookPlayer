@@ -1,4 +1,4 @@
-package com.driot.bookplayer.db;
+package com.driot.bookplayer.objects;
 
 import com.driot.bookplayer.utils.KanLogger;
 

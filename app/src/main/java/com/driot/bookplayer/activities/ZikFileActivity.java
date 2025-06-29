@@ -10,8 +10,7 @@ import com.driot.bookplayer.adapter.ZikFilesAdapter;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.ZikFile;
-import com.driot.bookplayer.global.PlayList;
-import com.driot.bookplayer.utils.KanLogger;
+import com.driot.bookplayer.objects.PlayList;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -20,7 +19,7 @@ import java.util.List;
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 30/10/20
  */
-public class ZikFileActivity extends LifecycleLoggingActivity {
+public class ZikFileActivity extends LoggingActivity {
 
     private RecyclerView recyclerView;
     private ZikFilesAdapter adapter;
@@ -116,9 +115,5 @@ public class ZikFileActivity extends LifecycleLoggingActivity {
             });
         }).start();
     }
-
-    //--- LOG --------------------------
-    private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
-    private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
 }
 

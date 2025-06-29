@@ -21,6 +21,8 @@ import static com.driot.bookplayer.global.Option.getClickVisualizerPlayPause;
 import static com.driot.bookplayer.global.Option.getTechLog;
 import static com.driot.bookplayer.utils.TonioCommonStuff.MD5;
 
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
+
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 20/12/20
  *
@@ -126,9 +128,9 @@ public class KanLogger {
         if (TextUtils.isEmpty(str)) {str = "...";}
         if (writeTechLogs()) {
             writeToLogFile(str);
-            Log.d(newPrefix, str);
+            Log.v(newPrefix, str);
         } else {
-            if (LOG_THEM_ALL) Log.d(newPrefix, str);
+            if (LOG_THEM_ALL) Log.v(newPrefix, str);
         }
     }
 
@@ -166,6 +168,15 @@ public class KanLogger {
             Log.w(newPrefix, str);
         } else {
             if (LOG_THEM_ALL) Log.w(newPrefix, str);
+        }
+    }
+
+    public static void myLogEE(Throwable t, String prefix, String str) {
+        myLogE(prefix, str);
+        if (t!=null) {
+            FirebaseCrashlytics.getInstance().recordException(t);
+        } else {
+            FirebaseCrashlytics.getInstance().log(prefix + " " + str);
         }
     }
 
@@ -207,6 +218,15 @@ public class KanLogger {
             new Handler(Looper.getMainLooper()).post(() ->
                 Toast.makeText(getMyAppContext(), str, toastLength).show()
             );
+        }
+    }
+
+    public static void myToastEE(Throwable t, String prefix, String str) {
+        myToastE(prefix, str, Toast.LENGTH_SHORT);
+        if (t!=null) {
+            FirebaseCrashlytics.getInstance().recordException(t);
+        } else {
+            FirebaseCrashlytics.getInstance().log(prefix + " " + str);
         }
     }
 

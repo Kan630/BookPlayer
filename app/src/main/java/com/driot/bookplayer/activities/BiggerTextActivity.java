@@ -3,12 +3,11 @@ package com.driot.bookplayer.activities;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.driot.bookplayer.utils.MyTextChunk;
-import com.driot.bookplayer.utils.MyTextChunkAdapter;
+import com.driot.bookplayer.objects.MyTextChunk;
+import com.driot.bookplayer.adapter.MyTextChunkAdapter;
 import com.driot.bookplayer.utils.TextOptions;
 
 import java.util.ArrayList;
@@ -17,13 +16,12 @@ import java.util.HashMap;
 import static com.driot.bookplayer.utils.Tonio2.getTextFileContentInArrayList;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.utils.KanLogger;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 21/08/21
  * * imported from Droit Positif (02/12/2020)
  */
-public class BiggerTextActivity extends AppCompatActivity {
+public class BiggerTextActivity extends LoggingActivity {
 
     private RecyclerView recyclerView;
     private RecyclerView.LayoutManager layoutManager;
@@ -107,12 +105,6 @@ public class BiggerTextActivity extends AppCompatActivity {
         super.onDestroy();
     }
 
-    @Override
-    public void onBackPressed() {
-        myLog("onBackPressed()");
-        super.onBackPressed();
-    }
-
     /*
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -185,11 +177,7 @@ public class BiggerTextActivity extends AppCompatActivity {
 
         }
     }
-
-     */
-    //--- LOG --------------------------
-    private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
-    private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
+*/
 
 }
 

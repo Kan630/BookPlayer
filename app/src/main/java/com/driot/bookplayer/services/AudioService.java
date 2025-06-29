@@ -1,4 +1,4 @@
-package com.driot.bookplayer.utils;
+package com.driot.bookplayer.services;
 
 import com.driot.bookplayer.R;
 
@@ -6,6 +6,7 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.ComponentCallbacks2;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -32,15 +33,17 @@ import androidx.documentfile.provider.DocumentFile;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.media.session.MediaButtonReceiver;
 
-import com.driot.bookplayer.activities.LifecycleLoggingService;
+import com.driot.bookplayer.activities.LoggingService;
 import com.driot.bookplayer.activities.PlayActivity;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.ZikFileDao;
 import com.driot.bookplayer.global.Option;
-import com.driot.bookplayer.global.PlayList;
+import com.driot.bookplayer.objects.PlayList;
 import com.driot.bookplayer.db.Sql;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Pref;
+import com.driot.bookplayer.utils.KanLogger;
+import com.driot.bookplayer.utils.Tonio;
 
 import java.io.IOException;
 import java.sql.Date;
@@ -73,7 +76,7 @@ class CustomMediaPlayer extends MediaPlayer {
     private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
 
 }
-public class AudioService extends LifecycleLoggingService {
+public class AudioService extends LoggingService {
 
     public static volatile boolean isRunning = false;
 
@@ -575,7 +578,7 @@ public class AudioService extends LifecycleLoggingService {
 
         } catch (IOException e) {
             myLogE("LoadFile - " + e.getMessage());
-            myLogE(" +++++***+++++ ERROR LOADING PLAYLIST +++++***+++++ ");
+            myLogEE(e, " +++++***+++++ ERROR LOADING PLAYLIST +++++***+++++ ");
             killIt();
             return;
         }
@@ -662,7 +665,7 @@ public class AudioService extends LifecycleLoggingService {
                 introCut = Pref.getIntroCutFromPref(this,PlayList.getZikFile().getIdFolder()) * 1000;
             }
         } catch (Exception e) {
-            myLogE("Error getting introCut from Pref - getIdFolder null ?");
+            myLogEE(e, "Error getting introCut from Pref - getIdFolder null ?");
         }
         if (introCut > 0) {
             int position = getPosition();
@@ -740,7 +743,7 @@ public class AudioService extends LifecycleLoggingService {
             }
             myLog("setSpeed() : " + speed);
         } catch (Exception e) {
-            myLogE("AudioService Error setting Speed");
+            myLogEE(e,"AudioService Error setting Speed");
         }
         if (!(getCurrentZikFile()==null)) {
             saveSpeedToPref(speed);
@@ -876,7 +879,7 @@ public class AudioService extends LifecycleLoggingService {
                 myLogE("----------------------------------------------------------------------------- " + elapsedSeconds + "s. since timer started -- STOPPED -- " + str );
             }
         } catch (Exception e) {
-            myLogE("killTimer, nothing to kill ?");
+            myLogEE(e,"killTimer, nothing to kill ?");
         }
 
     }
@@ -915,11 +918,11 @@ public class AudioService extends LifecycleLoggingService {
                         myLogE("updateZikFileState - Error sql response ---------- ZikFile NOT updated");
                     }
                 } catch (Exception e) {
-                    myLogE("updateZikFileState - Exception while Updating File progress in Thread - " + e.getMessage());
+                    myLogEE(e,"updateZikFileState - Exception while Updating File progress in Thread - " + e.getMessage());
                 }
             }).start();
         } catch (Exception e) {
-            myLogE("updateZikFileState - Exception while Updating File progress in Initialization - " + e.getMessage());
+            myLogEE(e,"updateZikFileState - Exception while Updating File progress in Initialization - " + e.getMessage());
         }
     }
 
@@ -929,7 +932,7 @@ public class AudioService extends LifecycleLoggingService {
             SharedPreferences.Editor editor = getSharedPreferences(SHARED_PREFERENCE_SPEED, MODE_PRIVATE).edit();
             editor.putString(String.valueOf(getCurrentZikFile().getIdFolder()),Double.toString(speed)).apply();
         } catch (Exception e) {
-            myLogE("error saving speed in prefs - " + e.getMessage());
+            myLogEE(e,"error saving speed in prefs - " + e.getMessage());
         }
     }
 
@@ -938,7 +941,7 @@ public class AudioService extends LifecycleLoggingService {
             SharedPreferences prefs = getSharedPreferences(SHARED_PREFERENCE_SPEED, MODE_PRIVATE);
             return Double.parseDouble(prefs.getString(String.valueOf(getCurrentZikFile().getIdFolder()), "1.0"));
         } catch (Exception e) {
-            myLogE("error getting speed from prefs - " + e.getMessage());
+            myLogEE(e,"error getting speed from prefs - " + e.getMessage());
             return 1.0;
         }
     }
@@ -1013,7 +1016,7 @@ public class AudioService extends LifecycleLoggingService {
 
 
         } catch (Exception e) {
-            myLogE("Notification creation failed: " + e.getMessage());
+            myLogEE(e,"Notification creation failed: " + e.getMessage());
         }
     }
 
@@ -1032,7 +1035,7 @@ public class AudioService extends LifecycleLoggingService {
                     manager.createNotificationChannel(channel);
                 }
             } catch (Exception e) {
-                myLogE("createNotificationChannel() - " + e.getMessage());
+                myLogEE(e,"createNotificationChannel() - " + e.getMessage());
             }
         }
     }
@@ -1050,7 +1053,7 @@ public class AudioService extends LifecycleLoggingService {
 
             myLogI("Notification removed");
         } catch (Exception e) {
-            myLogE("Failed to remove notification: " + e.getMessage());
+            myLogEE(e,"Failed to remove notification: " + e.getMessage());
         }
     }
 
@@ -1058,8 +1061,9 @@ public class AudioService extends LifecycleLoggingService {
     public void onTrimMemory(int level) {
         super.onTrimMemory(level);
         myLogE("onTrimMemory() - level=[" + level + "]");
-        /*
         if (level >= ComponentCallbacks2.TRIM_MEMORY_MODERATE) {
+            myLogEE(null, "onTrimMemory() - level=[" + level + "]");
+            /*
             if (mediaPlayer != null) {
                 try {
                     mediaPlayer.release();
@@ -1069,9 +1073,9 @@ public class AudioService extends LifecycleLoggingService {
                     myLogE("Error releasing mediaPlayer: " + e.getMessage());
                 }
             }
-        }
 
-         */
+             */
+        }
     }
 
 
@@ -1119,7 +1123,7 @@ public class AudioService extends LifecycleLoggingService {
                 myLogE("playBeep - wrong argument : " + beepType);
             }
         } catch (Exception e) {
-            myLogE("playBeep(" + beepType + ") - " + e.getMessage());
+            myLogEE(e,"playBeep(" + beepType + ") - " + e.getMessage());
         }
     }
 
@@ -1146,11 +1150,5 @@ public class AudioService extends LifecycleLoggingService {
         removeNotification();
         stopSelf();
     }
-
-    //--- LOG --------------------------
-    private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
-    private void myLogD(String str) { KanLogger.myLogD(this.getClass().getName(), str); }
-    private void myLogI(String str) { KanLogger.myLogI(this.getClass().getName(), str); }
-    private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
 
 }

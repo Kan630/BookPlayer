@@ -12,24 +12,18 @@ import androidx.appcompat.app.AlertDialog;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
-import com.driot.bookplayer.db.Folder;
-import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.utils.KanLogger;
 
 import java.io.File;
-import java.sql.Date;
-import java.sql.Time;
 
-import static com.driot.bookplayer.activities.ExportActivity.EXTRA_FOLDER_PATH;
 import static com.driot.bookplayer.global.Var.PATH_CHECK_APPLICATION;
-import static com.driot.bookplayer.utils.Tonio.formatLastAccessInDays;
 import static com.driot.bookplayer.utils.Utils.recursiveRemove;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 15/11/20
  */
-public class FolderModifyActivity extends LifecycleLoggingActivity {
+public class FolderModifyActivity extends LoggingActivity {
 
     private int idFolder;
     private String FolderName;
@@ -197,12 +191,5 @@ public class FolderModifyActivity extends LifecycleLoggingActivity {
         Pref.saveIntroCutToPref(this, idFolder, introCut);
         super.onDestroy();
     }
-
-    //--- LOG --------------------------
-    private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
-    private void myLogInFile(String str) { KanLogger.myLogInFile(this.getClass().getName(), str); }
-    private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
-    private void myToast(String str) { KanLogger.myToast(this.getClass().getName(), str); }
-    private void myToastE(String str) { KanLogger.myToastE(this.getClass().getName(), str); }
 
 }

@@ -1,4 +1,4 @@
-package com.driot.bookplayer.utils;
+package com.driot.bookplayer.services;
 
 import android.app.Service;
 import android.content.Intent;
@@ -8,7 +8,7 @@ import android.os.IBinder;
 import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.activities.LifecycleLoggingService;
+import com.driot.bookplayer.activities.LoggingService;
 import com.googlecode.mp4parser.authoring.Movie;
 import com.googlecode.mp4parser.authoring.Sample;
 import com.googlecode.mp4parser.authoring.Track;
@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.Set;
 
 
-public class SplitM4bService extends LifecycleLoggingService {
+public class SplitM4bService extends LoggingService {
 
     public static volatile boolean isSplitRunning = false;
 
@@ -353,8 +353,5 @@ public class SplitM4bService extends LifecycleLoggingService {
         mCallBacks.splitM4bService_tellWarning(errorText);
     }
 
-    //////////////////////////////////////////////////////////////////////////////////////////
-    private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
-    private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
 
 }

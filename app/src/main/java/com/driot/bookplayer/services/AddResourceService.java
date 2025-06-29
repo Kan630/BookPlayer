@@ -1,4 +1,4 @@
-package com.driot.bookplayer.utils;
+package com.driot.bookplayer.services;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -18,14 +18,15 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.sqlite.db.SimpleSQLiteQuery;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.activities.LifecycleLoggingService;
+import com.driot.bookplayer.activities.LoggingService;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.db.Folder;
-import com.driot.bookplayer.db.FolderAttrib;
+import com.driot.bookplayer.objects.FolderAttrib;
 import com.driot.bookplayer.db.FolderDao;
-import com.driot.bookplayer.db.LoadBookTaskState;
+import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.db.ZikFile;
+import com.driot.bookplayer.utils.Utils;
 
 import java.io.File;
 import java.io.IOException;
@@ -62,7 +63,7 @@ import static com.driot.bookplayer.utils.WorkFlow.setWorkFlowFinished;
 // TODO check if Service is Busy before starting another import
 
 public class AddResourceService
-        extends LifecycleLoggingService
+        extends LoggingService
         implements CopyFileService.Callbacks, UnzipService.Callbacks, DownloadService.Callbacks, SplitM4bService.Callbacks
 {
 
@@ -190,28 +191,27 @@ public class AddResourceService
             if (mUnzipServiceBound != null && mUnzipServiceBound) unbindService(unzipServiceConnection);
             mUnzipServiceBound = false;
         } catch (Exception e) {
-            myLogE("onUnbind - error unbindService Unzip : " + e.getMessage());
-            e.printStackTrace();
+            myLogEE(e,"onUnbind - error unbindService Unzip : " + e.getMessage());
         }
         try {
             if (mCopyFileServiceBound != null && mCopyFileServiceBound) unbindService(copyFileServiceConnection);
             mCopyFileServiceBound = false;
         } catch (Exception e) {
-            myLogE("onUnbind - error unbindService CopyFile : " + e.getMessage());
+            myLogEE(e,"onUnbind - error unbindService CopyFile : " + e.getMessage());
             e.printStackTrace();
         }
         try {
             if (mDownloadServiceBound != null && mDownloadServiceBound) unbindService(downloadServiceConnection);
             mDownloadServiceBound = false;
         } catch (Exception e) {
-            myLogE("onUnbind - error unbindService Download : " + e.getMessage());
+            myLogEE(e,"onUnbind - error unbindService Download : " + e.getMessage());
             e.printStackTrace();
         }
         try {
             if (mSplitM4bServiceBound != null && mSplitM4bServiceBound) unbindService(splitM4bServiceConnection);
             mSplitM4bServiceBound = false;
         } catch (Exception e) {
-            myLogE("onUnbind - error unbindService Split M4B : " + e.getMessage());
+            myLogEE(e,"onUnbind - error unbindService Split M4B : " + e.getMessage());
             e.printStackTrace();
         }
         return super.onUnbind(intent);
@@ -259,8 +259,8 @@ public class AddResourceService
         try {
             boundToCopyFileService = bindService(intentCopyFileService, copyFileServiceConnection, Context.BIND_AUTO_CREATE); //error Log : Activity XXX has leaked ServiceConnection
         } catch (Exception e) {
-            myLogE("ERROR bind to Service in launchCopyFileService ");
-            myLogE(e.getMessage());
+            myLogEE(e,"ERROR bind to Service in launchCopyFileService ");
+            myLogEE(e,e.getMessage());
         }
         mCallBacks.tellHeader(destinationFileName);
         myLog("call start & bind to copyFileService from launchCopyFileService - bound result :" + boundToCopyFileService + "");
@@ -295,8 +295,8 @@ public class AddResourceService
         try {
             boundToUnzipService = bindService(intentUnzipService, unzipServiceConnection, Context.BIND_AUTO_CREATE); //error Log : Activity XXX has leaked ServiceConnection
         } catch (Exception e) {
-            myLogE("ERROR bind to Service in launchUnzipService ");
-            myLogE(e.getMessage());
+            myLogEE(e,"ERROR bind to Service in launchUnzipService ");
+            myLogEE(e,e.getMessage());
         }
         myLog("call start & bind to unzipService from launchUnzipService - bound result :" + boundToUnzipService);
     }
@@ -330,8 +330,8 @@ public class AddResourceService
         try {
             boundToSplitM4bService = bindService(intentSplitM4bService, splitM4bServiceConnection, Context.BIND_AUTO_CREATE); //error Log : Activity XXX has leaked ServiceConnection
         } catch (Exception e) {
-            myLogE("ERROR bind to Service in launchsplitM4bService ");
-            myLogE(e.getMessage());
+            myLogEE(e,"ERROR bind to Service in launchsplitM4bService ");
+            myLogEE(e,e.getMessage());
         }
         myLog("call start & bind to splitM4bService from launchsplitM4bService - bound result :" + boundToSplitM4bService);
     }
@@ -366,8 +366,8 @@ public class AddResourceService
         try {
             boundToDownloadService = bindService(intentDownloadService, downloadServiceConnection, Context.BIND_AUTO_CREATE); //error Log : Activity XXX has leaked ServiceConnection
         } catch (Exception e) {
-            myLogE("ERROR bind to Service in launchDownloadService ");
-            myLogE(e.getMessage());
+            myLogEE(e,"ERROR bind to Service in launchDownloadService ");
+            myLogEE(e,e.getMessage());
         }
         myLog("call start & bind to downloadService from launchDownloadService - bound result :" + boundToDownloadService );
     }
@@ -398,7 +398,7 @@ public class AddResourceService
                 downloadService_tellEnd(downloadedFilePath);
             }
         } else {
-            myLogE("no args - LoadBookTaskState = null");
+            myLogEE(e,"no args - LoadBookTaskState = null");
         }
 
  */
@@ -451,7 +451,7 @@ public class AddResourceService
 
     private void populateArrayListOfTracksFromFolder(DocumentFile dfPickedDir) {
         if (dfPickedDir == null) {
-            myLogE("dfPickedDir == null");
+            myLogEE(null,"dfPickedDir == null");
             tellError(getString(R.string.Error_Import_CannotReadFolder));
             return;
         }
@@ -522,7 +522,7 @@ public class AddResourceService
                 } catch (Throwable t) {
                     String strErr = "Error while listing audio files";
                     if (t instanceof OutOfMemoryError && t.getMessage() != null && t.getMessage().contains("pthread_create")) {
-                        myLogE("Too many threads or not enough native memory: " + t.toString());
+                        myLogEE(t,"Too many threads or not enough native memory: " + t.toString());
                         strErr = getString(R.string.Error_Import_OutOfMemory)
                                 + "\n" + getString(R.string.Error_Import_This_folder_may_contain_too_many_books);
                     } else {
@@ -603,7 +603,7 @@ public class AddResourceService
             myLog("LoadBookTaskState = null");
         }
 
-        if (type_given==null || uri_given==null) {myLogE("init() - args=null");tellError("Init failed, args are null");return;}
+        if (type_given==null || uri_given==null) {myLogEE(null,"init() - args=null");tellError("Init failed, args are null");return;}
         String strUriLog = uri_given==null ? "null" : uri_given.toString();
         sourceLocation = getSourceLocation(uri_given);
 
@@ -659,7 +659,7 @@ public class AddResourceService
                 try {
                     dfPickedDir = DocumentFile.fromSingleUri(this, uri_given);
                 } catch (Exception e) {
-                    myLogE("Error reading picked File.... DocumentFile.fromSingleUri : " + e.getMessage());
+                    myLogEE(e,"Error reading picked File.... DocumentFile.fromSingleUri : " + e.getMessage());
                     tellError(getString(R.string.Error_Import_CannotReadFile));
                     break;
                 }
@@ -677,7 +677,7 @@ public class AddResourceService
                 }
 
                 if (mime == null) {
-                    myLogE("mime == null");
+                    myLogW("mime == null");
                     tellError(getString(R.string.Error_Import_CannotDetermineType));
                     break;
                 }
@@ -708,7 +708,7 @@ public class AddResourceService
                         new Thread(() -> {
                             long lCheck = AppDatabase.getDatabase(this).FolderDao().folderAlreadyExist_checkFolderName(destinationFolderName);
                             if (lCheck>0) {
-                                myLogE("KO, folder does already exist in DB : [" + destinationFolderName + "]");
+                                myLogW("KO, folder does already exist in DB : [" + destinationFolderName + "]");
                                 tellError(getString(R.string.Error_Import_FolderAlreadyImported) + "  [" + destinationFolderName + "]");
                             } else {
                                 myLog("OK, folder doesn't already exist in DB");
@@ -746,7 +746,7 @@ public class AddResourceService
                             tellProgress(PROGRESS[3], PROGRESS_TEXT[1] + " ...reading on cloud");
                             long lCheck = AppDatabase.getDatabase(this).FolderDao().folderAlreadyExist_checkFolderName(future_folder_name);
                             if (lCheck>0) {
-                                myLogE("KO, folder does already exist in DB : [" + future_folder_name + "]");
+                                myLogW("KO, folder does already exist in DB : [" + future_folder_name + "]");
                                 tellError(getString(R.string.Error_Import_FolderAlreadyImported) + "  [" + future_folder_name + "]");
                             } else {
                                 myLog("OK, folder doesn't already exist in DB");
@@ -784,7 +784,7 @@ public class AddResourceService
                 try {
                     dfPickedDir = DocumentFile.fromTreeUri(this, uri_given);
                 } catch (Exception e) {
-                    myLogE("Error reading picked Folder.... DocumentFile.fromTreeUri : " + e.getMessage());
+                    myLogEE(e,"Error reading picked Folder.... DocumentFile.fromTreeUri : " + e.getMessage());
                     tellError(getString(R.string.Error_Import_CannotReadFolder));
                     break;
                 }
@@ -798,7 +798,7 @@ public class AddResourceService
                 goZipCase();
                 break;
         default:
-                myLogE("Incorrect type : **" + type_given + "**");
+                myLogEE(null,"Incorrect type : **" + type_given + "**");
         }
     }
     /// ///////// END INIT
@@ -822,7 +822,7 @@ public class AddResourceService
         new Thread(() -> {
             long lCheck = AppDatabase.getDatabase(this).FolderDao().folderAlreadyExist_checkFolderName(destinationFolderName);
             if (lCheck>0) {
-                myLogE("KO, folder does already exist in DB : [" + destinationFolderName + "]");
+                myLogW("KO, folder does already exist in DB : [" + destinationFolderName + "]");
                 tellError(getString(R.string.Error_Import_FolderAlreadyImported) + "  [" + destinationFolderName + "]");
             } else {
                 myLog("OK, folder doesn't already exist in DB");
@@ -1074,28 +1074,28 @@ public class AddResourceService
             try {
                 dfPickedDir = DocumentFile.fromSingleUri(this, uri_given);
             } catch (Exception e) {
-                myLogE("deleting - error getting DocumentFile.fromSingleUri : " + e.getMessage());
+                myLogEE(e,"deleting - error getting DocumentFile.fromSingleUri : " + e.getMessage());
                 tellError(getString(R.string.Error_Import_CannotDeleteSource));
             }
         } else if (type_given.equals("Folder")) {
             try {
                 dfPickedDir = DocumentFile.fromTreeUri(this, uri_given);
             } catch (Exception e) {
-                myLogE("deleting - error getting DocumentFile.fromTreeUri : " + e.getMessage());
+                myLogEE(e,"deleting - error getting DocumentFile.fromTreeUri : " + e.getMessage());
                 tellError(getString(R.string.Error_Import_CannotDeleteSource));
             }
         } else {
-            myLogE("Incorrect type : **" + type_given + "**");
+            myLogEE(null,"Incorrect type : **" + type_given + "**");
         }
         if (!(dfPickedDir == null)) {
             boolean okDelete = dfPickedDir.delete();
             if (okDelete) {
                 myLog("source file deletion ok");
             } else {
-                myLogE("Error during source file deletion");
+                myLogEE(null,"Error during source file deletion");
             }
         } else {
-            myLogE("deleteSourceFile() => could not get ref to picked file");
+            myLogEE(null,"deleteSourceFile() => could not get ref to picked file");
         }
     }
 
@@ -1110,11 +1110,11 @@ public class AddResourceService
             } catch (Exception e) {
                 e.printStackTrace(); // could be access right : Permission to access file: /storage/emulated/0/Audiobooks/Folder Fun letters/ازة-بالقراءات-العش.mp3 is denied
                 tellError(getResources().getString(R.string.Error_Import_track_duration_extraction) + " // path : " + zePath);
-                myLogE("error getting duration of media : " + e.getMessage() + " for " + zePath);
+                myLogEE(e,"error getting duration of media : " + e.getMessage() + " for " + zePath);
             }
         } else {
             tellError(getResources().getString(R.string.Error_Import_track_duration_nofile) + " // path : " + zePath);
-            myLogE("error getting duration of media, file does not exist in path : " + zePath);
+            myLogEE(null,"error getting duration of media, file does not exist in path : " + zePath);
         }
         myLogD("duration for [" + zePath + "] is " + duration);
         return duration;
@@ -1128,7 +1128,7 @@ public class AddResourceService
             duration = Long.parseLong(durStr);
         } catch (Exception e) {
             tellError(getResources().getString(R.string.Error_Import_track_duration_extraction) + " // uri: " + uri);
-            myLogE("error getting duration of media: [" + e.getMessage() + "] for uri: [" + uri + "]");
+            myLogEE(e,"error getting duration of media: [" + e.getMessage() + "] for uri: [" + uri + "]");
         }
         myLogD("duration for [" + uri + "] is " + duration);
         return duration;
@@ -1245,7 +1245,7 @@ public class AddResourceService
     @Override
     public void downloadService_tellError(String errorText) {
         clearDownloadFinished(this);
-        myLogE("Download tell Error");
+        myLogW("Download tell Error");
         tellError(errorText);
     }
 
@@ -1275,7 +1275,7 @@ public class AddResourceService
     }
     @Override
     public void copyFileService_tellError(String errorText) {
-        myLogE("Copyfile tell Error");
+        myLogW("Copyfile tell Error");
         tellError(errorText);
     }
     /**
@@ -1289,7 +1289,7 @@ public class AddResourceService
     }
     @Override
     public void unzipService_tellError(String errorText) {
-        myLogE("Unzip service tell Error");
+        myLogW("Unzip service tell Error");
         tellError(errorText);
     }
     @Override
@@ -1300,7 +1300,7 @@ public class AddResourceService
         try {
             dfPickedDir = DocumentFile.fromFile(new File(destinationFolderPath));
         } catch (Exception e) {
-            myLogE("error getting DocumentFile.fromFile : " + e.getMessage());
+            myLogEE(e,"error getting DocumentFile.fromFile : " + e.getMessage());
             return;
         }
         populateArrayListOfTracksFromFolder(dfPickedDir);
@@ -1316,7 +1316,7 @@ public class AddResourceService
     }
     @Override
     public void splitM4bService_tellError(String errorText) {
-        myLogE("SplitM4b service tell Error");
+        myLogW("SplitM4b service tell Error");
         tellError(errorText);
     }
     @Override
@@ -1338,7 +1338,7 @@ public class AddResourceService
         try {
             dfPickedDir = DocumentFile.fromFile(new File(destinationFolderPath));
         } catch (Exception e) {
-            myLogE("error getting DocumentFile.fromFile : " + e.getMessage());
+            myLogEE(e,"error getting DocumentFile.fromFile : " + e.getMessage());
             return;
         }
         populateArrayListOfTracksFromFolder(dfPickedDir);
@@ -1365,7 +1365,7 @@ public class AddResourceService
     private void tellError(String txt) {
         setWorkFlowFinished(this);
         mCallBacks.updateError(txt);
-        myLogE("tellError... [" + txt + "]");
+        myLogW("tellError... [" + txt + "]");
         isBusy = false;
         myLog("tellError... killing Service");
         stopSelf();
@@ -1409,10 +1409,5 @@ public class AddResourceService
         }
     };
 
-
-    //--- LOG --------------------------
-    private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
-    private void myLogD(String str) { KanLogger.myLogD(this.getClass().getName(), str); }
-    private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
 
 }

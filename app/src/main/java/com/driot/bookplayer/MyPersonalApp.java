@@ -9,8 +9,7 @@ import java.io.File;
 import java.io.IOException;
 
 import com.driot.bookplayer.global.Option;
-import com.driot.bookplayer.global.PlayList;
-import com.driot.bookplayer.utils.ComponentUtils;
+import com.driot.bookplayer.objects.PlayList;
 import com.driot.bookplayer.utils.KanLogger;
 
 /**

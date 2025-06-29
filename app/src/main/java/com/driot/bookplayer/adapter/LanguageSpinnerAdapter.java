@@ -11,7 +11,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.db.LanguageItem;
+import com.driot.bookplayer.objects.LanguageItem;
 
 import java.util.List;
 

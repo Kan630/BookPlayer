@@ -42,7 +42,7 @@ import androidx.core.view.WindowCompat;
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 20/12/20
  */
-public class OptionActivity extends LifecycleLoggingActivity {
+public class OptionActivity extends LoggingActivity {
 
     public static final int MINIMUM_FORWARD_SECONDS = 1;
     public static final int MAXIMUM_FORWARD_SECONDS = 300;
@@ -447,10 +447,4 @@ public class OptionActivity extends LifecycleLoggingActivity {
         }
         areAdvancedOptionsVisible = !areAdvancedOptionsVisible;
     }
-
-    //--- LOG --------------------------
-    private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
-    private void myLogD(String str) { KanLogger.myLogD(this.getClass().getName(), str); }
-    private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
-    private void myLongToast(String str) { KanLogger.myLongToast(this.getClass().getName(), str); }
 }

@@ -1,4 +1,4 @@
-package com.driot.bookplayer.db;
+package com.driot.bookplayer.objects;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -14,7 +14,6 @@ import com.driot.bookplayer.utils.Tonio;
 import java.io.File;
 import java.util.List;
 
-import static com.driot.bookplayer.utils.FileUtils.buildFileUri;
 import static com.driot.bookplayer.utils.Tonio.formatNameForDisplay;
 import static com.driot.bookplayer.utils.Tonio.getLastFolder;
 import static com.driot.bookplayer.utils.Tonio.getSubFolders;

@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.driot.bookplayer.db.LibrivoxItem;
+import com.driot.bookplayer.objects.LibrivoxItem;
 
 import java.util.List;
 

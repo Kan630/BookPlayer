@@ -14,15 +14,11 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.db.LoadBookTaskState;
-import com.driot.bookplayer.utils.AddResourceService;
-import com.driot.bookplayer.utils.KanLogger;
-import com.driot.bookplayer.utils.WorkFlow;
+import com.driot.bookplayer.services.AddResourceService;
 
 import static com.driot.bookplayer.utils.Tonio.getFileNameFromPath;
 import static com.driot.bookplayer.utils.Tonio.formatNameForDisplay;
 import static com.driot.bookplayer.utils.WorkFlow.cancelAllOngoingTasks;
-import static com.driot.bookplayer.utils.WorkFlow.maybeResumeWorkFlow;
 
 
 /**
@@ -32,7 +28,7 @@ import static com.driot.bookplayer.utils.WorkFlow.maybeResumeWorkFlow;
  *
  */
 public class AddResourceActivity
-        extends LifecycleLoggingActivity
+        extends LoggingActivity
         implements AddResourceService.Callbacks
 {
 
@@ -95,7 +91,7 @@ public class AddResourceActivity
             if (mBound) unbindService(addResourceServiceConnection);
             mBound = false;
         } catch (Exception e) {
-            myLogE("onDestroy - error unbindService : " + e.getMessage());
+            myLogEE(e,"onDestroy - error unbindService : " + e.getMessage());
         }
     }
     @Override
@@ -106,8 +102,7 @@ public class AddResourceActivity
             if (mBound) unbindService(addResourceServiceConnection);
             mBound = false;
         } catch (Exception e) {
-            myLogE("onStop - error unbindService : " + e.getMessage());
-            e.printStackTrace();
+            myLogEE(e,"onStop - error unbindService : " + e.getMessage());
         }
     }
 
@@ -220,12 +215,4 @@ public class AddResourceActivity
     }
 
 
-    //--- FULL LOG --------------------------
-    private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
-    private void myLogInFile(String str) { KanLogger.myLogInFile(this.getClass().getName(), str); }
-    private void myLogD(String str) { KanLogger.myLogD(this.getClass().getName(), str); }
-    private void myLogI(String str) { KanLogger.myLogI(this.getClass().getName(), str); }
-    private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
-    private void myToast(String str) { KanLogger.myToast(this.getClass().getName(), str); }
-    private void myToastE(String str) { KanLogger.myToastE(this.getClass().getName(), str); }
 }

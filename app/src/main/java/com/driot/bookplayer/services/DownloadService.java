@@ -1,41 +1,29 @@
-package com.driot.bookplayer.utils;
+package com.driot.bookplayer.services;
 
 import static com.driot.bookplayer.global.Var.FOLDER_DOWNLOAD;
 import static com.driot.bookplayer.utils.KanFiles.deleteFolderRecursive;
 import static com.driot.bookplayer.utils.Tonio.formatMem;
-import static com.driot.bookplayer.utils.Tonio.getFileNameFromPath;
 
-import android.app.NotificationManager;
 import android.app.Service;
-import android.app.NotificationChannel;
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ServiceInfo;
 import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.PersistableBundle;
 
 import androidx.annotation.Nullable;
-import androidx.core.app.NotificationCompat;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.activities.LifecycleLoggingService;
+import com.driot.bookplayer.activities.LoggingService;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.net.InetAddress;
-import java.net.URL;
 
-public class DownloadService extends LifecycleLoggingService {
+public class DownloadService extends LoggingService {
 
     public static boolean isBusy;
 
@@ -303,8 +291,4 @@ public class DownloadService extends LifecycleLoggingService {
         mCallBacks.downloadService_tellProgressNoLog(progressText, progressVal);
     }
 
-    
-    private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
-    private void myLogI(String str) { KanLogger.myLogI(this.getClass().getName(), str); }
-    private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
 }

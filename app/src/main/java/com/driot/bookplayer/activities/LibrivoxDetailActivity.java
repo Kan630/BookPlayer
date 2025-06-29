@@ -14,11 +14,10 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.bumptech.glide.Glide;
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.db.ItemMetadata;
-import com.driot.bookplayer.db.LibrivoxApi;
-import com.driot.bookplayer.db.LoadBookTaskState;
-import com.driot.bookplayer.utils.AddResourceService;
-import com.driot.bookplayer.utils.KanLogger;
+import com.driot.bookplayer.objects.ItemMetadata;
+import com.driot.bookplayer.objects.LibrivoxApi;
+import com.driot.bookplayer.objects.LoadBookTaskState;
+import com.driot.bookplayer.services.AddResourceService;
 import com.driot.bookplayer.utils.WorkFlow;
 
 import java.net.HttpURLConnection;
@@ -35,7 +34,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class LibrivoxDetailActivity extends LifecycleLoggingActivity {
+public class LibrivoxDetailActivity extends LoggingActivity {
 
     private LibrivoxDetailViewModel viewModel;
     private LibrivoxApi api;
@@ -301,9 +300,4 @@ public class LibrivoxDetailActivity extends LifecycleLoggingActivity {
         int z = (63 - Long.numberOfLeadingZeros(sizeBytes)) / 10;
         return String.format(Locale.US, "%.1f %sB", (double) sizeBytes / (1L << (z * 10)), " KMGTPE".charAt(z));
     }
-
-    private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
-    private void myLogD(String str) { KanLogger.myLogD(this.getClass().getName(), str); }
-    private void myLogI(String str) { KanLogger.myLogI(this.getClass().getName(), str); }
-    private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
 }

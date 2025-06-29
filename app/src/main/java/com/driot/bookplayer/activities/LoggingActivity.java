@@ -34,11 +34,12 @@ import com.driot.bookplayer.utils.KanLogger;
  * This abstract class extends the Activity class and overrides
  * lifecycle callbacks for logging various lifecycle events.
  */
-public abstract class LifecycleLoggingActivity extends AppCompatActivity {
+public abstract class LoggingActivity extends AppCompatActivity {
 
-    private static final String LOG_TAG = "LifecycleLoggingActivity"; //this.getClass().getName()
-    protected final String TAG = "[" + getClass().getSimpleName() + "]: ";
-    //String TAG = this.getClass().getName().substring(this.getClass().getName().lastIndexOf(".")+1);
+    private static final String LOG_TAG = "Lifecycle";
+    protected final String TAG_FROM_BRACKET = "[" + getClass().getSimpleName() + "]: ";
+    protected final String TAG_FROM = "." + getClass().getSimpleName();
+
 
     /**
      * Hook method called when a new instance of Activity is created. One time
@@ -60,7 +61,7 @@ public abstract class LifecycleLoggingActivity extends AppCompatActivity {
         try {
             setTheme(Option.getTheme(this)); // TODO maybe here a problem when Update to this Theme version...? small screen and weird graphics
         } catch (Exception e) {
-            myLogE("Error setting theme : " + e.getMessage());
+            myInsideLogEE(e, "Error setting theme : " + e.getMessage());
         }
 
         String str1 = this.getCallingActivity()==null ? "null" : this.getCallingActivity().toString();
@@ -69,12 +70,12 @@ public abstract class LifecycleLoggingActivity extends AppCompatActivity {
             // The activity is being re-created. Use the
             // savedInstanceState bundle for initializations either
             // during onCreate or onRestoreInstanceState().
-            if (LOG_LIFECYCLE_TRACE) myLog(TAG + "onCreate(): activity re-created. - Called by [" + str1 + "]");
+            if (LOG_LIFECYCLE_TRACE) myInsideLog(TAG_FROM_BRACKET + "onCreate(): activity re-created. - Called by [" + str1 + "]");
 
         } else {
             // Activity is being created anew. No prior saved
             // instance state information available in Bundle object.
-            if (LOG_LIFECYCLE_TRACE) myLog(TAG + "onCreate(): activity created anew. - Called by [" + str1 + "]");
+            if (LOG_LIFECYCLE_TRACE) myInsideLog(TAG_FROM_BRACKET + "onCreate(): activity created anew. - Called by [" + str1 + "]");
         }
 
     }
@@ -90,7 +91,7 @@ public abstract class LifecycleLoggingActivity extends AppCompatActivity {
         // Always call super class for necessary
         // initialization/implementation.
         super.onStart();
-        if (LOG_LIFECYCLE_TRACE) myLog(TAG + "onStart() - the activity is about to become visible");
+        if (LOG_LIFECYCLE_TRACE) myInsideLog(TAG_FROM_BRACKET + "onStart() - the activity is about to become visible");
     }
 
     /**
@@ -107,7 +108,7 @@ public abstract class LifecycleLoggingActivity extends AppCompatActivity {
         // initialization/implementation and then log which lifecycle
         // hook method is being called.
         super.onResume();
-        if (LOG_LIFECYCLE_TRACE) myLog(TAG + "onResume() - the activity has become visible (it is now \"resumed\")");
+        if (LOG_LIFECYCLE_TRACE) myInsideLog(TAG_FROM_BRACKET + "onResume() - the activity has become visible (it is now \"resumed\")");
     }
 
     /**
@@ -123,7 +124,7 @@ public abstract class LifecycleLoggingActivity extends AppCompatActivity {
         // initialization/implementation and then log which lifecycle
         // hook method is being called.
         super.onPause();
-        if (LOG_LIFECYCLE_TRACE) myLog(TAG + "onPause() - another activity is taking focus (this activity is about to be \"paused\")");
+        if (LOG_LIFECYCLE_TRACE) myInsideLog(TAG_FROM_BRACKET + "onPause() - another activity is taking focus (this activity is about to be \"paused\")");
     }
 
     /**
@@ -137,7 +138,7 @@ public abstract class LifecycleLoggingActivity extends AppCompatActivity {
         // initialization/implementation and then log which lifecycle
         // hook method is being called.
         super.onStop();
-        if (LOG_LIFECYCLE_TRACE) myLog(TAG + "onStop() - the activity is no longer visible (it is now \"stopped\")");
+        if (LOG_LIFECYCLE_TRACE) myInsideLog(TAG_FROM_BRACKET + "onStop() - the activity is no longer visible (it is now \"stopped\")");
     }
 
     /**
@@ -150,7 +151,7 @@ public abstract class LifecycleLoggingActivity extends AppCompatActivity {
         // initialization/implementation and then log which lifecycle
         // hook method is being called.
         super.onRestart();
-        if (LOG_LIFECYCLE_TRACE) myLog(TAG + "onRestart() - the activity is about to be restarted()");
+        if (LOG_LIFECYCLE_TRACE) myInsideLog(TAG_FROM_BRACKET + "onRestart() - the activity is about to be restarted()");
     }
 
     /**
@@ -164,7 +165,7 @@ public abstract class LifecycleLoggingActivity extends AppCompatActivity {
         // initialization/implementation and then log which lifecycle
         // hook method is being called.
         super.onDestroy();
-        if (LOG_LIFECYCLE_TRACE) myLog(TAG + "onDestroy() - the activity is about to be destroyed");
+        if (LOG_LIFECYCLE_TRACE) myInsideLog(TAG_FROM_BRACKET + "onDestroy() - the activity is about to be destroyed");
     }
 
     // Ajouts Tonio
@@ -172,34 +173,86 @@ public abstract class LifecycleLoggingActivity extends AppCompatActivity {
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        if (LOG_LIFECYCLE_TRACE) myLog(TAG + "onSaveInstanceState()");
+        if (LOG_LIFECYCLE_TRACE) myInsideLog(TAG_FROM_BRACKET + "onSaveInstanceState()");
     }
 
     @Override
     protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        if (LOG_LIFECYCLE_TRACE) myLog(TAG + "onRestoreInstanceState()");
+        if (LOG_LIFECYCLE_TRACE) myInsideLog(TAG_FROM_BRACKET + "onRestoreInstanceState()");
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (LOG_LIFECYCLE_TRACE) myLog(TAG + "onActivityResult() - request code " + requestCode);
+        if (LOG_LIFECYCLE_TRACE) myInsideLog(TAG_FROM_BRACKET + "onActivityResult() - request code " + requestCode);
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        if (LOG_LIFECYCLE_TRACE) myLog(TAG + "onNewIntent() + intent : " + intent.getAction());
+        if (LOG_LIFECYCLE_TRACE) myInsideLog(TAG_FROM_BRACKET + "onNewIntent() + intent : " + intent.getAction());
     }
 
     @Override
     public void onConfigurationChanged(@NonNull Configuration newConfig) { //Notamment le changement de Locale
         super.onConfigurationChanged(newConfig);
-        if (LOG_LIFECYCLE_TRACE) myLog(TAG + "onConfigurationChanged() newConfig=" + newConfig.toString());
+        if (LOG_LIFECYCLE_TRACE) myInsideLog(TAG_FROM_BRACKET + "onConfigurationChanged() newConfig=" + newConfig.toString());
     }
 
-    //private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
-    private void myLog(String str) { KanLogger.myLog(LOG_TAG, str); }
-    private void myLogE(String str) { KanLogger.myLogE(LOG_TAG, str); }
+
+    /// ///////////////////////////////////////////////////////////////////
+    ///            LOGGER                  (Extend Activity)
+    /// ///////////////////////////////////////////////////////////////////
+
+    protected void myLog(String str) {
+        KanLogger.myLog(TAG_FROM, str);
+    }
+
+    protected void myLogD(String str) {
+        KanLogger.myLogD(TAG_FROM, str);
+    }
+
+    protected void myLogI(String str) {
+        KanLogger.myLogI(TAG_FROM, str);
+    }
+
+    protected void myLogW(String str) {
+        KanLogger.myLogW(TAG_FROM, str);
+    }
+
+    protected void myLogE(String str) {
+        KanLogger.myLogE(TAG_FROM, str);
+    }
+
+    protected void myLogEE(Throwable t, String str) {
+        KanLogger.myLogEE(t, TAG_FROM, str);
+    }
+    protected void myLogInFile(String str) {
+        KanLogger.myLogInFile(TAG_FROM, str);
+    }
+
+    protected void myToast(String str) {
+        KanLogger.myToast(TAG_FROM, str);
+    }
+
+    protected void myToastE(String str) {
+        KanLogger.myToastE(TAG_FROM, str);
+    }
+
+    protected void myToastEE(Throwable t, String str) {
+        KanLogger.myToastEE(t, TAG_FROM, str);
+    }
+
+    protected void myLongToast(String str) {
+        KanLogger.myLongToast(TAG_FROM, str);
+    }
+
+    /// ///////////////////////////////////////////////////////////////////
+    ///            LOGGER        (For this specific Helper Class)
+    /// ///////////////////////////////////////////////////////////////////
+
+    private void myInsideLog(String str) { KanLogger.myLogD(LOG_TAG, str); }
+    private void myInsideLogE(String str) { KanLogger.myLogE(LOG_TAG, str); }
+    private void myInsideLogEE(Throwable t, String str) { KanLogger.myLogEE(t, LOG_TAG, str); }
 }
