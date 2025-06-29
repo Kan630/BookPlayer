@@ -18,6 +18,9 @@ import android.os.Bundle;
 import android.os.PowerManager;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
@@ -103,6 +106,7 @@ public class StatsActivity extends LifecycleLoggingActivity {
 
         findViewById(R.id.bt_01).setOnClickListener(v -> openAppInfo());
         findViewById(R.id.bt_02).setOnClickListener(v -> deleteLogsClick());
+
     }
 
     public void openAppInfo() {

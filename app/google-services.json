@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "793974976163",
+    "project_id": "bookplayer-bc6cd",
+    "storage_bucket": "bookplayer-bc6cd.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:793974976163:android:004bd8baf428da4cbe1916",
+        "android_client_info": {
+          "package_name": "com.driot.bookplayer"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCQzIB5BvWnk4fnl27cHxPoG2p-46R_SxQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

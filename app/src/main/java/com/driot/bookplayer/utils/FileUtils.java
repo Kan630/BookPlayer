@@ -265,7 +265,10 @@ public class FileUtils {
                 int column_index = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA);
                 return cursor.getString(column_index);
             }
-        } finally {
+        } catch (Exception e) {
+            myLogE("getDataColumn() : " + e.getMessage());
+        }
+        finally {
             if (cursor != null)
                 cursor.close();
         }

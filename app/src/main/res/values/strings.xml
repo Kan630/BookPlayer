@@ -517,7 +517,8 @@
     <string name="Available_since">Available since</string>
     <string name="Error_checking_file">Error checking file</string>
 
-
+    <string name="Error_Import_OutOfMemory">General Error : Out of Memory</string>
+    <string name="Error_Import_This_folder_may_contain_too_many_books">This folder may contain too many books or subfolders to be loaded in one go.</string>
 
 
 

@@ -94,14 +94,14 @@ public class SplitM4bService extends LifecycleLoggingService {
         //-----------------------------
         // heavy stuff in background Thread.... Hyper Important !! // TODO how to kill such thread in cae of error ?
         backgroundThread = new Thread(() -> {
-            Boolean ret = splitM4bZipLocal();
+            Boolean ret = splitM4bLocal();
         });
         backgroundThread.start();
 
     }
 
 
-    private boolean splitM4bZipLocal() {
+    private boolean splitM4bLocal() {
 
         tellWarning(getResources().getString(R.string.Import_Experimental_M4B_warning)
                 + "\n\n" + getResources().getString(R.string.Import_Experimental_M4B_iferror)

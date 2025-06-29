@@ -505,6 +505,7 @@ public class AddResourceService
                 DocumentFile finalDfPickedDir = dfPickedDir; //thread needs 'final' arg
                 Thread backgroundThread = new Thread(() -> {
                     addAudioFileRecursive(finalDfPickedDir);
+
                     myLog("addAudioFileRecursive done, sorting now...");
                     audioFileArrayList.sort(new Utils.AlphanumericComparator());
 
@@ -516,7 +517,20 @@ public class AddResourceService
                     }
                     goFolder();
                 });
-                backgroundThread.start();
+                try {
+                    backgroundThread.start();
+                } catch (Throwable t) {
+                    String strErr = "Error while listing audio files";
+                    if (t instanceof OutOfMemoryError && t.getMessage() != null && t.getMessage().contains("pthread_create")) {
+                        myLogE("Too many threads or not enough native memory: " + t.toString());
+                        strErr = getString(R.string.Error_Import_OutOfMemory)
+                                + "\n" + getString(R.string.Error_Import_This_folder_may_contain_too_many_books);
+                    } else {
+                        strErr = strErr + "\n" + t.getMessage();
+                    }
+                    tellError(strErr);
+                }
+
             //}
         } else {
             tellError(getString(R.string.Error_Import_IsNotFolder));
