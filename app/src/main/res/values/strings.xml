@@ -81,13 +81,6 @@
     <string name="option_unzip_local">Unzip files (takes storage space, but smoother listening experience)</string>
 
     <string name="option_copy_file_title">Copy files internally</string>
-    <string name="option_copy_file_subtitle">Pros :
-        \n* [Read Audio] permission is not needed.
-        \n* No risk to loose audio book and progress if its source file get accidentally deleted/moved.
-        \n\nCons :
-        \n* More memory will be needed if you do not delete the source file.
-    </string>
-    <string name="option_copy_file_text">Copy audio files in the internal, reserved, BookPlayer app memory.</string>
 
 
     <string name="option_backward_forward_title">BackWard/Forward buttons</string>
