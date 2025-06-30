@@ -332,8 +332,8 @@ public class MainActivity extends LoggingActivity {
             KanLogger.myLog("==========================");
             KanLogger.myLog("");
 
-            FirebaseCrashlytics.getInstance().setCustomKey("Locale.getDefault", Locale.getDefault().getCountry());
-            FirebaseCrashlytics.getInstance().setCustomKey("TelephonyManager country", Objects.toString(getCountryFromTelephonyManager(this)));
+            myKeyFirebase("Locale.getDefault", Locale.getDefault().getCountry());
+            myKeyFirebase("TelephonyManager country", Objects.toString(getCountryFromTelephonyManager(this)));
 
         } catch (Exception e) {
             myLogEE(e, "printSomeStuffAboutDevice : " + e.getMessage());

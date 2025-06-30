@@ -27,6 +27,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Locale;
+import java.util.Objects;
 
 public class DownloadJobService extends JobService {
 
@@ -56,6 +57,9 @@ public class DownloadJobService extends JobService {
         String fileUrl = params.getExtras().getString("fileUrl");
         String destinationFolder = params.getExtras().getString("destinationFolder");
         audioBookTitle = params.getExtras().getString("audioBookTitle");
+
+        myKeyFirebase("workflow", "download");
+        myLogFirebase("download url : " + fileUrl);
 
         new Thread(() -> {
 
@@ -300,4 +304,7 @@ public class DownloadJobService extends JobService {
     private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
     private void myToast(String str) { KanLogger.myToast(this.getClass().getName(), str); }
     private void myToastE(String str) { KanLogger.myToastE(this.getClass().getName(), str); }
+    private void myKeyFirebase(String strKey, String strValue) {KanLogger.myKeyFirebase(strKey, strValue);}
+    private void myLogFirebase(String strLog) {KanLogger.myLogFirebase(strLog);}
+
 }

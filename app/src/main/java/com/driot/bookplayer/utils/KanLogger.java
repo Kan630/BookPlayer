@@ -195,6 +195,14 @@ public class KanLogger {
         }
     }
 
+    public static void myKeyFirebase(String strKey, String strValue) {
+        FirebaseCrashlytics.getInstance().setCustomKey(strKey, strValue);
+    }
+
+    public static void myLogFirebase(String strLog) {
+        FirebaseCrashlytics.getInstance().log(strLog);
+    }
+
 
 
 

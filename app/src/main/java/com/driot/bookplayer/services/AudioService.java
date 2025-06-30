@@ -512,20 +512,24 @@ public class AudioService extends LoggingService {
         if (zf.getPath().startsWith("content://")) {
             myLog("New SAF file, content...");
             uriToPlay = buildFileUri(Uri.parse(zf.getPath()),zf.getName());
+            myKeyFirebase("loadFile", "uri");
+            myLogFirebase("loadFile uri : " + Objects.toString(uriToPlay));
             //check...
             DocumentFile file = DocumentFile.fromSingleUri(this, uriToPlay);
             if (!file.exists() || !file.isFile()) {
-                myLogE("Invalid or non-file Uri: " + uriToPlay);
+                myLogEE(null,"Invalid or non-file Uri: " + uriToPlay);
                 killIt();
                 return;
             }
 // OLD SCHOOL PATHS
         } else {
             pathToPlay = zf.getPath() + "/" + zf.getName();
+            myKeyFirebase("loadFile", "path");
+            myLogFirebase("loadFile path : " + pathToPlay);
             myLog("Good Old Way, Path style : " + pathToPlay);
             //check....
             if (!fileExists(pathToPlay)) {
-                myLogE("loadFile(sPath) : ERROR -- File doesn't exist !! " + pathToPlay);
+                myLogEE(null,"loadFile(sPath) : ERROR -- File doesn't exist !! " + pathToPlay);
                 killIt();
                 return;
             }
@@ -952,6 +956,7 @@ public class AudioService extends LoggingService {
      */
 
     private void createNotification() {
+        myLogD("createNotification()");
         if (mediaPlayer == null || mediaSession == null) {
             myLogE("MediaPlayer or MediaSession is null, skipping notification");
             return;
@@ -1009,9 +1014,12 @@ public class AudioService extends LoggingService {
             Notification notification = builder.build();
 
             try {
+
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) { // sdk 29 (28 is Android 9)
+                    myLogD("startForeground FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK");
                     startForeground(ID_NOTIFICATION_PLAY_AUDIO_INT, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK);
                 } else {
+                    myLogD("startForeground");
                     startForeground(ID_NOTIFICATION_PLAY_AUDIO_INT, notification);
                 }
             } catch (Throwable t) {

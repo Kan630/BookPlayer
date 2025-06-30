@@ -251,6 +251,14 @@ public abstract class LoggingActivity extends AppCompatActivity {
         KanLogger.myToastLong(TAG_FROM, str);
     }
 
+    protected void myKeyFirebase(String strKey, String strValue) {
+        KanLogger.myKeyFirebase(strKey, strValue);
+    }
+
+    protected void myLogFirebase(String strLog) {
+        KanLogger.myLogFirebase(strLog);
+    }
+
 
     /// ///////////////////////////////////////////////////////////////////
     ///            LOGGER        (For this specific Helper Class)
