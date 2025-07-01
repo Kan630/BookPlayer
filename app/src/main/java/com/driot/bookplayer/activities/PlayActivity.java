@@ -162,7 +162,6 @@ public class PlayActivity extends LoggingActivity {
 
             } else if (Objects.equals(action, NOTIFICATION_FILELOADED)) {
                 DrawUI();
-                HideProgressAnim();
                 lockUserActions(false);
             } else if (Objects.equals(action, NOTIFICATION_NEWTRACK) || Objects.equals(action, NOTIFICATION_TRACKFINISHED)) {
                 myLog("ok, nothing to do for this Broadcast");
@@ -180,7 +179,7 @@ public class PlayActivity extends LoggingActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (Option.getScreenOrientationLock(this)) {
+        if (Option.getScreenOrientationLock()) {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
         }
 
@@ -222,19 +221,9 @@ public class PlayActivity extends LoggingActivity {
         myLog("onCreate() -- Launching Music Service");
         launchService();
 
-        try {
-            if (PlayList.getZikFile() == null) {
-                myToastE("Cannot get Playlist - PlayList.getZikFile() is null");
-            } else {
-                if (PlayList.getZikFile().isIszipfile()) ShowProgressAnim();
-            }
-        } catch (Exception e) {
-            myLogEE(e,"ERR ShowProgressAnim()  " + e.getMessage());
-        }
-
         // Check if progress bar is at the end and reset if necessary
-        if (PlayList.getZikFile() != null && PlayList.getZikFile().getPosition() >= PlayList.getZikFile().getDuration()) {
-            PlayList.getZikFile().setPosition(0);
+        if (PlayList.getInstance().getZikFile() != null && PlayList.getInstance().getZikFile().getPosition() >= PlayList.getInstance().getZikFile().getDuration()) {
+            PlayList.getInstance().getZikFile().setPosition(0);
             tvSeekBar.setText(formatTime(0, true));
             seekbar.setProgress(0);
         }
@@ -268,6 +257,7 @@ public class PlayActivity extends LoggingActivity {
                 if (audioService.isPlaying()) {
                     playMe();
                 }
+                //PlayList.getInstance().clear();
                 if (audioServiceBound) {
                     try {
                         myLog("unbinding service - unregistering receiver");
@@ -315,7 +305,7 @@ public class PlayActivity extends LoggingActivity {
 
     private void visualizerClick() {
         myLog("visualizerClick()");
-        if (Option.getClickVisualizerPlayPause(this)) {
+        if (Option.getClickVisualizerPlayPause()) {
             playMe();
         }
     }
@@ -497,16 +487,18 @@ public class PlayActivity extends LoggingActivity {
      ********************************************************************************
      */
     private void loadPlayListIntoService() {
-        if (PlayList.getZikFile() == null) {
-            myToastE("Cannot get Playlist - PlayList.getZikFile() is null");
-            lockButtonAndDisplayErrorMessage("Cannot get Playlist - PlayList.getZikFile() is null");
+        if (PlayList.getInstance().getZikFile() == null) {
+            myToastE("Cannot get Playlist - PlayList.getInstance().getZikFile() is null");
+            lockButtonAndDisplayErrorMessage("Cannot get Playlist - PlayList.getInstance().getZikFile() is null");
             return;
         }
-        myLog("+++++++++ loading PlayList Into Service - GetZikFiles - Folder : " + PlayList.getZikFile().getIdFolder());
+        myLog("+++++++++ loading PlayList Into Service - GetZikFiles - Folder : " + PlayList.getInstance().getZikFile().getIdFolder());
         new Thread(() -> {
             try {
-                audioService.loadFile(false, false, false);
-                //ZikFile[] zikFiles = AppDatabase.getDatabase(this).ZikFileDao().getNextZikFiles(PlayList.getZikFile().getIdFolder(), PlayList.getZikFile().getName());
+                audioService.directPlay = false;
+                audioService.startAtZero = false;
+                audioService.loadFile();
+                //ZikFile[] zikFiles = AppDatabase.getDatabase(this).ZikFileDao().getNextZikFiles(PlayList.getInstance().getZikFile().getIdFolder(), PlayList.getInstance().getZikFile().getName());
                 //audioService.loadFiles(zikFiles);
 
             } catch (Exception e) {
@@ -517,20 +509,19 @@ public class PlayActivity extends LoggingActivity {
     }
 
     private void DrawUI() {
-        if (PlayList.getZikFile() == null) {
-            myToastE("Cannot get Playlist - PlayList.getZikFile() is null");
+        if (PlayList.getInstance().getZikFile() == null) {
+            myToastE("Cannot get Playlist - PlayList.getInstance().getZikFile() is null");
         }
         try {
-            myLog("DrawUI : " + PlayList.getZikFile().getName() + " -- " + PlayList.getZikFile().getPosition());
-            tvSubTitle.setText(formatNameForDisplay(PlayList.getZikFile().getName()));
-            tvTitle.setText(PlayList.getZikFile().getFolderName());
-            tvTotalTime.setText(formatTime(PlayList.getZikFile().getDuration(),true));
-            seekbar.setMax((int) PlayList.getZikFile().getDuration());
-            tvSeekBar.setText(formatTime(PlayList.getZikFile().getPosition(),true));
-            seekbar.setProgress((int) PlayList.getZikFile().getPosition());
+            myLog("DrawUI : " + PlayList.getInstance().getZikFile().getName() + " -- " + PlayList.getInstance().getZikFile().getPosition());
+            tvSubTitle.setText(formatNameForDisplay(PlayList.getInstance().getZikFile().getName()));
+            tvTitle.setText(PlayList.getInstance().getZikFile().getFolderName());
+            tvTotalTime.setText(formatTime(PlayList.getInstance().getZikFile().getDuration(),true));
+            seekbar.setMax((int) PlayList.getInstance().getZikFile().getDuration());
+            tvSeekBar.setText(formatTime(PlayList.getInstance().getZikFile().getPosition(),true));
+            seekbar.setProgress((int) PlayList.getInstance().getZikFile().getPosition());
             tvSpeed.setText(FormatPercentStringForSpeed( audioService.getSpeed() * 100));
-            HideProgressAnim();
-            myLog("----------------------------- play screen drawn " + PlayList.getZikFile().getPosition());
+            myLog("----------------------------- play screen drawn " + PlayList.getInstance().getZikFile().getPosition());
         } catch (Exception e) {
             myLogEE(e,":----------------------------- play screen drawn ERROR");
             myLogEE(e,e.getMessage());
@@ -540,7 +531,7 @@ public class PlayActivity extends LoggingActivity {
         try {
             String zeText_since;
             String zeText_left;
-            int timeBeforeSleep = audioService.getCustomSleepTime() == 0 ? Option.getTimeBeforeSleep(this) : audioService.getCustomSleepTime();
+            int timeBeforeSleep = audioService.getCustomSleepTime() == 0 ? Option.getTimeBeforeSleep() : audioService.getCustomSleepTime();
             if (tempsEcoule >= 0) {
                 //String str = audioService.getCustomSleepTime() == 0 ? getString(R.string.tv_ListeningTimeWithNoUserAction) : getString(R.string.tv_ListeningTimeWithCustomSleep);
                 String str = tvListeningTimeBaseText;
@@ -605,17 +596,7 @@ public class PlayActivity extends LoggingActivity {
      ********************************************************************************
      */
 
-    private void ShowProgressAnim() {
-        animateView(progressOverlay, View.VISIBLE, 0.4f, DELAY_ANIMATION);
-        AnimationNow = true;
-    }
 
-    private void HideProgressAnim() {
-        if (AnimationNow) {
-            animateView(progressOverlay, View.GONE, 0, DELAY_ANIMATION);
-            AnimationNow = false;
-        }
-    }
     private void ShowMessageOverlay() {
         animateView(messageOverlay, View.VISIBLE, 1f, DELAY_ANIMATION);
         AnimationNow = true;
@@ -626,7 +607,7 @@ public class PlayActivity extends LoggingActivity {
     }
 
     private void runVisualizer() { // check option + permission
-        if (Option.getVisualizerOn(this)) {
+        if (Option.getVisualizerOn()) {
             if (isRecordAudioPermissionGranted(this)) {
                 try {
                     //frequencyVisualizerView.setEnabled(false);
@@ -670,7 +651,7 @@ public class PlayActivity extends LoggingActivity {
                 myLogEE(null,errMessage);
             } else {
                 //b1.setVisibility(View.INVISIBLE);
-                String zePath = PlayList.getZikFile()==null ? "PlayList.getZikFile()==null" : PlayList.getZikFile().getPath();
+                String zePath = PlayList.getInstance().getZikFile()==null ? "PlayList.getInstance().getZikFile()==null" : PlayList.getInstance().getZikFile().getPath();
                 String pathText = getString(R.string.source_file_path) + " = \n[" + zePath + "]";
                 if (zePath.contains(PATH_CHECK_APPLICATION)) {
                     tv.setText(getString(R.string.source_not_found));

@@ -27,12 +27,13 @@ public class MyPersonalApp extends Application {
         super.onCreate();
         myLog("onCreate()... for myLogExtendApp");
 
-        PlayList.init(getApplicationContext());
+        PlayList.initContext(getApplicationContext());
         KanLogger.init(getApplicationContext());
+        Option.init(getApplicationContext());
 
         myLog("Context has been initialized");
 
-        boolean openWithEnabled = Option.getOpenWith(this);
+        boolean openWithEnabled = Option.getOpenWith();
         setOpenWithProxyEnabled(this, openWithEnabled);
 
 

@@ -44,10 +44,11 @@ public class ZikFileActivity extends LoggingActivity {
 
     private void createMap() {
         map = new HashMap<>();
-        List<ZikFile> zikFilesList = PlayList.getZikFilesList(); // TODO already gathered via getZikFiles() through DAO, why ask it again through Playlist ?
-        if (zikFilesList != null && zikFilesList.size() != 0) {
-            for (int i = 0; i < PlayList.getZikFilesList().size(); i++) {
-                int id = PlayList.getZikFilesList().get(i).getId(); // id of the model
+        //List<ZikFile> zikFilesList = PlayList.getInstance().getZikFilesList(); // TODO already gathered via getZikFiles() through DAO, why ask it again through Playlist ?
+        int nbTracks = PlayList.getInstance().getSize();
+        if (nbTracks > 0) {
+            for (int i = 0; i < nbTracks; i++) {
+                int id = PlayList.getInstance().getZikFilesList().get(i).getId(); // id of the model
                 map.put(id, i); // i is the position of adapter
             }
         }
@@ -75,10 +76,10 @@ public class ZikFileActivity extends LoggingActivity {
         Date d = new Date(0);
         Date d_max = new Date(0);
         int id_max = 0;
-        List<ZikFile> zikFilesList = PlayList.getZikFilesList(); // TODO already gathered via getZikFiles() through DAO, why ask it again through Playlist
+        List<ZikFile> zikFilesList = PlayList.getInstance().getZikFilesList(); // TODO already gathered via getZikFiles() through DAO, why ask it again through Playlist
         if (zikFilesList != null && map != null) {
             try {
-                for (ZikFile z : PlayList.getZikFilesList()) {
+                for (ZikFile z : PlayList.getInstance().getZikFilesList()) {
                     if (z.getLastaccess() != null) d = z.getLastaccess();
                     if (d.after(d_max)) {
                         d_max = d;
@@ -91,7 +92,7 @@ public class ZikFileActivity extends LoggingActivity {
                         int pos = posInteger;
                         if ((pos)>1) pos = pos-1;
                         recyclerView.scrollToPosition(pos);
-                        myLog("scrolling to  :" + map.get(id_max));
+                        myLogD("scrolling to  :" + map.get(id_max));
                     }
                 }
             } catch (Exception e) {

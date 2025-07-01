@@ -96,7 +96,7 @@ public class ZikFilesRVAdapter extends LoggingRVAdapter<ZikFilesRVAdapter.ZikFil
             int position = getBindingAdapterPosition();
             ZikFile zikFile = zikFileList.get(position);
             myLog("onClick() : [" + zikFile.getName() + "] - [" + zikFile.getPath() + "/" + zikFile.getName() + "]");
-            PlayList.setNumZikFile(mCtx, position);
+            PlayList.getInstance().setNumZikFile(position);
             mCtx.startActivity(new Intent(mCtx, PlayActivity.class).putExtra("ZikFile", zikFile));
         }
 

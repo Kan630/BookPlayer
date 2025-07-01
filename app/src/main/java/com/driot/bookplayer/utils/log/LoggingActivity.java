@@ -62,7 +62,7 @@ public abstract class LoggingActivity extends AppCompatActivity {
         //int themeId = ;
         //if (themeId>0) setTheme(themeId);
         try {
-            setTheme(Option.getTheme(this)); // TODO maybe here a problem when Update to this Theme version...? small screen and weird graphics
+            setTheme(Option.getTheme()); // TODO maybe here a problem when Update to this Theme version...? small screen and weird graphics
         } catch (Exception e) {
             myLifecycleLogEE(e, "Error setting theme : " + e.getMessage());
         }

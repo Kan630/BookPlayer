@@ -191,7 +191,7 @@ public class MainActivity extends LoggingActivity {
     public boolean onPrepareOptionsMenu(Menu menu) {
         MenuItem seeLogItem = menu.findItem(R.id.menu_seelog);
         if (seeLogItem != null) {
-            boolean showLog = Option.getTechLog(this); // <-- your shared preference method
+            boolean showLog = Option.getTechLog();
             seeLogItem.setVisible(showLog);
         }
         return super.onPrepareOptionsMenu(menu);

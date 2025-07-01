@@ -210,8 +210,10 @@
 
 
     <!-- Progress bar overlay; shown while login is in progress -->
-    <include layout="@layout/include_progress_overlay"/>
-    <include layout="@layout/include_message_overlay"/>
+    <include layout="@layout/include_progress_overlay"
+        android:visibility="gone"/>
+    <include layout="@layout/include_message_overlay"
+        android:visibility="gone"/>
 
 
 

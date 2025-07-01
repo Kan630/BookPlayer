@@ -135,7 +135,7 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
                 result -> { launchAddResource(result, "File"); });
         bOpenFile.setOnClickListener(view -> {
             myLogI("Button click : single file");
-            if (isReadAudioPermissionGranted(this) || Option.getCopyFile(this)) {
+            if (isReadAudioPermissionGranted(this) || Option.getCopyFile()) {
                 Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
                 intent.setType("*/*");
                 intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_WRITE_URI_PERMISSION|Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION|Intent.FLAG_GRANT_PREFIX_URI_PERMISSION);
@@ -153,7 +153,7 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
                 result -> { launchAddResource(result, "Folder"); });
         bOpenFolder.setOnClickListener(view -> {
             myLog("Button click : FOLDER");
-            if (isReadAudioPermissionGranted(this) || Option.getCopyFile(this)) {
+            if (isReadAudioPermissionGranted(this) || Option.getCopyFile()) {
                 Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE); //API 21
                 intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_WRITE_URI_PERMISSION|Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION|Intent.FLAG_GRANT_PREFIX_URI_PERMISSION);
                 bOpenFolderActivityResultLauncher.launch(intent);

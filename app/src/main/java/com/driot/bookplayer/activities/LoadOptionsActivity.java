@@ -140,9 +140,9 @@ public class LoadOptionsActivity extends LoggingActivity {
         llCopy.setOnClickListener(v -> cbCopy.toggle());
         llDelete.setOnClickListener(v -> cbDelete.toggle());
 
-        cbSplit.setChecked(Option.getSplitM4b(this));
-        cbCopy.setChecked(Option.getCopyFile(this));
-        cbDelete.setChecked(Option.getDeleteSourceFile(this));
+        cbSplit.setChecked(Option.getSplitM4b());
+        cbCopy.setChecked(Option.getCopyFile());
+        cbDelete.setChecked(Option.getDeleteSourceFile());
         calculateCheckboxState();
 
         cbSplit.setOnCheckedChangeListener((buttonView, isChecked) -> {
@@ -167,7 +167,7 @@ public class LoadOptionsActivity extends LoggingActivity {
                             .setNegativeButton("cancel", (dialog, which) -> cbDelete.setChecked(false))
                             .show();
                 } else {
-                    Option.setDeleteSourceFile(this, false);
+                    Option.setDeleteSourceFile(false);
                 }
             }
         });

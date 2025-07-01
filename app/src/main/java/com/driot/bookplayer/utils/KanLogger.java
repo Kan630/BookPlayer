@@ -101,7 +101,7 @@ public class KanLogger {
     public static boolean writeTechLogs() {
         boolean ret = false;
         if (getMyAppContext() != null) {
-            ret = getTechLog(getMyAppContext());
+            ret = getTechLog();
         } else {
             ret = isMyPhoneDev();
             Log.e(kanLogger_TAG,"writeTechLogs() => ERROR in getting Context => using isMyPhoneDev()");

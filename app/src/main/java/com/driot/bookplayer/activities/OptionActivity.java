@@ -109,22 +109,22 @@ public class OptionActivity extends LoggingActivity {
         btn_Color_17 = findViewById(R.id.btn_color_17);
         btn_Color_18 = findViewById(R.id.btn_color_18);
 
-        et_timeBeforeSleep.setText(String.valueOf(Option.getTimeBeforeSleep(this)));
-        et_ForwardSeconds.setText(String.valueOf(Option.get_ForwardSeconds(this)));
+        et_timeBeforeSleep.setText(String.valueOf(Option.getTimeBeforeSleep()));
+        et_ForwardSeconds.setText(String.valueOf(Option.get_ForwardSeconds()));
 
-        chk_visualizer_on.setChecked(Option.getVisualizerOn(this));
+        chk_visualizer_on.setChecked(Option.getVisualizerOn());
         ll_visualizer_on.setOnClickListener(v -> chk_visualizer_on.toggle());
         chk_visualizer_on.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            Option.setVisualizerOn(this, isChecked);
+            Option.setVisualizerOn(isChecked);
             if (isChecked && !isRecordAudioPermissionGranted(this)) {
                 myLog("checkBox ticked and permission not granted => requesting");
                 requestRecordAudioPermission();
             }
         });
 
-        chk_click_visualizer_playpause.setChecked(Option.getClickVisualizerPlayPause(this));
+        chk_click_visualizer_playpause.setChecked(Option.getClickVisualizerPlayPause());
         ll_visualizer_playpause.setOnClickListener(v -> chk_click_visualizer_playpause.toggle());
-        chk_click_visualizer_playpause.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setClickVisualizerPlayPause(this, isChecked));
+        chk_click_visualizer_playpause.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setClickVisualizerPlayPause(isChecked));
 
         themesAndColors = new Object[][] {
                 {btn_Color_01, R.style.Theme_BookPlayer_Gray},
@@ -195,27 +195,27 @@ public class OptionActivity extends LoggingActivity {
         ll_tech_log_file = findViewById(R.id.ll_tech_log_file);
         ll_mail_method_default = findViewById(R.id.ll_mail_method_default);
 
-        chk_MailMethod.setChecked(Option.getMailMethod(this));
+        chk_MailMethod.setChecked(Option.getMailMethod());
         ll_mail_method_default.setOnClickListener(v -> chk_MailMethod.toggle());
-        chk_MailMethod.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setMailMethod(this, isChecked));
+        chk_MailMethod.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setMailMethod(isChecked));
 
-        chk_beep_chapter.setChecked(Option.getBeepChapter(this));
+        chk_beep_chapter.setChecked(Option.getBeepChapter());
         ll_beep_chapter.setOnClickListener(v -> chk_beep_chapter.toggle());
-        chk_beep_chapter.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setBeepChapter(this, isChecked));
+        chk_beep_chapter.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setBeepChapter(isChecked));
 
-        chk_beep_bookend.setChecked(Option.getBeepBookEnd(this));
+        chk_beep_bookend.setChecked(Option.getBeepBookEnd());
         ll_beep_bookend.setOnClickListener(v -> chk_beep_bookend.toggle());
-        chk_beep_bookend.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setBeepBookEnd(this, isChecked));
+        chk_beep_bookend.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setBeepBookEnd(isChecked));
 
-        chk_beep_autostop.setChecked(Option.getBeepAutoStop(this));
+        chk_beep_autostop.setChecked(Option.getBeepAutoStop());
         ll_beep_autostop.setOnClickListener(v -> chk_beep_autostop.toggle());
-        chk_beep_autostop.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setBeepAutoStop(this, isChecked));
+        chk_beep_autostop.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setBeepAutoStop(isChecked));
 
-        chk_split_m4b.setChecked(Option.getSplitM4b(this));
+        chk_split_m4b.setChecked(Option.getSplitM4b());
         ll_split_m4b.setOnClickListener(v -> chk_split_m4b.toggle());
-        chk_split_m4b.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setSplitM4b(this, isChecked));
+        chk_split_m4b.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setSplitM4b(isChecked));
 
-        chk_delete_source_file.setChecked(Option.getDeleteSourceFile(this));
+        chk_delete_source_file.setChecked(Option.getDeleteSourceFile());
         ll_delete_source_file.setOnClickListener(v -> chk_delete_source_file.toggle());
         chk_delete_source_file.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
@@ -223,30 +223,30 @@ public class OptionActivity extends LoggingActivity {
                         .setTitle(getString(R.string.option_alert_delete_source_file_title))
                         .setMessage(getString(R.string.option_alert_delete_source_file_message))
                         .setCancelable(false)
-                        .setPositiveButton("ok", (dialog, which) -> Option.setDeleteSourceFile(this, true))
-                        .setNegativeButton("cancel", (dialogInterface, i) -> chk_delete_source_file.setChecked(Option.getDeleteSourceFile(this)))
+                        .setPositiveButton("ok", (dialog, which) -> Option.setDeleteSourceFile(true))
+                        .setNegativeButton("cancel", (dialogInterface, i) -> chk_delete_source_file.setChecked(Option.getDeleteSourceFile()))
                         .show();
             } else {
-                Option.setDeleteSourceFile(this, false);
+                Option.setDeleteSourceFile(false);
             }
         });
 
-        chk_rewind_after_pause.setChecked(Option.getRewindAfterPause(this));
+        chk_rewind_after_pause.setChecked(Option.getRewindAfterPause());
         ll_rewind_after_pause.setOnClickListener(v -> chk_rewind_after_pause.toggle());
-        chk_rewind_after_pause.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setRewindAfterPause(this, isChecked));
+        chk_rewind_after_pause.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setRewindAfterPause(isChecked));
 
-        chk_copy_file.setChecked(Option.getCopyFile(this));
+        chk_copy_file.setChecked(Option.getCopyFile());
         ll_copy_file.setOnClickListener(v -> chk_copy_file.toggle());
-        chk_copy_file.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setCopyFile(this, isChecked));
+        chk_copy_file.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setCopyFile(isChecked));
 
-        chk_tech_log_file.setChecked(Option.getTechLog(this));
+        chk_tech_log_file.setChecked(Option.getTechLog());
         ll_tech_log_file.setOnClickListener(v -> chk_tech_log_file.toggle());
-        chk_tech_log_file.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setTechLog(this, isChecked));
+        chk_tech_log_file.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setTechLog(isChecked));
 
-        chk_open_with.setChecked(Option.getOpenWith(this));
+        chk_open_with.setChecked(Option.getOpenWith());
         ll_open_with.setOnClickListener(v -> chk_open_with.toggle());
         chk_open_with.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            Option.setOpenWith(this, isChecked);
+            Option.setOpenWith(isChecked);
             setOpenWithProxyEnabled(this, isChecked);  // dynamically enable/disable the component
         });
 
@@ -271,7 +271,7 @@ public class OptionActivity extends LoggingActivity {
             i = DEFAULT_TIME_BEFORE_SLEEP;
             myLongToast(getString(R.string.option_timeBeforeSleep_outOfBound));
         }
-        Option.setTimeBeforeSleep(this, i);
+        Option.setTimeBeforeSleep(i);
     }
 
     private void saveForwardSeconds() {
@@ -282,7 +282,7 @@ public class OptionActivity extends LoggingActivity {
             i = DEFAULT_FORWARD_SECONDS;
             myLongToast("out of bounds - must be between 1 and 300");
         }
-        Option.set_ForwardSeconds(this, i);
+        Option.set_ForwardSeconds(i);
     }
 
     @Override
@@ -391,7 +391,7 @@ public class OptionActivity extends LoggingActivity {
     }
     private void changeBaseTheme(int new_base_theme) {
         myLog("new Base theme is [" + new_base_theme + "]" );
-        Option.setTheme(this, new_base_theme);
+        Option.setTheme(new_base_theme);
         this.getSharedPreferences(Option.SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE).edit().putBoolean("ACTIVITY_OPTION_HAS_RESULT", true).apply(); //trick to reload MainActivity if color change
         recreate();
     }
