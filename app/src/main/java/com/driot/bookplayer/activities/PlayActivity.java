@@ -537,7 +537,11 @@ public class PlayActivity extends LoggingActivity {
                 zeText_since = str + " " + formatTime(tempsEcoule*1000,true);
                 zeText_left = getString(R.string.tv_TimeLeft) + " : " + formatTime(timeBeforeSleep*1000*60-tempsEcoule*1000,true);
                 tvTimeLeft.setText(zeText_left);
-                if (tempsEcoule>0) { tvListeningTime.setText(zeText_since); }
+                if (tempsEcoule>0) {
+                    tvListeningTime.setText(zeText_since);
+                } else {
+                    tvListeningTime.setText("");
+                }
             } else {
                 tvListeningTime.setText("");
                 tvTimeLeft.setText("");
