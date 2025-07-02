@@ -312,7 +312,7 @@ public class PlayActivity extends LoggingActivity {
 
     private void playMe() {
         if (audioServiceBound) {
-            if (audioService != null && audioService.exist()) {
+            if (audioService != null && audioService.isRunning()) {
                 if (audioService.isPlaying()) {
                     /////////   PAUSE
                     myLog("PlayMe() => pause");
@@ -578,16 +578,15 @@ public class PlayActivity extends LoggingActivity {
     }
 
     private void redrawSeekBar() {
-        if (audioService != null && audioService.exist()) {
+        if (audioService != null && audioService.isRunning()) {
             if (audioService.isPlaying()) {
                 bPlay.setText(R.string.pause);
+                int iPosition = audioService.getPosition();
+                tvSeekBar.setText(formatTime(iPosition,true));
+                seekbar.setProgress(iPosition);
             } else {
                 bPlay.setText(R.string.play);
             }
-            int iPosition = audioService.getPosition();
-            tvSeekBar.setText(formatTime(iPosition,true));
-            seekbar.setProgress(iPosition);
-
         } else {
             bPlay.setText(R.string.pause);
             myLog("redrawSeekBar => service KO => drawing pause button");

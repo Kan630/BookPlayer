@@ -32,6 +32,7 @@ public class KanMediaPlayer extends MediaPlayer {
     public void release() {
         isPrepared = false;
         isPreparing = false;
+        listener = null;
         super.release();
     }
 
@@ -182,7 +183,29 @@ public class KanMediaPlayer extends MediaPlayer {
     }
 
 
+    public static void safeRelease(KanMediaPlayer player) {
+        if (player != null) {
+            try {
+                if (player.isPlaying()) player.stop();
+            } catch (IllegalStateException e) {
+                myLogE("safeRelease() - stop() failed: " + e.getMessage());
+            }
 
+            try {
+                player.reset();
+            } catch (IllegalStateException e) {
+                myLogE("safeRelease() - reset() failed: " + e.getMessage());
+            }
+
+            try {
+                player.setListener(null); // <-- Prevent memory leak
+                player.release();
+                myLog("safeRelease() - player released");
+            } catch (Exception e) {
+                myLogEE(e, "safeRelease() - release failed");
+            }
+        }
+    }
 
 
 

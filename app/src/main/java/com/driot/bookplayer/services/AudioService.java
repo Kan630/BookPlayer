@@ -66,17 +66,20 @@ public class AudioService extends LoggingService {
     private static final String ID_NOTIFICATION_PLAY_AUDIO_CHANNEL = "audio_channel_of_bookplayer";
     private static final int ID_NOTIFICATION_PLAY_AUDIO_INT = 2;
 
-    public static final int TRIM_MEMORY_THRESHOLD = 20;
-    public static final int TRIM_AFTER_PAUSE_MS = 1000*60*10;
-    public static final int DELAY_CHECK_TIMER = 1000;
 
     //Play Timer (for Sleep)
-    private Handler handler;
-    private Runnable timerRunnable;
+    public static final int DELAY_CHECK_TIMER_SLEEP = 1000;
+    private Handler sleepCheckHandler;
+    private Runnable sleepTimerRunnable;
     private int elapsedSeconds = 0;
     private int customSleepTime = 0;
 
     //Pause Timer (to free memory)
+    public static final int TRIM_MEMORY_THRESHOLD = 20;
+    public static final int DELAY_CHECK_TIMER_PAUSE = 60*1000;
+    public static final int TRIM_AFTER_PAUSE_MS = 7*24*60*60*1000; // so basically never... 7 days
+    //public static final int DELAY_CHECK_TIMER_PAUSE = 2*1000;
+    //public static final int TRIM_AFTER_PAUSE_MS = 5*1000; // so basically never... 7 days
     private Handler pauseCheckHandler;
     private Runnable pauseCheckRunnable;
     private long pauseStartTimestampMs = 0;
@@ -219,7 +222,7 @@ public class AudioService extends LoggingService {
         isRunning = true;
         super.onCreate();
 
-        startMemoryTrimTimer();
+        startPauseTimer();
 
 // ///////////////////////
 //      PLAYER
@@ -280,7 +283,7 @@ public class AudioService extends LoggingService {
 //      MEDIA SESSION
 // ///////////////////////
         mediaSession = new MediaSessionCompat(this, "BookplayerMediaSession");
-        handler = new Handler(); // for sleep timer
+        sleepCheckHandler = new Handler(); // for sleep timer
 
         myLog("configureMediaSession()");
 
@@ -456,10 +459,7 @@ public class AudioService extends LoggingService {
                 }
             }
         }
-
-        //TODO maybe to change... because memory pressure could kill it
-        //return START_NOT_STICKY; //2025-06-27 - open test (v86)
-        return START_STICKY; // 2025-06-24 - production
+        return START_STICKY; // usually better for audio playback service
     }
 
     @Override
@@ -469,9 +469,7 @@ public class AudioService extends LoggingService {
         stopSleepTimer();
         stopPauseTimer();
         stopForeground(true);
-        if (mediaPlayer.isPlaying()) {mediaPlayerStop();}
-        mediaPlayer.release();
-        mediaPlayer = null;
+        KanMediaPlayer.safeRelease(mediaPlayer);
         if (audioManager != null) { audioManager.abandonAudioFocus(afChangeListener); }
         if (mediaSession != null) { mediaSession.release(); }
         stopSelf();
@@ -503,6 +501,11 @@ public class AudioService extends LoggingService {
      */
 
     // TODO, use openFileDescriptor & remove legacy from manifest
+
+    //called in :
+    //* PlayActivity
+    //* onPrepare
+    //* onError
     public void loadFile() {
         myLogI("loadingFile....... Start At Zero : " + startAtZero + " - Play Audio straight away : " + directPlay);
         Uri uriToPlay = null;
@@ -511,7 +514,8 @@ public class AudioService extends LoggingService {
         ZikFile zf = PlayList.getInstance().getZikFile();
         if (zf==null) {
             myLogE("PlayList.getInstance().getZikFile==null");
-            killIt();
+            LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(new Intent(NOTIFICATION_FILENOTFOUND));
+            loadFileKO();
             return;
         }
 
@@ -528,7 +532,7 @@ public class AudioService extends LoggingService {
             DocumentFile file = DocumentFile.fromSingleUri(this, uriToPlay);
             if (!file.exists() || !file.isFile()) {
                 myLogEE(null,"Invalid or non-file Uri: " + uriToPlay);
-                killIt();
+                loadFileKO();
                 return;
             }
 // OLD SCHOOL PATHS
@@ -540,14 +544,14 @@ public class AudioService extends LoggingService {
             //check....
             if (!fileExists(pathToPlay)) {
                 myLogEE(null,"loadFile(sPath) : ERROR -- File doesn't exist !! " + pathToPlay);
-                killIt();
+                loadFileKO();
                 return;
             }
         }
 
         if (uriToPlay==null && pathToPlay==null) {
             myLogE("cannot get file to play : null");
-            killIt();
+            loadFileKO();
             return;
         }
 
@@ -566,7 +570,7 @@ public class AudioService extends LoggingService {
         } catch (IOException e) {
             myLogE("LoadFile - " + e.getMessage());
             myLogEE(e, " +++++***+++++ ERROR LOADING PLAYLIST +++++***+++++ ");
-            killIt();
+            loadFileKO();
             return;
         }
         myLog("loadFile - END");
@@ -588,6 +592,7 @@ public class AudioService extends LoggingService {
                     startPlayWithMediaPlayer();
                 } else if (!mediaPlayer.isPreparing()) {
                     // Re-prepare if necessary
+                    myLogEE(null, "re-prepared...");
                     directPlay = true;
                     loadFile();
                 } else {
@@ -597,12 +602,13 @@ public class AudioService extends LoggingService {
             } else {
                 myLogE("mediaPlayer was already Playing ... going out of AudioService.playAudio()");
             }
-        } else { // car ca bug sur v27 on android sdk 27 (8.1) OPPO CPH1909
+        } else {
             myLogE("mediaPlayer was not instantiated ... going out of AudioService.playAudio()");
         }
     }
 
     private void doIntroCut() {
+        myLog("doIntroCut");
         int introCut = 0;
         try {
             if (PlayList.getInstance().getZikFile()!=null) {
@@ -731,9 +737,9 @@ public class AudioService extends LoggingService {
         return mediaPlayer != null && mediaPlayer.isPlaying();
     }
 
-    public boolean exist() {
-        if (LOG_TRACE_ALL) myLog("exist");
-        return mediaPlayer != null;
+    public boolean isRunning() {
+        if (LOG_TRACE_ALL) myLog("isRunning : " + isRunning);
+        return isRunning;
     }
 
     private ZikFile getCurrentZikFile() {
@@ -761,7 +767,7 @@ public class AudioService extends LoggingService {
         myLog("----------------------------------------------------------------------------- timer STARTED -- ");
         LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(new Intent(NOTIFICATION_PLAYBACK_TIMER_VALUE).putExtra(TIMER_VALUE, elapsedSeconds));
 
-        timerRunnable = new Runnable() {
+        sleepTimerRunnable = new Runnable() {
             @Override
             public void run() {
                 myLogD("----------------------------------------------------------------------------- " + elapsedSeconds + "s. since timer started.....      (AutoSleep set to " + timeBeforeSleep + "min.)");
@@ -785,17 +791,17 @@ public class AudioService extends LoggingService {
                     intent.putExtra(TIMER_VALUE, elapsedSeconds);
                     LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(intent);
 
-                    elapsedSeconds += DELAY_CHECK_TIMER / 1000;
+                    elapsedSeconds += DELAY_CHECK_TIMER_SLEEP / 1000;
 
                     //HOHO
                     //createNotification();
 
-                    handler.postDelayed(this, DELAY_CHECK_TIMER);
+                    sleepCheckHandler.postDelayed(this, DELAY_CHECK_TIMER_SLEEP);
                 }
             }
         };
 
-        handler.postDelayed(timerRunnable, DELAY_CHECK_TIMER);
+        sleepCheckHandler.postDelayed(sleepTimerRunnable, DELAY_CHECK_TIMER_SLEEP);
     }
 
 
@@ -816,8 +822,8 @@ public class AudioService extends LoggingService {
     private void stopSleepTimer() {
         myLog("stopSleepTimer()");
         try {
-            if (handler != null && timerRunnable != null) {
-                handler.removeCallbacks(timerRunnable);
+            if (sleepCheckHandler != null && sleepTimerRunnable != null) {
+                sleepCheckHandler.removeCallbacks(sleepTimerRunnable);
             }
             isTimerRunning = false;
             String str;
@@ -834,41 +840,37 @@ public class AudioService extends LoggingService {
     }
 
 
-    private void startMemoryTrimTimer() {
+    private void startPauseTimer() {
+        myLogD("startPauseTimer");
         pauseCheckHandler = new Handler();
         pauseCheckRunnable = new Runnable() {
             @Override
             public void run() {
-
                 if (pauseStartTimestampMs != 0) {
                     logPauseTime();
                     if (System.currentTimeMillis() - pauseStartTimestampMs > TRIM_AFTER_PAUSE_MS) {
                         myLogW("let's kill it");
-                        mediaPlayer.release();
-                        mediaPlayer = null;
+                        killService();
                     }
                 }
-
-                // Schedule the next check in 1 minute
-                pauseCheckHandler.postDelayed(this, 30 * 1000); // 30sec
+                pauseCheckHandler.postDelayed(this, DELAY_CHECK_TIMER_PAUSE);
             }
         };
-
-// Start the loop
-        pauseCheckHandler.postDelayed(pauseCheckRunnable, 60 * 1000);
+        pauseCheckHandler.postDelayed(pauseCheckRunnable, DELAY_CHECK_TIMER_PAUSE);
     }
-
     private void stopPauseTimer() {
         if (pauseCheckHandler != null) {
             pauseCheckHandler.removeCallbacks(pauseCheckRunnable);
         }
     }
+
     @Override
     public void onTrimMemory(int level) {
         super.onTrimMemory(level);
         if (level >= TRIM_MEMORY_THRESHOLD) {
             myLogW("onTrimMemory() - level=[" + level + "] >= " + TRIM_MEMORY_THRESHOLD);
             logPauseTime();
+            /*
             if (mediaPlayer != null) {
                 try {
                     mediaPlayer.release();
@@ -880,12 +882,13 @@ public class AudioService extends LoggingService {
             } else {
                 myLog("mediaPlayer was already null");
             }
+             */
         }
     }
     public void logPauseTime() {
         if (pauseStartTimestampMs != 0) {
             long pauseTime = (System.currentTimeMillis() - pauseStartTimestampMs);
-            myLog("And was paused for " + formatTime(pauseTime, true) + " min.   MAX is " + formatTime(TRIM_AFTER_PAUSE_MS));
+            myLog("Paused since " + formatTime(pauseTime, true) + " min.   MAX is " + formatTime(TRIM_AFTER_PAUSE_MS));
         }
     }
 
@@ -1130,12 +1133,22 @@ public class AudioService extends LoggingService {
         return false;
     }
 
-    private void killIt() {
-        myLogI("killIt()");
+    private void killService() {
+        myLogI("killService()");
+        isRunning = false;
+        stopPauseTimer();
+        stopSleepTimer();
+        KanMediaPlayer.safeRelease(mediaPlayer);
+        removeNotification();
+        stopForeground(true);
+        stopSelf();
+    }
+    private void loadFileKO() {
+        myLog("loadFileKO");
         LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(new Intent(NOTIFICATION_FILENOTFOUND));
         ErrorLoadingFile=true;
         removeNotification();
         stopSelf();
-    }
+   }
 
 }
