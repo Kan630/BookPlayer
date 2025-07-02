@@ -245,14 +245,67 @@ public class AudioService extends LoggingService {
                 myLogD("mediaPlayer.prepare - done");
                 LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(new Intent(NOTIFICATION_FILELOADED));
                 if (startAtZero || PlayList.getInstance().getZikFile() == null) {
-                    mediaPlayer.safeSeekTo(0);
+                    mediaPlayer.seekTo(0);
                 } else {
-                    mediaPlayer.safeSeekTo((int) PlayList.getInstance().getZikFile().getPosition());
+                    mediaPlayer.seekTo((int) PlayList.getInstance().getZikFile().getPosition());
                 }
                 myLogD("mediaPlayer.customeekToS - done");
                 if (directPlay) {
-                    playAudio();
-                }
+                    audioManager = (AudioManager) AudioService.this.getSystemService(Context.AUDIO_SERVICE);
+                    afChangeListener = focusChange -> {
+                        if (focusChange <= 0) {
+                            myLog("Audio Focus Lost");
+                            AudioService.this.pauseAudio();
+                            //mediaSession.setActive(false); // CHECK
+                            Intent intent = new Intent(NOTIFICATION_AUDIOFOCUS_LOST);
+                            LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(intent);
+                        } else {
+                            myLog("Audio Focus Gain");
+                            AudioService.this.playAudio();
+                            mediaSession.setActive(true);
+                            Intent intent = new Intent(NOTIFICATION_AUDIOFOCUS_GAIN);
+                            LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(intent);
+                        }
+                    };
+
+                    // Rewind After Pause
+                    if (Option.getRewindAfterPause()) {
+                        if (PlayList.getInstance().getZikFile() != null) {
+                            Time lastAccessTime = PlayList.getInstance().getZikFile().getLastaccessTime();
+                            if (lastAccessTime != null) {
+                                Time nowTime = new Time(System.currentTimeMillis());
+                                long timeDiffMillis = nowTime.getTime() - lastAccessTime.getTime();
+                                long timeDiffMinutes = timeDiffMillis / (60 * 1000);
+
+                                int rewindDelay = 0; // default: no rewind
+                                for (int[] ints : REWIND_AFTER_PAUSE) {
+                                    if (timeDiffMinutes >= ints[0]) {
+                                        rewindDelay = ints[1];
+                                    } else {
+                                        break; // stop at the first value that exceeds timeDiff
+                                    }
+                                }
+
+                                if (rewindDelay > 0) {
+                                    myLog("Rewind after Pause - last play was " + timeDiffMinutes + " minutes ago. Rewind value is " + (rewindDelay / 1000) + " seconds.");
+                                    backwardAudio(rewindDelay);
+                                } else {
+                                    myLog("NO Rewind after Pause - last play was " + timeDiffMinutes + " minutes ago. No matching rewind rule found.");
+                                }
+                            }
+                        }
+                    }
+                    doIntroCut();
+                    myLog("about to call mediaPlayer.start()...  mediaPlayer.getCurrentPosition : " + mediaPlayer.getCurrentPosition());
+                    mediaPlayer.start();
+                    updatePlaybackState(PlaybackStateCompat.STATE_PLAYING, mediaPlayer.getCurrentPosition(), 1.0f);
+                    setSpeed(getSpeed());
+                    if (!mediaSession.isActive()) {
+                        mediaSession.setActive(true);
+                    }
+                    startSleepTimer();
+                    createNotificationChannel();
+                    createNotification();                }
             }
 
             @Override
@@ -511,59 +564,15 @@ public class AudioService extends LoggingService {
         if (mediaPlayer != null) {
             if (!mediaPlayer.isPlaying()) {
 
-                audioManager = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
-                afChangeListener = focusChange -> {
-                    if (focusChange <= 0) {
-                        myLog("Audio Focus Lost");
-                        AudioService.this.pauseAudio();
-                        //mediaSession.setActive(false); // CHECK
-                        Intent intent = new Intent(NOTIFICATION_AUDIOFOCUS_LOST);
-                        LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(intent);
-                    } else {
-                        myLog("Audio Focus Gain");
-                        AudioService.this.playAudio();
-                        mediaSession.setActive(true);
-                        Intent intent = new Intent(NOTIFICATION_AUDIOFOCUS_GAIN);
-                        LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(intent);
-                    }
-                };
-
-                // Rewind After Pause
-                if (Option.getRewindAfterPause()) {
-                    if (PlayList.getInstance().getZikFile() != null) {
-                        Time lastAccessTime = PlayList.getInstance().getZikFile().getLastaccessTime();
-                        if (lastAccessTime != null) {
-                            Time nowTime = new Time(System.currentTimeMillis());
-                            long timeDiffMillis = nowTime.getTime() - lastAccessTime.getTime();
-                            long timeDiffMinutes = timeDiffMillis / (60 * 1000);
-
-                            int rewindDelay = 0; // default: no rewind
-                            for (int[] ints : REWIND_AFTER_PAUSE) {
-                                if (timeDiffMinutes >= ints[0]) {
-                                    rewindDelay = ints[1];
-                                } else {
-                                    break; // stop at the first value that exceeds timeDiff
-                                }
-                            }
-
-                            if (rewindDelay > 0) {
-                                myLog("Rewind after Pause - last play was " + timeDiffMinutes + " minutes ago. Rewind value is " + (rewindDelay / 1000) + " seconds.");
-                                backwardAudio(rewindDelay);
-                            } else {
-                                myLog("NO Rewind after Pause - last play was " + timeDiffMinutes + " minutes ago. No matching rewind rule found.");
-                            }
-                        }
-                    }
+                if (mediaPlayer.isReady()) {
+                    mediaPlayer.start();
+                } else if (!mediaPlayer.isPreparing()) {
+                    // Re-prepare if necessary
+                    loadFile();  // or your custom logic
+                } else {
+                    myLogW("mediaPlayer is preparing, wait...");
                 }
-                doIntroCut();
-                myLog("about to call mediaPlayer.start()...  mediaPlayer.getCurrentPosition : " + mediaPlayer.getCurrentPosition());
-                mediaPlayerStart();
-                startSleepTimer();
-                if (mediaSession != null) {
-                    mediaSession.setActive(true);
-                }
-                createNotificationChannel();
-                createNotification();
+
             } else {
                 myLogE("mediaPlayer was already Playing ... going out of AudioService.playAudio()");
             }
@@ -674,7 +683,7 @@ public class AudioService extends LoggingService {
 
     public void setPosition(int position) {
 
-        mediaPlayer.safeSeekTo(position);
+        mediaPlayer.seekTo(position);
         reloadSleepTimer();
         createNotification();
         myLog("setPosition() : " + myDF.format(position));
@@ -887,12 +896,12 @@ public class AudioService extends LoggingService {
                 actionName = "Pause";
                 actionIcon = android.R.drawable.ic_media_pause;
                 playPauseAction = MediaButtonReceiver.buildMediaButtonPendingIntent(this, PlaybackStateCompat.ACTION_PAUSE);
-                updatePlaybackState(PlaybackStateCompat.STATE_PLAYING, mediaPlayer.safeGetCurrentPosition(), (float) getSpeed()); //to force update of the notification progressBar
+                updatePlaybackState(PlaybackStateCompat.STATE_PLAYING, mediaPlayer.getCurrentPosition(), (float) getSpeed()); //to force update of the notification progressBar
             } else {
                 actionName = "Play";
                 actionIcon = android.R.drawable.ic_media_play;
                 playPauseAction = MediaButtonReceiver.buildMediaButtonPendingIntent(this, PlaybackStateCompat.ACTION_PLAY);
-                updatePlaybackState(PlaybackStateCompat.STATE_PAUSED, mediaPlayer.safeGetCurrentPosition(), (float) getSpeed()); //to force update of the notification progressBar
+                updatePlaybackState(PlaybackStateCompat.STATE_PAUSED, mediaPlayer.getCurrentPosition(), (float) getSpeed()); //to force update of the notification progressBar
             }
 
 
@@ -905,7 +914,7 @@ public class AudioService extends LoggingService {
             MediaMetadataCompat metadata = new MediaMetadataCompat.Builder()
                     //.putString(MediaMetadataCompat.METADATA_KEY_TITLE, getCurrentZikFile().getDisplayName())
                     //.putString(MediaMetadataCompat.METADATA_KEY_ARTIST, getCurrentZikFile().getFolderName())
-                    .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, mediaPlayer.safeGetDuration())  //Shows the fucking progressBar !!
+                    .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, mediaPlayer.getDuration())  //Shows the fucking progressBar !!
                     .build();
             mediaSession.setMetadata(metadata);
 
@@ -1008,14 +1017,6 @@ public class AudioService extends LoggingService {
     }
 
 
-    private void mediaPlayerStart() {
-        mediaPlayer.start();
-        updatePlaybackState(PlaybackStateCompat.STATE_PLAYING, mediaPlayer.getCurrentPosition(), 1.0f);
-        setSpeed(getSpeed());
-        if (!mediaSession.isActive()) {
-            mediaSession.setActive(true);
-        }
-    }
     private void mediaPlayerPause() {
         mediaPlayer.pause();
         updatePlaybackState(PlaybackStateCompat.STATE_PAUSED, mediaPlayer.getCurrentPosition(), 0.0f);

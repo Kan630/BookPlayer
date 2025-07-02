@@ -311,12 +311,11 @@ public class PlayActivity extends LoggingActivity {
     }
 
     private void playMe() {
-        myLog("PlayMe()");
         if (audioServiceBound) {
             if (audioService != null && audioService.exist()) {
                 if (audioService.isPlaying()) {
                     /////////   PAUSE
-                    myLog("pause");
+                    myLog("PlayMe() => pause");
                     audioService.pauseAudio();
                     tvListeningTimeBaseText = getString(R.string.tv_ListeningTimeWithNoUserAction);
                     tvListeningTime.setText("");
@@ -324,15 +323,15 @@ public class PlayActivity extends LoggingActivity {
                     //reDrawListeningSince(0);
                     /////// PLAY
                 } else {
-                    myLog("play");
+                    myLog("PlayMe() => play");
                     audioService.playAudio();
                     runVisualizer();
                 }
             } else {
-                myLogEE(null,"playMe() mService KO");
+                myLogEE(null,"playMe() => mService KO");
             }
         } else {
-            myLogEE(null,"playMe() mBound False");
+            myLogEE(null,"playMe() => mBound False");
         }
     }
 

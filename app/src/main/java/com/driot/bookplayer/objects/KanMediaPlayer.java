@@ -12,6 +12,40 @@ import java.io.IOException;
 public class KanMediaPlayer extends MediaPlayer {
 
     private boolean isPrepared = false;
+    private boolean isPreparing = false;
+
+    @Override
+    public void prepareAsync() {
+        isPrepared = false;
+        isPreparing = true;
+        super.prepareAsync();
+    }
+
+    @Override
+    public void reset() {
+        isPrepared = false;
+        isPreparing = false;
+        super.reset();
+    }
+
+    @Override
+    public void release() {
+        isPrepared = false;
+        isPreparing = false;
+        super.release();
+    }
+
+    public boolean isReady() {
+        return isPrepared;
+    }
+
+    public boolean isPreparing() {
+        return isPreparing;
+    }
+
+    public boolean isReleasedOrReset() {
+        return !isPrepared && !isPreparing;
+    }
 
     public interface Listener {
         void onCompletion();
@@ -26,20 +60,6 @@ public class KanMediaPlayer extends MediaPlayer {
         this.listener = l;
     }
 
-    private void customSeekTo(int posMilliSec) {
-        myLog("customSeekTo() : " + posMilliSec);
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-            seekTo(posMilliSec);
-        } else {
-            if (PlayList.getInstance().getZikFile() != null && PlayList.getInstance().getZikFile().isM4b()) {
-                seekTo(posMilliSec, SEEK_CLOSEST);  //seek_closest needed for m4b...
-                KanLogger.myLogD("SEEK_CLOSEST (m4b)");
-            } else {
-                seekTo(posMilliSec);
-            }
-        }
-    }
-
     public KanMediaPlayer() {
         super();
 
@@ -52,11 +72,13 @@ public class KanMediaPlayer extends MediaPlayer {
         setOnPreparedListener(mp -> {
             myLog("setOnPreparedListener");
             isPrepared = true;
+            isPreparing = false;
             if (listener != null) listener.onPrepared();
         });
 
         setOnErrorListener((mp, what, extra) -> {
             isPrepared = false;
+            isPreparing = false;
             myLogE("setOnErrorListener");
             if (isFatalError(what, extra)) {
                 if (listener != null) {
@@ -80,18 +102,42 @@ public class KanMediaPlayer extends MediaPlayer {
         prepareAsync();
     }
 
-    public void safeSeekTo(int positionMs) {
+    @Override
+    public void seekTo(int posMilliSec) {
         if (isPrepared) {
-            customSeekTo(positionMs);
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+                super.seekTo(posMilliSec);
+            } else {
+                if (PlayList.getInstance().getZikFile() != null && PlayList.getInstance().getZikFile().isM4b()) {
+                    super.seekTo(posMilliSec, SEEK_CLOSEST);  //seek_closest needed for m4b...
+                    KanLogger.myLogD("SEEK_CLOSEST (m4b)");
+                } else {
+                    super.seekTo(posMilliSec);
+                }
+            }
+        } else {
+            myLogE("seekTo(" + posMilliSec + ") - not prepared");
         }
     }
 
-    public int safeGetDuration() {
-        return isPrepared ? getDuration() : 0;
+    @Override
+    public int getDuration() {
+        if (isPrepared) {
+            return super.getDuration();
+        } else {
+            myLogE("getDuration() - not prepared");
+            return 0;
+        }
     }
 
-    public int safeGetCurrentPosition() {
-        return isPrepared ? getCurrentPosition() : 0;
+    @Override
+    public int getCurrentPosition() {
+        if (isPrepared) {
+            return super.getCurrentPosition();
+        } else {
+            myLogE("getCurrentPosition() - not prepared");
+            return 0;
+        }
     }
 
 
