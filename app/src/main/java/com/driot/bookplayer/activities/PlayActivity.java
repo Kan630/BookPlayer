@@ -253,7 +253,7 @@ public class PlayActivity extends LoggingActivity {
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                myLog("onBackPressed() -- (should be user action)");
+                myLogI("onBackPressed() -- (should be user action)");
                 if (audioService.isPlaying()) {
                     playMe();
                 }

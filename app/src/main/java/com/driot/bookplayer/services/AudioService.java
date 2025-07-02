@@ -6,13 +6,11 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.ComponentCallbacks2;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ServiceInfo;
 import android.media.AudioManager;
-import android.media.MediaPlayer;
 import android.media.ToneGenerator;
 import android.net.Uri;
 import android.os.Binder;
@@ -43,7 +41,6 @@ import com.driot.bookplayer.objects.PlayList;
 import com.driot.bookplayer.db.Sql;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Pref;
-import com.driot.bookplayer.utils.KanLogger;
 import com.driot.bookplayer.utils.Tonio;
 
 import java.io.IOException;
@@ -56,6 +53,7 @@ import static com.driot.bookplayer.activities.PlayActivity.SHARED_PREFERENCE_SPE
 import static com.driot.bookplayer.utils.FileUtils.buildFileUri;
 import static com.driot.bookplayer.utils.Tonio.FormatPercentDouble;
 import static com.driot.bookplayer.utils.Tonio.fileExists;
+import static com.driot.bookplayer.utils.Tonio.formatTime;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 01/11/20
@@ -68,11 +66,21 @@ public class AudioService extends LoggingService {
     private static final String ID_NOTIFICATION_PLAY_AUDIO_CHANNEL = "audio_channel_of_bookplayer";
     private static final int ID_NOTIFICATION_PLAY_AUDIO_INT = 2;
 
+    public static final int TRIM_MEMORY_THRESHOLD = 20;
+    public static final int TRIM_AFTER_PAUSE_MS = 1000*60*10;
+    public static final int DELAY_CHECK_TIMER = 1000;
+
+    //Play Timer (for Sleep)
     private Handler handler;
     private Runnable timerRunnable;
     private int elapsedSeconds = 0;
     private int customSleepTime = 0;
-    public static final int DELAY_CHECK_TIMER = 1000;
+
+    //Pause Timer (to free memory)
+    private Handler pauseCheckHandler;
+    private Runnable pauseCheckRunnable;
+    private long pauseStartTimestampMs = 0;
+
 
     public static final int[][] REWIND_AFTER_PAUSE = {  // stopped listening since (in min)  ,  rewind delay (in ms)
             {2, 3000},
@@ -211,6 +219,8 @@ public class AudioService extends LoggingService {
         isRunning = true;
         super.onCreate();
 
+        startMemoryTrimTimer();
+
 // ///////////////////////
 //      PLAYER
 // ///////////////////////
@@ -233,6 +243,7 @@ public class AudioService extends LoggingService {
 
                         alertPlaylistFinished();
                         stopSleepTimer();
+                        pauseStartTimestampMs = System.currentTimeMillis();
                     } else {
                         myLog("mediaPlayer.OnCompletionListener => calling nextTrack");
                         nextTrack();
@@ -298,6 +309,7 @@ public class AudioService extends LoggingService {
                     doIntroCut();
                     myLog("about to call mediaPlayer.start()...  mediaPlayer.getCurrentPosition : " + mediaPlayer.getCurrentPosition());
                     mediaPlayer.start();
+                    pauseStartTimestampMs = 0;
                     updatePlaybackState(PlaybackStateCompat.STATE_PLAYING, mediaPlayer.getCurrentPosition(), 1.0f);
                     setSpeed(getSpeed());
                     if (!mediaSession.isActive()) {
@@ -337,6 +349,8 @@ public class AudioService extends LoggingService {
         myLog("onCreate() - END");
     }
 // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 
 
     void nextTrack() {
@@ -446,14 +460,14 @@ public class AudioService extends LoggingService {
     public void onDestroy() {
         isRunning = false;
         myLog("onDestroy()");
-        if (mediaPlayer.isPlaying()) {mediaPlayerStop();}
         stopSleepTimer();
+        stopPauseTimer();
+        stopForeground(true);
+        if (mediaPlayer.isPlaying()) {mediaPlayerStop();}
         mediaPlayer.release();
         mediaPlayer = null;
         if (audioManager != null) { audioManager.abandonAudioFocus(afChangeListener); }
-        stopSleepTimer();
-        if(mediaSession != null) { mediaSession.release(); }
-        stopForeground(true);
+        if (mediaSession != null) { mediaSession.release(); }
         stopSelf();
         super.onDestroy();
     }
@@ -810,8 +824,64 @@ public class AudioService extends LoggingService {
         } catch (Exception e) {
             myLogEE(e,"killTimer, nothing to kill ?");
         }
-
     }
+
+
+    private void startMemoryTrimTimer() {
+        pauseCheckHandler = new Handler();
+        pauseCheckRunnable = new Runnable() {
+            @Override
+            public void run() {
+
+                if (pauseStartTimestampMs != 0) {
+                    logPauseTime();
+                    if (System.currentTimeMillis() - pauseStartTimestampMs > TRIM_AFTER_PAUSE_MS) {
+                        myLogW("let's kill it");
+                        mediaPlayer.release();
+                        mediaPlayer = null;
+                    }
+                }
+
+                // Schedule the next check in 1 minute
+                pauseCheckHandler.postDelayed(this, 30 * 1000); // 30sec
+            }
+        };
+
+// Start the loop
+        pauseCheckHandler.postDelayed(pauseCheckRunnable, 60 * 1000);
+    }
+
+    private void stopPauseTimer() {
+        if (pauseCheckHandler != null) {
+            pauseCheckHandler.removeCallbacks(pauseCheckRunnable);
+        }
+    }
+    @Override
+    public void onTrimMemory(int level) {
+        super.onTrimMemory(level);
+        if (level >= TRIM_MEMORY_THRESHOLD) {
+            myLogW("onTrimMemory() - level=[" + level + "] >= " + TRIM_MEMORY_THRESHOLD);
+            logPauseTime();
+            if (mediaPlayer != null) {
+                try {
+                    mediaPlayer.release();
+                    mediaPlayer = null;
+                    myLog("mediaPlayer released due to memory pressure");
+                } catch (Exception e) {
+                    myLogEE(e,"onTrimMemory - Error releasing mediaPlayer: " + e.getMessage());
+                }
+            } else {
+                myLog("mediaPlayer was already null");
+            }
+        }
+    }
+    public void logPauseTime() {
+        if (pauseStartTimestampMs != 0) {
+            long pauseTime = (System.currentTimeMillis() - pauseStartTimestampMs);
+            myLog("And was paused for " + formatTime(pauseTime, true) + " min.   MAX is " + formatTime(TRIM_AFTER_PAUSE_MS));
+        }
+    }
+
 
     /********************************************************************************
      ***       UPDATE DB
@@ -995,36 +1065,16 @@ public class AudioService extends LoggingService {
         }
     }
 
-    @Override
-    public void onTrimMemory(int level) {
-        super.onTrimMemory(level);
-        myLogE("onTrimMemory() - level=[" + level + "]");
-        if (level >= ComponentCallbacks2.TRIM_MEMORY_MODERATE) {
-            myLogEE(null, "onTrimMemory() - level=[" + level + "]");
-            /*
-            if (mediaPlayer != null) {
-                try {
-                    mediaPlayer.release();
-                    mediaPlayer = null;
-                    myLog("mediaPlayer released due to memory pressure");
-                } catch (Exception e) {
-                    myLogE("Error releasing mediaPlayer: " + e.getMessage());
-                }
-            }
-
-             */
-        }
-    }
-
-
     private void mediaPlayerPause() {
         mediaPlayer.pause();
         updatePlaybackState(PlaybackStateCompat.STATE_PAUSED, mediaPlayer.getCurrentPosition(), 0.0f);
+        pauseStartTimestampMs = System.currentTimeMillis();
     }
     private void mediaPlayerStop() {
         mediaPlayer.stop();
         updatePlaybackState(PlaybackStateCompat.STATE_STOPPED, 0, 0.0f);
         mediaSession.setActive(false);
+        pauseStartTimestampMs = System.currentTimeMillis();
     }
 
     private void updatePlaybackState(int playbackState, long position, float playbackSpeed) {

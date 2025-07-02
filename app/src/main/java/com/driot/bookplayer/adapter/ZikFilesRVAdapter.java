@@ -95,7 +95,7 @@ public class ZikFilesRVAdapter extends LoggingRVAdapter<ZikFilesRVAdapter.ZikFil
         public void onClick(View view) {
             int position = getBindingAdapterPosition();
             ZikFile zikFile = zikFileList.get(position);
-            myLog("onClick() : [" + zikFile.getName() + "] - [" + zikFile.getPath() + "/" + zikFile.getName() + "]");
+            myLogI("onClick() : [" + zikFile.getName() + "] - [" + zikFile.getPath() + "/" + zikFile.getName() + "]");
             PlayList.getInstance().setNumZikFile(position);
             mCtx.startActivity(new Intent(mCtx, PlayActivity.class).putExtra("ZikFile", zikFile));
         }
@@ -103,7 +103,7 @@ public class ZikFilesRVAdapter extends LoggingRVAdapter<ZikFilesRVAdapter.ZikFil
         @Override
         public boolean onLongClick(View view) {
             ZikFile zikFile = zikFileList.get(getBindingAdapterPosition());
-            myLog("onLongClick() : [" + zikFile.getName() + "] - [" + zikFile.getPath() + "/" + zikFile.getName() + "]");
+            myLogI("onLongClick() : [" + zikFile.getName() + "] - [" + zikFile.getPath() + "/" + zikFile.getName() + "]");
 
             mCtx.startActivity(new Intent(mCtx, ZikFileModifyActivity.class).putExtra("ZikFile", zikFile));
             return false;

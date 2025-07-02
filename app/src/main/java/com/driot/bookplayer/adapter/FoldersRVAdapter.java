@@ -100,7 +100,7 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
             new Thread(() -> {
                 try {
                     List<ZikFile> zikFilesList = AppDatabase.getDatabase(mCtx).ZikFileDao().getZikFiles(folder.getId());
-                    myLog("nb ZikFiles in that Book : " + zikFilesList.size() + " - [" + folder.getName() + "]");
+                    myLogI("nb ZikFiles in that Book : " + zikFilesList.size() + " - [" + folder.getName() + "]");
                     PlayList.create(mCtx, zikFilesList);
                     if (zikFilesList.size() > 1) {
                         mCtx.startActivity(new Intent(mCtx, ZikFileActivity.class)
@@ -124,6 +124,7 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
 
         @Override
         public boolean onLongClick(View view) {
+            myLogI("onLongClick");
             Folder folder = FolderList.get(getBindingAdapterPosition());
             mCtx.startActivity(new Intent(mCtx, FolderModifyActivity.class)
                     .putExtra("FolderName", folder.getName())
