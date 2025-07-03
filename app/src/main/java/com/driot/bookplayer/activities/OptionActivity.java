@@ -352,7 +352,7 @@ public class OptionActivity extends LoggingActivity {
             intent.setData(uri);
             startActivity(intent);
         } catch (Exception e) {
-            myLogE("openAppSettingsOnPhone() => " + e.getMessage());
+            myLogEE(e,"openAppSettingsOnPhone()");
         }
     }
 

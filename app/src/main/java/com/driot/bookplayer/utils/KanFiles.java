@@ -52,7 +52,7 @@ public class KanFiles {
                     return false;
                 }
             } catch (Exception e) {
-                myLogE("Error remove ZikFile from Disk : [" + strPath + "] - " + e.getMessage());
+                myLogEE(e,"Error remove ZikFile from Disk : [" + strPath + "]");
                 return false;
             }
         } else {
@@ -64,9 +64,12 @@ public class KanFiles {
     ////////////////////////////////////////////////////////
     private static final String TAG = "KanFiles";
     private static void myLog(String str) { KanLogger.myLog(TAG, str); }
+    private static void myLogD(String str) { KanLogger.myLogD(TAG, str); }
+    private static void myLogI(String str) { KanLogger.myLogI(TAG, str); }
+    private static void myLogW(String str) { KanLogger.myLogW(TAG, str); }
     private static void myLogE(String str) { KanLogger.myLogE(TAG, str); }
-    private void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, TAG, str); }
-    private void myToastEE(Throwable t, String str) { KanLogger.myToastEE(t, TAG, str); }
+    private static void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, TAG, str); }
+    private static void myToastEE(Throwable t, String str) { KanLogger.myToastEE(t, TAG, str); }
 
 
 }

@@ -170,6 +170,7 @@ public class KanLogger {
         }
     }
 
+    //TODO add e.getClass() to the string ?
     public static void myLogEE(Throwable t, String prefix, String str) {
         myLogE(prefix, str + (t != null ?  " : " + t.getMessage() : ""));
         FirebaseCrashlytics.getInstance().setCustomKey("prefix",prefix);
@@ -231,6 +232,7 @@ public class KanLogger {
     }
 
     public static void myToastEE(Throwable t, String prefix, String str) {
+        myLogE(prefix, str + (t != null ?  " : " + t.getMessage() : ""));
         myToastE(prefix, str, Toast.LENGTH_SHORT);
         if (t!=null) {
             FirebaseCrashlytics.getInstance().recordException(t);

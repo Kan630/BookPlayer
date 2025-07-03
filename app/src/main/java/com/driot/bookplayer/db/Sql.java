@@ -4,15 +4,12 @@ import android.content.Context;
 
 import androidx.sqlite.db.SimpleSQLiteQuery;
 
-import static com.driot.bookplayer.utils.KanLogger.myLog;
-import static com.driot.bookplayer.utils.KanLogger.myLogI;
-import static com.driot.bookplayer.utils.KanLogger.myLogE;
 import static com.driot.bookplayer.utils.Tonio.FormatLastAccess;
 import static com.driot.bookplayer.utils.Tonio.formatLastAccessInDays;
 import static com.driot.bookplayer.utils.Tonio.formatTime;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.utils.Tonio;
+import com.driot.bookplayer.utils.KanLogger;
 
 import java.util.List;
 import java.util.Locale;
@@ -48,7 +45,7 @@ public class Sql {
                     //myLog("calculateFolderProgress error from result SQL - result=[" + result + "]"); // - [" + strSQL + "]"); // TODO check why return 0
                 }
             } catch (Exception e) {
-                myLogE("calculateFolderProgress - Exception : " + e.getMessage());
+                myLogEE(e,"calculateFolderProgress");
             }
         }).start();
     }
@@ -62,14 +59,14 @@ public class Sql {
                         .getAll();
 
                 if (folders == null || folders.isEmpty()) {
-                    myLogE(TAG, "No folders found in database");
+                    myLogEE(null, "No folders found in database");
                     return;
                 }
 
                 // Log column headers (optional)
-                myLogI(TAG, "Folders (sorted by last access):");
-                myLogI(TAG, "ID | Name | Path | Last Access...");
-                myLogI(TAG, "----------------------------------------");
+                myLogI("Folders (sorted by last access):");
+                myLogI("ID | Name | Path | Last Access...");
+                myLogI("----------------------------------------");
 
                 // Log each folder
                 for (Folder folder : folders) {
@@ -82,18 +79,28 @@ public class Sql {
                             ,FormatLastAccess(folder.getLastaccess(), folder.getLastaccessTime(), c.getString(R.string.yesterday))
                             ,formatLastAccessInDays(folder.getLastaccess())
                     );
-                    myLogI(TAG, logEntry);
+                    myLogI(logEntry);
 
                     // Or simply: myLogD(folder.toString());
                 }
 
-                myLogI(TAG, "Total folders: " + folders.size());
+                myLogI("Total folders: " + folders.size());
 
             } catch (Exception e) {
-                myLogE(TAG, "logAllFolders - Exception: " + e.getMessage());
+                myLogEE(e,"logAllFolders - Exception");
             }
         }).start();
     }
 
 
+
+    // ----------------------- LOG -----------------------
+    private static final String TAG = "Sql";
+    private static void myLog(String str) { KanLogger.myLog(TAG, str); }
+    private static void myLogD(String str) { KanLogger.myLogD(TAG, str); }
+    private static void myLogI(String str) { KanLogger.myLogI(TAG, str); }
+    private static void myLogW(String str) { KanLogger.myLogW(TAG, str); }
+    private static void myLogE(String str) { KanLogger.myLogE(TAG, str); }
+    private static void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, TAG, str); }
+    private static void myToastEE(Throwable t, String str) { KanLogger.myToastEE(t, TAG, str); }
 }

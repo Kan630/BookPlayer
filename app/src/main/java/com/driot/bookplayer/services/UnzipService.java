@@ -129,7 +129,7 @@ public class UnzipService extends LoggingService {
                 ZipFile zf = new ZipFile(zipFile.getAbsolutePath());
                 nbZip = zf.size();
             } catch (Exception e) {
-                myLogE("Couln't count element of zip file : " + e.getMessage());
+                myLogEE(e,"Couln't count element of zip file");
                 nbZip = 10;
             }
             myLog("Zip file has : " + nbZip + " entries");
@@ -205,7 +205,7 @@ public class UnzipService extends LoggingService {
                     try {
                         ze = zis.getNextEntry();
                     } catch (Exception e) {
-                        myLogE("error getting next zip file entry : " + e.getMessage());
+                        myLogEE(e,"error getting next zip file entry");
                         mCallBacks.tellNonBlockingError("Error : Zip may be incompletely extracted... " + e.getMessage());
                         e.printStackTrace();
                         try {
@@ -230,13 +230,13 @@ public class UnzipService extends LoggingService {
             ////////////////////////////////////////////////////////////////////////////////
 
         } catch (Exception e) {
-            myLogE(getResources().getString(R.string.Error_Import_UnableToUnzip_line1) + " : " + e.getMessage());
+            myLogEE(e,"Error unzipping compressed file");
             tellError(getResources().getString(R.string.Error_Import_UnableToUnzip_line1) + " : " + e.getMessage()
                     + "\n" + "\n" + getResources().getString(R.string.Error_Import_UnableToUnzip_line2));
             e.printStackTrace();
             //delete files after error
             if (!(recursiveRemove(unzipFolder))) {
-                myLogE("killLocalUnzipFolder, AfterError, recursiveRemove(unzipFolder) KO");
+                myLogEE(null,"killLocalUnzipFolder, AfterError, recursiveRemove(unzipFolder) KO");
             }
 
             return false;
@@ -257,7 +257,7 @@ public class UnzipService extends LoggingService {
                 }
             }
         } catch (Exception e) {
-            myLogE("error getting MIME and deleting non audio files - " + e.getMessage());
+            myLogEE(e,"error getting MIME and deleting non audio files");
         }
         myLog("unzipped folder has been pruned of non audio files");
         tellEnd(destinationFolderPath);

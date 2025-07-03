@@ -1124,7 +1124,7 @@ public class AddResourceService
             duration = Long.parseLong(durStr);
         } catch (Exception e) {
             tellError(getResources().getString(R.string.Error_Import_track_duration_extraction) + " // uri: " + uri);
-            myLogEE(e,"error getting duration of media: [" + e.getMessage() + "] for uri: [" + uri + "]");
+            myLogEE(e,"error getting duration of media for uri: [" + uri + "]");
         }
         myLogD("duration for [" + uri + "] is " + duration);
         return duration;

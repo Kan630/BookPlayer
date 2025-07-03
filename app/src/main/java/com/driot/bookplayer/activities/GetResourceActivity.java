@@ -96,7 +96,7 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
                 myLogE("result code not OK");
             }
         } catch (Exception e) {
-            myToastE("Error reading picked object : " + e.getMessage());
+            myToastEE(e,"Error reading picked object");
         }
     }
 
@@ -483,7 +483,7 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
         isActivityActive = false;
         if (timer != null) {
             try { timer.cancel(); timer.purge(); timer=null; }
-            catch (Exception e) { myLogE("stopTimer() - " + e.getMessage());}
+            catch (Exception e) { myLogEE(e,"stopTimer()");}
         }
     }
     @Override
@@ -538,7 +538,7 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
             }
             lopperForLog = lopperForLog + 1;
         } catch (Exception e) {
-            myLogE("Error while checking if service is running : " + e.getMessage());
+            myLogEE(e,"Error while checking if service is running");
         }
     }
 
@@ -551,7 +551,7 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
             }
             return true;
         } catch (Exception e) {
-            myLogE("checkDataOk is KO : " + e.getMessage());
+            myLogEE(e,"checkDataOk is KO");
             return false;
         }
     }
@@ -569,14 +569,14 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
             intent.setData(uri);
             startActivity(intent);
         } catch (Exception e) {
-            myLogE("openAppSettingsOnPhone() => " + e.getMessage());
+            myLogEE(e,"openAppSettingsOnPhone()");
         }
     }
     public void openOptionActivity() {
         try {
             startActivity(new Intent(this, OptionActivity.class).putExtra("CopyFileSetRed",true));
         } catch (Exception e) {
-            myLogE("openOptionActivity() => " + e.getMessage());
+            myLogEE(e,"openOptionActivity()");
         }
     }
 

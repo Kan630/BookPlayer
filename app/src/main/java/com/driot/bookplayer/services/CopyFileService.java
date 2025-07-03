@@ -168,7 +168,7 @@ public class CopyFileService extends LoggingService {  //IntentService are desig
                 try {
                     file_size = FileUtils.calculateFolderSize(this, uri);
                 } catch (Exception e) {
-                    myLogE("Folder getSize - KO : " + e.getMessage());
+                    myLogEE(e, "Folder getSize - KO");
                 }
                  */
 //File
@@ -183,7 +183,7 @@ public class CopyFileService extends LoggingService {  //IntentService are desig
                     try {
                         file_size = (int) getFileSize(this, uri);
                     } catch (IOException e) {
-                        myLogE("copyLocal() - getting FileSize From URI raise an error... " + e.getMessage());
+                        myLogEE(e,"copyLocal() - getting FileSize From URI raise an error... ");
                     }
                 }
             }
@@ -215,7 +215,7 @@ public class CopyFileService extends LoggingService {  //IntentService are desig
                             + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line2_1) + formatMem(availableMegs) + "Mo"
                     );
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    myLogEE(e, "Error while checking available space for local ZIP copy");
                     tellError("Error while checking available space for local ZIP copy  -  " + e.getMessage());
                     return false;
                 }
@@ -284,6 +284,7 @@ public class CopyFileService extends LoggingService {  //IntentService are desig
                 }
                 );
             } catch (Exception e) {
+                myLogEE(e,"copy type folder");
                 if (e.getMessage()!=null && e.getMessage().equals("Copy canceled")) {
                     myLog("Copy was canceled by user.");
                     tellError("Copy canceled.");
@@ -355,22 +356,28 @@ public class CopyFileService extends LoggingService {  //IntentService are desig
                         }
                         myLog("okay stream write");
                     } catch (Exception e) {
+                        myLogEE(e, "zip file copy");
                         tellError("An error occurred while Copying the ZIP file from External Dir to Internal Dir. (nb Buffer copied = " + nbBuffCopied + ")\n   -  \n" + e.getMessage());
-                        e.printStackTrace();
                         return false;
                     } finally {
                         out.close();
                     }
                 } catch (Exception e) {
+                    myLogEE(e, "zip file copy");
                     tellError("Cannot get StreamOut for ZIP file \nZIP file copy from External Dir to Internal Dir aborted.\n  -  \n" + e.getMessage());
-                    e.printStackTrace();
                     return false;
                 } finally {
-                    is.close();
+                    try {
+                        if (is!=null) {
+                            is.close();
+                        }
+                    } catch (IOException ise) {
+                        myLogEE(ise,"is.close();");
+                    }
                 }
             } catch (Exception e) {
+                myLogEE(e, "zip file copy");
                 tellError("Cannot get StreamIn for ZIP file... \nMaybe this is a broken zip file \n(could be a half downloaded file)      \n\nTechnical message = [" + e.getMessage() + "]");
-                myLogE(e.getMessage());
                 return false;
             }
             myLog("file has been copied");

@@ -29,7 +29,7 @@ public class FileHelper {
         try {
             path = processUri(context, uri);
         } catch (Exception e) {
-            myLogE("error in getRealPathFromURI __ : " + e.getMessage());
+            myLogEE(e,"error in getRealPathFromURI");
             e.printStackTrace();
         }
         if (TextUtils.isEmpty(path)) {
@@ -136,7 +136,7 @@ public class FileHelper {
                         }
                     }
                 } catch (Exception e) {
-                    myLogE("ERR copyFile : " + e.getMessage());
+                    myLogEE(e,"ERR copyFile");
                 }
             }
 
@@ -192,8 +192,7 @@ public class FileHelper {
                 result = cursor.getString(index);
             }
         } catch (Exception e) {
-            myLogE("error with getDataColumn : [" + e.getMessage() + "]");
-            e.printStackTrace();
+            myLogEE(e,"error with getDataColumn");
             return null;
         } finally {
             if (cursor != null)
@@ -226,4 +225,13 @@ public class FileHelper {
     public static boolean isMediaDocument(Uri uri) {
         return "com.android.providers.media.documents".equals(uri.getAuthority());
     }
+    // ----------------------- LOG -----------------------
+    private static final String TAG = "FileHelper";
+    private static void myLog(String str) { KanLogger.myLog(TAG, str); }
+    private static void myLogD(String str) { KanLogger.myLogD(TAG, str); }
+    private static void myLogI(String str) { KanLogger.myLogI(TAG, str); }
+    private static void myLogW(String str) { KanLogger.myLogW(TAG, str); }
+    private static void myLogE(String str) { KanLogger.myLogE(TAG, str); }
+    private static void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, TAG, str); }
+    private static void myToastEE(Throwable t, String str) { KanLogger.myToastEE(t, TAG, str); }
 }

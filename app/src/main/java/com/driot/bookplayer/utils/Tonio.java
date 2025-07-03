@@ -1,8 +1,6 @@
 package com.driot.bookplayer.utils;
 
 import static com.driot.bookplayer.utils.Tonio2.removeLongDuplicates;
-import static com.driot.bookplayer.utils.KanLogger.myLog;
-import static com.driot.bookplayer.utils.KanLogger.myLogE;
 
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
@@ -36,8 +34,6 @@ import java.util.concurrent.TimeUnit;
  * created by Antoine Driot -- antoine.driot.com -- on 31/10/20
  */
 public class Tonio {
-    private static final String LOG_PREFIX = "Tonio.java";
-
 
     public static String formatTime(double doubleTime) {
         return formatTime(doubleTime,false, true);
@@ -193,7 +189,7 @@ public class Tonio {
                 zeReturn = diffInDays + (diffInDays == 1 ? " day ago" : " days ago");
             }
         } catch (Exception e) {
-            myLogE("formatLastAccessInDays : " + e.getMessage());
+            myLogEE(e,"formatLastAccessInDays");
         }
         return zeReturn;
     }
@@ -278,7 +274,7 @@ public class Tonio {
             myLog("getLastFolder => " + ret);
             return ret;
         } catch (Exception e) {
-            myLogE("getLastFolder()... " + e.getMessage());
+            myLogEE(e,"getLastFolder()");
             return "";
         }
     }
@@ -366,7 +362,7 @@ public class Tonio {
                     }
                 }
             } catch (Exception e) {
-                myLogE("getMimeType - " + e.getMessage());
+                myLogEE(e,"getMimeType");
             }
         }
 
@@ -378,7 +374,7 @@ public class Tonio {
         try {
             m = DocumentFile.fromFile(f).getType();
         } catch (Exception e) {
-            myLogE("getMimeType - " + e.getMessage());
+            myLogEE(e,"getMimeType");
         }
         return m;
     }
@@ -396,7 +392,7 @@ public class Tonio {
                         }
                     }
                 } catch (Exception e) {
-                    myLogE("Modern filename fetch failed: " + e.getMessage());
+                    myLogEE(e,"Modern filename fetch failed");
                 }
             }
 
@@ -420,13 +416,13 @@ public class Tonio {
                         return new File(filePath).getName();
                     }
                 } catch (Exception e) {
-                    myLogE("getFileNameFromMediaUri failed: " + e.getMessage());
+                    myLogEE(e,"getFileNameFromMediaUri failed");
                 } finally {
                     cursor.close();
                 }
             }
         } catch (Exception e) {
-            myLogE("getFileNameFromMediaUri failed: " + e.getMessage());
+            myLogEE(e,"getFileNameFromMediaUri failed");
         }
         return uri.getLastPathSegment(); // Fallback
     }
@@ -473,24 +469,32 @@ public class Tonio {
 
     // Returns the total size in bytes of the removable SD card, or -1 if not found
     public static long getTotalRemovableSDCardSize(Context context) {
-        File sdCard = getRemovableSDCardPath(context);
-        if (sdCard != null) {
-            StatFs stat = new StatFs(sdCard.getPath());
-            long blockSize = stat.getBlockSizeLong();
-            long totalBlocks = stat.getBlockCountLong();
-            return totalBlocks * blockSize;
+        try {
+            File sdCard = getRemovableSDCardPath(context);
+            if (sdCard != null) {
+                StatFs stat = new StatFs(sdCard.getPath());
+                long blockSize = stat.getBlockSizeLong();
+                long totalBlocks = stat.getBlockCountLong();
+                return totalBlocks * blockSize;
+            }
+        } catch (Throwable t) {
+            myLogEE(t,"getTotalRemovableSDCardSize");
         }
         return -1;
     }
 
     // Returns the available size in bytes of the removable SD card, or -1 if not found
     public static long getAvailableRemovableSDCardSize(Context context) {
+        try {
         File sdCard = getRemovableSDCardPath(context);
         if (sdCard != null) {
             StatFs stat = new StatFs(sdCard.getPath());
             long blockSize = stat.getBlockSizeLong();
             long availableBlocks = stat.getAvailableBlocksLong();
             return availableBlocks * blockSize;
+        }
+        } catch (Throwable t) {
+            myLogEE(t,"getTotalRemovableSDCardSize");
         }
         return -1;
     }
@@ -516,7 +520,7 @@ public class Tonio {
             File file = new File(applicationInfo.publicSourceDir);
             size = file.length();
         } catch (Exception e) {
-            myLogE("Error getting size taken by app : " + e.getMessage());
+            myLogEE(e,"Error getting size taken by app");
             e.printStackTrace();
         }
         return size;
@@ -562,7 +566,7 @@ public class Tonio {
             try {
                 return String.format("%" + padding + "s", NumberFormat.getNumberInstance(Locale.getDefault()).format(mem));
             } catch (Exception e) {
-                myLogE("formatMem...   " + e.getMessage());
+                myLogEE(e,"formatMem");
                 e.printStackTrace();
                 return String.valueOf(mem);
             }
@@ -579,7 +583,7 @@ public class Tonio {
                 return docFile != null && docFile.exists() && docFile.isDirectory();
             }
         } catch (Exception e) {
-            myLogE("isFolder.. " + e.getMessage());
+            myLogEE(e,"isFolder");
             return false;
         }
     }
@@ -587,7 +591,14 @@ public class Tonio {
 
 
 
-    private static void myLog(String str) { KanLogger.myLog(LOG_PREFIX, str); }
-    private static void myLogE(String str) { KanLogger.myLogE(LOG_PREFIX, str); }
+    // ----------------------- LOG -----------------------
+    private static final String TAG = "Tonio";
+    private static void myLog(String str) { KanLogger.myLog(TAG, str); }
+    private static void myLogD(String str) { KanLogger.myLogD(TAG, str); }
+    private static void myLogI(String str) { KanLogger.myLogI(TAG, str); }
+    private static void myLogW(String str) { KanLogger.myLogW(TAG, str); }
+    private static void myLogE(String str) { KanLogger.myLogE(TAG, str); }
+    private static void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, TAG, str); }
+    private static void myToastEE(Throwable t, String str) { KanLogger.myToastEE(t, TAG, str); }
 
 }

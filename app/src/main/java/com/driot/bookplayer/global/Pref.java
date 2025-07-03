@@ -59,7 +59,7 @@ public class Pref {
             SharedPreferences.Editor editor = c.getSharedPreferences(SHARED_PREFERENCE_INTROCUT, MODE_PRIVATE).edit();
             editor.putInt(Integer.toString(idFolder), introCut).apply();
         } catch (Exception e) {
-            myLogE("error saving introCut in prefs - " + e.getMessage());
+            myLogEE(e,"error saving introCut in prefs");
         }
     }
 
@@ -68,7 +68,7 @@ public class Pref {
             SharedPreferences prefs = c.getSharedPreferences(SHARED_PREFERENCE_INTROCUT, MODE_PRIVATE);
             return prefs.getInt(String.valueOf(idFolder), 0);
         } catch (Exception e) {
-            myLogE("error getting introCut from prefs - " + e.getMessage());
+            myLogEE(e,"error getting introCut from prefs");
             return 0;
         }
     }
@@ -126,7 +126,13 @@ public class Pref {
 
 
 
-    private static void myLog(String str) { KanLogger.myLog("Pref", str); }
-
-
+    // ----------------------- LOG -----------------------
+    private static final String TAG = "Pref";
+    private static void myLog(String str) { KanLogger.myLog(TAG, str); }
+    private static void myLogD(String str) { KanLogger.myLogD(TAG, str); }
+    private static void myLogI(String str) { KanLogger.myLogI(TAG, str); }
+    private static void myLogW(String str) { KanLogger.myLogW(TAG, str); }
+    private static void myLogE(String str) { KanLogger.myLogE(TAG, str); }
+    private static void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, TAG, str); }
+    private static void myToastEE(Throwable t, String str) { KanLogger.myToastEE(t, TAG, str); }
 }

@@ -571,7 +571,6 @@ public class AudioService extends LoggingService {
             mediaPlayer.prepareAsync();
 
         } catch (IOException e) {
-            myLogE("LoadFile - " + e.getMessage());
             myLogEE(e, " +++++***+++++ ERROR LOADING PLAYLIST +++++***+++++ ");
             loadFileKO();
             return;

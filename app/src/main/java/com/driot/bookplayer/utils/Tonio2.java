@@ -1,8 +1,5 @@
 package com.driot.bookplayer.utils;
 
-import static com.driot.bookplayer.utils.KanLogger.myLog;
-import static com.driot.bookplayer.utils.KanLogger.myLogE;
-
 import android.content.Context;
 import android.content.Intent;
 
@@ -72,7 +69,7 @@ public class Tonio2 {
         ArrayList<MyTextChunk> arrayList = new ArrayList<>();
         BufferedReader reader;
         InputStream inputStream = null;
-        myLog( "Tonio2.getTextFileContentInArrayList", "opening file -" + textFileName + "- in folder -" + textFileFolder + "- with method -" + typeStorage + "-");
+        myLogD( "getTextFileContentInArrayList - Opening file -" + textFileName + "- in folder -" + textFileFolder + "- with method -" + typeStorage + "-");
         try {
 
             //FROM ASSET FOLDER (BookPlayer/app/src/main/assets/)
@@ -103,11 +100,11 @@ public class Tonio2 {
                 //}
             }
             reader.close();
-            myLog("Tonio2.getTextFileContentInArrayList", "Getting file lines into array...    array dim = nb line = [" + arrayList.size() + "]");
+            myLog("getTextFileContentInArrayList - Getting file lines into array...    array dim = nb line = [" + arrayList.size() + "]");
             return arrayList;
 
         } catch (IOException e) {
-            myLogE("Tonio2.getTextFileContentInArrayList", "Problem getting file lines into array - Tonio public static ArrayList<MyTextChunk> getTextFileContentInArrayList... " + e.getMessage());
+            myLogEE(e,"getTextFileContentInArrayList");
             e.printStackTrace();
         }
         return null;
@@ -129,7 +126,7 @@ public class Tonio2 {
             outputStreamWriter.write(data);
             outputStreamWriter.close();
         } catch (IOException e) {
-            myLogE("Tonio2.writeToFile", "File write failed: " + e);
+            myLogEE(e,"writeToFile");
         }
     }
 
@@ -155,9 +152,9 @@ public class Tonio2 {
             }
         }
         catch (FileNotFoundException e) {
-            myLogE("Tonio2.readFromFile", "File not found: " + e);
+            myLogEE(e,"readFromFile - File not found");
         } catch (IOException e) {
-            myLogE("Tonio2.readFromFile", "Can not read file: " + e);
+            myLogEE(e,"readFromFile - Can not read file");
         }
 
         return ret;
@@ -200,7 +197,7 @@ public class Tonio2 {
                 }
             }
         } else {
-            myLogE("Tonio2.listClassicFiles", "no file found in path [" + path + "]");
+            myLogE("listClassicFiles, no file found in path [" + path + "]");
         }
         return arrayList.size() > 0;
     }
@@ -217,4 +214,14 @@ public class Tonio2 {
 
         return input;
     }
+
+    // ----------------------- LOG -----------------------
+    private static final String TAG = "Tonio2";
+    private static void myLog(String str) { KanLogger.myLog(TAG, str); }
+    private static void myLogD(String str) { KanLogger.myLogD(TAG, str); }
+    private static void myLogI(String str) { KanLogger.myLogI(TAG, str); }
+    private static void myLogW(String str) { KanLogger.myLogW(TAG, str); }
+    private static void myLogE(String str) { KanLogger.myLogE(TAG, str); }
+    private static void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, TAG, str); }
+    private static void myToastEE(Throwable t, String str) { KanLogger.myToastEE(t, TAG, str); }
 }

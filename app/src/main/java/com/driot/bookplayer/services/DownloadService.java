@@ -90,11 +90,11 @@ public class DownloadService extends LoggingService {
             return !ipAddr.toString().equals("");
 
         } catch (SecurityException e) {
-            myLogE("isInternetAvailable() - [" + e.getClass() + "] - [" +  e.getMessage() + "]");
+            myLogEE(e,"isInternetAvailable() - [" + e.getClass() + "]");
             err_txt = "No internet Permission";
             return false;
         } catch (Exception e) {
-            myLogE("isInternetAvailable() - [" + e.getClass() + "] - [" +  e.getMessage() + "]");
+            myLogEE(e,"isInternetAvailable() - [" + e.getClass() + "]");
             err_txt = "Not connected to Internet";
             return false;
         }
@@ -226,7 +226,7 @@ public class DownloadService extends LoggingService {
             }
         } catch (Exception e) {
             //tellError(getResources().getString(R.string.Error_Import_Creating_Folders));
-            myLogE(getResources().getString(R.string.Error_Import_Creating_Folders) + " - " + e.getMessage());
+            myLogEE(e,"checkFolderExist");
             return false;
         }
         return true;

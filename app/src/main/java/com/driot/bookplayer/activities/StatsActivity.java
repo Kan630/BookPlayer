@@ -113,7 +113,7 @@ public class StatsActivity extends LoggingActivity {
             intent.setData(uri);
             startActivity(intent);
         } catch (Exception e) {
-            myLogE("openAppSettingsOnPhone() => " + e.getMessage());
+            myLogEE(e,"openAppSettingsOnPhone()");
         }
     }
     private static String getCountryFromTelephonyManager(Context context) {

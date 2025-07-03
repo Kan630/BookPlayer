@@ -6,14 +6,12 @@ import static com.driot.bookplayer.utils.Utils.recursiveRemove;
 import android.app.Application;
 
 import androidx.annotation.NonNull;
-import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.utils.Utils;
-import com.driot.bookplayer.utils.KanLogger;
 import com.driot.bookplayer.utils.log.LoggingViewModel;
 
 import java.io.File;
@@ -22,7 +20,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 
 
 public class CacheFilesViewModel extends LoggingViewModel {
@@ -134,7 +131,7 @@ public class CacheFilesViewModel extends LoggingViewModel {
                         return false;
                     }
                 } catch (Exception e) {
-                    myLogE("Error remove ZikFile from Disk : [" + strPath + "] - " + e.getMessage());
+                    myLogEE(e,"Error remove ZikFile from Disk : [" + strPath + "]");
                     return false;
                 }
         } else {

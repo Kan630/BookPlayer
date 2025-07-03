@@ -185,7 +185,7 @@ public class Folder implements Serializable {
                 return R.drawable.ic_memory_general_smartphone;
             }
         } catch (Exception e) {
-            myLogE("getMemoryLocationIcon() - error : " + e.getMessage());
+            myLogEE(e, "getMemoryLocationIcon()");
             return R.drawable.ic_memory_notfound;
         }
     }
@@ -203,7 +203,7 @@ public class Folder implements Serializable {
                 return c.getString(R.string.audio_location_smartphone_shared_storage);
             }
         } catch (Exception e) {
-            myLogE("getMemoryLocationText() - error : " + e.getMessage());
+            myLogEE(e,"getMemoryLocationText()");
             return c.getString(R.string.audio_location_audiobook_not_found);
         }
     }
@@ -216,11 +216,19 @@ public class Folder implements Serializable {
         this.lastaccess = new Date(System.currentTimeMillis());
         this.lastaccessTime = new Time(System.currentTimeMillis());
     }
+
+
+
     //--- LOG --------------------------
     private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
     private void myLogInFile(String str) { KanLogger.myLogInFile(this.getClass().getName(), str); }
+    private void myLogD(String str) { KanLogger.myLogD(this.getClass().getName(), str); }
+    private void myLogI(String str) { KanLogger.myLogI(this.getClass().getName(), str); }
+    private void myLogW(String str) { KanLogger.myLogW(this.getClass().getName(), str); }
     private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
+    private void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, this.getClass().getName(), str); }
     private void myToast(String str) { KanLogger.myToast(this.getClass().getName(), str); }
     private void myToastE(String str) { KanLogger.myToastE(this.getClass().getName(), str); }
-
+    private void myKeyFirebase(String strKey, String strValue) {KanLogger.myKeyFirebase(strKey, strValue);}
+    private void myLogFirebase(String strLog) {KanLogger.myLogFirebase(strLog);}
 }

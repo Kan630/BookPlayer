@@ -53,7 +53,8 @@ public class PlayList {
         if (instance == null) {
             instance = loadFromStorage();
             if (instance == null) {
-                throw new IllegalStateException("PlayList not initialized and no saved instance available.");
+                myLogEE(null, "getInstance => PlayList not initialized and no saved instance available.");
+                //throw new IllegalStateException("PlayList not initialized and no saved instance available.");
             }
         }
         return instance;
@@ -111,16 +112,19 @@ public class PlayList {
     public ZikFile getZikFile() {
         if (numZikFile < 0 ) {
             myLogEE(null, "numZikFile < 0");
-            throw new IllegalStateException("Could not get audio file from PlayList.");
+            return null;
+            //throw new IllegalStateException("Could not get audio file from PlayList.");
         } else if (zikFilesList == null) {
             myLogEE(null, "zikFilesList == null");
-            throw new IllegalStateException("Could not get audio file from PlayList.");
+            //throw new IllegalStateException("Could not get audio file from PlayList.");
+            return null;
         } else {
             try {
                 return zikFilesList.get(numZikFile);
             } catch (Exception e) {
                 myLogEE(e, "zikFilesList.get(" + numZikFile + ") => throw new IllegalStateException");
-                throw new IllegalStateException("Could not get audio file from PlayList.");
+                //throw new IllegalStateException("Could not get audio file from PlayList.");
+                return null;
             }
         }
     }

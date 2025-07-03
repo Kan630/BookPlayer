@@ -1,9 +1,5 @@
 package com.driot.bookplayer.utils;
 
-import static android.os.FileUtils.closeQuietly;
-import static com.driot.bookplayer.utils.KanLogger.myLog;
-import static com.driot.bookplayer.utils.KanLogger.myLogE;
-import static com.driot.bookplayer.utils.Tonio.formatMem;
 import static com.driot.bookplayer.utils.Tonio.getExtension;
 
 import android.content.ContentUris;
@@ -166,6 +162,9 @@ public class FileUtils {
     public static long getFileSize(Context context, Uri uri) throws IOException {
         try (ParcelFileDescriptor pfd = context.getContentResolver().openFileDescriptor(uri, "r")) {
             return pfd.getStatSize();
+        } catch (Exception e) {
+            myLogEE(e,"getFileSize() for uri [" + uri + "]");
+            return -1;
         }
     }
 
@@ -266,7 +265,7 @@ public class FileUtils {
                 return cursor.getString(column_index);
             }
         } catch (Exception e) {
-            myLogE("getDataColumn() : " + e.getMessage());
+            myLogEE(e,"getDataColumn()");
         }
         finally {
             if (cursor != null)
@@ -275,4 +274,12 @@ public class FileUtils {
         return null;
     }
 
+    // ----------------------- LOG -----------------------
+    private static final String TAG = "FileUtils";
+    private static void myLog(String str) { KanLogger.myLog(TAG, str); }
+    private static void myLogD(String str) { KanLogger.myLogD(TAG, str); }
+    private static void myLogW(String str) { KanLogger.myLogW(TAG, str); }
+    private static void myLogE(String str) { KanLogger.myLogE(TAG, str); }
+    private static void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, TAG, str); }
+    private static void myToastEE(Throwable t, String str) { KanLogger.myToastEE(t, TAG, str); }
 }

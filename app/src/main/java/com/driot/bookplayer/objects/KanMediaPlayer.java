@@ -188,13 +188,13 @@ public class KanMediaPlayer extends MediaPlayer {
             try {
                 if (player.isPlaying()) player.stop();
             } catch (IllegalStateException e) {
-                myLogE("safeRelease() - stop() failed: " + e.getMessage());
+                myLogEE(e,"safeRelease() - stop() failed");
             }
 
             try {
                 player.reset();
             } catch (IllegalStateException e) {
-                myLogE("safeRelease() - reset() failed: " + e.getMessage());
+                myLogEE(e,"safeRelease() - reset() failed: ");
             }
 
             try {

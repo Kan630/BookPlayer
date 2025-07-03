@@ -67,7 +67,7 @@ public class BiggerTextActivity extends LoggingActivity {
         try {
             int zesize = myTextChunkArrayList.size();
         } catch (Exception e) {
-            myLogE("Error, empty file : " + e.getMessage());
+            myLogEE(e,"Error, empty file");
         }
 
         createMap();
@@ -94,13 +94,13 @@ public class BiggerTextActivity extends LoggingActivity {
         try {
             textOptions.saveScrollPosition(this, file, ((LinearLayoutManager) layoutManager).findFirstCompletelyVisibleItemPosition());
         } catch (Exception e) {
-            myLogE("onDestroy() -  saveScrollPosition : " + e.getMessage());
+            myLogEE(e,"onDestroy() -  saveScrollPosition");
         }
         if (!destroyedByFlip) {
             try {
                 textOptions.saveHighlightedText(this, file, ""); // supprime highLightedWord si on quitte et que c'est pas un flip
             } catch (Exception e) {
-                myLogE("onDestroy() -  saveHighlightedText : " + e.getMessage());
+                myLogEE(e,"onDestroy() -  saveHighlightedText");
             }
         }
         super.onDestroy();
