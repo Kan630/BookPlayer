@@ -33,15 +33,8 @@ public class Var {
 
     //@string/AutoTest_b1_text
     public static final String  AUTOTEST_FILE_01 = PATH_AUTOTEST_URL + "file_01.zip";
-    public static final String  AUTOTEST_FILE_01_BUTTON_TEXT = "zip (700KB)";
-
-    public static final String  AUTOTEST_FILE_02 = PATH_AUTOTEST_URL + "multilang.zip";
-    public static final String  AUTOTEST_FILE_02_BUTTON_TEXT = "zip (5MB)";
-
-
+    public static final String  AUTOTEST_FILE_02 = PATH_AUTOTEST_URL + "മലയാളം+عربى+Русский+हिन्दी.zip";
     public static final String  AUTOTEST_FILE_03 = PATH_AUTOTEST_URL + "FrostTonight_librivox.m4b";
-    public static final String  AUTOTEST_FILE_03_BUTTON_TEXT = "m4b (9MB)";
-
 
     public static final String  FORUM_URL =  "https://bookplayer.driot.com/forum";
     public static final String  FORUM_URL_2 =  "https://bookplayer.flarum.cloud/";
