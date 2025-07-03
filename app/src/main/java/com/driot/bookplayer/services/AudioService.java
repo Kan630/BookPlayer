@@ -82,7 +82,7 @@ public class AudioService extends LoggingService {
     //public static final int TRIM_AFTER_PAUSE_MS = 5*1000; // so basically never... 7 days
     private Handler pauseCheckHandler;
     private Runnable pauseCheckRunnable;
-    private long pauseStartTimestampMs = 0;
+
 
 
     public static final int[][] REWIND_AFTER_PAUSE = {  // stopped listening since (in min)  ,  rewind delay (in ms)
@@ -246,7 +246,7 @@ public class AudioService extends LoggingService {
 
                         alertPlaylistFinished();
                         stopSleepTimer();
-                        pauseStartTimestampMs = System.currentTimeMillis();
+                        Pref.setPauseTime();
                     } else {
                         myLog("mediaPlayer.OnCompletionListener => calling nextTrack");
                         nextTrack();
@@ -349,8 +349,9 @@ public class AudioService extends LoggingService {
         }
         doIntroCut();
         myLog("about to call mediaPlayer.start()...  mediaPlayer.getCurrentPosition : " + mediaPlayer.getCurrentPosition());
+        logPauseTime();
         mediaPlayer.start();
-        pauseStartTimestampMs = 0;
+        Pref.setPauseTime(0);
         updatePlaybackState(PlaybackStateCompat.STATE_PLAYING, mediaPlayer.getCurrentPosition(), 1.0f);
         setSpeed(getSpeed());
         if (!mediaSession.isActive()) {
@@ -378,7 +379,7 @@ public class AudioService extends LoggingService {
 
     private void alertNewTrack() {
         LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(new Intent(NOTIFICATION_NEWTRACK).putExtra(TRACKNUMBER, PlayList.getInstance().getNumZikFile()));
-        createNotification();
+        //createNotification();
         myLog("sendBroadcast alertNewTrack ");
     }
 
@@ -587,18 +588,25 @@ public class AudioService extends LoggingService {
         myLog("playAudio() - start");
         if (mediaPlayer != null) {
             if (!mediaPlayer.isPlaying()) {
-
-                if (mediaPlayer.isReady()) {
-                    startPlayWithMediaPlayer();
-                } else if (!mediaPlayer.isPreparing()) {
-                    // Re-prepare if necessary
-                    myLogEE(null, "re-prepared...");
-                    directPlay = true;
-                    loadFile();
-                } else {
-                    myLogW("mediaPlayer is preparing, wait...");
+                try {
+                    if (mediaPlayer != null && mediaPlayer.isReady()) {
+                        myLog("case 1");
+                        int test = mediaPlayer.getDuration(); // real test call
+                        startPlayWithMediaPlayer();
+                    } else if (mediaPlayer != null && !mediaPlayer.isPreparing()) {
+                        myLog("case 2");
+                        myLogEE(null, "re-prepared...");
+                        directPlay = true;
+                        loadFile(); // Re-prepare
+                    } else {
+                        myLog("case 3");
+                        myLogW("mediaPlayer is preparing, wait...");
+                    }
+                } catch (IllegalStateException | NullPointerException e) {
+                    myLog("case 4");
+                    myLogEE(e, "mediaPlayer was corrupt or dead. Reloading...");
+                    loadFile();  // your method to reset/load/prepare player
                 }
-
             } else {
                 myLogE("mediaPlayer was already Playing ... going out of AudioService.playAudio()");
             }
@@ -709,11 +717,10 @@ public class AudioService extends LoggingService {
     }
 
     public void setPosition(int position) {
-
+        myLog("setPosition() : " + myDF.format(position));
         mediaPlayer.seekTo(position);
         reloadSleepTimer();
         createNotification();
-        myLog("setPosition() : " + myDF.format(position));
     }
 
     public int getPosition() {
@@ -722,7 +729,7 @@ public class AudioService extends LoggingService {
             if (PlayList.getInstance().getZikFile()!=null) {
                 int curPosGlobalVar = (int) PlayList.getInstance().getZikFile().getPosition();
                 int diff = curPosGlobalVar-curPosMediaPlayer;
-                myLog("getPosition() Saved/PlayerCurrent  " + curPosGlobalVar + "/" + curPosMediaPlayer + "  -  Diff = " + diff);
+                myLogD("getPosition() Saved/PlayerCurrent  " + curPosGlobalVar + "/" + curPosMediaPlayer + "  -  Diff = " + diff);
             }
         }
         return curPosMediaPlayer;
@@ -733,12 +740,12 @@ public class AudioService extends LoggingService {
     }
 
     public boolean isPlaying() {
-        if (LOG_TRACE_ALL) myLog("isPlaying()");
+        if (LOG_TRACE_ALL) myLogD("isPlaying()");
         return mediaPlayer != null && mediaPlayer.isPlaying();
     }
 
     public boolean isRunning() {
-        if (LOG_TRACE_ALL) myLog("isRunning : " + isRunning);
+        if (LOG_TRACE_ALL) myLogD("isRunning : " + isRunning);
         return isRunning;
     }
 
@@ -846,9 +853,9 @@ public class AudioService extends LoggingService {
         pauseCheckRunnable = new Runnable() {
             @Override
             public void run() {
-                if (pauseStartTimestampMs != 0) {
+                if (Pref.getPauseTime() != 0) {
                     logPauseTime();
-                    if (System.currentTimeMillis() - pauseStartTimestampMs > TRIM_AFTER_PAUSE_MS) {
+                    if (System.currentTimeMillis() - Pref.getPauseTime() > TRIM_AFTER_PAUSE_MS) {
                         myLogW("let's kill it");
                         killService();
                     }
@@ -856,7 +863,7 @@ public class AudioService extends LoggingService {
                 pauseCheckHandler.postDelayed(this, DELAY_CHECK_TIMER_PAUSE);
             }
         };
-        pauseCheckHandler.postDelayed(pauseCheckRunnable, DELAY_CHECK_TIMER_PAUSE);
+        pauseCheckHandler.postDelayed(pauseCheckRunnable, DELAY_CHECK_TIMER_PAUSE); //start
     }
     private void stopPauseTimer() {
         if (pauseCheckHandler != null) {
@@ -886,9 +893,9 @@ public class AudioService extends LoggingService {
         }
     }
     public void logPauseTime() {
-        if (pauseStartTimestampMs != 0) {
-            long pauseTime = (System.currentTimeMillis() - pauseStartTimestampMs);
-            myLog("Paused since " + formatTime(pauseTime, true) + " min.   MAX is " + formatTime(TRIM_AFTER_PAUSE_MS));
+        if (Pref.getPauseTime() != 0) {
+            long pauseTime = (System.currentTimeMillis() - Pref.getPauseTime());
+            myLog("Paused since " + formatTime(pauseTime, true) + ".   MAX is " + formatTime(TRIM_AFTER_PAUSE_MS,false, false));
         }
     }
 
@@ -1078,13 +1085,13 @@ public class AudioService extends LoggingService {
     private void mediaPlayerPause() {
         mediaPlayer.pause();
         updatePlaybackState(PlaybackStateCompat.STATE_PAUSED, mediaPlayer.getCurrentPosition(), 0.0f);
-        pauseStartTimestampMs = System.currentTimeMillis();
+        Pref.setPauseTime();
     }
     private void mediaPlayerStop() {
         mediaPlayer.stop();
         updatePlaybackState(PlaybackStateCompat.STATE_STOPPED, 0, 0.0f);
         mediaSession.setActive(false);
-        pauseStartTimestampMs = System.currentTimeMillis();
+        if (Pref.getPauseTime() != 0 ) Pref.setPauseTime();
     }
 
     private void updatePlaybackState(int playbackState, long position, float playbackSpeed) {

@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.IOException;
 
 import com.driot.bookplayer.global.Option;
+import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.objects.PlayList;
 import com.driot.bookplayer.utils.KanLogger;
 
@@ -25,11 +26,11 @@ public class MyPersonalApp extends Application {
      */
     public void onCreate() {
         super.onCreate();
-        myLog("onCreate()... for myLogExtendApp");
 
-        PlayList.initContext(getApplicationContext());
         KanLogger.init(getApplicationContext());
+        PlayList.initContext(getApplicationContext());
         Option.init(getApplicationContext());
+        Pref.init(getApplicationContext());
 
         myLog("Context has been initialized");
 

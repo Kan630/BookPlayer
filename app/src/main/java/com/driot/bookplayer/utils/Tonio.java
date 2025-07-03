@@ -40,10 +40,14 @@ public class Tonio {
 
 
     public static String formatTime(double doubleTime) {
-        return formatTime(doubleTime,false);
+        return formatTime(doubleTime,false, true);
     }
 
     public static String formatTime(double doubleTime, boolean doDisplaySec) {
+        return formatTime(doubleTime, doDisplaySec, true);
+    }
+
+    public static String formatTime(double doubleTime, boolean doDisplaySec, boolean doDisplayMin) {
         String s;
         long sec,min,hou;
         if (doubleTime>0) {
@@ -52,10 +56,12 @@ public class Tonio {
             min = TimeUnit.MILLISECONDS.toMinutes((long) doubleTime)-TimeUnit.HOURS.toMinutes(hou);
             sec = TimeUnit.MILLISECONDS.toSeconds((long) doubleTime)-TimeUnit.HOURS.toSeconds(hou)-TimeUnit.MINUTES.toSeconds(min);
             if (hou !=0) {
-                if (doDisplaySec) {
-                    s = String.format(Locale.getDefault(),"%dh %dm %ds", hou, min, sec);
-                } else {
+                if (!doDisplayMin) {
+                    s = String.format(Locale.getDefault(),"%dh", hou);
+                } else if (!doDisplaySec) {
                     s = String.format(Locale.getDefault(),"%dh %dm", hou, min);
+                } else {
+                    s = String.format(Locale.getDefault(),"%dh %dm %ds", hou, min, sec);
                 }
             } else if (min !=0) {
                 s = String.format(Locale.getDefault(), "%dm %ds", min, sec);

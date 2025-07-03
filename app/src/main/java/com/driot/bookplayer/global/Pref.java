@@ -7,6 +7,7 @@ package com.driot.bookplayer.global;
 import static android.content.Context.MODE_PRIVATE;
 
 import static com.driot.bookplayer.utils.KanLogger.myLogE;
+import static com.driot.bookplayer.utils.KanMail.DEFAULT_SEND_MAIL_METHOD_DEFAULT;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -24,6 +25,22 @@ public class Pref {
 
     private static final String SHARED_PREFERENCES_DOWNLOAD = "SHARED_PREFERENCES_DOWNLOAD";
     private static final String KEY_LOAD_BOOK_TASK_STATE = "loadBookTaskState";
+
+    private static Context appContext;
+    private static android.content.SharedPreferences prefs;
+    public static void init(Context context) {
+        appContext = context.getApplicationContext();
+        prefs = appContext.getSharedPreferences(SHARED_PREFERENCES_DIVERSE, MODE_PRIVATE);
+    }
+
+
+
+    /////////////////// HAS BEEN PAUSED FOR  ///////////////////
+    public static void setPauseTime(long value) {prefs.edit().putLong("PAUSE_TIME", value).apply();}
+    public static void setPauseTime() {prefs.edit().putLong("PAUSE_TIME", System.currentTimeMillis()).apply();myLog("pause time set");}
+    public static long getPauseTime() {return prefs.getLong("PAUSE_TIME", 0);}
+
+
 
 
 

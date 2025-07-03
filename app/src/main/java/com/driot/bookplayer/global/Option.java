@@ -30,9 +30,7 @@ public class Option {
     private static final boolean DEFAULT_SPLIT_M4B = true;
 
     private static Context appContext;
-
     private static android.content.SharedPreferences prefs;
-
     public static void init(Context context) {
         appContext = context.getApplicationContext();
         prefs = appContext.getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE);
