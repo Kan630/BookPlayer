@@ -5,13 +5,13 @@
     <string name="yesterday">"ayer"</string>
     <string name="app_info">Información de la App</string>
     <string name="delete_logs">Eliminar registros</string>
-    <string name="delete">Eliminar</string>
+    <string name="Delete">Eliminar</string>
 
     <string name="title_FolderContent">Lista de archivos</string>
     <string name="PlayerActivity_Title" translatable="false">TextBook Player</string>
 
     <string name="yes">Sí</string>
-    <string name="cancel">Cancelar</string>
+    <string name="Cancel">Cancelar</string>
     <string name="are_you_sure">"¿Estás seguro?"</string>
 
     <string name="asset_statements" translatable="false">

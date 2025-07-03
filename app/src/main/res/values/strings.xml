@@ -5,13 +5,13 @@
     <string name="yesterday">"yesterday"</string>
     <string name="app_info">App Info</string>
     <string name="delete_logs">Delete Logs</string>
-    <string name="delete">Delete</string>
+    <string name="Delete">Delete</string>
 
     <string name="title_FolderContent">Files List</string>
     <string name="PlayerActivity_Title" translatable="false">TextBook Player</string>
 
     <string name="yes">Yes</string>
-    <string name="cancel">Cancel</string>
+    <string name="Cancel">Cancel</string>
     <string name="are_you_sure">Are you sure ?</string>
 
     <string name="asset_statements" translatable="false">
@@ -525,6 +525,14 @@
 
 
     <string name="LibrivoxSearch_warning">"Warning - Beta Test\nStill experimental\nIf download stalls, try to keep app foreground"</string>">
+
+    <string name="Set">Set</string>">
+    <string name="custom_value_in_minutes">custom value in minutes</string>">
+    <string name="MB_audios_in_app">MB: audios in app</string>">
+    <string name="MB_left_on_device">MB: left on device</string>">
+    <string name="MB_device_memory2">MB: device memory</string>">
+    <string name="MB">MB</string>">
+
 
 
 

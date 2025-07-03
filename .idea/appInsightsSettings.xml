@@ -31,6 +31,15 @@
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />
               <option name="timeIntervalDays" value="THIRTY_DAYS" />
+              <option name="versions">
+                <list>
+                  <VersionSetting>
+                    <option name="buildVersion" value="100" />
+                    <option name="displayName" value="100 - Crash bounty hunter (100)" />
+                    <option name="displayVersion" value="100 - Crash bounty hunter" />
+                  </VersionSetting>
+                </list>
+              </option>
               <option name="visibilityType" value="ALL" />
             </InsightsFilterSettings>
           </value>

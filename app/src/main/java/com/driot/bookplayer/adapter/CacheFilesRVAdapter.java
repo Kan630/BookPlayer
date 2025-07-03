@@ -3,6 +3,7 @@ package com.driot.bookplayer.adapter;
 import static com.driot.bookplayer.utils.Tonio.formatMem;
 import static com.driot.bookplayer.utils.Utils.getCustomLength;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,9 +35,11 @@ public class CacheFilesRVAdapter extends LoggingRVAdapter<CacheFilesRVAdapter.Fi
     private List<ZikFile> distinctZikFilePaths;
     private final OnDeleteClickListener onDeleteClickListener;
 
+    private final Context context;
 
-    public CacheFilesRVAdapter(OnDeleteClickListener onDeleteClickListener) {
+    public CacheFilesRVAdapter(Context context, OnDeleteClickListener onDeleteClickListener) {
         this.onDeleteClickListener = onDeleteClickListener;
+        this.context = context;
     }
 
     public void setDistinctZikFilePaths(List<ZikFile> distinctZikFilePaths) {
@@ -60,7 +63,7 @@ public class CacheFilesRVAdapter extends LoggingRVAdapter<CacheFilesRVAdapter.Fi
     @Override
     public void onBindViewHolder(@NonNull FileViewHolder holder, int position) {
         File file = filesOnDisk.get(position);
-        String zeSize = formatMem(getCustomLength(file) / 1024 / 1024, 5) + " Mo";
+        String zeSize = formatMem(getCustomLength(file) / 1024 / 1024, 5) + " " + context.getString(R.string.MB);
 
         holder.fileName.setText(file.getName());
         holder.audioStatus.setText(getAudioStatus(file));

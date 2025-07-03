@@ -150,7 +150,7 @@ public class AudioService extends LoggingService {
         public void onStop() {
             myLog("MediaSessionCompat.Callback - onStop()");
             super.onStop();
-            /*
+            /*  This was a large source of bugs... by killing mediaPlayer... after a pause... everything shit after...
             mediaPlayerStop();
             stopForeground(false);
              */

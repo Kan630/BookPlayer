@@ -5,13 +5,13 @@
     <string name="yesterday">"昨天"</string>
     <string name="app_info">应用信息</string>
     <string name="delete_logs">删除日志</string>
-    <string name="delete">删除</string>
+    <string name="Delete">删除</string>
 
     <string name="title_FolderContent">文件列表</string>
     <string name="PlayerActivity_Title" translatable="false">TextBook Player</string>
 
     <string name="yes">是</string>
-    <string name="cancel">取消</string>
+    <string name="Cancel">取消</string>
     <string name="are_you_sure">"确定吗？"</string>
 
     <string name="asset_statements" translatable="false">

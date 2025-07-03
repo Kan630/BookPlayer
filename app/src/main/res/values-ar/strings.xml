@@ -5,13 +5,13 @@
     <string name="yesterday">"أمس"</string>
     <string name="app_info">معلومات التطبيق</string>
     <string name="delete_logs">حذف السجلات</string>
-    <string name="delete">حذف</string>
+    <string name="Delete">حذف</string>
 
     <string name="title_FolderContent">قائمة الملفات</string>
     <string name="PlayerActivity_Title" translatable="false">TextBook Player</string>
 
     <string name="yes">نعم</string>
-    <string name="cancel">إلغاء</string>
+    <string name="Cancel">إلغاء</string>
     <string name="are_you_sure">"هل أنت متأكد؟"</string>
 
     <string name="asset_statements" translatable="false">

@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="number"
-        android:hint="custom value in minutes"
+        android:hint="@string/custom_value_in_minutes"
         android:padding="10dp"
         android:layout_marginTop="10dp"/>
 

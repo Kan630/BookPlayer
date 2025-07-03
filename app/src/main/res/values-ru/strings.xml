@@ -5,13 +5,13 @@
     <string name="yesterday">"вчера"</string>
     <string name="app_info">Информация о приложении</string>
     <string name="delete_logs">Удалить логи</string>
-    <string name="delete">Удалить</string>
+    <string name="Delete">Удалить</string>
 
     <string name="title_FolderContent">Список файлов</string>
     <string name="PlayerActivity_Title" translatable="false">TextBook Player</string>
 
     <string name="yes">Да</string>
-    <string name="cancel">Отмена</string>
+    <string name="Cancel">Отмена</string>
     <string name="are_you_sure">"Вы уверены?"</string>
 
     <string name="asset_statements" translatable="false">

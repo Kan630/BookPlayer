@@ -218,6 +218,12 @@ public class PlayActivity extends LoggingActivity {
         frequencyVisualizerView = findViewById(R.id.frequencyVisualizerView);
         frequencyVisualizerView.setOnClickListener(v -> visualizerClick());
 
+        if (PlayList.getInstance() == null) {
+            myToast("error getting Playlist");
+            myLogEE(null,"onCreate() -- cancelling since PlayList.getInstance() == null");
+            finish();
+        }
+
         myLog("onCreate() -- Launching Music Service");
         launchService();
 
@@ -393,8 +399,8 @@ public class PlayActivity extends LoggingActivity {
                 }
             }
         };
-        builder.setPositiveButton("Set", setSleepAction);
-        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
+        builder.setPositiveButton(getString(R.string.Set), setSleepAction);
+        builder.setNegativeButton(getString(R.string.Cancel), (dialog, which) -> dialog.cancel());
 
         // Show the dialog
         AlertDialog dialog = builder.create();

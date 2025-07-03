@@ -58,7 +58,7 @@ public class CacheFilesActivity extends LoggingActivity implements CacheFilesRVA
         cacheFilesViewModel.getFilesOnDisk().observe(this, myObserverOnDisk);
 
 //RecyclerView
-        cacheFilesAdapter = new CacheFilesRVAdapter(this);
+        cacheFilesAdapter = new CacheFilesRVAdapter(this, this);
         RecyclerView recyclerView = findViewById(R.id.recyclerView_cacheFiles);
         recyclerView.setAdapter(cacheFilesAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -77,9 +77,9 @@ public class CacheFilesActivity extends LoggingActivity implements CacheFilesRVA
         long currentAudiosSize = getFolderSize(this.getFilesDir().getPath() + "/unzipped") / 1048576L;
         long totalMemory = getTotaLInternalMemorySize() / 1048576L;
         long availableMegs2 = getAvailableInternalMemorySize() / 1048576L;
-        String zeText = formatMem(currentAudiosSize) + " MB taken by books" + "\n" + "\n" +
-                        formatMem(availableMegs2) + " MB left on the device" + "\n" + "\n" +
-                        formatMem(totalMemory) + " MB : Device memory";
+        String zeText = formatMem(currentAudiosSize) + " " + getString(R.string.MB_audios_in_app) + "\n" + "\n" +
+                        formatMem(availableMegs2) + " " + getString(R.string.MB_left_on_device) + "\n" + "\n" +
+                        formatMem(totalMemory) + " " + getString(R.string.MB_device_memory2);
         TextView tv_txt = findViewById(R.id.cachefiles_stats_text);
         tv_txt.setText(zeText);
         myLogD("FillTextViewMemoryStats()\n" + zeText);
@@ -91,8 +91,8 @@ public class CacheFilesActivity extends LoggingActivity implements CacheFilesRVA
                 .setTitle(R.string.AskDelete_popupTitle)
                 .setMessage(getString(R.string.CacheFiles_AskDeleteAudioBook) + ":\n [" + file.getName() + "]\n    " + getString(R.string.are_you_sure))
                 .setCancelable(false)
-                .setPositiveButton("ok", (dialog, which) -> cacheFilesViewModel.deleteAudio(file))
-                .setNegativeButton("cancel", (dialogInterface, i) -> {
+                .setPositiveButton(getString(R.string.Delete), (dialog, which) -> cacheFilesViewModel.deleteAudio(file))
+                .setNegativeButton(getString(R.string.Cancel), (dialogInterface, i) -> {
                 })
                 .show();
     }
