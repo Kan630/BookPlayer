@@ -92,7 +92,7 @@ public class AddResourceActivity
             if (mBound) unbindService(addResourceServiceConnection);
             mBound = false;
         } catch (Exception e) {
-            myLogEE(e,"onDestroy - error unbindService : " + e.getMessage());
+            myLogEE(e,"onDestroy - error unbindService");
         }
     }
     @Override
@@ -103,7 +103,7 @@ public class AddResourceActivity
             if (mBound) unbindService(addResourceServiceConnection);
             mBound = false;
         } catch (Exception e) {
-            myLogEE(e,"onStop - error unbindService : " + e.getMessage());
+            myLogEE(e,"onStop - error unbindService");
         }
     }
 

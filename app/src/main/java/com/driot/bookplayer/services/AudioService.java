@@ -150,8 +150,10 @@ public class AudioService extends LoggingService {
         public void onStop() {
             myLog("MediaSessionCompat.Callback - onStop()");
             super.onStop();
+            /*
             mediaPlayerStop();
             stopForeground(false);
+             */
         }
         @Override
         public boolean onMediaButtonEvent(Intent mediaButtonIntent) {
@@ -884,7 +886,7 @@ public class AudioService extends LoggingService {
                     mediaPlayer = null;
                     myLog("mediaPlayer released due to memory pressure");
                 } catch (Exception e) {
-                    myLogEE(e,"onTrimMemory - Error releasing mediaPlayer: " + e.getMessage());
+                    myLogEE(e,"onTrimMemory - Error releasing mediaPlayer");
                 }
             } else {
                 myLog("mediaPlayer was already null");
@@ -934,11 +936,11 @@ public class AudioService extends LoggingService {
                         myLogE("updateZikFileState - Error sql response ---------- ZikFile NOT updated");
                     }
                 } catch (Exception e) {
-                    myLogEE(e,"updateZikFileState - Exception while Updating File progress in Thread - " + e.getMessage());
+                    myLogEE(e,"updateZikFileState - Exception while Updating File progress in Thread");
                 }
             }).start();
         } catch (Exception e) {
-            myLogEE(e,"updateZikFileState - Exception while Updating File progress in Initialization - " + e.getMessage());
+            myLogEE(e,"updateZikFileState - Exception while Updating File progress in Initialization");
         }
     }
 
@@ -948,7 +950,7 @@ public class AudioService extends LoggingService {
             SharedPreferences.Editor editor = getSharedPreferences(SHARED_PREFERENCE_SPEED, MODE_PRIVATE).edit();
             editor.putString(String.valueOf(getCurrentZikFile().getIdFolder()),Double.toString(speed)).apply();
         } catch (Exception e) {
-            myLogEE(e,"error saving speed in prefs - " + e.getMessage());
+            myLogEE(e,"error saving speed in prefs");
         }
     }
 
@@ -957,7 +959,7 @@ public class AudioService extends LoggingService {
             SharedPreferences prefs = getSharedPreferences(SHARED_PREFERENCE_SPEED, MODE_PRIVATE);
             return Double.parseDouble(prefs.getString(String.valueOf(getCurrentZikFile().getIdFolder()), "1.0"));
         } catch (Exception e) {
-            myLogEE(e,"error getting speed from prefs - " + e.getMessage());
+            myLogEE(e,"error getting speed from prefs");
             return 1.0;
         }
     }
@@ -1036,12 +1038,12 @@ public class AudioService extends LoggingService {
                     startForeground(ID_NOTIFICATION_PLAY_AUDIO_INT, notification);
                 }
             } catch (Throwable t) {
-                myLogEE(t,"Notification startForeground failed : " + t.getMessage());
+                myLogEE(t,"Notification startForeground failed");
             }
 
 
         } catch (Exception t) {
-            myLogEE(t,"Notification creation failed: " + t.getMessage());
+            myLogEE(t,"Notification creation failed");
         }
     }
 
@@ -1060,12 +1062,13 @@ public class AudioService extends LoggingService {
                     manager.createNotificationChannel(channel);
                 }
             } catch (Exception e) {
-                myLogEE(e,"createNotificationChannel() - " + e.getMessage());
+                myLogEE(e,"createNotificationChannel()");
             }
         }
     }
 
     private void removeNotification() {
+        myLogD("removeNotification()");
         try {
             stopForeground(true); // Remove the notification and stop being a foreground service
 
@@ -1078,20 +1081,22 @@ public class AudioService extends LoggingService {
 
             myLogI("Notification removed");
         } catch (Exception e) {
-            myLogEE(e,"Failed to remove notification: " + e.getMessage());
+            myLogEE(e,"Failed to remove notification");
         }
     }
 
     private void mediaPlayerPause() {
+        myLogD("mediaPlayerPause()");
         mediaPlayer.pause();
         updatePlaybackState(PlaybackStateCompat.STATE_PAUSED, mediaPlayer.getCurrentPosition(), 0.0f);
         Pref.setPauseTime();
     }
     private void mediaPlayerStop() {
+        myLogD("mediaPlayerStop()");
         mediaPlayer.stop();
         updatePlaybackState(PlaybackStateCompat.STATE_STOPPED, 0, 0.0f);
         mediaSession.setActive(false);
-        if (Pref.getPauseTime() != 0 ) Pref.setPauseTime();
+        if (Pref.getPauseTime() == 0 ) Pref.setPauseTime();
     }
 
     private void updatePlaybackState(int playbackState, long position, float playbackSpeed) {
@@ -1120,7 +1125,7 @@ public class AudioService extends LoggingService {
                 myLogE("playBeep - wrong argument : " + beepType);
             }
         } catch (Exception e) {
-            myLogEE(e,"playBeep(" + beepType + ") - " + e.getMessage());
+            myLogEE(e,"playBeep(" + beepType + ")");
         }
     }
 

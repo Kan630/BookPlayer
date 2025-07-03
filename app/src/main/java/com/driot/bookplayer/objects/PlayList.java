@@ -119,7 +119,7 @@ public class PlayList {
             try {
                 return zikFilesList.get(numZikFile);
             } catch (Exception e) {
-                myLogEE(e, "zikFilesList.get(numZikFile)  - " + e.getMessage());
+                myLogEE(e, "zikFilesList.get(" + numZikFile + ") => throw new IllegalStateException");
                 throw new IllegalStateException("Could not get audio file from PlayList.");
             }
         }

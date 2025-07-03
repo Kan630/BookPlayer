@@ -191,27 +191,27 @@ public class AddResourceService
             if (mUnzipServiceBound != null && mUnzipServiceBound) unbindService(unzipServiceConnection);
             mUnzipServiceBound = false;
         } catch (Exception e) {
-            myLogEE(e,"onUnbind - error unbindService Unzip : " + e.getMessage());
+            myLogEE(e,"onUnbind - error unbindService Unzip");
         }
         try {
             if (mCopyFileServiceBound != null && mCopyFileServiceBound) unbindService(copyFileServiceConnection);
             mCopyFileServiceBound = false;
         } catch (Exception e) {
-            myLogEE(e,"onUnbind - error unbindService CopyFile : " + e.getMessage());
+            myLogEE(e,"onUnbind - error unbindService CopyFile");
             e.printStackTrace();
         }
         try {
             if (mDownloadServiceBound != null && mDownloadServiceBound) unbindService(downloadServiceConnection);
             mDownloadServiceBound = false;
         } catch (Exception e) {
-            myLogEE(e,"onUnbind - error unbindService Download : " + e.getMessage());
+            myLogEE(e,"onUnbind - error unbindService Download");
             e.printStackTrace();
         }
         try {
             if (mSplitM4bServiceBound != null && mSplitM4bServiceBound) unbindService(splitM4bServiceConnection);
             mSplitM4bServiceBound = false;
         } catch (Exception e) {
-            myLogEE(e,"onUnbind - error unbindService Split M4B : " + e.getMessage());
+            myLogEE(e,"onUnbind - error unbindService Split M4B");
             e.printStackTrace();
         }
         return super.onUnbind(intent);
@@ -259,8 +259,7 @@ public class AddResourceService
         try {
             boundToCopyFileService = bindService(intentCopyFileService, copyFileServiceConnection, Context.BIND_AUTO_CREATE); //error Log : Activity XXX has leaked ServiceConnection
         } catch (Exception e) {
-            myLogEE(e,"ERROR bind to Service in launchCopyFileService ");
-            myLogEE(e,e.getMessage());
+            myLogEE(e,"ERROR bind to Service in launchCopyFileService");
         }
         mCallBacks.tellHeader(destinationFileName);
         myLog("call start & bind to copyFileService from launchCopyFileService - bound result :" + boundToCopyFileService + "");
@@ -295,8 +294,7 @@ public class AddResourceService
         try {
             boundToUnzipService = bindService(intentUnzipService, unzipServiceConnection, Context.BIND_AUTO_CREATE); //error Log : Activity XXX has leaked ServiceConnection
         } catch (Exception e) {
-            myLogEE(e,"ERROR bind to Service in launchUnzipService ");
-            myLogEE(e,e.getMessage());
+            myLogEE(e,"ERROR bind to Service in launchUnzipService");
         }
         myLog("call start & bind to unzipService from launchUnzipService - bound result :" + boundToUnzipService);
     }
@@ -330,8 +328,7 @@ public class AddResourceService
         try {
             boundToSplitM4bService = bindService(intentSplitM4bService, splitM4bServiceConnection, Context.BIND_AUTO_CREATE); //error Log : Activity XXX has leaked ServiceConnection
         } catch (Exception e) {
-            myLogEE(e,"ERROR bind to Service in launchsplitM4bService ");
-            myLogEE(e,e.getMessage());
+            myLogEE(e,"ERROR bind to Service in launchsplitM4bService");
         }
         myLog("call start & bind to splitM4bService from launchsplitM4bService - bound result :" + boundToSplitM4bService);
     }
@@ -366,8 +363,7 @@ public class AddResourceService
         try {
             boundToDownloadService = bindService(intentDownloadService, downloadServiceConnection, Context.BIND_AUTO_CREATE); //error Log : Activity XXX has leaked ServiceConnection
         } catch (Exception e) {
-            myLogEE(e,"ERROR bind to Service in launchDownloadService ");
-            myLogEE(e,e.getMessage());
+            myLogEE(e,"ERROR bind to Service in launchDownloadService");
         }
         myLog("call start & bind to downloadService from launchDownloadService - bound result :" + boundToDownloadService );
     }
@@ -522,7 +518,7 @@ public class AddResourceService
                 } catch (Throwable t) {
                     String strErr = "Error while listing audio files";
                     if (t instanceof OutOfMemoryError && t.getMessage() != null && t.getMessage().contains("pthread_create")) {
-                        myLogEE(t,"Too many threads or not enough native memory: " + t.toString());
+                        myLogEE(t,"Too many threads or not enough native memory");
                         strErr = getString(R.string.Error_Import_OutOfMemory)
                                 + "\n" + getString(R.string.Error_Import_This_folder_may_contain_too_many_books);
                     } else {
@@ -659,7 +655,7 @@ public class AddResourceService
                 try {
                     dfPickedDir = DocumentFile.fromSingleUri(this, uri_given);
                 } catch (Exception e) {
-                    myLogEE(e,"Error reading picked File.... DocumentFile.fromSingleUri : " + e.getMessage());
+                    myLogEE(e,"Error reading picked File.... DocumentFile.fromSingleUri");
                     tellError(getString(R.string.Error_Import_CannotReadFile));
                     break;
                 }
@@ -784,7 +780,7 @@ public class AddResourceService
                 try {
                     dfPickedDir = DocumentFile.fromTreeUri(this, uri_given);
                 } catch (Exception e) {
-                    myLogEE(e,"Error reading picked Folder.... DocumentFile.fromTreeUri : " + e.getMessage());
+                    myLogEE(e,"Error reading picked Folder.... DocumentFile.fromTreeUri");
                     tellError(getString(R.string.Error_Import_CannotReadFolder));
                     break;
                 }
@@ -1074,14 +1070,14 @@ public class AddResourceService
             try {
                 dfPickedDir = DocumentFile.fromSingleUri(this, uri_given);
             } catch (Exception e) {
-                myLogEE(e,"deleting - error getting DocumentFile.fromSingleUri : " + e.getMessage());
+                myLogEE(e,"deleting - error getting DocumentFile.fromSingleUri");
                 tellError(getString(R.string.Error_Import_CannotDeleteSource));
             }
         } else if (type_given.equals("Folder")) {
             try {
                 dfPickedDir = DocumentFile.fromTreeUri(this, uri_given);
             } catch (Exception e) {
-                myLogEE(e,"deleting - error getting DocumentFile.fromTreeUri : " + e.getMessage());
+                myLogEE(e,"deleting - error getting DocumentFile.fromTreeUri");
                 tellError(getString(R.string.Error_Import_CannotDeleteSource));
             }
         } else {
@@ -1110,7 +1106,7 @@ public class AddResourceService
             } catch (Exception e) {
                 e.printStackTrace(); // could be access right : Permission to access file: /storage/emulated/0/Audiobooks/Folder Fun letters/ازة-بالقراءات-العش.mp3 is denied
                 tellError(getResources().getString(R.string.Error_Import_track_duration_extraction) + " // path : " + zePath);
-                myLogEE(e,"error getting duration of media : " + e.getMessage() + " for " + zePath);
+                myLogEE(e,"error getting duration of media for " + zePath);
             }
         } else {
             tellError(getResources().getString(R.string.Error_Import_track_duration_nofile) + " // path : " + zePath);
@@ -1300,7 +1296,7 @@ public class AddResourceService
         try {
             dfPickedDir = DocumentFile.fromFile(new File(destinationFolderPath));
         } catch (Exception e) {
-            myLogEE(e,"error getting DocumentFile.fromFile : " + e.getMessage());
+            myLogEE(e,"error getting DocumentFile.fromFile");
             return;
         }
         populateArrayListOfTracksFromFolder(dfPickedDir);
@@ -1338,7 +1334,7 @@ public class AddResourceService
         try {
             dfPickedDir = DocumentFile.fromFile(new File(destinationFolderPath));
         } catch (Exception e) {
-            myLogEE(e,"error getting DocumentFile.fromFile : " + e.getMessage());
+            myLogEE(e,"error getting DocumentFile.fromFile");
             return;
         }
         populateArrayListOfTracksFromFolder(dfPickedDir);

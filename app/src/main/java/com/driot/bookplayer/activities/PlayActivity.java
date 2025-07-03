@@ -265,7 +265,7 @@ public class PlayActivity extends LoggingActivity {
                         LocalBroadcastManager.getInstance(PlayActivity.this).unregisterReceiver(broadCastReceiver);
                         stopService(intentMusicService);
                     } catch (Exception e) {
-                        myLogEE(e,"onBackPressed() - " + e.getMessage());
+                        myLogEE(e,"onBackPressed()");
                     }
                 }
                 finish();
@@ -298,7 +298,6 @@ public class PlayActivity extends LoggingActivity {
             audioServiceBound = bindService(intentMusicService, audioServiceConnection, Context.BIND_AUTO_CREATE); //TODO leaked ServiceConnection if user press back
         } catch (Exception e) {
             myLogEE(e,"ERROR bindService");
-            myLogEE(e,e.getMessage());
         }
         myLog("call start & bind to AudioService in onCreate() - bound result :" + audioServiceBound);
     }
@@ -450,7 +449,7 @@ public class PlayActivity extends LoggingActivity {
             try {
                 unbindService(audioServiceConnection);
             } catch (Exception e) {
-                myLogEE(e,"onDestroy() - unbindService - " + e.getMessage());
+                myLogEE(e,"onDestroy() - unbindService");
             }
         }
 
@@ -458,7 +457,7 @@ public class PlayActivity extends LoggingActivity {
         try {
             LocalBroadcastManager.getInstance(this).unregisterReceiver(broadCastReceiver);
         } catch (Exception e) {
-            myLogEE(e,"onDestroy() - unregisterReceiver - " + e.getMessage());
+            myLogEE(e,"onDestroy() - unregisterReceiver");
         }
 
         super.onDestroy();
@@ -502,7 +501,7 @@ public class PlayActivity extends LoggingActivity {
 
             } catch (Exception e) {
                 myToastE("Error Loading playlist");
-                myLogEE(e,"Error Loading playlist :" + e.getMessage());
+                myLogEE(e,"Error Loading playlist");
             }
         }).start();
     }
@@ -523,7 +522,6 @@ public class PlayActivity extends LoggingActivity {
             myLog("----------------------------- play screen drawn " + PlayList.getInstance().getZikFile().getPosition());
         } catch (Exception e) {
             myLogEE(e,":----------------------------- play screen drawn ERROR");
-            myLogEE(e,e.getMessage());
         }
     }
     private void reDrawListeningSince(int tempsEcoule) { // le call vient d'1 timer dans le service...
@@ -547,8 +545,7 @@ public class PlayActivity extends LoggingActivity {
                 tvTimeLeft.setText("");
             }
         } catch (Exception e) {
-            myLogEE(e,"reDrawListeningSince(" + tempsEcoule + ") - " + e.getMessage());
-            myLogEE(e,e.getMessage());
+            myLogEE(e,"reDrawListeningSince(" + tempsEcoule + ")");
         }
     }
 
@@ -615,7 +612,7 @@ public class PlayActivity extends LoggingActivity {
                     //frequencyVisualizerView.setEnabled(false);
                     frequencyVisualizerView.link_toto(audioService.getAudioSessionId());
                 } catch (Exception e) {
-                    myLogEE(e,"runVisualizer - " + e.getMessage());
+                    myLogEE(e,"runVisualizer");
                 }
             } else {
                 myLog("frequencyVisualizerView is On, but permission is not granted");
@@ -671,7 +668,7 @@ public class PlayActivity extends LoggingActivity {
                 }
             }
         } catch (Exception e) {
-            myLogEE(e,"lockButtonAndDisplayErrorMessage - " + e.getMessage());
+            myLogEE(e,"lockButtonAndDisplayErrorMessage");
         }
         unbindService(audioServiceConnection);
         killTimerForDisplay();
@@ -685,7 +682,7 @@ public class PlayActivity extends LoggingActivity {
             intent.setData(uri);
             startActivity(intent);
         } catch (Exception e) {
-            myLogEE(e,"openAppSettingsOnPhone() => " + e.getMessage());
+            myLogEE(e,"openAppSettingsOnPhone()");
         }
     }
 

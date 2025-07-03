@@ -329,7 +329,7 @@ public class LoadOptionsActivity extends LoggingActivity {
             intent.setData(uri);
             startActivity(intent);
         } catch (Exception e) {
-            myLogEE(e,"openAppSettingsOnPhone() => " + e.getMessage());
+            myLogEE(e,"openAppSettingsOnPhone()");
         }
     }
 

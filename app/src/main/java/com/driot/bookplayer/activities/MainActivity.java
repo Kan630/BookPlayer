@@ -336,7 +336,7 @@ public class MainActivity extends LoggingActivity {
             myKeyFirebase("TelephonyManager country", Objects.toString(getCountryFromTelephonyManager(this)));
 
         } catch (Exception e) {
-            myLogEE(e, "printSomeStuffAboutDevice : " + e.getMessage());
+            myLogEE(e, "printSomeStuffAboutDevice");
         }
     }
 

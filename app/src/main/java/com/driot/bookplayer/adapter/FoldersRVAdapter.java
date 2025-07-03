@@ -115,7 +115,7 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
                         myToastE(mCtx.getString(R.string.ErrorCouldNotLoadAudios_emptyfolder));
                     }
                 } catch (Exception e) {
-                    myLogEE(e,"error getting nb of ZikFiles - " + e.getMessage());
+                    myLogEE(e,"error getting nb of ZikFiles");
                     myToastE(mCtx.getString(R.string.ErrorCouldNotLoadAudios));
                 }
             }).start();

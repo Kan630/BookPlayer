@@ -250,7 +250,7 @@ public class LibrivoxDetailActivity extends LoggingActivity {
             } catch (Exception e) {
                 runOnUiThread(() -> {
                     infoView.append("\n⚠ " + getString(R.string.Error_checking_file) + ": " + e.getMessage());
-                    myLogEE(e,"Error checking file: " + e.getMessage());
+                    myLogEE(e,"Error checking file");
                     viewModel.zipExists.setValue(false);
                 });
             }

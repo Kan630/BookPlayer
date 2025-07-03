@@ -143,7 +143,7 @@ public class FolderAttrib {
                 String realPath = FileUtils.getRealPathFromURI(mCtx, uri);
                 sFolderPath = stripFileName(realPath);
             } catch (Exception e) {
-                myLogEE(e,"FileUtils.getRealPathFromURI(mCtx, uri);   " +  e.getMessage());
+                myLogEE(e,"FileUtils.getRealPathFromURI(mCtx, uri); - uri=[" + uri + "]");
             }
 
             if (sFolderPath != null) {

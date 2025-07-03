@@ -96,7 +96,7 @@ public class ZikFileActivity extends LoggingActivity {
                     }
                 }
             } catch (Exception e) {
-                myLogEE(e,"goToLastCurrentAudio() - " + e.getMessage());
+                myLogEE(e,"goToLastCurrentAudio()");
             }
         }
     }

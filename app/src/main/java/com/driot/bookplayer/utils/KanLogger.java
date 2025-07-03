@@ -171,7 +171,7 @@ public class KanLogger {
     }
 
     public static void myLogEE(Throwable t, String prefix, String str) {
-        myLogE(prefix, str);
+        myLogE(prefix, str + (t != null ?  " : " + t.getMessage() : ""));
         FirebaseCrashlytics.getInstance().setCustomKey("prefix",prefix);
         String strFirebaseLog =  prefix + " " + str;
         if (t!=null) {
