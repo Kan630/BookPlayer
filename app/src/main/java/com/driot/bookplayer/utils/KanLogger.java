@@ -20,6 +20,7 @@ import java.util.Locale;
 import static com.driot.bookplayer.global.Option.getTechLog;
 import static com.driot.bookplayer.utils.TonioCommonStuff.MD5;
 
+import com.driot.bookplayer.global.Option;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 /**
@@ -70,11 +71,11 @@ public class KanLogger {
             return null;
         }
     }
-    //public static void setKanContext(Context c) {    // Now using MyPersonalApp
-    //    KanLogger.appContext = c;
-    //}
+
+
     public static void init(Context context) {
         appContext = context.getApplicationContext();
+        //if (isMyPhoneDev()) { setDevSpecialOption(); }
     }
 
     /////////////////////////////////

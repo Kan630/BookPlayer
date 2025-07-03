@@ -220,6 +220,7 @@ public class LoadOptionsActivity extends LoggingActivity {
 
         if ("ZIP".equals(type)) {
             cbCopy.setEnabled(false);
+            llCopy.setEnabled(false);
             cbCopy.setChecked(true);
         }
 

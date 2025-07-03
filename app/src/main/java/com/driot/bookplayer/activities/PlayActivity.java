@@ -260,8 +260,10 @@ public class PlayActivity extends LoggingActivity {
             @Override
             public void handleOnBackPressed() {
                 myLogI("onBackPressed() -- (should be user action)");
-                if (audioService.isPlaying()) {
-                    playMe();
+                if (audioService != null && audioService.isRunning()) {
+                    if (audioService.isPlaying()) {
+                        playMe();
+                    }
                 }
                 //PlayList.getInstance().clear();
                 if (audioServiceBound) {
@@ -271,7 +273,7 @@ public class PlayActivity extends LoggingActivity {
                         LocalBroadcastManager.getInstance(PlayActivity.this).unregisterReceiver(broadCastReceiver);
                         stopService(intentMusicService);
                     } catch (Exception e) {
-                        myLogEE(e,"onBackPressed()");
+                        myLogEE(e,"onBackPressed() [error may be audio file not found, and so, service was not started]");
                     }
                 }
                 finish();
