@@ -430,7 +430,6 @@
     <string name="LibrivoxResultitem_nb_of_reviews">"Nb d\'avis"</string>
     <string name="LibrivoxResultitem_avg_rating">"Note moyenne"</string>
     <string name="Librivox_bGetAudioBook">"Obtenir l\'audiobook"</string>
-    <string name="LibrivoxSearch_warning">"Attention - Test Bêta\nEncore expérimental"</string>
 
     <string name="Download_cancelled">"Téléchargement annulé"</string>
     <string name="Download_failed">"Échec du téléchargement"</string>
@@ -470,6 +469,9 @@
 \n* Plus de mémoire sera utilisée si vous ne supprimez pas le fichier source.</string>
 
     <string name="option_copy_file_text">Copier les fichiers audio dans la mémoire interne réservée de l\'application BookPlayer.</string>
+
+    <string name="LibrivoxSearch_warning">"Avertissement - Test bêta\nEncore expérimental\nSi le téléchargement bloque, essayez de garder l\'application au premier plan"</string>
+
 
 
 </resources>

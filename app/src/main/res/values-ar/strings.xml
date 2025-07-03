@@ -459,7 +459,6 @@
     <string name="LibrivoxResultitem_nb_of_reviews">"عدد المراجعات"</string>
     <string name="LibrivoxResultitem_avg_rating">"متوسط التقييم"</string>
     <string name="Librivox_bGetAudioBook">"الحصول على الكتاب الصوتي"</string>
-    <string name="LibrivoxSearch_warning">"تحذير - إصدار تجريبي\nلا يزال تحت التجربة"</string>
 
     <string name="Download_cancelled">"تم إلغاء التنزيل"</string>
     <string name="Download_failed">"فشل في التنزيل"</string>
@@ -500,6 +499,7 @@
 
     <string name="option_copy_file_text">نسخ الملفات الصوتية إلى ذاكرة التطبيق الداخلية المحجوزة لـ BookPlayer.</string>
 
+    <string name="LibrivoxSearch_warning">"تحذير - نسخة تجريبية\nلا يزال في طور التجربة\nإذا توقف التنزيل، حاول إبقاء التطبيق في المقدمة"</string>
 
 
 </resources>

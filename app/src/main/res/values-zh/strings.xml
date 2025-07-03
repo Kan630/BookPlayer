@@ -457,7 +457,6 @@
     <string name="LibrivoxResultitem_nb_of_reviews">"评论数量"</string>
     <string name="LibrivoxResultitem_avg_rating">"平均评分"</string>
     <string name="Librivox_bGetAudioBook">"获取有声书"</string>
-    <string name="LibrivoxSearch_warning">"警告 - 测试版\n功能仍在实验中"</string>
 
     <string name="Download_cancelled">"下载已取消"</string>
     <string name="Download_failed">"下载失败"</string>
@@ -497,6 +496,8 @@
 \n* 如果不删除源文件，将需要更多内存。</string>
 
     <string name="option_copy_file_text">将音频文件复制到 BookPlayer 应用的内部专用存储中。</string>
+
+    <string name="LibrivoxSearch_warning">"警告 - 测试版\n仍在试验中\n如果下载卡住，请尝试保持应用处于前台"</string>
 
 
 </resources>

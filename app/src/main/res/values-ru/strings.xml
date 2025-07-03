@@ -458,7 +458,6 @@
     <string name="LibrivoxResultitem_nb_of_reviews">"Количество отзывов"</string>
     <string name="LibrivoxResultitem_avg_rating">"Средняя оценка"</string>
     <string name="Librivox_bGetAudioBook">"Получить аудиокнигу"</string>
-    <string name="LibrivoxSearch_warning">"Внимание — бета-тест\nФункция в стадии эксперимента"</string>
 
     <string name="Download_cancelled">"Загрузка отменена"</string>
     <string name="Download_failed">"Ошибка загрузки"</string>
@@ -498,6 +497,8 @@
 \n* Потребуется больше памяти, если вы не удалите исходный файл.</string>
 
     <string name="option_copy_file_text">Копировать аудиофайлы во внутреннюю память приложения BookPlayer.</string>
+
+    <string name="LibrivoxSearch_warning">"Предупреждение – Бета-тест\nВсё ещё в стадии эксперимента\nЕсли загрузка останавливается, попробуйте удерживать приложение на переднем плане"</string>
 
 
 </resources>
