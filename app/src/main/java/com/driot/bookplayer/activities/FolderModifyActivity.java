@@ -29,6 +29,7 @@ public class FolderModifyActivity extends LoggingActivity {
     private String FolderName;
 
     EditText etIntroCut;
+    EditText etRename;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,19 +38,20 @@ public class FolderModifyActivity extends LoggingActivity {
 
         Button bDelete = findViewById(R.id.bDelete);
         Button bReset = findViewById(R.id.bReset);
-        Button bRename = findViewById(R.id.bRename);
         Button bExport = findViewById(R.id.bExport);
         TextView tvTitle = findViewById(R.id.title);
         //TextView tvImportedOn = findViewById(R.id.importedOn);
         TextView tvLastAccess = findViewById(R.id.lastAccess);
-        TextView tvRename = findViewById(R.id.etRename);
+
         ImageView ivStorageIcon = findViewById(R.id.imageViewStorageIcon);
         TextView tvStorageIcon = findViewById(R.id.textViewStorageIcon);
 
         idFolder = getIntent().getIntExtra("FolderId", 0);
         FolderName = getIntent().getStringExtra("FolderName");
         tvTitle.setText(FolderName);
-        tvRename.setText(FolderName);
+
+        etRename = findViewById(R.id.etRename);
+        etRename.setText(FolderName);
 
         //String importedOn = getString(R.string.ImportedOn) + " : " + getIntent().getStringExtra("ImportedOn");   /// Only time is saved in Folder, could get date from ZokFile
         //tvImportedOn.setText(importedOn);
@@ -63,8 +65,6 @@ public class FolderModifyActivity extends LoggingActivity {
         tvStorageIcon.setText(memoryLocationText);
 
         bDelete.setOnClickListener(view -> bDeleteClick());
-
-        bRename.setOnClickListener(view -> bRenameClick(tvRename.getText().toString()));
 
         bReset.setOnClickListener(view -> bResetClick());
 
@@ -135,7 +135,7 @@ public class FolderModifyActivity extends LoggingActivity {
         }
     }
 
-    private void bRenameClick(String newName) {
+    private void renameBook(String newName) {
         if (newName.length() < 2) {
             myToast(getString(R.string.Error_FolderNameTooShort));
         } else {
@@ -190,6 +190,25 @@ public class FolderModifyActivity extends LoggingActivity {
         }
         Pref.saveIntroCutToPref(this, idFolder, introCut);
         super.onDestroy();
+    }
+
+    @Override
+    public void onBackPressed() {
+        String newName = ((TextView) findViewById(R.id.etRename)).getText().toString().trim();
+        if (!newName.equals(FolderName)) {
+            new AlertDialog.Builder(this)
+                    .setTitle(R.string.AskRename_popupTitle)
+                    .setMessage(getString(R.string.AskRename_Book) + "\n[ " + newName + " ]")
+                    .setPositiveButton(R.string.Yes, (dialog, which) -> {
+                        renameBook(newName);
+                    })
+                    .setNegativeButton(R.string.No, (dialog, which) -> {
+                        super.onBackPressed(); // Just leave
+                    })
+                    .show();
+        } else {
+            super.onBackPressed(); // No changes, just leave
+        }
     }
 
 }

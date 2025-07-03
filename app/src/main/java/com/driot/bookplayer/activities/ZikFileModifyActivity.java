@@ -205,7 +205,7 @@ public class ZikFileModifyActivity extends LoggingActivity {
                 .setTitle(ZikFileModifyActivity.this.getString(R.string.ModifyFolder_AskDeleteProgressFromZikFile_Title))
                 .setMessage(ZikFileModifyActivity.this.getString(R.string.ModifyFolder_AskDeleteProgressFromZikFile_Text))
                 .setCancelable(false)
-                .setPositiveButton(ZikFileModifyActivity.this.getString(R.string.yes), (dialog, which) -> deleteProgressFromThisZikFile(idFolder, zikFileName))
+                .setPositiveButton(ZikFileModifyActivity.this.getString(R.string.Yes), (dialog, which) -> deleteProgressFromThisZikFile(idFolder, zikFileName))
                 .setNegativeButton(ZikFileModifyActivity.this.getString(R.string.Cancel), (dialogInterface, i) -> {})
                 .show();
     }

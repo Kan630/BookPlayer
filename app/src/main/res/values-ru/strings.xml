@@ -10,7 +10,8 @@
     <string name="title_FolderContent">Список файлов</string>
     <string name="PlayerActivity_Title" translatable="false">TextBook Player</string>
 
-    <string name="yes">Да</string>
+    <string name="Yes">Да</string>
+    <string name="No">Нет</string>
     <string name="Cancel">Отмена</string>
     <string name="are_you_sure">"Вы уверены?"</string>
 
@@ -401,7 +402,6 @@
     <string name="Export">"Экспорт…"</string>
 
     <string name="bRenameFolder">"Переименовать книгу"</string>
-    <string name="IntroCut">"Обрезка вступления"</string>
     <string name="IntroCutText"><i>"Обрезает первые секунды каждой главы при воспроизведении."</i></string>
 
     <string name="Export_notification_title">"Аудиокнига экспортирована"</string>
@@ -500,5 +500,14 @@
 
     <string name="LibrivoxSearch_warning">"Предупреждение – Бета-тест\nВсё ещё в стадии эксперимента\nЕсли загрузка останавливается, попробуйте удерживать приложение на переднем плане"</string>
 
-
+    <string name="Set">Установить</string>
+    <string name="custom_value_in_minutes">пользовательское значение в минутах</string>
+    <string name="MB_audios_in_app">МБ: аудио в приложении</string>
+    <string name="MB_left_on_device">МБ: свободно на устройстве</string>
+    <string name="MB_device_memory2">МБ: память устройства</string>
+    <string name="MB">МБ</string>
+    <string name="IntroCut">Обрезать вступление</string>
+    <string name="Rename_book">Переименовать книгу</string>
+    <string name="AskRename_Book">Вы действительно хотите переименовать книгу в</string>
+    <string name="AskRename_popupTitle">Подтвердите переименование</string>
 </resources>

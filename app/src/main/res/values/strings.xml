@@ -10,7 +10,8 @@
     <string name="title_FolderContent">Files List</string>
     <string name="PlayerActivity_Title" translatable="false">TextBook Player</string>
 
-    <string name="yes">Yes</string>
+    <string name="Yes">Yes</string>
+    <string name="No">No</string>
     <string name="Cancel">Cancel</string>
     <string name="are_you_sure">Are you sure ?</string>
 
@@ -19,6 +20,10 @@
       \"include\": \"https://bookplayer.driot.com/.well-known/assetlinks.json\"
     }]
     </string>
+
+    <string name="AutoTest_b1_text" translatable="false">zip (700KB)</string>
+    <string name="AutoTest_b2_text" translatable="false">multi lang zip (5MB)</string>
+    <string name="AutoTest_b3_text" translatable="false">m4b (9MB)</string>
 
 
     <!-- ********************************** -->
@@ -141,9 +146,6 @@
 
     <string name="AutoTest_title">Auto Test</string>
     <string name="AutoTest_desc">Automatic download and integration of audiobooks, for testing purpose</string>
-    <string name="AutoTest_b1_text">selection 1 - small file</string>
-    <string name="AutoTest_b2_text">selection 2 - medium file</string>
-    <string name="AutoTest_b3_text">selection 3 - large file</string>
 
     <!-- Add Resources -->
 
@@ -418,15 +420,14 @@
     <string name="Export">"Export…"</string>
 
     <string name="bRenameFolder">"Rename Book"</string>
-    <string name="IntroCut">"Intro Cut"</string>
     <string name="IntroCutText"><i>"Trims the first seconds of each chapter while playing."</i></string>
 
     <string name="Export_notification_title">"Audiobook exported"</string>
     <string name="Export_notification_text">"in Download folder"</string>
     <string name="Export_share_title">"Share ZIP file"</string>
 
-    <string name="Export_display_text_loading">"Loading folder info..."</string>
-    <string name="Export_display_text_preparing_export">"Preparing export..."</string>
+    <string name="Export_display_text_loading">"Loading folder info…"</string>
+    <string name="Export_display_text_preparing_export">"Preparing export…"</string>
     <string name="Export_display_no_valid_audiobook">"Error getting audiobook audios."</string>
 
     <string name="Export_display_text_processing">"Processing"</string>
@@ -532,7 +533,10 @@
     <string name="MB_left_on_device">MB: left on device</string>">
     <string name="MB_device_memory2">MB: device memory</string>">
     <string name="MB">MB</string>">
-
+    <string name="IntroCut">"Cut Intro"</string>
+    <string name="Rename_book">"Rename book"</string>
+    <string name="AskRename_Book">"Do you really want to rename the book as"</string>
+    <string name="AskRename_popupTitle">Confirm Rename</string>
 
 
 

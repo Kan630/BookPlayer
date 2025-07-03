@@ -10,7 +10,8 @@
     <string name="title_FolderContent">Liste des fichiers</string>
     <string name="PlayerActivity_Title" translatable="false">TextBook Player</string>
 
-    <string name="yes">Oui</string>
+    <string name="Yes">Oui</string>
+    <string name="No">Non</string>
     <string name="Cancel">Annuler</string>
     <string name="are_you_sure">"Êtes-vous sûr ?"</string>
 
@@ -394,7 +395,6 @@
     <string name="Export">Exporter…</string>
 
     <string name="bRenameFolder">Renommer le livre</string>
-    <string name="IntroCut">Coupe d\'intro</string>
     <string name="IntroCutText"><i>Coupe les premières secondes de chaque chapitre pendant la lecture.</i></string>
 
     <string name="Export_notification_title">Livre audio exporté</string>
@@ -472,6 +472,15 @@
 
     <string name="LibrivoxSearch_warning">"Avertissement - Test bêta\nEncore expérimental\nSi le téléchargement bloque, essayez de garder l\'application au premier plan"</string>
 
-
+    <string name="Set">Définir</string>
+    <string name="custom_value_in_minutes">valeur personnalisée en minutes</string>
+    <string name="MB_audios_in_app">Mo : audios dans l\'app</string>
+    <string name="MB_left_on_device">Mo : disponibles sur l\'appareil</string>
+    <string name="MB_device_memory2">Mo : mémoire totale de l\'appareil</string>
+    <string name="MB">Mo</string>
+    <string name="IntroCut">Couper l\'intro</string>
+    <string name="Rename_book">Renommer le livre</string>
+    <string name="AskRename_Book">Voulez-vous vraiment renommer le livre en</string>
+    <string name="AskRename_popupTitle">Confirmer le renommage</string>
 
 </resources>

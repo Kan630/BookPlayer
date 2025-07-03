@@ -58,6 +58,7 @@ import com.driot.bookplayer.adapter.FoldersRVAdapter;
 import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.FolderDao;
+import com.driot.bookplayer.db.Sql;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.services.AudioService;
@@ -134,7 +135,7 @@ public class MainActivity extends LoggingActivity {
         }
 
 
-        //Sql.log_all_Folders(this);
+        Sql.log_all_Folders(this);
 /*
         //clearLoadBookTaskState(this);
         LoadBookTaskState lbts = new LoadBookTaskState();

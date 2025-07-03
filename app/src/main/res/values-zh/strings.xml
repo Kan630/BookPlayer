@@ -10,7 +10,8 @@
     <string name="title_FolderContent">文件列表</string>
     <string name="PlayerActivity_Title" translatable="false">TextBook Player</string>
 
-    <string name="yes">是</string>
+    <string name="Yes">是</string>
+    <string name="No">否</string>
     <string name="Cancel">取消</string>
     <string name="are_you_sure">"确定吗？"</string>
 
@@ -400,7 +401,6 @@
     <string name="Export">"导出…"</string>
 
     <string name="bRenameFolder">"重命名书籍"</string>
-    <string name="IntroCut">"剪切片头"</string>
     <string name="IntroCutText"><i>"播放时裁剪每章前几秒。"</i></string>
 
     <string name="Export_notification_title">"有声书已导出"</string>
@@ -499,5 +499,15 @@
 
     <string name="LibrivoxSearch_warning">"警告 - 测试版\n仍在试验中\n如果下载卡住，请尝试保持应用处于前台"</string>
 
+    <string name="Set">设置</string>
+    <string name="custom_value_in_minutes">自定义分钟数</string>
+    <string name="MB_audios_in_app">MB：应用中的音频</string>
+    <string name="MB_left_on_device">MB：设备剩余空间</string>
+    <string name="MB_device_memory2">MB：设备内存</string>
+    <string name="MB">MB</string>
+    <string name="IntroCut">剪辑片头</string>
+    <string name="Rename_book">重命名书籍</string>
+    <string name="AskRename_Book">您确定要将书名更改为</string>
+    <string name="AskRename_popupTitle">确认重命名</string>
 
 </resources>

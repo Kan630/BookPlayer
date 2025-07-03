@@ -10,8 +10,8 @@
     <string name="title_FolderContent">قائمة الملفات</string>
     <string name="PlayerActivity_Title" translatable="false">TextBook Player</string>
 
-    <string name="yes">نعم</string>
-    <string name="Cancel">إلغاء</string>
+    <string name="Yes">نعم</string>
+    <string name="No">لا</string>    <string name="Cancel">إلغاء</string>
     <string name="are_you_sure">"هل أنت متأكد؟"</string>
 
     <string name="asset_statements" translatable="false">
@@ -140,9 +140,6 @@
 
     <string name="AutoTest_title">اختبار تلقائي</string>
     <string name="AutoTest_desc">تنزيل ودمج تلقائي للكتب الصوتية، لأغراض الاختبار</string>
-    <string name="AutoTest_b1_text">اختيار 1 - ملف صغير</string>
-    <string name="AutoTest_b2_text">اختيار 2 - ملف متوسط</string>
-    <string name="AutoTest_b3_text">اختيار 3 - ملف كبير</string>
 
     <!-- Add Resources -->
 
@@ -402,7 +399,6 @@
     <string name="Export">"تصدير…"</string>
 
     <string name="bRenameFolder">"إعادة تسمية الكتاب"</string>
-    <string name="IntroCut">"قص المقدمة"</string>
     <string name="IntroCutText"><i>"يُزيل الثواني الأولى من كل فصل أثناء التشغيل."</i></string>
 
     <string name="Export_notification_title">"تم تصدير الكتاب الصوتي"</string>
@@ -500,6 +496,17 @@
     <string name="option_copy_file_text">نسخ الملفات الصوتية إلى ذاكرة التطبيق الداخلية المحجوزة لـ BookPlayer.</string>
 
     <string name="LibrivoxSearch_warning">"تحذير - نسخة تجريبية\nلا يزال في طور التجربة\nإذا توقف التنزيل، حاول إبقاء التطبيق في المقدمة"</string>
+
+    <string name="Set">تعيين</string>
+    <string name="custom_value_in_minutes">قيمة مخصصة بالدقائق</string>
+    <string name="MB_audios_in_app">ميغابايت: الصوتيات داخل التطبيق</string>
+    <string name="MB_left_on_device">ميغابايت: المتبقي على الجهاز</string>
+    <string name="MB_device_memory2">ميغابايت: الذاكرة الكلية للجهاز</string>
+    <string name="MB">ميغابايت</string>
+    <string name="IntroCut">قص المقدمة</string>
+    <string name="Rename_book">إعادة تسمية الكتاب</string>
+    <string name="AskRename_Book">هل تريد حقًا إعادة تسمية الكتاب إلى</string>
+    <string name="AskRename_popupTitle">تأكيد إعادة التسمية</string>
 
 
 </resources>

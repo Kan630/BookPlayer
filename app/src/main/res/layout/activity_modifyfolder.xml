@@ -62,6 +62,34 @@
                 />
         </LinearLayout>
 
+
+        <View style="@style/myStyleViewSimpleHorizontalBar" />
+
+        <TextView
+            android:id="@+id/tvRenameBook"
+            android:text="@string/Rename_book"
+            style="@style/OptionTitle"
+            android:textStyle="normal"
+            android:textSize="20sp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:paddingHorizontal="20dp" />
+
+        <EditText
+            android:id="@+id/etRename"
+            style="@style/EditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="30dp"
+            android:paddingVertical="10sp"
+            android:inputType="textMultiLine"
+            android:padding="10dp"
+            android:textSize="20sp"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="20dp"
+            />
+
         <View style="@style/myStyleViewSimpleHorizontalBar" />
 
         <TextView
@@ -125,27 +153,6 @@
             android:text="@string/bReset" />
 
 
-        <View style="@style/myStyleViewSimpleHorizontalBar" />
-
-        <EditText
-            android:id="@+id/etRename"
-            style="@style/EditText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="30dp"
-            android:layout_marginTop="30sp"
-            android:paddingVertical="10sp"
-            android:inputType="textMultiLine"
-            android:padding="10dp"
-            android:textSize="20sp" />
-
-        <Button
-            android:id="@+id/bRename"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="20dp"
-            android:text="@string/bRenameFolder" />
 
         <View style="@style/myStyleViewSimpleHorizontalBar" />
 

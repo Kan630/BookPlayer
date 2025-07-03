@@ -517,7 +517,6 @@ public class AudioService extends LoggingService {
         ZikFile zf = PlayList.getInstance().getZikFile();
         if (zf==null) {
             myLogE("PlayList.getInstance().getZikFile==null");
-            LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(new Intent(NOTIFICATION_FILENOTFOUND));
             loadFileKO();
             return;
         }
@@ -534,9 +533,16 @@ public class AudioService extends LoggingService {
             //check...
             DocumentFile file = DocumentFile.fromSingleUri(this, uriToPlay);
             if (!file.exists() || !file.isFile()) {
-                myLogEE(null,"Invalid or non-file Uri: " + uriToPlay);
-                loadFileKO();
-                return;
+                //maybe it was a single file - RETRY
+                myLogD("Try Single file");
+                uriToPlay = Uri.parse(zf.getPath());
+                file = DocumentFile.fromSingleUri(this, uriToPlay);
+                myLogFirebase("loadFile single uri : " + Objects.toString(uriToPlay));
+                if (!file.exists() || !file.isFile()) {
+                    myLogEE(null,"Invalid or non-file Uri: " + uriToPlay);
+                    loadFileKO();
+                    return;
+                }
             }
 // OLD SCHOOL PATHS
         } else {
