@@ -55,7 +55,7 @@ public class LoadOptionsActivity extends LoggingActivity {
     private String sourceLocation;
     private String audioBookTitle;
 
-    private TextView warningTextView, errorTextView;
+    private TextView waitTextView, warningTextView, errorTextView;
     private CheckBox cbSplit, cbCopy, cbDelete;
     private LinearLayout llSplit, llCopy, llDelete;
     Button btnConfirm;
@@ -95,6 +95,8 @@ public class LoadOptionsActivity extends LoggingActivity {
         btnConfirm.setEnabled(false);
         Button btnCancel = findViewById(R.id.btnCancel);
 
+        waitTextView = findViewById(R.id.waitTextView);
+        waitTextView.setText(getString(R.string.init_please_wait));
         warningTextView = findViewById(R.id.warningTextView);
         warningTextView.setVisibility(View.GONE);
         errorTextView = findViewById(R.id.errorTextView);
@@ -440,10 +442,18 @@ public class LoadOptionsActivity extends LoggingActivity {
                             String audioBookAlreadyThere = AppDatabase.getDatabase(this).FolderDao().originalHashAlreadyExist_getBookName(originalHash);
                             if (audioBookAlreadyThere != null) {
                                 myLogW("KO, already imported in DB for uri = [" + uri + "] - current Name = [" + audioBookAlreadyThere + "]");
-                                runOnUiThread(() -> ShowError(getString(R.string.error_media_already_loaded_samePath_under_the_name) + "\n" + audioBookAlreadyThere));
+                                runOnUiThread(() -> {
+                                    waitTextView.setVisibility(View.GONE);
+                                    ShowError(getString(R.string.error_media_already_loaded_samePath_under_the_name) + "\n" + audioBookAlreadyThere);
+                                });
                             } else {
                                 myLogD("Hash not already in DB");
-                                runOnUiThread(() -> btnConfirm.setEnabled(true));
+                                runOnUiThread(() -> {
+                                    waitTextView.setVisibility(View.GONE);
+                                    btnConfirm.setEnabled(true);
+                                });
+
+
                             }
                         }).start();
                     } else if (workInfo != null && workInfo.getState() == WorkInfo.State.FAILED) {

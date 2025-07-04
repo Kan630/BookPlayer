@@ -19,6 +19,11 @@
             android:layout_marginBottom="12dp" />
 
         <TextView
+            android:id="@+id/waitTextView"
+            style="@style/OptionAfterPickedInfo"
+            android:textColor="@color/green_500"
+            />
+        <TextView
             android:id="@+id/errorTextView"
             style="@style/OptionAfterPickedInfo"
             android:textColor="@color/red_500"
