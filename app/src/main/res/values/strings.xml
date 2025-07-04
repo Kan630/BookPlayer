@@ -541,8 +541,10 @@
 
     <string name="error_could_not_check_hash">Error while checking if this audiobook has already been imported</string>
     <string name="error_media_already_loaded_samePath_under_the_name">This media has already been loaded and is currently stored under the name : </string>
-    <string name="init_please_wait">Initializing... Please Wait...</string>
-    <string name="error_media_already_loaded_samePath_so_changeName">A media with this name had already been loaded, the name will be changed to : </string>
+    <string name="init_please_wait">Initializing… Please Wait…</string>
+    <string name="error_media_already_loaded_samePath_so_changeName">A different media with the same name had already been loaded, the name will be changed to : </string>
+    <string name="init_check_already_imported_please_wait">"checking if already imported, please wait…"</string>
+    <string name="init_check_complementary_checks_please_wait">"complementary checks, please wait…"</string>
 
 
 

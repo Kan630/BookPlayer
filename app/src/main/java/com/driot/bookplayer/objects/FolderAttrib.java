@@ -273,6 +273,7 @@ public class FolderAttrib {
 
 
 
+
     private String getFileName() {
         return getFileName(mCtx);
     }
@@ -340,7 +341,6 @@ public class FolderAttrib {
         myLog("getBookName_with2folders : [" + zeReturn + "]\nFrom : [" + sFolderPath + "]");
         return zeReturn;
     }
-
     private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
     private void myLogD(String str) { KanLogger.myLogD(this.getClass().getName(), str); }
     private void myLogI(String str) { KanLogger.myLogI(this.getClass().getName(), str); }

@@ -33,7 +33,6 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.telephony.TelephonyManager;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -66,13 +65,12 @@ import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.objects.PlayList;
 import com.driot.bookplayer.services.AudioService;
-import com.driot.bookplayer.utils.FolderHashWorker;
+import com.driot.bookplayer.utils.HashWorker;
 import com.driot.bookplayer.utils.KanLogger;
 import com.driot.bookplayer.utils.KanMail;
 import com.driot.bookplayer.utils.NetworkUtils;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 import com.google.android.material.snackbar.Snackbar;
-import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import java.util.List;
 import java.util.Locale;
@@ -157,7 +155,7 @@ public class MainActivity extends LoggingActivity {
 
  */
 
-        OneTimeWorkRequest request = new OneTimeWorkRequest.Builder(FolderHashWorker.class).build();
+        OneTimeWorkRequest request = new OneTimeWorkRequest.Builder(HashWorker.class).build();
 
         WorkManager.getInstance(this).enqueue(request);
 

@@ -1,5 +1,7 @@
 package com.driot.bookplayer.activities;
 
+import static com.driot.bookplayer.global.Pref.getLoadBookTaskState;
+
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -52,6 +54,18 @@ public class OpenWithProxyActivity extends LoggingActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
+        if (requestCode == REQUEST_LOAD_OPTIONS && resultCode == RESULT_OK) {
+            Intent intentService = new Intent(this, AddResourceService.class);
+            intentService.putExtra("LoadBookTaskState", getLoadBookTaskState(this));
+            startService(intentService);
+
+            Intent intentActivity = new Intent(this, AddResourceActivity.class);
+            intentService.putExtra("LoadBookTaskState", getLoadBookTaskState(this));
+            startActivity(intentActivity);
+        } else {
+            myLogW("onActivityResult => not OK");
+        }
+/*
         if (requestCode == REQUEST_LOAD_OPTIONS && resultCode == RESULT_OK && data != null) {
             Uri uri = data.getParcelableExtra("uri");
             String type = data.getStringExtra("type");
@@ -78,6 +92,8 @@ public class OpenWithProxyActivity extends LoggingActivity {
             intentActivity.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intentActivity);
         }
+
+ */
 
         finish(); // Close proxy in all cases
     }

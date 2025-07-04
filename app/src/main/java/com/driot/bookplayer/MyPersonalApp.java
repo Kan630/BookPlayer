@@ -10,6 +10,7 @@ import java.io.IOException;
 
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Pref;
+import com.driot.bookplayer.objects.BookToAdd;
 import com.driot.bookplayer.objects.PlayList;
 import com.driot.bookplayer.utils.KanLogger;
 
@@ -28,6 +29,7 @@ public class MyPersonalApp extends Application {
         super.onCreate();
 
         KanLogger.init(getApplicationContext());
+        BookToAdd.init(getApplicationContext());
         PlayList.initContext(getApplicationContext());
         Option.init(getApplicationContext());
         Pref.init(getApplicationContext());

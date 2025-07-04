@@ -43,7 +43,7 @@
             <TextView
                 android:id="@+id/tvLocation"
                 style="@style/OptionAfterPickedInfo"
-                android:text="[cloud]"
+                android:text="[sourceLocation]"
                 />
         </LinearLayout>
         <LinearLayout style="@style/LinearLayoutOptionsVertical"

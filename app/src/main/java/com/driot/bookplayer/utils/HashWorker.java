@@ -4,6 +4,7 @@ import android.content.Context;
 import android.net.Uri;
 
 import androidx.annotation.NonNull;
+import androidx.documentfile.provider.DocumentFile;
 import androidx.work.Data;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
@@ -16,14 +17,16 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.security.MessageDigest;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
-public class FolderHashWorker extends Worker {
+public class HashWorker extends Worker {
 
+    public static final String WORKER_TAG_COMPUTE_HASH = "WORKER_TAG_COMPUTE_HASH";
     public static final int MAX_BYTES_TO_HASH_PER_FILE = 1024 * 1024; // 1 MB
 
-    public FolderHashWorker(@NonNull Context context, @NonNull WorkerParameters params) {
+    public HashWorker(@NonNull Context context, @NonNull WorkerParameters params) {
         super(context, params);
     }
 
@@ -37,7 +40,7 @@ public class FolderHashWorker extends Worker {
                 String hash = computeHashFromUri(getApplicationContext(), uri);
 
                 Data outputData = new Data.Builder()
-                        .putString("computed_hash", hash)
+                        .putString(WORKER_TAG_COMPUTE_HASH, hash)
                         .build();
 
                 return Result.success(outputData);
@@ -103,8 +106,67 @@ public class FolderHashWorker extends Worker {
         }
     }
 
+    private String computeFolderHash(DocumentFile folderDoc) {
+        try {
+            if (folderDoc == null || !folderDoc.isDirectory()) return "";
+
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            computeFolderHashRecursive(folderDoc, digest, folderDoc.getUri().getPath().length());
+
+            byte[] hashBytes = digest.digest();
+            StringBuilder sb = new StringBuilder();
+            for (byte b : hashBytes) sb.append(String.format("%02x", b));
+            String zeHash = sb.toString();
+            myLogD("computeFolderHash(DocumentFile): [" + zeHash + "]");
+            return zeHash;
+
+        } catch (Exception e) {
+            myLogEE(e, "computeFolderHash(DocumentFile) failed");
+            return "";
+        }
+    }
+
+    private void computeFolderHashRecursive(DocumentFile folder, MessageDigest digest, int rootPathLen) {
+        DocumentFile[] files = folder.listFiles();
+        Arrays.sort(files, Comparator.comparing(f -> f.getName() != null ? f.getName() : ""));
+
+        for (DocumentFile file : files) {
+            String relativePath = file.getUri().getPath().substring(rootPathLen); // or use file.getName() if simpler
+            digest.update(relativePath.getBytes());
+
+            if (file.isFile()) {
+                try (InputStream is = getApplicationContext().getContentResolver().openInputStream(file.getUri())) {
+                    if (is == null) continue;
+                    byte[] buffer = new byte[4096];
+                    long totalRead = 0;
+                    int read;
+                    while ((read = is.read(buffer)) != -1 && totalRead < MAX_BYTES_TO_HASH_PER_FILE) {
+                        digest.update(buffer, 0, read);
+                        totalRead += read;
+                    }
+                } catch (Exception e) {
+                    myLogEE(e, "While hashing file: " + file.getName());
+                }
+            } else if (file.isDirectory()) {
+                computeFolderHashRecursive(file, digest, rootPathLen);
+            }
+        }
+    }
+
     private String computeHashFromUri(Context context, Uri uri) {
         try {
+            DocumentFile documentFile = DocumentFile.fromTreeUri(context, uri);
+            myLog("computeHashFromUri => Directory - [" + uri + "]");
+            return computeFolderHash(documentFile);
+        } catch (Exception e) {
+            myLog("computeHashFromUri => not a directory - [" + uri + "]");
+            return computeHashFromUri2(context, uri);
+        }
+    }
+
+    private String computeHashFromUri2(Context context, Uri uri) {
+        try {
+
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] buffer = new byte[4096];
             long totalRead = 0;

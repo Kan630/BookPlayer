@@ -1,0 +1,322 @@
+package com.driot.bookplayer.objects;
+
+import static com.driot.bookplayer.global.Var.ONLY_MIME_AUDIO;
+import static com.driot.bookplayer.global.Var.SUPPORTED_AUDIO_EXTENSIONS;
+
+import static com.driot.bookplayer.utils.Tonio.formatNameForDisplay;
+import static com.driot.bookplayer.utils.Tonio.getExtension;
+import static com.driot.bookplayer.utils.Tonio.getFileNameFromUri;
+import static com.driot.bookplayer.utils.Tonio.getMimeType;
+import static com.driot.bookplayer.utils.Tonio.stripExtension;
+
+import android.content.Context;
+import android.database.Cursor;
+import android.net.Uri;
+import android.provider.MediaStore;
+import android.provider.OpenableColumns;
+
+import androidx.documentfile.provider.DocumentFile;
+
+import com.driot.bookplayer.utils.KanFiles;
+import com.driot.bookplayer.utils.KanLogger;
+
+import java.io.File;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
+
+public class BookToAdd {
+
+    private static Context appContext;
+
+    private Uri uri;
+    private String type;
+
+    private boolean isBroken;
+    private String sourceLocation = "init...";
+    private String audioBookName = "init...";
+    private DocumentFile df;
+    private String originalFile;
+    private String originalType;
+
+    private String infoMimeExtension = "init...";
+    private String infoSourceLocation = "init...";
+
+    public static void init(Context context) {
+        appContext = context.getApplicationContext();
+    }
+    /// ////////////////////////////////////////////////////////////////////////////////////////
+    ///    CONSTRUCTOR
+    /// ////////////////////////////////////////////////////////////////////////////////////////
+    public BookToAdd(Uri uri, String type) {
+
+        this.type = type;
+        this.uri = uri;
+        this.originalType = type;
+
+                myLog("Side Check if it is a Folder : " + isUriDirectory());
+
+        this.sourceLocation = getSourceLoc();
+        this.infoSourceLocation = "[" + this.sourceLocation + "]";
+
+        if (type.equals("File")) {
+            try {
+                this.df = DocumentFile.fromSingleUri(appContext, uri);
+            } catch (Exception e) {
+                myLogEE(e,"Error reading picked File.... DocumentFile.fromSingleUri");
+                this.isBroken = true;
+            }
+        } else if (type.equals("Folder")) {
+            try {
+                this.df = DocumentFile.fromTreeUri(appContext, uri);
+            } catch (Exception e) {
+                myLogEE(e,"Error reading picked Folder.... DocumentFile.fromTreeUri");
+                this.isBroken = true;
+            }
+        } else {
+            myLogEE(null, "Very bad type");
+        }
+
+
+        if (type.equals("File")) {
+            //TODO check that 3 methods
+            String mimeType = Objects.toString(getMimeType(appContext, uri),"");
+            String fileName = getFileNameFromUri(appContext, uri);
+            String fileExtension = getExtension(fileName);
+
+            if (Objects.toString(fileExtension,"").isEmpty()) {
+                myLogEE(null, "file extension not found");
+                this.isBroken = true;
+            }
+
+            if (fileExtension.equalsIgnoreCase("zip")) {
+                this.type = "ZIP";
+            } else if (fileExtension.equalsIgnoreCase("m4b")) {
+                this.type = "M4B";
+            }
+
+            this.infoMimeExtension = "Type = [" + type + "] :    [" + mimeType + "] - [." + fileExtension + "]";
+
+            if (mimeType.startsWith(ONLY_MIME_AUDIO) || SUPPORTED_AUDIO_EXTENSIONS.contains(fileExtension)) {
+                myLog("Mime/Extension OK - " + infoMimeExtension);
+            } else {
+                myLogEE(null,"Mime/Extension KO - " + infoMimeExtension);
+            }
+
+            //audioBookTitle = stripExtension(getFileNameFromUri(this, uri));
+            String fileName2 = getFileName();
+            this.audioBookName = formatNameForDisplay(stripExtension(fileName2));
+            this.originalFile = fileName2;
+
+        } else if (type.equals("Folder")) {
+
+            this.infoMimeExtension = "Type = [" + type + "]";
+
+            if (!isUriDirectory()) {
+                myLogEE(null,"is not a Directory ?");
+            }
+
+            this.audioBookName = getBookName_with2folders(uri.getPath(), false);
+
+        }
+        trimAudioBookPrefix();
+
+    }
+
+    /// ////////////////////////////////////////////////////////////////////////////////////////
+    ///     GETTERS
+    /// ////////////////////////////////////////////////////////////////////////////////////////
+
+    public Uri getUri() {
+        return uri;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public boolean isBroken() {
+        return isBroken;
+    }
+
+    public String getAudioBookName() {
+        return audioBookName;
+    }
+
+    public DocumentFile getDf() {
+        return df;
+    }
+
+    public String getSourceLocation() {
+        return sourceLocation;
+    }
+
+    public String getInfoMimeExtension() {
+        return infoMimeExtension;
+    }
+
+    public String getInfoSourceLocation() {
+        return infoSourceLocation;
+    }
+
+    public String getOriginalFile() {
+        return originalFile;
+    }
+
+    public String getOriginalType() {
+        return originalType;
+    }
+
+    /// ////////////////////////////////////////////////////////////////////////////////////////
+    /// ////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+    private String getFileName() {
+        myLog("getFileName() start: uri = " + uri.toString());
+        String name = null;
+
+        // 1. Try OpenableColumns (most reliable for content://)
+        if ("content".equalsIgnoreCase(uri.getScheme())) {
+            try (Cursor cursor = appContext.getContentResolver().query(uri, null, null, null, null)) {
+                if (cursor != null && cursor.moveToFirst()) {
+                    int index = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                    if (index != -1) {
+                        name = cursor.getString(index);
+                        myLog("getFileName - OpenableColumns: " + name);
+                        return name;
+                    }
+                }
+            } catch (Exception e) {
+                myLogEE(e, "getFileName - OpenableColumns failed");
+            }
+        }
+
+        // 2. Try resolving via MediaStore
+        if (name == null && "content".equalsIgnoreCase(uri.getScheme())) {
+            try {
+                String[] projection = { MediaStore.MediaColumns.DATA };
+                try (Cursor cursor = appContext.getContentResolver().query(uri, projection, null, null, null)) {
+                    if (cursor != null && cursor.moveToFirst()) {
+                        int index = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA);
+                        String filePath = cursor.getString(index);
+                        if (filePath != null) {
+                            name = new File(filePath).getName();
+                            myLog("getFileName - MediaStore: " + name);
+                            return name;
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                myLogEE(e, "getFileName - MediaStore failed");
+            }
+        }
+
+        // 3. Fallback: parse from path manually
+        if (name == null) {
+            String path = uri.getPath();
+            if (path != null) {
+                if (path.endsWith("/")) path = path.substring(0, path.length() - 1);
+                int cut = path.lastIndexOf('/');
+                if (cut != -1) {
+                    name = path.substring(cut + 1);
+                    myLog("getFileName - path fallback: " + name);
+                    return name;
+                }
+            }
+        }
+
+        // 4. Last fallback: last path segment
+        if (name == null) {
+            name = uri.getLastPathSegment();
+            myLog("getFileName - lastPathSegment fallback: " + name);
+        }
+
+        if (name == null) {
+            myLogE("getFileName failed completely for uri: [" + uri.toString() + "]");
+            this.isBroken = true;
+        }
+
+        return name;
+    }
+
+    private String getSourceLoc() {
+        if (Objects.isNull(uri) || uri.toString().isEmpty()) {
+            myLogE("getSourceLocation - empty uri");
+            return "xxx";
+        }
+        myLogD("getSourceLoc - Authority = " + uri.getAuthority());
+        if (!Objects.isNull(uri) &&  !Objects.isNull(uri.getAuthority())) {
+            String uriAuthority = uri.getAuthority();
+            Set<String> cloudAuthorities = new HashSet<>();
+            cloudAuthorities.add("com.google.android.apps.docs.storage"); // Google Drive
+            cloudAuthorities.add("com.microsoft.skydrive.content");       // OneDrive
+            cloudAuthorities.add("com.microsoft.skydrive.content.StorageAccessProvider");       // OneDrive
+            cloudAuthorities.add("com.dropbox.product.android.dbapp.document_provider.documents");  // DropBox
+            if (uriAuthority != null && cloudAuthorities.contains(uriAuthority)) {
+                return "cloud";
+            } else if (uri.toString().startsWith("http")) {
+                return "web";
+            } else if (KanFiles.isOnSdCard(appContext, uri)) {
+                return "sdcard";
+            } else {
+                return "local";
+            }
+        }
+        return "xxx";
+    }
+
+    private String getBookName_with2folders(String sFolderPath, boolean stripExtension) {
+        // nom par défaut = les deux derniers folders :
+        // ex  : "S3 - Finances publiques/Audios"
+        String str = sFolderPath;
+        String zeReturn;
+        if (str == null) {str = "";}
+        str = str.replace(":", "/");
+        int pos1 = str.lastIndexOf("/");
+        if (pos1 > -1) {
+            int pos2 = str.substring(0, pos1).lastIndexOf("/", pos1);
+            if (pos2 > -1) {
+                zeReturn = formatNameForDisplay(str.substring(pos2 + 1), stripExtension);
+            } else {
+                zeReturn = formatNameForDisplay(str.substring(pos1 + 1), stripExtension);
+            }
+        } else {
+            // especially when foldername is just a string without slash (Android 11 zip local copy)
+            zeReturn = formatNameForDisplay(str, stripExtension);
+        }
+        myLog("getBookName_with2folders : [" + zeReturn + "]\nFrom : [" + sFolderPath + "]");
+        return zeReturn;
+    }
+    private boolean isUriDirectory() {
+        try {
+            DocumentFile doc = DocumentFile.fromTreeUri(appContext, uri);
+            return doc != null && doc.isDirectory();
+        } catch (Exception e) {
+            myLogEE(e, "isDirectoryFromUri failed");
+            return false;
+        }
+    }
+    private void trimAudioBookPrefix() {
+        String[] prefixes = { "download/", "audiobooks/", "unzipped/" };
+        for (String prefix : prefixes) {
+            if (audioBookName.toLowerCase().startsWith(prefix)) {
+                audioBookName = audioBookName.substring(prefix.length());
+                break; // Stop after the first match
+            }
+        }
+    }
+
+
+
+
+    private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
+    private void myLogD(String str) { KanLogger.myLogD(this.getClass().getName(), str); }
+    private void myLogI(String str) { KanLogger.myLogI(this.getClass().getName(), str); }
+    private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
+    private void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, this.getClass().getName(), str); }
+    private void myToastEE(Throwable t, String str) { KanLogger.myToastEE(t, this.getClass().getName(), str); }
+
+}
