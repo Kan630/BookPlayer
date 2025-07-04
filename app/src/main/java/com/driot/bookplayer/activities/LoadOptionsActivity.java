@@ -62,6 +62,7 @@ public class LoadOptionsActivity extends LoggingActivity {
     Button btnConfirm;
 
     private boolean internalCheckBoxStateCalculationInProgress;
+    private boolean isKO = false;
 
     private PermissionRequest mPermissionRequest;
 
@@ -93,7 +94,6 @@ public class LoadOptionsActivity extends LoggingActivity {
         TextView tvFileName = findViewById(R.id.tvFileName);
         TextView tvMimeExtension = findViewById(R.id.tvMimeExtension);
         btnConfirm = findViewById(R.id.btnConfirm);
-        btnConfirm.setEnabled(false);
         Button btnCancel = findViewById(R.id.btnCancel);
 
         waitTextView = findViewById(R.id.waitTextView);
@@ -102,6 +102,15 @@ public class LoadOptionsActivity extends LoggingActivity {
         warningTextView.setVisibility(View.GONE);
         errorTextView = findViewById(R.id.errorTextView);
         errorTextView.setVisibility(View.GONE);
+
+        cbSplit = findViewById(R.id.cbSplitM4B);
+        cbCopy = findViewById(R.id.cbCopyInternal);
+        cbDelete = findViewById(R.id.cbDeleteSource);
+        llSplit = findViewById(R.id.ll_split_m4b);
+        llCopy = findViewById(R.id.ll_copy_internal);
+        llDelete = findViewById(R.id.ll_delete_source);
+
+        desactivateInteractiveItems();
 
         String uriPath = uri.getPath();
         myLog("picked data : " + uriPath);
@@ -137,19 +146,29 @@ public class LoadOptionsActivity extends LoggingActivity {
 
             findViewById(R.id.llMimeExtension).setVisibility(View.GONE);
             audioBookTitle = formatNameForDisplay(getFileNameFromPath(uriPath));
+
+            String infoMimeExtension = "Type = [" + type + "]";
+            tvMimeExtension.setText(infoMimeExtension);
         }
 
         tvFileName.setText(audioBookTitle);
 
+        checkHashDoesNotAlreadyExist();
+
+        btnCancel.setOnClickListener(v -> finish());
+
+    }
+
+    private void desactivateInteractiveItems() {
+        cbSplit.setEnabled(false);
+        cbCopy.setEnabled(false);
+        cbDelete.setEnabled(false);
+        btnConfirm.setEnabled(false);
+    }
+    private void initInteractiveItems() {
 //----------------------------------------------------------------------------------------------------------------------------------
-/// OPTIONS CHECKBOXES
+/// CHECKBOXES
 //----------------------------------------------------------------------------------------------------------------------------------
-        cbSplit = findViewById(R.id.cbSplitM4B);
-        cbCopy = findViewById(R.id.cbCopyInternal);
-        cbDelete = findViewById(R.id.cbDeleteSource);
-        llSplit = findViewById(R.id.ll_split_m4b);
-        llCopy = findViewById(R.id.ll_copy_internal);
-        llDelete = findViewById(R.id.ll_delete_source);
 
         llSplit.setOnClickListener(v -> cbSplit.toggle());
         llCopy.setOnClickListener(v -> cbCopy.toggle());
@@ -158,16 +177,14 @@ public class LoadOptionsActivity extends LoggingActivity {
         cbSplit.setChecked(Option.getSplitM4b());
         cbCopy.setChecked(Option.getCopyFile());
         cbDelete.setChecked(Option.getDeleteSourceFile());
+
         calculateCheckboxState();
 
         cbSplit.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (!internalCheckBoxStateCalculationInProgress) calculateCheckboxState();
         });
         cbCopy.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (isChecked) {
-                checkPathDoesNotAlreadyExist(isChecked);
-            } else {
-                checkPathDoesNotAlreadyExist(isChecked);
+            if (!isChecked) {
                 askForPermission();
             }
             if (!internalCheckBoxStateCalculationInProgress) calculateCheckboxState();
@@ -188,50 +205,29 @@ public class LoadOptionsActivity extends LoggingActivity {
             }
         });
 
-//----------------------------------------------------------------------------------------------------------------------------------
-// check Not Already Imported
-//*****************************
-
-        checkNameDoesNotAlreadyExist();
-        checkHashDoesNotAlreadyExist();
-        //        checkPathDoesNotAlreadyExist(cbCopy.isChecked());   will be done inside hash check
-
 //-------------------------------------------------------------------------------------------------------------------------------------------------
-// ACTION BUTTONS
+// CONFIRM BUTTON
 //-------------------------------------------------------------------------------------------------------------------------------------------------
-        btnCancel.setOnClickListener(v -> finish());
 
-        btnConfirm.setOnClickListener(v -> {
+    btnConfirm.setOnClickListener(v -> {
 
-            LoadBookTaskState state = new LoadBookTaskState();
-            state.uri = uri;
-            state.type = type;
-            state.title = audioBookTitle;
-            state.split = cbSplit.isChecked();
-            state.copy = cbCopy.isChecked();
-            state.delete = cbDelete.isChecked();
-            state.originalHash = originalHash;
-            state.sourceLocation = sourceLocation;
+        LoadBookTaskState state = new LoadBookTaskState();
+        state.uri = uri;
+        state.type = type;
+        state.title = audioBookTitle;
+        state.split = cbSplit.isChecked();
+        state.copy = cbCopy.isChecked();
+        state.delete = cbDelete.isChecked();
+        state.originalHash = originalHash;
+        state.sourceLocation = sourceLocation;
 
-            setLoadBookTaskState(this, state); // save in SharedPrefs
-            myLog("CLICK btnConfirm....   LoadBookTaskState saved - Sending ok Result");
+        setLoadBookTaskState(this, state); // save in SharedPrefs
+        myLog("CLICK btnConfirm....   LoadBookTaskState saved - Sending ok Result");
 
-/*
-            Intent data = new Intent();
-            data.putExtra("uri", uri);
-            data.putExtra("type", type);
-            data.putExtra("title", audioBookTitle);
-            data.putExtra("split",
-            data.putExtra("copy", );
-            data.putExtra("delete", );
-            data.putExtra("originalHash", originalHash);
-            data.putExtra("sourceLocation", sourceLocation);
-            setResult(RESULT_OK, data);
- */
-            setResult(RESULT_OK);
-            finish();
-        });
-    }
+        setResult(RESULT_OK);
+        finish();
+    });
+}
 
 //-------------------------------------------------------------------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------------------------------------------------------------------
@@ -385,21 +381,6 @@ public class LoadOptionsActivity extends LoggingActivity {
     }
 
 
-    private void checkNameDoesNotAlreadyExist() {
-        myLog("Checking Folder Name doesn't already exist in DB : [" + audioBookTitle + "]");
-        new Thread(() -> {
-            long lCheck = AppDatabase.getDatabase(this).FolderDao().folderAlreadyExist_checkFolderName(audioBookTitle);
-            if (lCheck>0) {
-                myLogW("KO, folder name does already exist in DB : [" + audioBookTitle + "]");
-                runOnUiThread(() -> {
-                    ShowError(getString(R.string.error_media_already_loaded_sameName));
-                });
-            } else {
-                myLogD("OK, folder name doesn't already exist in DB");
-            }
-        }).start();
-    }
-
     private void checkHashDoesNotAlreadyExist() {
         myLog("Checking Hash doesn't already exist in DB for [" + uri + "]");
 
@@ -422,16 +403,17 @@ public class LoadOptionsActivity extends LoggingActivity {
                         btnConfirm.setEnabled(false);
                         new Thread(() -> {
                             String audioBookAlreadyThere = AppDatabase.getDatabase(this).FolderDao().originalHashAlreadyExist_getBookName(originalHash);
-                            if (audioBookAlreadyThere != null) {
-                                myLogW("KO, already imported in DB for uri = [" + uri + "] - current Name = [" + audioBookAlreadyThere + "]");
-                                runOnUiThread(() -> {
+                            runOnUiThread(() -> {
+                                if (audioBookAlreadyThere != null) {
+                                    myLogW("KO, already imported in DB for uri = [" + uri + "] - current Name = [" + audioBookAlreadyThere + "]");
                                     waitTextView.setVisibility(View.GONE);
                                     ShowError(getString(R.string.error_media_already_loaded_samePath_under_the_name) + "\n" + audioBookAlreadyThere);
-                                });
-                            } else {
-                                myLogD("Hash not already in DB");
-                                continueNextCheck();
-                            }
+                                    isKO = true;
+                                } else {
+                                    myLogD("Hash not already in DB");
+                                    okContinue();
+                                }
+                            });
                         }).start();
                     } else if (workInfo != null && workInfo.getState() == WorkInfo.State.FAILED) {
                         myLogEE(null,"Hash computation worker failed fro uri [" + uri + "]");
@@ -440,44 +422,67 @@ public class LoadOptionsActivity extends LoggingActivity {
                 });
     }
 
-    private void continueNextCheck() {
+    private void okContinue() {
+        initInteractiveItems();
+        checkPathDoesNotAlreadyExist();
+    }
 
-        private void checkPathDoesNotAlreadyExist ( boolean copy){
-            String strPath;
-            if (copy) {
-                strPath = getFilesDir().getAbsolutePath() + "/" + FOLDER_UNZIPPED + "/" + audioBookTitle;
-                myLog("Checking Folder Path doesn't already exist in DB (copy case) : [" + strPath + "]");
-                new Thread(() -> {
-                    long lCheck = AppDatabase.getDatabase(this).FolderDao().folderAlreadyExist_checkFolderPath(strPath);
-                    runOnUiThread(() -> {
-                        waitTextView.setVisibility(View.GONE);
-                        if (lCheck > 0) {
-                            myLogW("KO, folder path does already exist in DB (copy case) : [" + strPath + "]");
-                            audioBookTitle = audioBookTitle + " " + getCurrentDateTimeString();
-                            ShowWarning(getString(R.string.error_media_already_loaded_samePath_so_changeName) + audioBookTitle);
-                            btnConfirm.setEnabled(true);
-                        } else {
-                            myLogD("OK, folder path doesn't already exist in DB");
-                        }
-                    });
-                }).start();
-            } else {
-                //strPath = uri.getPath();
-                strPath = uri.toString();
-                myLog("Checking Folder Path doesn't already exist in DB (direct link case, no copy) : [" + strPath + "]");
-                new Thread(() -> {
-                    String audioBookAlreadyThere = AppDatabase.getDatabase(this).FolderDao().folderAlreadyExist_checkFolderPath_getBookName(strPath);
-                    runOnUiThread(() -> {
-                        waitTextView.setVisibility(View.GONE);
-                        if (audioBookAlreadyThere != null) {
-                            myLogW("KO, folder path does already exist in DB : [" + strPath + "]");
-                            ShowError(getString(R.string.error_media_already_loaded_samePath) + audioBookAlreadyThere);
-                        } else {
-                            myLogD("OK, folder path doesn't already exist in DB");
-                        }
-                    });
-                }).start();
-            }
+    private void checkPathDoesNotAlreadyExist() {
+        String strPath;
+        if (cbCopy.isChecked()) {
+            strPath = getFilesDir().getAbsolutePath() + "/" + FOLDER_UNZIPPED + "/" + audioBookTitle;
+            myLog("Checking Folder Path doesn't already exist in DB (copy case) : [" + strPath + "]");
+            new Thread(() -> {
+                long lCheck = AppDatabase.getDatabase(this).FolderDao().folderAlreadyExist_checkFolderPath(strPath);
+                runOnUiThread(() -> {
+                    waitTextView.setVisibility(View.GONE);
+                    btnConfirm.setEnabled(true);
+                    if (lCheck > 0) {
+                        myLogW("KO, folder path does already exist in DB (copy case) : [" + strPath + "]");
+                        audioBookTitle = audioBookTitle + " " + getCurrentDateTimeString();
+                        ShowWarning(getString(R.string.error_media_already_loaded_samePath_so_changeName) + audioBookTitle);
+                    } else {
+                        myLogD("OK, folder path doesn't already exist in DB");
+                        checkNameDoesNotAlreadyExist();
+                    }
+                });
+            }).start();
+        } else {
+            //strPath = uri.getPath();
+            strPath = uri.toString();
+            myLog("Checking Folder Path doesn't already exist in DB (direct link case, no copy) : [" + strPath + "]");
+            new Thread(() -> {
+                String audioBookAlreadyThere = AppDatabase.getDatabase(this).FolderDao().folderAlreadyExist_checkFolderPath_getBookName(strPath);
+                runOnUiThread(() -> {
+                    waitTextView.setVisibility(View.GONE);
+                    if (audioBookAlreadyThere != null) {
+                        myLogW("KO, folder path does already exist in DB : [" + strPath + "]");
+                        ShowError(getString(R.string.error_media_already_loaded_samePath) + audioBookAlreadyThere);
+                    } else {
+                        myLogD("OK, folder path doesn't already exist in DB");
+                        btnConfirm.setEnabled(true);
+                        checkNameDoesNotAlreadyExist();
+                    }
+                });
+            }).start();
         }
     }
+
+
+    private void checkNameDoesNotAlreadyExist() {
+        myLog("Checking Folder Name doesn't already exist in DB : [" + audioBookTitle + "]");
+        new Thread(() -> {
+            long lCheck = AppDatabase.getDatabase(this).FolderDao().folderAlreadyExist_checkFolderName(audioBookTitle);
+            if (lCheck>0) {
+                myLogW("KO, folder name does already exist in DB : [" + audioBookTitle + "]");
+                runOnUiThread(() -> {
+                    ShowWarning(getString(R.string.error_media_already_loaded_sameName));
+                });
+            } else {
+                myLogD("OK, folder name doesn't already exist in DB");
+            }
+        }).start();
+    }
+
+
 }
