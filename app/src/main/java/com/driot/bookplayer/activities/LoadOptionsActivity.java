@@ -1,5 +1,6 @@
 package com.driot.bookplayer.activities;
 
+import static com.driot.bookplayer.global.Pref.setLoadBookTaskState;
 import static com.driot.bookplayer.global.Var.FOLDER_UNZIPPED;
 import static com.driot.bookplayer.global.Var.ONLY_MIME_AUDIO;
 import static com.driot.bookplayer.global.Var.SUPPORTED_AUDIO_EXTENSIONS;
@@ -28,10 +29,16 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.work.Data;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkInfo;
+import androidx.work.WorkManager;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.global.Option;
+import com.driot.bookplayer.objects.LoadBookTaskState;
+import com.driot.bookplayer.utils.FolderHashWorker;
 import com.driot.bookplayer.utils.PermissionRequest;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
@@ -44,12 +51,14 @@ public class LoadOptionsActivity extends LoggingActivity {
 
     private Uri uri;
     private String type;
+    private String originalHash;
+    private String sourceLocation;
+    private String audioBookTitle;
 
-    private String audioBookTitle, sourceLocation;
-
-    private TextView errorTextView;
+    private TextView warningTextView, errorTextView;
     private CheckBox cbSplit, cbCopy, cbDelete;
     private LinearLayout llSplit, llCopy, llDelete;
+    Button btnConfirm;
 
     private boolean internalCheckBoxStateCalculationInProgress;
 
@@ -82,9 +91,12 @@ public class LoadOptionsActivity extends LoggingActivity {
 
         TextView tvFileName = findViewById(R.id.tvFileName);
         TextView tvMimeExtension = findViewById(R.id.tvMimeExtension);
-        Button btnConfirm = findViewById(R.id.btnConfirm);
+        btnConfirm = findViewById(R.id.btnConfirm);
+        btnConfirm.setEnabled(false);
         Button btnCancel = findViewById(R.id.btnCancel);
 
+        warningTextView = findViewById(R.id.warningTextView);
+        warningTextView.setVisibility(View.GONE);
         errorTextView = findViewById(R.id.errorTextView);
         errorTextView.setVisibility(View.GONE);
 
@@ -178,6 +190,7 @@ public class LoadOptionsActivity extends LoggingActivity {
 
         checkPathDoesNotAlreadyExist(cbCopy.isChecked());
         checkNameDoesNotAlreadyExist();
+        checkHashDoesNotAlreadyExist();
 
 //-------------------------------------------------------------------------------------------------------------------------------------------------
 // ACTION BUTTONS
@@ -185,14 +198,33 @@ public class LoadOptionsActivity extends LoggingActivity {
         btnCancel.setOnClickListener(v -> finish());
 
         btnConfirm.setOnClickListener(v -> {
+
+            LoadBookTaskState state = new LoadBookTaskState();
+            state.uri = uri;
+            state.type = type;
+            state.title = audioBookTitle;
+            state.split = cbSplit.isChecked();
+            state.copy = cbCopy.isChecked();
+            state.delete = cbDelete.isChecked();
+            state.originalHash = originalHash;
+            state.sourceLocation = sourceLocation;
+
+            setLoadBookTaskState(this, state); // save in SharedPrefs
+            myLog("CLICK btnConfirm....   LoadBookTaskState saved - Sending ok Result");
+
+/*
             Intent data = new Intent();
             data.putExtra("uri", uri);
             data.putExtra("type", type);
             data.putExtra("title", audioBookTitle);
-            data.putExtra("split", cbSplit.isChecked());
-            data.putExtra("copy", cbCopy.isChecked());
-            data.putExtra("delete", cbDelete.isChecked());
+            data.putExtra("split",
+            data.putExtra("copy", );
+            data.putExtra("delete", );
+            data.putExtra("originalHash", originalHash);
+            data.putExtra("sourceLocation", sourceLocation);
             setResult(RESULT_OK, data);
+ */
+            setResult(RESULT_OK);
             finish();
         });
     }
@@ -335,8 +367,15 @@ public class LoadOptionsActivity extends LoggingActivity {
     }
 
     private void ShowWarning(String warningTxt) {
-        String previousTxt = errorTextView.getText().toString();
+        String previousTxt = warningTextView.getText().toString();
         String newTxt = previousTxt.isEmpty() ? warningTxt : previousTxt + "\n" + warningTxt;
+        warningTextView.setText(newTxt);
+        warningTextView.setVisibility(View.VISIBLE);
+    }
+
+    private void ShowError(String txt) {
+        String previousTxt = errorTextView.getText().toString();
+        String newTxt = previousTxt.isEmpty() ? txt : previousTxt + "\n" + txt;
         errorTextView.setText(newTxt);
         errorTextView.setVisibility(View.VISIBLE);
     }
@@ -357,7 +396,7 @@ public class LoadOptionsActivity extends LoggingActivity {
                     ShowWarning (getString(R.string.error_media_already_loaded_samePath));
                 });
             } else {
-                myLog("OK, folder path doesn't already exist in DB");
+                myLogD("OK, folder path doesn't already exist in DB");
             }
         }).start();
     }
@@ -372,9 +411,47 @@ public class LoadOptionsActivity extends LoggingActivity {
                     ShowWarning (getString(R.string.error_media_already_loaded_sameName));
                 });
             } else {
-                myLog("OK, folder name doesn't already exist in DB");
+                myLogD("OK, folder name doesn't already exist in DB");
             }
         }).start();
     }
+
+    private void checkHashDoesNotAlreadyExist() {
+        myLog("Checking Hash doesn't already exist in DB for [" + uri + "]");
+
+        Data inputData = new Data.Builder()
+                .putString("uri", uri.toString())
+                .build();
+
+        OneTimeWorkRequest hashRequest = new OneTimeWorkRequest.Builder(FolderHashWorker.class)
+                .setInputData(inputData)
+                .build();
+
+        WorkManager.getInstance(this).enqueue(hashRequest);
+
+        WorkManager.getInstance(this).getWorkInfoByIdLiveData(hashRequest.getId())
+                .observe(this, workInfo -> {
+                    if (workInfo != null && workInfo.getState() == WorkInfo.State.SUCCEEDED) {
+                        originalHash = workInfo.getOutputData().getString("computed_hash");
+
+                        // Now check in DB
+                        btnConfirm.setEnabled(false);
+                        new Thread(() -> {
+                            String audioBookAlreadyThere = AppDatabase.getDatabase(this).FolderDao().originalHashAlreadyExist_getBookName(originalHash);
+                            if (audioBookAlreadyThere != null) {
+                                myLogW("KO, already imported in DB for uri = [" + uri + "] - current Name = [" + audioBookAlreadyThere + "]");
+                                runOnUiThread(() -> ShowError(getString(R.string.error_media_already_loaded_samePath_under_the_name) + "\n" + audioBookAlreadyThere));
+                            } else {
+                                myLogD("Hash not already in DB");
+                                runOnUiThread(() -> btnConfirm.setEnabled(true));
+                            }
+                        }).start();
+                    } else if (workInfo != null && workInfo.getState() == WorkInfo.State.FAILED) {
+                        myLogEE(null,"Hash computation worker failed fro uri [" + uri + "]");
+                        runOnUiThread(() -> ShowError(getString(R.string.error_could_not_check_hash)));
+                    }
+                });
+    }
+
 
 }

@@ -19,7 +19,7 @@ import java.util.concurrent.Executors;
                         Folder.class,
                         ZikFile.class
                      }
-                     , version = 3
+                     , version = 4
                     // on se fait les migrations a la main, en les ecrivant...... mais bon...
                     //, autoMigrations = {@AutoMigration(from = 1, to = 2),@AutoMigration(from = 2, to = 3)}
         )
@@ -39,6 +39,11 @@ public abstract class AppDatabase extends RoomDatabase {
     private static final int NUMBER_OF_THREADS = 4;
     static final ExecutorService databaseWriteExecutor = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
 
+
+    public static AppDatabase getDatabase(final Context context) {
+        return DatabaseClient.getInstance(context).getAppDatabase();
+    }
+    /*
     public static AppDatabase getDatabase(final Context context) {
         if (INSTANCE == null) {
             synchronized (AppDatabase.class) {
@@ -51,5 +56,7 @@ public abstract class AppDatabase extends RoomDatabase {
         }
         return INSTANCE;
     }
+
+ */
 }
 

@@ -64,6 +64,7 @@ import com.driot.bookplayer.db.FolderDao;
 import com.driot.bookplayer.db.Sql;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.objects.PlayList;
 import com.driot.bookplayer.services.AudioService;
 import com.driot.bookplayer.utils.FolderHashWorker;
 import com.driot.bookplayer.utils.KanLogger;
@@ -108,7 +109,11 @@ public class MainActivity extends LoggingActivity {
             audioService = binder.getService();
             if (audioService.isPlaying()) {
                 myLogW("AudioService.isPlaying => return to PlayActivity");
-                startActivity(new Intent(MainActivity.this, PlayActivity.class));
+                if (PlayList.getInstance() == null) {
+                    myLogEE(null,"AudioService.isPlaying => return to PlayActivity.... PlayList.getInstance() == null");
+                } else {
+                    startActivity(new Intent(MainActivity.this, PlayActivity.class));
+                }
             }
             //audioServiceBound = true;
         }
@@ -159,7 +164,7 @@ public class MainActivity extends LoggingActivity {
         WorkManager.getInstance(this).getWorkInfoByIdLiveData(request.getId())
                 .observe(this, workInfo -> {
                     if (workInfo != null && workInfo.getState() == WorkInfo.State.SUCCEEDED) {
-                        myToast("All folder hashes updated!");
+                        myLogD("All folder hashes updated!");
                     }
                 });
 

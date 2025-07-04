@@ -65,6 +65,11 @@ public interface FolderDao {
     @Query("UPDATE Folder SET hash = :hash WHERE id = :folderId")
     void updateHash(int folderId, String hash);
 
+    @Query("SELECT name FROM Folder WHERE originalHash LIKE :originalHash")
+    String originalHashAlreadyExist_getBookName(String originalHash);
+
+
+
     // Exemple avec dates :
     //@Query("SELECT * FROM user WHERE birthday BETWEEN :from AND :to")
     //List<User> findUsersBornBetweenDates(Date from, Date to);

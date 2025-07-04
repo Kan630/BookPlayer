@@ -15,6 +15,8 @@ public class LoadBookTaskState implements Parcelable {
     public boolean split;
     public boolean copy;
     public boolean delete;
+    public String originalHash;
+    public String sourceLocation;
     public String downloadedFilePath;
     public boolean downloadedFileReady; //so that you never get stuck if app crashes
     public boolean onGoing;
@@ -30,6 +32,8 @@ public class LoadBookTaskState implements Parcelable {
         split = in.readByte() != 0;
         copy = in.readByte() != 0;
         delete = in.readByte() != 0;
+        originalHash = in.readString();
+        sourceLocation = in.readString();
         downloadedFilePath = in.readString();
         downloadedFileReady = in.readByte() != 0;
         onGoing = in.readByte() != 0;
@@ -55,6 +59,8 @@ public class LoadBookTaskState implements Parcelable {
         dest.writeByte((byte) (split ? 1 : 0));
         dest.writeByte((byte) (copy ? 1 : 0));
         dest.writeByte((byte) (delete ? 1 : 0));
+        dest.writeString(originalHash);
+        dest.writeString(sourceLocation);
         dest.writeString(downloadedFilePath);
         dest.writeByte((byte) (downloadedFileReady ? 1 : 0));
         dest.writeByte((byte) (onGoing ? 1 : 0));
@@ -75,6 +81,8 @@ public class LoadBookTaskState implements Parcelable {
                 ", split=" + split +
                 ", copy=" + copy +
                 ", delete=" + delete +
+                ", originalHash='" + originalHash + '\'' +
+                ", sourceLocation='" + sourceLocation + '\'' +
                 ", downloadedFilePath='" + downloadedFilePath + '\'' +
                 ", onGoingDownload=" + downloadedFileReady +
                 ", onGoing=" + onGoing +

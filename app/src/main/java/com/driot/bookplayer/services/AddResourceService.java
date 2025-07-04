@@ -49,7 +49,6 @@ import static com.driot.bookplayer.utils.Tonio.getExtension;
 import static com.driot.bookplayer.utils.Tonio.getFileNameFromPath;
 import static com.driot.bookplayer.utils.Tonio.getFileNameFromUri;
 import static com.driot.bookplayer.utils.Tonio.getMimeType;
-import static com.driot.bookplayer.utils.Tonio.getSourceLocation;
 import static com.driot.bookplayer.utils.Tonio.stripExtension;
 import static com.driot.bookplayer.utils.TonioCommonStuff.deleteExtension;
 import static com.driot.bookplayer.utils.TonioCommonStuff.extractName;
@@ -129,6 +128,9 @@ public class AddResourceService
     private Uri uri_given;
     private String type_given;
     private String title_given;
+    private String originalHash;
+    private String sourceLocation;
+
     private String destinationFolderName;
     private String zipDestinationFolderPath;
     private String zipDestinationFolderName;
@@ -136,8 +138,6 @@ public class AddResourceService
     private String destinationFolderPath;
 
     private String fullPath;
-
-    private String sourceLocation;
 
     public static boolean isBusy;
 
@@ -375,6 +375,7 @@ public class AddResourceService
     public int onStartCommand(Intent intent, int flags, int startId) {
         myLog("onStartCommand");
 
+        //TODO why also in init() ??
         LoadBookTaskState state = intent.getParcelableExtra("LoadBookTaskState");
         if (state != null) {
             uri_given = state.uri;
@@ -383,21 +384,9 @@ public class AddResourceService
             optionCopyFile = state.copy;
             optionSplitM4b = state.split;
             optionDeleteSource = state.delete;
+            sourceLocation = state.sourceLocation;
+            originalHash = state.originalHash;
         }
-/*
-            downloadedFilePath = state.downloadedFilePath;
-            downloadFileReady = state.downloadedFileReady;
-            onGoing = state.onGoing;
-
-            if (downloadFileReady && downloadedFilePath != null) {
-                myLog("back with finished Downloaded File");
-                downloadService_tellEnd(downloadedFilePath);
-            }
-        } else {
-            myLogEE(e,"no args - LoadBookTaskState = null");
-        }
-
- */
 
         return START_NOT_STICKY;
     }
@@ -592,6 +581,9 @@ public class AddResourceService
                 optionCopyFile = state.copy;
                 optionSplitM4b = state.split;
                 optionDeleteSource = state.delete;
+                sourceLocation = state.sourceLocation;
+                originalHash = state.originalHash;
+
                 downloadService_tellEnd(state.downloadedFilePath);
                 return;
             }
@@ -601,7 +593,6 @@ public class AddResourceService
 
         if (type_given==null || uri_given==null) {myLogEE(null,"init() - args=null");tellError("Init failed, args are null");return;}
         String strUriLog = uri_given==null ? "null" : uri_given.toString();
-        sourceLocation = getSourceLocation(uri_given);
 
         myLog("....");
         myLog("....");
@@ -926,6 +917,8 @@ public class AddResourceService
         folder.setLastaccessTime(sLastAccessTime);
         folder.setFinished(false);
         folder.setIszipfile(false); //2023-10-22 deprecated (live zip reading - code has been removed)
+        folder.setOriginalHash(originalHash);
+        folder.setSourceLocation(sourceLocation);
 
         new Thread(() -> {
             InsertedFolderId[0] = (int) DatabaseClient.getInstance(this).getAppDatabase().FolderDao().insert(folder);

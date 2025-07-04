@@ -1,8 +1,10 @@
 package com.driot.bookplayer.utils;
 
 import android.content.Context;
+import android.net.Uri;
 
 import androidx.annotation.NonNull;
+import androidx.work.Data;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
@@ -11,6 +13,7 @@ import com.driot.bookplayer.db.Folder;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.InputStream;
 import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.List;
@@ -27,13 +30,31 @@ public class FolderHashWorker extends Worker {
     @NonNull
     @Override
     public Result doWork() {
+        String uriStr = getInputData().getString("uri");
+        if (uriStr != null) {
+            try {
+                Uri uri = Uri.parse(uriStr);
+                String hash = computeHashFromUri(getApplicationContext(), uri);
+
+                Data outputData = new Data.Builder()
+                        .putString("computed_hash", hash)
+                        .build();
+
+                return Result.success(outputData);
+
+            } catch (Exception e) {
+                myLogEE(e, "Error computing hash from URI");
+            }
+            return Result.success();
+        }
+
         AppDatabase db = AppDatabase.getDatabase(getApplicationContext());
         List<Folder> folders = db.FolderDao().getAll(); // Make sure this method exists
 
         for (Folder folder : folders) {
             if (Objects.equals(folder.getHash(), "0")) {
                 try {
-                    myLog("Hashing folder: " + folder.getPath());
+                    myLogD("Hashing folder: " + folder.getPath());
                     File dir = new File(folder.getPath());
                     String hash = computeFolderHash(dir);
                     db.FolderDao().updateHash(folder.getId(), hash);
@@ -74,10 +95,35 @@ public class FolderHashWorker extends Worker {
             StringBuilder sb = new StringBuilder();
             for (byte b : hashBytes) sb.append(String.format("%02x", b));
             zeHash = sb.toString();
-            myLog("Hash: [" + zeHash + "]");
+            myLogD("computeFolderHash(): [" + zeHash + "]");
             return zeHash;
         } catch (Exception e) {
             myLogEE(e, "Exception while computing hash");
+            return "";
+        }
+    }
+
+    private String computeHashFromUri(Context context, Uri uri) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] buffer = new byte[4096];
+            long totalRead = 0;
+            int read;
+            try (InputStream is = context.getContentResolver().openInputStream(uri)) {
+                if (is == null) return "";
+                while ((read = is.read(buffer)) != -1 && totalRead < MAX_BYTES_TO_HASH_PER_FILE) {
+                    digest.update(buffer, 0, read);
+                    totalRead += read;
+                }
+            }
+            byte[] hashBytes = digest.digest();
+            StringBuilder sb = new StringBuilder();
+            for (byte b : hashBytes) sb.append(String.format("%02x", b));
+            String zeHash = sb.toString();
+            myLogD("computeHashFromUri(): [" + zeHash + "]");
+            return zeHash;
+        } catch (Exception e) {
+            myLogEE(e, "Exception while hashing Uri");
             return "";
         }
     }

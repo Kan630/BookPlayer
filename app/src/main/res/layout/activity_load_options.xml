@@ -21,6 +21,11 @@
         <TextView
             android:id="@+id/errorTextView"
             style="@style/OptionAfterPickedInfo"
+            android:textColor="@color/red_500"
+            />
+        <TextView
+            android:id="@+id/warningTextView"
+            style="@style/OptionAfterPickedInfo"
             android:textColor="@color/orange"
             />
         <!-- Horizontal divider -->

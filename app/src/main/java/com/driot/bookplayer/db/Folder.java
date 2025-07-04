@@ -61,6 +61,25 @@ public class Folder implements Serializable {
     @ColumnInfo(name = "finished")
     private boolean finished;
 
+    @ColumnInfo
+    private String originalType;
+
+    @ColumnInfo
+    private String originalFile;
+
+    @ColumnInfo
+    private String originalHash;
+
+    @ColumnInfo
+    private String sourceLocation;
+
+    @ColumnInfo
+    private long listeningDuration;
+
+    @ColumnInfo
+    private long listeningPlayCount;
+
+
 
     /*
      * Getters and Setters
@@ -217,6 +236,53 @@ public class Folder implements Serializable {
         this.lastaccessTime = new Time(System.currentTimeMillis());
     }
 
+
+    public String getOriginalType() {
+        return originalType;
+    }
+
+    public String getOriginalFile() {
+        return originalFile;
+    }
+
+    public String getOriginalHash() {
+        return originalHash;
+    }
+
+    public String getSourceLocation() {
+        return sourceLocation;
+    }
+
+
+    public void setOriginalType(String originalType) {
+        this.originalType = originalType;
+    }
+
+    public void setOriginalFile(String originalFile) {
+        this.originalFile = originalFile;
+    }
+
+    public void setOriginalHash(String originalHash) {
+        this.originalHash = originalHash;
+    }
+
+    public void setSourceLocation(String sourceLocation) {
+        this.sourceLocation = sourceLocation;
+    }
+    public long getListeningDuration() {
+        return listeningDuration;
+    }
+
+    public long getListeningPlayCount() {
+        return listeningPlayCount;
+    }
+    public void setListeningDuration(long listeningDuration) {
+        this.listeningDuration = listeningDuration;
+    }
+
+    public void setListeningPlayCount(long listeningPlayCount) {
+        this.listeningPlayCount = listeningPlayCount;
+    }
 
 
     //--- LOG --------------------------

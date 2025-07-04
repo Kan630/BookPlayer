@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import static com.driot.bookplayer.global.Pref.getLoadBookTaskState;
 import static com.driot.bookplayer.global.Pref.get_Audio_Language;
 import static com.driot.bookplayer.global.Pref.setLoadBookTaskState;
 import static com.driot.bookplayer.global.Pref.set_Audio_Language;
@@ -214,6 +215,8 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
                     if (result.getResultCode() == Activity.RESULT_OK) {
+
+                        /*
                         Intent data = result.getData();
                         if (data == null) return;
 
@@ -242,6 +245,16 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
                         Intent intentActivity = new Intent(this, AddResourceActivity.class);
                         intentActivity.putExtra("LoadBookTaskState", state);
                         startActivity(intentActivity);
+    */
+
+                        Intent intentService = new Intent(this, AddResourceService.class);
+                        intentService.putExtra("LoadBookTaskState", getLoadBookTaskState(this));
+                        startService(intentService);
+
+                        Intent intentActivity = new Intent(this, AddResourceActivity.class);
+                        intentService.putExtra("LoadBookTaskState", getLoadBookTaskState(this));
+                        startActivity(intentActivity);
+
                     }
                 }
         );

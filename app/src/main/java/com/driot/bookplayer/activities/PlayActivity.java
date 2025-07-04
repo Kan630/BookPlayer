@@ -222,6 +222,7 @@ public class PlayActivity extends LoggingActivity {
             myToast("error getting Playlist");
             myLogEE(null,"onCreate() -- cancelling since PlayList.getInstance() == null");
             finish();
+            return;
         }
 
         myLog("onCreate() -- Launching Music Service");
