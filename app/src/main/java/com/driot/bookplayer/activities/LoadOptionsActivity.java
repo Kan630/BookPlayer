@@ -6,6 +6,7 @@ import static com.driot.bookplayer.global.Var.ONLY_MIME_AUDIO;
 import static com.driot.bookplayer.global.Var.SUPPORTED_AUDIO_EXTENSIONS;
 import static com.driot.bookplayer.utils.PermissionRequest.isReadAudioPermissionGranted;
 import static com.driot.bookplayer.utils.Tonio.formatNameForDisplay;
+import static com.driot.bookplayer.utils.Tonio.getCurrentDateTimeString;
 import static com.driot.bookplayer.utils.Tonio.getExtension;
 import static com.driot.bookplayer.utils.Tonio.getFileNameFromPath;
 import static com.driot.bookplayer.utils.Tonio.getFileNameFromUri;
@@ -166,6 +167,7 @@ public class LoadOptionsActivity extends LoggingActivity {
             if (isChecked) {
                 checkPathDoesNotAlreadyExist(isChecked);
             } else {
+                checkPathDoesNotAlreadyExist(isChecked);
                 askForPermission();
             }
             if (!internalCheckBoxStateCalculationInProgress) calculateCheckboxState();
@@ -190,9 +192,9 @@ public class LoadOptionsActivity extends LoggingActivity {
 // check Not Already Imported
 //*****************************
 
-        checkPathDoesNotAlreadyExist(cbCopy.isChecked());
         checkNameDoesNotAlreadyExist();
         checkHashDoesNotAlreadyExist();
+        //        checkPathDoesNotAlreadyExist(cbCopy.isChecked());   will be done inside hash check
 
 //-------------------------------------------------------------------------------------------------------------------------------------------------
 // ACTION BUTTONS
@@ -382,26 +384,6 @@ public class LoadOptionsActivity extends LoggingActivity {
         errorTextView.setVisibility(View.VISIBLE);
     }
 
-    private void checkPathDoesNotAlreadyExist(boolean copy) {
-        String strPath;
-        if (copy) {
-            strPath = getFilesDir().getAbsolutePath() + "/" + FOLDER_UNZIPPED + "/" + audioBookTitle;
-        } else {
-            strPath = uri.getPath();
-        }
-        myLog("Checking Folder Path doesn't already exist in DB : [" + strPath + "]");
-        new Thread(() -> {
-            long lCheck = AppDatabase.getDatabase(this).FolderDao().folderAlreadyExist_checkFolderPath(strPath);
-            if (lCheck>0) {
-                myLogW("KO, folder path does already exist in DB : [" + strPath + "]");
-                runOnUiThread(() -> {
-                    ShowWarning (getString(R.string.error_media_already_loaded_samePath));
-                });
-            } else {
-                myLogD("OK, folder path doesn't already exist in DB");
-            }
-        }).start();
-    }
 
     private void checkNameDoesNotAlreadyExist() {
         myLog("Checking Folder Name doesn't already exist in DB : [" + audioBookTitle + "]");
@@ -410,7 +392,7 @@ public class LoadOptionsActivity extends LoggingActivity {
             if (lCheck>0) {
                 myLogW("KO, folder name does already exist in DB : [" + audioBookTitle + "]");
                 runOnUiThread(() -> {
-                    ShowWarning (getString(R.string.error_media_already_loaded_sameName));
+                    ShowError(getString(R.string.error_media_already_loaded_sameName));
                 });
             } else {
                 myLogD("OK, folder name doesn't already exist in DB");
@@ -448,12 +430,7 @@ public class LoadOptionsActivity extends LoggingActivity {
                                 });
                             } else {
                                 myLogD("Hash not already in DB");
-                                runOnUiThread(() -> {
-                                    waitTextView.setVisibility(View.GONE);
-                                    btnConfirm.setEnabled(true);
-                                });
-
-
+                                continueNextCheck();
                             }
                         }).start();
                     } else if (workInfo != null && workInfo.getState() == WorkInfo.State.FAILED) {
@@ -463,5 +440,44 @@ public class LoadOptionsActivity extends LoggingActivity {
                 });
     }
 
+    private void continueNextCheck() {
 
+        private void checkPathDoesNotAlreadyExist ( boolean copy){
+            String strPath;
+            if (copy) {
+                strPath = getFilesDir().getAbsolutePath() + "/" + FOLDER_UNZIPPED + "/" + audioBookTitle;
+                myLog("Checking Folder Path doesn't already exist in DB (copy case) : [" + strPath + "]");
+                new Thread(() -> {
+                    long lCheck = AppDatabase.getDatabase(this).FolderDao().folderAlreadyExist_checkFolderPath(strPath);
+                    runOnUiThread(() -> {
+                        waitTextView.setVisibility(View.GONE);
+                        if (lCheck > 0) {
+                            myLogW("KO, folder path does already exist in DB (copy case) : [" + strPath + "]");
+                            audioBookTitle = audioBookTitle + " " + getCurrentDateTimeString();
+                            ShowWarning(getString(R.string.error_media_already_loaded_samePath_so_changeName) + audioBookTitle);
+                            btnConfirm.setEnabled(true);
+                        } else {
+                            myLogD("OK, folder path doesn't already exist in DB");
+                        }
+                    });
+                }).start();
+            } else {
+                //strPath = uri.getPath();
+                strPath = uri.toString();
+                myLog("Checking Folder Path doesn't already exist in DB (direct link case, no copy) : [" + strPath + "]");
+                new Thread(() -> {
+                    String audioBookAlreadyThere = AppDatabase.getDatabase(this).FolderDao().folderAlreadyExist_checkFolderPath_getBookName(strPath);
+                    runOnUiThread(() -> {
+                        waitTextView.setVisibility(View.GONE);
+                        if (audioBookAlreadyThere != null) {
+                            myLogW("KO, folder path does already exist in DB : [" + strPath + "]");
+                            ShowError(getString(R.string.error_media_already_loaded_samePath) + audioBookAlreadyThere);
+                        } else {
+                            myLogD("OK, folder path doesn't already exist in DB");
+                        }
+                    });
+                }).start();
+            }
+        }
+    }
 }

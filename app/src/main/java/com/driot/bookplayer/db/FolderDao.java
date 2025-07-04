@@ -68,6 +68,10 @@ public interface FolderDao {
     @Query("SELECT name FROM Folder WHERE originalHash LIKE :originalHash")
     String originalHashAlreadyExist_getBookName(String originalHash);
 
+    @Query("SELECT name FROM Folder WHERE path LIKE :sFolderPath")
+    String folderAlreadyExist_checkFolderPath_getBookName(String sFolderPath);
+
+
 
 
     // Exemple avec dates :
