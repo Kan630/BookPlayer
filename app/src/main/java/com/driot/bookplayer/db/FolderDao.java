@@ -59,6 +59,12 @@ public interface FolderDao {
     @Update
     void update(Folder Folder);
 
+    @Query("UPDATE Folder SET hash = :hash WHERE path = :path")
+    void updateHashForPath(String path, String hash);
+
+    @Query("UPDATE Folder SET hash = :hash WHERE id = :folderId")
+    void updateHash(int folderId, String hash);
+
     // Exemple avec dates :
     //@Query("SELECT * FROM user WHERE birthday BETWEEN :from AND :to")
     //List<User> findUsersBornBetweenDates(Date from, Date to);

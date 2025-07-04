@@ -49,6 +49,9 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkInfo;
+import androidx.work.WorkManager;
 
 //import com.arthenica.ffmpegkit.FFmpegKit;
 //import com.arthenica.ffmpegkit.ReturnCode;
@@ -62,6 +65,7 @@ import com.driot.bookplayer.db.Sql;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.services.AudioService;
+import com.driot.bookplayer.utils.FolderHashWorker;
 import com.driot.bookplayer.utils.KanLogger;
 import com.driot.bookplayer.utils.KanMail;
 import com.driot.bookplayer.utils.NetworkUtils;
@@ -135,7 +139,7 @@ public class MainActivity extends LoggingActivity {
         }
 
 
-        //Sql.log_all_Folders(this);
+        Sql.log_all_Folders(this);
 /*
         //clearLoadBookTaskState(this);
         LoadBookTaskState lbts = new LoadBookTaskState();
@@ -147,6 +151,16 @@ public class MainActivity extends LoggingActivity {
         setLoadBookTaskState(this, lbts);
 
  */
+
+        WorkManager.getInstance(this).enqueue(
+                new OneTimeWorkRequest.Builder(FolderHashWorker.class).build()
+        );
+        WorkManager.getInstance(this).getWorkInfoByIdLiveData(request.getId())
+                .observe(this, workInfo -> {
+                    if (workInfo != null && workInfo.getState() == WorkInfo.State.SUCCEEDED) {
+                        myToast("All folder hashes updated!");
+                    }
+                });
 
 
         setContentView(R.layout.activity_main);

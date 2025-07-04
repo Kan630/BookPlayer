@@ -65,14 +65,15 @@ public class Sql {
 
                 // Log column headers (optional)
                 myLogI("Folders (sorted by last access):");
-                myLogI("ID | Name | Path | Last Access...");
+                myLogI("ID | Hash | Name | Path | Duration | Last Access ...");
                 myLogI("----------------------------------------");
 
                 // Log each folder
                 for (Folder folder : folders) {
                     String logEntry = String.format(Locale.getDefault(),
-                            "%d | %s | %s | %s | %s | %s"
+                            "%d | %s | %s | %s | %s | %s | %s"
                             ,folder.getId()
+                            ,folder.getHash()
                             ,folder.getName()
                             ,folder.getPath()
                             ,formatTime(folder.getDuration())
