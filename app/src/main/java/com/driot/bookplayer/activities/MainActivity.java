@@ -152,9 +152,10 @@ public class MainActivity extends LoggingActivity {
 
  */
 
-        WorkManager.getInstance(this).enqueue(
-                new OneTimeWorkRequest.Builder(FolderHashWorker.class).build()
-        );
+        OneTimeWorkRequest request = new OneTimeWorkRequest.Builder(FolderHashWorker.class).build();
+
+        WorkManager.getInstance(this).enqueue(request);
+
         WorkManager.getInstance(this).getWorkInfoByIdLiveData(request.getId())
                 .observe(this, workInfo -> {
                     if (workInfo != null && workInfo.getState() == WorkInfo.State.SUCCEEDED) {

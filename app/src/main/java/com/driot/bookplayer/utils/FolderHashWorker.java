@@ -30,7 +30,7 @@ public class FolderHashWorker extends Worker {
         AppDatabase db = AppDatabase.getDatabase(getApplicationContext());
         List<Folder> folders = db.FolderDao().getAll(); // Make sure this method exists
 
-        for (com.driot.bookplayer.db.Folder folder : folders) {
+        for (Folder folder : folders) {
             if (Objects.equals(folder.getHash(), "0")) {
                 try {
                     myLog("Hashing folder: " + folder.getPath());
@@ -93,6 +93,6 @@ public class FolderHashWorker extends Worker {
     private void myToast(String str) { KanLogger.myToast(this.getClass().getName(), str); }
     private void myToastE(String str) { KanLogger.myToastE(this.getClass().getName(), str); }
     private void myKeyFirebase(String strKey, String strValue) {KanLogger.myKeyFirebase(strKey, strValue);}
-    private void myLogFirebase(String strLog) {KanLogger.myLogFirebase(strLog);}}
+    private void myLogFirebase(String strLog) {KanLogger.myLogFirebase(strLog);}
 }
 
