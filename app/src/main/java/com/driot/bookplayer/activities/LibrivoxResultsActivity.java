@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.adapter.LibrivoxResultRVAdapter;
-import com.driot.bookplayer.objects.ApiResponse;
+import com.driot.bookplayer.objects.LibrivoxApiResponse;
 import com.driot.bookplayer.objects.LibrivoxApi;
 import com.driot.bookplayer.objects.LibrivoxItem;
 import com.driot.bookplayer.utils.log.LoggingActivity;
@@ -135,9 +135,9 @@ public class LibrivoxResultsActivity extends LoggingActivity {
 
         progressBar.setVisibility(View.VISIBLE);
 
-        api.search(fullQuery, fields, API_MAX_RESULTS, 1, "json", API_SORT).enqueue(new Callback<ApiResponse>() {
+        api.search(fullQuery, fields, API_MAX_RESULTS, 1, "json", API_SORT).enqueue(new Callback<LibrivoxApiResponse>() {
             @Override
-            public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
+            public void onResponse(Call<LibrivoxApiResponse> call, Response<LibrivoxApiResponse> response) {
                 progressBar.setVisibility(View.GONE);
                 if (response.body() != null && response.body().response != null) {
                     List<LibrivoxItem> results = response.body().response.docs;
@@ -155,7 +155,7 @@ public class LibrivoxResultsActivity extends LoggingActivity {
             }
 
             @Override
-            public void onFailure(Call<ApiResponse> call, Throwable t) {
+            public void onFailure(Call<LibrivoxApiResponse> call, Throwable t) {
                 progressBar.setVisibility(View.GONE);
                 t.printStackTrace();
                 viewModel.requestFinish(); // ✅ trigger finish

@@ -9,7 +9,7 @@ import retrofit2.http.Query;
 
 public interface LibrivoxApi {
     @GET("advancedsearch.php")
-    Call<ApiResponse> search(@Query("q") String query
+    Call<LibrivoxApiResponse> search(@Query("q") String query
             , @Query("fl[]") List<String> fields
             , @Query("rows") int rows
             , @Query("page") int page
