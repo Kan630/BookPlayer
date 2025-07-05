@@ -32,6 +32,7 @@ import com.driot.bookplayer.utils.log.LoggingActivity;
 import static com.driot.bookplayer.global.Option.DEFAULT_FORWARD_SECONDS;
 import static com.driot.bookplayer.global.Option.DEFAULT_TIME_BEFORE_SLEEP;
 import static com.driot.bookplayer.utils.ComponentUtils.setOpenWithProxyEnabled;
+import static com.driot.bookplayer.utils.ComponentUtils.setOpenWithProxyEnabled_all;
 import static com.driot.bookplayer.utils.PermissionRequest.isRecordAudioPermissionGranted;
 
 import androidx.annotation.NonNull;
@@ -66,6 +67,7 @@ public class OptionActivity extends LoggingActivity {
     CheckBox chk_click_visualizer_playpause;
     CheckBox chk_tech_log_file;
     CheckBox chk_open_with;
+    CheckBox chk_open_with_all;
     CheckBox chk_split_m4b;
     private PermissionRequest mPermissionRequest;
 
@@ -73,9 +75,9 @@ public class OptionActivity extends LoggingActivity {
     private View advancedOptionsView;
 
     LinearLayout ll_visualizer_on, ll_visualizer_playpause, ll_copy_file, ll_delete_source_file;
-    LinearLayout ll_open_with, ll_beep_chapter, ll_beep_bookend, ll_beep_autostop;
+    LinearLayout ll_beep_chapter, ll_beep_bookend, ll_beep_autostop;
     LinearLayout ll_rewind_after_pause, ll_tech_log_file, ll_mail_method_default;
-    LinearLayout ll_split_m4b;
+    LinearLayout ll_open_with, ll_open_with_all, ll_split_m4b;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -183,11 +185,13 @@ public class OptionActivity extends LoggingActivity {
         chk_copy_file = findViewById(R.id.chk_copy_file);
         chk_tech_log_file = findViewById(R.id.chk_tech_log_file);
         chk_open_with = findViewById(R.id.chk_open_with);
+        chk_open_with_all = findViewById(R.id.chk_open_with_all);
         chk_split_m4b = findViewById(R.id.chk_split_m4b);
         ll_split_m4b = findViewById(R.id.ll_split_m4b);
         ll_copy_file = findViewById(R.id.ll_copy_file);
         ll_delete_source_file = findViewById(R.id.ll_delete_source_file);
         ll_open_with = findViewById(R.id.ll_open_with);
+        ll_open_with_all = findViewById(R.id.ll_open_with_all);
         ll_beep_chapter = findViewById(R.id.ll_beep_chapter);
         ll_beep_bookend = findViewById(R.id.ll_beep_bookend);
         ll_beep_autostop = findViewById(R.id.ll_beep_autostop);
@@ -248,6 +252,13 @@ public class OptionActivity extends LoggingActivity {
         chk_open_with.setOnCheckedChangeListener((buttonView, isChecked) -> {
             Option.setOpenWith(isChecked);
             setOpenWithProxyEnabled(this, isChecked);  // dynamically enable/disable the component
+        });
+
+        chk_open_with_all.setChecked(Option.getOpenWith_all());
+        ll_open_with_all.setOnClickListener(v -> chk_open_with_all.toggle());
+        chk_open_with_all.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            Option.setOpenWith_all(isChecked);
+            setOpenWithProxyEnabled_all(this, isChecked);  // dynamically enable/disable the component
         });
 
     }

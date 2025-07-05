@@ -1,6 +1,7 @@
 package com.driot.bookplayer;
 
 import static com.driot.bookplayer.utils.ComponentUtils.setOpenWithProxyEnabled;
+import static com.driot.bookplayer.utils.ComponentUtils.setOpenWithProxyEnabled_all;
 
 import android.app.Application;
 import android.os.Environment;
@@ -36,8 +37,17 @@ public class MyPersonalApp extends Application {
 
         myLog("Context has been initialized");
 
+        setOpenWithProxyEnabled_all(this, false);
+        setOpenWithProxyEnabled(this, false);
         boolean openWithEnabled = Option.getOpenWith();
-        setOpenWithProxyEnabled(this, openWithEnabled);
+        boolean openWithEnabledAll = Option.getOpenWith_all();
+        if (openWithEnabledAll) {
+            setOpenWithProxyEnabled_all(this, true);
+        } else if (openWithEnabled) {
+            setOpenWithProxyEnabled(this, true);
+        }
+        myLog("Proxy setup: openWith=" + openWithEnabled + " / all=" + openWithEnabledAll);
+
 
 
         if ( isExternalStorageWritable() ) {

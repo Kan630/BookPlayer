@@ -142,7 +142,7 @@ public class MainActivity extends LoggingActivity {
         }
 
 
-        Sql.log_all_Folders(this);
+        //Sql.log_all_Folders(this);
 /*
         //clearLoadBookTaskState(this);
         LoadBookTaskState lbts = new LoadBookTaskState();
@@ -154,7 +154,7 @@ public class MainActivity extends LoggingActivity {
         setLoadBookTaskState(this, lbts);
 
  */
-
+/*
         OneTimeWorkRequest request = new OneTimeWorkRequest.Builder(HashWorker.class).build();
 
         WorkManager.getInstance(this).enqueue(request);
@@ -165,6 +165,8 @@ public class MainActivity extends LoggingActivity {
                         myLogD("All folder hashes updated!");
                     }
                 });
+
+ */
 
 
         setContentView(R.layout.activity_main);

@@ -112,10 +112,6 @@
     <string name="option_beep_for_autostop">Produce a long beep when entering sleep mode <i>(automatic pause after XX minutes)</i></string>
     <string name="option_beep_at_the_end">Produce a triple beep at the book end.</string>
 
-    <string name="option_open_with_title">Open With / Choose App</string>
-    <string name="option_open_with_subtitle"><i>Make Android propose Bookplayer among the other proposed options when clicking/downloading an audio / zip file</i></string>
-    <string name="option_open_with_text">Add Bookplayer to \'Open With\' Choices.</string>
-
     <string name="option_visualizer_title">Spectrum Visualizer</string>
     <string name="option_visualizer_text_01">Minimalist frequency visualizer displayed when audio is playing.</string>
     <string name="option_visualizer_text_02">Needs [Record Audio]/[Microphone] permission</string>
@@ -545,6 +541,12 @@
     <string name="error_media_already_loaded_samePath_so_changeName">A different media with the same name had already been loaded, the name will be changed to : </string>
     <string name="init_check_already_imported_please_wait">"checking if already imported, please wait…"</string>
     <string name="init_check_complementary_checks_please_wait">"complementary checks, please wait…"</string>
+    <string name="option_open_with_title">Open With / Share</string>
+    <string name="option_open_with_subtitle"><i>Makes Android propose Bookplayer among the other proposed options when selecting [Share] or [open With] after clicking (long-clicking) on a file from the phone file explorer or from downloads</i></string>
+    <string name="option_open_with_text">For zip and most audio files.</string>
+    <string name="option_open_with_text_all">For any kind of file (fail safe).</string>
+
+
 
 
 

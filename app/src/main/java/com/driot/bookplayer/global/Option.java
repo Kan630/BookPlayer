@@ -27,6 +27,7 @@ public class Option {
     private static final boolean DEFAULT_CLICK_VISUALIZER_PLAYPAUSE = false;
     private static final boolean DEFAULT_TECH_LOG = false;
     private static final boolean DEFAULT_OPEN_WITH = true;
+    private static final boolean DEFAULT_OPEN_WITH_ALL = false;
     private static final boolean DEFAULT_SPLIT_M4B = true;
 
     private static Context appContext;
@@ -108,6 +109,8 @@ public class Option {
     /////////////////// OPEN WITH ///////////////////
     public static void setOpenWith(boolean bool) {prefs.edit().putBoolean("OPEN_WITH",bool).apply();}
     public static boolean getOpenWith() {return prefs.getBoolean("OPEN_WITH", DEFAULT_OPEN_WITH);}
+    public static void setOpenWith_all(boolean bool) {prefs.edit().putBoolean("OPEN_WITH_ALL",bool).apply();}
+    public static boolean getOpenWith_all() {return prefs.getBoolean("OPEN_WITH_ALL", DEFAULT_OPEN_WITH_ALL);}
 
     /////////////////// SPLIT M4B ///////////////////
     public static void setSplitM4b(boolean bool) {prefs.edit().putBoolean("SPLIT_M4B",bool).apply();}
