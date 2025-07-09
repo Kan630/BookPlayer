@@ -514,6 +514,11 @@ public class AudioService extends LoggingService {
         Uri uriToPlay = null;
         String pathToPlay = null;
 
+        if (PlayList.getInstance()==null) {
+            myLogE("PlayList.getInstance().getZikFile==null");
+            loadFileKO();
+            return;
+        }
         ZikFile zf = PlayList.getInstance().getZikFile();
         if (zf==null) {
             myLogE("PlayList.getInstance().getZikFile==null");
@@ -669,7 +674,6 @@ public class AudioService extends LoggingService {
     }
     public void forwardAudio(int lag) {
         myLog("forwardAudio of " + lag);
-        reloadSleepTimer();
         int temp = getPosition();
         if ((temp + lag ) <= getDuration()) {
             setPosition(temp + lag );
@@ -686,7 +690,6 @@ public class AudioService extends LoggingService {
     }
     public void backwardAudio(int lag) {
         myLog("backwardAudio() : " + lag);
-        reloadSleepTimer();
         int temp = getPosition();
         if ((temp - lag) > 0) {
             setPosition(temp - lag);
@@ -706,7 +709,6 @@ public class AudioService extends LoggingService {
                 mediaPlayer.setPlaybackParams(mediaPlayer.getPlaybackParams().setSpeed((float) speed));
             }
             myLog("setSpeed() : " + speed);
-            reloadSleepTimer();
         } catch (Exception e) {
             myLogEE(e,"AudioService Error setting Speed");
         }
@@ -726,14 +728,13 @@ public class AudioService extends LoggingService {
     public void setPosition(int position) {
         myLog("setPosition() : " + myDF.format(position));
         mediaPlayer.seekTo(position);
-        reloadSleepTimer();
         createNotification();
     }
 
     public int getPosition() {
         int curPosMediaPlayer = mediaPlayer.getCurrentPosition();
         if (LOG_TRACE_ALL) {
-            if (PlayList.getInstance().getZikFile()!=null) {
+            if (PlayList.getInstance()!=null && PlayList.getInstance().getZikFile()!=null) {
                 int curPosGlobalVar = (int) PlayList.getInstance().getZikFile().getPosition();
                 int diff = curPosGlobalVar-curPosMediaPlayer;
                 myLogD("getPosition() Saved/PlayerCurrent  " + curPosGlobalVar + "/" + curPosMediaPlayer + "  -  Diff = " + diff);
@@ -824,6 +825,7 @@ public class AudioService extends LoggingService {
         reloadSleepTimer();
     }
     public void reloadSleepTimer() {
+        myLog("reloadSleepTimer()");
         if (isTimerRunning) {
             stopSleepTimer();
             startSleepTimer();
