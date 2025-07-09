@@ -22,7 +22,6 @@ import com.driot.bookplayer.utils.log.LoggingService;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.db.Folder;
-import com.driot.bookplayer.objects.FolderAttrib;
 import com.driot.bookplayer.db.FolderDao;
 import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.db.ZikFile;
@@ -119,7 +118,7 @@ public class AddResourceService
 
     private final IBinder binder = new AddResourceServiceBackgroundBinder();
 
-    private FolderAttrib myFolder;
+    //private FolderAttrib myFolder;
     private ArrayList<String> audioFileArrayList;
     private long fullFolderSize;
     private final int[] InsertedFolderId = {0};
@@ -130,6 +129,18 @@ public class AddResourceService
     private String title_given;
     private String originalHash;
     private String sourceLocation;
+    private String originalType;
+    private String originalFile;
+    private String originalExtension;
+    private String mimeType;
+
+    private final String unzipFolder = getFilesDir().getAbsolutePath() + "/" + FOLDER_UNZIPPED + "/";
+    private final String downloadFolder = getFilesDir().getAbsolutePath() + "/" + FOLDER_DOWNLOAD + "/";
+
+
+
+    private String future_DB_folder_uri = "---";
+    private String future_DB_folder_path = "-o-";
 
     private String destinationFolderName;
     private String zipDestinationFolderPath;
@@ -371,12 +382,7 @@ public class AddResourceService
     // native methods
     //-----------------------------
 
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        myLog("onStartCommand");
-
-        //TODO why also in init() ??
-        LoadBookTaskState state = intent.getParcelableExtra("LoadBookTaskState");
+    private void initVars(LoadBookTaskState state) {
         if (state != null) {
             uri_given = state.uri;
             type_given = state.type;
@@ -386,139 +392,252 @@ public class AddResourceService
             optionDeleteSource = state.delete;
             sourceLocation = state.sourceLocation;
             originalHash = state.originalHash;
+            originalType = state.originalType;
+            originalFile = state.originalFile;
+            originalExtension = state.fileExtension;
+            mimeType = state.mimeType;
         }
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        myLog("onStartCommand");
+
+        LoadBookTaskState state = intent.getParcelableExtra("LoadBookTaskState");
+        initVars(state);
+
+        //TODO why also in init() ??
 
         return START_NOT_STICKY;
     }
 
+    ///////////////////////////////////////
+    // INIT
+    ///////////////////////////////////////
 
+    public void init() {
 
-
-
-
-        // single file
-    ///////////////////////////
-    private void populateArrayListOfTracksFromFile(DocumentFile dfPickedDir, boolean optionCopyFile) {
-        myLog("populateArrayListOfTracksFromFile [" + dfPickedDir.getUri() + "] - single file");
-
-        //resetting uri
-        Uri uri;
-        uri = dfPickedDir.getUri();
-
-        if (dfPickedDir != null && !(dfPickedDir.isDirectory())) {
-
-            // constructeur pour mon pti folder
-            myFolder = new FolderAttrib(getApplicationContext(), uri, optionCopyFile, type_given);
-            if (myFolder.getFolderName()==null) {
-                tellError(getString(R.string.Error_Import_CannotParseFile));
-                return;
-            }
-            mCallBacks.tellHeader(myFolder.getFolderName());
-
-            if (myFolder.isFolderKO()) {
-                String error = getString(R.string.Error_Import_FilePathKO);
-                tellError(error);
-                return;
-            } else {
-                myLog("file ok");
-
-                audioFileArrayList = new ArrayList<>();
-
-                addAudioFileUnique(dfPickedDir);
-
-            }
-        } else {
-            tellError(getString(R.string.Error_Import_IsNotFile));
+        if (isBusy) {
+            myLog("service already running, skipping init()");
             return;
         }
-        goFolder();
+        isBusy = true;
+
+        LoadBookTaskState state = getLoadBookTaskState(this);
+        initVars(state);
+
+        if (state != null) {
+            if (state.downloadedFileReady && state.downloadedFilePath != null) {
+                myLog("back with finished Downloaded File");
+                downloadService_tellEnd(state.downloadedFilePath);
+                return;
+            }
+        } else {
+            tellError("LoadBookTaskState = null");
+            return;
+        }
+
+        if (type_given==null || uri_given==null) {myLogEE(null,"init() - args=null");tellError("Init failed, args are null");return;}
+
+        myLog("....");
+        myLog("....");
+        myLog("*********************************************************************************************************");
+        myLog("*********************************************************************************************************");
+        myLog("init() - ** uri = " + uri_given + " **");
+        myLog("init() - ** title = " + title_given + " **");
+        myLog("init() - ** type = " + type_given + " **");
+        myLog("option copy file = " + optionCopyFile);
+        myLog("option split m4b = " + optionSplitM4b);
+        myLog("option delete source = " + optionDeleteSource);
+        myLog("Source Location = [" + sourceLocation + "]");
+        myLog("originalType = [" + originalType + "]");
+        myLog("originalFile = [" + originalFile + "]");
+        myLog("originalHash = [" + originalHash + "]");
+        myLog("fileExtension = [" + originalExtension + "]");
+        myLog("mimeType = [" + mimeType + "]");
+        myLog("*********************************************************************************************************");
+        myLog("*********************************************************************************************************");
+
+
+        PROGRESS = PROGRESS_DOWNLOAD; // dummy progress, before real init
+        tellProgress(PROGRESS[0], PROGRESS_TEXT[0]);
+
+        ///---------------------------------------------
+        /// DOWNLOAD
+        ///---------------------------------------------
+        if (uri_given.toString().startsWith("http")) {
+            new Thread(() ->  {
+                launchDownloadService(uri_given.toString(),downloadFolder, title_given);
+            }).start();
+            return;
+        }
+
+        switch (type_given) {
+            ///---------------------------------------------
+            /// FILE
+            ///---------------------------------------------
+            case "File":
+            case "M4B":
+                PROGRESS = optionCopyFile ? PROGRESS_FILE_COPY : PROGRESS_FILE_NOCOPY;
+
+
+                ///---------------------------------------------
+                /// M4B FILE
+                ///---------------------------------------------
+                if (mimeType.equals("audio/mp4") || originalExtension.equals("m4b")) {
+                    myLog("=> MP4 <=");
+                    if (optionSplitM4b) {
+                        type_given = "M4B";
+                        PROGRESS = optionCopyFile ? PROGRESS_ZIP_COPY : PROGRESS_ZIP_NOCOPY;
+                        myLog("M4B : copy locally before everything else");
+                        myLog("Picked Uri = [" + uri_given.toString() + "]");
+                        new Thread(() -> {
+                            tellProgress(PROGRESS[3], PROGRESS_TEXT[3]);
+                            copyFileLocal(uri_given
+                                    , unzipFolder + title_given
+                                    , title_given + ".m4b"
+                                    , type_given
+                            ); //launch a service, NEXT STEP through CALLBACKS
+                        }).start();
+                        return;
+
+                    } else {
+                        myLog("Option Split M4B disabled");
+                        // let's continue to basic file section below
+                    }
+
+                } else if (mimeType.equals("application/zip") || originalExtension.equals("zip")) {
+                    myLog("=> ZIP <=");
+                    type_given = "ZIP";
+                    goZipCase();
+                    return;
+
+                } else if (mimeType.startsWith(ONLY_MIME_AUDIO) || SUPPORTED_AUDIO_EXTENSIONS.contains(originalExtension)) {
+
+                    if (sourceLocation.equals("cloud")) {
+                        new Thread(() -> {
+                            tellProgress(PROGRESS[3], PROGRESS_TEXT[1] + " ...reading on cloud");
+                            copyFileLocal(uri_given
+                                    , unzipFolder + title_given
+                                    , title_given
+                                    , type_given
+                            );
+                            //launch a service, NEXT STEP through CALLBACKS
+                        }).start();
+                        return;
+
+                    } else {
+                        DocumentFile dfPickedFile = DocumentFile.fromSingleUri(this, uri_given);
+                        populateArrayListOfTracksFromFile(dfPickedFile);
+                    }
+                } else {
+                    tellError( getString(R.string.Error_Import_NotAnAudio) + "...  " + getString(R.string.Error_Import_TypeNotSupported) + " [" + mimeType + "] - [" + originalExtension + "]");
+                    break;
+                }
+                break;
+
+
+
+            ///---------------------------------------------
+            /// FOLDER
+            ///---------------------------------------------
+            case "Folder":
+                PROGRESS = optionCopyFile ? PROGRESS_FOLDER_COPY : PROGRESS_FOLDER_NOCOPY;
+
+                tellProgress(PROGRESS[1], PROGRESS_TEXT[1]);
+                DocumentFile dfPickedDir;
+                try {
+                    //dfPickedDir = DocumentFile.fromSingleUri(this, uri_given);
+                    dfPickedDir = DocumentFile.fromTreeUri(this, uri_given);
+                } catch (Exception e) {
+                    myLogEE(e,"Error reading picked Folder.... DocumentFile.fromTreeUri");
+                    tellError(getString(R.string.Error_Import_CannotReadFolder));
+                    break;
+                }
+                populateArrayListOfTracksFromFolder(dfPickedDir);
+                break;
+
+            ///---------------------------------------------
+            /// ZIP FILE
+            ///---------------------------------------------
+            case "ZIP":
+                goZipCase();
+                break;
+        default:
+                myLogEE(null,"Incorrect type : **" + type_given + "**");
+        }
+    }
+    /// ///////// END INIT
+
+
+
+    // single file
+    ///////////////////////////
+    private void populateArrayListOfTracksFromFile(DocumentFile dfPickedDir) {
+        myLog("populateArrayListOfTracksFromFile [" + dfPickedDir.getUri() + "] - single file");
+
+        //mCallBacks.tellHeader(myFolder.getFolderName());
+
+        if (dfPickedDir != null && !(dfPickedDir.isDirectory())) {
+            audioFileArrayList = new ArrayList<>();
+            addAudioFileUnique(dfPickedDir);
+            goFolder();
+        } else {
+            tellError(getString(R.string.Error_Import_IsNotFile));
+        }
+
     }
 
     private void populateArrayListOfTracksFromFolder(DocumentFile dfPickedDir) {
         if (dfPickedDir == null) {
-            myLogEE(null,"dfPickedDir == null");
+            myLogEE(null,"populateArrayListOfTracksFromFolder - dfPickedDir == null");
             tellError(getString(R.string.Error_Import_CannotReadFolder));
+            return;
+        }
+        if (!dfPickedDir.isDirectory()) {
+            myLogEE(null,"populateArrayListOfTracksFromFolder - dfPickedDir is not directory");
+            tellError(getString(R.string.Error_Import_IsNotFolder));
             return;
         }
 
         myLog("populateArrayListOfTracksFromFolder - DocumentFile [" + dfPickedDir + "]");
         tellProgress(PROGRESS[2], PROGRESS_TEXT[2]);
 
-        Uri uri = dfPickedDir.getUri();
-        myLog("New Uri deducted [" + uri + "]");
 
-/*
-        // Si c'est pas un dossier, on prend le dossier parent...
-        if (!dfPickedDir.isDirectory()) {
-            DocumentFile df0 = DocumentFile.fromTreeUri(this, uri);
-            if (df0 != null) {
-                dfPickedDir = df0.getParentFile();
+        //mCallBacks.tellHeader(myFolder.getFolderName());
+
+        myLog("running recursive scan for audio file in a background thread");
+
+        audioFileArrayList = new ArrayList<>();
+
+        DocumentFile finalDfPickedDir = dfPickedDir; //thread needs 'final' arg
+        Thread backgroundThread = new Thread(() -> {
+            addAudioFileRecursive(finalDfPickedDir);
+
+            myLog("addAudioFileRecursive done, sorting now...");
+            audioFileArrayList.sort(new Utils.AlphanumericComparator());
+
+            if (audioFileArrayList.isEmpty()) {
+                myLog("No File found in directory : [" + finalDfPickedDir.getName() + ']');
             } else {
-                tellError(getString(R.string.Error_Import_CannotGetParentDir));
-                return;
+                myLog(audioFileArrayList.size() + " files found in directory : [" + finalDfPickedDir.getName() + ']');
+                myLog("Full directory size : [" + formatMem(fullFolderSize/1024/1024,0) + " Mo]");
             }
-            myLog("Parent Folder taken in place");
-            uri = dfPickedDir.getUri();
-            myLog("New Uri deducted [" + uri + "]");
-        }
-
- */
-
-        if (dfPickedDir.isDirectory()) {
-
-            // constructeur pour mon pti folder
-            myFolder = new FolderAttrib(this, uri, optionCopyFile, type_given);
-            if (myFolder.getFolderName()==null) {
-                tellError(getString(R.string.Error_Import_CannotParseFile));
-                return;
-            }
-            mCallBacks.tellHeader(myFolder.getFolderName());
-            /*
-            if (myFolder.isFolderKO()) {
-                String error = getString(R.string.Error_Import_FolderPathKO);
-                if (myFolder.isLocatedInDownloadFolder())  error += "... " + getString(R.string.Error_Import_BetterTryNoDownloadFolder);
-                tellError(error);
+            goFolder();
+        });
+        try {
+            backgroundThread.start();
+        } catch (Throwable t) {
+            String strErr = "Error while listing audio files";
+            if (t instanceof OutOfMemoryError && t.getMessage() != null && t.getMessage().contains("pthread_create")) {
+                myLogEE(t,"addAudioFileRecursive : Too many threads or not enough native memory");
+                strErr = getString(R.string.Error_Import_OutOfMemory)
+                        + "\n" + getString(R.string.Error_Import_This_folder_may_contain_too_many_books);
             } else {
-
-             */
-
-                myLog("myFolder constructor ok - [" + myFolder.getFolderName() + "]");
-                myLog("running recursive scan for audio file in a background thread");
-
-                audioFileArrayList = new ArrayList<>();
-
-                DocumentFile finalDfPickedDir = dfPickedDir; //thread needs 'final' arg
-                Thread backgroundThread = new Thread(() -> {
-                    addAudioFileRecursive(finalDfPickedDir);
-
-                    myLog("addAudioFileRecursive done, sorting now...");
-                    audioFileArrayList.sort(new Utils.AlphanumericComparator());
-
-                    if (audioFileArrayList.isEmpty()) {
-                        myLog("No File found in directory : [" + finalDfPickedDir.getName() + ']');
-                    } else {
-                        myLog(audioFileArrayList.size() + " files found in directory : [" + finalDfPickedDir.getName() + ']');
-                        myLog("Full directory size : [" + formatMem(fullFolderSize/1024/1024,0) + " Mo]");
-                    }
-                    goFolder();
-                });
-                try {
-                    backgroundThread.start();
-                } catch (Throwable t) {
-                    String strErr = "Error while listing audio files";
-                    if (t instanceof OutOfMemoryError && t.getMessage() != null && t.getMessage().contains("pthread_create")) {
-                        myLogEE(t,"Too many threads or not enough native memory");
-                        strErr = getString(R.string.Error_Import_OutOfMemory)
-                                + "\n" + getString(R.string.Error_Import_This_folder_may_contain_too_many_books);
-                    } else {
-                        strErr = strErr + "\n" + t.getMessage();
-                    }
-                    tellError(strErr);
-                }
-
-            //}
-        } else {
-            tellError(getString(R.string.Error_Import_IsNotFolder));
+                myLogEE(t,"addAudioFileRecursive");
+                strErr = strErr + "\n" + t.getMessage();
+            }
+            tellError(strErr);
         }
     }
 
@@ -559,237 +678,6 @@ public class AddResourceService
         }
     }
 
-    ///////////////////////////////////////
-    // INIT
-    ///////////////////////////////////////
-
-    public void init() {
-
-        if (isBusy) {
-            myLog("service already running, skipping init()");
-            return;
-        }
-        isBusy = true;
-
-        LoadBookTaskState state = getLoadBookTaskState(this);
-        if (state != null) {
-            if (state.downloadedFileReady && state.downloadedFilePath != null) {
-                myLog("back with finished Downloaded File");
-                uri_given = state.uri;
-                type_given = state.type;
-                title_given = state.title;
-                optionCopyFile = state.copy;
-                optionSplitM4b = state.split;
-                optionDeleteSource = state.delete;
-                sourceLocation = state.sourceLocation;
-                originalHash = state.originalHash;
-
-                downloadService_tellEnd(state.downloadedFilePath);
-                return;
-            }
-        } else {
-            myLog("LoadBookTaskState = null");
-        }
-
-        if (type_given==null || uri_given==null) {myLogEE(null,"init() - args=null");tellError("Init failed, args are null");return;}
-        String strUriLog = uri_given==null ? "null" : uri_given.toString();
-
-        myLog("....");
-        myLog("....");
-        myLog("*********************************************************************************************************");
-        myLog("*********************************************************************************************************");
-        myLog("init() - ** uri = " + strUriLog + " **");
-        myLog("init() - ** title = " + title_given + " **");
-        myLog("init() - ** type = " + type_given + " **");
-        myLog("option copy file = " + optionCopyFile);
-        myLog("option split m4b = " + optionSplitM4b);
-        myLog("option delete source = " + optionDeleteSource);
-        myLog("Source Location = [" + sourceLocation + "]");
-        myLog("*********************************************************************************************************");
-        myLog("*********************************************************************************************************");
-
-
-        PROGRESS = PROGRESS_DOWNLOAD; // dummy progress, before real init
-        tellProgress(PROGRESS[0], PROGRESS_TEXT[0]);
-
-        // Special URL
-        //if (!Objects.equals(url_given, null)) {
-        if (uri_given.toString().startsWith("http")) {
-            new Thread(() ->  {
-                //String strFolderName =  stripExtension(getFileNameFromPath(url_given));
-                String strFolderName =  stripExtension(getFileNameFromPath(uri_given.toString()));
-                myLog("Checking Folder doesn't already exist in DB (URL init check) : " + strFolderName);
-                long folderId = AppDatabase.getDatabase(this).FolderDao().folderAlreadyExist_checkFolderName(strFolderName);
-                if (folderId>0) {
-                    tellError(getString(R.string.Error_Import_AlreadyImported) + " [" + strFolderName + "]");
-                    return;
-                }
-                PROGRESS = PROGRESS_DOWNLOAD;
-                tellProgress(PROGRESS[1], PROGRESS_TEXT[1]);
-                //launchDownloadService(url_given,getFilesDir().getAbsolutePath() + "/" + FOLDER_DOWNLOAD);
-                launchDownloadService(uri_given.toString(),getFilesDir().getAbsolutePath() + "/" + FOLDER_DOWNLOAD, title_given);
-            }).start();
-            return;
-        }
-
-        DocumentFile dfPickedDir;
-        String mime = null;
-
-        switch (type_given) {
-            ///---------------------------------------------
-            /// FILE
-            ///---------------------------------------------
-            case "File":
-            case "M4B":
-                PROGRESS = optionCopyFile ? PROGRESS_FILE_COPY : PROGRESS_FILE_NOCOPY;
-
-                try {
-                    dfPickedDir = DocumentFile.fromSingleUri(this, uri_given);
-                } catch (Exception e) {
-                    myLogEE(e,"Error reading picked File.... DocumentFile.fromSingleUri");
-                    tellError(getString(R.string.Error_Import_CannotReadFile));
-                    break;
-                }
-                myLog("isVirtual = " + dfPickedDir.isVirtual());
-
-                try {
-                    mime = getMimeType(this, uri_given);
-                } catch (Exception e) {
-                    try {
-                        mime = dfPickedDir.getType();
-                    } catch (Exception e2) {
-                        tellError(getString(R.string.Error_Import_CannotDetermineType) + "...  " + e.getMessage());
-                        break;
-                    }
-                }
-
-                if (mime == null) {
-                    myLogW("mime == null");
-                    tellError(getString(R.string.Error_Import_CannotDetermineType));
-                    break;
-                }
-
-                String pickedFileName = getFileNameFromUri(this, uri_given);
-                String pickedFileExtension = getExtension(pickedFileName);
-                myLog("pickedFile = [" + pickedFileName + "] " +
-                        "\nExtension = [" + pickedFileExtension + "]");
-                myLog("\nMime = [" + mime + "]");
-
-                ///---------------------------------------------
-                /// M4B FILE
-                ///---------------------------------------------
-                if (mime.equals("audio/mp4") || pickedFileExtension.equals("m4b")) {
-                    myLog("=> MP4 <=");
-                    if (optionSplitM4b) {
-                        type_given = "M4B";
-                        PROGRESS = optionCopyFile ? PROGRESS_ZIP_COPY : PROGRESS_ZIP_NOCOPY;
-                        myLog("M4B : copy locally before everything else");
-                        myLog("Picked Uri = [" + uri_given.toString() + "]");
-
-                        // get the folder name = the zip file true Name without extension
-                        destinationFolderName = title_given;
-
-                        // check Not Already Imported
-                        //*****************************
-                        myLog("Checking Folder doesn't already exist in DB (pre-check M4b) : " + destinationFolderName);
-                        new Thread(() -> {
-                            long lCheck = AppDatabase.getDatabase(this).FolderDao().folderAlreadyExist_checkFolderName(destinationFolderName);
-                            if (lCheck>0) {
-                                myLogW("KO, folder does already exist in DB : [" + destinationFolderName + "]");
-                                tellError(getString(R.string.Error_Import_FolderAlreadyImported) + "  [" + destinationFolderName + "]");
-                            } else {
-                                myLog("OK, folder doesn't already exist in DB");
-                                tellProgress(PROGRESS[3], PROGRESS_TEXT[3]);
-                                copyFileLocal(uri_given
-                                        , getFilesDir().getAbsolutePath() + "/" + FOLDER_UNZIPPED + "/" + destinationFolderName
-                                        , destinationFolderName + ".m4b"
-                                        , type_given
-                                ); //launch the service, NEXT STEP through CALLBACKS
-                            }
-                        }).start();
-                        return;
-                    } else {
-                        myLog("Option Split M4B disabled");
-                    }
-                }
-
-                if (mime.equals("application/zip") || pickedFileExtension.equals("zip")) {
-                    myLog("=> ZIP <=");
-                    type_given = "ZIP";
-                    goZipCase();
-                    return;
-                }
-
-                ///---------------------------------------------
-                /// other unique files
-                ///---------------------------------------------
-                if (mime.startsWith(ONLY_MIME_AUDIO) || SUPPORTED_AUDIO_EXTENSIONS.contains(pickedFileExtension)) {
-
-                    if (sourceLocation.equals("cloud")) {
-                        myFolder = new FolderAttrib(this, uri_given, true, type_given);
-                        String future_folder_name = myFolder.getFolderName();
-
-                        new Thread(() -> {
-                            tellProgress(PROGRESS[3], PROGRESS_TEXT[1] + " ...reading on cloud");
-                            long lCheck = AppDatabase.getDatabase(this).FolderDao().folderAlreadyExist_checkFolderName(future_folder_name);
-                            if (lCheck>0) {
-                                myLogW("KO, folder does already exist in DB : [" + future_folder_name + "]");
-                                tellError(getString(R.string.Error_Import_FolderAlreadyImported) + "  [" + future_folder_name + "]");
-                            } else {
-                                myLog("OK, folder doesn't already exist in DB");
-                                tellProgress(PROGRESS[3], PROGRESS_TEXT[2]);
-                                String folderPath = getFilesDir().getAbsolutePath() + "/" + FOLDER_UNZIPPED + "/" + myFolder.getFolderName();
-                                String fileName = myFolder.getFileName(this);
-                                fullPath = folderPath + "/" + fileName;
-                                myLog("**** fullPath = [" + fullPath + "]");
-                                copyFileLocal(myFolder.getUri()
-                                        , folderPath
-                                        , fileName
-                                        , type_given
-                                );
-                                //launch the service, NEXT STEP through CALLBACKS
-                            }
-                        }).start();
-                    } else {
-                        populateArrayListOfTracksFromFile(dfPickedDir, optionCopyFile);
-                    }
-                } else {
-                    tellError( getString(R.string.Error_Import_NotAnAudio) + "...  " + getString(R.string.Error_Import_TypeNotSupported) + " [" + mime + "] - [" + pickedFileExtension + "]");
-                    break;
-                }
-                break;
-
-
-
-            ///---------------------------------------------
-            /// FOLDER
-            ///---------------------------------------------
-            case "Folder":
-                PROGRESS = optionCopyFile ? PROGRESS_FOLDER_COPY : PROGRESS_FOLDER_NOCOPY;
-
-                tellProgress(PROGRESS[1], PROGRESS_TEXT[1]);
-                try {
-                    dfPickedDir = DocumentFile.fromTreeUri(this, uri_given);
-                } catch (Exception e) {
-                    myLogEE(e,"Error reading picked Folder.... DocumentFile.fromTreeUri");
-                    tellError(getString(R.string.Error_Import_CannotReadFolder));
-                    break;
-                }
-                populateArrayListOfTracksFromFolder(dfPickedDir);
-                break;
-
-            ///---------------------------------------------
-            /// ZIP FILE
-            ///---------------------------------------------
-            case "ZIP":
-                goZipCase();
-                break;
-        default:
-                myLogEE(null,"Incorrect type : **" + type_given + "**");
-        }
-    }
-    /// ///////// END INIT
-
     private void goZipCase() {
         PROGRESS = optionCopyFile ? PROGRESS_ZIP_COPY : PROGRESS_ZIP_NOCOPY;
         myLog("ZIP : copy locally before everything else");
@@ -829,16 +717,17 @@ public class AddResourceService
                 tellError(getString(R.string.Error_Import_NoMediaInFolder));
             } else {
                 myLog(audioFileArrayList.size() + " " + getString(R.string.Import_nMediaInFolder));
-                checkIfFolderAlreadyExist_inDB();
+                //checkIfFolderAlreadyExist_inDB();
+                copyFolder();
             }
         } else {
             tellError(getString(R.string.Error_Import_NoMediaInFolder));
         }
     }
-
+/*
     private void checkIfFolderAlreadyExist_inDB() {
         tellProgress(PROGRESS[3], PROGRESS_TEXT[3]);
-        myLog("checkIfFolderAlreadyExist() - FolderName = [" + myFolder.getFolderName() + "]");
+        myLog("checkIfFolderAlreadyExist() - FolderName = [" + future_DB_folder_uri + "]");
         new Thread(() -> {
             try {
                 FolderDao folderDao = AppDatabase.getDatabase(this).FolderDao();
@@ -855,44 +744,38 @@ public class AddResourceService
         }).start();
 
     }
+ */
+
     private void copyFolder() {
         myLog("copyFolder()");
-        if (type_given.equals("ZIP")) {
-            myLog("=> Has already been copied and unzipped...");
-            myFolder.setForceFolderPath(zipDestinationFolderPath);
-            saveFolder();
-        } else if (type_given.equals("M4B") && optionSplitM4b) {
-            myLog("=> Has already been copied and split...");
-            myFolder.setForceFolderPath(destinationFolderPath);
+        if (type_given.equals("ZIP") || (type_given.equals("M4B") && optionSplitM4b)) {
+            myLog("=> Has already been copied during unzipped or split...");
+            future_DB_folder_path = unzipFolder + title_given;
             saveFolder();
         } else {
             if (optionCopyFile) {
+                future_DB_folder_path = unzipFolder + title_given;
                 tellProgress(PROGRESS[4], PROGRESS_TEXT[4]);
                 if (type_given.equals("Folder")) {
                     myLog("=> copyFile Folder...");
-                    String folderPath = getFilesDir().getAbsolutePath() + "/" + FOLDER_UNZIPPED + "/" + myFolder.getFolderName();
-                    String fileName = myFolder.getFileName(this);
-                    fullPath = folderPath;
-                    myLog("**** fullPath = [" + fullPath + "]");
-                    copyFileLocal(myFolder.getUri()
-                            , folderPath
-                            , fileName
+                    copyFileLocal(uri_given
+                            , unzipFolder
+                            , title_given
                             , type_given);
                 } else if (type_given.equals("File") || type_given.equals("M4B")) {
                     myLog("=> copyFile Single File...");
-                    String folderPath = getFilesDir().getAbsolutePath() + "/" + FOLDER_UNZIPPED + "/" + myFolder.getFolderName();
-                    String fileName = myFolder.getFileName(this);
-                    fullPath = folderPath + "/" + fileName;
-                    myLog("**** fullPath = [" + fullPath + "]");
-                    copyFileLocal(myFolder.getUri()
-                            , folderPath
-                            , fileName
+                    future_DB_folder_path = unzipFolder + title_given;
+                    copyFileLocal(uri_given
+                            , future_DB_folder_path
+                            , title_given
                             , type_given
                     );
                 } else {
                     tellError(getString(R.string.Technical_Error) + "...  " + "Wrong file type : " + type_given);
                 }
             } else {
+                future_DB_folder_path = uri_given.getPath();
+                future_DB_folder_uri = uri_given.getPath();
                 saveFolder();
             }
         }
@@ -907,9 +790,9 @@ public class AddResourceService
         final Time sLastAccessTime = new Time(System.currentTimeMillis());
 
         Folder folder = new Folder();
-        folder.setName(myFolder.getFolderName());
-        folder.setPath(myFolder.getFolderPath());
-        folder.setUri("****"); //2023-10-22 deprecated
+        folder.setName(title_given);
+        folder.setPath(future_DB_folder_path);
+        folder.setUri(future_DB_folder_uri); //2023-10-22 deprecated
         folder.setHash("0"); //2023-10-22 deprecated
         folder.setPercentdone(0.0);
         folder.setFirstaccess(sFirstAccess);
@@ -922,7 +805,7 @@ public class AddResourceService
 
         new Thread(() -> {
             InsertedFolderId[0] = (int) DatabaseClient.getInstance(this).getAppDatabase().FolderDao().insert(folder);
-            myLog("Folder Saved in DB, ID=[" + InsertedFolderId[0] + "] - [" + myFolder.getFolderName() + "]");
+            myLog("Folder Saved in DB, ID=[" + InsertedFolderId[0] + "] - [" + title_given + "]");
             tellProgress(PROGRESS[7], PROGRESS_TEXT[7]);
             saveFiles();
         }).start();
@@ -955,45 +838,33 @@ public class AddResourceService
         zikFile.setDisplayName(formatNameForDisplay(sZikFileName));
         zikFile.setIdFolder(mFolderId);
         zikFile.setZeorder(zeorder);
-        zikFile.setFolderName(myFolder.getFolderName());
+        zikFile.setFolderName(title_given);
         zikFile.setPercentdone(0.0);
         zikFile.setPosition(0);
-        zikFile.setPath(myFolder.getFolderPath());
+        zikFile.setPath(uri_given.getPath());
         zikFile.setIszipfile(false); //2023-10-22 code removed for live zip reading
 
-/*
-        // get Media Duration
-        //--------------------------------
-        String sFileFullPath;
-        if (myFolder.isSingleFile()) {
-            sFileFullPath = myFolder.getFolderPath() + File.separator + sZikFileName;
-        } else {
-            sFileFullPath = myFolder.getFolderPath() + File.separator + sZikFileName;
-        }
-      try {
-            myLog("Get Media Duration : [" + sFileFullPath + "]");
-            zikFile.setDuration(getMediaDurationFromPath(sFileFullPath));
-        } catch (IOException e) {
-            tellNonBlockingError("Error getting/setting media duration : " + e.getMessage());
-        }
-
- */
         myLogD("saveFile : Get Media Duration");
         try {
-            String folderUri = myFolder.getUri().toString();
-            myLogD("myFolder.getUri().toString() : [" + folderUri + "]");
 
-            if (folderUri.contains("com.driot.bookplayer/files")) {
+            if (future_DB_folder_path.contains("com.driot.bookplayer/files")) {
                 myLogD("Bookplayer reserved memory, use old way");
-                String sFileFullPath = myFolder.getFolderPath() + File.separator + sZikFileName;
+                String sFileFullPath = future_DB_folder_path + File.separator + sZikFileName;
                 zikFile.setDuration(getMediaDurationFromPath(sFileFullPath));
             } else {
                 myLogD("Smartphone General Memory, use Uri");
                 Uri fileUri;
+                if (type_given.equals("Folder") || type_given.equals("ZIP") || type_given.equals("M4B")) {
+                    fileUri = buildFileUri(future_DB_folder_path.getUri(), sZikFileName);
+                } else {
+
+                }
+                    fileUri = uri_given;
+                } else {
                 if (myFolder.isSingleFile()) {
                     fileUri = myFolder.getUri();
                 } else {
-                    fileUri = buildFileUri(myFolder.getUri(), sZikFileName);
+
                 }
                 myLogD("fileUri : " + fileUri.toString());
                 zikFile.setDuration(getMediaDurationFromUri(this, fileUri));

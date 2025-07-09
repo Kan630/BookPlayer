@@ -149,7 +149,6 @@
 
     <string name="Error_Import_IsNotFolder">This doesn\'t look like a folder</string>
     <string name="Error_Import_IsNotFile">This doesn\'t look like a file</string>
-    <string name="Error_Import_FolderAlreadyImported">This folder has already been loaded</string>
     <string name="Error_Import_NoMediaInFolder">No media found in this folder</string>
     <string name="Error_Import_FilePathKO">Cannot find path of file</string>
     <string name="Error_Import_FolderPathKO">Cannot find path of folder</string>
@@ -545,6 +544,7 @@
     <string name="option_open_with_subtitle"><i>Makes Android propose Bookplayer among the other proposed options when selecting [Share] or [open With] after clicking (long-clicking) on a file from the phone file explorer or from downloads</i></string>
     <string name="option_open_with_text">For zip and most audio files.</string>
     <string name="option_open_with_text_all">For any kind of file (fail safe).</string>
+    <string name="Error_Import_FolderAlreadyImported">This folder has already been loaded</string>
 
 
 

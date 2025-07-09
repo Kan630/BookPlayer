@@ -19,10 +19,10 @@ import static com.driot.bookplayer.utils.Tonio.getLastFolder;
 import static com.driot.bookplayer.utils.Tonio.getSubFolders;
 import static com.driot.bookplayer.utils.Tonio.stripFileName;
 
-
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 14/11/20
  */
+/*
 public class FolderAttrib {
 
 // constructor args
@@ -350,4 +350,8 @@ public class FolderAttrib {
 
 
 
+
+
 }
+
+ */

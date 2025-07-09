@@ -19,6 +19,7 @@ import androidx.documentfile.provider.DocumentFile;
 
 import com.driot.bookplayer.utils.KanFiles;
 import com.driot.bookplayer.utils.KanLogger;
+import com.driot.bookplayer.utils.Tonio;
 
 import java.io.File;
 import java.util.HashSet;
@@ -38,6 +39,8 @@ public class BookToAdd {
     private DocumentFile df;
     private String originalFile;
     private String originalType;
+    private String fileExtension;
+    private String mimeType;
 
     private String infoMimeExtension = "init...";
     private String infoSourceLocation = "init...";
@@ -54,7 +57,7 @@ public class BookToAdd {
         this.uri = uri;
         this.originalType = type;
 
-                myLog("Side Check if it is a Folder : " + isUriDirectory());
+        myLog("Side Check if it is a Folder : " + isUriDirectory());
 
         this.sourceLocation = getSourceLoc();
         this.infoSourceLocation = "[" + this.sourceLocation + "]";
@@ -80,9 +83,9 @@ public class BookToAdd {
 
         if (type.equals("File")) {
             //TODO check that 3 methods
-            String mimeType = Objects.toString(getMimeType(appContext, uri),"");
+            mimeType = Objects.toString(Tonio.getMimeType(appContext, uri),"");
             String fileName = getFileNameFromUri(appContext, uri);
-            String fileExtension = getExtension(fileName);
+            fileExtension = getExtension(fileName);
 
             if (Objects.toString(fileExtension,"").isEmpty()) {
                 myLogEE(null, "file extension not found");
@@ -107,6 +110,11 @@ public class BookToAdd {
             String fileName2 = getFileName();
             this.audioBookName = formatNameForDisplay(stripExtension(fileName2));
             this.originalFile = fileName2;
+
+            if (!Objects.equals(fileName, fileName2)) {
+                myLogE("-------------------------------------------------");
+                myLogE("CHECK THAT " + fileName + "/" + fileName2);
+            }
 
         } else if (type.equals("Folder")) {
 
@@ -165,6 +173,14 @@ public class BookToAdd {
 
     public String getOriginalType() {
         return originalType;
+    }
+
+    public String getFileExtension() {
+        return fileExtension;
+    }
+
+    public String getMimeType() {
+        return mimeType;
     }
 
     /// ////////////////////////////////////////////////////////////////////////////////////////
