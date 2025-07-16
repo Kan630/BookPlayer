@@ -582,18 +582,22 @@ public class PlayActivity extends LoggingActivity {
     }
 
     private void redrawSeekBar() {
-        if (audioService != null && audioService.isRunning()) {
-            if (audioService.isPlaying()) {
-                bPlay.setText(R.string.pause);
+        try {
+            if (audioService != null && audioService.isRunning()) {
+                if (audioService.isPlaying()) {
+                    bPlay.setText(R.string.pause);
+                } else {
+                    bPlay.setText(R.string.play);
+                }
                 int iPosition = audioService.getPosition();
                 tvSeekBar.setText(formatTime(iPosition,true));
                 seekbar.setProgress(iPosition);
             } else {
-                bPlay.setText(R.string.play);
+                bPlay.setText(R.string.pause);
+                myLog("redrawSeekBar => service KO => drawing pause button");
             }
-        } else {
-            bPlay.setText(R.string.pause);
-            myLog("redrawSeekBar => service KO => drawing pause button");
+        } catch (Exception e) {
+            myLogEE(e, "redrawSeekBar");
         }
     }
 
