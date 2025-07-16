@@ -260,6 +260,13 @@ public class AudioService extends LoggingService {
             public void onPrepared() {
                 myLogD("mediaPlayer.prepare - done");
                 LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(new Intent(NOTIFICATION_FILELOADED));
+                try {
+                    int newPos = (int) PlayList.getInstance().getZikFile().getPosition();
+                    myLogD("position : " + newPos);
+                    mediaPlayer.seekTo(newPos);
+                } catch (Exception e) {
+                    myLogEE(e,"could not set position");
+                }
                 if (directPlay) {
                     startPlayWithMediaPlayer();
                 } else {

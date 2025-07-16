@@ -194,7 +194,12 @@ public class PlayActivity extends LoggingActivity {
         bSpeedDown = findViewById(R.id.bSpeedDown);
         bSetSleep = findViewById(R.id.bSetSleep);
 
-        bPlay.setOnClickListener(v -> playMe());
+        bPlay.setOnClickListener(
+                v -> {
+                    myLog("-----USER PRESS PLAY BUTTON-----");
+                    playMe();
+                });
+
         bForward.setOnClickListener(v -> forwardMe());
         bRewind.setOnClickListener(v -> backwardMe());
         bSpeedUp.setOnClickListener(v -> SpeedMeUp());
