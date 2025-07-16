@@ -299,10 +299,13 @@ public class AudioService extends LoggingService {
 
 
     private void startPlayWithMediaPlayer() {
-        myLogD("startPlayWithMediaPlayer");
+        myLogD("startPlayWithMediaPlayer...    Start at zero = " + startAtZero);
+        if (PlayList.getInstance().getZikFile() == null) {myLogW("PlayList.getInstance().getZikFile() == null");}
         if (startAtZero || PlayList.getInstance().getZikFile() == null) {
+            myLogD("seekTo 0");
             mediaPlayer.seekTo(0);
         } else {
+            myLogD("seekTo " + PlayList.getInstance().getZikFile().getPosition());
             mediaPlayer.seekTo((int) PlayList.getInstance().getZikFile().getPosition());
         }
         audioManager = (AudioManager) AudioService.this.getSystemService(Context.AUDIO_SERVICE);
@@ -603,7 +606,10 @@ public class AudioService extends LoggingService {
                 try {
                     if (mediaPlayer != null && mediaPlayer.isReady()) {
                         myLog("case 1");
-                        int test = mediaPlayer.getDuration(); // real test call
+                        // real test call => if fails => catch....
+                        int test_Duration = mediaPlayer.getDuration();
+                        int test_Position = mediaPlayer.getCurrentPosition();
+                        myLog("mediaPlayer.getCurrentPosition() : " + test_Position + "/" + test_Duration);
                         startPlayWithMediaPlayer();
                     } else if (mediaPlayer != null && !mediaPlayer.isPreparing()) {
                         myLog("case 2");
