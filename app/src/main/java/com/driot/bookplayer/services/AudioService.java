@@ -128,7 +128,7 @@ public class AudioService extends LoggingService {
     private AudioManager.OnAudioFocusChangeListener afChangeListener;
     private MediaSessionCompat mediaSession;
 
-    public boolean startAtZero, directPlay;
+    public boolean directPlay;
 
 
     private final MediaSessionCompat.Callback callback = new MediaSessionCompat.Callback() {
@@ -299,11 +299,10 @@ public class AudioService extends LoggingService {
 
 
     private void startPlayWithMediaPlayer() {
-        myLogD("startPlayWithMediaPlayer...    Start at zero = " + startAtZero);
-        if (PlayList.getInstance().getZikFile() == null) {myLogW("PlayList.getInstance().getZikFile() == null");}
-        if (startAtZero || PlayList.getInstance().getZikFile() == null) {
+        if (PlayList.getInstance().getZikFile() == null) {
             myLogD("seekTo 0");
             mediaPlayer.seekTo(0);
+            myLogW("PlayList.getInstance().getZikFile() == null");
         } else {
             myLogD("seekTo " + PlayList.getInstance().getZikFile().getPosition());
             mediaPlayer.seekTo((int) PlayList.getInstance().getZikFile().getPosition());
@@ -376,7 +375,6 @@ public class AudioService extends LoggingService {
 
         // petit bip
         if (Option.getBeepChapter()) playBeep("1beep");
-        startAtZero = true;
         directPlay = true;
         loadFile();
         alertNewTrack();
@@ -513,7 +511,7 @@ public class AudioService extends LoggingService {
     //* onPrepare
     //* onError
     public void loadFile() {
-        myLogI("loadingFile....... Start At Zero : " + startAtZero + " - Play Audio straight away : " + directPlay);
+        myLogI("loadingFile.......  - Play Audio straight away : " + directPlay);
         Uri uriToPlay = null;
         String pathToPlay = null;
 

@@ -502,7 +502,6 @@ public class PlayActivity extends LoggingActivity {
         new Thread(() -> {
             try {
                 audioService.directPlay = false;
-                audioService.startAtZero = false;
                 audioService.loadFile();
                 //ZikFile[] zikFiles = AppDatabase.getDatabase(this).ZikFileDao().getNextZikFiles(PlayList.getInstance().getZikFile().getIdFolder(), PlayList.getInstance().getZikFile().getName());
                 //audioService.loadFiles(zikFiles);
