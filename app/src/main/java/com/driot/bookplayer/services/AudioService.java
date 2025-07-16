@@ -602,6 +602,7 @@ public class AudioService extends LoggingService {
     public void playAudio() {
         myLog("playAudio() - start");
         if (mediaPlayer != null) {
+            myLog(mediaPlayer.toString());
             if (!mediaPlayer.isPlaying()) {
                 try {
                     if (mediaPlayer != null && mediaPlayer.isReady()) {

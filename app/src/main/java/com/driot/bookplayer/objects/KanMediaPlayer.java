@@ -5,6 +5,8 @@ import android.net.Uri;
 import android.content.Context;
 import android.os.Build;
 
+import androidx.annotation.NonNull;
+
 import com.driot.bookplayer.utils.KanLogger;
 
 import java.io.IOException;
@@ -207,10 +209,29 @@ public class KanMediaPlayer extends MediaPlayer {
         }
     }
 
+    @NonNull
+    @Override
+    public String toString() {
+        int duration = -1;
+        int position = -1;
 
+        try {
+            duration = this.getDuration();
+            position = this.getCurrentPosition();
+        } catch (IllegalStateException e) {
+            myLog("MediaPlayer not in a valid state");
+        } catch (Exception e) {
+            myLogEE(e,"unexpected error (super defensive)");
+        }
 
-
-
+        return "KanMediaPlayer{" +
+                "duration=" + duration +
+                ", currentPosition=" + position +
+                ", isPrepared=" + isPrepared +
+                ", isPreparing=" + isPreparing +
+                ", listener=" + listener +
+                '}';
+    }
 
     // ----------------------- LOG -----------------------
     private static final String TAG = "KanMediaPlayer";
