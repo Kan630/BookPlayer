@@ -194,7 +194,12 @@ public class PlayActivity extends LoggingActivity {
         bSpeedDown = findViewById(R.id.bSpeedDown);
         bSetSleep = findViewById(R.id.bSetSleep);
 
-        bPlay.setOnClickListener(v -> playMe());
+        bPlay.setOnClickListener(
+                v -> {
+                    myLog("-----USER PRESS PLAY BUTTON-----");
+                    playMe();
+                });
+
         bForward.setOnClickListener(v -> forwardMe());
         bRewind.setOnClickListener(v -> backwardMe());
         bSpeedUp.setOnClickListener(v -> SpeedMeUp());
@@ -222,7 +227,6 @@ public class PlayActivity extends LoggingActivity {
             myToast("error getting Playlist");
             myLogEE(null,"onCreate() -- cancelling since PlayList.getInstance() == null");
             finish();
-            return;
         }
 
         myLog("onCreate() -- Launching Music Service");
@@ -503,7 +507,6 @@ public class PlayActivity extends LoggingActivity {
         new Thread(() -> {
             try {
                 audioService.directPlay = false;
-                audioService.startAtZero = false;
                 audioService.loadFile();
                 //ZikFile[] zikFiles = AppDatabase.getDatabase(this).ZikFileDao().getNextZikFiles(PlayList.getInstance().getZikFile().getIdFolder(), PlayList.getInstance().getZikFile().getName());
                 //audioService.loadFiles(zikFiles);
@@ -584,18 +587,22 @@ public class PlayActivity extends LoggingActivity {
     }
 
     private void redrawSeekBar() {
-        if (audioService != null && audioService.isRunning()) {
-            if (audioService.isPlaying()) {
-                bPlay.setText(R.string.pause);
+        try {
+            if (audioService != null && audioService.isRunning()) {
+                if (audioService.isPlaying()) {
+                    bPlay.setText(R.string.pause);
+                } else {
+                    bPlay.setText(R.string.play);
+                }
                 int iPosition = audioService.getPosition();
                 tvSeekBar.setText(formatTime(iPosition,true));
                 seekbar.setProgress(iPosition);
             } else {
-                bPlay.setText(R.string.play);
+                bPlay.setText(R.string.pause);
+                myLog("redrawSeekBar => service KO => drawing pause button");
             }
-        } else {
-            bPlay.setText(R.string.pause);
-            myLog("redrawSeekBar => service KO => drawing pause button");
+        } catch (Exception e) {
+            myLogEE(e, "redrawSeekBar");
         }
     }
 

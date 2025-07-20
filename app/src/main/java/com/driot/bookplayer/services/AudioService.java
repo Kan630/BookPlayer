@@ -128,7 +128,7 @@ public class AudioService extends LoggingService {
     private AudioManager.OnAudioFocusChangeListener afChangeListener;
     private MediaSessionCompat mediaSession;
 
-    public boolean startAtZero, directPlay;
+    public boolean directPlay;
 
 
     private final MediaSessionCompat.Callback callback = new MediaSessionCompat.Callback() {
@@ -260,6 +260,13 @@ public class AudioService extends LoggingService {
             public void onPrepared() {
                 myLogD("mediaPlayer.prepare - done");
                 LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(new Intent(NOTIFICATION_FILELOADED));
+                try {
+                    int newPos = (int) PlayList.getInstance().getZikFile().getPosition();
+                    myLogD("position : " + newPos);
+                    mediaPlayer.seekTo(newPos);
+                } catch (Exception e) {
+                    myLogEE(e,"could not set position");
+                }
                 if (directPlay) {
                     startPlayWithMediaPlayer();
                 } else {
@@ -299,12 +306,17 @@ public class AudioService extends LoggingService {
 
 
     private void startPlayWithMediaPlayer() {
-        myLogD("startPlayWithMediaPlayer");
-        if (startAtZero || PlayList.getInstance().getZikFile() == null) {
+        /*
+        if (PlayList.getInstance().getZikFile() == null) {
+            myLogW("PlayList.getInstance().getZikFile() == null");
+            myLogW("so... seekTo 0");
             mediaPlayer.seekTo(0);
         } else {
+            myLogD("seekTo " + PlayList.getInstance().getZikFile().getPosition());
             mediaPlayer.seekTo((int) PlayList.getInstance().getZikFile().getPosition());
         }
+
+         */
         audioManager = (AudioManager) AudioService.this.getSystemService(Context.AUDIO_SERVICE);
         afChangeListener = focusChange -> {
             if (focusChange <= 0) {
@@ -373,7 +385,6 @@ public class AudioService extends LoggingService {
 
         // petit bip
         if (Option.getBeepChapter()) playBeep("1beep");
-        startAtZero = true;
         directPlay = true;
         loadFile();
         alertNewTrack();
@@ -510,10 +521,15 @@ public class AudioService extends LoggingService {
     //* onPrepare
     //* onError
     public void loadFile() {
-        myLogI("loadingFile....... Start At Zero : " + startAtZero + " - Play Audio straight away : " + directPlay);
+        myLogI("loadingFile.......  - Play Audio straight away : " + directPlay);
         Uri uriToPlay = null;
         String pathToPlay = null;
 
+        if (PlayList.getInstance()==null) {
+            myLogE("PlayList.getInstance().getZikFile==null");
+            loadFileKO();
+            return;
+        }
         ZikFile zf = PlayList.getInstance().getZikFile();
         if (zf==null) {
             myLogE("PlayList.getInstance().getZikFile==null");
@@ -594,11 +610,20 @@ public class AudioService extends LoggingService {
     public void playAudio() {
         myLog("playAudio() - start");
         if (mediaPlayer != null) {
+            myLog(mediaPlayer.toString());
             if (!mediaPlayer.isPlaying()) {
                 try {
                     if (mediaPlayer != null && mediaPlayer.isReady()) {
                         myLog("case 1");
-                        int test = mediaPlayer.getDuration(); // real test call
+                        // real test call => if fails => catch....
+                        int test_Duration = mediaPlayer.getDuration();
+                        int test_Position = mediaPlayer.getCurrentPosition();
+                        myLog("mediaPlayer.getCurrentPosition() : " + test_Position + "/" + test_Duration);
+                        try {
+                            myLog("PlayList.getInstance().getZikFile().getPosition() : " + PlayList.getInstance().getZikFile().getPosition() + "/" + PlayList.getInstance().getZikFile().getDuration());
+                        } catch (Exception e) {
+                            myLogEE(e,"PlayList.getInstance().getZikFile().getPosition() Exception");
+                        }
                         startPlayWithMediaPlayer();
                     } else if (mediaPlayer != null && !mediaPlayer.isPreparing()) {
                         myLog("case 2");
@@ -669,7 +694,6 @@ public class AudioService extends LoggingService {
     }
     public void forwardAudio(int lag) {
         myLog("forwardAudio of " + lag);
-        reloadSleepTimer();
         int temp = getPosition();
         if ((temp + lag ) <= getDuration()) {
             setPosition(temp + lag );
@@ -686,7 +710,6 @@ public class AudioService extends LoggingService {
     }
     public void backwardAudio(int lag) {
         myLog("backwardAudio() : " + lag);
-        reloadSleepTimer();
         int temp = getPosition();
         if ((temp - lag) > 0) {
             setPosition(temp - lag);
@@ -706,7 +729,6 @@ public class AudioService extends LoggingService {
                 mediaPlayer.setPlaybackParams(mediaPlayer.getPlaybackParams().setSpeed((float) speed));
             }
             myLog("setSpeed() : " + speed);
-            reloadSleepTimer();
         } catch (Exception e) {
             myLogEE(e,"AudioService Error setting Speed");
         }
@@ -726,14 +748,13 @@ public class AudioService extends LoggingService {
     public void setPosition(int position) {
         myLog("setPosition() : " + myDF.format(position));
         mediaPlayer.seekTo(position);
-        reloadSleepTimer();
         createNotification();
     }
 
     public int getPosition() {
         int curPosMediaPlayer = mediaPlayer.getCurrentPosition();
         if (LOG_TRACE_ALL) {
-            if (PlayList.getInstance().getZikFile()!=null) {
+            if (PlayList.getInstance()!=null && PlayList.getInstance().getZikFile()!=null) {
                 int curPosGlobalVar = (int) PlayList.getInstance().getZikFile().getPosition();
                 int diff = curPosGlobalVar-curPosMediaPlayer;
                 myLogD("getPosition() Saved/PlayerCurrent  " + curPosGlobalVar + "/" + curPosMediaPlayer + "  -  Diff = " + diff);
@@ -824,6 +845,7 @@ public class AudioService extends LoggingService {
         reloadSleepTimer();
     }
     public void reloadSleepTimer() {
+        myLog("reloadSleepTimer()");
         if (isTimerRunning) {
             stopSleepTimer();
             startSleepTimer();
@@ -1029,7 +1051,7 @@ public class AudioService extends LoggingService {
                             .setMediaSession(mediaSession.getSessionToken())
                             .setShowActionsInCompactView(0,1,2)
                     )
-            ;
+                    ;
 
             Notification notification = builder.build();
 
@@ -1166,6 +1188,6 @@ public class AudioService extends LoggingService {
         ErrorLoadingFile=true;
         removeNotification();
         stopSelf();
-   }
+    }
 
 }
