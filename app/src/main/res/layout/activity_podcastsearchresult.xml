@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="12dp"
+    android:fitsSystemWindows="true"
+    >
+
+    <TextView
+        android:id="@+id/tvSearchTermsPodcast"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:text="Search: ..."/>
+
+    <TextView
+        android:id="@+id/tvLanguagePodcast"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Language: ..."/>
+
+    <TextView
+        android:id="@+id/tvResultsCountPodcast"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Results: ..."/>
+
+    <ProgressBar
+        android:id="@+id/progressBarPodcast"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewPodcast"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:paddingTop="8dp" />
+
+</LinearLayout>

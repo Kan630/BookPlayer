@@ -52,6 +52,8 @@ public class LoadOptionsActivity extends LoggingActivity {
     private String originalHash;
     private String sourceLocation;
     private String audioBookTitle;
+    private String fileExtension;
+    private String mimeType;
 
     private TextView waitTextView, warningTextView, errorTextView;
     private CheckBox cbSplit, cbCopy, cbDelete;
@@ -114,6 +116,8 @@ public class LoadOptionsActivity extends LoggingActivity {
         sourceLocation = bookToAdd.getSourceLocation();
         originalFile = bookToAdd.getOriginalFile();
         originalType = bookToAdd.getOriginalType();
+        fileExtension = bookToAdd.getFileExtension();
+        mimeType = bookToAdd.getMimeType();
 
         tvFileName.setText(audioBookTitle);
         tvSourceLocation.setText(bookToAdd.getInfoSourceLocation());
@@ -185,6 +189,8 @@ public class LoadOptionsActivity extends LoggingActivity {
             state.originalFile = originalFile;
             state.originalHash = originalHash;
             state.sourceLocation = sourceLocation;
+            state.fileExtension = fileExtension;
+            state.mimeType = mimeType;
 
             setLoadBookTaskState(this, state); // save in SharedPrefs
             myLog("CLICK btnConfirm....   LoadBookTaskState saved - Sending ok Result");

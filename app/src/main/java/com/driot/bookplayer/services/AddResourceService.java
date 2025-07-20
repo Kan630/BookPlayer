@@ -134,8 +134,8 @@ public class AddResourceService
     private String originalExtension;
     private String mimeType;
 
-    private final String unzipFolder = getFilesDir().getAbsolutePath() + "/" + FOLDER_UNZIPPED + "/";
-    private final String downloadFolder = getFilesDir().getAbsolutePath() + "/" + FOLDER_DOWNLOAD + "/";
+    private String unzipFolder;
+    private String downloadFolder;
 
 
 
@@ -178,6 +178,9 @@ public class AddResourceService
         LocalBroadcastManager.getInstance(this).registerReceiver(downloadReceiver, new IntentFilter("BOOKPLAYER_DOWNLOAD_FINISHED"));
         LocalBroadcastManager.getInstance(this).registerReceiver(downloadReceiver, new IntentFilter("BOOKPLAYER_DOWNLOAD_ERROR"));
         LocalBroadcastManager.getInstance(this).registerReceiver(downloadReceiver, new IntentFilter("BOOKPLAYER_DOWNLOAD_PROGRESS"));
+        unzipFolder = getFilesDir().getAbsolutePath() + "/" + FOLDER_UNZIPPED + "/";
+        downloadFolder = getFilesDir().getAbsolutePath() + "/" + FOLDER_DOWNLOAD + "/";
+
     }
     @Override
     public void onDestroy() {
@@ -383,7 +386,9 @@ public class AddResourceService
     //-----------------------------
 
     private void initVars(LoadBookTaskState state) {
+        myLogD("initVars");
         if (state != null) {
+            myLogD("initVars");
             uri_given = state.uri;
             type_given = state.type;
             title_given = state.title;
@@ -396,6 +401,8 @@ public class AddResourceService
             originalFile = state.originalFile;
             originalExtension = state.fileExtension;
             mimeType = state.mimeType;
+        } else {
+            myLogEE(null, "initVars state is null");
         }
     }
 
@@ -767,7 +774,7 @@ public class AddResourceService
                     future_DB_folder_path = unzipFolder + title_given;
                     copyFileLocal(uri_given
                             , future_DB_folder_path
-                            , title_given
+                            , originalFile
                             , type_given
                     );
                 } else {
@@ -775,7 +782,7 @@ public class AddResourceService
                 }
             } else {
                 future_DB_folder_path = uri_given.getPath();
-                future_DB_folder_uri = uri_given.getPath();
+                //future_DB_folder_uri = uri_given.getPath();
                 saveFolder();
             }
         }
@@ -792,7 +799,7 @@ public class AddResourceService
         Folder folder = new Folder();
         folder.setName(title_given);
         folder.setPath(future_DB_folder_path);
-        folder.setUri(future_DB_folder_uri); //2023-10-22 deprecated
+        folder.setUri(future_DB_folder_path); //2023-10-22 deprecated
         folder.setHash("0"); //2023-10-22 deprecated
         folder.setPercentdone(0.0);
         folder.setFirstaccess(sFirstAccess);
@@ -855,18 +862,10 @@ public class AddResourceService
                 myLogD("Smartphone General Memory, use Uri");
                 Uri fileUri;
                 if (type_given.equals("Folder") || type_given.equals("ZIP") || type_given.equals("M4B")) {
-                    fileUri = buildFileUri(future_DB_folder_path.getUri(), sZikFileName);
+                    fileUri = buildFileUri(uri_given, sZikFileName);
                 } else {
-
+                    fileUri = uri_given;   //isSingleFile
                 }
-                    fileUri = uri_given;
-                } else {
-                if (myFolder.isSingleFile()) {
-                    fileUri = myFolder.getUri();
-                } else {
-
-                }
-                myLogD("fileUri : " + fileUri.toString());
                 zikFile.setDuration(getMediaDurationFromUri(this, fileUri));
             }
         } catch (IOException e) {
@@ -1064,12 +1063,16 @@ public class AddResourceService
 
         } else {
             if (!Objects.isNull(sourceLocation) && (sourceLocation.equals("cloud") || sourceLocation.equals("web"))) {
-                myFolder = new FolderAttrib(this, Uri.fromFile(new File(localCopyFullPath)), true, type_given);
+                myLog("from cloud/web");
+                future_DB_folder_path = unzipFolder + title_given;
+                uri_given = Uri.fromFile(new File(localCopyFullPath));
                 audioFileArrayList = new ArrayList<>();
-                audioFileArrayList.add(myFolder.getFileName(this));
+                audioFileArrayList.add(future_DB_folder_path);
 
             } else {
-                myFolder = new FolderAttrib(this, Uri.fromFile(new File(localCopyFullPath)), optionCopyFile, type_given);
+                myLog("from other locations");
+                future_DB_folder_path = unzipFolder + title_given;
+                uri_given = Uri.fromFile(new File(localCopyFullPath));
             }
             saveFolder();
         }
