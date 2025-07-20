@@ -236,16 +236,6 @@ public class SplitM4bService extends LoggingService {
                 fos.close();
                 chapterIndex++;
             }
-
-        } catch (Exception e) {
-
-            tellError(getString(R.string.Error_Import_Split_M4B)
-                    + "   " + getString(R.string.Import_Experimental_M4B_solution_1)
-                    + "\n" + getString(R.string.Import_Experimental_M4B_solution_2)
-                    + "\n\n" + e.getMessage());
-            //mCallBacks.tellNonBlockingError("Error : blablabla... " + e.getMessage());
-
-        } finally {
             try {
                 if (m4bFile.delete()) { // if Exception, the catch delete the all folder...
                     myLog("M4b split done in folder, internal m4b file deleted");
@@ -255,11 +245,31 @@ public class SplitM4bService extends LoggingService {
             } catch (Exception e2) {
                 myLogE("could not delete the original m4b file - " + e2.getMessage());
             }
+            myLog("file has been split");
+            tellEnd(destinationFolderPath);
+            return true;
+        } catch (Exception e) {
+            myLogEE(e,"splitM4bLocal");
+            tellError(getString(R.string.Error_Import_Split_M4B)
+                    + "   " + getString(R.string.Import_Experimental_M4B_solution_1)
+                    + "\n" + getString(R.string.Import_Experimental_M4B_solution_2)
+                    + "\n\n" + e.getMessage());
+            try {
+                if (m4bFile.delete()) {
+                    myLog("splitM4bLocal Error => internal m4b file deleted");
+                } else {
+                    myLogE("splitM4bLocal Error => + ERROR deleting internal m4b file");
+                }
+                if (splitM4bFolder.delete()) {
+                    myLog("splitM4bLocal Error => created folder deleted");
+                } else {
+                    myLogE("splitM4bLocal Error => + ERROR deleting created folder");
+                }
+            } catch (Exception ex) {
+                myLogEE(e,"splitM4bLocal + error deleting objects");
+            }
         }
-
-        myLog("file has been split");
-        tellEnd(destinationFolderPath);
-        return true;
+        return false;
     }
 
 

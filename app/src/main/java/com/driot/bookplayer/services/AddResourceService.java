@@ -848,7 +848,7 @@ public class AddResourceService
         zikFile.setFolderName(title_given);
         zikFile.setPercentdone(0.0);
         zikFile.setPosition(0);
-        zikFile.setPath(uri_given.getPath());
+        zikFile.setPath(future_DB_folder_path);
         zikFile.setIszipfile(false); //2023-10-22 code removed for live zip reading
 
         myLogD("saveFile : Get Media Duration");
