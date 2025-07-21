@@ -344,7 +344,7 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
                 ,new LanguageItem("zho", "zh-cn", "Chinese", R.drawable.flag_cn)
                 ,new LanguageItem("ara", "ar", "Arabic", R.drawable.flag_sa) //2 letters to check
                 ,new LanguageItem("jpn", "ja", "Japanese", R.drawable.flag_jp)
-                //,new LanguageItem("hin", "Hindi", R.drawable.flag_in) // y a rien !
+                ,new LanguageItem("hin", "hi", "Hindi", R.drawable.flag_in) // y a rien !
                 ,new LanguageItem("ell", "el", "Greek", R.drawable.flag_gr)
                 ,new LanguageItem("heb", "he", "Hebrew", R.drawable.flag_il) //2 letters to check
                 ,new LanguageItem("swe", "sv", "Swedish", R.drawable.flag_se)

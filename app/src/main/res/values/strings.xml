@@ -546,8 +546,8 @@
     <string name="option_open_with_text_all">For any kind of file (fail safe).</string>
     <string name="Error_Import_FolderAlreadyImported">This folder has already been loaded</string>
 
-    <string name="PodcastSearch_title">Browse Podcasts</string>
-    <string name="PodcastSearch_desc">Browse and download podcasts using open source Podcastindex.org</string>
+    <string name="PodcastSearch_title">Podcasts</string>
+    <string name="PodcastSearch_desc">Browse podcasts thanks to open source registery podcastindex.org</string>
     <string name="PodcastSearch_hint">France Inter</string>
     <string name="podcast_image_desc">Podcast image</string>
     <string name="podcast_no_results">No podcast found</string>
@@ -558,6 +558,8 @@
     <string name="Results_2pt">"Results: "</string>
     <string name="search_nothing_specified">Nothing specified</string>
     <string name="search_nothing_specified_so_trending">Nothing => display trending</string>
+    <string name="podcast_favorite_add">Added to favorites</string>
+    <string name="podcast_autodownload_add">Added to auto-download</string>
 
 
 

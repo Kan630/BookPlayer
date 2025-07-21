@@ -1,20 +1,52 @@
-<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="12dp"
     android:fitsSystemWindows="true"
+    android:layout_marginTop="10dp"
+    android:layout_marginBottom="10dp"
     >
 
-
-    <ImageView
-        android:id="@+id/ivPodcastCover"
+    <!-- Container with image and overlay buttons -->
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="200dp"
-        android:scaleType="centerInside"
-        android:layout_marginBottom="12dp" />
+        android:layout_marginBottom="12dp">
 
+        <ImageView
+            android:id="@+id/ivPodcastCover"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerInside" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_margin="8dp">
+
+            <ImageButton
+                android:id="@+id/btnFavorite"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@android:color/transparent"
+                android:contentDescription="Favorite"
+                android:src="@drawable/ic_favorite_no" />
+
+            <ImageButton
+                android:id="@+id/btnAutoDownload"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@android:color/transparent"
+                android:contentDescription="Auto Download"
+                android:src="@drawable/ic_download_24dp" />
+        </LinearLayout>
+    </RelativeLayout>
+
+    <!-- Texts and episode list -->
     <TextView
         android:id="@+id/tvPodcastTitle"
         android:layout_width="match_parent"
@@ -28,9 +60,9 @@
         android:id="@+id/tvPodcastDescription"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Podcast description goes here..."
+        android:layout_marginBottom="12dp"
         android:textSize="14sp"
-        android:layout_marginBottom="12dp" />
+        android:padding="4dp"/>
 
     <ProgressBar
         android:id="@+id/progressBarEpisodes"

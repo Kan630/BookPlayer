@@ -47,11 +47,11 @@ public class PodcastSearchResultsActivity extends LoggingActivity {
         adapter = new PodcastResultsRVAdapter(item -> {
             // handle click, e.g. open detail or stream podcast
             myLog("Podcast Clicked: " + item.title + " - feedID = " + item.id);
-            Toast.makeText(this, "Clicked: " + item.title, Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(this, PodcastDetailActivity.class);
             intent.putExtra("feedId", item.id);
             intent.putExtra("title", item.title);
             intent.putExtra("image", item.image);
+            intent.putExtra("description", item.description);
             startActivity(intent);
         });
         recyclerView.setAdapter(adapter);

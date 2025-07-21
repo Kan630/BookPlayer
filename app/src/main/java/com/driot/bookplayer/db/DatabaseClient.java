@@ -46,6 +46,27 @@ public class DatabaseClient {
         }
     };
 
+    static final Migration MIGRATION_4_5 = new Migration(4, 5) {
+        @Override
+        public void migrate(SupportSQLiteDatabase database) {
+            myLogI("Migration -> executing step 4 => 5");
+            database.execSQL("CREATE TABLE IF NOT EXISTS Podcast (" +
+                    "feedId INTEGER PRIMARY KEY NOT NULL, " +
+                    "title TEXT, " +
+                    "image TEXT, " +
+                    "language TEXT, " +
+                    "isFavorite INTEGER NOT NULL DEFAULT 0, " +
+                    "autoDownload INTEGER NOT NULL DEFAULT 0, " +
+                    "idFolder INTEGER, " +
+
+                    "FOREIGN KEY(idFolder) REFERENCES Folder(id) ON DELETE SET NULL)"
+        );
+
+            // Add index on foreign key
+            database.execSQL("CREATE INDEX index_Podcast_idFolder ON Podcast(idFolder)");
+        }
+    };
+
     private static DatabaseClient mInstance;
 
     //our app database object
@@ -62,9 +83,10 @@ public class DatabaseClient {
                 //-------------------------------------------------------
                 //.fallbackToDestructiveMigration()  // <--- ATTENTION !!
                 //                              modif version BDD => truncate all tables !!
+                //       you will need to uncomment the deleteDatabase at the top of this method
                 //-------------------------------------------------------
 
-                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
                 .build();
 
     }

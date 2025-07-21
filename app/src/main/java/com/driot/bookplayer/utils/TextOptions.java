@@ -2,6 +2,7 @@ package com.driot.bookplayer.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.text.Html;
 import android.text.Layout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -273,6 +274,14 @@ public class TextOptions {
             newline = HIGHLIGHT_CODE_START + line.substring(0,lenWord) + HIGHLIGHT_CODE_END + line.substring(lenWord);
         }
         return newline;
+    }
+
+    public static CharSequence parseMaybeHtml(String text) {
+        if (text != null && (text.contains("<") && text.contains(">"))) {
+            return Html.fromHtml(text, Html.FROM_HTML_MODE_LEGACY);
+        } else {
+            return text;
+        }
     }
 
     //--- FULL LOG --------------------------
