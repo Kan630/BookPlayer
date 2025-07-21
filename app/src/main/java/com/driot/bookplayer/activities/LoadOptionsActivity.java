@@ -119,6 +119,15 @@ public class LoadOptionsActivity extends LoggingActivity {
         fileExtension = bookToAdd.getFileExtension();
         mimeType = bookToAdd.getMimeType();
 
+        myLogD(bookToAdd.toString());
+
+        // FORCING SPECIAL TYPE
+        if (bookToAdd.getType().equalsIgnoreCase("m4b")) {
+            type = "M4B";
+        } else if (bookToAdd.getType().equalsIgnoreCase("zip")) {
+            type = "ZIP";
+        }
+
         tvFileName.setText(audioBookTitle);
         tvSourceLocation.setText(bookToAdd.getInfoSourceLocation());
         tvMimeExtension.setText(bookToAdd.getInfoMimeExtension());
@@ -237,6 +246,7 @@ public class LoadOptionsActivity extends LoggingActivity {
 
     private void calculateCheckboxState() {
         internalCheckBoxStateCalculationInProgress = true;
+        myLogD("calculateCheckboxState");
 
         if ("M4B".equals(type)) {
             llSplit.setVisibility(View.VISIBLE);

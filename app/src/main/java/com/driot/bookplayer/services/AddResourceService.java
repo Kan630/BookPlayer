@@ -512,7 +512,8 @@ public class AddResourceService
 
                     } else {
                         myLog("Option Split M4B disabled");
-                        // let's continue to basic file section below
+                        DocumentFile dfPickedFile = DocumentFile.fromSingleUri(this, uri_given);
+                        populateArrayListOfTracksFromFile(dfPickedFile);
                     }
 
                 } else if (mimeType.equals("application/zip") || originalExtension.equals("zip")) {

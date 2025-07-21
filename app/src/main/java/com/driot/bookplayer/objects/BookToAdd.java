@@ -15,6 +15,7 @@ import android.net.Uri;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 
+import androidx.annotation.NonNull;
 import androidx.documentfile.provider.DocumentFile;
 
 import com.driot.bookplayer.utils.KanFiles;
@@ -57,7 +58,10 @@ public class BookToAdd {
         this.uri = uri;
         this.originalType = type;
 
-        myLog("Side Check if it is a Folder : " + isUriDirectory());
+
+        if (isUriDirectory() && !Objects.equals(type, "Folder")) {
+            myLogW("Side Check if it is a Folder : " + isUriDirectory() + " - but type = " + type);
+        }
 
         this.sourceLocation = getSourceLoc();
         this.infoSourceLocation = "[" + this.sourceLocation + "]";
@@ -311,7 +315,6 @@ public class BookToAdd {
             DocumentFile doc = DocumentFile.fromTreeUri(appContext, uri);
             return doc != null && doc.isDirectory();
         } catch (Exception e) {
-            myLogEE(e, "isDirectoryFromUri failed");
             return false;
         }
     }
@@ -326,11 +329,27 @@ public class BookToAdd {
     }
 
 
-
+    @NonNull
+    @Override
+    public String toString() {
+        return "uri=" + uri +
+                "\ntype='" + type + '\'' +
+                "\nisBroken=" + isBroken +
+                "\nsourceLocation='" + sourceLocation + '\'' +
+                "\naudioBookName='" + audioBookName + '\'' +
+                "\ndf=" + df +
+                "\noriginalFile='" + originalFile + '\'' +
+                "\noriginalType='" + originalType + '\'' +
+                "\nfileExtension='" + fileExtension + '\'' +
+                "\nmimeType='" + mimeType + '\'' +
+                "\ninfoMimeExtension='" + infoMimeExtension + '\'' +
+                "\ninfoSourceLocation='" + infoSourceLocation + '\'';
+    }
 
     private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
     private void myLogD(String str) { KanLogger.myLogD(this.getClass().getName(), str); }
     private void myLogI(String str) { KanLogger.myLogI(this.getClass().getName(), str); }
+    private void myLogW(String str) { KanLogger.myLogW(this.getClass().getName(), str); }
     private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
     private void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, this.getClass().getName(), str); }
     private void myToastEE(Throwable t, String str) { KanLogger.myToastEE(t, this.getClass().getName(), str); }

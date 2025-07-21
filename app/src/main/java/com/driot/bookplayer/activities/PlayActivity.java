@@ -196,7 +196,7 @@ public class PlayActivity extends LoggingActivity {
 
         bPlay.setOnClickListener(
                 v -> {
-                    myLog("-----USER PRESS PLAY BUTTON-----");
+                    myLogI("----------> USER PRESSES PLAY BUTTON <----------");
                     playMe();
                 });
 

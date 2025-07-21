@@ -73,16 +73,6 @@ public class KanFiles {
         }
     }
 
-    public boolean isUriDirectory(Context c, Uri uri) {
-        try {
-            DocumentFile doc = DocumentFile.fromTreeUri(c, uri);
-            return doc != null && doc.isDirectory();
-        } catch (Exception e) {
-            myLogEE(e, "isDirectoryFromUri failed");
-            return false;
-        }
-    }
-
     public static boolean isOnSdCard(Context appContext, Uri uri) {
         if (uri == null) return false;
 
