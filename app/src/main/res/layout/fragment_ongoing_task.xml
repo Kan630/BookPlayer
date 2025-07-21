@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ongoing_task_container"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="8dp"
+    android:elevation="8dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:background="@color/orange_900"
+    >
+
+    <TextView
+        android:id="@+id/tvOngoingTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/OnGoingImportTitle"
+        android:text="Importing Book..."
+        />
+
+    <TextView
+        android:id="@+id/tvOngoingProgress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/OnGoingImportText"
+        android:text="0%"
+        />
+
+    <ProgressBar
+        android:id="@+id/pbOngoing"
+        style="@android:style/Widget.ProgressBar.Horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginEnd="5dp"
+        android:progressDrawable="@drawable/progress_bar_theme"
+        android:progress="0" />
+</LinearLayout>

@@ -19,6 +19,7 @@ import androidx.sqlite.db.SimpleSQLiteQuery;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.objects.AudioFileInfo;
+import com.driot.bookplayer.utils.GlobalTaskManager;
 import com.driot.bookplayer.utils.log.LoggingService;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.DatabaseClient;
@@ -176,7 +177,7 @@ public class AddResourceService
         LocalBroadcastManager.getInstance(this).registerReceiver(downloadReceiver, new IntentFilter("BOOKPLAYER_DOWNLOAD_PROGRESS"));
         unzipFolder = getFilesDir().getAbsolutePath() + "/" + FOLDER_UNZIPPED + "/";
         downloadFolder = getFilesDir().getAbsolutePath() + "/" + FOLDER_DOWNLOAD + "/";
-
+        GlobalTaskManager.getInstance().startTask("Starting import...");
     }
     @Override
     public void onDestroy() {

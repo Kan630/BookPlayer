@@ -1,19 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
+
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:fillViewport="true"
-    tools:context=".activities.MainActivity"
-    android:fitsSystemWindows="true"
-    >
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:fitsSystemWindows="true">
 
-    <LinearLayout
+    <FrameLayout
+        android:id="@+id/topOverlayContainer"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:layout_height="wrap_content" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        tools:context=".activities.MainActivity">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
         <include
             layout="@layout/include_progressbar_overlay" />
@@ -67,20 +77,6 @@
             android:text="@string/bOpenM4bFile"
             style="@style/GetResourceButton"
             android:layout_marginTop="@dimen/GetRessource320_vertical_margin_text2button" />
-
-
-
-        <TextView
-            android:id="@+id/message_import_currently_running"
-            style="@style/GetResourceTextTopOfButton"
-            android:text="@string/Import_Progress_onGoing"
-            android:textSize="40sp"
-            android:textColor="@color/red"
-            android:background="@color/yellow"
-            android:visibility="invisible"
-            android:elevation="5dp"
-            android:paddingHorizontal="50dp"
-            android:layout_marginTop="@dimen/GetRessource320_vertical_margin_title2text" />
 
         <View style="@style/GetResourceHorizontalBar"/>
 
@@ -301,5 +297,6 @@
             android:id="@+id/bAutoTest_b3"
             android:text="@string/AutoTest_b3_text"
             style="@style/GetResourceButton" />
-    </LinearLayout>
-</ScrollView>
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

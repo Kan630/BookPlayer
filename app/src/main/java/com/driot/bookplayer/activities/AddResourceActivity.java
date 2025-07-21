@@ -15,11 +15,14 @@ import android.widget.TextView;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.services.AddResourceService;
+import com.driot.bookplayer.utils.GlobalTaskManager;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import static com.driot.bookplayer.utils.Tonio.getFileNameFromPath;
 import static com.driot.bookplayer.utils.Tonio.formatNameForDisplay;
 import static com.driot.bookplayer.utils.WorkFlow.cancelAllOngoingTasks;
+
+import androidx.fragment.app.Fragment;
 
 
 /**
@@ -137,11 +140,12 @@ public class AddResourceActivity
     @Override
     public void updateProgress(String progressText, int progressVal) {
         runOnUiThread(() -> {
-            if (progressVal >= 0 && progressVal <= 100) {
-                progressBar.setProgress(progressVal);
-            }
             if (!progressText.isEmpty()) {
                 progressBarText.setText(progressText);
+            }
+            if (progressVal >= 0 && progressVal <= 100) {
+                progressBar.setProgress(progressVal);
+                GlobalTaskManager.getInstance().updateProgress(progressText, progressVal);
             }
         });
     }
@@ -174,6 +178,7 @@ public class AddResourceActivity
                 myToast(getString(R.string.Import_Success) + "\n" + tvTitle.getText());
                 cancelAllOngoingTasks(this);
 
+                GlobalTaskManager.getInstance().notifyTaskFinished();
 
                 Intent mainIntent = new Intent(this, MainActivity.class);
                 mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -185,6 +190,9 @@ public class AddResourceActivity
 
     private void performCancel() {
         cancelAllOngoingTasks(this);
+
+        GlobalTaskManager.getInstance().notifyTaskFinished();
+
         finish();
     }
 }

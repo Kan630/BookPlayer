@@ -22,10 +22,13 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.objects.LanguageItem;
 import com.driot.bookplayer.objects.LoadBookTaskState;
+import com.driot.bookplayer.utils.GlobalTaskManager;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.services.AddResourceService;
 import com.driot.bookplayer.adapter.LanguageSpinnerAdapter;
@@ -57,14 +60,10 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
     private Button bOpenFile, bOpenFolder, bOpenZipFile, bOpenM4bFile;
     private Button bAutoTest_b1, bAutoTest_b2, bAutoTest_b3, bDirectDownload;
 
-    private TextView tv_message_import_currently_running;
-
     private EditText etDirectDownload;
 
     private PermissionRequest mPermissionRequest;
-    private int lopperForLog = 0;
-    private Timer timer;
-    private boolean isActivityActive = true;
+
     private ActivityResultLauncher<Intent>
              bOpenFileActivityResultLauncher
             ,bOpenFolderActivityResultLauncher
@@ -117,8 +116,6 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
         bAutoTest_b3 = findViewById(R.id.bAutoTest_b3);
         bDirectDownload = findViewById(R.id.bDirectDownload);
         etDirectDownload = findViewById(R.id.etDirectDownload);
-
-        tv_message_import_currently_running = findViewById(R.id.message_import_currently_running);
 
 // ADD RESOURCE
         addResourceActivityResultLauncher = registerForActivityResult(
@@ -216,37 +213,6 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
                 result -> {
                     if (result.getResultCode() == Activity.RESULT_OK) {
 
-                        /*
-                        Intent data = result.getData();
-                        if (data == null) return;
-
-                        Uri uri = data.getParcelableExtra("uri");
-                        String type = data.getStringExtra("type");
-                        String title = data.getStringExtra("title");
-                        boolean split = data.getBooleanExtra("split", false);
-                        boolean copy = data.getBooleanExtra("copy", false);
-                        boolean delete = data.getBooleanExtra("delete", false);
-
-                        LoadBookTaskState state = new LoadBookTaskState();
-                        state.uri = uri;
-                        state.type = type;
-                        state.title = title;
-                        state.split = split;
-                        state.copy = copy;
-                        state.delete = delete;
-                        myLog("LoadBookTaskState : " + state);
-
-                        setLoadBookTaskState(this, state); // save in SharedPrefs
-
-                        Intent intentService = new Intent(this, AddResourceService.class);
-                        intentService.putExtra("LoadBookTaskState", state);
-                        startService(intentService);
-
-                        Intent intentActivity = new Intent(this, AddResourceActivity.class);
-                        intentActivity.putExtra("LoadBookTaskState", state);
-                        startActivity(intentActivity);
-    */
-
                         Intent intentService = new Intent(this, AddResourceService.class);
                         intentService.putExtra("LoadBookTaskState", getLoadBookTaskState(this));
                         startService(intentService);
@@ -330,12 +296,6 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
                     loadOptionsActivityResultLauncher.launch(intent);
                 }
             });
-        });
-
-        tv_message_import_currently_running.setOnClickListener(v -> {
-            myLogI("Click on [OnGoing Import] message !");
-            Intent intent = new Intent(this, AddResourceActivity.class);
-            startActivity(intent);
         });
 
 
@@ -430,13 +390,6 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
                 myToast("selected language error");
                 return;
             }
-            /*
-            if (query.isEmpty()) {
-                myToast("Please enter some text to search.");
-                return;
-            }
-
-             */
 
             Intent intent = new Intent(this, LibrivoxResultsActivity.class);
             intent.putExtra("query", query);
@@ -497,53 +450,33 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
         }).start();
     }
 
-
-    private void startTimer() {
-        myLog("startTimer()");
-        isActivityActive = true;
-        timer = new Timer();
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                runOnUiThread(checkServiceRunningRunnable);
-            }
-        }, 0, 500);
-    }
-    final Runnable checkServiceRunningRunnable = new Runnable() { // sinon Error :  Animators may only be run on Looper threads
-        public void run() {
-            if (isActivityActive) { //needed because if not, the run() continue after activity is destroyed
-                checkServiceRunning();
-            }
-        }
-    };
-    private void stopTimer() {
-        myLog("stopTimer()");
-        isActivityActive = false;
-        if (timer != null) {
-            try { timer.cancel(); timer.purge(); timer=null; }
-            catch (Exception e) { myLogEE(e,"stopTimer()");}
-        }
-    }
     @Override
     protected void onResume() {
         super.onResume();
+        GlobalTaskManager.getInstance().registerListener(this::onTaskFinished);
+        checkServiceRunning();
         maybeResumeWorkFlow(this);
-        startTimer();
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        stopTimer();
-    }
     @Override
     protected void onPause() {
         super.onPause();
-        stopTimer();
+        GlobalTaskManager.getInstance().unregisterListener(this::onTaskFinished);
+    }
+    private void onTaskFinished() {
+        myLog("onTaskFinished()");
+        removeOngoingTaskFragment();
+    }
+    private void removeOngoingTaskFragment() {
+        FragmentManager fm = getSupportFragmentManager();
+        Fragment fragment = fm.findFragmentById(R.id.topOverlayContainer);
+        if (fragment instanceof OngoingTaskFragment) {
+            myLog("remove OngoingTaskFragment");
+            fm.beginTransaction().remove(fragment).commitAllowingStateLoss();
+        }
     }
 
     private void checkServiceRunning() {
-        if (lopperForLog%10==0) myLogD("checkServiceRunning()");
         try {
             List<TextView> textViewToHide = Arrays.asList(
                      findViewById(R.id.TextHeaderOpen)
@@ -559,26 +492,24 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
             List<Button> buttonsToLock = Arrays.asList(bOpenFile, bOpenFolder, bOpenZipFile, bOpenM4bFile
                     , bAutoTest_b1, bAutoTest_b2, bAutoTest_b3, bDirectDownload);
 
-            //if (AddResourceService.isBusy || DownloadJobService.isJobRunning) {
-
-            //TODO, it should be a listener, listening to Workflows... instead of a dumb timer....
-            if (isSomeWorkFlowRunning(this)) {
-                if (lopperForLog%20==0) {
-                     myLog("SomeWorkFlowRunning => displaying banner, disabling buttons");
-                }
+            if (GlobalTaskManager.getInstance().isTaskRunning()) {
+                myLog("display OngoingTaskFragment");
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.topOverlayContainer, new OngoingTaskFragment())
+                        .commit();
+                myLog("SomeWorkFlowRunning => displaying banner, disabling buttons");
                 for (Button b: buttonsToLock) { b.setEnabled(false); }
                 for (TextView tv: textViewToHide) { tv.setVisibility(View.GONE); }
-                tv_message_import_currently_running.setVisibility(View.VISIBLE);
             } else {
                 for (Button b: buttonsToLock) { b.setEnabled(true); }
                 for (TextView tv: textViewToHide) { tv.setVisibility(View.VISIBLE); }
-                tv_message_import_currently_running.setVisibility(View.GONE);
             }
-            lopperForLog = lopperForLog + 1;
         } catch (Exception e) {
             myLogEE(e,"Error while checking if service is running");
         }
     }
+
 
     private boolean isReturnedUriOk(Intent data) {
         try {
