@@ -554,7 +554,7 @@ public class AudioService extends LoggingService {
             //check...
             DocumentFile file = DocumentFile.fromSingleUri(this, uriToPlay);
             if (!file.exists() || !file.isFile()) {
-                //maybe it was a single file - RETRY
+                //maybe it was a single file - RETRY  ---> should be useless now that this retry is done in buildFileUri
                 myLogD("Try Single file");
                 uriToPlay = Uri.parse(zf.getPath());
                 file = DocumentFile.fromSingleUri(this, uriToPlay);

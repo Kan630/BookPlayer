@@ -12,6 +12,7 @@ import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 
 import androidx.annotation.Nullable;
+import androidx.documentfile.provider.DocumentFile;
 
 import com.driot.bookplayer.services.CopyFileService;
 
@@ -19,6 +20,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Objects;
 import java.util.Set;
 
 public class FileUtils {
@@ -221,22 +223,28 @@ public class FileUtils {
             myLogEE(null, "buildFileUri - null args");
             return null;
         }
-
         try {
             Uri folderUri = Uri.parse(folderPathOrUri);
 
             // ✅ CASE 1: SAF URI (content://...)
             if ("content".equalsIgnoreCase(folderUri.getScheme())) {
+                // Folder + fileName
                 if (DocumentsContract.isTreeUri(folderUri)) {
                     String parentDocumentId = DocumentsContract.getTreeDocumentId(folderUri);
                     String childDocumentId = parentDocumentId + "/" + fileName;
 
                     return DocumentsContract.buildDocumentUriUsingTree(folderUri, childDocumentId);
                 } else {
-                    myLogEE(null, "scheme is not Content");
+                    // Folder is fileName !
+                    Uri uriToPlay = Uri.parse(folderPathOrUri);
+                    DocumentFile file = DocumentFile.fromSingleUri(context, Uri.parse(folderPathOrUri));
+                    if (!file.exists() || !file.isFile()) {
+                        myLogEE(null,"Invalid or non-file SAF Uri in single file case : " + uriToPlay);
+                    }
+                    return uriToPlay;
                 }
             } else {
-                myLogEE(null, "DocumentsContract.isTreeUri(folderUri).. KO..");
+                myLogEE(null, "scheme is not Content");
             }
 
         } catch (Exception e) {
