@@ -38,7 +38,6 @@ public class AddResourceActivity
     private ProgressBar progressBar;
     private TextView tvErrorText, tvWarning;
 
-
     boolean boundToAddResourceService;
     AddResourceService mService;
     boolean mBound = false;
@@ -57,30 +56,12 @@ public class AddResourceActivity
         tvErrorText = findViewById(R.id.errorText);
         tvWarning = findViewById(R.id.warningText);
 
-/*
-        Uri uri = state.uri;
-        String str_Uri = uri==null ? "null" : uri.toString();
-        myLog("onCreate() - from File Picker\nuri=[" + str_Uri + "]\ntype=[" + type + "]");
-        if (!str_Uri.contains(PATH_CHECK_APPLICATION)) {
-            try {
-                this.getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-            } catch (Exception e) {
-                myLogE("error while using takePersistableUriPermission for selected URI - " + e.getMessage());
-            }
-        }
-        if (uri != null) {
-            putTitle(uri.getLastPathSegment());
-        }
-
- */
-
         Button bCancel = findViewById(R.id.bCancel);
         bCancel.setOnClickListener(v -> { performCancel(); });
 
         Intent intentAddResourceService = new Intent(this, AddResourceService.class);
         boundToAddResourceService = bindService(intentAddResourceService, addResourceServiceConnection, Context.BIND_AUTO_CREATE); //error Log : Activity XXX has leaked ServiceConnection
         myLog("call start & bind to AddResourceService from AddResourceActivity.onCreate() - bound result :" + boundToAddResourceService);
-
 
     }
 
@@ -110,14 +91,6 @@ public class AddResourceActivity
     @Override
     protected void onResume() {
         super.onResume();
-/*
-        Intent intentAddResourceService = new Intent(this, AddResourceService.class);
-        boundToAddResourceService = bindService(intentAddResourceService, addResourceServiceConnection, Context.BIND_AUTO_CREATE);
-        myLog("call start & bind to AddResourceService from AddResourceActivity.onResume() - bound result :" + boundToAddResourceService);
-
- */
-
-        //maybeResumeWorkFlow(this);
     }
 
     private final ServiceConnection addResourceServiceConnection = new ServiceConnection() {
@@ -214,6 +187,4 @@ public class AddResourceActivity
         cancelAllOngoingTasks(this);
         finish();
     }
-
-
 }

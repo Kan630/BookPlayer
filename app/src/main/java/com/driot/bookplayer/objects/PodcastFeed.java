@@ -1,6 +1,7 @@
 package com.driot.bookplayer.objects;
 
 public class PodcastFeed {
+    public long id;
     public String title;
     public String description;
     public String image;

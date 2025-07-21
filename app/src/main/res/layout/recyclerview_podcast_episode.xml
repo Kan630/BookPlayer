@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:padding="12dp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="?attr/selectableItemBackground">
+
+    <TextView
+        android:id="@+id/tvEpisodeTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Episode title"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:layout_marginBottom="4dp" />
+
+    <TextView
+        android:id="@+id/tvEpisodeDate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Published date"
+        android:textSize="14sp"
+        android:textColor="#777777" />
+
+    <TextView
+        android:id="@+id/tvEpisodeDuration"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#777777"
+        android:text="duration"
+        android:textSize="12sp"
+        android:paddingTop="2dp" />
+
+    <TextView
+        android:id="@+id/tvEpisodeSize"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#777777"
+        android:text="size"
+        android:textSize="12sp"
+        android:paddingTop="2dp" />
+</LinearLayout>

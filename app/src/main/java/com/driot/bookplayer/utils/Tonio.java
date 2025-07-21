@@ -35,6 +35,24 @@ import java.util.concurrent.TimeUnit;
  */
 public class Tonio {
 
+
+    public static String getReadableSize(String size) {
+        try {
+            long bytes = Long.parseLong(size);
+            return getReadableSize(bytes);
+        } catch (Exception e) {
+            return "Unknown size";
+        }
+    }
+
+    public static String getReadableSize(long sizeBytes) {
+        if (sizeBytes <= 0) return "0 B";
+        if (sizeBytes < 1024) return sizeBytes + " B";
+        if (sizeBytes < 1024 * 1024) return String.format(Locale.US, "%.1f KB", sizeBytes / 1024.0);
+        return String.format(Locale.US, "%.1f MB", sizeBytes / (1024.0 * 1024.0));
+    }
+
+
     public static String formatTime(double doubleTime) {
         return formatTime(doubleTime,false, true);
     }

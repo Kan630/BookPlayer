@@ -3,6 +3,8 @@ package com.driot.bookplayer.utils;
 import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_API_KEY;
 import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_API_SECRET;
 
+import com.driot.bookplayer.objects.PodcastEpisode;
+import com.driot.bookplayer.objects.PodcastEpisodeResponse;
 import com.driot.bookplayer.objects.PodcastIndexApi;
 import com.driot.bookplayer.objects.PodcastFeed;
 import com.driot.bookplayer.objects.PodcastIndexResponse;
@@ -115,4 +117,54 @@ public class PodcastIndexHelper {
             }
         });
     }
+
+    public static void getTrendingPodcasts(String lang, int max, Callback callback) {
+        PodcastIndexApi api = buildApi();
+        api.getTrendingPodcasts(lang, max).enqueue(new retrofit2.Callback<PodcastIndexResponse>() {
+            @Override
+            public void onResponse(Call<PodcastIndexResponse> call, Response<PodcastIndexResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    callback.onSuccess(response.body().feeds);
+                } else {
+                    String error = "Unknown error";
+                    try {
+                        if (response.errorBody() != null) {
+                            error = response.errorBody().string();
+                        }
+                    } catch (Exception ignored) {}
+                    callback.onError(new Exception("HTTP " + response.code() + ": " + error));
+                }
+            }
+
+            @Override
+            public void onFailure(Call<PodcastIndexResponse> call, Throwable t) {
+                callback.onError(new Exception(t));
+            }
+        });
+    }
+
+    public static void getEpisodesByFeedId(long feedId, EpisodeCallback callback) {
+        PodcastIndexApi api = buildApi();
+        api.getEpisodesByFeedId(feedId).enqueue(new retrofit2.Callback<PodcastEpisodeResponse>() {
+            @Override
+            public void onResponse(Call<PodcastEpisodeResponse> call, Response<PodcastEpisodeResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    callback.onSuccess(response.body().items);
+                } else {
+                    callback.onError(new Exception("HTTP " + response.code()));
+                }
+            }
+
+            @Override
+            public void onFailure(Call<PodcastEpisodeResponse> call, Throwable t) {
+                callback.onError(new Exception(t));
+            }
+        });
+    }
+
+    public interface EpisodeCallback {
+        void onSuccess(List<PodcastEpisode> episodes);
+        void onError(Exception e);
+    }
+
 }

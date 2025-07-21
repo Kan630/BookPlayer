@@ -1,5 +1,6 @@
 package com.driot.bookplayer.adapter;
 
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,7 +37,7 @@ public class PodcastResultsRVAdapter extends RecyclerView.Adapter<PodcastResults
     @NonNull
     @Override
     public PodcastViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.podcast_item, parent, false);
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.recyclerview_podcast_result, parent, false);
         return new PodcastViewHolder(v);
     }
 
@@ -64,7 +65,11 @@ public class PodcastResultsRVAdapter extends RecyclerView.Adapter<PodcastResults
 
         void bind(PodcastFeed item, OnItemClickListener listener) {
             title.setText(item.title);
-            desc.setText(item.description);
+            if (item.description != null) {
+                desc.setText(Html.fromHtml(item.description, Html.FROM_HTML_MODE_LEGACY));
+                // to get clickable links
+                //desc.setMovementMethod(LinkMovementMethod.getInstance());
+            }
             Glide.with(image.getContext()).load(item.image).into(image);
             itemView.setOnClickListener(v -> listener.onItemClick(item));
         }

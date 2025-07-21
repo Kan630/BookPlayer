@@ -374,23 +374,23 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
         Spinner spinnerLanguage = findViewById(R.id.spinnerLanguage);
         String pref_audio_language = get_Audio_Language(this);
         List<LanguageItem> languageItems = Arrays.asList(
-                new LanguageItem("eng", "English", R.drawable.flag_uk)
-                ,new LanguageItem("deu", "German", R.drawable.flag_de)
-                ,new LanguageItem("spa", "Spanish", R.drawable.flag_es)
-                ,new LanguageItem("fre", "French", R.drawable.flag_fr)
-                ,new LanguageItem("por", "Portuguese", R.drawable.flag_pt)
-                ,new LanguageItem("ita", "Italian", R.drawable.flag_it)
-                ,new LanguageItem("rus", "Russian", R.drawable.flag_ru)
-                ,new LanguageItem("zho", "Chinese", R.drawable.flag_cn)
-                ,new LanguageItem("ara", "Arabic", R.drawable.flag_sa)
-                ,new LanguageItem("jpn", "Japanese", R.drawable.flag_jp)
+                 new LanguageItem("eng", "en", "English", R.drawable.flag_uk)
+                ,new LanguageItem("deu", "de", "German", R.drawable.flag_de)
+                ,new LanguageItem("spa", "es", "Spanish", R.drawable.flag_es)
+                ,new LanguageItem("fre", "fr", "French", R.drawable.flag_fr)
+                ,new LanguageItem("por", "pt", "Portuguese", R.drawable.flag_pt)
+                ,new LanguageItem("ita", "it", "Italian", R.drawable.flag_it)
+                ,new LanguageItem("rus", "ru", "Russian", R.drawable.flag_ru)
+                ,new LanguageItem("zho", "zh-cn", "Chinese", R.drawable.flag_cn)
+                ,new LanguageItem("ara", "ar", "Arabic", R.drawable.flag_sa) //2 letters to check
+                ,new LanguageItem("jpn", "ja", "Japanese", R.drawable.flag_jp)
                 //,new LanguageItem("hin", "Hindi", R.drawable.flag_in) // y a rien !
-                ,new LanguageItem("ell", "Greek", R.drawable.flag_gr)
-                ,new LanguageItem("heb", "Hebrew", R.drawable.flag_il)
-                ,new LanguageItem("swe", "Swedish", R.drawable.flag_se)
-                ,new LanguageItem("pol", "Polish", R.drawable.flag_pl)
-                ,new LanguageItem("nld", "Dutch", R.drawable.flag_nl)
-                ,new LanguageItem("mul", "Multiple", R.drawable.flag_globe)
+                ,new LanguageItem("ell", "el", "Greek", R.drawable.flag_gr)
+                ,new LanguageItem("heb", "he", "Hebrew", R.drawable.flag_il) //2 letters to check
+                ,new LanguageItem("swe", "sv", "Swedish", R.drawable.flag_se)
+                ,new LanguageItem("pol", "pl", "Polish", R.drawable.flag_pl)
+                ,new LanguageItem("nld", "nl", "Dutch", R.drawable.flag_nl) //2 letters to check
+                ,new LanguageItem("mul", "en", "Multiple", R.drawable.flag_globe) //2 letters to check
                 //,new LanguageItem("", "Any", R.drawable.flag_all)
         );
         LanguageSpinnerAdapter adapter = new LanguageSpinnerAdapter(this, languageItems);
@@ -455,7 +455,8 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
         buttonPodcastSearch = findViewById(R.id.bPodcastSearch);
         buttonPodcastSearch.setOnClickListener(v -> {
             String query = editTextPodcastQuery.getText().toString();
-            String lang = spinnerLanguage.getSelectedItem().toString().toLowerCase();
+            LanguageItem selectedLang = (LanguageItem) spinnerLanguage.getSelectedItem();
+            String lang = selectedLang.getTwoLetterCode().toLowerCase();
 
             if (lang.isEmpty()) {
                 myToast("selected language error");

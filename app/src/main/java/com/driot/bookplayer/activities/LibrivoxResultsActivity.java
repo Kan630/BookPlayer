@@ -91,9 +91,9 @@ public class LibrivoxResultsActivity extends LoggingActivity {
             return;
         }
 
-        tvSearchTerms.setText("Search: " + (query.isEmpty() ? "Nothing Specified" : query));
-        tvLanguage.setText("Language: " + lang);
-        tvResultsCount.setText("Results: ...");
+        tvSearchTerms.setText(getString(R.string.Search_2pt) + (query.isEmpty() ? getString(R.string.search_nothing_specified) : query));
+        tvLanguage.setText(getString(R.string.Language_2pt) + lang);
+        tvResultsCount.setText(getString(R.string.Results_2pt) + "...");
 
         // 🔄 Check cache
         if (viewModel.getResults().getValue() != null &&

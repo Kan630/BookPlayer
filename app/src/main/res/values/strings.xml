@@ -551,6 +551,15 @@
     <string name="PodcastSearch_hint">France Inter</string>
     <string name="podcast_image_desc">Podcast image</string>
     <string name="podcast_no_results">No podcast found</string>
+    <string name="podcast_nb_of_podcast_found">Nb of podcasts found</string>
+
+    <string name="Search_2pt">"Search: "</string>
+    <string name="Language_2pt">"Language: "</string>
+    <string name="Results_2pt">"Results: "</string>
+    <string name="search_nothing_specified">Nothing specified</string>
+    <string name="search_nothing_specified_so_trending">Nothing => display trending</string>
+
+
 
 
 

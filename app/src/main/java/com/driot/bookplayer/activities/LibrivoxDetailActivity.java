@@ -1,6 +1,7 @@
 package com.driot.bookplayer.activities;
 
 import static com.driot.bookplayer.global.Pref.setLoadBookTaskState;
+import static com.driot.bookplayer.utils.Tonio.getReadableSize;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -277,22 +278,6 @@ public class LibrivoxDetailActivity extends LoggingActivity {
         startActivity(intentActivity);
 
         finish();
-    }
-
-    private String getReadableSize(String size) {
-        try {
-            long bytes = Long.parseLong(size);
-            return getReadableSize(bytes);
-        } catch (Exception e) {
-            return "Unknown size";
-        }
-    }
-
-    private String getReadableSize(long sizeBytes) {
-        if (sizeBytes <= 0) return "0 B";
-        if (sizeBytes < 1024) return sizeBytes + " B";
-        if (sizeBytes < 1024 * 1024) return String.format(Locale.US, "%.1f KB", sizeBytes / 1024.0);
-        return String.format(Locale.US, "%.1f MB", sizeBytes / (1024.0 * 1024.0));
     }
 
 

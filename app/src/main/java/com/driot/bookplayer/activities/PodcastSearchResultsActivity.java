@@ -1,5 +1,6 @@
 package com.driot.bookplayer.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -16,10 +17,11 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.adapter.PodcastResultsRVAdapter;
 import com.driot.bookplayer.objects.PodcastFeed;
 import com.driot.bookplayer.utils.PodcastIndexHelper;
+import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import java.util.List;
 
-public class PodcastSearchResultsActivity extends ComponentActivity {
+public class PodcastSearchResultsActivity extends LoggingActivity {
 
     private PodcastSearchViewModel viewModel;
     private RecyclerView recyclerView;
@@ -44,7 +46,13 @@ public class PodcastSearchResultsActivity extends ComponentActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new PodcastResultsRVAdapter(item -> {
             // handle click, e.g. open detail or stream podcast
+            myLog("Podcast Clicked: " + item.title + " - feedID = " + item.id);
             Toast.makeText(this, "Clicked: " + item.title, Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(this, PodcastDetailActivity.class);
+            intent.putExtra("feedId", item.id);
+            intent.putExtra("title", item.title);
+            intent.putExtra("image", item.image);
+            startActivity(intent);
         });
         recyclerView.setAdapter(adapter);
 
@@ -63,9 +71,9 @@ public class PodcastSearchResultsActivity extends ComponentActivity {
             return;
         }
 
-        tvSearchTerms.setText("Search: " + (query.isEmpty() ? "Nothing specified" : query));
-        tvLanguage.setText("Language: " + lang);
-        tvResultsCount.setText("Results: ...");
+        tvSearchTerms.setText(getString(R.string.Search_2pt) + (query.isEmpty() ? getString(R.string.search_nothing_specified_so_trending) : query));
+        tvLanguage.setText(getString(R.string.Language_2pt) + lang);
+        tvResultsCount.setText(getString(R.string.Results_2pt) + "...");
 
         if (viewModel.getResults().getValue() != null &&
                 query.equals(viewModel.getLastQuery()) &&
@@ -82,35 +90,69 @@ public class PodcastSearchResultsActivity extends ComponentActivity {
         progressBar.setVisibility(View.VISIBLE);
         emptyMessage.setVisibility(View.GONE);
 
-        PodcastIndexHelper.searchPodcasts(query, lang, new PodcastIndexHelper.Callback() {
-            @Override
-            public void onSuccess(List<PodcastFeed> feeds) {
-                runOnUiThread(() -> {
-                    progressBar.setVisibility(View.GONE);
-                    if (feeds == null || feeds.isEmpty()) {
-                        emptyMessage.setVisibility(View.VISIBLE);
-                        viewModel.requestFinish();
-                    } else {
-                        viewModel.setResults(feeds);
-                        tvResultsCount.setText("Nb of podcasts found: " + feeds.size());
-                    }
-                });
-            }
+        if (!query.equals("")) {
+            PodcastIndexHelper.searchPodcasts(query, lang, new PodcastIndexHelper.Callback() {
+                @Override
+                public void onSuccess(List<PodcastFeed> feeds) {
+                    runOnUiThread(() -> {
+                        handleSuccess(feeds);
+                    });
+                }
 
-            @Override
-            public void onError(Exception e) {
-                runOnUiThread(() -> {
-                    progressBar.setVisibility(View.GONE);
-                    emptyMessage.setVisibility(View.VISIBLE);
-                    emptyMessage.setText("Error: " + e.getMessage());
-                    tvResultsCount.setText("Error occurred");
-                });
+                @Override
+                public void onError(Exception e) {
+                    handleError(e);
+                }
+            });
+        } else {
+            PodcastIndexHelper.getTrendingPodcasts(lang, 100, new PodcastIndexHelper.Callback() {
+                @Override
+                public void onSuccess(List<PodcastFeed> feeds) {
+                    runOnUiThread(() -> {
+                        handleSuccess(feeds);
+                    });
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    runOnUiThread(() -> {
+                        handleError(e);
+                    });
+                }
+            });
+
             }
-        });
+        }
+
+    private void handleSuccess(List<PodcastFeed> feeds) {
+        progressBar.setVisibility(View.GONE);
+        if (feeds == null || feeds.isEmpty()) {
+            emptyMessage.setText(getString(R.string.podcast_no_results));
+            emptyMessage.setVisibility(View.VISIBLE);
+            emptyMessage.setTextColor(getColor(R.color.orange_500));
+            tvResultsCount.setText(getString(R.string.podcast_nb_of_podcast_found) + ": 0");
+        } else {
+            viewModel.setResults(feeds);
+            tvResultsCount.setText(getString(R.string.podcast_nb_of_podcast_found) + ": " + feeds.size());
+        }
+    }
+
+    private void handleError(Exception e) {
+        progressBar.setVisibility(View.GONE);
+        emptyMessage.setVisibility(View.VISIBLE);
+        emptyMessage.setText("Error: " + e.getMessage());
+        emptyMessage.setTextColor(getColor(R.color.red_500));
+        tvResultsCount.setText("Error occurred");
     }
 
     private void showResults(List<PodcastFeed> feeds) {
         adapter.setItems(feeds);
         adapter.notifyDataSetChanged();
     }
-}
+
+
+
+
+
+    }
+
