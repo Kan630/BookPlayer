@@ -550,6 +550,8 @@
     <string name="PodcastSearch_desc">Browse and download podcasts using open source Podcastindex.org</string>
     <string name="PodcastSearch_hint">France Inter</string>
     <string name="podcast_image_desc">Podcast image</string>
+    <string name="podcast_no_results">No podcast found</string>
+
 
 
 

@@ -16,7 +16,7 @@ import com.driot.bookplayer.objects.PodcastFeed;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PodcastRVAdapter extends RecyclerView.Adapter<PodcastRVAdapter.PodcastViewHolder> {
+public class PodcastResultsRVAdapter extends RecyclerView.Adapter<PodcastResultsRVAdapter.PodcastViewHolder> {
     private List<PodcastFeed> items = new ArrayList<>();
     private final OnItemClickListener listener;
 
@@ -24,7 +24,7 @@ public class PodcastRVAdapter extends RecyclerView.Adapter<PodcastRVAdapter.Podc
         void onItemClick(PodcastFeed item);
     }
 
-    public PodcastRVAdapter(OnItemClickListener listener) {
+    public PodcastResultsRVAdapter(OnItemClickListener listener) {
         this.listener = listener;
     }
 

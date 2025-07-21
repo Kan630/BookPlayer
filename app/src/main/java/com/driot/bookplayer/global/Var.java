@@ -13,6 +13,9 @@ import java.util.Set;
  */
 public class Var {
 
+    public static final String  PODCASTINDEXORG_API_KEY = "PVULATRUYKDZX26NBGTR";
+    public static final String  PODCASTINDEXORG_API_SECRET = "ACtMRyawFkg4MxA55y^CH$fE3Dynds4gURfByYXL";
+
 
     public static final String  FOLDER_UNZIPPED = "unzipped";
     public static final String  FOLDER_ZIPPED = "zipped";

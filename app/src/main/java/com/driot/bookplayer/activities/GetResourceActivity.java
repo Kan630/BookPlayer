@@ -374,7 +374,7 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
         Spinner spinnerLanguage = findViewById(R.id.spinnerLanguage);
         String pref_audio_language = get_Audio_Language(this);
         List<LanguageItem> languageItems = Arrays.asList(
-                 new LanguageItem("eng", "English", R.drawable.flag_uk)
+                new LanguageItem("eng", "English", R.drawable.flag_uk)
                 ,new LanguageItem("deu", "German", R.drawable.flag_de)
                 ,new LanguageItem("spa", "Spanish", R.drawable.flag_es)
                 ,new LanguageItem("fre", "French", R.drawable.flag_fr)
@@ -439,6 +439,30 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
              */
 
             Intent intent = new Intent(this, LibrivoxResultsActivity.class);
+            intent.putExtra("query", query);
+            intent.putExtra("lang", lang);
+            startActivity(intent);
+        });
+        ////////////////////////////////
+        ////////////////////////////////
+
+        ////////////////////////////////
+        /// // PODCASTS SEARCH
+        ////////////////////////////////
+        EditText editTextPodcastQuery;
+        Button buttonPodcastSearch;
+        editTextPodcastQuery = findViewById(R.id.etPodcastSearch);
+        buttonPodcastSearch = findViewById(R.id.bPodcastSearch);
+        buttonPodcastSearch.setOnClickListener(v -> {
+            String query = editTextPodcastQuery.getText().toString();
+            String lang = spinnerLanguage.getSelectedItem().toString().toLowerCase();
+
+            if (lang.isEmpty()) {
+                myToast("selected language error");
+                return;
+            }
+
+            Intent intent = new Intent(this, PodcastSearchResultsActivity.class);
             intent.putExtra("query", query);
             intent.putExtra("lang", lang);
             startActivity(intent);

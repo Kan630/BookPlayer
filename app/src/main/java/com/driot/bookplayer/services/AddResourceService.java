@@ -120,7 +120,6 @@ public class AddResourceService
 
     private final IBinder binder = new AddResourceServiceBackgroundBinder();
 
-    //private FolderAttrib myFolder;
     private ArrayList<AudioFileInfo> audioFileArrayList;
     private long fullFolderSize;
     private final int[] InsertedFolderId = {0};
@@ -140,17 +139,12 @@ public class AddResourceService
     private String downloadFolder;
 
 
-
-    private String future_DB_folder_uri = "---";
     private String future_DB_folder_path = "-o-";
 
     private String destinationFolderName;
     private String zipDestinationFolderPath;
-    private String zipDestinationFolderName;
 
     private String destinationFolderPath;
-
-    private String fullPath;
 
     public static boolean isBusy;
 
@@ -860,32 +854,6 @@ public class AddResourceService
         zikFile.setFinished(false);
         zikFile.setDuration(audioFileInfo.getDuration());
 
-        /*
-        myLogD("saveFile : Get Media Duration");
-        try {
-
-            if (future_DB_folder_path.contains("com.driot.bookplayer/files")) {
-                myLogD("Bookplayer reserved memory, use old way");
-                String sFileFullPath = future_DB_folder_path + File.separator + sZikFileName;
-                zikFile.setDuration(getMediaDurationFromPath(sFileFullPath));
-            } else {
-                myLogD("Smartphone General Memory, use Uri");
-                Uri fileUri;
-                if (type_given.equals("Folder") || type_given.equals("ZIP") || type_given.equals("M4B")) {
-                    fileUri = buildFileUri(uri_given, sZikFileName);
-                } else {
-                    fileUri = uri_given;   //isSingleFile
-                }
-                zikFile.setDuration(getMediaDurationFromUri(this, fileUri));
-            }
-        } catch (IOException e) {
-            tellNonBlockingError("Error getting/setting media duration : " + e.getMessage());
-            e.printStackTrace();
-        }
-
-         */
-
-
         if (zikFile.getDuration() == 0) {
             myLog("File Not Added.... (Duration = 0)");
             nbFileSaved++;
@@ -1021,7 +989,6 @@ public class AddResourceService
     private void copyFileLocal(Uri uri, String destinationFolderPath, String destinationName, String type_given) {
         if ("ZIP".equals(type_given) || "M4B".equals(type_given)) { //reset variable because was done in observable stuff
             this.zipDestinationFolderPath = destinationFolderPath;
-            this.zipDestinationFolderName = destinationName;
         }
         boolean checkSize = true;
         long forceSize = -1;

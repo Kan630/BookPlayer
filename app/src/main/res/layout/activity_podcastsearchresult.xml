@@ -4,34 +4,42 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="12dp"
-    android:fitsSystemWindows="true"
-    >
+    android:fitsSystemWindows="true">
 
     <TextView
         android:id="@+id/tvSearchTermsPodcast"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textStyle="bold"
-        android:text="Search: ..."/>
+        android:text="Search: ..." />
 
     <TextView
         android:id="@+id/tvLanguagePodcast"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Language: ..."/>
+        android:text="Language: ..." />
 
     <TextView
         android:id="@+id/tvResultsCountPodcast"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Results: ..."/>
+        android:text="Results: ..." />
 
     <ProgressBar
         android:id="@+id/progressBarPodcast"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:visibility="gone"/>
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/podcast_empty_message"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/podcast_no_results"
+        android:gravity="center"
+        android:visibility="gone"
+        android:padding="8dp" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewPodcast"
@@ -39,5 +47,4 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:paddingTop="8dp" />
-
 </LinearLayout>
