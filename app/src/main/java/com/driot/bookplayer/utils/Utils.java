@@ -7,6 +7,8 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.view.View;
 
+import com.driot.bookplayer.objects.AudioFileInfo;
+
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -202,8 +204,12 @@ public class Utils {
         }
     }
 
-    public static class AlphanumericComparator implements Comparator<String> {
-        public int compare(String s1, String s2) {
+    public static class AlphanumericComparator implements Comparator<AudioFileInfo> {
+        @Override
+        public int compare(AudioFileInfo a1, AudioFileInfo a2) {
+            String s1 = a1.getFileName();
+            String s2 = a2.getFileName();
+
             String[] arr1 = s1.split("(?<=\\D)(?=\\d)|(?<=\\d)(?=\\D)");
             String[] arr2 = s2.split("(?<=\\D)(?=\\d)|(?<=\\d)(?=\\D)");
 
@@ -215,9 +221,13 @@ public class Utils {
                 }
 
                 if (isNumeric(arr1[i]) && isNumeric(arr2[i])) {
-                    int num1 = Integer.parseInt(arr1[i]);
-                    int num2 = Integer.parseInt(arr2[i]);
-                    return Integer.compare(num1, num2);
+                    try {
+                        long num1 = Long.parseLong(arr1[i]);
+                        long num2 = Long.parseLong(arr2[i]);
+                        return Long.compare(num1, num2);
+                    } catch (NumberFormatException e) {
+                        // fallback to string comparison
+                    }
                 }
 
                 return arr1[i].compareTo(arr2[i]);
@@ -230,7 +240,6 @@ public class Utils {
             return s.matches("\\d+");
         }
     }
-
 
 
     public static long getCustomLength(File file) {

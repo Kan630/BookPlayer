@@ -543,7 +543,12 @@ public class AudioService extends LoggingService {
 // NEW SAF URI
         if (zf.getPath().startsWith("content://")) {
             myLog("New SAF file, content...");
-            uriToPlay = buildFileUri(Uri.parse(zf.getPath()),zf.getName());
+            uriToPlay = buildFileUri(this, zf.getPath(),zf.getName());
+            if (uriToPlay == null) {
+                myLogEE(null, "buildFileUri returned null for SAF path: " + zf.getPath() + "/" + zf.getName());
+                loadFileKO();
+                return;
+            }
             myKeyFirebase("loadFile", "uri");
             myLogFirebase("loadFile uri : " + Objects.toString(uriToPlay));
             //check...
@@ -555,11 +560,12 @@ public class AudioService extends LoggingService {
                 file = DocumentFile.fromSingleUri(this, uriToPlay);
                 myLogFirebase("loadFile single uri : " + Objects.toString(uriToPlay));
                 if (!file.exists() || !file.isFile()) {
-                    myLogEE(null,"Invalid or non-file Uri: " + uriToPlay);
+                    myLogEE(null,"Invalid or non-file SAF Uri: " + uriToPlay);
                     loadFileKO();
                     return;
                 }
             }
+            myLog("SAF Uri : " + uriToPlay);
 // OLD SCHOOL PATHS
         } else {
             pathToPlay = zf.getPath() + "/" + zf.getName();
@@ -567,11 +573,13 @@ public class AudioService extends LoggingService {
             myLogFirebase("loadFile path : " + pathToPlay);
             //check....
             if (!fileExists(pathToPlay)) {
+                //MAYBE single file
+                myLogEE(null,"loadFile(sPath)1 : ERROR -- File doesn't exist !! " + pathToPlay);
                 pathToPlay = zf.getPath(); // FailSafe (very old way where path = fullpath and not folderpath)
                 myKeyFirebase("loadFile", "path=fullpath");
                 myLogFirebase("loadFile path : " + pathToPlay);
                 if (!fileExists(pathToPlay)) {
-                    myLogEE(null,"loadFile(sPath) : ERROR -- File doesn't exist !! " + pathToPlay);
+                    myLogEE(null,"loadFile(sPath)2 : ERROR -- File doesn't exist !! " + pathToPlay);
                     loadFileKO();
                     return;
                 }

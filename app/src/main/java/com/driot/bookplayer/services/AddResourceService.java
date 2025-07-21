@@ -18,6 +18,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.sqlite.db.SimpleSQLiteQuery;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.objects.AudioFileInfo;
 import com.driot.bookplayer.utils.log.LoggingService;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.DatabaseClient;
@@ -44,6 +45,7 @@ import static com.driot.bookplayer.utils.FileUtils.buildFileUri;
 import static com.driot.bookplayer.utils.Tonio.formatMem;
 import static com.driot.bookplayer.utils.Tonio.formatNameForDisplay;
 import static com.driot.bookplayer.utils.Tonio.fileExists;
+import static com.driot.bookplayer.utils.Tonio.formatTime;
 import static com.driot.bookplayer.utils.Tonio.getExtension;
 import static com.driot.bookplayer.utils.Tonio.getFileNameFromPath;
 import static com.driot.bookplayer.utils.Tonio.getFileNameFromUri;
@@ -119,7 +121,7 @@ public class AddResourceService
     private final IBinder binder = new AddResourceServiceBackgroundBinder();
 
     //private FolderAttrib myFolder;
-    private ArrayList<String> audioFileArrayList;
+    private ArrayList<AudioFileInfo> audioFileArrayList;
     private long fullFolderSize;
     private final int[] InsertedFolderId = {0};
     private int nbFileSaved, nbFileToSave, nbFileScan;
@@ -650,7 +652,9 @@ public class AddResourceService
 
     private void addAudioFileUnique(DocumentFile df) {
         myLog("* New Audio File : [" +  df.getName() + ']');
-        audioFileArrayList.add(df.getName());
+        long duration = getMediaDurationFromUri(this, df.getUri());
+        myLogD("* Duration : [" +  formatTime(duration) + ']');
+        audioFileArrayList.add(new AudioFileInfo(df.getName(), duration));
     }
     private void addAudioFileRecursive(DocumentFile f0) {
         tellProgress(PROGRESS[2], PROGRESS_TEXT[2]);
@@ -676,9 +680,11 @@ public class AddResourceService
                     l_audioFilePath = recursivFolder + f1.getName();
                     l_audioSize = f1.length();
                     myLogD("* New Audio File : [" + l_audioFilePath + "] - size = [" + l_audioSize + "]");
+                    long duration = getMediaDurationFromUri(this, f1.getUri());
+                    myLogD("* Duration : [" +  formatTime(duration) + ']');
                     double progress = (double) nbFileScan%10/10;
                     tellProgress((int) (PROGRESS[2] + (PROGRESS[3] - PROGRESS[2]) * progress), "Scanning for Audio Files..... \n[" +  l_audioFilePath + ']');
-                    audioFileArrayList.add(l_audioFilePath);
+                    audioFileArrayList.add(new AudioFileInfo(l_audioFilePath, duration));
                     fullFolderSize = fullFolderSize + l_audioSize;
                 }
             }
@@ -781,7 +787,7 @@ public class AddResourceService
                     tellError(getString(R.string.Technical_Error) + "...  " + "Wrong file type : " + type_given);
                 }
             } else {
-                future_DB_folder_path = uri_given.getPath();
+                future_DB_folder_path = uri_given.toString();
                 //future_DB_folder_uri = uri_given.getPath();
                 saveFolder();
             }
@@ -828,21 +834,21 @@ public class AddResourceService
         int i = 0;
         int progress;
         String txtProgress;
-        for (String s : audioFileArrayList) {
+        for (AudioFileInfo audioFileInfo : audioFileArrayList) {
             i++;
             progress = (int) PROGRESS[7] + (i * 100 / audioFileArrayList.size())*(PROGRESS[8]-PROGRESS[7])/100;
-            txtProgress = progress + "% - " + getString(R.string.Add_resource_reading_file) + " n°" + i + "/" + audioFileArrayList.size() + "\n" + getFileNameFromPath(s);
-            myLog("Registering track [" + s + "]");
-            saveFile(s, InsertedFolderId[0], i);
+            txtProgress = progress + "% - " + getString(R.string.Add_resource_reading_file) + " n°" + i + "/" + audioFileArrayList.size() + "\n" + getFileNameFromPath(audioFileInfo.getFileName());
+            myLog("Registering track [" + audioFileInfo.getFileName() + "]");
+            saveFile(audioFileInfo, InsertedFolderId[0], i);
             tellProgress(progress,txtProgress);
         }
     }
 
-    private void saveFile(String sZikFileName, int mFolderId, int zeorder) {
+    private void saveFile(AudioFileInfo audioFileInfo, int mFolderId, int zeorder) {
         // creating file
         ZikFile zikFile = new ZikFile();
-        zikFile.setName(sZikFileName);
-        zikFile.setDisplayName(formatNameForDisplay(sZikFileName));
+        zikFile.setName(audioFileInfo.getFileName());
+        zikFile.setDisplayName(formatNameForDisplay(audioFileInfo.getFileName()));
         zikFile.setIdFolder(mFolderId);
         zikFile.setZeorder(zeorder);
         zikFile.setFolderName(title_given);
@@ -850,7 +856,10 @@ public class AddResourceService
         zikFile.setPosition(0);
         zikFile.setPath(future_DB_folder_path);
         zikFile.setIszipfile(false); //2023-10-22 code removed for live zip reading
+        zikFile.setFinished(false);
+        zikFile.setDuration(audioFileInfo.getDuration());
 
+        /*
         myLogD("saveFile : Get Media Duration");
         try {
 
@@ -872,6 +881,8 @@ public class AddResourceService
             tellNonBlockingError("Error getting/setting media duration : " + e.getMessage());
             e.printStackTrace();
         }
+
+         */
 
 
         if (zikFile.getDuration() == 0) {
@@ -902,7 +913,7 @@ public class AddResourceService
                     }
                 }
             } else {
-                tellError(getString(R.string.Error_Import_CannotSaveInDB) + " [" + sZikFileName + "]");
+                tellError(getString(R.string.Error_Import_CannotSaveInDB) + " [" + audioFileInfo.getFileName() + "]");
             }
         }
     }
@@ -975,7 +986,7 @@ public class AddResourceService
             tellError(getResources().getString(R.string.Error_Import_track_duration_nofile) + " // path : " + zePath);
             myLogEE(null,"error getting duration of media, file does not exist in path : " + zePath);
         }
-        myLogD("duration for [" + zePath + "] is " + duration);
+        //myLogD("duration for [" + zePath + "] is " + duration);
         return duration;
     }
     private long getMediaDurationFromUri(Context context, Uri uri) {
@@ -989,7 +1000,7 @@ public class AddResourceService
             tellError(getResources().getString(R.string.Error_Import_track_duration_extraction) + " // uri: " + uri);
             myLogEE(e,"error getting duration of media for uri: [" + uri + "]");
         }
-        myLogD("duration for [" + uri + "] is " + duration);
+        //myLogD("duration for [" + uri + "] is " + duration);
         return duration;
     }
 
@@ -1067,7 +1078,16 @@ public class AddResourceService
                 future_DB_folder_path = unzipFolder + title_given;
                 uri_given = Uri.fromFile(new File(localCopyFullPath));
                 audioFileArrayList = new ArrayList<>();
-                audioFileArrayList.add(future_DB_folder_path);
+
+                myLogD("* adding file : [" +  future_DB_folder_path + ']');
+                long duration = 0;
+                try {
+                    duration = getMediaDurationFromPath(future_DB_folder_path);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                myLogD("* Duration : [" +  duration + ']');
+                audioFileArrayList.add(new AudioFileInfo(future_DB_folder_path, duration));
 
             } else {
                 myLog("from other locations");

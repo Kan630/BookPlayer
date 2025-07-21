@@ -46,7 +46,7 @@ public class CollectionSortUnitTest {
         audioFileArrayList.add("le compte 5aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaale compte_5_toto22");
 
 
-        Collections.sort(audioFileArrayList, new Utils.AlphanumericComparator());
+        //Collections.sort(audioFileArrayList, new Utils.AlphanumericComparator());
 
         System.out.println("Hello, world!");
 

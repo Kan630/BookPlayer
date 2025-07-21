@@ -193,17 +193,68 @@ public class FileUtils {
     }
 
  */
-
+/*
     @Nullable
     public static Uri buildFileUri(Uri folderUri, String fileName) {
         // SAF documents URI are like content://com.android.externalstorage.documents/tree/...
         // We need to build a child document Uri using DocumentsContract
-        if (DocumentsContract.isTreeUri(folderUri)) {
-            return DocumentsContract.buildDocumentUriUsingTree(
-                    folderUri,
-                    DocumentsContract.getDocumentId(folderUri) + "/" + fileName
-            );
+        try {
+            if (DocumentsContract.isTreeUri(folderUri)) {
+                return DocumentsContract.buildDocumentUriUsingTree(
+                        folderUri,
+                        DocumentsContract.getDocumentId(folderUri) + "/" + fileName
+                );
+            } else {
+                myLogEE(null, "DocumentsContract.isTreeUri(folderUri).. KO..");
+            }
+        } catch (Exception e) {
+            myLogEE(e,"buildFileUri");
         }
+        return null;
+    }
+
+ */
+
+    @Nullable
+    public static Uri buildFileUri(Context context, String folderPathOrUri, String fileName) {
+        if (folderPathOrUri == null || fileName == null) {
+            myLogEE(null, "buildFileUri - null args");
+            return null;
+        }
+
+        try {
+            Uri folderUri = Uri.parse(folderPathOrUri);
+
+            // ✅ CASE 1: SAF URI (content://...)
+            if ("content".equalsIgnoreCase(folderUri.getScheme())) {
+                if (DocumentsContract.isTreeUri(folderUri)) {
+                    String parentDocumentId = DocumentsContract.getTreeDocumentId(folderUri);
+                    String childDocumentId = parentDocumentId + "/" + fileName;
+
+                    return DocumentsContract.buildDocumentUriUsingTree(folderUri, childDocumentId);
+                } else {
+                    myLogEE(null, "scheme is not Content");
+                }
+            } else {
+                myLogEE(null, "DocumentsContract.isTreeUri(folderUri).. KO..");
+            }
+
+        } catch (Exception e) {
+            myLogW("Could not parse URI, trying legacy fallback: " + folderPathOrUri);
+        }
+
+        // ✅ CASE 2: Fallback for legacy file-based paths
+        try {
+            File file = new File(folderPathOrUri, fileName);
+            if (file.exists()) {
+                return Uri.fromFile(file);
+            }
+        } catch (Exception e) {
+            myLogEE(null, "Fallback for legacy file-based paths.. KO..");
+        }
+
+        // ❌ Neither SAF nor legacy path worked
+        myLogEE(null,"Unable to build URI for: " + folderPathOrUri + "/" + fileName);
         return null;
     }
 
