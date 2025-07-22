@@ -68,6 +68,10 @@ public class ZikFile implements Serializable {
     @ColumnInfo(name = "zeorder")
     private double zeorder;
 
+    public long date_added;
+
+    public String url;
+
 
 
     public int getId() {

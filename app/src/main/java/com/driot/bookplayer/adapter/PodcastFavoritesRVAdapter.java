@@ -1,5 +1,9 @@
 package com.driot.bookplayer.adapter;
 
+import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_SINCE_DEBUG;
+
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,11 +15,18 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.db.AppDatabase;
+import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.Podcast;
+import com.driot.bookplayer.objects.PodcastEpisode;
+import com.driot.bookplayer.utils.PodcastIndexHelper;
+import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingRVAdapter;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 // Adapter for Podcast (Room entity)
 public class PodcastFavoritesRVAdapter extends LoggingRVAdapter<PodcastFavoritesRVAdapter.PodcastViewHolder> {
@@ -61,7 +72,7 @@ public class PodcastFavoritesRVAdapter extends LoggingRVAdapter<PodcastFavorites
     }
 
     static class PodcastViewHolder extends RecyclerView.ViewHolder {
-        TextView title, desc;
+        TextView title, desc, folderStats;
         ImageView image, autoDownload;
 
         PodcastViewHolder(View v) {
@@ -70,6 +81,7 @@ public class PodcastFavoritesRVAdapter extends LoggingRVAdapter<PodcastFavorites
             desc = v.findViewById(R.id.podcast_desc);
             image = v.findViewById(R.id.podcast_image);
             autoDownload = v.findViewById(R.id.podcast_autodownload);
+            folderStats = v.findViewById(R.id.podcast_folder_stats);
         }
 
         void bind(Podcast podcast,
@@ -77,9 +89,12 @@ public class PodcastFavoritesRVAdapter extends LoggingRVAdapter<PodcastFavorites
                   OnAutoDownloadToggleListener autoDownloadToggleListener) {
 
             title.setText(podcast.title);
-            desc.setText(podcast.language); // placeholder (you could fetch/show `feedId` or something better)
+            //desc.setText(podcast.language); // placeholder (you could fetch/show `feedId` or something better)
+            desc.setVisibility(View.GONE);
             Glide.with(image.getContext()).load(podcast.image).into(image);
 
+
+            ///  AUTO DOWNLOAD BUTTON
             autoDownload.setVisibility(View.VISIBLE);
 
             int colorRes = podcast.autoDownload ? R.color.green_500 : R.color.gray_500;
@@ -89,12 +104,43 @@ public class PodcastFavoritesRVAdapter extends LoggingRVAdapter<PodcastFavorites
             autoDownload.setOnClickListener(v -> {
                 boolean newState = !podcast.autoDownload;
                 podcast.autoDownload = newState;
+
+                // Update tint immediately
                 int newTint = itemView.getContext().getColor(newState ? R.color.green_500 : R.color.gray_500);
                 autoDownload.setColorFilter(newTint);
+
+                // Callback to update DB
                 if (autoDownloadToggleListener != null) {
                     autoDownloadToggleListener.onToggle(podcast, newState);
                 }
+
+                // ⬇ Trigger download if enabled
+                if (newState) {
+                    PodcastIndexHelper.checkForNewEpisodesToAutoDownload(itemView.getContext(), podcast, PODCASTINDEXORG_SINCE_DEBUG);
+                }
             });
+
+            ///  STATS
+            if (podcast.idFolder != null && podcast.idFolder > 0) {
+                AppDatabase.databaseWriteExecutor.execute(() -> {
+                    Folder folder = AppDatabase.getDatabase(itemView.getContext()).FolderDao().getById(podcast.idFolder);
+                    if (folder != null) {
+                        new Handler(Looper.getMainLooper()).post(() -> {
+                            String nbFile = folder.nbZikFile + " tracks";
+                            String duration = Tonio.formatTime(folder.getDuration());
+                            String percentDone = String.format(Locale.US, "%.0f", folder.getPercentdone());
+                            String lastAdded = "Updated : " + android.text.format.DateFormat.format("yyyy-MM-dd HH:mm", folder.date_last_zikfile_added);
+                            String stats = nbFile + " · " + duration + " · " + percentDone + "% done"
+                                    + "\n" + lastAdded;
+                            folderStats.setText(stats);
+                        });
+                    } else {
+                        folderStats.setText("No episode downloaded");
+                    }
+                });
+            } else {
+                folderStats.setText("No episode downloaded");
+            }
 
             itemView.setOnClickListener(v -> listener.onItemClick(podcast));
         }

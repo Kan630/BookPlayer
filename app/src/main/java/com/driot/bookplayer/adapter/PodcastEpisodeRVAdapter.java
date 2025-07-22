@@ -1,5 +1,9 @@
 package com.driot.bookplayer.adapter;
 
+import static com.driot.bookplayer.utils.PodcastIndexHelper.buildPodcastEpisodeName;
+import static com.driot.bookplayer.utils.PodcastIndexHelper.buildPodcastPath;
+
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
@@ -8,10 +12,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.PersistableBundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -20,6 +27,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.LoadOptionsActivity;
+import com.driot.bookplayer.db.AppDatabase;
+import com.driot.bookplayer.db.Folder;
+import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.objects.PodcastEpisode;
 import com.driot.bookplayer.services.DownloadJobService;
 import com.driot.bookplayer.utils.Tonio;
@@ -28,14 +38,17 @@ import com.driot.bookplayer.utils.log.LoggingRVAdapter;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAdapter.ViewHolder> {
 
     private List<PodcastEpisode> items = new ArrayList<>();
     private final Context context;
+    private final String podcastTitle;
 
-    public PodcastEpisodeRVAdapter(Context context) {
+    public PodcastEpisodeRVAdapter(Context context, String podcastTitle) {
         this.context = context;
+        this.podcastTitle = podcastTitle;
     }
 
     public void setItems(List<PodcastEpisode> episodes) {
@@ -55,18 +68,51 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
         PodcastEpisode episode = items.get(position);
         holder.tvTitle.setText(episode.title);
         holder.tvDate.setText(episode.datePublishedPretty != null ? episode.datePublishedPretty : "");
-        holder.tvDuration.setText(Tonio.formatTime(episode.duration*1000));
-        holder.tvSize.setText(Tonio.getReadableSize(episode.enclosureLength));
+        String stats = Tonio.formatTime(episode.duration*1000) + " (" + Tonio.getReadableSize(episode.enclosureLength) + ")";
+        holder.tvEpisodeStats.setText(stats);
 
+        String episodeFileName = buildPodcastEpisodeName(episode);
 
         holder.itemView.setOnClickListener(v -> {
-            myLog("Episode clicked: " + episode.title + " - Date : " + holder.tvDate.getText());
+            myLog("Episode clicked: " + episodeFileName);
             if (episode.enclosureUrl != null && !episode.enclosureUrl.isEmpty()) {
                 myLogD("URL : " + episode.enclosureUrl);
                 showDownloadOptionsDialog(context, episode.enclosureUrl, episode.title);
             } else {
                 myToast("No audio URL available");
             }
+        });
+
+// Check if in physical folder
+        File folderPodcastEpisode = buildPodcastPath(context, podcastTitle);
+        File file = new File(folderPodcastEpisode, episodeFileName);
+        boolean isDownloaded = file.exists();
+
+// Check if in DB (e.g., ZikFile table)
+        AppDatabase.databaseWriteExecutor.execute(() -> {
+            ZikFile zf = AppDatabase.getDatabase(context)
+                    .ZikFileDao()
+                    .getZikFileFromFullPath(folderPodcastEpisode.getAbsolutePath(), episodeFileName);  // You may use URL, title, or unique hash
+
+            new Handler(Looper.getMainLooper()).post(() -> {
+                if (zf != null) {
+                    String percentDone = String.format(Locale.US, "%.0f", zf.getPercentdone());
+                    String lastAdded = "Added : " + android.text.format.DateFormat.format("yyyy-MM-dd HH:mm", zf.date_added);
+                    String stats2 = percentDone + "% done"
+                            + "\n" + lastAdded;
+                    holder.tvEpisodeDBStats.setText(stats2);
+                    holder.icon_1.setVisibility(View.VISIBLE);
+                    holder.icon_1.setColorFilter(R.color.green_300);
+                } else if (isDownloaded) {
+                    holder.tvEpisodeDBStats.setText("");
+                    holder.icon_1.setVisibility(View.VISIBLE);
+                    holder.icon_1.setColorFilter(R.color.orange_500);
+                } else {
+                    holder.tvEpisodeDBStats.setText("");
+                    holder.icon_1.setVisibility(View.GONE);
+                }
+
+            });
         });
     }
 
@@ -76,14 +122,17 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvTitle, tvDate, tvDuration, tvSize;
+        TextView tvTitle, tvDate, tvEpisodeStats, tvEpisodeDBStats;
+        ImageView icon_1;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             tvTitle = itemView.findViewById(R.id.tvEpisodeTitle);
             tvDate = itemView.findViewById(R.id.tvEpisodeDate);
-            tvDuration = itemView.findViewById(R.id.tvEpisodeDuration);
-            tvSize = itemView.findViewById(R.id.tvEpisodeSize);        }
+            tvEpisodeStats = itemView.findViewById(R.id.tvEpisodeStats);
+            tvEpisodeDBStats = itemView.findViewById(R.id.tvEpisodeDBstats);
+            icon_1 = itemView.findViewById(R.id.icon_1);
+        }
     }
 
 

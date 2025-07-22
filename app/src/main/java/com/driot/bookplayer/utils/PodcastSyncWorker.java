@@ -1,8 +1,6 @@
 package com.driot.bookplayer.utils;
 
-import static android.provider.Settings.System.getString;
-import static com.driot.bookplayer.db.Sql.calculateFolderProgress;
-import static com.driot.bookplayer.db.Sql.updateFolderDuration;
+import static com.driot.bookplayer.db.Sql.updateFolderTable;
 import static com.driot.bookplayer.utils.FinalizeDownloadWorker.KEY_FEED_ID;
 import static com.driot.bookplayer.utils.FinalizeDownloadWorker.KEY_FOLDER_NAME;
 import static com.driot.bookplayer.utils.FinalizeDownloadWorker.KEY_FOLDER_PATH;
@@ -17,7 +15,6 @@ import androidx.annotation.NonNull;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
-import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.FolderDao;
@@ -64,6 +61,8 @@ public class PodcastSyncWorker extends Worker {
             folderDb.setIszipfile(false); //2023-10-22 deprecated (live zip reading - code has been removed)
             folderDb.setOriginalHash("");
             folderDb.setSourceLocation("podcast");
+            folderDb.date_added = System.currentTimeMillis();
+            folderDb.date_last_zikfile_added = System.currentTimeMillis();
 
             long newId = folderDao.insert(folderDb); // Room returns the new ID
             idFolder = (int) newId; // safely cast to int
@@ -100,6 +99,7 @@ public class PodcastSyncWorker extends Worker {
                     zikFile.setIszipfile(false); //2023-10-22 code removed for live zip reading
                     zikFile.setFinished(false);
                     zikFile.setDuration(duration);
+                    zikFile.date_added = System.currentTimeMillis();
                     zikFileDao.insert(zikFile);
                     newFilesCount++;
                 }
@@ -108,8 +108,7 @@ public class PodcastSyncWorker extends Worker {
 
         // 3. Notify user
         if (newFilesCount > 0) {
-            updateFolderDuration(getApplicationContext(), idFolder);
-            calculateFolderProgress(getApplicationContext(), idFolder);
+            updateFolderTable(getApplicationContext(), idFolder);
             folderDao.updateLastAccess(idFolder, new java.sql.Date(System.currentTimeMillis())); //triggers livedata update and reload of Book list
             Handler handler = new Handler(Looper.getMainLooper());
             int finalNewFilesCount = newFilesCount;

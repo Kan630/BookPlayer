@@ -39,6 +39,24 @@ public class PodcastIndexHelper {
         void onError(Exception e);
     }
 
+    public static File buildPodcastPath(Context context, Podcast podcast) {
+        String podcastTitle = sanitizeFilename(podcast.title);
+        File baseFolder = new File(context.getFilesDir(), FOLDER_UNZIPPED);
+        return new File(baseFolder, podcastTitle);
+    }
+
+    public static File buildPodcastPath(Context context, String podcastTitle) {
+        String sanitizedPodcastTitle = sanitizeFilename(podcastTitle);
+        File baseFolder = new File(context.getFilesDir(), FOLDER_UNZIPPED);
+        return new File(baseFolder, sanitizedPodcastTitle);
+    }
+
+    public static String buildPodcastEpisodeName(PodcastEpisode episode) {
+        String safeTitle = sanitizeFilename(episode.title);
+        String safeDate = sanitizeFilename(episode.datePublishedPretty);
+        return safeTitle + " - [" + safeDate + "].mp3";
+    }
+
     private static final String BASE_URL = "https://api.podcastindex.org/api/1.0/";
 
     public static PodcastIndexApi buildApi() {
@@ -174,56 +192,64 @@ public class PodcastIndexHelper {
     public static void checkForNewEpisodesToAutoDownload(Context context, long since) {
         AppDatabase.databaseWriteExecutor.execute(() -> {
             List<Podcast> autoList = AppDatabase.getDatabase(context).PodcastDao().getAutoDownloads();
-
             for (Podcast podcast : autoList) {
-                String podcastTitle = sanitizeFilename(podcast.title);
-                myLogD("checking new episodes for podcast [" + podcastTitle + "]");
-                getEpisodesByFeedId(podcast.feedId, since, new EpisodeCallback() {
-                    @Override
-                    public void onSuccess(List<PodcastEpisode> episodes) {
-                        File baseFolder = new File(context.getFilesDir(), FOLDER_UNZIPPED);
-                        File podcastFolder = new File(baseFolder, podcastTitle);
-                        if (!podcastFolder.exists()) podcastFolder.mkdirs();
-
-                        List<PodcastEpisode> newEpisodes = new ArrayList<>();
-                        int i = 0;
-
-                        for (PodcastEpisode episode : episodes) {
-                            i++;
-                            if (i > PODCASTINDEXORG_MAX_DOWNLOAD) break;
-
-                            String safeTitle = sanitizeFilename(episode.title);
-                            String safeDate = sanitizeFilename(episode.datePublishedPretty);
-                            String baseName = safeTitle + " - [" + safeDate + "].mp3";
-                            File destFile = new File(podcastFolder, baseName);
-
-                            if (!destFile.exists()) {
-                                myLogD("Auto-download episode " + i + " [" + safeDate + "] - [" + baseName + "]");
-                                newEpisodes.add(episode);
-                            } else {
-                                myLogD("episode " + i + " [" + safeDate + "] already exists");
-                            }
-                        }
-
-                        if (!newEpisodes.isEmpty()) {
-                            PodcastDownloadManager.enqueueDownloads(context, podcast, newEpisodes, podcastFolder, null);
-                        }
-                    }
-
-                    @Override
-                    public void onError(Exception e) {
-                        myLogEE(e, "Auto-download error for feedId " + podcast.feedId);
-                    }
-                });
+                checkForNewEpisodesToAutoDownload(context, podcast, since);
             }
         });
     }
+    public static void checkForNewEpisodesToAutoDownload(Context context, Podcast podcast, long since) {
+        myLogD("checking new episodes for podcast [" + podcast.title + "]");
+        getEpisodesByFeedId(podcast.feedId, since, new EpisodeCallback() {
+            @Override
+            public void onSuccess(List<PodcastEpisode> episodes) {
+                for (PodcastEpisode episode : episodes) {
+                    episode.podcast = podcast;
+                }
+                File podcastFolder = buildPodcastPath(context, podcast);
+                if (!podcastFolder.exists()) podcastFolder.mkdirs();
+
+                List<PodcastEpisode> newEpisodes = new ArrayList<>();
+                int i = 0;
+
+                for (PodcastEpisode episode : episodes) {
+                    /// EPISODES LOOP ////////////////////////////////////////////////////////
+                    i++;
+                    if (i > PODCASTINDEXORG_MAX_DOWNLOAD) break;
+
+                    String baseName = buildPodcastEpisodeName(episode);
+                    File destFile = new File(podcastFolder, baseName);
+
+                    if (!destFile.exists()) {
+                        myLogD("Auto-download episode " + i + " - [" + baseName + "]");
+                        newEpisodes.add(episode);
+                    } else {
+                        myLogD("episode " + i + " - [" + baseName + "] already exists");
+                    }
+                    /// EPISODES LOOP ////////////////////////////////////////////////////////
+                }
+
+                if (!newEpisodes.isEmpty()) {
+                    AppDatabase.databaseWriteExecutor.execute(() -> {  //maybe Executors.newSingleThreadExecutor() will be better, or some background thread
+                        PodcastDownloadManager.enqueueDownloads(context, podcast, newEpisodes, podcastFolder, null);
+                    });
+                }
+            }
+
+            @Override
+            public void onError(Exception e) {
+                myLogEE(e, "Auto-download error for feedId " + podcast.feedId);
+            }
+        });
+    }
+
 
     public static void cancelAutoDownload(Context c, int folderId) {
         AppDatabase.databaseWriteExecutor.execute(() -> {
             AppDatabase.getDatabase(c).PodcastDao().updateAutoDownloadStatus_fromFolderId(folderId, false);
         });
     }
+
+
 
     ////////////////////////////////////////////////////////
     private static final String TAG = "PodcastIndexHelper";

@@ -3,6 +3,7 @@ package com.driot.bookplayer.activities;
 import static com.driot.bookplayer.global.Pref.shouldAnimateButtons;
 import static com.driot.bookplayer.global.Pref.stopAnimateButtons;
 import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_SINCE_DEBUG;
+import static com.driot.bookplayer.utils.PodcastIndexHelper.checkForNewEpisodesToAutoDownload;
 import static com.driot.bookplayer.utils.TextOptions.parseMaybeHtml;
 
 import android.animation.AnimatorSet;
@@ -41,6 +42,7 @@ public class PodcastDetailActivity extends LoggingActivity {
     private ProgressBar progressBar;
     private PodcastEpisodeRVAdapter adapter;
 
+    private Podcast podcast;
     private String title;
     private long feedId;
     private String image;
@@ -65,14 +67,34 @@ public class PodcastDetailActivity extends LoggingActivity {
         recyclerEpisodes = findViewById(R.id.recyclerEpisodes);
         progressBar = findViewById(R.id.progressBarEpisodes);
 
-        recyclerEpisodes.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new PodcastEpisodeRVAdapter(this);
-        recyclerEpisodes.setAdapter(adapter);
+        podcastDao = AppDatabase.getDatabase(this).PodcastDao();
 
-        feedId = getIntent().getLongExtra("feedId", -1);
-        title = getIntent().getStringExtra("title");
-        image = getIntent().getStringExtra("image");
-        description = getIntent().getStringExtra("description");
+        podcast = getIntent().getParcelableExtra("podcast");
+
+/*
+        if (podcast == null) { //comes from the SearchResult, try to see if in DB
+            AppDatabase.databaseWriteExecutor.execute(() -> {
+                podcast = podcastDao.getPodcastByFeedId(feedId);  // MAYBE too slow and not really needed....
+            }
+        }
+ */
+        if (podcast == null) {
+            //not in DB, we just have a PodcastFeed, not a Room Podcast
+            //we will only insert in DB if user clicks favorites
+            feedId = getIntent().getLongExtra("feedId", -1);
+            title = getIntent().getStringExtra("title");
+            image = getIntent().getStringExtra("image");
+            description = getIntent().getStringExtra("description");
+        } else { //already in DB (is a favorite)
+            feedId = podcast.feedId;
+            title = podcast.title;
+            image = podcast.image;
+            description = podcast.description;
+        }
+
+        recyclerEpisodes.setLayoutManager(new LinearLayoutManager(this));
+        adapter = new PodcastEpisodeRVAdapter(this, title);
+        recyclerEpisodes.setAdapter(adapter);
 
         tvTitle.setText(title);
         tvDescription.setText(parseMaybeHtml(description));
@@ -83,8 +105,6 @@ public class PodcastDetailActivity extends LoggingActivity {
         } else {
             fetchEpisodes();
         }
-
-        podcastDao = AppDatabase.getDatabase(this).PodcastDao();
 
         btnFavorite = findViewById(R.id.btnFavorite);
         btnAutoDownload = findViewById(R.id.btnAutoDownload);
@@ -104,7 +124,6 @@ public class PodcastDetailActivity extends LoggingActivity {
 
     private void loadInitialState() {
         AppDatabase.databaseWriteExecutor.execute(() -> {
-            Podcast podcast = podcastDao.getPodcastByFeedId(feedId);
             runOnUiThread(() -> {
                 boolean isFavorite = podcast != null && podcast.isFavorite;
                 boolean isAutoDownload = podcast != null && podcast.autoDownload;
@@ -124,12 +143,7 @@ public class PodcastDetailActivity extends LoggingActivity {
 
             if (podcast == null) {
                 podcast = new Podcast();
-                podcast.source = "podcastindex.org";
-                podcast.feedId = feedId;
-                podcast.title = title;
-                podcast.image = image;
-                podcast.description = description;
-                podcast.isFavorite = true;
+                populatePodCast(podcast);
                 podcast.autoDownload = false;
                 podcastDao.insert(podcast);
             } else {
@@ -162,12 +176,7 @@ public class PodcastDetailActivity extends LoggingActivity {
 
             if (podcast == null) {
                 podcast = new Podcast();
-                podcast.source = "podcastindex.org";
-                podcast.feedId = feedId;
-                podcast.title = title;
-                podcast.image = image;
-                podcast.description = description;
-                podcast.isFavorite = true; // autoDownload implies favorite
+                populatePodCast(podcast);
                 podcast.autoDownload = true;
                 podcastDao.insert(podcast);
             } else {
@@ -207,6 +216,9 @@ public class PodcastDetailActivity extends LoggingActivity {
         PodcastIndexHelper.getEpisodesByFeedId(feedId, PODCASTINDEXORG_SINCE_DEBUG, new PodcastIndexHelper.EpisodeCallback() {
             @Override
             public void onSuccess(List<PodcastEpisode> episodes) {
+                for (PodcastEpisode episode : episodes) {
+                    episode.podcast = podcast;
+                }
                 runOnUiThread(() -> {
                     progressBar.setVisibility(View.GONE);
                     adapter.setItems(episodes);
@@ -234,8 +246,7 @@ public class PodcastDetailActivity extends LoggingActivity {
     }
 
     private void downloadAllEpisodesToFolder(Podcast podcast, long since) {
-        //checkForNewEpisodesToAutoDownload(this, since);
-        //need for specific podcast
+        checkForNewEpisodesToAutoDownload(this, podcast, since);
     }
 
     private void startEpisodeDownload(String url, String outputPath) {
@@ -294,4 +305,15 @@ public class PodcastDetailActivity extends LoggingActivity {
 
         flicker.start();
     }
+
+    private void populatePodCast(Podcast podcast) {
+        podcast.source = "podcastindex.org";
+        podcast.feedId = feedId;
+        podcast.title = title;
+        podcast.image = image;
+        podcast.description = description;
+        podcast.isFavorite = true;
+        podcast.date_added = System.currentTimeMillis();
+    }
+
 }

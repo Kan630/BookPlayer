@@ -79,6 +79,12 @@ public class Folder implements Serializable {
     @ColumnInfo
     private long listeningPlayCount;
 
+    public long nbZikFile;
+
+    public long date_added;
+
+    public long date_last_zikfile_added;
+
 
 
     /*

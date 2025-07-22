@@ -59,7 +59,7 @@ public interface ZikFileDao {
     @Query("UPDATE ZikFile SET FolderName=:folderName WHERE id = :id")
     void updateFolderName(String folderName, int id);
 
-    @Query("select distinct z.path, z.folderName, f.percentdone as percentdone, z.idFolder, null as id, null as position, null as duration, null as size, null as iszipfile, null as finished, null as zeorder from ZikFile z inner join Folder f on z.idFolder = f.id")
+    @Query("select distinct z.path, z.folderName, f.percentdone as percentdone, z.idFolder, null as id, null as position, null as duration, null as size, null as iszipfile, null as finished, null as zeorder , null as date_added from ZikFile z inner join Folder f on z.idFolder = f.id")
     LiveData<List<ZikFile>> getZikFileDistinctLocations(); // for cache files cleaning activity...
 
     /*
@@ -102,6 +102,12 @@ public interface ZikFileDao {
 
     @Query("SELECT id FROM ZikFile WHERE idFolder = :idFolder AND name = :name")
     int getId(long idFolder, String name);
+
+    @Query("SELECT EXISTS(SELECT 1 FROM ZikFile WHERE path = :folderPath AND name = :episodeName LIMIT 1)")
+    boolean existsForEpisode(String folderPath, String episodeName);
+
+    @Query("SELECT * FROM ZikFile WHERE path = :folderPath AND name = :episodeName")
+    ZikFile getZikFileFromFullPath(String folderPath, String episodeName);
 
 
 

@@ -1,6 +1,7 @@
 package com.driot.bookplayer.utils;
 
 import static com.driot.bookplayer.utils.KanFiles.sanitizeFilename;
+import static com.driot.bookplayer.utils.PodcastIndexHelper.buildPodcastEpisodeName;
 
 import android.content.Context;
 
@@ -22,9 +23,8 @@ public class PodcastDownloadManager {
         WorkContinuation continuation = null;
 
         for (PodcastEpisode episode : episodes) {
-            String safeTitle = sanitizeFilename(episode.title);
-            String safeDate = sanitizeFilename(episode.datePublishedPretty);
-            String destPath = new File(targetFolder, safeTitle + " - [" + safeDate + "].mp3").getAbsolutePath();
+            String destFileName = buildPodcastEpisodeName(episode);
+            String destPath = new File(targetFolder, destFileName).getAbsolutePath();
 
             Data inputData = new Data.Builder()
                     .putString(DownloadEpisodeWorker.KEY_URL, episode.enclosureUrl)
@@ -56,17 +56,5 @@ public class PodcastDownloadManager {
         continuation.enqueue();
     }
 
-    public static void enqueuePodcastDownload(Context context, PodcastEpisode episode, String destPath) {
-        Data inputData = new Data.Builder()
-                .putString(DownloadEpisodeWorker.KEY_URL, episode.enclosureUrl)
-                .putString(DownloadEpisodeWorker.KEY_DEST_PATH, destPath)
-                .build();
-
-        OneTimeWorkRequest request = new OneTimeWorkRequest.Builder(DownloadEpisodeWorker.class)
-                .setInputData(inputData)
-                .build();
-
-        WorkManager.getInstance(context).enqueue(request);
-    }
 }
 

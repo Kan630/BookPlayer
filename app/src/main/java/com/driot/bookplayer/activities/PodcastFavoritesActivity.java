@@ -1,5 +1,8 @@
 package com.driot.bookplayer.activities;
 
+import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_SINCE_DEBUG;
+import static com.driot.bookplayer.utils.PodcastIndexHelper.checkForNewEpisodesToAutoDownload;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -54,10 +57,7 @@ public class PodcastFavoritesActivity extends LoggingActivity {
         adapter = new PodcastFavoritesRVAdapter(
                 item -> {
                     Intent intent = new Intent(this, PodcastDetailActivity.class);
-                    intent.putExtra("feedId", item.feedId);
-                    intent.putExtra("title", item.title);
-                    intent.putExtra("image", item.image);
-                    intent.putExtra("description", item.description);
+                    intent.putExtra("podcast", item);
                     startActivity(intent);
                 },
                 (item, newState) -> {
@@ -65,6 +65,7 @@ public class PodcastFavoritesActivity extends LoggingActivity {
                         AppDatabase.getDatabase(this)
                                 .PodcastDao()
                                 .updateAutoDownloadStatus_fromFeedId(item.feedId, newState);
+                        checkForNewEpisodesToAutoDownload(this, item, PODCASTINDEXORG_SINCE_DEBUG);
                     });
                 }
         );

@@ -15,7 +15,6 @@ import android.os.IBinder;
 import androidx.annotation.Nullable;
 import androidx.documentfile.provider.DocumentFile;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import androidx.sqlite.db.SimpleSQLiteQuery;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.objects.AudioFileInfo;
@@ -24,7 +23,6 @@ import com.driot.bookplayer.utils.log.LoggingService;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.db.Folder;
-import com.driot.bookplayer.db.FolderDao;
 import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.utils.Utils;
@@ -36,23 +34,20 @@ import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Objects;
 
-import static com.driot.bookplayer.db.Sql.updateFolderDuration;
+import static com.driot.bookplayer.db.Sql.updateFolderTable;
 import static com.driot.bookplayer.global.Pref.getLoadBookTaskState;
 import static com.driot.bookplayer.global.Var.FOLDER_DOWNLOAD;
 import static com.driot.bookplayer.global.Var.FOLDER_UNZIPPED;
 import static com.driot.bookplayer.global.Var.ONLY_MIME_AUDIO;
 import static com.driot.bookplayer.global.Var.PATH_CHECK_AUTOTEST;
 import static com.driot.bookplayer.global.Var.SUPPORTED_AUDIO_EXTENSIONS;
-import static com.driot.bookplayer.utils.FileUtils.buildFileUri;
 import static com.driot.bookplayer.utils.Tonio.formatMem;
 import static com.driot.bookplayer.utils.Tonio.formatNameForDisplay;
 import static com.driot.bookplayer.utils.Tonio.fileExists;
 import static com.driot.bookplayer.utils.Tonio.formatTime;
 import static com.driot.bookplayer.utils.Tonio.getExtension;
 import static com.driot.bookplayer.utils.Tonio.getFileNameFromPath;
-import static com.driot.bookplayer.utils.Tonio.getFileNameFromUri;
 import static com.driot.bookplayer.utils.Tonio.getMimeType;
-import static com.driot.bookplayer.utils.Tonio.stripExtension;
 import static com.driot.bookplayer.utils.TonioCommonStuff.deleteExtension;
 import static com.driot.bookplayer.utils.TonioCommonStuff.extractName;
 import static com.driot.bookplayer.utils.WorkFlow.clearDownloadFinished;
@@ -795,9 +790,8 @@ public class AddResourceService
     private void saveFolder() {
         tellProgress(PROGRESS[7], PROGRESS_TEXT[7]);
 
-        final Time sFirstAccess = new Time(System.currentTimeMillis());
-        final Date sLastAccess = new Date(System.currentTimeMillis());
-        final Time sLastAccessTime = new Time(System.currentTimeMillis());
+        final Time timeNow = new Time(System.currentTimeMillis());
+        final Date dateNow = new Date(System.currentTimeMillis());
 
         Folder folder = new Folder();
         folder.setName(title_given);
@@ -805,13 +799,14 @@ public class AddResourceService
         folder.setUri(future_DB_folder_path); //2023-10-22 deprecated
         folder.setHash("0"); //2023-10-22 deprecated
         folder.setPercentdone(0.0);
-        folder.setFirstaccess(sFirstAccess);
-        folder.setLastaccess(sLastAccess);
-        folder.setLastaccessTime(sLastAccessTime);
+        folder.setFirstaccess(timeNow);
+        folder.setLastaccess(dateNow);
+        folder.setLastaccessTime(timeNow);
         folder.setFinished(false);
         folder.setIszipfile(false); //2023-10-22 deprecated (live zip reading - code has been removed)
         folder.setOriginalHash(originalHash);
         folder.setSourceLocation(sourceLocation);
+        folder.date_added = System.currentTimeMillis();
 
         new Thread(() -> {
             InsertedFolderId[0] = (int) DatabaseClient.getInstance(this).getAppDatabase().FolderDao().insert(folder);
@@ -855,13 +850,14 @@ public class AddResourceService
         zikFile.setIszipfile(false); //2023-10-22 code removed for live zip reading
         zikFile.setFinished(false);
         zikFile.setDuration(audioFileInfo.getDuration());
+        zikFile.date_added = System.currentTimeMillis();
 
         if (zikFile.getDuration() == 0) {
             myLog("File Not Added.... (Duration = 0)");
             nbFileSaved++;
             if (nbFileSaved == nbFileToSave) {
                 myLog("*************************** All files have been processed. -- last file duration=0");
-                updateFolderDuration(this, mFolderId);
+                updateFolderTable(this, mFolderId);
             }
         } else {
             long zikFileId = AppDatabase.getDatabase(this).ZikFileDao().insert(zikFile);
@@ -874,7 +870,7 @@ public class AddResourceService
                     myLogD("***************************      All files have been processed. -- OK      ***************************************");
                     myLogD("******************************************************************************************************************");
                     myLogD("******************************************************************************************************************");
-                    updateFolderDuration(this, mFolderId);
+                    updateFolderTable(this, mFolderId);
                     myLogD("deleting source ??"
                             + "\nOption CopyFile : " + optionCopyFile + "  -  is a ZIP : " + type_given.equals("ZIP")
                             + "\nOption DeleteSourceFile : " + optionDeleteSource);

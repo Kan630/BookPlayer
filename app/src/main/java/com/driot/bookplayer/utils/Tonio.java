@@ -157,6 +157,10 @@ public class Tonio {
         }
         return d;
     }
+    public static String getFormattedDate(long timeStamp) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd-HH'h'mm'm'ss's'", Locale.US);
+        return sdf.format(new java.util.Date());
+    }
     public static String getCurrentDateTimeString() {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd-HH'h'mm'm'ss's'", Locale.US);
         return sdf.format(new java.util.Date());

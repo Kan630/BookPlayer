@@ -34,7 +34,7 @@
                 android:layout_height="40dp"
                 android:background="@android:color/transparent"
                 android:contentDescription="Favorite"
-                android:src="@drawable/ic_favorite_no"
+                android:src="@drawable/ic_favorite"
                 app:tint="@color/gray_500" />
 
             <ImageButton

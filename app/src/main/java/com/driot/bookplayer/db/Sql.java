@@ -21,20 +21,30 @@ import java.util.Locale;
 public class Sql {
 
 
-    public static void updateFolderDuration(Context c, int mFolderId) {
+    public static void updateFolderTable(Context c, int mFolderId) {
         String strSQL = "UPDATE Folder " +
-                "SET duration = (" +
-                "   SELECT IFNULL(SUM(duration), 0) " +
-                "   FROM ZikFile " +
-                "   WHERE ZikFile.idFolder = Folder.id" +
-                ") " +
-                "WHERE id = ?";
+                "SET " +
+                "  duration = (SELECT IFNULL(SUM(duration), 0) FROM ZikFile WHERE ZikFile.idFolder = Folder.id), " +
+                "  nbZikFile = (SELECT COUNT(*) FROM ZikFile WHERE ZikFile.idFolder = Folder.id), " +
+                "  percentdone = (" +
+                "    SELECT CASE WHEN SUM(duration) > 0 THEN SUM(percentdone * duration) / SUM(duration) ELSE 0 END " +
+                "    FROM ZikFile WHERE ZikFile.idFolder = Folder.id" +
+                "  ), " +
+                "  LastAccess = (SELECT MAX(lastAccess) FROM ZikFile WHERE ZikFile.idFolder = Folder.id), " +
+                "  FirstAccess = (" +
+                "    SELECT CASE " +
+                "      WHEN Folder.FirstAccess IS NOT NULL THEN Folder.FirstAccess " +
+                "      ELSE (SELECT MIN(firstAccess) FROM ZikFile WHERE ZikFile.idFolder = Folder.id) " +
+                "    END" +
+                "  ), " +
+                "  date_last_zikfile_added = (SELECT MAX(date_added) FROM ZikFile WHERE ZikFile.idFolder = Folder.id) " +
+                "WHERE Folder.id = ?";
         SimpleSQLiteQuery query = new SimpleSQLiteQuery(strSQL, new Object[]{mFolderId});
         try {
             int sqlResult = AppDatabase.getDatabase(c).FolderDao().runRawSql(query);
-            myLogD("Folder Duration Updated for ID " + mFolderId + " → runRawSQL result = " + sqlResult);
+            myLogD("Folder Updated for ID " + mFolderId + " → runRawSQL result = " + sqlResult);
         } catch (Exception e) {
-            myLogEE(e,"updateFolderDuration");
+            myLogEE(e,"updateFolderTable");
         }
     }
 
