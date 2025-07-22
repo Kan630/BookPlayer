@@ -1,5 +1,7 @@
 package com.driot.bookplayer.utils;
 
+import static com.driot.bookplayer.db.Sql.calculateFolderProgress;
+import static com.driot.bookplayer.db.Sql.updateFolderDuration;
 import static com.driot.bookplayer.utils.KanFiles.getMediaDurationFromPath;
 import static com.driot.bookplayer.utils.Tonio.formatNameForDisplay;
 
@@ -95,6 +97,9 @@ public class PodcastSyncWorker extends Worker {
 
         // 3. Notify user
         if (newFilesCount > 0) {
+            updateFolderDuration(getApplicationContext(), idFolder);
+            calculateFolderProgress(getApplicationContext(), idFolder);
+            folderDao.updateLastAccess(idFolder, new java.sql.Date(System.currentTimeMillis())); //triggers livedata update and reload of Book list
             Handler handler = new Handler(Looper.getMainLooper());
             int finalNewFilesCount = newFilesCount;
             handler.post(() -> myToast(name + " synchronized: " + finalNewFilesCount + " new episodes"));

@@ -19,6 +19,7 @@ import java.io.File;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.List;
 
 import okhttp3.Interceptor;
@@ -99,7 +100,6 @@ public class PodcastIndexHelper {
     public static void searchPodcasts(String query, String lang, Callback callback) {
         PodcastIndexApi api = buildApi();
         api.searchPodcasts(query, PODCASTINDEXORG_MAX_RESULTS, lang).enqueue(new retrofit2.Callback<PodcastIndexResponse>() {
-        //api.searchByTerm(query).enqueue(new retrofit2.Callback<PodcastSearchResponse>() {
         @Override
         public void onResponse(Call<PodcastIndexResponse> call, Response<PodcastIndexResponse> response) {
             if (response.isSuccessful() && response.body() != null) {
@@ -177,34 +177,41 @@ public class PodcastIndexHelper {
     }
 
     public static void checkForNewEpisodesToAutoDownload(Context context, long since) {
-        myLogD("checking for new episodes");
         AppDatabase.databaseWriteExecutor.execute(() -> {
             List<Podcast> autoList = AppDatabase.getDatabase(context).PodcastDao().getAutoDownloads();
 
             for (Podcast podcast : autoList) {
                 String podcastTitle = sanitizeFilename(podcast.title);
-                myLogD("checking for new podcast episodes - " + podcastTitle);
+                myLogD("checking new episodes for podcast [" + podcastTitle + "]");
                 getEpisodesByFeedId(podcast.feedId, since, new EpisodeCallback() {
                     @Override
                     public void onSuccess(List<PodcastEpisode> episodes) {
                         File baseFolder = new File(context.getFilesDir(), FOLDER_UNZIPPED);
                         File podcastFolder = new File(baseFolder, podcastTitle);
                         if (!podcastFolder.exists()) podcastFolder.mkdirs();
+
+                        List<PodcastEpisode> newEpisodes = new ArrayList<>();
                         int i = 0;
+
                         for (PodcastEpisode episode : episodes) {
-                            i = i + 1;
+                            i++;
+                            if (i > PODCASTINDEXORG_MAX_DOWNLOAD) break;
+
                             String safeTitle = sanitizeFilename(episode.title);
                             String safeDate = sanitizeFilename(episode.datePublishedPretty);
-                            String baseName = safeTitle + " - " + safeDate + ".mp3";
-                            if (i <= PODCASTINDEXORG_MAX_DOWNLOAD) {
-                                myLogD("Auto-download episode " + i + "[" + safeDate + "] - [" + baseName + "]");
-                                File destFile = new File(podcastFolder, baseName);
-                                if (!destFile.exists()) {
-                                    PodcastDownloadManager.enqueuePodcastDownload(context, episode, destFile.getAbsolutePath());
-                                } else {
-                                    myLogD("episode " + i + " already exists");
-                                }
+                            String baseName = safeTitle + " - [" + safeDate + "].mp3";
+                            File destFile = new File(podcastFolder, baseName);
+
+                            if (!destFile.exists()) {
+                                myLogD("Auto-download episode " + i + " [" + safeDate + "] - [" + baseName + "]");
+                                newEpisodes.add(episode);
+                            } else {
+                                myLogD("episode " + i + " [" + safeDate + "] already exists");
                             }
+                        }
+
+                        if (!newEpisodes.isEmpty()) {
+                            PodcastDownloadManager.enqueueDownloads(context, newEpisodes, podcastFolder, null);
                         }
                     }
 

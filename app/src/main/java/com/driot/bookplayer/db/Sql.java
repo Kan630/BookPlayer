@@ -21,11 +21,29 @@ import java.util.Locale;
 public class Sql {
 
 
+    public static void updateFolderDuration(Context c, int mFolderId) {
+        String strSQL = "UPDATE Folder " +
+                "SET duration = (" +
+                "   SELECT IFNULL(SUM(duration), 0) " +
+                "   FROM ZikFile " +
+                "   WHERE ZikFile.idFolder = Folder.id" +
+                ") " +
+                "WHERE id = ?";
+        SimpleSQLiteQuery query = new SimpleSQLiteQuery(strSQL, new Object[]{mFolderId});
+        try {
+            int sqlResult = AppDatabase.getDatabase(c).FolderDao().runRawSql(query);
+            myLogD("Folder Duration Updated for ID " + mFolderId + " → runRawSQL result = " + sqlResult);
+        } catch (Exception e) {
+            myLogEE(e,"updateFolderDuration");
+        }
+    }
+
+
+
     public static void calculateFolderProgress(Context c, int idFolder) {
         //SQLiteDatabase db = this.getWritableDatabase();
         //String selectQuery = "select sum(odometer) as odometer from tripmileagetable where date like '2012-07%'";
         //Cursor cursor = db.rawQuery(selectQuery, null);
-
         String strSQL = "UPDATE Folder " +
                 " SET percentdone = (SELECT SUM(percentdone*duration)/SUM(duration) " +
                 "                   FROM ZikFile " +

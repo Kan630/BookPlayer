@@ -17,7 +17,7 @@ public class Var {
     public static final String PODCASTINDEXORG_API_SECRET = "ACtMRyawFkg4MxA55y^CH$fE3Dynds4gURfByYXL";
     public static final int PODCASTINDEXORG_MAX_RESULTS = 10;
 
-    public static final int PODCASTINDEXORG_MAX_DOWNLOAD = 2;
+    public static final int PODCASTINDEXORG_MAX_DOWNLOAD = 3;
     public static final int PODCASTINDEXORG_SINCE_DEBUG = 1751716800 ; //5 juillet, 2025
 
 

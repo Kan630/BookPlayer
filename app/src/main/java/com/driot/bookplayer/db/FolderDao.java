@@ -74,7 +74,8 @@ public interface FolderDao {
     @Query("SELECT * FROM Folder WHERE name LIKE :name")
     Folder getByName(String name);
 
-
+    @Query("UPDATE Folder SET lastaccess = :timestamp WHERE id = :folderId")
+    void updateLastAccess(int folderId, java.sql.Date timestamp);
 
 
     // Exemple avec dates :

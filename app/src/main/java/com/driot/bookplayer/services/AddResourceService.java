@@ -36,6 +36,7 @@ import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Objects;
 
+import static com.driot.bookplayer.db.Sql.updateFolderDuration;
 import static com.driot.bookplayer.global.Pref.getLoadBookTaskState;
 import static com.driot.bookplayer.global.Var.FOLDER_DOWNLOAD;
 import static com.driot.bookplayer.global.Var.FOLDER_UNZIPPED;
@@ -860,7 +861,7 @@ public class AddResourceService
             nbFileSaved++;
             if (nbFileSaved == nbFileToSave) {
                 myLog("*************************** All files have been processed. -- last file duration=0");
-                updateFolderDuration(mFolderId);
+                updateFolderDuration(this, mFolderId);
             }
         } else {
             long zikFileId = AppDatabase.getDatabase(this).ZikFileDao().insert(zikFile);
@@ -873,7 +874,7 @@ public class AddResourceService
                     myLogD("***************************      All files have been processed. -- OK      ***************************************");
                     myLogD("******************************************************************************************************************");
                     myLogD("******************************************************************************************************************");
-                    updateFolderDuration(mFolderId);
+                    updateFolderDuration(this, mFolderId);
                     myLogD("deleting source ??"
                             + "\nOption CopyFile : " + optionCopyFile + "  -  is a ZIP : " + type_given.equals("ZIP")
                             + "\nOption DeleteSourceFile : " + optionDeleteSource);
@@ -881,6 +882,7 @@ public class AddResourceService
                         myLogD("deleting source => YES");
                         deleteSourceFile();
                     }
+                    tellEnd();
                 }
             } else {
                 tellError(getString(R.string.Error_Import_CannotSaveInDB) + " [" + audioFileInfo.getFileName() + "]");
@@ -888,24 +890,6 @@ public class AddResourceService
         }
     }
 
-    private void updateFolderDuration(int mFolderId) {
-        String strSQL = "UPDATE Folder " +
-                "SET duration = (" +
-                "   SELECT IFNULL(SUM(duration), 0) " +
-                "   FROM ZikFile " +
-                "   WHERE ZikFile.idFolder = Folder.id" +
-                ") " +
-                "WHERE id = ?";
-        SimpleSQLiteQuery query = new SimpleSQLiteQuery(strSQL, new Object[]{mFolderId});
-        try {
-            int sqlResult = DatabaseClient.getInstance(getApplicationContext()).getAppDatabase().FolderDao().runRawSql(query);
-            myLogD("Folder Duration Updated for ID " + mFolderId + " → runRawSQL result = " + sqlResult);
-            tellEnd();
-        } catch (Exception e) {
-            tellNonBlockingError(getResources().getString(R.string.Error_Import_computing_folder_duration) + " : " +  e.getMessage());
-            tellEnd();
-        }
-    }
 
     private void deleteSourceFile() {
         myLog("deleteSourceFile() - uri = [" + uri_given + "] [" + type_given + "]");
