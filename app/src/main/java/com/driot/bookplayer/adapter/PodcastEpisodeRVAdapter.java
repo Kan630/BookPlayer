@@ -77,7 +77,7 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
             myLog("Episode clicked: " + episodeFileName);
             if (episode.enclosureUrl != null && !episode.enclosureUrl.isEmpty()) {
                 myLogD("URL : " + episode.enclosureUrl);
-                showDownloadOptionsDialog(context, episode.enclosureUrl, episode.title);
+                //showDownloadOptionsDialog(context, episode.enclosureUrl, episode.title);
             } else {
                 myToast("No audio URL available");
             }

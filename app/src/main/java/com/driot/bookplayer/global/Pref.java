@@ -140,7 +140,7 @@ public class Pref {
         return false;
     }
     public static void stopAnimateButtons() {
-        //TODO prefs.edit().putInt(PREF_KEY_PODCAST_DETAIL_OPENS, PODCAST_DETAIL_ANIMATION_COUNT).apply();
+        prefs.edit().putInt(PREF_KEY_PODCAST_DETAIL_OPENS, PODCAST_DETAIL_ANIMATION_COUNT).apply();
     }
 
 

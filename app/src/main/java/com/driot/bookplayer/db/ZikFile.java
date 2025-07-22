@@ -70,8 +70,6 @@ public class ZikFile implements Serializable {
 
     public long date_added;
 
-    public String url;
-
 
 
     public int getId() {

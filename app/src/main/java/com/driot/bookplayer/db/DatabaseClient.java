@@ -51,19 +51,29 @@ public class DatabaseClient {
         public void migrate(SupportSQLiteDatabase database) {
             myLogI("Migration -> executing step 4 => 5");
             database.execSQL("CREATE TABLE IF NOT EXISTS Podcast (" +
-                    "feedId INTEGER PRIMARY KEY NOT NULL, " +
+                    "id INTEGER PRIMARY KEY NOT NULL, " +
+                    "feedId INTEGER NOT NULL, " +
+                    "source TEXT NOT NULL, " +
                     "title TEXT NOT NULL, " +
                     "image TEXT, " +
+                    "description TEXT, " +
                     "language TEXT, " +
                     "isFavorite INTEGER NOT NULL DEFAULT 0, " +
                     "autoDownload INTEGER NOT NULL DEFAULT 0, " +
                     "idFolder INTEGER, " +
+                    "date_added INTEGER, " +
 
                     "FOREIGN KEY(idFolder) REFERENCES Folder(id) ON DELETE SET NULL)"
         );
 
             // Add index on foreign key
-            database.execSQL("CREATE INDEX index_Podcast_idFolder ON Podcast(idFolder)");
+            database.execSQL("CREATE UNIQUE INDEX index_Podcast_feedId ON Podcast(feedId)");
+            database.execSQL("CREATE UNIQUE INDEX index_Podcast_idFolder ON Podcast(idFolder)");
+
+            database.execSQL("ALTER TABLE Folder ADD COLUMN nbZikFile INTEGER NOT NULL default 0");
+            database.execSQL("ALTER TABLE Folder ADD COLUMN date_added INTEGER NOT NULL default 0");
+            database.execSQL("ALTER TABLE Folder ADD COLUMN date_last_zikfile_added INTEGER NOT NULL default 0");
+            database.execSQL("ALTER TABLE ZikFile ADD COLUMN date_added INTEGER NOT NULL default 0");
         }
     };
 

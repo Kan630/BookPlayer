@@ -145,7 +145,7 @@ public class MainActivity extends LoggingActivity {
         }
 
 
-        Sql.log_all_Folders(this);
+        //Sql.log_all_Folders(this);
 /*
         //clearLoadBookTaskState(this);
         LoadBookTaskState lbts = new LoadBookTaskState();
