@@ -13,19 +13,23 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.objects.PodcastFeed;
+import com.driot.bookplayer.utils.log.LoggingRVAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class PodcastResultsRVAdapter extends RecyclerView.Adapter<PodcastResultsRVAdapter.PodcastViewHolder> {
+public class PodcastSearchResultsRVAdapter extends LoggingRVAdapter<PodcastSearchResultsRVAdapter.PodcastViewHolder> {
+
     private List<PodcastFeed> items = new ArrayList<>();
     private final OnItemClickListener listener;
 
+    // Item click listener (for opening detail page)
     public interface OnItemClickListener {
         void onItemClick(PodcastFeed item);
     }
 
-    public PodcastResultsRVAdapter(OnItemClickListener listener) {
+
+    public PodcastSearchResultsRVAdapter(OnItemClickListener listener) {
         this.listener = listener;
     }
 
@@ -63,14 +67,17 @@ public class PodcastResultsRVAdapter extends RecyclerView.Adapter<PodcastResults
             image = v.findViewById(R.id.podcast_image);
         }
 
-        void bind(PodcastFeed item, OnItemClickListener listener) {
+        void bind(PodcastFeed item,
+                  OnItemClickListener listener) {
+
             title.setText(item.title);
             if (item.description != null) {
                 desc.setText(Html.fromHtml(item.description, Html.FROM_HTML_MODE_LEGACY));
-                // to get clickable links
-                //desc.setMovementMethod(LinkMovementMethod.getInstance());
             }
+
             Glide.with(image.getContext()).load(item.image).into(image);
+
+            // Whole item click
             itemView.setOnClickListener(v -> listener.onItemClick(item));
         }
     }

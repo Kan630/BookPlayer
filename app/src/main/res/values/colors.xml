@@ -17,6 +17,11 @@
     <color name="lightgray2">#FF999999</color>
     <color name="verylightgray">#FFCDCDCD</color>
 
+    <color name="gray_300">#E0E0E0</color> <!-- light gray, matches pink_300 -->
+    <color name="gray_500">#9E9E9E</color> <!-- medium gray, matches pink_500 -->
+    <color name="gray_700">#616161</color> <!-- dark gray, matches pink_700 -->
+    <color name="gray_900">#212121</color> <!-- very dark gray, matches pink_900 -->
+
     <color name="lightred">#FFFF2222</color>
 
     <color name="red">#FF990000</color>

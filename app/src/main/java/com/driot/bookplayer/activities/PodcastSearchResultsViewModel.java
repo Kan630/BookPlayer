@@ -6,17 +6,20 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.driot.bookplayer.db.AppDatabase;
+import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.objects.PodcastFeed;
 import com.driot.bookplayer.utils.log.LoggingViewModel;
 
 import java.util.List;
 
-public class PodcastSearchViewModel extends LoggingViewModel {
+public class PodcastSearchResultsViewModel extends LoggingViewModel {
     private final MutableLiveData<List<PodcastFeed>> results = new MutableLiveData<>();
     private final MutableLiveData<Boolean> shouldFinish = new MutableLiveData<>();
     private String lastQuery, lastLang;
+    private LiveData<List<Podcast>> favoritePodcastsLive;
 
-    public PodcastSearchViewModel(@NonNull Application application) {
+    public PodcastSearchResultsViewModel(@NonNull Application application) {
         super(application);
     }
 
@@ -29,4 +32,14 @@ public class PodcastSearchViewModel extends LoggingViewModel {
     public String getLastLang() { return lastLang; }
     public void setLastQuery(String q) { lastQuery = q; }
     public void setLastLang(String l) { lastLang = l; }
+
+
+    public LiveData<List<Podcast>> getFavoritePodcastsLive() {
+        if (favoritePodcastsLive == null) {
+            favoritePodcastsLive = AppDatabase.getDatabase(getApplication())
+                    .PodcastDao()
+                    .getFavoritePodcastsLive();
+        }
+        return favoritePodcastsLive;
+    }
 }

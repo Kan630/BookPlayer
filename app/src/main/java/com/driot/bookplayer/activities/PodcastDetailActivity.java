@@ -1,13 +1,15 @@
 package com.driot.bookplayer.activities;
 
-import static com.driot.bookplayer.global.Var.FOLDER_UNZIPPED;
+import static com.driot.bookplayer.global.Pref.shouldAnimateButtons;
+import static com.driot.bookplayer.global.Pref.stopAnimateButtons;
 import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_SINCE_DEBUG;
-import static com.driot.bookplayer.utils.KanFiles.sanitizeFilename;
-import static com.driot.bookplayer.utils.PodcastIndexHelper.checkForNewEpisodesToAutoDownload;
 import static com.driot.bookplayer.utils.TextOptions.parseMaybeHtml;
 
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 import android.app.AlertDialog;
 import android.content.res.Resources;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
@@ -15,6 +17,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -28,7 +31,6 @@ import com.driot.bookplayer.objects.PodcastEpisode;
 import com.driot.bookplayer.utils.PodcastIndexHelper;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
-import java.io.File;
 import java.util.List;
 
 public class PodcastDetailActivity extends LoggingActivity {
@@ -41,6 +43,8 @@ public class PodcastDetailActivity extends LoggingActivity {
 
     private String title;
     private long feedId;
+    private String image;
+    private String description;
 
     private ImageButton btnFavorite, btnAutoDownload;
     private PodcastDao podcastDao;
@@ -49,6 +53,11 @@ public class PodcastDetailActivity extends LoggingActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_podcast_detail);
+
+        if (shouldAnimateButtons()) {
+            animateAttention(findViewById(R.id.btnFavorite));
+            animateAttention(findViewById(R.id.btnAutoDownload));
+        }
 
         tvTitle = findViewById(R.id.tvPodcastTitle);
         tvDescription = findViewById(R.id.tvPodcastDescription);
@@ -62,8 +71,8 @@ public class PodcastDetailActivity extends LoggingActivity {
 
         feedId = getIntent().getLongExtra("feedId", -1);
         title = getIntent().getStringExtra("title");
-        String image = getIntent().getStringExtra("image");
-        String description = getIntent().getStringExtra("description");
+        image = getIntent().getStringExtra("image");
+        description = getIntent().getStringExtra("description");
 
         tvTitle.setText(title);
         tvDescription.setText(parseMaybeHtml(description));
@@ -95,7 +104,7 @@ public class PodcastDetailActivity extends LoggingActivity {
 
     private void loadInitialState() {
         AppDatabase.databaseWriteExecutor.execute(() -> {
-            Podcast podcast = podcastDao.getPodcastById(feedId);
+            Podcast podcast = podcastDao.getPodcastByFeedId(feedId);
             runOnUiThread(() -> {
                 boolean isFavorite = podcast != null && podcast.isFavorite;
                 boolean isAutoDownload = podcast != null && podcast.autoDownload;
@@ -109,13 +118,17 @@ public class PodcastDetailActivity extends LoggingActivity {
 
     private void toggleFavorite() {
         myLog("--- USER CLICKS FAVORITE");
+        stopAnimateButtons();
         AppDatabase.databaseWriteExecutor.execute(() -> {
-            Podcast podcast = podcastDao.getPodcastById(feedId);
+            Podcast podcast = podcastDao.getPodcastByFeedId(feedId);
 
             if (podcast == null) {
                 podcast = new Podcast();
+                podcast.source = "podcastindex.org";
                 podcast.feedId = feedId;
                 podcast.title = title;
+                podcast.image = image;
+                podcast.description = description;
                 podcast.isFavorite = true;
                 podcast.autoDownload = false;
                 podcastDao.insert(podcast);
@@ -143,13 +156,17 @@ public class PodcastDetailActivity extends LoggingActivity {
 
     private void toggleAutoDownload() {
         myLog("--- USER CLICKS AUTO DOWNLOAD");
+        stopAnimateButtons();
         AppDatabase.databaseWriteExecutor.execute(() -> {
-            Podcast podcast = podcastDao.getPodcastById(feedId);
+            Podcast podcast = podcastDao.getPodcastByFeedId(feedId);
 
             if (podcast == null) {
                 podcast = new Podcast();
+                podcast.source = "podcastindex.org";
                 podcast.feedId = feedId;
                 podcast.title = title;
+                podcast.image = image;
+                podcast.description = description;
                 podcast.isFavorite = true; // autoDownload implies favorite
                 podcast.autoDownload = true;
                 podcastDao.insert(podcast);
@@ -174,12 +191,14 @@ public class PodcastDetailActivity extends LoggingActivity {
         });
     }
 
-    private void updateFavoriteIcon(boolean isFav) {
-        btnFavorite.setImageResource(isFav ? R.drawable.ic_favorite : R.drawable.ic_favorite_no);
+    private void updateFavoriteIcon(boolean isOn) {
+        int colorResId = isOn ? R.color.red_500 : R.color.gray_500;
+        btnFavorite.setColorFilter(ContextCompat.getColor(this, colorResId), PorterDuff.Mode.SRC_IN);
     }
 
-    private void updateAutoDownloadIcon(boolean isAuto) {
-        btnAutoDownload.setImageResource(isAuto ? R.drawable.ic_download_done_24dp : R.drawable.ic_download_24dp);
+    private void updateAutoDownloadIcon(boolean isOn) {
+        int colorResId = isOn ? R.color.green_500 : R.color.gray_500;
+        btnAutoDownload.setColorFilter(ContextCompat.getColor(this, colorResId), PorterDuff.Mode.SRC_IN);
     }
 
     private void fetchEpisodes() {
@@ -222,5 +241,57 @@ public class PodcastDetailActivity extends LoggingActivity {
     private void startEpisodeDownload(String url, String outputPath) {
         myLog("Starting download: " + url + " to " + outputPath);
         //DownloadService.startDownload(this, url, outputPath); // assuming you already have this
+    }
+
+    private void animateAttention(ImageView imageView) {
+        float MAX_SIZE =  1.8f;
+        int ANIM_TIME = 600;
+        int fromColor = ContextCompat.getColor(this, R.color.gray_500);   // original
+        int toColor = ContextCompat.getColor(this, R.color.orange_500);  // highlight
+
+        // Apply the initial color filter (optional, if not already set)
+        imageView.setColorFilter(fromColor, PorterDuff.Mode.SRC_IN);
+
+        // Color filter animation
+        ObjectAnimator colorToHighlight = ObjectAnimator.ofArgb(imageView, "colorFilter", fromColor, toColor);
+        ObjectAnimator colorBackToGray = ObjectAnimator.ofArgb(imageView, "colorFilter", toColor, fromColor);
+
+        // Scale animation
+        ObjectAnimator scaleUpX = ObjectAnimator.ofFloat(imageView, "scaleX", 1f, MAX_SIZE);
+        ObjectAnimator scaleUpY = ObjectAnimator.ofFloat(imageView, "scaleY", 1f, MAX_SIZE);
+        ObjectAnimator scaleDownX = ObjectAnimator.ofFloat(imageView, "scaleX", MAX_SIZE, 1f);
+        ObjectAnimator scaleDownY = ObjectAnimator.ofFloat(imageView, "scaleY", MAX_SIZE, 1f);
+
+        // Group animations
+        AnimatorSet scaleUp = new AnimatorSet();
+        scaleUp.playTogether(scaleUpX, scaleUpY, colorToHighlight);
+
+        AnimatorSet scaleDown = new AnimatorSet();
+        scaleDown.playTogether(scaleDownX, scaleDownY, colorBackToGray);
+
+        AnimatorSet flicker = new AnimatorSet();
+        flicker.playSequentially(scaleUp, scaleDown);
+        flicker.setDuration(ANIM_TIME);
+
+        // reset colors after (should be useless as as soon as the user clicks, there should never be more animation...
+        flicker.addListener(new android.animation.AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(android.animation.Animator animation) {
+                AppDatabase.databaseWriteExecutor.execute(() -> {
+                    Podcast podcast = podcastDao.getPodcastByFeedId(feedId);
+                    if (podcast != null) {
+                        boolean isFav = podcast.isFavorite;
+                        boolean isAuto = podcast.autoDownload;
+
+                        runOnUiThread(() -> {
+                            updateFavoriteIcon(isFav);
+                            updateAutoDownloadIcon(isAuto);
+                        });
+                    }
+                });
+            }
+        });
+
+        flicker.start();
     }
 }

@@ -6,6 +6,8 @@ package com.driot.bookplayer.global;
 
 import static android.content.Context.MODE_PRIVATE;
 
+import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_API_MIN_TIME_BETWEEN_AUTO_CHECK_IN_MIN;
+import static com.driot.bookplayer.global.Var.PODCAST_DETAIL_ANIMATION_COUNT;
 import static com.driot.bookplayer.utils.KanLogger.myLogE;
 import static com.driot.bookplayer.utils.KanMail.DEFAULT_SEND_MAIL_METHOD_DEFAULT;
 
@@ -25,6 +27,8 @@ public class Pref {
 
     private static final String SHARED_PREFERENCES_DOWNLOAD = "SHARED_PREFERENCES_DOWNLOAD";
     private static final String KEY_LOAD_BOOK_TASK_STATE = "loadBookTaskState";
+
+    private static final String PREF_KEY_PODCAST_DETAIL_OPENS = "pref_podcast_detail_opens";
 
     private static Context appContext;
     private static android.content.SharedPreferences prefs;
@@ -125,6 +129,37 @@ public class Pref {
 
 
 
+    /////////////////// PODCAST DETAIL FAVORITE and AUTODOWNLOAD animations ///////////////////
+    public static boolean shouldAnimateButtons() {
+        int opens = prefs.getInt(PREF_KEY_PODCAST_DETAIL_OPENS, 0);
+
+        if (opens < PODCAST_DETAIL_ANIMATION_COUNT) {
+            prefs.edit().putInt(PREF_KEY_PODCAST_DETAIL_OPENS, opens + 1).apply();
+            return true;
+        }
+        return false;
+    }
+    public static void stopAnimateButtons() {
+        //TODO prefs.edit().putInt(PREF_KEY_PODCAST_DETAIL_OPENS, PODCAST_DETAIL_ANIMATION_COUNT).apply();
+    }
+
+
+    /////////////////// LAST PODCAST API CHECK  ///////////////////
+    public static void setLastCheck(long value) {prefs.edit().putLong("LAST_PODCASTINDEXORG_API_AUTO_CHECK_TIMESTAMP", value).apply();}
+    public static long getLastCheck() {return prefs.getLong("LAST_PODCASTINDEXORG_API_AUTO_CHECK_TIMESTAMP", PODCASTINDEXORG_API_MIN_TIME_BETWEEN_AUTO_CHECK_IN_MIN);}
+    public static boolean shouldCheckApiForAutoDownload() {
+        long lastCheck = getLastCheck();
+        long now = System.currentTimeMillis();
+        long diffInMinutes = (now - lastCheck) / (60 * 1000);
+        if (now - lastCheck > PODCASTINDEXORG_API_MIN_TIME_BETWEEN_AUTO_CHECK_IN_MIN * 60 * 1000) {
+            setLastCheck(now);
+            myLogD("shouldCheckApiForAutoDownload() => true  -  last check = " + diffInMinutes + " min ago");
+            return true;
+        } else {
+            myLogD("shouldCheckApiForAutoDownload() => false  -  last check = " + diffInMinutes + " min ago");
+            return false;
+        }
+    }
 
     // ----------------------- LOG -----------------------
     private static final String TAG = "Pref";

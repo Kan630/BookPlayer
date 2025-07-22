@@ -6,18 +6,24 @@ import androidx.room.ForeignKey;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
-@Entity(tableName = "Podcast",
-        foreignKeys = @ForeignKey(
+@Entity(tableName = "Podcast"
+        ,foreignKeys = @ForeignKey(
                 entity = Folder.class,
                 parentColumns = "id",
                 childColumns = "idFolder",
-                onDelete = ForeignKey.SET_NULL  // or CASCADE depending on behavior
-        ),
-        indices = {@Index("idFolder")}
+                onDelete = ForeignKey.SET_NULL)  // or CASCADE depending on behavior
+        ,indices = {
+         @Index(value = "idFolder", unique = true)
+        ,@Index(value = "feedId", unique = true)
+        }
 )
 
 public class Podcast {
-    @PrimaryKey
+    @PrimaryKey(autoGenerate = true)
+    private int id;
+
+    public String source;
+
     public long feedId;
 
     @NonNull
@@ -25,10 +31,26 @@ public class Podcast {
 
     public String image;
 
+    public String description;
+
     public String language;
 
     public boolean isFavorite;
     public boolean autoDownload;
 
     public Long idFolder;
+
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+
+    public Podcast() {
+        title = ""; //useless but whatever
+    }
 }

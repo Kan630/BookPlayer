@@ -560,6 +560,9 @@
     <string name="search_nothing_specified_so_trending">Nothing => display trending</string>
     <string name="podcast_favorite_add">Added to favorites</string>
     <string name="podcast_autodownload_add">Added to auto-download</string>
+    <string name="Favorites">Favorites</string>
+    <string name="podcast_new_episodes">new episodes</string>
+
 
 
 

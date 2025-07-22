@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:padding="10dp"
     android:background="?android:attr/selectableItemBackground"
     android:minHeight="72dp">
@@ -13,13 +13,18 @@
         android:layout_height="72dp"
         android:scaleType="centerCrop"
         android:contentDescription="@string/podcast_image_desc"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
         android:layout_marginEnd="10dp" />
 
     <LinearLayout
-        android:layout_width="0dp"
+        android:id="@+id/text_container"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_toEndOf="@id/podcast_image"
+        android:layout_alignTop="@id/podcast_image"
         android:orientation="vertical"
-        android:layout_weight="1">
+        android:layout_marginEnd="40dp"> <!-- space for icon -->
 
         <TextView
             android:id="@+id/podcast_title"
@@ -40,4 +45,18 @@
             android:ellipsize="end"
             android:text="Podcast description..." />
     </LinearLayout>
-</LinearLayout>
+
+    <ImageView
+        android:id="@+id/podcast_autodownload"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="4dp"
+        android:visibility="gone"
+        android:src="@drawable/ic_download_24dp"
+        app:tint="@color/orange_500"
+        android:contentDescription="autodownload"
+        />
+</RelativeLayout>

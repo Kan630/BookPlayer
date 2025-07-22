@@ -1,22 +1,20 @@
 package com.driot.bookplayer.activities;
 
-import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_MAX_RESULTS;
+import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_API_MAX_RESULTS;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import androidx.activity.ComponentActivity;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.adapter.PodcastResultsRVAdapter;
+import com.driot.bookplayer.adapter.PodcastSearchResultsRVAdapter;
 import com.driot.bookplayer.objects.PodcastFeed;
 import com.driot.bookplayer.utils.PodcastIndexHelper;
 import com.driot.bookplayer.utils.log.LoggingActivity;
@@ -25,13 +23,11 @@ import java.util.List;
 
 public class PodcastSearchResultsActivity extends LoggingActivity {
 
-    private PodcastSearchViewModel viewModel;
+    private PodcastSearchResultsViewModel viewModel;
     private RecyclerView recyclerView;
     private ProgressBar progressBar;
     private TextView emptyMessage, tvSearchTerms, tvLanguage, tvResultsCount;
-    private PodcastResultsRVAdapter adapter;
-
-    public static final int API_MAX_RESULTS = 100;
+    private PodcastSearchResultsRVAdapter adapter;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -46,9 +42,13 @@ public class PodcastSearchResultsActivity extends LoggingActivity {
         tvResultsCount = findViewById(R.id.tvResultsCountPodcast);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new PodcastResultsRVAdapter(item -> {
-            // handle click, e.g. open detail or stream podcast
-            myLog("Podcast Clicked: " + item.title + " - feedID = " + item.id);
+        viewModel = new ViewModelProvider(this).get(PodcastSearchResultsViewModel.class);
+
+        viewModel.getShouldFinish().observe(this, shouldFinish -> {
+            if (shouldFinish != null && shouldFinish) finish();
+        });
+
+        adapter = new PodcastSearchResultsRVAdapter(item -> {
             Intent intent = new Intent(this, PodcastDetailActivity.class);
             intent.putExtra("feedId", item.id);
             intent.putExtra("title", item.title);
@@ -58,15 +58,12 @@ public class PodcastSearchResultsActivity extends LoggingActivity {
         });
         recyclerView.setAdapter(adapter);
 
-        viewModel = new ViewModelProvider(this).get(PodcastSearchViewModel.class);
-
-        viewModel.getResults().observe(this, this::showResults);
-        viewModel.getShouldFinish().observe(this, shouldFinish -> {
-            if (shouldFinish != null && shouldFinish) finish();
-        });
-
         String query = getIntent().getStringExtra("query");
         String lang = getIntent().getStringExtra("lang");
+        searchPodcasts(query, lang);
+    }
+
+    private void searchPodcasts(String query, String lang) {
 
         if (query == null || lang == null) {
             finish();
@@ -80,15 +77,18 @@ public class PodcastSearchResultsActivity extends LoggingActivity {
         if (viewModel.getResults().getValue() != null &&
                 query.equals(viewModel.getLastQuery()) &&
                 lang.equals(viewModel.getLastLang())) {
+            myLogE("ca chie dans la colle");
             return;
         }
 
         viewModel.setLastQuery(query);
         viewModel.setLastLang(lang);
         performSearch(query, lang);
+
     }
 
     private void performSearch(String query, String lang) {
+        myLogD("performSearch called with query: " + query + " and lang: " + lang);
         progressBar.setVisibility(View.VISIBLE);
         emptyMessage.setVisibility(View.GONE);
 
@@ -107,7 +107,7 @@ public class PodcastSearchResultsActivity extends LoggingActivity {
                 }
             });
         } else {
-            PodcastIndexHelper.getTrendingPodcasts(lang, PODCASTINDEXORG_MAX_RESULTS, new PodcastIndexHelper.Callback() {
+            PodcastIndexHelper.getTrendingPodcasts(lang, PODCASTINDEXORG_API_MAX_RESULTS, new PodcastIndexHelper.Callback() {
                 @Override
                 public void onSuccess(List<PodcastFeed> feeds) {
                     runOnUiThread(() -> {
@@ -135,6 +135,7 @@ public class PodcastSearchResultsActivity extends LoggingActivity {
             tvResultsCount.setText(getString(R.string.podcast_nb_of_podcast_found) + ": 0");
         } else {
             viewModel.setResults(feeds);
+            showResults(feeds);
             tvResultsCount.setText(getString(R.string.podcast_nb_of_podcast_found) + ": " + feeds.size());
         }
     }
@@ -149,12 +150,11 @@ public class PodcastSearchResultsActivity extends LoggingActivity {
 
     private void showResults(List<PodcastFeed> feeds) {
         adapter.setItems(feeds);
-        adapter.notifyDataSetChanged();
     }
 
 
 
 
 
-    }
+}
 

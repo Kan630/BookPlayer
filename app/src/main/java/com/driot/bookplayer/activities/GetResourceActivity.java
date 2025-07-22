@@ -411,16 +411,14 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
             LanguageItem selectedLang = (LanguageItem) spinnerLanguage.getSelectedItem();
             String lang = selectedLang.getTwoLetterCode().toLowerCase();
 
-            /*
-            if (lang.isEmpty()) {
-                myToast("selected language error");
-                return;
-            }
-             */
-
             Intent intent = new Intent(this, PodcastSearchResultsActivity.class);
             intent.putExtra("query", query);
             intent.putExtra("lang", lang);
+            startActivity(intent);
+        });
+        Button bFavoritePodcasts = findViewById(R.id.bFavoritePodcasts);
+        bFavoritePodcasts.setOnClickListener(v -> {
+            Intent intent = new Intent(this, PodcastFavoritesActivity.class);
             startActivity(intent);
         });
         ////////////////////////////////

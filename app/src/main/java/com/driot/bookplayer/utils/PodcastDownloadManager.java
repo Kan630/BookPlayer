@@ -9,6 +9,7 @@ import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkContinuation;
 import androidx.work.WorkManager;
 
+import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.objects.PodcastEpisode;
 
 import java.io.File;
@@ -16,14 +17,14 @@ import java.util.List;
 
 public class PodcastDownloadManager {
 
-    public static void enqueueDownloads(Context context, List<PodcastEpisode> episodes, File targetFolder, Runnable onComplete) {
+    public static void enqueueDownloads(Context context, Podcast podcast, List<PodcastEpisode> episodes, File targetFolder, Runnable onComplete) {
         WorkManager wm = WorkManager.getInstance(context);
         WorkContinuation continuation = null;
 
         for (PodcastEpisode episode : episodes) {
             String safeTitle = sanitizeFilename(episode.title);
             String safeDate = sanitizeFilename(episode.datePublishedPretty);
-            String destPath = new File(targetFolder, safeTitle + " - " + safeDate + ".mp3").getAbsolutePath();
+            String destPath = new File(targetFolder, safeTitle + " - [" + safeDate + "].mp3").getAbsolutePath();
 
             Data inputData = new Data.Builder()
                     .putString(DownloadEpisodeWorker.KEY_URL, episode.enclosureUrl)
@@ -44,6 +45,7 @@ public class PodcastDownloadManager {
         Data finalizeData = new Data.Builder()
                 .putString(FinalizeDownloadWorker.KEY_FOLDER_PATH, targetFolder.getAbsolutePath())
                 .putString(FinalizeDownloadWorker.KEY_FOLDER_NAME, targetFolder.getName())
+                .putLong(FinalizeDownloadWorker.KEY_FEED_ID, podcast.feedId)
                 .build();
 
         OneTimeWorkRequest finalizeRequest = new OneTimeWorkRequest.Builder(FinalizeDownloadWorker.class)

@@ -13,6 +13,7 @@ public class FinalizeDownloadWorker extends Worker {
 
     public static final String KEY_FOLDER_PATH = "folder_path";
     public static final String KEY_FOLDER_NAME = "folder_name";
+    public static final String KEY_FEED_ID = "feed_id";
 
     public FinalizeDownloadWorker(@NonNull Context context, @NonNull WorkerParameters params) {
         super(context, params);
@@ -23,6 +24,7 @@ public class FinalizeDownloadWorker extends Worker {
     public Result doWork() {
         String folderPath = getInputData().getString(KEY_FOLDER_PATH);
         String folderName = getInputData().getString(KEY_FOLDER_NAME);
+        long feedId = getInputData().getLong(KEY_FEED_ID,0);
 
         if (folderPath == null || folderName == null) {
             myLogE("Missing folder path or name");
@@ -31,8 +33,9 @@ public class FinalizeDownloadWorker extends Worker {
 
         // Chain the PodcastSyncWorker
         Data syncData = new Data.Builder()
-                .putString(PodcastSyncWorker.KEY_FOLDER_PATH, folderPath)
-                .putString(PodcastSyncWorker.KEY_FOLDER_NAME, folderName)
+                .putString(KEY_FOLDER_PATH, folderPath)
+                .putString(KEY_FOLDER_NAME, folderName)
+                .putLong(KEY_FEED_ID, feedId)
                 .build();
 
         OneTimeWorkRequest syncRequest = new OneTimeWorkRequest.Builder(PodcastSyncWorker.class)

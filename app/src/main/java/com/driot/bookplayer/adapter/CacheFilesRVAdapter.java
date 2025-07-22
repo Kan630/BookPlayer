@@ -91,7 +91,7 @@ public class CacheFilesRVAdapter extends LoggingRVAdapter<CacheFilesRVAdapter.Fi
             if (bFound) {
                 zeAudioStatus = (int) percentDone + "%";
             } else {
-                zeAudioStatus = "-KO-";
+                zeAudioStatus = "! KO !";
             }
         } else {
             zeAudioStatus = "init";

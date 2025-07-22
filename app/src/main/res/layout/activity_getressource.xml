@@ -241,10 +241,14 @@
             android:layout_marginEnd="20dp"
             />
 
-        <Button
-            android:id="@+id/bPodcastSearch"
-            android:text="@string/Search"
-            style="@style/GetResourceButton"/>
+            <Button
+                android:id="@+id/bPodcastSearch"
+                android:text="@string/Search"
+                style="@style/GetResourceButton"/>
+            <Button
+                android:id="@+id/bFavoritePodcasts"
+                android:text="@string/Favorites"
+                style="@style/GetResourceButton"/>
 
         <!--
 

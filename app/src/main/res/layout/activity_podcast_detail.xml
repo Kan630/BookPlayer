@@ -1,12 +1,12 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="12dp"
     android:fitsSystemWindows="true"
     android:layout_marginTop="10dp"
-    android:layout_marginBottom="10dp"
-    >
+    android:layout_marginBottom="10dp">
 
     <!-- Container with image and overlay buttons -->
     <RelativeLayout
@@ -34,7 +34,8 @@
                 android:layout_height="40dp"
                 android:background="@android:color/transparent"
                 android:contentDescription="Favorite"
-                android:src="@drawable/ic_favorite_no" />
+                android:src="@drawable/ic_favorite_no"
+                app:tint="@color/gray_500" />
 
             <ImageButton
                 android:id="@+id/btnAutoDownload"
@@ -42,7 +43,8 @@
                 android:layout_height="40dp"
                 android:background="@android:color/transparent"
                 android:contentDescription="Auto Download"
-                android:src="@drawable/ic_download_24dp" />
+                android:src="@drawable/ic_download_24dp"
+                app:tint="@color/gray_500" />
         </LinearLayout>
     </RelativeLayout>
 

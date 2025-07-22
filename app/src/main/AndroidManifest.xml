@@ -52,6 +52,8 @@
         <activity android:name=".activities.LibrivoxDetailActivity" />
         <activity android:name=".activities.PodcastSearchResultsActivity"/>
         <activity android:name=".activities.PodcastDetailActivity"/>
+        <activity android:name=".activities.PodcastFavoritesActivity"/>
+
 
 
         <activity

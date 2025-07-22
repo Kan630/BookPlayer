@@ -18,6 +18,7 @@ import com.driot.bookplayer.utils.log.LoggingActivity;
 import java.io.File;
 
 import static com.driot.bookplayer.global.Var.PATH_CHECK_APPLICATION;
+import static com.driot.bookplayer.utils.PodcastIndexHelper.cancelAutoDownload;
 import static com.driot.bookplayer.utils.Utils.recursiveRemove;
 
 /**
@@ -95,6 +96,7 @@ public class FolderModifyActivity extends LoggingActivity {
             }
             AppDatabase.getDatabase(this).FolderDao().delete(idFolder);
             AppDatabase.getDatabase(this).ZikFileDao().deleteFolder(idFolder);
+            cancelAutoDownload(this, idFolder);
             runOnUiThread(() -> {
                 myToast(getString(R.string.Folder_Deleted_DB));
                 myLog(getString(R.string.Folder_Deleted_DB) + " : " + FolderName);

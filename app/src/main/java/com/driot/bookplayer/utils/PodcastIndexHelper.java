@@ -4,7 +4,7 @@ import static com.driot.bookplayer.global.Var.FOLDER_UNZIPPED;
 import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_API_KEY;
 import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_API_SECRET;
 import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_MAX_DOWNLOAD;
-import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_MAX_RESULTS;
+import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_API_MAX_RESULTS;
 import static com.driot.bookplayer.utils.KanFiles.sanitizeFilename;
 
 import com.driot.bookplayer.db.AppDatabase;
@@ -16,7 +16,6 @@ import com.driot.bookplayer.objects.PodcastFeed;
 import com.driot.bookplayer.objects.PodcastIndexResponse;
 
 import java.io.File;
-import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -31,11 +30,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
-
 import android.content.Context;
-import android.util.Base64;
 
 public class PodcastIndexHelper {
 
@@ -99,7 +94,7 @@ public class PodcastIndexHelper {
 
     public static void searchPodcasts(String query, String lang, Callback callback) {
         PodcastIndexApi api = buildApi();
-        api.searchPodcasts(query, PODCASTINDEXORG_MAX_RESULTS, lang).enqueue(new retrofit2.Callback<PodcastIndexResponse>() {
+        api.searchPodcasts(query, PODCASTINDEXORG_API_MAX_RESULTS, lang).enqueue(new retrofit2.Callback<PodcastIndexResponse>() {
         @Override
         public void onResponse(Call<PodcastIndexResponse> call, Response<PodcastIndexResponse> response) {
             if (response.isSuccessful() && response.body() != null) {
@@ -211,7 +206,7 @@ public class PodcastIndexHelper {
                         }
 
                         if (!newEpisodes.isEmpty()) {
-                            PodcastDownloadManager.enqueueDownloads(context, newEpisodes, podcastFolder, null);
+                            PodcastDownloadManager.enqueueDownloads(context, podcast, newEpisodes, podcastFolder, null);
                         }
                     }
 
@@ -221,6 +216,12 @@ public class PodcastIndexHelper {
                     }
                 });
             }
+        });
+    }
+
+    public static void cancelAutoDownload(Context c, int folderId) {
+        AppDatabase.databaseWriteExecutor.execute(() -> {
+            AppDatabase.getDatabase(c).PodcastDao().updateAutoDownloadStatus_fromFolderId(folderId, false);
         });
     }
 

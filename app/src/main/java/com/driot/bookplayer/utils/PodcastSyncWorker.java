@@ -1,7 +1,11 @@
 package com.driot.bookplayer.utils;
 
+import static android.provider.Settings.System.getString;
 import static com.driot.bookplayer.db.Sql.calculateFolderProgress;
 import static com.driot.bookplayer.db.Sql.updateFolderDuration;
+import static com.driot.bookplayer.utils.FinalizeDownloadWorker.KEY_FEED_ID;
+import static com.driot.bookplayer.utils.FinalizeDownloadWorker.KEY_FOLDER_NAME;
+import static com.driot.bookplayer.utils.FinalizeDownloadWorker.KEY_FOLDER_PATH;
 import static com.driot.bookplayer.utils.KanFiles.getMediaDurationFromPath;
 import static com.driot.bookplayer.utils.Tonio.formatNameForDisplay;
 
@@ -13,17 +17,18 @@ import androidx.annotation.NonNull;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
+import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.FolderDao;
+import com.driot.bookplayer.db.PodcastDao;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.db.ZikFileDao;
 
 import java.io.File;
 
 public class PodcastSyncWorker extends Worker {
-    public static final String KEY_FOLDER_PATH = "folder_path";
-    public static final String KEY_FOLDER_NAME = "folder_name";
+
 
     public PodcastSyncWorker(@NonNull Context context, @NonNull WorkerParameters params) {
         super(context, params);
@@ -34,12 +39,14 @@ public class PodcastSyncWorker extends Worker {
     public Result doWork() {
         String path = getInputData().getString(KEY_FOLDER_PATH);
         String name = getInputData().getString(KEY_FOLDER_NAME);
+        long feedId = getInputData().getLong(KEY_FEED_ID,0);
         File folder = new File(path);
         if (!folder.exists() || !folder.isDirectory()) return Result.failure();
 
         AppDatabase db = AppDatabase.getDatabase(getApplicationContext());
         FolderDao folderDao = db.FolderDao();
         ZikFileDao zikFileDao = db.ZikFileDao();
+        PodcastDao podcastDao = db.PodcastDao();
 
         // 1. Ensure folder is registered
         Folder folderDb = folderDao.getByName(name);
@@ -60,6 +67,10 @@ public class PodcastSyncWorker extends Worker {
 
             long newId = folderDao.insert(folderDb); // Room returns the new ID
             idFolder = (int) newId; // safely cast to int
+
+            //update Podcast with folderId
+            podcastDao.updateFolderIdByFeedId(feedId, newId);
+
         }
 
         // 2. Scan files
@@ -80,7 +91,7 @@ public class PodcastSyncWorker extends Worker {
                     ZikFile zikFile = new ZikFile();
                     zikFile.setIdFolder(idFolder);
                     zikFile.setName(file.getName());
-                    zikFile.setPath(file.getAbsolutePath());
+                    zikFile.setPath(folder.getAbsolutePath());
                     zikFile.setDisplayName(formatNameForDisplay(file.getName()));
                     zikFile.setZeorder(zeOrder);
                     zikFile.setFolderName(folderDb.getName());
@@ -102,7 +113,8 @@ public class PodcastSyncWorker extends Worker {
             folderDao.updateLastAccess(idFolder, new java.sql.Date(System.currentTimeMillis())); //triggers livedata update and reload of Book list
             Handler handler = new Handler(Looper.getMainLooper());
             int finalNewFilesCount = newFilesCount;
-            handler.post(() -> myToast(name + " synchronized: " + finalNewFilesCount + " new episodes"));
+            //TODO handler.post(() -> myToast(finalNewFilesCount + " " + getString(getApplicationContext(), R.string.podcast_new_episodes) + " for " + name));
+            handler.post(() -> myToast(finalNewFilesCount + " new episodes for " + name));
         }
 
         return Result.success();
