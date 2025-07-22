@@ -71,6 +71,9 @@ public interface FolderDao {
     @Query("SELECT name FROM Folder WHERE path LIKE :sFolderPath")
     String folderAlreadyExist_checkFolderPath_getBookName(String sFolderPath);
 
+    @Query("SELECT * FROM Folder WHERE name LIKE :name")
+    Folder getByName(String name);
+
 
 
 

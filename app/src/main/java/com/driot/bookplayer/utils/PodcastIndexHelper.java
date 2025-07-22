@@ -1,14 +1,21 @@
 package com.driot.bookplayer.utils;
 
+import static com.driot.bookplayer.global.Var.FOLDER_UNZIPPED;
 import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_API_KEY;
 import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_API_SECRET;
+import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_MAX_DOWNLOAD;
+import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_MAX_RESULTS;
+import static com.driot.bookplayer.utils.KanFiles.sanitizeFilename;
 
+import com.driot.bookplayer.db.AppDatabase;
+import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.objects.PodcastEpisode;
 import com.driot.bookplayer.objects.PodcastEpisodeResponse;
 import com.driot.bookplayer.objects.PodcastIndexApi;
 import com.driot.bookplayer.objects.PodcastFeed;
 import com.driot.bookplayer.objects.PodcastIndexResponse;
 
+import java.io.File;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -25,6 +32,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+
+import android.content.Context;
 import android.util.Base64;
 
 public class PodcastIndexHelper {
@@ -89,7 +98,7 @@ public class PodcastIndexHelper {
 
     public static void searchPodcasts(String query, String lang, Callback callback) {
         PodcastIndexApi api = buildApi();
-        api.searchPodcasts(query, 100, lang).enqueue(new retrofit2.Callback<PodcastIndexResponse>() {
+        api.searchPodcasts(query, PODCASTINDEXORG_MAX_RESULTS, lang).enqueue(new retrofit2.Callback<PodcastIndexResponse>() {
         //api.searchByTerm(query).enqueue(new retrofit2.Callback<PodcastSearchResponse>() {
         @Override
         public void onResponse(Call<PodcastIndexResponse> call, Response<PodcastIndexResponse> response) {
@@ -143,9 +152,9 @@ public class PodcastIndexHelper {
         });
     }
 
-    public static void getEpisodesByFeedId(long feedId, EpisodeCallback callback) {
+    public static void getEpisodesByFeedId(long feedId, long since, EpisodeCallback callback) {
         PodcastIndexApi api = buildApi();
-        api.getEpisodesByFeedId(feedId).enqueue(new retrofit2.Callback<PodcastEpisodeResponse>() {
+        api.getEpisodesByFeedId(feedId, since).enqueue(new retrofit2.Callback<PodcastEpisodeResponse>() {
             @Override
             public void onResponse(Call<PodcastEpisodeResponse> call, Response<PodcastEpisodeResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
@@ -166,5 +175,56 @@ public class PodcastIndexHelper {
         void onSuccess(List<PodcastEpisode> episodes);
         void onError(Exception e);
     }
+
+    public static void checkForNewEpisodesToAutoDownload(Context context, long since) {
+        myLogD("checking for new episodes");
+        AppDatabase.databaseWriteExecutor.execute(() -> {
+            List<Podcast> autoList = AppDatabase.getDatabase(context).PodcastDao().getAutoDownloads();
+
+            for (Podcast podcast : autoList) {
+                String podcastTitle = sanitizeFilename(podcast.title);
+                myLogD("checking for new podcast episodes - " + podcastTitle);
+                getEpisodesByFeedId(podcast.feedId, since, new EpisodeCallback() {
+                    @Override
+                    public void onSuccess(List<PodcastEpisode> episodes) {
+                        File baseFolder = new File(context.getFilesDir(), FOLDER_UNZIPPED);
+                        File podcastFolder = new File(baseFolder, podcastTitle);
+                        if (!podcastFolder.exists()) podcastFolder.mkdirs();
+                        int i = 0;
+                        for (PodcastEpisode episode : episodes) {
+                            i = i + 1;
+                            String safeTitle = sanitizeFilename(episode.title);
+                            String safeDate = sanitizeFilename(episode.datePublishedPretty);
+                            String baseName = safeTitle + " - " + safeDate + ".mp3";
+                            if (i <= PODCASTINDEXORG_MAX_DOWNLOAD) {
+                                myLogD("Auto-download episode " + i + "[" + safeDate + "] - [" + baseName + "]");
+                                File destFile = new File(podcastFolder, baseName);
+                                if (!destFile.exists()) {
+                                    PodcastDownloadManager.enqueuePodcastDownload(context, episode, destFile.getAbsolutePath());
+                                } else {
+                                    myLogD("episode " + i + " already exists");
+                                }
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onError(Exception e) {
+                        myLogEE(e, "Auto-download error for feedId " + podcast.feedId);
+                    }
+                });
+            }
+        });
+    }
+
+    ////////////////////////////////////////////////////////
+    private static final String TAG = "PodcastIndexHelper";
+    private static void myLog(String str) { KanLogger.myLog(TAG, str); }
+    private static void myLogD(String str) { KanLogger.myLogD(TAG, str); }
+    private static void myLogI(String str) { KanLogger.myLogI(TAG, str); }
+    private static void myLogW(String str) { KanLogger.myLogW(TAG, str); }
+    private static void myLogE(String str) { KanLogger.myLogE(TAG, str); }
+    private static void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, TAG, str); }
+    private static void myToastEE(Throwable t, String str) { KanLogger.myToastEE(t, TAG, str); }
 
 }

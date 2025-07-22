@@ -19,6 +19,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.activities.LoadOptionsActivity;
 import com.driot.bookplayer.objects.PodcastEpisode;
 import com.driot.bookplayer.services.DownloadJobService;
 import com.driot.bookplayer.utils.Tonio;
@@ -91,7 +92,8 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
                 "Download to Downloads folder",
                 "Download to SD card",
                 "Download to BookPlayer internal storage",
-                "Just play (no download)"
+                "Just play (no download)",
+                "add to Bookplayer",
         };
 
         new AlertDialog.Builder(context)
@@ -126,20 +128,29 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
                             intent.setDataAndType(Uri.parse(fileUrl), "audio/*");
                             context.startActivity(Intent.createChooser(intent, "Play episode"));
                             return; // Skip download
+
+                        case 4: // For Test purposes
+                            Intent intentLOA = new Intent(this.context, LoadOptionsActivity.class);
+                            intentLOA.putExtra(LoadOptionsActivity.EXTRA_URI, Uri.parse(fileUrl));
+                            intentLOA.putExtra(LoadOptionsActivity.EXTRA_TYPE, "Podcast");
+                            context.startActivity(intentLOA);
+                            return;
                     }
 
                     // Schedule the download job
                     myLog("downloading to : " + destinationFolder);
-                    startDownloadJob(context, fileUrl, destinationFolder, episodeTitle);
+                    startDownloadJob(context, fileUrl, destinationFolder, episodeTitle, episodeTitle);
                 })
                 .show();
     }
-    private void startDownloadJob(Context context, String fileUrl, String destinationFolder, String audioBookTitle) {
+    private void startDownloadJob(Context context, String fileUrl, String destinationFolder, String episodeTitle, String audioBookTitle) {
         myLog("************************************** startDownloadJob");
         myLog("fileUrl = " + fileUrl);
         myLog("destinationFolder = " + destinationFolder);
         myLog("audioBookTitle = " + audioBookTitle);
+        myLog("episodeTitle = " + episodeTitle);
         myLog("**************************************");
+        /*
         PersistableBundle bundle = new PersistableBundle();
         bundle.putString("fileUrl", fileUrl);
         bundle.putString("destinationFolder", destinationFolder);
@@ -153,6 +164,8 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
 
         JobScheduler scheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
         scheduler.schedule(jobInfo);
+
+         */
     }
 
 

@@ -22,6 +22,9 @@ public interface PodcastIndexApi {
 
 
     @GET("episodes/byfeedid")
-    Call<PodcastEpisodeResponse> getEpisodesByFeedId(@Query("id") long feedId);
+    Call<PodcastEpisodeResponse> getEpisodesByFeedId(
+            @Query("id") long feedId,
+            @Query("since") long since
+    );
 
 }

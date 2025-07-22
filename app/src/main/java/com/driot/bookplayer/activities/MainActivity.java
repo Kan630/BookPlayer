@@ -5,6 +5,7 @@ package com.driot.bookplayer.activities;
  */
 
 
+import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_SINCE_DEBUG;
 import static com.driot.bookplayer.utils.KanLogger.isMyPhoneDev;
 import static com.driot.bookplayer.utils.KanLogger.writeTechLogs;
 /*
@@ -14,6 +15,7 @@ import static com.driot.bookplayer.utils.Mp4Parser.extractChaptersAsAac;
 import static com.driot.bookplayer.utils.Mp4Parser.inspect;
 
  */
+import static com.driot.bookplayer.utils.PodcastIndexHelper.checkForNewEpisodesToAutoDownload;
 import static com.driot.bookplayer.utils.TonioCommonStuff.MD5;
 import static com.driot.bookplayer.utils.WorkFlow.maybeResumeWorkFlow;
 
@@ -185,6 +187,8 @@ public class MainActivity extends LoggingActivity {
         if (recyclerView != null) recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         getFolders();
+
+        checkForNewEpisodesToAutoDownload(this, PODCASTINDEXORG_SINCE_DEBUG);
     }
 
     @Override

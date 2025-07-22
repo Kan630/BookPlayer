@@ -73,11 +73,14 @@ public class LoadOptionsActivity extends LoggingActivity {
         uri = getIntent().getParcelableExtra(EXTRA_URI);
         type = Objects.toString(getIntent().getStringExtra(EXTRA_TYPE),"");
 
-        if (!(type.equals("File")) && !(type.equals("Folder"))) {
+        if (
+                !(type.equals("File") || type.equals("Folder") || type.equals("Podcast"))
+        ) {
             myToastE("Error picking audio - unsupported type : [" + type + "]");
             finish();
             return;
         }
+
         if (Objects.isNull(uri)) {
             myToastE("Error picking audio : [uri is null]");
             finish();
@@ -104,6 +107,7 @@ public class LoadOptionsActivity extends LoggingActivity {
         llCopy = findViewById(R.id.ll_copy_internal);
         llDelete = findViewById(R.id.ll_delete_source);
 
+        if (type.equals("Podcast") ) { type = "File";}
         BookToAdd bookToAdd = new BookToAdd(uri, type);
 
         if (bookToAdd.isBroken()) {

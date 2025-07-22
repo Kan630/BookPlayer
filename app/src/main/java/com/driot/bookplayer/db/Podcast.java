@@ -1,5 +1,6 @@
 package com.driot.bookplayer.db;
 
+import androidx.annotation.NonNull;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.Index;
@@ -19,9 +20,12 @@ public class Podcast {
     @PrimaryKey
     public long feedId;
 
-    //public String title;
-    //public String image;
-    //public String language;
+    @NonNull
+    public String title;
+
+    public String image;
+
+    public String language;
 
     public boolean isFavorite;
     public boolean autoDownload;

@@ -342,15 +342,15 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
                 ,new LanguageItem("ita", "it", "Italian", R.drawable.flag_it)
                 ,new LanguageItem("rus", "ru", "Russian", R.drawable.flag_ru)
                 ,new LanguageItem("zho", "zh-cn", "Chinese", R.drawable.flag_cn)
-                ,new LanguageItem("ara", "ar", "Arabic", R.drawable.flag_sa) //2 letters to check
+                ,new LanguageItem("ara", "ar", "Arabic", R.drawable.flag_sa) //2 books
                 ,new LanguageItem("jpn", "ja", "Japanese", R.drawable.flag_jp)
-                ,new LanguageItem("hin", "hi", "Hindi", R.drawable.flag_in) // y a rien !
+                ,new LanguageItem("hin", "hi", "Hindi", R.drawable.flag_in) //no book
                 ,new LanguageItem("ell", "el", "Greek", R.drawable.flag_gr)
-                ,new LanguageItem("heb", "he", "Hebrew", R.drawable.flag_il) //2 letters to check
+                ,new LanguageItem("heb", "he", "Hebrew", R.drawable.flag_il)
                 ,new LanguageItem("swe", "sv", "Swedish", R.drawable.flag_se)
                 ,new LanguageItem("pol", "pl", "Polish", R.drawable.flag_pl)
-                ,new LanguageItem("nld", "nl", "Dutch", R.drawable.flag_nl) //2 letters to check
-                ,new LanguageItem("mul", "en", "Multiple", R.drawable.flag_globe) //2 letters to check
+                ,new LanguageItem("nld", "nl", "Dutch", R.drawable.flag_nl)
+                ,new LanguageItem("mul", "", "Multiple", R.drawable.flag_globe) //only for Livribox, use Any for Podcast (and Librivox)
                 //,new LanguageItem("", "Any", R.drawable.flag_all)
         );
         LanguageSpinnerAdapter adapter = new LanguageSpinnerAdapter(this, languageItems);
@@ -411,10 +411,12 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
             LanguageItem selectedLang = (LanguageItem) spinnerLanguage.getSelectedItem();
             String lang = selectedLang.getTwoLetterCode().toLowerCase();
 
+            /*
             if (lang.isEmpty()) {
                 myToast("selected language error");
                 return;
             }
+             */
 
             Intent intent = new Intent(this, PodcastSearchResultsActivity.class);
             intent.putExtra("query", query);

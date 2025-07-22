@@ -1,8 +1,10 @@
 package com.driot.bookplayer.utils;
 
+import static com.driot.bookplayer.utils.Tonio.fileExists;
 import static com.driot.bookplayer.utils.Utils.recursiveRemove;
 
 import android.content.Context;
+import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Build;
 import android.os.storage.StorageManager;
@@ -11,6 +13,8 @@ import android.provider.DocumentsContract;
 
 import androidx.annotation.Nullable;
 import androidx.documentfile.provider.DocumentFile;
+
+import com.driot.bookplayer.R;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -22,6 +26,11 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 public class KanFiles {
+
+    public static String sanitizeFilename(String input) {
+        if (input==null) return null;
+        return input.replaceAll("[\\\\/:*?\"<>|]", "_");
+    }
 
     public static void copyFile(File source, File dest) throws IOException {
         copyFileUsingStream(source, dest);
@@ -129,6 +138,23 @@ public class KanFiles {
             }
         }
         return null;
+    }
+
+    // DUREE AUDIO
+    public static long getMediaDurationFromPath(String zePath) {
+        long duration = 0;
+        if (fileExists(zePath)) {
+            try {
+                MediaMetadataRetriever mediaMetadataRetriever = new MediaMetadataRetriever();
+                mediaMetadataRetriever.setDataSource(zePath);
+                duration = Long.parseLong(mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
+            } catch (Exception e) {
+                myLogEE(e,"error getting duration of media for " + zePath);
+            }
+        } else {
+            myLogEE(null,"error getting duration of media, file does not exist in path : " + zePath);
+        }
+        return duration;
     }
 
     ////////////////////////////////////////////////////////

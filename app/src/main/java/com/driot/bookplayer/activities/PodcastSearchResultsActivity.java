@@ -1,5 +1,7 @@
 package com.driot.bookplayer.activities;
 
+import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_MAX_RESULTS;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -105,7 +107,7 @@ public class PodcastSearchResultsActivity extends LoggingActivity {
                 }
             });
         } else {
-            PodcastIndexHelper.getTrendingPodcasts(lang, 100, new PodcastIndexHelper.Callback() {
+            PodcastIndexHelper.getTrendingPodcasts(lang, PODCASTINDEXORG_MAX_RESULTS, new PodcastIndexHelper.Callback() {
                 @Override
                 public void onSuccess(List<PodcastFeed> feeds) {
                     runOnUiThread(() -> {

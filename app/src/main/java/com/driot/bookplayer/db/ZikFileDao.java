@@ -97,6 +97,11 @@ public interface ZikFileDao {
     @Query("SELECT * FROM ZikFile WHERE idFolder = :idFolder")
     ZikFile getSingleZikFile(long idFolder);
 
+    @Query("SELECT MAX(zeorder) FROM ZikFile WHERE idFolder = :idFolder")
+    double getMaxOrder(long idFolder);
+
+    @Query("SELECT id FROM ZikFile WHERE idFolder = :idFolder AND name = :name")
+    int getId(long idFolder, String name);
 
 
 

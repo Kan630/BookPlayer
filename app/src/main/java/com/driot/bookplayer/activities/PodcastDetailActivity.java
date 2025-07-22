@@ -1,19 +1,19 @@
 package com.driot.bookplayer.activities;
 
+import static com.driot.bookplayer.global.Var.FOLDER_UNZIPPED;
+import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_SINCE_DEBUG;
+import static com.driot.bookplayer.utils.KanFiles.sanitizeFilename;
+import static com.driot.bookplayer.utils.PodcastIndexHelper.checkForNewEpisodesToAutoDownload;
 import static com.driot.bookplayer.utils.TextOptions.parseMaybeHtml;
 
 import android.app.AlertDialog;
 import android.content.res.Resources;
 import android.os.Bundle;
-import android.text.Html;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.ScrollView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -25,23 +25,21 @@ import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.db.PodcastDao;
 import com.driot.bookplayer.objects.PodcastEpisode;
-import com.driot.bookplayer.utils.MaxHeightScrollView;
 import com.driot.bookplayer.utils.PodcastIndexHelper;
-import com.driot.bookplayer.utils.TextOptions;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
+import java.io.File;
 import java.util.List;
 
 public class PodcastDetailActivity extends LoggingActivity {
 
     private TextView tvTitle, tvDescription;
-    private boolean isDescriptionExpanded = false;
     private ImageView ivCover;
     private RecyclerView recyclerEpisodes;
     private ProgressBar progressBar;
     private PodcastEpisodeRVAdapter adapter;
 
-    private String PodcastTitle;
+    private String title;
     private long feedId;
 
     private ImageButton btnFavorite, btnAutoDownload;
@@ -63,11 +61,11 @@ public class PodcastDetailActivity extends LoggingActivity {
         recyclerEpisodes.setAdapter(adapter);
 
         feedId = getIntent().getLongExtra("feedId", -1);
-        PodcastTitle = getIntent().getStringExtra("title");
+        title = getIntent().getStringExtra("title");
         String image = getIntent().getStringExtra("image");
         String description = getIntent().getStringExtra("description");
 
-        tvTitle.setText(PodcastTitle);
+        tvTitle.setText(title);
         tvDescription.setText(parseMaybeHtml(description));
         Glide.with(this).load(image).into(ivCover);
 
@@ -110,12 +108,14 @@ public class PodcastDetailActivity extends LoggingActivity {
     }
 
     private void toggleFavorite() {
+        myLog("--- USER CLICKS FAVORITE");
         AppDatabase.databaseWriteExecutor.execute(() -> {
             Podcast podcast = podcastDao.getPodcastById(feedId);
 
             if (podcast == null) {
                 podcast = new Podcast();
                 podcast.feedId = feedId;
+                podcast.title = title;
                 podcast.isFavorite = true;
                 podcast.autoDownload = false;
                 podcastDao.insert(podcast);
@@ -124,6 +124,7 @@ public class PodcastDetailActivity extends LoggingActivity {
                 if (!podcast.isFavorite) {
                     podcast.autoDownload = false; // reset autoDownload if unfavorited
                 } else {
+                    myLog("---> On");
                     myToast(getString(R.string.podcast_favorite_add));
                 }
                 podcastDao.update(podcast);
@@ -141,12 +142,14 @@ public class PodcastDetailActivity extends LoggingActivity {
     }
 
     private void toggleAutoDownload() {
+        myLog("--- USER CLICKS AUTO DOWNLOAD");
         AppDatabase.databaseWriteExecutor.execute(() -> {
             Podcast podcast = podcastDao.getPodcastById(feedId);
 
             if (podcast == null) {
                 podcast = new Podcast();
                 podcast.feedId = feedId;
+                podcast.title = title;
                 podcast.isFavorite = true; // autoDownload implies favorite
                 podcast.autoDownload = true;
                 podcastDao.insert(podcast);
@@ -156,7 +159,9 @@ public class PodcastDetailActivity extends LoggingActivity {
                 podcastDao.update(podcast);
             }
             if (podcast.autoDownload) {
+                myLog("---> On");
                 myToast(getString(R.string.podcast_autodownload_add));
+                downloadAllEpisodesToFolder(podcast, PODCASTINDEXORG_SINCE_DEBUG);
             }
 
             boolean isFavoriteNow = podcast.isFavorite;
@@ -180,7 +185,7 @@ public class PodcastDetailActivity extends LoggingActivity {
     private void fetchEpisodes() {
         progressBar.setVisibility(View.VISIBLE);
 
-        PodcastIndexHelper.getEpisodesByFeedId(feedId, new PodcastIndexHelper.EpisodeCallback() {
+        PodcastIndexHelper.getEpisodesByFeedId(feedId, PODCASTINDEXORG_SINCE_DEBUG, new PodcastIndexHelper.EpisodeCallback() {
             @Override
             public void onSuccess(List<PodcastEpisode> episodes) {
                 runOnUiThread(() -> {
@@ -194,7 +199,7 @@ public class PodcastDetailActivity extends LoggingActivity {
             public void onError(Exception e) {
                 runOnUiThread(() -> {
                     progressBar.setVisibility(View.GONE);
-                    myToastEE(e,"Error loading episodes for " + PodcastTitle + " - feedID = " + feedId );
+                    myToastEE(e,"Error loading episodes for " + title + " - feedID = " + feedId );
                     tvDescription.setText("Error loading episodes\n" + e.getMessage());
                 });
             }
@@ -207,5 +212,15 @@ public class PodcastDetailActivity extends LoggingActivity {
         builder.setMessage(parseMaybeHtml(fullText));
         builder.setPositiveButton("Close", null);
         builder.show();
+    }
+
+    private void downloadAllEpisodesToFolder(Podcast podcast, long since) {
+        //checkForNewEpisodesToAutoDownload(this, since);
+        //need for specific podcast
+    }
+
+    private void startEpisodeDownload(String url, String outputPath) {
+        myLog("Starting download: " + url + " to " + outputPath);
+        //DownloadService.startDownload(this, url, outputPath); // assuming you already have this
     }
 }
