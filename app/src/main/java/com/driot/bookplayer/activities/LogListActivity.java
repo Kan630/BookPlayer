@@ -1,6 +1,8 @@
 package com.driot.bookplayer.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 
 import androidx.annotation.Nullable;
@@ -47,6 +49,17 @@ public class LogListActivity extends LoggingActivity {
 
         //textOptions = new TextOptions(this);
         loadRecyclerView();
+
+        View secretEntry = findViewById(R.id.viewSecretEntry);
+        final long[] taps = new long[3];
+        secretEntry.setOnClickListener(v -> {
+            System.arraycopy(taps, 1, taps, 0, taps.length - 1);
+            taps[taps.length - 1] = System.currentTimeMillis();
+
+            if (taps[0] >= System.currentTimeMillis() - 1000) {
+                startActivity(new Intent(this, DebugDatabaseActivity.class));
+            }
+        });
     }
 
     private void loadRecyclerView() {

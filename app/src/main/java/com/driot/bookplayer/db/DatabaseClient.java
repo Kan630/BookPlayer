@@ -4,6 +4,9 @@ package com.driot.bookplayer.db;
  * created by Antoine Driot -- antoine.driot.com -- on 28/10/20
  */
 
+import static com.driot.bookplayer.db.AppDatabase.APPDATABASE_VERSION;
+import static com.driot.bookplayer.db.DatabaseBackupHelper.backupDatabase;
+
 import android.content.Context;
 
 import androidx.room.Room;
@@ -11,6 +14,8 @@ import androidx.room.migration.Migration;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
 import com.driot.bookplayer.utils.KanLogger;
+
+import java.io.File;
 
 public class DatabaseClient {
 
@@ -87,6 +92,17 @@ public class DatabaseClient {
     private DatabaseClient(Context mCtx) {
 
         //mCtx.deleteDatabase(DATABASE_NAME);
+
+        File dbPath = mCtx.getDatabasePath(DATABASE_NAME);
+        if (dbPath.exists()) {
+            int currentVersion = DatabaseBackupHelper.getDatabaseVersion(dbPath);
+            myLogD("Current DB version : " + currentVersion);
+            if (currentVersion < APPDATABASE_VERSION) {
+                myLogW("Code DB version : " + APPDATABASE_VERSION);
+                backupDatabase(mCtx);
+            }
+        }
+
 
         //creating the app database with Room database builder
         //MyToDos is the name of the database

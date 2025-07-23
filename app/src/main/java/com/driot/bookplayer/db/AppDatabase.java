@@ -5,6 +5,8 @@ package com.driot.bookplayer.db;
  *
  * modified 05/2024
  */
+import static com.driot.bookplayer.db.AppDatabase.APPDATABASE_VERSION;
+
 import android.content.Context;
 
 import androidx.room.Database;
@@ -17,7 +19,7 @@ import java.util.concurrent.Executors;
                         ZikFile.class,
                         Podcast.class
 }
-                     , version = 5
+                     , version = APPDATABASE_VERSION
                     // on se fait les migrations a la main, en les ecrivant...... mais bon...
                     //, autoMigrations = {@AutoMigration(from = 1, to = 2),@AutoMigration(from = 2, to = 3)}
         )
@@ -28,6 +30,7 @@ import java.util.concurrent.Executors;
 @TypeConverters({Converters.class})
 
 public abstract class AppDatabase extends RoomDatabase {
+    public static final int APPDATABASE_VERSION = 5;
     public abstract FolderDao FolderDao();
     public abstract ZikFileDao ZikFileDao();
     public abstract PodcastDao PodcastDao();

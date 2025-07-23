@@ -53,6 +53,11 @@
         <activity android:name=".activities.PodcastSearchResultsActivity"/>
         <activity android:name=".activities.PodcastEpisodeActivity"/>
         <activity android:name=".activities.PodcastFavoritesActivity"/>
+        <activity android:name=".activities.DebugDatabaseActivity"
+            android:exported="false"
+            android:enabled="true">
+            <!-- No intent filter = not visible in launcher -->
+        </activity>
 
 
 
