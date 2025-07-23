@@ -31,6 +31,7 @@ import com.driot.bookplayer.services.AudioService;
 import com.driot.bookplayer.utils.FrequencyVisualizerView;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -56,6 +57,7 @@ import static com.driot.bookplayer.utils.PermissionRequest.isRecordAudioPermissi
 import static com.driot.bookplayer.utils.Tonio.formatNameForDisplay;
 import static com.driot.bookplayer.utils.Tonio.FormatPercentStringForSpeed;
 import static com.driot.bookplayer.utils.Tonio.formatTime;
+import static com.driot.bookplayer.utils.Tonio.getReadableSize;
 import static com.driot.bookplayer.utils.Utils.animateView;
 
 import androidx.activity.OnBackPressedCallback;
@@ -234,6 +236,16 @@ public class PlayActivity extends LoggingActivity {
                 imFolderImage.setImageURI(Uri.parse(folder.image));
                 imFolderImage.setVisibility(View.VISIBLE);
                 frequencyVisualizerView.setAlpha(0.6f);
+
+                // for debug
+                try {
+                    File imageFile = new File(folder.image);
+                    myLogD("Image found : " + imageFile.getName() + " - " + getReadableSize(imageFile.length()));
+                } catch (Exception e) {
+                    myLogE("image debug ko");
+                }
+
+
             } else {
                 imFolderImage.setVisibility(View.GONE);
                 frequencyVisualizerView.setAlpha(1f); // fully opaque

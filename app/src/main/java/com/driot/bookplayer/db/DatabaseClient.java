@@ -56,6 +56,7 @@ public class DatabaseClient {
                     "source TEXT NOT NULL, " +
                     "title TEXT NOT NULL, " +
                     "image TEXT, " +
+                    "imageOriginalUrl TEXT, " +
                     "description TEXT, " +
                     "language TEXT, " +
                     "isFavorite INTEGER NOT NULL DEFAULT 0, " +

@@ -1,6 +1,5 @@
 package com.driot.bookplayer.adapter;
 
-import static androidx.core.content.ContextCompat.startActivity;
 import static com.driot.bookplayer.utils.PodcastHelper.buildPodcastEpisodeName;
 import static com.driot.bookplayer.utils.PodcastHelper.buildPodcastPath;
 
@@ -11,8 +10,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Environment;
-import android.os.Handler;
-import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,11 +27,12 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.LoadOptionsActivity;
 import com.driot.bookplayer.activities.PlayActivity;
 import com.driot.bookplayer.activities.PodcastEpisodeViewModel;
-import com.driot.bookplayer.activities.ZikFileActivity;
 import com.driot.bookplayer.db.AppDatabase;
+import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.objects.PlayList;
 import com.driot.bookplayer.objects.PodcastEpisode;
+import com.driot.bookplayer.objects.PodcastFeed;
 import com.driot.bookplayer.utils.PodcastDownloadManager;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingRVAdapter;
@@ -48,17 +46,27 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
 
     private List<PodcastEpisode> items = new ArrayList<>();
     private final Context context;
-    private final String podcastTitle;
-    private final long podcastFeedId;
+    private final Podcast podcast;
+    private final PodcastFeed podcastFeed;
+    //private final String podcastFeed.title;
+    //private final Long podcastFeed.id podcastFeed.title;
     private final PodcastEpisodeViewModel viewModel;
     private final LifecycleOwner lifecycleOwner;
 
-    public PodcastEpisodeRVAdapter(Context context, String podcastTitle, long podcastFeedId, PodcastEpisodeViewModel viewModel) {
+    public PodcastEpisodeRVAdapter(Context context, Podcast podcast, PodcastFeed podcastFeed, PodcastEpisodeViewModel viewModel) {
         this.context = context;
-        this.podcastTitle = podcastTitle;
-        this.podcastFeedId = podcastFeedId;
+        this.podcast = podcast;
+        this.podcastFeed = podcastFeed;
         this.viewModel = viewModel;
         this.lifecycleOwner = (LifecycleOwner) context; // Assumes context is a LifecycleOwner (e.g., Activity)
+        if (podcast!=null) {
+            podcastFeed.title = podcast.title;
+        } else if (podcastFeed!=null) {
+            podcastFeed.title = podcastFeed.title;
+        } else {
+            podcastFeed.title="error";
+            myLogEE(null, "podcast and podcastFeed are null");
+        }
     }
 
     public void setItems(List<PodcastEpisode> episodes) {
@@ -98,16 +106,16 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
 
 // Check if in physical folder : reserved sd card or reserved smartphone storage
         boolean isDownloaded = false;
-        File folderPodcastEpisode = buildPodcastPath(context, podcastTitle, false);
+        File folderPodcastEpisode = buildPodcastPath(context, podcastFeed.title, false);
         File file = new File(folderPodcastEpisode, episodeFileName);
         isDownloaded = file.exists();
         if (!isDownloaded) {
-            folderPodcastEpisode = buildPodcastPath(context, podcastTitle, true);
+            folderPodcastEpisode = buildPodcastPath(context, podcastFeed.title, true);
             file = new File(folderPodcastEpisode, episodeFileName);
             isDownloaded = file.exists();
         }
-        //myLogW(podcastTitle + " - " + episodeFileName);
-        LiveData<ZikFile> liveZikFile = viewModel.getZikFileLive(podcastTitle, episodeFileName); //changed from full path to just folder name, to deal with multiple locations
+        //myLogW(podcastFeed.title + " - " + episodeFileName);
+        LiveData<ZikFile> liveZikFile = viewModel.getZikFileLive(podcastFeed.title, episodeFileName); //changed from full path to just folder name, to deal with multiple locations
         liveZikFile.removeObservers(lifecycleOwner); //not sure it is usefull
         holder.icon_1.setTag(episodeFileName); // ---- avoid stop flickers on another completion -- Sometimes the LiveData callback gets called even after the view has been recycled
         boolean finalIsDownloaded = isDownloaded;
@@ -138,25 +146,26 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
                 holder.icon_1.setColorFilter(ContextCompat.getColor(context, R.color.pastel_blue_300));
                 holder.icon_1.setOnClickListener(v -> {
                     myLog("---- USER CLICKS ----- Downloading single episode: " + episode.title);
+                    addPodcastToDB();
                     if (holder.flickerAnim == null) {
                         holder.flickerRunning = true;
                         holder.flickerAnim = createFlickerAnimation(holder.icon_1,holder);
                         holder.flickerAnim.start();
                     }
-                    File targetFolder = buildPodcastPath(context, podcastTitle);
+                    File targetFolder = buildPodcastPath(context, podcastFeed.title);
                     if (!targetFolder.exists()) targetFolder.mkdirs();
 
                     List<PodcastEpisode> singleList = new ArrayList<>();
                     singleList.add(episode);
 
-                    PodcastDownloadManager.enqueueDownloads(context, podcastFeedId, singleList, targetFolder, null);
+                    PodcastDownloadManager.enqueueDownloads(context, podcastFeed.id, singleList, targetFolder, null);
                 });
             }
         });
 /*
 
 // Check if in physical folder
-        File folderPodcastEpisode = buildPodcastPath(context, podcastTitle);
+        File folderPodcastEpisode = buildPodcastPath(context, podcastFeed.title);
         File file = new File(folderPodcastEpisode, episodeFileName);
         boolean isDownloaded = file.exists();
 
@@ -182,7 +191,7 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
                         holder.tvEpisodeDBStats.setText("");
                         holder.icon_1.setVisibility(View.VISIBLE);
                         holder.icon_1.setColorFilter(ContextCompat.getColor(context, R.color.orange_500));
-                        myLogEE(null, "in FileFolder but not in DB..." + folderPodcastEpisode.getAbsolutePath() + "/" + episodeFileName + " feedID = " + podcastFeedId);
+                        myLogEE(null, "in FileFolder but not in DB..." + folderPodcastEpisode.getAbsolutePath() + "/" + episodeFileName + " feedID = " + podcastFeed.id);
                     }
                 });
             });
@@ -194,13 +203,13 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
             holder.icon_1.setOnClickListener(v -> {
                 myLog("---- USER CLICKS ----- Downloading single episode: " + episode.title);
 
-                File targetFolder = buildPodcastPath(context, podcastTitle);
+                File targetFolder = buildPodcastPath(context, podcastFeed.title);
                 if (!targetFolder.exists()) targetFolder.mkdirs();
 
                 List<PodcastEpisode> singleList = new ArrayList<>();
                 singleList.add(episode);
 
-                PodcastDownloadManager.enqueueDownloads(context, podcastFeedId, singleList, targetFolder, null);
+                PodcastDownloadManager.enqueueDownloads(context, podcastFeed.id, singleList, targetFolder, null);
             });
         }
  */
@@ -388,6 +397,24 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
             }
         }
         return -1; // not found
+    }
+
+    private void addPodcastToDB() {
+        AppDatabase.databaseWriteExecutor.execute(() -> {
+            Podcast podcast = AppDatabase.getDatabase(this.context).PodcastDao().getPodcastByFeedId(podcastFeed.id);
+            if (podcast == null) {
+                podcast = new Podcast();
+                podcast.source = "podcastindex.org";
+                podcast.feedId = podcastFeed.id;
+                podcast.title = podcastFeed.title;
+                podcast.image = podcastFeed.image;
+                podcast.imageOriginalUrl = podcastFeed.image;
+                podcast.description = podcastFeed.description;
+                podcast.isFavorite = false;
+                podcast.autoDownload = false;
+                AppDatabase.getDatabase(this.context).PodcastDao().insert(podcast);
+            }
+        });
     }
 
 }

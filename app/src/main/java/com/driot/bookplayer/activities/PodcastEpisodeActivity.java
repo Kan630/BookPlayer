@@ -35,6 +35,7 @@ import com.driot.bookplayer.db.PodcastDao;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.objects.PlayList;
 import com.driot.bookplayer.objects.PodcastEpisode;
+import com.driot.bookplayer.objects.PodcastFeed;
 import com.driot.bookplayer.utils.PodcastHelper;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
@@ -48,12 +49,8 @@ public class PodcastEpisodeActivity extends LoggingActivity {
     private ProgressBar progressBar;
     private PodcastEpisodeRVAdapter adapter;
 
+    private PodcastFeed podcastFeed;
     private Podcast podcast;
-    private long idFolder;
-    private String title;
-    private long feedId;
-    private String image;
-    private String description;
 
     private ImageButton btnFavorite, btnAutoDownload;
     private PodcastDao podcastDao;
@@ -75,45 +72,46 @@ public class PodcastEpisodeActivity extends LoggingActivity {
         progressBar = findViewById(R.id.progressBarEpisodes);
 
         ivCover.setOnClickListener(view -> {
+            myLogI("---- USER CLICK IMAGE ----");
             goToPlaySection();
         });
 
         podcastDao = AppDatabase.getDatabase(this).PodcastDao();
 
-        podcast = getIntent().getParcelableExtra("podcast");
+        podcast = getIntent().getParcelableExtra("podcast"); // from Favorites
+        podcastFeed = getIntent().getParcelableExtra("podcastFeed"); // from Search
 
 /*
         if (podcast == null) { //comes from the SearchResult, try to see if in DB
             AppDatabase.databaseWriteExecutor.execute(() -> {
-                podcast = podcastDao.getPodcastByFeedId(feedId);  // MAYBE too slow and not really needed....
+                podcast = podcastDao.getPodcastBypodcastFeed.id(podcastFeed.id);  // MAYBE too slow and not really needed....
             }
         }
  */
-        if (podcast == null) {
-            //not in DB, we just have a PodcastFeed, not a Room Podcast
-            //we will only insert in DB if user clicks favorites
-            feedId = getIntent().getLongExtra("feedId", -1);
-            title = getIntent().getStringExtra("title");
-            image = getIntent().getStringExtra("image");
-            description = getIntent().getStringExtra("description");
-        } else { //already in DB (is a favorite)
-            idFolder = podcast.idFolder;
-            feedId = podcast.feedId;
-            title = podcast.title;
-            image = podcast.image;
-            description = podcast.description;
+
+        if (podcastFeed == null) {
+            if (podcast == null) {
+                myLogEE(null,"podcast and podcastFeed are null");
+                return;
+            }
+            podcastFeed = new PodcastFeed(
+                      podcast.feedId
+                    , podcast.title
+                    , podcast.image
+                    , podcast.description
+            );
         }
 
         recyclerEpisodes.setLayoutManager(new LinearLayoutManager(this));
         PodcastEpisodeViewModel viewModel = new ViewModelProvider(this).get(PodcastEpisodeViewModel.class);
-        adapter = new PodcastEpisodeRVAdapter(this, title, feedId, viewModel);
+        adapter = new PodcastEpisodeRVAdapter(this, podcast, podcastFeed, viewModel);
         recyclerEpisodes.setAdapter(adapter);
 
-        tvTitle.setText(title);
-        tvDescription.setText(parseMaybeHtml(description));
-        Glide.with(this).load(image).into(ivCover);
+        tvTitle.setText(podcastFeed.title);
+        tvDescription.setText(parseMaybeHtml(podcastFeed.description));
+        Glide.with(this).load(podcastFeed.image).into(ivCover);
 
-        if (feedId == -1) {
+        if (podcastFeed.id == -1) {
             myToastE("Error loading episodes. ID=-1");
         } else {
             fetchEpisodes();
@@ -131,7 +129,7 @@ public class PodcastEpisodeActivity extends LoggingActivity {
         tvDescription.setMaxHeight(maxHeightPx);
 
         tvDescription.setOnClickListener(v -> {
-            showFullDescription(description);
+            showFullDescription(podcastFeed.description);
         });
     }
 
@@ -152,7 +150,7 @@ public class PodcastEpisodeActivity extends LoggingActivity {
         myLog("--- USER CLICKS FAVORITE");
         stopAnimateButtons();
         AppDatabase.databaseWriteExecutor.execute(() -> {
-            Podcast podcast = podcastDao.getPodcastByFeedId(feedId);
+            Podcast podcast = podcastDao.getPodcastByFeedId(podcastFeed.id);
 
             if (podcast == null) {
                 podcast = new Podcast();
@@ -186,7 +184,7 @@ public class PodcastEpisodeActivity extends LoggingActivity {
         myLog("--- USER CLICKS AUTO DOWNLOAD");
         stopAnimateButtons();
         AppDatabase.databaseWriteExecutor.execute(() -> {
-            Podcast podcast = podcastDao.getPodcastByFeedId(feedId);
+            Podcast podcast = podcastDao.getPodcastByFeedId(podcastFeed.id);
 
             if (podcast == null) {
                 podcast = new Podcast();
@@ -227,7 +225,7 @@ public class PodcastEpisodeActivity extends LoggingActivity {
     private void fetchEpisodes() {
         progressBar.setVisibility(View.VISIBLE);
 
-        PodcastHelper.getEpisodesByFeedId(feedId, PODCASTINDEXORG_SINCE_DEBUG, new PodcastHelper.EpisodeCallback() {
+        PodcastHelper.getEpisodesByFeedId(podcastFeed.id, PODCASTINDEXORG_SINCE_DEBUG, new PodcastHelper.EpisodeCallback() {
             @Override
             public void onSuccess(List<PodcastEpisode> episodes) {
                 runOnUiThread(() -> {
@@ -241,7 +239,7 @@ public class PodcastEpisodeActivity extends LoggingActivity {
             public void onError(Exception e) {
                 runOnUiThread(() -> {
                     progressBar.setVisibility(View.GONE);
-                    myToastEE(e,"Error loading episodes for " + title + " - feedID = " + feedId );
+                    myToastEE(e,"Error loading episodes for " + podcastFeed.title + " - podcastFeed.id = " + podcastFeed.id );
                     tvDescription.setText("Error loading episodes\n" + e.getMessage());
                 });
             }
@@ -300,7 +298,7 @@ public class PodcastEpisodeActivity extends LoggingActivity {
             @Override
             public void onAnimationEnd(android.animation.Animator animation) {
                 AppDatabase.databaseWriteExecutor.execute(() -> {
-                    Podcast podcast = podcastDao.getPodcastByFeedId(feedId);
+                    Podcast podcast = podcastDao.getPodcastByFeedId(podcastFeed.id);
                     if (podcast != null) {
                         boolean isFav = podcast.isFavorite;
                         boolean isAuto = podcast.autoDownload;
@@ -319,48 +317,61 @@ public class PodcastEpisodeActivity extends LoggingActivity {
 
     private void populatePodCast(Podcast podcast) {
         podcast.source = "podcastindex.org";
-        podcast.feedId = feedId;
-        podcast.title = title;
-        podcast.image = image;
-        podcast.description = description;
+        podcast.feedId = podcastFeed.id;
+        podcast.title = podcastFeed.title;
+        podcast.image = podcastFeed.image;
+        podcast.imageOriginalUrl = podcastFeed.image;
+        podcast.description = podcastFeed.description;
         podcast.isFavorite = true;
-        podcast.date_added = System.currentTimeMillis();
     }
 
-
-
     private void goToPlaySection() {
-        if (idFolder>0) {
-            new Thread(() -> {
-                try {
-                    Folder folder = AppDatabase.getDatabase(this).FolderDao().getById(idFolder);
-                    if (folder != null) {
-                        try {
-                            List<ZikFile> zikFilesList = AppDatabase.getDatabase(this).ZikFileDao().getZikFiles(idFolder);
-                            myLogI("nb ZikFiles in that Book : " + zikFilesList.size() + " - [" + folder.getName() + "]");
-                            PlayList.create(this, zikFilesList);
-                            if (zikFilesList.size() > 1) {
-                                this.startActivity(new Intent(this, ZikFileActivity.class)
-                                        .putExtra("FolderId", folder.getId())
-                                        .putExtra("FolderName", folder.getName())
-                                );
-                            } else if (zikFilesList.size() == 1) {
-                                PlayList.getInstance().setNumZikFile(0);
-                                this.startActivity(new Intent(this, PlayActivity.class).putExtra("ZikFile", zikFilesList.get(0)));
-                            } else {
-                                myLogE("no ZikFiles in that folder !");
-                                myToastE(getString(R.string.ErrorCouldNotLoadAudios_emptyfolder));
+        if (podcast == null) {
+            AppDatabase.getDatabaseReadExecutor().execute(() -> {
+                podcast = AppDatabase.getDatabase(this).PodcastDao().getPodcastByFeedId(podcastFeed.id);
+            });
+        } else {
+            goToPlaySection2();
+        }
+    }
+    private void goToPlaySection2() {
+        if (podcast != null) {
+            if (podcast.idFolder > 0) {
+                new Thread(() -> {
+                    try {
+                        Folder folder = AppDatabase.getDatabase(this).FolderDao().getById(podcast.idFolder);
+                        if (folder != null) {
+                            try {
+                                List<ZikFile> zikFilesList = AppDatabase.getDatabase(this).ZikFileDao().getZikFiles(podcast.idFolder);
+                                myLogI("nb ZikFiles in that Book : " + zikFilesList.size() + " - [" + folder.getName() + "]");
+                                PlayList.create(this, zikFilesList);
+                                if (zikFilesList.size() > 1) {
+                                    this.startActivity(new Intent(this, ZikFileActivity.class)
+                                            .putExtra("FolderId", folder.getId())
+                                            .putExtra("FolderName", folder.getName())
+                                    );
+                                } else if (zikFilesList.size() == 1) {
+                                    PlayList.getInstance().setNumZikFile(0);
+                                    this.startActivity(new Intent(this, PlayActivity.class).putExtra("ZikFile", zikFilesList.get(0)));
+                                } else {
+                                    myLogE("no ZikFiles in that folder !");
+                                    myToastE(getString(R.string.ErrorCouldNotLoadAudios_emptyfolder));
+                                }
+                            } catch (Exception e) {
+                                myLogEE(e, "error getting nb of ZikFiles");
+                                myToastE(getString(R.string.ErrorCouldNotLoadAudios));
                             }
-                        } catch (Exception e) {
-                            myLogEE(e,"error getting nb of ZikFiles");
-                            myToastE(getString(R.string.ErrorCouldNotLoadAudios));
                         }
+                    } catch (Exception e) {
+                        myLogEE(e, "error getting Folder");
+                        myToastE(getString(R.string.ErrorCouldNotLoadAudios));
                     }
-                } catch (Exception e) {
-                    myLogEE(e,"error getting Folder");
-                    myToastE(getString(R.string.ErrorCouldNotLoadAudios));
-                }
-            }).start();
+                }).start();
+            } else {
+                myLogE("id Folder = 0");
+            }
+        } else {
+            myLogE("Podcast == null");
         }
     }
 }

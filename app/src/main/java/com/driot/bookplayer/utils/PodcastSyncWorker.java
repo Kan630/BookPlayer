@@ -63,7 +63,11 @@ public class PodcastSyncWorker extends Worker {
             folderDb.setSourceLocation("podcast");
             folderDb.date_added = System.currentTimeMillis();
             folderDb.date_last_zikfile_added = System.currentTimeMillis();
-            folderDb.image = podcastDao.getPodcastByFeedId(feedId).image;
+            try {
+                folderDb.image = podcastDao.getPodcastByFeedId(feedId).image;
+            } catch (Exception e) {
+                myLogE("copy podcast image in folder failed");
+            }
 
             long newId = folderDao.insert(folderDb); // Room returns the new ID
             idFolder = (int) newId; // safely cast to int

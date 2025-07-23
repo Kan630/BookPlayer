@@ -34,6 +34,7 @@ public class Podcast implements Parcelable {
     public String title;
 
     public String image;
+    public String imageOriginalUrl;
     public String description;
     public String language;
 
@@ -44,7 +45,7 @@ public class Podcast implements Parcelable {
     public long date_added;
 
     public Podcast() {
-        this.title = "";
+        this.date_added = System.currentTimeMillis();
     }
 
     public void setId(int id) { this.id = id; }
