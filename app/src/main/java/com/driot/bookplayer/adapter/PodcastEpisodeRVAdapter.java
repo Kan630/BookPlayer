@@ -95,7 +95,10 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
         boolean isDownloaded = file.exists();
 
         LiveData<ZikFile> liveZikFile = viewModel.getZikFileLive(folderPodcastEpisode.getAbsolutePath(), episodeFileName);
+        liveZikFile.removeObservers(lifecycleOwner); //not sure it is usefull
+        holder.icon_1.setTag(episodeFileName); // ---- avoid stop flickers on another completion -- Sometimes the LiveData callback gets called even after the view has been recycled
         liveZikFile.observe(lifecycleOwner, zikFile -> {
+            if (!holder.icon_1.getTag().equals(episodeFileName)) return; // ---- avoid stop flickers on another completion --
             if (zikFile != null) {
                 if (holder.flickerRunning && holder.flickerAnim != null) {
                     holder.flickerRunning = false;
