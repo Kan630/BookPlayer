@@ -1,5 +1,6 @@
 package com.driot.bookplayer.adapter;
 
+import static androidx.core.content.ContextCompat.startActivity;
 import static com.driot.bookplayer.utils.PodcastHelper.buildPodcastEpisodeName;
 import static com.driot.bookplayer.utils.PodcastHelper.buildPodcastPath;
 
@@ -85,11 +86,14 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
         holder.itemView.setOnClickListener(v -> {
             myLog("------------ USER CLICKS EPISODE --------------  [" + episodeFileName + "]");
             myLogD(episode.toString());
+            /*
             if (episode.enclosureUrl != null && !episode.enclosureUrl.isEmpty()) {
                 //showDownloadOptionsDialog(context, episode.enclosureUrl, episode.title);
             } else {
                 myToastE("No audio URL available");
             }
+             */
+            clickOnEpisode(holder, episode);
         });
 
 // Check if in physical folder : reserved sd card or reserved smartphone storage
@@ -102,7 +106,7 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
             file = new File(folderPodcastEpisode, episodeFileName);
             isDownloaded = file.exists();
         }
-        myLogW(podcastTitle + " - " + episodeFileName);
+        //myLogW(podcastTitle + " - " + episodeFileName);
         LiveData<ZikFile> liveZikFile = viewModel.getZikFileLive(podcastTitle, episodeFileName); //changed from full path to just folder name, to deal with multiple locations
         liveZikFile.removeObservers(lifecycleOwner); //not sure it is usefull
         holder.icon_1.setTag(episodeFileName); // ---- avoid stop flickers on another completion -- Sometimes the LiveData callback gets called even after the view has been recycled
@@ -117,6 +121,7 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
                     holder.icon_1.setScaleX(1f);
                     holder.icon_1.setScaleY(1f);
                 }
+                holder.zikFile = zikFile;
                 String percentDone = String.format(Locale.US, "%.0f", zikFile.getPercentdone());
                 String lastAdded = "Added : " + android.text.format.DateFormat.format("yyyy-MM-dd HH:mm", zikFile.date_added);
                 String stats2 = percentDone + "% listened\n" + lastAdded;
@@ -211,6 +216,7 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
         ImageView icon_1;
         AnimatorSet flickerAnim;
         boolean flickerRunning = false;
+        ZikFile zikFile;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -352,6 +358,36 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
         });
 
         return flicker;
+    }
+
+    private void clickOnEpisode(ViewHolder holder, PodcastEpisode episode) {
+        playThatShit(holder);
+    }
+
+    private void playThatShit(ViewHolder holder) {
+        new Thread(() -> {
+            try {
+                ZikFile zikFile = holder.zikFile;
+                List<ZikFile> zikFilesList = AppDatabase.getDatabase(context).ZikFileDao().getZikFiles(zikFile.getIdFolder());
+                PlayList.create(context, zikFilesList);
+                int rankZikFile = getZikFileRankInFolderSync(zikFilesList, zikFile.getName());
+                myLog("rankZikFile = " + rankZikFile);
+                if (rankZikFile >= 0 ) {
+                    PlayList.getInstance().setNumZikFile(rankZikFile);
+                    context.startActivity(new Intent(this.context, PlayActivity.class).putExtra("ZikFile", zikFile));
+                }
+            } catch (Exception e) {
+                myLogEE(e, "clickOnEpisode - playThatShit");
+            }
+        }).start();
+    }
+    public int getZikFileRankInFolderSync(List<ZikFile> files, String fileName) {
+        for (int i = 0; i < files.size(); i++) {
+            if (files.get(i).getName().equals(fileName)) {
+                return i ;
+            }
+        }
+        return -1; // not found
     }
 
 }

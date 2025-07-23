@@ -140,7 +140,7 @@ public class PlayList {
     }
 
     private static PlayList loadFromStorage() {
-        myLogW("Playlist retreived");
+        myLogW("Playlist retreived - loadFromStorage()");
         SharedPreferences prefs = appContext.getApplicationContext().getSharedPreferences(SHARED_PREFERENCE_CURRENT_PLAYLIST, Context.MODE_PRIVATE);
         String json = prefs.getString(KEY_ZIK_FILES_LIST, null);
         if (json == null) return null;

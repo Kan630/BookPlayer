@@ -115,8 +115,6 @@ public interface ZikFileDao {
     ZikFile getZikFileFromFullPath(String folderPath, String episodeName);
 
 
-
-
     // Exemple avec dates :
     //@Query("SELECT * FROM user WHERE birthday BETWEEN :from AND :to")
     //List<User> findUsersBornBetweenDates(Date from, Date to);
