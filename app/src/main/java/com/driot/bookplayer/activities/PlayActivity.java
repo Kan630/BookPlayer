@@ -17,11 +17,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.db.AppDatabase;
+import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.objects.PlayList;
 import com.driot.bookplayer.services.AudioService;
@@ -222,6 +225,20 @@ public class PlayActivity extends LoggingActivity {
         tvTimeLeft = findViewById(R.id.tv_TimeLeft);
         frequencyVisualizerView = findViewById(R.id.frequencyVisualizerView);
         frequencyVisualizerView.setOnClickListener(v -> visualizerClick());
+
+        ImageView imFolderImage = findViewById(R.id.folderImage);
+
+        AppDatabase.databaseWriteExecutor.execute(() -> {
+            Folder folder = AppDatabase.getDatabase(this).FolderDao().getById(PlayList.getInstance().getZikFile().getIdFolder());
+            if (folder.image != null && !folder.image.isEmpty()) {
+                imFolderImage.setImageURI(Uri.parse(folder.image));
+                imFolderImage.setVisibility(View.VISIBLE);
+                frequencyVisualizerView.setAlpha(0.6f);
+            } else {
+                imFolderImage.setVisibility(View.GONE);
+                frequencyVisualizerView.setAlpha(1f); // fully opaque
+            }
+        });
 
         if (PlayList.getInstance() == null) {
             myToast("error getting Playlist");

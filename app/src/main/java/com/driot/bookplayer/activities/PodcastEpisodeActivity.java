@@ -3,6 +3,7 @@ package com.driot.bookplayer.activities;
 import static com.driot.bookplayer.global.Pref.shouldAnimateButtons;
 import static com.driot.bookplayer.global.Pref.stopAnimateButtons;
 import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_SINCE_DEBUG;
+import static com.driot.bookplayer.utils.ImageHelper.processPendingImages;
 import static com.driot.bookplayer.utils.PodcastHelper.checkForNewEpisodesToAutoDownload;
 import static com.driot.bookplayer.utils.TextOptions.parseMaybeHtml;
 
@@ -167,6 +168,7 @@ public class PodcastEpisodeActivity extends LoggingActivity {
                     myToast(getString(R.string.podcast_favorite_add));
                 }
                 podcastDao.update(podcast);
+                processPendingImages(this);
             }
 
             boolean newState = podcast.isFavorite;

@@ -80,6 +80,8 @@ public interface FolderDao {
     @Query("UPDATE Folder SET lastaccess = :timestamp WHERE id = :folderId")
     void updateLastAccess(int folderId, java.sql.Date timestamp);
 
+    @Query("SELECT * FROM Folder WHERE image LIKE 'http%'")
+    List<Folder> getAllWithRemoteImage();
 
     // Exemple avec dates :
     //@Query("SELECT * FROM user WHERE birthday BETWEEN :from AND :to")

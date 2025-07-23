@@ -64,6 +64,7 @@ import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.objects.PlayList;
 import com.driot.bookplayer.services.AudioService;
+import com.driot.bookplayer.utils.ImageHelper;
 import com.driot.bookplayer.utils.KanLogger;
 import com.driot.bookplayer.utils.KanMail;
 import com.driot.bookplayer.utils.NetworkUtils;
@@ -187,6 +188,7 @@ public class MainActivity extends LoggingActivity {
         if (shouldCheckApiForAutoDownload()) {
             checkForNewEpisodesToAutoDownload(this, PODCASTINDEXORG_SINCE_DEBUG);
         }
+        ImageHelper.processPendingImages(this);
     }
 
     @Override

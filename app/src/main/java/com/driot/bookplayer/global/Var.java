@@ -9,6 +9,8 @@ import java.util.Set;
  */
 public class Var {
 
+    public static final int MAX_IMAGE_SIZE_KB = 200;
+
     public static final int PODCASTINDEXORG_API_MIN_TIME_BETWEEN_AUTO_CHECK_IN_MIN = 60;
     public static final String PODCASTINDEXORG_API_KEY = "PVULATRUYKDZX26NBGTR";
     public static final String PODCASTINDEXORG_API_SECRET = "ACtMRyawFkg4MxA55y^CH$fE3Dynds4gURfByYXL";

@@ -43,5 +43,11 @@ public abstract class AppDatabase extends RoomDatabase {
         return DatabaseClient.getInstance(context).getAppDatabase();
     }
 
+    private static final ExecutorService databaseReadExecutor =
+            Executors.newFixedThreadPool(2); // or however many you want
+
+    public static ExecutorService getDatabaseReadExecutor() {
+        return databaseReadExecutor;
+    }
 }
 

@@ -199,6 +199,16 @@
 
 
 
+    <!-- Optional background image under visualizer -->
+    <ImageView
+        android:id="@+id/folderImage"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_below="@+id/textViewSubTitle"
+        android:layout_above="@+id/horizontalBarTopOfSleep"
+        android:layout_centerInParent="true"
+        android:scaleType="centerInside"
+        android:visibility="gone" />
 
     <com.driot.bookplayer.utils.FrequencyVisualizerView
         android:id="@+id/frequencyVisualizerView"

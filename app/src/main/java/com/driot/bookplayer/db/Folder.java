@@ -85,6 +85,8 @@ public class Folder implements Serializable {
 
     public long date_last_zikfile_added;
 
+    public String image;
+
 
 
     /*
