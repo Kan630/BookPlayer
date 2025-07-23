@@ -3,6 +3,8 @@ package com.driot.bookplayer.adapter;
 import static com.driot.bookplayer.utils.PodcastHelper.buildPodcastEpisodeName;
 import static com.driot.bookplayer.utils.PodcastHelper.buildPodcastPath;
 
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -19,6 +21,8 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
@@ -43,12 +47,14 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
     private final String podcastTitle;
     private final long podcastFeedId;
     private final PodcastEpisodeViewModel viewModel;
+    private final LifecycleOwner lifecycleOwner;
 
     public PodcastEpisodeRVAdapter(Context context, String podcastTitle, long podcastFeedId, PodcastEpisodeViewModel viewModel) {
         this.context = context;
         this.podcastTitle = podcastTitle;
         this.podcastFeedId = podcastFeedId;
         this.viewModel = viewModel;
+        this.lifecycleOwner = (LifecycleOwner) context; // Assumes context is a LifecycleOwner (e.g., Activity)
     }
 
     public void setItems(List<PodcastEpisode> episodes) {
@@ -82,6 +88,54 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
                 myToastE("No audio URL available");
             }
         });
+
+// Check if in physical folder
+        File folderPodcastEpisode = buildPodcastPath(context, podcastTitle);
+        File file = new File(folderPodcastEpisode, episodeFileName);
+        boolean isDownloaded = file.exists();
+
+        LiveData<ZikFile> liveZikFile = viewModel.getZikFileLive(folderPodcastEpisode.getAbsolutePath(), episodeFileName);
+        liveZikFile.observe(lifecycleOwner, zikFile -> {
+            if (zikFile != null) {
+                if (holder.flickerRunning && holder.flickerAnim != null) {
+                    holder.flickerRunning = false;
+                    holder.flickerAnim.cancel();
+                    holder.flickerAnim = null;
+                    holder.icon_1.setScaleX(1f);
+                    holder.icon_1.setScaleY(1f);
+                }
+                String percentDone = String.format(Locale.US, "%.0f", zikFile.getPercentdone());
+                String lastAdded = "Added : " + android.text.format.DateFormat.format("yyyy-MM-dd HH:mm", zikFile.date_added);
+                String stats2 = percentDone + "% listened\n" + lastAdded;
+                holder.tvEpisodeDBStats.setText(stats2);
+                holder.icon_1.setVisibility(View.VISIBLE);
+                holder.icon_1.setColorFilter(ContextCompat.getColor(context, R.color.green_300));
+            } else if (isDownloaded) {
+                holder.tvEpisodeDBStats.setText("");
+                holder.icon_1.setVisibility(View.VISIBLE);
+                holder.icon_1.setColorFilter(ContextCompat.getColor(context, R.color.orange_500));
+            } else {
+                holder.tvEpisodeDBStats.setText("");
+                holder.icon_1.setVisibility(View.VISIBLE);
+                holder.icon_1.setColorFilter(ContextCompat.getColor(context, R.color.pastel_blue_300));
+                holder.icon_1.setOnClickListener(v -> {
+                    myLog("---- USER CLICKS ----- Downloading single episode: " + episode.title);
+                    if (holder.flickerAnim == null) {
+                        holder.flickerRunning = true;
+                        holder.flickerAnim = createFlickerAnimation(holder.icon_1,holder);
+                        holder.flickerAnim.start();
+                    }
+                    File targetFolder = buildPodcastPath(context, podcastTitle);
+                    if (!targetFolder.exists()) targetFolder.mkdirs();
+
+                    List<PodcastEpisode> singleList = new ArrayList<>();
+                    singleList.add(episode);
+
+                    PodcastDownloadManager.enqueueDownloads(context, podcastFeedId, singleList, targetFolder, null);
+                });
+            }
+        });
+/*
 
 // Check if in physical folder
         File folderPodcastEpisode = buildPodcastPath(context, podcastTitle);
@@ -131,6 +185,7 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
                 PodcastDownloadManager.enqueueDownloads(context, podcastFeedId, singleList, targetFolder, null);
             });
         }
+ */
     }
 
     @Override
@@ -141,6 +196,8 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView tvTitle, tvDate, tvEpisodeStats, tvEpisodeDBStats;
         ImageView icon_1;
+        AnimatorSet flickerAnim;
+        boolean flickerRunning = false;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -233,6 +290,57 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
 
          */
     }
+    private void flickerIcon(ImageView icon) {
+        float maxSize = 1.6f;
+        int animTime = 300;
+
+        ObjectAnimator scaleUpX = ObjectAnimator.ofFloat(icon, "scaleX", 1f, maxSize);
+        ObjectAnimator scaleUpY = ObjectAnimator.ofFloat(icon, "scaleY", 1f, maxSize);
+        ObjectAnimator scaleDownX = ObjectAnimator.ofFloat(icon, "scaleX", maxSize, 1f);
+        ObjectAnimator scaleDownY = ObjectAnimator.ofFloat(icon, "scaleY", maxSize, 1f);
+
+        AnimatorSet scaleUp = new AnimatorSet();
+        scaleUp.playTogether(scaleUpX, scaleUpY);
+
+        AnimatorSet scaleDown = new AnimatorSet();
+        scaleDown.playTogether(scaleDownX, scaleDownY);
+
+        AnimatorSet flicker = new AnimatorSet();
+        flicker.playSequentially(scaleUp, scaleDown);
+        flicker.setDuration(animTime);
+        flicker.start();
+    }
+    private AnimatorSet createFlickerAnimation(View view, ViewHolder holder) {
+        float maxSize = 1.4f;
+        int animTime = 300;
+
+        ObjectAnimator scaleUpX = ObjectAnimator.ofFloat(view, "scaleX", 1f, maxSize);
+        ObjectAnimator scaleUpY = ObjectAnimator.ofFloat(view, "scaleY", 1f, maxSize);
+        ObjectAnimator scaleDownX = ObjectAnimator.ofFloat(view, "scaleX", maxSize, 1f);
+        ObjectAnimator scaleDownY = ObjectAnimator.ofFloat(view, "scaleY", maxSize, 1f);
+
+        AnimatorSet scaleUp = new AnimatorSet();
+        scaleUp.playTogether(scaleUpX, scaleUpY);
+
+        AnimatorSet scaleDown = new AnimatorSet();
+        scaleDown.playTogether(scaleDownX, scaleDownY);
+
+        AnimatorSet flicker = new AnimatorSet();
+        flicker.playSequentially(scaleUp, scaleDown);
+        flicker.setDuration(animTime);
+
+        flicker.addListener(new android.animation.AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(android.animation.Animator animation) {
+                if (holder.flickerRunning) {
+                    flicker.start();  // loop again
+                }
+            }
+        });
+
+        return flicker;
+    }
+
 
 
 
