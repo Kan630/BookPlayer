@@ -67,7 +67,7 @@ public class DatabaseClient {
                     "isFavorite INTEGER NOT NULL DEFAULT 0, " +
                     "autoDownload INTEGER NOT NULL DEFAULT 0, " +
                     "idFolder INTEGER, " +
-                    "date_added INTEGER, " +
+                    "date_added INTEGER NOT NULL DEFAULT 0, " +
 
                     "FOREIGN KEY(idFolder) REFERENCES Folder(id) ON DELETE SET NULL)"
         );
