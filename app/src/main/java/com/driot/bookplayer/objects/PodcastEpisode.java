@@ -16,7 +16,5 @@ public class PodcastEpisode {
     public Integer duration; // in seconds
     public long enclosureLength; // in bytes
 
-    // manually SET  (don't forget) !!
-    public Podcast podcast;
 
 }

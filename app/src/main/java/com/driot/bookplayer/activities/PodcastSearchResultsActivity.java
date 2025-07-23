@@ -16,7 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.adapter.PodcastSearchResultsRVAdapter;
 import com.driot.bookplayer.objects.PodcastFeed;
-import com.driot.bookplayer.utils.PodcastIndexHelper;
+import com.driot.bookplayer.utils.PodcastHelper;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import java.util.List;
@@ -93,7 +93,7 @@ public class PodcastSearchResultsActivity extends LoggingActivity {
         emptyMessage.setVisibility(View.GONE);
 
         if (!query.equals("")) {
-            PodcastIndexHelper.searchPodcasts(query, lang, new PodcastIndexHelper.Callback() {
+            PodcastHelper.searchPodcasts(query, lang, new PodcastHelper.Callback() {
                 @Override
                 public void onSuccess(List<PodcastFeed> feeds) {
                     runOnUiThread(() -> {
@@ -107,7 +107,7 @@ public class PodcastSearchResultsActivity extends LoggingActivity {
                 }
             });
         } else {
-            PodcastIndexHelper.getTrendingPodcasts(lang, PODCASTINDEXORG_API_MAX_RESULTS, new PodcastIndexHelper.Callback() {
+            PodcastHelper.getTrendingPodcasts(lang, PODCASTINDEXORG_API_MAX_RESULTS, new PodcastHelper.Callback() {
                 @Override
                 public void onSuccess(List<PodcastFeed> feeds) {
                     runOnUiThread(() -> {

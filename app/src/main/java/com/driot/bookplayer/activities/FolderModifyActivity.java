@@ -18,7 +18,7 @@ import com.driot.bookplayer.utils.log.LoggingActivity;
 import java.io.File;
 
 import static com.driot.bookplayer.global.Var.PATH_CHECK_APPLICATION;
-import static com.driot.bookplayer.utils.PodcastIndexHelper.cancelAutoDownload;
+import static com.driot.bookplayer.utils.PodcastHelper.cancelAutoDownload;
 import static com.driot.bookplayer.utils.Utils.recursiveRemove;
 
 /**

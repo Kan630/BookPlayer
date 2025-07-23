@@ -1,20 +1,15 @@
 package com.driot.bookplayer.adapter;
 
-import static com.driot.bookplayer.utils.PodcastIndexHelper.buildPodcastEpisodeName;
-import static com.driot.bookplayer.utils.PodcastIndexHelper.buildPodcastPath;
+import static com.driot.bookplayer.utils.PodcastHelper.buildPodcastEpisodeName;
+import static com.driot.bookplayer.utils.PodcastHelper.buildPodcastPath;
 
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.job.JobInfo;
-import android.app.job.JobScheduler;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.PersistableBundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,10 +23,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.LoadOptionsActivity;
 import com.driot.bookplayer.db.AppDatabase;
-import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.objects.PodcastEpisode;
-import com.driot.bookplayer.services.DownloadJobService;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingRVAdapter;
 
@@ -74,9 +67,9 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
         String episodeFileName = buildPodcastEpisodeName(episode);
 
         holder.itemView.setOnClickListener(v -> {
-            myLog("Episode clicked: " + episodeFileName);
+            myLog("------------ USER CLICKS EPISODE --------------  [" + episodeFileName + "]");
+            myLogD(episode.toString());
             if (episode.enclosureUrl != null && !episode.enclosureUrl.isEmpty()) {
-                myLogD("URL : " + episode.enclosureUrl);
                 //showDownloadOptionsDialog(context, episode.enclosureUrl, episode.title);
             } else {
                 myToast("No audio URL available");

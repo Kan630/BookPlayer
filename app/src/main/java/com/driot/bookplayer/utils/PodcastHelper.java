@@ -3,8 +3,9 @@ package com.driot.bookplayer.utils;
 import static com.driot.bookplayer.global.Var.FOLDER_UNZIPPED;
 import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_API_KEY;
 import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_API_SECRET;
-import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_MAX_DOWNLOAD;
+import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_MAX_EPISODE_AUTO_DOWNLOAD;
 import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_API_MAX_RESULTS;
+import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_MAX_PODCAST_AUTO_DOWNLOAD;
 import static com.driot.bookplayer.utils.KanFiles.sanitizeFilename;
 
 import com.driot.bookplayer.db.AppDatabase;
@@ -32,7 +33,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 import android.content.Context;
 
-public class PodcastIndexHelper {
+public class PodcastHelper {
 
     public interface Callback {
         void onSuccess(List<PodcastFeed> feeds);
@@ -40,9 +41,7 @@ public class PodcastIndexHelper {
     }
 
     public static File buildPodcastPath(Context context, Podcast podcast) {
-        String podcastTitle = sanitizeFilename(podcast.title);
-        File baseFolder = new File(context.getFilesDir(), FOLDER_UNZIPPED);
-        return new File(baseFolder, podcastTitle);
+        return buildPodcastPath(context, podcast.title);
     }
 
     public static File buildPodcastPath(Context context, String podcastTitle) {
@@ -192,19 +191,22 @@ public class PodcastIndexHelper {
     public static void checkForNewEpisodesToAutoDownload(Context context, long since) {
         AppDatabase.databaseWriteExecutor.execute(() -> {
             List<Podcast> autoList = AppDatabase.getDatabase(context).PodcastDao().getAutoDownloads();
+            int i=0;
             for (Podcast podcast : autoList) {
-                checkForNewEpisodesToAutoDownload(context, podcast, since);
+                i=i+1;
+                myLogD("checking new episodes for podcast " + i + " [" + podcast.title + "]");
+                if (i > PODCASTINDEXORG_MAX_PODCAST_AUTO_DOWNLOAD) {
+                    myLogW("Max number of podcasts to auto download reached, bypassing...");
+                } else {
+                    checkForNewEpisodesToAutoDownload(context, podcast, since);
+                }
             }
         });
     }
     public static void checkForNewEpisodesToAutoDownload(Context context, Podcast podcast, long since) {
-        myLogD("checking new episodes for podcast [" + podcast.title + "]");
         getEpisodesByFeedId(podcast.feedId, since, new EpisodeCallback() {
             @Override
             public void onSuccess(List<PodcastEpisode> episodes) {
-                for (PodcastEpisode episode : episodes) {
-                    episode.podcast = podcast;
-                }
                 File podcastFolder = buildPodcastPath(context, podcast);
                 if (!podcastFolder.exists()) podcastFolder.mkdirs();
 
@@ -214,7 +216,7 @@ public class PodcastIndexHelper {
                 for (PodcastEpisode episode : episodes) {
                     /// EPISODES LOOP ////////////////////////////////////////////////////////
                     i++;
-                    if (i > PODCASTINDEXORG_MAX_DOWNLOAD) break;
+                    if (i > PODCASTINDEXORG_MAX_EPISODE_AUTO_DOWNLOAD) break;
 
                     String baseName = buildPodcastEpisodeName(episode);
                     File destFile = new File(podcastFolder, baseName);

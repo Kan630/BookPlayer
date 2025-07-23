@@ -16,7 +16,7 @@ import static com.driot.bookplayer.utils.Mp4Parser.extractChaptersAsAac;
 import static com.driot.bookplayer.utils.Mp4Parser.inspect;
 
  */
-import static com.driot.bookplayer.utils.PodcastIndexHelper.checkForNewEpisodesToAutoDownload;
+import static com.driot.bookplayer.utils.PodcastHelper.checkForNewEpisodesToAutoDownload;
 import static com.driot.bookplayer.utils.TonioCommonStuff.MD5;
 import static com.driot.bookplayer.utils.WorkFlow.maybeResumeWorkFlow;
 
@@ -51,9 +51,6 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.work.OneTimeWorkRequest;
-import androidx.work.WorkInfo;
-import androidx.work.WorkManager;
 
 //import com.arthenica.ffmpegkit.FFmpegKit;
 //import com.arthenica.ffmpegkit.ReturnCode;
@@ -63,12 +60,10 @@ import com.driot.bookplayer.adapter.FoldersRVAdapter;
 import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.FolderDao;
-import com.driot.bookplayer.db.Sql;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.objects.PlayList;
 import com.driot.bookplayer.services.AudioService;
-import com.driot.bookplayer.utils.HashWorker;
 import com.driot.bookplayer.utils.KanLogger;
 import com.driot.bookplayer.utils.KanMail;
 import com.driot.bookplayer.utils.NetworkUtils;

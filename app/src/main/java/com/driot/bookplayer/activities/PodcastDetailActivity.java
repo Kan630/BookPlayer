@@ -3,7 +3,7 @@ package com.driot.bookplayer.activities;
 import static com.driot.bookplayer.global.Pref.shouldAnimateButtons;
 import static com.driot.bookplayer.global.Pref.stopAnimateButtons;
 import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_SINCE_DEBUG;
-import static com.driot.bookplayer.utils.PodcastIndexHelper.checkForNewEpisodesToAutoDownload;
+import static com.driot.bookplayer.utils.PodcastHelper.checkForNewEpisodesToAutoDownload;
 import static com.driot.bookplayer.utils.TextOptions.parseMaybeHtml;
 
 import android.animation.AnimatorSet;
@@ -29,7 +29,7 @@ import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.db.PodcastDao;
 import com.driot.bookplayer.objects.PodcastEpisode;
-import com.driot.bookplayer.utils.PodcastIndexHelper;
+import com.driot.bookplayer.utils.PodcastHelper;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import java.util.List;
@@ -213,12 +213,9 @@ public class PodcastDetailActivity extends LoggingActivity {
     private void fetchEpisodes() {
         progressBar.setVisibility(View.VISIBLE);
 
-        PodcastIndexHelper.getEpisodesByFeedId(feedId, PODCASTINDEXORG_SINCE_DEBUG, new PodcastIndexHelper.EpisodeCallback() {
+        PodcastHelper.getEpisodesByFeedId(feedId, PODCASTINDEXORG_SINCE_DEBUG, new PodcastHelper.EpisodeCallback() {
             @Override
             public void onSuccess(List<PodcastEpisode> episodes) {
-                for (PodcastEpisode episode : episodes) {
-                    episode.podcast = podcast;
-                }
                 runOnUiThread(() -> {
                     progressBar.setVisibility(View.GONE);
                     adapter.setItems(episodes);

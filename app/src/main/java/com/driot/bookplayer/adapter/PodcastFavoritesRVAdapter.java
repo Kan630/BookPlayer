@@ -18,12 +18,10 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.Podcast;
-import com.driot.bookplayer.objects.PodcastEpisode;
-import com.driot.bookplayer.utils.PodcastIndexHelper;
+import com.driot.bookplayer.utils.PodcastHelper;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingRVAdapter;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -116,7 +114,7 @@ public class PodcastFavoritesRVAdapter extends LoggingRVAdapter<PodcastFavorites
 
                 // ⬇ Trigger download if enabled
                 if (newState) {
-                    PodcastIndexHelper.checkForNewEpisodesToAutoDownload(itemView.getContext(), podcast, PODCASTINDEXORG_SINCE_DEBUG);
+                    PodcastHelper.checkForNewEpisodesToAutoDownload(itemView.getContext(), podcast, PODCASTINDEXORG_SINCE_DEBUG);
                 }
             });
 

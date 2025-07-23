@@ -1,7 +1,6 @@
 package com.driot.bookplayer.utils;
 
-import static com.driot.bookplayer.utils.KanFiles.sanitizeFilename;
-import static com.driot.bookplayer.utils.PodcastIndexHelper.buildPodcastEpisodeName;
+import static com.driot.bookplayer.utils.PodcastHelper.buildPodcastEpisodeName;
 
 import android.content.Context;
 
