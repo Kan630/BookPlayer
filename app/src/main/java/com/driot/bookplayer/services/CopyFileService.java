@@ -13,8 +13,8 @@ import static com.driot.bookplayer.global.Var.ONLY_MIME_AUDIO;
 import static com.driot.bookplayer.global.Var.SUPPORTED_AUDIO_EXTENSIONS;
 import static com.driot.bookplayer.global.Var.ZIP_SIZE_MAX_COEF;
 import static com.driot.bookplayer.utils.FileUtils.getFileSize;
+import static com.driot.bookplayer.utils.StorageHelper.getAvailableInternalMemorySize;
 import static com.driot.bookplayer.utils.Tonio.formatMem;
-import static com.driot.bookplayer.utils.Tonio.getAvailableInternalMemorySize;
 import static com.driot.bookplayer.utils.Tonio.getSourceLocation;
 
 import android.app.Service;

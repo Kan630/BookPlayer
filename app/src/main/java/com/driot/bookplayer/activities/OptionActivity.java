@@ -34,6 +34,7 @@ import static com.driot.bookplayer.global.Option.DEFAULT_TIME_BEFORE_SLEEP;
 import static com.driot.bookplayer.utils.ComponentUtils.setOpenWithProxyEnabled;
 import static com.driot.bookplayer.utils.ComponentUtils.setOpenWithProxyEnabled_all;
 import static com.driot.bookplayer.utils.PermissionRequest.isRecordAudioPermissionGranted;
+import static com.driot.bookplayer.utils.StorageHelper.isExternalSDCardAvailable;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.StyleRes;
@@ -69,6 +70,9 @@ public class OptionActivity extends LoggingActivity {
     CheckBox chk_open_with;
     CheckBox chk_open_with_all;
     CheckBox chk_split_m4b;
+    CheckBox chk_use_sd_card;
+
+
     private PermissionRequest mPermissionRequest;
 
     private boolean areAdvancedOptionsVisible = false;
@@ -77,7 +81,8 @@ public class OptionActivity extends LoggingActivity {
     LinearLayout ll_visualizer_on, ll_visualizer_playpause, ll_copy_file, ll_delete_source_file;
     LinearLayout ll_beep_chapter, ll_beep_bookend, ll_beep_autostop;
     LinearLayout ll_rewind_after_pause, ll_tech_log_file, ll_mail_method_default;
-    LinearLayout ll_open_with, ll_open_with_all, ll_split_m4b;
+    LinearLayout ll_open_with, ll_open_with_all, ll_split_m4b, ll_use_sd_card;
+    LinearLayout ll_container_sd_card;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,6 +118,18 @@ public class OptionActivity extends LoggingActivity {
 
         et_timeBeforeSleep.setText(String.valueOf(Option.getTimeBeforeSleep()));
         et_ForwardSeconds.setText(String.valueOf(Option.get_ForwardSeconds()));
+
+        ll_container_sd_card = findViewById(R.id.ll_container_sd_card);
+        if (isExternalSDCardAvailable(this)) {
+            ll_container_sd_card.setVisibility(View.VISIBLE);
+            chk_use_sd_card = findViewById(R.id.chk_use_sd_card);
+            ll_use_sd_card = findViewById(R.id.ll_use_sd_card);
+            chk_use_sd_card.setChecked(Option.getUseSdCard());
+            ll_use_sd_card.setOnClickListener(v -> chk_use_sd_card.toggle());
+            chk_use_sd_card.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setUseSdCard(isChecked));
+        } else {
+            ll_container_sd_card.setVisibility(View.GONE);
+        }
 
         chk_visualizer_on.setChecked(Option.getVisualizerOn());
         ll_visualizer_on.setOnClickListener(v -> chk_visualizer_on.toggle());

@@ -29,6 +29,7 @@ public class Option {
     private static final boolean DEFAULT_OPEN_WITH = true;
     private static final boolean DEFAULT_OPEN_WITH_ALL = false;
     private static final boolean DEFAULT_SPLIT_M4B = true;
+    private static final boolean DEFAULT_USE_SD_CARD = true;
 
     private static Context appContext;
     private static android.content.SharedPreferences prefs;
@@ -116,5 +117,8 @@ public class Option {
     public static void setSplitM4b(boolean bool) {prefs.edit().putBoolean("SPLIT_M4B",bool).apply();}
     public static boolean getSplitM4b() {return prefs.getBoolean("SPLIT_M4B", DEFAULT_SPLIT_M4B);}
 
+    /////////////////// USE SD CARD ///////////////////
+    public static void setUseSdCard(boolean bool) {prefs.edit().putBoolean("USE_SD_CARD",bool).apply();}
+    public static boolean getUseSdCard() {return prefs.getBoolean("USE_SD_CARD", DEFAULT_USE_SD_CARD);}
 
 }

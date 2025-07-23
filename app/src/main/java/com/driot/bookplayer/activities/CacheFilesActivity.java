@@ -1,9 +1,9 @@
 package com.driot.bookplayer.activities;
 
+import static com.driot.bookplayer.utils.StorageHelper.getAvailableInternalMemorySize;
+import static com.driot.bookplayer.utils.StorageHelper.getTotaLInternalMemorySize;
 import static com.driot.bookplayer.utils.Tonio.formatMem;
-import static com.driot.bookplayer.utils.Tonio.getAvailableInternalMemorySize;
 import static com.driot.bookplayer.utils.Tonio.getFolderSize;
-import static com.driot.bookplayer.utils.Tonio.getTotaLInternalMemorySize;
 
 import android.os.Bundle;
 import android.widget.TextView;

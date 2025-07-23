@@ -1,12 +1,12 @@
 package com.driot.bookplayer.activities;
 
+import static com.driot.bookplayer.utils.StorageHelper.getAvailableInternalMemorySize;
+import static com.driot.bookplayer.utils.StorageHelper.getAvailableRemovableSDCardSize;
+import static com.driot.bookplayer.utils.StorageHelper.getTotaLInternalMemorySize;
+import static com.driot.bookplayer.utils.StorageHelper.getTotalRemovableSDCardSize;
 import static com.driot.bookplayer.utils.Tonio.formatMem;
 import static com.driot.bookplayer.utils.Tonio.getAppSize;
-import static com.driot.bookplayer.utils.Tonio.getAvailableInternalMemorySize;
-import static com.driot.bookplayer.utils.Tonio.getAvailableRemovableSDCardSize;
 import static com.driot.bookplayer.utils.Tonio.getFolderSize;
-import static com.driot.bookplayer.utils.Tonio.getTotaLInternalMemorySize;
-import static com.driot.bookplayer.utils.Tonio.getTotalRemovableSDCardSize;
 import static com.driot.bookplayer.utils.Utils.recursiveRemove;
 
 import android.content.Context;
