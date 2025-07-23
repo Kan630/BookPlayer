@@ -27,9 +27,12 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.LoadOptionsActivity;
+import com.driot.bookplayer.activities.PlayActivity;
 import com.driot.bookplayer.activities.PodcastEpisodeViewModel;
+import com.driot.bookplayer.activities.ZikFileActivity;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.ZikFile;
+import com.driot.bookplayer.objects.PlayList;
 import com.driot.bookplayer.objects.PodcastEpisode;
 import com.driot.bookplayer.utils.PodcastDownloadManager;
 import com.driot.bookplayer.utils.Tonio;
@@ -89,14 +92,21 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
             }
         });
 
-// Check if in physical folder
-        File folderPodcastEpisode = buildPodcastPath(context, podcastTitle);
+// Check if in physical folder : reserved sd card or reserved smartphone storage
+        boolean isDownloaded = false;
+        File folderPodcastEpisode = buildPodcastPath(context, podcastTitle, false);
         File file = new File(folderPodcastEpisode, episodeFileName);
-        boolean isDownloaded = file.exists();
-
-        LiveData<ZikFile> liveZikFile = viewModel.getZikFileLive(folderPodcastEpisode.getAbsolutePath(), episodeFileName);
+        isDownloaded = file.exists();
+        if (!isDownloaded) {
+            folderPodcastEpisode = buildPodcastPath(context, podcastTitle, true);
+            file = new File(folderPodcastEpisode, episodeFileName);
+            isDownloaded = file.exists();
+        }
+        myLogW(podcastTitle + " - " + episodeFileName);
+        LiveData<ZikFile> liveZikFile = viewModel.getZikFileLive(podcastTitle, episodeFileName); //changed from full path to just folder name, to deal with multiple locations
         liveZikFile.removeObservers(lifecycleOwner); //not sure it is usefull
         holder.icon_1.setTag(episodeFileName); // ---- avoid stop flickers on another completion -- Sometimes the LiveData callback gets called even after the view has been recycled
+        boolean finalIsDownloaded = isDownloaded;
         liveZikFile.observe(lifecycleOwner, zikFile -> {
             if (!holder.icon_1.getTag().equals(episodeFileName)) return; // ---- avoid stop flickers on another completion --
             if (zikFile != null) {
@@ -113,7 +123,7 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
                 holder.tvEpisodeDBStats.setText(stats2);
                 holder.icon_1.setVisibility(View.VISIBLE);
                 holder.icon_1.setColorFilter(ContextCompat.getColor(context, R.color.green_300));
-            } else if (isDownloaded) {
+            } else if (finalIsDownloaded) {
                 holder.tvEpisodeDBStats.setText("");
                 holder.icon_1.setVisibility(View.VISIBLE);
                 holder.icon_1.setColorFilter(ContextCompat.getColor(context, R.color.orange_500));
@@ -343,8 +353,5 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
 
         return flicker;
     }
-
-
-
 
 }

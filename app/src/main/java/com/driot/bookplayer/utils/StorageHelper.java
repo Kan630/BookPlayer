@@ -15,17 +15,19 @@ public class StorageHelper {
         return externalDirs.length > 1 && externalDirs[1] != null && Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState(externalDirs[1]));
     }
 
-    public static File getPreferredDownloadFolder(Context context) {
-        boolean useSDCard = isExternalSDCardAvailable(context) && Option.getUseSdCard();
-
-        if (useSDCard) {
+    public static File getPreferredFilesDirs(Context context) {
+        if (isExternalSDCardAvailable(context) && Option.getUseSdCard()) {
             File[] externalDirs = context.getExternalFilesDirs(null);
-            if (externalDirs.length > 1 && externalDirs[1] != null) {
-                return externalDirs[1];
-            } else {
-                // fallback if SD card not found
-                return context.getFilesDir();
-            }
+            return externalDirs[1];
+        } else {
+            return context.getFilesDir();
+        }
+    }
+
+    public static File getSdCardFilesDirs(Context context) {
+        if (isExternalSDCardAvailable(context)) {
+            File[] externalDirs = context.getExternalFilesDirs(null);
+            return externalDirs[1];
         } else {
             return context.getFilesDir();
         }

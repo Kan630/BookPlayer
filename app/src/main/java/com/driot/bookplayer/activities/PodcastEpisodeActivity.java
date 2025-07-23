@@ -9,6 +9,7 @@ import static com.driot.bookplayer.utils.TextOptions.parseMaybeHtml;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
@@ -27,8 +28,11 @@ import com.bumptech.glide.Glide;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.adapter.PodcastEpisodeRVAdapter;
 import com.driot.bookplayer.db.AppDatabase;
+import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.db.PodcastDao;
+import com.driot.bookplayer.db.ZikFile;
+import com.driot.bookplayer.objects.PlayList;
 import com.driot.bookplayer.objects.PodcastEpisode;
 import com.driot.bookplayer.utils.PodcastHelper;
 import com.driot.bookplayer.utils.log.LoggingActivity;
@@ -44,6 +48,7 @@ public class PodcastEpisodeActivity extends LoggingActivity {
     private PodcastEpisodeRVAdapter adapter;
 
     private Podcast podcast;
+    private long idFolder;
     private String title;
     private long feedId;
     private String image;
@@ -68,6 +73,10 @@ public class PodcastEpisodeActivity extends LoggingActivity {
         recyclerEpisodes = findViewById(R.id.recyclerEpisodes);
         progressBar = findViewById(R.id.progressBarEpisodes);
 
+        ivCover.setOnClickListener(view -> {
+            goToPlaySection();
+        });
+
         podcastDao = AppDatabase.getDatabase(this).PodcastDao();
 
         podcast = getIntent().getParcelableExtra("podcast");
@@ -87,6 +96,7 @@ public class PodcastEpisodeActivity extends LoggingActivity {
             image = getIntent().getStringExtra("image");
             description = getIntent().getStringExtra("description");
         } else { //already in DB (is a favorite)
+            idFolder = podcast.idFolder;
             feedId = podcast.feedId;
             title = podcast.title;
             image = podcast.image;
@@ -315,4 +325,40 @@ public class PodcastEpisodeActivity extends LoggingActivity {
         podcast.date_added = System.currentTimeMillis();
     }
 
+
+
+    private void goToPlaySection() {
+        if (idFolder>0) {
+            new Thread(() -> {
+                try {
+                    Folder folder = AppDatabase.getDatabase(this).FolderDao().getById(idFolder);
+                    if (folder != null) {
+                        try {
+                            List<ZikFile> zikFilesList = AppDatabase.getDatabase(this).ZikFileDao().getZikFiles(idFolder);
+                            myLogI("nb ZikFiles in that Book : " + zikFilesList.size() + " - [" + folder.getName() + "]");
+                            PlayList.create(this, zikFilesList);
+                            if (zikFilesList.size() > 1) {
+                                this.startActivity(new Intent(this, ZikFileActivity.class)
+                                        .putExtra("FolderId", folder.getId())
+                                        .putExtra("FolderName", folder.getName())
+                                );
+                            } else if (zikFilesList.size() == 1) {
+                                PlayList.getInstance().setNumZikFile(0);
+                                this.startActivity(new Intent(this, PlayActivity.class).putExtra("ZikFile", zikFilesList.get(0)));
+                            } else {
+                                myLogE("no ZikFiles in that folder !");
+                                myToastE(getString(R.string.ErrorCouldNotLoadAudios_emptyfolder));
+                            }
+                        } catch (Exception e) {
+                            myLogEE(e,"error getting nb of ZikFiles");
+                            myToastE(getString(R.string.ErrorCouldNotLoadAudios));
+                        }
+                    }
+                } catch (Exception e) {
+                    myLogEE(e,"error getting Folder");
+                    myToastE(getString(R.string.ErrorCouldNotLoadAudios));
+                }
+            }).start();
+        }
+    }
 }

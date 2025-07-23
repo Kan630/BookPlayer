@@ -36,7 +36,7 @@ public class DownloadEpisodeWorker extends Worker {
         try {
             File finalFile = new File(destPath);
             if (finalFile.exists() && finalFile.length() > 1000) {
-                myLog("Already downloaded: " + destPath);
+                myLogW("Already downloaded: " + destPath);
                 return Result.success();
             }
 

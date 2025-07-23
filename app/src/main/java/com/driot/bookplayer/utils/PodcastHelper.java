@@ -7,6 +7,8 @@ import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_MAX_EPISODE_AUTO_D
 import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_API_MAX_RESULTS;
 import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_MAX_PODCAST_AUTO_DOWNLOAD;
 import static com.driot.bookplayer.utils.KanFiles.sanitizeFilename;
+import static com.driot.bookplayer.utils.StorageHelper.getPreferredFilesDirs;
+import static com.driot.bookplayer.utils.StorageHelper.getSdCardFilesDirs;
 
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Podcast;
@@ -44,15 +46,26 @@ public class PodcastHelper {
         return buildPodcastPath(context, podcast.title);
     }
 
+    public static File buildPodcastPath(Context context, String podcastTitle, boolean forceSdCard) {
+        String sanitizedPodcastTitle = sanitizeFilename(podcastTitle);
+        File baseFolder;
+        if (forceSdCard) {
+            baseFolder = new File(getSdCardFilesDirs(context), FOLDER_UNZIPPED);
+        } else {
+            baseFolder = new File(context.getFilesDir(), FOLDER_UNZIPPED);
+        }
+        return new File(baseFolder, sanitizedPodcastTitle);
+    }
+
     public static File buildPodcastPath(Context context, String podcastTitle) {
         String sanitizedPodcastTitle = sanitizeFilename(podcastTitle);
-        File baseFolder = new File(context.getFilesDir(), FOLDER_UNZIPPED);
+        File baseFolder = new File(getPreferredFilesDirs(context), FOLDER_UNZIPPED);
         return new File(baseFolder, sanitizedPodcastTitle);
     }
 
     public static String buildPodcastEpisodeName(PodcastEpisode episode) {
         String safeTitle = sanitizeFilename(episode.title);
-        String safeDate = sanitizeFilename(episode.datePublishedPretty);
+        String safeDate = sanitizeFilename(episode.datePublishedPretty.replace(":","h"));
         return safeTitle + " - [" + safeDate + "].mp3";
     }
 

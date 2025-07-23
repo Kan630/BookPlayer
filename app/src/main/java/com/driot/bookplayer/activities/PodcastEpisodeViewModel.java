@@ -21,7 +21,7 @@ public class PodcastEpisodeViewModel extends LoggingViewModel {
         zikFileDao = AppDatabase.getDatabase(application).ZikFileDao();
     }
 
-    public LiveData<ZikFile> getZikFileLive(String folderPath, String fileName) {
-        return zikFileDao.getZikFileLive(folderPath, fileName);
+    public LiveData<ZikFile> getZikFileLive(String folderName, String fileName) {
+        return zikFileDao.getZikFileLive(folderName, fileName);
     }
 }
