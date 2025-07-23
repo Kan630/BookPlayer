@@ -50,7 +50,7 @@ public class DatabaseClient {
             database.execSQL("ALTER TABLE Folder ADD COLUMN listeningPlayCount INTEGER NOT NULL default 0");
         }
     };
-
+   //Class Object = EXPECTED   ;    MIGRATION = FOUND (2nd part in log message)
     static final Migration MIGRATION_4_5 = new Migration(4, 5) {
         @Override
         public void migrate(SupportSQLiteDatabase database) {
@@ -58,16 +58,16 @@ public class DatabaseClient {
             database.execSQL("CREATE TABLE IF NOT EXISTS Podcast (" +
                     "id INTEGER PRIMARY KEY NOT NULL, " +
                     "feedId INTEGER NOT NULL, " +
-                    "source TEXT NOT NULL, " +
+                    "source TEXT, " +
                     "title TEXT NOT NULL, " +
                     "image TEXT, " +
                     "imageOriginalUrl TEXT, " +
                     "description TEXT, " +
                     "language TEXT, " +
-                    "isFavorite INTEGER NOT NULL DEFAULT 0, " +
-                    "autoDownload INTEGER NOT NULL DEFAULT 0, " +
+                    "isFavorite INTEGER NOT NULL, " +
+                    "autoDownload INTEGER NOT NULL, " +
                     "idFolder INTEGER, " +
-                    "date_added INTEGER NOT NULL DEFAULT 0, " +
+                    "date_added INTEGER NOT NULL, " +
 
                     "FOREIGN KEY(idFolder) REFERENCES Folder(id) ON DELETE SET NULL)"
         );
