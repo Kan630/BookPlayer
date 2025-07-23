@@ -80,6 +80,7 @@ public class DatabaseClient {
             database.execSQL("ALTER TABLE Folder ADD COLUMN date_added INTEGER NOT NULL default 0");
             database.execSQL("ALTER TABLE Folder ADD COLUMN date_last_zikfile_added INTEGER NOT NULL default 0");
             database.execSQL("ALTER TABLE Folder ADD COLUMN image TEXT");
+
             database.execSQL("ALTER TABLE ZikFile ADD COLUMN date_added INTEGER NOT NULL default 0");
         }
     };
