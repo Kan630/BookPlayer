@@ -54,7 +54,7 @@ public class PodcastFavoritesActivity extends LoggingActivity {
 
         adapter = new PodcastFavoritesRVAdapter(
                 item -> {
-                    Intent intent = new Intent(this, PodcastDetailActivity.class);
+                    Intent intent = new Intent(this, PodcastEpisodeActivity.class);
                     intent.putExtra("podcast", item);
                     startActivity(intent);
                 },

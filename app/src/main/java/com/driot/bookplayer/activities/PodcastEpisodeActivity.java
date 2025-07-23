@@ -19,6 +19,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -34,7 +35,7 @@ import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import java.util.List;
 
-public class PodcastDetailActivity extends LoggingActivity {
+public class PodcastEpisodeActivity extends LoggingActivity {
 
     private TextView tvTitle, tvDescription;
     private ImageView ivCover;
@@ -93,7 +94,8 @@ public class PodcastDetailActivity extends LoggingActivity {
         }
 
         recyclerEpisodes.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new PodcastEpisodeRVAdapter(this, title);
+        PodcastEpisodeViewModel viewModel = new ViewModelProvider(this).get(PodcastEpisodeViewModel.class);
+        adapter = new PodcastEpisodeRVAdapter(this, title, feedId, viewModel);
         recyclerEpisodes.setAdapter(adapter);
 
         tvTitle.setText(title);

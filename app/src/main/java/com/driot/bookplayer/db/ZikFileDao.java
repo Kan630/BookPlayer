@@ -26,6 +26,9 @@ public interface ZikFileDao {
     @Query("SELECT * FROM ZikFile")
     List<ZikFile> getAll();
 
+    @Query("SELECT * FROM ZikFile WHERE path = :folderPath AND name = :fileName LIMIT 1")
+    LiveData<ZikFile> getZikFileLive(String folderPath, String fileName);
+
     @Query("SELECT * FROM ZikFile WHERE idFolder = :idFolder ORDER BY zeorder, name")
     List<ZikFile> getZikFiles(long idFolder);
 

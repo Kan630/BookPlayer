@@ -16,5 +16,18 @@ public class PodcastEpisode {
     public Integer duration; // in seconds
     public long enclosureLength; // in bytes
 
-
+    @NonNull
+    @Override
+    public String toString() {
+        return "-----------PodcastEpisode----------" +
+                "\ntitle='" + title + '\'' +
+                "\ndescription='" + description + '\'' +
+                "\nenclosureUrl='" + enclosureUrl + '\'' +
+                "\ndatePublishedPretty='" + datePublishedPretty + '\'' +
+                "\ndatePublished='" + datePublished + '\'' +
+                "\nid=" + id +
+                "\nduration=" + duration +
+                "\nenclosureLength=" + enclosureLength +
+                "\n------------------------------------";
+    }
 }

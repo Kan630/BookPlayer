@@ -17,7 +17,7 @@ import java.util.List;
 
 public class PodcastDownloadManager {
 
-    public static void enqueueDownloads(Context context, Podcast podcast, List<PodcastEpisode> episodes, File targetFolder, Runnable onComplete) {
+    public static void enqueueDownloads(Context context, long podcastFeedId, List<PodcastEpisode> episodes, File targetFolder, Runnable onComplete) {
         WorkManager wm = WorkManager.getInstance(context);
         WorkContinuation continuation = null;
 
@@ -44,7 +44,7 @@ public class PodcastDownloadManager {
         Data finalizeData = new Data.Builder()
                 .putString(FinalizeDownloadWorker.KEY_FOLDER_PATH, targetFolder.getAbsolutePath())
                 .putString(FinalizeDownloadWorker.KEY_FOLDER_NAME, targetFolder.getName())
-                .putLong(FinalizeDownloadWorker.KEY_FEED_ID, podcast.feedId)
+                .putLong(FinalizeDownloadWorker.KEY_FEED_ID, podcastFeedId)
                 .build();
 
         OneTimeWorkRequest finalizeRequest = new OneTimeWorkRequest.Builder(FinalizeDownloadWorker.class)

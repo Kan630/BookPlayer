@@ -49,7 +49,7 @@ public class PodcastSearchResultsActivity extends LoggingActivity {
         });
 
         adapter = new PodcastSearchResultsRVAdapter(item -> {
-            Intent intent = new Intent(this, PodcastDetailActivity.class);
+            Intent intent = new Intent(this, PodcastEpisodeActivity.class);
             intent.putExtra("feedId", item.id);
             intent.putExtra("title", item.title);
             intent.putExtra("image", item.image);

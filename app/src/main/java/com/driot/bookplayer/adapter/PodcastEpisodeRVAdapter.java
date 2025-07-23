@@ -18,13 +18,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.LoadOptionsActivity;
+import com.driot.bookplayer.activities.PodcastEpisodeViewModel;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.objects.PodcastEpisode;
+import com.driot.bookplayer.utils.PodcastDownloadManager;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingRVAdapter;
 
@@ -38,10 +41,14 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
     private List<PodcastEpisode> items = new ArrayList<>();
     private final Context context;
     private final String podcastTitle;
+    private final long podcastFeedId;
+    private final PodcastEpisodeViewModel viewModel;
 
-    public PodcastEpisodeRVAdapter(Context context, String podcastTitle) {
+    public PodcastEpisodeRVAdapter(Context context, String podcastTitle, long podcastFeedId, PodcastEpisodeViewModel viewModel) {
         this.context = context;
         this.podcastTitle = podcastTitle;
+        this.podcastFeedId = podcastFeedId;
+        this.viewModel = viewModel;
     }
 
     public void setItems(List<PodcastEpisode> episodes) {
@@ -72,7 +79,7 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
             if (episode.enclosureUrl != null && !episode.enclosureUrl.isEmpty()) {
                 //showDownloadOptionsDialog(context, episode.enclosureUrl, episode.title);
             } else {
-                myToast("No audio URL available");
+                myToastE("No audio URL available");
             }
         });
 
@@ -82,31 +89,48 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
         boolean isDownloaded = file.exists();
 
 // Check if in DB (e.g., ZikFile table)
-        AppDatabase.databaseWriteExecutor.execute(() -> {
-            ZikFile zf = AppDatabase.getDatabase(context)
-                    .ZikFileDao()
-                    .getZikFileFromFullPath(folderPodcastEpisode.getAbsolutePath(), episodeFileName);  // You may use URL, title, or unique hash
-
-            new Handler(Looper.getMainLooper()).post(() -> {
-                if (zf != null) {
-                    String percentDone = String.format(Locale.US, "%.0f", zf.getPercentdone());
-                    String lastAdded = "Added : " + android.text.format.DateFormat.format("yyyy-MM-dd HH:mm", zf.date_added);
-                    String stats2 = percentDone + "% done"
-                            + "\n" + lastAdded;
-                    holder.tvEpisodeDBStats.setText(stats2);
-                    holder.icon_1.setVisibility(View.VISIBLE);
-                    holder.icon_1.setColorFilter(R.color.green_300);
-                } else if (isDownloaded) {
-                    holder.tvEpisodeDBStats.setText("");
-                    holder.icon_1.setVisibility(View.VISIBLE);
-                    holder.icon_1.setColorFilter(R.color.orange_500);
-                } else {
-                    holder.tvEpisodeDBStats.setText("");
-                    holder.icon_1.setVisibility(View.GONE);
-                }
-
+        if (isDownloaded) {
+            //myLog("downloaded" + episode.title);
+            AppDatabase.databaseWriteExecutor.execute(() -> {
+                ZikFile zf = AppDatabase.getDatabase(context)
+                        .ZikFileDao()
+                        .getZikFileFromFullPath(folderPodcastEpisode.getAbsolutePath(), episodeFileName);  // You may use URL, title, or unique hash
+                new Handler(Looper.getMainLooper()).post(() -> {
+                    if (zf != null) {
+                        //myLog("DB ok" + episode.title);
+                        String percentDone = String.format(Locale.US, "%.0f", zf.getPercentdone());
+                        String lastAdded = "Added : " + android.text.format.DateFormat.format("yyyy-MM-dd HH:mm", zf.date_added);
+                        String stats2 = percentDone + "% listened"
+                                + "\n" + lastAdded;
+                        holder.tvEpisodeDBStats.setText(stats2);
+                        holder.icon_1.setVisibility(View.VISIBLE);
+                        holder.icon_1.setColorFilter(ContextCompat.getColor(context, R.color.green_300));
+                    } else {
+                        //myLog("DB not ok" + episode.title);
+                        holder.tvEpisodeDBStats.setText("");
+                        holder.icon_1.setVisibility(View.VISIBLE);
+                        holder.icon_1.setColorFilter(ContextCompat.getColor(context, R.color.orange_500));
+                        myLogEE(null, "in FileFolder but not in DB..." + folderPodcastEpisode.getAbsolutePath() + "/" + episodeFileName + " feedID = " + podcastFeedId);
+                    }
+                });
             });
-        });
+        } else {
+            //myLog("not downloaded " + episode.title);
+            holder.tvEpisodeDBStats.setText("");
+            holder.icon_1.setVisibility(View.VISIBLE);
+            holder.icon_1.setColorFilter(ContextCompat.getColor(context, R.color.pastel_blue_300));
+            holder.icon_1.setOnClickListener(v -> {
+                myLog("---- USER CLICKS ----- Downloading single episode: " + episode.title);
+
+                File targetFolder = buildPodcastPath(context, podcastTitle);
+                if (!targetFolder.exists()) targetFolder.mkdirs();
+
+                List<PodcastEpisode> singleList = new ArrayList<>();
+                singleList.add(episode);
+
+                PodcastDownloadManager.enqueueDownloads(context, podcastFeedId, singleList, targetFolder, null);
+            });
+        }
     }
 
     @Override

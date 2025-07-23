@@ -232,7 +232,7 @@ public class PodcastHelper {
 
                 if (!newEpisodes.isEmpty()) {
                     AppDatabase.databaseWriteExecutor.execute(() -> {  //maybe Executors.newSingleThreadExecutor() will be better, or some background thread
-                        PodcastDownloadManager.enqueueDownloads(context, podcast, newEpisodes, podcastFolder, null);
+                        PodcastDownloadManager.enqueueDownloads(context, podcast.feedId, newEpisodes, podcastFolder, null);
                     });
                 }
             }
