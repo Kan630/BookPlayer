@@ -1,18 +1,23 @@
 package com.driot.bookplayer.adapter;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.objects.LibrivoxItem;
+import com.driot.bookplayer.utils.ImageHelper;
 import com.driot.bookplayer.utils.log.LoggingRVAdapter;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,15 +40,17 @@ public class LibrivoxResultRVAdapter extends LoggingRVAdapter<LibrivoxResultRVAd
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView title, date, rating;
+        TextView title, info, rating;
         RatingBar ratingBar;
+        ImageView image;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            title = itemView.findViewById(R.id.tvTitle);
-            date = itemView.findViewById(R.id.tvDate);
-            rating = itemView.findViewById(R.id.tvRating);
-            ratingBar = itemView.findViewById(R.id.ratingBar);
+            title = itemView.findViewById(R.id.librivox_title);
+            info = itemView.findViewById(R.id.librivox_info);
+            rating = itemView.findViewById(R.id.librivox_rating);
+            ratingBar = itemView.findViewById(R.id.librivox_ratingbar);
+            image = itemView.findViewById(R.id.librivox_image);
         }
     }
 
@@ -59,14 +66,49 @@ public class LibrivoxResultRVAdapter extends LoggingRVAdapter<LibrivoxResultRVAd
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         LibrivoxItem item = items.get(position);
         holder.title.setText(item.title);
-        holder.date.setText("audio available since " + extractYear(item.date));
-        holder.rating.setText("Nb of reviews: " + item.num_reviews + "  -  Avg rating: " + item.avg_rating);
+        holder.info.setText(extractYear(item.date));
+        holder.rating.setText(item.num_reviews + " reviews - Avg rating: " + item.avg_rating);
+        holder.ratingBar.setRating(item.avg_rating);
 
         holder.itemView.setOnClickListener(v -> listener.onItemClick(item));
 
-        float ratingValue = item.avg_rating;
-        holder.ratingBar.setRating(ratingValue);
+        Context context = holder.image.getContext();
+
+        // 🏷️ Tag the imageView with the identifier to prevent race conditions
+        holder.image.setTag(item.identifier);
+
+        File imageFile = ImageHelper.getLibrivoxImageFile(context, item.identifier);
+
+        if (imageFile.exists()) {
+            Glide.with(context)
+                    .load(imageFile)
+                    .placeholder(R.drawable.placeholder_cover)
+                    .into(holder.image);
+        } else {
+            // Show placeholder immediately
+            holder.image.setImageResource(R.drawable.placeholder_cover);
+
+            // 🚀 Run actual download in background
+            new Thread(() -> {
+                String imageUrl = "https://archive.org/services/img/" + item.identifier;
+                String localPath = ImageHelper.getOrDownloadLibrivoxImage(context, item.identifier, imageUrl, false);
+
+                if (localPath != null) {
+                    ((android.app.Activity) context).runOnUiThread(() -> {
+                        // ✅ Check the tag before applying the result!
+                        Object tag = holder.image.getTag();
+                        if (tag instanceof String && tag.equals(item.identifier)) {
+                            Glide.with(context)
+                                    .load(new File(localPath))
+                                    .placeholder(R.drawable.placeholder_cover)
+                                    .into(holder.image);
+                        }
+                    });
+                }
+            }).start();  // ✅ Make sure the thread is started!
+        }
     }
+
 
     @Override
     public int getItemCount() {

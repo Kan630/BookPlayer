@@ -1,6 +1,7 @@
 package com.driot.bookplayer.activities;
 
 import static com.driot.bookplayer.global.Pref.setLoadBookTaskState;
+import static com.driot.bookplayer.utils.TextOptions.parseMaybeHtml;
 import static com.driot.bookplayer.utils.Tonio.getReadableSize;
 
 import android.content.Intent;
@@ -14,14 +15,17 @@ import android.widget.TextView;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.signature.ObjectKey;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.objects.ItemMetadata;
 import com.driot.bookplayer.objects.LibrivoxApi;
 import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.services.AddResourceService;
+import com.driot.bookplayer.utils.ImageHelper;
 import com.driot.bookplayer.utils.WorkFlow;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
+import java.io.File;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
@@ -42,9 +46,12 @@ public class LibrivoxDetailActivity extends LoggingActivity {
     private LibrivoxApi api;
 
     private TextView titleView, idView, infoView;
+    private TextView synopsisView;
     private ImageView coverView;
     private Button bGet;
     private TextView tvLinkArchive, tvLinkLibrivox, tvOtherInfo, tvDownloadLink;
+    private long cachePicSize;
+    private boolean betterPicDone;
 
 
     @Override
@@ -56,6 +63,7 @@ public class LibrivoxDetailActivity extends LoggingActivity {
         idView = findViewById(R.id.textDetailIdentifier);
         infoView = findViewById(R.id.textDetailInfo);
         coverView = findViewById(R.id.imageDetailCover);
+        synopsisView = findViewById(R.id.textDetailSynopsis);
         bGet = findViewById(R.id.bGet);
         tvLinkArchive = findViewById(R.id.tvLinkArchive);
         tvLinkLibrivox = findViewById(R.id.tvLinkLibrivox);
@@ -72,6 +80,29 @@ public class LibrivoxDetailActivity extends LoggingActivity {
         titleView.setText(viewModel.title);
         idView.setText("ID: " + viewModel.identifier);
         infoView.setText(getString(R.string.loading_details));
+
+        //IMAGE
+        File localImage = ImageHelper.getLibrivoxImageFile(this, viewModel.identifier);
+        if (localImage.exists()) {
+            Glide.with(this).load(localImage).into(coverView);
+            cachePicSize = localImage.length();
+            myLogD("local Image found: " + viewModel.identifier + " - " + getReadableSize(cachePicSize));
+        } else {
+            // 👇 Background fetch from archive.org services/img and cache it
+            new Thread(() -> {
+                String fallbackUrl = "https://archive.org/services/img/" + viewModel.identifier;
+                String localPath = ImageHelper.getOrDownloadLibrivoxImage(this, viewModel.identifier, fallbackUrl, false);
+
+                if (localPath != null) {
+                    runOnUiThread(() -> {
+                        Glide.with(this)
+                                .load(new File(localPath))
+                                .placeholder(R.drawable.placeholder_cover)
+                                .into(coverView);
+                    });
+                }
+            }).start();
+        }
 
         // Setup Retrofit
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor(this::myLog);
@@ -137,24 +168,49 @@ public class LibrivoxDetailActivity extends LoggingActivity {
             sb.append(getString(R.string.Creator) + ": ").append(metadata.metadata.creator).append("\n");
             sb.append(getString(R.string.Available_since) + ": ").append(metadata.metadata.date).append("\n");
         }
-
-        for (ItemMetadata.FileEntry file : metadata.files) {
-            if (file.name.endsWith("_cover.jpg") || file.name.endsWith("cover.jpg") || file.name.endsWith(".jpg")) {
-                String coverUrl = "https://archive.org/download/" + viewModel.identifier + "/" + file.name;
-                Glide.with(this).load(coverUrl).into(coverView);
-                break;
-            }
+        if (metadata.metadata != null && metadata.metadata.description != null) {
+            synopsisView.setText(parseMaybeHtml(metadata.metadata.description.trim()));
+        } else {
+            synopsisView.setVisibility(View.GONE);
         }
 
         Map<String, Integer> countMap = new HashMap<>();
         Map<String, Long> sizeMap = new HashMap<>();
 
         for (ItemMetadata.FileEntry file : metadata.files) {
+            String name = file.name.toLowerCase();
             myLogD("file: " + file.name + " - format:[" + file.format + "] - " + getReadableSize(file.size));
+
+            if (!betterPicDone && (name.endsWith("_cover.jpg") || name.endsWith("cover.jpg") || name.endsWith(".jpg"))) {
+                String betterImageUrl = "https://archive.org/download/" + viewModel.identifier + "/" + file.name;
+                betterPicDone = true;
+                try {
+                    long newPicSize = Long.parseLong(file.size);
+                    if (newPicSize > cachePicSize * 1.1) {
+                        new Thread(() -> {
+                            File improvedFile = ImageHelper.getLibrivoxImageFile(this, viewModel.identifier);
+                            if (!improvedFile.exists() || improvedFile.length() < 50 * 1024) { // only upgrade if existing is missing or too small
+                                String localPath = ImageHelper.getOrDownloadLibrivoxImage(this, viewModel.identifier, betterImageUrl, true);
+                                if (localPath != null) {
+                                    runOnUiThread(() -> {
+                                        myLog("Gliding better image : " + improvedFile.getName() + " - " + getReadableSize(improvedFile.length()));
+                                        Glide.with(this)
+                                                .load(new File(localPath))
+                                                .signature(new ObjectKey(System.currentTimeMillis())) //force glide empty cache
+                                                .placeholder(R.drawable.placeholder_cover)
+                                                .into(coverView);
+                                    });
+                                }
+                            }
+                        }).start();
+                    }
+                } catch (Exception e) {
+                    myLogEE(e, "Error getting better image - " + betterImageUrl);
+                }
+            }
 
             if (file.format != null && file.size != null) {
                 String format = file.format.toLowerCase();
-                String name = file.name.toLowerCase();
 
                 String type = null;
                 if (name.endsWith(".mp3")) type = "mp3";
@@ -221,40 +277,54 @@ public class LibrivoxDetailActivity extends LoggingActivity {
 
     private void checkDownloadFile() {
         new Thread(() -> {
-            try {
-                String url = "https://archive.org/download/" + viewModel.identifier + "/" + viewModel.identifier + "_64kb_mp3.zip";
-                myLog("checking existence for [" + url + "]");
+            boolean[] finalResult = {false};
+            long[] finalSize = {0};
 
-                HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
-                conn.setRequestMethod("GET");
-                conn.setRequestProperty("Range", "bytes=0-0");
-                conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Android)");
-                conn.connect();
+            Runnable check = () -> {
+                try {
+                    String url = "https://archive.org/download/" + viewModel.identifier + "/" + viewModel.identifier + "_64kb_mp3.zip";
+                    myLog("checking existence for [" + url + "]");
 
-                int responseCode = conn.getResponseCode();
-                String contentRange = conn.getHeaderField("Content-Range");
-                conn.disconnect();
+                    HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
+                    conn.setRequestMethod("GET");
+                    conn.setRequestProperty("Range", "bytes=0-0");
+                    conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Android)");
+                    conn.connect();
 
-                long fileSize;
-                if (contentRange != null && contentRange.contains("/")) {
-                    fileSize = Long.parseLong(contentRange.split("/")[1]);
-                } else {
-                    fileSize = -1;
+                    int responseCode = conn.getResponseCode();
+                    String contentRange = conn.getHeaderField("Content-Range");
+                    conn.disconnect();
+
+                    long fileSize = -1;
+                    if (contentRange != null && contentRange.contains("/")) {
+                        fileSize = Long.parseLong(contentRange.split("/")[1]);
+                    }
+
+                    finalResult[0] = (responseCode == 206 && fileSize > 0);
+                    finalSize[0] = fileSize;
+
+                } catch (Exception e) {
+                    myLogEE(e, "Error checking file");
+                    finalResult[0] = false;
                 }
+            };
 
-                boolean exists = (responseCode == 206 && fileSize > 0);
-                runOnUiThread(() -> {
-                    viewModel.zipFileSizeBytes.setValue(fileSize);
-                    viewModel.zipExists.setValue(exists);
-                });
+            // First attempt
+            check.run();
 
-            } catch (Exception e) {
-                runOnUiThread(() -> {
-                    infoView.append("\n⚠ " + getString(R.string.Error_checking_file) + ": " + e.getMessage());
-                    myLogEE(e,"Error checking file");
-                    viewModel.zipExists.setValue(false);
-                });
+            // Retry once after delay if failed
+            if (!finalResult[0]) {
+                try {
+                    Thread.sleep(1000); // 1 second delay
+                } catch (InterruptedException ignored) {}
+                myLogW("Retrying file existence check...");
+                check.run();
             }
+
+            runOnUiThread(() -> {
+                viewModel.zipFileSizeBytes.setValue(finalSize[0]);
+                viewModel.zipExists.setValue(finalResult[0]);
+            });
         }).start();
     }
 

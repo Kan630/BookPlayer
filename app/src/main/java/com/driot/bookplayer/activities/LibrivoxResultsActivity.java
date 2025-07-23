@@ -1,5 +1,7 @@
 package com.driot.bookplayer.activities;
 
+import static com.driot.bookplayer.global.Var.LIBRIVOX_API_MAX_RESULTS;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -37,7 +39,6 @@ public class LibrivoxResultsActivity extends LoggingActivity {
     ProgressBar progressBar;
 
     public static final String API_SORT = "downloads desc";
-    public static final int API_MAX_RESULTS = 100;
 
     private LibrivoxResultsViewModel viewModel; // ✅ ADDED
 
@@ -69,7 +70,7 @@ public class LibrivoxResultsActivity extends LoggingActivity {
         viewModel.getResults().observe(this, items -> {
             adapter.setItems(items);
             progressBar.setVisibility(View.GONE);
-            if (items != null && items.size() == API_MAX_RESULTS) {
+            if (items != null && items.size() == LIBRIVOX_API_MAX_RESULTS) {
                 tvResultsCount.setText("Max number of results reached (" + items.size() + ")");
             } else {
                 tvResultsCount.setText("Nb of audio found: " + (items == null ? 0 : items.size()));
@@ -135,7 +136,7 @@ public class LibrivoxResultsActivity extends LoggingActivity {
 
         progressBar.setVisibility(View.VISIBLE);
 
-        api.search(fullQuery, fields, API_MAX_RESULTS, 1, "json", API_SORT).enqueue(new Callback<LibrivoxApiResponse>() {
+        api.search(fullQuery, fields, LIBRIVOX_API_MAX_RESULTS, 1, "json", API_SORT).enqueue(new Callback<LibrivoxApiResponse>() {
             @Override
             public void onResponse(Call<LibrivoxApiResponse> call, Response<LibrivoxApiResponse> response) {
                 progressBar.setVisibility(View.GONE);

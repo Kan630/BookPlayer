@@ -22,6 +22,7 @@ import java.util.List;
 public class ImageHelper {
     public static final String PODCAST_IMAGE_PREFIX = "podcast_feed_";
     public static final String FOLDER_IMAGE_PREFIX = "folder_id_";
+    public static final String LIBRIVOX_IMAGE_PREFIX = "librivox_img_";
     public static final String IMAGE_FOLDER = "images";
 
     public static File getImageFile(Context context, long id, boolean isFolder) {
@@ -47,6 +48,7 @@ public class ImageHelper {
                 originalOut.write(buffer, 0, len);
             }
             in.close();
+            myLogI("Saved image to: " + imagePath + " - " + (new File(imagePath).length() / 1024) + "KB");
 
             byte[] originalBytes = originalOut.toByteArray();
             if (originalBytes.length / 1024 <= MAX_IMAGE_SIZE_KB) {
@@ -112,6 +114,26 @@ public class ImageHelper {
             }
         });
     }
+
+    public static String getOrDownloadLibrivoxImage(Context context, String identifier, String imageUrl, boolean forceDownload) {
+        String imagePath = LIBRIVOX_IMAGE_PREFIX + identifier + ".jpg";
+        File imageFile = new File(context.getFilesDir(), IMAGE_FOLDER + "/" + imagePath);
+
+        if (imageFile.exists() && !forceDownload) {
+            myLogD("Librivox image already exists: " + imageFile.getAbsolutePath());
+            return imageFile.getAbsolutePath();
+        }
+
+        myLogI("Downloading Librivox image for: " + identifier);
+        return downloadAndMaybeCompressImage(context, imageUrl, imagePath);
+    }
+
+    public static File getLibrivoxImageFile(Context context, String identifier) {
+        File dir = new File(context.getFilesDir(), IMAGE_FOLDER);
+        return new File(dir, LIBRIVOX_IMAGE_PREFIX + identifier + ".jpg");
+    }
+
+
 
     // ----------------------- LOG -----------------------
     private static final String TAG = "ImageHelper";

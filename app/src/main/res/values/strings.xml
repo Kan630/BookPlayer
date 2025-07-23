@@ -569,6 +569,8 @@
     <string name="option_sdcard_text">when copying audio in reserved space, use SD card instead of device storage</string>">
     <string name="option_sdcard_text_caution"><i>please note that if you remove or erase the sd card, you will loose your audios</i></string>">
 
+    <string name="librivox_cover_desc">Librivox cover</string>">
+
 
 
 
