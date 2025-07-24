@@ -248,6 +248,12 @@ public class LoadOptionsActivity extends LoggingActivity {
         cbDelete.setEnabled(false);
         llDelete.setEnabled(false);
         btnConfirm.setEnabled(false);
+        cbUseSdCard.setEnabled(false);
+        llUseSdCard.setEnabled(false);
+        llUseSdCard.setAlpha(0.4f);
+        llDelete.setAlpha(0.4f);
+        llCopy.setAlpha(0.4f);
+        llSplit.setAlpha(0.4f);
     }
     private void activateInteractive() {
         myLog("Activate Interactive()");
@@ -259,6 +265,12 @@ public class LoadOptionsActivity extends LoggingActivity {
         cbDelete.setEnabled(true);
         llDelete.setEnabled(true);
         btnConfirm.setEnabled(true);
+        cbUseSdCard.setEnabled(true);
+        llUseSdCard.setEnabled(true);
+        llUseSdCard.setAlpha(1.0f);
+        llDelete.setAlpha(1.0f);
+        llCopy.setAlpha(1.0f);
+        llSplit.setAlpha(1.0f);
         calculateCheckboxState();
 }
 
