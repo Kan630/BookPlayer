@@ -51,39 +51,56 @@ public class DatabaseClient {
         }
     };
    //Class Object = EXPECTED   ;    MIGRATION = FOUND (2nd part in log message)
-    static final Migration MIGRATION_4_5 = new Migration(4, 5) {
+   static final Migration MIGRATION_4_5 = new Migration(4, 5) {
+       @Override
+       public void migrate(SupportSQLiteDatabase database) {
+           myLogI("Migration -> executing step 4 => 5");
+           database.execSQL("CREATE TABLE IF NOT EXISTS Podcast (" +
+                   "id INTEGER PRIMARY KEY NOT NULL, " +
+                   "feedId INTEGER NOT NULL, " +
+                   "source TEXT, " +
+                   "title TEXT NOT NULL, " +
+                   "image TEXT, " +
+                   "imageOriginalUrl TEXT, " +
+                   "description TEXT, " +
+                   "language TEXT, " +
+                   "isFavorite INTEGER NOT NULL, " +
+                   "autoDownload INTEGER NOT NULL, " +
+                   "idFolder INTEGER, " +
+                   "date_added INTEGER NOT NULL, " +
+
+                   "FOREIGN KEY(idFolder) REFERENCES Folder(id) ON DELETE SET NULL)"
+           );
+
+           // Add index on foreign key
+           database.execSQL("CREATE UNIQUE INDEX index_Podcast_feedId ON Podcast(feedId)");
+           database.execSQL("CREATE UNIQUE INDEX index_Podcast_idFolder ON Podcast(idFolder)");
+
+           database.execSQL("ALTER TABLE Folder ADD COLUMN nbZikFile INTEGER NOT NULL default 0");
+           database.execSQL("ALTER TABLE Folder ADD COLUMN date_added INTEGER NOT NULL default 0");
+           database.execSQL("ALTER TABLE Folder ADD COLUMN date_last_zikfile_added INTEGER NOT NULL default 0");
+           database.execSQL("ALTER TABLE Folder ADD COLUMN image TEXT");
+
+           database.execSQL("ALTER TABLE ZikFile ADD COLUMN date_added INTEGER NOT NULL default 0");
+       }
+   };
+
+    static final Migration MIGRATION_5_6 = new Migration(5, 6) {
         @Override
         public void migrate(SupportSQLiteDatabase database) {
-            myLogI("Migration -> executing step 4 => 5");
-            database.execSQL("CREATE TABLE IF NOT EXISTS Podcast (" +
-                    "id INTEGER PRIMARY KEY NOT NULL, " +
-                    "feedId INTEGER NOT NULL, " +
-                    "source TEXT, " +
-                    "title TEXT NOT NULL, " +
-                    "image TEXT, " +
-                    "imageOriginalUrl TEXT, " +
-                    "description TEXT, " +
-                    "language TEXT, " +
-                    "isFavorite INTEGER NOT NULL, " +
-                    "autoDownload INTEGER NOT NULL, " +
+            database.execSQL("CREATE TABLE IF NOT EXISTS BookSource (" +
+                    "id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                    "imageLocal TEXT, " +
+                    "imageRemote TEXT, " +
+                    "repoType TEXT, " +
+                    "repoName TEXT, " +
+                    "repoId TEXT, " +
                     "idFolder INTEGER, " +
-                    "date_added INTEGER NOT NULL, " +
-
-                    "FOREIGN KEY(idFolder) REFERENCES Folder(id) ON DELETE SET NULL)"
-        );
-
-            // Add index on foreign key
-            database.execSQL("CREATE UNIQUE INDEX index_Podcast_feedId ON Podcast(feedId)");
-            database.execSQL("CREATE UNIQUE INDEX index_Podcast_idFolder ON Podcast(idFolder)");
-
-            database.execSQL("ALTER TABLE Folder ADD COLUMN nbZikFile INTEGER NOT NULL default 0");
-            database.execSQL("ALTER TABLE Folder ADD COLUMN date_added INTEGER NOT NULL default 0");
-            database.execSQL("ALTER TABLE Folder ADD COLUMN date_last_zikfile_added INTEGER NOT NULL default 0");
-            database.execSQL("ALTER TABLE Folder ADD COLUMN image TEXT");
-
-            database.execSQL("ALTER TABLE ZikFile ADD COLUMN date_added INTEGER NOT NULL default 0");
+                    "FOREIGN KEY(idFolder) REFERENCES Folder(id) ON DELETE SET NULL)");
+            database.execSQL("CREATE INDEX IF NOT EXISTS index_BookSource_idFolder ON BookSource(idFolder)");
         }
     };
+
 
     private static DatabaseClient mInstance;
 
@@ -120,7 +137,7 @@ public class DatabaseClient {
                     //       => better, just uncomment the deleteDatabase at the top of this method
                     //-------------------------------------------------------
 
-                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
                     .build();
 
             // Force early access to trigger DB open and migrations

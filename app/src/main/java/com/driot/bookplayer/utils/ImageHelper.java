@@ -48,7 +48,7 @@ public class ImageHelper {
                 originalOut.write(buffer, 0, len);
             }
             in.close();
-            myLogI("Saved image to: " + imagePath + " - " + (new File(imagePath).length() / 1024) + "KB");
+            myLogI("Saved image to: " + imagePath + " - " + (new File(new File(context.getFilesDir(), IMAGE_FOLDER), imagePath).length() / 1024) + "KB");
 
             byte[] originalBytes = originalOut.toByteArray();
             if (originalBytes.length / 1024 <= MAX_IMAGE_SIZE_KB) {

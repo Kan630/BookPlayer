@@ -113,13 +113,15 @@ public class AddResourceService
     };
     public static int[] PROGRESS = PROGRESS_DOWNLOAD;
 
+    private enum SaveResult {SUCCESS, SKIPPED, FAILED}
 
     private final IBinder binder = new AddResourceServiceBackgroundBinder();
 
     private ArrayList<AudioFileInfo> audioFileArrayList;
-    private long fullFolderSize;
-    private final int[] InsertedFolderId = {0};
-    private int nbFileSaved, nbFileToSave, nbFileScan;
+    
+    private long fullFolderSize; //to make storage space checks
+
+    private int nbFileScan; // global because recursive method
 
     LoadBookTaskState bookState;
     
@@ -251,7 +253,6 @@ public class AddResourceService
         intentCopyFileService.putExtra("type", type);
         intentCopyFileService.putExtra("checkSize", checkSize);
         intentCopyFileService.putExtra("forceSize", forceSize);
-        //copiedZipFileFullPath = destinationFolderPath + "/" + destinationFileName;
         boundToCopyFileService = false;
         try {
             boundToCopyFileService = bindService(intentCopyFileService, copyFileServiceConnection, Context.BIND_AUTO_CREATE); //error Log : Activity XXX has leaked ServiceConnection
@@ -793,83 +794,94 @@ public class AddResourceService
         folder.image = bookState.imagePath;
 
         new Thread(() -> {
-            InsertedFolderId[0] = (int) DatabaseClient.getInstance(this).getAppDatabase().FolderDao().insert(folder);
-            myLog("Folder Saved in DB, ID=[" + InsertedFolderId[0] + "] - [" + bookState.title + "]");
+            int insertedFolderId = (int) DatabaseClient.getInstance(this).getAppDatabase().FolderDao().insert(folder);
+            myLog("Folder Saved in DB, ID=[" + insertedFolderId + "] - [" + bookState.title + "]");
             tellProgress(PROGRESS[7], PROGRESS_TEXT[7]);
-            saveFiles();
+            saveFiles(insertedFolderId);
         }).start();
     }
 
-    private void saveFiles() {
-        if (Objects.equals(audioFileArrayList, null)) {
+    private void saveFiles(int insertedFolderId) {
+        if (audioFileArrayList == null) {
             tellError("audioFileArrayList is null");
             return;
         }
-        nbFileToSave = audioFileArrayList.size();
-        nbFileSaved = 0;
-        int i = 0;
-        int progress;
-        String txtProgress;
-        for (AudioFileInfo audioFileInfo : audioFileArrayList) {
-            i++;
-            progress = (int) PROGRESS[7] + (i * 100 / audioFileArrayList.size())*(PROGRESS[8]-PROGRESS[7])/100;
-            txtProgress = progress + "% - " + getString(R.string.Add_resource_reading_file) + " n°" + i + "/" + audioFileArrayList.size() + "\n" + getFileNameFromPath(audioFileInfo.getFileName());
-            myLog("Registering track [" + audioFileInfo.getFileName() + "]");
-            saveFile(audioFileInfo, InsertedFolderId[0], i);
-            tellProgress(progress,txtProgress);
-        }
-    }
 
-    private void saveFile(AudioFileInfo audioFileInfo, int mFolderId, int zeorder) {
-        // creating file
-        ZikFile zikFile = new ZikFile();
-        zikFile.setName(audioFileInfo.getFileName());
-        zikFile.setDisplayName(formatNameForDisplay(audioFileInfo.getFileName()));
-        zikFile.setIdFolder(mFolderId);
-        zikFile.setZeorder(zeorder);
-        zikFile.setFolderName(bookState.title);
-        zikFile.setPercentdone(0.0);
-        zikFile.setPosition(0);
-        zikFile.setPath(future_DB_folder_path);
-        zikFile.setIszipfile(false); //2023-10-22 code removed for live zip reading
-        zikFile.setFinished(false);
-        zikFile.setDuration(audioFileInfo.getDuration());
-        zikFile.date_added = System.currentTimeMillis();
+        int total = audioFileArrayList.size();
+        int saved = 0;
+        int skipped = 0;
+        int failed = 0;
 
-        if (zikFile.getDuration() == 0) {
-            myLog("File Not Added.... (Duration = 0)");
-            nbFileSaved++;
-            if (nbFileSaved == nbFileToSave) {
-                myLog("*************************** All files have been processed. -- last file duration=0");
-                updateFolderTable(this, mFolderId);
+        for (int i = 0; i < total; i++) {
+            AudioFileInfo info = audioFileArrayList.get(i);
+            int zeOrder = saved + 1;
+
+            int progress = PROGRESS[7] + ((i + 1) * 100 / total) * (PROGRESS[8] - PROGRESS[7]) / 100;
+            String txtProgress = progress + "% - " + getString(R.string.Add_resource_reading_file) +
+                    " n°" + i + 1 + "/" + total + "\n" + getFileNameFromPath(info.getFileName());
+
+            myLog("Registering track [" + info.getFileName() + "]");
+            SaveResult result = saveSingleFile(info, insertedFolderId, zeOrder);
+            tellProgress(progress, txtProgress);
+
+            switch (result) {
+                case SUCCESS: saved++; break;
+                case SKIPPED: skipped++; break;
+                case FAILED: failed++; break;
             }
+        }
+
+        myLogD("🎧 Import Summary:");
+        myLogD("✔️ Saved:   " + saved);
+        myLogD("⏭️ Skipped: " + skipped);
+        myLogD("❌ Failed:  " + failed);
+
+        // All files done
+        myLogD("******************************************************************************************************************");
+        myLogD("******************************************************************************************************************");
+        myLogD("***************************      All files have been processed. -- OK      ***************************************");
+        myLogD("******************************************************************************************************************");
+        myLogD("******************************************************************************************************************");
+        updateFolderTable(this, insertedFolderId);
+
+        myLogD("deleting source ??"
+                + "\nOption CopyFile : " + bookState.optionCopy + "  -  is a ZIP : " + type_dynamic.equals("ZIP")
+                + "\nOption DeleteSourceFile : " + bookState.optionDelete);
+        if ((bookState.optionCopy || "ZIP".equals(type_dynamic)) && bookState.optionDelete) {
+            deleteSourceFile();
+        }
+        tellEnd();
+    }
+    private SaveResult saveSingleFile(AudioFileInfo info, int folderId, int zeOrder) {
+        ZikFile file = new ZikFile();
+        file.setName(info.getFileName());
+        file.setDisplayName(formatNameForDisplay(info.getFileName()));
+        file.setIdFolder(folderId);
+        file.setZeorder(zeOrder);
+        file.setFolderName(bookState.title);
+        file.setPercentdone(0.0);
+        file.setPosition(0);
+        file.setPath(future_DB_folder_path);
+        file.setIszipfile(false);
+        file.setFinished(false);
+        file.setDuration(info.getDuration());
+        file.date_added = System.currentTimeMillis();
+
+        if (file.getDuration() == 0) {
+            myLog("⏭️ Skipped: duration = 0 → " + info.getFileName());
+            return SaveResult.SKIPPED;
+        }
+
+        long id = AppDatabase.getDatabase(this).ZikFileDao().insert(file);
+        if (id > 0) {
+            myLog("✔️ ZikFile inserted: id = " + id);
+            return SaveResult.SUCCESS;
         } else {
-            long zikFileId = AppDatabase.getDatabase(this).ZikFileDao().insert(zikFile);
-            if (zikFileId>0) {
-                myLog("ZikFile Added.... SQL result (=id) = [" + zikFileId + "]");
-                nbFileSaved++;
-                if (nbFileSaved == nbFileToSave) {
-                    myLogD("******************************************************************************************************************");
-                    myLogD("******************************************************************************************************************");
-                    myLogD("***************************      All files have been processed. -- OK      ***************************************");
-                    myLogD("******************************************************************************************************************");
-                    myLogD("******************************************************************************************************************");
-                    updateFolderTable(this, mFolderId);
-                    myLogD("deleting source ??"
-                            + "\nOption CopyFile : " + bookState.optionCopy + "  -  is a ZIP : " + type_dynamic.equals("ZIP")
-                            + "\nOption DeleteSourceFile : " + bookState.optionDelete);
-                    if ((bookState.optionCopy || type_dynamic.equals("ZIP")) && bookState.optionDelete) {
-                        myLogD("deleting source => YES");
-                        deleteSourceFile();
-                    }
-                    tellEnd();
-                }
-            } else {
-                tellError(getString(R.string.Error_Import_CannotSaveInDB) + " [" + audioFileInfo.getFileName() + "]");
-            }
+            myLogE("❌ DB insert failed for: " + info.getFileName());
+            tellError(getString(R.string.Error_Import_CannotSaveInDB) + " [" + info.getFileName() + "]");
+            return SaveResult.FAILED;
         }
     }
-
 
     private void deleteSourceFile() {
         myLog("deleteSourceFile() - uri = [" + uri_dynamic + "] [" + type_dynamic + "]");
