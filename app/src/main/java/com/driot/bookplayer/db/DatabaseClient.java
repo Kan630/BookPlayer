@@ -88,35 +88,47 @@ public class DatabaseClient {
     private static DatabaseClient mInstance;
 
     //our app database object
-    private final AppDatabase appDatabase;
+    private AppDatabase appDatabase;
 
     private DatabaseClient(Context mCtx) {
-
+        int currentVersion = 0;
         //mCtx.deleteDatabase(DATABASE_NAME);
 
-        File dbPath = mCtx.getDatabasePath(DATABASE_NAME);
-        if (dbPath.exists()) {
-            int currentVersion = DatabaseBackupHelper.getDatabaseVersion(dbPath);
-            myLogD("Current DB version : " + currentVersion);
-            if (currentVersion < APPDATABASE_VERSION) {
-                myLogW("Code DB version : " + APPDATABASE_VERSION);
-                backupDatabase(mCtx);
+        try {
+            File dbPath = mCtx.getDatabasePath(DATABASE_NAME);
+            if (dbPath.exists()) {
+                currentVersion = DatabaseBackupHelper.getDatabaseVersion(dbPath);
+                myLogD("Current DB version : " + currentVersion);
+                if (currentVersion < APPDATABASE_VERSION) {
+                    myLogW("Code DB version : " + APPDATABASE_VERSION);
+                    backupDatabase(mCtx);
+                }
             }
+        } catch (Exception e) {
+            myLogE("db version logging error");
         }
 
 
         //creating the app database with Room database builder
         //MyToDos is the name of the database
-        appDatabase = Room.databaseBuilder(mCtx, AppDatabase.class,DATABASE_NAME )
+        try {
+            appDatabase = Room.databaseBuilder(mCtx, AppDatabase.class,DATABASE_NAME )
 
-                //-------------------------------------------------------
-                //.fallbackToDestructiveMigration()  // <--- ATTENTION !!
-                //                              modif version BDD => truncate all tables !!
-                //       => better, just uncomment the deleteDatabase at the top of this method
-                //-------------------------------------------------------
+                    //-------------------------------------------------------
+                    //.fallbackToDestructiveMigration()  // <--- ATTENTION !!
+                    //                              modif version BDD => truncate all tables !!
+                    //       => better, just uncomment the deleteDatabase at the top of this method
+                    //-------------------------------------------------------
 
-                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
-                .build();
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
+                    .build();
+
+            // Force early access to trigger DB open and migrations
+            appDatabase.getOpenHelper().getWritableDatabase();
+
+        } catch (Exception e) {
+            myLogEE(e, "Database will CRASH !! - current version : " + currentVersion + " - code version : " + APPDATABASE_VERSION );
+        }
 
     }
 
@@ -128,6 +140,9 @@ public class DatabaseClient {
     }
 
     public AppDatabase getAppDatabase() {
+        if (appDatabase == null) {
+            throw new IllegalStateException("Database not initialized");
+        }
         return appDatabase;
     }
 
