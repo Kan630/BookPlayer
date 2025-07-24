@@ -194,7 +194,7 @@ public class LoadOptionsActivity extends LoggingActivity {
             myLogI("------ USER CLICKS btnConfirm....   ");
 
             // check if Path available...
-            String futureFolderPath = getUnzipFolder(this) + "/" + audioBookTitle;
+            String futureFolderPath = getUnzipFolder(this, cbUseSdCard.isChecked()).getAbsolutePath() + "/" + audioBookTitle;
             myLogD("Checking Folder Path doesn't already exist in DB (internal copy case) : [" + futureFolderPath + "]");
             new Thread(() -> {
                 long lCheck = AppDatabase.getDatabase(this).FolderDao().folderAlreadyExist_checkFolderPath(futureFolderPath);

@@ -60,6 +60,7 @@ public class Sql {
                 "                   WHERE Folder.id = ZikFile.idFolder )" +
                 "   , LastAccess = strftime('%s','now') * 1000" +
                 "   , LastAccessTime = strftime('%s','now') * 1000 " +
+                "   , lLastAccess = strftime('%s','now') * 1000 " +
                 " WHERE Folder.id = " + idFolder;
 
         SimpleSQLiteQuery query = new SimpleSQLiteQuery(strSQL);

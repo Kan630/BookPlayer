@@ -172,6 +172,17 @@ public class DownloadJobService extends JobService {
             int fileLength = connection.getContentLength();
             File destFile = new File(destinationFolder, getFileNameFromPath(fileUrl));
 
+            File parentFolder = destFile.getParentFile();
+            if (parentFolder != null && !parentFolder.exists()) {
+                myLogW("creating parent folder : " + parentFolder.getAbsolutePath());
+                boolean created = parentFolder.mkdirs();
+                if (!created) {
+                    myLogE("Failed to create destination folder: " + parentFolder.getAbsolutePath());
+                    tellError(getString(R.string.Download_failed) + " (cannot create folder)");
+                    return false;
+                }
+            }
+
             input = new BufferedInputStream(connection.getInputStream());
             output = new FileOutputStream(destFile);
 

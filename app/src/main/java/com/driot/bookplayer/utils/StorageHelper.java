@@ -14,139 +14,158 @@ import java.io.File;
 
 public class StorageHelper {
 
-    //UNZIP
+    public enum MemoryLocationType {
+        INTERNAL_RESERVED,
+        SDCARD_RESERVED,
+        SDCARD_SHARED,
+        PHONE_SHARED,
+        NOT_FOUND
+    }
+
+    public static MemoryLocationType getMemoryLocationType(Context context, String path) {
+        try {
+            String pathLower = path.toLowerCase();
+            String reservedInternal = context.getFilesDir().getAbsolutePath();
+            File sdBase = getPreferredBaseDir(context, true);
+            String reservedSD = sdBase != null ? sdBase.getAbsolutePath() : "";
+
+            if (pathLower.startsWith(reservedInternal.toLowerCase())) {
+                return MemoryLocationType.INTERNAL_RESERVED;
+            } else if (!reservedSD.isEmpty() && pathLower.startsWith(reservedSD.toLowerCase())) {
+                if (pathLower.contains("/android/data/" + context.getPackageName().toLowerCase())) {
+                    return MemoryLocationType.SDCARD_RESERVED;
+                } else {
+                    return MemoryLocationType.SDCARD_SHARED;
+                }
+            } else {
+                return MemoryLocationType.PHONE_SHARED;
+            }
+        } catch (Exception e) {
+            myLogEE(e, "getMemoryLocationType()");
+            return MemoryLocationType.NOT_FOUND;
+        }
+    }
+
+    // === PUBLIC FOLDER RESOLVERS ===
+
+    // UNZIPPED
+    public static File getUnzipFolder(Context context) {
+        return getFolder(context, FOLDER_UNZIPPED, Option.getUseSdCard());
+    }
+
+    public static File getUnzipFolder(Context context, boolean forceSdCard) {
+        return getFolder(context, FOLDER_UNZIPPED, forceSdCard);
+    }
+
     public static String getUnzipFolderPath(Context context) {
         return getUnzipFolder(context).getAbsolutePath();
     }
-    public static File getUnzipFolder(Context context) { //Without asking user, use general Option (for Podcast and auto-downloads)
-        return new File(getPreferredFilesDirs(context), FOLDER_UNZIPPED);
-    }
-    public static File getUnzipFolder(Context context, boolean option_use_SD_card) { // asking user each time => manual loading though LoadOptionActivity
-        return new File(getPreferredFilesDirs(context, option_use_SD_card), FOLDER_UNZIPPED);
+
+    // DOWNLOAD
+    public static File getDownloadFolder(Context context) {
+        return getFolder(context, FOLDER_DOWNLOAD, Option.getUseSdCard());
     }
 
-    //DOWNLOAD
     public static String getDownloadFolderPath(Context context) {
         return getDownloadFolder(context).getAbsolutePath();
     }
-    public static File getDownloadFolder(Context context) {
-        return new File(getPreferredFilesDirs(context), FOLDER_DOWNLOAD);
+
+    // === GENERIC FOLDER RESOLVER ===
+    public static File getFolder(Context context, String subfolder, boolean useSdCard) {
+        File baseDir = getPreferredBaseDir(context, useSdCard);
+        return new File(baseDir, subfolder);
     }
 
-    //FILES
-    public static File getPreferredFilesDirs(Context context) {
-        if (isExternalSDCardAvailable(context) && Option.getUseSdCard()) {
-            File[] externalDirs = context.getExternalFilesDirs(null);
-            return externalDirs[1];
-        } else {
-            return context.getFilesDir();
-        }
-    }
-    public static File getPreferredFilesDirs(Context context, boolean forceSdCard) {
-        if (isExternalSDCardAvailable(context) && forceSdCard) {
-            File[] externalDirs = context.getExternalFilesDirs(null);
-            return externalDirs[1];
+    public static File getPreferredBaseDir(Context context, boolean useSdCard) {
+        if (useSdCard && isExternalSDCardAvailable(context)) {
+            return getRemovableSDCardPath(context);
         } else {
             return context.getFilesDir();
         }
     }
 
-    // --------------------------------------------------------------------------------
-    // ----- SD CARD --------------------
-    // --------------------------------------------------------------------------------
+    public static File getPreferredBaseDir(Context context) {
+        return getPreferredBaseDir(context, Option.getUseSdCard());
+    }
+
+    // === SD CARD HANDLING ===
+
     public static boolean isExternalSDCardAvailable(Context context) {
-        File[] externalDirs = context.getExternalFilesDirs(null);
-        return externalDirs.length > 1 && externalDirs[1] != null && Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState(externalDirs[1]));
+        File[] dirs = context.getExternalFilesDirs(null);
+        return dirs.length > 1 && dirs[1] != null &&
+                Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState(dirs[1])) &&
+                Environment.isExternalStorageRemovable(dirs[1]);
     }
-    public static File getSdCardFilesDirs(Context context) {
-        if (isExternalSDCardAvailable(context)) {
-            File[] externalDirs = context.getExternalFilesDirs(null);
-            return externalDirs[1];
-        } else {
-            return context.getFilesDir();
-        }
-    }
+
     private static File getRemovableSDCardPath(Context context) {
-        File[] externalDirs = context.getExternalFilesDirs(null);
-        for (File file : externalDirs) {
-            if (file != null && Environment.isExternalStorageRemovable(file)) {
-                return file;
-            }
-        }
-        return null;
-    }
-    public static String getSdCardUnzippedFolder(Context context) {
-        File[] externalDirs = context.getExternalFilesDirs(null);
-        for (File dir : externalDirs) {
+        File[] dirs = context.getExternalFilesDirs(null);
+        for (File dir : dirs) {
             if (dir != null && Environment.isExternalStorageRemovable(dir)) {
-                File unzippedDir = new File(dir, FOLDER_UNZIPPED);
-                myLogD("Checking removable SD folder: " + unzippedDir.getAbsolutePath());
-                if (unzippedDir.exists() && unzippedDir.isDirectory()) {
-                    myLogD("Found SD card unzipped folder: " + unzippedDir.getAbsolutePath());
-                    return unzippedDir.getAbsolutePath();
-                } else {
-                    myLogW("Unzipped folder not found at: " + unzippedDir.getAbsolutePath());
-                }
+                return dir;
             }
         }
-        myLogI("No SD card unzipped folder found");
         return null;
     }
 
+    public static String getSdCardUnzippedFolder(Context context) {
+        File base = getRemovableSDCardPath(context);
+        if (base == null) {
+            myLogI("No SD card available");
+            return null;
+        }
+        File unzipped = new File(base, FOLDER_UNZIPPED);
+        myLogD("Checking SD folder: " + unzipped.getAbsolutePath());
 
-    // --------------------------------------------------------------------------------
-    // ----- STORAGE SPACE --------------------
-    // --------------------------------------------------------------------------------
+        if (unzipped.exists() && unzipped.isDirectory()) {
+            myLogD("Found: " + unzipped.getAbsolutePath());
+            return unzipped.getAbsolutePath();
+        } else {
+            myLogW("Not found: " + unzipped.getAbsolutePath());
+            return null;
+        }
+    }
+
+    // === STORAGE SPACE ===
+
     public static long getAvailableInternalMemorySize() {
-        File path = Environment.getDataDirectory();
-        StatFs stat = new StatFs(path.getPath());
-        long blockSize = stat.getBlockSizeLong();
-        long availableBlocks = stat.getAvailableBlocksLong();
-        return availableBlocks * blockSize;
+        return getAvailableSpace(Environment.getDataDirectory());
     }
+
     public static long getTotaLInternalMemorySize() {
-        File path = Environment.getDataDirectory();
-        StatFs stat = new StatFs(path.getPath());
-        long blockSize = stat.getBlockSizeLong();
-        long allBlocks = stat.getBlockCountLong();
-        return allBlocks * blockSize;
+        return getTotalSpace(Environment.getDataDirectory());
     }
-    // Returns the total size in bytes of the removable SD card, or -1 if not found
-    public static long getTotalRemovableSDCardSize(Context context) {
-        try {
-            File sdCard = getRemovableSDCardPath(context);
-            if (sdCard != null) {
-                StatFs stat = new StatFs(sdCard.getPath());
-                long blockSize = stat.getBlockSizeLong();
-                long totalBlocks = stat.getBlockCountLong();
-                return totalBlocks * blockSize;
-            }
-        } catch (Throwable t) {
-            myLogEE(t,"getTotalRemovableSDCardSize");
-        }
-        return -1;
-    }
-    // Returns the available size in bytes of the removable SD card, or -1 if not found
+
     public static long getAvailableRemovableSDCardSize(Context context) {
-        try {
-            File sdCard = getRemovableSDCardPath(context);
-            if (sdCard != null) {
-                StatFs stat = new StatFs(sdCard.getPath());
-                long blockSize = stat.getBlockSizeLong();
-                long availableBlocks = stat.getAvailableBlocksLong();
-                return availableBlocks * blockSize;
-            }
-        } catch (Throwable t) {
-            myLogEE(t,"getTotalRemovableSDCardSize");
-        }
-        return -1;
+        File sd = getRemovableSDCardPath(context);
+        return sd != null ? getAvailableSpace(sd) : -1;
     }
-    // --------------------------------------------------------------------------------
-    // --------------------------------------------------------------------------------
 
+    public static long getTotalRemovableSDCardSize(Context context) {
+        File sd = getRemovableSDCardPath(context);
+        return sd != null ? getTotalSpace(sd) : -1;
+    }
 
+    private static long getAvailableSpace(File path) {
+        try {
+            StatFs stat = new StatFs(path.getPath());
+            return stat.getBlockSizeLong() * stat.getAvailableBlocksLong();
+        } catch (Exception e) {
+            myLogEE(e, "getAvailableSpace failed for " + path);
+            return -1;
+        }
+    }
 
+    private static long getTotalSpace(File path) {
+        try {
+            StatFs stat = new StatFs(path.getPath());
+            return stat.getBlockSizeLong() * stat.getBlockCountLong();
+        } catch (Exception e) {
+            myLogEE(e, "getTotalSpace failed for " + path);
+            return -1;
+        }
+    }
 
+    // === LOGGING ===
     // ----------------------- LOG -----------------------
     private static final String TAG = "StorageHelper";
     private static void myLog(String str) { KanLogger.myLog(TAG, str); }

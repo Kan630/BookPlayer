@@ -210,40 +210,34 @@ public class Folder implements Serializable {
 
 
     public int getMemoryLocationIcon(Context context) {
-        try {
-            if (path.startsWith(context.getFilesDir().getAbsolutePath())) {
-                return R.drawable.ic_memory_general_smartphone_r; // Reserved internal
-            } else if (path.startsWith(StorageHelper.getSdCardFilesDirs(context).getAbsolutePath())) {
-                if (path.contains("/Android/data/" + context.getPackageName())) {
-                    return R.drawable.ic_memory_sdcard_r; // Reserved SD
-                } else {
-                    return R.drawable.ic_memory_sdcard; // Shared SD
-                }
-            } else {
-                return R.drawable.ic_memory_general_smartphone; // Shared phone storage
-            }
-        } catch (Exception e) {
-            myLogEE(e, "getMemoryLocationIcon()");
-            return R.drawable.ic_memory_notfound;
+        StorageHelper.MemoryLocationType type = StorageHelper.getMemoryLocationType(context, path);
+        switch (type) {
+            case INTERNAL_RESERVED:
+                return R.drawable.ic_memory_general_smartphone_r;
+            case SDCARD_RESERVED:
+                return R.drawable.ic_memory_sdcard_r;
+            case SDCARD_SHARED:
+                return R.drawable.ic_memory_sdcard;
+            case PHONE_SHARED:
+                return R.drawable.ic_memory_general_smartphone;
+            default:
+                return R.drawable.ic_memory_notfound;
         }
     }
 
     public String getMemoryLocationText(Context context) {
-        try {
-            if (path.startsWith(context.getFilesDir().getAbsolutePath())) {
+        StorageHelper.MemoryLocationType type = StorageHelper.getMemoryLocationType(context, path);
+        switch (type) {
+            case INTERNAL_RESERVED:
                 return context.getString(R.string.audio_location_bookplayer_reserved_storage);
-            } else if (path.startsWith(StorageHelper.getSdCardFilesDirs(context).getAbsolutePath())) {
-                if (path.contains("/Android/data/" + context.getPackageName())) {
-                    return context.getString(R.string.audio_location_sdcard_reserved_storage);
-                } else {
-                    return context.getString(R.string.audio_location_sdcard);
-                }
-            } else {
+            case SDCARD_RESERVED:
+                return context.getString(R.string.audio_location_sdcard_reserved_storage);
+            case SDCARD_SHARED:
+                return context.getString(R.string.audio_location_sdcard);
+            case PHONE_SHARED:
                 return context.getString(R.string.audio_location_smartphone_shared_storage);
-            }
-        } catch (Exception e) {
-            myLogEE(e, "getMemoryLocationIcon()");
-            return context.getString(R.string.audio_location_audiobook_not_found);
+            default:
+                return context.getString(R.string.audio_location_audiobook_not_found);
         }
     }
 

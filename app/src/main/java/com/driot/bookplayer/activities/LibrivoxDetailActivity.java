@@ -1,6 +1,8 @@
 package com.driot.bookplayer.activities;
 
 import static com.driot.bookplayer.global.Pref.setLoadBookTaskState;
+import static com.driot.bookplayer.utils.StorageHelper.getUnzipFolder;
+import static com.driot.bookplayer.utils.StorageHelper.getUnzipFolderPath;
 import static com.driot.bookplayer.utils.TextOptions.parseMaybeHtml;
 import static com.driot.bookplayer.utils.Tonio.getReadableSize;
 
@@ -143,6 +145,7 @@ public class LibrivoxDetailActivity extends LoggingActivity {
         if (viewModel.zipExists.getValue() == null) checkDownloadFile();
 
         bGet.setOnClickListener(v -> {
+            myLogI("------> USER CLICKS - GET -        LIBRIVOX BOOK");
             String downloadUrl = "https://archive.org/download/" + viewModel.identifier + "/" + viewModel.identifier + "_64kb_mp3.zip";
             startDownload(downloadUrl);
         });
@@ -342,6 +345,9 @@ public class LibrivoxDetailActivity extends LoggingActivity {
         state.optionCopy = true;
         state.optionDelete = false;
         state.imagePath = futureCoverPic;
+        state.sourceLocation = "Librivox";
+        state.futureFolderName = viewModel.identifier;
+        state.futureFolderPath = getUnzipFolder(this).getAbsolutePath() + "/" + viewModel.identifier;
 
         setLoadBookTaskState(this, state);
 
