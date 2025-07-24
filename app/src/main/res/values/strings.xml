@@ -570,7 +570,7 @@
     <string name="option_sdcard_text_caution"><i>please note that if you remove or erase the sd card, you will loose your audios</i></string>">
 
     <string name="librivox_cover_desc">Librivox cover</string>">
-
+    <string name="audio_location_sdcard_reserved_storage">SD card (app reserved)</string>
 
 
 

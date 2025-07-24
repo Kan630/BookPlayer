@@ -14,6 +14,7 @@ import androidx.room.PrimaryKey;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.utils.KanLogger;
+import com.driot.bookplayer.utils.StorageHelper;
 
 import org.jspecify.annotations.NonNull;
 
@@ -208,14 +209,18 @@ public class Folder implements Serializable {
     }
 
 
-    public int getMemoryLocationIcon(Context c) {
+    public int getMemoryLocationIcon(Context context) {
         try {
-            if (path.contains(FOLDER_UNZIPPED)) {
-                return R.drawable.ic_memory_internal_bookplayer;
-            } else if (isSdCardPath(path)) {
-                return R.drawable.ic_memory_sdcard;
+            if (path.startsWith(context.getFilesDir().getAbsolutePath())) {
+                return R.drawable.ic_memory_general_smartphone_R; // Reserved internal
+            } else if (path.startsWith(StorageHelper.getSdCardFilesDirs(context).getAbsolutePath())) {
+                if (path.contains("/Android/data/" + context.getPackageName())) {
+                    return R.drawable.ic_memory_sdcard_R; // Reserved SD
+                } else {
+                    return R.drawable.ic_memory_sdcard; // Shared SD
+                }
             } else {
-                return R.drawable.ic_memory_general_smartphone;
+                return R.drawable.ic_memory_general_smartphone; // Shared phone storage
             }
         } catch (Exception e) {
             myLogEE(e, "getMemoryLocationIcon()");
@@ -223,26 +228,23 @@ public class Folder implements Serializable {
         }
     }
 
-    // TODO : create a new column to store the location in DB
-    // and use StorageManager (API 24+) to check if storage is removable (aka SD card)
-
-    public String getMemoryLocationText(Context c) {
+    public String getMemoryLocationText(Context context) {
         try {
-            if (path.contains(FOLDER_UNZIPPED)) {
-                return c.getString(R.string.audio_location_bookplayer_reserved_storage);
-            } else if (isSdCardPath(path)) {
-                return c.getString(R.string.audio_location_sdcard);
+            if (path.startsWith(context.getFilesDir().getAbsolutePath())) {
+                return context.getString(R.string.audio_location_bookplayer_reserved_storage);
+            } else if (path.startsWith(StorageHelper.getSdCardFilesDirs(context).getAbsolutePath())) {
+                if (path.contains("/Android/data/" + context.getPackageName())) {
+                    return context.getString(R.string.audio_location_sdcard_reserved_storage);
+                } else {
+                    return context.getString(R.string.audio_location_sdcard);
+                }
             } else {
-                return c.getString(R.string.audio_location_smartphone_shared_storage);
+                return context.getString(R.string.audio_location_smartphone_shared_storage);
             }
         } catch (Exception e) {
-            myLogEE(e,"getMemoryLocationText()");
-            return c.getString(R.string.audio_location_audiobook_not_found);
+            myLogEE(e, "getMemoryLocationIcon()");
+            return context.getString(R.string.audio_location_audiobook_not_found);
         }
-    }
-    private boolean isSdCardPath(String path) {
-        // Known external/removable SD card mount points
-        return path.contains("/storage/") && path.matches(".*/[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}/.*");
     }
 
     public void setLastAccessToNow() {
