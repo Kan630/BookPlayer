@@ -12,6 +12,9 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.UnknownHostException;
+
+import javax.net.ssl.SSLException;
 
 public class DownloadEpisodeWorker extends Worker {
     public static final String KEY_URL = "url";
@@ -41,12 +44,26 @@ public class DownloadEpisodeWorker extends Worker {
             }
 
             File tempFile = new File(destPath + ".part");
+            URL url;
+            try {
+                // Try HTTPS first
+                url = new URL(urlStr.replace("http://", "https://"));
+                conn = (HttpURLConnection) url.openConnection();
+                conn.setConnectTimeout(15000);
+                conn.setReadTimeout(30000);
+                conn.connect();
+            } catch (SSLException | UnknownHostException e) {
+                myLogW("HTTPS failed, retrying with HTTP: " + e.getMessage());
+                try {
+                    url = new URL(urlStr.replace("https://", "http://"));
+                    conn = (HttpURLConnection) url.openConnection();
+                    conn.connect();
+                } catch (Exception ex) {
+                    myLogEE(ex, "HTTP fallback failed");
+                    return Result.failure();
+                }
+            }
 
-            URL url = new URL(urlStr);
-            conn = (HttpURLConnection) url.openConnection();
-            conn.setConnectTimeout(15000);
-            conn.setReadTimeout(30000);
-            conn.connect();
 
             try (InputStream in = new BufferedInputStream(conn.getInputStream());
                  FileOutputStream out = new FileOutputStream(tempFile)) {
