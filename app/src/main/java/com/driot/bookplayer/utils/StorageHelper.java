@@ -1,5 +1,8 @@
 package com.driot.bookplayer.utils;
 
+import static com.driot.bookplayer.global.Var.FOLDER_UNZIPPED;
+import static com.driot.bookplayer.utils.KanFiles.sanitizeFilename;
+
 import android.content.Context;
 import android.os.Environment;
 import android.os.StatFs;
@@ -9,6 +12,20 @@ import com.driot.bookplayer.global.Option;
 import java.io.File;
 
 public class StorageHelper {
+
+    public static File getUnzipFolder(Context context) {
+        return new File(getPreferredFilesDirs(context), FOLDER_UNZIPPED);
+    }
+    public static String getUnzipFolderPath(Context context) {
+        return getUnzipFolder(context).getAbsolutePath();
+    }
+
+    public static File getDownloadFolder(Context context) {
+        return new File(getPreferredFilesDirs(context), FOLDER_UNZIPPED);
+    }
+    public static String getDownloadFolderPath(Context context) {
+        return getDownloadFolder(context).getAbsolutePath();
+    }
 
     public static boolean isExternalSDCardAvailable(Context context) {
         File[] externalDirs = context.getExternalFilesDirs(null);

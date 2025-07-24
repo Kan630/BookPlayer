@@ -20,6 +20,7 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.objects.AudioFileInfo;
 import com.driot.bookplayer.utils.GlobalTaskManager;
 import com.driot.bookplayer.utils.log.LoggingService;
+import com.driot.bookplayer.utils.StorageHelper;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.db.Folder;
@@ -36,11 +37,10 @@ import java.util.Objects;
 
 import static com.driot.bookplayer.db.Sql.updateFolderTable;
 import static com.driot.bookplayer.global.Pref.getLoadBookTaskState;
-import static com.driot.bookplayer.global.Var.FOLDER_DOWNLOAD;
-import static com.driot.bookplayer.global.Var.FOLDER_UNZIPPED;
 import static com.driot.bookplayer.global.Var.ONLY_MIME_AUDIO;
 import static com.driot.bookplayer.global.Var.PATH_CHECK_AUTOTEST;
 import static com.driot.bookplayer.global.Var.SUPPORTED_AUDIO_EXTENSIONS;
+import static com.driot.bookplayer.global.Var.SUPPORTED_COVER_PICTURE_EXTENSIONS;
 import static com.driot.bookplayer.utils.Tonio.formatMem;
 import static com.driot.bookplayer.utils.Tonio.formatNameForDisplay;
 import static com.driot.bookplayer.utils.Tonio.fileExists;
@@ -159,17 +159,15 @@ public class AddResourceService
     @Override
     public void onCreate() {
         super.onCreate();
-        myLog("onCreate()");
         LocalBroadcastManager.getInstance(this).registerReceiver(downloadReceiver, new IntentFilter("BOOKPLAYER_DOWNLOAD_FINISHED"));
         LocalBroadcastManager.getInstance(this).registerReceiver(downloadReceiver, new IntentFilter("BOOKPLAYER_DOWNLOAD_ERROR"));
         LocalBroadcastManager.getInstance(this).registerReceiver(downloadReceiver, new IntentFilter("BOOKPLAYER_DOWNLOAD_PROGRESS"));
-        unzipFolder = getFilesDir().getAbsolutePath() + "/" + FOLDER_UNZIPPED + "/";
-        downloadFolder = getFilesDir().getAbsolutePath() + "/" + FOLDER_DOWNLOAD + "/";
+        unzipFolder = StorageHelper.getUnzipFolderPath(this);
+        downloadFolder = StorageHelper.getDownloadFolderPath(this);
         GlobalTaskManager.getInstance().startTask("Starting import...");
     }
     @Override
     public void onDestroy() {
-        myLog("onDestroy()");
         LocalBroadcastManager.getInstance(this).unregisterReceiver(downloadReceiver);
         isBusy = false;
         super.onDestroy();
@@ -180,12 +178,12 @@ public class AddResourceService
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        myLog("onBind()    intent:" + intent.getDataString());
+        myLogD("onBind()    intent:" + intent.getDataString());
         return binder;
     }
     @Override
     public boolean onUnbind(Intent intent) {
-        myLog("onUnBind()    intent:" + intent.getDataString());
+        myLogD("onUnBind()    intent:" + intent.getDataString());
         try {
             if (mUnzipServiceBound != null && mUnzipServiceBound) unbindService(unzipServiceConnection);
             mUnzipServiceBound = false;
@@ -372,10 +370,9 @@ public class AddResourceService
     private void initVars(LoadBookTaskState state) {
         myLogD("initVars");
         if (state != null) {
-            myLogD("initVars");
             bookState = state;
-            uri_dynamic = state.uri;
-            type_dynamic = state.type;
+            set_uri_dynamic(state.uri);
+            set_type_dynamic(state.type);
         } else {
             myLogEE(null, "initVars state is null");
         }
@@ -383,12 +380,10 @@ public class AddResourceService
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        myLog("onStartCommand");
+        myLogD("onStartCommand()");
 
         LoadBookTaskState state = intent.getParcelableExtra("LoadBookTaskState");
         initVars(state);
-
-        //TODO why also in init() ??
 
         return START_NOT_STICKY;
     }
@@ -439,6 +434,7 @@ public class AddResourceService
         myLog("originalHash = [" + bookState.originalHash + "]");
         myLog("fileExtension = [" + bookState.fileExtension + "]");
         myLog("bookState.mimeType = [" + bookState.mimeType + "]");
+        myLog("bookState.image = [" + bookState.imagePath + "]");
         myLog("*********************************************************************************************************");
         myLog("*********************************************************************************************************");
 
@@ -468,19 +464,16 @@ public class AddResourceService
                 ///---------------------------------------------
                 /// M4B FILE
                 ///---------------------------------------------
-                if (bookState.mimeType.equals("audio/mp4") || bookState.fileExtension.equals("m4b")) {
-                    myLog("=> MP4 <=");
+                if (bookState.fileExtension.equals("m4b")) {
                     if (bookState.optionSplit) {
-                        type_dynamic = "M4B";
+                        set_type_dynamic("M4B");
                         PROGRESS = bookState.optionCopy ? PROGRESS_ZIP_COPY : PROGRESS_ZIP_NOCOPY;
                         myLog("M4B : copy locally before everything else");
                         myLog("Picked Uri = [" + uri_dynamic.toString() + "]");
                         new Thread(() -> {
                             tellProgress(PROGRESS[3], PROGRESS_TEXT[3]);
-                            copyFileLocal(uri_dynamic
-                                    , unzipFolder + bookState.title
+                            copyFileLocal(unzipFolder + "/" + bookState.title
                                     , bookState.title + ".m4b"
-                                    , type_dynamic
                             ); //launch a service, NEXT STEP through CALLBACKS
                         }).start();
                         return;
@@ -493,7 +486,7 @@ public class AddResourceService
 
                 } else if (bookState.mimeType.equals("application/zip") || bookState.fileExtension.equals("zip")) {
                     myLog("=> ZIP <=");
-                    type_dynamic = "ZIP";
+                    set_type_dynamic("ZIP");
                     goZipCase();
                     return;
 
@@ -502,10 +495,8 @@ public class AddResourceService
                     if (bookState.sourceLocation.equals("cloud")) {
                         new Thread(() -> {
                             tellProgress(PROGRESS[3], PROGRESS_TEXT[1] + " ...reading on cloud");
-                            copyFileLocal(uri_dynamic
-                                    , unzipFolder + bookState.title
+                            copyFileLocal(unzipFolder + "/" + bookState.title
                                     , bookState.title
-                                    , type_dynamic
                             );
                             //launch a service, NEXT STEP through CALLBACKS
                         }).start();
@@ -599,7 +590,7 @@ public class AddResourceService
         Thread backgroundThread = new Thread(() -> {
             addAudioFileRecursive(finalDfPickedDir);
 
-            myLog("addAudioFileRecursive done, sorting now...");
+            myLogD("addAudioFileRecursive done, sorting now...");
             audioFileArrayList.sort(new Utils.AlphanumericComparator());
 
             if (audioFileArrayList.isEmpty()) {
@@ -607,6 +598,7 @@ public class AddResourceService
             } else {
                 myLog(audioFileArrayList.size() + " files found in directory : [" + finalDfPickedDir.getName() + ']');
                 myLog("Full directory size : [" + formatMem(fullFolderSize/1024/1024,0) + " Mo]");
+                myLogD("-----------------------------");
             }
             goFolder();
         });
@@ -627,7 +619,7 @@ public class AddResourceService
     }
 
     private void addAudioFileUnique(DocumentFile df) {
-        myLog("* New Audio File : [" +  df.getName() + ']');
+        myLogD("* New Audio File : [" +  df.getName() + ']');
         long duration = getMediaDurationFromUri(this, df.getUri());
         myLogD("* Duration : [" +  formatTime(duration) + ']');
         audioFileArrayList.add(new AudioFileInfo(df.getName(), duration));
@@ -650,8 +642,7 @@ public class AddResourceService
                 String fileExtension = getExtension(fileName);
                 String mimeType = Objects.toString(f1.getType());
                 myLogD("* Checking File : [" + fileName + "] - mime = [" + mimeType + "] - extension = [" + fileExtension + "] - subfolder : [" + recursivFolder + "]");
-                if (mimeType.startsWith(ONLY_MIME_AUDIO) || SUPPORTED_AUDIO_EXTENSIONS.contains(fileExtension)
-                ) {
+                if (mimeType.startsWith(ONLY_MIME_AUDIO) || SUPPORTED_AUDIO_EXTENSIONS.contains(fileExtension)) {
                     nbFileScan = nbFileScan + 1;
                     l_audioFilePath = recursivFolder + f1.getName();
                     l_audioSize = f1.length();
@@ -662,6 +653,11 @@ public class AddResourceService
                     tellProgress((int) (PROGRESS[2] + (PROGRESS[3] - PROGRESS[2]) * progress), "Scanning for Audio Files..... \n[" +  l_audioFilePath + ']');
                     audioFileArrayList.add(new AudioFileInfo(l_audioFilePath, duration));
                     fullFolderSize = fullFolderSize + l_audioSize;
+                } else if (SUPPORTED_COVER_PICTURE_EXTENSIONS.contains(fileExtension)) {
+                    if (bookState.imagePath == null) {
+                        myLogD("Picture Found : [" +  f1.getUri().toString() + ']');
+                        bookState.imagePath = f1.getUri().toString();
+                    }
                 }
             }
         }
@@ -691,10 +687,8 @@ public class AddResourceService
             } else {
                 myLog("OK, folder doesn't already exist in DB");
                 tellProgress(PROGRESS[3], PROGRESS_TEXT[3]);
-                copyFileLocal(uri_dynamic
-                        , getFilesDir().getAbsolutePath() + "/" + FOLDER_UNZIPPED + "/" + destinationFolderName
+                copyFileLocal(unzipFolder + "/" + destinationFolderName
                         , destinationFolderName + ".zip"
-                        , type_dynamic
                 ); //launch the service, NEXT STEP through CALLBACKS
             }
         }).start();
@@ -739,25 +733,22 @@ public class AddResourceService
         myLog("copyFolder()");
         if (type_dynamic.equals("ZIP") || (type_dynamic.equals("M4B") && bookState.optionSplit)) {
             myLog("=> Has already been copied during unzipped or split...");
-            future_DB_folder_path = unzipFolder + bookState.title;
+            future_DB_folder_path = unzipFolder + "/" + bookState.title;
             saveFolder();
         } else {
             if (bookState.optionCopy) {
-                future_DB_folder_path = unzipFolder + bookState.title;
+                future_DB_folder_path = unzipFolder + "/" + bookState.title;
                 tellProgress(PROGRESS[4], PROGRESS_TEXT[4]);
                 if (type_dynamic.equals("Folder")) {
                     myLog("=> copyFile Folder...");
-                    copyFileLocal(uri_dynamic
-                            , unzipFolder
+                    copyFileLocal(unzipFolder
                             , bookState.title
-                            , type_dynamic);
+                            );
                 } else if (type_dynamic.equals("File") || type_dynamic.equals("M4B")) {
                     myLog("=> copyFile Single File...");
-                    future_DB_folder_path = unzipFolder + bookState.title;
-                    copyFileLocal(uri_dynamic
-                            , future_DB_folder_path
+                    future_DB_folder_path = unzipFolder + "/" + bookState.title;
+                    copyFileLocal(future_DB_folder_path
                             , bookState.originalFile
-                            , type_dynamic
                     );
                 } else {
                     tellError(getString(R.string.Technical_Error) + "...  " + "Wrong file type : " + type_dynamic);
@@ -792,6 +783,7 @@ public class AddResourceService
         folder.setSourceLocation(bookState.sourceLocation);
         folder.date_added = System.currentTimeMillis();
         folder.image = bookState.imagePath;
+        folder.lLastAccess = System.currentTimeMillis(); //used to sort the Book on the main page
 
         new Thread(() -> {
             int insertedFolderId = (int) DatabaseClient.getInstance(this).getAppDatabase().FolderDao().insert(folder);
@@ -963,65 +955,36 @@ public class AddResourceService
         return tmp;
     }
 
-    private void copyFileLocal(Uri uri, String destinationFolderPath, String destinationName, String type_given) {
-        if ("ZIP".equals(type_given) || "M4B".equals(type_given)) { //reset variable because was done in observable stuff
-            this.zipDestinationFolderPath = destinationFolderPath;
-        }
+    private void copyFileLocal(String destinationFolderPath, String destinationName) {
         boolean checkSize = true;
         long forceSize = -1;
-        if ("Folder".equals(type_given)) {
-            checkSize = true;
+        if ("Folder".equals(type_dynamic)) {
             forceSize = fullFolderSize;
         }
-
         myLog("Future Folder Path : [" + destinationFolderPath + "]");
-        myLog("call to launchCopyFileService " +
-                "\n.   from Uri [" + uri + "] " +
-                "\n.   to Folder [" + destinationFolderPath + "] " +
-                "\n.   with Name [" + destinationName + "]" +
-                "\n.   for type = [" + type_given + "]" +
-                "\n.   checkSize = [" + checkSize + "]" +
-                "\n.   checkSize = [" + forceSize + "]"
-        );
-        launchCopyFileService(uri, destinationFolderPath, destinationName, type_given, checkSize, forceSize);
+        launchCopyFileService(uri_dynamic, destinationFolderPath, destinationName, type_dynamic, checkSize, forceSize);
     }
-
-    private void unzipZipLocal(String zeZipFilePath, String zeDestinationFolderPath) {
-        myLog("Launching Unzip service with arguments" +
-                "\n.    ZipFilePath = [" + zeZipFilePath + "]" +
-                "\n.    DestinationFolderPath = [" + zeDestinationFolderPath + "]"
-        );
-        launchUnzipService(zeZipFilePath, zeDestinationFolderPath);
-    }
-    private void splitM4bLocal(String sourceFilePath, String destinationFolderPath) {
-        myLog("Launching extractM4b with arguments" +
-                "\n.    sourceFilePath = [" + sourceFilePath + "]" +
-                "\n.    DestinationFolderPath = [" + destinationFolderPath + "]"
-        );
-        launchSplitM4bService(sourceFilePath, destinationFolderPath);
-
-    }
-
 
     private void proceedAfterCopyLocal(String localCopyFullPath) {
         myLog("proceedAfterCopyLocal() - Type : [" + type_dynamic + "]"
                 + "\nsourceLocation = [" + bookState.sourceLocation + "]"
                 + "\n localCopyFullPath = [" + localCopyFullPath + "]");
 
+        if (getExtension(localCopyFullPath).equals("zip")) {
+            set_type_dynamic("ZIP");
+        }
+
         if (type_dynamic.equals("ZIP")) {
-            myLog("launch unzipZipLocal()");
-            unzipZipLocal(localCopyFullPath, zipDestinationFolderPath);
+            launchUnzipService(localCopyFullPath, zipDestinationFolderPath);
 
         } else if (type_dynamic.equals("M4B") && bookState.optionSplit) {
-            myLog("launch extractM4bLocal()");
-            destinationFolderPath = getFilesDir().getAbsolutePath() + "/" + FOLDER_UNZIPPED + "/" + bookState.title;
-            splitM4bLocal(localCopyFullPath, destinationFolderPath);
+            launchSplitM4bService(localCopyFullPath, unzipFolder + "/" + bookState.title);
 
         } else {
             if (!Objects.isNull(bookState.sourceLocation) && (bookState.sourceLocation.equals("cloud") || bookState.sourceLocation.equals("web"))) {
                 myLog("from cloud/web");
-                future_DB_folder_path = unzipFolder + bookState.title;
-                uri_dynamic = Uri.fromFile(new File(localCopyFullPath));
+                future_DB_folder_path = unzipFolder + "/" + bookState.title;
+                set_uri_dynamic(Uri.fromFile(new File(localCopyFullPath)));
                 audioFileArrayList = new ArrayList<>();
 
                 myLogD("* adding file : [" +  future_DB_folder_path + ']');
@@ -1036,12 +999,15 @@ public class AddResourceService
 
             } else {
                 myLog("from other locations");
-                future_DB_folder_path = unzipFolder + bookState.title;
-                uri_dynamic = Uri.fromFile(new File(localCopyFullPath));
+                future_DB_folder_path = unzipFolder + "/" + bookState.title;
+                set_uri_dynamic(Uri.fromFile(new File(localCopyFullPath)));
             }
             saveFolder();
         }
     }
+    // -----------------------------------------------------------------------------------------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------------------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------------------------------------------------------------------------------------
 
     /**
      **********************************
@@ -1060,15 +1026,7 @@ public class AddResourceService
     public void downloadService_tellEnd(String downloadedFileFullPath) {
         clearDownloadFinished(this);
         myLog("Download tell End -> [" + downloadedFileFullPath + "]");
-        if (getExtension(downloadedFileFullPath).equals("zip")) type_dynamic = "ZIP"; // case direct download from Librivox
-        if (Objects.equals(type_dynamic, "ZIP")) {
-            uri_dynamic = Uri.fromFile(new File(downloadedFileFullPath));
-            String fileName = deleteExtension(extractName(downloadedFileFullPath));
-            this.zipDestinationFolderPath = getFilesDir().getAbsolutePath() + "/" + FOLDER_UNZIPPED + "/" + fileName;
-            unzipZipLocal(downloadedFileFullPath, getFilesDir().getAbsolutePath() + "/" + FOLDER_UNZIPPED + "/" + fileName);
-        } else {
-            proceedAfterCopyLocal(downloadedFileFullPath);
-        }
+        proceedAfterCopyLocal(downloadedFileFullPath);
     }
     @Override
     public void downloadService_tellError(String errorText) {
@@ -1099,7 +1057,6 @@ public class AddResourceService
         } else {
             proceedAfterCopyLocal(destinationFolderPath + "/" + destinationFolderName);
         }
-
     }
     @Override
     public void copyFileService_tellError(String errorText) {
@@ -1157,7 +1114,6 @@ public class AddResourceService
         myLog("SplitM4b service tell Non Blocking Error");
         tellWarning(warningText);
     }
-
     @Override
     public void splitM4bService_tellEnd(String destinationFolderPath) {
         myLog("SplitM4b Service tells End : [" + destinationFolderPath + "]");
@@ -1237,5 +1193,13 @@ public class AddResourceService
         }
     };
 
+    private void set_type_dynamic(String newType) {
+        myLog("type_dynamic : " + type_dynamic + " => " + newType);
+        type_dynamic = newType;
+    }
+    private void set_uri_dynamic(Uri newUri) {
+        myLog("uri_dynamic : " + uri_dynamic + " => " + newUri);
+        uri_dynamic = newUri;
+    }
 
 }

@@ -12,13 +12,11 @@ package com.driot.bookplayer.services;
 import static com.driot.bookplayer.global.Var.ONLY_MIME_AUDIO;
 import static com.driot.bookplayer.global.Var.SUPPORTED_AUDIO_EXTENSIONS;
 import static com.driot.bookplayer.global.Var.ZIP_SIZE_MAX_COEF;
-import static com.driot.bookplayer.utils.FileUtils.getFileSize;
 import static com.driot.bookplayer.utils.StorageHelper.getAvailableInternalMemorySize;
 import static com.driot.bookplayer.utils.Tonio.formatMem;
 import static com.driot.bookplayer.utils.Tonio.getSourceLocation;
 
 import android.app.Service;
-import android.content.ContentResolver;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Binder;
@@ -31,10 +29,6 @@ import com.driot.bookplayer.utils.log.LoggingService;
 import com.driot.bookplayer.utils.FileUtils;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 
 
 public class CopyFileService extends LoggingService {  //IntentService are designed to run in the background....   but let's use an executor or thread
@@ -53,8 +47,6 @@ public class CopyFileService extends LoggingService {  //IntentService are desig
     private boolean checkSize;
     private long forceSize;
     private String sourceLocation;
-
-    private File inFile;
 
     // Callbacks
     //-----------------------------
@@ -79,20 +71,17 @@ public class CopyFileService extends LoggingService {  //IntentService are desig
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        myLog("onBind()    intent:" + intent.getDataString());
         parseIntent(intent);
         return binder;
     }
 
     @Override
     public boolean onUnbind(Intent intent) {
-        myLog("onUnBind()    intent:" + intent.getDataString());
         return super.onUnbind(intent);
     }
 
     @Override
     public void onDestroy() {
-        myLog("onDestroy()");
         super.onDestroy();
         //unbindService(add);
     }
@@ -119,160 +108,98 @@ public class CopyFileService extends LoggingService {  //IntentService are desig
     }
 
     public void init() {
-        myLog("init()");
+        myLogD("init()");
         isCopyRunning = true;
-
-// All the Stuff around inFile is non mandatory...
-// will later use Uri anyway
-//*************
-        String originalFilePath = uri.getPath();
-        if (originalFilePath != null) {
-            inFile = new File(originalFilePath);
-        } else {
-            myLog("Could not get Uri Path");
-        }
-        if (inFile != null && inFile.exists()) {
-            myLog("inFile correctly populated from Uri - Length = " + inFile.length());
-        } else {
-            myLog("Uri Path gives non existing file (cloud?)");
-        }
-//*************
-        /*
-        outFile = new File(destinationFolderPath + "/" + destinationFileName);
-        String destinationFolderPath = outFile.getParent();
-        destinationFolderFile = new File(destinationFolderPath);
-
-         */
-
-        myLog("init() - ** INIT DONE ** launching backThread copy ");
         Thread backgroundThread = new Thread(() -> {
             Boolean ret = copyLocal(checkSize);
         });
         backgroundThread.start();
     }
 
-
-
     private boolean copyLocal(boolean doCheckSize) {
-        //___________________________________
-        // == Checking memory before copy
-        //___________________________________
-        long file_size = 0;
+        long file_size = -1;
         long availableMegs = getAvailableInternalMemorySize() / 1048576L;
+        long size_coef = type.equals("ZIP") ? ZIP_SIZE_MAX_COEF : 1;
+
+        // Determine size
         if (doCheckSize) {
-            long size_coef = type.equals("ZIP") ? ZIP_SIZE_MAX_COEF : 1;
-//Folder
-            if (type.equals("Folder")) {
-                file_size = forceSize;
-                /*   // Below produce StackOverFlow !!
-                try {
-                    file_size = FileUtils.calculateFolderSize(this, uri);
-                } catch (Exception e) {
-                    myLogEE(e, "Folder getSize - KO");
-                }
-                 */
-//File
+            if ("Folder".equals(type)) {
+                file_size = forceSize / 1048576L; // already calculated externally
             } else {
                 try {
-                    file_size = Long.parseLong(String.valueOf(inFile.length() / 1048576L));
-                } catch (Exception e) {
-                    myLogE("getting FileSize raise an error...");
-                    file_size = -2;
-                }
-                if (!(file_size > 0)) {
-                    try {
-                        file_size = (int) getFileSize(this, uri);
-                    } catch (IOException e) {
-                        myLogEE(e,"copyLocal() - getting FileSize From URI raise an error... ");
+                    file_size = FileUtils.getFileSize(this, uri);
+                    if (file_size > 0) {
+                        file_size = file_size / 1024 / 1024; // bytes to MB
+                        myLog("File size determined: " + file_size + " Mo");
+                    } else {
+                        myLogW("Could not determine file size, may be a cloud file.");
                     }
+                } catch (Exception e) {
+                    myLogEE(e, "Error getting file size from URI");
                 }
             }
-            file_size = file_size / 1024 / 1024;
-            myLog("file size : " + file_size + "Mo" +
-                    "\navailable memory : " + availableMegs + " Mo");
-//////
-            if (file_size > 0 || availableMegs > 0) {
-                try {
-                    if (file_size * size_coef > availableMegs) {
-                        String strErr =
-                                getResources().getString(R.string.Error_Import_NotEnoughMemory_line1)
-                                        + "\n\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line2_1) + formatMem(availableMegs) + "Mo"
-                                        + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line3) + formatMem(file_size) + "Mo" + "\n";
-                        if (size_coef > 1) strErr = strErr + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line4_1) + size_coef + getResources().getString(R.string.Error_Import_NotEnoughMemory_line4_2);
-                        if (type.equals("ZIP")) {
-                            strErr = strErr + "\n\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line5_zip);
-                        } else {
-                            strErr = strErr + "\n\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line5_other);
-                        }
-                        tellError(strErr);
-                        return false;
-                    }
-                    String progressMsgSource = getResources().getString(R.string.Import_Progress_copying_zip_file);
-                    if (sourceLocation.equals("cloud")) {progressMsgSource = getResources().getString(R.string.Import_Progress_copying_zip_file_cloud);}
-                    tellProgress(0, progressMsgSource
-                            + "\n"
-                            + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line3) + formatMem(file_size,0) + "Mo"
-                            + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line2_1) + formatMem(availableMegs) + "Mo"
-                    );
-                } catch (Exception e) {
-                    myLogEE(e, "Error while checking available space for local ZIP copy");
-                    tellError("Error while checking available space for local ZIP copy  -  " + e.getMessage());
-                    return false;
+
+            if (file_size > 0 && file_size * size_coef > availableMegs) {
+                String strErr = getResources().getString(R.string.Error_Import_NotEnoughMemory_line1) + "\n\n" +
+                        getResources().getString(R.string.Error_Import_NotEnoughMemory_line2_1) + formatMem(availableMegs) + "Mo" + "\n" +
+                        getResources().getString(R.string.Error_Import_NotEnoughMemory_line3) + formatMem(file_size) + "Mo";
+
+                if (size_coef > 1) {
+                    strErr += "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line4_1) +
+                            size_coef + getResources().getString(R.string.Error_Import_NotEnoughMemory_line4_2);
                 }
-            } else {
-                myLogE("Could not get size of source file [" + file_size + "] or available space [" + availableMegs + "]");
+
+                strErr += "\n\n" + (type.equals("ZIP") ?
+                        getResources().getString(R.string.Error_Import_NotEnoughMemory_line5_zip) :
+                        getResources().getString(R.string.Error_Import_NotEnoughMemory_line5_other));
+
+                tellError(strErr);
+                return false;
             }
-            myLog("copyLocal - okay check storage space");
+
+            myLog("copyLocal - Memory check passed.");
         } else {
-            file_size = -1;
-            myLog("WARNING - copyLocal - bypass check storage space");
+            myLog("copyLocal - Memory check skipped.");
         }
 
-        //___________________________________
-        // == Make Folder
-        //___________________________________
+        // Create destination folder if needed
         File destinationFolderFile = new File(destinationFolderPath);
         try {
-            if (!destinationFolderFile.exists()) {
-                if (!destinationFolderFile.mkdirs()) {
-                    tellError(getResources().getString(R.string.Error_Import_Creating_Folders) + " for path : " + destinationFolderFile);
-                    return false;
-                } else {
-                    myLog("folder created : [" +  destinationFolderPath + "]");
-                }
+            if (!destinationFolderFile.exists() && !destinationFolderFile.mkdirs()) {
+                tellError(getResources().getString(R.string.Error_Import_Creating_Folders) + " : " + destinationFolderPath);
+                return false;
             }
         } catch (Exception e) {
+            myLogEE(e, "Error creating destination folder");
             tellError(getResources().getString(R.string.Error_Import_Creating_Folders));
             return false;
         }
-        myLog("okay folder");
 
-
-
-        //___________________________________
-        // == start COPY
-        //___________________________________
+        if ("Folder".equals(type)) {
+            return copyFolder(file_size, availableMegs);
+        } else {
+            File outFile = new File(destinationFolderPath, destinationFileName);
+            return FileUtils.copySingleFile(this, uri, outFile, (progress, nbMoCopied) -> {
+                tellProgressNoLog((int) progress, nbMoCopied + " Mo copied...");
+            });
+        }
+    }
 
 //Folder
-        if (type.equals("Folder")) {
+    private boolean copyFolder(long file_size, long availableMegs) {
             tellProgress(0,"starting copy");
             try {
-                //FileUtils.copyFolder(this, uri, destinationFolderPath , progress -> runOnUiThread(() ->
-                long finalFile_size = file_size;
                 long[] lastLoggedProgress = {-1}; // effectively final, could have used new AtomicLong(-1);
-                FileUtils.copyFolder(this, uri, new File(destinationFolderPath)
+                FileUtils.copyFolder(this, uri, new File(destinationFolderPath + "/" + destinationFileName)
                         , null , forceSize
                         , ONLY_MIME_AUDIO, SUPPORTED_AUDIO_EXTENSIONS
                         , (progress, nbMoCopied) -> {
-                            //this.progress = progress;
-                            //this.mbCopied = mbCopied;
-                            //runOnUiThread(() -> { Updating the UI with progress and MB copied values, like progressBar.setProgress(progress);
 
                             String progressMsgSource = getResources().getString(R.string.Import_Progress_copying_zip_file);
                             if (sourceLocation.equals("cloud")) {progressMsgSource = getResources().getString(R.string.Import_Progress_copying_zip_file_cloud);}
                             String progress_text = progressMsgSource
                             + "\n"
-                            + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line3) + formatMem(nbMoCopied,0) + "Mo/" + formatMem(finalFile_size,0) + "Mo"
+                            + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line3) + formatMem(nbMoCopied,0) + "Mo/" + formatMem(file_size,0) + "Mo"
                             + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line2_1) + formatMem(availableMegs) + "Mo";
 
                             if (progress != lastLoggedProgress[0]) {
@@ -297,7 +224,9 @@ public class CopyFileService extends LoggingService {  //IntentService are desig
             tellEnd(destinationFolderPath,null);
             return true;
 //File
-        } else {
+        }
+/*
+        else {
             ////////////////////////////////////////////////////////////////////////////////////////
             // copy of Zip file
             ////////////////////////////////////////////////////////////////////////////////////////
@@ -307,10 +236,10 @@ public class CopyFileService extends LoggingService {  //IntentService are desig
             File outFile = new File(destinationFolderPath + "/" + destinationFileName);
             try {
                 is = resolver.openInputStream(uri);
-                myLog("okay stream in");
+                myLogD("okay stream in");
                 try {
                     OutputStream out = new FileOutputStream(outFile);
-                    myLog("okay stream out");
+                    myLogD("okay stream out");
                     try {
                         byte[] buf = new byte[COPY_BUFFER_SIZE];
                         int len;
@@ -354,7 +283,7 @@ public class CopyFileService extends LoggingService {  //IntentService are desig
                             }
 
                         }
-                        myLog("okay stream write");
+                        myLogD("okay stream write");
                     } catch (Exception e) {
                         myLogEE(e, "zip file copy");
                         tellError("An error occurred while Copying the ZIP file from External Dir to Internal Dir. (nb Buffer copied = " + nbBuffCopied + ")\n   -  \n" + e.getMessage());
@@ -380,11 +309,13 @@ public class CopyFileService extends LoggingService {  //IntentService are desig
                 tellError("Cannot get StreamIn for ZIP file... \nMaybe this is a broken zip file \n(could be a half downloaded file)      \n\nTechnical message = [" + e.getMessage() + "]");
                 return false;
             }
-            myLog("file has been copied");
+            myLogD("file has been copied");
             tellEnd(destinationFolderPath, destinationFileName);
             return true;
         }
     }
+
+ */
 
     //-----------------------------
     // Callbacks

@@ -101,6 +101,24 @@ public class DatabaseClient {
         }
     };
 
+    static final Migration MIGRATION_6_7 = new Migration(6, 7) {
+        @Override
+        public void migrate(SupportSQLiteDatabase db) {
+            // Add columns if not already done
+            db.execSQL("ALTER TABLE Folder ADD COLUMN lFirstAccess INTEGER");
+            db.execSQL("ALTER TABLE Folder ADD COLUMN lLastAccess INTEGER NOT NULL DEFAULT 0");
+
+            // Set lFirstAccess from firstaccess, if not null
+            db.execSQL("UPDATE Folder SET lFirstAccess = firstaccess WHERE firstaccess IS NOT NULL");
+
+            // Set lLastAccess from lastaccess if not null
+            db.execSQL("UPDATE Folder SET lLastAccess = lastaccess WHERE lastaccess IS NOT NULL");
+
+            // If lastaccess is null, fallback to lastaccessTime
+            db.execSQL("UPDATE Folder SET lLastAccess = lastaccessTime WHERE lastaccess IS NULL AND lastaccessTime IS NOT NULL");
+        }
+    };
+
 
     private static DatabaseClient mInstance;
 
@@ -137,7 +155,7 @@ public class DatabaseClient {
                     //       => better, just uncomment the deleteDatabase at the top of this method
                     //-------------------------------------------------------
 
-                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7)
                     .build();
 
             // Force early access to trigger DB open and migrations

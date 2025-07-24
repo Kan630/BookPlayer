@@ -5,6 +5,7 @@ import static com.driot.bookplayer.global.Var.MAX_IMAGE_SIZE_KB;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
@@ -84,7 +85,7 @@ public class ImageHelper {
         AppDatabase.databaseWriteExecutor.execute(() -> {
             AppDatabase db = AppDatabase.getDatabase(context);
 
-            // --- Handle Podcast images ---
+// --- Handle Podcast images ---
             List<Podcast> pendingPodcasts = db.PodcastDao().getAllWithRemoteImage();
             for (Podcast podcast : pendingPodcasts) {
                 String url = podcast.image;
@@ -98,15 +99,22 @@ public class ImageHelper {
                 }
             }
 
-            // --- Handle Folder images ---
+// --- Handle Folder images ---
             List<Folder> pendingFolders = db.FolderDao().getAllWithRemoteImage();
             for (Folder folder : pendingFolders) {
                 String url = folder.image;
-                if (url == null || !url.startsWith("http")) continue;
 
-                // Use Folder ID in file name
+                if (url == null) continue;
+
+                String localPath = null;
                 String imagePath = FOLDER_IMAGE_PREFIX + folder.getId() + ".jpg";
-                String localPath = downloadAndMaybeCompressImage(context, url, imagePath);
+
+                if (url.startsWith("http")) {
+                    localPath = downloadAndMaybeCompressImage(context, url, imagePath);
+                } else if (isContentUri(url)) {
+                    localPath = copyContentUriToImageFile(context, url, imagePath);
+                }
+
                 if (localPath != null) {
                     folder.image = localPath;
                     db.FolderDao().update(folder);
@@ -134,6 +142,38 @@ public class ImageHelper {
     }
 
 
+    private static String copyContentUriToImageFile(Context context, String contentUriString, String outputFileName) {
+        try {
+            Uri uri = Uri.parse(contentUriString);
+            InputStream in = context.getContentResolver().openInputStream(uri);
+            if (in == null) return null;
+
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            byte[] buffer = new byte[8192];
+            int len;
+            while ((len = in.read(buffer)) != -1) {
+                out.write(buffer, 0, len);
+            }
+            in.close();
+
+            byte[] imageBytes = out.toByteArray();
+            if (imageBytes.length / 1024 <= MAX_IMAGE_SIZE_KB) {
+                return saveBytesToFile(context, imageBytes, outputFileName);
+            } else {
+                myLogI("Content image too big, compressing...");
+                Bitmap bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
+                ByteArrayOutputStream compressedOut = new ByteArrayOutputStream();
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 75, compressedOut);
+                return saveBytesToFile(context, compressedOut.toByteArray(), outputFileName);
+            }
+        } catch (Exception e) {
+            myLogEE(e, "copyContentUriToImageFile() failed for: " + contentUriString);
+            return null;
+        }
+    }
+    private static boolean isContentUri(String s) {
+        return s != null && s.startsWith("content://");
+    }
 
     // ----------------------- LOG -----------------------
     private static final String TAG = "ImageHelper";

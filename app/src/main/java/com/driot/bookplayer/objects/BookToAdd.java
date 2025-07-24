@@ -104,13 +104,12 @@ public class BookToAdd {
 
             this.infoMimeExtension = "Type = [" + type + "] :    [" + mimeType + "] - [." + fileExtension + "]";
 
-            if (mimeType.startsWith(ONLY_MIME_AUDIO) || SUPPORTED_AUDIO_EXTENSIONS.contains(fileExtension)) {
-                myLog("Mime/Extension OK - " + infoMimeExtension);
+            if (mimeType.startsWith(ONLY_MIME_AUDIO) || SUPPORTED_AUDIO_EXTENSIONS.contains(fileExtension) || this.type.equals("ZIP"))  {
+                myLogD("Mime/Extension OK - " + infoMimeExtension);
             } else {
                 myLogEE(null,"Mime/Extension KO - " + infoMimeExtension);
             }
 
-            //audioBookTitle = stripExtension(getFileNameFromUri(this, uri));
             String fileName2 = getFileName();
             this.audioBookName = formatNameForDisplay(stripExtension(fileName2));
             this.originalFile = fileName2;
@@ -195,7 +194,7 @@ public class BookToAdd {
 
 
     private String getFileName() {
-        myLog("getFileName() start: uri = " + uri.toString());
+        myLogD("getFileName() start: uri = " + uri.toString());
         String name = null;
 
         // 1. Try OpenableColumns (most reliable for content://)
@@ -205,7 +204,7 @@ public class BookToAdd {
                     int index = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
                     if (index != -1) {
                         name = cursor.getString(index);
-                        myLog("getFileName - OpenableColumns: " + name);
+                        myLogD("getFileName - OpenableColumns: " + name);
                         return name;
                     }
                 }

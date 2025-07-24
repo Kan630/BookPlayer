@@ -64,13 +64,12 @@ public class AddResourceActivity
 
         Intent intentAddResourceService = new Intent(this, AddResourceService.class);
         boundToAddResourceService = bindService(intentAddResourceService, addResourceServiceConnection, Context.BIND_AUTO_CREATE); //error Log : Activity XXX has leaked ServiceConnection
-        myLog("call start & bind to AddResourceService from AddResourceActivity.onCreate() - bound result :" + boundToAddResourceService);
+        myLogD("call start & bind to AddResourceService from AddResourceActivity.onCreate() - bound result :" + boundToAddResourceService);
 
     }
 
     @Override
     protected void onDestroy() {
-        myLog("onDestroy - unbinding Services");
         super.onDestroy();
         try {
             if (mBound) unbindService(addResourceServiceConnection);
@@ -81,7 +80,6 @@ public class AddResourceActivity
     }
     @Override
     protected void onStop() {
-        myLog("onStop - unbinding Services");
         super.onStop();
         try {
             if (mBound) unbindService(addResourceServiceConnection);
@@ -99,7 +97,7 @@ public class AddResourceActivity
     private final ServiceConnection addResourceServiceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
-            myLog("AddResourceService - onServiceConnected : [" + className.toString() + "]");
+            myLogD("AddResourceService - onServiceConnected : [" + className.toString() + "]");
             AddResourceService.AddResourceServiceBackgroundBinder binder = (AddResourceService.AddResourceServiceBackgroundBinder) service;
             mService = binder.getService();
             mService.registerClient(AddResourceActivity.this); //to get the CallBacks

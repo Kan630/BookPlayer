@@ -22,7 +22,7 @@ public interface FolderDao {
     @Query("SELECT * FROM Folder ORDER BY lastaccess DESC")
     List<Folder> getAll();
 
-    @Query("SELECT * FROM Folder ORDER BY lastaccess DESC")
+    @Query("SELECT * FROM Folder ORDER BY lLastAccess DESC")
     LiveData<List<Folder>> getAllLiveData();
 
     @Query("SELECT COUNT(id) FROM Folder WHERE name LIKE :sFolderName")

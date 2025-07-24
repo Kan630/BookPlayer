@@ -5,6 +5,7 @@ import static com.driot.bookplayer.utils.ComponentUtils.setOpenWithProxyEnabled_
 
 import android.app.Application;
 import android.os.Environment;
+import android.util.Log;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,7 +29,6 @@ public class MyPersonalApp extends Application {
      */
     public void onCreate() {
         super.onCreate();
-
         KanLogger.init(getApplicationContext());
         BookToAdd.init(getApplicationContext());
         PlayList.initContext(getApplicationContext());
@@ -47,7 +47,6 @@ public class MyPersonalApp extends Application {
             setOpenWithProxyEnabled(this, true);
         }
         myLog("Proxy setup: openWith=" + openWithEnabled + " / all=" + openWithEnabledAll);
-
 
 
         if ( isExternalStorageWritable() ) {
@@ -97,5 +96,6 @@ public class MyPersonalApp extends Application {
 
     //--- LOG --------------------------
     private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
+    private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
 
 }

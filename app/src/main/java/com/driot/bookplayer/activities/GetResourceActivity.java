@@ -132,7 +132,7 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
         bOpenFileActivityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
                 result -> { launchAddResource(result, "File"); });
         bOpenFile.setOnClickListener(view -> {
-            myLogI("Button click : single file");
+            myLogI("------------ USER CLICKS : button ANY file");
             if (isReadAudioPermissionGranted(this) || Option.getCopyFile()) {
                 Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
                 intent.setType("*/*");
@@ -150,7 +150,7 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
         bOpenFolderActivityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
                 result -> { launchAddResource(result, "Folder"); });
         bOpenFolder.setOnClickListener(view -> {
-            myLog("Button click : FOLDER");
+            myLogI("------------ USER CLICKS : button FOLDER");
             if (isReadAudioPermissionGranted(this) || Option.getCopyFile()) {
                 Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE); //API 21
                 intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_WRITE_URI_PERMISSION|Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION|Intent.FLAG_GRANT_PREFIX_URI_PERMISSION);
@@ -165,7 +165,7 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
         // TODO => try ACTION_PICK ?
         bOpenZipFile.setOnClickListener(view -> {
             scanThatShit();
-            myLog("Button click : ZIP file");
+            myLogI("------------ USER CLICKS : button ZIP file");
             Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
             // TODO ACTION_GET_CONTENT should be enough since we copy locally...
             // ACTION_PICK could be interesting.... as an option..
@@ -181,7 +181,7 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
 // M4B
         bOpenM4bFile.setOnClickListener(view -> {
             scanThatShit();
-            myLog("Button click : M4B file");
+            myLogI("------------ USER CLICKS : button AUDIO file");
 
             Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
             intent.setType("*/*");

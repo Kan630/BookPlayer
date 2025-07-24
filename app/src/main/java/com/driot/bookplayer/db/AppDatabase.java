@@ -32,7 +32,7 @@ import java.util.concurrent.Executors;
 @TypeConverters({Converters.class})
 
 public abstract class AppDatabase extends RoomDatabase {
-    public static final int APPDATABASE_VERSION = 6;
+    public static final int APPDATABASE_VERSION = 7;
 
     public abstract FolderDao FolderDao();
     public abstract ZikFileDao ZikFileDao();

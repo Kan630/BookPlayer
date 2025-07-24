@@ -55,7 +55,16 @@ public class Var {
 
     public static final int[] SLEEP_PRESET_VALUES = {10, 20, 30, 45, 90, 180};
 
-
+    public static final Set<String> SUPPORTED_COVER_PICTURE_EXTENSIONS = new HashSet<>(
+            Arrays.asList(
+                     "jpg"
+                    ,"jpeg"
+                    ,"png"
+                    ,"webp"
+                    ,"bmp"
+                    //"gif"  // optional if you allow animated covers
+            )
+    );
 
     public static final String ONLY_MIME_AUDIO = "audio/";
     public static final Set<String> SUPPORTED_AUDIO_EXTENSIONS = new HashSet<>(

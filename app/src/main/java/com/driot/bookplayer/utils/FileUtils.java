@@ -69,6 +69,7 @@ public class FileUtils {
             , ProgressListener listener) throws IOException {
         if (!destinationFolder.exists()) {
             destinationFolder.mkdirs();
+            myLogD("destinationFolder.mkdirs()");
         }
         listener.onProgressUpdate(0, 0);
         if (copiedSize==null) copiedSize = new long[]{0};
@@ -76,11 +77,11 @@ public class FileUtils {
         ContentResolver contentResolver = context.getContentResolver();
         Uri childrenUri;
         try {
-            //for children and sub child dirs
             childrenUri = DocumentsContract.buildChildDocumentsUriUsingTree(sourceUri, DocumentsContract.getDocumentId(sourceUri));
+            myLogD("children");
         } catch (Exception e) {
-            //for parent dir
             childrenUri = DocumentsContract.buildChildDocumentsUriUsingTree(sourceUri, DocumentsContract.getTreeDocumentId(sourceUri));
+            myLogD("parent");
         }
 
         long totalSize; //used to update progressBar
@@ -116,9 +117,10 @@ public class FileUtils {
                             throw new IOException("Copy canceled");
                         }
                         File subDir = new File(destinationFolder, displayName);
+                        myLogD("copyFolder - on folder -> recursive call");
                         copyFolder(context, documentUri, subDir, copiedSize, forceSize, onlyMime, onlyExtension, listener);  // Corrected parameters
                     } else {
-                        myLog(displayName + "  ///  " + mimeType);
+                        myLogD("copyFolder - on file -> may call copyFile " + displayName + "  ///  " + mimeType);
                         boolean doCopy = false;
                         if (onlyMime != null && !onlyMime.isEmpty()) {
                             if (mimeType.startsWith(onlyMime)) {
@@ -142,8 +144,9 @@ public class FileUtils {
             }
         }
     }
-
+    //used locally by copyFolder
     private static void copyFile(Context context, Uri sourceUri, File destinationFile, long totalSize, long[] copiedSize, ProgressListener listener) throws IOException {
+        myLogD("copyFile() in " + destinationFile.getParentFile().getAbsolutePath());
         try (ParcelFileDescriptor pfd = context.getContentResolver().openFileDescriptor(sourceUri, "r");
              FileInputStream inputStream = new FileInputStream(pfd.getFileDescriptor());
              FileOutputStream outputStream = new FileOutputStream(destinationFile)) {
@@ -160,62 +163,48 @@ public class FileUtils {
             }
         }
     }
+    public static boolean copySingleFile(Context context, Uri sourceUri, File destinationFile, ProgressListener listener) {
+        try (ParcelFileDescriptor pfd = context.getContentResolver().openFileDescriptor(sourceUri, "r");
+             FileInputStream inputStream = new FileInputStream(pfd.getFileDescriptor());
+             FileOutputStream outputStream = new FileOutputStream(destinationFile)) {
 
-    public static long getFileSize(Context context, Uri uri) throws IOException {
-        try (ParcelFileDescriptor pfd = context.getContentResolver().openFileDescriptor(uri, "r")) {
-            return pfd.getStatSize();
-        } catch (Exception e) {
-            myLogEE(e,"getFileSize() for uri [" + uri + "]");
-            return -1;
-        }
-    }
-
-/*
-    public static long getFileSize(Context context, Uri uri) throws IOException {
-        ContentResolver contentResolver = context.getContentResolver();
-        ParcelFileDescriptor parcelFileDescriptor = contentResolver.openFileDescriptor(uri, "r");
-
-        if (parcelFileDescriptor != null) {
-            FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
-            FileInputStream fileInputStream = new FileInputStream(fileDescriptor);
-            long size = fileInputStream.getChannel().size();
-
-            //if (size > 0) size = size  / 1024 / 1024;
-
-            // Close resources
-            fileInputStream.close();
-            parcelFileDescriptor.close();
-
-            myLog("parcelFileDescriptor return size : " + formatMem(size, 0)  + " Mo.");
-            return size;
-        } else {
-            myLogE("parcelFileDescriptor is null");
-        }
-        return -3;
-    }
-
- */
-/*
-    @Nullable
-    public static Uri buildFileUri(Uri folderUri, String fileName) {
-        // SAF documents URI are like content://com.android.externalstorage.documents/tree/...
-        // We need to build a child document Uri using DocumentsContract
-        try {
-            if (DocumentsContract.isTreeUri(folderUri)) {
-                return DocumentsContract.buildDocumentUriUsingTree(
-                        folderUri,
-                        DocumentsContract.getDocumentId(folderUri) + "/" + fileName
-                );
-            } else {
-                myLogEE(null, "DocumentsContract.isTreeUri(folderUri).. KO..");
+            byte[] buffer = new byte[1024];
+            int length;
+            long copiedBytes = 0;
+            long lastLogged = 0;
+            while ((length = inputStream.read(buffer)) > 0) {
+                outputStream.write(buffer, 0, length);
+                copiedBytes += length;
+                if (copiedBytes - lastLogged >= 1024 * 1024) { // log every MB
+                    lastLogged = copiedBytes;
+                    listener.onProgressUpdate(0, copiedBytes / 1024 / 1024);
+                }
             }
+            return true;
         } catch (Exception e) {
-            myLogEE(e,"buildFileUri");
+            myLogEE(e, "copySingleFile()");
+            return false;
         }
-        return null;
     }
 
- */
+    public static long getFileSize(Context context, Uri uri) {
+        if ("file".equalsIgnoreCase(uri.getScheme())) {
+            try {
+                return new File(uri.getPath()).length();
+            } catch (Exception e) {
+                myLogEE(e, "getFileSize() - file://");
+                return -1;
+            }
+        } else {
+            try (ParcelFileDescriptor pfd = context.getContentResolver().openFileDescriptor(uri, "r")) {
+                return (pfd != null) ? pfd.getStatSize() : -1;
+            } catch (Exception e) {
+                myLogEE(e, "getFileSize() - content://");
+                return -1;
+            }
+        }
+    }
+
 
     @Nullable
     public static Uri buildFileUri(Context context, String folderPathOrUri, String fileName) {

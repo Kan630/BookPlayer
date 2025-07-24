@@ -15,6 +15,8 @@ import androidx.room.PrimaryKey;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.utils.KanLogger;
 
+import org.jspecify.annotations.NonNull;
+
 import java.io.Serializable;
 import java.sql.Date;
 import java.sql.Time;
@@ -86,6 +88,10 @@ public class Folder implements Serializable {
     public long date_last_zikfile_added;
 
     public String image;
+
+    public Long lFirstAccess;
+
+    public long lLastAccess;
 
 
 

@@ -28,26 +28,32 @@ public class HashWorker extends Worker {
 
     public HashWorker(@NonNull Context context, @NonNull WorkerParameters params) {
         super(context, params);
+        myLogD("HashWorker CONSTRUCTOR CALLED");
     }
 
     @NonNull
     @Override
     public Result doWork() {
         String uriStr = getInputData().getString("uri");
+        myLogD("HashWorker.doWork() called, uriStr = " + uriStr);
         if (uriStr != null) {
             try {
                 Uri uri = Uri.parse(uriStr);
+                myLogD("Parsed URI: " + uri);
+
                 String hash = computeHashFromUri(getApplicationContext(), uri);
+                myLogD("Hash computed from URI: " + hash);
 
                 Data outputData = new Data.Builder()
                         .putString(WORKER_TAG_COMPUTE_HASH, hash)
                         .build();
 
                 return Result.success(outputData);
-
             } catch (Exception e) {
                 myLogEE(e, "Error computing hash from URI");
             }
+
+            myLogW("Fallback to success with empty hash");
             return Result.success();
         }
 
@@ -154,12 +160,17 @@ public class HashWorker extends Worker {
     }
 
     private String computeHashFromUri(Context context, Uri uri) {
+        myLogD("computeHashFromUri() START: " + uri);
         try {
             DocumentFile documentFile = DocumentFile.fromTreeUri(context, uri);
-            myLog("computeHashFromUri => Directory - [" + uri + "]");
+            myLogD("DocumentFile.fromTreeUri() returned: " + documentFile);
+            if (documentFile == null) {
+                myLogD("DocumentFile is null, fallback to single file hash");
+                return computeHashFromUri2(context, uri);
+            }
             return computeFolderHash(documentFile);
         } catch (Exception e) {
-            myLog("computeHashFromUri => not a directory - [" + uri + "]");
+            myLogEE(e, "Exception in computeHashFromUri()");
             return computeHashFromUri2(context, uri);
         }
     }

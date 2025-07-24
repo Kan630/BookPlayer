@@ -197,7 +197,7 @@ public class LoadOptionsActivity extends LoggingActivity {
             state.mimeType = bookToAdd.getMimeType();
 
             setLoadBookTaskState(this, state); // save in SharedPrefs
-            myLog("CLICK btnConfirm....   LoadBookTaskState saved - Sending ok Result");
+            myLogI("------ USER CLICKS btnConfirm....   LoadBookTaskState saved - Sending ok Result");
 
             setResult(RESULT_OK);
             finish();
@@ -396,17 +396,12 @@ public class LoadOptionsActivity extends LoggingActivity {
         // Cancel any ongoing hash computation to avoid overlap
         WorkManager.getInstance(this).cancelAllWorkByTag(TAG);
 
-        // Prepare new input
-        Data inputData = new Data.Builder()
-                .putString("uri", uri.toString())
-                .build();
 
         OneTimeWorkRequest hashRequest = new OneTimeWorkRequest.Builder(HashWorker.class)
-                .setInputData(inputData)
+                .setInputData(new Data.Builder().putString("uri", uri.toString()).build())
                 .addTag(TAG)
                 .build();
 
-        // Enqueue the worker
         WorkManager.getInstance(this).enqueue(hashRequest);
 
         waitTextView.setText(getString(R.string.init_check_already_imported_please_wait));
@@ -415,6 +410,7 @@ public class LoadOptionsActivity extends LoggingActivity {
         Observer<WorkInfo> observer = new Observer<WorkInfo>() {
             @Override
             public void onChanged(WorkInfo workInfo) {
+                myLogD("WorkInfo changed: " + workInfo);
                 if (workInfo == null || !workInfo.getState().isFinished()) return;
 
                 // Remove observer after first result
