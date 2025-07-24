@@ -22,6 +22,7 @@ public class StorageHelper {
         NOT_FOUND
     }
 
+    //TODO should also check if the path/uri whatever is reachable and if not, another serie of 4 icons with a big red cross in front
     public static MemoryLocationType getMemoryLocationType(Context context, String path) {
         try {
             String pathLower = path.toLowerCase();
