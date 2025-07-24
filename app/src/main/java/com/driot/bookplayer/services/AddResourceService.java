@@ -134,9 +134,6 @@ public class AddResourceService
     private String future_DB_folder_path = "-o-";
 
     private String destinationFolderName;
-    private String zipDestinationFolderPath;
-
-    private String destinationFolderPath;
 
     public static boolean isBusy;
 
@@ -225,7 +222,7 @@ public class AddResourceService
     private final ServiceConnection copyFileServiceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
-            myLog("copyFileServiceConnection - onServiceConnected : [" + className.toString() + "]");
+            myLogD("copyFileServiceConnection - onServiceConnected : [" + className.toString() + "]");
             CopyFileService.CopyFileServiceBackgroundBinder binder = (CopyFileService.CopyFileServiceBackgroundBinder) service;
             mCopyFileService = binder.getService();
             mCopyFileService.registerClient(AddResourceService.this);
@@ -235,7 +232,7 @@ public class AddResourceService
         }
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
-            myLog("copyFileServiceConnection - OnServiceDisconnected : [" + arg0.toString() + "]");
+            myLogD("copyFileServiceConnection - OnServiceDisconnected : [" + arg0.toString() + "]");
             if (mCopyFileServiceBound != null && mCopyFileServiceBound) {
                 mCopyFileService.unbindService(copyFileServiceConnection);
                 mCopyFileServiceBound = false;
@@ -975,7 +972,7 @@ public class AddResourceService
         }
 
         if (type_dynamic.equals("ZIP")) {
-            launchUnzipService(localCopyFullPath, zipDestinationFolderPath);
+            launchUnzipService(localCopyFullPath, unzipFolder + "/" + bookState.title);
 
         } else if (type_dynamic.equals("M4B") && bookState.optionSplit) {
             launchSplitM4bService(localCopyFullPath, unzipFolder + "/" + bookState.title);
