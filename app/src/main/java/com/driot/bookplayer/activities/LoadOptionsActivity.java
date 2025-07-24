@@ -214,6 +214,7 @@ public class LoadOptionsActivity extends LoggingActivity {
                     state.type = type;
                     state.title = audioBookTitle;
                     state.futureFolderName = futureFolderName;
+                    state.futureFolderPath = futureFolderPath;
                     state.optionSplit = cbSplit.isChecked();
                     state.optionCopy = cbCopy.isChecked();
                     state.optionDelete = cbDelete.isChecked();
