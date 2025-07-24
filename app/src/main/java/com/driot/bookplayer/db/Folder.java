@@ -212,10 +212,10 @@ public class Folder implements Serializable {
     public int getMemoryLocationIcon(Context context) {
         try {
             if (path.startsWith(context.getFilesDir().getAbsolutePath())) {
-                return R.drawable.ic_memory_general_smartphone_R; // Reserved internal
+                return R.drawable.ic_memory_general_smartphone_r; // Reserved internal
             } else if (path.startsWith(StorageHelper.getSdCardFilesDirs(context).getAbsolutePath())) {
                 if (path.contains("/Android/data/" + context.getPackageName())) {
-                    return R.drawable.ic_memory_sdcard_R; // Reserved SD
+                    return R.drawable.ic_memory_sdcard_r; // Reserved SD
                 } else {
                     return R.drawable.ic_memory_sdcard; // Shared SD
                 }
