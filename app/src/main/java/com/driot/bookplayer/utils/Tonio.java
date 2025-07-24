@@ -513,10 +513,10 @@ public class Tonio {
                 }
             }
         } else {
-            myLogE("ko Folder Not Found [" + dir.getAbsolutePath() + "]");
+            myLogW("ko Folder Not Found [" + dir.getAbsolutePath() + "]");
         }
         if (size == 0) {
-            myLogE("getFolderSize returns zero size - Seems empty [" + dir.getAbsolutePath() + "]");
+            myLogW("getFolderSize returns zero size - Seems empty [" + dir.getAbsolutePath() + "]");
         }
 
         return size;

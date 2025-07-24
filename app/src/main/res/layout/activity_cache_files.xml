@@ -1,30 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp"
-    android:fitsSystemWindows="true"
-    >
+    android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/cachefiles_stats_text"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="16sp"
-        android:fontFamily="monospace"
-        android:textColor="@android:color/white"
-        android:gravity="start"
-        android:padding="8dp"
-        android:lineSpacingMultiplier="0.5"
-        android:background="?attr/colorPrimary" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView_cacheFiles"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="16dp"
-        android:divider="?android:attr/listDivider"
-        android:dividerHeight="1dp" />
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:fitsSystemWindows="true">
 
-</LinearLayout>
+        <!-- Storage Selection -->
+        <RadioGroup
+            android:id="@+id/storage_selector"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="8dp">
+
+            <RadioButton
+                android:id="@+id/radio_internal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Internal" />
+
+            <RadioButton
+                android:id="@+id/radio_sdcard"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="SD Card" />
+        </RadioGroup>
+
+        <!-- Storage Stats -->
+        <TextView
+            android:id="@+id/cachefiles_stats_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:fontFamily="monospace"
+            android:textColor="@android:color/white"
+            android:gravity="start"
+            android:padding="8dp"
+            android:lineSpacingMultiplier="0.5"
+            android:background="?attr/colorPrimary" />
+
+        <!-- Cache Files List -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView_cacheFiles"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:layout_marginTop="16dp"
+            android:divider="?android:attr/listDivider"
+            android:dividerHeight="1dp" />
+
+    </LinearLayout>
+    <ProgressBar
+        android:id="@+id/progress_cache_loading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="16dp"
+        android:visibility="gone" />
+</FrameLayout>

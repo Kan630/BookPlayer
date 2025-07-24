@@ -12,6 +12,7 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.ZikFile;
+import com.driot.bookplayer.utils.StorageHelper;
 import com.driot.bookplayer.utils.Utils;
 import com.driot.bookplayer.utils.log.LoggingViewModel;
 
@@ -21,18 +22,26 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class CacheFilesViewModel extends LoggingViewModel {
+    private final CacheFilesRepository cacheFilesRepository;
     private LiveData<List<ZikFile>> filesFromDb;
     private final MutableLiveData<List<File>> filesFromDisk = new MutableLiveData<>();
-    private final CacheFilesRepository cacheFilesRepository; // manage deletions
+    private final MutableLiveData<Boolean> memoryStats = new MutableLiveData<>();
+    private boolean useInternal = true;
+
+    private final MutableLiveData<Boolean> isLoading = new MutableLiveData<>();
+    public LiveData<Boolean> getIsLoading() { return isLoading; }
+
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+
     public CacheFilesViewModel(@NonNull Application application) {
         super(application);
         cacheFilesRepository = new CacheFilesRepository(application);
-        loadFilesFromDisk();
         loadBookFromDB();
-        myLog("CacheFilesViewModel instantiated");
+        loadFilesFromDisk();
     }
 
     public LiveData<List<ZikFile>> getFilesOnDb() {
@@ -43,48 +52,72 @@ public class CacheFilesViewModel extends LoggingViewModel {
         return filesFromDisk;
     }
 
-    private MutableLiveData<Boolean> memoryStats = new MutableLiveData<>();
     public LiveData<Boolean> getMemoryStats() {
         return memoryStats;
     }
 
+    public boolean isUsingInternal() {
+        return useInternal;
+    }
+
+    public void setUseInternal(boolean useInternal) {
+        this.useInternal = useInternal;
+        loadFilesFromDisk();
+    }
 
     private void loadBookFromDB() {
-        myLog("LiveData<List<ZikFile>> loadBookFromDB()");
         filesFromDb = AppDatabase.getDatabase(getApplication()).ZikFileDao().getZikFileDistinctLocations();
     }
 
     private void loadFilesFromDisk() {
-        myLog("MutableLiveData<List<ZikFile>> loadFilesFromDisk()");
-        try {
-            String cachePath = getApplication().getFilesDir().getPath() + "/" + FOLDER_UNZIPPED;
-            File cacheDir = new File(cachePath);
-            if (cacheDir.exists() && cacheDir.isDirectory()) {
-                if (cacheDir.listFiles() != null && cacheDir.listFiles()!=null) {
-                    List<File> files = Arrays.asList(cacheDir.listFiles());
-                    files.sort(Comparator.comparingLong(Utils::getCustomLength));
-                    Collections.reverse(files);
-                    filesFromDisk.setValue(files); // = new MutableLiveData<List<File>>(files);
-                    myLog(files.size() + " files in cachePath : [" + cachePath + "]");
-                } else {
-                    filesFromDisk.setValue(new ArrayList<>()); // Set an empty list if no files found
-                    myLog("no file in cachePath : [" + cachePath + "]");
+        isLoading.postValue(true);
+
+        executorService.execute(() -> {
+            try {
+                String basePath = useInternal
+                        ? getApplication().getFilesDir().getPath() + "/" + FOLDER_UNZIPPED
+                        : StorageHelper.getSdCardUnzippedFolder(getApplication());
+
+                if (basePath == null) {
+                    myLogE("No valid base path found");
+                    filesFromDisk.postValue(new ArrayList<>());
+                    isLoading.postValue(false);
+                    return;
                 }
-            } else {
-                filesFromDisk.setValue(new ArrayList<>());
-                myLog("directory cachePath does not exist: [" + cachePath + "]");
+
+                File baseDir = new File(basePath);
+                if (baseDir.exists() && baseDir.isDirectory()) {
+                    File[] fileArray = baseDir.listFiles();
+                    if (fileArray != null) {
+                        List<File> files = Arrays.asList(fileArray);
+                        filesFromDisk.postValue(files); // show early
+
+                        files.sort(Comparator.comparingLong(Utils::getCustomLength));
+                        Collections.reverse(files);
+                        filesFromDisk.postValue(files); // show sorted
+
+                        myLog(files.size() + " files in: [" + basePath + "]");
+                    } else {
+                        filesFromDisk.postValue(new ArrayList<>());
+                        myLog("No files found in: [" + basePath + "]");
+                    }
+                } else {
+                    filesFromDisk.postValue(new ArrayList<>());
+                    myLog("Base dir doesn't exist: [" + basePath + "]");
+                }
+
+                memoryStats.postValue(true);
+            } catch (Exception e) {
+                myLogEE(e, "loadFilesFromDisk");
+            } finally {
+                isLoading.postValue(false);
             }
-            memoryStats.postValue(true); // notify for header update
-        } catch (Exception e) {
-            myLogEE(e, "loadFilesFromDisk");
-        }
+        });
     }
 
     public void deleteAudio(File file) {
         myLog("deleting file : [" + file.getPath() + "]");
         if (deleteBookFromDisk(file.getPath())) {
-            //filesFromDisk.notify(); => java.lang.IllegalMonitorStateException: object not locked by thread before notify()
-            myLog("File deleted from Disk, launching DB deletion...");
             loadFilesFromDisk();
             int idFolder = getBookFolderId(file);
             if (idFolder > 0) {
@@ -92,12 +125,13 @@ public class CacheFilesViewModel extends LoggingViewModel {
                 deleteBookFromDB(idFolder);
                 loadBookFromDB();
             } else {
-                myLogE("Error getting book reference in database, so no deletion in database");
+                myLogE("Book not found in DB");
             }
         } else {
-            myLogE("Error deleting book from internal app memory");
+            myLogE("Error deleting from disk");
         }
     }
+
     private int getBookFolderId(File file) {
         int idFolder = 0;
         if (filesFromDb != null && filesFromDb.getValue() != null) {
@@ -116,28 +150,12 @@ public class CacheFilesViewModel extends LoggingViewModel {
 
     private boolean deleteBookFromDisk(String strPath) {
         String starter = "file:///";
-        if (strPath.length()>5) {
-                strPath = strPath.replace(starter,"");
-                try {
-                    File zikFileToDelete = new File(strPath);
-                    if(zikFileToDelete.exists()) {
-                        if (recursiveRemove(zikFileToDelete)) {
-                            myLog("Deleted from Disk : [" + strPath + "]");
-                            return true;
-                        } else {
-                            myLog("NOT Deleted from Disk : [" + strPath + "]");
-                            return false;
-                        }
-                    } else {
-                        myLogE("file does not exist : [" + strPath + "]");
-                        return false;
-                    }
-                } catch (Exception e) {
-                    myLogEE(e,"Error remove ZikFile from Disk : [" + strPath + "]");
-                    return false;
-                }
-        } else {
-            myLogE("should not happen uri less than 5 chars for path [" + strPath + "]");
+        strPath = strPath.replace(starter, "");
+        try {
+            File file = new File(strPath);
+            return file.exists() && recursiveRemove(file);
+        } catch (Exception e) {
+            myLogEE(e, "deleteBookFromDisk");
             return false;
         }
     }
@@ -145,11 +163,10 @@ public class CacheFilesViewModel extends LoggingViewModel {
     private void deleteBookFromDB(int idFolder) {
         cacheFilesRepository.deleteBookFromDB(idFolder, success -> {
             if (success) {
-                myLog("Successful deletion from DB");
+                myLog("Deleted from DB");
             } else {
-                myLogE("Error deleting from DB");
+                myLogE("Failed to delete from DB");
             }
         });
     }
-
 }

@@ -50,6 +50,24 @@ public class StorageHelper {
         }
     }
 
+    public static String getSdCardUnzippedFolder(Context context) {
+        File[] externalDirs = context.getExternalFilesDirs(null);
+        for (File dir : externalDirs) {
+            if (dir != null && Environment.isExternalStorageRemovable(dir)) {
+                File unzippedDir = new File(dir, FOLDER_UNZIPPED);
+                myLogD("Checking removable SD folder: " + unzippedDir.getAbsolutePath());
+                if (unzippedDir.exists() && unzippedDir.isDirectory()) {
+                    myLogD("Found SD card unzipped folder: " + unzippedDir.getAbsolutePath());
+                    return unzippedDir.getAbsolutePath();
+                } else {
+                    myLogW("Unzipped folder not found at: " + unzippedDir.getAbsolutePath());
+                }
+            }
+        }
+        myLogI("No SD card unzipped folder found");
+        return null;
+    }
+
     public static long getAvailableInternalMemorySize() {
         File path = Environment.getDataDirectory();
         StatFs stat = new StatFs(path.getPath());

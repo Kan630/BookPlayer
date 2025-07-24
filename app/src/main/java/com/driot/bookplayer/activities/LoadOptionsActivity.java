@@ -35,6 +35,7 @@ import com.driot.bookplayer.objects.BookToAdd;
 import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.utils.HashWorker;
 import com.driot.bookplayer.utils.PermissionRequest;
+import com.driot.bookplayer.utils.StorageHelper;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import java.util.Objects;
@@ -54,10 +55,9 @@ public class LoadOptionsActivity extends LoggingActivity {
     private String originalHash;
 
     private TextView waitTextView, warningTextView, errorTextView;
-    private CheckBox cbSplit, cbCopy, cbDelete;
-    private LinearLayout llSplit, llCopy, llDelete;
+    private CheckBox cbSplit, cbCopy, cbDelete, cbUseSdCard;
+    private LinearLayout llSplit, llCopy, llDelete, llUseSdCard;
     Button btnConfirm;
-
     private boolean internalCheckBoxStateCalculationInProgress;
     private boolean isKO = false;
 
@@ -100,9 +100,11 @@ public class LoadOptionsActivity extends LoggingActivity {
 
         cbSplit = findViewById(R.id.cbSplitM4B);
         cbCopy = findViewById(R.id.cbCopyInternal);
+        cbUseSdCard = findViewById(R.id.cbUseSdCard);
         cbDelete = findViewById(R.id.cbDeleteSource);
         llSplit = findViewById(R.id.ll_split_m4b);
         llCopy = findViewById(R.id.ll_copy_internal);
+        llUseSdCard = findViewById(R.id.ll_use_sdcard);
         llDelete = findViewById(R.id.ll_delete_source);
 
         if (type.equals("Podcast") ) { type = "File";}
@@ -139,20 +141,22 @@ public class LoadOptionsActivity extends LoggingActivity {
 
         llSplit.setOnClickListener(v -> cbSplit.toggle());
         llCopy.setOnClickListener(v -> cbCopy.toggle());
+        llUseSdCard.setOnClickListener(v -> cbUseSdCard.toggle());
         llDelete.setOnClickListener(v -> cbDelete.toggle());
 
         cbSplit.setChecked(Option.getSplitM4b());
         cbCopy.setChecked(Option.getCopyFile());
+        cbUseSdCard.setChecked(Option.getUseSdCard());
         cbDelete.setChecked(Option.getDeleteSourceFile());
 
         calculateCheckboxState();
 
         cbSplit.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            myLog("cbSplit CLICK : " + isChecked);
+            myLogI("USER CHECKS -SPLIT- : " + isChecked);
             if (!internalCheckBoxStateCalculationInProgress) calculateCheckboxState();
         });
         cbCopy.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            myLog("cbCopy CLICK : " + isChecked);
+            myLog("USER CHECKS -COPY- : " + isChecked);
             if (!isChecked) {
                 askForPermission();
                 reDo_checkPathDoesNotAlreadyExist();
@@ -161,8 +165,12 @@ public class LoadOptionsActivity extends LoggingActivity {
             }
             if (!internalCheckBoxStateCalculationInProgress) calculateCheckboxState();
         });
+        cbUseSdCard.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            myLog("USER CHECKS -SD CARD- : " + isChecked);
+            if (!internalCheckBoxStateCalculationInProgress) calculateCheckboxState();
+        });
         cbDelete.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            myLog("cbDelete CLICK : " + isChecked);
+            myLog("USER CHECKS -DELETE- " + isChecked);
             if (!internalCheckBoxStateCalculationInProgress) {
                 if (isChecked) {
                     new AlertDialog.Builder(this)
@@ -265,37 +273,60 @@ public class LoadOptionsActivity extends LoggingActivity {
         if ("M4B".equals(type)) {
             llSplit.setVisibility(View.VISIBLE);
             if (cbSplit.isChecked()) {
+                cbCopy.setChecked(true);
                 cbCopy.setEnabled(false);
                 llCopy.setEnabled(false);
-                cbCopy.setChecked(true);
+                llCopy.setAlpha(0.4f);
             } else {
                 cbCopy.setEnabled(true);
                 llCopy.setEnabled(true);
+                llCopy.setAlpha(1.0f);
             }
         } else {
             llSplit.setVisibility(View.GONE);
         }
 
         if ("ZIP".equals(type)) {
+            cbCopy.setChecked(true);
             cbCopy.setEnabled(false);
             llCopy.setEnabled(false);
-            cbCopy.setChecked(true);
+            llCopy.setAlpha(0.4f);
         }
 
         if (bookToAdd.getSourceLocation().equals("cloud") || bookToAdd.getSourceLocation().equals("web")) {
+            cbCopy.setChecked(true);
             cbCopy.setEnabled(false);
             llCopy.setEnabled(false);
-            cbCopy.setChecked(true);
+            llCopy.setAlpha(0.4f);
+        }
+
+        if (!StorageHelper.isExternalSDCardAvailable(this)) {
+            llUseSdCard.setVisibility(View.GONE);
+        } else {
+            llUseSdCard.setVisibility(View.VISIBLE);
+            if (cbCopy.isChecked()) {
+                cbUseSdCard.setEnabled(true);
+                llUseSdCard.setEnabled(true);
+                llUseSdCard.setAlpha(1.0f);
+
+            } else {
+                cbUseSdCard.setChecked(false);
+                cbUseSdCard.setEnabled(false);
+                llUseSdCard.setEnabled(false);
+                llUseSdCard.setAlpha(0.4f);
+            }
         }
 
         // delete
         if (cbCopy.isChecked() && !bookToAdd.getSourceLocation().equals("cloud") && !bookToAdd.getSourceLocation().equals("web")) {
             cbDelete.setEnabled(true);
             llDelete.setEnabled(true);
+            llDelete.setAlpha(1.0f);
         } else {
             cbDelete.setChecked(false);
             cbDelete.setEnabled(false);
             llDelete.setEnabled(false);
+            llDelete.setAlpha(0.4f);
         }
 
         internalCheckBoxStateCalculationInProgress = false;

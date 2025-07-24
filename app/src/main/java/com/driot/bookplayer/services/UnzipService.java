@@ -123,15 +123,16 @@ public class UnzipService extends LoggingService {
         try {
             myLog("unzipping in : " + unzipFolder);
 
+
             // check number of file in zip
             int nbZip;
-            try {
-                ZipFile zf = new ZipFile(zipFile.getAbsolutePath());
+            try (ZipFile zf = new ZipFile(zipFile.getAbsolutePath())) {
                 nbZip = zf.size();
             } catch (Exception e) {
-                myLogEE(e,"Couln't count element of zip file");
+                myLogEE(e,"Could not count element of zip file");
                 nbZip = 10;
             }
+
             myLog("Zip file has : " + nbZip + " entries");
             myLog("---------------------------------------------------------");
 
