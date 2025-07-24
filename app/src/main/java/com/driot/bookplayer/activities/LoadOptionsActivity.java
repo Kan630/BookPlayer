@@ -1,9 +1,9 @@
 package com.driot.bookplayer.activities;
 
 import static com.driot.bookplayer.global.Pref.setLoadBookTaskState;
-import static com.driot.bookplayer.global.Var.FOLDER_UNZIPPED;
 import static com.driot.bookplayer.utils.HashWorker.WORKER_TAG_COMPUTE_HASH;
 import static com.driot.bookplayer.utils.PermissionRequest.isReadAudioPermissionGranted;
+import static com.driot.bookplayer.utils.StorageHelper.getUnzipFolder;
 import static com.driot.bookplayer.utils.Tonio.getCurrentDateTimeString;
 
 import android.Manifest;
@@ -49,6 +49,8 @@ public class LoadOptionsActivity extends LoggingActivity {
     private BookToAdd bookToAdd;
 
     private String audioBookTitle; // name can be changed... so keep as separate var
+    private String futureFolder;
+
     private String originalHash;
 
     private TextView waitTextView, warningTextView, errorTextView;
@@ -181,31 +183,48 @@ public class LoadOptionsActivity extends LoggingActivity {
 //-------------------------------------------------------------------------------------------------------------------------------------------------
 
         btnConfirm.setOnClickListener(v -> {
+            myLogI("------ USER CLICKS btnConfirm....   ");
 
-            LoadBookTaskState state = new LoadBookTaskState();
-            state.uri = uri;
-            state.type = type;
-            state.title = audioBookTitle;
-            state.optionSplit = cbSplit.isChecked();
-            state.optionCopy = cbCopy.isChecked();
-            state.optionDelete = cbDelete.isChecked();
-            state.originalType = bookToAdd.getOriginalType();
-            state.originalFile = bookToAdd.getOriginalFile();
-            state.originalHash = originalHash;
-            state.sourceLocation = bookToAdd.getSourceLocation();
-            state.fileExtension = bookToAdd.getFileExtension();
-            state.mimeType = bookToAdd.getMimeType();
-
-            setLoadBookTaskState(this, state); // save in SharedPrefs
-            myLogI("------ USER CLICKS btnConfirm....   LoadBookTaskState saved - Sending ok Result");
-
-            setResult(RESULT_OK);
-            finish();
+            // check if Path available...
+            String futureFolderPath = getUnzipFolder(this) + "/" + audioBookTitle;
+            myLogD("Checking Folder Path doesn't already exist in DB (internal copy case) : [" + futureFolderPath + "]");
+            new Thread(() -> {
+                long lCheck = AppDatabase.getDatabase(this).FolderDao().folderAlreadyExist_checkFolderPath(futureFolderPath);
+                runOnUiThread(() -> {
+                    btnConfirm.setEnabled(true);
+                    String futureFolderName;
+                    if (lCheck > 0) {
+                        futureFolderName = audioBookTitle + " " + getCurrentDateTimeString();
+                        myLogW("folder path does already exist in DB (internal copy case) : [" + futureFolderPath + "]");
+                        myLog("filesystem folder name changed to [" + futureFolderName + "]");
+                    } else {
+                        futureFolderName = audioBookTitle;
+                        myLogD("ok, filesystem folder name = [" + futureFolderName + "]");
+                    }
+                    LoadBookTaskState state = new LoadBookTaskState();
+                    state.uri = uri;
+                    state.type = type;
+                    state.title = audioBookTitle;
+                    state.futureFolderName = futureFolderName;
+                    state.optionSplit = cbSplit.isChecked();
+                    state.optionCopy = cbCopy.isChecked();
+                    state.optionDelete = cbDelete.isChecked();
+                    state.originalType = bookToAdd.getOriginalType();
+                    state.originalFile = bookToAdd.getOriginalFile();
+                    state.originalHash = originalHash;
+                    state.sourceLocation = bookToAdd.getSourceLocation();
+                    state.fileExtension = bookToAdd.getFileExtension();
+                    state.mimeType = bookToAdd.getMimeType();
+                    setLoadBookTaskState(this, state); // save in SharedPrefs
+                    myLogD("LoadBookTaskState saved - Sending ok Result");
+                    setResult(RESULT_OK);
+                    finish();
+                });
+            }).start();
         });
 
+
         desactivateInteractive();
-
-
     }
 
 
@@ -467,28 +486,8 @@ public class LoadOptionsActivity extends LoggingActivity {
     }
 
     private void checkPathDoesNotAlreadyExist() {
-        String strPath;
-        if (cbCopy.isChecked()) {
-            strPath = getFilesDir().getAbsolutePath() + "/" + FOLDER_UNZIPPED + "/" + audioBookTitle;
-            myLog("Checking Folder Path doesn't already exist in DB (copy case) : [" + strPath + "]");
-            new Thread(() -> {
-                long lCheck = AppDatabase.getDatabase(this).FolderDao().folderAlreadyExist_checkFolderPath(strPath);
-                runOnUiThread(() -> {
-                    activateInteractive();
-                    btnConfirm.setEnabled(true);
-                    if (lCheck > 0) {
-                        myLogW("KO, folder path does already exist in DB (copy case) : [" + strPath + "]");
-                        audioBookTitle = audioBookTitle + " " + getCurrentDateTimeString();
-                        ShowWarning(getString(R.string.error_media_already_loaded_samePath_so_changeName) + "\n[" + audioBookTitle + "]");
-                    } else {
-                        myLogD("OK, folder path doesn't already exist in DB");
-                        checkNameDoesNotAlreadyExist();
-                    }
-                });
-            }).start();
-        } else {
-            //strPath = uri.getPath();
-            strPath = uri.toString();
+        if (!cbCopy.isChecked()) { // only for direct link (if file copied, the app must deal it self with duplicates paths)
+            String strPath = uri.toString();
             myLog("Checking Folder Path doesn't already exist in DB (direct link case, no copy) : [" + strPath + "]");
             new Thread(() -> {
                 String audioBookAlreadyThere = AppDatabase.getDatabase(this).FolderDao().folderAlreadyExist_checkFolderPath_getBookName(strPath);
@@ -496,12 +495,16 @@ public class LoadOptionsActivity extends LoggingActivity {
                     if (audioBookAlreadyThere != null) {
                         myLogW("KO, folder path does already exist in DB : [" + strPath + "]");
                         ShowError(getString(R.string.error_media_already_loaded_samePath) + audioBookAlreadyThere);
+                        waitTextView.setVisibility(View.GONE);
+                        isKO = true;
                     } else {
                         myLogD("OK, folder path doesn't already exist in DB");
                         checkNameDoesNotAlreadyExist();
                     }
                 });
             }).start();
+        } else {
+            checkNameDoesNotAlreadyExist();
         }
     }
 
@@ -514,7 +517,9 @@ public class LoadOptionsActivity extends LoggingActivity {
                 activateInteractive();
                 if (lCheck>0) {
                     myLogW("KO, folder name does already exist in DB : [" + audioBookTitle + "]");
-                        ShowWarning(getString(R.string.error_media_already_loaded_sameName));
+                    audioBookTitle = audioBookTitle + " " + getCurrentDateTimeString();
+                    ShowWarning(getString(R.string.error_media_already_loaded_samePath_so_changeName) + "\n[" + audioBookTitle + "]");
+                    myLogW("book name changed to [" + audioBookTitle + "]");
                 } else {
                     myLogD("OK, folder name doesn't already exist in DB");
                 }

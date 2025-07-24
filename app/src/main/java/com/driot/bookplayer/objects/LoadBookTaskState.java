@@ -12,6 +12,7 @@ public class LoadBookTaskState implements Parcelable {
     public Uri uri;
     public String type;
     public String title;
+    public String futureFolderName;
     public boolean optionSplit;
     public boolean optionCopy;
     public boolean optionDelete;
@@ -34,6 +35,7 @@ public class LoadBookTaskState implements Parcelable {
         uri = in.readParcelable(Uri.class.getClassLoader());  // ✅ Read Uri
         type = in.readString();
         title = in.readString();
+        futureFolderName = in.readString();
         optionSplit = in.readByte() != 0;
         optionCopy = in.readByte() != 0;
         optionDelete = in.readByte() != 0;
@@ -66,6 +68,7 @@ public class LoadBookTaskState implements Parcelable {
         dest.writeParcelable(uri, flags);  // ✅ Write Uri
         dest.writeString(type);
         dest.writeString(title);
+        dest.writeString(futureFolderName);
         dest.writeByte((byte) (optionSplit ? 1 : 0));
         dest.writeByte((byte) (optionCopy ? 1 : 0));
         dest.writeByte((byte) (optionDelete ? 1 : 0));
@@ -93,6 +96,7 @@ public class LoadBookTaskState implements Parcelable {
                 "uri=" + uri +
                 ", type='" + type + '\'' +
                 ", title='" + title + '\'' +
+                ", futureFolder='" + futureFolderName + '\'' +
                 ", split=" + optionSplit +
                 ", copy=" + optionCopy +
                 ", delete=" + optionDelete +

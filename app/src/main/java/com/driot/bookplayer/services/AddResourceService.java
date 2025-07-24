@@ -48,7 +48,6 @@ import static com.driot.bookplayer.utils.Tonio.formatTime;
 import static com.driot.bookplayer.utils.Tonio.getExtension;
 import static com.driot.bookplayer.utils.Tonio.getFileNameFromPath;
 import static com.driot.bookplayer.utils.TonioCommonStuff.deleteExtension;
-import static com.driot.bookplayer.utils.TonioCommonStuff.extractName;
 import static com.driot.bookplayer.utils.WorkFlow.clearDownloadFinished;
 import static com.driot.bookplayer.utils.WorkFlow.setWorkFlowFinished;
 
@@ -413,18 +412,19 @@ public class AddResourceService
 
         if (type_dynamic ==null || uri_dynamic ==null) {myLogEE(null,"init() - args=null");tellError("Init failed, args are null");return;}
 
-        myLog("....");
-        myLog("....");
+        myLogD("....");
+        myLogD("....");
         myLog("*********************************************************************************************************");
         myLog("*********************************************************************************************************");
-        myLog("init() - ** title = " + bookState.title + " **");
-        myLog("init() - ** original uri = " + bookState.uri + " **");
+        myLog("init() - ** title =           " + bookState.title + " **");
+        myLog("init() - ** futureFolder =    " + bookState.futureFolderName + " **");
+        myLog("init() - ** original uri =  " + bookState.uri + " **");
         myLog("init() - ** original type = " + bookState.type + " **");
-        myLog("init() - ** uri = " + uri_dynamic + " **");
-        myLog("init() - ** type = " + type_dynamic + " **");
-        myLog("option copy file = " + bookState.optionCopy);
-        myLog("option split m4b = " + bookState.optionSplit);
-        myLog("option delete source = " + bookState.optionDelete);
+        myLog("init() - ** uri =   " + uri_dynamic + " **");
+        myLog("init() - ** type =  " + type_dynamic + " **");
+        myLog("option copy file =      " + bookState.optionCopy);
+        myLog("option split m4b =      " + bookState.optionSplit);
+        myLog("option delete source =  " + bookState.optionDelete);
         myLog("Source Location = [" + bookState.sourceLocation + "]");
         myLog("originalType = [" + bookState.originalType + "]");
         myLog("originalFile = [" + bookState.originalFile + "]");
@@ -444,7 +444,7 @@ public class AddResourceService
         ///---------------------------------------------
         if (uri_dynamic.toString().startsWith("http")) {
             new Thread(() ->  {
-                launchDownloadService(uri_dynamic.toString(),downloadFolder, bookState.title);
+                launchDownloadService(uri_dynamic.toString(),downloadFolder, bookState.futureFolderName);
             }).start();
             return;
         }
@@ -469,8 +469,8 @@ public class AddResourceService
                         myLog("Picked Uri = [" + uri_dynamic.toString() + "]");
                         new Thread(() -> {
                             tellProgress(PROGRESS[3], PROGRESS_TEXT[3]);
-                            copyFileLocal(unzipFolder + "/" + bookState.title
-                                    , bookState.title + ".m4b"
+                            copyFileLocal(unzipFolder + "/" + bookState.futureFolderName
+                                    , bookState.futureFolderName + ".m4b"
                             ); //launch a service, NEXT STEP through CALLBACKS
                         }).start();
                         return;
@@ -492,8 +492,8 @@ public class AddResourceService
                     if (bookState.sourceLocation.equals("cloud")) {
                         new Thread(() -> {
                             tellProgress(PROGRESS[3], PROGRESS_TEXT[1] + " ...reading on cloud");
-                            copyFileLocal(unzipFolder + "/" + bookState.title
-                                    , bookState.title
+                            copyFileLocal(unzipFolder + "/" + bookState.futureFolderName
+                                    , bookState.futureFolderName
                             );
                             //launch a service, NEXT STEP through CALLBACKS
                         }).start();
@@ -670,7 +670,7 @@ public class AddResourceService
         if (uri_dynamic.getPath().contains(PATH_CHECK_AUTOTEST)) {  // <-- autotest
             destinationFolderName =  formatNameForDisplay(getFileNameFromPath(uri_dynamic.getPath()));
         } else {
-            destinationFolderName = bookState.title;
+            destinationFolderName = bookState.futureFolderName;;
         }
 
         // check Not Already Imported
@@ -730,20 +730,19 @@ public class AddResourceService
         myLog("copyFolder()");
         if (type_dynamic.equals("ZIP") || (type_dynamic.equals("M4B") && bookState.optionSplit)) {
             myLog("=> Has already been copied during unzipped or split...");
-            future_DB_folder_path = unzipFolder + "/" + bookState.title;
+            future_DB_folder_path = unzipFolder + "/" + bookState.futureFolderName;
             saveFolder();
         } else {
             if (bookState.optionCopy) {
-                future_DB_folder_path = unzipFolder + "/" + bookState.title;
+                future_DB_folder_path = unzipFolder + "/" + bookState.futureFolderName;
                 tellProgress(PROGRESS[4], PROGRESS_TEXT[4]);
                 if (type_dynamic.equals("Folder")) {
                     myLog("=> copyFile Folder...");
                     copyFileLocal(unzipFolder
-                            , bookState.title
-                            );
+                            , bookState.futureFolderName);
                 } else if (type_dynamic.equals("File") || type_dynamic.equals("M4B")) {
                     myLog("=> copyFile Single File...");
-                    future_DB_folder_path = unzipFolder + "/" + bookState.title;
+                    future_DB_folder_path = unzipFolder + "/" + bookState.futureFolderName;
                     copyFileLocal(future_DB_folder_path
                             , bookState.originalFile
                     );
@@ -972,15 +971,15 @@ public class AddResourceService
         }
 
         if (type_dynamic.equals("ZIP")) {
-            launchUnzipService(localCopyFullPath, unzipFolder + "/" + bookState.title);
+            launchUnzipService(localCopyFullPath, unzipFolder + "/" + bookState.futureFolderName);
 
         } else if (type_dynamic.equals("M4B") && bookState.optionSplit) {
-            launchSplitM4bService(localCopyFullPath, unzipFolder + "/" + bookState.title);
+            launchSplitM4bService(localCopyFullPath, unzipFolder + "/" + bookState.futureFolderName);
 
         } else {
             if (!Objects.isNull(bookState.sourceLocation) && (bookState.sourceLocation.equals("cloud") || bookState.sourceLocation.equals("web"))) {
                 myLog("from cloud/web");
-                future_DB_folder_path = unzipFolder + "/" + bookState.title;
+                future_DB_folder_path = unzipFolder + "/" + bookState.futureFolderName;
                 set_uri_dynamic(Uri.fromFile(new File(localCopyFullPath)));
                 audioFileArrayList = new ArrayList<>();
 
@@ -996,7 +995,7 @@ public class AddResourceService
 
             } else {
                 myLog("from other locations");
-                future_DB_folder_path = unzipFolder + "/" + bookState.title;
+                future_DB_folder_path = unzipFolder + "/" + bookState.futureFolderName;
                 set_uri_dynamic(Uri.fromFile(new File(localCopyFullPath)));
             }
             saveFolder();
