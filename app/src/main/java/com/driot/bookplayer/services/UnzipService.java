@@ -143,9 +143,9 @@ public class UnzipService extends LoggingService {
             Charset charset = getCharset(zipFile);
             if (charset == null) { charset = Charset.defaultCharset(); }
             myLog("---------------------------------------------------------");
-            ZipInputStream zis = null;
-            try {
-                zis = new ZipInputStream(new BufferedInputStream(new FileInputStream(zipFile)), charset);
+            try (ZipInputStream zis = new ZipInputStream(
+                    new BufferedInputStream(new FileInputStream(zipFile)), charset)) {
+
                 ZipEntry ze;
                 int count;
                 byte[] buffer = new byte[8192];
@@ -218,9 +218,10 @@ public class UnzipService extends LoggingService {
                     }
                 }
 // end loop
-            } finally { //of the try of the loop
                 myLog("End Zip while loop");
-                if (zis != null) zis.close();
+            } catch (Exception e) {
+                myLogEE(e, "ZipInputStream error");
+            } finally { //of the try of the loop
                 if (zipFile.delete()) { // if Exception, the catch delete the all folder...
                     myLog("unzip done in folder, internal zip file deleted");
                 } else {
@@ -318,9 +319,9 @@ public class UnzipService extends LoggingService {
 
     private boolean checkCharset(File zipFile, Charset charset) {
         int i = 1;
-        try {
-            for (Enumeration<? extends ZipEntry> e = new ZipFile(zipFile, charset).entries(); e.hasMoreElements(); ) {
-                ZipEntry entry = (ZipEntry) e.nextElement();
+        try (ZipFile zf = new ZipFile(zipFile, charset)) {
+            for (Enumeration<? extends ZipEntry> e = zf.entries(); e.hasMoreElements(); ) {
+                ZipEntry entry = e.nextElement();
                 i = i + 1;
             }
             myLog("Charset found : [" + charset.toString() + "]");
