@@ -5,7 +5,6 @@ import static com.driot.bookplayer.global.Var.FOLDER_UNZIPPED;
 import static com.driot.bookplayer.utils.HashWorker.WORKER_TAG_COMPUTE_HASH;
 import static com.driot.bookplayer.utils.PermissionRequest.isReadAudioPermissionGranted;
 import static com.driot.bookplayer.utils.Tonio.getCurrentDateTimeString;
-import static com.driot.bookplayer.utils.Tonio.getSourceLocation;
 
 import android.Manifest;
 import android.app.AlertDialog;
@@ -47,13 +46,10 @@ public class LoadOptionsActivity extends LoggingActivity {
 
     private Uri uri;
     private String type;
-    private String originalType;
-    private String originalFile;
+    private BookToAdd bookToAdd;
+
+    private String audioBookTitle; // name can be changed... so keep as separate var
     private String originalHash;
-    private String sourceLocation;
-    private String audioBookTitle;
-    private String fileExtension;
-    private String mimeType;
 
     private TextView waitTextView, warningTextView, errorTextView;
     private CheckBox cbSplit, cbCopy, cbDelete;
@@ -108,7 +104,7 @@ public class LoadOptionsActivity extends LoggingActivity {
         llDelete = findViewById(R.id.ll_delete_source);
 
         if (type.equals("Podcast") ) { type = "File";}
-        BookToAdd bookToAdd = new BookToAdd(uri, type);
+        bookToAdd = new BookToAdd(uri, type);
 
         if (bookToAdd.isBroken()) {
             myToastE("Could not read resource");
@@ -117,11 +113,6 @@ public class LoadOptionsActivity extends LoggingActivity {
         }
 
         audioBookTitle = bookToAdd.getAudioBookName();
-        sourceLocation = bookToAdd.getSourceLocation();
-        originalFile = bookToAdd.getOriginalFile();
-        originalType = bookToAdd.getOriginalType();
-        fileExtension = bookToAdd.getFileExtension();
-        mimeType = bookToAdd.getMimeType();
 
         myLogD(bookToAdd.toString());
 
@@ -195,15 +186,15 @@ public class LoadOptionsActivity extends LoggingActivity {
             state.uri = uri;
             state.type = type;
             state.title = audioBookTitle;
-            state.split = cbSplit.isChecked();
-            state.copy = cbCopy.isChecked();
-            state.delete = cbDelete.isChecked();
-            state.originalType = originalType;
-            state.originalFile = originalFile;
+            state.optionSplit = cbSplit.isChecked();
+            state.optionCopy = cbCopy.isChecked();
+            state.optionDelete = cbDelete.isChecked();
+            state.originalType = bookToAdd.getOriginalType();
+            state.originalFile = bookToAdd.getOriginalFile();
             state.originalHash = originalHash;
-            state.sourceLocation = sourceLocation;
-            state.fileExtension = fileExtension;
-            state.mimeType = mimeType;
+            state.sourceLocation = bookToAdd.getSourceLocation();
+            state.fileExtension = bookToAdd.getFileExtension();
+            state.mimeType = bookToAdd.getMimeType();
 
             setLoadBookTaskState(this, state); // save in SharedPrefs
             myLog("CLICK btnConfirm....   LoadBookTaskState saved - Sending ok Result");
@@ -272,14 +263,14 @@ public class LoadOptionsActivity extends LoggingActivity {
             cbCopy.setChecked(true);
         }
 
-        if (sourceLocation.equals("cloud") || sourceLocation.equals("web")) {
+        if (bookToAdd.getSourceLocation().equals("cloud") || bookToAdd.getSourceLocation().equals("web")) {
             cbCopy.setEnabled(false);
             llCopy.setEnabled(false);
             cbCopy.setChecked(true);
         }
 
         // delete
-        if (cbCopy.isChecked() && !sourceLocation.equals("cloud") && !sourceLocation.equals("web")) {
+        if (cbCopy.isChecked() && !bookToAdd.getSourceLocation().equals("cloud") && !bookToAdd.getSourceLocation().equals("web")) {
             cbDelete.setEnabled(true);
             llDelete.setEnabled(true);
         } else {

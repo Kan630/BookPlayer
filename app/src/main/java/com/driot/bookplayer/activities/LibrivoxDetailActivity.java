@@ -50,8 +50,10 @@ public class LibrivoxDetailActivity extends LoggingActivity {
     private ImageView coverView;
     private Button bGet;
     private TextView tvLinkArchive, tvLinkLibrivox, tvOtherInfo, tvDownloadLink;
+
     private long cachePicSize;
     private boolean betterPicDone;
+    private String futureCoverPic;
 
 
     @Override
@@ -87,6 +89,7 @@ public class LibrivoxDetailActivity extends LoggingActivity {
             Glide.with(this).load(localImage).into(coverView);
             cachePicSize = localImage.length();
             myLogD("local Image found: " + viewModel.identifier + " - " + getReadableSize(cachePicSize));
+            futureCoverPic = localImage.getAbsolutePath();
         } else {
             // 👇 Background fetch from archive.org services/img and cache it
             new Thread(() -> {
@@ -94,6 +97,7 @@ public class LibrivoxDetailActivity extends LoggingActivity {
                 String localPath = ImageHelper.getOrDownloadLibrivoxImage(this, viewModel.identifier, fallbackUrl, false);
 
                 if (localPath != null) {
+                    futureCoverPic = localPath;
                     runOnUiThread(() -> {
                         Glide.with(this)
                                 .load(new File(localPath))
@@ -192,6 +196,7 @@ public class LibrivoxDetailActivity extends LoggingActivity {
                             if (!improvedFile.exists() || improvedFile.length() < 50 * 1024) { // only upgrade if existing is missing or too small
                                 String localPath = ImageHelper.getOrDownloadLibrivoxImage(this, viewModel.identifier, betterImageUrl, true);
                                 if (localPath != null) {
+                                    futureCoverPic = localPath;
                                     runOnUiThread(() -> {
                                         myLog("Gliding better image : " + improvedFile.getName() + " - " + getReadableSize(improvedFile.length()));
                                         Glide.with(this)
@@ -333,9 +338,10 @@ public class LibrivoxDetailActivity extends LoggingActivity {
         state.uri = Uri.parse(url);
         state.type = "File";
         state.title = viewModel.title;
-        state.split = false;
-        state.copy = true;
-        state.delete = false;
+        state.optionSplit = false;
+        state.optionCopy = true;
+        state.optionDelete = false;
+        state.imagePath = futureCoverPic;
 
         setLoadBookTaskState(this, state);
 

@@ -8,6 +8,7 @@ package com.driot.bookplayer.db;
 import static com.driot.bookplayer.db.AppDatabase.APPDATABASE_VERSION;
 
 import android.content.Context;
+import android.os.TestLooperManager;
 
 import androidx.room.Database;
 import androidx.room.RoomDatabase;
@@ -15,9 +16,10 @@ import androidx.room.TypeConverters;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 @Database(entities = {
-                        Folder.class,
-                        ZikFile.class,
-                        Podcast.class
+         Folder.class
+        ,ZikFile.class
+        ,Podcast.class
+        ,BookSource.class
 }
                      , version = APPDATABASE_VERSION
                     // on se fait les migrations a la main, en les ecrivant...... mais bon...
@@ -30,27 +32,26 @@ import java.util.concurrent.Executors;
 @TypeConverters({Converters.class})
 
 public abstract class AppDatabase extends RoomDatabase {
-    public static final int APPDATABASE_VERSION = 5;
+    public static final int APPDATABASE_VERSION = 6;
+
     public abstract FolderDao FolderDao();
     public abstract ZikFileDao ZikFileDao();
     public abstract PodcastDao PodcastDao();
+    public abstract BookSourceDao BookSourceDao();
 
 
 
     private static volatile AppDatabase INSTANCE;
-    private static final int NUMBER_OF_THREADS = 4;
-    public static final ExecutorService databaseWriteExecutor = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
+    private static final int NUMBER_OF_WRITE_THREADS = 4;
+    private static final int NUMBER_OF_READ_THREADS = 4;
+    public static final ExecutorService databaseWriteExecutor = Executors.newFixedThreadPool(NUMBER_OF_WRITE_THREADS);
+    public static final ExecutorService databaseReadExecutor = Executors.newFixedThreadPool(NUMBER_OF_READ_THREADS);
 
 
     public static AppDatabase getDatabase(final Context context) {
         return DatabaseClient.getInstance(context).getAppDatabase();
     }
 
-    private static final ExecutorService databaseReadExecutor =
-            Executors.newFixedThreadPool(2); // or however many you want
 
-    public static ExecutorService getDatabaseReadExecutor() {
-        return databaseReadExecutor;
-    }
 }
 

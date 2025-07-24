@@ -12,20 +12,19 @@ public class LoadBookTaskState implements Parcelable {
     public Uri uri;
     public String type;
     public String title;
-    public boolean split;
-    public boolean copy;
-    public boolean delete;
+    public boolean optionSplit;
+    public boolean optionCopy;
+    public boolean optionDelete;
     public String originalType;
     public String originalFile;
     public String originalHash;
     public String sourceLocation;
     public String fileExtension;
     public String mimeType;
-
-    //
     public String downloadedFilePath;
     public boolean downloadedFileReady; //so that you never get stuck if app crashes
     public boolean onGoing;
+    public String imagePath;
 
     public LoadBookTaskState() {
         myLog("LoadBookTaskState() constructor - creating new Workflow");
@@ -35,9 +34,9 @@ public class LoadBookTaskState implements Parcelable {
         uri = in.readParcelable(Uri.class.getClassLoader());  // ✅ Read Uri
         type = in.readString();
         title = in.readString();
-        split = in.readByte() != 0;
-        copy = in.readByte() != 0;
-        delete = in.readByte() != 0;
+        optionSplit = in.readByte() != 0;
+        optionCopy = in.readByte() != 0;
+        optionDelete = in.readByte() != 0;
         originalType = in.readString();
         originalFile = in.readString();
         originalHash = in.readString();
@@ -47,6 +46,7 @@ public class LoadBookTaskState implements Parcelable {
         downloadedFilePath = in.readString();
         downloadedFileReady = in.readByte() != 0;
         onGoing = in.readByte() != 0;
+        imagePath = in.readString();
     }
 
     public static final Creator<LoadBookTaskState> CREATOR = new Creator<LoadBookTaskState>() {
@@ -66,9 +66,9 @@ public class LoadBookTaskState implements Parcelable {
         dest.writeParcelable(uri, flags);  // ✅ Write Uri
         dest.writeString(type);
         dest.writeString(title);
-        dest.writeByte((byte) (split ? 1 : 0));
-        dest.writeByte((byte) (copy ? 1 : 0));
-        dest.writeByte((byte) (delete ? 1 : 0));
+        dest.writeByte((byte) (optionSplit ? 1 : 0));
+        dest.writeByte((byte) (optionCopy ? 1 : 0));
+        dest.writeByte((byte) (optionDelete ? 1 : 0));
         dest.writeString(originalType);
         dest.writeString(originalFile);
         dest.writeString(originalHash);
@@ -78,6 +78,7 @@ public class LoadBookTaskState implements Parcelable {
         dest.writeString(downloadedFilePath);
         dest.writeByte((byte) (downloadedFileReady ? 1 : 0));
         dest.writeByte((byte) (onGoing ? 1 : 0));
+        dest.writeString(imagePath);
     }
 
     @Override
@@ -92,9 +93,9 @@ public class LoadBookTaskState implements Parcelable {
                 "uri=" + uri +
                 ", type='" + type + '\'' +
                 ", title='" + title + '\'' +
-                ", split=" + split +
-                ", copy=" + copy +
-                ", delete=" + delete +
+                ", split=" + optionSplit +
+                ", copy=" + optionCopy +
+                ", delete=" + optionDelete +
                 ", originalType='" + originalType + '\'' +
                 ", originalFile='" + originalFile + '\'' +
                 ", originalHash='" + originalHash + '\'' +
@@ -104,6 +105,7 @@ public class LoadBookTaskState implements Parcelable {
                 ", downloadedFilePath='" + downloadedFilePath + '\'' +
                 ", onGoingDownload=" + downloadedFileReady +
                 ", onGoing=" + onGoing +
+                ", imagePath='" + imagePath + '\'' +
                 '}';
     }
 

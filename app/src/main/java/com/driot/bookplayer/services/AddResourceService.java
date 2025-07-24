@@ -47,7 +47,6 @@ import static com.driot.bookplayer.utils.Tonio.fileExists;
 import static com.driot.bookplayer.utils.Tonio.formatTime;
 import static com.driot.bookplayer.utils.Tonio.getExtension;
 import static com.driot.bookplayer.utils.Tonio.getFileNameFromPath;
-import static com.driot.bookplayer.utils.Tonio.getMimeType;
 import static com.driot.bookplayer.utils.TonioCommonStuff.deleteExtension;
 import static com.driot.bookplayer.utils.TonioCommonStuff.extractName;
 import static com.driot.bookplayer.utils.WorkFlow.clearDownloadFinished;
@@ -122,19 +121,13 @@ public class AddResourceService
     private final int[] InsertedFolderId = {0};
     private int nbFileSaved, nbFileToSave, nbFileScan;
 
-    private Uri uri_given;
-    private String type_given;
-    private String title_given;
-    private String originalHash;
-    private String sourceLocation;
-    private String originalType;
-    private String originalFile;
-    private String originalExtension;
-    private String mimeType;
+    LoadBookTaskState bookState;
+    
+    private Uri uri_dynamic;
+    private String type_dynamic;
 
     private String unzipFolder;
     private String downloadFolder;
-
 
     private String future_DB_folder_path = "-o-";
 
@@ -145,9 +138,6 @@ public class AddResourceService
 
     public static boolean isBusy;
 
-    private boolean optionCopyFile;
-    private boolean optionSplitM4b;
-    private boolean optionDeleteSource;
 
     // Callbacks
     //-----------------------------
@@ -382,18 +372,9 @@ public class AddResourceService
         myLogD("initVars");
         if (state != null) {
             myLogD("initVars");
-            uri_given = state.uri;
-            type_given = state.type;
-            title_given = state.title;
-            optionCopyFile = state.copy;
-            optionSplitM4b = state.split;
-            optionDeleteSource = state.delete;
-            sourceLocation = state.sourceLocation;
-            originalHash = state.originalHash;
-            originalType = state.originalType;
-            originalFile = state.originalFile;
-            originalExtension = state.fileExtension;
-            mimeType = state.mimeType;
+            bookState = state;
+            uri_dynamic = state.uri;
+            type_dynamic = state.type;
         } else {
             myLogEE(null, "initVars state is null");
         }
@@ -437,24 +418,26 @@ public class AddResourceService
             return;
         }
 
-        if (type_given==null || uri_given==null) {myLogEE(null,"init() - args=null");tellError("Init failed, args are null");return;}
+        if (type_dynamic ==null || uri_dynamic ==null) {myLogEE(null,"init() - args=null");tellError("Init failed, args are null");return;}
 
         myLog("....");
         myLog("....");
         myLog("*********************************************************************************************************");
         myLog("*********************************************************************************************************");
-        myLog("init() - ** uri = " + uri_given + " **");
-        myLog("init() - ** title = " + title_given + " **");
-        myLog("init() - ** type = " + type_given + " **");
-        myLog("option copy file = " + optionCopyFile);
-        myLog("option split m4b = " + optionSplitM4b);
-        myLog("option delete source = " + optionDeleteSource);
-        myLog("Source Location = [" + sourceLocation + "]");
-        myLog("originalType = [" + originalType + "]");
-        myLog("originalFile = [" + originalFile + "]");
-        myLog("originalHash = [" + originalHash + "]");
-        myLog("fileExtension = [" + originalExtension + "]");
-        myLog("mimeType = [" + mimeType + "]");
+        myLog("init() - ** title = " + bookState.title + " **");
+        myLog("init() - ** original uri = " + bookState.uri + " **");
+        myLog("init() - ** original type = " + bookState.type + " **");
+        myLog("init() - ** uri = " + uri_dynamic + " **");
+        myLog("init() - ** type = " + type_dynamic + " **");
+        myLog("option copy file = " + bookState.optionCopy);
+        myLog("option split m4b = " + bookState.optionSplit);
+        myLog("option delete source = " + bookState.optionDelete);
+        myLog("Source Location = [" + bookState.sourceLocation + "]");
+        myLog("originalType = [" + bookState.originalType + "]");
+        myLog("originalFile = [" + bookState.originalFile + "]");
+        myLog("originalHash = [" + bookState.originalHash + "]");
+        myLog("fileExtension = [" + bookState.fileExtension + "]");
+        myLog("bookState.mimeType = [" + bookState.mimeType + "]");
         myLog("*********************************************************************************************************");
         myLog("*********************************************************************************************************");
 
@@ -465,74 +448,74 @@ public class AddResourceService
         ///---------------------------------------------
         /// DOWNLOAD
         ///---------------------------------------------
-        if (uri_given.toString().startsWith("http")) {
+        if (uri_dynamic.toString().startsWith("http")) {
             new Thread(() ->  {
-                launchDownloadService(uri_given.toString(),downloadFolder, title_given);
+                launchDownloadService(uri_dynamic.toString(),downloadFolder, bookState.title);
             }).start();
             return;
         }
 
-        switch (type_given) {
+        switch (type_dynamic) {
             ///---------------------------------------------
             /// FILE
             ///---------------------------------------------
             case "File":
             case "M4B":
-                PROGRESS = optionCopyFile ? PROGRESS_FILE_COPY : PROGRESS_FILE_NOCOPY;
+                PROGRESS = bookState.optionCopy ? PROGRESS_FILE_COPY : PROGRESS_FILE_NOCOPY;
 
 
                 ///---------------------------------------------
                 /// M4B FILE
                 ///---------------------------------------------
-                if (mimeType.equals("audio/mp4") || originalExtension.equals("m4b")) {
+                if (bookState.mimeType.equals("audio/mp4") || bookState.fileExtension.equals("m4b")) {
                     myLog("=> MP4 <=");
-                    if (optionSplitM4b) {
-                        type_given = "M4B";
-                        PROGRESS = optionCopyFile ? PROGRESS_ZIP_COPY : PROGRESS_ZIP_NOCOPY;
+                    if (bookState.optionSplit) {
+                        type_dynamic = "M4B";
+                        PROGRESS = bookState.optionCopy ? PROGRESS_ZIP_COPY : PROGRESS_ZIP_NOCOPY;
                         myLog("M4B : copy locally before everything else");
-                        myLog("Picked Uri = [" + uri_given.toString() + "]");
+                        myLog("Picked Uri = [" + uri_dynamic.toString() + "]");
                         new Thread(() -> {
                             tellProgress(PROGRESS[3], PROGRESS_TEXT[3]);
-                            copyFileLocal(uri_given
-                                    , unzipFolder + title_given
-                                    , title_given + ".m4b"
-                                    , type_given
+                            copyFileLocal(uri_dynamic
+                                    , unzipFolder + bookState.title
+                                    , bookState.title + ".m4b"
+                                    , type_dynamic
                             ); //launch a service, NEXT STEP through CALLBACKS
                         }).start();
                         return;
 
                     } else {
                         myLog("Option Split M4B disabled");
-                        DocumentFile dfPickedFile = DocumentFile.fromSingleUri(this, uri_given);
+                        DocumentFile dfPickedFile = DocumentFile.fromSingleUri(this, uri_dynamic);
                         populateArrayListOfTracksFromFile(dfPickedFile);
                     }
 
-                } else if (mimeType.equals("application/zip") || originalExtension.equals("zip")) {
+                } else if (bookState.mimeType.equals("application/zip") || bookState.fileExtension.equals("zip")) {
                     myLog("=> ZIP <=");
-                    type_given = "ZIP";
+                    type_dynamic = "ZIP";
                     goZipCase();
                     return;
 
-                } else if (mimeType.startsWith(ONLY_MIME_AUDIO) || SUPPORTED_AUDIO_EXTENSIONS.contains(originalExtension)) {
+                } else if (bookState.mimeType.startsWith(ONLY_MIME_AUDIO) || SUPPORTED_AUDIO_EXTENSIONS.contains(bookState.fileExtension)) {
 
-                    if (sourceLocation.equals("cloud")) {
+                    if (bookState.sourceLocation.equals("cloud")) {
                         new Thread(() -> {
                             tellProgress(PROGRESS[3], PROGRESS_TEXT[1] + " ...reading on cloud");
-                            copyFileLocal(uri_given
-                                    , unzipFolder + title_given
-                                    , title_given
-                                    , type_given
+                            copyFileLocal(uri_dynamic
+                                    , unzipFolder + bookState.title
+                                    , bookState.title
+                                    , type_dynamic
                             );
                             //launch a service, NEXT STEP through CALLBACKS
                         }).start();
                         return;
 
                     } else {
-                        DocumentFile dfPickedFile = DocumentFile.fromSingleUri(this, uri_given);
+                        DocumentFile dfPickedFile = DocumentFile.fromSingleUri(this, uri_dynamic);
                         populateArrayListOfTracksFromFile(dfPickedFile);
                     }
                 } else {
-                    tellError( getString(R.string.Error_Import_NotAnAudio) + "...  " + getString(R.string.Error_Import_TypeNotSupported) + " [" + mimeType + "] - [" + originalExtension + "]");
+                    tellError( getString(R.string.Error_Import_NotAnAudio) + "...  " + getString(R.string.Error_Import_TypeNotSupported) + " [" + bookState.mimeType + "] - [" + bookState.fileExtension + "]");
                     break;
                 }
                 break;
@@ -543,13 +526,13 @@ public class AddResourceService
             /// FOLDER
             ///---------------------------------------------
             case "Folder":
-                PROGRESS = optionCopyFile ? PROGRESS_FOLDER_COPY : PROGRESS_FOLDER_NOCOPY;
+                PROGRESS = bookState.optionCopy ? PROGRESS_FOLDER_COPY : PROGRESS_FOLDER_NOCOPY;
 
                 tellProgress(PROGRESS[1], PROGRESS_TEXT[1]);
                 DocumentFile dfPickedDir;
                 try {
                     //dfPickedDir = DocumentFile.fromSingleUri(this, uri_given);
-                    dfPickedDir = DocumentFile.fromTreeUri(this, uri_given);
+                    dfPickedDir = DocumentFile.fromTreeUri(this, uri_dynamic);
                 } catch (Exception e) {
                     myLogEE(e,"Error reading picked Folder.... DocumentFile.fromTreeUri");
                     tellError(getString(R.string.Error_Import_CannotReadFolder));
@@ -565,7 +548,7 @@ public class AddResourceService
                 goZipCase();
                 break;
         default:
-                myLogEE(null,"Incorrect type : **" + type_given + "**");
+                myLogEE(null,"Incorrect type : **" + type_dynamic + "**");
         }
     }
     /// ///////// END INIT
@@ -684,16 +667,16 @@ public class AddResourceService
     }
 
     private void goZipCase() {
-        PROGRESS = optionCopyFile ? PROGRESS_ZIP_COPY : PROGRESS_ZIP_NOCOPY;
+        PROGRESS = bookState.optionCopy ? PROGRESS_ZIP_COPY : PROGRESS_ZIP_NOCOPY;
         myLog("ZIP : copy locally before everything else");
-        myLog("Picked Uri = [" + uri_given.toString() + "]");
+        myLog("Picked Uri = [" + uri_dynamic.toString() + "]");
 
         // get the folder name = the zip file true Name without extension
         destinationFolderName = "";
-        if (uri_given.getPath().contains(PATH_CHECK_AUTOTEST)) {  // <-- autotest
-            destinationFolderName =  formatNameForDisplay(getFileNameFromPath(uri_given.getPath()));
+        if (uri_dynamic.getPath().contains(PATH_CHECK_AUTOTEST)) {  // <-- autotest
+            destinationFolderName =  formatNameForDisplay(getFileNameFromPath(uri_dynamic.getPath()));
         } else {
-            destinationFolderName = title_given;
+            destinationFolderName = bookState.title;
         }
 
         // check Not Already Imported
@@ -707,10 +690,10 @@ public class AddResourceService
             } else {
                 myLog("OK, folder doesn't already exist in DB");
                 tellProgress(PROGRESS[3], PROGRESS_TEXT[3]);
-                copyFileLocal(uri_given
+                copyFileLocal(uri_dynamic
                         , getFilesDir().getAbsolutePath() + "/" + FOLDER_UNZIPPED + "/" + destinationFolderName
                         , destinationFolderName + ".zip"
-                        , type_given
+                        , type_dynamic
                 ); //launch the service, NEXT STEP through CALLBACKS
             }
         }).start();
@@ -753,33 +736,33 @@ public class AddResourceService
 
     private void copyFolder() {
         myLog("copyFolder()");
-        if (type_given.equals("ZIP") || (type_given.equals("M4B") && optionSplitM4b)) {
+        if (type_dynamic.equals("ZIP") || (type_dynamic.equals("M4B") && bookState.optionSplit)) {
             myLog("=> Has already been copied during unzipped or split...");
-            future_DB_folder_path = unzipFolder + title_given;
+            future_DB_folder_path = unzipFolder + bookState.title;
             saveFolder();
         } else {
-            if (optionCopyFile) {
-                future_DB_folder_path = unzipFolder + title_given;
+            if (bookState.optionCopy) {
+                future_DB_folder_path = unzipFolder + bookState.title;
                 tellProgress(PROGRESS[4], PROGRESS_TEXT[4]);
-                if (type_given.equals("Folder")) {
+                if (type_dynamic.equals("Folder")) {
                     myLog("=> copyFile Folder...");
-                    copyFileLocal(uri_given
+                    copyFileLocal(uri_dynamic
                             , unzipFolder
-                            , title_given
-                            , type_given);
-                } else if (type_given.equals("File") || type_given.equals("M4B")) {
+                            , bookState.title
+                            , type_dynamic);
+                } else if (type_dynamic.equals("File") || type_dynamic.equals("M4B")) {
                     myLog("=> copyFile Single File...");
-                    future_DB_folder_path = unzipFolder + title_given;
-                    copyFileLocal(uri_given
+                    future_DB_folder_path = unzipFolder + bookState.title;
+                    copyFileLocal(uri_dynamic
                             , future_DB_folder_path
-                            , originalFile
-                            , type_given
+                            , bookState.originalFile
+                            , type_dynamic
                     );
                 } else {
-                    tellError(getString(R.string.Technical_Error) + "...  " + "Wrong file type : " + type_given);
+                    tellError(getString(R.string.Technical_Error) + "...  " + "Wrong file type : " + type_dynamic);
                 }
             } else {
-                future_DB_folder_path = uri_given.toString();
+                future_DB_folder_path = uri_dynamic.toString();
                 //future_DB_folder_uri = uri_given.getPath();
                 saveFolder();
             }
@@ -794,7 +777,7 @@ public class AddResourceService
         final Date dateNow = new Date(System.currentTimeMillis());
 
         Folder folder = new Folder();
-        folder.setName(title_given);
+        folder.setName(bookState.title);
         folder.setPath(future_DB_folder_path);
         folder.setUri(future_DB_folder_path); //2023-10-22 deprecated
         folder.setHash("0"); //2023-10-22 deprecated
@@ -804,13 +787,14 @@ public class AddResourceService
         folder.setLastaccessTime(timeNow);
         folder.setFinished(false);
         folder.setIszipfile(false); //2023-10-22 deprecated (live zip reading - code has been removed)
-        folder.setOriginalHash(originalHash);
-        folder.setSourceLocation(sourceLocation);
+        folder.setOriginalHash(bookState.originalHash);
+        folder.setSourceLocation(bookState.sourceLocation);
         folder.date_added = System.currentTimeMillis();
+        folder.image = bookState.imagePath;
 
         new Thread(() -> {
             InsertedFolderId[0] = (int) DatabaseClient.getInstance(this).getAppDatabase().FolderDao().insert(folder);
-            myLog("Folder Saved in DB, ID=[" + InsertedFolderId[0] + "] - [" + title_given + "]");
+            myLog("Folder Saved in DB, ID=[" + InsertedFolderId[0] + "] - [" + bookState.title + "]");
             tellProgress(PROGRESS[7], PROGRESS_TEXT[7]);
             saveFiles();
         }).start();
@@ -843,7 +827,7 @@ public class AddResourceService
         zikFile.setDisplayName(formatNameForDisplay(audioFileInfo.getFileName()));
         zikFile.setIdFolder(mFolderId);
         zikFile.setZeorder(zeorder);
-        zikFile.setFolderName(title_given);
+        zikFile.setFolderName(bookState.title);
         zikFile.setPercentdone(0.0);
         zikFile.setPosition(0);
         zikFile.setPath(future_DB_folder_path);
@@ -872,9 +856,9 @@ public class AddResourceService
                     myLogD("******************************************************************************************************************");
                     updateFolderTable(this, mFolderId);
                     myLogD("deleting source ??"
-                            + "\nOption CopyFile : " + optionCopyFile + "  -  is a ZIP : " + type_given.equals("ZIP")
-                            + "\nOption DeleteSourceFile : " + optionDeleteSource);
-                    if ((optionCopyFile || type_given.equals("ZIP")) && optionDeleteSource) {
+                            + "\nOption CopyFile : " + bookState.optionCopy + "  -  is a ZIP : " + type_dynamic.equals("ZIP")
+                            + "\nOption DeleteSourceFile : " + bookState.optionDelete);
+                    if ((bookState.optionCopy || type_dynamic.equals("ZIP")) && bookState.optionDelete) {
                         myLogD("deleting source => YES");
                         deleteSourceFile();
                     }
@@ -888,24 +872,24 @@ public class AddResourceService
 
 
     private void deleteSourceFile() {
-        myLog("deleteSourceFile() - uri = [" + uri_given + "] [" + type_given + "]");
+        myLog("deleteSourceFile() - uri = [" + uri_dynamic + "] [" + type_dynamic + "]");
         DocumentFile dfPickedDir = null;
-        if (type_given.equals("File") || type_given.equals("ZIP")) {
+        if (type_dynamic.equals("File") || type_dynamic.equals("ZIP")) {
             try {
-                dfPickedDir = DocumentFile.fromSingleUri(this, uri_given);
+                dfPickedDir = DocumentFile.fromSingleUri(this, uri_dynamic);
             } catch (Exception e) {
                 myLogEE(e,"deleting - error getting DocumentFile.fromSingleUri");
                 tellError(getString(R.string.Error_Import_CannotDeleteSource));
             }
-        } else if (type_given.equals("Folder")) {
+        } else if (type_dynamic.equals("Folder")) {
             try {
-                dfPickedDir = DocumentFile.fromTreeUri(this, uri_given);
+                dfPickedDir = DocumentFile.fromTreeUri(this, uri_dynamic);
             } catch (Exception e) {
                 myLogEE(e,"deleting - error getting DocumentFile.fromTreeUri");
                 tellError(getString(R.string.Error_Import_CannotDeleteSource));
             }
         } else {
-            myLogEE(null,"Incorrect type : **" + type_given + "**");
+            myLogEE(null,"Incorrect type : **" + type_dynamic + "**");
         }
         if (!(dfPickedDir == null)) {
             boolean okDelete = dfPickedDir.delete();
@@ -1008,24 +992,24 @@ public class AddResourceService
 
 
     private void proceedAfterCopyLocal(String localCopyFullPath) {
-        myLog("proceedAfterCopyLocal() - Type : [" + type_given + "]"
-                + "\nsourceLocation = [" + sourceLocation + "]"
+        myLog("proceedAfterCopyLocal() - Type : [" + type_dynamic + "]"
+                + "\nsourceLocation = [" + bookState.sourceLocation + "]"
                 + "\n localCopyFullPath = [" + localCopyFullPath + "]");
 
-        if (type_given.equals("ZIP")) {
+        if (type_dynamic.equals("ZIP")) {
             myLog("launch unzipZipLocal()");
             unzipZipLocal(localCopyFullPath, zipDestinationFolderPath);
 
-        } else if (type_given.equals("M4B") && optionSplitM4b) {
+        } else if (type_dynamic.equals("M4B") && bookState.optionSplit) {
             myLog("launch extractM4bLocal()");
-            destinationFolderPath = getFilesDir().getAbsolutePath() + "/" + FOLDER_UNZIPPED + "/" + title_given;
+            destinationFolderPath = getFilesDir().getAbsolutePath() + "/" + FOLDER_UNZIPPED + "/" + bookState.title;
             splitM4bLocal(localCopyFullPath, destinationFolderPath);
 
         } else {
-            if (!Objects.isNull(sourceLocation) && (sourceLocation.equals("cloud") || sourceLocation.equals("web"))) {
+            if (!Objects.isNull(bookState.sourceLocation) && (bookState.sourceLocation.equals("cloud") || bookState.sourceLocation.equals("web"))) {
                 myLog("from cloud/web");
-                future_DB_folder_path = unzipFolder + title_given;
-                uri_given = Uri.fromFile(new File(localCopyFullPath));
+                future_DB_folder_path = unzipFolder + bookState.title;
+                uri_dynamic = Uri.fromFile(new File(localCopyFullPath));
                 audioFileArrayList = new ArrayList<>();
 
                 myLogD("* adding file : [" +  future_DB_folder_path + ']');
@@ -1040,8 +1024,8 @@ public class AddResourceService
 
             } else {
                 myLog("from other locations");
-                future_DB_folder_path = unzipFolder + title_given;
-                uri_given = Uri.fromFile(new File(localCopyFullPath));
+                future_DB_folder_path = unzipFolder + bookState.title;
+                uri_dynamic = Uri.fromFile(new File(localCopyFullPath));
             }
             saveFolder();
         }
@@ -1064,9 +1048,9 @@ public class AddResourceService
     public void downloadService_tellEnd(String downloadedFileFullPath) {
         clearDownloadFinished(this);
         myLog("Download tell End -> [" + downloadedFileFullPath + "]");
-        if (getExtension(downloadedFileFullPath).equals("zip")) type_given = "ZIP"; // case direct download from Librivox
-        if (Objects.equals(type_given, "ZIP")) {
-            uri_given = Uri.fromFile(new File(downloadedFileFullPath));
+        if (getExtension(downloadedFileFullPath).equals("zip")) type_dynamic = "ZIP"; // case direct download from Librivox
+        if (Objects.equals(type_dynamic, "ZIP")) {
+            uri_dynamic = Uri.fromFile(new File(downloadedFileFullPath));
             String fileName = deleteExtension(extractName(downloadedFileFullPath));
             this.zipDestinationFolderPath = getFilesDir().getAbsolutePath() + "/" + FOLDER_UNZIPPED + "/" + fileName;
             unzipZipLocal(downloadedFileFullPath, getFilesDir().getAbsolutePath() + "/" + FOLDER_UNZIPPED + "/" + fileName);
@@ -1097,8 +1081,8 @@ public class AddResourceService
     }
     @Override
     public void copyFileService_tellEnd(String destinationFolderPath, String destinationFolderName) {
-        myLog("Copyfile tell End for type : " + type_given);
-        if (Objects.equals(type_given, "Folder")) {
+        myLog("Copyfile tell End for type : " + type_dynamic);
+        if (Objects.equals(type_dynamic, "Folder")) {
             proceedAfterCopyLocal(destinationFolderPath);
         } else {
             proceedAfterCopyLocal(destinationFolderPath + "/" + destinationFolderName);
