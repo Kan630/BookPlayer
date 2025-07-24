@@ -164,7 +164,7 @@ public class KanLogger {
         String newPrefix = parsePrefix(LOGCAT_PREFIX + " " + prefix);
         if (TextUtils.isEmpty(str)) {str = "...";}
         if (writeTechLogs()) {
-            writeToLogFile(newPrefix + ".WAR: " + str);
+            writeToLogFile("WAR.." + parsePrefix(prefix) + ".." + str);
             Log.w(newPrefix, str);
         } else {
             if (LOG_THEM_ALL) Log.w(newPrefix, str);
@@ -190,7 +190,7 @@ public class KanLogger {
         String newPrefix = parsePrefix(LOGCAT_PREFIX + " " + prefix);
         if (TextUtils.isEmpty(str)) {str = "...";}
         if (writeTechLogs()) {
-            writeToLogFile(newPrefix + ".ERR: " + str);
+            writeToLogFile("ERR.." + parsePrefix(prefix) + ".." + str);
             Log.e(newPrefix, str);
         } else {
             if (LOG_THEM_ALL) Log.e(newPrefix, str);
