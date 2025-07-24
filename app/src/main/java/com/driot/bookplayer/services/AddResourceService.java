@@ -1132,7 +1132,7 @@ public class AddResourceService
         mCallBacks.updateProgress(progressText, progressVal);
     }
     public void tellProgress(int progressVal,String progressText) {
-        myLogD("tellProgress : " + progressVal + " - " + progressText);
+        myLogD("tellProgress : " + progressVal + " - " + progressText.replace("\n"," ## "));
         mCallBacks.updateProgress(progressText, progressVal);
     }
     private void tellEnd() {

@@ -204,7 +204,7 @@ public class SplitM4bService extends LoggingService {
                 String aacFileName = chapterFileName + ".aac";
 
                 //myLog("Using chapter title: [" + raw + "] -> filename: [" + aacFileName + "]");
-                myLog("=> filename: [" + aacFileName + "]");
+                //myLog("=> filename: [" + aacFileName + "]");
                 long chapterStartTime = chapterTime;
                 long chapterDuration = chapterDurations[c];
                 chapterTime += chapterDuration;
@@ -215,7 +215,7 @@ public class SplitM4bService extends LoggingService {
                 int startSample = findSampleIndexForTime(audioDurations, audioTimescale, startSec);
                 int endSample = findSampleIndexForTime(audioDurations, audioTimescale, endSec);
 
-                myLog("Chapter " + chapterIndex + ": samples " + startSample + " to " + endSample);
+                //myLog("Chapter " + chapterIndex + ": samples " + startSample + " to " + endSample);
                 double zeProgress = (double) chapterIndex / nbChapters * 100;
                 tellProgress((int) zeProgress,
                         getResources().getString(R.string.Import_Progress_splitting_m4b_file) + chapterIndex + "/" + nbChapters
@@ -312,8 +312,8 @@ public class SplitM4bService extends LoggingService {
         for (byte b : data) {
             hex.append(String.format("%02X ", b));
         }
-        myLog("Chapter sample raw bytes (hex): " + hex.toString());
-        myLog("Chapter sample ASCII Text: " + new String(data, StandardCharsets.UTF_8));
+        //myLogD("Chapter sample raw bytes (hex): " + hex.toString());
+        //myLog("Chapter sample ASCII Text: " + new String(data, StandardCharsets.UTF_8));
 
         // Skip first 2 bytes (likely length or style info)
         int offset = 2;
