@@ -1,6 +1,8 @@
 package com.driot.bookplayer.activities;
 
 import android.os.Bundle;
+import android.text.Html;
+import android.widget.TextView;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.utils.log.LoggingActivity;
@@ -15,11 +17,16 @@ public class HelpActivity extends LoggingActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_help);
 
-        //// -> To test Android 15, overlapping system bars dy default... (Solution adds to xml : android:fitsSystemWindows="true")
-        //WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
-
-        //Toolbar toolbar = findViewById(R.id.toolbar);
-        //toolbar.setTitle(R.string.help);
+        TextView tvHelpText = findViewById(R.id.tvHelpText);
+        tvHelpText.setText(Html.fromHtml(getString(R.string.help_text), Html.FROM_HTML_MODE_LEGACY));
 
     }
 }
+
+
+
+//// -> To test Android 15, overlapping system bars dy default... (Solution adds to xml : android:fitsSystemWindows="true")
+//WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
+
+//Toolbar toolbar = findViewById(R.id.toolbar);
+//toolbar.setTitle(R.string.help);

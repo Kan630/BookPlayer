@@ -17,20 +17,14 @@
         >
 
         <TextView style="@style/HelpTitle"
-            android:text="@string/help_folder"
+            android:text="@string/help_title"
             />
         <TextView style="@style/HelpText"
+            android:id="@+id/tvHelpText"
             android:text="@string/help_folder_text"
             />
         <View style="@style/myStyleViewSimpleHorizontalBar"/>
 
-        <TextView style="@style/HelpTitle"
-            android:text="@string/help_file"
-            />
-        <TextView style="@style/HelpText"
-            android:text="@string/help_file_text"
-            />
-        <View style="@style/myStyleViewSimpleHorizontalBar"/>
 
         <TextView style="@style/HelpTitle"
             android:text="@string/help_file_types_title"

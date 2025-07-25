@@ -29,7 +29,6 @@
     <!-- ********************************** -->
     <!-- HELP Screen -->
 
-    <string name="help_folder">Folder :</string>
 
     <string name="help_file">Track :</string>
     <string name="help_file_text">A long click on a track opens the [modify track] page.
@@ -210,14 +209,6 @@
 
     <string name="AskDelete_popupTitle">Confirm Delete</string>
     <string name="AskReset_popupTitle">Confirm Reset</string>
-    <string name="DeleteLogs_AskConfirm">"You are about to delete all logs." + "\n" +
-                        "Are you sure ?"</string>
-    <string name="ModifyFolder_AskDelete">"You are about to delete this folder and all the tracks" + "\n" +
-                        "Are you sure ?"</string>
-    <string name="ModifyFolder_AskReset">"You are about to reset progression for this folder " + "\n" +
-                        "Are you sure ?"</string>
-    <string name="ModifyZikFile_AskDelete">"You are about to delete this audio track " + "\n" +
-                        "Are you sure ?"</string>
 
     <string name="CacheFiles_AskDeleteAudioBook">"You are about to delete this audio book"</string>
 
@@ -425,12 +416,6 @@
 
     <string name="Export_display_text_processing">"Processing"</string>
 
-    <string name="help_folder_text">A long click on a folder opens the [modify folder] page.
-        \nThen you will be able to rename / delete / reset progress
-        \nNEW : Set an automatic trim/cut for each track beginning (to avoid annoying credits).
-        \nNEW : Or Export the audiobook as a zip file, to your device download folder.
-    </string>
-
     <string name="help_file_types_title">File Types :</string>
     <string name="help_file_types_text">Bookplayer can read many type of audios, even videos. Just try to load them! Best choice will always be [mp3] files, as a zip or in a folder. But Bookplayer can now read the new [m4b] file type. It will try to detect the chapters inside if any. If you use the new export capability, from a previously loaded m4b file, you will get a zip with chapters as aac audio files.</string>
 
@@ -586,6 +571,31 @@
     <string name="Added">"Added"</string>
     <string name="AskRename_Track">Rename this track to</string>
 
+    <string name="DeleteLogs_AskConfirm">"You are about to delete all logs.
+       Are you sure ?"</string>
+    <string name="ModifyFolder_AskDelete">"You are about to delete this folder and all the tracks
+       Are you sure ?"</string>
+    <string name="ModifyFolder_AskReset">"You are about to reset progression for this folder
+       Are you sure ?"</string>
+    <string name="ModifyZikFile_AskDelete">"You are about to delete this audio track
+       Are you sure ?"</string>
+
+    <string name="help_folder_text"><![CDATA[
+    A <font color="#4CAF50">long click</font> on a folder opens the modify folder page.<br>
+    Then you will be able to rename / delete / reset progress.
+    ]]></string>
+
+    <string name="help_title">Bookplayer manual</string>
+
+    <string name="help_text"><![CDATA[
+When you open the app, you’ll see a list of <font color="#12BADB">folders</font> — these represent your Books, Lessons, or Podcasts.
+<br>
+<br>A <font color="#4CAF50">long press</font> on a <font color="#12BADB">folder</font> opens the “Modify Folder” screen (rename / delete / reset, etc.).
+<br>A simple tap opens the list of <font color="#B312DB">tracks</font>.
+<br>
+<br>A <font color="#4CAF50">long press</font> on a <font color="#B312DB">track</font> opens the “Modify Track” screen (rename / reorder / reset, etc.).
+<br>A simple tap opens the player.
+]]></string>
 
 
 
