@@ -107,6 +107,7 @@ public class Folder implements Parcelable {
         // Default constructor required by Room
     }
 
+
     @Ignore
     protected Folder(Parcel in) {
         id = in.readInt();
