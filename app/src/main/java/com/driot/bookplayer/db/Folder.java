@@ -7,9 +7,12 @@ package com.driot.bookplayer.db;
 import static com.driot.bookplayer.global.Var.FOLDER_UNZIPPED;
 
 import android.content.Context;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
+import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 import com.driot.bookplayer.R;
@@ -23,7 +26,7 @@ import java.sql.Date;
 import java.sql.Time;
 
 @Entity
-public class Folder implements Serializable {
+public class Folder implements Parcelable {
 
     @PrimaryKey(autoGenerate = true)
     private int id;
@@ -99,6 +102,92 @@ public class Folder implements Serializable {
     /*
      * Getters and Setters
      * */
+
+    public Folder() {
+        // Default constructor required by Room
+    }
+
+    @Ignore
+    protected Folder(Parcel in) {
+        id = in.readInt();
+        name = in.readString();
+        path = in.readString();
+        uri = in.readString();
+        hash = in.readString();
+        position = in.readInt();
+        duration = in.readDouble();
+        percentdone = in.readByte() == 0 ? null : in.readDouble();
+        firstaccess = (Time) in.readSerializable();
+        lastaccess = (Date) in.readSerializable();
+        lastaccessTime = (Time) in.readSerializable();
+        iszipfile = in.readByte() != 0;
+        finished = in.readByte() != 0;
+        originalType = in.readString();
+        originalFile = in.readString();
+        originalHash = in.readString();
+        sourceLocation = in.readString();
+        listeningDuration = in.readLong();
+        listeningPlayCount = in.readLong();
+        nbZikFile = in.readLong();
+        date_added = in.readLong();
+        date_last_zikfile_added = in.readLong();
+        image = in.readString();
+        lFirstAccess = in.readByte() == 0 ? null : in.readLong();
+        lLastAccess = in.readLong();
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(id);
+        dest.writeString(name);
+        dest.writeString(path);
+        dest.writeString(uri);
+        dest.writeString(hash);
+        dest.writeInt(position);
+        dest.writeDouble(duration);
+        if (percentdone == null) {
+            dest.writeByte((byte) 0);
+        } else {
+            dest.writeByte((byte) 1);
+            dest.writeDouble(percentdone);
+        }
+        dest.writeByte((byte) (iszipfile ? 1 : 0));
+        dest.writeByte((byte) (finished ? 1 : 0));
+        dest.writeString(originalType);
+        dest.writeString(originalFile);
+        dest.writeString(originalHash);
+        dest.writeString(sourceLocation);
+        dest.writeLong(listeningDuration);
+        dest.writeLong(listeningPlayCount);
+        dest.writeLong(nbZikFile);
+        dest.writeLong(date_added);
+        dest.writeLong(date_last_zikfile_added);
+        dest.writeString(image);
+        if (lFirstAccess == null) {
+            dest.writeByte((byte) 0);
+        } else {
+            dest.writeByte((byte) 1);
+            dest.writeLong(lFirstAccess);
+        }
+        dest.writeLong(lLastAccess);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    public static final Creator<Folder> CREATOR = new Creator<Folder>() {
+        @Override
+        public Folder createFromParcel(Parcel in) {
+            return new Folder(in);
+        }
+
+        @Override
+        public Folder[] newArray(int size) {
+            return new Folder[size];
+        }
+    };
 
     public String getUri() {
         return uri;

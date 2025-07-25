@@ -1,6 +1,7 @@
 package com.driot.bookplayer.activities;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -12,6 +13,7 @@ import androidx.appcompat.app.AlertDialog;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
+import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
@@ -26,11 +28,13 @@ import static com.driot.bookplayer.utils.Utils.recursiveRemove;
  */
 public class FolderModifyActivity extends LoggingActivity {
 
-    private int idFolder;
-    private String FolderName;
+    private Folder folder;
 
     EditText etIntroCut;
     EditText etRename;
+
+    private static final int REQUEST_SELECT_IMAGE = 536861; //dummy code
+    private ImageView ivCoverPreview;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,12 +51,14 @@ public class FolderModifyActivity extends LoggingActivity {
         ImageView ivStorageIcon = findViewById(R.id.imageViewStorageIcon);
         TextView tvStorageIcon = findViewById(R.id.textViewStorageIcon);
 
-        idFolder = getIntent().getIntExtra("FolderId", 0);
-        FolderName = getIntent().getStringExtra("FolderName");
-        tvTitle.setText(FolderName);
+        folder = getIntent().getParcelableExtra("folder");
+        if (folder == null) {
+            throw new IllegalArgumentException("folder must not be null");
+        }
+        tvTitle.setText(folder.getName());
 
         etRename = findViewById(R.id.etRename);
-        etRename.setText(FolderName);
+        etRename.setText(folder.getName());
 
         //String importedOn = getString(R.string.ImportedOn) + " : " + getIntent().getStringExtra("ImportedOn");   /// Only time is saved in Folder, could get date from ZokFile
         //tvImportedOn.setText(importedOn);
@@ -72,9 +78,25 @@ public class FolderModifyActivity extends LoggingActivity {
         bExport.setOnClickListener(view -> bExportClick());
 
         etIntroCut = findViewById(R.id.etIntroCut);
-        etIntroCut.setText(String.valueOf(Pref.getIntroCutFromPref(this, idFolder)));
+        etIntroCut.setText(String.valueOf(Pref.getIntroCutFromPref(this, folder.getId())));
+
+        ivCoverPreview = findViewById(R.id.ivCoverPreview);
+        Button bChangeCover = findViewById(R.id.bChangeCover);
+
+        if (folder.image != null && !folder.image.isEmpty()) {
+            ivCoverPreview.setImageURI(Uri.parse(folder.image));
+        } else {
+            ivCoverPreview.setImageResource(R.drawable.placeholder_cover);
+        }
+
+        bChangeCover.setOnClickListener(view -> {
+            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+            intent.setType("image/*");
+            startActivityForResult(Intent.createChooser(intent, "Select Cover Image"), REQUEST_SELECT_IMAGE);
+        });
 
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN); // Avoid keyboard on opening
+
     }
 
     private void bDeleteClick() {
@@ -90,16 +112,16 @@ public class FolderModifyActivity extends LoggingActivity {
     private void deleteFolder() {
         String myErr = "Error getting uri from folder for deleting file in memory";
         new Thread(() -> {
-            String folderPath = AppDatabase.getDatabase(this).ZikFileDao().getFolderPath(idFolder);
+            String folderPath = AppDatabase.getDatabase(this).ZikFileDao().getFolderPath(folder.getId());
             if (!eraseFolderAndFiles(folderPath)) {
                 myLogE("Error deleting files from Disk");
             }
-            AppDatabase.getDatabase(this).FolderDao().delete(idFolder);
-            AppDatabase.getDatabase(this).ZikFileDao().deleteFolder(idFolder);
-            cancelAutoDownload(this, idFolder);
+            AppDatabase.getDatabase(this).FolderDao().delete(folder.getId());
+            AppDatabase.getDatabase(this).ZikFileDao().deleteFolder(folder.getId());
+            cancelAutoDownload(this, folder.getId());
             runOnUiThread(() -> {
                 myToast(getString(R.string.Folder_Deleted_DB));
-                myLog(getString(R.string.Folder_Deleted_DB) + " : " + FolderName);
+                myLog(getString(R.string.Folder_Deleted_DB) + " : " + folder.getName());
                 finish();
             });
         }).start();
@@ -142,11 +164,11 @@ public class FolderModifyActivity extends LoggingActivity {
             myToast(getString(R.string.Error_FolderNameTooShort));
         } else {
             new Thread(() -> {
-                AppDatabase.getDatabase(this).FolderDao().changeName(idFolder, newName);
-                AppDatabase.getDatabase(this).FolderDao().updateFolderNameInZikFile(idFolder, newName);
+                AppDatabase.getDatabase(this).FolderDao().changeName(folder.getId(), newName);
+                AppDatabase.getDatabase(this).FolderDao().updateFolderNameInZikFile(folder.getId(), newName);
                 runOnUiThread(() -> {
                     myToast(getString(R.string.Folder_Renamed));
-                    myLogInFile(getString(R.string.Folder_Renamed) + " : [" + FolderName + "] - > [" + newName + "]");
+                    myLogInFile(getString(R.string.Folder_Renamed) + " : [" + folder.getName() + "] - > [" + newName + "]");
                     finish();
                 });
             }).start();
@@ -165,7 +187,7 @@ public class FolderModifyActivity extends LoggingActivity {
 
     private void bExportClick() {
         Intent intent = new Intent(this, ExportActivity.class);
-        intent.putExtra(ExportActivity.EXTRA_FOLDER_ID, idFolder);
+        intent.putExtra(ExportActivity.EXTRA_FOLDER_ID, folder.getId());
         this.startActivity(intent);
     }
 
@@ -173,10 +195,10 @@ public class FolderModifyActivity extends LoggingActivity {
     private void resetFolder() {
         myLog("resetFolder()");
         new Thread(() -> {
-            AppDatabase.getDatabase(this).FolderDao().resetProgression(idFolder);
-            AppDatabase.getDatabase(this).ZikFileDao().resetFolderProgression(idFolder);
+            AppDatabase.getDatabase(this).FolderDao().resetProgression(folder.getId());
+            AppDatabase.getDatabase(this).ZikFileDao().resetFolderProgression(folder.getId());
             runOnUiThread(() -> {
-                myLogInFile(getString(R.string.Folder_Reset) + " : " + FolderName);
+                myLogInFile(getString(R.string.Folder_Reset) + " : " + folder.getName());
                 myToast(getString(R.string.Folder_Reset));
                 finish();
             });
@@ -191,14 +213,14 @@ public class FolderModifyActivity extends LoggingActivity {
         } catch (Exception e) {
             myLogE("Bad introCut value");
         }
-        Pref.saveIntroCutToPref(this, idFolder, introCut);
+        Pref.saveIntroCutToPref(this, folder.getId(), introCut);
         super.onDestroy();
     }
 
     @Override
     public void onBackPressed() {
         String newName = ((TextView) findViewById(R.id.etRename)).getText().toString().trim();
-        if (!newName.equals(FolderName)) {
+        if (!newName.equals(folder.getName())) {
             new AlertDialog.Builder(this)
                     .setTitle(R.string.AskRename_popupTitle)
                     .setMessage(getString(R.string.AskRename_Book) + "\n[ " + newName + " ]")

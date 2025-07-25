@@ -126,15 +126,7 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
         public boolean onLongClick(View view) {
             myLogI("onLongClick");
             Folder folder = FolderList.get(getBindingAdapterPosition());
-            mCtx.startActivity(new Intent(mCtx, FolderModifyActivity.class)
-                    .putExtra("FolderName", folder.getName())
-                    .putExtra("FolderId", folder.getId())
-                    .putExtra("ImportedOn", folder.getFirstaccess())
-                    .putExtra("LastAccessInDays",  formatLastAccessInDays(folder.getLastaccess()))
-                    .putExtra("LastAccess",  FormatLastAccess(folder.getLastaccess(), folder.getLastaccessTime(), mCtx.getString(R.string.yesterday)))
-                    .putExtra("MemoryLocation", folder.getMemoryLocationIcon(mCtx))
-                    .putExtra("MemoryLocationText", folder.getMemoryLocationText(mCtx))
-            );
+            mCtx.startActivity(new Intent(mCtx, FolderModifyActivity.class).putExtra("folder", folder));
             return false;
         }
 

@@ -93,6 +93,39 @@
         <View style="@style/myStyleViewSimpleHorizontalBar" />
 
         <TextView
+            android:text="@string/Change_cover_image"
+            style="@style/OptionTitle"
+            android:layout_marginTop="20dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="20dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="20dp"
+            android:layout_marginBottom="20dp">
+
+            <ImageView
+                android:id="@+id/ivCoverPreview"
+                android:layout_width="150dp"
+                android:layout_height="150dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/placeholder_cover" />
+
+            <Button
+                android:id="@+id/bChangeCover"
+                android:text="@string/Change"
+                android:layout_marginStart="20dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <View style="@style/myStyleViewSimpleHorizontalBar" />
+
+        <TextView
             android:id="@+id/IntroCutText"
             android:text="@string/IntroCut"
             style="@style/OptionTitle"

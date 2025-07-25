@@ -580,6 +580,9 @@
     <string name="DirectDownload_hint">https://bookplayer.driot.com/audiobook630.zip</string>
     <string name="LibrivoxSearch_title">"AudioBooks"</string>
     <string name="LibrivoxSearch_desc">"Search directly on LibriVox to find your audiobook. It's a free, public‑domain repository with mostly English works and some available in other languages."</string>
+    <string name="Change_cover_image">"Change Cover Image"</string>
+    <string name="Change">"Change"</string>
+
 
 
 
