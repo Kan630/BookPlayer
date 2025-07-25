@@ -111,8 +111,8 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
         boolean isDownloaded = (downloadedFile != null);
 
         //myLogW(podcastFeed.title + " - " + episodeFileName);
-        //TODO  //not good, if foldername changes, you loose the zikFile,  you need folderID, or feedID or whatever
-        //TODO you need to match an episode with a ZikFile.... maybe we should have feedID or episodeID in ZikFile table....
+        //TODO  //not good, if foldername changes, you loose the zikFile, (and if zikfile name changes...)  you need folderID, or feedID or whatever
+        //TODO you need to match an episode with a ZikFile, (like the Folder with the Podcast).... maybe we should have feedID or episodeID in ZikFile table...., and a failback on checking names if id changes (should not happen but who knows)?
         LiveData<ZikFile> liveZikFile = viewModel.getZikFileLive(podcastFeed.title, episodeFileName); //changed from full path to just folder name, to deal with multiple locations
         liveZikFile.removeObservers(lifecycleOwner); //not sure it is usefull
         holder.icon_1.setTag(episodeFileName); // ---- avoid stop flickers on another completion -- Sometimes the LiveData callback gets called even after the view has been recycled
