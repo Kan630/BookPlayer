@@ -27,11 +27,11 @@ public class Sql {
                 "    SELECT CASE WHEN SUM(duration) > 0 THEN SUM(percentdone * duration) / SUM(duration) ELSE 0 END " +
                 "    FROM ZikFile WHERE ZikFile.idFolder = Folder.id" +
                 "  ), " +
-                "  LastAccess = (SELECT MAX(lastAccess) FROM ZikFile WHERE ZikFile.idFolder = Folder.id), " +
-                "  FirstAccess = (" +
+                "  lLastAccess = (SELECT MAX(lLastAccess) FROM ZikFile WHERE ZikFile.idFolder = Folder.id), " +
+                "  lFirstAccess = (" +
                 "    SELECT CASE " +
-                "      WHEN Folder.FirstAccess IS NOT NULL THEN Folder.FirstAccess " +
-                "      ELSE (SELECT MIN(firstAccess) FROM ZikFile WHERE ZikFile.idFolder = Folder.id) " +
+                "      WHEN Folder.lFirstAccess IS NOT NULL THEN Folder.lFirstAccess " +
+                "      ELSE (SELECT MIN(lFirstAccess) FROM ZikFile WHERE ZikFile.idFolder = Folder.id) " +
                 "    END" +
                 "  ), " +
                 "  date_last_zikfile_added = (SELECT MAX(date_added) FROM ZikFile WHERE ZikFile.idFolder = Folder.id) " +
@@ -55,8 +55,6 @@ public class Sql {
                 " SET percentdone = (SELECT SUM(percentdone*duration)/SUM(duration) " +
                 "                   FROM ZikFile " +
                 "                   WHERE Folder.id = ZikFile.idFolder )" +
-                "   , LastAccess = strftime('%s','now') * 1000" +
-                "   , LastAccessTime = strftime('%s','now') * 1000 " +
                 "   , lLastAccess = strftime('%s','now') * 1000 " +
                 " WHERE Folder.id = " + idFolder;
 

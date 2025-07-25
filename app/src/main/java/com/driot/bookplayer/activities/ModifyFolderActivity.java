@@ -1,5 +1,6 @@
 package com.driot.bookplayer.activities;
 
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -10,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.FileProvider;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
@@ -70,11 +72,14 @@ public class ModifyFolderActivity extends LoggingActivity {
         myLog("Audio Location : " + memoryLocationText + " - Icon : [" + memoryLocationIcon + "]" );
         ivStorageIcon.setImageResource(memoryLocationIcon);
         tvStorageIcon.setText(memoryLocationText);
+        ivStorageIcon.setOnClickListener(view -> {
+            openFolderInFileExplorer(folder.getUri());
+        });
 
         String info = "";
         info = info + getString(R.string.Added) + " : " + Tonio.formatLastAccessAsDate(folder.date_added);
         info = info + "\n" + getString(R.string.LastAccess) + " : " + Tonio.formatLastAccessInDays(folder.lLastAccess) + " (" + Tonio.formatLastAccess(folder.lLastAccess,this) + ")";
-        info = info + "\n" + Tonio.FormatPercentString(folder.getPercentdone()) + " " + getString(R.string.listened);
+        info = info + "\n" + Tonio.formatTime(folder.getDuration()) + "  .  " + folder.nbZikFile + " " + getString(R.string.audio_tracks) + "  .  " + Tonio.FormatPercentString(folder.getPercentdone()) + " " + getString(R.string.listened);;
         tvInfo.setText(info);
 
         bDelete.setOnClickListener(view -> bDeleteClick());
@@ -274,5 +279,40 @@ public class ModifyFolderActivity extends LoggingActivity {
         }
     }
 
+
+    private void openFolderInFileExplorer(String pathOrUri) {
+        myLog(pathOrUri);
+        /*
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+
+        Uri uri;
+        if (pathOrUri.startsWith("content://")) {
+            uri = Uri.parse(pathOrUri);
+        } else {
+            File file = new File(pathOrUri).getParentFile();
+            if (!file.exists()) {
+                myToastE("Folder does not exist");
+                return;
+            }
+            uri = FileProvider.getUriForFile(
+                    this,
+                    getApplicationContext().getPackageName() + ".FileProvider",
+                    file
+            );
+        }
+*/
+        //intent.setDataAndType(uri, "*/*");
+        /*
+        intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+        try {
+            startActivity(intent);
+        } catch (ActivityNotFoundException e) {
+            myToastE("No file explorer found to open this folder");
+        }
+        */
+
+    }
 
 }

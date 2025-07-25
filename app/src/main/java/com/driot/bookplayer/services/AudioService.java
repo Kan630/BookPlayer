@@ -950,7 +950,7 @@ public class AudioService extends LoggingService {
     private void updateZikFileState(boolean bFinished) {
         ZikFile zf = getCurrentZikFile();
         try {
-            if (zf.lFirstAccess == 0) {
+            if (zf.lFirstAccess == null || zf.lFirstAccess == 0) {
                 zf.lFirstAccess = System.currentTimeMillis();
             }
             zf.lLastAccess = System.currentTimeMillis();

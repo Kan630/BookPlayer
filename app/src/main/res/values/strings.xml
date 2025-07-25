@@ -507,6 +507,7 @@
     <string name="Change_cover_image">"Change Cover Image"</string>
     <string name="Change">"Change"</string>
     <string name="listened">"listened"</string>
+    <string name="audio_tracks">"audio tracks"</string>
     <string name="Added">"Added"</string>
     <string name="AskRename_Track">Rename this track to</string>
 
