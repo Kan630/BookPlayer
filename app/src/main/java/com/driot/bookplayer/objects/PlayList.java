@@ -3,6 +3,9 @@ package com.driot.bookplayer.objects;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.driot.bookplayer.db.AppDatabase;
+import com.driot.bookplayer.db.Folder;
+import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.utils.KanLogger;
 
@@ -25,6 +28,17 @@ public class PlayList {
     private int numZikFile = -1;
     private static Context appContext;
 
+    private Folder folder;
+    private Podcast podcast;
+    private boolean isPodcast;
+
+    // Listener Interface, so that I can be sure Folder and Podcast are loaded when I call them (like in Play Activity)
+    public interface OnMetaLoadedListener {
+        void onMetaLoaded(Folder folder, Podcast podcast, boolean isPodcast);
+    }
+    private OnMetaLoadedListener metaLoadedListener;
+    private boolean isMetaLoaded = false;
+
     private static final String SHARED_PREFERENCE_CURRENT_PLAYLIST = "SHARED_PREFERENCE_CURRENT_PLAYLIST";
     private static final String KEY_ZIK_FILES_LIST = "KEY_ZIK_FILES_LIST";
     private static final String KEY_ZIK_FILE = "KEY_ZIK_FILE";
@@ -37,7 +51,29 @@ public class PlayList {
 
     // --- Constructor ---
     private PlayList(List<ZikFile> zikFilesList) {
+        if (zikFilesList == null || zikFilesList.isEmpty()) {
+            throw new IllegalStateException("PlayList Constructor : zikFilesList == null || zikFilesList.isEmpty().");
+        }
         this.zikFilesList = zikFilesList;
+        AppDatabase.databaseReadExecutor.execute(() -> {
+            this.folder = AppDatabase.getDatabase(appContext).FolderDao().getById(zikFilesList.get(0).getIdFolder());
+            if (folder == null) {
+                throw new IllegalStateException("PlayList Constructor : folder == null");
+            }
+            this.podcast = AppDatabase.getDatabase(appContext).PodcastDao().getPodcastByFolderId(this.folder.getId());
+            this.isPodcast = this.podcast != null;
+            this.isMetaLoaded = true;
+
+            if (metaLoadedListener != null) {
+                metaLoadedListener.onMetaLoaded(folder, podcast, isPodcast);
+            }
+        });
+    }
+    public void setOnMetaLoadedListener(OnMetaLoadedListener listener) {
+        this.metaLoadedListener = listener;
+        if (isMetaLoaded && folder != null) {
+            listener.onMetaLoaded(folder, podcast, isPodcast); // if already ready
+        }
     }
 
     // --- Called ONLY from FolderAdapter ---
@@ -129,6 +165,20 @@ public class PlayList {
         }
     }
 
+    public Folder getFolder() {
+        return folder;
+    }
+    public Podcast getPodcast() {
+        return podcast;
+    }
+    public boolean isPodcast() {
+        return isPodcast;
+    }
+
+    //------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     // --- Save and load ---
     private void saveToStorage() {
         SharedPreferences prefs = appContext.getSharedPreferences(SHARED_PREFERENCE_CURRENT_PLAYLIST, Context.MODE_PRIVATE);

@@ -75,6 +75,8 @@ public class PodcastSyncWorker extends Worker {
             //update Podcast with folderId
             podcastDao.updateFolderIdByFeedId(feedId, newId);
 
+            myLog("New Podcast folder added to DB : [" + name + "] - FolderId=[" + idFolder + "] - feedId=[" + feedId + "]");
+
         }
 
         // 2. Scan files

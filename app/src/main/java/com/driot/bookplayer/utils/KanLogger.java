@@ -32,7 +32,7 @@ public class KanLogger {
 
 
     private static final boolean LOG_DEBUG = true;
-    public static final boolean LOG_LIFECYCLE_TRACE = true;
+    public static final boolean LOG_LIFECYCLE_TRACE = false;
 
 
     private static final String PREFIX_DELETE = "com.driot.bookplayer.";

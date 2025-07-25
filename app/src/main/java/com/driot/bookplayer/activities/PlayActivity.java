@@ -23,8 +23,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.db.AppDatabase;
-import com.driot.bookplayer.db.Folder;
+import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.objects.PlayList;
 import com.driot.bookplayer.services.AudioService;
@@ -105,6 +104,8 @@ public class PlayActivity extends LoggingActivity {
             ,NOTIFICATION_NEWTRACK //useless ?
     };
 
+    private long PodcastLastClickTime = 0;
+    private static final long PODCAST_DOUBLE_CLICK_THRESHOLD = 300;
 
     /********************************************************************************
      ***       SERVICE
@@ -230,14 +231,17 @@ public class PlayActivity extends LoggingActivity {
 
         ImageView imFolderImage = findViewById(R.id.folderImage);
 
-        AppDatabase.databaseWriteExecutor.execute(() -> {
-            Folder folder = AppDatabase.getDatabase(this).FolderDao().getById(PlayList.getInstance().getZikFile().getIdFolder());
+        if (PlayList.getInstance() == null) {
+            myToast("error getting Playlist");
+            myLogEE(null,"onCreate() -- cancelling since PlayList.getInstance() == null");
+            finish();
+        }
+        PlayList.getInstance().setOnMetaLoadedListener((folder, podcast, isPodcast) -> {
+            // Playlist objects are all loaded
             if (folder.image != null && !folder.image.isEmpty()) {
                 imFolderImage.setImageURI(Uri.parse(folder.image));
                 imFolderImage.setVisibility(View.VISIBLE);
                 frequencyVisualizerView.setAlpha(0.6f);
-
-                // for debug
                 try {
                     File imageFile = new File(folder.image);
                     myLogD("Image found : " + imageFile.getName() + " - " + getReadableSize(imageFile.length()));
@@ -245,18 +249,16 @@ public class PlayActivity extends LoggingActivity {
                     myLogE("image debug ko");
                 }
 
-
+                if (isPodcast) {
+                    myLogD("Is Podcast");
+                    tvTitle.setOnClickListener(v -> {handlePodcastClick(podcast);});
+                    tvSubTitle.setOnClickListener(v -> {handlePodcastClick(podcast);});
+                }
             } else {
                 imFolderImage.setVisibility(View.GONE);
                 frequencyVisualizerView.setAlpha(1f); // fully opaque
             }
         });
-
-        if (PlayList.getInstance() == null) {
-            myToast("error getting Playlist");
-            myLogEE(null,"onCreate() -- cancelling since PlayList.getInstance() == null");
-            finish();
-        }
 
         myLog("onCreate() -- Launching Music Service");
         launchService();
@@ -730,5 +732,15 @@ public class PlayActivity extends LoggingActivity {
             myLogEE(e,"openAppSettingsOnPhone()");
         }
     }
+
+    private void handlePodcastClick(Podcast podcast) {
+        long currentTime = System.currentTimeMillis();
+        if (currentTime - PodcastLastClickTime < PODCAST_DOUBLE_CLICK_THRESHOLD) {
+            startActivity(new Intent(this, PodcastEpisodeActivity.class).putExtra("podcast", podcast));
+        }
+        PodcastLastClickTime = currentTime;
+    }
+
+
 
 }

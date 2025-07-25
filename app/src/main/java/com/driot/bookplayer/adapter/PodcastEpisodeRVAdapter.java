@@ -140,7 +140,7 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
                 holder.icon_1.setVisibility(View.VISIBLE);
                 holder.icon_1.setColorFilter(ContextCompat.getColor(context, R.color.pastel_blue_300));
                 holder.icon_1.setOnClickListener(v -> {
-                    myLog("---- USER CLICKS ----- Downloading single episode: " + episode.title);
+                    myLogI("---- USER CLICKS ----- Downloading single episode: " + episode.title);
                     addPodcastToDB();
                     if (holder.flickerAnim == null) {
                         holder.flickerRunning = true;

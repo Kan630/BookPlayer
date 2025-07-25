@@ -329,6 +329,11 @@ public class PodcastEpisodeActivity extends LoggingActivity {
         if (podcast == null) {
             AppDatabase.databaseReadExecutor.execute(() -> {
                 podcast = AppDatabase.getDatabase(this).PodcastDao().getPodcastByFeedId(podcastFeed.id);
+                if (podcast == null) {
+                    myLog("podcast == null");
+                } else {
+                    goToPlaySection2();
+                }
             });
         } else {
             goToPlaySection2();
