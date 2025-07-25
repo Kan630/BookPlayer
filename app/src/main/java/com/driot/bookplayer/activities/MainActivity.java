@@ -5,6 +5,7 @@ package com.driot.bookplayer.activities;
  */
 
 
+import static com.driot.bookplayer.db.DatabaseBackupHelper.getSQLiteVersion;
 import static com.driot.bookplayer.global.Pref.shouldCheckApiForAutoDownload;
 import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_SINCE_DEBUG;
 import static com.driot.bookplayer.utils.KanLogger.isMyPhoneDev;
@@ -57,6 +58,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.driot.bookplayer.BuildConfig;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.adapter.FoldersRVAdapter;
+import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.FolderDao;

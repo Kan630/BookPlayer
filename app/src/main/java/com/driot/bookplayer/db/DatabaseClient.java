@@ -6,10 +6,12 @@ package com.driot.bookplayer.db;
 
 import static com.driot.bookplayer.db.AppDatabase.APP_DATABASE_VERSION;
 import static com.driot.bookplayer.db.DatabaseBackupHelper.backupDatabase;
+import static com.driot.bookplayer.db.DatabaseBackupHelper.getSQLiteVersion;
 
 import android.content.Context;
 
 import androidx.room.Room;
+import androidx.sqlite.db.SupportSQLiteDatabase;
 
 import com.driot.bookplayer.utils.KanLogger;
 
@@ -64,8 +66,10 @@ public class DatabaseClient {
                             , DatabaseMigrations.MIGRATION_7_8
                     ).build();
 
-            // Force early access to trigger DB open and migrations
-            appDatabase.getOpenHelper().getWritableDatabase();
+            // Force early access to trigger DB open and migrations (and also check SQL version)
+            SupportSQLiteDatabase db = appDatabase.getOpenHelper().getWritableDatabase();
+            myLog("SQL lite version = " + getSQLiteVersion(db));
+
 
         } catch (Exception e) {
             myLogEE(e, "Database will CRASH !! - current version : " + currentVersion + " - code version : " + APP_DATABASE_VERSION);

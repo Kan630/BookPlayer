@@ -36,7 +36,7 @@ public class DatabaseMigrations {
             database.execSQL("ALTER TABLE Folder ADD COLUMN listeningPlayCount INTEGER NOT NULL default 0");
         }
     };
-    //Class Object = EXPECTED   ;    MIGRATION = FOUND (2nd part in log message)
+    //EXPECTED = Class Object   ;    MIGRATION = FOUND (2nd part in log message)
     static final Migration MIGRATION_4_5 = new Migration(4, 5) {
         @Override
         public void migrate(SupportSQLiteDatabase database) {

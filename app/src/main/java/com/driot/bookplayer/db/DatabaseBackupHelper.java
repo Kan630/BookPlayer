@@ -3,8 +3,11 @@ package com.driot.bookplayer.db;
 import static com.driot.bookplayer.db.DatabaseClient.DATABASE_NAME;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Environment;
+
+import androidx.sqlite.db.SupportSQLiteDatabase;
 
 import com.driot.bookplayer.utils.KanLogger;
 
@@ -81,6 +84,16 @@ public class DatabaseBackupHelper {
         }
     }
 
+    public static String getSQLiteVersion(SupportSQLiteDatabase db) {
+        try (Cursor cursor = db.query("SELECT sqlite_version() AS sqlite_version")) {
+            if (cursor.moveToFirst()) {
+                return cursor.getString(0);
+            }
+        } catch (Exception e) {
+            myLogE("Failed to get SQLite version : " + e.getMessage());
+        }
+        return "unknown";
+    }
 
     // ----------------------- LOG -----------------------
     private static final String TAG = "DatabaseBackupHelper";

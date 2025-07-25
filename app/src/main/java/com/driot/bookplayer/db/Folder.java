@@ -88,6 +88,12 @@ public class Folder implements Parcelable {
 
     public long lLastAccess;
 
+    @Deprecated
+    public Long firstaccess;
+    @Deprecated
+    public Long lastaccess;
+    @Deprecated
+    public Long lastaccessTime;
 
 
     /*
