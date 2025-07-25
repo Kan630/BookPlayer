@@ -90,8 +90,8 @@ public class CacheFilesActivity extends LoggingActivity implements CacheFilesRVA
 
         String sdPath = StorageHelper.getSdCardUnzippedFolder(this);
         if (sdPath == null) {
-            myLogI("no SD card");
-            radioSdCard.setEnabled(false);
+            myLogD("no SD card => hide storageSelector");
+            radioSdCard.setVisibility(View.GONE);
         }
 
         storageSelector.setOnCheckedChangeListener((group, checkedId) -> {
