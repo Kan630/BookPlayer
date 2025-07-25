@@ -1,6 +1,7 @@
 package com.driot.bookplayer.utils;
 
 import static com.driot.bookplayer.global.Var.FOLDER_DOWNLOAD;
+import static com.driot.bookplayer.global.Var.FOLDER_IMAGE;
 import static com.driot.bookplayer.global.Var.FOLDER_UNZIPPED;
 import static com.driot.bookplayer.utils.KanFiles.sanitizeFilename;
 
@@ -70,6 +71,12 @@ public class StorageHelper {
     public static String getDownloadFolderPath(Context context) {
         return getDownloadFolder(context).getAbsolutePath();
     }
+
+    // IMAGES
+    public static File getImageFolder(Context context) {
+        return getFolder(context, FOLDER_IMAGE, false);
+    }
+
 
     // === GENERIC FOLDER RESOLVER ===
     public static File getFolder(Context context, String subfolder, boolean useSdCard) {
@@ -165,6 +172,8 @@ public class StorageHelper {
             return -1;
         }
     }
+
+
 
     // === LOGGING ===
     // ----------------------- LOG -----------------------

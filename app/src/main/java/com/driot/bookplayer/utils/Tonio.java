@@ -16,9 +16,12 @@ import android.webkit.MimeTypeMap;
 import androidx.annotation.NonNull;
 import androidx.documentfile.provider.DocumentFile;
 
+import com.driot.bookplayer.R;
+
 import java.io.File;
 import java.sql.Date;
 import java.sql.Time;
+import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -165,7 +168,7 @@ public class Tonio {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd-HH'h'mm'm'ss's'", Locale.US);
         return sdf.format(new java.util.Date());
     }
-    public static String formatLastAccess(Long lastAccess, String nameForYesterday) {
+    public static String formatLastAccess(Long lastAccess, Context context) {
         String s;
         if (lastAccess!= null && lastAccess > 0) {
             Date accessDate = new Date(lastAccess);
@@ -184,7 +187,7 @@ public class Tonio {
                 SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
                 s = timeFormat.format(accessDate);
             } else if (accessDay.equals(yesterdayDay)) {
-                s = nameForYesterday;
+                s = context.getString(R.string.yesterday);
             } else if ((today.getTime() - accessDate.getTime()) / (1000 * 60 * 60 * 24) < 7) {
                 SimpleDateFormat weekdayFormat = new SimpleDateFormat("EEEE", Locale.getDefault());
                 s = weekdayFormat.format(accessDate);
@@ -221,6 +224,19 @@ public class Tonio {
         return zeReturn;
     }
 
+    public static String formatLastAccessAsDate(Long lastAccess) {
+        if (lastAccess == null || lastAccess <= 0) {
+            return "Never accessed";
+        }
+
+        try {
+            Date date = new Date(lastAccess);
+            DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.MEDIUM, Locale.getDefault());
+            return dateFormat.format(date);
+        } catch (Exception e) {
+            return "Invalid date";
+        }
+    }
 
     public static String getFileNameFromPath(String fileName) {
         File file = new File(fileName);

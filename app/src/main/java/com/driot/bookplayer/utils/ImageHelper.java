@@ -21,13 +21,16 @@ import java.net.URL;
 import java.util.List;
 
 public class ImageHelper {
+
+    public static final int MAX_IMAGE_WIDTH = 1280;
+    public static final int MAX_IMAGE_HEIGHT = 1280;
+
     public static final String PODCAST_IMAGE_PREFIX = "podcast_feed_";
     public static final String FOLDER_IMAGE_PREFIX = "folder_id_";
     public static final String LIBRIVOX_IMAGE_PREFIX = "librivox_img_";
-    public static final String IMAGE_FOLDER = "images";
 
     public static File getImageFile(Context context, long id, boolean isFolder) {
-        File dir = new File(context.getFilesDir(), IMAGE_FOLDER);
+        File dir = StorageHelper.getImageFolder(context);
         if (!dir.exists()) dir.mkdirs();
         String prefix = isFolder ? FOLDER_IMAGE_PREFIX : PODCAST_IMAGE_PREFIX;
         return new File(dir, prefix + id + ".jpg");
@@ -49,7 +52,7 @@ public class ImageHelper {
                 originalOut.write(buffer, 0, len);
             }
             in.close();
-            myLogI("Saved image to: " + imagePath + " - " + (new File(new File(context.getFilesDir(), IMAGE_FOLDER), imagePath).length() / 1024) + "KB");
+            myLogI("Saved image to: " + imagePath + " - " + (new File(StorageHelper.getImageFolder(context), imagePath).length() / 1024) + "KB");
 
             byte[] originalBytes = originalOut.toByteArray();
             if (originalBytes.length / 1024 <= MAX_IMAGE_SIZE_KB) {
@@ -70,7 +73,7 @@ public class ImageHelper {
 
 
     private static String saveBytesToFile(Context context, byte[] data, String imagePath) throws IOException {
-        File dir = new File(context.getFilesDir(), IMAGE_FOLDER);
+        File dir = StorageHelper.getImageFolder(context);
         if (!dir.exists()) dir.mkdirs();
 
         File imageFile = new File(dir, imagePath);
@@ -125,7 +128,7 @@ public class ImageHelper {
 
     public static String getOrDownloadLibrivoxImage(Context context, String identifier, String imageUrl, boolean forceDownload) {
         String imagePath = LIBRIVOX_IMAGE_PREFIX + identifier + ".jpg";
-        File imageFile = new File(context.getFilesDir(), IMAGE_FOLDER + "/" + imagePath);
+        File imageFile = new File(StorageHelper.getImageFolder(context), imagePath);
 
         if (imageFile.exists() && !forceDownload) {
             myLogD("Librivox image already exists: " + imageFile.getAbsolutePath());
@@ -137,12 +140,12 @@ public class ImageHelper {
     }
 
     public static File getLibrivoxImageFile(Context context, String identifier) {
-        File dir = new File(context.getFilesDir(), IMAGE_FOLDER);
+        File dir = StorageHelper.getImageFolder(context);
         return new File(dir, LIBRIVOX_IMAGE_PREFIX + identifier + ".jpg");
     }
 
 
-    private static String copyContentUriToImageFile(Context context, String contentUriString, String outputFileName) {
+    public static String copyContentUriToImageFile(Context context, String contentUriString, String outputFileName) {
         try {
             Uri uri = Uri.parse(contentUriString);
             InputStream in = context.getContentResolver().openInputStream(uri);
@@ -159,20 +162,55 @@ public class ImageHelper {
             byte[] imageBytes = out.toByteArray();
             if (imageBytes.length / 1024 <= MAX_IMAGE_SIZE_KB) {
                 return saveBytesToFile(context, imageBytes, outputFileName);
-            } else {
-                myLogI("Content image too big, compressing...");
-                Bitmap bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
-                ByteArrayOutputStream compressedOut = new ByteArrayOutputStream();
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 75, compressedOut);
-                return saveBytesToFile(context, compressedOut.toByteArray(), outputFileName);
             }
+
+            myLog("Content image too big (" + imageBytes.length / 1024 + "KB), compressing...");
+
+            Bitmap originalBitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
+            Bitmap resizedBitmap = resizeIfNeeded(originalBitmap);
+
+            int quality = 75;
+            byte[] compressedBytes;
+
+            do {
+                ByteArrayOutputStream compressedOut = new ByteArrayOutputStream();
+                resizedBitmap.compress(Bitmap.CompressFormat.JPEG, quality, compressedOut);
+                compressedBytes = compressedOut.toByteArray();
+                quality -= 15;
+                myLogD("pic compressed to " + compressedBytes.length / 1024 + "KB, quality: " + quality + "%");
+            } while (compressedBytes.length / 1024 > MAX_IMAGE_SIZE_KB && quality >= 40);
+
+            return saveBytesToFile(context, compressedBytes, outputFileName);
+
         } catch (Exception e) {
             myLogEE(e, "copyContentUriToImageFile() failed for: " + contentUriString);
             return null;
         }
     }
+
+
     private static boolean isContentUri(String s) {
         return s != null && s.startsWith("content://");
+    }
+
+    private static Bitmap resizeIfNeeded(Bitmap original) {
+        int width = original.getWidth();
+        int height = original.getHeight();
+
+        if (width <= MAX_IMAGE_WIDTH && height <= MAX_IMAGE_HEIGHT) {
+            return original; // No need to resize
+        }
+
+        float widthRatio = (float) MAX_IMAGE_WIDTH / width;
+        float heightRatio = (float) MAX_IMAGE_HEIGHT / height;
+        float scaleRatio = Math.min(widthRatio, heightRatio); // preserve aspect ratio
+
+        int newWidth = Math.round(width * scaleRatio);
+        int newHeight = Math.round(height * scaleRatio);
+
+        myLogD("Resizing image from " + width + "x" + height + " to " + newWidth + "x" + newHeight);
+
+        return Bitmap.createScaledBitmap(original, newWidth, newHeight, true);
     }
 
     // ----------------------- LOG -----------------------

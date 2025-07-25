@@ -127,7 +127,7 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
                 holder.zikFile = zikFile;
                 String percentDone = String.format(Locale.US, "%.0f", zikFile.getPercentdone());
                 String lastAdded = "Added : " + android.text.format.DateFormat.format("yyyy-MM-dd HH:mm", zikFile.date_added);
-                String stats2 = percentDone + "% listened\n" + lastAdded;
+                String stats2 = percentDone + "% " + ContextCompat.getString(context, R.string.listened) + "\n" + lastAdded;
                 holder.tvEpisodeDBStats.setText(stats2);
                 holder.icon_1.setVisibility(View.VISIBLE);
                 holder.icon_1.setColorFilter(ContextCompat.getColor(context, R.color.green_300));

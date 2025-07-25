@@ -23,6 +23,12 @@
         <item name="android:textSize">24sp</item>
     </style>
 
+    <style name="myStyleBigTitle" parent="textColor">
+        <item name="android:textAlignment">center</item>
+        <item name="android:textSize">28sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
     <style name="myStyleInfo" parent="textColor">
         <item name="android:textSize">12sp</item>
     </style>

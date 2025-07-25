@@ -35,9 +35,9 @@ public class LoadBookTaskState implements Parcelable {
     protected LoadBookTaskState(Parcel in) {
         uri = in.readParcelable(Uri.class.getClassLoader());  // ✅ Read Uri
         type = in.readString();
-        title = in.readString();
-        futureFolderName = in.readString();
-        futureFolderPath = in.readString();
+        title = trimOrNull(in.readString());
+        futureFolderName = trimOrNull(in.readString());
+        futureFolderPath = trimOrNull(in.readString());
         optionSplit = in.readByte() != 0;
         optionCopy = in.readByte() != 0;
         optionDelete = in.readByte() != 0;
@@ -115,6 +115,10 @@ public class LoadBookTaskState implements Parcelable {
                 ", onGoing=" + onGoing +
                 ", imagePath='" + imagePath + '\'' +
                 '}';
+    }
+
+    private static String trimOrNull(String s) {
+        return s == null ? null : s.trim();
     }
 
     ////////////////////////////////////////////////////////

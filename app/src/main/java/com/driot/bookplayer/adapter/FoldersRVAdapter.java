@@ -17,7 +17,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.activities.FolderModifyActivity;
+import com.driot.bookplayer.activities.ModifyFolderActivity;
 import com.driot.bookplayer.activities.PlayActivity;
 import com.driot.bookplayer.activities.ZikFileActivity;
 import com.driot.bookplayer.db.AppDatabase;
@@ -60,7 +60,7 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
 
         holder.mProgressBar.setProgress(FormatPercentForProgressBar(folder.getPercentdone()));
 
-        holder.textViewFileLastAccess.setText(Tonio.formatLastAccess(folder.lLastAccess, mCtx.getString(R.string.yesterday)));
+        holder.textViewFileLastAccess.setText(Tonio.formatLastAccess(folder.lLastAccess, mCtx));
 
         holder.textViewDuration.setText(formatTime(folder.getDuration()));
 
@@ -125,7 +125,7 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
         public boolean onLongClick(View view) {
             myLogI("onLongClick");
             Folder folder = FolderList.get(getBindingAdapterPosition());
-            mCtx.startActivity(new Intent(mCtx, FolderModifyActivity.class).putExtra("folder", folder));
+            mCtx.startActivity(new Intent(mCtx, ModifyFolderActivity.class).putExtra("folder", folder));
             return false;
         }
 

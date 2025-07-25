@@ -15,9 +15,15 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.global.Pref;
+import com.driot.bookplayer.utils.ImageHelper;
+import com.driot.bookplayer.utils.StorageHelper;
+import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 import static com.driot.bookplayer.global.Var.PATH_CHECK_APPLICATION;
 import static com.driot.bookplayer.utils.PodcastHelper.cancelAutoDownload;
@@ -26,7 +32,7 @@ import static com.driot.bookplayer.utils.Utils.recursiveRemove;
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 15/11/20
  */
-public class FolderModifyActivity extends LoggingActivity {
+public class ModifyFolderActivity extends LoggingActivity {
 
     private Folder folder;
 
@@ -45,8 +51,7 @@ public class FolderModifyActivity extends LoggingActivity {
         Button bReset = findViewById(R.id.bReset);
         Button bExport = findViewById(R.id.bExport);
         TextView tvTitle = findViewById(R.id.title);
-        //TextView tvImportedOn = findViewById(R.id.importedOn);
-        TextView tvLastAccess = findViewById(R.id.lastAccess);
+        TextView tvInfo = findViewById(R.id.tvInfo);
 
         ImageView ivStorageIcon = findViewById(R.id.imageViewStorageIcon);
         TextView tvStorageIcon = findViewById(R.id.textViewStorageIcon);
@@ -60,16 +65,17 @@ public class FolderModifyActivity extends LoggingActivity {
         etRename = findViewById(R.id.etRename);
         etRename.setText(folder.getName());
 
-        //String importedOn = getString(R.string.ImportedOn) + " : " + getIntent().getStringExtra("ImportedOn");   /// Only time is saved in Folder, could get date from ZokFile
-        //tvImportedOn.setText(importedOn);
-        String lastAccess = getString(R.string.LastAccess) + " : " + getIntent().getStringExtra("LastAccessInDays") + " (" + getIntent().getStringExtra("LastAccess") + ")";
-        tvLastAccess.setText(lastAccess);
-
-        String memoryLocationText = getString(R.string.AudioLocation) + " : " + getIntent().getStringExtra("MemoryLocationText");
-        int memoryLocationIcon = getIntent().getIntExtra("MemoryLocation",0);
+        String memoryLocationText = getString(R.string.AudioLocation) + " : " + folder.getMemoryLocationText(this);
+        int memoryLocationIcon = folder.getMemoryLocationIcon(this);
         myLog("Audio Location : " + memoryLocationText + " - Icon : [" + memoryLocationIcon + "]" );
         ivStorageIcon.setImageResource(memoryLocationIcon);
         tvStorageIcon.setText(memoryLocationText);
+
+        String info = "";
+        info = info + getString(R.string.Added) + " : " + Tonio.formatLastAccessAsDate(folder.date_added);
+        info = info + "\n" + getString(R.string.LastAccess) + " : " + Tonio.formatLastAccessInDays(folder.lLastAccess) + " (" + Tonio.formatLastAccess(folder.lLastAccess,this) + ")";
+        info = info + "\n" + Tonio.FormatPercentString(folder.getPercentdone()) + " " + getString(R.string.listened);
+        tvInfo.setText(info);
 
         bDelete.setOnClickListener(view -> bDeleteClick());
 
@@ -100,7 +106,7 @@ public class FolderModifyActivity extends LoggingActivity {
     }
 
     private void bDeleteClick() {
-        new AlertDialog.Builder(FolderModifyActivity.this)
+        new AlertDialog.Builder(ModifyFolderActivity.this)
                 .setTitle(getString(R.string.AskDelete_popupTitle))
                 .setMessage(getString(R.string.ModifyFolder_AskDelete))
                 .setCancelable(false)
@@ -176,7 +182,7 @@ public class FolderModifyActivity extends LoggingActivity {
     }
 
     private void bResetClick() {
-        new AlertDialog.Builder(FolderModifyActivity.this)
+        new AlertDialog.Builder(ModifyFolderActivity.this)
                 .setTitle(getString((R.string.AskReset_popupTitle)))
                 .setMessage(getString((R.string.ModifyFolder_AskReset)))
                 .setCancelable(true)
@@ -219,8 +225,8 @@ public class FolderModifyActivity extends LoggingActivity {
 
     @Override
     public void onBackPressed() {
-        String newName = ((TextView) findViewById(R.id.etRename)).getText().toString().trim();
-        if (!newName.equals(folder.getName())) {
+        String newName = etRename.getText().toString().trim();
+        if (!newName.equals(folder.getName().trim())) {
             new AlertDialog.Builder(this)
                     .setTitle(R.string.AskRename_popupTitle)
                     .setMessage(getString(R.string.AskRename_Book) + "\n[ " + newName + " ]")
@@ -235,5 +241,38 @@ public class FolderModifyActivity extends LoggingActivity {
             super.onBackPressed(); // No changes, just leave
         }
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_SELECT_IMAGE && resultCode == RESULT_OK && data != null) {
+            Uri selectedImageUri = data.getData();
+            if (selectedImageUri != null) {
+                new Thread(() -> {
+                    try {
+                        String fileName = "UserPic_" + ImageHelper.FOLDER_IMAGE_PREFIX + folder.getId() + ".jpg";
+                        String newImagePath = ImageHelper.copyContentUriToImageFile(this, selectedImageUri.toString(), fileName);
+                        if (newImagePath == null) throw new RuntimeException("Image copy/compression failed");
+
+                        // Delete previous image if different
+                        if (folder.image != null && !folder.image.equals(newImagePath)) {
+                            File oldFile = new File(folder.image);
+                            if (oldFile.exists()) oldFile.delete();
+                        }
+
+                        folder.image = newImagePath;
+                        AppDatabase.getDatabase(this).FolderDao().updateImage(folder.getId(), folder.image);
+
+                        runOnUiThread(() -> ivCoverPreview.setImageURI(Uri.fromFile(new File(newImagePath))));
+
+                    } catch (Exception e) {
+                        myLogEE(e, "Error processing selected image");
+                        runOnUiThread(() -> myToastE("Failed to change image"));
+                    }
+                }).start();
+            }
+        }
+    }
+
 
 }

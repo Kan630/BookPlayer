@@ -15,20 +15,11 @@
         <TextView
             android:id="@+id/title"
             android:text="Folder Title"
-            style="@style/myStyleTitle"
+            style="@style/myStyleBigTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:layout_marginBottom="20dp"
-            android:paddingHorizontal="20dp" />
-
-        <TextView
-            android:id="@+id/lastAccess"
-            android:text="last access : xxxxx"
-            style="@style/myStyleInfo"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
             android:paddingHorizontal="20dp" />
 
         <LinearLayout
@@ -36,7 +27,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:layout_marginBottom="20dp"
             android:layout_marginEnd="20dp"
             android:layout_marginStart="20dp"
             android:gravity="center_vertical"
@@ -61,6 +51,14 @@
                 android:backgroundTintMode="screen"
                 />
         </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvInfo"
+            android:text="info ..."
+            style="@style/myStyleInfo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="20dp" />
 
 
         <View style="@style/myStyleViewSimpleHorizontalBar" />
@@ -95,10 +93,14 @@
         <TextView
             android:text="@string/Change_cover_image"
             style="@style/OptionTitle"
+            android:textStyle="normal"
+            android:textSize="20sp"
             android:layout_marginTop="20dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingHorizontal="20dp" />
+            android:paddingHorizontal="20dp"
+            android:layout_marginBottom="15dp"
+            />
 
         <LinearLayout
             android:layout_width="match_parent"

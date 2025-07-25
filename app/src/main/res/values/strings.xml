@@ -582,6 +582,10 @@
     <string name="LibrivoxSearch_desc">"Search directly on LibriVox to find your audiobook. It's a free, public‑domain repository with mostly English works and some available in other languages."</string>
     <string name="Change_cover_image">"Change Cover Image"</string>
     <string name="Change">"Change"</string>
+    <string name="listened">"listened"</string>
+    <string name="Added">"Added"</string>
+    <string name="AskRename_Track">Rename this track to</string>
+
 
 
 

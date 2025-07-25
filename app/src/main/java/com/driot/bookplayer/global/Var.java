@@ -35,6 +35,8 @@ public class Var {
     public static final String  PATH_CHECK_AUTOTEST = "bookplayer/files/download";
     public static final String  PATH_CHECK_APPLICATION = "bookplayer/files/";
 
+    public static final String FOLDER_IMAGE = "images";
+
     public static final String  PATH_AUTOTEST_URL = "https://bookplayer.driot.com/autotest/";
 
     public static final String  AUTOTEST_FILE_0100 = "https://archive.org/compress/sonnetsandsongs_2405_librivox/formats=64KBPS%20MP3&file=/sonnetsandsongs_2405_librivox.zip";

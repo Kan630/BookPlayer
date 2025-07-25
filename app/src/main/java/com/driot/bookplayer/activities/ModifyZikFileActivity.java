@@ -25,7 +25,7 @@ import java.io.File;
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 2023-05-27
  */
-public class ZikFileModifyActivity extends LoggingActivity {
+public class ModifyZikFileActivity extends LoggingActivity {
 
     private ZikFile zikFile;
 
@@ -38,7 +38,6 @@ public class ZikFileModifyActivity extends LoggingActivity {
         Button bReset = findViewById(R.id.bReset);
         Button bDelete = findViewById(R.id.bDelete);
 
-        Button bRename = findViewById(R.id.bRename);
         EditText etRename = findViewById(R.id.etRename);
 
         EditText etChangePosition = findViewById(R.id.etChangePosition);
@@ -56,15 +55,6 @@ public class ZikFileModifyActivity extends LoggingActivity {
         etRename.setText(zikFileDisplayName);
         etChangePosition.setText(String.valueOf(zikFilePosition));
 
-        bRename.setOnClickListener(view -> {
-            etRename.requestFocus();
-            android.text.Selection.setSelection((Spannable) etRename.getText(), etRename.getText().length()); // put cursor at the end (TextView)
-            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            if (imm != null) {
-                imm.showSoftInput(etRename, InputMethodManager.SHOW_IMPLICIT);
-            }
-        });
-
         bMove.setOnClickListener(view -> {
             etChangePosition.requestFocus();
             etChangePosition.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
@@ -78,8 +68,6 @@ public class ZikFileModifyActivity extends LoggingActivity {
         bReset.setOnClickListener(view -> bResetClick(zikFile));
 
         bDelete.setOnClickListener(view -> bDeleteClick());
-
-        bRename.setOnClickListener(view -> bRenameClick(etRename.getText().toString()));
 
         bMove.setOnClickListener(view -> bMoveClick(etChangePosition.getText().toString()));
 
@@ -107,7 +95,7 @@ public class ZikFileModifyActivity extends LoggingActivity {
     }
 
     private void bDeleteClick() {
-        new AlertDialog.Builder(ZikFileModifyActivity.this)
+        new AlertDialog.Builder(ModifyZikFileActivity.this)
                 .setTitle(getString(R.string.AskDelete_popupTitle))
                 .setMessage(getString(R.string.ModifyZikFile_AskDelete))
                 .setCancelable(false)
@@ -150,38 +138,73 @@ public class ZikFileModifyActivity extends LoggingActivity {
         return true;
     }
 
-    private boolean eraseFileFromDisk(String strPath) {
+    private void eraseFileFromDisk(String strPath) {
         String starter = "file:///";
         myLog("Deleting ZikFile : " +strPath);
         if (strPath.length()>5) {
             if (!strPath.contains(PATH_CHECK_APPLICATION) ) { //strPath.startsWith(starter)
                 myLog("NO DISK DELETE : Not a folder in user data (" + PATH_CHECK_APPLICATION + "), skip deletion of folder");
-                return true;
             } else {
                 if (strPath.startsWith(starter)) {
                     strPath = strPath.replace(starter, "");
                     try {
                         File zikFileToDelete = new File(strPath);
                         if (zikFileToDelete.exists()) {
-                            zikFileToDelete.delete();
+                            if (zikFileToDelete.delete()) {
+                                myLog("Ok file deleted");
+                            } else {
+                                myToastEE(null, "Error remove ZikFile from Disk - [" + strPath + "]");
+                            }
                         }
-                        return true;
                     } catch (Exception e) {
                         myLogEE(e,"Error remove ZikFile from Disk");
-                        return false;
                     }
                 } else {
                     myLogEE(null, "NO DISK DELETE : weird Path, does not starts with [" + starter + "]");
-                    return true;
                 }
             }
         } else {
             myLogEE(null,"should not happen uri less than 5 chars");
-            return false;
         }
     }
 
-    private void bRenameClick(String newDisplayName) {
+    private void bResetClick(ZikFile zikFile) {
+        new AlertDialog.Builder(ModifyZikFileActivity.this)
+                .setTitle(ModifyZikFileActivity.this.getString(R.string.ModifyFolder_AskDeleteProgressFromZikFile_Title))
+                .setMessage(ModifyZikFileActivity.this.getString(R.string.ModifyFolder_AskDeleteProgressFromZikFile_Text))
+                .setCancelable(false)
+                .setPositiveButton(ModifyZikFileActivity.this.getString(R.string.Yes), (dialog, which) -> deleteProgressFromThisZikFile(zikFile))
+                .setNegativeButton(ModifyZikFileActivity.this.getString(R.string.Cancel), (dialogInterface, i) -> {})
+                .show();
+    }
+    private void deleteProgressFromThisZikFile(ZikFile zikFile) {
+        new Thread(() -> {
+            AppDatabase.getDatabase(this).ZikFileDao().resetProgressionFromThisZikFile(zikFile.getIdFolder(), zikFile.getZeorder());
+            Sql.calculateFolderProgress(ModifyZikFileActivity.this, zikFile.getIdFolder());
+            runOnUiThread(() -> {
+                myToast(ModifyZikFileActivity.this.getString(R.string.Progression_reset_done));
+                finish(); //close activity
+            });
+        }).start();
+    }
+    @Override
+
+    public void onBackPressed() {
+        String newName = ((TextView) findViewById(R.id.etRename)).getText().toString().trim();
+        if (!newName.equals(zikFile.getDisplayName())) {
+            new AlertDialog.Builder(this)
+                    .setTitle(R.string.AskRename_popupTitle)
+                    .setMessage(getString(R.string.AskRename_Track) + "\n[ " + newName + " ]")
+                    .setPositiveButton(R.string.Yes, (dialog, which) -> renameTrack(newName))
+                    .setNegativeButton(R.string.No, (dialog, which) -> {
+                        super.onBackPressed(); // Just leave
+                    })
+                    .show();
+        } else {
+            super.onBackPressed(); // No changes, just leave
+        }
+    }
+    private void renameTrack(String newDisplayName) {
         if (newDisplayName.length() < 2) {
             myToast(getString(R.string.Error_NameTooShort));
         } else {
@@ -189,31 +212,10 @@ public class ZikFileModifyActivity extends LoggingActivity {
                 AppDatabase.getDatabase(this).ZikFileDao().setDisplayName(zikFile.getId(), newDisplayName);
                 runOnUiThread(() -> {
                     myToast(getString(R.string.ZikFile_Renamed));
-                    myLogD(getString(R.string.ZikFile_Renamed) + " : [" + zikFile.getDisplayName() + "] -> [" + newDisplayName + "]");
+                    myLogInFile(getString(R.string.ZikFile_Renamed) + " : [" + zikFile.getDisplayName() + "] -> [" + newDisplayName + "]");
                     finish();
                 });
             }).start();
         }
     }
-
-    private void bResetClick(ZikFile zikFile) {
-        new AlertDialog.Builder(ZikFileModifyActivity.this)
-                .setTitle(ZikFileModifyActivity.this.getString(R.string.ModifyFolder_AskDeleteProgressFromZikFile_Title))
-                .setMessage(ZikFileModifyActivity.this.getString(R.string.ModifyFolder_AskDeleteProgressFromZikFile_Text))
-                .setCancelable(false)
-                .setPositiveButton(ZikFileModifyActivity.this.getString(R.string.Yes), (dialog, which) -> deleteProgressFromThisZikFile(zikFile))
-                .setNegativeButton(ZikFileModifyActivity.this.getString(R.string.Cancel), (dialogInterface, i) -> {})
-                .show();
-    }
-    private void deleteProgressFromThisZikFile(ZikFile zikFile) {
-        new Thread(() -> {
-            AppDatabase.getDatabase(this).ZikFileDao().resetProgressionFromThisZikFile(zikFile.getIdFolder(), zikFile.getZeorder());
-            Sql.calculateFolderProgress(ZikFileModifyActivity.this, zikFile.getIdFolder());
-            runOnUiThread(() -> {
-                myToast(ZikFileModifyActivity.this.getString(R.string.Progression_reset_done));
-                finish(); //close activity
-            });
-        }).start();
-    }
-
 }

@@ -84,6 +84,9 @@ public interface FolderDao {
     @Query("SELECT * FROM Folder WHERE image LIKE 'http%'")
     List<Folder> getAllWithRemoteImage();
 
+    @Query("UPDATE Folder SET image = :imagePath WHERE id = :id")
+    void updateImage(int id, String imagePath);
+
     // Exemple avec dates :
     //@Query("SELECT * FROM user WHERE birthday BETWEEN :from AND :to")
     //List<User> findUsersBornBetweenDates(Date from, Date to);

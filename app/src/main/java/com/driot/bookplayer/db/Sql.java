@@ -104,7 +104,7 @@ public class Sql {
                             ,folder.getName()
                             ,folder.getPath()
                             ,Tonio.formatTime(folder.getDuration())
-                            ,Tonio.formatLastAccess(folder.lLastAccess, c.getString(R.string.yesterday))
+                            ,Tonio.formatLastAccess(folder.lLastAccess, c)
                             ,Tonio.formatLastAccessInDays(folder.lLastAccess)
                     );
                     myLogI(logEntry);

@@ -17,7 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.PlayActivity;
-import com.driot.bookplayer.activities.ZikFileModifyActivity;
+import com.driot.bookplayer.activities.ModifyZikFileActivity;
 import com.driot.bookplayer.objects.PlayList;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.utils.Tonio;
@@ -57,7 +57,7 @@ public class ZikFilesRVAdapter extends LoggingRVAdapter<ZikFilesRVAdapter.ZikFil
         holder.textViewFileName.setText(t.getDisplayName());
         holder.textViewFilePercent.setText(Tonio.FormatPercentString(t.getPercentdone()));
         holder.mProgressBar.setProgress(Tonio.FormatPercentForProgressBar(t.getPercentdone()));
-        holder.textViewFileLastAccess.setText(Tonio.formatLastAccess(t.lLastAccess, mCtx.getString(R.string.yesterday)));
+        holder.textViewFileLastAccess.setText(Tonio.formatLastAccess(t.lLastAccess, mCtx));
         holder.textViewDuration.setText(Tonio.formatTime(t.getDuration()));
     }
 
@@ -101,7 +101,7 @@ public class ZikFilesRVAdapter extends LoggingRVAdapter<ZikFilesRVAdapter.ZikFil
             ZikFile zikFile = zikFileList.get(getBindingAdapterPosition());
             myLogI("onLongClick() : [" + zikFile.getName() + "] - [" + zikFile.getPath() + "/" + zikFile.getName() + "]");
 
-            mCtx.startActivity(new Intent(mCtx, ZikFileModifyActivity.class).putExtra("ZikFile", zikFile));
+            mCtx.startActivity(new Intent(mCtx, ModifyZikFileActivity.class).putExtra("ZikFile", zikFile));
             return false;
         }
     }
