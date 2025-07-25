@@ -207,7 +207,7 @@
         android:layout_below="@+id/textViewSubTitle"
         android:layout_above="@+id/horizontalBarTopOfSleep"
         android:layout_centerInParent="true"
-        android:scaleType="centerInside"
+        android:scaleType="fitCenter"
         android:visibility="gone" />
 
     <com.driot.bookplayer.utils.FrequencyVisualizerView

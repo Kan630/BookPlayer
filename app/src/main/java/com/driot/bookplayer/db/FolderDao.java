@@ -48,6 +48,8 @@ public interface FolderDao {
 
     @Query("UPDATE Folder SET name = :newName WHERE id =:id")
     void changeName(int id, String newName);
+    @Query("UPDATE ZikFile SET folderName = :newFolderName WHERE idFolder = :folderId")
+    void updateFolderNameInZikFile(int folderId, String newFolderName);
 
     @Query("UPDATE Folder SET position = 0, percentdone = 0, " +
             "lastAccess = datetime('now'), " +

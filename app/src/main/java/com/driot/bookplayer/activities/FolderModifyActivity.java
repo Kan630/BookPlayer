@@ -143,6 +143,7 @@ public class FolderModifyActivity extends LoggingActivity {
         } else {
             new Thread(() -> {
                 AppDatabase.getDatabase(this).FolderDao().changeName(idFolder, newName);
+                AppDatabase.getDatabase(this).FolderDao().updateFolderNameInZikFile(idFolder, newName);
                 runOnUiThread(() -> {
                     myToast(getString(R.string.Folder_Renamed));
                     myLogInFile(getString(R.string.Folder_Renamed) + " : [" + FolderName + "] - > [" + newName + "]");

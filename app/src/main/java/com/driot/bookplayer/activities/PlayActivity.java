@@ -248,7 +248,6 @@ public class PlayActivity extends LoggingActivity {
                 } catch (Exception e) {
                     myLogE("image debug ko");
                 }
-
                 if (isPodcast) {
                     myLogD("Is Podcast");
                     tvTitle.setOnClickListener(v -> {handlePodcastClick(podcast);});
@@ -554,15 +553,15 @@ public class PlayActivity extends LoggingActivity {
             myToastE("Cannot get Playlist - PlayList.getInstance().getZikFile() is null");
         }
         try {
-            myLog("DrawUI : " + PlayList.getInstance().getZikFile().getName() + " -- " + PlayList.getInstance().getZikFile().getPosition());
-            tvSubTitle.setText(formatNameForDisplay(PlayList.getInstance().getZikFile().getName()));
+            myLogD("DrawUI : " + PlayList.getInstance().getZikFile().getName() + " -- " + PlayList.getInstance().getZikFile().getPosition());
+            tvSubTitle.setText(formatNameForDisplay(PlayList.getInstance().getZikFile().getDisplayName()));
             tvTitle.setText(PlayList.getInstance().getZikFile().getFolderName());
             tvTotalTime.setText(formatTime(PlayList.getInstance().getZikFile().getDuration(),true));
             seekbar.setMax((int) PlayList.getInstance().getZikFile().getDuration());
             tvSeekBar.setText(formatTime(PlayList.getInstance().getZikFile().getPosition(),true));
             seekbar.setProgress((int) PlayList.getInstance().getZikFile().getPosition());
             tvSpeed.setText(FormatPercentStringForSpeed( audioService.getSpeed() * 100));
-            myLog("----------------------------- play screen drawn " + PlayList.getInstance().getZikFile().getPosition());
+            myLogD("----------------------------- play screen drawn " + PlayList.getInstance().getZikFile().getPosition());
         } catch (Exception e) {
             myLogEE(e,":----------------------------- play screen drawn ERROR");
         }
