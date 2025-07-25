@@ -2,18 +2,9 @@
     <string name="app_name" translatable="false">BookPlayer</string>
     <string name="lorem_ipsum" translatable="false">lorem ipsum</string>
 
-    <string name="yesterday">"yesterday"</string>
-    <string name="app_info">App Info</string>
-    <string name="delete_logs">Delete Logs</string>
-    <string name="Delete">Delete</string>
-
     <string name="title_FolderContent">Files List</string>
     <string name="PlayerActivity_Title" translatable="false">TextBook Player</string>
 
-    <string name="Yes">Yes</string>
-    <string name="No">No</string>
-    <string name="Cancel">Cancel</string>
-    <string name="are_you_sure">Are you sure ?</string>
 
     <string name="asset_statements" translatable="false">
     [{
@@ -27,8 +18,194 @@
 
 
     <!-- ********************************** -->
-    <!-- HELP Screen -->
+    <!-- GENERAL -->
 
+    <string name="Yes">Yes</string>
+    <string name="No">No</string>
+    <string name="Cancel">Cancel</string>
+    <string name="are_you_sure">Are you sure ?</string>
+    <string name="Technical_Error">"Technical Error"</string>
+    <string name="yesterday">"yesterday"</string>
+    <string name="app_info">App Info</string>
+    <string name="delete_logs">Delete Logs</string>
+    <string name="Delete">Delete</string>
+
+
+    <string name="DeleteLogs_AskConfirm">"You are about to delete all logs.
+       Are you sure ?"</string>
+    <string name="ModifyFolder_AskDelete">"You are about to delete this folder and all the tracks
+       Are you sure ?"</string>
+    <string name="ModifyFolder_AskReset">"You are about to reset progression for this folder
+       Are you sure ?"</string>
+    <string name="ModifyZikFile_AskDelete">"You are about to delete this audio track
+       Are you sure ?"</string>
+
+    <string name="left_on">left on</string>">
+    <string name="memory">memory</string>">
+    <string name="device">device</string>">
+    <string name="sd_card">sd card</string>">
+    <string name="SD_card">SD card</string>">
+    <string name="audios_in_app">audios in app</string>">
+    <string name="Change">"Change"</string>
+    <string name="listened">"listened"</string>
+    <string name="audio_tracks">"audio tracks"</string>
+    <string name="Added">"Added"</string>
+    <string name="Favorites">Favorites</string>
+    <string name="Set">Set</string>">
+    <string name="MB">MB</string>">
+    <string name="Export">"Export…"</string>
+    <string name="version">Version</string>
+    <string name="miscellaneous">Miscellaneous</string>
+    <string name="Processing">"Processing"</string>
+    <string name="StillExperimental">"- Still Experimental -"</string>
+    <string name="Download_cancelled">"Download cancelled"</string>">
+    <string name="Download_failed">"Download failed"</string>">
+    <string name="downloaded">"downloaded"</string>">
+    <string name="Downloading">"Downloading"</string>">
+    <string name="book_cover">"book cover"</string>">
+    <string name="Search">"Search"</string>
+    <string name="Creator">Creator</string>
+    <string name="Available_since">Available since</string>
+    <string name="Error_checking_file">Error checking file</string>
+    <string name="default_for">default for</string>
+
+
+        <!-- ********************************** -->
+        <!-- HELP Screen -->
+
+        <string name="help_title">BookPlayer Manual</string>
+
+        <string name="help_general_title">General</string>
+        <string name="help_text_general"><![CDATA[
+    When you open the app, you’ll see a list of <font color="#90D8E8">folders</font> — these represent your Books, Lessons, or Podcasts.
+    <br><br>
+    A <font color="#81C784">long press</font> on a <font color="#90D8E8">folder</font> opens the “Modify Folder” screen (rename / delete / reset, etc.).
+    <br>
+    A tap opens the list of <font color="#BA68C8">tracks</font>.
+    <br><br>
+    A <font color="#81C784">long press</font> on a <font color="#BA68C8">track</font> opens the “Modify Track” screen.
+    <br>
+    A tap starts playback.
+    ]]></string>
+
+        <string name="help_title_manual_import">Manual Import :</string>
+        <string name="help_text_manual_import"><![CDATA[
+    When you <font color="#81C784"><b>manually import</b></font> a book, you start by selecting a <font color="#64B5F6">file</font> or a <font color="#64B5F6">folder</font>.
+    <br><br>
+    BookPlayer supports nearly all audio formats, plays video soundtracks, and can extract chapters from ZIP or M4B files.
+    <br><br>
+    <b>Option 1: <font color="#FFCC80">Copy</font></b> <i>(default)</i> — The file is <b>copied</b> into BookPlayer’s <font color="#90D8E8">private memory</font>.
+    <br>
+    <b>Advantages:</b>
+    <ul>
+    <li>No permissions needed</li>
+    <li>Safe from accidental deletion</li>
+    </ul>
+    <br>
+    <b>Option 2: <font color="#FFCC80">No Copy</font></b> — Only the file path is saved. Playback occurs directly from <i>shared storage</i>.
+    <br>
+    <b>Advantage:</b> Saves internal space.
+    <br><br>
+    <b>Note:</b> ZIP and split M4B files are always copied.
+    <br><br>
+    Enable <font color="#F48FB1"><b>auto-delete</b></font> in the Options menu to delete the source file after import.
+    ]]></string>
+
+        <string name="help_librivox_title">Librivox Import :</string>
+        <string name="help_librivox_text"><![CDATA[
+    <font color="#BA68C8"><b>Import Public Domain Audiobooks</b></font>
+    <br><br>
+    Browse the <font color="#90D8E8"><b>Librivox catalog</b></font> of public domain titles by selecting a <font color="#81C784">language</font>.
+    <br><br>
+    Tap any book to download it — the audio will be <font color="#FFCC80"><b>copied</b></font> to your device and added to your library.
+    <br><br>
+    You can <font color="#81C784"><b>start listening right away</b></font>.
+    ]]></string>
+
+        <string name="help_podcast_title">Podcast Import :</string>
+        <string name="help_podcast_text"><![CDATA[
+    <font color="#BA68C8"><b>Discover Podcasts</b></font>
+    <br><br>
+    Explore a wide range of <font color="#90D8E8">podcasts</font> in many <font color="#81C784">languages</font>.
+    <br><br>
+    Download any <font color="#FFCC80">episode</font> with a single tap.
+    <br><br>
+    Add shows to your <font color="#EF9A9A">favorites</font> for easy access and enable <font color="#81C784">auto-download</font> to fetch new episodes automatically.
+    <br><br>
+    Checks happen regularly, especially when BookPlayer starts.
+    ]]></string>
+
+        <string name="help_url_title">Import from URL :</string>
+        <string name="help_url_text"><![CDATA[
+    <font color="#BA68C8"><b>Import via Link</b></font>
+    <br><br>
+    Paste a direct URL to an audio file, ZIP, or M4B.
+    <br><br>
+    Tap <font color="#FFCC80">Import</font> and BookPlayer will fetch and integrate the content.
+    <br><br>
+    Everything is handled automatically — unpacking, adding, and making it available for playback.
+    ]]></string>
+
+        <string name="help_storage_title">Storage Location :</string>
+        <string name="help_storage_text"><![CDATA[
+    <font color="#BA68C8"><b>Where Files Are Stored</b></font>
+    <br><br>
+    By default, BookPlayer uses the <font color="#81C784">SD card</font> if available, to save space.
+    <br><br>
+    To switch to internal storage, change the setting in the <font color="#64B5F6">Options</font> menu.
+    ]]></string>
+
+        <string name="help_memory_cleaning_title">Memory Cleaning :</string>
+        <string name="help_memory_cleaning_text"><![CDATA[
+    <font color="#BA68C8"><b>Manage Internal Storage</b></font>
+    <br><br>
+    A dedicated screen shows files copied into BookPlayer’s <font color="#90D8E8">private space</font>.
+    <br><br>
+    See which items take up the most space and <font color="#EF9A9A">delete</font> what you no longer need.
+    <br><br>
+    <font color="#F44336">Note:</font> This only applies to:
+    <ul>
+    <li>ZIP imports</li>
+    <li>Manual imports with <font color="#81C784">[copy]</font> enabled</li>
+    </ul>
+    It excludes content from shared storage.
+    ]]></string>
+
+        <string name="help_tellme_title">Contact the Developer :</string>
+        <string name="help_tellme_text"><![CDATA[
+    Having issues or found a bug?
+    <br><br>
+    Please <font color="#81C784">let me know</font> so I can improve the app!
+    <br><br>
+    Use the <font color="#90D8E8">"Mail Developer"</font> option from the menu.
+    ]]></string>
+
+        <string name="help_permission_title">Permissions :</string>
+        <string name="help_permission_text"><![CDATA[
+    BookPlayer works <font color="#81C784">even without permissions</font>.
+    <br><br>
+    But for full functionality:
+    <ul>
+    <li><b>Read Audio</b> → access external storage</li>
+    <li><b>Microphone</b> → enable the sound visualizer</li>
+    </ul>
+    Denying permissions won’t break the app — BookPlayer adapts.
+    ]]></string>
+
+        <string name="help_forum_title">Forum :</string>
+        <string name="help_forum_text"><![CDATA[
+    <font color="#BA68C8"><b>Join the BookPlayer Community</b></font>
+    <br><br>
+    A new <font color="#90D8E8">forum</font> has been launched as a small experiment (<i>June 2025</i>).
+    <br><br>
+    It’s still quiet for now 😊, but you can register to:
+    <ul>
+    <li><font color="#FFCC80">Report bugs</font></li>
+    <li><font color="#FFCC80">Suggest features</font></li>
+    <li><font color="#FFCC80">Share tips and audiobooks</font></li>
+    </ul>
+    All posts are publicly readable. Sign in to participate.
+    ]]></string>
 
 
 
@@ -50,7 +227,6 @@
     <string name="option_unzip_local">Unzip files (takes storage space, but smoother listening experience)</string>
 
     <string name="option_copy_file_title">Copy files internally</string>
-
 
     <string name="option_backward_forward_title">BackWard/Forward buttons</string>
     <string name="option_backward_forward_text">timelapse :</string>
@@ -95,6 +271,36 @@
     <string name="option_mail_method_default">Use default mailing app.\n<i>Uncheck to be asked which app to use.</i></string>
 
 
+    <string name="option_open_with_title">Open With / Share</string>
+    <string name="option_open_with_subtitle"><i>Makes Android propose Bookplayer among the other proposed options when selecting [Share] or [open With] after clicking (long-clicking) on a file from the phone file explorer or from downloads</i></string>
+    <string name="option_open_with_text">For zip and most audio files.</string>
+    <string name="option_open_with_text_all">For any kind of file (fail safe).</string>
+    <string name="option_on_load_use_SD_card">Use SD card</string>">
+
+    <string name="option_split_m4b">.m4b splitting</string>
+    <string name="option_split_m4b_text">Extract chapters from m4b (new audiobook format). - Still Experimental -</string>
+
+    <string name="option_copy_file_special_zip"><i>zip and split m4b are always copied</i></string>
+
+    <string name="option_alert_delete_picked_source_file_title">!! Warning - Source-Deletion !!</string>
+    <string name="option_alert_delete_picked_source_file_message">"This picked file will be wiped out from device memory after being loaded inside bookplayer app internal memory.\n\nAre you sure ?."</string>
+    <string name="option_on_load_copy_internal">"Copy to Bookplayer internal storage"</string>
+    <string name="option_on_load_split_m4b">"Split M4B into chapters"</string>
+    <string name="option_on_load_delete_source">"Delete source file after import"</string>
+
+    <string name="option_sdcard_title">SD card</string>">
+    <string name="option_sdcard_text">when copying audio in reserved space, use SD card instead of device storage</string>">
+    <string name="option_sdcard_text_caution"><i>please note that if you remove or erase the sd card, you will loose your audios</i></string>">
+
+    <string name="option_copy_file_subtitle">Pros :
+        \n* [Read Audio] permission is not needed.
+        \n* No risk to loose audio book and progress if its source file get accidentally deleted/moved.
+        \n\nCons :
+        \n* More memory will be needed if you do not delete the source file.
+    </string>
+    <string name="option_copy_file_text">Copy audio files in the internal, reserved, BookPlayer app memory.</string>
+
+
     <!-- ********************************** -->
     <!-- Get Resources -->
 
@@ -107,6 +313,69 @@
     <string name="AutoTest_title">Auto Test</string>
     <string name="AutoTest_desc">Automatic download and integration of audiobooks, for testing purpose</string>
 
+    <string name="bOpenFile">Any File</string>
+    <string name="bOpenFolder">Folder</string>
+    <string name="bOpenZipFile">Zip File</string>
+    <string name="bOpenM4bFile">Audio File</string>
+
+    <string name="OnlineSearch_title">Direct integration - beta test</string>
+    <string name="OnlineSearch_desc">Use this search capability to find the audiobook you are looking for. Then, on the next page, select the one you want to import, it should download and add itself directly inside bookplayer !</string>
+    <string name="OnlineSearch_button">Search…</string>
+
+    <string name="TextHeaderOpen">Open an audio on my device</string>
+    <string name="bOpenFile_desc">Grab any file.</string>
+    <string name="bOpenFolder_desc">Grab a folder.
+        \nAll audios from that folder will be imported.
+        \n<i>Beware all audios located in subfolders, if any, will also be imported, recursively.</i></string>
+    <string name="bOpenZipFile_desc">filter : only zip files</string>
+    <string name="bOpenM4bFile_desc">filter : only audio files
+        \n<i>Beware this filter is not perfect, use top button [any file] if problems.</i></string>
+
+    <string name="DirectDownload_title">Direct Download</string>
+    <string name="DirectDownload_desc">Paste a link hereunder and press the button to download and integrate an audiobook in one go.</string>
+    <string name="DirectDownload_button">Just Get It</string>
+
+    <string name="LibrivoxSearch_title">"AudioBooks"</string>
+    <string name="LibrivoxSearch_desc">"Search directly on LibriVox to find your audiobook. It's a free, public‑domain repository with mostly English works and some available in other languages."</string>
+
+    <string name="OnlineSearch_hint">Jack London</string>
+    <string name="LibrivoxSearch_hint">Jack London</string>
+    <string name="PodcastSearch_hint">cats</string>
+    <string name="DirectDownload_hint">https://bookplayer.driot.com/audiobook630.zip</string>
+
+    <string name="PodcastSearch_title">Podcasts</string>
+    <string name="PodcastSearch_desc">Browse podcasts thanks to open source registery podcastindex.org</string>
+    <string name="podcast_image_desc">Podcast image</string>
+    <string name="podcast_no_results">No podcast found</string>
+    <string name="podcast_nb_of_podcast_found">Nb of podcasts found</string>
+
+    <string name="Search_2pt">"Search: "</string>
+    <string name="Language_2pt">"Language: "</string>
+    <string name="Results_2pt">"Results: "</string>
+    <string name="search_nothing_specified">Nothing specified</string>
+    <string name="search_nothing_specified_so_trending">Nothing => display trending</string>
+
+    <string name="LibrivoxResultItem_audio_available_since">"audio available since"</string>">
+    <string name="LibrivoxResultitem_nb_of_reviews">"Nb of reviews"</string>">
+    <string name="LibrivoxResultitem_avg_rating">"Avg rating"</string>">
+    <string name="Librivox_bGetAudioBook">"Get Audiobook"</string>">
+    <string name="librivox_no_audiobook_found_for_search">No audiobook found for search terms</string>
+    <string name="librivox_invalid_response">Invalid response from Librivox Server</string>
+    <string name="loading_details">Loading details…</string>
+    <string name="loading_detail_failed">Failed to load details</string>
+    <string name="librivox_zip_mp3_available">ZIP-MP3 file available</string>
+    <string name="librivox_zip_mp3_not_found">ZIP-MP3 file not found</string>
+    <string name="librivox_wait_integration">But please wait as an another book is still being downloaded/loaded.</string>
+
+    <string name="LibrivoxSearch_warning">"Warning - Beta Test\nStill experimental\nIf download stalls, try to keep app foreground"</string>">
+    <string name="librivox_cover_desc">Librivox cover</string>">
+
+    <string name="podcast_favorite_add">Added to favorites</string>
+    <string name="podcast_autodownload_add">Added to auto-download</string>
+    <string name="podcast_new_episodes">new episodes</string>
+
+
+    <!-- ********************************** -->
     <!-- Add Resources -->
 
     <string name="bAddRessource">Add Content</string>
@@ -156,6 +425,33 @@
 
     <string name="Import_Success">Import Successful</string>
 
+    <string name="Error_Import_Split_M4B"><i>An error occurred while splitting m4b file.</i></string>
+    <string name="Import_Experimental_M4B_warning">Warning : <b>m4b chapters extraction</b> is still <b>experimental</b>.</string>
+    <string name="Import_Experimental_M4B_iferror">If you encounter errors</string>
+    <string name="Import_Experimental_M4B_solution_1">Uncheck the "split m4b" option.</string>
+    <string name="Import_Experimental_M4B_solution_2"><i>You could also use a third party tool to first convert that m4b file into a folder of mp3 files, and then import that folder into Bookplayer.</i></string>
+    <string name="Import_Progress_splitting_m4b_files">"Splitting m4b files"</string>
+    <string name="Import_Progress_splitting_m4b_file">"splitting m4b file : "</string>
+
+    <string name="error_could_not_check_hash">Error while checking if this audiobook has already been imported</string>
+    <string name="error_media_already_loaded_samePath_under_the_name">This media has already been loaded and is currently stored under the name : </string>
+    <string name="init_please_wait">Initializing… Please Wait…</string>
+    <string name="error_media_already_loaded_samePath_so_changeName">A different media with the same name had already been loaded, the name will be changed to : </string>
+    <string name="init_check_already_imported_please_wait">"checking if already imported, please wait…"</string>
+    <string name="init_check_complementary_checks_please_wait">"complementary checks, please wait…"</string>
+    <string name="Error_Import_FolderAlreadyImported">This folder has already been loaded</string>
+
+    <string name="error_media_already_loaded_samePath">This media has already been loaded</string>
+    <string name="error_media_already_loaded_sameName">A book with this name already exist in Bookplayer</string>
+
+    <string name="ErrorCouldNotLoadAudios">ERROR - Could not load audios.</string>
+    <string name="ErrorCouldNotLoadAudios_emptyfolder">ERROR - no audios found in that folder.</string>
+
+    <string name="Import_Progress_copying_zip_file">"copying source file \n- from Device General Storage\n- to Bookplayer app internal memory"</string>
+    <string name="Import_Progress_copying_zip_file_cloud">"copying source file \n- from Cloud\n- to Bookplayer app internal memory"</string>
+
+    <string name="Error_Import_OutOfMemory">General Error : Out of Memory</string>
+    <string name="Error_Import_This_folder_may_contain_too_many_books">This folder may contain too many books or subfolders to be loaded in one go.</string>
 
     <!-- ********************************** -->
     <!-- FolderModifyActivity -->
@@ -181,6 +477,26 @@
     <string name="LastAccess">"Last access"</string>
     <string name="AudioLocation">"Audio location"</string>
 
+    <string name="Change_cover_image">"Change Cover Image"</string>
+    <string name="AskRename_Track">Rename this track to</string>
+
+    <string name="IntroCut">"Cut Intro"</string>
+    <string name="Rename_book">"Rename book"</string>
+    <string name="AskRename_Book">"Do you really want to rename the book as"</string>
+    <string name="AskRename_popupTitle">Confirm Rename</string>
+
+    <string name="bRenameFolder">"Rename Book"</string>
+    <string name="IntroCutText"><i>"Trims the first seconds of each chapter while playing."</i></string>
+
+    <string name="Export_notification_title">"Audiobook exported"</string>
+    <string name="Export_notification_text">"in Download folder"</string>
+    <string name="Export_share_title">"Share ZIP file"</string>
+    <string name="Export_display_text_loading">"Loading folder info…"</string>
+    <string name="Export_display_text_preparing_export">"Preparing export…"</string>
+    <string name="Export_display_no_valid_audiobook">"Error getting audiobook audios."</string>
+    <string name="Export_error">"Export Error"</string>
+    <string name="Export_display_text_export_title">"ZIP Export"</string>
+    <string name="Export_done">"Done, exported in [Downloads] folder"</string>
 
     <!-- ********************************** -->
     <!-- Zik File Adapter -->
@@ -221,17 +537,31 @@
     <string name="notification_playlist_finished">"Book Finished !"</string>
     <string name="notification_auto_sleep">"Auto Sleep !"</string>
 
-
-
-
+    <string name="SleepTimer">Sleep Timer</string>
+    <string name="SleepTimerWrongInt">Invalid input. Please enter a valid number.</string>
+    <string name="SleepTimerGeneralError">Error happened while setting Sleep Timer.</string>
 
     <!-- ********************************** -->
-    <!-- STATS activity -->
+    <!-- STORAGE -->
 
     <string name="physical_storage_memory">Physical Storage Memory</string>
-    <string name="version">Version</string>
-    <string name="miscellaneous">Miscellaneous</string>
+    <string name="MB_taken_by_BookPlayer_app">" MB taken by BookPlayer app"</string>
+    <string name="MB_taken_by_audio_files">" MB taken by audios files"</string>
+    <string name="MB_taken_by_logs">" MB taken by logs"</string>
+    <string name="MB_available_on_device">" MB : available on device"</string>
+    <string name="MB_device_memory">" MB : Device memory"</string>
+    <string name="MB_available_on_SD_card">" MB : available on SD card"</string>
+    <string name="MB_SD_card_memory">" MB : SD card memory"</string>
+    <string name="audio_location_sdcard">SD card</string>
+    <string name="custom_value_in_minutes">custom value in minutes</string>">
+    <string name="MB_audios_in_app">MB: audios in app</string>">
+    <string name="MB_left_on_device">MB: left on device</string>">
+    <string name="MB_device_memory2">MB: device memory</string>">
 
+    <string name="audio_location_sdcard_reserved_storage">SD card (app reserved)</string>
+    <string name="audio_location_bookplayer_reserved_storage">Bookplayer reserved storage</string>
+    <string name="audio_location_smartphone_shared_storage">Smartphone shared storage</string>
+    <string name="audio_location_audiobook_not_found">Audiobook not found</string>
 
     <!-- ********************************** -->
     <!-- Menus -->
@@ -270,7 +600,6 @@
     <string name="permissions_denied">Permissions were not granted.</string>
     <string name="permissions_ok_button" translatable="false">OK</string>
 
-    <!-- Application specific permission strings -->
     <string name="permission_read_write_rationale">Bookplayer needs [Read Audio] permission (or set [Copy File] option).</string>
     <string name="permission_read_write_denied">[Read Audio] permission was denied.
         \n\nClick [App Info] to activate permissions manually.
@@ -278,7 +607,6 @@
         \n\nClick [Options] to activate app [Copy File internally] option.
         \n<i>Then, your audio files will be copied inside Bookplayer internal memory and you won\'t need any permission to read them.</i>
     </string>
-
 
     <string name="permission_record_audio_rationale_01">"Following optional permission is to show spectrum visualizer."</string>
     <string name="permission_record_audio_rationale">Spectrum visualizer requires [record audio] permission.</string>
@@ -288,70 +616,6 @@
         \nThat will open the Bookplayer settings on the device.
         \n\nThen go in "Permissions" section and manually allow "Microphone".</string>
 
-
-
-    // Get Resources
-    <string name="OnlineSearch_title">Direct integration - beta test</string>
-    <string name="OnlineSearch_desc">Use this search capability to find the audiobook you are looking for. Then, on the next page, select the one you want to import, it should download and add itself directly inside bookplayer !</string>
-    <string name="OnlineSearch_button">Search…</string>
-
-    <string name="SleepTimer">Sleep Timer</string>
-    <string name="SleepTimerWrongInt">Invalid input. Please enter a valid number.</string>
-    <string name="SleepTimerGeneralError">Error happened while setting Sleep Timer.</string>
-
-    <string name="option_split_m4b">.m4b splitting</string>
-    <string name="option_split_m4b_text">Extract chapters from m4b (new audiobook format). - Still Experimental -</string>
-
-    <string name="option_copy_file_special_zip"><i>zip and split m4b are always copied</i></string>
-
-    <string name="Error_Import_Split_M4B"><i>An error occurred while splitting m4b file.</i></string>
-    <string name="Import_Experimental_M4B_warning">Warning : <b>m4b chapters extraction</b> is still <b>experimental</b>.</string>
-    <string name="Import_Experimental_M4B_iferror">If you encounter errors</string>
-    <string name="Import_Experimental_M4B_solution_1">Uncheck the "split m4b" option.</string>
-    <string name="Import_Experimental_M4B_solution_2"><i>You could also use a third party tool to first convert that m4b file into a folder of mp3 files, and then import that folder into Bookplayer.</i></string>
-    <string name="Import_Progress_splitting_m4b_files">"Splitting m4b files"</string>
-    <string name="Import_Progress_splitting_m4b_file">"splitting m4b file : "</string>
-
-    <string name="Technical_Error">"Technical Error"</string>
-
-<!-- if suppress open ZIP
-    <string name="bOpenFile_desc">Grab a single file.</string>
-    <string name="bOpenFolder_desc">Grab a folder.
-        \nAll audios from that folder will be imported.
-        \n<i>Beware the audios in subfolders, if any, will also be imported.</i></string>
--->
-    <string name="bOpenFile">Any File</string>
-    <string name="bOpenFolder">Folder</string>
-    <string name="bOpenZipFile">Zip File</string>
-    <string name="bOpenM4bFile">Audio File</string>
-
-
-    <string name="TextHeaderOpen">Open an audio on my device</string>
-    <string name="bOpenFile_desc">Grab any file.</string>
-    <string name="bOpenFolder_desc">Grab a folder.
-        \nAll audios from that folder will be imported.
-        \n<i>Beware all audios located in subfolders, if any, will also be imported, recursively.</i></string>
-    <string name="bOpenZipFile_desc">filter : only zip files</string>
-    <string name="bOpenM4bFile_desc">filter : only audio files
-        \n<i>Beware this filter is not perfect, use top button [any file] if problems.</i></string>
-
-    <string name="audio_location_bookplayer_reserved_storage">Bookplayer reserved storage</string>
-    <string name="audio_location_smartphone_shared_storage">Smartphone shared storage</string>
-    <string name="audio_location_audiobook_not_found">Audiobook not found</string>
-
-    <string name="option_alert_delete_picked_source_file_title">!! Warning - Source-Deletion !!</string>
-    <string name="option_alert_delete_picked_source_file_message">"This picked file will be wiped out from device memory after being loaded inside bookplayer app internal memory.\n\nAre you sure ?."</string>
-
-    <string name="error_media_already_loaded_samePath">This media has already been loaded</string>
-    <string name="error_media_already_loaded_sameName">A book with this name already exist in Bookplayer</string>
-
-    <string name="DirectDownload_title">Direct Download</string>
-    <string name="DirectDownload_desc">Paste a link hereunder and press the button to download and integrate an audiobook in one go.</string>
-    <string name="DirectDownload_button">Just Get It</string>
-
-    <string name="ErrorCouldNotLoadAudios">ERROR - Could not load audios.</string>
-    <string name="ErrorCouldNotLoadAudios_emptyfolder">ERROR - no audios found in that folder.</string>
-
     <string name="Permission">Permission</string>
     <string name="permission_read_denied_short_text_on_load">[Music and Audio] permission was previously denied.
         \n\nYou will need to click [App Info] and activate that permission manually.
@@ -359,304 +623,6 @@
     </string>
     <string name="permission_read_write_rationale_short_text_on_load">[Music and Audio] permission needed to play from smartphone general storage.</string>
 
-    <string name="option_on_load_copy_internal">"Copy to Bookplayer internal storage"</string>
-    <string name="option_on_load_split_m4b">"Split M4B into chapters"</string>
-    <string name="option_on_load_delete_source">"Delete source file after import"</string>
-
-    <string name="Import_Progress_copying_zip_file">"copying source file \n- from Device General Storage\n- to Bookplayer app internal memory"</string>
-    <string name="Import_Progress_copying_zip_file_cloud">"copying source file \n- from Cloud\n- to Bookplayer app internal memory"</string>
-
-    <string name="Export">"Export…"</string>
-
-    <string name="bRenameFolder">"Rename Book"</string>
-    <string name="IntroCutText"><i>"Trims the first seconds of each chapter while playing."</i></string>
-
-    <string name="Export_notification_title">"Audiobook exported"</string>
-    <string name="Export_notification_text">"in Download folder"</string>
-    <string name="Export_share_title">"Share ZIP file"</string>
-
-    <string name="Export_display_text_loading">"Loading folder info…"</string>
-    <string name="Export_display_text_preparing_export">"Preparing export…"</string>
-    <string name="Export_display_no_valid_audiobook">"Error getting audiobook audios."</string>
-
-    <string name="Export_display_text_processing">"Processing"</string>
-
-    <string name="StillExperimental">"- Still Experimental -"</string>
-
-
-    <string name="Export_display_text_export_title">"ZIP Export"</string>
-    <string name="Export_done">"Done, exported in [Downloads] folder"</string>
-    <string name="Export_error">"Export Error"</string>
-
-
-
-
-    <string name="Search">"Search"</string>
-    <string name="LibrivoxResultItem_audio_available_since">"audio available since"</string>">
-    <string name="LibrivoxResultitem_nb_of_reviews">"Nb of reviews"</string>">
-    <string name="LibrivoxResultitem_avg_rating">"Avg rating"</string>">
-    <string name="Librivox_bGetAudioBook">"Get Audiobook"</string>">
-
-    <string name="Download_cancelled">"Download cancelled"</string>">
-    <string name="Download_failed">"Download failed"</string>">
-    <string name="downloaded">"downloaded"</string>">
-    <string name="Downloading">"Downloading"</string>">
-    <string name="book_cover">"book cover"</string>">
-
-    <string name="MB_taken_by_BookPlayer_app">" MB taken by BookPlayer app"</string>
-    <string name="MB_taken_by_audio_files">" MB taken by audios files"</string>
-    <string name="MB_taken_by_logs">" MB taken by logs"</string>
-    <string name="MB_available_on_device">" MB : available on device"</string>
-    <string name="MB_device_memory">" MB : Device memory"</string>
-    <string name="MB_available_on_SD_card">" MB : available on SD card"</string>
-    <string name="MB_SD_card_memory">" MB : SD card memory"</string>
-    <string name="audio_location_sdcard">SD card</string>
-
-
-    <string name="librivox_no_audiobook_found_for_search">No audiobook found for search terms</string>
-    <string name="librivox_invalid_response">Invalid response from Librivox Server</string>
-    <string name="loading_details">Loading details…</string>
-    <string name="loading_detail_failed">Failed to load details</string>
-    <string name="librivox_zip_mp3_available">ZIP-MP3 file available</string>
-    <string name="librivox_zip_mp3_not_found">ZIP-MP3 file not found</string>
-    <string name="librivox_wait_integration">But please wait as an another book is still being downloaded/loaded.</string>
-    <string name="Creator">Creator</string>
-    <string name="Available_since">Available since</string>
-    <string name="Error_checking_file">Error checking file</string>
-
-    <string name="Error_Import_OutOfMemory">General Error : Out of Memory</string>
-    <string name="Error_Import_This_folder_may_contain_too_many_books">This folder may contain too many books or subfolders to be loaded in one go.</string>
-
-    <string name="default_for">default for</string>
-
-    <string name="option_copy_file_subtitle">Pros :
-        \n* [Read Audio] permission is not needed.
-        \n* No risk to loose audio book and progress if its source file get accidentally deleted/moved.
-        \n\nCons :
-        \n* More memory will be needed if you do not delete the source file.
-    </string>
-    <string name="option_copy_file_text">Copy audio files in the internal, reserved, BookPlayer app memory.</string>
-
-
-
-    <string name="LibrivoxSearch_warning">"Warning - Beta Test\nStill experimental\nIf download stalls, try to keep app foreground"</string>">
-
-    <string name="Set">Set</string>">
-    <string name="custom_value_in_minutes">custom value in minutes</string>">
-    <string name="MB_audios_in_app">MB: audios in app</string>">
-    <string name="MB_left_on_device">MB: left on device</string>">
-    <string name="MB_device_memory2">MB: device memory</string>">
-    <string name="MB">MB</string>">
-    <string name="IntroCut">"Cut Intro"</string>
-    <string name="Rename_book">"Rename book"</string>
-    <string name="AskRename_Book">"Do you really want to rename the book as"</string>
-    <string name="AskRename_popupTitle">Confirm Rename</string>
-
-
-    <string name="error_could_not_check_hash">Error while checking if this audiobook has already been imported</string>
-    <string name="error_media_already_loaded_samePath_under_the_name">This media has already been loaded and is currently stored under the name : </string>
-    <string name="init_please_wait">Initializing… Please Wait…</string>
-    <string name="error_media_already_loaded_samePath_so_changeName">A different media with the same name had already been loaded, the name will be changed to : </string>
-    <string name="init_check_already_imported_please_wait">"checking if already imported, please wait…"</string>
-    <string name="init_check_complementary_checks_please_wait">"complementary checks, please wait…"</string>
-    <string name="option_open_with_title">Open With / Share</string>
-    <string name="option_open_with_subtitle"><i>Makes Android propose Bookplayer among the other proposed options when selecting [Share] or [open With] after clicking (long-clicking) on a file from the phone file explorer or from downloads</i></string>
-    <string name="option_open_with_text">For zip and most audio files.</string>
-    <string name="option_open_with_text_all">For any kind of file (fail safe).</string>
-    <string name="Error_Import_FolderAlreadyImported">This folder has already been loaded</string>
-
-    <string name="PodcastSearch_title">Podcasts</string>
-    <string name="PodcastSearch_desc">Browse podcasts thanks to open source registery podcastindex.org</string>
-    <string name="podcast_image_desc">Podcast image</string>
-    <string name="podcast_no_results">No podcast found</string>
-    <string name="podcast_nb_of_podcast_found">Nb of podcasts found</string>
-
-    <string name="Search_2pt">"Search: "</string>
-    <string name="Language_2pt">"Language: "</string>
-    <string name="Results_2pt">"Results: "</string>
-    <string name="search_nothing_specified">Nothing specified</string>
-    <string name="search_nothing_specified_so_trending">Nothing => display trending</string>
-    <string name="podcast_favorite_add">Added to favorites</string>
-    <string name="podcast_autodownload_add">Added to auto-download</string>
-    <string name="Favorites">Favorites</string>
-    <string name="podcast_new_episodes">new episodes</string>
-
-    <string name="Podcast_warning">"Warning - Beta Test\nVery experimental"</string>">
-
-    <string name="option_sdcard_title">SD card</string>">
-    <string name="option_sdcard_text">when copying audio in reserved space, use SD card instead of device storage</string>">
-    <string name="option_sdcard_text_caution"><i>please note that if you remove or erase the sd card, you will loose your audios</i></string>">
-
-    <string name="librivox_cover_desc">Librivox cover</string>">
-    <string name="audio_location_sdcard_reserved_storage">SD card (app reserved)</string>
-
-    <string name="left_on">left on</string>">
-    <string name="memory">memory</string>">
-    <string name="device">device</string>">
-    <string name="sd_card">sd card</string>">
-    <string name="SD_card">SD card</string>">
-    <string name="audios_in_app">audios in app</string>">
-
-    <string name="option_on_load_use_SD_card">Use SD card</string>">
-    <string name="OnlineSearch_hint">Jack London</string>
-    <string name="LibrivoxSearch_hint">Jack London</string>
-    <string name="PodcastSearch_hint">cats</string>
-    <string name="DirectDownload_hint">https://bookplayer.driot.com/audiobook630.zip</string>
-    <string name="LibrivoxSearch_title">"AudioBooks"</string>
-    <string name="LibrivoxSearch_desc">"Search directly on LibriVox to find your audiobook. It's a free, public‑domain repository with mostly English works and some available in other languages."</string>
-    <string name="Change_cover_image">"Change Cover Image"</string>
-    <string name="Change">"Change"</string>
-    <string name="listened">"listened"</string>
-    <string name="audio_tracks">"audio tracks"</string>
-    <string name="Added">"Added"</string>
-    <string name="AskRename_Track">Rename this track to</string>
-
-    <string name="DeleteLogs_AskConfirm">"You are about to delete all logs.
-       Are you sure ?"</string>
-    <string name="ModifyFolder_AskDelete">"You are about to delete this folder and all the tracks
-       Are you sure ?"</string>
-    <string name="ModifyFolder_AskReset">"You are about to reset progression for this folder
-       Are you sure ?"</string>
-    <string name="ModifyZikFile_AskDelete">"You are about to delete this audio track
-       Are you sure ?"</string>
-
-    <string name="help_folder_text"><![CDATA[
-    A <font color="#4CAF50">long click</font> on a folder opens the modify folder page.<br>
-    Then you will be able to rename / delete / reset progress.
-    ]]></string>
-    <string name="help_title">BookPlayer Manual</string>
-
-    <string name="help_general_title">General</string>
-    <string name="help_text_general"><![CDATA[
-When you open the app, you’ll see a list of <font color="#90D8E8">folders</font> — these represent your Books, Lessons, or Podcasts.
-<br><br>
-A <font color="#81C784">long press</font> on a <font color="#90D8E8">folder</font> opens the “Modify Folder” screen (rename / delete / reset, etc.).
-<br>
-A tap opens the list of <font color="#BA68C8">tracks</font>.
-<br><br>
-A <font color="#81C784">long press</font> on a <font color="#BA68C8">track</font> opens the “Modify Track” screen.
-<br>
-A tap starts playback.
-]]></string>
-
-    <string name="help_title_manual_import">Manual Import :</string>
-    <string name="help_text_manual_import"><![CDATA[
-When you <font color="#81C784"><b>manually import</b></font> a book, you start by selecting a <font color="#64B5F6">file</font> or a <font color="#64B5F6">folder</font>.
-<br><br>
-BookPlayer supports nearly all audio formats, plays video soundtracks, and can extract chapters from ZIP or M4B files.
-<br><br>
-<b>Option 1: <font color="#FFCC80">Copy</font></b> <i>(default)</i> — The file is <b>copied</b> into BookPlayer’s <font color="#90D8E8">private memory</font>.
-<br>
-<b>Advantages:</b>
-<ul>
-<li>No permissions needed</li>
-<li>Safe from accidental deletion</li>
-</ul>
-<br>
-<b>Option 2: <font color="#FFCC80">No Copy</font></b> — Only the file path is saved. Playback occurs directly from <i>shared storage</i>.
-<br>
-<b>Advantage:</b> Saves internal space.
-<br><br>
-<b>Note:</b> ZIP and split M4B files are always copied.
-<br><br>
-Enable <font color="#F48FB1"><b>auto-delete</b></font> in the Options menu to delete the source file after import.
-]]></string>
-
-    <string name="help_librivox_title">Librivox Import :</string>
-    <string name="help_librivox_text"><![CDATA[
-<font color="#BA68C8"><b>Import Public Domain Audiobooks</b></font>
-<br><br>
-Browse the <font color="#90D8E8"><b>Librivox catalog</b></font> of public domain titles by selecting a <font color="#81C784">language</font>.
-<br><br>
-Tap any book to download it — the audio will be <font color="#FFCC80"><b>copied</b></font> to your device and added to your library.
-<br><br>
-You can <font color="#81C784"><b>start listening right away</b></font>.
-]]></string>
-
-    <string name="help_podcast_title">Podcast Import :</string>
-    <string name="help_podcast_text"><![CDATA[
-<font color="#BA68C8"><b>Discover Podcasts</b></font>
-<br><br>
-Explore a wide range of <font color="#90D8E8">podcasts</font> in many <font color="#81C784">languages</font>.
-<br><br>
-Download any <font color="#FFCC80">episode</font> with a single tap.
-<br><br>
-Add shows to your <font color="#EF9A9A">favorites</font> for easy access and enable <font color="#81C784">auto-download</font> to fetch new episodes automatically.
-<br><br>
-Checks happen regularly, especially when BookPlayer starts.
-]]></string>
-
-    <string name="help_url_title">Import from URL :</string>
-    <string name="help_url_text"><![CDATA[
-<font color="#BA68C8"><b>Import via Link</b></font>
-<br><br>
-Paste a direct URL to an audio file, ZIP, or M4B.
-<br><br>
-Tap <font color="#FFCC80">Import</font> and BookPlayer will fetch and integrate the content.
-<br><br>
-Everything is handled automatically — unpacking, adding, and making it available for playback.
-]]></string>
-
-    <string name="help_storage_title">Storage Location :</string>
-    <string name="help_storage_text"><![CDATA[
-<font color="#BA68C8"><b>Where Files Are Stored</b></font>
-<br><br>
-By default, BookPlayer uses the <font color="#81C784">SD card</font> if available, to save space.
-<br><br>
-To switch to internal storage, change the setting in the <font color="#64B5F6">Options</font> menu.
-]]></string>
-
-    <string name="help_memory_cleaning_title">Memory Cleaning :</string>
-    <string name="help_memory_cleaning_text"><![CDATA[
-<font color="#BA68C8"><b>Manage Internal Storage</b></font>
-<br><br>
-A dedicated screen shows files copied into BookPlayer’s <font color="#90D8E8">private space</font>.
-<br><br>
-See which items take up the most space and <font color="#EF9A9A">delete</font> what you no longer need.
-<br><br>
-<font color="#F44336">Note:</font> This only applies to:
-<ul>
-<li>ZIP imports</li>
-<li>Manual imports with <font color="#81C784">[copy]</font> enabled</li>
-</ul>
-It excludes content from shared storage.
-]]></string>
-
-    <string name="help_tellme_title">Contact the Developer :</string>
-    <string name="help_tellme_text"><![CDATA[
-Having issues or found a bug?
-<br><br>
-Please <font color="#81C784">let me know</font> so I can improve the app!
-<br><br>
-Use the <font color="#90D8E8">"Mail Developer"</font> option from the menu.
-]]></string>
-
-    <string name="help_permission_title">Permissions :</string>
-    <string name="help_permission_text"><![CDATA[
-BookPlayer works <font color="#81C784">even without permissions</font>.
-<br><br>
-But for full functionality:
-<ul>
-<li><b>Read Audio</b> → access external storage</li>
-<li><b>Microphone</b> → enable the sound visualizer</li>
-</ul>
-Denying permissions won’t break the app — BookPlayer adapts.
-]]></string>
-
-    <string name="help_forum_title">Forum :</string>
-    <string name="help_forum_text"><![CDATA[
-<font color="#BA68C8"><b>Join the BookPlayer Community</b></font>
-<br><br>
-A new <font color="#90D8E8">forum</font> has been launched as a small experiment (<i>June 2025</i>).
-<br><br>
-It’s still quiet for now 😊, but you can register to:
-<ul>
-<li><font color="#FFCC80">Report bugs</font></li>
-<li><font color="#FFCC80">Suggest features</font></li>
-<li><font color="#FFCC80">Share tips and audiobooks</font></li>
-</ul>
-All posts are publicly readable. Sign in to participate.
-]]></string>
 
 
 </resources>

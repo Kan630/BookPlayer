@@ -49,7 +49,7 @@ public class ExportActivity extends LoggingActivity {
             int progress = intent.getIntExtra("progressPercent", 0);
             String displayText = intent.getStringExtra("displayText");
             uiHandler.post(() -> {
-                String zeText = getString(R.string.Export_display_text_processing) + ":\n" + currentTrack;
+                String zeText = getString(R.string.Processing) + ":\n" + currentTrack;
                 tvCurrentTrack.setText(zeText);
                 progressText.setText(displayText);
                 progressBar.setProgress(progress);

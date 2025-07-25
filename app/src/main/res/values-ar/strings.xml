@@ -2,17 +2,8 @@
     <string name="app_name" translatable="false">BookPlayer</string>
     <string name="lorem_ipsum" translatable="false">lorem ipsum</string>
 
-    <string name="yesterday">"أمس"</string>
-    <string name="app_info">معلومات التطبيق</string>
-    <string name="delete_logs">حذف السجلات</string>
-    <string name="Delete">حذف</string>
-
     <string name="title_FolderContent">قائمة الملفات</string>
     <string name="PlayerActivity_Title" translatable="false">TextBook Player</string>
-
-    <string name="Yes">نعم</string>
-    <string name="No">لا</string>    <string name="Cancel">إلغاء</string>
-    <string name="are_you_sure">"هل أنت متأكد؟"</string>
 
     <string name="asset_statements" translatable="false">
     [{
@@ -20,217 +11,481 @@
     }]
     </string>
 
+    <string name="AutoTest_b1_text" translatable="false">zip (700KB)</string>
+    <string name="AutoTest_b2_text" translatable="false">multi lang zip (7MB)</string>
+    <string name="AutoTest_b3_text" translatable="false">m4b (9MB)</string>
+
+    <!-- ********************************** -->
+    <!-- GENERAL -->
+
+    <string name="Yes">نعم</string>
+    <string name="No">لا</string>
+    <string name="Cancel">إلغاء</string>
+    <string name="are_you_sure">هل أنت متأكد؟</string>
+    <string name="Technical_Error">"خطأ تقني"</string>
+    <string name="yesterday">"أمس"</string>
+    <string name="app_info">معلومات التطبيق</string>
+    <string name="delete_logs">حذف السجلات</string>
+    <string name="Delete">حذف</string>
+
+    <string name="DeleteLogs_AskConfirm">"أنت على وشك حذف جميع السجلات.\nهل أنت متأكد؟"</string>
+    <string name="ModifyFolder_AskDelete">"أنت على وشك حذف هذا المجلد وجميع المقاطع الصوتية\nهل أنت متأكد؟"</string>
+    <string name="ModifyFolder_AskReset">"أنت على وشك إعادة تعيين التقدم لهذا المجلد\nهل أنت متأكد؟"</string>
+    <string name="ModifyZikFile_AskDelete">"أنت على وشك حذف هذا المقطع الصوتي\nهل أنت متأكد؟"</string>
+
+    <string name="left_on">المتبقي في</string>
+    <string name="memory">الذاكرة</string>
+    <string name="device">الجهاز</string>
+    <string name="sd_card">بطاقة SD</string>
+    <string name="SD_card">بطاقة SD</string>
+    <string name="audios_in_app">ملفات صوتية في التطبيق</string>
+    <string name="Change">"تغيير"</string>
+    <string name="listened">"تم الاستماع"</string>
+    <string name="audio_tracks">"مقاطع صوتية"</string>
+    <string name="Added">"تمت الإضافة"</string>
+    <string name="Favorites">المفضلة</string>
+    <string name="Set">تعيين</string>
+    <string name="MB">ميغابايت</string>
+    <string name="Export">"تصدير…"</string>
+    <string name="version">الإصدار</string>
+    <string name="miscellaneous">متنوع</string>
+    <string name="Processing">"جارٍ المعالجة"</string>
+    <string name="StillExperimental">"- لا يزال تجريبيًا -"</string>
+    <string name="Download_cancelled">"تم إلغاء التنزيل"</string>
+    <string name="Download_failed">"فشل التنزيل"</string>
+    <string name="downloaded">"تم التنزيل"</string>
+    <string name="Downloading">"جاري التنزيل"</string>
+    <string name="book_cover">"غلاف الكتاب"</string>
+    <string name="Search">"بحث"</string>
+    <string name="Creator">المنشئ</string>
+    <string name="Available_since">متاح منذ</string>
+    <string name="Error_checking_file">خطأ في التحقق من الملف</string>
+    <string name="default_for">الافتراضي لـ</string>
+
 
     <!-- ********************************** -->
     <!-- HELP Screen -->
 
-    <string name="help_folder">المجلد:</string>
+    <string name="help_title">دليل BookPlayer</string>
 
-    <string name="help_file">المسار:</string>
-    <string name="help_file_text">"النقر المطول على مسار يفتح صفحة [تعديل المسار].
-    \nثم يمكنك إعادة تسميته/تغيير الترتيب/حذفه/إعادة تعيين التقدم"</string>
+    <string name="help_general_title">عام</string>
+    <string name="help_text_general"><![CDATA[
+    عند فتح التطبيق، سترى قائمة من <font color="#90D8E8">المجلدات</font> — تمثل كتبك أو دروسك أو بودكاستاتك.
+    <br><br>
+    <font color="#81C784">ضغطة مطولة</font> على <font color="#90D8E8">مجلد</font> تفتح شاشة "تعديل المجلد" (إعادة تسمية / حذف / إعادة تعيين، إلخ).
+    <br>
+    ضغطة عادية تفتح قائمة <font color="#BA68C8">المسارات</font>.
+    <br><br>
+    <font color="#81C784">ضغطة مطولة</font> على <font color="#BA68C8">مسار</font> تفتح شاشة "تعديل المسار".
+    <br>
+    ضغطة عادية تبدأ التشغيل.
+]]></string>
 
-    <string name="help_title_manual_import">استيراد:</string>
+    <string name="help_title_manual_import">الاستيراد اليدوي :</string>
+    <string name="help_text_manual_import"><![CDATA[
+    عند <font color="#81C784"><b>استيرادك يدويًا</b></font> لكتاب، تبدأ باختيار <font color="#64B5F6">ملف</font> أو <font color="#64B5F6">مجلد</font>.
+    <br><br>
+    يدعم BookPlayer تقريبًا جميع تنسيقات الصوت، ويشغل مسارات الفيديو، ويمكنه استخراج الفصول من ملفات ZIP أو M4B.
+    <br><br>
+    <b>الخيار 1: <font color="#FFCC80">نسخ</font></b> <i>(افتراضي)</i> — يتم <b>نسخ</b> الملف إلى <font color="#90D8E8">الذاكرة الخاصة</font> بـ BookPlayer.
+    <br>
+    <b>المزايا:</b>
+    <ul>
+    <li>لا حاجة للأذونات</li>
+    <li>آمن من الحذف العرضي</li>
+    </ul>
+    <br>
+    <b>الخيار 2: <font color="#FFCC80">بدون نسخ</font></b> — فقط يتم حفظ مسار الملف. يتم التشغيل مباشرة من <i>التخزين المشترك</i>.
+    <br>
+    <b>الميزة:</b> توفير في المساحة الداخلية.
+    <br><br>
+    <b>ملاحظة:</b> يتم دائمًا نسخ ملفات ZIP و M4B المجزأة.
+    <br><br>
+    فعّل <font color="#F48FB1"><b>الحذف التلقائي</b></font> من قائمة الخيارات لحذف الملف الأصلي بعد الاستيراد.
+]]></string>
 
-    <string name="help_trouble">مشاكل الاستيراد:</string>
-    <string name="help_trouble_text">"إذا واجهت مشاكل في استيراد الصوت:
-        \nZIP: في منتقي الملفات، إذا نقرت على zip يعرض محتوى zip بدلاً من السماح لك بتحديد zip، حاول النقر المطول على zip.
-        \nZIP: إذا فشل فك الضغط، حاول فكها مسبقاً باستخدام تطبيق آخر.
-        \nإذا كانت هناك مشكلة في اختيار الصوت من مجلد التنزيلات، حاول نقلها خارج مجلد \'التنزيلات\'."</string>
+    <string name="help_librivox_title">استيراد Librivox :</string>
+    <string name="help_librivox_text"><![CDATA[
+    <font color="#BA68C8"><b>استيراد كتب صوتية في النطاق العام</b></font>
+    <br><br>
+    تصفح <font color="#90D8E8"><b>فهرس Librivox</b></font> للعناوين العامة عبر اختيار <font color="#81C784">لغة</font>.
+    <br><br>
+    اضغط على أي كتاب لتحميله — سيتم <font color="#FFCC80"><b>نسخ</b></font> الصوت إلى جهازك وإضافته إلى مكتبتك.
+    <br><br>
+    يمكنك <font color="#81C784"><b>الاستماع فورًا</b></font>.
+]]></string>
 
-    <string name="help_tellme">أخبرني!</string>
+    <string name="help_podcast_title">استيراد بودكاست :</string>
+    <string name="help_podcast_text"><![CDATA[
+    <font color="#BA68C8"><b>اكتشف البودكاستات</b></font>
+    <br><br>
+    استكشف مجموعة واسعة من <font color="#90D8E8">البودكاستات</font> بلغات متعددة <font color="#81C784">مختلفة</font>.
+    <br><br>
+    حمّل أي <font color="#FFCC80">حلقة</font> بضغطة واحدة.
+    <br><br>
+    أضف البرامج إلى <font color="#EF9A9A">المفضلة</font> للوصول السريع وفعّل <font color="#81C784">التحميل التلقائي</font> للحصول على الحلقات الجديدة تلقائيًا.
+    <br><br>
+    يتم التحقق بانتظام، خاصة عند فتح BookPlayer.
+]]></string>
 
-    <string name="help_cachefiles">تنظيف الذاكرة:</string>
-    <string name="help_memory_cleaning_text">"توجد الآن واجهة محددة للتحقق من محتوى الذاكرة الداخلية لـ Bookplayer.
-        \n
-        \nتتيح لك رؤية الكتب التي تأخذ مساحة كبيرة. يمكنك حذف بعضها من هنا.
-        \n
-        \nلاحظ أن هذا سيعرض فقط الكتب التي تم نسخها داخل الذاكرة الداخلية المخصصة لـ Bookplayer.
-        \nأي جميع ملفات الصوت من ملف ZIP + جميع ملفات الصوت من الملف/المجلد الفردي التي تم تحميلها مع تفعيل خيار [نسخ] (في القائمة/الخيارات)"</string>
+    <string name="help_url_title">الاستيراد من رابط :</string>
+    <string name="help_url_text"><![CDATA[
+    <font color="#BA68C8"><b>الاستيراد عبر رابط</b></font>
+    <br><br>
+    الصق رابطًا مباشرًا إلى ملف صوتي أو ZIP أو M4B.
+    <br><br>
+    اضغط على <font color="#FFCC80">استيراد</font> وسيتولى BookPlayer تحميل ودمج المحتوى.
+    <br><br>
+    يتم التعامل مع كل شيء تلقائيًا — فك الضغط، الإضافة، والتشغيل.
+]]></string>
 
-    <string name="help_permission">الأذونات:</string>
-    <string name="help_permission_text">"يمكن لـ BookPlayer العمل بدون أي أذونات.
-        \nهناك 3 أذونات رئيسية:
-        \n<b>[الموسيقى والصوت]</b> = [قراءة الصوت] = [التخزين الخارجي]: يسمح بقراءة الصوت من الذاكرة العامة للجهاز، إذا كان خيار النسخ غير محدد (مثل من مجلد التنزيلات، مجلد الموسيقى أو أي مجلد آخر)
-        \n\n<b>[الميكروفون]</b> (= [تسجيل الصوت]) مطلوب لعرض مؤشر مرئي للترددات (عرض طيف الصوت). إذا تم رفضه، فلن يتم عرضه ببساطة، لا مشكلة.
-        \n\n<b>[الإشعارات]</b> قد تكون مطلوبة على بعض الأجهزة (Android 14+). يتم استخدامها لعرض عنصر التحكم في شاشة القفل. <i>(عادة ما يعرض مباشرة دون حتى طلب الإذن.)"</i>
-    </string>
+    <string name="help_storage_title">موقع التخزين :</string>
+    <string name="help_storage_text"><![CDATA[
+    <font color="#BA68C8"><b>أين يتم تخزين الملفات</b></font>
+    <br><br>
+    بشكل افتراضي، يستخدم BookPlayer <font color="#81C784">بطاقة SD</font> إن كانت متوفرة لتوفير المساحة.
+    <br><br>
+    لتغيير التخزين إلى الداخلي، قم بتعديل الإعداد في قائمة <font color="#64B5F6">الخيارات</font>.
+]]></string>
 
-    <string name="help_forum">المنتدى:</string>
-    <string name="help_forum_text">"لقد أنشأت منتدى للمستخدمين لمناقشة هذا التطبيق. (يونيو 2025).
-        \nيمكن لأي شخص قراءة المشاركات، لكنك ستحتاج لتسجيل بريدك الإلكتروني للمشاركة.
-        \nلا تتردد في اقتراح تحسينات، مشاركة أفكار أو الإبلاغ عن أخطاء.
-        \nيمكنك أيضاً تبادل النصائح - مثل أماكن العثور على كتب صوتية عالية الجودة والمزيد.
-    </string>
+    <string name="help_memory_cleaning_title">تنظيف الذاكرة :</string>
+    <string name="help_memory_cleaning_text"><![CDATA[
+    <font color="#BA68C8"><b>إدارة التخزين الداخلي</b></font>
+    <br><br>
+    تعرض شاشة مخصصة الملفات المنسوخة إلى <font color="#90D8E8">المساحة الخاصة</font> بـ BookPlayer.
+    <br><br>
+    شاهد ما الذي يستهلك أكبر مساحة وقم <font color="#EF9A9A">بحذفه</font> إذا لم تعد بحاجة إليه.
+    <br><br>
+    <font color="#F44336">ملاحظة:</font> هذا ينطبق فقط على:
+    <ul>
+    <li>الاستيراد من ZIP</li>
+    <li>الاستيراد اليدوي مع تفعيل <font color="#81C784">[نسخ]</font></li>
+    </ul>
+    لا يشمل المحتوى من التخزين المشترك.
+]]></string>
+
+    <string name="help_tellme_title">اتصل بالمطور :</string>
+    <string name="help_tellme_text"><![CDATA[
+    هل تواجه مشاكل أو وجدت خطأ؟
+    <br><br>
+    من فضلك <font color="#81C784">أعلمني</font> لكي أتمكن من تحسين التطبيق!
+    <br><br>
+    استخدم خيار <font color="#90D8E8">"مراسلة المطور"</font> من القائمة.
+]]></string>
+
+    <string name="help_permission_title">الأذونات :</string>
+    <string name="help_permission_text"><![CDATA[
+    يعمل BookPlayer <font color="#81C784">حتى بدون أذونات</font>.
+    <br><br>
+    لكن للحصول على كافة الوظائف:
+    <ul>
+    <li><b>قراءة الصوتيات</b> → للوصول إلى التخزين الخارجي</li>
+    <li><b>الميكروفون</b> → لتفعيل مؤثرات الصوت البصرية</li>
+    </ul>
+    رفض الأذونات لن يعطل التطبيق — BookPlayer يتأقلم.
+]]></string>
+
+    <string name="help_forum_title">المنتدى :</string>
+    <string name="help_forum_text"><![CDATA[
+    <font color="#BA68C8"><b>انضم إلى مجتمع BookPlayer</b></font>
+    <br><br>
+    تم إطلاق <font color="#90D8E8">منتدى</font> جديد كتجربة صغيرة (<i>يونيو 2025</i>).
+    <br><br>
+    لا يزال هادئًا الآن 😊، لكن يمكنك التسجيل من أجل:
+    <ul>
+    <li><font color="#FFCC80">الإبلاغ عن الأخطاء</font></li>
+    <li><font color="#FFCC80">اقتراح ميزات</font></li>
+    <li><font color="#FFCC80">مشاركة النصائح والكتب الصوتية</font></li>
+    </ul>
+    كل المشاركات متاحة للقراءة العامة. سجّل للمشاركة.
+]]></string>
 
 
-    <!-- ********************************** -->
-    <!-- Options Screen -->
+    <string name="option_hide_advanced_options">إخفاء الخيارات المتقدمة</string>
+    <string name="option_show_advanced_options">إظهار الخيارات المتقدمة</string>
 
-    <string name="option_hide_advanced_options">"إخفاء الخيارات المتقدمة"</string>
-    <string name="option_show_advanced_options">"إظهار الخيارات المتقدمة"</string>
-
-    <string name="option_timeBeforeSleep">توقف تلقائي</string>
-    <string name="option_timeBeforeSleep_text">بعد:</string>
+    <string name="option_timeBeforeSleep">إيقاف تلقائي</string>
+    <string name="option_timeBeforeSleep_text">بعد :</string>
     <string name="option_timeBeforeSleep_min">دقيقة.</string>
-    <string name="option_timeBeforeSleep_outOfBound">أوه: مدة التوقف التلقائي خارج الحدود، العودة للإعدادات الافتراضية</string>
+    <string name="option_timeBeforeSleep_outOfBound">آه: مدة الإيقاف التلقائي غير صالحة، تمت إعادة التعيين إلى القيمة الافتراضية</string>
 
     <string name="option_zip">ملفات Zip</string>
-    <string name="option_copyzip_local">نسخ الملفات في ذاكرة التطبيق (إلزامي لأندرويد 11 وما فوق).</string>
-    <string name="option_unzip_local">فك ضغط الملفات (يستهلك مساحة تخزين، لكن تجربة استماع أفضل)</string>
+    <string name="option_copyzip_local">نسخ الملفات إلى ذاكرة التطبيق (إلزامي في أندرويد 11 وما فوق).</string>
+    <string name="option_unzip_local">فك الضغط عن الملفات (يستهلك مساحة تخزين، لكنه يوفر تجربة استماع أكثر سلاسة)</string>
 
-    <string name="option_copy_file_title">نسخ الملفات داخلياً</string>
+    <string name="option_copy_file_title">نسخ الملفات داخليًا</string>
 
+    <string name="option_backward_forward_title">أزرار الرجوع/التقديم</string>
+    <string name="option_backward_forward_text">الفاصل الزمني :</string>
 
-    <string name="option_backward_forward_title">أزرار الرجوع/التقدم</string>
-    <string name="option_backward_forward_text">قفز:</string>
+    <string name="option_rewind_after_pause_title">إرجاع تلقائي عند الاستئناف</string>
+    <string name="option_rewind_after_pause_text">"إرجاع الصوت بضع ثوانٍ قبل استئناف التشغيل (توقف لمدة 5 دقائق يعيد 3 ثوانٍ، وتوقف لمدة ساعة يعيد 5 ثوانٍ، …)"</string>
 
-    <string name="option_rewind_after_pause_title">إعادة للخلف عند الاستئناف</string>
-    <string name="option_rewind_after_pause_text">"إعادة الصوت لبضع ثوان قبل استئناف التشغيل، (توقف لمدة 5 دقائق يؤدي لإعادة 3 ثوان، توقف لمدة ساعة يؤدي لـ5 ثوان، ...)"</string>
-
-    <string name="option_pick_theme_color_title">اختر سمة لون التطبيق</string>
+    <string name="option_pick_theme_color_title">اختر سمة الألوان للتطبيق</string>
 
     <string name="option_orientation">اتجاه الشاشة</string>
-    <string name="option_orientation_lock">قفل اتجاه الشاشة عند التشغيل (من الأفضل تركه مفعلاً)</string>
+    <string name="option_orientation_lock">قفل اتجاه الشاشة أثناء التشغيل (من الأفضل تركه مفعلًا)</string>
 
-    <string name="option_delete_source_file_title">حذف الملف المصدر تلقائياً</string>
-    <string name="option_delete_source_file_subtitle"><i>بعد تحميل كتاب صوتي في BookPlayer، يمكن حذف الملف/المجلد المصدر الذي اخترته تلقائياً.
-        \nلاحظ أن هذا ممكن فقط لملفات zip أو إذا كان الخيار أعلاه محدداً (إذا تم نسخ الصوت في الذاكرة المخصصة لـ Bookplayer).
-        </i></string>
-    <string name="option_delete_source_file_text">حذف الملف/المجلد المختار تلقائياً بمجرد تحميله في Bookplayer.</string>
+    <string name="option_delete_source_file_title">حذف الملف الأصلي تلقائيًا</string>
+    <string name="option_delete_source_file_subtitle"><i>بعد تحميل كتاب صوتي داخل BookPlayer، يمكن حذف الملف أو المجلد الأصلي تلقائيًا.
+        \nيرجى ملاحظة أن ذلك ممكن فقط لملفات zip أو إذا تم تفعيل الخيار أعلاه (في حال تم نسخ الملفات داخل ذاكرة BookPlayer).</i></string>
+    <string name="option_delete_source_file_text">احذف الملف/المجلد المحدد تلقائيًا بعد تحميله داخل BookPlayer.</string>
     <string name="option_alert_delete_source_file_title">!! تحذير - حذف تلقائي !!</string>
-    <string name="option_alert_delete_source_file_message">سيتم حذف جميع الملفات المحملة في Bookplayer من ذاكرة الجهاز.\n\nهل أنت متأكد؟.</string>
+    <string name="option_alert_delete_source_file_message">سيتم حذف كل ملف يتم تحميله داخل BookPlayer من ذاكرة الجهاز.\n\nهل أنت متأكد؟</string>
 
-    <string name="option_beep_title">صوت التنبيه</string>
-    <string name="option_beep_between_chapters">إصدار صوت تنبيه عند نهاية الفصول.</string>
-    <string name="option_beep_for_autostop">إصدار صوت تنبيه طويل عند الدخول في وضع النوم <i>(توقف تلقائي بعد XX دقيقة)</i></string>
-    <string name="option_beep_at_the_end">إصدار صوت تنبيه ثلاثي عند نهاية الكتاب.</string>
+    <string name="option_beep_title">صوت تنبيهي</string>
+    <string name="option_beep_between_chapters">أصدر صوتًا في نهاية الفصول.</string>
+    <string name="option_beep_for_autostop">أصدر صوتًا طويلًا عند الدخول في وضع الإيقاف المؤقت <i>(بعد عدد دقائق معين)</i></string>
+    <string name="option_beep_at_the_end">أصدر ثلاث صفارات في نهاية الكتاب.</string>
 
-    <string name="option_open_with_title">فتح مع / اختيار التطبيق</string>
-    <string name="option_open_with_subtitle"><i>جعل أندرويد يقترح Bookplayer بين الخيارات عند النقر/تنزيل ملف صوتي/zip</i></string>
-    <string name="option_open_with_text">إضافة Bookplayer إلى خيارات \'فتح مع\'.</string>
-
-    <string name="option_visualizer_title">مُحلل الطيف</string>
-    <string name="option_visualizer_text_01">عرض مُحلل الطيف البسيط عند تشغيل الصوت.</string>
+    <string name="option_visualizer_title">عرض الطيف الترددي</string>
+    <string name="option_visualizer_text_01">عارض تردد بسيط يظهر عند تشغيل الصوت.</string>
     <string name="option_visualizer_text_02">يتطلب إذن [تسجيل الصوت]/[الميكروفون]</string>
-    <string name="option_visualizer_permissions_granted">ممنوح</string>
+    <string name="option_visualizer_permissions_granted">مسموح</string>
     <string name="option_visualizer_permissions_denied_01">مرفوض</string>
-    <string name="option_visualizer_permissions_denied_02">انقر مرة أخرى على المربع لطلب الإذن</string>
+    <string name="option_visualizer_permissions_denied_02">اضغط مرة أخرى على خانة الاختيار لطلب الإذن</string>
 
-    <string name="option_click_visualizer_playpause_text_01">النقر على مُحلل الطيف يعمل أيضاً كزر تشغيل/إيقاف.</string>
+    <string name="option_click_visualizer_playpause_text_01">النقر على العارض يعمل كزر تشغيل/إيقاف مؤقت.</string>
 
-    <string name="option_log">التسجيل</string>
+    <string name="option_log">تسجيل الأخطاء</string>
     <string name="option_tech_log_subtitle"><i>
-        هل يجب على التطبيق إنشاء ملفات تسجيل تقنية.
+        هل يجب أن ينشئ التطبيق ملفات سجل تقنية لتصحيح الأخطاء؟
     </i></string>
     <string name="option_tech_log_text">تسجيل تقني.</string>
 
-    <string name="option_mail_method">طريقة إرسال البريد</string>
-    <string name="option_mail_method_default">استخدام تطبيق البريد الافتراضي.\n<i>قم بإلغاء التحديد ليتم سؤالك عن التطبيق المراد استخدامه.</i></string>
+    <string name="option_mail_method">إرسال البريد</string>
+    <string name="option_mail_method_default">استخدم تطبيق البريد الافتراضي.\n<i>قم بإلغاء التحديد ليُطلب منك اختيار التطبيق.</i></string>
 
+    <string name="option_open_with_title">فتح باستخدام / مشاركة</string>
+    <string name="option_open_with_subtitle"><i>يجعل Android يعرض BookPlayer من بين الخيارات عند اختيار [مشاركة] أو [فتح باستخدام] بعد النقر (نقرة طويلة) على ملف من مدير الملفات أو التنزيلات</i></string>
+    <string name="option_open_with_text">لملفات zip ومعظم ملفات الصوت.</string>
+    <string name="option_open_with_text_all">لأي نوع من الملفات (وضع آمن).</string>
+    <string name="option_on_load_use_SD_card">استخدم بطاقة SD</string>
+
+    <string name="option_split_m4b">تقسيم .m4b</string>
+    <string name="option_split_m4b_text">استخراج الفصول من m4b (تنسيق كتاب صوتي جديد). - لا يزال تجريبيًا -</string>
+
+    <string name="option_copy_file_special_zip"><i>يتم دائمًا نسخ ملفات zip وm4b المقسمة</i></string>
+
+    <string name="option_alert_delete_picked_source_file_title">!! تحذير - حذف المصدر !!</string>
+    <string name="option_alert_delete_picked_source_file_message">"سيتم حذف الملف المحدد من ذاكرة الجهاز بعد تحميله داخل ذاكرة BookPlayer.\n\nهل أنت متأكد؟"</string>
+    <string name="option_on_load_copy_internal">"نسخ إلى ذاكرة BookPlayer الداخلية"</string>
+    <string name="option_on_load_split_m4b">"تقسيم M4B إلى فصول"</string>
+    <string name="option_on_load_delete_source">"حذف الملف المصدر بعد الاستيراد"</string>
+
+    <string name="option_sdcard_title">بطاقة SD</string>
+    <string name="option_sdcard_text">عند نسخ الصوت إلى مساحة محجوزة، استخدم بطاقة SD بدلاً من تخزين الجهاز</string>
+    <string name="option_sdcard_text_caution"><i>يرجى ملاحظة أنه إذا قمت بإزالة أو حذف بطاقة SD، فستفقد ملفاتك الصوتية</i></string>
+
+    <string name="option_copy_file_subtitle">الإيجابيات :
+        \n* لا حاجة لإذن [قراءة الصوت].
+        \n* لا خطر لفقدان الكتاب الصوتي والتقدم إذا تم حذف الملف المصدر أو نقله عن طريق الخطأ.
+        \n\nالسلبيات :
+        \n* ستحتاج إلى مزيد من الذاكرة إذا لم تحذف الملف المصدر.
+</string>
+    <string name="option_copy_file_text">انسخ ملفات الصوت إلى ذاكرة التطبيق الداخلية المحجوزة لـ BookPlayer.</string>
 
     <!-- ********************************** -->
     <!-- Get Resources -->
 
-
-    <string name="TextHeaderSearch">البحث عن صوت مجاني على الإنترنت</string>
-    <string name="bSearchlitteratureaudio_desc">ابحث ثم حمل كتاباً من litteratureaudio.com (فرنسي):</string>
-    <string name="bSearchOpenCulture_desc">ابحث عن بعض الملفات الصوتية على Open Culture:</string>
-    <string name="bSearchExampleText">هذه المواقع المذكورة أعلاه هي أمثلة فقط، هناك الكثير من الصوتيات على الويب، يمكنك أيضاً تنزيل محاضرات جامعية.</string>
+    <string name="TextHeaderSearch">ابحث عن صوتيات مجانية على الإنترنت</string>
+    <string name="bSearchlitteratureaudio_desc">ابحث ثم حمّل كتاباً من litteratureaudio.com (بالفرنسية):</string>
+    <string name="bSearchOpenCulture_desc">ابحث عن بعض الصوتيات على Open Culture:</string>
+    <string name="bSearchExampleText">المواقع أعلاه مجرد أمثلة، هناك الكثير من الصوتيات على الويب، يمكنك أيضاً تحميل محاضرات جامعية.</string>
 
     <string name="AutoTest_title">اختبار تلقائي</string>
-    <string name="AutoTest_desc">تنزيل ودمج تلقائي للكتب الصوتية، لأغراض الاختبار</string>
+    <string name="AutoTest_desc">تنزيل وتكامل تلقائي للكتب الصوتية لأغراض الاختبار</string>
 
+    <string name="bOpenFile">أي ملف</string>
+    <string name="bOpenFolder">مجلد</string>
+    <string name="bOpenZipFile">ملف مضغوط</string>
+    <string name="bOpenM4bFile">ملف صوتي</string>
+
+    <string name="OnlineSearch_title">تكامل مباشر - اختبار تجريبي</string>
+    <string name="OnlineSearch_desc">استخدم ميزة البحث هذه للعثور على الكتاب الصوتي الذي تريده. ثم، في الصفحة التالية، اختر ما تريد استيراده، وسيتم تنزيله وإضافته تلقائياً إلى BookPlayer!</string>
+    <string name="OnlineSearch_button">ابحث…</string>
+
+    <string name="TextHeaderOpen">افتح ملفاً صوتياً من جهازي</string>
+    <string name="bOpenFile_desc">اختر أي ملف.</string>
+    <string name="bOpenFolder_desc">اختر مجلداً.
+        \nسيتم استيراد جميع الملفات الصوتية في هذا المجلد.
+        \n<i>انتبه: سيتم أيضاً استيراد الملفات الموجودة في المجلدات الفرعية، إن وجدت، بشكل متكرر.</i></string>
+    <string name="bOpenZipFile_desc">فلتر: فقط ملفات zip</string>
+    <string name="bOpenM4bFile_desc">فلتر: فقط ملفات الصوت
+        \n<i>انتبه: هذا الفلتر ليس مثالياً، استخدم الزر العلوي [أي ملف] إذا واجهت مشاكل.</i></string>
+
+    <string name="DirectDownload_title">تحميل مباشر</string>
+    <string name="DirectDownload_desc">الصق الرابط أدناه واضغط على الزر لتنزيل ودمج كتاب صوتي مباشرة.</string>
+    <string name="DirectDownload_button">حمّله فقط</string>
+
+    <string name="LibrivoxSearch_title">"كتب صوتية"</string>
+    <string name="LibrivoxSearch_desc">"ابحث مباشرة في LibriVox للعثور على كتابك الصوتي. إنه أرشيف مجاني في الملكية العامة، يضم بشكل أساسي أعمالاً باللغة الإنجليزية وبعضها بلغات أخرى."</string>
+
+    <string name="OnlineSearch_hint">جاك لندن</string>
+    <string name="LibrivoxSearch_hint">جاك لندن</string>
+    <string name="PodcastSearch_hint">قطط</string>
+    <string name="DirectDownload_hint">https://bookplayer.driot.com/audiobook630.zip</string>
+
+    <string name="PodcastSearch_title">بودكاستات</string>
+    <string name="PodcastSearch_desc">استعرض البودكاستات عبر قاعدة البيانات المفتوحة podcastindex.org</string>
+    <string name="podcast_image_desc">صورة البودكاست</string>
+    <string name="podcast_no_results">لم يتم العثور على بودكاست</string>
+    <string name="podcast_nb_of_podcast_found">عدد البودكاستات المُكتشفة</string>
+
+    <string name="Search_2pt">"بحث: "</string>
+    <string name="Language_2pt">"اللغة: "</string>
+    <string name="Results_2pt">"النتائج: "</string>
+    <string name="search_nothing_specified">لم يتم تحديد شيء</string>
+    <string name="search_nothing_specified_so_trending">لا شيء => عرض الشائع حالياً</string>
+
+    <string name="LibrivoxResultItem_audio_available_since">"الصوت متوفر منذ"</string>
+    <string name="LibrivoxResultitem_nb_of_reviews">"عدد التقييمات"</string>
+    <string name="LibrivoxResultitem_avg_rating">"متوسط التقييم"</string>
+    <string name="Librivox_bGetAudioBook">"تحميل الكتاب الصوتي"</string>
+    <string name="librivox_no_audiobook_found_for_search">لم يتم العثور على كتب صوتية لمصطلحات البحث</string>
+    <string name="librivox_invalid_response">استجابة غير صالحة من خادم Librivox</string>
+    <string name="loading_details">جاري تحميل التفاصيل…</string>
+    <string name="loading_detail_failed">فشل في تحميل التفاصيل</string>
+    <string name="librivox_zip_mp3_available">ملف ZIP-MP3 متاح</string>
+    <string name="librivox_zip_mp3_not_found">لم يتم العثور على ملف ZIP-MP3</string>
+    <string name="librivox_wait_integration">يرجى الانتظار حيث يتم حالياً تحميل / دمج كتاب آخر.</string>
+
+    <string name="LibrivoxSearch_warning">"تحذير - اختبار تجريبي\nلا تزال خاصية تجريبية\nإذا توقف التنزيل، حاول إبقاء التطبيق في المقدمة"</string>
+    <string name="librivox_cover_desc">غلاف Librivox</string>
+
+    <string name="podcast_favorite_add">تمت الإضافة إلى المفضلة</string>
+    <string name="podcast_autodownload_add">تم تفعيل التحميل التلقائي</string>
+    <string name="podcast_new_episodes">حلقات جديدة</string>
+
+
+    <!-- ********************************** -->
     <!-- Add Resources -->
 
-    <string name="bAddRessource">إضافة محتوى</string>
+    <string name="bAddRessource">أضف محتوى</string>
 
-    <string name="Error_Import_IsNotFolder">هذا لا يبدو مجلداً</string>
-    <string name="Error_Import_IsNotFile">هذا لا يبدو ملفاً</string>
-    <string name="Error_Import_FolderAlreadyImported">هذا المجلد تم تحميله مسبقاً</string>
-    <string name="Error_Import_NoMediaInFolder">لم يتم العثور على وسائط في هذا المجلد</string>
+    <string name="Error_Import_IsNotFolder">هذا لا يبدو كمجلد</string>
+    <string name="Error_Import_IsNotFile">هذا لا يبدو كملف</string>
+    <string name="Error_Import_NoMediaInFolder">لم يتم العثور على ملفات وسائط في هذا المجلد</string>
     <string name="Error_Import_FilePathKO">تعذر العثور على مسار الملف</string>
     <string name="Error_Import_FolderPathKO">تعذر العثور على مسار المجلد</string>
     <string name="Error_Import_CannotReadFile">خطأ في قراءة الملف المحدد</string>
     <string name="Error_Import_CannotReadFolder">خطأ في قراءة المجلد المحدد</string>
-    <string name="Error_Import_CannotParseFile">خطأ أثناء تحليل مصدر الصوت</string>
+    <string name="Error_Import_CannotParseFile">حدث خطأ أثناء تحليل مصدر الصوت</string>
     <string name="Error_Import_CannotGetParentDir">تعذر الحصول على المجلد الأب</string>
     <string name="Error_Import_TypeNotSupported">هذا النوع غير مدعوم</string>
     <string name="Error_Import_CannotDetermineType">تعذر تحديد نوع الملف</string>
-    <string name="Error_Import_NotAnAudio">ليس ملف صوتي؟</string>
-    <string name="Error_Import_CannotSaveInDB">خطأ في حفظ ملف الصوت في قاعدة البيانات المحلية</string>
-    <string name="Error_Import_CannotDeleteSource">خطأ أثناء حذف مصدر الصوت</string>
-    <string name="Error_Import_AlreadyImported">هذا الكتاب تم تنزيله واستيراده مسبقاً باسم</string>
-    <string name="Error_Import_BetterTryNoDownloadFolder">حاول نقل المورد الصوتي إلى موقع آخر (ليس في مجلد التنزيلات)</string>
+    <string name="Error_Import_NotAnAudio">هل هذا ليس ملفاً صوتياً؟</string>
+    <string name="Error_Import_CannotSaveInDB">حدث خطأ أثناء حفظ الملف الصوتي في قاعدة البيانات المحلية</string>
+    <string name="Error_Import_CannotDeleteSource">حدث خطأ أثناء حذف مصدر الصوت</string>
+    <string name="Error_Import_AlreadyImported">تم تنزيل هذا الكتاب واستيراده مسبقاً كـ</string>
+    <string name="Error_Import_BetterTryNoDownloadFolder">جرّب نقل المورد الصوتي إلى موقع آخر (ليس مجلد التنزيل)</string>
     <string name="Import_nMediaInFolder">تم العثور على وسائط في هذا المجلد</string>
-    <string name="Error_Getting_Ressource_Name_from_Download_Folder">خطأ في الوصول إلى المورد في موقع التنزيلات</string>
-    <string name="Add_resource_reading_file">تحليل الملف</string>
+    <string name="Error_Getting_Ressource_Name_from_Download_Folder">خطأ أثناء الوصول إلى المورد في موقع التنزيل</string>
+    <string name="Add_resource_reading_file">جارٍ تحليل الملف</string>
 
-    <string name="Import_Progress_unzipping_file">"فك ضغط الملف: "</string>
-
-    <string name="Import_Progress_onGoing">"جاري... الاستيراد قيد التقدم..."</string>
+    <string name="Import_Progress_unzipping_file">"جارٍ فك ضغط الملف : "</string>
+    <string name="Import_Progress_onGoing">"مشغول… جارٍ الاستيراد…"</string>
 
     <string name="Error_Import_Creating_Folders">"تعذر إنشاء المجلدات"</string>
-    <string name="Error_Import_track_duration_nofile">"خطأ في الحصول على مدة المسار (الملف غير موجود)"</string>
-    <string name="Error_Import_track_duration_extraction">"خطأ في الحصول على مدة المسار"</string>
-    <string name="Error_Import_computing_folder_duration">"خطأ في حساب مجموع مدة العناصر"</string>
+    <string name="Error_Import_track_duration_nofile">"خطأ في الحصول على مدة المقطع (الملف غير موجود)"</string>
+    <string name="Error_Import_track_duration_extraction">"خطأ في الحصول على مدة المقطع"</string>
+    <string name="Error_Import_computing_folder_duration">"خطأ في حساب مدة المحتوى الإجمالية"</string>
 
-    <string name="Error_Import_UnableToUnzip_line1">خطأ في فك ضغط الملف المضغوط"</string>
-    <string name="Error_Import_UnableToUnzip_line2">عذراً، يمكنك محاولة استيراد مجلد مفكوك مسبقاً بدلاً من ذلك"</string>
+    <string name="Error_Import_UnableToUnzip_line1">"حدث خطأ أثناء فك ضغط الملف المضغوط"</string>
+    <string name="Error_Import_UnableToUnzip_line2">"عذراً، يمكنك محاولة استيراد مجلد غير مضغوط بدلاً من ذلك"</string>
 
-    <string name="Error_Import_NotEnoughMemory_line1">"لا توجد ذاكرة كافية على الجهاز"</string>
-    <string name="Error_Import_NotEnoughMemory_line2_1">"الذاكرة المتاحة: "</string>
-    <string name="Error_Import_NotEnoughMemory_line3">"المصدر للنسخ: "</string>
+    <string name="Error_Import_NotEnoughMemory_line1">"لا توجد مساحة كافية على الجهاز"</string>
+    <string name="Error_Import_NotEnoughMemory_line2_1">"المساحة المتوفرة : "</string>
+    <string name="Error_Import_NotEnoughMemory_line3">"حجم المصدر المطلوب نسخه : "</string>
     <string name="Error_Import_NotEnoughMemory_line4_1">"(تحتاج على الأقل "</string>
     <string name="Error_Import_NotEnoughMemory_line4_2">" ضعف حجم الملف المصدر)"</string>
-    <string name="Error_Import_NotEnoughMemory_line5_zip">"يمكنك استيراد مجلد mp3 مفكوك بدلاً من ملف zip هذا، لتجاوز هذا العامل المحدد."</string>
-    <string name="Error_Import_NotEnoughMemory_line5_other">"يمكنك تعطيل خطوة [نسخ الملف] (في قائمة الخيارات)، لتشغيل ملفاتك الصوتية مباشرة من الذاكرة الرئيسية."</string>
+    <string name="Error_Import_NotEnoughMemory_line5_zip">"يمكنك استيراد مجلد MP3 غير مضغوط بدلاً من ملف ZIP لتجاوز هذا القيد."</string>
+    <string name="Error_Import_NotEnoughMemory_line5_other">"يمكنك تعطيل خطوة [نسخ الملف] (في قائمة الإعدادات)، لقراءة الصوتيات مباشرة من ذاكرة الهاتف."</string>
 
-    <string name="Error_ZikFilePositionOnlyDigits">"يمكنك إدخال أرقام فقط هنا"</string>
+    <string name="Error_ZikFilePositionOnlyDigits">"يمكنك فقط إدخال أرقام هنا"</string>
     <string name="Error_NameTooShort">"هذا الاسم قصير جداً"</string>
 
-    <string name="Import_Success">نجح الاستيراد</string>
+    <string name="Import_Success">تم الاستيراد بنجاح</string>
 
+    <string name="Error_Import_Split_M4B"><i>حدث خطأ أثناء تقسيم ملف m4b.</i></string>
+    <string name="Import_Experimental_M4B_warning">تحذير : <b>استخراج فصول m4b</b> لا يزال <b>تجريبياً</b>.</string>
+    <string name="Import_Experimental_M4B_iferror">إذا واجهت أخطاء</string>
+    <string name="Import_Experimental_M4B_solution_1">قم بإلغاء تحديد خيار "تقسيم m4b".</string>
+    <string name="Import_Experimental_M4B_solution_2"><i>يمكنك أيضاً استخدام أداة خارجية لتحويل ملف m4b إلى مجلد من ملفات mp3، ثم استيراد هذا المجلد في BookPlayer.</i></string>
+    <string name="Import_Progress_splitting_m4b_files">"جارٍ تقسيم ملفات m4b"</string>
+    <string name="Import_Progress_splitting_m4b_file">"جارٍ تقسيم ملف m4b : "</string>
+
+    <string name="error_could_not_check_hash">خطأ أثناء التحقق مما إذا كان هذا الكتاب الصوتي قد تم استيراده بالفعل</string>
+    <string name="error_media_already_loaded_samePath_under_the_name">تم تحميل هذا الملف مسبقاً ويُخزَّن حالياً تحت الاسم: </string>
+    <string name="init_please_wait">جارٍ التهيئة… الرجاء الانتظار…</string>
+    <string name="error_media_already_loaded_samePath_so_changeName">تم تحميل ملف مختلف بنفس الاسم مسبقاً، سيتم تغيير الاسم إلى: </string>
+    <string name="init_check_already_imported_please_wait">"جارٍ التحقق مما إذا تم استيراده مسبقاً، الرجاء الانتظار…"</string>
+    <string name="init_check_complementary_checks_please_wait">"جارٍ إجراء التحقق التكميلي، الرجاء الانتظار…"</string>
+    <string name="Error_Import_FolderAlreadyImported">تم تحميل هذا المجلد مسبقاً</string>
+
+    <string name="error_media_already_loaded_samePath">تم تحميل هذا الملف مسبقاً</string>
+    <string name="error_media_already_loaded_sameName">يوجد كتاب بنفس الاسم بالفعل في BookPlayer</string>
+
+    <string name="ErrorCouldNotLoadAudios">خطأ - تعذر تحميل الملفات الصوتية.</string>
+    <string name="ErrorCouldNotLoadAudios_emptyfolder">خطأ - لم يتم العثور على ملفات صوتية في هذا المجلد.</string>
+
+    <string name="Import_Progress_copying_zip_file">"جارٍ نسخ الملف المصدر\n- من وحدة التخزين العامة\n- إلى ذاكرة BookPlayer الداخلية"</string>
+    <string name="Import_Progress_copying_zip_file_cloud">"جارٍ نسخ الملف المصدر\n- من السحابة\n- إلى ذاكرة BookPlayer الداخلية"</string>
+
+    <string name="Error_Import_OutOfMemory">خطأ عام : الذاكرة غير كافية</string>
+    <string name="Error_Import_This_folder_may_contain_too_many_books">قد يحتوي هذا المجلد على عدد كبير جداً من الكتب أو المجلدات الفرعية لتحميله دفعة واحدة.</string>
 
     <!-- ********************************** -->
     <!-- FolderModifyActivity -->
 
     <string name="bDelete">"حذف"</string>
-    <string name="bRenameTrack">"إعادة تسمية المسار"</string>
+    <string name="bRenameTrack">"إعادة تسمية المقطع"</string>
     <string name="bMove">"تغيير الموضع"</string>
     <string name="bReset">"إعادة تعيين التقدم"</string>
     <string name="Folder_Deleted_DB">"تم حذف الكتاب!"</string>
     <string name="Folder_Renamed">"تمت إعادة تسمية المجلد"</string>
-    <string name="Error_FolderNameTooShort">"يجب أن يكون اسم المجلد مكوناً من حرفين على الأقل"</string>
-    <string name="Folder_Reset">"تم إعادة تعيين تقدم المجلد"</string>
-    <string name="ZikFile_RePositioned">"تم وضع المسار في موضع جديد"</string>
-    <string name="ZikFile_Renamed">"تمت إعادة تسمية المسار"</string>
-    <string name="ZikFile_Deleted">"تم حذف المسار"</string>
+    <string name="Error_FolderNameTooShort">"يجب أن يحتوي اسم المجلد على حرفين على الأقل"</string>
+    <string name="Folder_Reset">"تمت إعادة تعيين تقدم المجلد"</string>
+    <string name="ZikFile_RePositioned">"تم نقل المقطع إلى موضع جديد"</string>
+    <string name="ZikFile_Renamed">"تمت إعادة تسمية المقطع"</string>
+    <string name="ZikFile_Deleted">"تم حذف المقطع"</string>
 
     <string name="AskDelete_popupTitle">تأكيد الحذف</string>
     <string name="AskReset_popupTitle">تأكيد إعادة التعيين</string>
-    <string name="DeleteLogs_AskConfirm">"أنت على وشك حذف جميع السجلات." + "\n" +
-                        "هل أنت متأكد؟"</string>
-    <string name="ModifyFolder_AskDelete">"أنت على وشك حذف هذا المجلد وجميع المسارات" + "\n" +
-                        "هل أنت متأكد؟"</string>
-    <string name="ModifyFolder_AskReset">"أنت على وشك إعادة تعيين التقدم لهذا المجلد " + "\n" +
-                        "هل أنت متأكد؟"</string>
-    <string name="ModifyZikFile_AskDelete">"أنت على وشك حذف هذا المسار الصوتي " + "\n" +
-                        "هل أنت متأكد؟"</string>
 
     <string name="CacheFiles_AskDeleteAudioBook">"أنت على وشك حذف هذا الكتاب الصوتي"</string>
 
     <string name="ImportedOn">"تم الاستيراد في"</string>
     <string name="LastAccess">"آخر وصول"</string>
-    <string name="AudioLocation">"موقع الصوت"</string>
+    <string name="AudioLocation">"موقع الملف الصوتي"</string>
+
+    <string name="Change_cover_image">"تغيير صورة الغلاف"</string>
+    <string name="AskRename_Track">إعادة تسمية هذا المقطع إلى</string>
+
+    <string name="IntroCut">"قص المقدمة"</string>
+    <string name="Rename_book">"إعادة تسمية الكتاب"</string>
+    <string name="AskRename_Book">"هل تريد حقًا إعادة تسمية الكتاب إلى"</string>
+    <string name="AskRename_popupTitle">تأكيد إعادة التسمية</string>
+
+    <string name="bRenameFolder">"إعادة تسمية الكتاب"</string>
+    <string name="IntroCutText"><i>"يقوم بقص الثواني الأولى من كل فصل أثناء التشغيل."</i></string>
+
+    <string name="Export_notification_title">"تم تصدير الكتاب الصوتي"</string>
+    <string name="Export_notification_text">"في مجلد التنزيلات"</string>
+    <string name="Export_share_title">"مشاركة ملف ZIP"</string>
+    <string name="Export_display_text_loading">"جارٍ تحميل معلومات المجلد…"</string>
+    <string name="Export_display_text_preparing_export">"جارٍ التحضير للتصدير…"</string>
+    <string name="Export_display_no_valid_audiobook">"حدث خطأ في تحميل ملفات الكتاب الصوتي."</string>
+    <string name="Export_error">"خطأ في التصدير"</string>
+    <string name="Export_display_text_export_title">"تصدير ZIP"</string>
+    <string name="Export_done">"تم، تم التصدير إلى مجلد [Downloads]"</string>
 
     <!-- ********************************** -->
     <!-- Zik File Adapter -->
 
-    <string name="Progression_reset_done">"تم إعادة ضبط التقدم"</string>
-    <string name="ModifyFolder_AskDeleteProgressFromZikFile_Title">"تأكيد الإعادة"</string>
-    <string name="ModifyFolder_AskDeleteProgressFromZikFile_Text">"أنت على وشك إعادة ضبط التقدم من هذا الصوت\nهل أنت متأكد؟"</string>
-
+    <string name="Progression_reset_done">"تمت إعادة تعيين التقدم"</string>
+    <string name="ModifyFolder_AskDeleteProgressFromZikFile_Title">"تأكيد إعادة التعيين"</string>
+    <string name="ModifyFolder_AskDeleteProgressFromZikFile_Text">"أنت على وشك إعادة تعيين تقدم هذا الملف الصوتي\nهل أنت متأكد؟"</string>
 
     <!-- ********************************** -->
     <!-- PlayActivity -->
@@ -241,272 +496,112 @@
     <string name="pause" translatable="false">||</string>
     <string name="tvSpeed">السرعة</string>
     <string name="tvSleep">النوم</string>
-    <string name="tvVolume">الصوت</string>
+    <string name="tvVolume">مستوى الصوت</string>
     <string name="btnSleepSet" translatable="false">Sleep</string>
-    <string name="tv_ListeningTimeWithNoUserAction">لا يوجد إجراء من المستخدم منذ</string>
-    <string name="tv_ListeningTimeWithCustomSleep">تم تعيين النوم المخصص منذ</string>
-    <string name="tv_CustomSleepDialog_generalInfo">"<i>ملاحظة: هذه القيمة ستستخدم فقط لجلسة التشغيل الحالية.\nقيمة النوم التلقائي العامة موجودة في الخيارات (في القائمة، يمكن الوصول إليها من صفحة بدء التطبيق)</i>"</string>
+    <string name="tv_ListeningTimeWithNoUserAction">لا توجد تفاعلات من المستخدم منذ</string>
+    <string name="tv_ListeningTimeWithCustomSleep">تم ضبط مؤقت النوم المخصص منذ</string>
+    <string name="tv_CustomSleepDialog_generalInfo">"<i>لاحظ أن هذه القيمة ستُستخدم فقط لجلسة الاستماع الحالية.\nالقيمة العامة لمؤقت النوم موجودة في قسم الخيارات (في القائمة على صفحة بدء التطبيق)</i>"</string>
     <string name="tv_CustomSleepDialog_EnterMinutesBeforeSleep">"أدخل عدد الدقائق قبل النوم:"</string>
     <string name="tv_TimeLeft">الوقت المتبقي قبل النوم</string>
-    <string name="error_reading_track">"خطأ في قراءة الملف!"</string>
+    <string name="error_reading_track">"خطأ في قراءة المقطع!"</string>
     <string name="error_file_not_found">"الملف غير موجود!"</string>
     <string name="current_position">الموضع الحالي</string>
     <string name="total_time">المدة</string>
     <string name="file_name">اسم الملف</string>
     <string name="source_not_found">تعذر العثور على الملف المصدر أو قراءته.</string>
-    <string name="source_not_found_deleted">تعذر العثور على الملف المصدر. ربما تم حذفه.</string>
+    <string name="source_not_found_deleted">تعذر العثور على الملف المصدر. قد يكون قد تم حذفه.</string>
     <string name="source_file_path">مسار الملف المصدر</string>
-    <string name="permission_not_set">الإذن غير مُعطى.</string>
-    <string name="permission_to_set">للتعيين، انقر على الزر أدناه لعرض معلومات التطبيق، ثم انتقل إلى قسم [أذونات التطبيق] وقم بتعيين [الموسيقى والصوت] يدويًا.
-    \n\nمطلوب إذن لأن الملف المصدر للقراءة ليس في الذاكرة الداخلية لـ Bookplayer.</string>
-    <string name="device_settings">إعدادات الجهاز لـ Bookplayer</string>
-    <string name="notification_playlist_finished">"اكتمل الكتاب!"</string>
-    <string name="notification_auto_sleep">"نوم تلقائي!"</string>
+    <string name="permission_not_set">لم يتم تعيين الإذن.</string>
+    <string name="permission_to_set">لتعيين الإذن، انقر على الزر أدناه لفتح إعدادات التطبيق، ثم انتقل إلى قسم [أذونات التطبيق] وقم بتفعيل [الموسيقى والصوت].
+        \n\nالإذن مطلوب لأن الملف المصدر ليس في ذاكرة BookPlayer الداخلية.</string>
+    <string name="device_settings">إعدادات الجهاز لـ BookPlayer</string>
+    <string name="notification_playlist_finished">"انتهى الكتاب!"</string>
+    <string name="notification_auto_sleep">"النوم التلقائي!"</string>
+
+    <string name="SleepTimer">مؤقت النوم</string>
+    <string name="SleepTimerWrongInt">إدخال غير صالح. الرجاء إدخال رقم صحيح.</string>
+    <string name="SleepTimerGeneralError">حدث خطأ أثناء ضبط مؤقت النوم.</string>
+
 
     <!-- ********************************** -->
-    <!-- STATS activity -->
+    <!-- STORAGE -->
 
     <string name="physical_storage_memory">ذاكرة التخزين الفعلية</string>
-    <string name="version">الإصدار</string>
-    <string name="miscellaneous">متنوع</string>
+    <string name="MB_taken_by_BookPlayer_app">" ميغابايت مشغولة بواسطة تطبيق BookPlayer"</string>
+    <string name="MB_taken_by_audio_files">" ميغابايت مشغولة بواسطة ملفات الصوت"</string>
+    <string name="MB_taken_by_logs">" ميغابايت مشغولة بواسطة السجلات"</string>
+    <string name="MB_available_on_device">" ميغابايت: المتاحة على الجهاز"</string>
+    <string name="MB_device_memory">" ميغابايت: ذاكرة الجهاز"</string>
+    <string name="MB_available_on_SD_card">" ميغابايت: المتاحة على بطاقة SD"</string>
+    <string name="MB_SD_card_memory">" ميغابايت: ذاكرة بطاقة SD"</string>
+    <string name="audio_location_sdcard">بطاقة SD</string>
+    <string name="custom_value_in_minutes">قيمة مخصصة بالدقائق</string>
+    <string name="MB_audios_in_app">ميغابايت: الصوتيات داخل التطبيق</string>
+    <string name="MB_left_on_device">ميغابايت: المتبقي على الجهاز</string>
+    <string name="MB_device_memory2">ميغابايت: ذاكرة الجهاز</string>
 
+    <string name="audio_location_sdcard_reserved_storage">بطاقة SD (مساحة محجوزة للتطبيق)</string>
+    <string name="audio_location_bookplayer_reserved_storage">مساحة محجوزة لـ BookPlayer</string>
+    <string name="audio_location_smartphone_shared_storage">مساحة مشتركة للهاتف الذكي</string>
+    <string name="audio_location_audiobook_not_found">لم يتم العثور على الكتاب الصوتي</string>
 
-    <!-- ********************************** -->
-    <!-- Menus -->
+        <!-- ********************************** -->
+        <!-- Menus -->
 
-    <string name="action_menu_three_dot">القائمة</string>
+    <string name="action_menu_three_dot">قائمة</string>
     <string name="menu_open">فتح</string>
     <string name="menu_manual">دليل</string>
     <string name="menu_options">خيارات</string>
     <string name="menu_otherapp">تطبيقات أخرى</string>
-    <string name="menu_sendmail">إرسال بريد</string>
+    <string name="menu_sendmail">مراسلة المطور</string>
     <string name="stats">إحصائيات</string>
     <string name="menu_seeLog" translatable="false">See Logs</string>
     <string name="menu_cacheFiles">تنظيف</string>
     <string name="menu_forum">منتدى</string>
-    <string name="menu_website">موقع ويب</string>
+    <string name="menu_website">الموقع الإلكتروني</string>
     <string name="menu_synchro">مزامنة</string>
 
-    <!-- ********************************** -->
-    <!-- OTHER APPS -->
+        <!-- ********************************** -->
+        <!-- OTHER APPS -->
 
     <string name="otherApp_title">"تطبيقاتي الأخرى :-)"</string>
     <string name="otherApp_droitpositif" translatable="false">Droit Positif</string>
-    <string name="otherApp_droitpositif_txt">النصوص القانونية الفرنسية الرئيسية، متاحة دون اتصال</string>
+    <string name="otherApp_droitpositif_txt">نصوص قانونية فرنسية رئيسية، متوفرة حتى بدون اتصال</string>
     <string name="otherApp_deces" translatable="false">Dead Frogs</string>
-    <string name="otherApp_deces_txt">الوفيات في فرنسا منذ السبعينيات</string>
-    <string name="otherApp_scanner" translatable="false">ماسح</string>
-    <string name="otherApp_scanner_txt">قارئ الرموز QR والباركود</string>
+    <string name="otherApp_deces_txt">أشخاص توفوا في فرنسا منذ السبعينيات</string>
+    <string name="otherApp_scanner" translatable="false">Scanner</string>
+    <string name="otherApp_scanner_txt">قارئ رموز QR والباركود</string>
 
-    <!-- Action Bar -->
+        <!-- Action Bar -->
 
-    <!-- ********************************** -->
-    <!-- PERMISSIONS -->
+        <!-- ********************************** -->
+        <!-- PERMISSIONS -->
 
     <string name="permission_rationale">يتطلب هذا النشاط الأذونات التالية:</string>
     <string name="permissions_granted">تم منح الأذونات.</string>
     <string name="permissions_denied">لم يتم منح الأذونات.</string>
     <string name="permissions_ok_button" translatable="false">OK</string>
 
-    <!-- Application specific permission strings -->
-    <string name="permission_read_write_rationale">يحتاج Bookplayer إلى إذن [قراءة الصوت] (أو تعيين خيار [نسخ الملف]).</string>
+    <string name="permission_read_write_rationale">BookPlayer يحتاج إلى إذن [قراءة الصوت] (أو قم بتفعيل خيار [نسخ الملف]).</string>
     <string name="permission_read_write_denied">تم رفض إذن [قراءة الصوت].
-    \n\nانقر على [معلومات التطبيق] لتفعيل الأذونات يدويًا.
-    \n\nأو
-    \n\nانقر على [خيارات] لتفعيل خيار [نسخ الملف داخليًا].
-    \n<i>بعد ذلك، سيتم نسخ ملفاتك الصوتية داخل الذاكرة الداخلية لـ Bookplayer ولن تحتاج إلى أي إذن لقراءتها.</i>
+            \n\nاضغط على [معلومات التطبيق] لتفعيل الأذونات يدوياً.
+            \n\nأو
+            \n\nاضغط على [الخيارات] لتفعيل خيار [نسخ الملف داخلياً].
+            \n<i>عندها سيتم نسخ ملفاتك الصوتية إلى ذاكرة BookPlayer الداخلية، ولن تحتاج إلى أي إذن لقراءتها.</i>
     </string>
 
+    <string name="permission_record_audio_rationale_01">"الإذن الاختياري التالي مطلوب لعرض مقياس الطيف."</string>
+    <string name="permission_record_audio_rationale">مقياس الطيف يتطلب إذن [تسجيل الصوت].</string>
+    <string name="permission_record_audio_denied">لن يتم عرض مقياس الطيف. تم رفض إذن [تسجيل الصوت].</string>
+    <string name="permission_record_audio_rationale_after_denied">لا يمكن لـ BookPlayer طلب إذن تم رفضه مسبقاً.
+            \n\nيمكنك تجاوزه بالنقر على [معلومات التطبيق].
+            \nسيؤدي ذلك إلى فتح إعدادات BookPlayer على الجهاز.
+            \n\nثم اذهب إلى قسم "الأذونات" واسمح يدوياً بـ "الميكروفون".</string>
 
-    <string name="permission_record_audio_rationale_01">"الإذن التالي اختياري لعرض مرسم الطيف."</string>
-    <string name="permission_record_audio_rationale">يتطلب مرسم الطيف إذن [تسجيل الصوت].</string>
-    <string name="permission_record_audio_denied">لن يتم عرض مرسم الطيف. تم رفض إذن [تسجيل الصوت].</string>
-    <string name="permission_record_audio_rationale_after_denied">لا يمكن لـ BookPlayer أن يطلب مرة أخرى إذنًا تم رفضه مسبقًا.
-    \n\nيمكنك تجاوز ذلك بالنقر على [معلومات التطبيق].
-    \nسيؤدي ذلك إلى فتح إعدادات Bookplayer على الجهاز.
-    \n\nثم انتقل إلى قسم "الأذونات" واسمح يدويًا بـ "الميكروفون".</string>
-
-
-    <string name="OnlineSearch_title">تكامل مباشر - اختبار تجريبي</string>
-    <string name="OnlineSearch_desc">استخدم ميزة البحث هذه للعثور على الكتاب الصوتي الذي تبحث عنه. ثم، في الصفحة التالية، اختر الكتاب المراد استيراده، وسيتم تحميله وإضافته مباشرة إلى Bookplayer!</string>
-    <string name="OnlineSearch_hint">جاك لندن</string>
-    <string name="OnlineSearch_button">بحث…</string>
-
-    <string name="SleepTimer">مؤقت النوم</string>
-    <string name="SleepTimerWrongInt">إدخال غير صالح. الرجاء إدخال رقم صحيح.</string>
-    <string name="SleepTimerGeneralError">حدث خطأ أثناء إعداد مؤقت النوم.</string>
-
-    <string name="option_split_m4b">تقسيم .m4b</string>
-    <string name="option_split_m4b_text">استخراج الفصول من ملف m4b (تنسيق كتب صوتية جديد). - لا يزال تجريبيًا -</string>
-
-    <string name="option_copy_file_special_zip"><i>يتم دائمًا نسخ ملفات zip وملفات m4b المُقسّمة</i></string>
-
-    <string name="Error_Import_Split_M4B"><i>حدث خطأ أثناء تقسيم ملف m4b.</i></string>
-    <string name="Import_Experimental_M4B_warning">تحذير: <b>استخراج فصول m4b</b> لا يزال <b>تجريبيًا</b>.</string>
-    <string name="Import_Experimental_M4B_iferror">إذا واجهت أخطاء</string>
-    <string name="Import_Experimental_M4B_solution_1">قم بإلغاء تحديد خيار \"تقسيم m4b\".</string>
-    <string name="Import_Experimental_M4B_solution_2"><i>يمكنك استخدام أداة خارجية لتحويل ملف m4b إلى مجلد يحتوي على ملفات mp3، ثم استيراد هذا المجلد في Bookplayer.</i></string>
-    <string name="Import_Progress_splitting_m4b_files">"جاري تقسيم ملفات m4b"</string>
-    <string name="Import_Progress_splitting_m4b_file">"تقسيم ملف m4b: "</string>
-
-    <string name="Technical_Error">"خطأ تقني"</string>
-
-    <string name="bOpenFile">أي ملف</string>
-    <string name="bOpenFolder">مجلد</string>
-    <string name="bOpenZipFile">ملف Zip</string>
-    <string name="bOpenM4bFile">ملف صوتي</string>
-
-    <string name="TextHeaderOpen">فتح ملف صوتي من جهازي</string>
-    <string name="bOpenFile_desc">اختر أي ملف.</string>
-    <string name="bOpenFolder_desc">اختر مجلدًا.
-\nسيتم استيراد جميع الملفات الصوتية فيه.
-\n<i>انتبه: سيتم أيضًا استيراد الملفات الصوتية الموجودة في المجلدات الفرعية إن وجدت.</i></string>
-    <string name="bOpenZipFile_desc">تصفية: ملفات zip فقط</string>
-    <string name="bOpenM4bFile_desc">تصفية: ملفات صوتية فقط
-\n<i>هذه التصفية ليست مثالية. استخدم الزر العلوي [أي ملف] إذا واجهت مشاكل.</i></string>
-
-    <string name="audio_location_bookplayer_reserved_storage">مساحة Bookplayer المحجوزة</string>
-    <string name="audio_location_smartphone_shared_storage">مساحة التخزين المشتركة للهاتف</string>
-    <string name="audio_location_audiobook_not_found">الكتاب الصوتي غير موجود</string>
-
-    <string name="option_alert_delete_picked_source_file_title">!! تحذير - حذف المصدر !!</string>
-    <string name="option_alert_delete_picked_source_file_message">سيتم حذف هذا الملف من ذاكرة الجهاز بعد تحميله إلى الذاكرة الداخلية لتطبيق Bookplayer.\n\nهل أنت متأكد؟</string>
-
-    <string name="error_media_already_loaded_samePath">تم تحميل هذا الملف مسبقًا</string>
-    <string name="error_media_already_loaded_sameName">يوجد كتاب بهذا الاسم بالفعل في Bookplayer</string>
-
-    <string name="DirectDownload_title">تحميل مباشر</string>
-    <string name="DirectDownload_desc">الصق رابطًا في الأسفل واضغط الزر لتحميل وإضافة كتاب صوتي مباشرة.</string>
-    <string name="DirectDownload_hint">https://bookplayer.driot.com/autotest/file_01.zip</string>
-    <string name="DirectDownload_button">تحميل الآن</string>
-
-    <string name="ErrorCouldNotLoadAudios">خطأ - تعذر تحميل الملفات الصوتية.</string>
-    <string name="ErrorCouldNotLoadAudios_emptyfolder">خطأ - لم يتم العثور على ملفات صوتية في هذا المجلد.</string>
-
-    <string name="Permission">الصلاحيات</string>
-    <string name="permission_read_denied_short_text_on_load">تم رفض صلاحية [الموسيقى والصوت] سابقًا.
-\n\nيجب عليك النقر على [معلومات التطبيق] وتفعيل هذه الصلاحية يدويًا.
-\n\n<i>مطلوبة إذا كنت تريد تشغيل الصوت مباشرة من مساحة التخزين العامة للجهاز (عند تعطيل خيار النسخ).</i></string>
-    <string name="permission_read_write_rationale_short_text_on_load">مطلوب صلاحية [الموسيقى والصوت] لتشغيل الملفات من مساحة التخزين العامة للهاتف.</string>
-
-    <string name="option_on_load_copy_internal">"نسخ إلى المساحة الداخلية لـ Bookplayer"</string>
-    <string name="option_on_load_split_m4b">"تقسيم ملف M4B إلى فصول"</string>
-    <string name="option_on_load_delete_source">"حذف الملف المصدر بعد الاستيراد"</string>
-
-    <string name="Import_Progress_copying_zip_file">"نسخ الملف المصدر \n- من مساحة تخزين الجهاز\n- إلى الذاكرة الداخلية لتطبيق Bookplayer"</string>
-    <string name="Import_Progress_copying_zip_file_cloud">"نسخ الملف المصدر \n- من السحابة\n- إلى الذاكرة الداخلية لتطبيق Bookplayer"</string>
-
-    <string name="Export">"تصدير…"</string>
-
-    <string name="bRenameFolder">"إعادة تسمية الكتاب"</string>
-    <string name="IntroCutText"><i>"يُزيل الثواني الأولى من كل فصل أثناء التشغيل."</i></string>
-
-    <string name="Export_notification_title">"تم تصدير الكتاب الصوتي"</string>
-    <string name="Export_notification_text">"في مجلد التنزيلات"</string>
-    <string name="Export_share_title">"مشاركة ملف ZIP"</string>
-
-    <string name="Export_display_text_loading">"جاري تحميل معلومات المجلد..."</string>
-    <string name="Export_display_text_preparing_export">"جاري تحضير التصدير..."</string>
-    <string name="Export_display_no_valid_audiobook">"خطأ أثناء الحصول على ملفات الكتاب الصوتي."</string>
-
-    <string name="Export_display_text_processing">"جاري المعالجة"</string>
-
-    <string name="help_folder_text">الضغط المطول على مجلد يفتح صفحة [تعديل المجلد].
-\nمن هناك يمكنك إعادة التسمية / الحذف / إعادة تعيين التقدم.
-\nجديد: إعداد قطع تلقائي في بداية كل مقطع صوتي (لتجنب المقدمات المزعجة).
-\nجديد: أو تصدير الكتاب الصوتي كملف zip إلى مجلد التنزيلات في جهازك.</string>
-
-    <string name="help_file_types_title">أنواع الملفات:</string>
-    <string name="help_file_types_text">Bookplayer يمكنه تشغيل العديد من أنواع ملفات الصوت، وحتى الفيديو. فقط جرب! الخيار الأفضل هو ملفات [mp3]، مضغوطة أو داخل مجلد. يمكن لـ Bookplayer الآن تشغيل نوع الملفات الجديد [m4b]. إذا كانت تحتوي على فصول، فسيحاول اكتشافها. وإذا استخدمت ميزة التصدير الجديدة على ملف m4b، فستحصل على ملف zip يحتوي على الفصول كملفات صوتية بصيغة aac.</string>
-
-    <string name="help_text_manual_import">تبدأ هذه الشاشة باختيارك لملف أو مجلد.
-\nثم هناك خياران رئيسيان:
-\n
-\n<b>الخيار 1 [نسخ]:</b><i>افتراضيًا</i> سيقوم Bookplayer أولًا بنسخ الملف الصوتي إلى ذاكرته الداخلية، ثم تشغيله من هناك.
-\n
-\n<b>الخيار 2 [بدون نسخ]:</b> سيقوم Bookplayer فقط بتسجيل الموقع لتشغيل الصوت مباشرة من ذاكرة الجهاز (مثل مجلد التنزيلات أو الموسيقى).
-\n
-\n<i>(ملاحظة: يتم دائمًا نسخ الملفات المضغوطة، وكذلك ملفات m4b المقسّمة. هذا الخيار خاص بالملفات الصوتية البسيطة).</i>
-\n
-\n<b>باستخدام الخيار 1 (نسخ)</b>، لن تحتاج إلى صلاحية [قراءة الصوت].
-\nوإذا قمت بحذف الملف من الذاكرة الرئيسية أو نقله، فلن تتأثر. لن تفقد الكتاب أو التقدم.
-\n
-\n<b>باستخدام الخيار 2 (بدون نسخ)</b>، يمكنك توفير مساحة تخزين.
-\n
-\n<i>يوجد إعداد آخر في القائمة يسمح بحذف الملف المصدر تلقائيًا بعد استيراده.
-\nقم بتفعيله إذا لم تكن بحاجة لاستخدام الكتاب في تطبيق آخر.</i>
-</string>
-
-    <string name="help_tellme_text">"إذا واجهت مشاكل أو تعطلت التطبيق:
-\nمن فضلك أرسل لي رسالة تشرح فيها ما حدث
-\nلكي أتمكن من التحقق وتحسين التطبيق!"</string>
-
-    <string name="StillExperimental">"- لا يزال تجريبيًا -"</string>
-
-    <string name="Export_display_text_export_title">"تصدير ZIP"</string>
-    <string name="Export_done">"تم التصدير في مجلد [التنزيلات]"</string>
-    <string name="Export_error">"خطأ في التصدير"</string>
-
-    <string name="LibrivoxSearch_title">"ليبرفوكس مباشر"</string>
-    <string name="LibrivoxSearch_desc">"ابحث مباشرة للحصول على كتابك من أرشيف كتب صوتية مجاني عالمي المستوى (معظمها باللغة الإنجليزية)"</string>
-    <string name="LibrivoxSearch_hint">"ألكسندر دوما"</string>
-    <string name="Search">"بحث"</string>
-    <string name="LibrivoxResultItem_audio_available_since">"الصوت متوفر منذ"</string>
-    <string name="LibrivoxResultitem_nb_of_reviews">"عدد المراجعات"</string>
-    <string name="LibrivoxResultitem_avg_rating">"متوسط التقييم"</string>
-    <string name="Librivox_bGetAudioBook">"الحصول على الكتاب الصوتي"</string>
-
-    <string name="Download_cancelled">"تم إلغاء التنزيل"</string>
-    <string name="Download_failed">"فشل في التنزيل"</string>
-    <string name="downloaded">"تم التنزيل"</string>
-    <string name="Downloading">"جارٍ التنزيل"</string>
-    <string name="book_cover">"غلاف الكتاب"</string>
-
-    <string name="MB_taken_by_BookPlayer_app">" ميغابايت مستخدمة بواسطة تطبيق BookPlayer"</string>
-    <string name="MB_taken_by_audio_files">" ميغابايت مستخدمة بواسطة الملفات الصوتية"</string>
-    <string name="MB_taken_by_logs">" ميغابايت مستخدمة بواسطة السجلات"</string>
-    <string name="MB_available_on_device">" ميغابايت: متوفرة على الجهاز"</string>
-    <string name="MB_device_memory">" ميغابايت: ذاكرة الجهاز"</string>
-    <string name="MB_available_on_SD_card">" ميغابايت: متوفرة على بطاقة SD"</string>
-    <string name="MB_SD_card_memory">" ميغابايت: ذاكرة بطاقة SD"</string>
-    <string name="audio_location_sdcard">"بطاقة SD"</string>
-
-    <string name="librivox_no_audiobook_found_for_search">لم يتم العثور على أي كتاب صوتي لمصطلحات البحث</string>
-    <string name="librivox_invalid_response">استجابة غير صالحة من خادم Librivox</string>
-    <string name="loading_details">جارٍ تحميل التفاصيل…</string>
-    <string name="loading_detail_failed">فشل في تحميل التفاصيل</string>
-    <string name="librivox_zip_mp3_available">ملف ZIP-MP3 متاح</string>
-    <string name="librivox_zip_mp3_not_found">ملف ZIP-MP3 غير موجود</string>
-    <string name="librivox_wait_integration">يرجى الانتظار، لا يزال هناك كتاب آخر قيد التنزيل أو التحميل.</string>
-    <string name="Creator">المؤلف</string>
-    <string name="Available_since">متاح منذ</string>
-    <string name="Error_checking_file">خطأ أثناء التحقق من الملف</string>
-
-    <string name="Error_Import_OutOfMemory">خطأ عام: نفاد الذاكرة</string>
-    <string name="Error_Import_This_folder_may_contain_too_many_books">قد يحتوي هذا المجلد على عدد كبير جدًا من الكتب أو المجلدات الفرعية ليتم تحميلها دفعة واحدة.</string>
-
-    <string name="default_for">الإعداد الافتراضي لـ</string>
-
-    <string name="option_copy_file_subtitle">الإيجابيات:
-\n* لا حاجة إلى إذن [قراءة الصوتيات].
-\n* لا يوجد خطر لفقدان الكتاب الصوتي أو التقدم إذا تم حذف الملف المصدر أو نقله عن طريق الخطأ.
-\n\nالسلبيات:
-\n* ستحتاج إلى مزيد من الذاكرة إذا لم تقم بحذف الملف المصدر.</string>
-
-    <string name="option_copy_file_text">نسخ الملفات الصوتية إلى ذاكرة التطبيق الداخلية المحجوزة لـ BookPlayer.</string>
-
-    <string name="LibrivoxSearch_warning">"تحذير - نسخة تجريبية\nلا يزال في طور التجربة\nإذا توقف التنزيل، حاول إبقاء التطبيق في المقدمة"</string>
-
-    <string name="Set">تعيين</string>
-    <string name="custom_value_in_minutes">قيمة مخصصة بالدقائق</string>
-    <string name="MB_audios_in_app">ميغابايت: الصوتيات داخل التطبيق</string>
-    <string name="MB_left_on_device">ميغابايت: المتبقي على الجهاز</string>
-    <string name="MB_device_memory2">ميغابايت: الذاكرة الكلية للجهاز</string>
-    <string name="MB">ميغابايت</string>
-    <string name="IntroCut">قص المقدمة</string>
-    <string name="Rename_book">إعادة تسمية الكتاب</string>
-    <string name="AskRename_Book">هل تريد حقًا إعادة تسمية الكتاب إلى</string>
-    <string name="AskRename_popupTitle">تأكيد إعادة التسمية</string>
-
-
+    <string name="Permission">إذن</string>
+    <string name="permission_read_denied_short_text_on_load">تم رفض إذن [الموسيقى والصوت] مسبقاً.
+            \n\nستحتاج إلى النقر على [معلومات التطبيق] وتفعيل الإذن يدوياً.
+            \n\n<i>هذا ضروري إذا كنت تريد تشغيل الملفات الصوتية من ذاكرة الهاتف العامة (خيار النسخ معطل).</i>
+    </string>
+    <string name="permission_read_write_rationale_short_text_on_load">إذن [الموسيقى والصوت] مطلوب لتشغيل الملفات من الذاكرة العامة للهاتف.</string>
 </resources>

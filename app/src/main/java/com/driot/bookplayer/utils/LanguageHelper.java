@@ -63,22 +63,23 @@ public class LanguageHelper {
     private static List<LanguageItem> getDefaultLanguageList() {
         List<LanguageItem> list = new ArrayList<>();
         list.add(new LanguageItem("eng", "en", "English", R.drawable.flag_uk));
-        list.add(new LanguageItem("deu", "de", "German", R.drawable.flag_de));
-        list.add(new LanguageItem("spa", "es", "Spanish", R.drawable.flag_es));
-        list.add(new LanguageItem("fre", "fr", "French", R.drawable.flag_fr));
-        list.add(new LanguageItem("por", "pt", "Portuguese", R.drawable.flag_pt));
-        list.add(new LanguageItem("ita", "it", "Italian", R.drawable.flag_it));
-        list.add(new LanguageItem("rus", "ru", "Russian", R.drawable.flag_ru));
-        list.add(new LanguageItem("zho", "zh", "Chinese", R.drawable.flag_cn));
-        list.add(new LanguageItem("ara", "ar", "Arabic", R.drawable.flag_sa));
-        list.add(new LanguageItem("jpn", "ja", "Japanese", R.drawable.flag_jp));
-        list.add(new LanguageItem("hin", "hi", "Hindi", R.drawable.flag_in));
-        list.add(new LanguageItem("ell", "el", "Greek", R.drawable.flag_gr));
-        list.add(new LanguageItem("heb", "he", "Hebrew", R.drawable.flag_il));
-        list.add(new LanguageItem("swe", "sv", "Swedish", R.drawable.flag_se));
-        list.add(new LanguageItem("pol", "pl", "Polish", R.drawable.flag_pl));
-        list.add(new LanguageItem("nld", "nl", "Dutch", R.drawable.flag_nl));
-        list.add(new LanguageItem("mul", "", "Multiple", R.drawable.flag_globe)); // For Librivox
+        list.add(new LanguageItem("deu", "de", "Deutsch", R.drawable.flag_de));
+        list.add(new LanguageItem("spa", "es", "Español", R.drawable.flag_es));
+        list.add(new LanguageItem("fre", "fr", "Français", R.drawable.flag_fr));
+        list.add(new LanguageItem("por", "pt", "Português", R.drawable.flag_pt));
+        list.add(new LanguageItem("ita", "it", "Italiano", R.drawable.flag_it));
+        list.add(new LanguageItem("rus", "ru", "Русский", R.drawable.flag_ru));
+        list.add(new LanguageItem("zho", "zh", "中文", R.drawable.flag_cn)); // or 中文 (Zhōngwén)
+        list.add(new LanguageItem("ara", "ar", "العربية", R.drawable.flag_sa));
+        list.add(new LanguageItem("jpn", "ja", "日本語", R.drawable.flag_jp));
+        list.add(new LanguageItem("hin", "hi", "हिन्दी", R.drawable.flag_in));
+        list.add(new LanguageItem("ell", "el", "Ελληνικά", R.drawable.flag_gr));
+        list.add(new LanguageItem("heb", "he", "עברית", R.drawable.flag_il));
+        list.add(new LanguageItem("swe", "sv", "Svenska", R.drawable.flag_se));
+        list.add(new LanguageItem("pol", "pl", "Polski", R.drawable.flag_pl));
+        list.add(new LanguageItem("nld", "nl", "Nederlands", R.drawable.flag_nl));
+        list.add(new LanguageItem("mul", "", "Multiple", R.drawable.flag_globe)); // This one is fine as-is
+
         return list;
     }
 }
