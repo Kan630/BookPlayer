@@ -337,27 +337,25 @@ public class AudioService extends LoggingService {
         // Rewind After Pause
         if (Option.getRewindAfterPause()) {
             if (PlayList.getInstance().getZikFile() != null) {
-                Time lastAccessTime = PlayList.getInstance().getZikFile().getLastaccessTime();
-                if (lastAccessTime != null) {
-                    Time nowTime = new Time(System.currentTimeMillis());
-                    long timeDiffMillis = nowTime.getTime() - lastAccessTime.getTime();
-                    long timeDiffMinutes = timeDiffMillis / (60 * 1000);
+                long lastAccessTime = PlayList.getInstance().getZikFile().lLastAccess;
+                long nowTime = System.currentTimeMillis();
+                long timeDiffMillis = nowTime - lastAccessTime;
+                long timeDiffMinutes = timeDiffMillis / (60 * 1000);
 
-                    int rewindDelay = 0; // default: no rewind
-                    for (int[] ints : REWIND_AFTER_PAUSE) {
-                        if (timeDiffMinutes >= ints[0]) {
-                            rewindDelay = ints[1];
-                        } else {
-                            break; // stop at the first value that exceeds timeDiff
-                        }
-                    }
-
-                    if (rewindDelay > 0) {
-                        myLog("Rewind after Pause - last play was " + timeDiffMinutes + " minutes ago. Rewind value is " + (rewindDelay / 1000) + " seconds.");
-                        backwardAudio(rewindDelay);
+                int rewindDelay = 0; // default: no rewind
+                for (int[] ints : REWIND_AFTER_PAUSE) {
+                    if (timeDiffMinutes >= ints[0]) {
+                        rewindDelay = ints[1];
                     } else {
-                        myLog("NO Rewind after Pause - last play was " + timeDiffMinutes + " minutes ago. No matching rewind rule found.");
+                        break; // stop at the first value that exceeds timeDiff
                     }
+                }
+
+                if (rewindDelay > 0) {
+                    myLog("Rewind after Pause - last play was " + timeDiffMinutes + " minutes ago. Rewind value is " + (rewindDelay / 1000) + " seconds.");
+                    backwardAudio(rewindDelay);
+                } else {
+                    myLog("NO Rewind after Pause - last play was " + timeDiffMinutes + " minutes ago. No matching rewind rule found.");
                 }
             }
         }
@@ -949,13 +947,10 @@ public class AudioService extends LoggingService {
     private void updateZikFileState(boolean bFinished) {
         ZikFile zf = getCurrentZikFile();
         try {
-            if (zf.getFirstaccess() == null) {
-                zf.setFirstaccess(new Date(System.currentTimeMillis()));
+            if (zf.lFirstAccess == 0) {
+                zf.lFirstAccess = System.currentTimeMillis();
             }
-            final Time sLastAccessTime = new Time(System.currentTimeMillis());
-            final Date sLastAccess = new Date(System.currentTimeMillis());
-            zf.setLastaccess(sLastAccess);
-            zf.setLastaccessTime(sLastAccessTime);
+            zf.lLastAccess = System.currentTimeMillis();
             if (bFinished) {
                 zf.setPosition(zf.getDuration());
                 zf.setPercentdone(100);

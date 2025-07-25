@@ -165,33 +165,31 @@ public class Tonio {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd-HH'h'mm'm'ss's'", Locale.US);
         return sdf.format(new java.util.Date());
     }
-    public static String FormatLastAccess(Date d, Time t, String NameForYesterday) {
+    public static String formatLastAccess(long timestamp, String nameForYesterday) {
         String s;
-        if (d != null && t != null) {
-            Date d2 = new Date(System.currentTimeMillis());
+        if (timestamp > 0) {
+            Date accessDate = new Date(timestamp);
+            Date today = new Date(System.currentTimeMillis());
+
             Calendar cal = Calendar.getInstance();
-            cal.add(Calendar.DATE,-1);
-            Date d3 = new Date(cal.getTimeInMillis()); // yesterday
-            String s1 = d.toString();
-            String s2 = d2.toString();
-            String s3 = d3.toString();
-            // check if date same as today
-            if (s1.equals(s2)) {
-                // Give time :
-                s = t.toString();
-                s = s.substring(0, 5);
-                // check if yesterday
-            } else if (s1.equals(s3)) {
-                s = NameForYesterday;
-                // give name of the day
-            } else if ((d2.getTime()-d.getTime())/ (1000 * 60 * 60 * 24)<7) {
-                // give name of the day
-                SimpleDateFormat outFormat = new SimpleDateFormat("EEEE", Locale.getDefault());
-                s = outFormat.format(d);
+            cal.add(Calendar.DATE, -1);
+            Date yesterday = new Date(cal.getTimeInMillis());
+
+            SimpleDateFormat dayFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+            String accessDay = dayFormat.format(accessDate);
+            String todayDay = dayFormat.format(today);
+            String yesterdayDay = dayFormat.format(yesterday);
+
+            if (accessDay.equals(todayDay)) {
+                SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
+                s = timeFormat.format(accessDate);
+            } else if (accessDay.equals(yesterdayDay)) {
+                s = nameForYesterday;
+            } else if ((today.getTime() - accessDate.getTime()) / (1000 * 60 * 60 * 24) < 7) {
+                SimpleDateFormat weekdayFormat = new SimpleDateFormat("EEEE", Locale.getDefault());
+                s = weekdayFormat.format(accessDate);
             } else {
-                //give date :
-                SimpleDateFormat simpleDate =  new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-                s = simpleDate.format(d);
+                s = accessDay;
             }
         } else {
             s = " ";
@@ -199,12 +197,15 @@ public class Tonio {
         return s;
     }
 
-    public static String formatLastAccessInDays(Date lastAccessDate) {
-        String zeReturn = "Never accessed";;
+    public static String formatLastAccessInDays(long lastAccessTimestamp) {
+        String zeReturn = "Never accessed";
         try {
-            Date currentDate = new Date(System.currentTimeMillis());
-            long diffInMillis = currentDate.getTime() - lastAccessDate.getTime();
+            if (lastAccessTimestamp <= 0) return zeReturn;
+
+            long now = System.currentTimeMillis();
+            long diffInMillis = now - lastAccessTimestamp;
             long diffInDays = diffInMillis / (1000 * 60 * 60 * 24);
+
             if (diffInDays > 400) {
                 int years = (int) (diffInDays / 365);
                 zeReturn = years + (years == 1 ? " year ago" : " years ago");
@@ -215,10 +216,11 @@ public class Tonio {
                 zeReturn = diffInDays + (diffInDays == 1 ? " day ago" : " days ago");
             }
         } catch (Exception e) {
-            myLogEE(e,"formatLastAccessInDays");
+            myLogEE(e, "formatLastAccessInDays");
         }
         return zeReturn;
     }
+
 
     public static String getFileNameFromPath(String fileName) {
         File file = new File(fileName);

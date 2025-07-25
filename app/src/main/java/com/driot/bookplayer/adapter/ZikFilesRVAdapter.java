@@ -25,11 +25,6 @@ import com.driot.bookplayer.utils.log.LoggingRVAdapter;
 
 import java.util.List;
 
-import static com.driot.bookplayer.utils.Tonio.FormatLastAccess;
-import static com.driot.bookplayer.utils.Tonio.FormatPercentForProgressBar;
-import static com.driot.bookplayer.utils.Tonio.FormatPercentString;
-import static com.driot.bookplayer.utils.Tonio.formatTime;
-
 public class ZikFilesRVAdapter extends LoggingRVAdapter<ZikFilesRVAdapter.ZikFilesViewHolder> {
 
     private final Context mCtx;
@@ -60,9 +55,9 @@ public class ZikFilesRVAdapter extends LoggingRVAdapter<ZikFilesRVAdapter.ZikFil
         ZikFile t = zikFileList.get(position);
 
         holder.textViewFileName.setText(t.getDisplayName());
-        holder.textViewFilePercent.setText(FormatPercentString(t.getPercentdone()));
-        holder.mProgressBar.setProgress(FormatPercentForProgressBar(t.getPercentdone()));
-        holder.textViewFileLastAccess.setText(FormatLastAccess(t.getLastaccess(), t.getLastaccessTime(), mCtx.getString(R.string.yesterday)));
+        holder.textViewFilePercent.setText(Tonio.FormatPercentString(t.getPercentdone()));
+        holder.mProgressBar.setProgress(Tonio.FormatPercentForProgressBar(t.getPercentdone()));
+        holder.textViewFileLastAccess.setText(Tonio.formatLastAccess(t.lLastAccess, mCtx.getString(R.string.yesterday)));
         holder.textViewDuration.setText(Tonio.formatTime(t.getDuration()));
     }
 

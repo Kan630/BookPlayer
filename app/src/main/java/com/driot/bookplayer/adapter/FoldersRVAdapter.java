@@ -24,6 +24,7 @@ import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.objects.PlayList;
+import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingRVAdapter;
 
 import java.util.List;
@@ -55,13 +56,11 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
         holder.textViewFileName.setText(folder.getName());
         holder.textViewFilePercent.setText(String.format(folder.getPercentdone().toString(), Locale.getDefault()));
 
-        if (folder.getLastaccess() != null) holder.textViewFileLastAccess.setText(folder.getLastaccess().toString());
-
         holder.textViewFilePercent.setText(FormatPercentString(folder.getPercentdone()));
 
         holder.mProgressBar.setProgress(FormatPercentForProgressBar(folder.getPercentdone()));
 
-        if (folder.getLastaccess() != null) holder.textViewFileLastAccess.setText(FormatLastAccess(folder.getLastaccess(),folder.getLastaccessTime(), mCtx.getString(R.string.yesterday)));
+        holder.textViewFileLastAccess.setText(Tonio.formatLastAccess(folder.lLastAccess, mCtx.getString(R.string.yesterday)));
 
         holder.textViewDuration.setText(formatTime(folder.getDuration()));
 

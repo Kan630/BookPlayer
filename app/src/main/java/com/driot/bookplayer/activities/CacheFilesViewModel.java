@@ -12,6 +12,7 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.ZikFile;
+import com.driot.bookplayer.objects.ZikFileSummary;
 import com.driot.bookplayer.utils.StorageHelper;
 import com.driot.bookplayer.utils.Utils;
 import com.driot.bookplayer.utils.log.LoggingViewModel;
@@ -27,7 +28,7 @@ import java.util.concurrent.Executors;
 
 public class CacheFilesViewModel extends LoggingViewModel {
     private final CacheFilesRepository cacheFilesRepository;
-    private LiveData<List<ZikFile>> filesFromDb;
+    private LiveData<List<ZikFileSummary>> filesFromDb;
     private final MutableLiveData<List<File>> filesFromDisk = new MutableLiveData<>();
     private final MutableLiveData<Boolean> memoryStats = new MutableLiveData<>();
     private boolean useInternal = true;
@@ -44,7 +45,7 @@ public class CacheFilesViewModel extends LoggingViewModel {
         loadFilesFromDisk();
     }
 
-    public LiveData<List<ZikFile>> getFilesOnDb() {
+    public LiveData<List<ZikFileSummary>> getFilesOnDb() {
         return filesFromDb;
     }
 
@@ -135,9 +136,9 @@ public class CacheFilesViewModel extends LoggingViewModel {
     private int getBookFolderId(File file) {
         int idFolder = 0;
         if (filesFromDb != null && filesFromDb.getValue() != null) {
-            for (ZikFile f : filesFromDb.getValue()) {
-                if (file.getPath().equals(f.getPath())) {
-                    idFolder = f.getIdFolder();
+            for (ZikFileSummary f : filesFromDb.getValue()) {
+                if (file.getPath().equals(f.path)) {
+                    idFolder = f.idFolder;
                     break;
                 }
             }

@@ -4,12 +4,9 @@ import android.content.Context;
 
 import androidx.sqlite.db.SimpleSQLiteQuery;
 
-import static com.driot.bookplayer.utils.Tonio.FormatLastAccess;
-import static com.driot.bookplayer.utils.Tonio.formatLastAccessInDays;
-import static com.driot.bookplayer.utils.Tonio.formatTime;
-
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.utils.KanLogger;
+import com.driot.bookplayer.utils.Tonio;
 
 import java.util.List;
 import java.util.Locale;
@@ -106,9 +103,9 @@ public class Sql {
                             ,folder.getHash()
                             ,folder.getName()
                             ,folder.getPath()
-                            ,formatTime(folder.getDuration())
-                            ,FormatLastAccess(folder.getLastaccess(), folder.getLastaccessTime(), c.getString(R.string.yesterday))
-                            ,formatLastAccessInDays(folder.getLastaccess())
+                            ,Tonio.formatTime(folder.getDuration())
+                            ,Tonio.formatLastAccess(folder.lLastAccess, c.getString(R.string.yesterday))
+                            ,Tonio.formatLastAccessInDays(folder.lLastAccess)
                     );
                     myLogI(logEntry);
 

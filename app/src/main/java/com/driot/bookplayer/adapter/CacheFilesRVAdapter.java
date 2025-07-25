@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.ZikFile;
+import com.driot.bookplayer.objects.ZikFileSummary;
 import com.driot.bookplayer.utils.log.LoggingRVAdapter;
 
 import java.io.File;
@@ -32,7 +33,7 @@ import java.util.Locale;
 public class CacheFilesRVAdapter extends LoggingRVAdapter<CacheFilesRVAdapter.FileViewHolder> {
 
     private List<File> filesOnDisk;
-    private List<ZikFile> distinctZikFilePaths;
+    private List<ZikFileSummary> distinctZikFilePaths;
     private final OnDeleteClickListener onDeleteClickListener;
 
     private final Context context;
@@ -42,7 +43,7 @@ public class CacheFilesRVAdapter extends LoggingRVAdapter<CacheFilesRVAdapter.Fi
         this.context = context;
     }
 
-    public void setDistinctZikFilePaths(List<ZikFile> distinctZikFilePaths) {
+    public void setDistinctZikFilePaths(List<ZikFileSummary> distinctZikFilePaths) {
         this.distinctZikFilePaths = distinctZikFilePaths;
         notifyDataSetChanged();
     }
@@ -81,9 +82,9 @@ public class CacheFilesRVAdapter extends LoggingRVAdapter<CacheFilesRVAdapter.Fi
         double percentDone = 0;
         String zeAudioStatus = "...";
         if (!(distinctZikFilePaths == null)) {
-            for (ZikFile f : distinctZikFilePaths) {
-                if (file.getPath().equals(f.getPath())) {
-                    percentDone = f.getPercentdone();
+            for (ZikFileSummary f : distinctZikFilePaths) {
+                if (file.getPath().equals(f.path)) {
+                    percentDone = f.percentdone;
                     bFound = true;
                     break;
                 }

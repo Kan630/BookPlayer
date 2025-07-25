@@ -50,15 +50,6 @@ public class ZikFile implements Serializable {
     @ColumnInfo(name = "percentdone")
     private double percentdone;
 
-    @ColumnInfo(name = "firstaccess")
-    private Date firstaccess;
-
-    @ColumnInfo(name = "lastaccess")
-    private Date lastaccess;
-
-    @ColumnInfo(name = "lastaccessTime")
-    private Time lastaccessTime;
-
     @ColumnInfo(name = "iszipfile")
     private boolean iszipfile;
 
@@ -70,6 +61,9 @@ public class ZikFile implements Serializable {
 
     public long date_added;
 
+    public Long lFirstAccess;
+
+    public Long lLastAccess;
 
 
     public int getId() {
@@ -128,27 +122,6 @@ public class ZikFile implements Serializable {
         this.percentdone = percentdone;
     }
 
-    public Date getFirstaccess() {
-        return firstaccess;
-    }
-    public void setFirstaccess(Date firstaccess) {
-        this.firstaccess = firstaccess;
-    }
-
-    public Date getLastaccess() {
-        return lastaccess;
-    }
-    public void setLastaccess(Date lastaccess) {
-        this.lastaccess = lastaccess;
-    }
-
-    public Time getLastaccessTime() {
-        return lastaccessTime;
-    }
-    public void setLastaccessTime(Time lastaccessTime) {
-        this.lastaccessTime = lastaccessTime;
-    }
-
     public boolean isFinished() {
         return finished;
     }
@@ -200,9 +173,8 @@ public class ZikFile implements Serializable {
                 ", duration=" + duration +
                 ", size=" + size +
                 ", percentdone=" + percentdone +
-                ", firstaccess=" + firstaccess +
-                ", lastaccess=" + lastaccess +
-                ", lastaccessTime=" + lastaccessTime +
+                ", firstaccess=" + lFirstAccess +
+                ", lastaccess=" + lLastAccess +
                 ", iszipfile=" + iszipfile +
                 ", finished=" + finished +
                 '}';

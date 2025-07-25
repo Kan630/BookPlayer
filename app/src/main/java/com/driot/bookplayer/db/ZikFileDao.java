@@ -16,6 +16,8 @@ import androidx.room.Insert;
 import androidx.room.Query;
 import androidx.room.Update;
 
+import com.driot.bookplayer.objects.ZikFileSummary;
+
 import java.sql.Time;
 import java.util.List;
 
@@ -52,11 +54,11 @@ public interface ZikFileDao {
     @Query("DELETE FROM ZikFile WHERE id = :idZikFile")
     void deleteZikFile(int idZikFile);
 
-    @Query("UPDATE ZikFile SET position = 0, percentdone = 0, firstAccess = null, lastAccess=null, lastAccessTime=null, finished=0 WHERE idFolder =:idFolder")
+    @Query("UPDATE ZikFile SET position = 0, percentdone = 0, lFirstAccess = null, lLastAccess=null, finished=0 WHERE idFolder =:idFolder")
     void resetFolderProgression(int idFolder);
 
-    @Query("UPDATE ZikFile SET position = 0, percentdone = 0, firstAccess = null, lastAccess=null, lastAccessTime=null, finished=0 WHERE idFolder =:idFolder AND name >= :name")
-    void resetProgressionFromThisZikFile(int idFolder, String name);
+    @Query("UPDATE ZikFile SET position = 0, percentdone = 0, lFirstAccess = null, lLastAccess=null, finished=0 WHERE idFolder =:idFolder AND zeorder >= :zeorder")
+    void resetProgressionFromThisZikFile(int idFolder, double zeorder);
 
     @Update
     int update(ZikFile zikFile);
@@ -64,8 +66,9 @@ public interface ZikFileDao {
     @Query("UPDATE ZikFile SET FolderName=:folderName WHERE id = :id")
     void updateFolderName(String folderName, int id);
 
-    @Query("select distinct z.path, z.folderName, f.percentdone as percentdone, z.idFolder, null as id, null as position, null as duration, null as size, null as iszipfile, null as finished, null as zeorder , null as date_added from ZikFile z inner join Folder f on z.idFolder = f.id")
-    LiveData<List<ZikFile>> getZikFileDistinctLocations(); // for cache files cleaning activity...
+    @Query("SELECT DISTINCT z.path, z.folderName, f.percentdone, z.idFolder " +
+            "FROM ZikFile z INNER JOIN Folder f ON z.idFolder = f.id")
+    LiveData<List<ZikFileSummary>> getZikFileDistinctLocations();
 
     /*
 
@@ -75,8 +78,8 @@ public interface ZikFileDao {
     void updateZikFileName(String zikFileName, int id);
     */
 
-    @Query("UPDATE ZikFile SET firstaccess=:firstAccess WHERE id = :id")
-    void updateFirstAccess(Time firstAccess, int id);
+    @Query("UPDATE ZikFile SET lFirstAccess=:firstAccess WHERE id = :id")
+    void updateFirstAccess(long firstAccess, int id);
 
     @Query("SELECT uri FROM Folder WHERE id = :id")
     String getFolderUri(int id);

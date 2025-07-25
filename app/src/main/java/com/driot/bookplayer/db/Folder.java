@@ -52,15 +52,6 @@ public class Folder implements Parcelable {
     @ColumnInfo(name = "percentdone")
     private Double percentdone;
 
-    @ColumnInfo(name = "firstaccess")
-    private Time firstaccess;
-
-    @ColumnInfo(name = "lastaccess")
-    private Date lastaccess;
-
-    @ColumnInfo(name = "lastaccessTime")
-    private Time lastaccessTime;
-
     @ColumnInfo(name = "iszipfile")
     private boolean iszipfile;
 
@@ -118,9 +109,6 @@ public class Folder implements Parcelable {
         position = in.readInt();
         duration = in.readDouble();
         percentdone = in.readByte() == 0 ? null : in.readDouble();
-        firstaccess = (Time) in.readSerializable();
-        lastaccess = (Date) in.readSerializable();
-        lastaccessTime = (Time) in.readSerializable();
         iszipfile = in.readByte() != 0;
         finished = in.readByte() != 0;
         originalType = in.readString();
@@ -258,30 +246,6 @@ public class Folder implements Parcelable {
         this.percentdone = percentdone;
     }
 
-    public Time getFirstaccess() {
-        return firstaccess;
-    }
-
-    public void setFirstaccess(Time firstaccess) {
-        this.firstaccess = firstaccess;
-    }
-
-    public Date getLastaccess() {
-        return lastaccess;
-    }
-
-    public void setLastaccess(Date lastaccess) {
-        this.lastaccess = lastaccess;
-    }
-
-    public Time getLastaccessTime() {
-        return lastaccessTime;
-    }
-
-    public void setLastaccessTime(Time lastaccessTime) {
-        this.lastaccessTime = lastaccessTime;
-    }
-
     public boolean isIszipfile() {
         return iszipfile;
     }
@@ -330,12 +294,6 @@ public class Folder implements Parcelable {
                 return context.getString(R.string.audio_location_audiobook_not_found);
         }
     }
-
-    public void setLastAccessToNow() {
-        this.lastaccess = new Date(System.currentTimeMillis());
-        this.lastaccessTime = new Time(System.currentTimeMillis());
-    }
-
 
     public String getOriginalType() {
         return originalType;

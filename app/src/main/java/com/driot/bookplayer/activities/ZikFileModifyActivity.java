@@ -28,8 +28,6 @@ import java.io.File;
 public class ZikFileModifyActivity extends LoggingActivity {
 
     private ZikFile zikFile;
-    private int zikFileId;
-    private String zikFileName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,8 +49,6 @@ public class ZikFileModifyActivity extends LoggingActivity {
             myToastEE(null, "could not identify track to modify");
             finish();
         }
-        zikFileId = zikFile.getId();
-        zikFileName = zikFile.getName();
         String zikFileDisplayName = zikFile.getDisplayName();
         double zikFilePosition = zikFile.getZeorder();
 
@@ -79,7 +75,7 @@ public class ZikFileModifyActivity extends LoggingActivity {
             etChangePosition.setSelection(0, etChangePosition.getText().length());
         });
 
-        bReset.setOnClickListener(view -> bResetClick(zikFile.getIdFolder(), zikFileName));
+        bReset.setOnClickListener(view -> bResetClick(zikFile));
 
         bDelete.setOnClickListener(view -> bDeleteClick());
 
@@ -100,10 +96,10 @@ public class ZikFileModifyActivity extends LoggingActivity {
             myToast("cannot parse number");
         } else {
             new Thread(() -> {
-                AppDatabase.getDatabase(this).ZikFileDao().changePosition(zikFileId, (double) newPos);
+                AppDatabase.getDatabase(this).ZikFileDao().changePosition(zikFile.getId(), (double) newPos);
                 runOnUiThread(() -> {
                     myToast(getString(R.string.ZikFile_RePositioned));
-                    myLogInFile( getString(R.string.ZikFile_RePositioned) + " [" + newPosStr + "] : " + zikFileName);
+                    myLogInFile( getString(R.string.ZikFile_RePositioned) + " [" + newPosStr + "] : " + zikFile.getDisplayName());
                     finish();
                 });
             }).start();
@@ -134,10 +130,10 @@ public class ZikFileModifyActivity extends LoggingActivity {
 
     private void deleteZikFileFromDB() {
         new Thread(() -> {
-            AppDatabase.getDatabase(this).ZikFileDao().deleteZikFile(zikFileId);
+            AppDatabase.getDatabase(this).ZikFileDao().deleteZikFile(zikFile.getId());
             runOnUiThread(() -> {
                 myToast(getString(R.string.ZikFile_Deleted));
-                myLog(getString(R.string.ZikFile_Deleted) + " : " + zikFileName);
+                myLog(getString(R.string.ZikFile_Deleted) + " : " + zikFile.getDisplayName());
                 finish();
             });
         }).start();
@@ -145,7 +141,7 @@ public class ZikFileModifyActivity extends LoggingActivity {
 
     private boolean DeleteZikFileFromDisk() {
         new Thread(() -> {
-            String zikFilePath = AppDatabase.getDatabase(this).ZikFileDao().getZikFilePath(zikFileId);
+            String zikFilePath = AppDatabase.getDatabase(this).ZikFileDao().getZikFilePath(zikFile.getId());
             runOnUiThread(() -> {
                 eraseFileFromDisk("file://" + zikFilePath);
                 finish();
@@ -190,32 +186,31 @@ public class ZikFileModifyActivity extends LoggingActivity {
             myToast(getString(R.string.Error_NameTooShort));
         } else {
             new Thread(() -> {
-                AppDatabase.getDatabase(this).ZikFileDao().setDisplayName(zikFileId, newDisplayName);
+                AppDatabase.getDatabase(this).ZikFileDao().setDisplayName(zikFile.getId(), newDisplayName);
                 runOnUiThread(() -> {
                     myToast(getString(R.string.ZikFile_Renamed));
-                    myLog(getString(R.string.ZikFile_Renamed) + " : [" + zikFileName + "] -> [" + newDisplayName + "]");
+                    myLogD(getString(R.string.ZikFile_Renamed) + " : [" + zikFile.getDisplayName() + "] -> [" + newDisplayName + "]");
                     finish();
                 });
             }).start();
         }
     }
 
-    private void bResetClick(int idFolder, String zikFileName) {
+    private void bResetClick(ZikFile zikFile) {
         new AlertDialog.Builder(ZikFileModifyActivity.this)
                 .setTitle(ZikFileModifyActivity.this.getString(R.string.ModifyFolder_AskDeleteProgressFromZikFile_Title))
                 .setMessage(ZikFileModifyActivity.this.getString(R.string.ModifyFolder_AskDeleteProgressFromZikFile_Text))
                 .setCancelable(false)
-                .setPositiveButton(ZikFileModifyActivity.this.getString(R.string.Yes), (dialog, which) -> deleteProgressFromThisZikFile(idFolder, zikFileName))
+                .setPositiveButton(ZikFileModifyActivity.this.getString(R.string.Yes), (dialog, which) -> deleteProgressFromThisZikFile(zikFile))
                 .setNegativeButton(ZikFileModifyActivity.this.getString(R.string.Cancel), (dialogInterface, i) -> {})
                 .show();
     }
-    private void deleteProgressFromThisZikFile(int idFolder, String zikFileName) {
+    private void deleteProgressFromThisZikFile(ZikFile zikFile) {
         new Thread(() -> {
-            AppDatabase.getDatabase(this).ZikFileDao().resetProgressionFromThisZikFile(idFolder, zikFileName);
-            Sql.calculateFolderProgress(ZikFileModifyActivity.this, idFolder);
+            AppDatabase.getDatabase(this).ZikFileDao().resetProgressionFromThisZikFile(zikFile.getIdFolder(), zikFile.getZeorder());
+            Sql.calculateFolderProgress(ZikFileModifyActivity.this, zikFile.getIdFolder());
             runOnUiThread(() -> {
                 myToast(ZikFileModifyActivity.this.getString(R.string.Progression_reset_done));
-                myLogInFile(ZikFileModifyActivity.this.getString(R.string.Progression_reset_done) + " beggining on " + zikFileName);
                 finish(); //close activity
             });
         }).start();

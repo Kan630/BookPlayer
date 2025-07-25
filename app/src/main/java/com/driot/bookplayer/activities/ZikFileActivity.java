@@ -73,30 +73,31 @@ public class ZikFileActivity extends LoggingActivity {
 
     // scroll to specific position in recyclerview
     private void goToLastAudio() {
-        Date d = new Date(0);
-        Date d_max = new Date(0);
+        long maxTimestamp = 0;
         int id_max = 0;
-        List<ZikFile> zikFilesList = PlayList.getInstance().getZikFilesList(); // TODO already gathered via getZikFiles() through DAO, why ask it again through Playlist
+
+        List<ZikFile> zikFilesList = PlayList.getInstance().getZikFilesList(); // already available through DAO in some cases
         if (zikFilesList != null && map != null) {
             try {
-                for (ZikFile z : PlayList.getInstance().getZikFilesList()) {
-                    if (z.getLastaccess() != null) d = z.getLastaccess();
-                    if (d.after(d_max)) {
-                        d_max = d;
+                for (ZikFile z : zikFilesList) {
+                    long lastAccess = z.lLastAccess;
+                    if (lastAccess > maxTimestamp) {
+                        maxTimestamp = lastAccess;
                         id_max = z.getId();
                     }
                 }
+
                 if (id_max != 0) {
                     Integer posInteger = map.get(id_max);
                     if (posInteger != null) {
-                        int pos = posInteger;
-                        if ((pos)>1) pos = pos-1;
+                        int pos = Math.max(posInteger - 1, 0);
                         recyclerView.scrollToPosition(pos);
-                        myLogD("scrolling to  :" + map.get(id_max));
+                        myLogD("scrolling to: " + pos);
                     }
                 }
+
             } catch (Exception e) {
-                myLogEE(e,"goToLastCurrentAudio()");
+                myLogEE(e, "goToLastAudio()");
             }
         }
     }

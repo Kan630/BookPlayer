@@ -116,7 +116,7 @@ public class PodcastSyncWorker extends Worker {
         // 3. Notify user
         if (newFilesCount > 0) {
             updateFolderTable(getApplicationContext(), idFolder);
-            folderDao.updateLastAccess(idFolder, new java.sql.Date(System.currentTimeMillis())); //triggers livedata update and reload of Book list
+            folderDao.updateLastAccess(idFolder, System.currentTimeMillis()); //triggers livedata update and reload of Book list
             Handler handler = new Handler(Looper.getMainLooper());
             int finalNewFilesCount = newFilesCount;
             //TODO handler.post(() -> myToast(finalNewFilesCount + " " + getString(getApplicationContext(), R.string.podcast_new_episodes) + " for " + name));

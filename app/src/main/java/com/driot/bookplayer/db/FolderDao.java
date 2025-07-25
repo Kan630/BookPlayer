@@ -19,7 +19,7 @@ import java.util.List;
 @Dao
 public interface FolderDao {
 
-    @Query("SELECT * FROM Folder ORDER BY lastaccess DESC")
+    @Query("SELECT * FROM Folder ORDER BY lLastAccess DESC")
     List<Folder> getAll();
 
     @Query("SELECT * FROM Folder ORDER BY lLastAccess DESC")
@@ -52,8 +52,7 @@ public interface FolderDao {
     void updateFolderNameInZikFile(int folderId, String newFolderName);
 
     @Query("UPDATE Folder SET position = 0, percentdone = 0, " +
-            "lastAccess = datetime('now'), " +
-            "lastAccessTime = strftime('%s','now')*1000, " +  // Unix timestamp in milliseconds
+            "llastaccess = strftime('%s','now')*1000, " +
             "finished = 0 WHERE id = :id")
     void resetProgression(int id);
 
@@ -79,8 +78,8 @@ public interface FolderDao {
     Folder getById(long folderId);
 
 
-    @Query("UPDATE Folder SET lastaccess = :timestamp WHERE id = :folderId")
-    void updateLastAccess(int folderId, java.sql.Date timestamp);
+    @Query("UPDATE Folder SET lLastAccess = :timestamp WHERE id = :folderId")
+    void updateLastAccess(int folderId, long timestamp);
 
     @Query("SELECT * FROM Folder WHERE image LIKE 'http%'")
     List<Folder> getAllWithRemoteImage();

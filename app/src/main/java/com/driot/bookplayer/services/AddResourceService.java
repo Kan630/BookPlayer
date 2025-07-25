@@ -766,9 +766,6 @@ public class AddResourceService
         folder.setUri(future_DB_folder_path); //2023-10-22 deprecated
         folder.setHash("0"); //2023-10-22 deprecated
         folder.setPercentdone(0.0);
-        folder.setFirstaccess(timeNow);
-        folder.setLastaccess(dateNow);
-        folder.setLastaccessTime(timeNow);
         folder.setFinished(false);
         folder.setIszipfile(false); //2023-10-22 deprecated (live zip reading - code has been removed)
         folder.setOriginalHash(bookState.originalHash);
