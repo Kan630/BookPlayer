@@ -123,6 +123,9 @@ public class DatabaseMigrations {
             //db.execSQL("ALTER TABLE ZikFile DROP COLUMN firstaccess");
             //db.execSQL("ALTER TABLE ZikFile DROP COLUMN lastaccess");
             //db.execSQL("ALTER TABLE ZikFile DROP COLUMN lastaccessTime");
-
+        }
     };
+
+
+
 }
