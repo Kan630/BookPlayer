@@ -221,7 +221,12 @@
         <item name="android:paddingStart">10dp</item>
         <item name="android:paddingEnd">10dp</item>
         <item name="android:layout_marginStart">20dp</item>
-        <item name="android:layout_marginEnd">20dp</item>
+    </style>
+    <style name="GetResourceEditTextButtons">
+        <item name="android:layout_width">40dp</item>
+        <item name="android:layout_marginStart">5dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">15dp</item>
     </style>
 
     <style name="GetResourceHorizontalBar" parent="myStyleViewSimpleHorizontalBar">

@@ -337,7 +337,6 @@
     // Get Resources
     <string name="OnlineSearch_title">Direct integration - beta test</string>
     <string name="OnlineSearch_desc">Use this search capability to find the audiobook you are looking for. Then, on the next page, select the one you want to import, it should download and add itself directly inside bookplayer !</string>
-    <string name="OnlineSearch_hint">Jack London</string>
     <string name="OnlineSearch_button">Search…</string>
 
     <string name="SleepTimer">Sleep Timer</string>
@@ -392,7 +391,6 @@
 
     <string name="DirectDownload_title">Direct Download</string>
     <string name="DirectDownload_desc">Paste a link hereunder and press the button to download and integrate an audiobook in one go.</string>
-    <string name="DirectDownload_hint">https://bookplayer.driot.com/autotest/file_01.zip</string>
     <string name="DirectDownload_button">Just Get It</string>
 
     <string name="ErrorCouldNotLoadAudios">ERROR - Could not load audios.</string>
@@ -469,9 +467,6 @@
 
 
 
-    <string name="LibrivoxSearch_title">"Librivox Direct"</string>
-    <string name="LibrivoxSearch_desc">"Make a search to directly get your book from a free world class audiobooks repository (essentially english)"</string>
-    <string name="LibrivoxSearch_hint">"Dumas"</string>
     <string name="Search">"Search"</string>
     <string name="LibrivoxResultItem_audio_available_since">"audio available since"</string>">
     <string name="LibrivoxResultitem_nb_of_reviews">"Nb of reviews"</string>">
@@ -548,7 +543,6 @@
 
     <string name="PodcastSearch_title">Podcasts</string>
     <string name="PodcastSearch_desc">Browse podcasts thanks to open source registery podcastindex.org</string>
-    <string name="PodcastSearch_hint">love</string>
     <string name="podcast_image_desc">Podcast image</string>
     <string name="podcast_no_results">No podcast found</string>
     <string name="podcast_nb_of_podcast_found">Nb of podcasts found</string>
@@ -580,6 +574,12 @@
     <string name="audios_in_app">audios in app</string>">
 
     <string name="option_on_load_use_SD_card">Use SD card</string>">
+    <string name="OnlineSearch_hint">Jack London</string>
+    <string name="LibrivoxSearch_hint">Jack London</string>
+    <string name="PodcastSearch_hint">cats</string>
+    <string name="DirectDownload_hint">https://bookplayer.driot.com/audiobook630.zip</string>
+    <string name="LibrivoxSearch_title">"AudioBooks"</string>
+    <string name="LibrivoxSearch_desc">"Search directly on LibriVox to find your audiobook. It's a free, public‑domain repository with mostly English works and some available in other languages."</string>
 
 
 

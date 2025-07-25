@@ -3,35 +3,44 @@ package com.driot.bookplayer.activities;
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.Settings;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.objects.LanguageItem;
-import com.driot.bookplayer.objects.LoadBookTaskState;
+import com.driot.bookplayer.utils.EditTextWithButtons;
 import com.driot.bookplayer.utils.GlobalTaskManager;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.services.AddResourceService;
-import com.driot.bookplayer.adapter.LanguageSpinnerAdapter;
+import com.driot.bookplayer.utils.LanguageHelper;
 import com.driot.bookplayer.utils.MediaScanner2;
 import com.driot.bookplayer.utils.NetworkUtils;
 import com.driot.bookplayer.utils.PermissionRequest;
@@ -39,18 +48,12 @@ import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import static com.driot.bookplayer.global.Pref.getLoadBookTaskState;
-import static com.driot.bookplayer.global.Pref.get_Audio_Language;
-import static com.driot.bookplayer.global.Pref.setLoadBookTaskState;
-import static com.driot.bookplayer.global.Pref.set_Audio_Language;
 import static com.driot.bookplayer.global.Var.AUTOTEST_FILE_01;
 import static com.driot.bookplayer.global.Var.AUTOTEST_FILE_02;
 import static com.driot.bookplayer.global.Var.AUTOTEST_FILE_03;
 import static com.driot.bookplayer.utils.PermissionRequest.isReadAudioPermissionGranted;
-import static com.driot.bookplayer.utils.WorkFlow.isSomeWorkFlowRunning;
 import static com.driot.bookplayer.utils.WorkFlow.maybeResumeWorkFlow;
 
 /**
@@ -59,8 +62,6 @@ import static com.driot.bookplayer.utils.WorkFlow.maybeResumeWorkFlow;
 public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
     private Button bOpenFile, bOpenFolder, bOpenZipFile, bOpenM4bFile;
     private Button bAutoTest_b1, bAutoTest_b2, bAutoTest_b3, bDirectDownload;
-
-    private EditText etDirectDownload;
 
     private PermissionRequest mPermissionRequest;
 
@@ -115,7 +116,6 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
         bAutoTest_b2 = findViewById(R.id.bAutoTest_b2);
         bAutoTest_b3 = findViewById(R.id.bAutoTest_b3);
         bDirectDownload = findViewById(R.id.bDirectDownload);
-        etDirectDownload = findViewById(R.id.etDirectDownload);
 
 // ADD RESOURCE
         addResourceActivityResultLauncher = registerForActivityResult(
@@ -261,6 +261,117 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
 
          */
 
+
+        ////////////////////////////////
+        //// DIRECT DOWNLOAD - JUST GET IT
+        ////////////////////////////////
+
+        bDirectDownload.setOnClickListener(view -> {
+            myLog("Button click : DIRECT DOWNLOAD");
+            EditTextWithButtons editTextDirectDownload = findViewById(R.id.etDirectDownload);
+
+            String url = editTextDirectDownload.getText();
+
+            if (url.isEmpty()) {
+                myToast("Please enter a URL.");
+                return;
+            }
+            myLog("url : [" + url + "]");
+
+            Uri uri = Uri.parse(url);
+            myLog("uri : [" + uri.toString() + "]");
+
+            if (uri.getPath() == null) {
+                myToastE("Error parsing url.");
+                return;
+            }
+            String type = "File";
+
+            Intent intent = new Intent(this, LoadOptionsActivity.class);
+            intent.putExtra(LoadOptionsActivity.EXTRA_URI, uri);
+            intent.putExtra(LoadOptionsActivity.EXTRA_TYPE, type);
+            loadOptionsActivityResultLauncher.launch(intent);
+        });
+
+        ////////////////////////////////
+        /// // LIBRIVOX SEARCH
+        ////////////////////////////////
+        Spinner spinnerLibrivox = findViewById(R.id.spinnerLibrivox);
+        LanguageHelper.setupLanguageSpinner(
+                this,
+                spinnerLibrivox,
+                Pref.get_Audio_Language_Librivox(this),
+                LanguageHelper.getLibrivoxLanguages(),
+                lang -> Pref.set_Audio_Language_Librivox(this, lang.threeLetterCode),
+                true
+        );
+        EditText editTextQuery;
+        Button buttonSearch;
+        EditTextWithButtons editTextLibrivox = findViewById(R.id.etLibrivox);
+        buttonSearch = findViewById(R.id.bLibrivoxSearch);
+        buttonSearch.setOnClickListener(v -> {
+            String query = editTextLibrivox.getText();
+            String lang = spinnerLibrivox.getSelectedItem().toString().toLowerCase();
+
+            if (lang.isEmpty()) {
+                myToast("selected language error");
+                return;
+            }
+
+            Intent intent = new Intent(this, LibrivoxResultsActivity.class);
+            intent.putExtra("query", query);
+            intent.putExtra("lang", lang);
+            startActivity(intent);
+        });
+        ////////////////////////////////
+        ////////////////////////////////
+
+        ////////////////////////////////
+        /// // PODCASTS SEARCH
+        ////////////////////////////////
+        Spinner spinnerPodcast = findViewById(R.id.spinnerPodcast);
+        LanguageHelper.setupLanguageSpinner(
+                this,
+                spinnerPodcast,
+                Pref.get_Audio_Language_Podcast(this),
+                LanguageHelper.getPodcastLanguages(),
+                lang -> Pref.set_Audio_Language_Podcast(this, lang.twoLetterCode),
+                false
+        );
+        Button buttonPodcastSearch;
+        EditTextWithButtons editTextPodcast = findViewById(R.id.etPodcast);
+        buttonPodcastSearch = findViewById(R.id.bPodcastSearch);
+        buttonPodcastSearch.setOnClickListener(v -> {
+            String query = editTextPodcast.getText();
+            LanguageItem selectedLang = (LanguageItem) spinnerPodcast.getSelectedItem();
+            String lang = selectedLang.getTwoLetterCode().toLowerCase();
+
+            Intent intent = new Intent(this, PodcastSearchResultsActivity.class);
+            intent.putExtra("query", query);
+            intent.putExtra("lang", lang);
+            startActivity(intent);
+        });
+        Button bFavoritePodcasts = findViewById(R.id.bFavoritePodcasts);
+        bFavoritePodcasts.setOnClickListener(v -> {
+            Intent intent = new Intent(this, PodcastFavoritesActivity.class);
+            startActivity(intent);
+        });
+        ////////////////////////////////
+        ////////////////////////////////
+
+// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        View secretEntry = findViewById(R.id.viewSecretEntry);
+        final long[] taps = new long[3];
+        secretEntry.setOnClickListener(v -> {
+            System.arraycopy(taps, 1, taps, 0, taps.length - 1);
+            taps[taps.length - 1] = System.currentTimeMillis();
+
+            if (taps[0] >= System.currentTimeMillis() - 1000) {
+                LinearLayout llsecretDev = findViewById(R.id.llsecretDev);
+                llsecretDev.setVisibility(View.VISIBLE);
+                //startActivity(new Intent(this, DebugDatabaseActivity.class));
+            }
+        });
         ////////////////////////////////
         ///// AUTO TEST
         ////////////////////////////////
@@ -297,135 +408,11 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
                 }
             });
         });
-
-
-        ////////////////////////////////
-        //// DIRECT DOWNLOAD - JUST GET IT
-        ////////////////////////////////
-
-        bDirectDownload.setOnClickListener(view -> {
-            myLog("Button click : DIRECT DOWNLOAD");
-            String url = etDirectDownload.getText().toString();
-
-            if (url.isEmpty()) {
-                myToast("Please enter a URL.");
-                return;
-            }
-            myLog("url : [" + url + "]");
-
-            Uri uri = Uri.parse(url);
-            myLog("uri : [" + uri.toString() + "]");
-
-            if (uri.getPath() == null) {
-                myToastE("Error parsing url.");
-                return;
-            }
-            String type = "File";
-
-            Intent intent = new Intent(this, LoadOptionsActivity.class);
-            intent.putExtra(LoadOptionsActivity.EXTRA_URI, uri);
-            intent.putExtra(LoadOptionsActivity.EXTRA_TYPE, type);
-            loadOptionsActivityResultLauncher.launch(intent);
-        });
-
-        ////////////////////////////////
-        /// // LIBRIVOX SEARCH
-        ////////////////////////////////
-        Spinner spinnerLanguage = findViewById(R.id.spinnerLanguage);
-        String pref_audio_language = get_Audio_Language(this);
-        List<LanguageItem> languageItems = Arrays.asList(
-                 new LanguageItem("eng", "en", "English", R.drawable.flag_uk)
-                ,new LanguageItem("deu", "de", "German", R.drawable.flag_de)
-                ,new LanguageItem("spa", "es", "Spanish", R.drawable.flag_es)
-                ,new LanguageItem("fre", "fr", "French", R.drawable.flag_fr)
-                ,new LanguageItem("por", "pt", "Portuguese", R.drawable.flag_pt)
-                ,new LanguageItem("ita", "it", "Italian", R.drawable.flag_it)
-                ,new LanguageItem("rus", "ru", "Russian", R.drawable.flag_ru)
-                ,new LanguageItem("zho", "zh-cn", "Chinese", R.drawable.flag_cn)
-                ,new LanguageItem("ara", "ar", "Arabic", R.drawable.flag_sa) //2 books
-                ,new LanguageItem("jpn", "ja", "Japanese", R.drawable.flag_jp)
-                ,new LanguageItem("hin", "hi", "Hindi", R.drawable.flag_in) //no book
-                ,new LanguageItem("ell", "el", "Greek", R.drawable.flag_gr)
-                ,new LanguageItem("heb", "he", "Hebrew", R.drawable.flag_il)
-                ,new LanguageItem("swe", "sv", "Swedish", R.drawable.flag_se)
-                ,new LanguageItem("pol", "pl", "Polish", R.drawable.flag_pl)
-                ,new LanguageItem("nld", "nl", "Dutch", R.drawable.flag_nl)
-                ,new LanguageItem("mul", "", "Multiple", R.drawable.flag_globe) //only for Livribox, use Any for Podcast (and Librivox)
-                //,new LanguageItem("", "Any", R.drawable.flag_all)
-        );
-        LanguageSpinnerAdapter adapter = new LanguageSpinnerAdapter(this, languageItems);
-        spinnerLanguage.setAdapter(adapter);
-        // Set spinner initial selection to saved language code
-        int selectedPosition = 0;
-        for (int i = 0; i < languageItems.size(); i++) {
-            if (languageItems.get(i).threeLetterCode.equals(pref_audio_language)) {
-                selectedPosition = i;
-                break;
-            }
-        }
-        spinnerLanguage.setSelection(selectedPosition);
-        // Save the selected language when user changes selection
-        spinnerLanguage.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                LanguageItem selected = (LanguageItem) parent.getItemAtPosition(position);
-                set_Audio_Language(parent.getContext(), selected.threeLetterCode);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                // Optional: do nothing or handle no selection
-            }
-        });
-
-        EditText editTextQuery;
-        Button buttonSearch;
-        editTextQuery = findViewById(R.id.etLibrivoxSearch);
-        buttonSearch = findViewById(R.id.bLibrivoxSearch);
-        buttonSearch.setOnClickListener(v -> {
-            String query = editTextQuery.getText().toString();
-            String lang = spinnerLanguage.getSelectedItem().toString().toLowerCase();
-
-            if (lang.isEmpty()) {
-                myToast("selected language error");
-                return;
-            }
-
-            Intent intent = new Intent(this, LibrivoxResultsActivity.class);
-            intent.putExtra("query", query);
-            intent.putExtra("lang", lang);
-            startActivity(intent);
-        });
-        ////////////////////////////////
-        ////////////////////////////////
-
-        ////////////////////////////////
-        /// // PODCASTS SEARCH
-        ////////////////////////////////
-        EditText editTextPodcastQuery;
-        Button buttonPodcastSearch;
-        editTextPodcastQuery = findViewById(R.id.etPodcastSearch);
-        buttonPodcastSearch = findViewById(R.id.bPodcastSearch);
-        buttonPodcastSearch.setOnClickListener(v -> {
-            String query = editTextPodcastQuery.getText().toString();
-            LanguageItem selectedLang = (LanguageItem) spinnerLanguage.getSelectedItem();
-            String lang = selectedLang.getTwoLetterCode().toLowerCase();
-
-            Intent intent = new Intent(this, PodcastSearchResultsActivity.class);
-            intent.putExtra("query", query);
-            intent.putExtra("lang", lang);
-            startActivity(intent);
-        });
-        Button bFavoritePodcasts = findViewById(R.id.bFavoritePodcasts);
-        bFavoritePodcasts.setOnClickListener(v -> {
-            Intent intent = new Intent(this, PodcastFavoritesActivity.class);
-            startActivity(intent);
-        });
-        ////////////////////////////////
-        ////////////////////////////////
-
-
     }
+    // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 
     public interface WWWCheckCallback {
         void onResult(boolean canReach);
@@ -633,4 +620,5 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
+
 }
