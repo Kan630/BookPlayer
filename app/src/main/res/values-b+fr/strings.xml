@@ -25,7 +25,7 @@
     <string name="are_you_sure">Êtes-vous sûr ?</string>
     <string name="Technical_Error">Erreur technique</string>
     <string name="yesterday">hier</string>
-    <string name="app_info">Infos sur l'application</string>
+    <string name="app_info">Infos sur l\'app</string>
     <string name="delete_logs">Supprimer les journaux</string>
     <string name="Delete">Supprimer</string>
 
@@ -43,7 +43,7 @@
     <string name="device">appareil</string>
     <string name="sd_card">carte sd</string>
     <string name="SD_card">Carte SD</string>
-    <string name="audios_in_app">audios dans l'application</string>
+    <string name="audios_in_app">audios dans l\'app</string>
     <string name="Change">Changer</string>
     <string name="listened">écouté</string>
     <string name="audio_tracks">pistes audio</string>
@@ -76,11 +76,11 @@
     <string name="help_text_general"><![CDATA[
 Lorsque vous ouvrez l\'application, vous verrez une liste de <font color="#90D8E8">dossiers</font> — ils représentent vos Livres, Leçons ou Podcasts.
 <br><br>
-Un <font color="#81C784">appui long</font> sur un <font color="#90D8E8">dossier</font> ouvre l’écran « Modifier le dossier » (renommer / supprimer / réinitialiser, etc.).
+Un <font color="#81C784">appui long</font> sur un <font color="#90D8E8">dossier</font> ouvre l\'écran "Modifier le dossier" (renommer / supprimer / réinitialiser, etc.).
 <br>
 Un appui simple ouvre la liste des <font color="#BA68C8">pistes</font>.
 <br><br>
-Un <font color="#81C784">appui long</font> sur une <font color="#BA68C8">piste</font> ouvre l’écran « Modifier la piste ».
+Un <font color="#81C784">appui long</font> sur une <font color="#BA68C8">piste</font> ouvre l\'écran "Modifier la piste".
 <br>
 Un appui démarre la lecture.
 ]]></string>
@@ -95,7 +95,7 @@ BookPlayer prend en charge presque tous les formats audio, lit les pistes audio 
 <br>
 <b>Avantages :</b>
 <ul>
-<li>Pas besoin d’autorisations</li>
+<li>Pas besoin d\'autorisations</li>
 <li>Protégé contre les suppressions accidentelles</li>
 </ul>
 <br>
@@ -114,7 +114,7 @@ Activez <font color="#F48FB1"><b>la suppression automatique</b></font> dans le m
 <br><br>
 Parcourez le <font color="#90D8E8"><b>catalogue Librivox</b></font> de titres du domaine public en sélectionnant une <font color="#81C784">langue</font>.
 <br><br>
-Appuyez sur un livre pour le télécharger — l’audio sera <font color="#FFCC80"><b>copié</b></font> sur votre appareil et ajouté à votre bibliothèque.
+Appuyez sur un livre pour le télécharger — l\'audio sera <font color="#FFCC80"><b>copié</b></font> sur votre appareil et ajouté à votre bibliothèque.
 <br><br>
 Vous pouvez <font color="#81C784"><b>commencer à écouter immédiatement</b></font>.
 ]]></string>
@@ -125,7 +125,7 @@ Vous pouvez <font color="#81C784"><b>commencer à écouter immédiatement</b></f
 <br><br>
 Explorez une large sélection de <font color="#90D8E8">podcasts</font> dans de nombreuses <font color="#81C784">langues</font>.
 <br><br>
-Téléchargez n\'importe quel <font color="#FFCC80">épisode</font> d’un simple appui.
+Téléchargez n\'importe quel <font color="#FFCC80">épisode</font> d\'un simple appui.
 <br><br>
 Ajoutez des émissions à vos <font color="#EF9A9A">favoris</font> pour un accès facile et activez <font color="#81C784">le téléchargement automatique</font> pour récupérer les nouveaux épisodes automatiquement.
 <br><br>
@@ -147,7 +147,7 @@ Tout est géré automatiquement — extraction, ajout et lecture.
     <string name="help_storage_text"><![CDATA[
 <font color="#BA68C8"><b>Où sont stockés les fichiers</b></font>
 <br><br>
-Par défaut, BookPlayer utilise la <font color="#81C784">carte SD</font> si disponible, pour économiser de l’espace.
+Par défaut, BookPlayer utilise la <font color="#81C784">carte SD</font> si disponible, pour économiser de l\'espace.
 <br><br>
 Pour passer à la mémoire interne, modifiez le réglage dans le menu <font color="#64B5F6">Options</font>.
 ]]></string>
@@ -156,25 +156,25 @@ Pour passer à la mémoire interne, modifiez le réglage dans le menu <font colo
     <string name="help_memory_cleaning_text"><![CDATA[
 <font color="#BA68C8"><b>Gérer la mémoire interne</b></font>
 <br><br>
-Un écran dédié affiche les fichiers copiés dans l’<font color="#90D8E8">espace privé</font> de BookPlayer.
+Un écran dédié affiche les fichiers copiés dans l\'<font color="#90D8E8">espace privé</font> de BookPlayer.
 <br><br>
-Identifiez les éléments qui prennent le plus de place et <font color="#EF9A9A">supprimez</font> ceux dont vous n’avez plus besoin.
+Identifiez les éléments qui prennent le plus de place et <font color="#EF9A9A">supprimez</font> ceux dont vous n\'avez plus besoin.
 <br><br>
-<font color="#F44336">Remarque :</font> Cela s’applique uniquement à :
+<font color="#F44336">Remarque :</font> Cela s\'applique uniquement à :
 <ul>
 <li>Imports ZIP</li>
 <li>Imports manuels avec <font color="#81C784">[copie]</font> activée</li>
 </ul>
-Cela n’inclut pas les contenus provenant du stockage partagé.
+Cela n\'inclut pas les contenus provenant du stockage partagé.
 ]]></string>
 
     <string name="help_tellme_title">Contacter le développeur :</string>
     <string name="help_tellme_text"><![CDATA[
 Vous rencontrez un problème ou avez trouvé un bug ?
 <br><br>
-Veuillez <font color="#81C784">me le signaler</font> pour que je puisse améliorer l’application !
+Veuillez <font color="#81C784">me le signaler</font> pour que je puisse améliorer l\'application !
 <br><br>
-Utilisez l’option <font color="#90D8E8">"Contacter le développeur"</font> dans le menu.
+Utilisez l\'option <font color="#90D8E8">"Contacter le développeur"</font> dans le menu.
 ]]></string>
 
     <string name="help_permission_title">Autorisations :</string>
@@ -231,20 +231,20 @@ Tous les messages sont lisibles publiquement. Connectez-vous pour participer.
     <string name="option_pick_theme_color_title">Choisissez le thème couleur de l\'app</string>
 
 <string name="option_orientation">Orientation de l\'écran</string>
-<string name="option_orientation_lock">Verrouiller l’orientation de l’écran pendant la lecture (mieux vaut laisser activé)</string>
+<string name="option_orientation_lock">Verrouiller l\'orientation de l\'écran pendant la lecture (mieux vaut laisser activé)</string>
 
 <string name="option_delete_source_file_title">Suppression automatique du fichier source</string>
 <string name="option_delete_source_file_subtitle"><i>Après importation dans BookPlayer, le fichier ou dossier source peut être supprimé automatiquement.
-Note : possible uniquement pour les fichiers zip ou si l’option ci-dessus est activée (copie dans la mémoire réservée).</i></string>
+Note : possible uniquement pour les fichiers zip ou si l\'option ci-dessus est activée (copie dans la mémoire réservée).</i></string>
 <string name="option_delete_source_file_text">Supprimer automatiquement le fichier ou dossier sélectionné après import.</string>
 <string name="option_alert_delete_source_file_title">!! Avertissement - Suppression auto !!</string>
-<string name="option_alert_delete_source_file_message">Chaque fichier importé sera supprimé de la mémoire de l’appareil.
+<string name="option_alert_delete_source_file_message">Chaque fichier importé sera supprimé de la mémoire de l\'appareil.
 
 Êtes-vous sûr ?</string>
 
 <string name="option_beep_title">Signal sonore</string>
 <string name="option_beep_between_chapters"> émettre un bip à la fin de chaque chapitre.</string>
-<string name="option_beep_for_autostop"> émettre un bip long à l’entrée en mode sommeil <i>(pause automatique après XX minutes)</i></string>
+<string name="option_beep_for_autostop"> émettre un bip long à l\'entrée en mode sommeil <i>(pause automatique après XX minutes)</i></string>
 <string name="option_beep_at_the_end"> émettre un triple bip à la fin du livre.</string>
 
 <string name="option_visualizer_title">Visualiseur Spectre</string>
@@ -265,7 +265,7 @@ Note : possible uniquement pour les fichiers zip ou si l’option ci-dessus est 
 <i>Décochez pour choisir une autre app.</i></string>
 
 <string name="option_open_with_title">Ouvrir avec / Partager</string>
-<string name="option_open_with_subtitle"><i>Fait apparaître BookPlayer parmi les options proposées lors du partage ou d’un « ouvrir avec » à partir de l’explorateur de fichiers ou des téléchargements</i></string>
+<string name="option_open_with_subtitle"><i>Fait apparaître BookPlayer parmi les options proposées lors du partage ou d\'un "ouvrir avec" à partir de l\'explorateur de fichiers ou des téléchargements</i></string>
 <string name="option_open_with_text">Pour les fichiers zip et la plupart des fichiers audio.</string>
 <string name="option_open_with_text_all">Pour tout type de fichier (mode secours).</string>
 <string name="option_on_load_use_SD_card">Utiliser la carte SD</string>
@@ -284,7 +284,7 @@ Note : possible uniquement pour les fichiers zip ou si l’option ci-dessus est 
 <string name="option_on_load_delete_source">Supprimer le fichier source après import</string>
 
 <string name="option_sdcard_title">Carte SD</string>
-<string name="option_sdcard_text">lors de la copie d’audio dans l’espace réservé, utiliser la carte SD plutôt que la mémoire de l’appareil</string>
+<string name="option_sdcard_text">lors de la copie d\'audio dans l\'espace réservé, utiliser la carte SD plutôt que la mémoire de l\'appareil</string>
 <string name="option_sdcard_text_caution"><i>attention : si vous retirez ou effacez la carte SD, vous perdrez vos fichiers audio</i></string>
 
 <string name="option_copy_file_subtitle">Avantages :
@@ -292,14 +292,14 @@ Note : possible uniquement pour les fichiers zip ou si l’option ci-dessus est 
 * Pas de risque de perte du livre ou de la progression si le fichier source est supprimé ou déplacé.
 
 Inconvénients :
-* Plus d’espace mémoire utilisé si vous ne supprimez pas le fichier source.</string>
+* Plus d\'espace mémoire utilisé si vous ne supprimez pas le fichier source.</string>
 <string name="option_copy_file_text">Copier les fichiers audio dans la mémoire interne réservée de l\'application BookPlayer.</string>
 
 
     <!-- ********************************** -->
     <!-- RESSOURCES À IMPORTER -->
 
-<string name="TextHeaderSearch">Rechercher de l’audio gratuit sur internet</string>
+<string name="TextHeaderSearch">Rechercher de l\'audio gratuit sur internet</string>
 <string name="bSearchlitteratureaudio_desc">Rechercher et télécharger un livre depuis litteratureaudio.com (français) :</string>
 <string name="bSearchOpenCulture_desc">Rechercher des audios sur Open Culture :</string>
 <string name="bSearchExampleText">Les sites ci-dessus ne sont que des exemples. Il y a des tonnes d\'audios sur le web. Vous pouvez aussi télécharger des cours universitaires.</string>
@@ -323,7 +323,7 @@ Inconvénients :
 \n<i>Attention : tous les fichiers audio des sous-dossiers seront aussi importés, récursivement.</i></string>
 <string name="bOpenZipFile_desc">filtre : uniquement fichiers zip</string>
 <string name="bOpenM4bFile_desc">filtre : uniquement fichiers audio
-\n<i>Attention : ce filtre n’est pas parfait, utilisez le bouton du haut [fichier quelconque] en cas de souci.</i></string>
+\n<i>Attention : ce filtre n\'est pas parfait, utilisez le bouton du haut [fichier quelconque] en cas de souci.</i></string>
 
 <string name="DirectDownload_title">Téléchargement direct</string>
 <string name="DirectDownload_desc">Collez un lien ci-dessous et appuyez sur le bouton pour télécharger et intégrer un livre audio en une seule étape.</string>
@@ -361,7 +361,7 @@ Inconvénients :
 <string name="librivox_zip_mp3_not_found">Fichier ZIP-MP3 introuvable</string>
 <string name="librivox_wait_integration">Veuillez patienter, un autre livre est en cours de téléchargement/importation.</string>
 
-<string name="LibrivoxSearch_warning">"Avertissement - Test bêta\nEncore expérimental\nSi le téléchargement se bloque, laissez l’application au premier plan"</string>
+<string name="LibrivoxSearch_warning">"Avertissement - Test bêta\nEncore expérimental\nSi le téléchargement se bloque, laissez l\'application au premier plan"</string>
 <string name="librivox_cover_desc">Couverture Librivox</string>
 
 <string name="podcast_favorite_add">Ajouté aux favoris</string>
@@ -380,7 +380,7 @@ Inconvénients :
     <string name="Error_Import_FolderPathKO">Impossible de trouver le chemin du dossier</string>
     <string name="Error_Import_CannotReadFile">Erreur lors de la lecture du fichier sélectionné</string>
     <string name="Error_Import_CannotReadFolder">Erreur lors de la lecture du dossier sélectionné</string>
-    <string name="Error_Import_CannotParseFile">Erreur lors de l'analyse de la source audio</string>
+    <string name="Error_Import_CannotParseFile">Erreur lors de l\'analyse de la source audio</string>
     <string name="Error_Import_CannotGetParentDir">Impossible d\'obtenir le dossier parent</string>
     <string name="Error_Import_TypeNotSupported">Ce type de fichier n\'est pas supporté</string>
     <string name="Error_Import_CannotDetermineType">Impossible de déterminer le type du fichier</string>
