@@ -7,17 +7,17 @@
     <string name="PlayerActivity_Title" translatable="false">TextBook Player</string>
 
     <string name="asset_statements" translatable="false">
-    [{
-      \"include\": \"https://bookplayer.driot.com/.well-known/assetlinks.json\"
-    }]
-    </string>
+[{
+  \"include\": \"https://bookplayer.driot.com/.well-known/assetlinks.json\"
+}]
+</string>
 
     <string name="AutoTest_b1_text" translatable="false">zip (700KB)</string>
-    <string name="AutoTest_b2_text" translatable="false">zip multi-langue (7MB)</string>
+    <string name="AutoTest_b2_text" translatable="false">multi lang zip (7MB)</string>
     <string name="AutoTest_b3_text" translatable="false">m4b (9MB)</string>
 
     <!-- ********************************** -->
-    <!-- GÉNÉRAL -->
+    <!-- GENERAL -->
 
     <string name="Yes">Oui</string>
     <string name="No">Non</string>
@@ -30,13 +30,13 @@
     <string name="Delete">Supprimer</string>
 
     <string name="DeleteLogs_AskConfirm">Vous êtes sur le point de supprimer tous les journaux.
-       Êtes-vous sûr ?</string>
+Êtes-vous sûr ?</string>
     <string name="ModifyFolder_AskDelete">Vous êtes sur le point de supprimer ce dossier et toutes les pistes audio.
-       Êtes-vous sûr ?</string>
+Êtes-vous sûr ?</string>
     <string name="ModifyFolder_AskReset">Vous êtes sur le point de réinitialiser la progression pour ce dossier.
-       Êtes-vous sûr ?</string>
+Êtes-vous sûr ?</string>
     <string name="ModifyZikFile_AskDelete">Vous êtes sur le point de supprimer cette piste audio.
-       Êtes-vous sûr ?</string>
+Êtes-vous sûr ?</string>
 
     <string name="left_on">laissé sur</string>
     <string name="memory">mémoire</string>
@@ -68,55 +68,55 @@
     <string name="default_for">défaut pour</string>
 
     <!-- ********************************** -->
-    <!-- ÉCRAN D'AIDE -->
+    <!-- HELP Screen -->
 
     <string name="help_title">Manuel BookPlayer</string>
 
     <string name="help_general_title">Général</string>
     <string name="help_text_general"><![CDATA[
-Lorsque vous ouvrez l\'application, vous verrez une liste de <font color="#90D8E8">dossiers</font> — ils représentent vos Livres, Leçons ou Podcasts.
+Lorsque vous ouvrez l\'application, vous voyez une liste de <font color="#90D8E8">dossiers</font> — cela représente vos Livres, Leçons ou Podcasts.
 <br><br>
 Un <font color="#81C784">appui long</font> sur un <font color="#90D8E8">dossier</font> ouvre l\'écran "Modifier le dossier" (renommer / supprimer / réinitialiser, etc.).
 <br>
-Un appui simple ouvre la liste des <font color="#BA68C8">pistes</font>.
+Un simple appui ouvre la liste des <font color="#BA68C8">pistes</font>.
 <br><br>
 Un <font color="#81C784">appui long</font> sur une <font color="#BA68C8">piste</font> ouvre l\'écran "Modifier la piste".
 <br>
-Un appui démarre la lecture.
+Un simple appui lance la lecture.
 ]]></string>
 
-    <string name="help_title_manual_import">Importation manuelle :</string>
+    <string name="help_title_manual_import">Import manuel :</string>
     <string name="help_text_manual_import"><![CDATA[
 Lorsque vous <font color="#81C784"><b>importez manuellement</b></font> un livre, vous commencez par sélectionner un <font color="#64B5F6">fichier</font> ou un <font color="#64B5F6">dossier</font>.
 <br><br>
-BookPlayer prend en charge presque tous les formats audio, lit les pistes audio des vidéos, et peut extraire les chapitres des fichiers ZIP ou M4B.
+BookPlayer prend en charge presque tous les formats audio, lit les pistes son de vidéos et peut extraire les chapitres depuis des fichiers ZIP ou M4B.
 <br><br>
-<b>Option 1 : <font color="#FFCC80">Copier</font></b> <i>(par défaut)</i> — Le fichier est <b>copié</b> dans la <font color="#90D8E8">mémoire privée</font> de BookPlayer.
+<b>Option 1 : <font color="#FFCC80">Copie</font></b> <i>(par défaut)</i> — Le fichier est <b>copié</b> dans la <font color="#90D8E8">mémoire privée</font> de BookPlayer.
 <br>
 <b>Avantages :</b>
 <ul>
-<li>Pas besoin d\'autorisations</li>
+<li>Aucune permission nécessaire</li>
 <li>Protégé contre les suppressions accidentelles</li>
 </ul>
 <br>
-<b>Option 2 : <font color="#FFCC80">Ne pas copier</font></b> — Seul le chemin du fichier est enregistré. La lecture se fait directement depuis le <i>stockage partagé</i>.
+<b>Option 2 : <font color="#FFCC80">Sans copie</font></b> — Seul le chemin du fichier est enregistré. La lecture se fait directement depuis la <i>mémoire partagée</i>.
 <br>
-<b>Avantage :</b> Économie de mémoire interne.
+<b>Avantage :</b> économise de l\'espace interne.
 <br><br>
-<b>Remarque :</b> Les fichiers ZIP et les fichiers M4B fragmentés sont toujours copiés.
+<b>Remarque :</b> les fichiers ZIP et les M4B découpés sont toujours copiés.
 <br><br>
-Activez <font color="#F48FB1"><b>la suppression automatique</b></font> dans le menu Options pour supprimer le fichier source après import.
+Activez <font color="#F48FB1"><b>la suppression automatique</b></font> dans le menu Options pour supprimer le fichier source après l\'import.
 ]]></string>
 
     <string name="help_librivox_title">Import Librivox :</string>
     <string name="help_librivox_text"><![CDATA[
 <font color="#BA68C8"><b>Importer des livres audio du domaine public</b></font>
 <br><br>
-Parcourez le <font color="#90D8E8"><b>catalogue Librivox</b></font> de titres du domaine public en sélectionnant une <font color="#81C784">langue</font>.
+Parcourez le <font color="#90D8E8"><b>catalogue Librivox</b></font> en sélectionnant une <font color="#81C784">langue</font>.
 <br><br>
 Appuyez sur un livre pour le télécharger — l\'audio sera <font color="#FFCC80"><b>copié</b></font> sur votre appareil et ajouté à votre bibliothèque.
 <br><br>
-Vous pouvez <font color="#81C784"><b>commencer à écouter immédiatement</b></font>.
+Vous pouvez <font color="#81C784"><b>commencer l\'écoute immédiatement</b></font>.
 ]]></string>
 
     <string name="help_podcast_title">Import Podcast :</string>
@@ -125,77 +125,77 @@ Vous pouvez <font color="#81C784"><b>commencer à écouter immédiatement</b></f
 <br><br>
 Explorez une large sélection de <font color="#90D8E8">podcasts</font> dans de nombreuses <font color="#81C784">langues</font>.
 <br><br>
-Téléchargez n\'importe quel <font color="#FFCC80">épisode</font> d\'un simple appui.
+Téléchargez n\'importe quel <font color="#FFCC80">épisode</font> en un seul clic.
 <br><br>
-Ajoutez des émissions à vos <font color="#EF9A9A">favoris</font> pour un accès facile et activez <font color="#81C784">le téléchargement automatique</font> pour récupérer les nouveaux épisodes automatiquement.
+Ajoutez des émissions à vos <font color="#EF9A9A">favoris</font> pour un accès rapide, et activez <font color="#81C784">le téléchargement automatique</font> pour récupérer les nouveaux épisodes.
 <br><br>
-Les vérifications se font régulièrement, en particulier au démarrage de BookPlayer.
+Les vérifications se font régulièrement, notamment au démarrage de BookPlayer.
 ]]></string>
 
-    <string name="help_url_title">Import depuis une URL :</string>
+    <string name="help_url_title">Import par URL :</string>
     <string name="help_url_text"><![CDATA[
 <font color="#BA68C8"><b>Importer via un lien</b></font>
 <br><br>
-Collez une URL directe vers un fichier audio, ZIP ou M4B.
+Collez une URL pointant directement vers un fichier audio, ZIP ou M4B.
 <br><br>
-Appuyez sur <font color="#FFCC80">Importer</font> et BookPlayer récupérera et intégrera le contenu.
+Appuyez sur <font color="#FFCC80">Importer</font> et BookPlayer téléchargera et intégrera le contenu.
 <br><br>
-Tout est géré automatiquement — extraction, ajout et lecture.
+Tout est géré automatiquement — extraction, ajout et disponibilité à la lecture.
 ]]></string>
 
     <string name="help_storage_title">Emplacement de stockage :</string>
     <string name="help_storage_text"><![CDATA[
 <font color="#BA68C8"><b>Où sont stockés les fichiers</b></font>
 <br><br>
-Par défaut, BookPlayer utilise la <font color="#81C784">carte SD</font> si disponible, pour économiser de l\'espace.
+Par défaut, BookPlayer utilise la <font color="#81C784">carte SD</font> si elle est disponible, pour économiser de l\'espace.
 <br><br>
-Pour passer à la mémoire interne, modifiez le réglage dans le menu <font color="#64B5F6">Options</font>.
+Pour basculer vers le stockage interne, modifiez le paramètre dans le menu <font color="#64B5F6">Options</font>.
 ]]></string>
 
     <string name="help_memory_cleaning_title">Nettoyage mémoire :</string>
     <string name="help_memory_cleaning_text"><![CDATA[
-<font color="#BA68C8"><b>Gérer la mémoire interne</b></font>
+<font color="#BA68C8"><b>Gérer le stockage interne</b></font>
 <br><br>
 Un écran dédié affiche les fichiers copiés dans l\'<font color="#90D8E8">espace privé</font> de BookPlayer.
 <br><br>
-Identifiez les éléments qui prennent le plus de place et <font color="#EF9A9A">supprimez</font> ceux dont vous n\'avez plus besoin.
+Voyez quels éléments occupent le plus de place et <font color="#EF9A9A">supprimez</font> ceux dont vous n\'avez plus besoin.
 <br><br>
-<font color="#F44336">Remarque :</font> Cela s\'applique uniquement à :
+<font color="#F44336">Remarque :</font> ceci ne concerne que :
 <ul>
-<li>Imports ZIP</li>
-<li>Imports manuels avec <font color="#81C784">[copie]</font> activée</li>
+<li>Les importations ZIP</li>
+<li>Les importations manuelles avec <font color="#81C784">[copie]</font> activée</li>
 </ul>
-Cela n\'inclut pas les contenus provenant du stockage partagé.
+Le contenu en mémoire partagée n\'est pas affiché ici.
 ]]></string>
 
     <string name="help_tellme_title">Contacter le développeur :</string>
     <string name="help_tellme_text"><![CDATA[
-Vous rencontrez un problème ou avez trouvé un bug ?
+Vous avez un problème ou avez trouvé un bug ?
 <br><br>
-Veuillez <font color="#81C784">me le signaler</font> pour que je puisse améliorer l\'application !
+Merci de <font color="#81C784">me le signaler</font> afin que je puisse améliorer l\'application !
 <br><br>
 Utilisez l\'option <font color="#90D8E8">"Contacter le développeur"</font> dans le menu.
 ]]></string>
 
     <string name="help_permission_title">Autorisations :</string>
     <string name="help_permission_text"><![CDATA[
-BookPlayer fonctionne <font color="#81C784">même sans autorisations</font>.
+BookPlayer fonctionne <font color="#81C784">même sans autorisation</font>.
 <br><br>
-Mais pour une expérience complète :
+Mais pour profiter de toutes les fonctionnalités :
 <ul>
 <li><b>Lecture audio</b> → accès au stockage externe</li>
-<li><b>Microphone</b> → activer le visualiseur de son</li>
+<li><b>Microphone</b> → activation de l\'analyseur visuel audio</li>
 </ul>
-Refuser les autorisations ne bloque pas l'application — BookPlayer s'adapte.
+Refuser les autorisations ne casse rien — BookPlayer s\'adapte.
 ]]></string>
 
     <string name="help_forum_title">Forum :</string>
     <string name="help_forum_text"><![CDATA[
 <font color="#BA68C8"><b>Rejoignez la communauté BookPlayer</b></font>
 <br><br>
-Un nouveau <font color="#90D8E8">forum</font> a été lancé comme une petite expérimentation (<i>juin 2025</i>).
+Un nouveau <font color="#90D8E8">forum</font> a été lancé comme petite expérimentation (<i>juin 2025</i>).
 <br><br>
-Il est encore calme 😊, mais vous pouvez vous inscrire pour :
+Il est encore peu actif pour le moment, mais vous pouvez vous inscrire pour :
 <ul>
 <li><font color="#FFCC80">Signaler des bugs</font></li>
 <li><font color="#FFCC80">Suggérer des fonctionnalités</font></li>
@@ -204,169 +204,157 @@ Il est encore calme 😊, mais vous pouvez vous inscrire pour :
 Tous les messages sont lisibles publiquement. Connectez-vous pour participer.
 ]]></string>
 
-
-<!-- ********************************** -->
-<!-- ÉCRAN OPTIONS -->
-
-<string name="option_hide_advanced_options">Masquer les options avancées</string>
-<string name="option_show_advanced_options">Afficher les options avancées</string>
-
-<string name="option_timeBeforeSleep">Pause automatique</string>
-<string name="option_timeBeforeSleep_text">après :</string>
-<string name="option_timeBeforeSleep_min">min.</string>
-<string name="option_timeBeforeSleep_outOfBound">Argg : durée de pause automatique invalide, retour à la valeur par défaut</string>
-
-<string name="option_zip">Fichiers Zip</string>
-<string name="option_copyzip_local">Copier les fichiers dans la mémoire interne de l\'app (obligatoire pour Android 11 et supérieur).</string>
-<string name="option_unzip_local">Décompresser les fichiers (prend de l\'espace, mais offre une expérience d'écoute plus fluide)</string>
-
-<string name="option_copy_file_title">Copier les fichiers en interne</string>
-
-<string name="option_backward_forward_title">Boutons Retour/Avance</string>
-<string name="option_backward_forward_text">saut :</string>
-
-<string name="option_rewind_after_pause_title">Retour automatique à la reprise</string>
-<string name="option_rewind_after_pause_text">Reculer de quelques secondes à la reprise de lecture (pause de 5 minutes = retour de 3 s, pause de 1h = 5 s…)</string>
-
-    <string name="option_pick_theme_color_title">Choisissez le thème couleur de l\'app</string>
-
-<string name="option_orientation">Orientation de l\'écran</string>
-<string name="option_orientation_lock">Verrouiller l\'orientation de l\'écran pendant la lecture (mieux vaut laisser activé)</string>
-
-<string name="option_delete_source_file_title">Suppression automatique du fichier source</string>
-<string name="option_delete_source_file_subtitle"><i>Après importation dans BookPlayer, le fichier ou dossier source peut être supprimé automatiquement.
-Note : possible uniquement pour les fichiers zip ou si l\'option ci-dessus est activée (copie dans la mémoire réservée).</i></string>
-<string name="option_delete_source_file_text">Supprimer automatiquement le fichier ou dossier sélectionné après import.</string>
-<string name="option_alert_delete_source_file_title">!! Avertissement - Suppression auto !!</string>
-<string name="option_alert_delete_source_file_message">Chaque fichier importé sera supprimé de la mémoire de l\'appareil.
-
-Êtes-vous sûr ?</string>
-
-<string name="option_beep_title">Signal sonore</string>
-<string name="option_beep_between_chapters"> émettre un bip à la fin de chaque chapitre.</string>
-<string name="option_beep_for_autostop"> émettre un bip long à l\'entrée en mode sommeil <i>(pause automatique après XX minutes)</i></string>
-<string name="option_beep_at_the_end"> émettre un triple bip à la fin du livre.</string>
-
-<string name="option_visualizer_title">Visualiseur Spectre</string>
-<string name="option_visualizer_text_01">Visualiseur de fréquences minimaliste affiché pendant la lecture.</string>
-<string name="option_visualizer_text_02">Nécessite la permission [Microphone]</string>
-<string name="option_visualizer_permissions_granted">autorisée</string>
-<string name="option_visualizer_permissions_denied_01">refusée</string>
-<string name="option_visualizer_permissions_denied_02">cliquez à nouveau sur la case pour demander l\'autorisation</string>
-
-<string name="option_click_visualizer_playpause_text_01">Cliquer sur le visualiseur sert aussi de bouton lecture/pause.</string>
-
-<string name="option_log">Journalisation</string>
-<string name="option_tech_log_subtitle"><i>l'application doit-elle créer des fichiers journaux techniques ?</i></string>
-<string name="option_tech_log_text">Journaux techniques</string>
-
-<string name="option_mail_method">Envoi de courriel</string>
-<string name="option_mail_method_default">Utiliser l\'application d\'email par défaut.
-<i>Décochez pour choisir une autre app.</i></string>
-
-<string name="option_open_with_title">Ouvrir avec / Partager</string>
-<string name="option_open_with_subtitle"><i>Fait apparaître BookPlayer parmi les options proposées lors du partage ou d\'un "ouvrir avec" à partir de l\'explorateur de fichiers ou des téléchargements</i></string>
-<string name="option_open_with_text">Pour les fichiers zip et la plupart des fichiers audio.</string>
-<string name="option_open_with_text_all">Pour tout type de fichier (mode secours).</string>
-<string name="option_on_load_use_SD_card">Utiliser la carte SD</string>
-
-<string name="option_split_m4b">Découpage .m4b</string>
-<string name="option_split_m4b_text">Extraire les chapitres des fichiers m4b (nouveau format livre audio) - Encore expérimental -</string>
-
-<string name="option_copy_file_special_zip"><i>les fichiers zip et m4b fragmentés sont toujours copiés</i></string>
-
-<string name="option_alert_delete_picked_source_file_title">!! Avertissement - Suppression de la source !!</string>
-<string name="option_alert_delete_picked_source_file_message">Ce fichier sélectionné sera supprimé après import dans la mémoire interne de BookPlayer.
-
-Êtes-vous sûr ?</string>
-<string name="option_on_load_copy_internal">Copier dans la mémoire interne de BookPlayer</string>
-<string name="option_on_load_split_m4b">Découper le M4B en chapitres</string>
-<string name="option_on_load_delete_source">Supprimer le fichier source après import</string>
-
-<string name="option_sdcard_title">Carte SD</string>
-<string name="option_sdcard_text">lors de la copie d\'audio dans l\'espace réservé, utiliser la carte SD plutôt que la mémoire de l\'appareil</string>
-<string name="option_sdcard_text_caution"><i>attention : si vous retirez ou effacez la carte SD, vous perdrez vos fichiers audio</i></string>
-
-<string name="option_copy_file_subtitle">Avantages :
-* Aucune autorisation [Lire Audio] nécessaire.
-* Pas de risque de perte du livre ou de la progression si le fichier source est supprimé ou déplacé.
-
-Inconvénients :
-* Plus d\'espace mémoire utilisé si vous ne supprimez pas le fichier source.</string>
-<string name="option_copy_file_text">Copier les fichiers audio dans la mémoire interne réservée de l\'application BookPlayer.</string>
-
-
     <!-- ********************************** -->
-    <!-- RESSOURCES À IMPORTER -->
+    <!-- Écran des options -->
 
-<string name="TextHeaderSearch">Rechercher de l\'audio gratuit sur internet</string>
-<string name="bSearchlitteratureaudio_desc">Rechercher et télécharger un livre depuis litteratureaudio.com (français) :</string>
-<string name="bSearchOpenCulture_desc">Rechercher des audios sur Open Culture :</string>
-<string name="bSearchExampleText">Les sites ci-dessus ne sont que des exemples. Il y a des tonnes d\'audios sur le web. Vous pouvez aussi télécharger des cours universitaires.</string>
+    <string name="option_hide_advanced_options">Masquer les options avancées</string>
+    <string name="option_show_advanced_options">Afficher les options avancées</string>
 
-<string name="AutoTest_title">Test Auto</string>
-<string name="AutoTest_desc">Téléchargement et intégration automatique de livres audio, à des fins de test</string>
+    <string name="option_timeBeforeSleep">Pause automatique</string>
+    <string name="option_timeBeforeSleep_text">après :</string>
+    <string name="option_timeBeforeSleep_min">min.</string>
+    <string name="option_timeBeforeSleep_outOfBound">Argg : durée de pause automatique hors limites, retour à la valeur par défaut</string>
 
-<string name="bOpenFile">Fichier quelconque</string>
-<string name="bOpenFolder">Dossier</string>
-<string name="bOpenZipFile">Fichier Zip</string>
-<string name="bOpenM4bFile">Fichier audio</string>
+    <string name="option_zip">Fichiers Zip</string>
+    <string name="option_copyzip_local">Copier les fichiers dans la mémoire de l\'app (obligatoire à partir d\'Android 11).</string>
+    <string name="option_unzip_local">Décompresser les fichiers (utilise de l\'espace, mais lecture plus fluide)</string>
 
-<string name="OnlineSearch_title">Intégration directe - test bêta</string>
-<string name="OnlineSearch_desc">Utilisez cette recherche pour trouver le livre audio que vous cherchez. Ensuite, sélectionnez celui que vous souhaitez importer, il sera téléchargé et ajouté directement dans BookPlayer !</string>
-<string name="OnlineSearch_button">Rechercher…</string>
+    <string name="option_copy_file_title">Copier les fichiers en interne</string>
 
-<string name="TextHeaderOpen">Ouvrir un audio sur mon appareil</string>
-<string name="bOpenFile_desc">Sélectionner un fichier quelconque.</string>
-<string name="bOpenFolder_desc">Sélectionner un dossier.
-\nTous les audios du dossier seront importés.
-\n<i>Attention : tous les fichiers audio des sous-dossiers seront aussi importés, récursivement.</i></string>
-<string name="bOpenZipFile_desc">filtre : uniquement fichiers zip</string>
-<string name="bOpenM4bFile_desc">filtre : uniquement fichiers audio
-\n<i>Attention : ce filtre n\'est pas parfait, utilisez le bouton du haut [fichier quelconque] en cas de souci.</i></string>
+    <string name="option_backward_forward_title">Boutons Retour/Avance</string>
+    <string name="option_backward_forward_text">décalage :</string>
 
-<string name="DirectDownload_title">Téléchargement direct</string>
-<string name="DirectDownload_desc">Collez un lien ci-dessous et appuyez sur le bouton pour télécharger et intégrer un livre audio en une seule étape.</string>
-<string name="DirectDownload_button">Télécharger maintenant</string>
+    <string name="option_rewind_after_pause_title">Recul automatique à la reprise</string>
+    <string name="option_rewind_after_pause_text">Reculer l\'audio de quelques secondes avant la reprise (pause de 5 min → recul de 3 sec, pause d\'1h → 5 sec, …)</string>
 
-<string name="LibrivoxSearch_title">"Livres audio"</string>
-<string name="LibrivoxSearch_desc">"Recherchez directement sur LibriVox pour trouver votre livre audio. C'est un dépôt gratuit et public, principalement en anglais, mais certaines œuvres sont disponibles dans d'autres langues."</string>
+    <string name="option_pick_theme_color_title">Choisir le thème de l\'app</string>
 
-<string name="OnlineSearch_hint">Jack London</string>
-<string name="LibrivoxSearch_hint">Jack London</string>
-<string name="PodcastSearch_hint">chats</string>
-<string name="DirectDownload_hint">https://bookplayer.driot.com/audiobook630.zip</string>
+    <string name="option_orientation">Orientation de l\'écran</string>
+    <string name="option_orientation_lock">Verrouiller l\'orientation de l\'écran pendant la lecture (mieux de le laisser activé)</string>
 
-<string name="PodcastSearch_title">Podcasts</string>
-<string name="PodcastSearch_desc">Explorer des podcasts via le registre libre podcastindex.org</string>
-<string name="podcast_image_desc">Image du podcast</string>
-<string name="podcast_no_results">Aucun podcast trouvé</string>
-<string name="podcast_nb_of_podcast_found">Nb de podcasts trouvés</string>
+    <string name="option_delete_source_file_title">Suppression automatique du fichier source</string>
+    <string name="option_delete_source_file_subtitle"><i>Après l\'importation d\'un livre audio dans BookPlayer, le fichier ou dossier source peut être supprimé automatiquement.
+\nNote : cela n\'est possible que pour les fichiers zip ou si l\'option ci-dessus est cochée (copie des fichiers dans la mémoire interne de BookPlayer).</i></string>
+    <string name="option_delete_source_file_text">Supprimer automatiquement le fichier ou dossier source une fois chargé dans BookPlayer.</string>
+    <string name="option_alert_delete_source_file_title">!! Attention - Suppression auto !!</string>
+    <string name="option_alert_delete_source_file_message">Tous les fichiers importés dans BookPlayer seront supprimés de la mémoire de l\'appareil.\n\nÊtes-vous sûr ?</string>
 
-<string name="Search_2pt">"Recherche : "</string>
-<string name="Language_2pt">"Langue : "</string>
-<string name="Results_2pt">"Résultats : "</string>
-<string name="search_nothing_specified">Aucune recherche spécifiée</string>
-<string name="search_nothing_specified_so_trending">Aucune recherche => affichage des tendances</string>
+    <string name="option_beep_title">Bip sonore</string>
+    <string name="option_beep_between_chapters">Émettre un bip à la fin des chapitres.</string>
+    <string name="option_beep_for_autostop">Émettre un bip long lors du passage en mode pause automatique <i>(pause après XX minutes)</i></string>
+    <string name="option_beep_at_the_end">Émettre un triple bip à la fin du livre.</string>
 
-<string name="LibrivoxResultItem_audio_available_since">"audio disponible depuis"</string>
-<string name="LibrivoxResultitem_nb_of_reviews">"Nb d'avis"</string>
-<string name="LibrivoxResultitem_avg_rating">"Note moyenne"</string>
-<string name="Librivox_bGetAudioBook">"Télécharger le livre audio"</string>
-<string name="librivox_no_audiobook_found_for_search">Aucun livre audio trouvé pour cette recherche</string>
-<string name="librivox_invalid_response">Réponse invalide du serveur Librivox</string>
-<string name="loading_details">Chargement des détails…</string>
-<string name="loading_detail_failed">Échec du chargement des détails</string>
-<string name="librivox_zip_mp3_available">Fichier ZIP-MP3 disponible</string>
-<string name="librivox_zip_mp3_not_found">Fichier ZIP-MP3 introuvable</string>
-<string name="librivox_wait_integration">Veuillez patienter, un autre livre est en cours de téléchargement/importation.</string>
+    <string name="option_visualizer_title">Visualiseur de spectre</string>
+    <string name="option_visualizer_text_01">Visualiseur de fréquences minimaliste affiché pendant la lecture audio.</string>
+    <string name="option_visualizer_text_02">Nécessite l\'autorisation [Microphone]</string>
+    <string name="option_visualizer_permissions_granted">autorisée</string>
+    <string name="option_visualizer_permissions_denied_01">refusée</string>
+    <string name="option_visualizer_permissions_denied_02">cliquez à nouveau sur la case pour redemander la permission</string>
 
-<string name="LibrivoxSearch_warning">"Avertissement - Test bêta\nEncore expérimental\nSi le téléchargement se bloque, laissez l\'application au premier plan"</string>
-<string name="librivox_cover_desc">Couverture Librivox</string>
+    <string name="option_click_visualizer_playpause_text_01">Un clic sur le visualiseur fait aussi lecture/pause.</string>
 
-<string name="podcast_favorite_add">Ajouté aux favoris</string>
-<string name="podcast_autodownload_add">Ajouté au téléchargement auto</string>
-<string name="podcast_new_episodes">nouveaux épisodes</string>
+    <string name="option_log">Journalisation</string>
+    <string name="option_tech_log_subtitle"><i>l\'app doit-elle générer des fichiers de log techniques ?</i></string>
+    <string name="option_tech_log_text">Journalisation technique.</string>
+
+    <string name="option_mail_method">Envoi d\'email</string>
+    <string name="option_mail_method_default">Utiliser l\'app de mail par défaut.\n<i>Décochez pour choisir l\'app à chaque fois.</i></string>
+
+    <string name="option_open_with_title">Ouvrir avec / Partager</string>
+    <string name="option_open_with_subtitle"><i>Permet à Android de proposer BookPlayer parmi les options lorsqu\'on clique (ou clic long) sur un fichier depuis l\'explorateur ou les téléchargements</i></string>
+    <string name="option_open_with_text">Pour les fichiers zip et la plupart des audios.</string>
+    <string name="option_open_with_text_all">Pour tout type de fichier (mode sûr).</string>
+    <string name="option_on_load_use_SD_card">Utiliser la carte SD</string>
+
+    <string name="option_split_m4b">Découpage .m4b</string>
+    <string name="option_split_m4b_text">Extraire les chapitres d\'un fichier m4b (nouveau format d\'audiolivre). - Encore expérimental -</string>
+
+    <string name="option_copy_file_special_zip"><i>les fichiers zip et m4b découpés sont toujours copiés</i></string>
+
+    <string name="option_alert_delete_picked_source_file_title">!! Attention - Suppression du fichier source !!</string>
+    <string name="option_alert_delete_picked_source_file_message">Ce fichier sera supprimé de la mémoire de l\'appareil après avoir été importé dans la mémoire interne de BookPlayer.\n\nÊtes-vous sûr ?</string>
+    <string name="option_on_load_copy_internal">Copier dans la mémoire interne de BookPlayer</string>
+    <string name="option_on_load_split_m4b">Découper le M4B en chapitres</string>
+    <string name="option_on_load_delete_source">Supprimer le fichier source après importation</string>
+
+    <string name="option_sdcard_title">Carte SD</string>
+    <string name="option_sdcard_text">lors de la copie dans l\'espace réservé, utiliser la carte SD au lieu de la mémoire de l\'appareil</string>
+    <string name="option_sdcard_text_caution"><i>attention : en retirant ou en effaçant la carte SD, vous perdrez vos audios</i></string>
+
+    <string name="option_copy_file_subtitle">Avantages :
+\n* Pas besoin de permission [Lire l\'audio]
+\n* Aucun risque de perdre le livre audio ni la progression si le fichier source est supprimé/déplacé.
+\n\nInconvénients :
+\n* Nécessite plus de mémoire si vous ne supprimez pas le fichier source.</string>
+    <string name="option_copy_file_text">Copier les fichiers audio dans la mémoire interne réservée de BookPlayer.</string>
+    <!-- ********************************** -->
+    <!-- Obtenir des ressources -->
+
+    <string name="TextHeaderSearch">Rechercher de l\'audio gratuit sur internet</string>
+    <string name="bSearchlitteratureaudio_desc">Rechercher et télécharger un livre sur litteratureaudio.com (français) :</string>
+    <string name="bSearchOpenCulture_desc">Chercher des audios sur Open Culture :</string>
+    <string name="bSearchExampleText">Les sites ci-dessus ne sont que des exemples, il y a des tonnes d\'audio sur le web — vous pouvez aussi télécharger des cours universitaires.</string>
+
+    <string name="AutoTest_title">Test Auto</string>
+    <string name="AutoTest_desc">Téléchargement et intégration automatiques de livres audio, à des fins de test</string>
+
+    <string name="bOpenFile">N\'importe quel fichier</string>
+    <string name="bOpenFolder">Dossier</string>
+    <string name="bOpenZipFile">Fichier Zip</string>
+    <string name="bOpenM4bFile">Fichier Audio</string>
+
+    <string name="OnlineSearch_title">Intégration directe - test bêta</string>
+    <string name="OnlineSearch_desc">Utilisez cette recherche pour trouver le livre audio souhaité. Ensuite, sur la page suivante, sélectionnez celui que vous voulez importer : il sera téléchargé et ajouté automatiquement dans BookPlayer !</string>
+    <string name="OnlineSearch_button">Rechercher…</string>
+
+    <string name="TextHeaderOpen">Ouvrir un audio sur mon appareil</string>
+    <string name="bOpenFile_desc">Choisir n\'importe quel fichier.</string>
+    <string name="bOpenFolder_desc">Choisir un dossier.\nTous les audios de ce dossier seront importés.\n<i>Attention, les audios dans les sous-dossiers seront aussi importés récursivement.</i></string>
+    <string name="bOpenZipFile_desc">filtre : uniquement les fichiers zip</string>
+    <string name="bOpenM4bFile_desc">filtre : uniquement les fichiers audio\n<i>Attention : ce filtre n\'est pas parfait. Utilisez le bouton du haut [n\'importe quel fichier] en cas de problème.</i></string>
+
+    <string name="DirectDownload_title">Téléchargement direct</string>
+    <string name="DirectDownload_desc">Collez un lien ci-dessous puis appuyez sur le bouton pour télécharger et intégrer un livre audio en une seule étape.</string>
+    <string name="DirectDownload_button">Télécharger</string>
+
+    <string name="LibrivoxSearch_title">Livres audio</string>
+    <string name="LibrivoxSearch_desc">Recherchez directement sur LibriVox pour trouver un livre audio. C\'est un dépôt gratuit de livres tombés dans le domaine public, principalement en anglais mais aussi dans d\'autres langues.</string>
+
+    <string name="OnlineSearch_hint">Jack London</string>
+    <string name="LibrivoxSearch_hint">Jack London</string>
+    <string name="PodcastSearch_hint">chats</string>
+    <string name="DirectDownload_hint">https://bookplayer.driot.com/audiobook630.zip</string>
+
+    <string name="PodcastSearch_title">Podcasts</string>
+    <string name="PodcastSearch_desc">Parcourir des podcasts grâce au registre open source podcastindex.org</string>
+    <string name="podcast_image_desc">Image du podcast</string>
+    <string name="podcast_no_results">Aucun podcast trouvé</string>
+    <string name="podcast_nb_of_podcast_found">Nombre de podcasts trouvés</string>
+
+    <string name="Search_2pt">Recherche : </string>
+    <string name="Language_2pt">Langue : </string>
+    <string name="Results_2pt">Résultats : </string>
+    <string name="search_nothing_specified">Aucun critère précisé</string>
+    <string name="search_nothing_specified_so_trending">Aucun critère => affichage des tendances</string>
+
+    <string name="LibrivoxResultItem_audio_available_since">audio disponible depuis</string>
+    <string name="LibrivoxResultitem_nb_of_reviews">Nb d\'avis</string>
+    <string name="LibrivoxResultitem_avg_rating">Note moyenne</string>
+    <string name="Librivox_bGetAudioBook">Télécharger le livre audio</string>
+    <string name="librivox_no_audiobook_found_for_search">Aucun livre audio trouvé avec ces critères</string>
+    <string name="librivox_invalid_response">Réponse invalide du serveur Librivox</string>
+    <string name="loading_details">Chargement des détails…</string>
+    <string name="loading_detail_failed">Échec du chargement des détails</string>
+    <string name="librivox_zip_mp3_available">Fichier ZIP-MP3 disponible</string>
+    <string name="librivox_zip_mp3_not_found">Fichier ZIP-MP3 introuvable</string>
+    <string name="librivox_wait_integration">Veuillez patienter, un autre livre est en cours de téléchargement/importation.</string>
+
+    <string name="LibrivoxSearch_warning">Attention - Test Bêta\nEncore expérimental\nSi le téléchargement bloque, laissez l\'app au premier plan</string>
+    <string name="librivox_cover_desc">Couverture Librivox</string>
+
+    <string name="podcast_favorite_add">Ajouté aux favoris</string>
+    <string name="podcast_autodownload_add">Ajouté en téléchargement auto</string>
+    <string name="podcast_new_episodes">nouveaux épisodes</string>
 
     <!-- ********************************** -->
     <!-- Ajouter des ressources -->
@@ -450,14 +438,18 @@ Inconvénients :
     <string name="Error_Import_OutOfMemory">Erreur générale : Mémoire insuffisante</string>
     <string name="Error_Import_This_folder_may_contain_too_many_books">Ce dossier contient peut-être trop de livres ou de sous-dossiers pour un seul chargement</string>
 
+
+    <!-- ********************************** -->
+    <!-- FolderModifyActivity -->
+
     <string name="bDelete">Supprimer</string>
     <string name="bRenameTrack">Renommer la piste</string>
     <string name="bMove">Changer la position</string>
     <string name="bReset">Réinitialiser la progression</string>
     <string name="Folder_Deleted_DB">Livre supprimé !</string>
     <string name="Folder_Renamed">Le dossier a été renommé</string>
-    <string name="Error_FolderNameTooShort">Le nom du dossier doit comporter au moins 2 caractères</string>
-    <string name="Folder_Reset">Progression du dossier réinitialisée</string>
+    <string name="Error_FolderNameTooShort">Le nom du dossier doit contenir au moins 2 caractères</string>
+    <string name="Folder_Reset">La progression du dossier a été réinitialisée</string>
     <string name="ZikFile_RePositioned">La piste a été déplacée</string>
     <string name="ZikFile_Renamed">La piste a été renommée</string>
     <string name="ZikFile_Deleted">La piste a été supprimée</string>
@@ -474,38 +466,48 @@ Inconvénients :
     <string name="Change_cover_image">Changer l\'image de couverture</string>
     <string name="AskRename_Track">Renommer cette piste en</string>
 
-    <string name="IntroCut">Couper l\'introduction</string>
+    <string name="IntroCut">Couper l\'intro</string>
     <string name="Rename_book">Renommer le livre</string>
     <string name="AskRename_Book">Voulez-vous vraiment renommer le livre en</string>
     <string name="AskRename_popupTitle">Confirmer le renommage</string>
 
     <string name="bRenameFolder">Renommer le livre</string>
-    <string name="IntroCutText"><i>Coupe les premières secondes de chaque chapitre à la lecture.</i></string>
+    <string name="IntroCutText"><i>Coupe les premières secondes de chaque chapitre pendant la lecture.</i></string>
 
     <string name="Export_notification_title">Livre audio exporté</string>
-    <string name="Export_notification_text">dans le dossier Téléchargements</string>
+    <string name="Export_notification_text">dans le dossier Download</string>
     <string name="Export_share_title">Partager le fichier ZIP</string>
     <string name="Export_display_text_loading">Chargement des infos du dossier…</string>
     <string name="Export_display_text_preparing_export">Préparation de l\'export…</string>
-    <string name="Export_display_no_valid_audiobook">Erreur lors de la récupération des audios du livre.</string>
-    <string name="Export_error">Erreur lors de l\'export</string>
+    <string name="Export_display_no_valid_audiobook">Erreur lors de la récupération des fichiers audio.</string>
+    <string name="Export_error">Erreur d\'export</string>
     <string name="Export_display_text_export_title">Export ZIP</string>
-    <string name="Export_done">Terminé, exporté dans le dossier [Téléchargements]</string>
+    <string name="Export_done">Terminé, exporté dans le dossier [Downloads]</string>
+
+    <!-- ********************************** -->
+    <!-- Zik File Adapter -->
 
     <string name="Progression_reset_done">Progression réinitialisée</string>
     <string name="ModifyFolder_AskDeleteProgressFromZikFile_Title">Confirmer la réinitialisation</string>
-    <string name="ModifyFolder_AskDeleteProgressFromZikFile_Text">Vous êtes sur le point de réinitialiser la progression de ce fichier audio\nÊtes-vous sûr ?</string>
+    <string name="ModifyFolder_AskDeleteProgressFromZikFile_Text">Vous êtes sur le point de réinitialiser la progression de cet audio\nÊtes-vous sûr ?</string>
 
+    <!-- ********************************** -->
+    <!-- PlayActivity -->
+
+    <string name="play" translatable="false"><![CDATA[>]]></string>
+    <string name="rewind" translatable="false"><![CDATA[<<]]></string>
+    <string name="forward" translatable="false"><![CDATA[>>]]></string>
+    <string name="pause" translatable="false">||</string>
     <string name="tvSpeed">Vitesse</string>
-    <string name="tvSleep">Sommeil</string>
+    <string name="tvSleep">Veille</string>
     <string name="tvVolume">Volume</string>
     <string name="btnSleepSet" translatable="false">Sleep</string>
     <string name="tv_ListeningTimeWithNoUserAction">Aucune action utilisateur depuis</string>
-    <string name="tv_ListeningTimeWithCustomSleep">Mode sommeil personnalisé activé depuis</string>
-    <string name="tv_CustomSleepDialog_generalInfo"><i>Note : cette valeur ne sera utilisée que pour la session de lecture en cours.\nLa valeur globale est définie dans les options (menu sur l\'écran d\'accueil)</i></string>
-    <string name="tv_CustomSleepDialog_EnterMinutesBeforeSleep">Saisissez le nombre de minutes avant mise en veille :</string>
-    <string name="tv_TimeLeft">Temps avant mise en veille</string>
-    <string name="error_reading_track">ERREUR LECTURE PISTE !</string>
+    <string name="tv_ListeningTimeWithCustomSleep">Veille personnalisée activée depuis</string>
+    <string name="tv_CustomSleepDialog_generalInfo"><i>Cette valeur ne sera utilisée que pour la session en cours.\nLa valeur globale de veille automatique se trouve dans Options (menu, accessible depuis la page d\'accueil)</i></string>
+    <string name="tv_CustomSleepDialog_EnterMinutesBeforeSleep">Entrez le nombre de minutes avant la mise en veille :</string>
+    <string name="tv_TimeLeft">Temps restant avant veille</string>
+    <string name="error_reading_track">ERREUR DE LECTURE DE LA PISTE !</string>
     <string name="error_file_not_found">FICHIER INTROUVABLE !</string>
     <string name="current_position">Position actuelle</string>
     <string name="total_time">Durée</string>
@@ -513,84 +515,94 @@ Inconvénients :
     <string name="source_not_found">Le fichier source est introuvable ou illisible.</string>
     <string name="source_not_found_deleted">Le fichier source est introuvable. Il a peut-être été supprimé.</string>
     <string name="source_file_path">Chemin du fichier source</string>
-    <string name="permission_not_set">La permission n\'est pas définie.</string>
-    <string name="permission_to_set">Pour l\'activer, cliquez sur le bouton ci-dessous pour ouvrir les infos de l\'application, puis allez dans [Autorisations] et activez [Musique et Audio].
-\n\nCette permission est requise si le fichier n\'est pas dans la mémoire interne de BookPlayer.</string>
+    <string name="permission_not_set">La permission n\'est pas accordée.</string>
+    <string name="permission_to_set">Pour l\'accorder, cliquez sur le bouton ci-dessous pour afficher les infos de l\'app, puis accédez à la section [Autorisations de l\'application] et définissez manuellement [MUSIQUE ET AUDIO].\n\nCette autorisation est nécessaire car le fichier à lire ne se trouve pas dans la mémoire interne de BookPlayer.</string>
     <string name="device_settings">Paramètres de l\'appareil pour BookPlayer</string>
     <string name="notification_playlist_finished">Livre terminé !</string>
-    <string name="notification_auto_sleep">Mise en veille automatique !</string>
+    <string name="notification_auto_sleep">Veille automatique !</string>
 
-    <string name="SleepTimer">Minuterie de sommeil</string>
-    <string name="SleepTimerWrongInt">Entrée invalide. Veuillez saisir un nombre.</string>
-    <string name="SleepTimerGeneralError">Erreur lors de la configuration de la minuterie de sommeil.</string>
+    <string name="SleepTimer">Minuteur de veille</string>
+    <string name="SleepTimerWrongInt">Entrée invalide. Veuillez saisir un nombre valide.</string>
+    <string name="SleepTimerGeneralError">Une erreur s\'est produite lors de la configuration du minuteur de veille.</string>
+
+    <!-- ********************************** -->
+    <!-- STORAGE -->
 
     <string name="physical_storage_memory">Mémoire de stockage physique</string>
-    <string name="MB_taken_by_BookPlayer_app">Mo occupés par l\'app BookPlayer</string>
-    <string name="MB_taken_by_audio_files">Mo occupés par les fichiers audio</string>
-    <string name="MB_taken_by_logs">Mo occupés par les journaux</string>
+    <string name="MB_taken_by_BookPlayer_app">Mo pris par l\'app BookPlayer</string>
+    <string name="MB_taken_by_audio_files">Mo pris par les fichiers audio</string>
+    <string name="MB_taken_by_logs">Mo pris par les journaux</string>
     <string name="MB_available_on_device">Mo : disponibles sur l\'appareil</string>
     <string name="MB_device_memory">Mo : mémoire de l\'appareil</string>
     <string name="MB_available_on_SD_card">Mo : disponibles sur la carte SD</string>
     <string name="MB_SD_card_memory">Mo : mémoire de la carte SD</string>
     <string name="audio_location_sdcard">Carte SD</string>
     <string name="custom_value_in_minutes">valeur personnalisée en minutes</string>
-    <string name="MB_audios_in_app">Mo : audios dans l\'application</string>
-    <string name="MB_left_on_device">Mo : restants sur l\'appareil</string>
+    <string name="MB_audios_in_app">Mo : audios dans l\'app</string>
+    <string name="MB_left_on_device">Mo : libres sur l\'appareil</string>
     <string name="MB_device_memory2">Mo : mémoire de l\'appareil</string>
 
     <string name="audio_location_sdcard_reserved_storage">Carte SD (espace réservé à l\'app)</string>
-    <string name="audio_location_bookplayer_reserved_storage">Espace réservé à BookPlayer</string>
+    <string name="audio_location_bookplayer_reserved_storage">Stockage réservé à BookPlayer</string>
     <string name="audio_location_smartphone_shared_storage">Stockage partagé du smartphone</string>
     <string name="audio_location_audiobook_not_found">Livre audio introuvable</string>
 
+    <!-- ********************************** -->
+    <!-- Menus -->
+
     <string name="action_menu_three_dot">Menu</string>
-    <string name="menu_open">ouvrir</string>
-    <string name="menu_manual">manuel</string>
+    <string name="menu_open">open</string>
+    <string name="menu_manual">manual</string>
     <string name="menu_options">options</string>
-    <string name="menu_otherapp">autres apps</string>
-    <string name="menu_sendmail">contacter développeur</string>
-    <string name="stats">Statistiques</string>
+    <string name="menu_otherapp">other apps</string>
+    <string name="menu_sendmail">mail developer</string>
+    <string name="stats">Stats</string>
     <string name="menu_seeLog" translatable="false">See Logs</string>
-    <string name="menu_cacheFiles">Nettoyage</string>
+    <string name="menu_cacheFiles">Cleaning</string>
     <string name="menu_forum">Forum</string>
-    <string name="menu_website">Site Web</string>
-    <string name="menu_synchro">Synchronisation</string>
+    <string name="menu_website">Website</string>
+    <string name="menu_synchro">Synchronization</string>
 
-    <string name="otherApp_title">Mes autres apps :-)</string>
+    <!-- ********************************** -->
+    <!-- OTHER APPS -->
+
+    <string name="otherApp_title">My other apps :-)</string>
     <string name="otherApp_droitpositif" translatable="false">Droit Positif</string>
-    <string name="otherApp_droitpositif_txt">Grands textes juridiques français, accessibles hors-ligne</string>
+    <string name="otherApp_droitpositif_txt">Major French law texts, available even offline</string>
     <string name="otherApp_deces" translatable="false">Dead Frogs</string>
-    <string name="otherApp_deces_txt">Décès survenus en France depuis les années 70</string>
+    <string name="otherApp_deces_txt">People dead in France since the 70\'</string>
     <string name="otherApp_scanner" translatable="false">Scanner</string>
-    <string name="otherApp_scanner_txt">Scanner de QR-codes et de codes-barres</string>
+    <string name="otherApp_scanner_txt">QR-codes and barcodes scanner</string>
 
-    <string name="permission_rationale">Cette activité nécessite les permissions suivantes :</string>
-    <string name="permissions_granted">Permissions accordées.</string>
-    <string name="permissions_denied">Permissions refusées.</string>
+    <!-- ********************************** -->
+    <!-- PERMISSIONS -->
+
+    <string name="permission_rationale">This activity requires the following permissions: </string>
+    <string name="permissions_granted">Permissions were granted.</string>
+    <string name="permissions_denied">Permissions were not granted.</string>
     <string name="permissions_ok_button" translatable="false">OK</string>
 
-    <string name="permission_read_write_rationale">BookPlayer a besoin de la permission [Lire Audio] (ou bien activez l\'option [Copier le fichier]).</string>
-    <string name="permission_read_write_denied">La permission [Lire Audio] a été refusée.
-\n\nCliquez sur [Infos App] pour activer manuellement les permissions.
-\n\nOu bien
-\n\nCliquez sur [Options] pour activer l\'option [Copier le fichier en interne].
-\n<i>Vos fichiers audio seront alors copiés dans la mémoire interne de BookPlayer, et aucune permission ne sera nécessaire pour les lire.</i>
+    <string name="permission_read_write_rationale">Bookplayer needs [Read Audio] permission (or set [Copy File] option).</string>
+    <string name="permission_read_write_denied">[Read Audio] permission was denied.
+\n\nClick [App Info] to activate permissions manually.
+\n\nOr
+\n\nClick [Options] to activate app [Copy File internally] option.
+\n<i>Then, your audio files will be copied inside Bookplayer internal memory and you won\'t need any permission to read them.</i>
 </string>
 
-    <string name="permission_record_audio_rationale_01">La permission suivante (optionnelle) permet d\'afficher le visualiseur de spectre.</string>
-    <string name="permission_record_audio_rationale">Le visualiseur de spectre nécessite la permission [Enregistrer audio].</string>
-    <string name="permission_record_audio_denied">Le visualiseur ne sera pas affiché. La permission [Enregistrer audio] a été refusée.</string>
-    <string name="permission_record_audio_rationale_after_denied">BookPlayer ne peut plus redemander une permission déjà refusée.
-\n\nVous pouvez contourner cela en cliquant sur [Infos App].
-\nCela ouvrira les paramètres de BookPlayer sur l'appareil.
-\n\nEnsuite, allez dans la section "Permissions" et autorisez "Microphone" manuellement.</string>
-
+    <string name="permission_record_audio_rationale_01">Following optional permission is to show spectrum visualizer.</string>
+    <string name="permission_record_audio_rationale">Spectrum visualizer requires [record audio] permission.</string>
+    <string name="permission_record_audio_denied">Spectrum visualizer will not be displayed. [record audio] permission has been denied.</string>
+    <string name="permission_record_audio_rationale_after_denied">BookPlayer can not ask again for an already denied permission.
+\n\nYou can bypass by clicking [App Info].
+\nThat will open the Bookplayer settings on the device.
+\n\nThen go in "Permissions" section and manually allow "Microphone".</string>
 
     <string name="Permission">Permission</string>
-    <string name="permission_read_denied_short_text_on_load">La permission [Musique et Audio] a été refusée précédemment.
-\n\nVous devez cliquer sur [Infos App] et activer cette permission manuellement.
-\n\n<i>Nécessaire si vous souhaitez lire les fichiers audio depuis la mémoire générale du smartphone (option de copie désactivée).</i>
+    <string name="permission_read_denied_short_text_on_load">[Music and Audio] permission was previously denied.
+\n\nYou will need to click [App Info] and activate that permission manually.
+\n\n<i>It is needed if you want to directly read audio from smartphone general storage (copy option disabled).</i>
 </string>
-    <string name="permission_read_write_rationale_short_text_on_load">La permission [Musique et Audio] est requise pour lire depuis la mémoire générale du smartphone.</string>
+    <string name="permission_read_write_rationale_short_text_on_load">[Music and Audio] permission needed to play from smartphone general storage.</string>
 
 </resources>
