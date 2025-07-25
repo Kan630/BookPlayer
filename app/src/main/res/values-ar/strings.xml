@@ -30,7 +30,7 @@
     <string name="help_file_text">"النقر المطول على مسار يفتح صفحة [تعديل المسار].
     \nثم يمكنك إعادة تسميته/تغيير الترتيب/حذفه/إعادة تعيين التقدم"</string>
 
-    <string name="help_import">استيراد:</string>
+    <string name="help_title_manual_import">استيراد:</string>
 
     <string name="help_trouble">مشاكل الاستيراد:</string>
     <string name="help_trouble_text">"إذا واجهت مشاكل في استيراد الصوت:
@@ -41,7 +41,7 @@
     <string name="help_tellme">أخبرني!</string>
 
     <string name="help_cachefiles">تنظيف الذاكرة:</string>
-    <string name="help_cachefiles_text">"توجد الآن واجهة محددة للتحقق من محتوى الذاكرة الداخلية لـ Bookplayer.
+    <string name="help_memory_cleaning_text">"توجد الآن واجهة محددة للتحقق من محتوى الذاكرة الداخلية لـ Bookplayer.
         \n
         \nتتيح لك رؤية الكتب التي تأخذ مساحة كبيرة. يمكنك حذف بعضها من هنا.
         \n
@@ -419,7 +419,7 @@
     <string name="help_file_types_title">أنواع الملفات:</string>
     <string name="help_file_types_text">Bookplayer يمكنه تشغيل العديد من أنواع ملفات الصوت، وحتى الفيديو. فقط جرب! الخيار الأفضل هو ملفات [mp3]، مضغوطة أو داخل مجلد. يمكن لـ Bookplayer الآن تشغيل نوع الملفات الجديد [m4b]. إذا كانت تحتوي على فصول، فسيحاول اكتشافها. وإذا استخدمت ميزة التصدير الجديدة على ملف m4b، فستحصل على ملف zip يحتوي على الفصول كملفات صوتية بصيغة aac.</string>
 
-    <string name="help_import_text">تبدأ هذه الشاشة باختيارك لملف أو مجلد.
+    <string name="help_text_manual_import">تبدأ هذه الشاشة باختيارك لملف أو مجلد.
 \nثم هناك خياران رئيسيان:
 \n
 \n<b>الخيار 1 [نسخ]:</b><i>افتراضيًا</i> سيقوم Bookplayer أولًا بنسخ الملف الصوتي إلى ذاكرته الداخلية، ثم تشغيله من هناك.

@@ -31,7 +31,7 @@
     <string name="help_file_text">"Un clic largo sobre una pista abre la página [modificar pista].
     \nPodrás renombrarla/cambiar orden/eliminarla/reiniciar progreso"</string>
 
-    <string name="help_import">Importar:</string>
+    <string name="help_title_manual_import">Importar:</string>
 
     <string name="help_trouble">Problemas al importar:</string>
     <string name="help_trouble_text">"Si tienes problemas importando tu audio:
@@ -42,7 +42,7 @@
     <string name="help_tellme">¡Dímelo!</string>
 
     <string name="help_cachefiles">Limpieza de memoria:</string>
-    <string name="help_cachefiles_text">"Ahora existe una vista específica para revisar el contenido de la memoria interna de Bookplayer.
+    <string name="help_memory_cleaning_text">"Ahora existe una vista específica para revisar el contenido de la memoria interna de Bookplayer.
         \n
         \nTe permite ver qué libros ocupan mucho espacio. Puedes borrar algunos desde aquí.
         \n
@@ -421,7 +421,7 @@
     <string name="help_file_types_title">Tipos de archivos :</string>
     <string name="help_file_types_text">Bookplayer puede leer muchos tipos de archivos de audio, incluso videos. ¡Pruébalos! Lo ideal son los archivos [mp3], ya sea en zip o en carpeta. Bookplayer también puede leer archivos del nuevo tipo [m4b]. Intentará detectar los capítulos si existen. Si usas la nueva función de exportación con un archivo m4b cargado previamente, obtendrás un zip con los capítulos como archivos aac.</string>
 
-    <string name="help_import_text">Esta actividad comienza seleccionando un archivo o carpeta.
+    <string name="help_text_manual_import">Esta actividad comienza seleccionando un archivo o carpeta.
 \nLuego, dos posibilidades:
 \n
 \n<b>opción 1 [copiar] :</b><i>por defecto</i> Bookplayer copiará primero el audio a la memoria interna de la aplicación y lo reproducirá desde ahí.

@@ -31,7 +31,7 @@
     <string name="help_file_text">"Un clic long sur une piste ouvre la page [modifier piste].
     \nVous pourrez alors la renommer / changer l\'ordre / supprimer / réinitialiser la progression"</string>
 
-    <string name="help_import">Import :</string>
+    <string name="help_title_manual_import">Import :</string>
 
     <string name="help_trouble">Problèmes d\'import :</string>
     <string name="help_trouble_text">"Si vous avez des problèmes pour importer votre audio :
@@ -42,7 +42,7 @@
     <string name="help_tellme">Dites-le moi !</string>
 
     <string name="help_cachefiles">Nettoyage mémoire :</string>
-    <string name="help_cachefiles_text">"Une vue spécifique pour vérifier le contenu de la mémoire interne de Bookplayer existe maintenant.
+    <string name="help_memory_cleaning_text">"Une vue spécifique pour vérifier le contenu de la mémoire interne de Bookplayer existe maintenant.
         \n
         \nElle vous permet de voir quels livres prennent beaucoup de place. Vous pouvez en supprimer certains depuis ici.
         \n
@@ -412,7 +412,7 @@
     <string name="help_file_types_title">Types de fichiers :</string>
     <string name="help_file_types_text">Bookplayer peut lire de nombreux types de fichiers audio, même des vidéos. Essayez de les charger ! Le meilleur choix reste les fichiers [mp3], zippés ou dans un dossier. Bookplayer peut aussi lire le nouveau type de fichier [m4b]. Il essaiera d\'en détecter les chapitres s\'ils existent. Si vous utilisez la nouvelle fonction d\'export, à partir d\'un fichier m4b déjà chargé, vous obtiendrez un zip avec les chapitres sous forme de fichiers audio aac.</string>
 
-    <string name="help_import_text">Cette activité commence par le choix d\'un fichier ou d\'un dossier.\nEnsuite, deux possibilités :\n\n<b>option 1 [copie]</b> : <i>par défaut</i> Bookplayer copiera d\'abord l\'audio dans la mémoire interne de l\'application, puis le lira depuis là.\n\n<b>option 2 [sans copie]</b> : Bookplayer enregistrera simplement l\'emplacement pour lire l\'audio directement depuis la mémoire générale de l\'appareil (ex. dossier Téléchargements, Musique ou autre)\n\n<i>(Note : les fichiers ZIP sont toujours copiés, les m4b découpés aussi. Cette option ne concerne que la lecture directe de fichiers audio simples)</i>\n\n<b>Avec l\'option 1 (copie)</b>, vous n\'aurez pas besoin de la permission [Lire les fichiers audio].\nEt si vous supprimez ou déplacez le fichier de la mémoire principale, cela n\'aura aucun impact. Vous ne perdrez ni le livre ni votre progression.\n\n<b>Avec l\'option 2 (sans copie)</b>, vous économisez de l\'espace.\n\n<i>Une autre option, dans le menu, permet de supprimer automatiquement le fichier source après son import.\nActivez-la si vous ne souhaitez pas utiliser le livre dans une autre application.</i></string>
+    <string name="help_text_manual_import">Cette activité commence par le choix d\'un fichier ou d\'un dossier.\nEnsuite, deux possibilités :\n\n<b>option 1 [copie]</b> : <i>par défaut</i> Bookplayer copiera d\'abord l\'audio dans la mémoire interne de l\'application, puis le lira depuis là.\n\n<b>option 2 [sans copie]</b> : Bookplayer enregistrera simplement l\'emplacement pour lire l\'audio directement depuis la mémoire générale de l\'appareil (ex. dossier Téléchargements, Musique ou autre)\n\n<i>(Note : les fichiers ZIP sont toujours copiés, les m4b découpés aussi. Cette option ne concerne que la lecture directe de fichiers audio simples)</i>\n\n<b>Avec l\'option 1 (copie)</b>, vous n\'aurez pas besoin de la permission [Lire les fichiers audio].\nEt si vous supprimez ou déplacez le fichier de la mémoire principale, cela n\'aura aucun impact. Vous ne perdrez ni le livre ni votre progression.\n\n<b>Avec l\'option 2 (sans copie)</b>, vous économisez de l\'espace.\n\n<i>Une autre option, dans le menu, permet de supprimer automatiquement le fichier source après son import.\nActivez-la si vous ne souhaitez pas utiliser le livre dans une autre application.</i></string>
 
     <string name="help_tellme_text">Si vous rencontrez des problèmes ou si l\'application plante :\nMerci de m\'envoyer un message en décrivant le souci\nPour que je puisse analyser et améliorer l\'application !</string>
 

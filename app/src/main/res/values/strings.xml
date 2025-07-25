@@ -30,43 +30,8 @@
     <!-- HELP Screen -->
 
 
-    <string name="help_file">Track :</string>
-    <string name="help_file_text">A long click on a track opens the [modify track] page.
-    \nThen you will be able to rename / change order / delete / reset progress</string>
 
-    <string name="help_import">Import :</string>
 
-    <string name="help_trouble">Import troubles :</string>
-    <string name="help_trouble_text">"If you have troubles importing your audio :
-        \nZIP : In filepicker, if a click on a zip shows the content of the zip instead of letting you select the zip , try a long click on the zip.
-        \nZIP : If Unzip fails, try tp unzip them before with another app.
-        \nIf problem with picking audios from Download folder, try to move them out of 'Download' folder."</string>
-
-    <string name="help_tellme">Tell me !</string>
-
-    <string name="help_cachefiles">Memory Cleaning :</string>
-    <string name="help_cachefiles_text">A specific view to check the content of the Bookplayer internal memory does now exist.
-        \n
-        \nIt allows you to see which books do take a lot of room. You can delete some of them from here.
-        \n
-        \nPlease note that will show there, only books that have been copied inside Bookplayer internal reserved memory.
-        \nThat is to say, all audios from ZIP file, + all audios from Single File / Folder, that have been loaded with the [copy] setting on (in menu/options)
-    </string>
-
-    <string name="help_permission">Permissions :</string>
-    <string name="help_permission_text">"BookPlayer can run without any permission.
-        \nThere is 3 main permissions :
-        \n<b>[Music and Audio]</b> = [Read Audio] = [External Storage] : Allows to read audio from the general device memory, if copy option was unselected (like from the download folder, the music folder, or any other one)
-        \n\n<b>[Microphone]</b> (= [Record Audio]) is needed to display a frequency visualizer animation (sound spectrum display). If it is denied, it will just not show, no problem.
-        \n\n<b>[Notifications]</b> may be needed on some devices (Android 14+). It is used to display the command widget on the lock screen. <i>(Usually it displays straight away without permission being even asked.)"</i>
-    </string>
-
-    <string name="help_forum">Forum :</string>
-    <string name="help_forum_text">I\'ve just set up a forum for users to discuss this app. (June 2025).
-        \nAnyone can read posts, but you\'ll need to register your email to participate.
-        \nFeel free to suggest improvements, share ideas, or report bugs.
-        \nYou can also exchange tips—like where to find quality audiobooks and more.
-    </string>
 
 
     <!-- ********************************** -->
@@ -416,33 +381,7 @@
 
     <string name="Export_display_text_processing">"Processing"</string>
 
-    <string name="help_file_types_title">File Types :</string>
-    <string name="help_file_types_text">Bookplayer can read many type of audios, even videos. Just try to load them! Best choice will always be [mp3] files, as a zip or in a folder. But Bookplayer can now read the new [m4b] file type. It will try to detect the chapters inside if any. If you use the new export capability, from a previously loaded m4b file, you will get a zip with chapters as aac audio files.</string>
-
-    <string name="help_import_text">This activity starts with you picking a file or a folder.
-        \nThen, 2 main possibilities :
-        \n
-        \n<b>option 1 [copy] :</b><i>default</i> Bookplayer will first, copy the audio inside Bookplayer internal app memory, and then read it from there.
-        \n
-        \n<b>option 2 [no copy] :</b> Bookplayer will just register the location so as to directly play audio from the general device memory (E.g. from the Download folder, the Music folder or any folder)
-        \n
-        \n<i>(Note that ZIP files are always copied, Split M4B as well. This option is only for direct read of simple audio files)</i>
-        \n
-        \n<b>With option 1 (copy)</b>, you won\'t need the [Read Audio] permission.
-        \nAlso, if you delete the file from main memory, or move it, that won\'t matter. You will not loose your book and progress.
-        \n
-        \n<b>With option 2 (no copy)</b>, you may save space.
-        \n
-        \n<i>There is another setting, in menu/options, that allows you to automatically delete the source file, once it has been imported.
-            \nActivate that one if all the books you load into Bookplayer will not be needed by another app.</i>
-    </string>
-
-    <string name="help_tellme_text">"If you have troubles or if the app crashes :
-        \nPlease send me a message stating your concern
-        \nSo that I can check that up and try to improve my app !"</string>
-
     <string name="StillExperimental">"- Still Experimental -"</string>
-
 
 
     <string name="Export_display_text_export_title">"ZIP Export"</string>
@@ -584,22 +523,139 @@
     A <font color="#4CAF50">long click</font> on a folder opens the modify folder page.<br>
     Then you will be able to rename / delete / reset progress.
     ]]></string>
+    <string name="help_title">BookPlayer Manual</string>
 
-    <string name="help_title">Bookplayer manual</string>
-
-    <string name="help_text"><![CDATA[
-When you open the app, you’ll see a list of <font color="#12BADB">folders</font> — these represent your Books, Lessons, or Podcasts.
+    <string name="help_general_title">General</string>
+    <string name="help_text_general"><![CDATA[
+When you open the app, you’ll see a list of <font color="#90D8E8">folders</font> — these represent your Books, Lessons, or Podcasts.
+<br><br>
+A <font color="#81C784">long press</font> on a <font color="#90D8E8">folder</font> opens the “Modify Folder” screen (rename / delete / reset, etc.).
 <br>
-<br>A <font color="#4CAF50">long press</font> on a <font color="#12BADB">folder</font> opens the “Modify Folder” screen (rename / delete / reset, etc.).
-<br>A simple tap opens the list of <font color="#B312DB">tracks</font>.
+A tap opens the list of <font color="#BA68C8">tracks</font>.
+<br><br>
+A <font color="#81C784">long press</font> on a <font color="#BA68C8">track</font> opens the “Modify Track” screen.
 <br>
-<br>A <font color="#4CAF50">long press</font> on a <font color="#B312DB">track</font> opens the “Modify Track” screen (rename / reorder / reset, etc.).
-<br>A simple tap opens the player.
+A tap starts playback.
 ]]></string>
 
+    <string name="help_title_manual_import">Manual Import :</string>
+    <string name="help_text_manual_import"><![CDATA[
+When you <font color="#81C784"><b>manually import</b></font> a book, you start by selecting a <font color="#64B5F6">file</font> or a <font color="#64B5F6">folder</font>.
+<br><br>
+BookPlayer supports nearly all audio formats, plays video soundtracks, and can extract chapters from ZIP or M4B files.
+<br><br>
+<b>Option 1: <font color="#FFCC80">Copy</font></b> <i>(default)</i> — The file is <b>copied</b> into BookPlayer’s <font color="#90D8E8">private memory</font>.
+<br>
+<b>Advantages:</b>
+<ul>
+<li>No permissions needed</li>
+<li>Safe from accidental deletion</li>
+</ul>
+<br>
+<b>Option 2: <font color="#FFCC80">No Copy</font></b> — Only the file path is saved. Playback occurs directly from <i>shared storage</i>.
+<br>
+<b>Advantage:</b> Saves internal space.
+<br><br>
+<b>Note:</b> ZIP and split M4B files are always copied.
+<br><br>
+Enable <font color="#F48FB1"><b>auto-delete</b></font> in the Options menu to delete the source file after import.
+]]></string>
 
+    <string name="help_librivox_title">Librivox Import :</string>
+    <string name="help_librivox_text"><![CDATA[
+<font color="#BA68C8"><b>Import Public Domain Audiobooks</b></font>
+<br><br>
+Browse the <font color="#90D8E8"><b>Librivox catalog</b></font> of public domain titles by selecting a <font color="#81C784">language</font>.
+<br><br>
+Tap any book to download it — the audio will be <font color="#FFCC80"><b>copied</b></font> to your device and added to your library.
+<br><br>
+You can <font color="#81C784"><b>start listening right away</b></font>.
+]]></string>
 
+    <string name="help_podcast_title">Podcast Import :</string>
+    <string name="help_podcast_text"><![CDATA[
+<font color="#BA68C8"><b>Discover Podcasts</b></font>
+<br><br>
+Explore a wide range of <font color="#90D8E8">podcasts</font> in many <font color="#81C784">languages</font>.
+<br><br>
+Download any <font color="#FFCC80">episode</font> with a single tap.
+<br><br>
+Add shows to your <font color="#EF9A9A">favorites</font> for easy access and enable <font color="#81C784">auto-download</font> to fetch new episodes automatically.
+<br><br>
+Checks happen regularly, especially when BookPlayer starts.
+]]></string>
 
+    <string name="help_url_title">Import from URL :</string>
+    <string name="help_url_text"><![CDATA[
+<font color="#BA68C8"><b>Import via Link</b></font>
+<br><br>
+Paste a direct URL to an audio file, ZIP, or M4B.
+<br><br>
+Tap <font color="#FFCC80">Import</font> and BookPlayer will fetch and integrate the content.
+<br><br>
+Everything is handled automatically — unpacking, adding, and making it available for playback.
+]]></string>
+
+    <string name="help_storage_title">Storage Location :</string>
+    <string name="help_storage_text"><![CDATA[
+<font color="#BA68C8"><b>Where Files Are Stored</b></font>
+<br><br>
+By default, BookPlayer uses the <font color="#81C784">SD card</font> if available, to save space.
+<br><br>
+To switch to internal storage, change the setting in the <font color="#64B5F6">Options</font> menu.
+]]></string>
+
+    <string name="help_memory_cleaning_title">Memory Cleaning :</string>
+    <string name="help_memory_cleaning_text"><![CDATA[
+<font color="#BA68C8"><b>Manage Internal Storage</b></font>
+<br><br>
+A dedicated screen shows files copied into BookPlayer’s <font color="#90D8E8">private space</font>.
+<br><br>
+See which items take up the most space and <font color="#EF9A9A">delete</font> what you no longer need.
+<br><br>
+<font color="#F44336">Note:</font> This only applies to:
+<ul>
+<li>ZIP imports</li>
+<li>Manual imports with <font color="#81C784">[copy]</font> enabled</li>
+</ul>
+It excludes content from shared storage.
+]]></string>
+
+    <string name="help_tellme_title">Contact the Developer :</string>
+    <string name="help_tellme_text"><![CDATA[
+Having issues or found a bug?
+<br><br>
+Please <font color="#81C784">let me know</font> so I can improve the app!
+<br><br>
+Use the <font color="#90D8E8">"Mail Developer"</font> option from the menu.
+]]></string>
+
+    <string name="help_permission_title">Permissions :</string>
+    <string name="help_permission_text"><![CDATA[
+BookPlayer works <font color="#81C784">even without permissions</font>.
+<br><br>
+But for full functionality:
+<ul>
+<li><b>Read Audio</b> → access external storage</li>
+<li><b>Microphone</b> → enable the sound visualizer</li>
+</ul>
+Denying permissions won’t break the app — BookPlayer adapts.
+]]></string>
+
+    <string name="help_forum_title">Forum :</string>
+    <string name="help_forum_text"><![CDATA[
+<font color="#BA68C8"><b>Join the BookPlayer Community</b></font>
+<br><br>
+A new <font color="#90D8E8">forum</font> has been launched as a small experiment (<i>June 2025</i>).
+<br><br>
+It’s still quiet for now 😊, but you can register to:
+<ul>
+<li><font color="#FFCC80">Report bugs</font></li>
+<li><font color="#FFCC80">Suggest features</font></li>
+<li><font color="#FFCC80">Share tips and audiobooks</font></li>
+</ul>
+All posts are publicly readable. Sign in to participate.
+]]></string>
 
 
 </resources>

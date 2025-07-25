@@ -31,7 +31,7 @@
     <string name="help_file_text">"Долгое нажатие на трек открывает страницу [изменить трек].
     \nЗатем вы сможете переименовать/изменить порядок/удалить/сбросить прогресс"</string>
 
-    <string name="help_import">Импорт:</string>
+    <string name="help_title_manual_import">Импорт:</string>
 
     <string name="help_trouble">Проблемы с импортом:</string>
     <string name="help_trouble_text">"Если у вас проблемы с импортом аудио:
@@ -42,7 +42,7 @@
     <string name="help_tellme">Сообщите мне!</string>
 
     <string name="help_cachefiles">Очистка памяти:</string>
-    <string name="help_cachefiles_text">"Теперь есть специальный просмотр содержимого внутренней памяти Bookplayer.
+    <string name="help_memory_cleaning_text">"Теперь есть специальный просмотр содержимого внутренней памяти Bookplayer.
         \n
         \nОн позволяет увидеть, какие книги занимают много места. Вы можете удалить некоторые из них отсюда.
         \n
@@ -422,7 +422,7 @@
     <string name="help_file_types_title">Типы файлов:</string>
     <string name="help_file_types_text">Bookplayer поддерживает множество аудиоформатов, даже видео. Просто попробуйте! Лучший выбор — файлы [mp3], в zip или в папке. Также поддерживается формат [m4b]. При наличии глав, они будут обнаружены. Если вы используете экспорт на загруженном m4b, вы получите zip-файл с главами в формате aac.</string>
 
-    <string name="help_import_text">Эта активность начинается с выбора файла или папки.
+    <string name="help_text_manual_import">Эта активность начинается с выбора файла или папки.
 \nЗатем — два варианта:
 \n
 \n<b>вариант 1 [копировать]:</b><i>по умолчанию</i> Bookplayer сначала копирует аудио во внутреннюю память, а затем воспроизводит его оттуда.

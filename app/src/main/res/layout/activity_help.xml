@@ -17,72 +17,102 @@
         >
 
         <TextView style="@style/HelpTitle"
+            android:textSize="26sp"
+            android:layout_marginStart="20dp"
             android:text="@string/help_title"
+            />
+        <TextView style="@style/HelpTitle"
+            android:text="@string/help_general_title"
             />
         <TextView style="@style/HelpText"
             android:id="@+id/tvHelpText"
-            android:text="@string/help_folder_text"
+            android:text="@string/help_text_general"
             />
         <View style="@style/myStyleViewSimpleHorizontalBar"/>
 
 
         <TextView style="@style/HelpTitle"
-            android:text="@string/help_file_types_title"
+            android:text="@string/help_title_manual_import"
             />
         <TextView style="@style/HelpText"
-            android:text="@string/help_file_types_text"
+            android:id="@+id/help_text_manual_import"
+            android:text="@string/help_text_manual_import"
             />
         <View style="@style/myStyleViewSimpleHorizontalBar"/>
 
         <TextView style="@style/HelpTitle"
-            android:text="@string/help_import"
+            android:text="@string/help_librivox_title"
             />
         <TextView style="@style/HelpText"
-            android:text="@string/help_import_text"
+            android:id="@+id/help_librivox_text"
+            android:text="@string/help_librivox_text"
             />
         <View style="@style/myStyleViewSimpleHorizontalBar"/>
 
         <TextView style="@style/HelpTitle"
-            android:text="@string/help_tellme"
+            android:text="@string/help_podcast_title"
             />
         <TextView style="@style/HelpText"
-            android:text="@string/help_tellme_text"
+            android:id="@+id/help_podcast_text"
+            android:text="@string/help_podcast_text"
             />
         <View style="@style/myStyleViewSimpleHorizontalBar"/>
 
         <TextView style="@style/HelpTitle"
-            android:text="@string/help_trouble"
+            android:text="@string/help_url_title"
             />
         <TextView style="@style/HelpText"
-            android:text="@string/help_trouble_text"
+            android:id="@+id/help_url_text"
+            android:text="@string/help_url_text"
+            />
+        <View style="@style/myStyleViewSimpleHorizontalBar"/>
+        <View style="@style/myStyleViewSimpleHorizontalBar"/>
+
+        <TextView style="@style/HelpTitle"
+            android:text="@string/help_memory_cleaning_title"
+            />
+        <TextView style="@style/HelpText"
+            android:id="@+id/help_memory_cleaning_text"
+            android:text="@string/help_memory_cleaning_text"
+            />
+        <View style="@style/myStyleViewSimpleHorizontalBar"/>
+
+        <TextView style="@style/HelpTitle"
+            android:text="@string/help_storage_title"
+            />
+        <TextView style="@style/HelpText"
+            android:id="@+id/help_storage_text"
+            android:text="@string/help_storage_text"
             />
         <View style="@style/myStyleViewSimpleHorizontalBar"/>
 
 
-        <TextView style="@style/HelpTitle"
-            android:text="@string/help_cachefiles"
-            />
+        <TextView android:text="@string/help_permission_title"
+            style="@style/HelpTitle"/>
         <TextView style="@style/HelpText"
-            android:text="@string/help_cachefiles_text"
-            />
-
+            android:id="@+id/help_permission_text"
+            android:text="@string/help_permission_text"/>
         <View style="@style/myStyleViewSimpleHorizontalBar"/>
 
-        <TextView style="@style/HelpTitle"
-            android:text="@string/help_permission"
-            />
-        <TextView style="@style/HelpText"
-            android:text="@string/help_permission_text"
-            />
 
+        <TextView android:text="@string/help_tellme_title"
+            style="@style/HelpTitle"/>
+        <TextView style="@style/HelpText"
+            android:id="@+id/help_tellme_text"
+            android:text="@string/help_tellme_text" />
         <View style="@style/myStyleViewSimpleHorizontalBar"/>
 
-        <TextView style="@style/HelpTitle"
-            android:text="@string/help_forum"
-            />
+        <TextView android:text="@string/help_forum_title"
+            style="@style/HelpTitle"/>
         <TextView style="@style/HelpText"
-            android:text="@string/help_forum_text"
-            />
+            android:id="@+id/help_forum_text"
+            android:text="@string/help_forum_text"/>
+        <View style="@style/myStyleViewSimpleHorizontalBar"/>
+
+
+
+
+
         <View style="@style/myStyleViewSimpleHorizontalBar"
             android:layout_marginBottom="30dp"
             />

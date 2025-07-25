@@ -31,7 +31,7 @@
     <string name="help_file_text">"长按音轨打开[修改音轨]页面。
     \n然后您可以重命名/改变顺序/删除/重置进度"</string>
 
-    <string name="help_import">导入：</string>
+    <string name="help_title_manual_import">导入：</string>
 
     <string name="help_trouble">导入问题：</string>
     <string name="help_trouble_text">"如果导入音频时遇到问题：
@@ -42,7 +42,7 @@
     <string name="help_tellme">告诉我！</string>
 
     <string name="help_cachefiles">内存清理：</string>
-    <string name="help_cachefiles_text">"现在有专门查看Bookplayer内部存储内容的界面。
+    <string name="help_memory_cleaning_text">"现在有专门查看Bookplayer内部存储内容的界面。
         \n
         \n您可以查看哪些书籍占用了大量空间。您可以在这里删除一些。
         \n
@@ -421,7 +421,7 @@
     <string name="help_file_types_title">支持的文件类型：</string>
     <string name="help_file_types_text">Bookplayer 支持多种音频格式，甚至是视频文件。请大胆尝试！最佳选择仍是 [mp3] 文件，可以是 zip 格式或放在文件夹中。Bookplayer 现在也支持新的 [m4b] 格式。如果该文件有章节，将尝试自动识别。如果您导入了 m4b 文件并使用导出功能，将获得一个包含章节的 aac 格式 zip 文件。</string>
 
-    <string name="help_import_text">该页面开始于您选择一个文件或文件夹。
+    <string name="help_text_manual_import">该页面开始于您选择一个文件或文件夹。
 \n接下来有两种主要导入方式：
 \n
 \n<b>方式一【复制】：</b><i>默认</i> Bookplayer 会先将音频复制到内部存储，然后从那里播放。
