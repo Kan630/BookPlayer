@@ -80,13 +80,11 @@ public class ZikFileActivity extends LoggingActivity {
         if (zikFilesList != null && map != null) {
             try {
                 for (ZikFile z : zikFilesList) {
-                    long lastAccess = z.lLastAccess;
-                    if (lastAccess > maxTimestamp) {
-                        maxTimestamp = lastAccess;
+                    if (z.lLastAccess != null && (maxTimestamp == 0 || z.lLastAccess > maxTimestamp)) {
+                        maxTimestamp = z.lLastAccess;
                         id_max = z.getId();
                     }
                 }
-
                 if (id_max != 0) {
                     Integer posInteger = map.get(id_max);
                     if (posInteger != null) {

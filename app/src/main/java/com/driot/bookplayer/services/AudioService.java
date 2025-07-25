@@ -334,10 +334,11 @@ public class AudioService extends LoggingService {
             }
         };
 
-        // Rewind After Pause
+// Rewind After Pause
         if (Option.getRewindAfterPause()) {
-            if (PlayList.getInstance().getZikFile() != null) {
-                long lastAccessTime = PlayList.getInstance().getZikFile().lLastAccess;
+            ZikFile currentZik = PlayList.getInstance().getZikFile();
+            if (currentZik != null && currentZik.lLastAccess != null) {
+                long lastAccessTime = currentZik.lLastAccess;
                 long nowTime = System.currentTimeMillis();
                 long timeDiffMillis = nowTime - lastAccessTime;
                 long timeDiffMinutes = timeDiffMillis / (60 * 1000);
@@ -347,7 +348,7 @@ public class AudioService extends LoggingService {
                     if (timeDiffMinutes >= ints[0]) {
                         rewindDelay = ints[1];
                     } else {
-                        break; // stop at the first value that exceeds timeDiff
+                        break;
                     }
                 }
 
@@ -357,6 +358,8 @@ public class AudioService extends LoggingService {
                 } else {
                     myLog("NO Rewind after Pause - last play was " + timeDiffMinutes + " minutes ago. No matching rewind rule found.");
                 }
+            } else {
+                myLog("Rewind after Pause - lastAccessTime is null, skipping rewind.");
             }
         }
         doIntroCut();

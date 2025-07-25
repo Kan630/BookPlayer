@@ -165,10 +165,10 @@ public class Tonio {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd-HH'h'mm'm'ss's'", Locale.US);
         return sdf.format(new java.util.Date());
     }
-    public static String formatLastAccess(long timestamp, String nameForYesterday) {
+    public static String formatLastAccess(Long lastAccess, String nameForYesterday) {
         String s;
-        if (timestamp > 0) {
-            Date accessDate = new Date(timestamp);
+        if (lastAccess!= null && lastAccess > 0) {
+            Date accessDate = new Date(lastAccess);
             Date today = new Date(System.currentTimeMillis());
 
             Calendar cal = Calendar.getInstance();
@@ -197,13 +197,13 @@ public class Tonio {
         return s;
     }
 
-    public static String formatLastAccessInDays(long lastAccessTimestamp) {
+    public static String formatLastAccessInDays(Long lastAccess) {
         String zeReturn = "Never accessed";
         try {
-            if (lastAccessTimestamp <= 0) return zeReturn;
+            if (lastAccess!=null && lastAccess <= 0) return zeReturn;
 
             long now = System.currentTimeMillis();
-            long diffInMillis = now - lastAccessTimestamp;
+            long diffInMillis = now - lastAccess;
             long diffInDays = diffInMillis / (1000 * 60 * 60 * 24);
 
             if (diffInDays > 400) {
