@@ -108,10 +108,10 @@ public class DatabaseMigrations {
     static final Migration MIGRATION_7_8 = new Migration(7, 8) {
         @Override
         public void migrate(SupportSQLiteDatabase db) {
-            // Add columns if not already done
-            db.execSQL("ALTER TABLE Folder DROP COLUMN firstaccess");
-            db.execSQL("ALTER TABLE Folder DROP COLUMN lastaccess");
-            db.execSQL("ALTER TABLE Folder DROP COLUMN lastaccessTime");
+
+            //db.execSQL("ALTER TABLE Folder DROP COLUMN firstaccess");    // looks like SQLlite does not support DROP COLUMN !!
+            //db.execSQL("ALTER TABLE Folder DROP COLUMN lastaccess");
+            //db.execSQL("ALTER TABLE Folder DROP COLUMN lastaccessTime");
 
             db.execSQL("ALTER TABLE ZikFile ADD COLUMN lFirstAccess INTEGER");
             db.execSQL("ALTER TABLE ZikFile ADD COLUMN lLastAccess INTEGER");
@@ -120,9 +120,9 @@ public class DatabaseMigrations {
             db.execSQL("UPDATE ZikFile SET lLastAccess = lastaccess WHERE lastaccess IS NOT NULL");
             db.execSQL("UPDATE ZikFile SET lLastAccess = lastaccessTime WHERE lastaccess IS NULL AND lastaccessTime IS NOT NULL");
 
-            db.execSQL("ALTER TABLE ZikFile DROP COLUMN firstaccess");
-            db.execSQL("ALTER TABLE ZikFile DROP COLUMN lastaccess");
-            db.execSQL("ALTER TABLE ZikFile DROP COLUMN lastaccessTime");
-        }
+            //db.execSQL("ALTER TABLE ZikFile DROP COLUMN firstaccess");
+            //db.execSQL("ALTER TABLE ZikFile DROP COLUMN lastaccess");
+            //db.execSQL("ALTER TABLE ZikFile DROP COLUMN lastaccessTime");
+
     };
 }

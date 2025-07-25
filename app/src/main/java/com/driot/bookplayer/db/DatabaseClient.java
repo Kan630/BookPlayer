@@ -4,7 +4,7 @@ package com.driot.bookplayer.db;
  * created by Antoine Driot -- antoine.driot.com -- on 28/10/20
  */
 
-import static com.driot.bookplayer.db.AppDatabase.APPDATABASE_VERSION;
+import static com.driot.bookplayer.db.AppDatabase.APP_DATABASE_VERSION;
 import static com.driot.bookplayer.db.DatabaseBackupHelper.backupDatabase;
 
 import android.content.Context;
@@ -33,8 +33,8 @@ public class DatabaseClient {
             if (dbPath.exists()) {
                 currentVersion = DatabaseBackupHelper.getDatabaseVersion(dbPath);
                 myLogD("Current DB version : " + currentVersion);
-                if (currentVersion < APPDATABASE_VERSION) {
-                    myLogW("Code DB version : " + APPDATABASE_VERSION);
+                if (currentVersion < APP_DATABASE_VERSION) {
+                    myLogW("Code DB version : " + APP_DATABASE_VERSION);
                     backupDatabase(mCtx);
                 }
             }
@@ -68,7 +68,7 @@ public class DatabaseClient {
             appDatabase.getOpenHelper().getWritableDatabase();
 
         } catch (Exception e) {
-            myLogEE(e, "Database will CRASH !! - current version : " + currentVersion + " - code version : " + APPDATABASE_VERSION );
+            myLogEE(e, "Database will CRASH !! - current version : " + currentVersion + " - code version : " + APP_DATABASE_VERSION);
         }
 
     }

@@ -173,8 +173,8 @@ public class ZikFile implements Serializable {
                 ", duration=" + duration +
                 ", size=" + size +
                 ", percentdone=" + percentdone +
-                ", firstaccess=" + lFirstAccess +
-                ", lastaccess=" + lLastAccess +
+                ", lFirstAccess=" + lFirstAccess +
+                ", lLastAccess=" + lLastAccess +
                 ", iszipfile=" + iszipfile +
                 ", finished=" + finished +
                 '}';

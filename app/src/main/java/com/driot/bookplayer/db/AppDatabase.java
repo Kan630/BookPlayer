@@ -5,14 +5,12 @@ package com.driot.bookplayer.db;
  *
  * modified 05/2024
  */
-import static com.driot.bookplayer.db.AppDatabase.APPDATABASE_VERSION;
+import static com.driot.bookplayer.db.AppDatabase.APP_DATABASE_VERSION;
 
 import android.content.Context;
-import android.os.TestLooperManager;
 
 import androidx.room.Database;
 import androidx.room.RoomDatabase;
-import androidx.room.TypeConverters;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 @Database(entities = {
@@ -20,19 +18,11 @@ import java.util.concurrent.Executors;
         ,ZikFile.class
         ,Podcast.class
         ,BookSource.class
-}
-                     , version = APPDATABASE_VERSION
-                    // on se fait les migrations a la main, en les ecrivant...... mais bon...
-                    //, autoMigrations = {@AutoMigration(from = 1, to = 2),@AutoMigration(from = 2, to = 3)}
+        }, version = APP_DATABASE_VERSION
         )
 
-// v2 for field zeOrder ?????
-// v3 for field displayName -- 17 sept 2023
-
-@TypeConverters({Converters.class})
-
 public abstract class AppDatabase extends RoomDatabase {
-    public static final int APPDATABASE_VERSION = 8;
+    public static final int APP_DATABASE_VERSION = 8;
 
     public abstract FolderDao FolderDao();
     public abstract ZikFileDao ZikFileDao();
