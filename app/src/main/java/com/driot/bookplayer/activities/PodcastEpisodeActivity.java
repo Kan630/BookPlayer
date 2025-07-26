@@ -36,6 +36,7 @@ import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.objects.PlayList;
 import com.driot.bookplayer.objects.PodcastEpisode;
 import com.driot.bookplayer.objects.PodcastFeed;
+import com.driot.bookplayer.objects.ViewHelper;
 import com.driot.bookplayer.utils.PodcastHelper;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
@@ -129,7 +130,7 @@ public class PodcastEpisodeActivity extends LoggingActivity {
         tvDescription.setMaxHeight(maxHeightPx);
 
         tvDescription.setOnClickListener(v -> {
-            showFullDescription(podcastFeed.description);
+            ViewHelper.showAlterDialogToDisplayText(this, podcastFeed.description, getString(R.string.Podcast_description));
         });
     }
 
@@ -244,14 +245,6 @@ public class PodcastEpisodeActivity extends LoggingActivity {
                 });
             }
         });
-    }
-
-    private void showFullDescription(String fullText) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Description");
-        builder.setMessage(parseMaybeHtml(fullText));
-        builder.setPositiveButton("Close", null);
-        builder.show();
     }
 
     private void downloadAllEpisodesToFolder(Podcast podcast, long since) {

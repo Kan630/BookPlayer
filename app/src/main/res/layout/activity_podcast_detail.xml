@@ -51,6 +51,7 @@
     <!-- Texts and episode list -->
     <TextView
         android:id="@+id/tvPodcastTitle"
+        style="@style/simpleText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textStyle="bold"
@@ -60,11 +61,14 @@
 
     <TextView
         android:id="@+id/tvPodcastDescription"
+        style="@style/simpleText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="12dp"
         android:textSize="14sp"
-        android:padding="4dp"/>
+        android:padding="4dp"
+        android:text="Podcast Description"
+        />
 
     <ProgressBar
         android:id="@+id/progressBarEpisodes"

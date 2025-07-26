@@ -18,6 +18,9 @@
     <style name="myStyleTextExplainButton" parent="textColor">
     </style>
 
+    <style name="simpleText" parent="textColor">
+    </style>
+
     <style name="myStyleTitle" parent="textColor">
         <item name="android:textAlignment">center</item>
         <item name="android:textSize">24sp</item>

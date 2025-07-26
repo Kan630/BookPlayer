@@ -10,6 +10,7 @@
 
     <TextView
         android:id="@+id/tvSearchTermsPodcast"
+        style="@style/simpleText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textStyle="bold"
@@ -17,12 +18,14 @@
 
     <TextView
         android:id="@+id/tvLanguagePodcast"
+        style="@style/simpleText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Language: ..." />
 
     <TextView
         android:id="@+id/tvResultsCountPodcast"
+        style="@style/simpleText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Results: ..." />

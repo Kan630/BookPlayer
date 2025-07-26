@@ -10,6 +10,7 @@
         android:id="@+id/tvEpisodeTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        style="@style/simpleText"
         android:text="Episode title"
         android:textStyle="bold"
         android:textSize="16sp"
@@ -32,6 +33,7 @@
                 android:id="@+id/tvEpisodeDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                style="@style/simpleText"
                 android:text="Published date"
                 android:textSize="14sp"
                 android:textColor="#BBBBBB" />
@@ -39,6 +41,7 @@
                 android:id="@+id/tvEpisodeStats"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                style="@style/simpleText"
                 android:textColor="#AAAAAA"
                 android:text="stats"
                 android:textSize="12sp" />
@@ -48,6 +51,8 @@
             android:id="@+id/tvEpisodeDBstats"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            style="@style/simpleText"
+            android:text="DB stats..."
             android:layout_weight="4"
             android:textColor="#777777"
             android:textSize="12sp"

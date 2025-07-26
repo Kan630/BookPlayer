@@ -624,5 +624,13 @@
     <string name="permission_read_write_rationale_short_text_on_load">[Music and Audio] permission needed to play from smartphone general storage.</string>
 
 
+<!-- NEW STUFF -->
+
+    <string name="Close">Close</string>
+    <string name="Episode_description">Episode description</string>
+    <string name="Podcast_description">Podcast description</string>
+
+
+
 
 </resources>

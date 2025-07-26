@@ -34,6 +34,7 @@ import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.objects.PlayList;
 import com.driot.bookplayer.objects.PodcastEpisode;
 import com.driot.bookplayer.objects.PodcastFeed;
+import com.driot.bookplayer.objects.ViewHelper;
 import com.driot.bookplayer.utils.PodcastDownloadManager;
 import com.driot.bookplayer.utils.PodcastHelper;
 import com.driot.bookplayer.utils.Tonio;
@@ -371,9 +372,13 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
     }
 
     private void playThatShit(ViewHolder holder) {
+        ZikFile zikFile = holder.zikFile;
+        if (zikFile == null) {
+            ViewHelper.showAlterDialogToDisplayText(this.context, podcastFeed.description, this.context.getString(R.string.Episode_description));
+            return;
+        }
         new Thread(() -> {
             try {
-                ZikFile zikFile = holder.zikFile;
                 List<ZikFile> zikFilesList = AppDatabase.getDatabase(context).ZikFileDao().getZikFiles(zikFile.getIdFolder());
                 PlayList.create(context, zikFilesList);
                 int rankZikFile = getZikFileRankInFolderSync(zikFilesList, zikFile.getName());
