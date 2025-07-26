@@ -1,6 +1,7 @@
 package com.driot.bookplayer.activities;
 
 import static com.driot.bookplayer.global.Pref.setLoadBookTaskState;
+import static com.driot.bookplayer.utils.HashWorker.HASH_NOT_COMPUTED;
 import static com.driot.bookplayer.utils.HashWorker.WORKER_TAG_COMPUTE_HASH;
 import static com.driot.bookplayer.utils.PermissionRequest.isReadAudioPermissionGranted;
 import static com.driot.bookplayer.utils.StorageHelper.getUnzipFolder;
@@ -483,33 +484,34 @@ public class LoadOptionsActivity extends LoggingActivity {
                 if (workInfo.getState() == WorkInfo.State.SUCCEEDED) {
                     String hash = workInfo.getOutputData().getString(WORKER_TAG_COMPUTE_HASH);
                     originalHash = hash;
-                    myLogD("Computed hash: " + hash);
+                    myLogD("Computed hash: [" + hash + "]");
 
-                    btnConfirm.setEnabled(false);
-
-                    new Thread(() -> {
-                        String existingBook = AppDatabase.getDatabase(getApplicationContext()).FolderDao().originalHashAlreadyExist_getBookName(hash);
-                        runOnUiThread(() -> {
-                            if (existingBook != null) {
-                                myLogW("Duplicate hash detected: already imported as [" + existingBook + "]");
-                                ShowError(getString(R.string.error_media_already_loaded_samePath_under_the_name) + "\n" + existingBook);
-                                waitTextView.setVisibility(View.GONE);
-                                isKO = true;
-                            } else {
-                                myLogD("Hash OK: not found in DB.");
-                                waitTextView.setText(getString(R.string.init_check_complementary_checks_please_wait));
-                                okContinue();
-                            }
-                        });
-                    }).start();
-
+                    if (hash == null || hash.isEmpty() || hash.equals(HASH_NOT_COMPUTED)) {
+                        myLogEE(null, "bad returned Hash for uri " + uri);
+                        ShowWarning(getString(R.string.could_not_check_already_imported));
+                        okContinue();
+                    } else {
+                        btnConfirm.setEnabled(false);
+                        new Thread(() -> {
+                            String existingBook = AppDatabase.getDatabase(getApplicationContext()).FolderDao().originalHashAlreadyExist_getBookName(hash);
+                            runOnUiThread(() -> {
+                                if (existingBook != null) {
+                                    myLogW("Duplicate hash detected: already imported as [" + existingBook + "]");
+                                    ShowError(getString(R.string.error_media_already_loaded_samePath_under_the_name) + "\n" + existingBook);
+                                    waitTextView.setVisibility(View.GONE);
+                                    isKO = true;
+                                } else {
+                                    myLogD("Hash OK: not found in DB.");
+                                    waitTextView.setText(getString(R.string.init_check_complementary_checks_please_wait));
+                                    okContinue();
+                                }
+                            });
+                        }).start();
+                    }
                 } else if (workInfo.getState() == WorkInfo.State.FAILED) {
                     myLogEE(null, "Hash computation failed for uri: " + uri);
-                    runOnUiThread(() -> {
-                        ShowError(getString(R.string.error_could_not_check_hash));
-                        waitTextView.setVisibility(View.GONE);
-                        isKO = true;
-                    });
+                    ShowWarning(getString(R.string.could_not_check_already_imported));
+                    okContinue();
                 }
             }
         };

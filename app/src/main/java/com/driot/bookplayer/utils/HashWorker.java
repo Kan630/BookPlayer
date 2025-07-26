@@ -82,6 +82,7 @@ public class HashWorker extends Worker {
     }
 
     private String computeFolderHash(File folder) {
+        // NOT USED YET, for background from Main Activity
         if (!folder.exists() || !folder.isDirectory()) return "";
         File[] files = folder.listFiles();
         if (files == null) return "";
@@ -148,21 +149,27 @@ public class HashWorker extends Worker {
             long[] sumElapsed = new long[]{0};
             int[] fileCount = new int[]{0};
 
-            DocumentFile doc = DocumentFile.fromTreeUri(context, uri);
-            if (doc != null && doc.isDirectory()) {
-                int[] fileIndex = new int[]{0};
-                computeFolderHashRecursive(doc, digest, uri.getPath().length(), sumElapsed, fileCount, fileIndex);
-            } else {
+            DocumentFile doc = DocumentFile.fromSingleUri(context, uri);
+            if (doc != null && doc.isFile()) {
                 try (InputStream is = context.getContentResolver().openInputStream(uri)) {
+                    long startTime = System.currentTimeMillis();
                     if (is != null) updateDigestFromStream(is, digest, MAX_BYTES_TO_HASH_PER_FILE_BIG);
+                    sumElapsed[0] = System.currentTimeMillis() - startTime;
                     fileCount[0]++;
+                }
+            } else {
+                doc = DocumentFile.fromTreeUri(context, uri);
+                if (doc != null && doc.isDirectory()) {
+                    int[] fileIndex = new int[]{0};
+                    computeFolderHashRecursive(doc, digest, uri.getPath().length(), sumElapsed, fileCount, fileIndex);
+                } else {
+                    throw new IllegalArgumentException("Invalid or unsupported URI: " + uri);
                 }
             }
 
-            long totalElapsed = System.currentTimeMillis() - totalStart;
-            myLogD("Nb of hashed file : " + fileCount[0] + " files.");
-            myLogD("[Timing] " + sumElapsed[0] + " ms Cumulative hash time");
-            myLogD("[Timing] " + (totalElapsed - sumElapsed[0]) + " ms other processes time");
+            myLogD("---Nb of hashed file : " + fileCount[0] + " files.");
+            myLogD("---[Timing] " + sumElapsed[0] + " ms Cumulative hash time");
+            myLogD("---[Timing] " + (System.currentTimeMillis() - totalStart - sumElapsed[0]) + " ms other processes time");
             return formatHash(digest.digest());
         } catch (Exception e) {
             myLogEE(e, "Exception in computeHashFromUri()");
@@ -214,7 +221,7 @@ public class HashWorker extends Worker {
                 long elapsed = System.currentTimeMillis() - startTime;
                 sumElapsed[0] += elapsed;
                 fileCount[0]++;
-                //myLogD(elapsed + " ms to hash - HashType = " + type + " - Read = " + Tonio.getReadableSize(bytesRead) + " - " + file.getName());
+                myLogD(elapsed + " ms to hash - HashType = " + type + " - Read = " + Tonio.getReadableSize(bytesRead) + " - " + file.getName());
                 fileIndex[0]++;
             } else if (file.isDirectory()) {
                 computeFolderHashRecursive(file, digest, rootPathLen, sumElapsed, fileCount, fileIndex);
