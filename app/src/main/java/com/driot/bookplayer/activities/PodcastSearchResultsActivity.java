@@ -33,6 +33,8 @@ public class PodcastSearchResultsActivity extends LoggingActivity {
     private TextView emptyMessage;
     private PodcastSearchResultsRVAdapter adapter;
 
+
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

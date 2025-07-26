@@ -1,7 +1,5 @@
 package com.driot.bookplayer.adapter;
 
-import static java.util.logging.Logger.global;
-
 import android.content.Context;
 import android.text.Html;
 import android.view.LayoutInflater;
@@ -24,6 +22,7 @@ import com.driot.bookplayer.utils.log.LoggingRVAdapter;
 import java.util.ArrayList;
 import java.util.List;
 
+// Adapter for Podcast (API result)
 public class PodcastSearchResultsRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHolder> {
 
     private static final int VIEW_TYPE_HEADER = 0;
@@ -31,6 +30,7 @@ public class PodcastSearchResultsRVAdapter extends LoggingRVAdapter<RecyclerView
 
     private List<PodcastFeed> items = new ArrayList<>();
     private final OnItemClickListener listener;
+
 
     private String headerQuery = "";
     private String headerLang = "";
@@ -40,9 +40,14 @@ public class PodcastSearchResultsRVAdapter extends LoggingRVAdapter<RecyclerView
         void onItemClick(PodcastFeed item);
     }
 
+
+
+
+
     public PodcastSearchResultsRVAdapter(OnItemClickListener listener) {
         this.listener = listener;
     }
+
 
     public void setHeaderInfo(String query, String lang, int count) {
         this.headerQuery = query;

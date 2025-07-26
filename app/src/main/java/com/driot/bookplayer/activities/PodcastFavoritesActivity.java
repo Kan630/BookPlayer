@@ -10,6 +10,10 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -31,19 +35,21 @@ public class PodcastFavoritesActivity extends LoggingActivity {
     private TextView emptyMessage, tvSearchTerms, tvLanguage, tvResultsCount;
     private PodcastFavoritesRVAdapter adapter;
 
-    public static final int API_MAX_RESULTS = 100;
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_podcastsearchresult);
 
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.recyclerViewPodcast), (v, insets) -> {
+            Insets systemInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(0, systemInsets.top, 0, systemInsets.bottom);
+            return insets;
+        });
+
         recyclerView = findViewById(R.id.recyclerViewPodcast);
         progressBar = findViewById(R.id.progressBarPodcast);
         emptyMessage = findViewById(R.id.podcast_empty_message);
-        tvSearchTerms = findViewById(R.id.tvSearchTermsPodcast);
-        tvLanguage = findViewById(R.id.tvLanguagePodcast);
-        tvResultsCount = findViewById(R.id.tvResultsCountPodcast);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         viewModel = new ViewModelProvider(this).get(PodcastSearchResultsViewModel.class);
@@ -75,22 +81,22 @@ public class PodcastFavoritesActivity extends LoggingActivity {
                 adapter.setItems(Collections.emptyList());
                 adapter.notifyDataSetChanged();
             } else {
-                displayResults(favorites);
+                showResults(favorites, "Favorites", "");
             }
         });
     }
 
-    private void displayResults(List<Podcast> podcastList) {
+    private void showResults(List<Podcast> podcastList, String query, String lang) {
         adapter.setItems(podcastList);
         adapter.notifyDataSetChanged();
-        tvSearchTerms.setText(podcastList.size() + " " + getString(R.string.Favorites));
-        tvLanguage.setVisibility(View.GONE);
-        tvResultsCount.setVisibility(View.GONE);
+        //tvSearchTerms.setText(podcastList.size() + " " + getString(R.string.Favorites));
+        //tvLanguage.setVisibility(View.GONE);
+        //tvResultsCount.setVisibility(View.GONE);
         progressBar.setVisibility(View.GONE);
         emptyMessage.setVisibility(podcastList.isEmpty() ? View.VISIBLE : View.GONE);
+        adapter.setHeaderInfo(query, lang, podcastList.size());
     }
 
 
-
-    }
+}
 

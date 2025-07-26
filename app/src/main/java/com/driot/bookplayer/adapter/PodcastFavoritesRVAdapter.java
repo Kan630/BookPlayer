@@ -2,6 +2,7 @@ package com.driot.bookplayer.adapter;
 
 import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_SINCE_DEBUG;
 
+import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.LayoutInflater;
@@ -18,6 +19,9 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.Podcast;
+import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.objects.LanguageItem;
+import com.driot.bookplayer.utils.LanguageHelper;
 import com.driot.bookplayer.utils.PodcastHelper;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingRVAdapter;
@@ -27,11 +31,18 @@ import java.util.List;
 import java.util.Locale;
 
 // Adapter for Podcast (Room entity)
-public class PodcastFavoritesRVAdapter extends LoggingRVAdapter<PodcastFavoritesRVAdapter.PodcastViewHolder> {
+public class PodcastFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHolder> {
+
+    private static final int VIEW_TYPE_HEADER = 0;
+    private static final int VIEW_TYPE_ITEM = 1;
 
     private List<Podcast> items = new ArrayList<>();
     private final OnItemClickListener listener;
     private final OnAutoDownloadToggleListener autoDownloadToggleListener;
+
+    private String headerQuery = "";
+    private String headerLang = "";
+    private int headerCount = 0;
 
     public interface OnItemClickListener {
         void onItemClick(Podcast podcast);
@@ -46,6 +57,13 @@ public class PodcastFavoritesRVAdapter extends LoggingRVAdapter<PodcastFavorites
         this.autoDownloadToggleListener = autoDownloadToggleListener;
     }
 
+    public void setHeaderInfo(String query, String lang, int count) {
+        this.headerQuery = query;
+        this.headerLang = lang;
+        this.headerCount = count;
+        notifyItemChanged(0);
+    }
+
     public void setItems(List<Podcast> items) {
         this.items = items;
         notifyDataSetChanged();
@@ -53,20 +71,64 @@ public class PodcastFavoritesRVAdapter extends LoggingRVAdapter<PodcastFavorites
 
     @NonNull
     @Override
-    public PodcastViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.recyclerview_podcast_result, parent, false);
-        return new PodcastViewHolder(v);
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        if (viewType == VIEW_TYPE_HEADER) {
+            View view = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.recyclerview_podcast_header, parent, false);
+            return new HeaderViewHolder(view);
+        } else {
+            View v = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.recyclerview_podcast_result, parent, false);
+            return new PodcastViewHolder(v);
+        }
     }
 
     @Override
-    public void onBindViewHolder(@NonNull PodcastViewHolder holder, int position) {
-        Podcast podcast = items.get(position);
-        holder.bind(podcast, listener, autoDownloadToggleListener);
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+        if (holder instanceof HeaderViewHolder) {
+            ((HeaderViewHolder) holder).bind(headerQuery, headerLang, headerCount);
+        } else {
+            Podcast podcast = items.get(position - 1);
+            ((PodcastViewHolder) holder).bind(podcast, listener, autoDownloadToggleListener);
+        }
     }
+
+
+
+
 
     @Override
     public int getItemCount() {
-        return items.size();
+        return items.size() + 1; // +1 for header
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return position == 0 ? VIEW_TYPE_HEADER : VIEW_TYPE_ITEM;
+    }
+
+    static class HeaderViewHolder extends RecyclerView.ViewHolder {
+        private final TextView tvSearchTerms;
+        private final TextView tvLanguage;
+        private final TextView tvResultsCount;
+
+        HeaderViewHolder(View v) {
+            super(v);
+            tvSearchTerms = v.findViewById(R.id.tvSearchTermsPodcast);
+            tvLanguage = v.findViewById(R.id.tvLanguagePodcast);
+            tvResultsCount = v.findViewById(R.id.tvResultsCountPodcast);
+        }
+
+        void bind(String query, String lang, int count) {
+            Context context = itemView.getContext();
+            String searchTerms = "Search: " + (query.isEmpty() ? context.getString(R.string.Trending) : query);
+            tvSearchTerms.setText(searchTerms);
+            LanguageItem langItem = LanguageHelper.getLanguageByCode(lang);
+            String language = "Language: " + (langItem != null ? langItem.displayName : "");
+            tvLanguage.setText(language);
+            String resultsCount = "Results: " + count + (count == Var.PODCASTINDEXORG_API_MAX_RESULTS ? " (" + context.getString(R.string.max_number_of_results_reached) + ")" : "");
+            tvResultsCount.setText(resultsCount);
+        }
     }
 
     static class PodcastViewHolder extends RecyclerView.ViewHolder {

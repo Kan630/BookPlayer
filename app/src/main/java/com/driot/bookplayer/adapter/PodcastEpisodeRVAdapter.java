@@ -368,13 +368,9 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
     }
 
     private void clickOnEpisode(ViewHolder holder, PodcastEpisode episode) {
-        playThatShit(holder);
-    }
-
-    private void playThatShit(ViewHolder holder) {
         ZikFile zikFile = holder.zikFile;
         if (zikFile == null) {
-            ViewHelper.showAlterDialogToDisplayText(this.context, podcastFeed.description, this.context.getString(R.string.Episode_description));
+            ViewHelper.showAlterDialogToDisplayText(this.context, episode.description, this.context.getString(R.string.Episode_description));
             return;
         }
         new Thread(() -> {
