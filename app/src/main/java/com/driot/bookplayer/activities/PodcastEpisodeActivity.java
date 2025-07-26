@@ -334,7 +334,7 @@ public class PodcastEpisodeActivity extends LoggingActivity {
     }
     private void goToPlaySection2() {
         if (podcast != null) {
-            if (podcast.idFolder > 0) {
+            if (podcast.idFolder != null && podcast.idFolder > 0) {
                 new Thread(() -> {
                     try {
                         Folder folder = AppDatabase.getDatabase(this).FolderDao().getById(podcast.idFolder);
@@ -366,7 +366,7 @@ public class PodcastEpisodeActivity extends LoggingActivity {
                     }
                 }).start();
             } else {
-                myLogE("id Folder = 0");
+                myLog("Podcast exist in DB but no Folder exists (nothing downloaded yet)");
             }
         } else {
             myLogE("Podcast == null");

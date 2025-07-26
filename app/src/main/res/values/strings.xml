@@ -629,6 +629,9 @@
     <string name="Close">Close</string>
     <string name="Episode_description">Episode description</string>
     <string name="Podcast_description">Podcast description</string>
+    <string name="Trending">Trending</string>
+    <string name="max_number_of_results_reached">max number of results reached</string>
+
 
 
 

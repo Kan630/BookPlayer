@@ -9,6 +9,10 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -26,7 +30,7 @@ public class PodcastSearchResultsActivity extends LoggingActivity {
     private PodcastSearchResultsViewModel viewModel;
     private RecyclerView recyclerView;
     private ProgressBar progressBar;
-    private TextView emptyMessage, tvSearchTerms, tvLanguage, tvResultsCount;
+    private TextView emptyMessage;
     private PodcastSearchResultsRVAdapter adapter;
 
     @Override
@@ -34,12 +38,16 @@ public class PodcastSearchResultsActivity extends LoggingActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_podcastsearchresult);
 
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.recyclerViewPodcast), (v, insets) -> {
+            Insets systemInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(0, systemInsets.top, 0, systemInsets.bottom);
+            return insets;
+        });
+
         recyclerView = findViewById(R.id.recyclerViewPodcast);
         progressBar = findViewById(R.id.progressBarPodcast);
         emptyMessage = findViewById(R.id.podcast_empty_message);
-        tvSearchTerms = findViewById(R.id.tvSearchTermsPodcast);
-        tvLanguage = findViewById(R.id.tvLanguagePodcast);
-        tvResultsCount = findViewById(R.id.tvResultsCountPodcast);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         viewModel = new ViewModelProvider(this).get(PodcastSearchResultsViewModel.class);
@@ -67,10 +75,6 @@ public class PodcastSearchResultsActivity extends LoggingActivity {
             return;
         }
 
-        tvSearchTerms.setText(getString(R.string.Search_2pt) + (query.isEmpty() ? getString(R.string.search_nothing_specified_so_trending) : query));
-        tvLanguage.setText(getString(R.string.Language_2pt) + lang);
-        tvResultsCount.setText(getString(R.string.Results_2pt) + "...");
-
         if (viewModel.getResults().getValue() != null &&
                 query.equals(viewModel.getLastQuery()) &&
                 lang.equals(viewModel.getLastLang())) {
@@ -81,7 +85,6 @@ public class PodcastSearchResultsActivity extends LoggingActivity {
         viewModel.setLastQuery(query);
         viewModel.setLastLang(lang);
         performSearch(query, lang);
-
     }
 
     private void performSearch(String query, String lang) {
@@ -93,47 +96,38 @@ public class PodcastSearchResultsActivity extends LoggingActivity {
             PodcastHelper.searchPodcasts(query, lang, new PodcastHelper.Callback() {
                 @Override
                 public void onSuccess(List<PodcastFeed> feeds) {
-                    runOnUiThread(() -> {
-                        handleSuccess(feeds);
-                    });
+                    runOnUiThread(() -> handleSuccess(feeds, query, lang));
                 }
 
                 @Override
                 public void onError(Exception e) {
-                    handleError(e);
+                    runOnUiThread(() -> handleError(e));
                 }
             });
         } else {
             PodcastHelper.getTrendingPodcasts(lang, PODCASTINDEXORG_API_MAX_RESULTS, new PodcastHelper.Callback() {
                 @Override
                 public void onSuccess(List<PodcastFeed> feeds) {
-                    runOnUiThread(() -> {
-                        handleSuccess(feeds);
-                    });
+                    runOnUiThread(() -> handleSuccess(feeds, query, lang));
                 }
 
                 @Override
                 public void onError(Exception e) {
-                    runOnUiThread(() -> {
-                        handleError(e);
-                    });
+                    runOnUiThread(() -> handleError(e));
                 }
             });
-
-            }
         }
+    }
 
-    private void handleSuccess(List<PodcastFeed> feeds) {
+    private void handleSuccess(List<PodcastFeed> feeds, String query, String lang) {
         progressBar.setVisibility(View.GONE);
         if (feeds == null || feeds.isEmpty()) {
             emptyMessage.setText(getString(R.string.podcast_no_results));
             emptyMessage.setVisibility(View.VISIBLE);
             emptyMessage.setTextColor(getColor(R.color.orange_500));
-            tvResultsCount.setText(getString(R.string.podcast_nb_of_podcast_found) + ": 0");
         } else {
             viewModel.setResults(feeds);
-            showResults(feeds);
-            tvResultsCount.setText(getString(R.string.podcast_nb_of_podcast_found) + ": " + feeds.size());
+            showResults(feeds, query, lang);
         }
     }
 
@@ -142,16 +136,10 @@ public class PodcastSearchResultsActivity extends LoggingActivity {
         emptyMessage.setVisibility(View.VISIBLE);
         emptyMessage.setText("Error: " + e.getMessage());
         emptyMessage.setTextColor(getColor(R.color.red_500));
-        tvResultsCount.setText("Error occurred");
     }
 
-    private void showResults(List<PodcastFeed> feeds) {
+    private void showResults(List<PodcastFeed> feeds, String query, String lang) {
+        adapter.setHeaderInfo(query, lang, feeds.size());
         adapter.setItems(feeds);
     }
-
-
-
-
-
 }
-

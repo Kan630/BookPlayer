@@ -1,55 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="12dp"
-    android:fitsSystemWindows="true"
-    android:layout_marginTop="10dp"
-    >
+    android:fitsSystemWindows="false">
 
-    <TextView
-        android:id="@+id/tvSearchTermsPodcast"
-        style="@style/simpleText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textStyle="bold"
-        android:text="Search: ..." />
-
-    <TextView
-        android:id="@+id/tvLanguagePodcast"
-        style="@style/simpleText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Language: ..." />
-
-    <TextView
-        android:id="@+id/tvResultsCountPodcast"
-        style="@style/simpleText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Results: ..." />
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewPodcast"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp" />
 
     <ProgressBar
         android:id="@+id/progressBarPodcast"
+        android:layout_gravity="center"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
         android:visibility="gone" />
 
     <TextView
         android:id="@+id/podcast_empty_message"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/podcast_no_results"
         android:gravity="center"
-        android:visibility="gone"
-        android:padding="8dp" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerViewPodcast"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:paddingTop="8dp" />
-</LinearLayout>
+        android:padding="8dp"
+        android:text="@string/podcast_no_results"
+        android:visibility="gone" />
+</FrameLayout>
