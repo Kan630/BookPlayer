@@ -1,5 +1,6 @@
 package com.driot.bookplayer.activities;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
@@ -14,7 +15,10 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.adapter.ZikFilesRVAdapter;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
+import com.driot.bookplayer.db.Podcast;
+import com.driot.bookplayer.db.PodcastDao;
 import com.driot.bookplayer.db.ZikFile;
+import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import java.util.HashMap;
@@ -107,9 +111,26 @@ public class ZikFileActivity extends LoggingActivity {
             imageView.setVisibility(View.VISIBLE);
         } else {
             imageView.setVisibility(View.GONE);
-
+        }
+        imageView.setOnClickListener(view -> {
+            myLogI("--- User click header image --");
+            goUserClickHeader();
+        });
+        textViewTitle.setOnClickListener(view -> {
+            myLogI("--- User click header text --");
+            goUserClickHeader();
+        });
+    }
+    private void goUserClickHeader() {
+        if (folder.getSourceLocation().equals(Var.SOURCE_LOCATION_PODCAST)) {
+            AppDatabase.databaseReadExecutor.execute(()-> {
+                Podcast podcast = AppDatabase.getDatabase(this).PodcastDao().getPodcastByFolderId(folder.getId());
+                myLogD("opening PodcastEpisodeActivity for podcast : " + podcast.title);
+                startActivity(new Intent(this, PodcastEpisodeActivity.class).putExtra("podcast", podcast));
+            });
         }
     }
+
 
 
 }

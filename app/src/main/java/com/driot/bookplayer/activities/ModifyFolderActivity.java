@@ -97,7 +97,7 @@ public class ModifyFolderActivity extends LoggingActivity {
         if (folder.image != null && !folder.image.isEmpty()) {
             ivCoverPreview.setImageURI(Uri.parse(folder.image));
         } else {
-            ivCoverPreview.setImageResource(R.drawable.placeholder_cover);
+            ivCoverPreview.setImageResource(R.drawable.no_image_icon);
         }
 
         bChangeCover.setOnClickListener(view -> {
