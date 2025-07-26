@@ -82,7 +82,7 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
         PodcastEpisode episode = items.get(position);
         holder.tvTitle.setText(episode.title);
         holder.tvDate.setText(episode.datePublishedPretty != null ? episode.datePublishedPretty : "");
-        String stats = Tonio.formatTime(episode.duration*1000) + " (" + Tonio.getReadableSize(episode.enclosureLength) + ")";
+        String stats = Tonio.formatTime(episode.duration*1000) + (episode.enclosureLength != 0 ? " (" + Tonio.getReadableSize(episode.enclosureLength) + ")" : "");
         holder.tvEpisodeStats.setText(stats);
 
         String episodeFileName = buildPodcastEpisodeName(episode);

@@ -15,35 +15,49 @@ import java.util.List;
 public class LanguageHelper {
 
     public static final List<LanguageItem> SUPPORTED_LANGUAGES;
+    public static final List<LanguageItem> PODCAST_LANGUAGES;
 
     static {
-        List<LanguageItem> list = new ArrayList<>();
-        list.add(new LanguageItem("eng", "en", "English", R.drawable.flag_uk));
-        list.add(new LanguageItem("deu", "de", "Deutsch", R.drawable.flag_de));
-        list.add(new LanguageItem("spa", "es", "Español", R.drawable.flag_es));
-        list.add(new LanguageItem("fre", "fr", "Français", R.drawable.flag_fr));
-        list.add(new LanguageItem("por", "pt", "Português", R.drawable.flag_pt));
-        list.add(new LanguageItem("ita", "it", "Italiano", R.drawable.flag_it));
-        list.add(new LanguageItem("rus", "ru", "Русский", R.drawable.flag_ru));
-        list.add(new LanguageItem("zho", "zh", "中文", R.drawable.flag_cn));
-        list.add(new LanguageItem("ara", "ar", "العربية", R.drawable.flag_sa));
-        list.add(new LanguageItem("jpn", "ja", "日本語", R.drawable.flag_jp));
-        list.add(new LanguageItem("hin", "hi", "हिन्दी", R.drawable.flag_in));
-        list.add(new LanguageItem("ell", "el", "Ελληνικά", R.drawable.flag_gr));
-        list.add(new LanguageItem("heb", "he", "עברית", R.drawable.flag_il));
-        list.add(new LanguageItem("swe", "sv", "Svenska", R.drawable.flag_se));
-        list.add(new LanguageItem("pol", "pl", "Polski", R.drawable.flag_pl));
-        list.add(new LanguageItem("nld", "nl", "Nederlands", R.drawable.flag_nl));
-        list.add(new LanguageItem("mul", "", "Multiple", R.drawable.flag_globe));
-        SUPPORTED_LANGUAGES = list;
+        List<LanguageItem> baseList  = new ArrayList<>();
+        baseList.add(new LanguageItem("eng", "en", "English", R.drawable.flag_uk));
+        baseList.add(new LanguageItem("deu", "de", "Deutsch", R.drawable.flag_de));
+        baseList.add(new LanguageItem("spa", "es", "Español", R.drawable.flag_es));
+        baseList.add(new LanguageItem("fre", "fr", "Français", R.drawable.flag_fr));
+        baseList.add(new LanguageItem("por", "pt", "Português", R.drawable.flag_pt));
+        baseList.add(new LanguageItem("ita", "it", "Italiano", R.drawable.flag_it));
+        baseList.add(new LanguageItem("rus", "ru", "Русский", R.drawable.flag_ru));
+        baseList.add(new LanguageItem("zho", "zh", "中文", R.drawable.flag_cn));
+        baseList.add(new LanguageItem("ara", "ar", "العربية", R.drawable.flag_sa));
+        baseList.add(new LanguageItem("jpn", "ja", "日本語", R.drawable.flag_jp));
+        baseList.add(new LanguageItem("hin", "hi", "हिन्दी", R.drawable.flag_in));
+        baseList.add(new LanguageItem("ell", "el", "Ελληνικά", R.drawable.flag_gr));
+        baseList.add(new LanguageItem("heb", "he", "עברית", R.drawable.flag_il));
+        baseList.add(new LanguageItem("swe", "sv", "Svenska", R.drawable.flag_se));
+        baseList.add(new LanguageItem("pol", "pl", "Polski", R.drawable.flag_pl));
+        baseList.add(new LanguageItem("nld", "nl", "Nederlands", R.drawable.flag_nl));
+        baseList.add(new LanguageItem("mul", "", "Multiple", R.drawable.flag_globe));
+        SUPPORTED_LANGUAGES = baseList ;
+
+        List<LanguageItem> podcastList = new ArrayList<>(baseList );
+        podcastList.add(new LanguageItem("tur", "tr", "Türkçe", R.drawable.flag_tr));
+        podcastList.add(new LanguageItem("kor", "ko", "한국어", R.drawable.flag_kr));
+        podcastList.add(new LanguageItem("ind", "id", "Bahasa Indonesia", R.drawable.flag_id));
+        podcastList.add(new LanguageItem("tha", "th", "ไทย", R.drawable.flag_th));
+        podcastList.add(new LanguageItem("vie", "vi", "Tiếng Việt", R.drawable.flag_vn));
+        podcastList.add(new LanguageItem("ron", "ro", "Română", R.drawable.flag_ro));
+        podcastList.add(new LanguageItem("ukr", "uk", "Українська", R.drawable.flag_ua));
+        podcastList.add(new LanguageItem("ces", "cs", "Čeština", R.drawable.flag_cz));
+        PODCAST_LANGUAGES = podcastList;
     }
+
+
 
     public static List<LanguageItem> getLibrivoxLanguages() {
         return SUPPORTED_LANGUAGES;
     }
 
     public static List<LanguageItem> getPodcastLanguages() {
-        return SUPPORTED_LANGUAGES;
+        return PODCAST_LANGUAGES;
     }
 
     public interface OnLanguageSelected {
