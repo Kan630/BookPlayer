@@ -36,11 +36,11 @@ import static com.driot.bookplayer.utils.Tonio.*;
 public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersViewHolder> {
 
     private final Context mCtx;
-    private final List<Folder> FolderList;
+    private final List<Folder> folderList;
 
     public FoldersRVAdapter(Context mCtx, List<Folder> FolderList) {
         this.mCtx = mCtx;
-        this.FolderList = FolderList;
+        this.folderList = FolderList;
     }
 
     @NonNull
@@ -52,7 +52,7 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
 
     @Override
     public void onBindViewHolder(FoldersViewHolder holder, int position) {
-        Folder folder = FolderList.get(position);
+        Folder folder = folderList.get(position);
         holder.textViewFileName.setText(folder.getName());
         holder.textViewFilePercent.setText(String.format(folder.getPercentdone().toString(), Locale.getDefault()));
 
@@ -70,7 +70,7 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
 
     @Override
     public int getItemCount() {
-        return FolderList.size();
+        return folderList.size();
     }
 
     class FoldersViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
@@ -95,17 +95,20 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
 
         @Override
         public void onClick(View view) {
-            Folder folder = FolderList.get(getBindingAdapterPosition());
+            Folder folder = folderList.get(getBindingAdapterPosition());
+            if (folder == null) {
+                myLogE("folder == null");
+                return;
+            } else {
+                myLogI("onClick - position=" + getBindingAdapterPosition() + " - " + folder.getName());
+            }
             new Thread(() -> {
                 try {
                     List<ZikFile> zikFilesList = AppDatabase.getDatabase(mCtx).ZikFileDao().getZikFiles(folder.getId());
-                    myLogI("nb ZikFiles in that Book : " + zikFilesList.size() + " - [" + folder.getName() + "]");
+                    myLog("nb ZikFiles in that Book : " + zikFilesList.size() + " - [" + folder.getName() + "]");
                     PlayList.create(mCtx, zikFilesList);
                     if (zikFilesList.size() > 1) {
-                        mCtx.startActivity(new Intent(mCtx, ZikFileActivity.class)
-                                .putExtra("FolderId", folder.getId())
-                                .putExtra("FolderName", folder.getName())
-                        );
+                        mCtx.startActivity(new Intent(mCtx, ZikFileActivity.class).putExtra("folder", folder));
                     } else if (zikFilesList.size() == 1) {
                         PlayList.getInstance().setNumZikFile(0);
                         mCtx.startActivity(new Intent(mCtx, PlayActivity.class).putExtra("ZikFile", zikFilesList.get(0)));
@@ -124,7 +127,7 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
         @Override
         public boolean onLongClick(View view) {
             myLogI("onLongClick");
-            Folder folder = FolderList.get(getBindingAdapterPosition());
+            Folder folder = folderList.get(getBindingAdapterPosition());
             mCtx.startActivity(new Intent(mCtx, ModifyFolderActivity.class).putExtra("folder", folder));
             return false;
         }
