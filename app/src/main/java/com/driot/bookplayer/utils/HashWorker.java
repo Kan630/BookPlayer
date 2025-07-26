@@ -175,16 +175,23 @@ public class HashWorker extends Worker {
 
         long listStart = System.currentTimeMillis();
         DocumentFile[] files = folder.listFiles();
-        long listElapsed = System.currentTimeMillis() - listStart;
-        myLogD(listElapsed + " ms to list " + files.length + " files in " + folder.getName());
+        myLogD(System.currentTimeMillis() - listStart + " ms to list " + files.length + " files in " + folder.getName());
 
+        //TODO will only sort the first subFolder... but well...
         long sortStart = System.currentTimeMillis();
-        Arrays.sort(files, Comparator.comparing(DocumentFile::getName, Comparator.nullsFirst(String::compareToIgnoreCase)));
-        long sortElapsed = System.currentTimeMillis() - sortStart;
-        myLogD(sortElapsed + " ms to sort files in " + folder.getName());
+        int n = files.length;
+        String[] names = new String[n];
+        Integer[] indices = new Integer[n];
+        for (int i = 0; i < n; i++) {
+            names[i] = files[i].getName();
+            indices[i] = i;
+        }
+        Arrays.sort(indices, Comparator.comparing(i -> names[i], Comparator.nullsFirst(String::compareToIgnoreCase)));
+        myLogD(System.currentTimeMillis() - sortStart + " ms to sort files in " + folder.getName());
 
-        for (DocumentFile file : files) {
+        for (int i = 0; i < n; i++) {
             if (fileIndex[0] >= COUNT_FILE_BIG_HASH + COUNT_FILE_SMALL_HASH) return;
+            DocumentFile file = files[indices[i]];
 
             if (file.isFile()) {
                 long startTime = System.currentTimeMillis();
@@ -207,7 +214,7 @@ public class HashWorker extends Worker {
                 long elapsed = System.currentTimeMillis() - startTime;
                 sumElapsed[0] += elapsed;
                 fileCount[0]++;
-                myLogD(elapsed + " ms to hash - HashType = " + type + " - Read = " + Tonio.getReadableSize(bytesRead) + " - " + file.getName());
+                //myLogD(elapsed + " ms to hash - HashType = " + type + " - Read = " + Tonio.getReadableSize(bytesRead) + " - " + file.getName());
                 fileIndex[0]++;
             } else if (file.isDirectory()) {
                 computeFolderHashRecursive(file, digest, rootPathLen, sumElapsed, fileCount, fileIndex);
