@@ -9,6 +9,9 @@ import java.util.Set;
  */
 public class Var {
 
+    public static final String SOURCE_LOCATION_PODCAST = "podcast";
+    public static final String SOURCE_LOCATION_LIBRIVOX = "librivox";
+
     public static final int MAX_IMAGE_SIZE_KB = 200;
 
     public static final int LIBRIVOX_API_MAX_RESULTS = 10;

@@ -1,0 +1,40 @@
+    <vector xmlns:android="http://schemas.android.com/apk/res/android"
+        android:width="24dp"
+        android:height="24dp"
+        android:viewportWidth="24"
+        android:viewportHeight="24"
+        android:tint="?attr/colorControlNormal">
+
+
+        <path
+            android:fillColor="#AAAAAA"
+            android:pathData="M6,4v16h12v-3h-9v-13z" />
+
+
+        <!-- VOX group - small, top-right, rotated from bottom-left -->
+        <group
+            android:rotation="-50"
+            android:pivotX="15"
+            android:pivotY="3"
+            android:scaleX="1"
+            android:scaleY="1">
+
+            <!-- v -->
+            <path
+                android:fillColor="#AAAAAA"
+                android:pathData="M4,6 L6,10 L8,6" />
+            <!-- o -->
+            <path
+                android:fillColor="#AAAAAA"
+                android:pathData="M10,8
+                          m -2,0
+                          a 1,1 0 1,0 4,0
+                          a 1,1 0 1,0 -4,0" />
+            <!-- x -->
+            <path
+                android:fillColor="#AAAAAA"
+                android:pathData="M12,6 L13.5,8 L12,10 L16,10 L14.5,8 L16,6 Z" />
+
+        </group>
+
+    </vector>

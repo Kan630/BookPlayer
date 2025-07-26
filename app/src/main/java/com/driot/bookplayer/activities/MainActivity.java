@@ -192,13 +192,6 @@ public class MainActivity extends LoggingActivity {
     }
 
     @Override
-    protected void onRestart() {
-        super.onRestart();
-        getFolders();
-        myLog("recyclerview drawing through setAdapter on restart");
-    }
-
-    @Override
     protected void onResume() {
         super.onResume();
         maybeResumeWorkFlow(this);

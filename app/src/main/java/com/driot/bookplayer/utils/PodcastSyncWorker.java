@@ -1,6 +1,7 @@
 package com.driot.bookplayer.utils;
 
 import static com.driot.bookplayer.db.Sql.updateFolderTable;
+import static com.driot.bookplayer.global.Var.SOURCE_LOCATION_PODCAST;
 import static com.driot.bookplayer.utils.FinalizeDownloadWorker.KEY_FEED_ID;
 import static com.driot.bookplayer.utils.FinalizeDownloadWorker.KEY_FOLDER_NAME;
 import static com.driot.bookplayer.utils.FinalizeDownloadWorker.KEY_FOLDER_PATH;
@@ -60,7 +61,7 @@ public class PodcastSyncWorker extends Worker {
             folderDb.setFinished(false);
             folderDb.setIszipfile(false); //2023-10-22 deprecated (live zip reading - code has been removed)
             folderDb.setOriginalHash("");
-            folderDb.setSourceLocation("podcast");
+            folderDb.setSourceLocation(SOURCE_LOCATION_PODCAST);
             folderDb.date_added = System.currentTimeMillis();
             folderDb.date_last_zikfile_added = System.currentTimeMillis();
             try {

@@ -17,6 +17,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.ModifyFolderActivity;
 import com.driot.bookplayer.activities.PlayActivity;
@@ -31,6 +32,8 @@ import com.driot.bookplayer.utils.log.LoggingRVAdapter;
 import java.util.List;
 import java.util.Locale;
 
+import static com.driot.bookplayer.global.Var.SOURCE_LOCATION_LIBRIVOX;
+import static com.driot.bookplayer.global.Var.SOURCE_LOCATION_PODCAST;
 import static com.driot.bookplayer.utils.KanLogger.myToastE;
 import static com.driot.bookplayer.utils.Tonio.*;
 
@@ -68,12 +71,21 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
         holder.ivMemory.setImageResource(folder.getMemoryLocationIcon(mCtx));
 
         if (folder.image != null) {
+            holder.ivBookCover.setVisibility(View.VISIBLE);
+            //Glide.with(this.mCtx).load(folder.image).diskCacheStrategy(DiskCacheStrategy.ALL).into(holder.ivBookCover);
             Glide.with(this.mCtx).load(folder.image).into(holder.ivBookCover);
         } else {
             holder.ivBookCover.setVisibility(View.GONE);
         }
-
-
+        if (folder.getSourceLocation().equals(SOURCE_LOCATION_PODCAST)) {
+            holder.ivSource.setVisibility(View.VISIBLE);
+            holder.ivSource.setImageResource(R.drawable.ic_podcast_24);
+        } else if (folder.getSourceLocation().equals(SOURCE_LOCATION_LIBRIVOX)) {
+            holder.ivSource.setVisibility(View.VISIBLE);
+            holder.ivSource.setImageResource(R.drawable.ic_librivox_24);
+        } else {
+            holder.ivSource.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -85,7 +97,7 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
 
         TextView textViewFileName, textViewFileLastAccess, textViewFilePercent, textViewDuration;
         ProgressBar mProgressBar;
-        ImageView ivBookCover, ivMemory;
+        ImageView ivBookCover, ivMemory, ivSource;
 
         public FoldersViewHolder(View itemView) {
             super(itemView);
@@ -97,6 +109,7 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
             mProgressBar = itemView.findViewById(R.id.progressBar);
             ivMemory = itemView.findViewById(R.id.imageViewStorageIcon);
             ivBookCover = itemView.findViewById(R.id.ivBookCover);
+            ivSource = itemView.findViewById(R.id.ivSource);
 
             itemView.setOnClickListener(this);
             itemView.setOnLongClickListener(this);
@@ -142,9 +155,7 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
         }
 
 
-
     }
-
 
 
 }

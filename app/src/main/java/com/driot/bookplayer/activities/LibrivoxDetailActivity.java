@@ -1,6 +1,7 @@
 package com.driot.bookplayer.activities;
 
 import static com.driot.bookplayer.global.Pref.setLoadBookTaskState;
+import static com.driot.bookplayer.global.Var.SOURCE_LOCATION_LIBRIVOX;
 import static com.driot.bookplayer.utils.StorageHelper.getUnzipFolder;
 import static com.driot.bookplayer.utils.StorageHelper.getUnzipFolderPath;
 import static com.driot.bookplayer.utils.TextOptions.parseMaybeHtml;
@@ -345,7 +346,7 @@ public class LibrivoxDetailActivity extends LoggingActivity {
         state.optionCopy = true;
         state.optionDelete = false;
         state.imagePath = futureCoverPic;
-        state.sourceLocation = "Librivox";
+        state.sourceLocation = SOURCE_LOCATION_LIBRIVOX;
         state.futureFolderName = viewModel.identifier;
         state.futureFolderPath = getUnzipFolder(this).getAbsolutePath() + "/" + viewModel.identifier;
 

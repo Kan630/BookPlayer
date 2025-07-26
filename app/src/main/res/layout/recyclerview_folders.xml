@@ -41,23 +41,38 @@
                 android:background="@color/lightgray"
                 >
 
+                <ImageView
+                    android:id="@+id/ivSource"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginStart="@dimen/recyclerview_elements_sides"
+                    android:layout_marginBottom="4dp"
+                    android:scaleType="fitCenter"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintBottom_toTopOf="@id/textViewFilePercent"
+                    />
+
                 <TextView
                     android:id="@+id/tvBookName"
-                    android:text="AudioBook..."
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:text="AudioBook..."
                     style="@style/audioName"
                     android:textColor="@color/black"
                     android:background="@color/verylightgray"
                     android:paddingTop="@dimen/recyclerview_padding_text_vertical"
                     android:paddingBottom="@dimen/recyclerview_padding_text_vertical"
                     android:paddingStart="@dimen/recyclerview_padding_text_horizontal"
-                    android:paddingEnd= "@dimen/recyclerview_padding_text_horizontal"
-                    android:layout_marginTop="@dimen/recyclerview_elements_top"
-                    android:layout_marginLeft="@dimen/recyclerview_elements_sides"
-                    android:layout_marginRight="@dimen/recyclerview_elements_sides"
-                    app:layout_constraintBottom_toTopOf="@id/textViewFilePercent"
-                    />
+                    android:paddingEnd="@dimen/recyclerview_padding_text_horizontal"
+                    android:layout_marginBottom="4dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginEnd="4dp"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/ivSource"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintBottom_toTopOf="@id/textViewFilePercent" />
 
                 <androidx.constraintlayout.widget.Guideline
                     android:id="@+id/guideline"
