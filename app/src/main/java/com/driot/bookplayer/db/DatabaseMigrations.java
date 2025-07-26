@@ -77,6 +77,7 @@ public class DatabaseMigrations {
     static final Migration MIGRATION_5_6 = new Migration(5, 6) {
         @Override
         public void migrate(SupportSQLiteDatabase database) {
+            myLogI("Migration -> executing step 5 => 6");
             database.execSQL("CREATE TABLE IF NOT EXISTS BookSource (" +
                     "id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
                     "imageLocal TEXT, " +
@@ -93,17 +94,12 @@ public class DatabaseMigrations {
     static final Migration MIGRATION_6_7 = new Migration(6, 7) {
         @Override
         public void migrate(SupportSQLiteDatabase db) {
-            // Add columns if not already done
+            myLogI("Migration -> executing step 6 => 7");
             db.execSQL("ALTER TABLE Folder ADD COLUMN lFirstAccess INTEGER");
             db.execSQL("ALTER TABLE Folder ADD COLUMN lLastAccess INTEGER NOT NULL DEFAULT 0");
 
-            // Set lFirstAccess from firstaccess, if not null
             db.execSQL("UPDATE Folder SET lFirstAccess = firstaccess WHERE firstaccess IS NOT NULL");
-
-            // Set lLastAccess from lastaccess if not null
             db.execSQL("UPDATE Folder SET lLastAccess = lastaccess WHERE lastaccess IS NOT NULL");
-
-            // If lastaccess is null, fallback to lastaccessTime
             db.execSQL("UPDATE Folder SET lLastAccess = lastaccessTime WHERE lastaccess IS NULL AND lastaccessTime IS NOT NULL");
         }
     };
@@ -111,6 +107,7 @@ public class DatabaseMigrations {
     static final Migration MIGRATION_7_8 = new Migration(7, 8) {
         @Override
         public void migrate(SupportSQLiteDatabase db) {
+            myLogI("Migration -> executing step 7 => 8");
 
             //db.execSQL("ALTER TABLE Folder DROP COLUMN firstaccess");    // looks like SQLlite does not support DROP COLUMN !!
             //db.execSQL("ALTER TABLE Folder DROP COLUMN lastaccess");
