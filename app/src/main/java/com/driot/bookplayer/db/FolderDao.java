@@ -87,6 +87,9 @@ public interface FolderDao {
     @Query("UPDATE Folder SET image = :imagePath WHERE id = :id")
     void updateImage(int id, String imagePath);
 
+    @Query("SELECT COUNT(*) FROM Folder WHERE hash = :hash")
+    boolean hashExists(String hash);
+
     // Exemple avec dates :
     //@Query("SELECT * FROM user WHERE birthday BETWEEN :from AND :to")
     //List<User> findUsersBornBetweenDates(Date from, Date to);

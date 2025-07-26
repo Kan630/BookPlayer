@@ -127,8 +127,9 @@ public class ModifyFolderActivity extends LoggingActivity {
         new Thread(() -> {
             String folderPath = AppDatabase.getDatabase(this).ZikFileDao().getFolderPath(folder.getId());
             if (!eraseFolderAndFiles(folderPath)) {
-                myLogE("Error deleting files from Disk");
+                myLogEE(null,"Error deleting files from Disk " + folderPath);
             }
+            ImageHelper.deleteFolderImage(this, folder);
             AppDatabase.getDatabase(this).FolderDao().delete(folder.getId());
             AppDatabase.getDatabase(this).ZikFileDao().deleteFolder(folder.getId());
             cancelAutoDownload(this, folder.getId());
@@ -265,8 +266,7 @@ public class ModifyFolderActivity extends LoggingActivity {
 
                         // Delete previous image if different
                         if (folder.image != null && !folder.image.equals(newImagePath)) {
-                            File oldFile = new File(folder.image);
-                            if (oldFile.exists()) oldFile.delete();
+                            ImageHelper.deleteFolderImage(this, folder);
                         }
 
                         folder.image = newImagePath;

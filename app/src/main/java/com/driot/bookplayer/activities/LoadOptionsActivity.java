@@ -459,7 +459,6 @@ public class LoadOptionsActivity extends LoggingActivity {
         // Cancel any ongoing hash computation to avoid overlap
         WorkManager.getInstance(this).cancelAllWorkByTag(TAG);
 
-
         OneTimeWorkRequest hashRequest = new OneTimeWorkRequest.Builder(HashWorker.class)
                 .setInputData(new Data.Builder().putString("uri", uri.toString()).build())
                 .addTag(TAG)

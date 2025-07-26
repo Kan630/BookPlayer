@@ -19,12 +19,15 @@ import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 
 public class HashWorker extends Worker {
 
     public static final String WORKER_TAG_COMPUTE_HASH = "WORKER_TAG_COMPUTE_HASH";
-    public static final int MAX_BYTES_TO_HASH_PER_FILE = 1024 * 1024; // 1 MB
+    public static final int MAX_BYTES_TO_HASH_PER_FILE_BIG = 1024 * 1024; // 1 MB
+    public static final int MAX_BYTES_TO_HASH_PER_FILE_SMALL = 1024 * 50; // 50 KB
+    public static final int COUNT_FILE_BIG_HASH = 3;
+    public static final int COUNT_FILE_SMALL_HASH = 10;
+    public static final String HASH_NOT_COMPUTED = "0";
 
     public HashWorker(@NonNull Context context, @NonNull WorkerParameters params) {
         super(context, params);
@@ -35,29 +38,36 @@ public class HashWorker extends Worker {
     public Result doWork() {
         String uriStr = getInputData().getString("uri");
         if (uriStr != null) {
-            try {
-                Uri uri = Uri.parse(uriStr);
+            return computeHashForUri(uriStr);
+        } else {
+            return backfillMissingHashesInDb();
+        }
+    }
 
-                String hash = computeHashFromUri(getApplicationContext(), uri);
+    private Result computeHashForUri(String uriStr) {
+        try {
+            Uri uri = Uri.parse(uriStr);
+            String hash = computeHashFromUri(getApplicationContext(), uri);
+            boolean exists = AppDatabase.getDatabase(getApplicationContext()).FolderDao().hashExists(hash);
 
-                Data outputData = new Data.Builder()
-                        .putString(WORKER_TAG_COMPUTE_HASH, hash)
-                        .build();
+            Data outputData = new Data.Builder()
+                    .putString(WORKER_TAG_COMPUTE_HASH, hash)
+                    .putBoolean("exists_in_db", exists)
+                    .build();
 
-                return Result.success(outputData);
-            } catch (Exception e) {
-                myLogEE(e, "Error computing hash from URI");
-            }
-
-            myLogW("Fallback to success with empty hash");
+            return Result.success(outputData);
+        } catch (Exception e) {
+            myLogEE(e, "Error computing hash from URI");
             return Result.success();
         }
+    }
 
+    private Result backfillMissingHashesInDb() {
         AppDatabase db = AppDatabase.getDatabase(getApplicationContext());
-        List<Folder> folders = db.FolderDao().getAll(); // Make sure this method exists
+        List<Folder> folders = db.FolderDao().getAll();
 
         for (Folder folder : folders) {
-            if (Objects.equals(folder.getHash(), "0")) {
+            if (HASH_NOT_COMPUTED.equals(folder.getHash())) {
                 try {
                     myLogD("Hashing folder: " + folder.getPath());
                     File dir = new File(folder.getPath());
@@ -65,137 +75,152 @@ public class HashWorker extends Worker {
                     db.FolderDao().updateHash(folder.getId(), hash);
                 } catch (Exception e) {
                     myLogEE(e, "Exception while hashing folder: " + folder.getPath());
-                    e.printStackTrace();
-                    // Optional: return failure if you want to retry later
                 }
             }
         }
-
         return Result.success();
-
     }
+
     private String computeFolderHash(File folder) {
-        String zeHash;
         if (!folder.exists() || !folder.isDirectory()) return "";
         File[] files = folder.listFiles();
         if (files == null) return "";
 
-        Arrays.sort(files); // Ensure order
+        Arrays.sort(files, Comparator.comparing(File::getName));
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            for (File file : files) {
+            long totalStart = System.currentTimeMillis();
+            long sumElapsed = 0;
+            int fileCount = 0;
+
+            for (int i = 0; i < files.length; i++) {
+                File file = files[i];
                 if (file.isFile()) {
-                    byte[] buffer = new byte[4096];
+                    long startTime = System.currentTimeMillis();
+                    int bytesRead = 0;
+                    String type;
                     try (FileInputStream fis = new FileInputStream(file)) {
-                        long totalRead = 0;
-                        int read;
-                        while ((read = fis.read(buffer)) != -1 && totalRead < MAX_BYTES_TO_HASH_PER_FILE) {
-                            digest.update(buffer, 0, read);
-                            totalRead += read;
+                        if (i < COUNT_FILE_BIG_HASH) {
+                            type = "BIG";
+                            bytesRead = updateDigestFromStream(fis, digest, MAX_BYTES_TO_HASH_PER_FILE_BIG);
+                        } else if (i < COUNT_FILE_BIG_HASH + COUNT_FILE_SMALL_HASH) {
+                            type = "SMALL";
+                            bytesRead = updateDigestFromStream(fis, digest, MAX_BYTES_TO_HASH_PER_FILE_SMALL);
+                        } else {
+                            break;
                         }
                     }
+                    long elapsed = System.currentTimeMillis() - startTime;
+                    sumElapsed += elapsed;
+                    fileCount++;
+                    myLogD(elapsed + " ms to hash - HashType = " + type + " - Read = " + Tonio.getReadableSize(bytesRead) + " - " + file.getName());
                 }
             }
-            byte[] hashBytes = digest.digest();
-            StringBuilder sb = new StringBuilder();
-            for (byte b : hashBytes) sb.append(String.format("%02x", b));
-            zeHash = sb.toString();
-            myLogD("computeFolderHash(): [" + zeHash + "]");
-            return zeHash;
+
+            long totalElapsed = System.currentTimeMillis() - totalStart;
+            myLogD("Nb of file : " + fileCount + " files.");
+            myLogD("[Timing] " + totalElapsed + " ms Total Process time");
+            myLogD("[Timing] " + sumElapsed + " ms Cumulative hash time");
+            return formatHash(digest.digest());
         } catch (Exception e) {
             myLogEE(e, "Exception while computing hash");
             return "";
         }
     }
 
-    private String computeFolderHash(DocumentFile folderDoc) {
-        try {
-            if (folderDoc == null || !folderDoc.isDirectory()) return "";
-
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            computeFolderHashRecursive(folderDoc, digest, folderDoc.getUri().getPath().length());
-
-            byte[] hashBytes = digest.digest();
-            StringBuilder sb = new StringBuilder();
-            for (byte b : hashBytes) sb.append(String.format("%02x", b));
-            String zeHash = sb.toString();
-            myLogD("computeFolderHash(DocumentFile): [" + zeHash + "]");
-            return zeHash;
-
-        } catch (Exception e) {
-            myLogEE(e, "computeFolderHash(DocumentFile) failed");
-            return "";
+    private int updateDigestFromStream(InputStream is, MessageDigest digest, int maxBytes) throws Exception {
+        byte[] buffer = new byte[4096];
+        int totalRead = 0;
+        int read;
+        while ((read = is.read(buffer)) != -1 && totalRead < maxBytes) {
+            int bytesToUse = Math.min(read, maxBytes - totalRead);
+            digest.update(buffer, 0, bytesToUse);
+            totalRead += bytesToUse;
         }
-    }
-
-    private void computeFolderHashRecursive(DocumentFile folder, MessageDigest digest, int rootPathLen) {
-        DocumentFile[] files = folder.listFiles();
-        Arrays.sort(files, Comparator.comparing(f -> f.getName() != null ? f.getName() : ""));
-
-        for (DocumentFile file : files) {
-            String relativePath = file.getUri().getPath().substring(rootPathLen); // or use file.getName() if simpler
-            digest.update(relativePath.getBytes());
-
-            if (file.isFile()) {
-                try (InputStream is = getApplicationContext().getContentResolver().openInputStream(file.getUri())) {
-                    if (is == null) continue;
-                    byte[] buffer = new byte[4096];
-                    long totalRead = 0;
-                    int read;
-                    while ((read = is.read(buffer)) != -1 && totalRead < MAX_BYTES_TO_HASH_PER_FILE) {
-                        digest.update(buffer, 0, read);
-                        totalRead += read;
-                    }
-                } catch (Exception e) {
-                    myLogEE(e, "While hashing file: " + file.getName());
-                }
-            } else if (file.isDirectory()) {
-                computeFolderHashRecursive(file, digest, rootPathLen);
-            }
-        }
+        return totalRead;
     }
 
     private String computeHashFromUri(Context context, Uri uri) {
         myLogD("computeHashFromUri() START: " + uri);
         try {
-            DocumentFile documentFile = DocumentFile.fromTreeUri(context, uri);
-            if (documentFile == null) {
-                return computeHashFromUri2(context, uri);
-            }
-            return computeFolderHash(documentFile);
-        } catch (Exception e) {
-            myLogEE(e, "Exception in computeHashFromUri()");
-            return computeHashFromUri2(context, uri);
-        }
-    }
-
-    private String computeHashFromUri2(Context context, Uri uri) {
-        try {
-
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] buffer = new byte[4096];
-            long totalRead = 0;
-            int read;
-            try (InputStream is = context.getContentResolver().openInputStream(uri)) {
-                if (is == null) return "";
-                while ((read = is.read(buffer)) != -1 && totalRead < MAX_BYTES_TO_HASH_PER_FILE) {
-                    digest.update(buffer, 0, read);
-                    totalRead += read;
+            long totalStart = System.currentTimeMillis();
+            long[] sumElapsed = new long[]{0};
+            int[] fileCount = new int[]{0};
+
+            DocumentFile doc = DocumentFile.fromTreeUri(context, uri);
+            if (doc != null && doc.isDirectory()) {
+                int[] fileIndex = new int[]{0};
+                computeFolderHashRecursive(doc, digest, uri.getPath().length(), sumElapsed, fileCount, fileIndex);
+            } else {
+                try (InputStream is = context.getContentResolver().openInputStream(uri)) {
+                    if (is != null) updateDigestFromStream(is, digest, MAX_BYTES_TO_HASH_PER_FILE_BIG);
+                    fileCount[0]++;
                 }
             }
-            byte[] hashBytes = digest.digest();
-            StringBuilder sb = new StringBuilder();
-            for (byte b : hashBytes) sb.append(String.format("%02x", b));
-            String zeHash = sb.toString();
-            myLogD("computeHashFromUri(): [" + zeHash + "]");
-            return zeHash;
+
+            long totalElapsed = System.currentTimeMillis() - totalStart;
+            myLogD("Nb of hashed file : " + fileCount[0] + " files.");
+            myLogD("[Timing] " + sumElapsed[0] + " ms Cumulative hash time");
+            myLogD("[Timing] " + (totalElapsed - sumElapsed[0]) + " ms other processes time");
+            return formatHash(digest.digest());
         } catch (Exception e) {
-            myLogEE(e, "Exception while hashing Uri");
+            myLogEE(e, "Exception in computeHashFromUri()");
             return "";
         }
     }
 
-    //--- FULL LOG --------------------------
+    private void computeFolderHashRecursive(DocumentFile folder, MessageDigest digest, int rootPathLen, long[] sumElapsed, int[] fileCount, int[] fileIndex) {
+        if (fileIndex[0] >= COUNT_FILE_BIG_HASH + COUNT_FILE_SMALL_HASH) return;
+
+        long listStart = System.currentTimeMillis();
+        DocumentFile[] files = folder.listFiles();
+        long listElapsed = System.currentTimeMillis() - listStart;
+        myLogD(listElapsed + " ms to list " + files.length + " files in " + folder.getName());
+
+        long sortStart = System.currentTimeMillis();
+        Arrays.sort(files, Comparator.comparing(DocumentFile::getName, Comparator.nullsFirst(String::compareToIgnoreCase)));
+        long sortElapsed = System.currentTimeMillis() - sortStart;
+        myLogD(sortElapsed + " ms to sort files in " + folder.getName());
+
+        for (DocumentFile file : files) {
+            if (fileIndex[0] >= COUNT_FILE_BIG_HASH + COUNT_FILE_SMALL_HASH) return;
+
+            if (file.isFile()) {
+                long startTime = System.currentTimeMillis();
+                int bytesRead = 0;
+                String type;
+                try (InputStream is = getApplicationContext().getContentResolver().openInputStream(file.getUri())) {
+                    if (is != null) {
+                        if (fileIndex[0] < COUNT_FILE_BIG_HASH) {
+                            type = "BIG";
+                            bytesRead = updateDigestFromStream(is, digest, MAX_BYTES_TO_HASH_PER_FILE_BIG);
+                        } else {
+                            type = "SMALL";
+                            bytesRead = updateDigestFromStream(is, digest, MAX_BYTES_TO_HASH_PER_FILE_SMALL);
+                        }
+                    } else continue;
+                } catch (Exception e) {
+                    myLogEE(e, "While hashing file: " + file.getName());
+                    continue;
+                }
+                long elapsed = System.currentTimeMillis() - startTime;
+                sumElapsed[0] += elapsed;
+                fileCount[0]++;
+                myLogD(elapsed + " ms to hash - HashType = " + type + " - Read = " + Tonio.getReadableSize(bytesRead) + " - " + file.getName());
+                fileIndex[0]++;
+            } else if (file.isDirectory()) {
+                computeFolderHashRecursive(file, digest, rootPathLen, sumElapsed, fileCount, fileIndex);
+            }
+        }
+    }
+
+    private String formatHash(byte[] hashBytes) {
+        StringBuilder sb = new StringBuilder();
+        for (byte b : hashBytes) sb.append(String.format("%02x", b));
+        return sb.toString();
+    }
+
     private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
     private void myLogInFile(String str) { KanLogger.myLogInFile(this.getClass().getName(), str); }
     private void myLogD(String str) { KanLogger.myLogD(this.getClass().getName(), str); }
@@ -208,4 +233,3 @@ public class HashWorker extends Worker {
     private void myKeyFirebase(String strKey, String strValue) {KanLogger.myKeyFirebase(strKey, strValue);}
     private void myLogFirebase(String strLog) {KanLogger.myLogFirebase(strLog);}
 }
-

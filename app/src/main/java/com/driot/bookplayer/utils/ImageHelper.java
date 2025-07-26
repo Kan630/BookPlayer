@@ -8,6 +8,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 
 import androidx.core.content.FileProvider;
+import androidx.documentfile.provider.DocumentFile;
 
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
@@ -255,6 +256,28 @@ public class ImageHelper {
             }
         }
         return inSampleSize;
+    }
+
+    public static void deleteFolderImage(Context context, Folder folder) {
+        if (folder.image != null) {
+            try {
+                Uri uri = Uri.parse(folder.image);
+                DocumentFile file = DocumentFile.fromSingleUri(context, uri);
+                if (file.exists()) {
+                    if (!file.delete()) {
+                        myLogEE(null, "Error deleting image file from content URI: " + folder.image);
+                    } else {
+                        myLogD("Image deleted successfully: " + folder.image);
+                    }
+                } else {
+                    myLogE("deleteFolderImage: URI points to non-existing file: " + folder.image);
+                }
+            } catch (Exception e) {
+                myLogEE(e, "deleteFolderImage: exception when trying to delete image");
+            }
+        } else {
+            myLogD("deleteFolderImage: no image in folder");
+        }
     }
 
 

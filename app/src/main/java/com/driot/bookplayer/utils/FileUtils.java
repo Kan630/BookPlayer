@@ -190,7 +190,9 @@ public class FileUtils {
     public static long getFileSize(Context context, Uri uri) {
         if ("file".equalsIgnoreCase(uri.getScheme())) {
             try {
-                return new File(uri.getPath()).length();
+                if (uri.getPath() != null) {
+                    return new File(uri.getPath()).length();
+                }
             } catch (Exception e) {
                 myLogEE(e, "getFileSize() - file://");
                 return -1;
@@ -203,6 +205,7 @@ public class FileUtils {
                 return -1;
             }
         }
+        return -1;
     }
 
 

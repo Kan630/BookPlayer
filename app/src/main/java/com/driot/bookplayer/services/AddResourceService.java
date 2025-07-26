@@ -18,7 +18,9 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.objects.AudioFileInfo;
+import com.driot.bookplayer.utils.FileUtils;
 import com.driot.bookplayer.utils.GlobalTaskManager;
+import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingService;
 import com.driot.bookplayer.utils.StorageHelper;
 import com.driot.bookplayer.db.AppDatabase;
@@ -627,6 +629,7 @@ public class AddResourceService
     private void addAudioFileRecursive(DocumentFile f0, String recursivFolder) {
         String l_audioFilePath;
         long l_audioSize;
+        boolean hadImageBefore = bookState.imagePath != null; //dont look in subDir if image found at top dir
         for (DocumentFile f1 : f0.listFiles()) {
             if (f1.isDirectory()) {
                 myLog("increase recursive depth for Directory : [" + f1.getName() + "]");
@@ -635,7 +638,7 @@ public class AddResourceService
                 String fileName = Objects.toString(f1.getName());
                 String fileExtension = getExtension(fileName);
                 String mimeType = Objects.toString(f1.getType());
-                myLogD("* Checking File : [" + fileName + "] - mime = [" + mimeType + "] - extension = [" + fileExtension + "] - subfolder : [" + recursivFolder + "]");
+                myLogD("* Checking File : [" + fileExtension + "] . [" + fileName + "] - mime = [" + mimeType + "] - subfolder : [" + recursivFolder + "]");
                 if (mimeType.startsWith(ONLY_MIME_AUDIO) || SUPPORTED_AUDIO_EXTENSIONS.contains(fileExtension)) {
                     nbFileScan = nbFileScan + 1;
                     l_audioFilePath = recursivFolder + f1.getName();
@@ -647,10 +650,12 @@ public class AddResourceService
                     tellProgress((int) (PROGRESS[2] + (PROGRESS[3] - PROGRESS[2]) * progress), "Scanning for Audio Files..... \n[" +  l_audioFilePath + ']');
                     audioFileArrayList.add(new AudioFileInfo(l_audioFilePath, duration));
                     fullFolderSize = fullFolderSize + l_audioSize;
-                } else if (SUPPORTED_COVER_PICTURE_EXTENSIONS.contains(fileExtension)) {
-                    if (bookState.imagePath == null) {
-                        myLogD("Picture Found : [" +  f1.getUri().toString() + ']');
+                } else if (!hadImageBefore && SUPPORTED_COVER_PICTURE_EXTENSIONS.contains(fileExtension)) {
+                    long imageSize = f1.length();
+                    if (bookState.imagePath == null || imageSize > FileUtils.getFileSize(this, Uri.parse(bookState.imagePath))) {
+                        myLogD("New biggest Picture Found, size = [" + Tonio.formatMem(imageSize) + "] - [" + f1.getUri() + "]");
                         bookState.imagePath = f1.getUri().toString();
+                        hadImageBefore = true;
                     }
                 }
             }
