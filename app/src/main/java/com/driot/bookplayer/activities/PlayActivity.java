@@ -206,11 +206,26 @@ public class PlayActivity extends LoggingActivity {
                     playMe();
                 });
 
-        bForward.setOnClickListener(v -> forwardMe());
-        bRewind.setOnClickListener(v -> backwardMe());
-        bSpeedUp.setOnClickListener(v -> SpeedMeUp());
-        bSpeedDown.setOnClickListener(v -> SpeedMeDown());
-        bSetSleep.setOnClickListener(v -> setSleep());
+        bForward.setOnClickListener(v -> {
+            myLogI("user clicks button Forward");
+            forwardMe();
+        });
+        bRewind.setOnClickListener(v -> {
+            myLogI("user clicks button Backard");
+            backwardMe();
+        });
+        bSpeedUp.setOnClickListener(v -> {
+            myLogI("user clicks button speed Up");
+            SpeedMeUp();
+        });
+        bSpeedDown.setOnClickListener(v -> {
+            myLogI("user clicks button speed Down");
+            SpeedMeDown();
+        });
+        bSetSleep.setOnClickListener(v -> {
+            myLogI("user clicks button Sleep");
+            setSleep();
+        });
 
         buttonsToLock = Arrays.asList(bPlay, bRewind, bForward, bSpeedUp, bSpeedDown, bSetSleep);
 
@@ -250,8 +265,14 @@ public class PlayActivity extends LoggingActivity {
                 }
                 if (isPodcast) {
                     myLogD("Is Podcast");
-                    tvTitle.setOnClickListener(v -> {handlePodcastClick(podcast);});
-                    tvSubTitle.setOnClickListener(v -> {handlePodcastClick(podcast);});
+                    tvTitle.setOnClickListener(v -> {
+                        myLogI("user clicks Title");
+                        handlePodcastClick(podcast);
+                    });
+                    tvSubTitle.setOnClickListener(v -> {
+                        myLogI("user clicks subTitle");
+                        handlePodcastClick(podcast);
+                    });
                 }
             } else {
                 imFolderImage.setVisibility(View.GONE);
