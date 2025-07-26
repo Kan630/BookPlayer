@@ -344,10 +344,7 @@ public class PodcastEpisodeActivity extends LoggingActivity {
                                 myLogI("nb ZikFiles in that Book : " + zikFilesList.size() + " - [" + folder.getName() + "]");
                                 PlayList.create(this, zikFilesList);
                                 if (zikFilesList.size() > 1) {
-                                    this.startActivity(new Intent(this, ZikFileActivity.class)
-                                            .putExtra("FolderId", folder.getId())
-                                            .putExtra("FolderName", folder.getName())
-                                    );
+                                    this.startActivity(new Intent(this, ZikFileActivity.class).putExtra("folder", folder));
                                 } else if (zikFilesList.size() == 1) {
                                     PlayList.getInstance().setNumZikFile(0);
                                     this.startActivity(new Intent(this, PlayActivity.class).putExtra("ZikFile", zikFilesList.get(0)));
