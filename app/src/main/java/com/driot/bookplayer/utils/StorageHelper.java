@@ -179,8 +179,6 @@ public class StorageHelper {
 
 
 
-
-
     // === LOGGING ===
     // ----------------------- LOG -----------------------
     private static final String TAG = "StorageHelper";

@@ -180,8 +180,31 @@ public class ImageHelper {
 
         myLogD("Image too big (" + imageBytes.length / 1024 + "KB), compressing...");
 
-        Bitmap originalBitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
+        Bitmap originalBitmap;
+        try {
+            BitmapFactory.Options bounds = new BitmapFactory.Options();
+            bounds.inJustDecodeBounds = true;
+            BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length, bounds);
+
+            int inSampleSize = calculateInSampleSize(bounds.outWidth, bounds.outHeight, MAX_IMAGE_WIDTH, MAX_IMAGE_HEIGHT);
+
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inSampleSize = inSampleSize;
+            originalBitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length, options);
+        } catch (OutOfMemoryError oom) {
+            myLogE("OOM while decoding large image");
+            return null;
+        }
+
+        if (originalBitmap == null) {
+            myLogE("Failed to decode image");
+            return null;
+        }
         Bitmap resizedBitmap = resizeIfNeeded(originalBitmap);
+
+        if (resizedBitmap != originalBitmap && !originalBitmap.isRecycled()) {
+            originalBitmap.recycle();
+        }
 
         int quality = 75;
         byte[] compressedBytes;
@@ -193,6 +216,10 @@ public class ImageHelper {
             myLogD("pic compressed to " + compressedBytes.length / 1024 + "KB, quality: " + quality + "%");
             quality -= 15;
         } while (compressedBytes.length / 1024 > MAX_IMAGE_SIZE_KB && quality >= 40);
+
+        if (!resizedBitmap.isRecycled()) {
+            resizedBitmap.recycle();
+        }
 
         return saveBytesToFile(context, compressedBytes, outputFileName);
     }
@@ -216,6 +243,20 @@ public class ImageHelper {
 
         return Bitmap.createScaledBitmap(original, newWidth, newHeight, true);
     }
+
+    private static int calculateInSampleSize(int width, int height, int reqWidth, int reqHeight) { //used for old device with low memory...
+        int inSampleSize = 1;
+        if (height > reqHeight || width > reqWidth) {
+            final int halfHeight = height / 2;
+            final int halfWidth = width / 2;
+
+            while ((halfHeight / inSampleSize) >= reqHeight && (halfWidth / inSampleSize) >= reqWidth) {
+                inSampleSize *= 2;
+            }
+        }
+        return inSampleSize;
+    }
+
 
     // ----------------------- LOG -----------------------
     private static final String TAG = "ImageHelper";

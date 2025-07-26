@@ -69,10 +69,10 @@ public class ModifyFolderActivity extends LoggingActivity {
 
         String memoryLocationText = getString(R.string.AudioLocation) + " : " + folder.getMemoryLocationText(this);
         int memoryLocationIcon = folder.getMemoryLocationIcon(this);
-        myLog("Audio Location : " + memoryLocationText + " - Icon : [" + memoryLocationIcon + "]" );
         ivStorageIcon.setImageResource(memoryLocationIcon);
         tvStorageIcon.setText(memoryLocationText);
         ivStorageIcon.setOnClickListener(view -> {
+            myLogI("user clicks - storage icon");
             openFolderInFileExplorer(folder.getUri());
         });
 
@@ -101,6 +101,7 @@ public class ModifyFolderActivity extends LoggingActivity {
         }
 
         bChangeCover.setOnClickListener(view -> {
+            myLogI("user clicks - change image");
             Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
             intent.setType("image/*");
             startActivityForResult(Intent.createChooser(intent, "Select Cover Image"), REQUEST_SELECT_IMAGE);
@@ -111,6 +112,7 @@ public class ModifyFolderActivity extends LoggingActivity {
     }
 
     private void bDeleteClick() {
+        myLogI("user clicks - delete");
         new AlertDialog.Builder(ModifyFolderActivity.this)
                 .setTitle(getString(R.string.AskDelete_popupTitle))
                 .setMessage(getString(R.string.ModifyFolder_AskDelete))
@@ -187,6 +189,7 @@ public class ModifyFolderActivity extends LoggingActivity {
     }
 
     private void bResetClick() {
+        myLogI("user clicks - reset");
         new AlertDialog.Builder(ModifyFolderActivity.this)
                 .setTitle(getString((R.string.AskReset_popupTitle)))
                 .setMessage(getString((R.string.ModifyFolder_AskReset)))
@@ -197,6 +200,7 @@ public class ModifyFolderActivity extends LoggingActivity {
     }
 
     private void bExportClick() {
+        myLogI("user clicks - export");
         Intent intent = new Intent(this, ExportActivity.class);
         intent.putExtra(ExportActivity.EXTRA_FOLDER_ID, folder.getId());
         this.startActivity(intent);
