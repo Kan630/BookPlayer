@@ -88,13 +88,6 @@ public class Folder implements Parcelable {
 
     public long lLastAccess;
 
-    @Deprecated
-    public Long firstaccess;
-    @Deprecated
-    public Long lastaccess;
-    @Deprecated
-    public Long lastaccessTime;
-
 
     /*
      * Getters and Setters
@@ -348,6 +341,15 @@ public class Folder implements Parcelable {
         this.listeningPlayCount = listeningPlayCount;
     }
 
+
+
+
+    @Deprecated
+    public Long firstaccess;
+    @Deprecated
+    public Long lastaccess;
+    @Deprecated
+    public Long lastaccessTime;
 
     //--- LOG --------------------------
     private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }

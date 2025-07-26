@@ -138,7 +138,7 @@ public class KanMediaPlayer extends MediaPlayer {
         if (isPrepared) {
             return super.getCurrentPosition();
         } else {
-            myLogW("getCurrentPosition() - not prepared - returning 0");
+            myLogD("getCurrentPosition() - not prepared - returning 0");
             return 0;
         }
     }

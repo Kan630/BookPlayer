@@ -27,7 +27,11 @@ public class Sql {
                 "    SELECT CASE WHEN SUM(duration) > 0 THEN SUM(percentdone * duration) / SUM(duration) ELSE 0 END " +
                 "    FROM ZikFile WHERE ZikFile.idFolder = Folder.id" +
                 "  ), " +
-                "  lLastAccess = (SELECT MAX(lLastAccess) FROM ZikFile WHERE ZikFile.idFolder = Folder.id), " +
+                "  lLastAccess = CASE " +
+                "    WHEN (SELECT MAX(lLastAccess) FROM ZikFile WHERE ZikFile.idFolder = Folder.id) IS NOT NULL " +
+                "    THEN (SELECT MAX(lLastAccess) FROM ZikFile WHERE ZikFile.idFolder = Folder.id) " +
+                "    ELSE lLastAccess " +
+                "  END, " +
                 "  lFirstAccess = (" +
                 "    SELECT CASE " +
                 "      WHEN Folder.lFirstAccess IS NOT NULL THEN Folder.lFirstAccess " +

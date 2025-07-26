@@ -179,4 +179,12 @@ public class ZikFile implements Serializable {
                 ", finished=" + finished +
                 '}';
     }
+
+
+    @Deprecated
+    public Long firstaccess;
+    @Deprecated
+    public Long lastaccess;
+    @Deprecated
+    public Long lastaccessTime;
 }

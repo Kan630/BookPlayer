@@ -294,13 +294,13 @@ public class AudioService extends LoggingService {
         mediaSession = new MediaSessionCompat(this, "BookplayerMediaSession");
         sleepCheckHandler = new Handler(); // for sleep timer
 
-        myLog("configureMediaSession()");
+        myLogD("configureMediaSession()");
 
         // Overridden methods in the MediaSession.Callback class.
         mediaSession.setCallback(callback);
         mediaSession.setActive(true); // Needed for media button handling
 
-        myLog("onCreate() - END");
+        myLogD("onCreate() - END");
     }
 // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -320,13 +320,13 @@ public class AudioService extends LoggingService {
         audioManager = (AudioManager) AudioService.this.getSystemService(Context.AUDIO_SERVICE);
         afChangeListener = focusChange -> {
             if (focusChange <= 0) {
-                myLog("Audio Focus Lost");
+                myLogI("Audio Focus Lost");
                 AudioService.this.pauseAudio();
                 //mediaSession.setActive(false); // CHECK
                 Intent intent = new Intent(NOTIFICATION_AUDIOFOCUS_LOST);
                 LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(intent);
             } else {
-                myLog("Audio Focus Gain");
+                myLogI("Audio Focus Gain");
                 AudioService.this.playAudio();
                 mediaSession.setActive(true);
                 Intent intent = new Intent(NOTIFICATION_AUDIOFOCUS_GAIN);
@@ -353,17 +353,17 @@ public class AudioService extends LoggingService {
                 }
 
                 if (rewindDelay > 0) {
-                    myLog("Rewind after Pause - last play was " + timeDiffMinutes + " minutes ago. Rewind value is " + (rewindDelay / 1000) + " seconds.");
+                    myLogD("Rewind after Pause - last play was " + timeDiffMinutes + " minutes ago. Rewind value is " + (rewindDelay / 1000) + " seconds.");
                     backwardAudio(rewindDelay);
                 } else {
-                    myLog("NO Rewind after Pause - last play was " + timeDiffMinutes + " minutes ago. No matching rewind rule found.");
+                    myLogD("NO Rewind after Pause - last play was " + timeDiffMinutes + " minutes ago. No matching rewind rule found.");
                 }
             } else {
-                myLog("Rewind after Pause - lastAccessTime is null, skipping rewind.");
+                myLogD("Rewind after Pause - lastAccessTime is null, skipping rewind.");
             }
         }
         doIntroCut();
-        myLog("about to call mediaPlayer.start()...  mediaPlayer.getCurrentPosition : " + mediaPlayer.getCurrentPosition());
+        myLogD("about to call mediaPlayer.start()...  mediaPlayer.getCurrentPosition : " + mediaPlayer.getCurrentPosition());
         logPauseTime();
         mediaPlayer.start();
         Pref.setPauseTime(0);
@@ -522,7 +522,7 @@ public class AudioService extends LoggingService {
     //* onPrepare
     //* onError
     public void loadFile() {
-        myLogI("loadingFile.......  - Play Audio straight away : " + directPlay);
+        myLogD("loadingFile.......  - Play Audio straight away : " + directPlay);
         Uri uriToPlay = null;
         String pathToPlay = null;
 

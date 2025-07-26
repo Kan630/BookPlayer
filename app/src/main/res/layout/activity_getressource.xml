@@ -152,10 +152,32 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"/>
 
-                <Button
-                    android:id="@+id/bDirectDownload"
-                    android:text="@string/DirectDownload_button"
-                    style="@style/GetResourceButton" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_horizontal"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="8dp">
+
+                    <Button
+                        android:id="@+id/bDirectDownload"
+                        android:text="@string/DirectDownload_button"
+                        style="@style/GetResourceButton"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="4dp"/>
+
+                    <Button
+                        style="@style/GetResourceButton"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:visibility="invisible"
+                        />
+                </LinearLayout>
 
 
                 <View style="@style/GetResourceHorizontalBar"/>
@@ -189,11 +211,33 @@
                     style="@style/GetResourceSpinner"
                     android:layout_marginEnd="20dp"
                     />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_horizontal"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="8dp">
 
-                <Button
-                    android:id="@+id/bLibrivoxSearch"
-                    android:text="@string/Search"
-                    style="@style/GetResourceButton"/>
+                    <Button
+                        android:id="@+id/bLibrivoxSearch"
+                        android:text="@string/Search"
+                        style="@style/GetResourceButton"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="4dp"/>
+
+                    <Button
+                        style="@style/GetResourceButton"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:visibility="invisible"
+                        />
+                </LinearLayout>
+
 
 
 
@@ -223,14 +267,33 @@
                     android:layout_marginEnd="20dp"
                     />
 
-                <Button
-                    android:id="@+id/bPodcastSearch"
-                    android:text="@string/Search"
-                    style="@style/GetResourceButton"/>
-                <Button
-                    android:id="@+id/bFavoritePodcasts"
-                    android:text="@string/Favorites"
-                    style="@style/GetResourceButton"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_horizontal"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="8dp">
+
+                    <Button
+                        android:id="@+id/bPodcastSearch"
+                        android:text="@string/Search"
+                        style="@style/GetResourceButton"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="4dp"/>
+
+                    <Button
+                        android:id="@+id/bFavoritePodcasts"
+                        android:text="@string/Favorites"
+                        style="@style/GetResourceButton"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"/>
+                </LinearLayout>
+
 
 
                 <View style="@style/GetResourceHorizontalBar"/>

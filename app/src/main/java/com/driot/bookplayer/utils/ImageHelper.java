@@ -7,6 +7,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 
+import androidx.core.content.FileProvider;
+
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.Podcast;
@@ -38,35 +40,24 @@ public class ImageHelper {
 
     private static String downloadAndMaybeCompressImage(Context context, String imageUrl, String imagePath) {
         try {
-            // Download
             URL url = new URL(imageUrl);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.connect();
-            InputStream in = connection.getInputStream();
 
-            // Read into byte[]
-            ByteArrayOutputStream originalOut = new ByteArrayOutputStream();
+            InputStream in = connection.getInputStream();
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
             byte[] buffer = new byte[8192];
             int len;
             while ((len = in.read(buffer)) != -1) {
-                originalOut.write(buffer, 0, len);
+                out.write(buffer, 0, len);
             }
             in.close();
-            myLogI("Saved image to: " + imagePath + " - " + (new File(StorageHelper.getImageFolder(context), imagePath).length() / 1024) + "KB");
 
-            byte[] originalBytes = originalOut.toByteArray();
-            if (originalBytes.length / 1024 <= MAX_IMAGE_SIZE_KB) {
-                return saveBytesToFile(context, originalBytes, imagePath);
-            } else {
-                myLogI("Image too big " + originalBytes.length / 1024  + "KB , compressing...");
-                Bitmap bitmap = BitmapFactory.decodeByteArray(originalBytes, 0, originalBytes.length);
-                ByteArrayOutputStream compressedOut = new ByteArrayOutputStream();
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 75, compressedOut);
-                return saveBytesToFile(context, compressedOut.toByteArray(), imagePath);
-            }
+            byte[] imageBytes = out.toByteArray();
+            return compressAndSaveImage(context, imageBytes, imagePath);
 
         } catch (IOException e) {
-            e.printStackTrace();
+            myLogEE(e, "downloadAndMaybeCompressImage() failed for: " + imageUrl);
             return null;
         }
     }
@@ -75,11 +66,11 @@ public class ImageHelper {
     private static String saveBytesToFile(Context context, byte[] data, String imagePath) throws IOException {
         File dir = StorageHelper.getImageFolder(context);
         if (!dir.exists()) dir.mkdirs();
-
         File imageFile = new File(dir, imagePath);
         FileOutputStream fos = new FileOutputStream(imageFile);
         fos.write(data);
         fos.close();
+        myLogD("image saved [" + imagePath + "] - " + (imageFile.length() / 1024) + "KB");
         return imageFile.getAbsolutePath();
     }
 
@@ -144,11 +135,19 @@ public class ImageHelper {
         return new File(dir, LIBRIVOX_IMAGE_PREFIX + identifier + ".jpg");
     }
 
-
-    public static String copyContentUriToImageFile(Context context, String contentUriString, String outputFileName) {
+    public static String copyContentUriToImageFile(Context context, String uriOrPath, String outputFileName) {
         try {
-            Uri uri = Uri.parse(contentUriString);
-            InputStream in = context.getContentResolver().openInputStream(uri);
+            InputStream in;
+            Uri uri;
+
+            if (uriOrPath.startsWith("content://") || uriOrPath.startsWith("file://")) {
+                uri = Uri.parse(uriOrPath);
+            } else {
+                File file = new File(uriOrPath);
+                uri = FileProvider.getUriForFile(context, context.getPackageName() + ".FileProvider", file);
+            }
+
+            in = context.getContentResolver().openInputStream(uri);
             if (in == null) return null;
 
             ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -160,37 +159,42 @@ public class ImageHelper {
             in.close();
 
             byte[] imageBytes = out.toByteArray();
-            if (imageBytes.length / 1024 <= MAX_IMAGE_SIZE_KB) {
-                return saveBytesToFile(context, imageBytes, outputFileName);
-            }
-
-            myLog("Content image too big (" + imageBytes.length / 1024 + "KB), compressing...");
-
-            Bitmap originalBitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
-            Bitmap resizedBitmap = resizeIfNeeded(originalBitmap);
-
-            int quality = 75;
-            byte[] compressedBytes;
-
-            do {
-                ByteArrayOutputStream compressedOut = new ByteArrayOutputStream();
-                resizedBitmap.compress(Bitmap.CompressFormat.JPEG, quality, compressedOut);
-                compressedBytes = compressedOut.toByteArray();
-                quality -= 15;
-                myLogD("pic compressed to " + compressedBytes.length / 1024 + "KB, quality: " + quality + "%");
-            } while (compressedBytes.length / 1024 > MAX_IMAGE_SIZE_KB && quality >= 40);
-
-            return saveBytesToFile(context, compressedBytes, outputFileName);
+            return compressAndSaveImage(context, imageBytes, outputFileName);
 
         } catch (Exception e) {
-            myLogEE(e, "copyContentUriToImageFile() failed for: " + contentUriString);
+            myLogEE(e, "copyContentUriToImageFile() failed for: " + uriOrPath);
             return null;
         }
     }
 
 
+
     private static boolean isContentUri(String s) {
         return s != null && s.startsWith("content://");
+    }
+
+    private static String compressAndSaveImage(Context context, byte[] imageBytes, String outputFileName) throws IOException {
+        if (imageBytes.length / 1024 <= MAX_IMAGE_SIZE_KB) {
+            return saveBytesToFile(context, imageBytes, outputFileName);
+        }
+
+        myLogD("Image too big (" + imageBytes.length / 1024 + "KB), compressing...");
+
+        Bitmap originalBitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
+        Bitmap resizedBitmap = resizeIfNeeded(originalBitmap);
+
+        int quality = 75;
+        byte[] compressedBytes;
+
+        do {
+            ByteArrayOutputStream compressedOut = new ByteArrayOutputStream();
+            resizedBitmap.compress(Bitmap.CompressFormat.JPEG, quality, compressedOut);
+            compressedBytes = compressedOut.toByteArray();
+            myLogD("pic compressed to " + compressedBytes.length / 1024 + "KB, quality: " + quality + "%");
+            quality -= 15;
+        } while (compressedBytes.length / 1024 > MAX_IMAGE_SIZE_KB && quality >= 40);
+
+        return saveBytesToFile(context, compressedBytes, outputFileName);
     }
 
     private static Bitmap resizeIfNeeded(Bitmap original) {

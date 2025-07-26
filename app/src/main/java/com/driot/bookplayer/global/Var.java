@@ -12,10 +12,10 @@ public class Var {
     public static final int MAX_IMAGE_SIZE_KB = 200;
 
     public static final int LIBRIVOX_API_MAX_RESULTS = 10;
-    public static final int PODCASTINDEXORG_API_MAX_RESULTS = 100;
+    public static final int PODCASTINDEXORG_API_MAX_RESULTS = 10;
 
     public static final int PODCASTINDEXORG_MAX_PODCAST_AUTO_DOWNLOAD = 5;
-    public static final int PODCASTINDEXORG_MAX_EPISODE_AUTO_DOWNLOAD = 5;
+    public static final int PODCASTINDEXORG_MAX_EPISODE_AUTO_DOWNLOAD = 1;
     public static final int PODCASTINDEXORG_API_MIN_TIME_BETWEEN_AUTO_CHECK_IN_MIN = 60;
 
     public static final String PODCASTINDEXORG_API_KEY = "PVULATRUYKDZX26NBGTR";

@@ -130,7 +130,7 @@ public class PlayActivity extends LoggingActivity {
             HasBeenInitializedService = true;
 
             // retour de flip ecran
-            myLog("onServiceConnected - DrawUI");
+            myLogD("onServiceConnected - DrawUI");
             DrawUI(); //utile pour suppression progressBar
         }
 
@@ -259,7 +259,7 @@ public class PlayActivity extends LoggingActivity {
             }
         });
 
-        myLog("onCreate() -- Launching Music Service");
+        myLogD("onCreate() -- Launching Music Service");
         launchService();
 
         // Check if progress bar is at the end and reset if necessary
@@ -317,7 +317,7 @@ public class PlayActivity extends LoggingActivity {
     }
 
     private void launchService() {
-        myLog("launchService");
+        myLogD("launchService");
         intentMusicService = new Intent(PlayActivity.this, AudioService.class);
         //TODO when flip screen the second time, service is destroyed....
         startService(intentMusicService);
@@ -346,7 +346,7 @@ public class PlayActivity extends LoggingActivity {
     }
 
     private void visualizerClick() {
-        myLog("visualizerClick()");
+        myLogI("visualizerClick()");
         if (Option.getClickVisualizerPlayPause()) {
             playMe();
         }
@@ -475,10 +475,7 @@ public class PlayActivity extends LoggingActivity {
         for (String broadcastNotification : broadcastNotifications) {
             LocalBroadcastManager.getInstance(this).registerReceiver(broadCastReceiver, new IntentFilter(broadcastNotification));
         }
-
-        myLog("onResume() - creating new timer for Display");
         runTimerForDisplay();
-        myLog("onResume() - bind to service");
         audioServiceBound = bindService(intentMusicService, audioServiceConnection, Context.BIND_AUTO_CREATE);
         super.onResume();
     }
@@ -519,7 +516,7 @@ public class PlayActivity extends LoggingActivity {
 
     @Override
     protected void onStop() {
-        myLog("onStop()");
+        myLogD("onStop()");
         super.onStop();
     }
 
@@ -629,7 +626,7 @@ public class PlayActivity extends LoggingActivity {
                 seekbar.setProgress(iPosition);
             } else {
                 bPlay.setText(R.string.pause);
-                myLog("redrawSeekBar => service KO => drawing pause button");
+                myLogD("redrawSeekBar => service KO => drawing pause button");
             }
         } catch (Exception e) {
             myLogEE(e, "redrawSeekBar");
