@@ -76,7 +76,7 @@ public class ZikFilesRVAdapter extends LoggingRVAdapter<ZikFilesRVAdapter.ZikFil
         public ZikFilesViewHolder(View itemView) {
             super(itemView);
 
-            textViewFileName = itemView.findViewById(R.id.textViewFileName);
+            textViewFileName = itemView.findViewById(R.id.tvBookName);
             textViewFilePercent = itemView.findViewById(R.id.textViewFilePercent);
             textViewFileLastAccess = itemView.findViewById(R.id.textViewFileLastAccess);
             textViewDuration = itemView.findViewById(R.id.textViewDuration);

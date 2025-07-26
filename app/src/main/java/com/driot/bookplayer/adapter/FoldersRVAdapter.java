@@ -16,6 +16,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.ModifyFolderActivity;
 import com.driot.bookplayer.activities.PlayActivity;
@@ -66,6 +67,13 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
 
         holder.ivMemory.setImageResource(folder.getMemoryLocationIcon(mCtx));
 
+        if (folder.image != null) {
+            Glide.with(this.mCtx).load(folder.image).into(holder.ivBookCover);
+        } else {
+            holder.ivBookCover.setVisibility(View.GONE);
+        }
+
+
     }
 
     @Override
@@ -77,17 +85,18 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
 
         TextView textViewFileName, textViewFileLastAccess, textViewFilePercent, textViewDuration;
         ProgressBar mProgressBar;
-        ImageView ivMemory;
+        ImageView ivBookCover, ivMemory;
 
         public FoldersViewHolder(View itemView) {
             super(itemView);
 
-            textViewFileName = itemView.findViewById(R.id.textViewFileName);
+            textViewFileName = itemView.findViewById(R.id.tvBookName);
             textViewFilePercent = itemView.findViewById(R.id.textViewFilePercent);
             textViewFileLastAccess = itemView.findViewById(R.id.textViewFileLastAccess);
             textViewDuration =  itemView.findViewById(R.id.textViewDuration);
             mProgressBar = itemView.findViewById(R.id.progressBar);
             ivMemory = itemView.findViewById(R.id.imageViewStorageIcon);
+            ivBookCover = itemView.findViewById(R.id.ivBookCover);
 
             itemView.setOnClickListener(this);
             itemView.setOnLongClickListener(this);

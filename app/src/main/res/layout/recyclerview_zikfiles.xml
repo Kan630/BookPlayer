@@ -24,7 +24,7 @@
         android:background="@color/lightgray"
         >
         <TextView
-            android:id="@+id/textViewFileName"
+            android:id="@+id/tvBookName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingTop="@dimen/recyclerview_padding_text_vertical"
@@ -57,7 +57,7 @@
             android:layout_marginLeft="@dimen/recyclerview_elements_sides"
             android:layout_marginRight="@dimen/recyclerview_elements_sides"
             android:progressDrawable="@drawable/progress_bar_theme"
-            app:layout_constraintTop_toBottomOf="@id/textViewFileName"
+            app:layout_constraintTop_toBottomOf="@id/tvBookName"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toLeftOf="@+id/guideline"/>
 
@@ -68,7 +68,7 @@
             android:layout_marginTop="@dimen/recyclerview_elements_bottom"
             android:gravity="center"
             android:textColor="@color/black"
-            app:layout_constraintTop_toBottomOf="@id/textViewFileName"
+            app:layout_constraintTop_toBottomOf="@id/tvBookName"
             app:layout_constraintRight_toRightOf="@id/guideline"
             android:layout_marginStart="0dp"
             android:layout_marginEnd="20dp"
@@ -82,7 +82,7 @@
             android:layout_marginStart="20dp"
             android:layout_marginEnd="@dimen/recyclerview_elements_sides"
             android:textColor="@color/black"
-            app:layout_constraintTop_toBottomOf="@id/textViewFileName"
+            app:layout_constraintTop_toBottomOf="@id/tvBookName"
             app:layout_constraintLeft_toLeftOf="parent"
             android:text="..." />
 
@@ -101,7 +101,7 @@
             android:gravity="center_vertical"
             android:textColor="@color/black"
             android:background="@color/verylightgray"
-            app:layout_constraintTop_toBottomOf="@id/textViewFileName"
+            app:layout_constraintTop_toBottomOf="@id/tvBookName"
             app:layout_constraintLeft_toLeftOf="@+id/guideline"
             app:layout_constraintRight_toRightOf="parent"
             />
