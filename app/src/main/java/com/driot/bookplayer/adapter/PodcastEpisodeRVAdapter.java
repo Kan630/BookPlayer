@@ -6,17 +6,13 @@ import static com.driot.bookplayer.utils.PodcastHelper.findPodcastEpisodeFileIfE
 
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
-import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
@@ -25,7 +21,6 @@ import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.activities.LoadOptionsActivity;
 import com.driot.bookplayer.activities.PlayActivity;
 import com.driot.bookplayer.activities.PodcastEpisodeViewModel;
 import com.driot.bookplayer.db.AppDatabase;
@@ -35,8 +30,8 @@ import com.driot.bookplayer.objects.PlayList;
 import com.driot.bookplayer.objects.PodcastEpisode;
 import com.driot.bookplayer.objects.PodcastFeed;
 import com.driot.bookplayer.objects.ViewHelper;
+import com.driot.bookplayer.utils.ImageHelper;
 import com.driot.bookplayer.utils.PodcastDownloadManager;
-import com.driot.bookplayer.utils.PodcastHelper;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingRVAdapter;
 
@@ -51,8 +46,6 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
     private final Context context;
     private final Podcast podcast;
     private final PodcastFeed podcastFeed;
-    //private final String podcastFeed.title;
-    //private final Long podcastFeed.id podcastFeed.title;
     private final PodcastEpisodeViewModel viewModel;
     private final LifecycleOwner lifecycleOwner;
 
@@ -97,13 +90,6 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
         holder.itemView.setOnClickListener(v -> {
             myLog("------------ USER CLICKS EPISODE --------------  [" + episodeFileName + "]");
             myLogD(episode.toString());
-            /*
-            if (episode.enclosureUrl != null && !episode.enclosureUrl.isEmpty()) {
-                //showDownloadOptionsDialog(context, episode.enclosureUrl, episode.title);
-            } else {
-                myToastE("No audio URL available");
-            }
-             */
             clickOnEpisode(holder, episode);
         });
 
@@ -143,7 +129,7 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
                 holder.icon_1.setVisibility(View.VISIBLE);
                 holder.icon_1.setColorFilter(ContextCompat.getColor(context, R.color.pastel_blue_300));
                 holder.icon_1.setOnClickListener(v -> {
-                    myLogI("---- USER CLICKS ----- Downloading single episode: " + episode.title);
+                    myLogI("---- USER CLICKS - Downloading single episode -----  " + episode.title);
                     addPodcastToDB();
                     if (holder.flickerAnim == null) {
                         holder.flickerRunning = true;
@@ -160,57 +146,6 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
                 });
             }
         });
-/*
-
-// Check if in physical folder
-        File folderPodcastEpisode = buildPodcastPath(context, podcastFeed.title);
-        File file = new File(folderPodcastEpisode, episodeFileName);
-        boolean isDownloaded = file.exists();
-
-// Check if in DB (e.g., ZikFile table)
-        if (isDownloaded) {
-            //myLog("downloaded" + episode.title);
-            AppDatabase.databaseWriteExecutor.execute(() -> {
-                ZikFile zf = AppDatabase.getDatabase(context)
-                        .ZikFileDao()
-                        .getZikFileFromFullPath(folderPodcastEpisode.getAbsolutePath(), episodeFileName);  // You may use URL, title, or unique hash
-                new Handler(Looper.getMainLooper()).post(() -> {
-                    if (zf != null) {
-                        //myLog("DB ok" + episode.title);
-                        String percentDone = String.format(Locale.US, "%.0f", zf.getPercentdone());
-                        String lastAdded = "Added : " + android.text.format.DateFormat.format("yyyy-MM-dd HH:mm", zf.date_added);
-                        String stats2 = percentDone + "% listened"
-                                + "\n" + lastAdded;
-                        holder.tvEpisodeDBStats.setText(stats2);
-                        holder.icon_1.setVisibility(View.VISIBLE);
-                        holder.icon_1.setColorFilter(ContextCompat.getColor(context, R.color.green_300));
-                    } else {
-                        //myLog("DB not ok" + episode.title);
-                        holder.tvEpisodeDBStats.setText("");
-                        holder.icon_1.setVisibility(View.VISIBLE);
-                        holder.icon_1.setColorFilter(ContextCompat.getColor(context, R.color.orange_500));
-                        myLogEE(null, "in FileFolder but not in DB..." + folderPodcastEpisode.getAbsolutePath() + "/" + episodeFileName + " feedID = " + podcastFeed.id);
-                    }
-                });
-            });
-        } else {
-            //myLog("not downloaded " + episode.title);
-            holder.tvEpisodeDBStats.setText("");
-            holder.icon_1.setVisibility(View.VISIBLE);
-            holder.icon_1.setColorFilter(ContextCompat.getColor(context, R.color.pastel_blue_300));
-            holder.icon_1.setOnClickListener(v -> {
-                myLog("---- USER CLICKS ----- Downloading single episode: " + episode.title);
-
-                File targetFolder = buildPodcastPath(context, podcastFeed.title);
-                if (!targetFolder.exists()) targetFolder.mkdirs();
-
-                List<PodcastEpisode> singleList = new ArrayList<>();
-                singleList.add(episode);
-
-                PodcastDownloadManager.enqueueDownloads(context, podcastFeed.id, singleList, targetFolder, null);
-            });
-        }
- */
     }
 
     @Override
@@ -235,87 +170,6 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
         }
     }
 
-
-    private void showDownloadOptionsDialog(Context context, String fileUrl, String episodeTitle) {
-        String[] options = {
-                "Download to Downloads folder",
-                "Download to SD card",
-                "Download to BookPlayer internal storage",
-                "Just play (no download)",
-                "add to Bookplayer",
-        };
-
-        new AlertDialog.Builder(context)
-                .setTitle("Choose an action")
-                .setItems(options, (dialog, which) -> {
-                    String destinationFolder = null;
-
-                    switch (which) {
-                        case 0: // Downloads
-                            destinationFolder = Environment.getExternalStoragePublicDirectory(
-                                    Environment.DIRECTORY_DOWNLOADS).getAbsolutePath();
-                            break;
-
-                        case 1: // SD Card
-                            File[] externalDirs = context.getExternalFilesDirs(null);
-                            if (externalDirs.length > 1 && externalDirs[1] != null) {
-                                destinationFolder = externalDirs[1].getAbsolutePath();
-                            } else {
-                                Toast.makeText(context, "No SD card found", Toast.LENGTH_SHORT).show();
-                                return;
-                            }
-                            break;
-
-                        case 2: // Internal storage
-                            File internal = new File(context.getFilesDir(), "bookplayer_downloads");
-                            if (!internal.exists()) internal.mkdirs();
-                            destinationFolder = internal.getAbsolutePath();
-                            break;
-
-                        case 3: // Play directly
-                            Intent intent = new Intent(Intent.ACTION_VIEW);
-                            intent.setDataAndType(Uri.parse(fileUrl), "audio/*");
-                            context.startActivity(Intent.createChooser(intent, "Play episode"));
-                            return; // Skip download
-
-                        case 4: // For Test purposes
-                            Intent intentLOA = new Intent(this.context, LoadOptionsActivity.class);
-                            intentLOA.putExtra(LoadOptionsActivity.EXTRA_URI, Uri.parse(fileUrl));
-                            intentLOA.putExtra(LoadOptionsActivity.EXTRA_TYPE, "Podcast");
-                            context.startActivity(intentLOA);
-                            return;
-                    }
-
-                    // Schedule the download job
-                    myLog("downloading to : " + destinationFolder);
-                    startDownloadJob(context, fileUrl, destinationFolder, episodeTitle, episodeTitle);
-                })
-                .show();
-    }
-    private void startDownloadJob(Context context, String fileUrl, String destinationFolder, String episodeTitle, String audioBookTitle) {
-        myLog("************************************** startDownloadJob");
-        myLog("fileUrl = " + fileUrl);
-        myLog("destinationFolder = " + destinationFolder);
-        myLog("audioBookTitle = " + audioBookTitle);
-        myLog("episodeTitle = " + episodeTitle);
-        myLog("**************************************");
-        /*
-        PersistableBundle bundle = new PersistableBundle();
-        bundle.putString("fileUrl", fileUrl);
-        bundle.putString("destinationFolder", destinationFolder);
-        bundle.putString("audioBookTitle", audioBookTitle);
-
-        JobInfo jobInfo = new JobInfo.Builder(123, new ComponentName(context, DownloadJobService.class))
-                .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
-                .setExtras(bundle)
-                .setOverrideDeadline(5000) // Run soon
-                .build();
-
-        JobScheduler scheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
-        scheduler.schedule(jobInfo);
-
-         */
-    }
     private void flickerIcon(ImageView icon) {
         float maxSize = 1.6f;
         int animTime = 300;

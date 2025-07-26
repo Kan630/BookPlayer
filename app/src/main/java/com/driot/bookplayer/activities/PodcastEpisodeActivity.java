@@ -3,13 +3,11 @@ package com.driot.bookplayer.activities;
 import static com.driot.bookplayer.global.Pref.shouldAnimateButtons;
 import static com.driot.bookplayer.global.Pref.stopAnimateButtons;
 import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_SINCE_DEBUG;
-import static com.driot.bookplayer.utils.ImageHelper.processPendingImages;
 import static com.driot.bookplayer.utils.PodcastHelper.checkForNewEpisodesToAutoDownload;
 import static com.driot.bookplayer.utils.TextOptions.parseMaybeHtml;
 
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.PorterDuff;
@@ -37,6 +35,7 @@ import com.driot.bookplayer.objects.PlayList;
 import com.driot.bookplayer.objects.PodcastEpisode;
 import com.driot.bookplayer.objects.PodcastFeed;
 import com.driot.bookplayer.objects.ViewHelper;
+import com.driot.bookplayer.utils.ImageHelper;
 import com.driot.bookplayer.utils.PodcastHelper;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
@@ -82,14 +81,6 @@ public class PodcastEpisodeActivity extends LoggingActivity {
         podcast = getIntent().getParcelableExtra("podcast"); // from Favorites
         podcastFeed = getIntent().getParcelableExtra("podcastFeed"); // from Search
 
-/*
-        if (podcast == null) { //comes from the SearchResult, try to see if in DB
-            AppDatabase.databaseWriteExecutor.execute(() -> {
-                podcast = podcastDao.getPodcastBypodcastFeed.id(podcastFeed.id);  // MAYBE too slow and not really needed....
-            }
-        }
- */
-
         if (podcastFeed == null) {
             if (podcast == null) {
                 myLogEE(null,"podcast and podcastFeed are null");
@@ -103,8 +94,15 @@ public class PodcastEpisodeActivity extends LoggingActivity {
             );
         }
 
-        recyclerEpisodes.setLayoutManager(new LinearLayoutManager(this));
         PodcastEpisodeViewModel viewModel = new ViewModelProvider(this).get(PodcastEpisodeViewModel.class);
+        viewModel.getPodcastLiveByFeedId(podcastFeed.id).observe(this, updatedPodcast -> {
+            if (updatedPodcast != null) {
+                this.podcast = updatedPodcast;
+                // update UI here if needed
+            }
+        });
+
+        recyclerEpisodes.setLayoutManager(new LinearLayoutManager(this));
         adapter = new PodcastEpisodeRVAdapter(this, podcast, podcastFeed, viewModel);
         recyclerEpisodes.setAdapter(adapter);
 
@@ -167,7 +165,6 @@ public class PodcastEpisodeActivity extends LoggingActivity {
                     myToast(getString(R.string.podcast_favorite_add));
                 }
                 podcastDao.update(podcast);
-                processPendingImages(this);
             }
 
             boolean newState = podcast.isFavorite;
@@ -179,6 +176,7 @@ public class PodcastEpisodeActivity extends LoggingActivity {
                 btnAutoDownload.setVisibility(newState ? View.VISIBLE : View.GONE);
             });
         });
+        ImageHelper.processPendingImages(this);
     }
 
     private void toggleAutoDownload() {

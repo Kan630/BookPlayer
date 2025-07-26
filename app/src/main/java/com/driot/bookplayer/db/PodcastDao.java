@@ -16,6 +16,9 @@ public interface PodcastDao {
     @Update
     void update(Podcast podcast);
 
+    @Query("SELECT * FROM Podcast WHERE feedId = :feedId LIMIT 1")
+    LiveData<Podcast> getPodcastLiveByFeedId(long feedId);
+
     @Query("SELECT * FROM Podcast WHERE id = :id")
     Podcast getById(long id);
 

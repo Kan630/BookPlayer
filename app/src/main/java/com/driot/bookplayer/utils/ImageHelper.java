@@ -77,6 +77,7 @@ public class ImageHelper {
 
 
     public static void processPendingImages(Context context) {
+        myLogD("processPendingImages");
         AppDatabase.databaseWriteExecutor.execute(() -> {
             AppDatabase db = AppDatabase.getDatabase(context);
 

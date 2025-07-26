@@ -67,6 +67,7 @@ import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.objects.PlayList;
 import com.driot.bookplayer.services.AudioService;
 import com.driot.bookplayer.utils.ImageHelper;
+import com.driot.bookplayer.utils.InfoHelper;
 import com.driot.bookplayer.utils.KanLogger;
 import com.driot.bookplayer.utils.KanMail;
 import com.driot.bookplayer.utils.NetworkUtils;
@@ -133,10 +134,10 @@ public class MainActivity extends LoggingActivity {
         super.onCreate(savedInstanceState);
 
         if (savedInstanceState == null) {
-            printSomeStuffAboutDevice();
+            InfoHelper.printSomeStuffAboutDevice(this);
         }
 
-        myLog("Checking AudioService");
+        myLogD("Checking AudioService");
         if (AudioService.isRunning) {
             myLog("AudioService.isRunning");
             bindService(new Intent(this, AudioService.class), audioServiceConnection, 0);
@@ -187,10 +188,7 @@ public class MainActivity extends LoggingActivity {
 
         getFolders();
 
-        if (shouldCheckApiForAutoDownload()) {
-            checkForNewEpisodesToAutoDownload(this, PODCASTINDEXORG_SINCE_DEBUG);
-        }
-        ImageHelper.processPendingImages(this);
+        doSomeBackgroundJobs();
     }
 
     @Override
@@ -233,8 +231,6 @@ public class MainActivity extends LoggingActivity {
             startActivityForResult(new Intent(this, OptionActivity.class), REQUEST_CODE_OPTION);
         } else if (itemId == R.id.menu_manual) {
             startActivity(new Intent(getApplicationContext(), HelpActivity.class));
-        //} else if (itemId == R.id.menu_otherapp) {
-        //    startActivity(new Intent(getApplicationContext(), OtherAppsActivity.class));
         } else if (itemId == R.id.menu_seelog) {
             startActivity(new Intent(this, LogListActivity.class));
         } else if (itemId == R.id.menu_stats) {
@@ -243,8 +239,6 @@ public class MainActivity extends LoggingActivity {
             KanMail.sendDaMail(this, "bookplayer@driot.com", "**Bookplayer**", "Dear developer...\n\n");
         } else if (itemId == R.id.menu_cacheFiles) {
             startActivity(new Intent(this, CacheFilesActivity.class));
-//        } else if (itemId == R.id.menu_forum) {
-//            openForum(this);
         } else if (itemId == R.id.menu_website) {
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(Var.WEBSITE_URL));
             startActivity(browserIntent);
@@ -256,15 +250,6 @@ public class MainActivity extends LoggingActivity {
             myLogEE(null,"MainActivity.onOptionsItemSelected : unknown Item selected in Menu");
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    public void openForum(Context context) {
-        new Thread(() -> {
-            String urlToOpen = NetworkUtils.isUrlReachable(Var.FORUM_URL) ? Var.FORUM_URL : Var.FORUM_URL_2;
-            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(urlToOpen));
-            browserIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            context.startActivity(browserIntent);
-        }).start();
     }
 
 
@@ -279,7 +264,7 @@ public class MainActivity extends LoggingActivity {
         }
     }
     private void getFolders() {
-        myLog("getFolders()");
+        myLogD("getFolders()");
         FolderDao folderDao = DatabaseClient.getInstance(getApplicationContext()).getAppDatabase().FolderDao();
         LiveData<List<Folder>> foldersLiveData = folderDao.getAllLiveData();
         foldersLiveData.observe(this, (Observer<List<Folder>>) folders -> { //getLifecycle()
@@ -319,68 +304,12 @@ public class MainActivity extends LoggingActivity {
     }
 
 
-    ////////////////////////////////////////////////////////////////////////////////////////
-    // INIT
-    ////////////////////////////////////////////////////////////////////////////////////////
-    private void printSomeStuffAboutDevice() {
-        try {
-            KanLogger.myLog("");
-            KanLogger.myLog("========================== Fingerprint :");
-            KanLogger.myLog("===");
-            KanLogger.myLog("Build.FINGERPRINT = " + Build.FINGERPRINT);
-            KanLogger.myLog("Build.FINGERPRINT MD5 = " + MD5(Build.FINGERPRINT));
-            KanLogger.myLog("Phone is Dev ? => " + String.valueOf(isMyPhoneDev()));
-            KanLogger.myLog("Write Tech Logs ? => " + String.valueOf(writeTechLogs()));
-            KanLogger.myLog("========================== Device info :");
-            KanLogger.myLog("Build.Version SDK = " + Build.VERSION.SDK_INT);
-            KanLogger.myLog("Build.Release = " + Build.VERSION.RELEASE);
-            KanLogger.myLog("Build.Base_OS = " + Build.VERSION.BASE_OS);
-            KanLogger.myLog("========================== App info :");
-            KanLogger.myLog("BuildConfig.VERSION_CODE = " + BuildConfig.VERSION_CODE);
-            KanLogger.myLog("BuildConfig.VERSION_NAME = " + BuildConfig.VERSION_NAME);
-            KanLogger.myLog("BuildConfig.BUILD_TYPE = " + BuildConfig.BUILD_TYPE);
-            KanLogger.myLog("BuildConfig.APPLICATION_ID = " + BuildConfig.APPLICATION_ID);
-            KanLogger.myLog("========================== Region :");
-            KanLogger.myLog("Locale.getDefault = " + Locale.getDefault().getCountry());
-            KanLogger.myLog("TimeZone.getDefault = " + TimeZone.getDefault().getID());
-            KanLogger.myLog("TelephonyManager country = " + getCountryFromTelephonyManager(this));
-
-            DisplayMetrics displayMetrics = new DisplayMetrics();
-            WindowManager windowManager = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
-            if (windowManager != null) {
-                windowManager.getDefaultDisplay().getMetrics(displayMetrics);
-            }
-            KanLogger.myLog("========================== Screen :");
-            KanLogger.myLog("Width = " + displayMetrics.widthPixels);
-            KanLogger.myLog("Height = " + displayMetrics.heightPixels);
-            KanLogger.myLog("========================== Miscellaneous :");
-            KanLogger.myLog("Theme = " + getKindOfTheme());
-            KanLogger.myLog("===");
-            KanLogger.myLog("==========================");
-            KanLogger.myLog("");
-
-            myKeyFirebase("Locale.getDefault", Locale.getDefault().getCountry());
-            myKeyFirebase("TelephonyManager country", Objects.toString(getCountryFromTelephonyManager(this)));
-
-        } catch (Exception e) {
-            myLogEE(e, "printSomeStuffAboutDevice");
+    private void doSomeBackgroundJobs() {
+        if (shouldCheckApiForAutoDownload()) {
+            checkForNewEpisodesToAutoDownload(this, PODCASTINDEXORG_SINCE_DEBUG);
         }
+        ImageHelper.processPendingImages(this);
     }
 
-
-    private static String getCountryFromTelephonyManager(Context context) {
-        TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-        String countryIso = telephonyManager.getNetworkCountryIso(); // returns the country code, e.g., "us"
-        return countryIso != null ? countryIso.toUpperCase() : null;
-    }
-
-    private String getKindOfTheme() {
-        int nightModeFlags = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
-        if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES) {
-            return "Dark";
-        } else {
-            return "Light";
-        }
-    }
 
 }

@@ -12,7 +12,7 @@ public class Var {
     public static final int MAX_IMAGE_SIZE_KB = 200;
 
     public static final int LIBRIVOX_API_MAX_RESULTS = 10;
-    public static final int PODCASTINDEXORG_API_MAX_RESULTS = 10;
+    public static final int PODCASTINDEXORG_API_MAX_RESULTS = 20;
 
     public static final int PODCASTINDEXORG_MAX_PODCAST_AUTO_DOWNLOAD = 5;
     public static final int PODCASTINDEXORG_MAX_EPISODE_AUTO_DOWNLOAD = 1;

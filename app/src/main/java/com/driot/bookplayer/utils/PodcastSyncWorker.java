@@ -116,6 +116,7 @@ public class PodcastSyncWorker extends Worker {
         // 3. Notify user
         if (newFilesCount > 0) {
             updateFolderTable(getApplicationContext(), idFolder);
+            ImageHelper.processPendingImages(getApplicationContext());
             folderDao.updateLastAccess(idFolder, System.currentTimeMillis()); //triggers livedata update and reload of Book list
             Handler handler = new Handler(Looper.getMainLooper());
             int finalNewFilesCount = newFilesCount;
