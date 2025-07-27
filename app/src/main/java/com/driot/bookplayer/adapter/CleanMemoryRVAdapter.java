@@ -1,7 +1,6 @@
 package com.driot.bookplayer.adapter;
 
 import static com.driot.bookplayer.utils.Tonio.formatMemPadding;
-import static com.driot.bookplayer.utils.Utils.getCustomLength;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -16,7 +15,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.objects.FileWithSummary;
-import com.driot.bookplayer.objects.ZikFileSummary;
 import com.driot.bookplayer.utils.IconHelper;
 import com.driot.bookplayer.utils.log.LoggingRVAdapter;
 
@@ -60,7 +58,7 @@ public class CleanMemoryRVAdapter extends LoggingRVAdapter<CleanMemoryRVAdapter.
     public void onBindViewHolder(@NonNull FileViewHolder holder, int position) {
         FileWithSummary item = filesWithSummary.get(position);
         File file = item.file;
-        String zeSize = formatMemPadding(getCustomLength(file) / 1024 / 1024, 5) + " " + context.getString(R.string.MB);
+        String zeSize = formatMemPadding(item.fileSizeMB, 5) + " " + context.getString(R.string.MB);
 
         holder.fileName.setText(file.getName());
         String percentDone = (int) item.percentDone + "%";

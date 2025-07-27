@@ -15,7 +15,7 @@ import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.objects.FileWithSummary;
 import com.driot.bookplayer.objects.ZikFileSummary;
 import com.driot.bookplayer.utils.StorageHelper;
-import com.driot.bookplayer.utils.Utils;
+import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingViewModel;
 
 import java.io.File;
@@ -88,17 +88,15 @@ public class CleanMemoryViewModel extends LoggingViewModel {
                         ? getApplication().getFilesDir().getPath() + "/" + FOLDER_UNZIPPED
                         : StorageHelper.getSdCardUnzippedFolder(getApplication());
 
-                List<File> files = new ArrayList<>(); // start with empty list
+                List<File> files = new ArrayList<>();
 
                 if (basePath != null) {
                     File baseDir = new File(basePath);
                     File[] fileArray = baseDir.listFiles();
 
                     if (baseDir.exists() && baseDir.isDirectory() && fileArray != null) {
-                        files = new ArrayList<>(Arrays.asList(fileArray)); // ✅ mutable list now
-                        files.sort(Comparator.comparingLong(Utils::getCustomLength));
-                        Collections.reverse(files);
-                        myLog(files.size() + " files in: [" + basePath + "]");
+                        files = new ArrayList<>(Arrays.asList(fileArray));
+                        myLog(files.size() + " folders in: [" + basePath + "]");
                     } else {
                         myLog("No valid files found in base directory: [" + basePath + "]");
                     }
@@ -107,7 +105,7 @@ public class CleanMemoryViewModel extends LoggingViewModel {
                 }
 
                 latestFilesFromDisk = files;
-                updateEnrichedFiles();
+                updateEnrichedFiles(); // ← handles sort using cached fileSizeMB
                 memoryStats.postValue(true);
             } catch (Exception e) {
                 myLogEE(e, "loadFilesFromDisk");
@@ -129,10 +127,12 @@ public class CleanMemoryViewModel extends LoggingViewModel {
             ZikFileSummary summary = summaryMap.get(file.getPath());
             double percentDone = summary != null ? summary.percentdone : 0;
             String sourceLocation = summary != null ? summary.sourceLocation : "";
-
-            enriched.add(new FileWithSummary(file, percentDone, sourceLocation));
+            long sizeMB = Tonio.getFolderSize(file) / 1024 / 1024;
+            enriched.add(new FileWithSummary(file, percentDone, sourceLocation, sizeMB));
         }
 
+        enriched.sort(Comparator.comparingLong(f -> f.fileSizeMB));
+        Collections.reverse(enriched);
         enrichedFiles.postValue(enriched);
     }
 
