@@ -6,6 +6,8 @@ import static com.driot.bookplayer.utils.KanMail.DEFAULT_SEND_MAIL_METHOD_DEFAUL
 import android.content.Context;
 import android.util.TypedValue;
 
+import com.driot.bookplayer.utils.NetworkUtils;
+
 
 public class Option {
 
@@ -30,6 +32,8 @@ public class Option {
     private static final boolean DEFAULT_OPEN_WITH_ALL = false;
     private static final boolean DEFAULT_SPLIT_M4B = true;
     private static final boolean DEFAULT_USE_SD_CARD = true;
+    private static final NetworkUtils.NetworkPolicyManual DEFAULT_MANUAL_DOWNLOAD_POLICY = NetworkUtils.NetworkPolicyManual.NEVER_ASK;
+    private static final NetworkUtils.NetworkPolicyAuto DEFAULT_AUTO_DOWNLOAD_POLICY = NetworkUtils.NetworkPolicyAuto.WIFI;
 
     private static Context appContext;
     private static android.content.SharedPreferences prefs;
@@ -120,5 +124,18 @@ public class Option {
     /////////////////// USE SD CARD ///////////////////
     public static void setUseSdCard(boolean bool) {prefs.edit().putBoolean("USE_SD_CARD",bool).apply();}
     public static boolean getUseSdCard() {return prefs.getBoolean("USE_SD_CARD", DEFAULT_USE_SD_CARD);}
+
+    /////////////////// DOWNLOAD ON WIFI ///////////////////
+    public static void setNetworkPolicyManualDownload(NetworkUtils.NetworkPolicyManual policy) {prefs.edit().putInt("MANUAL_DOWNLOAD_POLICY_KEY", policy.ordinal()).apply();}
+    public static NetworkUtils.NetworkPolicyManual getNetworkPolicyManualDownload() {
+        int index = prefs.getInt("MANUAL_DOWNLOAD_POLICY_KEY", DEFAULT_MANUAL_DOWNLOAD_POLICY.ordinal());
+        return NetworkUtils.NetworkPolicyManual.values()[Math.max(0, Math.min(index, NetworkUtils.NetworkPolicyManual.values().length - 1))];
+    }
+    public static void setNetworkPolicyAutoDownload(NetworkUtils.NetworkPolicyAuto policy) {prefs.edit().putInt("AUTO_DOWNLOAD_POLICY_KEY", policy.ordinal()).apply();}
+    public static NetworkUtils.NetworkPolicyAuto getNetworkPolicyAutoDownload() {
+        int index = prefs.getInt("AUTO_DOWNLOAD_POLICY_KEY", DEFAULT_AUTO_DOWNLOAD_POLICY.ordinal());
+        return NetworkUtils.NetworkPolicyAuto.values()[Math.max(0, Math.min(index, NetworkUtils.NetworkPolicyAuto.values().length - 1))];
+    }
+
 
 }

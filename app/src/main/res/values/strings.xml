@@ -634,6 +634,17 @@
     <string name="could_not_check_already_imported">">could not check if already imported.</string>
 
 
+    <string name="network_preferences_title">network preferences</string>
+    <string name="option_download_auto_title">Auto download</string>
+    <string name="option_download_user_title">Manual download</string>
+    <string name="download_any">📶 Any connection</string>
+    <string name="download_wifi">🛜 Wi-Fi only</string>
+    <string name="download_unmetered">🆓 Unmetered Wi-Fi only</string>
+    <string name="download_never_ask">🛣️ Never ask</string>
+    <string name="download_ask_if_not_wifi">❓ Ask if not on Wi-Fi</string>
+    <string name="download_ask_if_unmetered">⚠️ Ask if not Unmetered</string>
+
+
 
 
 </resources>

@@ -125,6 +125,52 @@
         </LinearLayout>
 
 
+        <View style="@style/myStyleViewSimpleHorizontalBar" />
+
+        <LinearLayout style="@style/LinearLayoutOptionsVertical">
+
+            <TextView
+                style="@style/OptionTitle"
+                android:text="@string/network_preferences_title" />
+
+            <LinearLayout
+                style="@style/LinearLayoutOptionsCheckBoxHorizontal">
+                <TextView style="@style/OptionCheckBoxText"
+                    android:text="@string/option_download_user_title"
+                    android:layout_width="135dp"
+                    />
+                <Spinner
+                    android:id="@+id/spinner_download_user"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:spinnerMode="dropdown"
+                    style="@style/Spinner" />
+            </LinearLayout>
+
+            <LinearLayout
+                style="@style/LinearLayoutOptionsCheckBoxHorizontal"
+                android:gravity="center_vertical"
+                android:weightSum="1">
+
+                <TextView
+                    style="@style/OptionCheckBoxText"
+                    android:text="@string/option_download_auto_title"
+                    android:layout_width="135dp"
+                />
+
+                <Spinner
+                    android:id="@+id/spinner_download_auto"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:spinnerMode="dropdown"
+                    style="@style/Spinner" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+
+
+
 
         <View style="@style/myStyleViewSimpleHorizontalBar" />
 

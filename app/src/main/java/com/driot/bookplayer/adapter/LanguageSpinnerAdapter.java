@@ -38,7 +38,7 @@ public class LanguageSpinnerAdapter extends ArrayAdapter<LanguageItem> {
     }
 
     private View createView(int position, View convertView, ViewGroup parent) {
-        View view = LayoutInflater.from(context).inflate(R.layout.item_language_spinner, parent, false);
+        View view = LayoutInflater.from(context).inflate(R.layout.spinner_language_item, parent, false);
         LanguageItem item = languages.get(position);
 
         TextView textView = view.findViewById(R.id.textViewLanguage);

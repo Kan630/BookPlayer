@@ -45,6 +45,14 @@
         <item name="android:layout_marginTop">20sp</item>
     </style>
 
+    <style name="Spinner" parent="TextAppearance.AppCompat"> // DOES NOT SEEM TO WORK, CHECK => spinner_item.xml (is set programmatically in Activity adapter)
+        <item name="android:background">@drawable/rounded_corner_theme</item>
+        <item name="android:popupBackground">?colorSecondary</item>
+        <item name="android:textColor">?colorOnSecondary</item>
+        <item name="android:textColorHighlight">?colorOnSecondary</item>
+    </style>
+
+
     <!-- ***************** PLAY ACTIVITY ***************** -->
 
     <style name="PlayActivityActionButtons">
@@ -242,11 +250,7 @@
         <item name="android:layout_marginBottom">10dp</item>
     </style>
 
-    <style name="GetResourceSpinner" parent="textColor">
-        <item name="android:background">@drawable/rounded_corner_theme</item>
-        <item name="android:popupBackground">?colorSecondary</item>
-        <item name="android:textColor">?colorOnSecondary</item>
-        <item name="android:textColorHighlight">?colorSecondaryVariant</item>
+    <style name="GetResourceSpinner" parent="Spinner">
         <item name="android:layout_marginTop">15dp</item>
         <item name="android:paddingStart">10dp</item>
         <item name="android:paddingEnd">10dp</item>

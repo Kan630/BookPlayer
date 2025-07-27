@@ -16,16 +16,20 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
 import android.view.WindowManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Option;
+import com.driot.bookplayer.utils.NetworkUtils;
 import com.driot.bookplayer.utils.PermissionRequest;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
@@ -131,6 +135,42 @@ public class OptionActivity extends LoggingActivity {
             ll_container_sd_card.setVisibility(View.GONE);
         }
 
+
+// Auto download spinner
+        String[] autoOptions = new String[] {
+                getString(R.string.download_any),
+                getString(R.string.download_wifi),
+                getString(R.string.download_unmetered),
+        };
+        ArrayAdapter<String> autoAdapter = new ArrayAdapter<>(this, R.layout.spinner_item, autoOptions);
+        autoAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
+        Spinner spinnerAuto = findViewById(R.id.spinner_download_auto);
+        spinnerAuto.setAdapter(autoAdapter);
+        spinnerAuto.setSelection(Option.getNetworkPolicyAutoDownload().ordinal());
+        spinnerAuto.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+                Option.setNetworkPolicyAutoDownload(NetworkUtils.NetworkPolicyAuto.values()[pos]);
+            }
+            @Override public void onNothingSelected(AdapterView<?> parent) {}
+        });
+// Manual download spinner
+        String[] manualOptions = new String[] {
+                getString(R.string.download_never_ask),
+                getString(R.string.download_ask_if_not_wifi),
+                getString(R.string.download_ask_if_unmetered)
+        };
+        ArrayAdapter<String> manualAdapter = new ArrayAdapter<>(this, R.layout.spinner_item, manualOptions);
+        manualAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
+        Spinner spinnerUser = findViewById(R.id.spinner_download_user);
+        spinnerUser.setAdapter(manualAdapter);
+        spinnerUser.setSelection(Option.getNetworkPolicyManualDownload().ordinal());
+        spinnerUser.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+                Option.setNetworkPolicyManualDownload(NetworkUtils.NetworkPolicyManual.values()[pos]);
+            }
+            @Override public void onNothingSelected(AdapterView<?> parent) {}
+        });
+
         chk_visualizer_on.setChecked(Option.getVisualizerOn());
         ll_visualizer_on.setOnClickListener(v -> chk_visualizer_on.toggle());
         chk_visualizer_on.setOnCheckedChangeListener((buttonView, isChecked) -> {
@@ -140,7 +180,6 @@ public class OptionActivity extends LoggingActivity {
                 requestRecordAudioPermission();
             }
         });
-
         chk_click_visualizer_playpause.setChecked(Option.getClickVisualizerPlayPause());
         ll_visualizer_playpause.setOnClickListener(v -> chk_click_visualizer_playpause.toggle());
         chk_click_visualizer_playpause.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setClickVisualizerPlayPause(isChecked));
@@ -193,7 +232,7 @@ public class OptionActivity extends LoggingActivity {
     }
 
     private void initializeAdvancedOptions() {
-        chk_MailMethod = findViewById(R.id.chk_mail_method_default);
+
         chk_beep_chapter = findViewById(R.id.chk_beep_chapter);
         chk_beep_bookend = findViewById(R.id.chk_beep_bookend);
         chk_beep_autostop = findViewById(R.id.chk_beep_autostop);
@@ -214,8 +253,9 @@ public class OptionActivity extends LoggingActivity {
         ll_beep_autostop = findViewById(R.id.ll_beep_autostop);
         ll_rewind_after_pause = findViewById(R.id.ll_rewind_after_pause);
         ll_tech_log_file = findViewById(R.id.ll_tech_log_file);
-        ll_mail_method_default = findViewById(R.id.ll_mail_method_default);
 
+        chk_MailMethod = findViewById(R.id.chk_mail_method_default);
+        ll_mail_method_default = findViewById(R.id.ll_mail_method_default);
         chk_MailMethod.setChecked(Option.getMailMethod());
         ll_mail_method_default.setOnClickListener(v -> chk_MailMethod.toggle());
         chk_MailMethod.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setMailMethod(isChecked));

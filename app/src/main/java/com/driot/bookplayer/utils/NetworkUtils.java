@@ -2,6 +2,8 @@ package com.driot.bookplayer.utils;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
 
 import java.io.IOException;
@@ -9,6 +11,20 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class NetworkUtils {
+
+    // Auto mode options
+    public enum NetworkPolicyAuto {
+        ANY,
+        WIFI,
+        UNMETERED
+    }
+
+    // Manual mode options
+    public enum NetworkPolicyManual {
+        ASK_IF_NOT_WIFI,
+        ASK_IF_NOT_UNMETERED,
+        NEVER_ASK
+    }
 
     // Check if the device is connected to the internet
     public static boolean isNetworkAvailable(Context context) {
@@ -51,5 +67,25 @@ public class NetworkUtils {
         } catch (Exception e) {
             return false;
         }
+    }
+
+    public static boolean isUnmeteredConnected(Context context) {
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (cm == null) return false;
+        Network network = cm.getActiveNetwork();
+        if (network == null) return false;
+        NetworkCapabilities caps = cm.getNetworkCapabilities(network);
+        return caps != null &&
+                caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
+                caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED);
+    }
+
+    public static boolean isWifiConnected(Context context) {
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (cm == null) return false;
+        Network network = cm.getActiveNetwork();
+        if (network == null) return false;
+        NetworkCapabilities caps = cm.getNetworkCapabilities(network);
+        return caps != null && caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI);
     }
 }
