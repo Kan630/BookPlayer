@@ -51,18 +51,12 @@ public class CleanMemoryActivity extends LoggingActivity implements CleanMemoryR
             cacheFilesAdapter.setFilesWithSummary(fileWithSummaries);
         });
 
-        cacheFilesViewModel.getMemoryStats().observe(this, updated -> {
-            if (Boolean.TRUE.equals(updated)) {
-                FillTextViewMemoryStats();
-            }
-        });
-
-        // Observe loading state
-        cacheFilesViewModel.getIsLoading().observe(this, isLoading -> {
-            progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
-            if (isLoading) {
-                FillTextViewMemoryStats(); // show base stats immediately when loading starts
-            }
+        cacheFilesViewModel.getTotalAudioSizeMB().observe(this, audioMB -> {
+            FillTextViewMemoryStats(audioMB,
+                    StorageHelper.getAvailableStorageMB(this, cacheFilesViewModel.isUsingInternal()),
+                    StorageHelper.getTotalStorageMB(this, cacheFilesViewModel.isUsingInternal()),
+                    null
+            );
         });
 
 
@@ -82,6 +76,11 @@ public class CleanMemoryActivity extends LoggingActivity implements CleanMemoryR
 
         storageSelector.setOnCheckedChangeListener((group, checkedId) -> {
             myLogI("---- USER TOGGLE RADIO BUTTON ----");
+            FillTextViewMemoryStats(-1
+                    , StorageHelper.getAvailableStorageMB(this, (checkedId == R.id.radio_internal))
+                    , StorageHelper.getTotalStorageMB(this, (checkedId == R.id.radio_internal))
+                    , (checkedId == R.id.radio_internal) ? getString(R.string.device) : getString(R.string.SD_card)
+            );
             if (checkedId == R.id.radio_internal) {
                 myLogD("cacheFilesViewModel.setUseInternal(true);");
                 cacheFilesViewModel.setUseInternal(true);
@@ -95,38 +94,23 @@ public class CleanMemoryActivity extends LoggingActivity implements CleanMemoryR
         radioInternal.setChecked(true);
     }
 
-    private void FillTextViewMemoryStats() {
-        long totalMemory;
-        long availableMemory;
-
-        String label = cacheFilesViewModel.isUsingInternal() ? getString(R.string.device) : getString(R.string.SD_card);
+    private void FillTextViewMemoryStats(long MB_audio, long MB_leftOnDevice, long MB_deviceMemory, String forceLabel) {
+        String label;
+        if (forceLabel == null) {
+            label = cacheFilesViewModel.isUsingInternal() ? getString(R.string.device) : getString(R.string.SD_card);
+        } else {
+            label = forceLabel;
+        }
         String MB_audio_in_app = getString(R.string.MB) + ": " + getString(R.string.audios_in_app);
         String MB_left_on_label = getString(R.string.MB) + ": " + getString(R.string.left_on) + " " + label;
-        String MB_label_memory = getString(R.string.MB) + ": " + label  + " " + getString(R.string.memory);
+        String MB_label_memory = getString(R.string.MB) + ": " + label + " " + getString(R.string.memory);
 
-        if (cacheFilesViewModel.isUsingInternal()) {
-            totalMemory = StorageHelper.getTotaLInternalMemorySize() / 1048576L;
-            availableMemory = StorageHelper.getAvailableInternalMemorySize() / 1048576L;
-        } else {
-            totalMemory = StorageHelper.getTotalRemovableSDCardSize(this) / 1048576L;
-            availableMemory = StorageHelper.getAvailableRemovableSDCardSize(this) / 1048576L;
-        }
+        String str_MB_audio = MB_audio > 0 ? Tonio.formatMemPadding(MB_audio) : String.format("%9s", "...");
 
-        // Always show available and total memory
-        String zeText = "..." + "\n\n" +
-                Tonio.formatMemPadding(availableMemory) + " " + MB_left_on_label + "\n\n" +
-                Tonio.formatMemPadding(totalMemory) + " " + MB_label_memory;
+        String zeText = str_MB_audio + " " + MB_audio_in_app + "\n\n" +
+                Tonio.formatMemPadding(MB_leftOnDevice) + " " + MB_left_on_label + "\n\n" +
+                Tonio.formatMemPadding(MB_deviceMemory) + " " + MB_label_memory;
 
-        // Try to add audio size if folder is there
-        String path = cacheFilesViewModel.isUsingInternal()
-                ? getFilesDir().getPath() + "/unzipped"
-                : StorageHelper.getSdCardUnzippedFolder(this);
-        if (path != null) {
-            long audioSize = Tonio.getFolderSize(path) / 1048576L;
-            zeText = Tonio.formatMemPadding(audioSize) + " " +  MB_audio_in_app + "\n\n" +
-                    Tonio.formatMemPadding(availableMemory) + " " + MB_left_on_label + "\n\n" +
-                    Tonio.formatMemPadding(totalMemory) + " " + MB_label_memory;
-        }
         statsTextView.setText(zeText);
     }
 
@@ -140,7 +124,6 @@ public class CleanMemoryActivity extends LoggingActivity implements CleanMemoryR
                 .setCancelable(false)
                 .setPositiveButton(getString(R.string.Delete), (dialog, which) -> {
                     cacheFilesViewModel.deleteAudio(file);
-                    FillTextViewMemoryStats();
                 })
                 .setNegativeButton(getString(R.string.Cancel), null)
                 .show();

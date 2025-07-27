@@ -10,6 +10,8 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Transformations;
+import androidx.lifecycle.ViewModel;
 
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.objects.FileWithSummary;
@@ -32,19 +34,30 @@ import java.util.concurrent.Executors;
 public class CleanMemoryViewModel extends LoggingViewModel {
     private final CleanMemoryRepository cacheFilesRepository;
     private final MediatorLiveData<List<FileWithSummary>> enrichedFiles = new MediatorLiveData<>();
+    private final MutableLiveData<List<File>> filesFromDisk = new MutableLiveData<>();
+    private final LiveData<List<ZikFileSummary>> filesFromDb;
     private final MutableLiveData<Boolean> memoryStats = new MutableLiveData<>();
     private final MutableLiveData<Boolean> isLoading = new MutableLiveData<>();
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
+    private final MutableLiveData<Long> totalAudioSizeMB = new MutableLiveData<>(0L);
+    public LiveData<Long> getTotalAudioSizeMB() {
+        return totalAudioSizeMB;
+    }
     private boolean useInternal = true;
-    private List<File> latestFilesFromDisk = new ArrayList<>();
-    private List<ZikFileSummary> latestDbSummaries = new ArrayList<>();
+    private final Map<String, Long> folderSizeCache = new HashMap<>();
 
     public CleanMemoryViewModel(@NonNull Application application) {
         super(application);
         cacheFilesRepository = new CleanMemoryRepository(application);
 
-        loadBookFromDB();
+        filesFromDb = AppDatabase.getDatabase(getApplication())
+                .ZikFileDao()
+                .getZikFileDistinctLocations();
+
+        enrichedFiles.addSource(filesFromDisk, diskFiles -> updateEnrichedFiles(diskFiles, filesFromDb.getValue()));
+        enrichedFiles.addSource(filesFromDb, dbSummaries -> updateEnrichedFiles(filesFromDisk.getValue(), dbSummaries));
+
         loadFilesFromDisk();
     }
 
@@ -66,18 +79,8 @@ public class CleanMemoryViewModel extends LoggingViewModel {
 
     public void setUseInternal(boolean useInternal) {
         this.useInternal = useInternal;
-        enrichedFiles.postValue(new ArrayList<>());
+        filesFromDisk.postValue(new ArrayList<>()); // clear while loading
         loadFilesFromDisk();
-    }
-
-    private void loadBookFromDB() {
-        AppDatabase.getDatabase(getApplication())
-                .ZikFileDao()
-                .getZikFileDistinctLocations()
-                .observeForever(summaries -> {
-                    latestDbSummaries = summaries;
-                    updateEnrichedFiles();
-                });
     }
 
     private void loadFilesFromDisk() {
@@ -104,8 +107,15 @@ public class CleanMemoryViewModel extends LoggingViewModel {
                     myLogE("No valid base path found");
                 }
 
-                latestFilesFromDisk = files;
-                updateEnrichedFiles(); // ← handles sort using cached fileSizeMB
+                long totalSize = 0L;
+                for (File f : files) {
+                    long size = Tonio.getFolderSize(f);
+                    folderSizeCache.put(f.getPath(), size / 1024 / 1024); // Store in MB
+                    totalSize += size;
+                }
+                totalAudioSizeMB.postValue(totalSize / 1024 / 1024);
+
+                filesFromDisk.postValue(files);
                 memoryStats.postValue(true);
             } catch (Exception e) {
                 myLogEE(e, "loadFilesFromDisk");
@@ -115,19 +125,28 @@ public class CleanMemoryViewModel extends LoggingViewModel {
         });
     }
 
+    private void updateEnrichedFiles(List<File> diskFiles, List<ZikFileSummary> dbSummaries) {
+        if (diskFiles == null || dbSummaries == null) return;
 
-    private void updateEnrichedFiles() {
         Map<String, ZikFileSummary> summaryMap = new HashMap<>();
-        for (ZikFileSummary summary : latestDbSummaries) {
+        for (ZikFileSummary summary : dbSummaries) {
             summaryMap.put(summary.path, summary);
         }
 
-        List<FileWithSummary> enriched = new ArrayList<>(latestFilesFromDisk.size());
-        for (File file : latestFilesFromDisk) {
+        List<FileWithSummary> enriched = new ArrayList<>(diskFiles.size());
+        for (File file : diskFiles) {
             ZikFileSummary summary = summaryMap.get(file.getPath());
             double percentDone = summary != null ? summary.percentdone : 0;
             String sourceLocation = summary != null ? summary.sourceLocation : "";
-            long sizeMB = Tonio.getFolderSize(file) / 1024 / 1024;
+
+            long sizeMB;
+            if (folderSizeCache.containsKey(file.getPath())) {
+                sizeMB = folderSizeCache.get(file.getPath());
+            } else {
+                sizeMB = Tonio.getFolderSize(file) / 1024 / 1024;
+                folderSizeCache.put(file.getPath(), sizeMB);
+            }
+
             enriched.add(new FileWithSummary(file, percentDone, sourceLocation, sizeMB));
         }
 
@@ -139,13 +158,20 @@ public class CleanMemoryViewModel extends LoggingViewModel {
     public void deleteAudio(File file) {
         myLog("deleting file : [" + file.getPath() + "]");
         if (deleteBookFromDisk(file.getPath())) {
-            latestFilesFromDisk.removeIf(f -> f.getPath().equals(file.getPath()));
-            latestDbSummaries.removeIf(s -> s.path.equals(file.getPath()));
-            updateEnrichedFiles();
+            Long sizeMB = folderSizeCache.remove(file.getPath());
+            if (sizeMB != null && totalAudioSizeMB.getValue() != null) {
+                totalAudioSizeMB.postValue(totalAudioSizeMB.getValue() - sizeMB);
+            }
+            List<File> currentDisk = filesFromDisk.getValue();
+            if (currentDisk != null) {
+                currentDisk.removeIf(f -> f.getPath().equals(file.getPath()));
+                filesFromDisk.postValue(new ArrayList<>(currentDisk));
+            }
+
             int idFolder = getBookFolderId(file);
             if (idFolder > 0) {
                 cancelAutoDownload(getApplication(), idFolder);
-                deleteBookFromDB(idFolder); // does not trigger DB reload anymore
+                deleteBookFromDB(idFolder);
             } else {
                 myLogE("Book not found in DB");
             }
@@ -155,9 +181,12 @@ public class CleanMemoryViewModel extends LoggingViewModel {
     }
 
     private int getBookFolderId(File file) {
-        for (ZikFileSummary f : latestDbSummaries) {
-            if (file.getPath().equals(f.path)) {
-                return f.idFolder;
+        List<ZikFileSummary> summaries = filesFromDb.getValue();
+        if (summaries != null) {
+            for (ZikFileSummary f : summaries) {
+                if (file.getPath().equals(f.path)) {
+                    return f.idFolder;
+                }
             }
         }
         return 0;

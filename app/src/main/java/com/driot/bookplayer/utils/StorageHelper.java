@@ -173,7 +173,13 @@ public class StorageHelper {
         }
     }
 
+    public static long getTotalStorageMB(Context context, boolean internal) {
+        return internal ? getTotaLInternalMemorySize() / 1048576L : getTotalRemovableSDCardSize(context) / 1048576L;
+    }
 
+    public static long getAvailableStorageMB(Context context, boolean internal) {
+        return internal ? getAvailableInternalMemorySize() / 1048576L : getAvailableRemovableSDCardSize(context) / 1048576L;
+    }
 
 
 
