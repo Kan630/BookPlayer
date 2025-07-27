@@ -176,7 +176,7 @@ public class PodcastFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.Vie
 
                 // ⬇ Trigger download if enabled
                 if (newState) {
-                    PodcastHelper.checkForNewEpisodesToAutoDownload(itemView.getContext(), podcast, PODCASTINDEXORG_SINCE_DEBUG);
+                    PodcastHelper.checkForNewEpisodesToAutoDownloadForPodcast(itemView.getContext(), podcast, PODCASTINDEXORG_SINCE_DEBUG);
                 }
             });
 

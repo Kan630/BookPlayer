@@ -1,6 +1,5 @@
 package com.driot.bookplayer.utils;
 
-import static com.driot.bookplayer.global.Var.FOLDER_UNZIPPED;
 import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_API_KEY;
 import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_API_SECRET;
 import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_MAX_EPISODE_AUTO_DOWNLOAD;
@@ -205,6 +204,14 @@ public class PodcastHelper {
     }
 
     public static void checkForNewEpisodesToAutoDownload(Context context, long since) {
+        if (Option.getNetworkPolicyAutoDownload().equals(NetworkUtils.NetworkPolicyAuto.UNMETERED) && !NetworkUtils.isUnmeteredConnected(context)) {
+            myLogD("Network policy prevents auto-download (Unmetered)");
+            return;
+        }
+        if (Option.getNetworkPolicyAutoDownload().equals(NetworkUtils.NetworkPolicyAuto.WIFI) && !NetworkUtils.isWifiConnected(context)) {
+            myLogD("Network policy prevents auto-download (Wifi)");
+            return;
+        }
         AppDatabase.databaseWriteExecutor.execute(() -> {
             List<Podcast> autoList = AppDatabase.getDatabase(context).PodcastDao().getAutoDownloads();
             int i=0;
@@ -214,12 +221,12 @@ public class PodcastHelper {
                 if (i > PODCASTINDEXORG_MAX_PODCAST_AUTO_DOWNLOAD) {
                     myLogW("Max number of podcasts to auto download reached, bypassing...");
                 } else {
-                    checkForNewEpisodesToAutoDownload(context, podcast, since);
+                    checkForNewEpisodesToAutoDownloadForPodcast(context, podcast, since);
                 }
             }
         });
     }
-    public static void checkForNewEpisodesToAutoDownload(Context context, Podcast podcast, long since) {
+    public static void checkForNewEpisodesToAutoDownloadForPodcast(Context context, Podcast podcast, long since) {
         getEpisodesByFeedId(podcast.feedId, since, new EpisodeCallback() {
             @Override
             public void onSuccess(List<PodcastEpisode> episodes) {

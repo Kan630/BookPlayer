@@ -7,14 +7,6 @@ package com.driot.bookplayer.activities;
 
 import static com.driot.bookplayer.global.Pref.shouldCheckApiForAutoDownload;
 import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_SINCE_DEBUG;
-/*
-import static com.driot.bookplayer.utils.Mp4Parser.extractAacTrackAsAdts;
-import static com.driot.bookplayer.utils.Mp4Parser.extractChapters;
-import static com.driot.bookplayer.utils.Mp4Parser.extractChaptersAsAac;
-import static com.driot.bookplayer.utils.Mp4Parser.inspect;
-
- */
-import static com.driot.bookplayer.utils.PodcastHelper.checkForNewEpisodesToAutoDownload;
 import static com.driot.bookplayer.utils.WorkFlow.maybeResumeWorkFlow;
 
 import android.Manifest;
@@ -43,8 +35,6 @@ import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-//import com.arthenica.ffmpegkit.FFmpegKit;
-//import com.arthenica.ffmpegkit.ReturnCode;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.adapter.FoldersRVAdapter;
 import com.driot.bookplayer.db.DatabaseClient;
@@ -58,6 +48,7 @@ import com.driot.bookplayer.utils.ImageHelper;
 import com.driot.bookplayer.utils.InfoHelper;
 import com.driot.bookplayer.utils.KanLogger;
 import com.driot.bookplayer.utils.KanMail;
+import com.driot.bookplayer.utils.PodcastHelper;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -283,7 +274,7 @@ public class MainActivity extends LoggingActivity {
 
     private void doSomeBackgroundJobs() {
         if (shouldCheckApiForAutoDownload()) {
-            checkForNewEpisodesToAutoDownload(this, PODCASTINDEXORG_SINCE_DEBUG);
+            PodcastHelper.checkForNewEpisodesToAutoDownload(this, PODCASTINDEXORG_SINCE_DEBUG);
         }
         ImageHelper.processPendingImages(this);
     }

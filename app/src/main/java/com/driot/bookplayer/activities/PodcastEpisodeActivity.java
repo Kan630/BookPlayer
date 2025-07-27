@@ -3,7 +3,6 @@ package com.driot.bookplayer.activities;
 import static com.driot.bookplayer.global.Pref.shouldAnimateButtons;
 import static com.driot.bookplayer.global.Pref.stopAnimateButtons;
 import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_SINCE_DEBUG;
-import static com.driot.bookplayer.utils.PodcastHelper.checkForNewEpisodesToAutoDownload;
 import static com.driot.bookplayer.utils.TextOptions.parseMaybeHtml;
 
 import android.animation.AnimatorSet;
@@ -246,7 +245,7 @@ public class PodcastEpisodeActivity extends LoggingActivity {
     }
 
     private void downloadAllEpisodesToFolder(Podcast podcast, long since) {
-        checkForNewEpisodesToAutoDownload(this, podcast, since);
+        PodcastHelper.checkForNewEpisodesToAutoDownloadForPodcast(this, podcast, since);
     }
 
     private void startEpisodeDownload(String url, String outputPath) {

@@ -157,6 +157,7 @@ public class CleanMemoryViewModel extends LoggingViewModel {
 
     public void deleteAudio(File file) {
         myLog("deleting file : [" + file.getPath() + "]");
+        int idFolder = getBookFolderId(file);
         if (deleteBookFromDisk(file.getPath())) {
             Long sizeMB = folderSizeCache.remove(file.getPath());
             if (sizeMB != null && totalAudioSizeMB.getValue() != null) {
@@ -168,12 +169,11 @@ public class CleanMemoryViewModel extends LoggingViewModel {
                 filesFromDisk.postValue(new ArrayList<>(currentDisk));
             }
 
-            int idFolder = getBookFolderId(file);
             if (idFolder > 0) {
                 cancelAutoDownload(getApplication(), idFolder);
                 deleteBookFromDB(idFolder);
             } else {
-                myLogE("Book not found in DB");
+                myLogE("deleteAudio -> Book not found in DB");
             }
         } else {
             myLogE("Error deleting from disk");
