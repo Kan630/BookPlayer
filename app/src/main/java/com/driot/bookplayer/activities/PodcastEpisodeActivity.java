@@ -33,6 +33,7 @@ import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.objects.PlayList;
 import com.driot.bookplayer.objects.PodcastEpisode;
 import com.driot.bookplayer.objects.PodcastFeed;
+import com.driot.bookplayer.utils.NetworkUtils;
 import com.driot.bookplayer.utils.ViewHelper;
 import com.driot.bookplayer.utils.ImageHelper;
 import com.driot.bookplayer.utils.PodcastHelper;
@@ -237,8 +238,13 @@ public class PodcastEpisodeActivity extends LoggingActivity {
             public void onError(Exception e) {
                 runOnUiThread(() -> {
                     progressBar.setVisibility(View.GONE);
-                    myToastEE(e,"Error loading episodes for " + podcastFeed.title + " - podcastFeed.id = " + podcastFeed.id );
-                    tvDescription.setText("Error loading episodes\n" + e.getMessage());
+                    tvDescription.setTextColor(getColor(R.color.orange_500));
+                    if (NetworkUtils.isUnknownHost(e)) {
+                        tvDescription.setText(getString(R.string.no_internet_connection));
+                    } else {
+                        myLogEE(e,"Error loading episodes for " + podcastFeed.title + " - podcastFeed.id = " + podcastFeed.id );
+                        tvDescription.setText("Error loading episodes\n" + e.getMessage());
+                    }
                 });
             }
         });

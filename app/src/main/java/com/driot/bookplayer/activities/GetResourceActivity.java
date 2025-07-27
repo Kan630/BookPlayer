@@ -353,6 +353,7 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
         });
         Button bFavoritePodcasts = findViewById(R.id.bFavoritePodcasts);
         bFavoritePodcasts.setOnClickListener(v -> {
+            myLogI("--- User clicks FAVORITES");
             Intent intent = new Intent(this, PodcastFavoritesActivity.class);
             startActivity(intent);
         });

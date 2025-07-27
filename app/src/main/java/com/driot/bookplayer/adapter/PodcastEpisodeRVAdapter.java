@@ -6,6 +6,7 @@ import static com.driot.bookplayer.utils.PodcastHelper.findPodcastEpisodeFileIfE
 
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;
@@ -26,9 +27,11 @@ import com.driot.bookplayer.activities.PodcastEpisodeViewModel;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.db.ZikFile;
+import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.objects.PlayList;
 import com.driot.bookplayer.objects.PodcastEpisode;
 import com.driot.bookplayer.objects.PodcastFeed;
+import com.driot.bookplayer.utils.NetworkUtils;
 import com.driot.bookplayer.utils.ViewHelper;
 import com.driot.bookplayer.utils.PodcastDownloadManager;
 import com.driot.bookplayer.utils.Tonio;
@@ -130,22 +133,46 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
                 holder.icon_1.setOnClickListener(v -> {
                     myLogI("---- USER CLICKS - Downloading single episode -----  " + episode.title);
                     addPodcastToDB();
-                    if (holder.flickerAnim == null) {
-                        holder.flickerRunning = true;
-                        holder.flickerAnim = createFlickerAnimation(holder.icon_1,holder);
-                        holder.flickerAnim.start();
+                    if (Option.getNetworkPolicyManualDownload().equals(NetworkUtils.NetworkPolicyManual.ASK_IF_NOT_UNMETERED) && !NetworkUtils.isUnmeteredConnected(context)) {
+                        new AlertDialog.Builder(context)
+                                .setTitle(R.string.download_warning_title_unmetered)
+                                .setMessage(R.string.download_warning_message_unmetered)
+                                .setPositiveButton(android.R.string.ok, (dialog, which) -> {
+                                    proceedWithDownload(context, holder , podcastFeed.title, episode, podcastFeed.id);
+                                })
+                                .setNegativeButton(android.R.string.cancel, null)
+                                .show();
+                    } else if (Option.getNetworkPolicyManualDownload().equals(NetworkUtils.NetworkPolicyManual.ASK_IF_NOT_WIFI) && !NetworkUtils.isWifiConnected(context)) {
+                        new AlertDialog.Builder(context)
+                                .setTitle(R.string.download_warning_title_wifi)
+                                .setMessage(R.string.download_warning_message_wifi)
+                                .setPositiveButton(android.R.string.ok, (dialog, which) -> {
+                                    proceedWithDownload(context, holder, podcastFeed.title, episode, podcastFeed.id);
+                                })
+                                .setNegativeButton(android.R.string.cancel, null)
+                                .show();
+                    } else {
+                        proceedWithDownload(context, holder, podcastFeed.title, episode, podcastFeed.id);
                     }
-                    File targetFolder = buildPodcastPath(context, podcastFeed.title);
-                    if (!targetFolder.exists()) targetFolder.mkdirs();
-
-                    List<PodcastEpisode> singleList = new ArrayList<>();
-                    singleList.add(episode);
-
-                    PodcastDownloadManager.enqueueDownloads(context, podcastFeed.id, singleList, targetFolder, null);
                 });
             }
         });
     }
+
+    private void proceedWithDownload(Context context, ViewHolder holder, String futureFolderName, PodcastEpisode episode, long feedId) {
+        if (holder.flickerAnim == null) {
+            holder.flickerRunning = true;
+            holder.flickerAnim = createFlickerAnimation(holder.icon_1,holder);
+            holder.flickerAnim.start();
+        }
+        File targetFolder = buildPodcastPath(context, futureFolderName);
+        if (!targetFolder.exists()) targetFolder.mkdirs();
+
+        List<PodcastEpisode> singleList = new ArrayList<>();
+        singleList.add(episode);
+
+        PodcastDownloadManager.enqueueDownloads(context, feedId, singleList, targetFolder, null);
+}
 
     @Override
     public int getItemCount() {

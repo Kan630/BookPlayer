@@ -644,6 +644,15 @@
     <string name="download_ask_if_not_wifi">❓ Ask if not on Wi-Fi</string>
     <string name="download_ask_if_unmetered">⚠️ Ask if not Unmetered</string>
 
+    <!-- Network download prompts -->
+    <string name="download_warning_title_unmetered">Unmetered</string>
+    <string name="download_warning_message_unmetered">You\'re not on an unmetered connection. Continue with the download?</string>
+    <string name="download_warning_title_wifi">Wi-Fi</string>
+    <string name="download_warning_message_wifi">You\'re not on Wi-Fi. Continue with the download?</string>
+
+    <string name="no_internet_connection">No internet connection</string>
+    <string name="an_error_occurred">An error occurred</string>
+
 
 
 

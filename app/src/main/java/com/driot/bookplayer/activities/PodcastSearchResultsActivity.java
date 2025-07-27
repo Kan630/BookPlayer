@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.adapter.PodcastSearchResultsRVAdapter;
 import com.driot.bookplayer.objects.PodcastFeed;
+import com.driot.bookplayer.utils.NetworkUtils;
 import com.driot.bookplayer.utils.PodcastHelper;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
@@ -136,8 +137,13 @@ public class PodcastSearchResultsActivity extends LoggingActivity {
     private void handleError(Exception e) {
         progressBar.setVisibility(View.GONE);
         emptyMessage.setVisibility(View.VISIBLE);
-        emptyMessage.setText("Error: " + e.getMessage());
-        emptyMessage.setTextColor(getColor(R.color.red_500));
+        emptyMessage.setTextColor(getColor(R.color.orange_500));
+        if (NetworkUtils.isUnknownHost(e)) {
+            emptyMessage.setText(getString(R.string.no_internet_connection));
+        } else {
+            emptyMessage.setText("Error : \n" + e.getMessage());
+            myLogEE(e, "performSearch - handleError");
+        }
     }
 
     private void showResults(List<PodcastFeed> feeds, String query, String lang) {

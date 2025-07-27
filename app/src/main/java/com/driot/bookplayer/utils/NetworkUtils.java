@@ -88,4 +88,12 @@ public class NetworkUtils {
         NetworkCapabilities caps = cm.getNetworkCapabilities(network);
         return caps != null && caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI);
     }
+
+    public static boolean isUnknownHost(Throwable e) {
+        while (e != null) {
+            if (e instanceof java.net.UnknownHostException) return true;
+            e = e.getCause();
+        }
+        return false;
+    }
 }

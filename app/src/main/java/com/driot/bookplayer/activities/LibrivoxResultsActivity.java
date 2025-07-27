@@ -17,6 +17,7 @@ import com.driot.bookplayer.adapter.LibrivoxResultRVAdapter;
 import com.driot.bookplayer.objects.LibrivoxApiResponse;
 import com.driot.bookplayer.objects.LibrivoxApi;
 import com.driot.bookplayer.objects.LibrivoxItem;
+import com.driot.bookplayer.utils.NetworkUtils;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import java.util.Arrays;
@@ -139,6 +140,7 @@ public class LibrivoxResultsActivity extends LoggingActivity {
         api.search(fullQuery, fields, LIBRIVOX_API_MAX_RESULTS, 1, "json", API_SORT).enqueue(new Callback<LibrivoxApiResponse>() {
             @Override
             public void onResponse(Call<LibrivoxApiResponse> call, Response<LibrivoxApiResponse> response) {
+                myLog(response.toString());
                 progressBar.setVisibility(View.GONE);
                 if (response.body() != null && response.body().response != null) {
                     List<LibrivoxItem> results = response.body().response.docs;
@@ -157,8 +159,12 @@ public class LibrivoxResultsActivity extends LoggingActivity {
 
             @Override
             public void onFailure(Call<LibrivoxApiResponse> call, Throwable t) {
+                if (NetworkUtils.isUnknownHost(t)) {
+                    myToastE(getString(R.string.no_internet_connection));
+                } else {
+                    myToastE(getString(R.string.an_error_occurred));
+                }
                 progressBar.setVisibility(View.GONE);
-                t.printStackTrace();
                 viewModel.requestFinish(); // ✅ trigger finish
             }
         });
