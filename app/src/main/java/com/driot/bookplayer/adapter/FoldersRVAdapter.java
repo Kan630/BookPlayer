@@ -26,7 +26,9 @@ import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.objects.PlayList;
+import com.driot.bookplayer.utils.IconHelper;
 import com.driot.bookplayer.utils.Tonio;
+import com.driot.bookplayer.utils.ViewHelper;
 import com.driot.bookplayer.utils.log.LoggingRVAdapter;
 
 import java.util.List;
@@ -72,20 +74,11 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
 
         if (folder.image != null) {
             holder.ivBookCover.setVisibility(View.VISIBLE);
-            //Glide.with(this.mCtx).load(folder.image).diskCacheStrategy(DiskCacheStrategy.ALL).into(holder.ivBookCover);
             Glide.with(this.mCtx).load(folder.image).into(holder.ivBookCover);
         } else {
             holder.ivBookCover.setVisibility(View.GONE);
         }
-        if (folder.getSourceLocation().equals(SOURCE_LOCATION_PODCAST)) {
-            holder.ivSource.setVisibility(View.VISIBLE);
-            holder.ivSource.setImageResource(R.drawable.ic_podcast_24);
-        } else if (folder.getSourceLocation().equals(SOURCE_LOCATION_LIBRIVOX)) {
-            holder.ivSource.setVisibility(View.VISIBLE);
-            holder.ivSource.setImageResource(R.drawable.ic_librivox_24);
-        } else {
-            holder.ivSource.setVisibility(View.GONE);
-        }
+        IconHelper.setSourceIcon(holder.ivSource, folder.getSourceLocation());
     }
 
     @Override

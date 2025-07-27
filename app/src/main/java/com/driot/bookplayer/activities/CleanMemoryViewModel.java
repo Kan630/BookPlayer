@@ -8,10 +8,11 @@ import android.app.Application;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.driot.bookplayer.db.AppDatabase;
-import com.driot.bookplayer.db.ZikFile;
+import com.driot.bookplayer.objects.FileWithSummary;
 import com.driot.bookplayer.objects.ZikFileSummary;
 import com.driot.bookplayer.utils.StorageHelper;
 import com.driot.bookplayer.utils.Utils;
@@ -22,35 +23,37 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class CacheFilesViewModel extends LoggingViewModel {
-    private final CacheFilesRepository cacheFilesRepository;
-    private LiveData<List<ZikFileSummary>> filesFromDb;
-    private final MutableLiveData<List<File>> filesFromDisk = new MutableLiveData<>();
+public class CleanMemoryViewModel extends LoggingViewModel {
+    private final CleanMemoryRepository cacheFilesRepository;
+    private final MediatorLiveData<List<FileWithSummary>> enrichedFiles = new MediatorLiveData<>();
     private final MutableLiveData<Boolean> memoryStats = new MutableLiveData<>();
-    private boolean useInternal = true;
-
     private final MutableLiveData<Boolean> isLoading = new MutableLiveData<>();
-    public LiveData<Boolean> getIsLoading() { return isLoading; }
-
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
-    public CacheFilesViewModel(@NonNull Application application) {
+    private boolean useInternal = true;
+    private List<File> latestFilesFromDisk = new ArrayList<>();
+    private List<ZikFileSummary> latestDbSummaries = new ArrayList<>();
+
+    public CleanMemoryViewModel(@NonNull Application application) {
         super(application);
-        cacheFilesRepository = new CacheFilesRepository(application);
+        cacheFilesRepository = new CleanMemoryRepository(application);
+
         loadBookFromDB();
         loadFilesFromDisk();
     }
 
-    public LiveData<List<ZikFileSummary>> getFilesOnDb() {
-        return filesFromDb;
+    public LiveData<List<FileWithSummary>> getEnrichedFiles() {
+        return enrichedFiles;
     }
 
-    public MutableLiveData<List<File>> getFilesOnDisk() {
-        return filesFromDisk;
+    public LiveData<Boolean> getIsLoading() {
+        return isLoading;
     }
 
     public LiveData<Boolean> getMemoryStats() {
@@ -63,50 +66,48 @@ public class CacheFilesViewModel extends LoggingViewModel {
 
     public void setUseInternal(boolean useInternal) {
         this.useInternal = useInternal;
+        enrichedFiles.postValue(new ArrayList<>());
         loadFilesFromDisk();
     }
 
     private void loadBookFromDB() {
-        filesFromDb = AppDatabase.getDatabase(getApplication()).ZikFileDao().getZikFileDistinctLocations();
+        AppDatabase.getDatabase(getApplication())
+                .ZikFileDao()
+                .getZikFileDistinctLocations()
+                .observeForever(summaries -> {
+                    latestDbSummaries = summaries;
+                    updateEnrichedFiles();
+                });
     }
 
     private void loadFilesFromDisk() {
         isLoading.postValue(true);
-
         executorService.execute(() -> {
             try {
                 String basePath = useInternal
                         ? getApplication().getFilesDir().getPath() + "/" + FOLDER_UNZIPPED
                         : StorageHelper.getSdCardUnzippedFolder(getApplication());
 
-                if (basePath == null) {
-                    myLogE("No valid base path found");
-                    filesFromDisk.postValue(new ArrayList<>());
-                    isLoading.postValue(false);
-                    return;
-                }
+                List<File> files = new ArrayList<>(); // start with empty list
 
-                File baseDir = new File(basePath);
-                if (baseDir.exists() && baseDir.isDirectory()) {
+                if (basePath != null) {
+                    File baseDir = new File(basePath);
                     File[] fileArray = baseDir.listFiles();
-                    if (fileArray != null) {
-                        List<File> files = Arrays.asList(fileArray);
-                        filesFromDisk.postValue(files); // show early
 
+                    if (baseDir.exists() && baseDir.isDirectory() && fileArray != null) {
+                        files = new ArrayList<>(Arrays.asList(fileArray)); // ✅ mutable list now
                         files.sort(Comparator.comparingLong(Utils::getCustomLength));
                         Collections.reverse(files);
-                        filesFromDisk.postValue(files); // show sorted
-
                         myLog(files.size() + " files in: [" + basePath + "]");
                     } else {
-                        filesFromDisk.postValue(new ArrayList<>());
-                        myLog("No files found in: [" + basePath + "]");
+                        myLog("No valid files found in base directory: [" + basePath + "]");
                     }
                 } else {
-                    filesFromDisk.postValue(new ArrayList<>());
-                    myLog("Base dir doesn't exist: [" + basePath + "]");
+                    myLogE("No valid base path found");
                 }
 
+                latestFilesFromDisk = files;
+                updateEnrichedFiles();
                 memoryStats.postValue(true);
             } catch (Exception e) {
                 myLogEE(e, "loadFilesFromDisk");
@@ -116,15 +117,35 @@ public class CacheFilesViewModel extends LoggingViewModel {
         });
     }
 
+
+    private void updateEnrichedFiles() {
+        Map<String, ZikFileSummary> summaryMap = new HashMap<>();
+        for (ZikFileSummary summary : latestDbSummaries) {
+            summaryMap.put(summary.path, summary);
+        }
+
+        List<FileWithSummary> enriched = new ArrayList<>(latestFilesFromDisk.size());
+        for (File file : latestFilesFromDisk) {
+            ZikFileSummary summary = summaryMap.get(file.getPath());
+            double percentDone = summary != null ? summary.percentdone : 0;
+            String sourceLocation = summary != null ? summary.sourceLocation : "";
+
+            enriched.add(new FileWithSummary(file, percentDone, sourceLocation));
+        }
+
+        enrichedFiles.postValue(enriched);
+    }
+
     public void deleteAudio(File file) {
         myLog("deleting file : [" + file.getPath() + "]");
         if (deleteBookFromDisk(file.getPath())) {
-            loadFilesFromDisk();
+            latestFilesFromDisk.removeIf(f -> f.getPath().equals(file.getPath()));
+            latestDbSummaries.removeIf(s -> s.path.equals(file.getPath()));
+            updateEnrichedFiles();
             int idFolder = getBookFolderId(file);
             if (idFolder > 0) {
                 cancelAutoDownload(getApplication(), idFolder);
-                deleteBookFromDB(idFolder);
-                loadBookFromDB();
+                deleteBookFromDB(idFolder); // does not trigger DB reload anymore
             } else {
                 myLogE("Book not found in DB");
             }
@@ -134,19 +155,12 @@ public class CacheFilesViewModel extends LoggingViewModel {
     }
 
     private int getBookFolderId(File file) {
-        int idFolder = 0;
-        if (filesFromDb != null && filesFromDb.getValue() != null) {
-            for (ZikFileSummary f : filesFromDb.getValue()) {
-                if (file.getPath().equals(f.path)) {
-                    idFolder = f.idFolder;
-                    break;
-                }
+        for (ZikFileSummary f : latestDbSummaries) {
+            if (file.getPath().equals(f.path)) {
+                return f.idFolder;
             }
-        } else {
-            myLogE("getBookFolderId() -> 0");
         }
-        myLog("getBookFolderId for [" + file.getPath() + "] => [" + idFolder + "]");
-        return idFolder;
+        return 0;
     }
 
     private boolean deleteBookFromDisk(String strPath) {

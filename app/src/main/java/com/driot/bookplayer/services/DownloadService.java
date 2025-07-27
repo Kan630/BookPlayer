@@ -2,7 +2,7 @@ package com.driot.bookplayer.services;
 
 import static com.driot.bookplayer.global.Var.FOLDER_DOWNLOAD;
 import static com.driot.bookplayer.utils.KanFiles.deleteFolderRecursive;
-import static com.driot.bookplayer.utils.Tonio.formatMem;
+import static com.driot.bookplayer.utils.Tonio.formatMemPadding;
 
 import android.app.Service;
 import android.app.job.JobInfo;

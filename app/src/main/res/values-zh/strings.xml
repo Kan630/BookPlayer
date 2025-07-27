@@ -457,7 +457,7 @@ BookPlayer 在<font color="#81C784">无需权限</font>的情况下也能运行�
     <string name="AskDelete_popupTitle">确认删除</string>
     <string name="AskReset_popupTitle">确认重置</string>
 
-    <string name="CacheFiles_AskDeleteAudioBook">"您即将删除此有声书"</string>
+    <string name="You_are_about_to_delete_this_audio_book">"您即将删除此有声书"</string>
 
     <string name="ImportedOn">"导入时间"</string>
     <string name="LastAccess">"上次访问"</string>

@@ -471,7 +471,7 @@
     <string name="AskDelete_popupTitle">Confirm Delete</string>
     <string name="AskReset_popupTitle">Confirm Reset</string>
 
-    <string name="CacheFiles_AskDeleteAudioBook">"You are about to delete this audio book"</string>
+    <string name="You_are_about_to_delete_this_audio_book">"You are about to delete this audio book"</string>
 
     <string name="ImportedOn">"Imported on"</string>
     <string name="LastAccess">"Last access"</string>

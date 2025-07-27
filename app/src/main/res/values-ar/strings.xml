@@ -453,7 +453,7 @@
     <string name="AskDelete_popupTitle">تأكيد الحذف</string>
     <string name="AskReset_popupTitle">تأكيد إعادة التعيين</string>
 
-    <string name="CacheFiles_AskDeleteAudioBook">"أنت على وشك حذف هذا الكتاب الصوتي"</string>
+    <string name="You_are_about_to_delete_this_audio_book">"أنت على وشك حذف هذا الكتاب الصوتي"</string>
 
     <string name="ImportedOn">"تم الاستيراد في"</string>
     <string name="LastAccess">"آخر وصول"</string>

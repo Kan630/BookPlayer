@@ -13,13 +13,13 @@ import java.util.concurrent.Executors;
 /**
  * 2024-05-27
  */
-public class CacheFilesRepository {
+public class CleanMemoryRepository {
 
     private final ZikFileDao zikFileDao;
     private final FolderDao folderDao;
     private final ExecutorService executorService;
 
-    public CacheFilesRepository(Application application) {
+    public CleanMemoryRepository(Application application) {
         AppDatabase db = AppDatabase.getDatabase(application);
         zikFileDao = db.ZikFileDao();
         folderDao = db.FolderDao();

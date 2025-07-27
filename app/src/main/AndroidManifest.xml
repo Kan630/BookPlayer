@@ -46,7 +46,7 @@
         <activity android:name=".activities.BiggerTextActivity" />
         <activity android:name=".activities.LogListActivity" />
         <activity android:name=".activities.StatsActivity" />
-        <activity android:name=".activities.CacheFilesActivity" />
+        <activity android:name=".activities.CleanMemoryActivity" />
         <activity android:name=".activities.ExportActivity" />
         <activity android:name=".activities.LibrivoxResultsActivity" />
         <activity android:name=".activities.LibrivoxDetailActivity" />

@@ -43,7 +43,7 @@ import static com.driot.bookplayer.global.Var.ONLY_MIME_AUDIO;
 import static com.driot.bookplayer.global.Var.PATH_CHECK_AUTOTEST;
 import static com.driot.bookplayer.global.Var.SUPPORTED_AUDIO_EXTENSIONS;
 import static com.driot.bookplayer.global.Var.SUPPORTED_COVER_PICTURE_EXTENSIONS;
-import static com.driot.bookplayer.utils.Tonio.formatMem;
+import static com.driot.bookplayer.utils.Tonio.formatMemPadding;
 import static com.driot.bookplayer.utils.Tonio.formatNameForDisplay;
 import static com.driot.bookplayer.utils.Tonio.fileExists;
 import static com.driot.bookplayer.utils.Tonio.formatTime;
@@ -593,7 +593,7 @@ public class AddResourceService
                 myLog("No File found in directory : [" + finalDfPickedDir.getName() + ']');
             } else {
                 myLog(audioFileArrayList.size() + " files found in directory : [" + finalDfPickedDir.getName() + ']');
-                myLog("Full directory size : [" + formatMem(fullFolderSize/1024/1024,0) + " Mo]");
+                myLog("Full directory size : [" + formatMemPadding(fullFolderSize/1024/1024,0) + " Mo]");
                 myLogD("-----------------------------");
             }
             goFolder();
@@ -653,7 +653,7 @@ public class AddResourceService
                 } else if (!hadImageBefore && SUPPORTED_COVER_PICTURE_EXTENSIONS.contains(fileExtension)) {
                     long imageSize = f1.length();
                     if (bookState.imagePath == null || imageSize > FileUtils.getFileSize(this, Uri.parse(bookState.imagePath))) {
-                        myLogD("New biggest Picture Found, size = [" + Tonio.formatMem(imageSize) + "] - [" + f1.getUri() + "]");
+                        myLogD("New biggest Picture Found, size = [" + Tonio.formatMemPadding(imageSize) + "] - [" + f1.getUri() + "]");
                         bookState.imagePath = f1.getUri().toString();
                         hadImageBefore = true;
                     }

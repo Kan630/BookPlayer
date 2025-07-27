@@ -5,11 +5,8 @@ package com.driot.bookplayer.activities;
  */
 
 
-import static com.driot.bookplayer.db.DatabaseBackupHelper.getSQLiteVersion;
 import static com.driot.bookplayer.global.Pref.shouldCheckApiForAutoDownload;
 import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_SINCE_DEBUG;
-import static com.driot.bookplayer.utils.KanLogger.isMyPhoneDev;
-import static com.driot.bookplayer.utils.KanLogger.writeTechLogs;
 /*
 import static com.driot.bookplayer.utils.Mp4Parser.extractAacTrackAsAdts;
 import static com.driot.bookplayer.utils.Mp4Parser.extractChapters;
@@ -18,29 +15,22 @@ import static com.driot.bookplayer.utils.Mp4Parser.inspect;
 
  */
 import static com.driot.bookplayer.utils.PodcastHelper.checkForNewEpisodesToAutoDownload;
-import static com.driot.bookplayer.utils.TonioCommonStuff.MD5;
 import static com.driot.bookplayer.utils.WorkFlow.maybeResumeWorkFlow;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
 
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
-import android.content.res.Configuration;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.telephony.TelephonyManager;
-import android.util.DisplayMetrics;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
 
@@ -55,10 +45,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 //import com.arthenica.ffmpegkit.FFmpegKit;
 //import com.arthenica.ffmpegkit.ReturnCode;
-import com.driot.bookplayer.BuildConfig;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.adapter.FoldersRVAdapter;
-import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.FolderDao;
@@ -70,14 +58,10 @@ import com.driot.bookplayer.utils.ImageHelper;
 import com.driot.bookplayer.utils.InfoHelper;
 import com.driot.bookplayer.utils.KanLogger;
 import com.driot.bookplayer.utils.KanMail;
-import com.driot.bookplayer.utils.NetworkUtils;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
-import java.util.TimeZone;
 
 public class MainActivity extends LoggingActivity {
 
@@ -231,7 +215,7 @@ public class MainActivity extends LoggingActivity {
         } else if (itemId == R.id.menu_sendmail) {
             KanMail.sendDaMail(this, "bookplayer@driot.com", "**Bookplayer**", "Dear developer...\n\n");
         } else if (itemId == R.id.menu_cacheFiles) {
-            startActivity(new Intent(this, CacheFilesActivity.class));
+            startActivity(new Intent(this, CleanMemoryActivity.class));
         } else if (itemId == R.id.menu_website) {
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(Var.WEBSITE_URL));
             startActivity(browserIntent);

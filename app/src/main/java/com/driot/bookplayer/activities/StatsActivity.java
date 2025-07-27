@@ -4,7 +4,7 @@ import static com.driot.bookplayer.utils.StorageHelper.getAvailableInternalMemor
 import static com.driot.bookplayer.utils.StorageHelper.getAvailableRemovableSDCardSize;
 import static com.driot.bookplayer.utils.StorageHelper.getTotaLInternalMemorySize;
 import static com.driot.bookplayer.utils.StorageHelper.getTotalRemovableSDCardSize;
-import static com.driot.bookplayer.utils.Tonio.formatMem;
+import static com.driot.bookplayer.utils.Tonio.formatMemPadding;
 import static com.driot.bookplayer.utils.Tonio.getAppSize;
 import static com.driot.bookplayer.utils.Tonio.getFolderSize;
 import static com.driot.bookplayer.utils.Utils.recursiveRemove;
@@ -24,6 +24,7 @@ import androidx.appcompat.app.AlertDialog;
 
 import com.driot.bookplayer.BuildConfig;
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import java.io.File;
@@ -54,20 +55,20 @@ public class StatsActivity extends LoggingActivity {
         long currentAudiosSize = getFolderSize(this.getFilesDir().getPath() + "/unzipped") / 1048576L;
         long currentLogsSize = getFolderSize(this.getFilesDir().getPath() + "/log") / 1048576L;
 
-        zeText = formatMem(currentAppSize) + getString(R.string.MB_taken_by_BookPlayer_app) + "\n" + "\n" +
-                formatMem(currentAudiosSize) + getString(R.string.MB_taken_by_audio_files) + "\n" + "\n" +
-                formatMem(currentLogsSize) + getString(R.string.MB_taken_by_logs) + "\n" + "\n" +
+        zeText = Tonio.formatMemPadding(currentAppSize) + getString(R.string.MB_taken_by_BookPlayer_app) + "\n" + "\n" +
+                Tonio.formatMemPadding(currentAudiosSize) + getString(R.string.MB_taken_by_audio_files) + "\n" + "\n" +
+                Tonio.formatMemPadding(currentLogsSize) + getString(R.string.MB_taken_by_logs) + "\n" + "\n" +
                 "----" + "\n" +
-                formatMem(availableMegs2) + getString(R.string.MB_available_on_device) + "\n" + "\n" +
-                formatMem(totalMemory) + getString(R.string.MB_device_memory)
+                Tonio.formatMemPadding(availableMegs2) + getString(R.string.MB_available_on_device) + "\n" + "\n" +
+                Tonio.formatMemPadding(totalMemory) + getString(R.string.MB_device_memory)
                 ;
         long total = getTotalRemovableSDCardSize(this) / 1048576L;;
         if (total > 0) {
             long available = getAvailableRemovableSDCardSize(this) / 1048576L;;
             zeText = zeText
                     + "\n\n----"
-                    + "\n" + formatMem(available) + getString(R.string.MB_available_on_SD_card)
-                    + "\n\n" + formatMem(total) + getString(R.string.MB_SD_card_memory);
+                    + "\n" + Tonio.formatMemPadding(available) + getString(R.string.MB_available_on_SD_card)
+                    + "\n\n" + Tonio.formatMemPadding(total) + getString(R.string.MB_SD_card_memory);
         }
 
         tv_head = findViewById(R.id.tv1_head);

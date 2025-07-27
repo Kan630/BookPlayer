@@ -457,7 +457,7 @@ Tous les messages sont lisibles publiquement. Connectez-vous pour participer.
     <string name="AskDelete_popupTitle">Confirmer la suppression</string>
     <string name="AskReset_popupTitle">Confirmer la réinitialisation</string>
 
-    <string name="CacheFiles_AskDeleteAudioBook">Vous êtes sur le point de supprimer ce livre audio</string>
+    <string name="You_are_about_to_delete_this_audio_book">Vous êtes sur le point de supprimer ce livre audio</string>
 
     <string name="ImportedOn">Importé le</string>
     <string name="LastAccess">Dernier accès</string>

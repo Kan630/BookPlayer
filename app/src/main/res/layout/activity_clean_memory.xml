@@ -21,12 +21,14 @@
 
             <RadioButton
                 android:id="@+id/radio_internal"
+                style="@style/simpleText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Internal" />
 
             <RadioButton
                 android:id="@+id/radio_sdcard"
+                style="@style/simpleText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="SD Card" />
@@ -39,11 +41,13 @@
             android:layout_height="wrap_content"
             android:textSize="16sp"
             android:fontFamily="monospace"
-            android:textColor="@android:color/white"
+            android:textColor="?attr/colorOnPrimary"
             android:gravity="start"
             android:padding="8dp"
             android:lineSpacingMultiplier="0.5"
-            android:background="?attr/colorPrimary" />
+            android:background="?attr/colorPrimary"
+            android:text="mem stats..."
+            />
 
         <!-- Cache Files List -->
         <androidx.recyclerview.widget.RecyclerView

@@ -13,7 +13,7 @@ import static com.driot.bookplayer.global.Var.ONLY_MIME_AUDIO;
 import static com.driot.bookplayer.global.Var.SUPPORTED_AUDIO_EXTENSIONS;
 import static com.driot.bookplayer.global.Var.ZIP_SIZE_MAX_COEF;
 import static com.driot.bookplayer.utils.StorageHelper.getAvailableInternalMemorySize;
-import static com.driot.bookplayer.utils.Tonio.formatMem;
+import static com.driot.bookplayer.utils.Tonio.formatMemPadding;
 import static com.driot.bookplayer.utils.Tonio.getSourceLocation;
 
 import android.app.Service;
@@ -26,6 +26,7 @@ import android.os.IBinder;
 import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingService;
 import com.driot.bookplayer.utils.FileUtils;
 
@@ -146,8 +147,8 @@ public class CopyFileService extends LoggingService {  //IntentService are desig
 
             if (file_size > 0 && file_size * size_coef > availableMegs) {
                 String strErr = getResources().getString(R.string.Error_Import_NotEnoughMemory_line1) + "\n\n" +
-                        getResources().getString(R.string.Error_Import_NotEnoughMemory_line2_1) + formatMem(availableMegs) + "Mo" + "\n" +
-                        getResources().getString(R.string.Error_Import_NotEnoughMemory_line3) + formatMem(file_size) + "Mo";
+                        getResources().getString(R.string.Error_Import_NotEnoughMemory_line2_1) + Tonio.formatMemPadding(availableMegs) + "Mo" + "\n" +
+                        getResources().getString(R.string.Error_Import_NotEnoughMemory_line3) + Tonio.formatMemPadding(file_size) + "Mo";
 
                 if (size_coef > 1) {
                     strErr += "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line4_1) +
@@ -203,8 +204,8 @@ public class CopyFileService extends LoggingService {  //IntentService are desig
                         }
                         String progress_text = progressMsgSource
                                 + "\n"
-                                + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line3) + formatMem(nbMoCopied, 0) + "Mo/" + formatMem(file_size, 0) + "Mo"
-                                + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line2_1) + formatMem(availableMegs) + "Mo";
+                                + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line3) + formatMemPadding(nbMoCopied, 0) + "Mo/" + formatMemPadding(file_size, 0) + "Mo"
+                                + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line2_1) + Tonio.formatMemPadding(availableMegs) + "Mo";
 
                         if (progress != lastLoggedProgress[0]) {
                             lastLoggedProgress[0] = progress;
@@ -273,8 +274,8 @@ public class CopyFileService extends LoggingService {  //IntentService are desig
                             if (sourceLocation.equals("cloud")) {progressMsgSource = getResources().getString(R.string.Import_Progress_copying_zip_file_cloud);}
                             String progress_text = progressMsgSource
                                     + "\n"
-                                    + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line3) + formatMem(nbMoCopied,0) + "Mo/" + formatMem(file_size,0) + "Mo"
-                                    + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line2_1) + formatMem(availableMegs) + "Mo";
+                                    + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line3) + formatMemPadding(nbMoCopied,0) + "Mo/" + formatMemPadding(file_size,0) + "Mo"
+                                    + "\n" + getResources().getString(R.string.Error_Import_NotEnoughMemory_line2_1) + Tonio.formatMemPadding(availableMegs) + "Mo";
 
                             if (current_progress_percent != last_logged_progress_percent) {
                                 last_logged_progress_percent = current_progress_percent;

@@ -447,7 +447,7 @@ Todas las publicaciones son públicamente visibles. Inicia sesión para particip
     <string name="AskDelete_popupTitle">Confirmar eliminación</string>
     <string name="AskReset_popupTitle">Confirmar reinicio</string>
 
-    <string name="CacheFiles_AskDeleteAudioBook">"Estás a punto de eliminar este audiolibro"</string>
+    <string name="You_are_about_to_delete_this_audio_book">"Estás a punto de eliminar este audiolibro"</string>
 
     <string name="ImportedOn">"Importado el"</string>
     <string name="LastAccess">"Último acceso"</string>

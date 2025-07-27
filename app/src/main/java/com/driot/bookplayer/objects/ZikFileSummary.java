@@ -8,11 +8,14 @@ public class ZikFileSummary {
     public String folderName;
     public Double percentdone;
     public int idFolder;
+    public String sourceLocation;
 
-    public ZikFileSummary(String path, String folderName, Double percentdone, int idFolder) {
+
+    public ZikFileSummary(String path, String folderName, Double percentdone, int idFolder, String sourceLocation) {
         this.path = path;
         this.folderName = folderName;
         this.percentdone = percentdone;
         this.idFolder = idFolder;
+        this.sourceLocation = sourceLocation;
     }
 }

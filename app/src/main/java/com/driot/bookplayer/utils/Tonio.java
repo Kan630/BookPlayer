@@ -7,8 +7,6 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Environment;
-import android.os.StatFs;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.webkit.MimeTypeMap;
@@ -20,7 +18,6 @@ import com.driot.bookplayer.R;
 
 import java.io.File;
 import java.sql.Date;
-import java.sql.Time;
 import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
@@ -506,7 +503,6 @@ public class Tonio {
             size = file.length();
         } catch (Exception e) {
             myLogEE(e,"Error getting size taken by app");
-            e.printStackTrace();
         }
         return size;
     }
@@ -540,10 +536,10 @@ public class Tonio {
         return size;
     }
 
-    public static String formatMem(long mem){
-        return formatMem(mem,9);
+    public static String formatMemPadding(long mem){
+        return formatMemPadding(mem,9);
     }
-    public static String formatMem(long mem, int padding){
+    public static String formatMemPadding(long mem, int padding){
         // %3s => left padding
         if (padding<1) {
             return String.valueOf(mem);
@@ -552,7 +548,6 @@ public class Tonio {
                 return String.format("%" + padding + "s", NumberFormat.getNumberInstance(Locale.getDefault()).format(mem));
             } catch (Exception e) {
                 myLogEE(e,"formatMem");
-                e.printStackTrace();
                 return String.valueOf(mem);
             }
         }

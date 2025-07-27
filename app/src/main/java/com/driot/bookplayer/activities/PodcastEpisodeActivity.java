@@ -34,7 +34,7 @@ import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.objects.PlayList;
 import com.driot.bookplayer.objects.PodcastEpisode;
 import com.driot.bookplayer.objects.PodcastFeed;
-import com.driot.bookplayer.objects.ViewHelper;
+import com.driot.bookplayer.utils.ViewHelper;
 import com.driot.bookplayer.utils.ImageHelper;
 import com.driot.bookplayer.utils.PodcastHelper;
 import com.driot.bookplayer.utils.log.LoggingActivity;

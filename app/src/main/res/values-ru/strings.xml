@@ -462,7 +462,7 @@
     <string name="AskDelete_popupTitle">Подтвердите удаление</string>
     <string name="AskReset_popupTitle">Подтвердите сброс</string>
 
-    <string name="CacheFiles_AskDeleteAudioBook">"Вы собираетесь удалить эту аудиокнигу"</string>
+    <string name="You_are_about_to_delete_this_audio_book">"Вы собираетесь удалить эту аудиокнигу"</string>
 
     <string name="ImportedOn">"Импортировано"</string>
     <string name="LastAccess">"Последний доступ"</string>
