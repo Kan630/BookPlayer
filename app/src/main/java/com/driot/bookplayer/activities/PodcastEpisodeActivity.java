@@ -33,6 +33,7 @@ import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.objects.PlayList;
 import com.driot.bookplayer.objects.PodcastEpisode;
 import com.driot.bookplayer.objects.PodcastFeed;
+import com.driot.bookplayer.utils.AnalyticsHelper;
 import com.driot.bookplayer.utils.NetworkUtils;
 import com.driot.bookplayer.utils.ViewHelper;
 import com.driot.bookplayer.utils.ImageHelper;
@@ -176,7 +177,7 @@ public class PodcastEpisodeActivity extends LoggingActivity {
                 btnAutoDownload.setVisibility(newState ? View.VISIBLE : View.GONE);
             });
             ImageHelper.processPendingImages(this);
-            PodcastHelper.tellAnalyticsPodcastFavorite(this, podcast.title, podcast.language);
+            AnalyticsHelper.tellAnalyticsPodcastFavorite(this, podcast.title, podcast.language);
         });
     }
 

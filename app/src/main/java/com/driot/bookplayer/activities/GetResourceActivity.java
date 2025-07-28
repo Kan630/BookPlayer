@@ -36,6 +36,7 @@ import androidx.fragment.app.FragmentManager;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.objects.LanguageItem;
+import com.driot.bookplayer.utils.AnalyticsHelper;
 import com.driot.bookplayer.utils.EditTextWithButtons;
 import com.driot.bookplayer.utils.GlobalTaskManager;
 import com.driot.bookplayer.global.Option;
@@ -325,7 +326,7 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
             intent.putExtra("lang", lang);
             startActivity(intent);
 
-            tellAnalyticsLibrivoxSearch(this, query, lang);
+            AnalyticsHelper.tellAnalyticsLibrivoxSearch(this, query, lang);
         });
         ////////////////////////////////
         ////////////////////////////////
@@ -624,14 +625,6 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
             myLogE("onRequestPermissionsResult() - mPermissionRequest is null ! bad hook");
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-    }
-
-    public static void tellAnalyticsLibrivoxSearch(Context context, String query, String lang) {
-        FirebaseAnalytics firebaseAnalytics = FirebaseAnalytics.getInstance(context);
-        Bundle bundle = new Bundle();
-        bundle.putString("query", query);
-        bundle.putString("language", lang);
-        firebaseAnalytics.logEvent("librivox_search", bundle);
     }
 
 }

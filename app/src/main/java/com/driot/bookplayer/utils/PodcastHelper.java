@@ -277,25 +277,9 @@ public class PodcastHelper {
         });
     }
 
-    public static void tellAnalyticsPodcastSearch(Context context, String query, String lang) {
-        FirebaseAnalytics firebaseAnalytics = FirebaseAnalytics.getInstance(context);
-        Bundle bundle = new Bundle();
-        bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "PodcastSearch");
-        bundle.putString("query", query);
-        bundle.putString("language", lang);
-        firebaseAnalytics.logEvent("podcast_search", bundle);
-    }
-    public static void tellAnalyticsPodcastFavorite(Context context, String podcastName, String podcastLang) {
-        FirebaseAnalytics firebaseAnalytics = FirebaseAnalytics.getInstance(context);
-        Bundle bundle = new Bundle();
-        bundle.putString("podcastName", podcastName);
-        bundle.putString("language", podcastLang);
-        firebaseAnalytics.logEvent("podcast_favorite", bundle);
-    }
-
 
     ////////////////////////////////////////////////////////
-    private static final String TAG = "PodcastIndexHelper";
+    private static final String TAG = "PodcastHelper";
     private static void myLog(String str) { KanLogger.myLog(TAG, str); }
     private static void myLogD(String str) { KanLogger.myLogD(TAG, str); }
     private static void myLogI(String str) { KanLogger.myLogI(TAG, str); }

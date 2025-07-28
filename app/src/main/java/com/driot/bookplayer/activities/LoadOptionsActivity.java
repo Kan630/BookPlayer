@@ -35,6 +35,7 @@ import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.objects.BookToAdd;
 import com.driot.bookplayer.objects.LoadBookTaskState;
+import com.driot.bookplayer.utils.AnalyticsHelper;
 import com.driot.bookplayer.utils.HashWorker;
 import com.driot.bookplayer.utils.PermissionRequest;
 import com.driot.bookplayer.utils.StorageHelper;
@@ -188,7 +189,7 @@ public class LoadOptionsActivity extends LoggingActivity {
                 }
             }
 
-            tellAnalyticsManualLoad(this, bookToAdd.getType(), bookToAdd.getFileExtension(), bookToAdd.getSourceLocation(), bookToAdd.getOriginalFile());
+            AnalyticsHelper.tellAnalyticsManualLoad(this, bookToAdd.getType(), bookToAdd.getFileExtension(), bookToAdd.getSourceLocation(), bookToAdd.getOriginalFile());
 
         });
 
@@ -577,14 +578,5 @@ public class LoadOptionsActivity extends LoggingActivity {
         }).start();
     }
 
-    public static void tellAnalyticsManualLoad(Context context, String type, String extension, String sourceLocation, String originalFile) {
-        FirebaseAnalytics firebaseAnalytics = FirebaseAnalytics.getInstance(context);
-        Bundle bundle = new Bundle();
-        bundle.putString("type", type);
-        bundle.putString("extension", extension);
-        bundle.putString("sourceLocation", sourceLocation);
-        bundle.putString("originalFile", originalFile);
-        firebaseAnalytics.logEvent("manual_load", bundle);
-    }
 
 }
