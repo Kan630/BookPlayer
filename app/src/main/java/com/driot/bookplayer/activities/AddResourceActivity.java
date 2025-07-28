@@ -97,18 +97,20 @@ public class AddResourceActivity
     private final ServiceConnection addResourceServiceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
-            myLogD("AddResourceService - onServiceConnected : [" + className.toString() + "]");
+            myLogD("onServiceConnected : [" + className.toString() + "]");
             AddResourceService.AddResourceServiceBackgroundBinder binder = (AddResourceService.AddResourceServiceBackgroundBinder) service;
             mService = binder.getService();
             mService.registerClient(AddResourceActivity.this); //to get the CallBacks
             mBound = true;
-            // Get PlayList
-            if (!HasBeenInitializedService) { mService.init(); }
+            if (!HasBeenInitializedService) {
+                myLogD("init service addResourceService");
+                mService.init();
+            }
             HasBeenInitializedService = true;
         }
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
-            myLog("AddResourceService - OnServiceDisconnected : [" + arg0.toString() + "]");
+            myLog("onServiceDisconnected : [" + arg0.toString() + "]");
             mService.unbindService(addResourceServiceConnection);
             mBound = false;
         }

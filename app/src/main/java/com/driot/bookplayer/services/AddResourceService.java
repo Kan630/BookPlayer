@@ -208,7 +208,7 @@ public class AddResourceService
     }
     public class AddResourceServiceBackgroundBinder extends Binder {
         public AddResourceService getService() {
-            myLog("class AddResourceService BackgroundBinder.getService(); ");
+            myLogD("AddResourceServiceBackgroundBinder returning service instance; ");
             return AddResourceService.this;
         }
     }
@@ -413,13 +413,13 @@ public class AddResourceService
         myLogD("....");
         myLog("*********************************************************************************************************");
         myLog("*********************************************************************************************************");
-        myLog("init() - ** title =            " + bookState.title + " **");
-        myLog("init() - ** futureFolderName = " + bookState.futureFolderName + " **");
-        myLog("init() - ** futureFolderPath = " + bookState.futureFolderPath + " **");
-        myLog("init() - ** original uri =  " + bookState.uri + " **");
-        myLog("init() - ** original type = " + bookState.type + " **");
-        myLog("init() - ** uri =   " + uri_dynamic + " **");
-        myLog("init() - ** type =  " + type_dynamic + " **");
+        myLog("** title =            " + bookState.title + " **");
+        myLog("** futureFolderName = " + bookState.futureFolderName + " **");
+        myLog("** futureFolderPath = " + bookState.futureFolderPath + " **");
+        myLog("** original uri =  " + bookState.uri + " **");
+        myLog("** original type = " + bookState.type + " **");
+        myLog("** uri =   " + uri_dynamic + " **");
+        myLog("** type =  " + type_dynamic + " **");
         myLog("option copy file =      " + bookState.optionCopy);
         myLog("option split m4b =      " + bookState.optionSplit);
         myLog("option delete source =  " + bookState.optionDelete);
