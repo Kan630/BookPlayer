@@ -46,7 +46,7 @@ public class UnzipService extends LoggingService {
         void unzipService_tellProgress(String progressText, int progressVal);
         void unzipService_tellError(String errorText);
         void unzipService_tellEnd(String destinationFolderPath);
-        void tellNonBlockingError(String txt);
+        void unzipService_tellNonBlockingError(String txt);
     }
     public void registerClient(Service service){
         this.mCallBacks = (UnzipService.Callbacks)service;
@@ -207,7 +207,7 @@ public class UnzipService extends LoggingService {
                         ze = zis.getNextEntry();
                     } catch (Exception e) {
                         myLogEE(e,"error getting next zip file entry");
-                        mCallBacks.tellNonBlockingError("Error : Zip may be incompletely extracted... " + e.getMessage());
+                        mCallBacks.unzipService_tellNonBlockingError("Error : Zip may be incompletely extracted... " + e.getMessage());
                         e.printStackTrace();
                         try {
                             ze = zis.getNextEntry();
