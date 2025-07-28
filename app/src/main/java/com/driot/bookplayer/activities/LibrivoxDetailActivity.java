@@ -3,11 +3,9 @@ package com.driot.bookplayer.activities;
 import static com.driot.bookplayer.global.Pref.setLoadBookTaskState;
 import static com.driot.bookplayer.global.Var.SOURCE_LOCATION_LIBRIVOX;
 import static com.driot.bookplayer.utils.StorageHelper.getUnzipFolder;
-import static com.driot.bookplayer.utils.StorageHelper.getUnzipFolderPath;
 import static com.driot.bookplayer.utils.TextOptions.parseMaybeHtml;
 import static com.driot.bookplayer.utils.Tonio.getReadableSize;
 
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -21,6 +19,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.signature.ObjectKey;
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.objects.ItemMetadata;
 import com.driot.bookplayer.objects.LibrivoxApi;
 import com.driot.bookplayer.objects.LoadBookTaskState;
@@ -28,7 +27,6 @@ import com.driot.bookplayer.services.AddResourceService;
 import com.driot.bookplayer.utils.ImageHelper;
 import com.driot.bookplayer.utils.WorkFlow;
 import com.driot.bookplayer.utils.log.LoggingActivity;
-import com.google.firebase.analytics.FirebaseAnalytics;
 
 import java.io.File;
 import java.net.HttpURLConnection;
@@ -150,7 +148,7 @@ public class LibrivoxDetailActivity extends LoggingActivity {
         bGet.setOnClickListener(v -> {
             myLogI("------> USER CLICKS - GET -        LIBRIVOX BOOK");
             String downloadUrl = "https://archive.org/download/" + viewModel.identifier + "/" + viewModel.identifier + "_64kb_mp3.zip";
-            startDownload(downloadUrl);
+            checkThenDownload(downloadUrl);
         });
     }
 
@@ -339,7 +337,19 @@ public class LibrivoxDetailActivity extends LoggingActivity {
         }).start();
     }
 
-    private void startDownload(String url) {
+    private void checkThenDownload(String url) {
+        //check does not exist already
+        String futurePath = getUnzipFolder(this).getAbsolutePath() + "/" + viewModel.identifier;
+        AppDatabase.databaseReadExecutor.execute(() -> {
+            if (AppDatabase.getDatabase(this).FolderDao().folderAlreadyExist_checkFolderPath(futurePath) > 0) {
+                runOnUiThread(() -> myToast(getString(R.string.error_media_already_loaded_samePath)));
+            } else {
+                runOnUiThread(() -> proceedWithDownload(url, futurePath));
+            }
+        });
+    }
+
+    private void proceedWithDownload(String url, String futurePath) {
         LoadBookTaskState state = new LoadBookTaskState();
         state.uri = Uri.parse(url);
         state.type = "File";
@@ -350,7 +360,7 @@ public class LibrivoxDetailActivity extends LoggingActivity {
         state.imagePath = futureCoverPic;
         state.sourceLocation = SOURCE_LOCATION_LIBRIVOX;
         state.futureFolderName = viewModel.identifier;
-        state.futureFolderPath = getUnzipFolder(this).getAbsolutePath() + "/" + viewModel.identifier;
+        state.futureFolderPath = futurePath;
 
         setLoadBookTaskState(this, state);
 
