@@ -88,6 +88,7 @@ public class PodcastSearchResultsActivity extends LoggingActivity {
         viewModel.setLastQuery(query);
         viewModel.setLastLang(lang);
         performSearch(query, lang);
+        PodcastHelper.tellAnalyticsPodcastSearch(this, query, lang);
     }
 
     private void performSearch(String query, String lang) {

@@ -16,6 +16,7 @@ import com.driot.bookplayer.objects.PodcastEpisodeResponse;
 import com.driot.bookplayer.objects.PodcastIndexApi;
 import com.driot.bookplayer.objects.PodcastFeed;
 import com.driot.bookplayer.objects.PodcastIndexResponse;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 import java.io.File;
 import java.security.MessageDigest;
@@ -33,6 +34,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 import android.content.Context;
+import android.os.Bundle;
 
 public class PodcastHelper {
 
@@ -275,6 +277,21 @@ public class PodcastHelper {
         });
     }
 
+    public static void tellAnalyticsPodcastSearch(Context context, String query, String lang) {
+        FirebaseAnalytics firebaseAnalytics = FirebaseAnalytics.getInstance(context);
+        Bundle bundle = new Bundle();
+        bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "PodcastSearch");
+        bundle.putString("query", query);
+        bundle.putString("language", lang);
+        firebaseAnalytics.logEvent("podcast_search", bundle);
+    }
+    public static void tellAnalyticsPodcastFavorite(Context context, String podcastName, String podcastLang) {
+        FirebaseAnalytics firebaseAnalytics = FirebaseAnalytics.getInstance(context);
+        Bundle bundle = new Bundle();
+        bundle.putString("podcastName", podcastName);
+        bundle.putString("language", podcastLang);
+        firebaseAnalytics.logEvent("podcast_favorite", bundle);
+    }
 
 
     ////////////////////////////////////////////////////////

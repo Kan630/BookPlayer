@@ -45,6 +45,7 @@ import com.driot.bookplayer.utils.MediaScanner2;
 import com.driot.bookplayer.utils.NetworkUtils;
 import com.driot.bookplayer.utils.PermissionRequest;
 import com.driot.bookplayer.utils.log.LoggingActivity;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 import java.util.Arrays;
 import java.util.List;
@@ -90,6 +91,7 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
                     intent.putExtra(LoadOptionsActivity.EXTRA_URI, uri);
                     intent.putExtra(LoadOptionsActivity.EXTRA_TYPE, type);
                     loadOptionsActivityResultLauncher.launch(intent);
+
                 } else {
                     myLogE("returned Uri not OK");
                 }
@@ -322,6 +324,8 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
             intent.putExtra("query", query);
             intent.putExtra("lang", lang);
             startActivity(intent);
+
+            tellAnalyticsLibrivoxSearch(this, query, lang);
         });
         ////////////////////////////////
         ////////////////////////////////
@@ -620,6 +624,14 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
             myLogE("onRequestPermissionsResult() - mPermissionRequest is null ! bad hook");
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    public static void tellAnalyticsLibrivoxSearch(Context context, String query, String lang) {
+        FirebaseAnalytics firebaseAnalytics = FirebaseAnalytics.getInstance(context);
+        Bundle bundle = new Bundle();
+        bundle.putString("query", query);
+        bundle.putString("language", lang);
+        firebaseAnalytics.logEvent("librivox_search", bundle);
     }
 
 }

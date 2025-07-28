@@ -9,6 +9,7 @@ import static com.driot.bookplayer.utils.Tonio.getCurrentDateTimeString;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
@@ -38,6 +39,7 @@ import com.driot.bookplayer.utils.HashWorker;
 import com.driot.bookplayer.utils.PermissionRequest;
 import com.driot.bookplayer.utils.StorageHelper;
 import com.driot.bookplayer.utils.log.LoggingActivity;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 import java.util.Objects;
 
@@ -185,6 +187,9 @@ public class LoadOptionsActivity extends LoggingActivity {
                     Option.setDeleteSourceFile(false);
                 }
             }
+
+            tellAnalyticsManualLoad(this, bookToAdd.getType(), bookToAdd.getFileExtension(), bookToAdd.getSourceLocation(), bookToAdd.getOriginalFile());
+
         });
 
 //-------------------------------------------------------------------------------------------------------------------------------------------------
@@ -572,5 +577,14 @@ public class LoadOptionsActivity extends LoggingActivity {
         }).start();
     }
 
+    public static void tellAnalyticsManualLoad(Context context, String type, String extension, String sourceLocation, String originalFile) {
+        FirebaseAnalytics firebaseAnalytics = FirebaseAnalytics.getInstance(context);
+        Bundle bundle = new Bundle();
+        bundle.putString("type", type);
+        bundle.putString("extension", extension);
+        bundle.putString("sourceLocation", sourceLocation);
+        bundle.putString("originalFile", originalFile);
+        firebaseAnalytics.logEvent("manual_load", bundle);
+    }
 
 }

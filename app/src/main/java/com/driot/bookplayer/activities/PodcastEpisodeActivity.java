@@ -175,8 +175,9 @@ public class PodcastEpisodeActivity extends LoggingActivity {
                 updateAutoDownloadIcon(autoDownloadState);
                 btnAutoDownload.setVisibility(newState ? View.VISIBLE : View.GONE);
             });
+            ImageHelper.processPendingImages(this);
+            PodcastHelper.tellAnalyticsPodcastFavorite(this, podcast.title, podcast.language);
         });
-        ImageHelper.processPendingImages(this);
     }
 
     private void toggleAutoDownload() {

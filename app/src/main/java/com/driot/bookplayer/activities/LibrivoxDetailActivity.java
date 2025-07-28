@@ -7,6 +7,7 @@ import static com.driot.bookplayer.utils.StorageHelper.getUnzipFolderPath;
 import static com.driot.bookplayer.utils.TextOptions.parseMaybeHtml;
 import static com.driot.bookplayer.utils.Tonio.getReadableSize;
 
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -27,6 +28,7 @@ import com.driot.bookplayer.services.AddResourceService;
 import com.driot.bookplayer.utils.ImageHelper;
 import com.driot.bookplayer.utils.WorkFlow;
 import com.driot.bookplayer.utils.log.LoggingActivity;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 import java.io.File;
 import java.net.HttpURLConnection;
@@ -369,4 +371,5 @@ public class LibrivoxDetailActivity extends LoggingActivity {
         int z = (63 - Long.numberOfLeadingZeros(sizeBytes)) / 10;
         return String.format(Locale.US, "%.1f %sB", (double) sizeBytes / (1L << (z * 10)), " KMGTPE".charAt(z));
     }
+
 }
