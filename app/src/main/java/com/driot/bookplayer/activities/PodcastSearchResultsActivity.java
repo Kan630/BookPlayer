@@ -31,7 +31,7 @@ public class PodcastSearchResultsActivity extends LoggingActivity {
     private PodcastSearchResultsViewModel viewModel;
     private RecyclerView recyclerView;
     private ProgressBar progressBar;
-    private TextView emptyMessage;
+    private TextView errorMessage;
     private PodcastSearchResultsRVAdapter adapter;
 
 
@@ -50,7 +50,7 @@ public class PodcastSearchResultsActivity extends LoggingActivity {
 
         recyclerView = findViewById(R.id.recyclerViewPodcast);
         progressBar = findViewById(R.id.progressBarPodcast);
-        emptyMessage = findViewById(R.id.podcast_empty_message);
+        errorMessage = findViewById(R.id.podcast_error_message);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         viewModel = new ViewModelProvider(this).get(PodcastSearchResultsViewModel.class);
@@ -91,63 +91,55 @@ public class PodcastSearchResultsActivity extends LoggingActivity {
     }
 
     private void performSearch(String query, String lang) {
-        myLogD("performSearch called with query: " + query + " and lang: " + lang);
+        myLogD("performSearch called with query: [" + query + "] and lang: [" + lang + "]");
         progressBar.setVisibility(View.VISIBLE);
-        emptyMessage.setVisibility(View.GONE);
+        errorMessage.setVisibility(View.GONE);
 
-        if (!query.equals("")) {
-            PodcastHelper.searchPodcasts(query, lang, new PodcastHelper.Callback() {
-                @Override
-                public void onSuccess(List<PodcastFeed> feeds) {
-                    runOnUiThread(() -> handleSuccess(feeds, query, lang));
-                }
+        PodcastHelper.Callback callback = new PodcastHelper.Callback() {
+            @Override
+            public void onSuccess(List<PodcastFeed> feeds) {
+                runOnUiThread(() -> {
+                    adapter.setHeaderInfo(query, lang, feeds.size());
+                    adapter.setItems(feeds);
+                    handleSuccess(feeds);
+                });
+            }
 
-                @Override
-                public void onError(Exception e) {
-                    runOnUiThread(() -> handleError(e));
-                }
-            });
+            @Override
+            public void onError(Exception e) {
+                runOnUiThread(() -> {
+                    adapter.setHeaderInfo(query, lang, 0);
+                    handleError(e);
+                });
+            }
+        };
+
+        if (!query.isEmpty()) {
+            PodcastHelper.searchPodcasts(query, lang, callback);
         } else {
-            PodcastHelper.getTrendingPodcasts(lang, PODCASTINDEXORG_API_MAX_RESULTS, new PodcastHelper.Callback() {
-                @Override
-                public void onSuccess(List<PodcastFeed> feeds) {
-                    runOnUiThread(() -> handleSuccess(feeds, query, lang));
-                }
-
-                @Override
-                public void onError(Exception e) {
-                    runOnUiThread(() -> handleError(e));
-                }
-            });
+            PodcastHelper.getTrendingPodcasts(lang, PODCASTINDEXORG_API_MAX_RESULTS, callback);
         }
     }
 
-    private void handleSuccess(List<PodcastFeed> feeds, String query, String lang) {
+    private void handleSuccess(List<PodcastFeed> feeds) {
         progressBar.setVisibility(View.GONE);
         if (feeds == null || feeds.isEmpty()) {
-            emptyMessage.setText(getString(R.string.podcast_no_results));
-            emptyMessage.setVisibility(View.VISIBLE);
-            emptyMessage.setTextColor(getColor(R.color.orange_500));
-        } else {
-            viewModel.setResults(feeds);
-            showResults(feeds, query, lang);
+            errorMessage.setText(getString(R.string.podcast_no_results));
+            errorMessage.setVisibility(View.VISIBLE);
+            errorMessage.setTextColor(getColor(R.color.orange_500));
         }
     }
 
     private void handleError(Exception e) {
         progressBar.setVisibility(View.GONE);
-        emptyMessage.setVisibility(View.VISIBLE);
-        emptyMessage.setTextColor(getColor(R.color.orange_500));
+        errorMessage.setVisibility(View.VISIBLE);
+        errorMessage.setTextColor(getColor(R.color.orange_500));
         if (NetworkUtils.isUnknownHost(e)) {
-            emptyMessage.setText(getString(R.string.no_internet_connection));
+            myLogE("performSearch - handleError : no_internet_connection");
+            errorMessage.setText(getString(R.string.no_internet_connection));
         } else {
-            emptyMessage.setText("Error : \n" + e.getMessage());
             myLogEE(e, "performSearch - handleError");
+            errorMessage.setText("Error : \n" + e.getMessage());
         }
-    }
-
-    private void showResults(List<PodcastFeed> feeds, String query, String lang) {
-        adapter.setHeaderInfo(query, lang, feeds.size());
-        adapter.setItems(feeds);
     }
 }

@@ -49,7 +49,7 @@ public class PodcastFavoritesActivity extends LoggingActivity {
 
         recyclerView = findViewById(R.id.recyclerViewPodcast);
         progressBar = findViewById(R.id.progressBarPodcast);
-        emptyMessage = findViewById(R.id.podcast_empty_message);
+        emptyMessage = findViewById(R.id.podcast_error_message);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         viewModel = new ViewModelProvider(this).get(PodcastSearchResultsViewModel.class);
@@ -89,9 +89,6 @@ public class PodcastFavoritesActivity extends LoggingActivity {
     private void showResults(List<Podcast> podcastList, String query, String lang) {
         adapter.setItems(podcastList);
         adapter.notifyDataSetChanged();
-        //tvSearchTerms.setText(podcastList.size() + " " + getString(R.string.Favorites));
-        //tvLanguage.setVisibility(View.GONE);
-        //tvResultsCount.setVisibility(View.GONE);
         progressBar.setVisibility(View.GONE);
         emptyMessage.setVisibility(podcastList.isEmpty() ? View.VISIBLE : View.GONE);
         adapter.setHeaderInfo(query, lang, podcastList.size());

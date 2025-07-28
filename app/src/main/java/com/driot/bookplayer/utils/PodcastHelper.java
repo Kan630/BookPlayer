@@ -130,6 +130,7 @@ public class PodcastHelper {
         @Override
         public void onResponse(Call<PodcastIndexResponse> call, Response<PodcastIndexResponse> response) {
             if (response.isSuccessful() && response.body() != null) {
+                myLogD("response.isSuccessful() && response.body() != null");
                 callback.onSuccess(response.body().feeds);
             } else {
                 String errorBody = "Unknown error";
@@ -245,10 +246,10 @@ public class PodcastHelper {
                     File destFile = new File(podcastFolder, baseName);
 
                     if (!destFile.exists()) {
-                        myLogD("Auto-download episode " + i + " - [" + baseName + "]");
+                        myLogD("Auto-download episode n°" + i + " - [" + baseName + "]");
                         newEpisodes.add(episode);
                     } else {
-                        myLogD("episode " + i + " - [" + baseName + "] already exists");
+                        myLogD("episode already exists - check n°" + i + " - [" + baseName + "]");
                     }
                     /// EPISODES LOOP ////////////////////////////////////////////////////////
                 }

@@ -20,7 +20,7 @@
         android:visibility="gone" />
 
     <TextView
-        android:id="@+id/podcast_empty_message"
+        android:id="@+id/podcast_error_message"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
