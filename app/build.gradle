@@ -36,8 +36,8 @@ android {
 
         /////////////////////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////////////////////
-        versionCode 120
-        versionName "120 - Magic Unicorn"
+        versionCode 121
+        versionName "121 - Magic Unicorn"
         /////////////////////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////////////////////
 
@@ -115,7 +115,12 @@ dependencies {
     implementation 'com.google.android.gms:play-services-nearby:19.3.0'
 
     implementation 'com.google.code.gson:gson:2.11.0'
+
+    implementation platform('com.google.firebase:firebase-bom:34.0.0')
     implementation 'com.google.firebase:firebase-crashlytics:20.0.0'
+    implementation 'com.google.firebase:firebase-analytics:24.0.0'
+
+
 // for storing PlayList Serializable in prefs
 
     annotationProcessor "androidx.room:room-compiler:2.7.2"
