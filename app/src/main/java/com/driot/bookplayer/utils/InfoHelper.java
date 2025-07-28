@@ -12,6 +12,8 @@ import android.telephony.TelephonyManager;
 import android.util.DisplayMetrics;
 import android.view.WindowManager;
 
+import androidx.core.app.NotificationManagerCompat;
+
 import com.driot.bookplayer.BuildConfig;
 
 import java.util.Locale;
@@ -49,6 +51,7 @@ public class InfoHelper {
             KanLogger.myLog("Width = " + getdisplayMetrics(context).widthPixels);
             KanLogger.myLog("Height = " + getdisplayMetrics(context).heightPixels);
             KanLogger.myLog("========================== Miscellaneous :");
+            KanLogger.myLog("Notifications = " + getNotificationStatus(context));
             KanLogger.myLog("Theme = " + getKindOfTheme(context));
             KanLogger.myLog("===");
             KanLogger.myLog("==========================");
@@ -59,6 +62,15 @@ public class InfoHelper {
 
         } catch (Exception e) {
             myLogEE(e, "printSomeStuffAboutDevice");
+        }
+    }
+
+    private static String getNotificationStatus(Context context) {
+        NotificationManagerCompat manager = NotificationManagerCompat.from(context);
+        if (!manager.areNotificationsEnabled()) {
+            return "disabled";
+        } else {
+            return "enabled";
         }
     }
 

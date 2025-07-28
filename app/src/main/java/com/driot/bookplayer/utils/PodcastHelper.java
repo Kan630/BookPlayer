@@ -11,6 +11,7 @@ import static com.driot.bookplayer.utils.StorageHelper.getUnzipFolder;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.global.Option;
+import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.objects.PodcastEpisode;
 import com.driot.bookplayer.objects.PodcastEpisodeResponse;
 import com.driot.bookplayer.objects.PodcastIndexApi;
@@ -275,6 +276,23 @@ public class PodcastHelper {
         AppDatabase.databaseWriteExecutor.execute(() -> {
             AppDatabase.getDatabase(c).PodcastDao().updateAutoDownloadStatus_fromFolderId(folderId, false);
         });
+    }
+
+    public static void addPodcastToDB(Context context, PodcastFeed podcastFeed) {
+        Podcast podcast = AppDatabase.getDatabase(context).PodcastDao().getPodcastByFeedId(podcastFeed.id);
+        if (podcast == null) {
+            podcast = new Podcast();
+            podcast.source = Var.PODCAST_SOURCE;
+            podcast.feedId = podcastFeed.id;
+            podcast.title = podcastFeed.title;
+            podcast.image = podcastFeed.image;
+            podcast.imageOriginalUrl = podcastFeed.image;
+            podcast.description = podcastFeed.description;
+            podcast.isFavorite = false;
+            podcast.autoDownload = false;
+            AppDatabase.getDatabase(context).PodcastDao().insert(podcast);
+            myLogD("Podcast added to DB: " + podcast.feedId + " " + podcast.title);
+        }
     }
 
 

@@ -11,7 +11,7 @@ import java.util.List;
 @Dao
 public interface PodcastDao {
     @Insert
-    void insert(Podcast podcast);
+    long insert(Podcast podcast);
 
     @Update
     void update(Podcast podcast);
@@ -29,7 +29,7 @@ public interface PodcastDao {
     Podcast getPodcastByFolderId(long folderId);
 
 
-    @Query("SELECT * FROM Podcast WHERE isFavorite = 1")
+    @Query("SELECT * FROM Podcast WHERE isFavorite = 1 ORDER BY date_added DESC")
     LiveData<List<Podcast>> getFavoritePodcastsLive();
 
     @Query("SELECT * FROM Podcast WHERE autoDownload = 1")

@@ -120,13 +120,9 @@ public class PodcastFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.Vie
         }
 
         void bind(String query, String lang, int count) {
-            Context context = itemView.getContext();
-            String searchTerms = "Search: " + (query.isEmpty() ? context.getString(R.string.Trending) : query);
-            tvSearchTerms.setText(searchTerms);
-            LanguageItem langItem = LanguageHelper.getLanguageByCode(lang);
-            String language = "Language: " + (langItem != null ? langItem.displayName : "");
-            tvLanguage.setText(language);
-            String resultsCount = "Results: " + count + (count == Var.PODCASTINDEXORG_API_MAX_RESULTS ? " (" + context.getString(R.string.max_number_of_results_reached) + ")" : "");
+            tvSearchTerms.setVisibility(View.GONE);
+            tvLanguage.setVisibility(View.GONE);
+            String resultsCount = count + " " + itemView.getContext().getString(R.string.favorites);
             tvResultsCount.setText(resultsCount);
         }
     }

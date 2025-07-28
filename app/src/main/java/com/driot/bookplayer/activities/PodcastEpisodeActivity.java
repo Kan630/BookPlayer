@@ -1,10 +1,10 @@
 package com.driot.bookplayer.activities;
 
-import static com.driot.bookplayer.global.Pref.shouldAnimateButtons;
-import static com.driot.bookplayer.global.Pref.stopAnimateButtons;
 import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_SINCE_DEBUG;
 import static com.driot.bookplayer.utils.TextOptions.parseMaybeHtml;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.content.Intent;
@@ -30,6 +30,7 @@ import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.db.PodcastDao;
 import com.driot.bookplayer.db.ZikFile;
+import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.objects.PlayList;
 import com.driot.bookplayer.objects.PodcastEpisode;
 import com.driot.bookplayer.objects.PodcastFeed;
@@ -54,6 +55,7 @@ public class PodcastEpisodeActivity extends LoggingActivity {
     private Podcast podcast;
 
     private ImageButton btnFavorite, btnAutoDownload;
+    private TextView labelFavorite, labelAutoDownload;
     private PodcastDao podcastDao;
 
     @Override
@@ -61,21 +63,16 @@ public class PodcastEpisodeActivity extends LoggingActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_podcast_detail);
 
-        if (shouldAnimateButtons()) {
-            animateAttention(findViewById(R.id.btnFavorite));
-            animateAttention(findViewById(R.id.btnAutoDownload));
-        }
-
         tvTitle = findViewById(R.id.tvPodcastTitle);
         tvDescription = findViewById(R.id.tvPodcastDescription);
         ivCover = findViewById(R.id.ivPodcastCover);
         recyclerEpisodes = findViewById(R.id.recyclerEpisodes);
         progressBar = findViewById(R.id.progressBarEpisodes);
 
-        ivCover.setOnClickListener(view -> {
-            myLogI("---- USER CLICK IMAGE ----");
-            goToPlaySection();
-        });
+        btnFavorite = findViewById(R.id.btnFavorite);
+        btnAutoDownload = findViewById(R.id.btnAutoDownload);
+        labelFavorite = findViewById(R.id.labelFavorite);
+        labelAutoDownload = findViewById(R.id.labelAutoDownload);
 
         podcastDao = AppDatabase.getDatabase(this).PodcastDao();
 
@@ -107,6 +104,26 @@ public class PodcastEpisodeActivity extends LoggingActivity {
         adapter = new PodcastEpisodeRVAdapter(this, podcast, podcastFeed, viewModel);
         recyclerEpisodes.setAdapter(adapter);
 
+        labelFavorite.setVisibility(View.GONE);
+        labelAutoDownload.setVisibility(View.GONE);
+
+        boolean isFavorite = podcast != null && podcast.isFavorite;
+        boolean isAutoDownload = podcast != null && podcast.autoDownload;
+
+        updateFavoriteIconColor(isFavorite);
+        updateAutoDownloadIconColor(isAutoDownload);
+        btnAutoDownload.setVisibility(isFavorite ? View.VISIBLE : View.GONE);
+
+        if (Pref.shouldAnimateButtons(Pref.AnimatedButton.FAVORITE)) {
+            animateAttention(findViewById(R.id.btnFavorite), findViewById(R.id.labelFavorite), getString(R.string.Add_to_favorite), findViewById(R.id.ivPodcastCover));
+        }
+
+        ivCover.setOnClickListener(view -> {
+            myLogI("---- USER CLICK IMAGE ----");
+            goToPlaySection();
+        });
+
+
         tvTitle.setText(podcastFeed.title);
         tvDescription.setText(parseMaybeHtml(podcastFeed.description));
         Glide.with(this).load(podcastFeed.image).into(ivCover);
@@ -116,11 +133,6 @@ public class PodcastEpisodeActivity extends LoggingActivity {
         } else {
             fetchEpisodes();
         }
-
-        btnFavorite = findViewById(R.id.btnFavorite);
-        btnAutoDownload = findViewById(R.id.btnAutoDownload);
-
-        loadInitialState();
 
         btnFavorite.setOnClickListener(v -> toggleFavorite());
         btnAutoDownload.setOnClickListener(v -> toggleAutoDownload());
@@ -133,48 +145,37 @@ public class PodcastEpisodeActivity extends LoggingActivity {
         });
     }
 
-    private void loadInitialState() {
-        AppDatabase.databaseWriteExecutor.execute(() -> {
-            runOnUiThread(() -> {
-                boolean isFavorite = podcast != null && podcast.isFavorite;
-                boolean isAutoDownload = podcast != null && podcast.autoDownload;
-
-                updateFavoriteIcon(isFavorite);
-                updateAutoDownloadIcon(isAutoDownload);
-                btnAutoDownload.setVisibility(isFavorite ? View.VISIBLE : View.GONE);
-            });
-        });
-    }
-
     private void toggleFavorite() {
-        myLog("--- USER CLICKS FAVORITE");
-        stopAnimateButtons();
+        myLogI("--- USER CLICKS set FAVORITE");
+        Pref.stopAnimateButtons(Pref.AnimatedButton.FAVORITE);
         AppDatabase.databaseWriteExecutor.execute(() -> {
             Podcast podcast = podcastDao.getPodcastByFeedId(podcastFeed.id);
 
             if (podcast == null) {
-                podcast = new Podcast();
-                populatePodCast(podcast);
-                podcast.autoDownload = false;
-                podcastDao.insert(podcast);
-            } else {
-                podcast.isFavorite = !podcast.isFavorite;
-                if (!podcast.isFavorite) {
-                    podcast.autoDownload = false; // reset autoDownload if unfavorited
-                } else {
-                    myLog("---> On");
-                    myToast(getString(R.string.podcast_favorite_add));
-                }
-                podcastDao.update(podcast);
+                PodcastHelper.addPodcastToDB(this, podcastFeed);
+                podcast = AppDatabase.getDatabase(this).PodcastDao().getPodcastByFeedId(podcastFeed.id);
             }
 
-            boolean newState = podcast.isFavorite;
+            podcast.isFavorite = !podcast.isFavorite;
+            if (!podcast.isFavorite) {
+                podcast.autoDownload = false; // reset autoDownload if unfavorited
+            } else {
+                myToast(getString(R.string.podcast_favorite_add));
+            }
+            podcastDao.update(podcast);
+
+            boolean favoriteState = podcast.isFavorite;
             boolean autoDownloadState = podcast.autoDownload;
 
             runOnUiThread(() -> {
-                updateFavoriteIcon(newState);
-                updateAutoDownloadIcon(autoDownloadState);
-                btnAutoDownload.setVisibility(newState ? View.VISIBLE : View.GONE);
+                updateFavoriteIconColor(favoriteState);
+                updateAutoDownloadIconColor(autoDownloadState);
+                btnAutoDownload.setVisibility(favoriteState ? View.VISIBLE : View.GONE);
+                if (favoriteState) {
+                    if (Pref.shouldAnimateButtons(Pref.AnimatedButton.AUTO_DOWNLOAD)) {
+                        animateAttention(findViewById(R.id.btnAutoDownload), findViewById(R.id.labelAutoDownload), getString(R.string.Auto_Download_episodes), findViewById(R.id.ivPodcastCover));
+                    }
+                }
             });
             ImageHelper.processPendingImages(this);
             AnalyticsHelper.tellAnalyticsPodcastFavorite(this, podcast.title, podcast.language);
@@ -182,44 +183,31 @@ public class PodcastEpisodeActivity extends LoggingActivity {
     }
 
     private void toggleAutoDownload() {
-        myLog("--- USER CLICKS AUTO DOWNLOAD");
-        stopAnimateButtons();
+        myLogI("--- USER CLICKS set AUTO DOWNLOAD");
+        Pref.stopAnimateButtons(Pref.AnimatedButton.AUTO_DOWNLOAD);
         AppDatabase.databaseWriteExecutor.execute(() -> {
             Podcast podcast = podcastDao.getPodcastByFeedId(podcastFeed.id);
-
-            if (podcast == null) {
-                podcast = new Podcast();
-                populatePodCast(podcast);
-                podcast.autoDownload = true;
-                podcastDao.insert(podcast);
-            } else {
-                podcast.isFavorite = true; // enforce favorite
-                podcast.autoDownload = !podcast.autoDownload;
-                podcastDao.update(podcast);
-            }
+            podcast.autoDownload = !podcast.autoDownload;
+            podcastDao.update(podcast);
             if (podcast.autoDownload) {
                 myLog("---> On");
                 myToast(getString(R.string.podcast_autodownload_add));
                 downloadAllEpisodesToFolder(podcast, PODCASTINDEXORG_SINCE_DEBUG);
             }
-
-            boolean isFavoriteNow = podcast.isFavorite;
-            boolean newAutoDownload = podcast.autoDownload;
-
             runOnUiThread(() -> {
-                updateFavoriteIcon(isFavoriteNow);
-                updateAutoDownloadIcon(newAutoDownload);
+                updateAutoDownloadIconColor(podcast.autoDownload);
             });
         });
     }
 
-    private void updateFavoriteIcon(boolean isOn) {
-        int colorResId = isOn ? R.color.red_500 : R.color.gray_500;
+
+    private void updateFavoriteIconColor(boolean isOn) {
+        int colorResId = isOn ? android.R.color.holo_red_light : R.color.gray_500;
         btnFavorite.setColorFilter(ContextCompat.getColor(this, colorResId), PorterDuff.Mode.SRC_IN);
     }
 
-    private void updateAutoDownloadIcon(boolean isOn) {
-        int colorResId = isOn ? R.color.green_500 : R.color.gray_500;
+    private void updateAutoDownloadIconColor(boolean isOn) {
+        int colorResId = isOn ? R.color.green_300 : R.color.gray_500;
         btnAutoDownload.setColorFilter(ContextCompat.getColor(this, colorResId), PorterDuff.Mode.SRC_IN);
     }
 
@@ -260,41 +248,53 @@ public class PodcastEpisodeActivity extends LoggingActivity {
         myLog("Starting download: " + url + " to " + outputPath);
         //DownloadService.startDownload(this, url, outputPath); // assuming you already have this
     }
+    private void animateAttention(ImageView ivIcon, TextView tvIconLabel, String labelText, ImageView podcastImage) {
+        float MAX_SIZE = 1.8f;
+        int ANIM_TIME = 2000;
+        int HALF_TIME = ANIM_TIME / 2;
+        int fromColor = ContextCompat.getColor(this, R.color.gray_500);
+        int toColor = ContextCompat.getColor(this, android.R.color.holo_blue_bright);
+        int ivIConVisibility = ivIcon.getVisibility();
 
-    private void animateAttention(ImageView imageView) {
-        float MAX_SIZE =  1.8f;
-        int ANIM_TIME = 600;
-        int fromColor = ContextCompat.getColor(this, R.color.gray_500);   // original
-        int toColor = ContextCompat.getColor(this, R.color.orange_500);  // highlight
+        // Set initial states
+        tvIconLabel.setText(labelText);
+        tvIconLabel.setAlpha(0f);
+        tvIconLabel.setVisibility(View.VISIBLE);
+        ivIcon.setVisibility(View.VISIBLE);
+        podcastImage.setAlpha(0.2f);
+        ivIcon.setColorFilter(fromColor, PorterDuff.Mode.SRC_IN);
 
-        // Apply the initial color filter (optional, if not already set)
-        imageView.setColorFilter(fromColor, PorterDuff.Mode.SRC_IN);
+        // --- Label fade in and out ---
+        ObjectAnimator labelFadeIn = ObjectAnimator.ofFloat(tvIconLabel, "alpha", 0f, 1f);
+        labelFadeIn.setDuration(HALF_TIME);
 
-        // Color filter animation
-        ObjectAnimator colorToHighlight = ObjectAnimator.ofArgb(imageView, "colorFilter", fromColor, toColor);
-        ObjectAnimator colorBackToGray = ObjectAnimator.ofArgb(imageView, "colorFilter", toColor, fromColor);
+        ObjectAnimator labelFadeOut = ObjectAnimator.ofFloat(tvIconLabel, "alpha", 1f, 0f);
+        labelFadeOut.setDuration(HALF_TIME);
 
-        // Scale animation
-        ObjectAnimator scaleUpX = ObjectAnimator.ofFloat(imageView, "scaleX", 1f, MAX_SIZE);
-        ObjectAnimator scaleUpY = ObjectAnimator.ofFloat(imageView, "scaleY", 1f, MAX_SIZE);
-        ObjectAnimator scaleDownX = ObjectAnimator.ofFloat(imageView, "scaleX", MAX_SIZE, 1f);
-        ObjectAnimator scaleDownY = ObjectAnimator.ofFloat(imageView, "scaleY", MAX_SIZE, 1f);
+        // --- Icon scale and color ---
+        ObjectAnimator colorToHighlight = ObjectAnimator.ofArgb(ivIcon, "colorFilter", fromColor, toColor);
+        ObjectAnimator colorBackToGray = ObjectAnimator.ofArgb(ivIcon, "colorFilter", toColor, fromColor);
+        ObjectAnimator scaleUpX = ObjectAnimator.ofFloat(ivIcon, "scaleX", 1f, MAX_SIZE);
+        ObjectAnimator scaleUpY = ObjectAnimator.ofFloat(ivIcon, "scaleY", 1f, MAX_SIZE);
+        ObjectAnimator scaleDownX = ObjectAnimator.ofFloat(ivIcon, "scaleX", MAX_SIZE, 1f);
+        ObjectAnimator scaleDownY = ObjectAnimator.ofFloat(ivIcon, "scaleY", MAX_SIZE, 1f);
 
-        // Group animations
         AnimatorSet scaleUp = new AnimatorSet();
-        scaleUp.playTogether(scaleUpX, scaleUpY, colorToHighlight);
+        scaleUp.playTogether(scaleUpX, scaleUpY, colorToHighlight, labelFadeIn);
 
         AnimatorSet scaleDown = new AnimatorSet();
-        scaleDown.playTogether(scaleDownX, scaleDownY, colorBackToGray);
+        scaleDown.playTogether(scaleDownX, scaleDownY, colorBackToGray, labelFadeOut);
 
-        AnimatorSet flicker = new AnimatorSet();
-        flicker.playSequentially(scaleUp, scaleDown);
-        flicker.setDuration(ANIM_TIME);
+        AnimatorSet fullAnimation = new AnimatorSet();
+        fullAnimation.playSequentially(scaleUp, scaleDown);
+        fullAnimation.setDuration(ANIM_TIME);
 
-        // reset colors after (should be useless as as soon as the user clicks, there should never be more animation...
-        flicker.addListener(new android.animation.AnimatorListenerAdapter() {
+        fullAnimation.addListener(new AnimatorListenerAdapter() {
             @Override
-            public void onAnimationEnd(android.animation.Animator animation) {
+            public void onAnimationEnd(Animator animation) {
+                podcastImage.setAlpha(1f); // restore alpha
+                ivIcon.setVisibility(ivIConVisibility);
+
                 AppDatabase.databaseWriteExecutor.execute(() -> {
                     Podcast podcast = podcastDao.getPodcastByFeedId(podcastFeed.id);
                     if (podcast != null) {
@@ -302,25 +302,15 @@ public class PodcastEpisodeActivity extends LoggingActivity {
                         boolean isAuto = podcast.autoDownload;
 
                         runOnUiThread(() -> {
-                            updateFavoriteIcon(isFav);
-                            updateAutoDownloadIcon(isAuto);
+                            updateFavoriteIconColor(isFav);
+                            updateAutoDownloadIconColor(isAuto);
                         });
                     }
                 });
             }
         });
 
-        flicker.start();
-    }
-
-    private void populatePodCast(Podcast podcast) {
-        podcast.source = "podcastindex.org";
-        podcast.feedId = podcastFeed.id;
-        podcast.title = podcastFeed.title;
-        podcast.image = podcastFeed.image;
-        podcast.imageOriginalUrl = podcastFeed.image;
-        podcast.description = podcastFeed.description;
-        podcast.isFavorite = true;
+        fullAnimation.start();
     }
 
     private void goToPlaySection() {

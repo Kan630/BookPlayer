@@ -14,6 +14,7 @@ import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.driot.bookplayer.R;
@@ -27,7 +28,6 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Locale;
-import java.util.Objects;
 
 public class DownloadJobService extends JobService {
 
@@ -249,17 +249,21 @@ public class DownloadJobService extends JobService {
         long currentTime = System.currentTimeMillis();
         if (currentTime - lastUpdateTime > MIN_UPDATE_INTERVAL || progress==100) {
             String txtProgress = progress + "% " + getString(R.string.downloaded) + " (" + strSize + ")";
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(this, ID_NOTIFICATION_DOWNLOAD_CHANNEL)
-                    .setContentTitle(getString(R.string.Downloading) + ": " + title)
-                    .setContentText(txtProgress)
-                    .setSmallIcon(R.drawable.ic_download_24dp)
-                    .setPriority(NotificationCompat.PRIORITY_LOW)
-                    .setOnlyAlertOnce(true)
-                    .setProgress(100, progress, false);
 
-            NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            if (notificationManager != null) {
-                notificationManager.notify(ID_NOTIFICATION_DOWNLOAD_INT, builder.build());
+            NotificationManagerCompat manager = NotificationManagerCompat.from(this);
+            if (manager.areNotificationsEnabled()) {
+                NotificationCompat.Builder builder = new NotificationCompat.Builder(this, ID_NOTIFICATION_DOWNLOAD_CHANNEL)
+                        .setContentTitle(getString(R.string.Downloading) + ": " + title)
+                        .setContentText(txtProgress)
+                        .setSmallIcon(R.drawable.ic_download_action_24)
+                        .setPriority(NotificationCompat.PRIORITY_LOW)
+                        .setOnlyAlertOnce(true)
+                        .setProgress(100, progress, false);
+
+                NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                if (notificationManager != null) {
+                    notificationManager.notify(ID_NOTIFICATION_DOWNLOAD_INT, builder.build());
+                }
             }
 
             //Update UI

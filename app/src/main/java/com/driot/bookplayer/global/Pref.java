@@ -28,8 +28,6 @@ public class Pref {
     private static final String SHARED_PREFERENCES_DOWNLOAD = "SHARED_PREFERENCES_DOWNLOAD";
     private static final String KEY_LOAD_BOOK_TASK_STATE = "loadBookTaskState";
 
-    private static final String PREF_KEY_PODCAST_DETAIL_OPENS = "pref_podcast_detail_opens";
-
     private static Context appContext;
     private static android.content.SharedPreferences prefs;
     public static void init(Context context) {
@@ -132,17 +130,20 @@ public class Pref {
 
 
     /////////////////// PODCAST DETAIL FAVORITE and AUTODOWNLOAD animations ///////////////////
-    public static boolean shouldAnimateButtons() {
-        int opens = prefs.getInt(PREF_KEY_PODCAST_DETAIL_OPENS, 0);
-
+    public enum AnimatedButton {
+        FAVORITE,
+        AUTO_DOWNLOAD
+    }
+    public static boolean shouldAnimateButtons(AnimatedButton button) {
+        int opens = prefs.getInt("ANIMATE_BUTTON_COUNT_" + button, 0);
         if (opens < PODCAST_DETAIL_ANIMATION_COUNT) {
-            prefs.edit().putInt(PREF_KEY_PODCAST_DETAIL_OPENS, opens + 1).apply();
+            prefs.edit().putInt("ANIMATE_BUTTON_COUNT_" + button, opens + 1).apply();
             return true;
         }
         return false;
     }
-    public static void stopAnimateButtons() {
-        prefs.edit().putInt(PREF_KEY_PODCAST_DETAIL_OPENS, PODCAST_DETAIL_ANIMATION_COUNT).apply();
+    public static void stopAnimateButtons(AnimatedButton button) {
+        prefs.edit().putInt("ANIMATE_BUTTON_COUNT_" + button, PODCAST_DETAIL_ANIMATION_COUNT).apply();
     }
 
 

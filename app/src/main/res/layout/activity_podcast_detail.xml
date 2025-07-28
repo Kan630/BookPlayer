@@ -26,26 +26,67 @@
             android:orientation="vertical"
             android:layout_alignParentTop="true"
             android:layout_alignParentEnd="true"
+            android:gravity="end"
             android:layout_margin="8dp">
 
-            <ImageButton
-                android:id="@+id/btnFavorite"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:background="@android:color/transparent"
-                android:contentDescription="Favorite"
-                android:src="@drawable/ic_favorite"
-                app:tint="@color/gray_500" />
+            <!-- Favorite Row -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="8dp">
 
-            <ImageButton
-                android:id="@+id/btnAutoDownload"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:background="@android:color/transparent"
-                android:contentDescription="Auto Download"
-                android:src="@drawable/ic_download_24dp"
-                app:tint="@color/gray_500" />
+                <TextView
+                    android:id="@+id/labelFavorite"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Add to Favorite ->"
+                    android:textColor="@color/white"
+                    android:textSize="20sp"
+                    android:layout_marginEnd="4dp"
+                    />
+
+                <ImageButton
+                    android:id="@+id/btnFavorite"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="@android:color/transparent"
+                    android:contentDescription="Favorite"
+                    android:src="@drawable/ic_favorite"
+                    />
+            </LinearLayout>
+
+            <!-- Auto Download Row -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                >
+
+                <TextView
+                    android:id="@+id/labelAutoDownload"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Auto-Download new episodes ->"
+                    android:textColor="@color/white"
+                    android:textSize="20sp"
+                    android:layout_marginEnd="4dp"
+                    />
+
+                <ImageButton
+                    android:id="@+id/btnAutoDownload"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="@android:color/transparent"
+                    android:contentDescription="Auto Download"
+                    android:src="@drawable/ic_download_action_24"
+                    />
+            </LinearLayout>
+
         </LinearLayout>
+
     </RelativeLayout>
 
     <!-- Texts and episode list -->

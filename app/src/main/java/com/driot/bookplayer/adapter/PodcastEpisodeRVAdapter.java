@@ -28,10 +28,12 @@ import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Option;
+import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.objects.PlayList;
 import com.driot.bookplayer.objects.PodcastEpisode;
 import com.driot.bookplayer.objects.PodcastFeed;
 import com.driot.bookplayer.utils.NetworkUtils;
+import com.driot.bookplayer.utils.PodcastHelper;
 import com.driot.bookplayer.utils.ViewHelper;
 import com.driot.bookplayer.utils.PodcastDownloadManager;
 import com.driot.bookplayer.utils.Tonio;
@@ -104,35 +106,39 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
         //TODO you need to match an episode with a ZikFile, (like the Folder with the Podcast).... maybe we should have feedID or episodeID in ZikFile table...., and a failback on checking names if id changes (should not happen but who knows)?
         LiveData<ZikFile> liveZikFile = viewModel.getZikFileLive(podcastFeed.title, episodeFileName); //changed from full path to just folder name, to deal with multiple locations
         liveZikFile.removeObservers(lifecycleOwner); //not sure it is usefull
-        holder.icon_1.setTag(episodeFileName); // ---- avoid stop flickers on another completion -- Sometimes the LiveData callback gets called even after the view has been recycled
+        holder.icon_download_done.setTag(episodeFileName); // ---- avoid stop flickers on another completion -- Sometimes the LiveData callback gets called even after the view has been recycled
         liveZikFile.observe(lifecycleOwner, zikFile -> {
-            if (!holder.icon_1.getTag().equals(episodeFileName)) return; // ---- avoid stop flickers on another completion --
+            if (!holder.icon_download_done.getTag().equals(episodeFileName)) return; // ---- avoid stop flickers on another completion --
             if (zikFile != null) {
                 if (holder.flickerRunning && holder.flickerAnim != null) {
                     holder.flickerRunning = false;
                     holder.flickerAnim.cancel();
                     holder.flickerAnim = null;
-                    holder.icon_1.setScaleX(1f);
-                    holder.icon_1.setScaleY(1f);
+                    holder.icon_download_done.setScaleX(1f);
+                    holder.icon_download_done.setScaleY(1f);
                 }
                 holder.zikFile = zikFile;
                 String percentDone = String.format(Locale.US, "%.0f", zikFile.getPercentdone());
                 String lastAdded = "Added : " + android.text.format.DateFormat.format("yyyy-MM-dd HH:mm", zikFile.date_added);
                 String stats2 = percentDone + "% " + ContextCompat.getString(context, R.string.listened) + "\n" + lastAdded;
                 holder.tvEpisodeDBStats.setText(stats2);
-                holder.icon_1.setVisibility(View.VISIBLE);
-                holder.icon_1.setColorFilter(ContextCompat.getColor(context, R.color.green_300));
+                holder.icon_download_action.setVisibility(View.GONE);
+                holder.icon_download_done.setVisibility(View.VISIBLE);
+                holder.icon_download_done.setColorFilter(ContextCompat.getColor(context, R.color.green_300));
+                holder.icon_download_done.setOnClickListener(null);
             } else if (isDownloaded) {
                 holder.tvEpisodeDBStats.setText("");
-                holder.icon_1.setVisibility(View.VISIBLE);
-                holder.icon_1.setColorFilter(ContextCompat.getColor(context, R.color.orange_500));
+                holder.icon_download_action.setVisibility(View.GONE);
+                holder.icon_download_done.setVisibility(View.VISIBLE);
+                holder.icon_download_done.setColorFilter(ContextCompat.getColor(context, R.color.orange_500));
+                holder.icon_download_done.setOnClickListener(null);
             } else {
                 holder.tvEpisodeDBStats.setText("");
-                holder.icon_1.setVisibility(View.VISIBLE);
-                holder.icon_1.setColorFilter(ContextCompat.getColor(context, R.color.pastel_blue_300));
-                holder.icon_1.setOnClickListener(v -> {
+                holder.icon_download_done.setVisibility(View.GONE);
+                holder.icon_download_action.setVisibility(View.VISIBLE);
+                holder.icon_download_action.setColorFilter(ContextCompat.getColor(context, android.R.color.holo_blue_bright));
+                holder.icon_download_action.setOnClickListener(v -> {
                     myLogI("---- USER CLICKS - Downloading single episode -----  " + episode.title);
-                    addPodcastToDB();
                     if (Option.getNetworkPolicyManualDownload().equals(NetworkUtils.NetworkPolicyManual.ASK_IF_NOT_UNMETERED) && !NetworkUtils.isUnmeteredConnected(context)) {
                         new AlertDialog.Builder(context)
                                 .setTitle(R.string.download_warning_title_unmetered)
@@ -152,6 +158,9 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
                                 .setNegativeButton(android.R.string.cancel, null)
                                 .show();
                     } else {
+                        AppDatabase.databaseWriteExecutor.execute(() -> {
+                            PodcastHelper.addPodcastToDB(this.context, podcastFeed);
+                        });
                         proceedWithDownload(context, holder, podcastFeed.title, episode, podcastFeed.id);
                     }
                 });
@@ -162,7 +171,7 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
     private void proceedWithDownload(Context context, ViewHolder holder, String futureFolderName, PodcastEpisode episode, long feedId) {
         if (holder.flickerAnim == null) {
             holder.flickerRunning = true;
-            holder.flickerAnim = createFlickerAnimation(holder.icon_1,holder);
+            holder.flickerAnim = createFlickerAnimation(holder.icon_download_action,holder);
             holder.flickerAnim.start();
         }
         File targetFolder = buildPodcastPath(context, futureFolderName);
@@ -181,7 +190,7 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView tvTitle, tvDate, tvEpisodeStats, tvEpisodeDBStats;
-        ImageView icon_1;
+        ImageView icon_download_done, icon_download_action;
         AnimatorSet flickerAnim;
         boolean flickerRunning = false;
         ZikFile zikFile;
@@ -192,7 +201,8 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
             tvDate = itemView.findViewById(R.id.tvEpisodeDate);
             tvEpisodeStats = itemView.findViewById(R.id.tvEpisodeStats);
             tvEpisodeDBStats = itemView.findViewById(R.id.tvEpisodeDBstats);
-            icon_1 = itemView.findViewById(R.id.icon_1);
+            icon_download_done = itemView.findViewById(R.id.icon_download_done);
+            icon_download_action = itemView.findViewById(R.id.icon_download_action);
         }
     }
 
@@ -277,22 +287,5 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
         return -1; // not found
     }
 
-    private void addPodcastToDB() {
-        AppDatabase.databaseWriteExecutor.execute(() -> {
-            Podcast podcast = AppDatabase.getDatabase(this.context).PodcastDao().getPodcastByFeedId(podcastFeed.id);
-            if (podcast == null) {
-                podcast = new Podcast();
-                podcast.source = "podcastindex.org";
-                podcast.feedId = podcastFeed.id;
-                podcast.title = podcastFeed.title;
-                podcast.image = podcastFeed.image;
-                podcast.imageOriginalUrl = podcastFeed.image;
-                podcast.description = podcastFeed.description;
-                podcast.isFavorite = false;
-                podcast.autoDownload = false;
-                AppDatabase.getDatabase(this.context).PodcastDao().insert(podcast);
-            }
-        });
-    }
 
 }

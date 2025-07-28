@@ -23,9 +23,11 @@ public class Var {
 
     public static final String PODCASTINDEXORG_API_KEY = "PVULATRUYKDZX26NBGTR";
     public static final String PODCASTINDEXORG_API_SECRET = "ACtMRyawFkg4MxA55y^CH$fE3Dynds4gURfByYXL";
+    public static final String PODCAST_SOURCE = "podcastindex.org";
+
     //public static final int PODCASTINDEXORG_SINCE_DEBUG = 1751716800 ; //5 juillet, 2025
     public static final int PODCASTINDEXORG_SINCE_DEBUG = 0 ; //5 juillet, 2025
-    public static final int PODCAST_DETAIL_ANIMATION_COUNT = 5 ;
+    public static final int PODCAST_DETAIL_ANIMATION_COUNT = 10 ;
 
 
     public static final String  FOLDER_UNZIPPED = "unzipped";
