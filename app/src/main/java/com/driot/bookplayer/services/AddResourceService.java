@@ -1,6 +1,5 @@
 package com.driot.bookplayer.services;
 
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -135,19 +134,20 @@ public class AddResourceService
 
     public static boolean isBusy;
 
+    private String lastMessage = "";
+    private int lastProgress = -1;
 
     // Callbacks
     //-----------------------------
     public interface Callbacks{
-        void updateProgress(String progressText, int progressVal);
-        void updateError(String errorText);
-        void updateEnd();
-        void tellHeader(String txt);
-        void tellNonBlockingError(String txt);
+        void tellProgress(String progressText, int progressVal);
         void tellWarning(String txt);
+        void tellNonBlockingError(String txt);
+        void tellError(String errorText);
+        void tellEnd();
     }
-    public void registerClient(Activity activity){
-        this.mCallBacks = (AddResourceService.Callbacks)activity; // done in onServiceConnected()
+    public void registerClient(Callbacks callbacks) {
+        this.mCallBacks = callbacks;
     }
 
     //used for JobService who seems to not like Callbacks...
@@ -250,24 +250,23 @@ public class AddResourceService
         } catch (Exception e) {
             myLogEE(e,"ERROR bind to Service in launchCopyFileService");
         }
-        mCallBacks.tellHeader(destinationFileName);
-        myLog("call start & bind to copyFileService from launchCopyFileService - bound result :" + boundToCopyFileService + "");
+        myLogD("call start & bind to copyFileService from launchCopyFileService - bound result :" + boundToCopyFileService);
     }
 // UNZIP
     private final ServiceConnection unzipServiceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
-            myLog("unzipServiceConnection - onServiceConnected : [" + className.toString() + "]");
+            myLogD("unzipServiceConnection - onServiceConnected : [" + className.toString() + "]");
             UnzipService.UnzipServiceBackgroundBinder binder = (UnzipService.UnzipServiceBackgroundBinder) service;
             mUnzipService = binder.getService();
             mUnzipService.registerClient(AddResourceService.this);
             mUnzipServiceBound = true;
-            myLog("unzipServiceConnection - launch init()");
+            myLogD("unzipServiceConnection - launch init()");
             mUnzipService.init();
         }
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
-            myLog("unzipServiceConnection - OnServiceDisconnected : [" + arg0.toString() + "]");
+            myLogD("unzipServiceConnection - OnServiceDisconnected : [" + arg0.toString() + "]");
             if (mUnzipServiceBound != null && mUnzipServiceBound) {
                 mUnzipService.unbindService(unzipServiceConnection);
                 mUnzipServiceBound = false;
@@ -275,7 +274,7 @@ public class AddResourceService
         }
     };
     private void launchUnzipService(String zipFilePath, String destinationFolderPath) {
-        myLog("launchUnzipService()");
+        myLogD("launchUnzipService()");
         Intent intentUnzipService = new Intent(this, UnzipService.class);
         intentUnzipService.putExtra("zipFilePath", zipFilePath);
         intentUnzipService.putExtra("destinationFolderPath", destinationFolderPath);
@@ -291,17 +290,17 @@ public class AddResourceService
     private final ServiceConnection splitM4bServiceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
-            myLog("SplitM4bServiceConnection - onServiceConnected : [" + className.toString() + "]");
+            myLogD("SplitM4bServiceConnection - onServiceConnected : [" + className.toString() + "]");
             SplitM4bService.SplitM4bServiceBackgroundBinder binder = (SplitM4bService.SplitM4bServiceBackgroundBinder) service;
             mSplitM4bService = binder.getService();
             mSplitM4bService.registerClient(AddResourceService.this);
             mSplitM4bServiceBound = true;
-            myLog("SplitM4bServiceConnection - launch init()");
+            myLogD("SplitM4bServiceConnection - launch init()");
             mSplitM4bService.init();
         }
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
-            myLog("SplitM4bServiceConnection - OnServiceDisconnected : [" + arg0.toString() + "]");
+            myLogD("SplitM4bServiceConnection - OnServiceDisconnected : [" + arg0.toString() + "]");
             if (mSplitM4bServiceBound != null && mSplitM4bServiceBound) {
                 mSplitM4bService.unbindService(splitM4bServiceConnection);
                 mSplitM4bServiceBound = false;
@@ -309,7 +308,7 @@ public class AddResourceService
         }
     };
     private void launchSplitM4bService(String m4bFilePath, String destinationFolderPath) {
-        myLog("launchSplitM4bService()");
+        myLogD("launchSplitM4bService()");
         Intent intentSplitM4bService = new Intent(this, SplitM4bService.class);
         intentSplitM4bService.putExtra("m4bFilePath", m4bFilePath);
         intentSplitM4bService.putExtra("destinationFolderPath", destinationFolderPath);
@@ -319,23 +318,23 @@ public class AddResourceService
         } catch (Exception e) {
             myLogEE(e,"ERROR bind to Service in launchsplitM4bService");
         }
-        myLog("call start & bind to splitM4bService from launchsplitM4bService - bound result :" + boundToSplitM4bService);
+        myLogD("call start & bind to splitM4bService from launchsplitM4bService - bound result :" + boundToSplitM4bService);
     }
 //DOWNLOAD
     private final ServiceConnection downloadServiceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
-            myLog("downloadServiceConnection - onServiceConnected : [" + className.toString() + "]");
+            myLogD("downloadServiceConnection - onServiceConnected : [" + className.toString() + "]");
             DownloadService.DownloadServiceBackgroundBinder binder = (DownloadService.DownloadServiceBackgroundBinder) service;
             mDownloadService = binder.getService();
             mDownloadService.registerClient(AddResourceService.this);
             mDownloadServiceBound = true;
-            myLog("downloadServiceServiceConnection - launch init()");
+            myLogD("downloadServiceServiceConnection - launch init()");
             mDownloadService.init();
         }
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
-            myLog("downloadServiceConnection - OnServiceDisconnected : [" + arg0.toString() + "]");
+            myLogD("downloadServiceConnection - OnServiceDisconnected : [" + arg0.toString() + "]");
             if (mDownloadServiceBound != null && mDownloadServiceBound) {
                 mDownloadService.unbindService(downloadServiceConnection);
                 mDownloadServiceBound = false;
@@ -343,7 +342,7 @@ public class AddResourceService
         }
     };
     private void launchDownloadService(String fileUrl, String destinationFolder, String audioBookTitle) {
-        myLog("launchDownloadService()");
+        myLogD("launchDownloadService()");
         Intent intentDownloadService = new Intent(this, DownloadService.class);
         intentDownloadService.putExtra("fileUrl", fileUrl);
         intentDownloadService.putExtra("destinationFolder", destinationFolder);
@@ -354,7 +353,7 @@ public class AddResourceService
         } catch (Exception e) {
             myLogEE(e,"ERROR bind to Service in launchDownloadService");
         }
-        myLog("call start & bind to downloadService from launchDownloadService - bound result :" + boundToDownloadService );
+        myLogD("call start & bind to downloadService from launchDownloadService - bound result :" + boundToDownloadService );
     }
 
     // native methods
@@ -375,8 +374,9 @@ public class AddResourceService
     public int onStartCommand(Intent intent, int flags, int startId) {
         myLogD("onStartCommand()");
 
-        LoadBookTaskState state = intent.getParcelableExtra("LoadBookTaskState");
-        initVars(state);
+        initAddResourceService();
+        //LoadBookTaskState state = intent.getParcelableExtra("LoadBookTaskState");
+        //initVars(state);
 
         return START_NOT_STICKY;
     }
@@ -385,7 +385,7 @@ public class AddResourceService
     // INIT
     ///////////////////////////////////////
 
-    public void init() {
+    public void initAddResourceService() {
 
         if (isBusy) {
             myLog("service already running, skipping init()");
@@ -1080,6 +1080,11 @@ public class AddResourceService
         tellError(errorText);
     }
     @Override
+    public void unzipService_tellNonBlockingError(String errorText) {
+        myLog("Unzip service tell Non Blocking Error");
+        tellNonBlockingError(errorText);
+    }
+    @Override
     public void unzipService_tellEnd(String destinationFolderPath) {
         myLog("Unzip Service tells End : [" + destinationFolderPath + "]");
         tellProgress(PROGRESS[7], PROGRESS_TEXT[7]);
@@ -1135,36 +1140,34 @@ public class AddResourceService
      *********************************
      */
     public void tellProgressNoLog(int progressVal,String progressText) {
-        mCallBacks.updateProgress(progressText, progressVal);
+        notifyProgress(progressText, progressVal);
     }
     public void tellProgress(int progressVal,String progressText) {
         myLogD("tellProgress : " + progressVal + " - " + progressText.replace("\n"," ## "));
-        mCallBacks.updateProgress(progressText, progressVal);
+        notifyProgress(progressText, progressVal);
     }
     private void tellEnd() {
         setWorkFlowFinished(this);
-        mCallBacks.updateEnd();
+        notifyEnd();
         isBusy = false;
         myLog("killing Service");
         stopSelf();
     }
     private void tellError(String txt) {
         setWorkFlowFinished(this);
-        mCallBacks.updateError(txt);
+        notifyError(txt);
         myLogW("tellError... [" + txt + "]");
         isBusy = false;
         myLog("tellError... killing Service");
         stopSelf();
     }
-    @Override
     public void tellNonBlockingError(String txt) {
-        mCallBacks.tellNonBlockingError(txt);
+        myLogD("NonBlockingError : " + txt);
+        notifyNonBlockingError(txt);
     }
     public void tellWarning(String txt) {
-        mCallBacks.tellWarning(txt);
-    }
-    public void tellheader(String txt) {
-        mCallBacks.tellHeader(txt);
+        myLogD("Warning : " + txt);
+        notifyWarning(txt);
     }
     /**
      **********************************
@@ -1204,4 +1207,44 @@ public class AddResourceService
         uri_dynamic = newUri;
     }
 
+    private void notifyProgress(String msg, int progress) {
+        lastMessage = msg;
+        lastProgress = progress;
+        if (mCallBacks != null) {
+            mCallBacks.tellProgress(msg, progress);
+        } else {
+            myLog("notifyProgress skipped (no callback yet)");
+        }
+    }
+
+    private void notifyEnd() {
+        if (mCallBacks != null) {
+            mCallBacks.tellEnd();
+        } else {
+            myLog("notifyEnd skipped (no callback yet)");
+        }
+    }
+
+    private void notifyError(String errorMsg) {
+        if (mCallBacks != null) {
+            mCallBacks.tellError(errorMsg);
+        } else {
+            myLog("notifyError skipped (no callback yet)");
+        }
+    }
+    public void notifyNonBlockingError(String txt) {
+        if (mCallBacks != null) {
+            mCallBacks.tellNonBlockingError(txt);
+        } else {
+            myLog("notifyNonBlockingError skipped (no callback yet)");
+        }
+    }
+
+    public void notifyWarning(String txt) {
+        if (mCallBacks != null) {
+            mCallBacks.tellWarning(txt);
+        } else {
+            myLog("notifyWarning skipped (no callback yet)");
+        }
+    }
 }

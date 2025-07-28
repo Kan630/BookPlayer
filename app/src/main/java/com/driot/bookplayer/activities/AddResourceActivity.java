@@ -22,8 +22,6 @@ import static com.driot.bookplayer.utils.Tonio.getFileNameFromPath;
 import static com.driot.bookplayer.utils.Tonio.formatNameForDisplay;
 import static com.driot.bookplayer.utils.WorkFlow.cancelAllOngoingTasks;
 
-import androidx.fragment.app.Fragment;
-
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 23/11/20
@@ -44,9 +42,6 @@ public class AddResourceActivity
     boolean boundToAddResourceService;
     AddResourceService mService;
     boolean mBound = false;
-    private boolean HasBeenInitializedService = false;
-
-    private String type;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,13 +95,8 @@ public class AddResourceActivity
             myLogD("onServiceConnected : [" + className.toString() + "]");
             AddResourceService.AddResourceServiceBackgroundBinder binder = (AddResourceService.AddResourceServiceBackgroundBinder) service;
             mService = binder.getService();
-            mService.registerClient(AddResourceActivity.this); //to get the CallBacks
+            mService.registerClient(AddResourceActivity.this); // to get callbacks
             mBound = true;
-            if (!HasBeenInitializedService) {
-                myLogD("init service addResourceService");
-                mService.init();
-            }
-            HasBeenInitializedService = true;
         }
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
@@ -117,8 +107,7 @@ public class AddResourceActivity
     };
 
     private void putTitle(String name) {
-        name = "[" + type + "] - " + formatNameForDisplay(getFileNameFromPath(name));
-        tvTitle.setText(name);
+        tvTitle.setText(formatNameForDisplay(getFileNameFromPath(name)));
     }
 
     // callback override
@@ -138,7 +127,7 @@ public class AddResourceActivity
         });
     }
     @Override
-    public void updateProgress(String progressText, int progressVal) {
+    public void tellProgress(String progressText, int progressVal) {
         runOnUiThread(() -> {
             if (!progressText.isEmpty()) {
                 progressBarText.setText(progressText);
@@ -150,18 +139,14 @@ public class AddResourceActivity
         });
     }
     @Override
-    public void updateError(String errorText) {
+    public void tellError(String errorText) {
         runOnUiThread(() -> {
             progressBarText.setText(errorText);
             progressBarText.setTextColor(Color.RED);
         });
     }
     @Override
-    public void tellHeader(String txt) {
-        runOnUiThread(() -> putTitle(txt));
-    }
-    @Override
-    public void updateEnd() {
+    public void tellEnd() {
         runOnUiThread(() -> {
             AddResourceActivity.this.setResult(Activity.RESULT_OK);
             if (tvErrorText.getText().length() > 0) {
