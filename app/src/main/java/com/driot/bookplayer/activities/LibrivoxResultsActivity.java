@@ -137,10 +137,11 @@ public class LibrivoxResultsActivity extends LoggingActivity {
 
         progressBar.setVisibility(View.VISIBLE);
 
+        String finalFullQuery = fullQuery;
         api.search(fullQuery, fields, LIBRIVOX_API_MAX_RESULTS, 1, "json", API_SORT).enqueue(new Callback<LibrivoxApiResponse>() {
             @Override
             public void onResponse(Call<LibrivoxApiResponse> call, Response<LibrivoxApiResponse> response) {
-                myLog(response.toString());
+                //myLog(response.toString());
                 progressBar.setVisibility(View.GONE);
                 if (response.body() != null && response.body().response != null) {
                     List<LibrivoxItem> results = response.body().response.docs;
@@ -152,6 +153,7 @@ public class LibrivoxResultsActivity extends LoggingActivity {
                         myLog(results.size() + " results found");
                     }
                 } else {
+                    myLogEE(null, "invalid response body from librivox - " + finalFullQuery);
                     myToastE(getString(R.string.librivox_invalid_response));
                     viewModel.requestFinish(); // ✅ trigger finish
                 }
@@ -162,7 +164,8 @@ public class LibrivoxResultsActivity extends LoggingActivity {
                 if (NetworkUtils.isUnknownHost(t)) {
                     myToastE(getString(R.string.no_internet_connection));
                 } else {
-                    myToastE(getString(R.string.an_error_occurred));
+                    myLogEE(t, "librivox api search on Failure - " + finalFullQuery);
+                    myToastEE(t, getString(R.string.an_error_occurred));
                 }
                 progressBar.setVisibility(View.GONE);
                 viewModel.requestFinish(); // ✅ trigger finish
