@@ -22,9 +22,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:theme="@style/Theme.BookPlayer"
         android:name=".MyPersonalApp"
-
         >
-
+        <meta-data
+            android:name="google_analytics_adid_collection_enabled"
+            android:value="false" />
         <activity
             android:name=".activities.MainActivity"
             android:exported="true">
