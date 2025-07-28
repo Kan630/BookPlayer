@@ -137,7 +137,10 @@ public class LoadOptionsActivity extends LoggingActivity {
 
         checkHashDoesNotAlreadyExist();
 
-        btnCancel.setOnClickListener(v -> finish());
+        btnCancel.setOnClickListener(v -> {
+            myLogI("------ USER CLICKS btn CANCEL....   ");
+            finish();
+        });
 
 //----------------------------------------------------------------------------------------------------------------------------------
 /// CHECKBOXES

@@ -55,7 +55,10 @@ public class AddResourceActivity
         tvWarning = findViewById(R.id.warningText);
 
         Button bCancel = findViewById(R.id.bCancel);
-        bCancel.setOnClickListener(v -> { performCancel(); });
+        bCancel.setOnClickListener(v -> {
+            myLogI("------ USER CLICKS btn CANCEL ----");
+            performCancel();
+        });
 
         Intent intentAddResourceService = new Intent(this, AddResourceService.class);
         boundToAddResourceService = bindService(intentAddResourceService, addResourceServiceConnection, Context.BIND_AUTO_CREATE); //error Log : Activity XXX has leaked ServiceConnection
