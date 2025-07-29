@@ -78,11 +78,13 @@ public class DownloadForegroundService extends LoggingService {
         LoadBookTaskState state = Pref.getLoadBookTaskState(this);
         if (state == null ) {
             myLogE("LoadBookTaskState == null");
+            stopForeground(true);
             stopSelf();
             return START_NOT_STICKY;
         }
         if (!state.onGoingLoading ) {
             myLogE("onGoingLoading = false");
+            stopForeground(true);
             stopSelf();
             return START_NOT_STICKY;
         }
@@ -111,7 +113,10 @@ public class DownloadForegroundService extends LoggingService {
             updateNotification(lastPercentProgress, getString(R.string.Download_cancelled_by_user));
             if (fileUrl != null) {
                 File file = new File(destinationFolder, getFileNameFromUrl(fileUrl));
-                if (file.exists()) file.delete();
+                if (file.exists()) {
+                    myLog("deleting file " + file.getAbsolutePath());
+                    file.delete();
+                }
             } else {
                 myLogE("ACTION_CANCEL and fileUrl == null");
             }
@@ -168,7 +173,9 @@ public class DownloadForegroundService extends LoggingService {
                             .build();
 
                     WorkManager.getInstance(this)
-                            .enqueueUniqueWork(FOREGROUND_DOWNLOAD_SERVICE_TAG + "_" + fileUrl.hashCode(), androidx.work.ExistingWorkPolicy.REPLACE, retryRequest);
+                            .enqueueUniqueWork(FOREGROUND_DOWNLOAD_SERVICE_TAG, androidx.work.ExistingWorkPolicy.REPLACE, retryRequest);
+                    //.enqueueUniqueWork(FOREGROUND_DOWNLOAD_SERVICE_TAG + "_" + fileUrl.hashCode(), androidx.work.ExistingWorkPolicy.REPLACE, retryRequest);
+
                 }
             }
         });
@@ -394,5 +401,16 @@ public class DownloadForegroundService extends LoggingService {
         TaskStateManager.markIsPaused(this);
     }
 
-
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        myLogD("onDestroy");
+        isPaused = true;
+        if (downloadThread != null && downloadThread.isAlive()) {
+            myLogD("downloadThread.interrupt");
+            downloadThread.interrupt();
+        }
+        WorkManager.getInstance(this).cancelAllWorkByTag(FOREGROUND_DOWNLOAD_SERVICE_TAG);
+        Pref.clearLoadBookTaskState(this);
+    }
 }

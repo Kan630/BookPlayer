@@ -74,7 +74,7 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
 
         if (folder.image != null) {
             holder.ivBookCover.setVisibility(View.VISIBLE);
-            Glide.with(this.mCtx).load(folder.image).into(holder.ivBookCover);
+            Glide.with(holder.ivBookCover.getContext()).load(folder.image).into(holder.ivBookCover);
         } else {
             holder.ivBookCover.setVisibility(View.GONE);
         }

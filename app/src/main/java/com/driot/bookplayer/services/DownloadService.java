@@ -1,9 +1,6 @@
 package com.driot.bookplayer.services;
 
-import static com.driot.bookplayer.global.Var.FOLDER_DOWNLOAD;
 import static com.driot.bookplayer.global.Var.FOREGROUND_DOWNLOAD_SERVICE_TAG;
-import static com.driot.bookplayer.utils.KanFiles.deleteFolderRecursive;
-import static com.driot.bookplayer.utils.Tonio.formatMemPadding;
 
 import android.app.Service;
 import android.app.job.JobInfo;
@@ -24,6 +21,7 @@ import androidx.work.WorkManager;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.objects.LoadBookTaskState;
+import com.driot.bookplayer.utils.StorageHelper;
 import com.driot.bookplayer.utils.log.LoggingService;
 
 import java.io.File;
@@ -118,7 +116,7 @@ public class DownloadService extends LoggingService {
         }
 
         /*
-        String downloadDirPath = getFilesDir().getAbsolutePath() + "/" + FOLDER_DOWNLOAD;
+        downloadDirPath = StorageHelper.getDownloadFolder(this);
         deleteFolderRecursive(downloadDirPath);
         File outputDir = new File(downloadDirPath);
         if (!outputDir.exists()) outputDir.mkdirs();
@@ -147,7 +145,8 @@ public class DownloadService extends LoggingService {
                 .build();
 
         WorkManager.getInstance(this)
-                .enqueueUniqueWork(FOREGROUND_DOWNLOAD_SERVICE_TAG + "_" + state.downloadFileUrl.hashCode(), androidx.work.ExistingWorkPolicy.REPLACE, request);
+                //.enqueueUniqueWork(FOREGROUND_DOWNLOAD_SERVICE_TAG + "_" + state.downloadFileUrl.hashCode(), androidx.work.ExistingWorkPolicy.REPLACE, request);
+                .enqueueUniqueWork(FOREGROUND_DOWNLOAD_SERVICE_TAG, androidx.work.ExistingWorkPolicy.REPLACE, request);
 
         myLogI("Download work enqueued with WorkManager for: " + state.title);
     }

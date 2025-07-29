@@ -89,7 +89,7 @@ public class LibrivoxDetailActivity extends LoggingActivity {
         //IMAGE
         File localImage = ImageHelper.getLibrivoxImageFile(this, viewModel.identifier);
         if (localImage.exists()) {
-            Glide.with(this).load(localImage).into(coverView);
+            Glide.with(coverView.getContext()).load(localImage).into(coverView);
             cachePicSize = localImage.length();
             myLogD("local Image found: " + viewModel.identifier + " - " + getReadableSize(cachePicSize));
             futureCoverPic = localImage.getAbsolutePath();
@@ -102,7 +102,7 @@ public class LibrivoxDetailActivity extends LoggingActivity {
                 if (localPath != null) {
                     futureCoverPic = localPath;
                     runOnUiThread(() -> {
-                        Glide.with(this)
+                        Glide.with(coverView.getContext())
                                 .load(new File(localPath))
                                 .placeholder(R.drawable.placeholder_cover)
                                 .into(coverView);
@@ -203,7 +203,7 @@ public class LibrivoxDetailActivity extends LoggingActivity {
                                     futureCoverPic = localPath;
                                     runOnUiThread(() -> {
                                         myLog("Gliding better image : " + improvedFile.getName() + " - " + getReadableSize(improvedFile.length()));
-                                        Glide.with(this)
+                                        Glide.with(coverView.getContext())
                                                 .load(new File(localPath))
                                                 .signature(new ObjectKey(System.currentTimeMillis())) //force glide empty cache
                                                 .placeholder(R.drawable.placeholder_cover)

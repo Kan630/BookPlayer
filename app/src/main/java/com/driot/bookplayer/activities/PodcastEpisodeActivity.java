@@ -126,7 +126,7 @@ public class PodcastEpisodeActivity extends LoggingActivity {
 
         tvTitle.setText(podcastFeed.title);
         tvDescription.setText(parseMaybeHtml(podcastFeed.description));
-        Glide.with(this).load(podcastFeed.image).into(ivCover);
+        Glide.with(ivCover.getContext()).load(podcastFeed.image).into(ivCover);
 
         if (podcastFeed.id == -1) {
             myToastE("Error loading episodes. ID=-1");

@@ -3,7 +3,6 @@ package com.driot.bookplayer.utils;
 import static com.driot.bookplayer.global.Pref.clearLoadBookTaskState;
 import static com.driot.bookplayer.global.Pref.getLoadBookTaskState;
 import static com.driot.bookplayer.global.Pref.setLoadBookTaskState;
-import static com.driot.bookplayer.global.Var.FOLDER_DOWNLOAD;
 import static com.driot.bookplayer.global.Var.FOREGROUND_DOWNLOAD_SERVICE_TAG;
 import static com.driot.bookplayer.utils.KanFiles.deleteFolderRecursive;
 
@@ -135,11 +134,18 @@ public class WorkFlow {
     public static void cancelAllOngoingTasks(Context context) {
         myLog("...cancelAllOngoingTasks() - called from " + context.getClass().getSimpleName());
 
+        Intent intent = new Intent(context, DownloadForegroundService.class);
+        context.stopService(intent);
 
+        /*
         // Cancel Download
         Intent cancelIntent = new Intent(context, DownloadForegroundService.class);
         cancelIntent.setAction(DownloadForegroundService.ACTION_CANCEL);
         ContextCompat.startForegroundService(context, cancelIntent);
+
+         */
+
+
 
         WorkManager.getInstance(context).cancelAllWorkByTag(FOREGROUND_DOWNLOAD_SERVICE_TAG);
 
