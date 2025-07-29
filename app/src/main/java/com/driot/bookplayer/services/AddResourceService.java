@@ -157,7 +157,7 @@ public class AddResourceService
         LocalBroadcastManager.getInstance(this).registerReceiver(downloadReceiver, new IntentFilter("BOOKPLAYER_DOWNLOAD_FINISHED"));
         LocalBroadcastManager.getInstance(this).registerReceiver(downloadReceiver, new IntentFilter("BOOKPLAYER_DOWNLOAD_ERROR"));
         LocalBroadcastManager.getInstance(this).registerReceiver(downloadReceiver, new IntentFilter("BOOKPLAYER_DOWNLOAD_PROGRESS"));
-        GlobalTaskManager.getInstance().startTask("Starting import...");
+        //GlobalTaskManager.getInstance().startTask("Starting import...");
     }
     @Override
     public void onDestroy() {

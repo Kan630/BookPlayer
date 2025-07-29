@@ -1,6 +1,9 @@
 package com.driot.bookplayer.services;
 
 import static com.driot.bookplayer.global.Var.FOREGROUND_DOWNLOAD_SERVICE_TAG;
+import static com.driot.bookplayer.utils.Tonio.formatSizeMB;
+import static com.driot.bookplayer.utils.Tonio.getFileNameFromPath;
+import static com.driot.bookplayer.utils.Tonio.getFileNameFromUrl;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -15,7 +18,6 @@ import android.os.IBinder;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
-import androidx.core.content.ContextCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.work.Data;
 import androidx.work.OneTimeWorkRequest;
@@ -27,7 +29,9 @@ import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.utils.KanLogger;
 import com.driot.bookplayer.utils.NetworkUtils;
+import com.driot.bookplayer.utils.TaskStateManager;
 import com.driot.bookplayer.utils.WorkFlow;
+import com.driot.bookplayer.utils.log.LoggingService;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -38,7 +42,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Locale;
 
-public class DownloadForegroundService extends Service {
+public class DownloadForegroundService extends LoggingService {
 
     public static final String CHANNEL_ID = "DownloadChannel";
     public static final int NOTIF_ID = 1;
@@ -73,26 +77,57 @@ public class DownloadForegroundService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        startForeground(NOTIF_ID, buildNotification("Starting download…"));
         String action = intent.getAction();
+        myLog("onStartCommand - " + action + " ... " + intent.toString());
         if (ACTION_PAUSE.equals(action)) {
             isPaused = true;
+            TaskStateManager.markPaused(this, lastPercentProgress, lastProgressBytes, lastProgressTotal);
             updateNotification(lastPercentProgress, lastProgressBytes, lastProgressTotal, getString(R.string.Download_paused_by_user));
-            updateTaskState("Paused");
             return START_NOT_STICKY;
         } else if (ACTION_CANCEL.equals(action)) {
             isCancelled = true;
+            TaskStateManager.markCancelled(this, lastPercentProgress, lastProgressBytes, lastProgressTotal);
             updateNotification(lastPercentProgress, lastProgressBytes, lastProgressTotal, getString(R.string.Download_cancelled_by_user));
-            File file = new File(destinationFolder, getFileNameFromPath(fileUrl));
-            if (file.exists()) file.delete();
-            updateTaskState("Cancelled");
+            if (fileUrl != null) {
+                File file = new File(destinationFolder, getFileNameFromUrl(fileUrl));
+                if (file.exists()) file.delete();
+            } else {
+                myLog("fileUrl == null");
+            }
             stopForeground(true);
             stopSelf();
             return START_NOT_STICKY;
         } else if (ACTION_RESUME.equals(action)) {
             if (isPaused) {
                 isPaused = false;
+                TaskStateManager.markResuming(this);
                 myLog("Resuming download manually...");
-                updateTaskState("Resuming");
+
+                startForeground(NOTIF_ID, buildNotification("Resuming download..."));
+
+                if (downloadThread == null || !downloadThread.isAlive()) {
+                    downloadThread = new Thread(() -> {
+                        boolean success = performDownload(fileUrl, destinationFolder);
+                        stopForeground(true);
+                        stopSelf();
+                        downloadThread = null;
+
+                        if (success) {
+                            String filePath = new File(destinationFolder, getFileNameFromPath(fileUrl)).getAbsolutePath();
+                            myLog("Download success => sending Broadcast - storing in SharedPrefs: " + filePath);
+                            WorkFlow.setDownloadFinished(this, filePath);
+
+                            Intent doneIntent = new Intent("BOOKPLAYER_DOWNLOAD_FINISHED");
+                            doneIntent.putExtra("downloadedFileFullPath", filePath);
+                            doneIntent.putExtra("audioBookTitle", title);
+                            LocalBroadcastManager.getInstance(this).sendBroadcast(doneIntent);
+                        }
+                    });
+                    downloadThread.start();
+                } else {
+                    myLog("Download thread already running");
+                }
             } else {
                 myLog("Resume ignored: not in paused state");
             }
@@ -123,7 +158,7 @@ public class DownloadForegroundService extends Service {
             downloadThread = null;
 
             if (success) {
-                String filePath = new File(destinationFolder, getFileNameFromPath(fileUrl)).getAbsolutePath();
+                String filePath = new File(destinationFolder, getFileNameFromUrl(fileUrl)).getAbsolutePath();
                 myLog("Download success => sending Broadcast - storing in SharedPrefs: " + filePath);
                 WorkFlow.setDownloadFinished(this, filePath);
 
@@ -166,6 +201,7 @@ public class DownloadForegroundService extends Service {
     }
 
     private boolean performDownload(String fileUrl, String destinationFolder) {
+        myLog("performDownload  -  " + fileUrl + " => " + destinationFolder);
         InputStream input = null;
         FileOutputStream output = null;
         HttpURLConnection connection = null;
@@ -190,7 +226,7 @@ public class DownloadForegroundService extends Service {
                 return false;
             }
 
-            File destFile = new File(destinationFolder, getFileNameFromPath(fileUrl));
+            File destFile = new File(destinationFolder, getFileNameFromUrl(fileUrl));
             File parentFolder = destFile.getParentFile();
             if (parentFolder != null && !parentFolder.exists()) {
                 myLogW("Creating parent folder: " + parentFolder.getAbsolutePath());
@@ -251,7 +287,7 @@ public class DownloadForegroundService extends Service {
                             lastPercentProgress = progress;
                             lastProgressBytes = total;
                             lastProgressTotal = fileLength;
-                            updateTaskState("Downloading");
+                            TaskStateManager.updateProgressAndNotify(this, lastPercentProgress, lastProgressBytes, lastProgressTotal, "downloading");
                         }
                         lastUpdateTime = System.currentTimeMillis();
                     }
@@ -329,45 +365,11 @@ public class DownloadForegroundService extends Service {
         }
     }
 
-    private String formatSizeMB(long bytes) {
-        double mb = bytes / (1024.0 * 1024.0);
-        return String.format(Locale.US, "%.1fMB", mb);
-    }
-
-    private String getFileNameFromPath(String url) {
-        return Uri.parse(url).getLastPathSegment();
-    }
-
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
         return null;
     }
 
-    private void updateTaskState(String phase) {
-        LoadBookTaskState state = Pref.getLoadBookTaskState(this);
-        if (state != null) {
-            state.onGoingLoading = true;
-            state.progressPercent = lastPercentProgress;
-            state.progressText = formatSizeMB(lastProgressBytes) + " / " + formatSizeMB(lastProgressTotal) + " (" + phase + ")";
-            state.downloadedFileReady = false;
-            state.isLoadingPaused = phase.equals("Paused");
-            state.currentLoadingOperation = phase;
-            Pref.setLoadBookTaskState(this, state);
-        }
-    }
 
-
-    //--- LOG --------------------------
-    private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
-    private void myLogInFile(String str) { KanLogger.myLogInFile(this.getClass().getName(), str); }
-    private void myLogD(String str) { KanLogger.myLogD(this.getClass().getName(), str); }
-    private void myLogI(String str) { KanLogger.myLogI(this.getClass().getName(), str); }
-    private void myLogW(String str) { KanLogger.myLogW(this.getClass().getName(), str); }
-    private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
-    private void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, this.getClass().getName(), str); }
-    private void myToast(String str) { KanLogger.myToast(this.getClass().getName(), str); }
-    private void myToastE(String str) { KanLogger.myToastE(this.getClass().getName(), str); }
-    private void myKeyFirebase(String strKey, String strValue) {KanLogger.myKeyFirebase(strKey, strValue);}
-    private void myLogFirebase(String strLog) {KanLogger.myLogFirebase(strLog);}
 }

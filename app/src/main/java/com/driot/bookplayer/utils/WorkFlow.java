@@ -20,7 +20,6 @@ import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.services.AddResourceService;
 import com.driot.bookplayer.services.CopyFileService;
 import com.driot.bookplayer.services.DownloadForegroundService;
-import com.driot.bookplayer.services.DownloadJobService;
 import com.driot.bookplayer.services.DownloadService;
 import com.driot.bookplayer.services.SplitM4bService;
 import com.driot.bookplayer.services.UnzipService;
@@ -40,10 +39,6 @@ public class WorkFlow {
                 myLog("LoadBookTaskState : Downloading...");
                 return true;
             }
-        }
-        if (DownloadJobService.isJobRunning) {
-            myLog("yes : DownloadJobService...");
-            return true;
         }
         if (SplitM4bService.isSplitRunning) {
             myLog("yes : SplitM4bService...");
@@ -123,7 +118,6 @@ public class WorkFlow {
             setLoadBookTaskState(context, state);
             myLog("downloadedFilePath set to null");
         }
-        DownloadJobService.isJobRunning = false;
         DownloadService.isBusy = false;
     }
 
@@ -147,8 +141,6 @@ public class WorkFlow {
 
         WorkManager.getInstance(context).cancelAllWorkByTag(FOREGROUND_DOWNLOAD_SERVICE_TAG);
 
-        // Cancel JobService (e.g., download)
-        DownloadJobService.isJobRunning = false;
 
         // Cancel heavy stuff
         UnzipService.isUnzipRunning = false;

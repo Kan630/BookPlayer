@@ -568,6 +568,15 @@ public class Tonio {
         }
     }
 
+    public static String formatSizeMB(long bytes) {
+        double mb = bytes / (1024.0 * 1024.0);
+        return String.format(Locale.US, "%.1fMB", mb);
+    }
+
+    public static String getFileNameFromUrl(String url) {
+        return Uri.parse(url).getLastPathSegment();
+    }
+
 
 
 

@@ -1,25 +1,13 @@
 package com.driot.bookplayer.utils;
 
-import static com.driot.bookplayer.global.Pref.getLoadBookTaskState;
-import static com.driot.bookplayer.global.Var.FOLDER_DOWNLOAD;
-import static com.driot.bookplayer.utils.KanFiles.deleteFolderRecursive;
 
-import android.app.job.JobScheduler;
 import android.content.Context;
-import android.content.Intent;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.objects.LoadBookTaskState;
-import com.driot.bookplayer.services.AddResourceService;
-import com.driot.bookplayer.services.CopyFileService;
-import com.driot.bookplayer.services.DownloadJobService;
-import com.driot.bookplayer.services.DownloadService;
-import com.driot.bookplayer.services.SplitM4bService;
-import com.driot.bookplayer.services.UnzipService;
 
 public class GlobalTaskManager {
 
@@ -56,7 +44,9 @@ public class GlobalTaskManager {
         }
         return instance;
     }
-
+    public LoadBookTaskState getCurrentTaskState() {
+        return Pref.getLoadBookTaskState(appContext);
+    }
     public interface TaskListener {
         void onTaskFinished();
     }

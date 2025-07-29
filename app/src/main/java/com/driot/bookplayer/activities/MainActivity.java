@@ -43,6 +43,7 @@ import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.FolderDao;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.objects.PlayList;
 import com.driot.bookplayer.services.AudioService;
 import com.driot.bookplayer.utils.ImageHelper;
@@ -50,6 +51,7 @@ import com.driot.bookplayer.utils.InfoHelper;
 import com.driot.bookplayer.utils.KanLogger;
 import com.driot.bookplayer.utils.KanMail;
 import com.driot.bookplayer.utils.PodcastHelper;
+import com.driot.bookplayer.utils.WorkFlow;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -114,6 +116,7 @@ public class MainActivity extends LoggingActivity {
         }
 
         //WorkManager.getInstance(this).cancelAllWork();
+        //WorkFlow.cancelAllOngoingTasks(this);
 
         myLogD("Checking AudioService");
         if (AudioService.isRunning) {

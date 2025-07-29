@@ -14,6 +14,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.services.AddResourceService;
 import com.driot.bookplayer.services.DownloadForegroundService;
 import com.driot.bookplayer.utils.GlobalTaskManager;
@@ -71,6 +72,13 @@ public class AddResourceActivity
         Intent intentAddResourceService = new Intent(this, AddResourceService.class);
         boundToAddResourceService = bindService(intentAddResourceService, addResourceServiceConnection, Context.BIND_AUTO_CREATE); //error Log : Activity XXX has leaked ServiceConnection
         myLogD("call start & bind to AddResourceService from AddResourceActivity.onCreate() - bound result :" + boundToAddResourceService);
+
+        LoadBookTaskState state = GlobalTaskManager.getInstance().getCurrentTaskState();
+        if (state != null && state.isLoadingPaused) {
+            bPause.setText(getString(R.string.Resume));
+        } else {
+            bPause.setText(getString(R.string.Pause));
+        }
     }
 
     private void updateUI() {
