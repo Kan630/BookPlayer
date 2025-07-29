@@ -113,7 +113,7 @@ public class MainActivity extends LoggingActivity {
             InfoHelper.printSomeStuffAboutDevice(this);
         }
 
-        WorkManager.getInstance(this).cancelAllWork();
+        //WorkManager.getInstance(this).cancelAllWork();
 
         myLogD("Checking AudioService");
         if (AudioService.isRunning) {

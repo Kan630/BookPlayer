@@ -10,12 +10,12 @@ import static com.driot.bookplayer.utils.KanFiles.deleteFolderRecursive;
 import android.app.job.JobScheduler;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 
 import androidx.core.content.ContextCompat;
 import androidx.work.WorkManager;
 
 import com.driot.bookplayer.activities.AddResourceActivity;
+import com.driot.bookplayer.activities.GetResourceActivity;
 import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.services.AddResourceService;
 import com.driot.bookplayer.services.CopyFileService;
@@ -68,14 +68,20 @@ public class WorkFlow {
         return false;
     }
 
-    public static void maybeResumeWorkFlow(Context c) {
-        myLogD("maybeResumeDownloadFlow() - called from " + c.getClass().getSimpleName());
-        LoadBookTaskState state = getLoadBookTaskState(c, true);
+    public static void maybeResumeWorkFlow(Context context) {
+        String callerClass = context.getClass().getSimpleName();
+        myLogD("maybe Resume WorkFlow...    called from " + callerClass);
+        LoadBookTaskState state = getLoadBookTaskState(context, true);
 
-        if (state != null && state.downloadedFileReady && state.downloadedFilePath != null && !state.onGoing) {
-            myLog("onGoing operation for: " + state.title);
-            state.onGoing = true;
-            setLoadBookTaskState(c, state);
+        if (state == null) {
+            myLogD("no WorkFlow");
+            return;
+        }
+
+        myLog("WorkFlow " + state.currentLoadingOperation);
+        myLog(state.toString().replace(", ","\n"));
+
+        if (state.onGoingLoading) {
 
             if (AddResourceService.isBusy) {
                 myLogD("AddResourceService is Busy");
@@ -83,12 +89,16 @@ public class WorkFlow {
                 myLogD("AddResourceService not Busy");
             }
 
-            myLogI("Restarting AddResourceActivity...");
+            /*
             // Restart the AddResourceActivity
-            Intent intentActivity = new Intent(c, AddResourceActivity.class);
-            intentActivity.putExtra("LoadBookTaskState", state);
-            c.startActivity(intentActivity);
+            if (!callerClass.equals(GetResourceActivity.class.getSimpleName())) {
+                myLogI("Restarting AddResourceActivity...");
+                Intent intentActivity = new Intent(context, AddResourceActivity.class);
+                intentActivity.putExtra("LoadBookTaskState", state);
+                context.startActivity(intentActivity);
+            }
 
+             */
         }
     }
 

@@ -1,5 +1,6 @@
 package com.driot.bookplayer.utils;
 
+import static com.driot.bookplayer.global.Pref.getLoadBookTaskState;
 import static com.driot.bookplayer.global.Var.FOLDER_DOWNLOAD;
 import static com.driot.bookplayer.utils.KanFiles.deleteFolderRecursive;
 
@@ -11,6 +12,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.driot.bookplayer.global.Pref;
+import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.services.AddResourceService;
 import com.driot.bookplayer.services.CopyFileService;
 import com.driot.bookplayer.services.DownloadJobService;
@@ -21,6 +24,8 @@ import com.driot.bookplayer.services.UnzipService;
 public class GlobalTaskManager {
 
     private static GlobalTaskManager instance;
+    private static Context appContext;
+
     private String taskTitle = "";
     private String progressText = "";
     private int progressPercent = 0;
@@ -28,8 +33,27 @@ public class GlobalTaskManager {
 
     private Runnable uiCallback;
 
+    private GlobalTaskManager() {
+        if (appContext != null) {
+            LoadBookTaskState state = Pref.getLoadBookTaskState(appContext, false);
+            if (state != null && state.onGoingLoading) {
+                this.taskRunning = true;
+                this.taskTitle = state.title;
+                this.progressPercent = state.progressPercent;
+                this.progressText = state.progressText;
+            }
+        }
+    }
+
+    // This should be called at least once early in the app lifecycle (e.g. in Application.onCreate)
+    public static void init(Context context) {
+        appContext = context.getApplicationContext();
+    }
+
     public static GlobalTaskManager getInstance() {
-        if (instance == null) instance = new GlobalTaskManager();
+        if (instance == null) {
+            instance = new GlobalTaskManager();
+        }
         return instance;
     }
 
@@ -95,46 +119,8 @@ public class GlobalTaskManager {
     }
 
 
-    public boolean isSomeWorkFlowRunning(Context c) {
-        return DownloadJobService.isJobRunning ||
-                SplitM4bService.isSplitRunning ||
-                UnzipService.isUnzipRunning ||
-                CopyFileService.isCopyRunning ||
-                DownloadService.isBusy ||
-                AddResourceService.isBusy;
-    }
-
-    public void cancelAllOngoingTasks(Context context) {
-        myLog("...cancelAllOngoingTasks() - from " + context.getClass().getSimpleName());
-
-        DownloadJobService.isJobRunning = false;
-        UnzipService.isUnzipRunning = false;
-        SplitM4bService.isSplitRunning = false;
-        CopyFileService.isCopyRunning = false;
-        AddResourceService.isBusy = false;
-        DownloadService.isBusy = false;
-
-        context.stopService(new Intent(context, AddResourceService.class));
-        context.stopService(new Intent(context, CopyFileService.class));
-        context.stopService(new Intent(context, UnzipService.class));
-        context.stopService(new Intent(context, SplitM4bService.class));
-
-        JobScheduler scheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
-        if (scheduler != null) scheduler.cancelAll();
-
-        String downloadDirPath = context.getFilesDir().getAbsolutePath() + "/" + FOLDER_DOWNLOAD;
-        deleteFolderRecursive(downloadDirPath);
-        new File(downloadDirPath).mkdirs();
-
-        endTask();
-    }
 
     private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
-    private void myLogD(String str) { KanLogger.myLogD(this.getClass().getName(), str); }
-    private void myLogI(String str) { KanLogger.myLogI(this.getClass().getName(), str); }
-    private void myLogW(String str) { KanLogger.myLogW(this.getClass().getName(), str); }
-    private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
-    private void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, this.getClass().getName(), str); }
-    private void myToastEE(Throwable t, String str) { KanLogger.myToastEE(t, this.getClass().getName(), str); }
+
 
 }

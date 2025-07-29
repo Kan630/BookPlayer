@@ -1026,15 +1026,15 @@ public class AddResourceService
     }
     @Override
     public void downloadService_tellEnd(String downloadedFileFullPath) {
-        clearDownloadFinished(this);
         myLog("Download tell End -> [" + downloadedFileFullPath + "]");
+        clearDownloadFinished(this);
         proceedAfterCopyLocal(downloadedFileFullPath);
     }
     @Override
     public void downloadService_tellError(String errorText) {
-        clearDownloadFinished(this);
-        myLogW("Download tell Error");
-        tellError(errorText);
+        myLogW("downloadService_tellError [" + errorText + "]");
+        //clearDownloadFinished(this);
+        tellNonBlockingError(errorText);
     }
 
 

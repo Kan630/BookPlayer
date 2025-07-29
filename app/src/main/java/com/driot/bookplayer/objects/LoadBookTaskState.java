@@ -25,8 +25,12 @@ public class LoadBookTaskState implements Parcelable {
     public String mimeType;
     public String downloadedFilePath;
     public boolean downloadedFileReady; //so that you never get stuck if app crashes
-    public boolean onGoing;
+    public boolean onGoingLoading;
     public String imagePath;
+    public String progressText;
+    public int progressPercent;
+    public boolean isLoadingPaused;
+    public String currentLoadingOperation;
 
     public LoadBookTaskState() {
         myLog("LoadBookTaskState() constructor - creating new Workflow");
@@ -49,8 +53,12 @@ public class LoadBookTaskState implements Parcelable {
         mimeType = in.readString();
         downloadedFilePath = in.readString();
         downloadedFileReady = in.readByte() != 0;
-        onGoing = in.readByte() != 0;
+        onGoingLoading = in.readByte() != 0;
         imagePath = in.readString();
+        progressText = in.readString();
+        progressPercent = in.readInt();
+        isLoadingPaused = in.readByte() != 0;
+        currentLoadingOperation = in.readString();
     }
 
     public static final Creator<LoadBookTaskState> CREATOR = new Creator<LoadBookTaskState>() {
@@ -83,8 +91,12 @@ public class LoadBookTaskState implements Parcelable {
         dest.writeString(mimeType);
         dest.writeString(downloadedFilePath);
         dest.writeByte((byte) (downloadedFileReady ? 1 : 0));
-        dest.writeByte((byte) (onGoing ? 1 : 0));
+        dest.writeByte((byte) (onGoingLoading ? 1 : 0));
         dest.writeString(imagePath);
+        dest.writeString(progressText);
+        dest.writeInt(progressPercent);
+        dest.writeByte((byte) (isLoadingPaused ? 1 : 0));
+        dest.writeString(currentLoadingOperation);
     }
 
     @Override
@@ -111,9 +123,13 @@ public class LoadBookTaskState implements Parcelable {
                 ", fileExtension='" + fileExtension + '\'' +
                 ", mimeType='" + mimeType + '\'' +
                 ", downloadedFilePath='" + downloadedFilePath + '\'' +
-                ", onGoingDownload=" + downloadedFileReady +
-                ", onGoing=" + onGoing +
+                ", downloadedFileReady=" + downloadedFileReady +
+                ", onGoingLoading=" + onGoingLoading +
                 ", imagePath='" + imagePath + '\'' +
+                ", progressText='" + progressText + '\'' +
+                ", progressPercent=" + progressPercent +
+                ", isLoadingPaused=" + isLoadingPaused +
+                ", currentLoadingOperation='" + currentLoadingOperation + '\'' +
                 '}';
     }
 

@@ -65,10 +65,20 @@ public class AddResourceActivity
         bPause = findViewById(R.id.bPause);
         bPause.setOnClickListener(v -> {            performPause();        });
 
+        updateUI(); // initial state
+        GlobalTaskManager.getInstance().setUiCallback(this::updateUI);
+
         Intent intentAddResourceService = new Intent(this, AddResourceService.class);
         boundToAddResourceService = bindService(intentAddResourceService, addResourceServiceConnection, Context.BIND_AUTO_CREATE); //error Log : Activity XXX has leaked ServiceConnection
         myLogD("call start & bind to AddResourceService from AddResourceActivity.onCreate() - bound result :" + boundToAddResourceService);
     }
+
+    private void updateUI() {
+        if (tvTitle != null) tvTitle.setText(GlobalTaskManager.getInstance().getTaskTitle());
+        if (progressBarText != null) progressBarText.setText(GlobalTaskManager.getInstance().getProgressText());
+        if (progressBar != null) progressBar.setProgress(GlobalTaskManager.getInstance().getProgressPercent());
+    }
+
 
     @Override
     protected void onDestroy() {
@@ -112,10 +122,6 @@ public class AddResourceActivity
             mBound = false;
         }
     };
-
-    private void putTitle(String name) {
-        tvTitle.setText(formatNameForDisplay(getFileNameFromPath(name)));
-    }
 
     // callback override
     @Override

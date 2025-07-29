@@ -23,6 +23,8 @@ import androidx.work.WorkManager;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Option;
+import com.driot.bookplayer.global.Pref;
+import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.utils.KanLogger;
 import com.driot.bookplayer.utils.NetworkUtils;
 import com.driot.bookplayer.utils.WorkFlow;
@@ -62,6 +64,8 @@ public class DownloadForegroundService extends Service {
 
     private long lastUpdateTime = 0;
     private int lastPercentProgress = 0;
+    private long lastProgressBytes = 0;
+    private long lastProgressTotal = 0;
     private boolean pauseForPolicy = false;
     private volatile boolean isPaused = false;
     private volatile boolean isCancelled = false;
@@ -72,13 +76,15 @@ public class DownloadForegroundService extends Service {
         String action = intent.getAction();
         if (ACTION_PAUSE.equals(action)) {
             isPaused = true;
-            updateNotification(0, 0, 0, getString(R.string.Download_paused_by_user));
+            updateNotification(lastPercentProgress, lastProgressBytes, lastProgressTotal, getString(R.string.Download_paused_by_user));
+            updateTaskState("Paused");
             return START_NOT_STICKY;
         } else if (ACTION_CANCEL.equals(action)) {
             isCancelled = true;
-            updateNotification(0, 0, 0, getString(R.string.Download_cancelled_by_user));
+            updateNotification(lastPercentProgress, lastProgressBytes, lastProgressTotal, getString(R.string.Download_cancelled_by_user));
             File file = new File(destinationFolder, getFileNameFromPath(fileUrl));
             if (file.exists()) file.delete();
+            updateTaskState("Cancelled");
             stopForeground(true);
             stopSelf();
             return START_NOT_STICKY;
@@ -86,6 +92,7 @@ public class DownloadForegroundService extends Service {
             if (isPaused) {
                 isPaused = false;
                 myLog("Resuming download manually...");
+                updateTaskState("Resuming");
             } else {
                 myLog("Resume ignored: not in paused state");
             }
@@ -242,6 +249,9 @@ public class DownloadForegroundService extends Service {
                         if (lastPercentProgress != progress) {
                             myLogD("tellProgress : " + progress + " - " + strSize);
                             lastPercentProgress = progress;
+                            lastProgressBytes = total;
+                            lastProgressTotal = fileLength;
+                            updateTaskState("Downloading");
                         }
                         lastUpdateTime = System.currentTimeMillis();
                     }
@@ -333,6 +343,20 @@ public class DownloadForegroundService extends Service {
     public IBinder onBind(Intent intent) {
         return null;
     }
+
+    private void updateTaskState(String phase) {
+        LoadBookTaskState state = Pref.getLoadBookTaskState(this);
+        if (state != null) {
+            state.onGoingLoading = true;
+            state.progressPercent = lastPercentProgress;
+            state.progressText = formatSizeMB(lastProgressBytes) + " / " + formatSizeMB(lastProgressTotal) + " (" + phase + ")";
+            state.downloadedFileReady = false;
+            state.isLoadingPaused = phase.equals("Paused");
+            state.currentLoadingOperation = phase;
+            Pref.setLoadBookTaskState(this, state);
+        }
+    }
+
 
     //--- LOG --------------------------
     private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
