@@ -203,11 +203,17 @@ public class LibrivoxDetailActivity extends LoggingActivity {
                                     futureCoverPic = localPath;
                                     runOnUiThread(() -> {
                                         myLog("Gliding better image : " + improvedFile.getName() + " - " + getReadableSize(improvedFile.length()));
-                                        Glide.with(coverView.getContext())
-                                                .load(new File(localPath))
-                                                .signature(new ObjectKey(System.currentTimeMillis())) //force glide empty cache
-                                                .placeholder(R.drawable.placeholder_cover)
-                                                .into(coverView);
+                                        try {
+                                            if (coverView.getContext() != null) {
+                                                Glide.with(coverView.getContext())
+                                                        .load(new File(localPath))
+                                                        .signature(new ObjectKey(System.currentTimeMillis())) //force glide empty cache
+                                                        .placeholder(R.drawable.placeholder_cover)
+                                                        .into(coverView);
+                                            }
+                                        } catch (Exception e) {
+                                            myLogEE(e, "Error loading better image");
+                                        }
                                     });
                                 }
                             }

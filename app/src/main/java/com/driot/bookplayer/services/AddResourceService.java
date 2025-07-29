@@ -157,8 +157,6 @@ public class AddResourceService
         super.onCreate();
         LocalBroadcastManager.getInstance(this).registerReceiver(downloadReceiver, new IntentFilter("BOOKPLAYER_DOWNLOAD_FINISHED"));
         LocalBroadcastManager.getInstance(this).registerReceiver(downloadReceiver, new IntentFilter("BOOKPLAYER_DOWNLOAD_ERROR"));
-        //LocalBroadcastManager.getInstance(this).registerReceiver(downloadReceiver, new IntentFilter("BOOKPLAYER_DOWNLOAD_PROGRESS"));
-        //GlobalTaskManager.getInstance().startTask("Starting import...");
     }
     @Override
     public void onDestroy() {
@@ -1171,14 +1169,6 @@ public class AddResourceService
         public void onReceive(Context context, Intent intent) {
             String audioBookTitle = intent.getStringExtra("audioBookTitle");
             switch (Objects.toString(intent.getAction())) {
-                /*
-                case "BOOKPLAYER_DOWNLOAD_PROGRESS":
-                    int progress = intent.getIntExtra("progress", 0);
-                    String txtProgress = intent.getStringExtra("txtProgress");
-                    downloadService_tellProgressNoLog(txtProgress, progress);
-                    break;
-
-                 */
                 case "BOOKPLAYER_DOWNLOAD_FINISHED":
                     String filePath = intent.getStringExtra("downloadedFileFullPath");
                     if (filePath != null) {

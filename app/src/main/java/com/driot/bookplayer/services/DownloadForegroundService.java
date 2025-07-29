@@ -342,6 +342,10 @@ public class DownloadForegroundService extends LoggingService {
                 .setOnlyAlertOnce(true)
                 .setProgress(100, progress, false);
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            builder.setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE);
+        }
+
         NotificationManagerCompat manager = NotificationManagerCompat.from(this);
         if (manager.areNotificationsEnabled()) {
             NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -349,14 +353,6 @@ public class DownloadForegroundService extends LoggingService {
                 notificationManager.notify(NOTIF_ID, builder.build());
             }
         }
-/*
-        Intent intent = new Intent("BOOKPLAYER_DOWNLOAD_PROGRESS");
-        intent.putExtra("progress", progress);
-        intent.putExtra("txtProgress", strText);
-        intent.putExtra("audioBookTitle", title);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-
- */
     }
 
     private void cancelDownloadNotification() {
@@ -410,6 +406,7 @@ public class DownloadForegroundService extends LoggingService {
             myLogD("downloadThread.interrupt");
             downloadThread.interrupt();
         }
+        cancelDownloadNotification();
         WorkManager.getInstance(this).cancelAllWorkByTag(FOREGROUND_DOWNLOAD_SERVICE_TAG);
         Pref.clearLoadBookTaskState(this);
     }
