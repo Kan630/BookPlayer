@@ -5,7 +5,6 @@ import static com.driot.bookplayer.utils.ComponentUtils.setOpenWithProxyEnabled_
 
 import android.app.Application;
 import android.os.Environment;
-import android.util.Log;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,7 +13,7 @@ import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.objects.BookToAdd;
 import com.driot.bookplayer.objects.PlayList;
-import com.driot.bookplayer.utils.GlobalTaskManager;
+import com.driot.bookplayer.utils.TaskUiManager;
 import com.driot.bookplayer.utils.KanLogger;
 
 /**
@@ -35,7 +34,7 @@ public class MyPersonalApp extends Application {
         PlayList.initContext(getApplicationContext());
         Option.init(getApplicationContext());
         Pref.init(getApplicationContext());
-        GlobalTaskManager.init(getApplicationContext());
+        TaskUiManager.init(getApplicationContext());
 
         myLog("Context has been initialized");
 

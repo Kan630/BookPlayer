@@ -17,10 +17,9 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.services.AddResourceService;
 import com.driot.bookplayer.services.DownloadForegroundService;
-import com.driot.bookplayer.utils.GlobalTaskManager;
+import com.driot.bookplayer.utils.TaskUiManager;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
-import static com.driot.bookplayer.utils.Tonio.getFileNameFromPath;
 import static com.driot.bookplayer.utils.Tonio.formatNameForDisplay;
 import static com.driot.bookplayer.utils.WorkFlow.cancelAllOngoingTasks;
 
@@ -67,13 +66,13 @@ public class AddResourceActivity
         bPause.setOnClickListener(v -> {            performPause();        });
 
         updateUI(); // initial state
-        GlobalTaskManager.getInstance().setUiCallback(this::updateUI);
+        TaskUiManager.getInstance().setUiCallback(this::updateUI);
 
         Intent intentAddResourceService = new Intent(this, AddResourceService.class);
         boundToAddResourceService = bindService(intentAddResourceService, addResourceServiceConnection, Context.BIND_AUTO_CREATE); //error Log : Activity XXX has leaked ServiceConnection
         myLogD("call start & bind to AddResourceService from AddResourceActivity.onCreate() - bound result :" + boundToAddResourceService);
 
-        LoadBookTaskState state = GlobalTaskManager.getInstance().getCurrentTaskState();
+        LoadBookTaskState state = TaskUiManager.getInstance().getCurrentTaskState();
         if (state != null && state.isLoadingPaused) {
             bPause.setText(getString(R.string.Resume));
         } else {
@@ -82,9 +81,9 @@ public class AddResourceActivity
     }
 
     private void updateUI() {
-        if (tvTitle != null) tvTitle.setText(GlobalTaskManager.getInstance().getTaskTitle());
-        if (progressBarText != null) progressBarText.setText(GlobalTaskManager.getInstance().getProgressText());
-        if (progressBar != null) progressBar.setProgress(GlobalTaskManager.getInstance().getProgressPercent());
+        if (tvTitle != null) tvTitle.setText(TaskUiManager.getInstance().getTaskTitle());
+        if (progressBarText != null) progressBarText.setText(TaskUiManager.getInstance().getProgressText());
+        if (progressBar != null) progressBar.setProgress(TaskUiManager.getInstance().getProgressPercent());
     }
 
 
@@ -155,7 +154,7 @@ public class AddResourceActivity
             }
             if (progressVal >= 0 && progressVal <= 100) {
                 progressBar.setProgress(progressVal);
-                GlobalTaskManager.getInstance().updateProgress(progressText, progressVal);
+                TaskUiManager.getInstance().updateProgress(progressText, progressVal);
             }
         });
     }
@@ -184,7 +183,7 @@ public class AddResourceActivity
                 myToast(getString(R.string.Import_Success) + "\n" + tvTitle.getText());
                 cancelAllOngoingTasks(this);
 
-                GlobalTaskManager.getInstance().notifyTaskFinished();
+                TaskUiManager.getInstance().notifyTaskFinished();
 
                 Intent mainIntent = new Intent(this, MainActivity.class);
                 mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -214,7 +213,7 @@ public class AddResourceActivity
 
         cancelAllOngoingTasks(this);
 
-        GlobalTaskManager.getInstance().notifyTaskFinished();
+        TaskUiManager.getInstance().notifyTaskFinished();
 
         finish();
     }

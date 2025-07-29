@@ -9,9 +9,9 @@ import java.util.List;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.objects.LoadBookTaskState;
 
-public class GlobalTaskManager {
+public class TaskUiManager {
 
-    private static GlobalTaskManager instance;
+    private static TaskUiManager instance;
     private static Context appContext;
 
     private String taskTitle = "";
@@ -21,7 +21,7 @@ public class GlobalTaskManager {
 
     private Runnable uiCallback;
 
-    private GlobalTaskManager() {
+    private TaskUiManager() {
         if (appContext != null) {
             LoadBookTaskState state = Pref.getLoadBookTaskState(appContext, false);
             if (state != null && state.onGoingLoading) {
@@ -52,9 +52,9 @@ public class GlobalTaskManager {
         }
     }
 
-    public static GlobalTaskManager getInstance() {
+    public static TaskUiManager getInstance() {
         if (instance == null) {
-            instance = new GlobalTaskManager();
+            instance = new TaskUiManager();
         }
         return instance;
     }
@@ -93,6 +93,11 @@ public class GlobalTaskManager {
     public void updateProgress(String text, int percent) {
         this.progressText = text;
         this.progressPercent = percent;
+        notifyUi();
+    }
+
+    public void updateProgressText(String text) {
+        this.progressText = text;
         notifyUi();
     }
 

@@ -13,7 +13,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.utils.GlobalTaskManager;
+import com.driot.bookplayer.utils.TaskUiManager;
 
 public class OngoingTaskFragment extends Fragment {
 
@@ -34,7 +34,7 @@ public class OngoingTaskFragment extends Fragment {
         progressBar = v.findViewById(R.id.pbOngoing);
 
         updateUI(); // initial state
-        GlobalTaskManager.getInstance().setUiCallback(this::updateUI);
+        TaskUiManager.getInstance().setUiCallback(this::updateUI);
         return v;
     }
 
@@ -56,7 +56,7 @@ public class OngoingTaskFragment extends Fragment {
     public void onResume() {
         super.onResume();
         // Re-register the UI update callback each time fragment resumes
-        GlobalTaskManager.getInstance().setUiCallback(this::updateUI);
+        TaskUiManager.getInstance().setUiCallback(this::updateUI);
         updateUI(); // Immediate refresh in case state changed while paused
     }
 
@@ -64,18 +64,18 @@ public class OngoingTaskFragment extends Fragment {
     public void onPause() {
         super.onPause();
         // Prevent memory leaks
-        GlobalTaskManager.getInstance().clearUiCallback();
+        TaskUiManager.getInstance().clearUiCallback();
     }
 
     private void updateUI() {
-        if (tvTitle != null) tvTitle.setText(GlobalTaskManager.getInstance().getTaskTitle());
-        if (tvProgressText != null) tvProgressText.setText(GlobalTaskManager.getInstance().getProgressText());
-        if (progressBar != null) progressBar.setProgress(GlobalTaskManager.getInstance().getProgressPercent());
+        if (tvTitle != null) tvTitle.setText(TaskUiManager.getInstance().getTaskTitle());
+        if (tvProgressText != null) tvProgressText.setText(TaskUiManager.getInstance().getProgressText());
+        if (progressBar != null) progressBar.setProgress(TaskUiManager.getInstance().getProgressPercent());
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        GlobalTaskManager.getInstance().clearUiCallback();
+        TaskUiManager.getInstance().clearUiCallback();
     }
 }

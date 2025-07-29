@@ -3,23 +3,16 @@ package com.driot.bookplayer.activities;
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.ClipData;
-import android.content.ClipboardManager;
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.Settings;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -27,7 +20,6 @@ import android.widget.TextView;
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -38,7 +30,7 @@ import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.objects.LanguageItem;
 import com.driot.bookplayer.utils.AnalyticsHelper;
 import com.driot.bookplayer.utils.EditTextWithButtons;
-import com.driot.bookplayer.utils.GlobalTaskManager;
+import com.driot.bookplayer.utils.TaskUiManager;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.services.AddResourceService;
 import com.driot.bookplayer.utils.LanguageHelper;
@@ -46,7 +38,6 @@ import com.driot.bookplayer.utils.MediaScanner2;
 import com.driot.bookplayer.utils.NetworkUtils;
 import com.driot.bookplayer.utils.PermissionRequest;
 import com.driot.bookplayer.utils.log.LoggingActivity;
-import com.google.firebase.analytics.FirebaseAnalytics;
 
 import java.util.Arrays;
 import java.util.List;
@@ -446,7 +437,7 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
-        GlobalTaskManager.getInstance().registerListener(this::onTaskFinished);
+        TaskUiManager.getInstance().registerListener(this::onTaskFinished);
         checkServiceRunning();
         maybeResumeWorkFlow(this);
     }
@@ -454,7 +445,7 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
     @Override
     protected void onPause() {
         super.onPause();
-        GlobalTaskManager.getInstance().unregisterListener(this::onTaskFinished);
+        TaskUiManager.getInstance().unregisterListener(this::onTaskFinished);
     }
     private void onTaskFinished() {
         myLog("onTaskFinished()");
@@ -485,8 +476,8 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
             List<Button> buttonsToLock = Arrays.asList(bOpenFile, bOpenFolder, bOpenZipFile, bOpenM4bFile
                     , bAutoTest_b1, bAutoTest_b2, bAutoTest_b3, bDirectDownload);
 
-            GlobalTaskManager.getInstance().reInit();
-            if (GlobalTaskManager.getInstance().isTaskRunning()) {
+            TaskUiManager.getInstance().reInit();
+            if (TaskUiManager.getInstance().isTaskRunning()) {
                 myLog("display OngoingTaskFragment");
                 getSupportFragmentManager()
                         .beginTransaction()

@@ -164,13 +164,12 @@ public class WorkFlow {
         }
 
         //Ensure nothing left in Download Folder
-        String downloadDirPath = context.getFilesDir().getAbsolutePath() + "/" + FOLDER_DOWNLOAD;
+        String downloadDirPath = StorageHelper.getDownloadFolderPath(context);
         deleteFolderRecursive(downloadDirPath);
         File outputDir = new File(downloadDirPath);
         if (!outputDir.exists()) outputDir.mkdirs();
 
         setWorkFlowFinished(context);
-
 
     }
 

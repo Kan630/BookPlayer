@@ -23,32 +23,31 @@ public class TaskStateManager {
 
     public static void markDownloadPaused(Context context, int percent, long bytes, long total) {
         String text = formatSizeMB(bytes) + " / " + formatSizeMB(total) + " (Paused)";
-        updateProgress(context, percent, text, "Paused", true);
+        updateProgress(context, percent, text, "Download paused", true);
     }
 
     public static void markDownloadPausedDueToNetworkPolicy(Context context, int percent, long bytes, long total) {
         String text = formatSizeMB(bytes) + " / " + formatSizeMB(total) + " (Paused)";
-        updateProgress(context, percent, text, "Paused due to network policy", true);
+        updateProgress(context, percent, text, "Download paused due to network policy", true);
     }
 
     public static void markDownloadCancelled(Context context, int percent, long bytes, long total) {
         String text = formatSizeMB(bytes) + " / " + formatSizeMB(total) + " (Cancelled)";
-        updateProgress(context, percent, text, "Cancelled", false);
+        updateProgress(context, percent, text, "Download cancelled", false);
     }
-/*
+
     public static void markDownloadResuming(Context context) {
         LoadBookTaskState state = Pref.getLoadBookTaskState(context);
         state.isLoadingPaused = false;
-        state.currentLoadingOperation = "Resuming";
+        state.currentLoadingOperation = "Download resuming";
         Pref.setLoadBookTaskState(context, state);
     }
 
- */
-
-    public static void updateProgressAndNotify(Context context, int percent, long bytes, long total, String phase, boolean isLoadingPaused) {
-        String text = formatSizeMB(bytes) + " / " + formatSizeMB(total) + " (" + phase + ")";
+    public static void updateTaskStateAndNotifyUi(Context context, int percent, long bytes, long total, String phase, boolean isLoadingPaused) {
+        String moreText = phase.equalsIgnoreCase("downloading") ? "" : " (" + phase + ")";
+        String text = formatSizeMB(bytes) + " / " + formatSizeMB(total) + moreText;
         updateProgress(context, percent, text, phase, isLoadingPaused);
-        GlobalTaskManager.getInstance().updateProgress(text, percent);
+        TaskUiManager.getInstance().updateProgress(text, percent);
     }
 
 }

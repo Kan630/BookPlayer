@@ -15,7 +15,6 @@ import android.os.IBinder;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
-import androidx.core.content.ContextCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.work.Data;
 import androidx.work.OneTimeWorkRequest;
@@ -28,6 +27,7 @@ import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.utils.AnalyticsHelper;
 import com.driot.bookplayer.utils.NetworkUtils;
 import com.driot.bookplayer.utils.TaskStateManager;
+import com.driot.bookplayer.utils.TaskUiManager;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.WorkFlow;
 import com.driot.bookplayer.utils.log.LoggingService;
@@ -122,7 +122,8 @@ public class DownloadForegroundService extends LoggingService {
 
              */
             isPaused = false;
-            //TaskStateManager.markDownloadResuming(this);
+            TaskUiManager.getInstance().updateProgressText("resuming...");
+            TaskStateManager.markDownloadResuming(this);
 
         }
 
@@ -287,7 +288,7 @@ public class DownloadForegroundService extends LoggingService {
                         lastProgressBytes = total;
                         lastProgressTotal = fileLength;
                         lastUpdateTime = System.currentTimeMillis();
-                        TaskStateManager.updateProgressAndNotify(this, lastPercentProgress, lastProgressBytes, lastProgressTotal, "downloading", false);
+                        TaskStateManager.updateTaskStateAndNotifyUi(this, lastPercentProgress, lastProgressBytes, lastProgressTotal, "Downloading", false);
                     }
                 }
             }
@@ -326,12 +327,14 @@ public class DownloadForegroundService extends LoggingService {
                 notificationManager.notify(NOTIF_ID, builder.build());
             }
         }
-
+/*
         Intent intent = new Intent("BOOKPLAYER_DOWNLOAD_PROGRESS");
         intent.putExtra("progress", progress);
         intent.putExtra("txtProgress", strText);
         intent.putExtra("audioBookTitle", title);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+
+ */
     }
 
     private void cancelDownloadNotification() {
