@@ -9,6 +9,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -73,10 +74,16 @@ public class AddResourceActivity
         myLogD("call start & bind to AddResourceService from AddResourceActivity.onCreate() - bound result :" + boundToAddResourceService);
 
         LoadBookTaskState state = TaskUiManager.getInstance().getCurrentTaskState();
-        if (state != null && state.isLoadingPaused) {
-            bPause.setText(getString(R.string.Resume));
+        if (state != null && state.uri.toString().startsWith("http")) {
+            progressBarText.setText("about to start download...");
+            bPause.setVisibility(View.VISIBLE);
+            if (state.isLoadingPaused) {
+                bPause.setText(getString(R.string.Resume));
+            } else {
+                bPause.setText(getString(R.string.Pause));
+            }
         } else {
-            bPause.setText(getString(R.string.Pause));
+            bPause.setVisibility(View.GONE);
         }
     }
 

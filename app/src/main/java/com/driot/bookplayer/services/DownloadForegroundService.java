@@ -44,8 +44,8 @@ import java.net.UnknownHostException;
 
 public class DownloadForegroundService extends LoggingService {
 
-    public static final String CHANNEL_ID = "DownloadChannel";
-    public static final int NOTIF_ID = 1;
+    public static final String CHANNEL_ID = "BookplayerDownloadChannel";
+    public static final int NOTIF_ID = 1630;
 
     public static final String ACTION_PAUSE = "pause";
     public static final String ACTION_CANCEL = "cancel";
