@@ -104,6 +104,8 @@ public class WorkFlow {
         if (state != null) {
             state.downloadedFileReady = true;
             state.downloadedFilePath = filePath;
+            state.isLoadingPaused = false;
+            state.progressText = "download finished";
             setLoadBookTaskState(context, state);
             myLog("downloadedFilePath set to : " + filePath);
         }

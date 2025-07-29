@@ -22,6 +22,8 @@ import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.global.Pref;
+import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.utils.log.LoggingService;
 
 import java.io.File;
@@ -31,9 +33,6 @@ public class DownloadService extends LoggingService {
 
     public static boolean isBusy;
 
-    private String fileUrl;
-    private String destinationFolder;
-    private String audioBookTitle;
     private String err_txt;
 
     private final IBinder binder = new DownloadService.DownloadServiceBackgroundBinder();
@@ -65,15 +64,15 @@ public class DownloadService extends LoggingService {
         return binder;
     }
     private void parseIntent(Intent intent) {
-        fileUrl = intent.getStringExtra("fileUrl");
-        destinationFolder = intent.getStringExtra("destinationFolder");
-        audioBookTitle = intent.getStringExtra("audioBookTitle");
+        String fileUrl = intent.getStringExtra("fileUrl");
+        String destinationFolder = intent.getStringExtra("destinationFolder");
+        String audioBookTitle = intent.getStringExtra("audioBookTitle");
         myLog("parseIntent() ..   " +
                 "\n.    fileUrl = [" + fileUrl + "]" +
                 "\n.    destinationFolder = [" + destinationFolder + "]" +
                 "\n.    audioBookTitle = [" + audioBookTitle + "]"
         );
-        if (fileUrl==null || destinationFolder== null) {
+        if (fileUrl ==null || destinationFolder == null) {
             myLogE("Null Intents !!");
             stopSelf();
         }
@@ -113,29 +112,33 @@ public class DownloadService extends LoggingService {
         myLog("downloadFile()");
 
         if (!isInternetAvailable()) {
-            tellError("No Internet");
+            tellError(err_txt);
             isBusy = false;
             return;
         }
 
-        //Ensure clean state
+        /*
         String downloadDirPath = getFilesDir().getAbsolutePath() + "/" + FOLDER_DOWNLOAD;
         deleteFolderRecursive(downloadDirPath);
         File outputDir = new File(downloadDirPath);
         if (!outputDir.exists()) outputDir.mkdirs();
 
-        startDownloadJob(this, fileUrl, destinationFolder, audioBookTitle);
-    }
+         */
 
-    public void startDownloadJob(Context context, String fileUrl, String folderPath, String title) {
+        LoadBookTaskState state = Pref.getLoadBookTaskState(this);
+        if (state == null || state.downloadFileUrl == null || state.downloadDestinationFolder == null || state.title == null) {
+            tellError("Invalid LoadBookTaskState");
+            isBusy = false;
+            return;
+        }
+
         long startTime = System.currentTimeMillis();
+        state.downloadStartTime = startTime;
+        state.downloadRetryCount = 0;
+        Pref.setLoadBookTaskState(this, state);
 
         Data inputData = new Data.Builder()
-                .putString(DownloadForegroundService.EXTRA_URL, fileUrl)
-                .putString(DownloadForegroundService.EXTRA_DEST, folderPath)
-                .putString(DownloadForegroundService.EXTRA_TITLE, title)
-                .putInt(DownloadForegroundService.EXTRA_RETRY_COUNT, 0)
-                .putLong(DownloadForegroundService.EXTRA_START_TIME, startTime)
+                .putString("stateRef", "use_shared_prefs")
                 .build();
 
         OneTimeWorkRequest request = new OneTimeWorkRequest.Builder(DownloadRetryWorker.class)
@@ -143,10 +146,10 @@ public class DownloadService extends LoggingService {
                 .addTag(FOREGROUND_DOWNLOAD_SERVICE_TAG)
                 .build();
 
-        WorkManager.getInstance(context)
-                .enqueueUniqueWork(FOREGROUND_DOWNLOAD_SERVICE_TAG + "_" + fileUrl.hashCode(), androidx.work.ExistingWorkPolicy.REPLACE, request);
+        WorkManager.getInstance(this)
+                .enqueueUniqueWork(FOREGROUND_DOWNLOAD_SERVICE_TAG + "_" + state.downloadFileUrl.hashCode(), androidx.work.ExistingWorkPolicy.REPLACE, request);
 
-        myLogI("Download work enqueued with WorkManager for: " + title);
+        myLogI("Download work enqueued with WorkManager for: " + state.title);
     }
 
 

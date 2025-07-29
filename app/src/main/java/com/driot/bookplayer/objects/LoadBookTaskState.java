@@ -24,13 +24,19 @@ public class LoadBookTaskState implements Parcelable {
     public String fileExtension;
     public String mimeType;
     public String downloadedFilePath;
-    public boolean downloadedFileReady; //so that you never get stuck if app crashes
+    public boolean downloadedFileReady;
     public boolean onGoingLoading;
     public String imagePath;
     public String progressText;
     public int progressPercent;
     public boolean isLoadingPaused;
     public String currentLoadingOperation;
+    public String downloadFileUrl;
+    public String downloadDestinationFolder;
+    public int downloadRetryCount;
+    public long downloadStartTime;
+
+
 
     public LoadBookTaskState() {
         myLog("LoadBookTaskState() constructor - creating new Workflow");
@@ -59,6 +65,10 @@ public class LoadBookTaskState implements Parcelable {
         progressPercent = in.readInt();
         isLoadingPaused = in.readByte() != 0;
         currentLoadingOperation = in.readString();
+        downloadFileUrl = in.readString();
+        downloadDestinationFolder = in.readString();
+        downloadRetryCount = in.readInt();
+        downloadStartTime = in.readLong();
     }
 
     public static final Creator<LoadBookTaskState> CREATOR = new Creator<LoadBookTaskState>() {
@@ -97,6 +107,10 @@ public class LoadBookTaskState implements Parcelable {
         dest.writeInt(progressPercent);
         dest.writeByte((byte) (isLoadingPaused ? 1 : 0));
         dest.writeString(currentLoadingOperation);
+        dest.writeString(downloadFileUrl);
+        dest.writeString(downloadDestinationFolder);
+        dest.writeInt(downloadRetryCount);
+        dest.writeLong(downloadStartTime);
     }
 
     @Override
@@ -130,6 +144,10 @@ public class LoadBookTaskState implements Parcelable {
                 ", progressPercent=" + progressPercent +
                 ", isLoadingPaused=" + isLoadingPaused +
                 ", currentLoadingOperation='" + currentLoadingOperation + '\'' +
+                ", downloadFileUrl='" + downloadFileUrl + '\'' +
+                ", downloadDestinationFolder='" + downloadDestinationFolder + '\'' +
+                ", downloadRetryCount=" + downloadRetryCount +
+                ", downloadStartTime=" + downloadStartTime +
                 '}';
     }
 

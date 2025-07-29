@@ -485,6 +485,7 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
             List<Button> buttonsToLock = Arrays.asList(bOpenFile, bOpenFolder, bOpenZipFile, bOpenM4bFile
                     , bAutoTest_b1, bAutoTest_b2, bAutoTest_b3, bDirectDownload);
 
+            GlobalTaskManager.getInstance().reInit();
             if (GlobalTaskManager.getInstance().isTaskRunning()) {
                 myLog("display OngoingTaskFragment");
                 getSupportFragmentManager()

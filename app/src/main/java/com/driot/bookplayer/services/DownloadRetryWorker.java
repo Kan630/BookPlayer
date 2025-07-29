@@ -5,11 +5,13 @@ import android.content.Intent;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
-import androidx.work.Data;
+import androidx.core.content.ContextCompat;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
+import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.utils.KanLogger;
+import com.driot.bookplayer.global.Pref;
 
 public class DownloadRetryWorker extends Worker {
 
@@ -20,30 +22,22 @@ public class DownloadRetryWorker extends Worker {
     @NonNull
     @Override
     public Result doWork() {
-        String fileUrl = getInputData().getString(DownloadForegroundService.EXTRA_URL);
-        String destinationFolder = getInputData().getString(DownloadForegroundService.EXTRA_DEST);
-        String title = getInputData().getString(DownloadForegroundService.EXTRA_TITLE);
-        int retryCount = getInputData().getInt(DownloadForegroundService.EXTRA_RETRY_COUNT, 0);
-        long downloadStartTime = getInputData().getLong(DownloadForegroundService.EXTRA_START_TIME, System.currentTimeMillis());
+        LoadBookTaskState state = Pref.getLoadBookTaskState(getApplicationContext());
+        if (state == null || !state.onGoingLoading || state.downloadFileUrl == null) {
+            myLogE("Retry aborted: No valid task state found");
+            return Result.failure();
+        }
 
-        myLogW("Retrying download for: " + title + " (attempt " + (retryCount + 1) + ")");
+        state.downloadRetryCount += 1;
+        Pref.setLoadBookTaskState(getApplicationContext(), state);
+
+        myLogW("Retrying download for: " + state.title + " (attempt " + state.downloadRetryCount + ")");
 
         Intent serviceIntent = new Intent(getApplicationContext(), DownloadForegroundService.class);
-        serviceIntent.putExtra(DownloadForegroundService.EXTRA_URL, fileUrl);
-        serviceIntent.putExtra(DownloadForegroundService.EXTRA_DEST, destinationFolder);
-        serviceIntent.putExtra(DownloadForegroundService.EXTRA_TITLE, title);
-        serviceIntent.putExtra(DownloadForegroundService.EXTRA_RETRY_COUNT, retryCount);
-        serviceIntent.putExtra(DownloadForegroundService.EXTRA_START_TIME, downloadStartTime);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            getApplicationContext().startForegroundService(serviceIntent);
-        } else {
-            myLogEE(null, "startForegroundService needs api > 26");
-        }
+        ContextCompat.startForegroundService(getApplicationContext(), serviceIntent);
 
         return Result.success();
     }
-
 
     //--- LOG --------------------------
     private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
@@ -57,5 +51,4 @@ public class DownloadRetryWorker extends Worker {
     private void myToastE(String str) { KanLogger.myToastE(this.getClass().getName(), str); }
     private void myKeyFirebase(String strKey, String strValue) {KanLogger.myKeyFirebase(strKey, strValue);}
     private void myLogFirebase(String strLog) {KanLogger.myLogFirebase(strLog);}
-
 }

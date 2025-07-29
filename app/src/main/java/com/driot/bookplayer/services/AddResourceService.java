@@ -16,6 +16,7 @@ import androidx.documentfile.provider.DocumentFile;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.objects.AudioFileInfo;
 import com.driot.bookplayer.utils.FileUtils;
 import com.driot.bookplayer.utils.GlobalTaskManager;
@@ -38,6 +39,7 @@ import java.util.Objects;
 
 import static com.driot.bookplayer.db.Sql.updateFolderTable;
 import static com.driot.bookplayer.global.Pref.getLoadBookTaskState;
+import static com.driot.bookplayer.global.Pref.setLoadBookTaskState;
 import static com.driot.bookplayer.global.Var.ONLY_MIME_AUDIO;
 import static com.driot.bookplayer.global.Var.PATH_CHECK_AUTOTEST;
 import static com.driot.bookplayer.global.Var.SUPPORTED_AUDIO_EXTENSIONS;
@@ -341,12 +343,9 @@ public class AddResourceService
             }
         }
     };
-    private void launchDownloadService(String fileUrl, String destinationFolder, String audioBookTitle) {
+    private void launchDownloadService() {
         myLogD("launchDownloadService()");
         Intent intentDownloadService = new Intent(this, DownloadService.class);
-        intentDownloadService.putExtra("fileUrl", fileUrl);
-        intentDownloadService.putExtra("destinationFolder", destinationFolder);
-        intentDownloadService.putExtra("audioBookTitle", audioBookTitle);
         boundToDownloadService = false;
         try {
             boundToDownloadService = bindService(intentDownloadService, downloadServiceConnection, Context.BIND_AUTO_CREATE); //error Log : Activity XXX has leaked ServiceConnection
@@ -420,16 +419,8 @@ public class AddResourceService
         myLog("** original type = " + bookState.type + " **");
         myLog("** uri =   " + uri_dynamic + " **");
         myLog("** type =  " + type_dynamic + " **");
-        myLog("option copy file =      " + bookState.optionCopy);
-        myLog("option split m4b =      " + bookState.optionSplit);
-        myLog("option delete source =  " + bookState.optionDelete);
-        myLog("Source Location = [" + bookState.sourceLocation + "]");
-        myLog("originalType = [" + bookState.originalType + "]");
-        myLog("originalFile = [" + bookState.originalFile + "]");
-        myLog("originalHash = [" + bookState.originalHash + "]");
-        myLog("fileExtension = [" + bookState.fileExtension + "]");
-        myLog("bookState.mimeType = [" + bookState.mimeType + "]");
-        myLog("bookState.image = [" + bookState.imagePath + "]");
+        myLog("*********************************************************************************************************");
+        myLog(bookState.toString().replace(",", "\n"));
         myLog("*********************************************************************************************************");
         myLog("*********************************************************************************************************");
 
@@ -441,10 +432,11 @@ public class AddResourceService
         /// DOWNLOAD
         ///---------------------------------------------
         if (uri_dynamic.toString().startsWith("http")) {
-            new Thread(() ->  {
-                String downloadFolder = StorageHelper.getDownloadFolderPath(this);
-                launchDownloadService(uri_dynamic.toString(), downloadFolder, bookState.futureFolderName);
-            }).start();
+            bookState.downloadFileUrl = uri_dynamic.toString();
+            bookState.downloadDestinationFolder = StorageHelper.getDownloadFolderPath(this);
+            bookState.onGoingLoading = true;
+            setLoadBookTaskState(this, bookState);
+            new Thread(this::launchDownloadService).start();
             return;
         }
 
@@ -968,6 +960,7 @@ public class AddResourceService
     }
 
     private void proceedAfterCopyLocal(String localCopyFullPath) {
+        bookState = Pref.getLoadBookTaskState(this);
         myLog("proceedAfterCopyLocal() - Type : [" + type_dynamic + "]"
                 + "\nsourceLocation = [" + bookState.sourceLocation + "]"
                 + "\n localCopyFullPath = [" + localCopyFullPath + "]");
@@ -1027,8 +1020,8 @@ public class AddResourceService
     @Override
     public void downloadService_tellEnd(String downloadedFileFullPath) {
         myLog("Download tell End -> [" + downloadedFileFullPath + "]");
-        clearDownloadFinished(this);
         proceedAfterCopyLocal(downloadedFileFullPath);
+        clearDownloadFinished(this);
     }
     @Override
     public void downloadService_tellError(String errorText) {

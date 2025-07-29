@@ -17,6 +17,13 @@ public class AnalyticsHelper {
         bundle.putString("originalFile", originalFile);
         logThat(context, "manual_load", bundle);
     }
+    public static void tellAnalyticsManualDownload(Context context, String fileUrl, String destinationFolder, long alreadyDownloaded) {
+        Bundle bundle = new Bundle();
+        bundle.putString("fileUrl", fileUrl);
+        bundle.putString("destinationFolder", destinationFolder);
+        bundle.putLong("alreadyDownloaded", alreadyDownloaded);
+        logThat(context, "manual_load", bundle);
+    }
     public static void tellAnalyticsLibrivoxSearch(Context context, String query, String lang) {
         Bundle bundle = new Bundle();
         bundle.putString("query", query);
@@ -47,7 +54,7 @@ public class AnalyticsHelper {
     }
 
     ////////////////////////////////////////////////////////
-    private static final String TAG = "PodcastHelper";
+    private static final String TAG = "AnalyticsHelper";
     private static void myLog(String str) { KanLogger.myLog(TAG, str); }
     private static void myLogD(String str) { KanLogger.myLogD(TAG, str); }
     private static void myLogI(String str) { KanLogger.myLogI(TAG, str); }

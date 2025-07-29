@@ -37,6 +37,20 @@ public class GlobalTaskManager {
     public static void init(Context context) {
         appContext = context.getApplicationContext();
     }
+    public void reInit() {
+        LoadBookTaskState state = Pref.getLoadBookTaskState(appContext);
+        if (state != null && state.onGoingLoading) {
+            this.taskRunning = true;
+            this.taskTitle = state.title != null ? state.title : "";
+            this.progressPercent = state.progressPercent;
+            this.progressText = state.progressText != null ? state.progressText : "";
+        } else {
+            this.taskRunning = false;
+            this.taskTitle = "";
+            this.progressPercent = 0;
+            this.progressText = "";
+        }
+    }
 
     public static GlobalTaskManager getInstance() {
         if (instance == null) {

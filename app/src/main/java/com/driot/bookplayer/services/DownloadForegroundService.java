@@ -2,22 +2,20 @@ package com.driot.bookplayer.services;
 
 import static com.driot.bookplayer.global.Var.FOREGROUND_DOWNLOAD_SERVICE_TAG;
 import static com.driot.bookplayer.utils.Tonio.formatSizeMB;
-import static com.driot.bookplayer.utils.Tonio.getFileNameFromPath;
 import static com.driot.bookplayer.utils.Tonio.getFileNameFromUrl;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Build;
 import android.os.IBinder;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.core.content.ContextCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.work.Data;
 import androidx.work.OneTimeWorkRequest;
@@ -27,9 +25,10 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.objects.LoadBookTaskState;
-import com.driot.bookplayer.utils.KanLogger;
+import com.driot.bookplayer.utils.AnalyticsHelper;
 import com.driot.bookplayer.utils.NetworkUtils;
 import com.driot.bookplayer.utils.TaskStateManager;
+import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.WorkFlow;
 import com.driot.bookplayer.utils.log.LoggingService;
 
@@ -40,18 +39,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Locale;
 
 public class DownloadForegroundService extends LoggingService {
 
     public static final String CHANNEL_ID = "DownloadChannel";
     public static final int NOTIF_ID = 1;
 
-    public static final String EXTRA_URL = "fileUrl";
-    public static final String EXTRA_DEST = "destinationFolder";
-    public static final String EXTRA_TITLE = "audioBookTitle";
-    public static final String EXTRA_RETRY_COUNT = "retryCount";
-    public static final String EXTRA_START_TIME = "downloadStartTime";
     public static final String ACTION_PAUSE = "pause";
     public static final String ACTION_CANCEL = "cancel";
     public static final String ACTION_RESUME = "resume";
@@ -78,73 +71,60 @@ public class DownloadForegroundService extends LoggingService {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         startForeground(NOTIF_ID, buildNotification("Starting download…"));
+        myLogD("onStartCommand ... " + intent.toString());
+
+        LoadBookTaskState state = Pref.getLoadBookTaskState(this);
+        if (state == null || !state.onGoingLoading) {
+            myLogE("No valid LoadBookTaskState found");
+            stopSelf();
+            return START_NOT_STICKY;
+        }
+
+        fileUrl = state.downloadFileUrl;
+        destinationFolder = state.downloadDestinationFolder;
+        title = state.title;
+        retryCount = state.downloadRetryCount;
+        downloadStartTime = state.downloadStartTime;
+
         String action = intent.getAction();
-        myLog("onStartCommand - " + action + " ... " + intent.toString());
+        myLog("action = " + action);
+
         if (ACTION_PAUSE.equals(action)) {
             isPaused = true;
-            TaskStateManager.markPaused(this, lastPercentProgress, lastProgressBytes, lastProgressTotal);
+            TaskStateManager.markDownloadPaused(this, lastPercentProgress, lastProgressBytes, lastProgressTotal);
             updateNotification(lastPercentProgress, lastProgressBytes, lastProgressTotal, getString(R.string.Download_paused_by_user));
             return START_NOT_STICKY;
         } else if (ACTION_CANCEL.equals(action)) {
             isCancelled = true;
-            TaskStateManager.markCancelled(this, lastPercentProgress, lastProgressBytes, lastProgressTotal);
+            TaskStateManager.markDownloadCancelled(this, lastPercentProgress, lastProgressBytes, lastProgressTotal);
             updateNotification(lastPercentProgress, lastProgressBytes, lastProgressTotal, getString(R.string.Download_cancelled_by_user));
             if (fileUrl != null) {
                 File file = new File(destinationFolder, getFileNameFromUrl(fileUrl));
                 if (file.exists()) file.delete();
             } else {
-                myLog("fileUrl == null");
+                myLogE("ACTION_CANCEL and fileUrl == null");
             }
             stopForeground(true);
             stopSelf();
             return START_NOT_STICKY;
         } else if (ACTION_RESUME.equals(action)) {
+            /*
             if (isPaused) {
                 isPaused = false;
-                TaskStateManager.markResuming(this);
+                TaskStateManager.markDownloadResuming(this);
                 myLog("Resuming download manually...");
-
-                startForeground(NOTIF_ID, buildNotification("Resuming download..."));
-
-                if (downloadThread == null || !downloadThread.isAlive()) {
-                    downloadThread = new Thread(() -> {
-                        boolean success = performDownload(fileUrl, destinationFolder);
-                        stopForeground(true);
-                        stopSelf();
-                        downloadThread = null;
-
-                        if (success) {
-                            String filePath = new File(destinationFolder, getFileNameFromPath(fileUrl)).getAbsolutePath();
-                            myLog("Download success => sending Broadcast - storing in SharedPrefs: " + filePath);
-                            WorkFlow.setDownloadFinished(this, filePath);
-
-                            Intent doneIntent = new Intent("BOOKPLAYER_DOWNLOAD_FINISHED");
-                            doneIntent.putExtra("downloadedFileFullPath", filePath);
-                            doneIntent.putExtra("audioBookTitle", title);
-                            LocalBroadcastManager.getInstance(this).sendBroadcast(doneIntent);
-                        }
-                    });
-                    downloadThread.start();
-                } else {
-                    myLog("Download thread already running");
-                }
+                Intent resumeIntent = new Intent(this, DownloadForegroundService.class);
+                ContextCompat.startForegroundService(this, resumeIntent);
             } else {
-                myLog("Resume ignored: not in paused state");
+                myLogE("Resume ignored: not in paused state");
             }
             return START_NOT_STICKY;
+
+             */
+            isPaused = false;
+            //TaskStateManager.markDownloadResuming(this);
+
         }
-
-        fileUrl = intent.getStringExtra(EXTRA_URL);
-        destinationFolder = intent.getStringExtra(EXTRA_DEST);
-        title = intent.getStringExtra(EXTRA_TITLE);
-        retryCount = intent.getIntExtra(EXTRA_RETRY_COUNT, 0);
-        downloadStartTime = intent.getLongExtra(EXTRA_START_TIME, System.currentTimeMillis());
-
-        myLog("onStartCommand: Starting download for " + title);
-        myKeyFirebase("workflow", "download");
-        myLogFirebase("download url : " + fileUrl);
-
-        startForeground(NOTIF_ID, buildNotification("Starting download..."));
 
         if (downloadThread != null && downloadThread.isAlive()) {
             myLogW("Download already in progress; ignoring new start command.");
@@ -176,12 +156,12 @@ public class DownloadForegroundService extends LoggingService {
                 LocalBroadcastManager.getInstance(this).sendBroadcast(errorIntent);
 
                 if (retryCount < MAX_RETRIES) {
+                    LoadBookTaskState retryState = Pref.getLoadBookTaskState(this);
+                    retryState.downloadRetryCount = retryCount + 1;
+                    Pref.setLoadBookTaskState(this, retryState);
+
                     Data inputData = new Data.Builder()
-                            .putString(EXTRA_URL, fileUrl)
-                            .putString(EXTRA_DEST, destinationFolder)
-                            .putString(EXTRA_TITLE, title)
-                            .putInt(EXTRA_RETRY_COUNT, retryCount + 1)
-                            .putLong(EXTRA_START_TIME, downloadStartTime)
+                            .putString("stateRef", "use_shared_prefs") // Optional marker
                             .build();
 
                     OneTimeWorkRequest retryRequest = new OneTimeWorkRequest.Builder(DownloadRetryWorker.class)
@@ -202,6 +182,10 @@ public class DownloadForegroundService extends LoggingService {
 
     private boolean performDownload(String fileUrl, String destinationFolder) {
         myLog("performDownload  -  " + fileUrl + " => " + destinationFolder);
+        if (fileUrl == null || destinationFolder == null) {
+            myLogE("Null arguments");
+            return false;
+        }
         InputStream input = null;
         FileOutputStream output = null;
         HttpURLConnection connection = null;
@@ -219,14 +203,19 @@ public class DownloadForegroundService extends LoggingService {
                     (autoPolicy == NetworkUtils.NetworkPolicyAuto.WIFI && NetworkUtils.isWifiConnected(this)) ||
                     (autoPolicy == NetworkUtils.NetworkPolicyAuto.UNMETERED && NetworkUtils.isUnmeteredConnected(this)));
 
-            if (!allow) {
-                pauseForPolicy = true;
-                updateNotification(0, 0, 0, getString(R.string.Download_paused_due_to_network_policy));
+            if (!allow) { //TODO allow process to start again automatically when user get free internet
+                //pauseForPolicy = true;
+                isPaused = true;
+                updateNotification(lastPercentProgress, lastProgressBytes, lastProgressTotal, getString(R.string.Download_paused_due_to_network_policy));
+                TaskStateManager.markDownloadPausedDueToNetworkPolicy(this, lastPercentProgress, lastProgressBytes, lastProgressTotal);
                 myLog("Paused due to network policy");
                 return false;
             }
 
-            File destFile = new File(destinationFolder, getFileNameFromUrl(fileUrl));
+            String fileName = getFileNameFromUrl(fileUrl);
+            myLog("file name " + fileName);
+
+            File destFile = new File(destinationFolder, fileName);
             File parentFolder = destFile.getParentFile();
             if (parentFolder != null && !parentFolder.exists()) {
                 myLogW("Creating parent folder: " + parentFolder.getAbsolutePath());
@@ -238,6 +227,9 @@ public class DownloadForegroundService extends LoggingService {
             }
 
             long downloaded = destFile.exists() ? destFile.length() : 0;
+            myLog("already downloaded " + Tonio.getReadableSize(downloaded));
+
+            AnalyticsHelper.tellAnalyticsManualDownload(this, fileUrl, destinationFolder, downloaded);
 
             URL url = new URL(fileUrl);
             connection = (HttpURLConnection) url.openConnection();
@@ -284,12 +276,18 @@ public class DownloadForegroundService extends LoggingService {
                         updateNotification(progress, total, fileLength, strSize);
                         if (lastPercentProgress != progress) {
                             myLogD("tellProgress : " + progress + " - " + strSize);
-                            lastPercentProgress = progress;
-                            lastProgressBytes = total;
-                            lastProgressTotal = fileLength;
+                            /*
+                        lastPercentProgress = progress;
+                        lastProgressBytes = total;
+                        lastProgressTotal = fileLength;
                             TaskStateManager.updateProgressAndNotify(this, lastPercentProgress, lastProgressBytes, lastProgressTotal, "downloading");
+                             */
                         }
+                        lastPercentProgress = progress;
+                        lastProgressBytes = total;
+                        lastProgressTotal = fileLength;
                         lastUpdateTime = System.currentTimeMillis();
+                        TaskStateManager.updateProgressAndNotify(this, lastPercentProgress, lastProgressBytes, lastProgressTotal, "downloading", false);
                     }
                 }
             }
