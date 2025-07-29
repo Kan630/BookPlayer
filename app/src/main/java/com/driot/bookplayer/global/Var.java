@@ -9,6 +9,8 @@ import java.util.Set;
  */
 public class Var {
 
+    public static final String FOREGROUND_DOWNLOAD_SERVICE_TAG = "download_retry";
+
     public static final String SOURCE_LOCATION_PODCAST = "podcast";
     public static final String SOURCE_LOCATION_LIBRIVOX = "librivox";
 
@@ -116,5 +118,7 @@ public class Var {
 
  */
             )
+
+
     );
 }

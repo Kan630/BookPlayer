@@ -15,12 +15,15 @@ import android.widget.TextView;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.services.AddResourceService;
+import com.driot.bookplayer.services.DownloadForegroundService;
 import com.driot.bookplayer.utils.GlobalTaskManager;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import static com.driot.bookplayer.utils.Tonio.getFileNameFromPath;
 import static com.driot.bookplayer.utils.Tonio.formatNameForDisplay;
 import static com.driot.bookplayer.utils.WorkFlow.cancelAllOngoingTasks;
+
+import androidx.core.content.ContextCompat;
 
 
 /**
@@ -43,6 +46,8 @@ public class AddResourceActivity
     AddResourceService mService;
     boolean mBound = false;
 
+    Button bPause;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,15 +60,14 @@ public class AddResourceActivity
         tvWarning = findViewById(R.id.warningText);
 
         Button bCancel = findViewById(R.id.bCancel);
-        bCancel.setOnClickListener(v -> {
-            myLogI("------ USER CLICKS btn CANCEL ----");
-            performCancel();
-        });
+        bCancel.setOnClickListener(v -> {performCancel();        });
+
+        bPause = findViewById(R.id.bPause);
+        bPause.setOnClickListener(v -> {            performPause();        });
 
         Intent intentAddResourceService = new Intent(this, AddResourceService.class);
         boundToAddResourceService = bindService(intentAddResourceService, addResourceServiceConnection, Context.BIND_AUTO_CREATE); //error Log : Activity XXX has leaked ServiceConnection
         myLogD("call start & bind to AddResourceService from AddResourceActivity.onCreate() - bound result :" + boundToAddResourceService);
-
     }
 
     @Override
@@ -176,7 +180,24 @@ public class AddResourceActivity
         });
     }
 
+    private void performPause() {
+        if (bPause.getText().equals(getString(R.string.Pause))) {
+            myLogI("------ USER CLICKS btn PAUSE ----");
+            Intent pauseIntent = new Intent(this, DownloadForegroundService.class);
+            pauseIntent.setAction(DownloadForegroundService.ACTION_PAUSE);
+            ContextCompat.startForegroundService(this, pauseIntent);
+            bPause.setText(getString(R.string.Resume));
+        } else {
+            myLogI("------ USER CLICKS btn RESUME ----");
+            Intent pauseIntent = new Intent(this, DownloadForegroundService.class);
+            pauseIntent.setAction(DownloadForegroundService.ACTION_RESUME);
+            ContextCompat.startForegroundService(this, pauseIntent);
+            bPause.setText(getString(R.string.Pause));
+        }
+    }
     private void performCancel() {
+        myLogI("------ USER CLICKS btn CANCEL ----");
+
         cancelAllOngoingTasks(this);
 
         GlobalTaskManager.getInstance().notifyTaskFinished();

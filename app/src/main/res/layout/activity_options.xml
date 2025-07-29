@@ -133,6 +133,12 @@
                 style="@style/OptionTitle"
                 android:text="@string/network_preferences_title" />
 
+            <TextView
+                android:text="@string/beta_test"
+                style="@style/GetResourceTextTopOfButton"
+                android:textColor="@color/orange_700"
+                />
+
             <LinearLayout
                 style="@style/LinearLayoutOptionsCheckBoxHorizontal">
                 <TextView style="@style/OptionCheckBoxText"

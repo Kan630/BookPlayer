@@ -607,5 +607,39 @@ BookPlayer 在<font color="#81C784">无需权限</font>的情况下也能运行�
 </string>
     <string name="permission_read_write_rationale_short_text_on_load">需要 [音乐和音频] 权限以播放智能手机共享存储中的音频。</string>
 
+    <string name="Close">关闭</string>
+    <string name="Episode_description">剧集简介</string>
+    <string name="Podcast_description">播客简介</string>
+    <string name="Trending">热门</string>
+    <string name="max_number_of_results_reached">已达到最大结果数</string>
+    <string name="could_not_check_already_imported">无法检查是否已导入</string>
+
+    <string name="network_preferences_title">网络偏好设置</string>
+    <string name="option_download_auto_title">自动下载</string>
+    <string name="option_download_user_title">手动下载</string>
+    <string name="download_any">📶 任意网络</string>
+    <string name="download_wifi">🛜 仅限 Wi-Fi</string>
+    <string name="download_unmetered">🆓 仅限无限 Wi-Fi</string>
+    <string name="download_never_ask">🛣️ 永不询问</string>
+    <string name="download_ask_if_not_wifi">❓ 非 Wi-Fi 时询问</string>
+    <string name="download_ask_if_unmetered">⚠️ 非无限网络时询问</string>
+
+    <!-- Network download prompts -->
+    <string name="download_warning_title_unmetered">无限网络</string>
+    <string name="download_warning_message_unmetered">你当前不在无限网络上。是否继续下载？</string>
+    <string name="download_warning_title_wifi">Wi-Fi</string>
+    <string name="download_warning_message_wifi">你当前不在 Wi-Fi 网络上。是否继续下载？</string>
+
+    <string name="no_internet_connection">无网络连接</string>
+    <string name="an_error_occurred">发生错误</string>
+
+    <string name="Add_to_favorite">加入收藏</string>
+    <string name="Auto_Download_episodes">自动下载剧集</string>
+    <string name="favorites">收藏夹</string>
+
+    <string name="Download_paused_due_to_network_policy">因网络策略已暂停下载</string>
+    <string name="Warning">警告</string>
+    <string name="beta_test">测试版</string>
+
 
 </resources>

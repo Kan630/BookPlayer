@@ -599,5 +599,38 @@ El valor global de apagado automático está en Opciones (en el menú de la pant
 </string>
     <string name="permission_read_write_rationale_short_text_on_load">Se necesita el permiso [Música y audio] para reproducir desde el almacenamiento general del smartphone.</string>
 
+    <string name="Close">Cerrar</string>
+    <string name="Episode_description">Descripción del episodio</string>
+    <string name="Podcast_description">Descripción del pódcast</string>
+    <string name="Trending">Tendencias</string>
+    <string name="max_number_of_results_reached">se alcanzó el número máximo de resultados</string>
+    <string name="could_not_check_already_imported">no se pudo verificar si ya se importó</string>
+
+    <string name="network_preferences_title">preferencias de red</string>
+    <string name="option_download_auto_title">Descarga automática</string>
+    <string name="option_download_user_title">Descarga manual</string>
+    <string name="download_any">📶 Cualquier conexión</string>
+    <string name="download_wifi">🛜 Solo Wi-Fi</string>
+    <string name="download_unmetered">🆓 Solo Wi-Fi sin límites</string>
+    <string name="download_never_ask">🛣️ No preguntar nunca</string>
+    <string name="download_ask_if_not_wifi">❓ Preguntar si no es Wi-Fi</string>
+    <string name="download_ask_if_unmetered">⚠️ Preguntar si no es sin límites</string>
+
+    <!-- Network download prompts -->
+    <string name="download_warning_title_unmetered">Sin límites</string>
+    <string name="download_warning_message_unmetered">No estás en una conexión sin límites. ¿Continuar con la descarga?</string>
+    <string name="download_warning_title_wifi">Wi-Fi</string>
+    <string name="download_warning_message_wifi">No estás en Wi-Fi. ¿Continuar con la descarga?</string>
+
+    <string name="no_internet_connection">Sin conexión a internet</string>
+    <string name="an_error_occurred">Ocurrió un error</string>
+
+    <string name="Add_to_favorite">Agregar a favoritos</string>
+    <string name="Auto_Download_episodes">Descarga automática de episodios</string>
+    <string name="favorites">favoritos</string>
+
+    <string name="Download_paused_due_to_network_policy">Descarga pausada por política de red</string>
+    <string name="Warning">Advertencia</string>
+    <string name="beta_test">prueba beta</string>
 
 </resources>

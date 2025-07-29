@@ -195,7 +195,7 @@ public class DownloadJobService extends JobService {
 
             while ((count = input.read(data)) != -1) {
                 if (!isJobRunning) {
-                    myLogE("================= Download cancelled by user.");
+                    myLogE("================= Download cancelled by isJobRunning.");
                     tellError(getString(R.string.Download_cancelled));
                     return false;
                 }

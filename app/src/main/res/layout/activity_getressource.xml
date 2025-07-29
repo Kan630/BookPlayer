@@ -136,11 +136,6 @@
                     android:text="@string/DirectDownload_title"
                     style="@style/GetResourceTextSectionTitle" />
 
-                <TextView
-                    android:text="@string/LibrivoxSearch_warning"
-                    style="@style/GetResourceTextTopOfButton"
-                    android:textColor="@color/orange_700"
-                    />
 
                 <TextView
                     android:id="@+id/txtDirectDownload_desc"
@@ -187,12 +182,6 @@
                     android:id="@+id/txtLibrivoxSearch_title"
                     android:text="@string/LibrivoxSearch_title"
                     style="@style/GetResourceTextSectionTitle" />
-
-                <TextView
-                    android:text="@string/LibrivoxSearch_warning"
-                    style="@style/GetResourceTextTopOfButton"
-                    android:textColor="@color/orange_700"
-                    />
 
                 <TextView
                     android:id="@+id/txtLibrivoxSearch_desc"
@@ -248,6 +237,12 @@
                     android:id="@+id/txtPodcastSearch_title"
                     android:text="@string/PodcastSearch_title"
                     style="@style/GetResourceTextSectionTitle" />
+
+                <TextView
+                    android:text="@string/beta_test"
+                    style="@style/GetResourceTextTopOfButton"
+                    android:textColor="@color/orange_700"
+                    />
 
                 <TextView
                     android:id="@+id/txtPodcastSearch_desc"

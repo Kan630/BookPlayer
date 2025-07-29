@@ -605,4 +605,38 @@ Tous les messages sont lisibles publiquement. Connectez-vous pour participer.
 </string>
     <string name="permission_read_write_rationale_short_text_on_load">[Music and Audio] permission needed to play from smartphone general storage.</string>
 
+    <string name="Close">Fermer</string>
+    <string name="Episode_description">Description de l\'épisode</string>
+    <string name="Podcast_description">Description du podcast</string>
+    <string name="Trending">Tendances</string>
+    <string name="max_number_of_results_reached">nombre maximum de résultats atteint</string>
+    <string name="could_not_check_already_imported">impossible de vérifier si déjà importé</string>
+
+    <string name="network_preferences_title">préférences réseau</string>
+    <string name="option_download_auto_title">Téléchargement automatique</string>
+    <string name="option_download_user_title">Téléchargement manuel</string>
+    <string name="download_any">📶 Toute connexion</string>
+    <string name="download_wifi">🛜 Wi-Fi uniquement</string>
+    <string name="download_unmetered">🆓 Wi-Fi illimité uniquement</string>
+    <string name="download_never_ask">🛣️ Ne jamais demander</string>
+    <string name="download_ask_if_not_wifi">❓ Demander si pas en Wi-Fi</string>
+    <string name="download_ask_if_unmetered">⚠️ Demander si pas illimité</string>
+
+    <!-- Network download prompts -->
+    <string name="download_warning_title_unmetered">Connexion illimitée</string>
+    <string name="download_warning_message_unmetered">Tu n\'es pas sur une connexion illimitée. Continuer le téléchargement ?</string>
+    <string name="download_warning_title_wifi">Wi-Fi</string>
+    <string name="download_warning_message_wifi">Tu n\'es pas sur un réseau Wi-Fi. Continuer le téléchargement ?</string>
+
+    <string name="no_internet_connection">Pas de connexion internet</string>
+    <string name="an_error_occurred">Une erreur est survenue</string>
+
+    <string name="Add_to_favorite">Ajouter aux favoris</string>
+    <string name="Auto_Download_episodes">Téléchargement automatique des épisodes</string>
+    <string name="favorites">favoris</string>
+
+    <string name="Download_paused_due_to_network_policy">Téléchargement en pause à cause de la politique réseau</string>
+    <string name="Warning">Avertissement</string>
+    <string name="beta_test">test bêta</string>
+
 </resources>

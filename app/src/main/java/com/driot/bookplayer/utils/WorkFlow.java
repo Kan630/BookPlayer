@@ -4,16 +4,22 @@ import static com.driot.bookplayer.global.Pref.clearLoadBookTaskState;
 import static com.driot.bookplayer.global.Pref.getLoadBookTaskState;
 import static com.driot.bookplayer.global.Pref.setLoadBookTaskState;
 import static com.driot.bookplayer.global.Var.FOLDER_DOWNLOAD;
+import static com.driot.bookplayer.global.Var.FOREGROUND_DOWNLOAD_SERVICE_TAG;
 import static com.driot.bookplayer.utils.KanFiles.deleteFolderRecursive;
 
 import android.app.job.JobScheduler;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
+
+import androidx.core.content.ContextCompat;
+import androidx.work.WorkManager;
 
 import com.driot.bookplayer.activities.AddResourceActivity;
 import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.services.AddResourceService;
 import com.driot.bookplayer.services.CopyFileService;
+import com.driot.bookplayer.services.DownloadForegroundService;
 import com.driot.bookplayer.services.DownloadJobService;
 import com.driot.bookplayer.services.DownloadService;
 import com.driot.bookplayer.services.SplitM4bService;
@@ -122,6 +128,14 @@ public class WorkFlow {
 
     public static void cancelAllOngoingTasks(Context context) {
         myLog("...cancelAllOngoingTasks() - called from " + context.getClass().getSimpleName());
+
+
+        // Cancel Download
+        Intent cancelIntent = new Intent(context, DownloadForegroundService.class);
+        cancelIntent.setAction(DownloadForegroundService.ACTION_CANCEL);
+        ContextCompat.startForegroundService(context, cancelIntent);
+
+        WorkManager.getInstance(context).cancelAllWorkByTag(FOREGROUND_DOWNLOAD_SERVICE_TAG);
 
         // Cancel JobService (e.g., download)
         DownloadJobService.isJobRunning = false;

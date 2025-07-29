@@ -132,7 +132,7 @@ public class Option {
         return NetworkUtils.NetworkPolicyManual.values()[Math.max(0, Math.min(index, NetworkUtils.NetworkPolicyManual.values().length - 1))];
     }
     public static void setNetworkPolicyAutoDownload(NetworkUtils.NetworkPolicyAuto policy) {prefs.edit().putInt("AUTO_DOWNLOAD_POLICY_KEY", policy.ordinal()).apply();}
-    public static NetworkUtils.NetworkPolicyAuto    getNetworkPolicyAutoDownload() {
+    public static NetworkUtils.NetworkPolicyAuto getNetworkPolicyAutoDownload() {
         int index = prefs.getInt("AUTO_DOWNLOAD_POLICY_KEY", DEFAULT_AUTO_DOWNLOAD_POLICY.ordinal());
         return NetworkUtils.NetworkPolicyAuto.values()[Math.max(0, Math.min(index, NetworkUtils.NetworkPolicyAuto.values().length - 1))];
     }

@@ -657,6 +657,18 @@
     <string name="Auto_Download_episodes">Auto-Download episodes</string>
     <string name="favorites">favorites</string>
 
+    <string name="Warning">Warning</string>
+    <string name="beta_test">beta test</string>
+
+
+    <string name="Download_paused_due_to_network_policy">Download paused due to network policy</string>
+    <string name="Download_paused_by_user">Download paused by user</string>
+    <string name="Download_cancelled_by_user">Download cancelled by user</string>
+    <string name="Download_finished">Download finished</string>
+
+    <string name="Pause">Pause</string>
+    <string name="Resume">Resume</string>
+
 
 
 

@@ -34,6 +34,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.work.WorkManager;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.adapter.FoldersRVAdapter;
@@ -111,6 +112,8 @@ public class MainActivity extends LoggingActivity {
         if (savedInstanceState == null) {
             InfoHelper.printSomeStuffAboutDevice(this);
         }
+
+        WorkManager.getInstance(this).cancelAllWork();
 
         myLogD("Checking AudioService");
         if (AudioService.isRunning) {

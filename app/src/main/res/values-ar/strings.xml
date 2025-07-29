@@ -604,4 +604,41 @@
             \n\n<i>هذا ضروري إذا كنت تريد تشغيل الملفات الصوتية من ذاكرة الهاتف العامة (خيار النسخ معطل).</i>
     </string>
     <string name="permission_read_write_rationale_short_text_on_load">إذن [الموسيقى والصوت] مطلوب لتشغيل الملفات من الذاكرة العامة للهاتف.</string>
+
+    <string name="Close">إغلاق</string>
+    <string name="Episode_description">وصف الحلقة</string>
+    <string name="Podcast_description">وصف البودكاست</string>
+    <string name="Trending">الشائع</string>
+    <string name="max_number_of_results_reached">تم الوصول إلى الحد الأقصى للنتائج</string>
+    <string name="could_not_check_already_imported">تعذر التحقق مما إذا تم الاستيراد مسبقًا</string>
+
+    <string name="network_preferences_title">تفضيلات الشبكة</string>
+    <string name="option_download_auto_title">تنزيل تلقائي</string>
+    <string name="option_download_user_title">تنزيل يدوي</string>
+    <string name="download_any">📶 أي اتصال</string>
+    <string name="download_wifi">🛜 Wi-Fi فقط</string>
+    <string name="download_unmetered">🆓 Wi-Fi غير محدود فقط</string>
+    <string name="download_never_ask">🛣️ عدم السؤال أبدًا</string>
+    <string name="download_ask_if_not_wifi">❓ اسأل إذا لم يكن Wi-Fi</string>
+    <string name="download_ask_if_unmetered">⚠️ اسأل إذا لم يكن غير محدود</string>
+
+    <!-- Network download prompts -->
+    <string name="download_warning_title_unmetered">غير محدود</string>
+    <string name="download_warning_message_unmetered">أنت لست على اتصال غير محدود. هل تريد المتابعة في التنزيل؟</string>
+    <string name="download_warning_title_wifi">Wi-Fi</string>
+    <string name="download_warning_message_wifi">أنت لست متصلًا بـ Wi-Fi. هل تريد المتابعة في التنزيل؟</string>
+
+    <string name="no_internet_connection">لا يوجد اتصال بالإنترنت</string>
+    <string name="an_error_occurred">حدث خطأ</string>
+
+    <string name="Add_to_favorite">أضف إلى المفضلة</string>
+    <string name="Auto_Download_episodes">تنزيل الحلقات تلقائيًا</string>
+    <string name="favorites">المفضلة</string>
+
+    <string name="Download_paused_due_to_network_policy">تم إيقاف التنزيل مؤقتًا بسبب سياسة الشبكة</string>
+    <string name="Warning">تحذير</string>
+    <string name="beta_test">اختبار تجريبي</string>
+
+
+
 </resources>

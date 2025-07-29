@@ -612,4 +612,39 @@
     </string>
     <string name="permission_read_write_rationale_short_text_on_load">Разрешение [Музыка и аудио] необходимо для воспроизведения из общей памяти смартфона.</string>
 
+    <string name="Close">Закрыть</string>
+    <string name="Episode_description">Описание эпизода</string>
+    <string name="Podcast_description">Описание подкаста</string>
+    <string name="Trending">Популярное</string>
+    <string name="max_number_of_results_reached">достигнуто максимальное количество результатов</string>
+    <string name="could_not_check_already_imported">не удалось проверить, был ли уже импортирован</string>
+
+    <string name="network_preferences_title">настройки сети</string>
+    <string name="option_download_auto_title">Авто загрузка</string>
+    <string name="option_download_user_title">Ручная загрузка</string>
+    <string name="download_any">📶 Любое подключение</string>
+    <string name="download_wifi">🛜 Только Wi-Fi</string>
+    <string name="download_unmetered">🆓 Только безлимитный Wi-Fi</string>
+    <string name="download_never_ask">🛣️ Никогда не спрашивать</string>
+    <string name="download_ask_if_not_wifi">❓ Спрашивать, если не Wi-Fi</string>
+    <string name="download_ask_if_unmetered">⚠️ Спрашивать, если не безлимит</string>
+
+    <!-- Network download prompts -->
+    <string name="download_warning_title_unmetered">Безлимит</string>
+    <string name="download_warning_message_unmetered">Вы не подключены к безлимитной сети. Продолжить загрузку?</string>
+    <string name="download_warning_title_wifi">Wi-Fi</string>
+    <string name="download_warning_message_wifi">Вы не подключены к Wi-Fi. Продолжить загрузку?</string>
+
+    <string name="no_internet_connection">Нет подключения к интернету</string>
+    <string name="an_error_occurred">Произошла ошибка</string>
+
+    <string name="Add_to_favorite">Добавить в избранное</string>
+    <string name="Auto_Download_episodes">Автозагрузка эпизодов</string>
+    <string name="favorites">избранное</string>
+
+    <string name="Download_paused_due_to_network_policy">Загрузка приостановлена из-за сетевой политики</string>
+    <string name="Warning">Предупреждение</string>
+    <string name="beta_test">бета-тест</string>
+
+
 </resources>
