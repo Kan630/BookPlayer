@@ -21,21 +21,6 @@ public class TaskStateManager {
         }
     }
 
-    public static void markDownloadPaused(Context context, int percent, long bytes, long total) {
-        String text = formatSizeMB(bytes) + " / " + formatSizeMB(total) + " (Paused)";
-        updateProgress(context, percent, text, "Download paused", true);
-    }
-
-    public static void markDownloadPausedDueToNetworkPolicy(Context context, int percent, long bytes, long total) {
-        String text = formatSizeMB(bytes) + " / " + formatSizeMB(total) + " (Paused)";
-        updateProgress(context, percent, text, "Download paused due to network policy", true);
-    }
-
-    public static void markDownloadCancelled(Context context, int percent, long bytes, long total) {
-        String text = formatSizeMB(bytes) + " / " + formatSizeMB(total) + " (Cancelled)";
-        updateProgress(context, percent, text, "Download cancelled", false);
-    }
-
     public static void markDownloadResuming(Context context) {
         LoadBookTaskState state = Pref.getLoadBookTaskState(context);
         state.isLoadingPaused = false;
@@ -43,11 +28,29 @@ public class TaskStateManager {
         Pref.setLoadBookTaskState(context, state);
     }
 
-    public static void updateTaskStateAndNotifyUi(Context context, int percent, long bytes, long total, String phase, boolean isLoadingPaused) {
-        String moreText = phase.equalsIgnoreCase("downloading") ? "" : " (" + phase + ")";
-        String text = formatSizeMB(bytes) + " / " + formatSizeMB(total) + moreText;
-        updateProgress(context, percent, text, phase, isLoadingPaused);
+    public static void markIsPaused(Context context) {
+        LoadBookTaskState state = Pref.getLoadBookTaskState(context);
+        if (state != null) {
+            state.isLoadingPaused = true;
+            state.currentLoadingOperation = "Download paused";
+            if (!state.progressText.endsWith("(paused)")) {
+                state.progressText = state.progressText + " (paused)";
+            }
+            Pref.setLoadBookTaskState(context, state);
+        } else {
+            myLogEE(null, "markIsPaused - No valid LoadBookTaskState found");
+        }
+    }
+
+    public static void updateTaskStateAndNotifyUiOfDownloadProgress(Context context, int percent, long bytes, long total) {
+        String text = formatSizeMB(bytes) + " / " + formatSizeMB(total);
+        updateProgress(context, percent, text, "Downloading", false);
         TaskUiManager.getInstance().updateProgress(text, percent);
     }
 
+
+    private static final String TAG = "TaskStateManager";
+    private static void myLogE(String str) { KanLogger.myLogE(TAG, str); }
+    private static void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, TAG, str); }
+    private static void myToastEE(Throwable t, String str) { KanLogger.myToastEE(t, TAG, str); }
 }
