@@ -76,7 +76,7 @@ public class DownloadForegroundService extends LoggingService {
         startForeground(NOTIF_ID, buildNotification("Starting download…"));
         myLogD("onStartCommand ... " + intent.toString());
 
-        LoadBookTaskState state = Pref.getLoadBookTaskState(this);
+        LoadBookTaskState state = Pref.getLoadBookTaskState();
         if (state == null ) {
             myLogE("LoadBookTaskState == null");
             stopForeground(true);
@@ -159,9 +159,9 @@ public class DownloadForegroundService extends LoggingService {
                 LocalBroadcastManager.getInstance(this).sendBroadcast(errorIntent);
 
                 if (retryCount < MAX_RETRIES) {
-                    LoadBookTaskState retryState = Pref.getLoadBookTaskState(this);
+                    LoadBookTaskState retryState = Pref.getLoadBookTaskState();
                     retryState.downloadRetryCount = retryCount + 1;
-                    Pref.setLoadBookTaskState(this, retryState);
+                    Pref.setLoadBookTaskState(retryState);
 
                     Data inputData = new Data.Builder()
                             .putString("stateRef", "use_shared_prefs") // Optional marker

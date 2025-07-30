@@ -389,7 +389,7 @@ public class AddResourceService
         }
         isBusy = true;
 
-        LoadBookTaskState state = getLoadBookTaskState(this);
+        LoadBookTaskState state = getLoadBookTaskState();
         initVars(state);
 
         if (state != null) {
@@ -432,7 +432,7 @@ public class AddResourceService
             bookState.downloadFileUrl = uri_dynamic.toString();
             bookState.downloadDestinationFolder = StorageHelper.getDownloadFolderPath(this);
             bookState.onGoingLoading = true;
-            setLoadBookTaskState(this, bookState);
+            setLoadBookTaskState(bookState);
             new Thread(this::launchDownloadService).start();
             return;
         }
@@ -957,7 +957,7 @@ public class AddResourceService
     }
 
     private void proceedAfterCopyLocal(String localCopyFullPath) {
-        bookState = Pref.getLoadBookTaskState(this);
+        bookState = Pref.getLoadBookTaskState();
         myLog("proceedAfterCopyLocal() - Type : [" + type_dynamic + "]"
                 + "\nsourceLocation = [" + bookState.sourceLocation + "]"
                 + "\n localCopyFullPath = [" + localCopyFullPath + "]");

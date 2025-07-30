@@ -54,11 +54,11 @@ public class OpenWithProxyActivityAll extends LoggingActivity {
 
         if (requestCode == REQUEST_LOAD_OPTIONS && resultCode == RESULT_OK) {
             Intent intentService = new Intent(this, AddResourceService.class);
-            intentService.putExtra("LoadBookTaskState", getLoadBookTaskState(this));
+            intentService.putExtra("LoadBookTaskState", getLoadBookTaskState());
             startService(intentService);
 
             Intent intentActivity = new Intent(this, AddResourceActivity.class);
-            intentService.putExtra("LoadBookTaskState", getLoadBookTaskState(this));
+            intentService.putExtra("LoadBookTaskState", getLoadBookTaskState());
             startActivity(intentActivity);
         } else {
             myLogW("onActivityResult => not OK");

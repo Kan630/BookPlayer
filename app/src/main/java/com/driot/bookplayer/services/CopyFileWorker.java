@@ -29,13 +29,6 @@ import java.io.OutputStream;
 public class CopyFileWorker extends LoggingWorker {
     private static final String TASK_NAME = "copy file";
 
-    public static final String KEY_URI = "Uri";
-    public static final String KEY_DEST_PATH = "destinationFolderPath";
-    public static final String KEY_DEST_NAME = "destinationFileName";
-    public static final String KEY_TYPE = "type";
-    public static final String KEY_CHECK_SIZE = "checkSize";
-    public static final String KEY_FORCE_SIZE = "forceSize";
-
     private final Context context;
 
     public CopyFileWorker(@NonNull Context context, @NonNull WorkerParameters params) {
@@ -46,15 +39,14 @@ public class CopyFileWorker extends LoggingWorker {
     @NonNull
     @Override
     public Result doWork() {
-        LoadBookTaskState state = Pref.getLoadBookTaskState(context);
+        LoadBookTaskState state = Pref.getLoadBookTaskState();
 
-
-        Uri uri = state.originalUri;
+        Uri uri = state.dynamicUri;
         String destinationFolderPath = state.futureFolderPath;
-        String destinationFileName = state.futureFileName;
-        String type = getInputData().getString(KEY_TYPE);
-        boolean checkSize = getInputData().getBoolean(KEY_CHECK_SIZE, true);
-        long forceSize = getInputData().getLong(KEY_FORCE_SIZE, 0);
+        String destinationFileName = state.futureFolderName;
+        String type = state.dynamicType;
+        boolean checkSize = true;  //TODO
+        long forceSize = -1;
         String sourceLocation = getSourceLocation(uri);
 
         myLog("parseIntent() ..   " +

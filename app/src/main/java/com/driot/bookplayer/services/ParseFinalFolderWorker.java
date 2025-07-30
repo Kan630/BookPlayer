@@ -80,13 +80,18 @@ public class ParseFinalFolderWorker extends LoggingWorker {
     public Result doWork() {
         DocumentFile df;
         Context context = getApplicationContext();
-        bookState = Pref.getLoadBookTaskState(context);
+        bookState = Pref.getLoadBookTaskState();
         if (bookState == null) {
             TaskStateManager.markTaskFailed(TASK_NAME, "bookState == null");
             return Result.failure();
         }
-        
-        if (Tonio.isFolder(context, bookState.dynamicUri)) {
+
+        boolean isFolderComputed = Tonio.isFolder(context, bookState.dynamicUri);
+        myLogD("original Type : " + bookState.originalType);
+        myLogD("dynamic Type : " + bookState.dynamicType);
+        myLogD("isFolderComputed : " + isFolderComputed);
+
+        if (isFolderComputed) {
             try {
                 df = DocumentFile.fromTreeUri(context, bookState.dynamicUri);
             } catch (Exception e) {
@@ -98,7 +103,6 @@ public class ParseFinalFolderWorker extends LoggingWorker {
         } else {
             try {
                 df = DocumentFile.fromSingleUri(context, bookState.dynamicUri);
-                populateArrayListOfTracksFromFile(df);
             } catch (Exception e) {
                 myLogEE(e,"Error reading picked Folder.... DocumentFile.fromTreeUri");
                 TaskStateManager.markTaskFailed(TASK_NAME, context.getString(R.string.Error_Import_CannotReadFolder));
@@ -316,6 +320,7 @@ public class ParseFinalFolderWorker extends LoggingWorker {
             deleteSourceFile();
         }
         TaskStateManager.markTaskCompleted(context, TASK_NAME, bookState.futureFolderPath);
+        TaskStateManager.markImportFinished();
     }
     private SaveResultEnum saveSingleFile(AudioFileInfo info, int folderId, int zeOrder) {
         ZikFile file = new ZikFile();

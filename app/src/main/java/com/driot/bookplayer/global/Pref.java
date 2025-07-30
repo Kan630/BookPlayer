@@ -9,7 +9,6 @@ import static android.content.Context.MODE_PRIVATE;
 import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_API_MIN_TIME_BETWEEN_AUTO_CHECK_IN_MIN;
 import static com.driot.bookplayer.global.Var.PODCAST_DETAIL_ANIMATION_COUNT;
 import static com.driot.bookplayer.utils.KanLogger.myLogE;
-import static com.driot.bookplayer.utils.KanMail.DEFAULT_SEND_MAIL_METHOD_DEFAULT;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -77,7 +76,7 @@ public class Pref {
 
 
 
-    public static void setLoadBookTaskState(Context context, LoadBookTaskState loadBookTaskState) {
+    public static void setLoadBookTaskState(LoadBookTaskState loadBookTaskState) {
         Parcel parcel = Parcel.obtain();
         loadBookTaskState.writeToParcel(parcel, 0);
         byte[] bytes = parcel.marshall();
@@ -85,15 +84,15 @@ public class Pref {
 
         String encoded = Base64.encodeToString(bytes, Base64.DEFAULT);
 
-        SharedPreferences prefs = context.getSharedPreferences(SHARED_PREFERENCES_DOWNLOAD, Context.MODE_PRIVATE);
+        SharedPreferences prefs = appContext.getSharedPreferences(SHARED_PREFERENCES_DOWNLOAD, Context.MODE_PRIVATE);
         prefs.edit().putString(KEY_LOAD_BOOK_TASK_STATE, encoded).apply();
     }
 
-    public static LoadBookTaskState getLoadBookTaskState(Context context) {
-        return getLoadBookTaskState(context, false);
+    public static LoadBookTaskState getLoadBookTaskState() {
+        return getLoadBookTaskState(false);
     }
-    public static LoadBookTaskState getLoadBookTaskState(Context context, boolean doPrint) {
-        SharedPreferences prefs = context.getSharedPreferences(SHARED_PREFERENCES_DOWNLOAD, Context.MODE_PRIVATE);
+    public static LoadBookTaskState getLoadBookTaskState(boolean doPrint) {
+        SharedPreferences prefs = appContext.getSharedPreferences(SHARED_PREFERENCES_DOWNLOAD, Context.MODE_PRIVATE);
         String encoded = prefs.getString(KEY_LOAD_BOOK_TASK_STATE, null);
 
         if (encoded == null) return null;

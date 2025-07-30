@@ -4,7 +4,6 @@ import static com.driot.bookplayer.global.Pref.setLoadBookTaskState;
 
 import android.content.Context;
 
-import androidx.work.Data;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkContinuation;
 import androidx.work.WorkManager;
@@ -25,10 +24,10 @@ public class BookLoadingWorkLauncher {
         boolean doSplit = false;
         boolean doUnzip = false;
 
-        LoadBookTaskState bookState = Pref.getLoadBookTaskState(context);
+        LoadBookTaskState bookState = Pref.getLoadBookTaskState();
         if (bookState == null) throw new IllegalStateException("No task bookState found in BookLoadingWorkLauncher");
         bookState.onGoingLoading = true;
-        setLoadBookTaskState(context, bookState);
+        setLoadBookTaskState(bookState);
 
         myLogD("....");
         myLogD("....");
@@ -52,17 +51,17 @@ public class BookLoadingWorkLauncher {
 
         List<OneTimeWorkRequest> workChain = new ArrayList<>();
 
-        bookState = Pref.getLoadBookTaskState(context, false);
+        bookState = Pref.getLoadBookTaskState(false);
         if (bookState == null) throw new IllegalStateException("No task bookState found in BookLoadingWorkLauncher 2");
+
+
 
         if (bookState.dynamicUri.toString().startsWith("http")) {
             doDownload = true;
         }
-
         if (bookState.optionCopy || bookState.sourceLocation.equals("cloud")) {
             doCopy = true;
         }
-
         if (bookState.fileExtension.equalsIgnoreCase("zip")) {
             doUnzip = true;
             doCopy = true;
@@ -82,36 +81,22 @@ public class BookLoadingWorkLauncher {
             bookState.downloadFileUrl = bookState.dynamicUri.toString();
             bookState.downloadDestinationFolder = StorageHelper.getDownloadFolderPath(context);
             bookState.onGoingLoading = true;
-            setLoadBookTaskState(context, bookState);
+            setLoadBookTaskState(bookState);
 
             workChain.add(new OneTimeWorkRequest.Builder(DownloadRetryWorker.class).build());
         }
 
-        if (doCopy) {
-            workChain.add(new OneTimeWorkRequest.Builder(CopyFileWorker.class).build());
-        }
-        if (doUnzip) {
-                    //.putString(UnzipWorker.KEY_ZIP_PATH, bookState.downloadedFilePath)
-                    //.putString(UnzipWorker.KEY_DEST_PATH, bookState.futureFolderPath)
-            workChain.add(new OneTimeWorkRequest.Builder(CopyFileWorker.class).build());
-        }
-        if (doSplit) {
-                    //.putString(M4bSplitWorker.KEY_INPUT_PATH, bookState.downloadedFilePath)
-                    //.putString(M4bSplitWorker.KEY_DEST_FOLDER, bookState.futureFolderPath)
-            workChain.add(new OneTimeWorkRequest.Builder(CopyFileWorker.class).build());
-        }
-
-
+        if (doCopy) {workChain.add(new OneTimeWorkRequest.Builder(CopyFileWorker.class).build());}
+        if (doUnzip) {workChain.add(new OneTimeWorkRequest.Builder(CopyFileWorker.class).build());}
+        if (doSplit) {workChain.add(new OneTimeWorkRequest.Builder(CopyFileWorker.class).build());}
         workChain.add(new OneTimeWorkRequest.Builder(ParseFinalFolderWorker.class).build());
 
 
-        if (!workChain.isEmpty()) {
-            WorkContinuation continuation = WorkManager.getInstance(context).beginWith(workChain.get(0));
-            for (int i = 1; i < workChain.size(); i++) {
-                continuation = continuation.then(workChain.get(i));
-            }
-            continuation.enqueue();
+        WorkContinuation continuation = WorkManager.getInstance(context).beginWith(workChain.get(0));
+        for (int i = 1; i < workChain.size(); i++) {
+            continuation = continuation.then(workChain.get(i));
         }
+        continuation.enqueue();
     }
 
     ////////////////////////////////////////////////////////

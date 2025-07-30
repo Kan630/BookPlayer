@@ -3,28 +3,19 @@ package com.driot.bookplayer.services;
 import static com.driot.bookplayer.global.Var.FOREGROUND_DOWNLOAD_SERVICE_TAG;
 
 import android.app.Service;
-import android.app.job.JobInfo;
-import android.app.job.JobScheduler;
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
-import android.os.Build;
 import android.os.IBinder;
-import android.os.PersistableBundle;
 
 import androidx.annotation.Nullable;
 import androidx.work.Data;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
 
-import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.objects.LoadBookTaskState;
-import com.driot.bookplayer.utils.StorageHelper;
 import com.driot.bookplayer.utils.log.LoggingService;
 
-import java.io.File;
 import java.net.InetAddress;
 
 public class DownloadService extends LoggingService {
@@ -123,7 +114,7 @@ public class DownloadService extends LoggingService {
 
          */
 
-        LoadBookTaskState state = Pref.getLoadBookTaskState(this);
+        LoadBookTaskState state = Pref.getLoadBookTaskState();
         if (state == null || state.downloadFileUrl == null || state.downloadDestinationFolder == null || state.title == null) {
             tellError("Invalid LoadBookTaskState");
             isBusy = false;
@@ -133,7 +124,7 @@ public class DownloadService extends LoggingService {
         long startTime = System.currentTimeMillis();
         state.downloadStartTime = startTime;
         state.downloadRetryCount = 0;
-        Pref.setLoadBookTaskState(this, state);
+        Pref.setLoadBookTaskState(state);
 
         Data inputData = new Data.Builder()
                 .putString("stateRef", "use_shared_prefs")

@@ -21,7 +21,7 @@ public class OngoingTaskViewModel extends LoggingViewModel {
 
     public OngoingTaskViewModel(@NonNull Application application) {
         super(application);
-        LoadBookTaskState state = Pref.getLoadBookTaskState(application, false);
+        LoadBookTaskState state = Pref.getLoadBookTaskState(false);
         if (state != null && state.onGoingLoading) {
             taskTitle.setValue(state.title);
             progressText.setValue(state.progressText);

@@ -10,11 +10,8 @@ import android.app.job.JobScheduler;
 import android.content.Context;
 import android.content.Intent;
 
-import androidx.core.content.ContextCompat;
 import androidx.work.WorkManager;
 
-import com.driot.bookplayer.activities.AddResourceActivity;
-import com.driot.bookplayer.activities.GetResourceActivity;
 import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.services.AddResourceService;
 import com.driot.bookplayer.services.CopyFileService;
@@ -30,7 +27,7 @@ public class WorkFlow {
 
     public static boolean isSomeWorkFlowRunning(Context c) {
         myLogD("isSomeWorkFlowRunning() - called from " + c.getClass().getSimpleName());
-        LoadBookTaskState state = getLoadBookTaskState(c, false);
+        LoadBookTaskState state = getLoadBookTaskState(false);
         if (state==null) {
             myLogD("LoadBookTaskState : null instance...");
         } else {
@@ -65,17 +62,19 @@ public class WorkFlow {
     public static void maybeResumeWorkFlow(Context context) {
         String callerClass = context.getClass().getSimpleName();
         myLogD("maybe Resume WorkFlow...    called from " + callerClass);
-        LoadBookTaskState state = getLoadBookTaskState(context, true);
+        LoadBookTaskState state = getLoadBookTaskState(true);
 
         if (state == null) {
             myLogD("no WorkFlow");
             return;
         }
 
-        myLog("WorkFlow " + state.currentLoadingOperation);
-        myLog(state.toString().replace(", ","\n"));
+        myLogD("WorkFlow " + state.currentLoadingOperation);
+        //myLog(state.toString().replace(", ","\n"));
 
         if (state.onGoingLoading) {
+
+            myLogI("onGoing !! => but we dont do anything nowadays...");
 
             if (AddResourceService.isBusy) {
                 myLogD("AddResourceService is Busy");
@@ -99,24 +98,24 @@ public class WorkFlow {
 
     public static void setDownloadFinished(Context context, String filePath) {
         myLog("...setDownloadFinished() - called from " + context.getClass().getSimpleName());
-        LoadBookTaskState state = getLoadBookTaskState(context);
+        LoadBookTaskState state = getLoadBookTaskState();
         if (state != null) {
             state.downloadedFileReady = true;
             state.downloadedFilePath = filePath;
             state.isLoadingPaused = false;
             state.progressText = "download finished";
-            setLoadBookTaskState(context, state);
+            setLoadBookTaskState(state);
             myLog("downloadedFilePath set to : " + filePath);
         }
     }
 
     public static void clearDownloadFinished(Context context) {
         myLogD("...clearDownloadFinished() - called from " + context.getClass().getSimpleName());
-        LoadBookTaskState state = getLoadBookTaskState(context);
+        LoadBookTaskState state = getLoadBookTaskState();
         if (state != null) {
             state.downloadedFileReady = false;
             state.downloadedFilePath = null;
-            setLoadBookTaskState(context, state);
+            setLoadBookTaskState(state);
             myLog("downloadedFilePath set to null");
         }
         DownloadService.isBusy = false;

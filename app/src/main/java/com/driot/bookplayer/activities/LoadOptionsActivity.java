@@ -199,19 +199,26 @@ public class LoadOptionsActivity extends LoggingActivity {
 //-------------------------------------------------------------------------------------------------------------------------------------------------
 
         btnConfirm.setOnClickListener(v -> {
-            myLogI("------ USER CLICKS btnConfirm....   ");
+                    myLogI("------ USER CLICKS btnConfirm....   ");
 
-            // check if Path available...
-            String futureFolderPath = getUnzipFolder(this, cbUseSdCard.isChecked()).getAbsolutePath() + "/" + audioBookTitle;
-            myLogD("Checking Folder Path doesn't already exist in DB (internal copy case) : [" + futureFolderPath + "]");
             new Thread(() -> {
-                long lCheck = AppDatabase.getDatabase(this).FolderDao().folderAlreadyExist_checkFolderPath(futureFolderPath);
+                String futureFolderPath = "xxx";
+                long lCheck;
+                if (!cbCopy.isChecked()) {
+                    lCheck = 0;
+                    futureFolderPath = uri.toString();
+                } else {
+                    myLogD("Checking Folder Path doesn't already exist in DB (internal copy case) : [" + futureFolderPath + "]");
+                    futureFolderPath = getUnzipFolder(this, cbUseSdCard.isChecked()).getAbsolutePath() + "/" + audioBookTitle;
+                    lCheck = AppDatabase.getDatabase(this).FolderDao().folderAlreadyExist_checkFolderPath(futureFolderPath);
+                }
+                String finalFutureFolderPath = futureFolderPath;
                 runOnUiThread(() -> {
                     btnConfirm.setEnabled(true);
                     String futureFolderName;
                     if (lCheck > 0) {
                         futureFolderName = audioBookTitle + " " + getCurrentDateTimeString();
-                        myLogW("folder path does already exist in DB (internal copy case) : [" + futureFolderPath + "]");
+                        myLogW("folder path does already exist in DB (internal copy case) : [" + finalFutureFolderPath + "]");
                         myLog("filesystem folder name changed to [" + futureFolderName + "]");
                     } else {
                         futureFolderName = audioBookTitle;
@@ -219,20 +226,21 @@ public class LoadOptionsActivity extends LoggingActivity {
                     }
                     LoadBookTaskState state = new LoadBookTaskState();
                     state.originalUri = uri;
-                    state.dynamicType = type;
+                    state.originalType = bookToAdd.getOriginalType();
+                    state.dynamicUri = uri;
+                    state.dynamicType = bookToAdd.getOriginalType();
                     state.title = audioBookTitle;
                     state.futureFolderName = futureFolderName;
-                    state.futureFolderPath = futureFolderPath;
+                    state.futureFolderPath = finalFutureFolderPath;
                     state.optionSplit = cbSplit.isChecked();
                     state.optionCopy = cbCopy.isChecked();
                     state.optionDelete = cbDelete.isChecked();
-                    state.originalType = bookToAdd.getOriginalType();
                     state.originalFile = bookToAdd.getOriginalFile();
                     state.originalHash = originalHash;
                     state.sourceLocation = bookToAdd.getSourceLocation();
                     state.fileExtension = bookToAdd.getFileExtension();
                     state.mimeType = bookToAdd.getMimeType();
-                    setLoadBookTaskState(this, state); // save in SharedPrefs
+                    setLoadBookTaskState(state); // save in SharedPrefs
                     myLogD("LoadBookTaskState saved - Sending ok Result");
                     setResult(RESULT_OK);
                     finish();

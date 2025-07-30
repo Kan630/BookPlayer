@@ -368,7 +368,7 @@ public class LibrivoxDetailActivity extends LoggingActivity {
         state.futureFolderName = viewModel.identifier;
         state.futureFolderPath = futurePath;
 
-        setLoadBookTaskState(this, state);
+        setLoadBookTaskState(state);
 
         Intent intentService = new Intent(this, AddResourceService.class);
         intentService.putExtra("LoadBookTaskState", state);

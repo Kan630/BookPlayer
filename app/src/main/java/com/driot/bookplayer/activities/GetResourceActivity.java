@@ -30,9 +30,9 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.objects.LanguageItem;
 import com.driot.bookplayer.helpers.AnalyticsHelper;
+import com.driot.bookplayer.services.BookLoadingWorkLauncher;
 import com.driot.bookplayer.views.EditTextWithButtons;
 import com.driot.bookplayer.global.Option;
-import com.driot.bookplayer.services.AddResourceService;
 import com.driot.bookplayer.utils.LanguageHelper;
 import com.driot.bookplayer.utils.MediaScanner2;
 import com.driot.bookplayer.utils.NetworkUtils;
@@ -207,6 +207,8 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
                 result -> {
                     if (result.getResultCode() == Activity.RESULT_OK) {
 
+                        BookLoadingWorkLauncher.launch(this);
+                        /*
                         Intent intentService = new Intent(this, AddResourceService.class);
                         intentService.putExtra("LoadBookTaskState", getLoadBookTaskState(this));
                         startService(intentService);
@@ -214,6 +216,8 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
                         Intent intentActivity = new Intent(this, AddResourceActivity.class);
                         intentService.putExtra("LoadBookTaskState", getLoadBookTaskState(this));
                         startActivity(intentActivity);
+
+                         */
 
                     }
                 }

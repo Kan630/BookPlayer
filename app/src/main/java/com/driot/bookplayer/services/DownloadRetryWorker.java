@@ -21,14 +21,14 @@ public class DownloadRetryWorker extends Worker {
     @NonNull
     @Override
     public Result doWork() {
-        LoadBookTaskState state = Pref.getLoadBookTaskState(getApplicationContext());
+        LoadBookTaskState state = Pref.getLoadBookTaskState();
         if (state == null || !state.onGoingLoading || state.downloadFileUrl == null) {
             myLogE("Retry aborted: No valid task state found");
             return Result.failure();
         }
 
         state.downloadRetryCount += 1;
-        Pref.setLoadBookTaskState(getApplicationContext(), state);
+        Pref.setLoadBookTaskState(state);
 
         myLogW("Retrying download for: " + state.title + " (attempt " + state.downloadRetryCount + ")");
 
