@@ -2,10 +2,8 @@ package com.driot.bookplayer.services;
 
 import static com.driot.bookplayer.db.Sql.updateFolderTable;
 import static com.driot.bookplayer.global.Var.ONLY_MIME_AUDIO;
-import static com.driot.bookplayer.global.Var.PATH_CHECK_AUTOTEST;
 import static com.driot.bookplayer.global.Var.SUPPORTED_AUDIO_EXTENSIONS;
 import static com.driot.bookplayer.global.Var.SUPPORTED_COVER_PICTURE_EXTENSIONS;
-import static com.driot.bookplayer.utils.Tonio.fileExists;
 import static com.driot.bookplayer.utils.Tonio.formatMemPadding;
 import static com.driot.bookplayer.utils.Tonio.formatNameForDisplay;
 import static com.driot.bookplayer.utils.Tonio.formatTime;
@@ -15,7 +13,6 @@ import static com.driot.bookplayer.utils.Tonio.getFileNameFromPath;
 import android.content.Context;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
-import android.os.IBinder;
 
 import androidx.annotation.NonNull;
 import androidx.documentfile.provider.DocumentFile;
@@ -35,9 +32,6 @@ import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.Utils;
 import com.driot.bookplayer.utils.log.LoggingWorker;
 
-import java.io.IOException;
-import java.sql.Date;
-import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Objects;
 
@@ -76,17 +70,6 @@ public class ParseFinalFolderWorker extends LoggingWorker {
 
     LoadBookTaskState bookState;
 
-    private Uri uri_dynamic;
-    private String type_dynamic;
-
-    private String future_DB_folder_path = "-o-";
-
-    private String destinationFolderName;
-
-    public static boolean isBusy;
-
-    private String lastMessage = "";
-    private int lastProgress = -1;
 
     public ParseFinalFolderWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
@@ -95,19 +78,34 @@ public class ParseFinalFolderWorker extends LoggingWorker {
     @NonNull
     @Override
     public Result doWork() {
+        DocumentFile df;
         Context context = getApplicationContext();
-        LoadBookTaskState bookState = Pref.getLoadBookTaskState(context);
-
-
-        DocumentFile dfPickedDir;
-        try {
-            dfPickedDir = DocumentFile.fromTreeUri(context, bookState.dynamicUri);
-        } catch (Exception e) {
-            myLogEE(e,"Error reading picked Folder.... DocumentFile.fromTreeUri");
-            TaskStateManager.markTaskFailed(TASK_NAME, context.getString(R.string.Error_Import_CannotReadFolder));
+        bookState = Pref.getLoadBookTaskState(context);
+        if (bookState == null) {
+            TaskStateManager.markTaskFailed(TASK_NAME, "bookState == null");
             return Result.failure();
         }
-        populateArrayListOfTracksFromFolder(dfPickedDir);
+        
+        if (Tonio.isFolder(context, bookState.dynamicUri)) {
+            try {
+                df = DocumentFile.fromTreeUri(context, bookState.dynamicUri);
+            } catch (Exception e) {
+                myLogEE(e,"Error reading picked Folder.... DocumentFile.fromTreeUri");
+                TaskStateManager.markTaskFailed(TASK_NAME, context.getString(R.string.Error_Import_CannotReadFolder));
+                return Result.failure();
+            }
+            populateArrayListOfTracksFromFolder(df);
+        } else {
+            try {
+                df = DocumentFile.fromSingleUri(context, bookState.dynamicUri);
+                populateArrayListOfTracksFromFile(df);
+            } catch (Exception e) {
+                myLogEE(e,"Error reading picked Folder.... DocumentFile.fromTreeUri");
+                TaskStateManager.markTaskFailed(TASK_NAME, context.getString(R.string.Error_Import_CannotReadFolder));
+                return Result.failure();
+            }
+            populateArrayListOfTracksFromFile(df);
+        }
         return Result.success();
     }
 
@@ -248,8 +246,8 @@ public class ParseFinalFolderWorker extends LoggingWorker {
 
         Folder folder = new Folder();
         folder.setName(bookState.title);
-        folder.setPath(future_DB_folder_path);
-        folder.setUri(future_DB_folder_path); //2023-10-22 deprecated
+        folder.setPath(bookState.futureFolderPath);
+        folder.setUri(bookState.futureFolderPath); //2023-10-22 deprecated
         folder.setHash("0"); //2023-10-22 deprecated
         folder.setPercentdone(0.0);
         folder.setFinished(false);
@@ -312,12 +310,12 @@ public class ParseFinalFolderWorker extends LoggingWorker {
         updateFolderTable(context, insertedFolderId);
 
         myLogD("deleting source ??"
-                + "\nOption CopyFile : " + bookState.optionCopy + "  -  is a ZIP : " + type_dynamic.equals("ZIP")
+                + "\nOption CopyFile : " + bookState.optionCopy + "  -  is a ZIP : " + bookState.dynamicType.equals("ZIP")
                 + "\nOption DeleteSourceFile : " + bookState.optionDelete);
-        if ((bookState.optionCopy || "ZIP".equals(type_dynamic)) && bookState.optionDelete) {
+        if ((bookState.optionCopy || "ZIP".equals(bookState.dynamicType)) && bookState.optionDelete) {
             deleteSourceFile();
         }
-        TaskStateManager.markTaskCompleted(context, TASK_NAME, future_DB_folder_path);
+        TaskStateManager.markTaskCompleted(context, TASK_NAME, bookState.futureFolderPath);
     }
     private SaveResultEnum saveSingleFile(AudioFileInfo info, int folderId, int zeOrder) {
         ZikFile file = new ZikFile();
@@ -328,7 +326,7 @@ public class ParseFinalFolderWorker extends LoggingWorker {
         file.setFolderName(bookState.title);
         file.setPercentdone(0.0);
         file.setPosition(0);
-        file.setPath(future_DB_folder_path);
+        file.setPath(bookState.futureFolderPath);
         file.setIszipfile(false);
         file.setFinished(false);
         file.setDuration(info.getDuration());
@@ -351,24 +349,24 @@ public class ParseFinalFolderWorker extends LoggingWorker {
     }
 
     private void deleteSourceFile() {
-        myLog("deleteSourceFile() - uri = [" + uri_dynamic + "] [" + type_dynamic + "]");
+        myLog("deleteSourceFile() - uri = [" + bookState.dynamicUri + "] [" + bookState.dynamicType + "]");
         DocumentFile dfPickedDir = null;
-        if (type_dynamic.equals("File") || type_dynamic.equals("ZIP")) {
+        if (bookState.dynamicType.equals("File") || bookState.dynamicType.equals("ZIP")) {
             try {
-                dfPickedDir = DocumentFile.fromSingleUri(context, uri_dynamic);
+                dfPickedDir = DocumentFile.fromSingleUri(context, bookState.dynamicUri);
             } catch (Exception e) {
                 myLogEE(e,"deleting - error getting DocumentFile.fromSingleUri");
                 TaskStateManager.markTaskFailed(TASK_NAME, context.getString(R.string.Error_Import_CannotDeleteSource));
             }
-        } else if (type_dynamic.equals("Folder")) {
+        } else if (bookState.dynamicType.equals("Folder")) {
             try {
-                dfPickedDir = DocumentFile.fromTreeUri(context, uri_dynamic);
+                dfPickedDir = DocumentFile.fromTreeUri(context, bookState.dynamicUri);
             } catch (Exception e) {
                 myLogEE(e,"deleting - error getting DocumentFile.fromTreeUri");
                 TaskStateManager.markTaskFailed(TASK_NAME, context.getString(R.string.Error_Import_CannotDeleteSource));
             }
         } else {
-            myLogEE(null,"Incorrect type : **" + type_dynamic + "**");
+            myLogEE(null,"Incorrect type : **" + bookState.dynamicType + "**");
         }
         if (!(dfPickedDir == null)) {
             boolean okDelete = dfPickedDir.delete();
@@ -382,26 +380,6 @@ public class ParseFinalFolderWorker extends LoggingWorker {
         }
     }
 
-    // DUREE AUDIO
-    private long getMediaDurationFromPath(String zePath) throws IOException {
-        long duration = 0;
-        if (fileExists(zePath)) {
-            try {
-                MediaMetadataRetriever mediaMetadataRetriever = new MediaMetadataRetriever();
-                mediaMetadataRetriever.setDataSource(zePath);
-                duration = Long.parseLong(mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
-            } catch (Exception e) {
-                e.printStackTrace(); // could be access right : Permission to access file: /storage/emulated/0/Audiobooks/Folder Fun letters/ازة-بالقراءات-العش.mp3 is denied
-                TaskStateManager.markTaskFailed(TASK_NAME, context.getString(R.string.Error_Import_track_duration_extraction) + " // path : " + zePath);
-                myLogEE(e,"error getting duration of media for " + zePath);
-            }
-        } else {
-            TaskStateManager.markTaskFailed(TASK_NAME, context.getString(R.string.Error_Import_track_duration_nofile) + " // path : " + zePath);
-            myLogEE(null,"error getting duration of media, file does not exist in path : " + zePath);
-        }
-        //myLogD("duration for [" + zePath + "] is " + duration);
-        return duration;
-    }
     private long getMediaDurationFromUri(Context context, Uri uri) {
         long duration = 0;
         try {
