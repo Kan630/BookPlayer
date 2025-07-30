@@ -27,7 +27,7 @@ public class UnzipWorker extends LoggingWorker {
 
     public static final String KEY_ZIP_PATH = "zipFilePath";
     public static final String KEY_DEST_PATH = "destinationFolderPath";
-    public static final String TASK_NAME = "Unzip";
+    private static final String TASK_NAME = "Unzip";
 
 
     public UnzipWorker(@NonNull Context context, @NonNull WorkerParameters params) {

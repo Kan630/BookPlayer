@@ -13,6 +13,7 @@ import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.objects.BookToAdd;
 import com.driot.bookplayer.objects.PlayList;
+import com.driot.bookplayer.objects.TaskStateManager;
 import com.driot.bookplayer.utils.KanLogger;
 
 /**
@@ -33,6 +34,7 @@ public class MyPersonalApp extends Application {
         PlayList.initContext(getApplicationContext());
         Option.init(getApplicationContext());
         Pref.init(getApplicationContext());
+        TaskStateManager.init(getApplicationContext());
 
         myLog("Context has been initialized");
 

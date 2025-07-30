@@ -1,5 +1,7 @@
 package com.driot.bookplayer.objects;
 
+import static android.content.Context.MODE_PRIVATE;
+
 import android.content.Context;
 
 import com.driot.bookplayer.activities.OngoingTaskViewModelBridge;
@@ -7,6 +9,11 @@ import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.utils.KanLogger;
 
 public class TaskStateManager {
+    private static Context appContext;
+
+    public static void init(Context context) {
+        appContext = context.getApplicationContext();
+    }
 
     private static void updateTaskProgress(Context context, int percent, String progressText, String phase, boolean isLoadingPaused) {
         LoadBookTaskState state = Pref.getLoadBookTaskState(context);
@@ -74,6 +81,12 @@ public class TaskStateManager {
             myLogEE(null, "markTaskFailed - No valid LoadBookTaskState found - " + currentLoadingOperation);
         }
     }
+
+
+    public static void markTaskFailed(String taskName, String errorText) {
+        markTaskFailed(appContext, taskName, errorText);
+    }
+
     public static void markTaskFailed(Context context, String taskName, String errorText) {
         String currentLoadingOperation = taskName + " failed - [" + errorText + "]";
         LoadBookTaskState state = Pref.getLoadBookTaskState(context);

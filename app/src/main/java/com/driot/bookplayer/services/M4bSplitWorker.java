@@ -27,7 +27,7 @@ public class M4bSplitWorker extends LoggingWorker {
 
     public static final String KEY_INPUT_PATH = "m4bFilePath";
     public static final String KEY_DEST_FOLDER = "destinationFolderPath";
-    public static final String TASK_NAME = "m4b split";
+    private static final String TASK_NAME = "m4b split";
 
     public M4bSplitWorker(@NonNull Context context, @NonNull WorkerParameters params) {
         super(context, params);

@@ -20,78 +20,90 @@ import java.util.List;
 public class BookLoadingWorkLauncher {
 
     public static void launch(Context context) {
-        LoadBookTaskState state = Pref.getLoadBookTaskState(context, false);
-        if (state == null) throw new IllegalStateException("No task state found in BookLoadingWorkLauncher");
-        state.onGoingLoading = true;
-        setLoadBookTaskState(context, state);
+        boolean doDownload = false;
+        boolean doCopy = false;
+        boolean doSplit = false;
+        boolean doUnzip = false;
+
+        LoadBookTaskState bookState = Pref.getLoadBookTaskState(context);
+        if (bookState == null) throw new IllegalStateException("No task bookState found in BookLoadingWorkLauncher");
+        bookState.onGoingLoading = true;
+        setLoadBookTaskState(context, bookState);
 
         myLogD("....");
         myLogD("....");
         myLog("*********************************************************************************************************");
         myLog("*********************************************************************************************************");
-        myLog("** title =            " + state.title + " **");
+        myLog("** title =            " + bookState.title + " **");
         myLog("---------------------------------------------------------------------------------------------------------");
-        myLog("** futureFolderName = " + state.futureFolderName + " **");
-        myLog("** futureFolderPath = " + state.futureFolderPath + " **");
+        myLog("** futureFolderName = " + bookState.futureFolderName + " **");
+        myLog("** futureFolderPath = " + bookState.futureFolderPath + " **");
         myLog("---------------------------------------------------------------------------------------------------------");
-        myLog("** original uri =  " + state.originalUri + " **");
-        myLog("** original type = " + state.originalType + " **");
+        myLog("** original uri =  " + bookState.originalUri + " **");
+        myLog("** original type = " + bookState.originalType + " **");
         myLog("---------------------------------------------------------------------------------------------------------");
-        myLog("** dynamic uri =  " + state.dynamicUri + " **");
-        myLog("** dynamic type =  " + state.dynamicType + " **");
+        myLog("** dynamic uri =  " + bookState.dynamicUri + " **");
+        myLog("** dynamic type =  " + bookState.dynamicType + " **");
         myLog("---------------------------------------------------------------------------------------------------------");
         myLog("---------------------------------------------------------------------------------------------------------");
-        myLog(state.toString().replace(",", "\n"));
+        myLog(bookState.toString().replace(",", "\n"));
         myLog("*********************************************************************************************************");
         myLog("*********************************************************************************************************");
-
 
         List<OneTimeWorkRequest> workChain = new ArrayList<>();
 
+        bookState = Pref.getLoadBookTaskState(context, false);
+        if (bookState == null) throw new IllegalStateException("No task bookState found in BookLoadingWorkLauncher 2");
 
-        state = Pref.getLoadBookTaskState(context, false);
-        if (state == null) throw new IllegalStateException("No task state found in BookLoadingWorkLauncher 2");
-        if (state.dynamicUri.toString().startsWith("http")) {
+        if (bookState.dynamicUri.toString().startsWith("http")) {
+            doDownload = true;
+        }
 
-            state.downloadFileUrl = state.dynamicUri.toString();
-            state.downloadDestinationFolder = StorageHelper.getDownloadFolderPath(context);
-            state.onGoingLoading = true;
-            setLoadBookTaskState(context, state);
+        if (bookState.optionCopy || bookState.sourceLocation.equals("cloud")) {
+            doCopy = true;
+        }
+
+        if (bookState.fileExtension.equalsIgnoreCase("zip")) {
+            doUnzip = true;
+            doCopy = true;
+        }
+        if (bookState.fileExtension.equalsIgnoreCase("m4b") && bookState.optionSplit) {
+            doSplit = true;
+            doCopy = true;
+        }
+        if (doDownload) {
+            doCopy = false;
+        }
+
+
+
+        if (doDownload) {
+
+            bookState.downloadFileUrl = bookState.dynamicUri.toString();
+            bookState.downloadDestinationFolder = StorageHelper.getDownloadFolderPath(context);
+            bookState.onGoingLoading = true;
+            setLoadBookTaskState(context, bookState);
 
             workChain.add(new OneTimeWorkRequest.Builder(DownloadRetryWorker.class).build());
         }
 
-        if (state.optionCopy) {
+        if (doCopy) {
+            workChain.add(new OneTimeWorkRequest.Builder(CopyFileWorker.class).build());
+        }
+        if (doUnzip) {
+                    //.putString(UnzipWorker.KEY_ZIP_PATH, bookState.downloadedFilePath)
+                    //.putString(UnzipWorker.KEY_DEST_PATH, bookState.futureFolderPath)
+            workChain.add(new OneTimeWorkRequest.Builder(CopyFileWorker.class).build());
+        }
+        if (doSplit) {
+                    //.putString(M4bSplitWorker.KEY_INPUT_PATH, bookState.downloadedFilePath)
+                    //.putString(M4bSplitWorker.KEY_DEST_FOLDER, bookState.futureFolderPath)
             workChain.add(new OneTimeWorkRequest.Builder(CopyFileWorker.class).build());
         }
 
-        if (state.fileExtension.equalsIgnoreCase("zip")) {
-
-            Data input = new Data.Builder()
-                    .putString(UnzipWorker.KEY_ZIP_PATH, state.downloadedFilePath)
-                    .putString(UnzipWorker.KEY_DEST_PATH, state.futureFolderPath)
-                    .build();
-            OneTimeWorkRequest unzipWork = new OneTimeWorkRequest.Builder(UnzipWorker.class)
-                    .setInputData(input)
-                    .build();
-            workChain.add(unzipWork);
-
-        }
-
-        if (state.optionSplit) {
-            Data input = new Data.Builder()
-                    .putString(M4bSplitWorker.KEY_INPUT_PATH, state.downloadedFilePath)
-                    .putString(M4bSplitWorker.KEY_DEST_FOLDER, state.futureFolderPath)
-                    .build();
-
-            OneTimeWorkRequest m4bSplitWork = new OneTimeWorkRequest.Builder(M4bSplitWorker.class)
-                    .setInputData(input)
-                    .build();
-
-            workChain.add(m4bSplitWork);
-        }
 
         workChain.add(new OneTimeWorkRequest.Builder(ParseFinalFolderWorker.class).build());
+
 
         if (!workChain.isEmpty()) {
             WorkContinuation continuation = WorkManager.getInstance(context).beginWith(workChain.get(0));

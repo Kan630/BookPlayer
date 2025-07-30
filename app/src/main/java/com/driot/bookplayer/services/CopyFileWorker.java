@@ -27,7 +27,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 public class CopyFileWorker extends LoggingWorker {
-    public static final String TASK_NAME = "copy file";
+    private static final String TASK_NAME = "copy file";
 
     public static final String KEY_URI = "Uri";
     public static final String KEY_DEST_PATH = "destinationFolderPath";
