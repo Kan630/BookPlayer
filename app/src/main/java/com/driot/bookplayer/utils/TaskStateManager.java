@@ -1,15 +1,14 @@
 package com.driot.bookplayer.utils;
 
-import static com.driot.bookplayer.utils.Tonio.formatSizeMB;
-
 import android.content.Context;
 
+import com.driot.bookplayer.activities.TaskViewModelBridge;
 import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.global.Pref;
 
 public class TaskStateManager {
 
-    private static void updateProgress(Context context, int percent, String progressText, String phase, boolean isLoadingPaused) {
+    private static void updateTaskProgress(Context context, int percent, String progressText, String phase, boolean isLoadingPaused) {
         LoadBookTaskState state = Pref.getLoadBookTaskState(context);
         if (state != null) {
             state.progressPercent = percent;
@@ -23,29 +22,32 @@ public class TaskStateManager {
 
     public static void markDownloadResuming(Context context) {
         LoadBookTaskState state = Pref.getLoadBookTaskState(context);
+        String currentLoadingOperation = "Download resuming";
         state.isLoadingPaused = false;
-        state.currentLoadingOperation = "Download resuming";
+        state.currentLoadingOperation = currentLoadingOperation;
         Pref.setLoadBookTaskState(context, state);
+        TaskViewModelBridge.updateProgressText(currentLoadingOperation);
     }
 
-    public static void markIsPaused(Context context) {
+    public static void markDownloadIsPaused(Context context) {
         LoadBookTaskState state = Pref.getLoadBookTaskState(context);
         if (state != null) {
+            String currentLoadingOperation = "Download paused";
             state.isLoadingPaused = true;
-            state.currentLoadingOperation = "Download paused";
+            state.currentLoadingOperation = currentLoadingOperation;
             if (!state.progressText.endsWith("(paused)")) {
                 state.progressText = state.progressText + " (paused)";
             }
             Pref.setLoadBookTaskState(context, state);
+            TaskViewModelBridge.updateProgressText(currentLoadingOperation);
         } else {
             myLogEE(null, "markIsPaused - No valid LoadBookTaskState found");
         }
     }
 
-    public static void updateTaskStateAndNotifyUiOfDownloadProgress(Context context, int percent, long bytes, long total) {
-        String text = formatSizeMB(bytes) + " / " + formatSizeMB(total);
-        updateProgress(context, percent, text, "Downloading", false);
-        TaskUiManager.getInstance().updateProgress(text, percent);
+    public static void markDownloadProgress(Context context, int percent, String text) {
+        updateTaskProgress(context, percent, text, "Downloading", false);
+        TaskViewModelBridge.updateProgressFull(text, percent);
     }
 
 

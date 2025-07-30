@@ -15,16 +15,14 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.services.AddResourceService;
 import com.driot.bookplayer.services.DownloadForegroundService;
-import com.driot.bookplayer.utils.TaskUiManager;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
-import static com.driot.bookplayer.utils.Tonio.formatNameForDisplay;
 import static com.driot.bookplayer.utils.WorkFlow.cancelAllOngoingTasks;
 
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.ViewModelProvider;
 
 
 /**
@@ -66,37 +64,32 @@ public class AddResourceActivity
         bPause = findViewById(R.id.bPause);
         bPause.setOnClickListener(v -> {            performPause();        });
 
-        updateUI(); // initial state
-        TaskUiManager.getInstance().setUiCallback(this::updateUI);
+        TaskViewModel viewModel = new ViewModelProvider(this).get(TaskViewModel.class);
+        TaskViewModelBridge.bind(viewModel);
+        viewModel.getTaskTitle().observe(this, title -> tvTitle.setText(title));
+        viewModel.getProgressText().observe(this, text -> progressBarText.setText(text));
+        viewModel.getProgressPercent().observe(this, percent -> progressBar.setProgress(percent));
+        viewModel.isPauseAvailable().observe(this, available -> {
+            bPause.setVisibility(available ? View.VISIBLE : View.GONE);
+            if (available && progressBarText.getText().length() == 0) {
+                progressBarText.setText("about to start download...");
+            }
+        });
+        viewModel.isPaused().observe(this, paused -> {
+            if (bPause.getVisibility() == View.VISIBLE) {
+                bPause.setText(getString(paused ? R.string.Resume : R.string.Pause));
+            }
+        });
 
         Intent intentAddResourceService = new Intent(this, AddResourceService.class);
         boundToAddResourceService = bindService(intentAddResourceService, addResourceServiceConnection, Context.BIND_AUTO_CREATE); //error Log : Activity XXX has leaked ServiceConnection
         myLogD("call start & bind to AddResourceService from AddResourceActivity.onCreate() - bound result :" + boundToAddResourceService);
-
-        LoadBookTaskState state = TaskUiManager.getInstance().getCurrentTaskState();
-        if (state != null && state.uri.toString().startsWith("http")) {
-            progressBarText.setText("about to start download...");
-            bPause.setVisibility(View.VISIBLE);
-            if (state.isLoadingPaused) {
-                bPause.setText(getString(R.string.Resume));
-            } else {
-                bPause.setText(getString(R.string.Pause));
-            }
-        } else {
-            bPause.setVisibility(View.GONE);
-        }
     }
-
-    private void updateUI() {
-        if (tvTitle != null) tvTitle.setText(TaskUiManager.getInstance().getTaskTitle());
-        if (progressBarText != null) progressBarText.setText(TaskUiManager.getInstance().getProgressText());
-        if (progressBar != null) progressBar.setProgress(TaskUiManager.getInstance().getProgressPercent());
-    }
-
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        TaskViewModelBridge.unbind();
         try {
             if (mBound) unbindService(addResourceServiceConnection);
             mBound = false;
@@ -161,7 +154,6 @@ public class AddResourceActivity
             }
             if (progressVal >= 0 && progressVal <= 100) {
                 progressBar.setProgress(progressVal);
-                TaskUiManager.getInstance().updateProgress(progressText, progressVal);
             }
         });
     }
@@ -190,8 +182,6 @@ public class AddResourceActivity
                 myToast(getString(R.string.Import_Success) + "\n" + tvTitle.getText());
                 cancelAllOngoingTasks(this);
 
-                TaskUiManager.getInstance().notifyTaskFinished();
-
                 Intent mainIntent = new Intent(this, MainActivity.class);
                 mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(mainIntent);
@@ -219,8 +209,6 @@ public class AddResourceActivity
         myLogI("------ USER CLICKS btn CANCEL ----");
 
         cancelAllOngoingTasks(this);
-
-        TaskUiManager.getInstance().notifyTaskFinished();
 
         finish();
     }

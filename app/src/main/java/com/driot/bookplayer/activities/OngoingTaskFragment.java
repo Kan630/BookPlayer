@@ -11,9 +11,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.utils.TaskUiManager;
 
 public class OngoingTaskFragment extends Fragment {
 
@@ -33,8 +33,12 @@ public class OngoingTaskFragment extends Fragment {
         tvProgressText = v.findViewById(R.id.tvOngoingProgress);
         progressBar = v.findViewById(R.id.pbOngoing);
 
-        updateUI(); // initial state
-        TaskUiManager.getInstance().setUiCallback(this::updateUI);
+        TaskViewModel viewModel = new ViewModelProvider(requireActivity()).get(TaskViewModel.class);
+        TaskViewModelBridge.bind(viewModel);
+        viewModel.getTaskTitle().observe(getViewLifecycleOwner(), title -> tvTitle.setText(title));
+        viewModel.getProgressText().observe(getViewLifecycleOwner(), text -> tvProgressText.setText(text));
+        viewModel.getProgressPercent().observe(getViewLifecycleOwner(), percent -> progressBar.setProgress(percent));
+
         return v;
     }
 
@@ -53,29 +57,8 @@ public class OngoingTaskFragment extends Fragment {
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-        // Re-register the UI update callback each time fragment resumes
-        TaskUiManager.getInstance().setUiCallback(this::updateUI);
-        updateUI(); // Immediate refresh in case state changed while paused
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        // Prevent memory leaks
-        TaskUiManager.getInstance().clearUiCallback();
-    }
-
-    private void updateUI() {
-        if (tvTitle != null) tvTitle.setText(TaskUiManager.getInstance().getTaskTitle());
-        if (tvProgressText != null) tvProgressText.setText(TaskUiManager.getInstance().getProgressText());
-        if (progressBar != null) progressBar.setProgress(TaskUiManager.getInstance().getProgressPercent());
-    }
-
-    @Override
     public void onDestroyView() {
         super.onDestroyView();
-        TaskUiManager.getInstance().clearUiCallback();
+        TaskViewModelBridge.unbind();
     }
 }

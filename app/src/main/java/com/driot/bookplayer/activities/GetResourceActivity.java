@@ -24,13 +24,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.objects.LanguageItem;
 import com.driot.bookplayer.utils.AnalyticsHelper;
 import com.driot.bookplayer.utils.EditTextWithButtons;
-import com.driot.bookplayer.utils.TaskUiManager;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.services.AddResourceService;
 import com.driot.bookplayer.utils.LanguageHelper;
@@ -405,6 +405,11 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
                 }
             });
         });
+        TaskViewModel viewModel = new ViewModelProvider(this).get(TaskViewModel.class);
+        viewModel.isTaskRunning().observe(this, isRunning -> {
+            LockButtons(Boolean.TRUE.equals(isRunning));
+        });
+
     }
     // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
     // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -437,15 +442,12 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
-        TaskUiManager.getInstance().registerListener(this::onTaskFinished);
-        checkServiceRunning();
         maybeResumeWorkFlow(this);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        TaskUiManager.getInstance().unregisterListener(this::onTaskFinished);
     }
     private void onTaskFinished() {
         myLog("onTaskFinished()");
@@ -460,10 +462,12 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
         }
     }
 
-    private void checkServiceRunning() {
+    private void LockButtons(boolean doLock) {
         try {
+            FragmentManager fm = getSupportFragmentManager();
+            Fragment current = fm.findFragmentById(R.id.topOverlayContainer);
             List<TextView> textViewToHide = Arrays.asList(
-                     findViewById(R.id.TextHeaderOpen)
+                    findViewById(R.id.TextHeaderOpen)
                     ,findViewById(R.id.bOpenFile_desc)
                     ,findViewById(R.id.bOpenFolder_desc)
                     ,findViewById(R.id.bOpenZipFile_desc)
@@ -474,19 +478,25 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
                     ,findViewById(R.id.txtDirectDownload_desc)
             );
             List<Button> buttonsToLock = Arrays.asList(bOpenFile, bOpenFolder, bOpenZipFile, bOpenM4bFile
-                    , bAutoTest_b1, bAutoTest_b2, bAutoTest_b3, bDirectDownload);
-
-            TaskUiManager.getInstance().reInit();
-            if (TaskUiManager.getInstance().isTaskRunning()) {
-                myLog("display OngoingTaskFragment");
-                getSupportFragmentManager()
-                        .beginTransaction()
-                        .replace(R.id.topOverlayContainer, new OngoingTaskFragment())
-                        .commit();
+                , bAutoTest_b1, bAutoTest_b2, bAutoTest_b3, bDirectDownload);
+            if (doLock) {
                 myLog("SomeWorkFlowRunning => displaying banner, disabling buttons");
+                if (!(current instanceof OngoingTaskFragment)) {
+                    myLog("display OngoingTaskFragment");
+                    fm.beginTransaction()
+                            .replace(R.id.topOverlayContainer, new OngoingTaskFragment())
+                            .commit();
+                }
                 for (Button b: buttonsToLock) { b.setEnabled(false); }
                 for (TextView tv: textViewToHide) { tv.setVisibility(View.GONE); }
             } else {
+                if (current instanceof OngoingTaskFragment) {
+                    myLog("remove OngoingTaskFragment");
+                    fm.beginTransaction()
+                            .remove(current)
+                            .commit();
+                }
+                myLogD("No WorkFlowRunning");
                 for (Button b: buttonsToLock) { b.setEnabled(true); }
                 for (TextView tv: textViewToHide) { tv.setVisibility(View.VISIBLE); }
             }
@@ -494,7 +504,6 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
             myLogEE(e,"Error while checking if service is running");
         }
     }
-
 
     private boolean isReturnedUriOk(Intent data) {
         try {
