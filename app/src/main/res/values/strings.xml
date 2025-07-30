@@ -676,6 +676,9 @@
     <string name="Options">Options</string>
     <string name="App_Info">App Info</string>
     <string name="reset_app">Reset App</string>
+    <string name="Exit">Exit</string>
+    <string name="Finished">Finished</string>
+    <string name="Finished_with_errors">Finished with errors</string>
 
 
 

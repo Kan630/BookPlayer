@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.utils.log.LoggingViewModel;
@@ -70,6 +71,11 @@ public class OngoingTaskViewModel extends LoggingViewModel {
     public void tellWarning(String text) { warningText.postValue(text); }
     public void tellError(String text) {
         errorText.postValue(text);
+        taskRunning.postValue(false);
+        pauseAvailable.postValue(false);
+        isFinished.postValue(true);
+        progressText.postValue(getApplication().getString(R.string.Finished_with_errors));
+        progressPercent.postValue(100);
     }
     public void removePauseCapability() {pauseAvailable.postValue(false);}
 
@@ -77,8 +83,8 @@ public class OngoingTaskViewModel extends LoggingViewModel {
     public void tellEnd() {
         taskRunning.postValue(false);
         pauseAvailable.postValue(false);
-        isFinished.postValue(false);
-        progressText.postValue("finished");
+        isFinished.postValue(true);
+        progressText.postValue(getApplication().getString(R.string.Finished));
         progressPercent.postValue(100);
     }
 }

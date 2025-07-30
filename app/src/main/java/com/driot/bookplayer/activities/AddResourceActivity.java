@@ -36,6 +36,7 @@ public class AddResourceActivity extends LoggingActivity {
     private TextView tvErrorText, tvWarning;
 
     Button bPauseResume;
+    Button bCancel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,7 +49,8 @@ public class AddResourceActivity extends LoggingActivity {
         tvErrorText = findViewById(R.id.errorText);
         tvWarning = findViewById(R.id.warningText);
 
-        Button bCancel = findViewById(R.id.bCancel);
+        bCancel = findViewById(R.id.bCancel);
+        bCancel.setText(getString(R.string.Cancel));
         bCancel.setOnClickListener(v -> performCancel());
 
         bPauseResume = findViewById(R.id.bPause);
@@ -115,6 +117,7 @@ public class AddResourceActivity extends LoggingActivity {
     private void checkAndClose() {
         myLogD("Set Activity result OK");
         AddResourceActivity.this.setResult(Activity.RESULT_OK);
+        bCancel.setText(getString(R.string.Exit));
         if (tvErrorText.getText().length() > 0) {
 
             //wait some sec
