@@ -1,6 +1,5 @@
 package com.driot.bookplayer.activities;
 
-import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -11,24 +10,19 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
-import androidx.core.content.FileProvider;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.global.Pref;
-import com.driot.bookplayer.utils.ImageHelper;
-import com.driot.bookplayer.utils.StorageHelper;
+import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
 
 import static com.driot.bookplayer.global.Var.PATH_CHECK_APPLICATION;
-import static com.driot.bookplayer.utils.PodcastHelper.cancelAutoDownload;
+import static com.driot.bookplayer.helpers.PodcastHelper.cancelAutoDownload;
 import static com.driot.bookplayer.utils.Utils.recursiveRemove;
 
 /**

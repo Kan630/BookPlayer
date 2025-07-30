@@ -34,11 +34,11 @@ import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.objects.PlayList;
 import com.driot.bookplayer.objects.PodcastEpisode;
 import com.driot.bookplayer.objects.PodcastFeed;
-import com.driot.bookplayer.utils.AnalyticsHelper;
+import com.driot.bookplayer.helpers.AnalyticsHelper;
 import com.driot.bookplayer.utils.NetworkUtils;
 import com.driot.bookplayer.utils.ViewHelper;
-import com.driot.bookplayer.utils.ImageHelper;
-import com.driot.bookplayer.utils.PodcastHelper;
+import com.driot.bookplayer.helpers.ImageHelper;
+import com.driot.bookplayer.helpers.PodcastHelper;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import java.util.List;

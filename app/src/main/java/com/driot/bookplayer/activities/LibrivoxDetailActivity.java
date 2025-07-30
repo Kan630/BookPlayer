@@ -24,7 +24,7 @@ import com.driot.bookplayer.objects.ItemMetadata;
 import com.driot.bookplayer.objects.LibrivoxApi;
 import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.services.AddResourceService;
-import com.driot.bookplayer.utils.ImageHelper;
+import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.utils.WorkFlow;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 

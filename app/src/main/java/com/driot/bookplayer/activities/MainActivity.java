@@ -34,7 +34,6 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.work.WorkManager;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.adapter.FoldersRVAdapter;
@@ -43,15 +42,13 @@ import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.FolderDao;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
-import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.objects.PlayList;
 import com.driot.bookplayer.services.AudioService;
-import com.driot.bookplayer.utils.ImageHelper;
-import com.driot.bookplayer.utils.InfoHelper;
+import com.driot.bookplayer.helpers.ImageHelper;
+import com.driot.bookplayer.helpers.InfoHelper;
 import com.driot.bookplayer.utils.KanLogger;
 import com.driot.bookplayer.utils.KanMail;
-import com.driot.bookplayer.utils.PodcastHelper;
-import com.driot.bookplayer.utils.WorkFlow;
+import com.driot.bookplayer.helpers.PodcastHelper;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 import com.google.android.material.snackbar.Snackbar;
 

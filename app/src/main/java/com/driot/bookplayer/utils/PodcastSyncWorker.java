@@ -22,6 +22,7 @@ import com.driot.bookplayer.db.FolderDao;
 import com.driot.bookplayer.db.PodcastDao;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.db.ZikFileDao;
+import com.driot.bookplayer.helpers.ImageHelper;
 
 import java.io.File;
 

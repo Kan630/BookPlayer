@@ -1,8 +1,9 @@
-package com.driot.bookplayer.utils;
+package com.driot.bookplayer.helpers;
 
 import android.content.Context;
 import android.os.Bundle;
 
+import com.driot.bookplayer.utils.KanLogger;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
 public class AnalyticsHelper {

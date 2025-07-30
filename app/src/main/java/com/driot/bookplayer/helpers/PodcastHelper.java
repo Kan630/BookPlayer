@@ -1,4 +1,4 @@
-package com.driot.bookplayer.utils;
+package com.driot.bookplayer.helpers;
 
 import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_API_KEY;
 import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_API_SECRET;
@@ -17,7 +17,9 @@ import com.driot.bookplayer.objects.PodcastEpisodeResponse;
 import com.driot.bookplayer.objects.PodcastIndexApi;
 import com.driot.bookplayer.objects.PodcastFeed;
 import com.driot.bookplayer.objects.PodcastIndexResponse;
-import com.google.firebase.analytics.FirebaseAnalytics;
+import com.driot.bookplayer.utils.KanLogger;
+import com.driot.bookplayer.utils.NetworkUtils;
+import com.driot.bookplayer.utils.PodcastDownloadManager;
 
 import java.io.File;
 import java.security.MessageDigest;
@@ -35,7 +37,6 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 import android.content.Context;
-import android.os.Bundle;
 
 public class PodcastHelper {
 

@@ -9,7 +9,6 @@ import static com.driot.bookplayer.utils.Tonio.getCurrentDateTimeString;
 
 import android.Manifest;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
@@ -35,12 +34,11 @@ import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.objects.BookToAdd;
 import com.driot.bookplayer.objects.LoadBookTaskState;
-import com.driot.bookplayer.utils.AnalyticsHelper;
+import com.driot.bookplayer.helpers.AnalyticsHelper;
 import com.driot.bookplayer.utils.HashWorker;
 import com.driot.bookplayer.utils.PermissionRequest;
 import com.driot.bookplayer.utils.StorageHelper;
 import com.driot.bookplayer.utils.log.LoggingActivity;
-import com.google.firebase.analytics.FirebaseAnalytics;
 
 import java.util.Objects;
 

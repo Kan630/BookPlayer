@@ -1,10 +1,10 @@
-package com.driot.bookplayer.utils;
+package com.driot.bookplayer.objects;
 
 import android.content.Context;
 
 import com.driot.bookplayer.activities.TaskViewModelBridge;
-import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.global.Pref;
+import com.driot.bookplayer.utils.KanLogger;
 
 public class TaskStateManager {
 

@@ -142,7 +142,7 @@
                     android:text="@string/DirectDownload_desc"
                     style="@style/GetResourceTextTopOfButton" />
 
-                <com.driot.bookplayer.utils.EditTextWithButtons
+                <com.driot.bookplayer.views.EditTextWithButtons
                     android:id="@+id/etDirectDownload"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"/>
@@ -188,7 +188,7 @@
                     android:text="@string/LibrivoxSearch_desc"
                     style="@style/GetResourceTextTopOfButton" />
 
-                <com.driot.bookplayer.utils.EditTextWithButtons
+                <com.driot.bookplayer.views.EditTextWithButtons
                     android:id="@+id/etLibrivox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"/>
@@ -249,7 +249,7 @@
                     android:text="@string/PodcastSearch_desc"
                     style="@style/GetResourceTextTopOfButton" />
 
-                <com.driot.bookplayer.utils.EditTextWithButtons
+                <com.driot.bookplayer.views.EditTextWithButtons
                     android:id="@+id/etPodcast"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"/>

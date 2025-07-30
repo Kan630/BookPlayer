@@ -20,9 +20,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.adapter.PodcastSearchResultsRVAdapter;
 import com.driot.bookplayer.objects.PodcastFeed;
-import com.driot.bookplayer.utils.AnalyticsHelper;
+import com.driot.bookplayer.helpers.AnalyticsHelper;
 import com.driot.bookplayer.utils.NetworkUtils;
-import com.driot.bookplayer.utils.PodcastHelper;
+import com.driot.bookplayer.helpers.PodcastHelper;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import java.util.List;

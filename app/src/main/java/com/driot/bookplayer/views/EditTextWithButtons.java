@@ -1,4 +1,4 @@
-package com.driot.bookplayer.utils;
+package com.driot.bookplayer.views;
 
 //package com.driot.bookplayer.views;
 
@@ -8,7 +8,6 @@ import android.content.ClipData;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;

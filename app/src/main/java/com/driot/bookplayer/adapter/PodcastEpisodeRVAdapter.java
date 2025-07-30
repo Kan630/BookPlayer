@@ -1,8 +1,8 @@
 package com.driot.bookplayer.adapter;
 
-import static com.driot.bookplayer.utils.PodcastHelper.buildPodcastEpisodeName;
-import static com.driot.bookplayer.utils.PodcastHelper.buildPodcastPath;
-import static com.driot.bookplayer.utils.PodcastHelper.findPodcastEpisodeFileIfExists;
+import static com.driot.bookplayer.helpers.PodcastHelper.buildPodcastEpisodeName;
+import static com.driot.bookplayer.helpers.PodcastHelper.buildPodcastPath;
+import static com.driot.bookplayer.helpers.PodcastHelper.findPodcastEpisodeFileIfExists;
 
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
@@ -28,12 +28,11 @@ import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Option;
-import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.objects.PlayList;
 import com.driot.bookplayer.objects.PodcastEpisode;
 import com.driot.bookplayer.objects.PodcastFeed;
 import com.driot.bookplayer.utils.NetworkUtils;
-import com.driot.bookplayer.utils.PodcastHelper;
+import com.driot.bookplayer.helpers.PodcastHelper;
 import com.driot.bookplayer.utils.ViewHelper;
 import com.driot.bookplayer.utils.PodcastDownloadManager;
 import com.driot.bookplayer.utils.Tonio;

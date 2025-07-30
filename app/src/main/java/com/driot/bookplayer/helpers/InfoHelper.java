@@ -1,4 +1,4 @@
-package com.driot.bookplayer.utils;
+package com.driot.bookplayer.helpers;
 
 import static com.driot.bookplayer.utils.KanLogger.isMyPhoneDev;
 import static com.driot.bookplayer.utils.KanLogger.myKeyFirebase;
@@ -15,6 +15,7 @@ import android.view.WindowManager;
 import androidx.core.app.NotificationManagerCompat;
 
 import com.driot.bookplayer.BuildConfig;
+import com.driot.bookplayer.utils.KanLogger;
 
 import java.util.Locale;
 import java.util.Objects;

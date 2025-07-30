@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.objects.FileWithSummary;
-import com.driot.bookplayer.utils.IconHelper;
+import com.driot.bookplayer.helpers.IconHelper;
 import com.driot.bookplayer.utils.log.LoggingRVAdapter;
 
 import java.io.File;

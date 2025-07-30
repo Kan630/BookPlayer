@@ -14,7 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.objects.LibrivoxItem;
-import com.driot.bookplayer.utils.ImageHelper;
+import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.utils.log.LoggingRVAdapter;
 
 import java.io.File;

@@ -2,7 +2,6 @@ package com.driot.bookplayer.adapter;
 
 import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_SINCE_DEBUG;
 
-import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.LayoutInflater;
@@ -19,10 +18,7 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.Podcast;
-import com.driot.bookplayer.global.Var;
-import com.driot.bookplayer.objects.LanguageItem;
-import com.driot.bookplayer.utils.LanguageHelper;
-import com.driot.bookplayer.utils.PodcastHelper;
+import com.driot.bookplayer.helpers.PodcastHelper;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingRVAdapter;
 

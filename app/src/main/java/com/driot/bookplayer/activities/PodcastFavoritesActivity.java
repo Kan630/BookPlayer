@@ -21,7 +21,7 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.adapter.PodcastFavoritesRVAdapter;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Podcast;
-import com.driot.bookplayer.utils.PodcastHelper;
+import com.driot.bookplayer.helpers.PodcastHelper;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import java.util.Collections;

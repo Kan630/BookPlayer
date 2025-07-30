@@ -17,7 +17,6 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.ModifyFolderActivity;
 import com.driot.bookplayer.activities.PlayActivity;
@@ -26,16 +25,13 @@ import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.objects.PlayList;
-import com.driot.bookplayer.utils.IconHelper;
+import com.driot.bookplayer.helpers.IconHelper;
 import com.driot.bookplayer.utils.Tonio;
-import com.driot.bookplayer.utils.ViewHelper;
 import com.driot.bookplayer.utils.log.LoggingRVAdapter;
 
 import java.util.List;
 import java.util.Locale;
 
-import static com.driot.bookplayer.global.Var.SOURCE_LOCATION_LIBRIVOX;
-import static com.driot.bookplayer.global.Var.SOURCE_LOCATION_PODCAST;
 import static com.driot.bookplayer.utils.KanLogger.myToastE;
 import static com.driot.bookplayer.utils.Tonio.*;
 

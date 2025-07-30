@@ -1,4 +1,4 @@
-package com.driot.bookplayer.utils;
+package com.driot.bookplayer.views;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -9,6 +9,8 @@ import android.util.TypedValue;
 import android.view.View;
 
 import androidx.annotation.NonNull;
+
+import com.driot.bookplayer.utils.KanLogger;
 
 
 public class FrequencyVisualizerView extends View {

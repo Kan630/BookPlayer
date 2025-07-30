@@ -1,4 +1,4 @@
-package com.driot.bookplayer.utils;
+package com.driot.bookplayer.helpers;
 
 import static com.driot.bookplayer.global.Var.SOURCE_LOCATION_LIBRIVOX;
 import static com.driot.bookplayer.global.Var.SOURCE_LOCATION_PODCAST;

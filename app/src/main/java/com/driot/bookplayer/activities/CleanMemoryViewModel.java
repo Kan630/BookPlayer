@@ -1,7 +1,7 @@
 package com.driot.bookplayer.activities;
 
 import static com.driot.bookplayer.global.Var.FOLDER_UNZIPPED;
-import static com.driot.bookplayer.utils.PodcastHelper.cancelAutoDownload;
+import static com.driot.bookplayer.helpers.PodcastHelper.cancelAutoDownload;
 import static com.driot.bookplayer.utils.Utils.recursiveRemove;
 
 import android.app.Application;
@@ -10,8 +10,6 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Transformations;
-import androidx.lifecycle.ViewModel;
 
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.objects.FileWithSummary;

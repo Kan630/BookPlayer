@@ -1,7 +1,7 @@
 // https://gist.github.com/r0b0t3d/492f375ec6267a033c23b4ab8ab11e6a
 // r0b0t3d/FileHelper.java
 
-package com.driot.bookplayer.utils;
+package com.driot.bookplayer.helpers;
 
 import static com.driot.bookplayer.utils.KanLogger.myLog;
 import static com.driot.bookplayer.utils.KanLogger.myLogE;
@@ -17,6 +17,8 @@ import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.text.TextUtils;
+
+import com.driot.bookplayer.utils.KanLogger;
 
 import java.io.File;
 import java.io.FileOutputStream;
