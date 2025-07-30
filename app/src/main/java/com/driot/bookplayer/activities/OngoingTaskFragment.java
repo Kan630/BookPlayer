@@ -33,8 +33,8 @@ public class OngoingTaskFragment extends Fragment {
         tvProgressText = v.findViewById(R.id.tvOngoingProgress);
         progressBar = v.findViewById(R.id.pbOngoing);
 
-        TaskViewModel viewModel = new ViewModelProvider(requireActivity()).get(TaskViewModel.class);
-        TaskViewModelBridge.bind(viewModel);
+        OngoingTaskViewModel viewModel = new ViewModelProvider(requireActivity()).get(OngoingTaskViewModel.class);
+        OngoingTaskViewModelBridge.bind(viewModel);
         viewModel.getTaskTitle().observe(getViewLifecycleOwner(), title -> tvTitle.setText(title));
         viewModel.getProgressText().observe(getViewLifecycleOwner(), text -> tvProgressText.setText(text));
         viewModel.getProgressPercent().observe(getViewLifecycleOwner(), percent -> progressBar.setProgress(percent));
@@ -59,6 +59,6 @@ public class OngoingTaskFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        TaskViewModelBridge.unbind();
+        OngoingTaskViewModelBridge.unbind();
     }
 }

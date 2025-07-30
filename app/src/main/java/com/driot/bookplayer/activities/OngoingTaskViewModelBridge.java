@@ -1,9 +1,9 @@
 package com.driot.bookplayer.activities;
 
-public class TaskViewModelBridge {
-    private static TaskViewModel viewModel;
+public class OngoingTaskViewModelBridge {
+    private static OngoingTaskViewModel viewModel;
 
-    public static void bind(TaskViewModel vm) {
+    public static void bind(OngoingTaskViewModel vm) {
         viewModel = vm;
     }
 

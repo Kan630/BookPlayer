@@ -405,7 +405,7 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
                 }
             });
         });
-        TaskViewModel viewModel = new ViewModelProvider(this).get(TaskViewModel.class);
+        OngoingTaskViewModel viewModel = new ViewModelProvider(this).get(OngoingTaskViewModel.class);
         viewModel.isTaskRunning().observe(this, isRunning -> {
             LockButtons(Boolean.TRUE.equals(isRunning));
         });

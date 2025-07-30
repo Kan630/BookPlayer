@@ -64,8 +64,8 @@ public class AddResourceActivity
         bPause = findViewById(R.id.bPause);
         bPause.setOnClickListener(v -> {            performPause();        });
 
-        TaskViewModel viewModel = new ViewModelProvider(this).get(TaskViewModel.class);
-        TaskViewModelBridge.bind(viewModel);
+        OngoingTaskViewModel viewModel = new ViewModelProvider(this).get(OngoingTaskViewModel.class);
+        OngoingTaskViewModelBridge.bind(viewModel);
         viewModel.getTaskTitle().observe(this, title -> tvTitle.setText(title));
         viewModel.getProgressText().observe(this, text -> progressBarText.setText(text));
         viewModel.getProgressPercent().observe(this, percent -> progressBar.setProgress(percent));
@@ -89,7 +89,7 @@ public class AddResourceActivity
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        TaskViewModelBridge.unbind();
+        OngoingTaskViewModelBridge.unbind();
         try {
             if (mBound) unbindService(addResourceServiceConnection);
             mBound = false;

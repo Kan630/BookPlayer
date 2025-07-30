@@ -2,7 +2,7 @@ package com.driot.bookplayer.objects;
 
 import android.content.Context;
 
-import com.driot.bookplayer.activities.TaskViewModelBridge;
+import com.driot.bookplayer.activities.OngoingTaskViewModelBridge;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.utils.KanLogger;
 
@@ -26,7 +26,7 @@ public class TaskStateManager {
         state.isLoadingPaused = false;
         state.currentLoadingOperation = currentLoadingOperation;
         Pref.setLoadBookTaskState(context, state);
-        TaskViewModelBridge.updateProgressText(currentLoadingOperation);
+        OngoingTaskViewModelBridge.updateProgressText(currentLoadingOperation);
     }
 
     public static void markDownloadIsPaused(Context context) {
@@ -39,7 +39,7 @@ public class TaskStateManager {
                 state.progressText = state.progressText + " (paused)";
             }
             Pref.setLoadBookTaskState(context, state);
-            TaskViewModelBridge.updateProgressText(currentLoadingOperation);
+            OngoingTaskViewModelBridge.updateProgressText(currentLoadingOperation);
         } else {
             myLogEE(null, "markIsPaused - No valid LoadBookTaskState found");
         }
@@ -47,7 +47,7 @@ public class TaskStateManager {
 
     public static void markDownloadProgress(Context context, int percent, String text) {
         updateTaskProgress(context, percent, text, "Downloading", false);
-        TaskViewModelBridge.updateProgressFull(text, percent);
+        OngoingTaskViewModelBridge.updateProgressFull(text, percent);
     }
 
 

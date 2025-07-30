@@ -10,7 +10,7 @@ import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.utils.log.LoggingViewModel;
 
-public class TaskViewModel extends LoggingViewModel {
+public class OngoingTaskViewModel extends LoggingViewModel {
     private final MutableLiveData<String> taskTitle = new MutableLiveData<>("");
     private final MutableLiveData<String> progressText = new MutableLiveData<>("");
     private final MutableLiveData<Integer> progressPercent = new MutableLiveData<>(0);
@@ -19,7 +19,7 @@ public class TaskViewModel extends LoggingViewModel {
     private final MutableLiveData<Boolean> isPaused = new MutableLiveData<>(false);
 
 
-    public TaskViewModel(@NonNull Application application) {
+    public OngoingTaskViewModel(@NonNull Application application) {
         super(application);
         LoadBookTaskState state = Pref.getLoadBookTaskState(application, false);
         if (state != null && state.onGoingLoading) {
