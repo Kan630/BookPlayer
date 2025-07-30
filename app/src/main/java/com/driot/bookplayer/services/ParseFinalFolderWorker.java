@@ -319,9 +319,10 @@ public class ParseFinalFolderWorker extends LoggingWorker {
         if ((bookState.optionCopy || "ZIP".equals(bookState.dynamicType)) && bookState.optionDelete) {
             deleteSourceFile();
         }
-        TaskStateManager.markTaskCompleted(context, TASK_NAME, bookState.futureFolderPath);
-        TaskStateManager.markImportFinished();
+        TaskStateManager.tellEnd();
     }
+
+
     private SaveResultEnum saveSingleFile(AudioFileInfo info, int folderId, int zeOrder) {
         ZikFile file = new ZikFile();
         file.setName(info.getFileName());

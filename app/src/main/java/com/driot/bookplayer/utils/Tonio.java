@@ -332,7 +332,7 @@ public class Tonio {
         return type;
     }
 
-    public static String getSourceLocation(Uri uri) {
+    public static String getSourceLocation(Context context, Uri uri) {
         if (Objects.isNull(uri) || uri.toString().isEmpty()) {
             myLogE("getSourceLocation - empty uri");
             return "xxx";
@@ -349,6 +349,8 @@ public class Tonio {
                 return "cloud";
             } else if (uri.toString().startsWith("http")) {
                 return "web";
+            } else if (KanFiles.isOnSdCard(context, uri)) {
+                return "sdcard";
             } else {
                 return "local";
             }

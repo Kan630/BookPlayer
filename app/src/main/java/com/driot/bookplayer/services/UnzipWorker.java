@@ -42,7 +42,7 @@ public class UnzipWorker extends LoggingWorker {
         String destinationFolderPath = getInputData().getString(KEY_DEST_PATH);
 
         if (zipFilePath == null || destinationFolderPath == null) {
-            TaskStateManager.markTaskFailed(context, TASK_NAME, "Missing input data");
+            TaskStateManager.markTaskFailed(TASK_NAME, "Missing input data");
             return Result.failure();
         }
 
@@ -50,12 +50,12 @@ public class UnzipWorker extends LoggingWorker {
         File unzipFolder = new File(destinationFolderPath);
 
         if (!zipFile.exists()) {
-            TaskStateManager.markTaskFailed(context, TASK_NAME, "Zip file not found");
+            TaskStateManager.markTaskFailed(TASK_NAME, "Zip file not found");
             return Result.failure();
         }
 
         if (!unzipFolder.exists() && !unzipFolder.mkdirs()) {
-            TaskStateManager.markTaskFailed(context, TASK_NAME, "Could not create destination folder");
+            TaskStateManager.markTaskFailed(TASK_NAME, "Could not create destination folder");
             return Result.failure();
         }
 
@@ -80,7 +80,7 @@ public class UnzipWorker extends LoggingWorker {
 
                 while ((ze = zis.getNextEntry()) != null) {
                     if (isStopped()) {
-                        TaskStateManager.markTaskCancelled(context, TASK_NAME);
+                        TaskStateManager.markTaskCancelled(TASK_NAME);
                         return Result.failure();
                     }
 
@@ -96,7 +96,7 @@ public class UnzipWorker extends LoggingWorker {
 
                     File unzippedFile = new File(unzipFolder, audioFileName);
                     if (!(unzippedFile.getParentFile()==null) && !unzippedFile.getParentFile().exists() && !unzippedFile.getParentFile().mkdirs()) {
-                        TaskStateManager.markTaskFailed(context,TASK_NAME, "Failed to create output dir: " + unzippedFile);
+                        TaskStateManager.markTaskFailed(TASK_NAME, "Failed to create output dir: " + unzippedFile);
                         return Result.failure();
                     }
 
@@ -104,7 +104,7 @@ public class UnzipWorker extends LoggingWorker {
                         int count;
                         while ((count = zis.read(buffer)) != -1) {
                             if (isStopped()) {
-                                TaskStateManager.markTaskCancelled(context, TASK_NAME);
+                                TaskStateManager.markTaskCancelled(TASK_NAME);
                                 return Result.failure();
                             }
                             fout.write(buffer, 0, count);
@@ -124,11 +124,11 @@ public class UnzipWorker extends LoggingWorker {
                 }
             }
 
-            TaskStateManager.markTaskCompleted(context, TASK_NAME, destinationFolderPath);
+            TaskStateManager.markTaskCompleted(TASK_NAME, destinationFolderPath);
             return Result.success();
 
         } catch (Exception e) {
-            TaskStateManager.markTaskFailed(context, TASK_NAME, e.getMessage());
+            TaskStateManager.markTaskFailed(TASK_NAME, e.getMessage());
             recursiveRemove(unzipFolder);
             return Result.failure();
         }

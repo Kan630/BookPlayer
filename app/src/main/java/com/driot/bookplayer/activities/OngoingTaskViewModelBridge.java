@@ -40,6 +40,11 @@ public class OngoingTaskViewModelBridge {
         }
     }
 
+    public static void tellEnd() {
+        if (viewModel != null) {
+            viewModel.tellEnd();
+        }
+    }
 
     public static void updateTitle(String title) {
         if (viewModel != null) {
@@ -47,9 +52,10 @@ public class OngoingTaskViewModelBridge {
         }
     }
 
-    public static void endTask() {
+    public static void removePauseCapability() {
         if (viewModel != null) {
-            viewModel.endTask();
+            viewModel.removePauseCapability();
         }
     }
+
 }

@@ -45,7 +45,7 @@ public class M4bSplitWorker extends LoggingWorker {
         myLog("destinationFolderPath = " + destinationFolderPath);
 
         if (m4bFilePath == null || destinationFolderPath == null) {
-            TaskStateManager.markTaskFailed(context, TASK_NAME, "Missing input data for M4bSplitWorker");
+            TaskStateManager.markTaskFailed(TASK_NAME, "Missing input data for M4bSplitWorker");
             myLogEE(null,"Missing input data for M4bSplitWorker");
             return Result.failure();
         }
@@ -72,7 +72,7 @@ public class M4bSplitWorker extends LoggingWorker {
 
             for (Track track : movie.getTracks()) {
                 if (isStopped()) {
-                    TaskStateManager.markTaskCancelled(context, TASK_NAME);
+                    TaskStateManager.markTaskCancelled(TASK_NAME);
                     return false;
                 }
                 if ("soun".equals(track.getHandler()) && track.getSampleDescriptionBox().getSampleEntry().getType().equals("mp4a")) {
@@ -108,7 +108,7 @@ public class M4bSplitWorker extends LoggingWorker {
             long chapterTime = 0;
             for (int c = 0; c < chapterSamples.size(); c++) {
                 if (isStopped()) {
-                    TaskStateManager.markTaskCancelled(context, TASK_NAME);
+                    TaskStateManager.markTaskCancelled(TASK_NAME);
                     return false;
                 }
                 String title = extractCleanChapterTitle(chapterSamples.get(c));
@@ -136,7 +136,7 @@ public class M4bSplitWorker extends LoggingWorker {
                 FileOutputStream fos = new FileOutputStream(new File(outputFolder, filename));
                 for (int i = startSample; i < endSample && i < audioSamples.size(); i++) {
                     if (isStopped()) {
-                        TaskStateManager.markTaskCancelled(context, TASK_NAME);
+                        TaskStateManager.markTaskCancelled(TASK_NAME);
                         return false;
                     }
                     ByteBuffer buffer = audioSamples.get(i).asByteBuffer();
@@ -154,12 +154,12 @@ public class M4bSplitWorker extends LoggingWorker {
                 TaskStateManager.tellWarning("Error Deleting source M4B file after split.");
             }
 
-            TaskStateManager.markTaskCompleted(context, TASK_NAME, outputFolder.getAbsolutePath());
+            TaskStateManager.markTaskCompleted(TASK_NAME, outputFolder.getAbsolutePath());
             return true;
 
         } catch (Exception e) {
             myLogEE(e, "splitM4bLocal");
-            TaskStateManager.markTaskFailed(context, TASK_NAME, e.getMessage());
+            TaskStateManager.markTaskFailed(TASK_NAME, e.getMessage());
             return false;
         }
     }

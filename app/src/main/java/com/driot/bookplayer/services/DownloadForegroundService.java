@@ -308,7 +308,7 @@ public class DownloadForegroundService extends LoggingService {
             }
 
             myLogI("Downloaded to " + destFile.getAbsolutePath());
-            TaskStateManager.markTaskCompleted(this, TASK_NAME, destFile.getAbsolutePath());
+            TaskStateManager.markDownloadCompleted(TASK_NAME, destFile.getAbsolutePath());
             cancelDownloadNotification();
             return true;
 

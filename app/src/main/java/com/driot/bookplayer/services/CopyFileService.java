@@ -100,7 +100,7 @@ public class CopyFileService extends LoggingService {  //IntentService are desig
         type = intent.getStringExtra("type");
         checkSize = intent.getBooleanExtra("checkSize", true);
         forceSize = intent.getLongExtra("forceSize", 0);
-        sourceLocation = getSourceLocation(uri);
+        sourceLocation = getSourceLocation(this, uri);
 
         myLog("parseIntent() ..   " +
                 "\n.    from uri = [" + uri.toString() + "] " +

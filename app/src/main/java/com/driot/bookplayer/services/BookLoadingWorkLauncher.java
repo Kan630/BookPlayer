@@ -62,11 +62,11 @@ public class BookLoadingWorkLauncher {
         if (bookState.optionCopy || bookState.sourceLocation.equals("cloud")) {
             doCopy = true;
         }
-        if (bookState.fileExtension.equalsIgnoreCase("zip")) {
+        if (bookState.fileExtension!=null && bookState.fileExtension.equalsIgnoreCase("zip")) {
             doUnzip = true;
             doCopy = true;
         }
-        if (bookState.fileExtension.equalsIgnoreCase("m4b") && bookState.optionSplit) {
+        if (bookState.fileExtension!=null && bookState.fileExtension.equalsIgnoreCase("m4b") && bookState.optionSplit) {
             doSplit = true;
             doCopy = true;
         }
@@ -87,8 +87,8 @@ public class BookLoadingWorkLauncher {
         }
 
         if (doCopy) {workChain.add(new OneTimeWorkRequest.Builder(CopyFileWorker.class).build());}
-        if (doUnzip) {workChain.add(new OneTimeWorkRequest.Builder(CopyFileWorker.class).build());}
-        if (doSplit) {workChain.add(new OneTimeWorkRequest.Builder(CopyFileWorker.class).build());}
+        if (doUnzip) {workChain.add(new OneTimeWorkRequest.Builder(UnzipWorker.class).build());}
+        if (doSplit) {workChain.add(new OneTimeWorkRequest.Builder(M4bSplitWorker.class).build());}
         workChain.add(new OneTimeWorkRequest.Builder(ParseFinalFolderWorker.class).build());
 
 

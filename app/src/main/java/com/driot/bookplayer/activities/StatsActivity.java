@@ -25,6 +25,7 @@ import androidx.appcompat.app.AlertDialog;
 import com.driot.bookplayer.BuildConfig;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.utils.Tonio;
+import com.driot.bookplayer.utils.WorkFlow;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import java.io.File;
@@ -104,6 +105,7 @@ public class StatsActivity extends LoggingActivity {
 
         findViewById(R.id.bt_01).setOnClickListener(v -> openAppInfo());
         findViewById(R.id.bt_02).setOnClickListener(v -> deleteLogsClick());
+        findViewById(R.id.bt_03).setOnClickListener(v -> resetApp());
 
     }
 
@@ -145,6 +147,9 @@ public class StatsActivity extends LoggingActivity {
         File dir = new File(this.getFilesDir(), "log");
         recursiveRemove(dir);
         recreate();
+    }
+    private void resetApp() {
+        WorkFlow.cancelAllOngoingTasks(this);
     }
 
     public static String getVersionName(int sdkVersion) {

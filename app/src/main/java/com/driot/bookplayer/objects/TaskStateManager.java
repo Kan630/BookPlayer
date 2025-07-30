@@ -1,10 +1,18 @@
 package com.driot.bookplayer.objects;
 
-import android.content.Context;
+import static com.driot.bookplayer.utils.WorkFlow.cancelAllOngoingTasks;
 
+import android.content.Context;
+import android.content.Intent;
+import android.os.Handler;
+import android.os.Looper;
+
+import com.driot.bookplayer.R;
+import com.driot.bookplayer.activities.MainActivity;
 import com.driot.bookplayer.activities.OngoingTaskViewModelBridge;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.utils.KanLogger;
+import com.driot.bookplayer.utils.WorkFlow;
 
 public class TaskStateManager {
     private static Context appContext;
@@ -13,10 +21,16 @@ public class TaskStateManager {
         appContext = context.getApplicationContext();
     }
 
-    public static void markImportFinished() {
-        LoadBookTaskState state = Pref.getLoadBookTaskState();
-        state.onGoingLoading = false;
-        Pref.setLoadBookTaskState(state);
+    public static void tellEnd() {
+        OngoingTaskViewModelBridge.tellEnd();
+
+        //Kind of garbage collector
+        final Handler handler = new Handler(Looper.getMainLooper());
+        Runnable runnable = () -> {
+            WorkFlow.cancelAllOngoingTasks(appContext);
+        };
+        handler.postDelayed(runnable, 500);
+
     }
 
     private static void updateTaskProgress(Context context, int percent, String progressText, String phase, boolean isLoadingPaused) {
@@ -56,24 +70,17 @@ public class TaskStateManager {
         }
     }
 
+    public static void markDownloadCompleted(String taskName, String destinationFolderPath) {
+        markTaskCompleted(taskName, destinationFolderPath);
+        OngoingTaskViewModelBridge.removePauseCapability();
+    }
+
     public static void markDownloadProgress(Context context, int percent, String text) {
         updateTaskProgress(context, percent, text, "Downloading", false);
         OngoingTaskViewModelBridge.updateProgressFull(text, percent);
     }
 
-    public static void markSplitComplete(Context context, String destPath) {
-        LoadBookTaskState state = Pref.getLoadBookTaskState();
-        if (state != null) {
-            String currentLoadingOperation = "m4b Split completed";
-            state.currentLoadingOperation = currentLoadingOperation;
-            Pref.setLoadBookTaskState(state);
-            OngoingTaskViewModelBridge.updateProgressText(currentLoadingOperation);
-        } else {
-            myLogEE(null, "markSplitComplete - No valid LoadBookTaskState found");
-        }
-    }
-
-    public static void markTaskCancelled(Context context, String taskName) {
+    public static void markTaskCancelled(String taskName) {
         String currentLoadingOperation = taskName + " cancelled";
         LoadBookTaskState state = Pref.getLoadBookTaskState();
         if (state != null) {
@@ -86,12 +93,7 @@ public class TaskStateManager {
         }
     }
 
-
     public static void markTaskFailed(String taskName, String errorText) {
-        markTaskFailed(appContext, taskName, errorText);
-    }
-
-    public static void markTaskFailed(Context context, String taskName, String errorText) {
         String currentLoadingOperation = taskName + " failed - [" + errorText + "]";
         LoadBookTaskState state = Pref.getLoadBookTaskState();
         if (state != null) {
@@ -104,7 +106,7 @@ public class TaskStateManager {
         }
     }
 
-    public static void markTaskCompleted(Context context, String taskName, String destinationFolderPath) {
+    public static void markTaskCompleted(String taskName, String destinationFolderPath) {
         String currentLoadingOperation = taskName + " completed - [" + destinationFolderPath + "]";
         LoadBookTaskState state = Pref.getLoadBookTaskState();
         if (state != null) {

@@ -126,47 +126,13 @@ public class WorkFlow {
         clearLoadBookTaskState(context);
     }
 
-
-
-
-
     public static void cancelAllOngoingTasks(Context context) {
         myLog("...cancelAllOngoingTasks() - called from " + context.getClass().getSimpleName());
 
         Intent intent = new Intent(context, DownloadForegroundService.class);
         context.stopService(intent);
 
-        /*
-        // Cancel Download
-        Intent cancelIntent = new Intent(context, DownloadForegroundService.class);
-        cancelIntent.setAction(DownloadForegroundService.ACTION_CANCEL);
-        ContextCompat.startForegroundService(context, cancelIntent);
-
-         */
-
-
-
         WorkManager.getInstance(context).cancelAllWorkByTag(FOREGROUND_DOWNLOAD_SERVICE_TAG);
-
-
-        // Cancel heavy stuff
-        UnzipService.isUnzipRunning = false;
-        SplitM4bService.isSplitRunning = false;
-        CopyFileService.isCopyRunning = false;
-        AddResourceService.isBusy = false;
-        DownloadService.isBusy = false;
-
-        // Also stop foreground/background services
-        context.stopService(new Intent(context, AddResourceService.class));
-        context.stopService(new Intent(context, CopyFileService.class));
-        context.stopService(new Intent(context, UnzipService.class));
-        context.stopService(new Intent(context, SplitM4bService.class));
-
-        // Cancel jobs if any are registered with JobScheduler
-        JobScheduler scheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
-        if (scheduler != null) {
-            scheduler.cancelAll();  // OR scheduler.cancel(jobId);
-        }
 
         //Ensure nothing left in Download Folder
         String downloadDirPath = StorageHelper.getDownloadFolderPath(context);

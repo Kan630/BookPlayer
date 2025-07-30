@@ -208,8 +208,8 @@ public class LoadOptionsActivity extends LoggingActivity {
                     lCheck = 0;
                     futureFolderPath = uri.toString();
                 } else {
-                    myLogD("Checking Folder Path doesn't already exist in DB (internal copy case) : [" + futureFolderPath + "]");
                     futureFolderPath = getUnzipFolder(this, cbUseSdCard.isChecked()).getAbsolutePath() + "/" + audioBookTitle;
+                    myLogD("Checking Folder Path doesn't already exist in DB (internal copy case) : [" + futureFolderPath + "]");
                     lCheck = AppDatabase.getDatabase(this).FolderDao().folderAlreadyExist_checkFolderPath(futureFolderPath);
                 }
                 String finalFutureFolderPath = futureFolderPath;

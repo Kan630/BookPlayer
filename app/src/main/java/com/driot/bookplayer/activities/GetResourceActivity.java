@@ -42,7 +42,6 @@ import com.driot.bookplayer.utils.log.LoggingActivity;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.driot.bookplayer.global.Pref.getLoadBookTaskState;
 import static com.driot.bookplayer.global.Var.AUTOTEST_FILE_01;
 import static com.driot.bookplayer.global.Var.AUTOTEST_FILE_02;
 import static com.driot.bookplayer.global.Var.AUTOTEST_FILE_03;
@@ -212,12 +211,10 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
                         Intent intentService = new Intent(this, AddResourceService.class);
                         intentService.putExtra("LoadBookTaskState", getLoadBookTaskState(this));
                         startService(intentService);
+                        */
 
                         Intent intentActivity = new Intent(this, AddResourceActivity.class);
-                        intentService.putExtra("LoadBookTaskState", getLoadBookTaskState(this));
                         startActivity(intentActivity);
-
-                         */
 
                     }
                 }
@@ -230,7 +227,7 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
         TextView tv;
         bInternetAudioResource_01.setText("Internet Archive");
         tv = findViewById(R.id.tvInternetAudioRessource_01);
-        tv.setText("Surf the vast Internet Archive for audio files, and download some !");
+        tv.setText(getString(R.string.Surf_the_vast_Internet_Archive_for_audio_files_and_download_some));
         bInternetAudioResource_01.setOnClickListener(view -> {
             String url = "https://archive.org/details/audio";
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
@@ -271,7 +268,7 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
             String url = editTextDirectDownload.getText();
 
             if (url.isEmpty()) {
-                myToast("Please enter a URL.");
+                myToast(getString(R.string.Please_enter_a_URL));
                 return;
             }
             myLog("url : [" + url + "]");
@@ -411,7 +408,7 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
         });
         OngoingTaskViewModel viewModel = new ViewModelProvider(this).get(OngoingTaskViewModel.class);
         viewModel.isTaskRunning().observe(this, isRunning -> {
-            LockButtons(Boolean.TRUE.equals(isRunning));
+            lockButtons(Boolean.TRUE.equals(isRunning));
         });
 
     }
@@ -449,24 +446,8 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
         maybeResumeWorkFlow(this);
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-    }
-    private void onTaskFinished() {
-        myLog("onTaskFinished()");
-        removeOngoingTaskFragment();
-    }
-    private void removeOngoingTaskFragment() {
-        FragmentManager fm = getSupportFragmentManager();
-        Fragment fragment = fm.findFragmentById(R.id.topOverlayContainer);
-        if (fragment instanceof OngoingTaskFragment) {
-            myLog("remove OngoingTaskFragment");
-            fm.beginTransaction().remove(fragment).commitAllowingStateLoss();
-        }
-    }
-
-    private void LockButtons(boolean doLock) {
+   private void lockButtons(boolean doLock) {
+        myLogD("LockButtons : " + doLock);
         try {
             FragmentManager fm = getSupportFragmentManager();
             Fragment current = fm.findFragmentById(R.id.topOverlayContainer);
@@ -486,7 +467,7 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
             if (doLock) {
                 myLog("SomeWorkFlowRunning => displaying banner, disabling buttons");
                 if (!(current instanceof OngoingTaskFragment)) {
-                    myLog("display OngoingTaskFragment");
+                    myLogD("display OngoingTaskFragment");
                     fm.beginTransaction()
                             .replace(R.id.topOverlayContainer, new OngoingTaskFragment())
                             .commit();
@@ -494,13 +475,13 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
                 for (Button b: buttonsToLock) { b.setEnabled(false); }
                 for (TextView tv: textViewToHide) { tv.setVisibility(View.GONE); }
             } else {
+                myLogD("No WorkFlowRunning");
                 if (current instanceof OngoingTaskFragment) {
-                    myLog("remove OngoingTaskFragment");
+                    myLogD("remove OngoingTaskFragment");
                     fm.beginTransaction()
                             .remove(current)
                             .commit();
                 }
-                myLogD("No WorkFlowRunning");
                 for (Button b: buttonsToLock) { b.setEnabled(true); }
                 for (TextView tv: textViewToHide) { tv.setVisibility(View.VISIBLE); }
             }
@@ -606,11 +587,11 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
     }
     private void showPermissionDeniedDialog() {
         new AlertDialog.Builder(this)
-                .setTitle("Permission Required")
+                .setTitle(getString(R.string.Permission_Required))
                 .setMessage(R.string.permission_read_write_denied)
-                .setPositiveButton("App Info", (dialog, which) -> openAppInfo())
-                .setNeutralButton("Options", (dialog, which) -> openOptionActivity())
-                .setNegativeButton("Cancel", null)
+                .setPositiveButton(getString(R.string.App_Info), (dialog, which) -> openAppInfo())
+                .setNeutralButton(getString(R.string.Options), (dialog, which) -> openOptionActivity())
+                .setNegativeButton(getString(R.string.Cancel), null)
                 .show();
     }
     @Override

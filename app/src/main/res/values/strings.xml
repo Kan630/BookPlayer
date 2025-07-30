@@ -668,6 +668,17 @@
 
     <string name="Pause">Pause</string>
     <string name="Resume">Resume</string>
+    <string name="Import_finished_with_errors">Import finished with errors</string>
+    <string name="About_to_start_download">About to start download…</string>
+    <string name="Surf_the_vast_Internet_Archive_for_audio_files_and_download_some">Surf the vast Internet Archive for audio files, and download some !</string>
+    <string name="Please_enter_a_URL">Please enter a URL.</string>
+    <string name="Permission_Required">Permission Required</string>
+    <string name="Options">Options</string>
+    <string name="App_Info">App Info</string>
+    <string name="reset_app">Reset App</string>
+
+
+
 
 
 

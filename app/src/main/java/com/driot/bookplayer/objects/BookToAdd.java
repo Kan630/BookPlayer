@@ -63,7 +63,7 @@ public class BookToAdd {
             myLogW("Side Check if it is a Folder : " + isUriDirectory() + " - but type = " + type);
         }
 
-        this.sourceLocation = getSourceLoc();
+        this.sourceLocation = Tonio.getSourceLocation(appContext, uri);
         this.infoSourceLocation = "[" + this.sourceLocation + "]";
 
         if (type.equals("File")) {
@@ -259,32 +259,6 @@ public class BookToAdd {
         }
 
         return name;
-    }
-
-    private String getSourceLoc() {
-        if (Objects.isNull(uri) || uri.toString().isEmpty()) {
-            myLogE("getSourceLocation - empty uri");
-            return "xxx";
-        }
-        myLogD("getSourceLoc - Authority = " + uri.getAuthority());
-        if (!Objects.isNull(uri) &&  !Objects.isNull(uri.getAuthority())) {
-            String uriAuthority = uri.getAuthority();
-            Set<String> cloudAuthorities = new HashSet<>();
-            cloudAuthorities.add("com.google.android.apps.docs.storage"); // Google Drive
-            cloudAuthorities.add("com.microsoft.skydrive.content");       // OneDrive
-            cloudAuthorities.add("com.microsoft.skydrive.content.StorageAccessProvider");       // OneDrive
-            cloudAuthorities.add("com.dropbox.product.android.dbapp.document_provider.documents");  // DropBox
-            if (uriAuthority != null && cloudAuthorities.contains(uriAuthority)) {
-                return "cloud";
-            } else if (uri.toString().startsWith("http")) {
-                return "web";
-            } else if (KanFiles.isOnSdCard(appContext, uri)) {
-                return "sdcard";
-            } else {
-                return "local";
-            }
-        }
-        return "xxx";
     }
 
     private String getBookName_with2folders(String sFolderPath, boolean stripExtension) {
