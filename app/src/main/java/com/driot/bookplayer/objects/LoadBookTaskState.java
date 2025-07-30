@@ -9,15 +9,16 @@ import androidx.annotation.NonNull;
 import com.driot.bookplayer.utils.KanLogger;
 
 public class LoadBookTaskState implements Parcelable {
-    public Uri uri;
-    public String type;
+    public Uri originalUri;
+    public String originalType;
+    public Uri dynamicUri;
+    public String dynamicType;
     public String title;
     public String futureFolderName;
     public String futureFolderPath;
     public boolean optionSplit;
     public boolean optionCopy;
     public boolean optionDelete;
-    public String originalType;
     public String originalFile;
     public String originalHash;
     public String sourceLocation;
@@ -35,6 +36,8 @@ public class LoadBookTaskState implements Parcelable {
     public String downloadDestinationFolder;
     public int downloadRetryCount;
     public long downloadStartTime;
+    public String dynamicDestinationFolderPath;
+    public String dynamicSourceFilePath;
 
 
 
@@ -43,15 +46,16 @@ public class LoadBookTaskState implements Parcelable {
     }
 
     protected LoadBookTaskState(Parcel in) {
-        uri = in.readParcelable(Uri.class.getClassLoader());  // ✅ Read Uri
-        type = in.readString();
+        originalUri = in.readParcelable(Uri.class.getClassLoader());
+        originalType = in.readString();
+        dynamicUri = in.readParcelable(Uri.class.getClassLoader());
+        dynamicType = in.readString();
         title = trimOrNull(in.readString());
         futureFolderName = trimOrNull(in.readString());
         futureFolderPath = trimOrNull(in.readString());
         optionSplit = in.readByte() != 0;
         optionCopy = in.readByte() != 0;
         optionDelete = in.readByte() != 0;
-        originalType = in.readString();
         originalFile = in.readString();
         originalHash = in.readString();
         sourceLocation = in.readString();
@@ -69,6 +73,8 @@ public class LoadBookTaskState implements Parcelable {
         downloadDestinationFolder = in.readString();
         downloadRetryCount = in.readInt();
         downloadStartTime = in.readLong();
+        dynamicDestinationFolderPath = in.readString();
+        dynamicSourceFilePath = in.readString();
     }
 
     public static final Creator<LoadBookTaskState> CREATOR = new Creator<LoadBookTaskState>() {
@@ -85,15 +91,16 @@ public class LoadBookTaskState implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeParcelable(uri, flags);  // ✅ Write Uri
-        dest.writeString(type);
+        dest.writeParcelable(originalUri, flags);
+        dest.writeString(originalType);
+        dest.writeParcelable(dynamicUri, flags);
+        dest.writeString(dynamicType);
         dest.writeString(title);
         dest.writeString(futureFolderName);
         dest.writeString(futureFolderPath);
         dest.writeByte((byte) (optionSplit ? 1 : 0));
         dest.writeByte((byte) (optionCopy ? 1 : 0));
         dest.writeByte((byte) (optionDelete ? 1 : 0));
-        dest.writeString(originalType);
         dest.writeString(originalFile);
         dest.writeString(originalHash);
         dest.writeString(sourceLocation);
@@ -111,6 +118,8 @@ public class LoadBookTaskState implements Parcelable {
         dest.writeString(downloadDestinationFolder);
         dest.writeInt(downloadRetryCount);
         dest.writeLong(downloadStartTime);
+        dest.writeString(dynamicDestinationFolderPath);
+        dest.writeString(dynamicSourceFilePath);
     }
 
     @Override
@@ -122,15 +131,16 @@ public class LoadBookTaskState implements Parcelable {
     @NonNull
     public String toString() {
         return "LoadBookTaskState{" +
-                "uri=" + uri +
-                ", type='" + type + '\'' +
+                "uri=" + originalUri +
+                ", type='" + originalType + '\'' +
+                ", dynamicUri=" + dynamicUri +
+                ", type='" + dynamicType + '\'' +
                 ", title='" + title + '\'' +
                 ", futureFolder='" + futureFolderName + '\'' +
                 ", futurePath='" + futureFolderPath + '\'' +
                 ", split=" + optionSplit +
                 ", copy=" + optionCopy +
                 ", delete=" + optionDelete +
-                ", originalType='" + originalType + '\'' +
                 ", originalFile='" + originalFile + '\'' +
                 ", originalHash='" + originalHash + '\'' +
                 ", sourceLocation='" + sourceLocation + '\'' +
@@ -148,6 +158,8 @@ public class LoadBookTaskState implements Parcelable {
                 ", downloadDestinationFolder='" + downloadDestinationFolder + '\'' +
                 ", downloadRetryCount=" + downloadRetryCount +
                 ", downloadStartTime=" + downloadStartTime +
+                ", dynamicDestinationFolderPath='" + dynamicDestinationFolderPath + '\'' +
+                ", dynamicSourceFilePath='" + dynamicSourceFilePath + '\'' +
                 '}';
     }
 

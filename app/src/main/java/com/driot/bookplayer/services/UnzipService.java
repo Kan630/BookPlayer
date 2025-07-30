@@ -182,7 +182,6 @@ public class UnzipService extends LoggingService {
                             myLogE("Failed to ensure directory: " + unzipFolder.getAbsolutePath());
                             throw new FileNotFoundException("Failed to ensure directory: " + unzipFolder.getAbsolutePath());
                         }
-// TODO.... should only unzip actual audio files ... or delete non audio files after unzip
 
                         FileOutputStream fout = new FileOutputStream(unzippedAudioFile);
                         try {
@@ -266,32 +265,6 @@ public class UnzipService extends LoggingService {
         return true;
     }
 
-    private String shortenAudioFileName(String audioFileName, String folderName) {
-        String tmp = audioFileName;
-        //tmp = Paths.get(tmp).normalize().toString();
-        if (tmp.toLowerCase(Locale.ROOT).startsWith(folderName.toLowerCase(Locale.ROOT))) {
-            tmp = tmp.substring((folderName).length());
-        }
-        if (tmp.startsWith("/") || tmp.startsWith("\\")) {
-            tmp = tmp.substring(1);
-        } // a second time, needed sometimes...
-        if (tmp.toLowerCase(Locale.ROOT).startsWith(folderName.toLowerCase(Locale.ROOT))) {
-            tmp = tmp.substring((folderName).length());
-        }
-        tmp = tmp.replace("\\","_");
-        tmp = tmp.replace("/","_");
-        if (tmp.startsWith("_") || tmp.startsWith(" ")) {
-            tmp = tmp.substring(1);
-        }
-        if (tmp.length() < 5 ) {
-            tmp = audioFileName;
-        }
-        //// tell result
-        if (!tmp.equals(audioFileName)) {
-            myLog("name shortened : [" + tmp + "] => [" + audioFileName + "]");
-        }
-        return tmp;
-    }
 
     private Charset getCharset(File zipFile) {
         Charset charset;
@@ -331,6 +304,34 @@ public class UnzipService extends LoggingService {
             return false;
         }
     }
+
+    private String shortenAudioFileName(String audioFileName, String folderName) {
+        String tmp = audioFileName;
+        //tmp = Paths.get(tmp).normalize().toString();
+        if (tmp.toLowerCase(Locale.ROOT).startsWith(folderName.toLowerCase(Locale.ROOT))) {
+            tmp = tmp.substring((folderName).length());
+        }
+        if (tmp.startsWith("/") || tmp.startsWith("\\")) {
+            tmp = tmp.substring(1);
+        } // a second time, needed sometimes...
+        if (tmp.toLowerCase(Locale.ROOT).startsWith(folderName.toLowerCase(Locale.ROOT))) {
+            tmp = tmp.substring((folderName).length());
+        }
+        tmp = tmp.replace("\\","_");
+        tmp = tmp.replace("/","_");
+        if (tmp.startsWith("_") || tmp.startsWith(" ")) {
+            tmp = tmp.substring(1);
+        }
+        if (tmp.length() < 5 ) {
+            tmp = audioFileName;
+        }
+        //// tell result
+        if (!tmp.equals(audioFileName)) {
+            myLog("name shortened : [" + tmp + "] => [" + audioFileName + "]");
+        }
+        return tmp;
+    }
+
 
 
     //////////////////////////////////////////////////////////////////////////////////////////

@@ -27,7 +27,7 @@ public class OngoingTaskViewModel extends LoggingViewModel {
             progressText.setValue(state.progressText);
             progressPercent.setValue(state.progressPercent);
             taskRunning.setValue(true);
-            pauseAvailable.setValue(state.uri != null && state.uri.toString().startsWith("http"));
+            pauseAvailable.setValue(state.originalUri != null && state.originalUri.toString().startsWith("http"));
             isPaused.setValue(state.isLoadingPaused);
         }
     }
@@ -57,6 +57,15 @@ public class OngoingTaskViewModel extends LoggingViewModel {
     public void updateProgressText(String text) {
         progressText.setValue(text);
     }
+
+    //TODO
+    public void tellWarning(String text) {
+        progressText.setValue("TODO WARNING: " + text);
+    }
+    public void tellError(String text) {
+        progressText.setValue("TODO ERROR: " + text);
+    }
+
 
     public void endTask() {
         taskRunning.setValue(false);

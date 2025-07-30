@@ -50,8 +50,73 @@ public class TaskStateManager {
         OngoingTaskViewModelBridge.updateProgressFull(text, percent);
     }
 
+    public static void markSplitComplete(Context context, String destPath) {
+        LoadBookTaskState state = Pref.getLoadBookTaskState(context);
+        if (state != null) {
+            String currentLoadingOperation = "m4b Split completed";
+            state.currentLoadingOperation = currentLoadingOperation;
+            Pref.setLoadBookTaskState(context, state);
+            OngoingTaskViewModelBridge.updateProgressText(currentLoadingOperation);
+        } else {
+            myLogEE(null, "markSplitComplete - No valid LoadBookTaskState found");
+        }
+    }
+
+    public static void markTaskCancelled(Context context, String taskName) {
+        String currentLoadingOperation = taskName + " cancelled";
+        LoadBookTaskState state = Pref.getLoadBookTaskState(context);
+        if (state != null) {
+            state.currentLoadingOperation = currentLoadingOperation;
+            state.onGoingLoading = false;
+            Pref.setLoadBookTaskState(context, state);
+            tellError(currentLoadingOperation);
+        } else {
+            myLogEE(null, "markTaskFailed - No valid LoadBookTaskState found - " + currentLoadingOperation);
+        }
+    }
+    public static void markTaskFailed(Context context, String taskName, String errorText) {
+        String currentLoadingOperation = taskName + " failed - [" + errorText + "]";
+        LoadBookTaskState state = Pref.getLoadBookTaskState(context);
+        if (state != null) {
+            state.currentLoadingOperation = currentLoadingOperation;
+            state.onGoingLoading = false;
+            Pref.setLoadBookTaskState(context, state);
+            tellError(currentLoadingOperation);
+        } else {
+            myLogEE(null, "markTaskFailed - No valid LoadBookTaskState found - " + currentLoadingOperation);
+        }
+    }
+
+    public static void markTaskCompleted(Context context, String taskName, String destinationFolderPath) {
+        String currentLoadingOperation = taskName + " completed - [" + destinationFolderPath + "]";
+        LoadBookTaskState state = Pref.getLoadBookTaskState(context);
+        if (state != null) {
+            state.currentLoadingOperation = currentLoadingOperation;
+            state.dynamicDestinationFolderPath = destinationFolderPath;
+            Pref.setLoadBookTaskState(context, state);
+            myLogI(currentLoadingOperation);
+        } else {
+            myLogEE(null, "markTaskFailed - No valid LoadBookTaskState found - " + currentLoadingOperation);
+        }
+    }
+
+    public static void tellWarning(String warningText) {
+        myLogW("Warning: " + warningText);
+        OngoingTaskViewModelBridge.tellWarning(warningText);
+    }
+    public static void tellProgress(int progress, String progressText) {
+        OngoingTaskViewModelBridge.tellProgress(progress, progressText);
+    }
+    private static void tellError(String errorText) { //private because you need to always call markTaskFailed
+        myLogE("Error: " + errorText);
+        OngoingTaskViewModelBridge.tellError(errorText);
+    }
+
+
 
     private static final String TAG = "TaskStateManager";
+    private static void myLogI(String str) { KanLogger.myLogI(TAG, str); }
+    private static void myLogW(String str) { KanLogger.myLogW(TAG, str); }
     private static void myLogE(String str) { KanLogger.myLogE(TAG, str); }
     private static void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, TAG, str); }
     private static void myToastEE(Throwable t, String str) { KanLogger.myToastEE(t, TAG, str); }

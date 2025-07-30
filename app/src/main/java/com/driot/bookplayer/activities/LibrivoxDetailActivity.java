@@ -357,8 +357,8 @@ public class LibrivoxDetailActivity extends LoggingActivity {
 
     private void proceedWithDownload(String url, String futurePath) {
         LoadBookTaskState state = new LoadBookTaskState();
-        state.uri = Uri.parse(url);
-        state.type = "File";
+        state.originalUri = Uri.parse(url);
+        state.dynamicType = "File";
         state.title = viewModel.title;
         state.optionSplit = false;
         state.optionCopy = true;

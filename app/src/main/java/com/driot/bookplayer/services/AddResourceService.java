@@ -359,8 +359,8 @@ public class AddResourceService
         myLogD("initVars");
         if (state != null) {
             bookState = state;
-            set_uri_dynamic(state.uri);
-            set_type_dynamic(state.type);
+            set_uri_dynamic(state.originalUri);
+            set_type_dynamic(state.dynamicType);
         } else {
             myLogEE(null, "initVars state is null");
         }
@@ -412,8 +412,8 @@ public class AddResourceService
         myLog("** title =            " + bookState.title + " **");
         myLog("** futureFolderName = " + bookState.futureFolderName + " **");
         myLog("** futureFolderPath = " + bookState.futureFolderPath + " **");
-        myLog("** original uri =  " + bookState.uri + " **");
-        myLog("** original type = " + bookState.type + " **");
+        myLog("** original uri =  " + bookState.originalUri + " **");
+        myLog("** original type = " + bookState.dynamicType + " **");
         myLog("** uri =   " + uri_dynamic + " **");
         myLog("** type =  " + type_dynamic + " **");
         myLog("*********************************************************************************************************");

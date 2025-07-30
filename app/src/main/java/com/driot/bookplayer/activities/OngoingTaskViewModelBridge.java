@@ -23,6 +23,24 @@ public class OngoingTaskViewModelBridge {
         }
     }
 
+    public static void tellWarning(String text) {
+        if (viewModel != null) {
+            viewModel.tellWarning(text);
+        }
+    }
+    public static void tellProgress(int progress, String progressText) {
+        if (viewModel != null) {
+            viewModel.updateProgressFull(progressText, progress);
+        }
+    }
+
+    public static void tellError(String errorText) {
+        if (viewModel != null) {
+            viewModel.tellError(errorText);
+        }
+    }
+
+
     public static void updateTitle(String title) {
         if (viewModel != null) {
             viewModel.updateTitle(title);

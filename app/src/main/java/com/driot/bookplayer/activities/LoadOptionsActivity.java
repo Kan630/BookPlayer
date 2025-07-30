@@ -218,8 +218,8 @@ public class LoadOptionsActivity extends LoggingActivity {
                         myLogD("ok, filesystem folder name = [" + futureFolderName + "]");
                     }
                     LoadBookTaskState state = new LoadBookTaskState();
-                    state.uri = uri;
-                    state.type = type;
+                    state.originalUri = uri;
+                    state.dynamicType = type;
                     state.title = audioBookTitle;
                     state.futureFolderName = futureFolderName;
                     state.futureFolderPath = futureFolderPath;

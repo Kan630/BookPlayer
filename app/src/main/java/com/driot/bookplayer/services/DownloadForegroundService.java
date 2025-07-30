@@ -43,6 +43,8 @@ import java.net.UnknownHostException;
 
 public class DownloadForegroundService extends LoggingService {
 
+    public static final String TASK_NAME = "download";
+
     public static final String CHANNEL_ID = "BookplayerDownloadChannel";
     public static final int NOTIF_ID = 1630;
 
@@ -306,6 +308,7 @@ public class DownloadForegroundService extends LoggingService {
             }
 
             myLogI("Downloaded to " + destFile.getAbsolutePath());
+            TaskStateManager.markTaskCompleted(this, TASK_NAME, destFile.getAbsolutePath());
             cancelDownloadNotification();
             return true;
 
