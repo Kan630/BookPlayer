@@ -4,6 +4,7 @@ import static com.driot.bookplayer.utils.WorkFlow.cancelAllOngoingTasks;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 
@@ -75,6 +76,19 @@ public class TaskStateManager {
         OngoingTaskViewModelBridge.removePauseCapability();
     }
 
+    public static void markUnzipCompleted(String taskName, String destinationFolderPath) {
+        markTaskCompleted(taskName, destinationFolderPath);
+        LoadBookTaskState state = Pref.getLoadBookTaskState();
+        if (state != null) {
+            state.dynamicType = "Folder";
+            state.dynamicUri = Uri.parse(destinationFolderPath);
+            Pref.setLoadBookTaskState(state);
+        } else {
+            myLogEE(null, "markUnzipCompleted - state == null");
+        }
+    }
+
+
     public static void markDownloadProgress(Context context, int percent, String text) {
         updateTaskProgress(context, percent, text, "Downloading", false);
         OngoingTaskViewModelBridge.updateProgressFull(text, percent);
@@ -106,12 +120,13 @@ public class TaskStateManager {
         }
     }
 
-    public static void markTaskCompleted(String taskName, String destinationFolderPath) {
-        String currentLoadingOperation = taskName + " completed - [" + destinationFolderPath + "]";
+    public static void markTaskCompleted(String taskName, String destinationItem) {
+        String currentLoadingOperation = taskName + " completed - [" + destinationItem + "]";
         LoadBookTaskState state = Pref.getLoadBookTaskState();
         if (state != null) {
             state.currentLoadingOperation = currentLoadingOperation;
-            state.dynamicDestinationFolderPath = destinationFolderPath;
+            state.dynamicDestinationFolderPath = destinationItem;
+            state.dynamicSourceFilePath = destinationItem;
             Pref.setLoadBookTaskState(state);
             myLogI(currentLoadingOperation);
         } else {

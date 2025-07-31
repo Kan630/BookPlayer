@@ -42,6 +42,7 @@ import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.FolderDao;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.objects.PlayList;
 import com.driot.bookplayer.services.AudioService;
 import com.driot.bookplayer.helpers.ImageHelper;
@@ -49,6 +50,7 @@ import com.driot.bookplayer.helpers.InfoHelper;
 import com.driot.bookplayer.utils.KanLogger;
 import com.driot.bookplayer.utils.KanMail;
 import com.driot.bookplayer.helpers.PodcastHelper;
+import com.driot.bookplayer.utils.StorageHelper;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -121,6 +123,11 @@ public class MainActivity extends LoggingActivity {
             bindService(new Intent(this, AudioService.class), audioServiceConnection, 0);
         }
 
+        myLogD("-----------------");
+        FileHelper.listAllFiles(StorageHelper.getUnzipFolder(this, true));
+        myLogD("-----------------");
+        FileHelper.listAllFiles(StorageHelper.getUnzipFolder(this, false));
+        myLogD("-----------------");
 
         //Sql.log_all_Folders(this);
 /*
@@ -214,6 +221,8 @@ public class MainActivity extends LoggingActivity {
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(Var.WEBSITE_URL));
             startActivity(browserIntent);
         } else if (itemId == R.id.menu_open) {
+            startActivity(new Intent(getApplicationContext(), GetResourceActivity.class));
+        } else if (itemId == R.id.action_menu_addBook) {
             startActivity(new Intent(getApplicationContext(), GetResourceActivity.class));
      // } else if (itemId == R.id.menu_synchro) {
        //     startActivity(new Intent(this, SynchroActivity.class));

@@ -98,15 +98,15 @@
 
     <TextView
         android:id="@+id/errorText"
-        style="@style/textColor"
+        style="@style/errorText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="15dp"
         android:layout_marginEnd="15dp"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toLeftOf="@id/guideline_vertical"
+        app:layout_constraintEnd_toEndOf="@id/guideline_vertical"
         app:layout_constraintTop_toBottomOf="@id/progressBar"
-        app:layout_constraintBottom_toBottomOf="@id/warningText"
+        app:layout_constraintBottom_toTopOf="@id/warningText"
         android:textStyle="bold"
         />
 

@@ -227,6 +227,40 @@ public class FileHelper {
     public static boolean isMediaDocument(Uri uri) {
         return "com.android.providers.media.documents".equals(uri.getAuthority());
     }
+
+
+
+
+
+    public static void listAllFiles(File dir) {
+        if (dir == null || !dir.exists()) {
+            myLog("Directory does not exist.");
+            return;
+        }
+        if (!dir.isDirectory()) {
+            myLog("Provided path is not a directory.");
+            return;
+        }
+
+        listFilesRecursive(dir, "");
+    }
+
+    private static void listFilesRecursive(File dir, String indent) {
+        File[] files = dir.listFiles();
+        if (files == null) return;
+
+        for (File file : files) {
+            if (file.isDirectory()) {
+                myLog(indent + "[DIR]  " + file.getAbsolutePath());
+                listFilesRecursive(file, indent + "  ");
+            } else {
+                myLog(indent + "[FILE] " + file.getAbsolutePath());
+            }
+        }
+    }
+    
+    
+    
     // ----------------------- LOG -----------------------
     private static final String TAG = "FileHelper";
     private static void myLog(String str) { KanLogger.myLog(TAG, str); }

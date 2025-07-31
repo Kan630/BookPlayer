@@ -24,6 +24,7 @@ import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Pref;
+import com.driot.bookplayer.helpers.UriHelper;
 import com.driot.bookplayer.objects.AudioFileInfo;
 import com.driot.bookplayer.objects.TaskStateManager;
 import com.driot.bookplayer.objects.LoadBookTaskState;
@@ -86,25 +87,26 @@ public class ParseFinalFolderWorker extends LoggingWorker {
             return Result.failure();
         }
 
-        boolean isFolderComputed = Tonio.isFolder(context, bookState.dynamicUri);
+        boolean isFolderComputed = UriHelper.isFolder(context, bookState.dynamicUri);
+        myLogD("isFolderComputed : " + isFolderComputed);
         myLogD("original Type : " + bookState.originalType);
         myLogD("dynamic Type : " + bookState.dynamicType);
-        myLogD("isFolderComputed : " + isFolderComputed);
+        myLogD("dynamic Uri : " + bookState.dynamicUri);
 
-        if (isFolderComputed) {
+        if (bookState.dynamicType.equals("Folder")) {
             try {
-                df = DocumentFile.fromTreeUri(context, bookState.dynamicUri);
+                df = UriHelper.getDocumentFileFromAnyUri(context, bookState.dynamicUri);
             } catch (Exception e) {
-                myLogEE(e,"Error reading picked Folder.... DocumentFile.fromTreeUri");
+                myLogEE(e,"Error reading Folder Uri...." + bookState.dynamicUri);
                 TaskStateManager.markTaskFailed(TASK_NAME, context.getString(R.string.Error_Import_CannotReadFolder));
                 return Result.failure();
             }
             populateArrayListOfTracksFromFolder(df);
         } else {
             try {
-                df = DocumentFile.fromSingleUri(context, bookState.dynamicUri);
+                df = UriHelper.getDocumentFileFromAnyUri(context, bookState.dynamicUri);
             } catch (Exception e) {
-                myLogEE(e,"Error reading picked Folder.... DocumentFile.fromTreeUri");
+                myLogEE(e,"Error reading File Uri.... " + bookState.dynamicUri);
                 TaskStateManager.markTaskFailed(TASK_NAME, context.getString(R.string.Error_Import_CannotReadFolder));
                 return Result.failure();
             }

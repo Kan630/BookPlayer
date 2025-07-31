@@ -120,14 +120,7 @@ public class AddResourceActivity extends LoggingActivity {
         bCancel.setText(getString(R.string.Exit));
         if (tvErrorText.getText().length() > 0) {
 
-            //wait some sec
-            final Handler handler = new Handler();
-            Runnable runnable = () -> {
-                myToast(getString(R.string.Import_finished_with_errors));
-                finish();
-            };
-            myLog("Let's wait some " + DELAY_END_WAIT_ERROR/1000 + " sec to display error... [" + tvErrorText.getText() + "]");
-            handler.postDelayed(runnable, DELAY_END_WAIT_ERROR);
+            myToast(getString(R.string.Import_finished_with_errors));
 
         } else {
             final Handler handler = new Handler();

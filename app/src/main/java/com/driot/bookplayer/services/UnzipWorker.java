@@ -13,6 +13,8 @@ import androidx.annotation.NonNull;
 import androidx.work.WorkerParameters;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.global.Pref;
+import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.objects.TaskStateManager;
 import com.driot.bookplayer.utils.log.LoggingWorker;
 
@@ -25,8 +27,6 @@ import java.util.zip.*;
 
 public class UnzipWorker extends LoggingWorker {
 
-    public static final String KEY_ZIP_PATH = "zipFilePath";
-    public static final String KEY_DEST_PATH = "destinationFolderPath";
     private static final String TASK_NAME = "Unzip";
 
 
@@ -38,8 +38,15 @@ public class UnzipWorker extends LoggingWorker {
     @Override
     public Result doWork() {
         Context context = getApplicationContext();
-        String zipFilePath = getInputData().getString(KEY_ZIP_PATH);
-        String destinationFolderPath = getInputData().getString(KEY_DEST_PATH);
+
+        LoadBookTaskState bookState = Pref.getLoadBookTaskState();
+        if (bookState == null) {
+            TaskStateManager.markTaskFailed(TASK_NAME, "bookState == null");
+            return Result.failure();
+        }
+
+        String zipFilePath = bookState.dynamicSourceFilePath;
+        String destinationFolderPath = bookState.futureFolderPath;
 
         if (zipFilePath == null || destinationFolderPath == null) {
             TaskStateManager.markTaskFailed(TASK_NAME, "Missing input data");
@@ -124,7 +131,7 @@ public class UnzipWorker extends LoggingWorker {
                 }
             }
 
-            TaskStateManager.markTaskCompleted(TASK_NAME, destinationFolderPath);
+            TaskStateManager.markUnzipCompleted(TASK_NAME, destinationFolderPath);
             return Result.success();
 
         } catch (Exception e) {

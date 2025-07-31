@@ -7,6 +7,10 @@
         <item name="android:textColor">@color/text_default</item>
     </style>
 
+    <style name="errorText" parent="TextAppearance.AppCompat">
+        <item name="android:textColor">@color/red_500</item>
+    </style>
+
     <style name="EditText" parent="TextAppearance.AppCompat">
         <item name="android:background">@drawable/rounded_corner_theme</item>
         <item name="android:textColor">?colorOnSecondary</item>

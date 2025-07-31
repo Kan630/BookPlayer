@@ -489,9 +489,9 @@ public class Tonio {
 
 
 
-    public static boolean fileExists(String filePath) {
-        File file = new File(filePath);
-        return file.exists();
+    public static boolean fileExists(String path) {
+        File file = new File(path);
+        return file.exists() && file.isFile();
     }
 
 
@@ -554,38 +554,6 @@ public class Tonio {
             }
         }
     }
-
-    public static boolean isFolder(Context context, Uri uri) {
-        try {
-            if (uri == null) return false;
-
-            // Case 1: File scheme or plain path (e.g. "/storage/emulated/0/Music")
-            if ("file".equals(uri.getScheme()) || uri.getScheme() == null) {
-                String path = uri.getPath();
-                if (path == null) return false;
-                File file = new File(path);
-                return file.exists() && file.isDirectory();
-            }
-
-            // Case 2: Content URI - Try DocumentFile
-            if ("content".equals(uri.getScheme())) {
-                DocumentFile docFile = DocumentFile.fromTreeUri(context, uri);
-                if (docFile == null || !docFile.exists()) {
-                    // fallback: maybe it's a single file content uri
-                    docFile = DocumentFile.fromSingleUri(context, uri);
-                }
-                return docFile != null && docFile.exists() && docFile.isDirectory();
-            }
-
-            // Unknown scheme
-            myLogW("isFolder: Unknown URI scheme: " + uri.getScheme());
-            return false;
-        } catch (Exception e) {
-            myLogEE(e, "isFolder");
-            return false;
-        }
-    }
-
 
     public static String formatSizeMB(long bytes) {
         double mb = bytes / (1024.0 * 1024.0);
