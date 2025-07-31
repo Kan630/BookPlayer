@@ -1,4 +1,22 @@
+
 package com.driot.bookplayer.services;
+
+import static com.driot.bookplayer.db.Sql.updateFolderTable;
+import static com.driot.bookplayer.global.Pref.getLoadBookTaskState;
+import static com.driot.bookplayer.global.Pref.setLoadBookTaskState;
+import static com.driot.bookplayer.global.Var.ONLY_MIME_AUDIO;
+import static com.driot.bookplayer.global.Var.PATH_CHECK_AUTOTEST;
+import static com.driot.bookplayer.global.Var.SUPPORTED_AUDIO_EXTENSIONS;
+import static com.driot.bookplayer.global.Var.SUPPORTED_COVER_PICTURE_EXTENSIONS;
+import static com.driot.bookplayer.utils.Tonio.fileExists;
+import static com.driot.bookplayer.utils.Tonio.formatMemPadding;
+import static com.driot.bookplayer.utils.Tonio.formatNameForDisplay;
+import static com.driot.bookplayer.utils.Tonio.formatTime;
+import static com.driot.bookplayer.utils.Tonio.getExtension;
+import static com.driot.bookplayer.utils.Tonio.getFileNameFromPath;
+import static com.driot.bookplayer.utils.TonioCommonStuff.deleteExtension;
+import static com.driot.bookplayer.utils.WorkFlow.clearDownloadFinished;
+import static com.driot.bookplayer.utils.WorkFlow.setWorkFlowFinished;
 
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -16,18 +34,18 @@ import androidx.documentfile.provider.DocumentFile;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.global.Pref;
-import com.driot.bookplayer.objects.AudioFileInfo;
-import com.driot.bookplayer.helpers.StorageHelper;
-import com.driot.bookplayer.utils.FileUtils;
-import com.driot.bookplayer.utils.Tonio;
-import com.driot.bookplayer.utils.log.LoggingService;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.db.Folder;
-import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.db.ZikFile;
+import com.driot.bookplayer.global.Pref;
+import com.driot.bookplayer.helpers.StorageHelper;
+import com.driot.bookplayer.objects.AudioFileInfo;
+import com.driot.bookplayer.objects.LoadBookTaskState;
+import com.driot.bookplayer.utils.FileUtils;
+import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.Utils;
+import com.driot.bookplayer.utils.log.LoggingService;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,35 +54,18 @@ import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Objects;
 
-import static com.driot.bookplayer.db.Sql.updateFolderTable;
-import static com.driot.bookplayer.global.Pref.getLoadBookTaskState;
-import static com.driot.bookplayer.global.Pref.setLoadBookTaskState;
-import static com.driot.bookplayer.global.Var.ONLY_MIME_AUDIO;
-import static com.driot.bookplayer.global.Var.PATH_CHECK_AUTOTEST;
-import static com.driot.bookplayer.global.Var.SUPPORTED_AUDIO_EXTENSIONS;
-import static com.driot.bookplayer.global.Var.SUPPORTED_COVER_PICTURE_EXTENSIONS;
-import static com.driot.bookplayer.utils.Tonio.formatMemPadding;
-import static com.driot.bookplayer.utils.Tonio.formatNameForDisplay;
-import static com.driot.bookplayer.utils.Tonio.fileExists;
-import static com.driot.bookplayer.utils.Tonio.formatTime;
-import static com.driot.bookplayer.utils.Tonio.getExtension;
-import static com.driot.bookplayer.utils.Tonio.getFileNameFromPath;
-import static com.driot.bookplayer.utils.TonioCommonStuff.deleteExtension;
-import static com.driot.bookplayer.utils.WorkFlow.clearDownloadFinished;
-import static com.driot.bookplayer.utils.WorkFlow.setWorkFlowFinished;
-
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 23/11/20
  */
 
 // TODO check if Service is Busy before starting another import
 
-public class AddResourceService
+public class AddResourceServiceOld
         extends LoggingService
         implements CopyFileService.Callbacks, UnzipService.Callbacks, DownloadService.Callbacks, SplitM4bService.Callbacks
 {
 
-    AddResourceService.Callbacks mCallBacks;
+    AddResourceServiceOld.Callbacks mCallBacks;
 
     CopyFileService mCopyFileService;
     Boolean mCopyFileServiceBound;
@@ -206,9 +207,9 @@ public class AddResourceService
         return super.onUnbind(intent);
     }
     public class AddResourceServiceBackgroundBinder extends Binder {
-        public AddResourceService getService() {
+        public AddResourceServiceOld getService() {
             myLogD("AddResourceServiceBackgroundBinder returning service instance; ");
-            return AddResourceService.this;
+            return AddResourceServiceOld.this;
         }
     }
     // services
@@ -220,7 +221,7 @@ public class AddResourceService
             myLogD("copyFileServiceConnection - onServiceConnected : [" + className.toString() + "]");
             CopyFileService.CopyFileServiceBackgroundBinder binder = (CopyFileService.CopyFileServiceBackgroundBinder) service;
             mCopyFileService = binder.getService();
-            mCopyFileService.registerClient(AddResourceService.this);
+            mCopyFileService.registerClient(AddResourceServiceOld.this);
             mCopyFileServiceBound = true;
             myLog("copyFileServiceConnection - launch init()");
             mCopyFileService.init();
@@ -258,7 +259,7 @@ public class AddResourceService
             myLogD("unzipServiceConnection - onServiceConnected : [" + className.toString() + "]");
             UnzipService.UnzipServiceBackgroundBinder binder = (UnzipService.UnzipServiceBackgroundBinder) service;
             mUnzipService = binder.getService();
-            mUnzipService.registerClient(AddResourceService.this);
+            mUnzipService.registerClient(AddResourceServiceOld.this);
             mUnzipServiceBound = true;
             myLogD("unzipServiceConnection - launch init()");
             mUnzipService.init();
@@ -292,7 +293,7 @@ public class AddResourceService
             myLogD("SplitM4bServiceConnection - onServiceConnected : [" + className.toString() + "]");
             SplitM4bService.SplitM4bServiceBackgroundBinder binder = (SplitM4bService.SplitM4bServiceBackgroundBinder) service;
             mSplitM4bService = binder.getService();
-            mSplitM4bService.registerClient(AddResourceService.this);
+            mSplitM4bService.registerClient(AddResourceServiceOld.this);
             mSplitM4bServiceBound = true;
             myLogD("SplitM4bServiceConnection - launch init()");
             mSplitM4bService.init();
@@ -326,7 +327,7 @@ public class AddResourceService
             myLogD("downloadServiceConnection - onServiceConnected : [" + className.toString() + "]");
             DownloadService.DownloadServiceBackgroundBinder binder = (DownloadService.DownloadServiceBackgroundBinder) service;
             mDownloadService = binder.getService();
-            mDownloadService.registerClient(AddResourceService.this);
+            mDownloadService.registerClient(AddResourceServiceOld.this);
             mDownloadServiceBound = true;
             myLogD("downloadServiceServiceConnection - launch init()");
             mDownloadService.init();
@@ -1233,3 +1234,4 @@ public class AddResourceService
         }
     }
 }
+

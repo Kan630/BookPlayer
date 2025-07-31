@@ -1,7 +1,8 @@
 package com.driot.bookplayer.activities;
 
+import static com.driot.bookplayer.utils.WorkFlow.cancelAllOngoingTasks;
+
 import android.app.Activity;
-import android.app.Application;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -10,15 +11,13 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.driot.bookplayer.R;
-import com.driot.bookplayer.services.DownloadForegroundService;
-import com.driot.bookplayer.utils.log.LoggingActivity;
-import com.driot.bookplayer.objects.AppViewModelStoreOwner;
-
-import static com.driot.bookplayer.utils.WorkFlow.cancelAllOngoingTasks;
-
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
+
+import com.driot.bookplayer.R;
+import com.driot.bookplayer.objects.AppViewModelStoreOwner;
+import com.driot.bookplayer.services.DownloadForegroundService;
+import com.driot.bookplayer.utils.log.LoggingActivity;
 
 
 /**
@@ -39,6 +38,9 @@ public class AddResourceActivity extends LoggingActivity {
 
     Button bPauseResume;
     Button bCancel;
+
+    private Handler delayedFinishHandler;
+    private Runnable delayedFinishRunnable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,9 +73,12 @@ public class AddResourceActivity extends LoggingActivity {
 
         viewModel.isPauseAvailable().observe(this, available -> {
             bPauseResume.setVisibility(available ? View.VISIBLE : View.GONE);
+            /*
             if (available && progressBarText.getText().length() == 0) {
                 progressBarText.setText(getString(R.string.About_to_start_download));
             }
+
+             */
         });
         viewModel.isPaused().observe(this, paused -> {
             if (bPauseResume.getVisibility() == View.VISIBLE) {
@@ -117,12 +122,13 @@ public class AddResourceActivity extends LoggingActivity {
         AddResourceActivity.this.setResult(Activity.RESULT_OK);
         bCancel.setText(getString(R.string.Exit));
         if (tvErrorText.getText().length() > 0) {
+            myToast(getString(R.string.Import_failed));
 
+        } else if (tvWarning.getText().length() > 0) {
             myToast(getString(R.string.Import_finished_with_errors));
-
         } else {
-            final Handler handler = new Handler();
-            Runnable runnable = () -> {
+            delayedFinishHandler = new Handler();
+            delayedFinishRunnable = () -> {
                 myToast(getString(R.string.Import_Success) + "\n" + tvTitle.getText());
                 cancelAllOngoingTasks(this);
                 Intent mainIntent = new Intent(this, MainActivity.class);
@@ -131,9 +137,17 @@ public class AddResourceActivity extends LoggingActivity {
                 finish();
             };
             myLog("Let's wait some " + DELAY_END_WAIT_NO_ERROR/1000 + " sec to display finish...");
-            handler.postDelayed(runnable, DELAY_END_WAIT_NO_ERROR);
+            delayedFinishHandler.postDelayed(delayedFinishRunnable, DELAY_END_WAIT_NO_ERROR);
         }
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (delayedFinishHandler != null && delayedFinishRunnable != null) {
+            delayedFinishHandler.removeCallbacks(delayedFinishRunnable);
+            myLog("Delayed finish runnable cancelled in onPause()");
+        }
+    }
 
 }

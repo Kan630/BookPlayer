@@ -49,7 +49,7 @@ public class DownloadService extends LoggingService {
     @Override
     public IBinder onBind(Intent intent) {
         myLog("onBind()    intent:" + intent.getDataString());
-        parseIntent(intent);
+        //parseIntent(intent);
         return binder;
     }
     private void parseIntent(Intent intent) {
@@ -62,7 +62,7 @@ public class DownloadService extends LoggingService {
                 "\n.    audioBookTitle = [" + audioBookTitle + "]"
         );
         if (fileUrl ==null || destinationFolder == null) {
-            myLogE("Null Intents !!");
+            myLogE("Null Intents in Download Service");
             stopSelf();
         }
     }

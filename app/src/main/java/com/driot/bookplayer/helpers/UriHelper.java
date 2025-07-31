@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.provider.DocumentsContract;
+import android.provider.MediaStore;
 import android.text.TextUtils;
 
 import androidx.annotation.Nullable;
@@ -60,6 +61,24 @@ public class UriHelper {
         return null;
     }
 
+
+
+
+    @Nullable
+    public static String getRealPathFromContentUri(Context context, Uri uri) {
+        try (Cursor cursor = context.getContentResolver().query(uri,
+                new String[]{MediaStore.MediaColumns.DATA}, null, null, null)) {
+            if (cursor != null && cursor.moveToFirst()) {
+                return cursor.getString(0);
+            }
+        } catch (Exception e) {
+            myLogEE(e, "getRealPathFromContentUri failed");
+        }
+        return null;
+    }
+
+
+
     public static boolean isFolder(Context context, Uri uri) {
         try {
             if (uri == null) {
@@ -99,12 +118,17 @@ public class UriHelper {
 
     public static long getSize(Context context, Uri uri) {
         DocumentFile docFile = getDocumentFileFromAnyUri(context, uri);
-        if (docFile == null || !docFile.exists()) {
-            myLogW("getSize: Null or non-existent file");
-            return 0;
-        }
 
-        if (docFile.isDirectory()) {
+        if (docFile != null && docFile.exists()) {
+            if (docFile.isDirectory()) {
+                return getFolderSize(context, uri, 0);
+            } else {
+                return getFileSize(context, uri);
+            }
+        }
+        // Fallback when DocumentFile doesn't work like on [content://media/external/file/1000000103] (MediaStore)
+        myLogW("getSize: Falling back to manual check");
+        if (isFolder(context, uri)) {
             return getFolderSize(context, uri, 0);
         } else {
             return getFileSize(context, uri);

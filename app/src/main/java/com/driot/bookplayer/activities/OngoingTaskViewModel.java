@@ -70,7 +70,12 @@ public class OngoingTaskViewModel extends LoggingAndroidViewModel {
     }
 
     public void tellWarning(String text) {
-        warningText.postValue(text);
+        String current = warningText.getValue();
+        if (current == null || current.isEmpty()) {
+            warningText.postValue(text);
+        } else {
+            warningText.postValue(current + "\n" + text);
+        }
     }
 
     public void tellError(String text) {
@@ -78,7 +83,7 @@ public class OngoingTaskViewModel extends LoggingAndroidViewModel {
         taskRunning.postValue(false);
         pauseAvailable.postValue(false);
         isFinished.postValue(true);
-        progressText.postValue(getApplication().getString(R.string.Finished_with_errors));
+        progressText.postValue(getApplication().getString(R.string.Import_failed));
         progressPercent.postValue(100);
     }
 

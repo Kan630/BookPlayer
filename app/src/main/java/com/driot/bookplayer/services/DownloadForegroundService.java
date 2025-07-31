@@ -186,9 +186,9 @@ public class DownloadForegroundService extends LoggingService {
     }
 
     private boolean performDownload(String fileUrl, String destinationFolder) {
-        myLog("performDownload  -  " + fileUrl + " => " + destinationFolder);
+        myLog("performDownload  for  [" + fileUrl + "]\n => " + destinationFolder);
         if (fileUrl == null || destinationFolder == null) {
-            myLogE("Null arguments");
+            myLogE("Null arguments in Download ForegroundService");
             return false;
         }
         InputStream input = null;

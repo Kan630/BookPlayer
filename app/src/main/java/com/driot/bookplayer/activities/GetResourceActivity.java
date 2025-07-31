@@ -432,7 +432,6 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
         if (viewModel != null) {
             lockButtons(Boolean.TRUE.equals(viewModel.isTaskRunning().getValue()));
         }
-
         //ersatz :
         /*
         LoadBookTaskState state = Pref.getLoadBookTaskState();

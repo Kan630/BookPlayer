@@ -23,7 +23,6 @@ import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.objects.ItemMetadata;
 import com.driot.bookplayer.objects.LibrivoxApi;
 import com.driot.bookplayer.objects.LoadBookTaskState;
-import com.driot.bookplayer.services.AddResourceService;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.utils.WorkFlow;
 import com.driot.bookplayer.utils.log.LoggingActivity;
@@ -367,15 +366,13 @@ public class LibrivoxDetailActivity extends LoggingActivity {
         state.sourceLocation = SOURCE_LOCATION_LIBRIVOX;
         state.futureFolderName = viewModel.identifier;
         state.futureFolderPath = futurePath;
+        state.onGoingLoading = true;
+        state.progressText = getString(R.string.About_to_start_download);
+        state.progressPercent = 2;
 
         setLoadBookTaskState(state);
 
-        Intent intentService = new Intent(this, AddResourceService.class);
-        intentService.putExtra("LoadBookTaskState", state);
-        startService(intentService);
-
         Intent intentActivity = new Intent(this, AddResourceActivity.class);
-        intentActivity.putExtra("LoadBookTaskState", state);
         startActivity(intentActivity);
 
         finish();

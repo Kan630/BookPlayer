@@ -128,9 +128,9 @@ public class CopyFileWorker extends LoggingWorker {
             }
             if (result) {
                 if ("Folder".equals(type)) {
-                    TaskStateManager.markTaskCompleted(TASK_NAME, destinationFolderPath);
+                    TaskStateManager.markCopyCompleted(TASK_NAME, destinationFolderPath);
                 } else {
-                    TaskStateManager.markTaskCompleted(TASK_NAME, destinationFolderPath + "/" + destinationFileName);
+                    TaskStateManager.markCopyCompleted(TASK_NAME, destinationFolderPath + "/" + destinationFileName);
                 }
                 return Result.success();
             } else {

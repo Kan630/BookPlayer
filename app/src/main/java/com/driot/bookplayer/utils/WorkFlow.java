@@ -13,7 +13,6 @@ import androidx.work.WorkManager;
 
 import com.driot.bookplayer.objects.AppViewModelStoreOwner;
 import com.driot.bookplayer.objects.LoadBookTaskState;
-import com.driot.bookplayer.services.AddResourceService;
 import com.driot.bookplayer.services.CopyFileService;
 import com.driot.bookplayer.services.DownloadForegroundService;
 import com.driot.bookplayer.services.DownloadService;
@@ -53,10 +52,6 @@ public class WorkFlow {
             myLog("yes : DownloadService...");
             return true;
         }
-        if (AddResourceService.isBusy) {
-            myLog("yes : AddResourceService...");
-            return true;
-        }
         return false;
     }
 
@@ -77,11 +72,6 @@ public class WorkFlow {
 
             myLogI("onGoing !! => but we dont do anything nowadays...");
 
-            if (AddResourceService.isBusy) {
-                myLogD("AddResourceService is Busy");
-            } else {
-                myLogD("AddResourceService not Busy");
-            }
 
             /*
             // Restart the AddResourceActivity

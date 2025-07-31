@@ -188,7 +188,7 @@ public class ParseFinalFolderWorker extends LoggingWorker {
 
     private void addAudioFileUnique(DocumentFile df) {
         myLogD("* New Audio File : [" +  df.getName() + ']');
-        long duration = getMediaDurationFromUri(context, df.getUri());
+        long duration = getMediaDurationFromUri(context, df.getUri(), df.getName());
         myLogD("* Duration : [" +  formatTime(duration) + ']');
         audioFileArrayList.add(new AudioFileInfo(df.getName(), duration));
     }
@@ -216,7 +216,7 @@ public class ParseFinalFolderWorker extends LoggingWorker {
                     l_audioFilePath = recursivFolder + f1.getName();
                     l_audioSize = f1.length();
                     myLogD("* New Audio File : [" + l_audioFilePath + "] - size = [" + l_audioSize + "]");
-                    long duration = getMediaDurationFromUri(context, f1.getUri());
+                    long duration = getMediaDurationFromUri(context, f1.getUri(), l_audioFilePath);
                     myLogD("* Duration : [" +  formatTime(duration) + ']');
                     double progress = (double) nbFileScan%10/10;
                     TaskStateManager.tellProgress((int) (PROGRESS[2] + (PROGRESS[3] - PROGRESS[2]) * progress), "Scanning for Audio Files..... \n[" +  l_audioFilePath + ']');
@@ -388,7 +388,7 @@ public class ParseFinalFolderWorker extends LoggingWorker {
         }
     }
 
-    private long getMediaDurationFromUri(Context context, Uri uri) {
+    private long getMediaDurationFromUri(Context context, Uri uri, String audioName) {
         long duration = 0;
         try {
             MediaMetadataRetriever retriever = new MediaMetadataRetriever();
@@ -396,10 +396,9 @@ public class ParseFinalFolderWorker extends LoggingWorker {
             String durStr = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
             duration = Long.parseLong(durStr);
         } catch (Exception e) {
-            TaskStateManager.markTaskFailed(TASK_NAME, context.getString(R.string.Error_Import_track_duration_extraction) + " // uri: " + uri);
+            TaskStateManager.tellWarning(context.getString(R.string.Error_Import_track_duration_extraction) + " for " + audioName);
             myLogEE(e,"error getting duration of media for uri: [" + uri + "]");
         }
-        //myLogD("duration for [" + uri + "] is " + duration);
         return duration;
     }
 

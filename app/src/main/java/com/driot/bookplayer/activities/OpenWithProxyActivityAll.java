@@ -8,7 +8,7 @@ import android.os.Bundle;
 
 import androidx.annotation.Nullable;
 
-import com.driot.bookplayer.services.AddResourceService;
+import com.driot.bookplayer.services.BookLoadingWorkLauncher;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
 // 2025-07-05
@@ -53,12 +53,8 @@ public class OpenWithProxyActivityAll extends LoggingActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == REQUEST_LOAD_OPTIONS && resultCode == RESULT_OK) {
-            Intent intentService = new Intent(this, AddResourceService.class);
-            intentService.putExtra("LoadBookTaskState", getLoadBookTaskState());
-            startService(intentService);
-
+            BookLoadingWorkLauncher.launch(this);
             Intent intentActivity = new Intent(this, AddResourceActivity.class);
-            intentService.putExtra("LoadBookTaskState", getLoadBookTaskState());
             startActivity(intentActivity);
         } else {
             myLogW("onActivityResult => not OK");

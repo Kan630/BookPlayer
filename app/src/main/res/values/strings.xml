@@ -669,6 +669,7 @@
     <string name="Pause">Pause</string>
     <string name="Resume">Resume</string>
     <string name="Import_finished_with_errors">Import finished with errors</string>
+    <string name="Import_failed">Import failed</string>
     <string name="About_to_start_download">About to start download…</string>
     <string name="Surf_the_vast_Internet_Archive_for_audio_files_and_download_some">Surf the vast Internet Archive for audio files, and download some !</string>
     <string name="Please_enter_a_URL">Please enter a URL.</string>
@@ -678,12 +679,11 @@
     <string name="reset_app">Reset App</string>
     <string name="Exit">Exit</string>
     <string name="Finished">Finished</string>
-    <string name="Finished_with_errors">Finished with errors</string>
     <string name="add_book">add book</string>
     <string name="Not_enough_memory">Not enough memory</string>
     <string name="Import_in_progress">Import in progress</string>
 
-    <string name="Import_Progress_copying_file_from_general_storage">"copying source file \n- from Device General Storage"</string>
+    <string name="Import_Progress_copying_file_from_general_storage">"copying source file \n- from Device general storage"</string>
     <string name="Import_Progress_copying_file_from_cloud">"copying source file \n- from Cloud"</string>
     <string name="Import_Progress_copying_file_to_internal_reserved">"\n- to Bookplayer app internal memory"</string>
     <string name="Import_Progress_copying_file_to_sd_card_reserved">"\n- to Bookplayer reserved sd card memory"</string>
