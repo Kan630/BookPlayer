@@ -14,7 +14,6 @@ import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.utils.KanLogger;
-import com.driot.bookplayer.utils.StorageHelper;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;

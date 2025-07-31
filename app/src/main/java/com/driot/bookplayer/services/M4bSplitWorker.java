@@ -6,6 +6,8 @@ import androidx.annotation.NonNull;
 import androidx.work.WorkerParameters;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.global.Pref;
+import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.objects.TaskStateManager;
 import com.driot.bookplayer.utils.log.LoggingWorker;
 import com.googlecode.mp4parser.authoring.Movie;
@@ -25,8 +27,6 @@ import java.util.*;
 
 public class M4bSplitWorker extends LoggingWorker {
 
-    public static final String KEY_INPUT_PATH = "m4bFilePath";
-    public static final String KEY_DEST_FOLDER = "destinationFolderPath";
     private static final String TASK_NAME = "m4b split";
 
     public M4bSplitWorker(@NonNull Context context, @NonNull WorkerParameters params) {
@@ -37,8 +37,15 @@ public class M4bSplitWorker extends LoggingWorker {
     @Override
     public Result doWork() {
         Context context = getApplicationContext();
-        String m4bFilePath = getInputData().getString(KEY_INPUT_PATH);
-        String destinationFolderPath = getInputData().getString(KEY_DEST_FOLDER);
+
+        LoadBookTaskState bookState = Pref.getLoadBookTaskState();
+        if (bookState == null) {
+            TaskStateManager.markTaskFailed(TASK_NAME, "bookState == null");
+            return Result.failure();
+        }
+
+        String m4bFilePath = bookState.dynamicSourceFilePath;
+        String destinationFolderPath = bookState.futureFolderPath;
 
         myLog("Worker received:");
         myLog("m4bFilePath = " + m4bFilePath);
@@ -56,11 +63,6 @@ public class M4bSplitWorker extends LoggingWorker {
 
     private boolean splitM4bLocal(String m4bFilePath, String destinationFolderPath) {
         Context context = getApplicationContext();
-        TaskStateManager.tellWarning(context.getString(R.string.Import_Experimental_M4B_warning)
-                + "\n\n" + context.getString(R.string.Import_Experimental_M4B_iferror)
-                + ", " + context.getString(R.string.Import_Experimental_M4B_solution_1)
-                + "\n" + context.getString(R.string.Import_Experimental_M4B_solution_2));
-
         File m4bFile = new File(m4bFilePath);
         File outputFolder = new File(destinationFolderPath);
         outputFolder.mkdirs();
@@ -154,11 +156,15 @@ public class M4bSplitWorker extends LoggingWorker {
                 TaskStateManager.tellWarning("Error Deleting source M4B file after split.");
             }
 
-            TaskStateManager.markTaskCompleted(TASK_NAME, outputFolder.getAbsolutePath());
+            TaskStateManager.markM4bSplitCompleted(TASK_NAME, outputFolder.getAbsolutePath());
             return true;
 
         } catch (Exception e) {
             myLogEE(e, "splitM4bLocal");
+            TaskStateManager.tellWarning(context.getString(R.string.Import_Experimental_M4B_warning)
+                    + "\n\n" + context.getString(R.string.Import_Experimental_M4B_iferror)
+                    + ", " + context.getString(R.string.Import_Experimental_M4B_solution_1)
+                    + "\n" + context.getString(R.string.Import_Experimental_M4B_solution_2));
             TaskStateManager.markTaskFailed(TASK_NAME, e.getMessage());
             return false;
         }

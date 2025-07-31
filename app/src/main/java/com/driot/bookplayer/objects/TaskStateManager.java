@@ -88,6 +88,17 @@ public class TaskStateManager {
         }
     }
 
+    public static void markM4bSplitCompleted(String taskName, String destinationFolderPath) {
+        markTaskCompleted(taskName, destinationFolderPath);
+        LoadBookTaskState state = Pref.getLoadBookTaskState();
+        if (state != null) {
+            state.dynamicType = "Folder";
+            state.dynamicUri = Uri.parse(destinationFolderPath);
+            Pref.setLoadBookTaskState(state);
+        } else {
+            myLogEE(null, "markM4bSplitCompleted - state == null");
+        }
+    }
 
     public static void markDownloadProgress(Context context, int percent, String text) {
         updateTaskProgress(context, percent, text, "Downloading", false);

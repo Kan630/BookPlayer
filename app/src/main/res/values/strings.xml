@@ -683,6 +683,10 @@
     <string name="Not_enough_memory">Not enough memory</string>
     <string name="Import_in_progress">Import in progress</string>
 
+    <string name="Import_Progress_copying_file_from_general_storage">"copying source file \n- from Device General Storage"</string>
+    <string name="Import_Progress_copying_file_from_cloud">"copying source file \n- from Cloud"</string>
+    <string name="Import_Progress_copying_file_to_internal_reserved">"\n- to Bookplayer app internal memory"</string>
+    <string name="Import_Progress_copying_file_to_sd_card_reserved">"\n- to Bookplayer reserved sd card memory"</string>
 
 
 

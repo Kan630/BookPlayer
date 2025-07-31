@@ -4,7 +4,7 @@ import static com.driot.bookplayer.global.Var.ONLY_MIME_AUDIO;
 import static com.driot.bookplayer.global.Var.SUPPORTED_AUDIO_EXTENSIONS;
 import static com.driot.bookplayer.global.Var.SUPPORTED_COVER_PICTURE_EXTENSIONS;
 import static com.driot.bookplayer.global.Var.ZIP_SIZE_MAX_COEF;
-import static com.driot.bookplayer.utils.StorageHelper.getAvailableInternalMemorySize;
+import static com.driot.bookplayer.helpers.StorageHelper.getAvailableInternalMemorySize;
 import static com.driot.bookplayer.utils.Tonio.formatMemPadding;
 import static com.driot.bookplayer.utils.Tonio.getExtension;
 
@@ -22,6 +22,7 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.helpers.UriHelper;
 import com.driot.bookplayer.objects.LoadBookTaskState;
+import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.objects.TaskStateManager;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingWorker;
@@ -46,6 +47,7 @@ public class CopyFileWorker extends LoggingWorker {
     private int nbPic = 0;
     private int nbFolder = 0;
 
+    private StorageHelper.MemoryLocationType destinationLocation;
     long last_logged_progress = -1;
     private String sourceLocation = "unknown";
     private long totalSize = -1;
@@ -70,6 +72,7 @@ public class CopyFileWorker extends LoggingWorker {
         long forceSize = -1;
         sourceLocation = Tonio.getSourceLocation(context, uri);
         availableMemory = getAvailableInternalMemorySize();
+        destinationLocation = StorageHelper.getMemoryLocationType(context, destinationFolderPath);
 
         if (forceSize > 0) {
             totalSize = forceSize;
@@ -87,7 +90,8 @@ public class CopyFileWorker extends LoggingWorker {
                 "\n.    force size = [" + forceSize + "]" +
                 "\n.    total size = [" + Tonio.getReadableSize(totalSize)  + "]" +
                 "\n.    available = [" + Tonio.getReadableSize(availableMemory)  + "]" +
-                "\n.    source Location = [" + sourceLocation + "]"
+                "\n.    source Location = [" + sourceLocation + "]" +
+                "\n.    destination Location = [" + destinationLocation.toString() + "]"
         );
 
         if (checkSize && !doCheckSize(uri, forceSize, type)) {
@@ -303,8 +307,13 @@ public class CopyFileWorker extends LoggingWorker {
             last_logged_progress = progress;
 
             String progressMsg = sourceLocation.equals("cloud")
-                    ? context.getString(R.string.Import_Progress_copying_zip_file_cloud)
-                    : context.getString(R.string.Import_Progress_copying_zip_file);
+                    ? context.getString(R.string.Import_Progress_copying_file_from_cloud)
+                    : context.getString(R.string.Import_Progress_copying_file_from_general_storage);
+
+
+            progressMsg = progressMsg + (destinationLocation.equals(StorageHelper.MemoryLocationType.SDCARD_RESERVED)
+                    ? context.getString(R.string.Import_Progress_copying_file_to_sd_card_reserved)
+                    : context.getString(R.string.Import_Progress_copying_file_to_internal_reserved));
 
             String msg = progressMsg + "\n\n" +
                     context.getString(R.string.Error_Import_NotEnoughMemory_line3) + formatMemPadding(copiedSize/1024/1024, 0) + "Mo/" + formatMemPadding(totalSize/1024/1024, 0) + "Mo\n" +

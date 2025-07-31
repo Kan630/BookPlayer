@@ -4,7 +4,7 @@ import static com.driot.bookplayer.global.Pref.setLoadBookTaskState;
 import static com.driot.bookplayer.utils.HashWorker.HASH_NOT_COMPUTED;
 import static com.driot.bookplayer.utils.HashWorker.WORKER_TAG_COMPUTE_HASH;
 import static com.driot.bookplayer.utils.PermissionRequest.isReadAudioPermissionGranted;
-import static com.driot.bookplayer.utils.StorageHelper.getUnzipFolder;
+import static com.driot.bookplayer.helpers.StorageHelper.getUnzipFolder;
 import static com.driot.bookplayer.utils.Tonio.getCurrentDateTimeString;
 
 import android.Manifest;
@@ -37,7 +37,7 @@ import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.helpers.AnalyticsHelper;
 import com.driot.bookplayer.utils.HashWorker;
 import com.driot.bookplayer.utils.PermissionRequest;
-import com.driot.bookplayer.utils.StorageHelper;
+import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import java.util.Objects;

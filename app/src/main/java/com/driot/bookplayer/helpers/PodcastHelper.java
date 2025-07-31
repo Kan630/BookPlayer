@@ -6,7 +6,7 @@ import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_MAX_EPISODE_AUTO_D
 import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_API_MAX_RESULTS;
 import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_MAX_PODCAST_AUTO_DOWNLOAD;
 import static com.driot.bookplayer.utils.KanFiles.sanitizeFilename;
-import static com.driot.bookplayer.utils.StorageHelper.getUnzipFolder;
+import static com.driot.bookplayer.helpers.StorageHelper.getUnzipFolder;
 
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Podcast;

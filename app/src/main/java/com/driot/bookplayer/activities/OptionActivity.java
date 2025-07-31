@@ -38,7 +38,7 @@ import static com.driot.bookplayer.global.Option.DEFAULT_TIME_BEFORE_SLEEP;
 import static com.driot.bookplayer.utils.ComponentUtils.setOpenWithProxyEnabled;
 import static com.driot.bookplayer.utils.ComponentUtils.setOpenWithProxyEnabled_all;
 import static com.driot.bookplayer.utils.PermissionRequest.isRecordAudioPermissionGranted;
-import static com.driot.bookplayer.utils.StorageHelper.isExternalSDCardAvailable;
+import static com.driot.bookplayer.helpers.StorageHelper.isExternalSDCardAvailable;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.StyleRes;

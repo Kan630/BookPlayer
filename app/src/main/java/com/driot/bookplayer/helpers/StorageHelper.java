@@ -1,15 +1,15 @@
-package com.driot.bookplayer.utils;
+package com.driot.bookplayer.helpers;
 
 import static com.driot.bookplayer.global.Var.FOLDER_DOWNLOAD;
 import static com.driot.bookplayer.global.Var.FOLDER_IMAGE;
 import static com.driot.bookplayer.global.Var.FOLDER_UNZIPPED;
-import static com.driot.bookplayer.utils.KanFiles.sanitizeFilename;
 
 import android.content.Context;
 import android.os.Environment;
 import android.os.StatFs;
 
 import com.driot.bookplayer.global.Option;
+import com.driot.bookplayer.utils.KanLogger;
 
 import java.io.File;
 
@@ -59,10 +59,6 @@ public class StorageHelper {
         return getFolder(context, FOLDER_UNZIPPED, forceSdCard);
     }
 
-    public static String getUnzipFolderPath(Context context) {
-        return getUnzipFolder(context).getAbsolutePath();
-    }
-
     // DOWNLOAD
     public static File getDownloadFolder(Context context) {
         return getFolder(context, FOLDER_DOWNLOAD, Option.getUseSdCard());
@@ -92,9 +88,6 @@ public class StorageHelper {
         }
     }
 
-    public static File getPreferredBaseDir(Context context) {
-        return getPreferredBaseDir(context, Option.getUseSdCard());
-    }
 
     // === SD CARD HANDLING ===
 

@@ -4,8 +4,6 @@ package com.driot.bookplayer.db;
  * created by Antoine Driot -- antoine.driot.com -- on 28/10/20
  */
 
-import static com.driot.bookplayer.global.Var.FOLDER_UNZIPPED;
-
 import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -17,13 +15,7 @@ import androidx.room.PrimaryKey;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.utils.KanLogger;
-import com.driot.bookplayer.utils.StorageHelper;
-
-import org.jspecify.annotations.NonNull;
-
-import java.io.Serializable;
-import java.sql.Date;
-import java.sql.Time;
+import com.driot.bookplayer.helpers.StorageHelper;
 
 @Entity
 public class Folder implements Parcelable {
