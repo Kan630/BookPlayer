@@ -14,8 +14,9 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.utils.log.LoggingFragment;
 
-public class OngoingTaskFragment extends Fragment {
+public class OngoingTaskFragment extends LoggingFragment {
 
     private TextView tvProgressText;
     private ProgressBar progressBar;
@@ -33,7 +34,8 @@ public class OngoingTaskFragment extends Fragment {
         tvProgressText = v.findViewById(R.id.tvOngoingProgress);
         progressBar = v.findViewById(R.id.pbOngoing);
 
-        OngoingTaskViewModel viewModel = new ViewModelProvider(requireActivity()).get(OngoingTaskViewModel.class);
+        OngoingTaskViewModel viewModel = OngoingTaskViewModel.getInstance(requireActivity().getApplication());
+        myLogD("ViewModel instance: " + System.identityHashCode(viewModel));
         OngoingTaskViewModelBridge.bind(viewModel);
         viewModel.getTaskTitle().observe(getViewLifecycleOwner(), title -> tvTitle.setText(title));
         viewModel.getProgressText().observe(getViewLifecycleOwner(), text -> tvProgressText.setText(text));
@@ -61,4 +63,8 @@ public class OngoingTaskFragment extends Fragment {
         super.onDestroyView();
         OngoingTaskViewModelBridge.unbind();
     }
+
+
+
+
 }

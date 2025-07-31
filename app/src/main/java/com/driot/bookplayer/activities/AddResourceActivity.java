@@ -56,8 +56,9 @@ public class AddResourceActivity extends LoggingActivity {
         bPauseResume = findViewById(R.id.bPause);
         bPauseResume.setOnClickListener(v -> performPause());
 
-        OngoingTaskViewModel viewModel = new ViewModelProvider(this).get(OngoingTaskViewModel.class);
+        OngoingTaskViewModel viewModel = OngoingTaskViewModel.getInstance(getApplication());
         OngoingTaskViewModelBridge.bind(viewModel);
+        myLogD("ViewModel instance: " + System.identityHashCode(viewModel));
         viewModel.getTaskTitle().observe(this, title -> tvTitle.setText(title));
         viewModel.getProgressText().observe(this, text -> progressBarText.setText(text));
         viewModel.getProgressPercent().observe(this, percent -> progressBar.setProgress(percent));

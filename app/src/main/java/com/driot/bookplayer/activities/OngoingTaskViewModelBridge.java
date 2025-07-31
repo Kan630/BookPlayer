@@ -13,13 +13,13 @@ public class OngoingTaskViewModelBridge {
 
     public static void updateProgressFull(String text, int percent) {
         if (viewModel != null) {
-            viewModel.updateProgressFull(text, percent);
+            viewModel.tellProgress(text, percent);
         }
     }
 
     public static void updateProgressText(String text) {
         if (viewModel != null) {
-            viewModel.updateProgressText(text);
+            viewModel.tellProgressText(text);
         }
     }
 
@@ -30,7 +30,12 @@ public class OngoingTaskViewModelBridge {
     }
     public static void tellProgress(int progress, String progressText) {
         if (viewModel != null) {
-            viewModel.updateProgressFull(progressText, progress);
+            viewModel.tellProgress(progressText, progress);
+        }
+    }
+    public static void tellProgressText(String progressText) {
+        if (viewModel != null) {
+            viewModel.tellProgressText(progressText);
         }
     }
 
@@ -46,9 +51,9 @@ public class OngoingTaskViewModelBridge {
         }
     }
 
-    public static void updateTitle(String title) {
+    public static void tellStart() {
         if (viewModel != null) {
-            viewModel.updateTitle(title);
+            viewModel.tellStart();
         }
     }
 

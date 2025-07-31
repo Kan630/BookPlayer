@@ -10,6 +10,7 @@ import androidx.work.WorkManager;
 
 import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.global.Pref;
+import com.driot.bookplayer.objects.TaskStateManager;
 import com.driot.bookplayer.utils.KanLogger;
 import com.driot.bookplayer.utils.StorageHelper;
 
@@ -24,10 +25,10 @@ public class BookLoadingWorkLauncher {
         boolean doSplit = false;
         boolean doUnzip = false;
 
+        TaskStateManager.tellStart();
+
         LoadBookTaskState bookState = Pref.getLoadBookTaskState();
         if (bookState == null) throw new IllegalStateException("No task bookState found in BookLoadingWorkLauncher");
-        bookState.onGoingLoading = true;
-        setLoadBookTaskState(bookState);
 
         myLogD("....");
         myLogD("....");

@@ -6,7 +6,6 @@ import static com.driot.bookplayer.global.Pref.setLoadBookTaskState;
 import static com.driot.bookplayer.global.Var.FOREGROUND_DOWNLOAD_SERVICE_TAG;
 import static com.driot.bookplayer.utils.KanFiles.deleteFolderRecursive;
 
-import android.app.job.JobScheduler;
 import android.content.Context;
 import android.content.Intent;
 

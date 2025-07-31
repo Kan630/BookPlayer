@@ -1,10 +1,12 @@
 package com.driot.bookplayer.activities;
 
 import android.app.Application;
+import android.os.Looper;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Pref;
@@ -12,6 +14,8 @@ import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.utils.log.LoggingViewModel;
 
 public class OngoingTaskViewModel extends LoggingViewModel {
+    private static OngoingTaskViewModel instance; //SINGLETON
+
     private final MutableLiveData<String> taskTitle = new MutableLiveData<>("");
     private final MutableLiveData<String> progressText = new MutableLiveData<>("");
     private final MutableLiveData<Integer> progressPercent = new MutableLiveData<>(0);
@@ -26,17 +30,29 @@ public class OngoingTaskViewModel extends LoggingViewModel {
 
     public OngoingTaskViewModel(@NonNull Application application) {
         super(application);
+        instance = this;
+        myLogD("Constructor... Is main thread: " + (Looper.myLooper() == Looper.getMainLooper()));
         LoadBookTaskState state = Pref.getLoadBookTaskState(false);
         if (state != null && state.onGoingLoading) {
-            taskTitle.postValue(state.title);
-            progressText.postValue(state.progressText);
-            progressPercent.postValue(state.progressPercent);
+            myLogD("onGoingLoading = true");
+            taskTitle.setValue(state.title);
+            progressText.setValue(state.progressText);
+            progressPercent.setValue(state.progressPercent);
 
-            taskRunning.postValue(true);
-            pauseAvailable.postValue(state.originalUri != null && state.originalUri.toString().startsWith("http"));
-            isPaused.postValue(false);
-            isFinished.postValue(false);
+            taskRunning.setValue(true);
+            pauseAvailable.setValue(state.originalUri != null && state.originalUri.toString().startsWith("http"));
+            isPaused.setValue(false);
+            isFinished.setValue(false);
         }
+    }
+
+    //SINGLETON
+    public static OngoingTaskViewModel getInstance(Application application) {
+        if (instance == null) {
+            instance = new ViewModelProvider.AndroidViewModelFactory(application)
+                    .create(OngoingTaskViewModel.class);
+        }
+        return instance;
     }
 
     public LiveData<String> getTaskTitle() { return taskTitle; }
@@ -55,17 +71,16 @@ public class OngoingTaskViewModel extends LoggingViewModel {
         isPaused.postValue(paused);
     }
 
-    public void updateTitle(String title) {
-        taskTitle.postValue(title);
+    public void tellStart() {
         taskRunning.postValue(true);
     }
 
-    public void updateProgressFull(String text, int percent) {
+    public void tellProgress(String text, int percent) {
         progressText.postValue(text);
         progressPercent.postValue(percent);
     }
 
-    public void updateProgressText(String text) {
+    public void tellProgressText(String text) {
         progressText.postValue(text);
     }
     public void tellWarning(String text) { warningText.postValue(text); }

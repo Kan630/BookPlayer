@@ -1,8 +1,11 @@
 package com.driot.bookplayer.helpers;
 
+import android.content.ContentResolver;
 import android.content.Context;
+import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
+import android.os.ParcelFileDescriptor;
+import android.provider.DocumentsContract;
 import android.text.TextUtils;
 
 import androidx.annotation.Nullable;
@@ -13,6 +16,8 @@ import com.driot.bookplayer.utils.KanLogger;
 import java.io.File;
 
 public class UriHelper {
+
+    private static final int MAX_RECURSION_DEPTH = 10;
 
     /**
      * Returns a DocumentFile regardless of whether the input URI is file-based or content-based.
@@ -92,7 +97,80 @@ public class UriHelper {
         }
     }
 
+    public static long getSize(Context context, Uri uri) {
+        DocumentFile docFile = getDocumentFileFromAnyUri(context, uri);
+        if (docFile == null || !docFile.exists()) {
+            myLogW("getSize: Null or non-existent file");
+            return 0;
+        }
 
+        if (docFile.isDirectory()) {
+            return getFolderSize(context, uri, 0);
+        } else {
+            return getFileSize(context, uri);
+        }
+    }
+
+    private static long getFolderSize(Context context, Uri uri, int recursiveStep) {
+        if (recursiveStep > MAX_RECURSION_DEPTH) {
+            myLogW("getFolderSize: Max recursion depth reached");
+            return 0;
+        }
+        myLog("calculateFolderSize()" + (recursiveStep>0 ? " - step " + recursiveStep : "") + " - " + uri);
+        long totalSize = 0;
+        ContentResolver contentResolver = context.getContentResolver();
+        Uri childrenUri;
+        try {
+            //for children and sub child dirs
+            childrenUri = DocumentsContract.buildChildDocumentsUriUsingTree(uri, DocumentsContract.getDocumentId(uri));
+        } catch (Exception e) {
+            //for parent dir
+            childrenUri = DocumentsContract.buildChildDocumentsUriUsingTree(uri, DocumentsContract.getTreeDocumentId(uri));
+        }
+
+        try (Cursor cursor = contentResolver.query(childrenUri, new String[]{DocumentsContract.Document.COLUMN_DOCUMENT_ID, DocumentsContract.Document.COLUMN_MIME_TYPE}, null, null, null)) {
+            if (cursor != null) {
+                while (cursor.moveToNext()) {
+                    String documentId = cursor.getString(0);
+                    String mimeType = cursor.getString(1);
+
+                    Uri documentUri = DocumentsContract.buildDocumentUriUsingTree(uri, documentId);
+
+                    if (DocumentsContract.Document.MIME_TYPE_DIR.equals(mimeType)) {
+                        totalSize += getFolderSize(context, documentUri, recursiveStep + 1);
+                    } else {
+                        totalSize += getFileSize(context, documentUri);
+                    }
+                }
+            }
+        }
+        return totalSize;
+    }
+
+    private static long getFileSize(Context context, Uri uri) {
+        if (uri == null) {
+            myLogE("getFileSize Uri null");
+            return -1;
+        }
+        if ("file".equalsIgnoreCase(uri.getScheme())) {
+            try {
+                if (uri.getPath() != null) {
+                    return new File(uri.getPath()).length();
+                }
+            } catch (Exception e) {
+                myLogEE(e, "getFileSize() - file://");
+                return -1;
+            }
+        } else {
+            try (ParcelFileDescriptor pfd = context.getContentResolver().openFileDescriptor(uri, "r")) {
+                return (pfd != null) ? pfd.getStatSize() : -1;
+            } catch (Exception e) {
+                myLogEE(e, "getFileSize() - content://");
+                return -1;
+            }
+        }
+        return -1;
+    }
 
 
     // ----------------------- LOG -----------------------

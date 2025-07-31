@@ -122,12 +122,14 @@ public class MainActivity extends LoggingActivity {
             myLog("AudioService.isRunning");
             bindService(new Intent(this, AudioService.class), audioServiceConnection, 0);
         }
-
+/*
         myLogD("-----------------");
         FileHelper.listAllFiles(StorageHelper.getUnzipFolder(this, true));
         myLogD("-----------------");
         FileHelper.listAllFiles(StorageHelper.getUnzipFolder(this, false));
         myLogD("-----------------");
+
+ */
 
         //Sql.log_all_Folders(this);
 /*

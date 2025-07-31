@@ -29,12 +29,10 @@ public class Var {
 
     //public static final int PODCASTINDEXORG_SINCE_DEBUG = 1751716800 ; //5 juillet, 2025
     public static final int PODCASTINDEXORG_SINCE_DEBUG = 0 ; //5 juillet, 2025
-    public static final int PODCAST_DETAIL_ANIMATION_COUNT = 10 ;
+    public static final int PODCAST_DETAIL_ANIMATION_COUNT = 3 ;
 
 
     public static final String  FOLDER_UNZIPPED = "unzipped";
-    public static final String  FOLDER_ZIPPED = "zipped";
-    public static final String  FOLDER_MP4 = "mp4_split";
 
     public static final int  ZIP_SIZE_MAX_COEF = 4;
 
@@ -46,21 +44,12 @@ public class Var {
 
     public static final String  PATH_AUTOTEST_URL = "https://bookplayer.driot.com/autotest/";
 
-    public static final String  AUTOTEST_FILE_0100 = "https://archive.org/compress/sonnetsandsongs_2405_librivox/formats=64KBPS%20MP3&file=/sonnetsandsongs_2405_librivox.zip";
-    public static final String  AUTOTEST_FILE_0101 = "https://bookplayer.driot.com/autotest/FrostTonight_librivox.m4b";
-    public static final String  AUTOTEST_FILE_0102 = "https://bookplayer.driot.com/autotest/nathaniel-hawtorne-_-l-experience-du-dr-heidegger.zip";
-
-
     //@string/AutoTest_b1_text
     public static final String  AUTOTEST_FILE_01 = PATH_AUTOTEST_URL + "file_01.zip";
     public static final String  AUTOTEST_FILE_02 = PATH_AUTOTEST_URL + "മലയാളം+عربى+Русский+हिन्दी.zip";
     public static final String  AUTOTEST_FILE_03 = PATH_AUTOTEST_URL + "FrostTonight_librivox.m4b";
 
-    public static final String  FORUM_URL =  "https://bookplayer.driot.com/forum";
-    public static final String  FORUM_URL_2 =  "https://bookplayer.flarum.cloud/";
     public static final String  WEBSITE_URL = "https://bookplayer.driot.com/";
-
-
 
     public static final int[] SLEEP_PRESET_VALUES = {10, 20, 30, 45, 90, 180};
 

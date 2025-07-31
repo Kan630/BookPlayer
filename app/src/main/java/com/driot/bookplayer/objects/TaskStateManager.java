@@ -141,14 +141,30 @@ public class TaskStateManager {
     public static void tellProgress(int progress, String progressText) {
         OngoingTaskViewModelBridge.tellProgress(progress, progressText);
     }
+    public static void tellProgressText(String progressText) {
+        OngoingTaskViewModelBridge.tellProgressText(progressText);
+    }
     private static void tellError(String errorText) { //private because you need to always call markTaskFailed
         myLogE("Error: " + errorText);
         OngoingTaskViewModelBridge.tellError(errorText);
+    }
+    public static void tellStart() {
+        myLogD("tellStart");
+        LoadBookTaskState state = Pref.getLoadBookTaskState();
+        if (state != null) {
+            state.onGoingLoading = true;
+            state.currentLoadingOperation = "initialization";
+            OngoingTaskViewModelBridge.tellStart();
+            Pref.setLoadBookTaskState(state);
+        } else {
+            myLogEE(null, "tellStart - state == null");
+        }
     }
 
 
 
     private static final String TAG = "TaskStateManager";
+    private static void myLogD(String str) { KanLogger.myLogD(TAG, str); }
     private static void myLogI(String str) { KanLogger.myLogI(TAG, str); }
     private static void myLogW(String str) { KanLogger.myLogW(TAG, str); }
     private static void myLogE(String str) { KanLogger.myLogE(TAG, str); }

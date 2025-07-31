@@ -24,12 +24,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.lifecycle.ViewModelProvider;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.objects.LanguageItem;
 import com.driot.bookplayer.helpers.AnalyticsHelper;
+import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.services.BookLoadingWorkLauncher;
 import com.driot.bookplayer.views.EditTextWithButtons;
 import com.driot.bookplayer.global.Option;
@@ -56,6 +56,8 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
     private Button bAutoTest_b1, bAutoTest_b2, bAutoTest_b3, bDirectDownload;
 
     private PermissionRequest mPermissionRequest;
+
+    private OngoingTaskViewModel viewModel;
 
     private ActivityResultLauncher<Intent>
              bOpenFileActivityResultLauncher
@@ -406,7 +408,8 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
                 }
             });
         });
-        OngoingTaskViewModel viewModel = new ViewModelProvider(this).get(OngoingTaskViewModel.class);
+        viewModel = OngoingTaskViewModel.getInstance(getApplication());
+        myLogD("ViewModel instance: " + System.identityHashCode(viewModel));
         viewModel.isTaskRunning().observe(this, isRunning -> {
             lockButtons(Boolean.TRUE.equals(isRunning));
         });
@@ -443,6 +446,15 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
+        //TODO check why view model value is not working (maybe)
+        //lockButtons(Boolean.TRUE.equals(viewModel.isTaskRunning().getValue()));
+        //ersatz :
+        LoadBookTaskState state = Pref.getLoadBookTaskState();
+        if (state != null) {
+            lockButtons(state.onGoingLoading);
+        } else {
+            myLogD("onResume => state == null");
+        }
         maybeResumeWorkFlow(this);
     }
 
