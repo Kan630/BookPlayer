@@ -6,15 +6,13 @@ import android.os.Looper;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModelProvider;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.objects.LoadBookTaskState;
-import com.driot.bookplayer.utils.log.LoggingViewModel;
+import com.driot.bookplayer.utils.log.LoggingAndroidViewModel;
 
-public class OngoingTaskViewModel extends LoggingViewModel {
-    private static OngoingTaskViewModel instance; //SINGLETON
+public class OngoingTaskViewModel extends LoggingAndroidViewModel {
 
     private final MutableLiveData<String> taskTitle = new MutableLiveData<>("");
     private final MutableLiveData<String> progressText = new MutableLiveData<>("");
@@ -27,11 +25,10 @@ public class OngoingTaskViewModel extends LoggingViewModel {
     private final MutableLiveData<Boolean> isPaused = new MutableLiveData<>(false);
     private final MutableLiveData<Boolean> isFinished = new MutableLiveData<>(false);
 
-
     public OngoingTaskViewModel(@NonNull Application application) {
         super(application);
-        instance = this;
         myLogD("Constructor... Is main thread: " + (Looper.myLooper() == Looper.getMainLooper()));
+
         LoadBookTaskState state = Pref.getLoadBookTaskState(false);
         if (state != null && state.onGoingLoading) {
             myLogD("onGoingLoading = true");
@@ -46,15 +43,7 @@ public class OngoingTaskViewModel extends LoggingViewModel {
         }
     }
 
-    //SINGLETON
-    public static OngoingTaskViewModel getInstance(Application application) {
-        if (instance == null) {
-            instance = new ViewModelProvider.AndroidViewModelFactory(application)
-                    .create(OngoingTaskViewModel.class);
-        }
-        return instance;
-    }
-
+    // Expose LiveData
     public LiveData<String> getTaskTitle() { return taskTitle; }
     public LiveData<String> getProgressText() { return progressText; }
     public LiveData<Integer> getProgressPercent() { return progressPercent; }
@@ -66,11 +55,7 @@ public class OngoingTaskViewModel extends LoggingViewModel {
     public LiveData<Boolean> isPaused() { return isPaused; }
     public LiveData<Boolean> isFinished() { return isFinished; }
 
-    public void setPauseState(boolean available, boolean paused) {
-        pauseAvailable.postValue(available);
-        isPaused.postValue(paused);
-    }
-
+    // Public state update methods
     public void tellStart() {
         taskRunning.postValue(true);
     }
@@ -83,7 +68,11 @@ public class OngoingTaskViewModel extends LoggingViewModel {
     public void tellProgressText(String text) {
         progressText.postValue(text);
     }
-    public void tellWarning(String text) { warningText.postValue(text); }
+
+    public void tellWarning(String text) {
+        warningText.postValue(text);
+    }
+
     public void tellError(String text) {
         errorText.postValue(text);
         taskRunning.postValue(false);
@@ -92,8 +81,10 @@ public class OngoingTaskViewModel extends LoggingViewModel {
         progressText.postValue(getApplication().getString(R.string.Finished_with_errors));
         progressPercent.postValue(100);
     }
-    public void removePauseCapability() {pauseAvailable.postValue(false);}
 
+    public void removePauseCapability() {
+        pauseAvailable.postValue(false);
+    }
 
     public void tellEnd() {
         taskRunning.postValue(false);
@@ -103,4 +94,3 @@ public class OngoingTaskViewModel extends LoggingViewModel {
         progressPercent.postValue(100);
     }
 }
-

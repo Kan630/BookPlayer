@@ -3,13 +3,12 @@ package com.driot.bookplayer.activities;
 import android.app.Application;
 
 import androidx.annotation.NonNull;
-import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.MutableLiveData;
 
 import com.driot.bookplayer.objects.ItemMetadata;
-import com.driot.bookplayer.utils.log.LoggingViewModel;
+import com.driot.bookplayer.utils.log.LoggingAndroidViewModel;
 
-public class LibrivoxDetailViewModel extends LoggingViewModel {
+public class LibrivoxDetailViewModel extends LoggingAndroidViewModel {
 
     public final MutableLiveData<ItemMetadata> metadata = new MutableLiveData<>();
     public final MutableLiveData<Long> zipFileSizeBytes = new MutableLiveData<>();

@@ -9,11 +9,11 @@ import androidx.lifecycle.MutableLiveData;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.objects.PodcastFeed;
-import com.driot.bookplayer.utils.log.LoggingViewModel;
+import com.driot.bookplayer.utils.log.LoggingAndroidViewModel;
 
 import java.util.List;
 
-public class PodcastSearchResultsViewModel extends LoggingViewModel {
+public class PodcastSearchResultsViewModel extends LoggingAndroidViewModel {
     private final MutableLiveData<List<PodcastFeed>> results = new MutableLiveData<>();
     private final MutableLiveData<Boolean> shouldFinish = new MutableLiveData<>();
     private String lastQuery, lastLang;

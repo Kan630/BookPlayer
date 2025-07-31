@@ -5,11 +5,11 @@ import android.app.Application;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 
-public abstract class LoggingViewModel extends AndroidViewModel {
+public abstract class LoggingAndroidViewModel extends AndroidViewModel {
 
     protected final LoggerHelper logger;
 
-    public LoggingViewModel(@NonNull Application application) {
+    public LoggingAndroidViewModel(@NonNull Application application) {
         super(application);
         logger = new LoggerHelper(getClass());
     }

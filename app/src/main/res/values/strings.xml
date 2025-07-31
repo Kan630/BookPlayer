@@ -681,7 +681,8 @@
     <string name="Finished_with_errors">Finished with errors</string>
     <string name="add_book">add book</string>
     <string name="Not_enough_memory">Not enough memory</string>
-    <string name="Checking_size">Checking size</string>
+    <string name="Import_in_progress">Import in progress</string>
+
 
 
 

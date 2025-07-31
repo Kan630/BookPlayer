@@ -3,18 +3,15 @@ package com.driot.bookplayer.activities;
 import android.app.Application;
 
 import androidx.annotation.NonNull;
-import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.db.ZikFileDao;
-import com.driot.bookplayer.utils.log.LoggingViewModel;
+import com.driot.bookplayer.utils.log.LoggingAndroidViewModel;
 
-import java.util.List;
-
-public class PodcastEpisodeViewModel extends LoggingViewModel {
+public class PodcastEpisodeViewModel extends LoggingAndroidViewModel {
     private final ZikFileDao zikFileDao;
 
     public PodcastEpisodeViewModel(@NonNull Application application) {

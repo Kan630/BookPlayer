@@ -1,6 +1,7 @@
 package com.driot.bookplayer.activities;
 
 import android.app.Activity;
+import android.app.Application;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -12,6 +13,7 @@ import android.widget.TextView;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.services.DownloadForegroundService;
 import com.driot.bookplayer.utils.log.LoggingActivity;
+import com.driot.bookplayer.objects.AppViewModelStoreOwner;
 
 import static com.driot.bookplayer.utils.WorkFlow.cancelAllOngoingTasks;
 
@@ -56,8 +58,10 @@ public class AddResourceActivity extends LoggingActivity {
         bPauseResume = findViewById(R.id.bPause);
         bPauseResume.setOnClickListener(v -> performPause());
 
-        OngoingTaskViewModel viewModel = OngoingTaskViewModel.getInstance(getApplication());
-        OngoingTaskViewModelBridge.bind(viewModel);
+        OngoingTaskViewModel viewModel = new ViewModelProvider(
+                AppViewModelStoreOwner.getInstance(),
+                ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication())
+        ).get(OngoingTaskViewModel.class);
         myLogD("ViewModel instance: " + System.identityHashCode(viewModel));
         viewModel.getTaskTitle().observe(this, title -> tvTitle.setText(title));
         viewModel.getProgressText().observe(this, text -> progressBarText.setText(text));
@@ -83,13 +87,6 @@ public class AddResourceActivity extends LoggingActivity {
         });
 
     }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        OngoingTaskViewModelBridge.unbind();
-    }
-
 
     private void performPause() {
         if (bPauseResume.getText().equals(getString(R.string.Pause))) {

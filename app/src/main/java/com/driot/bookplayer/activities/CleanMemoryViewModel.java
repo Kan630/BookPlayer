@@ -16,7 +16,7 @@ import com.driot.bookplayer.objects.FileWithSummary;
 import com.driot.bookplayer.objects.ZikFileSummary;
 import com.driot.bookplayer.utils.StorageHelper;
 import com.driot.bookplayer.utils.Tonio;
-import com.driot.bookplayer.utils.log.LoggingViewModel;
+import com.driot.bookplayer.utils.log.LoggingAndroidViewModel;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -29,7 +29,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class CleanMemoryViewModel extends LoggingViewModel {
+public class CleanMemoryViewModel extends LoggingAndroidViewModel {
     private final CleanMemoryRepository cacheFilesRepository;
     private final MediatorLiveData<List<FileWithSummary>> enrichedFiles = new MediatorLiveData<>();
     private final MutableLiveData<List<File>> filesFromDisk = new MutableLiveData<>();

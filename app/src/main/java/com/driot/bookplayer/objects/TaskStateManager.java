@@ -23,7 +23,7 @@ public class TaskStateManager {
     }
 
     public static void tellEnd() {
-        OngoingTaskViewModelBridge.tellEnd();
+        OngoingTaskViewModelBridge.tellEnd(appContext);
 
         //Kind of garbage collector
         final Handler handler = new Handler(Looper.getMainLooper());
@@ -52,7 +52,7 @@ public class TaskStateManager {
         state.isLoadingPaused = false;
         state.currentLoadingOperation = currentLoadingOperation;
         Pref.setLoadBookTaskState(state);
-        OngoingTaskViewModelBridge.updateProgressText(currentLoadingOperation);
+        OngoingTaskViewModelBridge.updateProgressText(appContext, currentLoadingOperation);
     }
 
     public static void markDownloadIsPaused(Context context) {
@@ -65,7 +65,7 @@ public class TaskStateManager {
                 state.progressText = state.progressText + " (paused)";
             }
             Pref.setLoadBookTaskState(state);
-            OngoingTaskViewModelBridge.updateProgressText(currentLoadingOperation);
+            OngoingTaskViewModelBridge.updateProgressText(appContext, currentLoadingOperation);
         } else {
             myLogEE(null, "markIsPaused - No valid LoadBookTaskState found");
         }
@@ -73,7 +73,7 @@ public class TaskStateManager {
 
     public static void markDownloadCompleted(String taskName, String destinationFolderPath) {
         markTaskCompleted(taskName, destinationFolderPath);
-        OngoingTaskViewModelBridge.removePauseCapability();
+        OngoingTaskViewModelBridge.removePauseCapability(appContext);
     }
 
     public static void markUnzipCompleted(String taskName, String destinationFolderPath) {
@@ -91,7 +91,7 @@ public class TaskStateManager {
 
     public static void markDownloadProgress(Context context, int percent, String text) {
         updateTaskProgress(context, percent, text, "Downloading", false);
-        OngoingTaskViewModelBridge.updateProgressFull(text, percent);
+        OngoingTaskViewModelBridge.updateProgressFull(appContext, text, percent);
     }
 
     public static void markTaskCancelled(String taskName) {
@@ -136,17 +136,17 @@ public class TaskStateManager {
 
     public static void tellWarning(String warningText) {
         myLogW("Warning: " + warningText);
-        OngoingTaskViewModelBridge.tellWarning(warningText);
+        OngoingTaskViewModelBridge.tellWarning(appContext, warningText);
     }
     public static void tellProgress(int progress, String progressText) {
-        OngoingTaskViewModelBridge.tellProgress(progress, progressText);
+        OngoingTaskViewModelBridge.tellProgress(appContext, progress, progressText);
     }
     public static void tellProgressText(String progressText) {
-        OngoingTaskViewModelBridge.tellProgressText(progressText);
+        OngoingTaskViewModelBridge.tellProgressText(appContext, progressText);
     }
     private static void tellError(String errorText) { //private because you need to always call markTaskFailed
         myLogE("Error: " + errorText);
-        OngoingTaskViewModelBridge.tellError(errorText);
+        OngoingTaskViewModelBridge.tellError(appContext, errorText);
     }
     public static void tellStart() {
         myLogD("tellStart");
@@ -154,7 +154,7 @@ public class TaskStateManager {
         if (state != null) {
             state.onGoingLoading = true;
             state.currentLoadingOperation = "initialization";
-            OngoingTaskViewModelBridge.tellStart();
+            OngoingTaskViewModelBridge.tellStart(appContext);
             Pref.setLoadBookTaskState(state);
         } else {
             myLogEE(null, "tellStart - state == null");

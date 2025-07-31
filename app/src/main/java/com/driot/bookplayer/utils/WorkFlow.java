@@ -11,6 +11,7 @@ import android.content.Intent;
 
 import androidx.work.WorkManager;
 
+import com.driot.bookplayer.objects.AppViewModelStoreOwner;
 import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.services.AddResourceService;
 import com.driot.bookplayer.services.CopyFileService;
@@ -123,6 +124,7 @@ public class WorkFlow {
     public static void setWorkFlowFinished(Context context) {
         myLogD("...clear ALL - called from " + context.getClass().getSimpleName());
         clearLoadBookTaskState(context);
+        AppViewModelStoreOwner.clear();
     }
 
     public static void cancelAllOngoingTasks(Context context) {
@@ -140,6 +142,7 @@ public class WorkFlow {
         if (!outputDir.exists()) outputDir.mkdirs();
 
         setWorkFlowFinished(context);
+
 
     }
 

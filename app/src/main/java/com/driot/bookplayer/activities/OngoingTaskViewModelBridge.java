@@ -1,66 +1,57 @@
 package com.driot.bookplayer.activities;
 
+import android.app.Application;
+import android.content.Context;
+
+import androidx.lifecycle.ViewModelProvider;
+
+import com.driot.bookplayer.objects.AppViewModelStoreOwner;
+
+
 public class OngoingTaskViewModelBridge {
-    private static OngoingTaskViewModel viewModel;
 
-    public static void bind(OngoingTaskViewModel vm) {
-        viewModel = vm;
-    }
+    private static OngoingTaskViewModel getViewModel(Context context) {
+        Application app = (Application) context.getApplicationContext();
 
-    public static void unbind() {
-        viewModel = null;
-    }
-
-    public static void updateProgressFull(String text, int percent) {
-        if (viewModel != null) {
-            viewModel.tellProgress(text, percent);
-        }
+        return new ViewModelProvider(
+                AppViewModelStoreOwner.getInstance(),
+                ViewModelProvider.AndroidViewModelFactory.getInstance(app)
+        ).get(OngoingTaskViewModel.class);
     }
 
-    public static void updateProgressText(String text) {
-        if (viewModel != null) {
-            viewModel.tellProgressText(text);
-        }
+    public static void updateProgressFull(Context context, String text, int percent) {
+        getViewModel(context).tellProgress(text, percent);
     }
 
-    public static void tellWarning(String text) {
-        if (viewModel != null) {
-            viewModel.tellWarning(text);
-        }
-    }
-    public static void tellProgress(int progress, String progressText) {
-        if (viewModel != null) {
-            viewModel.tellProgress(progressText, progress);
-        }
-    }
-    public static void tellProgressText(String progressText) {
-        if (viewModel != null) {
-            viewModel.tellProgressText(progressText);
-        }
+    public static void updateProgressText(Context context, String text) {
+        getViewModel(context).tellProgressText(text);
     }
 
-    public static void tellError(String errorText) {
-        if (viewModel != null) {
-            viewModel.tellError(errorText);
-        }
+    public static void tellWarning(Context context, String text) {
+        getViewModel(context).tellWarning(text);
     }
 
-    public static void tellEnd() {
-        if (viewModel != null) {
-            viewModel.tellEnd();
-        }
+    public static void tellProgress(Context context, int percent, String text) {
+        getViewModel(context).tellProgress(text, percent);
     }
 
-    public static void tellStart() {
-        if (viewModel != null) {
-            viewModel.tellStart();
-        }
+    public static void tellProgressText(Context context, String text) {
+        getViewModel(context).tellProgressText(text);
     }
 
-    public static void removePauseCapability() {
-        if (viewModel != null) {
-            viewModel.removePauseCapability();
-        }
+    public static void tellError(Context context, String errorText) {
+        getViewModel(context).tellError(errorText);
     }
 
+    public static void tellEnd(Context context) {
+        getViewModel(context).tellEnd();
+    }
+
+    public static void tellStart(Context context) {
+        getViewModel(context).tellStart();
+    }
+
+    public static void removePauseCapability(Context context) {
+        getViewModel(context).removePauseCapability();
+    }
 }

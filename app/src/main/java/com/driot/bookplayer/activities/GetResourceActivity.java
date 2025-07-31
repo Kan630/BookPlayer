@@ -24,9 +24,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Pref;
+import com.driot.bookplayer.objects.AppViewModelStoreOwner;
 import com.driot.bookplayer.objects.LanguageItem;
 import com.driot.bookplayer.helpers.AnalyticsHelper;
 import com.driot.bookplayer.objects.LoadBookTaskState;
@@ -408,53 +410,39 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
                 }
             });
         });
-        viewModel = OngoingTaskViewModel.getInstance(getApplication());
+
+        OngoingTaskViewModel viewModel = new ViewModelProvider(
+                AppViewModelStoreOwner.getInstance(),
+                ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication())
+        ).get(OngoingTaskViewModel.class);
         myLogD("ViewModel instance: " + System.identityHashCode(viewModel));
         viewModel.isTaskRunning().observe(this, isRunning -> {
             lockButtons(Boolean.TRUE.equals(isRunning));
         });
-
     }
     // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    // --------------- END OnCreate()     ----------------------------------------------------------------------------------------------------------------------------------
     // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-
-    public interface WWWCheckCallback {
-        void onResult(boolean canReach);
-    }
-    private void checkWWW(WWWCheckCallback callback) {
-        if (!NetworkUtils.isNetworkAvailable(this)) {
-            myToast("Aie. Network not available.");
-            callback.onResult(false); // Notify failure
-            return;
-        }
-
-        new Thread(() -> {
-            boolean canReach = NetworkUtils.canReachUrl("https://bookplayer.driot.com");
-            runOnUiThread(() -> {
-                if (canReach) {
-                    callback.onResult(true); // Notify success
-                } else {
-                    myToast("Aie. bookplayer.driot.com not reachable.");
-                    callback.onResult(false); // Notify failure
-                }
-            });
-        }).start();
-    }
 
     @Override
     protected void onResume() {
         super.onResume();
-        //TODO check why view model value is not working (maybe)
-        //lockButtons(Boolean.TRUE.equals(viewModel.isTaskRunning().getValue()));
+        //TODO check why view model is not working properly
+        if (viewModel != null) {
+            lockButtons(Boolean.TRUE.equals(viewModel.isTaskRunning().getValue()));
+        }
+
         //ersatz :
+        /*
         LoadBookTaskState state = Pref.getLoadBookTaskState();
         if (state != null) {
             lockButtons(state.onGoingLoading);
         } else {
             myLogD("onResume => state == null");
         }
+
+         */
         maybeResumeWorkFlow(this);
     }
 
@@ -500,6 +488,31 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
         } catch (Exception e) {
             myLogEE(e,"Error while checking if service is running");
         }
+    }
+
+
+
+    public interface WWWCheckCallback {
+        void onResult(boolean canReach);
+    }
+    private void checkWWW(WWWCheckCallback callback) {
+        if (!NetworkUtils.isNetworkAvailable(this)) {
+            myToast("Aie. Network not available.");
+            callback.onResult(false); // Notify failure
+            return;
+        }
+
+        new Thread(() -> {
+            boolean canReach = NetworkUtils.canReachUrl("https://bookplayer.driot.com");
+            runOnUiThread(() -> {
+                if (canReach) {
+                    callback.onResult(true); // Notify success
+                } else {
+                    myToast("Aie. bookplayer.driot.com not reachable.");
+                    callback.onResult(false); // Notify failure
+                }
+            });
+        }).start();
     }
 
     private boolean isReturnedUriOk(Intent data) {
