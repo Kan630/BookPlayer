@@ -47,6 +47,8 @@ public class UnzipWorker extends LoggingWorker {
 
         String zipFilePath = bookState.dynamicSourceFilePath;
         String destinationFolderPath = bookState.futureFolderPath;
+        myLog("From: " + zipFilePath);
+        myLog("To: " + destinationFolderPath);
 
         if (zipFilePath == null || destinationFolderPath == null) {
             TaskStateManager.markTaskFailed(TASK_NAME, "Missing input data");

@@ -150,6 +150,7 @@ public class StatsActivity extends LoggingActivity {
     }
     private void resetApp() {
         WorkFlow.cancelAllOngoingTasks(this);
+        myToast("App Reset Done");
     }
 
     public static String getVersionName(int sdkVersion) {

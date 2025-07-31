@@ -24,6 +24,7 @@ import com.driot.bookplayer.objects.ItemMetadata;
 import com.driot.bookplayer.objects.LibrivoxApi;
 import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.helpers.ImageHelper;
+import com.driot.bookplayer.services.BookLoadingWorkLauncher;
 import com.driot.bookplayer.utils.WorkFlow;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
@@ -357,7 +358,10 @@ public class LibrivoxDetailActivity extends LoggingActivity {
     private void proceedWithDownload(String url, String futurePath) {
         LoadBookTaskState state = new LoadBookTaskState();
         state.originalUri = Uri.parse(url);
-        state.dynamicType = "File";
+        state.dynamicUri = Uri.parse(url);
+        state.originalType = "ZIP";
+        state.dynamicType = "ZIP";
+        state.fileExtension = "zip";
         state.title = viewModel.title;
         state.optionSplit = false;
         state.optionCopy = true;
@@ -368,10 +372,10 @@ public class LibrivoxDetailActivity extends LoggingActivity {
         state.futureFolderPath = futurePath;
         state.onGoingLoading = true;
         state.progressText = getString(R.string.About_to_start_download);
-        state.progressPercent = 2;
 
         setLoadBookTaskState(state);
 
+        BookLoadingWorkLauncher.launch(this);
         Intent intentActivity = new Intent(this, AddResourceActivity.class);
         startActivity(intentActivity);
 

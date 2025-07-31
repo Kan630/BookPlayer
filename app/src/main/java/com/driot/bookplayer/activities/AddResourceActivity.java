@@ -73,12 +73,9 @@ public class AddResourceActivity extends LoggingActivity {
 
         viewModel.isPauseAvailable().observe(this, available -> {
             bPauseResume.setVisibility(available ? View.VISIBLE : View.GONE);
-            /*
             if (available && progressBarText.getText().length() == 0) {
                 progressBarText.setText(getString(R.string.About_to_start_download));
             }
-
-             */
         });
         viewModel.isPaused().observe(this, paused -> {
             if (bPauseResume.getVisibility() == View.VISIBLE) {

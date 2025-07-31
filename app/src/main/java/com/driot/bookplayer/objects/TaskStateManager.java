@@ -71,14 +71,15 @@ public class TaskStateManager {
         }
     }
 
-    public static void markDownloadCompleted(String taskName, String destinationFolderPath) {
-        String currentLoadingOperation = taskName + " completed - [" + destinationFolderPath + "]";
+    public static void markDownloadCompleted(String taskName, String downloadedFileFullPath) {
+        String currentLoadingOperation = taskName + " completed - [" + downloadedFileFullPath + "]";
         OngoingTaskViewModelBridge.removePauseCapability(appContext);
         LoadBookTaskState state = Pref.getLoadBookTaskState();
         if (state != null) {
-            state.dynamicType = "Folder";
-            state.dynamicUri = Uri.parse(destinationFolderPath);
             state.currentLoadingOperation = currentLoadingOperation;
+            state.dynamicType = "File";
+            state.dynamicUri = Uri.parse(downloadedFileFullPath);
+            state.dynamicSourceFilePath = downloadedFileFullPath;
             Pref.setLoadBookTaskState(state);
         } else {
             myLogEE(null, "markDownloadCompleted - state == null");
@@ -89,9 +90,9 @@ public class TaskStateManager {
         String currentLoadingOperation = taskName + " completed - [" + destinationFolderPath + "]";
         LoadBookTaskState state = Pref.getLoadBookTaskState();
         if (state != null) {
+            state.currentLoadingOperation = currentLoadingOperation;
             state.dynamicType = "Folder";
             state.dynamicUri = Uri.parse(destinationFolderPath);
-            state.currentLoadingOperation = currentLoadingOperation;
             state.dynamicDestinationFolderPath = destinationFolderPath;
             state.dynamicSourceFilePath = destinationFolderPath;
             Pref.setLoadBookTaskState(state);
@@ -104,9 +105,9 @@ public class TaskStateManager {
         String currentLoadingOperation = taskName + " completed - [" + destinationFolderPath + "]";
         LoadBookTaskState state = Pref.getLoadBookTaskState();
         if (state != null) {
+            state.currentLoadingOperation = currentLoadingOperation;
             state.dynamicType = "Folder";
             state.dynamicUri = Uri.parse(destinationFolderPath);
-            state.currentLoadingOperation = currentLoadingOperation;
             state.dynamicDestinationFolderPath = destinationFolderPath;
             state.dynamicSourceFilePath = destinationFolderPath;
             Pref.setLoadBookTaskState(state);
@@ -119,8 +120,8 @@ public class TaskStateManager {
         String currentLoadingOperation = taskName + " completed - [" + destinationFolderPath + "]";
         LoadBookTaskState state = Pref.getLoadBookTaskState();
         if (state != null) {
-            state.dynamicUri = Uri.parse(destinationFolderPath);
             state.currentLoadingOperation = currentLoadingOperation;
+            state.dynamicUri = Uri.parse(destinationFolderPath);
             state.dynamicDestinationFolderPath = destinationFolderPath;
             state.dynamicSourceFilePath = destinationFolderPath;
             Pref.setLoadBookTaskState(state);
@@ -173,6 +174,7 @@ public class TaskStateManager {
         } else {
             myLogEE(null, "markTaskFailed - No valid LoadBookTaskState found - " + currentLoadingOperation);
         }
+        WorkFlow.cancelAllOngoingTasks(appContext);
     }
 
 

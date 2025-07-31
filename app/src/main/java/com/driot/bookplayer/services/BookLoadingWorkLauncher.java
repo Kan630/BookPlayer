@@ -4,6 +4,7 @@ import static com.driot.bookplayer.global.Pref.setLoadBookTaskState;
 
 import android.content.Context;
 
+import androidx.work.BackoffPolicy;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkContinuation;
 import androidx.work.WorkManager;
@@ -16,8 +17,11 @@ import com.driot.bookplayer.utils.KanLogger;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class BookLoadingWorkLauncher {
+
+    public static final String BOOK_LOADING_WORKERS = "BookLoadingWorkers";
 
     public static void launch(Context context) {
         boolean doDownload = false;
@@ -84,17 +88,24 @@ public class BookLoadingWorkLauncher {
             bookState.onGoingLoading = true;
             setLoadBookTaskState(bookState);
 
-            workChain.add(new OneTimeWorkRequest.Builder(DownloadRetryWorker.class).build());
+            workChain.add(new OneTimeWorkRequest.Builder(DownloadRetryWorker.class)
+                            .setBackoffCriteria(
+                            BackoffPolicy.EXPONENTIAL, // or BackoffPolicy.EXPONENTIAL
+                            30, TimeUnit.SECONDS       // initial wait time before retry
+                    )
+                    .addTag(BOOK_LOADING_WORKERS)
+                    .build());
         }
 
-        if (doCopy) {workChain.add(new OneTimeWorkRequest.Builder(CopyFileWorker.class).build());}
-        if (doUnzip) {workChain.add(new OneTimeWorkRequest.Builder(UnzipWorker.class).build());}
-        if (doSplit) {workChain.add(new OneTimeWorkRequest.Builder(M4bSplitWorker.class).build());}
-        workChain.add(new OneTimeWorkRequest.Builder(ParseFinalFolderWorker.class).build());
+        if (doCopy) {workChain.add(new OneTimeWorkRequest.Builder(CopyFileWorker.class).addTag(BOOK_LOADING_WORKERS).build());}
+        if (doUnzip) {workChain.add(new OneTimeWorkRequest.Builder(UnzipWorker.class).addTag(BOOK_LOADING_WORKERS).build());}
+        if (doSplit) {workChain.add(new OneTimeWorkRequest.Builder(M4bSplitWorker.class).addTag(BOOK_LOADING_WORKERS).build());}
+        workChain.add(new OneTimeWorkRequest.Builder(ParseFinalFolderWorker.class).addTag(BOOK_LOADING_WORKERS).build());
 
 
         WorkContinuation continuation = WorkManager.getInstance(context).beginWith(workChain.get(0));
         for (int i = 1; i < workChain.size(); i++) {
+            myLogD("adding continuation " + i + "/" + workChain.size() + " to chain" + workChain.get(i).toString());
             continuation = continuation.then(workChain.get(i));
         }
         continuation.enqueue();

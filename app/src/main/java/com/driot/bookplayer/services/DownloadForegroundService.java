@@ -1,6 +1,5 @@
 package com.driot.bookplayer.services;
 
-import static com.driot.bookplayer.global.Var.FOREGROUND_DOWNLOAD_SERVICE_TAG;
 import static com.driot.bookplayer.utils.Tonio.formatSizeMB;
 import static com.driot.bookplayer.utils.Tonio.getFileNameFromUrl;
 
@@ -15,9 +14,6 @@ import android.os.IBinder;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import androidx.work.Data;
-import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
 
 import com.driot.bookplayer.R;
@@ -79,12 +75,14 @@ public class DownloadForegroundService extends LoggingService {
         LoadBookTaskState state = Pref.getLoadBookTaskState();
         if (state == null ) {
             myLogE("LoadBookTaskState == null");
+            sendBroadcast(new Intent(DownloadRetryWorker.ACTION_DOWNLOAD_CANCELLED).setPackage(getPackageName()));
             stopForeground(true);
             stopSelf();
             return START_NOT_STICKY;
         }
         if (!state.onGoingLoading ) {
             myLogE("onGoingLoading = false");
+            sendBroadcast(new Intent(DownloadRetryWorker.ACTION_DOWNLOAD_CANCELLED).setPackage(getPackageName()));
             stopForeground(true);
             stopSelf();
             return START_NOT_STICKY;
@@ -121,6 +119,7 @@ public class DownloadForegroundService extends LoggingService {
             } else {
                 myLogE("ACTION_CANCEL and fileUrl == null");
             }
+            sendBroadcast(new Intent(DownloadRetryWorker.ACTION_DOWNLOAD_CANCELLED).setPackage(getPackageName()));
             stopForeground(true);
             stopSelf();
             return START_NOT_STICKY;
@@ -144,39 +143,11 @@ public class DownloadForegroundService extends LoggingService {
                 String filePath = new File(destinationFolder, getFileNameFromUrl(fileUrl)).getAbsolutePath();
                 myLog("Download success => sending Broadcast - storing in SharedPrefs: " + filePath);
                 WorkFlow.setDownloadFinished(this, filePath);
-
-                Intent doneIntent = new Intent("BOOKPLAYER_DOWNLOAD_FINISHED");
-                doneIntent.putExtra("downloadedFileFullPath", filePath);
-                doneIntent.putExtra("audioBookTitle", title);
-                LocalBroadcastManager.getInstance(this).sendBroadcast(doneIntent);
+                sendBroadcast(new Intent(DownloadRetryWorker.ACTION_DOWNLOAD_COMPLETE).setPackage(getPackageName()));
             } else if (!isPaused && !isCancelled) {
                 String errorMsg = getString(R.string.Download_failed);
                 myLogE(errorMsg);
 
-                Intent errorIntent = new Intent("BOOKPLAYER_DOWNLOAD_ERROR");
-                errorIntent.putExtra("errorText", errorMsg);
-                errorIntent.putExtra("audioBookTitle", title);
-                LocalBroadcastManager.getInstance(this).sendBroadcast(errorIntent);
-
-                if (retryCount < MAX_RETRIES) {
-                    LoadBookTaskState retryState = Pref.getLoadBookTaskState();
-                    retryState.downloadRetryCount = retryCount + 1;
-                    Pref.setLoadBookTaskState(retryState);
-
-                    Data inputData = new Data.Builder()
-                            .putString("stateRef", "use_shared_prefs") // Optional marker
-                            .build();
-
-                    OneTimeWorkRequest retryRequest = new OneTimeWorkRequest.Builder(DownloadRetryWorker.class)
-                            .setInputData(inputData)
-                            .addTag(FOREGROUND_DOWNLOAD_SERVICE_TAG)
-                            .build();
-
-                    WorkManager.getInstance(this)
-                            .enqueueUniqueWork(FOREGROUND_DOWNLOAD_SERVICE_TAG, androidx.work.ExistingWorkPolicy.REPLACE, retryRequest);
-                    //.enqueueUniqueWork(FOREGROUND_DOWNLOAD_SERVICE_TAG + "_" + fileUrl.hashCode(), androidx.work.ExistingWorkPolicy.REPLACE, retryRequest);
-
-                }
             }
         });
 
@@ -407,7 +378,7 @@ public class DownloadForegroundService extends LoggingService {
             downloadThread.interrupt();
         }
         cancelDownloadNotification();
-        WorkManager.getInstance(this).cancelAllWorkByTag(FOREGROUND_DOWNLOAD_SERVICE_TAG);
-        Pref.clearLoadBookTaskState(this);
+        //WorkManager.getInstance(this).cancelAllWorkByTag(FOREGROUND_DOWNLOAD_SERVICE_TAG);
+        //Pref.clearLoadBookTaskState(this);
     }
 }

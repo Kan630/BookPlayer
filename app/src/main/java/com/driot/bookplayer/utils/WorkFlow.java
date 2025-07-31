@@ -4,6 +4,7 @@ import static com.driot.bookplayer.global.Pref.clearLoadBookTaskState;
 import static com.driot.bookplayer.global.Pref.getLoadBookTaskState;
 import static com.driot.bookplayer.global.Pref.setLoadBookTaskState;
 import static com.driot.bookplayer.global.Var.FOREGROUND_DOWNLOAD_SERVICE_TAG;
+import static com.driot.bookplayer.services.BookLoadingWorkLauncher.BOOK_LOADING_WORKERS;
 import static com.driot.bookplayer.utils.KanFiles.deleteFolderRecursive;
 
 import android.content.Context;
@@ -125,6 +126,7 @@ public class WorkFlow {
         context.stopService(intent);
 
         WorkManager.getInstance(context).cancelAllWorkByTag(FOREGROUND_DOWNLOAD_SERVICE_TAG);
+        WorkManager.getInstance(context).cancelAllWorkByTag(BOOK_LOADING_WORKERS);
 
         //Ensure nothing left in Download Folder
         String downloadDirPath = StorageHelper.getDownloadFolderPath(context);
