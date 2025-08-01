@@ -5,7 +5,6 @@ import static com.driot.bookplayer.global.Var.SUPPORTED_AUDIO_EXTENSIONS;
 import static com.driot.bookplayer.global.Var.SUPPORTED_COVER_PICTURE_EXTENSIONS;
 import static com.driot.bookplayer.utils.Tonio.getExtension;
 import static com.driot.bookplayer.utils.Tonio.getMimeType;
-import static com.driot.bookplayer.utils.Utils.recursiveRemove;
 
 import android.content.Context;
 
@@ -15,6 +14,7 @@ import androidx.work.WorkerParameters;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.objects.TaskStateManager;
 import com.driot.bookplayer.utils.log.LoggingWorker;
@@ -139,7 +139,7 @@ public class UnzipWorker extends LoggingWorker {
 
         } catch (Exception e) {
             TaskStateManager.markTaskFailed(TASK_NAME, e.getMessage());
-            recursiveRemove(unzipFolder);
+            FileHelper.recursiveRemove(unzipFolder);
             return Result.failure();
         }
     }

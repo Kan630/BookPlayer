@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.objects.MyFile;
 import com.driot.bookplayer.adapter.MyFileRVAdapter;
 import com.driot.bookplayer.utils.log.LoggingActivity;
@@ -19,7 +20,6 @@ import java.io.File;
 import java.util.ArrayList;
 
 import static com.driot.bookplayer.utils.Tonio2.getFileInArrayList;
-import static com.driot.bookplayer.utils.Utils.recursiveRemove;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 02/12/20
@@ -84,7 +84,7 @@ public class LogListActivity extends LoggingActivity {
     }
     private void deleteLogs() {
         File dir = new File(this.getFilesDir(), "log");
-        recursiveRemove(dir);
+        FileHelper.recursiveRemove(dir);
         finish();
     }
 }

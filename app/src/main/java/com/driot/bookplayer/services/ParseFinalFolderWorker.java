@@ -34,6 +34,7 @@ import com.driot.bookplayer.utils.Utils;
 import com.driot.bookplayer.utils.log.LoggingWorker;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Objects;
 
 public class ParseFinalFolderWorker extends LoggingWorker {
@@ -139,7 +140,7 @@ public class ParseFinalFolderWorker extends LoggingWorker {
             addAudioFileRecursive(finalDfPickedDir);
 
             myLogD("addAudioFileRecursive done, sorting now...");
-            audioFileArrayList.sort(new Utils.AlphanumericComparator());
+            audioFileArrayList.sort(AudioFileInfo.ALPHANUMERIC_COMPARATOR);
 
             if (audioFileArrayList.isEmpty()) {
                 myLog("No File found in directory : [" + finalDfPickedDir.getName() + ']');

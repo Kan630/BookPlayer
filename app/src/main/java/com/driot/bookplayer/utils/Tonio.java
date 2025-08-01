@@ -15,6 +15,7 @@ import androidx.annotation.NonNull;
 import androidx.documentfile.provider.DocumentFile;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.helpers.StorageHelper;
 
 import java.io.File;
 import java.sql.Date;
@@ -349,7 +350,7 @@ public class Tonio {
                 return "cloud";
             } else if (uri.toString().startsWith("http")) {
                 return "web";
-            } else if (KanFiles.isOnSdCard(context, uri)) {
+            } else if (StorageHelper.isOnSdCard(context, uri)) {
                 return "sdcard";
             } else {
                 return "local";

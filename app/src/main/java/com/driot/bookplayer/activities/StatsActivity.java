@@ -4,10 +4,8 @@ import static com.driot.bookplayer.helpers.StorageHelper.getAvailableInternalMem
 import static com.driot.bookplayer.helpers.StorageHelper.getAvailableRemovableSDCardSize;
 import static com.driot.bookplayer.helpers.StorageHelper.getTotaLInternalMemorySize;
 import static com.driot.bookplayer.helpers.StorageHelper.getTotalRemovableSDCardSize;
-import static com.driot.bookplayer.utils.Tonio.formatMemPadding;
 import static com.driot.bookplayer.utils.Tonio.getAppSize;
 import static com.driot.bookplayer.utils.Tonio.getFolderSize;
-import static com.driot.bookplayer.utils.Utils.recursiveRemove;
 
 import android.content.Context;
 import android.content.Intent;
@@ -24,6 +22,7 @@ import androidx.appcompat.app.AlertDialog;
 
 import com.driot.bookplayer.BuildConfig;
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.WorkFlow;
 import com.driot.bookplayer.utils.log.LoggingActivity;
@@ -145,7 +144,7 @@ public class StatsActivity extends LoggingActivity {
     }
     private void deleteLogs() {
         File dir = new File(this.getFilesDir(), "log");
-        recursiveRemove(dir);
+        FileHelper.recursiveRemove(dir);
         recreate();
     }
     private void resetApp() {

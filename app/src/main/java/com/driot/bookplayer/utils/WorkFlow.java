@@ -5,7 +5,7 @@ import static com.driot.bookplayer.global.Pref.getLoadBookTaskState;
 import static com.driot.bookplayer.global.Pref.setLoadBookTaskState;
 import static com.driot.bookplayer.global.Var.FOREGROUND_DOWNLOAD_SERVICE_TAG;
 import static com.driot.bookplayer.services.BookLoadingWorkLauncher.BOOK_LOADING_WORKERS;
-import static com.driot.bookplayer.utils.KanFiles.deleteFolderRecursive;
+import static com.driot.bookplayer.helpers.FileHelper.deleteFolderRecursive;
 
 import android.content.Context;
 import android.content.Intent;

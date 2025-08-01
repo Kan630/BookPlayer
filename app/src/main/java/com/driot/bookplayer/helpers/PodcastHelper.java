@@ -5,7 +5,7 @@ import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_API_SECRET;
 import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_MAX_EPISODE_AUTO_DOWNLOAD;
 import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_API_MAX_RESULTS;
 import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_MAX_PODCAST_AUTO_DOWNLOAD;
-import static com.driot.bookplayer.utils.KanFiles.sanitizeFilename;
+import static com.driot.bookplayer.helpers.FileHelper.sanitizeFilename;
 import static com.driot.bookplayer.helpers.StorageHelper.getUnzipFolder;
 
 import com.driot.bookplayer.db.AppDatabase;

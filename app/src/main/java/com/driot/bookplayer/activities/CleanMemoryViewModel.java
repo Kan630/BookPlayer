@@ -2,7 +2,6 @@ package com.driot.bookplayer.activities;
 
 import static com.driot.bookplayer.global.Var.FOLDER_UNZIPPED;
 import static com.driot.bookplayer.helpers.PodcastHelper.cancelAutoDownload;
-import static com.driot.bookplayer.utils.Utils.recursiveRemove;
 
 import android.app.Application;
 
@@ -12,6 +11,7 @@ import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.driot.bookplayer.db.AppDatabase;
+import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.objects.FileWithSummary;
 import com.driot.bookplayer.objects.ZikFileSummary;
 import com.driot.bookplayer.helpers.StorageHelper;
@@ -195,7 +195,7 @@ public class CleanMemoryViewModel extends LoggingAndroidViewModel {
         strPath = strPath.replace(starter, "");
         try {
             File file = new File(strPath);
-            return file.exists() && recursiveRemove(file);
+            return file.exists() && FileHelper.recursiveRemove(file);
         } catch (Exception e) {
             myLogEE(e, "deleteBookFromDisk");
             return false;

@@ -27,6 +27,7 @@ import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.objects.PlayList;
 import com.driot.bookplayer.services.AudioService;
+import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.views.FrequencyVisualizerView;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
@@ -57,7 +58,6 @@ import static com.driot.bookplayer.utils.Tonio.formatNameForDisplay;
 import static com.driot.bookplayer.utils.Tonio.FormatPercentStringForSpeed;
 import static com.driot.bookplayer.utils.Tonio.formatTime;
 import static com.driot.bookplayer.utils.Tonio.getReadableSize;
-import static com.driot.bookplayer.utils.Utils.animateView;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -661,11 +661,11 @@ public class PlayActivity extends LoggingActivity {
 
 
     private void ShowMessageOverlay() {
-        animateView(messageOverlay, View.VISIBLE, 1f, DELAY_ANIMATION);
+        ViewHelper.animateView(messageOverlay, View.VISIBLE, 1f, DELAY_ANIMATION);
         AnimationNow = true;
     }
     private void HideMessageOverlay() {
-        animateView(messageOverlay, View.GONE, 1f, DELAY_ANIMATION);
+        ViewHelper.animateView(messageOverlay, View.GONE, 1f, DELAY_ANIMATION);
         AnimationNow = true;
     }
 

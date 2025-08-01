@@ -18,14 +18,11 @@ import android.provider.OpenableColumns;
 import androidx.annotation.NonNull;
 import androidx.documentfile.provider.DocumentFile;
 
-import com.driot.bookplayer.utils.KanFiles;
 import com.driot.bookplayer.utils.KanLogger;
 import com.driot.bookplayer.utils.Tonio;
 
 import java.io.File;
-import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
 
 public class BookToAdd {
 

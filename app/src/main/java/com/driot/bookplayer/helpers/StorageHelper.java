@@ -5,13 +5,21 @@ import static com.driot.bookplayer.global.Var.FOLDER_IMAGE;
 import static com.driot.bookplayer.global.Var.FOLDER_UNZIPPED;
 
 import android.content.Context;
+import android.net.Uri;
 import android.os.Environment;
 import android.os.StatFs;
+import android.os.storage.StorageManager;
+import android.os.storage.StorageVolume;
+import android.provider.DocumentsContract;
+
+import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.utils.KanLogger;
 
 import java.io.File;
+import java.lang.reflect.Method;
+import java.util.List;
 
 public class StorageHelper {
 
@@ -176,7 +184,59 @@ public class StorageHelper {
 
 
 
+    public static boolean isOnSdCard(Context appContext, Uri uri) {
+        if (uri == null) return false;
 
+        // Method 2: API 24+ use StorageVolume.isRemovable() + UUID comparison
+        try {
+            StorageManager sm = (StorageManager) appContext.getSystemService(Context.STORAGE_SERVICE);
+            if (sm == null) return false;
+
+            List<StorageVolume> volumes = sm.getStorageVolumes();
+            for (StorageVolume volume : volumes) {
+                if (volume.isRemovable()) {
+                    // Match SD card by checking volume's UUID prefix in the uri string
+                    String uuid = getVolumeUuid(volume);
+                    if (uuid != null && uri.toString().contains(uuid)) {
+                        myLogD("Matched SD card volume UUID in URI: " + uuid);
+                        return true;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            myLogEE(e,"isOnSdCard - StorageManager");
+        }
+
+        try {
+            // Method 1: Tree URI with non-primary volume (works API 21+)
+            if ("com.android.externalstorage.documents".equals(uri.getAuthority())) {
+                String docId = DocumentsContract.getTreeDocumentId(uri); // e.g. "3334-3933:Audiobooks/mybook"
+                if (docId != null && docId.contains(":")) {
+                    String volumeName = docId.split(":")[0];
+                    if (!"primary".equalsIgnoreCase(volumeName)) {
+                        myLogD("Detected removable SD card via volume name: " + volumeName);
+                        return true;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            myLogEE(e,"isOnSdCard - DocumentsContract");
+        }
+
+        return false;
+    }
+    @Nullable
+    private static String getVolumeUuid(StorageVolume volume) {
+        try {
+            // Use reflection to get UUID if not directly accessible
+            Method getUuid = StorageVolume.class.getDeclaredMethod("getUuid");
+            Object uuid = getUuid.invoke(volume);
+            return uuid != null ? uuid.toString() : null;
+        } catch (Exception e) {
+            myLogEE(e, "Could not access volume UUID");
+        }
+        return null;
+    }
 
     // === LOGGING ===
     // ----------------------- LOG -----------------------

@@ -36,7 +36,7 @@ import com.driot.bookplayer.objects.PodcastEpisode;
 import com.driot.bookplayer.objects.PodcastFeed;
 import com.driot.bookplayer.helpers.AnalyticsHelper;
 import com.driot.bookplayer.utils.NetworkUtils;
-import com.driot.bookplayer.utils.ViewHelper;
+import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.PodcastHelper;
 import com.driot.bookplayer.utils.log.LoggingActivity;

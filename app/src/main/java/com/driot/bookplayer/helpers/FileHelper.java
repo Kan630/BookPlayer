@@ -5,12 +5,14 @@ package com.driot.bookplayer.helpers;
 
 import static com.driot.bookplayer.utils.KanLogger.myLog;
 import static com.driot.bookplayer.utils.KanLogger.myLogE;
+import static com.driot.bookplayer.utils.Tonio.fileExists;
 
 import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
 import android.database.Cursor;
+import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -270,4 +272,78 @@ public class FileHelper {
     private static void myLogE(String str) { KanLogger.myLogE(TAG, str); }
     private static void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, TAG, str); }
     private static void myToastEE(Throwable t, String str) { KanLogger.myToastEE(t, TAG, str); }
+
+    public static String sanitizeFilename(String input) {
+        if (input==null) return null;
+        return input.replaceAll("[\\\\/:*?\"<>|]", "_");
+    }
+
+    public static boolean deleteFolderRecursive(String strPath) {
+        String starter = "file:///";
+        if (strPath.length()>5) {
+            strPath = strPath.replace(starter,"");
+            try {
+                File zikFileToDelete = new File(strPath);
+                if(zikFileToDelete.exists()) {
+                    if (recursiveRemove(zikFileToDelete)) {
+                        myLog("Deleted from Disk : [" + strPath + "]");
+                        return true;
+                    } else {
+                        myLog("NOT Deleted from Disk : [" + strPath + "]");
+                        return false;
+                    }
+                } else {
+                    myLogE("file does not exist : [" + strPath + "]");
+                    return false;
+                }
+            } catch (Exception e) {
+                myLogEE(e,"Error remove ZikFile from Disk : [" + strPath + "]");
+                return false;
+            }
+        } else {
+            myLogE("should not happen uri less than 5 chars for path [" + strPath + "]");
+            return false;
+        }
+    }
+
+    public static boolean recursiveRemove(File file) {
+        if(file == null  || !file.exists()) {
+            myLogE("recursiveRemove() => File does not exist.... [" + file.toString() + "]");
+            return false;
+        }
+
+        if(file.isDirectory()) {
+            File[] list = file.listFiles();
+            if(list != null) {
+                for(File item : list) {
+                    recursiveRemove(item);
+                }
+            }
+        }
+        if(file.exists()) {
+            if (file.delete()) {
+                myLog("recursiveRemove() => delete OK.... [" + file.toString() + "]");
+            } else {
+                myLogE("recursiveRemove() => delete KO.... [" + file.toString() + "]");
+            }
+        }
+        return !file.exists();
+    }
+
+    // DUREE AUDIO
+    public static long getMediaDurationFromPath(String zePath) {
+        long duration = 0;
+        if (fileExists(zePath)) {
+            try {
+                MediaMetadataRetriever mediaMetadataRetriever = new MediaMetadataRetriever();
+                mediaMetadataRetriever.setDataSource(zePath);
+                duration = Long.parseLong(mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
+            } catch (Exception e) {
+                myLogEE(e,"error getting duration of media for " + zePath);
+            }
+        } else {
+            myLogEE(null,"error getting duration of media, file does not exist in path : " + zePath);
+        }
+        return duration;
+    }
 }

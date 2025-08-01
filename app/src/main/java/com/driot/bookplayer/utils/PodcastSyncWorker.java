@@ -5,7 +5,7 @@ import static com.driot.bookplayer.global.Var.SOURCE_LOCATION_PODCAST;
 import static com.driot.bookplayer.utils.FinalizeDownloadWorker.KEY_FEED_ID;
 import static com.driot.bookplayer.utils.FinalizeDownloadWorker.KEY_FOLDER_NAME;
 import static com.driot.bookplayer.utils.FinalizeDownloadWorker.KEY_FOLDER_PATH;
-import static com.driot.bookplayer.utils.KanFiles.getMediaDurationFromPath;
+import static com.driot.bookplayer.helpers.FileHelper.getMediaDurationFromPath;
 import static com.driot.bookplayer.utils.Tonio.formatNameForDisplay;
 
 import android.content.Context;

@@ -18,6 +18,7 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.global.Pref;
+import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingActivity;
@@ -26,7 +27,6 @@ import java.io.File;
 
 import static com.driot.bookplayer.global.Var.PATH_CHECK_APPLICATION;
 import static com.driot.bookplayer.helpers.PodcastHelper.cancelAutoDownload;
-import static com.driot.bookplayer.utils.Utils.recursiveRemove;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 15/11/20
@@ -161,7 +161,7 @@ public class ModifyFolderActivity extends LoggingActivity {
                 try {
                     File folderToDelete = new File(strPath);
                     myLog("is directory :    " + folderToDelete.isDirectory());
-                    recursiveRemove(folderToDelete);
+                    FileHelper.recursiveRemove(folderToDelete);
                     return true;
                 } catch (Exception e) {
                     myToastE("Error remove folder & files from Disk - user data");
