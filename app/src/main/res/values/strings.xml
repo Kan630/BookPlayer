@@ -688,8 +688,10 @@
     <string name="Import_Progress_copying_file_to_sd_card_reserved">"\n- to Bookplayer reserved sd card memory"</string>
 
     <string name="could_not_check_already_imported">could not check if already imported.</string>
-    <string name="warning_url_already_loaded_under_the_name">the same web link has already been imported ! (same content?), with book name :</string>
-
+    <string name="warning_url_already_loaded_under_the_name">the same web link has already been imported ! (content was not checked, is it the same?). It has been stored under the name :</string>
+    <string name="A_different_media_with_the_same_name_had_already_been_loaded">A different media with the same name had already been loaded</string>
+    <string name="Also">Also</string>
+    <string name="the_name_will_be_changed_to">, the name will be changed to : </string>
 
     <string name="listing_and_sorting_tracks">listing and sorting tracks</string>
     <string name="scanning_tracks">scanning tracks</string>

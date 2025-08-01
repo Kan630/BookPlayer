@@ -29,6 +29,44 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
+                <LinearLayout
+                    android:id="@+id/llsecretDev"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone"
+                    >
+
+                    <TextView
+                        android:id="@+id/txtAutoTest_title"
+                        android:text="@string/AutoTest_title"
+                        style="@style/GetResourceTextSectionTitle" />
+
+                    <TextView
+                        android:id="@+id/txtAutoTest_desc"
+                        style="@style/GetResourceTextTopOfButton" />
+
+                    <Button
+                        android:id="@+id/bAutoTest_b1"
+                        android:text="@string/AutoTest_b1_text"
+                        style="@style/GetResourceButton"
+                        android:layout_marginTop="@dimen/GetRessource320_vertical_margin_text2button" />
+
+                    <Button
+                        android:id="@+id/bAutoTest_b2"
+                        android:text="@string/AutoTest_b2_text"
+                        style="@style/GetResourceButton" />
+
+                    <Button
+                        android:id="@+id/bAutoTest_b3"
+                        android:text="@string/AutoTest_b3_text"
+                        style="@style/GetResourceButton" />
+                    <Button
+                        android:id="@+id/bAutoTest_b4"
+                        android:text="@string/AutoTest_b4_text"
+                        style="@style/GetResourceButton" />
+                </LinearLayout>
+
                 <include
                     layout="@layout/include_progressbar_overlay" />
 
@@ -292,44 +330,6 @@
 
 
                 <View style="@style/GetResourceHorizontalBar"/>
-
-                <LinearLayout
-                    android:id="@+id/llsecretDev"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:visibility="gone"
-                    >
-
-                    <TextView
-                        android:id="@+id/txtAutoTest_title"
-                        android:text="@string/AutoTest_title"
-                        style="@style/GetResourceTextSectionTitle" />
-
-                    <TextView
-                        android:id="@+id/txtAutoTest_desc"
-                        style="@style/GetResourceTextTopOfButton" />
-
-                    <Button
-                        android:id="@+id/bAutoTest_b1"
-                        android:text="@string/AutoTest_b1_text"
-                        style="@style/GetResourceButton"
-                        android:layout_marginTop="@dimen/GetRessource320_vertical_margin_text2button" />
-
-                    <Button
-                        android:id="@+id/bAutoTest_b2"
-                        android:text="@string/AutoTest_b2_text"
-                        style="@style/GetResourceButton" />
-
-                    <Button
-                        android:id="@+id/bAutoTest_b3"
-                        android:text="@string/AutoTest_b3_text"
-                        style="@style/GetResourceButton" />
-                    <Button
-                        android:id="@+id/bAutoTest_b4"
-                        android:text="@string/AutoTest_b4_text"
-                        style="@style/GetResourceButton" />
-                </LinearLayout>
 
             </LinearLayout>
         </ScrollView>

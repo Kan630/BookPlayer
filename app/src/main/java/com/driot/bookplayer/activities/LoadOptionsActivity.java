@@ -62,6 +62,7 @@ public class LoadOptionsActivity extends LoggingActivity {
     Button btnConfirm;
     private boolean internalCheckBoxStateCalculationInProgress;
     private boolean isKO = false;
+    private boolean boolAlso = false;
 
     private PermissionRequest mPermissionRequest;
 
@@ -505,25 +506,24 @@ public class LoadOptionsActivity extends LoggingActivity {
                         myLogEE(null, "bad returned Hash for uri " + uri);
                         ShowWarning(getString(R.string.could_not_check_already_imported));
                         okContinue();
-                    } else if (uri.toString().startsWith("http")) { //TODO, ideally, a second hash column should be computed "realHashOfTheContent"
-                        myLogEE(null, "same Hash for URL " + uri);
-                        new Thread(() -> {
-                            String existingBook = AppDatabase.getDatabase(getApplicationContext()).FolderDao().originalHashAlreadyExist_getBookName(hash);
-                            runOnUiThread(() -> {
-                                ShowWarning(getString(R.string.warning_url_already_loaded_under_the_name) + " [" + existingBook + "]");
-                                okContinue();
-                                    });
-                        }).start();
                     } else {
                         btnConfirm.setEnabled(false);
                         new Thread(() -> {
                             String existingBook = AppDatabase.getDatabase(getApplicationContext()).FolderDao().originalHashAlreadyExist_getBookName(hash);
                             runOnUiThread(() -> {
                                 if (existingBook != null) {
-                                    myLogW("Duplicate hash detected: already imported as [" + existingBook + "]");
-                                    ShowError(getString(R.string.error_media_already_loaded_samePath_under_the_name) + "\n" + existingBook);
-                                    waitTextView.setVisibility(View.GONE);
-                                    isKO = true;
+                                    if (uri.toString().startsWith("http")) {
+                                        //TODO, ideally, a second hash column should be computed "realHashOfTheContent"
+                                        myLogEE(null, "same Hash [" + hash +  "] for URL " + uri + " for book = " + existingBook);
+                                        ShowWarning(getString(R.string.warning_url_already_loaded_under_the_name) + " [" + existingBook + "]\n");
+                                        boolAlso=true;
+                                        okContinue();
+                                    } else {
+                                        myLogW("Duplicate hash detected: already imported as [" + existingBook + "]");
+                                        ShowError(getString(R.string.error_media_already_loaded_samePath_under_the_name) + "\n" + existingBook);
+                                        waitTextView.setVisibility(View.GONE);
+                                        isKO = true;
+                                    }
                                 } else {
                                     myLogD("Hash OK: not found in DB.");
                                     waitTextView.setText(getString(R.string.init_check_complementary_checks_please_wait));
@@ -587,7 +587,13 @@ public class LoadOptionsActivity extends LoggingActivity {
                 if (lCheck>0) {
                     myLogW("KO, folder name does already exist in DB : [" + audioBookTitle + "]");
                     audioBookTitle = audioBookTitle + " " + getCurrentDateTimeString();
-                    ShowWarning(getString(R.string.error_media_already_loaded_samePath_so_changeName) + "\n[" + audioBookTitle + "]");
+                    String strText;
+                    if (boolAlso) {
+                        strText = getString(R.string.Also);
+                    } else {
+                        strText = getString(R.string.A_different_media_with_the_same_name_had_already_been_loaded);
+                    }
+                    ShowWarning(strText + getString(R.string.the_name_will_be_changed_to) + "\n[" + audioBookTitle + "]");
                     myLogW("book name changed to [" + audioBookTitle + "]");
                 } else {
                     myLogD("OK, folder name doesn't already exist in DB");

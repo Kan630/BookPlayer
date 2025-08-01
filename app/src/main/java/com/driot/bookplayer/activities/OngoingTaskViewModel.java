@@ -40,6 +40,8 @@ public class OngoingTaskViewModel extends LoggingAndroidViewModel {
             pauseAvailable.setValue(state.originalUri != null && state.originalUri.toString().startsWith("http"));
             isPaused.setValue(false);
             isFinished.setValue(false);
+        } else {
+            myLogE("OngoingTaskViewModel : state is null");
         }
     }
 
