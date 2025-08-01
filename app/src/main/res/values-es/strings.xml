@@ -604,7 +604,6 @@ El valor global de apagado automático está en Opciones (en el menú de la pant
     <string name="Podcast_description">Descripción del pódcast</string>
     <string name="Trending">Tendencias</string>
     <string name="max_number_of_results_reached">se alcanzó el número máximo de resultados</string>
-    <string name="could_not_check_already_imported">no se pudo verificar si ya se importó</string>
 
     <string name="network_preferences_title">preferencias de red</string>
     <string name="option_download_auto_title">Descarga automática</string>

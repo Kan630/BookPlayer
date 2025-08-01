@@ -631,7 +631,6 @@
     <string name="Podcast_description">Podcast description</string>
     <string name="Trending">Trending</string>
     <string name="max_number_of_results_reached">max number of results reached</string>
-    <string name="could_not_check_already_imported">">could not check if already imported.</string>
 
 
     <string name="network_preferences_title">network preferences</string>
@@ -687,6 +686,9 @@
     <string name="Import_Progress_copying_file_from_cloud">"copying source file \n- from Cloud"</string>
     <string name="Import_Progress_copying_file_to_internal_reserved">"\n- to Bookplayer app internal memory"</string>
     <string name="Import_Progress_copying_file_to_sd_card_reserved">"\n- to Bookplayer reserved sd card memory"</string>
+
+    <string name="could_not_check_already_imported">could not check if already imported.</string>
+    <string name="warning_url_already_loaded_under_the_name">the same web link has already been imported ! (same content?), with book name :</string>
 
 
 

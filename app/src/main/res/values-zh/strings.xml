@@ -612,7 +612,6 @@ BookPlayer 在<font color="#81C784">无需权限</font>的情况下也能运行�
     <string name="Podcast_description">播客简介</string>
     <string name="Trending">热门</string>
     <string name="max_number_of_results_reached">已达到最大结果数</string>
-    <string name="could_not_check_already_imported">无法检查是否已导入</string>
 
     <string name="network_preferences_title">网络偏好设置</string>
     <string name="option_download_auto_title">自动下载</string>

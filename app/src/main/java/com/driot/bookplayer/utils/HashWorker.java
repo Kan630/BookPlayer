@@ -15,6 +15,7 @@ import com.driot.bookplayer.db.Folder;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -148,6 +149,14 @@ public class HashWorker extends Worker {
             long totalStart = System.currentTimeMillis();
             long[] sumElapsed = new long[]{0};
             int[] fileCount = new int[]{0};
+
+            String uriStr = uri.toString();   //If URI is download link, just hash the actual URL, no the file content
+            if (uriStr.startsWith("http://") || uriStr.startsWith("https://")) {
+                myLogD("Hashing URI string instead of content: " + uriStr);
+                byte[] bytes = uriStr.getBytes(StandardCharsets.UTF_8);
+                digest.update(bytes);
+                return formatHash(digest.digest());
+            }
 
             DocumentFile doc = DocumentFile.fromSingleUri(context, uri);
             if (doc != null && doc.isFile()) {

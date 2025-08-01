@@ -505,6 +505,15 @@ public class LoadOptionsActivity extends LoggingActivity {
                         myLogEE(null, "bad returned Hash for uri " + uri);
                         ShowWarning(getString(R.string.could_not_check_already_imported));
                         okContinue();
+                    } else if (uri.toString().startsWith("http")) { //TODO, ideally, a second hash column should be computed "realHashOfTheContent"
+                        myLogEE(null, "same Hash for URL " + uri);
+                        new Thread(() -> {
+                            String existingBook = AppDatabase.getDatabase(getApplicationContext()).FolderDao().originalHashAlreadyExist_getBookName(hash);
+                            runOnUiThread(() -> {
+                                ShowWarning(getString(R.string.warning_url_already_loaded_under_the_name) + " [" + existingBook + "]");
+                                okContinue();
+                                    });
+                        }).start();
                     } else {
                         btnConfirm.setEnabled(false);
                         new Thread(() -> {

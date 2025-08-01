@@ -610,7 +610,6 @@ Tous les messages sont lisibles publiquement. Connectez-vous pour participer.
     <string name="Podcast_description">Description du podcast</string>
     <string name="Trending">Tendances</string>
     <string name="max_number_of_results_reached">nombre maximum de résultats atteint</string>
-    <string name="could_not_check_already_imported">impossible de vérifier si déjà importé</string>
 
     <string name="network_preferences_title">préférences réseau</string>
     <string name="option_download_auto_title">Téléchargement automatique</string>

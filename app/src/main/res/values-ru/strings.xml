@@ -617,7 +617,6 @@
     <string name="Podcast_description">Описание подкаста</string>
     <string name="Trending">Популярное</string>
     <string name="max_number_of_results_reached">достигнуто максимальное количество результатов</string>
-    <string name="could_not_check_already_imported">не удалось проверить, был ли уже импортирован</string>
 
     <string name="network_preferences_title">настройки сети</string>
     <string name="option_download_auto_title">Авто загрузка</string>
