@@ -75,6 +75,8 @@ public class OptionActivity extends LoggingActivity {
     CheckBox chk_open_with_all;
     CheckBox chk_split_m4b;
     CheckBox chk_use_sd_card;
+    CheckBox chk_podcast_auto_delete;
+    EditText et_podcast_delay_deletion, et_podcast_completion_percentage_deletion, et_podcast_auto_download_last_n_episode;
 
 
     private PermissionRequest mPermissionRequest;
@@ -87,6 +89,7 @@ public class OptionActivity extends LoggingActivity {
     LinearLayout ll_rewind_after_pause, ll_tech_log_file, ll_mail_method_default;
     LinearLayout ll_open_with, ll_open_with_all, ll_split_m4b, ll_use_sd_card;
     LinearLayout ll_container_sd_card;
+    LinearLayout ll_podcast_auto_delete;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -318,6 +321,21 @@ public class OptionActivity extends LoggingActivity {
             setOpenWithProxyEnabled_all(this, isChecked);  // dynamically enable/disable the component
         });
 
+///  PODCASTS
+        chk_podcast_auto_delete = findViewById(R.id.chk_podcast_auto_delete);
+        ll_podcast_auto_delete = findViewById(R.id.ll_podcast_auto_delete);
+        chk_podcast_auto_delete.setChecked(Option.getPodcastAutoDelete());
+        ll_podcast_auto_delete.setOnClickListener(v -> chk_podcast_auto_delete.toggle());
+        chk_podcast_auto_delete.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setPodcastAutoDelete(isChecked));
+
+        et_podcast_delay_deletion = findViewById(R.id.et_delay_deletion);
+        et_podcast_completion_percentage_deletion = findViewById(R.id.et_percentage_deletion);
+        et_podcast_auto_download_last_n_episode = findViewById(R.id.et_auto_download_last_n_episode);
+
+        et_podcast_delay_deletion.setText(String.valueOf(Option.getPodcastAutoDeleteDelay()));
+        et_podcast_completion_percentage_deletion.setText(String.valueOf(Option.getPodcastAutoDeleteCompletionPercentage()));
+        et_podcast_auto_download_last_n_episode.setText(String.valueOf(Option.getPodcastAutoDownloadLastNbEpisode()));
+
     }
 
     private void setVisualizerPermissionText() {
@@ -353,10 +371,28 @@ public class OptionActivity extends LoggingActivity {
         Option.set_ForwardSeconds(i);
     }
 
+    private void saveEditTextValues() {
+        int value1 = clampInt(et_podcast_delay_deletion, 0, 365, Option.DEFAULT_PODCAST_DELAY_AUTO_DELETE,
+                () -> myLongToast(getString(R.string.delay_for_auto_deletion) + " " + getString(R.string.too_low)),
+                () -> myLongToast(getString(R.string.delay_for_auto_deletion) + " " + getString(R.string.too_high)));
+        Option.setPodcastAutoDeleteDelay(value1);
+        int value2 = clampInt(et_podcast_completion_percentage_deletion, 0, 100, Option.DEFAULT_PODCAST_COMPLETION_PERCENTAGE_AUTO_DELETE,
+                () -> myLongToast(getString(R.string.completion_percentage_for_auto_deletion) + " " + getString(R.string.too_low)),
+                () -> myLongToast(getString(R.string.completion_percentage_for_auto_deletion) + " " + getString(R.string.too_high)));
+        Option.setPodcastAutoDeleteCompletionPercentage(value2);
+        int value3 = clampInt(et_podcast_auto_download_last_n_episode, 1, 100, Option.DEFAULT_PODCAST_LAST_N_EPISODE_AUTO_DOWNLOAD,
+                () -> myLongToast(getString(R.string.auto_download_last_n_episode) + " " + getString(R.string.too_low)),
+                () -> myLongToast(getString(R.string.auto_download_last_n_episode) + " " + getString(R.string.too_high)));
+        Option.setPodcastAutoDownloadLastNbEpisode(value3);
+
+    }
+
+
     @Override
     protected void onDestroy() {
         saveForwardSeconds();
         saveTimeBeforeSleep();
+        saveEditTextValues();
         super.onDestroy();
     }
 
@@ -519,4 +555,24 @@ public class OptionActivity extends LoggingActivity {
         }
         areAdvancedOptionsVisible = !areAdvancedOptionsVisible;
     }
+
+    public static int clampInt(EditText et, int min, int max, int def, Runnable onTooLow, Runnable onTooHigh) {
+        String str = et.getText().toString().trim();
+        int val;
+        try {
+            val = Integer.parseInt(str);
+        } catch (NumberFormatException e) {
+            return def;
+        }
+
+        if (val < min) {
+            if (onTooLow != null) onTooLow.run();
+            return min;
+        } else if (val > max) {
+            if (onTooHigh != null) onTooHigh.run();
+            return max;
+        }
+        return val;
+    }
+
 }

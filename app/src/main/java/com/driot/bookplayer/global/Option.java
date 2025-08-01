@@ -34,6 +34,10 @@ public class Option {
     private static final boolean DEFAULT_USE_SD_CARD = true;
     private static final NetworkUtils.NetworkPolicyManual DEFAULT_MANUAL_DOWNLOAD_POLICY = NetworkUtils.NetworkPolicyManual.NEVER_ASK;
     private static final NetworkUtils.NetworkPolicyAuto DEFAULT_AUTO_DOWNLOAD_POLICY = NetworkUtils.NetworkPolicyAuto.WIFI;
+    private static final boolean DEFAULT_PODCAST_AUTO_DELETE = false;
+    public static final int DEFAULT_PODCAST_DELAY_AUTO_DELETE = 30;
+    public static final int DEFAULT_PODCAST_COMPLETION_PERCENTAGE_AUTO_DELETE = 95;
+    public static final int DEFAULT_PODCAST_LAST_N_EPISODE_AUTO_DOWNLOAD = 5;
 
     private static Context appContext;
     private static android.content.SharedPreferences prefs;
@@ -136,6 +140,20 @@ public class Option {
         int index = prefs.getInt("AUTO_DOWNLOAD_POLICY_KEY", DEFAULT_AUTO_DOWNLOAD_POLICY.ordinal());
         return NetworkUtils.NetworkPolicyAuto.values()[Math.max(0, Math.min(index, NetworkUtils.NetworkPolicyAuto.values().length - 1))];
     }
+
+    /////////////////// PODCAST ///////////////////
+    public static void setPodcastAutoDelete(boolean bool) {prefs.edit().putBoolean("PODCAST_AUTO_DELETE",bool).apply();}
+    public static boolean getPodcastAutoDelete() {return prefs.getBoolean("PODCAST_AUTO_DELETE", DEFAULT_PODCAST_AUTO_DELETE);}
+
+    public static void setPodcastAutoDeleteCompletionPercentage(int i) {prefs.edit().putInt("PODCAST_COMPLETION_PERCENTAGE_AUTO_DELETE",i).apply();}
+    public static int getPodcastAutoDeleteCompletionPercentage() {return prefs.getInt("PODCAST_COMPLETION_PERCENTAGE_AUTO_DELETE", DEFAULT_PODCAST_COMPLETION_PERCENTAGE_AUTO_DELETE);}
+
+    public static void setPodcastAutoDeleteDelay(int i) {prefs.edit().putInt("PODCAST_DELAY_AUTO_DELETE",i).apply();}
+    public static int getPodcastAutoDeleteDelay() {return prefs.getInt("PODCAST_DELAY_AUTO_DELETE", DEFAULT_PODCAST_DELAY_AUTO_DELETE);}
+
+    public static void setPodcastAutoDownloadLastNbEpisode(int i) {prefs.edit().putInt("PODCAST_DEFAULT_PODCAST_LAST_N_EPISODE_AUTO_DOWNLOAD",i).apply();}
+    public static int getPodcastAutoDownloadLastNbEpisode() {return prefs.getInt("PODCAST_DEFAULT_PODCAST_LAST_N_EPISODE_AUTO_DOWNLOAD", DEFAULT_PODCAST_LAST_N_EPISODE_AUTO_DOWNLOAD);}
+
 
 
 }

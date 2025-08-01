@@ -49,7 +49,6 @@
         <activity android:name=".activities.AddResourceActivity" />
         <activity android:name=".activities.HelpActivity" />
         <activity android:name=".activities.OptionActivity" />
-        <activity android:name=".activities.OtherAppsActivity" />
         <activity android:name=".activities.LogTextActivity" />
         <activity android:name=".activities.LogListActivity" />
         <activity android:name=".activities.StatsActivity" />
