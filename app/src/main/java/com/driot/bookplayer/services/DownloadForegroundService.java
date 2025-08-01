@@ -295,6 +295,7 @@ public class DownloadForegroundService extends LoggingService {
             return false;
         } catch (Exception e) {
             myLogEE(e,"Unexpected error");
+            e.printStackTrace();
             cancelDownloadNotification();
             return false;
         } finally {
@@ -376,7 +377,11 @@ public class DownloadForegroundService extends LoggingService {
         isPaused = true;
         if (downloadThread != null && downloadThread.isAlive()) {
             myLogD("downloadThread.interrupt");
-            downloadThread.interrupt();
+            try {
+                downloadThread.interrupt();
+            } catch (Exception e) {
+                myLogE("downloadThread.interrupt() failed");
+            }
         }
         cancelDownloadNotification();
         //WorkManager.getInstance(this).cancelAllWorkByTag(FOREGROUND_DOWNLOAD_SERVICE_TAG);

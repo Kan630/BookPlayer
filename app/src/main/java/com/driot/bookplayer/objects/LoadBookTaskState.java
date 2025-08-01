@@ -31,7 +31,7 @@ public class LoadBookTaskState implements Parcelable {
     public String progressText;
     public int progressPercent;
     public boolean isLoadingPaused;
-    public String currentLoadingOperation;
+    public String currentOperation;
     public String downloadFileUrl;
     public String downloadDestinationFolder;
     public int downloadRetryCount;
@@ -72,7 +72,7 @@ public class LoadBookTaskState implements Parcelable {
         progressText = in.readString();
         progressPercent = in.readInt();
         isLoadingPaused = in.readByte() != 0;
-        currentLoadingOperation = in.readString();
+        currentOperation = in.readString();
         downloadFileUrl = in.readString();
         downloadDestinationFolder = in.readString();
         downloadRetryCount = in.readInt();
@@ -121,7 +121,7 @@ public class LoadBookTaskState implements Parcelable {
         dest.writeString(progressText);
         dest.writeInt(progressPercent);
         dest.writeByte((byte) (isLoadingPaused ? 1 : 0));
-        dest.writeString(currentLoadingOperation);
+        dest.writeString(currentOperation);
         dest.writeString(downloadFileUrl);
         dest.writeString(downloadDestinationFolder);
         dest.writeInt(downloadRetryCount);
@@ -165,7 +165,7 @@ public class LoadBookTaskState implements Parcelable {
                 ", progressText='" + progressText + '\'' +
                 ", progressPercent=" + progressPercent +
                 ", isLoadingPaused=" + isLoadingPaused +
-                ", currentLoadingOperation='" + currentLoadingOperation + '\'' +
+                ", currentLoadingOperation='" + currentOperation + '\'' +
                 ", downloadFileUrl='" + downloadFileUrl + '\'' +
                 ", downloadDestinationFolder='" + downloadDestinationFolder + '\'' +
                 ", downloadRetryCount=" + downloadRetryCount +

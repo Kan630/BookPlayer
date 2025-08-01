@@ -14,12 +14,9 @@ import androidx.work.WorkManager;
 
 import com.driot.bookplayer.objects.AppViewModelStoreOwner;
 import com.driot.bookplayer.objects.LoadBookTaskState;
-import com.driot.bookplayer.services.CopyFileService;
 import com.driot.bookplayer.services.DownloadForegroundService;
 import com.driot.bookplayer.services.DownloadService;
-import com.driot.bookplayer.services.SplitM4bService;
 import com.driot.bookplayer.helpers.StorageHelper;
-import com.driot.bookplayer.services.UnzipService;
 
 import java.io.File;
 
@@ -36,18 +33,6 @@ public class WorkFlow {
                 myLog("LoadBookTaskState : Downloading...");
                 return true;
             }
-        }
-        if (SplitM4bService.isSplitRunning) {
-            myLog("yes : SplitM4bService...");
-            return true;
-        }
-        if (UnzipService.isUnzipRunning) {
-            myLog("yes : UnzipService...");
-            return true;
-        }
-        if (CopyFileService.isCopyRunning) {
-            myLog("yes : CopyFileService...");
-            return true;
         }
         if (DownloadService.isBusy) {
             myLog("yes : DownloadService...");
@@ -66,7 +51,7 @@ public class WorkFlow {
             return;
         }
 
-        myLogD("WorkFlow " + state.currentLoadingOperation);
+        myLogD("WorkFlow " + state.currentOperation);
         //myLog(state.toString().replace(", ","\n"));
 
         if (state.onGoingLoading) {

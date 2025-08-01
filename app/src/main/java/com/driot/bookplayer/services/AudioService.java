@@ -31,6 +31,7 @@ import androidx.documentfile.provider.DocumentFile;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.media.session.MediaButtonReceiver;
 
+import com.driot.bookplayer.helpers.UriHelper;
 import com.driot.bookplayer.objects.KanMediaPlayer;
 import com.driot.bookplayer.utils.log.LoggingService;
 import com.driot.bookplayer.activities.PlayActivity;
@@ -44,13 +45,10 @@ import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.utils.Tonio;
 
 import java.io.IOException;
-import java.sql.Date;
-import java.sql.Time;
 import java.text.DecimalFormat;
 import java.util.Objects;
 
 import static com.driot.bookplayer.activities.PlayActivity.SHARED_PREFERENCE_SPEED;
-import static com.driot.bookplayer.utils.FileUtils.buildFileUri;
 import static com.driot.bookplayer.utils.Tonio.FormatPercentDouble;
 import static com.driot.bookplayer.utils.Tonio.fileExists;
 import static com.driot.bookplayer.utils.Tonio.formatTime;
@@ -544,7 +542,7 @@ public class AudioService extends LoggingService {
 // NEW SAF URI
         if (zf.getPath().startsWith("content://")) {
             myLog("New SAF file, content...");
-            uriToPlay = buildFileUri(this, zf.getPath(),zf.getName());
+            uriToPlay = UriHelper.buildFileUri(this, zf.getPath(),zf.getName());
             if (uriToPlay == null) {
                 myLogEE(null, "buildFileUri returned null for SAF path: " + zf.getPath() + "/" + zf.getName());
                 loadFileKO();

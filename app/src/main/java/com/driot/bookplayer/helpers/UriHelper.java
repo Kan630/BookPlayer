@@ -197,6 +197,55 @@ public class UriHelper {
     }
 
 
+    public static Uri buildFileUri(Context context, String folderPathOrUri, String fileName) {
+        if (folderPathOrUri == null || fileName == null) {
+            myLogEE(null, "buildFileUri - null args");
+            return null;
+        }
+        try {
+            Uri folderUri = Uri.parse(folderPathOrUri);
+
+            // ✅ CASE 1: SAF URI (content://...)
+            if ("content".equalsIgnoreCase(folderUri.getScheme())) {
+                // Folder + fileName
+                if (DocumentsContract.isTreeUri(folderUri)) {
+                    String parentDocumentId = DocumentsContract.getTreeDocumentId(folderUri);
+                    String childDocumentId = parentDocumentId + "/" + fileName;
+
+                    return DocumentsContract.buildDocumentUriUsingTree(folderUri, childDocumentId);
+                } else {
+                    // Folder is fileName !
+                    Uri uriToPlay = Uri.parse(folderPathOrUri);
+                    DocumentFile file = DocumentFile.fromSingleUri(context, Uri.parse(folderPathOrUri));
+                    if (!file.exists() || !file.isFile()) {
+                        myLogEE(null,"Invalid or non-file SAF Uri in single file case : " + uriToPlay);
+                    }
+                    return uriToPlay;
+                }
+            } else {
+                myLogEE(null, "scheme is not Content");
+            }
+
+        } catch (Exception e) {
+            myLogW("Could not parse URI, trying legacy fallback: " + folderPathOrUri);
+        }
+
+        // ✅ CASE 2: Fallback for legacy file-based paths
+        try {
+            File file = new File(folderPathOrUri, fileName);
+            if (file.exists()) {
+                return Uri.fromFile(file);
+            }
+        } catch (Exception e) {
+            myLogEE(null, "Fallback for legacy file-based paths.. KO..");
+        }
+
+        // ❌ Neither SAF nor legacy path worked
+        myLogEE(null,"Unable to build URI for: " + folderPathOrUri + "/" + fileName);
+        return null;
+    }
+
+
     // ----------------------- LOG -----------------------
     private static final String TAG = "UriHelper";
     private static void myLog(String str) { KanLogger.myLog(TAG, str); }

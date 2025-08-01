@@ -127,6 +127,16 @@
 
         <View style="@style/myStyleViewSimpleHorizontalBar" />
 
+        <Button
+            android:id="@+id/bDelete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="20dp"
+            android:text="@string/bDelete" />
+
+        <View style="@style/myStyleViewSimpleHorizontalBar" />
+
         <TextView
             android:id="@+id/IntroCutText"
             android:text="@string/IntroCut"
@@ -188,16 +198,6 @@
             android:text="@string/bReset" />
 
 
-
-        <View style="@style/myStyleViewSimpleHorizontalBar" />
-
-        <Button
-            android:id="@+id/bDelete"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:layout_marginBottom="20dp"
-            android:text="@string/bDelete" />
 
         <View style="@style/myStyleViewSimpleHorizontalBar" />
 

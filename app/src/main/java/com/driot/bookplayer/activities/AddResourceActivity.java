@@ -87,6 +87,7 @@ public class AddResourceActivity extends LoggingActivity {
                 checkAndClose();
             }
         });
+        viewModel.reinit();
 
     }
 

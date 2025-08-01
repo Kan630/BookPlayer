@@ -29,7 +29,6 @@ import com.driot.bookplayer.helpers.UriHelper;
 import com.driot.bookplayer.objects.AudioFileInfo;
 import com.driot.bookplayer.objects.TaskStateManager;
 import com.driot.bookplayer.objects.LoadBookTaskState;
-import com.driot.bookplayer.utils.FileUtils;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.Utils;
 import com.driot.bookplayer.utils.log.LoggingWorker;
@@ -210,7 +209,7 @@ public class ParseFinalFolderWorker extends LoggingWorker {
                     fullFolderSize = fullFolderSize + l_audioSize;
                 } else if (!hadImageBefore && SUPPORTED_COVER_PICTURE_EXTENSIONS.contains(fileExtension)) {
                     long imageSize = f1.length();
-                    if (bookState.imagePath == null || imageSize > FileUtils.getFileSize(context, Uri.parse(bookState.imagePath))) {
+                    if (bookState.imagePath == null || imageSize > UriHelper.getSize(context, Uri.parse(bookState.imagePath))) {
                         myLogD("New biggest Picture Found, size = [" + Tonio.formatMemPadding(imageSize) + "] - [" + f1.getUri() + "]");
                         bookState.imagePath = f1.getUri().toString();
                         hadImageBefore = true;

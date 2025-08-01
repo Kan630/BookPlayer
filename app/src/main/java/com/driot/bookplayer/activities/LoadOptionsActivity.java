@@ -514,7 +514,7 @@ public class LoadOptionsActivity extends LoggingActivity {
                                 if (existingBook != null) {
                                     if (uri.toString().startsWith("http")) {
                                         //TODO, ideally, a second hash column should be computed "realHashOfTheContent"
-                                        myLogEE(null, "same Hash [" + hash +  "] for URL " + uri + " for book = " + existingBook);
+                                        myLogW("same Hash [" + hash +  "] for URL " + uri + " for book = " + existingBook);
                                         ShowWarning(getString(R.string.warning_url_already_loaded_under_the_name) + " [" + existingBook + "]\n");
                                         boolAlso=true;
                                         okContinue();

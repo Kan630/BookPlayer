@@ -14,6 +14,8 @@ import com.driot.bookplayer.utils.log.LoggingAndroidViewModel;
 
 public class OngoingTaskViewModel extends LoggingAndroidViewModel {
 
+    private String audioBookName;
+
     private final MutableLiveData<String> taskTitle = new MutableLiveData<>("");
     private final MutableLiveData<String> progressText = new MutableLiveData<>("");
     private final MutableLiveData<Integer> progressPercent = new MutableLiveData<>(0);
@@ -28,21 +30,7 @@ public class OngoingTaskViewModel extends LoggingAndroidViewModel {
     public OngoingTaskViewModel(@NonNull Application application) {
         super(application);
         myLogD("Constructor... Is main thread: " + (Looper.myLooper() == Looper.getMainLooper()));
-
-        LoadBookTaskState state = Pref.getLoadBookTaskState(false);
-        if (state != null && state.onGoingLoading) {
-            myLogD("onGoingLoading = true");
-            taskTitle.setValue(state.title);
-            progressText.setValue(state.progressText);
-            progressPercent.setValue(state.progressPercent);
-
-            taskRunning.setValue(true);
-            pauseAvailable.setValue(state.originalUri != null && state.originalUri.toString().startsWith("http"));
-            isPaused.setValue(false);
-            isFinished.setValue(false);
-        } else {
-            myLogE("OngoingTaskViewModel : state is null");
-        }
+        reinit();
     }
 
     // Expose LiveData
@@ -100,7 +88,33 @@ public class OngoingTaskViewModel extends LoggingAndroidViewModel {
         progressText.postValue(getApplication().getString(R.string.Finished));
         progressPercent.postValue(100);
     }
-    public void tellTitle(String title) {
-        taskTitle.postValue(title);
+    public void tellCurrentOperation(String currentOperation) {
+        taskTitle.postValue(audioBookName + "  (" + currentOperation + ")");
     }
+    public void reinit() {
+        myLogD("reinit()");
+        LoadBookTaskState state = Pref.getLoadBookTaskState(false);
+        if (state != null) {
+            if (state.onGoingLoading) {
+                myLogD("onGoing");
+                audioBookName = state.title;
+                taskTitle.setValue(state.title);
+                progressText.setValue(state.progressText);
+                progressPercent.setValue(state.progressPercent);
+
+                taskRunning.setValue(true);
+                pauseAvailable.setValue(state.originalUri != null && state.originalUri.toString().startsWith("http"));
+                isPaused.setValue(state.isLoadingPaused);
+                isFinished.setValue(false);
+            } else {
+                myLogD("Not onGoing");
+                taskRunning.setValue(false);
+            }
+        } else {
+            myLogE("state is null");
+            taskRunning.setValue(false);
+        }
+
+    }
+
 }

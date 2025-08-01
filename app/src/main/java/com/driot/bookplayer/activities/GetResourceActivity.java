@@ -420,39 +420,11 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
             });
         });
 
-        OngoingTaskViewModel viewModel = new ViewModelProvider(
-                AppViewModelStoreOwner.getInstance(),
-                ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication())
-        ).get(OngoingTaskViewModel.class);
-        myLogD("ViewModel instance: " + System.identityHashCode(viewModel));
-        viewModel.isTaskRunning().observe(this, isRunning -> {
-            lockButtons(Boolean.TRUE.equals(isRunning));
-        });
     }
     // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
     // --------------- END OnCreate()     ----------------------------------------------------------------------------------------------------------------------------------
     // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        //TODO check why view model is not working properly
-        if (viewModel != null) {
-            lockButtons(Boolean.TRUE.equals(viewModel.isTaskRunning().getValue()));
-        }
-        //ersatz :
-        /*
-        LoadBookTaskState state = Pref.getLoadBookTaskState();
-        if (state != null) {
-            lockButtons(state.onGoingLoading);
-        } else {
-            myLogD("onResume => state == null");
-        }
-
-         */
-        maybeResumeWorkFlow(this);
-    }
 
    private void lockButtons(boolean doLock) {
         myLogD("LockButtons : " + doLock);
@@ -644,6 +616,42 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
             myLogE("onRequestPermissionsResult() - mPermissionRequest is null ! bad hook");
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        viewModel = new ViewModelProvider(
+                AppViewModelStoreOwner.getInstance(),
+                ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication())
+        ).get(OngoingTaskViewModel.class);
+        myLogD("ViewModel instance: " + System.identityHashCode(viewModel));
+        viewModel.isTaskRunning().observe(this, isRunning -> {
+            lockButtons(Boolean.TRUE.equals(isRunning));
+        });
+/*
+        //TODO check why view model is not working properly
+        if (viewModel != null) {
+            viewModel.reinit();
+            lockButtons(Boolean.TRUE.equals(viewModel.isTaskRunning().getValue()));
+        } else {
+            myLogD("onResume => viewModel == null");
+            lockButtons(false);
+        }
+
+ */
+        //ersatz :
+        /*
+        LoadBookTaskState state = Pref.getLoadBookTaskState();
+        if (state != null) {
+            lockButtons(state.onGoingLoading);
+        } else {
+            myLogD("onResume => state == null");
+        }
+
+         */
+        maybeResumeWorkFlow(this);
     }
 
 }
