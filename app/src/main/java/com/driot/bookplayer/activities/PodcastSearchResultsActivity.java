@@ -40,7 +40,7 @@ public class PodcastSearchResultsActivity extends LoggingActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_podcastsearchresult);
+        setContentView(R.layout.activity_podcast_search_result);
 
         WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.recyclerViewPodcast), (v, insets) -> {

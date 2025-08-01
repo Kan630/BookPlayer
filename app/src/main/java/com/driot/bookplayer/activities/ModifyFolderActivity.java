@@ -43,7 +43,7 @@ public class ModifyFolderActivity extends LoggingActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_modifyfolder);
+        setContentView(R.layout.activity_modify_folder);
 
         Button bDelete = findViewById(R.id.bDelete);
         Button bReset = findViewById(R.id.bReset);

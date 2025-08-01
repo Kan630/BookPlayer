@@ -3,7 +3,7 @@ package com.driot.bookplayer.utils;
 import android.content.Context;
 import android.content.Intent;
 
-import com.driot.bookplayer.activities.BiggerTextActivity;
+import com.driot.bookplayer.activities.LogTextActivity;
 import com.driot.bookplayer.objects.MyFile;
 import com.driot.bookplayer.objects.MyTextChunk;
 
@@ -111,7 +111,7 @@ public class Tonio2 {
     }
 
     public static void loadBiggerText(Context context, String typeStorage, String file, String title) {
-        Intent intent = new Intent(context, BiggerTextActivity.class);
+        Intent intent = new Intent(context, LogTextActivity.class);
         intent.putExtra("typeStorage", typeStorage);
         intent.putExtra("file", file);
         intent.putExtra("title", title);

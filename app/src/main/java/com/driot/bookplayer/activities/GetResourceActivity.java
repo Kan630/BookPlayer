@@ -98,7 +98,7 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_getressource);
+        setContentView(R.layout.activity_get_resource);
 
         bOpenFile = findViewById(R.id.bOpenFile);
         bOpenFolder = findViewById(R.id.bOpenFolder);

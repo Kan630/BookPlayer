@@ -5,7 +5,6 @@ import static com.driot.bookplayer.global.Var.PATH_CHECK_APPLICATION;
 import android.content.Context;
 import android.os.Bundle;
 import android.text.InputType;
-import android.text.Spannable;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -32,7 +31,7 @@ public class ModifyZikFileActivity extends LoggingActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_modifyzikfile);
+        setContentView(R.layout.activity_modify_zikfile);
         TextView tvTitle = findViewById(R.id.title);
 
         Button bReset = findViewById(R.id.bReset);

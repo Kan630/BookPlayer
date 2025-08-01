@@ -22,7 +22,7 @@ import com.driot.bookplayer.utils.log.LoggingActivity;
  * created by Antoine Driot -- antoine.driot.com -- on 21/08/21
  * * imported from Droit Positif (02/12/2020)
  */
-public class BiggerTextActivity extends LoggingActivity {
+public class LogTextActivity extends LoggingActivity {
 
     private RecyclerView recyclerView;
     private RecyclerView.LayoutManager layoutManager;
@@ -45,7 +45,7 @@ public class BiggerTextActivity extends LoggingActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_biggertext);
+        setContentView(R.layout.activity_log_text);
 
         recyclerView = findViewById(R.id.recyclerView_biggerText);
 

@@ -45,7 +45,7 @@ public class AddResourceActivity extends LoggingActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_addresource);
+        setContentView(R.layout.activity_add_resource);
 
         tvTitle = findViewById(R.id.tvTitle);
         progressBarText = findViewById(R.id.progressBarText);
