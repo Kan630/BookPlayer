@@ -38,7 +38,7 @@ public class DatabaseClient {
                 myLogD("Current DB version : " + currentVersion);
                 if (currentVersion < APP_DATABASE_VERSION) {
                     myLogW("Code DB version : " + APP_DATABASE_VERSION);
-                    backupDatabase(mCtx);
+                    //backupDatabase(mCtx);
                 }
             }
         } catch (Exception e) {
