@@ -695,7 +695,7 @@
     <string name="scanning_tracks">scanning tracks</string>
     <string name="saving_folder">registering folder</string>
     <string name="saving_track">registering track</string>
-
+    <string name="AutoTest_b4_text" translatable="false">zip (220MB)</string>
 
 
 

@@ -28,10 +28,10 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Pref;
+import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.objects.AppViewModelStoreOwner;
 import com.driot.bookplayer.objects.LanguageItem;
 import com.driot.bookplayer.helpers.AnalyticsHelper;
-import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.services.BookLoadingWorkLauncher;
 import com.driot.bookplayer.views.EditTextWithButtons;
 import com.driot.bookplayer.global.Option;
@@ -44,9 +44,6 @@ import com.driot.bookplayer.utils.log.LoggingActivity;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.driot.bookplayer.global.Var.AUTOTEST_FILE_01;
-import static com.driot.bookplayer.global.Var.AUTOTEST_FILE_02;
-import static com.driot.bookplayer.global.Var.AUTOTEST_FILE_03;
 import static com.driot.bookplayer.utils.PermissionRequest.isReadAudioPermissionGranted;
 import static com.driot.bookplayer.utils.WorkFlow.maybeResumeWorkFlow;
 
@@ -55,7 +52,7 @@ import static com.driot.bookplayer.utils.WorkFlow.maybeResumeWorkFlow;
  */
 public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
     private Button bOpenFile, bOpenFolder, bOpenZipFile, bOpenM4bFile;
-    private Button bAutoTest_b1, bAutoTest_b2, bAutoTest_b3, bDirectDownload;
+    private Button bAutoTest_b1, bAutoTest_b2, bAutoTest_b3, bAutoTest_b4, bDirectDownload;
 
     private PermissionRequest mPermissionRequest;
 
@@ -112,6 +109,7 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
         bAutoTest_b1 = findViewById(R.id.bAutoTest_b1);
         bAutoTest_b2 = findViewById(R.id.bAutoTest_b2);
         bAutoTest_b3 = findViewById(R.id.bAutoTest_b3);
+        bAutoTest_b4 = findViewById(R.id.bAutoTest_b4);
         bDirectDownload = findViewById(R.id.bDirectDownload);
 
 // ADD RESOURCE
@@ -378,33 +376,44 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
         ///// AUTO TEST
         ////////////////////////////////
         bAutoTest_b1.setOnClickListener(view -> {
-            myLog("Button click : AUTO TEST 01");
+            myLogI("Button click : AUTO TEST 01");
             checkWWW(canReach -> {
                 if (canReach) {
                     Intent intent = new Intent(this, LoadOptionsActivity.class);
-                    intent.putExtra(LoadOptionsActivity.EXTRA_URI, Uri.parse(AUTOTEST_FILE_01));
+                    intent.putExtra(LoadOptionsActivity.EXTRA_URI, Uri.parse(Var.AUTOTEST_FILE_01));
                     intent.putExtra(LoadOptionsActivity.EXTRA_TYPE, "File");
                     loadOptionsActivityResultLauncher.launch(intent);
                 }
             });
         });
         bAutoTest_b2.setOnClickListener(view -> {
-            myLog("Button click : AUTO TEST 02");
+            myLogI("Button click : AUTO TEST 02");
             checkWWW(canReach -> {
                 if (canReach) {
                     Intent intent = new Intent(this, LoadOptionsActivity.class);
-                    intent.putExtra(LoadOptionsActivity.EXTRA_URI, Uri.parse(AUTOTEST_FILE_02));
+                    intent.putExtra(LoadOptionsActivity.EXTRA_URI, Uri.parse(Var.AUTOTEST_FILE_02));
                     intent.putExtra(LoadOptionsActivity.EXTRA_TYPE, "File");
                     loadOptionsActivityResultLauncher.launch(intent);
                 }
             });
         });
         bAutoTest_b3.setOnClickListener(view -> {
-            myLog("Button click : AUTO TEST 03");
+            myLogI("Button click : AUTO TEST 03");
             checkWWW(canReach -> {
                 if (canReach) {
                     Intent intent = new Intent(this, LoadOptionsActivity.class);
-                    intent.putExtra(LoadOptionsActivity.EXTRA_URI, Uri.parse(AUTOTEST_FILE_03));
+                    intent.putExtra(LoadOptionsActivity.EXTRA_URI, Uri.parse(Var.AUTOTEST_FILE_03));
+                    intent.putExtra(LoadOptionsActivity.EXTRA_TYPE, "File");
+                    loadOptionsActivityResultLauncher.launch(intent);
+                }
+            });
+        });
+        bAutoTest_b4.setOnClickListener(view -> {
+            myLogI("Button click : AUTO TEST 04");
+            checkWWW(canReach -> {
+                if (canReach) {
+                    Intent intent = new Intent(this, LoadOptionsActivity.class);
+                    intent.putExtra(LoadOptionsActivity.EXTRA_URI, Uri.parse(Var.AUTOTEST_FILE_04));
                     intent.putExtra(LoadOptionsActivity.EXTRA_TYPE, "File");
                     loadOptionsActivityResultLauncher.launch(intent);
                 }
@@ -462,7 +471,7 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
                     ,findViewById(R.id.txtDirectDownload_desc)
             );
             List<Button> buttonsToLock = Arrays.asList(bOpenFile, bOpenFolder, bOpenZipFile, bOpenM4bFile
-                , bAutoTest_b1, bAutoTest_b2, bAutoTest_b3, bDirectDownload);
+                , bAutoTest_b1, bAutoTest_b2, bAutoTest_b3, bAutoTest_b4, bDirectDownload);
             if (doLock) {
                 myLog("SomeWorkFlowRunning => displaying banner, disabling buttons");
                 if (!(current instanceof OngoingTaskFragment)) {

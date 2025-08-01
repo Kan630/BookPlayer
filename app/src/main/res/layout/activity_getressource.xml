@@ -325,6 +325,10 @@
                         android:id="@+id/bAutoTest_b3"
                         android:text="@string/AutoTest_b3_text"
                         style="@style/GetResourceButton" />
+                    <Button
+                        android:id="@+id/bAutoTest_b4"
+                        android:text="@string/AutoTest_b4_text"
+                        style="@style/GetResourceButton" />
                 </LinearLayout>
 
             </LinearLayout>

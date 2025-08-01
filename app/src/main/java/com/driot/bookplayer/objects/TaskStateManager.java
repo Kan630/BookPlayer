@@ -213,7 +213,6 @@ public class TaskStateManager {
         int realProgress = getRealProgress(taskName, progress);
         OngoingTaskViewModelBridge.tellProgress(appContext, realProgress, progressText);
         checkTitle(taskName);
-        myLogI(progress + "% - " + progressText);
     }
     public static void tellProgressText(String progressText) {
         OngoingTaskViewModelBridge.tellProgressText(appContext, progressText);
