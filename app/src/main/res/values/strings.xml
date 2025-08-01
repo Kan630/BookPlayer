@@ -698,8 +698,11 @@
     <string name="saving_folder">registering folder</string>
     <string name="saving_track">registering track</string>
     <string name="AutoTest_b4_text" translatable="false">zip (220MB)</string>
+    <string name="MB_taken_by_images">" MB taken by images"</string>
 
-
+    <string name="DeleteImages_AskConfirm">"You are about to delete all images.
+       Are you sure ?"</string>
+    <string name="delete_images">"Delete Images"</string>
 
 
 

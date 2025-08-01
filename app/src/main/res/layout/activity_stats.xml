@@ -108,6 +108,17 @@
             android:gravity="center_horizontal"
             android:textAlignment="center"
             android:textSize="16sp"
+            android:text="@string/delete_images"
+            android:layout_margin="10dp"
+            />
+        <Button
+            android:id="@+id/bt_04"
+            android:layout_marginTop="40sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:textAlignment="center"
+            android:textSize="16sp"
             android:text="@string/reset_app"
             android:layout_margin="10dp"
             />

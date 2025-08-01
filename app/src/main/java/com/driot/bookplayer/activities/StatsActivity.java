@@ -23,6 +23,7 @@ import androidx.appcompat.app.AlertDialog;
 import com.driot.bookplayer.BuildConfig;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.helpers.FileHelper;
+import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.WorkFlow;
 import com.driot.bookplayer.utils.log.LoggingActivity;
@@ -52,23 +53,30 @@ public class StatsActivity extends LoggingActivity {
         // Hard Coded                        => "/data/data/com.driot.bookplayer/files/"
         // Context.getFilesDir().getPath()   =>  /data/user/0/com.driot.bookplayer/files/
 
-        long currentAudiosSize = getFolderSize(this.getFilesDir().getPath() + "/unzipped") / 1048576L;
-        long currentLogsSize = getFolderSize(this.getFilesDir().getPath() + "/log") / 1048576L;
+        long currentAudiosSizeInternal = Tonio.getFolderSize(StorageHelper.getUnzipFolder(this, false)) / 1048576L;
+        long sizeImages = getFolderSize(this.getFilesDir().getPath() + "/images") / 1048576L;
+        long sizeLogs = getFolderSize(this.getFilesDir().getPath() + "/log") / 1048576L;
 
-        zeText = Tonio.formatMemPadding(currentAppSize) + getString(R.string.MB_taken_by_BookPlayer_app) + "\n" + "\n" +
-                Tonio.formatMemPadding(currentAudiosSize) + getString(R.string.MB_taken_by_audio_files) + "\n" + "\n" +
-                Tonio.formatMemPadding(currentLogsSize) + getString(R.string.MB_taken_by_logs) + "\n" + "\n" +
-                "----" + "\n" +
-                Tonio.formatMemPadding(availableMegs2) + getString(R.string.MB_available_on_device) + "\n" + "\n" +
+        zeText =
                 Tonio.formatMemPadding(totalMemory) + getString(R.string.MB_device_memory)
+                        + "\n" + "\n" + Tonio.formatMemPadding(availableMegs2) + getString(R.string.MB_available_on_device)
+                        + "\n" + "\n" + Tonio.formatMemPadding(currentAudiosSizeInternal) + getString(R.string.MB_taken_by_audio_files)
+                        + "\n" + "\n" + Tonio.formatMemPadding(currentAppSize) + getString(R.string.MB_taken_by_BookPlayer_app)
+                        + "\n" + "\n" + Tonio.formatMemPadding(sizeImages) + getString(R.string.MB_taken_by_images)
+                        + "\n" + "\n" + Tonio.formatMemPadding(sizeLogs) + getString(R.string.MB_taken_by_logs)
                 ;
         long total = getTotalRemovableSDCardSize(this) / 1048576L;;
         if (total > 0) {
             long available = getAvailableRemovableSDCardSize(this) / 1048576L;;
+            long currentAudiosSizeSD = Tonio.getFolderSize(StorageHelper.getUnzipFolder(this, true)) / 1048576L;
             zeText = zeText
                     + "\n\n----"
-                    + "\n" + Tonio.formatMemPadding(available) + getString(R.string.MB_available_on_SD_card)
-                    + "\n\n" + Tonio.formatMemPadding(total) + getString(R.string.MB_SD_card_memory);
+                    + "\n\n" + Tonio.formatMemPadding(total) + getString(R.string.MB_SD_card_memory)
+                    + "\n\n" + Tonio.formatMemPadding(available) + getString(R.string.MB_available_on_SD_card)
+                    + "\n\n" + Tonio.formatMemPadding(currentAudiosSizeSD) + getString(R.string.MB_taken_by_audio_files)
+            ;
+
+
         }
 
         tv_head = findViewById(R.id.tv1_head);
@@ -104,7 +112,8 @@ public class StatsActivity extends LoggingActivity {
 
         findViewById(R.id.bt_01).setOnClickListener(v -> openAppInfo());
         findViewById(R.id.bt_02).setOnClickListener(v -> deleteLogsClick());
-        findViewById(R.id.bt_03).setOnClickListener(v -> resetApp());
+        findViewById(R.id.bt_03).setOnClickListener(v -> deleteImagesClick());
+        findViewById(R.id.bt_04).setOnClickListener(v -> resetApp());
 
     }
 
@@ -134,16 +143,30 @@ public class StatsActivity extends LoggingActivity {
     }
 
     private void deleteLogsClick() {
-            new AlertDialog.Builder(this)
-                    .setTitle(getString(R.string.AskDelete_popupTitle))
-                    .setMessage(getString(R.string.DeleteLogs_AskConfirm))
-                    .setCancelable(false)
-                    .setPositiveButton("ok", (dialog, which) -> deleteLogs())
-                    .setNegativeButton("cancel", (dialogInterface, i) -> {})
-                    .show();
+        new AlertDialog.Builder(this)
+                .setTitle(getString(R.string.AskDelete_popupTitle))
+                .setMessage(getString(R.string.DeleteLogs_AskConfirm))
+                .setCancelable(false)
+                .setPositiveButton("ok", (dialog, which) -> deleteLogs())
+                .setNegativeButton("cancel", (dialogInterface, i) -> {})
+                .show();
     }
     private void deleteLogs() {
         File dir = new File(this.getFilesDir(), "log");
+        FileHelper.recursiveRemove(dir);
+        recreate();
+    }
+    private void deleteImagesClick() {
+        new AlertDialog.Builder(this)
+                .setTitle(getString(R.string.AskDelete_popupTitle))
+                .setMessage(getString(R.string.DeleteImages_AskConfirm))
+                .setCancelable(false)
+                .setPositiveButton("ok", (dialog, which) -> deleteImages())
+                .setNegativeButton("cancel", (dialogInterface, i) -> {})
+                .show();
+    }
+    private void deleteImages() {
+        File dir = new File(this.getFilesDir(), "images");
         FileHelper.recursiveRemove(dir);
         recreate();
     }
