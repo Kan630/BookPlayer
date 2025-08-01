@@ -19,6 +19,7 @@ import androidx.work.WorkManager;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Pref;
+import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.helpers.AnalyticsHelper;
 import com.driot.bookplayer.utils.NetworkUtils;
@@ -39,7 +40,7 @@ import java.net.UnknownHostException;
 
 public class DownloadForegroundService extends LoggingService {
 
-    private static final String TASK_NAME = "download";
+    private static final String TASK_NAME = Var.WORKER_TASK_LABEL_DOWNLOAD;
 
     public static final String CHANNEL_ID = "BookplayerDownloadChannel";
     public static final int NOTIF_ID = 1630;
@@ -273,7 +274,7 @@ public class DownloadForegroundService extends LoggingService {
                         lastProgressBytes = total;
                         lastProgressTotal = fileLength;
                         lastUpdateTime = System.currentTimeMillis();
-                        TaskStateManager.markDownloadProgress(this, lastPercentProgress, strSize);
+                        TaskStateManager.markDownloadProgress(this, TASK_NAME, lastPercentProgress, strSize);
                     }
                 }
             }

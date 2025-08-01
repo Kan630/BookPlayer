@@ -24,6 +24,7 @@ import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Pref;
+import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.UriHelper;
 import com.driot.bookplayer.objects.AudioFileInfo;
 import com.driot.bookplayer.objects.TaskStateManager;
@@ -37,7 +38,7 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 public class ParseFinalFolderWorker extends LoggingWorker {
-    private static final String TASK_NAME = "final step";
+    private static final String TASK_NAME = Var.WORKER_TASK_LABEL_SCAN;
 
     Context context = getApplicationContext();
     
@@ -145,7 +146,7 @@ public class ParseFinalFolderWorker extends LoggingWorker {
         }
 
         myLog("populateArrayListOfTracksFromFolder - DocumentFile [" + dfPickedDir + "]");
-        TaskStateManager.tellProgress(PROGRESS[2], PROGRESS_TEXT[2]);
+        TaskStateManager.tellProgress(TASK_NAME, PROGRESS[2], PROGRESS_TEXT[2]);
 
 
         //mCallBacks.tellHeader(myFolder.getFolderName());
@@ -193,7 +194,7 @@ public class ParseFinalFolderWorker extends LoggingWorker {
         audioFileArrayList.add(new AudioFileInfo(df.getName(), duration));
     }
     private void addAudioFileRecursive(DocumentFile f0) {
-        TaskStateManager.tellProgress(PROGRESS[2], PROGRESS_TEXT[2]);
+        TaskStateManager.tellProgress(TASK_NAME, PROGRESS[2], PROGRESS_TEXT[2]);
         nbFileScan = 0;
         fullFolderSize = 0;
         addAudioFileRecursive(f0,"");
@@ -219,7 +220,7 @@ public class ParseFinalFolderWorker extends LoggingWorker {
                     long duration = getMediaDurationFromUri(context, f1.getUri(), l_audioFilePath);
                     myLogD("* Duration : [" +  formatTime(duration) + ']');
                     double progress = (double) nbFileScan%10/10;
-                    TaskStateManager.tellProgress((int) (PROGRESS[2] + (PROGRESS[3] - PROGRESS[2]) * progress), "Scanning for Audio Files..... \n[" +  l_audioFilePath + ']');
+                    TaskStateManager.tellProgress(TASK_NAME, (int) (PROGRESS[2] + (PROGRESS[3] - PROGRESS[2]) * progress), "Scanning for Audio Files..... \n[" +  l_audioFilePath + ']');
                     audioFileArrayList.add(new AudioFileInfo(l_audioFilePath, duration));
                     fullFolderSize = fullFolderSize + l_audioSize;
                 } else if (!hadImageBefore && SUPPORTED_COVER_PICTURE_EXTENSIONS.contains(fileExtension)) {
@@ -248,7 +249,7 @@ public class ParseFinalFolderWorker extends LoggingWorker {
     }
 
     private void saveFolder() {
-        TaskStateManager.tellProgress(PROGRESS[7], PROGRESS_TEXT[7]);
+        TaskStateManager.tellProgress(TASK_NAME, PROGRESS[7], PROGRESS_TEXT[7]);
 
         Folder folder = new Folder();
         folder.setName(bookState.title);
@@ -267,7 +268,7 @@ public class ParseFinalFolderWorker extends LoggingWorker {
         new Thread(() -> {
             int insertedFolderId = (int) DatabaseClient.getInstance(context).getAppDatabase().FolderDao().insert(folder);
             myLog("Folder Saved in DB, ID=[" + insertedFolderId + "] - [" + bookState.title + "]");
-            TaskStateManager.tellProgress(PROGRESS[7], PROGRESS_TEXT[7]);
+            TaskStateManager.tellProgress(TASK_NAME, PROGRESS[7], PROGRESS_TEXT[7]);
             saveFiles(insertedFolderId);
         }).start();
     }
@@ -293,7 +294,7 @@ public class ParseFinalFolderWorker extends LoggingWorker {
 
             myLog("Registering track [" + info.getFileName() + "]");
             SaveResultEnum result = saveSingleFile(info, insertedFolderId, zeOrder);
-            TaskStateManager.tellProgress(progress, txtProgress);
+            TaskStateManager.tellProgress(TASK_NAME, progress, txtProgress);
 
             switch (result) {
                 case SUCCESS: saved++; break;

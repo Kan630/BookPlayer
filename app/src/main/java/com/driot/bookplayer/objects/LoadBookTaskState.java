@@ -38,6 +38,10 @@ public class LoadBookTaskState implements Parcelable {
     public long downloadStartTime;
     public String dynamicDestinationFolderPath;
     public String dynamicSourceFilePath;
+    public boolean doDownload;
+    public boolean doCopy;
+    public boolean doSplit;
+    public boolean doUnzip;
 
 
 
@@ -75,6 +79,10 @@ public class LoadBookTaskState implements Parcelable {
         downloadStartTime = in.readLong();
         dynamicDestinationFolderPath = in.readString();
         dynamicSourceFilePath = in.readString();
+        doDownload = in.readByte() != 0;
+        doCopy = in.readByte() != 0;
+        doSplit = in.readByte() != 0;
+        doUnzip = in.readByte() != 0;
     }
 
     public static final Creator<LoadBookTaskState> CREATOR = new Creator<LoadBookTaskState>() {
@@ -120,6 +128,10 @@ public class LoadBookTaskState implements Parcelable {
         dest.writeLong(downloadStartTime);
         dest.writeString(dynamicDestinationFolderPath);
         dest.writeString(dynamicSourceFilePath);
+        dest.writeByte((byte) (doDownload ? 1 : 0));
+        dest.writeByte((byte) (doCopy ? 1 : 0));
+        dest.writeByte((byte) (doSplit ? 1 : 0));
+        dest.writeByte((byte) (doUnzip ? 1 : 0));
     }
 
     @Override
@@ -160,6 +172,10 @@ public class LoadBookTaskState implements Parcelable {
                 ", downloadStartTime=" + downloadStartTime +
                 ", dynamicDestinationFolderPath='" + dynamicDestinationFolderPath + '\'' +
                 ", dynamicSourceFilePath='" + dynamicSourceFilePath + '\'' +
+                ", doDownload=" + doDownload +
+                ", doCopy=" + doCopy +
+                ", doSplit=" + doSplit +
+                ", doUnzip=" + doUnzip +
                 '}';
     }
 

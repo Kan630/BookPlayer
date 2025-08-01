@@ -7,6 +7,7 @@ import androidx.work.WorkerParameters;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Pref;
+import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.objects.TaskStateManager;
 import com.driot.bookplayer.utils.log.LoggingWorker;
@@ -27,7 +28,7 @@ import java.util.*;
 
 public class M4bSplitWorker extends LoggingWorker {
 
-    private static final String TASK_NAME = "m4b split";
+    private static final String TASK_NAME = Var.WORKER_TASK_LABEL_SPLIT;
 
     public M4bSplitWorker(@NonNull Context context, @NonNull WorkerParameters params) {
         super(context, params);
@@ -133,7 +134,7 @@ public class M4bSplitWorker extends LoggingWorker {
                 double progress = (double) (c + 1) / chapterSamples.size() * 100;
                 String text = context.getString(R.string.Import_Progress_splitting_m4b_file)
                         + (c + 1) + "/" + chapterSamples.size() + "\n\n" + title;
-                TaskStateManager.tellProgress( (int) progress, text);
+                TaskStateManager.tellProgress(TASK_NAME, (int) progress, text);
 
                 FileOutputStream fos = new FileOutputStream(new File(outputFolder, filename));
                 for (int i = startSample; i < endSample && i < audioSamples.size(); i++) {

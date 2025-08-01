@@ -14,6 +14,7 @@ import androidx.work.WorkerParameters;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Pref;
+import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.objects.TaskStateManager;
 import com.driot.bookplayer.utils.log.LoggingWorker;
@@ -27,7 +28,7 @@ import java.util.zip.*;
 
 public class UnzipWorker extends LoggingWorker {
 
-    private static final String TASK_NAME = "Unzip";
+    private static final String TASK_NAME = Var.WORKER_TASK_LABEL_UNZIP;
 
 
     public UnzipWorker(@NonNull Context context, @NonNull WorkerParameters params) {
@@ -101,7 +102,7 @@ public class UnzipWorker extends LoggingWorker {
                     int progress = (int) ((double) numCurZip / nbZip * 100);
                     String progressText = getApplicationContext().getString(R.string.Import_Progress_unzipping_file) + numCurZip + "/" + nbZip + "\n" + audioFileName;
 
-                    TaskStateManager.markDownloadProgress(getApplicationContext(), progress, progressText);
+                    TaskStateManager.tellProgress(TASK_NAME, progress, progressText);
 
                     File unzippedFile = new File(unzipFolder, audioFileName);
                     if (!(unzippedFile.getParentFile()==null) && !unzippedFile.getParentFile().exists() && !unzippedFile.getParentFile().mkdirs()) {

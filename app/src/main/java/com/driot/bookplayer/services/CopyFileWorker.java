@@ -20,6 +20,7 @@ import androidx.work.WorkerParameters;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Pref;
+import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.UriHelper;
 import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.helpers.StorageHelper;
@@ -35,7 +36,7 @@ import java.io.OutputStream;
 import java.util.Set;
 
 public class CopyFileWorker extends LoggingWorker {
-    private static final String TASK_NAME = "copy file";
+    private static final String TASK_NAME = Var.WORKER_TASK_LABEL_COPY;
 
     private static final int MAX_NB_PIC = 5;
 
@@ -319,7 +320,7 @@ public class CopyFileWorker extends LoggingWorker {
                     context.getString(R.string.Error_Import_NotEnoughMemory_line3) + formatMemPadding(copiedSize/1024/1024, 0) + "Mo/" + formatMemPadding(totalSize/1024/1024, 0) + "Mo\n" +
                     context.getString(R.string.Error_Import_NotEnoughMemory_line2_1) + Tonio.formatMemPadding(availableMemory / 1048576L) + "Mo";
 
-            TaskStateManager.tellProgress((int) progress, msg);
+            TaskStateManager.tellProgress(TASK_NAME, (int) progress, msg);
         }
     }
 

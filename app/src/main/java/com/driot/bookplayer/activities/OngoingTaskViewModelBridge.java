@@ -50,6 +50,9 @@ public class OngoingTaskViewModelBridge {
     public static void tellStart(Context context) {
         getViewModel(context).tellStart();
     }
+    public static void tellTitle(Context context, String title) {
+        getViewModel(context).tellTitle(title);
+    }
 
     public static void removePauseCapability(Context context) {
         getViewModel(context).removePauseCapability();

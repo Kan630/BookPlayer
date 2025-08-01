@@ -98,4 +98,7 @@ public class OngoingTaskViewModel extends LoggingAndroidViewModel {
         progressText.postValue(getApplication().getString(R.string.Finished));
         progressPercent.postValue(100);
     }
+    public void tellTitle(String title) {
+        taskTitle.postValue(title);
+    }
 }

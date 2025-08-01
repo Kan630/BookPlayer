@@ -55,7 +55,6 @@ android {
         }
 
     }
-    
 /*
     signingConfigs {
         release {

@@ -16,7 +16,9 @@ import com.driot.bookplayer.objects.TaskStateManager;
 import com.driot.bookplayer.utils.KanLogger;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class BookLoadingWorkLauncher {
@@ -28,6 +30,7 @@ public class BookLoadingWorkLauncher {
         boolean doCopy = false;
         boolean doSplit = false;
         boolean doUnzip = false;
+
 
         TaskStateManager.tellStart();
 
@@ -59,6 +62,22 @@ public class BookLoadingWorkLauncher {
         bookState = Pref.getLoadBookTaskState(false);
         if (bookState == null) throw new IllegalStateException("No task bookState found in BookLoadingWorkLauncher 2");
 
+        class StepInfo {
+            public final int weight;
+            public final String label;
+
+            public StepInfo(int weight, String label) {
+                this.weight = weight;
+                this.label = label;
+            }
+        }
+        Map<String, StepInfo> stepMap = new HashMap<>();
+        stepMap.put("download", new StepInfo(20, "Download"));
+        stepMap.put("unzip", new StepInfo(7, "Unzip"));
+        stepMap.put("split", new StepInfo(7, "m4b Split"));
+        stepMap.put("copy", new StepInfo(3, "Copy"));
+        stepMap.put("scan", new StepInfo(2, "Scan audio"));
+
 
 
         if (bookState.dynamicUri.toString().startsWith("http")) {
@@ -78,6 +97,12 @@ public class BookLoadingWorkLauncher {
         if (doDownload) {
             doCopy = false;
         }
+
+        bookState.doDownload = doDownload;
+        bookState.doCopy = doCopy;
+        bookState.doSplit = doSplit;
+        bookState.doUnzip = doUnzip;
+        setLoadBookTaskState(bookState);
 
 
 
