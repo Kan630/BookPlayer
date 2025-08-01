@@ -9,6 +9,9 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.activity.OnBackPressedCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
 
 import com.driot.bookplayer.R;
@@ -35,7 +38,6 @@ public class ModifyFolderActivity extends LoggingActivity {
     EditText etIntroCut;
     EditText etRename;
 
-    private static final int REQUEST_SELECT_IMAGE = 536861; //dummy code
     private ImageView ivCoverPreview;
 
     @Override
@@ -73,7 +75,7 @@ public class ModifyFolderActivity extends LoggingActivity {
         String info = "";
         info = info + getString(R.string.Added) + " : " + Tonio.formatLastAccessAsDate(folder.date_added);
         info = info + "\n" + getString(R.string.LastAccess) + " : " + Tonio.formatLastAccessInDays(folder.lLastAccess) + " (" + Tonio.formatLastAccess(folder.lLastAccess,this) + ")";
-        info = info + "\n" + Tonio.formatTime(folder.getDuration()) + "  .  " + folder.nbZikFile + " " + getString(R.string.audio_tracks) + "  .  " + Tonio.FormatPercentString(folder.getPercentdone()) + " " + getString(R.string.listened);;
+        info = info + "\n" + Tonio.formatTime(folder.getDuration()) + "  .  " + folder.nbZikFile + " " + getString(R.string.audio_tracks) + "  .  " + Tonio.FormatPercentString(folder.getPercentdone()) + " " + getString(R.string.listened);
         tvInfo.setText(info);
 
         bDelete.setOnClickListener(view -> bDeleteClick());
@@ -94,11 +96,19 @@ public class ModifyFolderActivity extends LoggingActivity {
             ivCoverPreview.setImageResource(R.drawable.no_image_icon);
         }
 
+        OnBackPressedCallback callback = new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                checkBeforeLeave();
+            }
+        };
+        getOnBackPressedDispatcher().addCallback(this, callback);
+
         bChangeCover.setOnClickListener(view -> {
             myLogI("user clicks - change image");
             Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
             intent.setType("image/*");
-            startActivityForResult(Intent.createChooser(intent, "Select Cover Image"), REQUEST_SELECT_IMAGE);
+            selectImageLauncher.launch(Intent.createChooser(intent, "Select Cover Image"));
         });
 
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN); // Avoid keyboard on opening
@@ -117,7 +127,6 @@ public class ModifyFolderActivity extends LoggingActivity {
     }
 
     private void deleteFolder() {
-        String myErr = "Error getting uri from folder for deleting file in memory";
         new Thread(() -> {
             String folderPath = AppDatabase.getDatabase(this).ZikFileDao().getFolderPath(folder.getId());
             if (!eraseFolderAndFiles(folderPath)) {
@@ -227,55 +236,49 @@ public class ModifyFolderActivity extends LoggingActivity {
         super.onDestroy();
     }
 
-    @Override
-    public void onBackPressed() {
+    public void checkBeforeLeave() {
         String newName = etRename.getText().toString().trim();
         if (!newName.equals(folder.getName().trim())) {
             new AlertDialog.Builder(this)
                     .setTitle(R.string.AskRename_popupTitle)
                     .setMessage(getString(R.string.AskRename_Book) + "\n[ " + newName + " ]")
-                    .setPositiveButton(R.string.Yes, (dialog, which) -> {
-                        renameBook(newName);
-                    })
-                    .setNegativeButton(R.string.No, (dialog, which) -> {
-                        super.onBackPressed(); // Just leave
-                    })
+                    .setPositiveButton(R.string.Yes, (dialog, which) -> renameBook(newName))
+                    .setNegativeButton(R.string.No, (dialog, which) -> finish())
                     .show();
         } else {
-            super.onBackPressed(); // No changes, just leave
+            finish(); // No changes, just leave
         }
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_SELECT_IMAGE && resultCode == RESULT_OK && data != null) {
-            Uri selectedImageUri = data.getData();
-            if (selectedImageUri != null) {
-                new Thread(() -> {
-                    try {
-                        String fileName = "UserPic_" + ImageHelper.FOLDER_IMAGE_PREFIX + folder.getId() + ".jpg";
-                        String newImagePath = ImageHelper.copyContentUriToImageFile(this, selectedImageUri.toString(), fileName);
-                        if (newImagePath == null) throw new RuntimeException("Image copy/compression failed");
+    private final ActivityResultLauncher<Intent> selectImageLauncher =
+            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+                if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                    Uri selectedImageUri = result.getData().getData();
+                    if (selectedImageUri != null) {
+                        new Thread(() -> {
+                            try {
+                                String fileName = "UserPic_" + ImageHelper.FOLDER_IMAGE_PREFIX + folder.getId() + ".jpg";
+                                String newImagePath = ImageHelper.copyContentUriToImageFile(this, selectedImageUri.toString(), fileName);
+                                if (newImagePath == null) throw new RuntimeException("Image copy/compression failed");
 
-                        // Delete previous image if different
-                        if (folder.image != null && !folder.image.equals(newImagePath)) {
-                            ImageHelper.deleteFolderImage(this, folder);
-                        }
+                                // Delete previous image if different
+                                if (folder.image != null && !folder.image.equals(newImagePath)) {
+                                    ImageHelper.deleteFolderImage(this, folder);
+                                }
 
-                        folder.image = newImagePath;
-                        AppDatabase.getDatabase(this).FolderDao().updateImage(folder.getId(), folder.image);
+                                folder.image = newImagePath;
+                                AppDatabase.getDatabase(this).FolderDao().updateImage(folder.getId(), folder.image);
 
-                        runOnUiThread(() -> ivCoverPreview.setImageURI(Uri.fromFile(new File(newImagePath))));
+                                runOnUiThread(() -> ivCoverPreview.setImageURI(Uri.fromFile(new File(newImagePath))));
 
-                    } catch (Exception e) {
-                        myLogEE(e, "Error processing selected image");
-                        runOnUiThread(() -> myToastE("Failed to change image"));
+                            } catch (Exception e) {
+                                myLogEE(e, "Error processing selected image");
+                                runOnUiThread(() -> myToastE("Failed to change image"));
+                            }
+                        }).start();
                     }
-                }).start();
-            }
-        }
-    }
+                }
+            });
 
 
     private void openFolderInFileExplorer(String pathOrUri) {
