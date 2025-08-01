@@ -691,6 +691,11 @@
     <string name="warning_url_already_loaded_under_the_name">the same web link has already been imported ! (same content?), with book name :</string>
 
 
+    <string name="listing_and_sorting_tracks">listing and sorting tracks</string>
+    <string name="scanning_tracks">scanning tracks</string>
+    <string name="saving_folder">registering folder</string>
+    <string name="saving_track">registering track</string>
+
 
 
 

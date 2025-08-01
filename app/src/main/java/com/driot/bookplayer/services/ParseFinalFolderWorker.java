@@ -41,26 +41,6 @@ public class ParseFinalFolderWorker extends LoggingWorker {
     private static final String TASK_NAME = Var.WORKER_TASK_LABEL_SCAN;
 
     Context context = getApplicationContext();
-    
-    public static final int[] PROGRESS_DOWNLOAD = {2, 10, 50, 55, 65, 65, 65, 90, 99};
-    public static final int[] PROGRESS_ZIP_COPY = {5, 5, 5, 10, 20, 25, 50, 75, 90};
-    public static final int[] PROGRESS_ZIP_NOCOPY = {5, 5, 5, 10, 20, 25, 50, 75, 90};
-    public static final int[] PROGRESS_FILE_COPY = {5, 5, 5, 15, 30, 45, 90, 90, 95};
-    public static final int[] PROGRESS_FILE_NOCOPY = {5, 5, 20, 40, 60, 90, 90, 90, 95};
-    public static final int[] PROGRESS_FOLDER_COPY = {2, 2, 2, 15, 30, 45, 90, 90, 95};
-    public static final int[] PROGRESS_FOLDER_NOCOPY = {5, 5, 20, 30, 40, 40, 40, 50, 95};
-    public static final String[] PROGRESS_TEXT = {
-            "Initialization"
-            , "Download"
-            , "listing and sorting Tracks"
-            , "Checking audio hasn't already been added"
-            , "Check enough space on Disk"
-            , "Copy"
-            , "Unzip"
-            , "Duration"
-            , "End"
-    };
-    public static int[] PROGRESS = PROGRESS_DOWNLOAD;
 
     private enum SaveResultEnum {SUCCESS, SKIPPED, FAILED}
 
@@ -68,7 +48,10 @@ public class ParseFinalFolderWorker extends LoggingWorker {
 
     private long fullFolderSize; //to make storage space checks
 
-    private int nbFileScan; // global because recursive method
+    // global because recursive method
+    private int nbFileScan;
+    private int totalAudioToScan = 0;
+    private int nbAudioScanned = 0;
 
     LoadBookTaskState bookState;
 
@@ -87,6 +70,8 @@ public class ParseFinalFolderWorker extends LoggingWorker {
             TaskStateManager.markTaskFailed(TASK_NAME, "bookState == null");
             return Result.failure();
         }
+        TaskStateManager.tellProgress(TASK_NAME, 1, context.getString(R.string.listing_and_sorting_tracks));
+
 
         boolean isFolderComputed = UriHelper.isFolder(context, bookState.dynamicUri);
         myLogD("isFolderComputed : " + isFolderComputed);
@@ -121,8 +106,6 @@ public class ParseFinalFolderWorker extends LoggingWorker {
     private void populateArrayListOfTracksFromFile(DocumentFile dfPickedDir) {
         myLog("populateArrayListOfTracksFromFile [" + dfPickedDir.getUri() + "] - single file");
 
-        //mCallBacks.tellHeader(myFolder.getFolderName());
-
         if (dfPickedDir != null && !(dfPickedDir.isDirectory())) {
             audioFileArrayList = new ArrayList<>();
             addAudioFileUnique(dfPickedDir);
@@ -146,10 +129,7 @@ public class ParseFinalFolderWorker extends LoggingWorker {
         }
 
         myLog("populateArrayListOfTracksFromFolder - DocumentFile [" + dfPickedDir + "]");
-        TaskStateManager.tellProgress(TASK_NAME, PROGRESS[2], PROGRESS_TEXT[2]);
-
-
-        //mCallBacks.tellHeader(myFolder.getFolderName());
+        TaskStateManager.tellProgress(TASK_NAME, 3, context.getString(R.string.listing_and_sorting_tracks));
 
         myLog("running recursive scan for audio file in a background thread");
 
@@ -194,9 +174,12 @@ public class ParseFinalFolderWorker extends LoggingWorker {
         audioFileArrayList.add(new AudioFileInfo(df.getName(), duration));
     }
     private void addAudioFileRecursive(DocumentFile f0) {
-        TaskStateManager.tellProgress(TASK_NAME, PROGRESS[2], PROGRESS_TEXT[2]);
         nbFileScan = 0;
         fullFolderSize = 0;
+        totalAudioToScan = 0;
+        nbAudioScanned = 0;
+        TaskStateManager.tellProgress(TASK_NAME, 5, context.getString(R.string.listing_and_sorting_tracks));
+        countAudioFiles(f0);
         addAudioFileRecursive(f0,"");
     }
     private void addAudioFileRecursive(DocumentFile f0, String recursivFolder) {
@@ -219,8 +202,10 @@ public class ParseFinalFolderWorker extends LoggingWorker {
                     myLogD("* New Audio File : [" + l_audioFilePath + "] - size = [" + l_audioSize + "]");
                     long duration = getMediaDurationFromUri(context, f1.getUri(), l_audioFilePath);
                     myLogD("* Duration : [" +  formatTime(duration) + ']');
-                    double progress = (double) nbFileScan%10/10;
-                    TaskStateManager.tellProgress(TASK_NAME, (int) (PROGRESS[2] + (PROGRESS[3] - PROGRESS[2]) * progress), "Scanning for Audio Files..... \n[" +  l_audioFilePath + ']');
+                    nbAudioScanned++;
+                    double progress = totalAudioToScan > 0 ? (nbAudioScanned / (double) totalAudioToScan) : 0;
+                    int scaledProgress = 10 + (int) ((80 - 10) * progress);
+                    TaskStateManager.tellProgress(TASK_NAME, scaledProgress, context.getString(R.string.scanning_tracks) + "..... \n[" +  l_audioFilePath + ']');
                     audioFileArrayList.add(new AudioFileInfo(l_audioFilePath, duration));
                     fullFolderSize = fullFolderSize + l_audioSize;
                 } else if (!hadImageBefore && SUPPORTED_COVER_PICTURE_EXTENSIONS.contains(fileExtension)) {
@@ -249,7 +234,7 @@ public class ParseFinalFolderWorker extends LoggingWorker {
     }
 
     private void saveFolder() {
-        TaskStateManager.tellProgress(TASK_NAME, PROGRESS[7], PROGRESS_TEXT[7]);
+        TaskStateManager.tellProgress(TASK_NAME, 81, context.getString(R.string.saving_folder));
 
         Folder folder = new Folder();
         folder.setName(bookState.title);
@@ -268,7 +253,7 @@ public class ParseFinalFolderWorker extends LoggingWorker {
         new Thread(() -> {
             int insertedFolderId = (int) DatabaseClient.getInstance(context).getAppDatabase().FolderDao().insert(folder);
             myLog("Folder Saved in DB, ID=[" + insertedFolderId + "] - [" + bookState.title + "]");
-            TaskStateManager.tellProgress(TASK_NAME, PROGRESS[7], PROGRESS_TEXT[7]);
+            TaskStateManager.tellProgress(TASK_NAME, 83, context.getString(R.string.saving_folder));
             saveFiles(insertedFolderId);
         }).start();
     }
@@ -288,8 +273,8 @@ public class ParseFinalFolderWorker extends LoggingWorker {
             AudioFileInfo info = audioFileArrayList.get(i);
             int zeOrder = saved + 1;
 
-            int progress = PROGRESS[7] + ((i + 1) * 100 / total) * (PROGRESS[8] - PROGRESS[7]) / 100;
-            String txtProgress = progress + "% - " + context.getString(R.string.Add_resource_reading_file) +
+            int progress = 85 + ((i + 1) * 100 / total) * (98 - 85) / 100;
+            String txtProgress = progress + "% - " + context.getString(R.string.saving_track) +
                     " n°" + i + 1 + "/" + total + "\n" + getFileNameFromPath(info.getFileName());
 
             myLog("Registering track [" + info.getFileName() + "]");
@@ -403,5 +388,17 @@ public class ParseFinalFolderWorker extends LoggingWorker {
         return duration;
     }
 
-
+    private void countAudioFiles(DocumentFile f0) {
+        for (DocumentFile f1 : f0.listFiles()) {
+            if (f1.isDirectory()) {
+                countAudioFiles(f1);
+            } else {
+                String ext = getExtension(f1.getName());
+                String mime = Objects.toString(f1.getType());
+                if (mime.startsWith(ONLY_MIME_AUDIO) || SUPPORTED_AUDIO_EXTENSIONS.contains(ext)) {
+                    totalAudioToScan++;
+                }
+            }
+        }
+    }
 }
