@@ -57,6 +57,4 @@ public class CleanMemoryRepository {
     private void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, this.getClass().getName(), str); }
     private void myToast(String str) { KanLogger.myToast(this.getClass().getName(), str); }
     private void myToastE(String str) { KanLogger.myToastE(this.getClass().getName(), str); }
-    private void myKeyFirebase(String strKey, String strValue) {KanLogger.myKeyFirebase(strKey, strValue);}
-    private void myLogFirebase(String strLog) {KanLogger.myLogFirebase(strLog);}
 }

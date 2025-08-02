@@ -9,6 +9,11 @@ import com.google.firebase.analytics.FirebaseAnalytics;
 public class AnalyticsHelper {
 
 
+    public static void tellAnalyticsWork(Context context, String originalUri) {
+        Bundle bundle = new Bundle();
+        bundle.putString("originalUri", originalUri);
+        logThat(context, "work", bundle);
+    }
 
     public static void tellAnalyticsManualLoad(Context context, String type, String extension, String sourceLocation, String originalFile) {
         Bundle bundle = new Bundle();

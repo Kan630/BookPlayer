@@ -9,6 +9,7 @@ import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkContinuation;
 import androidx.work.WorkManager;
 
+import com.driot.bookplayer.helpers.AnalyticsHelper;
 import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.helpers.StorageHelper;
@@ -31,8 +32,7 @@ public class BookLoadingWorkLauncher {
         boolean doSplit = false;
         boolean doUnzip = false;
 
-
-        TaskStateManager.tellStart();
+        TaskStateManager.tellStart(); //TODO maybe to remove
 
         LoadBookTaskState bookState = Pref.getLoadBookTaskState();
         if (bookState == null) throw new IllegalStateException("No task bookState found in BookLoadingWorkLauncher");
@@ -57,28 +57,9 @@ public class BookLoadingWorkLauncher {
         myLog("*********************************************************************************************************");
         myLog("*********************************************************************************************************");
 
+        AnalyticsHelper.tellAnalyticsWork(context, bookState.originalUri.toString());
+
         List<OneTimeWorkRequest> workChain = new ArrayList<>();
-
-        bookState = Pref.getLoadBookTaskState(false);
-        if (bookState == null) throw new IllegalStateException("No task bookState found in BookLoadingWorkLauncher 2");
-
-        class StepInfo {
-            public final int weight;
-            public final String label;
-
-            public StepInfo(int weight, String label) {
-                this.weight = weight;
-                this.label = label;
-            }
-        }
-        Map<String, StepInfo> stepMap = new HashMap<>();
-        stepMap.put("download", new StepInfo(20, "Download"));
-        stepMap.put("unzip", new StepInfo(7, "Unzip"));
-        stepMap.put("split", new StepInfo(7, "m4b Split"));
-        stepMap.put("copy", new StepInfo(3, "Copy"));
-        stepMap.put("scan", new StepInfo(2, "Scan audio"));
-
-
 
         if (bookState.dynamicUri.toString().startsWith("http")) {
             doDownload = true;
@@ -103,8 +84,6 @@ public class BookLoadingWorkLauncher {
         bookState.doSplit = doSplit;
         bookState.doUnzip = doUnzip;
         setLoadBookTaskState(bookState);
-
-
 
         if (doDownload) {
 
