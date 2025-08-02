@@ -90,7 +90,8 @@ public class DownloadRetryWorker extends Worker {
                     myLogW("Download was cancelled by user or system");
                     return Result.failure(); // stop the chain
                 } else {
-                    myLogI("Download completed, continuing workflow");
+                    myLogI("Download completed, launching next steps...");
+                    BookLoadingWorkLauncher.launchAfterDownload(context);
                     return Result.success();
                 }
             } else {

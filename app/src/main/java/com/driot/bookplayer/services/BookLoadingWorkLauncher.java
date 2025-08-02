@@ -92,18 +92,25 @@ public class BookLoadingWorkLauncher {
             bookState.onGoingLoading = true;
             setLoadBookTaskState(bookState);
 
-            workChain.add(new OneTimeWorkRequest.Builder(DownloadRetryWorker.class)
-                            .setBackoffCriteria(
-                            BackoffPolicy.EXPONENTIAL, // or BackoffPolicy.EXPONENTIAL
-                            30, TimeUnit.SECONDS       // initial wait time before retry
-                    )
+            OneTimeWorkRequest downloadWork = new OneTimeWorkRequest.Builder(DownloadRetryWorker.class)
+                    .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 30, TimeUnit.SECONDS)
                     .addTag(BOOK_LOADING_WORKERS)
-                    .build());
+                    .build();
+            WorkManager.getInstance(context).enqueue(downloadWork);
+            return;
         }
+        launchAfterDownload(context);
+    }
 
-        if (doCopy) {workChain.add(new OneTimeWorkRequest.Builder(CopyFileWorker.class).addTag(BOOK_LOADING_WORKERS).build());}
-        if (doUnzip) {workChain.add(new OneTimeWorkRequest.Builder(UnzipWorker.class).addTag(BOOK_LOADING_WORKERS).build());}
-        if (doSplit) {workChain.add(new OneTimeWorkRequest.Builder(M4bSplitWorker.class).addTag(BOOK_LOADING_WORKERS).build());}
+    public static void launchAfterDownload(Context context) {
+        LoadBookTaskState bookState = Pref.getLoadBookTaskState();
+        if (bookState == null) throw new IllegalStateException("No task bookState found in BookLoadingWorkLauncher");
+
+        List<OneTimeWorkRequest> workChain = new ArrayList<>();
+
+        if (bookState.doCopy) {workChain.add(new OneTimeWorkRequest.Builder(CopyFileWorker.class).addTag(BOOK_LOADING_WORKERS).build());}
+        if (bookState.doUnzip) {workChain.add(new OneTimeWorkRequest.Builder(UnzipWorker.class).addTag(BOOK_LOADING_WORKERS).build());}
+        if (bookState.doSplit) {workChain.add(new OneTimeWorkRequest.Builder(M4bSplitWorker.class).addTag(BOOK_LOADING_WORKERS).build());}
         workChain.add(new OneTimeWorkRequest.Builder(ParseFinalFolderWorker.class).addTag(BOOK_LOADING_WORKERS).build());
 
 
@@ -114,6 +121,7 @@ public class BookLoadingWorkLauncher {
         }
         continuation.enqueue();
     }
+
 
     ////////////////////////////////////////////////////////
     private static final String TAG = "BookLoadingWorkLauncher";
