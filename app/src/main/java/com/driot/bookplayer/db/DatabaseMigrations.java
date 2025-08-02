@@ -126,6 +126,28 @@ public class DatabaseMigrations {
         }
     };
 
+    static final Migration MIGRATION_8_9 = new Migration(8, 9) {
+        @Override
+        public void migrate(SupportSQLiteDatabase db) {
+            myLogI("Migration -> executing step 8 => 9");
+            db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS Episode (" +
+                            "id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                            "idPodcast INTEGER NOT NULL, " +
+                            "date_add INTEGER NOT NULL, " +
+                            "idZikFile INTEGER, " +
+                            "date_import INTEGER, " +
+                            "date_delete INTEGER, " +
+                            "lastAccess INTEGER, " +
+                            "FOREIGN KEY(idPodcast) REFERENCES Podcast(id) ON DELETE CASCADE, " +
+                            "FOREIGN KEY(idZikFile) REFERENCES ZikFile(id) ON DELETE SET NULL" +
+                            ")"
+            );
+            db.execSQL("ALTER TABLE Podcast ADD COLUMN autoDelete INTEGER NOT NULL DEFAULT 0");
+        }
+    };
+
+
 
 
 }

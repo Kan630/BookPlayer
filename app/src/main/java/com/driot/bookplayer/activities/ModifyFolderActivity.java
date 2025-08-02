@@ -72,10 +72,11 @@ public class ModifyFolderActivity extends LoggingActivity {
             openFolderInFileExplorer(folder.getUri());
         });
 
+        String percentDone = folder.getPercentdone()>0 ? "  .  " + Tonio.FormatPercentString(folder.getPercentdone()) + " " + getString(R.string.listened) : "";
         String info = "";
         info = info + getString(R.string.Added) + " : " + Tonio.formatLastAccessAsDate(folder.date_added);
         info = info + "\n" + getString(R.string.LastAccess) + " : " + Tonio.formatLastAccessInDays(folder.lLastAccess) + " (" + Tonio.formatLastAccess(folder.lLastAccess,this) + ")";
-        info = info + "\n" + Tonio.formatTime(folder.getDuration()) + "  .  " + folder.nbZikFile + " " + getString(R.string.audio_tracks) + "  .  " + Tonio.FormatPercentString(folder.getPercentdone()) + " " + getString(R.string.listened);
+        info = info + "\n" + Tonio.formatTime(folder.getDuration()) + "  .  " + folder.nbZikFile + " " + getString(R.string.audio_tracks) + percentDone;
         tvInfo.setText(info);
 
         bDelete.setOnClickListener(view -> bDeleteClick());

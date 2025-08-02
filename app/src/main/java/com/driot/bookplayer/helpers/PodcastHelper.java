@@ -10,6 +10,7 @@ import static com.driot.bookplayer.helpers.StorageHelper.getUnzipFolder;
 
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Podcast;
+import com.driot.bookplayer.db.ZikFileDao;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.objects.PodcastEpisode;
@@ -206,6 +207,27 @@ public class PodcastHelper {
     public interface EpisodeCallback {
         void onSuccess(List<PodcastEpisode> episodes);
         void onError(Exception e);
+    }
+
+    public static void checkForEpisodesToAutoDelete(Context context) {
+        if (Option.getPodcastAutoDelete()) {
+            myLogD("AutoDelete : check For Podcasts Episodes");
+        } else {
+            myLogD("AutoDelete Podcast Episodes not enabled");
+        }
+
+        long days = Option.getPodcastAutoDeleteDelay(); // e.g. 7
+        int percent = Option.getPodcastAutoDeleteCompletionPercentage(); // e.g. 95
+
+        if (days <= 0 || percent <= 0) return;
+
+        long now = System.currentTimeMillis();
+        long thresholdTime = now - days * 24L * 60 * 60 * 1000;
+
+        AppDatabase.databaseWriteExecutor.execute(() -> {
+            int deleted = AppDatabase.getDatabase(context).ZikFileDao().deleteListenedPodcastEpisodes(percent, thresholdTime);
+            myLogI("AutoDelete => " + deleted + " old listened podcast episodes deleted (thresholdTime=" + thresholdTime + " from " + days + " days) + " + percent + "% completion");
+        });
     }
 
     public static void checkForNewEpisodesToAutoDownload(Context context, long since) {

@@ -44,6 +44,8 @@ public class Podcast implements Parcelable {
     public Long idFolder; // nullable
     public long date_added;
 
+    public boolean autoDelete;
+
     public Podcast() {
         this.date_added = System.currentTimeMillis();
     }
@@ -64,6 +66,7 @@ public class Podcast implements Parcelable {
         language = in.readString();
         isFavorite = in.readByte() != 0;
         autoDownload = in.readByte() != 0;
+        autoDelete = in.readByte() != 0;
         if (in.readByte() == 0) {
             idFolder = null;
         } else {
@@ -95,6 +98,7 @@ public class Podcast implements Parcelable {
         parcel.writeString(language);
         parcel.writeByte((byte) (isFavorite ? 1 : 0));
         parcel.writeByte((byte) (autoDownload ? 1 : 0));
+        parcel.writeByte((byte) (autoDelete ? 1 : 0));
         if (idFolder == null) {
             parcel.writeByte((byte) 0);
         } else {

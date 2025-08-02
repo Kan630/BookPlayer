@@ -117,6 +117,12 @@ public interface ZikFileDao {
     @Query("SELECT * FROM ZikFile WHERE path = :folderPath AND name = :episodeName")
     ZikFile getZikFileFromFullPath(String folderPath, String episodeName);
 
+    @Query("DELETE FROM ZikFile " +
+            "WHERE percentDone > :minPercent " +
+            "AND lLastAccess IS NOT NULL AND lLastAccess < :thresholdTime " +
+            "AND idFolder IN (SELECT id FROM Folder WHERE sourceLocation = 'podcast')")
+    int deleteListenedPodcastEpisodes(int minPercent, long thresholdTime);
+
 
     // Exemple avec dates :
     //@Query("SELECT * FROM user WHERE birthday BETWEEN :from AND :to")

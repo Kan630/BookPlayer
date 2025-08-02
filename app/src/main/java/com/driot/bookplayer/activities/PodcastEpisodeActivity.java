@@ -55,7 +55,7 @@ public class PodcastEpisodeActivity extends LoggingActivity {
     private Podcast podcast;
 
     private ImageButton btnFavorite, btnAutoDownload;
-    private TextView labelFavorite, labelAutoDownload;
+    private TextView labelFavorite, labelAutoDownload, labelAutoDelete;
     private PodcastDao podcastDao;
 
     @Override
@@ -73,6 +73,7 @@ public class PodcastEpisodeActivity extends LoggingActivity {
         btnAutoDownload = findViewById(R.id.btnAutoDownload);
         labelFavorite = findViewById(R.id.labelFavorite);
         labelAutoDownload = findViewById(R.id.labelAutoDownload);
+        labelAutoDelete = findViewById(R.id.labelAutoDelete);
 
         podcastDao = AppDatabase.getDatabase(this).PodcastDao();
 
@@ -106,6 +107,8 @@ public class PodcastEpisodeActivity extends LoggingActivity {
 
         labelFavorite.setVisibility(View.GONE);
         labelAutoDownload.setVisibility(View.GONE);
+        labelAutoDelete.setVisibility(View.GONE);//not yet implemented
+        findViewById(R.id.btnAutoDelete).setVisibility(View.GONE);//not yet implemented
 
         boolean isFavorite = podcast != null && podcast.isFavorite;
         boolean isAutoDownload = podcast != null && podcast.autoDownload;
@@ -116,6 +119,8 @@ public class PodcastEpisodeActivity extends LoggingActivity {
 
         if (Pref.shouldAnimateButtons(Pref.AnimatedButton.FAVORITE)) {
             animateAttention(findViewById(R.id.btnFavorite), findViewById(R.id.labelFavorite), getString(R.string.Add_to_favorite), findViewById(R.id.ivPodcastCover));
+            animateAttention(findViewById(R.id.btnAutoDownload), findViewById(R.id.labelAutoDownload), getString(R.string.Auto_Download_episodes), findViewById(R.id.ivPodcastCover));
+            //animateAttention(findViewById(R.id.btnAutoDelete), findViewById(R.id.labelAutoDelete), getString(R.string.Auto_Delete_episodes), findViewById(R.id.ivPodcastCover));//not yet implemented
         }
 
         ivCover.setOnClickListener(view -> {
@@ -171,11 +176,6 @@ public class PodcastEpisodeActivity extends LoggingActivity {
                 updateFavoriteIconColor(favoriteState);
                 updateAutoDownloadIconColor(autoDownloadState);
                 btnAutoDownload.setVisibility(favoriteState ? View.VISIBLE : View.GONE);
-                if (favoriteState) {
-                    if (Pref.shouldAnimateButtons(Pref.AnimatedButton.AUTO_DOWNLOAD)) {
-                        animateAttention(findViewById(R.id.btnAutoDownload), findViewById(R.id.labelAutoDownload), getString(R.string.Auto_Download_episodes), findViewById(R.id.ivPodcastCover));
-                    }
-                }
             });
             ImageHelper.processPendingImages(this);
             AnalyticsHelper.tellAnalyticsPodcastFavorite(this, podcast.title, podcast.language);

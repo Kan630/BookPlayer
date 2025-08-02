@@ -709,7 +709,7 @@
     <string name="delay_for_auto_deletion">delay for auto deletion</string>
     <string name="completion_percentage_for_auto_deletion">completion percentage for auto deletion</string>
     <string name="auto_download_last_n_episode">auto download last xx episode</string>
-
+    <string name="Auto_Delete_episodes">Auto-Delete episodes</string>
 
 
 

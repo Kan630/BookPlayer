@@ -35,7 +35,7 @@ public class Option {
     private static final NetworkUtils.NetworkPolicyManual DEFAULT_MANUAL_DOWNLOAD_POLICY = NetworkUtils.NetworkPolicyManual.NEVER_ASK;
     private static final NetworkUtils.NetworkPolicyAuto DEFAULT_AUTO_DOWNLOAD_POLICY = NetworkUtils.NetworkPolicyAuto.WIFI;
     private static final boolean DEFAULT_PODCAST_AUTO_DELETE = false;
-    public static final int DEFAULT_PODCAST_DELAY_AUTO_DELETE = 30;
+    public static final int DEFAULT_PODCAST_DELAY_AUTO_DELETE = 7;
     public static final int DEFAULT_PODCAST_COMPLETION_PERCENTAGE_AUTO_DELETE = 95;
     public static final int DEFAULT_PODCAST_LAST_N_EPISODE_AUTO_DOWNLOAD = 5;
 

@@ -287,6 +287,7 @@ public class MainActivity extends LoggingActivity {
     private void doSomeBackgroundJobs() {
         if (shouldCheckApiForAutoDownload()) {
             PodcastHelper.checkForNewEpisodesToAutoDownload(this, PODCASTINDEXORG_SINCE_DEBUG);
+            PodcastHelper.checkForEpisodesToAutoDelete(this);
         }
         ImageHelper.processPendingImages(this);
     }
