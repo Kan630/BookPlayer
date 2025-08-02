@@ -85,9 +85,9 @@ public class UriHelper {
                 myLogW("isFolder: URI is null");
                 return false;
             }
+
             String scheme = uri.getScheme();
             if (scheme == null || "file".equalsIgnoreCase(scheme)) {
-                // Case 1: Raw file path or file:// URI
                 String path = uri.getPath();
                 if (path == null) {
                     myLogW("isFolder: URI path is null for file scheme");
@@ -97,21 +97,21 @@ public class UriHelper {
                 boolean result = file.exists() && file.isDirectory();
                 myLogD("isFolder: File path check: " + path + " => " + result);
                 return result;
-            } else if ("content".equalsIgnoreCase(scheme)) {
-                // Case 2: content:// URI - try both DocumentFile approaches
-                DocumentFile docFile = DocumentFile.fromTreeUri(context, uri);
-                if (docFile == null || !docFile.exists()) {
-                    docFile = DocumentFile.fromSingleUri(context, uri);
-                }
-                boolean result = docFile.exists() && docFile.isDirectory();
-                myLogD("isFolder: DocumentFile check: " + uri + " => " + result);
-                return result;
-            } else {
-                myLogW("isFolder: Unsupported URI scheme: " + scheme + " (" + uri + ")");
+            }
+
+            // Reuse your helper here:
+            DocumentFile docFile = getDocumentFileFromAnyUri(context, uri);
+            if (docFile == null) {
+                myLogW("isFolder: DocumentFile is null for URI: " + Uri.decode(uri.toString()));
                 return false;
             }
+
+            boolean result = docFile.exists() && docFile.isDirectory();
+            myLogD("isFolder: DocumentFile check: " + Uri.decode(uri.toString()) + " => " + result);
+            return result;
+
         } catch (Exception e) {
-            myLogEE(e, "isFolder: Exception while checking URI: " + uri);
+            myLogEE(e, "isFolder: Exception while checking URI: " + Uri.decode(uri.toString()));
             return false;
         }
     }

@@ -324,7 +324,11 @@ public class ParseFinalFolderWorker extends LoggingWorker {
         file.setFolderName(bookState.title);
         file.setPercentdone(0.0);
         file.setPosition(0);
-        file.setPath(bookState.futureFolderPath + "/" + info.getFileName());
+        if (bookState.dynamicType.equals("File")) {
+            file.setPath(bookState.futureFolderPath);
+        } else {
+            file.setPath(bookState.futureFolderPath + "/" + info.getFileName());
+        }
         file.setIszipfile(false);
         file.setFinished(false);
         file.setDuration(info.getDuration());
