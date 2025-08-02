@@ -52,7 +52,6 @@ public class LoadOptionsActivity extends LoggingActivity {
     private BookToAdd bookToAdd;
 
     private String audioBookTitle; // name can be changed... so keep as separate var
-    private String futureFolder;
 
     private String originalHash;
 

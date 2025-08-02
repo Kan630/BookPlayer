@@ -139,10 +139,10 @@ public class ModifyZikFileActivity extends LoggingActivity {
 
     private void eraseFileFromDisk(String strPath) {
         String starter = "file:///";
-        myLog("Deleting ZikFile : " +strPath);
+        myLog("Deleting ZikFile : [" + strPath + "]");
         if (strPath.length()>5) {
-            if (!strPath.contains(PATH_CHECK_APPLICATION) ) { //strPath.startsWith(starter)
-                myLog("NO DISK DELETE : Not a folder in user data (" + PATH_CHECK_APPLICATION + "), skip deletion of folder");
+            if (!strPath.contains(PATH_CHECK_APPLICATION) ) {
+                myLog("NO DISK DELETE : Not a folder in user data (" + PATH_CHECK_APPLICATION + "), skip deletion");
             } else {
                 if (strPath.startsWith(starter)) {
                     strPath = strPath.replace(starter, "");

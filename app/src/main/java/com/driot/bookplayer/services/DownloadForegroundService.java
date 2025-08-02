@@ -145,6 +145,8 @@ public class DownloadForegroundService extends LoggingService {
                 myLog("Download success => sending Broadcast - storing in SharedPrefs: " + filePath);
                 WorkFlow.setDownloadFinished(this, filePath);
                 sendBroadcast(new Intent(DownloadRetryWorker.ACTION_DOWNLOAD_COMPLETE).setPackage(getPackageName()));
+                LoadBookTaskState endState = Pref.getLoadBookTaskState();
+                if (endState != null) myLogD(endState.toString());
             } else if (!isPaused && !isCancelled) {
                 String errorMsg = getString(R.string.Download_failed);
                 myLogE(errorMsg);

@@ -51,14 +51,18 @@ public class PlayList {
 
     // --- Constructor ---
     private PlayList(List<ZikFile> zikFilesList) {
+        myLog("PlayList Constructor");
+        init(zikFilesList);
+    }
+    private void init(List<ZikFile> zikFilesList) {
         if (zikFilesList == null || zikFilesList.isEmpty()) {
-            throw new IllegalStateException("PlayList Constructor : zikFilesList == null || zikFilesList.isEmpty().");
+            throw new IllegalStateException("zikFilesList == null || zikFilesList.isEmpty().");
         }
         this.zikFilesList = zikFilesList;
         AppDatabase.databaseReadExecutor.execute(() -> {
             this.folder = AppDatabase.getDatabase(appContext).FolderDao().getById(zikFilesList.get(0).getIdFolder());
             if (folder == null) {
-                throw new IllegalStateException("PlayList Constructor : folder == null");
+                throw new IllegalStateException("folder == null");
             }
             this.podcast = AppDatabase.getDatabase(appContext).PodcastDao().getPodcastByFolderId(this.folder.getId());
             this.isPodcast = this.podcast != null;
@@ -99,6 +103,12 @@ public class PlayList {
     public void setNumZikFile(int numZikFile) {
         this.numZikFile = numZikFile;
         myLog("setNumZikFile(" + numZikFile + ") - " + getNumSlashTotal());
+        if (numZikFile + 1 > zikFilesList.size()) {
+            //try to reload Playlist (case podcast episodes added ?)
+            List<ZikFile> zikFilesList = AppDatabase.getDatabase(appContext).ZikFileDao().getZikFiles(PlayList.getInstance().getFolder().getId());
+            init(zikFilesList);
+            saveToStorage();
+        }
         saveToStorage();
     }
 

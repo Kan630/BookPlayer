@@ -1,9 +1,6 @@
 package com.driot.bookplayer.services;
 
 import static com.driot.bookplayer.db.Sql.updateFolderTable;
-import static com.driot.bookplayer.global.Var.ONLY_MIME_AUDIO;
-import static com.driot.bookplayer.global.Var.SUPPORTED_AUDIO_EXTENSIONS;
-import static com.driot.bookplayer.global.Var.SUPPORTED_COVER_PICTURE_EXTENSIONS;
 import static com.driot.bookplayer.utils.Tonio.formatMemPadding;
 import static com.driot.bookplayer.utils.Tonio.formatNameForDisplay;
 import static com.driot.bookplayer.utils.Tonio.formatTime;
@@ -30,11 +27,9 @@ import com.driot.bookplayer.objects.AudioFileInfo;
 import com.driot.bookplayer.objects.TaskStateManager;
 import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.utils.Tonio;
-import com.driot.bookplayer.utils.Utils;
 import com.driot.bookplayer.utils.log.LoggingWorker;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Objects;
 
 public class ParseFinalFolderWorker extends LoggingWorker {
@@ -49,6 +44,7 @@ public class ParseFinalFolderWorker extends LoggingWorker {
     private long fullFolderSize; //to make storage space checks
 
     // global because recursive method
+    private long totalDuration;
     private int nbFileScan;
     private int totalAudioToScan = 0;
     private int nbAudioScanned = 0;
@@ -170,10 +166,12 @@ public class ParseFinalFolderWorker extends LoggingWorker {
     private void addAudioFileUnique(DocumentFile df) {
         myLogD("* New Audio File : [" +  df.getName() + ']');
         long duration = getMediaDurationFromUri(context, df.getUri(), df.getName());
+        if (duration==0) TaskStateManager.markTaskFailed(TASK_NAME, context.getString(R.string.Error_Import_track_duration_extraction) + " for " + df.getName());
         myLogD("* Duration : [" +  formatTime(duration) + ']');
         audioFileArrayList.add(new AudioFileInfo(df.getName(), duration));
     }
     private void addAudioFileRecursive(DocumentFile f0) {
+        totalDuration = 0;
         nbFileScan = 0;
         fullFolderSize = 0;
         totalAudioToScan = 0;
@@ -181,6 +179,7 @@ public class ParseFinalFolderWorker extends LoggingWorker {
         TaskStateManager.tellProgress(TASK_NAME, 5, context.getString(R.string.listing_and_sorting_tracks));
         countAudioFiles(f0);
         addAudioFileRecursive(f0,"");
+        if (totalDuration==0) TaskStateManager.markTaskFailed(TASK_NAME, context.getString(R.string.Error_Import_track_duration_extraction));
     }
     private void addAudioFileRecursive(DocumentFile f0, String recursivFolder) {
         String l_audioFilePath;
@@ -195,12 +194,13 @@ public class ParseFinalFolderWorker extends LoggingWorker {
                 String fileExtension = getExtension(fileName);
                 String mimeType = Objects.toString(f1.getType());
                 myLogD("* Checking File : [" + fileExtension + "] . [" + fileName + "] - mime = [" + mimeType + "] - subfolder : [" + recursivFolder + "]");
-                if (mimeType.startsWith(ONLY_MIME_AUDIO) || SUPPORTED_AUDIO_EXTENSIONS.contains(fileExtension)) {
+                if (mimeType.startsWith(Var.ONLY_MIME_AUDIO) || Var.SUPPORTED_AUDIO_EXTENSIONS.contains(fileExtension)) {
                     nbFileScan = nbFileScan + 1;
                     l_audioFilePath = recursivFolder + f1.getName();
                     l_audioSize = f1.length();
                     myLogD("* New Audio File : [" + l_audioFilePath + "] - size = [" + l_audioSize + "]");
                     long duration = getMediaDurationFromUri(context, f1.getUri(), l_audioFilePath);
+                    totalDuration = totalDuration + duration;
                     myLogD("* Duration : [" +  formatTime(duration) + ']');
                     nbAudioScanned++;
                     double progress = totalAudioToScan > 0 ? (nbAudioScanned / (double) totalAudioToScan) : 0;
@@ -208,13 +208,17 @@ public class ParseFinalFolderWorker extends LoggingWorker {
                     TaskStateManager.tellProgress(TASK_NAME, scaledProgress, context.getString(R.string.scanning_tracks) + "..... \n[" +  l_audioFilePath + ']');
                     audioFileArrayList.add(new AudioFileInfo(l_audioFilePath, duration));
                     fullFolderSize = fullFolderSize + l_audioSize;
-                } else if (!hadImageBefore && SUPPORTED_COVER_PICTURE_EXTENSIONS.contains(fileExtension)) {
+                } else if (mimeType.startsWith(Var.ONLY_MIME_VIDEO) || Var.SUPPORTED_VIDEO_EXTENSIONS.contains(fileExtension)) {
+                    myLog("Video");
+                } else if (!hadImageBefore && Var.SUPPORTED_COVER_PICTURE_EXTENSIONS.contains(fileExtension)) {
                     long imageSize = f1.length();
                     if (bookState.imagePath == null || imageSize > UriHelper.getSize(context, Uri.parse(bookState.imagePath))) {
                         myLogD("New biggest Picture Found, size = [" + Tonio.formatMemPadding(imageSize) + "] - [" + f1.getUri() + "]");
                         bookState.imagePath = f1.getUri().toString();
                         hadImageBefore = true;
                     }
+                } else {
+                myLogW("Wrong mime/extension - [" + fileExtension + "] - Bypassed file: [" + f1.getName() + "]");
                 }
             }
         }
@@ -320,7 +324,7 @@ public class ParseFinalFolderWorker extends LoggingWorker {
         file.setFolderName(bookState.title);
         file.setPercentdone(0.0);
         file.setPosition(0);
-        file.setPath(bookState.futureFolderPath);
+        file.setPath(bookState.futureFolderPath + "/" + info.getFileName());
         file.setIszipfile(false);
         file.setFinished(false);
         file.setDuration(info.getDuration());
@@ -395,7 +399,7 @@ public class ParseFinalFolderWorker extends LoggingWorker {
             } else {
                 String ext = getExtension(f1.getName());
                 String mime = Objects.toString(f1.getType());
-                if (mime.startsWith(ONLY_MIME_AUDIO) || SUPPORTED_AUDIO_EXTENSIONS.contains(ext)) {
+                if (mime.startsWith(Var.ONLY_MIME_AUDIO) || Var.SUPPORTED_AUDIO_EXTENSIONS.contains(ext)) {
                     totalAudioToScan++;
                 }
             }

@@ -108,7 +108,7 @@ public class BookToAdd {
             }
 
             String fileName2 = getFileName();
-            this.audioBookName = formatNameForDisplay(stripExtension(fileName2));
+            this.audioBookName = formatNameForDisplay(fileName2);
             this.originalFile = fileName2;
 
             if (!Objects.equals(fileName, fileName2)) {
@@ -201,7 +201,7 @@ public class BookToAdd {
                     int index = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
                     if (index != -1) {
                         name = cursor.getString(index);
-                        myLogD("getFileName - OpenableColumns: " + name);
+                        myLogD("getFileName - OpenableColumns: [" + name + "]");
                         return name;
                     }
                 }
@@ -220,7 +220,7 @@ public class BookToAdd {
                         String filePath = cursor.getString(index);
                         if (filePath != null) {
                             name = new File(filePath).getName();
-                            myLog("getFileName - MediaStore: " + name);
+                            myLog("getFileName - MediaStore: [" + name + "]");
                             return name;
                         }
                     }

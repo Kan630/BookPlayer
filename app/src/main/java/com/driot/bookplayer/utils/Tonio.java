@@ -271,7 +271,7 @@ public class Tonio {
     }
 
     public static String stripExtension(String fileName) {
-        String s = fileName;
+        String s = fileName.trim();
         if (s.indexOf(".") > 0) {
             s = s.substring(0, s.lastIndexOf("."));
         }

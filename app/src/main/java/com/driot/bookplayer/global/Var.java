@@ -35,7 +35,7 @@ public class Var {
 
     //public static final int PODCASTINDEXORG_SINCE_DEBUG = 1751716800 ; //5 juillet, 2025
     public static final int PODCASTINDEXORG_SINCE_DEBUG = 0 ; //5 juillet, 2025
-    public static final int PODCAST_DETAIL_ANIMATION_COUNT = 10 ;
+    public static final int PODCAST_DETAIL_ANIMATION_COUNT = 3 ;
 
 
     public static final String  FOLDER_UNZIPPED = "unzipped";
@@ -114,7 +114,16 @@ public class Var {
 
  */
             )
-
-
     );
+
+    public static final String ONLY_MIME_VIDEO = "audio/";
+    public static final Set<String> SUPPORTED_VIDEO_EXTENSIONS = new HashSet<>(
+            Arrays.asList(
+                    // Common Formats
+                    "mpg",
+                    "mpeg",
+                    "avi"
+            )
+    );
+
 }
