@@ -93,7 +93,7 @@ public class OngoingTaskViewModel extends LoggingAndroidViewModel {
     }
     public void reinit() {
         myLogD("reinit()");
-        LoadBookTaskState state = Pref.getLoadBookTaskState(false);
+        LoadBookTaskState state = Pref.getLoadBookTaskState();
         if (state != null) {
             if (state.onGoingLoading) {
                 myLogD("onGoing");

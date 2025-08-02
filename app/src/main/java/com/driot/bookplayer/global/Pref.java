@@ -89,9 +89,6 @@ public class Pref {
     }
 
     public static LoadBookTaskState getLoadBookTaskState() {
-        return getLoadBookTaskState(false);
-    }
-    public static LoadBookTaskState getLoadBookTaskState(boolean doPrint) {
         SharedPreferences prefs = appContext.getSharedPreferences(SHARED_PREFERENCES_DOWNLOAD, Context.MODE_PRIVATE);
         String encoded = prefs.getString(KEY_LOAD_BOOK_TASK_STATE, null);
 
@@ -104,8 +101,6 @@ public class Pref {
 
         LoadBookTaskState result = LoadBookTaskState.CREATOR.createFromParcel(parcel);
         parcel.recycle();
-
-        if (doPrint) myLog(result.toString());
 
         return result;
     }

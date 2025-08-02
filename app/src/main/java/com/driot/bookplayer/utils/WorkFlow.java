@@ -12,20 +12,20 @@ import android.content.Intent;
 
 import androidx.work.WorkManager;
 
+import com.driot.bookplayer.db.AppDatabase;
+import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.objects.AppViewModelStoreOwner;
 import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.services.DownloadForegroundService;
-import com.driot.bookplayer.services.DownloadService;
 import com.driot.bookplayer.helpers.StorageHelper;
 
 import java.io.File;
 
 public class WorkFlow {
 
-
     public static boolean isSomeWorkFlowRunning(Context c) {
         myLogD("isSomeWorkFlowRunning() - called from " + c.getClass().getSimpleName());
-        LoadBookTaskState state = getLoadBookTaskState(false);
+        LoadBookTaskState state = getLoadBookTaskState();
         if (state==null) {
             myLogD("LoadBookTaskState : null instance...");
         } else {
@@ -34,41 +34,18 @@ public class WorkFlow {
                 return true;
             }
         }
-        if (DownloadService.isBusy) {
-            myLog("yes : DownloadService...");
-            return true;
-        }
         return false;
     }
 
     public static void maybeResumeWorkFlow(Context context) {
         String callerClass = context.getClass().getSimpleName();
         myLogD("maybe Resume WorkFlow...    called from " + callerClass);
-        LoadBookTaskState state = getLoadBookTaskState(true);
+        LoadBookTaskState state = getLoadBookTaskState();
 
         if (state == null) {
             myLogD("no WorkFlow");
-            return;
-        }
-
-        myLogD("WorkFlow " + state.currentOperation);
-        //myLog(state.toString().replace(", ","\n"));
-
-        if (state.onGoingLoading) {
-
-            myLogI("onGoing !! => but we dont do anything nowadays...");
-
-
-            /*
-            // Restart the AddResourceActivity
-            if (!callerClass.equals(GetResourceActivity.class.getSimpleName())) {
-                myLogI("Restarting AddResourceActivity...");
-                Intent intentActivity = new Intent(context, AddResourceActivity.class);
-                intentActivity.putExtra("LoadBookTaskState", state);
-                context.startActivity(intentActivity);
-            }
-
-             */
+        } else {
+            myLogI("WorkFlow " + state.currentOperation + " - " + state);
         }
     }
 
@@ -84,18 +61,6 @@ public class WorkFlow {
             setLoadBookTaskState(state);
             myLog("downloadedFilePath set to : " + filePath);
         }
-    }
-
-    public static void clearDownloadFinished(Context context) {
-        myLogD("...clearDownloadFinished() - called from " + context.getClass().getSimpleName());
-        LoadBookTaskState state = getLoadBookTaskState();
-        if (state != null) {
-            state.downloadedFileReady = false;
-            state.downloadedFilePath = null;
-            setLoadBookTaskState(state);
-            myLog("downloadedFilePath set to null");
-        }
-        DownloadService.isBusy = false;
     }
 
     public static void setWorkFlowFinished(Context context) {
@@ -117,7 +82,27 @@ public class WorkFlow {
         String downloadDirPath = StorageHelper.getDownloadFolderPath(context);
         deleteFolderRecursive(downloadDirPath);
         File outputDir = new File(downloadDirPath);
-        if (!outputDir.exists()) outputDir.mkdirs();
+        if (!outputDir.exists()) {
+            if (!outputDir.mkdirs()) myLogE("error mkdir");
+        }
+
+        //and Unzip Folder
+        LoadBookTaskState state = getLoadBookTaskState();
+        if (state != null) {
+            String folderToDeletePath = state.futureFolderPath;
+            if (folderToDeletePath.length()>5) {
+                if (!folderToDeletePath.contains(Var.PATH_CHECK_AUDIO_FILE_INTERNAL)) {
+                    if (state.onGoingLoading) { //means stuck in error
+                        AppDatabase.databaseReadExecutor.execute(() -> { //make sure not in DB
+                            if (AppDatabase.getDatabase(context).FolderDao().folderAlreadyExist_checkFolderPath(folderToDeletePath) == 0) {
+                                myLogI("deleting internal audio folder [" + folderToDeletePath + "]");
+                                deleteFolderRecursive(folderToDeletePath);
+                            }
+                        });
+                    }
+                }
+            }
+        }
 
         setWorkFlowFinished(context);
 

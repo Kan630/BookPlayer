@@ -23,10 +23,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Podcast;
-import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Option;
+import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.objects.PlayList;
 import com.driot.bookplayer.services.AudioService;
 import com.driot.bookplayer.helpers.ViewHelper;
@@ -40,7 +39,6 @@ import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import static com.driot.bookplayer.global.Var.PATH_CHECK_APPLICATION;
 import static com.driot.bookplayer.global.Var.SLEEP_PRESET_VALUES;
 import static com.driot.bookplayer.services.AudioService.NOTIFICATION_AUDIOFOCUS_GAIN;
 import static com.driot.bookplayer.services.AudioService.NOTIFICATION_AUDIOFOCUS_LOST;
@@ -718,7 +716,7 @@ public class PlayActivity extends LoggingActivity {
                 //b1.setVisibility(View.INVISIBLE);
                 String zePath = PlayList.getInstance().getZikFile()==null ? "PlayList.getInstance().getZikFile()==null" : PlayList.getInstance().getZikFile().getPath();
                 String pathText = getString(R.string.source_file_path) + " = \n[" + zePath + "]";
-                if (zePath.contains(PATH_CHECK_APPLICATION)) {
+                if (zePath.contains(Var.PATH_CHECK_AUDIO_FILE_INTERNAL)) {
                     tv.setText(getString(R.string.source_not_found));
                     myLog("Source file is inside app memory");
                 } else if (isReadAudioPermissionGranted(this)) {

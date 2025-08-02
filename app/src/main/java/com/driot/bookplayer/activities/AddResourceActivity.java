@@ -1,7 +1,5 @@
 package com.driot.bookplayer.activities;
 
-import static com.driot.bookplayer.utils.WorkFlow.cancelAllOngoingTasks;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -17,6 +15,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.objects.AppViewModelStoreOwner;
 import com.driot.bookplayer.services.DownloadForegroundService;
+import com.driot.bookplayer.utils.WorkFlow;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
 
@@ -110,7 +109,7 @@ public class AddResourceActivity extends LoggingActivity {
     private void performCancel() {
         myLogI("------ USER CLICKS btn CANCEL ----");
 
-        cancelAllOngoingTasks(this);
+        WorkFlow.cancelAllOngoingTasks(this);
 
         finish();
     }
@@ -128,7 +127,7 @@ public class AddResourceActivity extends LoggingActivity {
             delayedFinishHandler = new Handler();
             delayedFinishRunnable = () -> {
                 myToast(getString(R.string.Import_Success) + "\n" + tvTitle.getText());
-                cancelAllOngoingTasks(this);
+                WorkFlow.cancelAllOngoingTasks(this);
                 Intent mainIntent = new Intent(this, MainActivity.class);
                 mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(mainIntent);

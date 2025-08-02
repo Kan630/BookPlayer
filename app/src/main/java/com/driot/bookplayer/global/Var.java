@@ -38,19 +38,15 @@ public class Var {
     public static final int PODCAST_DETAIL_ANIMATION_COUNT = 3 ;
 
 
-    public static final String  FOLDER_UNZIPPED = "unzipped";
+    public static final String FOLDER_UNZIPPED = "unzipped";
+    public static final String FOLDER_DOWNLOAD = "download";
+    public static final String FOLDER_IMAGE = "images";
+    public static final String PATH_CHECK_AUDIO_FILE_INTERNAL = "com.driot.bookplayer/files/unzipped";
 
     public static final int  ZIP_SIZE_MAX_COEF = 4;
 
-    public static final String  FOLDER_DOWNLOAD = "download";
-    public static final String  PATH_CHECK_AUTOTEST = "bookplayer/files/download";
-    public static final String  PATH_CHECK_APPLICATION = "bookplayer/files/";
-
-    public static final String FOLDER_IMAGE = "images";
-
     public static final String  PATH_AUTOTEST_URL = "https://bookplayer.driot.com/autotest/";
 
-    //@string/AutoTest_b1_text
     public static final String  AUTOTEST_FILE_01 = PATH_AUTOTEST_URL + "file_01.zip";
     public static final String  AUTOTEST_FILE_02 = PATH_AUTOTEST_URL + "മലയാളം+عربى+Русский+हिन्दी.zip";
     public static final String  AUTOTEST_FILE_03 = PATH_AUTOTEST_URL + "FrostTonight_librivox.m4b";

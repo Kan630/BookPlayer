@@ -1,7 +1,5 @@
 package com.driot.bookplayer.activities;
 
-import static com.driot.bookplayer.global.Var.PATH_CHECK_APPLICATION;
-
 import android.content.Context;
 import android.os.Bundle;
 import android.text.InputType;
@@ -17,6 +15,7 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Sql;
 import com.driot.bookplayer.db.ZikFile;
+import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import java.io.File;
@@ -141,8 +140,8 @@ public class ModifyZikFileActivity extends LoggingActivity {
         String starter = "file:///";
         myLog("Deleting ZikFile : [" + strPath + "]");
         if (strPath.length()>5) {
-            if (!strPath.contains(PATH_CHECK_APPLICATION) ) {
-                myLog("NO DISK DELETE : Not a folder in user data (" + PATH_CHECK_APPLICATION + "), skip deletion");
+            if (!strPath.contains(Var.PATH_CHECK_AUDIO_FILE_INTERNAL) ) {
+                myLog("NO DISK DELETE : Not a folder in user data (" + Var.PATH_CHECK_AUDIO_FILE_INTERNAL + "), skip deletion");
             } else {
                 if (strPath.startsWith(starter)) {
                     strPath = strPath.replace(starter, "");

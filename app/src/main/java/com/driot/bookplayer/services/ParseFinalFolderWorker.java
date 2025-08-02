@@ -89,7 +89,11 @@ public class ParseFinalFolderWorker extends LoggingWorker {
                 df = UriHelper.getDocumentFileFromAnyUri(context, bookState.dynamicUri);
             } catch (Exception e) {
                 myLogEE(e,"Error reading File Uri.... " + bookState.dynamicUri);
-                TaskStateManager.markTaskFailed(TASK_NAME, context.getString(R.string.Error_Import_CannotReadFolder));
+                TaskStateManager.markTaskFailed(TASK_NAME, context.getString(R.string.Error_Import_CannotReadFile));
+                return Result.failure();
+            }
+            if (df == null) {
+                TaskStateManager.markTaskFailed(TASK_NAME, context.getString(R.string.Error_Import_CannotReadFile));
                 return Result.failure();
             }
             populateArrayListOfTracksFromFile(df);
@@ -102,7 +106,7 @@ public class ParseFinalFolderWorker extends LoggingWorker {
     private void populateArrayListOfTracksFromFile(DocumentFile dfPickedDir) {
         myLog("populateArrayListOfTracksFromFile [" + dfPickedDir.getUri() + "] - single file");
 
-        if (dfPickedDir != null && !(dfPickedDir.isDirectory())) {
+        if (!(dfPickedDir.isDirectory())) {
             audioFileArrayList = new ArrayList<>();
             addAudioFileUnique(dfPickedDir);
             goFolder();
@@ -131,17 +135,16 @@ public class ParseFinalFolderWorker extends LoggingWorker {
 
         audioFileArrayList = new ArrayList<>();
 
-        DocumentFile finalDfPickedDir = dfPickedDir; //thread needs 'final' arg
         Thread backgroundThread = new Thread(() -> {
-            addAudioFileRecursive(finalDfPickedDir);
+            addAudioFileRecursive(dfPickedDir);
 
             myLogD("addAudioFileRecursive done, sorting now...");
             audioFileArrayList.sort(AudioFileInfo.ALPHANUMERIC_COMPARATOR);
 
             if (audioFileArrayList.isEmpty()) {
-                myLog("No File found in directory : [" + finalDfPickedDir.getName() + ']');
+                myLog("No File found in directory : [" + dfPickedDir.getName() + ']');
             } else {
-                myLog(audioFileArrayList.size() + " files found in directory : [" + finalDfPickedDir.getName() + ']');
+                myLog(audioFileArrayList.size() + " files found in directory : [" + dfPickedDir.getName() + ']');
                 myLog("Full directory size : [" + formatMemPadding(fullFolderSize/1024/1024,0) + " Mo]");
                 myLogD("-----------------------------");
             }
@@ -198,10 +201,9 @@ public class ParseFinalFolderWorker extends LoggingWorker {
                     nbFileScan = nbFileScan + 1;
                     l_audioFilePath = recursivFolder + f1.getName();
                     l_audioSize = f1.length();
-                    myLogD("* New Audio File : [" + l_audioFilePath + "] - size = [" + l_audioSize + "]");
                     long duration = getMediaDurationFromUri(context, f1.getUri(), l_audioFilePath);
+                    myLogD("Audio File : [" + l_audioFilePath + "] - size = [" + l_audioSize + "] - [" +  formatTime(duration) + "]");
                     totalDuration = totalDuration + duration;
-                    myLogD("* Duration : [" +  formatTime(duration) + ']');
                     nbAudioScanned++;
                     double progress = totalAudioToScan > 0 ? (nbAudioScanned / (double) totalAudioToScan) : 0;
                     int scaledProgress = 10 + (int) ((80 - 10) * progress);
@@ -281,7 +283,7 @@ public class ParseFinalFolderWorker extends LoggingWorker {
             String txtProgress = progress + "% - " + context.getString(R.string.saving_track) +
                     " n°" + i + 1 + "/" + total + "\n" + getFileNameFromPath(info.getFileName());
 
-            myLog("Registering track [" + info.getFileName() + "]");
+            myLogD("Registering track [" + info.getFileName() + "]");
             SaveResultEnum result = saveSingleFile(info, insertedFolderId, zeOrder);
             TaskStateManager.tellProgress(TASK_NAME, progress, txtProgress);
 
@@ -335,13 +337,13 @@ public class ParseFinalFolderWorker extends LoggingWorker {
         file.date_added = System.currentTimeMillis();
 
         if (file.getDuration() == 0) {
-            myLog("⏭️ Skipped: duration = 0 → " + info.getFileName());
+            myLogW("⏭️ Skipped: duration = 0 → " + info.getFileName());
             return SaveResultEnum.SKIPPED;
         }
 
         long id = AppDatabase.getDatabase(context).ZikFileDao().insert(file);
         if (id > 0) {
-            myLog("✔️ ZikFile inserted: id = " + id);
+            //myLog("✔️ ZikFile inserted: id = " + id);
             return SaveResultEnum.SUCCESS;
         } else {
             myLogE("❌ DB insert failed for: " + info.getFileName());

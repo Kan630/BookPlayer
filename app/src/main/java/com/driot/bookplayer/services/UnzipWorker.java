@@ -70,57 +70,90 @@ public class UnzipWorker extends LoggingWorker {
         }
 
         try {
-            myLog("unzipping in: " + unzipFolder);
+            myLogD("unzipping in: " + unzipFolder);
             int nbZip;
-
+            myLogD("---------------------------------------------------------");
+            myLogD(unzipFolder.getName());
+            myLogD("---------------------------------------------------------");
+            ////////////////////////////////////////////////////////////////////////////////
+            /// Reading Zip File
+            ////////////////////////////////////////////////////////////////////////////////
             try (ZipFile zf = new ZipFile(zipFile)) {
                 nbZip = zf.size();
             } catch (Exception e) {
                 myLogEE(e, "Could not count zip entries");
                 nbZip = 10;
             }
+            myLogD("Zip file has : " + nbZip + " entries");
+            myLogD("---------------------------------------------------------");
 
             int numCurZip = 0;
             Charset charset = getCharset(zipFile);
             if (charset == null) charset = Charset.defaultCharset();
+            myLogD("---------------------------------------------------------");
 
+            ////////////////////////////////////////////////////////////////////////////////
+            /// Looping on Entries
+            ////////////////////////////////////////////////////////////////////////////////
             try (ZipInputStream zis = new ZipInputStream(new BufferedInputStream(new FileInputStream(zipFile)), charset)) {
                 ZipEntry ze;
                 byte[] buffer = new byte[8192];
+                ze = zis.getNextEntry();
 
-                while ((ze = zis.getNextEntry()) != null) {
+                while (ze != null) {
                     if (isStopped()) {
                         TaskStateManager.markTaskCancelled(TASK_NAME);
                         return Result.failure();
                     }
 
-                    if (ze.isDirectory()) continue;
+                    myLog(String.valueOf(numCurZip+1) + " - Zip entry : " + ze.getName());
 
-                    String audioFileName = shortenAudioFileName(ze.getName(), unzipFolder.getName());
+                    //bypass if zip contains only folder with same name at first level
+                    if (ze.isDirectory()) {
+                        myLog("ze.isDirectory... goto next record");
+                        if (ze.getName().equals(unzipFolder.getName() + "/")) {
+                            myLogE("ze.isDirectory and same name !!... ");
+                        }
+                    } else {
+                        String audioFileName = shortenAudioFileName(ze.getName(), unzipFolder.getName());
 
-                    numCurZip++;
-                    int progress = (int) ((double) numCurZip / nbZip * 100);
-                    String progressText = getApplicationContext().getString(R.string.Import_Progress_unzipping_file) + numCurZip + "/" + nbZip + "\n" + audioFileName;
+                        numCurZip++;
+                        int progress = (int) ((double) numCurZip / nbZip * 100);
+                        String progressText = getApplicationContext().getString(R.string.Import_Progress_unzipping_file) + numCurZip + "/" + nbZip + "\n" + audioFileName;
 
-                    TaskStateManager.tellProgress(TASK_NAME, progress, progressText);
+                        TaskStateManager.tellProgress(TASK_NAME, progress, progressText);
 
-                    File unzippedFile = new File(unzipFolder, audioFileName);
-                    if (!(unzippedFile.getParentFile()==null) && !unzippedFile.getParentFile().exists() && !unzippedFile.getParentFile().mkdirs()) {
-                        TaskStateManager.markTaskFailed(TASK_NAME, "Failed to create output dir: " + unzippedFile);
-                        return Result.failure();
-                    }
+                        File unzippedFile = new File(unzipFolder, audioFileName);
+                        if (!(unzippedFile.getParentFile() == null) && !unzippedFile.getParentFile().exists() && !unzippedFile.getParentFile().mkdirs()) {
+                            TaskStateManager.markTaskFailed(TASK_NAME, "Failed to create output dir: " + unzippedFile);
+                            return Result.failure();
+                        }
 
-                    try (FileOutputStream fout = new FileOutputStream(unzippedFile)) {
-                        int count;
-                        while ((count = zis.read(buffer)) != -1) {
-                            if (isStopped()) {
-                                TaskStateManager.markTaskCancelled(TASK_NAME);
-                                return Result.failure();
+                        try (FileOutputStream fout = new FileOutputStream(unzippedFile)) {
+                            int count;
+                            while ((count = zis.read(buffer)) != -1) {
+                                if (isStopped()) {
+                                    TaskStateManager.markTaskCancelled(TASK_NAME);
+                                    return Result.failure();
+                                }
+                                fout.write(buffer, 0, count);
                             }
-                            fout.write(buffer, 0, count);
                         }
                     }
-                }
+// end of loop - get next record
+                    ze = null;
+                    try {
+                        ze = zis.getNextEntry();
+                    } catch (Exception e) {
+                        myLogE("error getting next zip file entry : " + e.getMessage());
+                        try {
+                            ze = zis.getNextEntry();
+                            if (ze == null) myLog("next next zip file entry is null");
+                        } catch (Exception e2) {
+                            myLogE("error getting next next zip file entry : " + e2.getMessage());
+                        }
+                    }
+                } //end while
             }
 
             if (!zipFile.delete()) myLogEE(null,"Error deleting internal zip file");
@@ -179,37 +212,63 @@ public class UnzipWorker extends LoggingWorker {
             myLog("Charset found : [" + charset.toString() + "]");
             return true;
         } catch (Exception e) {
-            myLog("Charset tested : [" + charset.toString() + "] => KO after " + i + " entries.");
+            myLogEE(e,"Charset tested : [" + charset.toString() + "] => KO after " + i + " entries.");
             return false;
         }
     }
 
     private String shortenAudioFileName(String audioFileName, String folderName) {
         String tmp = audioFileName;
-        //tmp = Paths.get(tmp).normalize().toString();
-        if (tmp.toLowerCase(Locale.ROOT).startsWith(folderName.toLowerCase(Locale.ROOT))) {
-            tmp = tmp.substring((folderName).length());
+
+        // Normalize names for comparison
+        String folderNorm = normalizeName(folderName);
+        String tmpNorm = normalizeName(tmp);
+
+        // Try to remove folder name prefix
+        if (tmpNorm.startsWith(folderNorm)) {
+            tmp = tmp.substring(folderName.length());
         }
+
+        // Remove leading slashes
         if (tmp.startsWith("/") || tmp.startsWith("\\")) {
             tmp = tmp.substring(1);
-        } // a second time, needed sometimes...
-        if (tmp.toLowerCase(Locale.ROOT).startsWith(folderName.toLowerCase(Locale.ROOT))) {
-            tmp = tmp.substring((folderName).length());
         }
-        tmp = tmp.replace("\\","_");
-        tmp = tmp.replace("/","_");
-        if (tmp.startsWith("_") || tmp.startsWith(" ")) {
+
+        // Repeat check in case of residual
+        tmpNorm = normalizeName(tmp);
+        if (tmpNorm.startsWith(folderNorm)) {
+            tmp = tmp.substring(folderName.length());
+        }
+
+        // Sanitize slashes to underscores
+        tmp = tmp.replace("\\", "_").replace("/", "_");
+
+        // Remove leading underscores or spaces
+        while (tmp.startsWith("_") || tmp.startsWith(" ")) {
             tmp = tmp.substring(1);
         }
-        if (tmp.length() < 5 ) {
+
+        // Fallback to original if it's too short
+        if (tmp.length() < 5) {
             tmp = audioFileName;
         }
-        //// tell result
+
+        // Logging
         if (!tmp.equals(audioFileName)) {
-            myLog("name shortened : [" + tmp + "] => [" + audioFileName + "]");
+            myLogD("name shortened = [" + tmp + "] .   was [" + audioFileName + "]");
         }
+
         return tmp;
     }
+
+    // Helper: normalize underscores and case for comparison
+    private String normalizeName(String s) {
+        return s.toLowerCase(Locale.ROOT)
+                .replace("_", " ")
+                .replaceAll("[\\\\/]", " ") // slashes to space for matching
+                .trim();
+    }
+
 
 
 }

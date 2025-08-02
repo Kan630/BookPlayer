@@ -177,25 +177,6 @@
             </intent-filter>
         </receiver>
         <service
-            android:name=".services.AddResourceService"
-            android:stopWithTask="true" />
-        <service
-            android:name=".services.CopyFileService"
-            android:stopWithTask="true" />
-        <service
-            android:name=".services.UnzipService"
-            android:stopWithTask="true" />
-        <service
-            android:name=".services.DownloadService"
-            android:exported="false"/>
-        <service
-            android:name=".services.DownloadJobService"
-            android:permission="android.permission.BIND_JOB_SERVICE"
-            android:exported="false"/>
-        <service
-            android:name=".services.SplitM4bService"
-            android:exported="false"/>
-        <service
             android:name=".services.ExportService"
             android:exported="false"
             android:stopWithTask="true" />

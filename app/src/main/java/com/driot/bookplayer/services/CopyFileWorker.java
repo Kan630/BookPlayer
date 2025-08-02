@@ -50,6 +50,7 @@ public class CopyFileWorker extends LoggingWorker {
 
     private StorageHelper.MemoryLocationType destinationLocation;
     long last_logged_progress = -1;
+    String last_logged_msg = "";
     private String sourceLocation = "unknown";
     private long totalSize = -1;
     long availableMemory = -1;
@@ -304,23 +305,27 @@ public class CopyFileWorker extends LoggingWorker {
 
     private void buildProgressString() {
         long progress = (int) ((copiedSize * 100) / totalSize);
+
+        String progressMsg = sourceLocation.equals("cloud")
+                ? context.getString(R.string.Import_Progress_copying_file_from_cloud)
+                : context.getString(R.string.Import_Progress_copying_file_from_general_storage);
+
+
+        progressMsg = progressMsg + (destinationLocation.equals(StorageHelper.MemoryLocationType.SDCARD_RESERVED)
+                ? context.getString(R.string.Import_Progress_copying_file_to_sd_card_reserved)
+                : context.getString(R.string.Import_Progress_copying_file_to_internal_reserved));
+
+        String msg = progressMsg + "\n\n" +
+                context.getString(R.string.Error_Import_NotEnoughMemory_line3) + formatMemPadding(copiedSize/1024/1024, 0) + "Mo/" + formatMemPadding(totalSize/1024/1024, 0) + "Mo\n" +
+                context.getString(R.string.Error_Import_NotEnoughMemory_line2_1) + Tonio.formatMemPadding(availableMemory / 1048576L) + "Mo";
+
+        if (!msg.equals(last_logged_msg)) {
+            last_logged_msg = msg;
+            TaskStateManager.tellProgress(TASK_NAME, (int) progress, msg);
+        }
         if (progress != last_logged_progress) {
             last_logged_progress = progress;
-
-            String progressMsg = sourceLocation.equals("cloud")
-                    ? context.getString(R.string.Import_Progress_copying_file_from_cloud)
-                    : context.getString(R.string.Import_Progress_copying_file_from_general_storage);
-
-
-            progressMsg = progressMsg + (destinationLocation.equals(StorageHelper.MemoryLocationType.SDCARD_RESERVED)
-                    ? context.getString(R.string.Import_Progress_copying_file_to_sd_card_reserved)
-                    : context.getString(R.string.Import_Progress_copying_file_to_internal_reserved));
-
-            String msg = progressMsg + "\n\n" +
-                    context.getString(R.string.Error_Import_NotEnoughMemory_line3) + formatMemPadding(copiedSize/1024/1024, 0) + "Mo/" + formatMemPadding(totalSize/1024/1024, 0) + "Mo\n" +
-                    context.getString(R.string.Error_Import_NotEnoughMemory_line2_1) + Tonio.formatMemPadding(availableMemory / 1048576L) + "Mo";
-
-            TaskStateManager.tellProgress(TASK_NAME, (int) progress, msg);
+            myLogD(progress + "% - " + msg.replace("\n"," . "));
         }
     }
 

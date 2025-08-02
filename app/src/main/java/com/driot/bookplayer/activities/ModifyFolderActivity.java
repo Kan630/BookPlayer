@@ -18,6 +18,7 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.global.Pref;
+import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.utils.Tonio;
@@ -25,7 +26,6 @@ import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import java.io.File;
 
-import static com.driot.bookplayer.global.Var.PATH_CHECK_APPLICATION;
 import static com.driot.bookplayer.helpers.PodcastHelper.cancelAutoDownload;
 
 /**
@@ -154,8 +154,8 @@ public class ModifyFolderActivity extends LoggingActivity {
         }
         String starter = "file:///";
         if (strPath.length()>5) {
-            if (!strPath.contains(PATH_CHECK_APPLICATION) ) { //strPath.startsWith(starter)
-                myLog("NO DISK DELETE : Not a folder in user data (" + PATH_CHECK_APPLICATION + "), skip deletion of folder");
+            if (!strPath.contains(Var.PATH_CHECK_AUDIO_FILE_INTERNAL) ) { //strPath.startsWith(starter)
+                myLog("NO DISK DELETE : Not a folder in user data (" + Var.PATH_CHECK_AUDIO_FILE_INTERNAL + "), skip deletion of folder");
                 return true;
             } else {
                 strPath = strPath.replace(starter, ""); //was a prefix in Folder table, field has been deprecated, now fill with dummies
