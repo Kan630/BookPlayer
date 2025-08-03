@@ -14,7 +14,6 @@ import android.os.IBinder;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
-import androidx.work.WorkManager;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Option;
@@ -25,7 +24,7 @@ import com.driot.bookplayer.helpers.AnalyticsHelper;
 import com.driot.bookplayer.utils.NetworkUtils;
 import com.driot.bookplayer.objects.TaskStateManager;
 import com.driot.bookplayer.utils.Tonio;
-import com.driot.bookplayer.utils.WorkFlow;
+import com.driot.bookplayer.objects.WorkFlow;
 import com.driot.bookplayer.utils.log.LoggingService;
 
 import java.io.BufferedInputStream;

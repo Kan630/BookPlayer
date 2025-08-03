@@ -12,6 +12,7 @@ import androidx.documentfile.provider.DocumentFile;
 
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
+import com.driot.bookplayer.db.FolderDao;
 import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.utils.KanLogger;
 
@@ -32,6 +33,7 @@ public class ImageHelper {
     public static final String PODCAST_IMAGE_PREFIX = "podcast_feed_";
     public static final String FOLDER_IMAGE_PREFIX = "folder_id_";
     public static final String LIBRIVOX_IMAGE_PREFIX = "librivox_img_";
+    public static final String TEMP_IMAGE_PREFIX = "tmp_img";
 
     public static File getImageFile(Context context, long id, boolean isFolder) {
         File dir = StorageHelper.getImageFolder(context);
@@ -75,7 +77,6 @@ public class ImageHelper {
         myLogD("image saved [" + imagePath + "] - " + (imageFile.length() / 1024) + "KB");
         return imageFile.getAbsolutePath();
     }
-
 
     public static void processPendingImages(Context context) {
         myLogD("processPendingImages");
@@ -170,6 +171,63 @@ public class ImageHelper {
         }
     }
 
+    public static String saveTempBitmap(Context context, Bitmap bitmap) {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try {
+            // Use PNG to keep original quality before compressing later
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+            byte[] imageBytes = out.toByteArray();
+            return compressAndSaveImage(context, imageBytes, TEMP_IMAGE_PREFIX + ".jpg");
+        } catch (Exception e) {
+            myLogEE(e, "saveTempBitmap");
+            return null;
+        }
+    }
+    public static void deleteTempImportImage(Context context) {
+        File imageDir = StorageHelper.getImageFolder(context);
+        File tmpFile = new File(imageDir, TEMP_IMAGE_PREFIX + ".jpg");
+
+        if (tmpFile.exists()) {
+            boolean deleted = tmpFile.delete();
+            if (deleted) {
+                myLog("Temp import image deleted: " + tmpFile.getAbsolutePath());
+            } else {
+                myLogE("Failed to delete temp import image: " + tmpFile.getAbsolutePath());
+            }
+        } else {
+            myLogD("No temp import image to delete at: " + tmpFile.getAbsolutePath());
+        }
+    }
+    public static void finalizeTempFolderImage(Context context, int folderId) {
+        File imageDir = StorageHelper.getImageFolder(context);
+        File tmpFile = new File(imageDir, TEMP_IMAGE_PREFIX + ".jpg");
+        File newFile = new File(imageDir, FOLDER_IMAGE_PREFIX + folderId + ".jpg");
+
+        if (!tmpFile.exists()) {
+            myLogE("Temp image not found: " + tmpFile.getAbsolutePath());
+            return;
+        }
+
+        boolean renamed = tmpFile.renameTo(newFile);
+        if (!renamed) {
+            myLogE("Failed to rename temp image to: " + newFile.getAbsolutePath());
+            return;
+        }
+
+        myLog("Image renamed to: " + newFile.getAbsolutePath());
+
+        // Update folder in DB
+        AppDatabase.databaseWriteExecutor.execute(() -> {
+            Folder folder = AppDatabase.getDatabase(context).FolderDao().getById(folderId);
+            if (folder != null) {
+                folder.image = newFile.getAbsolutePath();
+                AppDatabase.getDatabase(context).FolderDao().update(folder);
+                myLog("Folder DB updated with new image path");
+            } else {
+                myLogE("Folder not found for ID: " + folderId);
+            }
+        });
+    }
 
 
     private static boolean isContentUri(String s) {

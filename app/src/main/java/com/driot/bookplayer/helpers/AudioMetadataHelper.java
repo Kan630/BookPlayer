@@ -24,13 +24,19 @@ import java.util.List;
 public class AudioMetadataHelper {
 
     public static MyAudioMetadata extractMetadata(Context context, File file) {
+        MyAudioMetadata audioMetadata = null;
         String path = file.getAbsolutePath().toLowerCase();
         if (path.endsWith(".mp3")) {
-            return extractFromMp3(file);
+            audioMetadata = extractFromMp3(file);
         } else if (path.endsWith(".m4b") || path.endsWith(".mp4") || path.endsWith(".m4a")) {
-            return extractFromM4b(file);
+            audioMetadata = extractFromM4b(file);
         }
-        return null;
+        if (audioMetadata == null) {
+            myLogD("No metadata found for file " + file.getAbsolutePath());
+        } else {
+            audioMetadata.saveCover(context);
+        }
+        return audioMetadata;
     }
 
     private static MyAudioMetadata extractFromMp3(File file) {
@@ -140,25 +146,15 @@ public class AudioMetadataHelper {
 
     private static Bitmap extractImageFromDataBox(Box box) {
         myLog("Extracting image...");
+
+        final int[] OFFSETS = {24, 0, 8, 16}; // try the most probable first
+        final int MIN_WIDTH = 100;
+        final int MIN_HEIGHT = 100;
+        final float MIN_ASPECT_RATIO = 0.1f;
+        final float MAX_ASPECT_RATIO = 10.0f;
+
         if (!"covr".equals(box.getType())) return null;
 
-        // 1. Try reflection first
-        try {
-            Method getDataMethod = box.getClass().getMethod("getData");
-            getDataMethod.setAccessible(true);
-            Object result = getDataMethod.invoke(box);
-            if (result instanceof byte[]) {
-                byte[] bytes = (byte[]) result;
-                return BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-            }
-            myLog("getData() returned non-byte[]");
-        } catch (NoSuchMethodException e) {
-            myLog("getData() not found, trying direct raw byte read...");
-        } catch (Exception e) {
-            myLogEE(e, "extractImageFromDataBox - getData reflection");
-        }
-
-        // 2. Try reading raw bytes directly from the box (no child `data` box)
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             box.getBox(Channels.newChannel(baos));
             byte[] bytes = baos.toByteArray();
@@ -171,17 +167,30 @@ public class AudioMetadataHelper {
             }
             myLog("First 32 bytes: " + hexPreview);
 
-            // Try decoding with different offsets
-            int[] offsets = {0, 8, 16, 24};
-            for (int offset : offsets) {
+            for (int offset : OFFSETS) {
                 if (bytes.length > offset) {
-                    Bitmap bmp = BitmapFactory.decodeByteArray(bytes, offset, bytes.length - offset);
-                    if (bmp != null) {
-                        myLog("bitmap success at offset " + offset + " : " + bmp.getWidth() + "x" + bmp.getHeight());
-                        return bmp;
-                    } else {
+                    Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, offset, bytes.length - offset);
+                    if (bitmap == null) {
                         myLog("bitmap == null at offset " + offset);
+                        continue;
                     }
+
+                    int w = bitmap.getWidth();
+                    int h = bitmap.getHeight();
+                    float ratio = (float) w / h;
+
+                    if (w < MIN_WIDTH || h < MIN_HEIGHT) {
+                        myLogW("Rejected image at offset " + offset + ": too small (" + w + "x" + h + ")");
+                        continue;
+                    }
+
+                    if (ratio < MIN_ASPECT_RATIO || ratio > MAX_ASPECT_RATIO) {
+                        myLogW("Rejected image at offset " + offset + ": aspect ratio " + ratio);
+                        continue;
+                    }
+
+                    myLog("bitmap success at offset " + offset + " : " + w + "x" + h);
+                    return bitmap;
                 }
             }
 

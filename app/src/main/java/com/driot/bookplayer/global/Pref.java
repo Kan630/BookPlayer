@@ -16,6 +16,7 @@ import android.os.Parcel;
 import android.util.Base64;
 
 import com.driot.bookplayer.objects.LoadBookTaskState;
+import com.driot.bookplayer.objects.MyAudioMetadata;
 import com.driot.bookplayer.utils.KanLogger;
 
 public class Pref {
@@ -109,6 +110,34 @@ public class Pref {
         SharedPreferences prefs = context.getSharedPreferences(SHARED_PREFERENCES_DOWNLOAD, Context.MODE_PRIVATE);
         prefs.edit().remove(KEY_LOAD_BOOK_TASK_STATE).apply();
     }
+
+
+    public static void saveAudioMetadata(MyAudioMetadata metadata) {
+        Parcel parcel = Parcel.obtain();
+        metadata.writeToParcel(parcel, 0);
+        byte[] bytes = parcel.marshall();
+        parcel.recycle();
+        String encoded = Base64.encodeToString(bytes, Base64.DEFAULT);
+        SharedPreferences prefs = appContext.getSharedPreferences(SHARED_PREFERENCES_DOWNLOAD, Context.MODE_PRIVATE);
+        prefs.edit().putString("KEY_AUDIO_METADATA", encoded).apply();
+    }
+    public static MyAudioMetadata loadAudioMetadata() {
+        SharedPreferences prefs = appContext.getSharedPreferences(SHARED_PREFERENCES_DOWNLOAD, Context.MODE_PRIVATE);
+        String encoded = prefs.getString("KEY_AUDIO_METADATA", null);
+        if (encoded == null) return null;
+        byte[] bytes = Base64.decode(encoded, Base64.DEFAULT);
+        Parcel parcel = Parcel.obtain();
+        parcel.unmarshall(bytes, 0, bytes.length);
+        parcel.setDataPosition(0);
+        MyAudioMetadata metadata = MyAudioMetadata.CREATOR.createFromParcel(parcel);
+        parcel.recycle();
+        return metadata;
+    }
+    public static void clearAudioMetadata() {
+        SharedPreferences prefs = appContext.getSharedPreferences(SHARED_PREFERENCES_DOWNLOAD, Context.MODE_PRIVATE);
+        prefs.edit().remove("KEY_AUDIO_METADATA").apply();
+    }
+
 
 
 

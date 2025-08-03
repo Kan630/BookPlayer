@@ -22,6 +22,7 @@ import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.UriHelper;
 import com.driot.bookplayer.objects.AudioFileInfo;
 import com.driot.bookplayer.objects.TaskStateManager;
@@ -259,6 +260,7 @@ public class ParseFinalFolderWorker extends LoggingWorker {
         new Thread(() -> {
             int insertedFolderId = (int) DatabaseClient.getInstance(context).getAppDatabase().FolderDao().insert(folder);
             myLog("Folder Saved in DB, ID=[" + insertedFolderId + "] - [" + bookState.title + "]");
+            ImageHelper.finalizeTempFolderImage(context, insertedFolderId);
             TaskStateManager.tellProgress(TASK_NAME, 83, context.getString(R.string.saving_folder));
             saveFiles(insertedFolderId);
         }).start();

@@ -45,7 +45,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static com.driot.bookplayer.utils.PermissionRequest.isReadAudioPermissionGranted;
-import static com.driot.bookplayer.utils.WorkFlow.maybeResumeWorkFlow;
+import static com.driot.bookplayer.objects.WorkFlow.maybeResumeWorkFlow;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 08/11/20

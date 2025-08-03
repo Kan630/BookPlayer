@@ -1,4 +1,4 @@
-package com.driot.bookplayer.utils;
+package com.driot.bookplayer.objects;
 
 import static com.driot.bookplayer.global.Pref.clearLoadBookTaskState;
 import static com.driot.bookplayer.global.Pref.getLoadBookTaskState;
@@ -14,10 +14,10 @@ import androidx.work.WorkManager;
 
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.global.Var;
-import com.driot.bookplayer.objects.AppViewModelStoreOwner;
-import com.driot.bookplayer.objects.LoadBookTaskState;
+import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.services.DownloadForegroundService;
 import com.driot.bookplayer.helpers.StorageHelper;
+import com.driot.bookplayer.utils.KanLogger;
 
 import java.io.File;
 
@@ -63,48 +63,75 @@ public class WorkFlow {
         }
     }
 
-    public static void setWorkFlowFinished(Context context) {
-        myLogD("...clear ALL - called from " + context.getClass().getSimpleName());
-        clearLoadBookTaskState(context);
-        AppViewModelStoreOwner.clear();
-    }
-
     public static void cancelAllOngoingTasks(Context context) {
         myLog("...cancelAllOngoingTasks() - called from " + context.getClass().getSimpleName());
 
-        Intent intent = new Intent(context, DownloadForegroundService.class);
-        context.stopService(intent);
+        try {
+            Intent intent = new Intent(context, DownloadForegroundService.class);
+            context.stopService(intent);
+        } catch (Exception e) {
+            myLogEE(e, "cancelAllOngoingTasks - DownloadForegroundService");
+        }
 
-        WorkManager.getInstance(context).cancelAllWorkByTag(FOREGROUND_DOWNLOAD_SERVICE_TAG);
-        WorkManager.getInstance(context).cancelAllWorkByTag(BOOK_LOADING_WORKERS);
+        try {
+            WorkManager.getInstance(context).cancelAllWorkByTag(FOREGROUND_DOWNLOAD_SERVICE_TAG);
+            WorkManager.getInstance(context).cancelAllWorkByTag(BOOK_LOADING_WORKERS);
+        } catch (Exception e) {
+            myLogEE(e, "cancelAllOngoingTasks - WorkManager");
+        }
 
         //Ensure nothing left in Download Folder
-        String downloadDirPath = StorageHelper.getDownloadFolderPath(context);
-        deleteFolderRecursive(downloadDirPath);
-        File outputDir = new File(downloadDirPath);
-        if (!outputDir.exists()) {
-            if (!outputDir.mkdirs()) myLogE("error mkdir");
+        try {
+            String downloadDirPath = StorageHelper.getDownloadFolderPath(context);
+            deleteFolderRecursive(downloadDirPath);
+            File outputDir = new File(downloadDirPath);
+            if (!outputDir.exists()) {
+                if (!outputDir.mkdirs()) myLogE("error mkdir");
+            }
+        } catch (Exception e) {
+            myLogEE(e, "cancelAllOngoingTasks - delete Download Folder");
         }
 
         //and Unzip Folder
-        LoadBookTaskState state = getLoadBookTaskState();
-        if (state != null) {
-            String folderToDeletePath = state.futureFolderPath;
-            if (folderToDeletePath.length()>5) {
-                if (!folderToDeletePath.contains(Var.PATH_CHECK_AUDIO_FILE_INTERNAL)) {
-                    if (state.onGoingLoading) { //means stuck in error
-                        AppDatabase.databaseReadExecutor.execute(() -> { //make sure not in DB
-                            if (AppDatabase.getDatabase(context).FolderDao().folderAlreadyExist_checkFolderPath(folderToDeletePath) == 0) {
-                                myLogI("deleting internal audio folder [" + folderToDeletePath + "]");
-                                deleteFolderRecursive(folderToDeletePath);
-                            }
-                        });
+        try {
+            LoadBookTaskState state = getLoadBookTaskState();
+            if (state != null) {
+                String folderToDeletePath = state.futureFolderPath;
+                if (folderToDeletePath.length()>5) {
+                    if (!folderToDeletePath.contains(Var.PATH_CHECK_AUDIO_FILE_INTERNAL)) {
+                        if (state.onGoingLoading) { //means stuck in error
+                            AppDatabase.databaseReadExecutor.execute(() -> { //make sure not in DB
+                                if (AppDatabase.getDatabase(context).FolderDao().folderAlreadyExist_checkFolderPath(folderToDeletePath) == 0) {
+                                    myLogI("deleting internal audio folder [" + folderToDeletePath + "]");
+                                    deleteFolderRecursive(folderToDeletePath);
+                                }
+                            });
+                        }
                     }
                 }
             }
+        } catch (Exception e) {
+            myLogEE(e, "cancelAllOngoingTasks - delete Unzip Folder");
         }
 
-        setWorkFlowFinished(context);
+        try {
+            ImageHelper.deleteTempImportImage(context);
+        } catch (Exception e) {
+            myLogEE(e, "cancelAllOngoingTasks - delete Temp Import Image");
+        }
+
+        try {
+            clearLoadBookTaskState(context);
+        } catch (Exception e) {
+            myLogEE(e, "cancelAllOngoingTasks - clearLoadBookTaskState");
+        }
+
+        try {
+            AppViewModelStoreOwner.clear();
+        } catch (Exception e) {
+            myLogEE(e, "cancelAllOngoingTasks - clear AppViewModelStoreOwner");
+        }
+
 
 
     }
@@ -123,6 +150,6 @@ public class WorkFlow {
     private static void myLogD(String str) { KanLogger.myLogD(TAG, str); }
     private static void myLogI(String str) { KanLogger.myLogI(TAG, str); }
     private static void myLogE(String str) { KanLogger.myLogE(TAG, str); }
-    private void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, TAG, str); }
-    private void myToastEE(Throwable t, String str) { KanLogger.myToastEE(t, TAG, str); }
+    private static void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, TAG, str); }
+    private static void myToastEE(Throwable t, String str) { KanLogger.myToastEE(t, TAG, str); }
 }

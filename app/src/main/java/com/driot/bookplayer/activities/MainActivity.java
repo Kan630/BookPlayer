@@ -7,7 +7,7 @@ package com.driot.bookplayer.activities;
 
 import static com.driot.bookplayer.global.Pref.shouldCheckApiForAutoDownload;
 import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_SINCE_DEBUG;
-import static com.driot.bookplayer.utils.WorkFlow.maybeResumeWorkFlow;
+import static com.driot.bookplayer.objects.WorkFlow.maybeResumeWorkFlow;
 
 import android.Manifest;
 import android.annotation.SuppressLint;

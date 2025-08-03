@@ -15,7 +15,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.objects.AppViewModelStoreOwner;
 import com.driot.bookplayer.services.DownloadForegroundService;
-import com.driot.bookplayer.utils.WorkFlow;
+import com.driot.bookplayer.objects.WorkFlow;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
 

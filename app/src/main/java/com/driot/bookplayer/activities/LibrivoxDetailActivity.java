@@ -25,7 +25,7 @@ import com.driot.bookplayer.objects.LibrivoxApi;
 import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.services.BookLoadingWorkLauncher;
-import com.driot.bookplayer.utils.WorkFlow;
+import com.driot.bookplayer.objects.WorkFlow;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import java.io.File;

@@ -1,8 +1,11 @@
 package com.driot.bookplayer.objects;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Parcel;
 import android.os.Parcelable;
+
+import com.driot.bookplayer.helpers.ImageHelper;
 
 // Add this inner class or top-level class in your codebase
 public class MyAudioMetadata implements Parcelable {
@@ -54,4 +57,11 @@ public class MyAudioMetadata implements Parcelable {
                 ", cover=" + cover +
                 '}';
     }
+
+    public void saveCover(Context context) {
+        if (cover != null) {
+            ImageHelper.saveTempBitmap(context, cover);
+        }
+    }
+
 }
