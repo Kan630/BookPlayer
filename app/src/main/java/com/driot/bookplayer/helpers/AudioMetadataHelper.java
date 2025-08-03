@@ -8,8 +8,6 @@ import android.media.MediaMetadataRetriever;
 import com.coremedia.iso.IsoFile;
 import com.coremedia.iso.boxes.Box;
 import com.coremedia.iso.boxes.Container;
-import com.coremedia.iso.boxes.MetaBox;
-import com.coremedia.iso.boxes.UserDataBox;
 import com.driot.bookplayer.objects.MyAudioMetadata;
 import com.driot.bookplayer.utils.KanLogger;
 import com.googlecode.mp4parser.FileDataSourceImpl;
@@ -17,6 +15,7 @@ import com.googlecode.mp4parser.FileDataSourceImpl;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.nio.channels.Channels;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -36,8 +35,9 @@ public class AudioMetadataHelper {
 
     private static MyAudioMetadata extractFromMp3(File file) {
         MyAudioMetadata metadata = new MyAudioMetadata();
-        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+        MediaMetadataRetriever retriever = null;
         try {
+            retriever = new MediaMetadataRetriever();
             retriever.setDataSource(file.getAbsolutePath());
 
             metadata.title = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
@@ -49,12 +49,12 @@ public class AudioMetadataHelper {
                 metadata.cover = BitmapFactory.decodeByteArray(art, 0, art.length);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            myLogEE(e, "extractFromMp3");
         } finally {
             try {
                 retriever.release();
             } catch (IOException e) {
-                myLogEE(e, "extractFromMp3");
+                myLogEE(e, "extractFromMp3 finally");
             }
         }
         return metadata;
@@ -69,7 +69,6 @@ public class AudioMetadataHelper {
 
             for (Box box : allBoxes) {
                 String type = box.getType();
-
                 if ("©nam".equals(type)) {
                     metadata.title = extractRawStringFromBox(box);
                 } else if ("©ART".equals(type)) {
@@ -85,6 +84,7 @@ public class AudioMetadataHelper {
         }
 
         if (metadata.title == null && metadata.album == null && metadata.artist == null) {
+            myLog("second try");
             try {
                 MediaMetadataRetriever retriever = new MediaMetadataRetriever();
                 retriever.setDataSource(file.getAbsolutePath());
@@ -115,60 +115,87 @@ public class AudioMetadataHelper {
             // skip first 16 bytes (standard MP4 data header offset)
             return new String(bytes, 16, bytes.length - 16, StandardCharsets.UTF_8).trim();
         } catch (Exception e) {
-            e.printStackTrace();
+            myLogEE(e, "extractRawStringFromBox - covr");
             return null;
         }
     }
 
-
     private static List<Box> getAllBoxesRecursively(Container container) {
+        return getAllBoxesRecursively(container, 0);
+    }
+
+    private static List<Box> getAllBoxesRecursively(Container container, int level) {
         List<Box> result = new ArrayList<>();
+        String indent = "  ".repeat(level);
         for (Box box : container.getBoxes()) {
+            myLog(indent + "Level " + level + " -> Box: " + box.getType() + ", size=" + box.getSize() + " / " + box.toString());
             result.add(box);
             if (box instanceof Container) {
-                result.addAll(getAllBoxesRecursively((Container) box));
+                result.addAll(getAllBoxesRecursively((Container) box, level + 1));
             }
         }
         return result;
     }
 
-    private static String extractTextFromDataBox(Box box) {
-        if (!(box instanceof Container)) return null;
-
-        for (Box child : ((Container) box).getBoxes()) {
-            if ("data".equals(child.getType())) {
-                try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-                    child.getBox(Channels.newChannel(baos));
-                    byte[] fullBox = baos.toByteArray();
-
-                    // Skip first 16 bytes (size + type + header = 4 + 4 + 8)
-                    return new String(fullBox, 16, fullBox.length - 16, StandardCharsets.UTF_8).trim();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        return null;
-    }
 
     private static Bitmap extractImageFromDataBox(Box box) {
-        if (!(box instanceof Container)) return null;
+        myLog("Extracting image...");
+        if (!"covr".equals(box.getType())) return null;
 
-        for (Box child : ((Container) box).getBoxes()) {
-            if ("data".equals(child.getType())) {
-                try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-                    child.getBox(Channels.newChannel(baos));
-                    byte[] fullBox = baos.toByteArray();
+        // 1. Try reflection first
+        try {
+            Method getDataMethod = box.getClass().getMethod("getData");
+            getDataMethod.setAccessible(true);
+            Object result = getDataMethod.invoke(box);
+            if (result instanceof byte[]) {
+                byte[] bytes = (byte[]) result;
+                return BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+            }
+            myLog("getData() returned non-byte[]");
+        } catch (NoSuchMethodException e) {
+            myLog("getData() not found, trying direct raw byte read...");
+        } catch (Exception e) {
+            myLogEE(e, "extractImageFromDataBox - getData reflection");
+        }
 
-                    // Skip first 16 bytes
-                    return BitmapFactory.decodeByteArray(fullBox, 16, fullBox.length - 16);
-                } catch (Exception e) {
-                    e.printStackTrace();
+        // 2. Try reading raw bytes directly from the box (no child `data` box)
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            box.getBox(Channels.newChannel(baos));
+            byte[] bytes = baos.toByteArray();
+            myLog("raw bitmap container length : " + bytes.length);
+
+            // Dump the first 32 bytes as hex
+            StringBuilder hexPreview = new StringBuilder();
+            for (int i = 0; i < Math.min(32, bytes.length); i++) {
+                hexPreview.append(String.format("%02X ", bytes[i]));
+            }
+            myLog("First 32 bytes: " + hexPreview);
+
+            // Try decoding with different offsets
+            int[] offsets = {0, 8, 16, 24};
+            for (int offset : offsets) {
+                if (bytes.length > offset) {
+                    Bitmap bmp = BitmapFactory.decodeByteArray(bytes, offset, bytes.length - offset);
+                    if (bmp != null) {
+                        myLog("bitmap success at offset " + offset + " : " + bmp.getWidth() + "x" + bmp.getHeight());
+                        return bmp;
+                    } else {
+                        myLog("bitmap == null at offset " + offset);
+                    }
                 }
             }
+
+        } catch (Exception e) {
+            myLogEE(e, "extractImageFromDataBox - direct fallback");
         }
+
+
+        myLog("No cover art found in covr box");
         return null;
     }
+
+
+
 
 
     ////////////////////////////////////////////////////////
