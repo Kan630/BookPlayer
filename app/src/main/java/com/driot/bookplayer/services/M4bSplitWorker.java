@@ -71,6 +71,7 @@ public class M4bSplitWorker extends LoggingWorker {
         File outputFolder = new File(destinationFolderPath);
         outputFolder.mkdirs();
 
+        TaskStateManager.tellProgressText("Scanning Metadata");
         try {
             Movie movie = MovieCreator.build(m4bFilePath);
             MyAudioMetadata metadata = AudioMetadataHelper.extractMetadata(context, new File(m4bFilePath));
