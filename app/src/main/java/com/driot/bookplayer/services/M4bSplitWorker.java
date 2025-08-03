@@ -1,29 +1,23 @@
 package com.driot.bookplayer.services;
 
 import android.content.Context;
-import android.graphics.BitmapFactory;
 
 import androidx.annotation.NonNull;
 import androidx.work.WorkerParameters;
 
-import com.coremedia.iso.IsoFile;
-import com.coremedia.iso.boxes.MetaBox;
-import com.coremedia.iso.boxes.UserDataBox;
-import com.coremedia.iso.boxes.apple.AppleItemListBox;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
-import com.driot.bookplayer.objects.AudioMetadata;
+import com.driot.bookplayer.helpers.AudioMetadataHelper;
+import com.driot.bookplayer.objects.MyAudioMetadata;
 import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.objects.TaskStateManager;
 import com.driot.bookplayer.utils.log.LoggingWorker;
-import com.googlecode.mp4parser.FileDataSourceImpl;
 import com.googlecode.mp4parser.authoring.Movie;
 import com.googlecode.mp4parser.authoring.Sample;
 import com.googlecode.mp4parser.authoring.Track;
 import com.googlecode.mp4parser.authoring.container.mp4.MovieCreator;
 import com.coremedia.iso.boxes.sampleentry.AudioSampleEntry;
-import com.googlecode.mp4parser.boxes.apple.AppleCoverBox;
 import com.googlecode.mp4parser.boxes.mp4.ESDescriptorBox;
 import com.googlecode.mp4parser.boxes.mp4.objectdescriptors.AudioSpecificConfig;
 
@@ -79,54 +73,9 @@ public class M4bSplitWorker extends LoggingWorker {
 
         try {
             Movie movie = MovieCreator.build(m4bFilePath);
-// METADATA
-            AudioMetadata metadata = new AudioMetadata();
-            try (FileDataSourceImpl dataSource = new FileDataSourceImpl(m4bFilePath)) {
-                IsoFile isoFile = new IsoFile(dataSource);
-
-                UserDataBox udta = isoFile.getBoxes(UserDataBox.class).stream().findFirst().orElse(null);
-                if (udta != null) {
-                    MetaBox meta = udta.getBoxes(MetaBox.class).stream().findFirst().orElse(null);
-                    if (meta != null) {
-                        AppleItemListBox ilst = meta.getBoxes(AppleItemListBox.class).stream().findFirst().orElse(null);
-                        if (ilst != null) {
-                            // Title
-                            ilst.getBoxes().stream()
-                                    .filter(b -> "©nam".equals(b.getType()))
-                                    .findFirst()
-                                    .ifPresent(box -> metadata.title = extractStringFromBox(box));
-
-                            // Artist
-                            ilst.getBoxes().stream()
-                                    .filter(b -> "©ART".equals(b.getType()))
-                                    .findFirst()
-                                    .ifPresent(box -> metadata.artist = extractStringFromBox(box));
-
-                            // Album
-                            ilst.getBoxes().stream()
-                                    .filter(b -> "©alb".equals(b.getType()))
-                                    .findFirst()
-                                    .ifPresent(box -> metadata.album = extractStringFromBox(box));
-
-                            // Cover image (covr box)
-                            ilst.getBoxes().stream()
-                                    .filter(b -> "covr".equals(b.getType()))
-                                    .findFirst()
-                                    .ifPresent(box -> {
-                                        try {
-                                            byte[] coverBytes = (byte[]) box.getClass().getMethod("getData").invoke(box);
-                                            if (coverBytes != null) {
-                                                metadata.coverBitmap = BitmapFactory.decodeByteArray(coverBytes, 0, coverBytes.length);
-                                            }
-                                        } catch (Exception e) {
-                                            e.printStackTrace();
-                                        }
-                                    });
-                        }
-                    }
-                }
-            } catch (Exception e) {
-                myLogE("Metadata extraction failed: " + e.getMessage());
+            MyAudioMetadata metadata = AudioMetadataHelper.extractMetadata(context, new File(m4bFilePath));
+            if (metadata == null) {
+                metadata = new MyAudioMetadata(); // fallback so it's never null
             }
 
 // REST
@@ -195,6 +144,7 @@ public class M4bSplitWorker extends LoggingWorker {
                 String text = context.getString(R.string.Import_Progress_splitting_m4b_file)
                         + (c + 1) + "/" + chapterSamples.size() + "\n\n" + title;
                 TaskStateManager.tellProgress(TASK_NAME, (int) progress, text);
+                myLogD((int) progress + "% - " + text.replace("\n"," - "));
 
                 FileOutputStream fos = new FileOutputStream(new File(outputFolder, filename));
                 for (int i = startSample; i < endSample && i < audioSamples.size(); i++) {
