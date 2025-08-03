@@ -13,12 +13,6 @@
     <color name="orange">#FFff8800</color>
     <color name="yellow">#FF999900</color>
 
-    <color name="purple_200">#FFBB86FC</color>
-    <color name="purple_500">#FF6200EE</color>
-
-    <color name="teal_200">#FF03DAC5</color>
-    <color name="teal_700">#FF018786</color>
-
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="lightgray">#FFAAAAAA</color>
@@ -28,12 +22,17 @@
 
 
 
+    <!-- Purple Theme Colors - Original -->
+    <color name="purple_200">#FFBB86FC</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
 
     <!-- Gray Theme Colors -->
-    <color name="gray_300">#E0E0E0</color> <!-- light gray, matches pink_300 -->
-    <color name="gray_500">#9E9E9E</color> <!-- medium gray, matches pink_500 -->
-    <color name="gray_700">#616161</color> <!-- dark gray, matches pink_700 -->
-    <color name="gray_900">#212121</color> <!-- very dark gray, matches pink_900 -->
+    <color name="gray_300">#E0E0E0</color>
+    <color name="gray_500">#9E9E9E</color>
+    <color name="gray_700">#616161</color>
+    <color name="gray_900">#212121</color>
 
     <!-- Brown Theme Colors -->
     <color name="brown_500">#795548</color>
