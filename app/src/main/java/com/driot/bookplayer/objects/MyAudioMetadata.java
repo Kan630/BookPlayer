@@ -6,6 +6,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.driot.bookplayer.helpers.ImageHelper;
+import com.driot.bookplayer.utils.KanLogger;
 
 // Add this inner class or top-level class in your codebase
 public class MyAudioMetadata implements Parcelable {
@@ -61,7 +62,21 @@ public class MyAudioMetadata implements Parcelable {
     public void saveCover(Context context) {
         if (cover != null) {
             ImageHelper.saveTempBitmap(context, cover);
+        } else {
+            myLogD("no cover");
         }
     }
+
+
+
+    ////////////////////////////////////////////////////////
+    private static final String TAG = "MyAudioMetadata";
+    private static void myLog(String str) { KanLogger.myLog(TAG, str); }
+    private static void myLogD(String str) { KanLogger.myLogD(TAG, str); }
+    private static void myLogI(String str) { KanLogger.myLogI(TAG, str); }
+    private static void myLogW(String str) { KanLogger.myLogW(TAG, str); }
+    private static void myLogE(String str) { KanLogger.myLogE(TAG, str); }
+    private static void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, TAG, str); }
+    private static void myToastEE(Throwable t, String str) { KanLogger.myToastEE(t, TAG, str); }
 
 }

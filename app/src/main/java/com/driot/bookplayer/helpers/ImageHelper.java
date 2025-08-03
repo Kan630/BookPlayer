@@ -204,7 +204,7 @@ public class ImageHelper {
         File newFile = new File(imageDir, FOLDER_IMAGE_PREFIX + folderId + ".jpg");
 
         if (!tmpFile.exists()) {
-            myLogE("Temp image not found: " + tmpFile.getAbsolutePath());
+            myLogD("Temp image not found: " + tmpFile.getAbsolutePath());
             return;
         }
 
@@ -214,7 +214,7 @@ public class ImageHelper {
             return;
         }
 
-        myLog("Image renamed to: " + newFile.getAbsolutePath());
+        myLog("Temp image renamed to: " + newFile.getAbsolutePath());
 
         // Update folder in DB
         AppDatabase.databaseWriteExecutor.execute(() -> {

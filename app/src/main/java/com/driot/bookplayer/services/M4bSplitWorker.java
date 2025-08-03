@@ -71,15 +71,17 @@ public class M4bSplitWorker extends LoggingWorker {
         File outputFolder = new File(destinationFolderPath);
         outputFolder.mkdirs();
 
+// METADATA
         TaskStateManager.tellProgressText("Parsing Metadata");
         try {
             Movie movie = MovieCreator.build(m4bFilePath);
             MyAudioMetadata metadata = AudioMetadataHelper.extractMetadata(context, new File(m4bFilePath));
+
             if (metadata == null) {
                 metadata = new MyAudioMetadata(); // fallback so it's never null
             }
 
-// REST
+// CHAPTERS
             Track aacTrack = null;
             Track chapterTrack = null;
 

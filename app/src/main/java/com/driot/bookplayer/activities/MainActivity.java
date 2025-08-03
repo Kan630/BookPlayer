@@ -61,6 +61,7 @@ public class MainActivity extends LoggingActivity {
     private static final int REQUEST_CODE_OPTION = 34343;
 
     private boolean HasBeenProposedToOpenFile;
+    private static boolean infoAlreadyShown = false;
 
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
@@ -108,8 +109,9 @@ public class MainActivity extends LoggingActivity {
 
         super.onCreate(savedInstanceState);
 
-        if (savedInstanceState == null) {
+        if (savedInstanceState == null && !infoAlreadyShown) {
             InfoHelper.printSomeStuffAboutDevice(this);
+            infoAlreadyShown = true;
         }
 
         //WorkManager.getInstance(this).cancelAllWork();

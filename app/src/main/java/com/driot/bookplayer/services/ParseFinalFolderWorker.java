@@ -22,14 +22,19 @@ import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.helpers.AudioMetadataHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.UriHelper;
 import com.driot.bookplayer.objects.AudioFileInfo;
+import com.driot.bookplayer.objects.MyAudioMetadata;
 import com.driot.bookplayer.objects.TaskStateManager;
 import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingWorker;
+import com.googlecode.mp4parser.authoring.Movie;
+import com.googlecode.mp4parser.authoring.container.mp4.MovieCreator;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Objects;
 
@@ -97,6 +102,9 @@ public class ParseFinalFolderWorker extends LoggingWorker {
                 TaskStateManager.markTaskFailed(TASK_NAME, context.getString(R.string.Error_Import_CannotReadFile));
                 return Result.failure();
             }
+// METADATA
+            MyAudioMetadata metadata = AudioMetadataHelper.extractMetadata(context, bookState.dynamicUri);
+// THE REST
             populateArrayListOfTracksFromFile(df);
         }
         return Result.success();

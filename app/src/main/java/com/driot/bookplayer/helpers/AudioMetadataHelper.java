@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaMetadataRetriever;
+import android.net.Uri;
 
 import com.coremedia.iso.IsoFile;
 import com.coremedia.iso.boxes.Box;
@@ -14,8 +15,6 @@ import com.googlecode.mp4parser.FileDataSourceImpl;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.Method;
 import java.nio.channels.Channels;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -23,28 +22,13 @@ import java.util.List;
 
 public class AudioMetadataHelper {
 
-    public static MyAudioMetadata extractMetadata(Context context, File file) {
-        MyAudioMetadata audioMetadata = null;
-        String path = file.getAbsolutePath().toLowerCase();
-        if (path.endsWith(".mp3")) {
-            audioMetadata = extractFromMp3(file);
-        } else if (path.endsWith(".m4b") || path.endsWith(".mp4") || path.endsWith(".m4a")) {
-            audioMetadata = extractFromM4b(file);
-        }
-        if (audioMetadata == null) {
-            myLogD("No metadata found for file " + file.getAbsolutePath());
-        } else {
-            audioMetadata.saveCover(context);
-        }
-        return audioMetadata;
-    }
+    public static MyAudioMetadata extractMetadata(Context context, Uri uri) {
+        myLogD("extractMetadata - uri = " + uri);
 
-    private static MyAudioMetadata extractFromMp3(File file) {
         MyAudioMetadata metadata = new MyAudioMetadata();
-        MediaMetadataRetriever retriever = null;
-        try {
-            retriever = new MediaMetadataRetriever();
-            retriever.setDataSource(file.getAbsolutePath());
+
+        try (MediaMetadataRetriever retriever = new MediaMetadataRetriever()) {
+            retriever.setDataSource(context, uri);
 
             metadata.title = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
             metadata.artist = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
@@ -54,19 +38,70 @@ public class AudioMetadataHelper {
             if (art != null) {
                 metadata.cover = BitmapFactory.decodeByteArray(art, 0, art.length);
             }
-        } catch (Exception e) {
-            myLogEE(e, "extractFromMp3");
-        } finally {
-            try {
-                retriever.release();
-            } catch (IOException e) {
-                myLogEE(e, "extractFromMp3 finally");
+
+            if (metadata.title == null && metadata.artist == null && metadata.album == null && metadata.cover == null) {
+                myLogW("No metadata found in file: " + uri);
+                return null;
             }
+
+            metadata.saveCover(context);
+            return metadata;
+
+        } catch (Exception e) {
+            myLogEE(e, "extractMetadata failed for uri: " + uri);
+            return null;
         }
-        return metadata;
     }
 
+
+
+    public static MyAudioMetadata extractMetadata(Context context, File file) {
+        myLogD("extractMetadata - file");
+        MyAudioMetadata audioMetadata = null;
+        try {
+            Uri uri = null;
+            try {
+                uri = Uri.fromFile(file);
+            } catch (Exception e) {
+                myLogEE(e, "could not get uri from file " + file);
+            }
+            if (uri!=null) {
+                audioMetadata = extractMetadata(context, uri);
+            }
+            if (audioMetadata != null) {
+                audioMetadata.saveCover(context);
+                return audioMetadata;
+            } else {
+                myLogD("No metadata found for file " + file.getAbsolutePath());
+                String path = file.getAbsolutePath().toLowerCase();
+                if (path.endsWith(".mp3")) {
+                    return null;
+                } else if (path.endsWith(".m4b") || path.endsWith(".mp4") || path.endsWith(".m4a")) {
+                    myLogD("Trying unboxing of headers " + file.getAbsolutePath());
+                    audioMetadata = extractFromM4b(file);
+                }
+            }
+            if (audioMetadata == null) {
+                myLogD("No metadata found for file " + file.getAbsolutePath());
+                return null;
+            } else {
+                audioMetadata.saveCover(context);
+                return audioMetadata;
+            }
+        } catch (Exception e) {
+            myLogEE(e, "extractMetadata - failed");
+            return null;
+        }
+    }
+
+
+    // --------------------------------------------------------------------------------
+    // SPECIAL HARDCORE HEADER UNBOXING FOR M4B ------------------------
+    // .... uncomment myLog in getAllBoxesRecursively to see content
+    // --------------------------------------------------------------------------------
+
     private static MyAudioMetadata extractFromM4b(File file) {
+        myLogD("SPECIAL HARDCORE HEADER UNBOXING FOR M4B");
         MyAudioMetadata metadata = new MyAudioMetadata();
 
         try (FileDataSourceImpl dataSource = new FileDataSourceImpl(file)) {
@@ -90,7 +125,7 @@ public class AudioMetadataHelper {
         }
 
         if (metadata.title == null && metadata.album == null && metadata.artist == null) {
-            myLog("second try");
+            myLogD("second try");
             try {
                 MediaMetadataRetriever retriever = new MediaMetadataRetriever();
                 retriever.setDataSource(file.getAbsolutePath());
@@ -110,7 +145,7 @@ public class AudioMetadataHelper {
             }
         }
 
-        myLog("metadata = " + metadata.toString().replace(",", "\n"));
+        myLogD("metadata = " + metadata.toString().replace(",", "\n"));
         return metadata;
     }
 
@@ -134,7 +169,7 @@ public class AudioMetadataHelper {
         List<Box> result = new ArrayList<>();
         String indent = "  ".repeat(level);
         for (Box box : container.getBoxes()) {
-            myLog(indent + "Level " + level + " -> Box: " + box.getType() + ", size=" + box.getSize() + " / " + box.toString());
+            //myLog(indent + "Level " + level + " -> Box: " + box.getType() + ", size=" + box.getSize() + " / " + box.toString());
             result.add(box);
             if (box instanceof Container) {
                 result.addAll(getAllBoxesRecursively((Container) box, level + 1));
@@ -145,7 +180,7 @@ public class AudioMetadataHelper {
 
 
     private static Bitmap extractImageFromDataBox(Box box) {
-        myLog("Extracting image...");
+        myLogD("Extracting image...");
 
         final int[] OFFSETS = {24, 0, 8, 16}; // try the most probable first
         final int MIN_WIDTH = 100;
@@ -158,20 +193,20 @@ public class AudioMetadataHelper {
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             box.getBox(Channels.newChannel(baos));
             byte[] bytes = baos.toByteArray();
-            myLog("raw bitmap container length : " + bytes.length);
+            myLogD("raw bitmap container length : " + bytes.length);
 
             // Dump the first 32 bytes as hex
             StringBuilder hexPreview = new StringBuilder();
             for (int i = 0; i < Math.min(32, bytes.length); i++) {
                 hexPreview.append(String.format("%02X ", bytes[i]));
             }
-            myLog("First 32 bytes: " + hexPreview);
+            myLogD("First 32 bytes: " + hexPreview);
 
             for (int offset : OFFSETS) {
                 if (bytes.length > offset) {
                     Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, offset, bytes.length - offset);
                     if (bitmap == null) {
-                        myLog("bitmap == null at offset " + offset);
+                        myLogD("bitmap == null at offset " + offset);
                         continue;
                     }
 
@@ -189,7 +224,7 @@ public class AudioMetadataHelper {
                         continue;
                     }
 
-                    myLog("bitmap success at offset " + offset + " : " + w + "x" + h);
+                    myLogD("bitmap success at offset " + offset + " : " + w + "x" + h);
                     return bitmap;
                 }
             }
@@ -199,7 +234,7 @@ public class AudioMetadataHelper {
         }
 
 
-        myLog("No cover art found in covr box");
+        myLogD("No cover art found in covr box");
         return null;
     }
 

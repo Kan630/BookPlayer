@@ -15,6 +15,9 @@ import androidx.documentfile.provider.DocumentFile;
 import com.driot.bookplayer.utils.KanLogger;
 
 import java.io.File;
+import java.io.FileDescriptor;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 
 public class UriHelper {
 
@@ -58,22 +61,6 @@ public class UriHelper {
             }
         }
 
-        return null;
-    }
-
-
-
-
-    @Nullable
-    public static String getRealPathFromContentUri(Context context, Uri uri) {
-        try (Cursor cursor = context.getContentResolver().query(uri,
-                new String[]{MediaStore.MediaColumns.DATA}, null, null, null)) {
-            if (cursor != null && cursor.moveToFirst()) {
-                return cursor.getString(0);
-            }
-        } catch (Exception e) {
-            myLogEE(e, "getRealPathFromContentUri failed");
-        }
         return null;
     }
 
@@ -244,6 +231,132 @@ public class UriHelper {
         myLogEE(null,"Unable to build URI for: " + folderPathOrUri + "/" + fileName);
         return null;
     }
+
+
+
+    @Nullable
+    public static String getPathFromUri(Context context, Uri uri) {
+        if (uri == null) return null;
+        String scheme = uri.getScheme();
+        try {
+            if ("file".equalsIgnoreCase(scheme)) {
+                return uri.getPath();
+            } else if ("content".equalsIgnoreCase(scheme)) {
+                // Handle MediaStore (images, audio, etc.)
+                String[] projection = { MediaStore.MediaColumns.DATA };
+                try (Cursor cursor = context.getContentResolver().query(uri, projection, null, null, null)) {
+                    if (cursor != null && cursor.moveToFirst()) {
+                        int columnIndex = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA);
+                        return cursor.getString(columnIndex);
+                    }
+                } catch (Exception e) {
+                    myLogW("getPathFromUri: fallback to fileDescriptor due to exception: " + e.getMessage());
+                }
+
+                // Fallback: Try using FileDescriptor to infer a path
+                try (ParcelFileDescriptor pfd = context.getContentResolver().openFileDescriptor(uri, "r")) {
+                    if (pfd != null) {
+                        FileDescriptor fd = pfd.getFileDescriptor();
+                        FileInputStream fis = new FileInputStream(fd);
+                        File tempFile = File.createTempFile("uri_temp_", null, context.getCacheDir());
+                        FileOutputStream fos = new FileOutputStream(tempFile);
+                        byte[] buffer = new byte[8192];
+                        int len;
+                        while ((len = fis.read(buffer)) > 0) {
+                            fos.write(buffer, 0, len);
+                        }
+                        fos.close();
+                        fis.close();
+                        return tempFile.getAbsolutePath();
+                    }
+                } catch (Exception e) {
+                    myLogEE(e, "getPathFromUri: FileDescriptor fallback failed");
+                }
+
+            } else if (DocumentsContract.isDocumentUri(context, uri)) {
+                String docId = DocumentsContract.getDocumentId(uri);
+                String[] split = docId.split(":");
+                if (split.length == 2) {
+                    String type = split[0];
+                    String realPath = split[1];
+
+                    if ("primary".equalsIgnoreCase(type)) {
+                        return "/storage/emulated/0/" + realPath;
+                    } else {
+                        // Handle SD card
+                        return "/storage/" + type + "/" + realPath;
+                    }
+                }
+            }
+
+        } catch (Exception e) {
+            myLogEE(e, "getPathFromUri failed for: " + uri.toString());
+        }
+
+        myLogW("getPathFromUri: Fallback to null for uri: " + uri.toString());
+        return null;
+    }
+
+
+    @Nullable
+    public static File getFileFromUri(Context context, Uri uri) {
+        if (uri == null) return null;
+
+        String scheme = uri.getScheme();
+
+        try {
+            // CASE 1: file:// scheme
+            if ("file".equalsIgnoreCase(scheme)) {
+                return new File(uri.getPath());
+            }
+
+            // CASE 2: content:// scheme, try resolving via MediaStore path
+            if ("content".equalsIgnoreCase(scheme)) {
+                String path = getPathFromUri(context, uri);
+                if (path != null) {
+                    File file = new File(path);
+                    if (file.exists()) return file;
+                }
+
+                // Fallback: try copying to temp file
+                ParcelFileDescriptor pfd = context.getContentResolver().openFileDescriptor(uri, "r");
+                if (pfd != null) {
+                    FileInputStream inputStream = new FileInputStream(pfd.getFileDescriptor());
+                    File tempFile = File.createTempFile("uri_tmp_", null, context.getCacheDir());
+                    FileOutputStream outputStream = new FileOutputStream(tempFile);
+
+                    byte[] buffer = new byte[8192];
+                    int len;
+                    while ((len = inputStream.read(buffer)) > 0) {
+                        outputStream.write(buffer, 0, len);
+                    }
+
+                    inputStream.close();
+                    outputStream.close();
+                    pfd.close();
+
+                    myLogD("getFileFromUri: fallback copy success: " + tempFile.getAbsolutePath());
+                    return tempFile;
+                }
+            }
+
+            // CASE 3: SAF Document URI
+            if (DocumentsContract.isDocumentUri(context, uri)) {
+                String path = getPathFromUri(context, uri);
+                if (path != null) {
+                    File file = new File(path);
+                    if (file.exists()) return file;
+                }
+            }
+        } catch (Exception e) {
+            myLogEE(e, "getFileFromUri failed for: " + uri);
+        }
+
+        myLogW("getFileFromUri: Fallback to null for uri: " + uri);
+        return null;
+    }
+
+
 
 
     // ----------------------- LOG -----------------------
