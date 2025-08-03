@@ -42,6 +42,8 @@ import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.FolderDao;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.helpers.FileHelper;
+import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.objects.PlayList;
 import com.driot.bookplayer.services.AudioService;
 import com.driot.bookplayer.helpers.ImageHelper;
@@ -103,13 +105,12 @@ public class MainActivity extends LoggingActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        KanLogger.myLog("------------------------------------------------------------------");
-        KanLogger.myLog("----------------     Main Activity onCreate()     ----------------");
-        KanLogger.myLog("------------------------------------------------------------------");
-
         super.onCreate(savedInstanceState);
 
         if (savedInstanceState == null && !infoAlreadyShown) {
+            KanLogger.myLog("------------------------------------------------------------------");
+            KanLogger.myLog("----------------     Main Activity onCreate()     ----------------");
+            KanLogger.myLog("------------------------------------------------------------------");
             InfoHelper.printSomeStuffAboutDevice(this);
             infoAlreadyShown = true;
         }
@@ -122,14 +123,14 @@ public class MainActivity extends LoggingActivity {
             myLog("AudioService.isRunning");
             bindService(new Intent(this, AudioService.class), audioServiceConnection, 0);
         }
-/*
+        /*
         myLogD("-----------------");
         FileHelper.listAllFiles(StorageHelper.getUnzipFolder(this, true));
         myLogD("-----------------");
         FileHelper.listAllFiles(StorageHelper.getUnzipFolder(this, false));
         myLogD("-----------------");
+         */
 
- */
 
         //Sql.log_all_Folders(this);
 /*

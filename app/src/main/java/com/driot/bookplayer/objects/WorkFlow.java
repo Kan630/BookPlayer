@@ -98,20 +98,26 @@ public class WorkFlow {
             if (state != null) {
                 String folderToDeletePath = state.futureFolderPath;
                 if (folderToDeletePath.length()>5) {
-                    if (!folderToDeletePath.contains(Var.PATH_CHECK_AUDIO_FILE_INTERNAL)) {
-                        if (state.onGoingLoading) { //means stuck in error
-                            AppDatabase.databaseReadExecutor.execute(() -> { //make sure not in DB
-                                if (AppDatabase.getDatabase(context).FolderDao().folderAlreadyExist_checkFolderPath(folderToDeletePath) == 0) {
-                                    myLogI("deleting internal audio folder [" + folderToDeletePath + "]");
-                                    deleteFolderRecursive(folderToDeletePath);
-                                }
-                            });
-                        }
+                    if (folderToDeletePath.contains(Var.PATH_CHECK_AUDIO_FILE_INTERNAL)) { //only internal files
+                        AppDatabase.databaseReadExecutor.execute(() -> { //make sure not in DB
+                            if (AppDatabase.getDatabase(context).FolderDao().folderAlreadyExist_checkFolderPath(folderToDeletePath) == 0) {
+                                myLogI("deleting internal audio folder [" + folderToDeletePath + "]");
+                                deleteFolderRecursive(folderToDeletePath);
+                        } else {
+                                myLogW("tried to delete a folder still in DB : [" + folderToDeletePath + "]");
+                            }
+                        });
+                    } else {
+                        myLogD("no delete for non internal folder : [" + folderToDeletePath + "]");
                     }
+                } else {
+                    myLogW("tried to delete a folder with bad length : [" + folderToDeletePath + "]");
                 }
+            } else {
+                myLogW("tried to delete a folder with state=null");
             }
         } catch (Exception e) {
-            myLogEE(e, "cancelAllOngoingTasks - delete Unzip Folder");
+            myLogEE(e, "cancelAllOngoingTasks - delete Internal (unzip) Folder");
         }
 
         try {
@@ -149,6 +155,7 @@ public class WorkFlow {
     private static void myLog(String str) { KanLogger.myLog(TAG, str); }
     private static void myLogD(String str) { KanLogger.myLogD(TAG, str); }
     private static void myLogI(String str) { KanLogger.myLogI(TAG, str); }
+    private static void myLogW(String str) { KanLogger.myLogW(TAG, str); }
     private static void myLogE(String str) { KanLogger.myLogE(TAG, str); }
     private static void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, TAG, str); }
     private static void myToastEE(Throwable t, String str) { KanLogger.myToastEE(t, TAG, str); }
