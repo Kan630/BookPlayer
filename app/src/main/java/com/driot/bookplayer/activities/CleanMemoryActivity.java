@@ -59,6 +59,9 @@ public class CleanMemoryActivity extends LoggingActivity implements CleanMemoryR
             );
         });
 
+        cacheFilesViewModel.getIsLoading().observe(this, isLoading -> {
+            progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
+        });
 
         setupRadioButtons();
     }
