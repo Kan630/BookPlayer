@@ -1,26 +1,35 @@
 package com.driot.bookplayer.services;
 
 import android.content.Context;
+import android.graphics.BitmapFactory;
 
 import androidx.annotation.NonNull;
 import androidx.work.WorkerParameters;
 
+import com.coremedia.iso.IsoFile;
+import com.coremedia.iso.boxes.MetaBox;
+import com.coremedia.iso.boxes.UserDataBox;
+import com.coremedia.iso.boxes.apple.AppleItemListBox;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.objects.AudioMetadata;
 import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.objects.TaskStateManager;
 import com.driot.bookplayer.utils.log.LoggingWorker;
+import com.googlecode.mp4parser.FileDataSourceImpl;
 import com.googlecode.mp4parser.authoring.Movie;
 import com.googlecode.mp4parser.authoring.Sample;
 import com.googlecode.mp4parser.authoring.Track;
 import com.googlecode.mp4parser.authoring.container.mp4.MovieCreator;
 import com.coremedia.iso.boxes.sampleentry.AudioSampleEntry;
+import com.googlecode.mp4parser.boxes.apple.AppleCoverBox;
 import com.googlecode.mp4parser.boxes.mp4.ESDescriptorBox;
 import com.googlecode.mp4parser.boxes.mp4.objectdescriptors.AudioSpecificConfig;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
@@ -70,6 +79,57 @@ public class M4bSplitWorker extends LoggingWorker {
 
         try {
             Movie movie = MovieCreator.build(m4bFilePath);
+// METADATA
+            AudioMetadata metadata = new AudioMetadata();
+            try (FileDataSourceImpl dataSource = new FileDataSourceImpl(m4bFilePath)) {
+                IsoFile isoFile = new IsoFile(dataSource);
+
+                UserDataBox udta = isoFile.getBoxes(UserDataBox.class).stream().findFirst().orElse(null);
+                if (udta != null) {
+                    MetaBox meta = udta.getBoxes(MetaBox.class).stream().findFirst().orElse(null);
+                    if (meta != null) {
+                        AppleItemListBox ilst = meta.getBoxes(AppleItemListBox.class).stream().findFirst().orElse(null);
+                        if (ilst != null) {
+                            // Title
+                            ilst.getBoxes().stream()
+                                    .filter(b -> "©nam".equals(b.getType()))
+                                    .findFirst()
+                                    .ifPresent(box -> metadata.title = extractStringFromBox(box));
+
+                            // Artist
+                            ilst.getBoxes().stream()
+                                    .filter(b -> "©ART".equals(b.getType()))
+                                    .findFirst()
+                                    .ifPresent(box -> metadata.artist = extractStringFromBox(box));
+
+                            // Album
+                            ilst.getBoxes().stream()
+                                    .filter(b -> "©alb".equals(b.getType()))
+                                    .findFirst()
+                                    .ifPresent(box -> metadata.album = extractStringFromBox(box));
+
+                            // Cover image (covr box)
+                            ilst.getBoxes().stream()
+                                    .filter(b -> "covr".equals(b.getType()))
+                                    .findFirst()
+                                    .ifPresent(box -> {
+                                        try {
+                                            byte[] coverBytes = (byte[]) box.getClass().getMethod("getData").invoke(box);
+                                            if (coverBytes != null) {
+                                                metadata.coverBitmap = BitmapFactory.decodeByteArray(coverBytes, 0, coverBytes.length);
+                                            }
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                        }
+                                    });
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                myLogE("Metadata extraction failed: " + e.getMessage());
+            }
+
+// REST
             Track aacTrack = null;
             Track chapterTrack = null;
 
@@ -201,6 +261,16 @@ public class M4bSplitWorker extends LoggingWorker {
         String raw = new String(Arrays.copyOfRange(data, 2, data.length), StandardCharsets.UTF_8);
         raw = raw.replaceAll("encd.*$", "").replaceAll("[\\p{Cntrl}&&[^\r\n\t]]", "").replace("\uFEFF", "").trim();
         return raw.isEmpty() ? "chapter" : raw;
+    }
+
+    private static String extractStringFromBox(Object box) {
+        try {
+            Method m = box.getClass().getMethod("getValue");
+            return String.valueOf(m.invoke(box));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
 }
