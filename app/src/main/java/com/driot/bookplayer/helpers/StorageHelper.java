@@ -40,12 +40,11 @@ public class StorageHelper {
         try {
             onSDcard = isOnSdCard(context, Uri.parse(path));
         } catch (Exception e1) {
-            myLogEE(e1, "MemoryLocationType uri parse" );
+            myLogEE(e1, "MemoryLocationType Uri.parse KO" );
         }
         try {
             String pathLower = path.toLowerCase();
             String reservedInternal = context.getFilesDir().getAbsolutePath();
-            myLog(reservedInternal);
             File sdBase = getPreferredBaseDir(context, true);
             String reservedSD = sdBase != null ? sdBase.getAbsolutePath() : "";
 
@@ -212,7 +211,6 @@ public class StorageHelper {
                     // Match SD card by checking volume's UUID prefix in the uri string
                     String uuid = getVolumeUuid(volume);
                     if (uuid != null && uri.toString().contains(uuid)) {
-                        myLogD("Matched SD card volume UUID in URI: " + uuid);
                         return true;
                     }
                 }
