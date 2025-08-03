@@ -6,6 +6,7 @@ import static com.driot.bookplayer.utils.KanMail.DEFAULT_SEND_MAIL_METHOD_DEFAUL
 import android.content.Context;
 import android.util.TypedValue;
 
+import com.driot.bookplayer.R;
 import com.driot.bookplayer.utils.NetworkUtils;
 
 
@@ -24,7 +25,7 @@ public class Option {
     private static final boolean DEFAULT_DELETE_SOURCE_FILE = false;
     private static final boolean DEFAULT_VISUALIZER_ON = true;
     private static final boolean DEFAULT_REWIND_AFTER_PAUSE = true;
-    private static final int DEFAULT_CUSTOM_THEME = 0;
+    private static final String DEFAULT_THEME_KEY = "gray"; //needs a string as resource ID are not stables between releases
     private static final boolean DEFAULT_COPY_FILES = true;
     private static final boolean DEFAULT_CLICK_VISUALIZER_PLAYPAUSE = false;
     private static final boolean DEFAULT_TECH_LOG = false;
@@ -90,15 +91,33 @@ public class Option {
     public static boolean getClickVisualizerPlayPause() {return prefs.getBoolean("CLICK_VISUALIZER_PLAYPAUSE", DEFAULT_CLICK_VISUALIZER_PLAYPAUSE);}
 
     /////////////////// THEME ///////////////////
-    public static void setTheme(int i) {prefs.edit().putInt("CUSTOM_THEME",i).apply();}
+    public static void setTheme(String themeKey) {
+        prefs.edit().putString("CUSTOM_THEME_KEY", themeKey).apply();
+    }
+
     public static int getTheme() {
-        int themeId = prefs.getInt("CUSTOM_THEME", DEFAULT_CUSTOM_THEME);
-        if (themeId == 0) {
-            TypedValue typedValue = new TypedValue();
-            appContext.getTheme().resolveAttribute(android.R.attr.theme, typedValue, true);
-            return typedValue.resourceId;
-        } else {
-            return themeId;
+        String themeKey = prefs.getString("CUSTOM_THEME_KEY", DEFAULT_THEME_KEY);
+        switch (themeKey) {
+            case "purple": return R.style.Theme_BookPlayer_Purple;
+            case "brown": return R.style.Theme_BookPlayer_Brown;
+            case "blue": return R.style.Theme_BookPlayer_Blue;
+            case "cyan": return R.style.Theme_BookPlayer_Cyan;
+            case "turquoise": return R.style.Theme_BookPlayer_Turquoise;
+            case "orange": return R.style.Theme_BookPlayer_Orange;
+            case "yellow": return R.style.Theme_BookPlayer_Yellow;
+            case "yellowDark": return R.style.Theme_BookPlayer_YellowDark;
+            case "red": return R.style.Theme_BookPlayer_Red;
+            case "redDark": return R.style.Theme_BookPlayer_RedDark;
+            case "indigo": return R.style.Theme_BookPlayer_Indigo;
+            case "pinkLight": return R.style.Theme_BookPlayer_PinkLight;
+            case "pink": return R.style.Theme_BookPlayer_Pink;
+            case "pinkDark": return R.style.Theme_BookPlayer_PinkDark;
+            case "greenLight": return R.style.Theme_BookPlayer_GreenLight;
+            case "green": return R.style.Theme_BookPlayer_Green;
+            case "greenDark": return R.style.Theme_BookPlayer_GreenDark;
+            case "gray":
+            default:
+                return R.style.Theme_BookPlayer_Gray;
         }
     }
 

@@ -277,12 +277,6 @@
                     style="@style/GetResourceTextSectionTitle" />
 
                 <TextView
-                    android:text="@string/beta_test"
-                    style="@style/GetResourceTextTopOfButton"
-                    android:textColor="@color/orange_700"
-                    />
-
-                <TextView
                     android:id="@+id/txtPodcastSearch_desc"
                     android:text="@string/PodcastSearch_desc"
                     style="@style/GetResourceTextTopOfButton" />

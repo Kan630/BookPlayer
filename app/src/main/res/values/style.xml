@@ -60,7 +60,6 @@
         <item name="android:textColorHighlight">?colorOnSecondary</item>
     </style>
 
-
     <!-- ***************** PLAY ACTIVITY ***************** -->
 
     <style name="PlayActivityActionButtons">
@@ -69,7 +68,8 @@
         <item name="android:layout_height">80sp</item>
         <item name="android:textSize">32sp</item>
         <item name="android:layout_marginStart">0sp</item>
-        <item name="android:paddingVertical">0dp</item>
+        <item name="android:paddingBottom">0dp</item>
+        <item name="android:paddingTop">0dp</item>
     </style>
 
     <style name="PlayActivity_TrackName" parent="textColor">

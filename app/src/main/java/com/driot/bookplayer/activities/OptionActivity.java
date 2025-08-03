@@ -187,33 +187,36 @@ public class OptionActivity extends LoggingActivity {
         ll_visualizer_playpause.setOnClickListener(v -> chk_click_visualizer_playpause.toggle());
         chk_click_visualizer_playpause.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setClickVisualizerPlayPause(isChecked));
 
+// New structure: array of [button, theme key, theme resource ID]
         themesAndColors = new Object[][] {
-                {btn_Color_01, R.style.Theme_BookPlayer_Gray},
-                {btn_Color_02, R.style.Theme_BookPlayer_Purple},
-                {btn_Color_03, R.style.Theme_BookPlayer_Brown},
-                {btn_Color_04, R.style.Theme_BookPlayer_Blue},
-                {btn_Color_05, R.style.Theme_BookPlayer_Cyan},
-                {btn_Color_06, R.style.Theme_BookPlayer_Turquoise},
-                {btn_Color_07, R.style.Theme_BookPlayer_Orange},
-                {btn_Color_08, R.style.Theme_BookPlayer_Yellow},
-                {btn_Color_09, R.style.Theme_BookPlayer_YellowDark},
-                {btn_Color_10, R.style.Theme_BookPlayer_Red},
-                {btn_Color_11, R.style.Theme_BookPlayer_RedDark},
-                {btn_Color_12, R.style.Theme_BookPlayer_Indigo},
-                {btn_Color_13, R.style.Theme_BookPlayer_PinkLight},
-                {btn_Color_14, R.style.Theme_BookPlayer_Pink},
-                {btn_Color_15, R.style.Theme_BookPlayer_PinkDark},
-                {btn_Color_16, R.style.Theme_BookPlayer_GreenLight},
-                {btn_Color_17, R.style.Theme_BookPlayer_Green},
-                {btn_Color_18, R.style.Theme_BookPlayer_GreenDark},
+                {btn_Color_01, "gray", R.style.Theme_BookPlayer_Gray},
+                {btn_Color_02, "purple", R.style.Theme_BookPlayer_Purple},
+                {btn_Color_03, "brown", R.style.Theme_BookPlayer_Brown},
+                {btn_Color_04, "blue", R.style.Theme_BookPlayer_Blue},
+                {btn_Color_05, "cyan", R.style.Theme_BookPlayer_Cyan},
+                {btn_Color_06, "turquoise", R.style.Theme_BookPlayer_Turquoise},
+                {btn_Color_07, "orange", R.style.Theme_BookPlayer_Orange},
+                {btn_Color_08, "yellow", R.style.Theme_BookPlayer_Yellow},
+                {btn_Color_09, "yellowDark", R.style.Theme_BookPlayer_YellowDark},
+                {btn_Color_10, "red", R.style.Theme_BookPlayer_Red},
+                {btn_Color_11, "redDark", R.style.Theme_BookPlayer_RedDark},
+                {btn_Color_12, "indigo", R.style.Theme_BookPlayer_Indigo},
+                {btn_Color_13, "pinkLight", R.style.Theme_BookPlayer_PinkLight},
+                {btn_Color_14, "pink", R.style.Theme_BookPlayer_Pink},
+                {btn_Color_15, "pinkDark", R.style.Theme_BookPlayer_PinkDark},
+                {btn_Color_16, "greenLight", R.style.Theme_BookPlayer_GreenLight},
+                {btn_Color_17, "green", R.style.Theme_BookPlayer_Green},
+                {btn_Color_18, "greenDark", R.style.Theme_BookPlayer_GreenDark},
         };
 
-        for (int color_iterator = 0; color_iterator < themesAndColors.length; color_iterator++) {
-            ImageButton button = (ImageButton) themesAndColors[color_iterator][0];
-            int themeId = (int) themesAndColors[color_iterator][1];
-            int mainColor = getPrimaryColorFromTheme(this, themeId);
+        for (Object[] entry : themesAndColors) {
+            ImageButton button = (ImageButton) entry[0];
+            String themeKey = (String) entry[1];
+            int themeResId = (int) entry[2];
+
+            int mainColor = getPrimaryColorFromTheme(this, themeResId);
             button.setBackgroundColor(mainColor);
-            button.setOnClickListener(v -> changeBaseTheme(themeId));
+            button.setOnClickListener(v -> changeBaseTheme(themeKey));
         }
 
         setVisualizerPermissionText();
@@ -372,19 +375,24 @@ public class OptionActivity extends LoggingActivity {
     }
 
     private void saveEditTextValues() {
-        int value1 = clampInt(et_podcast_delay_deletion, 0, 365, Option.DEFAULT_PODCAST_DELAY_AUTO_DELETE,
-                () -> myLongToast(getString(R.string.delay_for_auto_deletion) + " " + getString(R.string.too_low)),
-                () -> myLongToast(getString(R.string.delay_for_auto_deletion) + " " + getString(R.string.too_high)));
-        Option.setPodcastAutoDeleteDelay(value1);
-        int value2 = clampInt(et_podcast_completion_percentage_deletion, 0, 100, Option.DEFAULT_PODCAST_COMPLETION_PERCENTAGE_AUTO_DELETE,
-                () -> myLongToast(getString(R.string.completion_percentage_for_auto_deletion) + " " + getString(R.string.too_low)),
-                () -> myLongToast(getString(R.string.completion_percentage_for_auto_deletion) + " " + getString(R.string.too_high)));
-        Option.setPodcastAutoDeleteCompletionPercentage(value2);
-        int value3 = clampInt(et_podcast_auto_download_last_n_episode, 1, 100, Option.DEFAULT_PODCAST_LAST_N_EPISODE_AUTO_DOWNLOAD,
-                () -> myLongToast(getString(R.string.auto_download_last_n_episode) + " " + getString(R.string.too_low)),
-                () -> myLongToast(getString(R.string.auto_download_last_n_episode) + " " + getString(R.string.too_high)));
-        Option.setPodcastAutoDownloadLastNbEpisode(value3);
-
+        if (et_podcast_delay_deletion != null ) {
+            int value1 = clampInt(et_podcast_delay_deletion, 0, 365, Option.DEFAULT_PODCAST_DELAY_AUTO_DELETE,
+                    () -> myLongToast(getString(R.string.delay_for_auto_deletion) + " " + getString(R.string.too_low)),
+                    () -> myLongToast(getString(R.string.delay_for_auto_deletion) + " " + getString(R.string.too_high)));
+            Option.setPodcastAutoDeleteDelay(value1);
+        }
+        if (et_podcast_completion_percentage_deletion != null ) {
+            int value2 = clampInt(et_podcast_completion_percentage_deletion, 0, 100, Option.DEFAULT_PODCAST_COMPLETION_PERCENTAGE_AUTO_DELETE,
+                    () -> myLongToast(getString(R.string.completion_percentage_for_auto_deletion) + " " + getString(R.string.too_low)),
+                    () -> myLongToast(getString(R.string.completion_percentage_for_auto_deletion) + " " + getString(R.string.too_high)));
+            Option.setPodcastAutoDeleteCompletionPercentage(value2);
+        }
+        if (et_podcast_auto_download_last_n_episode != null ) {
+            int value3 = clampInt(et_podcast_auto_download_last_n_episode, 1, 100, Option.DEFAULT_PODCAST_LAST_N_EPISODE_AUTO_DOWNLOAD,
+                    () -> myLongToast(getString(R.string.auto_download_last_n_episode) + " " + getString(R.string.too_low)),
+                    () -> myLongToast(getString(R.string.auto_download_last_n_episode) + " " + getString(R.string.too_high)));
+            Option.setPodcastAutoDownloadLastNbEpisode(value3);
+        }
     }
 
 
@@ -493,7 +501,7 @@ public class OptionActivity extends LoggingActivity {
 
         return primaryColor;
     }
-    private void changeBaseTheme(int new_base_theme) {
+    private void changeBaseTheme(String new_base_theme) {
         myLog("new Base theme is [" + new_base_theme + "]" );
         Option.setTheme(new_base_theme);
         this.getSharedPreferences(Option.SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE).edit().putBoolean("ACTIVITY_OPTION_HAS_RESULT", true).apply(); //trick to reload MainActivity if color change
@@ -557,6 +565,7 @@ public class OptionActivity extends LoggingActivity {
     }
 
     public static int clampInt(EditText et, int min, int max, int def, Runnable onTooLow, Runnable onTooHigh) {
+        if (et == null) return def;
         String str = et.getText().toString().trim();
         int val;
         try {
