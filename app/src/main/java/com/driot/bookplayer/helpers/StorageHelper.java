@@ -15,11 +15,13 @@ import android.provider.DocumentsContract;
 import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.global.Option;
+import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.utils.KanLogger;
 
 import java.io.File;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Locale;
 
 public class StorageHelper {
 
@@ -33,14 +35,26 @@ public class StorageHelper {
 
     //TODO should also check if the path/uri whatever is reachable and if not, another serie of 4 icons with a big red cross in front
     public static MemoryLocationType getMemoryLocationType(Context context, String path) {
+        if (path == null) return MemoryLocationType.NOT_FOUND;
+        boolean onSDcard = false;
+        try {
+            onSDcard = isOnSdCard(context, Uri.parse(path));
+        } catch (Exception e1) {
+            myLogEE(e1, "MemoryLocationType uri parse" );
+        }
         try {
             String pathLower = path.toLowerCase();
             String reservedInternal = context.getFilesDir().getAbsolutePath();
+            myLog(reservedInternal);
             File sdBase = getPreferredBaseDir(context, true);
             String reservedSD = sdBase != null ? sdBase.getAbsolutePath() : "";
 
             if (pathLower.startsWith(reservedInternal.toLowerCase())) {
                 return MemoryLocationType.INTERNAL_RESERVED;
+            } else if (onSDcard && pathLower.contains(Var.PATH_CHECK_AUDIO_FILE_INTERNAL)) {
+                return MemoryLocationType.SDCARD_RESERVED;
+            } else if (onSDcard && !pathLower.contains(Var.PATH_CHECK_AUDIO_FILE_INTERNAL)) {
+                return MemoryLocationType.SDCARD_SHARED;
             } else if (!reservedSD.isEmpty() && pathLower.startsWith(reservedSD.toLowerCase())) {
                 if (pathLower.contains("/android/data/" + context.getPackageName().toLowerCase())) {
                     return MemoryLocationType.SDCARD_RESERVED;
@@ -210,7 +224,12 @@ public class StorageHelper {
         try {
             // Method 1: Tree URI with non-primary volume (works API 21+)
             if ("com.android.externalstorage.documents".equals(uri.getAuthority())) {
-                String docId = DocumentsContract.getTreeDocumentId(uri); // e.g. "3334-3933:Audiobooks/mybook"
+                String docId;
+                if (DocumentsContract.isTreeUri(uri)) {
+                    docId = DocumentsContract.getTreeDocumentId(uri);   // e.g. "3334-3933:Audiobooks/mybook"
+                } else {
+                    docId = DocumentsContract.getDocumentId(uri);
+                }
                 if (docId != null && docId.contains(":")) {
                     String volumeName = docId.split(":")[0];
                     if (!"primary".equalsIgnoreCase(volumeName)) {
