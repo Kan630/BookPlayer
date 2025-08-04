@@ -24,10 +24,11 @@ public class AudioMetadataHelper {
 
     public static MyAudioMetadata extractMetadata(Context context, Uri uri) {
         myLogD("extractMetadata - uri = " + uri);
-
         MyAudioMetadata metadata = new MyAudioMetadata();
+        MediaMetadataRetriever retriever = null;
 
-        try (MediaMetadataRetriever retriever = new MediaMetadataRetriever()) {
+        try {
+            retriever = new MediaMetadataRetriever();
             retriever.setDataSource(context, uri);
 
             metadata.title = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
@@ -50,8 +51,18 @@ public class AudioMetadataHelper {
         } catch (Exception e) {
             myLogEE(e, "extractMetadata failed for uri: " + uri);
             return null;
+
+        } finally { //try-with resource only after android 10....
+            if (retriever != null) {
+                try {
+                    retriever.release();  // This is the correct method, compatible with all versions
+                } catch (Exception e) {
+                    myLogEE(e, "Error releasing MediaMetadataRetriever");
+                }
+            }
         }
     }
+
 
 
 

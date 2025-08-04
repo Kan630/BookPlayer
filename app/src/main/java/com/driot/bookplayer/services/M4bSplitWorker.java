@@ -68,20 +68,19 @@ public class M4bSplitWorker extends LoggingWorker {
     private boolean splitM4bLocal(String m4bFilePath, String destinationFolderPath) {
         Context context = getApplicationContext();
         File m4bFile = new File(m4bFilePath);
-        File outputFolder = new File(destinationFolderPath);
-        outputFolder.mkdirs();
-
 // METADATA
         TaskStateManager.tellProgressText("Parsing Metadata");
         try {
-            Movie movie = MovieCreator.build(m4bFilePath);
             MyAudioMetadata metadata = AudioMetadataHelper.extractMetadata(context, new File(m4bFilePath));
-
-            if (metadata == null) {
-                metadata = new MyAudioMetadata(); // fallback so it's never null
-            }
-
+        } catch (Exception e) {
+            myLogEE(e,"Error Parsing Metadata");
+        }
 // CHAPTERS
+        try {
+            File outputFolder = new File(destinationFolderPath);
+            outputFolder.mkdirs();
+            Movie movie = MovieCreator.build(m4bFilePath);
+
             Track aacTrack = null;
             Track chapterTrack = null;
 

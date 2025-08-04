@@ -53,6 +53,7 @@ public class KanLogger {
             ,"177d74d79a466e1713c2d0bac3a533cb" // samsung/gta8wifieea/gta8wifi:14/UP1A.231005.007/X200XXS3DXD5:user/release-keys
             ,"6ae8f378ae8663ef65b459119615d98e" // HONOR/LLD-L31/HWLLD-H:9/HONORLLD-L31/9.1.0.158C432:user/release-keys
             ,"075791181e0710a32a2ed10e04f32b26" // samsung/a16nseea/a16:15/AP3A.240905.015.A2/A165FXXU3BYEC:user/release-keys
+            ,"ed8acdf5617d368dce4175a6597197a2" // samsung/j5y17ltexx/j5y17lte:9/PPR1.180610.011/J530FXXS9CUE5:user/release-keys
     };
 
 

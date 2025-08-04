@@ -25,7 +25,7 @@ public class Option {
     private static final boolean DEFAULT_DELETE_SOURCE_FILE = false;
     private static final boolean DEFAULT_VISUALIZER_ON = true;
     private static final boolean DEFAULT_REWIND_AFTER_PAUSE = true;
-    private static final String DEFAULT_THEME_KEY = "gray"; //needs a string as resource ID are not stables between releases
+    private static final String DEFAULT_THEME_KEY = "purple"; //needs a string as resource ID are not stables between releases
     private static final boolean DEFAULT_COPY_FILES = true;
     private static final boolean DEFAULT_CLICK_VISUALIZER_PLAYPAUSE = false;
     private static final boolean DEFAULT_TECH_LOG = false;
