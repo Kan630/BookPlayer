@@ -17,6 +17,7 @@ import androidx.appcompat.app.AlertDialog;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
+import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FileHelper;
@@ -131,9 +132,12 @@ public class ModifyFolderActivity extends LoggingActivity {
         new Thread(() -> {
             String folderPath = AppDatabase.getDatabase(this).ZikFileDao().getFolderPath(folder.getId());
             if (!eraseFolderAndFiles(folderPath)) {
-                myLogEE(null,"Error deleting files from Disk " + folderPath);
+                myToastEE(null,"Error deleting files from Disk " + folderPath);
+                return;
             }
-            ImageHelper.deleteFolderImage(this, folder);
+
+            Podcast podcast = AppDatabase.getDatabase(this).PodcastDao().getPodcastByFolderId(folder.getId());
+            if (podcast==null) ImageHelper.deleteImage(this, folder);//not delete image if isFavorite, or is in Podcast table
             AppDatabase.getDatabase(this).FolderDao().delete(folder.getId());
             AppDatabase.getDatabase(this).ZikFileDao().deleteFolder(folder.getId());
             cancelAutoDownload(this, folder.getId());
@@ -264,7 +268,7 @@ public class ModifyFolderActivity extends LoggingActivity {
 
                                 // Delete previous image if different
                                 if (folder.image != null && !folder.image.equals(newImagePath)) {
-                                    ImageHelper.deleteFolderImage(this, folder);
+                                    ImageHelper.deleteImage(this, folder);
                                 }
 
                                 folder.image = newImagePath;

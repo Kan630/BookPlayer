@@ -12,7 +12,6 @@ import androidx.documentfile.provider.DocumentFile;
 
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
-import com.driot.bookplayer.db.FolderDao;
 import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.utils.KanLogger;
 
@@ -318,25 +317,25 @@ public class ImageHelper {
         return inSampleSize;
     }
 
-    public static void deleteFolderImage(Context context, Folder folder) {
+    public static void deleteImage(Context context, Folder folder) {
         if (folder.image != null) {
             try {
                 Uri uri = Uri.parse(folder.image);
-                DocumentFile file = DocumentFile.fromSingleUri(context, uri);
-                if (file.exists()) {
+                DocumentFile file = UriHelper.getDocumentFileFromAnyUri(context, uri);
+                if (file!=null && file.exists()) {
                     if (!file.delete()) {
                         myLogEE(null, "Error deleting image file from content URI: " + folder.image);
                     } else {
                         myLogD("Image deleted successfully: " + folder.image);
                     }
                 } else {
-                    myLogE("deleteFolderImage: URI points to non-existing file: " + folder.image);
+                    myLogE("deleteImage: URI points to non-existing file: " + folder.image);
                 }
             } catch (Exception e) {
-                myLogEE(e, "deleteFolderImage: exception when trying to delete image");
+                myLogEE(e, "deleteImage: exception when trying to delete image");
             }
         } else {
-            myLogD("deleteFolderImage: no image in folder");
+            myLogD("deleteImage: no image in folder");
         }
     }
 

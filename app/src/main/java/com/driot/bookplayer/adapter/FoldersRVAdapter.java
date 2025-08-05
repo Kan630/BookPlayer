@@ -24,6 +24,7 @@ import com.driot.bookplayer.activities.ZikFileActivity;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.ZikFile;
+import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.objects.PlayList;
 import com.driot.bookplayer.helpers.IconHelper;
 import com.driot.bookplayer.utils.Tonio;
@@ -117,15 +118,21 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
                 try {
                     List<ZikFile> zikFilesList = AppDatabase.getDatabase(mCtx).ZikFileDao().getZikFiles(folder.getId());
                     myLog("nb ZikFiles in that Book : " + zikFilesList.size() + " - [" + folder.getName() + "]");
-                    PlayList.create(mCtx, zikFilesList);
-                    if (zikFilesList.size() > 1) {
-                        mCtx.startActivity(new Intent(mCtx, ZikFileActivity.class).putExtra("folder", folder));
-                    } else if (zikFilesList.size() == 1) {
-                        PlayList.getInstance().setNumZikFile(0);
-                        mCtx.startActivity(new Intent(mCtx, PlayActivity.class).putExtra("ZikFile", zikFilesList.get(0)));
+                    if (zikFilesList.isEmpty()) {
+                        if (folder.getSourceLocation().equals(Var.SOURCE_LOCATION_PODCAST)) {
+                            myToastE(mCtx.getString(R.string.no_episode_all_deleted));
+                        } else {
+                            myLogE("no ZikFiles in that folder !");
+                            myToastE(mCtx.getString(R.string.ErrorCouldNotLoadAudios_emptyfolder));
+                        }
                     } else {
-                        myLogE("no ZikFiles in that folder !");
-                        myToastE(mCtx.getString(R.string.ErrorCouldNotLoadAudios_emptyfolder));
+                        PlayList.create(mCtx, zikFilesList);
+                        if (zikFilesList.size() > 1) {
+                            mCtx.startActivity(new Intent(mCtx, ZikFileActivity.class).putExtra("folder", folder));
+                        } else if (zikFilesList.size() == 1) {
+                            PlayList.getInstance().setNumZikFile(0);
+                            mCtx.startActivity(new Intent(mCtx, PlayActivity.class).putExtra("ZikFile", zikFilesList.get(0)));
+                        }
                     }
                 } catch (Exception e) {
                     myLogEE(e,"error getting nb of ZikFiles");

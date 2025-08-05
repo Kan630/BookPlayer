@@ -235,15 +235,16 @@ public class PodcastHelper {
             List<ZikFile> filesToDelete = zikFileDao.getListenedPodcastEpisodesToDelete(percent, thresholdTime);
             myLogD("AutoDelete : " + filesToDelete.size() + " Episodes to delete ... (thresholdTime=" + thresholdTime + " from " + days + " days) + " + percent + "% completion");
 
-            int deleted = 0;
-            List<Long> idsToDelete = new ArrayList<>();
+            int fsDeleted = 0;
+            int dbDeleted = 0;
+            int dbUpdated = 0;
 
             for (ZikFile zikFile : filesToDelete) {
                 String path = zikFile.getPath();
                 if (path == null) continue;
 
                 File file = new File(path);
-                if (!file.exists()) {
+                if (!file.exists() || !file.isFile()) {
                     myLogE("AutoDelete => Failed to locate file: " + path);
                     continue;
                 }
@@ -255,28 +256,30 @@ public class PodcastHelper {
 
                 // At this point, file was deleted
                 myLogD("AutoDelete => Deleted file: " + path);
+                fsDeleted++;
 
                 long fileId = zikFile.getId();
 
-                // Atomic DB cleanup
-                AppDatabase.getDatabase(context).runInTransaction(() -> {
-                    int updated = episodeDao.updateDateDeleteForZikFileId(fileId, System.currentTimeMillis());
-                    int deletedZik = zikFileDao.deleteById(fileId);
+                //update before delete because onCascade null
+                int updated = episodeDao.updateDateDeleteForZikFileId(fileId, System.currentTimeMillis());
+                if (updated == 0) {
+                    myLogE("AutoDelete => Failed to update in DB Episode: " + fileId);
+                    continue;
+                }
+                dbUpdated++;
 
-                    if (updated == 0 || deletedZik == 0) {
-                        throw new RuntimeException("AutoDelete => DB update/delete failed for file ID: " + fileId);
-                    }
-                });
+                int deletedZik = zikFileDao.deleteById(fileId);
+                if (deletedZik == 0) {
+                    myLogE("AutoDelete => Failed to delete in DB ZikFile: " + fileId);
+                    continue;
+                }
+                dbDeleted++;
 
-                deleted++;
+
             }
 
-
-
-
-            if (!idsToDelete.isEmpty()) {
-                int dbDeleted = zikFileDao.deleteByIds(idsToDelete);
-                myLogI("AutoDelete => " + dbDeleted + "/" + deleted + " old listened podcast episodes were deleted (thresholdTime=" + thresholdTime + " from " + days + " days) + " + percent + "% completion");
+            if (dbDeleted!=0) {
+                myLogI("AutoDelete => " + fsDeleted + "/" + dbDeleted + "/" + dbUpdated + " old listened podcast episodes were deleted (thresholdTime=" + thresholdTime + " from " + days + " days) + " + percent + "% completion");
             }
         });
     }

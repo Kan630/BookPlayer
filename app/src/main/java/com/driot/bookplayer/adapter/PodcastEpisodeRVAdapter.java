@@ -99,6 +99,7 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
 // Check if in physical folder : reserved sd card or reserved smartphone storage
         File downloadedFile = findPodcastEpisodeFileIfExists(context, podcastFeed.title, episodeFileName);
         boolean isDownloaded = (downloadedFile != null);
+        boolean isDeleted = false; //TODO to be continued.... the Episode table should be populated as soon as the api is first call, and we need an episodeFeedID
 
         //myLogW(podcastFeed.title + " - " + episodeFileName);
         //TODO  //not good, if foldername changes, you loose the zikFile, (and if zikfile name changes...)  you need folderID, or feedID or whatever
@@ -130,6 +131,12 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
                 holder.icon_download_action.setVisibility(View.GONE);
                 holder.icon_download_done.setVisibility(View.VISIBLE);
                 holder.icon_download_done.setColorFilter(ContextCompat.getColor(context, R.color.orange_500));
+                holder.icon_download_done.setOnClickListener(null);
+            } else if (isDeleted) {
+                holder.tvEpisodeDBStats.setText("deleted");
+                holder.icon_download_action.setVisibility(View.GONE);
+                holder.icon_download_done.setVisibility(View.VISIBLE);
+                holder.icon_download_done.setColorFilter(ContextCompat.getColor(context, R.color.brown_700));
                 holder.icon_download_done.setOnClickListener(null);
             } else {
                 holder.tvEpisodeDBStats.setText("");

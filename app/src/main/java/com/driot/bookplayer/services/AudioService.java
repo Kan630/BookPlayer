@@ -567,15 +567,15 @@ public class AudioService extends LoggingService {
             myLog("SAF Uri : " + uriToPlay);
 // OLD SCHOOL PATHS
         } else {
-            pathToPlay = zf.getPath() + "/" + zf.getName();
-            myKeyFirebase("loadFile", "path=folderpath");
+            pathToPlay = zf.getPath();
+            myKeyFirebase("loadFile", "path=path");
             myLogFirebase("loadFile path : " + pathToPlay);
             //check....
             if (!fileExists(pathToPlay)) {
                 //MAYBE single file
                 myLogEE(null,"loadFile(sPath)1 : ERROR -- File doesn't exist !! " + pathToPlay);
-                pathToPlay = zf.getPath(); // FailSafe (very old way where path = fullpath and not folderpath)
-                myKeyFirebase("loadFile", "path=fullpath");
+                pathToPlay = zf.getPath() + "/" + zf.getName(); // FailSafe (odd way where real path = path + name)
+                myKeyFirebase("loadFile", "path=path+name");
                 myLogFirebase("loadFile path : " + pathToPlay);
                 if (!fileExists(pathToPlay)) {
                     myLogEE(null,"loadFile(sPath)2 : ERROR -- File doesn't exist !! " + pathToPlay);
