@@ -1,7 +1,5 @@
 package com.driot.bookplayer.activities;
 
-import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_API_MAX_RESULTS;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -19,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.adapter.PodcastSearchResultsRVAdapter;
+import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.objects.PodcastFeed;
 import com.driot.bookplayer.helpers.AnalyticsHelper;
 import com.driot.bookplayer.utils.NetworkUtils;
@@ -119,7 +118,7 @@ public class PodcastSearchResultsActivity extends LoggingActivity {
         if (!query.isEmpty()) {
             PodcastHelper.searchPodcasts(query, lang, callback);
         } else {
-            PodcastHelper.getTrendingPodcasts(lang, PODCASTINDEXORG_API_MAX_RESULTS, callback);
+            PodcastHelper.getTrendingPodcasts(lang, Var.PODCASTINDEXORG_API_MAX_RESULTS_FOR_PODCASTS, callback);
         }
     }
 

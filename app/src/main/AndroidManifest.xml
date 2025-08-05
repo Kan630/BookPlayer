@@ -28,7 +28,7 @@
         android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:theme="@style/Theme.BookPlayer"
-        android:name=".MyPersonalApp"
+        android:name=".MyApp"
         >
 
 

@@ -6,7 +6,7 @@ package com.driot.bookplayer.activities;
 
 
 import static com.driot.bookplayer.global.Pref.shouldCheckApiForAutoDownload;
-import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_SINCE_DEBUG;
+import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_SINCE;
 import static com.driot.bookplayer.objects.WorkFlow.maybeResumeWorkFlow;
 
 import android.Manifest;
@@ -35,6 +35,7 @@ import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.driot.bookplayer.MyApp;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.adapter.FoldersRVAdapter;
 import com.driot.bookplayer.db.DatabaseClient;
@@ -42,8 +43,6 @@ import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.FolderDao;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
-import com.driot.bookplayer.helpers.FileHelper;
-import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.objects.PlayList;
 import com.driot.bookplayer.services.AudioService;
 import com.driot.bookplayer.helpers.ImageHelper;
@@ -176,7 +175,7 @@ public class MainActivity extends LoggingActivity {
 
         getFolders();
 
-        doSomeBackgroundJobs();
+        MyApp.getPeriodicTaskManager(this).start(); // safe
     }
 
     @Override
@@ -285,15 +284,5 @@ public class MainActivity extends LoggingActivity {
         Intent intent = new Intent(getApplicationContext(), GetResourceActivity.class);
         startActivity(intent);
     }
-
-
-    private void doSomeBackgroundJobs() {
-        if (shouldCheckApiForAutoDownload()) {
-            PodcastHelper.checkForNewEpisodesToAutoDownload(this, PODCASTINDEXORG_SINCE_DEBUG);
-            PodcastHelper.checkForEpisodesToAutoDelete(this);
-        }
-        ImageHelper.processPendingImages(this);
-    }
-
 
 }

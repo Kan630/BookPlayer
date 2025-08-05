@@ -17,6 +17,8 @@ import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
 import com.driot.bookplayer.db.AppDatabase;
+import com.driot.bookplayer.db.Episode;
+import com.driot.bookplayer.db.EpisodeDao;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.FolderDao;
 import com.driot.bookplayer.db.PodcastDao;
@@ -39,6 +41,8 @@ public class PodcastSyncWorker extends Worker {
         String path = getInputData().getString(KEY_FOLDER_PATH);
         String name = getInputData().getString(KEY_FOLDER_NAME);
         long feedId = getInputData().getLong(KEY_FEED_ID,0);
+        Long podcastId = null;
+        Long newZikFileId = null;
         File folder = new File(path);
         if (!folder.exists() || !folder.isDirectory()) return Result.failure();
 
@@ -46,6 +50,7 @@ public class PodcastSyncWorker extends Worker {
         FolderDao folderDao = db.FolderDao();
         ZikFileDao zikFileDao = db.ZikFileDao();
         PodcastDao podcastDao = db.PodcastDao();
+        EpisodeDao episodeDao = db.EpisodeDao();
 
         // 1. Ensure folder is registered
         Folder folderDb = folderDao.getByName(name);
@@ -80,6 +85,8 @@ public class PodcastSyncWorker extends Worker {
             myLog("New Podcast folder added to DB : [" + name + "] - FolderId=[" + idFolder + "] - feedId=[" + feedId + "]");
 
         }
+        podcastId = podcastDao.getIdByFeedId(feedId); // for episode insetrtion
+
 
         // 2. Scan files
         File[] files = folder.listFiles((dir, filename) -> filename.endsWith(".mp3"));
@@ -96,6 +103,7 @@ public class PodcastSyncWorker extends Worker {
                 long duration = 0;
                 duration = getMediaDurationFromPath(file.getAbsolutePath());
                 if (duration > 0) {
+                    newZikFileId = null;
                     ZikFile zikFile = new ZikFile();
                     zikFile.setIdFolder(idFolder);
                     zikFile.setName(file.getName());
@@ -109,8 +117,19 @@ public class PodcastSyncWorker extends Worker {
                     zikFile.setFinished(false);
                     zikFile.setDuration(duration);
                     zikFile.date_added = System.currentTimeMillis();
-                    zikFileDao.insert(zikFile);
+                    newZikFileId = zikFileDao.insert(zikFile);
                     newFilesCount++;
+
+                    if (podcastId != null) {
+                        Episode episode = new Episode();
+                        episode.idPodcast = podcastId;
+                        episode.idZikFile = newZikFileId;
+                        episode.date_add = System.currentTimeMillis();
+                        episode.date_import = System.currentTimeMillis();
+                        episodeDao.insert(episode);
+                    } else {
+                        myLogEE(null, "could not find podcastId");
+                    }
                 }
             }
         }

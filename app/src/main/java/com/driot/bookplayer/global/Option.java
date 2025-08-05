@@ -4,7 +4,6 @@ import static android.content.Context.MODE_PRIVATE;
 import static com.driot.bookplayer.utils.KanMail.DEFAULT_SEND_MAIL_METHOD_DEFAULT;
 
 import android.content.Context;
-import android.util.TypedValue;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.utils.NetworkUtils;
@@ -37,8 +36,10 @@ public class Option {
     private static final NetworkUtils.NetworkPolicyAuto DEFAULT_AUTO_DOWNLOAD_POLICY = NetworkUtils.NetworkPolicyAuto.WIFI;
     private static final boolean DEFAULT_PODCAST_AUTO_DELETE = false;
     public static final int DEFAULT_PODCAST_DELAY_AUTO_DELETE = 7;
-    public static final int DEFAULT_PODCAST_COMPLETION_PERCENTAGE_AUTO_DELETE = 95;
-    public static final int DEFAULT_PODCAST_LAST_N_EPISODE_AUTO_DOWNLOAD = 5;
+    public static final int DEFAULT_PODCAST_COMPLETION_PERCENTAGE_AUTO_DELETE = 90;
+    public static final int PODCAST_AUTO_DOWNLOAD_LAST_N_EPISODES = 5;
+    public static final int PODCAST_AUTO_DOWNLOAD_MAX_N_PODCASTS = 10;
+    public static final int PODCAST_AUTO_DOWNLOAD_DELAY_BETWEEN_CHECKS_IN_MIN = 60;
 
     private static Context appContext;
     private static android.content.SharedPreferences prefs;
@@ -170,8 +171,15 @@ public class Option {
     public static void setPodcastAutoDeleteDelay(int i) {prefs.edit().putInt("PODCAST_DELAY_AUTO_DELETE",i).apply();}
     public static int getPodcastAutoDeleteDelay() {return prefs.getInt("PODCAST_DELAY_AUTO_DELETE", DEFAULT_PODCAST_DELAY_AUTO_DELETE);}
 
-    public static void setPodcastAutoDownloadLastNbEpisode(int i) {prefs.edit().putInt("PODCAST_DEFAULT_PODCAST_LAST_N_EPISODE_AUTO_DOWNLOAD",i).apply();}
-    public static int getPodcastAutoDownloadLastNbEpisode() {return prefs.getInt("PODCAST_DEFAULT_PODCAST_LAST_N_EPISODE_AUTO_DOWNLOAD", DEFAULT_PODCAST_LAST_N_EPISODE_AUTO_DOWNLOAD);}
+    public static void setPodcastAutoDownloadLastNbEpisode(int i) {prefs.edit().putInt("PODCAST_AUTO_DOWNLOAD_LAST_N_EPISODES",i).apply();}
+    public static int getPodcastAutoDownloadLastNbEpisode() {return prefs.getInt("PODCAST_AUTO_DOWNLOAD_LAST_N_EPISODES", PODCAST_AUTO_DOWNLOAD_LAST_N_EPISODES);}
+
+    public static void setPodcastAutoDownloadMaxNbPodcast(int i) {prefs.edit().putInt("PODCAST_AUTO_DOWNLOAD_MAX_N_PODCASTS",i).apply();}
+    public static int getPodcastAutoDownloadMaxNbPodcast() {return prefs.getInt("PODCAST_AUTO_DOWNLOAD_MAX_N_PODCASTS", PODCAST_AUTO_DOWNLOAD_MAX_N_PODCASTS);}
+
+    public static void setPodcastAutoDownloadDelayBetweenChecks(int i) {prefs.edit().putInt("PODCAST_AUTO_DOWNLOAD_DELAY_BETWEEN_CHECKS_IN_MIN",i).apply();}
+    public static int getPodcastAutoDownloadDelayBetweenChecks() {return prefs.getInt("PODCAST_AUTO_DOWNLOAD_DELAY_BETWEEN_CHECKS_IN_MIN", PODCAST_AUTO_DOWNLOAD_DELAY_BETWEEN_CHECKS_IN_MIN);}
+
 
 
 

@@ -1,6 +1,6 @@
 package com.driot.bookplayer.activities;
 
-import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_SINCE_DEBUG;
+import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_SINCE;
 import static com.driot.bookplayer.utils.TextOptions.parseMaybeHtml;
 
 import android.animation.Animator;
@@ -192,7 +192,7 @@ public class PodcastEpisodeActivity extends LoggingActivity {
             if (podcast.autoDownload) {
                 myLog("---> On");
                 myToast(getString(R.string.podcast_autodownload_add));
-                downloadAllEpisodesToFolder(podcast, PODCASTINDEXORG_SINCE_DEBUG);
+                downloadAllEpisodesToFolder(podcast, PODCASTINDEXORG_SINCE);
             }
             runOnUiThread(() -> {
                 updateAutoDownloadIconColor(podcast.autoDownload);
@@ -214,7 +214,7 @@ public class PodcastEpisodeActivity extends LoggingActivity {
     private void fetchEpisodes() {
         progressBar.setVisibility(View.VISIBLE);
 
-        PodcastHelper.getEpisodesByFeedId(podcastFeed.id, PODCASTINDEXORG_SINCE_DEBUG, new PodcastHelper.EpisodeCallback() {
+        PodcastHelper.getEpisodesByFeedId(podcastFeed.id, PODCASTINDEXORG_SINCE, new PodcastHelper.EpisodeCallback() {
             @Override
             public void onSuccess(List<PodcastEpisode> episodes) {
                 runOnUiThread(() -> {

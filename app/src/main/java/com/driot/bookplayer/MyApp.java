@@ -4,6 +4,7 @@ import static com.driot.bookplayer.utils.ComponentUtils.setOpenWithProxyEnabled;
 import static com.driot.bookplayer.utils.ComponentUtils.setOpenWithProxyEnabled_all;
 
 import android.app.Application;
+import android.content.Context;
 import android.os.Environment;
 
 import java.io.File;
@@ -11,19 +12,30 @@ import java.io.IOException;
 
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Pref;
+import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.objects.BookToAdd;
 import com.driot.bookplayer.objects.PlayList;
 import com.driot.bookplayer.objects.TaskStateManager;
+import com.driot.bookplayer.services.InAppPeriodicTaskManager;
 import com.driot.bookplayer.utils.KanLogger;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 15/06/21
  * from https://stackoverflow.com/questions/19565685/saving-logcat-to-a-text-file-in-android-device
  */
-public class MyPersonalApp extends Application {
+public class MyApp extends Application {
 
     public static final String APP_FOLDER = "zeAppFolder";
     public static final String LOG_FOLDER = "logs";
+
+    private static InAppPeriodicTaskManager periodicTaskManager;
+
+    public static InAppPeriodicTaskManager getPeriodicTaskManager(Context context) {
+        if (periodicTaskManager == null) {
+            periodicTaskManager = new InAppPeriodicTaskManager(context, Var.PERIODIC_TASK_MANAGER_DELAY_IN_MINUTES);
+        }
+        return periodicTaskManager;
+    }
     /**
      * Called when the application is starting, before any activity, service, or receiver objects (excluding content providers) have been created.
      */

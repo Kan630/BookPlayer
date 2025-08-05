@@ -114,7 +114,7 @@ public class PodcastSearchResultsRVAdapter extends LoggingRVAdapter<RecyclerView
             LanguageItem langItem = LanguageHelper.getLanguageByCode(lang);
             String language = "Language: " + (langItem != null ? langItem.displayName : "");
             tvLanguage.setText(language);
-            String resultsCount = "Results: " + count + (count == Var.PODCASTINDEXORG_API_MAX_RESULTS ? " (" + context.getString(R.string.max_number_of_results_reached) + ")" : "");
+            String resultsCount = "Results: " + count + (count == Var.PODCASTINDEXORG_API_MAX_RESULTS_FOR_PODCASTS ? " (" + context.getString(R.string.max_number_of_results_reached) + ")" : "");
             tvResultsCount.setText(resultsCount);
         }
     }

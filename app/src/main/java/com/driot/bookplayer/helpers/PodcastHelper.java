@@ -2,14 +2,13 @@ package com.driot.bookplayer.helpers;
 
 import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_API_KEY;
 import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_API_SECRET;
-import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_MAX_EPISODE_AUTO_DOWNLOAD;
-import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_API_MAX_RESULTS;
-import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_MAX_PODCAST_AUTO_DOWNLOAD;
 import static com.driot.bookplayer.helpers.FileHelper.sanitizeFilename;
 import static com.driot.bookplayer.helpers.StorageHelper.getUnzipFolder;
 
 import com.driot.bookplayer.db.AppDatabase;
+import com.driot.bookplayer.db.EpisodeDao;
 import com.driot.bookplayer.db.Podcast;
+import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.db.ZikFileDao;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
@@ -131,7 +130,7 @@ public class PodcastHelper {
 
     public static void searchPodcasts(String query, String lang, Callback callback) {
         PodcastIndexApi api = buildApi();
-        api.searchPodcasts(query, PODCASTINDEXORG_API_MAX_RESULTS, lang).enqueue(new retrofit2.Callback<PodcastIndexResponse>() {
+        api.searchPodcasts(query, Var.PODCASTINDEXORG_API_MAX_RESULTS_FOR_PODCASTS, lang).enqueue(new retrofit2.Callback<PodcastIndexResponse>() {
         @Override
         public void onResponse(Call<PodcastIndexResponse> call, Response<PodcastIndexResponse> response) {
             if (response.isSuccessful() && response.body() != null) {
@@ -211,22 +210,74 @@ public class PodcastHelper {
 
     public static void checkForEpisodesToAutoDelete(Context context) {
         if (Option.getPodcastAutoDelete()) {
-            myLogD("AutoDelete : check For Podcasts Episodes");
+            myLogD("AutoDelete On");
         } else {
-            myLogD("AutoDelete Podcast Episodes not enabled");
+            myLogD("AutoDelete Off");
+            return;
         }
 
         long days = Option.getPodcastAutoDeleteDelay(); // e.g. 7
         int percent = Option.getPodcastAutoDeleteCompletionPercentage(); // e.g. 95
 
-        if (days <= 0 || percent <= 0) return;
+        if (days < 0 || percent < 10) {
+            myLogD("AutoDelete bad values : days=" + days + " percent=" + percent);
+            return;
+        }
 
         long now = System.currentTimeMillis();
         long thresholdTime = now - days * 24L * 60 * 60 * 1000;
 
         AppDatabase.databaseWriteExecutor.execute(() -> {
-            int deleted = AppDatabase.getDatabase(context).ZikFileDao().deleteListenedPodcastEpisodes(percent, thresholdTime);
-            myLogI("AutoDelete => " + deleted + " old listened podcast episodes deleted (thresholdTime=" + thresholdTime + " from " + days + " days) + " + percent + "% completion");
+            AppDatabase db = AppDatabase.getDatabase(context);
+            ZikFileDao zikFileDao = db.ZikFileDao();
+            EpisodeDao episodeDao = db.EpisodeDao();
+
+            List<ZikFile> filesToDelete = zikFileDao.getListenedPodcastEpisodesToDelete(percent, thresholdTime);
+            myLogD("AutoDelete : " + filesToDelete.size() + " Episodes to delete ... (thresholdTime=" + thresholdTime + " from " + days + " days) + " + percent + "% completion");
+
+            int deleted = 0;
+            List<Long> idsToDelete = new ArrayList<>();
+
+            for (ZikFile zikFile : filesToDelete) {
+                String path = zikFile.getPath();
+                if (path == null) continue;
+
+                File file = new File(path);
+                if (!file.exists()) {
+                    myLogE("AutoDelete => Failed to locate file: " + path);
+                    continue;
+                }
+
+                if (!file.delete()) {
+                    myLogE("AutoDelete => Failed to delete file: " + path);
+                    continue;
+                }
+
+                // At this point, file was deleted
+                myLogD("AutoDelete => Deleted file: " + path);
+
+                long fileId = zikFile.getId();
+
+                // Atomic DB cleanup
+                AppDatabase.getDatabase(context).runInTransaction(() -> {
+                    int updated = episodeDao.updateDateDeleteForZikFileId(fileId, System.currentTimeMillis());
+                    int deletedZik = zikFileDao.deleteById(fileId);
+
+                    if (updated == 0 || deletedZik == 0) {
+                        throw new RuntimeException("AutoDelete => DB update/delete failed for file ID: " + fileId);
+                    }
+                });
+
+                deleted++;
+            }
+
+
+
+
+            if (!idsToDelete.isEmpty()) {
+                int dbDeleted = zikFileDao.deleteByIds(idsToDelete);
+                myLogI("AutoDelete => " + dbDeleted + "/" + deleted + " old listened podcast episodes were deleted (thresholdTime=" + thresholdTime + " from " + days + " days) + " + percent + "% completion");
+            }
         });
     }
 
@@ -245,7 +296,7 @@ public class PodcastHelper {
             for (Podcast podcast : autoList) {
                 i=i+1;
                 myLogD("checking new episodes for podcast " + i + " [" + podcast.title + "]");
-                if (i > PODCASTINDEXORG_MAX_PODCAST_AUTO_DOWNLOAD) {
+                if (i > Option.getPodcastAutoDownloadMaxNbPodcast()) {
                     myLogW("Max number of podcasts to auto download reached, bypassing...");
                 } else {
                     checkForNewEpisodesToAutoDownloadForPodcast(context, podcast, since);
@@ -266,7 +317,7 @@ public class PodcastHelper {
                 for (PodcastEpisode episode : episodes) {
                     /// EPISODES LOOP ////////////////////////////////////////////////////////
                     i++;
-                    if (i > PODCASTINDEXORG_MAX_EPISODE_AUTO_DOWNLOAD) break;
+                    if (i > Option.getPodcastAutoDownloadLastNbEpisode()) break;
 
                     String baseName = buildPodcastEpisodeName(episode);
                     File destFile = new File(podcastFolder, baseName);

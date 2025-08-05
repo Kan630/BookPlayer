@@ -147,6 +147,16 @@ public class DatabaseMigrations {
         }
     };
 
+    static final Migration MIGRATION_9_10 = new Migration(9, 10) {
+        @Override
+        public void migrate(SupportSQLiteDatabase db) {
+            myLogI("Migration -> executing step 9 => 10"); //2025-08-05
+            db.execSQL("CREATE INDEX IF NOT EXISTS index_Episode_idPodcast ON Episode(idPodcast)");
+            db.execSQL("CREATE INDEX IF NOT EXISTS index_Episode_idZikFile ON Episode(idZikFile)");
+        }
+    };
+
+    // Add index on foreign key
 
 
 

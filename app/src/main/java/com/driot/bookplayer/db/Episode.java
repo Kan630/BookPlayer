@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
+import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 @Entity(
@@ -23,8 +24,13 @@ import androidx.room.PrimaryKey;
                         childColumns = "idZikFile",
                         onDelete = ForeignKey.SET_NULL
                 )
+        },
+        indices = {
+                @androidx.room.Index("idPodcast"),
+                @androidx.room.Index("idZikFile")
         }
 )
+
 public class Episode implements Parcelable {
 
     @PrimaryKey(autoGenerate = true)
@@ -53,6 +59,7 @@ public class Episode implements Parcelable {
 
     public Episode() {}
 
+    @Ignore
     public Episode(long idPodcast, long date_add, @Nullable Long idZikFile,
                    @Nullable Long date_import, @Nullable Long date_delete, @Nullable Long lastAccess) {
         this.idPodcast = idPodcast;

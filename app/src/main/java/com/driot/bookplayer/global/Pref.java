@@ -6,9 +6,7 @@ package com.driot.bookplayer.global;
 
 import static android.content.Context.MODE_PRIVATE;
 
-import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_API_MIN_TIME_BETWEEN_AUTO_CHECK_IN_MIN;
 import static com.driot.bookplayer.global.Var.PODCAST_DETAIL_ANIMATION_COUNT;
-import static com.driot.bookplayer.utils.KanLogger.myLogE;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -172,17 +170,18 @@ public class Pref {
 
     /////////////////// LAST PODCAST API CHECK  ///////////////////
     public static void setLastCheck(long value) {prefs.edit().putLong("LAST_PODCASTINDEXORG_API_AUTO_CHECK_TIMESTAMP", value).apply();}
-    public static long getLastCheck() {return prefs.getLong("LAST_PODCASTINDEXORG_API_AUTO_CHECK_TIMESTAMP", PODCASTINDEXORG_API_MIN_TIME_BETWEEN_AUTO_CHECK_IN_MIN);}
+    public static long getLastCheck() {return prefs.getLong("LAST_PODCASTINDEXORG_API_AUTO_CHECK_TIMESTAMP", Option.getPodcastAutoDownloadDelayBetweenChecks());}
     public static boolean shouldCheckApiForAutoDownload() {
         long lastCheck = getLastCheck();
         long now = System.currentTimeMillis();
         long diffInMinutes = (now - lastCheck) / (60 * 1000);
-        if (now - lastCheck > PODCASTINDEXORG_API_MIN_TIME_BETWEEN_AUTO_CHECK_IN_MIN * 60 * 1000) {
+        long minDelayBetweenCheck = (long) Option.getPodcastAutoDownloadDelayBetweenChecks();
+        if (now - lastCheck > minDelayBetweenCheck * 60 * 1000) {
             setLastCheck(now);
-            myLogD("shouldCheckApiForAutoDownload() => true  -  last check = " + diffInMinutes + " min ago");
+            myLogD("shouldCheckApiForAutoDownload() => true  -  last check = " + diffInMinutes + " min ago...   (min delay = " + minDelayBetweenCheck + " min.)");
             return true;
         } else {
-            myLogD("shouldCheckApiForAutoDownload() => false  -  last check = " + diffInMinutes + " min ago");
+            myLogD("shouldCheckApiForAutoDownload() => false  -  last check = " + diffInMinutes + " min ago...   (min delay = " + minDelayBetweenCheck + " min.)");
             return false;
         }
     }

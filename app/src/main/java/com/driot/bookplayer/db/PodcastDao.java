@@ -53,4 +53,7 @@ public interface PodcastDao {
 
     @Query("SELECT * FROM Podcast WHERE image LIKE 'http%'")
     List<Podcast> getAllWithRemoteImage();
+
+    @Query("SELECT id FROM Podcast WHERE feedId = :feedId")
+    Long getIdByFeedId(long feedId);
 }

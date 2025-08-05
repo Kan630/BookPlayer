@@ -1,6 +1,6 @@
 package com.driot.bookplayer.activities;
 
-import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_SINCE_DEBUG;
+import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_SINCE;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -69,7 +69,7 @@ public class PodcastFavoritesActivity extends LoggingActivity {
                         AppDatabase.getDatabase(this)
                                 .PodcastDao()
                                 .updateAutoDownloadStatus_fromFeedId(item.feedId, newState);
-                        PodcastHelper.checkForNewEpisodesToAutoDownloadForPodcast(this, item, PODCASTINDEXORG_SINCE_DEBUG);
+                        PodcastHelper.checkForNewEpisodesToAutoDownloadForPodcast(this, item, PODCASTINDEXORG_SINCE);
                     });
                 }
         );

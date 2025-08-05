@@ -709,7 +709,30 @@
     <string name="delay_for_auto_deletion">delay for auto deletion</string>
     <string name="completion_percentage_for_auto_deletion">completion percentage for auto deletion</string>
     <string name="auto_download_last_n_episode">auto download last xx episode</string>
+    <string name="auto_download_max_n_podcast">auto download max xx podcast</string>
+    <string name="auto_download_delay_between_checks_in_min">auto download delay between checks in min</string>
     <string name="Auto_Delete_episodes">Auto-Delete episodes</string>
+    <string name="last">last</string>
+    <string name="episodes">episodes</string>
+    <string name="Podcasts">Podcasts</string>
+    <string name="podcasts">podcasts</string>
+    <string name="Auto_Download">Auto-Download</string>
+    <string name="Auto_Delete">Auto-Delete</string>
+    <string name="for_max">for max</string>
+    <string name="check_every">check every</string>
+    <string name="min.">min.</string>
+    <string name="auto_delete_episodes_once_listened_to">auto delete episodes once listened to</string>
+    <string name="after">after</string>
+    <string name="days">days</string>
+    <string name="hours">hours</string>
+    <string name="minutes">minutes</string>
+    <string name="seconds">seconds</string>
+    <string name="if_completion">if completion</string>
+
+
+
+
+
 
 
 
