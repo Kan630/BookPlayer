@@ -70,6 +70,11 @@ public class Episode implements Parcelable {
 
     public String podcastGuid;
 
+    public String enclosureUrl;
+
+    public String datePublished;
+
+
     // --- Constructors ---
 
     public Episode() {}
@@ -104,6 +109,8 @@ public class Episode implements Parcelable {
         image = in.readString();
         guid = in.readString();
         podcastGuid = in.readString();
+        enclosureUrl = in.readString();
+        datePublished = in.readString();
     }
 
     @Override
@@ -147,6 +154,8 @@ public class Episode implements Parcelable {
         parcel.writeString(image);
         parcel.writeString(guid);
         parcel.writeString(podcastGuid);
+        parcel.writeString(enclosureUrl);
+        parcel.writeString(datePublished);
     }
 
     public static final Creator<Episode> CREATOR = new Creator<Episode>() {

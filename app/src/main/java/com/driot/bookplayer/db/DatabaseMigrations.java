@@ -172,7 +172,16 @@ public class DatabaseMigrations {
 
         }
     };
-    // Add index on foreign key
+    static final Migration MIGRATION_11_12 = new Migration(11, 12) {
+        @Override
+        public void migrate(SupportSQLiteDatabase db) {
+            myLogI("Migration -> executing step 11 => 12"); // 2025-08-06
+
+            // Add new columns
+            db.execSQL("ALTER TABLE Episode ADD COLUMN enclosureUrl TEXT");
+            db.execSQL("ALTER TABLE Episode ADD COLUMN datePublished TEXT");
+        }
+    };
 
 
 

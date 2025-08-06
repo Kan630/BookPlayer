@@ -10,6 +10,7 @@ public class PodcastFeed implements Parcelable {
     public String image;
     public String url;       // RSS URL
     public String author;
+    public String language;;
 
     public PodcastFeed(
               long feedId
@@ -30,6 +31,7 @@ public class PodcastFeed implements Parcelable {
         image = in.readString();
         url = in.readString();
         author = in.readString();
+        language = in.readString();
     }
 
     @Override
@@ -40,6 +42,7 @@ public class PodcastFeed implements Parcelable {
         dest.writeString(image);
         dest.writeString(url);
         dest.writeString(author);
+        dest.writeString(language);
     }
 
     @Override

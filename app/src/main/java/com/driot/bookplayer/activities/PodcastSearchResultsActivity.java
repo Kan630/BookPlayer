@@ -17,6 +17,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.adapter.PodcastSearchResultsRVAdapter;
+import com.driot.bookplayer.db.AppDatabase;
+import com.driot.bookplayer.db.Podcast;
+import com.driot.bookplayer.db.PodcastDao;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.objects.PodcastFeed;
 import com.driot.bookplayer.helpers.AnalyticsHelper;
@@ -58,12 +61,28 @@ public class PodcastSearchResultsActivity extends LoggingActivity {
         viewModel.getShouldFinish().observe(this, shouldFinish -> {
             if (shouldFinish != null && shouldFinish) finish();
         });
+        myLogD("hello");
+        adapter = new PodcastSearchResultsRVAdapter(podcastFeed -> {
+            AppDatabase.databaseWriteExecutor.execute(() -> {
+                PodcastDao dao = AppDatabase.getDatabase(this).PodcastDao();
+                Podcast existing = dao.getPodcastByFeedId(podcastFeed.id);
+                if (existing == null) {
+                    Podcast podcast = PodcastHelper.fromPodcastFeed(podcastFeed);
+                    dao.insert(podcast);
+                    myLogD("podcast inserted " + podcastFeed.id );
+                } else {
+                    myLogD("podcast exist " + podcastFeed.id );
+                }
 
-        adapter = new PodcastSearchResultsRVAdapter(item -> {
-            Intent intent = new Intent(this, PodcastEpisodeActivity.class);
-            intent.putExtra("podcastFeed", item);
-            startActivity(intent);
+                // Always navigate on UI thread
+                runOnUiThread(() -> {
+                    Intent intent = new Intent(this, PodcastEpisodeActivity.class);
+                    intent.putExtra("podcastFeed", podcastFeed);
+                    startActivity(intent);
+                });
+            });
         });
+
         recyclerView.setAdapter(adapter);
 
         String query = getIntent().getStringExtra("query");

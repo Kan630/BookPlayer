@@ -9,6 +9,7 @@ import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Episode;
 import com.driot.bookplayer.db.EpisodeDao;
 import com.driot.bookplayer.db.Podcast;
+import com.driot.bookplayer.db.PodcastDao;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.db.ZikFileDao;
 import com.driot.bookplayer.objects.PodcastEpisode;
@@ -20,12 +21,14 @@ import java.util.List;
 public class PodcastEpisodeViewModel extends LoggingAndroidViewModel {
     private final ZikFileDao zikFileDao;
     private final EpisodeDao episodeDao;
+    private final PodcastDao podcastDao;
 
     public PodcastEpisodeViewModel(@NonNull Application application) {
         super(application);
         AppDatabase db = AppDatabase.getDatabase(application);
         zikFileDao = db.ZikFileDao();
         episodeDao = db.EpisodeDao();
+        podcastDao = db.PodcastDao();
     }
 
     public LiveData<ZikFile> getZikFileLive(String folderName, String fileName) {
@@ -37,9 +40,10 @@ public class PodcastEpisodeViewModel extends LoggingAndroidViewModel {
     }
 
 
-    public void insertEpisodes(List<PodcastEpisode> podcastEpisodes, long idPodcast) {
+    public void insertEpisodes(List<PodcastEpisode> podcastEpisodes, long podcastFeedId) {
         new Thread(() -> {
-            List<Episode> toSave = convertToEpisodes(podcastEpisodes, idPodcast);
+            int podcastId = podcastDao.getPodcastByFeedId(podcastFeedId).getId();
+            List<Episode> toSave = convertToEpisodes(podcastEpisodes, podcastId);
             for (Episode ep : toSave) {
                 myLogD("EpisodeInsertDebug - Inserting episode: idPodcast=" + ep.idPodcast + ", idZikFile=" + ep.idZikFile);
             }
@@ -54,6 +58,13 @@ public class PodcastEpisodeViewModel extends LoggingAndroidViewModel {
             Episode ep = new Episode();
             ep.idPodcast = idPodcast;
             ep.date_add = now;
+            ep.idEpisode = pe.id;
+            ep.description = pe.description;
+            ep.title = pe.title;
+            ep.image = pe.image;
+            ep.guid = pe.guid;
+            ep.enclosureUrl = pe.enclosureUrl;
+            ep.datePublished = pe.datePublished;
             // You could map more data from PodcastEpisode if needed
             result.add(ep);
         }

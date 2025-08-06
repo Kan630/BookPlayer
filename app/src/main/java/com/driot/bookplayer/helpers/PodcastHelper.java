@@ -399,7 +399,18 @@ public class PodcastHelper {
             myLogD("Podcast added to DB: " + podcast.feedId + " " + podcast.title);
         }
     }
-
+    public static Podcast fromPodcastFeed(PodcastFeed feed) {
+        Podcast p = new Podcast();
+        p.feedId = feed.id;
+        p.title = feed.title;
+        p.image = feed.image;
+        p.imageOriginalUrl = feed.image;
+        p.description = feed.description;
+        p.language = feed.language;
+        p.source = Var.PODCAST_SOURCE;
+        p.date_added = System.currentTimeMillis();
+        return p;
+    }
 
     ////////////////////////////////////////////////////////
     private static final String TAG = "PodcastHelper";
