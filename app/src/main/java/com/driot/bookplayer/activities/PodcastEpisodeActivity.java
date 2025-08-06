@@ -59,6 +59,8 @@ public class PodcastEpisodeActivity extends LoggingActivity {
     private TextView labelFavorite, labelAutoDownload, labelAutoDelete;
     private PodcastDao podcastDao;
 
+    private PodcastEpisodeViewModel podcastEpisodeViewModel;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -94,8 +96,8 @@ public class PodcastEpisodeActivity extends LoggingActivity {
             );
         }
 
-        PodcastEpisodeViewModel viewModel = new ViewModelProvider(this).get(PodcastEpisodeViewModel.class);
-        viewModel.getPodcastLiveByFeedId(podcastFeed.id).observe(this, updatedPodcast -> {
+        podcastEpisodeViewModel = new ViewModelProvider(this).get(PodcastEpisodeViewModel.class);
+        podcastEpisodeViewModel.getPodcastLiveByFeedId(podcastFeed.id).observe(this, updatedPodcast -> {
             if (updatedPodcast != null) {
                 this.podcast = updatedPodcast;
                 // update UI here if needed
@@ -103,7 +105,7 @@ public class PodcastEpisodeActivity extends LoggingActivity {
         });
 
         recyclerEpisodes.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new PodcastEpisodeRVAdapter(this, podcast, podcastFeed, viewModel);
+        adapter = new PodcastEpisodeRVAdapter(this, podcast, podcastFeed, podcastEpisodeViewModel);
         recyclerEpisodes.setAdapter(adapter);
 
         labelFavorite.setVisibility(View.GONE);
@@ -223,6 +225,8 @@ public class PodcastEpisodeActivity extends LoggingActivity {
                     adapter.setItems(episodes);
                     adapter.notifyDataSetChanged();
                 });
+
+                podcastEpisodeViewModel.insertEpisodes(episodes, podcastFeed.id);
             }
 
             @Override

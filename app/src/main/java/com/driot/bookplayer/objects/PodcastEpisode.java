@@ -9,6 +9,7 @@ public class PodcastEpisode {
     // Direct JSON :
     public String title;
     public String description;
+    public String image;
     public String enclosureUrl; // download URL
     public String datePublishedPretty;
     public String datePublished;

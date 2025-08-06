@@ -55,6 +55,21 @@ public class Episode implements Parcelable {
     @Nullable
     public Long lastAccess;
 
+    @NonNull
+    public long idEpisode;
+
+    public String title;
+
+    public String description;
+
+    public long duration;
+
+    public String image;
+
+    public String guid;
+
+    public String podcastGuid;
+
     // --- Constructors ---
 
     public Episode() {}
@@ -81,23 +96,14 @@ public class Episode implements Parcelable {
         date_import = in.readByte() == 0 ? null : in.readLong();
         date_delete = in.readByte() == 0 ? null : in.readLong();
         lastAccess = in.readByte() == 0 ? null : in.readLong();
-    }
 
-    public static final Creator<Episode> CREATOR = new Creator<Episode>() {
-        @Override
-        public Episode createFromParcel(Parcel in) {
-            return new Episode(in);
-        }
-
-        @Override
-        public Episode[] newArray(int size) {
-            return new Episode[size];
-        }
-    };
-
-    @Override
-    public int describeContents() {
-        return 0;
+        idEpisode = in.readLong();
+        title = in.readString();
+        description = in.readString();
+        duration = in.readLong();
+        image = in.readString();
+        guid = in.readString();
+        podcastGuid = in.readString();
     }
 
     @Override
@@ -133,5 +139,31 @@ public class Episode implements Parcelable {
             parcel.writeByte((byte) 1);
             parcel.writeLong(lastAccess);
         }
+
+        parcel.writeLong(idEpisode);
+        parcel.writeString(title);
+        parcel.writeString(description);
+        parcel.writeLong(duration);
+        parcel.writeString(image);
+        parcel.writeString(guid);
+        parcel.writeString(podcastGuid);
     }
+
+    public static final Creator<Episode> CREATOR = new Creator<Episode>() {
+        @Override
+        public Episode createFromParcel(Parcel in) {
+            return new Episode(in);
+        }
+
+        @Override
+        public Episode[] newArray(int size) {
+            return new Episode[size];
+        }
+    };
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
 }

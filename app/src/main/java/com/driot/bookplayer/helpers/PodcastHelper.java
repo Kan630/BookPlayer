@@ -8,6 +8,7 @@ import static com.driot.bookplayer.helpers.StorageHelper.getUnzipFolder;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.EpisodeDao;
 import com.driot.bookplayer.db.Podcast;
+import com.driot.bookplayer.db.Sql;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.db.ZikFileDao;
 import com.driot.bookplayer.global.Option;
@@ -25,7 +26,9 @@ import java.io.File;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
@@ -257,6 +260,8 @@ public class PodcastHelper {
             int dbDeleted = 0;
             int dbUpdated = 0;
 
+            Set<Long> foldersToUpdate = new HashSet<>();
+
             for (ZikFile zikFile : filesToDelete) {
                 String path = zikFile.getPath();
                 if (path == null) continue;
@@ -292,13 +297,18 @@ public class PodcastHelper {
                     continue;
                 }
                 dbDeleted++;
-
-
+                foldersToUpdate.add((long) zikFile.getIdFolder());
             }
 
             if (dbDeleted!=0) {
                 myLogI("AutoDelete => " + fsDeleted + "/" + dbDeleted + "/" + dbUpdated + " old listened podcast episodes were deleted (thresholdTime=" + thresholdTime + " from " + days + " days) + " + percent + "% completion");
+                for (Long idFolder : foldersToUpdate) {
+                    if (idFolder != null) {
+                        Sql.updateFolderTable(context, idFolder.intValue());
+                    }
+                }
             }
+
         });
     }
 

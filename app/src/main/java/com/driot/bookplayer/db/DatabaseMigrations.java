@@ -156,6 +156,22 @@ public class DatabaseMigrations {
         }
     };
 
+    static final Migration MIGRATION_10_11 = new Migration(10, 11) {
+        @Override
+        public void migrate(SupportSQLiteDatabase db) {
+            myLogI("Migration -> executing step 10 => 11"); // 2025-08-06
+
+            // Add new columns
+            db.execSQL("ALTER TABLE Episode ADD COLUMN idEpisode INTEGER NOT NULL DEFAULT 0");
+            db.execSQL("ALTER TABLE Episode ADD COLUMN title TEXT");
+            db.execSQL("ALTER TABLE Episode ADD COLUMN description TEXT");
+            db.execSQL("ALTER TABLE Episode ADD COLUMN duration INTEGER NOT NULL DEFAULT 0");
+            db.execSQL("ALTER TABLE Episode ADD COLUMN image TEXT");
+            db.execSQL("ALTER TABLE Episode ADD COLUMN guid TEXT");
+            db.execSQL("ALTER TABLE Episode ADD COLUMN podcastGuid TEXT");
+
+        }
+    };
     // Add index on foreign key
 
 
