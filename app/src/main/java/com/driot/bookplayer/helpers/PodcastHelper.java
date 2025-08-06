@@ -6,6 +6,7 @@ import static com.driot.bookplayer.helpers.FileHelper.sanitizeFilename;
 import static com.driot.bookplayer.helpers.StorageHelper.getUnzipFolder;
 
 import com.driot.bookplayer.db.AppDatabase;
+import com.driot.bookplayer.db.Episode;
 import com.driot.bookplayer.db.EpisodeDao;
 import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.db.Sql;
@@ -67,6 +68,26 @@ public class PodcastHelper {
         String safeDate = sanitizeFilename(episode.datePublishedPretty.replace(":","h"));
         return safeTitle + " - [" + safeDate + "].mp3";
     }
+
+    public static String buildPodcastEpisodeFileName(PodcastEpisode episode) {
+        return Var.PODCAST_SOURCE + "_" +  episode.id + ".mp3";
+    }
+
+    public static long getEpisodeIdFromName(String fileName) {
+        try {
+            if (fileName == null || !fileName.startsWith(Var.PODCAST_SOURCE + "_") || !fileName.endsWith(".mp3")) {
+                return -1;
+            }
+
+            String idPart = fileName
+                    .substring((Var.PODCAST_SOURCE + "_").length(), fileName.length() - ".mp3".length());
+
+            return Long.parseLong(idPart);
+        } catch (Exception e) {
+            return -1; // or throw if you prefer
+        }
+    }
+
 
     public static File findPodcastEpisodeFileIfExists(Context context, String podcastTitle, String episodeFileName) {
         // Try internal storage first
@@ -338,32 +359,36 @@ public class PodcastHelper {
     public static void checkForNewEpisodesToAutoDownloadForPodcast(Context context, Podcast podcast, long since) {
         getNewEpisodesByFeedId(podcast.feedId, since, Option.getPodcastAutoDownloadLastNbEpisode(), new EpisodeCallback() {
             @Override
-            public void onSuccess(List<PodcastEpisode> episodes) {
+            public void onSuccess(List<PodcastEpisode> podcastEpisodes) {
+
                 File podcastFolder = buildPodcastPath(context, podcast);
                 if (!podcastFolder.exists()) podcastFolder.mkdirs();
 
                 List<PodcastEpisode> newEpisodes = new ArrayList<>();
                 int i = 0;
 
-                for (PodcastEpisode episode : episodes) {
+                for (PodcastEpisode episode : podcastEpisodes) {
                     /// EPISODES LOOP ////////////////////////////////////////////////////////
                     i++;
                     if (i > Option.getPodcastAutoDownloadLastNbEpisode()) break;
 
-                    String baseName = buildPodcastEpisodeName(episode);
-                    File destFile = new File(podcastFolder, baseName);
+                    String episodeLabel = buildPodcastEpisodeName(episode);
+                    String fileName = buildPodcastEpisodeFileName(episode);
+                    File destFile = new File(podcastFolder, fileName);
 
                     if (!destFile.exists()) {
-                        myLogD("Auto-download episode n°" + i + " - [" + baseName + "]");
+                        myLogD("Auto-download episode n°" + i + " - [" + episodeLabel + "] - [" + fileName + "]");
                         newEpisodes.add(episode);
                     } else {
-                        myLogD("episode already exists - check n°" + i + " - [" + baseName + "]");
+                        myLogD("episode already exists - check n°" + i + " - [" + episodeLabel + "] - [" + fileName + "]");
                     }
                     /// EPISODES LOOP ////////////////////////////////////////////////////////
                 }
 
                 if (!newEpisodes.isEmpty()) {
                     AppDatabase.databaseWriteExecutor.execute(() -> {  //maybe Executors.newSingleThreadExecutor() will be better, or some background thread
+                        List<Episode> toSave = PodcastHelper.convertToEpisodes(podcastEpisodes, podcast.getId());
+                        AppDatabase.getDatabase(context).EpisodeDao().insertAll(toSave);
                         PodcastDownloadManager.enqueueDownloads(context, podcast.feedId, newEpisodes, podcastFolder, null);
                     });
                 }
@@ -411,6 +436,26 @@ public class PodcastHelper {
         p.date_added = System.currentTimeMillis();
         return p;
     }
+
+    public static List<Episode> convertToEpisodes(List<PodcastEpisode> podcastEpisodes, long idPodcast) {
+        long now = System.currentTimeMillis();
+        List<Episode> result = new ArrayList<>();
+        for (PodcastEpisode pe : podcastEpisodes) {
+            Episode ep = new Episode();
+            ep.idPodcast = idPodcast;
+            ep.date_add = now;
+            ep.idEpisode = pe.id;
+            ep.description = pe.description;
+            ep.title = pe.title;
+            ep.image = pe.image;
+            ep.guid = pe.guid;
+            ep.enclosureUrl = pe.enclosureUrl;
+            ep.datePublished = pe.datePublished;
+            result.add(ep);
+        }
+        return result;
+    }
+
 
     ////////////////////////////////////////////////////////
     private static final String TAG = "PodcastHelper";

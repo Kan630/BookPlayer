@@ -12,6 +12,7 @@ import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.db.PodcastDao;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.db.ZikFileDao;
+import com.driot.bookplayer.helpers.PodcastHelper;
 import com.driot.bookplayer.objects.PodcastEpisode;
 import com.driot.bookplayer.utils.log.LoggingAndroidViewModel;
 
@@ -43,31 +44,10 @@ public class PodcastEpisodeViewModel extends LoggingAndroidViewModel {
     public void insertEpisodes(List<PodcastEpisode> podcastEpisodes, long podcastFeedId) {
         new Thread(() -> {
             int podcastId = podcastDao.getPodcastByFeedId(podcastFeedId).getId();
-            List<Episode> toSave = convertToEpisodes(podcastEpisodes, podcastId);
-            for (Episode ep : toSave) {
-                myLogD("EpisodeInsertDebug - Inserting episode: idPodcast=" + ep.idPodcast + ", idZikFile=" + ep.idZikFile);
-            }
+            List<Episode> toSave = PodcastHelper.convertToEpisodes(podcastEpisodes, podcastId);
             episodeDao.insertAll(toSave);
         }).start();
     }
 
-    private List<Episode> convertToEpisodes(List<PodcastEpisode> podcastEpisodes, long idPodcast) {
-        long now = System.currentTimeMillis();
-        List<Episode> result = new ArrayList<>();
-        for (PodcastEpisode pe : podcastEpisodes) {
-            Episode ep = new Episode();
-            ep.idPodcast = idPodcast;
-            ep.date_add = now;
-            ep.idEpisode = pe.id;
-            ep.description = pe.description;
-            ep.title = pe.title;
-            ep.image = pe.image;
-            ep.guid = pe.guid;
-            ep.enclosureUrl = pe.enclosureUrl;
-            ep.datePublished = pe.datePublished;
-            // You could map more data from PodcastEpisode if needed
-            result.add(ep);
-        }
-        return result;
-    }
+
 }

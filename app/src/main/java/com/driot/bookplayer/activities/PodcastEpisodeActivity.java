@@ -52,8 +52,8 @@ public class PodcastEpisodeActivity extends LoggingActivity {
     private ProgressBar progressBar;
     private PodcastEpisodeRVAdapter adapter;
 
-    private PodcastFeed podcastFeed;
     private Podcast podcast;
+    private PodcastFeed podcastFeed;
 
     private ImageButton btnFavorite, btnAutoDownload;
     private TextView labelFavorite, labelAutoDownload, labelAutoDelete;
@@ -81,20 +81,17 @@ public class PodcastEpisodeActivity extends LoggingActivity {
         podcastDao = AppDatabase.getDatabase(this).PodcastDao();
 
         podcast = getIntent().getParcelableExtra("podcast"); // from Favorites
-        podcastFeed = getIntent().getParcelableExtra("podcastFeed"); // from Search
 
-        if (podcastFeed == null) {
-            if (podcast == null) {
-                myLogEE(null,"podcast and podcastFeed are null");
-                return;
-            }
-            podcastFeed = new PodcastFeed(
-                      podcast.feedId
-                    , podcast.title
-                    , podcast.image
-                    , podcast.description
-            );
+        if (podcast == null) {
+            myLogEE(null,"podcast == null");
+            return;
         }
+        podcastFeed = new PodcastFeed(
+                  podcast.feedId
+                , podcast.title
+                , podcast.image
+                , podcast.description
+        );
 
         podcastEpisodeViewModel = new ViewModelProvider(this).get(PodcastEpisodeViewModel.class);
         podcastEpisodeViewModel.getPodcastLiveByFeedId(podcastFeed.id).observe(this, updatedPodcast -> {

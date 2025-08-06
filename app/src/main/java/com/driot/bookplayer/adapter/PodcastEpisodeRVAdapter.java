@@ -1,6 +1,5 @@
 package com.driot.bookplayer.adapter;
 
-import static com.driot.bookplayer.helpers.PodcastHelper.buildPodcastEpisodeName;
 import static com.driot.bookplayer.helpers.PodcastHelper.buildPodcastPath;
 import static com.driot.bookplayer.helpers.PodcastHelper.findPodcastEpisodeFileIfExists;
 
@@ -25,6 +24,7 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.PlayActivity;
 import com.driot.bookplayer.activities.PodcastEpisodeViewModel;
 import com.driot.bookplayer.db.AppDatabase;
+import com.driot.bookplayer.db.Episode;
 import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Option;
@@ -88,10 +88,11 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
         String stats = Tonio.formatTime(episode.duration*1000) + (episode.enclosureLength != 0 ? " (" + Tonio.getReadableSize(episode.enclosureLength) + ")" : "");
         holder.tvEpisodeStats.setText(stats);
 
-        String episodeFileName = buildPodcastEpisodeName(episode);
+        String episodeFileName = PodcastHelper.buildPodcastEpisodeFileName(episode);
+        String episodeName = PodcastHelper.buildPodcastEpisodeFileName(episode);
 
         holder.itemView.setOnClickListener(v -> {
-            myLog("------------ USER CLICKS EPISODE --------------  [" + episodeFileName + "]");
+            myLog("------------ USER CLICKS EPISODE --------------  [" + episodeName + "] - [" + episodeFileName + "]");
             myLogD(episode.toString());
             clickOnEpisode(holder, episode);
         });

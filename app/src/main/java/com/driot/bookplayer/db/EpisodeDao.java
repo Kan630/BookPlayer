@@ -3,6 +3,7 @@ package com.driot.bookplayer.db;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
+import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 import androidx.room.Update;
 
@@ -15,7 +16,7 @@ public interface EpisodeDao {
     @Insert
     long insert(Episode episode);
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     List<Long> insertAll(List<Episode> episodes);
 
     // --- UPDATE ---
@@ -38,6 +39,9 @@ public interface EpisodeDao {
 
     @Query("SELECT * FROM Episode WHERE idZikFile = :zikFileId")
     Episode getByZikFileId(long zikFileId);
+
+    @Query("SELECT * FROM Episode WHERE idEpisode = :idEpisode")
+    Episode getByEpisodeId(long idEpisode);
 
     @Query("SELECT * FROM Episode ORDER BY date_add DESC")
     List<Episode> getAll();

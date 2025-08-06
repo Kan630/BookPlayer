@@ -26,8 +26,9 @@ import androidx.room.PrimaryKey;
                 )
         },
         indices = {
-                @androidx.room.Index("idPodcast"),
-                @androidx.room.Index("idZikFile")
+                @androidx.room.Index(value="idPodcast"),
+                @androidx.room.Index(value="idZikFile"),
+                @androidx.room.Index(value="idEpisode", unique=true)
         }
 )
 

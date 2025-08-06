@@ -1,7 +1,5 @@
 package com.driot.bookplayer.utils;
 
-import static com.driot.bookplayer.helpers.PodcastHelper.buildPodcastEpisodeName;
-
 import android.content.Context;
 
 import androidx.work.Data;
@@ -9,6 +7,7 @@ import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkContinuation;
 import androidx.work.WorkManager;
 
+import com.driot.bookplayer.helpers.PodcastHelper;
 import com.driot.bookplayer.objects.PodcastEpisode;
 
 import java.io.File;
@@ -21,7 +20,7 @@ public class PodcastDownloadManager {
         WorkContinuation continuation = null;
 
         for (PodcastEpisode episode : episodes) {
-            String destFileName = buildPodcastEpisodeName(episode);
+            String destFileName = PodcastHelper.buildPodcastEpisodeFileName(episode);
             String destPath = new File(targetFolder, destFileName).getAbsolutePath();
 
             Data inputData = new Data.Builder()

@@ -36,6 +36,7 @@ public class PodcastSearchResultsActivity extends LoggingActivity {
     private ProgressBar progressBar;
     private TextView errorMessage;
     private PodcastSearchResultsRVAdapter adapter;
+    Podcast podcast;
 
 
 
@@ -65,9 +66,9 @@ public class PodcastSearchResultsActivity extends LoggingActivity {
         adapter = new PodcastSearchResultsRVAdapter(podcastFeed -> {
             AppDatabase.databaseWriteExecutor.execute(() -> {
                 PodcastDao dao = AppDatabase.getDatabase(this).PodcastDao();
-                Podcast existing = dao.getPodcastByFeedId(podcastFeed.id);
-                if (existing == null) {
-                    Podcast podcast = PodcastHelper.fromPodcastFeed(podcastFeed);
+                podcast = dao.getPodcastByFeedId(podcastFeed.id);
+                if (podcast == null) {
+                    podcast = PodcastHelper.fromPodcastFeed(podcastFeed);
                     dao.insert(podcast);
                     myLogD("podcast inserted " + podcastFeed.id );
                 } else {
@@ -77,7 +78,7 @@ public class PodcastSearchResultsActivity extends LoggingActivity {
                 // Always navigate on UI thread
                 runOnUiThread(() -> {
                     Intent intent = new Intent(this, PodcastEpisodeActivity.class);
-                    intent.putExtra("podcastFeed", podcastFeed);
+                    intent.putExtra("podcast", podcast);
                     startActivity(intent);
                 });
             });

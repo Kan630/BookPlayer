@@ -144,24 +144,10 @@ public class DatabaseMigrations {
                             ")"
             );
             db.execSQL("ALTER TABLE Podcast ADD COLUMN autoDelete INTEGER NOT NULL DEFAULT 0");
-        }
-    };
 
-    static final Migration MIGRATION_9_10 = new Migration(9, 10) {
-        @Override
-        public void migrate(SupportSQLiteDatabase db) {
-            myLogI("Migration -> executing step 9 => 10"); //2025-08-05
             db.execSQL("CREATE INDEX IF NOT EXISTS index_Episode_idPodcast ON Episode(idPodcast)");
             db.execSQL("CREATE INDEX IF NOT EXISTS index_Episode_idZikFile ON Episode(idZikFile)");
-        }
-    };
 
-    static final Migration MIGRATION_10_11 = new Migration(10, 11) {
-        @Override
-        public void migrate(SupportSQLiteDatabase db) {
-            myLogI("Migration -> executing step 10 => 11"); // 2025-08-06
-
-            // Add new columns
             db.execSQL("ALTER TABLE Episode ADD COLUMN idEpisode INTEGER NOT NULL DEFAULT 0");
             db.execSQL("ALTER TABLE Episode ADD COLUMN title TEXT");
             db.execSQL("ALTER TABLE Episode ADD COLUMN description TEXT");
@@ -169,17 +155,12 @@ public class DatabaseMigrations {
             db.execSQL("ALTER TABLE Episode ADD COLUMN image TEXT");
             db.execSQL("ALTER TABLE Episode ADD COLUMN guid TEXT");
             db.execSQL("ALTER TABLE Episode ADD COLUMN podcastGuid TEXT");
-
-        }
-    };
-    static final Migration MIGRATION_11_12 = new Migration(11, 12) {
-        @Override
-        public void migrate(SupportSQLiteDatabase db) {
-            myLogI("Migration -> executing step 11 => 12"); // 2025-08-06
-
-            // Add new columns
             db.execSQL("ALTER TABLE Episode ADD COLUMN enclosureUrl TEXT");
             db.execSQL("ALTER TABLE Episode ADD COLUMN datePublished TEXT");
+
+            db.execSQL("CREATE INDEX IF NOT EXISTS index_Episode_idPodcast ON Episode(idPodcast)");
+            db.execSQL("CREATE INDEX IF NOT EXISTS index_Episode_idZikFile ON Episode(idZikFile)");
+            db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS index_Episode_idEpisode ON Episode(idEpisode)");
         }
     };
 

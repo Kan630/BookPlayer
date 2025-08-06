@@ -25,6 +25,7 @@ import com.driot.bookplayer.db.PodcastDao;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.db.ZikFileDao;
 import com.driot.bookplayer.helpers.ImageHelper;
+import com.driot.bookplayer.helpers.PodcastHelper;
 
 import java.io.File;
 
@@ -85,15 +86,22 @@ public class PodcastSyncWorker extends Worker {
             myLog("New Podcast folder added to DB : [" + name + "] - FolderId=[" + idFolder + "] - feedId=[" + feedId + "]");
 
         }
-        podcastId = podcastDao.getIdByFeedId(feedId); // for episode insetrtion
-
+        podcastId = podcastDao.getIdByFeedId(feedId);
 
         // 2. Scan files
         File[] files = folder.listFiles((dir, filename) -> filename.endsWith(".mp3"));
-        if (files == null) return Result.success();
+        if (files == null) {
+            myLogW("folder null " + path + "-" + name);
+            return Result.success();
+        }
+        if (files.length == 0) {
+            myLogW("files.length == 0 " + path + "-" + name);
+            return Result.success();
+        }
 
         int newFilesCount = 0;
         for (File file : files) {
+            myLogD("file : [" +  file.getName() + ']');
             int idFile = zikFileDao.getId(idFolder, file.getName());
 
             if (idFile < 1) { // not in DB
@@ -121,16 +129,27 @@ public class PodcastSyncWorker extends Worker {
                     newFilesCount++;
 
                     if (podcastId != null) {
-                        Episode episode = new Episode();
-                        episode.idPodcast = podcastId;
-                        episode.idZikFile = newZikFileId;
-                        episode.date_add = System.currentTimeMillis();
-                        episode.date_import = System.currentTimeMillis();
-                        episodeDao.insert(episode);
+                        long episodeId = PodcastHelper.getEpisodeIdFromName(file.getName());
+                        if (episodeId < 1) {
+                            myLogEE(null, "could not get episode Id from name " + file.getName());
+                        } else {
+                            Episode episode = episodeDao.getByEpisodeId(episodeId);
+                            episode.idZikFile = newZikFileId;
+                            episode.date_import = System.currentTimeMillis();
+                            int updateResult = episodeDao.update(episode);
+                            myLog("[" + updateResult + "] - episode updated for zikFile link " + newZikFileId + " and podcast " + podcastId);
+                            if (updateResult != 1) {
+                                myLogEE(null, "[" + updateResult + "] - episode updated for zikFile link " + newZikFileId + " and podcast " + podcastId);
+                            }
+                        }
                     } else {
                         myLogEE(null, "could not find podcastId");
                     }
+                } else {
+                    myLogEE(null, "duration == 0 " + file.getName());
                 }
+            } else {
+                myLogW("already in DB : [" + file.getName() + "]");
             }
         }
 
