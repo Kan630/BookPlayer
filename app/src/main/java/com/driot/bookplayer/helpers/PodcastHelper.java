@@ -79,7 +79,7 @@ public class PodcastHelper {
 
     public static PodcastIndexApi buildApi() {
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
-        logging.setLevel(HttpLoggingInterceptor.Level.BODY);
+        logging.setLevel(HttpLoggingInterceptor.Level.BASIC);
 
         Interceptor buildAuthInterceptor = chain -> {
             String key = PODCASTINDEXORG_API_KEY;
@@ -184,9 +184,27 @@ public class PodcastHelper {
         });
     }
 
-    public static void getEpisodesByFeedId(long feedId, long since, EpisodeCallback callback) {
+    public static void getEpisodesByFeedId(long feedId, long since, int max, EpisodeCallback callback) {
         PodcastIndexApi api = buildApi();
-        api.getEpisodesByFeedId(feedId, since).enqueue(new retrofit2.Callback<PodcastEpisodeResponse>() {
+        api.getEpisodesByFeedId(feedId, since, max).enqueue(new retrofit2.Callback<PodcastEpisodeResponse>() {
+            @Override
+            public void onResponse(Call<PodcastEpisodeResponse> call, Response<PodcastEpisodeResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    callback.onSuccess(response.body().items);
+                } else {
+                    callback.onError(new Exception("HTTP " + response.code()));
+                }
+            }
+
+            @Override
+            public void onFailure(Call<PodcastEpisodeResponse> call, Throwable t) {
+                callback.onError(new Exception(t));
+            }
+        });
+    }
+    public static void getNewEpisodesByFeedId(long feedId, long since, int max, EpisodeCallback callback) {
+        PodcastIndexApi api = buildApi();
+        api.getNewEpisodesByFeedId(feedId, since, max, true).enqueue(new retrofit2.Callback<PodcastEpisodeResponse>() {
             @Override
             public void onResponse(Call<PodcastEpisodeResponse> call, Response<PodcastEpisodeResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
@@ -308,7 +326,7 @@ public class PodcastHelper {
         });
     }
     public static void checkForNewEpisodesToAutoDownloadForPodcast(Context context, Podcast podcast, long since) {
-        getEpisodesByFeedId(podcast.feedId, since, new EpisodeCallback() {
+        getNewEpisodesByFeedId(podcast.feedId, since, Option.getPodcastAutoDownloadLastNbEpisode(), new EpisodeCallback() {
             @Override
             public void onSuccess(List<PodcastEpisode> episodes) {
                 File podcastFolder = buildPodcastPath(context, podcast);

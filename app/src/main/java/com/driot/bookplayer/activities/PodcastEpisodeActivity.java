@@ -31,6 +31,7 @@ import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.db.PodcastDao;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Pref;
+import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.objects.PlayList;
 import com.driot.bookplayer.objects.PodcastEpisode;
 import com.driot.bookplayer.objects.PodcastFeed;
@@ -214,7 +215,7 @@ public class PodcastEpisodeActivity extends LoggingActivity {
     private void fetchEpisodes() {
         progressBar.setVisibility(View.VISIBLE);
 
-        PodcastHelper.getEpisodesByFeedId(podcastFeed.id, PODCASTINDEXORG_SINCE, new PodcastHelper.EpisodeCallback() {
+        PodcastHelper.getEpisodesByFeedId(podcastFeed.id, PODCASTINDEXORG_SINCE, Var.PODCASTINDEXORG_API_MAX_RESULTS_FOR_EPISODES, new PodcastHelper.EpisodeCallback() {
             @Override
             public void onSuccess(List<PodcastEpisode> episodes) {
                 runOnUiThread(() -> {
