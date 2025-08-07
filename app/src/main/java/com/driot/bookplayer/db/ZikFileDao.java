@@ -28,9 +28,8 @@ public interface ZikFileDao {
     @Query("SELECT * FROM ZikFile")
     List<ZikFile> getAll();
 
-//    @Query("SELECT * FROM ZikFile WHERE folderName = :folderName AND name = :fileName LIMIT 1")
-    @Query("SELECT * FROM ZikFile WHERE folderName = :folderName AND REPLACE(name, '_', 'h') = REPLACE(:fileName, '_', 'h') LIMIT 1")
-
+    //  @Query("SELECT * FROM ZikFile WHERE folderName = :folderName AND REPLACE(name, '_', 'h') = REPLACE(:fileName, '_', 'h') LIMIT 1")
+    @Query("SELECT * FROM ZikFile WHERE folderName = :folderName AND name = :fileName LIMIT 1")
     LiveData<ZikFile> getZikFileLive(String folderName, String fileName);
 
     @Query("SELECT * FROM ZikFile WHERE idFolder = :idFolder ORDER BY zeorder, name")

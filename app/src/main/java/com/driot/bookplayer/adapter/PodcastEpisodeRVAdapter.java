@@ -27,6 +27,7 @@ import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Option;
+import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.objects.DisplayableEpisode;
 import com.driot.bookplayer.objects.PlayList;
 import com.driot.bookplayer.objects.PodcastEpisode;
@@ -84,7 +85,7 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
     @Override
     public void onBindViewHolder(@NonNull PodcastEpisodeRVAdapter.ViewHolder holder, int position) {
         DisplayableEpisode episode = items.get(position);
-        //myLog(episode.toString().replace(",","\n"));
+        myLog(episode.toString().replace(",","\n"));
         holder.tvTitle.setText(episode.title);
         holder.tvDate.setText(episode.datePublishedPretty != null ? episode.datePublishedPretty : "");
         String stats = Tonio.formatTime(episode.duration*1000) + (episode.enclosureLength != 0 ? " (" + Tonio.getReadableSize(episode.enclosureLength) + ")" : "");
@@ -105,9 +106,10 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
         boolean isDeleted = episode.date_delete != null;
         boolean isOnlyFromDb = episode.comesFromDb && !episode.comesFromApi;
 
-        LiveData<ZikFile> liveZikFile = viewModel.getZikFileLive(podcastFeed.title, episodeFileName); //changed from full path to just folder name, to deal with multiple locations
-        liveZikFile.removeObservers(lifecycleOwner); //not sure it is usefull
-        holder.icon_download.setTag(episodeFileName); // ---- avoid stop flickers on another completion -- Sometimes the LiveData callback gets called even after the view has been recycled
+        LiveData<ZikFile> liveZikFile = viewModel.getZikFileLive(FileHelper.sanitizeFilename(podcastFeed.title), episodeFileName);
+        liveZikFile.removeObservers(lifecycleOwner);
+
+        holder.icon_download.setTag(episodeFileName);
         holder.icon_download.setVisibility(View.GONE);
 
         liveZikFile.observe(lifecycleOwner, zikFile -> {
