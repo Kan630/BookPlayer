@@ -104,36 +104,38 @@ public class PodcastSyncWorker extends Worker {
             myLogD("file : [" +  file.getName() + ']');
             int idFile = zikFileDao.getId(idFolder, file.getName());
 
-            if (idFile < 1) { // not in DB
-                double zeOrder = zikFileDao.getMaxOrder(idFolder) + 1;
+            long episodeId = PodcastHelper.getEpisodeIdFromName(file.getName());
+            if (episodeId < 1) {
+                myLogEE(null, "could not get episode Id from name " + file.getName());
+            } else {
+                Episode episode = episodeDao.getByEpisodeId(episodeId);
 
-                myLogD("getting duration for file : [" +  file.getAbsolutePath() + ']');
-                long duration = 0;
-                duration = getMediaDurationFromPath(file.getAbsolutePath());
-                if (duration > 0) {
-                    ZikFile zikFile = new ZikFile();
-                    zikFile.setIdFolder(idFolder);
-                    zikFile.setName(file.getName());
-                    zikFile.setPath(folder.getAbsolutePath() + "/" + file.getName());
-                    zikFile.setDisplayName(formatNameForDisplay(file.getName()));
-                    zikFile.setZeorder(zeOrder);
-                    zikFile.setFolderName(folderDb.getName());
-                    zikFile.setPercentdone(0.0);
-                    zikFile.setPosition(0);
-                    zikFile.setIszipfile(false); //2023-10-22 code removed for live zip reading
-                    zikFile.setFinished(false);
-                    zikFile.setDuration(duration);
-                    zikFile.date_added = System.currentTimeMillis();
-                    newZikFileId = zikFileDao.insert(zikFile);
-                    myLogD("ZikFile inserted with ID: " + newZikFileId);
-                    newFilesCount++;
+                if (idFile < 1) { // not in DB
+                    double zeOrder = zikFileDao.getMaxOrder(idFolder) + 1;
 
-                    if (podcastId != null) {
-                        long episodeId = PodcastHelper.getEpisodeIdFromName(file.getName());
-                        if (episodeId < 1) {
-                            myLogEE(null, "could not get episode Id from name " + file.getName());
-                        } else {
-                            Episode episode = episodeDao.getByEpisodeId(episodeId);
+
+                    myLogD("getting duration for file : [" + file.getAbsolutePath() + ']');
+                    long duration = 0;
+                    duration = getMediaDurationFromPath(file.getAbsolutePath());
+                    if (duration > 0) {
+                        ZikFile zikFile = new ZikFile();
+                        zikFile.setIdFolder(idFolder);
+                        zikFile.setName(file.getName());
+                        zikFile.setPath(folder.getAbsolutePath() + "/" + file.getName());
+                        zikFile.setDisplayName(formatNameForDisplay(episode.title)); // TO CHANGE
+                        zikFile.setZeorder(zeOrder);
+                        zikFile.setFolderName(folderDb.getName());
+                        zikFile.setPercentdone(0.0);
+                        zikFile.setPosition(0);
+                        zikFile.setIszipfile(false);
+                        zikFile.setFinished(false);
+                        zikFile.setDuration(duration);
+                        zikFile.date_added = System.currentTimeMillis();
+                        newZikFileId = zikFileDao.insert(zikFile);
+                        myLogD("ZikFile inserted with ID: " + newZikFileId);
+                        newFilesCount++;
+
+                        if (podcastId != null) {
                             episode.idZikFile = newZikFileId;
                             episode.date_import = System.currentTimeMillis();
                             int updateResult = episodeDao.update(episode);
@@ -141,15 +143,15 @@ public class PodcastSyncWorker extends Worker {
                             if (updateResult != 1) {
                                 myLogEE(null, "[" + updateResult + "] - episode updated for zikFile link " + newZikFileId + " and podcast " + podcastId);
                             }
+                        } else {
+                            myLogEE(null, "could not find podcastId");
                         }
                     } else {
-                        myLogEE(null, "could not find podcastId");
+                        myLogEE(null, "duration == 0 " + file.getName());
                     }
                 } else {
-                    myLogEE(null, "duration == 0 " + file.getName());
+                    myLogW("already in DB : [" + file.getName() + "]");
                 }
-            } else {
-                myLogW("already in DB : [" + file.getName() + "]");
             }
         }
 
