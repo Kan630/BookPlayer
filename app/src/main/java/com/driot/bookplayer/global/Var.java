@@ -25,8 +25,8 @@ public class Var {
     public static final int PERIODIC_TASK_MANAGER_DELAY_IN_MINUTES = 15;
 
     public static final int LIBRIVOX_API_MAX_RESULTS = 100;
-    public static final int PODCASTINDEXORG_API_MAX_RESULTS_FOR_PODCASTS = 100;
-    public static final int PODCASTINDEXORG_API_MAX_RESULTS_FOR_EPISODES = 5;
+    public static final int PODCASTINDEXORG_API_MAX_RESULTS_FOR_PODCASTS = 200;
+    public static final int PODCASTINDEXORG_API_MAX_RESULTS_FOR_EPISODES = 200;
 
     public static final String PODCASTINDEXORG_API_KEY = "PVULATRUYKDZX26NBGTR";
     public static final String PODCASTINDEXORG_API_SECRET = "ACtMRyawFkg4MxA55y^CH$fE3Dynds4gURfByYXL";
