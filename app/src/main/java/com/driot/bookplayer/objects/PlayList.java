@@ -104,10 +104,12 @@ public class PlayList {
         this.numZikFile = numZikFile;
         myLog("setNumZikFile(" + numZikFile + ") - " + getNumSlashTotal());
         if (numZikFile + 1 > zikFilesList.size()) {
-            //try to reload Playlist (case podcast episodes added ?)
-            List<ZikFile> zikFilesList = AppDatabase.getDatabase(appContext).ZikFileDao().getZikFiles(PlayList.getInstance().getFolder().getId());
-            init(zikFilesList);
-            saveToStorage();
+            myLogW("try to reload Playlist (case podcast episodes added ?)");
+            AppDatabase.databaseReadExecutor.execute(() -> {
+                List<ZikFile> zikFilesList = AppDatabase.getDatabase(appContext).ZikFileDao().getZikFiles(PlayList.getInstance().getFolder().getId());
+                init(zikFilesList);
+                saveToStorage();
+                    });
         }
         saveToStorage();
     }

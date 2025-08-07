@@ -90,9 +90,8 @@ public class ZikFilesRVAdapter extends LoggingRVAdapter<ZikFilesRVAdapter.ZikFil
         public void onClick(View view) {
             int position = getBindingAdapterPosition();
             ZikFile zikFile = zikFileList.get(position);
-            myLogI("onClick() : [" + zikFile.getName() + "] - [" + zikFile.getPath() + "/" + zikFile.getName() + "]");
+            myLogI("USER CLICKS ZIKFILE : [" + zikFile.getName() + "] - [" + zikFile.getPath() + "]");
             PlayList.getInstance().setNumZikFile(position);
-            //mCtx.startActivity(new Intent(mCtx, PlayActivity.class).putExtra("ZikFile", zikFile));
             mCtx.startActivity(new Intent(mCtx, PlayActivity.class));
         }
 

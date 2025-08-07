@@ -286,7 +286,7 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
                 myLog("rankZikFile = " + rankZikFile);
                 if (rankZikFile >= 0 ) {
                     PlayList.getInstance().setNumZikFile(rankZikFile);
-                    context.startActivity(new Intent(this.context, PlayActivity.class).putExtra("ZikFile", zikFile));
+                    //context.startActivity(new Intent(this.context, PlayActivity.class).putExtra("ZikFile", zikFile));
                 }
             } catch (Exception e) {
                 myLogEE(e, "clickOnEpisode - playThatShit");
