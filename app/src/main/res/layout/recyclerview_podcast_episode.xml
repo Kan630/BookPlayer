@@ -68,17 +68,9 @@
             android:gravity="end">
 
             <ImageView
-                android:id="@+id/icon_download_done"
+                android:id="@+id/icon_download"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
-                android:src="@drawable/ic_download_done_24"
-                android:visibility="gone"
-                />
-            <ImageView
-                android:id="@+id/icon_download_action"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:src="@drawable/ic_download_action_24"
                 android:visibility="gone"
                 />
         </LinearLayout>

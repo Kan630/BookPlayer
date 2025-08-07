@@ -27,16 +27,12 @@ import com.driot.bookplayer.utils.PodcastDownloadManager;
 import java.io.File;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.TimeZone;
 
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
@@ -473,36 +469,9 @@ public class PodcastHelper {
         return result;
     }
 
-    public static List<DisplayableEpisode> fromEpisodeList(List<Episode> dbEpisodes) {
-        List<DisplayableEpisode> result = new ArrayList<>();
-        if (dbEpisodes == null) return result;
-
-        for (Episode ep : dbEpisodes) {
-            DisplayableEpisode de = DisplayableEpisode.fromEpisode(ep);
-            result.add(de);
-        }
-
-        return result;
-    }
 
 
 
-    public static List<DisplayableEpisode> mergeDisplayableEpisodes(
-            List<PodcastEpisode> apiEpisodes,
-            List<Episode> dbEpisodes
-    ) {
-        Map<Long, DisplayableEpisode> map = new LinkedHashMap<>();
-
-        for (Episode ep : dbEpisodes) {
-            map.put(ep.idEpisode, DisplayableEpisode.fromEpisode(ep));
-        }
-
-        for (PodcastEpisode pe : apiEpisodes) {
-            map.put(pe.id, DisplayableEpisode.fromPodcastEpisode(pe)); // overwrite if exists
-        }
-
-        return new ArrayList<>(map.values());
-    }
 
     ////////////////////////////////////////////////////////
     private static final String TAG = "PodcastHelper";

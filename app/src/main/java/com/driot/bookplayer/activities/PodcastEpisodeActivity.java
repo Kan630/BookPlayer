@@ -224,7 +224,7 @@ public class PodcastEpisodeActivity extends LoggingActivity {
                 AppDatabase.databaseReadExecutor.execute(() -> {
                     List<Episode> dbEpisodes = podcastEpisodeViewModel.getEpisodesForPodcastSync(podcast.getId());
 
-                    List<DisplayableEpisode> fullList = PodcastHelper.mergeDisplayableEpisodes(apiEpisodes, dbEpisodes);
+                    List<DisplayableEpisode> fullList = DisplayableEpisode.mergeDisplayableEpisodes(apiEpisodes, dbEpisodes);
                     runOnUiThread(() -> {
                         progressBar.setVisibility(View.GONE);
                         adapter.setItems(fullList);
@@ -238,7 +238,7 @@ public class PodcastEpisodeActivity extends LoggingActivity {
                 // fallback to DB-only
                 AppDatabase.databaseReadExecutor.execute(() -> {
                     List<Episode> dbEpisodes = podcastEpisodeViewModel.getEpisodesForPodcastSync(podcast.getId());
-                    List<DisplayableEpisode> fallbackList = PodcastHelper.fromEpisodeList(dbEpisodes);
+                    List<DisplayableEpisode> fallbackList = DisplayableEpisode.fromEpisodeList(dbEpisodes);
 
                     runOnUiThread(() -> {
                         progressBar.setVisibility(View.GONE);

@@ -3,8 +3,12 @@ package com.driot.bookplayer.objects;
 import com.driot.bookplayer.db.Episode;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.TimeZone;
 
 public class DisplayableEpisode {
@@ -32,7 +36,7 @@ public class DisplayableEpisode {
     public Long date_delete;
     public Long lastAccess;
 
-    public static DisplayableEpisode fromPodcastEpisode(PodcastEpisode pe) {
+    public static DisplayableEpisode fromApiEpisode(PodcastEpisode pe) {
         DisplayableEpisode de = new DisplayableEpisode();
         de.comesFromApi = true;
 
@@ -51,7 +55,7 @@ public class DisplayableEpisode {
         return de;
     }
 
-    public static DisplayableEpisode fromEpisode(Episode ep) {
+    public static DisplayableEpisode fromDatabaseEpisode(Episode ep) {
         DisplayableEpisode de = new DisplayableEpisode();
         de.comesFromDb = true;
 
@@ -105,6 +109,61 @@ public class DisplayableEpisode {
     public PodcastEpisode toPodcastEpisode() {
         return DisplayableEpisode.toPodcastEpisode(this);
     }
+
+
+    public static List<DisplayableEpisode> mergeDisplayableEpisodes(
+            List<PodcastEpisode> apiEpisodes,
+            List<Episode> dbEpisodes
+    ) {
+        Map<Long, DisplayableEpisode> resultMap = new LinkedHashMap<>();
+
+        // First: add DB episodes (they may or may not have an API counterpart)
+        for (Episode ep : dbEpisodes) {
+            DisplayableEpisode de = DisplayableEpisode.fromDatabaseEpisode(ep);
+            resultMap.put(ep.idEpisode, de);
+        }
+
+        // Then: merge API episodes
+        for (PodcastEpisode pe : apiEpisodes) {
+            DisplayableEpisode existing = resultMap.get(pe.id);
+            if (existing != null) {
+                // Merge API into existing DB-derived entry
+                existing.comesFromApi = true;
+
+                // Overwrite or add API fields
+                existing.title = pe.title;
+                existing.description = pe.description;
+                existing.duration = pe.duration;
+                existing.image = pe.image;
+                existing.guid = pe.guid;
+                existing.enclosureUrl = pe.enclosureUrl;
+                existing.datePublished = pe.datePublished;
+                existing.datePublishedPretty = pe.datePublishedPretty;
+                existing.enclosureLength = pe.enclosureLength;
+
+            } else {
+                // No match: purely from API
+                DisplayableEpisode fromApi = DisplayableEpisode.fromApiEpisode(pe);
+                resultMap.put(pe.id, fromApi);
+            }
+        }
+
+        return new ArrayList<>(resultMap.values());
+    }
+
+
+    public static List<DisplayableEpisode> fromEpisodeList(List<Episode> dbEpisodes) {
+        List<DisplayableEpisode> result = new ArrayList<>();
+        if (dbEpisodes == null) return result;
+
+        for (Episode ep : dbEpisodes) {
+            DisplayableEpisode de = DisplayableEpisode.fromDatabaseEpisode(ep);
+            result.add(de);
+        }
+
+        return result;
+    }
+
 
     @Override
     public String toString() {

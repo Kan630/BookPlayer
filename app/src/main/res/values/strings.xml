@@ -730,11 +730,9 @@
     <string name="if_completion">if completion</string>
     <string name="no_episode_all_deleted">no episode found, all deleted ?</string>
     <string name="podcast_api_unavailable_fallback">could not get new episodes, showing only previous ones</string>
-    <string name="deleted">deleted</string>
-
-
-
-
+    <string name="deleted_on">deleted on</string>
+    <string name="added_on">added on</string>
+    <string name="from_previous_request">from past</string>
 
 
 
