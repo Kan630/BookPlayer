@@ -28,6 +28,7 @@ import com.driot.bookplayer.db.Episode;
 import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Option;
+import com.driot.bookplayer.objects.DisplayableEpisode;
 import com.driot.bookplayer.objects.PlayList;
 import com.driot.bookplayer.objects.PodcastEpisode;
 import com.driot.bookplayer.objects.PodcastFeed;
@@ -45,7 +46,8 @@ import java.util.Locale;
 
 public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAdapter.ViewHolder> {
 
-    private List<PodcastEpisode> items = new ArrayList<>();
+    private List<DisplayableEpisode> items = new ArrayList<>();
+
     private final Context context;
     private final Podcast podcast;
     private final PodcastFeed podcastFeed;
@@ -68,7 +70,7 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
         }
     }
 
-    public void setItems(List<PodcastEpisode> episodes) {
+    public void setItems(List<DisplayableEpisode> episodes) {
         this.items = episodes;
     }
 
@@ -82,14 +84,15 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
 
     @Override
     public void onBindViewHolder(@NonNull PodcastEpisodeRVAdapter.ViewHolder holder, int position) {
-        PodcastEpisode episode = items.get(position);
+        DisplayableEpisode episode = items.get(position);
+        //myLog("onBindViewHolder - " + episode.toString().replace(",","\n"));
         holder.tvTitle.setText(episode.title);
         holder.tvDate.setText(episode.datePublishedPretty != null ? episode.datePublishedPretty : "");
         String stats = Tonio.formatTime(episode.duration*1000) + (episode.enclosureLength != 0 ? " (" + Tonio.getReadableSize(episode.enclosureLength) + ")" : "");
         holder.tvEpisodeStats.setText(stats);
 
         String episodeFileName = PodcastHelper.buildPodcastEpisodeFileName(episode);
-        String episodeName = PodcastHelper.buildPodcastEpisodeFileName(episode);
+        String episodeName = PodcastHelper.buildPodcastEpisodeName(episode);
 
         holder.itemView.setOnClickListener(v -> {
             myLog("------------ USER CLICKS EPISODE --------------  [" + episodeName + "] - [" + episodeFileName + "]");
@@ -100,16 +103,17 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
 // Check if in physical folder : reserved sd card or reserved smartphone storage
         File downloadedFile = findPodcastEpisodeFileIfExists(context, podcastFeed.title, episodeFileName);
         boolean isDownloaded = (downloadedFile != null);
-        boolean isDeleted = false; //TODO to be continued.... the Episode table should be populated as soon as the api is first call, and we need an episodeFeedID
+        boolean isDeleted = episode.date_delete != null;
+        boolean isOnlyFromDb = episode.comesFromDb && !episode.comesFromApi;
 
         //myLogW(podcastFeed.title + " - " + episodeFileName);
-        //TODO  //not good, if foldername changes, you loose the zikFile, (and if zikfile name changes...)  you need folderID, or feedID or whatever
-        //TODO you need to match an episode with a ZikFile, (like the Folder with the Podcast).... maybe we should have feedID or episodeID in ZikFile table...., and a failback on checking names if id changes (should not happen but who knows)?
         LiveData<ZikFile> liveZikFile = viewModel.getZikFileLive(podcastFeed.title, episodeFileName); //changed from full path to just folder name, to deal with multiple locations
         liveZikFile.removeObservers(lifecycleOwner); //not sure it is usefull
         holder.icon_download_done.setTag(episodeFileName); // ---- avoid stop flickers on another completion -- Sometimes the LiveData callback gets called even after the view has been recycled
+
         liveZikFile.observe(lifecycleOwner, zikFile -> {
             if (!holder.icon_download_done.getTag().equals(episodeFileName)) return; // ---- avoid stop flickers on another completion --
+
             if (zikFile != null) {
                 if (holder.flickerRunning && holder.flickerAnim != null) {
                     holder.flickerRunning = false;
@@ -118,6 +122,7 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
                     holder.icon_download_done.setScaleX(1f);
                     holder.icon_download_done.setScaleY(1f);
                 }
+
                 holder.zikFile = zikFile;
                 String percentDone = String.format(Locale.US, "%.0f", zikFile.getPercentdone());
                 String lastAdded = "Added : " + android.text.format.DateFormat.format("yyyy-MM-dd HH:mm", zikFile.date_added);
@@ -133,13 +138,16 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
                 holder.icon_download_done.setVisibility(View.VISIBLE);
                 holder.icon_download_done.setColorFilter(ContextCompat.getColor(context, R.color.orange_500));
                 holder.icon_download_done.setOnClickListener(null);
-            } else if (isDeleted) {
-                holder.tvEpisodeDBStats.setText("deleted");
+            } else if (isOnlyFromDb) {
+                holder.tvEpisodeDBStats.setText("");
                 holder.icon_download_action.setVisibility(View.GONE);
-                holder.icon_download_done.setVisibility(View.VISIBLE);
-                holder.icon_download_done.setColorFilter(ContextCompat.getColor(context, R.color.brown_700));
-                holder.icon_download_done.setOnClickListener(null);
+                holder.icon_download_done.setVisibility(View.GONE);
             } else {
+                if (isDeleted) {
+                    holder.tvEpisodeDBStats.setText(context.getString(R.string.deleted));
+                } else {
+                    holder.tvEpisodeDBStats.setText("");
+                }
                 holder.tvEpisodeDBStats.setText("");
                 holder.icon_download_done.setVisibility(View.GONE);
                 holder.icon_download_action.setVisibility(View.VISIBLE);
@@ -175,7 +183,7 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
         });
     }
 
-    private void proceedWithDownload(Context context, ViewHolder holder, String futureFolderName, PodcastEpisode episode, long feedId) {
+    private void proceedWithDownload(Context context, ViewHolder holder, String futureFolderName, DisplayableEpisode displayableEpisode, long feedId) {
         if (holder.flickerAnim == null) {
             holder.flickerRunning = true;
             holder.flickerAnim = createFlickerAnimation(holder.icon_download_action,holder);
@@ -185,10 +193,10 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
         if (!targetFolder.exists()) targetFolder.mkdirs();
 
         List<PodcastEpisode> singleList = new ArrayList<>();
-        singleList.add(episode);
+        singleList.add(displayableEpisode.toPodcastEpisode());
 
         PodcastDownloadManager.enqueueDownloads(context, feedId, singleList, targetFolder, null);
-}
+    }
 
     @Override
     public int getItemCount() {
@@ -264,7 +272,7 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
         return flicker;
     }
 
-    private void clickOnEpisode(ViewHolder holder, PodcastEpisode episode) {
+    private void clickOnEpisode(ViewHolder holder, DisplayableEpisode episode) {
         ZikFile zikFile = holder.zikFile;
         if (zikFile == null) {
             ViewHelper.showAlterDialogToDisplayText(this.context, episode.description, this.context.getString(R.string.Episode_description));

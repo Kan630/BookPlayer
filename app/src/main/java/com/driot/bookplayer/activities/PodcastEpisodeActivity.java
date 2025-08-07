@@ -26,12 +26,14 @@ import com.bumptech.glide.Glide;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.adapter.PodcastEpisodeRVAdapter;
 import com.driot.bookplayer.db.AppDatabase;
+import com.driot.bookplayer.db.Episode;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.db.PodcastDao;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.objects.DisplayableEpisode;
 import com.driot.bookplayer.objects.PlayList;
 import com.driot.bookplayer.objects.PodcastEpisode;
 import com.driot.bookplayer.objects.PodcastFeed;
@@ -214,20 +216,39 @@ public class PodcastEpisodeActivity extends LoggingActivity {
     private void fetchEpisodes() {
         progressBar.setVisibility(View.VISIBLE);
 
-        PodcastHelper.getEpisodesByFeedId(podcastFeed.id, PODCASTINDEXORG_SINCE, Var.PODCASTINDEXORG_API_MAX_RESULTS_FOR_EPISODES, new PodcastHelper.EpisodeCallback() {
+        PodcastHelper.getEpisodesByFeedId(podcast.feedId, PODCASTINDEXORG_SINCE, Var.PODCASTINDEXORG_API_MAX_RESULTS_FOR_EPISODES, new PodcastHelper.EpisodeCallback() {
             @Override
-            public void onSuccess(List<PodcastEpisode> episodes) {
-                runOnUiThread(() -> {
-                    progressBar.setVisibility(View.GONE);
-                    adapter.setItems(episodes);
-                    adapter.notifyDataSetChanged();
-                });
+            public void onSuccess(List<PodcastEpisode> apiEpisodes) {
+                podcastEpisodeViewModel.insertEpisodes(apiEpisodes, podcast.feedId); // save new ones
 
-                podcastEpisodeViewModel.insertEpisodes(episodes, podcastFeed.id);
+                AppDatabase.databaseReadExecutor.execute(() -> {
+                    List<Episode> dbEpisodes = podcastEpisodeViewModel.getEpisodesForPodcastSync(podcast.getId());
+
+                    List<DisplayableEpisode> fullList = PodcastHelper.mergeDisplayableEpisodes(apiEpisodes, dbEpisodes);
+                    runOnUiThread(() -> {
+                        progressBar.setVisibility(View.GONE);
+                        adapter.setItems(fullList);
+                        adapter.notifyDataSetChanged();
+                    });
+                });
             }
 
             @Override
             public void onError(Exception e) {
+                // fallback to DB-only
+                AppDatabase.databaseReadExecutor.execute(() -> {
+                    List<Episode> dbEpisodes = podcastEpisodeViewModel.getEpisodesForPodcastSync(podcast.getId());
+                    List<DisplayableEpisode> fallbackList = PodcastHelper.fromEpisodeList(dbEpisodes);
+
+                    runOnUiThread(() -> {
+                        progressBar.setVisibility(View.GONE);
+                        adapter.setItems(fallbackList);
+                        adapter.notifyDataSetChanged();
+                        tvDescription.setTextColor(getColor(R.color.orange_500));
+                        tvDescription.setText(getString(R.string.podcast_api_unavailable_fallback));
+                    });
+                });
+            /*
                 runOnUiThread(() -> {
                     progressBar.setVisibility(View.GONE);
                     tvDescription.setTextColor(getColor(R.color.orange_500));
@@ -238,6 +259,8 @@ public class PodcastEpisodeActivity extends LoggingActivity {
                         tvDescription.setText("Error loading episodes\n" + e.getMessage());
                     }
                 });
+
+             */
             }
         });
     }

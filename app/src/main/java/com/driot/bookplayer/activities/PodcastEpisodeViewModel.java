@@ -17,7 +17,9 @@ import com.driot.bookplayer.objects.PodcastEpisode;
 import com.driot.bookplayer.utils.log.LoggingAndroidViewModel;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class PodcastEpisodeViewModel extends LoggingAndroidViewModel {
     private final ZikFileDao zikFileDao;
@@ -47,6 +49,10 @@ public class PodcastEpisodeViewModel extends LoggingAndroidViewModel {
             List<Episode> toSave = PodcastHelper.convertToEpisodes(podcastEpisodes, podcastId);
             episodeDao.insertAll(toSave);
         }).start();
+    }
+
+    public List<Episode> getEpisodesForPodcastSync(int podcastId) {
+        return episodeDao.getAllEpisodesForPodcast(podcastId);
     }
 
 

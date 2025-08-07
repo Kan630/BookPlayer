@@ -49,4 +49,7 @@ public interface EpisodeDao {
     @Query("UPDATE Episode SET date_delete = :now WHERE idZikFile = :zikFileId")
     int updateDateDeleteForZikFileId(long zikFileId, long now);
 
+    @Query("SELECT * FROM Episode WHERE idPodcast = :podcastId ORDER BY datePublished DESC")
+    List<Episode> getAllEpisodesForPodcast(int podcastId);
+
 }
