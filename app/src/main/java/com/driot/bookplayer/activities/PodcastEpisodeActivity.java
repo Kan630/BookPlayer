@@ -104,7 +104,7 @@ public class PodcastEpisodeActivity extends LoggingActivity {
         });
 
         recyclerEpisodes.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new PodcastEpisodeRVAdapter(this, podcast, podcastFeed, podcastEpisodeViewModel);
+        adapter = new PodcastEpisodeRVAdapter(this, podcastFeed, podcastEpisodeViewModel);
         recyclerEpisodes.setAdapter(adapter);
 
         labelFavorite.setVisibility(View.GONE);

@@ -1,8 +1,5 @@
 package com.driot.bookplayer.adapter;
 
-import static com.driot.bookplayer.helpers.PodcastHelper.buildPodcastPath;
-import static com.driot.bookplayer.helpers.PodcastHelper.findPodcastEpisodeFileIfExists;
-
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.app.AlertDialog;
@@ -49,24 +46,17 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
     private List<DisplayableEpisode> items = new ArrayList<>();
 
     private final Context context;
-    private final Podcast podcast;
     private final PodcastFeed podcastFeed;
     private final PodcastEpisodeViewModel viewModel;
     private final LifecycleOwner lifecycleOwner;
 
-    public PodcastEpisodeRVAdapter(Context context, Podcast podcast, PodcastFeed podcastFeed, PodcastEpisodeViewModel viewModel) {
+    public PodcastEpisodeRVAdapter(Context context, PodcastFeed podcastFeed, PodcastEpisodeViewModel viewModel) {
         this.context = context;
-        this.podcast = podcast;
         this.podcastFeed = podcastFeed;
         this.viewModel = viewModel;
         this.lifecycleOwner = (LifecycleOwner) context; // Assumes context is a LifecycleOwner (e.g., Activity)
-        if (podcast!=null) {
-            podcastFeed.title = podcast.title;
-        } else if (podcastFeed!=null) {
-            podcastFeed.title = podcastFeed.title;
-        } else {
-            podcastFeed.title="error";
-            myLogEE(null, "podcast and podcastFeed are null");
+        if (podcastFeed==null) {
+            myLogEE(null, "podcastFeed == null");
         }
     }
 
@@ -101,7 +91,7 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
         });
 
 // Check if in physical folder : reserved sd card or reserved smartphone storage
-        File downloadedFile = findPodcastEpisodeFileIfExists(context, podcastFeed.title, episodeFileName);
+        File downloadedFile = PodcastHelper.findPodcastEpisodeFileIfExists(context, podcastFeed.title, episodeFileName);
         boolean isDownloaded = (downloadedFile != null);
         boolean isDeleted = episode.date_delete != null;
         boolean isOnlyFromDb = episode.comesFromDb && !episode.comesFromApi;
@@ -194,7 +184,7 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
             holder.flickerAnim = createFlickerAnimation(holder.icon_download,holder);
             holder.flickerAnim.start();
         }
-        File targetFolder = buildPodcastPath(context, futureFolderName);
+        File targetFolder = PodcastHelper.buildPodcastPath(context, futureFolderName);
         if (!targetFolder.exists()) targetFolder.mkdirs();
 
         List<PodcastEpisode> singleList = new ArrayList<>();
