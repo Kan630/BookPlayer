@@ -66,6 +66,8 @@ public class DatabaseClient {
                             , DatabaseMigrations.MIGRATION_6_7
                             , DatabaseMigrations.MIGRATION_7_8
                             , DatabaseMigrations.MIGRATION_8_9
+                            , DatabaseMigrations.MIGRATION_9_10
+                            , DatabaseMigrations.MIGRATION_10_11
                     ).build();
 
             // Force early access to trigger DB open and migrations (and also check SQL version)
