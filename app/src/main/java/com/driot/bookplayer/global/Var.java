@@ -29,7 +29,7 @@ public class Var {
 
     public static final HttpLoggingInterceptor.Level HTTP_LOGGING_INTERCEPTOR_LOG_LEVEL = HttpLoggingInterceptor.Level.NONE;
 
-    public static final int LIBRIVOX_API_MAX_RESULTS = 100;
+    public static final int LIBRIVOX_API_MAX_RESULTS = 1000;
     public static final int PODCASTINDEXORG_API_MAX_RESULTS_FOR_PODCASTS = 200;
     public static final int PODCASTINDEXORG_API_MAX_RESULTS_FOR_EPISODES_NORMAL_MODE = 100;
     public static final int PODCASTINDEXORG_API_MAX_RESULTS_FOR_EPISODES_REFRESH_MODE = 1000;

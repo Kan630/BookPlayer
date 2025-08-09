@@ -95,13 +95,17 @@ public class LibrivoxResultRVAdapter extends LoggingRVAdapter<LibrivoxResultRVAd
 
                 if (localPath != null) {
                     ((android.app.Activity) context).runOnUiThread(() -> {
-                        // ✅ Check the tag before applying the result!
                         Object tag = holder.image.getTag();
                         if (tag instanceof String && tag.equals(item.identifier)) {
-                            Glide.with(context)
-                                    .load(new File(localPath))
-                                    .placeholder(R.drawable.placeholder_cover)
-                                    .into(holder.image);
+                            try {
+                                Glide.with(holder.image)
+                                        .load(new File(localPath))
+                                        .placeholder(R.drawable.placeholder_cover)
+                                        .error(R.drawable.placeholder_cover)
+                                        .into(holder.image);
+                            } catch (Exception e) {
+                                myLogEE(e, "glide error...");
+                            }
                         }
                     });
                 }

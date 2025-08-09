@@ -25,6 +25,7 @@ import com.driot.bookplayer.utils.KanLogger;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.util.Locale;
 
 public class FileHelper {
     //@TargetApi(19)
@@ -328,6 +329,32 @@ public class FileHelper {
             }
         }
         return !file.exists();
+    }
+    public static boolean recursiveRemoveCachedImages(File file) {
+        if (file == null || !file.exists()) {
+            myLogE("recursiveRemoveImages() => File does not exist.... [" + file + "]");
+            return false;
+        }
+
+        if (file.isDirectory()) {
+            File[] list = file.listFiles();
+            if (list != null) {
+                for (File item : list) {
+                    recursiveRemoveCachedImages(item);
+                }
+            }
+        } else {
+            String name = file.getName().toLowerCase(Locale.ROOT);
+            if (name.startsWith("librivox_img") || name.startsWith("podcast_feed")) {
+                if (file.delete()) {
+                    myLog("recursiveRemoveImages() => delete OK.... [" + file + "]");
+                } else {
+                    myLogE("recursiveRemoveImages() => delete KO.... [" + file + "]");
+                }
+            }
+        }
+
+        return true;
     }
 
     // DUREE AUDIO

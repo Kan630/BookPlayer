@@ -108,7 +108,7 @@
             android:gravity="center_horizontal"
             android:textAlignment="center"
             android:textSize="16sp"
-            android:text="@string/delete_images"
+            android:text="@string/delete_cached_images"
             android:layout_margin="10dp"
             />
         <Button

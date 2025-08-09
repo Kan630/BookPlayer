@@ -170,7 +170,7 @@ public class StatsActivity extends LoggingActivity {
     }
     private void deleteImages() {
         File dir = new File(this.getFilesDir(), "images");
-        FileHelper.recursiveRemove(dir);
+        FileHelper.recursiveRemoveCachedImages(dir);
         recreate();
     }
     private void resetApp() {

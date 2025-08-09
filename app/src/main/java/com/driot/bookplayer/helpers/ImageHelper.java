@@ -6,10 +6,14 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.widget.ImageView;
 
 import androidx.core.content.FileProvider;
 import androidx.documentfile.provider.DocumentFile;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.signature.ObjectKey;
+import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.Podcast;
@@ -40,6 +44,22 @@ public class ImageHelper {
         String prefix = isFolder ? FOLDER_IMAGE_PREFIX : PODCAST_IMAGE_PREFIX;
         return new File(dir, prefix + id + ".jpg");
     }
+
+
+    public static void imageGlider(String localPath, ImageView coverView, boolean emptyCache) {
+        try {
+            if (coverView.getContext() != null) {
+                Glide.with(coverView.getContext())
+                        .load(new File(localPath))
+                        .signature(new ObjectKey(System.currentTimeMillis())) //force glide empty cache
+                        .placeholder(R.drawable.placeholder_cover)
+                        .into(coverView);
+            }
+        } catch (Exception e) {
+            myLogEE(e, "Error gliding image");
+        }
+    }
+
 
     private static String downloadAndMaybeCompressImage(Context context, String imageUrl, String imagePath) {
         try {
