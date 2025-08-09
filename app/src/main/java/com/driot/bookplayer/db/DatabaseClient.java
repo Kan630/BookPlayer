@@ -53,7 +53,7 @@ public class DatabaseClient {
 
                     //-------------------------------------------------------
                     //.fallbackToDestructiveMigration()  // <--- ATTENTION !!
-                    //                              modif version BDD => truncate all tables !!
+                    //                              change version BDD => truncate all tables !!
                     //       => better, just uncomment the deleteDatabase at the top of this method
                     //-------------------------------------------------------
 

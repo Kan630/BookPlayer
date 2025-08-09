@@ -31,10 +31,7 @@ import com.driot.bookplayer.objects.TaskStateManager;
 import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingWorker;
-import com.googlecode.mp4parser.authoring.Movie;
-import com.googlecode.mp4parser.authoring.container.mp4.MovieCreator;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Objects;
 
@@ -57,6 +54,13 @@ public class ParseFinalFolderWorker extends LoggingWorker {
 
     LoadBookTaskState bookState;
 
+    public static final String K_DYNAMIC_URI   = "dynamic_uri";
+    public static final String K_DYNAMIC_TYPE  = "dynamic_type"; // "Folder" | "File" | "ZIP"
+    public static final String K_TITLE         = "title";
+    public static final String K_FUTURE_PATH   = "future_folder_path";
+    public static final String K_SOURCE_LOC    = "source_location"; // your enum/int/string
+    public static final String K_ORIGINAL_HASH = "original_hash";   // optional
+    public static final String K_IMAGE_URI     = "image_uri";       // optional
 
     public ParseFinalFolderWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
@@ -68,6 +72,27 @@ public class ParseFinalFolderWorker extends LoggingWorker {
         DocumentFile df;
         Context context = getApplicationContext();
         bookState = Pref.getLoadBookTaskState();
+
+        // New: override with InputData if provided
+        String inDynUri  = getInputData().getString(K_DYNAMIC_URI);
+        String inDynType = getInputData().getString(K_DYNAMIC_TYPE);
+        if (inDynUri != null && inDynType != null) {
+            // Build a minimal LoadBookTaskState on the fly
+            LoadBookTaskState s = new LoadBookTaskState();
+            s.dynamicUri = Uri.parse(inDynUri);
+            s.dynamicType = inDynType;
+            s.title = getInputData().getString(K_TITLE);
+            s.futureFolderPath = getInputData().getString(K_FUTURE_PATH); // store SAF uri string
+            s.sourceLocation = getInputData().getString(K_SOURCE_LOC);
+            s.originalHash = getInputData().getString(K_ORIGINAL_HASH);
+            s.imagePath = getInputData().getString(K_IMAGE_URI);
+            // sensible defaults
+            s.optionCopy = false;
+            s.optionDelete = false;
+            s.originalType = inDynType;
+            bookState = s;
+        }
+
         if (bookState == null) {
             TaskStateManager.markTaskFailed(TASK_NAME, "bookState == null");
             return Result.failure();
@@ -180,7 +205,7 @@ public class ParseFinalFolderWorker extends LoggingWorker {
         long duration = getMediaDurationFromUri(context, df.getUri(), df.getName());
         if (duration==0) TaskStateManager.markTaskFailed(TASK_NAME, context.getString(R.string.Error_Import_track_duration_extraction) + " for " + df.getName());
         myLogD("* Duration : [" +  formatTime(duration) + ']');
-        audioFileArrayList.add(new AudioFileInfo(df.getName(), duration));
+        audioFileArrayList.add(new AudioFileInfo(df.getName(), duration, df.getUri().toString()));
     }
     private void addAudioFileRecursive(DocumentFile f0) {
         totalDuration = 0;
@@ -217,7 +242,7 @@ public class ParseFinalFolderWorker extends LoggingWorker {
                     double progress = totalAudioToScan > 0 ? (nbAudioScanned / (double) totalAudioToScan) : 0;
                     int scaledProgress = 10 + (int) ((80 - 10) * progress);
                     TaskStateManager.tellProgress(TASK_NAME, scaledProgress, context.getString(R.string.scanning_tracks) + "..... \n[" +  l_audioFilePath + ']');
-                    audioFileArrayList.add(new AudioFileInfo(l_audioFilePath, duration));
+                    audioFileArrayList.add(new AudioFileInfo(l_audioFilePath, duration, f1.getUri().toString()));
                     fullFolderSize = fullFolderSize + l_audioSize;
                 } else if (mimeType.startsWith(Var.ONLY_MIME_VIDEO) || Var.SUPPORTED_VIDEO_EXTENSIONS.contains(fileExtension)) {
                     myLog("Video");
@@ -291,9 +316,9 @@ public class ParseFinalFolderWorker extends LoggingWorker {
 
             int progress = 85 + ((i + 1) * 100 / total) * (98 - 85) / 100;
             String txtProgress = progress + "% - " + context.getString(R.string.saving_track) +
-                    " n°" + i + 1 + "/" + total + "\n" + getFileNameFromPath(info.getFileName());
+                    " n°" + i + 1 + "/" + total + "\n" + getFileNameFromPath(info.getDisplayPath());
 
-            myLogD("Registering track [" + info.getFileName() + "]");
+            myLogD("Registering track [" + info.getDisplayPath() + "]");
             SaveResultEnum result = saveSingleFile(info, insertedFolderId, zeOrder);
             TaskStateManager.tellProgress(TASK_NAME, progress, txtProgress);
 
@@ -329,25 +354,21 @@ public class ParseFinalFolderWorker extends LoggingWorker {
 
     private SaveResultEnum saveSingleFile(AudioFileInfo info, int folderId, int zeOrder) {
         ZikFile file = new ZikFile();
-        file.setName(info.getFileName());
-        file.setDisplayName(formatNameForDisplay(info.getFileName()));
+        file.setName(info.getDisplayPath());
+        file.setDisplayName(formatNameForDisplay(info.getDisplayPath()));
         file.setIdFolder(folderId);
         file.setZeorder(zeOrder);
         file.setFolderName(bookState.title);
         file.setPercentdone(0.0);
         file.setPosition(0);
-        if (bookState.dynamicType.equals("File")) {
-            file.setPath(bookState.futureFolderPath);
-        } else {
-            file.setPath(bookState.futureFolderPath + "/" + info.getFileName());
-        }
+        file.setPath(info.getContentUri());
         file.setIszipfile(false);
         file.setFinished(false);
         file.setDuration(info.getDuration());
         file.date_added = System.currentTimeMillis();
 
         if (file.getDuration() == 0) {
-            myLogW("⏭️ Skipped: duration = 0 → " + info.getFileName());
+            myLogW("⏭️ Skipped: duration = 0 → " + info.getDisplayPath());
             return SaveResultEnum.SKIPPED;
         }
 
@@ -356,8 +377,8 @@ public class ParseFinalFolderWorker extends LoggingWorker {
             //myLog("✔️ ZikFile inserted: id = " + id);
             return SaveResultEnum.SUCCESS;
         } else {
-            myLogE("❌ DB insert failed for: " + info.getFileName());
-            TaskStateManager.markTaskFailed(TASK_NAME, context.getString(R.string.Error_Import_CannotSaveInDB) + " [" + info.getFileName() + "]");
+            myLogE("❌ DB insert failed for: " + info.getDisplayPath());
+            TaskStateManager.markTaskFailed(TASK_NAME, context.getString(R.string.Error_Import_CannotSaveInDB) + " [" + info.getDisplayPath() + "]");
             return SaveResultEnum.FAILED;
         }
     }

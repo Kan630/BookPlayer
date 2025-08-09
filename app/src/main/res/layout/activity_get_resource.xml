@@ -88,17 +88,6 @@
                     android:layout_marginTop="@dimen/GetRessource320_vertical_margin_text2button" />
 
                 <TextView
-                    android:id="@+id/bOpenFolder_desc"
-                    style="@style/GetResourceTextTopOfButton"
-                    android:text="@string/bOpenFolder_desc" />
-
-                <Button
-                    android:id="@+id/bOpenFolder"
-                    android:text="@string/bOpenFolder"
-                    style="@style/GetResourceButton"
-                    android:layout_marginTop="@dimen/GetRessource320_vertical_margin_text2button" />
-
-                <TextView
                     android:id="@+id/bOpenZipFile_desc"
                     style="@style/GetResourceTextTopOfButton"
                     android:text="@string/bOpenZipFile_desc" />
@@ -117,6 +106,33 @@
                 <Button
                     android:id="@+id/bOpenM4bFile"
                     android:text="@string/bOpenM4bFile"
+                    style="@style/GetResourceButton"
+                    android:layout_marginTop="@dimen/GetRessource320_vertical_margin_text2button" />
+
+                <TextView
+                    android:id="@+id/bOpenFolder_desc"
+                    style="@style/GetResourceTextTopOfButton"
+                    android:text="@string/bOpenFolder_desc" />
+
+                <Button
+                    android:id="@+id/bOpenFolder"
+                    android:text="@string/bOpenFolder"
+                    style="@style/GetResourceButton"
+                    android:layout_marginTop="@dimen/GetRessource320_vertical_margin_text2button" />
+
+                <TextView
+                    android:id="@+id/bOpenMassImport_desc"
+                    style="@style/GetResourceTextTopOfButton"
+                    android:text="@string/bOpenMassImport_desc" />
+
+                <TextView
+                    style="@style/warningTextView"
+                    android:layout_marginStart="30dp"
+                    android:text="@string/warning_beta_test" />
+
+                <Button
+                    android:id="@+id/bMassImport"
+                    android:text="@string/bMassImport"
                     style="@style/GetResourceButton"
                     android:layout_marginTop="@dimen/GetRessource320_vertical_margin_text2button" />
 

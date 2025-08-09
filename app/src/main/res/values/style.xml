@@ -14,6 +14,11 @@
     <style name="warningText" parent="TextAppearance.AppCompat">
         <item name="android:textColor">@color/orange_500</item>
     </style>
+    <style name="warningTextView" parent="warningText">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
 
     <style name="EditText" parent="TextAppearance.AppCompat">
         <item name="android:background">@drawable/rounded_corner_theme</item>

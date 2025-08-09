@@ -3,27 +3,30 @@ package com.driot.bookplayer.objects;
 import java.util.Comparator;
 
 public class AudioFileInfo {
-    private String fileName;
-    private long duration;
+    private final String displayPath;
+    private final long duration;
+    private final String contentUri;
 
-    public AudioFileInfo(String fileName, long duration) {
-        this.fileName = fileName;
+    public AudioFileInfo(String displayPath, long duration, String contentUri) {
+        this.displayPath = displayPath;
         this.duration = duration;
+        this.contentUri = contentUri;
     }
-
-    public String getFileName() {
-        return fileName;
+    public String getDisplayPath() {
+        return displayPath;
     }
 
     public long getDuration() {
         return duration;
     }
 
+    public String getContentUri() { return contentUri; }
+
     public static final Comparator<AudioFileInfo> ALPHANUMERIC_COMPARATOR = new Comparator<AudioFileInfo>() {
         @Override
         public int compare(AudioFileInfo a1, AudioFileInfo a2) {
-            String s1 = a1.getFileName();
-            String s2 = a2.getFileName();
+            String s1 = a1.getDisplayPath();
+            String s2 = a2.getDisplayPath();
 
             String[] arr1 = s1.split("(?<=\\D)(?=\\d)|(?<=\\d)(?=\\D)");
             String[] arr2 = s2.split("(?<=\\D)(?=\\d)|(?<=\\d)(?=\\D)");

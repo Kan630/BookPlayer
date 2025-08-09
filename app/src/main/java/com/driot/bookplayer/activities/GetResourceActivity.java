@@ -25,6 +25,9 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.work.Data;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Pref;
@@ -33,6 +36,7 @@ import com.driot.bookplayer.objects.AppViewModelStoreOwner;
 import com.driot.bookplayer.objects.LanguageItem;
 import com.driot.bookplayer.helpers.AnalyticsHelper;
 import com.driot.bookplayer.services.BookLoadingWorkLauncher;
+import com.driot.bookplayer.services.ScanAndReimportWorker;
 import com.driot.bookplayer.views.EditTextWithButtons;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.utils.LanguageHelper;
@@ -51,7 +55,7 @@ import static com.driot.bookplayer.objects.WorkFlow.maybeResumeWorkFlow;
  * created by Antoine Driot -- antoine.driot.com -- on 08/11/20
  */
 public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
-    private Button bOpenFile, bOpenFolder, bOpenZipFile, bOpenM4bFile;
+    private Button bOpenFile, bOpenFolder, bOpenZipFile, bOpenM4bFile, bMassImport;
     private Button bAutoTest_b1, bAutoTest_b2, bAutoTest_b3, bAutoTest_b4, bDirectDownload;
 
     private PermissionRequest mPermissionRequest;
@@ -62,6 +66,7 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
              bOpenFileActivityResultLauncher
             ,bOpenFolderActivityResultLauncher
             ,loadOptionsActivityResultLauncher
+            ,bMassImportActivityResultLauncher
             ;
 
     private ActivityResultLauncher<Intent> addResourceActivityResultLauncher;
@@ -79,10 +84,28 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
                             Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION
                     );
 
-                    Intent intent = new Intent(this, LoadOptionsActivity.class);
-                    intent.putExtra(LoadOptionsActivity.EXTRA_URI, uri);
-                    intent.putExtra(LoadOptionsActivity.EXTRA_TYPE, type);
-                    loadOptionsActivityResultLauncher.launch(intent);
+                    if (type.equals("MassImport")) {
+
+                        WorkManager.getInstance(this).enqueue(
+                                new OneTimeWorkRequest.Builder(ScanAndReimportWorker.class)
+                                        .setInputData(new Data.Builder()
+                                                .putString(ScanAndReimportWorker.K_ROOT_TREE_URI, uri.toString())
+                                                .putString(ScanAndReimportWorker.K_SOURCE_LOC, "MassImport")
+                                                .build())
+                                        .addTag("BulkReimportScan")
+                                        .build()
+                        );
+                        Intent intentActivity = new Intent(this, AddResourceActivity.class);
+                        startActivity(intentActivity);
+
+                    } else {
+
+                        Intent intent = new Intent(this, LoadOptionsActivity.class);
+                        intent.putExtra(LoadOptionsActivity.EXTRA_URI, uri);
+                        intent.putExtra(LoadOptionsActivity.EXTRA_TYPE, type);
+                        loadOptionsActivityResultLauncher.launch(intent);
+
+                    }
 
                 } else {
                     myLogE("returned Uri not OK");
@@ -101,9 +124,10 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
         setContentView(R.layout.activity_get_resource);
 
         bOpenFile = findViewById(R.id.bOpenFile);
-        bOpenFolder = findViewById(R.id.bOpenFolder);
         bOpenZipFile = findViewById(R.id.bOpenZipFile);
         bOpenM4bFile = findViewById(R.id.bOpenM4bFile);
+        bOpenFolder = findViewById(R.id.bOpenFolder);
+        bMassImport = findViewById(R.id.bMassImport);
         Button bInternetAudioResource_01 = findViewById(R.id.bInternetAudioResource_01);
         Button bInternetAudioResource_02 = findViewById(R.id.bInternetAudioResource_02);
         bAutoTest_b1 = findViewById(R.id.bAutoTest_b1);
@@ -136,20 +160,6 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
                 //CATEGORY_OPENABLE => able to use : ContentResolver#openFileDescriptor(Uri, String)
                 //can be opened as a File object i.e. with read and write permissions and have complete access to the physical location of the data
                 bOpenFileActivityResultLauncher.launch(intent);
-            } else {
-                askForPermission();
-            }
-        });
-
-// FOLDER
-        bOpenFolderActivityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
-                result -> { launchAddResource(result, "Folder"); });
-        bOpenFolder.setOnClickListener(view -> {
-            myLogI("------------ USER CLICKS : button FOLDER");
-            if (isReadAudioPermissionGranted(this) || Option.getCopyFile()) {
-                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE); //API 21
-                intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_WRITE_URI_PERMISSION|Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION|Intent.FLAG_GRANT_PREFIX_URI_PERMISSION);
-                bOpenFolderActivityResultLauncher.launch(intent);
             } else {
                 askForPermission();
             }
@@ -201,6 +211,38 @@ public class GetResourceActivity extends LoggingActivity { //AppCompatActivity
 
             bOpenFileActivityResultLauncher.launch(intent);
         });
+
+// FOLDER
+        bOpenFolderActivityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+                result -> { launchAddResource(result, "Folder"); });
+        bOpenFolder.setOnClickListener(view -> {
+            myLogI("------------ USER CLICKS : button FOLDER");
+            if (isReadAudioPermissionGranted(this) || Option.getCopyFile()) {
+                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE); //API 21
+                intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_WRITE_URI_PERMISSION|Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION|Intent.FLAG_GRANT_PREFIX_URI_PERMISSION);
+                bOpenFolderActivityResultLauncher.launch(intent);
+            } else {
+                askForPermission();
+            }
+        });
+
+// FOLDER
+        bMassImportActivityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
+                result -> launchAddResource(result, "MassImport"));
+        bMassImport.setOnClickListener(view -> {
+            myLogI("------------ USER CLICKS : button MASS IMPORT");
+            if (isReadAudioPermissionGranted(this) || Option.getCopyFile()) {
+                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE); //API 21
+                intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_WRITE_URI_PERMISSION|Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION|Intent.FLAG_GRANT_PREFIX_URI_PERMISSION);
+                bMassImportActivityResultLauncher.launch(intent);
+            } else {
+                askForPermission();
+            }
+        });
+
+
+
+
 
 
         loadOptionsActivityResultLauncher = registerForActivityResult(

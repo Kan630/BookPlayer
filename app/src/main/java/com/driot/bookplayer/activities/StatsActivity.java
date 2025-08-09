@@ -56,6 +56,8 @@ public class StatsActivity extends LoggingActivity {
         long currentAudiosSizeInternal = Tonio.getFolderSize(StorageHelper.getUnzipFolder(this, false)) / 1048576L;
         long sizeImages = getFolderSize(this.getFilesDir().getPath() + "/images") / 1048576L;
         long sizeLogs = getFolderSize(this.getFilesDir().getPath() + "/log") / 1048576L;
+        long sizeDB = getFolderSize(this.getFilesDir().getParentFile().getPath() + "/databasess") / 1048576L;
+
 
         zeText =
                 Tonio.formatMemPadding(totalMemory) + getString(R.string.MB_device_memory)
@@ -64,6 +66,7 @@ public class StatsActivity extends LoggingActivity {
                         + "\n" + "\n" + Tonio.formatMemPadding(currentAppSize) + getString(R.string.MB_taken_by_BookPlayer_app)
                         + "\n" + "\n" + Tonio.formatMemPadding(sizeImages) + getString(R.string.MB_taken_by_images)
                         + "\n" + "\n" + Tonio.formatMemPadding(sizeLogs) + getString(R.string.MB_taken_by_logs)
+                        + "\n" + "\n" + Tonio.formatMemPadding(sizeDB) + getString(R.string.MB_taken_by_databases)
                 ;
         long total = getTotalRemovableSDCardSize(this) / 1048576L;;
         if (total > 0) {

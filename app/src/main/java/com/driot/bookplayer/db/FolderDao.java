@@ -94,5 +94,11 @@ public interface FolderDao {
     //@Query("SELECT * FROM user WHERE birthday BETWEEN :from AND :to")
     //List<User> findUsersBornBetweenDates(Date from, Date to);
 
+    @Query("SELECT EXISTS(SELECT 1 FROM Folder WHERE path = :path LIMIT 1)")
+    boolean existsByPath(String path);
+
+    // Optional: by original hash if you use it consistently
+    @Query("SELECT EXISTS(SELECT 1 FROM Folder WHERE originalHash = :hash LIMIT 1)")
+    boolean existsByOriginalHash(String hash);
 }
 

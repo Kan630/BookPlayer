@@ -324,9 +324,6 @@
 
     <string name="TextHeaderOpen">Open an audio on my device</string>
     <string name="bOpenFile_desc">Grab any file.</string>
-    <string name="bOpenFolder_desc">Grab a folder.
-        \nAll audios from that folder will be imported.
-        \n<i>Beware all audios located in subfolders, if any, will also be imported, recursively.</i></string>
     <string name="bOpenZipFile_desc">filter : only zip files</string>
     <string name="bOpenM4bFile_desc">filter : only audio files
         \n<i>Beware this filter is not perfect, use top button [any file] if problems.</i></string>
@@ -733,8 +730,11 @@
     <string name="deleted_on">deleted on</string>
     <string name="added_on">added on</string>
     <string name="from_previous_request">from past</string>
-
-
+    <string name="MB_taken_by_databases">" MB taken by database"</string>
+    <string name="bMassImport">Mass Import</string>
+    <string name="bOpenMassImport_desc">Mass Import : pick a folder containing multiple audiobooks</string>
+    <string name="bOpenFolder_desc">Pick a folder : all audios (even in subfolders, if any) will be imported in the same book.</string>
+    <string name="warning_beta_test">Beta Feature – May be unstable</string>">
 
 
 
