@@ -52,4 +52,6 @@ public interface EpisodeDao {
     @Query("SELECT * FROM Episode WHERE idPodcast = :podcastId ORDER BY datePublished DESC")
     List<Episode> getAllEpisodesForPodcast(int podcastId);
 
+    @Query("SELECT MAX(datePublished) FROM Episode WHERE idPodcast = :podcastId")
+    Long getMaxDatePublishedForPodcast(long podcastId);
 }

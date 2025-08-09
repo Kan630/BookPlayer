@@ -240,6 +240,7 @@ public class PodcastHelper {
         });
     }
     public static void getNewEpisodesByFeedId(long feedId, long since, int max, EpisodeCallback callback) {
+        myLogD("getNewEpisodesByFeedId - " + feedId + " - " + since + " - " + max);
         PodcastIndexApi api = buildApi();
         api.getNewEpisodesByFeedId(feedId, since, max, true).enqueue(new retrofit2.Callback<PodcastEpisodeResponse>() {
             @Override

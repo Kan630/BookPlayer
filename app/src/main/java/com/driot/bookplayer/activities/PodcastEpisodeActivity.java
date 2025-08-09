@@ -38,7 +38,6 @@ import com.driot.bookplayer.objects.PlayList;
 import com.driot.bookplayer.objects.PodcastEpisode;
 import com.driot.bookplayer.objects.PodcastFeed;
 import com.driot.bookplayer.helpers.AnalyticsHelper;
-import com.driot.bookplayer.utils.NetworkUtils;
 import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.PodcastHelper;
@@ -57,7 +56,7 @@ public class PodcastEpisodeActivity extends LoggingActivity {
     private Podcast podcast;
     private PodcastFeed podcastFeed;
 
-    private ImageButton btnFavorite, btnAutoDownload;
+    private ImageButton btnFavorite, btnAutoDownload, btnRefresh;
     private TextView labelFavorite, labelAutoDownload, labelAutoDelete;
     private PodcastDao podcastDao;
 
@@ -76,6 +75,7 @@ public class PodcastEpisodeActivity extends LoggingActivity {
 
         btnFavorite = findViewById(R.id.btnFavorite);
         btnAutoDownload = findViewById(R.id.btnAutoDownload);
+        btnRefresh = findViewById(R.id.btnRefresh);
         labelFavorite = findViewById(R.id.labelFavorite);
         labelAutoDownload = findViewById(R.id.labelAutoDownload);
         labelAutoDelete = findViewById(R.id.labelAutoDelete);
@@ -138,11 +138,15 @@ public class PodcastEpisodeActivity extends LoggingActivity {
         if (podcastFeed.id == -1) {
             myToastE("Error loading episodes. ID=-1");
         } else {
-            fetchEpisodes();
+            fetchEpisodes(false);
         }
 
         btnFavorite.setOnClickListener(v -> toggleFavorite());
         btnAutoDownload.setOnClickListener(v -> toggleAutoDownload());
+        btnRefresh.setOnClickListener(v -> {
+            myLogI("-------- USER CLICKS REFRESH");
+            fetchEpisodes(true);
+        });
 
         int maxHeightPx = (int) (Resources.getSystem().getDisplayMetrics().heightPixels * 0.1);
         tvDescription.setMaxHeight(maxHeightPx);
@@ -213,57 +217,86 @@ public class PodcastEpisodeActivity extends LoggingActivity {
         btnAutoDownload.setColorFilter(ContextCompat.getColor(this, colorResId), PorterDuff.Mode.SRC_IN);
     }
 
-    private void fetchEpisodes() {
+    private void fetchEpisodes(boolean isRefresh) {
+        myLogD("fetchEpisodes " + (isRefresh ? "refresh" : "no refresh"));
+        long nbEpisodeFull = 0;
         progressBar.setVisibility(View.VISIBLE);
 
-        PodcastHelper.getEpisodesByFeedId(podcast.feedId, PODCASTINDEXORG_SINCE, Var.PODCASTINDEXORG_API_MAX_RESULTS_FOR_EPISODES, new PodcastHelper.EpisodeCallback() {
-            @Override
-            public void onSuccess(List<PodcastEpisode> apiEpisodes) {
-                podcastEpisodeViewModel.insertEpisodes(apiEpisodes, podcast.feedId); // save new ones
+        // 1) Load DB immediately → optimistic UI
+        AppDatabase.databaseReadExecutor.execute(() -> {
+            List<Episode> dbEpisodes = podcastEpisodeViewModel.getEpisodesForPodcastSync(podcast.getId());
+            myLogD("DB episodes count: " + dbEpisodes.size());
+            List<DisplayableEpisode> initial = DisplayableEpisode.fromEpisodeList(dbEpisodes);
+            runOnUiThread(() -> {
+                adapter.setItems(initial);
+                adapter.notifyDataSetChanged();
+            });
+        });
 
-                AppDatabase.databaseReadExecutor.execute(() -> {
-                    List<Episode> dbEpisodes = podcastEpisodeViewModel.getEpisodesForPodcastSync(podcast.getId());
-
-                    List<DisplayableEpisode> fullList = DisplayableEpisode.mergeDisplayableEpisodes(apiEpisodes, dbEpisodes);
-                    runOnUiThread(() -> {
-                        progressBar.setVisibility(View.GONE);
-                        adapter.setItems(fullList);
-                        adapter.notifyDataSetChanged();
-                    });
-                });
+        // 2) Compute "since" from DB and then hit API
+        AppDatabase.databaseReadExecutor.execute(() -> {
+            long since;
+            int maxEpisode;
+            if (isRefresh) {
+                since = 0;
+                maxEpisode = Var.PODCASTINDEXORG_API_MAX_RESULTS_FOR_EPISODES_REFRESH_MODE;
+            } else {
+                maxEpisode = Var.PODCASTINDEXORG_API_MAX_RESULTS_FOR_EPISODES_NORMAL_MODE;
+                Long lastPublished = podcastEpisodeViewModel.getLastPublishedForPodcastSync(podcast.getId()); // epoch seconds
+                since = (lastPublished == null) ? 0L : Math.max(0L, lastPublished - 60);  //30j :  -(60*60*24*30)
             }
 
-            @Override
-            public void onError(Exception e) {
-                // fallback to DB-only
-                AppDatabase.databaseReadExecutor.execute(() -> {
-                    List<Episode> dbEpisodes = podcastEpisodeViewModel.getEpisodesForPodcastSync(podcast.getId());
-                    List<DisplayableEpisode> fallbackList = DisplayableEpisode.fromEpisodeList(dbEpisodes);
+            PodcastHelper.getEpisodesByFeedId(
+                    podcast.feedId,
+                    since,
+                    maxEpisode,
+                    new PodcastHelper.EpisodeCallback() {
+                        @Override
+                        public void onSuccess(List<PodcastEpisode> apiEpisodes) {
+                            myLogD("API episodes count: " + apiEpisodes.size());
+                            // 3) Persist new/updated from API
+                            podcastEpisodeViewModel.insertEpisodes(apiEpisodes, podcast.feedId);
 
-                    runOnUiThread(() -> {
-                        progressBar.setVisibility(View.GONE);
-                        adapter.setItems(fallbackList);
-                        adapter.notifyDataSetChanged();
-                        tvDescription.setTextColor(getColor(R.color.orange_500));
-                        tvDescription.setText(getString(R.string.podcast_api_unavailable_fallback));
-                    });
-                });
-            /*
-                runOnUiThread(() -> {
-                    progressBar.setVisibility(View.GONE);
-                    tvDescription.setTextColor(getColor(R.color.orange_500));
-                    if (NetworkUtils.isUnknownHost(e)) {
-                        tvDescription.setText(getString(R.string.no_internet_connection));
-                    } else {
-                        myLogEE(e,"Error loading episodes for " + podcastFeed.title + " - podcastFeed.id = " + podcastFeed.id );
-                        tvDescription.setText("Error loading episodes\n" + e.getMessage());
+                            // 4) Refresh DB and merge for display
+                            AppDatabase.databaseReadExecutor.execute(() -> {
+                                List<Episode> dbEpisodes = podcastEpisodeViewModel.getEpisodesForPodcastSync(podcast.getId());
+                                List<DisplayableEpisode> fullList =
+                                        DisplayableEpisode.mergeDisplayableEpisodes(apiEpisodes, dbEpisodes);
+                                myLogD("DB episodes after insert: " + dbEpisodes.size());
+                                int nbEpisodeFull = fullList.size();
+                                myLogD("Displayed episodes count: " + nbEpisodeFull);
+                                runOnUiThread(() -> {
+                                    if (isRefresh) {
+                                        myToast(nbEpisodeFull + " " + getString(R.string.episodes) );
+                                    }
+                                    progressBar.setVisibility(View.GONE);
+                                    adapter.setItems(fullList);
+                                    adapter.notifyDataSetChanged();
+                                });
+                            });
+                        }
+
+                        @Override
+                        public void onError(Exception e) {
+                            // Fallback: DB-only (you already showed initial DB result; here we just end the spinner and warn)
+                            AppDatabase.databaseReadExecutor.execute(() -> {
+                                List<Episode> dbEpisodes = podcastEpisodeViewModel.getEpisodesForPodcastSync(podcast.getId());
+                                List<DisplayableEpisode> fallbackList = DisplayableEpisode.fromEpisodeList(dbEpisodes);
+
+                                runOnUiThread(() -> {
+                                    progressBar.setVisibility(View.GONE);
+                                    adapter.setItems(fallbackList);
+                                    adapter.notifyDataSetChanged();
+                                    tvDescription.setTextColor(getColor(R.color.orange_500));
+                                    tvDescription.setText(getString(R.string.podcast_api_unavailable_fallback));
+                                });
+                            });
+                        }
                     }
-                });
-
-             */
-            }
+            );
         });
     }
+
 
     private void downloadAllEpisodesToFolder(Podcast podcast, long since) {
         PodcastHelper.checkForNewEpisodesToAutoDownloadForPodcast(this, podcast, since);

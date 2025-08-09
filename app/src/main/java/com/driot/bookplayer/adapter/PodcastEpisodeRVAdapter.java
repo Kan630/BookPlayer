@@ -75,7 +75,7 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
     @Override
     public void onBindViewHolder(@NonNull PodcastEpisodeRVAdapter.ViewHolder holder, int position) {
         DisplayableEpisode episode = items.get(position);
-        myLog(episode.toString().replace(",","\n"));
+        //myLog(episode.toString().replace(",","\n"));
         holder.tvTitle.setText(episode.title);
         holder.tvDate.setText(episode.datePublishedPretty != null ? episode.datePublishedPretty : "");
         String stats = Tonio.formatTime(episode.duration*1000) + (episode.enclosureLength != 0 ? " (" + Tonio.getReadableSize(episode.enclosureLength) + ")" : "");
@@ -133,7 +133,7 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
                 holder.icon_download.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_download_action_24));
                 holder.icon_download.setVisibility(View.VISIBLE);
                 if (isDeleted) {
-                    holder.icon_download.setColorFilter(ContextCompat.getColor(context, android.R.color.holo_blue_dark));
+                    holder.icon_download.setColorFilter(ContextCompat.getColor(context, R.color.pink_500));
                     String strDelete = context.getString(R.string.added_on) + " " + android.text.format.DateFormat.format("yyyy-MM-dd", episode.date_import)
                         + "\n" + context.getString(R.string.deleted_on) + " " + android.text.format.DateFormat.format("yyyy-MM-dd", episode.date_delete);
                     holder.tvEpisodeDBStats.setText(strDelete);
@@ -141,8 +141,9 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
                         holder.icon_download.setColorFilter(ContextCompat.getColor(context, R.color.brown_500));
                     }
                 } else if (isOnlyFromDb) {
-                    holder.icon_download.setColorFilter(ContextCompat.getColor(context, R.color.orange_500));
+                    holder.icon_download.setColorFilter(ContextCompat.getColor(context, android.R.color.holo_blue_dark));
                     holder.tvEpisodeDBStats.setText(context.getString(R.string.from_previous_request));
+                    //holder.tvEpisodeDBStats.setText("");
                 } else {
                     holder.icon_download.setColorFilter(ContextCompat.getColor(context, android.R.color.holo_blue_bright));
                     holder.tvEpisodeDBStats.setText("");

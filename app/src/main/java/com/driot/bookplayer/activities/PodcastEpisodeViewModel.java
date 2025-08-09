@@ -39,7 +39,7 @@ public class PodcastEpisodeViewModel extends LoggingAndroidViewModel {
     }
 
     public LiveData<Podcast> getPodcastLiveByFeedId(long feedId) {
-        return AppDatabase.getDatabase(getApplication()).PodcastDao().getPodcastLiveByFeedId(feedId);
+        return podcastDao.getPodcastLiveByFeedId(feedId);
     }
 
 
@@ -55,5 +55,8 @@ public class PodcastEpisodeViewModel extends LoggingAndroidViewModel {
         return episodeDao.getAllEpisodesForPodcast(podcastId);
     }
 
+    public Long getLastPublishedForPodcastSync(long podcastId) {
+        return episodeDao.getMaxDatePublishedForPodcast(podcastId);
+    }
 
 }
