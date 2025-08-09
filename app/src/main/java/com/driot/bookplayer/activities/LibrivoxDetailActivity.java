@@ -20,6 +20,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.signature.ObjectKey;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
+import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.objects.ItemMetadata;
 import com.driot.bookplayer.objects.LibrivoxApi;
 import com.driot.bookplayer.objects.LoadBookTaskState;
@@ -113,7 +114,7 @@ public class LibrivoxDetailActivity extends LoggingActivity {
 
         // Setup Retrofit
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor(this::myLog);
-        logging.setLevel(HttpLoggingInterceptor.Level.BASIC);
+        logging.setLevel(Var.HTTP_LOGGING_INTERCEPTOR_LOG_LEVEL);
         OkHttpClient client = new OkHttpClient.Builder().addInterceptor(logging).build();
 
         api = new Retrofit.Builder()

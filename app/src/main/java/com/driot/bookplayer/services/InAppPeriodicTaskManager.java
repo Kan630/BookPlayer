@@ -5,6 +5,7 @@ import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_SINCE;
 import android.content.Context;
 
 import com.driot.bookplayer.global.Pref;
+import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.PodcastHelper;
 import com.driot.bookplayer.utils.KanLogger;
@@ -32,7 +33,7 @@ public class InAppPeriodicTaskManager {
             scheduledFuture = scheduler.scheduleWithFixedDelay(() -> {
                 myLogI("InAppPeriodicTask - Running task at " + new Date());
 
-                if (Pref.shouldCheckApiForAutoDownload()) {
+                if (Pref.shouldCheckApiForAutoDownload() || Var.FORCE_AUTO_DOWNLOAD_NO_DELAY) {
                     PodcastHelper.checkForNewEpisodesToAutoDownload(context, PODCASTINDEXORG_SINCE);
                     PodcastHelper.checkForEpisodesToAutoDelete(context);
                 }

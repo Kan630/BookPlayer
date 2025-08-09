@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import okhttp3.logging.HttpLoggingInterceptor;
+
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 15/09/21
  */
@@ -23,6 +25,9 @@ public class Var {
     public static final int MAX_IMAGE_SIZE_KB = 200;
 
     public static final int PERIODIC_TASK_MANAGER_DELAY_IN_MINUTES = 15;
+    public static final boolean FORCE_AUTO_DOWNLOAD_NO_DELAY = true; // for
+
+    public static final HttpLoggingInterceptor.Level HTTP_LOGGING_INTERCEPTOR_LOG_LEVEL = HttpLoggingInterceptor.Level.NONE;
 
     public static final int LIBRIVOX_API_MAX_RESULTS = 100;
     public static final int PODCASTINDEXORG_API_MAX_RESULTS_FOR_PODCASTS = 200;

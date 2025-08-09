@@ -142,8 +142,8 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
                     }
                 } else if (isOnlyFromDb) {
                     holder.icon_download.setColorFilter(ContextCompat.getColor(context, android.R.color.holo_blue_dark));
-                    holder.tvEpisodeDBStats.setText(context.getString(R.string.from_previous_request));
-                    //holder.tvEpisodeDBStats.setText("");
+                    //holder.tvEpisodeDBStats.setText(context.getString(R.string.from_previous_request));
+                    holder.tvEpisodeDBStats.setText("");
                 } else {
                     holder.icon_download.setColorFilter(ContextCompat.getColor(context, android.R.color.holo_blue_bright));
                     holder.tvEpisodeDBStats.setText("");

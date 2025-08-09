@@ -29,7 +29,7 @@ public interface PodcastIndexApi {
     );
 
     @GET("episodes/byfeedid")
-    Call<PodcastEpisodeResponse> getNewEpisodesByFeedId(
+    Call<PodcastEpisodeResponse> getLastEpisodesByFeedId(
             @Query("id") long feedId,
             @Query("since") long since,
             @Query("max") int max,

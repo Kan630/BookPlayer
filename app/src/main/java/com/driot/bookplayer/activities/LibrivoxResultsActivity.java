@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.adapter.LibrivoxResultRVAdapter;
+import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.objects.LibrivoxApiResponse;
 import com.driot.bookplayer.objects.LibrivoxApi;
 import com.driot.bookplayer.objects.LibrivoxItem;
@@ -113,7 +114,7 @@ public class LibrivoxResultsActivity extends LoggingActivity {
 
         // ✅ API call
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor(this::myLog);
-        logging.setLevel(HttpLoggingInterceptor.Level.BASIC);
+        logging.setLevel(Var.HTTP_LOGGING_INTERCEPTOR_LOG_LEVEL);
 
         OkHttpClient client = new OkHttpClient.Builder()
                 .addInterceptor(logging)
