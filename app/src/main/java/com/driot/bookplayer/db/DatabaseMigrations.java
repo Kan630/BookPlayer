@@ -172,12 +172,13 @@ public class DatabaseMigrations {
             db.execSQL("ALTER TABLE Episode ADD COLUMN enclosureUrl TEXT");
             db.execSQL("ALTER TABLE Episode ADD COLUMN datePublished TEXT");
 
+            db.execSQL("UPDATE Episode SET idEpisode = rowid WHERE idEpisode = 0"); //shitty thing so I can update on my personal phone
+
             db.execSQL("DROP INDEX IF EXISTS index_Episode_idZikFile");
             db.execSQL("CREATE INDEX IF NOT EXISTS index_Episode_idPodcast ON Episode(idPodcast)");
             db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS index_Episode_idZikFile ON Episode(idZikFile)");
             db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS index_Episode_idEpisode ON Episode(idEpisode)");
         }
     };
-
 
 }
