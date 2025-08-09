@@ -300,9 +300,6 @@ Todas las publicaciones son públicamente visibles. Inicia sesión para particip
 
     <string name="TextHeaderOpen">Abrir un audio en mi dispositivo</string>
     <string name="bOpenFile_desc">Seleccionar cualquier archivo.</string>
-    <string name="bOpenFolder_desc">Seleccionar una carpeta.
-\nTodos los audios de esa carpeta se importarán.
-\n<i>Atención: también se importarán los audios de subcarpetas, si existen, de forma recursiva.</i></string>
     <string name="bOpenZipFile_desc">filtro: solo archivos zip</string>
     <string name="bOpenM4bFile_desc">filtro: solo archivos de audio
 \n<i>Atención: este filtro no es perfecto. Usa el botón superior [cualquier archivo] si hay problemas.</i></string>
@@ -628,8 +625,85 @@ El valor global de apagado automático está en Opciones (en el menú de la pant
     <string name="Auto_Download_episodes">Descarga automática de episodios</string>
     <string name="favorites">favoritos</string>
 
-    <string name="Download_paused_due_to_network_policy">Descarga pausada por política de red</string>
-    <string name="Warning">Advertencia</string>
-    <string name="beta_test">prueba beta</string>
+    <string name="Download_paused_due_to_network_policy">Descarga en pausa debido a la política de red</string>
+    <string name="Download_paused_by_user">Descarga en pausa por el usuario</string>
+    <string name="Download_cancelled_by_user">Descarga cancelada por el usuario</string>
+    <string name="Download_finished">Descarga finalizada</string>
+
+    <string name="Pause">Pausar</string>
+    <string name="Resume">Reanudar</string>
+    <string name="Import_finished_with_errors">Importación finalizada con errores</string>
+    <string name="Import_failed">Error en la importación</string>
+    <string name="About_to_start_download">A punto de comenzar la descarga…</string>
+    <string name="Surf_the_vast_Internet_Archive_for_audio_files_and_download_some">Explora el vasto Internet Archive para encontrar archivos de audio y descargar algunos!</string>
+    <string name="Please_enter_a_URL">Por favor, introduzca una URL.</string>
+    <string name="Permission_Required">Permiso requerido</string>
+    <string name="Options">Opciones</string>
+    <string name="App_Info">Información de la aplicación</string>
+    <string name="reset_app">Restablecer aplicación</string>
+    <string name="Exit">Salir</string>
+    <string name="Finished">Finalizado</string>
+    <string name="add_book">añadir libro</string>
+    <string name="Not_enough_memory">Memoria insuficiente</string>
+    <string name="Import_in_progress">Importación en curso</string>
+
+    <string name="Import_Progress_copying_file_from_general_storage">"copiando el archivo fuente \n- desde el almacenamiento general del dispositivo"</string>
+    <string name="Import_Progress_copying_file_from_cloud">"copiando el archivo fuente \n- desde la nube"</string>
+    <string name="Import_Progress_copying_file_to_internal_reserved">"\n- a la memoria interna reservada de la aplicación Bookplayer"</string>
+    <string name="Import_Progress_copying_file_to_sd_card_reserved">"\n- a la memoria reservada en la tarjeta SD de Bookplayer"</string>
+
+    <string name="could_not_check_already_imported">no se pudo comprobar si ya fue importado.</string>
+    <string name="warning_url_already_loaded_under_the_name">el mismo enlace web ya ha sido importado! (el contenido no fue comprobado, ¿es el mismo?). Se ha guardado con el nombre:</string>
+    <string name="A_different_media_with_the_same_name_had_already_been_loaded">Un medio diferente con el mismo nombre ya había sido cargado</string>
+    <string name="Also">También</string>
+    <string name="the_name_will_be_changed_to">, el nombre se cambiará a: </string>
+
+    <string name="listing_and_sorting_tracks">listando y ordenando pistas</string>
+    <string name="scanning_tracks">escaneando pistas</string>
+    <string name="saving_folder">guardando carpeta</string>
+    <string name="saving_track">guardando pista</string>
+    <string name="AutoTest_b4_text" translatable="false">zip (220MB)</string>
+    <string name="MB_taken_by_images">" MB ocupados por imágenes"</string>
+
+    <string name="DeleteImages_AskConfirm">"Está a punto de eliminar todas las imágenes.
+       ¿Está seguro?"</string>
+    <string name="delete_cached_images">Eliminar imágenes en caché</string>
+
+    <string name="too_low">demasiado bajo</string>
+    <string name="too_high">demasiado alto</string>
+    <string name="delay_for_auto_deletion">retardo para eliminación automática</string>
+    <string name="completion_percentage_for_auto_deletion">porcentaje de finalización para eliminación automática</string>
+    <string name="auto_download_last_n_episode">descargar automáticamente los últimos xx episodios</string>
+    <string name="auto_download_max_n_podcast">descargar automáticamente un máximo de xx pódcast</string>
+    <string name="auto_download_delay_between_checks_in_min">retardo de descarga automática entre comprobaciones en min</string>
+    <string name="Auto_Delete_episodes">Eliminación automática de episodios</string>
+    <string name="last">últimos</string>
+    <string name="episodes">episodios</string>
+    <string name="Podcasts">Pódcast</string>
+    <string name="podcasts">pódcast</string>
+    <string name="Auto_Download">Descarga automática</string>
+    <string name="Auto_Delete">Eliminación automática</string>
+    <string name="for_max">para un máximo de</string>
+    <string name="check_every">comprobar cada</string>
+    <string name="min.">min.</string>
+    <string name="auto_delete_episodes_once_listened_to">eliminar automáticamente los episodios una vez escuchados</string>
+    <string name="after">después de</string>
+    <string name="days">días</string>
+    <string name="hours">horas</string>
+    <string name="minutes">minutos</string>
+    <string name="seconds">segundos</string>
+    <string name="if_completion">si finalización</string>
+    <string name="no_episode_all_deleted">no se encontraron episodios, ¿todos eliminados?</string>
+    <string name="podcast_api_unavailable_fallback">no se pudieron obtener nuevos episodios, mostrando solo los anteriores</string>
+    <string name="deleted_on">eliminado el</string>
+    <string name="added_on">añadido el</string>
+    <string name="from_previous_request">de anteriores</string>
+    <string name="MB_taken_by_databases">" MB ocupados por la base de datos"</string>
+    <string name="bMassImport">Importación masiva</string>
+    <string name="bOpenMassImport_desc">Importación masiva: seleccione una carpeta que contenga varios audiolibros</string>
+    <string name="bOpenFolder_desc">Seleccionar una carpeta: todos los audios (incluso en subcarpetas, si las hay) se importarán en el mismo libro.</string>
+    <string name="warning_beta_test">Función beta – Puede ser inestable</string>
+
+    <string name="language">idioma</string>
 
 </resources>

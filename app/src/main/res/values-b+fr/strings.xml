@@ -309,7 +309,6 @@ Tous les messages sont lisibles publiquement. Connectez-vous pour participer.
 
     <string name="TextHeaderOpen">Ouvrir un audio sur mon appareil</string>
     <string name="bOpenFile_desc">Choisir n\'importe quel fichier.</string>
-    <string name="bOpenFolder_desc">Choisir un dossier.\nTous les audios de ce dossier seront importés.\n<i>Attention, les audios dans les sous-dossiers seront aussi importés récursivement.</i></string>
     <string name="bOpenZipFile_desc">filtre : uniquement les fichiers zip</string>
     <string name="bOpenM4bFile_desc">filtre : uniquement les fichiers audio\n<i>Attention : ce filtre n\'est pas parfait. Utilisez le bouton du haut [n\'importe quel fichier] en cas de problème.</i></string>
 
@@ -634,10 +633,87 @@ Tous les messages sont lisibles publiquement. Connectez-vous pour participer.
     <string name="Auto_Download_episodes">Téléchargement automatique des épisodes</string>
     <string name="favorites">favoris</string>
 
-    <string name="Download_paused_due_to_network_policy">Téléchargement en pause à cause de la politique réseau</string>
-    <string name="Warning">Avertissement</string>
-    <string name="beta_test">test bêta</string>
+    <string name="Download_paused_due_to_network_policy">Téléchargement en pause en raison de la politique réseau</string>
+    <string name="Download_paused_by_user">Téléchargement mis en pause par l\'utilisateur</string>
+    <string name="Download_cancelled_by_user">Téléchargement annulé par l\'utilisateur</string>
+    <string name="Download_finished">Téléchargement terminé</string>
 
+    <string name="Pause">Pause</string>
+    <string name="Resume">Reprendre</string>
+    <string name="Import_finished_with_errors">Importation terminée avec des erreurs</string>
+    <string name="Import_failed">Échec de l\'importation</string>
+    <string name="About_to_start_download">Sur le point de commencer le téléchargement…</string>
+    <string name="Surf_the_vast_Internet_Archive_for_audio_files_and_download_some">Parcourez l\'immense Internet Archive pour trouver des fichiers audio et en télécharger !</string>
+    <string name="Please_enter_a_URL">Veuillez saisir une URL.</string>
+    <string name="Permission_Required">Autorisation requise</string>
+    <string name="Options">Options</string>
+    <string name="App_Info">Infos sur l\'application</string>
+    <string name="reset_app">Réinitialiser l\'application</string>
+    <string name="Exit">Quitter</string>
+    <string name="Finished">Terminé</string>
+    <string name="add_book">ajouter un livre</string>
+    <string name="Not_enough_memory">Mémoire insuffisante</string>
+    <string name="Import_in_progress">Importation en cours</string>
+
+    <string name="Import_Progress_copying_file_from_general_storage">"copie du fichier source \n- depuis le stockage général de l\'appareil"</string>
+    <string name="Import_Progress_copying_file_from_cloud">"copie du fichier source \n- depuis le Cloud"</string>
+    <string name="Import_Progress_copying_file_to_internal_reserved">"\n- vers la mémoire interne réservée de l\'application Bookplayer"</string>
+    <string name="Import_Progress_copying_file_to_sd_card_reserved">"\n- vers la mémoire carte SD réservée de Bookplayer"</string>
+
+    <string name="could_not_check_already_imported">impossible de vérifier si déjà importé.</string>
+    <string name="warning_url_already_loaded_under_the_name">le même lien web a déjà été importé ! (le contenu n\'a pas été vérifié, est-ce le même ?). Il a été enregistré sous le nom :</string>
+    <string name="A_different_media_with_the_same_name_had_already_been_loaded">Un média différent avec le même nom avait déjà été chargé</string>
+    <string name="Also">Aussi</string>
+    <string name="the_name_will_be_changed_to">, le nom sera changé en : </string>
+
+    <string name="listing_and_sorting_tracks">listage et tri des pistes</string>
+    <string name="scanning_tracks">analyse des pistes</string>
+    <string name="saving_folder">enregistrement du dossier</string>
+    <string name="saving_track">enregistrement de la piste</string>
+    <string name="AutoTest_b4_text" translatable="false">zip (220MB)</string>
+    <string name="MB_taken_by_images">" Mo pris par les images"</string>
+
+    <string name="DeleteImages_AskConfirm">"Vous êtes sur le point de supprimer toutes les images.
+       Êtes-vous sûr ?"</string>
+    <string name="delete_cached_images">Supprimer les images en cache</string>
+
+    <string name="too_low">trop bas</string>
+    <string name="too_high">trop élevé</string>
+    <string name="delay_for_auto_deletion">délai pour suppression automatique</string>
+    <string name="completion_percentage_for_auto_deletion">pourcentage d\'achèvement pour suppression automatique</string>
+    <string name="auto_download_last_n_episode">téléchargement automatique des xx derniers épisodes</string>
+    <string name="auto_download_max_n_podcast">téléchargement automatique max xx podcasts</string>
+    <string name="auto_download_delay_between_checks_in_min">délai automatique entre les vérifications (en min)</string>
+    <string name="Auto_Delete_episodes">Suppression automatique des épisodes</string>
+    <string name="last">derniers</string>
+    <string name="episodes">épisodes</string>
+    <string name="Podcasts">Podcasts</string>
+    <string name="podcasts">podcasts</string>
+    <string name="Auto_Download">Téléchargement automatique</string>
+    <string name="Auto_Delete">Suppression automatique</string>
+    <string name="for_max">pour un maximum de</string>
+    <string name="check_every">vérifier toutes les</string>
+    <string name="min.">min.</string>
+    <string name="auto_delete_episodes_once_listened_to">supprimer automatiquement les épisodes après écoute</string>
+    <string name="after">après</string>
+    <string name="days">jours</string>
+    <string name="hours">heures</string>
+    <string name="minutes">minutes</string>
+    <string name="seconds">secondes</string>
+    <string name="if_completion">si achèvement</string>
+    <string name="no_episode_all_deleted">aucun épisode trouvé, tous supprimés ?</string>
+    <string name="podcast_api_unavailable_fallback">impossible d\'obtenir de nouveaux épisodes, affichage uniquement des précédents</string>
+    <string name="deleted_on">supprimé le</string>
+    <string name="added_on">ajouté le</string>
+    <string name="from_previous_request">depuis les précédents</string>
+    <string name="MB_taken_by_databases">" Mo pris par la base de données"</string>
+    <string name="bMassImport">Importation massive</string>
+    <string name="bOpenMassImport_desc">Importation massive : choisissez un dossier contenant plusieurs livres audio</string>
+    <string name="bOpenFolder_desc">Choisir un dossier : tous les fichiers audio (même dans les sous-dossiers, le cas échéant) seront importés dans le même livre.</string>
+    <string name="warning_beta_test">Fonction bêta – Peut être instable</string>
+
+    <string name="language">langue</string>
+    <string name="type_here_">Ecrivez ici…</string>">
 
 
 </resources>

@@ -307,9 +307,6 @@
 
     <string name="TextHeaderOpen">افتح ملفاً صوتياً من جهازي</string>
     <string name="bOpenFile_desc">اختر أي ملف.</string>
-    <string name="bOpenFolder_desc">اختر مجلداً.
-        \nسيتم استيراد جميع الملفات الصوتية في هذا المجلد.
-        \n<i>انتبه: سيتم أيضاً استيراد الملفات الموجودة في المجلدات الفرعية، إن وجدت، بشكل متكرر.</i></string>
     <string name="bOpenZipFile_desc">فلتر: فقط ملفات zip</string>
     <string name="bOpenM4bFile_desc">فلتر: فقط ملفات الصوت
         \n<i>انتبه: هذا الفلتر ليس مثالياً، استخدم الزر العلوي [أي ملف] إذا واجهت مشاكل.</i></string>
@@ -635,9 +632,86 @@
     <string name="favorites">المفضلة</string>
 
     <string name="Download_paused_due_to_network_policy">تم إيقاف التنزيل مؤقتًا بسبب سياسة الشبكة</string>
-    <string name="Warning">تحذير</string>
-    <string name="beta_test">اختبار تجريبي</string>
+    <string name="Download_paused_by_user">تم إيقاف التنزيل مؤقتًا من قبل المستخدم</string>
+    <string name="Download_cancelled_by_user">تم إلغاء التنزيل من قبل المستخدم</string>
+    <string name="Download_finished">اكتمل التنزيل</string>
 
+    <string name="Pause">إيقاف مؤقت</string>
+    <string name="Resume">استئناف</string>
+    <string name="Import_finished_with_errors">انتهى الاستيراد مع وجود أخطاء</string>
+    <string name="Import_failed">فشل الاستيراد</string>
+    <string name="About_to_start_download">على وشك بدء التنزيل…</string>
+    <string name="Surf_the_vast_Internet_Archive_for_audio_files_and_download_some">تصفح أرشيف الإنترنت الضخم للعثور على ملفات صوتية وتنزيل بعضها!</string>
+    <string name="Please_enter_a_URL">يرجى إدخال عنوان URL.</string>
+    <string name="Permission_Required">الإذن مطلوب</string>
+    <string name="Options">خيارات</string>
+    <string name="App_Info">معلومات التطبيق</string>
+    <string name="reset_app">إعادة تعيين التطبيق</string>
+    <string name="Exit">خروج</string>
+    <string name="Finished">انتهى</string>
+    <string name="add_book">إضافة كتاب</string>
+    <string name="Not_enough_memory">الذاكرة غير كافية</string>
+    <string name="Import_in_progress">الاستيراد قيد التنفيذ</string>
+
+    <string name="Import_Progress_copying_file_from_general_storage">"نسخ الملف المصدر \n- من التخزين العام للجهاز"</string>
+    <string name="Import_Progress_copying_file_from_cloud">"نسخ الملف المصدر \n- من السحابة"</string>
+    <string name="Import_Progress_copying_file_to_internal_reserved">"\n- إلى الذاكرة الداخلية المخصصة لتطبيق Bookplayer"</string>
+    <string name="Import_Progress_copying_file_to_sd_card_reserved">"\n- إلى الذاكرة المخصصة في بطاقة SD الخاصة بـ Bookplayer"</string>
+
+    <string name="could_not_check_already_imported">تعذر التحقق مما إذا كان قد تم استيراده مسبقًا.</string>
+    <string name="warning_url_already_loaded_under_the_name">تم استيراد نفس الرابط بالفعل! (لم يتم التحقق من المحتوى، هل هو نفسه؟). تم حفظه بالاسم:</string>
+    <string name="A_different_media_with_the_same_name_had_already_been_loaded">تم تحميل وسائط مختلفة بنفس الاسم مسبقًا</string>
+    <string name="Also">أيضًا</string>
+    <string name="the_name_will_be_changed_to">، سيتم تغيير الاسم إلى: </string>
+
+    <string name="listing_and_sorting_tracks">إدراج وفرز المقاطع</string>
+    <string name="scanning_tracks">فحص المقاطع</string>
+    <string name="saving_folder">حفظ المجلد</string>
+    <string name="saving_track">حفظ المقطع</string>
+    <string name="AutoTest_b4_text" translatable="false">zip (220MB)</string>
+    <string name="MB_taken_by_images">" ميغابايت مشغولة بالصور"</string>
+
+    <string name="DeleteImages_AskConfirm">"أنت على وشك حذف جميع الصور.
+       هل أنت متأكد؟"</string>
+    <string name="delete_cached_images">حذف الصور المخزنة مؤقتًا</string>
+
+    <string name="too_low">منخفض جدًا</string>
+    <string name="too_high">مرتفع جدًا</string>
+    <string name="delay_for_auto_deletion">تأخير الحذف التلقائي</string>
+    <string name="completion_percentage_for_auto_deletion">نسبة الاكتمال للحذف التلقائي</string>
+    <string name="auto_download_last_n_episode">تنزيل تلقائي لآخر xx حلقة</string>
+    <string name="auto_download_max_n_podcast">تنزيل تلقائي بحد أقصى xx بودكاست</string>
+    <string name="auto_download_delay_between_checks_in_min">تأخير التنزيل التلقائي بين الفحوصات بالدقائق</string>
+    <string name="Auto_Delete_episodes">الحذف التلقائي للحلقات</string>
+    <string name="last">الأخيرة</string>
+    <string name="episodes">الحلقات</string>
+    <string name="Podcasts">البودكاست</string>
+    <string name="podcasts">البودكاست</string>
+    <string name="Auto_Download">التنزيل التلقائي</string>
+    <string name="Auto_Delete">الحذف التلقائي</string>
+    <string name="for_max">لحد أقصى</string>
+    <string name="check_every">تحقق كل</string>
+    <string name="min.">دقيقة</string>
+    <string name="auto_delete_episodes_once_listened_to">حذف الحلقات تلقائيًا بعد الاستماع</string>
+    <string name="after">بعد</string>
+    <string name="days">أيام</string>
+    <string name="hours">ساعات</string>
+    <string name="minutes">دقائق</string>
+    <string name="seconds">ثوانٍ</string>
+    <string name="if_completion">إذا كانت النسبة</string>
+    <string name="no_episode_all_deleted">لم يتم العثور على حلقات، هل تم حذفها جميعًا؟</string>
+    <string name="podcast_api_unavailable_fallback">تعذر الحصول على حلقات جديدة، عرض الحلقات السابقة فقط</string>
+    <string name="deleted_on">تم الحذف في</string>
+    <string name="added_on">تمت الإضافة في</string>
+    <string name="from_previous_request">من السابق</string>
+    <string name="MB_taken_by_databases">" ميغابايت مشغولة بقاعدة البيانات"</string>
+    <string name="bMassImport">استيراد جماعي</string>
+    <string name="bOpenMassImport_desc">استيراد جماعي: اختر مجلدًا يحتوي على عدة كتب صوتية</string>
+    <string name="bOpenFolder_desc">اختر مجلدًا: سيتم استيراد جميع الملفات الصوتية (حتى في المجلدات الفرعية إن وجدت) في نفس الكتاب.</string>
+    <string name="warning_beta_test">ميزة تجريبية – قد تكون غير مستقرة</string>
+
+    <string name="language">اللغة</string>
+    <string name="type_here_">اكتب هنا…</string>
 
 
 </resources>
