@@ -29,6 +29,7 @@ import android.widget.TextView;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Option;
+import com.driot.bookplayer.helpers.LocaleHelper;
 import com.driot.bookplayer.utils.NetworkUtils;
 import com.driot.bookplayer.utils.PermissionRequest;
 import com.driot.bookplayer.utils.log.LoggingActivity;
@@ -78,6 +79,11 @@ public class OptionActivity extends LoggingActivity {
     CheckBox chk_podcast_auto_delete;
     EditText et_podcast_delay_deletion, et_podcast_completion_percentage_deletion;
     EditText et_podcast_auto_download_last_n_episode, et_auto_download_max_n_podcast, et_auto_download_delay_between_checks_in_min;
+    Spinner languageSpinner;
+    View advancedOptionsLayout;
+    Button btnShowAdvanced;
+    ScrollView scrollView;
+
 
 
     private PermissionRequest mPermissionRequest;
@@ -98,6 +104,8 @@ public class OptionActivity extends LoggingActivity {
         setContentView(R.layout.activity_options); //trigers AutofillManager notifyValueChanged  ignoring on state UNKNOWN  (pollute log in Android 12)
         WindowCompat.setDecorFitsSystemWindows(getWindow(), false);  // -> To test Android 15, overlapping system bars dy default... Solution adds to xml : android:fitsSystemWindows="true"
 
+        advancedOptionsLayout = findViewById(R.id.layout_advanced_options);
+        scrollView = findViewById(R.id.scrollView);
         et_timeBeforeSleep = findViewById(R.id.etTimeBeforeSleep);
         et_ForwardSeconds = findViewById(R.id.etForwardSeconds);
         chk_visualizer_on = findViewById(R.id.chk_visualizer_on);
@@ -222,24 +230,6 @@ public class OptionActivity extends LoggingActivity {
 
         setVisualizerPermissionText();
 
-        try {
-            if (getIntent().getBooleanExtra("CopyFileSetRed", false)) {
-                TextView tv = findViewById(R.id.txtCopyFileHead);
-                tv.setTextColor(Color.RED);
-            }
-        } catch (Exception e) {
-            myLogEE(e, "not sure but you should maybe open the viewstub here....");
-        }
-
-
-        Button btnShowAdvanced = findViewById(R.id.btn_show_advanced);
-        btnShowAdvanced.setOnClickListener(v -> toggleAdvancedOptions());
-
-        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN); // Avoid keyboard on opening
-    }
-
-    private void initializeAdvancedOptions() {
-
         chk_beep_chapter = findViewById(R.id.chk_beep_chapter);
         chk_beep_bookend = findViewById(R.id.chk_beep_bookend);
         chk_beep_autostop = findViewById(R.id.chk_beep_autostop);
@@ -347,6 +337,61 @@ public class OptionActivity extends LoggingActivity {
         et_auto_download_delay_between_checks_in_min = findViewById(R.id.et_auto_download_delay_between_checks_in_min);
         et_auto_download_delay_between_checks_in_min.setText(String.valueOf(Option.getPodcastAutoDownloadDelayBetweenChecks()));
 
+///  LANGUAGE
+        languageSpinner = findViewById(R.id.spinner_language);
+
+        ArrayAdapter<CharSequence> adapter =
+                ArrayAdapter.createFromResource(this,
+                        R.array.pref_languages_entries,
+                        android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        languageSpinner.setAdapter(adapter);
+
+        String[] values = getResources().getStringArray(R.array.pref_languages_values);
+        String current = Option.getLanguage();
+
+        // Select current value
+        int sel = 0;
+        for (int i = 0; i < values.length; i++) {
+            if (values[i].equals(current)) { sel = i; break; }
+        }
+        languageSpinner.setSelection(sel, false);
+
+        languageSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            //boolean firstFire = true; // avoid applying immediately on initial bind if you want
+            @Override
+            public void onItemSelected(AdapterView<?> parent, android.view.View view, int position, long id) {
+                myLogD("onItemSelected " + position + " " + values[position]);
+                String chosen = values[position];
+                //if (firstFire) { firstFire = false; return; }
+                myLogD("onItemSelected - saving");
+                Option.setLanguage(chosen);
+                LocaleHelper.applyAppLocale(chosen);
+                recreate();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) { }
+        });
+
+
+
+        try {
+            if (getIntent().getBooleanExtra("CopyFileSetRed", false)) {
+                TextView tv = findViewById(R.id.txtCopyFileHead);
+                tv.setTextColor(Color.RED);
+            }
+        } catch (Exception e) {
+            myLogEE(e, "not sure but you should maybe open the viewstub here....");
+        }
+
+        btnShowAdvanced = findViewById(R.id.btn_show_advanced);
+        btnShowAdvanced.setOnClickListener(v -> {
+            myLogI("USER CLICKS SHOW ADVANCED OPTIONS");
+            toggleAdvancedOptions();
+        });
+
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN); // Avoid keyboard on opening
     }
 
     private void setVisualizerPermissionText() {
@@ -541,14 +586,21 @@ public class OptionActivity extends LoggingActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        ScrollView scrollView = findViewById(R.id.scrollView);
+        outState.putBoolean("advanced_visible", areAdvancedOptionsVisible);
         outState.putInt("scroll_position", scrollView.getScrollY());
     }
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        final ScrollView scrollView = findViewById(R.id.scrollView);
         final int scrollPosition = savedInstanceState.getInt("scroll_position");
+        areAdvancedOptionsVisible = savedInstanceState.getBoolean("advanced_visible", false);
+        if (areAdvancedOptionsVisible) {
+            advancedOptionsLayout.setVisibility(View.VISIBLE);
+            btnShowAdvanced.setText(getString(R.string.option_hide_advanced_options));
+        } else {
+            advancedOptionsLayout.setVisibility(View.GONE);
+            btnShowAdvanced.setText(getString(R.string.option_show_advanced_options));
+        }
         scrollView.post(() -> scrollView.scrollTo(0, scrollPosition));
     }
 
@@ -559,31 +611,26 @@ public class OptionActivity extends LoggingActivity {
     }
 
     private void toggleAdvancedOptions() {
-        ViewStub stub = findViewById(R.id.viewStub_advanced_options);
-        Button btnShowAdvanced = findViewById(R.id.btn_show_advanced);
-        ScrollView scrollView = findViewById(R.id.scrollView);
-        if (!areAdvancedOptionsVisible) {
-            if (advancedOptionsView == null) {
-                advancedOptionsView = stub.inflate();
-                initializeAdvancedOptions();
-            }
-            advancedOptionsView.setVisibility(View.VISIBLE);
-            ((Button) findViewById(R.id.btn_show_advanced)).setText(getString(R.string.option_hide_advanced_options));
+        if (advancedOptionsLayout.getVisibility() == View.GONE) {
+            myLogD("toggleAdvancedOptions -> visible");
+            advancedOptionsLayout.setVisibility(View.VISIBLE);
+            btnShowAdvanced.setText(getString(R.string.option_hide_advanced_options));
+
+            // Scroll to it
             btnShowAdvanced.post(() -> {
                 int y = btnShowAdvanced.getTop();
                 scrollView.smoothScrollTo(0, y);
             });
+
+            areAdvancedOptionsVisible = true;
         } else {
-            if (advancedOptionsView != null) {
-                advancedOptionsView.setVisibility(View.GONE);
-            }
-            ((Button) findViewById(R.id.btn_show_advanced)).setText(getString(R.string.option_show_advanced_options));
-            btnShowAdvanced.post(() -> {
-                //scrollView.smoothScrollTo(0, 0);
-            });
+            myLogD("toggleAdvancedOptions -> gone");
+            advancedOptionsLayout.setVisibility(View.GONE);
+            btnShowAdvanced.setText(getString(R.string.option_show_advanced_options));
+            areAdvancedOptionsVisible = false;
         }
-        areAdvancedOptionsVisible = !areAdvancedOptionsVisible;
     }
+
 
     public static int clampInt(EditText et, int min, int max, int def, Runnable onTooLow, Runnable onTooHigh) {
         if (et == null) return def;

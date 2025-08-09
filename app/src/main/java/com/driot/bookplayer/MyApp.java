@@ -13,6 +13,7 @@ import java.io.IOException;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.helpers.LocaleHelper;
 import com.driot.bookplayer.objects.BookToAdd;
 import com.driot.bookplayer.objects.PlayList;
 import com.driot.bookplayer.objects.TaskStateManager;
@@ -49,6 +50,8 @@ public class MyApp extends Application {
         TaskStateManager.init(getApplicationContext());
 
         myLog("Context has been initialized");
+
+        LocaleHelper.applyAppLocale(Option.getLanguage());
 
         setOpenWithProxyEnabled_all(this, false);
         setOpenWithProxyEnabled(this, false);

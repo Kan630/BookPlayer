@@ -25,7 +25,7 @@ public class Var {
     public static final int MAX_IMAGE_SIZE_KB = 200;
 
     public static final int PERIODIC_TASK_MANAGER_DELAY_IN_MINUTES = 15;
-    public static final boolean FORCE_AUTO_DOWNLOAD_NO_DELAY = true; // for
+    public static final boolean FORCE_AUTO_DOWNLOAD_NO_DELAY = false; // for
 
     public static final HttpLoggingInterceptor.Level HTTP_LOGGING_INTERCEPTOR_LOG_LEVEL = HttpLoggingInterceptor.Level.NONE;
 

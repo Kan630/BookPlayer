@@ -736,7 +736,7 @@
     <string name="bOpenFolder_desc">Pick a folder : all audios (even in subfolders, if any) will be imported in the same book.</string>
     <string name="warning_beta_test">Beta Feature – May be unstable</string>">
 
-
+    <string name="language">language</string>">
 
 
 </resources>

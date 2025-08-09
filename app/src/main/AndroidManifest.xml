@@ -195,6 +195,7 @@
                 android:resource="@xml/file_provider" />
         </provider>
         <meta-data android:name="asset_statements" android:resource="@string/asset_statements" />
+
     </application>
 
 </manifest>

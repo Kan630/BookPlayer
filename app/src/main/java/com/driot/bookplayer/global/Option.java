@@ -180,6 +180,9 @@ public class Option {
     public static void setPodcastAutoDownloadDelayBetweenChecks(int i) {prefs.edit().putInt("PODCAST_AUTO_DOWNLOAD_DELAY_BETWEEN_CHECKS_IN_MIN",i).apply();}
     public static int getPodcastAutoDownloadDelayBetweenChecks() {return prefs.getInt("PODCAST_AUTO_DOWNLOAD_DELAY_BETWEEN_CHECKS_IN_MIN", PODCAST_AUTO_DOWNLOAD_DELAY_BETWEEN_CHECKS_IN_MIN);}
 
+    /////////////////// LANGUAGE ///////////////////
+    public static void setLanguage(String language) {prefs.edit().putString("LANGUAGE",language).apply();}
+    public static String getLanguage() {return prefs.getString("LANGUAGE", "system");}
 
 
 
