@@ -29,7 +29,7 @@ public class DatabaseClient {
     private DatabaseClient(Context mCtx) {
         int currentVersion = 0;
 
-        mCtx.deleteDatabase(DATABASE_NAME);
+        //mCtx.deleteDatabase(DATABASE_NAME);
 
         try {
             File dbPath = mCtx.getDatabasePath(DATABASE_NAME);
