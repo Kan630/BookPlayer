@@ -162,7 +162,7 @@ public class DatabaseMigrations {
             myLogI("Migration -> executing step 10 => 11"); // 2025-08-06
 
             // Add new columns
-            db.execSQL("ALTER TABLE Episode ADD COLUMN idEpisode INTEGER NOT NULL DEFAULT 0");
+            db.execSQL("ALTER TABLE Episode ADD COLUMN idEpisode INTEGER");
             db.execSQL("ALTER TABLE Episode ADD COLUMN title TEXT");
             db.execSQL("ALTER TABLE Episode ADD COLUMN description TEXT");
             db.execSQL("ALTER TABLE Episode ADD COLUMN duration INTEGER NOT NULL DEFAULT 0");
@@ -172,7 +172,7 @@ public class DatabaseMigrations {
             db.execSQL("ALTER TABLE Episode ADD COLUMN enclosureUrl TEXT");
             db.execSQL("ALTER TABLE Episode ADD COLUMN datePublished TEXT");
 
-            db.execSQL("UPDATE Episode SET idEpisode = rowid WHERE idEpisode = 0"); //shitty thing so I can update on my personal phone
+            //db.execSQL("UPDATE Episode SET idEpisode = rowid WHERE idEpisode = 0"); //shitty thing so I can update on my personal phone
 
             db.execSQL("DROP INDEX IF EXISTS index_Episode_idZikFile");
             db.execSQL("CREATE INDEX IF NOT EXISTS index_Episode_idPodcast ON Episode(idPodcast)");
