@@ -93,15 +93,23 @@ public class Pref {
 
         if (encoded == null) return null;
 
-        byte[] bytes = Base64.decode(encoded, Base64.DEFAULT);
         Parcel parcel = Parcel.obtain();
-        parcel.unmarshall(bytes, 0, bytes.length);
-        parcel.setDataPosition(0);
+        try {
+            byte[] bytes = Base64.decode(encoded, Base64.DEFAULT);
+            parcel.unmarshall(bytes, 0, bytes.length);
+            parcel.setDataPosition(0);
 
-        LoadBookTaskState result = LoadBookTaskState.CREATOR.createFromParcel(parcel);
-        parcel.recycle();
+            // This may throw if the blob was saved with an older class layout
+            return LoadBookTaskState.CREATOR.createFromParcel(parcel);
 
-        return result;
+        } catch (Throwable t) {
+            // Incompatible or corrupt state → reset it
+            prefs.edit().remove(KEY_LOAD_BOOK_TASK_STATE).apply();
+            return null;
+
+        } finally {
+            parcel.recycle();
+        }
     }
 
     public static void clearLoadBookTaskState(Context context) {
