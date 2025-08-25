@@ -36,8 +36,8 @@ android {
 
         /////////////////////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////////////////////
-        versionCode 137
-        versionName "137 - Magic Unicorn"
+        versionCode 138
+        versionName "138 - Magic Unicorn"
         /////////////////////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////////////////////
 
@@ -106,8 +106,8 @@ dependencies {
     implementation 'androidx.recyclerview:recyclerview:1.4.0'
     
     implementation 'androidx.documentfile:documentfile:1.1.0'
-    implementation 'androidx.core:core:1.16.0'
-    implementation 'androidx.media:media:1.7.0'
+    implementation 'androidx.core:core:1.17.0'
+    implementation 'androidx.media:media:1.7.1'
     implementation 'androidx.annotation:annotation:1.9.1'
     implementation "androidx.room:room-runtime:2.7.2"
     implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
@@ -118,7 +118,7 @@ dependencies {
 
     implementation 'com.google.firebase:firebase-crashlytics:20.0.0'
 
-    implementation platform('com.google.firebase:firebase-bom:34.0.0')
+    implementation platform('com.google.firebase:firebase-bom:34.1.0')
     implementation 'com.google.firebase:firebase-analytics'
 
 
@@ -137,15 +137,17 @@ dependencies {
     implementation 'com.squareup.okhttp3:logging-interceptor:4.9.3'
     implementation 'com.github.bumptech.glide:glide:4.16.0'
 
-    implementation "androidx.work:work-runtime:2.10.2"
+    implementation "androidx.work:work-runtime:2.10.3"
 
 
-
+/*
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.2.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
     androidTestImplementation 'androidx.test.espresso:espresso-intents:3.6.1'
     androidTestImplementation 'androidx.test:core:1.6.1'
     androidTestImplementation 'androidx.test:rules:1.6.1'
+
+ */
 
 }
