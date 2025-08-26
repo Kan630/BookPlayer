@@ -44,6 +44,7 @@ import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.utils.Tonio;
 
+import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.Objects;
@@ -565,6 +566,35 @@ public class AudioService extends LoggingService {
                 }
             }
             myLog("SAF Uri : " + uriToPlay);
+        } else if (zf.getPath().startsWith("file://")) {
+            // --- file:// URI branch ---
+            Uri fileUri = Uri.parse(zf.getPath());
+            String path = fileUri.getPath(); // normalized filesystem path
+            if (path == null) {
+                myLogEE(null, "Invalid file:// uri path: " + zf.getPath());
+                loadFileKO();
+                return;
+            }
+            File f = new File(path);
+            if (!f.exists() || !f.isFile()) {
+                // optional fallback if your stored path missed the leaf name
+                File maybe = new File(path, zf.getName());
+                if (!maybe.exists() || !maybe.isFile()) {
+                    myLogEE(null, "File not found: " + path);
+                    loadFileKO();
+                    return;
+                }
+                f = maybe;
+                fileUri = Uri.fromFile(f);
+            }
+            // Keep as Uri for MediaPlayer.setDataSource(context, uriToPlay)
+            uriToPlay = fileUri;
+            myKeyFirebase("loadFile", "fileUri");
+            myLogFirebase("loadFile fileUri : " + uriToPlay);
+            myLog("file:// Uri : " + uriToPlay);
+
+            // If you need DocumentFile for this case:
+            // DocumentFile df = DocumentFile.fromFile(f);
 // OLD SCHOOL PATHS
         } else {
             pathToPlay = zf.getPath();
