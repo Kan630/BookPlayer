@@ -712,7 +712,7 @@
             <LinearLayout
                 style="@style/LinearLayoutOptionsCheckBoxHorizontal">
                 <TextView style="@style/OptionSubTitle"
-                    android:text="@string/language"
+                    android:text="@string/language_hardcoded"
                     android:layout_marginEnd="20dp"
                     android:layout_marginTop="0dp"
                     />

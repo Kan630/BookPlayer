@@ -700,10 +700,18 @@ El valor global de apagado automático está en Opciones (en el menú de la pant
     <string name="from_previous_request">de anteriores</string>
     <string name="MB_taken_by_databases">" MB ocupados por la base de datos"</string>
     <string name="bMassImport">Importación masiva</string>
-    <string name="bOpenMassImport_desc">Importación masiva: seleccione una carpeta que contenga varios audiolibros</string>
-    <string name="bOpenFolder_desc">Seleccionar una carpeta: todos los audios (incluso en subcarpetas, si las hay) se importarán en el mismo libro.</string>
+
+    <string name="bOpenMassImport_desc">Importación masiva: crea tantos audiolibros como elementos haya en la carpeta que elijas.</string>
+    <string name="bOpenFolder_desc">Elige una carpeta: todos los audios (incluso en subcarpetas, si las hay) se importarán en el mismo libro.</string>
     <string name="warning_beta_test">Función beta – Puede ser inestable</string>
 
-    <string name="language">idioma</string>
+    <string name="language_hardcoded" translatable="false">language</string>
+    <string name="type_here_">Escribe aquí…</string>
+
+    <string name="most_downloaded">"Más descargados"</string>
+
+    <string name="open_podcasts">"Explorar pódcasts"</string>
+    <string name="open_audiobooks">"Explorar audiolibros"</string>
+    <string name="open_other">"Abrir archivo de audio"</string>
 
 </resources>

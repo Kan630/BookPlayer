@@ -732,11 +732,14 @@
     <string name="from_previous_request">from past</string>
     <string name="MB_taken_by_databases">" MB taken by database"</string>
     <string name="bMassImport">Mass Import</string>
-    <string name="bOpenMassImport_desc">Mass Import : pick a folder containing multiple audiobooks</string>
+
+
+
+    <string name="bOpenMassImport_desc">Mass Import : Create as many audiobooks as there are items in the folder you will pick</string>
     <string name="bOpenFolder_desc">Pick a folder : all audios (even in subfolders, if any) will be imported in the same book.</string>
     <string name="warning_beta_test">Beta Feature – May be unstable</string>">
 
-    <string name="language">language</string>">
+    <string name="language_hardcoded" translatable="false">language</string>">
     <string name="type_here_">Type here…</string>">
 
     <string name="most_downloaded">"Most Downloaded"</string>

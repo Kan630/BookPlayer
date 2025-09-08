@@ -708,12 +708,20 @@ BookPlayer 在<font color="#81C784">无需权限</font>的情况下也能运行�
     <string name="from_previous_request">来自以前</string>
     <string name="MB_taken_by_databases">" MB 被数据库占用"</string>
     <string name="bMassImport">批量导入</string>
-    <string name="bOpenMassImport_desc">批量导入：选择包含多个有声书的文件夹</string>
-    <string name="bOpenFolder_desc">选择一个文件夹：所有音频（包括子文件夹中的，如果有）将导入到同一本书。</string>
-    <string name="warning_beta_test">测试功能 – 可能不稳定</string>
 
-    <string name="language">语言</string>
+    <string name="bOpenMassImport_desc">批量导入：将根据你选择的文件夹中的项目数量创建相应数量的有声书。</string>
+    <string name="bOpenFolder_desc">选择一个文件夹：所有音频（包括子文件夹中的（如有））都会被导入到同一本书中。</string>
+    <string name="warning_beta_test">测试版功能 – 可能不稳定</string>
+
+    <string name="language_hardcoded" translatable="false">language</string>
     <string name="type_here_">在此输入…</string>
+
+    <string name="most_downloaded">"下载最多"</string>
+
+    <string name="open_podcasts">"浏览播客"</string>
+    <string name="open_audiobooks">"浏览有声书"</string>
+    <string name="open_other">"打开音频文件"</string>
+
 
 
 </resources>

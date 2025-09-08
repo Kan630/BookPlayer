@@ -706,12 +706,19 @@
     <string name="from_previous_request">من السابق</string>
     <string name="MB_taken_by_databases">" ميغابايت مشغولة بقاعدة البيانات"</string>
     <string name="bMassImport">استيراد جماعي</string>
-    <string name="bOpenMassImport_desc">استيراد جماعي: اختر مجلدًا يحتوي على عدة كتب صوتية</string>
-    <string name="bOpenFolder_desc">اختر مجلدًا: سيتم استيراد جميع الملفات الصوتية (حتى في المجلدات الفرعية إن وجدت) في نفس الكتاب.</string>
+
+    <string name="bOpenMassImport_desc">استيراد جماعي: أنشئ عددًا من الكتب الصوتية يساوي عدد العناصر في المجلد الذي ستختاره.</string>
+    <string name="bOpenFolder_desc">اختر مجلدًا: جميع الملفات الصوتية (حتى في المجلدات الفرعية إن وُجدت) سيتم استيرادها في نفس الكتاب الصوتي.</string>
     <string name="warning_beta_test">ميزة تجريبية – قد تكون غير مستقرة</string>
 
-    <string name="language">اللغة</string>
+    <string name="language_hardcoded" translatable="false">language</string>
     <string name="type_here_">اكتب هنا…</string>
+
+    <string name="most_downloaded">"الأكثر تنزيلًا"</string>
+
+    <string name="open_podcasts">"تصفح البودكاست"</string>
+    <string name="open_audiobooks">"تصفح الكتب الصوتية"</string>
+    <string name="open_other">"فتح ملف صوتي"</string>
 
 
 </resources>

@@ -713,11 +713,18 @@
     <string name="from_previous_request">из предыдущих</string>
     <string name="MB_taken_by_databases">" МБ занято базой данных"</string>
     <string name="bMassImport">Массовый импорт</string>
-    <string name="bOpenMassImport_desc">Массовый импорт: выберите папку с несколькими аудиокнигами</string>
-    <string name="bOpenFolder_desc">Выберите папку: все аудиофайлы (даже в подпапках, если есть) будут импортированы в одну книгу.</string>
-    <string name="warning_beta_test">Бета-функция – Может быть нестабильной</string>
 
-    <string name="language">язык</string>
+    <string name="bOpenMassImport_desc">Массовый импорт: создайте столько аудиокниг, сколько элементов в выбранной вами папке.</string>
+    <string name="bOpenFolder_desc">Выберите папку: все аудиофайлы (в том числе в подпапках, если они есть) будут импортированы в одну и ту же книгу.</string>
+    <string name="warning_beta_test">Бета-функция – может быть нестабильной</string>
+
+    <string name="language_hardcoded" translatable="false">language</string>
     <string name="type_here_">Введите здесь…</string>
+
+    <string name="most_downloaded">"Самые загружаемые"</string>
+
+    <string name="open_podcasts">"Просмотр подкастов"</string>
+    <string name="open_audiobooks">"Просмотр аудиокниг"</string>
+    <string name="open_other">"Открыть аудиофайл"</string>
 
 </resources>

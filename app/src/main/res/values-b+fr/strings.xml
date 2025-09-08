@@ -708,12 +708,19 @@ Tous les messages sont lisibles publiquement. Connectez-vous pour participer.
     <string name="from_previous_request">depuis les précédents</string>
     <string name="MB_taken_by_databases">" Mo pris par la base de données"</string>
     <string name="bMassImport">Importation massive</string>
-    <string name="bOpenMassImport_desc">Importation massive : choisissez un dossier contenant plusieurs livres audio</string>
-    <string name="bOpenFolder_desc">Choisir un dossier : tous les fichiers audio (même dans les sous-dossiers, le cas échéant) seront importés dans le même livre.</string>
-    <string name="warning_beta_test">Fonction bêta – Peut être instable</string>
 
-    <string name="language">langue</string>
-    <string name="type_here_">Ecrivez ici…</string>">
+    <string name="bOpenMassImport_desc">Importation en masse : Créez autant de livres audio qu\'il y a d\'éléments dans le dossier que vous choisirez.</string>
+    <string name="bOpenFolder_desc">Choisissez un dossier : tous les fichiers audio (y compris dans les sous-dossiers, le cas échéant) seront importés dans le même livre audio.</string>
+    <string name="warning_beta_test">Fonctionnalité bêta – peut être instable</string>
+
+    <string name="language_hardcoded" translatable="false">language</string>
+    <string name="type_here_">Saisissez ici…</string>
+
+    <string name="most_downloaded">"Les plus téléchargés"</string>
+
+    <string name="open_podcasts">"Parcourir les podcasts"</string>
+    <string name="open_audiobooks">"Parcourir les livres audio"</string>
+    <string name="open_other">"Ouvrir un fichier audio"</string>
 
 
 </resources>

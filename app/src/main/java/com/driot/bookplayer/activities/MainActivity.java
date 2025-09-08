@@ -5,8 +5,6 @@ package com.driot.bookplayer.activities;
  */
 
 
-import static com.driot.bookplayer.global.Pref.shouldCheckApiForAutoDownload;
-import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_SINCE;
 import static com.driot.bookplayer.objects.WorkFlow.maybeResumeWorkFlow;
 
 import android.Manifest;
@@ -43,13 +41,13 @@ import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.FolderDao;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.helpers.FileHelper;
+import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.objects.PlayList;
 import com.driot.bookplayer.services.AudioService;
-import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.InfoHelper;
 import com.driot.bookplayer.utils.KanLogger;
 import com.driot.bookplayer.utils.KanMail;
-import com.driot.bookplayer.helpers.PodcastHelper;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -78,7 +76,6 @@ public class MainActivity extends LoggingActivity {
 
     // Just in case we are here while we shouldn't, because isPlaying...
     AudioService audioService;
-    //boolean audioServiceBound;
     private final ServiceConnection audioServiceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
@@ -92,13 +89,10 @@ public class MainActivity extends LoggingActivity {
                     startActivity(new Intent(MainActivity.this, PlayActivity.class));
                 }
             }
-            //audioServiceBound = true;
         }
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
-            //audioServiceBound = false;
         }
-
     };
 
 
@@ -122,41 +116,13 @@ public class MainActivity extends LoggingActivity {
             myLog("AudioService.isRunning");
             bindService(new Intent(this, AudioService.class), audioServiceConnection, 0);
         }
-        /*
-        myLogD("-----------------");
-        FileHelper.listAllFiles(StorageHelper.getUnzipFolder(this, true));
-        myLogD("-----------------");
-        FileHelper.listAllFiles(StorageHelper.getUnzipFolder(this, false));
-        myLogD("-----------------");
-         */
+
+        //DEBUG SHIT - LIST ALL DISK FILES
+        //myLogD("-----------------");FileHelper.listAllFiles(StorageHelper.getUnzipFolder(this, true));myLogD("-----------------");FileHelper.listAllFiles(StorageHelper.getUnzipFolder(this, false));myLogD("-----------------");
 
 
+        //DEBUG SHIT - LIST ALL DB FOLDERS
         //Sql.log_all_Folders(this);
-/*
-        //clearLoadBookTaskState(this);
-        LoadBookTaskState lbts = new LoadBookTaskState();
-        lbts.downloadedFilePath = getApplication().getFilesDir().getPath() + "/download/Harry_Potter_1.zip";
-        lbts.downloadedFileReady = true;
-        lbts.type = "ZIP";
-        lbts.title = "toto";
-        lbts.uri = Uri.parse("https://bookplayer.driot.com/audiobooks/quick_family_share/Harry_Potter_1.zip");
-        setLoadBookTaskState(this, lbts);
-
- */
-/*
-        OneTimeWorkRequest request = new OneTimeWorkRequest.Builder(HashWorker.class).build();
-
-        WorkManager.getInstance(this).enqueue(request);
-
-        WorkManager.getInstance(this).getWorkInfoByIdLiveData(request.getId())
-                .observe(this, workInfo -> {
-                    if (workInfo != null && workInfo.getState() == WorkInfo.State.SUCCEEDED) {
-                        myLogD("All folder hashes updated!");
-                    }
-                });
-
- */
-
 
         setContentView(R.layout.activity_main);
 

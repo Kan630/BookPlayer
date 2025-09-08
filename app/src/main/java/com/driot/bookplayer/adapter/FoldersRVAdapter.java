@@ -109,7 +109,7 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
         public void onClick(View view) {
             Folder folder = folderList.get(getBindingAdapterPosition());
             if (folder == null) {
-                myLogE("folder == null");
+                myLogEE(null,"onClick folder == null");
                 return;
             } else {
                 myLogI("onClick - position=" + getBindingAdapterPosition() + " - " + folder.getName());
