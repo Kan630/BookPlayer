@@ -289,7 +289,7 @@ Todas las publicaciones son públicamente visibles. Inicia sesión para particip
     <string name="AutoTest_title">Prueba automática</string>
     <string name="AutoTest_desc">Descarga e integración automática de audiolibros, para fines de prueba</string>
 
-    <string name="bOpenFile">Cualquier archivo</string>
+    <string name="bOpenFile">Archivo</string>
     <string name="bOpenFolder">Carpeta</string>
     <string name="bOpenZipFile">Archivo Zip</string>
     <string name="bOpenM4bFile">Archivo de audio</string>

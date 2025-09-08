@@ -298,7 +298,7 @@ BookPlayer 在<font color="#81C784">无需权限</font>的情况下也能运行�
     <string name="AutoTest_title">自动测试</string>
     <string name="AutoTest_desc">自动下载并集成有声书，用于测试</string>
 
-    <string name="bOpenFile">任意文件</string>
+    <string name="bOpenFile">文件</string>
     <string name="bOpenFolder">文件夹</string>
     <string name="bOpenZipFile">Zip 文件</string>
     <string name="bOpenM4bFile">音频文件</string>

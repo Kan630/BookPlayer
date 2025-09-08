@@ -299,7 +299,7 @@
     <string name="AutoTest_title">Автотест</string>
     <string name="AutoTest_desc">Автоматическая загрузка и интеграция аудиокниг — для тестирования</string>
 
-    <string name="bOpenFile">Любой файл</string>
+    <string name="bOpenFile">файл</string>
     <string name="bOpenFolder">Папка</string>
     <string name="bOpenZipFile">Zip-файл</string>
     <string name="bOpenM4bFile">Аудиофайл</string>

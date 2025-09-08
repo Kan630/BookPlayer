@@ -313,7 +313,7 @@
     <string name="AutoTest_title">Auto Test</string>
     <string name="AutoTest_desc">Automatic download and integration of audiobooks, for testing purpose</string>
 
-    <string name="bOpenFile">Any File</string>
+    <string name="bOpenFile">File</string>
     <string name="bOpenFolder">Folder</string>
     <string name="bOpenZipFile">Zip File</string>
     <string name="bOpenM4bFile">Audio File</string>
@@ -322,7 +322,7 @@
     <string name="OnlineSearch_desc">Use this search capability to find the audiobook you are looking for. Then, on the next page, select the one you want to import, it should download and add itself directly inside bookplayer !</string>
     <string name="OnlineSearch_button">Search…</string>
 
-    <string name="TextHeaderOpen">Open an audio on my device</string>
+    <string name="TextHeaderOpen">Load audio from device</string>
     <string name="bOpenFile_desc">Grab any file.</string>
     <string name="bOpenZipFile_desc">filter : only zip files</string>
     <string name="bOpenM4bFile_desc">filter : only audio files
@@ -739,5 +739,10 @@
     <string name="language">language</string>">
     <string name="type_here_">Type here…</string>">
 
+    <string name="most_downloaded">"Most Downloaded"</string>
+
+    <string name="open_podcasts">"Browse Podcasts"</string>
+    <string name="open_audiobooks">"Browse Audiobooks"</string>
+    <string name="open_other">"Open Audio"</string>
 
 </resources>

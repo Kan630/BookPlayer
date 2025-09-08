@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true"
+            tools:context=".activities.MainActivity">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+
+                <TextView
+                    android:id="@+id/txtPodcastSearch_title"
+                    android:text="@string/PodcastSearch_title"
+                    style="@style/GetResourceTextSectionTitle" />
+
+
+                <View style="@style/GetResourceHorizontalBar" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="end">
+
+                    <Button
+                        android:id="@+id/bFavoritePodcasts"
+                        android:text="@string/Favorites"
+                        style="@style/GetResourceButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="0dp"
+
+                    />
+
+                    <ImageButton
+                        android:id="@+id/btnFavorite"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:contentDescription="Favorite"
+                        android:src="@drawable/ic_favorite"
+                        android:background="@android:color/transparent"
+                        app:tint="@android:color/holo_red_dark" />
+            </LinearLayout>
+
+
+                <View style="@style/GetResourceHorizontalBar"/>
+
+                <TextView
+                    android:id="@+id/txtPodcastSearch_desc"
+                    android:text="@string/PodcastSearch_desc"
+                    style="@style/GetResourceTextTopOfButton" />
+
+
+                <Spinner
+                    android:layout_marginTop="30dp"
+                    android:id="@+id/spinnerPodcast"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    style="@style/GetResourceSpinner"
+                    android:layout_marginEnd="20dp"
+                    />
+
+                <Button
+                    android:layout_marginTop="30dp"
+                    android:id="@+id/bPodcastTrending"
+                    android:text="@string/Trending"
+                    style="@style/GetResourceButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="4dp"
+                    />
+
+
+                <com.driot.bookplayer.views.EditTextWithButtons
+                    android:layout_marginTop="30dp"
+                    android:id="@+id/etPodcast"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+
+                <Button
+                    android:layout_marginTop="10dp"
+                    android:id="@+id/bPodcastSearch"
+                    android:text="@string/Search"
+                    style="@style/GetResourceButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="4dp"/>
+
+
+
+            </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
+
+</FrameLayout>

@@ -43,6 +43,9 @@
         <activity android:name=".activities.PlayActivity" />
         <activity android:name=".activities.ZikFileActivity" />
         <activity android:name=".activities.GetResourceActivity" />
+        <activity android:name=".activities.GetOtherActivity" />
+        <activity android:name=".activities.GetAudiobookActivity" />
+        <activity android:name=".activities.GetPodcastActivity" />
         <activity android:name=".activities.LoadOptionsActivity" />
         <activity android:name=".activities.ModifyFolderActivity" />
         <activity android:name=".activities.ModifyZikFileActivity" />

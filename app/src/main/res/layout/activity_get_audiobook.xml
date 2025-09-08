@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    >
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp"
+        >
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true"
+            tools:context=".activities.MainActivity">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+
+
+                <TextView
+                    android:id="@+id/txtLibrivoxSearch_title"
+                    android:text="@string/LibrivoxSearch_title"
+                    style="@style/GetResourceTextSectionTitle" />
+
+                <TextView
+                    android:layout_marginTop="30dp"
+                    android:id="@+id/txtLibrivoxSearch_desc"
+                    android:text="@string/LibrivoxSearch_desc"
+                    style="@style/GetResourceTextTopOfButton" />
+
+                <Spinner
+                    android:layout_marginTop="50dp"
+                    android:id="@+id/spinnerLibrivox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    style="@style/GetResourceSpinner"
+                    android:layout_marginEnd="20dp"
+                    />
+
+
+
+                <Button
+                    android:layout_marginTop="30dp"
+                    android:id="@+id/bLibrivoxTrending"
+                    android:text="@string/most_downloaded"
+                    style="@style/GetResourceButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    />
+
+
+                <com.driot.bookplayer.views.EditTextWithButtons
+                    android:layout_marginTop="30dp"
+                    android:id="@+id/etLibrivox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+
+                <Button
+                    android:layout_marginTop="10dp"
+                    android:id="@+id/bLibrivoxSearch"
+                    android:text="@string/Search"
+                    style="@style/GetResourceButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    />
+
+            </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
+</FrameLayout>

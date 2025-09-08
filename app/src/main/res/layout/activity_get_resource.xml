@@ -1,360 +1,112 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    >
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:fillViewport="true"
+    tools:context=".activities.MainActivity"
+    android:fitsSystemWindows="true">
+
     <LinearLayout
+        android:id="@+id/root"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp"
-        >
+        android:gravity="center"
+        android:padding="24dp"
+        android:background="?android:attr/windowBackground">
 
-        <FrameLayout
-            android:id="@+id/topOverlayContainer"
+
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="24dp"
+            android:background="?android:attr/windowBackground">
 
-        <ScrollView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:fillViewport="true"
-            tools:context=".activities.MainActivity">
+            <ImageButton
+                android:id="@+id/bOpenPodcastsIcon"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_podcast_24"
+                android:background="@android:color/transparent"
+                app:tint="@android:color/white"
+                android:layout_marginEnd="20dp"
+                />
 
-            <LinearLayout
+
+            <Button
+                android:id="@+id/bOpenPodcasts"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:text="@string/open_podcasts"
+                android:layout_marginBottom="32dp"
+                android:backgroundTint="?attr/colorPrimary"
+                android:textColor="?attr/colorOnPrimary"
+                style="@style/Widget.MaterialComponents.Button" />
 
-                <LinearLayout
-                    android:id="@+id/llsecretDev"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:visibility="gone"
-                    >
+        </LinearLayout>
 
-                    <TextView
-                        android:id="@+id/txtAutoTest_title"
-                        android:text="@string/AutoTest_title"
-                        style="@style/GetResourceTextSectionTitle" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="24dp"
+            android:background="?android:attr/windowBackground">
 
-                    <TextView
-                        android:id="@+id/txtAutoTest_desc"
-                        style="@style/GetResourceTextTopOfButton" />
-
-                    <Button
-                        android:id="@+id/bAutoTest_b1"
-                        android:text="@string/AutoTest_b1_text"
-                        style="@style/GetResourceButton"
-                        android:layout_marginTop="@dimen/GetRessource320_vertical_margin_text2button" />
-
-                    <Button
-                        android:id="@+id/bAutoTest_b2"
-                        android:text="@string/AutoTest_b2_text"
-                        style="@style/GetResourceButton" />
-
-                    <Button
-                        android:id="@+id/bAutoTest_b3"
-                        android:text="@string/AutoTest_b3_text"
-                        style="@style/GetResourceButton" />
-                    <Button
-                        android:id="@+id/bAutoTest_b4"
-                        android:text="@string/AutoTest_b4_text"
-                        style="@style/GetResourceButton" />
-                </LinearLayout>
-
-                <include
-                    layout="@layout/include_progressbar_overlay" />
-
-                <TextView
-                    android:id="@+id/TextHeaderOpen"
-                    style="@style/GetResourceTextSectionTitle"
-                    android:text="@string/TextHeaderOpen"
-                    android:layout_marginTop="10dp" />
-
-                <TextView
-                    android:id="@+id/bOpenFile_desc"
-                    style="@style/GetResourceTextTopOfButton"
-                    android:text="@string/bOpenFile_desc" />
-
-                <Button
-                    android:id="@+id/bOpenFile"
-                    android:text="@string/bOpenFile"
-                    style="@style/GetResourceButton"
-                    android:layout_marginTop="@dimen/GetRessource320_vertical_margin_text2button" />
-
-                <TextView
-                    android:id="@+id/bOpenZipFile_desc"
-                    style="@style/GetResourceTextTopOfButton"
-                    android:text="@string/bOpenZipFile_desc" />
-
-                <Button
-                    android:id="@+id/bOpenZipFile"
-                    android:text="@string/bOpenZipFile"
-                    style="@style/GetResourceButton"
-                    android:layout_marginTop="@dimen/GetRessource320_vertical_margin_text2button" />
-
-                <TextView
-                    android:id="@+id/bOpenM4bFile_desc"
-                    style="@style/GetResourceTextTopOfButton"
-                    android:text="@string/bOpenM4bFile_desc" />
-
-                <Button
-                    android:id="@+id/bOpenM4bFile"
-                    android:text="@string/bOpenM4bFile"
-                    style="@style/GetResourceButton"
-                    android:layout_marginTop="@dimen/GetRessource320_vertical_margin_text2button" />
-
-                <TextView
-                    android:id="@+id/bOpenFolder_desc"
-                    style="@style/GetResourceTextTopOfButton"
-                    android:text="@string/bOpenFolder_desc" />
-
-                <Button
-                    android:id="@+id/bOpenFolder"
-                    android:text="@string/bOpenFolder"
-                    style="@style/GetResourceButton"
-                    android:layout_marginTop="@dimen/GetRessource320_vertical_margin_text2button" />
-
-                <TextView
-                    android:id="@+id/bOpenMassImport_desc"
-                    style="@style/GetResourceTextTopOfButton"
-                    android:text="@string/bOpenMassImport_desc" />
-
-                <TextView
-                    style="@style/warningTextView"
-                    android:layout_marginStart="30dp"
-                    android:text="@string/warning_beta_test" />
-
-                <Button
-                    android:id="@+id/bMassImport"
-                    android:text="@string/bMassImport"
-                    style="@style/GetResourceButton"
-                    android:layout_marginTop="@dimen/GetRessource320_vertical_margin_text2button" />
-
-                <View style="@style/GetResourceHorizontalBar"/>
-
-                <TextView
-                    android:text="@string/TextHeaderSearch"
-                    style="@style/GetResourceTextSectionTitle" />
-
-                <TextView
-                    android:id="@+id/tvInternetAudioRessource_01"
-                    android:text="@string/lorem_ipsum"
-                    style="@style/GetResourceTextTopOfButton" />
-
-                <Button
-                    android:id="@+id/bInternetAudioResource_01"
-                    android:text="@string/lorem_ipsum"
-                    style="@style/GetResourceButton"
-                    android:layout_marginTop="@dimen/GetRessource320_vertical_margin_text2button" />
-
-                <TextView
-                    android:id="@+id/tvInternetAudioRessource_02"
-                    android:text="@string/lorem_ipsum"
-                    style="@style/GetResourceTextTopOfButton" />
-
-                <Button
-                    android:id="@+id/bInternetAudioResource_02"
-                    android:text="@string/lorem_ipsum"
-                    style="@style/GetResourceButton" />
-
-                <!--
-                <TextView
-                    android:id="@+id/tvInternetAudioRessource_03"
-                    android:text="@string/lorem_ipsum"
-                    style="@style/GetResourceTextTopOfButton" />
-
-                <Button
-                    android:id="@+id/bInternetAudioResource_03"
-                    android:text="@string/lorem_ipsum"
-                    style="@style/GetResourceButton" />
-        -->
-                <TextView
-                    android:id="@+id/bSearchExempleText"
-                    style="@style/GetResourceTextTopOfButton"
-                    android:text="@string/bSearchExampleText"
-                    android:textStyle="italic"
-                    android:textSize="12sp"
-                    android:layout_marginStart="20dp" />
+            <ImageButton
+                android:id="@+id/bOpenAudiobooksIcon"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_librivox_24"
+                android:background="@android:color/transparent"
+                app:tint="@android:color/white"
+                android:layout_marginEnd="20dp"
+                />
 
 
-                <View style="@style/GetResourceHorizontalBar"/>
+            <Button
+                android:id="@+id/bOpenAudiobooks"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/open_audiobooks"
+                android:layout_marginBottom="32dp"
+                android:backgroundTint="?attr/colorSecondary"
+                android:textColor="?attr/colorOnSecondary"
+                style="@style/Widget.MaterialComponents.Button" />
 
-                <TextView
-                    android:id="@+id/txtDirectDownload_title"
-                    android:text="@string/DirectDownload_title"
-                    style="@style/GetResourceTextSectionTitle" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="24dp"
+            android:background="?android:attr/windowBackground">
 
-
-                <TextView
-                    android:id="@+id/txtDirectDownload_desc"
-                    android:text="@string/DirectDownload_desc"
-                    style="@style/GetResourceTextTopOfButton" />
-
-                <com.driot.bookplayer.views.EditTextWithButtons
-                    android:id="@+id/etDirectDownload"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_horizontal"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginBottom="8dp">
-
-                    <Button
-                        android:id="@+id/bDirectDownload"
-                        android:text="@string/DirectDownload_button"
-                        style="@style/GetResourceButton"
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="4dp"/>
-
-                    <Button
-                        style="@style/GetResourceButton"
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="4dp"
-                        android:visibility="invisible"
-                        />
-                </LinearLayout>
+            <ImageButton
+                android:id="@+id/bOpenOtherIcon"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/ic_memory_general_smartphone"
+                android:scaleType="centerInside"
+                android:background="@android:color/transparent"
+                app:tint="@android:color/white"
+                android:layout_marginEnd="20dp"
+                />
 
 
-                <View style="@style/GetResourceHorizontalBar"/>
+            <Button
+                android:id="@+id/bOpenOther"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/open_other"
+                android:backgroundTint="?attr/colorPrimaryVariant"
+                android:textColor="?attr/colorOnPrimary"
+                style="@style/Widget.MaterialComponents.Button" />
 
-
-                <TextView
-                    android:id="@+id/txtLibrivoxSearch_title"
-                    android:text="@string/LibrivoxSearch_title"
-                    style="@style/GetResourceTextSectionTitle" />
-
-                <TextView
-                    android:id="@+id/txtLibrivoxSearch_desc"
-                    android:text="@string/LibrivoxSearch_desc"
-                    style="@style/GetResourceTextTopOfButton" />
-
-                <com.driot.bookplayer.views.EditTextWithButtons
-                    android:id="@+id/etLibrivox"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
-
-                <Spinner
-                    android:id="@+id/spinnerLibrivox"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    style="@style/GetResourceSpinner"
-                    android:layout_marginEnd="20dp"
-                    />
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_horizontal"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginBottom="8dp">
-
-                    <Button
-                        android:id="@+id/bLibrivoxSearch"
-                        android:text="@string/Search"
-                        style="@style/GetResourceButton"
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="4dp"/>
-
-                    <Button
-                        style="@style/GetResourceButton"
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="4dp"
-                        android:visibility="invisible"
-                        />
-                </LinearLayout>
-
-
-
-
-                <View style="@style/GetResourceHorizontalBar"/>
-
-
-                <TextView
-                    android:id="@+id/txtPodcastSearch_title"
-                    android:text="@string/PodcastSearch_title"
-                    style="@style/GetResourceTextSectionTitle" />
-
-                <TextView
-                    android:id="@+id/txtPodcastSearch_desc"
-                    android:text="@string/PodcastSearch_desc"
-                    style="@style/GetResourceTextTopOfButton" />
-
-                <com.driot.bookplayer.views.EditTextWithButtons
-                    android:id="@+id/etPodcast"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
-
-                <Spinner
-                    android:id="@+id/spinnerPodcast"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    style="@style/GetResourceSpinner"
-                    android:layout_marginEnd="20dp"
-                    />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_horizontal"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginBottom="8dp">
-
-                    <Button
-                        android:id="@+id/bPodcastSearch"
-                        android:text="@string/Search"
-                        style="@style/GetResourceButton"
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="4dp"/>
-
-                    <Button
-                        android:id="@+id/bFavoritePodcasts"
-                        android:text="@string/Favorites"
-                        style="@style/GetResourceButton"
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="4dp"/>
-                </LinearLayout>
-
-
-
-                <View style="@style/GetResourceHorizontalBar"/>
-
-            </LinearLayout>
-        </ScrollView>
+        </LinearLayout>
     </LinearLayout>
-
-    <!-- Secret tappable area (invisible) -->
-    <View
-        android:id="@+id/viewSecretEntry"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_gravity="top|end"
-        android:layout_margin="8dp"
-        android:background="@android:color/transparent"
-        android:contentDescription="Secret Launch Area"
-        android:clickable="true"
-        android:focusable="true"
-        />
-</FrameLayout>
+</ScrollView>

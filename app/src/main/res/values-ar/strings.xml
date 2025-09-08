@@ -296,7 +296,7 @@
     <string name="AutoTest_title">اختبار تلقائي</string>
     <string name="AutoTest_desc">تنزيل وتكامل تلقائي للكتب الصوتية لأغراض الاختبار</string>
 
-    <string name="bOpenFile">أي ملف</string>
+    <string name="bOpenFile">ملف</string>
     <string name="bOpenFolder">مجلد</string>
     <string name="bOpenZipFile">ملف مضغوط</string>
     <string name="bOpenM4bFile">ملف صوتي</string>
