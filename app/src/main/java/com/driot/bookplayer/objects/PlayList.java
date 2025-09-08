@@ -25,7 +25,7 @@ public class PlayList {
     private static PlayList instance;
 
     private List<ZikFile> zikFilesList;
-    private int numZikFile = -1;
+    private static int numZikFile = -1;
     private static Context appContext;
 
     private Folder folder;
@@ -51,7 +51,7 @@ public class PlayList {
 
     // --- Constructor ---
     private PlayList(List<ZikFile> zikFilesList) {
-        myLog("PlayList Constructor");
+        myLogD("PlayList Constructor");
         init(zikFilesList);
     }
     private void init(List<ZikFile> zikFilesList) {
@@ -82,7 +82,7 @@ public class PlayList {
 
     // --- Called ONLY from FolderAdapter ---
     public static void create(Context ctx, List<ZikFile> zikFilesList) {
-        myLog("Playlist created");
+        myLogD("Playlist created");
         appContext = ctx.getApplicationContext();  // not really needed but you never know :-)
         instance = new PlayList(zikFilesList);
         instance.saveToStorage();
@@ -136,6 +136,10 @@ public class PlayList {
 
     public static boolean isAvailable() {
         return instance != null;
+    }
+
+    public static boolean isPopulated() {
+        return instance != null && numZikFile >= 0;
     }
 
     public boolean isLastTrack() {

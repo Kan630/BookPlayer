@@ -70,7 +70,7 @@ public class PodcastEpisodeActivity extends LoggingActivity {
         tvTitle = findViewById(R.id.tvPodcastTitle);
         tvDescription = findViewById(R.id.tvPodcastDescription);
         ivCover = findViewById(R.id.ivPodcastCover);
-        recyclerEpisodes = findViewById(R.id.recyclerEpisodes);
+        recyclerEpisodes = findViewById(R.id.rvEpisodes);
         progressBar = findViewById(R.id.progressBarEpisodes);
 
         btnFavorite = findViewById(R.id.btnFavorite);

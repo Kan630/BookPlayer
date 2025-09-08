@@ -20,9 +20,11 @@ import com.bumptech.glide.Glide;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.ModifyFolderActivity;
 import com.driot.bookplayer.activities.PlayActivity;
+import com.driot.bookplayer.activities.PodcastEpisodeActivity;
 import com.driot.bookplayer.activities.ZikFileActivity;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
+import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.objects.PlayList;
@@ -114,6 +116,7 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
             } else {
                 myLogI("onClick - position=" + getBindingAdapterPosition() + " - " + folder.getName());
             }
+
             new Thread(() -> {
                 try {
                     List<ZikFile> zikFilesList = AppDatabase.getDatabase(mCtx).ZikFileDao().getZikFiles(folder.getId());
@@ -128,7 +131,16 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
                     } else {
                         PlayList.create(mCtx, zikFilesList);
                         if (zikFilesList.size() > 1) {
-                            mCtx.startActivity(new Intent(mCtx, ZikFileActivity.class).putExtra("folder", folder));
+                            if (folder.getSourceLocation().equals(Var.SOURCE_LOCATION_PODCAST)) {
+                                AppDatabase.databaseReadExecutor.execute(()-> {
+                                    Podcast podcast = AppDatabase.getDatabase(mCtx).PodcastDao().getPodcastByFolderId(folder.getId());
+                                    myLogD("opening PodcastEpisodeActivity for podcast : " + podcast.title);
+                                    mCtx.startActivity(new Intent(mCtx, PodcastEpisodeActivity.class).putExtra("podcast", podcast));
+                                });
+                            } else {
+                                mCtx.startActivity(new Intent(mCtx, ZikFileActivity.class).putExtra("folder", folder));
+                            }
+
                         } else if (zikFilesList.size() == 1) {
                             PlayList.getInstance().setNumZikFile(0);
                             mCtx.startActivity(new Intent(mCtx, PlayActivity.class).putExtra("ZikFile", zikFilesList.get(0)));

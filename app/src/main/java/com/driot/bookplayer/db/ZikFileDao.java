@@ -41,6 +41,15 @@ public interface ZikFileDao {
     @Query("SELECT * FROM ZikFile WHERE id = :id")
     ZikFile getZikFile(long id);
 
+    @Query("""
+           SELECT * FROM ZikFile
+           WHERE idFolder = (SELECT idFolder FROM Podcast WHERE feedId = :feedId)
+             AND lLastAccess > 0
+           ORDER BY lLastAccess DESC
+           LIMIT 1
+           """)
+    LiveData<ZikFile> getLastListenedZikFileForPodcast(long feedId);
+
     @Insert
     long insert(ZikFile zikFile);
 

@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class PodcastEpisodeViewModel extends LoggingAndroidViewModel {
     private final ZikFileDao zikFileDao;
@@ -57,6 +58,12 @@ public class PodcastEpisodeViewModel extends LoggingAndroidViewModel {
 
     public Long getLastPublishedForPodcastSync(long podcastId) {
         return episodeDao.getMaxDatePublishedForPodcast(podcastId);
+    }
+
+    public LiveData<ZikFile> getLastListenedZikFileForPodcast(long feedId) {
+        LiveData<ZikFile> zf = zikFileDao.getLastListenedZikFileForPodcast(feedId);
+        //myLogD("getLastListenedZikFileForPodcast : " + Objects.toString(zf.getValue() != null ? zf.getValue().getName() : null));
+        return zf;
     }
 
 }

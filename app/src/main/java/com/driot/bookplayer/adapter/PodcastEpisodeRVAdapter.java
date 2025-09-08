@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -44,6 +45,7 @@ import java.util.Locale;
 public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAdapter.ViewHolder> {
 
     private List<DisplayableEpisode> items = new ArrayList<>();
+    private Long lastListenedZikFileId = null;
 
     private final Context context;
     private final PodcastFeed podcastFeed;
@@ -58,6 +60,12 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
         if (podcastFeed==null) {
             myLogEE(null, "podcastFeed == null");
         }
+        // Observe once: last listened ZikFile for this feed
+        viewModel.getLastListenedZikFileForPodcast(podcastFeed.id /* or .feedId */)
+                .observe(lifecycleOwner, zf -> {
+                    lastListenedZikFileId = (zf != null) ? (long) zf.getId() : null;
+                    notifyDataSetChanged(); // refresh highlights
+                });
     }
 
     public void setItems(List<DisplayableEpisode> episodes) {
@@ -84,8 +92,15 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
         String episodeFileName = PodcastHelper.buildPodcastEpisodeFileName(episode);
         String episodeName = PodcastHelper.buildPodcastEpisodeName(episode);
 
+        //identify visually last listened episode
+        holder.llMain.setBackgroundColor(ContextCompat.getColor(context, R.color.activityBackground));
+        if (lastListenedZikFileId != null && lastListenedZikFileId.equals(episode.idZikFile)) {
+            myLogD("last accessed episode  [" + episodeName + "] - [" + episodeFileName + "]");
+            holder.llMain.setBackgroundColor(ContextCompat.getColor(context, R.color.cardview_dark_background));
+        }
+
         holder.itemView.setOnClickListener(v -> {
-            myLog("------------ USER CLICKS EPISODE --------------  [" + episodeName + "] - [" + episodeFileName + "]");
+            myLogI("------------ USER CLICKS EPISODE --------------  [" + episodeName + "] - [" + episodeFileName + "]");
             myLogD(episode.toString());
             clickOnEpisode(holder, episode);
         });
@@ -142,7 +157,6 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
                     }
                 } else if (isOnlyFromDb) {
                     holder.icon_download.setColorFilter(ContextCompat.getColor(context, android.R.color.holo_blue_dark));
-                    //holder.tvEpisodeDBStats.setText(context.getString(R.string.from_previous_request));
                     holder.tvEpisodeDBStats.setText("");
                 } else {
                     holder.icon_download.setColorFilter(ContextCompat.getColor(context, android.R.color.holo_blue_bright));
@@ -205,6 +219,7 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
         AnimatorSet flickerAnim;
         boolean flickerRunning = false;
         ZikFile zikFile;
+        LinearLayout llMain;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -213,6 +228,7 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
             tvEpisodeStats = itemView.findViewById(R.id.tvEpisodeStats);
             tvEpisodeDBStats = itemView.findViewById(R.id.tvEpisodeDBstats);
             icon_download = itemView.findViewById(R.id.icon_download);
+            llMain = itemView.findViewById(R.id.llMain);
         }
     }
 
