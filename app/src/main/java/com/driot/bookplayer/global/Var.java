@@ -40,7 +40,7 @@ public class Var {
 
     //public static final int PODCASTINDEXORG_SINCE_DEBUG = 1751716800 ; //5 juillet, 2025
     public static final int PODCASTINDEXORG_SINCE = 0 ; //5 juillet, 2025
-    public static final int PODCAST_DETAIL_ANIMATION_COUNT = 3 ;
+    public static final int PODCAST_DETAIL_ANIMATION_COUNT = 5 ;
 
 
     public static final String FOLDER_UNZIPPED = "unzipped";

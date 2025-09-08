@@ -311,7 +311,7 @@ public class PodcastEpisodeActivity extends LoggingActivity {
         int ANIM_TIME = 2000;
         int HALF_TIME = ANIM_TIME / 2;
         int fromColor = ContextCompat.getColor(this, R.color.gray_500);
-        int toColor = ContextCompat.getColor(this, android.R.color.holo_blue_bright);
+        int toColor = ContextCompat.getColor(this, android.R.color.holo_red_light);
         int ivIConVisibility = ivIcon.getVisibility();
 
         // Set initial states
