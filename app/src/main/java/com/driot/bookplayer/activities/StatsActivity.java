@@ -66,7 +66,7 @@ public class StatsActivity extends LoggingActivity {
                         + "\n" + "\n" + Tonio.formatMemPadding(currentAppSize) + getString(R.string.MB_taken_by_BookPlayer_app)
                         + "\n" + "\n" + Tonio.formatMemPadding(sizeImages) + getString(R.string.MB_taken_by_images)
                         + "\n" + "\n" + Tonio.formatMemPadding(sizeLogs) + getString(R.string.MB_taken_by_logs)
-                        + "\n" + "\n" + Tonio.formatMemPadding(sizeDB) + getString(R.string.MB_taken_by_databases)
+                        //+ "\n" + "\n" + Tonio.formatMemPadding(sizeDB) + getString(R.string.MB_taken_by_databases)
                 ;
         long total = getTotalRemovableSDCardSize(this) / 1048576L;;
         if (total > 0) {
