@@ -88,6 +88,7 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
         holder.tvDate.setText(episode.datePublishedPretty != null ? episode.datePublishedPretty : "");
         String stats = Tonio.formatTime(episode.duration*1000) + (episode.enclosureLength != 0 ? " (" + Tonio.getReadableSize(episode.enclosureLength) + ")" : "");
         holder.tvEpisodeStats.setText(stats);
+        holder.zikFile = null;
 
         String episodeFileName = PodcastHelper.buildPodcastEpisodeFileName(episode);
         String episodeName = PodcastHelper.buildPodcastEpisodeName(episode);
@@ -291,6 +292,7 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
         }
         new Thread(() -> {
             try {
+                myLog("clickOnEpisode : " + zikFile.getDisplayName() + " - " + zikFile.getId() + " - " + zikFile.getName());
                 List<ZikFile> zikFilesList = AppDatabase.getDatabase(context).ZikFileDao().getZikFiles(zikFile.getIdFolder());
                 PlayList.create(context, zikFilesList);
                 int rankZikFile = getZikFileRankInFolderSync(zikFilesList, zikFile.getName());

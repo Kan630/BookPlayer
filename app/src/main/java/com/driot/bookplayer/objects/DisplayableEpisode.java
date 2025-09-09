@@ -172,7 +172,8 @@ public class DisplayableEpisode {
                 ", comesFromApi=" + comesFromApi +
                 ", idEpisode=" + idEpisode +
                 ", title='" + title + '\'' +
-                ", description='" + description + '\'' +
+                ", id=" + id +
+                ", idZikFile=" + idZikFile +
                 ", duration=" + duration +
                 ", image='" + image + '\'' +
                 ", guid='" + guid + '\'' +
@@ -181,11 +182,10 @@ public class DisplayableEpisode {
                 ", datePublished='" + datePublished + '\'' +
                 ", datePublishedPretty='" + datePublishedPretty + '\'' +
                 ", enclosureLength=" + enclosureLength +
-                ", id=" + id +
-                ", idZikFile=" + idZikFile +
                 ", date_import=" + date_import +
                 ", date_delete=" + date_delete +
                 ", lastAccess=" + lastAccess +
+                ", description=[" + description + ']' +
                 '}';
     }
 }
