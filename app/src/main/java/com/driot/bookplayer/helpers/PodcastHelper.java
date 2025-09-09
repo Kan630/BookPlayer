@@ -467,6 +467,15 @@ public class PodcastHelper {
             );
         });
     }
+    public static void updateSortNewestTop(Context context, long feedId, boolean sortNewestTop) {
+        myLogD("update SortNewestTop in table for that podcast (" + feedId + ") -- SortNewestTop = " + sortNewestTop);
+        AppDatabase.databaseWriteExecutor.execute(() -> {
+            AppDatabase.getDatabase(context).PodcastDao().updateSortNewestTop(
+                    feedId,
+                    sortNewestTop ? 1 : 0
+            );
+        });
+    }
 
 
 

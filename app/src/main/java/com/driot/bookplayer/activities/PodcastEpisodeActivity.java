@@ -88,7 +88,7 @@ public class PodcastEpisodeActivity extends LoggingActivity {
 
         podcastDao = AppDatabase.getDatabase(this).PodcastDao();
 
-        podcast = getIntent().getParcelableExtra("podcast"); // from Favorites
+        podcast = getIntent().getParcelableExtra("podcast");
 
         if (podcast == null) {
             myLogEE(null,"podcast == null");
@@ -159,12 +159,15 @@ public class PodcastEpisodeActivity extends LoggingActivity {
         });
         btnSort.setOnClickListener(v -> {
             sortNewestFirst = !sortNewestFirst;
-            myLogI("-------- USER CLICKS SORT " + (sortNewestFirst ? "ASC" : "DESC"));
+            myLogI("-------- USER CLICKS SORT --  sortNewestFirst= " + sortNewestFirst);
 
+            //save
+            PodcastHelper.updateSortNewestTop(this, podcast.feedId, sortNewestFirst);
+
+            //reload
             AppDatabase.databaseReadExecutor.execute(() -> {
                 List<Episode> dbEpisodes = podcastEpisodeViewModel.getEpisodesFromDB(podcast.getId(), sortNewestFirst);
                 List<DisplayableEpisode> sortedList = DisplayableEpisode.fromEpisodeList(dbEpisodes);
-
                 runOnUiThread(() -> {
                     adapter.setItems(sortedList);
                     adapter.notifyDataSetChanged();

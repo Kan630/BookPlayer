@@ -59,4 +59,7 @@ public interface PodcastDao {
 
     @Query("UPDATE Podcast SET lastCheck = :lastCheck WHERE feedId = :feedId")
     void updateLastCheck(long feedId, long lastCheck);
+
+    @Query("UPDATE Podcast SET sort_newest_top = :sort_newest_top WHERE feedId = :feedId")
+    void updateSortNewestTop(long feedId, long sort_newest_top);
 }

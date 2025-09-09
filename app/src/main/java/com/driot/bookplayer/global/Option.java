@@ -37,9 +37,9 @@ public class Option {
     private static final boolean DEFAULT_PODCAST_AUTO_DELETE = false;
     public static final int DEFAULT_PODCAST_DELAY_AUTO_DELETE = 7;
     public static final int DEFAULT_PODCAST_COMPLETION_PERCENTAGE_AUTO_DELETE = 90;
-    public static final int PODCAST_AUTO_DOWNLOAD_LAST_N_EPISODES = 5;
-    public static final int PODCAST_AUTO_DOWNLOAD_MAX_N_PODCASTS = 10;
-    public static final int PODCAST_AUTO_DOWNLOAD_DELAY_BETWEEN_CHECKS_IN_MIN = 60;
+    public static final int DEFAULT_PODCAST_AUTO_DOWNLOAD_LAST_N_EPISODES = 5;
+    public static final int DEFAULT_PODCAST_AUTO_DOWNLOAD_MAX_N_PODCASTS = 10;
+    public static final int DEFAULT_PODCAST_AUTO_DOWNLOAD_DELAY_BETWEEN_CHECKS_IN_MIN = 60;
     public static final boolean DEFAULT_PODCAST_EPISODES_SORT_NEWEST_TOP = true;
 
     private static Context appContext;
@@ -173,16 +173,16 @@ public class Option {
     public static int getPodcastAutoDeleteDelay() {return prefs.getInt("PODCAST_DELAY_AUTO_DELETE", DEFAULT_PODCAST_DELAY_AUTO_DELETE);}
 
     public static void setPodcastAutoDownloadLastNbEpisode(int i) {prefs.edit().putInt("PODCAST_AUTO_DOWNLOAD_LAST_N_EPISODES",i).apply();}
-    public static int getPodcastAutoDownloadLastNbEpisode() {return prefs.getInt("PODCAST_AUTO_DOWNLOAD_LAST_N_EPISODES", PODCAST_AUTO_DOWNLOAD_LAST_N_EPISODES);}
+    public static int getPodcastAutoDownloadLastNbEpisode() {return prefs.getInt("PODCAST_AUTO_DOWNLOAD_LAST_N_EPISODES", DEFAULT_PODCAST_AUTO_DOWNLOAD_LAST_N_EPISODES);}
 
     public static void setPodcastAutoDownloadMaxNbPodcast(int i) {prefs.edit().putInt("PODCAST_AUTO_DOWNLOAD_MAX_N_PODCASTS",i).apply();}
-    public static int getPodcastAutoDownloadMaxNbPodcast() {return prefs.getInt("PODCAST_AUTO_DOWNLOAD_MAX_N_PODCASTS", PODCAST_AUTO_DOWNLOAD_MAX_N_PODCASTS);}
+    public static int getPodcastAutoDownloadMaxNbPodcast() {return prefs.getInt("PODCAST_AUTO_DOWNLOAD_MAX_N_PODCASTS", DEFAULT_PODCAST_AUTO_DOWNLOAD_MAX_N_PODCASTS);}
 
     public static void setPodcastAutoDownloadDelayBetweenChecks(int i) {prefs.edit().putInt("PODCAST_AUTO_DOWNLOAD_DELAY_BETWEEN_CHECKS_IN_MIN",i).apply();}
-    public static int getPodcastAutoDownloadDelayBetweenChecks() {return prefs.getInt("PODCAST_AUTO_DOWNLOAD_DELAY_BETWEEN_CHECKS_IN_MIN", PODCAST_AUTO_DOWNLOAD_DELAY_BETWEEN_CHECKS_IN_MIN);}
+    public static int getPodcastAutoDownloadDelayBetweenChecks() {return prefs.getInt("PODCAST_AUTO_DOWNLOAD_DELAY_BETWEEN_CHECKS_IN_MIN", DEFAULT_PODCAST_AUTO_DOWNLOAD_DELAY_BETWEEN_CHECKS_IN_MIN);}
 
-    public static void setPodcastEpisodesSortOrder(boolean bool) {prefs.edit().putBoolean("PODCAST_EPISODES_SORT_ORDER",bool).apply();}
-    public static boolean getPodcastEpisodesSortOrder() {return prefs.getBoolean("PODCAST_EPISODES_SORT_ORDER", DEFAULT_PODCAST_EPISODES_SORT_NEWEST_TOP);}
+    public static void setPodcastEpisodesSortOrder(boolean bool) {prefs.edit().putBoolean("PODCAST_EPISODES_SORT_NEWEST_TOP",bool).apply();}
+    public static boolean getPodcastEpisodesSortOrder() {return prefs.getBoolean("PODCAST_EPISODES_SORT_NEWEST_TOP", DEFAULT_PODCAST_EPISODES_SORT_NEWEST_TOP);}
 
     /////////////////// LANGUAGE ///////////////////
     public static void setLanguage(String language) {prefs.edit().putString("LANGUAGE",language).apply();}

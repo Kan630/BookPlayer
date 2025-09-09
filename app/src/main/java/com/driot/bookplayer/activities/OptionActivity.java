@@ -447,19 +447,19 @@ public class OptionActivity extends LoggingActivity {
             Option.setPodcastAutoDeleteCompletionPercentage(value2);
         }
         if (et_podcast_auto_download_last_n_episode != null ) {
-            int value3 = clampInt(et_podcast_auto_download_last_n_episode, 1, 100, Option.PODCAST_AUTO_DOWNLOAD_LAST_N_EPISODES,
+            int value3 = clampInt(et_podcast_auto_download_last_n_episode, 1, 100, Option.DEFAULT_PODCAST_AUTO_DOWNLOAD_LAST_N_EPISODES,
                     () -> myLongToast(getString(R.string.auto_download_last_n_episode) + " " + getString(R.string.too_low)),
                     () -> myLongToast(getString(R.string.auto_download_last_n_episode) + " " + getString(R.string.too_high)));
             Option.setPodcastAutoDownloadLastNbEpisode(value3);
         }
         if (et_auto_download_max_n_podcast != null ) {
-            int value4 = clampInt(et_auto_download_max_n_podcast, 1, 100, Option.PODCAST_AUTO_DOWNLOAD_MAX_N_PODCASTS,
+            int value4 = clampInt(et_auto_download_max_n_podcast, 1, 100, Option.DEFAULT_PODCAST_AUTO_DOWNLOAD_MAX_N_PODCASTS,
                     () -> myLongToast(getString(R.string.auto_download_max_n_podcast) + " " + getString(R.string.too_low)),
                     () -> myLongToast(getString(R.string.auto_download_max_n_podcast) + " " + getString(R.string.too_high)));
             Option.setPodcastAutoDownloadMaxNbPodcast(value4);
         }
         if (et_auto_download_delay_between_checks_in_min != null ) {
-            int value5 = clampInt(et_auto_download_delay_between_checks_in_min,15, 60*24, Option.PODCAST_AUTO_DOWNLOAD_DELAY_BETWEEN_CHECKS_IN_MIN,
+            int value5 = clampInt(et_auto_download_delay_between_checks_in_min,15, 60*24, Option.DEFAULT_PODCAST_AUTO_DOWNLOAD_DELAY_BETWEEN_CHECKS_IN_MIN,
                     () -> myLongToast(getString(R.string.auto_download_delay_between_checks_in_min) + " " + getString(R.string.too_low)),
                     () -> myLongToast(getString(R.string.auto_download_delay_between_checks_in_min) + " " + getString(R.string.too_high)));
             Option.setPodcastAutoDownloadDelayBetweenChecks(value5);
