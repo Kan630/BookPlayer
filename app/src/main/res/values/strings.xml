@@ -748,4 +748,9 @@
     <string name="open_audiobooks">"Browse Audiobooks"</string>
     <string name="open_other">"Open Audio"</string>
 
+    <string name="ep">"ep"</string> //abbreviation for episode : 2 letters
+    <string name="option_podcast_episodes_sort_order">newest episode at the top</string>
+
+
+
 </resources>

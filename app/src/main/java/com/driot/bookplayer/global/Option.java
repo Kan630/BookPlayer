@@ -40,6 +40,7 @@ public class Option {
     public static final int PODCAST_AUTO_DOWNLOAD_LAST_N_EPISODES = 5;
     public static final int PODCAST_AUTO_DOWNLOAD_MAX_N_PODCASTS = 10;
     public static final int PODCAST_AUTO_DOWNLOAD_DELAY_BETWEEN_CHECKS_IN_MIN = 60;
+    public static final boolean DEFAULT_PODCAST_EPISODES_SORT_NEWEST_TOP = true;
 
     private static Context appContext;
     private static android.content.SharedPreferences prefs;
@@ -179,6 +180,9 @@ public class Option {
 
     public static void setPodcastAutoDownloadDelayBetweenChecks(int i) {prefs.edit().putInt("PODCAST_AUTO_DOWNLOAD_DELAY_BETWEEN_CHECKS_IN_MIN",i).apply();}
     public static int getPodcastAutoDownloadDelayBetweenChecks() {return prefs.getInt("PODCAST_AUTO_DOWNLOAD_DELAY_BETWEEN_CHECKS_IN_MIN", PODCAST_AUTO_DOWNLOAD_DELAY_BETWEEN_CHECKS_IN_MIN);}
+
+    public static void setPodcastEpisodesSortOrder(boolean bool) {prefs.edit().putBoolean("PODCAST_EPISODES_SORT_ORDER",bool).apply();}
+    public static boolean getPodcastEpisodesSortOrder() {return prefs.getBoolean("PODCAST_EPISODES_SORT_ORDER", DEFAULT_PODCAST_EPISODES_SORT_NEWEST_TOP);}
 
     /////////////////// LANGUAGE ///////////////////
     public static void setLanguage(String language) {prefs.edit().putString("LANGUAGE",language).apply();}

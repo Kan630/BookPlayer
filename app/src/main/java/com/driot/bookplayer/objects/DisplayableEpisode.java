@@ -104,6 +104,7 @@ public class DisplayableEpisode {
         pe.enclosureUrl = de.enclosureUrl;
         pe.datePublished = de.datePublished;
         pe.datePublishedPretty = de.datePublishedPretty;
+
         return pe;
     }
     public PodcastEpisode toPodcastEpisode() {

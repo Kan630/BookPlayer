@@ -75,6 +75,7 @@ public class Episode implements Parcelable {
 
     public String datePublished;
 
+    public long enclosureLength;
 
     // --- Constructors ---
 
@@ -112,6 +113,8 @@ public class Episode implements Parcelable {
         podcastGuid = in.readString();
         enclosureUrl = in.readString();
         datePublished = in.readString();
+        enclosureLength = in.readLong();
+
     }
 
     @Override
@@ -157,6 +160,8 @@ public class Episode implements Parcelable {
         parcel.writeString(podcastGuid);
         parcel.writeString(enclosureUrl);
         parcel.writeString(datePublished);
+        parcel.writeLong(enclosureLength);
+
     }
 
     public static final Creator<Episode> CREATOR = new Creator<Episode>() {

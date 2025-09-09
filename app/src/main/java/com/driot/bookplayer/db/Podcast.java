@@ -9,6 +9,8 @@ import androidx.room.ForeignKey;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
+import com.driot.bookplayer.global.Option;
+
 @Entity(
         tableName = "Podcast",
         foreignKeys = @ForeignKey(
@@ -46,9 +48,18 @@ public class Podcast implements Parcelable {
 
     public boolean autoDelete;
 
+    public long lastCheck;
+
+    public boolean sort_newest_top;
+
+    //-------------------------------------------------------
+
     public Podcast() {
         this.date_added = System.currentTimeMillis();
+        this.sort_newest_top = Option.getPodcastEpisodesSortOrder();
     }
+
+    //-------------------------------------------------------
 
     public void setId(int id) { this.id = id; }
 
@@ -73,6 +84,8 @@ public class Podcast implements Parcelable {
             idFolder = in.readLong();
         }
         date_added = in.readLong();
+        lastCheck = in.readLong();
+        sort_newest_top = in.readByte() != 0;
     }
 
     public static final Creator<Podcast> CREATOR = new Creator<Podcast>() {
@@ -106,6 +119,8 @@ public class Podcast implements Parcelable {
             parcel.writeLong(idFolder);
         }
         parcel.writeLong(date_added);
+        parcel.writeLong(lastCheck);
+        parcel.writeByte((byte) (sort_newest_top ? 1 : 0));
     }
 
     @Override

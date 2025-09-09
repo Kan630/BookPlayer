@@ -180,5 +180,22 @@ public class DatabaseMigrations {
             db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS index_Episode_idEpisode ON Episode(idEpisode)");
         }
     };
+    static final Migration MIGRATION_11_12 = new Migration(11, 12) {
+        @Override
+        public void migrate(SupportSQLiteDatabase db) {
+            myLogI("Migration -> executing step 11 => 12"); // 2025-09-09
+
+            db.execSQL("ALTER TABLE Podcast ADD COLUMN lastCheck INTEGER NOT NULL DEFAULT 0");
+        }
+    };
+    static final Migration MIGRATION_12_13 = new Migration(12, 13) {
+        @Override
+        public void migrate(SupportSQLiteDatabase db) {
+            myLogI("Migration -> executing step 12 => 13"); // 2025-09-09
+
+            db.execSQL("ALTER TABLE Podcast ADD COLUMN sort_newest_top INTEGER NOT NULL DEFAULT 0");
+            db.execSQL("ALTER TABLE Episode ADD COLUMN enclosureLength INTEGER NOT NULL DEFAULT 0");
+        }
+    };
 
 }

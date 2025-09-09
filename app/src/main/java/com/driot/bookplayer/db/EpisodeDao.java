@@ -50,7 +50,11 @@ public interface EpisodeDao {
     int updateDateDeleteForZikFileId(long zikFileId, long now);
 
     @Query("SELECT * FROM Episode WHERE idPodcast = :podcastId ORDER BY datePublished DESC")
-    List<Episode> getAllEpisodesForPodcast(int podcastId);
+    List<Episode> getAllEpisodesForPodcastNewestFirst(int podcastId);
+
+    @Query("SELECT * FROM Episode WHERE idPodcast = :podcastId ORDER BY datePublished ASC")
+    List<Episode> getAllEpisodesForPodcastOldestFirst(int podcastId);
+
 
     @Query("SELECT MAX(datePublished) FROM Episode WHERE idPodcast = :podcastId")
     Long getMaxDatePublishedForPodcast(long podcastId);

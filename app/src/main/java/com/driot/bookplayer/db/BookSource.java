@@ -24,6 +24,7 @@ public class BookSource {
     public String repoType;       // e.g., "Podcast", "Librivox", etc.
     public String repoName;       // e.g., "Librivox"
     public String repoId;         // Identifier within the source (e.g., feedId or identifier)
+    //last checked api, good idea
 
     public Long idFolder;         // Folder ID (nullable)
 }

@@ -5,8 +5,14 @@ import static com.driot.bookplayer.utils.TextOptions.parseMaybeHtml;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.app.AlertDialog;
+import android.content.ClipboardManager;
 import android.content.Context;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+
+import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.R;
 
@@ -37,5 +43,4 @@ public class ViewHelper {
                     }
                 });
     }
-
 }

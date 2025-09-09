@@ -221,13 +221,15 @@ public class PodcastHelper {
         });
     }
 
-    public static void getEpisodesByFeedId(long feedId, long since, int max, EpisodeCallback callback) {
+    public static void getEpisodesByFeedId(Context context, long feedId, long since, int max, boolean fullText, EpisodeCallback callback) {
         PodcastIndexApi api = buildApi();
-        api.getEpisodesByFeedId(feedId, since, max).enqueue(new retrofit2.Callback<PodcastEpisodeResponse>() {
+        myLog("API call");
+        api.getEpisodesByFeedId(feedId, since, max, fullText).enqueue(new retrofit2.Callback<PodcastEpisodeResponse>() {
             @Override
             public void onResponse(Call<PodcastEpisodeResponse> call, Response<PodcastEpisodeResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     callback.onSuccess(response.body().items);
+                    updateLastCheck(context, feedId);
                 } else {
                     callback.onError(new Exception("HTTP " + response.code()));
                 }
@@ -352,7 +354,7 @@ public class PodcastHelper {
         });
     }
     public static void checkForNewEpisodesToAutoDownloadForPodcast(Context context, Podcast podcast, long since) {
-        getEpisodesByFeedId(podcast.feedId, since, Option.getPodcastAutoDownloadLastNbEpisode(), new EpisodeCallback() {
+        getEpisodesByFeedId(context, podcast.feedId, since, Option.getPodcastAutoDownloadLastNbEpisode(), true, new EpisodeCallback() {
             @Override
             public void onSuccess(List<PodcastEpisode> podcastEpisodes) {
 
@@ -387,6 +389,8 @@ public class PodcastHelper {
                         PodcastDownloadManager.enqueueDownloads(context, podcast.feedId, newEpisodes, podcastFolder, null);
                     });
                 }
+                updateLastCheck(context, podcast.feedId);
+
             }
 
             @Override
@@ -432,6 +436,7 @@ public class PodcastHelper {
         return p;
     }
 
+    // FOR INSERT IN DB
     public static List<Episode> convertToEpisodes(List<PodcastEpisode> podcastEpisodes, long idPodcast) {
         long now = System.currentTimeMillis();
         List<Episode> result = new ArrayList<>();
@@ -446,11 +451,22 @@ public class PodcastHelper {
             ep.guid = pe.guid;
             ep.enclosureUrl = pe.enclosureUrl;
             ep.datePublished = pe.datePublished;
+            ep.duration = pe.duration;
+            ep.enclosureLength = pe.enclosureLength;
             result.add(ep);
         }
         return result;
     }
 
+    private static void updateLastCheck(Context context, long feedId) {
+        // update lastCheck in table for that podcast
+        AppDatabase.databaseWriteExecutor.execute(() -> {
+            AppDatabase.getDatabase(context).PodcastDao().updateLastCheck(
+                    feedId,
+                    System.currentTimeMillis()
+            );
+        });
+    }
 
 
 

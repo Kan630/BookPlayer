@@ -33,6 +33,7 @@ public class Var {
     public static final int PODCASTINDEXORG_API_MAX_RESULTS_FOR_PODCASTS = 200;
     public static final int PODCASTINDEXORG_API_MAX_RESULTS_FOR_EPISODES_NORMAL_MODE = 100;
     public static final int PODCASTINDEXORG_API_MAX_RESULTS_FOR_EPISODES_REFRESH_MODE = 1000;
+    public static final int PODCASTINDEXORG_API_TIME_BETWEEN_PODCAST_CHECK_IN_MIN = 2;
 
     public static final String PODCASTINDEXORG_API_KEY = "PVULATRUYKDZX26NBGTR";
     public static final String PODCASTINDEXORG_API_SECRET = "ACtMRyawFkg4MxA55y^CH$fE3Dynds4gURfByYXL";

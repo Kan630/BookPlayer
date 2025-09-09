@@ -37,7 +37,7 @@ public class DatabaseClient {
                 currentVersion = DatabaseBackupHelper.getDatabaseVersion(dbPath);
                 myLogD("Current DB version : " + currentVersion);
                 if (currentVersion < APP_DATABASE_VERSION) {
-                    myLogW("Code DB version : " + APP_DATABASE_VERSION);
+                    myLogI("Code DB version : " + APP_DATABASE_VERSION);
                     //backupDatabase(mCtx);
                 }
             }
@@ -68,6 +68,8 @@ public class DatabaseClient {
                             , DatabaseMigrations.MIGRATION_8_9
                             , DatabaseMigrations.MIGRATION_9_10
                             , DatabaseMigrations.MIGRATION_10_11
+                            , DatabaseMigrations.MIGRATION_11_12
+                            , DatabaseMigrations.MIGRATION_12_13
                     ).build();
 
             // Force early access to trigger DB open and migrations (and also check SQL version)

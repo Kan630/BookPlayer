@@ -31,7 +31,7 @@ public class InAppPeriodicTaskManager {
     public void start() {
         if (scheduledFuture == null || scheduledFuture.isCancelled()) {
             scheduledFuture = scheduler.scheduleWithFixedDelay(() -> {
-                myLogI("InAppPeriodicTask - Running task at " + new Date());
+                myLog("InAppPeriodicTask - Running task at " + new Date());
 
                 if (Pref.shouldCheckApiForAutoDownload() || Var.FORCE_AUTO_DOWNLOAD_NO_DELAY) {
                     PodcastHelper.checkForNewEpisodesToAutoDownload(context, PODCASTINDEXORG_SINCE);

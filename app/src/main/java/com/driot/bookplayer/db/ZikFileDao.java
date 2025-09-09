@@ -41,6 +41,19 @@ public interface ZikFileDao {
     @Query("SELECT * FROM ZikFile WHERE id = :id")
     ZikFile getZikFile(long id);
 
+    //PODCAST LIST
+    @Query("SELECT ZikFile.* FROM ZikFile " +
+            "INNER JOIN Episode ON Episode.idZikFile = ZikFile.id " +
+            "WHERE ZikFile.idFolder = :idFolder " +
+            "ORDER BY CAST(Episode.datePublished AS INTEGER) ASC, zeorder, name")
+    List<ZikFile> getPodcastZikFilesAsc(long idFolder);
+
+    @Query("SELECT ZikFile.* FROM ZikFile " +
+            "INNER JOIN Episode ON Episode.idZikFile = ZikFile.id " +
+            "WHERE ZikFile.idFolder = :idFolder " +
+            "ORDER BY CAST(Episode.datePublished AS INTEGER) DESC, zeorder, name")
+    List<ZikFile> getPodcastZikFilesDesc(long idFolder);
+
     @Query("""
            SELECT * FROM ZikFile
            WHERE idFolder = (SELECT idFolder FROM Podcast WHERE feedId = :feedId)

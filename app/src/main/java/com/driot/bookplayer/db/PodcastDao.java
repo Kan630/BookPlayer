@@ -56,4 +56,7 @@ public interface PodcastDao {
 
     @Query("SELECT id FROM Podcast WHERE feedId = :feedId")
     Long getIdByFeedId(long feedId);
+
+    @Query("UPDATE Podcast SET lastCheck = :lastCheck WHERE feedId = :feedId")
+    void updateLastCheck(long feedId, long lastCheck);
 }

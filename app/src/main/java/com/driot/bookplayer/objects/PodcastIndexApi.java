@@ -25,7 +25,8 @@ public interface PodcastIndexApi {
     Call<PodcastEpisodeResponse> getEpisodesByFeedId(
             @Query("id") long feedId,
             @Query("since") long since,
-            @Query("max") int max
+            @Query("max") int max,
+            @Query("fulltext") boolean fulltext
     );
 
     @GET("episodes/byfeedid")

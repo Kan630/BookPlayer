@@ -33,7 +33,7 @@ public class PodcastFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.Vie
     private static final int VIEW_TYPE_ITEM = 1;
 
     private List<Podcast> items = new ArrayList<>();
-    private final OnItemClickListener listener;
+    private final OnItemClickListener onItemClickListener;
     private final OnAutoDownloadToggleListener autoDownloadToggleListener;
 
     private String headerQuery = "";
@@ -48,8 +48,8 @@ public class PodcastFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.Vie
         void onToggle(Podcast podcast, boolean newState);
     }
 
-    public PodcastFavoritesRVAdapter(OnItemClickListener listener, OnAutoDownloadToggleListener autoDownloadToggleListener) {
-        this.listener = listener;
+    public PodcastFavoritesRVAdapter(OnItemClickListener onItemClickListener, OnAutoDownloadToggleListener autoDownloadToggleListener) {
+        this.onItemClickListener = onItemClickListener;
         this.autoDownloadToggleListener = autoDownloadToggleListener;
     }
 
@@ -85,7 +85,7 @@ public class PodcastFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.Vie
             ((HeaderViewHolder) holder).bind(headerQuery, headerLang, headerCount);
         } else {
             Podcast podcast = items.get(position - 1);
-            ((PodcastViewHolder) holder).bind(podcast, listener, autoDownloadToggleListener);
+            ((PodcastViewHolder) holder).bind(podcast, onItemClickListener, autoDownloadToggleListener);
         }
     }
 

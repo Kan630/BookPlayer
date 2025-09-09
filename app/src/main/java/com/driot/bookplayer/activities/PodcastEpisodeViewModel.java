@@ -16,11 +16,7 @@ import com.driot.bookplayer.helpers.PodcastHelper;
 import com.driot.bookplayer.objects.PodcastEpisode;
 import com.driot.bookplayer.utils.log.LoggingAndroidViewModel;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 
 public class PodcastEpisodeViewModel extends LoggingAndroidViewModel {
     private final ZikFileDao zikFileDao;
@@ -35,6 +31,29 @@ public class PodcastEpisodeViewModel extends LoggingAndroidViewModel {
         podcastDao = db.PodcastDao();
     }
 
+
+
+    // ---------------------------------
+    //     DB
+    // ---------------------------------
+
+    //insert episodes gotten from api to db
+    public void insertEpisodesInDB(List<PodcastEpisode> podcastEpisodes, long podcastFeedId) {
+        new Thread(() -> {
+            int podcastId = podcastDao.getPodcastByFeedId(podcastFeedId).getId();
+            List<Episode> toSave = PodcastHelper.convertToEpisodes(podcastEpisodes, podcastId);
+            episodeDao.insertAll(toSave);
+        }).start();
+    }
+    public List<Episode> getEpisodesFromDB(int podcastId, boolean sortNewestFirst) {
+        if (sortNewestFirst) {
+            return episodeDao.getAllEpisodesForPodcastNewestFirst(podcastId);
+        } else {
+            return episodeDao.getAllEpisodesForPodcastOldestFirst(podcastId);
+        }
+    }
+
+
     public LiveData<ZikFile> getZikFileLive(String folderName, String fileName) {
         return zikFileDao.getZikFileLive(folderName, fileName);
     }
@@ -43,27 +62,22 @@ public class PodcastEpisodeViewModel extends LoggingAndroidViewModel {
         return podcastDao.getPodcastLiveByFeedId(feedId);
     }
 
+    public LiveData<ZikFile> getLastListenedZikFileForPodcast(long feedId) {
 
-    public void insertEpisodes(List<PodcastEpisode> podcastEpisodes, long podcastFeedId) {
-        new Thread(() -> {
-            int podcastId = podcastDao.getPodcastByFeedId(podcastFeedId).getId();
-            List<Episode> toSave = PodcastHelper.convertToEpisodes(podcastEpisodes, podcastId);
-            episodeDao.insertAll(toSave);
-        }).start();
+        LiveData<ZikFile> zf = zikFileDao.getLastListenedZikFileForPodcast(feedId);
+        //myLogD("getLastListenedZikFileForPodcast : " + Objects.toString(zf.getValue() != null ? zf.getValue().getName() : null));
+        return zf;
     }
 
-    public List<Episode> getEpisodesForPodcastSync(int podcastId) {
-        return episodeDao.getAllEpisodesForPodcast(podcastId);
-    }
 
     public Long getLastPublishedForPodcastSync(long podcastId) {
         return episodeDao.getMaxDatePublishedForPodcast(podcastId);
     }
 
-    public LiveData<ZikFile> getLastListenedZikFileForPodcast(long feedId) {
-        LiveData<ZikFile> zf = zikFileDao.getLastListenedZikFileForPodcast(feedId);
-        //myLogD("getLastListenedZikFileForPodcast : " + Objects.toString(zf.getValue() != null ? zf.getValue().getName() : null));
-        return zf;
-    }
+    // ---------------------------------
+    //     API
+    // ---------------------------------
+
+
 
 }

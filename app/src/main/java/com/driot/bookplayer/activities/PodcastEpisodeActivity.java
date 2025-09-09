@@ -31,6 +31,7 @@ import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.db.PodcastDao;
 import com.driot.bookplayer.db.ZikFile;
+import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.objects.DisplayableEpisode;
@@ -47,7 +48,7 @@ import java.util.List;
 
 public class PodcastEpisodeActivity extends LoggingActivity {
 
-    private TextView tvTitle, tvDescription;
+    private TextView tvTitle, tvDescription, tvStats;
     private ImageView ivCover;
     private RecyclerView recyclerEpisodes;
     private ProgressBar progressBar;
@@ -56,11 +57,13 @@ public class PodcastEpisodeActivity extends LoggingActivity {
     private Podcast podcast;
     private PodcastFeed podcastFeed;
 
-    private ImageButton btnFavorite, btnAutoDownload, btnRefresh;
+    private ImageButton btnFavorite, btnAutoDownload, btnRefresh, btnSort;
     private TextView labelFavorite, labelAutoDownload, labelAutoDelete;
     private PodcastDao podcastDao;
 
     private PodcastEpisodeViewModel podcastEpisodeViewModel;
+
+    private boolean sortNewestFirst;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +72,8 @@ public class PodcastEpisodeActivity extends LoggingActivity {
 
         tvTitle = findViewById(R.id.tvPodcastTitle);
         tvDescription = findViewById(R.id.tvPodcastDescription);
+        tvStats = findViewById(R.id.tvPodcastStat);
+
         ivCover = findViewById(R.id.ivPodcastCover);
         recyclerEpisodes = findViewById(R.id.rvEpisodes);
         progressBar = findViewById(R.id.progressBarEpisodes);
@@ -76,6 +81,7 @@ public class PodcastEpisodeActivity extends LoggingActivity {
         btnFavorite = findViewById(R.id.btnFavorite);
         btnAutoDownload = findViewById(R.id.btnAutoDownload);
         btnRefresh = findViewById(R.id.btnRefresh);
+        btnSort = findViewById(R.id.btnSort);
         labelFavorite = findViewById(R.id.labelFavorite);
         labelAutoDownload = findViewById(R.id.labelAutoDownload);
         labelAutoDelete = findViewById(R.id.labelAutoDelete);
@@ -88,6 +94,10 @@ public class PodcastEpisodeActivity extends LoggingActivity {
             myLogEE(null,"podcast == null");
             return;
         }
+
+        sortNewestFirst = podcast.sort_newest_top;
+        myLogD("Sort newest first: " + sortNewestFirst);
+
         podcastFeed = new PodcastFeed(
                   podcast.feedId
                 , podcast.title
@@ -104,7 +114,7 @@ public class PodcastEpisodeActivity extends LoggingActivity {
         });
 
         recyclerEpisodes.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new PodcastEpisodeRVAdapter(this, podcastFeed, podcastEpisodeViewModel);
+        adapter = new PodcastEpisodeRVAdapter(this, podcastFeed, podcastEpisodeViewModel, sortNewestFirst);
         recyclerEpisodes.setAdapter(adapter);
 
         labelFavorite.setVisibility(View.GONE);
@@ -147,12 +157,27 @@ public class PodcastEpisodeActivity extends LoggingActivity {
             myLogI("-------- USER CLICKS REFRESH");
             fetchEpisodes(true);
         });
+        btnSort.setOnClickListener(v -> {
+            sortNewestFirst = !sortNewestFirst;
+            myLogI("-------- USER CLICKS SORT " + (sortNewestFirst ? "ASC" : "DESC"));
+
+            AppDatabase.databaseReadExecutor.execute(() -> {
+                List<Episode> dbEpisodes = podcastEpisodeViewModel.getEpisodesFromDB(podcast.getId(), sortNewestFirst);
+                List<DisplayableEpisode> sortedList = DisplayableEpisode.fromEpisodeList(dbEpisodes);
+
+                runOnUiThread(() -> {
+                    adapter.setItems(sortedList);
+                    adapter.notifyDataSetChanged();
+                });
+            });
+        });
+
 
         int maxHeightPx = (int) (Resources.getSystem().getDisplayMetrics().heightPixels * 0.1);
         tvDescription.setMaxHeight(maxHeightPx);
 
         tvDescription.setOnClickListener(v -> {
-            ViewHelper.showAlterDialogToDisplayText(this, podcastFeed.description, getString(R.string.Podcast_description));
+            ViewHelper.showAlterDialogToDisplayText(this, podcastFeed.description, podcastFeed.title);
         });
     }
 
@@ -224,14 +249,16 @@ public class PodcastEpisodeActivity extends LoggingActivity {
 
         // 1) Load DB immediately → optimistic UI
         AppDatabase.databaseReadExecutor.execute(() -> {
-            List<Episode> dbEpisodes = podcastEpisodeViewModel.getEpisodesForPodcastSync(podcast.getId());
+            List<Episode> dbEpisodes = podcastEpisodeViewModel.getEpisodesFromDB(podcast.getId(), sortNewestFirst);
             myLogD("DB episodes count: " + dbEpisodes.size());
             List<DisplayableEpisode> initial = DisplayableEpisode.fromEpisodeList(dbEpisodes);
             runOnUiThread(() -> {
-                adapter.setItems(initial);
-                adapter.notifyDataSetChanged();
+                updateAdapter(initial);
             });
         });
+        if (!isRefresh && podcast.lastCheck > System.currentTimeMillis() - 1000 * 60 * Var.PODCASTINDEXORG_API_TIME_BETWEEN_PODCAST_CHECK_IN_MIN) {
+            return;
+        }
 
         // 2) Compute "since" from DB and then hit API
         AppDatabase.databaseReadExecutor.execute(() -> {
@@ -245,21 +272,22 @@ public class PodcastEpisodeActivity extends LoggingActivity {
                 Long lastPublished = podcastEpisodeViewModel.getLastPublishedForPodcastSync(podcast.getId()); // epoch seconds
                 since = (lastPublished == null) ? 0L : Math.max(0L, lastPublished - 60);  //30j :  -(60*60*24*30)
             }
-
             PodcastHelper.getEpisodesByFeedId(
+                    this,
                     podcast.feedId,
                     since,
                     maxEpisode,
+                    true,
                     new PodcastHelper.EpisodeCallback() {
                         @Override
                         public void onSuccess(List<PodcastEpisode> apiEpisodes) {
-                            myLogD("API episodes count: " + apiEpisodes.size());
+                            myLogI("API CALL - episodes count: " + apiEpisodes.size());
                             // 3) Persist new/updated from API
-                            podcastEpisodeViewModel.insertEpisodes(apiEpisodes, podcast.feedId);
+                            podcastEpisodeViewModel.insertEpisodesInDB(apiEpisodes, podcast.feedId);
 
                             // 4) Refresh DB and merge for display
                             AppDatabase.databaseReadExecutor.execute(() -> {
-                                List<Episode> dbEpisodes = podcastEpisodeViewModel.getEpisodesForPodcastSync(podcast.getId());
+                                List<Episode> dbEpisodes = podcastEpisodeViewModel.getEpisodesFromDB(podcast.getId(), sortNewestFirst);
                                 List<DisplayableEpisode> fullList =
                                         DisplayableEpisode.mergeDisplayableEpisodes(apiEpisodes, dbEpisodes);
                                 myLogD("DB episodes after insert: " + dbEpisodes.size());
@@ -269,9 +297,7 @@ public class PodcastEpisodeActivity extends LoggingActivity {
                                     if (isRefresh) {
                                         myToast(nbEpisodeFull + " " + getString(R.string.episodes) );
                                     }
-                                    progressBar.setVisibility(View.GONE);
-                                    adapter.setItems(fullList);
-                                    adapter.notifyDataSetChanged();
+                                    updateAdapter(fullList);
                                 });
                             });
                         }
@@ -279,14 +305,13 @@ public class PodcastEpisodeActivity extends LoggingActivity {
                         @Override
                         public void onError(Exception e) {
                             // Fallback: DB-only (you already showed initial DB result; here we just end the spinner and warn)
+                            myLogE("API CALL ERROR - " + e.getMessage());
                             AppDatabase.databaseReadExecutor.execute(() -> {
-                                List<Episode> dbEpisodes = podcastEpisodeViewModel.getEpisodesForPodcastSync(podcast.getId());
+                                List<Episode> dbEpisodes = podcastEpisodeViewModel.getEpisodesFromDB(podcast.getId(), sortNewestFirst);
                                 List<DisplayableEpisode> fallbackList = DisplayableEpisode.fromEpisodeList(dbEpisodes);
 
                                 runOnUiThread(() -> {
-                                    progressBar.setVisibility(View.GONE);
-                                    adapter.setItems(fallbackList);
-                                    adapter.notifyDataSetChanged();
+                                    updateAdapter(fallbackList);
                                     tvDescription.setTextColor(getColor(R.color.orange_500));
                                     tvDescription.setText(getString(R.string.podcast_api_unavailable_fallback));
                                 });
@@ -421,5 +446,13 @@ public class PodcastEpisodeActivity extends LoggingActivity {
         } else {
             myLogE("Podcast == null");
         }
+    }
+
+    private void updateAdapter(List<DisplayableEpisode> displayableEpisodeList) {
+        adapter.setItems(displayableEpisodeList);
+        adapter.notifyDataSetChanged();
+        String tvStatsText = displayableEpisodeList.size() + "." + getString(R.string.ep);
+        tvStats.setText(tvStatsText);
+        progressBar.setVisibility(View.GONE);
     }
 }

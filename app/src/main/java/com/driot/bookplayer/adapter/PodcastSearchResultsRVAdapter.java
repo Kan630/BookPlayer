@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.objects.LanguageItem;
 import com.driot.bookplayer.objects.PodcastFeed;
@@ -39,9 +40,6 @@ public class PodcastSearchResultsRVAdapter extends LoggingRVAdapter<RecyclerView
     public interface OnItemClickListener {
         void onItemClick(PodcastFeed item);
     }
-
-
-
 
 
     public PodcastSearchResultsRVAdapter(OnItemClickListener listener) {

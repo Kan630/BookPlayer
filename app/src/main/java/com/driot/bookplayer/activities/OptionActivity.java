@@ -14,7 +14,6 @@ import android.provider.Settings;
 import android.text.Html;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewStub;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -77,6 +76,7 @@ public class OptionActivity extends LoggingActivity {
     CheckBox chk_split_m4b;
     CheckBox chk_use_sd_card;
     CheckBox chk_podcast_auto_delete;
+    CheckBox chk_podcast_episodes_sort_order;
     EditText et_podcast_delay_deletion, et_podcast_completion_percentage_deletion;
     EditText et_podcast_auto_download_last_n_episode, et_auto_download_max_n_podcast, et_auto_download_delay_between_checks_in_min;
     Spinner languageSpinner;
@@ -96,7 +96,7 @@ public class OptionActivity extends LoggingActivity {
     LinearLayout ll_rewind_after_pause, ll_tech_log_file, ll_mail_method_default;
     LinearLayout ll_open_with, ll_open_with_all, ll_split_m4b, ll_use_sd_card;
     LinearLayout ll_container_sd_card;
-    LinearLayout ll_podcast_auto_delete;
+    LinearLayout ll_podcast_auto_delete, ll_podcast_episodes_sort_order;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -336,6 +336,12 @@ public class OptionActivity extends LoggingActivity {
 
         et_auto_download_delay_between_checks_in_min = findViewById(R.id.et_auto_download_delay_between_checks_in_min);
         et_auto_download_delay_between_checks_in_min.setText(String.valueOf(Option.getPodcastAutoDownloadDelayBetweenChecks()));
+
+        chk_podcast_episodes_sort_order = findViewById(R.id.chk_podcast_episodes_sort_order);
+        ll_podcast_episodes_sort_order = findViewById(R.id.ll_podcast_episodes_sort_order);
+        chk_podcast_episodes_sort_order.setChecked(Option.getPodcastEpisodesSortOrder());
+        ll_podcast_episodes_sort_order.setOnClickListener(v -> chk_podcast_episodes_sort_order.toggle());
+        chk_podcast_episodes_sort_order.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setPodcastEpisodesSortOrder(isChecked));
 
 ///  LANGUAGE
         languageSpinner = findViewById(R.id.spinner_language);

@@ -51,12 +51,14 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
     private final PodcastFeed podcastFeed;
     private final PodcastEpisodeViewModel viewModel;
     private final LifecycleOwner lifecycleOwner;
+    private boolean sortAscending;
 
-    public PodcastEpisodeRVAdapter(Context context, PodcastFeed podcastFeed, PodcastEpisodeViewModel viewModel) {
+    public PodcastEpisodeRVAdapter(Context context, PodcastFeed podcastFeed, PodcastEpisodeViewModel viewModel, boolean sortAscending) {
         this.context = context;
         this.podcastFeed = podcastFeed;
         this.viewModel = viewModel;
         this.lifecycleOwner = (LifecycleOwner) context; // Assumes context is a LifecycleOwner (e.g., Activity)
+        this.sortAscending = sortAscending;
         if (podcastFeed==null) {
             myLogEE(null, "podcastFeed == null");
         }
@@ -287,13 +289,18 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
     private void clickOnEpisode(ViewHolder holder, DisplayableEpisode episode) {
         ZikFile zikFile = holder.zikFile;
         if (zikFile == null) {
-            ViewHelper.showAlterDialogToDisplayText(this.context, episode.description, this.context.getString(R.string.Episode_description));
+            ViewHelper.showAlterDialogToDisplayText(this.context, episode.description, episode.title);
             return;
         }
         new Thread(() -> {
             try {
                 myLog("clickOnEpisode : " + zikFile.getDisplayName() + " - " + zikFile.getId() + " - " + zikFile.getName());
-                List<ZikFile> zikFilesList = AppDatabase.getDatabase(context).ZikFileDao().getZikFiles(zikFile.getIdFolder());
+                List<ZikFile> zikFilesList;
+                if (sortAscending) {
+                    zikFilesList = AppDatabase.getDatabase(context).ZikFileDao().getPodcastZikFilesAsc(zikFile.getIdFolder());
+                } else {
+                    zikFilesList = AppDatabase.getDatabase(context).ZikFileDao().getPodcastZikFilesDesc(zikFile.getIdFolder());
+                }
                 PlayList.create(context, zikFilesList);
                 int rankZikFile = getZikFileRankInFolderSync(zikFilesList, zikFile.getName());
                 myLog("rankZikFile = " + rankZikFile);

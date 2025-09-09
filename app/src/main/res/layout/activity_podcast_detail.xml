@@ -35,9 +35,21 @@
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:background="@android:color/transparent"
-                android:contentDescription="Refresh"
                 android:src="@drawable/ic_refresh_24px"
                 />
+            <TextView
+                android:id="@+id/tvPodcastStat"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                />
+            <ImageButton
+                android:id="@+id/btnSort"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_sort_swap_vert_24"
+                />
+
         </LinearLayout>
 
         <LinearLayout

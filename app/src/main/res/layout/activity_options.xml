@@ -574,6 +574,16 @@
                 <TextView
                     style="@style/OptionTitle"
                     android:text="@string/Podcasts" />
+                <LinearLayout style="@style/LinearLayoutOptionsCheckBoxHorizontal"
+                    android:id="@+id/ll_podcast_episodes_sort_order">
+                    <com.google.android.material.checkbox.MaterialCheckBox
+                        android:id="@+id/chk_podcast_episodes_sort_order"
+                        style="@style/OptionCheckBox"/>
+                    <TextView
+                        style="@style/OptionCheckBoxText"
+                        android:text="@string/option_podcast_episodes_sort_order" />
+                </LinearLayout>
+
                 <LinearLayout
                     android:id="@+id/ll_AutoDownload"
                     style="@style/LinearLayoutOptionsVertical">
