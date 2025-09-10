@@ -178,6 +178,9 @@ public class LoadBookTaskState implements Parcelable {
                 ", doUnzip=" + doUnzip +
                 '}';
     }
+    public String toStringN() {
+        return toString().replace(", ","\n");
+    }
 
     private static String trimOrNull(String s) {
         return s == null ? null : s.trim();

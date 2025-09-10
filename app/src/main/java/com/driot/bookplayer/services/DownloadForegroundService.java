@@ -60,8 +60,7 @@ public class DownloadForegroundService extends LoggingService {
 
     private long lastUpdateTime = 0;
     private int lastPercentProgress = 0;
-    private long lastProgressBytes = 0;
-    private long lastProgressTotal = 0;
+    private String currrentProgressStatText = "---";
     private boolean pauseForPolicy = false;
     private volatile boolean isPaused = false;
     private volatile boolean isCancelled = false;
@@ -80,6 +79,7 @@ public class DownloadForegroundService extends LoggingService {
             stopSelf();
             return START_NOT_STICKY;
         }
+        myLog(state.toStringN());
         if (!state.onGoingLoading ) {
             myLogE("onGoingLoading = false");
             sendBroadcast(new Intent(DownloadRetryWorker.ACTION_DOWNLOAD_CANCELLED).setPackage(getPackageName()));
@@ -98,19 +98,18 @@ public class DownloadForegroundService extends LoggingService {
 
         String action = intent.getAction();
         myLog("onStartCommand action = " + action
-                + "/n fileUrl = " + fileUrl
-                + "/n destinationFolder = " + destinationFolder
-                + "/n title = " + title
-                + "/n retryCount = " + retryCount
-                + "/n downloadStartTime = " + downloadStartTime
-                + "/n lastPercentProgress = " + lastPercentProgress
+                + "\n fileUrl = " + fileUrl
+                + "\n destinationFolder = " + destinationFolder
+                + "\n title = " + title
+                + "\n retryCount = " + retryCount
+                + "\n downloadStartTime = " + downloadStartTime
+                + "\n lastPercentProgress = " + lastPercentProgress
         );
 
         if (ACTION_PAUSE.equals(action)) {
             isPaused = true;
-            //TaskStateManager.markDownloadPaused(this, lastPercentProgress, lastProgressBytes, lastProgressTotal);
-            TaskStateManager.markDownloadIsPaused(this);
             updateNotification(lastPercentProgress, getString(R.string.Download_paused_by_user));
+            TaskStateManager.tellProgressText(currrentProgressStatText + "   " + getString(R.string.Download_paused_by_user));
             return START_NOT_STICKY;
         } else if (ACTION_CANCEL.equals(action)) {
             isCancelled = true;
@@ -235,8 +234,9 @@ public class DownloadForegroundService extends LoggingService {
 
             if ((connection.getResponseCode() != HttpURLConnection.HTTP_OK) &&
                     (connection.getResponseCode() != HttpURLConnection.HTTP_PARTIAL)) {
-                myLogE("Server returned HTTP " + connection.getResponseCode());
-                TellHimWhyCancel("Server returned HTTP " + connection.getResponseCode());
+                String errTxt = "Server returned HTTP " + connection.getResponseCode();
+                myLogE(errTxt + " - " + connection.getResponseMessage());
+                TellHimWhyCancel(errTxt);
             }
 
             int fileLength = connection.getContentLength() + (int) downloaded;
@@ -269,22 +269,14 @@ public class DownloadForegroundService extends LoggingService {
                 if (fileLength > 0) {
                     int progress = (int) (total * 100 / fileLength);
                     if (System.currentTimeMillis() - lastUpdateTime > MIN_UPDATE_INTERVAL || progress == 100) {
-                        String strSize = formatSizeMB(total) + " / " + formatSizeMB(fileLength);
-                        updateNotification(progress, strSize);
+                        currrentProgressStatText = formatSizeMB(total) + " / " + formatSizeMB(fileLength);
+                        TaskStateManager.markDownloadProgress(this, TASK_NAME, progress, currrentProgressStatText);
+                        updateNotification(progress, currrentProgressStatText);
                         if (lastPercentProgress != progress) {
-                            myLogD("tellProgress : " + progress + " - " + strSize);
-                            /*
-                        lastPercentProgress = progress;
-                        lastProgressBytes = total;
-                        lastProgressTotal = fileLength;
-                            TaskStateManager.updateProgressAndNotify(this, lastPercentProgress, lastProgressBytes, lastProgressTotal, "downloading");
-                             */
+                            myLogD("tellProgress : " + progress + " - " + currrentProgressStatText);
                         }
                         lastPercentProgress = progress;
-                        lastProgressBytes = total;
-                        lastProgressTotal = fileLength;
                         lastUpdateTime = System.currentTimeMillis();
-                        TaskStateManager.markDownloadProgress(this, TASK_NAME, lastPercentProgress, strSize);
                     }
                 }
             }
@@ -296,12 +288,17 @@ public class DownloadForegroundService extends LoggingService {
 
         } catch (UnknownHostException e) {
             TellHimWhyPause("No internet connection");
+            myLogE("No internet connection [" + e.getMessage() + "]");
             return false;
         } catch (SocketException e) {
+            isPaused = true;
             TellHimWhyPause("Connection aborted");
+            myLogE("Connection aborted [" + e.getMessage() + "]");
             return false;
         } catch (IOException e) {
-            TellHimWhyPause("IO error");
+            isPaused = true;
+            myLogE("IO error [" + e.getMessage() + "]");
+            TellHimWhyPause("IO error [" + e.getMessage() + "]");
             return false;
         } catch (Exception e) {
             myLogEE(e,"Unexpected error");
@@ -382,7 +379,7 @@ public class DownloadForegroundService extends LoggingService {
     }
 
     private void TellHimWhyCancel(String whyCancel) {
-        isPaused = true;
+        isCancelled = true;
         myLogE(whyCancel);
         TaskStateManager.markTaskFailed("download", whyCancel);
     }

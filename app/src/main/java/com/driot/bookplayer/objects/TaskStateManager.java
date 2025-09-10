@@ -162,7 +162,6 @@ public class TaskStateManager {
         LoadBookTaskState state = Pref.getLoadBookTaskState();
         if (state != null) {
             state.currentOperation = whyPaused;
-            state.onGoingLoading = false;
             Pref.setLoadBookTaskState(state);
             tellWarning(whyPaused);
         } else {

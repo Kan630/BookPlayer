@@ -93,15 +93,11 @@ public class AddResourceActivity extends LoggingActivity {
     private void performPause() {
         if (bPauseResume.getText().equals(getString(R.string.Pause))) {
             myLogI("------ USER CLICKS btn PAUSE ----");
-            Intent pauseIntent = new Intent(this, DownloadForegroundService.class);
-            pauseIntent.setAction(DownloadForegroundService.ACTION_PAUSE);
-            ContextCompat.startForegroundService(this, pauseIntent);
+            ContextCompat.startForegroundService(this, new Intent(this, DownloadForegroundService.class).setAction(DownloadForegroundService.ACTION_PAUSE));
             bPauseResume.setText(getString(R.string.Resume));
         } else {
             myLogI("------ USER CLICKS btn RESUME ----");
-            Intent pauseIntent = new Intent(this, DownloadForegroundService.class);
-            pauseIntent.setAction(DownloadForegroundService.ACTION_RESUME);
-            ContextCompat.startForegroundService(this, pauseIntent);
+            ContextCompat.startForegroundService(this, new Intent(this, DownloadForegroundService.class).setAction(DownloadForegroundService.ACTION_RESUME));
             bPauseResume.setText(getString(R.string.Pause));
         }
     }
