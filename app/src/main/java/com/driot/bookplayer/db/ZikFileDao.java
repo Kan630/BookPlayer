@@ -18,7 +18,6 @@ import androidx.room.Update;
 
 import com.driot.bookplayer.objects.ZikFileSummary;
 
-import java.sql.Time;
 import java.util.List;
 
 
@@ -70,7 +69,7 @@ public interface ZikFileDao {
     void delete(ZikFile zikFile);
 
     @Query("DELETE FROM ZikFile WHERE idFolder = :idFolder")
-    void deleteFolder(int idFolder);
+    void deleteAllZikFilesInFolder(int idFolder);
 
     @Query("DELETE FROM ZikFile WHERE id = :idZikFile")
     void deleteZikFile(int idZikFile);

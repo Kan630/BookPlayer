@@ -139,7 +139,7 @@ public class ModifyFolderActivity extends LoggingActivity {
             Podcast podcast = AppDatabase.getDatabase(this).PodcastDao().getPodcastByFolderId(folder.getId());
             if (podcast==null) ImageHelper.deleteImage(this, folder);//not delete image if isFavorite, or is in Podcast table
             AppDatabase.getDatabase(this).FolderDao().delete(folder.getId());
-            AppDatabase.getDatabase(this).ZikFileDao().deleteFolder(folder.getId());
+            AppDatabase.getDatabase(this).ZikFileDao().deleteAllZikFilesInFolder(folder.getId());
             cancelAutoDownload(this, folder.getId());
             runOnUiThread(() -> {
                 myToast(getString(R.string.Folder_Deleted_DB));

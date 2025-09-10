@@ -75,6 +75,7 @@ public class DisplayableEpisode {
         de.enclosureUrl = ep.enclosureUrl;
         de.datePublished = ep.datePublished;
         de.datePublishedPretty = prettyPrintDate(ep.datePublished);
+        de.enclosureLength = ep.enclosureLength;
 
         return de;
     }

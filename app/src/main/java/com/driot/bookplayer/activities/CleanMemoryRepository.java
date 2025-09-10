@@ -30,7 +30,7 @@ public class CleanMemoryRepository {
         myLog("deleteBookFromDB => executorService.execute()");
         executorService.execute(() -> {
             try {
-                zikFileDao.deleteFolder(idFolder);
+                zikFileDao.deleteAllZikFilesInFolder(idFolder);
                 myLog("deleteBookFromDB => deletion in ZikFile - done");
                 folderDao.delete(idFolder);
                 myLog("deleteBookFromDB => deletion in Folder - done");
