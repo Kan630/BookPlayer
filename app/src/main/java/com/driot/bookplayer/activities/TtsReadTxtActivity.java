@@ -6,15 +6,12 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.speech.tts.Voice;
 import android.speech.tts.TextToSpeech;
-import android.speech.tts.Voice;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
     import android.widget.SeekBar;
-import android.widget.Spinner;
 import android.widget.TextView;
 
 import android.text.SpannableStringBuilder;
@@ -116,7 +113,7 @@ public class TtsReadTxtActivity extends LoggingActivity implements EbookTtsHelpe
         tts = new EbookTtsHelper(getApplicationContext(), this);
 
         btnPick.setOnClickListener(v -> pickTxt());
-        btnStart.setOnClickListener(v -> startReading());
+        btnStart.setOnClickListener(v -> clickRead());
         btnStop.setOnClickListener(v -> togglePauseResume());
         btnStop.setText("Pause");
 
@@ -142,6 +139,7 @@ public class TtsReadTxtActivity extends LoggingActivity implements EbookTtsHelpe
     }
 
     private void pickTxt() {
+        myLogI("---- USER CLICKS PICK -----");
         Intent i = new Intent(Intent.ACTION_OPEN_DOCUMENT)
                 .addCategory(Intent.CATEGORY_OPENABLE)
                 .setType("text/*")
@@ -180,7 +178,8 @@ public class TtsReadTxtActivity extends LoggingActivity implements EbookTtsHelpe
         });
     }
 
-    private void startReading() {
+    private void clickRead() {
+        myLogI("---- USER CLICKS READ ALOUD -----");
         if (!tts.isReady()) { tellStuff("TTS not ready yet…"); return; }
         if (isEmpty(loadedText)) { tellStuff("No text loaded"); return; }
         tts.stop();
@@ -191,12 +190,6 @@ public class TtsReadTxtActivity extends LoggingActivity implements EbookTtsHelpe
         updatePlayingStatus();
     }
 
-
-
-    private void stopReading() {
-        if (tts != null) tts.stop();
-        tellStuff("Stopped");
-    }
 
     @Override protected void onDestroy() {
         super.onDestroy();
@@ -257,7 +250,7 @@ public class TtsReadTxtActivity extends LoggingActivity implements EbookTtsHelpe
 
     // Precise (word-level) – resume at current word
     @Override public void onWordRange(int start, int end) {
-        myLog("onWordRange -  start " + start + " / end " + end);
+        //myLogD("onWordRange -  start " + start + " / end " + end);
         resumeOffset = start; // exact word start
         highlightRange(start, Math.min(end, loadedText.length()));
         updatePlayingStatus();
@@ -295,7 +288,8 @@ public class TtsReadTxtActivity extends LoggingActivity implements EbookTtsHelpe
         if (totalWords <= 0) {
             tellStuff("Starts Playing...");
         } else {
-            tellStuff("Playing... (" + cur + " / " + totalWords + ")");
+            String txt = "Playing... (" + cur + " / " + totalWords + ")";
+            tvStatus.setText(txt);
         }
     }
 
@@ -509,6 +503,7 @@ public class TtsReadTxtActivity extends LoggingActivity implements EbookTtsHelpe
     private boolean isEmpty(String s){ return s==null || s.trim().isEmpty(); }
 
     private void togglePauseResume() {
+        myLogI("---- USER CLICKS PAUSE/RESUME -----");
         if (!tts.isReady() || isEmpty(loadedText)) return;
         if (isSpeaking && !isPaused) {
             // Pause
@@ -530,12 +525,9 @@ public class TtsReadTxtActivity extends LoggingActivity implements EbookTtsHelpe
     }
 
 
-
-
-
     private void tellStuff(String text) {
         tvStatus.setText(text);
-        myLog(text);
+        myLogD(text);
     }
 
     private void tellError(String text) {
