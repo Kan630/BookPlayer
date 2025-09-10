@@ -158,6 +158,18 @@ public class TaskStateManager {
         tellProgress(taskName, percent, text);
     }
 
+    public static void markTaskPaused(String whyPaused) {
+        LoadBookTaskState state = Pref.getLoadBookTaskState();
+        if (state != null) {
+            state.currentOperation = whyPaused;
+            state.onGoingLoading = false;
+            Pref.setLoadBookTaskState(state);
+            tellWarning(whyPaused);
+        } else {
+            myLogEE(null, "markTaskPaused - No valid LoadBookTaskState found - " + whyPaused);
+        }
+    }
+
     public static void markTaskCancelled(String taskName) {
         String currentOperation = taskName + " cancelled";
         LoadBookTaskState state = Pref.getLoadBookTaskState();
@@ -167,7 +179,7 @@ public class TaskStateManager {
             Pref.setLoadBookTaskState(state);
             tellError(currentOperation);
         } else {
-            myLogEE(null, "markTaskFailed - No valid LoadBookTaskState found - " + currentOperation);
+            myLogEE(null, "markTaskCancelled - No valid LoadBookTaskState found - " + currentOperation);
         }
     }
 

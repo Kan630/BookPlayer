@@ -70,7 +70,7 @@ public class DownloadForegroundService extends LoggingService {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         startForeground(NOTIF_ID, buildNotification("Starting download…"));
-        myLogD("onStartCommand ... " + intent.toString());
+        myLogD("onStartCommand ... " + intent);
 
         LoadBookTaskState state = Pref.getLoadBookTaskState();
         if (state == null ) {
@@ -97,7 +97,14 @@ public class DownloadForegroundService extends LoggingService {
         lastPercentProgress = state.progressPercent;
 
         String action = intent.getAction();
-        myLog("action = " + action);
+        myLog("onStartCommand action = " + action
+                + "/n fileUrl = " + fileUrl
+                + "/n destinationFolder = " + destinationFolder
+                + "/n title = " + title
+                + "/n retryCount = " + retryCount
+                + "/n downloadStartTime = " + downloadStartTime
+                + "/n lastPercentProgress = " + lastPercentProgress
+        );
 
         if (ACTION_PAUSE.equals(action)) {
             isPaused = true;
@@ -209,7 +216,7 @@ public class DownloadForegroundService extends LoggingService {
                 myLogW("Creating parent folder: " + parentFolder.getAbsolutePath());
                 boolean created = parentFolder.mkdirs();
                 if (!created) {
-                    myLogE("Failed to create destination folder: " + parentFolder.getAbsolutePath());
+                    TellHimWhyCancel("Failed to create destination folder: " + parentFolder.getAbsolutePath());
                     return false;
                 }
             }
@@ -229,7 +236,7 @@ public class DownloadForegroundService extends LoggingService {
             if ((connection.getResponseCode() != HttpURLConnection.HTTP_OK) &&
                     (connection.getResponseCode() != HttpURLConnection.HTTP_PARTIAL)) {
                 myLogE("Server returned HTTP " + connection.getResponseCode());
-                return false;
+                TellHimWhyCancel("Server returned HTTP " + connection.getResponseCode());
             }
 
             int fileLength = connection.getContentLength() + (int) downloaded;
@@ -246,11 +253,13 @@ public class DownloadForegroundService extends LoggingService {
                         Thread.sleep(300);
                     } catch (InterruptedException e) {
                         myLogEE(e, "Paused wait interrupted");
+                        TellHimWhyCancel("Paused wait interrupted");
                     }
                 }
 
                 if (isCancelled) {
                     myLogW("Download cancelled during execution");
+                    TellHimWhyCancel("Download cancelled during execution");
                     return false;
                 }
 
@@ -296,6 +305,7 @@ public class DownloadForegroundService extends LoggingService {
             return false;
         } catch (Exception e) {
             myLogEE(e,"Unexpected error");
+            TellHimWhyCancel("Unexpected error [" + e.getMessage() + "]");
             e.printStackTrace();
             cancelDownloadNotification();
             return false;
@@ -368,7 +378,13 @@ public class DownloadForegroundService extends LoggingService {
     private void TellHimWhyPause(String whyPause) {
         isPaused = true;
         myLogE(whyPause);
-        TaskStateManager.markDownloadIsPaused(this);
+        TaskStateManager.markTaskPaused(whyPause);
+    }
+
+    private void TellHimWhyCancel(String whyCancel) {
+        isPaused = true;
+        myLogE(whyCancel);
+        TaskStateManager.markTaskFailed("download", whyCancel);
     }
 
     @Override
