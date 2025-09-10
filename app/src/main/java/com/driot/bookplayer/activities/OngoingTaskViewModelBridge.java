@@ -27,6 +27,10 @@ public class OngoingTaskViewModelBridge {
         getViewModel(context).tellProgressText(text);
     }
 
+    public static void tellPause(Context context) {
+        getViewModel(context).tellPause();
+    }
+
     public static void tellWarning(Context context, String text) {
         getViewModel(context).tellWarning(text);
     }

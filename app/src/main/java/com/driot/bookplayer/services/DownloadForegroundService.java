@@ -79,7 +79,7 @@ public class DownloadForegroundService extends LoggingService {
             stopSelf();
             return START_NOT_STICKY;
         }
-        myLog(state.toStringN());
+        //myLog(state.toStringN());
         if (!state.onGoingLoading ) {
             myLogE("onGoingLoading = false");
             sendBroadcast(new Intent(DownloadRetryWorker.ACTION_DOWNLOAD_CANCELLED).setPackage(getPackageName()));
@@ -97,6 +97,7 @@ public class DownloadForegroundService extends LoggingService {
         lastPercentProgress = state.progressPercent;
 
         String action = intent.getAction();
+        /*
         myLog("onStartCommand action = " + action
                 + "\n fileUrl = " + fileUrl
                 + "\n destinationFolder = " + destinationFolder
@@ -105,6 +106,7 @@ public class DownloadForegroundService extends LoggingService {
                 + "\n downloadStartTime = " + downloadStartTime
                 + "\n lastPercentProgress = " + lastPercentProgress
         );
+         */
 
         if (ACTION_PAUSE.equals(action)) {
             isPaused = true;
@@ -113,8 +115,6 @@ public class DownloadForegroundService extends LoggingService {
             return START_NOT_STICKY;
         } else if (ACTION_CANCEL.equals(action)) {
             isCancelled = true;
-            //TaskStateManager.markDownloadCancelled(this, lastPercentProgress, lastProgressBytes, lastProgressTotal);
-
             updateNotification(lastPercentProgress, getString(R.string.Download_cancelled_by_user));
             if (fileUrl != null) {
                 File file = new File(destinationFolder, getFileNameFromUrl(fileUrl));
@@ -145,6 +145,11 @@ public class DownloadForegroundService extends LoggingService {
             stopSelf();
             downloadThread = null;
 
+            myLog("performDownload returns success = " + success +
+                    "\nisPaused = " + isPaused +
+                    "\nisCancelled = " + isCancelled);
+
+            //if return true
             if (success) {
                 String filePath = new File(destinationFolder, getFileNameFromUrl(fileUrl)).getAbsolutePath();
                 myLog("Download success => sending Broadcast - storing in SharedPrefs: " + filePath);
@@ -152,10 +157,14 @@ public class DownloadForegroundService extends LoggingService {
                 sendBroadcast(new Intent(DownloadRetryWorker.ACTION_DOWNLOAD_COMPLETE).setPackage(getPackageName()));
                 LoadBookTaskState endState = Pref.getLoadBookTaskState();
                 if (endState != null) myLogD(endState.toString());
+
+            //if return false
             } else if (!isPaused && !isCancelled) {
                 String errorMsg = getString(R.string.Download_failed);
                 myLogE(errorMsg);
 
+            } else if (isPaused) {
+                TaskStateManager.markTaskPaused("pause following error");
             }
         });
 

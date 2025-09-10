@@ -164,6 +164,7 @@ public class TaskStateManager {
             state.currentOperation = whyPaused;
             Pref.setLoadBookTaskState(state);
             tellWarning(whyPaused);
+            OngoingTaskViewModelBridge.tellPause(appContext);
         } else {
             myLogEE(null, "markTaskPaused - No valid LoadBookTaskState found - " + whyPaused);
         }

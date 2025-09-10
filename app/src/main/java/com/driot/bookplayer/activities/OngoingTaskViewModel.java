@@ -59,6 +59,10 @@ public class OngoingTaskViewModel extends LoggingAndroidViewModel {
         progressText.postValue(text);
     }
 
+    public void tellPause() {
+        isPaused.postValue(true);
+    }
+
     public void tellWarning(String text) {
         String current = warningText.getValue();
         if (current == null || current.isEmpty()) {
@@ -108,11 +112,11 @@ public class OngoingTaskViewModel extends LoggingAndroidViewModel {
                 isFinished.setValue(false);
             } else {
                 myLogD("Not onGoing");
-                taskRunning.setValue(false);
+                taskRunning.postValue(false);
             }
         } else {
             myLogE("state is null");
-            taskRunning.setValue(false);
+            taskRunning.postValue(false);
         }
 
     }
