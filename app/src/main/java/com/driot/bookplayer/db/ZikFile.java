@@ -166,6 +166,7 @@ public class ZikFile implements Serializable {
                 "id=" + id +
                 ", idFolder=" + idFolder +
                 ", name='" + name + '\'' +
+                ", displayName='" + displayName + '\'' +
                 ", zeorder='" + zeorder + '\'' +
                 ", path='" + path + '\'' +
                 ", folderName='" + folderName + '\'' +

@@ -117,12 +117,13 @@ public class PodcastSyncWorker extends Worker {
                     myLogD("getting duration for file : [" + file.getAbsolutePath() + ']');
                     long duration = 0;
                     duration = getMediaDurationFromPath(file.getAbsolutePath());
+                    String trackTitle = formatNameForDisplay(episode.title,false);
                     if (duration > 0) {
                         ZikFile zikFile = new ZikFile();
                         zikFile.setIdFolder(idFolder);
                         zikFile.setName(file.getName());
                         zikFile.setPath(folder.getAbsolutePath() + "/" + file.getName());
-                        zikFile.setDisplayName(formatNameForDisplay(episode.title)); // TO CHANGE
+                        zikFile.setDisplayName(trackTitle); // TO CHANGE
                         zikFile.setZeorder(zeOrder);
                         zikFile.setFolderName(folderDb.getName());
                         zikFile.setPercentdone(0.0);
@@ -132,7 +133,7 @@ public class PodcastSyncWorker extends Worker {
                         zikFile.setDuration(duration);
                         zikFile.date_added = System.currentTimeMillis();
                         newZikFileId = zikFileDao.insert(zikFile);
-                        myLogD("ZikFile inserted with ID: " + newZikFileId);
+                        myLogD("ZikFile inserted with ID: " + newZikFileId + " - [" + trackTitle + "]");
                         newFilesCount++;
 
                         if (podcastId != null) {

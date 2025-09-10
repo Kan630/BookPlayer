@@ -571,8 +571,8 @@ public class PlayActivity extends LoggingActivity {
             myToastE("Cannot get Playlist - PlayList.getInstance().getZikFile() is null");
         }
         try {
-            myLogD("DrawUI : " + PlayList.getInstance().getZikFile().getName() + " -- " + PlayList.getInstance().getZikFile().getPosition());
-            tvSubTitle.setText(formatNameForDisplay(PlayList.getInstance().getZikFile().getDisplayName()));
+            myLogD("DrawUI : " + PlayList.getInstance().getZikFile().getName() + " -- " + PlayList.getInstance().getZikFile().getPosition() + " -- " + PlayList.getInstance().getZikFile().getDisplayName());
+            tvSubTitle.setText(PlayList.getInstance().getZikFile().getDisplayName());
             tvTitle.setText(PlayList.getInstance().getZikFile().getFolderName());
             tvTotalTime.setText(formatTime(PlayList.getInstance().getZikFile().getDuration(),true));
             seekbar.setMax((int) PlayList.getInstance().getZikFile().getDuration());
