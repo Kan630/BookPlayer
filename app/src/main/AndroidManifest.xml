@@ -65,9 +65,15 @@
         <activity android:name=".activities.DebugDatabaseActivity"
             android:exported="false"
             android:enabled="true">
-            <!-- No intent filter = not visible in launcher -->
         </activity>
-
+        <activity
+            android:name=".activities.AdminActivity"
+            android:exported="false"
+            android:label="Admin"
+            />
+        <activity android:name=".activities.TtsReadTxtActivity"
+            android:exported="false"
+            />
 
 
         <activity

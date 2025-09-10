@@ -57,7 +57,7 @@ public class LogListActivity extends LoggingActivity {
             taps[taps.length - 1] = System.currentTimeMillis();
 
             if (taps[0] >= System.currentTimeMillis() - 1000) {
-                startActivity(new Intent(this, DebugDatabaseActivity.class));
+                startActivity(new Intent(this, AdminActivity.class));
             }
         });
     }
