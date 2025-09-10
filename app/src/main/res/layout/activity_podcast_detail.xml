@@ -38,6 +38,7 @@
                 android:src="@drawable/ic_refresh_24px"
                 />
             <TextView
+                style="@style/simpleText"
                 android:id="@+id/tvPodcastStat"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
