@@ -727,4 +727,8 @@
     <string name="open_audiobooks">"Просмотр аудиокниг"</string>
     <string name="open_other">"Открыть аудиофайл"</string>
 
+    <string name="ep">"эп"</string>
+    <string name="option_podcast_episodes_sort_order">новый эпизод вверху</string>
+
+
 </resources>

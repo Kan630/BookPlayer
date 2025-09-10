@@ -714,4 +714,7 @@ El valor global de apagado automático está en Opciones (en el menú de la pant
     <string name="open_audiobooks">"Explorar audiolibros"</string>
     <string name="open_other">"Abrir archivo de audio"</string>
 
+    <string name="ep">"ep"</string>
+    <string name="option_podcast_episodes_sort_order">episodio más reciente arriba</string>
+
 </resources>

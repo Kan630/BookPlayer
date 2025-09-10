@@ -722,5 +722,7 @@ Tous les messages sont lisibles publiquement. Connectez-vous pour participer.
     <string name="open_audiobooks">"Parcourir les livres audio"</string>
     <string name="open_other">"Ouvrir un fichier audio"</string>
 
+    <string name="ep">"ép"</string>
+    <string name="option_podcast_episodes_sort_order">dernier épisode en haut</string>
 
 </resources>

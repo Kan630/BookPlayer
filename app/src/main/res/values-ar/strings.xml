@@ -720,5 +720,7 @@
     <string name="open_audiobooks">"تصفح الكتب الصوتية"</string>
     <string name="open_other">"فتح ملف صوتي"</string>
 
+    <string name="ep">"حل"</string>
+    <string name="option_podcast_episodes_sort_order">أحدث حلقة في الأعلى</string>
 
 </resources>
