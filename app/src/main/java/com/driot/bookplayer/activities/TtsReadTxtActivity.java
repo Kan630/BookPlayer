@@ -17,6 +17,12 @@ import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import android.text.SpannableStringBuilder;
+import android.text.method.ScrollingMovementMethod;
+import android.text.style.BackgroundColorSpan;
+import android.text.style.ForegroundColorSpan;
+import android.graphics.Color;
+
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 
@@ -25,6 +31,7 @@ import com.driot.bookplayer.helpers.EbookTtsHelper;
 import com.driot.bookplayer.tts.TxtReader;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
+import java.text.BreakIterator;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -50,6 +57,22 @@ public class TtsReadTxtActivity extends LoggingActivity implements EbookTtsHelpe
     private List<Voice> availableVoices = new ArrayList<>();
 
     private boolean ttsRetryScheduled = false;
+
+    private int resumeOffset = 0;
+
+    private int[] wordStarts;        // start index for each spoken word
+    private int totalWords = 0;
+    private int currentWordIndex = 0;
+
+    private SpannableStringBuilder previewSpannable;
+    private BackgroundColorSpan wordBgSpan = new BackgroundColorSpan(0x55FFFF00); // semi-yellow
+    private ForegroundColorSpan wordFgSpan = new ForegroundColorSpan(Color.BLACK);
+
+    private boolean isSpeaking = false;
+    private boolean isPaused = false;
+
+    private boolean spinnersInitialized = false;
+
 
     // Activity Result API for SAF
     private final ActivityResultLauncher<Intent> openDocLauncher =
@@ -94,7 +117,9 @@ public class TtsReadTxtActivity extends LoggingActivity implements EbookTtsHelpe
 
         btnPick.setOnClickListener(v -> pickTxt());
         btnStart.setOnClickListener(v -> startReading());
-        btnStop.setOnClickListener(v -> stopReading());
+        btnStop.setOnClickListener(v -> togglePauseResume());
+        btnStop.setText("Pause");
+
 
         seekSpeed.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override public void onProgressChanged(SeekBar seekBar, int value, boolean fromUser) {
@@ -125,10 +150,6 @@ public class TtsReadTxtActivity extends LoggingActivity implements EbookTtsHelpe
         openDocLauncher.launch(i);
     }
 
-    @Override
-    public void onTtsReady(TextToSpeech t) {
-        runOnUiThread(this::populateLanguagesAndVoices);
-    }
 
     private void onPickedUri(Uri uri) {
         pickedUri = uri;
@@ -140,11 +161,15 @@ public class TtsReadTxtActivity extends LoggingActivity implements EbookTtsHelpe
         TxtReader.loadAsync(this, uri, new TxtReader.Callback() {
             @Override public void onLoaded(String text) {
                 runOnUiThread(() -> {
+                    buildWordIndex(text);
                     loadedText = text;
-                    tvPreview.setText(text);
+                    previewSpannable = new SpannableStringBuilder(text);
+                    tvPreview.setText(previewSpannable);
+                    tvPreview.setMovementMethod(new ScrollingMovementMethod()); // enable programmatic scroll
                     tellStuff("Loaded " + text.length() + " chars");
                 });
             }
+
             @Override public void onError(Exception e) {
                 runOnUiThread(() -> {
                     loadedText = "";
@@ -156,18 +181,17 @@ public class TtsReadTxtActivity extends LoggingActivity implements EbookTtsHelpe
     }
 
     private void startReading() {
-        if (tts == null || !tts.isReady()) {
-            tellStuff("TTS not ready yet…");
-            return;
-        }
-        if (loadedText == null || loadedText.trim().isEmpty()) {
-            tellStuff("No text loaded");
-            return;
-        }
-        tellStuff("Speaking… (" + loadedText.length() + " chars)");
-        tts.stop(); // reset queue
-        tts.speak(loadedText); // your helper chunks internally
+        if (!tts.isReady()) { tellStuff("TTS not ready yet…"); return; }
+        if (isEmpty(loadedText)) { tellStuff("No text loaded"); return; }
+        tts.stop();
+        tts.speakFromOffset(loadedText, resumeOffset);
+        isPaused = false;
+        isSpeaking = true;
+        btnStop.setText("Pause");
+        updatePlayingStatus();
     }
+
+
 
     private void stopReading() {
         if (tts != null) tts.stop();
@@ -182,22 +206,24 @@ public class TtsReadTxtActivity extends LoggingActivity implements EbookTtsHelpe
         }
     }
 
-    private void tellStuff(String text) {
-        tvStatus.setText(text);
-        myLog(text);
-    }
-
-    private void tellError(String text) {
-        tvStatus.setText("ERROR = " + text);
-        myLogE(text);
-    }
-
     // EbookTtsHelper.Listener
-    @Override public void onStart(String id) { runOnUiThread(() -> tellStuff("Speaking…")); }
-    @Override public void onDone(String id)  { runOnUiThread(() -> tellStuff("Done")); }
-    @Override
-    public void onError(String id, int code) {
+    @Override public void onStart(String id) {
         runOnUiThread(() -> {
+            isSpeaking = true;
+            isPaused = false;
+            tellStuff("Speaking…");
+        });
+    }
+    @Override public void onDone(String id)  {
+        runOnUiThread(() -> {
+            isSpeaking = false;
+            // don't change isPaused here (done at end of queue)
+            tellStuff("Done");
+        });
+    }
+    @Override public void onError(String id, int code) {
+        runOnUiThread(() -> {
+            isSpeaking = false; // we’ll re-queue on retry
             tellStuff("TTS error: " + code);
             if (!ttsRetryScheduled && (code == -7 /*NOT_INSTALLED_YET*/ ||
                     code == -6 /*NETWORK*/          ||
@@ -210,17 +236,80 @@ public class TtsReadTxtActivity extends LoggingActivity implements EbookTtsHelpe
                         tellStuff("Retrying speak…");
                         tts.stop();
                         warmUpTts(tts.getTts());
-                        tvStatus.postDelayed(() -> tts.speak(loadedText), 250);
+                        tvStatus.postDelayed(() -> tts.speakFromOffset(loadedText, resumeOffset), 250);
                     }
                 }, 600); // small backoff to let engine settle/download
             }
         });
     }
 
+    @Override public void onTtsReady(TextToSpeech t) {
+        runOnUiThread(this::populateLanguagesAndVoices);
+    }
+
+    // Fallback (chunk-level) – resume at current sentence/chunk start
+    @Override public void onUtteranceRange(int start, int end) {
+        myLog("onUtteranceRange -  start " + start + " / end " + end);
+        resumeOffset = start; // precise sentence start thanks to small chunks
+        highlightRange(start, Math.min(end, loadedText.length()));
+        updatePlayingStatus();
+    }
+
+    // Precise (word-level) – resume at current word
+    @Override public void onWordRange(int start, int end) {
+        myLog("onWordRange -  start " + start + " / end " + end);
+        resumeOffset = start; // exact word start
+        highlightRange(start, Math.min(end, loadedText.length()));
+        updatePlayingStatus();
+    }
+
+
+    // -------------------------------------
+
     private void warmUpTts(TextToSpeech t) {
         try {
             t.playSilentUtterance(200, TextToSpeech.QUEUE_FLUSH, "warmup"); // API 21+
         } catch (Throwable ignored) {}
+    }
+
+    private void highlightRange(int start, int end) {
+        if (previewSpannable == null) return;
+        int len = previewSpannable.length();
+        int s = Math.max(0, Math.min(start, len));
+        int e = Math.max(s, Math.min(end, len));
+
+        previewSpannable.removeSpan(wordBgSpan);
+        previewSpannable.removeSpan(wordFgSpan);
+        previewSpannable.setSpan(wordBgSpan, s, e, 0);
+        previewSpannable.setSpan(wordFgSpan, s, e, 0);
+        tvPreview.setText(previewSpannable);
+
+        scrollPreviewTo(s);
+
+        // update word counter
+        currentWordIndex = findWordIndexAtOrBefore(s);
+    }
+
+    private void updatePlayingStatus() {
+        int cur = Math.min(currentWordIndex + 1, Math.max(1, totalWords)); // 1-based
+        if (totalWords <= 0) {
+            tellStuff("Starts Playing...");
+        } else {
+            tellStuff("Playing... (" + cur + " / " + totalWords + ")");
+        }
+    }
+
+    private void scrollPreviewTo(int charIndex) {
+        tvPreview.post(() -> {
+            try {
+                if (tvPreview.getLayout() == null) return;
+                int safe = Math.max(0, Math.min(charIndex, tvPreview.getText().length()));
+                int line = tvPreview.getLayout().getLineForOffset(safe);
+                int y = tvPreview.getLayout().getLineTop(line);
+                int targetY = Math.max(0, y - tvPreview.getHeight() / 3);
+                tvPreview.scrollTo(0, targetY);
+            } catch (Exception ignored) {}
+        });
     }
 
 
@@ -272,9 +361,21 @@ public class TtsReadTxtActivity extends LoggingActivity implements EbookTtsHelpe
 
         spinnerLanguage.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (!spinnersInitialized) return;
                 Locale chosen = availableLanguages.get(position);
                 setLanguageSafe(tts.getTts(), chosen, TtsReadTxtActivity.this);
-                warmUpTts(tts.getTts()); // see below
+                warmUpTts(tts.getTts());
+                tvStatus.postDelayed(() -> {
+                    if (!isEmpty(loadedText) && tts.isReady()) {
+                        tts.stop();
+                        tts.speakFromOffset(loadedText, resumeOffset);
+                        isPaused = false;
+                        isSpeaking = true;
+                        btnStop.setText("Pause");
+                        myLog("Resumed at char " + resumeOffset + " (word " + (currentWordIndex+1) + "/" + totalWords + ")");
+                    }
+                }, 250);
+
             }
             @Override public void onNothingSelected(AdapterView<?> parent) {}
         });
@@ -328,6 +429,7 @@ public class TtsReadTxtActivity extends LoggingActivity implements EbookTtsHelpe
 
         spinnerVoice.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (!spinnersInitialized) return;
                 Voice v = availableVoices.get(position);
                 try {
                     TextToSpeech t = tts.getTts();
@@ -341,6 +443,7 @@ public class TtsReadTxtActivity extends LoggingActivity implements EbookTtsHelpe
             }
             @Override public void onNothingSelected(AdapterView<?> parent) {}
         });
+        spinnersInitialized = true;
 
     }
 
@@ -364,6 +467,84 @@ public class TtsReadTxtActivity extends LoggingActivity implements EbookTtsHelpe
         tellStuff("Language set: " + loc.getDisplayName() + " (res=" + res + ")");
         return res;
     }
+
+    private void buildWordIndex(String s) {
+        if (s == null) { wordStarts = null; totalWords = 0; currentWordIndex = 0; return; }
+        BreakIterator it = BreakIterator.getWordInstance(); // locale-independent tokenization
+        it.setText(s);
+        List<Integer> starts = new ArrayList<>();
+        int start = it.first();
+        for (int end = it.next(); end != BreakIterator.DONE; start = end, end = it.next()) {
+            // Consider only “words”: letters/digits inside the segment
+            if (hasWordChar(s, start, end)) {
+                starts.add(start);
+            }
+        }
+        wordStarts = new int[starts.size()];
+        for (int i = 0; i < starts.size(); i++) wordStarts[i] = starts.get(i);
+        totalWords = wordStarts.length;
+        currentWordIndex = 0; // will be advanced by callbacks
+    }
+
+    private int findWordIndexAtOrBefore(int charPos) {
+        if (wordStarts == null || wordStarts.length == 0) return 0;
+        int lo = 0, hi = wordStarts.length - 1, ans = 0;
+        int p = Math.max(0, Math.min(charPos, loadedText.length()));
+        while (lo <= hi) {
+            int mid = (lo + hi) >>> 1;
+            if (wordStarts[mid] <= p) { ans = mid; lo = mid + 1; }
+            else { hi = mid - 1; }
+        }
+        return ans;
+    }
+
+    private boolean hasWordChar(String s, int start, int end) {
+        for (int i = start; i < end && i < s.length(); i++) {
+            char c = s.charAt(i);
+            if (Character.isLetterOrDigit(c)) return true;
+        }
+        return false;
+    }
+
+    private boolean isEmpty(String s){ return s==null || s.trim().isEmpty(); }
+
+    private void togglePauseResume() {
+        if (!tts.isReady() || isEmpty(loadedText)) return;
+        if (isSpeaking && !isPaused) {
+            // Pause
+            tts.stop();                 // keeps resumeOffset from callbacks
+            isPaused = true;
+            isSpeaking = false;
+            btnStop.setText("Resume");
+            myLog("Paused at char " + resumeOffset + " (word " + (currentWordIndex+1) + "/" + totalWords + ")");
+            tellStuff("Paused");
+        } else {
+            // Resume from last word
+            tts.speakFromOffset(loadedText, resumeOffset);
+            myLog("Resumed at char " + resumeOffset + " (word " + (currentWordIndex+1) + "/" + totalWords + ")");
+            isPaused = false;
+            isSpeaking = true;
+            btnStop.setText("Pause");
+            updatePlayingStatus();
+        }
+    }
+
+
+
+
+
+    private void tellStuff(String text) {
+        tvStatus.setText(text);
+        myLog(text);
+    }
+
+    private void tellError(String text) {
+        tvStatus.setText("ERROR = " + text);
+        myLogE(text);
+    }
+
+
+// call from onUtteranceRange(start,end): scrollPreviewTo(start);
 
 
 }
