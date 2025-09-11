@@ -24,7 +24,7 @@ android {
         //  34   = android 14.0 Upside Down Cake        2023
         //  35   = android 15.0 Vanilla Ice Cream       2025
 
-        minSdkVersion 24
+        minSdkVersion 26
         //24 seems to be minimum for ZipFile
         //note : 26 needed for special mediaPlayer.seekTo (m4b)
         //note : 26 needed for NotificationChannel
@@ -101,7 +101,7 @@ configurations.implementation {
 dependencies {
 
     implementation 'org.apache.commons:commons-io:1.3.2'
-    implementation 'com.google.android.material:material:1.12.0' //snackBar, recyclerView, actionBar?  => update to 1.10 breaks Observer and LifecycleOwner
+    implementation 'com.google.android.material:material:1.13.0' //snackBar, recyclerView, actionBar?  => update to 1.10 breaks Observer and LifecycleOwner
     // => so try to import only snack-bar and recycler view.... or from there better ? :  implementation 'androidx.recyclerview:recyclerview:1.2.1'
     implementation 'androidx.recyclerview:recyclerview:1.4.0'
     
@@ -109,22 +109,23 @@ dependencies {
     implementation 'androidx.core:core:1.16.0' //needs sdk 36
     implementation 'androidx.media:media:1.7.1'
     implementation 'androidx.annotation:annotation:1.9.1'
-    implementation "androidx.room:room-runtime:2.7.2"
+    implementation "androidx.room:room-runtime:2.8.0"
     implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
 
     implementation 'com.google.android.gms:play-services-nearby:19.3.0'
 
     implementation 'com.google.code.gson:gson:2.11.0'
 
-    implementation 'com.google.firebase:firebase-crashlytics:20.0.0'
+    implementation 'com.google.firebase:firebase-crashlytics:20.0.1'
 
-    implementation platform('com.google.firebase:firebase-bom:34.1.0')
+    implementation platform('com.google.firebase:firebase-bom:34.2.0')
     implementation 'com.google.firebase:firebase-analytics'
 
+    //implementation 'nl.siegmann.epublib:epublib-core:3.1'
 
 // for storing PlayList Serializable in prefs
 
-    annotationProcessor "androidx.room:room-compiler:2.7.2"
+    annotationProcessor "androidx.room:room-compiler:2.8.0"
 
     implementation 'com.googlecode.mp4parser:isoparser:1.1.22'
 
@@ -137,7 +138,7 @@ dependencies {
     implementation 'com.squareup.okhttp3:logging-interceptor:4.9.3'
     implementation 'com.github.bumptech.glide:glide:4.16.0'
 
-    implementation "androidx.work:work-runtime:2.10.3"
+    implementation "androidx.work:work-runtime:2.10.4"
 
 
 /*

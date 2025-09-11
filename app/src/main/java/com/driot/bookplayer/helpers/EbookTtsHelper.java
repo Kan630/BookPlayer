@@ -20,7 +20,6 @@ public class EbookTtsHelper implements TextToSpeech.OnInitListener {
     private volatile int lastStartOffset = 0;
     private volatile int lastEndOffset = 0;
 
-    private volatile boolean gotWordRanges = false;     // becomes true if onRangeStart ever fires
     private volatile int chunkMaxLen = 360;             // smaller chunks for better resume when no word ranges
 
 
@@ -48,12 +47,10 @@ public class EbookTtsHelper implements TextToSpeech.OnInitListener {
             int r = tts.setLanguage(Locale.getDefault());
             tts.setPitch(1.0f);
             tts.setSpeechRate(1.0f);
-            if (Build.VERSION.SDK_INT >= 21) {
-                tts.setAudioAttributes(new AudioAttributes.Builder()
-                        .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
-                        .setUsage(AudioAttributes.USAGE_MEDIA)
-                        .build());
-            }
+            tts.setAudioAttributes(new AudioAttributes.Builder()
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+                    .setUsage(AudioAttributes.USAGE_MEDIA)
+                    .build());
             tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
                 @Override public void onStart(String id) {
                     int[] se = parseRange(id);
@@ -73,16 +70,13 @@ public class EbookTtsHelper implements TextToSpeech.OnInitListener {
                 @Override public void onError(String id, int code) {
                     if (listener != null) listener.onError(id, code);
                 }
-                // Word-level progress (API 26+)
+                // Word-level progress
                 @Override public void onRangeStart(String utteranceId, int start, int end, int frame) {
-                    if (Build.VERSION.SDK_INT >= 26) {
-                        gotWordRanges = true; // <-- we have word-level support
-                        int[] se = parseRange(utteranceId);
-                        if (se != null && listener != null) {
-                            int absStart = se[0] + Math.max(0, start);
-                            int absEnd   = se[0] + Math.max(0, end);
-                            listener.onWordRange(absStart, absEnd);
-                        }
+                    int[] se = parseRange(utteranceId);
+                    if (se != null && listener != null) {
+                        int absStart = se[0] + Math.max(0, start);
+                        int absEnd   = se[0] + Math.max(0, end);
+                        listener.onWordRange(absStart, absEnd);
                     }
                 }
 
@@ -104,7 +98,7 @@ public class EbookTtsHelper implements TextToSpeech.OnInitListener {
     public void speakFromOffset(String text, int startOffset) {
         if (!ready || text == null) return;
 
-        int maxLen = gotWordRanges ? 1800 : chunkMaxLen; // keep your existing logic
+        int maxLen = 1800;
         List<Chunk> chunks = buildChunks(text, maxLen);
 
         int safeOffset = Math.max(0, Math.min(startOffset, text.length()));

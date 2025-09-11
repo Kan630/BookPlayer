@@ -10,15 +10,28 @@
         android:id="@+id/btnPickTxt"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Pick .txt file"
+        android:text="Pick file"
         android:layout_marginTop="50dp" />
 
-    <TextView
-        android:id="@+id/tvUri"
+    <LinearLayout
+        android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="No file selected"
-        android:paddingTop="8dp" />
+        android:paddingTop="6dp">
+        <ImageView
+            android:id="@+id/ivCover"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxWidth="100dp"
+            android:maxHeight="100dp"
+            />
+        <TextView
+            android:id="@+id/tvUri"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="No file selected"
+            android:paddingTop="8dp" />
+    </LinearLayout>
 
     <LinearLayout
         android:orientation="horizontal"
