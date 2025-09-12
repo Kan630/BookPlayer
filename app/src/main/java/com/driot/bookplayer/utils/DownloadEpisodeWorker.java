@@ -46,22 +46,14 @@ public class DownloadEpisodeWorker extends Worker {
             File tempFile = new File(destPath + ".part");
             URL url;
             try {
-                // Try HTTPS first
                 url = new URL(urlStr.replace("http://", "https://"));
                 conn = (HttpURLConnection) url.openConnection();
                 conn.setConnectTimeout(15000);
                 conn.setReadTimeout(30000);
                 conn.connect();
             } catch (SSLException | UnknownHostException e) {
-                myLogW("HTTPS failed, retrying with HTTP: " + e.getMessage());
-                try {
-                    url = new URL(urlStr.replace("https://", "http://"));
-                    conn = (HttpURLConnection) url.openConnection();
-                    conn.connect();
-                } catch (Exception ex) {
-                    myLogEE(ex, "HTTP fallback failed");
-                    return Result.failure();
-                }
+                myLogW("HTTPS failed : " + e.getMessage());
+                return Result.failure();
             }
 
 
