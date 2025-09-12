@@ -19,6 +19,7 @@ import com.driot.bookplayer.objects.PlayList;
 import com.driot.bookplayer.objects.TaskStateManager;
 import com.driot.bookplayer.services.InAppPeriodicTaskManager;
 import com.driot.bookplayer.utils.KanLogger;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 15/06/21
@@ -50,6 +51,9 @@ public class MyApp extends Application {
         TaskStateManager.init(getApplicationContext());
 
         myLog("Context has been initialized");
+
+        FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(!BuildConfig.DEBUG);
+        myLogD("Crashlytics : " + !BuildConfig.DEBUG);
 
         LocaleHelper.applyAppLocale(Option.getLanguage());
 
@@ -111,6 +115,7 @@ public class MyApp extends Application {
 
 
     //--- LOG --------------------------
+    private void myLogD(String str) { KanLogger.myLogD(this.getClass().getName(), str); }
     private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
     private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
 
