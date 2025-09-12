@@ -23,6 +23,10 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.content.ContextCompat;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -61,17 +65,18 @@ import java.util.List;
 
 public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastEpisodeRVAdapter.EpisodeClickHandler {
 
-    private TextView tvTitle, tvDescription, tvStats;
-    private ImageView ivCover;
+    private TextView tvTitle, tvDescription, tvStats, tvToolbarStats;
+    private ImageView ivCover, ivMiniCover;
     private RecyclerView recyclerEpisodes;
-    private ProgressBar progressBar;
     private PodcastEpisodeRVAdapter adapter;
 
     private Podcast podcast;
     private PodcastFeed podcastFeed;
 
-    private ImageButton btnFavorite, btnAutoDownload, btnRefresh, btnSort, btnCollapse;
-    private TextView labelFavorite, labelAutoDownload, labelAutoDelete;
+    // ADD these:
+    private ImageButton btnFavoriteToolbar, btnAutoDownloadToolbar, btnRefreshToolbar, btnSortToolbar, btnCollapseToolbar;
+    private ImageButton btnFavoriteOverlay, btnAutoDownloadOverlay, btnRefreshOverlay, btnSortOverlay, btnCollapseOverlay;
+
     private PodcastDao podcastDao;
 
     private PodcastEpisodeViewModel podcastEpisodeViewModel;
@@ -100,6 +105,9 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
     private ProgressBar progressMini;
     private boolean isExpanded = false;
 
+    private com.google.android.material.appbar.AppBarLayout appBar;
+    private androidx.appcompat.widget.Toolbar toolbar;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -108,20 +116,28 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
         tvTitle = findViewById(R.id.tvPodcastTitle);
         tvDescription = findViewById(R.id.tvPodcastDescription);
         tvStats = findViewById(R.id.tvPodcastStat);
+        tvToolbarStats = findViewById(R.id.tvToolbarStats);
 
         ivCover = findViewById(R.id.ivPodcastCover);
+        ivMiniCover = findViewById(R.id.ivMiniCover);
+
         recyclerEpisodes = findViewById(R.id.rvEpisodes);
-        progressBar = findViewById(R.id.progressBarEpisodes);
 
-        btnFavorite = findViewById(R.id.btnFavorite);
-        btnAutoDownload = findViewById(R.id.btnAutoDownload);
-        btnRefresh = findViewById(R.id.btnRefresh);
-        btnSort = findViewById(R.id.btnSort);
-        btnCollapse = findViewById(R.id.btnCollapse);
-        labelFavorite = findViewById(R.id.labelFavorite);
-        labelAutoDownload = findViewById(R.id.labelAutoDownload);
-        labelAutoDelete = findViewById(R.id.labelAutoDelete);
+// TOOLBAR actions
+        btnFavoriteToolbar = findViewById(R.id.btnFavoriteToolbar);
+        btnAutoDownloadToolbar = findViewById(R.id.btnAutoDownloadToolbar);
+        btnRefreshToolbar = findViewById(R.id.btnRefreshToolbar);
+        btnSortToolbar = findViewById(R.id.btnSortToolbar);
+        btnCollapseToolbar = findViewById(R.id.btnCollapseToolbar);
 
+// OVERLAY actions on top of the big cover
+        btnFavoriteOverlay = findViewById(R.id.btnFavoriteOverlay);
+        btnAutoDownloadOverlay = findViewById(R.id.btnAutoDownloadOverlay);
+        btnRefreshOverlay = findViewById(R.id.btnRefreshOverlay);
+        btnSortOverlay = findViewById(R.id.btnSortOverlay);
+        btnCollapseOverlay = findViewById(R.id.btnCollapseOverlay);
+
+// MINI PLAYER
         miniPlayer = findViewById(R.id.miniPlayer);
         btnMiniPlayPause = findViewById(R.id.btnMiniPlayPause);
         btnMiniBack = findViewById(R.id.btnMiniBack);
@@ -131,8 +147,56 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
         tvMiniTime = findViewById(R.id.tvMiniTime);
         progressMini = findViewById(R.id.progressMini);
 
-        btnCollapse.setOnClickListener(v -> toggleCollapse());
-        updateCollapseIcon();
+        appBar = findViewById(R.id.appBar);
+        toolbar = findViewById(R.id.toolbar);
+
+// Start hidden, no accidental clicks
+        toolbar.setAlpha(0f);
+        toolbar.setVisibility(View.INVISIBLE);
+
+        // 1) Opt into edge-to-edge
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
+
+        // 2) Grab views
+        View root = findViewById(android.R.id.content);
+
+        // 3) Apply insets: add bottom padding equal to system bars / IME
+        ViewCompat.setOnApplyWindowInsetsListener(root, (v, insets) -> {
+            final int types = WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.ime();
+            Insets sys = insets.getInsets(types);
+
+            // 64dp → px once
+            int miniHeightPx = (int) (64 * getResources().getDisplayMetrics().density + 0.5f);
+
+            // 1) DO NOT pad the mini, keep its content at full 64dp
+            if (miniPlayer != null) {
+                // ensure NO extra bottom padding
+                miniPlayer.setPadding(miniPlayer.getPaddingLeft(), miniPlayer.getPaddingTop(),
+                        miniPlayer.getPaddingRight(), 0);
+
+                // Option A (recommended): lift miniPlayer above the nav bar using a bottom MARGIN
+                ViewGroup.LayoutParams lp = miniPlayer.getLayoutParams();
+                if (lp instanceof ViewGroup.MarginLayoutParams) {
+                    ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) lp;
+                    if (mlp.bottomMargin != sys.bottom) {
+                        mlp.bottomMargin = sys.bottom;
+                        miniPlayer.setLayoutParams(mlp);
+                    }
+                }
+                // Keep app:layout_insetEdge="bottom" in XML to inform siblings; margin avoids double-inset visual squish
+            }
+
+            // 2) Give RV enough bottom padding for the miniPlayer + system bar
+            if (recyclerEpisodes != null) {
+                int wanted = miniHeightPx + sys.bottom;
+                if (recyclerEpisodes.getPaddingBottom() != wanted) {
+                    recyclerEpisodes.setPadding(recyclerEpisodes.getPaddingLeft(), recyclerEpisodes.getPaddingTop(),
+                            recyclerEpisodes.getPaddingRight(), wanted);
+                }
+            }
+            return insets; // don’t consume
+        });
+
 
         podcastDao = AppDatabase.getDatabase(this).PodcastDao();
 
@@ -165,33 +229,25 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
         adapter = new PodcastEpisodeRVAdapter(this, podcastFeed, podcastEpisodeViewModel, this);
         recyclerEpisodes.setAdapter(adapter);
 
-        labelFavorite.setVisibility(View.GONE);
-        labelAutoDownload.setVisibility(View.GONE);
-        labelAutoDelete.setVisibility(View.GONE);//not yet implemented
-        findViewById(R.id.btnAutoDelete).setVisibility(View.GONE);//not yet implemented
-
         boolean isFavorite = podcast != null && podcast.isFavorite;
         boolean isAutoDownload = podcast != null && podcast.autoDownload;
 
         updateFavoriteIconColor(isFavorite);
         updateAutoDownloadIconColor(isAutoDownload);
-        btnAutoDownload.setVisibility(isFavorite ? View.VISIBLE : View.GONE);
+        int vis = isFavorite ? View.VISIBLE : View.GONE;
+        btnAutoDownloadToolbar.setVisibility(vis);
+        btnAutoDownloadOverlay.setVisibility(vis);
 
-        if (Pref.shouldAnimateButtons(Pref.AnimatedButton.FAVORITE)) {
-            animateAttention(findViewById(R.id.btnFavorite), findViewById(R.id.labelFavorite), getString(R.string.Add_to_favorite), findViewById(R.id.ivPodcastCover));
-            animateAttention(findViewById(R.id.btnAutoDownload), findViewById(R.id.labelAutoDownload), getString(R.string.Auto_Download_episodes), findViewById(R.id.ivPodcastCover));
-            //animateAttention(findViewById(R.id.btnAutoDelete), findViewById(R.id.labelAutoDelete), getString(R.string.Auto_Delete_episodes), findViewById(R.id.ivPodcastCover));//not yet implemented
-        }
 
         ivCover.setOnClickListener(view -> {
             myLogI("---- USER CLICK IMAGE ----");
             goToPlaySection();
         });
 
-
         tvTitle.setText(podcastFeed.title);
         tvDescription.setText(parseMaybeHtml(podcastFeed.description));
         Glide.with(ivCover.getContext()).load(podcastFeed.image).into(ivCover);
+        Glide.with(ivMiniCover.getContext()).load(podcastFeed.image).into(ivMiniCover);
 
         if (podcastFeed.id == -1) {
             myToastE("Error loading episodes. ID=-1");
@@ -199,33 +255,45 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
             fetchEpisodes(false);
         }
 
-        btnFavorite.setOnClickListener(v -> toggleFavorite());
-        btnAutoDownload.setOnClickListener(v -> toggleAutoDownload());
-        btnRefresh.setOnClickListener(v -> {
-            myLogI("-------- USER CLICKS REFRESH");
-            fetchEpisodes(true);
-        });
-        btnSort.setOnClickListener(v -> {
-            sortNewestFirst = !sortNewestFirst;
-            myLogI("-------- USER CLICKS SORT --  sortNewestFirst= " + sortNewestFirst);
+        View.OnClickListener favoriteClick = v -> toggleFavorite();
+        View.OnClickListener autoDownloadClick = v -> toggleAutoDownload();
+        View.OnClickListener refreshClick = v -> { myLogI("-------- USER CLICKS REFRESH"); fetchEpisodes(true); };
+        View.OnClickListener sortClick = v -> toggleSort();
+        View.OnClickListener collapseClick = v -> toggleCollapse();
 
-            //save
-            PodcastHelper.updateSortNewestTop(this, podcast.feedId, sortNewestFirst);
+// Toolbar
+        btnFavoriteToolbar.setOnClickListener(favoriteClick);
+        btnAutoDownloadToolbar.setOnClickListener(autoDownloadClick);
+        btnRefreshToolbar.setOnClickListener(refreshClick);
+        btnSortToolbar.setOnClickListener(sortClick);
+        btnCollapseToolbar.setOnClickListener(collapseClick);
 
-            //reload
-            AppDatabase.databaseReadExecutor.execute(() -> {
-                List<Episode> dbEpisodes = podcastEpisodeViewModel.getEpisodesFromDB(podcast.getId(), sortNewestFirst);
-                List<DisplayableEpisode> sortedList = DisplayableEpisode.fromEpisodeList(dbEpisodes);
-                runOnUiThread(() -> {
-                    adapter.setItems(sortedList);
-                    adapter.notifyDataSetChanged();
-                });
-            });
-        });
-        btnCollapse.setOnClickListener(v -> {
-            toggleCollapse();
+// Overlay
+        btnFavoriteOverlay.setOnClickListener(favoriteClick);
+        btnAutoDownloadOverlay.setOnClickListener(autoDownloadClick);
+        btnRefreshOverlay.setOnClickListener(refreshClick);
+        btnSortOverlay.setOnClickListener(sortClick);
+        btnCollapseOverlay.setOnClickListener(collapseClick);
+        appBar.addOnOffsetChangedListener((appBarLayout, verticalOffset) -> {
+            // verticalOffset is 0 when fully expanded; negative as you scroll up.
+            int range = appBarLayout.getTotalScrollRange();
+            float progress = range == 0 ? 0f : Math.min(1f, Math.abs(verticalOffset) / (float) range);
+
+            // Don’t show the bar until the user *started* scrolling a bit
+            float showThreshold = 0.06f; // ~6% collapse before we show anything
+            if (progress > showThreshold) {
+                if (toolbar.getVisibility() != View.VISIBLE) toolbar.setVisibility(View.VISIBLE);
+                // Fade from 0 -> 1 between threshold and ~30% collapse
+                float alpha = (progress - showThreshold) / (0.30f - showThreshold);
+                toolbar.setAlpha(Math.max(0f, Math.min(1f, alpha)));
+            } else {
+                toolbar.setAlpha(0f);
+                toolbar.setVisibility(View.INVISIBLE);
+            }
         });
 
+
+// PLAYER
         player = new ExoPlayer.Builder(this).build();
         player.addListener(new androidx.media3.common.Player.Listener() {
             @Override
@@ -351,7 +419,8 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
             runOnUiThread(() -> {
                 updateFavoriteIconColor(favoriteState);
                 updateAutoDownloadIconColor(autoDownloadState);
-                btnAutoDownload.setVisibility(favoriteState ? View.VISIBLE : View.GONE);
+                btnAutoDownloadOverlay.setVisibility(favoriteState ? View.VISIBLE : View.GONE);
+                btnAutoDownloadToolbar.setVisibility(favoriteState ? View.VISIBLE : View.GONE);
             });
             ImageHelper.processPendingImages(this);
             AnalyticsHelper.tellAnalyticsPodcastFavorite(this, podcast.title, podcast.language);
@@ -376,21 +445,49 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
         });
     }
 
+    private void toggleSort() {
+        sortNewestFirst = !sortNewestFirst;
+        myLogI("-------- USER CLICKS SORT --  sortNewestFirst= " + sortNewestFirst);
+        PodcastHelper.updateSortNewestTop(this, podcast.feedId, sortNewestFirst);
+        AppDatabase.databaseReadExecutor.execute(() -> {
+            List<Episode> dbEpisodes = podcastEpisodeViewModel.getEpisodesFromDB(podcast.getId(), sortNewestFirst);
+            List<DisplayableEpisode> sortedList = DisplayableEpisode.fromEpisodeList(dbEpisodes);
+            runOnUiThread(() -> {
+                adapter.setItems(sortedList);
+                adapter.notifyDataSetChanged();
+            });
+        });
+    }
+
+    private void toggleCollapse() {
+        isExpanded = !isExpanded;
+        myLogI("-------- USER CLICKS COLLAPSE --  isExpanded= " + isExpanded);
+        animateDescriptionHeight(tvDescription, isExpanded);
+        adapter.setShowDescriptions(isExpanded);  // show/hide item descriptions
+        updateCollapseIcon();
+    }
+
+
+
 
     private void updateFavoriteIconColor(boolean isOn) {
         int colorResId = isOn ? android.R.color.holo_red_light : R.color.gray_500;
-        btnFavorite.setColorFilter(ContextCompat.getColor(this, colorResId), PorterDuff.Mode.SRC_IN);
+        int color = ContextCompat.getColor(this, colorResId);
+        if (btnFavoriteToolbar != null) btnFavoriteToolbar.setColorFilter(color, PorterDuff.Mode.SRC_IN);
+        if (btnFavoriteOverlay != null) btnFavoriteOverlay.setColorFilter(color, PorterDuff.Mode.SRC_IN);
     }
 
     private void updateAutoDownloadIconColor(boolean isOn) {
         int colorResId = isOn ? R.color.green_300 : R.color.gray_500;
-        btnAutoDownload.setColorFilter(ContextCompat.getColor(this, colorResId), PorterDuff.Mode.SRC_IN);
+        int color = ContextCompat.getColor(this, colorResId);
+        if (btnAutoDownloadToolbar != null) btnAutoDownloadToolbar.setColorFilter(color, PorterDuff.Mode.SRC_IN);
+        if (btnAutoDownloadOverlay != null) btnAutoDownloadOverlay.setColorFilter(color, PorterDuff.Mode.SRC_IN);
     }
+
 
     private void fetchEpisodes(boolean isRefresh) {
         myLogD("fetchEpisodes " + (isRefresh ? "refresh" : "no refresh"));
         long nbEpisodeFull = 0;
-        progressBar.setVisibility(View.VISIBLE);
 
         // 1) Load DB immediately → optimistic UI
         AppDatabase.databaseReadExecutor.execute(() -> {
@@ -402,7 +499,6 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
             });
         });
         if (!isRefresh && podcast.lastCheck > System.currentTimeMillis() - 1000 * 60 * Var.PODCASTINDEXORG_API_TIME_BETWEEN_PODCAST_CHECK_IN_MIN) {
-            //progressBar.setVisibility(View.GONE);
             return;
         }
 
@@ -473,72 +569,6 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
         PodcastHelper.checkForNewEpisodesToAutoDownloadForPodcast(this, podcast, since);
     }
 
-
-    private void animateAttention(ImageView ivIcon, TextView tvIconLabel, String labelText, ImageView podcastImage) {
-        float MAX_SIZE = 1.8f;
-        int ANIM_TIME = 2000;
-        int HALF_TIME = ANIM_TIME / 2;
-        int fromColor = ContextCompat.getColor(this, R.color.gray_500);
-        int toColor = ContextCompat.getColor(this, android.R.color.holo_red_light);
-        int ivIConVisibility = ivIcon.getVisibility();
-
-        // Set initial states
-        tvIconLabel.setText(labelText);
-        tvIconLabel.setAlpha(0f);
-        tvIconLabel.setVisibility(View.VISIBLE);
-        ivIcon.setVisibility(View.VISIBLE);
-        podcastImage.setAlpha(0.2f);
-        ivIcon.setColorFilter(fromColor, PorterDuff.Mode.SRC_IN);
-
-        // --- Label fade in and out ---
-        ObjectAnimator labelFadeIn = ObjectAnimator.ofFloat(tvIconLabel, "alpha", 0f, 1f);
-        labelFadeIn.setDuration(HALF_TIME);
-
-        ObjectAnimator labelFadeOut = ObjectAnimator.ofFloat(tvIconLabel, "alpha", 1f, 0f);
-        labelFadeOut.setDuration(HALF_TIME);
-
-        // --- Icon scale and color ---
-        ObjectAnimator colorToHighlight = ObjectAnimator.ofArgb(ivIcon, "colorFilter", fromColor, toColor);
-        ObjectAnimator colorBackToGray = ObjectAnimator.ofArgb(ivIcon, "colorFilter", toColor, fromColor);
-        ObjectAnimator scaleUpX = ObjectAnimator.ofFloat(ivIcon, "scaleX", 1f, MAX_SIZE);
-        ObjectAnimator scaleUpY = ObjectAnimator.ofFloat(ivIcon, "scaleY", 1f, MAX_SIZE);
-        ObjectAnimator scaleDownX = ObjectAnimator.ofFloat(ivIcon, "scaleX", MAX_SIZE, 1f);
-        ObjectAnimator scaleDownY = ObjectAnimator.ofFloat(ivIcon, "scaleY", MAX_SIZE, 1f);
-
-        AnimatorSet scaleUp = new AnimatorSet();
-        scaleUp.playTogether(scaleUpX, scaleUpY, colorToHighlight, labelFadeIn);
-
-        AnimatorSet scaleDown = new AnimatorSet();
-        scaleDown.playTogether(scaleDownX, scaleDownY, colorBackToGray, labelFadeOut);
-
-        AnimatorSet fullAnimation = new AnimatorSet();
-        fullAnimation.playSequentially(scaleUp, scaleDown);
-        fullAnimation.setDuration(ANIM_TIME);
-
-        fullAnimation.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                podcastImage.setAlpha(1f); // restore alpha
-                ivIcon.setVisibility(ivIConVisibility);
-
-                AppDatabase.databaseWriteExecutor.execute(() -> {
-                    Podcast podcast = podcastDao.getPodcastByFeedId(podcastFeed.id);
-                    if (podcast != null) {
-                        boolean isFav = podcast.isFavorite;
-                        boolean isAuto = podcast.autoDownload;
-
-                        runOnUiThread(() -> {
-                            updateFavoriteIconColor(isFav);
-                            updateAutoDownloadIconColor(isAuto);
-                        });
-                    }
-                });
-            }
-        });
-
-        fullAnimation.start();
-    }
-
     private void goToPlaySection() {
         if (podcast == null) {
             AppDatabase.databaseReadExecutor.execute(() -> {
@@ -596,7 +626,7 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
         adapter.notifyDataSetChanged();
         String tvStatsText = displayableEpisodeList.size() + "." + getString(R.string.ep);
         tvStats.setText(tvStatsText);
-        progressBar.setVisibility(View.GONE);
+        tvToolbarStats.setText(tvStatsText);
     }
 
     private void playEpisode(DisplayableEpisode ep) {
@@ -817,15 +847,14 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
         setMiniLoading(true);
     }
 
-    private void toggleCollapse() {
-        isExpanded = !isExpanded;
-        animateDescriptionHeight(tvDescription, isExpanded);
-        adapter.setShowDescriptions(isExpanded);  // show/hide item descriptions
-        updateCollapseIcon();
-    }
-
     private void updateCollapseIcon() {
-        btnCollapse.setImageDrawable(
+        btnCollapseOverlay.setImageDrawable(
+                AppCompatResources.getDrawable(
+                        this,
+                        isExpanded ? R.drawable.ic_content_collapse_24 : R.drawable.ic_content_expand_24
+                )
+        );
+        btnCollapseToolbar.setImageDrawable(
                 AppCompatResources.getDrawable(
                         this,
                         isExpanded ? R.drawable.ic_content_collapse_24 : R.drawable.ic_content_expand_24

@@ -753,6 +753,7 @@
 
     <string name="refresh">refresh</string>
     <string name="collapse">collapse</string>
+    <string name="expand">expand</string>
     <string name="sort">sort</string>
 
 

@@ -179,8 +179,8 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
 
                 holder.zikFile = zikFile;
                 String percentDone = String.format(Locale.US, "%.0f", zikFile.getPercentdone());
-                String lastAdded = "Added : " + android.text.format.DateFormat.format("yyyy-MM-dd HH:mm", zikFile.date_added);
-                String stats2 = percentDone + "% " + ContextCompat.getString(context, R.string.listened) + "\n" + lastAdded;
+                String lastAdded = "" + android.text.format.DateFormat.format("yyyy-MM-dd HH:mm", zikFile.date_added);
+                String stats2 = lastAdded + "\n" + percentDone + "% " + ContextCompat.getString(context, R.string.listened);
                 holder.tvEpisodeDBStats.setText(stats2);
                 holder.icon_download.setVisibility(View.VISIBLE);
                 holder.icon_download.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_download_done_24));

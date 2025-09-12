@@ -1,212 +1,260 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="12dp"
-    android:fitsSystemWindows="true"
-    android:layout_marginTop="10dp"
-    android:layout_marginBottom="10dp">
+    android:layout_height="match_parent">
 
-    <!-- Container with image and overlay buttons -->
-    <RelativeLayout
+    <!-- Collapsible header area -->
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBar"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:layout_marginBottom="12dp">
+        android:layout_height="wrap_content"
+        android:fitsSystemWindows="true"
+        android:background="?attr/colorSurface"
+        app:elevation="0dp"
+        app:liftOnScroll="true"
+        app:liftOnScrollTargetViewId="@id/rvEpisodes">
 
-        <ImageView
-            android:id="@+id/ivPodcastCover"
+        <com.google.android.material.appbar.CollapsingToolbarLayout
+            android:id="@+id/collapsing"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scaleType="centerInside" />
-
-
-        <LinearLayout
-            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentStart="true"
-            android:gravity="start"
-            android:layout_margin="8dp">
+            android:fitsSystemWindows="true"
+            app:contentScrim="?attr/colorSurface"
+            app:statusBarScrim="?attr/colorSurface"
+            app:toolbarId="@+id/toolbar"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
-            <ImageButton
-                android:contentDescription="@string/refresh"
-                android:id="@+id/btnRefresh"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:background="@android:color/transparent"
-                android:src="@drawable/ic_refresh_24"
-                />
-            <TextView
-                style="@style/simpleText"
-                android:text="xx.ep"
-                android:id="@+id/tvPodcastStat"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                />
-            <ImageButton
-                android:contentDescription="@string/sort"
-                android:id="@+id/btnSort"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:background="@android:color/transparent"
-                android:src="@drawable/ic_sort_swap_vert_24"
-                />
-            <ImageButton
-                android:contentDescription="@string/collapse"
-                android:id="@+id/btnCollapse"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:background="@android:color/transparent"
-                android:src="@drawable/ic_content_expand_24"
-                app:tint="@color/white" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentEnd="true"
-            android:gravity="end"
-            android:layout_margin="8dp">
-
-            <!-- Favorite Row -->
+            <!-- CONTENT INSIDE THE COLLAPSING AREA -->
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginBottom="8dp">
-
-                <TextView
-                    android:id="@+id/labelFavorite"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Add to Favorites"
-                    android:textColor="@color/white"
-                    android:textSize="20sp"
-                    android:layout_marginEnd="4dp"
-                    />
-
-                <ImageButton
-                    android:id="@+id/btnFavorite"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:background="@android:color/transparent"
-                    android:contentDescription="Favorite"
-                    android:src="@drawable/ic_favorite"
-                    />
-            </LinearLayout>
-
-            <!-- Auto Download Row -->
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginBottom="8dp">
-
-                <TextView
-                    android:id="@+id/labelAutoDownload"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Auto Download"
-                    android:textColor="@color/white"
-                    android:textSize="20sp"
-                    android:layout_marginEnd="4dp"
-                    />
-
-                <ImageButton
-                    android:id="@+id/btnAutoDownload"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:background="@android:color/transparent"
-                    android:contentDescription="Auto Download"
-                    android:src="@drawable/ic_download_action_24"
-                    />
-            </LinearLayout>
-
-            <!-- Auto Download Row -->
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
+                android:orientation="vertical"
+                android:padding="12dp"
+                android:fitsSystemWindows="true"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
                 >
 
-                <TextView
-                    android:id="@+id/labelAutoDelete"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Auto Delete"
-                    android:textColor="@color/white"
-                    android:textSize="20sp"
-                    android:layout_marginEnd="4dp"
-                    />
+                <!-- Container with image and overlay buttons -->
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp"
+                    android:layout_marginBottom="12dp"
+                    app:layout_collapseMode="parallax"
+                    app:layout_collapseParallaxMultiplier="0.65"
+                    >
 
-                <ImageButton
-                    android:id="@+id/btnAutoDelete"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:background="@android:color/transparent"
-                    android:contentDescription="Auto Delete"
-                    android:src="@drawable/ic_delete_24"
+                    <ImageView
+                        android:id="@+id/ivPodcastCover"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scaleType="centerInside" />
+
+                    <!-- LEFT overlay controls -->
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_alignParentTop="true"
+                        android:layout_alignParentStart="true"
+                        android:gravity="start"
+                        android:layout_margin="8dp">
+
+                        <ImageButton
+                            android:id="@+id/btnRefreshOverlay"
+                            android:contentDescription="@string/refresh"
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            android:background="@android:color/transparent"
+                            android:src="@drawable/ic_refresh_24" />
+
+                        <TextView
+                            android:id="@+id/tvPodcastStat"
+                            style="@style/simpleText"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="xx.ep" />
+
+                        <ImageButton
+                            android:id="@+id/btnSortOverlay"
+                            android:contentDescription="@string/sort"
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            android:background="@android:color/transparent"
+                            android:src="@drawable/ic_sort_swap_vert_24" />
+
+                        <ImageButton
+                            android:id="@+id/btnCollapseOverlay"
+                            android:contentDescription="@string/collapse"
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            android:background="@android:color/transparent"
+                            android:src="@drawable/ic_content_expand_24"
+                            app:tint="@color/white" />
+                    </LinearLayout>
+
+                    <!-- RIGHT overlay controls -->
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_alignParentTop="true"
+                        android:layout_alignParentEnd="true"
+                        android:gravity="end"
+                        android:layout_margin="8dp">
+
+                        <ImageButton
+                            android:id="@+id/btnFavoriteOverlay"
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            android:background="@android:color/transparent"
+                            android:contentDescription="@string/Add_to_favorite"
+                            android:src="@drawable/ic_favorite"
+                            android:layout_marginBottom="8dp" />
+
+                        <ImageButton
+                            android:id="@+id/btnAutoDownloadOverlay"
+                            android:layout_width="48dp"
+                            android:layout_height="48dp"
+                            android:background="@android:color/transparent"
+                            android:contentDescription="@string/Auto_Download_episodes"
+                            android:src="@drawable/ic_download_action_24"
+                            android:layout_marginBottom="8dp" />
+
+                    </LinearLayout>
+                </RelativeLayout>
+
+                <!-- Title / description (collapse away with the header) -->
+                <TextView
+                    android:id="@+id/tvPodcastTitle"
+                    style="@style/simpleText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textStyle="bold"
+                    android:textSize="20sp"
+                    android:layout_marginBottom="4dp"
+                    android:text="Podcast Title" />
+
+                <TextView
+                    android:id="@+id/tvPodcastDescription"
+                    style="@style/simpleText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    android:textSize="14sp"
+                    android:padding="4dp"
+                    android:text="Podcast Description"
+                    android:visibility="gone"
                     />
             </LinearLayout>
 
-        </LinearLayout>
+            <!-- TOP BAND -->
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:background="?attr/colorSurface"
+                app:layout_collapseMode="pin">
 
-    </RelativeLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
 
-    <!-- Texts and episode list -->
-    <TextView
-        android:id="@+id/tvPodcastTitle"
-        style="@style/simpleText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textStyle="bold"
-        android:textSize="20sp"
-        android:layout_marginBottom="4dp"
-        android:text="Podcast Title" />
+                    <ImageView
+                        android:id="@+id/ivMiniCover"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:scaleType="centerCrop"
+                        android:contentDescription="@null" />
 
-    <TextView
-        android:id="@+id/tvPodcastDescription"
-        style="@style/simpleText"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginBottom="12dp"
-        android:textSize="14sp"
-        android:padding="4dp"
-        android:text="Podcast Description"
-        />
+                    <TextView
+                        android:id="@+id/tvToolbarStats"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingStart="8dp"
+                        android:textAppearance="@style/TextAppearance.Material3.LabelMedium" />
+                    <TextView
+                        android:id="@+id/tvToolbarTitle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:paddingStart="8dp"
+                        android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
 
-    <ProgressBar
-        android:id="@+id/progressBarEpisodes"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:visibility="gone" />
+                    <!-- Toolbar actions (IDs distinct from overlays) -->
+                    <ImageButton
+                        android:id="@+id/btnFavoriteToolbar"
+                        style="?attr/borderlessButtonStyle"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:contentDescription="@string/Add_to_favorite"
+                        android:src="@drawable/ic_favorite"/>
 
+                    <ImageButton
+                        android:id="@+id/btnAutoDownloadToolbar"
+                        style="?attr/borderlessButtonStyle"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:contentDescription="@string/Auto_Download_episodes"
+                        android:src="@drawable/ic_download_action_24"/>
+
+                    <ImageButton
+                        android:id="@+id/btnRefreshToolbar"
+                        style="?attr/borderlessButtonStyle"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:contentDescription="@string/refresh"
+                        android:src="@drawable/ic_refresh_24"/>
+
+                    <ImageButton
+                        android:id="@+id/btnSortToolbar"
+                        style="?attr/borderlessButtonStyle"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:contentDescription="@string/sort"
+                        android:src="@drawable/ic_sort_swap_vert_24"/>
+
+                    <ImageButton
+                        android:id="@+id/btnCollapseToolbar"
+                        style="?attr/borderlessButtonStyle"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:contentDescription="@string/expand"
+                        android:src="@drawable/ic_content_expand_24"/>
+                </LinearLayout>
+            </androidx.appcompat.widget.Toolbar>
+        </com.google.android.material.appbar.CollapsingToolbarLayout>
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <!-- SCROLLING CONTENT -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvEpisodes"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:paddingBottom="64dp"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        />
 
+    <!-- MINI PLAYER pinned at bottom -->
     <LinearLayout
         android:id="@+id/miniPlayer"
         android:layout_width="match_parent"
         android:layout_height="64dp"
-        android:layout_alignParentBottom="true"
+        android:layout_gravity="bottom"
         android:background="@color/cardview_dark_background"
         android:paddingStart="12dp"
         android:paddingEnd="12dp"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:visibility="gone">
+        android:visibility="gone"
+        android:elevation="8dp"
+        app:layout_insetEdge="bottom">
 
         <ImageButton
             android:id="@+id/btnMiniBack"
@@ -270,4 +318,4 @@
             android:paddingStart="8dp"/>
     </LinearLayout>
 
-</LinearLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
