@@ -51,7 +51,7 @@ public interface ZikFileDao {
             "INNER JOIN Episode ON Episode.idZikFile = ZikFile.id " +
             "WHERE ZikFile.idFolder = :idFolder " +
             "ORDER BY CAST(Episode.datePublished AS INTEGER) DESC, zeorder, name")
-    List<ZikFile> getPodcastZikFilesDesc(long idFolder);
+    List<ZikFile> getPodcastZikFilesDesc(long idFolder); //Newest first
 
     @Query("""
            SELECT * FROM ZikFile

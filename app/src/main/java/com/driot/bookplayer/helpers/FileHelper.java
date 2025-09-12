@@ -23,6 +23,7 @@ import android.text.TextUtils;
 import com.driot.bookplayer.utils.KanLogger;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.util.Locale;
@@ -358,19 +359,37 @@ public class FileHelper {
     }
 
     // DUREE AUDIO
-    public static long getMediaDurationFromPath(String zePath) {
-        long duration = 0;
-        if (fileExists(zePath)) {
-            try {
-                MediaMetadataRetriever mediaMetadataRetriever = new MediaMetadataRetriever();
-                mediaMetadataRetriever.setDataSource(zePath);
-                duration = Long.parseLong(mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
-            } catch (Exception e) {
-                myLogEE(e,"error getting duration of media for " + zePath);
-            }
-        } else {
-            myLogEE(null,"error getting duration of media, file does not exist in path : " + zePath);
+    public static long getMediaDurationFromPath(String path) {
+        if (path == null) {
+            myLogEE(null, "duration: null path");
+            return 0L;
         }
-        return duration;
+        File f = new File(path);
+        if (!f.exists()) {
+            myLogEE(null, "duration: file does not exist: " + path);
+            return 0L;
+        }
+        if (f.length() <= 0) {
+            myLogEE(null, "duration: file is empty: " + path);
+            return 0L;
+        }
+
+        MediaMetadataRetriever mmr = new MediaMetadataRetriever();
+        try (FileInputStream fis = new FileInputStream(f)) {
+            // Using FD avoids many charset / path edge cases
+            mmr.setDataSource(fis.getFD());
+            String durMs = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+            if (durMs == null) {
+                myLogEE(null, "duration: METADATA_KEY_DURATION is null for " + path);
+                return 0L;
+            }
+            return Long.parseLong(durMs);
+        } catch (Exception e) {
+            myLogEE(e, "error getting duration of media for " + path);
+            return 0L;
+        } finally {
+            try { mmr.release(); } catch (Throwable ignore) {}
+        }
     }
+
 }

@@ -10,17 +10,24 @@ import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.PorterDuff;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import androidx.media3.common.MediaItem;
+import androidx.media3.exoplayer.ExoPlayer;
 
 import com.bumptech.glide.Glide;
 import com.driot.bookplayer.R;
@@ -31,7 +38,6 @@ import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.db.PodcastDao;
 import com.driot.bookplayer.db.ZikFile;
-import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.objects.DisplayableEpisode;
@@ -44,9 +50,10 @@ import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.PodcastHelper;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
+import java.io.File;
 import java.util.List;
 
-public class PodcastEpisodeActivity extends LoggingActivity {
+public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastEpisodeRVAdapter.EpisodeClickHandler {
 
     private TextView tvTitle, tvDescription, tvStats;
     private ImageView ivCover;
@@ -57,13 +64,40 @@ public class PodcastEpisodeActivity extends LoggingActivity {
     private Podcast podcast;
     private PodcastFeed podcastFeed;
 
-    private ImageButton btnFavorite, btnAutoDownload, btnRefresh, btnSort;
+    private ImageButton btnFavorite, btnAutoDownload, btnRefresh, btnSort, btnPlayPause;
     private TextView labelFavorite, labelAutoDownload, labelAutoDelete;
     private PodcastDao podcastDao;
 
     private PodcastEpisodeViewModel podcastEpisodeViewModel;
 
     private boolean sortNewestFirst;
+
+    private ExoPlayer player;
+    private boolean switchedToLocal = false;
+    private boolean isPlaying = false;
+    private boolean downloadWhilePlaying = true;
+
+    private DisplayableEpisode currentEpisode;
+
+    private final java.util.Map<String, androidx.lifecycle.Observer<ZikFile>> pendingSwitchObservers = new java.util.HashMap<>();
+    private final java.util.Set<Long> enqueuedEpisodeIds = new java.util.HashSet<>();
+
+    // timing / loader
+    private long clickStartMs = 0L;
+    private boolean waitingForStart = false;
+    private android.os.Handler ui = new android.os.Handler(android.os.Looper.getMainLooper());
+    private Runnable loaderTicker;
+    private ProgressBar progressBarPlayer; // small loader near play button
+
+    private View miniPlayer;
+    private ImageButton btnMiniPlayPause, btnMiniBack, btnMiniForward;
+    private SeekBar seekMini;
+    private TextView tvMiniTitle, tvMiniTime;
+
+    private final android.os.Handler miniUi = new android.os.Handler(android.os.Looper.getMainLooper());
+    private Runnable miniTicker;
+    private boolean miniUserSeeking = false;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,9 +116,18 @@ public class PodcastEpisodeActivity extends LoggingActivity {
         btnAutoDownload = findViewById(R.id.btnAutoDownload);
         btnRefresh = findViewById(R.id.btnRefresh);
         btnSort = findViewById(R.id.btnSort);
+        btnPlayPause = findViewById(R.id.btnPlayPause);
         labelFavorite = findViewById(R.id.labelFavorite);
         labelAutoDownload = findViewById(R.id.labelAutoDownload);
         labelAutoDelete = findViewById(R.id.labelAutoDelete);
+
+        miniPlayer = findViewById(R.id.miniPlayer);
+        btnMiniPlayPause = findViewById(R.id.btnMiniPlayPause);
+        btnMiniBack = findViewById(R.id.btnMiniBack);
+        btnMiniForward = findViewById(R.id.btnMiniForward);
+        seekMini = findViewById(R.id.seekMini);
+        tvMiniTitle = findViewById(R.id.tvMiniTitle);
+        tvMiniTime = findViewById(R.id.tvMiniTime);
 
         podcastDao = AppDatabase.getDatabase(this).PodcastDao();
 
@@ -114,7 +157,7 @@ public class PodcastEpisodeActivity extends LoggingActivity {
         });
 
         recyclerEpisodes.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new PodcastEpisodeRVAdapter(this, podcastFeed, podcastEpisodeViewModel, sortNewestFirst);
+        adapter = new PodcastEpisodeRVAdapter(this, podcastFeed, podcastEpisodeViewModel, this);
         recyclerEpisodes.setAdapter(adapter);
 
         labelFavorite.setVisibility(View.GONE);
@@ -174,6 +217,42 @@ public class PodcastEpisodeActivity extends LoggingActivity {
                 });
             });
         });
+        btnPlayPause.setOnClickListener(v -> {
+            boolean wasPlaying = player != null && player.isPlaying();
+            myLogI("-------- USER CLICKS PLAY/PAUSE  ------------    isPlaying : " + wasPlaying + " => " + !wasPlaying);
+
+            if (player == null) return;
+
+            if (wasPlaying) {
+                // Pause current playback
+                player.pause();
+                isPlaying = false;
+                btnPlayPause.setImageDrawable(AppCompatResources.getDrawable(this, R.drawable.ic_media_play_24));
+                return;
+            }
+
+            // Not currently playing:
+            // 1) If we already have something loaded (paused), just resume
+            if (player.getMediaItemCount() > 0 && currentEpisode != null) {
+                player.play();
+                isPlaying = true;
+                btnPlayPause.setImageDrawable(AppCompatResources.getDrawable(this, R.drawable.ic_media_pause_24));
+                return;
+            }
+
+            // 2) Nothing loaded yet => play top item in the RecyclerView
+            LinearLayoutManager lm = (LinearLayoutManager) recyclerEpisodes.getLayoutManager();
+            int pos = (lm != null) ? lm.findFirstCompletelyVisibleItemPosition() : RecyclerView.NO_POSITION;
+            if (pos == RecyclerView.NO_POSITION) pos = 0;
+
+            DisplayableEpisode top = adapter.getItem(pos);
+            if (top == null) {
+                myToastE(getString(R.string.ErrorCouldNotLoadAudios_emptyfolder)); // or a generic "No episodes"
+                return;
+            }
+            beginStartupTiming();
+            playEpisode(top);
+        });
 
 
         int maxHeightPx = (int) (Resources.getSystem().getDisplayMetrics().heightPixels * 0.1);
@@ -182,6 +261,80 @@ public class PodcastEpisodeActivity extends LoggingActivity {
         tvDescription.setOnClickListener(v -> {
             ViewHelper.showAlterDialogToDisplayText(this, podcastFeed.description, podcastFeed.title);
         });
+
+        player = new ExoPlayer.Builder(this).build();
+        player.addListener(new androidx.media3.common.Player.Listener() {
+            @Override public void onIsPlayingChanged(boolean isPlaying) {
+                if (waitingForStart && isPlaying) {
+                    long dt = android.os.SystemClock.elapsedRealtime() - clickStartMs;
+                    myLogI("AUDIO STARTED: " + dt + " ms after click");
+                    stopLoader();
+                }
+            }
+            @Override public void onPlaybackStateChanged(int state) {
+                if (waitingForStart && state == androidx.media3.common.Player.STATE_READY && player.getPlayWhenReady()) {
+                    long dt = android.os.SystemClock.elapsedRealtime() - clickStartMs;
+                    myLogI("PLAYER READY: " + dt + " ms after click");
+                    // We still wait for onIsPlayingChanged(true) to mark actual audio start,
+                    // but READY timestamp is useful to log too.
+                }
+                if (state == androidx.media3.common.Player.STATE_ENDED) {
+                    playNextInList();
+                }
+            }
+        });
+
+        progressBarPlayer = new ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal);
+        progressBarPlayer.setIndeterminate(false);
+        progressBarPlayer.setMax(100);
+        progressBarPlayer.setProgress(0);
+        progressBarPlayer.setVisibility(View.GONE);
+        ((ViewGroup) btnPlayPause.getParent()).addView(progressBarPlayer,
+                new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, (int) (4 * getResources().getDisplayMetrics().density)));
+
+        // If you have a mini PlayerView:
+        // PlayerView pv = findViewById(R.id.playerViewMini);
+        // pv.setPlayer(player);
+
+        btnMiniBack.setOnClickListener(v -> { if (player != null) player.seekTo(Math.max(0, player.getCurrentPosition() - 30_000)); });
+        btnMiniForward.setOnClickListener(v -> { if (player != null) player.seekTo(player.getCurrentPosition() + 30_000); });
+
+        btnMiniPlayPause.setOnClickListener(v -> {
+            if (player == null) return;
+            if (player.isPlaying()) {
+                player.pause();
+                btnMiniPlayPause.setImageDrawable(AppCompatResources.getDrawable(this, R.drawable.ic_media_play_24));
+            } else {
+                player.play();
+                btnMiniPlayPause.setImageDrawable(AppCompatResources.getDrawable(this, R.drawable.ic_media_pause_24));
+            }
+        });
+
+        seekMini.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override public void onProgressChanged(SeekBar sb, int progress, boolean fromUser) {
+                if (!fromUser || player == null || miniUserSeeking) return;
+            }
+            @Override public void onStartTrackingTouch(SeekBar sb) { miniUserSeeking = true; }
+            @Override public void onStopTrackingTouch(SeekBar sb) {
+                if (player != null) {
+                    long dur = player.getDuration();
+                    if (dur > 0) {
+                        long pos = (dur * sb.getProgress()) / sb.getMax();
+                        player.seekTo(pos);
+                    }
+                }
+                miniUserSeeking = false;
+            }
+        });
+
+
+    }
+
+    @Override protected void onDestroy() {
+        stopLoader();
+        if (player != null) { player.release(); player = null; }
+        stopMiniTicker();
+        super.onDestroy();
     }
 
     private void toggleFavorite() {
@@ -458,4 +611,330 @@ public class PodcastEpisodeActivity extends LoggingActivity {
         tvStats.setText(tvStatsText);
         progressBar.setVisibility(View.GONE);
     }
+
+    private void playEpisode(DisplayableEpisode ep) {
+        if (ep == null) return;
+        currentEpisode = ep;
+        myLog("playEpisode [" + ep.title + "]");
+        player.setMediaItem(MediaItem.fromUri(ep.enclosureUrl));
+        player.prepare();
+        player.play();
+
+        isPlaying = true;
+        btnPlayPause.setImageDrawable(AppCompatResources.getDrawable(this, R.drawable.ic_media_pause_24));
+        adapter.setCurrentlyPlayingEpisodeId(ep.idEpisode);
+        showMini(ep);
+    }
+
+    // ROW CLICK CALLBACK
+    @Override public void onPlayEpisode(DisplayableEpisode ep) {
+        myLogD("onPlayEpisode [" + ep.title + "]");
+        if (currentEpisode != null && currentEpisode.idEpisode == ep.idEpisode) {
+            // Same episode clicked again
+            if (player != null && player.isPlaying()) {
+                // Pause/stop
+                player.pause(); // or player.stop() if you want to reset
+                isPlaying = false;
+                btnPlayPause.setImageDrawable(
+                        AppCompatResources.getDrawable(this, R.drawable.ic_media_play_24)
+                );
+                myLogD("Paused (same episode clicked again): " + ep.title);
+            } else {
+                // Resume
+                player.play();
+                isPlaying = true;
+                btnPlayPause.setImageDrawable(
+                        AppCompatResources.getDrawable(this, R.drawable.ic_media_pause_24)
+                );
+                myLogD("Resumed (same episode clicked again): " + ep.title);
+            }
+        } else {
+            // Different episode → play fresh
+            beginStartupTiming();
+            playEpisode(ep);
+        }
+
+        switchedToLocal = false;
+
+        /*
+        // 2) optionally download in background
+        if (downloadWhilePlaying) {
+            File target = PodcastHelper.buildPodcastPath(this, podcastFeed.title);
+            if (!target.exists()) target.mkdirs();
+            List<PodcastEpisode> one = new ArrayList<>();
+            one.add(ep.toPodcastEpisode());
+            PodcastDownloadManager.enqueueDownloads(this, podcastFeed.id, one, target, null);
+
+            // 3) observe DB; when local file is ready, switch source *only if stream error or by policy*
+            String folder = FileHelper.sanitizeFilename(podcastFeed.title);
+            String fileName = PodcastHelper.buildPodcastEpisodeFileName(ep);
+
+            viewModel.getZikFileLive(folder, fileName).observe(this, zf -> {
+                if (zf == null || switchedToLocal || player == null) return;
+                File local = new File(zf.getFullPath());
+                if (!local.exists()) return;
+
+                // hook into errors/buffering to decide when to switch:
+                player.addListener(new androidx.media3.common.Player.Listener() {
+                    @Override public void onPlayerError(@NonNull PlaybackException error) {
+                        // stream died -> switch to local if ready
+                        if (!switchedToLocal) switchToLocal(local);
+                    }
+                });
+
+                // If you prefer: switch immediately when download completes:
+                // switchToLocal(local);
+            });
+        }
+
+ */
+    }
+    @Override
+    public void onOpenLocalEpisode(ZikFile zikFile) {
+        // 1) Stop/clear ExoPlayer (so it doesn't keep playing under PlayActivity)
+        if (player != null) {
+            try {
+                player.stop();             // stop playback immediately
+                player.clearMediaItems();  // remove the streamed item
+            } catch (Exception ignored) {}
+        }
+        isPlaying = false;
+        btnPlayPause.setImageDrawable(
+                AppCompatResources.getDrawable(this, R.drawable.ic_media_play_24)
+        );
+        currentEpisode = null;
+        if (adapter != null) adapter.setCurrentlyPlayingEpisodeId(null); // remove highlight
+
+        // 2) Launch PlayActivity with the local file
+        // open Play
+        new Thread(() -> {
+            try {
+                myLog("clickOnEpisode : " + zikFile.getDisplayName() + " - " + zikFile.getId() + " - " + zikFile.getName());
+                List<ZikFile> zikFilesList;
+                if (sortNewestFirst) {
+                    zikFilesList = AppDatabase.getDatabase(this).ZikFileDao().getPodcastZikFilesDesc(zikFile.getIdFolder());
+                } else {
+                    zikFilesList = AppDatabase.getDatabase(this).ZikFileDao().getPodcastZikFilesAsc(zikFile.getIdFolder());
+                }
+                PlayList.create(this, zikFilesList);
+                int rankZikFile = getZikFileRankInFolderSync(zikFilesList, zikFile.getName());
+                myLog("rankZikFile = " + rankZikFile);
+                if (rankZikFile >= 0 ) {
+                    PlayList.getInstance().setNumZikFile(rankZikFile);
+                    startActivity(new Intent(this, PlayActivity.class).putExtra("ZikFile", zikFile));
+                }
+            } catch (Exception e) {
+                myLogEE(e, "clickOnEpisode - playThatShit");
+            }
+        }).start();
+    }
+    private int getZikFileRankInFolderSync(List<ZikFile> files, String fileName) {
+        for (int i = 0; i < files.size(); i++) {
+            if (files.get(i).getName().equals(fileName)) {
+                return i ;
+            }
+        }
+        return -1; // not found
+    }
+
+    @Override
+    public void onDownloadEpisode(DisplayableEpisode ep) {
+        if (!enqueuedEpisodeIds.add(ep.idEpisode)) {
+            myLog("download already enqueued for " + ep.title);
+            return;
+        }
+        // 1) Enqueue download
+        File target = PodcastHelper.buildPodcastPath(this, podcastFeed.title);
+        if (!target.exists()) target.mkdirs();
+        java.util.List<PodcastEpisode> one = new java.util.ArrayList<>();
+        one.add(ep.toPodcastEpisode());
+        com.driot.bookplayer.utils.PodcastDownloadManager
+                .enqueueDownloads(this, podcastFeed.id, one, target, null);
+
+        // 2) Observe DB for completion (file appears)
+        String folder = com.driot.bookplayer.helpers.FileHelper.sanitizeFilename(podcastFeed.title);
+        String fileName = com.driot.bookplayer.helpers.PodcastHelper.buildPodcastEpisodeFileName(ep);
+
+        androidx.lifecycle.LiveData<ZikFile> live = podcastEpisodeViewModel.getZikFileLive(folder, fileName);
+        // Avoid duplicate observers for same file
+        if (pendingSwitchObservers.containsKey(fileName)) return;
+
+        androidx.lifecycle.Observer<ZikFile> obs = zf -> {
+            if (zf == null) return;
+            File local = new File(zf.getPath());
+            if (!local.exists()) return;
+
+            // Got it: remove observer
+            live.removeObserver(pendingSwitchObservers.get(fileName));
+            pendingSwitchObservers.remove(fileName);
+
+            // Switch only if this is the episode currently streaming from Exo
+            if (currentEpisode != null && currentEpisode.idEpisode == ep.idEpisode) {
+                switchFromStreamToLocalInMini(zf);
+                //switchFromStreamToPlayActivity(zf);
+            }
+        };
+        pendingSwitchObservers.put(fileName, obs);
+        live.observe(this, obs);
+    }
+    /*
+    private void switchFromStreamToPlayActivity(ZikFile zf) {
+        long posMs = (player != null) ? player.getCurrentPosition() : 0L;
+
+        // Stop Exo cleanly
+        try {
+            if (player != null) {
+                player.stop();
+                player.clearMediaItems();
+            }
+        } catch (Exception ignored) {}
+
+        isPlaying = false;
+        btnPlayPause.setImageDrawable(AppCompatResources.getDrawable(this, R.drawable.ic_media_play_24));
+        adapter.setCurrentlyPlayingEpisodeId(null);
+
+        // Launch PlayActivity + (optional) pass resume position
+        Intent i = new Intent(this, PlayActivity.class)
+                .putExtra("ZikFile", zf)
+                .putExtra("resume_position_ms", posMs)
+                .putExtra("autoplay", true);
+        startActivity(i);
+    }
+
+     */
+    private void switchFromStreamToLocalInMini(ZikFile zf) {
+        File local = new File(zf.getPath());
+        long posMs = (player != null) ? player.getCurrentPosition() : 0L;
+        if (player != null) {
+            player.pause();
+            player.setMediaItem(MediaItem.fromUri(Uri.fromFile(local)));
+            player.prepare();
+            player.seekTo(posMs);
+            player.play();
+        }
+        // keep mini bar visible; nothing else to do
+    }
+
+
+    private void switchToLocal(File local) {
+        if (player == null) return;
+        long pos = player.getCurrentPosition();
+        switchedToLocal = true;
+        player.pause();
+        player.setMediaItem(MediaItem.fromUri(Uri.fromFile(local)));
+        player.prepare();
+        player.seekTo(pos);
+        player.play();
+
+        // Optional: now show full controls
+        // startActivity(new Intent(this, PlayActivity.class));
+    }
+
+    private void beginStartupTiming() {
+        clickStartMs = android.os.SystemClock.elapsedRealtime();
+        waitingForStart = true;
+
+        // show loader only if >100ms
+        ui.postDelayed(() -> {
+            if (waitingForStart) {
+                progressBarPlayer.setVisibility(View.VISIBLE);
+                startLoaderTicker();
+            }
+        }, 100);
+    }
+
+    private void startLoaderTicker() {
+        stopLoaderTicker();
+        loaderTicker = new Runnable() {
+            @Override public void run() {
+                if (!waitingForStart) return;
+                try {
+                    int pct = player != null ? player.getBufferedPercentage() : 0; // 0..100
+                    progressBarPlayer.setProgress(Math.max(0, Math.min(100, pct)));
+                } catch (Throwable ignored) {}
+                ui.postDelayed(this, 150);
+            }
+        };
+        ui.post(loaderTicker);
+    }
+
+    private void stopLoaderTicker() {
+        if (loaderTicker != null) {
+            ui.removeCallbacks(loaderTicker);
+            loaderTicker = null;
+        }
+    }
+
+    private void stopLoader() {
+        waitingForStart = false;
+        stopLoaderTicker();
+        progressBarPlayer.setVisibility(View.GONE);
+        progressBarPlayer.setProgress(0);
+    }
+
+    private void showMini(DisplayableEpisode ep) {
+        if (miniPlayer.getVisibility() != View.VISIBLE) miniPlayer.setVisibility(View.VISIBLE);
+        tvMiniTitle.setText(ep.title);
+        btnMiniPlayPause.setImageDrawable(AppCompatResources.getDrawable(this,
+                player != null && player.isPlaying() ? R.drawable.ic_media_pause_24 : R.drawable.ic_media_play_24));
+        startMiniTicker();
+    }
+
+    private void hideMini() {
+        miniPlayer.setVisibility(View.GONE);
+        stopMiniTicker();
+    }
+
+    private void startMiniTicker() {
+        stopMiniTicker();
+        miniTicker = new Runnable() {
+            @Override public void run() {
+                if (player != null && !miniUserSeeking) {
+                    long pos = player.getCurrentPosition();
+                    long dur = player.getDuration();
+                    if (dur > 0) {
+                        int prog = (int) ((pos * seekMini.getMax()) / dur);
+                        seekMini.setProgress(prog);
+                        tvMiniTime.setText(formatMmSs(pos) + " / " + formatMmSs(dur));
+                    } else {
+                        seekMini.setProgress(0);
+                        tvMiniTime.setText("--:-- / --:--");
+                    }
+                    btnMiniPlayPause.setImageDrawable(AppCompatResources.getDrawable(PodcastEpisodeActivity.this,
+                    player.isPlaying() ? R.drawable.ic_media_pause_24 : R.drawable.ic_media_play_24));
+                }
+                miniUi.postDelayed(this, 500);
+            }
+        };
+        miniUi.post(miniTicker);
+    }
+
+    private void stopMiniTicker() {
+        if (miniTicker != null) {
+            miniUi.removeCallbacks(miniTicker);
+            miniTicker = null;
+        }
+    }
+
+    private String formatMmSs(long ms) {
+        long s = ms / 1000;
+        long m = s / 60;
+        long sec = s % 60;
+        return String.format(java.util.Locale.US, "%d:%02d", m, sec);
+    }
+
+    private void playNextInList() {
+        if (currentEpisode == null) return;
+        int idx = adapter.indexOfEpisodeId(currentEpisode.idEpisode);
+        if (idx < 0) return;
+        int next = idx + 1;
+        if (next >= adapter.getCount()) return;
+        DisplayableEpisode ep = adapter.getItem(next);
+        if (ep != null) {
+            onPlayEpisode(ep); // reuse same pipeline
+            // Optionally scroll to make it visible:
+            recyclerEpisodes.smoothScrollToPosition(next);
+        }
+    }
+
 }

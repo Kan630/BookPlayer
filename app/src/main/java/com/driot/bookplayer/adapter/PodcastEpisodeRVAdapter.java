@@ -45,20 +45,41 @@ import java.util.Locale;
 public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAdapter.ViewHolder> {
 
     private List<DisplayableEpisode> items = new ArrayList<>();
+    public DisplayableEpisode getItem(int position) {
+        return (items != null && position >= 0 && position < items.size()) ? items.get(position) : null;
+    }
+    public int indexOfEpisodeId(long idEpisode) {
+        if (items == null) return -1;
+        for (int i = 0; i < items.size(); i++) {
+            if (items.get(i).idEpisode == idEpisode) return i;
+        }
+        return -1;
+    }
+    public int getCount() { return items != null ? items.size() : 0; }
+
     private Long lastListenedZikFileId = null;
 
     private final Context context;
     private final PodcastFeed podcastFeed;
     private final PodcastEpisodeViewModel viewModel;
     private final LifecycleOwner lifecycleOwner;
-    private boolean sortAscending;
+    private Long currentlyPlayingEpisodeId = null;
 
-    public PodcastEpisodeRVAdapter(Context context, PodcastFeed podcastFeed, PodcastEpisodeViewModel viewModel, boolean sortAscending) {
+    public interface EpisodeClickHandler {
+        void onPlayEpisode(DisplayableEpisode episode);
+        void onOpenLocalEpisode(ZikFile zikFile);
+        void onDownloadEpisode(DisplayableEpisode episode);
+    }
+
+    private final EpisodeClickHandler handler;
+
+
+    public PodcastEpisodeRVAdapter(Context context, PodcastFeed podcastFeed, PodcastEpisodeViewModel viewModel, EpisodeClickHandler handler) {
         this.context = context;
         this.podcastFeed = podcastFeed;
         this.viewModel = viewModel;
         this.lifecycleOwner = (LifecycleOwner) context; // Assumes context is a LifecycleOwner (e.g., Activity)
-        this.sortAscending = sortAscending;
+        this.handler = handler;
         if (podcastFeed==null) {
             myLogEE(null, "podcastFeed == null");
         }
@@ -100,6 +121,10 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
         if (lastListenedZikFileId != null && lastListenedZikFileId.equals(episode.idZikFile)) {
             myLogD("last accessed episode  [" + episodeName + "] - [" + episodeFileName + "]");
             holder.llMain.setBackgroundColor(ContextCompat.getColor(context, R.color.cardview_dark_background));
+        }
+
+        if (currentlyPlayingEpisodeId != null && currentlyPlayingEpisodeId.equals(episode.idEpisode)) {
+            holder.llMain.setBackgroundColor(ContextCompat.getColor(context, R.color.brown_900));
         }
 
         holder.itemView.setOnClickListener(v -> {
@@ -166,6 +191,8 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
                     holder.tvEpisodeDBStats.setText("");
                 }
                 holder.icon_download.setOnClickListener(v -> {
+                    handler.onDownloadEpisode(episode);
+                    /*
                     myLogI("---- USER CLICKS - Downloading single episode -----  " + episode.title);
                     if (Option.getNetworkPolicyManualDownload().equals(NetworkUtils.NetworkPolicyManual.ASK_IF_NOT_UNMETERED) && !NetworkUtils.isUnmeteredConnected(context)) {
                         new AlertDialog.Builder(context)
@@ -191,6 +218,7 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
                         });
                         proceedWithDownload(context, holder, podcastFeed.title, episode, podcastFeed.id);
                     }
+                     */
                 });
             }
         });
@@ -235,26 +263,6 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
         }
     }
 
-    private void flickerIcon(ImageView icon) {
-        float maxSize = 1.6f;
-        int animTime = 300;
-
-        ObjectAnimator scaleUpX = ObjectAnimator.ofFloat(icon, "scaleX", 1f, maxSize);
-        ObjectAnimator scaleUpY = ObjectAnimator.ofFloat(icon, "scaleY", 1f, maxSize);
-        ObjectAnimator scaleDownX = ObjectAnimator.ofFloat(icon, "scaleX", maxSize, 1f);
-        ObjectAnimator scaleDownY = ObjectAnimator.ofFloat(icon, "scaleY", maxSize, 1f);
-
-        AnimatorSet scaleUp = new AnimatorSet();
-        scaleUp.playTogether(scaleUpX, scaleUpY);
-
-        AnimatorSet scaleDown = new AnimatorSet();
-        scaleDown.playTogether(scaleDownX, scaleDownY);
-
-        AnimatorSet flicker = new AnimatorSet();
-        flicker.playSequentially(scaleUp, scaleDown);
-        flicker.setDuration(animTime);
-        flicker.start();
-    }
     private AnimatorSet createFlickerAnimation(View view, ViewHolder holder) {
         float maxSize = 1.4f;
         int animTime = 300;
@@ -289,38 +297,20 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
     private void clickOnEpisode(ViewHolder holder, DisplayableEpisode episode) {
         ZikFile zikFile = holder.zikFile;
         if (zikFile == null) {
-            ViewHelper.showAlterDialogToDisplayText(this.context, episode.description, episode.title);
+            myLogD("clickOnEpisode, zikfile null → call handler.onPlayEpisode now for " + episode.title);
+            handler.onPlayEpisode(episode); // ← play stream directly
             return;
         }
-        new Thread(() -> {
-            try {
-                myLog("clickOnEpisode : " + zikFile.getDisplayName() + " - " + zikFile.getId() + " - " + zikFile.getName());
-                List<ZikFile> zikFilesList;
-                if (sortAscending) {
-                    zikFilesList = AppDatabase.getDatabase(context).ZikFileDao().getPodcastZikFilesAsc(zikFile.getIdFolder());
-                } else {
-                    zikFilesList = AppDatabase.getDatabase(context).ZikFileDao().getPodcastZikFilesDesc(zikFile.getIdFolder());
-                }
-                PlayList.create(context, zikFilesList);
-                int rankZikFile = getZikFileRankInFolderSync(zikFilesList, zikFile.getName());
-                myLog("rankZikFile = " + rankZikFile);
-                if (rankZikFile >= 0 ) {
-                    PlayList.getInstance().setNumZikFile(rankZikFile);
-                    context.startActivity(new Intent(this.context, PlayActivity.class).putExtra("ZikFile", zikFile));
-                }
-            } catch (Exception e) {
-                myLogEE(e, "clickOnEpisode - playThatShit");
-            }
-        }).start();
+        // Local file exists
+        handler.onOpenLocalEpisode(zikFile);
+
     }
-    public int getZikFileRankInFolderSync(List<ZikFile> files, String fileName) {
-        for (int i = 0; i < files.size(); i++) {
-            if (files.get(i).getName().equals(fileName)) {
-                return i ;
-            }
-        }
-        return -1; // not found
+    public void setCurrentlyPlayingEpisodeId(Long id) {
+        this.currentlyPlayingEpisodeId = id;
+        notifyDataSetChanged();
     }
+
+
 
 
 }

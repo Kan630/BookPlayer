@@ -131,6 +131,8 @@ dependencies {
 
     //implementation 'com.google.android.play:app-update:2.1.0'   => TODO Next thing to do !
 
+    implementation "androidx.media3:media3-exoplayer:1.8.0"
+    //implementation "androidx.media3:media3-ui:1.3.1"        // if you use PlayerView
 
     // For Librivox integration :
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
