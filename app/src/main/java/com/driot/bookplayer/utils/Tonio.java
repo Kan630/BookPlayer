@@ -565,6 +565,13 @@ public class Tonio {
         return Uri.parse(url).getLastPathSegment();
     }
 
+    public static String formatMmSs(long ms) {
+        long s = ms / 1000;
+        long m = s / 60;
+        long sec = s % 60;
+        return String.format(java.util.Locale.US, "%d:%02d", m, sec);
+    }
+
 
 
 

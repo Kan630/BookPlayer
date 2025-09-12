@@ -34,6 +34,7 @@ import com.driot.bookplayer.utils.NetworkUtils;
 import com.driot.bookplayer.helpers.PodcastHelper;
 import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.utils.PodcastDownloadManager;
+import com.driot.bookplayer.utils.TextOptions;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingRVAdapter;
 
@@ -56,6 +57,14 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
         return -1;
     }
     public int getCount() { return items != null ? items.size() : 0; }
+
+    private boolean showDescriptions = false;
+    public void setShowDescriptions(boolean show) {
+        if (this.showDescriptions != show) {
+            this.showDescriptions = show;
+            notifyDataSetChanged();
+        }
+    }
 
     private Long lastListenedZikFileId = null;
 
@@ -113,18 +122,29 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
         holder.tvEpisodeStats.setText(stats);
         holder.zikFile = null;
 
+        if (holder.tvEpisodeDesc != null) {
+            if (showDescriptions && episode.description != null) {
+                // If your descriptions are HTML-ish, reuse your helper to strip/format if needed
+                holder.tvEpisodeDesc.setText(TextOptions.parseMaybeHtml(episode.description));
+                holder.tvEpisodeDesc.setVisibility(View.VISIBLE);
+            } else {
+                holder.tvEpisodeDesc.setVisibility(View.GONE);
+            }
+        }
+
+
         String episodeFileName = PodcastHelper.buildPodcastEpisodeFileName(episode);
         String episodeName = PodcastHelper.buildPodcastEpisodeName(episode);
 
-        //identify visually last listened episode
         holder.llMain.setBackgroundColor(ContextCompat.getColor(context, R.color.activityBackground));
-        if (lastListenedZikFileId != null && lastListenedZikFileId.equals(episode.idZikFile)) {
-            myLogD("last accessed episode  [" + episodeName + "] - [" + episodeFileName + "]");
-            holder.llMain.setBackgroundColor(ContextCompat.getColor(context, R.color.cardview_dark_background));
-        }
-
-        if (currentlyPlayingEpisodeId != null && currentlyPlayingEpisodeId.equals(episode.idEpisode)) {
-            holder.llMain.setBackgroundColor(ContextCompat.getColor(context, R.color.brown_900));
+        if (currentlyPlayingEpisodeId == null) {
+            if (lastListenedZikFileId != null && lastListenedZikFileId.equals(episode.idZikFile)) {
+                holder.llMain.setBackgroundColor(ContextCompat.getColor(context, R.color.cardview_dark_background));
+            }
+        } else {
+            if (currentlyPlayingEpisodeId.equals(episode.idEpisode)) {
+                holder.llMain.setBackgroundColor(ContextCompat.getColor(context, R.color.brown_900));
+            }
         }
 
         holder.itemView.setOnClickListener(v -> {
@@ -191,9 +211,16 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
                     holder.tvEpisodeDBStats.setText("");
                 }
                 holder.icon_download.setOnClickListener(v -> {
+                    myLogI("---- USER CLICKS - Downloading single episode -----  " + episode.title);
+                    if (holder.flickerAnim == null) {
+                        holder.flickerRunning = true;
+                        holder.flickerAnim = createFlickerAnimation(holder.icon_download,holder);
+                        holder.flickerAnim.start();
+                    }
+
                     handler.onDownloadEpisode(episode);
                     /*
-                    myLogI("---- USER CLICKS - Downloading single episode -----  " + episode.title);
+
                     if (Option.getNetworkPolicyManualDownload().equals(NetworkUtils.NetworkPolicyManual.ASK_IF_NOT_UNMETERED) && !NetworkUtils.isUnmeteredConnected(context)) {
                         new AlertDialog.Builder(context)
                                 .setTitle(R.string.download_warning_title_unmetered)
@@ -225,18 +252,7 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
     }
 
     private void proceedWithDownload(Context context, ViewHolder holder, String futureFolderName, DisplayableEpisode displayableEpisode, long feedId) {
-        if (holder.flickerAnim == null) {
-            holder.flickerRunning = true;
-            holder.flickerAnim = createFlickerAnimation(holder.icon_download,holder);
-            holder.flickerAnim.start();
-        }
-        File targetFolder = PodcastHelper.buildPodcastPath(context, futureFolderName);
-        if (!targetFolder.exists()) targetFolder.mkdirs();
 
-        List<PodcastEpisode> singleList = new ArrayList<>();
-        singleList.add(displayableEpisode.toPodcastEpisode());
-
-        PodcastDownloadManager.enqueueDownloads(context, feedId, singleList, targetFolder, null);
     }
 
     @Override
@@ -245,7 +261,7 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvTitle, tvDate, tvEpisodeStats, tvEpisodeDBStats;
+        TextView tvTitle, tvDate, tvEpisodeStats, tvEpisodeDBStats, tvEpisodeDesc;
         ImageView icon_download;
         AnimatorSet flickerAnim;
         boolean flickerRunning = false;
@@ -254,6 +270,7 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
+            tvEpisodeDesc = itemView.findViewById(R.id.tvEpisodeDesc);
             tvTitle = itemView.findViewById(R.id.tvEpisodeTitle);
             tvDate = itemView.findViewById(R.id.tvEpisodeDate);
             tvEpisodeStats = itemView.findViewById(R.id.tvEpisodeStats);

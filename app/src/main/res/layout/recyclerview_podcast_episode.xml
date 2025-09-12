@@ -82,6 +82,19 @@
                 android:visibility="gone"
                 />
         </LinearLayout>
+
+
     </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvEpisodeDesc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="4dp"
+            android:textSize="13sp"
+            android:lineSpacingExtra="2dp"
+            android:visibility="gone"/>
+
+
     </LinearLayout>
 </LinearLayout>

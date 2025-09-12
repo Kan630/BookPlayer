@@ -751,6 +751,10 @@
     <string name="ep">"ep"</string> //abbreviation for episode : 2 letters
     <string name="option_podcast_episodes_sort_order">newest episode at the top</string>
 
+    <string name="refresh">refresh</string>
+    <string name="collapse">collapse</string>
+    <string name="sort">sort</string>
+
 
 
 </resources>
