@@ -41,6 +41,7 @@ public class Option {
     public static final int DEFAULT_PODCAST_AUTO_DOWNLOAD_MAX_N_PODCASTS = 10;
     public static final int DEFAULT_PODCAST_AUTO_DOWNLOAD_DELAY_BETWEEN_CHECKS_IN_MIN = 60;
     public static final boolean DEFAULT_PODCAST_EPISODES_SORT_NEWEST_TOP = true;
+    public static final boolean DEFAULT_PODCAST_EPISODES_DESCRIPTION_EXPAND = true;
 
     private static Context appContext;
     private static android.content.SharedPreferences prefs;
@@ -183,6 +184,10 @@ public class Option {
 
     public static void setPodcastEpisodesSortOrder(boolean bool) {prefs.edit().putBoolean("PODCAST_EPISODES_SORT_NEWEST_TOP",bool).apply();}
     public static boolean getPodcastEpisodesSortOrder() {return prefs.getBoolean("PODCAST_EPISODES_SORT_NEWEST_TOP", DEFAULT_PODCAST_EPISODES_SORT_NEWEST_TOP);}
+
+    public static void setPodcastEpisodesDescriptionExpand(boolean bool) {prefs.edit().putBoolean("PODCAST_EPISODES_DESCRIPTION_EXPAND",bool).apply();}
+    public static boolean getPodcastEpisodesDescriptionExpand() {return prefs.getBoolean("PODCAST_EPISODES_DESCRIPTION_EXPAND", DEFAULT_PODCAST_EPISODES_DESCRIPTION_EXPAND);}
+
 
     /////////////////// LANGUAGE ///////////////////
     public static void setLanguage(String language) {prefs.edit().putString("LANGUAGE",language).apply();}

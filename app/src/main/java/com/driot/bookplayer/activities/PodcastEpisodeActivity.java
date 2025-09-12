@@ -5,11 +5,9 @@ import static com.driot.bookplayer.utils.TextOptions.parseMaybeHtml;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.animation.AnimatorSet;
-import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.app.AlertDialog;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.view.View;
@@ -51,7 +49,6 @@ import com.driot.bookplayer.objects.PlayList;
 import com.driot.bookplayer.objects.PodcastEpisode;
 import com.driot.bookplayer.objects.PodcastFeed;
 import com.driot.bookplayer.helpers.AnalyticsHelper;
-import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.PodcastHelper;
 import com.driot.bookplayer.utils.NetworkUtils;
@@ -103,7 +100,7 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
     private Runnable miniTicker;
     private boolean miniUserSeeking = false;
     private ProgressBar progressMini;
-    private boolean isExpanded = false;
+    private boolean isExpanded;
 
     private com.google.android.material.appbar.AppBarLayout appBar;
     private androidx.appcompat.widget.Toolbar toolbar;
@@ -149,7 +146,6 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
         appBar = findViewById(R.id.appBar);
         toolbar = findViewById(R.id.toolbar);
 
-// Start hidden, no accidental clicks
         toolbar.setAlpha(0f);
         toolbar.setVisibility(View.INVISIBLE);
 
@@ -188,8 +184,7 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
                         miniPlayer.getPaddingRight(),
                         0);
                 ViewGroup.LayoutParams lp = miniPlayer.getLayoutParams();
-                if (lp instanceof ViewGroup.MarginLayoutParams) {
-                    ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) lp;
+                if (lp instanceof ViewGroup.MarginLayoutParams mlp) {
                     int wantedMargin = sysBarsIme.bottom; // handles gesture pill & IME
                     if (mlp.bottomMargin != wantedMargin) {
                         mlp.bottomMargin = wantedMargin;
@@ -399,7 +394,10 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
             }
         });
 
-
+        isExpanded = Option.getPodcastEpisodesDescriptionExpand();
+        adapter.setShowDescriptions(isExpanded);
+        animateDescriptionHeight(tvDescription, isExpanded);
+        updateCollapseIcon();
     }
 
     @Override protected void onDestroy() {
@@ -476,6 +474,7 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
     private void toggleCollapse() {
         isExpanded = !isExpanded;
         myLogI("-------- USER CLICKS COLLAPSE --  isExpanded= " + isExpanded);
+        Option.setPodcastEpisodesDescriptionExpand(isExpanded);
         animateDescriptionHeight(tvDescription, isExpanded);
         adapter.setShowDescriptions(isExpanded);  // show/hide item descriptions
         updateCollapseIcon();
@@ -782,7 +781,8 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
                     if (dur > 0) {
                         int prog = (int) ((pos * seekMini.getMax()) / dur);
                         seekMini.setProgress(prog);
-                        tvMiniTime.setText(Tonio.formatMmSs(pos) + " / " + Tonio.formatMmSs(dur));
+                        String timeString = Tonio.formatMmSs(pos) + " / " + Tonio.formatMmSs(dur);
+                        tvMiniTime.setText(timeString);
                     } else {
                         seekMini.setProgress(0);
                         tvMiniTime.setText("--:-- / --:--");
@@ -861,41 +861,68 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
     /** Animate tv height: 0 -> wrap content (expand) or current -> 0 (collapse). */
     private void animateDescriptionHeight(TextView tv, boolean expand) {
         tv.clearAnimation();
-        if (expand) {
-            // measure desired height
-            tv.setVisibility(View.VISIBLE);
-            tv.measure(
-                    View.MeasureSpec.makeMeasureSpec(((View) tv.getParent()).getWidth(), View.MeasureSpec.AT_MOST),
-                    View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
-            );
-            int target = tv.getMeasuredHeight();
-            tv.getLayoutParams().height = 0;
-            tv.requestLayout();
 
-            android.animation.ValueAnimator va = android.animation.ValueAnimator.ofInt(0, target);
-            va.setDuration(250);
-            va.addUpdateListener(a -> {
-                tv.getLayoutParams().height = (int) a.getAnimatedValue();
-                tv.requestLayout();
-            });
-            va.start();
-        } else {
-            int start = tv.getHeight();
-            android.animation.ValueAnimator va = android.animation.ValueAnimator.ofInt(start, 0);
-            va.setDuration(200);
-            va.addUpdateListener(a -> {
-                tv.getLayoutParams().height = (int) a.getAnimatedValue();
-                tv.requestLayout();
-            });
-            va.addListener(new android.animation.AnimatorListenerAdapter() {
-                @Override public void onAnimationEnd(android.animation.Animator animation) {
-                    tv.setVisibility(View.GONE);
-                    tv.getLayoutParams().height = ViewGroup.LayoutParams.WRAP_CONTENT; // reset for next expand
+        // Run after layout to have a stable width
+        tv.post(() -> {
+            if (expand) {
+                // Ensure the view is visible before measuring
+                tv.setVisibility(View.VISIBLE);
+
+                // Measure with the real laid-out width
+                int width = tv.getWidth();
+                if (width == 0) {
+                    // fallback to parent width if needed
+                    View parent = (View) tv.getParent();
+                    width = parent.getWidth();
                 }
-            });
-            va.start();
-        }
+                int widthSpec = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY);
+                int heightSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+                tv.measure(widthSpec, heightSpec);
+                final int target = tv.getMeasuredHeight();
+
+                // Start from 0 height
+                ViewGroup.LayoutParams lp = tv.getLayoutParams();
+                lp.height = 0;
+                tv.setLayoutParams(lp);
+
+                ValueAnimator va = ValueAnimator.ofInt(0, target);
+                va.setDuration(250);
+                va.addUpdateListener(a -> {
+                    lp.height = (int) a.getAnimatedValue();
+                    tv.setLayoutParams(lp);
+                });
+                va.addListener(new AnimatorListenerAdapter() {
+                    @Override public void onAnimationEnd(Animator animation) {
+                        // Let layout reflow naturally going forward
+                        lp.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+                        tv.setLayoutParams(lp);
+                    }
+                });
+                va.start();
+
+            } else {
+                final int start = tv.getHeight();
+                final ViewGroup.LayoutParams lp = tv.getLayoutParams();
+
+                ValueAnimator va = ValueAnimator.ofInt(start, 0);
+                va.setDuration(200);
+                va.addUpdateListener(a -> {
+                    lp.height = (int) a.getAnimatedValue();
+                    tv.setLayoutParams(lp);
+                });
+                va.addListener(new AnimatorListenerAdapter() {
+                    @Override public void onAnimationEnd(Animator animation) {
+                        tv.setVisibility(View.GONE);
+                        // Reset so next expand measures correctly
+                        lp.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+                        tv.setLayoutParams(lp);
+                    }
+                });
+                va.start();
+            }
+        });
     }
+
 
     private void closePlayer() {
         if (player != null) {
