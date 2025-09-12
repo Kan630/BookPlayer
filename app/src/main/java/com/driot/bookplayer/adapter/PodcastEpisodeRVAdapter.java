@@ -5,6 +5,7 @@ import android.animation.ObjectAnimator;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -136,14 +137,19 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
         String episodeFileName = PodcastHelper.buildPodcastEpisodeFileName(episode);
         String episodeName = PodcastHelper.buildPodcastEpisodeName(episode);
 
-        holder.llMain.setBackgroundColor(ContextCompat.getColor(context, R.color.activityBackground));
+        //default color = surface
+        TypedValue typedValue = new TypedValue();
+        context.getTheme().resolveAttribute(com.google.android.material.R.attr.colorSurface, typedValue, true);
+        int colorSurface = typedValue.data;
+        holder.llMain.setBackgroundColor(colorSurface);
+
         if (currentlyPlayingEpisodeId == null) {
             if (lastListenedZikFileId != null && lastListenedZikFileId.equals(episode.idZikFile)) {
-                holder.llMain.setBackgroundColor(ContextCompat.getColor(context, R.color.cardview_dark_background));
+                holder.llMain.setBackgroundColor(ContextCompat.getColor(context, R.color.highlight_last_listened));
             }
         } else {
             if (currentlyPlayingEpisodeId.equals(episode.idEpisode)) {
-                holder.llMain.setBackgroundColor(ContextCompat.getColor(context, R.color.brown_900));
+                holder.llMain.setBackgroundColor(ContextCompat.getColor(context, R.color.highlight_current));
             }
         }
 

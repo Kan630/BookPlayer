@@ -11,14 +11,13 @@
         android:layout_height="wrap_content"
         android:padding="12dp"
         android:orientation="vertical"
-        android:background="?attr/selectableItemBackground"
+        android:background="?attr/colorSurface"
 >
 
     <TextView
         android:id="@+id/tvEpisodeTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        style="@style/simpleText"
         android:textColor="?colorPrimaryVariant"
         android:text="Episode title"
         android:textStyle="bold"
@@ -42,16 +41,15 @@
                 android:id="@+id/tvEpisodeDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                style="@style/simpleText"
+                style="@style/dayNightText"
                 android:text="Published date"
                 android:textSize="14sp"
-                android:textColor="#BBBBBB" />
+                />
             <TextView
                 android:id="@+id/tvEpisodeStats"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                style="@style/simpleText"
-                android:textColor="#AAAAAA"
+                style="@style/dayNightText"
                 android:text="stats"
                 android:textSize="12sp" />
         </LinearLayout>
@@ -60,10 +58,9 @@
             android:id="@+id/tvEpisodeDBstats"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            style="@style/simpleText"
+            style="@style/dayNightText"
             android:text="DB stats..."
             android:layout_weight="4"
-            android:textColor="#777777"
             android:textSize="12sp"
             android:paddingStart="5dp"
             />

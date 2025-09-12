@@ -89,7 +89,7 @@
                             android:layout_height="48dp"
                             android:background="@android:color/transparent"
                             android:src="@drawable/ic_content_expand_24"
-                            app:tint="@color/white" />
+                            />
                     </LinearLayout>
 
                     <!-- RIGHT overlay controls -->
@@ -246,73 +246,62 @@
         android:layout_width="match_parent"
         android:layout_height="64dp"
         android:layout_gravity="bottom"
-        android:background="@color/cardview_dark_background"
+        android:background="?colorSecondary"
         android:paddingStart="12dp"
         android:paddingEnd="12dp"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:visibility="gone"
         android:elevation="8dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:descendantFocusability="afterDescendants"
         app:layout_insetEdge="bottom">
 
         <ImageButton
             android:id="@+id/btnMiniBack"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
             android:src="@drawable/ic_media_fast_rewind_24"
-            android:background="?attr/selectableItemBackgroundBorderless"/>
+            style="@style/miniPlayerButton"
+            />
 
         <ProgressBar
             android:id="@+id/progressMini"
             style="?android:attr/progressBarStyleSmall"
             android:layout_width="24dp"
             android:layout_height="24dp"
+            android:layout_marginStart="8dp"
             android:indeterminate="true"
+            android:indeterminateTint="?attr/colorOnSecondary"
             android:visibility="gone"/>
 
         <ImageButton
             android:id="@+id/btnMiniPlayPause"
+            android:src="@drawable/ic_media_play_24"
+            style="@style/miniPlayerButton"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:src="@drawable/ic_media_play_24"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:padding="6dp"/>
+            />
 
         <ImageButton
             android:id="@+id/btnMiniForward"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
             android:src="@drawable/ic_media_fast_forward_24"
-            android:background="?attr/selectableItemBackgroundBorderless"/>
+            style="@style/miniPlayerButton"
+            />
 
-        <LinearLayout
+        <SeekBar
+            android:id="@+id/seekMini"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:orientation="vertical"
-            android:paddingStart="8dp">
-
-            <TextView
-                android:id="@+id/tvMiniTitle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:maxLines="1"
-                android:ellipsize="end"
-                android:textColor="@android:color/white"
-                android:textSize="14sp"/>
-
-            <SeekBar
-                android:id="@+id/seekMini"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:max="1000"/>
-        </LinearLayout>
+            android:progressTint="?attr/colorPrimaryVariant"
+            android:thumbTint="?colorSecondaryVariant"
+            android:max="1000"/>
 
         <TextView
             android:id="@+id/tvMiniTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@android:color/white"
+            android:textColor="?colorOnSecondary"
             android:textSize="12sp"
             android:paddingStart="8dp"/>
     </LinearLayout>

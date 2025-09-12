@@ -97,7 +97,7 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
     private View miniPlayer;
     private ImageButton btnMiniPlayPause, btnMiniBack, btnMiniForward;
     private SeekBar seekMini;
-    private TextView tvMiniTitle, tvMiniTime;
+    private TextView tvMiniTime;
 
     private final android.os.Handler miniUi = new android.os.Handler(android.os.Looper.getMainLooper());
     private Runnable miniTicker;
@@ -143,7 +143,6 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
         btnMiniBack = findViewById(R.id.btnMiniBack);
         btnMiniForward = findViewById(R.id.btnMiniForward);
         seekMini = findViewById(R.id.seekMini);
-        tvMiniTitle = findViewById(R.id.tvMiniTitle);
         tvMiniTime = findViewById(R.id.tvMiniTime);
         progressMini = findViewById(R.id.progressMini);
 
@@ -318,13 +317,11 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
                 switch (state) {
                     case androidx.media3.common.Player.STATE_BUFFERING:
                         myLogD("STATE_BUFFERING");
-                        if (playWhenReady) setMiniBufferingIcon();
                         break;
 
                     case androidx.media3.common.Player.STATE_READY:
                         myLogD("STATE_READY");
                         // If we were showing spinner, hide it now; audio may be audible imminently.
-                        setMiniLoading(false);
                         break;
 
                     case androidx.media3.common.Player.STATE_ENDED:
@@ -353,8 +350,8 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
                 if (isPlaying) {
                     long dt = android.os.SystemClock.elapsedRealtime() - clickStartMs;
                     myLog("AUDIO STARTED: " + dt + " ms after click");
+                    setMiniLoading(false);
                 }
-                setMiniLoading(false);
                 setMiniPlayIcon(isPlaying);
             }
 
@@ -390,7 +387,7 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
             }
             @Override public void onStartTrackingTouch(SeekBar sb) { miniUserSeeking = true; }
             @Override public void onStopTrackingTouch(SeekBar sb) {
-                setImageBtnPlayPauseCloudSync();
+                setMiniLoading(true);
                 if (player != null) {
                     long dur = player.getDuration();
                     if (dur > 0) {
@@ -650,9 +647,8 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
     private void playEpisode(DisplayableEpisode ep) {
         if (ep == null) return;
         currentEpisode = ep;
-        tvMiniTitle.setText(ep.title);       // <- show title
-        beginStartupTiming();                // start latency stopwatch
-        setMiniBufferingIcon();              // show spinner while preparing
+        beginStartupTiming();
+        setMiniLoading(true);
 
         player.setMediaItem(MediaItem.fromUri(ep.enclosureUrl));
         player.prepare();
@@ -767,7 +763,6 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
     }
 
     private void showMini(DisplayableEpisode ep) {
-        if (ep != null) tvMiniTitle.setText(ep.title);
         if (miniPlayer.getVisibility() != View.VISIBLE) miniPlayer.setVisibility(View.VISIBLE);
         startMiniTicker();
     }
@@ -819,10 +814,7 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
             recyclerEpisodes.smoothScrollToPosition(next);
         }
     }
-    private void setImageBtnPlayPauseCloudSync() {
-        btnMiniPlayPause.setImageDrawable(AppCompatResources.getDrawable(PodcastEpisodeActivity.this,R.drawable.ic_media_cloud_sync_24));
-        myLog("setImageBtnPlayPauseCloudSync");
-    }
+
 
     private void setImageBtnPlayPauseIsPlaying(boolean isPlaying) {
         btnMiniPlayPause.setImageDrawable(AppCompatResources.getDrawable(PodcastEpisodeActivity.this,
@@ -832,9 +824,11 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
     // Show/hide the tiny spinner and swap the play/pause button visibility.
     private void setMiniLoading(boolean loading) {
         if (loading) {
+            myLogD("set buffer icon ON");
             if (progressMini != null) progressMini.setVisibility(View.VISIBLE);
             if (btnMiniPlayPause != null) btnMiniPlayPause.setVisibility(View.INVISIBLE);
         } else {
+            myLogD("set buffer icon OFF");
             if (progressMini != null) progressMini.setVisibility(View.GONE);
             if (btnMiniPlayPause != null) btnMiniPlayPause.setVisibility(View.VISIBLE);
         }
@@ -847,11 +841,6 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
                         isPlaying ? R.drawable.ic_media_pause_24 : R.drawable.ic_media_play_24
                 )
         );
-    }
-
-    private void setMiniBufferingIcon() {
-        // prefer spinner over “cloud” icon
-        setMiniLoading(true);
     }
 
     private void updateCollapseIcon() {
