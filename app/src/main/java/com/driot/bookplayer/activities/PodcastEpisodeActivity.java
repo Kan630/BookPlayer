@@ -162,40 +162,56 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
 
         // 3) Apply insets: add bottom padding equal to system bars / IME
         ViewCompat.setOnApplyWindowInsetsListener(root, (v, insets) -> {
-            final int types = WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.ime();
-            Insets sys = insets.getInsets(types);
+            final int typesBars = WindowInsetsCompat.Type.systemBars();
+            final int typesBarsIme = typesBars | WindowInsetsCompat.Type.ime();
+            Insets sysBars = insets.getInsets(typesBars);
+            Insets sysBarsIme = insets.getInsets(typesBarsIme);
 
-            // 64dp → px once
+            // ----- TOP: keep collapsing header below status bar -----
+            if (appBar != null) {
+                // add status bar height as TOP padding to the whole AppBar
+                int wantedTop = sysBars.top;
+                if (appBar.getPaddingTop() != wantedTop) {
+                    appBar.setPadding(appBar.getPaddingLeft(),
+                            wantedTop,
+                            appBar.getPaddingRight(),
+                            appBar.getPaddingBottom());
+                }
+            }
+
+            // ----- BOTTOM: your existing mini-player + RV logic -----
             int miniHeightPx = (int) (64 * getResources().getDisplayMetrics().density + 0.5f);
 
-            // 1) DO NOT pad the mini, keep its content at full 64dp
             if (miniPlayer != null) {
-                // ensure NO extra bottom padding
-                miniPlayer.setPadding(miniPlayer.getPaddingLeft(), miniPlayer.getPaddingTop(),
-                        miniPlayer.getPaddingRight(), 0);
-
-                // Option A (recommended): lift miniPlayer above the nav bar using a bottom MARGIN
+                // NO bottom padding on mini (keeps full 64dp content)
+                miniPlayer.setPadding(miniPlayer.getPaddingLeft(),
+                        miniPlayer.getPaddingTop(),
+                        miniPlayer.getPaddingRight(),
+                        0);
                 ViewGroup.LayoutParams lp = miniPlayer.getLayoutParams();
                 if (lp instanceof ViewGroup.MarginLayoutParams) {
                     ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) lp;
-                    if (mlp.bottomMargin != sys.bottom) {
-                        mlp.bottomMargin = sys.bottom;
+                    int wantedMargin = sysBarsIme.bottom; // handles gesture pill & IME
+                    if (mlp.bottomMargin != wantedMargin) {
+                        mlp.bottomMargin = wantedMargin;
                         miniPlayer.setLayoutParams(mlp);
                     }
                 }
-                // Keep app:layout_insetEdge="bottom" in XML to inform siblings; margin avoids double-inset visual squish
             }
 
-            // 2) Give RV enough bottom padding for the miniPlayer + system bar
             if (recyclerEpisodes != null) {
-                int wanted = miniHeightPx + sys.bottom;
-                if (recyclerEpisodes.getPaddingBottom() != wanted) {
-                    recyclerEpisodes.setPadding(recyclerEpisodes.getPaddingLeft(), recyclerEpisodes.getPaddingTop(),
-                            recyclerEpisodes.getPaddingRight(), wanted);
+                int wantedRvBottom = miniHeightPx + sysBarsIme.bottom;
+                if (recyclerEpisodes.getPaddingBottom() != wantedRvBottom) {
+                    recyclerEpisodes.setPadding(recyclerEpisodes.getPaddingLeft(),
+                            recyclerEpisodes.getPaddingTop(),
+                            recyclerEpisodes.getPaddingRight(),
+                            wantedRvBottom);
                 }
             }
-            return insets; // don’t consume
+
+            return insets; // don't consume
         });
+
 
 
         podcastDao = AppDatabase.getDatabase(this).PodcastDao();
@@ -345,6 +361,7 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
             @Override
             public void onPlayerError(@NonNull androidx.media3.common.PlaybackException error) {
                 myLogE("onPlayerError " + error.getMessage());
+                myToastE(error.getMessage());
                 setMiniLoading(false);
                 setMiniPlayIcon(false);
             }
@@ -596,6 +613,7 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
                                 PlayList.create(this, zikFilesList);
                                 if (zikFilesList.size() > 1) {
                                     this.startActivity(new Intent(this, ZikFileActivity.class).putExtra("folder", folder));
+                                    closePlayer();
                                 } else if (zikFilesList.size() == 1) {
                                     PlayList.getInstance().setNumZikFile(0);
                                     this.startActivity(new Intent(this, PlayActivity.class).putExtra("ZikFile", zikFilesList.get(0)));
@@ -667,18 +685,7 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
     @Override
     public void onOpenLocalEpisode(ZikFile zikFile) {
         // 1) Stop/clear ExoPlayer (so it doesn't keep playing under PlayActivity)
-        if (player != null) {
-            try {
-                player.stop();             // stop playback immediately
-                player.clearMediaItems();  // remove the streamed item
-            } catch (Exception ignored) {}
-        }
-        isPlaying = false;
-        setMiniLoading(false);
-        setMiniPlayIcon(false);
-        currentEpisode = null;
-        if (adapter != null) adapter.setCurrentlyPlayingEpisodeId(null); // remove highlight
-        hideMini();
+        closePlayer();
 
         // 2) Launch PlayActivity with the local file
         // open Play
@@ -901,4 +908,18 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
         }
     }
 
+    private void closePlayer() {
+        if (player != null) {
+            try {
+                player.stop();             // stop playback immediately
+                player.clearMediaItems();  // remove the streamed item
+            } catch (Exception ignored) {}
+        }
+        isPlaying = false;
+        setMiniLoading(false);
+        setMiniPlayIcon(false);
+        currentEpisode = null;
+        if (adapter != null) adapter.setCurrentlyPlayingEpisodeId(null); // remove highlight
+        hideMini();
+    }
 }

@@ -75,13 +75,23 @@ public class DownloadEpisodeWorker extends Worker {
                 }
             }
 
-            if (finalFile.exists()) finalFile.delete();
-            tempFile.renameTo(finalFile);
-            myLog("Download complete: " + destPath);
-            return Result.success();
+            if (tempFile.exists()) {
+                if (tempFile.length() > 0) {
+                    if (finalFile.exists()) finalFile.delete();
+                    tempFile.renameTo(finalFile);
+                    myLog("Download complete: " + destPath + "\nfile size = " + Tonio.getReadableSize(finalFile.length()));
+                    return Result.success();
+                } else {
+                    myToastE("Download failed, length = 0");
+                    return Result.failure();
+                }
+            } else {
+                return Result.success();
+            }
+
 
         } catch (Exception e) {
-            myLogEE(e, "Download failed");
+            myLogEE(e, "Download failed - retrying");
             return Result.retry();
 
         } finally {

@@ -9,7 +9,6 @@
         android:id="@+id/appBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:fitsSystemWindows="true"
         android:background="?attr/colorSurface"
         app:elevation="0dp"
         app:liftOnScroll="true"
@@ -19,21 +18,19 @@
             android:id="@+id/collapsing"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:fitsSystemWindows="true"
             app:contentScrim="?attr/colorSurface"
             app:statusBarScrim="?attr/colorSurface"
             app:toolbarId="@+id/toolbar"
-            app:layout_scrollFlags="scroll|exitUntilCollapsed">
+            app:layout_scrollFlags="scroll|exitUntilCollapsed"
+            >
 
             <!-- CONTENT INSIDE THE COLLAPSING AREA -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="12dp"
-                android:fitsSystemWindows="true"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="10dp"
+                android:paddingHorizontal="12dp"
+                android:layout_marginBottom="0dp"
                 >
 
                 <!-- Container with image and overlay buttons -->
@@ -49,7 +46,8 @@
                         android:id="@+id/ivPodcastCover"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:scaleType="centerInside" />
+                        android:scaleType="centerInside"
+                        />
 
                     <!-- LEFT overlay controls -->
                     <LinearLayout
@@ -129,6 +127,7 @@
                 <TextView
                     android:id="@+id/tvPodcastTitle"
                     style="@style/simpleText"
+                    android:textColor="?colorPrimary"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textStyle="bold"
