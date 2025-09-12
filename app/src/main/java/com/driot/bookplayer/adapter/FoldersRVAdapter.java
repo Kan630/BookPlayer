@@ -130,20 +130,19 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
                         }
                     } else {
                         PlayList.create(mCtx, zikFilesList);
-                        if (zikFilesList.size() > 1) {
-                            if (folder.getSourceLocation().equals(Var.SOURCE_LOCATION_PODCAST)) {
-                                AppDatabase.databaseReadExecutor.execute(()-> {
-                                    Podcast podcast = AppDatabase.getDatabase(mCtx).PodcastDao().getPodcastByFolderId(folder.getId());
-                                    myLogD("opening PodcastEpisodeActivity for podcast : " + podcast.title);
-                                    mCtx.startActivity(new Intent(mCtx, PodcastEpisodeActivity.class).putExtra("podcast", podcast));
-                                });
-                            } else {
+                        if (folder.getSourceLocation().equals(Var.SOURCE_LOCATION_PODCAST)) {
+                            AppDatabase.databaseReadExecutor.execute(() -> {
+                                Podcast podcast = AppDatabase.getDatabase(mCtx).PodcastDao().getPodcastByFolderId(folder.getId());
+                                myLogD("opening PodcastEpisodeActivity for podcast : " + podcast.title);
+                                mCtx.startActivity(new Intent(mCtx, PodcastEpisodeActivity.class).putExtra("podcast", podcast));
+                            });
+                        } else {
+                            if (zikFilesList.size() > 1) {
                                 mCtx.startActivity(new Intent(mCtx, ZikFileActivity.class).putExtra("folder", folder));
+                            } else if (zikFilesList.size() == 1) {
+                                PlayList.getInstance().setNumZikFile(0);
+                                mCtx.startActivity(new Intent(mCtx, PlayActivity.class).putExtra("ZikFile", zikFilesList.get(0)));
                             }
-
-                        } else if (zikFilesList.size() == 1) {
-                            PlayList.getInstance().setNumZikFile(0);
-                            mCtx.startActivity(new Intent(mCtx, PlayActivity.class).putExtra("ZikFile", zikFilesList.get(0)));
                         }
                     }
                 } catch (Exception e) {
