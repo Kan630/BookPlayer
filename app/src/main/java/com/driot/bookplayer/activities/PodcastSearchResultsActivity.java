@@ -22,7 +22,7 @@ import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.db.PodcastDao;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.objects.PodcastFeed;
-import com.driot.bookplayer.helpers.AnalyticsHelper;
+import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.utils.NetworkUtils;
 import com.driot.bookplayer.helpers.PodcastHelper;
 import com.driot.bookplayer.utils.log.LoggingActivity;
@@ -108,7 +108,7 @@ public class PodcastSearchResultsActivity extends LoggingActivity {
         viewModel.setLastQuery(query);
         viewModel.setLastLang(lang);
         performSearch(query, lang);
-        AnalyticsHelper.tellAnalyticsPodcastSearch(this, query, lang);
+        FirebaseAnalyticsHelper.tellAnalyticsPodcastSearch(this, query, lang);
     }
 
     private void performSearch(String query, String lang) {

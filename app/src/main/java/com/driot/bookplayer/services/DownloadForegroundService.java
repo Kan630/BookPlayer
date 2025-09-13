@@ -20,7 +20,7 @@ import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.objects.LoadBookTaskState;
-import com.driot.bookplayer.helpers.AnalyticsHelper;
+import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.utils.NetworkUtils;
 import com.driot.bookplayer.objects.TaskStateManager;
 import com.driot.bookplayer.utils.Tonio;
@@ -232,7 +232,7 @@ public class DownloadForegroundService extends LoggingService {
             long downloaded = destFile.exists() ? destFile.length() : 0;
             myLog("already downloaded " + Tonio.getReadableSize(downloaded));
 
-            AnalyticsHelper.tellAnalyticsManualDownload(this, fileUrl, destinationFolder, downloaded);
+            FirebaseAnalyticsHelper.tellAnalyticsManualDownload(this, fileUrl, destinationFolder, downloaded);
 
             URL url = new URL(fileUrl);
             connection = (HttpURLConnection) url.openConnection();

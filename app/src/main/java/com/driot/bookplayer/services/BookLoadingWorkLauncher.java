@@ -9,7 +9,7 @@ import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkContinuation;
 import androidx.work.WorkManager;
 
-import com.driot.bookplayer.helpers.AnalyticsHelper;
+import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.helpers.StorageHelper;
@@ -17,9 +17,7 @@ import com.driot.bookplayer.objects.TaskStateManager;
 import com.driot.bookplayer.utils.KanLogger;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class BookLoadingWorkLauncher {
@@ -57,7 +55,7 @@ public class BookLoadingWorkLauncher {
         myLog("*********************************************************************************************************");
         myLog("*********************************************************************************************************");
 
-        AnalyticsHelper.tellAnalyticsWork(context, bookState.originalUri.toString());
+        FirebaseAnalyticsHelper.tellAnalyticsWork(context, bookState.originalUri.toString());
 
         List<OneTimeWorkRequest> workChain = new ArrayList<>();
 

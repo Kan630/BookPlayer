@@ -48,7 +48,7 @@ import com.driot.bookplayer.objects.DisplayableEpisode;
 import com.driot.bookplayer.objects.PlayList;
 import com.driot.bookplayer.objects.PodcastEpisode;
 import com.driot.bookplayer.objects.PodcastFeed;
-import com.driot.bookplayer.helpers.AnalyticsHelper;
+import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.PodcastHelper;
 import com.driot.bookplayer.utils.NetworkUtils;
@@ -439,7 +439,7 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
                 btnAutoDownloadToolbar.setVisibility(favoriteState ? View.VISIBLE : View.GONE);
             });
             ImageHelper.processPendingImages(this);
-            AnalyticsHelper.tellAnalyticsPodcastFavorite(this, podcast.title, podcast.language);
+            FirebaseAnalyticsHelper.tellAnalyticsPodcastFavorite(this, podcast.title, podcast.language);
         });
     }
 

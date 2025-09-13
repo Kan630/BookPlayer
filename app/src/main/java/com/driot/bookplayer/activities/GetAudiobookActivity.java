@@ -10,7 +10,7 @@ import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Pref;
-import com.driot.bookplayer.helpers.AnalyticsHelper;
+import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.LanguageHelper;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 import com.driot.bookplayer.views.EditTextWithButtons;
@@ -54,7 +54,7 @@ public class GetAudiobookActivity extends LoggingActivity {
             }
 
             openLibrivoxResultsActivity();
-            AnalyticsHelper.tellAnalyticsLibrivoxTrending(this, query, lang);
+            FirebaseAnalyticsHelper.tellAnalyticsLibrivoxTrending(this, query, lang);
         });
 
         buttonSearch.setOnClickListener(v -> {
@@ -87,7 +87,7 @@ public class GetAudiobookActivity extends LoggingActivity {
 
             openLibrivoxResultsActivity();
 
-            AnalyticsHelper.tellAnalyticsLibrivoxSearch(this, query, lang);
+            FirebaseAnalyticsHelper.tellAnalyticsLibrivoxSearch(this, query, lang);
     }
 
     private void openLibrivoxResultsActivity() {

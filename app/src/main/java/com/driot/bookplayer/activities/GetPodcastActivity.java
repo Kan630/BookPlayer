@@ -11,7 +11,7 @@ import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Pref;
-import com.driot.bookplayer.helpers.AnalyticsHelper;
+import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.objects.LanguageItem;
 import com.driot.bookplayer.helpers.LanguageHelper;
 import com.driot.bookplayer.utils.log.LoggingActivity;
@@ -114,7 +114,7 @@ public class GetPodcastActivity extends LoggingActivity {
 
         openPodcastResultsActivity();
 
-        AnalyticsHelper.tellAnalyticsLibrivoxSearch(this, query, lang);
+        FirebaseAnalyticsHelper.tellAnalyticsLibrivoxSearch(this, query, lang);
     }
     private void openPodcastResultsActivity() {
         Intent intent = new Intent(this, PodcastSearchResultsActivity.class);

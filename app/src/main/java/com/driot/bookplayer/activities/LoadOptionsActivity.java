@@ -34,7 +34,7 @@ import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.objects.BookToAdd;
 import com.driot.bookplayer.objects.LoadBookTaskState;
-import com.driot.bookplayer.helpers.AnalyticsHelper;
+import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.utils.HashWorker;
 import com.driot.bookplayer.utils.PermissionRequest;
 import com.driot.bookplayer.helpers.StorageHelper;
@@ -190,7 +190,7 @@ public class LoadOptionsActivity extends LoggingActivity {
                 }
             }
 
-            AnalyticsHelper.tellAnalyticsManualLoad(this, bookToAdd.getType(), bookToAdd.getFileExtension(), bookToAdd.getSourceLocation(), bookToAdd.getOriginalFile());
+            FirebaseAnalyticsHelper.tellAnalyticsManualLoad(this, bookToAdd.getType(), bookToAdd.getFileExtension(), bookToAdd.getSourceLocation(), bookToAdd.getOriginalFile());
 
         });
 

@@ -6,7 +6,7 @@ import android.os.Bundle;
 import com.driot.bookplayer.utils.KanLogger;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
-public class AnalyticsHelper {
+public class FirebaseAnalyticsHelper {
 
 
     public static void tellAnalyticsWork(Context context, String originalUri) {
