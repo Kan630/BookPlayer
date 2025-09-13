@@ -20,6 +20,7 @@ import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.ZikFile;
+import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.AudioMetadataHelper;
@@ -266,6 +267,19 @@ public class ParseFinalFolderWorker extends LoggingWorker {
                 TaskStateManager.markTaskFailed(TASK_NAME, context.getString(R.string.Error_Import_NoMediaInFolder));
             } else {
                 myLog(audioFileArrayList.size() + " " + context.getString(R.string.Import_nMediaInFolder));
+                if (Option.getCreateCover()) {
+                    if (bookState.imagePath == null || bookState.imagePath.isEmpty()) {
+                        String path = ImageHelper.createFallbackManualFolderImagePreInsert(
+                                context,
+                                bookState.title,
+                                bookState.futureFolderPath,
+                                512
+                        );
+                        if (path != null) {
+                            bookState.imagePath = path;
+                        }
+                    }
+                }
                 saveFolder();
             }
         } else {

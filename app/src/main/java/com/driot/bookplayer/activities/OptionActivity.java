@@ -77,6 +77,7 @@ public class OptionActivity extends LoggingActivity {
     CheckBox chk_use_sd_card;
     CheckBox chk_podcast_auto_delete;
     CheckBox chk_podcast_episodes_sort_order;
+    CheckBox chk_create_cover;
     EditText et_podcast_delay_deletion, et_podcast_completion_percentage_deletion;
     EditText et_podcast_auto_download_last_n_episode, et_auto_download_max_n_podcast, et_auto_download_delay_between_checks_in_min;
     Spinner languageSpinner;
@@ -96,7 +97,7 @@ public class OptionActivity extends LoggingActivity {
     LinearLayout ll_rewind_after_pause, ll_tech_log_file, ll_mail_method_default;
     LinearLayout ll_open_with, ll_open_with_all, ll_split_m4b, ll_use_sd_card;
     LinearLayout ll_container_sd_card;
-    LinearLayout ll_podcast_auto_delete, ll_podcast_episodes_sort_order;
+    LinearLayout ll_podcast_auto_delete, ll_podcast_episodes_sort_order, ll_create_cover;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,6 +109,8 @@ public class OptionActivity extends LoggingActivity {
         scrollView = findViewById(R.id.scrollView);
         et_timeBeforeSleep = findViewById(R.id.etTimeBeforeSleep);
         et_ForwardSeconds = findViewById(R.id.etForwardSeconds);
+        chk_create_cover = findViewById(R.id.chk_create_cover);
+        ll_create_cover = findViewById(R.id.ll_create_cover);
         chk_visualizer_on = findViewById(R.id.chk_visualizer_on);
         ll_visualizer_on = findViewById(R.id.ll_visualizer_on);
         tx_Visualizer_on = findViewById(R.id.tx_Visualizer_on);
@@ -147,6 +150,9 @@ public class OptionActivity extends LoggingActivity {
             ll_container_sd_card.setVisibility(View.GONE);
         }
 
+        ll_create_cover.setOnClickListener(v -> chk_create_cover.toggle());
+        chk_create_cover.setChecked(Option.getCreateCover());
+        chk_create_cover.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setCreateCover(isChecked));
 
 // Auto download spinner
         String[] autoOptions = new String[] {

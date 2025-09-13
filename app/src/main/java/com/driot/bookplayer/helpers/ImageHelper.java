@@ -5,9 +5,15 @@ import static com.driot.bookplayer.global.Var.MAX_IMAGE_SIZE_KB;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.RectF;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.widget.ImageView;
 
+import androidx.annotation.Nullable;
 import androidx.core.content.FileProvider;
 import androidx.documentfile.provider.DocumentFile;
 
@@ -26,7 +32,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
+import java.util.Locale;
 
 public class ImageHelper {
 
@@ -359,6 +368,115 @@ public class ImageHelper {
         }
     }
 
+
+// === Fallback cover generation (initials over colored background) ===
+
+    private static String createAndSaveFallbackImage(Context context, String fileName, String title, int sizePx) {
+        try {
+            Bitmap bmp = createInitialsBitmap(title, sizePx, /*rounded=*/true);
+            // Encode once to JPEG, then let your existing compressor enforce MAX_IMAGE_SIZE_KB
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            bmp.compress(Bitmap.CompressFormat.JPEG, 92, out);
+            bmp.recycle();
+            byte[] bytes = out.toByteArray();
+            return compressAndSaveImage(context, bytes, fileName);
+        } catch (Exception e) {
+            myLogEE(e, "createAndSaveFallbackImage failed");
+            return null;
+        }
+    }
+
+    /** Public: create + persist a fallback cover for a Folder (manual imports). */
+    public static @Nullable String createAndSaveFallbackFolderImage(Context context, long folderId, String title, int sizePx) {
+        String fileName = FOLDER_IMAGE_PREFIX + folderId + ".jpg";
+        return createAndSaveFallbackImage(context, fileName, title, sizePx);
+    }
+
+    /** Public: ensure a folder has an image on disk; if missing, generate one. */
+    public static @Nullable String ensureFolderImage(Context context, long folderId, String title, int sizePx) {
+        File f = getImageFile(context, folderId, /*isFolder=*/true);
+        if (f.exists() && f.length() > 0) return f.getAbsolutePath();
+        return createAndSaveFallbackFolderImage(context, folderId, title, sizePx);
+    }
+
+    /** Build a bitmap with pastel background + centered initials. */
+    private static Bitmap createInitialsBitmap(String title, int sizePx, boolean rounded) {
+        String initials = getInitials(title);
+        int bg = getColorFromTitle(title);
+
+        Bitmap bmp = Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888);
+        Canvas c = new Canvas(bmp);
+
+        Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
+        p.setStyle(Paint.Style.FILL);
+        p.setColor(bg);
+
+        if (rounded) {
+            float r = sizePx * 0.12f; // corner radius
+            c.drawRoundRect(new RectF(0, 0, sizePx, sizePx), r, r, p);
+        } else {
+            c.drawRect(0, 0, sizePx, sizePx, p);
+        }
+
+        // Draw initials
+        p.setColor(Color.WHITE);
+        p.setTextAlign(Paint.Align.CENTER);
+        p.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
+        p.setTextSize(sizePx * (initials.length() == 1 ? 0.55f : 0.42f));
+
+        Paint.FontMetrics fm = p.getFontMetrics();
+        float x = sizePx / 2f;
+        float y = sizePx / 2f - (fm.ascent + fm.descent) / 2f;
+        c.drawText(initials, x, y, p);
+
+        return bmp;
+    }
+
+    private static String getInitials(String title) {
+        if (title == null) return "?";
+        String t = title.trim();
+        if (t.isEmpty()) return "?";
+        String[] w = t.split("\\s+");
+        String a = w[0].substring(0, 1).toUpperCase();
+        String b = (w.length > 1) ? w[1].substring(0, 1).toUpperCase() : "";
+        // Keep only letters/digits to avoid weird chars
+        a = a.replaceAll("[^A-Z0-9]", "");
+        b = b.replaceAll("[^A-Z0-9]", "");
+        String res = a + b;
+        return res.isEmpty() ? "?" : res;
+    }
+
+    private static int getColorFromTitle(String title) {
+        int h = (title == null ? 0 : title.hashCode());
+        float hue = (h % 360 + 360) % 360;
+        // Pastel-ish: low saturation, high value
+        return Color.HSVToColor(new float[]{hue, 0.35f, 0.92f});
+    }
+
+    public static String buildManualFolderImageFileName(String title, String futureFolderPath) {
+        String key = (title == null ? "" : title.trim()) + "|" + (futureFolderPath == null ? "" : futureFolderPath.trim());
+        String hash = md5Hex(key);
+        return FOLDER_IMAGE_PREFIX + "manual_" + hash + ".jpg";
+    }
+
+    private static String md5Hex(String s) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            byte[] b = md.digest(s.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            StringBuilder sb = new StringBuilder(b.length * 2);
+            for (byte x : b) sb.append(String.format(Locale.US, "%02x", x));
+            return sb.toString();
+        } catch (NoSuchAlgorithmException e) {
+            // Fallback: simple hash if MD5 not available (very unlikely)
+            return Integer.toHexString(s.hashCode());
+        }
+    }
+
+    /** Create fallback cover for manual folder BEFORE insert, returns absolute path */
+    public static @Nullable String createFallbackManualFolderImagePreInsert(Context ctx, String title, String futureFolderPath, int sizePx) {
+        String fileName = buildManualFolderImageFileName(title, futureFolderPath);
+        return createAndSaveFallbackImage(ctx, fileName, title, sizePx); // uses the helper we added earlier
+    }
 
     // ----------------------- LOG -----------------------
     private static final String TAG = "ImageHelper";

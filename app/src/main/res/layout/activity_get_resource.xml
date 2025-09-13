@@ -74,8 +74,8 @@
                 android:layout_height="wrap_content"
                 android:text="@string/open_audiobooks"
                 android:layout_marginBottom="32dp"
-                android:backgroundTint="?attr/colorSecondary"
-                android:textColor="?attr/colorOnSecondary"
+                android:backgroundTint="?attr/colorPrimary"
+                android:textColor="?attr/colorOnPrimary"
                 style="@style/Widget.MaterialComponents.Button" />
 
         </LinearLayout>
@@ -103,7 +103,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/open_other"
-                android:backgroundTint="?attr/colorPrimaryVariant"
+                android:backgroundTint="?attr/colorPrimary"
                 android:textColor="?attr/colorOnPrimary"
                 style="@style/Widget.MaterialComponents.Button" />
 

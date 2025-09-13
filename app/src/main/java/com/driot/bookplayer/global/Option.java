@@ -42,6 +42,7 @@ public class Option {
     public static final int DEFAULT_PODCAST_AUTO_DOWNLOAD_DELAY_BETWEEN_CHECKS_IN_MIN = 60;
     public static final boolean DEFAULT_PODCAST_EPISODES_SORT_NEWEST_TOP = true;
     public static final boolean DEFAULT_PODCAST_EPISODES_DESCRIPTION_EXPAND = true;
+    public static final boolean DEFAULT_CREATE_COVER = true;
 
     private static Context appContext;
     private static android.content.SharedPreferences prefs;
@@ -187,6 +188,9 @@ public class Option {
 
     public static void setPodcastEpisodesDescriptionExpand(boolean bool) {prefs.edit().putBoolean("PODCAST_EPISODES_DESCRIPTION_EXPAND",bool).apply();}
     public static boolean getPodcastEpisodesDescriptionExpand() {return prefs.getBoolean("PODCAST_EPISODES_DESCRIPTION_EXPAND", DEFAULT_PODCAST_EPISODES_DESCRIPTION_EXPAND);}
+
+    public static void setCreateCover(boolean bool) {prefs.edit().putBoolean("CREATE_COVER",bool).apply();}
+    public static boolean getCreateCover() {return prefs.getBoolean("CREATE_COVER", DEFAULT_CREATE_COVER);}
 
 
     /////////////////// LANGUAGE ///////////////////
