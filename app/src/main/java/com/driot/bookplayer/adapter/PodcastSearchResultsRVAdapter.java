@@ -118,7 +118,7 @@ public class PodcastSearchResultsRVAdapter extends LoggingRVAdapter<RecyclerView
     }
 
     static class PodcastViewHolder extends RecyclerView.ViewHolder {
-        TextView title, desc;
+        TextView title, desc, folderStats;
         ImageView image;
 
         PodcastViewHolder(View v) {
@@ -126,10 +126,12 @@ public class PodcastSearchResultsRVAdapter extends LoggingRVAdapter<RecyclerView
             title = v.findViewById(R.id.podcast_title);
             desc = v.findViewById(R.id.podcast_desc);
             image = v.findViewById(R.id.podcast_image);
+            folderStats = v.findViewById(R.id.podcast_folder_stats);
         }
 
         void bind(PodcastFeed item, OnItemClickListener listener) {
             title.setText(item.title);
+            folderStats.setVisibility(View.GONE);
             if (item.description != null) {
                 desc.setText(Html.fromHtml(item.description, Html.FROM_HTML_MODE_LEGACY));
             }

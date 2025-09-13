@@ -752,6 +752,7 @@
     <string name="option_podcast_episodes_sort_order">newest episode at the top</string>
 
     <string name="download">download</string>
+    <string name="autodownload">auto-download</string>
     <string name="refresh">refresh</string>
     <string name="collapse">collapse</string>
     <string name="expand">expand</string>
