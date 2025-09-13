@@ -1,4 +1,4 @@
-package com.driot.bookplayer.utils;
+package com.driot.bookplayer.helpers;
 
 import android.content.Context;
 import android.view.View;
@@ -97,8 +97,8 @@ public class LanguageHelper {
         });
     }
 
-    public static LanguageItem getLanguageByCode(String twoLetterCode) {
-        for (LanguageItem item : SUPPORTED_LANGUAGES) {
+    public static LanguageItem getLanguageForPodcastsByCode(String twoLetterCode) {
+        for (LanguageItem item : PODCAST_LANGUAGES) {
             if (item.twoLetterCode.equalsIgnoreCase(twoLetterCode)) {
                 return item;
             }

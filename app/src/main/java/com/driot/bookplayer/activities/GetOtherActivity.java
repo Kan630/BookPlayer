@@ -12,9 +12,7 @@ import android.provider.Settings;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.activity.result.ActivityResult;
@@ -30,16 +28,12 @@ import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.objects.AppViewModelStoreOwner;
-import com.driot.bookplayer.objects.LanguageItem;
-import com.driot.bookplayer.helpers.AnalyticsHelper;
 import com.driot.bookplayer.services.BookLoadingWorkLauncher;
 import com.driot.bookplayer.services.ScanAndReimportWorker;
 import com.driot.bookplayer.views.EditTextWithButtons;
 import com.driot.bookplayer.global.Option;
-import com.driot.bookplayer.utils.LanguageHelper;
 import com.driot.bookplayer.utils.MediaScanner2;
 import com.driot.bookplayer.utils.NetworkUtils;
 import com.driot.bookplayer.utils.PermissionRequest;

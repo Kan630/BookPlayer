@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.Spinner;
 
 import androidx.annotation.Nullable;
@@ -12,7 +11,7 @@ import androidx.annotation.Nullable;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.helpers.AnalyticsHelper;
-import com.driot.bookplayer.utils.LanguageHelper;
+import com.driot.bookplayer.helpers.LanguageHelper;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 import com.driot.bookplayer.views.EditTextWithButtons;
 
