@@ -127,7 +127,7 @@
                 <View style="@style/GetResourceHorizontalBar"/>
 
                 <TextView
-                    android:id="@+id/bOpenMassImport_desc"
+                    android:id="@+id/bMassImport_desc"
                     style="@style/GetResourceTextTopOfButton"
                     android:text="@string/bOpenMassImport_desc" />
 

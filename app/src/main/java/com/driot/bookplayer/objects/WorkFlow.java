@@ -29,8 +29,9 @@ public class WorkFlow {
         if (state==null) {
             myLogD("LoadBookTaskState : null instance...");
         } else {
-            if (state.downloadedFileReady || state.downloadedFilePath != null) {
-                myLog("LoadBookTaskState : Downloading...");
+            //if (state.downloadedFileReady || state.downloadedFilePath != null) {
+            if (state.onGoingLoading) {
+                myLog("LoadBookTaskState : onGoingLoading...");
                 return true;
             }
         }

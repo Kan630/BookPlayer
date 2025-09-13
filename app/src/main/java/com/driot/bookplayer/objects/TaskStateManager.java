@@ -26,7 +26,7 @@ public class TaskStateManager {
         public final String label;
 
         public StepInfo(int order, int weight, String label) {
-            this.order = weight;
+            this.order = order;
             this.weight = weight;
             this.label = label;
         }

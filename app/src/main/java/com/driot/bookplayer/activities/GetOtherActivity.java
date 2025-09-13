@@ -373,12 +373,13 @@ public class GetOtherActivity extends LoggingActivity { //AppCompatActivity
                     ,findViewById(R.id.bOpenFolder_desc)
                     ,findViewById(R.id.bOpenZipFile_desc)
                     ,findViewById(R.id.bOpenM4bFile_desc)
+                    ,findViewById(R.id.bMassImport_desc)
                     ,findViewById(R.id.txtAutoTest_title)
                     ,findViewById(R.id.txtAutoTest_desc)
                     ,findViewById(R.id.txtDirectDownload_title)
                     ,findViewById(R.id.txtDirectDownload_desc)
             );
-            List<Button> buttonsToLock = Arrays.asList(bOpenFile, bOpenFolder, bOpenZipFile, bOpenM4bFile
+            List<Button> buttonsToLock = Arrays.asList(bOpenFile, bOpenFolder, bOpenZipFile, bOpenM4bFile, bMassImport
                     , bAutoTest_b1, bAutoTest_b2, bAutoTest_b3, bAutoTest_b4, bDirectDownload);
             if (doLock) {
                 myLog("SomeWorkFlowRunning => displaying banner, disabling buttons");

@@ -105,11 +105,12 @@ public class OngoingTaskViewModel extends LoggingAndroidViewModel {
                 taskTitle.setValue(state.title);
                 progressText.setValue(state.progressText);
                 progressPercent.setValue(state.progressPercent);
-
+                myLogD("onGoing1");
                 taskRunning.setValue(true);
                 pauseAvailable.setValue(state.originalUri != null && state.originalUri.toString().startsWith("http"));
                 isPaused.setValue(state.isLoadingPaused);
                 isFinished.setValue(false);
+                myLogD("onGoing2");
             } else {
                 myLogD("Not onGoing");
                 taskRunning.postValue(false);
