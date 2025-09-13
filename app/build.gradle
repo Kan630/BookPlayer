@@ -15,7 +15,7 @@ android {
         //  19   = android 4.4 KitKat        2013       --> support dropped 2023 (Play store hs)
         //  21   = android 5.0 Lollipop      2014       --> google app are not updated since 2021...
         //  23   = android 6.0 Marshmallow   2015
-        //  24   = android 7.0 Nougat        2016 <-------------------------------- Bookplayer OK
+        //  24   = android 7.0 Nougat        2016
         //  26   = android 8.0 Oreo          2017   VERSION_CODES.O      <--------- Main test article (Huawei), OK
         //  28   = android 9.0
         //  30   = android 11.0
@@ -36,8 +36,8 @@ android {
 
         /////////////////////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////////////////////
-        versionCode 145
-        versionName "145 - Magic Unicorn"
+        versionCode 146
+        versionName "146 - Magic Unicorn"
         /////////////////////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////////////////////
 
