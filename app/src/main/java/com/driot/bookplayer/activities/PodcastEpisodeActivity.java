@@ -627,16 +627,7 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
 
                     if (!zikFilesList.isEmpty()) {
                         closePlayer();
-
-                        PlayList.create(this, zikFilesList);
-
-                        if (zikFilesList.size() > 1) {
-                            startActivity(new Intent(this, ZikFileActivity.class).putExtra("folder", folder));
-                        } else {
-                            PlayList.getInstance().setNumZikFile(0);
-                            startActivity(new Intent(this, PlayActivity.class)
-                                    .putExtra("ZikFile", zikFilesList.get(0)));
-                        }
+                        startActivity(new Intent(this, ZikFileActivity.class).putExtra("folder", folder));
                     } else {
                         myLogE("no ZikFiles in that folder !");
                         myToastE(getString(R.string.ErrorCouldNotLoadAudios_emptyfolder)); // main thread
