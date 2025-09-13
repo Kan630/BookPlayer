@@ -268,16 +268,20 @@ public class ParseFinalFolderWorker extends LoggingWorker {
             } else {
                 myLog(audioFileArrayList.size() + " " + context.getString(R.string.Import_nMediaInFolder));
                 if (Option.getCreateCover()) {
-                    if (bookState.imagePath == null || bookState.imagePath.isEmpty()) {
-                        String path = ImageHelper.createFallbackManualFolderImagePreInsert(
-                                context,
-                                bookState.title,
-                                bookState.futureFolderPath,
-                                512
-                        );
-                        if (path != null) {
-                            bookState.imagePath = path;
+                    try {
+                        if (bookState.imagePath == null || bookState.imagePath.isEmpty()) {
+                            String path = ImageHelper.createFallbackManualFolderImagePreInsert(
+                                    context,
+                                    bookState.title,
+                                    bookState.futureFolderPath,
+                                    512
+                            );
+                            if (path != null) {
+                                bookState.imagePath = path;
+                            }
                         }
+                    } catch (Exception e) {
+                        myLogEE(e, "Error creating cover" );
                     }
                 }
                 saveFolder();
