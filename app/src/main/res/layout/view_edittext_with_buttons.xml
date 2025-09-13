@@ -14,6 +14,8 @@
             android:layout_height="wrap_content"
             android:hint="@string/type_here_"
             android:inputType="text"
+            android:imeOptions="actionSearch"
+            android:singleLine="false"
             style="@style/GetResourceEditText"
             android:textSize="18sp"
             android:padding="8dp" />

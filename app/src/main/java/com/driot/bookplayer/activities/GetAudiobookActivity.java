@@ -2,6 +2,7 @@ package com.driot.bookplayer.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -17,16 +18,24 @@ import com.driot.bookplayer.views.EditTextWithButtons;
 
 public class GetAudiobookActivity extends LoggingActivity {
 
+    Spinner spinnerLibrivox;
+    EditTextWithButtons editTextLibrivox;
+    Button buttonTrending;
+    Button buttonSearch;
+
+    String query, lang;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_get_audiobook);
 
-        ////////////////////////////////
-        /// // LIBRIVOX SEARCH
-        ////////////////////////////////
-        Spinner spinnerLibrivox = findViewById(R.id.spinnerLibrivox);
+        buttonTrending = findViewById(R.id.bLibrivoxTrending);
+        spinnerLibrivox = findViewById(R.id.spinnerLibrivox);
+        editTextLibrivox = findViewById(R.id.etLibrivox);
+        buttonSearch = findViewById(R.id.bLibrivoxSearch);
+
         LanguageHelper.setupLanguageSpinner(
                 this,
                 spinnerLibrivox,
@@ -35,51 +44,59 @@ public class GetAudiobookActivity extends LoggingActivity {
                 lang -> Pref.set_Audio_Language_Librivox(this, lang.threeLetterCode),
                 true
         );
-        EditText editTextQuery;
-        Button buttonSearch;
-        EditTextWithButtons editTextLibrivox = findViewById(R.id.etLibrivox);
-        buttonSearch = findViewById(R.id.bLibrivoxSearch);
-        buttonSearch.setOnClickListener(v -> {
-            myLogI("--- User clicks SEARCH");
-            String query = editTextLibrivox.getText();
-            String lang = spinnerLibrivox.getSelectedItem().toString().toLowerCase();
 
-            if (lang.isEmpty()) {
-                myToast("selected language error");
-                return;
-            }
-
-            Intent intent = new Intent(this, LibrivoxResultsActivity.class);
-            intent.putExtra("query", query);
-            intent.putExtra("lang", lang);
-            startActivity(intent);
-
-            AnalyticsHelper.tellAnalyticsLibrivoxSearch(this, query, lang);
-        });
-
-        Button buttonTrending;
-        buttonTrending = findViewById(R.id.bLibrivoxTrending);
         buttonTrending.setOnClickListener(v -> {
-            myLogI("--- User clicks MOST DOWNLOADED");
-            String query = "";
-            String lang = spinnerLibrivox.getSelectedItem().toString().toLowerCase();
-
+            myLogI("--- User clicks TRENDING ---");
+            query = "";
+            lang = spinnerLibrivox.getSelectedItem().toString().toLowerCase();
             if (lang.isEmpty()) {
                 myToast("selected language error");
                 return;
             }
 
-            Intent intent = new Intent(this, LibrivoxResultsActivity.class);
-            intent.putExtra("query", query);
-            intent.putExtra("lang", lang);
-            startActivity(intent);
-
-            AnalyticsHelper.tellAnalyticsLibrivoxSearch(this, query, lang);
+            openLibrivoxResultsActivity();
+            AnalyticsHelper.tellAnalyticsLibrivoxTrending(this, query, lang);
         });
 
-
-        ////////////////////////////////
-        ////////////////////////////////
+        buttonSearch.setOnClickListener(v -> {
+            myLogI("--- User clicks SEARCH ---");
+            doSearch();
+        });
+        // Keyboard "done/search"
+        editTextLibrivox.getEditText().setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_SEARCH
+                    || actionId == EditorInfo.IME_ACTION_DONE) {
+                doSearch();
+                return true;
+            }
+            return false;
+        });
 
     }
+
+        ////////////////////////////////
+        ////////////////////////////////
+
+    private void doSearch() {
+            query = editTextLibrivox.getText();
+            lang = spinnerLibrivox.getSelectedItem().toString().toLowerCase();
+
+            if (lang.isEmpty()) {
+                myToast("selected language error");
+                return;
+            }
+
+            openLibrivoxResultsActivity();
+
+            AnalyticsHelper.tellAnalyticsLibrivoxSearch(this, query, lang);
+    }
+
+    private void openLibrivoxResultsActivity() {
+        Intent intent = new Intent(this, LibrivoxResultsActivity.class);
+        intent.putExtra("query", query);
+        intent.putExtra("lang", lang);
+        startActivity(intent);
+    }
+
+
 }

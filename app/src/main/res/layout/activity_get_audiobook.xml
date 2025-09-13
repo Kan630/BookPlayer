@@ -11,8 +11,16 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="16dp"
+        android:descendantFocusability="beforeDescendants"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
         >
-
+        <View
+            android:id="@+id/focusGuard"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:focusable="true"
+            android:focusableInTouchMode="true" />
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -49,7 +57,7 @@
 
 
                 <Button
-                    android:layout_marginTop="30dp"
+                    android:layout_marginTop="50dp"
                     android:id="@+id/bLibrivoxTrending"
                     android:text="@string/most_downloaded"
                     style="@style/GetResourceButton"
@@ -59,7 +67,7 @@
 
 
                 <com.driot.bookplayer.views.EditTextWithButtons
-                    android:layout_marginTop="30dp"
+                    android:layout_marginTop="40dp"
                     android:id="@+id/etLibrivox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"/>
