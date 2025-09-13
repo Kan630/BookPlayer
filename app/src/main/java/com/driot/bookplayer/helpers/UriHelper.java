@@ -40,6 +40,7 @@ public class UriHelper {
                 }
                 // Otherwise try as tree URI
                 DocumentFile tree = DocumentFile.fromTreeUri(context, uri);
+                //UriHelper getDocumentFileFromAnyUri failed with [content://media/external/audio/media/1000028186]
                 if (tree != null && tree.exists()) return tree;
             } catch (Exception e) {
                 myLogEE(e, "getDocumentFileFromAnyUri failed with [" + uri + "]");

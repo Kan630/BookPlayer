@@ -778,15 +778,15 @@ public class AudioService extends LoggingService {
         } catch (Exception e) {
             myLogEE(e,"AudioService Error setting Speed");
         }
-        if (!(getCurrentZikFile()==null)) {
-            saveSpeedToPref(speed);
+        ZikFile zf = getCurrentZikFile();
+        if (zf != null) {
+            saveSpeedToPref(zf.getIdFolder(), speed);
         }
     }
 
     public double getSpeed() {
-        if (getCurrentZikFile() != null) {
-            speed = getSpeedFromPref();
-        }
+        ZikFile zf = getCurrentZikFile();
+        if (zf != null) speed = getSpeedFromPref(zf.getIdFolder());
         if (speed == 0) speed = 1.0;
         return speed;
     }
@@ -810,7 +810,8 @@ public class AudioService extends LoggingService {
     }
 
     public int getDuration() {
-        return getCurrentZikFile() == null ? 0 : (int) getCurrentZikFile().getDuration();
+        ZikFile z = getCurrentZikFile();
+        return (z != null) ? (int) z.getDuration() : 0;
     }
 
     public boolean isPlaying() {
@@ -823,8 +824,9 @@ public class AudioService extends LoggingService {
         return isRunning;
     }
 
-    private ZikFile getCurrentZikFile() {
-        return PlayList.getInstance().getZikFile();
+    private @Nullable ZikFile getCurrentZikFile() {
+        PlayList pl = PlayList.getInstance();
+        return (pl != null) ? pl.getZikFile() : null;
     }
 
     /********************************************************************************
@@ -910,7 +912,8 @@ public class AudioService extends LoggingService {
             isTimerRunning = false;
             String str;
             if (!(PlayList.getInstance().getZikFilesList()==null)) {
-                str = getCurrentZikFile().getFolderName() + " : " + Tonio.formatTime(elapsedSeconds*1000);
+                ZikFile zf = getCurrentZikFile();
+                str = zf==null ? "---" : zf.getFolderName() + " : " + Tonio.formatTime(elapsedSeconds*1000);
                 myLog("----------------------------------------------------------------------------- " + elapsedSeconds + "s. since timer started -- STOPPED -- " + str );
             } else {
                 str = "killTimer : ERROR zikFilePlayList==null";
@@ -981,6 +984,10 @@ public class AudioService extends LoggingService {
      */
     private void updateZikFileState(boolean bFinished) {
         ZikFile zf = getCurrentZikFile();
+        if (zf==null) {
+            myLogEE(null, "updateZikFileState : currentZikFile = null");
+            return;
+        }
         try {
             if (zf.lFirstAccess == null || zf.lFirstAccess == 0) {
                 zf.lFirstAccess = System.currentTimeMillis();
@@ -1015,19 +1022,19 @@ public class AudioService extends LoggingService {
     }
 
 
-    private void saveSpeedToPref(double speed) {
+    private void saveSpeedToPref(int idFolder, double speed) {
         try {
             SharedPreferences.Editor editor = getSharedPreferences(SHARED_PREFERENCE_SPEED, MODE_PRIVATE).edit();
-            editor.putString(String.valueOf(getCurrentZikFile().getIdFolder()),Double.toString(speed)).apply();
+            editor.putString(String.valueOf(idFolder),Double.toString(speed)).apply();
         } catch (Exception e) {
             myLogEE(e,"error saving speed in prefs");
         }
     }
 
-    private double getSpeedFromPref() {
+    private double getSpeedFromPref(int idFolder) {
         try {
             SharedPreferences prefs = getSharedPreferences(SHARED_PREFERENCE_SPEED, MODE_PRIVATE);
-            return Double.parseDouble(prefs.getString(String.valueOf(getCurrentZikFile().getIdFolder()), "1.0"));
+            return Double.parseDouble(prefs.getString(String.valueOf(idFolder), "1.0"));
         } catch (Exception e) {
             myLogEE(e,"error getting speed from prefs");
             return 1.0;
@@ -1063,23 +1070,23 @@ public class AudioService extends LoggingService {
                 updatePlaybackState(PlaybackStateCompat.STATE_PAUSED, mediaPlayer.getCurrentPosition(), (float) getSpeed()); //to force update of the notification progressBar
             }
 
-
-
             // Create an intent to open the app when the notification is tapped
             Intent openAppIntent = new Intent(this, PlayActivity.class);
             openAppIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP); // Ensures only one instance
             PendingIntent contentIntent = PendingIntent.getActivity(this, 0, openAppIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
             MediaMetadataCompat metadata = new MediaMetadataCompat.Builder()
-                    //.putString(MediaMetadataCompat.METADATA_KEY_TITLE, getCurrentZikFile().getDisplayName())
-                    //.putString(MediaMetadataCompat.METADATA_KEY_ARTIST, getCurrentZikFile().getFolderName())
                     .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, mediaPlayer.getDuration())  //Shows the fucking progressBar !!
                     .build();
             mediaSession.setMetadata(metadata);
 
+            ZikFile zf = getCurrentZikFile();
+            String contentTitle = zf==null ? "---" : zf.getFolderName();
+            String contentText = zf==null ? "---" : zf.getDisplayName();
+
             NotificationCompat.Builder builder = new NotificationCompat.Builder(this, ID_NOTIFICATION_PLAY_AUDIO_CHANNEL) // channel is used for user to be able to disable all notifications from that channel, starting android 8
-                    .setContentTitle(getCurrentZikFile().getFolderName())
-                    .setContentText(getCurrentZikFile().getDisplayName())
+                    .setContentTitle(contentTitle)
+                    .setContentText(contentText)
                     .setSmallIcon(R.mipmap.ic_launcher)
                     .setContentIntent(contentIntent)
                     .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
@@ -1118,22 +1125,18 @@ public class AudioService extends LoggingService {
     }
 
     private void createNotificationChannel() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-            myLogE("Device with Android < 8, will not do createNotificationChannel()");
-        } else {
-            myLog("createNotificationChannel()");
-            try {
-                NotificationChannel channel = new NotificationChannel(
-                        ID_NOTIFICATION_PLAY_AUDIO_CHANNEL, "Music Playback",
-                        NotificationManager.IMPORTANCE_LOW); //LOW = no sound
-                channel.setDescription("Bookplayer Music Playback Controls");
-                NotificationManager manager = getSystemService(NotificationManager.class);
-                if (manager != null) {
-                    manager.createNotificationChannel(channel);
-                }
-            } catch (Exception e) {
-                myLogEE(e,"createNotificationChannel()");
+        myLog("createNotificationChannel()");
+        try {
+            NotificationChannel channel = new NotificationChannel(
+                    ID_NOTIFICATION_PLAY_AUDIO_CHANNEL, "Music Playback",
+                    NotificationManager.IMPORTANCE_LOW); //LOW = no sound
+            channel.setDescription("Bookplayer Music Playback Controls");
+            NotificationManager manager = getSystemService(NotificationManager.class);
+            if (manager != null) {
+                manager.createNotificationChannel(channel);
             }
+        } catch (Exception e) {
+            myLogEE(e,"createNotificationChannel()");
         }
     }
 

@@ -436,15 +436,41 @@ public class ImageHelper {
         if (title == null) return "?";
         String t = title.trim();
         if (t.isEmpty()) return "?";
+
+        // For CJK scripts (Chinese, Japanese, Korean), just take the first 2 chars
+        int firstCodePoint = t.codePointAt(0);
+        if (isCJK(firstCodePoint)) {
+            // Defensive: if string shorter than 2 codepoints, fallback to 1
+            int count = Math.min(2, t.codePointCount(0, t.length()));
+            return new String(t.codePoints().limit(count).toArray(), 0, count);
+        }
+
+        // Otherwise, use first letter of first two words
         String[] w = t.split("\\s+");
-        String a = w[0].substring(0, 1).toUpperCase();
-        String b = (w.length > 1) ? w[1].substring(0, 1).toUpperCase() : "";
-        // Keep only letters/digits to avoid weird chars
-        a = a.replaceAll("[^A-Z0-9]", "");
-        b = b.replaceAll("[^A-Z0-9]", "");
+        String a = safeFirstLetter(w[0]);
+        String b = (w.length > 1) ? safeFirstLetter(w[1]) : "";
         String res = a + b;
+
         return res.isEmpty() ? "?" : res;
     }
+
+    private static String safeFirstLetter(String s) {
+        if (s.isEmpty()) return "";
+        int cp = s.codePointAt(0);
+        return Character.isLetterOrDigit(cp) ? new String(Character.toChars(cp)).toUpperCase() : "";
+    }
+
+    private static boolean isCJK(int codePoint) {
+        Character.UnicodeBlock block = Character.UnicodeBlock.of(codePoint);
+        return block == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS
+                || block == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_A
+                || block == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_B
+                || block == Character.UnicodeBlock.CJK_COMPATIBILITY_IDEOGRAPHS
+                || block == Character.UnicodeBlock.HIRAGANA
+                || block == Character.UnicodeBlock.KATAKANA
+                || block == Character.UnicodeBlock.HANGUL_SYLLABLES;
+    }
+
 
     private static int getColorFromTitle(String title) {
         int h = (title == null ? 0 : title.hashCode());
