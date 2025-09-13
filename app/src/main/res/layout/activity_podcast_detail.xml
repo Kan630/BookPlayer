@@ -62,10 +62,8 @@
                         <ImageButton
                             android:id="@+id/btnRefreshOverlay"
                             android:contentDescription="@string/refresh"
-                            android:layout_width="48dp"
-                            android:layout_height="48dp"
-                            android:background="@android:color/transparent"
-                            android:src="@drawable/ic_refresh_24" />
+                            android:src="@drawable/ic_refresh_24"
+                            style="@style/PodcastImageButton"/>
 
                         <TextView
                             android:id="@+id/tvPodcastStat"
@@ -77,19 +75,15 @@
                         <ImageButton
                             android:id="@+id/btnSortOverlay"
                             android:contentDescription="@string/sort"
-                            android:layout_width="48dp"
-                            android:layout_height="48dp"
-                            android:background="@android:color/transparent"
-                            android:src="@drawable/ic_sort_swap_vert_24" />
+                            android:src="@drawable/ic_sort_swap_vert_24"
+                            style="@style/PodcastImageButton"/>
 
                         <ImageButton
                             android:id="@+id/btnCollapseOverlay"
                             android:contentDescription="@string/collapse"
-                            android:layout_width="48dp"
-                            android:layout_height="48dp"
-                            android:background="@android:color/transparent"
                             android:src="@drawable/ic_content_expand_24"
-                            />
+                            style="@style/PodcastImageButton"/>
+
                     </LinearLayout>
 
                     <!-- RIGHT overlay controls -->
@@ -104,21 +98,18 @@
 
                         <ImageButton
                             android:id="@+id/btnFavoriteOverlay"
-                            android:layout_width="48dp"
-                            android:layout_height="48dp"
-                            android:background="@android:color/transparent"
                             android:contentDescription="@string/Add_to_favorite"
                             android:src="@drawable/ic_favorite"
-                            android:layout_marginBottom="8dp" />
+                            android:layout_marginBottom="8dp"
+                            style="@style/PodcastImageButton"/>
+
 
                         <ImageButton
                             android:id="@+id/btnAutoDownloadOverlay"
-                            android:layout_width="48dp"
-                            android:layout_height="48dp"
-                            android:background="@android:color/transparent"
                             android:contentDescription="@string/Auto_Download_episodes"
                             android:src="@drawable/ic_download_action_24"
-                            android:layout_marginBottom="8dp" />
+                            android:layout_marginBottom="8dp"
+                            style="@style/PodcastImageButton"/>
 
                     </LinearLayout>
                 </RelativeLayout>
@@ -188,43 +179,34 @@
                     <!-- Toolbar actions (IDs distinct from overlays) -->
                     <ImageButton
                         android:id="@+id/btnFavoriteToolbar"
-                        style="?attr/borderlessButtonStyle"
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
                         android:contentDescription="@string/Add_to_favorite"
-                        android:src="@drawable/ic_favorite"/>
+                        android:src="@drawable/ic_favorite"
+                        style="@style/PodcastHeaderImageButton"/>
 
                     <ImageButton
                         android:id="@+id/btnAutoDownloadToolbar"
-                        style="?attr/borderlessButtonStyle"
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
                         android:contentDescription="@string/Auto_Download_episodes"
-                        android:src="@drawable/ic_download_action_24"/>
+                        android:src="@drawable/ic_download_action_24"
+                        style="@style/PodcastHeaderImageButton"/>
 
                     <ImageButton
                         android:id="@+id/btnRefreshToolbar"
-                        style="?attr/borderlessButtonStyle"
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
                         android:contentDescription="@string/refresh"
-                        android:src="@drawable/ic_refresh_24"/>
+                        android:src="@drawable/ic_refresh_24"
+                        style="@style/PodcastHeaderImageButton"/>
 
                     <ImageButton
                         android:id="@+id/btnSortToolbar"
-                        style="?attr/borderlessButtonStyle"
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
                         android:contentDescription="@string/sort"
-                        android:src="@drawable/ic_sort_swap_vert_24"/>
+                        android:src="@drawable/ic_sort_swap_vert_24"
+                        style="@style/PodcastHeaderImageButton"/>
 
                     <ImageButton
                         android:id="@+id/btnCollapseToolbar"
-                        style="?attr/borderlessButtonStyle"
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
                         android:contentDescription="@string/expand"
-                        android:src="@drawable/ic_content_expand_24"/>
+                        android:src="@drawable/ic_content_expand_24"
+                        style="@style/PodcastHeaderImageButton"/>
+
                 </LinearLayout>
             </androidx.appcompat.widget.Toolbar>
         </com.google.android.material.appbar.CollapsingToolbarLayout>
