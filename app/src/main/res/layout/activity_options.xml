@@ -162,7 +162,7 @@
                     style="@style/OptionCheckBoxText"
                     android:text="@string/option_download_auto_title"
                     android:layout_width="135dp"
-                />
+                    />
 
                 <Spinner
                     android:id="@+id/spinner_download_auto"
@@ -564,7 +564,6 @@
 
 
 
-
             <LinearLayout
                 android:id="@+id/ll_Podcast"
                 style="@style/LinearLayoutOptionsVertical">
@@ -714,11 +713,10 @@
                     <TextView
                         android:text="Max = 100"
                         style="@style/OptionMiniText" />
+
                 </LinearLayout>
             </LinearLayout>
-
             <View style="@style/myStyleViewSimpleHorizontalBar" />
-
             <LinearLayout
                 style="@style/LinearLayoutOptionsCheckBoxHorizontal">
                 <TextView style="@style/OptionSubTitle"

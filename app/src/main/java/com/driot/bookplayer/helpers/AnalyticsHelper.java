@@ -36,6 +36,12 @@ public class AnalyticsHelper {
         bundle.putString("language", lang);
         logThat(context, "librivox_search", bundle);
     }
+    public static void  tellAnalyticsLibrivoxTrending(Context context, String query, String lang) {
+        Bundle bundle = new Bundle();
+        bundle.putString("query", query);
+        bundle.putString("language", lang);
+        logThat(context, "librivox_trending", bundle);
+    }
     public static void tellAnalyticsPodcastSearch(Context context, String query, String lang) {
         Bundle bundle = new Bundle();
         bundle.putString("query", query);

@@ -11,8 +11,17 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
-
+        android:padding="16dp"
+        android:descendantFocusability="beforeDescendants"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        >
+        <View
+            android:id="@+id/focusGuard"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:focusable="true"
+            android:focusableInTouchMode="true" />
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -37,10 +46,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:gravity="end">
+                    >
 
                     <Button
-                        android:id="@+id/bFavoritePodcasts"
+                        android:id="@+id/bFavorite"
                         android:text="@string/Favorites"
                         style="@style/GetResourceButton"
                         android:layout_width="wrap_content"
@@ -50,13 +59,30 @@
                     />
 
                     <ImageButton
-                        android:id="@+id/btnFavorite"
+                        android:id="@+id/ibFavorite"
                         android:layout_width="48dp"
                         android:layout_height="48dp"
-                        android:contentDescription="Favorite"
+                        android:contentDescription="@string/favorites"
                         android:src="@drawable/ic_favorite"
                         android:background="@android:color/transparent"
                         app:tint="@android:color/holo_red_dark" />
+
+                    <!-- Spacer pushes the next item to the right -->
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_weight="1" />
+
+                    <ImageButton
+                        android:id="@+id/ibSettings"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:contentDescription="@string/settings"
+                        android:src="@drawable/ic_settings_24"
+                        android:background="@android:color/transparent"
+                        app:tint="@color/verylightgray"
+
+                        />
             </LinearLayout>
 
 
@@ -70,7 +96,7 @@
 
                 <Spinner
                     android:layout_marginTop="30dp"
-                    android:id="@+id/spinnerPodcast"
+                    android:id="@+id/spinnerLang"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     style="@style/GetResourceSpinner"

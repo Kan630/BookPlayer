@@ -755,6 +755,8 @@
     <string name="collapse">collapse</string>
     <string name="expand">expand</string>
     <string name="sort">sort</string>
+    <string name="settings">settings</string>
+    <string name="option_podcast_episodes_expand">show descriptions</string>
 
 
 

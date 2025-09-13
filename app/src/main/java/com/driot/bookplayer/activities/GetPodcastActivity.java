@@ -2,7 +2,9 @@ package com.driot.bookplayer.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.Spinner;
 
 import androidx.annotation.Nullable;
@@ -17,59 +19,108 @@ import com.driot.bookplayer.views.EditTextWithButtons;
 
 public class GetPodcastActivity extends LoggingActivity {
 
+    String query, lang;
+    EditTextWithButtons editTextPodcast;
+    Button bFavorite;
+    ImageButton ibFavorite;
+    ImageButton ibSettings;
+    Button buttonTrending;
+    Button buttonPodcastSearch;
+    Spinner spinnerLang;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_get_podcast);
 
-        ////////////////////////////////
-        /// // PODCASTS SEARCH
-        ////////////////////////////////
-        Spinner spinnerPodcast = findViewById(R.id.spinnerPodcast);
+        editTextPodcast = findViewById(R.id.etPodcast);
+        buttonPodcastSearch = findViewById(R.id.bPodcastSearch);
+        bFavorite = findViewById(R.id.bFavorite);
+        ibFavorite = findViewById(R.id.ibFavorite);
+        ibSettings = findViewById(R.id.ibSettings);
+        buttonTrending = findViewById(R.id.bPodcastTrending);
+
+        spinnerLang = findViewById(R.id.spinnerLang);
         LanguageHelper.setupLanguageSpinner(
                 this,
-                spinnerPodcast,
+                spinnerLang,
                 Pref.get_Audio_Language_Podcast(this),
                 LanguageHelper.getPodcastLanguages(),
                 lang -> Pref.set_Audio_Language_Podcast(this, lang.twoLetterCode),
                 false
         );
-        Button buttonPodcastSearch;
-        EditTextWithButtons editTextPodcast = findViewById(R.id.etPodcast);
-        buttonPodcastSearch = findViewById(R.id.bPodcastSearch);
+
+        bFavorite.setOnClickListener(v -> clickFavorite());
+        ibFavorite.setOnClickListener(v -> clickFavorite());
+        ibSettings.setOnClickListener(v -> clickSettings());
+
         buttonPodcastSearch.setOnClickListener(v -> {
-            String query = editTextPodcast.getText();
-            LanguageItem selectedLang = (LanguageItem) spinnerPodcast.getSelectedItem();
-            String lang = selectedLang.getTwoLetterCode().toLowerCase();
+            query = editTextPodcast.getText();
+            LanguageItem selectedLang = (LanguageItem) spinnerLang.getSelectedItem();
+            lang = selectedLang.getTwoLetterCode().toLowerCase();
 
             Intent intent = new Intent(this, PodcastSearchResultsActivity.class);
             intent.putExtra("query", query);
             intent.putExtra("lang", lang);
             startActivity(intent);
         });
-        Button bFavoritePodcasts = findViewById(R.id.bFavoritePodcasts);
-        bFavoritePodcasts.setOnClickListener(v -> {
-            myLogI("--- User clicks FAVORITES");
-            Intent intent = new Intent(this, PodcastFavoritesActivity.class);
-            startActivity(intent);
-        });
 
-        Button buttonTrending;
-        buttonTrending = findViewById(R.id.bPodcastTrending);
         buttonTrending.setOnClickListener(v -> {
-            myLogI("--- User clicks TRENDING");
-            String query = "";
-            LanguageItem selectedLang = (LanguageItem) spinnerPodcast.getSelectedItem();
-            String lang = selectedLang.getTwoLetterCode().toLowerCase();
+            myLogI("--- User clicks TRENDING ---");
+            query = "";
+            LanguageItem selectedLang = (LanguageItem) spinnerLang.getSelectedItem();
+            lang = selectedLang.getTwoLetterCode().toLowerCase();
 
             Intent intent = new Intent(this, PodcastSearchResultsActivity.class);
             intent.putExtra("query", query);
             intent.putExtra("lang", lang);
             startActivity(intent);
+        });
+        // Keyboard "done/search"
+        editTextPodcast.getEditText().setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_SEARCH
+                    || actionId == EditorInfo.IME_ACTION_DONE) {
+                doSearch();
+                return true;
+            }
+            return false;
         });
 
     }
     ////////////////////////////////
     ////////////////////////////////
+
+    private void clickFavorite() {
+        myLogI("--- User clicks FAVORITES ---");
+        Intent intent = new Intent(this, PodcastFavoritesActivity.class);
+        startActivity(intent);
+    }
+
+    private void clickSettings() {
+        myLogI("--- User clicks SETTINGS ---");
+        Intent intent = new Intent(this, PodcastSettingsActivity.class);
+        startActivity(intent);
+    }
+
+    private void doSearch() {
+        query = editTextPodcast.getText();
+        lang = spinnerLang.getSelectedItem().toString().toLowerCase();
+
+        if (lang.isEmpty()) {
+            myToast("selected language error");
+            return;
+        }
+
+        openPodcastResultsActivity();
+
+        AnalyticsHelper.tellAnalyticsLibrivoxSearch(this, query, lang);
+    }
+    private void openPodcastResultsActivity() {
+        Intent intent = new Intent(this, PodcastSearchResultsActivity.class);
+        intent.putExtra("query", query);
+        intent.putExtra("lang", lang);
+        startActivity(intent);
+    }
+
 }
