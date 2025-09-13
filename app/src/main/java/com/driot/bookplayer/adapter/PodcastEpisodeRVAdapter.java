@@ -4,12 +4,11 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.Intent;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -20,21 +19,15 @@ import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.activities.PlayActivity;
 import com.driot.bookplayer.activities.PodcastEpisodeViewModel;
 import com.driot.bookplayer.db.AppDatabase;
-import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.objects.DisplayableEpisode;
-import com.driot.bookplayer.objects.PlayList;
-import com.driot.bookplayer.objects.PodcastEpisode;
 import com.driot.bookplayer.objects.PodcastFeed;
-import com.driot.bookplayer.utils.NetworkUtils;
 import com.driot.bookplayer.helpers.PodcastHelper;
-import com.driot.bookplayer.helpers.ViewHelper;
-import com.driot.bookplayer.utils.PodcastDownloadManager;
+import com.driot.bookplayer.utils.NetworkUtils;
 import com.driot.bookplayer.utils.TextOptions;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingRVAdapter;
@@ -223,16 +216,12 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
                         holder.flickerAnim = createFlickerAnimation(holder.icon_download,holder);
                         holder.flickerAnim.start();
                     }
-
-                    handler.onDownloadEpisode(episode);
-                    /*
-
                     if (Option.getNetworkPolicyManualDownload().equals(NetworkUtils.NetworkPolicyManual.ASK_IF_NOT_UNMETERED) && !NetworkUtils.isUnmeteredConnected(context)) {
                         new AlertDialog.Builder(context)
                                 .setTitle(R.string.download_warning_title_unmetered)
                                 .setMessage(R.string.download_warning_message_unmetered)
                                 .setPositiveButton(android.R.string.ok, (dialog, which) -> {
-                                    proceedWithDownload(context, holder , podcastFeed.title, episode, podcastFeed.id);
+                                    handler.onDownloadEpisode(episode);
                                 })
                                 .setNegativeButton(android.R.string.cancel, null)
                                 .show();
@@ -241,7 +230,7 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
                                 .setTitle(R.string.download_warning_title_wifi)
                                 .setMessage(R.string.download_warning_message_wifi)
                                 .setPositiveButton(android.R.string.ok, (dialog, which) -> {
-                                    proceedWithDownload(context, holder, podcastFeed.title, episode, podcastFeed.id);
+                                    handler.onDownloadEpisode(episode);
                                 })
                                 .setNegativeButton(android.R.string.cancel, null)
                                 .show();
@@ -249,16 +238,11 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
                         AppDatabase.databaseWriteExecutor.execute(() -> {
                             PodcastHelper.addPodcastToDB(this.context, podcastFeed);
                         });
-                        proceedWithDownload(context, holder, podcastFeed.title, episode, podcastFeed.id);
+                        handler.onDownloadEpisode(episode);
                     }
-                     */
                 });
             }
         });
-    }
-
-    private void proceedWithDownload(Context context, ViewHolder holder, String futureFolderName, DisplayableEpisode displayableEpisode, long feedId) {
-
     }
 
     @Override
@@ -268,7 +252,7 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView tvTitle, tvDate, tvEpisodeStats, tvEpisodeDBStats, tvEpisodeDesc;
-        ImageView icon_download;
+        ImageButton icon_download;
         AnimatorSet flickerAnim;
         boolean flickerRunning = false;
         ZikFile zikFile;
