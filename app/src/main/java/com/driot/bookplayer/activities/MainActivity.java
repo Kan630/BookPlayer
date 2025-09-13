@@ -219,9 +219,11 @@ public class MainActivity extends LoggingActivity {
             myLogD("LiveData onChange observed - List<Folders>");
             if (folders.isEmpty()) {
                 if (!HasBeenProposedToOpenFile) {
+                    /* 2025-09-13 dont ask Microphone, user shall not be afraid !
                     if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
                         showPermissionSnackbar();
                     }
+                     */
                     openGetResourceActivity();
                 }
                 HasBeenProposedToOpenFile = true;
