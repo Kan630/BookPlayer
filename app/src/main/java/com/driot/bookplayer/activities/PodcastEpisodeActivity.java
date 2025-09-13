@@ -253,6 +253,10 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
             myLogI("---- USER CLICK IMAGE ----");
             goToPlaySection();
         });
+        ivMiniCover.setOnClickListener(view -> {
+            myLogI("---- USER CLICK MINI IMAGE ----");
+            goToPlaySection();
+        });
 
         tvTitle.setText(podcastFeed.title);
         tvDescription.setText(parseMaybeHtml(podcastFeed.description));
@@ -597,43 +601,55 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
         }
     }
     private void goToPlaySection2() {
-        if (podcast != null) {
-            if (podcast.idFolder != null && podcast.idFolder > 0) {
-                new Thread(() -> {
-                    try {
-                        Folder folder = AppDatabase.getDatabase(this).FolderDao().getById(podcast.idFolder);
-                        if (folder != null) {
-                            try {
-                                List<ZikFile> zikFilesList = AppDatabase.getDatabase(this).ZikFileDao().getZikFiles(podcast.idFolder);
-                                myLogI("nb ZikFiles in that Book : " + zikFilesList.size() + " - [" + folder.getName() + "]");
-                                PlayList.create(this, zikFilesList);
-                                if (zikFilesList.size() > 1) {
-                                    this.startActivity(new Intent(this, ZikFileActivity.class).putExtra("folder", folder));
-                                    closePlayer();
-                                } else if (zikFilesList.size() == 1) {
-                                    PlayList.getInstance().setNumZikFile(0);
-                                    this.startActivity(new Intent(this, PlayActivity.class).putExtra("ZikFile", zikFilesList.get(0)));
-                                } else {
-                                    myLogE("no ZikFiles in that folder !");
-                                    myToastE(getString(R.string.ErrorCouldNotLoadAudios_emptyfolder));
-                                }
-                            } catch (Exception e) {
-                                myLogEE(e, "error getting nb of ZikFiles");
-                                myToastE(getString(R.string.ErrorCouldNotLoadAudios));
-                            }
-                        }
-                    } catch (Exception e) {
-                        myLogEE(e, "error getting Folder");
-                        myToastE(getString(R.string.ErrorCouldNotLoadAudios));
-                    }
-                }).start();
-            } else {
-                myLog("Podcast exist in DB but no Folder exists (nothing downloaded yet)");
-            }
-        } else {
+        if (podcast == null) {
             myLogE("Podcast == null");
+            return;
         }
+        if (podcast.idFolder == null || podcast.idFolder <= 0) {
+            myLog("Podcast exist in DB but no Folder exists (nothing downloaded yet)");
+            return;
+        }
+
+        new Thread(() -> {
+            try {
+                Folder folder = AppDatabase.getDatabase(getApplicationContext())
+                        .FolderDao().getById(podcast.idFolder);
+                if (folder == null) return;
+
+                List<ZikFile> zikFilesList = AppDatabase.getDatabase(getApplicationContext())
+                        .ZikFileDao().getZikFiles(podcast.idFolder);
+
+                myLogI("nb ZikFiles in that Book : " + zikFilesList.size() + " - [" + folder.getName() + "]");
+
+                // Switch to main thread for any UI / navigation
+                runOnUiThread(() -> {
+                    if (isFinishing() || isDestroyed()) return;
+
+                    if (!zikFilesList.isEmpty()) {
+                        closePlayer();
+
+                        PlayList.create(this, zikFilesList);
+
+                        if (zikFilesList.size() > 1) {
+                            startActivity(new Intent(this, ZikFileActivity.class).putExtra("folder", folder));
+                        } else {
+                            PlayList.getInstance().setNumZikFile(0);
+                            startActivity(new Intent(this, PlayActivity.class)
+                                    .putExtra("ZikFile", zikFilesList.get(0)));
+                        }
+                    } else {
+                        myLogE("no ZikFiles in that folder !");
+                        myToastE(getString(R.string.ErrorCouldNotLoadAudios_emptyfolder)); // main thread
+                    }
+                });
+
+            } catch (Exception e) {
+                myLogEE(e, "error getting Folder/ZikFiles");
+                runOnUiThread(() -> myToastEE(null, getString(R.string.ErrorCouldNotLoadAudios)));
+            }
+        }).start();
     }
+
 
     private void updateAdapter(List<DisplayableEpisode> displayableEpisodeList) {
         adapter.setItems(displayableEpisodeList);

@@ -82,7 +82,7 @@ public class PlayList {
 
     // --- Called ONLY from FolderAdapter ---
     public static void create(Context ctx, List<ZikFile> zikFilesList) {
-        myLogD("Playlist created");
+        myLogD("Playlist created - called from " + ctx.getClass().getSimpleName());
         appContext = ctx.getApplicationContext();  // not really needed but you never know :-)
         instance = new PlayList(zikFilesList);
         instance.saveToStorage();
