@@ -326,6 +326,7 @@ public class AudioService extends LoggingService {
                 LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(intent);
             } else {
                 myLogI("Audio Focus Gain");
+                myKeyFirebase("Audio Focus Gain", "Audio Focus Gain");
                 AudioService.this.playAudio();
                 mediaSession.setActive(true);
                 Intent intent = new Intent(NOTIFICATION_AUDIOFOCUS_GAIN);
@@ -669,15 +670,18 @@ public class AudioService extends LoggingService {
                         startPlayWithMediaPlayer();
                     } else if (mediaPlayer != null && !mediaPlayer.isPreparing()) {
                         myLog("case 2");
+                        myKeyFirebase("playAudio case 2", "case 2");
                         myLogEE(null, "re-prepared...");
                         directPlay = true;
                         loadFile(); // Re-prepare
                     } else {
                         myLog("case 3");
+                        myKeyFirebase("playAudio case 3", "case 3");
                         myLogW("mediaPlayer is preparing, wait...");
                     }
                 } catch (IllegalStateException | NullPointerException e) {
                     myLog("case 4");
+                    myKeyFirebase("playAudio case 4", "case 4");
                     myLogEE(e, "mediaPlayer was corrupt or dead. Reloading...");
                     loadFile();  // your method to reset/load/prepare player
                 }

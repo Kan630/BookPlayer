@@ -160,7 +160,6 @@ public class PlayList {
         return numZikFile;
     }
 
-
     public ZikFile getZikFile() {
         if (numZikFile < 0 ) {
             myLogEE(null, "numZikFile < 0");
@@ -206,7 +205,7 @@ public class PlayList {
     }
 
     private static PlayList loadFromStorage() {
-        myLogW("Playlist retreived - loadFromStorage()");
+        myLogEE(null,"Playlist retreived - loadFromStorage()");
         SharedPreferences prefs = appContext.getApplicationContext().getSharedPreferences(SHARED_PREFERENCE_CURRENT_PLAYLIST, Context.MODE_PRIVATE);
         String json = prefs.getString(KEY_ZIK_FILES_LIST, null);
         if (json == null) return null;
