@@ -142,6 +142,8 @@ public class MainActivity extends LoggingActivity {
         getFolders();
 
         MyApp.getPeriodicTaskManager(this).start(); // safe
+
+        startActivity(new Intent(this, TtsReadTxtActivity.class));
     }
 
     @Override

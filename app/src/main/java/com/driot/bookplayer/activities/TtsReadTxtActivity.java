@@ -23,6 +23,7 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.helpers.EbookTtsHelper;
 import com.driot.bookplayer.tts.EpubLowLevel;
 import com.driot.bookplayer.tts.TxtReader;
+import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import java.io.BufferedInputStream;
@@ -35,6 +36,8 @@ import java.util.*;
 public class TtsReadTxtActivity extends LoggingActivity implements EbookTtsHelper.Listener {
 
     private static final String PREF_KEY_LAST_URI = "tts_last_txt_uri";
+
+    private long timeStart;
 
     private TextView tvUri, tvStatus, tvPreview;
     private SeekBar seekSpeed;
@@ -55,7 +58,7 @@ public class TtsReadTxtActivity extends LoggingActivity implements EbookTtsHelpe
     private int[] wordStarts;
     private int totalWords = 0;
     private int currentWordIndex = 0;
-    private SpannableStringBuilder previewSpannable;
+    private android.text.Spannable previewSpannable;
     private final BackgroundColorSpan wordBgSpan = new BackgroundColorSpan(0x55FFFF00);
     private final ForegroundColorSpan wordFgSpan = new ForegroundColorSpan(Color.BLACK);
     private boolean isSpeaking = false, isPaused = false;
@@ -63,6 +66,13 @@ public class TtsReadTxtActivity extends LoggingActivity implements EbookTtsHelpe
     // guards
     private boolean spinnersInitialized = false;
     private boolean ttsRetryScheduled = false;
+
+    // --- UI update throttling (ADD THESE) ---
+    private final android.os.Handler mainH = new android.os.Handler(android.os.Looper.getMainLooper());
+    private int pendingS = -1, pendingE = -1;
+    private boolean highlightScheduled = false;
+    private int lastScrollLine = -1;
+
 
     // SAF picker
     private final ActivityResultLauncher<Intent> openDocLauncher =
@@ -83,6 +93,7 @@ public class TtsReadTxtActivity extends LoggingActivity implements EbookTtsHelpe
 
     @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        timeStart = System.currentTimeMillis();
         setContentView(R.layout.activity_tts_read_txt);
 
         tvUri = findViewById(R.id.tvUri);
@@ -115,7 +126,9 @@ public class TtsReadTxtActivity extends LoggingActivity implements EbookTtsHelpe
         seekSpeed.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override public void onProgressChanged(SeekBar seekBar, int value, boolean fromUser) {
                 float rate = Math.max(0.1f, value / 100f);
-                try { if (tts != null) tts.setSpeechRate(rate); } catch (Throwable ignored) {}
+                try { if (tts != null) tts.setSpeechRate(rate); } catch (Throwable t) {
+                    myLogE("could not set Speech Rate");
+                }
             }
             @Override public void onStartTrackingTouch(SeekBar seekBar) {}
             @Override public void onStopTrackingTouch(SeekBar seekBar) {}
@@ -158,11 +171,12 @@ public class TtsReadTxtActivity extends LoggingActivity implements EbookTtsHelpe
 
     private void handleTxt(Uri uri) {
         tell("Loading text...");
+        long startTime = System.currentTimeMillis();
         TxtReader.loadAsync(this, uri, new TxtReader.Callback() {
             @Override public void onLoaded(String text) {
                 runOnUiThread(() -> {
                     updatePreviewFromText(text);
-                    tell("Loaded " + text.length() + " chars");
+                    tell("Loaded " + text.length() + " chars in " + Tonio.formatMS(System.currentTimeMillis() - startTime));
                 });
             }
             @Override public void onError(Exception e) {
@@ -212,15 +226,19 @@ public class TtsReadTxtActivity extends LoggingActivity implements EbookTtsHelpe
     }
 
     private static String readUtf8File(File f) {
-        try (BufferedInputStream in = new BufferedInputStream(new FileInputStream(f))) {
-            byte[] buf = new byte[(int) Math.min(f.length(), Integer.MAX_VALUE)];
-            int read = in.read(buf);
-            if (read <= 0) return "";
-            return new String(buf, 0, read, StandardCharsets.UTF_8);
+        try (java.io.BufferedReader br = new java.io.BufferedReader(
+                new java.io.InputStreamReader(new java.io.FileInputStream(f), java.nio.charset.StandardCharsets.UTF_8),
+                64 * 1024)) {
+            StringBuilder sb = new StringBuilder((int) Math.min(Math.max(f.length(), 512_000L), 2_000_000L));
+            char[] buf = new char[8192];
+            int n;
+            while ((n = br.read(buf)) != -1) sb.append(buf, 0, n);
+            return sb.toString();
         } catch (Exception e) {
             return "";
         }
     }
+
 
     // ---------- TTS controls ----------
 
@@ -256,7 +274,10 @@ public class TtsReadTxtActivity extends LoggingActivity implements EbookTtsHelpe
 
     // ---------- EbookTtsHelper.Listener ----------
 
-    @Override public void onTtsReady(TextToSpeech t) { runOnUiThread(this::populateLanguagesAndVoices); }
+    @Override public void onTtsReady(TextToSpeech t) {
+        tell("TTS Ready... (in " + Tonio.formatMS(System.currentTimeMillis() - timeStart) + ")");
+        runOnUiThread(this::populateLanguagesAndVoices);
+    }
 
     @Override public void onStart(String id) {
         runOnUiThread(() -> { isSpeaking = true; isPaused = false; tell("Speaking…"); });
@@ -302,6 +323,7 @@ public class TtsReadTxtActivity extends LoggingActivity implements EbookTtsHelpe
 
     private void resetForNewDoc() {
         if (tts != null) tts.stop();
+        lastScrollLine = -1;
         loadedText = "";
         resumeOffset = 0;
         wordStarts = null;
@@ -315,47 +337,97 @@ public class TtsReadTxtActivity extends LoggingActivity implements EbookTtsHelpe
 
     private void updatePreviewFromText(String text) {
         loadedText = text != null ? text : "";
-        buildWordIndex(loadedText);
-        previewSpannable = new SpannableStringBuilder(loadedText);
-        tvPreview.setText(previewSpannable);
-        tvPreview.setMovementMethod(new ScrollingMovementMethod());
+        tvPreview.setText(""); // quick clear
         resumeOffset = 0;
         currentWordIndex = 0;
-        updatePlayingStatus();
+        lastScrollLine = -1;
+
+        new Thread(() -> {
+            buildWordIndex(loadedText);  // background
+            SpannableStringBuilder span = new SpannableStringBuilder(loadedText);
+            runOnUiThread(() -> {
+                // 👇 IMPORTANT: keep a mutable buffer in the TextView
+                tvPreview.setText(span, TextView.BufferType.SPANNABLE);
+                previewSpannable = (android.text.Spannable) tvPreview.getText();
+
+                tvPreview.setMovementMethod(new ScrollingMovementMethod());
+                updatePlayingStatus();
+            });
+        }, "WordIndex").start();
     }
+
+
 
     private void highlightRange(int start, int end) {
-        if (previewSpannable == null) return;
-        int len = previewSpannable.length();
-        int s = Math.max(0, Math.min(start, len));
-        int e = Math.max(s, Math.min(end, len));
-        previewSpannable.removeSpan(wordBgSpan);
-        previewSpannable.removeSpan(wordFgSpan);
-        previewSpannable.setSpan(wordBgSpan, s, e, 0);
-        previewSpannable.setSpan(wordFgSpan, s, e, 0);
-        tvPreview.setText(previewSpannable);
-        scrollPreviewTo(s);
-        currentWordIndex = findWordIndexAtOrBefore(s);
+        scheduleHighlight(start, end);
     }
+    // ~12 updates/sec; adjust 60–120ms if you want smoother/faster
+    private void scheduleHighlight(int s, int e) {
+        pendingS = s;
+        pendingE = e;
+        if (highlightScheduled) return;
+        highlightScheduled = true;
+        mainH.postDelayed(applyHighlightRunnable, 80);
+    }
+
+    private final Runnable applyHighlightRunnable = () -> {
+        highlightScheduled = false;
+        if (tvPreview.getText() == null) return;
+
+        android.text.Spannable live = (android.text.Spannable) tvPreview.getText();
+        int len = live.length();
+        if (len == 0 || pendingS < 0) return;
+
+        int s = Math.max(0, Math.min(pendingS, len));
+        int e = Math.max(s + 1, Math.min(pendingE, len)); // ensure >= 1 char
+
+        // Remove old spans (by instance or by class to be extra-safe)
+        live.removeSpan(wordBgSpan);
+        live.removeSpan(wordFgSpan);
+        // (also safe) live.removeSpan(BackgroundColorSpan.class); live.removeSpan(ForegroundColorSpan.class);
+
+        live.setSpan(wordBgSpan, s, e, android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        live.setSpan(wordFgSpan, s, e, android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+        // Force redraw so highlight shows
+        tvPreview.invalidate();
+        tvPreview.postInvalidateOnAnimation();
+
+        scrollPreviewToThrottled(s);
+        currentWordIndex = findWordIndexAtOrBefore(s);
+        updatePlayingStatus();
+    };
+
+
 
     private void updatePlayingStatus() {
-        int cur = Math.min(currentWordIndex + 1, Math.max(1, totalWords));
-        if (totalWords <= 0) tvStatus.setText("Ready");
-        else tvStatus.setText("Playing... (" + cur + " / " + totalWords + ")");
+        if (isSpeaking) {
+            int cur = Math.min(currentWordIndex + 1, Math.max(1, totalWords));
+            tvStatus.setText("Playing... (" + cur + " / " + totalWords + ")");
+        } else if (isPaused) {
+            tvStatus.setText("Paused");
+        } else {
+            // Not speaking yet: show Ready (or empty if you prefer)
+            tvStatus.setText(totalWords > 0 ? "Ready" : "");
+        }
     }
 
-    private void scrollPreviewTo(int charIndex) {
+    private void scrollPreviewToThrottled(int charIndex) {
         tvPreview.post(() -> {
             try {
                 if (tvPreview.getLayout() == null) return;
                 int safe = Math.max(0, Math.min(charIndex, tvPreview.getText().length()));
                 int line = tvPreview.getLayout().getLineForOffset(safe);
+                if (line == lastScrollLine) return; // skip if same visual line
+                lastScrollLine = line;
+
                 int y = tvPreview.getLayout().getLineTop(line);
                 int targetY = Math.max(0, y - tvPreview.getHeight() / 3);
                 tvPreview.scrollTo(0, targetY);
             } catch (Exception ignored) {}
         });
     }
+
 
     private void warmUpTts(TextToSpeech t) {
         try { t.playSilentUtterance(200, TextToSpeech.QUEUE_FLUSH, "warmup"); } catch (Throwable ignored) {}

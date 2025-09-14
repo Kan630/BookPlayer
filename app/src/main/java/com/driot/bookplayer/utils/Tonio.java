@@ -572,6 +572,12 @@ public class Tonio {
         return String.format(java.util.Locale.US, "%d:%02d", m, sec);
     }
 
+    public static String formatMS(long ms) {
+        double seconds = ms / 1000.0;
+        return String.format(java.util.Locale.US, "%.3f ms", seconds);
+    }
+
+
 
 
 

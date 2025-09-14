@@ -110,7 +110,7 @@ public class EbookTtsHelper implements TextToSpeech.OnInitListener {
         int headEnd = Math.min(base.end, safeOffset + maxLen);
         String headText = text.substring(safeOffset, headEnd);
         String headId   = "utt_" + safeOffset + "_" + headEnd;
-        tts.speak(headText, TextToSpeech.QUEUE_ADD, null, headId);
+        tts.speak(headText, TextToSpeech.QUEUE_FLUSH, null, headId);
 
         // 2) Remaining of the base chunk (if any)
         if (headEnd < base.end) {
