@@ -115,6 +115,10 @@ public class ParseFinalFolderWorker extends LoggingWorker {
                 TaskStateManager.markTaskFailed(TASK_NAME, context.getString(R.string.Error_Import_CannotReadFolder));
                 return Result.failure();
             }
+            if (df == null) {
+                TaskStateManager.markTaskFailed(TASK_NAME, context.getString(R.string.Error_Import_CannotReadFolder));
+                return Result.failure();
+            }
             populateArrayListOfTracksFromFolder(df);
         } else {
             try {
@@ -354,6 +358,18 @@ public class ParseFinalFolderWorker extends LoggingWorker {
         myLogD("✔️ Saved:   " + saved);
         myLogD("⏭️ Skipped: " + skipped);
         myLogD("❌ Failed:  " + failed);
+
+        if (saved == 0) {
+            myLogEE(null,"no saved zikFile, about to delete folder...");
+            new Thread(() -> {
+                try {
+                    DatabaseClient.getInstance(context).getAppDatabase().FolderDao().delete(insertedFolderId);
+                } catch (Exception e) {
+                    myLogEE(e, "error deleting folder (no saved zikFiles)");
+                }
+                myLog("Folder Deleted");
+            }).start();
+        }
 
         // All files done
         myLogD("******************************************************************************************************************");

@@ -28,6 +28,14 @@ public class UriHelper {
      */
     @Nullable
     public static DocumentFile getDocumentFileFromAnyUri(Context context, Uri uri) {
+        //problems with :
+        //content://media/external/audio/media/1000028186 (Samsung SM-F721B   Android 15)
+        //content://com.android.fileexplorer.myprovider/external_files/Nyla/Brainwashed%20by%20Nyla%20K.mp3   (Xiaomi 24117RN76E  Android 15)
+        //content://com.android.providers.downloads.documents/document/4204
+        //content://com.android.providers.media.documents/document/audio%3A1000131747
+        //content://com.android.providers.downloads.documents/document/msf%3A1000016621
+        //content://com.android.externalstorage.documents/document/primary%3AAudiobooks%2FFrom%20Blood%20and%20Ash%20%231%20(2%20of%202)%20.mp3
+        //content://com.android.externalstorage.documents/document/primary%3AMusic%2FTelegram%2FPrison%20Healer%20(Tome%201)%20-%20Lynette%20Noni.mp3
         if (uri == null) return null;
 
         try {
