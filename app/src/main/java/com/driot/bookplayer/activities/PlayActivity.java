@@ -812,8 +812,11 @@ public class PlayActivity extends LoggingActivity {
         tvTtsText.setText(sb, TextView.BufferType.SPANNABLE);
         spannableText = (Spannable) tvTtsText.getText();
 
-        // spinner (flags + device TTS languages, selection = service/per-book/global)
-        //initTtsLanguageSpinner();
+        // allow user scrolling
+        tvTtsText.setMovementMethod(android.text.method.ScrollingMovementMethod.getInstance());
+
+        // enable tap / long-press to seek
+        setupTtsTextInteractions();
     }
 
     private void showAudioUi() {
@@ -958,6 +961,90 @@ public class PlayActivity extends LoggingActivity {
                     }
                 }
         );
+    }
+    private void setupTtsTextInteractions() {
+        final android.view.GestureDetector detector =
+                new android.view.GestureDetector(this, new android.view.GestureDetector.SimpleOnGestureListener() {
+                    @Override public boolean onSingleTapUp(android.view.MotionEvent e) {
+                        handleTtsTap(e, /*alignSentence=*/false);
+                        return true;
+                    }
+                    @Override public void onLongPress(android.view.MotionEvent e) {
+                        handleTtsTap(e, /*alignSentence=*/true);
+                    }
+                });
+
+        tvTtsText.setOnTouchListener((v, ev) -> {
+            detector.onTouchEvent(ev);
+            // return false so TextView still handles scrolling
+            return false;
+        });
+    }
+
+    private void handleTtsTap(android.view.MotionEvent e, boolean alignSentence) {
+        if (spannableText == null || tvTtsText.getLayout() == null) return;
+
+        android.text.Layout layout = tvTtsText.getLayout();
+
+        int x = (int) e.getX();
+        int y = (int) e.getY();
+
+        // adjust for TextView paddings and scroll
+        x -= tvTtsText.getTotalPaddingLeft();
+        y -= tvTtsText.getTotalPaddingTop();
+        x += tvTtsText.getScrollX();
+        y += tvTtsText.getScrollY();
+
+        int line = layout.getLineForVertical(y);
+        int off  = layout.getOffsetForHorizontal(line, x);
+        off = Math.max(0, Math.min(off, spannableText.length()));
+
+        // expand to word bounds
+        int[] word = findWordBounds(spannableText, off);
+        int start = word[0], end = word[1];
+
+        // highlight selection
+        try {
+            spannableText.removeSpan(ttsBgSpan);
+            spannableText.removeSpan(ttsFgSpan);
+            spannableText.setSpan(ttsBgSpan, start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            spannableText.setSpan(ttsFgSpan, start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        } catch (Throwable ignored) {}
+
+        // center the selected line roughly
+        tvTtsText.post(() -> {
+            try {
+                int lineSel = layout.getLineForOffset(start);
+                int yTop = layout.getLineTop(lineSel);
+                int targetY = Math.max(0, yTop - tvTtsText.getHeight() / 3);
+                tvTtsText.scrollTo(0, targetY);
+            } catch (Throwable ignored) {}
+        });
+
+        // tell the service to start from this position
+        if (audioServiceBound && audioService != null && audioService.isTtsMode()) {
+            audioService.setTtsStartOffsetChars(alignSentence ? start : start, alignSentence);
+            // if currently paused, you might want to auto-start:
+            // audioService.playAudio();
+        }
+    }
+
+    /** Returns [wordStart, wordEnd] for a given offset. */
+    private static int[] findWordBounds(CharSequence text, int off) {
+        int n = text.length();
+        if (n == 0) return new int[]{0,0};
+        // if we're on whitespace/punct, shift right to next letter/digit
+        int i = off;
+        while (i < n && !Character.isLetterOrDigit(text.charAt(i))) i++;
+        if (i >= n) i = Math.max(0, off - 1);
+        // go left to start
+        int s = i;
+        while (s > 0 && Character.isLetterOrDigit(text.charAt(s - 1))) s--;
+        // go right to end
+        int e = i;
+        while (e < n && Character.isLetterOrDigit(text.charAt(e))) e++;
+        if (s < 0) s = 0; if (e < s) e = s;
+        return new int[]{s, e};
     }
 
 }

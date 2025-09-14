@@ -203,6 +203,8 @@ public class AudioService extends LoggingService {
         private int estDurationMs = 0;   // rough estimate
         private int estPositionMs = 0;
         private java.util.Locale currentLocale = java.util.Locale.getDefault();
+        private int lastCharSpoken = 0;     // farthest char index we’ve seen from onUtteranceRange
+        private final android.os.Handler ttsH = new android.os.Handler(android.os.Looper.getMainLooper());
 
         TtsEngine(Context ctx) {
             tts = new EbookTtsHelper(ctx.getApplicationContext(), this);
@@ -225,6 +227,7 @@ public class AudioService extends LoggingService {
         @Override public void start() {
             if (!prepared) return;
             playing = true;
+            lastCharSpoken = Math.max(0, Math.min(resumeOffset, (text!=null)?text.length():0));
             tts.setSpeechRate(currentSpeechRate());
             tts.speakFromOffset(text, resumeOffset);
             updatePlaybackState(PlaybackStateCompat.STATE_PLAYING, getCurrentPosition(), currentSpeechRate());
@@ -278,19 +281,44 @@ public class AudioService extends LoggingService {
             onPrepared.run();
         }
         @Override public void onStart(String id) { playing = true; }
-        @Override public void onDone(String id)  { playing = false; onEngineCompletion(); }
+        @Override public void onDone(String id) {
+            // Have we reached (logically) the end of the text?
+            int logicalEnd = logicalTextEndIndex();
+            if (lastCharSpoken >= logicalEnd) {
+                playing = false;
+                onEngineCompletion(); // true end of book/chapter
+                return;
+            }
+
+            // Not at end yet → queue the remainder from where we left off
+            // (post to the main thread to avoid reentrancy)
+            ttsH.post(() -> {
+                if (!playing) return; // user might have paused meanwhile
+                resumeOffset = lastCharSpoken; // continue from last known char
+                try {
+                    tts.speakFromOffset(text, resumeOffset);
+                } catch (Throwable t) {
+                    playing = false;
+                    onEngineError("TTS continue failed", -1, 0);
+                }
+            });
+        }
+
         @Override public void onError(String id, int code) { playing = false; onEngineError("TTS error", code, 0); }
         @Override public void onUtteranceRange(int start, int end) {
-            // map char progress -> ms
-            if (text.length() > 0) estPositionMs = (int)((start / (double) text.length()) * estDurationMs);
+            if (!text.isEmpty()) estPositionMs = (int)((start / (double) text.length()) * estDurationMs);
+            // remember farthest character we actually spoke
+            if (end > lastCharSpoken) lastCharSpoken = end;
+
             updatePlaybackState(playing ? PlaybackStateCompat.STATE_PLAYING : PlaybackStateCompat.STATE_PAUSED,
                     getCurrentPosition(), currentSpeechRate());
-            // NEW: tell UI which chars are being spoken
+
             Intent i = new Intent(NOTIFICATION_TTS_RANGE)
                     .putExtra(EXTRA_TTS_START, start)
                     .putExtra(EXTRA_TTS_END, Math.min(end, text.length()));
             LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(i);
         }
+
         @Override public void onWordRange(int s, int e) { onUtteranceRange(s, e); }
 
         private float currentSpeechRate() { return (float) Math.max(0.1, getSpeed()); }
@@ -329,10 +357,6 @@ public class AudioService extends LoggingService {
             return currentLocale;
         }
 
-        public String fullText() {
-            return (text == null) ? "" : text;
-        }
-
         /** Called from the Activity to switch TTS language. */
         public void setLocaleFromActivity(@androidx.annotation.Nullable java.util.Locale loc) {
             if (loc == null) loc = java.util.Locale.getDefault();
@@ -351,6 +375,50 @@ public class AudioService extends LoggingService {
                 tts.speakFromOffset(text, resumeOffset);
             }
         }
+        public void setStartOffsetChars(int charOffset, boolean alignToSentence) {
+            if (text == null) return;
+            int target = Math.max(0, Math.min(charOffset, text.length()));
+
+            if (alignToSentence) {
+                try {
+                    java.text.BreakIterator bi = java.text.BreakIterator.getSentenceInstance(
+                            (currentLocale != null) ? currentLocale : java.util.Locale.getDefault());
+                    bi.setText(text);
+                    int sentStart = bi.preceding(Math.min(target + 1, text.length()));
+                    if (sentStart != java.text.BreakIterator.DONE) target = Math.max(0, sentStart);
+                } catch (Throwable ignored) {}
+            }
+
+            resumeOffset = target;
+
+            // update estimated position for seekbar
+            if (estDurationMs > 0 && text.length() > 0) {
+                estPositionMs = (int) ((resumeOffset / (double) text.length()) * estDurationMs);
+            } else {
+                estPositionMs = 0;
+            }
+
+            if (playing && prepared) {
+                tts.stop();
+                tts.speakFromOffset(text, resumeOffset);
+                updatePlaybackState(PlaybackStateCompat.STATE_PLAYING, getCurrentPosition(), currentSpeechRate());
+            } else if (prepared) {
+                updatePlaybackState(PlaybackStateCompat.STATE_PAUSED, getCurrentPosition(), 0f);
+            }
+        }
+
+        private int logicalTextEndIndex() {
+            if (text == null) return 0;
+            int i = text.length();
+            while (i > 0) {
+                char ch = text.charAt(i - 1);
+                // trim common trailing non-spoken characters
+                if (Character.isWhitespace(ch) || ch == '\u200B' || ch == '\uFEFF') i--;
+                else break;
+            }
+            return i;
+        }
+
     }
 
 
@@ -1420,13 +1488,6 @@ public class AudioService extends LoggingService {
         if (engine instanceof TtsEngine) return ((TtsEngine) engine).currentLocale(); // add getter
         return null;
     }
-/*
-    public java.util.List<java.util.Locale> getTtsAvailableLanguages() {
-        if (engine instanceof TtsEngine) return ((TtsEngine) engine).availableLocales(); // optional
-        return java.util.Collections.emptyList();
-    }
-
- */
 
     public void setTtsLanguageCode(@androidx.annotation.Nullable String codeOrSystem) {
         if (!(engine instanceof TtsEngine)) return;
@@ -1441,6 +1502,11 @@ public class AudioService extends LoggingService {
             loc = new java.util.Locale(codeOrSystem.toLowerCase(java.util.Locale.ROOT));
         }
         ((TtsEngine) engine).setLocaleFromActivity(loc);
+    }
+    public void setTtsStartOffsetChars(int charOffset, boolean alignToSentence) {
+        if (engine instanceof TtsEngine) {
+            ((TtsEngine) engine).setStartOffsetChars(charOffset, alignToSentence);
+        }
     }
 
 
