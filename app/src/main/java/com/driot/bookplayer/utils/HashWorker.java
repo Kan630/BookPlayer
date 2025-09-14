@@ -2,6 +2,7 @@ package com.driot.bookplayer.utils;
 
 import android.content.Context;
 import android.net.Uri;
+import android.provider.DocumentsContract;
 
 import androidx.annotation.NonNull;
 import androidx.documentfile.provider.DocumentFile;
@@ -150,41 +151,91 @@ public class HashWorker extends Worker {
             long[] sumElapsed = new long[]{0};
             int[] fileCount = new int[]{0};
 
-            String uriStr = uri.toString();   //If URI is download link, just hash the actual URL, no the file content
+            final String scheme = uri.getScheme();
+            final String uriStr = uri.toString();
+
+            // 1) URLs: hash the string
             if (uriStr.startsWith("http://") || uriStr.startsWith("https://")) {
                 myLogD("Hashing URI string instead of content: " + uriStr);
-                byte[] bytes = uriStr.getBytes(StandardCharsets.UTF_8);
-                digest.update(bytes);
+                digest.update(uriStr.getBytes(StandardCharsets.UTF_8));
                 return formatHash(digest.digest());
             }
 
-            DocumentFile doc = DocumentFile.fromSingleUri(context, uri);
-            if (doc != null && doc.isFile()) {
-                try (InputStream is = context.getContentResolver().openInputStream(uri)) {
-                    long startTime = System.currentTimeMillis();
-                    if (is != null) updateDigestFromStream(is, digest, MAX_BYTES_TO_HASH_PER_FILE_BIG);
-                    sumElapsed[0] = System.currentTimeMillis() - startTime;
-                    fileCount[0]++;
-                }
-            } else {
-                doc = DocumentFile.fromTreeUri(context, uri);
-                if (doc != null && doc.isDirectory()) {
-                    int[] fileIndex = new int[]{0};
-                    computeFolderHashRecursive(doc, digest, uri.getPath().length(), sumElapsed, fileCount, fileIndex);
+            // 2) Local file://
+            if ("file".equalsIgnoreCase(scheme)) {
+                File f = new File(uri.getPath());
+                if (f.isFile()) {
+                    try (InputStream is = new FileInputStream(f)) {
+                        long start = System.currentTimeMillis();
+                        updateDigestFromStream(is, digest, MAX_BYTES_TO_HASH_PER_FILE_BIG);
+                        sumElapsed[0] += (System.currentTimeMillis() - start);
+                        fileCount[0]++;
+                    }
+                    myLogD("---Nb of hashed file : " + fileCount[0] + " files.");
+                    myLogD("---[Timing] " + sumElapsed[0] + " ms Cumulative hash time");
+                    myLogD("---[Timing] " + (System.currentTimeMillis() - totalStart - sumElapsed[0]) + " ms other processes time");
+                    return formatHash(digest.digest());
                 } else {
-                    throw new IllegalArgumentException("Invalid or unsupported URI: " + uri);
+                    throw new IllegalArgumentException("file:// is not a regular file: " + uri);
                 }
             }
 
-            myLogD("---Nb of hashed file : " + fileCount[0] + " files.");
-            myLogD("---[Timing] " + sumElapsed[0] + " ms Cumulative hash time");
-            myLogD("---[Timing] " + (System.currentTimeMillis() - totalStart - sumElapsed[0]) + " ms other processes time");
-            return formatHash(digest.digest());
+            // 3) content://
+            if ("content".equalsIgnoreCase(scheme)) {
+                // 3a) If it's a SAF Document or Tree URI → use DocumentFile
+                boolean isDoc = false;
+                try { isDoc = DocumentsContract.isDocumentUri(context, uri); } catch (Exception ignore) {}
+                boolean isTree = false;
+                try { isTree = DocumentsContract.isTreeUri(uri); } catch (Exception ignore) {}
+
+                if (isTree) {
+                    DocumentFile tree = DocumentFile.fromTreeUri(context, uri);
+                    if (tree != null && tree.isDirectory()) {
+                        int[] fileIndex = new int[]{0};
+                        computeFolderHashRecursive(tree, digest,
+                                /*cutPrefixLen*/ (uri.getPath() != null ? uri.getPath().length() : 0),
+                                sumElapsed, fileCount, fileIndex);
+                    } else {
+                        throw new IllegalArgumentException("Tree URI is not a directory: " + uri);
+                    }
+                } else if (isDoc) {
+                    DocumentFile doc = DocumentFile.fromSingleUri(context, uri);
+                    if (doc != null && doc.isFile()) {
+                        try (InputStream is = context.getContentResolver().openInputStream(uri)) {
+                            long start = System.currentTimeMillis();
+                            if (is != null) updateDigestFromStream(is, digest, MAX_BYTES_TO_HASH_PER_FILE_BIG);
+                            sumElapsed[0] += (System.currentTimeMillis() - start);
+                            fileCount[0]++;
+                        }
+                    } else {
+                        throw new IllegalArgumentException("Document URI is not a file: " + uri);
+                    }
+                } else {
+                    // 3b) Generic content URI (e.g., Xiaomi file explorer, gallery, cloud apps)
+                    // We cannot traverse folders; treat as a single stream if readable.
+                    myLogD("Generic content URI (non-DocumentProvider). Hashing via openInputStream.");
+                    try (InputStream is = context.getContentResolver().openInputStream(uri)) {
+                        if (is == null) throw new IllegalArgumentException("openInputStream returned null for: " + uri);
+                        long start = System.currentTimeMillis();
+                        updateDigestFromStream(is, digest, MAX_BYTES_TO_HASH_PER_FILE_BIG);
+                        sumElapsed[0] += (System.currentTimeMillis() - start);
+                        fileCount[0]++;
+                    }
+                }
+
+                myLogD("---Nb of hashed file : " + fileCount[0] + " files.");
+                myLogD("---[Timing] " + sumElapsed[0] + " ms Cumulative hash time");
+                myLogD("---[Timing] " + (System.currentTimeMillis() - totalStart - sumElapsed[0]) + " ms other processes time");
+                return formatHash(digest.digest());
+            }
+
+            throw new IllegalArgumentException("Unsupported URI scheme: " + scheme + " (" + uri + ")");
         } catch (Exception e) {
             myLogEE(e, "Exception in computeHashFromUri()");
             return "";
         }
     }
+
 
     private void computeFolderHashRecursive(DocumentFile folder, MessageDigest digest, int rootPathLen, long[] sumElapsed, int[] fileCount, int[] fileIndex) {
         if (fileIndex[0] >= COUNT_FILE_BIG_HASH + COUNT_FILE_SMALL_HASH) return;

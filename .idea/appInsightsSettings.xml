@@ -34,6 +34,11 @@
               <option name="versions">
                 <list>
                   <VersionSetting>
+                    <option name="buildVersion" value="145" />
+                    <option name="displayName" value="145 - Magic Unicorn (145)" />
+                    <option name="displayVersion" value="145 - Magic Unicorn" />
+                  </VersionSetting>
+                  <VersionSetting>
                     <option name="buildVersion" value="143" />
                     <option name="displayName" value="143 - Magic Unicorn (143)" />
                     <option name="displayVersion" value="143 - Magic Unicorn" />
