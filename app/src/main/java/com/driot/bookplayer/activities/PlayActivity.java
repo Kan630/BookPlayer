@@ -20,6 +20,7 @@ import android.text.method.ScrollingMovementMethod;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -163,7 +164,9 @@ public class PlayActivity extends LoggingActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            if (!Objects.equals(action, AudioService.NOTIFICATION_PLAYBACK_TIMER_VALUE)) myLog("broadcast received : [" + action + "]");
+            if (!Objects.equals(action, AudioService.NOTIFICATION_PLAYBACK_TIMER_VALUE) && !Objects.equals(action, AudioService.NOTIFICATION_TTS_RANGE)) {
+                myLog("broadcast received : [" + action + "]");
+            }
 
             if (Objects.equals(action, AudioService.NOTIFICATION_ERROR)) {
                 Toast.makeText(getApplicationContext(), getString(R.string.error_reading_track), Toast.LENGTH_SHORT).show();
@@ -360,7 +363,7 @@ public class PlayActivity extends LoggingActivity {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 if (fromUser) {
-                    myLog("SeekBar");
+                    myLogI("--- USER CLICK SEEK BAR ---- => Change Progress");
                     audioService.setPosition(progress);
                     tvSeekBar.setText(formatTime(progress,true));
                 }
@@ -377,7 +380,7 @@ public class PlayActivity extends LoggingActivity {
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                myLogI("onBackPressed() -- (should be user action)");
+                myLogI("--- USER CLICK BACK --- (system button)");
                 if (audioService != null && audioService.isRunning()) {
                     if (audioService.isPlaying()) {
                         playMe();
@@ -402,26 +405,10 @@ public class PlayActivity extends LoggingActivity {
     private void launchService() {
         myLogD("launchService");
         intentMusicService = new Intent(PlayActivity.this, AudioService.class);
-        //TODO when flip screen the second time, service is destroyed....
         startService(intentMusicService);
-/*
-        if (isServiceRunning(AudioService.class)) {
-            myLog("Starting Service");
-            startService(intentMusicService);
-        }
- */
-        /*
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) { //min SDK 26
-            startForegroundService(intentMusicService);
-        } else {
-            startService(intentMusicService);
-        }
-
-         */
-
         audioServiceBound = false;
         try {
-            audioServiceBound = bindService(intentMusicService, audioServiceConnection, Context.BIND_AUTO_CREATE); //TODO leaked ServiceConnection if user press back
+            audioServiceBound = bindService(intentMusicService, audioServiceConnection, Context.BIND_AUTO_CREATE);
         } catch (Exception e) {
             myLogEE(e,"ERROR bindService");
         }
@@ -429,7 +416,7 @@ public class PlayActivity extends LoggingActivity {
     }
 
     private void visualizerClick() {
-        myLogI("visualizerClick()");
+        myLogI("--- USER CLICKS VISUALIZER ---");
         if (Option.getClickVisualizerPlayPause()) {
             playMe();
         }
@@ -541,11 +528,11 @@ public class PlayActivity extends LoggingActivity {
                 dialog.cancel();
             });
         }
-
-
         // Request focus for the EditText
-        inputMinutes.post(() -> inputMinutes.requestFocus());
+        inputMinutes.post(inputMinutes::requestFocus);
     }
+
+
     /********************************************************************************
      ***       EVENTS
      * Destroy = Fleche Retour Arriere ou Change Inclinaison
@@ -566,23 +553,11 @@ public class PlayActivity extends LoggingActivity {
     @Override
     protected void onDestroy() {
         myLog("onDestroy - unregister Broadcast Receiver");
-//should let the system continue playing, even if activity is destroyed, by let's say, phone os battery saver routine -- also flip screen...
-/*
-        if (audioServiceBound) {
-            try {
-                unbindService(audioServiceConnection);
-            } catch (Exception e) {
-                myLogEE(e,"onDestroy() - unbindService");
-            }
-        }
-
- */
         try {
             LocalBroadcastManager.getInstance(this).unregisterReceiver(broadCastReceiver);
         } catch (Exception e) {
             myLogEE(e,"onDestroy() - unregisterReceiver");
         }
-
         super.onDestroy();
     }
 
@@ -590,8 +565,6 @@ public class PlayActivity extends LoggingActivity {
     protected void onPause() {
         myLog("onPause() - killing display timer");
         killTimerForDisplay();
-        //unbindService(audioServiceConnection);
-        ////// SURTOUT PAS !!!
         // c'est l'ecran qui s'eteint.. ca call onPause, on UnBind null, on stop, puis 1min apres ca call on Destroy et plus de son
         // du coup, si on reste bind, on passe pas par destroy...
         super.onPause();
@@ -618,8 +591,6 @@ public class PlayActivity extends LoggingActivity {
             try {
                 audioService.directPlay = false;
                 audioService.loadFile();
-                //ZikFile[] zikFiles = AppDatabase.getDatabase(this).ZikFileDao().getNextZikFiles(PlayList.getInstance().getZikFile().getIdFolder(), PlayList.getInstance().getZikFile().getName());
-                //audioService.loadFiles(zikFiles);
 
             } catch (Exception e) {
                 myToastE("Error Loading playlist");
@@ -831,7 +802,7 @@ public class PlayActivity extends LoggingActivity {
 
     private void showTtsUi() {
         imFolderImage.setVisibility(View.GONE);
-        frequencyVisualizerView.setAlpha(1f);
+        frequencyVisualizerView.setVisibility(View.GONE);
         ttsContainer.setVisibility(View.VISIBLE);
 
         // text
@@ -842,9 +813,8 @@ public class PlayActivity extends LoggingActivity {
         spannableText = (Spannable) tvTtsText.getText();
 
         // spinner (flags + device TTS languages, selection = service/per-book/global)
-        initTtsLanguageSpinner();
+        //initTtsLanguageSpinner();
     }
-
 
     private void showAudioUi() {
         ttsContainer.setVisibility(View.GONE);
@@ -916,49 +886,75 @@ public class PlayActivity extends LoggingActivity {
     }
 
     private void initTtsLanguageSpinner() {
+        myLogD("initTtsLanguageSpinner()");
         if (spinnerTtsLanguage == null) return;
 
-        // Current folder (book) id, if known
+        // Resolve current folder (book)
         int folderId = -1;
         try {
-            if (PlayList.getInstance() != null && PlayList.getInstance().getZikFile() != null) {
-                folderId = PlayList.getInstance().getZikFile().getIdFolder();
+            PlayList pl = PlayList.getInstance();
+            if (pl != null && pl.getZikFile() != null) {
+                folderId = pl.getZikFile().getIdFolder();
             }
-        } catch (Exception ignored) {}
+        } catch (Throwable ignored) {}
+        final int currentFolderId = folderId; // capture-safe
 
-        // 1) If the service is in TTS mode and already picked a language, prefer showing that.
-        String initialCode = "system";
+        // Compute initial code to DISPLAY (do NOT save yet)
+        String initialCode = null;
+
+        // 1) Prefer the current service TTS language if in TTS mode
         if (audioServiceBound && audioService != null && audioService.isTtsMode()) {
-            Locale cur = audioService.getTtsCurrentLanguage();   // expose in AudioService
+            Locale cur = audioService.getTtsCurrentLanguage();
             if (cur != null) initialCode = LanguageHelper.twoLetterFromLocale(cur);
         }
 
-        // 2) Otherwise use per-book pref, falling back to global option
+        // 2) Otherwise: per-book pref if present, else global option
         if (initialCode == null || initialCode.isEmpty() || "und".equalsIgnoreCase(initialCode)) {
-            initialCode = (folderId > 0)
-                    ? Pref.getBookTtsLanguage(this, folderId)
-                    : Option.getTtsLanguage(); // "system" or ISO 639-1
+            String perBook = null;
+            try {
+                if (currentFolderId > 0) {
+                    // Prefer a method that returns null if not set. If you don't have it,
+                    // let getBookTtsLanguage return "" when not set.
+                    perBook = Pref.getBookTtsLanguage(this, currentFolderId);
+                }
+            } catch (Throwable ignored) {}
+
+            initialCode = perBook;
         }
 
-        // Populate spinner with available TTS languages (flags & labels) and select initialCode
-        final int currentFolderId = folderId;
+        myLogD("TTS spinner initial code: " + initialCode);
+
+        // Guard so initial programmatic selection doesn't trigger a SAVE.
+        // Spinner has no "fromUser" signal, so we detect user interaction.
+        final boolean[] userInteracted = { false };
+        spinnerTtsLanguage.setOnTouchListener((v, ev) -> {
+            if (ev.getAction() == MotionEvent.ACTION_UP) {
+                v.performClick(); // notify accessibility services
+            }
+            userInteracted[0] = true;
+            return false; // let Spinner handle the rest
+        });
+
+        // Build the spinner & hook the callback
         LanguageHelper.setupTtsSettingsSpinnerDynamic(
                 this,
                 spinnerTtsLanguage,
                 initialCode,
                 lang -> {
-                    // Normalize to "system" or 2-letter lower-case
+                    // Normalize to "system" or 2-letter code
                     String code = (lang == null || lang.twoLetterCode == null || lang.twoLetterCode.isEmpty())
                             ? "system"
                             : lang.twoLetterCode.toLowerCase();
 
-                    // Persist per-book if we know the book
-                    if (currentFolderId > 0) {
+                    // Only persist if the USER changed it (manual action)
+                    if (userInteracted[0] && currentFolderId > 0) {
                         Pref.setBookTtsLanguage(this, currentFolderId, code);
+                        myLogD("Saved per-book TTS language: folder=" + currentFolderId + " code=" + code);
                     }
-                    // Apply live if service is around
-                    if (audioServiceBound && audioService != null) {
-                        audioService.setTtsLanguageCode(code); // expose in AudioService
+
+                    // Apply live only on user change (keeps service state stable on init)
+                    if (userInteracted[0] && audioServiceBound && audioService != null) {
+                        audioService.setTtsLanguageCode(code);
                     }
                 }
         );

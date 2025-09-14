@@ -215,8 +215,11 @@ public class AudioService extends LoggingService {
         }
 
         @Override public void prepareAsync() {
-            if (tts.isReady()) { prepared = true; onPrepared.run(); }
-            // else onTtsReady() will call onPrepared later
+            if (tts.isReady()) {
+                applyInitialTtsLanguage();
+                prepared = true;
+                onPrepared.run();
+            }
         }
 
         @Override public void start() {
@@ -270,12 +273,7 @@ public class AudioService extends LoggingService {
 
         // --- EbookTtsHelper.Listener ---
         @Override public void onTtsReady(TextToSpeech t) {
-            try { tts.setLanguage(currentLocale); } catch (Throwable ignored) {}
-            String code = Option.getTtsLanguage(); // default
-            ZikFile zf = getCurrentZikFile();
-            if (zf != null) code = getBookTtsLanguage(zf.getIdFolder());
-
-            //EbookTtsHelper.applyPreferredLanguage(tts.getRawTtsInstance(), code);
+            applyInitialTtsLanguage();
             prepared = true;
             onPrepared.run();
         }
@@ -296,6 +294,36 @@ public class AudioService extends LoggingService {
         @Override public void onWordRange(int s, int e) { onUtteranceRange(s, e); }
 
         private float currentSpeechRate() { return (float) Math.max(0.1, getSpeed()); }
+
+        private void applyInitialTtsLanguage() {
+            // 1) decide the 2-letter code to use
+            String code = Option.getTtsLanguage(); // "system" or ISO-639-1
+            ZikFile zf = getCurrentZikFile();
+            if (zf != null) {
+                String perBook = getBookTtsLanguage(zf.getIdFolder()); // return "" or "system" if unset
+                if (perBook != null && !perBook.isEmpty()) code = perBook;
+            }
+
+            // 2) map to Locale
+            java.util.Locale target;
+            if (code == null || code.isEmpty() || "system".equalsIgnoreCase(code)) {
+                target = java.util.Locale.getDefault();
+            } else {
+                // Prefer your helper if it exists
+                try {
+                    java.util.Locale maybe = LanguageHelper.localeFromTwoLetter(code);
+                    target = (maybe != null) ? maybe : new java.util.Locale(code.toLowerCase(java.util.Locale.ROOT));
+                } catch (Throwable ignored) {
+                    target = new java.util.Locale(code.toLowerCase(java.util.Locale.ROOT));
+                }
+            }
+
+            // 3) apply to engine state + Android TTS
+            currentLocale = target;
+            try { tts.setLanguage(currentLocale); } catch (Throwable ignored) {}
+            // optional: recompute estimate since language/prosody can change:
+            estDurationMs = estimateDurationMs(text, currentSpeechRate());
+        }
 
         public java.util.Locale currentLocale() {
             return currentLocale;

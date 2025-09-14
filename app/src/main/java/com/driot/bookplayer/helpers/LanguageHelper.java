@@ -11,6 +11,7 @@ import android.widget.Spinner;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.adapter.LanguageSpinnerAdapter;
 import com.driot.bookplayer.objects.LanguageItem;
+import com.driot.bookplayer.utils.KanLogger;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -53,7 +54,7 @@ public class LanguageHelper {
         baseList.add(new LanguageItem("nld", "nl", "Nederlands", R.drawable.flag_nl));
 
         List<LanguageItem> librivoxList = new ArrayList<>(baseList );
-        baseList.add(new LanguageItem("mul", "", "Multiple", R.drawable.flag_globe));
+        librivoxList.add(new LanguageItem("mul", "", "Multiple", R.drawable.flag_globe));
         LIBRIVOX_LANGUAGES = librivoxList ;
 
         List<LanguageItem> podcastList = new ArrayList<>(baseList );
@@ -153,7 +154,7 @@ public class LanguageHelper {
 
                     // Always include "Device language"
                     String deviceLabel = "Device language (" + java.util.Locale.getDefault().getDisplayName() + ")";
-                    list.add(new LanguageItem("sys", "system", deviceLabel, R.drawable.flag_globe));
+                    list.add(new LanguageItem("sys", "system", deviceLabel, 0));
 
                     if (status == TextToSpeech.SUCCESS && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                         // Build best-per-language map
@@ -163,6 +164,7 @@ public class LanguageHelper {
                         try {
                             java.util.Set<android.speech.tts.Voice> voices = tts.getVoices();
                             if (voices != null && !voices.isEmpty()) {
+                                myLogD(voices.size() + " voices found.");
                                 for (android.speech.tts.Voice v : voices) {
                                     java.util.Locale loc = v.getLocale();
                                     if (loc == null) continue;
@@ -183,6 +185,7 @@ public class LanguageHelper {
                             try {
                                 java.util.Set<java.util.Locale> locales = tts.getAvailableLanguages();
                                 if (locales != null) {
+                                    myLogD(locales.size() + " locales found.");
                                     for (java.util.Locale loc : locales) {
                                         String lang2 = safeLang2(loc);
                                         if (lang2.isEmpty()) continue;
@@ -288,8 +291,7 @@ public class LanguageHelper {
         // Fallback mapping by language → canonical country
         String lang = safeLang2(loc);
         String fallbackCountry = fallbackCountryForLanguage(lang);
-        int res = flagResByCode(ctx, fallbackCountry);
-        return res != 0 ? res : R.drawable.flag_globe;
+        return flagResByCode(ctx, fallbackCountry);
     }
 
     private static int flagResByCode(Context ctx, String countryCode2) {
@@ -332,5 +334,53 @@ public class LanguageHelper {
     public static String twoLetterFromLocale(java.util.Locale l) {
         return (l == null) ? "system" : (l.getLanguage() == null ? "system" : l.getLanguage().toLowerCase());
     }
+
+    public static java.util.Locale localeFromTwoLetter(@androidx.annotation.Nullable String codeOrSystem) {
+        // Fallback to device default for null/empty/"system"/"und"
+        if (codeOrSystem == null) return java.util.Locale.getDefault();
+        String c = codeOrSystem.trim().toLowerCase(java.util.Locale.ROOT);
+        if (c.isEmpty() || "system".equals(c) || "und".equals(c)) {
+            return java.util.Locale.getDefault();
+        }
+
+        // If user passed a full language tag (e.g., "en-US", "pt_BR"), use it.
+        if (c.indexOf('-') >= 0 || c.indexOf('_') >= 0) {
+            try {
+                java.util.Locale viaTag = java.util.Locale.forLanguageTag(c.replace('_', '-'));
+                if (viaTag != null && !viaTag.getLanguage().isEmpty()) return viaTag;
+            } catch (Throwable ignored) {}
+        }
+
+        // Common languages → stable singletons (slightly nicer than new Locale("xx"))
+        switch (c) {
+            case "en": return java.util.Locale.ENGLISH;
+            case "fr": return java.util.Locale.FRENCH;
+            case "de": return java.util.Locale.GERMAN;
+            case "it": return java.util.Locale.ITALIAN;
+            case "ja": return java.util.Locale.JAPANESE;
+            case "ko": return java.util.Locale.KOREAN;
+            case "zh": return java.util.Locale.SIMPLIFIED_CHINESE; // default to simplified
+            case "es": return new java.util.Locale("es");
+            case "pt": return new java.util.Locale("pt");
+            case "ru": return new java.util.Locale("ru");
+            case "ar": return new java.util.Locale("ar");
+            case "nl": return new java.util.Locale("nl");
+            case "sv": return new java.util.Locale("sv");
+            case "pl": return new java.util.Locale("pl");
+            default:   return new java.util.Locale(c); // best-effort for any other 2-letter code
+        }
+    }
+
+
+    // === LOGGING ===
+    // ----------------------- LOG -----------------------
+    private static final String TAG = "LanguageHelper";
+    private static void myLog(String str) { KanLogger.myLog(TAG, str); }
+    private static void myLogD(String str) { KanLogger.myLogD(TAG, str); }
+    private static void myLogI(String str) { KanLogger.myLogI(TAG, str); }
+    private static void myLogW(String str) { KanLogger.myLogW(TAG, str); }
+    private static void myLogE(String str) { KanLogger.myLogE(TAG, str); }
+    private static void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, TAG, str); }
+    private static void myToastEE(Throwable t, String str) { KanLogger.myToastEE(t, TAG, str); }
 
 }

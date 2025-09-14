@@ -97,8 +97,6 @@ public class Pref {
         }
     }
 
-
-
     public static void setLoadBookTaskState(LoadBookTaskState loadBookTaskState) {
         Parcel parcel = Parcel.obtain();
         loadBookTaskState.writeToParcel(parcel, 0);

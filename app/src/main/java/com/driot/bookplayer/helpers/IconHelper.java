@@ -13,7 +13,7 @@ public class IconHelper {
 
 
     public static void setSourceIcon(ImageView ivSource, String sourceLocation, String fileExtension) {
-        myLog("setSourceIcon " + sourceLocation + " " + fileExtension);
+        //myLog("setSourceIcon " + sourceLocation + " " + fileExtension);
         if (sourceLocation.equals(SOURCE_LOCATION_PODCAST)) {
             ivSource.setVisibility(View.VISIBLE);
             ivSource.setImageResource(R.drawable.ic_podcast_24);
