@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/scrollView"
-    android:fitsSystemWindows="true"
-    >
+android:id="@+id/scrollView"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+android:clipToPadding="false">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10sp"
-        android:layout_marginEnd="10sp"
-        android:orientation="vertical">
+<LinearLayout
+    android:id="@+id/content"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="10dp"
+    android:layout_marginEnd="10dp"
+    android:layout_marginTop="20dp"
+    android:orientation="vertical"
+    android:paddingBottom="16dp">
 
         <LinearLayout
             android:id="@+id/ll_container_sd_card"
-            android:layout_marginTop="20sp"
             style="@style/LinearLayoutOptionsVertical"
             >
             <TextView
@@ -124,6 +124,35 @@
                 style="@style/OptionMiniText" />
         </LinearLayout>
 
+
+        <View style="@style/myStyleViewSimpleHorizontalBar" />
+
+        <LinearLayout style="@style/LinearLayoutOptionsVertical">
+            <TextView
+                style="@style/OptionTextDefaultFor"
+                android:text="@string/default_for" />
+            <TextView
+                android:id="@+id/txtCopyFileHead"
+                style="@style/OptionTitle"
+                android:text="@string/option_copy_file_title"
+                android:layout_marginTop="0dp"/>
+            <LinearLayout style="@style/LayoutWrapContentMargin20horizontal"
+                android:layout_height="wrap_content"
+                android:id="@+id/ll_copy_file">
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/chk_copy_file"
+                    style="@style/OptionCheckBox"/>
+                <TextView style="@style/OptionCheckBoxText"
+                    android:text="@string/option_copy_file_text"/>
+            </LinearLayout>
+            <TextView
+                style="@style/OptionSubTitle"
+                android:text="@string/option_copy_file_special_zip" />
+            <TextView
+                style="@style/OptionSubTitle"
+                android:text="@string/option_copy_file_subtitle" />
+
+        </LinearLayout>
 
         <View style="@style/myStyleViewSimpleHorizontalBar" />
 
@@ -351,6 +380,15 @@
 
         <!-- Button to show/hide advanced options -->
         <Button
+            android:id="@+id/btnPodcastOptions"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/podcast_settings"
+            android:layout_gravity="center"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="20dp"
+            />
+        <Button
             android:id="@+id/btn_show_advanced"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -359,7 +397,6 @@
             android:layout_marginTop="20dp"
             android:layout_marginBottom="20dp"
             />
-
 
 
         <!-- Advanced Options -->
@@ -393,35 +430,6 @@
                 </LinearLayout>
             </LinearLayout>
 
-
-            <View style="@style/myStyleViewSimpleHorizontalBar" />
-
-            <LinearLayout style="@style/LinearLayoutOptionsVertical">
-                <TextView
-                    style="@style/OptionTextDefaultFor"
-                    android:text="@string/default_for" />
-                <TextView
-                    android:id="@+id/txtCopyFileHead"
-                    style="@style/OptionTitle"
-                    android:text="@string/option_copy_file_title"
-                    android:layout_marginTop="0dp"/>
-                <TextView
-                    style="@style/OptionSubTitle"
-                    android:text="@string/option_copy_file_subtitle" />
-                <LinearLayout style="@style/LayoutWrapContentMargin20horizontal"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/ll_copy_file">
-                    <com.google.android.material.checkbox.MaterialCheckBox
-                        android:id="@+id/chk_copy_file"
-                        style="@style/OptionCheckBox"/>
-                    <TextView style="@style/OptionCheckBoxText"
-                        android:text="@string/option_copy_file_text"/>
-                </LinearLayout>
-                <TextView
-                    style="@style/OptionSubTitle"
-                    android:text="@string/option_copy_file_special_zip" />
-
-            </LinearLayout>
 
             <View style="@style/myStyleViewSimpleHorizontalBar" />
 
@@ -580,161 +588,6 @@
 
             <View style="@style/myStyleViewSimpleHorizontalBar" />
 
-
-
-            <LinearLayout
-                android:id="@+id/ll_Podcast"
-                style="@style/LinearLayoutOptionsVertical">
-                <TextView
-                    style="@style/OptionTextDefaultFor"
-                    android:text="@string/default_for" />
-                <TextView
-                    style="@style/OptionTitle"
-                    android:text="@string/Podcasts" />
-                <LinearLayout style="@style/LinearLayoutOptionsCheckBoxHorizontal"
-                    android:id="@+id/ll_podcast_episodes_sort_order">
-                    <com.google.android.material.checkbox.MaterialCheckBox
-                        android:id="@+id/chk_podcast_episodes_sort_order"
-                        style="@style/OptionCheckBox"/>
-                    <TextView
-                        style="@style/OptionCheckBoxText"
-                        android:text="@string/option_podcast_episodes_sort_order" />
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/ll_AutoDownload"
-                    style="@style/LinearLayoutOptionsVertical">
-                    <TextView
-                        style="@style/OptionTitle"
-                        android:text="@string/Auto_Download"
-                        />
-                    <LinearLayout
-                        style="@style/LinearLayoutOptionsCheckBoxHorizontal"
-                        android:gravity="center"
-                        android:layout_width="match_parent">
-                        <TextView
-                            style="@style/OptionPodcastTextBeforeEditText"
-                            android:text="@string/last"
-                            />
-                        <EditText
-                            style="@style/OptionPodcastEditText"
-                            android:id="@+id/et_auto_download_last_n_episode"
-                            />
-                        <TextView
-                            style="@style/OptionPodcastTextAfterEditText"
-                            android:text="@string/episodes"
-                            />
-                    </LinearLayout>
-                    <LinearLayout
-                        style="@style/LinearLayoutOptionsCheckBoxHorizontal"
-                        android:gravity="center"
-                        android:layout_width="match_parent">
-                        <TextView
-                            style="@style/OptionPodcastTextBeforeEditText"
-                            android:text="@string/for_max"
-                            />
-                        <EditText
-                            style="@style/OptionPodcastEditText"
-                            android:id="@+id/et_auto_download_max_n_podcast"
-                            />
-                        <TextView
-                            style="@style/OptionPodcastTextAfterEditText"
-                            android:text="@string/podcasts"
-                            />
-                    </LinearLayout>
-                    <TextView
-                        android:text="Min = 1"
-                        style="@style/OptionMiniText" />
-                    <TextView
-                        android:text="Max = 100"
-                        style="@style/OptionMiniText" />
-                    <LinearLayout
-                        style="@style/LinearLayoutOptionsCheckBoxHorizontal"
-                        android:gravity="center"
-                        android:layout_width="match_parent">
-                        <TextView
-                            style="@style/OptionPodcastTextBeforeEditText"
-                            android:text="@string/check_every"
-                            />
-                        <EditText
-                            style="@style/OptionPodcastEditText"
-                            android:id="@+id/et_auto_download_delay_between_checks_in_min"
-                            android:width="80dp"
-                            />
-                        <TextView
-                            style="@style/OptionPodcastTextAfterEditText"
-                            android:text="@string/min."
-                            />
-                    </LinearLayout>
-                    <TextView
-                        android:text="Min = 15"
-                        style="@style/OptionMiniText" />
-                    <TextView
-                        android:text="Max = 60x24  (1day = 1440min)"
-                        style="@style/OptionMiniText" />
-                </LinearLayout>
-                <LinearLayout
-                    android:id="@+id/ll_AutoDelete"
-                    style="@style/LinearLayoutOptionsVertical">
-                    <TextView
-                        style="@style/OptionTitle"
-                        android:text="@string/Auto_Delete" />
-                    <LinearLayout
-                        android:id="@+id/ll_podcast_auto_delete"
-                        style="@style/LinearLayoutOptionsCheckBoxHorizontal">
-                        <com.google.android.material.checkbox.MaterialCheckBox
-                            android:id="@+id/chk_podcast_auto_delete"
-                            style="@style/OptionCheckBox"/>
-                        <TextView
-                            android:id="@+id/txt_podcast_auto_delete"
-                            style="@style/OptionCheckBoxText"
-                            android:text="@string/auto_delete_episodes_once_listened_to" />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        style="@style/LinearLayoutOptionsCheckBoxHorizontal"
-                        android:gravity="center"
-                        android:layout_width="match_parent">
-                        <TextView
-                            style="@style/OptionPodcastTextBeforeEditText"
-                            android:text="@string/after"
-                            />
-                        <EditText
-                            style="@style/OptionPodcastEditText"
-                            android:id="@+id/et_delay_deletion"
-                            />
-                        <TextView
-                            style="@style/OptionPodcastTextAfterEditText"
-                            android:text="@string/days"
-                            />
-                    </LinearLayout>
-                    <LinearLayout
-                        style="@style/LinearLayoutOptionsCheckBoxHorizontal"
-                        android:gravity="center"
-                        android:layout_width="match_parent">
-                        <TextView
-                            style="@style/OptionPodcastTextBeforeEditText"
-                            android:text="@string/if_completion"
-                            />
-                        <EditText
-                            style="@style/OptionPodcastEditText"
-                            android:id="@+id/et_percentage_deletion"
-                            />
-                        <TextView
-                            style="@style/OptionPodcastTextAfterEditText"
-                            android:text="%"
-                            />
-                    </LinearLayout>
-                    <TextView
-                        android:text="Min = 10"
-                        style="@style/OptionMiniText" />
-                    <TextView
-                        android:text="Max = 100"
-                        style="@style/OptionMiniText" />
-
-                </LinearLayout>
-            </LinearLayout>
-            <View style="@style/myStyleViewSimpleHorizontalBar" />
             <LinearLayout
                 style="@style/LinearLayoutOptionsCheckBoxHorizontal">
                 <TextView style="@style/OptionSubTitle"

@@ -265,7 +265,7 @@ BookPlayer 在<font color="#81C784">无需权限</font>的情况下也能运行�
     <string name="option_on_load_use_SD_card">使用 SD 卡</string>
 
     <string name="option_split_m4b">.m4b 拆分</string>
-    <string name="option_split_m4b_text">从 m4b（新有声书格式）中提取章节。- 实验功能 -</string>
+    <string name="option_split_m4b_text">从 m4b 中提取章节。</string>
 
     <string name="option_copy_file_special_zip"><i>ZIP 和拆分 m4b 文件始终会被复制</i></string>
 

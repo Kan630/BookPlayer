@@ -263,7 +263,7 @@
     <string name="option_on_load_use_SD_card">استخدم بطاقة SD</string>
 
     <string name="option_split_m4b">تقسيم .m4b</string>
-    <string name="option_split_m4b_text">استخراج الفصول من m4b (تنسيق كتاب صوتي جديد). - لا يزال تجريبيًا -</string>
+    <string name="option_split_m4b_text">استخراج الفصول من m4b</string>
 
     <string name="option_copy_file_special_zip"><i>يتم دائمًا نسخ ملفات zip وm4b المقسمة</i></string>
 

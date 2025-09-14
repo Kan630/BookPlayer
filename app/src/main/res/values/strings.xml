@@ -278,7 +278,7 @@
     <string name="option_on_load_use_SD_card">Use SD card</string>">
 
     <string name="option_split_m4b">.m4b splitting</string>
-    <string name="option_split_m4b_text">Extract chapters from m4b (new audiobook format). - Still Experimental -</string>
+    <string name="option_split_m4b_text">Extract chapters from m4b.</string>
 
     <string name="option_copy_file_special_zip"><i>zip and split m4b are always copied</i></string>
 
@@ -758,6 +758,7 @@
     <string name="expand">expand</string>
     <string name="sort">sort</string>
     <string name="settings">settings</string>
+    <string name="podcast_settings">podcast settings</string>
     <string name="option_podcast_episodes_expand">show descriptions</string>
     <string name="option_create_cover">Create covers</string>
     <string name="option_create_cover_text">If no cover image is found upon book loading, a pastel image with book title initials will be created.</string>

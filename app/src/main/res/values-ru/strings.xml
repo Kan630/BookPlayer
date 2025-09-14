@@ -265,7 +265,7 @@
     <string name="option_on_load_use_SD_card">Использовать SD-карту</string>
 
     <string name="option_split_m4b">Разделение .m4b</string>
-    <string name="option_split_m4b_text">Извлечение глав из m4b (новый формат аудиокниг). - Пока экспериментально -</string>
+    <string name="option_split_m4b_text">Извлечение глав из m4b.</string>
 
     <string name="option_copy_file_special_zip"><i>zip и разделённые m4b всегда копируются</i></string>
 

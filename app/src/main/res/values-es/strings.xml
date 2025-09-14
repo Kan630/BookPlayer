@@ -256,7 +256,7 @@ Todas las publicaciones son públicamente visibles. Inicia sesión para particip
     <string name="option_on_load_use_SD_card">Usar tarjeta SD</string>
 
     <string name="option_split_m4b">División de .m4b</string>
-    <string name="option_split_m4b_text">Extraer capítulos de archivos m4b (nuevo formato de audiolibro). - Aún experimental -</string>
+    <string name="option_split_m4b_text">Extraer capítulos de archivos m4b.</string>
 
     <string name="option_copy_file_special_zip"><i>los archivos zip y m4b divididos siempre se copian</i></string>
 

@@ -267,7 +267,7 @@ Tous les messages sont lisibles publiquement. Connectez-vous pour participer.
     <string name="option_on_load_use_SD_card">Utiliser la carte SD</string>
 
     <string name="option_split_m4b">Découpage .m4b</string>
-    <string name="option_split_m4b_text">Extraire les chapitres d\'un fichier m4b (nouveau format d\'audiolivre). - Encore expérimental -</string>
+    <string name="option_split_m4b_text">Extraire les chapitres d\'un fichier m4b.</string>
 
     <string name="option_copy_file_special_zip"><i>les fichiers zip et m4b découpés sont toujours copiés</i></string>
 
