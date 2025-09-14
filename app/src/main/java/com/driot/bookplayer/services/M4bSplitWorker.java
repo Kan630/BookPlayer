@@ -8,8 +8,6 @@ import androidx.work.WorkerParameters;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
-import com.driot.bookplayer.helpers.AudioMetadataHelper;
-import com.driot.bookplayer.objects.MyAudioMetadata;
 import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.objects.TaskStateManager;
 import com.driot.bookplayer.utils.log.LoggingWorker;
@@ -31,7 +29,7 @@ import java.util.*;
 
 public class M4bSplitWorker extends LoggingWorker {
 
-    private static final String TASK_NAME = Var.WORKER_TASK_LABEL_SPLIT;
+    private static final String TASK_NAME = Var.WORKER_TASK_LABEL_SPLIT_M4B;
 
     public M4bSplitWorker(@NonNull Context context, @NonNull WorkerParameters params) {
         super(context, params);

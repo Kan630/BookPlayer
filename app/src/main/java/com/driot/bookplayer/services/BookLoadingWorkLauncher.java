@@ -27,7 +27,8 @@ public class BookLoadingWorkLauncher {
     public static void launch(Context context) {
         boolean doDownload = false;
         boolean doCopy = false;
-        boolean doSplit = false;
+        boolean doSplitM4b = false;
+        boolean doSplitEpub = false;
         boolean doUnzip = false;
 
         TaskStateManager.tellStart(); //TODO maybe to remove
@@ -57,20 +58,27 @@ public class BookLoadingWorkLauncher {
 
         FirebaseAnalyticsHelper.tellAnalyticsWork(context, bookState.originalUri.toString());
 
-        List<OneTimeWorkRequest> workChain = new ArrayList<>();
-
         if (bookState.dynamicUri.toString().startsWith("http")) {
+            myLogD("http => download");
             doDownload = true;
         }
         if (bookState.optionCopy || bookState.sourceLocation.equals("cloud")) {
+            myLogD("copy");
             doCopy = true;
         }
         if (bookState.fileExtension!=null && bookState.fileExtension.equalsIgnoreCase("zip")) {
+            myLogD("ZIP => unzip + copy");
             doUnzip = true;
             doCopy = true;
         }
         if (bookState.fileExtension!=null && bookState.fileExtension.equalsIgnoreCase("m4b") && bookState.optionSplit) {
-            doSplit = true;
+            myLogD("m4b to split");
+            doSplitM4b = true;
+            doCopy = true;
+        }
+        if (bookState.fileExtension!=null && bookState.fileExtension.equalsIgnoreCase("epub")) {
+            myLogD("epub");
+            doSplitEpub = true;
             doCopy = true;
         }
         if (doDownload) {
@@ -79,7 +87,8 @@ public class BookLoadingWorkLauncher {
 
         bookState.doDownload = doDownload;
         bookState.doCopy = doCopy;
-        bookState.doSplit = doSplit;
+        bookState.doSplitM4b = doSplitM4b;
+        bookState.doSplitEpub = doSplitEpub;
         bookState.doUnzip = doUnzip;
         setLoadBookTaskState(bookState);
 
@@ -97,6 +106,7 @@ public class BookLoadingWorkLauncher {
             WorkManager.getInstance(context).enqueue(downloadWork);
             return;
         }
+
         launchAfterDownload(context);
     }
 
@@ -108,9 +118,9 @@ public class BookLoadingWorkLauncher {
 
         if (bookState.doCopy) {workChain.add(new OneTimeWorkRequest.Builder(CopyFileWorker.class).addTag(BOOK_LOADING_WORKERS).build());}
         if (bookState.doUnzip) {workChain.add(new OneTimeWorkRequest.Builder(UnzipWorker.class).addTag(BOOK_LOADING_WORKERS).build());}
-        if (bookState.doSplit) {workChain.add(new OneTimeWorkRequest.Builder(M4bSplitWorker.class).addTag(BOOK_LOADING_WORKERS).build());}
+        if (bookState.doSplitM4b) {workChain.add(new OneTimeWorkRequest.Builder(M4bSplitWorker.class).addTag(BOOK_LOADING_WORKERS).build());}
+        if (bookState.doSplitEpub) {workChain.add(new OneTimeWorkRequest.Builder(EpubSplitWorker.class).addTag(BOOK_LOADING_WORKERS).build());}
         workChain.add(new OneTimeWorkRequest.Builder(ParseFinalFolderWorker.class).addTag(BOOK_LOADING_WORKERS).build());
-
 
         WorkContinuation continuation = WorkManager.getInstance(context).beginWith(workChain.get(0));
         for (int i = 1; i < workChain.size(); i++) {

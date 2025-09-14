@@ -13,7 +13,8 @@ public class Var {
 
     public static final String WORKER_TASK_LABEL_DOWNLOAD = "Download";
     public static final String WORKER_TASK_LABEL_UNZIP = "Unzip";
-    public static final String WORKER_TASK_LABEL_SPLIT = "Split";
+    public static final String WORKER_TASK_LABEL_SPLIT_M4B = "SplitM4b";
+    public static final String WORKER_TASK_LABEL_SPLIT_EPUB = "SplitEpub";
     public static final String WORKER_TASK_LABEL_COPY = "Copy";
     public static final String WORKER_TASK_LABEL_SCAN = "Scan";
 
@@ -125,6 +126,12 @@ public class Var {
                     "mpg",
                     "mpeg",
                     "avi"
+            )
+    );
+    public static final String ONLY_MIME_EBOOK = "application/epub+zip";
+    public static final Set<String> SUPPORTED_EBOOK_EXTENSIONS = new HashSet<>(
+            Arrays.asList(
+                    "epub" // Kobo kepub is still .epub
             )
     );
 

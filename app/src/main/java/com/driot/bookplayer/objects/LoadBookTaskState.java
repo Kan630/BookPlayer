@@ -40,7 +40,8 @@ public class LoadBookTaskState implements Parcelable {
     public String dynamicSourceFilePath;
     public boolean doDownload;
     public boolean doCopy;
-    public boolean doSplit;
+    public boolean doSplitM4b;
+    public boolean doSplitEpub;
     public boolean doUnzip;
 
 
@@ -81,7 +82,8 @@ public class LoadBookTaskState implements Parcelable {
         dynamicSourceFilePath = in.readString();
         doDownload = in.readByte() != 0;
         doCopy = in.readByte() != 0;
-        doSplit = in.readByte() != 0;
+        doSplitM4b = in.readByte() != 0;
+        doSplitEpub = in.readByte() != 0;
         doUnzip = in.readByte() != 0;
     }
 
@@ -130,7 +132,8 @@ public class LoadBookTaskState implements Parcelable {
         dest.writeString(dynamicSourceFilePath);
         dest.writeByte((byte) (doDownload ? 1 : 0));
         dest.writeByte((byte) (doCopy ? 1 : 0));
-        dest.writeByte((byte) (doSplit ? 1 : 0));
+        dest.writeByte((byte) (doSplitM4b ? 1 : 0));
+        dest.writeByte((byte) (doSplitEpub ? 1 : 0));
         dest.writeByte((byte) (doUnzip ? 1 : 0));
     }
 
@@ -174,7 +177,8 @@ public class LoadBookTaskState implements Parcelable {
                 ", dynamicSourceFilePath='" + dynamicSourceFilePath + '\'' +
                 ", doDownload=" + doDownload +
                 ", doCopy=" + doCopy +
-                ", doSplit=" + doSplit +
+                ", doSplitM4b=" + doSplitM4b +
+                ", doSplitEpub=" + doSplitEpub +
                 ", doUnzip=" + doUnzip +
                 '}';
     }

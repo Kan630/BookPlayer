@@ -12,7 +12,7 @@ public class FirebaseAnalyticsHelper {
     public static void tellAnalyticsWork(Context context, String originalUri) {
         Bundle bundle = new Bundle();
         bundle.putString("originalUri", originalUri);
-        logThat(context, "work", bundle);
+        logThat(context, "worker_start", bundle);
     }
 
     public static void tellAnalyticsManualLoad(Context context, String type, String extension, String sourceLocation, String originalFile) {

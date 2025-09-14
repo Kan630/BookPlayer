@@ -36,7 +36,8 @@ public class TaskStateManager {
         stepMap.put(Var.WORKER_TASK_LABEL_DOWNLOAD, new StepInfo(1, 20, "Downloading..."));
         stepMap.put(Var.WORKER_TASK_LABEL_COPY, new StepInfo(2, 3, "Copying files..."));
         stepMap.put(Var.WORKER_TASK_LABEL_UNZIP, new StepInfo(3, 7, "Unzipping..."));
-        stepMap.put(Var.WORKER_TASK_LABEL_SPLIT, new StepInfo(4, 7, "Splitting M4B..."));
+        stepMap.put(Var.WORKER_TASK_LABEL_SPLIT_M4B, new StepInfo(4, 7, "Splitting M4B..."));
+        stepMap.put(Var.WORKER_TASK_LABEL_SPLIT_EPUB, new StepInfo(4, 7, "Splitting EPUB..."));
         stepMap.put(Var.WORKER_TASK_LABEL_SCAN, new StepInfo(5, 2, "Scanning audio..."));
     }
 
@@ -75,23 +76,6 @@ public class TaskStateManager {
         state.currentOperation = currentOperation;
         Pref.setLoadBookTaskState(state);
         OngoingTaskViewModelBridge.updateProgressText(appContext, currentOperation);
-    }
-
-    public static void markDownloadIsPaused(Context context) {
-        LoadBookTaskState state = Pref.getLoadBookTaskState();
-        String currentOperation = "Download paused";
-        tellCurrentOperation(currentOperation);
-        if (state != null) {
-            state.isLoadingPaused = true;
-            state.currentOperation = currentOperation;
-            if (!state.progressText.endsWith("(paused)")) {
-                state.progressText = state.progressText + " (paused)";
-            }
-            Pref.setLoadBookTaskState(state);
-            OngoingTaskViewModelBridge.updateProgressText(appContext, currentOperation);
-        } else {
-            myLogEE(null, "markIsPaused - No valid LoadBookTaskState found");
-        }
     }
 
     public static void markDownloadCompleted(String taskName, String downloadedFileFullPath) {
@@ -136,6 +120,20 @@ public class TaskStateManager {
             Pref.setLoadBookTaskState(state);
         } else {
             myLogEE(null, "markM4bSplitCompleted - state == null");
+        }
+    }
+    public static void markEpubSplitCompleted(String taskName, String destinationFolderPath) {
+        String currentOperation = taskName + " completed - [" + destinationFolderPath + "]";
+        LoadBookTaskState state = Pref.getLoadBookTaskState();
+        if (state != null) {
+            state.currentOperation = currentOperation;
+            state.dynamicType = "Folder";
+            state.dynamicUri = Uri.parse(destinationFolderPath);
+            state.dynamicDestinationFolderPath = destinationFolderPath;
+            state.dynamicSourceFilePath = destinationFolderPath;
+            Pref.setLoadBookTaskState(state);
+        } else {
+            myLogEE(null, "markEpubSplitCompleted - state == null");
         }
     }
 
@@ -237,7 +235,7 @@ public class TaskStateManager {
         if (state == null) return 1;
         if (state.doDownload) totalWeight += stepMap.get(Var.WORKER_TASK_LABEL_DOWNLOAD).weight;
         if (state.doUnzip) totalWeight += stepMap.get(Var.WORKER_TASK_LABEL_UNZIP).weight;
-        if (state.doSplit) totalWeight += stepMap.get(Var.WORKER_TASK_LABEL_SPLIT).weight;
+        if (state.doSplitM4b) totalWeight += stepMap.get(Var.WORKER_TASK_LABEL_SPLIT_M4B).weight;
         if (state.doCopy) totalWeight += stepMap.get(Var.WORKER_TASK_LABEL_COPY).weight;
         totalWeight += stepMap.get(Var.WORKER_TASK_LABEL_SCAN).weight; // Always run
         return totalWeight;
@@ -266,7 +264,7 @@ public class TaskStateManager {
             boolean isEnabled = false;
             if (Var.WORKER_TASK_LABEL_DOWNLOAD.equals(key)) isEnabled = state.doDownload;
             else if (Var.WORKER_TASK_LABEL_UNZIP.equals(key)) isEnabled = state.doUnzip;
-            else if (Var.WORKER_TASK_LABEL_SPLIT.equals(key)) isEnabled = state.doSplit;
+            else if (Var.WORKER_TASK_LABEL_SPLIT_M4B.equals(key)) isEnabled = state.doSplitM4b;
             else if (Var.WORKER_TASK_LABEL_COPY.equals(key)) isEnabled = state.doCopy;
             else if (Var.WORKER_TASK_LABEL_SCAN.equals(key)) isEnabled = true;
 

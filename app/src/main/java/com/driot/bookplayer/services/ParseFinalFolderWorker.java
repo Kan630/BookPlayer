@@ -23,11 +23,9 @@ import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
-import com.driot.bookplayer.helpers.AudioMetadataHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.UriHelper;
 import com.driot.bookplayer.objects.AudioFileInfo;
-import com.driot.bookplayer.objects.MyAudioMetadata;
 import com.driot.bookplayer.objects.TaskStateManager;
 import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.utils.Tonio;
@@ -173,25 +171,42 @@ public class ParseFinalFolderWorker extends LoggingWorker {
         myLog("populateArrayListOfTracksFromFolder - DocumentFile [" + dfPickedDir + "]");
         TaskStateManager.tellProgress(TASK_NAME, 3, context.getString(R.string.listing_and_sorting_tracks));
 
-        myLog("running recursive scan for audio file in a background thread");
-
         audioFileArrayList = new ArrayList<>();
+        Thread backgroundThread;
+        if (bookState.fileExtension.equals("epub")) {
+            backgroundThread = new Thread(() -> {
+                addTextFileRecursive(dfPickedDir);
 
-        Thread backgroundThread = new Thread(() -> {
-            addAudioFileRecursive(dfPickedDir);
+                myLogD("addAudioFileRecursive done, sorting now...");
+                audioFileArrayList.sort(AudioFileInfo.ALPHANUMERIC_COMPARATOR);
 
-            myLogD("addAudioFileRecursive done, sorting now...");
-            audioFileArrayList.sort(AudioFileInfo.ALPHANUMERIC_COMPARATOR);
+                if (audioFileArrayList.isEmpty()) {
+                    myLog("No File found in directory : [" + dfPickedDir.getName() + ']');
+                } else {
+                    myLog(audioFileArrayList.size() + " files found in directory : [" + dfPickedDir.getName() + ']');
+                    myLog("Full directory size : [" + formatMemPadding(fullFolderSize/1024/1024,0) + " Mo]");
+                    myLogD("-----------------------------");
+                }
+                goFolder();
+            });
+        } else {
+            myLog("running recursive scan for audio file in a background thread");
+            backgroundThread = new Thread(() -> {
+                addAudioFileRecursive(dfPickedDir);
 
-            if (audioFileArrayList.isEmpty()) {
-                myLog("No File found in directory : [" + dfPickedDir.getName() + ']');
-            } else {
-                myLog(audioFileArrayList.size() + " files found in directory : [" + dfPickedDir.getName() + ']');
-                myLog("Full directory size : [" + formatMemPadding(fullFolderSize/1024/1024,0) + " Mo]");
-                myLogD("-----------------------------");
-            }
-            goFolder();
-        });
+                myLogD("addAudioFileRecursive done, sorting now...");
+                audioFileArrayList.sort(AudioFileInfo.ALPHANUMERIC_COMPARATOR);
+
+                if (audioFileArrayList.isEmpty()) {
+                    myLog("No File found in directory : [" + dfPickedDir.getName() + ']');
+                } else {
+                    myLog(audioFileArrayList.size() + " files found in directory : [" + dfPickedDir.getName() + ']');
+                    myLog("Full directory size : [" + formatMemPadding(fullFolderSize/1024/1024,0) + " Mo]");
+                    myLogD("-----------------------------");
+                }
+                goFolder();
+            });
+        }
         try {
             backgroundThread.start();
         } catch (Throwable t) {
@@ -262,7 +277,72 @@ public class ParseFinalFolderWorker extends LoggingWorker {
                         hadImageBefore = true;
                     }
                 } else {
-                myLogW("Wrong mime/extension - [" + fileExtension + "] - Bypassed file: [" + f1.getName() + "]");
+                    myLogW("Wrong mime/extension - [" + fileExtension + "] - Bypassed file: [" + f1.getName() + "]");
+                }
+            }
+        }
+    }
+    private void addTextFileRecursive(DocumentFile root) {
+        totalDuration = 0;      // not used for text, but keep consistent
+        nbFileScan = 0;
+        fullFolderSize = 0;
+        totalAudioToScan = 0;   // reuse counters for progress
+        nbAudioScanned = 0;
+
+        TaskStateManager.tellProgress(TASK_NAME, 5, context.getString(R.string.listing_and_sorting_tracks));
+        countTextFiles(root);
+        addTextFileRecursive(root, "");
+    }
+
+    private void addTextFileRecursive(DocumentFile dir, String recursiveFolder) {
+        boolean hadImageBefore = bookState.imagePath != null; //dont look in subDir if image found at top dir
+        for (DocumentFile f1 : dir.listFiles()) {
+            if (f1.isDirectory()) {
+                myLog("increase recursive depth for Directory : [" + f1.getName() + "]");
+                addTextFileRecursive(f1, recursiveFolder + f1.getName() + '/');
+            } else {
+                String fileName = Objects.toString(f1.getName());
+                String fileExtension = getExtension(fileName);
+                String mimeType = Objects.toString(f1.getType());
+                myLogD("* Checking File (TEXT): [" + fileExtension + "] . [" + fileName + "] - mime = [" + mimeType + "] - subfolder : [" + recursiveFolder + "]");
+
+                if ((mimeType != null && mimeType.startsWith("text/")) || "txt".equalsIgnoreCase(fileExtension)) {
+                    nbFileScan++;
+                    String displayPath = recursiveFolder + fileName;
+                    long size = f1.length();
+
+                    // duration = 0 for text (TTS will handle timing) — we'll allow saving below for EPUB imports
+                    audioFileArrayList.add(new AudioFileInfo(displayPath, 0, f1.getUri().toString()));
+                    fullFolderSize += size;
+
+                    nbAudioScanned++;
+                    double progress = totalAudioToScan > 0 ? (nbAudioScanned / (double) totalAudioToScan) : 0;
+                    int scaledProgress = 10 + (int) ((80 - 10) * progress);
+                    TaskStateManager.tellProgress(TASK_NAME, scaledProgress,
+                            context.getString(R.string.scanning_tracks) + "..... \n[" + displayPath + ']');
+                } else if (!hadImageBefore && Var.SUPPORTED_COVER_PICTURE_EXTENSIONS.contains(fileExtension)) {
+                    long imageSize = f1.length();
+                    if (bookState.imagePath == null || imageSize > UriHelper.getSize(context, Uri.parse(bookState.imagePath))) {
+                        myLogD("New biggest Picture Found, size = [" + Tonio.formatMemPadding(imageSize) + "] - [" + f1.getUri() + "]");
+                        bookState.imagePath = f1.getUri().toString();
+                        hadImageBefore = true;
+                    }
+                } else {
+                    myLogW("Wrong mime/extension for TEXT import - [" + fileExtension + "] - Bypassed file: [" + fileName + "]");
+                }
+            }
+        }
+    }
+
+    private void countTextFiles(DocumentFile dir) {
+        for (DocumentFile f1 : dir.listFiles()) {
+            if (f1.isDirectory()) {
+                countTextFiles(f1);
+            } else {
+                String ext = getExtension(f1.getName());
+                String mime = Objects.toString(f1.getType());
+                if ((mime != null && mime.startsWith("text/")) || "txt".equalsIgnoreCase(ext)) {
+                    totalAudioToScan++; // reusing counter
                 }
             }
         }
@@ -404,7 +484,7 @@ public class ParseFinalFolderWorker extends LoggingWorker {
         file.setDuration(info.getDuration());
         file.date_added = System.currentTimeMillis();
 
-        if (file.getDuration() == 0) {
+        if (file.getDuration() == 0 && !"epub".equalsIgnoreCase(bookState.fileExtension)) {
             myLogW("⏭️ Skipped: duration = 0 → " + info.getDisplayPath());
             return SaveResultEnum.SKIPPED;
         }

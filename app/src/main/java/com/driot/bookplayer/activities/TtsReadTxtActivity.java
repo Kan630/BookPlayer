@@ -43,11 +43,11 @@ public class TtsReadTxtActivity extends LoggingActivity implements EbookTtsHelpe
     private SeekBar seekSpeed;
     private Button btnPick, btnStart, btnPauseResume;
     private ImageView ivCover;
-    private Spinner spinnerLanguage, spinnerVoice;
+    private Spinner spinnerLanguage;
 
-    private ArrayAdapter<String> languageAdapter, voiceAdapter;
+    private ArrayAdapter<String> languageAdapter;
     private final List<Locale> availableLanguages = new ArrayList<>();
-    private final List<Voice> availableVoices = new ArrayList<>();
+    private Locale selectedLanguage = null;
 
     private Uri pickedUri;
     private String loadedText = "";
@@ -67,7 +67,7 @@ public class TtsReadTxtActivity extends LoggingActivity implements EbookTtsHelpe
     private boolean spinnersInitialized = false;
     private boolean ttsRetryScheduled = false;
 
-    // --- UI update throttling (ADD THESE) ---
+    // UI update throttling
     private final android.os.Handler mainH = new android.os.Handler(android.os.Looper.getMainLooper());
     private int pendingS = -1, pendingE = -1;
     private boolean highlightScheduled = false;
@@ -106,15 +106,10 @@ public class TtsReadTxtActivity extends LoggingActivity implements EbookTtsHelpe
         ivCover = findViewById(R.id.ivCover);
 
         spinnerLanguage = findViewById(R.id.spinnerLanguage);
-        spinnerVoice = findViewById(R.id.spinnerVoice);
 
         languageAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, new ArrayList<>());
         languageAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerLanguage.setAdapter(languageAdapter);
-
-        voiceAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, new ArrayList<>());
-        voiceAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerVoice.setAdapter(voiceAdapter);
 
         tts = new EbookTtsHelper(getApplicationContext(), this);
 
@@ -200,7 +195,7 @@ public class TtsReadTxtActivity extends LoggingActivity implements EbookTtsHelpe
 
                 String firstText = "";
                 if (chapters != null && !chapters.isEmpty()) {
-                    File f = chapters.get(2);
+                    File f = chapters.get(8);
                     firstText = readUtf8File(f);
                 }
 
@@ -245,6 +240,7 @@ public class TtsReadTxtActivity extends LoggingActivity implements EbookTtsHelpe
     private void startReading() {
         if (!tts.isReady()) { tell("TTS not ready"); return; }
         if (isEmpty(loadedText)) { tell("No text loaded"); return; }
+        applyCurrentLanguageAndVoice();
         tts.stop();
         tts.speakFromOffset(loadedText, resumeOffset);
         isPaused = false; isSpeaking = true;
@@ -437,81 +433,80 @@ public class TtsReadTxtActivity extends LoggingActivity implements EbookTtsHelpe
         TextToSpeech t = tts.getTts();
         if (t == null) return;
 
-        // languages
+        // 1) Collect languages from engine
         List<Locale> langs = new ArrayList<>();
         try {
             Set<Locale> fromEngine = t.getAvailableLanguages();
             if (fromEngine != null) langs.addAll(fromEngine);
         } catch (Throwable ignored) {}
+
+        // Fallback: mine locales from voices if languages set is empty
         if (langs.isEmpty()) {
             try {
                 Set<Voice> voices = t.getVoices();
-                if (voices != null) for (Voice v : voices) {
-                    if (v.getLocale() != null && !langs.contains(v.getLocale())) langs.add(v.getLocale());
+                if (voices != null) {
+                    for (Voice v : voices) {
+                        if (v.getLocale() != null && !langs.contains(v.getLocale())) langs.add(v.getLocale());
+                    }
                 }
             } catch (Throwable ignored) {}
         }
-        langs.sort((a,b) -> a.getDisplayName().compareToIgnoreCase(b.getDisplayName()));
-        availableLanguages.clear(); availableLanguages.addAll(langs);
 
-        List<String> languageLabels = new ArrayList<>();
-        for (Locale loc : availableLanguages) languageLabels.add(loc.getDisplayName());
-        languageAdapter.clear(); languageAdapter.addAll(languageLabels); languageAdapter.notifyDataSetChanged();
+        // Sort for nice display
+        langs.sort((a, b) -> a.getDisplayName().compareToIgnoreCase(b.getDisplayName()));
+        availableLanguages.clear();
+        availableLanguages.addAll(langs);
+
+        // 2) Fill adapter
+        List<String> labels = new ArrayList<>();
+        for (Locale loc : availableLanguages) labels.add(loc.getDisplayName());
+        languageAdapter.clear();
+        languageAdapter.addAll(labels);
+        languageAdapter.notifyDataSetChanged();
+
+        // 3) Figure out which language to select initially
+        Locale engineLang = t.getLanguage();
+        if (engineLang == null) engineLang = Locale.getDefault();
 
         int langIndex = 0;
+        // Try exact match (language + country + variant)
         for (int i = 0; i < availableLanguages.size(); i++) {
-            if ("en".equalsIgnoreCase(availableLanguages.get(i).getLanguage())) { langIndex = i; break; }
+            if (availableLanguages.get(i).equals(engineLang)) { langIndex = i; break; }
         }
-
-        // voices
-        availableVoices.clear();
-        List<String> voiceLabels = new ArrayList<>();
-        try {
-            Set<Voice> voices = t.getVoices();
-            if (voices != null) {
-                List<Voice> list = new ArrayList<>(voices);
-                list.sort((a,b) -> a.getName().compareToIgnoreCase(b.getName()));
-                availableVoices.addAll(list);
-                for (Voice v : availableVoices) {
-                    String label = v.getName();
-                    if (v.getLocale()!=null) label += " (" + v.getLocale().getDisplayName() + ")";
-                    if (v.getFeatures()!=null && v.getFeatures().contains("networkTts")) label += " [network]";
-                    voiceLabels.add(label);
+        // If not found, try just language code match
+        if (!availableLanguages.isEmpty() && !availableLanguages.get(langIndex).equals(engineLang)) {
+            for (int i = 0; i < availableLanguages.size(); i++) {
+                if (availableLanguages.get(i).getLanguage().equalsIgnoreCase(engineLang.getLanguage())) {
+                    langIndex = i; break;
                 }
             }
-        } catch (Throwable ignored) {}
-        voiceAdapter.clear(); voiceAdapter.addAll(voiceLabels); voiceAdapter.notifyDataSetChanged();
+        }
 
-        // set listeners after data is in place
+        // 4) Apply selection WITHOUT firing user listener, and push to engine now
         spinnersInitialized = false;
-        if (!availableLanguages.isEmpty()) spinnerLanguage.setSelection(langIndex, false);
+        if (!availableLanguages.isEmpty()) {
+            spinnerLanguage.setSelection(langIndex, false);
+            selectedLanguage = availableLanguages.get(langIndex);
+
+            // Apply immediately so first Speak uses this locale
+            setLanguageSafe(t, selectedLanguage);
+            warmUpTts(t); // optional nudge; helps some engines load data
+        }
+
+        // 5) Wire listener for future user changes
         spinnerLanguage.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 if (!spinnersInitialized) return;
-                Locale chosen = availableLanguages.get(position);
-                setLanguageSafe(tts.getTts(), chosen);
+                selectedLanguage = availableLanguages.get(position);
+                setLanguageSafe(tts.getTts(), selectedLanguage);
                 warmUpTts(tts.getTts());
-            }
-            @Override public void onNothingSelected(AdapterView<?> parent) {}
-        });
-
-        if (!availableVoices.isEmpty()) spinnerVoice.setSelection(0, false);
-        spinnerVoice.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (!spinnersInitialized) return;
-                Voice v = availableVoices.get(position);
-                try {
-                    TextToSpeech t = tts.getTts();
-                    t.setVoice(v);
-                    if (v.getLocale()!=null) setLanguageSafe(t, v.getLocale());
-                    warmUpTts(t);
-                } catch (Exception e) { tell("Failed to set voice"); }
             }
             @Override public void onNothingSelected(AdapterView<?> parent) {}
         });
 
         spinnersInitialized = true;
     }
+
 
     private int setLanguageSafe(TextToSpeech t, Locale loc) {
         int avail = t.isLanguageAvailable(loc);
@@ -529,6 +524,13 @@ public class TtsReadTxtActivity extends LoggingActivity implements EbookTtsHelpe
         return res;
     }
 
+    private void applyCurrentLanguageAndVoice() {
+        TextToSpeech t = tts != null ? tts.getTts() : null;
+        if (t == null) return;
+        if (selectedLanguage != null) {
+            setLanguageSafe(t, selectedLanguage);
+        }
+    }
     // ---------- text utils ----------
 
     private void buildWordIndex(String s) {

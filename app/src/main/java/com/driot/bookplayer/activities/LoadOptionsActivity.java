@@ -127,6 +127,8 @@ public class LoadOptionsActivity extends LoggingActivity {
             type = "M4B";
         } else if (bookToAdd.getType().equalsIgnoreCase("zip")) {
             type = "ZIP";
+        } else if (bookToAdd.getType().equalsIgnoreCase("epub")) {
+            type = "EPUB";
         }
 
         tvFileName.setText(audioBookTitle);
@@ -316,6 +318,13 @@ public class LoadOptionsActivity extends LoggingActivity {
         }
 
         if ("ZIP".equals(type)) {
+            cbCopy.setChecked(true);
+            cbCopy.setEnabled(false);
+            llCopy.setEnabled(false);
+            llCopy.setAlpha(0.4f);
+        }
+
+        if ("EPUB".equals(type)) {
             cbCopy.setChecked(true);
             cbCopy.setEnabled(false);
             llCopy.setEnabled(false);

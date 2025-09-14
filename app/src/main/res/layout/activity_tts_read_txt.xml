@@ -61,7 +61,6 @@
         android:text="Status: idle"
         android:paddingTop="8dp" />
 
-    <!-- Language picker -->
     <TextView
         android:id="@+id/labelLanguage"
         android:layout_width="wrap_content"
@@ -71,19 +70,6 @@
 
     <Spinner
         android:id="@+id/spinnerLanguage"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
-    <!-- Voice picker -->
-    <TextView
-        android:id="@+id/labelVoice"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Voice"
-        android:paddingTop="12dp" />
-
-    <Spinner
-        android:id="@+id/spinnerVoice"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 

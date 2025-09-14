@@ -97,6 +97,8 @@ public class BookToAdd {
                 this.type = "ZIP";
             } else if (fileExtension.equalsIgnoreCase("m4b")) {
                 this.type = "M4B";
+            } else if (fileExtension.equalsIgnoreCase("epub")) {
+                this.type = "EPUB";
             }
 
             this.infoMimeExtension = "Type = [" + type + "] :    [" + mimeType + "] - [." + fileExtension + "]";
