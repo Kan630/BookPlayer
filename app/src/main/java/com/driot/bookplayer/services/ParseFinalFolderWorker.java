@@ -128,8 +128,11 @@ public class ParseFinalFolderWorker extends LoggingWorker {
                 TaskStateManager.markTaskFailed(TASK_NAME, context.getString(R.string.Error_Import_CannotReadFile));
                 return Result.failure();
             }
+            /*
 // METADATA
             MyAudioMetadata metadata = AudioMetadataHelper.extractMetadata(context, bookState.dynamicUri);
+
+             */
 // THE REST
             populateArrayListOfTracksFromFile(df);
         }
@@ -435,14 +438,27 @@ public class ParseFinalFolderWorker extends LoggingWorker {
 
     private long getMediaDurationFromUri(Context context, Uri uri, String audioName) {
         long duration = 0;
+        MediaMetadataRetriever retriever = null;
         try {
-            MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+            retriever = new MediaMetadataRetriever();
             retriever.setDataSource(context, uri);
             String durStr = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
-            duration = Long.parseLong(durStr);
+            if (durStr == null) {
+                myLogEE(null,"getMediaDurationFromUri => duration is null, uri: [" + uri + "]");
+            } else {
+                duration = Long.parseLong(durStr);
+            }
         } catch (Exception e) {
             TaskStateManager.tellWarning(context.getString(R.string.Error_Import_track_duration_extraction) + " for " + audioName);
-            myLogEE(e,"error getting duration of media for uri: [" + uri + "]");
+            myLogEE(e,"getMediaDurationFromUri => Exception, uri: [" + uri + "]");
+        } finally { //try-with resource only after android 10....
+            if (retriever != null) {
+                try {
+                    retriever.release();  // This is the correct method, compatible with all versions
+                } catch (Exception e) {
+                    myLogEE(e, "Error releasing MediaMetadataRetriever");
+                }
+            }
         }
         return duration;
     }

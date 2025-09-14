@@ -40,8 +40,6 @@ public class M4bSplitWorker extends LoggingWorker {
     @NonNull
     @Override
     public Result doWork() {
-        Context context = getApplicationContext();
-
         LoadBookTaskState bookState = Pref.getLoadBookTaskState();
         if (bookState == null) {
             TaskStateManager.markTaskFailed(TASK_NAME, "bookState == null");
@@ -68,6 +66,7 @@ public class M4bSplitWorker extends LoggingWorker {
     private boolean splitM4bLocal(String m4bFilePath, String destinationFolderPath) {
         Context context = getApplicationContext();
         File m4bFile = new File(m4bFilePath);
+        /*
 // METADATA
         TaskStateManager.tellProgressText("Parsing Metadata");
         try {
@@ -75,6 +74,8 @@ public class M4bSplitWorker extends LoggingWorker {
         } catch (Exception e) {
             myLogEE(e,"Error Parsing Metadata");
         }
+
+         */
 // CHAPTERS
         try {
             File outputFolder = new File(destinationFolderPath);

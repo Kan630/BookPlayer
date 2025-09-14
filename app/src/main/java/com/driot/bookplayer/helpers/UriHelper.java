@@ -30,41 +30,68 @@ public class UriHelper {
     public static DocumentFile getDocumentFileFromAnyUri(Context context, Uri uri) {
         if (uri == null) return null;
 
-        String scheme = uri.getScheme();
-        if ("content".equalsIgnoreCase(scheme)) {
-            try {
-                // If the URI contains "/document/", treat as single document
-                if (uri.toString().contains("/document/") && !uri.toString().contains("/tree/")) {
-                    DocumentFile single = DocumentFile.fromSingleUri(context, uri);
-                    if (single.exists()) return single;
+        try {
+            final String scheme = uri.getScheme();
+
+            // 1) file:// → simple
+            if ("file".equalsIgnoreCase(scheme)) {
+                final String path = uri.getPath();
+                if (path != null) return DocumentFile.fromFile(new File(path));
+                myLogEE(null, "getDocumentFileFromAnyUri: null path for file:// " + uri);
+                return null;
+            }
+
+            // 2) Raw absolute path like "/sdcard/..." (rare)
+            if (scheme == null) {
+                final String s = uri.toString();
+                if (!TextUtils.isEmpty(s) && s.startsWith("/")) return DocumentFile.fromFile(new File(s));
+                myLogEE(null,"getDocumentFileFromAnyUri: Raw absolute path " + Uri.decode(uri.toString()));
+                return null;
+            }
+
+            // 3) content://
+            if ("content".equalsIgnoreCase(scheme)) {
+                // Prefer real SAF trees for directories
+                boolean isTree = false, isDoc = false;
+                try { isTree = DocumentsContract.isTreeUri(uri); } catch (Throwable ignore) {}
+                try { isDoc  = DocumentsContract.isDocumentUri(context, uri); } catch (Throwable ignore) {}
+
+                if (isTree) {
+                    DocumentFile tree = DocumentFile.fromTreeUri(context, uri);
+                    if (tree != null && tree.exists()) return tree;
+                    myLogEE(null,"getDocumentFileFromAnyUri: fromTreeUri returned null or !exists for " + Uri.decode(uri.toString()));
+                    return null;
                 }
-                // Otherwise try as tree URI
-                DocumentFile tree = DocumentFile.fromTreeUri(context, uri);
-                //UriHelper getDocumentFileFromAnyUri failed with [content://media/external/audio/media/1000028186]
-                if (tree != null && tree.exists()) return tree;
-            } catch (Exception e) {
-                myLogEE(e, "getDocumentFileFromAnyUri failed with [" + uri + "]");
-            }
-        } else if ("file".equalsIgnoreCase(scheme)) {
-            String path = uri.getPath();
-            if (path != null) {
-                File file = new File(path);
-                return DocumentFile.fromFile(file);
-            } else {
-                // handle error: path is null
-                myLogEE(null , "getDocumentFileFromAnyUri failed, URI path is null:  [" + uri + "]");
+
+                if (isDoc || uri.toString().contains("/document/")) {
+                    DocumentFile single = DocumentFile.fromSingleUri(context, uri);
+                    if (single != null && single.exists()) return single;
+                    myLogEE(null,"getDocumentFileFromAnyUri: fromSingleUri returned null or !exists for " + Uri.decode(uri.toString()));
+                    return null;
+                }
+
+                // Not a DocumentsProvider → cannot create a DocumentFile
+                // (MediaStore: content://media/..., Xiaomi, gallery, cloud, etc.)
+                myLogEE(null, "getDocumentFileFromAnyUri: non-DocumentsProvider content URI → returning null: " + Uri.decode(uri.toString()));
+                return null;
             }
 
-        } else {
-            String path = uri.toString();
-            if (!TextUtils.isEmpty(path) && path.startsWith("/")) {
-                return DocumentFile.fromFile(new File(path));
-            }
+            myLogW("getDocumentFileFromAnyUri: unsupported scheme " + scheme + " for " + uri);
+            return null;
+
+        } catch (Exception e) {
+            myLogEE(e, "getDocumentFileFromAnyUri failed with [" + uri + "]");
+            return null;
         }
-
-        return null;
     }
 
+
+    /** Optional helpers if you want explicit branching later */
+    private static boolean isMediaStoreUri(@Nullable Uri uri) {
+        return uri != null
+                && "content".equalsIgnoreCase(uri.getScheme())
+                && "media".equalsIgnoreCase(uri.getAuthority());
+    }
 
 
     public static boolean isFolder(Context context, Uri uri) {

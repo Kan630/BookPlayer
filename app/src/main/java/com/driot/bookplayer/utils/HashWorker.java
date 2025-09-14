@@ -200,7 +200,7 @@ public class HashWorker extends Worker {
                     }
                 } else if (isDoc) {
                     DocumentFile doc = DocumentFile.fromSingleUri(context, uri);
-                    if (doc != null && doc.isFile()) {
+                    if (doc.isFile()) {
                         try (InputStream is = context.getContentResolver().openInputStream(uri)) {
                             long start = System.currentTimeMillis();
                             if (is != null) updateDigestFromStream(is, digest, MAX_BYTES_TO_HASH_PER_FILE_BIG);
