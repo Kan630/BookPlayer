@@ -134,8 +134,9 @@ public class CleanMemoryViewModel extends LoggingAndroidViewModel {
         List<FileWithSummary> enriched = new ArrayList<>(diskFiles.size());
         for (File file : diskFiles) {
             ZikFileSummary summary = summaryMap.get(file.getPath());
-            double percentDone = summary != null ? summary.percentdone : 0;
+            double percentDone = summary != null ? summary.percentDone : 0;
             String sourceLocation = summary != null ? summary.sourceLocation : "";
+            String originalFile = summary != null ? summary.originalFile : "";
 
             long sizeMB;
             if (folderSizeCache.containsKey(file.getPath())) {
@@ -145,7 +146,7 @@ public class CleanMemoryViewModel extends LoggingAndroidViewModel {
                 folderSizeCache.put(file.getPath(), sizeMB);
             }
 
-            enriched.add(new FileWithSummary(file, percentDone, sourceLocation, sizeMB));
+            enriched.add(new FileWithSummary(file, percentDone, sourceLocation, originalFile, sizeMB));
         }
 
         enriched.sort(Comparator.comparingLong(f -> f.fileSizeMB));

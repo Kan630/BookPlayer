@@ -21,7 +21,9 @@ public class Pref {
 
 
     private static final String SHARED_PREFERENCES_DIVERSE = "SHARED_PREFERENCES_DIVERSE";
+
     private static final String SHARED_PREFERENCE_INTROCUT = "SHARED_PREFERENCE_INTROCUT";
+    private static final String SHARED_PREFERENCE_TTS_LANG = "SHARED_PREFERENCE_TTS_LANG";
 
     private static final String SHARED_PREFERENCES_DOWNLOAD = "SHARED_PREFERENCES_DOWNLOAD";
     private static final String KEY_LOAD_BOOK_TASK_STATE = "loadBookTaskState";
@@ -70,6 +72,28 @@ public class Pref {
         } catch (Exception e) {
             myLogEE(e,"error getting introCut from prefs");
             return 0;
+        }
+    }
+
+
+    public static void setBookTtsLanguage(Context c, int idFolder, String twoLetterCodeOrSystem) {
+        try {
+            c.getSharedPreferences(SHARED_PREFERENCE_TTS_LANG, MODE_PRIVATE)
+                    .edit()
+                    .putString(String.valueOf(idFolder), twoLetterCodeOrSystem)
+                    .apply();
+        } catch (Exception e) {
+            myLogEE(e, "error saving book TTS language in prefs");
+        }
+    }
+
+    public static String getBookTtsLanguage(Context c, int idFolder) {
+        try {
+            SharedPreferences prefs = c.getSharedPreferences(SHARED_PREFERENCE_TTS_LANG, MODE_PRIVATE);
+            return prefs.getString(String.valueOf(idFolder), Option.getTtsLanguage());
+        } catch (Exception e) {
+            myLogEE(e, "error getting book TTS language from prefs");
+            return Option.getTtsLanguage();
         }
     }
 
@@ -154,6 +178,7 @@ public class Pref {
     public static String get_Audio_Language_Librivox(Context c) {return c.getSharedPreferences(SHARED_PREFERENCES_DIVERSE, MODE_PRIVATE).getString("AUDIO_LANGUAGE_LIBRIVOX", "eng");}
     public static void set_Audio_Language_Podcast(Context c, String audioLanguage) {c.getSharedPreferences(SHARED_PREFERENCES_DIVERSE, MODE_PRIVATE).edit().putString("AUDIO_LANGUAGE_PODCAST",audioLanguage).apply();}
     public static String get_Audio_Language_Podcast(Context c) {return c.getSharedPreferences(SHARED_PREFERENCES_DIVERSE, MODE_PRIVATE).getString("AUDIO_LANGUAGE_PODCAST", "en");}
+
 
 
 

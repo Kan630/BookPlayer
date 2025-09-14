@@ -55,7 +55,7 @@ public class MyApp extends Application {
         FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(!BuildConfig.DEBUG);
         myLogD("Crashlytics : " + !BuildConfig.DEBUG);
 
-        LocaleHelper.applyAppLocale(Option.getLanguage());
+        LocaleHelper.applyAppLocale(Option.getAppLanguage());
 
         setOpenWithProxyEnabled_all(this, false);
         setOpenWithProxyEnabled(this, false);

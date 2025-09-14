@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.objects.FileWithSummary;
 import com.driot.bookplayer.helpers.IconHelper;
+import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingRVAdapter;
 
 import java.io.File;
@@ -65,7 +66,8 @@ public class CleanMemoryRVAdapter extends LoggingRVAdapter<CleanMemoryRVAdapter.
         holder.audioStatus.setText(percentDone);
         holder.fileSize.setText(zeSize);
         holder.fileDate.setText(new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date(file.lastModified())));
-        IconHelper.setSourceIcon(holder.ivSource, item.sourceLocation);
+        String extension = item.originalFile==null ? "" : Tonio.getExtension(item.originalFile);
+        IconHelper.setSourceIcon(holder.ivSource, item.sourceLocation, extension);
         holder.deleteButton.setOnClickListener(v -> {
             myLog("Delete Click on " + file.getName());
             onDeleteClickListener.onDeleteClick(file, position);

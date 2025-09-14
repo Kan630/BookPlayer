@@ -713,7 +713,7 @@ BookPlayer 在<font color="#81C784">无需权限</font>的情况下也能运行�
     <string name="bOpenFolder_desc">选择一个文件夹：所有音频（包括子文件夹中的（如有））都会被导入到同一本书中。</string>
     <string name="warning_beta_test">测试版功能 – 可能不稳定</string>
 
-    <string name="language_hardcoded" translatable="false">language</string>
+    <string name="app_language" translatable="false">language</string>
     <string name="type_here_">在此输入…</string>
 
     <string name="most_downloaded">"下载最多"</string>

@@ -118,7 +118,7 @@ public class MainActivity extends LoggingActivity {
         }
 
         //DEBUG SHIT - LIST ALL DISK FILES
-        myLogD("-----------------");FileHelper.listAllFiles(StorageHelper.getUnzipFolder(this, true));myLogD("-----------------");FileHelper.listAllFiles(StorageHelper.getUnzipFolder(this, false));myLogD("-----------------");
+        //myLogD("-----------------");FileHelper.listAllFiles(StorageHelper.getUnzipFolder(this, true));myLogD("-----------------");FileHelper.listAllFiles(StorageHelper.getUnzipFolder(this, false));myLogD("-----------------");
 
 
         //DEBUG SHIT - LIST ALL DB FOLDERS

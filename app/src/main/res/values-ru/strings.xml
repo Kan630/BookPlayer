@@ -718,7 +718,7 @@
     <string name="bOpenFolder_desc">Выберите папку: все аудиофайлы (в том числе в подпапках, если они есть) будут импортированы в одну и ту же книгу.</string>
     <string name="warning_beta_test">Бета-функция – может быть нестабильной</string>
 
-    <string name="language_hardcoded" translatable="false">language</string>
+    <string name="app_language" translatable="false">language</string>
     <string name="type_here_">Введите здесь…</string>
 
     <string name="most_downloaded">"Самые загружаемые"</string>

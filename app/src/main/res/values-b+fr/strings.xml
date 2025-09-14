@@ -713,7 +713,7 @@ Tous les messages sont lisibles publiquement. Connectez-vous pour participer.
     <string name="bOpenFolder_desc">Choisissez un dossier : tous les fichiers audio (y compris dans les sous-dossiers, le cas échéant) seront importés dans le même livre audio.</string>
     <string name="warning_beta_test">Fonctionnalité bêta – peut être instable</string>
 
-    <string name="language_hardcoded" translatable="false">language</string>
+    <string name="app_language" translatable="false">language</string>
     <string name="type_here_">Saisissez ici…</string>
 
     <string name="most_downloaded">"Les plus téléchargés"</string>

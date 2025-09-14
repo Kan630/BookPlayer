@@ -591,12 +591,28 @@ android:clipToPadding="false">
             <LinearLayout
                 style="@style/LinearLayoutOptionsCheckBoxHorizontal">
                 <TextView style="@style/OptionSubTitle"
-                    android:text="@string/language_hardcoded"
+                    android:text="@string/app_language"
                     android:layout_marginEnd="20dp"
                     android:layout_marginTop="0dp"
                     />
                 <Spinner
-                    android:id="@+id/spinner_language"
+                    android:id="@+id/spinner_app_language"
+                    style="@style/Spinner"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+            </LinearLayout>
+
+            <View style="@style/myStyleViewSimpleHorizontalBar" />
+
+            <LinearLayout
+                style="@style/LinearLayoutOptionsCheckBoxHorizontal">
+                <TextView style="@style/OptionSubTitle"
+                    android:text="@string/tts_language"
+                    android:layout_marginEnd="20dp"
+                    android:layout_marginTop="0dp"
+                    />
+                <Spinner
+                    android:id="@+id/spinner_tts_language"
                     style="@style/Spinner"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"/>

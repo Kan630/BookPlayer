@@ -6,16 +6,18 @@ package com.driot.bookplayer.objects;
 public class ZikFileSummary {
     public String path;
     public String folderName;
-    public Double percentdone;
-    public int idFolder;
+    public Double percentDone;
     public String sourceLocation;
+    public String originalFile;
+    public int idFolder;
 
 
-    public ZikFileSummary(String path, String folderName, Double percentdone, int idFolder, String sourceLocation) {
+    public ZikFileSummary(String path, String folderName, Double percentDone, String sourceLocation, String originalFile, int idFolder) {
         this.path = path;
         this.folderName = folderName;
-        this.percentdone = percentdone;
-        this.idFolder = idFolder;
+        this.percentDone = percentDone;
         this.sourceLocation = sourceLocation;
+        this.originalFile = originalFile;
+        this.idFolder = idFolder;
     }
 }

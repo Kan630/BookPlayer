@@ -204,4 +204,30 @@ public class EbookTtsHelper implements TextToSpeech.OnInitListener {
         } catch (Exception ignored) { return null; }
     }
 
+// --- Language helpers ---
+
+    /** Set TTS language at runtime. Mirrors TextToSpeech#setLanguage. */
+    public int setLanguage(@androidx.annotation.NonNull Locale locale) {
+        if (tts == null) return TextToSpeech.LANG_NOT_SUPPORTED;
+        try {
+            return tts.setLanguage(locale);
+        } catch (Throwable ignored) {
+            return TextToSpeech.LANG_NOT_SUPPORTED;
+        }
+    }
+
+    /** Best-effort current language (voice locale if available, else engine language, else device). */
+    public Locale getLanguage() {
+        try {
+            if (tts != null) {
+                if (tts.getVoice() != null && tts.getVoice().getLocale() != null) {
+                    return tts.getVoice().getLocale();
+                }
+                Locale l = tts.getLanguage();
+                if (l != null) return l;
+            }
+        } catch (Throwable ignored) {}
+        return Locale.getDefault();
+    }
+
 }

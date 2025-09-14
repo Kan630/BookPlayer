@@ -228,20 +228,66 @@
     <ImageView
         android:id="@+id/folderImage"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
+        android:layout_height="match_parent"
         android:layout_below="@+id/textViewSubTitle"
         android:layout_above="@+id/horizontalBarTopOfSleep"
-        android:layout_centerInParent="true"
         android:scaleType="fitCenter"
         android:visibility="gone" />
 
     <com.driot.bookplayer.views.FrequencyVisualizerView
         android:id="@+id/frequencyVisualizerView"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/textViewSubTitle"
+        android:layout_above="@+id/horizontalBarTopOfSleep" />
+
+    <!-- TTS UI (hidden for audio files) -->
+    <LinearLayout
+        android:id="@+id/ttsContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:layout_below="@+id/textViewSubTitle"
         android:layout_above="@+id/horizontalBarTopOfSleep"
-        android:layout_centerInParent="true"/>
+        android:orientation="vertical"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:id="@+id/ttsTopRow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Spinner
+                android:id="@+id/spinnerTtsLanguage"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <ImageButton
+                android:id="@+id/btnToggleTtsView"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="8dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/toggle_text_image"
+                android:src="@android:drawable/ic_menu_gallery" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvTtsText"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:scrollbars="vertical"
+            android:textIsSelectable="false"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:textSize="16sp" />
+    </LinearLayout>
+
+
 
 
     <!-- Progress bar overlay; shown while login is in progress -->

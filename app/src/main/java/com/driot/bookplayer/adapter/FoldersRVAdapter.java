@@ -77,7 +77,8 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
         } else {
             holder.ivBookCover.setVisibility(View.GONE);
         }
-        IconHelper.setSourceIcon(holder.ivSource, folder.getSourceLocation());
+        String extension = folder.getOriginalFile()==null ? "" : Tonio.getExtension(folder.getOriginalFile());
+        IconHelper.setSourceIcon(holder.ivSource, folder.getSourceLocation(), extension);
     }
 
     @Override

@@ -390,6 +390,7 @@ public class ParseFinalFolderWorker extends LoggingWorker {
         folder.setFinished(false);
         folder.setIszipfile(false); //2023-10-22 deprecated (live zip reading - code has been removed)
         folder.setOriginalHash(bookState.originalHash);
+        folder.setOriginalFile(bookState.originalFile);
         folder.setSourceLocation(bookState.sourceLocation);
         folder.date_added = System.currentTimeMillis();
         folder.image = bookState.imagePath;

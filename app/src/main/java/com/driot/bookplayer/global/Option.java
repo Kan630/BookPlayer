@@ -194,8 +194,12 @@ public class Option {
 
 
     /////////////////// LANGUAGE ///////////////////
-    public static void setLanguage(String language) {prefs.edit().putString("LANGUAGE",language).apply();}
-    public static String getLanguage() {return prefs.getString("LANGUAGE", "system");}
+    public static void setAppLanguage(String language) {prefs.edit().putString("LANGUAGE",language).apply();}
+    public static String getAppLanguage() {return prefs.getString("LANGUAGE", "system");}
+
+    public static void setTtsLanguage(String language) {prefs.edit().putString("TTS_LANGUAGE",language).apply();}
+    public static String getTtsLanguage() {return prefs.getString("TTS_LANGUAGE", "system");}
+
 
 
 

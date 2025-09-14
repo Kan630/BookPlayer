@@ -711,7 +711,7 @@
     <string name="bOpenFolder_desc">اختر مجلدًا: جميع الملفات الصوتية (حتى في المجلدات الفرعية إن وُجدت) سيتم استيرادها في نفس الكتاب الصوتي.</string>
     <string name="warning_beta_test">ميزة تجريبية – قد تكون غير مستقرة</string>
 
-    <string name="language_hardcoded" translatable="false">language</string>
+    <string name="app_language" translatable="false">language</string>
     <string name="type_here_">اكتب هنا…</string>
 
     <string name="most_downloaded">"الأكثر تنزيلًا"</string>

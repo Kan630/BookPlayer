@@ -705,7 +705,7 @@ El valor global de apagado automático está en Opciones (en el menú de la pant
     <string name="bOpenFolder_desc">Elige una carpeta: todos los audios (incluso en subcarpetas, si las hay) se importarán en el mismo libro.</string>
     <string name="warning_beta_test">Función beta – Puede ser inestable</string>
 
-    <string name="language_hardcoded" translatable="false">language</string>
+    <string name="app_language" translatable="false">language</string>
     <string name="type_here_">Escribe aquí…</string>
 
     <string name="most_downloaded">"Más descargados"</string>

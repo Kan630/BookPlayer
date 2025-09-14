@@ -739,7 +739,6 @@
     <string name="bOpenFolder_desc">Pick a folder : all audios (even in subfolders, if any) will be imported in the same book.</string>
     <string name="warning_beta_test">Beta Feature – May be unstable</string>">
 
-    <string name="language_hardcoded" translatable="false">language</string>">
     <string name="type_here_">Type here…</string>">
 
     <string name="most_downloaded">"Most Downloaded"</string>
@@ -762,8 +761,9 @@
     <string name="option_podcast_episodes_expand">show descriptions</string>
     <string name="option_create_cover">Create covers</string>
     <string name="option_create_cover_text">If no cover image is found upon book loading, a pastel image with book title initials will be created.</string>
-
-
+    <string name="toggle_text_image">Toggle Text Image</string>
+    <string name="tts_language">TTS language</string>">
+    <string name="app_language">App language</string>">
 
 
 

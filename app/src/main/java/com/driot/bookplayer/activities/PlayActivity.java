@@ -9,23 +9,35 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.ActivityInfo;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.Settings;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
+import android.text.method.ScrollingMovementMethod;
+import android.text.style.BackgroundColorSpan;
+import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.helpers.LanguageHelper;
+import com.driot.bookplayer.objects.LanguageItem;
 import com.driot.bookplayer.objects.PlayList;
 import com.driot.bookplayer.services.AudioService;
 import com.driot.bookplayer.helpers.ViewHelper;
@@ -35,26 +47,15 @@ import com.driot.bookplayer.utils.log.LoggingActivity;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import static com.driot.bookplayer.global.Var.SLEEP_PRESET_VALUES;
-import static com.driot.bookplayer.services.AudioService.NOTIFICATION_AUDIOFOCUS_GAIN;
-import static com.driot.bookplayer.services.AudioService.NOTIFICATION_AUDIOFOCUS_LOST;
-import static com.driot.bookplayer.services.AudioService.NOTIFICATION_FILENOTFOUND;
-import static com.driot.bookplayer.services.AudioService.NOTIFICATION_ERROR;
-import static com.driot.bookplayer.services.AudioService.NOTIFICATION_FILELOADED;
-import static com.driot.bookplayer.services.AudioService.NOTIFICATION_NEWTRACK;
-import static com.driot.bookplayer.services.AudioService.NOTIFICATION_PLAYBACK_MAXTIMEREACH;
-import static com.driot.bookplayer.services.AudioService.NOTIFICATION_PLAYBACK_TIMER_VALUE;
-import static com.driot.bookplayer.services.AudioService.NOTIFICATION_PLAYLISTFINISHED;
-import static com.driot.bookplayer.services.AudioService.NOTIFICATION_TRACKFINISHED;
-import static com.driot.bookplayer.services.AudioService.NOTIFICATION_ZIP_FILE_LOADED;
 import static com.driot.bookplayer.services.AudioService.TIMER_VALUE;
 import static com.driot.bookplayer.utils.PermissionRequest.isReadAudioPermissionGranted;
 import static com.driot.bookplayer.utils.PermissionRequest.isRecordAudioPermissionGranted;
-import static com.driot.bookplayer.utils.Tonio.formatNameForDisplay;
 import static com.driot.bookplayer.utils.Tonio.FormatPercentStringForSpeed;
 import static com.driot.bookplayer.utils.Tonio.formatTime;
 import static com.driot.bookplayer.utils.Tonio.getReadableSize;
@@ -91,21 +92,37 @@ public class PlayActivity extends LoggingActivity {
     private String tvListeningTimeBaseText;
 
     String[] broadcastNotifications = {
-            NOTIFICATION_TRACKFINISHED //useless ?
-            ,NOTIFICATION_AUDIOFOCUS_GAIN //useless ?
-            ,NOTIFICATION_AUDIOFOCUS_LOST //useless ?
-            ,NOTIFICATION_FILELOADED
-            ,NOTIFICATION_ERROR
-            ,NOTIFICATION_ZIP_FILE_LOADED //useless ?
-            ,NOTIFICATION_PLAYLISTFINISHED
-            ,NOTIFICATION_PLAYBACK_MAXTIMEREACH
-            ,NOTIFICATION_PLAYBACK_TIMER_VALUE
-            ,NOTIFICATION_FILENOTFOUND
-            ,NOTIFICATION_NEWTRACK //useless ?
+            AudioService.NOTIFICATION_TRACKFINISHED //useless ?
+            ,AudioService.NOTIFICATION_AUDIOFOCUS_GAIN //useless ?
+            ,AudioService.NOTIFICATION_AUDIOFOCUS_LOST //useless ?
+            ,AudioService.NOTIFICATION_FILELOADED
+            ,AudioService.NOTIFICATION_ERROR
+            ,AudioService.NOTIFICATION_ZIP_FILE_LOADED //useless ?
+            ,AudioService.NOTIFICATION_PLAYLISTFINISHED
+            ,AudioService.NOTIFICATION_PLAYBACK_MAXTIMEREACH
+            ,AudioService.NOTIFICATION_PLAYBACK_TIMER_VALUE
+            ,AudioService.NOTIFICATION_FILENOTFOUND
+            ,AudioService.NOTIFICATION_NEWTRACK //useless ?
+            ,AudioService.NOTIFICATION_TTS_RANGE
     };
 
     private long PodcastLastClickTime = 0;
     private static final long PODCAST_DOUBLE_CLICK_THRESHOLD = 300;
+
+    private ImageView imFolderImage;
+    private View ttsContainer;
+    private Spinner spinnerTtsLanguage;
+    private TextView tvTtsText;
+    private ImageButton btnToggleTtsView;
+    private boolean showingTtsText = true;
+
+    private Spannable spannableText;
+    private final BackgroundColorSpan ttsBgSpan = new BackgroundColorSpan(0x55FFFF00);
+    private final ForegroundColorSpan ttsFgSpan = new ForegroundColorSpan(Color.BLACK);
+    private int pendingStart = -1, pendingEnd = -1;
+    private final android.os.Handler uiH = new android.os.Handler(android.os.Looper.getMainLooper());
+    private boolean highlightScheduled = false;
+
 
     /********************************************************************************
      ***       SERVICE
@@ -132,6 +149,7 @@ public class PlayActivity extends LoggingActivity {
             // retour de flip ecran
             myLogD("onServiceConnected - DrawUI");
             DrawUI(); //utile pour suppression progressBar
+            initTtsLanguageSpinner();
         }
 
         @Override
@@ -145,32 +163,36 @@ public class PlayActivity extends LoggingActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            if (!Objects.equals(action, NOTIFICATION_PLAYBACK_TIMER_VALUE)) myLog("broadcast received : [" + action + "]");
+            if (!Objects.equals(action, AudioService.NOTIFICATION_PLAYBACK_TIMER_VALUE)) myLog("broadcast received : [" + action + "]");
 
-            if (Objects.equals(action, NOTIFICATION_ERROR)) {
+            if (Objects.equals(action, AudioService.NOTIFICATION_ERROR)) {
                 Toast.makeText(getApplicationContext(), getString(R.string.error_reading_track), Toast.LENGTH_SHORT).show();
                 finish();
 
-            } else if (Objects.equals(action, NOTIFICATION_FILENOTFOUND)) {
+            } else if (Objects.equals(action, AudioService.NOTIFICATION_FILENOTFOUND)) {
                 Toast.makeText(getApplicationContext(), getString(R.string.error_reading_track) + "\n" + getString(R.string.error_file_not_found), Toast.LENGTH_SHORT).show();
                 lockButtonAndDisplayErrorMessage(null);
 
-            } else if (Objects.equals(action, NOTIFICATION_PLAYLISTFINISHED)) {
+            } else if (Objects.equals(action, AudioService.NOTIFICATION_PLAYLISTFINISHED)) {
                 Toast.makeText(getApplicationContext(), R.string.notification_playlist_finished, Toast.LENGTH_SHORT).show();
                 finish();
 
-            } else if (Objects.equals(action, NOTIFICATION_PLAYBACK_MAXTIMEREACH)) {
+            } else if (Objects.equals(action, AudioService.NOTIFICATION_PLAYBACK_MAXTIMEREACH)) {
                 Toast.makeText(getApplicationContext(), R.string.notification_auto_sleep, Toast.LENGTH_SHORT).show();
                 finish();
 
-            } else if (Objects.equals(action, NOTIFICATION_PLAYBACK_TIMER_VALUE)) {
+            } else if (Objects.equals(action, AudioService.NOTIFICATION_PLAYBACK_TIMER_VALUE)) {
                 reDrawListeningSince(intent.getIntExtra(TIMER_VALUE,-999));
 
-            } else if (Objects.equals(action, NOTIFICATION_FILELOADED)) {
+            } else if (Objects.equals(action, AudioService.NOTIFICATION_FILELOADED)) {
                 DrawUI();
                 lockUserActions(false);
-            } else if (Objects.equals(action, NOTIFICATION_NEWTRACK) || Objects.equals(action, NOTIFICATION_TRACKFINISHED)) {
+            } else if (Objects.equals(action, AudioService.NOTIFICATION_NEWTRACK) || Objects.equals(action, AudioService.NOTIFICATION_TRACKFINISHED)) {
                 myLog("ok, nothing to do for this Broadcast");
+            } else if (Objects.equals(action, AudioService.NOTIFICATION_TTS_RANGE)) {
+                int s = intent.getIntExtra(AudioService.EXTRA_TTS_START, -1);
+                int e = intent.getIntExtra(AudioService.EXTRA_TTS_END, -1);
+                if (s >= 0 && e > s) scheduleTtsHighlight(s, e);
             } else {
                 myLogEE(null,"Unknown Broadcast : " + action);
             }
@@ -190,6 +212,12 @@ public class PlayActivity extends LoggingActivity {
         }
 
         setContentView(R.layout.activity_play);
+
+        if (PlayList.getInstance() == null) {
+            myToast("error getting Playlist");
+            myLogEE(null,"onCreate() -- cancelling since PlayList.getInstance() == null");
+            finish();
+        }
 
         bPlay = findViewById(R.id.buttonPlay);
 
@@ -244,13 +272,18 @@ public class PlayActivity extends LoggingActivity {
         frequencyVisualizerView = findViewById(R.id.frequencyVisualizerView);
         frequencyVisualizerView.setOnClickListener(v -> visualizerClick());
 
-        ImageView imFolderImage = findViewById(R.id.folderImage);
+        imFolderImage = findViewById(R.id.folderImage);
 
-        if (PlayList.getInstance() == null) {
-            myToast("error getting Playlist");
-            myLogEE(null,"onCreate() -- cancelling since PlayList.getInstance() == null");
-            finish();
-        }
+        ttsContainer = findViewById(R.id.ttsContainer);
+        spinnerTtsLanguage = findViewById(R.id.spinnerTtsLanguage);
+        tvTtsText = findViewById(R.id.tvTtsText);
+        btnToggleTtsView = findViewById(R.id.btnToggleTtsView);
+
+        btnToggleTtsView.setOnClickListener(v -> {
+            showingTtsText = !showingTtsText;
+            applyTtsToggleUi();
+        });
+
         PlayList.getInstance().setOnMetaLoadedListener((folder, podcast, isPodcast) -> {
             // Playlist objects are all loaded
             if (folder.image != null && !folder.image.isEmpty()) {
@@ -278,6 +311,35 @@ public class PlayActivity extends LoggingActivity {
                 imFolderImage.setVisibility(View.GONE);
                 frequencyVisualizerView.setAlpha(1f); // fully opaque
             }
+            /*
+            // Now that metadata is loaded, we know the current folderId
+            try {
+                int folderId = PlayList.getInstance().getZikFile().getIdFolder();
+                String bookPref = Pref.getBookTtsLanguage(this, folderId);
+
+                // Re-wire spinner selection + callback to save per-book
+                LanguageHelper.setupTtsSettingsSpinnerDynamic(
+                        this,
+                        spinnerTtsLanguage,
+                        bookPref,
+                        (LanguageItem selected) -> {
+                            // Persist per-book
+                            Pref.setBookTtsLanguage(this, folderId, selected.twoLetterCode);
+                            myLog("Saved per-book TTS language: folder=" + folderId + " lang=" + selected.twoLetterCode);
+                            // Optional: live-apply to the running TTS (if currently in TTS mode)
+                            try {
+                                if (audioService != null) {
+                                    // Add the method below in AudioService (tiny helper) to refresh its TTS language
+                                    audioService.setPreferredTtsLanguage(selected.twoLetterCode);
+                                }
+                            } catch (Exception ignored) {}
+                        }
+                );
+            } catch (Exception e) {
+                myLogEE(e, "setupTtsSpinnerForFolder");
+            }
+
+             */
         });
 
         myLogD("onCreate() -- Launching Music Service");
@@ -579,6 +641,15 @@ public class PlayActivity extends LoggingActivity {
             tvSeekBar.setText(formatTime(PlayList.getInstance().getZikFile().getPosition(),true));
             seekbar.setProgress((int) PlayList.getInstance().getZikFile().getPosition());
             tvSpeed.setText(FormatPercentStringForSpeed( audioService.getSpeed() * 100));
+            try {
+                if (audioService != null && audioService.isTtsMode()) {
+                    showTtsUi();
+                } else {
+                    showAudioUi();
+                }
+            } catch (Exception e) {
+                myLogEE(e, "DrawUI show/hide TTS UI");
+            }
             myLogD("----------------------------- play screen drawn " + PlayList.getInstance().getZikFile().getPosition());
         } catch (Exception e) {
             myLogEE(e,":----------------------------- play screen drawn ERROR");
@@ -758,6 +829,139 @@ public class PlayActivity extends LoggingActivity {
         PodcastLastClickTime = currentTime;
     }
 
+    private void showTtsUi() {
+        imFolderImage.setVisibility(View.GONE);
+        frequencyVisualizerView.setAlpha(1f);
+        ttsContainer.setVisibility(View.VISIBLE);
 
+        // text
+        String txt = audioService.getTtsText();
+        if (txt == null) txt = "";
+        SpannableStringBuilder sb = new SpannableStringBuilder(txt);
+        tvTtsText.setText(sb, TextView.BufferType.SPANNABLE);
+        spannableText = (Spannable) tvTtsText.getText();
+
+        // spinner (flags + device TTS languages, selection = service/per-book/global)
+        initTtsLanguageSpinner();
+    }
+
+
+    private void showAudioUi() {
+        ttsContainer.setVisibility(View.GONE);
+        imFolderImage.setVisibility(View.VISIBLE);
+    }
+
+    private void scheduleTtsHighlight(int s, int e) {
+        pendingStart = s;
+        pendingEnd = e;
+        if (highlightScheduled) return;
+        highlightScheduled = true;
+        uiH.postDelayed(this::applyTtsHighlight, 60);
+    }
+
+    private void applyTtsHighlight() {
+        highlightScheduled = false;
+        if (spannableText == null || pendingStart < 0) return;
+
+        int len = spannableText.length();
+        int s = Math.max(0, Math.min(pendingStart, len));
+        int e = Math.max(s + 1, Math.min(pendingEnd, len));
+
+        // clear & set
+        spannableText.removeSpan(ttsBgSpan);
+        spannableText.removeSpan(ttsFgSpan);
+        spannableText.setSpan(ttsBgSpan, s, e, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        spannableText.setSpan(ttsFgSpan, s, e, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+        // scroll the highlighted word into view
+        tvTtsText.post(() -> {
+            try {
+                android.text.Layout layout = tvTtsText.getLayout();
+                if (layout != null) {
+                    int line = layout.getLineForOffset(s);
+                    int y = layout.getLineTop(line);
+                    int targetY = Math.max(0, y - tvTtsText.getHeight() / 3);
+                    tvTtsText.scrollTo(0, targetY);
+                }
+            } catch (Throwable ignored) {}
+        });
+    }
+    private void applyTtsToggleUi() {
+        if (!audioServiceBound || audioService == null) return;
+        boolean ttsMode = audioService.isTtsMode();
+
+        // Show the toggle button only in TTS mode
+        btnToggleTtsView.setVisibility(ttsMode ? View.VISIBLE : View.GONE);
+
+        if (!ttsMode) {
+            // Audio mode: show visualizer/image as you already do
+            ttsContainer.setVisibility(View.GONE);
+            frequencyVisualizerView.setVisibility(View.VISIBLE);
+            imFolderImage.setVisibility(imFolderImage.getDrawable() != null ? View.VISIBLE : View.GONE);
+            return;
+        }
+
+        // TTS mode: never show the visualizer
+        frequencyVisualizerView.setVisibility(View.GONE);
+
+        if (showingTtsText) {
+            ttsContainer.setVisibility(View.VISIBLE);
+            imFolderImage.setVisibility(View.GONE);
+            btnToggleTtsView.setImageResource(android.R.drawable.ic_menu_gallery); // next tap -> image
+        } else {
+            ttsContainer.setVisibility(View.GONE);
+            imFolderImage.setVisibility(View.VISIBLE);
+            btnToggleTtsView.setImageResource(android.R.drawable.ic_menu_edit); // next tap -> text
+        }
+    }
+
+    private void initTtsLanguageSpinner() {
+        if (spinnerTtsLanguage == null) return;
+
+        // Current folder (book) id, if known
+        int folderId = -1;
+        try {
+            if (PlayList.getInstance() != null && PlayList.getInstance().getZikFile() != null) {
+                folderId = PlayList.getInstance().getZikFile().getIdFolder();
+            }
+        } catch (Exception ignored) {}
+
+        // 1) If the service is in TTS mode and already picked a language, prefer showing that.
+        String initialCode = "system";
+        if (audioServiceBound && audioService != null && audioService.isTtsMode()) {
+            Locale cur = audioService.getTtsCurrentLanguage();   // expose in AudioService
+            if (cur != null) initialCode = LanguageHelper.twoLetterFromLocale(cur);
+        }
+
+        // 2) Otherwise use per-book pref, falling back to global option
+        if (initialCode == null || initialCode.isEmpty() || "und".equalsIgnoreCase(initialCode)) {
+            initialCode = (folderId > 0)
+                    ? Pref.getBookTtsLanguage(this, folderId)
+                    : Option.getTtsLanguage(); // "system" or ISO 639-1
+        }
+
+        // Populate spinner with available TTS languages (flags & labels) and select initialCode
+        final int currentFolderId = folderId;
+        LanguageHelper.setupTtsSettingsSpinnerDynamic(
+                this,
+                spinnerTtsLanguage,
+                initialCode,
+                lang -> {
+                    // Normalize to "system" or 2-letter lower-case
+                    String code = (lang == null || lang.twoLetterCode == null || lang.twoLetterCode.isEmpty())
+                            ? "system"
+                            : lang.twoLetterCode.toLowerCase();
+
+                    // Persist per-book if we know the book
+                    if (currentFolderId > 0) {
+                        Pref.setBookTtsLanguage(this, currentFolderId, code);
+                    }
+                    // Apply live if service is around
+                    if (audioServiceBound && audioService != null) {
+                        audioService.setTtsLanguageCode(code); // expose in AudioService
+                    }
+                }
+        );
+    }
 
 }
