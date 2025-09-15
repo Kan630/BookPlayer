@@ -316,6 +316,38 @@ public class PlayActivity extends LoggingActivity {
                 imFolderImage.setVisibility(View.GONE);
                 frequencyVisualizerView.setAlpha(1f); // fully opaque
             }
+            imFolderImage.setOnClickListener(new View.OnClickListener() {
+                private static final long DOUBLE_CLICK_TIME_DELTA = 300; // milliseconds
+                private long lastClickTime = 0;
+
+                @Override
+                public void onClick(View v) {
+                    long clickTime = System.currentTimeMillis();
+                    if (clickTime - lastClickTime < DOUBLE_CLICK_TIME_DELTA) {
+                        myLogI("--- USER dbl Click IMAGE ---");
+                        handleDoubleClick(v);
+                    } else {
+                        myLogI("--- USER Click IMAGE ---");
+                        handleSingleClick(v);
+                    }
+                    lastClickTime = clickTime;
+                }
+
+                private void handleSingleClick(View v) {
+                    // Your single click action
+                }
+
+                private void handleDoubleClick(View v) {
+                    // Your double click action
+                    if (!audioServiceBound || audioService == null) return;
+                    boolean ttsMode = audioService.isTtsMode();
+                    if (ttsMode) {
+                        showingTtsText = !showingTtsText;
+                        applyTtsToggleUi();
+                    }
+                }
+            });
+
             /*
             // Now that metadata is loaded, we know the current folderId
             try {
