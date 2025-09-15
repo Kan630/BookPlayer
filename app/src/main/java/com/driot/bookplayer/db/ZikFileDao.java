@@ -86,8 +86,7 @@ public interface ZikFileDao {
     @Query("UPDATE ZikFile SET FolderName=:folderName WHERE id = :id")
     void updateFolderName(String folderName, int id);
 
-    @Query("SELECT DISTINCT z.path, z.folderName, f.percentdone, z.idFolder, f.sourceLocation " +
-            "FROM ZikFile z INNER JOIN Folder f ON z.idFolder = f.id")
+    @Query("SELECT DISTINCT path, name, id as idFolder, percentdone as percentDone, sourceLocation, playType FROM Folder")
     LiveData<List<ZikFileSummary>> getZikFileDistinctLocations();
 
     /*

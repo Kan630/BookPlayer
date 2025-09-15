@@ -32,7 +32,7 @@ import java.util.concurrent.Executors;
 public class CleanMemoryViewModel extends LoggingAndroidViewModel {
     private final CleanMemoryRepository cacheFilesRepository;
     private final MediatorLiveData<List<FileWithSummary>> enrichedFiles = new MediatorLiveData<>();
-    private final MutableLiveData<List<File>> filesFromDisk = new MutableLiveData<>();
+    private final MutableLiveData<List<File>> foldersFromDisk = new MutableLiveData<>();
     private final LiveData<List<ZikFileSummary>> filesFromDb;
     private final MutableLiveData<Boolean> memoryStats = new MutableLiveData<>();
     private final MutableLiveData<Boolean> isLoading = new MutableLiveData<>();
@@ -53,8 +53,8 @@ public class CleanMemoryViewModel extends LoggingAndroidViewModel {
                 .ZikFileDao()
                 .getZikFileDistinctLocations();
 
-        enrichedFiles.addSource(filesFromDisk, diskFiles -> updateEnrichedFiles(diskFiles, filesFromDb.getValue()));
-        enrichedFiles.addSource(filesFromDb, dbSummaries -> updateEnrichedFiles(filesFromDisk.getValue(), dbSummaries));
+        enrichedFiles.addSource(foldersFromDisk, diskFiles -> updateEnrichedFiles(diskFiles, filesFromDb.getValue()));
+        enrichedFiles.addSource(filesFromDb, dbSummaries -> updateEnrichedFiles(foldersFromDisk.getValue(), dbSummaries));
 
         loadFilesFromDisk();
     }
@@ -77,7 +77,7 @@ public class CleanMemoryViewModel extends LoggingAndroidViewModel {
 
     public void setUseInternal(boolean useInternal) {
         this.useInternal = useInternal;
-        filesFromDisk.postValue(new ArrayList<>()); // clear while loading
+        foldersFromDisk.postValue(new ArrayList<>()); // clear while loading
         loadFilesFromDisk();
     }
 
@@ -89,15 +89,15 @@ public class CleanMemoryViewModel extends LoggingAndroidViewModel {
                         ? getApplication().getFilesDir().getPath() + "/" + FOLDER_UNZIPPED
                         : StorageHelper.getSdCardUnzippedFolder(getApplication());
 
-                List<File> files = new ArrayList<>();
+                List<File> unzip_folders = new ArrayList<>();
 
                 if (basePath != null) {
                     File baseDir = new File(basePath);
                     File[] fileArray = baseDir.listFiles();
 
                     if (baseDir.exists() && baseDir.isDirectory() && fileArray != null) {
-                        files = new ArrayList<>(Arrays.asList(fileArray));
-                        myLog(files.size() + " folders in: [" + basePath + "]");
+                        unzip_folders = new ArrayList<>(Arrays.asList(fileArray));
+                        myLog(unzip_folders.size() + " folders in: [" + basePath + "]");
                     } else {
                         myLog("No valid files found in base directory: [" + basePath + "]");
                     }
@@ -106,14 +106,14 @@ public class CleanMemoryViewModel extends LoggingAndroidViewModel {
                 }
 
                 long totalSize = 0L;
-                for (File f : files) {
+                for (File f : unzip_folders) {
                     long size = Tonio.getFolderSize(f);
                     folderSizeCache.put(f.getPath(), size / 1024 / 1024); // Store in MB
                     totalSize += size;
                 }
                 totalAudioSizeMB.postValue(totalSize / 1024 / 1024);
 
-                filesFromDisk.postValue(files);
+                foldersFromDisk.postValue(unzip_folders);
                 memoryStats.postValue(true);
             } catch (Exception e) {
                 myLogEE(e, "loadFilesFromDisk");
@@ -128,31 +128,30 @@ public class CleanMemoryViewModel extends LoggingAndroidViewModel {
 
         Map<String, ZikFileSummary> summaryMap = new HashMap<>();
         for (ZikFileSummary summary : dbSummaries) {
-            summaryMap.put(summary.path, summary);
+            String k = folderKey(summary.path);
+            if (k != null) summaryMap.put(k, summary);
         }
 
         List<FileWithSummary> enriched = new ArrayList<>(diskFiles.size());
         for (File file : diskFiles) {
             ZikFileSummary summary = summaryMap.get(file.getPath());
+
             double percentDone = summary != null ? summary.percentDone : 0;
             String sourceLocation = summary != null ? summary.sourceLocation : "";
-            String originalFile = summary != null ? summary.originalFile : "";
+            String playType = summary != null ? summary.playType : "";
 
-            long sizeMB;
-            if (folderSizeCache.containsKey(file.getPath())) {
-                sizeMB = folderSizeCache.get(file.getPath());
-            } else {
-                sizeMB = Tonio.getFolderSize(file) / 1024 / 1024;
-                folderSizeCache.put(file.getPath(), sizeMB);
-            }
+            long sizeMB = folderSizeCache.containsKey(file.getPath())
+                    ? folderSizeCache.get(file.getPath())
+                    : (Tonio.getFolderSize(file) / 1024 / 1024);
+            folderSizeCache.putIfAbsent(file.getPath(), sizeMB);
 
-            enriched.add(new FileWithSummary(file, percentDone, sourceLocation, originalFile, sizeMB));
+            enriched.add(new FileWithSummary(file, percentDone, sourceLocation, playType, sizeMB));
         }
-
         enriched.sort(Comparator.comparingLong(f -> f.fileSizeMB));
         Collections.reverse(enriched);
         enrichedFiles.postValue(enriched);
     }
+
 
     public void deleteAudio(File file) {
         myLog("deleting file : [" + file.getPath() + "]");
@@ -162,10 +161,10 @@ public class CleanMemoryViewModel extends LoggingAndroidViewModel {
             if (sizeMB != null && totalAudioSizeMB.getValue() != null) {
                 totalAudioSizeMB.postValue(totalAudioSizeMB.getValue() - sizeMB);
             }
-            List<File> currentDisk = filesFromDisk.getValue();
+            List<File> currentDisk = foldersFromDisk.getValue();
             if (currentDisk != null) {
                 currentDisk.removeIf(f -> f.getPath().equals(file.getPath()));
-                filesFromDisk.postValue(new ArrayList<>(currentDisk));
+                foldersFromDisk.postValue(new ArrayList<>(currentDisk));
             }
 
             if (idFolder > 0) {
@@ -192,16 +191,15 @@ public class CleanMemoryViewModel extends LoggingAndroidViewModel {
     }
 
     private boolean deleteBookFromDisk(String strPath) {
-        String starter = "file:///";
-        strPath = strPath.replace(starter, "");
         try {
-            File file = new File(strPath);
+            File file = new File(normalizeFsPath(strPath));
             return file.exists() && FileHelper.recursiveRemove(file);
         } catch (Exception e) {
             myLogEE(e, "deleteBookFromDisk");
             return false;
         }
     }
+
 
     private void deleteBookFromDB(int idFolder) {
         cacheFilesRepository.deleteBookFromDB(idFolder, success -> {
@@ -212,4 +210,22 @@ public class CleanMemoryViewModel extends LoggingAndroidViewModel {
             }
         });
     }
+
+    private static String normalizeFsPath(String p) {
+        if (p == null) return null;
+        // Drop file:// or file:/// prefixes, collapse slashes a bit
+        p = p.replaceFirst("^file:/+", "/");
+        try {
+            return new File(p).getAbsolutePath();
+        } catch (Throwable t) {
+            return p;
+        }
+    }
+    private static String folderKey(String pathOrFile) {
+        String n = normalizeFsPath(pathOrFile);
+        if (n == null) return null;
+        java.io.File f = new java.io.File(n);
+        return f.isDirectory() ? n : f.getParent();
+    }
+
 }

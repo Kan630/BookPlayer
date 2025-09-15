@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.adapter.CleanMemoryRVAdapter;
+import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingActivity;
@@ -68,8 +69,8 @@ public class CleanMemoryActivity extends LoggingActivity implements CleanMemoryR
 
     private void setupRadioButtons() {
         storageSelector = findViewById(R.id.storage_selector);
-        radioInternal = findViewById(R.id.radio_internal);
-        radioSdCard = findViewById(R.id.radio_sdcard);
+        radioInternal   = findViewById(R.id.radio_internal);
+        radioSdCard     = findViewById(R.id.radio_sdcard);
 
         String sdPath = StorageHelper.getSdCardUnzippedFolder(this);
         if (sdPath == null) {
@@ -79,23 +80,48 @@ public class CleanMemoryActivity extends LoggingActivity implements CleanMemoryR
 
         storageSelector.setOnCheckedChangeListener((group, checkedId) -> {
             myLogI("---- USER TOGGLE RADIO BUTTON ----");
-            FillTextViewMemoryStats(-1
-                    , StorageHelper.getAvailableStorageMB(this, (checkedId == R.id.radio_internal))
-                    , StorageHelper.getTotalStorageMB(this, (checkedId == R.id.radio_internal))
-                    , (checkedId == R.id.radio_internal) ? getString(R.string.device) : getString(R.string.SD_card)
+            boolean useInternal = (checkedId == R.id.radio_internal);
+
+            FillTextViewMemoryStats(
+                    -1,
+                    StorageHelper.getAvailableStorageMB(this, useInternal),
+                    StorageHelper.getTotalStorageMB(this, useInternal),
+                    useInternal ? getString(R.string.device) : getString(R.string.SD_card)
             );
-            if (checkedId == R.id.radio_internal) {
-                myLogD("cacheFilesViewModel.setUseInternal(true);");
-                cacheFilesViewModel.setUseInternal(true);
-            } else if (checkedId == R.id.radio_sdcard) {
-                myLogD("cacheFilesViewModel.setUseInternal(false);");
-                cacheFilesViewModel.setUseInternal(false);
+            cacheFilesViewModel.setUseInternal(useInternal);
+        });
+
+        // ---- default selection: SD if internal has no content and SD has some ----
+        boolean sdPresent = (sdPath != null);
+        boolean internalHas = hasAnyContent(true);
+        boolean sdHas = sdPresent && hasAnyContent(false);
+
+        if (!internalHas && sdHas) {
+            myLogD("Internal empty, SD has content -> default to SD view");
+            radioSdCard.setChecked(true);     // triggers listener -> setUseInternal(false)
+        } else {
+            radioInternal.setChecked(true);
+        }
+/*
+        // ---- one-time fallback after first load (in case scanning finishes empty) ----
+        final boolean[] triedAutoSwitch = { false };
+        cacheFilesViewModel.getEnrichedFiles().observe(this, list -> {
+            if (!triedAutoSwitch[0]
+                    && cacheFilesViewModel.isUsingInternal()
+                    && (list == null || list.isEmpty())) {
+
+                String sd = StorageHelper.getSdCardUnzippedFolder(this);
+                if (sd != null && hasAnyContent(false)) {
+                    triedAutoSwitch[0] = true;
+                    myLogD("Auto-switching to SD (internal list ended up empty).");
+                    radioSdCard.setChecked(true);
+                }
             }
         });
 
-        // default selection
-        radioInternal.setChecked(true);
+ */
     }
+
 
     private void FillTextViewMemoryStats(long MB_audio, long MB_leftOnDevice, long MB_deviceMemory, String forceLabel) {
         String label;
@@ -131,4 +157,26 @@ public class CleanMemoryActivity extends LoggingActivity implements CleanMemoryR
                 .setNegativeButton(getString(R.string.Cancel), null)
                 .show();
     }
+
+    private boolean hasAnyContent(boolean internal) {
+        try {
+            String basePath = internal
+                    ? getFilesDir().getPath() + "/" + Var.FOLDER_UNZIPPED
+                    : StorageHelper.getSdCardUnzippedFolder(this);
+            if (basePath == null) return false;
+
+            File base = new File(basePath);
+            File[] kids = base.listFiles();
+            if (kids == null || kids.length == 0) return false;
+
+            for (File f : kids) {
+                if (f.isDirectory()) return true;
+                if (f.isFile() && f.length() > 0) return true;
+            }
+            return false;
+        } catch (Throwable t) {
+            return false;
+        }
+    }
+
 }

@@ -66,8 +66,8 @@ public class CleanMemoryRVAdapter extends LoggingRVAdapter<CleanMemoryRVAdapter.
         holder.audioStatus.setText(percentDone);
         holder.fileSize.setText(zeSize);
         holder.fileDate.setText(new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date(file.lastModified())));
-        String extension = item.originalFile==null ? "" : Tonio.getExtension(item.originalFile);
-        IconHelper.setSourceIcon(holder.ivSource, item.sourceLocation, extension);
+        IconHelper.setSourceIcon(holder.ivSource, item.sourceLocation, item.playType);
+
         holder.deleteButton.setOnClickListener(v -> {
             myLog("Delete Click on " + file.getName());
             onDeleteClickListener.onDeleteClick(file, position);
