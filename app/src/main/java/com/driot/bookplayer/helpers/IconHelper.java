@@ -12,11 +12,11 @@ public class IconHelper {
 
     public static void setSourceIcon(ImageView ivSource, String sourceLocation, String playType) {
         if (sourceLocation==null) {
-            myLogD("bad param for setSourceIcon - sourceLocation = " + sourceLocation);
+            //myLogD("bad param for setSourceIcon - sourceLocation = " + sourceLocation);
             sourceLocation="***";
         }
         if (playType==null) {
-            myLogD("bad param for setSourceIcon - playType = " + playType);
+            //myLogD("bad param for setSourceIcon - playType = " + playType);
             playType="***";
         }
 
@@ -29,7 +29,6 @@ public class IconHelper {
         } else if (playType.equals(Var.PLAY_TYPE_TEXT)) {
             ivSource.setVisibility(View.VISIBLE);
             ivSource.setImageResource(R.drawable.ic_tts_24);
-            myLog("coucou");
         } else {
             ivSource.setVisibility(View.GONE);
         }

@@ -47,7 +47,7 @@ public class CleanMemoryActivity extends LoggingActivity implements CleanMemoryR
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         // Set up observers
-        cacheFilesViewModel.getEnrichedFiles().observe(this, fileWithSummaries -> {
+        cacheFilesViewModel.getEnrichedFolders().observe(this, fileWithSummaries -> {
             myLogD("Enriched list updated: " + fileWithSummaries.size());
             cacheFilesAdapter.setFilesWithSummary(fileWithSummaries);
         });

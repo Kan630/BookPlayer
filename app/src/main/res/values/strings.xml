@@ -771,6 +771,9 @@
     <string name="default_">default</string>
     <string name="could_not_read_resource">Could not read resource</string>
     <string name="mime_type_not_supported">unsupported file type</string>>
+    <string name="audio_book_name">audio book name</string>>
+    <string name="audio_book_cover">audio book cover</string>>
+
 
 
 

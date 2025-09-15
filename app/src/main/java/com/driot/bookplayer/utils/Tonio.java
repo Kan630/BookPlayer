@@ -53,6 +53,27 @@ public class Tonio {
         return String.format(Locale.US, "%.1f MB", sizeBytes / (1024.0 * 1024.0));
     }
 
+    public static String getReadableSizeForCleanActivity(long sizeBytes) {
+        //if (sizeBytes <= 0) return "0 B";
+
+        double value;
+        String unit;
+
+        if (sizeBytes < 1024) {
+            value = sizeBytes;
+            unit = "B";
+        } else if (sizeBytes < 1024 * 1024) {
+            value = sizeBytes / 1024.0;
+            unit = "KB";
+        } else {
+            value = sizeBytes / (1024.0 * 1024.0);
+            unit = "MB";
+        }
+
+        // %7.3g = largeur min 7, 3 chiffres significatifs
+        return String.format(Locale.US, "%7.3g %s", value, unit);
+    }
+
 
     public static String formatTime(double doubleTime) {
         return formatTime(doubleTime,false, true);

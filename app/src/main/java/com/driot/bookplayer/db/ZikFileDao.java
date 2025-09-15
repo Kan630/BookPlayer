@@ -16,8 +16,6 @@ import androidx.room.Insert;
 import androidx.room.Query;
 import androidx.room.Update;
 
-import com.driot.bookplayer.objects.ZikFileSummary;
-
 import java.util.List;
 
 
@@ -85,9 +83,6 @@ public interface ZikFileDao {
 
     @Query("UPDATE ZikFile SET FolderName=:folderName WHERE id = :id")
     void updateFolderName(String folderName, int id);
-
-    @Query("SELECT DISTINCT path, name, id as idFolder, percentdone as percentDone, sourceLocation, playType FROM Folder")
-    LiveData<List<ZikFileSummary>> getZikFileDistinctLocations();
 
     /*
 

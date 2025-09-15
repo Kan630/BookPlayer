@@ -12,8 +12,8 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.helpers.FileHelper;
-import com.driot.bookplayer.objects.FileWithSummary;
-import com.driot.bookplayer.objects.ZikFileSummary;
+import com.driot.bookplayer.objects.FolderSummary;
+import com.driot.bookplayer.objects.FolderWithSummary;
 import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingAndroidViewModel;
@@ -31,9 +31,9 @@ import java.util.concurrent.Executors;
 
 public class CleanMemoryViewModel extends LoggingAndroidViewModel {
     private final CleanMemoryRepository cacheFilesRepository;
-    private final MediatorLiveData<List<FileWithSummary>> enrichedFiles = new MediatorLiveData<>();
+    private final MediatorLiveData<List<FolderWithSummary>> enrichedFolders = new MediatorLiveData<>();
     private final MutableLiveData<List<File>> foldersFromDisk = new MutableLiveData<>();
-    private final LiveData<List<ZikFileSummary>> filesFromDb;
+    private final LiveData<List<FolderSummary>> foldersFromDb;
     private final MutableLiveData<Boolean> memoryStats = new MutableLiveData<>();
     private final MutableLiveData<Boolean> isLoading = new MutableLiveData<>();
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
@@ -49,18 +49,16 @@ public class CleanMemoryViewModel extends LoggingAndroidViewModel {
         super(application);
         cacheFilesRepository = new CleanMemoryRepository(application);
 
-        filesFromDb = AppDatabase.getDatabase(getApplication())
-                .ZikFileDao()
-                .getZikFileDistinctLocations();
+        foldersFromDb = AppDatabase.getDatabase(getApplication()).FolderDao().getFoldersForCleaning();
 
-        enrichedFiles.addSource(foldersFromDisk, diskFiles -> updateEnrichedFiles(diskFiles, filesFromDb.getValue()));
-        enrichedFiles.addSource(filesFromDb, dbSummaries -> updateEnrichedFiles(foldersFromDisk.getValue(), dbSummaries));
+        enrichedFolders.addSource(foldersFromDisk, diskFiles -> updateEnrichedFiles(diskFiles, foldersFromDb.getValue()));
+        enrichedFolders.addSource(foldersFromDb, dbSummaries -> updateEnrichedFiles(foldersFromDisk.getValue(), dbSummaries));
 
         loadFilesFromDisk();
     }
 
-    public LiveData<List<FileWithSummary>> getEnrichedFiles() {
-        return enrichedFiles;
+    public LiveData<List<FolderWithSummary>> getEnrichedFolders() {
+        return enrichedFolders;
     }
 
     public LiveData<Boolean> getIsLoading() {
@@ -93,10 +91,10 @@ public class CleanMemoryViewModel extends LoggingAndroidViewModel {
 
                 if (basePath != null) {
                     File baseDir = new File(basePath);
-                    File[] fileArray = baseDir.listFiles();
+                    File[] foldersArray = baseDir.listFiles();
 
-                    if (baseDir.exists() && baseDir.isDirectory() && fileArray != null) {
-                        unzip_folders = new ArrayList<>(Arrays.asList(fileArray));
+                    if (baseDir.exists() && baseDir.isDirectory() && foldersArray != null) {
+                        unzip_folders = new ArrayList<>(Arrays.asList(foldersArray));
                         myLog(unzip_folders.size() + " folders in: [" + basePath + "]");
                     } else {
                         myLog("No valid files found in base directory: [" + basePath + "]");
@@ -108,7 +106,7 @@ public class CleanMemoryViewModel extends LoggingAndroidViewModel {
                 long totalSize = 0L;
                 for (File f : unzip_folders) {
                     long size = Tonio.getFolderSize(f);
-                    folderSizeCache.put(f.getPath(), size / 1024 / 1024); // Store in MB
+                    folderSizeCache.put(f.getPath(), size); // Store in MB
                     totalSize += size;
                 }
                 totalAudioSizeMB.postValue(totalSize / 1024 / 1024);
@@ -123,33 +121,33 @@ public class CleanMemoryViewModel extends LoggingAndroidViewModel {
         });
     }
 
-    private void updateEnrichedFiles(List<File> diskFiles, List<ZikFileSummary> dbSummaries) {
+    private void updateEnrichedFiles(List<File> diskFiles, List<FolderSummary> dbSummaries) {
         if (diskFiles == null || dbSummaries == null) return;
 
-        Map<String, ZikFileSummary> summaryMap = new HashMap<>();
-        for (ZikFileSummary summary : dbSummaries) {
-            String k = folderKey(summary.path);
-            if (k != null) summaryMap.put(k, summary);
+        Map<String, FolderSummary> summaryMap = new HashMap<>();
+        for (FolderSummary summary : dbSummaries) {
+            summaryMap.put(summary.path, summary);
         }
 
-        List<FileWithSummary> enriched = new ArrayList<>(diskFiles.size());
+        List<FolderWithSummary> enriched = new ArrayList<>(diskFiles.size());
         for (File file : diskFiles) {
-            ZikFileSummary summary = summaryMap.get(file.getPath());
+            FolderSummary summary = summaryMap.get(file.getPath());
 
             double percentDone = summary != null ? summary.percentDone : 0;
             String sourceLocation = summary != null ? summary.sourceLocation : "";
             String playType = summary != null ? summary.playType : "";
+            String image = summary != null ? summary.image : "";
 
-            long sizeMB = folderSizeCache.containsKey(file.getPath())
+            long folderSizeBytes = folderSizeCache.containsKey(file.getPath())
                     ? folderSizeCache.get(file.getPath())
-                    : (Tonio.getFolderSize(file) / 1024 / 1024);
-            folderSizeCache.putIfAbsent(file.getPath(), sizeMB);
+                    : (Tonio.getFolderSize(file));
+            folderSizeCache.putIfAbsent(file.getPath(), folderSizeBytes);
 
-            enriched.add(new FileWithSummary(file, percentDone, sourceLocation, playType, sizeMB));
+            enriched.add(new FolderWithSummary(file, percentDone, sourceLocation, playType, folderSizeBytes, image));
         }
-        enriched.sort(Comparator.comparingLong(f -> f.fileSizeMB));
+        enriched.sort(Comparator.comparingLong(f -> f.folderSizeInBytes));
         Collections.reverse(enriched);
-        enrichedFiles.postValue(enriched);
+        enrichedFolders.postValue(enriched);
     }
 
 
@@ -179,11 +177,11 @@ public class CleanMemoryViewModel extends LoggingAndroidViewModel {
     }
 
     private int getBookFolderId(File file) {
-        List<ZikFileSummary> summaries = filesFromDb.getValue();
+        List<FolderSummary> summaries = foldersFromDb.getValue();
         if (summaries != null) {
-            for (ZikFileSummary f : summaries) {
+            for (FolderSummary f : summaries) {
                 if (file.getPath().equals(f.path)) {
-                    return f.idFolder;
+                    return f.id;
                 }
             }
         }
@@ -220,12 +218,6 @@ public class CleanMemoryViewModel extends LoggingAndroidViewModel {
         } catch (Throwable t) {
             return p;
         }
-    }
-    private static String folderKey(String pathOrFile) {
-        String n = normalizeFsPath(pathOrFile);
-        if (n == null) return null;
-        java.io.File f = new java.io.File(n);
-        return f.isDirectory() ? n : f.getParent();
     }
 
 }

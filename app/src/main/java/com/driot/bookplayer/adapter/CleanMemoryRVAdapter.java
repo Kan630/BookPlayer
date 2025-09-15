@@ -13,8 +13,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.objects.FileWithSummary;
+import com.driot.bookplayer.objects.FolderWithSummary;
 import com.driot.bookplayer.helpers.IconHelper;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingRVAdapter;
@@ -33,7 +34,7 @@ import java.util.Locale;
  */
 public class CleanMemoryRVAdapter extends LoggingRVAdapter<CleanMemoryRVAdapter.FileViewHolder> {
 
-    private List<FileWithSummary> filesWithSummary;
+    private List<FolderWithSummary> filesWithSummary;
     private final OnDeleteClickListener onDeleteClickListener;
 
     private final Context context;
@@ -43,7 +44,7 @@ public class CleanMemoryRVAdapter extends LoggingRVAdapter<CleanMemoryRVAdapter.
         this.context = context;
     }
 
-    public void setFilesWithSummary(List<FileWithSummary> list) {
+    public void setFilesWithSummary(List<FolderWithSummary> list) {
         this.filesWithSummary = list;
         notifyDataSetChanged();
     }
@@ -57,16 +58,24 @@ public class CleanMemoryRVAdapter extends LoggingRVAdapter<CleanMemoryRVAdapter.
 
     @Override
     public void onBindViewHolder(@NonNull FileViewHolder holder, int position) {
-        FileWithSummary item = filesWithSummary.get(position);
+        FolderWithSummary item = filesWithSummary.get(position);
         File file = item.file;
-        String zeSize = formatMemPadding(item.fileSizeMB, 5) + " " + context.getString(R.string.MB);
+        String zeSize = Tonio.getReadableSizeForCleanActivity(item.folderSizeInBytes);
 
         holder.fileName.setText(file.getName());
         String percentDone = (int) item.percentDone + "%";
         holder.audioStatus.setText(percentDone);
         holder.fileSize.setText(zeSize);
         holder.fileDate.setText(new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date(file.lastModified())));
+
         IconHelper.setSourceIcon(holder.ivSource, item.sourceLocation, item.playType);
+
+        if (item.image != null) {
+            holder.iv_cover.setVisibility(View.VISIBLE);
+            Glide.with(holder.iv_cover.getContext()).load(item.image).into(holder.iv_cover);
+        } else {
+            holder.iv_cover.setVisibility(View.GONE);
+        }
 
         holder.deleteButton.setOnClickListener(v -> {
             myLog("Delete Click on " + file.getName());
@@ -85,7 +94,7 @@ public class CleanMemoryRVAdapter extends LoggingRVAdapter<CleanMemoryRVAdapter.
         TextView fileDate;
         ImageButton deleteButton;
         TextView audioStatus;
-        ImageView ivSource;
+        ImageView ivSource, iv_cover;
 
         public FileViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -95,6 +104,7 @@ public class CleanMemoryRVAdapter extends LoggingRVAdapter<CleanMemoryRVAdapter.
             deleteButton = itemView.findViewById(R.id.delete_button);
             audioStatus = itemView.findViewById(R.id.audio_status);
             ivSource = itemView.findViewById(R.id.ivSource);
+            iv_cover = itemView.findViewById(R.id.iv_cover);
         }
     }
 

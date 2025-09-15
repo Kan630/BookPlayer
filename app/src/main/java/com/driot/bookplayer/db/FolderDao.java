@@ -9,6 +9,8 @@ import androidx.room.RawQuery;
 import androidx.room.Update;
 import androidx.sqlite.db.SupportSQLiteQuery;
 
+import com.driot.bookplayer.objects.FolderSummary;
+
 import java.util.List;
 
 /**
@@ -100,5 +102,11 @@ public interface FolderDao {
     // Optional: by original hash if you use it consistently
     @Query("SELECT EXISTS(SELECT 1 FROM Folder WHERE originalHash = :hash LIMIT 1)")
     boolean existsByOriginalHash(String hash);
+
+
+    @Query("SELECT DISTINCT path, name, id, percentdone as percentDone, sourceLocation, playType, image FROM Folder")
+    LiveData<List<FolderSummary>> getFoldersForCleaning();
+
+
 }
 
