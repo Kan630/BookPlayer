@@ -80,6 +80,8 @@ public class Folder implements Parcelable {
 
     public long lLastAccess;
 
+    public String playType;
+
 
     /*
      * Getters and Setters
@@ -114,6 +116,7 @@ public class Folder implements Parcelable {
         image = in.readString();
         lFirstAccess = in.readByte() == 0 ? null : in.readLong();
         lLastAccess = in.readLong();
+        playType = in.readString();
     }
 
     @Override
@@ -150,6 +153,7 @@ public class Folder implements Parcelable {
             dest.writeLong(lFirstAccess);
         }
         dest.writeLong(lLastAccess);
+        dest.writeString(playType);
     }
 
     @Override

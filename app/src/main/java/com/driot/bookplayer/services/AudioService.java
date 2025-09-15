@@ -34,6 +34,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.media.session.MediaButtonReceiver;
 
 import com.driot.bookplayer.helpers.EbookTtsHelper;
+import com.driot.bookplayer.helpers.TextExtractor;
 import com.driot.bookplayer.helpers.UriHelper;
 import com.driot.bookplayer.helpers.LanguageHelper;
 import com.driot.bookplayer.objects.KanMediaPlayer;
@@ -212,7 +213,7 @@ public class AudioService extends LoggingService {
 
         @Override public void setDataSource(Context ctx, Uri uri, String displayName) {
             prepared = false; playing = false; resumeOffset = 0; estPositionMs = 0;
-            String raw = readAllText(ctx, uri);
+            String raw = TextExtractor.getPlainText(ctx, uri, displayName);
 
             // Normalize line endings (CRLF/CR → LF)
             String norm = raw.replace("\r\n", "\n").replace('\r', '\n');

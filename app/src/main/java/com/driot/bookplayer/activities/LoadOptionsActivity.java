@@ -248,6 +248,7 @@ public class LoadOptionsActivity extends LoggingActivity {
                     state.sourceLocation = bookToAdd.getSourceLocation();
                     state.fileExtension = bookToAdd.getFileExtension();
                     state.mimeType = bookToAdd.getMimeType();
+                    state.playType = bookToAdd.getPlayType();
                     setLoadBookTaskState(state); // save in SharedPrefs
                     myLogD("LoadBookTaskState saved - Sending ok Result");
                     setResult(RESULT_OK);

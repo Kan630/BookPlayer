@@ -1,6 +1,8 @@
 package com.driot.bookplayer.services;
 
 import static com.driot.bookplayer.db.Sql.updateFolderTable;
+import static com.driot.bookplayer.global.Var.ONLY_MIME_EBOOK;
+import static com.driot.bookplayer.global.Var.SUPPORTED_EBOOK_EXTENSIONS;
 import static com.driot.bookplayer.utils.Tonio.formatMemPadding;
 import static com.driot.bookplayer.utils.Tonio.formatNameForDisplay;
 import static com.driot.bookplayer.utils.Tonio.formatTime;
@@ -152,15 +154,9 @@ public class ParseFinalFolderWorker extends LoggingWorker {
             return;
         }
 
-        String fileName = Objects.toString(dfPickedFile.getName());
-        String ext = getExtension(fileName);
-        String mime = Objects.toString(dfPickedFile.getType());
-
-        boolean isText = (mime != null && mime.startsWith("text/")) || "txt".equalsIgnoreCase(ext)
-                || "html".equalsIgnoreCase(ext) || "htm".equalsIgnoreCase(ext) || "xhtml".equalsIgnoreCase(ext) || "xml".equalsIgnoreCase(ext);
-
         audioFileArrayList = new ArrayList<>();
-        if (isText) {
+
+        if (bookState.playType.equals(Var.PLAY_TYPE_TEXT)) {
             addTextFileUnique(dfPickedFile);
         } else {
             addAudioFileUnique(dfPickedFile);
@@ -185,7 +181,7 @@ public class ParseFinalFolderWorker extends LoggingWorker {
 
         audioFileArrayList = new ArrayList<>();
         Thread backgroundThread;
-        if (bookState.fileExtension.equals("epub")) {
+        if (bookState.playType.equals(Var.PLAY_TYPE_TEXT)) {
             backgroundThread = new Thread(() -> {
                 addTextFileRecursive(dfPickedDir);
 
@@ -233,17 +229,6 @@ public class ParseFinalFolderWorker extends LoggingWorker {
             }
             TaskStateManager.markTaskFailed(TASK_NAME, strErr);
         }
-    }
-
-    private void addTextFileUnique(DocumentFile df) {
-        String name = Objects.toString(df.getName());
-        String mime = Objects.toString(df.getType());
-        myLogD("* New Text File : [" + name + ']');
-
-        long duration = estimateTtsDurationMsFromUri(context, df.getUri(), name, mime);
-        myLogD("* TTS Duration (est.): [" + formatTime(duration) + ']');
-
-        audioFileArrayList.add(new AudioFileInfo(name, duration, df.getUri().toString()));
     }
 
     private void addAudioFileUnique(DocumentFile df) {
@@ -305,6 +290,18 @@ public class ParseFinalFolderWorker extends LoggingWorker {
             }
         }
     }
+
+    private void addTextFileUnique(DocumentFile df) {
+        String name = Objects.toString(df.getName());
+        String mime = Objects.toString(df.getType());
+        myLogD("* New Text File : [" + name + ']');
+
+        long duration = estimateTtsDurationMsFromUri(context, df.getUri(), name, mime);
+        myLogD("* TTS Duration (est.): [" + formatTime(duration) + ']');
+
+        audioFileArrayList.add(new AudioFileInfo(name, duration, df.getUri().toString()));
+    }
+
     private void addTextFileRecursive(DocumentFile root) {
         totalDuration = 0;      // not used for text, but keep consistent
         nbFileScan = 0;
@@ -414,7 +411,9 @@ public class ParseFinalFolderWorker extends LoggingWorker {
         folder.setIszipfile(false); //2023-10-22 deprecated (live zip reading - code has been removed)
         folder.setOriginalHash(bookState.originalHash);
         folder.setOriginalFile(bookState.originalFile);
+        folder.setOriginalType(bookState.originalType);
         folder.setSourceLocation(bookState.sourceLocation);
+        folder.playType = bookState.playType;
         folder.date_added = System.currentTimeMillis();
         folder.image = bookState.imagePath;
         folder.lLastAccess = System.currentTimeMillis(); //used to sort the Book on the main page
@@ -508,7 +507,7 @@ public class ParseFinalFolderWorker extends LoggingWorker {
         file.setDuration(info.getDuration());
         file.date_added = System.currentTimeMillis();
 
-        if (file.getDuration() == 0 && !"epub".equalsIgnoreCase(bookState.fileExtension)) {
+        if (file.getDuration() == 0) {
             myLogW("⏭️ Skipped: duration = 0 → " + info.getDisplayPath());
             return SaveResultEnum.SKIPPED;
         }

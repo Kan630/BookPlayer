@@ -28,7 +28,8 @@ public class BookLoadingWorkLauncher {
         boolean doDownload = false;
         boolean doCopy = false;
         boolean doSplitM4b = false;
-        boolean doSplitEpub = false;
+        boolean doSplitEbook = false;
+        String ebookType = null;
         boolean doUnzip = false;
 
         TaskStateManager.tellStart(); //TODO maybe to remove
@@ -78,7 +79,13 @@ public class BookLoadingWorkLauncher {
         }
         if (bookState.fileExtension!=null && bookState.fileExtension.equalsIgnoreCase("epub")) {
             myLogD("epub");
-            doSplitEpub = true;
+            ebookType = "epub";
+            doSplitEbook = true;
+            doCopy = true;
+        } else if (bookState.fileExtension!=null && bookState.fileExtension.equalsIgnoreCase("fb2")) {
+            myLogD("fb2");
+            ebookType = "fb2";
+            doSplitEbook = true;
             doCopy = true;
         }
         if (doDownload) {
@@ -88,7 +95,7 @@ public class BookLoadingWorkLauncher {
         bookState.doDownload = doDownload;
         bookState.doCopy = doCopy;
         bookState.doSplitM4b = doSplitM4b;
-        bookState.doSplitEpub = doSplitEpub;
+        bookState.doSplitEbook = doSplitEbook;
         bookState.doUnzip = doUnzip;
         setLoadBookTaskState(bookState);
 
@@ -119,7 +126,25 @@ public class BookLoadingWorkLauncher {
         if (bookState.doCopy) {workChain.add(new OneTimeWorkRequest.Builder(CopyFileWorker.class).addTag(BOOK_LOADING_WORKERS).build());}
         if (bookState.doUnzip) {workChain.add(new OneTimeWorkRequest.Builder(UnzipWorker.class).addTag(BOOK_LOADING_WORKERS).build());}
         if (bookState.doSplitM4b) {workChain.add(new OneTimeWorkRequest.Builder(M4bSplitWorker.class).addTag(BOOK_LOADING_WORKERS).build());}
-        if (bookState.doSplitEpub) {workChain.add(new OneTimeWorkRequest.Builder(EpubSplitWorker.class).addTag(BOOK_LOADING_WORKERS).build());}
+        if (bookState.doSplitEbook) {
+            String ebookType = null; // if null, the ebookHelper will check file extension
+            if (bookState.fileExtension != null) {
+                String ext = bookState.fileExtension.toLowerCase(java.util.Locale.ROOT);
+                if ("epub".equals(ext)) ebookType = "epub";
+                else if ("fb2".equals(ext)) ebookType = "fb2";
+            }
+            androidx.work.Data input =
+                    new androidx.work.Data.Builder()
+                            .putString(EbookSplitWorker.K_EBOOK_TYPE, ebookType)
+                            .build();
+            workChain.add(
+                    new OneTimeWorkRequest.Builder(EbookSplitWorker.class)
+                            .setInputData(input)
+                            .addTag(BOOK_LOADING_WORKERS)
+                            .build()
+            );
+        }
+
         workChain.add(new OneTimeWorkRequest.Builder(ParseFinalFolderWorker.class).addTag(BOOK_LOADING_WORKERS).build());
 
         WorkContinuation continuation = WorkManager.getInstance(context).beginWith(workChain.get(0));

@@ -197,5 +197,13 @@ public class DatabaseMigrations {
             db.execSQL("ALTER TABLE Episode ADD COLUMN enclosureLength INTEGER NOT NULL DEFAULT 0");
         }
     };
+    static final Migration MIGRATION_13_14 = new Migration(13, 14) {
+        @Override
+        public void migrate(SupportSQLiteDatabase db) {
+            myLogI("Migration -> executing step 13 => 14"); // 2025-09-15
+
+            db.execSQL("ALTER TABLE Folder ADD COLUMN playType TEXT");
+        }
+    };
 
 }

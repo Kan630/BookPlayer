@@ -3,7 +3,6 @@ package com.driot.bookplayer.services;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.text.Html;
 
 import androidx.annotation.NonNull;
 import androidx.work.WorkerParameters;
@@ -13,6 +12,7 @@ import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.objects.TaskStateManager;
 import com.driot.bookplayer.helpers.EpubLowLevelHelper;
+import com.driot.bookplayer.helpers.Fb2LowLevelHelper;
 import com.driot.bookplayer.utils.log.LoggingWorker;
 
 import java.io.BufferedWriter;
@@ -25,14 +25,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-public class EpubSplitWorker extends LoggingWorker {
+public class EbookSplitWorker extends LoggingWorker {
 
+    // Keep existing label for compatibility with UI/strings
     private static final String TASK_NAME = Var.WORKER_TASK_LABEL_SPLIT_EPUB;
 
-    public EpubSplitWorker(@NonNull Context context, @NonNull WorkerParameters params) {
+    // Optional input param to force type; values: "epub" | "fb2"
+    public static final String K_EBOOK_TYPE = "ebook_type";
+
+    public EbookSplitWorker(@NonNull Context context, @NonNull WorkerParameters params) {
         super(context, params);
     }
 
@@ -45,24 +47,30 @@ public class EpubSplitWorker extends LoggingWorker {
             return Result.failure();
         }
 
-        final String epubPath = bookState.dynamicSourceFilePath;   // expected: absolute file path
+        final String ebookPath = bookState.dynamicSourceFilePath;   // absolute file path or content://
         final String destinationFolderPath = bookState.futureFolderPath;
+        final String typeOverride = getInputData().getString(K_EBOOK_TYPE); // may be null
 
-        myLog("EpubSplitWorker received:");
-        myLog("epubPath = " + epubPath);
+        myLog("EbookSplitWorker received:");
+        myLog("ebookPath = " + ebookPath);
         myLog("destinationFolderPath = " + destinationFolderPath);
+        myLog("ebookType (override) = " + typeOverride);
 
-        if (epubPath == null || destinationFolderPath == null) {
-            TaskStateManager.markTaskFailed(TASK_NAME, "Missing input data for EpubSplitWorker");
-            myLogEE(null, "Missing input data for EpubSplitWorker");
+        if (ebookPath == null || destinationFolderPath == null) {
+            TaskStateManager.markTaskFailed(TASK_NAME, "Missing input data for EbookSplitWorker");
+            myLogEE(null, "Missing input data for EbookSplitWorker");
             return Result.failure();
         }
 
-        boolean ok = splitEpub(epubPath, destinationFolderPath);
+        String ebookType = (typeOverride != null && !typeOverride.isEmpty())
+                ? typeOverride.toLowerCase(Locale.ROOT)
+                : guessTypeFromPath(ebookPath); // "epub" or "fb2"
+
+        boolean ok = splitEbook(ebookPath, destinationFolderPath, ebookType);
         return ok ? Result.success() : Result.failure();
     }
 
-    private boolean splitEpub(String epubPath, String destinationFolderPath) {
+    private boolean splitEbook(String ebookPath, String destinationFolderPath, String ebookType) {
         Context ctx = getApplicationContext();
         try {
             File outFolder = new File(destinationFolderPath);
@@ -71,36 +79,49 @@ public class EpubSplitWorker extends LoggingWorker {
                 return false;
             }
 
-            // Build a Uri from file path (supports "content://" too if ever passed)
-            Uri uri = epubPath.startsWith("content://") || epubPath.startsWith("file://")
-                    ? Uri.parse(epubPath)
-                    : Uri.fromFile(new File(epubPath));
+            // Build a Uri from file path
+            Uri uri = (ebookPath.startsWith("content://") || ebookPath.startsWith("file://"))
+                    ? Uri.parse(ebookPath)
+                    : Uri.fromFile(new File(ebookPath));
 
-            // Extract all (cover + chapter files) using your helper
-            TaskStateManager.tellProgress(TASK_NAME, 1, "Parsing EPUB…");
-            EpubLowLevelHelper.ExtractResult result = EpubLowLevelHelper.extractAll(ctx, uri);
-            Bitmap cover = result.coverBitmap;
-            List<File> chapters = result.chapterFiles;
+            // Extract (cover + chapter files) using the appropriate helper
+            Bitmap cover;
+            List<File> chapters;
 
-            if (chapters == null || chapters.isEmpty()) {
-                TaskStateManager.markTaskFailed(TASK_NAME, "No chapters found in EPUB");
+            if ("fb2".equals(ebookType)) {
+                TaskStateManager.tellProgress(TASK_NAME, 1, "Parsing FB2…");
+                Fb2LowLevelHelper.ExtractResult result = Fb2LowLevelHelper.extractAll(ctx, uri);
+                cover    = result.coverBitmap;
+                chapters = result.chapterFiles;
+            } else if ("epub".equals(ebookType)) {
+                TaskStateManager.tellProgress(TASK_NAME, 1, "Parsing EPUB…");
+                EpubLowLevelHelper.ExtractResult result = EpubLowLevelHelper.extractAll(ctx, uri);
+                cover    = result.coverBitmap;
+                chapters = result.chapterFiles;
+            } else {
+                String msg = "Unsupported ebook type: " + ebookType;
+                TaskStateManager.markTaskFailed(TASK_NAME, msg);
+                myLogE(msg);
                 return false;
             }
 
-            // Optionally save cover image if present
+            if (chapters == null || chapters.isEmpty()) {
+                TaskStateManager.markTaskFailed(TASK_NAME, "No chapters found (" + ebookType.toUpperCase(Locale.ROOT) + ")");
+                return false;
+            }
+
+            // Save cover image if present (JPEG to keep previous behavior)
             if (cover != null && !isStopped()) {
-                try {
-                    File coverFile = new File(outFolder, "cover.jpg");
-                    FileOutputStream fos = new FileOutputStream(coverFile);
+                try (FileOutputStream fos = new FileOutputStream(new File(outFolder, "cover.jpg"))) {
                     cover.compress(Bitmap.CompressFormat.JPEG, 90, fos);
                     fos.flush();
-                    fos.close();
                 } catch (Exception e) {
                     myLogEE(e, "Saving cover.jpg failed");
                     // Non-fatal
                 }
             }
 
+            // Prepare output names (keep indices, use chapter filename as title)
             Set<String> usedNames = new HashSet<>();
             DecimalFormat numFmt = new DecimalFormat("000");
             final int total = chapters.size();
@@ -112,10 +133,12 @@ public class EpubSplitWorker extends LoggingWorker {
                 }
 
                 File chapterFile = chapters.get(i);
-                String html = readUtf8File(chapterFile);
-                String title = pickBestTitle(html, chapterFile.getName());
 
-                // sanitize + ensure uniqueness
+                // Our helpers already wrote *plain text* with preserved newlines.
+                String text = readUtf8File(chapterFile);
+
+                // Derive title from file name (remove ###_ prefix and extension)
+                String title = titleFromFileName(chapterFile.getName());
                 if (title == null || title.trim().isEmpty()) {
                     title = "chapter" + numFmt.format(i + 1);
                 }
@@ -123,32 +146,23 @@ public class EpubSplitWorker extends LoggingWorker {
                 title = ensureUnique(usedNames, title);
                 usedNames.add(title);
 
-                // Convert HTML → plain text
-                String text = htmlToPlainText(html);
-                text = cleanText(text);
-
-                // Write as UTF-8 .txt
+                // Write as UTF-8 .txt (preserve newlines; do minimal cleanup only)
                 File out = new File(outFolder, title + ".txt");
-                writeUtf8(out, text);
+                writeUtf8(out, cleanTextKeepParagraphs(text));
 
                 int progress = (int) Math.round(((i + 1) * 100.0) / total);
-                String progressText = "Splitting EPUB: " + (i + 1) + "/" + total + "\n\n" + title;
+                String progressText = "Splitting " + ebookType.toUpperCase(Locale.ROOT) + ": "
+                        + (i + 1) + "/" + total + "\n\n" + title;
                 TaskStateManager.tellProgress(TASK_NAME, progress, progressText);
                 myLogD(progress + "% - " + progressText.replace("\n", " - "));
             }
 
-            // If you want to delete source EPUB after split, uncomment:
-            // File src = new File(epubPath);
-            // if (src.exists() && !src.delete()) {
-            //     myLogE("Could not delete source EPUB after split: " + epubPath);
-            // }
-
-            // Mark completion (add this helper in your TaskStateManager similar to markM4bSplitCompleted)
+            // Reuse existing completion hook for EPUB (keeps app logic unchanged)
             TaskStateManager.markEpubSplitCompleted(TASK_NAME, outFolder.getAbsolutePath());
             return true;
 
         } catch (Exception e) {
-            myLogEE(e, "splitEpub");
+            myLogEE(e, "splitEbook");
             TaskStateManager.markTaskFailed(TASK_NAME, e.getMessage());
             return false;
         }
@@ -156,12 +170,24 @@ public class EpubSplitWorker extends LoggingWorker {
 
     // ---------- helpers ----------
 
+    private static String guessTypeFromPath(String path) {
+        String name = new File(path).getName().toLowerCase(Locale.ROOT);
+        int dot = name.lastIndexOf('.');
+        String ext = dot > 0 ? name.substring(dot + 1) : "";
+        switch (ext) {
+            case "epub": return "epub";
+            case "fb2":  return "fb2";
+            // common zipped fb2 variants could be handled later (fb2.zip/fbz) if you add unzip
+            default:     return "epub"; // safe default if you mostly import EPUBs
+        }
+    }
+
     private static String readUtf8File(File f) {
         try (java.io.BufferedInputStream in = new java.io.BufferedInputStream(new java.io.FileInputStream(f));
              java.io.InputStreamReader isr = new java.io.InputStreamReader(in, java.nio.charset.StandardCharsets.UTF_8);
              java.io.BufferedReader br = new java.io.BufferedReader(isr, 64 * 1024)) {
 
-            StringBuilder sb = new StringBuilder(Math.min((int) Math.max(f.length(), 128_000L), 2_000_000));
+            StringBuilder sb = new StringBuilder((int) Math.min(Math.max(f.length(), 128_000L), 2_000_000));
             char[] buf = new char[8192];
             int n;
             while ((n = br.read(buf)) != -1) sb.append(buf, 0, n);
@@ -171,63 +197,34 @@ public class EpubSplitWorker extends LoggingWorker {
         }
     }
 
-    private static String htmlToPlainText(String html) {
-        if (html == null) return "";
-        try {
-            return Html.fromHtml(html, Html.FROM_HTML_MODE_LEGACY).toString();
-        } catch (Throwable t) {
-            return html.replaceAll("<[^>]+>", " ");
-        }
-    }
-
-    private static String cleanText(String raw) {
+    /** Preserve paragraphs; do only safe cleanup. */
+    private static String cleanTextKeepParagraphs(String raw) {
         if (raw == null) return "";
         String s = raw.replace("\r\n", "\n").replace("\r", "\n");
         // Remove control chars except \n and \t
         s = s.replaceAll("[\\p{Cntrl}&&[^\n\t]]", "");
-        // Collapse >2 blank lines to just one
+        // Collapse 3+ blank lines → 2
         s = s.replaceAll("\n{3,}", "\n\n");
-        // Trim edges
         return s.trim();
     }
 
-    private static final Pattern TITLE_TAG =
-            Pattern.compile("<title>(.*?)</title>", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
-    private static final Pattern H1_TAG =
-            Pattern.compile("<h1[^>]*>(.*?)</h1>", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
-    private static final Pattern H2_TAG =
-            Pattern.compile("<h2[^>]*>(.*?)</h2>", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
-
-    private static String pickBestTitle(String html, String fallbackName) {
-        if (html != null) {
-            Matcher m = TITLE_TAG.matcher(html);
-            if (m.find()) {
-                String t = htmlToPlainText(m.group(1));
-                if (t != null && !t.trim().isEmpty()) return t.trim();
-            }
-            m = H1_TAG.matcher(html);
-            if (m.find()) {
-                String t = htmlToPlainText(m.group(1));
-                if (t != null && !t.trim().isEmpty()) return t.trim();
-            }
-            m = H2_TAG.matcher(html);
-            if (m.find()) {
-                String t = htmlToPlainText(m.group(1));
-                if (t != null && !t.trim().isEmpty()) return t.trim();
-            }
+    /** From file like "003_chapter-title.txt" → "chapter-title". */
+    private static String titleFromFileName(String name) {
+        if (name == null) return null;
+        String base = name;
+        int dot = base.lastIndexOf('.');
+        if (dot > 0) base = base.substring(0, dot);
+        // drop leading "###_" index if present
+        if (base.length() >= 4 && Character.isDigit(base.charAt(0)) && Character.isDigit(base.charAt(1))
+                && Character.isDigit(base.charAt(2)) && base.charAt(3) == '_') {
+            base = base.substring(4);
         }
-        // fallback to file name minus extension
-        String name = fallbackName == null ? "" : fallbackName;
-        int dot = name.lastIndexOf('.');
-        if (dot > 0) name = name.substring(0, dot);
-        return name;
+        return base;
     }
 
     private static String toSafeFilename(String s) {
         String cleaned = s.replaceAll("[\\\\/:*?\"<>|]", " ").replaceAll("\\s+", " ").trim();
-        // limit length to something reasonable
         if (cleaned.length() > 80) cleaned = cleaned.substring(0, 80).trim();
-        // Avoid empty
         if (cleaned.isEmpty()) cleaned = "chapter";
         return cleaned;
     }

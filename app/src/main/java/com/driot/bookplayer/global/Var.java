@@ -23,6 +23,9 @@ public class Var {
     public static final String SOURCE_LOCATION_PODCAST = "podcast";
     public static final String SOURCE_LOCATION_LIBRIVOX = "librivox";
 
+    public static final String PLAY_TYPE_TEXT = "text";
+    public static final String PLAY_TYPE_AUDIO = "audio";
+
     public static final int TTS_WPM_IMPORT = 180;
 
     public static final int MAX_IMAGE_SIZE_KB = 200;
@@ -130,11 +133,24 @@ public class Var {
                     "avi"
             )
     );
+    public static final Set<String> SUPPORTED_TEXTUAL_MIMES = new HashSet<>(
+            Arrays.asList(
+                    "text/plain",
+                    "text/html",
+                    "application/xhtml+xml",
+                    "application/x-fictionbook+xml", // fb2 (sometimes)
+                    "application/vnd.oasis.opendocument.text" // odt
+            )
+    );
     public static final String ONLY_MIME_EBOOK = "application/epub+zip";
     public static final Set<String> SUPPORTED_EBOOK_EXTENSIONS = new HashSet<>(
             Arrays.asList(
-                    "epub" // Kobo kepub is still .epub
-            )
+                    "epub", // Kobo kepub is still .epub
+                    "txt",
+                    "html","htm","xhtml", // HTML
+                    "fb2",                // FictionBook 2
+                    "odt"                 // OpenDocument Text
+                    )
     );
 
 }

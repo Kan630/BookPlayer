@@ -21,6 +21,7 @@ import android.provider.OpenableColumns;
 import androidx.annotation.NonNull;
 import androidx.documentfile.provider.DocumentFile;
 
+import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.utils.KanLogger;
 import com.driot.bookplayer.utils.Tonio;
 
@@ -43,6 +44,7 @@ public class BookToAdd {
     private String originalType;
     private String fileExtension;
     private String mimeType;
+    private String playType;
 
     private String infoMimeExtension = "init...";
     private String infoSourceLocation = "init...";
@@ -110,7 +112,7 @@ public class BookToAdd {
             if (this.type.equals("ZIP")
                 || mimeType.startsWith(ONLY_MIME_AUDIO) || SUPPORTED_AUDIO_EXTENSIONS.contains(fileExtension)
                 || mimeType.startsWith(ONLY_MIME_VIDEO) || SUPPORTED_VIDEO_EXTENSIONS.contains(fileExtension)
-                || mimeType.startsWith(ONLY_MIME_EBOOK) || SUPPORTED_EBOOK_EXTENSIONS.contains(fileExtension)
+                || ONLY_MIME_EBOOK.contains(mimeType) || SUPPORTED_EBOOK_EXTENSIONS.contains(fileExtension)
             ) {
                 this.isMimeSupported = true;
                 myLogD("Mime/Extension supported - " + infoMimeExtension);
@@ -118,6 +120,12 @@ public class BookToAdd {
                 this.isMimeSupported = false;
                 myLogEE(null,"Mime/Extension not supported - " + infoMimeExtension);
                 return;
+            }
+
+            if (ONLY_MIME_EBOOK.contains(mimeType) || SUPPORTED_EBOOK_EXTENSIONS.contains(fileExtension)) {
+                this.playType = Var.PLAY_TYPE_TEXT;
+            } else {
+                this.playType = Var.PLAY_TYPE_AUDIO;
             }
 
             String fileName2 = getFileName();
@@ -198,6 +206,10 @@ public class BookToAdd {
 
     public String getMimeType() {
         return mimeType;
+    }
+
+    public String getPlayType() {
+        return playType;
     }
 
     /// ////////////////////////////////////////////////////////////////////////////////////////

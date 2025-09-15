@@ -41,8 +41,9 @@ public class LoadBookTaskState implements Parcelable {
     public boolean doDownload;
     public boolean doCopy;
     public boolean doSplitM4b;
-    public boolean doSplitEpub;
+    public boolean doSplitEbook;
     public boolean doUnzip;
+    public String playType;
 
 
 
@@ -83,8 +84,9 @@ public class LoadBookTaskState implements Parcelable {
         doDownload = in.readByte() != 0;
         doCopy = in.readByte() != 0;
         doSplitM4b = in.readByte() != 0;
-        doSplitEpub = in.readByte() != 0;
+        doSplitEbook = in.readByte() != 0;
         doUnzip = in.readByte() != 0;
+        playType = in.readString();
     }
 
     public static final Creator<LoadBookTaskState> CREATOR = new Creator<LoadBookTaskState>() {
@@ -133,8 +135,9 @@ public class LoadBookTaskState implements Parcelable {
         dest.writeByte((byte) (doDownload ? 1 : 0));
         dest.writeByte((byte) (doCopy ? 1 : 0));
         dest.writeByte((byte) (doSplitM4b ? 1 : 0));
-        dest.writeByte((byte) (doSplitEpub ? 1 : 0));
+        dest.writeByte((byte) (doSplitEbook ? 1 : 0));
         dest.writeByte((byte) (doUnzip ? 1 : 0));
+        dest.writeString(playType);
     }
 
     @Override
@@ -178,8 +181,9 @@ public class LoadBookTaskState implements Parcelable {
                 ", doDownload=" + doDownload +
                 ", doCopy=" + doCopy +
                 ", doSplitM4b=" + doSplitM4b +
-                ", doSplitEpub=" + doSplitEpub +
+                ", doSplitEpub=" + doSplitEbook +
                 ", doUnzip=" + doUnzip +
+                ", playType='" + playType + "'" +
                 '}';
     }
     public String toStringN() {
