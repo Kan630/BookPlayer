@@ -153,58 +153,56 @@ public class LanguageHelper {
                     TextToSpeech tts = holder[0];
 
                     // Always include "Device language"
-                    String deviceLabel = "Device language (" + java.util.Locale.getDefault().getDisplayName() + ")";
+                    String deviceLabel = ctx.getString(R.string.default_) + " (" + java.util.Locale.getDefault().getDisplayName() + ")";
                     list.add(new LanguageItem("sys", "system", deviceLabel, 0));
 
-                    if (status == TextToSpeech.SUCCESS && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        // Build best-per-language map
-                        java.util.Map<String, java.util.Locale> bestByLang2 = new java.util.LinkedHashMap<>();
+                    // Build best-per-language map
+                    java.util.Map<String, java.util.Locale> bestByLang2 = new java.util.LinkedHashMap<>();
 
-                        // Prefer voices (more granular) if available
+                    // Prefer voices (more granular) if available
+                    try {
+                        java.util.Set<android.speech.tts.Voice> voices = tts.getVoices();
+                        if (voices != null && !voices.isEmpty()) {
+                            myLogD(voices.size() + " voices found.");
+                            for (android.speech.tts.Voice v : voices) {
+                                java.util.Locale loc = v.getLocale();
+                                if (loc == null) continue;
+                                String lang2 = safeLang2(loc);
+                                if (lang2.isEmpty()) continue;
+
+                                boolean prefer = (v.getQuality() <= android.speech.tts.Voice.QUALITY_HIGH)
+                                        || !v.isNetworkConnectionRequired();
+                                java.util.Locale cur = bestByLang2.get(lang2);
+                                if (cur == null) bestByLang2.put(lang2, loc);
+                                else if (prefer && hasCountry(loc) && !hasCountry(cur)) bestByLang2.put(lang2, loc);
+                            }
+                        }
+                    } catch (Throwable ignored) {}
+
+                    // Fallback: available languages
+                    if (bestByLang2.isEmpty()) {
                         try {
-                            java.util.Set<android.speech.tts.Voice> voices = tts.getVoices();
-                            if (voices != null && !voices.isEmpty()) {
-                                myLogD(voices.size() + " voices found.");
-                                for (android.speech.tts.Voice v : voices) {
-                                    java.util.Locale loc = v.getLocale();
-                                    if (loc == null) continue;
+                            java.util.Set<java.util.Locale> locales = tts.getAvailableLanguages();
+                            if (locales != null) {
+                                myLogD(locales.size() + " locales found.");
+                                for (java.util.Locale loc : locales) {
                                     String lang2 = safeLang2(loc);
                                     if (lang2.isEmpty()) continue;
-
-                                    boolean prefer = (v.getQuality() <= android.speech.tts.Voice.QUALITY_HIGH)
-                                            || !v.isNetworkConnectionRequired();
-                                    java.util.Locale cur = bestByLang2.get(lang2);
-                                    if (cur == null) bestByLang2.put(lang2, loc);
-                                    else if (prefer && hasCountry(loc) && !hasCountry(cur)) bestByLang2.put(lang2, loc);
+                                    if (!bestByLang2.containsKey(lang2)) bestByLang2.put(lang2, loc);
+                                    else if (hasCountry(loc) && !hasCountry(bestByLang2.get(lang2))) bestByLang2.put(lang2, loc);
                                 }
                             }
                         } catch (Throwable ignored) {}
+                    }
 
-                        // Fallback: available languages
-                        if (bestByLang2.isEmpty()) {
-                            try {
-                                java.util.Set<java.util.Locale> locales = tts.getAvailableLanguages();
-                                if (locales != null) {
-                                    myLogD(locales.size() + " locales found.");
-                                    for (java.util.Locale loc : locales) {
-                                        String lang2 = safeLang2(loc);
-                                        if (lang2.isEmpty()) continue;
-                                        if (!bestByLang2.containsKey(lang2)) bestByLang2.put(lang2, loc);
-                                        else if (hasCountry(loc) && !hasCountry(bestByLang2.get(lang2))) bestByLang2.put(lang2, loc);
-                                    }
-                                }
-                            } catch (Throwable ignored) {}
-                        }
-
-                        // Build LanguageItem list
-                        for (java.util.Map.Entry<String, java.util.Locale> e : bestByLang2.entrySet()) {
-                            String lang2 = e.getKey();
-                            java.util.Locale loc = e.getValue();
-                            String lang3 = safeLang3(loc);
-                            String display = loc.getDisplayLanguage(loc);
-                            int flagRes = resolveFlagRes(ctx, loc);
-                            list.add(new LanguageItem(lang3, lang2, display, flagRes));
-                        }
+                    // Build LanguageItem list
+                    for (java.util.Map.Entry<String, java.util.Locale> e : bestByLang2.entrySet()) {
+                        String lang2 = e.getKey();
+                        java.util.Locale loc = e.getValue();
+                        String lang3 = safeLang3(loc);
+                        String display = loc.getDisplayLanguage(loc);
+                        int flagRes = resolveFlagRes(ctx, loc);
+                        list.add(new LanguageItem(lang3, lang2, display, flagRes));
                     }
 
                 } catch (Exception ignored) {

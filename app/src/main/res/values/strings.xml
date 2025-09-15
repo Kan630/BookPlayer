@@ -752,21 +752,23 @@
 
     <string name="app_language">App language</string>">
     <string name="tts_language">TTS language</string>">
+    <string name="language">language</string>">
     <string name="download">download</string>
     <string name="autodownload">auto-download</string>
     <string name="refresh">refresh</string>
     <string name="collapse">collapse</string>
     <string name="expand">expand</string>
-    <string name="sort">sort</string>
+    <string name="flag">flag</string>
     <string name="settings">settings</string>
     <string name="podcast_settings">podcast settings</string>
     <string name="option_podcast_episodes_expand">show descriptions</string>
     <string name="option_create_cover">Create covers</string>
     <string name="option_create_cover_text">If no cover image is found upon book loading, a pastel image with book title initials will be created.</string>
     <string name="toggle_text_image">Toggle Text Image</string>
-    <string name="tts_language">TTS language</string>">
     <string name="reset_progress_from_this_track">reset progress from this track</string>">
     <string name="rename_track">rename track</string>
+    <string name="sort">sort</string>
+    <string name="default_">default</string>
 
 
 

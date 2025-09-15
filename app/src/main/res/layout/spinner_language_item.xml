@@ -9,11 +9,13 @@
 
     <TextView
         android:id="@+id/textViewLanguage"
-        style="@style/GetResourceSpinnerText"
+        style="@style/GetResourceSpinner"
+        android:layout_margin="0dp"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:text="Language"
+        android:text="@string/language"
+        android:singleLine="true"
         android:textSize="16sp" />
 
     <ImageView
@@ -21,5 +23,5 @@
         android:layout_width="24dp"
         android:layout_height="24dp"
         android:layout_marginStart="8dp"
-        android:contentDescription="Flag" />
+        android:contentDescription="@string/flag" />
 </LinearLayout>
