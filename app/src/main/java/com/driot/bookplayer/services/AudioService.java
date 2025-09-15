@@ -212,7 +212,17 @@ public class AudioService extends LoggingService {
 
         @Override public void setDataSource(Context ctx, Uri uri, String displayName) {
             prepared = false; playing = false; resumeOffset = 0; estPositionMs = 0;
-            text = readAllText(ctx, uri);
+            String raw = readAllText(ctx, uri);
+
+            // Normalize line endings (CRLF/CR → LF)
+            String norm = raw.replace("\r\n", "\n").replace('\r', '\n');
+
+            // If suspiciously few newlines, add paragraph breaks heuristically
+            if (countNewlines(norm) < 2) {
+                norm = smartParagraphize(norm);
+            }
+
+            text = norm;
             estDurationMs = estimateDurationMs(text, currentSpeechRate());
         }
 
@@ -418,7 +428,29 @@ public class AudioService extends LoggingService {
             }
             return i;
         }
+        private static int countNewlines(String s) {
+            int n = 0;
+            for (int i = 0; i < s.length(); i++) if (s.charAt(i) == '\n') n++;
+            return n;
+        }
 
+        // Simple, safe paragraphizer for totally-flat text.
+// Inserts blank line after sentence-ending punctuation when next token looks like sentence start.
+        private static String smartParagraphize(String s) {
+            if (s == null) return "";
+            String t = s.replace('\u00A0',' ')
+                    .replace("\r", "")
+                    .replaceAll("[ \\t]{2,}", " ")
+                    .trim();
+
+            // Scene breaks like "***"
+            t = t.replaceAll("[ ]*\\*\\*\\*[ ]*", "\n\n***\n\n");
+
+            // Insert \n\n after sentence end, before likely sentence start
+            t = t.replaceAll("(?<=[.!?…])[ ]+(?=[\"“‘'\\(\\[]?[A-ZÀ-ÖØ-Þ0-9])", "\n\n");
+
+            return t;
+        }
     }
 
 

@@ -10,7 +10,9 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
+import android.graphics.text.LineBreaker;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.Settings;
@@ -808,9 +810,19 @@ public class PlayActivity extends LoggingActivity {
         // text
         String txt = audioService.getTtsText();
         if (txt == null) txt = "";
+        int nl = 0; for (int i=0;i<txt.length();i++) if (txt.charAt(i)=='\n') nl++;
+        myLogD("  NL count = " + nl);
+        //myLogD("TTS text: " + txt);
         SpannableStringBuilder sb = new SpannableStringBuilder(txt);
         tvTtsText.setText(sb, TextView.BufferType.SPANNABLE);
         spannableText = (Spannable) tvTtsText.getText();
+
+        //tvTtsText.setLineSpacing(dp(6), 1f); //1.15f
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            //tvTtsText.setBreakStrategy(LineBreaker.BREAK_STRATEGY_BALANCED);
+            //tvTtsText.setJustificationMode(LineBreaker.JUSTIFICATION_MODE_INTER_WORD);
+        }
+        //tvTtsText.setHyphenationFrequency(android.text.Layout.HYPHENATION_FREQUENCY_FULL); //justify at end
 
         // allow user scrolling
         tvTtsText.setMovementMethod(android.text.method.ScrollingMovementMethod.getInstance());
