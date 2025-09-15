@@ -1098,7 +1098,7 @@ public class AudioService extends LoggingService {
     public void logPauseTime() {
         if (Pref.getPauseTime() != 0) {
             long pauseTime = (System.currentTimeMillis() - Pref.getPauseTime());
-            myLog("Paused since " + formatTime(pauseTime, true) + ".   MAX is " + formatTime(TRIM_AFTER_PAUSE_MS,false, false));
+            myLogD("Paused since " + formatTime(pauseTime, true) + ".   MAX is " + formatTime(TRIM_AFTER_PAUSE_MS,false, false));
         }
     }
 

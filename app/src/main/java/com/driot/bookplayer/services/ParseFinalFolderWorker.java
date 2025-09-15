@@ -12,6 +12,7 @@ import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.documentfile.provider.DocumentFile;
 import androidx.work.WorkerParameters;
 
@@ -143,17 +144,28 @@ public class ParseFinalFolderWorker extends LoggingWorker {
 
     // single file
     ///////////////////////////
-    private void populateArrayListOfTracksFromFile(DocumentFile dfPickedDir) {
-        myLog("populateArrayListOfTracksFromFile [" + dfPickedDir.getUri() + "] - single file");
+    private void populateArrayListOfTracksFromFile(DocumentFile dfPickedFile) {
+        myLog("populateArrayListOfTracksFromFile [" + dfPickedFile.getUri() + "] - single file");
 
-        if (!(dfPickedDir.isDirectory())) {
-            audioFileArrayList = new ArrayList<>();
-            addAudioFileUnique(dfPickedDir);
-            goFolder();
-        } else {
+        if (dfPickedFile.isDirectory()) {
             TaskStateManager.markTaskFailed(TASK_NAME, context.getString(R.string.Error_Import_IsNotFile));
+            return;
         }
 
+        String fileName = Objects.toString(dfPickedFile.getName());
+        String ext = getExtension(fileName);
+        String mime = Objects.toString(dfPickedFile.getType());
+
+        boolean isText = (mime != null && mime.startsWith("text/")) || "txt".equalsIgnoreCase(ext)
+                || "html".equalsIgnoreCase(ext) || "htm".equalsIgnoreCase(ext) || "xhtml".equalsIgnoreCase(ext) || "xml".equalsIgnoreCase(ext);
+
+        audioFileArrayList = new ArrayList<>();
+        if (isText) {
+            addTextFileUnique(dfPickedFile);
+        } else {
+            addAudioFileUnique(dfPickedFile);
+        }
+        goFolder();
     }
 
     private void populateArrayListOfTracksFromFolder(DocumentFile dfPickedDir) {
@@ -221,6 +233,17 @@ public class ParseFinalFolderWorker extends LoggingWorker {
             }
             TaskStateManager.markTaskFailed(TASK_NAME, strErr);
         }
+    }
+
+    private void addTextFileUnique(DocumentFile df) {
+        String name = Objects.toString(df.getName());
+        String mime = Objects.toString(df.getType());
+        myLogD("* New Text File : [" + name + ']');
+
+        long duration = estimateTtsDurationMsFromUri(context, df.getUri(), name, mime);
+        myLogD("* TTS Duration (est.): [" + formatTime(duration) + ']');
+
+        audioFileArrayList.add(new AudioFileInfo(name, duration, df.getUri().toString()));
     }
 
     private void addAudioFileUnique(DocumentFile df) {
@@ -311,8 +334,8 @@ public class ParseFinalFolderWorker extends LoggingWorker {
                     String displayPath = recursiveFolder + fileName;
                     long size = f1.length();
 
-                    // duration = 0 for text (TTS will handle timing) — we'll allow saving below for EPUB imports
-                    audioFileArrayList.add(new AudioFileInfo(displayPath, 0, f1.getUri().toString()));
+                    long duration = estimateTtsDurationMsFromUri(context, f1.getUri(), fileName, mimeType);
+                    audioFileArrayList.add(new AudioFileInfo(displayPath, duration, f1.getUri().toString()));
                     fullFolderSize += size;
 
                     nbAudioScanned++;
@@ -572,5 +595,63 @@ public class ParseFinalFolderWorker extends LoggingWorker {
                 }
             }
         }
+    }
+
+// --- TTS duration estimation (import-time, fixed WPM) ---
+
+    private long estimateTtsDurationMsFromUri(Context ctx, Uri uri, @Nullable String fileName, @Nullable String mimeType) {
+        int words = 0;
+        try (java.io.InputStream in = ctx.getContentResolver().openInputStream(uri)) {
+            if (in == null) return 0;
+            boolean htmlLike = isHtmlLike(fileName, mimeType);
+            words = countWordsStreaming(in, htmlLike);
+        } catch (Exception e) {
+            myLogEE(e, "estimateTtsDurationMsFromUri");
+        }
+        return wordsToMs(words);
+    }
+
+    private static boolean isHtmlLike(@Nullable String fileName, @Nullable String mimeType) {
+        String fn = fileName == null ? "" : fileName.toLowerCase();
+        String mt = mimeType == null ? "" : mimeType.toLowerCase();
+        if (mt.contains("html") || mt.contains("xhtml") || mt.contains("xml") || mt.contains("application/xhtml")) return true;
+        return fn.endsWith(".html") || fn.endsWith(".htm") || fn.endsWith(".xhtml") || fn.endsWith(".xml");
+    }
+
+    /** Streams through the file and counts "words" without loading whole file.
+     *  If htmlLike=true, characters inside <...> are ignored (rough tag strip).
+     */
+    private static int countWordsStreaming(java.io.InputStream in, boolean htmlLike) throws java.io.IOException {
+        final java.io.InputStreamReader isr = new java.io.InputStreamReader(in, java.nio.charset.StandardCharsets.UTF_8);
+        final char[] buf = new char[8192];
+        int read, count = 0;
+        boolean inWord = false;
+        boolean inTag = false;
+
+        while ((read = isr.read(buf)) != -1) {
+            for (int i = 0; i < read; i++) {
+                char c = buf[i];
+
+                if (htmlLike) {
+                    if (c == '<') { inTag = true; inWord = false; continue; }
+                    if (c == '>') { inTag = false; continue; }
+                    if (inTag) { continue; }
+                }
+
+                if (Character.isLetterOrDigit(c)) {
+                    if (!inWord) { count++; inWord = true; }
+                } else {
+                    inWord = false;
+                }
+            }
+        }
+        return count;
+    }
+
+    private static long wordsToMs(int words) {
+        if (words <= 0) return 0;
+        double wpm = Math.max(30, Var.TTS_WPM_IMPORT); // guardrail
+        long ms = (long) Math.round((words / wpm) * 60_000.0);
+        return Math.max(ms, 1L);
     }
 }

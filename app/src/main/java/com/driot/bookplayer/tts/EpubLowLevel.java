@@ -318,4 +318,5 @@ public final class EpubLowLevel {
         if (out.isEmpty()) out = "chapter";
         return out.length()>40 ? out.substring(0,40) : out;
     }
+
 }

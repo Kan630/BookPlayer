@@ -23,6 +23,8 @@ public class Var {
     public static final String SOURCE_LOCATION_PODCAST = "podcast";
     public static final String SOURCE_LOCATION_LIBRIVOX = "librivox";
 
+    public static final int TTS_WPM_IMPORT = 180;
+
     public static final int MAX_IMAGE_SIZE_KB = 200;
 
     public static final int PERIODIC_TASK_MANAGER_DELAY_IN_MINUTES = 15;
