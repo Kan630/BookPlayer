@@ -348,35 +348,6 @@ public class PlayActivity extends LoggingActivity {
                 }
             });
 
-            /*
-            // Now that metadata is loaded, we know the current folderId
-            try {
-                int folderId = PlayList.getInstance().getZikFile().getIdFolder();
-                String bookPref = Pref.getBookTtsLanguage(this, folderId);
-
-                // Re-wire spinner selection + callback to save per-book
-                LanguageHelper.setupTtsSettingsSpinnerDynamic(
-                        this,
-                        spinnerTtsLanguage,
-                        bookPref,
-                        (LanguageItem selected) -> {
-                            // Persist per-book
-                            Pref.setBookTtsLanguage(this, folderId, selected.twoLetterCode);
-                            myLog("Saved per-book TTS language: folder=" + folderId + " lang=" + selected.twoLetterCode);
-                            // Optional: live-apply to the running TTS (if currently in TTS mode)
-                            try {
-                                if (audioService != null) {
-                                    // Add the method below in AudioService (tiny helper) to refresh its TTS language
-                                    audioService.setPreferredTtsLanguage(selected.twoLetterCode);
-                                }
-                            } catch (Exception ignored) {}
-                        }
-                );
-            } catch (Exception e) {
-                myLogEE(e, "setupTtsSpinnerForFolder");
-            }
-
-             */
         });
 
         myLogD("onCreate() -- Launching Music Service");
