@@ -3,6 +3,7 @@ package com.driot.bookplayer.activities;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
@@ -13,6 +14,12 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
+import androidx.lifecycle.Observer;
+import androidx.work.Data;
+import androidx.work.ExistingWorkPolicy;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkInfo;
+import androidx.work.WorkManager;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
@@ -22,10 +29,12 @@ import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
+import com.driot.bookplayer.services.DeleteFolderWorker;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import java.io.File;
+import java.util.UUID;
 
 import static com.driot.bookplayer.helpers.PodcastHelper.cancelAutoDownload;
 
@@ -35,23 +44,31 @@ import static com.driot.bookplayer.helpers.PodcastHelper.cancelAutoDownload;
 public class ModifyFolderActivity extends LoggingActivity {
 
     private Folder folder;
+    private View blockingOverlay;
+    private Button bDelete, bReset, bExport;
 
     EditText etIntroCut;
     EditText etRename;
 
     private ImageView ivCoverPreview;
 
+    private volatile boolean isDeleting = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_modify_folder);
 
-        Button bDelete = findViewById(R.id.bDelete);
-        Button bReset = findViewById(R.id.bReset);
-        Button bExport = findViewById(R.id.bExport);
+        bDelete = findViewById(R.id.bDelete);
+        bReset = findViewById(R.id.bReset);
+        bExport = findViewById(R.id.bExport);
+        blockingOverlay = findViewById(R.id.blockingOverlay);
+        bDelete = findViewById(R.id.bDelete);
+        bReset = findViewById(R.id.bReset);
+        bExport = findViewById(R.id.bExport);
+
         TextView tvTitle = findViewById(R.id.title);
         TextView tvInfo = findViewById(R.id.tvInfo);
-
         ImageView ivStorageIcon = findViewById(R.id.imageViewStorageIcon);
         TextView tvStorageIcon = findViewById(R.id.textViewStorageIcon);
 
@@ -80,6 +97,8 @@ public class ModifyFolderActivity extends LoggingActivity {
         info = info + "\n" + Tonio.formatTime(folder.getDuration()) + "  .  " + folder.nbZikFile + " " + getString(R.string.audio_tracks) + percentDone;
         tvInfo.setText(info);
 
+        restoreDeletionIfActive();
+
         bDelete.setOnClickListener(view -> bDeleteClick());
 
         bReset.setOnClickListener(view -> bResetClick());
@@ -104,7 +123,19 @@ public class ModifyFolderActivity extends LoggingActivity {
                 checkBeforeLeave();
             }
         };
-        getOnBackPressedDispatcher().addCallback(this, callback);
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override public void handleOnBackPressed() {
+                if (isDeleting || (blockingOverlay != null && blockingOverlay.getVisibility() == View.VISIBLE)) {
+                    // Don’t cancel the Work; just finish this Activity
+                    setResult(RESULT_OK, new Intent().putExtra("deleteInProgressFolderId", folder.getId()));
+                    finish();
+                } else {
+                    // your existing confirmation logic
+                    checkBeforeLeave();
+                }
+            }
+        });
+
 
         bChangeCover.setOnClickListener(view -> {
             myLogI("user clicks - change image");
@@ -118,35 +149,75 @@ public class ModifyFolderActivity extends LoggingActivity {
     }
 
     private void bDeleteClick() {
-        myLogI("user clicks - delete");
+        WorkManager wm = WorkManager.getInstance(getApplicationContext());
+        wm.getWorkInfosByTag(deleteTag(folder.getId()))
+                .addListener(() -> {}, Runnable::run); // no-op; example if you wanted async
+
+        // simpler: use getWorkInfosByTag (blocking) from a background thread, or just rely on UI lock:
+        // If overlay is visible, do nothing:
+        if (blockingOverlay.getVisibility() == View.VISIBLE) {
+            // already deleting → ignore tap
+            return;
+        }
+
         new AlertDialog.Builder(ModifyFolderActivity.this)
                 .setTitle(getString(R.string.AskDelete_popupTitle))
                 .setMessage(getString(R.string.ModifyFolder_AskDelete))
                 .setCancelable(false)
-                .setPositiveButton("ok", (dialog, which) -> deleteFolder())
+                .setPositiveButton("ok", (dialog, which) -> startDeleteWorker())
                 .setNegativeButton("cancel", (dialogInterface, i) -> {})
                 .show();
     }
 
-    private void deleteFolder() {
-        new Thread(() -> {
-            String folderPath = AppDatabase.getDatabase(this).ZikFileDao().getFolderPath(folder.getId());
-            if (!eraseFolderAndFiles(folderPath)) {
-                myToastEE(null,"Error deleting files from Disk " + folderPath);
-                return;
-            }
 
-            Podcast podcast = AppDatabase.getDatabase(this).PodcastDao().getPodcastByFolderId(folder.getId());
-            if (podcast==null) ImageHelper.deleteImage(this, folder);//not delete image if isFavorite, or is in Podcast table
-            AppDatabase.getDatabase(this).FolderDao().delete(folder.getId());
-            AppDatabase.getDatabase(this).ZikFileDao().deleteAllZikFilesInFolder(folder.getId());
-            cancelAutoDownload(this, folder.getId());
-            runOnUiThread(() -> {
-                myToast(getString(R.string.Folder_Deleted_DB));
-                myLog(getString(R.string.Folder_Deleted_DB) + " : " + folder.getName());
-                finish();
-            });
-        }).start();
+    private static String deleteTag(long folderId) {
+        return "delete_folder_" + folderId;
+    }
+    private static String deleteUniqueName(long folderId) {
+        return "delete_folder_unique_" + folderId;
+    }
+
+    private void startDeleteWorker() {
+        setUiDeleting(true);
+
+        Data input = new Data.Builder()
+                .putLong(DeleteFolderWorker.KEY_FOLDER_ID, folder.getId())
+                .putString(DeleteFolderWorker.KEY_FOLDER_NAME, folder.getName())
+                .build();
+
+        OneTimeWorkRequest req = new OneTimeWorkRequest.Builder(DeleteFolderWorker.class)
+                .addTag(deleteTag(folder.getId()))
+                // optional: progress backoff/retry policy here
+                .setInputData(input)
+                .build();
+
+        WorkManager wm = WorkManager.getInstance(getApplicationContext());
+
+        // This prevents a second Delete from being enqueued for the same folder
+        wm.enqueueUniqueWork(
+                deleteUniqueName(folder.getId()),
+                ExistingWorkPolicy.KEEP,
+                req
+        );
+
+        // Observe by TAG so we can reattach later, even if we lose the request id
+        attachDeletionObserverByTag(deleteTag(folder.getId()));
+    }
+
+
+    private void setUiDeleting(boolean deleting) {
+        if (deleting) {
+            // block taps visually
+            if (blockingOverlay != null) blockingOverlay.setVisibility(View.VISIBLE);
+        } else {
+            if (blockingOverlay != null) blockingOverlay.setVisibility(View.GONE);
+        }
+
+        // Disable all action buttons to prevent multiple clicks
+        if (bDelete != null) bDelete.setEnabled(!deleting);
+        if (bReset != null)  bReset.setEnabled(!deleting);
+        if (bExport != null) bExport.setEnabled(!deleting);
+        if (etRename != null) etRename.setEnabled(!deleting);
     }
 
     private boolean eraseFolderAndFiles(String strPath) {
@@ -319,6 +390,71 @@ public class ModifyFolderActivity extends LoggingActivity {
         }
         */
 
+    }
+    private void restoreDeletionIfActive() {
+        attachDeletionObserverByTag(deleteTag(folder.getId()));
+    }
+
+    private void attachDeletionObserverByTag(String tag) {
+        WorkManager wm = WorkManager.getInstance(getApplicationContext());
+        wm.getWorkInfosByTagLiveData(tag).observe(this, infos -> {
+            if (infos == null || infos.isEmpty()) {
+                isDeleting = false;
+                setUiDeleting(false);
+                return;
+            }
+
+            // If any already SUCCEEDED → finish immediately (covers the “came back later” case)
+            for (WorkInfo wi : infos) {
+                if (wi.getState() == WorkInfo.State.SUCCEEDED) {
+                    isDeleting = false;
+                    setUiDeleting(false);
+                    setResult(RESULT_OK, new Intent().putExtra("deletedFolderId", folder.getId()));
+                    finish();
+                    return;
+                }
+            }
+
+            // Otherwise, look for an active one
+            WorkInfo active = null;
+            for (WorkInfo wi : infos) {
+                if (!wi.getState().isFinished()) { active = wi; break; }
+            }
+
+            if (active == null) {
+                isDeleting = false;
+                setUiDeleting(false);
+                return;
+            }
+
+            switch (active.getState()) {
+                case ENQUEUED:
+                case RUNNING:
+                    isDeleting = true;
+                    setUiDeleting(true);
+                    // (optional) update progress text from active.getProgress()
+                    break;
+
+                case SUCCEEDED:
+                    isDeleting = false;
+                    setUiDeleting(false);
+                    myToast(getString(R.string.Folder_Deleted_DB));
+                    myLog(getString(R.string.Folder_Deleted_DB) + " : " + folder.getName());
+                    setResult(RESULT_OK, new Intent().putExtra("deletedFolderId", folder.getId()));
+                    finish();
+                    break;
+
+                case FAILED:
+                case CANCELLED:
+                    isDeleting = false;
+                    setUiDeleting(false);
+                    String err = active.getOutputData().getString("error");
+                    myToastE(err != null ? err :
+                            (active.getState() == WorkInfo.State.CANCELLED ? "Delete cancelled" : "Delete failed"));
+                    myLogEE(null, "Worker Delete folder : " + err);
+                    break;
+            }
+        });
     }
 
 }

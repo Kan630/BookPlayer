@@ -1,219 +1,251 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/scrollView"
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    >
+    android:layout_height="match_parent">
 
-    <LinearLayout
-        style="@style/LinearLayoutOptionsVertical"
-        android:layout_marginStart="10sp"
-        android:layout_marginEnd="10sp"
-        android:gravity="center">
-
-        <TextView
-            android:id="@+id/title"
-            android:text="Folder Title"
-            style="@style/myStyleBigTitle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:layout_marginBottom="20dp"
-            android:paddingHorizontal="20dp" />
+    <!-- Your scrollable content -->
+    <ScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true">
 
         <LinearLayout
-            android:orientation="horizontal"
+            style="@style/LinearLayoutOptionsVertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:layout_marginEnd="20dp"
-            android:layout_marginStart="20dp"
-            android:gravity="center_vertical"
-            android:baselineAligned="true"
-            >
-            <TextView
-                android:id="@+id/textViewStorageIcon"
-                android:text="Audio Location : xxxxxx"
-                style="@style/myStyleInfo"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="0dp"
-                android:paddingEnd="0dp"
-                android:includeFontPadding="false"
-                />
-            <ImageView
-                android:id="@+id/imageViewStorageIcon"
-                android:layout_width="wrap_content"
-                android:layout_height="20dp"
-                android:layout_marginStart="0dp"
-                android:backgroundTint="@color/brown_300"
-                android:backgroundTintMode="screen"
-                />
-        </LinearLayout>
-
-        <TextView
-            android:id="@+id/tvInfo"
-            android:text="info ..."
-            style="@style/myStyleInfo"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingHorizontal="20dp" />
-
-
-        <View style="@style/myStyleViewSimpleHorizontalBar" />
-
-        <TextView
-            android:id="@+id/tvRenameBook"
-            android:text="@string/Rename_book"
-            style="@style/OptionTitle"
-            android:textStyle="normal"
-            android:textSize="20sp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:paddingHorizontal="20dp" />
-
-        <EditText
-            android:id="@+id/etRename"
-            style="@style/EditText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="30dp"
-            android:paddingVertical="10sp"
-            android:inputType="textMultiLine"
-            android:padding="10dp"
-            android:textSize="20sp"
-            android:layout_marginTop="20dp"
-            android:layout_marginBottom="20dp"
-            />
-
-        <View style="@style/myStyleViewSimpleHorizontalBar" />
-
-        <TextView
-            android:text="@string/Change_cover_image"
-            style="@style/OptionTitle"
-            android:textStyle="normal"
-            android:textSize="20sp"
-            android:layout_marginTop="20dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingHorizontal="20dp"
-            android:layout_marginBottom="15dp"
-            />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:paddingHorizontal="20dp"
-            android:layout_marginBottom="20dp">
-
-            <ImageView
-                android:id="@+id/ivCoverPreview"
-                android:layout_width="150dp"
-                android:layout_height="150dp"
-                android:scaleType="centerCrop"
-                android:src="@drawable/placeholder_cover" />
-
-            <Button
-                android:id="@+id/bChangeCover"
-                android:text="@string/Change"
-                android:layout_marginStart="20dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-        </LinearLayout>
-
-        <View style="@style/myStyleViewSimpleHorizontalBar" />
-
-        <TextView
-            android:id="@+id/IntroCutText"
-            android:text="@string/IntroCut"
-            style="@style/OptionTitle"
-            android:textStyle="normal"
-            android:textSize="20sp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:layout_marginBottom="10dp"
-            android:paddingHorizontal="20dp" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
             android:layout_marginStart="10dp"
             android:layout_marginEnd="10dp"
-            android:gravity="center"
-            >
-            <EditText
-                android:id="@+id/etIntroCut"
-                style="@style/EditText"
-                android:inputType="number"
-                android:layout_width="50dp"
-                android:layout_height="30dp"
-                android:textSize="20sp"
-                android:padding="5dp"
-                />
+            android:gravity="center">
+
             <TextView
-                android:text="sec."
-                android:textSize="12sp"
+                android:id="@+id/title"
+                style="@style/myStyleBigTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="20dp"
+                android:paddingHorizontal="20dp"
+                android:text="Folder Title" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"
+                android:layout_marginTop="10dp"
+                android:baselineAligned="true"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/textViewStorageIcon"
+                    style="@style/myStyleInfo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:includeFontPadding="false"
+                    android:layout_marginEnd="0dp"
+                    android:paddingEnd="0dp"
+                    android:text="Audio Location : xxxxxx" />
+
+                <ImageView
+                    android:id="@+id/imageViewStorageIcon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="20dp"
+                    android:layout_marginStart="0dp"
+                    android:backgroundTint="@color/brown_300"
+                    android:backgroundTintMode="screen" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvInfo"
+                style="@style/myStyleInfo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="20dp"
+                android:text="info ..." />
+
+            <View style="@style/myStyleViewSimpleHorizontalBar" />
+
+            <TextView
+                android:id="@+id/tvRenameBook"
+                style="@style/OptionTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:paddingHorizontal="20dp"
+                android:text="@string/Rename_book"
+                android:textSize="20sp"
+                android:textStyle="normal" />
+
+            <EditText
+                android:id="@+id/etRename"
+                style="@style/EditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="30dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="20dp"
+                android:padding="10dp"
+                android:paddingVertical="10dp"
+                android:inputType="textMultiLine"
+                android:textSize="20sp" />
+
+            <View style="@style/myStyleViewSimpleHorizontalBar" />
+
+            <TextView
+                style="@style/OptionTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="15dp"
+                android:paddingHorizontal="20dp"
+                android:text="@string/Change_cover_image"
+                android:textSize="20sp"
+                android:textStyle="normal" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                android:orientation="horizontal"
+                android:paddingHorizontal="20dp"
+                android:gravity="center_vertical">
+
+                <ImageView
+                    android:id="@+id/ivCoverPreview"
+                    android:layout_width="150dp"
+                    android:layout_height="150dp"
+                    android:scaleType="centerInside"
+                    android:src="@drawable/placeholder_cover" />
+
+                <Button
+                    android:id="@+id/bChangeCover"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="20dp"
+                    android:text="@string/Change" />
+            </LinearLayout>
+
+            <View style="@style/myStyleViewSimpleHorizontalBar" />
+
+            <TextView
+                android:id="@+id/IntroCutText"
+                style="@style/OptionTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="10dp"
+                android:paddingHorizontal="20dp"
+                android:text="@string/IntroCut"
+                android:textSize="20sp"
+                android:textStyle="normal" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
+                android:orientation="horizontal"
+                android:gravity="center">
+
+                <EditText
+                    android:id="@+id/etIntroCut"
+                    style="@style/EditText"
+                    android:layout_width="50dp"
+                    android:layout_height="30dp"
+                    android:padding="5dp"
+                    android:inputType="number"
+                    android:textSize="20sp" />
+
+                <TextView
+                    style="@style/OptionSubTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="-2dp"
+                    android:text="sec."
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <TextView
                 style="@style/OptionSubTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="20dp"
+                android:paddingHorizontal="20dp"
+                android:text="@string/IntroCutText"
+                android:textSize="12sp" />
+
+            <View style="@style/myStyleViewSimpleHorizontalBar" />
+
+            <Button
+                android:id="@+id/bReset"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="-2dp"
-                />
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="20dp"
+                android:text="@string/bReset" />
+
+            <View style="@style/myStyleViewSimpleHorizontalBar" />
+
+            <Button
+                android:id="@+id/bExport"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="20dp"
+                android:text="@string/Export" />
+
+            <View style="@style/myStyleViewSimpleHorizontalBar" />
+
+            <Button
+                android:id="@+id/bDelete"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="20dp"
+                android:text="@string/bDelete" />
+
+            <View
+                style="@style/myStyleViewSimpleHorizontalBar"
+                android:layout_marginBottom="20dp" />
+
         </LinearLayout>
+    </ScrollView>
 
-        <TextView
-            android:text="@string/IntroCutText"
-            android:textSize="12sp"
-            style="@style/OptionSubTitle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="20dp"
-            android:paddingHorizontal="20dp" />
+    <!-- Blocking overlay ON TOP (last child) -->
+    <FrameLayout
+        android:id="@+id/blockingOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#80000000"
+        android:clickable="true"
+        android:focusable="true"
+        android:visibility="gone">
 
-
-        <View style="@style/myStyleViewSimpleHorizontalBar" />
-
-        <Button
-            android:id="@+id/bReset"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:layout_marginBottom="20dp"
-            android:text="@string/bReset" />
+            android:orientation="vertical"
+            android:padding="24dp"
+            android:layout_gravity="center"
+            android:background="@drawable/bg_overlay_card">
 
+            <ProgressBar
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:indeterminate="true" />
 
+            <TextView
+                android:id="@+id/tvBlockingText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="Deleting…"
+                android:textAppearance="?attr/textAppearanceBodyMedium" />
+        </LinearLayout>
+    </FrameLayout>
 
-        <View style="@style/myStyleViewSimpleHorizontalBar" />
-
-        <Button
-            android:id="@+id/bExport"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:layout_marginBottom="20dp"
-            android:text="@string/Export" />
-
-        <View style="@style/myStyleViewSimpleHorizontalBar" />
-
-        <Button
-            android:id="@+id/bDelete"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:layout_marginBottom="20dp"
-            android:text="@string/bDelete" />
-
-        <View style="@style/myStyleViewSimpleHorizontalBar"
-            android:layout_marginBottom="20dp"
-            />
-
-
-
-    </LinearLayout>
-</ScrollView>
+</FrameLayout>
