@@ -112,8 +112,14 @@ public class LoadOptionsActivity extends LoggingActivity {
         if (type.equals("Podcast") ) { type = "File";}
         bookToAdd = new BookToAdd(uri, type);
 
+        if (!bookToAdd.isMimeSupported()) {
+            myToastE(getString(R.string.mime_type_not_supported) + "\n" + bookToAdd.getInfoMimeExtension());
+            finish();
+            return;
+        }
+
         if (bookToAdd.isBroken()) {
-            myToastE("Could not read resource");
+            myToastEE(null,getString(R.string.could_not_read_resource));
             finish();
             return;
         }

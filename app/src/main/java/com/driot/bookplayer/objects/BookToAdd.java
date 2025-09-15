@@ -1,13 +1,16 @@
 package com.driot.bookplayer.objects;
 
 import static com.driot.bookplayer.global.Var.ONLY_MIME_AUDIO;
+import static com.driot.bookplayer.global.Var.ONLY_MIME_EBOOK;
+import static com.driot.bookplayer.global.Var.ONLY_MIME_VIDEO;
 import static com.driot.bookplayer.global.Var.SUPPORTED_AUDIO_EXTENSIONS;
 
+import static com.driot.bookplayer.global.Var.SUPPORTED_EBOOK_EXTENSIONS;
+import static com.driot.bookplayer.global.Var.SUPPORTED_VIDEO_EXTENSIONS;
 import static com.driot.bookplayer.utils.Tonio.formatNameForDisplay;
 import static com.driot.bookplayer.utils.Tonio.getExtension;
 import static com.driot.bookplayer.utils.Tonio.getFileNameFromUri;
 import static com.driot.bookplayer.utils.Tonio.getMimeType;
-import static com.driot.bookplayer.utils.Tonio.stripExtension;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -32,6 +35,7 @@ public class BookToAdd {
     private String type;
 
     private boolean isBroken;
+    private boolean isMimeSupported;
     private String sourceLocation = "init...";
     private String audioBookName = "init...";
     private DocumentFile df;
@@ -103,10 +107,17 @@ public class BookToAdd {
 
             this.infoMimeExtension = "Type = [" + type + "] :    [" + mimeType + "] - [." + fileExtension + "]";
 
-            if (mimeType.startsWith(ONLY_MIME_AUDIO) || SUPPORTED_AUDIO_EXTENSIONS.contains(fileExtension) || this.type.equals("ZIP"))  {
-                myLogD("Mime/Extension OK - " + infoMimeExtension);
+            if (this.type.equals("ZIP")
+                || mimeType.startsWith(ONLY_MIME_AUDIO) || SUPPORTED_AUDIO_EXTENSIONS.contains(fileExtension)
+                || mimeType.startsWith(ONLY_MIME_VIDEO) || SUPPORTED_VIDEO_EXTENSIONS.contains(fileExtension)
+                || mimeType.startsWith(ONLY_MIME_EBOOK) || SUPPORTED_EBOOK_EXTENSIONS.contains(fileExtension)
+            ) {
+                this.isMimeSupported = true;
+                myLogD("Mime/Extension supported - " + infoMimeExtension);
             } else {
-                myLogEE(null,"Mime/Extension KO - " + infoMimeExtension);
+                this.isMimeSupported = false;
+                myLogEE(null,"Mime/Extension not supported - " + infoMimeExtension);
+                return;
             }
 
             String fileName2 = getFileName();
@@ -147,6 +158,10 @@ public class BookToAdd {
 
     public boolean isBroken() {
         return isBroken;
+    }
+
+    public boolean isMimeSupported() {
+        return isMimeSupported;
     }
 
     public String getAudioBookName() {

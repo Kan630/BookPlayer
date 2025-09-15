@@ -769,6 +769,9 @@
     <string name="rename_track">rename track</string>
     <string name="sort">sort</string>
     <string name="default_">default</string>
+    <string name="could_not_read_resource">Could not read resource</string>
+    <string name="mime_type_not_supported">unsupported file type</string>>
+
 
 
 
