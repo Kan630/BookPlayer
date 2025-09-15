@@ -28,7 +28,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:layout_marginBottom="20dp"
-            android:text="@string/bReset" />
+            android:text="@string/reset_progress_from_this_track" />
 
         <View style="@style/myStyleViewSimpleHorizontalBar" />
 
@@ -44,7 +44,7 @@
 
         <TextView
             android:id="@+id/tvRenameBook"
-            android:text="@string/Rename_book"
+            android:text="@string/rename_track"
             style="@style/OptionTitle"
             android:textStyle="normal"
             android:textSize="20sp"
