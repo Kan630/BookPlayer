@@ -31,8 +31,8 @@ public class AdminActivity extends AppCompatActivity {
     // Map of label -> Activity class to create buttons dynamically
     private final LinkedHashMap<String, Class<?>> quickButtons = new LinkedHashMap<String, Class<?>>() {{
         // TODO: replace these with your real classes/packages if different
-        put("DebugDatabaseActivity", com.driot.bookplayer.activities.DebugDatabaseActivity.class);
-        put("TtsReadTxtActivity", com.driot.bookplayer.activities.TtsReadTxtActivity.class);
+        put("Debug Database Activity", com.driot.bookplayer.activities.DebugDatabaseActivity.class);
+        //put("Tts Read Txt Activity", com.driot.bookplayer.activities.TtsReadTxtActivity.class);
     }};
 
     @Override

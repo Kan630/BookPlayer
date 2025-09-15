@@ -1,4 +1,4 @@
-package com.driot.bookplayer.tts;
+package com.driot.bookplayer.helpers;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -28,8 +28,8 @@ import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-public final class EpubLowLevel {
-    private EpubLowLevel() {}
+public final class EpubLowLevelHelper {
+    private EpubLowLevelHelper() {}
 
     public static final class OpfInfo {
         public String opfPath;

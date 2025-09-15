@@ -12,7 +12,7 @@ import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.objects.TaskStateManager;
-import com.driot.bookplayer.tts.EpubLowLevel;
+import com.driot.bookplayer.helpers.EpubLowLevelHelper;
 import com.driot.bookplayer.utils.log.LoggingWorker;
 
 import java.io.BufferedWriter;
@@ -78,7 +78,7 @@ public class EpubSplitWorker extends LoggingWorker {
 
             // Extract all (cover + chapter files) using your helper
             TaskStateManager.tellProgress(TASK_NAME, 1, "Parsing EPUB…");
-            EpubLowLevel.ExtractResult result = EpubLowLevel.extractAll(ctx, uri);
+            EpubLowLevelHelper.ExtractResult result = EpubLowLevelHelper.extractAll(ctx, uri);
             Bitmap cover = result.coverBitmap;
             List<File> chapters = result.chapterFiles;
 

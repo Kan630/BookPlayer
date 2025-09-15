@@ -72,10 +72,6 @@
             android:exported="false"
             android:label="Admin"
             />
-        <activity android:name=".activities.TtsReadTxtActivity"
-            android:exported="false"
-            />
-
 
         <activity
             android:name=".activities.OpenWithProxyActivity"
