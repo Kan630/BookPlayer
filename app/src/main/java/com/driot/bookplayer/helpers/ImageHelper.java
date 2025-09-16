@@ -69,7 +69,7 @@ public class ImageHelper {
         }
     }
 
-
+    //TODO ASYNC...
     private static String downloadAndMaybeCompressImage(Context context, String imageUrl, String imagePath) {
         try {
             URL url = new URL(imageUrl);

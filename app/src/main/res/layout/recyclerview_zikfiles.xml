@@ -1,17 +1,17 @@
-<androidx.constraintlayout.widget.ConstraintLayout
+<androidx.cardview.widget.CardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginTop="@dimen/recyclerview_between_cardView"
-    >
-
-<androidx.cardview.widget.CardView
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_marginBottom="3dp"
+    app:cardElevation="2dp"
+    app:cardCornerRadius="8dp"
     app:cardBackgroundColor="@color/cardBackground"
-    >
+    android:layout_marginBottom="3dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="5dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -21,22 +21,20 @@
         android:layout_marginStart="0dp"
         android:layout_marginEnd="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        android:background="@color/lightgray"
+        android:background="@color/cardBackground"
         >
         <TextView
             android:id="@+id/tvBookName"
+            android:text="Song 1.mp3"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingTop="@dimen/recyclerview_padding_text_vertical"
-            android:paddingBottom="@dimen/recyclerview_padding_text_vertical"
-            android:paddingStart="@dimen/recyclerview_padding_text_horizontal"
-            android:paddingEnd="@dimen/recyclerview_padding_text_horizontal"
+            android:paddingVertical="0dp"
+            android:paddingHorizontal="2dp"
             android:layout_marginTop="@dimen/recyclerview_elements_top"
             android:layout_marginLeft="@dimen/recyclerview_elements_sides"
             android:layout_marginRight="@dimen/recyclerview_elements_sides"
-            android:text="Song 1.mp3"
-            android:textColor="@color/black"
-            android:background="@color/verylightgray"
+            android:background="?attr/colorSurface"
+            android:textColor="?attr/colorOnSurface"
             app:layout_constraintBottom_toTopOf="@id/textViewFilePercent"
             />
 
@@ -99,8 +97,8 @@
             android:paddingStart="@dimen/recyclerview_padding_text_horizontal"
             android:paddingEnd="@dimen/recyclerview_padding_text_horizontal"
             android:gravity="center_vertical"
-            android:textColor="@color/black"
-            android:background="@color/verylightgray"
+            android:background="@color/cardBackgroundTextView"
+            android:textColor="@color/cardBackgroundLightTextInTextView"
             app:layout_constraintTop_toBottomOf="@id/tvBookName"
             app:layout_constraintLeft_toLeftOf="@+id/guideline"
             app:layout_constraintRight_toRightOf="parent"
@@ -109,5 +107,5 @@
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-</androidx.cardview.widget.CardView>
 </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.cardview.widget.CardView>

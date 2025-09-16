@@ -3,7 +3,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true">
+    android:fitsSystemWindows="true"
+    style="@style/MainContainer"
+    >
 
     <RelativeLayout
         android:id="@+id/headerLayout"
@@ -17,11 +19,11 @@
 
         <ImageView
             android:id="@+id/image"
-            android:layout_width="96dp"
+            android:layout_width="64dp"
             android:layout_height="64dp"
             android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
-            android:scaleType="centerInside" />
+            android:scaleType="fitCenter" />
 
         <TextView
             android:id="@+id/textViewTitle"
@@ -29,14 +31,24 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_toEndOf="@id/image"
-            android:layout_alignTop="@id/image"
-            android:layout_alignBottom="@id/image"
-            android:layout_alignParentEnd="true"
+            android:layout_toStartOf="@id/ib_settings"
+            android:layout_centerVertical="true"
             android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
             android:gravity="center"
             android:text="@string/title_FolderContent"
             android:textAlignment="center"
             android:textSize="18sp" />
+
+        <ImageButton
+            android:id="@+id/ib_settings"
+            style="@style/PodcastHeaderImageButton"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:contentDescription="@string/settings"
+            android:src="@drawable/ic_settings_24"
+            />
+
     </RelativeLayout>
 
     <androidx.recyclerview.widget.RecyclerView

@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
+    style="@style/MainContainer"
     >
 
         <androidx.appcompat.widget.Toolbar
@@ -27,7 +28,9 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerview_folders"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:layout_marginTop="2dp"
+            />
     </FrameLayout>
 
 </LinearLayout>

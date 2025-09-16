@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.adapter.LibrivoxResultRVAdapter;
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.objects.LibrivoxApiResponse;
 import com.driot.bookplayer.objects.LibrivoxApi;
 import com.driot.bookplayer.objects.LibrivoxItem;
@@ -48,6 +49,11 @@ public class LibrivoxResultsActivity extends LoggingActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_librivox_results);
+
+        View topContainer = findViewById(R.id.headerLayout);
+        //View bottomBar = findViewById(R.id.recyclerView);
+        //View contentContainer = findViewById(R.id.recyclerView);
+        InsetHelper.applyEdgeToEdge(this, topContainer, null, null);
 
         recyclerView = findViewById(R.id.recyclerView);
         progressBar = findViewById(R.id.progressBar);
