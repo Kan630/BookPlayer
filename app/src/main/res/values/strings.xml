@@ -782,6 +782,11 @@
     <string name="subtitle">subtitle</string>
 
 
+    <string name="option_night_mode_title">Theme mode</string>
+    <string name="option_night_mode_follow_system">System</string>
+    <string name="option_night_mode_light">Light</string>
+    <string name="option_night_mode_dark">Dark</string>
+    <string name="option_night_mode_dialog_title">Choose theme mode</string>
 
 
 

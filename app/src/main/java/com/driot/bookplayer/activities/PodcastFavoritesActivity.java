@@ -21,6 +21,7 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.adapter.PodcastFavoritesRVAdapter;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Podcast;
+import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.PodcastHelper;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
@@ -40,6 +41,7 @@ public class PodcastFavoritesActivity extends LoggingActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_podcast_search_result);
 
+        /*
         WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.recyclerViewPodcast), (v, insets) -> {
             Insets systemInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -47,9 +49,13 @@ public class PodcastFavoritesActivity extends LoggingActivity {
             return insets;
         });
 
+         */
+
         recyclerView = findViewById(R.id.recyclerViewPodcast);
         progressBar = findViewById(R.id.progressBarPodcast);
         emptyMessage = findViewById(R.id.podcast_error_message);
+
+        InsetHelper.applyEdgeToEdge(this, recyclerView, null, recyclerView);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         viewModel = new ViewModelProvider(this).get(PodcastSearchResultsViewModel.class);

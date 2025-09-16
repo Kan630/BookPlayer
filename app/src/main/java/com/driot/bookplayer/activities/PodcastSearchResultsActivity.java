@@ -21,6 +21,7 @@ import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.db.PodcastDao;
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.objects.PodcastFeed;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.utils.NetworkUtils;
@@ -45,12 +46,7 @@ public class PodcastSearchResultsActivity extends LoggingActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_podcast_search_result);
 
-        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.recyclerViewPodcast), (v, insets) -> {
-            Insets systemInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(0, systemInsets.top, 0, systemInsets.bottom);
-            return insets;
-        });
+        InsetHelper.applyEdgeToEdge(this, null, null, null);
 
         recyclerView = findViewById(R.id.recyclerViewPodcast);
         progressBar = findViewById(R.id.progressBarPodcast);

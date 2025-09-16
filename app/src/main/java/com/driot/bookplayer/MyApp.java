@@ -50,6 +50,8 @@ public class MyApp extends Application {
         Pref.init(getApplicationContext());
         TaskStateManager.init(getApplicationContext());
 
+        Option.applyNightMode();
+
         myLog("Context has been initialized");
 
         FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(!BuildConfig.DEBUG);

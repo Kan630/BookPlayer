@@ -87,20 +87,19 @@ public class OptionActivity extends LoggingActivity {
     Button btnShowAdvanced;
     Button btnPodcastOptions;
     ScrollView scrollView;
+    private Button btnNightMode;
 
 
 
     private PermissionRequest mPermissionRequest;
 
     private boolean areAdvancedOptionsVisible = false;
-    private View advancedOptionsView;
 
     LinearLayout ll_visualizer_on, ll_visualizer_playpause, ll_copy_file, ll_delete_source_file;
     LinearLayout ll_beep_chapter, ll_beep_bookend, ll_beep_autostop;
     LinearLayout ll_rewind_after_pause, ll_tech_log_file, ll_mail_method_default;
     LinearLayout ll_open_with, ll_open_with_all, ll_split_m4b, ll_use_sd_card;
-    LinearLayout ll_container_sd_card;
-    LinearLayout ll_podcast_auto_delete, ll_podcast_episodes_sort_order, ll_create_cover;
+    LinearLayout ll_container_sd_card, ll_create_cover;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -224,6 +223,10 @@ public class OptionActivity extends LoggingActivity {
         chk_click_visualizer_playpause.setChecked(Option.getClickVisualizerPlayPause());
         ll_visualizer_playpause.setOnClickListener(v -> chk_click_visualizer_playpause.toggle());
         chk_click_visualizer_playpause.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setClickVisualizerPlayPause(isChecked));
+
+        btnNightMode = findViewById(R.id.btn_night_mode);
+        btnNightMode.setText(Option.getNightMode());
+        btnNightMode.setOnClickListener(v -> showNightModeChooser());
 
 // New structure: array of [button, theme key, theme resource ID]
         themesAndColors = new Object[][] {
@@ -628,25 +631,37 @@ public class OptionActivity extends LoggingActivity {
         }
     }
 
+    private void showNightModeChooser() {
+        final String current = Option.getNightMode();
+        final CharSequence[] items = new CharSequence[] {
+                getString(R.string.option_night_mode_follow_system),
+                getString(R.string.option_night_mode_light),
+                getString(R.string.option_night_mode_dark)
+        };
+        int checked = (current.equals("LIGHT")) ? 1 : (current.equals("DARK") ? 2 : 0);
 
-    public static int clampInt(EditText et, int min, int max, int def, Runnable onTooLow, Runnable onTooHigh) {
-        if (et == null) return def;
-        String str = et.getText().toString().trim();
-        int val;
-        try {
-            val = Integer.parseInt(str);
-        } catch (NumberFormatException e) {
-            return def;
-        }
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.option_night_mode_dialog_title)
+                .setSingleChoiceItems(items, checked, (dlg, which) -> {
+                    String chosen = (which == 1) ? "LIGHT"
+                            : (which == 2) ? "DARK"
+                            : "SYSTEM";
 
-        if (val < min) {
-            if (onTooLow != null) onTooLow.run();
-            return min;
-        } else if (val > max) {
-            if (onTooHigh != null) onTooHigh.run();
-            return max;
-        }
-        return val;
+                    if (!chosen.equals(current)) {
+                        Option.setNightMode(chosen);
+                        Option.applyNightMode();                 // apply globally
+                        btnNightMode.setText(chosen);  // update label
+
+                        // Recreate like you do for color changes so MainActivity refreshes if needed
+                        getSharedPreferences(Option.SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE)
+                                .edit().putBoolean("ACTIVITY_OPTION_HAS_RESULT", true).apply();
+
+                        recreate(); // will pick up values-night etc.
+                    }
+                    dlg.dismiss();
+                })
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
     }
 
 }

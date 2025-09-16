@@ -4,7 +4,7 @@
         <shape
             android:shape="line">
             <stroke
-                android:color="@color/seek_bar_background"
+                android:color="?attr/colorSecondaryVariant"
                 android:width="20dp"/>
         </shape>
     </item>

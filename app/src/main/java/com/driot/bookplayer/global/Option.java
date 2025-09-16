@@ -203,4 +203,18 @@ public class Option {
 
 
 
+    public static String getNightMode() {return prefs.getString("KEY_NIGHT_MODE", "SYSTEM");}
+    public static void setNightMode(String nightMode) { prefs.edit().putString("KEY_NIGHT_MODE", nightMode).apply();}
+
+    public static void applyNightMode() {
+        String nightMode = getNightMode();
+        int appCompatMode = switch (nightMode) {
+            case "LIGHT" -> androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO;
+            case "DARK" -> androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES;
+            default -> androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM;
+        };
+        androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(appCompatMode);
+    }
+
+
 }
