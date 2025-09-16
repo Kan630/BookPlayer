@@ -770,9 +770,16 @@
     <string name="sort">sort</string>
     <string name="default_">default</string>
     <string name="could_not_read_resource">Could not read resource</string>
-    <string name="mime_type_not_supported">unsupported file type</string>>
+    <string name="mime_type_not_supported">picked file is not supported</string>>
+    <string name="list_of_supported_extensions">list of supported extensions</string>
     <string name="audio_book_name">audio book name</string>>
     <string name="audio_book_cover">audio book cover</string>>
+    <string name="ok">OK</string>
+    <string name="section_audio">Audio</string>
+    <string name="section_video">Video</string>
+    <string name="section_text">Text</string>
+    <string name="title">title</string>
+    <string name="subtitle">subtitle</string>
 
 
 
