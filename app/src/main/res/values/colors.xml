@@ -4,8 +4,8 @@
 
     <color name="text_default">#FFCDCDCD</color>
 
-    <color name="cardBackground">#FFAAAAAA</color>
-    <color name="cardBackgroundTextView">#FFCCCCCC</color>
+    <color name="cardBackground">#FFCDCDCD</color>
+    <color name="cardBackgroundTextView">#FFDEDEDE</color>
     <color name="cardBackgroundTextInTextView">#FF000000</color>
     <color name="cardBackgroundLightTextInTextView">#FF333333</color>
 

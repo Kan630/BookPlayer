@@ -6,16 +6,14 @@ import android.os.Bundle;
 import com.driot.bookplayer.utils.KanLogger;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
-public class FirebaseAnalyticsHelper {
-
+public final class FirebaseAnalyticsHelper {
 
     public static void tellAnalyticsWork(Context context, String originalUri) {
         Bundle bundle = new Bundle();
         bundle.putString("originalUri", originalUri);
         logThat(context, "worker_start", bundle);
     }
-
-    public static void tellAnalyticsTTSload(Context context, String extension) {
+    public static void tellAnalyticsTtsLoad(Context context, String extension) {
         Bundle bundle = new Bundle();
         bundle.putString("extension", extension);
         logThat(context, "tts_load", bundle);
@@ -63,6 +61,11 @@ public class FirebaseAnalyticsHelper {
         Bundle bundle = new Bundle();
         bundle.putString("folderName", folderName);
         logThat(context, "press_play", bundle);
+    }
+    public static void tellAnalyticsStartStreaming(Context context, String podcastName) {
+        Bundle bundle = new Bundle();
+        bundle.putString("folderName", podcastName);
+        logThat(context, "start_streaming", bundle);
     }
 
 

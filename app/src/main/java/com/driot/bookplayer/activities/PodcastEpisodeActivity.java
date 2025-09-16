@@ -680,6 +680,7 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
             }
         } else {
             // Different episode → fresh play, show spinner
+            FirebaseAnalyticsHelper.tellAnalyticsStartStreaming(this, ep.title);
             playEpisode(ep);
         }
     }

@@ -1,8 +1,10 @@
 package com.driot.bookplayer.helpers;
 
 import android.app.Activity;
+import android.content.Context;
 import android.graphics.Color;
 import android.os.Build;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.Window;
 
@@ -48,6 +50,16 @@ public final class InsetHelper {
         controller.setAppearanceLightNavigationBars(false);
 
  */
+        /*
+        View decor = window.getDecorView();
+        WindowInsetsControllerCompat c = ViewCompat.getWindowInsetsController(decor);
+        boolean isLight = isLightSurface(activity);
+        if (c != null) {
+            c.setAppearanceLightStatusBars(isLight);
+            c.setAppearanceLightNavigationBars(isLight);
+        }
+
+         */
 
         // Capture initial paddings so we don’t stack them on every inset dispatch
         final int topInitPadTop = topContainer != null ? topContainer.getPaddingTop() : 0;
@@ -104,4 +116,17 @@ public final class InsetHelper {
             return insets;
         });
     }
+
+    private static boolean isLightSurface(Context ctx) {
+        TypedValue tv = new TypedValue();
+        int color = Color.WHITE;
+        if (ctx.getTheme().resolveAttribute(
+                com.google.android.material.R.attr.colorSurface, tv, true)) {
+            color = tv.data;
+        }
+        double r = Color.red(color)/255.0, g = Color.green(color)/255.0, b = Color.blue(color)/255.0;
+        double Y = 0.2126*r + 0.7152*g + 0.0722*b;
+        return Y > 0.5;
+    }
+
 }
