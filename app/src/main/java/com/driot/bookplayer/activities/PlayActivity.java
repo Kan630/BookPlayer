@@ -39,6 +39,7 @@ import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.LanguageHelper;
 import com.driot.bookplayer.objects.LanguageItem;
 import com.driot.bookplayer.objects.PlayList;
@@ -236,6 +237,7 @@ public class PlayActivity extends LoggingActivity {
         bPlay.setOnClickListener(
                 v -> {
                     myLogI("----------> USER PRESSES PLAY BUTTON <----------");
+                    FirebaseAnalyticsHelper.tellAnalyticsPressPlay(PlayActivity.this, tvTitle.toString());
                     playMe();
                 });
 
@@ -606,7 +608,7 @@ public class PlayActivity extends LoggingActivity {
 
     private void DrawUI() {
         if (PlayList.getInstance().getZikFile() == null) {
-            myToastE("Cannot get Playlist - PlayList.getInstance().getZikFile() is null");
+            myToastEE(null,"DrawUI() => Cannot get Playlist - PlayList.getInstance().getZikFile() is null");
         }
         try {
             myLogD("DrawUI : " + PlayList.getInstance().getZikFile().getName() + " -- " + PlayList.getInstance().getZikFile().getPosition() + " -- " + PlayList.getInstance().getZikFile().getDisplayName());

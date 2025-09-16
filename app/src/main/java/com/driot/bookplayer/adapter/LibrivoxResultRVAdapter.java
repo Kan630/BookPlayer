@@ -89,7 +89,7 @@ public class LibrivoxResultRVAdapter extends LoggingRVAdapter<LibrivoxResultRVAd
             holder.image.setImageResource(R.drawable.placeholder_cover);
 
             // 🚀 Run actual download in background
-            new Thread(() -> {
+            holder.image.post(() ->  {
                 String imageUrl = "https://archive.org/services/img/" + item.identifier;
                 String localPath = ImageHelper.getOrDownloadLibrivoxImage(context, item.identifier, imageUrl, false);
 
@@ -109,7 +109,7 @@ public class LibrivoxResultRVAdapter extends LoggingRVAdapter<LibrivoxResultRVAd
                         }
                     });
                 }
-            }).start();  // ✅ Make sure the thread is started!
+            });
         }
     }
 

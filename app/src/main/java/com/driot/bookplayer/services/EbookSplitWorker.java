@@ -9,6 +9,7 @@ import androidx.work.WorkerParameters;
 
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.objects.TaskStateManager;
 import com.driot.bookplayer.helpers.EpubLowLevelHelper;
@@ -34,8 +35,11 @@ public class EbookSplitWorker extends LoggingWorker {
     // Optional input param to force type; values: "epub" | "fb2"
     public static final String K_EBOOK_TYPE = "ebook_type";
 
+    private final Context context;
+
     public EbookSplitWorker(@NonNull Context context, @NonNull WorkerParameters params) {
         super(context, params);
+        this.context = context;
     }
 
     @NonNull
@@ -65,6 +69,8 @@ public class EbookSplitWorker extends LoggingWorker {
         String ebookType = (typeOverride != null && !typeOverride.isEmpty())
                 ? typeOverride.toLowerCase(Locale.ROOT)
                 : guessTypeFromPath(ebookPath); // "epub" or "fb2"
+
+        FirebaseAnalyticsHelper.tellAnalyticsTTSload(context, ebookType);
 
         boolean ok = splitEbook(ebookPath, destinationFolderPath, ebookType);
         return ok ? Result.success() : Result.failure();

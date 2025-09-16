@@ -15,6 +15,11 @@ public class FirebaseAnalyticsHelper {
         logThat(context, "worker_start", bundle);
     }
 
+    public static void tellAnalyticsTTSload(Context context, String extension) {
+        Bundle bundle = new Bundle();
+        bundle.putString("extension", extension);
+        logThat(context, "tts_load", bundle);
+    }
     public static void tellAnalyticsManualLoad(Context context, String type, String extension, String sourceLocation, String originalFile) {
         Bundle bundle = new Bundle();
         bundle.putString("type", type);
@@ -54,6 +59,12 @@ public class FirebaseAnalyticsHelper {
         bundle.putString("language", podcastLang);
         logThat(context, "podcast_favorite", bundle);
     }
+    public static void tellAnalyticsPressPlay(Context context, String folderName) {
+        Bundle bundle = new Bundle();
+        bundle.putString("folderName", folderName);
+        logThat(context, "press_play", bundle);
+    }
+
 
     private static void logThat(Context context, String logName, Bundle bundle) {
         try {
@@ -64,6 +75,8 @@ public class FirebaseAnalyticsHelper {
             myLogEE(e, "Analytics logging - " + logName);
         }
     }
+
+
 
     ////////////////////////////////////////////////////////
     private static final String TAG = "AnalyticsHelper";

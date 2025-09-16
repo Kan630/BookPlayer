@@ -206,15 +206,20 @@ public class PlayList {
 
     private static PlayList loadFromStorage() {
         myLogEE(null,"Playlist retreived - loadFromStorage()");
-        SharedPreferences prefs = appContext.getApplicationContext().getSharedPreferences(SHARED_PREFERENCE_CURRENT_PLAYLIST, Context.MODE_PRIVATE);
-        String json = prefs.getString(KEY_ZIK_FILES_LIST, null);
-        if (json == null) return null;
-        Type type = new TypeToken<List<ZikFile>>() {}.getType();
-        List<ZikFile> list = new Gson().fromJson(json, type);
-        int index = prefs.getInt(KEY_ZIK_FILE, -1);
-        PlayList pl = new PlayList(list);
-        pl.numZikFile = index;
-        return pl;
+        try {
+            SharedPreferences prefs = appContext.getApplicationContext().getSharedPreferences(SHARED_PREFERENCE_CURRENT_PLAYLIST, Context.MODE_PRIVATE);
+            String json = prefs.getString(KEY_ZIK_FILES_LIST, null);
+            if (json == null) return null;
+            Type type = new TypeToken<List<ZikFile>>() {}.getType();
+            List<ZikFile> list = new Gson().fromJson(json, type);
+            int index = prefs.getInt(KEY_ZIK_FILE, -1);
+            PlayList pl = new PlayList(list);
+            pl.numZikFile = index;
+            return pl;
+        } catch (Exception e) {
+            myLogEE(e, "loadFromStorage");
+            return null;
+        }
     }
 
 

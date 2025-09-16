@@ -71,7 +71,7 @@ public class Tonio {
         }
 
         // %7.3g = largeur min 7, 3 chiffres significatifs
-        return String.format(Locale.US, "%7.3g %s", value, unit);
+        return String.format(Locale.US, "%5.3g %s", value, unit);
     }
 
 
