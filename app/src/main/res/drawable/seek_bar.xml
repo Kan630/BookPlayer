@@ -1,4 +1,5 @@
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Not working ! -->
     <item android:id="@android:id/background">
         <shape
             android:shape="line">
@@ -7,23 +8,24 @@
                 android:width="20dp"/>
         </shape>
     </item>
+    <!-- Buffered (secondary progress) -->
     <item android:id="@android:id/secondaryProgress">
         <clip>
             <shape
                 android:shape="line">
                 <stroke
-                    android:color="?colorSecondaryVariant"
+                    android:color="?attr/colorSecondaryVariant"
                     android:width="4dp"/>
             </shape>
         </clip>
     </item>
-
+    <!-- Played (left side of thumb) -->
     <item android:id="@android:id/progress">
         <clip>
             <shape
                 android:shape="line">
                 <stroke
-                    android:color="?colorSecondary"
+                    android:color="?attr/colorSecondary"
                     android:width="4dp"/>
             </shape>
         </clip>

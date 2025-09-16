@@ -6,6 +6,7 @@ import static com.driot.bookplayer.global.Var.ONLY_MIME_VIDEO;
 import static com.driot.bookplayer.global.Var.SUPPORTED_AUDIO_EXTENSIONS;
 
 import static com.driot.bookplayer.global.Var.SUPPORTED_EBOOK_EXTENSIONS;
+import static com.driot.bookplayer.global.Var.SUPPORTED_TEXTUAL_MIMES;
 import static com.driot.bookplayer.global.Var.SUPPORTED_VIDEO_EXTENSIONS;
 import static com.driot.bookplayer.utils.Tonio.formatNameForDisplay;
 import static com.driot.bookplayer.utils.Tonio.getExtension;
@@ -47,6 +48,7 @@ public class BookToAdd {
     private String playType;
 
     private String infoMimeExtension = "init...";
+    private String infoMimeExtensionSmall = "init...";
     private String infoSourceLocation = "init...";
 
     public static void init(Context context) {
@@ -108,11 +110,12 @@ public class BookToAdd {
             }
 
             this.infoMimeExtension = "Type = [" + type + "] :    [" + mimeType + "] - [." + fileExtension + "]";
+            this.infoMimeExtensionSmall = "[" + mimeType + "] - [." + fileExtension + "]";
 
             if (this.type.equals("ZIP")
                 || mimeType.startsWith(ONLY_MIME_AUDIO) || SUPPORTED_AUDIO_EXTENSIONS.contains(fileExtension)
                 || mimeType.startsWith(ONLY_MIME_VIDEO) || SUPPORTED_VIDEO_EXTENSIONS.contains(fileExtension)
-                || ONLY_MIME_EBOOK.contains(mimeType) || SUPPORTED_EBOOK_EXTENSIONS.contains(fileExtension)
+                || SUPPORTED_TEXTUAL_MIMES.contains(mimeType) || SUPPORTED_EBOOK_EXTENSIONS.contains(fileExtension)
             ) {
                 this.isMimeSupported = true;
                 myLogD("Mime/Extension supported - " + infoMimeExtension);
@@ -186,6 +189,9 @@ public class BookToAdd {
 
     public String getInfoMimeExtension() {
         return infoMimeExtension;
+    }
+    public String getInfoMimeExtensionSmall() {
+        return infoMimeExtensionSmall;
     }
 
     public String getInfoSourceLocation() {

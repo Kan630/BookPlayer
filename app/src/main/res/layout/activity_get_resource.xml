@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:fillViewport="true"
-    tools:context=".activities.MainActivity"
-    android:fitsSystemWindows="true">
+    android:fitsSystemWindows="true"
+    style="@style/MainContainer"
+    >
 
     <LinearLayout
         android:id="@+id/root"
@@ -14,16 +15,14 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:gravity="center"
-        android:padding="24dp"
-        android:background="?android:attr/windowBackground">
+        android:padding="24dp">
 
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:padding="24dp"
-            android:background="?android:attr/windowBackground">
+            android:padding="24dp">
 
             <ImageButton
                 android:id="@+id/bOpenPodcastsIcon"
@@ -32,9 +31,8 @@
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_podcast_24"
                 android:background="@android:color/transparent"
-                app:tint="@android:color/white"
                 android:layout_marginEnd="20dp"
-                />
+                 />
 
 
             <Button
@@ -53,8 +51,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:padding="24dp"
-            android:background="?android:attr/windowBackground">
+            android:padding="24dp">
 
             <ImageButton
                 android:id="@+id/bOpenAudiobooksIcon"
@@ -63,7 +60,7 @@
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_librivox_24"
                 android:background="@android:color/transparent"
-                app:tint="@android:color/white"
+                app:tint="?attr/colorOnSurface"
                 android:layout_marginEnd="20dp"
                 />
 
@@ -83,8 +80,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:padding="24dp"
-            android:background="?android:attr/windowBackground">
+            android:padding="24dp">
 
             <ImageButton
                 android:id="@+id/bOpenOtherIcon"
@@ -93,7 +89,7 @@
                 android:src="@drawable/ic_memory_general_smartphone"
                 android:scaleType="centerInside"
                 android:background="@android:color/transparent"
-                app:tint="@android:color/white"
+                app:tint="?attr/colorOnSurface"
                 android:layout_marginEnd="20dp"
                 />
 

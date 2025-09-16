@@ -1,8 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <!-- Dark palette -->
+    <color name="bp_background">#1C1B1F</color>
+    <color name="bp_onBackground">#E6E1E5</color>
+    <color name="bp_surface">#1C1B1F</color>
+    <color name="bp_onSurface">#E6E1E5</color>
+    <color name="bp_outline">#938F99</color>
+
     <color name="highlight_last_listened">#424242</color>
     <color name="highlight_current">#323232</color>
     <color name="textColor">#C0C0C0</color>
+
+    <color name="cardBackground">#FF222222</color>
+    <color name="cardBackgroundTextView">#FF111111</color>
+    <color name="cardBackgroundTextInTextView">#FFDDDDDD</color>
+    <color name="cardBackgroundLightTextInTextView">#FF999999</color>
+
 
 </resources>

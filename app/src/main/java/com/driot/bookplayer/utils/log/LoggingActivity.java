@@ -55,17 +55,13 @@ public abstract class LoggingActivity extends AppCompatActivity {
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        // Always call super class for necessary
-        // initialization/implementation.
-        super.onCreate(savedInstanceState);
-
-        //int themeId = ;
-        //if (themeId>0) setTheme(themeId);
         try {
-            setTheme(Option.getTheme()); // TODO maybe here a problem when Update to this Theme version...? small screen and weird graphics
+            setTheme(Option.getTheme());
         } catch (Exception e) {
             myLifecycleLogEE(e, "Error setting theme : " + e.getMessage());
         }
+
+        super.onCreate(savedInstanceState);
 
         String str1 = this.getCallingActivity()==null ? "null" : this.getCallingActivity().toString();
 

@@ -2,12 +2,14 @@ package com.driot.bookplayer.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 
 import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
 public class GetResourceActivity extends LoggingActivity {
@@ -16,6 +18,15 @@ public class GetResourceActivity extends LoggingActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_get_resource);
+/*
+        View topContainer = findViewById(R.id.topContainer);
+        View bottomBar = findViewById(R.id.bottomBar);
+        View contentContainer = findViewById(R.id.contentContainer);
+        InsetHelper.applyEdgeToEdge(this, topContainer, bottomBar, contentContainer);
+
+ */
+       // InsetHelper.applyEdgeToEdge(this, null, null, null);
+
 
         Button bPod = findViewById(R.id.bOpenPodcasts);
         ImageButton bPodcastIcon = findViewById(R.id.bOpenPodcastsIcon);

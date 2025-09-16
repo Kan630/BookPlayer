@@ -3,8 +3,12 @@
 
     <!-- ***************** COMMON ***************** -->
 
+    <style name="MainContainer">
+        <item name="android:background">?attr/colorSurface</item>
+    </style>
+
     <style name="textColor" parent="TextAppearance.AppCompat">
-        <item name="android:textColor">@color/text_default</item>
+        <item name="android:textColor">@color/bp_onSurface</item>
     </style>
 
     <style name="errorText" parent="TextAppearance.AppCompat">

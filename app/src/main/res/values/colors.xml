@@ -5,6 +5,16 @@
     <color name="text_default">#FFCDCDCD</color>
 
     <color name="cardBackground">#FFAAAAAA</color>
+    <color name="cardBackgroundTextView">#FFCCCCCC</color>
+    <color name="cardBackgroundTextInTextView">#FF000000</color>
+    <color name="cardBackgroundLightTextInTextView">#FF333333</color>
+
+    <!-- Light palette -->
+    <color name="bp_background">#FFFBFE</color>
+    <color name="bp_onBackground">#1C1B1F</color>
+    <color name="bp_surface">#FFFFFF</color>
+    <color name="bp_onSurface">#1C1B1F</color>
+    <color name="bp_outline">#79747E</color>
 
     <color name="highlight_last_listened">#E0E0E0</color>
     <color name="highlight_current">#E0D0D0</color>
