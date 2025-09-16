@@ -2,7 +2,6 @@ package com.driot.bookplayer.helpers;
 
 import android.content.Context;
 import android.media.AudioAttributes;
-import android.os.Build;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
 
@@ -11,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-public class EbookTtsHelper implements TextToSpeech.OnInitListener {
+public class TtsHelper implements TextToSpeech.OnInitListener {
     private final Context ctx;
     private TextToSpeech tts;
     private boolean ready = false;
@@ -20,7 +19,11 @@ public class EbookTtsHelper implements TextToSpeech.OnInitListener {
     private volatile int lastStartOffset = 0;
     private volatile int lastEndOffset = 0;
 
-    private volatile int chunkMaxLen = 360;             // smaller chunks for better resume when no word ranges
+    private final android.os.Handler h = new android.os.Handler(android.os.Looper.getMainLooper());
+    private volatile Locale pendingLocale = null;
+    private volatile long readyDeadlineMs = 0L;
+
+    public interface ReadyCallback { void onReady(); }
 
 
     public interface Listener {
@@ -36,7 +39,7 @@ public class EbookTtsHelper implements TextToSpeech.OnInitListener {
 
     private final Listener listener;
 
-    public EbookTtsHelper(Context ctx, Listener listener) {
+    public TtsHelper(Context ctx, Listener listener) {
         this.ctx = ctx.getApplicationContext();
         this.listener = listener;
         tts = new TextToSpeech(this.ctx, this);
@@ -87,9 +90,6 @@ public class EbookTtsHelper implements TextToSpeech.OnInitListener {
     }
 
     public boolean isReady() { return ready; }
-    public TextToSpeech getTts() { return tts; }
-    public int getLastStartOffset() { return lastStartOffset; }
-    public int getLastEndOffset() { return lastEndOffset; }
 
     /** Start from the beginning */
     public void speak(String text) { speakFromOffset(text, 0); }
@@ -229,5 +229,45 @@ public class EbookTtsHelper implements TextToSpeech.OnInitListener {
         } catch (Throwable ignored) {}
         return Locale.getDefault();
     }
+
+    /** Stop TTS, request a new language, and poll until it becomes available (system may auto-download). */
+    public void changeLanguageAndAwait(
+            @androidx.annotation.NonNull final Locale locale,
+            final long timeoutMs,
+            final long pollMs,
+            final Runnable onReady
+    ) {
+        if (tts == null) return;
+
+        final android.os.Handler h = new android.os.Handler(android.os.Looper.getMainLooper());
+        final long deadline = android.os.SystemClock.uptimeMillis() + Math.max(1, timeoutMs);
+
+        final Runnable[] task = new Runnable[1];
+        task[0] = new Runnable() {
+            @Override public void run() {
+                boolean ok = false;
+                try {
+                    int avail = tts.isLanguageAvailable(locale);
+                    int set   = tts.setLanguage(locale);
+                    ok = (avail >= TextToSpeech.LANG_AVAILABLE) &&
+                            (set   != TextToSpeech.LANG_MISSING_DATA &&
+                                    set   != TextToSpeech.LANG_NOT_SUPPORTED);
+                } catch (Throwable ignored) {}
+
+                if (ok) {
+                    // Small stabilization delay — some engines claim "available"
+                    // a moment before they can synthesize without -7
+                    h.postDelayed(() -> { if (onReady != null) onReady.run(); }, 1200L);
+                } else if (android.os.SystemClock.uptimeMillis() < deadline) {
+                    h.postDelayed(task[0], Math.max(250L, pollMs));
+                } else {
+                    // timed out; keep not ready (UI stays disabled)
+                }
+            }
+        };
+        h.post(task[0]);
+    }
+
+
 
 }

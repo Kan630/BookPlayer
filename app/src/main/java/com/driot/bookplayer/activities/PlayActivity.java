@@ -10,21 +10,17 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
-import android.graphics.text.LineBreaker;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.Settings;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
-import android.text.method.ScrollingMovementMethod;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -41,7 +37,6 @@ import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.LanguageHelper;
-import com.driot.bookplayer.objects.LanguageItem;
 import com.driot.bookplayer.objects.PlayList;
 import com.driot.bookplayer.services.AudioService;
 import com.driot.bookplayer.helpers.ViewHelper;
@@ -99,7 +94,7 @@ public class PlayActivity extends LoggingActivity {
             AudioService.NOTIFICATION_TRACKFINISHED //useless ?
             ,AudioService.NOTIFICATION_AUDIOFOCUS_GAIN //useless ?
             ,AudioService.NOTIFICATION_AUDIOFOCUS_LOST //useless ?
-            ,AudioService.NOTIFICATION_FILELOADED
+            ,AudioService.READY_TO_PLAY
             ,AudioService.NOTIFICATION_ERROR
             ,AudioService.NOTIFICATION_ZIP_FILE_LOADED //useless ?
             ,AudioService.NOTIFICATION_PLAYLISTFINISHED
@@ -108,6 +103,8 @@ public class PlayActivity extends LoggingActivity {
             ,AudioService.NOTIFICATION_FILENOTFOUND
             ,AudioService.NOTIFICATION_NEWTRACK //useless ?
             ,AudioService.NOTIFICATION_TTS_RANGE
+            //,AudioService.NOTIFICATION_TTS_READY
+            //,AudioService.NOTIFICATION_TTS_NEEDS_DOWNLOAD
     };
 
     private long PodcastLastClickTime = 0;
@@ -190,7 +187,7 @@ public class PlayActivity extends LoggingActivity {
             } else if (Objects.equals(action, AudioService.NOTIFICATION_PLAYBACK_TIMER_VALUE)) {
                 reDrawListeningSince(intent.getIntExtra(TIMER_VALUE,-999));
 
-            } else if (Objects.equals(action, AudioService.NOTIFICATION_FILELOADED)) {
+            } else if (Objects.equals(action, AudioService.READY_TO_PLAY)) {
                 DrawUI();
                 lockUserActions(false);
             } else if (Objects.equals(action, AudioService.NOTIFICATION_NEWTRACK) || Objects.equals(action, AudioService.NOTIFICATION_TRACKFINISHED)) {
@@ -226,6 +223,7 @@ public class PlayActivity extends LoggingActivity {
         }
 
         bPlay = findViewById(R.id.buttonPlay);
+        bPlay.setEnabled(false);
 
         Button bRewind, bForward, bSpeedUp, bSpeedDown, bSetSleep;
         bRewind = findViewById(R.id.buttonRewind);
@@ -719,6 +717,7 @@ public class PlayActivity extends LoggingActivity {
     }
 
     private void runVisualizer() { // check option + permission
+        if (audioService != null && audioService.isTtsMode()) return;
         if (Option.getVisualizerOn()) {
             if (isRecordAudioPermissionGranted(this)) {
                 try {
@@ -822,12 +821,6 @@ public class PlayActivity extends LoggingActivity {
         tvTtsText.setText(sb, TextView.BufferType.SPANNABLE);
         spannableText = (Spannable) tvTtsText.getText();
 
-        //tvTtsText.setLineSpacing(dp(6), 1f); //1.15f
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            //tvTtsText.setBreakStrategy(LineBreaker.BREAK_STRATEGY_BALANCED);
-            //tvTtsText.setJustificationMode(LineBreaker.JUSTIFICATION_MODE_INTER_WORD);
-        }
-        //tvTtsText.setHyphenationFrequency(android.text.Layout.HYPHENATION_FREQUENCY_FULL); //justify at end
 
         // allow user scrolling
         tvTtsText.setMovementMethod(android.text.method.ScrollingMovementMethod.getInstance());
@@ -948,6 +941,7 @@ public class PlayActivity extends LoggingActivity {
         // Spinner has no "fromUser" signal, so we detect user interaction.
         final boolean[] userInteracted = { false };
         spinnerTtsLanguage.setOnTouchListener((v, ev) -> {
+            myLogI("--- USER CLICKS TTS LANGUAGE SPINNER ---");
             if (ev.getAction() == MotionEvent.ACTION_UP) {
                 v.performClick(); // notify accessibility services
             }
@@ -974,6 +968,7 @@ public class PlayActivity extends LoggingActivity {
 
                     // Apply live only on user change (keeps service state stable on init)
                     if (userInteracted[0] && audioServiceBound && audioService != null) {
+                        bPlay.setEnabled(false);
                         audioService.setTtsLanguageCode(code);
                     }
                 }
@@ -983,11 +978,8 @@ public class PlayActivity extends LoggingActivity {
         final android.view.GestureDetector detector =
                 new android.view.GestureDetector(this, new android.view.GestureDetector.SimpleOnGestureListener() {
                     @Override public boolean onSingleTapUp(android.view.MotionEvent e) {
-                        handleTtsTap(e, /*alignSentence=*/false);
+                        handleTtsTap(e);
                         return true;
-                    }
-                    @Override public void onLongPress(android.view.MotionEvent e) {
-                        handleTtsTap(e, /*alignSentence=*/true);
                     }
                 });
 
@@ -998,7 +990,7 @@ public class PlayActivity extends LoggingActivity {
         });
     }
 
-    private void handleTtsTap(android.view.MotionEvent e, boolean alignSentence) {
+    private void handleTtsTap(android.view.MotionEvent e) {
         if (spannableText == null || tvTtsText.getLayout() == null) return;
 
         android.text.Layout layout = tvTtsText.getLayout();
@@ -1040,7 +1032,7 @@ public class PlayActivity extends LoggingActivity {
 
         // tell the service to start from this position
         if (audioServiceBound && audioService != null && audioService.isTtsMode()) {
-            audioService.setTtsStartOffsetChars(alignSentence ? start : start, alignSentence);
+            audioService.setTtsStartOffsetChars(start);
             // if currently paused, you might want to auto-start:
             // audioService.playAudio();
         }

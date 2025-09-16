@@ -33,7 +33,7 @@ import androidx.documentfile.provider.DocumentFile;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.media.session.MediaButtonReceiver;
 
-import com.driot.bookplayer.helpers.EbookTtsHelper;
+import com.driot.bookplayer.helpers.TtsHelper;
 import com.driot.bookplayer.helpers.TextExtractor;
 import com.driot.bookplayer.helpers.UriHelper;
 import com.driot.bookplayer.helpers.LanguageHelper;
@@ -90,8 +90,6 @@ public class AudioService extends LoggingService {
     private Handler pauseCheckHandler;
     private Runnable pauseCheckRunnable;
 
-
-
     public static final int[][] REWIND_AFTER_PAUSE = {  // stopped listening since (in min)  ,  rewind delay (in ms)
             {2, 3000},
             {30, 5000},
@@ -117,7 +115,7 @@ public class AudioService extends LoggingService {
     private final IBinder binder = new BackgroundBinder();
     public static final String TRACKNUMBER = "tracknumber";
     public static final String TIMER_VALUE = "TIMER_VALUE";
-    public static final String NOTIFICATION_FILELOADED = "NOTIFICATION_FILELOADED";
+    public static final String READY_TO_PLAY = "NOTIFICATION_FILELOADED";
     public static final String NOTIFICATION_NEWTRACK = "NOTIFICATION_NEWTRACK";
     public static final String NOTIFICATION_TRACKFINISHED = "NOTIFICATION_TRACKFINISHED";
     public static final String NOTIFICATION_FILENOTFOUND = "NOTIFICATION_FILENOTFOUND";
@@ -128,6 +126,16 @@ public class AudioService extends LoggingService {
     public static final String NOTIFICATION_PLAYLISTFINISHED = "NOTIFICATION_PLAYLISTFINISHED";
     public static final String NOTIFICATION_PLAYBACK_MAXTIMEREACH = "NOTIFICATION_PLAYBACK_MAXTIMEREACH";
     public static final String NOTIFICATION_PLAYBACK_TIMER_VALUE = "NOTIFICATION_PLAYBACK_TIMER_VALUE";
+
+    private void sendReadyToPlay(String why) {
+        boolean ok = (engine != null && engine.isReady() && !ErrorLoadingFile);
+        myLogD("sendReadyToPlay? [" + why + "] ok=" + ok + " ttsMode=" + isTtsMode());
+        if (!ok) return;
+
+        Intent i = new Intent(READY_TO_PLAY);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(i);
+    }
+
 
     private interface PlayerEngine {
         void setDataSource(@NonNull Context ctx, @NonNull Uri uri, @NonNull String displayName) throws Exception;
@@ -195,8 +203,8 @@ public class AudioService extends LoggingService {
         }
     }
 
-    private final class TtsEngine implements PlayerEngine, EbookTtsHelper.Listener {
-        private final EbookTtsHelper tts;
+    private final class TtsEngine implements PlayerEngine, TtsHelper.Listener {
+        private final TtsHelper tts;
         private String text = "";
         private int resumeOffset = 0;    // char index
         private boolean prepared = false;
@@ -206,9 +214,11 @@ public class AudioService extends LoggingService {
         private java.util.Locale currentLocale = java.util.Locale.getDefault();
         private int lastCharSpoken = 0;     // farthest char index we’ve seen from onUtteranceRange
         private final android.os.Handler ttsH = new android.os.Handler(android.os.Looper.getMainLooper());
+        private volatile boolean switchingLang = false;
+        private volatile boolean langReady = false;
 
         TtsEngine(Context ctx) {
-            tts = new EbookTtsHelper(ctx.getApplicationContext(), this);
+            tts = new TtsHelper(ctx.getApplicationContext(), this);
         }
 
         @Override public void setDataSource(Context ctx, Uri uri, String displayName) {
@@ -228,10 +238,9 @@ public class AudioService extends LoggingService {
         }
 
         @Override public void prepareAsync() {
+            //just after load file
             if (tts.isReady()) {
-                applyInitialTtsLanguage();
-                prepared = true;
-                onPrepared.run();
+                applyInitialTtsLanguage();  // will only onPrepared.run() if langReady
             }
         }
 
@@ -262,7 +271,7 @@ public class AudioService extends LoggingService {
 
         @Override public void reset() { stop(); prepared = false; resumeOffset = 0; estPositionMs = 0; text = ""; }
         @Override public boolean isPlaying() { return playing; }
-        @Override public boolean isReady()   { return tts.isReady() && prepared; }
+        @Override public boolean isReady()   { return tts.isReady() && prepared && langReady; }
         @Override public int getCurrentPosition() { return estPositionMs; }
         @Override public int getDuration()        { return estDurationMs; }
         @Override public int getAudioSessionId()  { return 0; } // no visualizer for TTS
@@ -288,8 +297,6 @@ public class AudioService extends LoggingService {
         // --- EbookTtsHelper.Listener ---
         @Override public void onTtsReady(TextToSpeech t) {
             applyInitialTtsLanguage();
-            prepared = true;
-            onPrepared.run();
         }
         @Override public void onStart(String id) { playing = true; }
         @Override public void onDone(String id) {
@@ -345,7 +352,7 @@ public class AudioService extends LoggingService {
 
             // 2) map to Locale
             java.util.Locale target;
-            if (code == null || code.isEmpty() || "system".equalsIgnoreCase(code)) {
+            if (code.isEmpty() || "system".equalsIgnoreCase(code)) {
                 target = java.util.Locale.getDefault();
             } else {
                 // Prefer your helper if it exists
@@ -359,7 +366,17 @@ public class AudioService extends LoggingService {
 
             // 3) apply to engine state + Android TTS
             currentLocale = target;
-            try { tts.setLanguage(currentLocale); } catch (Throwable ignored) {}
+            int ret = TextToSpeech.LANG_NOT_SUPPORTED;
+            try { ret = tts.setLanguage(currentLocale); } catch (Throwable ignored) {}
+
+            // Only mark language ready if not missing/not unsupported
+            langReady = (ret != TextToSpeech.LANG_MISSING_DATA && ret != TextToSpeech.LANG_NOT_SUPPORTED);
+
+            // Only consider ourselves 'prepared' when language data is ready
+            prepared = langReady;
+            // Do NOT call onPrepared if lang isn't ready yet
+            if (prepared) onPrepared.run();
+
             // optional: recompute estimate since language/prosody can change:
             estDurationMs = estimateDurationMs(text, currentSpeechRate());
         }
@@ -368,42 +385,45 @@ public class AudioService extends LoggingService {
             return currentLocale;
         }
 
-        /** Called from the Activity to switch TTS language. */
+        /** Called by the Activity when the spinner language changes. We stop and wait. */
         public void setLocaleFromActivity(@androidx.annotation.Nullable java.util.Locale loc) {
             if (loc == null) loc = java.util.Locale.getDefault();
             currentLocale = loc;
-            try {
-                // EbookTtsHelper exposes setLanguage(Locale) — if your method name differs, adjust here.
-                tts.setLanguage(currentLocale);
-            } catch (Throwable ignored) {}
 
-            // Recalculate rough duration since prosody may change with language.
-            estDurationMs = estimateDurationMs(text, currentSpeechRate());
+            // stop current synthesis and mark not ready
+            try { tts.stop(); } catch (Throwable ignored) {}
+            playing = false;
+            prepared = false;
+            langReady = false;
 
-            // If we were playing, restart from the same character offset with the new language.
-            if (playing && prepared) {
-                tts.stop();
-                tts.speakFromOffset(text, resumeOffset);
-            }
+            // never auto-start during a language switch
+            AudioService.this.directPlay = false;
+
+            // poll until the engine confirms this locale is actually usable
+            tts.changeLanguageAndAwait(
+                    currentLocale,
+                    /*timeoutMs*/ 180_000L,
+                    /*pollMs*/    1200L,
+                    /*onReady*/ () -> {
+                        langReady = true;
+                        prepared = true;
+                        estDurationMs = estimateDurationMs(text, currentSpeechRate());
+                        // Single, final 'ready' for the Activity
+                        AudioService.this.sendReadyToPlay("tts language changed");
+                    }
+            );
         }
-        public void setStartOffsetChars(int charOffset, boolean alignToSentence) {
+
+
+
+        public void setStartOffsetChars(int charOffset) {
             if (text == null) return;
             int target = Math.max(0, Math.min(charOffset, text.length()));
-
-            if (alignToSentence) {
-                try {
-                    java.text.BreakIterator bi = java.text.BreakIterator.getSentenceInstance(
-                            (currentLocale != null) ? currentLocale : java.util.Locale.getDefault());
-                    bi.setText(text);
-                    int sentStart = bi.preceding(Math.min(target + 1, text.length()));
-                    if (sentStart != java.text.BreakIterator.DONE) target = Math.max(0, sentStart);
-                } catch (Throwable ignored) {}
-            }
 
             resumeOffset = target;
 
             // update estimated position for seekbar
-            if (estDurationMs > 0 && text.length() > 0) {
+            if (estDurationMs > 0 && !text.isEmpty()) {
                 estPositionMs = (int) ((resumeOffset / (double) text.length()) * estDurationMs);
             } else {
                 estPositionMs = 0;
@@ -839,7 +859,6 @@ public class AudioService extends LoggingService {
     public void playAudio() {
         myLog("playAudio() - start");
         if (engine == null) {
-            // Load current file and auto-start when ready
             directPlay = true;
             loadFile();
             return;
@@ -852,9 +871,14 @@ public class AudioService extends LoggingService {
             startPlayWithEngine();
         } else {
             myLog("Engine not ready yet; will start on prepared");
-            directPlay = true;
+            // Don't arm directPlay while TTS is switching language
+            boolean ttsSwitching = (engine instanceof TtsEngine) && !engine.isReady();
+            if (!ttsSwitching) {
+                directPlay = true;
+            }
         }
     }
+
 
 
     private void doIntroCut() {
@@ -1207,26 +1231,7 @@ public class AudioService extends LoggingService {
             return Option.getTtsLanguage();
         }
     }
-/*
-    // Optional: allow live change from the Activity’s spinner
-    public void setPreferredTtsLanguage(String twoLetterCodeOrSystem) {
-        try {
-            ZikFile zf = getCurrentZikFile();
-            if (zf != null) {
-                Pref.setBookTtsLanguage(this, zf.getIdFolder(), twoLetterCodeOrSystem);
-                if (engine instanceof TtsEngine) {
-                    // You can expose a small method inside TtsEngine to apply language without restarting
-                    // or simply stop+start to reinit with new locale.
-                    engine.pause();
-                    engine.start();
-                }
-            }
-        } catch (Exception e) {
-            myLogEE(e, "setPreferredTtsLanguage");
-        }
-    }
 
- */
 
     /********************************************************************************
      ***       NOTIFICATIONS
@@ -1423,17 +1428,6 @@ public class AudioService extends LoggingService {
         stopSelf();
     }
 
-    private static String readAllText(Context ctx, Uri uri) {
-        try (java.io.InputStream in = ctx.getContentResolver().openInputStream(uri);
-             java.io.InputStreamReader isr = new java.io.InputStreamReader(in, java.nio.charset.StandardCharsets.UTF_8);
-             java.io.BufferedReader br = new java.io.BufferedReader(isr, 64 * 1024)) {
-            StringBuilder sb = new StringBuilder(256 * 1024);
-            char[] buf = new char[8192];
-            int n; while ((n = br.read(buf)) != -1) sb.append(buf, 0, n);
-            return sb.toString();
-        } catch (Exception e) { return ""; }
-    }
-
     private static int estimateDurationMs(String text, float speechRate) {
         if (text == null) return 0;
         int words = Math.max(1, text.trim().split("\\s+").length);
@@ -1444,8 +1438,6 @@ public class AudioService extends LoggingService {
     private void onEnginePrepared() {
         myLogD("engine prepared");
 
-        // Seek to last saved position BEFORE starting playback so
-        // the periodic progress updater doesn't overwrite with 0.
         try {
             int saved = getSavedResumePosition();
             if (engine != null && saved > 0) {
@@ -1456,19 +1448,16 @@ public class AudioService extends LoggingService {
             myLogEE(e, "seekTo(saved) in onEnginePrepared");
         }
 
-        // Let UI draw duration/seekbar
-        LocalBroadcastManager.getInstance(this)
-                .sendBroadcast(new Intent(NOTIFICATION_FILELOADED));
+        // Only send READY when engine.isReady()==true
+        sendReadyToPlay("onEnginePrepared");
 
         if (directPlay) {
             startPlayWithEngine();
         } else {
-            // Optional: show a paused notification with correct duration/position
             createNotificationChannel();
             createNotification();
         }
     }
-
 
     private void onEngineCompletion() {
         if (!ErrorLoadingFile) {
@@ -1524,23 +1513,21 @@ public class AudioService extends LoggingService {
 
     public void setTtsLanguageCode(@androidx.annotation.Nullable String codeOrSystem) {
         if (!(engine instanceof TtsEngine)) return;
-
+        myLogD("setTtsLanguageCode " + codeOrSystem);
         java.util.Locale loc;
         if (codeOrSystem == null || codeOrSystem.isEmpty() || "system".equalsIgnoreCase(codeOrSystem)) {
             loc = java.util.Locale.getDefault();
         } else {
-            // If you already have LanguageHelper.localeFromTwoLetter(..), use it:
-            // loc = LanguageHelper.localeFromTwoLetter(codeOrSystem);
-            // Otherwise, fallback to a basic constructor:
             loc = new java.util.Locale(codeOrSystem.toLowerCase(java.util.Locale.ROOT));
         }
         ((TtsEngine) engine).setLocaleFromActivity(loc);
     }
-    public void setTtsStartOffsetChars(int charOffset, boolean alignToSentence) {
+    public void setTtsStartOffsetChars(int charOffset) {
         if (engine instanceof TtsEngine) {
-            ((TtsEngine) engine).setStartOffsetChars(charOffset, alignToSentence);
+            ((TtsEngine) engine).setStartOffsetChars(charOffset);
         }
     }
+
 
 
 }
