@@ -39,8 +39,6 @@ public class TtsHelper implements TextToSpeech.OnInitListener {
     private volatile int lastStartOffset = 0;
     private volatile int lastEndOffset = 0;
 
-    private final android.os.Handler h = new android.os.Handler(android.os.Looper.getMainLooper());
-
     public interface Listener {
         void onStart(String uttId);
         void onDone(String uttId);
@@ -135,7 +133,7 @@ public class TtsHelper implements TextToSpeech.OnInitListener {
                 }
 
                 if (ready) {
-                    tryLogCurrentVoice();
+                    logCurrentVoice();
                     myLog("----------");
                     //logAllVoices(); // dump the catalog once on init (handy during development)
                     if (listener != null) listener.onTtsReady(tts);
@@ -204,12 +202,12 @@ public class TtsHelper implements TextToSpeech.OnInitListener {
     }
 
     /** Logs the currently selected/default voice. */
-    private void tryLogCurrentVoice() {
+    public void logCurrentVoice() {
         try {
             Voice cur = tts.getVoice();
             Voice def = tts.getDefaultVoice();
-            myLog("Current voice: " + VoiceItem.describeVoice(cur));
-            myLog("Default voice: " + VoiceItem.describeVoice(def));
+            myLog("Current voice: " + cur.getName() + " - " + VoiceItem.describeVoice(cur));
+            myLog("Default voice: " + def.getName() + " - " + VoiceItem.describeVoice(def));
         } catch (Throwable t) {
             myLogEE(t, "tryLogCurrentVoice failed");
         }

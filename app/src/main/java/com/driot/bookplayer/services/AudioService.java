@@ -18,11 +18,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.Looper;
 import android.os.ResultReceiver;
 import android.service.notification.StatusBarNotification;
 import android.speech.tts.TextToSpeech;
-import android.speech.tts.Voice;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
@@ -55,11 +53,7 @@ import com.driot.bookplayer.utils.Tonio;
 import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
-import java.util.Locale;
 import java.util.Objects;
-import java.util.Set;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 import static com.driot.bookplayer.activities.PlayActivity.SHARED_PREFERENCE_SPEED;
 import static com.driot.bookplayer.utils.Tonio.FormatPercentDouble;
@@ -302,22 +296,12 @@ public class AudioService extends LoggingService {
                     }
 
                     int rSet = tts.setVoice(target);
-                    myLog("setTtsVoiceByName -> " + rSet + " | " + VoiceItem.describeVoice(target));
-                    if (rSet != android.speech.tts.TextToSpeech.SUCCESS) {
+                    if (rSet == android.speech.tts.TextToSpeech.SUCCESS) {
+                        myLog("setTtsVoiceByName OK -> " + VoiceItem.describeVoice(target));
+                    } else  {
+                        myLogE("setTtsVoiceByName KO -> " + VoiceItem.describeVoice(target));
                         cb.onResult(false, TtsHelper.SET_VOICE_FAILED);
                         return;
-                    }
-
-                    // Align language with voice locale; also tells us if data is missing.
-                    java.util.Locale loc = target.getLocale();
-                    if (loc != null) {
-                        int avail = tts.isLanguageAvailable(loc);
-                        myLogD("isLanguageAvailable(" + loc + ") -> " + avail);
-                        if (avail == android.speech.tts.TextToSpeech.LANG_MISSING_DATA) {
-                            cb.onResult(false, TtsHelper.MISSING_DATA);
-                            return;
-                        }
-                        tts.setLanguage(loc);
                     }
 
                     // Warm up: synthesize a tiny file (silent to user), mark ready on onDone.
@@ -348,7 +332,6 @@ public class AudioService extends LoggingService {
             });
         }
 
-
         @Override
         public void setDataSource(Context ctx, Uri uri, String displayName) {
             prepared = false;
@@ -369,13 +352,42 @@ public class AudioService extends LoggingService {
             estDurationMs = estimateDurationMs(text, currentSpeechRate());
         }
 
-        @Override
-        public void prepareAsync() {
-            //just after load file
-            if (tts.isReady()) {
-                applyInitialTtsLanguage();  // will only onPrepared.run() if langReady
+        //just after load file
+        @Override public void prepareAsync() {
+            myLogD("prepareAsync");
+            if (!tts.isReady()) {
+                myLogD("tts not ready");
+                return;
+            }
+
+            String voiceName = desiredVoiceName(); // new helper below
+            myLogD("desiredVoiceName : " + voiceName);
+            if (voiceName != null) {
+                // reset readiness; we'll mark ready on warm-up success
+                prepared = false; langReady = false;
+
+                setTtsVoiceByNameAsync(voiceName, /*timeoutMs*/ 5000L, (ready, reason) -> {
+                    if (ready) {
+                        langReady = true; prepared = true;
+                        ttsH.post(onPrepared); // triggers sendReadyToPlay/directPlay path
+                    } else {
+                        myLogW("prepareAsync() - Voice warm-up failed (" + reason + "), falling back to language.");
+                        myToastE("Voice warm-up failed (" + reason + "), falling back to language.");
+                        applyInitialTtsLanguage(); // fallback only
+                    }
+                });
+            } else {
+                myLogW("prepareAsync() -  no saved voice → legacy language path");
+                applyInitialTtsLanguage(); // no saved voice → legacy language path
             }
         }
+
+        @Override public void onTtsReady(TextToSpeech t) {
+            myLog("onTtsReady");
+            // same as prepareAsync, so just call it
+            prepareAsync();
+        }
+
 
         @Override
         public void start() {
@@ -384,6 +396,7 @@ public class AudioService extends LoggingService {
             lastCharSpoken = Math.max(0, Math.min(resumeOffset, (text != null) ? text.length() : 0));
             tts.setSpeechRate(currentSpeechRate());
             tts.speakFromOffset(text, resumeOffset);
+            tts.logCurrentVoice();
             updatePlaybackState(PlaybackStateCompat.STATE_PLAYING, getCurrentPosition(), currentSpeechRate());
             startSleepTimer();
         }
@@ -462,12 +475,6 @@ public class AudioService extends LoggingService {
                 updatePlaybackState(PlaybackStateCompat.STATE_PLAYING, getCurrentPosition(), s);
         }
 
-        // --- EbookTtsHelper.Listener ---
-        @Override
-        public void onTtsReady(TextToSpeech t) {
-            applyInitialTtsLanguage();
-        }
-
         @Override
         public void onStart(String id) {
             playing = true;
@@ -530,7 +537,7 @@ public class AudioService extends LoggingService {
 
         private void applyInitialTtsLanguage() {
             // 1) decide the 2-letter code to use
-            String code = Option.getTtsLanguage(); // "system" or ISO-639-1
+            String code = Option.getTtsVoice();
             ZikFile zf = getCurrentZikFile();
             if (zf != null) {
                 String perBook = getBookTtsLanguage(zf.getIdFolder()); // return "" or "system" if unset
@@ -571,9 +578,6 @@ public class AudioService extends LoggingService {
             estDurationMs = estimateDurationMs(text, currentSpeechRate());
         }
 
-        public java.util.Locale currentLocale() {
-            return currentLocale;
-        }
 
 
         public void setStartOffsetChars(int charOffset) {
@@ -608,6 +612,18 @@ public class AudioService extends LoggingService {
                 else break;
             }
             return i;
+        }
+        @Nullable
+        private String desiredVoiceName() {
+            String name = null;
+            ZikFile zf = getCurrentZikFile();
+            if (zf != null) {
+                try { name = Pref.getBookTtsVoiceName(getApplicationContext(), zf.getIdFolder()); } catch (Throwable ignored) {}
+            }
+            if (name == null || name.isEmpty() || "system".equalsIgnoreCase(name)) {
+                try { name = Option.getTtsVoice(); } catch (Throwable ignored) {}
+            }
+            return (name == null || name.isEmpty() || "system".equalsIgnoreCase(name)) ? null : name;
         }
 
 
