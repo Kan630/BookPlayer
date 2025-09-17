@@ -10,9 +10,12 @@ import static com.driot.bookplayer.objects.WorkFlow.maybeResumeWorkFlow;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -30,6 +33,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -46,6 +50,7 @@ import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.objects.PlayList;
 import com.driot.bookplayer.services.AudioService;
 import com.driot.bookplayer.helpers.InfoHelper;
+import com.driot.bookplayer.utils.InAppMsgManager;
 import com.driot.bookplayer.utils.KanLogger;
 import com.driot.bookplayer.utils.KanMail;
 import com.driot.bookplayer.utils.log.LoggingActivity;
@@ -95,6 +100,13 @@ public class MainActivity extends LoggingActivity {
         }
     };
 
+    private final BroadcastReceiver inAppMsgRx = new BroadcastReceiver() {
+        @Override public void onReceive(Context c, Intent i) {
+            myLogD("broadcast received : inAppMsgRx");
+            InAppMsgManager.maybeShowBestMessage(MainActivity.this, getString(R.string.app_name));
+        }
+    };
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -141,15 +153,23 @@ public class MainActivity extends LoggingActivity {
 
         getFolders();
 
+        InAppMsgManager.deleteInAppMsgCache(this);
         MyApp.getPeriodicTaskManager(this).start(); // safe
-
+        InAppMsgManager.maybeShowBestMessage(this, "message");
         //startActivity(new Intent(this, TtsReadTxtActivity.class));
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        LocalBroadcastManager.getInstance(this).registerReceiver(inAppMsgRx, new IntentFilter(InAppMsgManager.ACTION_CACHE_UPDATED));        // Et tente immédiatement avec le cache courant
+        InAppMsgManager.maybeShowBestMessage(this, getString(R.string.app_name));
         maybeResumeWorkFlow(this);
+    }
+
+    @Override protected void onPause() {
+        super.onPause();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(inAppMsgRx);
     }
 
     @SuppressLint("RestrictedApi")
