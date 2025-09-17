@@ -292,7 +292,9 @@ public class TtsHelper implements TextToSpeech.OnInitListener {
     public int setVoice(@NonNull Voice voice) {
         if (tts == null) return TextToSpeech.ERROR;
         try {
+            long startTime = System.currentTimeMillis();
             int r = tts.setVoice(voice);
+            myLog("Voice loaded in " + (System.currentTimeMillis() - startTime) + " ms.");
             myLog("setVoice(" + voice.getName() + ") -> " + r + " | " + VoiceItem.describeVoice(voice));
             return r;
         } catch (Throwable t) {
