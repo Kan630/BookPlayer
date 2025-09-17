@@ -232,35 +232,57 @@ public class AudioService extends LoggingService {
         private final java.util.concurrent.ConcurrentHashMap<String, WarmupCallback> warmups = new java.util.concurrent.ConcurrentHashMap<>();
 
         public interface WarmupCallback {
-            /** ready==true when synthesis completed; else reason explains why. */
-            void onResult(boolean ready, @androidx.annotation.IntRange(from=0,to=5) int reason);
+            /**
+             * ready==true when synthesis completed; else reason explains why.
+             */
+            void onResult(boolean ready, @androidx.annotation.IntRange(from = 0, to = 5) int reason);
         }
+
         private void installUplIfNeeded() {
             tts.setOnUtteranceProgressListener(new android.speech.tts.UtteranceProgressListener() {
-                @Override public void onStart(String id) {
+                @Override
+                public void onStart(String id) {
                     myLog("installUplIfNeeded onStart");
                 }
-                @Override public void onDone(String id) {
+
+                @Override
+                public void onDone(String id) {
                     myLog("installUplIfNeeded Done");
                     WarmupCallback cb = warmups.remove(id);
                     if (cb != null) cb.onResult(true, TtsHelper.READY);
                     deleteTemp(id);
                 }
-                @Override public void onError(String id, int code) {
+
+                @Override
+                public void onError(String id, int code) {
                     myLogE("installUplIfNeeded onError");
                     WarmupCallback cb = warmups.remove(id);
                     if (cb != null) cb.onResult(false, TtsHelper.SYNTH_FAIL);
                     deleteTemp(id);
                 }
-                @Override public void onError(String id) { onError(id, android.speech.tts.TextToSpeech.ERROR); }
+
+                @Override
+                public void onError(String id) {
+                    onError(id, android.speech.tts.TextToSpeech.ERROR);
+                }
             });
         }
+
         private void deleteTemp(String id) {
-            try { new java.io.File(getApplicationContext().getCacheDir(), id + ".wav").delete(); } catch (Throwable ignored) {}
+            try {
+                new java.io.File(getApplicationContext().getCacheDir(), id + ".wav").delete();
+            } catch (Throwable ignored) {
+            }
         }
-        /** Sets the voice, verifies language data, then warms up via synthesizeToFile. Calls back when really ready. */
+
+        /**
+         * Sets the voice, verifies language data, then warms up via synthesizeToFile. Calls back when really ready.
+         */
         public void setTtsVoiceByNameAsync(String voiceName, long timeoutMs, WarmupCallback cb) {
-            if (tts == null) { cb.onResult(false, TtsHelper.ERROR); return; }
+            if (tts == null) {
+                cb.onResult(false, TtsHelper.ERROR);
+                return;
+            }
             installUplIfNeeded();
 
             ttsH.post(() -> {
@@ -269,14 +291,21 @@ public class AudioService extends LoggingService {
 
                     android.speech.tts.Voice target = null;
                     for (android.speech.tts.Voice v : voices) {
-                        if (voiceName != null && voiceName.equals(v.getName())) { target = v; break; }
+                        if (voiceName != null && voiceName.equals(v.getName())) {
+                            target = v;
+                            break;
+                        }
                     }
-                    if (target == null) { cb.onResult(false, TtsHelper.SET_VOICE_FAILED); return; }
+                    if (target == null) {
+                        cb.onResult(false, TtsHelper.SET_VOICE_FAILED);
+                        return;
+                    }
 
                     int rSet = tts.setVoice(target);
                     myLog("setTtsVoiceByName -> " + rSet + " | " + VoiceItem.describeVoice(target));
                     if (rSet != android.speech.tts.TextToSpeech.SUCCESS) {
-                        cb.onResult(false, TtsHelper.SET_VOICE_FAILED); return;
+                        cb.onResult(false, TtsHelper.SET_VOICE_FAILED);
+                        return;
                     }
 
                     // Align language with voice locale; also tells us if data is missing.
@@ -285,7 +314,8 @@ public class AudioService extends LoggingService {
                         int avail = tts.isLanguageAvailable(loc);
                         myLogD("isLanguageAvailable(" + loc + ") -> " + avail);
                         if (avail == android.speech.tts.TextToSpeech.LANG_MISSING_DATA) {
-                            cb.onResult(false, TtsHelper.MISSING_DATA); return;
+                            cb.onResult(false, TtsHelper.MISSING_DATA);
+                            return;
                         }
                         tts.setLanguage(loc);
                     }
@@ -306,7 +336,10 @@ public class AudioService extends LoggingService {
                     // Timeout safeguard
                     ttsH.postDelayed(() -> {
                         WarmupCallback late = warmups.remove(id);
-                        if (late != null) { cb.onResult(false, TtsHelper.TIMEOUT); deleteTemp(id); }
+                        if (late != null) {
+                            cb.onResult(false, TtsHelper.TIMEOUT);
+                            deleteTemp(id);
+                        }
                     }, Math.max(1500, timeoutMs)); // e.g., 5_000ms for network voices
                 } catch (Throwable t) {
                     myLogEE(t, "setTtsVoiceByNameAsync failed");
@@ -316,40 +349,47 @@ public class AudioService extends LoggingService {
         }
 
 
-        @Override public void setDataSource(Context ctx, Uri uri, String displayName) {
-            prepared = false; playing = false; resumeOffset = 0; estPositionMs = 0;
+        @Override
+        public void setDataSource(Context ctx, Uri uri, String displayName) {
+            prepared = false;
+            playing = false;
+            resumeOffset = 0;
+            estPositionMs = 0;
             String raw = TextExtractor.getPlainText(ctx, uri, displayName);
 
             // Normalize line endings (CRLF/CR → LF)
             String norm = raw.replace("\r\n", "\n").replace('\r', '\n');
 
             // If suspiciously few newlines, add paragraph breaks heuristically
-            if (countNewlines(norm) < 2) {
-                norm = smartParagraphize(norm);
+            if (TtsHelper.countNewlines(norm) < 2) {
+                norm = TtsHelper.smartParagraphize(norm);
             }
 
             text = norm;
             estDurationMs = estimateDurationMs(text, currentSpeechRate());
         }
 
-        @Override public void prepareAsync() {
+        @Override
+        public void prepareAsync() {
             //just after load file
             if (tts.isReady()) {
                 applyInitialTtsLanguage();  // will only onPrepared.run() if langReady
             }
         }
 
-        @Override public void start() {
+        @Override
+        public void start() {
             if (!prepared) return;
             playing = true;
-            lastCharSpoken = Math.max(0, Math.min(resumeOffset, (text!=null)?text.length():0));
+            lastCharSpoken = Math.max(0, Math.min(resumeOffset, (text != null) ? text.length() : 0));
             tts.setSpeechRate(currentSpeechRate());
             tts.speakFromOffset(text, resumeOffset);
             updatePlaybackState(PlaybackStateCompat.STATE_PLAYING, getCurrentPosition(), currentSpeechRate());
             startSleepTimer();
         }
 
-        @Override public void pause() {
+        @Override
+        public void pause() {
             if (!prepared) return;
             tts.stop();
             playing = false;
@@ -358,19 +398,49 @@ public class AudioService extends LoggingService {
             stopSleepTimer();
         }
 
-        @Override public void stop() {
+        @Override
+        public void stop() {
             tts.stop();
             playing = false;
             updatePlaybackState(PlaybackStateCompat.STATE_STOPPED, 0, 0f);
         }
 
-        @Override public void reset() { stop(); prepared = false; resumeOffset = 0; estPositionMs = 0; text = ""; }
-        @Override public boolean isPlaying() { return playing; }
-        @Override public boolean isReady()   { return tts.isReady() && prepared && langReady; }
-        @Override public int getCurrentPosition() { return estPositionMs; }
-        @Override public int getDuration()        { return estDurationMs; }
-        @Override public int getAudioSessionId()  { return 0; } // no visualizer for TTS
-        @Override public void seekTo(int ms) {
+        @Override
+        public void reset() {
+            stop();
+            prepared = false;
+            resumeOffset = 0;
+            estPositionMs = 0;
+            text = "";
+        }
+
+        @Override
+        public boolean isPlaying() {
+            return playing;
+        }
+
+        @Override
+        public boolean isReady() {
+            return tts.isReady() && prepared && langReady;
+        }
+
+        @Override
+        public int getCurrentPosition() {
+            return estPositionMs;
+        }
+
+        @Override
+        public int getDuration() {
+            return estDurationMs;
+        }
+
+        @Override
+        public int getAudioSessionId() {
+            return 0;
+        } // no visualizer for TTS
+
+        @Override
+        public void seekTo(int ms) {
             if (estDurationMs <= 0 || text.isEmpty()) return;
             int clamped = Math.max(0, Math.min(ms, estDurationMs));
             int charPos = (int) ((clamped / (double) estDurationMs) * Math.max(1, text.length()));
@@ -381,20 +451,30 @@ public class AudioService extends LoggingService {
                 tts.speakFromOffset(text, resumeOffset);
             }
         }
-        @Override public void setSpeed(float s) {
+
+        @Override
+        public void setSpeed(float s) {
             tts.setSpeechRate(s);
             int old = estDurationMs;
             estDurationMs = estimateDurationMs(text, s);
             if (old > 0) estPositionMs = (int) (estPositionMs * (estDurationMs / (double) old));
-            if (playing) updatePlaybackState(PlaybackStateCompat.STATE_PLAYING, getCurrentPosition(), s);
+            if (playing)
+                updatePlaybackState(PlaybackStateCompat.STATE_PLAYING, getCurrentPosition(), s);
         }
 
         // --- EbookTtsHelper.Listener ---
-        @Override public void onTtsReady(TextToSpeech t) {
+        @Override
+        public void onTtsReady(TextToSpeech t) {
             applyInitialTtsLanguage();
         }
-        @Override public void onStart(String id) { playing = true; }
-        @Override public void onDone(String id) {
+
+        @Override
+        public void onStart(String id) {
+            playing = true;
+        }
+
+        @Override
+        public void onDone(String id) {
             // Have we reached (logically) the end of the text?
             int logicalEnd = logicalTextEndIndex();
             if (lastCharSpoken >= logicalEnd) {
@@ -417,12 +497,16 @@ public class AudioService extends LoggingService {
             });
         }
 
-        @Override public void onError(String id, int code) {
+        @Override
+        public void onError(String id, int code) {
             playing = false;
             onEngineError("TTS error", code, 0);
         }
-        @Override public void onUtteranceRange(int start, int end) {
-            if (!text.isEmpty()) estPositionMs = (int)((start / (double) text.length()) * estDurationMs);
+
+        @Override
+        public void onUtteranceRange(int start, int end) {
+            if (!text.isEmpty())
+                estPositionMs = (int) ((start / (double) text.length()) * estDurationMs);
             // remember farthest character we actually spoke
             if (end > lastCharSpoken) lastCharSpoken = end;
 
@@ -435,9 +519,14 @@ public class AudioService extends LoggingService {
             LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(i);
         }
 
-        @Override public void onWordRange(int s, int e) { onUtteranceRange(s, e); }
+        @Override
+        public void onWordRange(int s, int e) {
+            onUtteranceRange(s, e);
+        }
 
-        private float currentSpeechRate() { return (float) Math.max(0.1, getSpeed()); }
+        private float currentSpeechRate() {
+            return (float) Math.max(0.1, getSpeed());
+        }
 
         private void applyInitialTtsLanguage() {
             // 1) decide the 2-letter code to use
@@ -465,7 +554,10 @@ public class AudioService extends LoggingService {
             // 3) apply to engine state + Android TTS
             currentLocale = target;
             int ret = TextToSpeech.LANG_NOT_SUPPORTED;
-            try { ret = tts.setLanguage(currentLocale); } catch (Throwable ignored) {}
+            try {
+                ret = tts.setLanguage(currentLocale);
+            } catch (Throwable ignored) {
+            }
 
             // Only mark language ready if not missing/not unsupported
             langReady = (ret != TextToSpeech.LANG_MISSING_DATA && ret != TextToSpeech.LANG_NOT_SUPPORTED);
@@ -517,128 +609,12 @@ public class AudioService extends LoggingService {
             }
             return i;
         }
-        private static int countNewlines(String s) {
-            int n = 0;
-            for (int i = 0; i < s.length(); i++) if (s.charAt(i) == '\n') n++;
-            return n;
-        }
 
-        // Simple, safe paragraphizer for totally-flat text.
-// Inserts blank line after sentence-ending punctuation when next token looks like sentence start.
-        private static String smartParagraphize(String s) {
-            if (s == null) return "";
-            String t = s.replace('\u00A0',' ')
-                    .replace("\r", "")
-                    .replaceAll("[ \\t]{2,}", " ")
-                    .trim();
-
-            // Scene breaks like "***"
-            t = t.replaceAll("[ ]*\\*\\*\\*[ ]*", "\n\n***\n\n");
-
-            // Insert \n\n after sentence end, before likely sentence start
-            t = t.replaceAll("(?<=[.!?…])[ ]+(?=[\"“‘'(\\[]?[A-ZÀ-ÖØ-Þ0-9])", "\n\n");
-
-            return t;
-        }
-
-        /**
-         * Set exact TTS voice by engine name (e.g. "en-us-x-sfg#male_1-local").
-         * Returns TextToSpeech.SUCCESS or TextToSpeech.ERROR.
-         * Safe from any thread (executes on main).
-         */
-        public int setTtsVoiceByName(String voiceName) {
-            if (tts == null) {
-                myLogW("setTtsVoiceByName: tts == null");
-                return TextToSpeech.ERROR;
-            }
-
-            final int[] result = { TextToSpeech.ERROR };
-            Runnable work = () -> {
-                try {
-                    Set<Voice> voices = tts.getVoices();
-                    if (voices == null || voices.isEmpty()) {
-                        myLogW("setTtsVoiceByName: no voices reported by engine");
-                        return;
-                    }
-
-                    Voice target = null;
-                    for (Voice v : voices) {
-                        if (voiceName.equals(v.getName())) {
-                            target = v;
-                            break;
-                        }
-                    }
-                    if (target == null) {
-                        myLogW("setTtsVoiceByName: not found: " + voiceName);
-                        return;
-                    }
-
-                    int rSet = tts.setVoice(target);
-                    myLog("setTtsVoiceByName -> " + rSet + " | " + VoiceItem.describeVoice(target));
-
-                    // Nicer stability on some engines if language matches voice locale.
-                    if (target.getLocale() != null) {
-                        int rLang = tts.setLanguage(target.getLocale());
-                        myLogD("setLanguage(" + target.getLocale() + ") -> " + rLang);
-                    }
-
-                    result[0] = rSet;
-                } catch (Throwable t) {
-                    myLogEE(t, "setTtsVoiceByName failed");
-                    result[0] = TextToSpeech.ERROR;
-                }
-            };
-
-            if (Looper.myLooper() == Looper.getMainLooper()) {
-                work.run();
-            } else {
-                CountDownLatch latch = new CountDownLatch(1);
-                ttsH.post(() -> { work.run(); latch.countDown(); });
-                try { latch.await(2000, TimeUnit.MILLISECONDS); } catch (InterruptedException ignored) {}
-            }
-            return result[0];
-        }
-
-        /**
-         * Fuzzy fallback when engines rename voices across updates.
-         * Tries exact match first, else first name containing the hint (case-insensitive).
-         */
-        public int setTtsVoiceByNameOrClosest(String voiceNameHint) {
-            if (tts == null) return TextToSpeech.ERROR;
-
-            final int[] out = { TextToSpeech.ERROR };
-            Runnable work = () -> {
-                try {
-                    Set<Voice> voices = tts.getVoices();
-                    if (voices == null || voices.isEmpty()) return;
-
-                    Voice exact = null, contains = null;
-                    String hintLc = voiceNameHint.toLowerCase(Locale.US);
-                    for (Voice v : voices) {
-                        String n = v.getName();
-                        if (voiceNameHint.equals(n)) { exact = v; break; }
-                        if (contains == null && n.toLowerCase(Locale.US).contains(hintLc)) contains = v;
-                    }
-                    Voice pick = exact != null ? exact : contains;
-                    if (pick == null) { myLogW("setTtsVoiceByNameOrClosest: no match for '" + voiceNameHint + "'"); return; }
-
-                    int r = tts.setVoice(pick);
-                    myLogI("setTtsVoiceByNameOrClosest -> " + r + " | " + VoiceItem.describeVoice(pick));
-                    if (pick.getLocale() != null) tts.setLanguage(pick.getLocale());
-                    out[0] = r;
-                } catch (Throwable t) {
-                    myLogEE(t, "setTtsVoiceByNameOrClosest failed");
-                }
-            };
-
-            if (Looper.myLooper() == Looper.getMainLooper()) work.run();
-            else ttsH.post(work);
-
-            return out[0];
-        }
 
     }
-
+    // ----------------------------------------------------------------
+    //  END TTS ENGINE
+    // ----------------------------------------------------------------
 
     private AudioManager audioManager;
     private AudioManager.OnAudioFocusChangeListener afChangeListener;

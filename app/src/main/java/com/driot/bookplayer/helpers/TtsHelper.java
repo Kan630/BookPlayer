@@ -50,6 +50,22 @@ public class TtsHelper implements TextToSpeech.OnInitListener {
         default void onWordRange(int start, int end) {}
     }
 
+    // optional raw access
+    public TextToSpeech raw() { return tts; }
+
+    // NEW pass-throughs so AudioService can call them on your TtsHelper instance
+    public void setOnUtteranceProgressListener(UtteranceProgressListener l) {
+        tts.setOnUtteranceProgressListener(l);
+    }
+
+    public int isLanguageAvailable(Locale locale) {
+        return tts.isLanguageAvailable(locale);
+    }
+
+    public int synthesizeToFile(CharSequence text, Bundle params, File file, String utteranceId) {
+        return tts.synthesizeToFile(text, params, file, utteranceId);
+    }
+
     private final Listener listener;
 
     public TtsHelper(Context ctx, Listener listener) {
@@ -269,26 +285,6 @@ public class TtsHelper implements TextToSpeech.OnInitListener {
         }
     }
 
-    public Voice getVoice() {
-        if (tts != null) {
-            return tts.getVoice();
-        } else {
-            return null;
-        }
-    }
-
-    public Locale getLanguage() {
-        try {
-            if (tts != null) {
-                Voice v = tts.getVoice();
-                if (v != null && v.getLocale() != null) return v.getLocale();
-                Locale l = tts.getLanguage();
-                if (l != null) return l;
-            }
-        } catch (Throwable ignored) {}
-        return Locale.getDefault();
-    }
-
     /** Return all available voices from the current engine (may be empty). */
     public @NonNull Set<Voice> getVoices() {
         if (tts == null) return java.util.Collections.emptySet();
@@ -315,18 +311,6 @@ public class TtsHelper implements TextToSpeech.OnInitListener {
             return TextToSpeech.ERROR;
         }
     }
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -431,34 +415,7 @@ public class TtsHelper implements TextToSpeech.OnInitListener {
         }
     }
 
-    /** Return list of locale strings (e.g. "en", "fr") available from voices, sorted simple unique. */
-    public List<String> getAvailableLanguages() {
-        List<Voice> voices = getAllVoices();
-        ArrayList<String> langs = new ArrayList<>();
-        for (Voice v : voices) {
-            Locale L = v.getLocale();
-            if (L == null) continue;
-            String lang = L.getLanguage(); // two-letter "en", "fr"...
-            if (lang == null || lang.isEmpty()) continue;
-            if (!langs.contains(lang)) langs.add(lang);
-        }
-        // keep original order (or sort if you prefer)
-        return langs;
-    }
 
-    /** Filter voices for given language code (ISO 639, e.g. "en", "fr"). */
-    public List<Voice> getVoicesForLanguage(String langCode) {
-        List<Voice> voices = getAllVoices();
-        ArrayList<Voice> out = new ArrayList<>();
-        for (Voice v : voices) {
-            Locale L = v.getLocale();
-            if (L == null) continue;
-            if (langCode.equalsIgnoreCase(L.getLanguage())) {
-                out.add(v);
-            }
-        }
-        return out;
-    }
 
     public interface OnVoiceSelected {
         void onSelected(@Nullable VoiceItem voice);
@@ -581,53 +538,30 @@ public class TtsHelper implements TextToSpeech.OnInitListener {
     }
 
 
-
-    // optional raw access
-    public TextToSpeech raw() { return tts; }
-
-    // NEW pass-throughs so AudioService can call them on your TtsHelper instance
-    public void setOnUtteranceProgressListener(UtteranceProgressListener l) {
-        tts.setOnUtteranceProgressListener(l);
+    public static int countNewlines(String s) {
+        int n = 0;
+        for (int i = 0; i < s.length(); i++) if (s.charAt(i) == '\n') n++;
+        return n;
     }
 
-    public int isLanguageAvailable(Locale locale) {
-        return tts.isLanguageAvailable(locale);
+    // Simple, safe paragraphizer for totally-flat text.
+// Inserts blank line after sentence-ending punctuation when next token looks like sentence start.
+    public static String smartParagraphize(String s) {
+        if (s == null) return "";
+        String t = s.replace('\u00A0', ' ')
+                .replace("\r", "")
+                .replaceAll("[ \\t]{2,}", " ")
+                .trim();
+
+        // Scene breaks like "***"
+        t = t.replaceAll("[ ]*\\*\\*\\*[ ]*", "\n\n***\n\n");
+
+        // Insert \n\n after sentence end, before likely sentence start
+        t = t.replaceAll("(?<=[.!?…])[ ]+(?=[\"“‘'(\\[]?[A-ZÀ-ÖØ-Þ0-9])", "\n\n");
+
+        return t;
     }
 
-    public int synthesizeToFile(CharSequence text, Bundle params, File file, String utteranceId) {
-        return tts.synthesizeToFile(text, params, file, utteranceId);
-    }
-
-    private static int findPreselectIndex(java.util.List<VoiceItem> all, String saved) {
-        if (saved == null || saved.isEmpty() || "system".equalsIgnoreCase(saved)) return 0;
-        String s = normalize(saved);
-
-        // 1) exact by name/code (case/underscore tolerant)
-        for (int i = 0; i < all.size(); i++) {
-            VoiceItem it = all.get(i);
-            if (s.equals(normalize(it.name)) || s.equals(normalize(it.name))) return i;
-        }
-        // 2) startsWith (handles engines that add suffixes like “#male_1-local”)
-        for (int i = 0; i < all.size(); i++) {
-            VoiceItem it = all.get(i);
-            if (normalize(it.name).startsWith(s) || normalize(it.name).startsWith(s)) return i;
-        }
-        // 3) same language/country fallback
-        String[] p = s.split("[-_]");
-        String lang = p.length > 0 ? p[0] : "";
-        String ctry = p.length > 1 ? p[1] : "";
-        for (int i = 0; i < all.size(); i++) {
-            java.util.Locale loc = all.get(i).locale;
-            if (loc == null) continue;
-            boolean langOk = lang.equalsIgnoreCase(loc.getLanguage());
-            boolean ctrOk  = ctry.isEmpty() || ctry.equalsIgnoreCase(loc.getCountry());
-            if (langOk && ctrOk) return i;
-        }
-        return 0;
-    }
-    private static String normalize(String s) {
-        return s == null ? "" : s.toLowerCase(java.util.Locale.ROOT).replace('_','-');
-    }
 
     // ======== LOGGING ========
     private static final String TAG = "TtsHelper";
