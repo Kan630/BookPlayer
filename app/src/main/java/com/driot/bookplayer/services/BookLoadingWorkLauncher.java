@@ -57,7 +57,7 @@ public class BookLoadingWorkLauncher {
         myLog("*********************************************************************************************************");
         myLog("*********************************************************************************************************");
 
-        FirebaseAnalyticsHelper.tellAnalyticsWork(context, bookState.originalUri.toString());
+        FirebaseAnalyticsHelper.tellAnalyticsWork(bookState.originalUri.toString());
 
         if (bookState.dynamicUri.toString().startsWith("http")) {
             myLogD("http => download");

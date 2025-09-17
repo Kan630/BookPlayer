@@ -232,7 +232,7 @@ public class DownloadForegroundService extends LoggingService {
             long downloaded = destFile.exists() ? destFile.length() : 0;
             myLog("already downloaded " + Tonio.getReadableSize(downloaded));
 
-            FirebaseAnalyticsHelper.tellAnalyticsManualDownload(this, fileUrl, destinationFolder, downloaded);
+            FirebaseAnalyticsHelper.tellAnalyticsManualDownload(fileUrl, destinationFolder, downloaded);
 
             URL url = new URL(fileUrl);
             connection = (HttpURLConnection) url.openConnection();

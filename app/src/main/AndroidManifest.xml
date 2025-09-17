@@ -46,7 +46,7 @@
         <activity android:name=".activities.GetOtherActivity" />
         <activity android:name=".activities.GetAudiobookActivity" />
         <activity android:name=".activities.GetPodcastActivity" />
-        <activity android:name=".activities.LoadOptionsActivity" />
+        <activity android:name=".activities.LoadBookActivity" />
         <activity android:name=".activities.ModifyFolderActivity" />
         <activity android:name=".activities.ModifyZikFileActivity" />
         <activity android:name=".activities.AddResourceActivity" />

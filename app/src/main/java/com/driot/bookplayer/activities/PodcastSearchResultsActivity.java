@@ -7,10 +7,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -104,7 +100,7 @@ public class PodcastSearchResultsActivity extends LoggingActivity {
         viewModel.setLastQuery(query);
         viewModel.setLastLang(lang);
         performSearch(query, lang);
-        FirebaseAnalyticsHelper.tellAnalyticsPodcastSearch(this, query, lang);
+        FirebaseAnalyticsHelper.tellAnalyticsPodcastSearch(query, lang);
     }
 
     private void performSearch(String query, String lang) {

@@ -15,6 +15,7 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FileHelper;
+import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.objects.TaskStateManager;
 import com.driot.bookplayer.utils.log.LoggingWorker;
@@ -68,6 +69,8 @@ public class UnzipWorker extends LoggingWorker {
             TaskStateManager.markTaskFailed(TASK_NAME, "Could not create destination folder");
             return Result.failure();
         }
+
+        FirebaseAnalyticsHelper.sendEvent("zip_worker");
 
         try {
             myLogD("unzipping in: " + unzipFolder);

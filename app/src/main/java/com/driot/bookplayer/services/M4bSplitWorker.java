@@ -8,6 +8,7 @@ import androidx.work.WorkerParameters;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.objects.TaskStateManager;
 import com.driot.bookplayer.utils.log.LoggingWorker;
@@ -56,6 +57,8 @@ public class M4bSplitWorker extends LoggingWorker {
             myLogEE(null,"Missing input data for M4bSplitWorker");
             return Result.failure();
         }
+
+        FirebaseAnalyticsHelper.sendEvent("m4b_worker");
 
         boolean success = splitM4bLocal(m4bFilePath, destinationFolderPath);
         return success ? Result.success() : Result.failure();

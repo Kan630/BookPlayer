@@ -54,7 +54,7 @@ public class GetAudiobookActivity extends LoggingActivity {
             }
 
             openLibrivoxResultsActivity();
-            FirebaseAnalyticsHelper.tellAnalyticsLibrivoxTrending(this, query, lang);
+            FirebaseAnalyticsHelper.tellAnalyticsLibrivoxTrending(query, lang);
         });
 
         buttonSearch.setOnClickListener(v -> {
@@ -87,7 +87,7 @@ public class GetAudiobookActivity extends LoggingActivity {
 
             openLibrivoxResultsActivity();
 
-            FirebaseAnalyticsHelper.tellAnalyticsLibrivoxSearch(this, query, lang);
+            FirebaseAnalyticsHelper.tellAnalyticsLibrivoxSearch(query, lang);
     }
 
     private void openLibrivoxResultsActivity() {

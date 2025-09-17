@@ -271,7 +271,10 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
 
         View.OnClickListener favoriteClick = v -> toggleFavorite();
         View.OnClickListener autoDownloadClick = v -> toggleAutoDownload();
-        View.OnClickListener refreshClick = v -> { myLogI("-------- USER CLICKS REFRESH"); fetchEpisodes(true); };
+        View.OnClickListener refreshClick = v -> {
+            FirebaseAnalyticsHelper.tellAnalyticsPodcastRefresh(podcastFeed.title);
+            myLogI("-------- USER CLICKS REFRESH -----");
+            fetchEpisodes(true); };
         View.OnClickListener sortClick = v -> toggleSort();
         View.OnClickListener collapseClick = v -> toggleCollapse();
 
@@ -439,7 +442,7 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
                 btnAutoDownloadToolbar.setVisibility(favoriteState ? View.VISIBLE : View.GONE);
             });
             ImageHelper.processPendingImages(this);
-            FirebaseAnalyticsHelper.tellAnalyticsPodcastFavorite(this, podcast.title, podcast.language);
+            FirebaseAnalyticsHelper.tellAnalyticsPodcastFavorite(podcast.title, podcast.language);
         });
     }
 
@@ -454,6 +457,7 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
                 myLog("---> On");
                 myToast(getString(R.string.podcast_autodownload_add));
                 downloadAllEpisodesToFolder(podcast, PODCASTINDEXORG_SINCE);
+                FirebaseAnalyticsHelper.tellAnalyticsPodcastAutoDownload(podcast.title, podcast.language);
             }
             runOnUiThread(() -> {
                 updateAutoDownloadIconColor(podcast.autoDownload);
@@ -680,7 +684,7 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
             }
         } else {
             // Different episode → fresh play, show spinner
-            FirebaseAnalyticsHelper.tellAnalyticsStartStreaming(this, ep.title);
+            FirebaseAnalyticsHelper.tellAnalyticsStartStreaming(ep.title);
             playEpisode(ep);
         }
     }

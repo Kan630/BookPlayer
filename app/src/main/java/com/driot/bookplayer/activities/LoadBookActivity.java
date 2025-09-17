@@ -32,6 +32,7 @@ import androidx.work.WorkManager;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.global.Option;
+import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.objects.BookToAdd;
 import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
@@ -42,7 +43,7 @@ import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import java.util.Objects;
 
-public class LoadOptionsActivity extends LoggingActivity {
+public class LoadBookActivity extends LoggingActivity {
 
     public static final String EXTRA_URI = "uri";
     public static final String EXTRA_TYPE = "type";  // File or Folder
@@ -140,6 +141,10 @@ public class LoadOptionsActivity extends LoggingActivity {
             type = "EPUB";
         }
 
+        if (Var.SUPPORTED_EBOOK_EXTENSIONS.contains(bookToAdd.getFileExtension())) {
+            showWarning(getString(R.string.beta_test) + "\n" + getString(R.string.still_in_development) + "\n" + getString(R.string.funny_behaviour_expected));
+        }
+
         tvFileName.setText(audioBookTitle);
         tvSourceLocation.setText(bookToAdd.getInfoSourceLocation());
         tvMimeExtension.setText(bookToAdd.getInfoMimeExtension());
@@ -201,7 +206,7 @@ public class LoadOptionsActivity extends LoggingActivity {
                 }
             }
 
-            FirebaseAnalyticsHelper.tellAnalyticsManualLoad(this, bookToAdd.getType(), bookToAdd.getFileExtension(), bookToAdd.getSourceLocation(), bookToAdd.getOriginalFile());
+            FirebaseAnalyticsHelper.tellAnalyticsManualLoad(bookToAdd.getType(), bookToAdd.getFileExtension(), bookToAdd.getSourceLocation(), bookToAdd.getOriginalFile());
 
         });
 
@@ -471,14 +476,14 @@ public class LoadOptionsActivity extends LoggingActivity {
         }
     }
 
-    private void ShowWarning(String warningTxt) {
+    private void showWarning(String warningTxt) {
         String previousTxt = warningTextView.getText().toString();
         String newTxt = previousTxt.isEmpty() ? warningTxt : previousTxt + "\n" + warningTxt;
         warningTextView.setText(newTxt);
         warningTextView.setVisibility(View.VISIBLE);
     }
 
-    private void ShowError(String txt) {
+    private void showError(String txt) {
         String previousTxt = errorTextView.getText().toString();
         String newTxt = previousTxt.isEmpty() ? txt : previousTxt + "\n" + txt;
         errorTextView.setText(newTxt);
@@ -522,7 +527,7 @@ public class LoadOptionsActivity extends LoggingActivity {
 
                     if (hash == null || hash.isEmpty() || hash.equals(HASH_NOT_COMPUTED)) {
                         myLogEE(null, "bad returned Hash for uri " + uri);
-                        ShowWarning(getString(R.string.could_not_check_already_imported));
+                        showWarning(getString(R.string.could_not_check_already_imported));
                         okContinue();
                     } else {
                         btnConfirm.setEnabled(false);
@@ -533,12 +538,12 @@ public class LoadOptionsActivity extends LoggingActivity {
                                     if (uri.toString().startsWith("http")) {
                                         //TODO, ideally, a second hash column should be computed "realHashOfTheContent"
                                         myLogW("same Hash [" + hash +  "] for URL " + uri + " for book = " + existingBook);
-                                        ShowWarning(getString(R.string.warning_url_already_loaded_under_the_name) + " [" + existingBook + "]\n");
+                                        showWarning(getString(R.string.warning_url_already_loaded_under_the_name) + " [" + existingBook + "]\n");
                                         boolAlso=true;
                                         okContinue();
                                     } else {
                                         myLogW("Duplicate hash detected: already imported as [" + existingBook + "]");
-                                        ShowError(getString(R.string.error_media_already_loaded_samePath_under_the_name) + "\n" + existingBook);
+                                        showError(getString(R.string.error_media_already_loaded_samePath_under_the_name) + "\n" + existingBook);
                                         waitTextView.setVisibility(View.GONE);
                                         isKO = true;
                                     }
@@ -552,7 +557,7 @@ public class LoadOptionsActivity extends LoggingActivity {
                     }
                 } else if (workInfo.getState() == WorkInfo.State.FAILED) {
                     myLogEE(null, "Hash computation failed for uri: " + uri);
-                    ShowWarning(getString(R.string.could_not_check_already_imported));
+                    showWarning(getString(R.string.could_not_check_already_imported));
                     okContinue();
                 }
             }
@@ -581,7 +586,7 @@ public class LoadOptionsActivity extends LoggingActivity {
                 runOnUiThread(() -> {
                     if (audioBookAlreadyThere != null) {
                         myLogW("KO, folder path does already exist in DB : [" + strPath + "]");
-                        ShowError(getString(R.string.error_media_already_loaded_samePath) + audioBookAlreadyThere);
+                        showError(getString(R.string.error_media_already_loaded_samePath) + audioBookAlreadyThere);
                         waitTextView.setVisibility(View.GONE);
                         isKO = true;
                     } else {
@@ -611,7 +616,7 @@ public class LoadOptionsActivity extends LoggingActivity {
                     } else {
                         strText = getString(R.string.A_different_media_with_the_same_name_had_already_been_loaded);
                     }
-                    ShowWarning(strText + getString(R.string.the_name_will_be_changed_to) + "\n[" + audioBookTitle + "]");
+                    showWarning(strText + getString(R.string.the_name_will_be_changed_to) + "\n[" + audioBookTitle + "]");
                     myLogW("book name changed to [" + audioBookTitle + "]");
                 } else {
                     myLogD("OK, folder name doesn't already exist in DB");

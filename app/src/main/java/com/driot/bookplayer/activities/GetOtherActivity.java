@@ -94,9 +94,9 @@ public class GetOtherActivity extends LoggingActivity { //AppCompatActivity
 
                     } else {
 
-                        Intent intent = new Intent(this, LoadOptionsActivity.class);
-                        intent.putExtra(LoadOptionsActivity.EXTRA_URI, uri);
-                        intent.putExtra(LoadOptionsActivity.EXTRA_TYPE, type);
+                        Intent intent = new Intent(this, LoadBookActivity.class);
+                        intent.putExtra(LoadBookActivity.EXTRA_URI, uri);
+                        intent.putExtra(LoadBookActivity.EXTRA_TYPE, type);
                         loadOptionsActivityResultLauncher.launch(intent);
 
                     }
@@ -290,9 +290,9 @@ public class GetOtherActivity extends LoggingActivity { //AppCompatActivity
             }
             String type = "File";
 
-            Intent intent = new Intent(this, LoadOptionsActivity.class);
-            intent.putExtra(LoadOptionsActivity.EXTRA_URI, uri);
-            intent.putExtra(LoadOptionsActivity.EXTRA_TYPE, type);
+            Intent intent = new Intent(this, LoadBookActivity.class);
+            intent.putExtra(LoadBookActivity.EXTRA_URI, uri);
+            intent.putExtra(LoadBookActivity.EXTRA_TYPE, type);
             loadOptionsActivityResultLauncher.launch(intent);
         });
 
@@ -318,9 +318,9 @@ public class GetOtherActivity extends LoggingActivity { //AppCompatActivity
             myLogI("Button click : AUTO TEST 01");
             checkWWW(canReach -> {
                 if (canReach) {
-                    Intent intent = new Intent(this, LoadOptionsActivity.class);
-                    intent.putExtra(LoadOptionsActivity.EXTRA_URI, Uri.parse(Var.AUTOTEST_FILE_01));
-                    intent.putExtra(LoadOptionsActivity.EXTRA_TYPE, "File");
+                    Intent intent = new Intent(this, LoadBookActivity.class);
+                    intent.putExtra(LoadBookActivity.EXTRA_URI, Uri.parse(Var.AUTOTEST_FILE_01));
+                    intent.putExtra(LoadBookActivity.EXTRA_TYPE, "File");
                     loadOptionsActivityResultLauncher.launch(intent);
                 }
             });
@@ -329,9 +329,9 @@ public class GetOtherActivity extends LoggingActivity { //AppCompatActivity
             myLogI("Button click : AUTO TEST 02");
             checkWWW(canReach -> {
                 if (canReach) {
-                    Intent intent = new Intent(this, LoadOptionsActivity.class);
-                    intent.putExtra(LoadOptionsActivity.EXTRA_URI, Uri.parse(Var.AUTOTEST_FILE_02));
-                    intent.putExtra(LoadOptionsActivity.EXTRA_TYPE, "File");
+                    Intent intent = new Intent(this, LoadBookActivity.class);
+                    intent.putExtra(LoadBookActivity.EXTRA_URI, Uri.parse(Var.AUTOTEST_FILE_02));
+                    intent.putExtra(LoadBookActivity.EXTRA_TYPE, "File");
                     loadOptionsActivityResultLauncher.launch(intent);
                 }
             });
@@ -340,9 +340,9 @@ public class GetOtherActivity extends LoggingActivity { //AppCompatActivity
             myLogI("Button click : AUTO TEST 03");
             checkWWW(canReach -> {
                 if (canReach) {
-                    Intent intent = new Intent(this, LoadOptionsActivity.class);
-                    intent.putExtra(LoadOptionsActivity.EXTRA_URI, Uri.parse(Var.AUTOTEST_FILE_03));
-                    intent.putExtra(LoadOptionsActivity.EXTRA_TYPE, "File");
+                    Intent intent = new Intent(this, LoadBookActivity.class);
+                    intent.putExtra(LoadBookActivity.EXTRA_URI, Uri.parse(Var.AUTOTEST_FILE_03));
+                    intent.putExtra(LoadBookActivity.EXTRA_TYPE, "File");
                     loadOptionsActivityResultLauncher.launch(intent);
                 }
             });
@@ -351,9 +351,9 @@ public class GetOtherActivity extends LoggingActivity { //AppCompatActivity
             myLogI("Button click : AUTO TEST 04");
             checkWWW(canReach -> {
                 if (canReach) {
-                    Intent intent = new Intent(this, LoadOptionsActivity.class);
-                    intent.putExtra(LoadOptionsActivity.EXTRA_URI, Uri.parse(Var.AUTOTEST_FILE_04));
-                    intent.putExtra(LoadOptionsActivity.EXTRA_TYPE, "File");
+                    Intent intent = new Intent(this, LoadBookActivity.class);
+                    intent.putExtra(LoadBookActivity.EXTRA_URI, Uri.parse(Var.AUTOTEST_FILE_04));
+                    intent.putExtra(LoadBookActivity.EXTRA_TYPE, "File");
                     loadOptionsActivityResultLauncher.launch(intent);
                 }
             });

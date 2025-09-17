@@ -7,82 +7,110 @@ import com.driot.bookplayer.utils.KanLogger;
 import com.google.firebase.analytics.FirebaseAnalytics;
 
 public final class FirebaseAnalyticsHelper {
+    private static Context appContext;
 
-
-
-    public static void tellAnalyticsPlaylistLoadFromStorage(Context context) {
-        logThat(context, "playlist_load_from_storage", null);
+    public static void init(Context context) {
+        appContext = context.getApplicationContext();
     }
-    public static void tellAnalyticsWork(Context context, String originalUri) {
+
+    public static void sendEvent(String event) {
+        try {
+            myLogD("Analytics logging - " + event);
+            FirebaseAnalytics firebaseAnalytics = FirebaseAnalytics.getInstance(appContext);
+            firebaseAnalytics.logEvent(event, null);
+        } catch (Exception e) {
+            myLogEE(e, "Analytics logging - " + event);
+        }
+    }
+
+
+
+    public static void tellAnalyticsWork(String originalUri) {
         Bundle bundle = new Bundle();
         bundle.putString("originalUri", originalUri);
-        logThat(context, "worker_start", bundle);
+        logThat("worker_start", bundle);
     }
-    public static void tellAnalyticsTtsLoad(Context context, String extension) {
-        Bundle bundle = new Bundle();
-        bundle.putString("extension", extension);
-        logThat(context, "tts_load", bundle);
-    }
-    public static void tellAnalyticsManualLoad(Context context, String type, String extension, String sourceLocation, String originalFile) {
+    public static void tellAnalyticsManualLoad(String type, String extension, String sourceLocation, String originalFile) {
         Bundle bundle = new Bundle();
         bundle.putString("type", type);
         bundle.putString("extension", extension);
         bundle.putString("sourceLocation", sourceLocation);
         bundle.putString("originalFile", originalFile);
-        logThat(context, "manual_load", bundle);
+        logThat("manual_load", bundle);
     }
-    public static void tellAnalyticsManualDownload(Context context, String fileUrl, String destinationFolder, long alreadyDownloaded) {
+    public static void tellAnalyticsManualDownload(String fileUrl, String destinationFolder, long alreadyDownloaded) {
         Bundle bundle = new Bundle();
         bundle.putString("fileUrl", fileUrl);
         bundle.putString("destinationFolder", destinationFolder);
         bundle.putLong("alreadyDownloaded", alreadyDownloaded);
-        logThat(context, "manual_load", bundle);
+        logThat("manual_download", bundle);
     }
-    public static void tellAnalyticsLibrivoxSearch(Context context, String query, String lang) {
+
+    public static void tellAnalyticsLibrivoxSearch(String query, String lang) {
         Bundle bundle = new Bundle();
         bundle.putString("query", query);
         bundle.putString("language", lang);
-        logThat(context, "librivox_search", bundle);
+        logThat("librivox_search", bundle);
     }
-    public static void  tellAnalyticsLibrivoxTrending(Context context, String query, String lang) {
+    public static void  tellAnalyticsLibrivoxTrending(String query, String lang) {
         Bundle bundle = new Bundle();
         bundle.putString("query", query);
         bundle.putString("language", lang);
-        logThat(context, "librivox_trending", bundle);
+        logThat("librivox_trending", bundle);
     }
-    public static void tellAnalyticsPodcastSearch(Context context, String query, String lang) {
+
+    public static void tellAnalyticsPodcastSearch(String query, String lang) {
         Bundle bundle = new Bundle();
         bundle.putString("query", query);
         bundle.putString("language", lang);
-        logThat(context, "podcast_search", bundle);
+        logThat("podcast_search", bundle);
     }
-    public static void tellAnalyticsPodcastFavorite(Context context, String podcastName, String podcastLang) {
+    public static void tellAnalyticsPodcastFavorite(String podcastName, String podcastLang) {
         Bundle bundle = new Bundle();
         bundle.putString("podcastName", podcastName);
         bundle.putString("language", podcastLang);
-        logThat(context, "podcast_favorite", bundle);
+        logThat("podcast_favorite", bundle);
     }
-    public static void tellAnalyticsPressPlay(Context context, String folderName) {
+    public static void tellAnalyticsPodcastAutoDownload(String podcastName, String podcastLang) {
+        Bundle bundle = new Bundle();
+        bundle.putString("podcastName", podcastName);
+        bundle.putString("language", podcastLang);
+        logThat("podcast_autodownload", bundle);
+    }
+    public static void tellAnalyticsPodcastRefresh(String podcast_title) {
+        Bundle bundle = new Bundle();
+        bundle.putString("podcast_title", podcast_title);
+        logThat("podcast_refresh", bundle);
+    }
+
+    public static void tellAnalyticsPressPlay(String folderName) {
         Bundle bundle = new Bundle();
         bundle.putString("folderName", folderName);
-        logThat(context, "press_play", bundle);
+        logThat("press_play", bundle);
     }
-    public static void tellAnalyticsStartStreaming(Context context, String podcastName) {
+    public static void tellAnalyticsEbookWorker(String extension) {
+        Bundle bundle = new Bundle();
+        bundle.putString("extension", extension);
+        logThat("ebook_worker", bundle);
+    }
+    public static void tellAnalyticsStartStreaming(String podcastName) {
         Bundle bundle = new Bundle();
         bundle.putString("folderName", podcastName);
-        logThat(context, "start_streaming", bundle);
+        logThat("start_streaming", bundle);
     }
 
 
-    private static void logThat(Context context, String logName, Bundle bundle) {
+
+    private static void logThat(String logName, Bundle bundle) {
         try {
             myLogD("Analytics logging - " + logName);
-            FirebaseAnalytics firebaseAnalytics = FirebaseAnalytics.getInstance(context);
+            FirebaseAnalytics firebaseAnalytics = FirebaseAnalytics.getInstance(appContext);
             firebaseAnalytics.logEvent(logName, bundle);
         } catch (Exception e) {
             myLogEE(e, "Analytics logging - " + logName);
         }
     }
+
 
 
 

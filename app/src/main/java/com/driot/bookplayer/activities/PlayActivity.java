@@ -236,7 +236,7 @@ public class PlayActivity extends LoggingActivity {
         bPlay.setOnClickListener(
                 v -> {
                     myLogI("----------> USER PRESSES PLAY BUTTON <----------");
-                    FirebaseAnalyticsHelper.tellAnalyticsPressPlay(PlayActivity.this, tvTitle.toString());
+                    FirebaseAnalyticsHelper.tellAnalyticsPressPlay(tvTitle.toString());
                     playMe();
                 });
 

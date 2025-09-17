@@ -114,7 +114,7 @@ public class GetPodcastActivity extends LoggingActivity {
 
         openPodcastResultsActivity();
 
-        FirebaseAnalyticsHelper.tellAnalyticsLibrivoxSearch(this, query, lang);
+        FirebaseAnalyticsHelper.tellAnalyticsLibrivoxSearch(query, lang);
     }
     private void openPodcastResultsActivity() {
         Intent intent = new Intent(this, PodcastSearchResultsActivity.class);

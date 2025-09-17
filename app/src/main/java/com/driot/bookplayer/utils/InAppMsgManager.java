@@ -27,7 +27,6 @@ import androidx.work.WorkManager;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
-import com.driot.bookplayer.MyApp;
 import com.google.gson.Gson;
 
 import java.io.ByteArrayOutputStream;
@@ -36,7 +35,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URLEncoder;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -441,6 +439,7 @@ public final class InAppMsgManager {
             while ((n = in.read(buf)) != -1) out.write(buf, 0, n);
             String json = out.toString("UTF-8");
             myLogD("fetchJson: body head=" + preview(json));
+            myLogD(json);
 
             // Sauvegarde cache
             saveIndexToCache(context, json, newEtag);

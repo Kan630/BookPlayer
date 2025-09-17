@@ -789,6 +789,8 @@
     <string name="option_night_mode_light">Light</string>
     <string name="option_night_mode_dark">Dark</string>
     <string name="option_night_mode_dialog_title">Choose theme mode</string>
+    <string name="still_in_development">still in development</string>
+    <string name="funny_behaviour_expected">funny behaviour expected</string>
 
 
 

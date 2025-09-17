@@ -1,7 +1,5 @@
 package com.driot.bookplayer.activities;
 
-import static com.driot.bookplayer.global.Pref.getLoadBookTaskState;
-
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -41,9 +39,9 @@ public class OpenWithProxyActivityAll extends LoggingActivity {
 
         myLogD("OpenWithProxyActivity received uri: " + uri);
 
-        Intent nextIntent = new Intent(this, LoadOptionsActivity.class);
-        nextIntent.putExtra(LoadOptionsActivity.EXTRA_URI, uri);
-        nextIntent.putExtra(LoadOptionsActivity.EXTRA_TYPE, "File");
+        Intent nextIntent = new Intent(this, LoadBookActivity.class);
+        nextIntent.putExtra(LoadBookActivity.EXTRA_URI, uri);
+        nextIntent.putExtra(LoadBookActivity.EXTRA_TYPE, "File");
         startActivityForResult(nextIntent, REQUEST_LOAD_OPTIONS);
 
 

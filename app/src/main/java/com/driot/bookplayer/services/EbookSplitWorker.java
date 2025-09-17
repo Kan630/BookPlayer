@@ -70,7 +70,7 @@ public class EbookSplitWorker extends LoggingWorker {
                 ? typeOverride.toLowerCase(Locale.ROOT)
                 : guessTypeFromPath(ebookPath); // "epub" or "fb2"
 
-        FirebaseAnalyticsHelper.tellAnalyticsTtsLoad(context, ebookType);
+        FirebaseAnalyticsHelper.tellAnalyticsEbookWorker(ebookType);
 
         boolean ok = splitEbook(ebookPath, destinationFolderPath, ebookType);
         return ok ? Result.success() : Result.failure();
