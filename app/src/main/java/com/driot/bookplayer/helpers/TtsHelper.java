@@ -51,16 +51,7 @@ public class TtsHelper implements TextToSpeech.OnInitListener {
     // optional raw access
     public TextToSpeech raw() { return tts; }
 
-    // NEW pass-throughs so AudioService can call them on your TtsHelper instance
-    public void setOnUtteranceProgressListener(UtteranceProgressListener l) {
-        tts.setOnUtteranceProgressListener(l);
-    }
-
-    public int isLanguageAvailable(Locale locale) {
-        return tts.isLanguageAvailable(locale);
-    }
-
-    public int synthesizeToFile(CharSequence text, Bundle params, File file, String utteranceId) {
+        public int synthesizeToFile(CharSequence text, Bundle params, File file, String utteranceId) {
         return tts.synthesizeToFile(text, params, file, utteranceId);
     }
 

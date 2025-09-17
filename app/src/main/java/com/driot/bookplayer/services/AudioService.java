@@ -217,6 +217,7 @@ public class AudioService extends LoggingService {
         private java.util.Locale currentLocale = java.util.Locale.getDefault();
         private int lastCharSpoken = 0;     // farthest char index we’ve seen from onUtteranceRange
         private final android.os.Handler ttsH = new android.os.Handler(android.os.Looper.getMainLooper());
+        private final android.os.Handler ttsH2 = new android.os.Handler(android.os.Looper.getMainLooper());
         private volatile boolean langReady = false;
 
         TtsEngine(Context ctx) {
@@ -230,36 +231,6 @@ public class AudioService extends LoggingService {
              * ready==true when synthesis completed; else reason explains why.
              */
             void onResult(boolean ready, @androidx.annotation.IntRange(from = 0, to = 5) int reason);
-        }
-
-        private void installUplIfNeeded() {
-            tts.setOnUtteranceProgressListener(new android.speech.tts.UtteranceProgressListener() {
-                @Override
-                public void onStart(String id) {
-                    myLog("installUplIfNeeded onStart");
-                }
-
-                @Override
-                public void onDone(String id) {
-                    myLog("installUplIfNeeded Done");
-                    WarmupCallback cb = warmups.remove(id);
-                    if (cb != null) cb.onResult(true, TtsHelper.READY);
-                    deleteTemp(id);
-                }
-
-                @Override
-                public void onError(String id, int code) {
-                    myLogE("installUplIfNeeded onError");
-                    WarmupCallback cb = warmups.remove(id);
-                    if (cb != null) cb.onResult(false, TtsHelper.SYNTH_FAIL);
-                    deleteTemp(id);
-                }
-
-                @Override
-                public void onError(String id) {
-                    onError(id, android.speech.tts.TextToSpeech.ERROR);
-                }
-            });
         }
 
         private void deleteTemp(String id) {
@@ -277,9 +248,8 @@ public class AudioService extends LoggingService {
                 cb.onResult(false, TtsHelper.ERROR);
                 return;
             }
-            installUplIfNeeded();
 
-            ttsH.post(() -> {
+            ttsH2.post(() -> {
                 try {
                     java.util.Set<android.speech.tts.Voice> voices = tts.getVoices();
 
@@ -318,7 +288,7 @@ public class AudioService extends LoggingService {
                     }
 
                     // Timeout safeguard
-                    ttsH.postDelayed(() -> {
+                    ttsH2.postDelayed(() -> {
                         WarmupCallback late = warmups.remove(id);
                         if (late != null) {
                             cb.onResult(false, TtsHelper.TIMEOUT);
@@ -369,16 +339,15 @@ public class AudioService extends LoggingService {
                 setTtsVoiceByNameAsync(voiceName, /*timeoutMs*/ 5000L, (ready, reason) -> {
                     if (ready) {
                         langReady = true; prepared = true;
+                        myLog("send onPrepared()");
                         ttsH.post(onPrepared); // triggers sendReadyToPlay/directPlay path
                     } else {
-                        myLogW("prepareAsync() - Voice warm-up failed (" + reason + "), falling back to language.");
-                        myToastE("Voice warm-up failed (" + reason + "), falling back to language.");
-                        applyInitialTtsLanguage(); // fallback only
+                        myLogW("prepareAsync() - Voice warm-up failed (" + reason + ").");
+                        myToastE("Voice warm-up failed (" + reason + ").");
                     }
                 });
             } else {
-                myLogW("prepareAsync() -  no saved voice → legacy language path");
-                applyInitialTtsLanguage(); // no saved voice → legacy language path
+                myLogW("prepareAsync() -  no saved voice");
             }
         }
 
@@ -534,51 +503,6 @@ public class AudioService extends LoggingService {
         private float currentSpeechRate() {
             return (float) Math.max(0.1, getSpeed());
         }
-
-        private void applyInitialTtsLanguage() {
-            // 1) decide the 2-letter code to use
-            String code = Option.getTtsVoice();
-            ZikFile zf = getCurrentZikFile();
-            if (zf != null) {
-                String perBook = getBookTtsLanguage(zf.getIdFolder()); // return "" or "system" if unset
-                if (perBook != null && !perBook.isEmpty()) code = perBook;
-            }
-
-            // 2) map to Locale
-            java.util.Locale target;
-            if (code.isEmpty() || "system".equalsIgnoreCase(code)) {
-                target = java.util.Locale.getDefault();
-            } else {
-                // Prefer your helper if it exists
-                try {
-                    java.util.Locale maybe = LanguageHelper.localeFromTwoLetter(code);
-                    target = (maybe != null) ? maybe : new java.util.Locale(code.toLowerCase(java.util.Locale.ROOT));
-                } catch (Throwable ignored) {
-                    target = new java.util.Locale(code.toLowerCase(java.util.Locale.ROOT));
-                }
-            }
-
-            // 3) apply to engine state + Android TTS
-            currentLocale = target;
-            int ret = TextToSpeech.LANG_NOT_SUPPORTED;
-            try {
-                ret = tts.setLanguage(currentLocale);
-            } catch (Throwable ignored) {
-            }
-
-            // Only mark language ready if not missing/not unsupported
-            langReady = (ret != TextToSpeech.LANG_MISSING_DATA && ret != TextToSpeech.LANG_NOT_SUPPORTED);
-
-            // Only consider ourselves 'prepared' when language data is ready
-            prepared = langReady;
-            // Do NOT call onPrepared if lang isn't ready yet
-            if (prepared) onPrepared.run();
-
-            // optional: recompute estimate since language/prosody can change:
-            estDurationMs = estimateDurationMs(text, currentSpeechRate());
-        }
-
-
 
         public void setStartOffsetChars(int charOffset) {
             if (text == null) return;
