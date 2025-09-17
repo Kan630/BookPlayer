@@ -118,7 +118,7 @@ public class SupportedExtensionsActivity extends LoggingActivity {
                 GridLayoutManager glm = new GridLayoutManager(itemView.getContext(), 4);
                 rvGrid.setLayoutManager(glm);
                 rvGrid.setAdapter(new ExtensionGridAdapter(s.items));
-                rvGrid.setHasFixedSize(true);
+                //rvGrid.setHasFixedSize(true);
             }
         }
     }
