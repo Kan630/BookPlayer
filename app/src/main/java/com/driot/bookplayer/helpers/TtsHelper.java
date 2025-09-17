@@ -1,13 +1,10 @@
 package com.driot.bookplayer.helpers;
 
 import android.content.Context;
-import android.content.Intent;
 import android.media.AudioAttributes;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.SystemClock;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
 import android.speech.tts.Voice;
@@ -43,10 +40,6 @@ public class TtsHelper implements TextToSpeech.OnInitListener {
     private volatile int lastEndOffset = 0;
 
     private final android.os.Handler h = new android.os.Handler(android.os.Looper.getMainLooper());
-    private volatile Locale pendingLocale = null; // kept for back-compat
-    private volatile long readyDeadlineMs = 0L;   // kept for back-compat
-
-    public interface ReadyCallback { void onReady(); }
 
     public interface Listener {
         void onStart(String uttId);
@@ -110,7 +103,7 @@ public class TtsHelper implements TextToSpeech.OnInitListener {
                 Voice best = pickBestVoice(Locale.getDefault(), null);
                 if (best != null) {
                     int sr = tts.setVoice(best);
-                    myLog("onInit: picked voice=" + describeVoice(best) + " -> setVoice()=" + sr);
+                    myLog("onInit: picked voice=" + VoiceItem.describeVoice(best) + " -> setVoice()=" + sr);
                     voiceSet = (sr == TextToSpeech.SUCCESS);
                 } else {
                     myLogW("onInit: no suitable voice found for " + Locale.getDefault());
@@ -186,7 +179,7 @@ public class TtsHelper implements TextToSpeech.OnInitListener {
         try {
             myLogI("---- VOICES CATALOG (engine=" + tts.getDefaultEngine() + ") ----");
             for (Voice v : tts.getVoices()) {
-                myLog(describeVoice(v));
+                myLog(VoiceItem.describeVoice(v));
             }
             myLogI("---- END VOICES ----");
         } catch (Throwable t) {
@@ -199,8 +192,8 @@ public class TtsHelper implements TextToSpeech.OnInitListener {
         try {
             Voice cur = tts.getVoice();
             Voice def = tts.getDefaultVoice();
-            myLog("Current voice: " + describeVoice(cur));
-            myLog("Default voice: " + describeVoice(def));
+            myLog("Current voice: " + VoiceItem.describeVoice(cur));
+            myLog("Default voice: " + VoiceItem.describeVoice(def));
         } catch (Throwable t) {
             myLogEE(t, "tryLogCurrentVoice failed");
         }
@@ -260,116 +253,6 @@ public class TtsHelper implements TextToSpeech.OnInitListener {
         return score;
     }
 
-    /** Find a voice by exact voice name and set it on the tts engine; returns true if applied. */
-    public boolean setVoiceByName(String voiceName) {
-        if (tts == null || voiceName == null) return false;
-        Set<Voice> voices = null;
-        try {
-            voices = tts.getVoices();
-        } catch (Exception ignored) {}
-        if (voices == null) return false;
-        for (Voice v : voices) {
-            if (voiceName.equals(v.getName())) {
-                try {
-                    tts.setVoice(v);
-                    return true;
-                } catch (Exception e) {
-                    // device may reject voice
-                    return false;
-                }
-            }
-        }
-        return false;
-    }
-
-    /** Pick and set best voice for a locale; optional preferredNamePart like "male", "neural", "narrator". */
-    public int setVoiceForLocale(Locale locale, @Nullable String preferredNamePart) {
-        if (tts == null) {
-            // fallback to language on legacy devices
-            return setLanguage(locale);
-        }
-        Voice v = pickBestVoice(locale, preferredNamePart);
-        if (v == null) {
-            myLogW("setVoiceForLocale: no candidate for " + locale);
-            return setLanguage(locale);
-        }
-        int r = tts.setVoice(v);
-        myLogI("setVoiceForLocale(" + locale + ", pref=" + preferredNamePart + ") -> " + r + " | " + describeVoice(v));
-        tryLogCurrentVoice();
-        return r;
-    }
-
-    /** Ensures voice data for a locale exists or is downloadable; returns quick verdict and logs hints. */
-    public boolean ensureVoiceData(Locale locale) {
-        if (tts == null) return false;
-        try {
-            int avail = tts.isLanguageAvailable(locale);
-            myLogI("ensureVoiceData: isLanguageAvailable(" + locale + ")=" + avail);
-            boolean ok = (avail >= TextToSpeech.LANG_AVAILABLE);
-            if (!ok) {
-                myLogW("Voice data missing for " + locale + ". You may need to call requestInstallVoiceData().");
-            }
-            return ok;
-        } catch (Throwable t) {
-            myLogEE(t, "ensureVoiceData failed");
-            return false;
-        }
-    }
-
-    /** Launches the engine’s voice data installer (Play download UI). Pass null to use default engine. */
-    public void requestInstallVoiceData(@Nullable String enginePackage) {
-        try {
-            Intent i = new Intent(TextToSpeech.Engine.ACTION_INSTALL_TTS_DATA);
-            if (enginePackage != null) i.setPackage(enginePackage);
-            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            ctx.startActivity(i);
-            myLogI("requestInstallVoiceData: launched installer for engine=" + (enginePackage == null ? "(default)" : enginePackage));
-        } catch (Throwable t) {
-            myLogEE(t, "requestInstallVoiceData failed");
-        }
-    }
-
-    /** Polls until the chosen voice for locale is actually usable, then runs callback. */
-    public void changeVoiceAndAwait(final Locale locale,
-                                    @Nullable final String preferredNamePart,
-                                    final long timeoutMs,
-                                    final long pollMs,
-                                    final Runnable onReady) {
-        if (tts == null) return;
-
-        final long deadline = SystemClock.uptimeMillis() + Math.max(1, timeoutMs);
-        final Runnable[] task = new Runnable[1];
-        task[0] = new Runnable() {
-            @Override public void run() {
-                boolean ok = false;
-                try {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        Voice v = pickBestVoice(locale, preferredNamePart);
-                        if (v != null) {
-                            int set = tts.setVoice(v);
-                            myLogD("changeVoiceAndAwait: setVoice -> " + set + " | " + describeVoice(v));
-                            ok = (set == TextToSpeech.SUCCESS);
-                        } else {
-                            myLogW("changeVoiceAndAwait: no suitable voice yet for " + locale);
-                        }
-                    } else {
-                        int set = tts.setLanguage(locale);
-                        myLogD("changeVoiceAndAwait: fallback setLanguage -> " + set);
-                        ok = (set != TextToSpeech.LANG_MISSING_DATA && set != TextToSpeech.LANG_NOT_SUPPORTED);
-                    }
-                } catch (Throwable ignored) {}
-
-                if (ok) {
-                    h.postDelayed(() -> { if (onReady != null) onReady.run(); }, 1200L);
-                } else if (SystemClock.uptimeMillis() < deadline) {
-                    h.postDelayed(task[0], Math.max(250L, pollMs));
-                } else {
-                    myLogW("changeVoiceAndAwait: timeout for " + locale);
-                }
-            }
-        };
-        h.post(task[0]);
-    }
 
     // ======== LANGUAGE (fallback / back-compat) ========
 
@@ -406,41 +289,6 @@ public class TtsHelper implements TextToSpeech.OnInitListener {
         return Locale.getDefault();
     }
 
-    /** Legacy: tries to get a language ready; prefer changeVoiceAndAwait for API>=21. */
-    public void changeLanguageAndAwait(
-            @androidx.annotation.NonNull final Locale locale,
-            final long timeoutMs,
-            final long pollMs,
-            final Runnable onReady
-    ) {
-        if (tts == null) return;
-
-        final long deadline = SystemClock.uptimeMillis() + Math.max(1, timeoutMs);
-        final Runnable[] task = new Runnable[1];
-        task[0] = new Runnable() {
-            @Override public void run() {
-                boolean ok = false;
-                try {
-                    int avail = tts.isLanguageAvailable(locale);
-                    int set   = tts.setLanguage(locale);
-                    myLogD("changeLanguageAndAwait: avail=" + avail + " set=" + set);
-                    ok = (avail >= TextToSpeech.LANG_AVAILABLE) &&
-                            (set   != TextToSpeech.LANG_MISSING_DATA &&
-                                    set   != TextToSpeech.LANG_NOT_SUPPORTED);
-                } catch (Throwable ignored) {}
-
-                if (ok) {
-                    h.postDelayed(() -> { if (onReady != null) onReady.run(); }, 1200L);
-                } else if (SystemClock.uptimeMillis() < deadline) {
-                    h.postDelayed(task[0], Math.max(250L, pollMs));
-                } else {
-                    myLogW("changeLanguageAndAwait: timeout for " + locale);
-                }
-            }
-        };
-        h.post(task[0]);
-    }
-
     /** Return all available voices from the current engine (may be empty). */
     public @NonNull Set<Voice> getVoices() {
         if (tts == null) return java.util.Collections.emptySet();
@@ -460,7 +308,7 @@ public class TtsHelper implements TextToSpeech.OnInitListener {
         if (tts == null) return TextToSpeech.ERROR;
         try {
             int r = tts.setVoice(voice);
-            myLog("setVoice(" + voice.getName() + ") -> " + r + " | " + describeVoice(voice));
+            myLog("setVoice(" + voice.getName() + ") -> " + r + " | " + VoiceItem.describeVoice(voice));
             return r;
         } catch (Throwable t) {
             myLogEE(t, "setVoice failed");
@@ -568,32 +416,6 @@ public class TtsHelper implements TextToSpeech.OnInitListener {
         if (s < 0) s = 0;
         if (e < s) e = s;
         return new int[]{s, e};
-    }
-
-    /** Returns a human-readable one-liner for a voice. */
-    public static String describeVoice(Voice v) {
-        if (v == null) return "Voice{null}";
-        String name = v.getName();
-        Locale loc  = v.getLocale();
-        int q = v.getQuality();
-        int l = v.getLatency();
-        Set<String> feat = v.getFeatures();
-        boolean net = v.isNetworkConnectionRequired();
-        String state;
-        // Best-effort “state”: embedded vs network
-        boolean embedded = (feat != null && feat.contains("embeddedTts"));
-        boolean network  = net || (feat != null && feat.contains("networkTts"));
-        if (embedded && network) state = "EMBEDDED+NETWORK";
-        else if (embedded)       state = "EMBEDDED";
-        else if (network)        state = "NETWORK_ONLY";
-        else                     state = "UNKNOWN";
-        return "Voice{name=" + name +
-                ", locale=" + (loc == null ? "null" : loc.toLanguageTag()) +
-                ", quality=" + q +
-                ", latency=" + l +
-                ", state=" + state +
-                ", features=" + (feat == null ? "[]" : feat.toString()) +
-                "}";
     }
 
     /** Return a list of all available voices (may be empty if TTS not initialized). */

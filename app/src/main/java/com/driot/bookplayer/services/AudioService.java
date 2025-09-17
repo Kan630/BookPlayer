@@ -40,6 +40,7 @@ import com.driot.bookplayer.helpers.TextExtractor;
 import com.driot.bookplayer.helpers.UriHelper;
 import com.driot.bookplayer.helpers.LanguageHelper;
 import com.driot.bookplayer.objects.KanMediaPlayer;
+import com.driot.bookplayer.objects.VoiceItem;
 import com.driot.bookplayer.utils.log.LoggingService;
 import com.driot.bookplayer.activities.PlayActivity;
 import com.driot.bookplayer.db.AppDatabase;
@@ -120,6 +121,8 @@ public class AudioService extends LoggingService {
 
     private final IBinder binder = new BackgroundBinder();
     public static final String TRACKNUMBER = "tracknumber";
+    public static final String FROM = "from";
+    public static final String ERR_MSG = "err_msg";
     public static final String TIMER_VALUE = "TIMER_VALUE";
     public static final String READY_TO_PLAY = "NOTIFICATION_FILELOADED";
     public static final String NOTIFICATION_NEWTRACK = "NOTIFICATION_NEWTRACK";
@@ -234,13 +237,17 @@ public class AudioService extends LoggingService {
         }
         private void installUplIfNeeded() {
             tts.setOnUtteranceProgressListener(new android.speech.tts.UtteranceProgressListener() {
-                @Override public void onStart(String id) { /* optional */ }
+                @Override public void onStart(String id) {
+                    myLog("installUplIfNeeded onStart");
+                }
                 @Override public void onDone(String id) {
+                    myLog("installUplIfNeeded Done");
                     WarmupCallback cb = warmups.remove(id);
                     if (cb != null) cb.onResult(true, TtsHelper.READY);
                     deleteTemp(id);
                 }
                 @Override public void onError(String id, int code) {
+                    myLogE("installUplIfNeeded onError");
                     WarmupCallback cb = warmups.remove(id);
                     if (cb != null) cb.onResult(false, TtsHelper.SYNTH_FAIL);
                     deleteTemp(id);
@@ -259,7 +266,6 @@ public class AudioService extends LoggingService {
             ttsH.post(() -> {
                 try {
                     java.util.Set<android.speech.tts.Voice> voices = tts.getVoices();
-                    if (voices == null) { cb.onResult(false, TtsHelper.ERROR); return; }
 
                     android.speech.tts.Voice target = null;
                     for (android.speech.tts.Voice v : voices) {
@@ -268,7 +274,7 @@ public class AudioService extends LoggingService {
                     if (target == null) { cb.onResult(false, TtsHelper.SET_VOICE_FAILED); return; }
 
                     int rSet = tts.setVoice(target);
-                    myLog("setTtsVoiceByName -> " + rSet + " | " + TtsHelper.describeVoice(target));
+                    myLog("setTtsVoiceByName -> " + rSet + " | " + VoiceItem.describeVoice(target));
                     if (rSet != android.speech.tts.TextToSpeech.SUCCESS) {
                         cb.onResult(false, TtsHelper.SET_VOICE_FAILED); return;
                     }
@@ -411,7 +417,10 @@ public class AudioService extends LoggingService {
             });
         }
 
-        @Override public void onError(String id, int code) { playing = false; onEngineError("TTS error", code, 0); }
+        @Override public void onError(String id, int code) {
+            playing = false;
+            onEngineError("TTS error", code, 0);
+        }
         @Override public void onUtteranceRange(int start, int end) {
             if (!text.isEmpty()) estPositionMs = (int)((start / (double) text.length()) * estDurationMs);
             // remember farthest character we actually spoke
@@ -474,36 +483,6 @@ public class AudioService extends LoggingService {
             return currentLocale;
         }
 
-        /** Called by the Activity when the spinner language changes. We stop and wait. */
-        public void setLocaleFromActivity(@androidx.annotation.Nullable java.util.Locale loc) {
-            if (loc == null) loc = java.util.Locale.getDefault();
-            currentLocale = loc;
-
-            // stop current synthesis and mark not ready
-            try { tts.stop(); } catch (Throwable ignored) {}
-            playing = false;
-            prepared = false;
-            langReady = false;
-
-            // never auto-start during a language switch
-            AudioService.this.directPlay = false;
-
-            // poll until the engine confirms this locale is actually usable
-            tts.changeLanguageAndAwait(
-                    currentLocale,
-                    /*timeoutMs*/ 180_000L,
-                    /*pollMs*/    1200L,
-                    /*onReady*/ () -> {
-                        langReady = true;
-                        prepared = true;
-                        estDurationMs = estimateDurationMs(text, currentSpeechRate());
-                        // Single, final 'ready' for the Activity
-                        AudioService.this.sendReadyToPlay("tts language changed");
-                    }
-            );
-        }
-
-
 
         public void setStartOffsetChars(int charOffset) {
             if (text == null) return;
@@ -562,16 +541,6 @@ public class AudioService extends LoggingService {
             return t;
         }
 
-        // --- Get current voice name (exact engine key) ---
-        public String getTtsCurrentVoiceName() {
-            try {
-                Voice v = tts.getVoice();
-                return v == null ? null : v.getName();
-            } catch (Throwable ignored) {
-                return null;
-            }
-        }
-
         /**
          * Set exact TTS voice by engine name (e.g. "en-us-x-sfg#male_1-local").
          * Returns TextToSpeech.SUCCESS or TextToSpeech.ERROR.
@@ -605,7 +574,7 @@ public class AudioService extends LoggingService {
                     }
 
                     int rSet = tts.setVoice(target);
-                    myLog("setTtsVoiceByName -> " + rSet + " | " + TtsHelper.describeVoice(target));
+                    myLog("setTtsVoiceByName -> " + rSet + " | " + VoiceItem.describeVoice(target));
 
                     // Nicer stability on some engines if language matches voice locale.
                     if (target.getLocale() != null) {
@@ -654,7 +623,7 @@ public class AudioService extends LoggingService {
                     if (pick == null) { myLogW("setTtsVoiceByNameOrClosest: no match for '" + voiceNameHint + "'"); return; }
 
                     int r = tts.setVoice(pick);
-                    myLogI("setTtsVoiceByNameOrClosest -> " + r + " | " + TtsHelper.describeVoice(pick));
+                    myLogI("setTtsVoiceByNameOrClosest -> " + r + " | " + VoiceItem.describeVoice(pick));
                     if (pick.getLocale() != null) tts.setLanguage(pick.getLocale());
                     out[0] = r;
                 } catch (Throwable t) {
@@ -858,8 +827,12 @@ public class AudioService extends LoggingService {
         myLog("sendBroadcast alertNewTrack ");
     }
 
-    private void alertError() {
-        LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(new Intent(NOTIFICATION_ERROR).putExtra(TRACKNUMBER, PlayList.getInstance().getNumZikFile()));
+    private void alertError(String from, String errMsg) {
+        LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(new Intent(NOTIFICATION_ERROR)
+                .putExtra(TRACKNUMBER, PlayList.getInstance().getNumZikFile())
+                .putExtra(FROM, from)
+                .putExtra(ERR_MSG, errMsg)
+        );
         stopSleepTimer();
         myLogE("sendBroadcast alertError");
     }
@@ -1674,13 +1647,17 @@ public class AudioService extends LoggingService {
     private void onEngineError(String msg, int what, int extra) {
         myLogE("Engine error: " + msg + " (" + what + "," + extra + ")");
         ErrorLoadingFile = true;
-        alertError();
+        if (msg.startsWith("TTS")) {
+            alertError("TTS", msg);
+        } else {
+            alertError(null, null);
+        }
     }
 
     private void onEngineFatal(String msg, int what, int extra) {
         myLogE("Engine FATAL: " + msg + " (" + what + "," + extra + ")");
         ErrorLoadingFile = true;
-        alertError();
+        alertError(null, null);
     }
 
     private int getSavedResumePosition() {

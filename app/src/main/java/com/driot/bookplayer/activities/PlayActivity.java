@@ -168,7 +168,9 @@ public class PlayActivity extends LoggingActivity {
 
             if (Objects.equals(action, AudioService.NOTIFICATION_ERROR)) {
                 Toast.makeText(getApplicationContext(), getString(R.string.error_reading_track), Toast.LENGTH_SHORT).show();
-                lockButtonAndDisplayErrorMessage(null);
+                String from = intent.getStringExtra(AudioService.FROM);
+                String err_msg =  intent.getStringExtra(AudioService.ERR_MSG);
+                lockButtonAndDisplayErrorMessage(err_msg);
 
             } else if (Objects.equals(action, AudioService.NOTIFICATION_FILENOTFOUND)) {
                 Toast.makeText(getApplicationContext(), getString(R.string.error_reading_track) + "\n" + getString(R.string.error_file_not_found), Toast.LENGTH_SHORT).show();
@@ -957,7 +959,7 @@ public class PlayActivity extends LoggingActivity {
 
                         if (audioServiceBound && audioService != null && audioService.isTtsMode() && voice != null) {
                             try {
-                                bPlay.setEnabled(false);
+                                //bPlay.setEnabled(false);
                                 audioService.setTtsVoiceByNameAndWarmUp(
                                         voice.name,
                                         5000L,

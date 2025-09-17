@@ -52,6 +52,32 @@ public class VoiceItem {
         this.flagResIdCountry = FlagHelper.getFlagResIdForCountry(country);
     }
 
+    /** Returns a human-readable one-liner for a voice. */
+    public static String describeVoice(Voice v) {
+        if (v == null) return "Voice{null}";
+        String name = v.getName();
+        Locale loc  = v.getLocale();
+        int q = v.getQuality();
+        int l = v.getLatency();
+        Set<String> feat = v.getFeatures();
+        boolean net = v.isNetworkConnectionRequired();
+        String state;
+        // Best-effort “state”: embedded vs network
+        boolean embedded = (feat != null && feat.contains("embeddedTts"));
+        boolean network  = net || (feat != null && feat.contains("networkTts"));
+        if (embedded && network) state = "EMBEDDED+NETWORK";
+        else if (embedded)       state = "EMBEDDED";
+        else if (network)        state = "NETWORK_ONLY";
+        else                     state = "UNKNOWN";
+        return "Voice{name=" + name +
+                ", locale=" + (loc == null ? "null" : loc.toLanguageTag()) +
+                ", quality=" + q +
+                ", latency=" + l +
+                ", state=" + state +
+                ", features=" + (feat == null ? "[]" : feat.toString()) +
+                "}";
+    }
+
     @NonNull @Override
     public String toString() {
         String tag = (locale == null ? "und" : locale.toLanguageTag());
