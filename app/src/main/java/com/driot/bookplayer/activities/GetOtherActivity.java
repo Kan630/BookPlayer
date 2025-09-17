@@ -210,9 +210,13 @@ public class GetOtherActivity extends LoggingActivity { //AppCompatActivity
         bOpenFolder.setOnClickListener(view -> {
             myLogI("------------ USER CLICKS : button FOLDER");
             if (isReadAudioPermissionGranted(this) || Option.getCopyFile()) {
-                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE); //API 21
+                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
                 intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_WRITE_URI_PERMISSION|Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION|Intent.FLAG_GRANT_PREFIX_URI_PERMISSION);
-                bOpenFolderActivityResultLauncher.launch(intent);
+                try {
+                    bOpenFolderActivityResultLauncher.launch(intent);
+                } catch (Exception e) {
+                    myToastEE(e, "could not open android folder explorer");
+                }
             } else {
                 askForPermission();
             }
@@ -224,9 +228,14 @@ public class GetOtherActivity extends LoggingActivity { //AppCompatActivity
         bMassImport.setOnClickListener(view -> {
             myLogI("------------ USER CLICKS : button MASS IMPORT");
             if (isReadAudioPermissionGranted(this) || Option.getCopyFile()) {
-                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE); //API 21
+                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
                 intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION|Intent.FLAG_GRANT_WRITE_URI_PERMISSION|Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION|Intent.FLAG_GRANT_PREFIX_URI_PERMISSION);
-                bMassImportActivityResultLauncher.launch(intent);
+                try {
+                    bMassImportActivityResultLauncher.launch(intent);
+                } catch (Exception e) {
+                    myToastEE(e, "could not open android folder explorer"); //occured on a japanese projector !
+                }
+
             } else {
                 askForPermission();
             }

@@ -18,9 +18,11 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.ResultReceiver;
 import android.service.notification.StatusBarNotification;
 import android.speech.tts.TextToSpeech;
+import android.speech.tts.Voice;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
@@ -52,7 +54,11 @@ import com.driot.bookplayer.utils.Tonio;
 import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.util.Locale;
 import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import static com.driot.bookplayer.activities.PlayActivity.SHARED_PREFERENCE_SPEED;
 import static com.driot.bookplayer.utils.Tonio.FormatPercentDouble;
@@ -214,7 +220,6 @@ public class AudioService extends LoggingService {
         private java.util.Locale currentLocale = java.util.Locale.getDefault();
         private int lastCharSpoken = 0;     // farthest char index we’ve seen from onUtteranceRange
         private final android.os.Handler ttsH = new android.os.Handler(android.os.Looper.getMainLooper());
-        private volatile boolean switchingLang = false;
         private volatile boolean langReady = false;
 
         TtsEngine(Context ctx) {
@@ -276,7 +281,7 @@ public class AudioService extends LoggingService {
         @Override public int getDuration()        { return estDurationMs; }
         @Override public int getAudioSessionId()  { return 0; } // no visualizer for TTS
         @Override public void seekTo(int ms) {
-            if (estDurationMs <= 0 || text.length()==0) return;
+            if (estDurationMs <= 0 || text.isEmpty()) return;
             int clamped = Math.max(0, Math.min(ms, estDurationMs));
             int charPos = (int) ((clamped / (double) estDurationMs) * Math.max(1, text.length()));
             resumeOffset = charPos;
@@ -468,10 +473,117 @@ public class AudioService extends LoggingService {
             t = t.replaceAll("[ ]*\\*\\*\\*[ ]*", "\n\n***\n\n");
 
             // Insert \n\n after sentence end, before likely sentence start
-            t = t.replaceAll("(?<=[.!?…])[ ]+(?=[\"“‘'\\(\\[]?[A-ZÀ-ÖØ-Þ0-9])", "\n\n");
+            t = t.replaceAll("(?<=[.!?…])[ ]+(?=[\"“‘'(\\[]?[A-ZÀ-ÖØ-Þ0-9])", "\n\n");
 
             return t;
         }
+
+        // --- Get current voice name (exact engine key) ---
+        public String getTtsCurrentVoiceName() {
+            try {
+                Voice v = tts.getVoice();
+                return v == null ? null : v.getName();
+            } catch (Throwable ignored) {
+                return null;
+            }
+        }
+
+        /**
+         * Set exact TTS voice by engine name (e.g. "en-us-x-sfg#male_1-local").
+         * Returns TextToSpeech.SUCCESS or TextToSpeech.ERROR.
+         * Safe from any thread (executes on main).
+         */
+        public int setTtsVoiceByName(String voiceName) {
+            if (tts == null) {
+                myLogW("setTtsVoiceByName: tts == null");
+                return TextToSpeech.ERROR;
+            }
+
+            final int[] result = { TextToSpeech.ERROR };
+            Runnable work = () -> {
+                try {
+                    Set<Voice> voices = tts.getVoices();
+                    if (voices == null || voices.isEmpty()) {
+                        myLogW("setTtsVoiceByName: no voices reported by engine");
+                        return;
+                    }
+
+                    Voice target = null;
+                    for (Voice v : voices) {
+                        if (voiceName.equals(v.getName())) {
+                            target = v;
+                            break;
+                        }
+                    }
+                    if (target == null) {
+                        myLogW("setTtsVoiceByName: not found: " + voiceName);
+                        return;
+                    }
+
+                    int rSet = tts.setVoice(target);
+                    myLogI("setTtsVoiceByName -> " + rSet + " | " + TtsHelper.describeVoice(target));
+
+                    // Nicer stability on some engines if language matches voice locale.
+                    if (target.getLocale() != null) {
+                        int rLang = tts.setLanguage(target.getLocale());
+                        myLogD("setLanguage(" + target.getLocale() + ") -> " + rLang);
+                    }
+
+                    result[0] = rSet;
+                } catch (Throwable t) {
+                    myLogEE(t, "setTtsVoiceByName failed");
+                    result[0] = TextToSpeech.ERROR;
+                }
+            };
+
+            if (Looper.myLooper() == Looper.getMainLooper()) {
+                work.run();
+            } else {
+                CountDownLatch latch = new CountDownLatch(1);
+                ttsH.post(() -> { work.run(); latch.countDown(); });
+                try { latch.await(2000, TimeUnit.MILLISECONDS); } catch (InterruptedException ignored) {}
+            }
+            return result[0];
+        }
+
+        /**
+         * Fuzzy fallback when engines rename voices across updates.
+         * Tries exact match first, else first name containing the hint (case-insensitive).
+         */
+        public int setTtsVoiceByNameOrClosest(String voiceNameHint) {
+            if (tts == null) return TextToSpeech.ERROR;
+
+            final int[] out = { TextToSpeech.ERROR };
+            Runnable work = () -> {
+                try {
+                    Set<Voice> voices = tts.getVoices();
+                    if (voices == null || voices.isEmpty()) return;
+
+                    Voice exact = null, contains = null;
+                    String hintLc = voiceNameHint.toLowerCase(Locale.US);
+                    for (Voice v : voices) {
+                        String n = v.getName();
+                        if (voiceNameHint.equals(n)) { exact = v; break; }
+                        if (contains == null && n.toLowerCase(Locale.US).contains(hintLc)) contains = v;
+                    }
+                    Voice pick = exact != null ? exact : contains;
+                    if (pick == null) { myLogW("setTtsVoiceByNameOrClosest: no match for '" + voiceNameHint + "'"); return; }
+
+                    int r = tts.setVoice(pick);
+                    myLogI("setTtsVoiceByNameOrClosest -> " + r + " | " + TtsHelper.describeVoice(pick));
+                    if (pick.getLocale() != null) tts.setLanguage(pick.getLocale());
+                    out[0] = r;
+                } catch (Throwable t) {
+                    myLogEE(t, "setTtsVoiceByNameOrClosest failed");
+                }
+            };
+
+            if (Looper.myLooper() == Looper.getMainLooper()) work.run();
+            else ttsH.post(work);
+
+            return out[0];
+        }
+
     }
 
 
@@ -664,6 +776,7 @@ public class AudioService extends LoggingService {
 
     private void alertError() {
         LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(new Intent(NOTIFICATION_ERROR).putExtra(TRACKNUMBER, PlayList.getInstance().getNumZikFile()));
+        stopSleepTimer();
         myLogE("sendBroadcast alertError");
     }
 
@@ -801,11 +914,11 @@ public class AudioService extends LoggingService {
             uriToPlay = UriHelper.buildFileUri(this, zf.getPath(), zf.getName());
             if (uriToPlay == null) { myLogEE(null,"buildFileUri returned null"); loadFileKO(); return; }
             DocumentFile file = DocumentFile.fromSingleUri(this, uriToPlay);
-            if (file == null || !file.exists() || !file.isFile()) {
+            if (!file.exists() || !file.isFile()) {
                 myLogD("Try Single file");
                 uriToPlay = Uri.parse(zf.getPath());
                 file = DocumentFile.fromSingleUri(this, uriToPlay);
-                if (file == null || !file.exists() || !file.isFile()) {
+                if (!file.exists() || !file.isFile()) {
                     myLogEE(null,"Invalid SAF Uri: " + uriToPlay);
                     loadFileKO(); return;
                 }
@@ -908,7 +1021,7 @@ public class AudioService extends LoggingService {
             if (mediaSession != null) {
                 mediaSession.setActive(false);
             }
-            updateZikFileState(false);
+            updateZikFileStateInDB(false);
             if (audioManager != null) { audioManager.abandonAudioFocus(afChangeListener); }
             stopSleepTimer();
             createNotification();
@@ -1036,7 +1149,7 @@ public class AudioService extends LoggingService {
             @Override
             public void run() {
                 myLogD("----------------------------------------------------------------------------- " + elapsedSeconds + "s. since timer started.....      (AutoSleep set to " + timeBeforeSleep + "min.)");
-                updateZikFileState(false);
+                updateZikFileStateInDB(false);
 
                 // Auto Sleep Option
                 if (elapsedSeconds > timeBeforeSleep * 60) {
@@ -1164,7 +1277,7 @@ public class AudioService extends LoggingService {
      ***       UPDATE DB
      ********************************************************************************
      */
-    private void updateZikFileState(boolean bFinished) {
+    private void updateZikFileStateInDB(boolean bFinished) {
         ZikFile zf = getCurrentZikFile();
         if (zf==null) {
             myLogEE(null, "updateZikFileState : currentZikFile = null");
@@ -1461,7 +1574,7 @@ public class AudioService extends LoggingService {
 
     private void onEngineCompletion() {
         if (!ErrorLoadingFile) {
-            updateZikFileState(true);
+            updateZikFileStateInDB(true);
             alertTrackFinished();
             if (PlayList.getInstance().isLastTrack()) {
                 if (Option.getBeepBookEnd()) playBeep("3beeps");
@@ -1513,7 +1626,7 @@ public class AudioService extends LoggingService {
 
     public void setTtsLanguageCode(@androidx.annotation.Nullable String codeOrSystem) {
         if (!(engine instanceof TtsEngine)) return;
-        myLogD("setTtsLanguageCode " + codeOrSystem);
+        myLog("setTtsLanguageCode : " + codeOrSystem);
         java.util.Locale loc;
         if (codeOrSystem == null || codeOrSystem.isEmpty() || "system".equalsIgnoreCase(codeOrSystem)) {
             loc = java.util.Locale.getDefault();
@@ -1527,7 +1640,6 @@ public class AudioService extends LoggingService {
             ((TtsEngine) engine).setStartOffsetChars(charOffset);
         }
     }
-
 
 
 }

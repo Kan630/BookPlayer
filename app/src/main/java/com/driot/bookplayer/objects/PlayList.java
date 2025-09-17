@@ -7,6 +7,7 @@ import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.db.ZikFile;
+import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.utils.KanLogger;
 
 import java.util.List;
@@ -205,6 +206,7 @@ public class PlayList {
     }
 
     private static PlayList loadFromStorage() {
+        FirebaseAnalyticsHelper.tellAnalyticsPlaylistLoadFromStorage(appContext);
         myLogEE(null,"Playlist retreived - loadFromStorage()");
         try {
             SharedPreferences prefs = appContext.getApplicationContext().getSharedPreferences(SHARED_PREFERENCE_CURRENT_PLAYLIST, Context.MODE_PRIVATE);
@@ -217,7 +219,7 @@ public class PlayList {
             pl.numZikFile = index;
             return pl;
         } catch (Exception e) {
-            myLogEE(e, "loadFromStorage");
+            myLogEE(e, "loadFromStorage"); // occurs id playlist def is updated...
             return null;
         }
     }

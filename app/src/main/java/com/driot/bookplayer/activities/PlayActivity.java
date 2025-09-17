@@ -14,6 +14,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.Settings;
+import android.speech.tts.TextToSpeech;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.style.BackgroundColorSpan;
@@ -37,6 +38,7 @@ import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.LanguageHelper;
+import com.driot.bookplayer.helpers.TtsHelper;
 import com.driot.bookplayer.objects.PlayList;
 import com.driot.bookplayer.services.AudioService;
 import com.driot.bookplayer.helpers.ViewHelper;
@@ -149,8 +151,9 @@ public class PlayActivity extends LoggingActivity {
 
             // retour de flip ecran
             myLogD("onServiceConnected - DrawUI");
-            DrawUI(); //utile pour suppression progressBar
-            initTtsLanguageSpinner();
+            DrawUI();
+            //initTtsLanguageSpinner();
+            initTtsVoiceSpinner();
         }
 
         @Override
@@ -170,7 +173,7 @@ public class PlayActivity extends LoggingActivity {
 
             if (Objects.equals(action, AudioService.NOTIFICATION_ERROR)) {
                 Toast.makeText(getApplicationContext(), getString(R.string.error_reading_track), Toast.LENGTH_SHORT).show();
-                finish();
+                lockButtonAndDisplayErrorMessage(null);
 
             } else if (Objects.equals(action, AudioService.NOTIFICATION_FILENOTFOUND)) {
                 Toast.makeText(getApplicationContext(), getString(R.string.error_reading_track) + "\n" + getString(R.string.error_file_not_found), Toast.LENGTH_SHORT).show();
@@ -524,7 +527,8 @@ public class PlayActivity extends LoggingActivity {
         // Set labels for buttons based on PRESET_VALUES and set their onClick listeners
         for (int i = 0; i < SLEEP_PRESET_VALUES.length; i++) {
             final int presetValue = SLEEP_PRESET_VALUES[i];
-            presetButtons[i].setText(presetValue + " min");
+            String buttonText = presetValue + " min";
+            presetButtons[i].setText(buttonText);
 
             // Set button click listener
             presetButtons[i].setOnClickListener(v -> {
@@ -637,7 +641,6 @@ public class PlayActivity extends LoggingActivity {
             String zeText_left;
             int timeBeforeSleep = audioService.getCustomSleepTime() == 0 ? Option.getTimeBeforeSleep() : audioService.getCustomSleepTime();
             if (tempsEcoule >= 0) {
-                //String str = audioService.getCustomSleepTime() == 0 ? getString(R.string.tv_ListeningTimeWithNoUserAction) : getString(R.string.tv_ListeningTimeWithCustomSleep);
                 String str = tvListeningTimeBaseText;
                 zeText_since = str + " " + formatTime(tempsEcoule*1000,true);
                 zeText_left = getString(R.string.tv_TimeLeft) + " : " + formatTime(timeBeforeSleep*1000*60-tempsEcoule*1000,true);
@@ -897,10 +900,9 @@ public class PlayActivity extends LoggingActivity {
             btnToggleTtsView.setImageResource(android.R.drawable.ic_menu_edit); // next tap -> text
         }
     }
-
-    private void initTtsLanguageSpinner() {
-        myLogD("initTtsLanguageSpinner()");
-        if (spinnerTtsLanguage == null) return;
+    private void initTtsVoiceSpinner() {
+        myLogD("initTtsVoiceSpinner()");
+        if (spinnerTtsLanguage == null) return; // reuse same view id
 
         // Resolve current folder (book)
         int folderId = -1;
@@ -910,74 +912,121 @@ public class PlayActivity extends LoggingActivity {
                 folderId = pl.getZikFile().getIdFolder();
             }
         } catch (Throwable ignored) {}
-        final int currentFolderId = folderId; // capture-safe
+        final int currentFolderId = folderId;
 
-        // Compute initial code to DISPLAY (do NOT save yet)
-        String initialCode = null;
+        // ---- Determine base Locale for which we’ll show voices ----
+        // Priority:
+        // 1) Current TTS service voice locale (if in TTS mode)
+        // 2) Per-book saved language code (if you still keep it around)
+        // 3) Device default
+        Locale baseLocale = Locale.getDefault();
+        try {
+            if (audioServiceBound && audioService != null && audioService.isTtsMode()) {
+                // your existing API: returns Locale (from your TtsHelper#getLanguage)
+                Locale cur = audioService.getTtsCurrentLanguage();
+                if (cur != null) baseLocale = cur;
+            }
+        } catch (Throwable ignored) {}
 
-        // 1) Prefer the current service TTS language if in TTS mode
-        if (audioServiceBound && audioService != null && audioService.isTtsMode()) {
-            Locale cur = audioService.getTtsCurrentLanguage();
-            if (cur != null) initialCode = LanguageHelper.twoLetterFromLocale(cur);
-        }
-
-        // 2) Otherwise: per-book pref if present, else global option
-        if (initialCode == null || initialCode.isEmpty() || "und".equalsIgnoreCase(initialCode)) {
-            String perBook = null;
+        if (baseLocale == null || "und".equalsIgnoreCase(baseLocale.getLanguage())) {
             try {
                 if (currentFolderId > 0) {
-                    // Prefer a method that returns null if not set. If you don't have it,
-                    // let getBookTtsLanguage return "" when not set.
-                    perBook = Pref.getBookTtsLanguage(this, currentFolderId);
+                    String perBookLangCode = Pref.getBookTtsLanguage(this, currentFolderId); // "system" or "en"/"fr"/...
+                    if (perBookLangCode != null && !perBookLangCode.isEmpty() && !"system".equalsIgnoreCase(perBookLangCode)) {
+                        baseLocale = LanguageHelper.localeFromTwoLetter(perBookLangCode);
+                    }
                 }
             } catch (Throwable ignored) {}
-
-            initialCode = perBook;
+            if (baseLocale == null) baseLocale = Locale.getDefault();
         }
 
-        myLogD("TTS spinner initial code: " + initialCode);
+        myLogI("TTS baseLocale for voices: " + (baseLocale == null ? "null" : baseLocale.toLanguageTag()));
+
+        // ---- Determine initially selected VOICE NAME (exact engine key) ----
+        // Priority:
+        // 1) Current audioService voice name (if exposed)
+        // 2) Per-book saved voice name
+        // 3) null (let spinner select best candidate)
+        String initialVoiceName = null;
+        try {
+            if (audioServiceBound && audioService != null && audioService.isTtsMode()) {
+                // Add this getter in your service if not present (see section 2)
+                //TODO initialVoiceName = audioService.getTtsCurrentVoiceName();
+            }
+        } catch (Throwable ignored) {}
+
+        if (initialVoiceName == null || initialVoiceName.isEmpty()) {
+            try {
+                if (currentFolderId > 0) {
+                    initialVoiceName = Pref.getBookTtsVoiceName(this, currentFolderId); // add in Pref (see below)
+                }
+            } catch (Throwable ignored) {}
+        }
+
+        myLogI("TTS initialVoiceName: " + initialVoiceName);
 
         // Guard so initial programmatic selection doesn't trigger a SAVE.
-        // Spinner has no "fromUser" signal, so we detect user interaction.
         final boolean[] userInteracted = { false };
         spinnerTtsLanguage.setOnTouchListener((v, ev) -> {
-            myLogI("--- USER CLICKS TTS LANGUAGE SPINNER ---");
             if (ev.getAction() == MotionEvent.ACTION_UP) {
-                v.performClick(); // notify accessibility services
+                myLogI("--- USER CLICKS TTS VOICE SPINNER ---");
+                v.performClick();
             }
             userInteracted[0] = true;
-            return false; // let Spinner handle the rest
+            return false;
         });
 
-        // Build the spinner & hook the callback
-        LanguageHelper.setupTtsSettingsSpinnerDynamic(
-                this,
-                spinnerTtsLanguage,
-                initialCode,
-                lang -> {
-                    // Normalize to "system" or 2-letter code
-                    String code = (lang == null || lang.twoLetterCode == null || lang.twoLetterCode.isEmpty())
-                            ? "system"
-                            : lang.twoLetterCode.toLowerCase();
+        // ---- Build the VOICE spinner for the chosen baseLocale ----
+        // This uses the helper we added earlier in LanguageHelper
 
-                    // Only persist if the USER changed it (manual action)
+        LanguageHelper.setupVoiceSpinnerForLocale(
+                /* ctx   = */ this,
+                /* view  = */ spinnerTtsLanguage,
+                /* locale*/ baseLocale,
+                /* saved */ initialVoiceName,
+                /* cb    = */ voiceItem -> {
+                    if (voiceItem == null) return;
+
+                    // Persist only if the USER actually interacted
                     if (userInteracted[0] && currentFolderId > 0) {
-                        Pref.setBookTtsLanguage(this, currentFolderId, code);
-                        myLogD("Saved per-book TTS language: folder=" + currentFolderId + " code=" + code);
+                        Pref.setBookTtsVoiceName(this, currentFolderId, voiceItem.name);
+                        // Optional: keep language code in sync with the selected voice’s language
+                        String code2 = LanguageHelper.twoLetterFromLocale(voiceItem.locale);
+                        Pref.setBookTtsLanguage(this, currentFolderId, (code2 == null || code2.isEmpty()) ? "system" : code2);
+                        myLogD("Saved per-book TTS voice: folder=" + currentFolderId + " voice=" + voiceItem.name + " lang=" + code2);
                     }
 
-                    // Apply live only on user change (keeps service state stable on init)
+                    // Apply live (only on user change) to avoid flipping the service during init
                     if (userInteracted[0] && audioServiceBound && audioService != null) {
-                        bPlay.setEnabled(false);
-                        audioService.setTtsLanguageCode(code);
+                        try {
+                            bPlay.setEnabled(false); // like you did for lang; avoids speaking while switching
+                            // prefer exact voice
+                            // TODO int r = audioService.setTtsVoiceByName(voiceItem.name); // add this in your service (see below)
+                            int r = TextToSpeech.ERROR;
+                            myLogI("audioService.setTtsVoiceByName(" + voiceItem.name + ") -> " + r);
+
+                            // Fallback: if voice setting failed, fall back to language (rare)
+                            if (r != TextToSpeech.SUCCESS) {
+                                String code2 = LanguageHelper.twoLetterFromLocale(voiceItem.locale);
+                                audioService.setTtsLanguageCode(code2); // your existing method
+                                myLogW("Voice not applied, fell back to language code: " + code2);
+                            }
+                        } catch (Throwable t) {
+                            myLogEE(t, "Failed to apply selected voice; trying language fallback");
+                            String code2 = LanguageHelper.twoLetterFromLocale(voiceItem.locale);
+                            audioService.setTtsLanguageCode(code2);
+                        }
                     }
                 }
         );
     }
+
+    // CLICK DANS LE TEXTE
     private void setupTtsTextInteractions() {
         final android.view.GestureDetector detector =
                 new android.view.GestureDetector(this, new android.view.GestureDetector.SimpleOnGestureListener() {
                     @Override public boolean onSingleTapUp(android.view.MotionEvent e) {
+                        myLogI("--- USER CLICKS IN THE TEXT ---");
                         handleTtsTap(e);
                         return true;
                     }
@@ -1009,7 +1058,7 @@ public class PlayActivity extends LoggingActivity {
         off = Math.max(0, Math.min(off, spannableText.length()));
 
         // expand to word bounds
-        int[] word = findWordBounds(spannableText, off);
+        int[] word = TtsHelper.findWordBounds(spannableText, off);
         int start = word[0], end = word[1];
 
         // highlight selection
@@ -1038,22 +1087,6 @@ public class PlayActivity extends LoggingActivity {
         }
     }
 
-    /** Returns [wordStart, wordEnd] for a given offset. */
-    private static int[] findWordBounds(CharSequence text, int off) {
-        int n = text.length();
-        if (n == 0) return new int[]{0,0};
-        // if we're on whitespace/punct, shift right to next letter/digit
-        int i = off;
-        while (i < n && !Character.isLetterOrDigit(text.charAt(i))) i++;
-        if (i >= n) i = Math.max(0, off - 1);
-        // go left to start
-        int s = i;
-        while (s > 0 && Character.isLetterOrDigit(text.charAt(s - 1))) s--;
-        // go right to end
-        int e = i;
-        while (e < n && Character.isLetterOrDigit(text.charAt(e))) e++;
-        if (s < 0) s = 0; if (e < s) e = s;
-        return new int[]{s, e};
-    }
+
 
 }

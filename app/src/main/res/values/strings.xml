@@ -759,6 +759,8 @@
     <string name="collapse">collapse</string>
     <string name="expand">expand</string>
     <string name="flag">flag</string>
+    <string name="language_flag">language flag</string>
+    <string name="voice_flag">voice flag</string>
     <string name="settings">settings</string>
     <string name="podcast_settings">podcast settings</string>
     <string name="option_podcast_episodes_expand">show descriptions</string>

@@ -277,6 +277,11 @@
                 android:src="@android:drawable/ic_menu_gallery" />
         </LinearLayout>
 
+        <Spinner
+            android:id="@+id/spinnerTtsVoice"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
         <TextView
             android:id="@+id/tvTtsText"
             style="@style/textColor"

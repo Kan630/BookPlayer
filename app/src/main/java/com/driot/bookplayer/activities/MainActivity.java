@@ -175,6 +175,7 @@ public class MainActivity extends LoggingActivity {
         int itemId = item.getItemId();
         if (itemId == R.id.action_menu_three_dot) {
         } else if (itemId == R.id.menu_options) {
+            myLogI("--- USER clicks MENU : OPTIONS ---");
             this.getSharedPreferences(Option.SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE).edit().putBoolean("ACTIVITY_OPTION_HAS_RESULT", false).apply(); //trick to reload MainActivity if color changed in OptionActivity, by allowing to set Result=OK only if color is changed
             startActivityForResult(new Intent(this, OptionActivity.class), REQUEST_CODE_OPTION);
         } else if (itemId == R.id.menu_manual) {

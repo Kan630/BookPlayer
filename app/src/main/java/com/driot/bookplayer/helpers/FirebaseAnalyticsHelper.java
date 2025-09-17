@@ -8,6 +8,11 @@ import com.google.firebase.analytics.FirebaseAnalytics;
 
 public final class FirebaseAnalyticsHelper {
 
+
+
+    public static void tellAnalyticsPlaylistLoadFromStorage(Context context) {
+        logThat(context, "playlist_load_from_storage", null);
+    }
     public static void tellAnalyticsWork(Context context, String originalUri) {
         Bundle bundle = new Bundle();
         bundle.putString("originalUri", originalUri);

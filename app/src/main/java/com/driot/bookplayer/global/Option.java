@@ -200,6 +200,8 @@ public class Option {
     public static void setTtsLanguage(String language) {prefs.edit().putString("TTS_LANGUAGE",language).apply();}
     public static String getTtsLanguage() {return prefs.getString("TTS_LANGUAGE", "system");}
 
+    public static void setTtsVoice(String voice) {prefs.edit().putString("TTS_VOICE",voice).apply();}
+    public static String getTtsVoice() {return prefs.getString("TTS_VOICE", "system");}
 
 
 

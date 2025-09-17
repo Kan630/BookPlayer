@@ -54,6 +54,12 @@ android {
             generateLocaleConfig = true
         }
 
+        sourceSets {
+            main {
+                res.srcDirs = ['src/main/res', 'src/main/res-flags']
+            }
+        }
+
     }
 /*
     signingConfigs {

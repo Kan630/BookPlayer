@@ -30,6 +30,7 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.helpers.LanguageHelper;
 import com.driot.bookplayer.helpers.LocaleHelper;
+import com.driot.bookplayer.helpers.TtsHelper;
 import com.driot.bookplayer.utils.NetworkUtils;
 import com.driot.bookplayer.utils.PermissionRequest;
 import com.driot.bookplayer.utils.log.LoggingActivity;
@@ -81,14 +82,14 @@ public class OptionActivity extends LoggingActivity {
     CheckBox chk_use_sd_card;
     CheckBox chk_create_cover;
     Spinner appLanguageSpinner;
-    Spinner ttsLanguageSpinner;
-    String lastSavedTtsLang;
+    Spinner ttsVoiceSpinner;
+    String lastSavedTtsVoice;
     View advancedOptionsLayout;
     Button btnShowAdvanced;
     Button btnPodcastOptions;
     ScrollView scrollView;
     private Button btnNightMode;
-
+    AutoCloseable ttsHandle;
 
 
     private PermissionRequest mPermissionRequest;
@@ -347,27 +348,27 @@ public class OptionActivity extends LoggingActivity {
             setOpenWithProxyEnabled_all(this, isChecked);  // dynamically enable/disable the component
         });
 
-///  LANGUAGE
-        ttsLanguageSpinner = findViewById(R.id.spinner_tts_language);
-        lastSavedTtsLang = Option.getTtsLanguage();
-        LanguageHelper.setupTtsSettingsSpinnerDynamic(
+/// TTS  VOICE
+        ttsVoiceSpinner = findViewById(R.id.spinner_voice_item);
+        lastSavedTtsVoice = Option.getTtsVoice();
+        ttsHandle = TtsHelper.setupTtsVoiceSpinner(
                 this,
-                ttsLanguageSpinner,
-                lastSavedTtsLang,
-                lang -> {
-                    // normalize selection: keep "system" as-is, else 2-letter code
-                    String sel = (lang.twoLetterCode == null || lang.twoLetterCode.isEmpty())
-                            ? "system" : lang.twoLetterCode.toLowerCase();
+                ttsVoiceSpinner,
+                lastSavedTtsVoice,
+                voice -> {
+                    String sel = (voice == null || voice.codeVoice == null || voice.codeVoice.isEmpty())
+                            ? "system" : voice.codeVoice.toLowerCase();
 
-                    if (!sel.equalsIgnoreCase(lastSavedTtsLang)) {
-                        Option.setTtsLanguage(sel);
-                        lastSavedTtsLang = sel;
-                        myLog("TTS base language set to: " + sel + " (" + lang.displayName + ")");
+                    if (!sel.equalsIgnoreCase(lastSavedTtsVoice)) {
+                        Option.setTtsVoice(sel);
+                        lastSavedTtsVoice = sel;
+                        myLog("TTS base voice set to: " + sel + " (" + (voice != null ? voice.displayName : "system") + ")");
                     }
                 }
         );
 
 
+/// APP  LANGUAGE
         appLanguageSpinner = findViewById(R.id.spinner_app_language);
 
         ArrayAdapter<CharSequence> adapter =
@@ -465,6 +466,7 @@ public class OptionActivity extends LoggingActivity {
 
     @Override
     protected void onDestroy() {
+        try { if (ttsHandle != null) ttsHandle.close(); } catch (Exception ignored) {}
         saveForwardSeconds();
         saveTimeBeforeSleep();
         super.onDestroy();
