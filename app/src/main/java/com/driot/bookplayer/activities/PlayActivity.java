@@ -14,13 +14,11 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.Settings;
-import android.speech.tts.TextToSpeech;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -32,12 +30,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.global.Option;
+import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
-import com.driot.bookplayer.helpers.LanguageHelper;
 import com.driot.bookplayer.helpers.TtsHelper;
 import com.driot.bookplayer.objects.PlayList;
 import com.driot.bookplayer.services.AudioService;
@@ -48,7 +45,6 @@ import com.driot.bookplayer.utils.log.LoggingActivity;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -114,7 +110,7 @@ public class PlayActivity extends LoggingActivity {
 
     private ImageView imFolderImage;
     private View ttsContainer;
-    private Spinner spinnerTtsLanguage;
+    private Spinner spinnerTtsVoice;
     private TextView tvTtsText;
     private ImageButton btnToggleTtsView;
     private boolean showingTtsText = true;
@@ -125,7 +121,8 @@ public class PlayActivity extends LoggingActivity {
     private int pendingStart = -1, pendingEnd = -1;
     private final android.os.Handler uiH = new android.os.Handler(android.os.Looper.getMainLooper());
     private boolean highlightScheduled = false;
-
+    private AutoCloseable ttsHandle;
+    private String lastSavedTtsVoice;
 
     /********************************************************************************
      ***       SERVICE
@@ -152,8 +149,6 @@ public class PlayActivity extends LoggingActivity {
             // retour de flip ecran
             myLogD("onServiceConnected - DrawUI");
             DrawUI();
-            //initTtsLanguageSpinner();
-            initTtsVoiceSpinner();
         }
 
         @Override
@@ -283,7 +278,7 @@ public class PlayActivity extends LoggingActivity {
         imFolderImage = findViewById(R.id.folderImage);
 
         ttsContainer = findViewById(R.id.ttsContainer);
-        spinnerTtsLanguage = findViewById(R.id.spinnerTtsLanguage);
+        spinnerTtsVoice = findViewById(R.id.spinnerTtsVoice);
         tvTtsText = findViewById(R.id.tvTtsText);
         btnToggleTtsView = findViewById(R.id.btnToggleTtsView);
 
@@ -293,6 +288,9 @@ public class PlayActivity extends LoggingActivity {
         });
 
         PlayList.getInstance().setOnMetaLoadedListener((folder, podcast, isPodcast) -> {
+            // Voices
+            initTtsVoiceSpinner(folder.getId());
+
             // Playlist objects are all loaded
             if (folder.image != null && !folder.image.isEmpty()) {
                 imFolderImage.setImageURI(Uri.parse(folder.image));
@@ -900,126 +898,93 @@ public class PlayActivity extends LoggingActivity {
             btnToggleTtsView.setImageResource(android.R.drawable.ic_menu_edit); // next tap -> text
         }
     }
-    private void initTtsVoiceSpinner() {
+
+    private void initTtsVoiceSpinner(int folderId) {
         myLogD("initTtsVoiceSpinner()");
-        if (spinnerTtsLanguage == null) return; // reuse same view id
 
-        // Resolve current folder (book)
-        int folderId = -1;
-        try {
-            PlayList pl = PlayList.getInstance();
-            if (pl != null && pl.getZikFile() != null) {
-                folderId = pl.getZikFile().getIdFolder();
-            }
-        } catch (Throwable ignored) {}
-        final int currentFolderId = folderId;
+        try { if (ttsHandle != null) ttsHandle.close(); } catch (Exception ignored) {}
 
-        // ---- Determine base Locale for which we’ll show voices ----
-        // Priority:
-        // 1) Current TTS service voice locale (if in TTS mode)
-        // 2) Per-book saved language code (if you still keep it around)
-        // 3) Device default
-        Locale baseLocale = Locale.getDefault();
-        try {
-            if (audioServiceBound && audioService != null && audioService.isTtsMode()) {
-                // your existing API: returns Locale (from your TtsHelper#getLanguage)
-                Locale cur = audioService.getTtsCurrentLanguage();
-                if (cur != null) baseLocale = cur;
-            }
-        } catch (Throwable ignored) {}
-
-        if (baseLocale == null || "und".equalsIgnoreCase(baseLocale.getLanguage())) {
-            try {
-                if (currentFolderId > 0) {
-                    String perBookLangCode = Pref.getBookTtsLanguage(this, currentFolderId); // "system" or "en"/"fr"/...
-                    if (perBookLangCode != null && !perBookLangCode.isEmpty() && !"system".equalsIgnoreCase(perBookLangCode)) {
-                        baseLocale = LanguageHelper.localeFromTwoLetter(perBookLangCode);
-                    }
-                }
-            } catch (Throwable ignored) {}
-            if (baseLocale == null) baseLocale = Locale.getDefault();
+        String thisBookVoice = Pref.getBookTtsVoiceName(this, folderId);
+        if (thisBookVoice == null) {
+            thisBookVoice = Option.getTtsVoice();
+            myLogD("no saved book voice, using options default : " + thisBookVoice);
+        } else {
+            myLogD("saved book voice : " + thisBookVoice);
         }
+        lastSavedTtsVoice = thisBookVoice;
 
-        myLogI("TTS baseLocale for voices: " + (baseLocale == null ? "null" : baseLocale.toLanguageTag()));
 
-        // ---- Determine initially selected VOICE NAME (exact engine key) ----
-        // Priority:
-        // 1) Current audioService voice name (if exposed)
-        // 2) Per-book saved voice name
-        // 3) null (let spinner select best candidate)
-        String initialVoiceName = null;
-        try {
-            if (audioServiceBound && audioService != null && audioService.isTtsMode()) {
-                // Add this getter in your service if not present (see section 2)
-                //TODO initialVoiceName = audioService.getTtsCurrentVoiceName();
-            }
-        } catch (Throwable ignored) {}
+        // Guards
+        final boolean[] firstCallback = { true };          // ← skip the very first emission
+        final boolean[] userTouched  = { false };          // ← only save after touch (optional but nice)
 
-        if (initialVoiceName == null || initialVoiceName.isEmpty()) {
-            try {
-                if (currentFolderId > 0) {
-                    initialVoiceName = Pref.getBookTtsVoiceName(this, currentFolderId); // add in Pref (see below)
-                }
-            } catch (Throwable ignored) {}
-        }
-
-        myLogI("TTS initialVoiceName: " + initialVoiceName);
-
-        // Guard so initial programmatic selection doesn't trigger a SAVE.
-        final boolean[] userInteracted = { false };
-        spinnerTtsLanguage.setOnTouchListener((v, ev) -> {
-            if (ev.getAction() == MotionEvent.ACTION_UP) {
-                myLogI("--- USER CLICKS TTS VOICE SPINNER ---");
+        // Mark when the user actually interacts with the spinner
+        spinnerTtsVoice.setOnTouchListener((v, ev) -> {
+            if (ev.getAction() == android.view.MotionEvent.ACTION_UP) {
+                myLogI("--- user click VOICE spinner --- ");
+                userTouched[0] = true;
                 v.performClick();
             }
-            userInteracted[0] = true;
             return false;
         });
 
-        // ---- Build the VOICE spinner for the chosen baseLocale ----
-        // This uses the helper we added earlier in LanguageHelper
+        ttsHandle = TtsHelper.setupTtsVoiceSpinner(
+                this,
+                spinnerTtsVoice,
+                lastSavedTtsVoice,
+                voice -> {
+                    String sel = (voice == null || voice.name == null || voice.name.isEmpty())
+                            ? "system" : voice.name;
+                    myLog("--- spinner callback --- " + sel);
 
-        LanguageHelper.setupVoiceSpinnerForLocale(
-                /* ctx   = */ this,
-                /* view  = */ spinnerTtsLanguage,
-                /* locale*/ baseLocale,
-                /* saved */ initialVoiceName,
-                /* cb    = */ voiceItem -> {
-                    if (voiceItem == null) return;
-
-                    // Persist only if the USER actually interacted
-                    if (userInteracted[0] && currentFolderId > 0) {
-                        Pref.setBookTtsVoiceName(this, currentFolderId, voiceItem.name);
-                        // Optional: keep language code in sync with the selected voice’s language
-                        String code2 = LanguageHelper.twoLetterFromLocale(voiceItem.locale);
-                        Pref.setBookTtsLanguage(this, currentFolderId, (code2 == null || code2.isEmpty()) ? "system" : code2);
-                        myLogD("Saved per-book TTS voice: folder=" + currentFolderId + " voice=" + voiceItem.name + " lang=" + code2);
+                    // 1) Ignore the initial programmatic selection
+                    if (firstCallback[0]) {
+                        firstCallback[0] = false;
+                        myLogD("Ignoring initial spinner selection (no save/apply).");
+                        return;
                     }
 
-                    // Apply live (only on user change) to avoid flipping the service during init
-                    if (userInteracted[0] && audioServiceBound && audioService != null) {
-                        try {
-                            bPlay.setEnabled(false); // like you did for lang; avoids speaking while switching
-                            // prefer exact voice
-                            // TODO int r = audioService.setTtsVoiceByName(voiceItem.name); // add this in your service (see below)
-                            int r = TextToSpeech.ERROR;
-                            myLogI("audioService.setTtsVoiceByName(" + voiceItem.name + ") -> " + r);
+                    // 2) (Optional) Only react if user actually touched the spinner
+                    if (!userTouched[0]) {
+                        myLogD("Ignoring non-user selection.");
+                        return;
+                    }
 
-                            // Fallback: if voice setting failed, fall back to language (rare)
-                            if (r != TextToSpeech.SUCCESS) {
-                                String code2 = LanguageHelper.twoLetterFromLocale(voiceItem.locale);
-                                audioService.setTtsLanguageCode(code2); // your existing method
-                                myLogW("Voice not applied, fell back to language code: " + code2);
-                            }
-                        } catch (Throwable t) {
-                            myLogEE(t, "Failed to apply selected voice; trying language fallback");
-                            String code2 = LanguageHelper.twoLetterFromLocale(voiceItem.locale);
-                            audioService.setTtsLanguageCode(code2);
+                    if (!sel.equalsIgnoreCase(lastSavedTtsVoice)) {
+                        Pref.setBookTtsVoiceName(this, folderId, sel);
+                        lastSavedTtsVoice = sel;
+                        myLog("TTS book voice set to: " + sel + " (" + (voice != null ? voice.displayName : "system") + ")");
+
+                        if (audioServiceBound && audioService != null && audioService.isTtsMode() && voice != null) {
+                            try {
+                                bPlay.setEnabled(false);
+                                audioService.setTtsVoiceByNameAndWarmUp(
+                                        voice.name,
+                                        5000L,
+                                        (ready, reason) -> runOnUiThread(() -> {
+                                            if (ready) {
+                                                bPlay.setEnabled(true);
+                                            } else {
+                                                switch (reason) {
+                                                    case TtsHelper.MISSING_DATA:
+                                                        myLogW("TTS data missing for voice locale — prompt install.");
+                                                        break;
+                                                    case TtsHelper.TIMEOUT:
+                                                        myLogW("TTS warm-up timed out. Check network or pick offline voice.");
+                                                        break;
+                                                    default:
+                                                        myLogW("TTS not ready (reason " + reason + ").");
+                                                }
+                                            }
+                                        })
+                                );
+                            } catch (Throwable ignored) {}
                         }
                     }
                 }
         );
     }
+
 
     // CLICK DANS LE TEXTE
     private void setupTtsTextInteractions() {

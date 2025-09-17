@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.media.AudioAttributes;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
@@ -22,6 +23,7 @@ import com.driot.bookplayer.adapter.VoiceSpinnerAdapter;
 import com.driot.bookplayer.objects.VoiceItem;
 import com.driot.bookplayer.utils.KanLogger;
 
+import java.io.File;
 import java.text.BreakIterator;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,6 +36,8 @@ public class TtsHelper implements TextToSpeech.OnInitListener {
     private final Context ctx;
     private TextToSpeech tts;
     private boolean ready = false;
+
+    public static final int READY=0, SET_VOICE_FAILED=1, MISSING_DATA=2, SYNTH_FAIL=3, ERROR=4, TIMEOUT=5;
 
     private volatile int lastStartOffset = 0;
     private volatile int lastEndOffset = 0;
@@ -124,7 +128,7 @@ public class TtsHelper implements TextToSpeech.OnInitListener {
                 if (ready) {
                     tryLogCurrentVoice();
                     myLog("----------");
-                    logAllVoices(); // dump the catalog once on init (handy during development)
+                    //logAllVoices(); // dump the catalog once on init (handy during development)
                     if (listener != null) listener.onTtsReady(tts);
                 }
             } catch (Throwable t) {
@@ -456,7 +460,7 @@ public class TtsHelper implements TextToSpeech.OnInitListener {
         if (tts == null) return TextToSpeech.ERROR;
         try {
             int r = tts.setVoice(voice);
-            myLogI("setVoice(" + voice.getName() + ") -> " + r + " | " + describeVoice(voice));
+            myLog("setVoice(" + voice.getName() + ") -> " + r + " | " + describeVoice(voice));
             return r;
         } catch (Throwable t) {
             myLogEE(t, "setVoice failed");
@@ -697,8 +701,6 @@ public class TtsHelper implements TextToSpeech.OnInitListener {
                 int pre = 0;
                 if (savedCode != null && !"system".equalsIgnoreCase(savedCode)) {
                     for (int i = 0; i < all.size(); i++) {
-                        if (savedCode.equals(all.get(i).codeVoice)) { pre = i; break; }
-                        // Some projects persist using Voice.getName() in another field; also check .name
                         if (savedCode.equals(all.get(i).name)) { pre = i; break; }
                     }
                 }
@@ -741,23 +743,7 @@ public class TtsHelper implements TextToSpeech.OnInitListener {
         List<VoiceItem> out = new ArrayList<>();
         try {
             for (Voice v : tts.getVoices()) {
-                Locale loc = v.getLocale();
-                String lang2 = (loc != null && loc.getLanguage() != null && !loc.getLanguage().isEmpty())
-                        ? loc.getLanguage() : "und";
-                String country = (loc != null && !loc.getCountry().isEmpty()) ? loc.getCountry() : "";
-
-                String display = displayNameFor(v, loc);
-                int langFlag = FlagHelper.getFlagResIdForLanguage(lang2);
-                int countryFlag = FlagHelper.getFlagResIdForCountry(country);
-
-                out.add(new VoiceItem(
-                        v,
-                        lang2,               // twoLetterCodeLanguage
-                        v.getName(),         // codeVoice (stable engine name)
-                        display,             // displayName
-                        langFlag,
-                        countryFlag
-                ));
+                out.add(new VoiceItem(v));
             }
         } catch (Throwable ignored) {}
 
@@ -772,28 +758,53 @@ public class TtsHelper implements TextToSpeech.OnInitListener {
         return out;
     }
 
-    private static String displayNameFor(Voice v, @Nullable Locale loc) {
-        boolean offline = v.getFeatures() != null && v.getFeatures().contains("embeddedTts");
-        String kind = offline ? "Offline" : (v.isNetworkConnectionRequired() ? "Online" : "Voice");
-        String region = (loc == null) ? "" : prettyLocale(loc);
-        String base = v.getName();
-        return region.isEmpty() ? base + " (" + kind + ")" : region + " – " + base + " (" + kind + ")";
+
+
+    // optional raw access
+    public TextToSpeech raw() { return tts; }
+
+    // NEW pass-throughs so AudioService can call them on your TtsHelper instance
+    public void setOnUtteranceProgressListener(UtteranceProgressListener l) {
+        tts.setOnUtteranceProgressListener(l);
     }
 
-    private static String prettyLocale(Locale loc) {
-        try {
-            String lang = cap(loc.getDisplayLanguage(loc));
-            String c = loc.getCountry();
-            if (c == null || c.isEmpty()) return lang;
-            String region = cap(new Locale("", c).getDisplayCountry(loc));
-            return lang + " (" + region + ")";
-        } catch (Throwable t) {
-            return loc.toLanguageTag();
+    public int isLanguageAvailable(Locale locale) {
+        return tts.isLanguageAvailable(locale);
+    }
+
+    public int synthesizeToFile(CharSequence text, Bundle params, File file, String utteranceId) {
+        return tts.synthesizeToFile(text, params, file, utteranceId);
+    }
+
+    private static int findPreselectIndex(java.util.List<VoiceItem> all, String saved) {
+        if (saved == null || saved.isEmpty() || "system".equalsIgnoreCase(saved)) return 0;
+        String s = normalize(saved);
+
+        // 1) exact by name/code (case/underscore tolerant)
+        for (int i = 0; i < all.size(); i++) {
+            VoiceItem it = all.get(i);
+            if (s.equals(normalize(it.name)) || s.equals(normalize(it.name))) return i;
         }
+        // 2) startsWith (handles engines that add suffixes like “#male_1-local”)
+        for (int i = 0; i < all.size(); i++) {
+            VoiceItem it = all.get(i);
+            if (normalize(it.name).startsWith(s) || normalize(it.name).startsWith(s)) return i;
+        }
+        // 3) same language/country fallback
+        String[] p = s.split("[-_]");
+        String lang = p.length > 0 ? p[0] : "";
+        String ctry = p.length > 1 ? p[1] : "";
+        for (int i = 0; i < all.size(); i++) {
+            java.util.Locale loc = all.get(i).locale;
+            if (loc == null) continue;
+            boolean langOk = lang.equalsIgnoreCase(loc.getLanguage());
+            boolean ctrOk  = ctry.isEmpty() || ctry.equalsIgnoreCase(loc.getCountry());
+            if (langOk && ctrOk) return i;
+        }
+        return 0;
     }
-
-    private static String cap(String s) {
-        return (s == null || s.isEmpty()) ? "" : Character.toUpperCase(s.charAt(0)) + s.substring(1);
+    private static String normalize(String s) {
+        return s == null ? "" : s.toLowerCase(java.util.Locale.ROOT).replace('_','-');
     }
 
     // ======== LOGGING ========

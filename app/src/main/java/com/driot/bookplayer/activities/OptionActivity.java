@@ -356,13 +356,13 @@ public class OptionActivity extends LoggingActivity {
                 ttsVoiceSpinner,
                 lastSavedTtsVoice,
                 voice -> {
-                    String sel = (voice == null || voice.codeVoice == null || voice.codeVoice.isEmpty())
-                            ? "system" : voice.codeVoice.toLowerCase();
+                    String sel = (voice == null || voice.name == null || voice.name.isEmpty())
+                            ? "system" : voice.name;
 
                     if (!sel.equalsIgnoreCase(lastSavedTtsVoice)) {
                         Option.setTtsVoice(sel);
                         lastSavedTtsVoice = sel;
-                        myLog("TTS base voice set to: " + sel + " (" + (voice != null ? voice.displayName : "system") + ")");
+                        myLog("TTS base voice set to: " + sel + " (" + (voice == null ? "system" : voice.displayName + " / - name = " + voice.name + ")"));
                     }
                 }
         );

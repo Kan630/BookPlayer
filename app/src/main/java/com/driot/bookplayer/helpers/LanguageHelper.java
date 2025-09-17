@@ -349,7 +349,7 @@ public class LanguageHelper {
     private static int computePreselectIndexForVoice(List<VoiceItem> items, String saved) {
         if (saved == null) saved = "system";
         for (int i = 0; i < items.size(); i++) {
-            if (saved.equalsIgnoreCase(items.get(i).codeVoice)) return i;
+            if (saved.equalsIgnoreCase(items.get(i).name)) return i;
         }
         return 0; // default to "system"
     }

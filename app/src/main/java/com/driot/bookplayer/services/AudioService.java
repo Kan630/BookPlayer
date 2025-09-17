@@ -226,6 +226,90 @@ public class AudioService extends LoggingService {
             tts = new TtsHelper(ctx.getApplicationContext(), this);
         }
 
+        private final java.util.concurrent.ConcurrentHashMap<String, WarmupCallback> warmups = new java.util.concurrent.ConcurrentHashMap<>();
+
+        public interface WarmupCallback {
+            /** ready==true when synthesis completed; else reason explains why. */
+            void onResult(boolean ready, @androidx.annotation.IntRange(from=0,to=5) int reason);
+        }
+        private void installUplIfNeeded() {
+            tts.setOnUtteranceProgressListener(new android.speech.tts.UtteranceProgressListener() {
+                @Override public void onStart(String id) { /* optional */ }
+                @Override public void onDone(String id) {
+                    WarmupCallback cb = warmups.remove(id);
+                    if (cb != null) cb.onResult(true, TtsHelper.READY);
+                    deleteTemp(id);
+                }
+                @Override public void onError(String id, int code) {
+                    WarmupCallback cb = warmups.remove(id);
+                    if (cb != null) cb.onResult(false, TtsHelper.SYNTH_FAIL);
+                    deleteTemp(id);
+                }
+                @Override public void onError(String id) { onError(id, android.speech.tts.TextToSpeech.ERROR); }
+            });
+        }
+        private void deleteTemp(String id) {
+            try { new java.io.File(getApplicationContext().getCacheDir(), id + ".wav").delete(); } catch (Throwable ignored) {}
+        }
+        /** Sets the voice, verifies language data, then warms up via synthesizeToFile. Calls back when really ready. */
+        public void setTtsVoiceByNameAsync(String voiceName, long timeoutMs, WarmupCallback cb) {
+            if (tts == null) { cb.onResult(false, TtsHelper.ERROR); return; }
+            installUplIfNeeded();
+
+            ttsH.post(() -> {
+                try {
+                    java.util.Set<android.speech.tts.Voice> voices = tts.getVoices();
+                    if (voices == null) { cb.onResult(false, TtsHelper.ERROR); return; }
+
+                    android.speech.tts.Voice target = null;
+                    for (android.speech.tts.Voice v : voices) {
+                        if (voiceName != null && voiceName.equals(v.getName())) { target = v; break; }
+                    }
+                    if (target == null) { cb.onResult(false, TtsHelper.SET_VOICE_FAILED); return; }
+
+                    int rSet = tts.setVoice(target);
+                    myLog("setTtsVoiceByName -> " + rSet + " | " + TtsHelper.describeVoice(target));
+                    if (rSet != android.speech.tts.TextToSpeech.SUCCESS) {
+                        cb.onResult(false, TtsHelper.SET_VOICE_FAILED); return;
+                    }
+
+                    // Align language with voice locale; also tells us if data is missing.
+                    java.util.Locale loc = target.getLocale();
+                    if (loc != null) {
+                        int avail = tts.isLanguageAvailable(loc);
+                        myLogD("isLanguageAvailable(" + loc + ") -> " + avail);
+                        if (avail == android.speech.tts.TextToSpeech.LANG_MISSING_DATA) {
+                            cb.onResult(false, TtsHelper.MISSING_DATA); return;
+                        }
+                        tts.setLanguage(loc);
+                    }
+
+                    // Warm up: synthesize a tiny file (silent to user), mark ready on onDone.
+                    String id = "warmup-" + android.os.SystemClock.uptimeMillis();
+                    warmups.put(id, cb);
+
+                    java.io.File out = new java.io.File(getApplicationContext().getCacheDir(), id + ".wav");
+                    int rr = tts.synthesizeToFile("ok", new android.os.Bundle(), out, id);
+                    if (rr != android.speech.tts.TextToSpeech.SUCCESS) {
+                        warmups.remove(id);
+                        cb.onResult(false, TtsHelper.SYNTH_FAIL);
+                        deleteTemp(id);
+                        return;
+                    }
+
+                    // Timeout safeguard
+                    ttsH.postDelayed(() -> {
+                        WarmupCallback late = warmups.remove(id);
+                        if (late != null) { cb.onResult(false, TtsHelper.TIMEOUT); deleteTemp(id); }
+                    }, Math.max(1500, timeoutMs)); // e.g., 5_000ms for network voices
+                } catch (Throwable t) {
+                    myLogEE(t, "setTtsVoiceByNameAsync failed");
+                    cb.onResult(false, TtsHelper.ERROR);
+                }
+            });
+        }
+
+
         @Override public void setDataSource(Context ctx, Uri uri, String displayName) {
             prepared = false; playing = false; resumeOffset = 0; estPositionMs = 0;
             String raw = TextExtractor.getPlainText(ctx, uri, displayName);
@@ -521,7 +605,7 @@ public class AudioService extends LoggingService {
                     }
 
                     int rSet = tts.setVoice(target);
-                    myLogI("setTtsVoiceByName -> " + rSet + " | " + TtsHelper.describeVoice(target));
+                    myLog("setTtsVoiceByName -> " + rSet + " | " + TtsHelper.describeVoice(target));
 
                     // Nicer stability on some engines if language matches voice locale.
                     if (target.getLocale() != null) {
@@ -1619,26 +1703,24 @@ public class AudioService extends LoggingService {
         return null;
     }
 
-    public java.util.Locale getTtsCurrentLanguage() {
-        if (engine instanceof TtsEngine) return ((TtsEngine) engine).currentLocale(); // add getter
-        return null;
+    public void setTtsVoiceByNameAndWarmUp(String voiceName, long timeoutMs, TtsEngine.WarmupCallback cb) {
+        if (!(engine instanceof TtsEngine)) { cb.onResult(false, TtsHelper.ERROR); return; }
+        myLogD("setTtsVoiceByNameAndWarmUp : " + voiceName);
+        engine.pause();
+        ((TtsEngine) engine).setTtsVoiceByNameAsync(voiceName, timeoutMs, (ready, reason) -> {
+            myLogD("Warmup result ready=" + ready + " reason=" + reason);
+            cb.onResult(ready, reason);
+            // You decide when to resume; often resume only if ready==true
+            if (ready) {
+                myLog("ready, resuming");
+                //engine.resume();
+            }
+        });
     }
-
-    public void setTtsLanguageCode(@androidx.annotation.Nullable String codeOrSystem) {
+    public void setTtsStartOffsetChars(int start) {
         if (!(engine instanceof TtsEngine)) return;
-        myLog("setTtsLanguageCode : " + codeOrSystem);
-        java.util.Locale loc;
-        if (codeOrSystem == null || codeOrSystem.isEmpty() || "system".equalsIgnoreCase(codeOrSystem)) {
-            loc = java.util.Locale.getDefault();
-        } else {
-            loc = new java.util.Locale(codeOrSystem.toLowerCase(java.util.Locale.ROOT));
-        }
-        ((TtsEngine) engine).setLocaleFromActivity(loc);
-    }
-    public void setTtsStartOffsetChars(int charOffset) {
-        if (engine instanceof TtsEngine) {
-            ((TtsEngine) engine).setStartOffsetChars(charOffset);
-        }
+        myLogD("setTtsStartOffsetChars : " + start);
+        ((TtsEngine) engine).setStartOffsetChars(start);
     }
 
 
