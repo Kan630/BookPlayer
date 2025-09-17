@@ -88,8 +88,8 @@ public class ImageHelper {
             byte[] imageBytes = out.toByteArray();
             return compressAndSaveImage(context, imageBytes, imagePath);
 
-        } catch (IOException e) {
-            myLogEE(e, "downloadAndMaybeCompressImage() failed for: " + imageUrl);
+        } catch (Throwable t) {
+            myLogEE(t, "downloadAndMaybeCompressImage() failed for: " + imageUrl);
             return null;
         }
     }

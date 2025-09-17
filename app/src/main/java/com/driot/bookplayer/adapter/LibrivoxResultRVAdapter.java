@@ -89,7 +89,7 @@ public class LibrivoxResultRVAdapter extends LoggingRVAdapter<LibrivoxResultRVAd
             holder.image.setImageResource(R.drawable.placeholder_cover);
 
             // 🚀 Run actual download in background
-            holder.image.post(() ->  {
+            new Thread(() -> {
                 String imageUrl = "https://archive.org/services/img/" + item.identifier;
                 String localPath = ImageHelper.getOrDownloadLibrivoxImage(context, item.identifier, imageUrl, false);
 
@@ -98,18 +98,20 @@ public class LibrivoxResultRVAdapter extends LoggingRVAdapter<LibrivoxResultRVAd
                         Object tag = holder.image.getTag();
                         if (tag instanceof String && tag.equals(item.identifier)) {
                             try {
-                                Glide.with(holder.image)
-                                        .load(new File(localPath))
-                                        .placeholder(R.drawable.placeholder_cover)
-                                        .error(R.drawable.placeholder_cover)
-                                        .into(holder.image);
+                                holder.image.post(() ->  {
+                                    Glide.with(holder.image)
+                                            .load(new File(localPath))
+                                            .placeholder(R.drawable.placeholder_cover)
+                                            .error(R.drawable.placeholder_cover)
+                                            .into(holder.image);
+                                        });
                             } catch (Exception e) {
                                 myLogEE(e, "glide error...");
                             }
                         }
                     });
                 }
-            });
+            }).start();
         }
     }
 

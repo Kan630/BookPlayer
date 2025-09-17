@@ -37,6 +37,7 @@ import com.driot.bookplayer.helpers.TtsHelper;
 import com.driot.bookplayer.helpers.TextExtractor;
 import com.driot.bookplayer.helpers.UriHelper;
 import com.driot.bookplayer.helpers.LanguageHelper;
+import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.objects.KanMediaPlayer;
 import com.driot.bookplayer.objects.VoiceItem;
 import com.driot.bookplayer.utils.log.LoggingService;
@@ -343,7 +344,8 @@ public class AudioService extends LoggingService {
                         ttsH.post(onPrepared); // triggers sendReadyToPlay/directPlay path
                     } else {
                         myLogW("prepareAsync() - Voice warm-up failed (" + reason + ").");
-                        myToastE("Voice warm-up failed (" + reason + ").");
+                        //ViewHelper.showAlterDialogToDisplayText(getApplicationContext(), "Error, very sorry, -text to speech- still beta, it should be working in a few days with an update.", "little problem");
+                        myToastE("Error, Sorry, still beta, please wait app update.");
                     }
                 });
             } else {
@@ -434,8 +436,7 @@ public class AudioService extends LoggingService {
             }
         }
 
-        @Override
-        public void setSpeed(float s) {
+        @Override public void setSpeed(float s) {
             tts.setSpeechRate(s);
             int old = estDurationMs;
             estDurationMs = estimateDurationMs(text, s);
@@ -444,13 +445,14 @@ public class AudioService extends LoggingService {
                 updatePlaybackState(PlaybackStateCompat.STATE_PLAYING, getCurrentPosition(), s);
         }
 
-        @Override
-        public void onStart(String id) {
+        @Override public void onStart(String id) {
+            if (id != null && id.startsWith("warmup-")) return; // ignore warm-up starts
             playing = true;
         }
 
-        @Override
-        public void onDone(String id) {
+        @Override public void onDone(String id) {
+            if (handleWarmupDone(id, /*ok*/true, /*ignored*/0)) return;
+
             // Have we reached (logically) the end of the text?
             int logicalEnd = logicalTextEndIndex();
             if (lastCharSpoken >= logicalEnd) {
@@ -472,9 +474,22 @@ public class AudioService extends LoggingService {
                 }
             });
         }
+        private boolean handleWarmupDone(String id, boolean ok, int errorReasonIfAny) {
+            if (id == null || !id.startsWith("warmup-")) return false;
+            WarmupCallback cb = warmups.remove(id);
+            if (cb != null) cb.onResult(ok, ok ? TtsHelper.READY : errorReasonIfAny);
+            deleteTemp(id); // deletes <cache>/<id>.wav
+            return true; // we handled it
+        }
 
-        @Override
-        public void onError(String id, int code) {
+        @Override public void onError(String id, int code) {
+            if (handleWarmupDone(
+                    id,
+                    /*ok*/false,
+                    // map to your reasons; genericize non-specific codes as ERROR
+                    (code == TextToSpeech.ERROR_SYNTHESIS ? TtsHelper.SYNTH_FAIL : TtsHelper.ERROR)
+            )) return;
+
             playing = false;
             onEngineError("TTS error", code, 0);
         }
