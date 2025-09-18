@@ -26,8 +26,8 @@ import java.util.zip.ZipInputStream;
 /**
  * ODT low-level extractor:
  *  - One chapter per <text:h> (heading).
- *  - Fallback: whole doc as one chapter if no headings.
- *  - Cover: first image found in /Pictures.
+ *  - Fallback: single "Full Document" chapter if no headings.
+ *  - Cover: largest image found in /Pictures.
  *
  * Heuristic-based, not a full ODF parser.
  */
@@ -61,9 +61,10 @@ public final class OdtLowLevelHelper {
         // 1) Read whole ODT into memory
         byte[] odtBytes = readAllBytes(ctx, odtUri);
 
-        // 2) Walk ZIP entries to get content.xml and a cover candidate
+        // 2) Walk ZIP entries: get content.xml + largest picture
         String contentXml = null;
         Bitmap cover = null;
+        int bestBytes = -1;
 
         ZipInputStream zis = new ZipInputStream(new ByteArrayInputStream(odtBytes));
         ZipEntry e;
@@ -74,11 +75,15 @@ public final class OdtLowLevelHelper {
             if ("content.xml".equals(name)) {
                 contentXml = readEntryAsText(zis);
                 myLogD("content.xml size=" + (contentXml != null ? contentXml.length() : 0));
-            } else if (name.startsWith("Pictures/") && cover == null) {
+            } else if (name.startsWith("Pictures/")) {
                 byte[] data = readEntryAsBytes(zis);
-                cover = BitmapFactory.decodeByteArray(data, 0, data.length);
-                if (cover != null) {
-                    myLogD("Cover candidate: " + name + " (" + data.length + " bytes)");
+                if (data != null && data.length > bestBytes) {
+                    Bitmap candidate = BitmapFactory.decodeByteArray(data, 0, data.length);
+                    if (candidate != null) {
+                        cover = candidate;
+                        bestBytes = data.length;
+                        myLogD("Cover candidate (largest so far): " + name + " (" + data.length + " bytes)");
+                    }
                 }
             }
             zis.closeEntry();
@@ -87,31 +92,34 @@ public final class OdtLowLevelHelper {
 
         if (contentXml == null) throw new IllegalStateException("No content.xml in ODT");
 
-        // 3) Parse chapters (heading-based; with proper \n handling)
+        // 3) Parse chapters (namespace-aware; proper \n handling)
         List<Chapter> chapters = parseChapters(contentXml);
         myLogI("Chapters parsed: " + chapters.size());
 
-        // 4) Title heuristic: first heading, else "untitled"
+        // 4) Title heuristic: first heading text, else "untitled"
         String bookTitle = (chapters.isEmpty() || chapters.get(0).title == null || chapters.get(0).title.trim().isEmpty())
                 ? "untitled"
                 : chapters.get(0).title.trim();
 
-        // 5) Write out chapters
+        // 5) Write out chapters (ALWAYS write; even if text is empty)
         java.io.File outDir = new java.io.File(ctx.getExternalFilesDir(null), "odt_" + safe(bookTitle));
         if (!outDir.exists() && !outDir.mkdirs()) throw new IllegalStateException("Cannot create " + outDir);
 
         List<java.io.File> outFiles = new ArrayList<>();
         int idx = 0;
         for (Chapter ch : chapters) {
-            if (ch == null || ch.text == null || ch.text.trim().isEmpty()) continue;
-            String title = (ch.title != null && !ch.title.trim().isEmpty()) ? ch.title : deriveTitleFromText(ch.text);
+            if (ch == null) continue;
+            String text = (ch.text == null) ? "" : clean(ch.text);
+            String title = (ch.title != null && !ch.title.trim().isEmpty())
+                    ? ch.title.trim()
+                    : deriveTitleFromText(text);
             String fname = String.format(Locale.US, "%03d_%s.txt", ++idx, safeSlug(title));
             java.io.File f = new java.io.File(outDir, fname);
             try (FileOutputStream fos = new FileOutputStream(f)) {
-                fos.write(clean(ch.text).getBytes(StandardCharsets.UTF_8));
+                fos.write(text.getBytes(StandardCharsets.UTF_8));
             }
             outFiles.add(f);
-            myLogD("Wrote chapter: " + f.getName());
+            myLogD("Wrote chapter: " + f.getName() + " (len=" + text.length() + ")");
         }
 
         myLogI("=== ODT extractAll: done; chapters=" + outFiles.size() + " ===");
@@ -129,9 +137,9 @@ public final class OdtLowLevelHelper {
         x.setInput(new StringReader(xml));
 
         Chapter current = null;
-        StringBuilder buf = null;
+        StringBuilder buf = null;        // accumulates body text for current chapter
         boolean inHeading = false;
-        StringBuilder titleBuf = null;
+        StringBuilder titleBuf = null;   // accumulates full heading text with inline spans
 
         int t;
         while ((t = x.next()) != XmlPullParser.END_DOCUMENT) {
@@ -140,9 +148,9 @@ public final class OdtLowLevelHelper {
                 String name = x.getName();
 
                 if (TEXT_NS.equals(ns) && "h".equals(name)) {
-                    // Save previous chapter
-                    if (current != null && buf != null) {
-                        current.text = buf.toString();
+                    // Save previous chapter (even if empty)
+                    if (current != null) {
+                        current.text = (buf == null) ? "" : buf.toString();
                         out.add(current);
                     }
                     current = new Chapter();
@@ -174,7 +182,6 @@ public final class OdtLowLevelHelper {
                 String s = x.getText();
                 if (s != null && !s.isEmpty()) {
                     if (inHeading && titleBuf != null) {
-                        // Capture full heading text (allow inline spans)
                         titleBuf.append(s);
                     } else {
                         if (buf == null) buf = new StringBuilder(8192);
@@ -189,7 +196,7 @@ public final class OdtLowLevelHelper {
                 if (TEXT_NS.equals(ns) && "h".equals(name)) {
                     inHeading = false;
                     if (current != null) {
-                        String ttxt = titleBuf == null ? null : titleBuf.toString().replaceAll("\\s+"," ").trim();
+                        String ttxt = (titleBuf == null) ? null : titleBuf.toString().replaceAll("\\s+"," ").trim();
                         if (ttxt != null && !ttxt.isEmpty()) current.title = ttxt;
                     }
                     titleBuf = null;
@@ -204,22 +211,26 @@ public final class OdtLowLevelHelper {
             }
         }
 
-        // Flush last heading-based chapter
-        if (current != null && buf != null) {
-            current.text = buf.toString();
+        // Flush last heading-based chapter (even if empty)
+        if (current != null) {
+            current.text = (buf == null) ? "" : buf.toString();
             out.add(current);
         }
 
-        // Fallback: no headings → single full document from all paragraphs
+        // Fallback: no headings → single chapter from all paragraphs.
         if (out.isEmpty()) {
-            String fullText = collectAllText(xml);
-            if (fullText != null && !fullText.trim().isEmpty()) {
-                Chapter c = new Chapter();
-                c.title = "Full Document";
-                c.text = fullText;
-                out.add(c);
-                myLogW("No headings found: fallback to single full document chapter");
+            String fullText;
+            try {
+                fullText = collectAllText(xml);
+            } catch (Throwable ignore) {
+                fullText = "";
             }
+            Chapter c = new Chapter();
+            c.title = "Full Document";
+            c.text  = (fullText == null) ? "" : fullText;
+            out.add(c);
+            myLogW("No headings found: fallback to single full document chapter (len=" +
+                    (c.text == null ? 0 : c.text.length()) + ")");
         }
 
         return out;

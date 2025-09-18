@@ -41,6 +41,7 @@ import com.driot.bookplayer.utils.PermissionRequest;
 import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
+import java.util.Locale;
 import java.util.Objects;
 
 public class LoadBookActivity extends LoggingActivity {
@@ -49,7 +50,7 @@ public class LoadBookActivity extends LoggingActivity {
     public static final String EXTRA_TYPE = "type";  // File or Folder
 
     private Uri uri;
-    private String type;
+    private String gotten_type;
     private BookToAdd bookToAdd;
 
     private String audioBookTitle; // name can be changed... so keep as separate var
@@ -72,12 +73,12 @@ public class LoadBookActivity extends LoggingActivity {
         setContentView(R.layout.activity_load_options);
 
         uri = getIntent().getParcelableExtra(EXTRA_URI);
-        type = Objects.toString(getIntent().getStringExtra(EXTRA_TYPE),"");
+        gotten_type = Objects.toString(getIntent().getStringExtra(EXTRA_TYPE),"");
 
         if (
-                !(type.equals("File") || type.equals("Folder") || type.equals("Podcast"))
+                !(gotten_type.equals("File") || gotten_type.equals("Folder") || gotten_type.equals("Podcast"))
         ) {
-            myToastE("Error picking audio - unsupported type : [" + type + "]");
+            myToastE("Error picking audio - unsupported type : [" + gotten_type + "]");
             finish();
             return;
         }
@@ -110,8 +111,8 @@ public class LoadBookActivity extends LoggingActivity {
         llUseSdCard = findViewById(R.id.ll_use_sdcard);
         llDelete = findViewById(R.id.ll_delete_source);
 
-        if (type.equals("Podcast") ) { type = "File";}
-        bookToAdd = new BookToAdd(uri, type);
+        if (gotten_type.equals("Podcast") ) { gotten_type = "File";}
+        bookToAdd = new BookToAdd(uri, gotten_type);
 
         if (!bookToAdd.isMimeSupported()) {
             String message = getString(R.string.mime_type_not_supported)
@@ -131,7 +132,7 @@ public class LoadBookActivity extends LoggingActivity {
         audioBookTitle = bookToAdd.getAudioBookName();
 
         myLogD(bookToAdd.toString());
-
+/*
         // FORCING SPECIAL TYPE
         if (bookToAdd.getType().equalsIgnoreCase("m4b")) {
             type = "M4B";
@@ -141,9 +142,7 @@ public class LoadBookActivity extends LoggingActivity {
             type = "EPUB";
         }
 
-        if (Var.SUPPORTED_EBOOK_EXTENSIONS.contains(bookToAdd.getFileExtension())) {
-            showWarning(getString(R.string.beta_test) + "\n" + getString(R.string.still_in_development) + "\n" + getString(R.string.funny_behaviour_expected));
-        }
+ */
 
         tvFileName.setText(audioBookTitle);
         tvSourceLocation.setText(bookToAdd.getInfoSourceLocation());
@@ -265,8 +264,12 @@ public class LoadBookActivity extends LoggingActivity {
             }).start();
         });
 
-
         desactivateInteractive();
+
+        if (Var.SUPPORTED_EBOOK_EXTENSIONS.contains(bookToAdd.getType().replace(".","").toLowerCase(Locale.ROOT))) {
+            showWarning(getString(R.string.text_to_speech) + " " + getString(R.string.still_in_development) + "\n" + getString(R.string.beta_test) + "\n" + getString(R.string.weird_behavior_could_happen));
+        }
+
     }
 
 
@@ -316,7 +319,7 @@ public class LoadBookActivity extends LoggingActivity {
         internalCheckBoxStateCalculationInProgress = true;
         myLogD("calculateCheckboxState");
 
-        if ("M4B".equals(type)) {
+        if ("M4B".equals(bookToAdd.getType())) {
             llSplit.setVisibility(View.VISIBLE);
             if (cbSplit.isChecked()) {
                 cbCopy.setChecked(true);
@@ -332,14 +335,14 @@ public class LoadBookActivity extends LoggingActivity {
             llSplit.setVisibility(View.GONE);
         }
 
-        if ("ZIP".equals(type)) {
+        if ("ZIP".equals(bookToAdd.getType())) {
             cbCopy.setChecked(true);
             cbCopy.setEnabled(false);
             llCopy.setEnabled(false);
             llCopy.setAlpha(0.4f);
         }
 
-        if ("EPUB".equals(type)) {
+        if ("EPUB, FB2, ODT".contains(bookToAdd.getType())) {
             cbCopy.setChecked(true);
             cbCopy.setEnabled(false);
             llCopy.setEnabled(false);

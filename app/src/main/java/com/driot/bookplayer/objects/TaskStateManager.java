@@ -37,7 +37,7 @@ public class TaskStateManager {
         stepMap.put(Var.WORKER_TASK_LABEL_COPY, new StepInfo(2, 3, "Copying files..."));
         stepMap.put(Var.WORKER_TASK_LABEL_UNZIP, new StepInfo(3, 7, "Unzipping..."));
         stepMap.put(Var.WORKER_TASK_LABEL_SPLIT_M4B, new StepInfo(4, 7, "Splitting M4B..."));
-        stepMap.put(Var.WORKER_TASK_LABEL_SPLIT_EPUB, new StepInfo(4, 7, "Splitting EPUB..."));
+        stepMap.put(Var.WORKER_TASK_LABEL_SPLIT_EBOOK, new StepInfo(4, 7, "Splitting EPUB..."));
         stepMap.put(Var.WORKER_TASK_LABEL_SCAN, new StepInfo(5, 2, "Scanning audio..."));
     }
 

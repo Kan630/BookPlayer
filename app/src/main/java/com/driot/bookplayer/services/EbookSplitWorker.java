@@ -31,7 +31,7 @@ import java.util.Set;
 public class EbookSplitWorker extends LoggingWorker {
 
     // Keep existing label for compatibility with UI/strings
-    private static final String TASK_NAME = Var.WORKER_TASK_LABEL_SPLIT_EPUB;
+    private static final String TASK_NAME = Var.WORKER_TASK_LABEL_SPLIT_EBOOK;
 
     // Optional input param to force type; values: "epub" | "fb2"
     public static final String K_EBOOK_TYPE = "ebook_type";

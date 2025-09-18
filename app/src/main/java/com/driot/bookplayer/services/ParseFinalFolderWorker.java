@@ -332,6 +332,7 @@ public class ParseFinalFolderWorker extends LoggingWorker {
                     long size = f1.length();
 
                     long duration = estimateTtsDurationMsFromUri(context, f1.getUri(), fileName, mimeType);
+                    myLogD("text file duration :" + Tonio.formatTime(duration));
                     audioFileArrayList.add(new AudioFileInfo(displayPath, duration, f1.getUri().toString()));
                     fullFolderSize += size;
 
@@ -488,7 +489,11 @@ public class ParseFinalFolderWorker extends LoggingWorker {
         if ((bookState.optionCopy || "ZIP".equals(bookState.dynamicType)) && bookState.optionDelete) {
             deleteSourceFile();
         }
-        TaskStateManager.tellEnd();
+        if (saved == 0) {
+            TaskStateManager.markTaskFailed(TASK_NAME, context.getString(R.string.Error_Import_No_Usable_item_Found));
+        } else {
+            TaskStateManager.tellEnd();
+        }
     }
 
 

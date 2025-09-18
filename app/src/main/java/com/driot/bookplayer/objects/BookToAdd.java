@@ -101,15 +101,20 @@ public class BookToAdd {
                 this.isBroken = true;
             }
 
+            // specific workers....
             if (fileExtension.equalsIgnoreCase("zip")) {
                 this.type = "ZIP";
             } else if (fileExtension.equalsIgnoreCase("m4b")) {
                 this.type = "M4B";
+            } else if (fileExtension.equalsIgnoreCase("odt")) {
+                this.type = "ODT";
+            } else if (fileExtension.equalsIgnoreCase("fb2")) {
+                this.type = "FB2";
             } else if (fileExtension.equalsIgnoreCase("epub")) {
                 this.type = "EPUB";
             }
 
-            this.infoMimeExtension = "Type = [" + type + "] :    [" + mimeType + "] - [." + fileExtension + "]";
+            this.infoMimeExtension = "[" + type + "] :    [" + mimeType + "] - [." + fileExtension + "]";
             this.infoMimeExtensionSmall = "[" + mimeType + "] - [." + fileExtension + "]";
 
             if (this.type.equals("ZIP")
@@ -142,7 +147,7 @@ public class BookToAdd {
 
         } else if (type.equals("Folder")) {
 
-            this.infoMimeExtension = "Type = [" + type + "]";
+            this.infoMimeExtension = "[" + type + "]";
 
             if (!isUriDirectory()) {
                 myLogEE(null,"is not a Directory ?");

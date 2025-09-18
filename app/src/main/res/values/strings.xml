@@ -789,8 +789,9 @@
     <string name="option_night_mode_light">☀️ Light</string>
     <string name="option_night_mode_dark">🌙 Dark</string>
     <string name="option_night_mode_dialog_title">Choose theme mode</string>
+    <string name="text_to_speech">text-to-speech</string>
     <string name="still_in_development">still in development</string>
-    <string name="funny_behaviour_expected">funny behaviour expected</string>
+    <string name="weird_behavior_could_happen">weird behavior could happen</string>
 
     <string name="Generate">Generate</string>
     <string name="DeleteCoverImage_AskDelete">"You are about to delete this cover image.\nAre you sure ?"</string>
@@ -804,7 +805,7 @@
     <string name="option_podcast_autodownload_subtitle">"If you mark a podcast as a favorite, you can also enable the ‘auto-download’ option.\nBookPlayer will then check for new episodes—both periodically and at startup—and download them."</string>
 
     <string name="toast_tts_not_ready">"Text-to-Speech not ready !"</string>
-
+    <string name="Error_Import_No_Usable_item_Found">"No usable item found"</string>">
 
 
 </resources>
