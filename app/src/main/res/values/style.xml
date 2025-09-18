@@ -90,11 +90,6 @@
         <item name="android:textSize">25sp</item>
     </style>
 
-    <style name="PlayActivityActionButtonsPlusMinus">
-        <item name="android:layout_width">50sp</item>
-        <item name="android:layout_height">50sp</item>
-    </style>
-
     <!-- ***************** LAYOUT ***************** -->
     <style name="simpleLinearLayout_Horizontal">
         <item name="android:layout_width">wrap_content</item>

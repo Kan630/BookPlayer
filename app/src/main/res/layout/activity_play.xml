@@ -146,10 +146,11 @@
     <Button
         android:id="@+id/bSpeedDown"
         android:text="-"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
         android:textSize="30sp"
         android:paddingVertical="0dp"
         android:textAlignment="gravity"
-        style="@style/PlayActivityActionButtonsPlusMinus"
         android:layout_toStartOf="@id/textViewSpeed"
         android:layout_above="@+id/textViewTempsTotal"
         />
@@ -170,8 +171,9 @@
     <Button
         android:id="@+id/bSpeedUp"
         android:text="+"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
         android:textSize="24sp"
-        style="@style/PlayActivityActionButtonsPlusMinus"
         android:layout_toEndOf="@id/textViewSpeed"
         android:layout_above="@+id/textViewTempsTotal"
         />
