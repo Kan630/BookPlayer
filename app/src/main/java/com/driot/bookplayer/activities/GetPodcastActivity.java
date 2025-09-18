@@ -56,6 +56,7 @@ public class GetPodcastActivity extends LoggingActivity {
         ibSettings.setOnClickListener(v -> clickSettings());
 
         buttonPodcastSearch.setOnClickListener(v -> {
+            myLogI("--- User clicks SEARCH ---");
             query = editTextPodcast.getText();
             LanguageItem selectedLang = (LanguageItem) spinnerLang.getSelectedItem();
             lang = selectedLang.getTwoLetterCode().toLowerCase();
@@ -64,6 +65,7 @@ public class GetPodcastActivity extends LoggingActivity {
             intent.putExtra("query", query);
             intent.putExtra("lang", lang);
             startActivity(intent);
+            FirebaseAnalyticsHelper.tellAnalyticsPodcastSearch(query, lang);
         });
 
         buttonTrending.setOnClickListener(v -> {
@@ -76,6 +78,7 @@ public class GetPodcastActivity extends LoggingActivity {
             intent.putExtra("query", query);
             intent.putExtra("lang", lang);
             startActivity(intent);
+            FirebaseAnalyticsHelper.tellAnalyticsPodcastTrending(query, lang);
         });
         // Keyboard "done/search"
         editTextPodcast.getEditText().setOnEditorActionListener((v, actionId, event) -> {

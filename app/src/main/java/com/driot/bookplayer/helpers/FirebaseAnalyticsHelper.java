@@ -69,6 +69,12 @@ public final class FirebaseAnalyticsHelper {
         bundle.putString("language", lang);
         logThat("podcast_search", bundle);
     }
+    public static void tellAnalyticsPodcastTrending(String query, String lang) {
+        Bundle bundle = new Bundle();
+        bundle.putString("query", query);
+        bundle.putString("language", lang);
+        logThat("podcast_trending", bundle);
+    }
     public static void tellAnalyticsPodcastFavorite(String podcastName, String podcastLang) {
         Bundle bundle = new Bundle();
         bundle.putString("podcastName", podcastName);

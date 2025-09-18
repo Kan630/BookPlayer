@@ -100,7 +100,6 @@ public class PodcastSearchResultsActivity extends LoggingActivity {
         viewModel.setLastQuery(query);
         viewModel.setLastLang(lang);
         performSearch(query, lang);
-        FirebaseAnalyticsHelper.tellAnalyticsPodcastSearch(query, lang);
     }
 
     private void performSearch(String query, String lang) {
