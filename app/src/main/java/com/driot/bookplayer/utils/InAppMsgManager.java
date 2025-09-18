@@ -439,7 +439,7 @@ public final class InAppMsgManager {
             while ((n = in.read(buf)) != -1) out.write(buf, 0, n);
             String json = out.toString("UTF-8");
             myLogD("fetchJson: body head=" + preview(json));
-            myLogD(json);
+            //myLogD(json);
 
             // Sauvegarde cache
             saveIndexToCache(context, json, newEtag);

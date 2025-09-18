@@ -69,7 +69,7 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
 
         holder.textViewDuration.setText(formatTime(folder.getDuration()));
 
-        holder.ivMemory.setImageResource(folder.getMemoryLocationIcon(mCtx));
+        //holder.ivMemory.setImageResource(folder.getMemoryLocationIcon(mCtx));
 
         if (folder.image != null) {
             holder.ivBookCover.setVisibility(View.VISIBLE);

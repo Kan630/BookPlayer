@@ -123,17 +123,24 @@
     ]]></string>
 
         <string name="help_podcast_title">Podcast Import :</string>
-        <string name="help_podcast_text"><![CDATA[
+    <string name="help_podcast_text"><![CDATA[
     <font color="#BA68C8"><b>Discover Podcasts</b></font>
     <br><br>
     Explore a wide range of <font color="#90D8E8">podcasts</font> in many <font color="#81C784">languages</font>.
     <br><br>
-    Download any <font color="#FFCC80">episode</font> with a single tap.
+    Stream any <font color="#FFCC80">episode</font> with a single tap.
+    <br><br>
+    Save a <font color="#90D8E8">podcast</font> as a <font color="#BA68C8">book</font> by tapping the <font color="#FFCC80">download</font> button on any episode,
+    or use the top-level option to enable <font color="#81C784">automatic checks</font> for new episodes.
+    <br><br>
+    Tap the <font color="#EF9A9A">cover image</font> to open the book of your downloaded episodes.
+    <br><br>
+    Adjust <font color="#90D8E8">defaults</font> and <font color="#81C784">navigation preferences</font> in the settings menu.
     <br><br>
     Add shows to your <font color="#EF9A9A">favorites</font> for easy access and enable <font color="#81C784">auto-download</font> to fetch new episodes automatically.
     <br><br>
-    Checks happen regularly, especially when BookPlayer starts.
-    ]]></string>
+    BookPlayer performs these checks regularly, especially at startup.
+]]></string>
 
         <string name="help_url_title">Import from URL :</string>
         <string name="help_url_text"><![CDATA[

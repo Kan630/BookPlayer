@@ -4,12 +4,8 @@
 
     <color name="text_default">#FFCDCDCD</color>
 
-    <color name="cardBackground">#FFCDCDCD</color>
-    <color name="cardBackgroundTextView">#FFDEDEDE</color>
-    <color name="cardBackgroundTextInTextView">#FF000000</color>
-    <color name="cardBackgroundLightTextInTextView">#FF333333</color>
-
     <!-- Light palette -->
+    <!-- ............................................. -->
     <color name="bp_background">#FFFBFE</color>
     <color name="bp_onBackground">#1C1B1F</color>
     <color name="bp_surface">#FFFFFF</color>
@@ -19,6 +15,15 @@
     <color name="highlight_last_listened">#E0E0E0</color>
     <color name="highlight_current">#E0D0D0</color>
     <color name="textColor">#202020</color>
+
+    <color name="cardBackground">#FFCDCDCD</color>
+    <color name="cardBackgroundTextView">#FFDEDEDE</color>
+    <color name="cardBackgroundTextInTextView">#FF000000</color>
+    <color name="cardBackgroundLightTextInTextView">#FF333333</color>
+    <!-- ............................................. -->
+
+
+
 
     <color name="lightred">#FFFF2222</color>
     <color name="red">#FF990000</color>
@@ -141,6 +146,24 @@
     <color name="green_dark_300">#81C784</color>
     <color name="green_dark_900">#1B5E20</color>
 
-
+    <!-- values (LIGHT) : surfaces très claires, légèrement teintées par thème -->
+    <color name="purple_Surface">#F6F0FF</color>
+    <color name="gray_Surface">#FAFAFA</color>
+    <color name="brown_Surface">#F8F1EC</color>
+    <color name="yellow_Surface">#FFFDE7</color>
+    <color name="yellow_dark_Surface">#FFF8E1</color>
+    <color name="orange_Surface">#FFF3E0</color>
+    <color name="red_Surface">#FFEBEE</color>
+    <color name="red_dark_Surface">#FFEAEA</color>
+    <color name="pink_light_Surface">#FFF0F4</color>
+    <color name="pink_Surface">#FFF0F7</color>
+    <color name="pink_dark_Surface">#FFE6F0</color>
+    <color name="cyan_Surface">#E0F7FA</color>
+    <color name="pastel_blue_Surface">#E3F2FD</color>
+    <color name="indigo_Surface">#E8EAF6</color>
+    <color name="turquoise_Surface">#E0F7F5</color>
+    <color name="green_light_Surface">#F1F8E9</color>
+    <color name="green_Surface">#E8F5E9</color>
+    <color name="green_dark_Surface">#E6F4EA</color>
 
 </resources>

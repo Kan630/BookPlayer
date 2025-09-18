@@ -16,6 +16,27 @@
     <color name="cardBackgroundTextView">#FF111111</color>
     <color name="cardBackgroundTextInTextView">#FFDDDDDD</color>
     <color name="cardBackgroundLightTextInTextView">#FF999999</color>
+    <!-- Dark palette -->
 
+
+    <!-- values-night (DARK) : surfaces très foncées, légèrement teintées par thème -->
+    <color name="purple_Surface">#1A1022</color>
+    <color name="gray_Surface">#121212</color>
+    <color name="brown_Surface">#1A0F0C</color>
+    <color name="yellow_Surface">#1A1600</color>
+    <color name="yellow_dark_Surface">#1A1400</color>
+    <color name="orange_Surface">#1A0E00</color>
+    <color name="red_Surface">#1A0A0A</color>
+    <color name="red_dark_Surface">#160707</color>
+    <color name="pink_light_Surface">#1A0D12</color>
+    <color name="pink_Surface">#1A0D12</color>
+    <color name="pink_dark_Surface">#190812</color>
+    <color name="cyan_Surface">#00161A</color>
+    <color name="pastel_blue_Surface">#0B141F</color>
+    <color name="indigo_Surface">#0E1024</color>
+    <color name="turquoise_Surface">#001A17</color>
+    <color name="green_light_Surface">#0B1A0B</color>
+    <color name="green_Surface">#0A1A0F</color>
+    <color name="green_dark_Surface">#081A10</color>
 
 </resources>

@@ -12,6 +12,8 @@
         <item name="colorSurface">@color/bp_surface</item>
         <item name="colorOnSurface">@color/bp_onSurface</item>
         <item name="colorOutline">@color/bp_outline</item>
+        <item name="colorSurfaceVariant">@color/purple_Surface</item>
+        <item name="colorOnSurfaceVariant">@color/black</item>
 
         <!-- System bars / window -->
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
@@ -30,6 +32,7 @@
         <item name="colorSecondary">@color/gray_300</item>
         <item name="colorSecondaryVariant">@color/gray_900</item>
         <item name="colorOnSecondary">@color/black</item>
+        <item name="colorSurfaceVariant">@color/gray_Surface</item>
     </style>
 
     <style name="Theme.BookPlayer.Green" parent="Theme.BookPlayer">
@@ -39,6 +42,7 @@
         <item name="colorSecondary">@color/green_300</item>
         <item name="colorSecondaryVariant">@color/green_900</item>
         <item name="colorOnSecondary">@color/white</item>
+        <item name="colorSurfaceVariant">@color/green_Surface</item>
     </style>
 
     <style name="Theme.BookPlayer.Orange" parent="Theme.BookPlayer">
@@ -48,6 +52,7 @@
         <item name="colorSecondary">@color/orange_300</item>
         <item name="colorSecondaryVariant">@color/orange_900</item>
         <item name="colorOnSecondary">@color/black</item>
+        <item name="colorSurfaceVariant">@color/orange_Surface</item>
     </style>
 
     <style name="Theme.BookPlayer.Pink" parent="Theme.BookPlayer">
@@ -57,6 +62,7 @@
         <item name="colorSecondary">@color/pink_300</item>
         <item name="colorSecondaryVariant">@color/pink_900</item>
         <item name="colorOnSecondary">@color/black</item>
+        <item name="colorSurfaceVariant">@color/pink_Surface</item>
     </style>
 
     <style name="Theme.BookPlayer.Blue" parent="Theme.BookPlayer">
@@ -66,6 +72,7 @@
         <item name="colorSecondary">@color/pastel_blue_300</item>
         <item name="colorSecondaryVariant">@color/pastel_blue_900</item>
         <item name="colorOnSecondary">@color/black</item>
+        <item name="colorSurfaceVariant">@color/pastel_blue_Surface</item>
     </style>
 
     <style name="Theme.BookPlayer.Red" parent="Theme.BookPlayer">
@@ -75,6 +82,7 @@
         <item name="colorSecondary">@color/red_300</item>
         <item name="colorSecondaryVariant">@color/red_900</item>
         <item name="colorOnSecondary">@color/black</item>
+        <item name="colorSurfaceVariant">@color/red_Surface</item>
     </style>
 
     <style name="Theme.BookPlayer.Yellow" parent="Theme.BookPlayer">
@@ -84,6 +92,7 @@
         <item name="colorSecondary">@color/yellow_300</item>
         <item name="colorSecondaryVariant">@color/yellow_900</item>
         <item name="colorOnSecondary">@color/black</item>
+        <item name="colorSurfaceVariant">@color/yellow_Surface</item>
     </style>
 
     <style name="Theme.BookPlayer.Cyan" parent="Theme.BookPlayer">
@@ -93,6 +102,7 @@
         <item name="colorSecondary">@color/cyan_300</item>
         <item name="colorSecondaryVariant">@color/cyan_900</item>
         <item name="colorOnSecondary">@color/black</item>
+        <item name="colorSurfaceVariant">@color/cyan_Surface</item>
     </style>
 
     <style name="Theme.BookPlayer.Brown" parent="Theme.BookPlayer">
@@ -102,6 +112,7 @@
         <item name="colorSecondary">@color/brown_300</item>
         <item name="colorSecondaryVariant">@color/brown_900</item>
         <item name="colorOnSecondary">@color/white</item>
+        <item name="colorSurfaceVariant">@color/brown_Surface</item>
     </style>
 
     <style name="Theme.BookPlayer.Indigo" parent="Theme.BookPlayer">
@@ -111,6 +122,7 @@
         <item name="colorSecondary">@color/indigo_300</item>
         <item name="colorSecondaryVariant">@color/indigo_900</item>
         <item name="colorOnSecondary">@color/white</item>
+        <item name="colorSurfaceVariant">@color/indigo_Surface</item>
     </style>
 
     <style name="Theme.BookPlayer.Turquoise" parent="Theme.BookPlayer">
@@ -120,6 +132,7 @@
         <item name="colorSecondary">@color/turquoise_300</item>
         <item name="colorSecondaryVariant">@color/turquoise_900</item>
         <item name="colorOnSecondary">@color/black</item>
+        <item name="colorSurfaceVariant">@color/turquoise_Surface</item>
     </style>
 
     <style name="Theme.BookPlayer.GreenLight" parent="Theme.BookPlayer">
@@ -129,6 +142,7 @@
         <item name="colorSecondary">@color/green_light_300</item>
         <item name="colorSecondaryVariant">@color/green_light_900</item>
         <item name="colorOnSecondary">@color/black</item>
+        <item name="colorSurfaceVariant">@color/green_light_Surface</item>
     </style>
 
     <style name="Theme.BookPlayer.GreenDark" parent="Theme.BookPlayer">
@@ -138,6 +152,7 @@
         <item name="colorSecondary">@color/green_dark_300</item>
         <item name="colorSecondaryVariant">@color/green_dark_900</item>
         <item name="colorOnSecondary">@color/white</item>
+        <item name="colorSurfaceVariant">@color/green_dark_Surface</item>
     </style>
 
     <style name="Theme.BookPlayer.PinkLight" parent="Theme.BookPlayer">
@@ -147,6 +162,7 @@
         <item name="colorSecondary">@color/pink_light_300</item>
         <item name="colorSecondaryVariant">@color/pink_light_900</item>
         <item name="colorOnSecondary">@color/black</item>
+        <item name="colorSurfaceVariant">@color/pink_light_Surface</item>
     </style>
 
     <style name="Theme.BookPlayer.PinkDark" parent="Theme.BookPlayer">
@@ -156,6 +172,7 @@
         <item name="colorSecondary">@color/pink_dark_300</item>
         <item name="colorSecondaryVariant">@color/pink_dark_900</item>
         <item name="colorOnSecondary">@color/black</item>
+        <item name="colorSurfaceVariant">@color/pink_dark_Surface</item>
     </style>
 
     <style name="Theme.BookPlayer.YellowDark" parent="Theme.BookPlayer">
@@ -165,6 +182,7 @@
         <item name="colorSecondary">@color/yellow_dark_300</item>
         <item name="colorSecondaryVariant">@color/yellow_dark_900</item>
         <item name="colorOnSecondary">@color/black</item>
+        <item name="colorSurfaceVariant">@color/yellow_dark_Surface</item>
     </style>
 
     <style name="Theme.BookPlayer.RedDark" parent="Theme.BookPlayer">
@@ -174,6 +192,7 @@
         <item name="colorSecondary">@color/red_dark_300</item>
         <item name="colorSecondaryVariant">@color/red_dark_900</item>
         <item name="colorOnSecondary">@color/white</item>
+        <item name="colorSurfaceVariant">@color/red_dark_Surface</item>
     </style>
 
 </resources>

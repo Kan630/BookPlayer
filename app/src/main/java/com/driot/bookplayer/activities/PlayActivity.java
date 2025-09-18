@@ -48,6 +48,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.regex.Pattern;
 
 import static com.driot.bookplayer.global.Var.SLEEP_PRESET_VALUES;
 import static com.driot.bookplayer.services.AudioService.TIMER_VALUE;
@@ -620,8 +621,12 @@ public class PlayActivity extends LoggingActivity {
         }
         try {
             myLogD("DrawUI : " + PlayList.getInstance().getZikFile().getName() + " -- " + PlayList.getInstance().getZikFile().getPosition() + " -- " + PlayList.getInstance().getZikFile().getDisplayName());
-            tvSubTitle.setText(PlayList.getInstance().getZikFile().getDisplayName());
-            tvTitle.setText(PlayList.getInstance().getZikFile().getFolderName());
+            String title = PlayList.getInstance().getZikFile().getFolderName();
+            String subTitle = PlayList.getInstance().getZikFile().getDisplayName();
+            subTitle = subTitle.replaceFirst("^" + Pattern.quote(title), "").trim();
+            tvTitle.setText(title);
+            tvSubTitle.setText(subTitle);
+            if (subTitle.equals(title) || subTitle.isEmpty()) tvSubTitle.setVisibility(View.GONE);
             tvTotalTime.setText(formatTime(PlayList.getInstance().getZikFile().getDuration(),true));
             seekbar.setMax((int) PlayList.getInstance().getZikFile().getDuration());
             tvSeekBar.setText(formatTime(PlayList.getInstance().getZikFile().getPosition(),true));

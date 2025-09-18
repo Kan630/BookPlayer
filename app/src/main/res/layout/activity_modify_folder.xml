@@ -52,8 +52,8 @@
                 <ImageView
                     android:id="@+id/imageViewStorageIcon"
                     android:layout_width="wrap_content"
-                    android:layout_height="20dp"
-                    android:layout_marginStart="0dp"
+                    android:layout_height="48dp"
+                    android:layout_marginStart="48dp"
                     android:backgroundTint="@color/brown_300"
                     android:backgroundTintMode="screen" />
             </LinearLayout>

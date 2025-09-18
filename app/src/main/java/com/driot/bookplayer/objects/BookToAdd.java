@@ -62,7 +62,7 @@ public class BookToAdd {
         this.type = type;
         this.uri = uri;
         this.originalType = type;
-
+        this.isMimeSupported = true;
 
         if (isUriDirectory() && !Objects.equals(type, "Folder")) {
             myLogW("Side Check if it is a Folder : " + isUriDirectory() + " - but type = " + type);
@@ -122,7 +122,6 @@ public class BookToAdd {
                 || mimeType.startsWith(ONLY_MIME_VIDEO) || SUPPORTED_VIDEO_EXTENSIONS.contains(fileExtension)
                 || SUPPORTED_TEXTUAL_MIMES.contains(mimeType) || SUPPORTED_EBOOK_EXTENSIONS.contains(fileExtension)
             ) {
-                this.isMimeSupported = true;
                 myLogD("Mime/Extension supported - " + infoMimeExtension);
             } else {
                 this.isMimeSupported = false;

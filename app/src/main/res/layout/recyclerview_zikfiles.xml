@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     app:cardElevation="2dp"
     app:cardCornerRadius="8dp"
-    app:cardBackgroundColor="@color/cardBackground"
+    app:cardBackgroundColor="?attr/colorSurfaceVariant"
     android:layout_marginBottom="3dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -21,20 +21,22 @@
         android:layout_marginStart="0dp"
         android:layout_marginEnd="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        android:background="@color/cardBackground"
+        android:background="?attr/colorSurfaceVariant"
         >
         <TextView
             android:id="@+id/tvBookName"
-            android:text="Song 1.mp3"
+            android:text="@string/audio_tracks"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingVertical="0dp"
-            android:paddingHorizontal="2dp"
+            android:paddingHorizontal="5dp"
             android:layout_marginTop="@dimen/recyclerview_elements_top"
             android:layout_marginLeft="@dimen/recyclerview_elements_sides"
             android:layout_marginRight="@dimen/recyclerview_elements_sides"
-            android:background="?attr/colorSurface"
+            android:background="?attr/colorSurfaceVariant"
             android:textColor="?attr/colorOnSurface"
+            android:fontFamily="casual"
+            android:textSize="16sp"
             app:layout_constraintBottom_toTopOf="@id/textViewFilePercent"
             />
 
