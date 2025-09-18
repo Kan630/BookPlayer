@@ -1,4 +1,4 @@
-package com.driot.bookplayer.utils;
+package com.driot.bookplayer.services;
 
 import static com.driot.bookplayer.db.Sql.updateFolderTable;
 import static com.driot.bookplayer.global.Var.SOURCE_LOCATION_PODCAST;
@@ -24,8 +24,10 @@ import com.driot.bookplayer.db.FolderDao;
 import com.driot.bookplayer.db.PodcastDao;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.db.ZikFileDao;
+import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.PodcastHelper;
+import com.driot.bookplayer.utils.KanLogger;
 
 import java.io.File;
 
@@ -160,7 +162,9 @@ public class PodcastSyncWorker extends Worker {
         if (newFilesCount > 0) {
             updateFolderTable(getApplicationContext(), idFolder);
             ImageHelper.processPendingImages(getApplicationContext());
-            folderDao.updateLastAccess(idFolder, System.currentTimeMillis()); //triggers livedata update and reload of Book list
+            if (Option.getPodcastAutoDownloadedAtTheTop()) {
+                folderDao.updateLastAccess(idFolder, System.currentTimeMillis()); //triggers livedata update and reload of Book list
+            }
             Handler handler = new Handler(Looper.getMainLooper());
             int finalNewFilesCount = newFilesCount;
             //TODO handler.post(() -> myToast(finalNewFilesCount + " " + getString(getApplicationContext(), R.string.podcast_new_episodes) + " for " + name));

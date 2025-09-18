@@ -9,6 +9,8 @@ import androidx.work.WorkManager;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
+import com.driot.bookplayer.services.PodcastSyncWorker;
+
 public class FinalizeDownloadWorker extends Worker {
 
     public static final String KEY_FOLDER_PATH = "folder_path";

@@ -9,6 +9,7 @@ import androidx.work.WorkManager;
 
 import com.driot.bookplayer.helpers.PodcastHelper;
 import com.driot.bookplayer.objects.PodcastEpisode;
+import com.driot.bookplayer.services.PodcastDownloadEpisodeWorker;
 
 import java.io.File;
 import java.util.List;
@@ -24,11 +25,11 @@ public class PodcastDownloadManager {
             String destPath = new File(targetFolder, destFileName).getAbsolutePath();
 
             Data inputData = new Data.Builder()
-                    .putString(DownloadEpisodeWorker.KEY_URL, episode.enclosureUrl)
-                    .putString(DownloadEpisodeWorker.KEY_DEST_PATH, destPath)
+                    .putString(PodcastDownloadEpisodeWorker.KEY_URL, episode.enclosureUrl)
+                    .putString(PodcastDownloadEpisodeWorker.KEY_DEST_PATH, destPath)
                     .build();
 
-            OneTimeWorkRequest request = new OneTimeWorkRequest.Builder(DownloadEpisodeWorker.class)
+            OneTimeWorkRequest request = new OneTimeWorkRequest.Builder(PodcastDownloadEpisodeWorker.class)
                     .setInputData(inputData)
                     .build();
 

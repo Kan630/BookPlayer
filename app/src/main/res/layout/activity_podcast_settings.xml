@@ -11,37 +11,83 @@
         android:id="@+id/ll_Podcast"
         style="@style/LinearLayoutOptionsVertical">
         <TextView
-            style="@style/OptionTextDefaultFor"
-            android:text="@string/default_for" />
-        <TextView
             style="@style/OptionTitle"
-            android:text="@string/Podcasts" />
+            android:text="@string/Podcast_specific_view" />
+        <TextView
+            style="@style/OptionTextDefaultFor"
+            android:layout_marginTop="20dp"
+            android:text="@string/default_for" />
         <LinearLayout style="@style/LinearLayoutOptionsCheckBoxHorizontal"
-            android:id="@+id/ll_podcast_episodes_sort_order">
+            android:id="@+id/ll_podcast_episodes_sort_order"
+            android:layout_marginTop="0dp"
+            >
             <com.google.android.material.checkbox.MaterialCheckBox
                 android:id="@+id/chk_podcast_episodes_sort_order"
                 style="@style/OptionCheckBox"/>
             <TextView
                 style="@style/OptionCheckBoxText"
                 android:text="@string/option_podcast_episodes_sort_order" />
+            <ImageButton
+                android:id="@+id/ib_podcast_episodes_sort_order"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_sort_swap_vert_24"
+                android:background="@android:color/transparent"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="10dp"
+                />
         </LinearLayout>
         <LinearLayout style="@style/LinearLayoutOptionsCheckBoxHorizontal"
-            android:id="@+id/ll_podcast_episodes_expand">
+            android:id="@+id/ll_podcast_episodes_expand"
+            android:layout_marginTop="0dp"
+            >
             <com.google.android.material.checkbox.MaterialCheckBox
                 android:id="@+id/chk_podcast_episodes_expand"
                 style="@style/OptionCheckBox"/>
             <TextView
                 style="@style/OptionCheckBoxText"
                 android:text="@string/option_podcast_episodes_expand" />
+            <ImageButton
+                android:id="@+id/ib_podcast_episodes_expand"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_content_expand_24"
+                android:background="@android:color/transparent"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="10dp"
+                />
         </LinearLayout>
+
+        <View style="@style/myStyleViewSimpleHorizontalBar" />
 
         <LinearLayout
             android:id="@+id/ll_AutoDownload"
             style="@style/LinearLayoutOptionsVertical">
+            <LinearLayout style="@style/simpleLinearLayout_Horizontal"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="5dp"
+                >
+                <TextView
+                    style="@style/OptionTitle"
+                    android:text="@string/Auto_Download"
+                    android:layout_marginTop="0dp"
+                    />
+                <ImageButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_download_action_24"
+                    android:tint="?attr/colorOnSurface"
+                    android:background="@android:color/transparent"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="10dp"
+                    />
+            </LinearLayout>
             <TextView
-                style="@style/OptionTitle"
-                android:text="@string/Auto_Download"
+                style="@style/OptionSubTitle"
+                android:text="@string/option_podcast_autodownload_subtitle"
+                android:layout_marginBottom="5dp"
                 />
+
             <LinearLayout
                 style="@style/LinearLayoutOptionsCheckBoxHorizontal"
                 android:gravity="center"
@@ -107,6 +153,18 @@
                 android:text="Max = 60x24  (1day = 1440min)"
                 style="@style/OptionMiniText" />
         </LinearLayout>
+        <LinearLayout style="@style/LinearLayoutOptionsCheckBoxHorizontal"
+            android:id="@+id/ll_podcast_autodownloaded_at_the_top">
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/chk_podcast_autodownloaded_at_the_top"
+                style="@style/OptionCheckBox"/>
+            <TextView
+                style="@style/OptionCheckBoxText"
+                android:text="@string/option_podcast_autodownloaded_at_the_top" />
+        </LinearLayout>
+
+        <View style="@style/myStyleViewSimpleHorizontalBar" />
+
         <LinearLayout
             android:id="@+id/ll_AutoDelete"
             style="@style/LinearLayoutOptionsVertical">
@@ -166,6 +224,8 @@
                 android:text="Max = 100"
                 style="@style/OptionMiniText" />
         </LinearLayout>
-    </LinearLayout>
 
+        <View style="@style/myStyleViewSimpleHorizontalBar" />
+
+    </LinearLayout>
 </ScrollView>

@@ -79,12 +79,14 @@ public class BookLoadingWorkLauncher {
         }
         if (bookState.fileExtension!=null && bookState.fileExtension.equalsIgnoreCase("epub")) {
             myLogD("epub");
-            ebookType = "epub";
             doSplitEbook = true;
             doCopy = true;
         } else if (bookState.fileExtension!=null && bookState.fileExtension.equalsIgnoreCase("fb2")) {
             myLogD("fb2");
-            ebookType = "fb2";
+            doSplitEbook = true;
+            doCopy = true;
+        } else if (bookState.fileExtension!=null && bookState.fileExtension.equalsIgnoreCase("odt")) {
+            myLogD("odt");
             doSplitEbook = true;
             doCopy = true;
         }
@@ -127,11 +129,15 @@ public class BookLoadingWorkLauncher {
         if (bookState.doUnzip) {workChain.add(new OneTimeWorkRequest.Builder(UnzipWorker.class).addTag(BOOK_LOADING_WORKERS).build());}
         if (bookState.doSplitM4b) {workChain.add(new OneTimeWorkRequest.Builder(M4bSplitWorker.class).addTag(BOOK_LOADING_WORKERS).build());}
         if (bookState.doSplitEbook) {
-            String ebookType = null; // if null, the ebookHelper will check file extension
+            String ebookType = null; // if null, the EbookSplitWorker will check file extension
             if (bookState.fileExtension != null) {
                 String ext = bookState.fileExtension.toLowerCase(java.util.Locale.ROOT);
-                if ("epub".equals(ext)) ebookType = "epub";
-                else if ("fb2".equals(ext)) ebookType = "fb2";
+                ebookType = switch (ext) {
+                    case "epub" -> "epub";
+                    case "fb2" -> "fb2";
+                    case "odt" -> "odt";
+                    default -> ebookType;
+                };
             }
             androidx.work.Data input =
                     new androidx.work.Data.Builder()

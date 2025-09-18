@@ -15,11 +15,12 @@ public class PodcastSettingsActivity extends LoggingActivity {
     CheckBox chk_podcast_auto_delete;
     CheckBox chk_podcast_episodes_sort_order;
     CheckBox chk_podcast_episodes_expand;
+    CheckBox chk_podcast_autodownloaded_at_the_top;
 
     EditText et_podcast_delay_deletion, et_podcast_completion_percentage_deletion;
     EditText et_podcast_auto_download_last_n_episode, et_auto_download_max_n_podcast, et_auto_download_delay_between_checks_in_min;
 
-    LinearLayout ll_podcast_auto_delete, ll_podcast_episodes_sort_order, ll_podcast_episodes_expand;
+    LinearLayout ll_podcast_auto_delete, ll_podcast_episodes_sort_order, ll_podcast_episodes_expand, ll_podcast_autodownloaded_at_the_top;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +61,12 @@ public class PodcastSettingsActivity extends LoggingActivity {
         chk_podcast_episodes_expand.setChecked(Option.getPodcastEpisodesDescriptionExpand());
         ll_podcast_episodes_expand.setOnClickListener(v -> chk_podcast_episodes_expand.toggle());
         chk_podcast_episodes_expand.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setPodcastEpisodesDescriptionExpand(isChecked));
+
+        chk_podcast_autodownloaded_at_the_top = findViewById(R.id.chk_podcast_autodownloaded_at_the_top);
+        ll_podcast_autodownloaded_at_the_top = findViewById(R.id.ll_podcast_autodownloaded_at_the_top);
+        chk_podcast_autodownloaded_at_the_top.setChecked(Option.getPodcastAutoDownloadedAtTheTop());
+        ll_podcast_autodownloaded_at_the_top.setOnClickListener(v -> chk_podcast_autodownloaded_at_the_top.toggle());
+        chk_podcast_autodownloaded_at_the_top.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setPodcastAutoDownloadedAtTheTop(isChecked));
 
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN); // Avoid keyboard on opening
     }

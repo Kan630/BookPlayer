@@ -10,6 +10,7 @@ import androidx.work.WorkerParameters;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
+import com.driot.bookplayer.helpers.OdtLowLevelHelper;
 import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.objects.TaskStateManager;
 import com.driot.bookplayer.helpers.EpubLowLevelHelper;
@@ -102,6 +103,11 @@ public class EbookSplitWorker extends LoggingWorker {
             } else if ("epub".equals(ebookType)) {
                 TaskStateManager.tellProgress(TASK_NAME, 1, "Parsing EPUB…");
                 EpubLowLevelHelper.ExtractResult result = EpubLowLevelHelper.extractAll(ctx, uri);
+                cover    = result.coverBitmap;
+                chapters = result.chapterFiles;
+            } else if ("odt".equals(ebookType)) {
+                TaskStateManager.tellProgress(TASK_NAME, 1, "Parsing ODT…");
+                OdtLowLevelHelper.ExtractResult result = OdtLowLevelHelper.extractAll(ctx, uri);
                 cover    = result.coverBitmap;
                 chapters = result.chapterFiles;
             } else {

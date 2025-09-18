@@ -40,6 +40,7 @@ public class Option {
     public static final int DEFAULT_PODCAST_AUTO_DOWNLOAD_LAST_N_EPISODES = 5;
     public static final int DEFAULT_PODCAST_AUTO_DOWNLOAD_MAX_N_PODCASTS = 10;
     public static final int DEFAULT_PODCAST_AUTO_DOWNLOAD_DELAY_BETWEEN_CHECKS_IN_MIN = 60;
+    public static final boolean DEFAULT_PODCAST_AUTO_DOWNLOADED_AT_THE_TOP = false;
     public static final boolean DEFAULT_PODCAST_EPISODES_SORT_NEWEST_TOP = true;
     public static final boolean DEFAULT_PODCAST_EPISODES_DESCRIPTION_EXPAND = true;
     public static final boolean DEFAULT_CREATE_COVER = true;
@@ -182,6 +183,9 @@ public class Option {
 
     public static void setPodcastAutoDownloadDelayBetweenChecks(int i) {prefs.edit().putInt("PODCAST_AUTO_DOWNLOAD_DELAY_BETWEEN_CHECKS_IN_MIN",i).apply();}
     public static int getPodcastAutoDownloadDelayBetweenChecks() {return prefs.getInt("PODCAST_AUTO_DOWNLOAD_DELAY_BETWEEN_CHECKS_IN_MIN", DEFAULT_PODCAST_AUTO_DOWNLOAD_DELAY_BETWEEN_CHECKS_IN_MIN);}
+
+    public static void setPodcastAutoDownloadedAtTheTop(boolean bool) {prefs.edit().putBoolean("PODCAST_AUTO_DOWNLOADED_AT_THE_TOP",bool).apply();}
+    public static boolean getPodcastAutoDownloadedAtTheTop() {return prefs.getBoolean("PODCAST_AUTO_DOWNLOADED_AT_THE_TOP", DEFAULT_PODCAST_AUTO_DOWNLOADED_AT_THE_TOP);}
 
     public static void setPodcastEpisodesSortOrder(boolean bool) {prefs.edit().putBoolean("PODCAST_EPISODES_SORT_NEWEST_TOP",bool).apply();}
     public static boolean getPodcastEpisodesSortOrder() {return prefs.getBoolean("PODCAST_EPISODES_SORT_NEWEST_TOP", DEFAULT_PODCAST_EPISODES_SORT_NEWEST_TOP);}

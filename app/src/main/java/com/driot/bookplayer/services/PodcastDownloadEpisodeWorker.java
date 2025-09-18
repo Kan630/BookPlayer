@@ -1,10 +1,13 @@
-package com.driot.bookplayer.utils;
+package com.driot.bookplayer.services;
 
 import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
+
+import com.driot.bookplayer.utils.KanLogger;
+import com.driot.bookplayer.utils.Tonio;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -16,11 +19,11 @@ import java.net.UnknownHostException;
 
 import javax.net.ssl.SSLException;
 
-public class DownloadEpisodeWorker extends Worker {
+public class PodcastDownloadEpisodeWorker extends Worker {
     public static final String KEY_URL = "url";
     public static final String KEY_DEST_PATH = "dest_path";
 
-    public DownloadEpisodeWorker(@NonNull Context context, @NonNull WorkerParameters params) {
+    public PodcastDownloadEpisodeWorker(@NonNull Context context, @NonNull WorkerParameters params) {
         super(context, params);
     }
 

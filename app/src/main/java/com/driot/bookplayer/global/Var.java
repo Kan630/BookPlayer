@@ -149,9 +149,9 @@ public class Var {
             Arrays.asList(
                     "epub", // Kobo kepub is still .epub
                     "txt",
-                    "fb2"                // FictionBook 2
+                    "fb2",                // FictionBook 2
+                    "odt"                 // OpenDocument Text
                     //"html","htm","xhtml", // HTML
-                    //"odt"                 // OpenDocument Text
                     )
     );
 

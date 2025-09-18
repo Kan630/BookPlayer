@@ -168,10 +168,15 @@ public class PlayActivity extends LoggingActivity {
             }
 
             if (Objects.equals(action, AudioService.NOTIFICATION_ERROR)) {
-                Toast.makeText(getApplicationContext(), getString(R.string.error_reading_track), Toast.LENGTH_SHORT).show();
                 String from = intent.getStringExtra(AudioService.FROM);
                 String err_msg =  intent.getStringExtra(AudioService.ERR_MSG);
-                lockButtonAndDisplayErrorMessage(err_msg);
+                if (Objects.equals(from, "TTS")) {
+                    myLogEE(null, "TTS Error : [" + err_msg + "]");
+                    myToast(getString(R.string.toast_tts_not_ready));
+                } else {
+                    myToast(getString(R.string.error_reading_track));
+                    lockButtonAndDisplayErrorMessage(err_msg);
+                }
 
             } else if (Objects.equals(action, AudioService.NOTIFICATION_FILENOTFOUND)) {
                 Toast.makeText(getApplicationContext(), getString(R.string.error_reading_track) + "\n" + getString(R.string.error_file_not_found), Toast.LENGTH_SHORT).show();
@@ -224,7 +229,7 @@ public class PlayActivity extends LoggingActivity {
         }
 
         bPlay = findViewById(R.id.buttonPlay);
-        bPlay.setEnabled(false);
+        //bPlay.setEnabled(false);
 
         Button bRewind, bForward, bSpeedUp, bSpeedDown, bSetSleep;
         bRewind = findViewById(R.id.buttonRewind);

@@ -96,6 +96,16 @@
     </style>
 
     <!-- ***************** LAYOUT ***************** -->
+    <style name="simpleLinearLayout_Horizontal">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:orientation">horizontal</item>
+    </style>
+    <style name="simpleLinearLayout_Vertical">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:orientation">vertical</item>
+    </style>
 
     <style name="LayoutWrapContentMargin20horizontal">
         <item name="android:layout_width">wrap_content</item>
@@ -111,7 +121,7 @@
         <item name="android:orientation">vertical</item>
         <item name="android:layout_marginTop">20sp</item>
         <item name="android:layout_marginBottom">20sp</item>
-    </style>>
+    </style>
 
     <style name="LinearLayoutOptionsCheckBoxHorizontal">
         <item name="android:layout_width">wrap_content</item>

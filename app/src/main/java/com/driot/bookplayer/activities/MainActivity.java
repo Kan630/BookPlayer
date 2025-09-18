@@ -238,7 +238,7 @@ public class MainActivity extends LoggingActivity {
         myLogD("getFolders()");
         FolderDao folderDao = DatabaseClient.getInstance(getApplicationContext()).getAppDatabase().FolderDao();
         LiveData<List<Folder>> foldersLiveData = folderDao.getAllLiveData();
-        foldersLiveData.observe(this, (Observer<List<Folder>>) folders -> { //getLifecycle()
+        foldersLiveData.observe(this, folders -> {
             myLogD("LiveData onChange observed - List<Folders>");
             if (folders.isEmpty()) {
                 if (!HasBeenProposedToOpenFile) {
