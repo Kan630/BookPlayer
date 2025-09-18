@@ -67,10 +67,19 @@ public class ParseFinalFolderWorker extends LoggingWorker {
     public ParseFinalFolderWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
     }
+    private static final String K_ERR = "error_msg";
 
+    private Result fail(String userMsg, @Nullable Throwable t) {
+        myLogEE(t, userMsg);
+        TaskStateManager.markTaskFailed(TASK_NAME, userMsg);
+        return Result.failure(new androidx.work.Data.Builder()
+                .putString(K_ERR, userMsg)
+                .build());
+    }
     @NonNull
     @Override
     public Result doWork() {
+        try {
         DocumentFile df;
         Context context = getApplicationContext();
         bookState = Pref.getLoadBookTaskState();
@@ -142,6 +151,11 @@ public class ParseFinalFolderWorker extends LoggingWorker {
             populateArrayListOfTracksFromFile(df);
         }
         return Result.success();
+
+        } catch (Throwable t) { // catch-all: NPEs, etc.
+            return fail("Unexpected error in ParseFinalFolderWorker: " + t.getClass().getSimpleName() +
+                    (t.getMessage() != null ? (" - " + t.getMessage()) : ""), t);
+        }
     }
 
     // single file
@@ -156,7 +170,7 @@ public class ParseFinalFolderWorker extends LoggingWorker {
 
         audioFileArrayList = new ArrayList<>();
 
-        if (bookState.playType.equals(Var.PLAY_TYPE_TEXT)) {
+        if (bookState.playType != null && bookState.playType.equals(Var.PLAY_TYPE_TEXT)) {
             addTextFileUnique(dfPickedFile);
         } else {
             addAudioFileUnique(dfPickedFile);
@@ -181,7 +195,7 @@ public class ParseFinalFolderWorker extends LoggingWorker {
 
         audioFileArrayList = new ArrayList<>();
         Thread backgroundThread;
-        if (bookState.playType.equals(Var.PLAY_TYPE_TEXT)) {
+        if (bookState.playType != null && bookState.playType.equals(Var.PLAY_TYPE_TEXT)) {
             backgroundThread = new Thread(() -> {
                 addTextFileRecursive(dfPickedDir);
 

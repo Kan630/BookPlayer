@@ -115,12 +115,13 @@ public class StatsActivity extends LoggingActivity {
 
         findViewById(R.id.bt_01).setOnClickListener(v -> openAppInfo());
         findViewById(R.id.bt_02).setOnClickListener(v -> deleteLogsClick());
-        findViewById(R.id.bt_03).setOnClickListener(v -> deleteImagesClick());
+        findViewById(R.id.bt_03).setOnClickListener(v -> deleteCachedImagesClick());
         findViewById(R.id.bt_04).setOnClickListener(v -> resetApp());
 
     }
 
     public void openAppInfo() {
+        myLogI("--- user clicks OPEN APP INFO ---");
         try {
             Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
             Uri uri = Uri.fromParts("package", getPackageName(), null);
@@ -146,6 +147,7 @@ public class StatsActivity extends LoggingActivity {
     }
 
     private void deleteLogsClick() {
+        myLogI("--- user clicks DELETE LOGS ---");
         new AlertDialog.Builder(this)
                 .setTitle(getString(R.string.AskDelete_popupTitle))
                 .setMessage(getString(R.string.DeleteLogs_AskConfirm))
@@ -159,21 +161,23 @@ public class StatsActivity extends LoggingActivity {
         FileHelper.recursiveRemove(dir);
         recreate();
     }
-    private void deleteImagesClick() {
+    private void deleteCachedImagesClick() {
+        myLogI("--- user clicks DELETE CACHED IMAGES ---");
         new AlertDialog.Builder(this)
                 .setTitle(getString(R.string.AskDelete_popupTitle))
                 .setMessage(getString(R.string.DeleteImages_AskConfirm))
                 .setCancelable(false)
-                .setPositiveButton("ok", (dialog, which) -> deleteImages())
+                .setPositiveButton("ok", (dialog, which) -> deleteCachedImages())
                 .setNegativeButton("cancel", (dialogInterface, i) -> {})
                 .show();
     }
-    private void deleteImages() {
+    private void deleteCachedImages() {
         File dir = new File(this.getFilesDir(), "images");
-        FileHelper.recursiveRemoveCachedImages(dir);
+        FileHelper.RemoveCachedImages(this, dir);
         recreate();
     }
     private void resetApp() {
+        myLogI("--- user clicks RESET APP ---");
         WorkFlow.cancelAllOngoingTasks(this);
         myToast("App Reset Done");
     }

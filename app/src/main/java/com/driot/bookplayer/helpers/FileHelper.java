@@ -20,6 +20,7 @@ import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.text.TextUtils;
 
+import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.utils.KanLogger;
 
 import java.io.File;
@@ -331,31 +332,37 @@ public class FileHelper {
         }
         return !file.exists();
     }
-    public static boolean recursiveRemoveCachedImages(File file) {
+    public static void RemoveCachedImages(Context context, File file) {
+        AppDatabase.databaseReadExecutor.execute(() -> {
+            recursiveRemoveCachedImages(context, file);
+        });
+    }
+    private static void recursiveRemoveCachedImages(Context context, File file) {
         if (file == null || !file.exists()) {
             myLogE("recursiveRemoveImages() => File does not exist.... [" + file + "]");
-            return false;
+            return;
         }
-
         if (file.isDirectory()) {
             File[] list = file.listFiles();
             if (list != null) {
                 for (File item : list) {
-                    recursiveRemoveCachedImages(item);
+                    recursiveRemoveCachedImages(context, item);
                 }
             }
         } else {
             String name = file.getName().toLowerCase(Locale.ROOT);
             if (name.startsWith("librivox_img") || name.startsWith("podcast_feed")) {
-                if (file.delete()) {
-                    myLog("recursiveRemoveImages() => delete OK.... [" + file + "]");
-                } else {
-                    myLogE("recursiveRemoveImages() => delete KO.... [" + file + "]");
+                boolean exists = AppDatabase.getDatabase(context).FolderDao().doesImageExist(name);
+                if (exists) {
+                    myLogD("image is in DB book covers - bypassing : " + name);
                 }
+                    if (file.delete()) {
+                        myLogD("recursiveRemoveImages() => delete OK.... [" + file + "]");
+                    } else {
+                        myLogE("recursiveRemoveImages() => delete KO.... [" + file + "]");
+                    }
             }
         }
-
-        return true;
     }
 
     // DUREE AUDIO

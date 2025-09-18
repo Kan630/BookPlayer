@@ -162,8 +162,8 @@ public class PlayActivity extends LoggingActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            //if (!Objects.equals(action, AudioService.NOTIFICATION_PLAYBACK_TIMER_VALUE) && !Objects.equals(action, AudioService.NOTIFICATION_TTS_RANGE)) {
-            if (!Objects.equals(action, AudioService.NOTIFICATION_PLAYBACK_TIMER_VALUE)) {
+            if (!Objects.equals(action, AudioService.NOTIFICATION_PLAYBACK_TIMER_VALUE) && !Objects.equals(action, AudioService.NOTIFICATION_TTS_RANGE)) {
+            //if (!Objects.equals(action, AudioService.NOTIFICATION_PLAYBACK_TIMER_VALUE)) {
                 myLog("broadcast received : [" + action + "]");
             }
 
