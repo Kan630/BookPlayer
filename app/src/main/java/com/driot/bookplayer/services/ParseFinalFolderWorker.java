@@ -381,7 +381,7 @@ public class ParseFinalFolderWorker extends LoggingWorker {
                                     context,
                                     bookState.title,
                                     bookState.futureFolderPath,
-                                    512
+                                    Var.FALL_BACK_COVER_IMAGE_SIZE_IN_PIXELS
                             );
                             if (path != null) {
                                 bookState.imagePath = path;

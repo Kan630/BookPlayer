@@ -118,14 +118,32 @@
                     android:layout_width="150dp"
                     android:layout_height="150dp"
                     android:scaleType="fitCenter"
-                    android:src="@drawable/placeholder_cover" />
+                    android:src="@drawable/placeholder_cover"
+                    />
 
-                <Button
-                    android:id="@+id/bChangeCover"
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="20dp"
-                    android:text="@string/Change" />
+                    android:layout_marginEnd="10dp"
+                    android:orientation="vertical"
+                    android:gravity="center_vertical">
+                    <Button
+                        android:id="@+id/bChangeCover"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/action_change" />
+                    <Button
+                        android:id="@+id/bDeleteCover"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/action_delete" />
+                    <Button
+                        android:id="@+id/bGenerateCover"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/action_generate" />
+                </LinearLayout>
             </LinearLayout>
 
             <View style="@style/myStyleViewSimpleHorizontalBar" />

@@ -392,4 +392,23 @@ public class FileHelper {
         }
     }
 
+    public static boolean deleteFile(Context context, String path) {
+        if (path == null) return false;
+
+        try {
+            if (path.startsWith("file://")) {
+                path = Uri.parse(path).getPath();
+            }
+            if (path == null) return false;
+            File file = new File(path);
+            if (file.exists()) {
+                return file.delete();
+            }
+        } catch (Exception e) {
+            myLogEE(e,"error in deleteFile for path [" + path + "]");
+        }
+        return false;
+    }
+
+
 }

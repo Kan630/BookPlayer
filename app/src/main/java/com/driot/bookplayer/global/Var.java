@@ -26,6 +26,8 @@ public class Var {
     public static final String PLAY_TYPE_TEXT = "text";
     public static final String PLAY_TYPE_AUDIO = "audio";
 
+    public static final int FALL_BACK_COVER_IMAGE_SIZE_IN_PIXELS = 512;
+
     public static final int TTS_WPM_IMPORT = 180;
 
     public static final int MAX_IMAGE_SIZE_KB = 200;

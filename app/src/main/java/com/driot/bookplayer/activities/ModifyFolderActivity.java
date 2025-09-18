@@ -46,6 +46,7 @@ public class ModifyFolderActivity extends LoggingActivity {
     private Folder folder;
     private View blockingOverlay;
     private Button bDelete, bReset, bExport;
+    private Button bChangeCover, bDeleteCover, bGenerateCover;
 
     EditText etIntroCut;
     EditText etRename;
@@ -63,9 +64,9 @@ public class ModifyFolderActivity extends LoggingActivity {
         bReset = findViewById(R.id.bReset);
         bExport = findViewById(R.id.bExport);
         blockingOverlay = findViewById(R.id.blockingOverlay);
-        bDelete = findViewById(R.id.bDelete);
-        bReset = findViewById(R.id.bReset);
-        bExport = findViewById(R.id.bExport);
+        bDeleteCover = findViewById(R.id.bDeleteCover);
+        bGenerateCover = findViewById(R.id.bGenerateCover);
+        bChangeCover = findViewById(R.id.bChangeCover);
 
         TextView tvTitle = findViewById(R.id.title);
         TextView tvInfo = findViewById(R.id.tvInfo);
@@ -109,7 +110,6 @@ public class ModifyFolderActivity extends LoggingActivity {
         etIntroCut.setText(String.valueOf(Pref.getIntroCutFromPref(this, folder.getId())));
 
         ivCoverPreview = findViewById(R.id.ivCoverPreview);
-        Button bChangeCover = findViewById(R.id.bChangeCover);
 
         if (folder.image != null && !folder.image.isEmpty()) {
             ivCoverPreview.setImageURI(Uri.parse(folder.image));
@@ -137,12 +137,9 @@ public class ModifyFolderActivity extends LoggingActivity {
         });
 
 
-        bChangeCover.setOnClickListener(view -> {
-            myLogI("user clicks - change image");
-            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-            intent.setType("image/*");
-            selectImageLauncher.launch(Intent.createChooser(intent, "Select Cover Image"));
-        });
+        bChangeCover.setOnClickListener(view -> clickChangeCover());
+        bDeleteCover.setOnClickListener(view -> clickDeleteCover());
+        bGenerateCover.setOnClickListener(view -> clickGenerateCover());
 
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN); // Avoid keyboard on opening
 
@@ -218,6 +215,9 @@ public class ModifyFolderActivity extends LoggingActivity {
         if (bReset != null)  bReset.setEnabled(!deleting);
         if (bExport != null) bExport.setEnabled(!deleting);
         if (etRename != null) etRename.setEnabled(!deleting);
+        if (bChangeCover != null) bChangeCover.setEnabled(!deleting);
+        if (bDeleteCover != null) bDeleteCover.setEnabled(!deleting);
+        if (bGenerateCover != null) bGenerateCover.setEnabled(!deleting);
     }
 
     private boolean eraseFolderAndFiles(String strPath) {
@@ -326,6 +326,12 @@ public class ModifyFolderActivity extends LoggingActivity {
         }
     }
 
+    private void clickChangeCover() {
+        myLogI("user clicks - CHANGE cover IMAGE");
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("image/*");
+        selectImageLauncher.launch(Intent.createChooser(intent, "Select Cover Image"));
+    }
     private final ActivityResultLauncher<Intent> selectImageLauncher =
             registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
                 if (result.getResultCode() == RESULT_OK && result.getData() != null) {
@@ -355,6 +361,56 @@ public class ModifyFolderActivity extends LoggingActivity {
                     }
                 }
             });
+    private void clickDeleteCover() {
+        myLogI("user clicks - DELETE cover IMAGE");
+        new AlertDialog.Builder(ModifyFolderActivity.this)
+                .setTitle(getString(R.string.AskDelete_popupTitle))
+                .setMessage(getString(R.string.DeleteCoverImage_AskDelete))
+                .setCancelable(false)
+                .setPositiveButton("ok", (dialog, which) -> deleteCover())
+                .setNegativeButton("cancel", (dialogInterface, i) -> {})
+                .show();
+    }
+    private void deleteCover() {
+        new Thread(() -> {
+            try {
+                FileHelper.deleteFile(this, folder.image);
+                folder.image = null;
+                AppDatabase.getDatabase(this).FolderDao().updateImage(folder.getId(), folder.image);
+                runOnUiThread(() -> ivCoverPreview.setImageResource(R.drawable.no_image_icon));
+            } catch (Exception e) {
+                myLogEE(e, "delete cover");
+            }
+        }).start();
+    }
+    private void clickGenerateCover() {
+        myLogI("user clicks - GENERATE cover IMAGE");
+        if (folder.image != null) {
+            myToast("Please first delete image.");
+            return;
+        }
+        new Thread(() -> {
+            String path;
+            try {
+                path = ImageHelper.createFallbackManualFolderImagePreInsert(
+                        this,
+                        folder.getName(),
+                        folder.getPath(),
+                        Var.FALL_BACK_COVER_IMAGE_SIZE_IN_PIXELS
+                );
+            } catch (Exception e) {
+                myLogEE(e, "generate cover");
+                return;
+            }
+            try {
+                AppDatabase.getDatabase(this).FolderDao().updateImage(folder.getId(), path);
+            } catch (Exception e) {
+                myLogEE(e, "save generated cover");
+                return;
+            }
+            runOnUiThread(() -> ivCoverPreview.setImageURI(Uri.parse(path)));
+        }).start();
+    }
 
 
     private void openFolderInFileExplorer(String pathOrUri) {

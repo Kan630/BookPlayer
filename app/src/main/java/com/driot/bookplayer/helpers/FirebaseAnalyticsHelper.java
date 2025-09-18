@@ -23,7 +23,11 @@ public final class FirebaseAnalyticsHelper {
         }
     }
 
-
+    public static void tellAnalyticsPlaylistLoadFromStorage(Context context) {
+        Bundle bundle = new Bundle();
+        bundle.putString("context", context.getClass().getSimpleName());
+        logThat("playlist_load_from_storage", bundle);
+    }
 
     public static void tellAnalyticsWork(String originalUri) {
         Bundle bundle = new Bundle();

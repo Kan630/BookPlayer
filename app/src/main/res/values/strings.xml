@@ -792,6 +792,12 @@
     <string name="still_in_development">still in development</string>
     <string name="funny_behaviour_expected">funny behaviour expected</string>
 
+    <string name="Generate">Generate</string>
+    <string name="DeleteCoverImage_AskDelete">"You are about to delete this cover image.\nAre you sure ?"</string>
+    <string name="action_generate">✨ Generate</string>
+    <string name="action_delete">🗑️ Delete</string>
+    <string name="action_change">🖼️ Change</string>
+
 
 
 </resources>
