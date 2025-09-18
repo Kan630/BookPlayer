@@ -70,6 +70,16 @@
         <View style="@style/myStyleViewSimpleHorizontalBar"/>
 
         <TextView style="@style/HelpTitle"
+            android:text="@string/help_tts_title"
+            />
+        <TextView style="@style/HelpText"
+            android:id="@+id/help_tts_text"
+            android:text="@string/help_tts_text"
+            />
+
+        <View style="@style/myStyleViewSimpleHorizontalBar"/>
+
+        <TextView style="@style/HelpTitle"
             android:text="@string/help_memory_cleaning_title"
             />
         <TextView style="@style/HelpText"

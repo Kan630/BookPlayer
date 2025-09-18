@@ -149,6 +149,17 @@
     Everything is handled automatically — unpacking, adding, and making it available for playback.
     ]]></string>
 
+    <string name="help_tts_title">Text-To-Speech :</string>
+    <string name="help_tts_text"><![CDATA[
+    <font color="#BA68C8"><b>Listen to Text with Synthetic Voices</b></font>
+    <br><br>
+    Ebooks or <font color="#90D8E8">text documents</font> can also be loaded as <font color="#BA68C8">audiobooks</font>.
+    <br><br>
+    BookPlayer will use the device’s <font color="#81C784">built-in voices</font> to read the text aloud.
+    <br><br>
+    This is a relatively <font color="#FFCC80">new feature</font> — please be gentle and share your feedback.
+]]></string>
+
         <string name="help_memory_cleaning_title">Memory Cleaning :</string>
         <string name="help_memory_cleaning_text"><![CDATA[
     <font color="#BA68C8"><b>Manage Internal Storage</b></font>
