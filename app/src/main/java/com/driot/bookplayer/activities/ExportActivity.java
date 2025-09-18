@@ -62,6 +62,10 @@ public class ExportActivity extends LoggingActivity {
     private final BroadcastReceiver exportDoneReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+            uiHandler.post(() -> {
+                tvCurrentTrack.setTextColor(getColor(R.color.green_700));
+                btnCancel.setText(getString(R.string.ok));
+            });
             Uri zipUri = intent.getParcelableExtra("zipUri");
             if (zipUri != null) {
                 Intent shareIntent = new Intent(Intent.ACTION_SEND);

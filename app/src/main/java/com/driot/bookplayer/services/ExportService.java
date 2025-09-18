@@ -100,7 +100,7 @@ public class ExportService extends LoggingService {
             }
 
             // Inform UI of failure
-            Intent failIntent = new Intent("EXPORT_DONE");
+            Intent failIntent = new Intent("EXPORT_FAIL");
             failIntent.putExtra("zipUri", (Parcelable) null);
             LocalBroadcastManager.getInstance(this).sendBroadcast(failIntent);
         }
