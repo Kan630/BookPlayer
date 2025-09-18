@@ -260,38 +260,34 @@
 
         <View style="@style/myStyleViewSimpleHorizontalBar" />
 
-        <LinearLayout
-            android:id="@+id/ll_night_mode"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="12dp"
-            android:gravity="center_vertical"
-            android:clickable="true"
-            android:focusable="true">
-
-            <TextView
-                android:id="@+id/tv_night_mode_title"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/option_night_mode_title"
-                android:textSize="16sp" />
-
-            <Button
-                android:id="@+id/btn_night_mode"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/option_night_mode_follow_system" />
-        </LinearLayout>
-
-
-        <View style="@style/myStyleViewSimpleHorizontalBar" />
-
         <LinearLayout style="@style/LinearLayoutOptionsVertical"
             android:layout_marginHorizontal="10sp">
             <TextView
                 style="@style/OptionTitle"
                 android:text="@string/option_pick_theme_color_title" />
+            <LinearLayout
+                android:id="@+id/ll_night_mode"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="12dp"
+                android:gravity="center_vertical"
+                android:clickable="true"
+                android:focusable="true">
+
+                <TextView
+                    android:id="@+id/tv_night_mode_title"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/option_night_mode_title"
+                    android:textSize="16sp" />
+
+                <Button
+                    android:id="@+id/btn_night_mode"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/option_night_mode_follow_system" />
+            </LinearLayout>
             <LinearLayout
                 android:layout_height="wrap_content"
                 android:layout_width="fill_parent"
