@@ -34,6 +34,8 @@ import java.util.zip.ZipInputStream;
 public final class OdtLowLevelHelper {
     private OdtLowLevelHelper() {}
 
+    private static final String TEXT_NS = "urn:oasis:names:tc:opendocument:xmlns:text:1.0";
+
     // ---------------- Types ----------------
 
     public static final class ExtractResult {
@@ -59,14 +61,14 @@ public final class OdtLowLevelHelper {
         // 1) Read whole ODT into memory
         byte[] odtBytes = readAllBytes(ctx, odtUri);
 
-        // 2) Walk ZIP entries
+        // 2) Walk ZIP entries to get content.xml and a cover candidate
         String contentXml = null;
         Bitmap cover = null;
 
         ZipInputStream zis = new ZipInputStream(new ByteArrayInputStream(odtBytes));
         ZipEntry e;
         while ((e = zis.getNextEntry()) != null) {
-            if (e.isDirectory()) continue;
+            if (e.isDirectory()) { zis.closeEntry(); continue; }
             String name = e.getName();
 
             if ("content.xml".equals(name)) {
@@ -85,14 +87,14 @@ public final class OdtLowLevelHelper {
 
         if (contentXml == null) throw new IllegalStateException("No content.xml in ODT");
 
-        // 3) Parse chapters
+        // 3) Parse chapters (heading-based; with proper \n handling)
         List<Chapter> chapters = parseChapters(contentXml);
         myLogI("Chapters parsed: " + chapters.size());
 
-        // 4) Title heuristic: first heading, else file name
-        String bookTitle = (chapters.isEmpty() || chapters.get(0).title == null)
+        // 4) Title heuristic: first heading, else "untitled"
+        String bookTitle = (chapters.isEmpty() || chapters.get(0).title == null || chapters.get(0).title.trim().isEmpty())
                 ? "untitled"
-                : chapters.get(0).title;
+                : chapters.get(0).title.trim();
 
         // 5) Write out chapters
         java.io.File outDir = new java.io.File(ctx.getExternalFilesDir(null), "odt_" + safe(bookTitle));
@@ -129,12 +131,15 @@ public final class OdtLowLevelHelper {
         Chapter current = null;
         StringBuilder buf = null;
         boolean inHeading = false;
+        StringBuilder titleBuf = null;
 
         int t;
         while ((t = x.next()) != XmlPullParser.END_DOCUMENT) {
             if (t == XmlPullParser.START_TAG) {
-                String tag = x.getName();
-                if ("text:h".equals(tag)) {
+                String ns = x.getNamespace();
+                String name = x.getName();
+
+                if (TEXT_NS.equals(ns) && "h".equals(name)) {
                     // Save previous chapter
                     if (current != null && buf != null) {
                         current.text = buf.toString();
@@ -143,44 +148,128 @@ public final class OdtLowLevelHelper {
                     current = new Chapter();
                     buf = new StringBuilder(8192);
                     inHeading = true;
-                } else if ("text:p".equals(tag)) {
+                    titleBuf = new StringBuilder(256);
+
+                } else if (TEXT_NS.equals(ns) && "p".equals(name)) {
                     if (buf == null) buf = new StringBuilder(8192);
                     ensureBlankLine(buf);
+
+                } else if (TEXT_NS.equals(ns) && "line-break".equals(name)) {
+                    if (buf == null) buf = new StringBuilder(8192);
+                    buf.append('\n');
+
+                } else if (TEXT_NS.equals(ns) && "s".equals(name)) {
+                    // <text:s text:c="N"/> => N spaces (default 1)
+                    String c = x.getAttributeValue(TEXT_NS, "c");
+                    int n = parseIntSafely(c, 1);
+                    if (buf == null) buf = new StringBuilder(8192);
+                    for (int i = 0; i < Math.max(1, n); i++) buf.append(' ');
+
+                } else if (TEXT_NS.equals(ns) && "tab".equals(name)) {
+                    if (buf == null) buf = new StringBuilder(8192);
+                    buf.append('\t');
                 }
+
             } else if (t == XmlPullParser.TEXT) {
                 String s = x.getText();
-                if (s != null && !s.trim().isEmpty()) {
-                    if (inHeading && current != null && current.title == null) {
-                        current.title = s.trim();
-                    } else if (buf != null) {
+                if (s != null && !s.isEmpty()) {
+                    if (inHeading && titleBuf != null) {
+                        // Capture full heading text (allow inline spans)
+                        titleBuf.append(s);
+                    } else {
+                        if (buf == null) buf = new StringBuilder(8192);
                         buf.append(s);
                     }
                 }
+
             } else if (t == XmlPullParser.END_TAG) {
-                String tag = x.getName();
-                if ("text:h".equals(tag)) {
+                String ns = x.getNamespace();
+                String name = x.getName();
+
+                if (TEXT_NS.equals(ns) && "h".equals(name)) {
                     inHeading = false;
-                } else if ("text:p".equals(tag)) {
+                    if (current != null) {
+                        String ttxt = titleBuf == null ? null : titleBuf.toString().replaceAll("\\s+"," ").trim();
+                        if (ttxt != null && !ttxt.isEmpty()) current.title = ttxt;
+                    }
+                    titleBuf = null;
+
+                } else if (TEXT_NS.equals(ns) && "p".equals(name)) {
                     ensureBlankLine(buf);
+
+                } else if (TEXT_NS.equals(ns) && "line-break".equals(name)) {
+                    if (buf == null) buf = new StringBuilder(8192);
+                    buf.append('\n');
                 }
             }
         }
 
-        // flush last
+        // Flush last heading-based chapter
         if (current != null && buf != null) {
             current.text = buf.toString();
             out.add(current);
         }
 
-        // fallback: if no chapters, treat as one
-        if (out.isEmpty() && buf != null && buf.length() > 0) {
-            Chapter c = new Chapter();
-            c.title = "Full Document";
-            c.text = buf.toString();
-            out.add(c);
+        // Fallback: no headings → single full document from all paragraphs
+        if (out.isEmpty()) {
+            String fullText = collectAllText(xml);
+            if (fullText != null && !fullText.trim().isEmpty()) {
+                Chapter c = new Chapter();
+                c.title = "Full Document";
+                c.text = fullText;
+                out.add(c);
+                myLogW("No headings found: fallback to single full document chapter");
+            }
         }
 
         return out;
+    }
+
+    /** Collects all text from <text:p> (plus inline breaks/spaces) into one big string (fallback). */
+    private static String collectAllText(String xml) throws Exception {
+        XmlPullParserFactory f = XmlPullParserFactory.newInstance();
+        f.setNamespaceAware(true);
+        XmlPullParser x = f.newPullParser();
+        x.setInput(new StringReader(xml));
+
+        StringBuilder buf = new StringBuilder(32 * 1024);
+
+        int t;
+        while ((t = x.next()) != XmlPullParser.END_DOCUMENT) {
+            if (t == XmlPullParser.START_TAG) {
+                String ns = x.getNamespace();
+                String name = x.getName();
+
+                if (TEXT_NS.equals(ns) && "p".equals(name)) {
+                    ensureBlankLine(buf);
+                } else if (TEXT_NS.equals(ns) && "line-break".equals(name)) {
+                    buf.append('\n');
+                } else if (TEXT_NS.equals(ns) && "s".equals(name)) {
+                    String c = x.getAttributeValue(TEXT_NS, "c");
+                    int n = parseIntSafely(c, 1);
+                    for (int i = 0; i < Math.max(1, n); i++) buf.append(' ');
+                } else if (TEXT_NS.equals(ns) && "tab".equals(name)) {
+                    buf.append('\t');
+                }
+
+            } else if (t == XmlPullParser.TEXT) {
+                String s = x.getText();
+                if (s != null && !s.isEmpty()) {
+                    buf.append(s);
+                }
+
+            } else if (t == XmlPullParser.END_TAG) {
+                String ns = x.getNamespace();
+                String name = x.getName();
+
+                if (TEXT_NS.equals(ns) && "p".equals(name)) {
+                    ensureBlankLine(buf);
+                } else if (TEXT_NS.equals(ns) && "line-break".equals(name)) {
+                    buf.append('\n');
+                }
+            }
+        }
+        return buf.toString();
     }
 
     // ---------------- IO helpers ----------------
@@ -223,7 +312,7 @@ public final class OdtLowLevelHelper {
 
     private static String deriveTitleFromText(String text) {
         if (text == null) return "chapter";
-        String[] lines = text.split("\n");
+        String[] lines = text.replace("\r","").split("\n");
         for (String line : lines) {
             String t = line.trim();
             if (!t.isEmpty()) {
@@ -254,6 +343,11 @@ public final class OdtLowLevelHelper {
                 .replaceAll("^-+|-+$","");
         if (out.isEmpty()) out = "chapter";
         return out.length()>40 ? out.substring(0,40) : out;
+    }
+
+    private static int parseIntSafely(String s, int def) {
+        try { return (s == null) ? def : Integer.parseInt(s); }
+        catch (Throwable ignore) { return def; }
     }
 
     // ---------------- Logging ----------------
