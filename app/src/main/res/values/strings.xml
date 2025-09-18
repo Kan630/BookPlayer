@@ -136,10 +136,6 @@
     Tap the <font color="#EF9A9A">cover image</font> to open the book of your downloaded episodes.
     <br><br>
     Adjust <font color="#90D8E8">defaults</font> and <font color="#81C784">navigation preferences</font> in the settings menu.
-    <br><br>
-    Add shows to your <font color="#EF9A9A">favorites</font> for easy access and enable <font color="#81C784">auto-download</font> to fetch new episodes automatically.
-    <br><br>
-    BookPlayer performs these checks regularly, especially at startup.
 ]]></string>
 
         <string name="help_url_title">Import from URL :</string>
@@ -153,15 +149,6 @@
     Everything is handled automatically — unpacking, adding, and making it available for playback.
     ]]></string>
 
-        <string name="help_storage_title">Storage Location :</string>
-        <string name="help_storage_text"><![CDATA[
-    <font color="#BA68C8"><b>Where Files Are Stored</b></font>
-    <br><br>
-    By default, BookPlayer uses the <font color="#81C784">SD card</font> if available, to save space.
-    <br><br>
-    To switch to internal storage, change the setting in the <font color="#64B5F6">Options</font> menu.
-    ]]></string>
-
         <string name="help_memory_cleaning_title">Memory Cleaning :</string>
         <string name="help_memory_cleaning_text"><![CDATA[
     <font color="#BA68C8"><b>Manage Internal Storage</b></font>
@@ -169,22 +156,15 @@
     A dedicated screen shows files copied into BookPlayer’s <font color="#90D8E8">private space</font>.
     <br><br>
     See which items take up the most space and <font color="#EF9A9A">delete</font> what you no longer need.
-    <br><br>
-    <font color="#F44336">Note:</font> This only applies to:
-    <ul>
-    <li>ZIP imports</li>
-    <li>Manual imports with <font color="#81C784">[copy]</font> enabled</li>
-    </ul>
-    It excludes content from shared storage.
     ]]></string>
 
-        <string name="help_tellme_title">Contact the Developer :</string>
-        <string name="help_tellme_text"><![CDATA[
-    Having issues or found a bug?
+    <string name="help_storage_title">Storage Location :</string>
+    <string name="help_storage_text"><![CDATA[
+    <font color="#BA68C8"><b>Where Files Are Stored</b></font>
     <br><br>
-    Please <font color="#81C784">let me know</font> so I can improve the app!
+    By default, BookPlayer uses the <font color="#81C784">SD card</font> if available, to save space.
     <br><br>
-    Use the <font color="#90D8E8">"Mail Developer"</font> option from the menu.
+    To switch to internal storage, change the setting in the <font color="#64B5F6">Options</font> menu.
     ]]></string>
 
         <string name="help_permission_title">Permissions :</string>
@@ -197,6 +177,15 @@
     <li><b>Microphone</b> → enable the sound visualizer</li>
     </ul>
     Denying permissions won’t break the app — BookPlayer adapts.
+    ]]></string>
+
+    <string name="help_tellme_title">Contact the Developer :</string>
+    <string name="help_tellme_text"><![CDATA[
+    Having issues or found a bug?
+    <br><br>
+    Please <font color="#81C784">let me know</font> so I can improve the app!
+    <br><br>
+    Use the <font color="#90D8E8">"Mail Developer"</font> option from the menu.
     ]]></string>
 
         <string name="help_forum_title">Forum :</string>
