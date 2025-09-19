@@ -1308,15 +1308,25 @@ public class AudioService extends LoggingService {
                 zf.setPercentdone(100);
                 zf.setFinished(true);
             } else {
-                zf.setPosition(getPosition());
-                zf.setPercentdone(FormatPercentDouble((double) getPosition() / getDuration()));
+                int pos = getPosition();
+                if (pos == 0) {
+                    myLogEE(null, "updateZikFileState : getPosition() = 0");
+                    return;
+                }
+                int dur = getDuration();
+                if (dur == 0) {
+                    myLogEE(null, "updateZikFileState : getDuration() = 0");
+                    return;
+                }
+                zf.setPosition(pos);
+                zf.setPercentdone(FormatPercentDouble((double) pos / dur));
             }
             new Thread(() -> {
                 try {
                     AppDatabase db = AppDatabase.getDatabase(getApplicationContext());
                     ZikFileDao zikFileDao = db.ZikFileDao();
-                    int mySqlresponse = zikFileDao.update(zf);
-                    if (mySqlresponse > 0) {
+                    int mySqlResponse = zikFileDao.update(zf);
+                    if (mySqlResponse > 0) {
                         myLogD("---------- zikFile updated (" + zf.getName() + ")- position : " + myDF.format(zf.getPosition()));
                         Sql.calculateFolderProgress(getApplicationContext(), zf.getIdFolder());
                     } else {
