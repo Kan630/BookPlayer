@@ -7,6 +7,7 @@ import android.speech.tts.TextToSpeech;
 import android.speech.tts.Voice;
 
 import com.driot.bookplayer.helpers.FlagHelper;
+import com.driot.bookplayer.utils.KanLogger;
 
 import java.util.Collections;
 import java.util.Locale;
@@ -89,16 +90,36 @@ public class VoiceItem {
     // --- ADD this factory to create the "system/default" VoiceItem ---
     public static @Nullable VoiceItem makeSystemDefault(@NonNull TextToSpeech tts) {
         try {
-            Voice def = tts.getDefaultVoice();               // may be null
-            Locale loc = (def != null) ? def.getLocale() : tts.getDefaultLanguage();
+            Locale loc;
+            Voice def = tts.getVoice();
+            if (def != null)  {
+                loc = def.getLocale();
+                myLogI("tts.getVoice(): " + def.getName());
+            } else {
+                loc = tts.getLanguage();
+                myLogI("tts.getLanguage(): " + loc.getCountry());
+            }
+/*
+            def = tts.getDefaultVoice();
+            if (def != null)  {
+                loc = def.getLocale();
+                myLogI("tts.getDefaultVoice(): " + def.getName());
+            } else {
+                loc = tts.getDefaultLanguage();
+                myLogI("tts.getDefaultLanguage(): " + loc.getCountry());
+            }
+
+ */
 
             String lang2 = (loc != null && !loc.getLanguage().isEmpty()) ? loc.getLanguage() : "und";
             String prettyLoc = (loc == null) ? "" : prettyLocale(loc);
+            myLogI("lang2: " + lang2 + " - prettyLoc: " + prettyLoc);
 
             String display = prettyLoc.isEmpty()
                     ? "System (default)"
                     : "System (default: " + prettyLoc + ")";
             String details = display; // simple: same text for subtitle
+            myLogI("makeSystemDefault: " + display);
 
             int flagLang = com.driot.bookplayer.helpers.FlagHelper.getFlagResIdForLanguage(lang2);
             int flagCountry = 0;
@@ -199,5 +220,15 @@ public class VoiceItem {
     private static String cap(String s) {
         return (s == null || s.isEmpty()) ? "" : Character.toUpperCase(s.charAt(0)) + s.substring(1);
     }
+
+    // ======== LOGGING ========
+    private static final String TAG = "VoiceItem";
+    private static void myLog(String str) { KanLogger.myLog(TAG, str); }
+    private static void myLogD(String str) { KanLogger.myLogD(TAG, str); }
+    private static void myLogI(String str) { KanLogger.myLogI(TAG, str); }
+    private static void myLogW(String str) { KanLogger.myLogW(TAG, str); }
+    private static void myLogE(String str) { KanLogger.myLogE(TAG, str); }
+    private static void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, TAG, str); }
+    private static void myToastEE(Throwable t, String str) { KanLogger.myToastEE(t, TAG, str); }
 
 }

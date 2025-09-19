@@ -36,10 +36,9 @@ import androidx.media.session.MediaButtonReceiver;
 import com.driot.bookplayer.helpers.TtsHelper;
 import com.driot.bookplayer.helpers.TextExtractor;
 import com.driot.bookplayer.helpers.UriHelper;
-import com.driot.bookplayer.helpers.LanguageHelper;
-import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.objects.KanMediaPlayer;
 import com.driot.bookplayer.objects.VoiceItem;
+import com.driot.bookplayer.utils.AppTtsManager;
 import com.driot.bookplayer.utils.log.LoggingService;
 import com.driot.bookplayer.activities.PlayActivity;
 import com.driot.bookplayer.db.AppDatabase;
@@ -207,370 +206,394 @@ public class AudioService extends LoggingService {
         }
     }
 
-    private final class TtsEngine implements PlayerEngine, TtsHelper.Listener {
-        private final TtsHelper tts;
-        private String text = "";
-        private int resumeOffset = 0;    // char index
-        private boolean prepared = false;
-        private boolean playing = false;
-        private int estDurationMs = 0;   // rough estimate
-        private int estPositionMs = 0;
-        private java.util.Locale currentLocale = java.util.Locale.getDefault();
-        private int lastCharSpoken = 0;     // farthest char index we’ve seen from onUtteranceRange
-        private final android.os.Handler ttsH = new android.os.Handler(android.os.Looper.getMainLooper());
-        private final android.os.Handler ttsH2 = new android.os.Handler(android.os.Looper.getMainLooper());
-        private volatile boolean langReady = false;
+        private final class TtsEngine implements PlayerEngine, AppTtsManager.Listener {
+            private final TtsHelper ttsHelper;
+            private String text = "";
+            private int resumeOffset = 0;    // char index
+            private boolean prepared = false;
+            private boolean playing = false;
+            private int estDurationMs = 0;   // rough estimate
+            private int estPositionMs = 0;
+            private java.util.Locale currentLocale = java.util.Locale.getDefault();
+            private int lastCharSpoken = 0;     // farthest char index we’ve seen from onUtteranceRange
+            private final android.os.Handler ttsH = new android.os.Handler(android.os.Looper.getMainLooper());
+            private final android.os.Handler ttsH2 = new android.os.Handler(android.os.Looper.getMainLooper());
+            private volatile boolean langReady = false;
 
-        TtsEngine(Context ctx) {
-            tts = new TtsHelper(ctx.getApplicationContext(), this);
-        }
+            private AutoCloseable ttsHandle;
 
-        private final java.util.concurrent.ConcurrentHashMap<String, WarmupCallback> warmups = new java.util.concurrent.ConcurrentHashMap<>();
+            TtsEngine(Context ctx) {
+                Context app = ctx.getApplicationContext();
+                AppTtsManager mgr = AppTtsManager.get(app);
 
-        public interface WarmupCallback {
-            /**
-             * ready==true when synthesis completed; else reason explains why.
-             */
-            void onResult(boolean ready, @androidx.annotation.IntRange(from = 0, to = 5) int reason);
-        }
+                // Subscribe to TTS events (start/done/error/ranges)
+                ttsHandle = mgr.acquire(this /*owner*/, this /*listener*/);
 
-        private void deleteTemp(String id) {
-            try {
-                new java.io.File(getApplicationContext().getCacheDir(), id + ".wav").delete();
-            } catch (Throwable ignored) {
-            }
-        }
+                // Use shared engine in your helper (no listener there)
+                ttsHelper = new TtsHelper(app, mgr.raw(), /*listener*/ null);
 
-        /**
-         * Sets the voice, verifies language data, then warms up via synthesizeToFile. Calls back when really ready.
-         */
-        public void setTtsVoiceByNameAsync(String voiceName, long timeoutMs, WarmupCallback cb) {
-            if (tts == null) {
-                cb.onResult(false, TtsHelper.ERROR);
-                return;
+                // If already ready, kick your flow
+                if (mgr.isReady() && mgr.raw() != null) onTtsReady(mgr.raw());
             }
 
-            ttsH2.post(() -> {
+            //Call this from your service’s onDestroy() (or when you dispose TtsEngine):
+            void release() {
+                try { if (ttsHandle != null) ttsHandle.close(); } catch (Exception ignored) {}
+            }
+
+            private final java.util.concurrent.ConcurrentHashMap<String, WarmupCallback> warmups = new java.util.concurrent.ConcurrentHashMap<>();
+
+            public interface WarmupCallback {
+                /**
+                 * ready==true when synthesis completed; else reason explains why.
+                 */
+                void onResult(boolean ready, @androidx.annotation.IntRange(from = 0, to = 5) int reason);
+            }
+
+            private void deleteTemp(String id) {
                 try {
-                    java.util.Set<android.speech.tts.Voice> voices = tts.getVoices();
-
-                    android.speech.tts.Voice target = null;
-                    for (android.speech.tts.Voice v : voices) {
-                        if (voiceName != null && voiceName.equals(v.getName())) {
-                            target = v;
-                            break;
-                        }
-                    }
-                    if (target == null) {
-                        cb.onResult(false, TtsHelper.SET_VOICE_FAILED);
-                        return;
-                    }
-
-                    int rSet = tts.setVoice(target);
-                    if (rSet == android.speech.tts.TextToSpeech.SUCCESS) {
-                        myLog("setTtsVoiceByName OK -> " + VoiceItem.describeVoice(target));
-                    } else  {
-                        myLogE("setTtsVoiceByName KO -> " + VoiceItem.describeVoice(target));
-                        cb.onResult(false, TtsHelper.SET_VOICE_FAILED);
-                        return;
-                    }
-
-                    // Warm up: synthesize a tiny file (silent to user), mark ready on onDone.
-                    String id = "warmup-" + android.os.SystemClock.uptimeMillis();
-                    warmups.put(id, cb);
-
-                    java.io.File out = new java.io.File(getApplicationContext().getCacheDir(), id + ".wav");
-                    int rr = tts.synthesizeToFile("ok", new android.os.Bundle(), out, id);
-                    if (rr != android.speech.tts.TextToSpeech.SUCCESS) {
-                        warmups.remove(id);
-                        cb.onResult(false, TtsHelper.SYNTH_FAIL);
-                        deleteTemp(id);
-                        return;
-                    }
-
-                    // Timeout safeguard
-                    ttsH2.postDelayed(() -> {
-                        WarmupCallback late = warmups.remove(id);
-                        if (late != null) {
-                            cb.onResult(false, TtsHelper.TIMEOUT);
-                            deleteTemp(id);
-                        }
-                    }, Math.max(1500, timeoutMs)); // e.g., 5_000ms for network voices
-                } catch (Throwable t) {
-                    myLogEE(t, "setTtsVoiceByNameAsync failed");
-                    cb.onResult(false, TtsHelper.ERROR);
+                    new java.io.File(getApplicationContext().getCacheDir(), id + ".wav").delete();
+                } catch (Throwable ignored) {
                 }
-            });
-        }
-
-        @Override
-        public void setDataSource(Context ctx, Uri uri, String displayName) {
-            prepared = false;
-            playing = false;
-            resumeOffset = 0;
-            estPositionMs = 0;
-            String raw = TextExtractor.getPlainText(ctx, uri, displayName);
-
-            // Normalize line endings (CRLF/CR → LF)
-            String norm = raw.replace("\r\n", "\n").replace('\r', '\n');
-
-            // If suspiciously few newlines, add paragraph breaks heuristically
-            if (TtsHelper.countNewlines(norm) < 2) {
-                norm = TtsHelper.smartParagraphize(norm);
             }
 
-            text = norm;
-            estDurationMs = estimateDurationMs(text, currentSpeechRate());
-        }
+            /**
+             * Sets the voice, verifies language data, then warms up via synthesizeToFile. Calls back when really ready.
+             */
+            public void setTtsVoiceByNameAsync(String voiceName, long timeoutMs, WarmupCallback cb) {
+                if (ttsHelper == null) {
+                    cb.onResult(false, TtsHelper.ERROR);
+                    return;
+                }
 
-        //just after load file
-        @Override public void prepareAsync() {
-            myLogD("prepareAsync");
-            if (!tts.isReady()) {
-                myLogW("tts not ready");
-                return;
-            }
+                ttsH2.post(() -> {
+                    try {
+                        java.util.Set<android.speech.tts.Voice> voices = ttsHelper.getVoices();
 
-            String voiceName = desiredVoiceName(); // new helper below
-            myLogD("desiredVoiceName : " + voiceName);
-            if (voiceName != null) {
-                // reset readiness; we'll mark ready on warm-up success
-                prepared = false; langReady = false;
+                        android.speech.tts.Voice target = null;
+                        for (android.speech.tts.Voice v : voices) {
+                            if (voiceName != null && voiceName.equals(v.getName())) {
+                                target = v;
+                                break;
+                            }
+                        }
+                        if (target == null) {
+                            cb.onResult(false, TtsHelper.SET_VOICE_FAILED);
+                            return;
+                        }
 
-                setTtsVoiceByNameAsync(voiceName, /*timeoutMs*/ 5000L, (ready, reason) -> {
-                    if (ready) {
-                        langReady = true; prepared = true;
-                        myLog("send onPrepared()");
-                        ttsH.post(onPrepared); // triggers sendReadyToPlay/directPlay path
-                    } else {
-                        myLogW("prepareAsync() - Voice warm-up failed (" + reason + ").");
-                        //ViewHelper.showAlterDialogToDisplayText(getApplicationContext(), "Error, very sorry, -text to speech- still beta, it should be working in a few days with an update.", "little problem");
-                        myToastE("Error, Sorry, still beta, please wait app update.");
+                        int rSet = ttsHelper.setVoice(target);
+                        if (rSet == android.speech.tts.TextToSpeech.SUCCESS) {
+                            myLog("setTtsVoiceByName OK -> " + VoiceItem.describeVoice(target));
+                        } else  {
+                            myLogE("setTtsVoiceByName KO -> " + VoiceItem.describeVoice(target));
+                            cb.onResult(false, TtsHelper.SET_VOICE_FAILED);
+                            return;
+                        }
+
+                        // Warm up: synthesize a tiny file (silent to user), mark ready on onDone.
+                        String id = "warmup-" + android.os.SystemClock.uptimeMillis();
+                        warmups.put(id, cb);
+
+                        java.io.File out = new java.io.File(getApplicationContext().getCacheDir(), id + ".wav");
+                        int rr = ttsHelper.synthesizeToFile("ok", new android.os.Bundle(), out, id);
+                        if (rr != android.speech.tts.TextToSpeech.SUCCESS) {
+                            warmups.remove(id);
+                            cb.onResult(false, TtsHelper.SYNTH_FAIL);
+                            deleteTemp(id);
+                            return;
+                        }
+
+                        // Timeout safeguard
+                        ttsH2.postDelayed(() -> {
+                            WarmupCallback late = warmups.remove(id);
+                            if (late != null) {
+                                cb.onResult(false, TtsHelper.TIMEOUT);
+                                deleteTemp(id);
+                            }
+                        }, Math.max(1500, timeoutMs)); // e.g., 5_000ms for network voices
+                    } catch (Throwable t) {
+                        myLogEE(t, "setTtsVoiceByNameAsync failed");
+                        cb.onResult(false, TtsHelper.ERROR);
                     }
                 });
-            } else {
-                myLogW("prepareAsync() -  no saved voice");
-                langReady = true; prepared = true;
-                myLog("send onPrepared()");
-                ttsH.post(onPrepared);
             }
-        }
 
-        @Override public void onTtsReady(TextToSpeech t) {
-            myLog("onTtsReady");
-            // same as prepareAsync, so just call it
-            prepareAsync();
-        }
-
-
-        @Override
-        public void start() {
-            if (!prepared) return;
-            playing = true;
-            lastCharSpoken = Math.max(0, Math.min(resumeOffset, (text != null) ? text.length() : 0));
-            tts.setSpeechRate(currentSpeechRate());
-            tts.speakFromOffset(text, resumeOffset);
-            tts.logCurrentVoice();
-            updatePlaybackState(PlaybackStateCompat.STATE_PLAYING, getCurrentPosition(), currentSpeechRate());
-            startSleepTimer();
-        }
-
-        @Override
-        public void pause() {
-            if (!prepared) return;
-            tts.stop();
-            playing = false;
-            updatePlaybackState(PlaybackStateCompat.STATE_PAUSED, getCurrentPosition(), 0f);
-            Pref.setPauseTime();
-            stopSleepTimer();
-        }
-
-        @Override
-        public void stop() {
-            tts.stop();
-            playing = false;
-            updatePlaybackState(PlaybackStateCompat.STATE_STOPPED, 0, 0f);
-        }
-
-        @Override
-        public void reset() {
-            stop();
-            prepared = false;
-            resumeOffset = 0;
-            estPositionMs = 0;
-            text = "";
-        }
-
-        @Override
-        public boolean isPlaying() {
-            return playing;
-        }
-
-        @Override
-        public boolean isReady() {
-            myLogD("is ready : tts=" + tts.isReady() + " - prepared:" + prepared + " - langReady" + langReady);
-            return tts.isReady() && prepared && langReady;
-        }
-
-        @Override
-        public int getCurrentPosition() {
-            return estPositionMs;
-        }
-
-        @Override
-        public int getDuration() {
-            return estDurationMs;
-        }
-
-        @Override
-        public int getAudioSessionId() {
-            return 0;
-        } // no visualizer for TTS
-
-        @Override
-        public void seekTo(int ms) {
-            if (estDurationMs <= 0 || text.isEmpty()) return;
-            int clamped = Math.max(0, Math.min(ms, estDurationMs));
-            int charPos = (int) ((clamped / (double) estDurationMs) * Math.max(1, text.length()));
-            resumeOffset = charPos;
-            estPositionMs = clamped;
-            if (playing) {
-                tts.stop();
-                tts.speakFromOffset(text, resumeOffset);
-            }
-        }
-
-        @Override public void setSpeed(float s) {
-            tts.setSpeechRate(s);
-            int old = estDurationMs;
-            estDurationMs = estimateDurationMs(text, s);
-            if (old > 0) estPositionMs = (int) (estPositionMs * (estDurationMs / (double) old));
-            if (playing)
-                updatePlaybackState(PlaybackStateCompat.STATE_PLAYING, getCurrentPosition(), s);
-        }
-
-        @Override public void onStart(String id) {
-            if (id != null && id.startsWith("warmup-")) return; // ignore warm-up starts
-            playing = true;
-        }
-
-        @Override public void onDone(String id) {
-            if (handleWarmupDone(id, /*ok*/true, /*ignored*/0)) return;
-
-            // Have we reached (logically) the end of the text?
-            int logicalEnd = logicalTextEndIndex();
-            if (lastCharSpoken >= logicalEnd) {
+            @Override
+            public void setDataSource(Context ctx, Uri uri, String displayName) {
+                prepared = false;
                 playing = false;
-                onEngineCompletion(); // true end of book/chapter
-                return;
-            }
-
-            // Not at end yet → queue the remainder from where we left off
-            // (post to the main thread to avoid reentrancy)
-            ttsH.post(() -> {
-                if (!playing) return; // user might have paused meanwhile
-                resumeOffset = lastCharSpoken; // continue from last known char
-                try {
-                    tts.speakFromOffset(text, resumeOffset);
-                } catch (Throwable t) {
-                    playing = false;
-                    onEngineError("TTS continue failed", -1, 0);
-                }
-            });
-        }
-        private boolean handleWarmupDone(String id, boolean ok, int errorReasonIfAny) {
-            if (id == null || !id.startsWith("warmup-")) return false;
-            WarmupCallback cb = warmups.remove(id);
-            if (cb != null) cb.onResult(ok, ok ? TtsHelper.READY : errorReasonIfAny);
-            deleteTemp(id); // deletes <cache>/<id>.wav
-            return true; // we handled it
-        }
-
-        @Override public void onError(String id, int code) {
-            if (handleWarmupDone(
-                    id,
-                    /*ok*/false,
-                    // map to your reasons; genericize non-specific codes as ERROR
-                    (code == TextToSpeech.ERROR_SYNTHESIS ? TtsHelper.SYNTH_FAIL : TtsHelper.ERROR)
-            )) return;
-
-            playing = false;
-            onEngineError("TTS error", code, 0);
-        }
-
-        @Override
-        public void onUtteranceRange(int start, int end) {
-            if (!text.isEmpty())
-                estPositionMs = (int) ((start / (double) text.length()) * estDurationMs);
-            // remember farthest character we actually spoke
-            if (end > lastCharSpoken) lastCharSpoken = end;
-
-            updatePlaybackState(playing ? PlaybackStateCompat.STATE_PLAYING : PlaybackStateCompat.STATE_PAUSED,
-                    getCurrentPosition(), currentSpeechRate());
-
-            Intent i = new Intent(NOTIFICATION_TTS_RANGE)
-                    .putExtra(EXTRA_TTS_START, start)
-                    .putExtra(EXTRA_TTS_END, Math.min(end, text.length()));
-            LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(i);
-        }
-
-        @Override
-        public void onWordRange(int s, int e) {
-            onUtteranceRange(s, e);
-        }
-
-        private float currentSpeechRate() {
-            return (float) Math.max(0.1, getSpeed());
-        }
-
-        public void setStartOffsetChars(int charOffset) {
-            if (text == null) return;
-            int target = Math.max(0, Math.min(charOffset, text.length()));
-
-            resumeOffset = target;
-
-            // update estimated position for seekbar
-            if (estDurationMs > 0 && !text.isEmpty()) {
-                estPositionMs = (int) ((resumeOffset / (double) text.length()) * estDurationMs);
-            } else {
+                resumeOffset = 0;
                 estPositionMs = 0;
+                String raw = TextExtractor.getPlainText(ctx, uri, displayName);
+
+                // Normalize line endings (CRLF/CR → LF)
+                String norm = raw.replace("\r\n", "\n").replace('\r', '\n');
+
+                // If suspiciously few newlines, add paragraph breaks heuristically
+                if (TtsHelper.countNewlines(norm) < 2) {
+                    norm = TtsHelper.smartParagraphize(norm);
+                }
+
+                text = norm;
+                estDurationMs = estimateDurationMs(text, currentSpeechRate());
             }
 
-            if (playing && prepared) {
-                tts.stop();
-                tts.speakFromOffset(text, resumeOffset);
+            //just after load file
+            @Override public void prepareAsync() {
+                myLogD("prepareAsync");
+                if (ttsHelper==null) {
+                    myLogW("ttsHelper==null");
+                    return;
+                }
+                if (!ttsHelper.isReady()) {
+                    myLogW("tts not ready");
+                    return;
+                }
+
+                String voiceName = desiredVoiceName(); // new helper below
+                myLogD("desiredVoiceName : " + voiceName);
+                if (voiceName != null) {
+                    // reset readiness; we'll mark ready on warm-up success
+                    prepared = false; langReady = false;
+
+                    setTtsVoiceByNameAsync(voiceName, /*timeoutMs*/ 5000L, (ready, reason) -> {
+                        if (ready) {
+                            langReady = true; prepared = true;
+                            myLog("send onPrepared()");
+                            ttsH.post(onPrepared); // triggers sendReadyToPlay/directPlay path
+                        } else {
+                            myLogW("prepareAsync() - Voice warm-up failed (" + reason + ").");
+                            //ViewHelper.showAlterDialogToDisplayText(getApplicationContext(), "Error, very sorry, -text to speech- still beta, it should be working in a few days with an update.", "little problem");
+                            myToastE("Error, Sorry, still beta, please wait app update.");
+                        }
+                    });
+                } else {
+                    myLogW("prepareAsync() -  no saved voice");
+                    langReady = true; prepared = true;
+                    myLog("send onPrepared()");
+                    ttsH.post(onPrepared);
+                }
+            }
+
+            @Override public void onTtsReady(TextToSpeech t) {
+                myLog("onTtsReady");
+                // same as prepareAsync, so just call it
+                prepareAsync();
+            }
+
+
+            @Override
+            public void start() {
+                myLog("start");
+                if (!prepared) return;
+                playing = true;
+                lastCharSpoken = Math.max(0, Math.min(resumeOffset, (text != null) ? text.length() : 0));
+                ttsHelper.setSpeechRate(currentSpeechRate());
+                ttsHelper.speakFromOffset(text, resumeOffset);
+                ttsHelper.logCurrentVoice();
                 updatePlaybackState(PlaybackStateCompat.STATE_PLAYING, getCurrentPosition(), currentSpeechRate());
-            } else if (prepared) {
+                startSleepTimer();
+            }
+
+            @Override
+            public void pause() {
+                if (!prepared) return;
+                ttsHelper.stop();
+                playing = false;
                 updatePlaybackState(PlaybackStateCompat.STATE_PAUSED, getCurrentPosition(), 0f);
+                Pref.setPauseTime();
+                stopSleepTimer();
             }
-        }
 
-        private int logicalTextEndIndex() {
-            if (text == null) return 0;
-            int i = text.length();
-            while (i > 0) {
-                char ch = text.charAt(i - 1);
-                // trim common trailing non-spoken characters
-                if (Character.isWhitespace(ch) || ch == '\u200B' || ch == '\uFEFF') i--;
-                else break;
+            @Override
+            public void stop() {
+                ttsHelper.stop();
+                playing = false;
+                updatePlaybackState(PlaybackStateCompat.STATE_STOPPED, 0, 0f);
             }
-            return i;
-        }
-        @Nullable
-        private String desiredVoiceName() {
-            String name = null;
-            ZikFile zf = getCurrentZikFile();
-            if (zf != null) {
-                try { name = Pref.getBookTtsVoiceName(getApplicationContext(), zf.getIdFolder()); } catch (Throwable ignored) {}
+
+            @Override
+            public void reset() {
+                stop();
+                prepared = false;
+                resumeOffset = 0;
+                estPositionMs = 0;
+                text = "";
             }
-            if (name == null || name.isEmpty() || "system".equalsIgnoreCase(name)) {
-                try { name = Option.getTtsVoice(); } catch (Throwable ignored) {}
+
+            @Override
+            public boolean isPlaying() {
+                return playing;
             }
-            return (name == null || name.isEmpty() || "system".equalsIgnoreCase(name)) ? null : name;
-        }
+
+            @Override
+            public boolean isReady() {
+                myLogD("is ready : tts=" + ttsHelper.isReady() + " - prepared:" + prepared + " - langReady" + langReady);
+                return ttsHelper.isReady() && prepared && langReady;
+            }
+
+            @Override
+            public int getCurrentPosition() {
+                return estPositionMs;
+            }
+
+            @Override
+            public int getDuration() {
+                return estDurationMs;
+            }
+
+            @Override
+            public int getAudioSessionId() {
+                return 0;
+            } // no visualizer for TTS
+
+            @Override
+            public void seekTo(int ms) {
+                if (estDurationMs <= 0 || text.isEmpty()) return;
+                int clamped = Math.max(0, Math.min(ms, estDurationMs));
+                int charPos = (int) ((clamped / (double) estDurationMs) * Math.max(1, text.length()));
+                resumeOffset = charPos;
+                estPositionMs = clamped;
+                if (playing) {
+                    ttsHelper.stop();
+                    ttsHelper.speakFromOffset(text, resumeOffset);
+                }
+            }
+
+            @Override public void setSpeed(float s) {
+                ttsHelper.setSpeechRate(s);
+                int old = estDurationMs;
+                estDurationMs = estimateDurationMs(text, s);
+                if (old > 0) estPositionMs = (int) (estPositionMs * (estDurationMs / (double) old));
+                if (playing)
+                    updatePlaybackState(PlaybackStateCompat.STATE_PLAYING, getCurrentPosition(), s);
+            }
+
+            @Override public void onStart(String id) {
+                if (id != null && id.startsWith("warmup-")) return; // ignore warm-up starts
+                playing = true;
+            }
+
+            @Override public void onDone(String id) {
+                if (handleWarmupDone(id, /*ok*/true, /*ignored*/0)) return;
+
+                // Have we reached (logically) the end of the text?
+                int logicalEnd = logicalTextEndIndex();
+                if (lastCharSpoken >= logicalEnd) {
+                    playing = false;
+                    onEngineCompletion(); // true end of book/chapter
+                    return;
+                }
+
+                // Not at end yet → queue the remainder from where we left off
+                // (post to the main thread to avoid reentrancy)
+                ttsH.post(() -> {
+                    if (!playing) return; // user might have paused meanwhile
+                    resumeOffset = lastCharSpoken; // continue from last known char
+                    try {
+                        ttsHelper.speakFromOffset(text, resumeOffset);
+                    } catch (Throwable t) {
+                        playing = false;
+                        onEngineError("TTS continue failed", -1, 0);
+                    }
+                });
+            }
+            private boolean handleWarmupDone(String id, boolean ok, int errorReasonIfAny) {
+                if (id == null || !id.startsWith("warmup-")) return false;
+                WarmupCallback cb = warmups.remove(id);
+                if (cb != null) cb.onResult(ok, ok ? TtsHelper.READY : errorReasonIfAny);
+                deleteTemp(id); // deletes <cache>/<id>.wav
+                return true; // we handled it
+            }
+
+            @Override public void onError(String id, int code) {
+                if (handleWarmupDone(
+                        id,
+                        /*ok*/false,
+                        // map to your reasons; genericize non-specific codes as ERROR
+                        (code == TextToSpeech.ERROR_SYNTHESIS ? TtsHelper.SYNTH_FAIL : TtsHelper.ERROR)
+                )) return;
+
+                playing = false;
+                onEngineError("TTS error", code, 0);
+            }
+
+            @Override
+            public void onUtteranceRange(int start, int end) {
+                myLogD("onUtteranceRange");
+                if (!text.isEmpty())
+                    estPositionMs = (int) ((start / (double) text.length()) * estDurationMs);
+                // remember farthest character we actually spoke
+                if (end > lastCharSpoken) lastCharSpoken = end;
+
+                updatePlaybackState(playing ? PlaybackStateCompat.STATE_PLAYING : PlaybackStateCompat.STATE_PAUSED,
+                        getCurrentPosition(), currentSpeechRate());
+
+                Intent i = new Intent(NOTIFICATION_TTS_RANGE)
+                        .putExtra(EXTRA_TTS_START, start)
+                        .putExtra(EXTRA_TTS_END, Math.min(end, text.length()));
+                LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(i);
+            }
+
+            @Override
+            public void onWordRange(int s, int e) {
+                onUtteranceRange(s, e);
+            }
+
+            private float currentSpeechRate() {
+                return (float) Math.max(0.1, getSpeed());
+            }
+
+            public void setStartOffsetChars(int charOffset) {
+                myLogD("setStartOffsetChars : " + charOffset);
+                if (text == null) return;
+                int target = Math.max(0, Math.min(charOffset, text.length()));
+
+                resumeOffset = target;
+
+                // update estimated position for seekbar
+                if (estDurationMs > 0 && !text.isEmpty()) {
+                    estPositionMs = (int) ((resumeOffset / (double) text.length()) * estDurationMs);
+                } else {
+                    estPositionMs = 0;
+                }
+
+                if (playing && prepared) {
+                    ttsHelper.stop();
+                    ttsHelper.speakFromOffset(text, resumeOffset);
+                    updatePlaybackState(PlaybackStateCompat.STATE_PLAYING, getCurrentPosition(), currentSpeechRate());
+                } else if (prepared) {
+                    updatePlaybackState(PlaybackStateCompat.STATE_PAUSED, getCurrentPosition(), 0f);
+                }
+            }
+
+            private int logicalTextEndIndex() {
+                if (text == null) return 0;
+                int i = text.length();
+                while (i > 0) {
+                    char ch = text.charAt(i - 1);
+                    // trim common trailing non-spoken characters
+                    if (Character.isWhitespace(ch) || ch == '\u200B' || ch == '\uFEFF') i--;
+                    else break;
+                }
+                return i;
+            }
+            @Nullable
+            private String desiredVoiceName() {
+                String name = null;
+                ZikFile zf = getCurrentZikFile();
+                if (zf != null) {
+                    try { name = Pref.getBookTtsVoiceName(getApplicationContext(), zf.getIdFolder()); } catch (Throwable ignored) {}
+                }
+                if (name == null || name.isEmpty() || "system".equalsIgnoreCase(name)) {
+                    try { name = Option.getTtsVoice(); } catch (Throwable ignored) {}
+                }
+                return (name == null || name.isEmpty() || "system".equalsIgnoreCase(name)) ? null : name;
+            }
 
 
-    }
+        }
     // ----------------------------------------------------------------
     //  END TTS ENGINE
     // ----------------------------------------------------------------

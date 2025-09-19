@@ -18,6 +18,7 @@ import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.adapter.VoiceSpinnerAdapter;
 import com.driot.bookplayer.objects.VoiceItem;
+import com.driot.bookplayer.utils.AppTtsManager;
 import com.driot.bookplayer.utils.KanLogger;
 
 import java.io.File;
@@ -29,7 +30,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-public class TtsHelper implements TextToSpeech.OnInitListener {
+public class TtsHelper {
     private final Context ctx;
     private TextToSpeech tts;
     private boolean ready = false;
@@ -51,18 +52,18 @@ public class TtsHelper implements TextToSpeech.OnInitListener {
     // optional raw access
     public TextToSpeech raw() { return tts; }
 
-        public int synthesizeToFile(CharSequence text, Bundle params, File file, String utteranceId) {
+    public int synthesizeToFile(CharSequence text, Bundle params, File file, String utteranceId) {
         return tts.synthesizeToFile(text, params, file, utteranceId);
     }
 
     private final Listener listener;
 
-    public TtsHelper(Context ctx, Listener listener) {
+    public TtsHelper(@NonNull Context ctx, @NonNull TextToSpeech sharedTts, @Nullable Listener listener) {
         this.ctx = ctx.getApplicationContext();
         this.listener = listener;
-        tts = new TextToSpeech(this.ctx, this);
+        this.tts = sharedTts;   // do NOT new TextToSpeech here
     }
-
+/*
     @Override public void onInit(int status) {
         if (status == TextToSpeech.SUCCESS) {
             try {
@@ -137,11 +138,21 @@ public class TtsHelper implements TextToSpeech.OnInitListener {
         }
     }
 
-    public boolean isReady() { return ready; }
+ */
+
+    public boolean isReady() { return tts != null; }
 
     // ======== SPEAK API (unchanged) ========
     public void speakFromOffset(String text, int startOffset) {
-        if (!ready || text == null) return;
+        myLogD("speakFromOffset");
+        if (!isReady()) {
+            myLogD("not ready");
+            return;
+        }
+        if (text == null) {
+            myLogD("text == null");
+            return;
+        }
         int maxLen = 1800;
         List<Chunk> chunks = buildChunks(text, maxLen);
 
@@ -171,7 +182,7 @@ public class TtsHelper implements TextToSpeech.OnInitListener {
     public void setSpeechRate(float rate) { if (tts != null) tts.setSpeechRate(rate); }
     public void stop()  { if (tts != null) tts.stop(); }
     public void pause() { if (tts != null) tts.playSilentUtterance(250, TextToSpeech.QUEUE_ADD, "pause"); }
-    public void shutdown() { if (tts != null) { tts.stop(); tts.shutdown(); tts = null; } }
+    //public void shutdown() { if (tts != null) { tts.stop(); tts.shutdown(); tts = null; } }
 
     // ======== VOICE HELPERS ========
 
@@ -419,92 +430,98 @@ public class TtsHelper implements TextToSpeech.OnInitListener {
     public static @NonNull AutoCloseable setupTtsVoiceSpinner(
             @NonNull Context ui_context,
             @NonNull Spinner spinner,
-            @Nullable String savedCode,
+            @Nullable String savedCode,          // "system" or exact engine voice name
             @NonNull OnVoiceSelected callback
     ) {
-        final Context ui  = ui_context;                 // Activity/Fragment context (themed!)
-        final Context app = ui_context.getApplicationContext(); // for TTS only
+        final Context ui  = ui_context;                       // themed
+        final Context app = ui_context.getApplicationContext();
         final Handler main = new Handler(Looper.getMainLooper());
 
-        // Disable spinner and show a tiny "loading" option until TTS is ready.
+        // 1) Temporary loading state
         final ArrayAdapter<String> loadingAdapter = new ArrayAdapter<>(
-                app, android.R.layout.simple_spinner_item, Collections.singletonList("Loading voices…"));
+                ui, android.R.layout.simple_spinner_item,
+                java.util.Collections.singletonList("Loading voices…"));
         loadingAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(loadingAdapter);
         spinner.setEnabled(false);
 
-        final TextToSpeech[] ttsHolder = new TextToSpeech[1];
+        final AppTtsManager mgr = AppTtsManager.get(app);
 
-        ttsHolder[0] = new TextToSpeech(app, status -> {
-            if (status != TextToSpeech.SUCCESS) {
+        // 2) Listener to (re)populate once TTS is ready
+        final AppTtsManager.Listener mgrListener = new AppTtsManager.Listener() {
+            @Override public void onTtsReady(TextToSpeech tts) {
                 main.post(() -> {
-                    ArrayAdapter<String> err = new ArrayAdapter<>(
-                            app, android.R.layout.simple_spinner_item,
-                            Collections.singletonList("TTS init failed"));
-                    err.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                    spinner.setAdapter(err);
-                    spinner.setEnabled(false);
-                    callback.onSelected(null);
-                });
-                return;
-            }
-
-            final List<VoiceItem> allVoices = buildVoiceItems(app, ttsHolder[0]);
-
-            main.post(() -> {
-                if (allVoices.isEmpty()) {
-                    ArrayAdapter<String> empty = new ArrayAdapter<>(
-                            ui, android.R.layout.simple_spinner_item, Collections.singletonList("No voices"));
-                    empty.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                    spinner.setAdapter(empty);
-                    spinner.setEnabled(false);
-                    callback.onSelected(null);
-                    return;
-                }
-
-                // Build final list: system/default first, then real voices
-                final ArrayList<VoiceItem> all = new ArrayList<>();
-                VoiceItem system = VoiceItem.makeSystemDefault(ttsHolder[0]);
-                if (system != null) all.add(system);
-                all.addAll(allVoices);
-
-                VoiceSpinnerAdapter adapter = new VoiceSpinnerAdapter(ui, all /* now includes system at 0 */);
-                spinner.setAdapter(adapter);
-                spinner.setEnabled(true);
-
-                // Preselect
-                int pre = 0; // default to "system"
-                if (savedCode != null && !"system".equalsIgnoreCase(savedCode)) {
-                    for (int i = 1; i < all.size(); i++) { // start at 1 (skip system)
-                        if (savedCode.equals(all.get(i).name)) { pre = i; break; }
+                    // Build catalog
+                    final List<VoiceItem> voices = buildVoiceItems(app, tts); // your helper
+                    if (voices == null || voices.isEmpty()) {
+                        ArrayAdapter<String> empty = new ArrayAdapter<>(
+                                ui, android.R.layout.simple_spinner_item,
+                                java.util.Collections.singletonList("No voices"));
+                        empty.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                        spinner.setAdapter(empty);
+                        spinner.setEnabled(false);
+                        callback.onSelected(null);
+                        return;
                     }
-                }
-                spinner.setSelection(pre, false);
 
-                // Initial apply: do NOT call setVoice() for system (voice == null)
-                VoiceItem preSel = all.get(pre);
-                if (preSel.voice != null) {
-                    applyVoice(ttsHolder[0], preSel);
-                }
-                callback.onSelected(preSel); // always pass the VoiceItem (system included)
+                    // Prepend "system default" option (null voice)
+                    final ArrayList<VoiceItem> all = new ArrayList<>();
+                    VoiceItem system = VoiceItem.makeSystemDefault(tts);
+                    if (system != null) all.add(system);
+                    all.addAll(voices);
 
-                spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                    @Override public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                        VoiceItem sel = all.get(position);
-                        if (sel.voice != null) {
-                            applyVoice(ttsHolder[0], sel);
+                    final VoiceSpinnerAdapter adapter = new VoiceSpinnerAdapter(ui, all);
+                    spinner.setAdapter(adapter);
+                    spinner.setEnabled(true);
+
+                    // Preselect saved value
+                    int pre = 0; // default to "system"
+                    if (savedCode != null && !"system".equalsIgnoreCase(savedCode)) {
+                        for (int i = 1; i < all.size(); i++) {
+                            if (savedCode.equals(all.get(i).name)) { pre = i; break; }
                         }
-                        callback.onSelected(sel);
                     }
-                    @Override public void onNothingSelected(AdapterView<?> parent) {}
+                    spinner.setSelection(pre, false);
+
+                    // Apply initial selection (skip setVoice for "system")
+                    VoiceItem preSel = all.get(pre);
+                    if (preSel != null && preSel.voice != null) {
+                        try { mgr.setVoice(preSel.voice); } catch (Throwable ignored) {}
+                    }
+                    callback.onSelected(preSel);
+
+                    // Wire selection changes
+                    spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                        @Override public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+                            VoiceItem sel = all.get(pos);
+                            if (sel != null && sel.voice != null) {
+                                try { mgr.setVoice(sel.voice); } catch (Throwable ignored) {}
+                            }
+                            callback.onSelected(sel);
+                        }
+                        @Override public void onNothingSelected(AdapterView<?> parent) { /* no-op */ }
+                    });
                 });
+            }
+        };
+
+        // 3) Acquire a handle (ref-counted) and register listener
+        final AutoCloseable acquireHandle = mgr.acquire(spinner /*owner*/, mgrListener);
+
+        // 4) If already ready, populate immediately
+        if (mgr.isReady() && mgr.raw() != null) {
+            mgrListener.onTtsReady(mgr.raw());
+        }
+
+        // 5) Return a release handle (does NOT shutdown the engine)
+        return () -> {
+            main.post(() -> {
+                try { spinner.setOnItemSelectedListener(null); } catch (Throwable ignored) {}
             });
-
-        });
-
-        // Return a handle that shuts down TTS cleanly.
-        return (AutoCloseable) ttsHolder[0]::shutdown;
+            try { acquireHandle.close(); } catch (Exception ignored) {}
+        };
     }
+
 
     // ---- INTERNALS ----
 

@@ -164,7 +164,7 @@ public class PlayActivity extends LoggingActivity {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             if (!Objects.equals(action, AudioService.NOTIFICATION_PLAYBACK_TIMER_VALUE) && !Objects.equals(action, AudioService.NOTIFICATION_TTS_RANGE)) {
-            //if (!Objects.equals(action, AudioService.NOTIFICATION_PLAYBACK_TIMER_VALUE)) {
+                //if (!Objects.equals(action, AudioService.NOTIFICATION_PLAYBACK_TIMER_VALUE)) {
                 myLog("broadcast received : [" + action + "]");
             }
 
@@ -298,7 +298,9 @@ public class PlayActivity extends LoggingActivity {
 
         PlayList.getInstance().setOnMetaLoadedListener((folder, podcast, isPodcast) -> {
             // Voices
-            initTtsVoiceSpinner(folder.getId());
+            if (folder.playType.equals(Var.PLAY_TYPE_TEXT)) {
+                initTtsVoiceSpinner(folder.getId());
+            }
 
             // Playlist objects are all loaded
             if (folder.image != null && !folder.image.isEmpty()) {

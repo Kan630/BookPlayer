@@ -29,6 +29,7 @@ import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.objects.PlayList;
 import com.driot.bookplayer.helpers.IconHelper;
+import com.driot.bookplayer.utils.AppTtsManager;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingRVAdapter;
 
@@ -115,6 +116,10 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
                 return;
             } else {
                 myLogI("onClick - position=" + getBindingAdapterPosition() + " - " + folder.getName());
+            }
+            if (folder.playType.equals(Var.PLAY_TYPE_TEXT)) {
+                // early load of TTS
+                final AppTtsManager mgr = AppTtsManager.get(mCtx.getApplicationContext());
             }
 
             new Thread(() -> {
