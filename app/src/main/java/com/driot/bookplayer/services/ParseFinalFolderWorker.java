@@ -8,6 +8,7 @@ import static com.driot.bookplayer.utils.Tonio.formatNameForDisplay;
 import static com.driot.bookplayer.utils.Tonio.formatTime;
 import static com.driot.bookplayer.utils.Tonio.getExtension;
 import static com.driot.bookplayer.utils.Tonio.getFileNameFromPath;
+import static com.driot.bookplayer.utils.Tonio.getSourceLocation;
 
 import android.content.Context;
 import android.media.MediaMetadataRetriever;
@@ -497,17 +498,20 @@ public class ParseFinalFolderWorker extends LoggingWorker {
         myLogD("******************************************************************************************************************");
         updateFolderTable(context, insertedFolderId);
 
+        // check we have something in folder...
+        if (saved == 0) {
+            TaskStateManager.markTaskFailed(TASK_NAME, context.getString(R.string.Error_Import_No_Usable_item_Found));
+        }
+
         myLogD("deleting source ??"
                 + "\nOption CopyFile : " + bookState.optionCopy + "  -  is a ZIP : " + bookState.dynamicType.equals("ZIP")
                 + "\nOption DeleteSourceFile : " + bookState.optionDelete);
         if ((bookState.optionCopy || "ZIP".equals(bookState.dynamicType)) && bookState.optionDelete) {
-            deleteSourceFile();
+             if (!deleteSourceFile()) {
+                 TaskStateManager.tellWarning(context.getString(R.string.Error_Import_could_not_delete_source));
+             }
         }
-        if (saved == 0) {
-            TaskStateManager.markTaskFailed(TASK_NAME, context.getString(R.string.Error_Import_No_Usable_item_Found));
-        } else {
-            TaskStateManager.tellEnd();
-        }
+        TaskStateManager.tellEnd();
     }
 
 
@@ -542,35 +546,32 @@ public class ParseFinalFolderWorker extends LoggingWorker {
         }
     }
 
-    private void deleteSourceFile() {
-        myLog("deleteSourceFile() - uri = [" + bookState.dynamicUri + "] [" + bookState.dynamicType + "]");
+    private boolean deleteSourceFile() {
+        myLog("deleteSourceFile() - uri = [" + bookState.originalUri + "]");
         DocumentFile dfPickedDir = null;
-        if (bookState.dynamicType.equals("File") || bookState.dynamicType.equals("ZIP")) {
+        if (bookState.dynamicType.equals("File") || bookState.dynamicType.equals("ZIP") || bookState.dynamicType.equals("Folder")) {
             try {
-                dfPickedDir = DocumentFile.fromSingleUri(context, bookState.dynamicUri);
+                dfPickedDir = UriHelper.getDocumentFileFromAnyUri(context, bookState.originalUri);
             } catch (Exception e) {
                 myLogEE(e,"deleting - error getting DocumentFile.fromSingleUri");
-                TaskStateManager.markTaskFailed(TASK_NAME, context.getString(R.string.Error_Import_CannotDeleteSource));
-            }
-        } else if (bookState.dynamicType.equals("Folder")) {
-            try {
-                dfPickedDir = DocumentFile.fromTreeUri(context, bookState.dynamicUri);
-            } catch (Exception e) {
-                myLogEE(e,"deleting - error getting DocumentFile.fromTreeUri");
-                TaskStateManager.markTaskFailed(TASK_NAME, context.getString(R.string.Error_Import_CannotDeleteSource));
+                return false;
             }
         } else {
             myLogEE(null,"Incorrect type : **" + bookState.dynamicType + "**");
+            return false;
         }
         if (!(dfPickedDir == null)) {
             boolean okDelete = dfPickedDir.delete();
             if (okDelete) {
                 myLogD("source file deletion ok");
+                return true;
             } else {
                 myLogEE(null,"Error during source file deletion");
+                return false;
             }
         } else {
             myLogEE(null,"deleteSourceFile() => could not get ref to picked file");
+            return false;
         }
     }
 

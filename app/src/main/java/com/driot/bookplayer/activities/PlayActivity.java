@@ -296,6 +296,10 @@ public class PlayActivity extends LoggingActivity {
             applyTtsToggleUi();
         });
 
+        if (PlayList.getInstance() == null) {
+            lockButtonAndDisplayErrorMessage(null);
+            myLogEE(null, "onCreate() -- cancelling since PlayList.getInstance() == null");
+        }
         PlayList.getInstance().setOnMetaLoadedListener((folder, podcast, isPodcast) -> {
             // Voices
             if (folder.playType.equals(Var.PLAY_TYPE_TEXT)) {

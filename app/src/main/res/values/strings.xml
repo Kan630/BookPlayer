@@ -815,5 +815,6 @@
     <string name="toast_tts_getting_ready">"Text-to-Speech getting ready !"</string>
     <string name="Error_Import_No_Usable_item_Found">"No usable item found"</string>">
 
+    <string name="Error_Import_could_not_delete_source">"could not delete picked source"</string>">
 
 </resources>
