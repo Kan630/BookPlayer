@@ -812,6 +812,7 @@
     <string name="option_podcast_autodownload_subtitle">"If you mark a podcast as a favorite, you can also enable the ‘auto-download’ option.\nBookPlayer will then check for new episodes—both periodically and at startup—and download them."</string>
 
     <string name="toast_tts_not_ready">"Text-to-Speech not ready !"</string>
+    <string name="toast_tts_getting_ready">"Text-to-Speech getting ready !"</string>
     <string name="Error_Import_No_Usable_item_Found">"No usable item found"</string>">
 
 

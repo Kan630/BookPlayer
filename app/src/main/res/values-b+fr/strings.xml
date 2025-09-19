@@ -713,7 +713,6 @@ Tous les messages sont lisibles publiquement. Connectez-vous pour participer.
     <string name="bOpenFolder_desc">Choisissez un dossier : tous les fichiers audio (y compris dans les sous-dossiers, le cas échéant) seront importés dans le même livre audio.</string>
     <string name="warning_beta_test">Fonctionnalité bêta – peut être instable</string>
 
-    <string name="app_language" translatable="false">language</string>
     <string name="type_here_">Saisissez ici…</string>
 
     <string name="most_downloaded">"Les plus téléchargés"</string>
@@ -724,5 +723,62 @@ Tous les messages sont lisibles publiquement. Connectez-vous pour participer.
 
     <string name="ep">"ép"</string>
     <string name="option_podcast_episodes_sort_order">dernier épisode en haut</string>
+
+    <string name="app_language">Langue de l\'application</string>
+    <string name="tts_language">Langue TTS</string>
+    <string name="language">langue</string>
+    <string name="download">télécharger</string>
+    <string name="autodownload">téléchargement automatique</string>
+    <string name="refresh">rafraîchir</string>
+    <string name="collapse">réduire</string>
+    <string name="expand">développer</string>
+    <string name="flag">drapeau</string>
+    <string name="language_flag">drapeau de langue</string>
+    <string name="voice_flag">drapeau de voix</string>
+    <string name="settings">paramètres</string>
+    <string name="podcast_settings">paramètres podcast</string>
+    <string name="option_podcast_episodes_expand">afficher les descriptions</string>
+    <string name="option_create_cover">Créer des couvertures</string>
+    <string name="option_create_cover_text">Si aucune image de couverture n\'est trouvée lors du chargement du livre, une image pastel avec les initiales du titre sera créée.</string>
+    <string name="toggle_text_image">Basculer texte/image</string>
+    <string name="reset_progress_from_this_track">réinitialiser la progression depuis ce morceau</string>
+    <string name="rename_track">renommer le morceau</string>
+    <string name="sort">trier</string>
+    <string name="default_">par défaut</string>
+    <string name="could_not_read_resource">Impossible de lire la ressource</string>
+    <string name="mime_type_not_supported">le fichier choisi n\'est pas pris en charge</string>
+    <string name="list_of_supported_extensions">liste des extensions prises en charge</string>
+    <string name="audio_book_name">nom du livre audio</string>
+    <string name="audio_book_cover">couverture du livre audio</string>
+    <string name="ok">OK</string>
+    <string name="section_audio">Audio</string>
+    <string name="section_video">Vidéo</string>
+    <string name="section_text">Texte</string>
+    <string name="title">titre</string>
+    <string name="subtitle">sous-titre</string>
+
+    <string name="option_night_mode_title">Mode du thème  ☀️ 🌙</string>
+    <string name="option_night_mode_follow_system">⚙️ Système</string>
+    <string name="option_night_mode_light">☀️ Clair</string>
+    <string name="option_night_mode_dark">🌙 Sombre</string>
+    <string name="option_night_mode_dialog_title">Choisir le mode du thème</string>
+    <string name="text_to_speech">synthèse vocale</string>
+    <string name="still_in_development">encore en développement</string>
+    <string name="weird_behavior_could_happen">un comportement étrange peut survenir</string>
+
+    <string name="Generate">Générer</string>
+    <string name="DeleteCoverImage_AskDelete">"Vous êtes sur le point de supprimer cette image de couverture.\nÊtes-vous sûr ?"</string>
+    <string name="action_generate">✨ Générer</string>
+    <string name="action_delete">🗑️ Supprimer</string>
+    <string name="action_change">🖼️ Changer</string>
+
+    <string name="Podcast_specific_view">Vue spécifique podcast</string>
+    <style name="Classic_book_view">Vue classique du livre</style>
+    <string name="option_podcast_autodownloaded_at_the_top">Lorsque de nouveaux épisodes sont téléchargés, déplacer le podcast en haut de la liste des livres audio.</string>
+    <string name="option_podcast_autodownload_subtitle">"Si vous marquez un podcast comme favori, vous pouvez aussi activer l\'option ‘téléchargement automatique’.\nBookPlayer vérifiera alors les nouveaux épisodes — périodiquement et au démarrage — et les téléchargera."</string>
+
+    <string name="toast_tts_not_ready">"Synthèse vocale non prête !"</string>
+    <string name="toast_tts_getting_ready">"Préparation de la synthèse vocale !"</string>
+    <string name="Error_Import_No_Usable_item_Found">"Aucun élément utilisable trouvé"</string>
 
 </resources>

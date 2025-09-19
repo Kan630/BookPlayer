@@ -705,7 +705,6 @@ El valor global de apagado automático está en Opciones (en el menú de la pant
     <string name="bOpenFolder_desc">Elige una carpeta: todos los audios (incluso en subcarpetas, si las hay) se importarán en el mismo libro.</string>
     <string name="warning_beta_test">Función beta – Puede ser inestable</string>
 
-    <string name="app_language" translatable="false">language</string>
     <string name="type_here_">Escribe aquí…</string>
 
     <string name="most_downloaded">"Más descargados"</string>
@@ -716,5 +715,62 @@ El valor global de apagado automático está en Opciones (en el menú de la pant
 
     <string name="ep">"ep"</string>
     <string name="option_podcast_episodes_sort_order">episodio más reciente arriba</string>
+
+    <string name="app_language">Idioma de la aplicación</string>
+    <string name="tts_language">Idioma TTS</string>
+    <string name="language">idioma</string>
+    <string name="download">descargar</string>
+    <string name="autodownload">descarga automática</string>
+    <string name="refresh">actualizar</string>
+    <string name="collapse">contraer</string>
+    <string name="expand">expandir</string>
+    <string name="flag">bandera</string>
+    <string name="language_flag">bandera de idioma</string>
+    <string name="voice_flag">bandera de voz</string>
+    <string name="settings">ajustes</string>
+    <string name="podcast_settings">ajustes de pódcast</string>
+    <string name="option_podcast_episodes_expand">mostrar descripciones</string>
+    <string name="option_create_cover">Crear portadas</string>
+    <string name="option_create_cover_text">Si no se encuentra una imagen de portada al cargar el libro, se creará una imagen en tonos pastel con las iniciales del título.</string>
+    <string name="toggle_text_image">Alternar texto/imagen</string>
+    <string name="reset_progress_from_this_track">reiniciar progreso desde esta pista</string>
+    <string name="rename_track">renombrar pista</string>
+    <string name="sort">ordenar</string>
+    <string name="default_">predeterminado</string>
+    <string name="could_not_read_resource">No se pudo leer el recurso</string>
+    <string name="mime_type_not_supported">el archivo seleccionado no es compatible</string>
+    <string name="list_of_supported_extensions">lista de extensiones compatibles</string>
+    <string name="audio_book_name">nombre del audiolibro</string>
+    <string name="audio_book_cover">portada del audiolibro</string>
+    <string name="ok">OK</string>
+    <string name="section_audio">Audio</string>
+    <string name="section_video">Vídeo</string>
+    <string name="section_text">Texto</string>
+    <string name="title">título</string>
+    <string name="subtitle">subtítulo</string>
+
+    <string name="option_night_mode_title">Modo de tema  ☀️ 🌙</string>
+    <string name="option_night_mode_follow_system">⚙️ Sistema</string>
+    <string name="option_night_mode_light">☀️ Claro</string>
+    <string name="option_night_mode_dark">🌙 Oscuro</string>
+    <string name="option_night_mode_dialog_title">Elegir modo de tema</string>
+    <string name="text_to_speech">texto a voz</string>
+    <string name="still_in_development">aún en desarrollo</string>
+    <string name="weird_behavior_could_happen">puede ocurrir un comportamiento extraño</string>
+
+    <string name="Generate">Generar</string>
+    <string name="DeleteCoverImage_AskDelete">"Estás a punto de eliminar esta imagen de portada.\n¿Estás seguro?"</string>
+    <string name="action_generate">✨ Generar</string>
+    <string name="action_delete">🗑️ Eliminar</string>
+    <string name="action_change">🖼️ Cambiar</string>
+
+    <string name="Podcast_specific_view">Vista específica de pódcast</string>
+    <style name="Classic_book_view">Vista clásica de libro</style>
+    <string name="option_podcast_autodownloaded_at_the_top">Cuando se descarguen nuevos episodios, mover el pódcast al principio de la lista de audiolibros.</string>
+    <string name="option_podcast_autodownload_subtitle">"Si marcas un pódcast como favorito, también puedes activar la opción \'descarga automática\'.\nBookPlayer verificará nuevos episodios — tanto periódicamente como al iniciar — y los descargará."</string>
+
+    <string name="toast_tts_not_ready">"¡Texto a voz no está listo!"</string>
+    <string name="toast_tts_getting_ready">"¡Texto a voz preparándose!"</string>
+    <string name="Error_Import_No_Usable_item_Found">"No se encontró ningún elemento utilizable"</string>
 
 </resources>

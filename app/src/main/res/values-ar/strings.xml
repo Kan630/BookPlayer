@@ -711,7 +711,6 @@
     <string name="bOpenFolder_desc">اختر مجلدًا: جميع الملفات الصوتية (حتى في المجلدات الفرعية إن وُجدت) سيتم استيرادها في نفس الكتاب الصوتي.</string>
     <string name="warning_beta_test">ميزة تجريبية – قد تكون غير مستقرة</string>
 
-    <string name="app_language" translatable="false">language</string>
     <string name="type_here_">اكتب هنا…</string>
 
     <string name="most_downloaded">"الأكثر تنزيلًا"</string>
@@ -723,4 +722,60 @@
     <string name="ep">"حل"</string>
     <string name="option_podcast_episodes_sort_order">أحدث حلقة في الأعلى</string>
 
+    <string name="app_language">لغة التطبيق</string>
+    <string name="tts_language">لغة TTS</string>
+    <string name="language">لغة</string>
+    <string name="download">تنزيل</string>
+    <string name="autodownload">تنزيل تلقائي</string>
+    <string name="refresh">تحديث</string>
+    <string name="collapse">طي</string>
+    <string name="expand">توسيع</string>
+    <string name="flag">علم</string>
+    <string name="language_flag">علم اللغة</string>
+    <string name="voice_flag">علم الصوت</string>
+    <string name="settings">الإعدادات</string>
+    <string name="podcast_settings">إعدادات البودكاست</string>
+    <string name="option_podcast_episodes_expand">عرض الأوصاف</string>
+    <string name="option_create_cover">إنشاء أغلفة</string>
+    <string name="option_create_cover_text">إذا لم يتم العثور على صورة غلاف عند تحميل الكتاب، سيتم إنشاء صورة باستيل مع الأحرف الأولى لعنوان الكتاب.</string>
+    <string name="toggle_text_image">تبديل نص/صورة</string>
+    <string name="reset_progress_from_this_track">إعادة تعيين التقدم من هذا المقطع</string>
+    <string name="rename_track">إعادة تسمية المقطع</string>
+    <string name="sort">فرز</string>
+    <string name="default_">افتراضي</string>
+    <string name="could_not_read_resource">تعذر قراءة المورد</string>
+    <string name="mime_type_not_supported">الملف المحدد غير مدعوم</string>
+    <string name="list_of_supported_extensions">قائمة الامتدادات المدعومة</string>
+    <string name="audio_book_name">اسم الكتاب الصوتي</string>
+    <string name="audio_book_cover">غلاف الكتاب الصوتي</string>
+    <string name="ok">موافق</string>
+    <string name="section_audio">صوت</string>
+    <string name="section_video">فيديو</string>
+    <string name="section_text">نص</string>
+    <string name="title">عنوان</string>
+    <string name="subtitle">عنوان فرعي</string>
+
+    <string name="option_night_mode_title">وضع السمة  ☀️ 🌙</string>
+    <string name="option_night_mode_follow_system">⚙️ النظام</string>
+    <string name="option_night_mode_light">☀️ فاتح</string>
+    <string name="option_night_mode_dark">🌙 داكن</string>
+    <string name="option_night_mode_dialog_title">اختر وضع السمة</string>
+    <string name="text_to_speech">التحويل النصي إلى كلام</string>
+    <string name="still_in_development">لا يزال قيد التطوير</string>
+    <string name="weird_behavior_could_happen">قد يحدث سلوك غريب</string>
+
+    <string name="Generate">توليد</string>
+    <string name="DeleteCoverImage_AskDelete">"أنت على وشك حذف صورة الغلاف هذه.\nهل أنت متأكد؟"</string>
+    <string name="action_generate">✨ توليد</string>
+    <string name="action_delete">🗑️ حذف</string>
+    <string name="action_change">🖼️ تغيير</string>
+
+    <string name="Podcast_specific_view">عرض خاص بالبودكاست</string>
+    <style name="Classic_book_view">عرض الكتاب الكلاسيكي</style>
+    <string name="option_podcast_autodownloaded_at_the_top">عند تنزيل حلقات جديدة، يتم نقل البودكاست إلى أعلى قائمة الكتب الصوتية.</string>
+    <string name="option_podcast_autodownload_subtitle">"إذا قمت بوضع علامة على بودكاست كمفضل، يمكنك أيضًا تفعيل خيار \'التنزيل التلقائي\'.\nسيتحقق BookPlayer بعد ذلك من الحلقات الجديدة — دوريًا وعند بدء التشغيل — وسيقوم بتنزيلها."</string>
+
+    <string name="toast_tts_not_ready">"التحويل النصي إلى كلام غير جاهز!"</string>
+    <string name="toast_tts_getting_ready">"جارٍ تحضير التحويل النصي إلى كلام!"</string>
+    <string name="Error_Import_No_Usable_item_Found">"لم يتم العثور على عنصر قابل للاستخدام"</string>
 </resources>

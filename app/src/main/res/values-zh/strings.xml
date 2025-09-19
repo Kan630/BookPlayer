@@ -713,7 +713,6 @@ BookPlayer 在<font color="#81C784">无需权限</font>的情况下也能运行�
     <string name="bOpenFolder_desc">选择一个文件夹：所有音频（包括子文件夹中的（如有））都会被导入到同一本书中。</string>
     <string name="warning_beta_test">测试版功能 – 可能不稳定</string>
 
-    <string name="app_language" translatable="false">language</string>
     <string name="type_here_">在此输入…</string>
 
     <string name="most_downloaded">"下载最多"</string>
@@ -725,5 +724,61 @@ BookPlayer 在<font color="#81C784">无需权限</font>的情况下也能运行�
     <string name="ep">"集"</string>
     <string name="option_podcast_episodes_sort_order">最新一集在顶部</string>
 
+    <string name="app_language">应用语言</string>
+    <string name="tts_language">TTS 语言</string>
+    <string name="language">语言</string>
+    <string name="download">下载</string>
+    <string name="autodownload">自动下载</string>
+    <string name="refresh">刷新</string>
+    <string name="collapse">折叠</string>
+    <string name="expand">展开</string>
+    <string name="flag">旗帜</string>
+    <string name="language_flag">语言旗帜</string>
+    <string name="voice_flag">语音旗帜</string>
+    <string name="settings">设置</string>
+    <string name="podcast_settings">播客设置</string>
+    <string name="option_podcast_episodes_expand">显示描述</string>
+    <string name="option_create_cover">创建封面</string>
+    <string name="option_create_cover_text">如果在加载书籍时未找到封面图像，将会创建一张带有书名首字母的粉彩图像。</string>
+    <string name="toggle_text_image">切换文字/图像</string>
+    <string name="reset_progress_from_this_track">从此音轨重置进度</string>
+    <string name="rename_track">重命名音轨</string>
+    <string name="sort">排序</string>
+    <string name="default_">默认</string>
+    <string name="could_not_read_resource">无法读取资源</string>
+    <string name="mime_type_not_supported">所选文件不受支持</string>
+    <string name="list_of_supported_extensions">支持的扩展名列表</string>
+    <string name="audio_book_name">有声书名称</string>
+    <string name="audio_book_cover">有声书封面</string>
+    <string name="ok">确定</string>
+    <string name="section_audio">音频</string>
+    <string name="section_video">视频</string>
+    <string name="section_text">文本</string>
+    <string name="title">标题</string>
+    <string name="subtitle">副标题</string>
+
+    <string name="option_night_mode_title">主题模式  ☀️ 🌙</string>
+    <string name="option_night_mode_follow_system">⚙️ 系统</string>
+    <string name="option_night_mode_light">☀️ 浅色</string>
+    <string name="option_night_mode_dark">🌙 深色</string>
+    <string name="option_night_mode_dialog_title">选择主题模式</string>
+    <string name="text_to_speech">文字转语音</string>
+    <string name="still_in_development">仍在开发中</string>
+    <string name="weird_behavior_could_happen">可能会出现异常行为</string>
+
+    <string name="Generate">生成</string>
+    <string name="DeleteCoverImage_AskDelete">"您即将删除此封面图像。\n您确定吗？"</string>
+    <string name="action_generate">✨ 生成</string>
+    <string name="action_delete">🗑️ 删除</string>
+    <string name="action_change">🖼️ 更改</string>
+
+    <string name="Podcast_specific_view">播客专用视图</string>
+    <style name="Classic_book_view">经典书籍视图</style>
+    <string name="option_podcast_autodownloaded_at_the_top">当下载新剧集时，将播客移动到有声书列表的顶部。</string>
+    <string name="option_podcast_autodownload_subtitle">"如果您将播客标记为收藏，还可以启用 \'自动下载\' 选项。\nBookPlayer 将定期以及在启动时检查新剧集并下载它们。"</string>
+
+    <string name="toast_tts_not_ready">"文字转语音尚未准备好！"</string>
+    <string name="toast_tts_getting_ready">"文字转语音正在准备！"</string>
+    <string name="Error_Import_No_Usable_item_Found">"未找到可用项目"</string>
 
 </resources>

@@ -718,7 +718,6 @@
     <string name="bOpenFolder_desc">Выберите папку: все аудиофайлы (в том числе в подпапках, если они есть) будут импортированы в одну и ту же книгу.</string>
     <string name="warning_beta_test">Бета-функция – может быть нестабильной</string>
 
-    <string name="app_language" translatable="false">language</string>
     <string name="type_here_">Введите здесь…</string>
 
     <string name="most_downloaded">"Самые загружаемые"</string>
@@ -730,5 +729,61 @@
     <string name="ep">"эп"</string>
     <string name="option_podcast_episodes_sort_order">новый эпизод вверху</string>
 
+    <string name="app_language">Язык приложения</string>
+    <string name="tts_language">Язык TTS</string>
+    <string name="language">язык</string>
+    <string name="download">скачать</string>
+    <string name="autodownload">автозагрузка</string>
+    <string name="refresh">обновить</string>
+    <string name="collapse">свернуть</string>
+    <string name="expand">развернуть</string>
+    <string name="flag">флаг</string>
+    <string name="language_flag">флаг языка</string>
+    <string name="voice_flag">флаг голоса</string>
+    <string name="settings">настройки</string>
+    <string name="podcast_settings">настройки подкаста</string>
+    <string name="option_podcast_episodes_expand">показать описания</string>
+    <string name="option_create_cover">Создать обложки</string>
+    <string name="option_create_cover_text">Если при загрузке книги не найдено изображение обложки, будет создано пастельное изображение с инициалами названия книги.</string>
+    <string name="toggle_text_image">Переключить текст/изображение</string>
+    <string name="reset_progress_from_this_track">сбросить прогресс с этой дорожки</string>
+    <string name="rename_track">переименовать дорожку</string>
+    <string name="sort">сортировать</string>
+    <string name="default_">по умолчанию</string>
+    <string name="could_not_read_resource">Не удалось прочитать ресурс</string>
+    <string name="mime_type_not_supported">выбранный файл не поддерживается</string>
+    <string name="list_of_supported_extensions">список поддерживаемых расширений</string>
+    <string name="audio_book_name">название аудиокниги</string>
+    <string name="audio_book_cover">обложка аудиокниги</string>
+    <string name="ok">ОК</string>
+    <string name="section_audio">Аудио</string>
+    <string name="section_video">Видео</string>
+    <string name="section_text">Текст</string>
+    <string name="title">заголовок</string>
+    <string name="subtitle">подзаголовок</string>
+
+    <string name="option_night_mode_title">Режим темы  ☀️ 🌙</string>
+    <string name="option_night_mode_follow_system">⚙️ Система</string>
+    <string name="option_night_mode_light">☀️ Светлая</string>
+    <string name="option_night_mode_dark">🌙 Тёмная</string>
+    <string name="option_night_mode_dialog_title">Выберите режим темы</string>
+    <string name="text_to_speech">синтез речи</string>
+    <string name="still_in_development">всё ещё в разработке</string>
+    <string name="weird_behavior_could_happen">может возникнуть странное поведение</string>
+
+    <string name="Generate">Сгенерировать</string>
+    <string name="DeleteCoverImage_AskDelete">"Вы собираетесь удалить эту обложку.\nВы уверены?"</string>
+    <string name="action_generate">✨ Сгенерировать</string>
+    <string name="action_delete">🗑️ Удалить</string>
+    <string name="action_change">🖼️ Изменить</string>
+
+    <string name="Podcast_specific_view">Специальный вид подкаста</string>
+    <style name="Classic_book_view">Классический вид книги</style>
+    <string name="option_podcast_autodownloaded_at_the_top">Когда новые эпизоды загружены, переместить подкаст в начало списка аудиокниг.</string>
+    <string name="option_podcast_autodownload_subtitle">"Если вы отметите подкаст как избранный, вы также можете включить опцию \'автозагрузка\'.\nBookPlayer будет проверять новые эпизоды — как периодически, так и при запуске — и загружать их."</string>
+
+    <string name="toast_tts_not_ready">"Синтез речи не готов!"</string>
+    <string name="toast_tts_getting_ready">"Подготовка синтеза речи!"</string>
+    <string name="Error_Import_No_Usable_item_Found">"Не найдено подходящих элементов"</string>
 
 </resources>
