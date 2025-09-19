@@ -38,8 +38,13 @@ public class Sql {
                 "      ELSE (SELECT MIN(lFirstAccess) FROM ZikFile WHERE ZikFile.idFolder = Folder.id) " +
                 "    END" +
                 "  ), " +
-                "  date_last_zikfile_added = (SELECT MAX(date_added) FROM ZikFile WHERE ZikFile.idFolder = Folder.id) " +
-                "WHERE Folder.id = ?";
+                "  date_last_zikfile_added = COALESCE( " +
+                "    (SELECT MAX(date_added) FROM ZikFile WHERE ZikFile.idFolder = Folder.id), " +
+                "    Folder.date_last_zikfile_added, " +
+                "    0" +  // or System.currentTimeMillis() if you prefer “now”
+                "  ) " +
+                "WHERE Folder.id = ?"
+                ;
         SimpleSQLiteQuery query = new SimpleSQLiteQuery(strSQL, new Object[]{mFolderId});
         try {
             int sqlResult = AppDatabase.getDatabase(c).FolderDao().runRawSql(query);
