@@ -3,6 +3,7 @@ package com.driot.bookplayer.objects;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import android.speech.tts.TextToSpeech;
 import android.speech.tts.Voice;
 
 import com.driot.bookplayer.helpers.FlagHelper;
@@ -51,6 +52,91 @@ public class VoiceItem {
         this.flagResIdLanguage = FlagHelper.getFlagResIdForLanguage(lang2);
         this.flagResIdCountry = FlagHelper.getFlagResIdForCountry(country);
     }
+
+
+    // --- ADD this secondary constructor for synthetic items (e.g., "system") ---
+    public VoiceItem(@NonNull String name,
+                     @Nullable Voice voice,
+                     @Nullable Locale locale,
+                     int quality,
+                     int latency,
+                     boolean requiresNetwork,
+                     boolean embedded,
+                     @NonNull Set<String> features,
+                     @NonNull String twoLetterCodeLanguage,
+                     @NonNull String displayName,
+                     @NonNull String voiceDetails,
+                     int flagResIdLanguage,
+                     int flagResIdCountry) {
+
+        this.voice = voice;
+
+        this.name = name;
+        this.locale = locale;
+        this.quality = quality;
+        this.latency = latency;
+        this.requiresNetwork = requiresNetwork;
+        this.embedded = embedded;
+        this.features = (features == null ? Collections.emptySet() : features);
+
+        this.twoLetterCodeLanguage = twoLetterCodeLanguage;
+        this.displayName = displayName;
+        this.voiceDetails = voiceDetails;
+        this.flagResIdLanguage = flagResIdLanguage;
+        this.flagResIdCountry = flagResIdCountry;
+    }
+
+    // --- ADD this factory to create the "system/default" VoiceItem ---
+    public static @Nullable VoiceItem makeSystemDefault(@NonNull TextToSpeech tts) {
+        try {
+            Voice def = tts.getDefaultVoice();               // may be null
+            Locale loc = (def != null) ? def.getLocale() : tts.getDefaultLanguage();
+
+            String lang2 = (loc != null && !loc.getLanguage().isEmpty()) ? loc.getLanguage() : "und";
+            String prettyLoc = (loc == null) ? "" : prettyLocale(loc);
+
+            String display = prettyLoc.isEmpty()
+                    ? "System (default)"
+                    : "System (default: " + prettyLoc + ")";
+            String details = display; // simple: same text for subtitle
+
+            int flagLang = com.driot.bookplayer.helpers.FlagHelper.getFlagResIdForLanguage(lang2);
+            int flagCountry = 0;
+            if (loc != null && !loc.getCountry().isEmpty()) {
+                flagCountry = com.driot.bookplayer.helpers.FlagHelper.getFlagResIdForCountry(loc.getCountry());
+            }
+
+            return new VoiceItem(
+                    "system",           // <- stable key
+                    null,               // <- NO underlying Voice (that’s the point)
+                    loc,                // hint for UI
+                    0,                  // quality
+                    0,                  // latency
+                    false,              // requiresNetwork
+                    false,              // embedded
+                    Collections.emptySet(),
+                    lang2,
+                    display,
+                    details,
+                    flagLang,
+                    flagCountry
+            );
+        } catch (Throwable t) {
+            // Fallback minimal item
+            return new VoiceItem(
+                    "system",
+                    null,
+                    null,
+                    0, 0, false, false,
+                    Collections.emptySet(),
+                    "und",
+                    "System (default)",
+                    "System (default)",
+                    0, 0
+            );
+        }
+    }
+
 
     /** Returns a human-readable one-liner for a voice. */
     public static String describeVoice(Voice v) {

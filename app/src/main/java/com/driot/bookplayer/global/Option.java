@@ -44,6 +44,8 @@ public class Option {
     public static final boolean DEFAULT_PODCAST_EPISODES_SORT_NEWEST_TOP = true;
     public static final boolean DEFAULT_PODCAST_EPISODES_DESCRIPTION_EXPAND = true;
     public static final boolean DEFAULT_CREATE_COVER = true;
+    private static final String DEFAULT_LANGUAGE = "system";
+
 
     private static Context appContext;
     private static android.content.SharedPreferences prefs;
@@ -198,16 +200,14 @@ public class Option {
 
 
     /////////////////// LANGUAGE ///////////////////
-    public static void setAppLanguage(String language) {prefs.edit().putString("LANGUAGE",language).apply();}
-    public static String getAppLanguage() {return prefs.getString("LANGUAGE", "system");}
+    public static void setAppLanguage(String language) {prefs.edit().putString("APP_LANGUAGE",language).apply();}
+    public static String getAppLanguage() {return prefs.getString("APP_LANGUAGE", DEFAULT_LANGUAGE);}
 
     public static void setTtsLanguage(String language) {prefs.edit().putString("TTS_LANGUAGE",language).apply();}
-    public static String getTtsLanguage() {return prefs.getString("TTS_LANGUAGE", "system");}
+    public static String getTtsLanguage() {return prefs.getString("TTS_LANGUAGE", DEFAULT_LANGUAGE);}
 
     public static void setTtsVoice(String voice) {prefs.edit().putString("TTS_VOICE",voice).apply();}
-    public static String getTtsVoice() {return prefs.getString("TTS_VOICE", "system");}
-
-
+    public static String getTtsVoice() {return prefs.getString("TTS_VOICE", DEFAULT_LANGUAGE);}
 
     public static String getNightMode() {return prefs.getString("KEY_NIGHT_MODE", "SYSTEM");}
     public static void setNightMode(String nightMode) { prefs.edit().putString("KEY_NIGHT_MODE", nightMode).apply();}

@@ -327,7 +327,7 @@ public class AudioService extends LoggingService {
         @Override public void prepareAsync() {
             myLogD("prepareAsync");
             if (!tts.isReady()) {
-                myLogD("tts not ready");
+                myLogW("tts not ready");
                 return;
             }
 
@@ -350,6 +350,9 @@ public class AudioService extends LoggingService {
                 });
             } else {
                 myLogW("prepareAsync() -  no saved voice");
+                langReady = true; prepared = true;
+                myLog("send onPrepared()");
+                ttsH.post(onPrepared);
             }
         }
 
@@ -405,6 +408,7 @@ public class AudioService extends LoggingService {
 
         @Override
         public boolean isReady() {
+            myLogD("is ready : tts=" + tts.isReady() + " - prepared:" + prepared + " - langReady" + langReady);
             return tts.isReady() && prepared && langReady;
         }
 

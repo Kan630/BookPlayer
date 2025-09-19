@@ -449,12 +449,12 @@ public class TtsHelper implements TextToSpeech.OnInitListener {
                 return;
             }
 
-            final List<VoiceItem> all = buildVoiceItems(app, ttsHolder[0]);
+            final List<VoiceItem> allVoices = buildVoiceItems(app, ttsHolder[0]);
 
             main.post(() -> {
-                if (all.isEmpty()) {
+                if (allVoices.isEmpty()) {
                     ArrayAdapter<String> empty = new ArrayAdapter<>(
-                            app, android.R.layout.simple_spinner_item, Collections.singletonList("No voices"));
+                            ui, android.R.layout.simple_spinner_item, Collections.singletonList("No voices"));
                     empty.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                     spinner.setAdapter(empty);
                     spinner.setEnabled(false);
@@ -462,39 +462,44 @@ public class TtsHelper implements TextToSpeech.OnInitListener {
                     return;
                 }
 
-                // Adapter with flags + pretty labels
-                VoiceSpinnerAdapter adapter = new VoiceSpinnerAdapter(ui, all);
+                // Build final list: system/default first, then real voices
+                final ArrayList<VoiceItem> all = new ArrayList<>();
+                VoiceItem system = VoiceItem.makeSystemDefault(ttsHolder[0]);
+                if (system != null) all.add(system);
+                all.addAll(allVoices);
+
+                VoiceSpinnerAdapter adapter = new VoiceSpinnerAdapter(ui, all /* now includes system at 0 */);
                 spinner.setAdapter(adapter);
                 spinner.setEnabled(true);
 
-                // Preselect (savedCode can be "system" or a voice name)
-                int pre = 0;
+                // Preselect
+                int pre = 0; // default to "system"
                 if (savedCode != null && !"system".equalsIgnoreCase(savedCode)) {
-                    for (int i = 0; i < all.size(); i++) {
+                    for (int i = 1; i < all.size(); i++) { // start at 1 (skip system)
                         if (savedCode.equals(all.get(i).name)) { pre = i; break; }
                     }
                 }
                 spinner.setSelection(pre, false);
 
-                // Immediately apply the preselected voice (unless "system")
+                // Initial apply: do NOT call setVoice() for system (voice == null)
                 VoiceItem preSel = all.get(pre);
-                if (savedCode == null || !"system".equalsIgnoreCase(savedCode)) {
+                if (preSel.voice != null) {
                     applyVoice(ttsHolder[0], preSel);
-                    callback.onSelected(preSel);
-                } else {
-                    callback.onSelected(null); // system/default
                 }
+                callback.onSelected(preSel); // always pass the VoiceItem (system included)
 
-                // Listen for changes
                 spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                     @Override public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                         VoiceItem sel = all.get(position);
-                        applyVoice(ttsHolder[0], sel);
+                        if (sel.voice != null) {
+                            applyVoice(ttsHolder[0], sel);
+                        }
                         callback.onSelected(sel);
                     }
                     @Override public void onNothingSelected(AdapterView<?> parent) {}
                 });
             });
+
         });
 
         // Return a handle that shuts down TTS cleanly.

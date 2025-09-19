@@ -153,10 +153,12 @@ public class MainActivity extends LoggingActivity {
 
         getFolders();
 
-        InAppMsgManager.deleteInAppMsgCache(this);
+        //InAppMsgManager.deleteInAppMsgCache(this);
         MyApp.getPeriodicTaskManager(this).start(); // safe
         InAppMsgManager.maybeShowBestMessage(this, "message");
         //startActivity(new Intent(this, TtsReadTxtActivity.class));
+
+        //Option.setTtsVoice("system"); //reset
     }
 
     @Override
