@@ -34,19 +34,9 @@
               <option name="versions">
                 <list>
                   <VersionSetting>
-                    <option name="buildVersion" value="151" />
-                    <option name="displayName" value="151 - Magic Unicorn (151)" />
-                    <option name="displayVersion" value="151 - Magic Unicorn" />
-                  </VersionSetting>
-                  <VersionSetting>
-                    <option name="buildVersion" value="149" />
-                    <option name="displayName" value="Magic Unicorn (149)" />
-                    <option name="displayVersion" value="Magic Unicorn" />
-                  </VersionSetting>
-                  <VersionSetting>
-                    <option name="buildVersion" value="147" />
-                    <option name="displayName" value="Magic Unicorn (147)" />
-                    <option name="displayVersion" value="Magic Unicorn" />
+                    <option name="buildVersion" value="152" />
+                    <option name="displayName" value="152 - crazy horse (152)" />
+                    <option name="displayVersion" value="152 - crazy horse" />
                   </VersionSetting>
                 </list>
               </option>
