@@ -13,7 +13,7 @@
         <item name="colorOnSurface">@color/bp_onSurface</item>
         <item name="colorOutline">@color/bp_outline</item>
         <item name="colorSurfaceVariant">@color/purple_Surface</item>
-        <item name="colorOnSurfaceVariant">@color/black</item>
+        <item name="colorOnSurfaceVariant">@color/bp_onSurface</item>
 
         <!-- System bars / window -->
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>

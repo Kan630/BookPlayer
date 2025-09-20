@@ -1,3 +1,4 @@
+// com/driot/bookplayer/activities/AddResourceActivity.java
 package com.driot.bookplayer.activities;
 
 import android.app.Activity;
@@ -14,17 +15,11 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.objects.AppViewModelStoreOwner;
-import com.driot.bookplayer.services.DownloadForegroundService;
+import com.driot.bookplayer.objects.TaskStateRepository;
 import com.driot.bookplayer.objects.WorkFlow;
+import com.driot.bookplayer.services.DownloadForegroundService;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
-
-/**
- * created by Antoine Driot -- antoine.driot.com -- on 23/11/20
- *
- * it is a waiting screen with progressbar
- *
- */
 public class AddResourceActivity extends LoggingActivity {
 
     private static final int DELAY_END_WAIT_ERROR = 5000;
@@ -35,11 +30,13 @@ public class AddResourceActivity extends LoggingActivity {
     private ProgressBar progressBar;
     private TextView tvErrorText, tvWarning;
 
-    Button bPauseResume;
-    Button bCancel;
+    private Button bPauseResume;
+    private Button bCancel;
 
     private Handler delayedFinishHandler;
     private Runnable delayedFinishRunnable;
+
+    private OngoingTaskViewModel viewModel;   // keep reference
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,13 +54,16 @@ public class AddResourceActivity extends LoggingActivity {
         bCancel.setOnClickListener(v -> performCancel());
 
         bPauseResume = findViewById(R.id.bPause);
-        bPauseResume.setOnClickListener(v -> performPause());
+        bPauseResume.setOnClickListener(v -> performPauseOrResume());
 
-        OngoingTaskViewModel viewModel = new ViewModelProvider(
+        viewModel = new ViewModelProvider(
                 AppViewModelStoreOwner.getInstance(),
                 ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication())
         ).get(OngoingTaskViewModel.class);
+
         myLogD("ViewModel instance: " + System.identityHashCode(viewModel));
+
+        // Bind UI
         viewModel.getTaskTitle().observe(this, title -> tvTitle.setText(title));
         viewModel.getProgressText().observe(this, text -> progressBarText.setText(text));
         viewModel.getProgressPercent().observe(this, percent -> progressBar.setProgress(percent));
@@ -71,42 +71,51 @@ public class AddResourceActivity extends LoggingActivity {
         viewModel.getErrorText().observe(this, errorText -> tvErrorText.setText(errorText));
 
         viewModel.isPauseAvailable().observe(this, available -> {
-            bPauseResume.setVisibility(available ? View.VISIBLE : View.GONE);
-            if (available && progressBarText.getText().length() == 0) {
+            bPauseResume.setVisibility(Boolean.TRUE.equals(available) ? View.VISIBLE : View.GONE);
+            if (Boolean.TRUE.equals(available) && progressBarText.getText().length() == 0) {
                 progressBarText.setText(getString(R.string.About_to_start_download));
             }
         });
+
         viewModel.isPaused().observe(this, paused -> {
             if (bPauseResume.getVisibility() == View.VISIBLE) {
-                bPauseResume.setText(getString(paused ? R.string.Resume : R.string.Pause));
+                bPauseResume.setText(getString(Boolean.TRUE.equals(paused) ? R.string.Resume : R.string.Pause));
             }
         });
+
         viewModel.isFinished().observe(this, finished -> {
             if (Boolean.TRUE.equals(finished)) {
                 checkAndClose();
             }
         });
-        viewModel.reinit();
 
+        // NOTE: no viewModel.reinit(); repository already holds the current state.
     }
 
-    private void performPause() {
-        if (bPauseResume.getText().equals(getString(R.string.Pause))) {
+    private void performPauseOrResume() {
+        // Keep your existing service control; the VM/repo only reflects state.
+        boolean isPauseLabel = bPauseResume.getText().toString().contentEquals(getString(R.string.Pause));
+        if (isPauseLabel) {
             myLogI("------ USER CLICKS btn PAUSE ----");
-            ContextCompat.startForegroundService(this, new Intent(this, DownloadForegroundService.class).setAction(DownloadForegroundService.ACTION_PAUSE));
-            bPauseResume.setText(getString(R.string.Resume));
+            ContextCompat.startForegroundService(
+                    this,
+                    new Intent(this, DownloadForegroundService.class).setAction(DownloadForegroundService.ACTION_PAUSE)
+            );
+            // Button text will be updated by VM when repo sets paused=true
         } else {
             myLogI("------ USER CLICKS btn RESUME ----");
-            ContextCompat.startForegroundService(this, new Intent(this, DownloadForegroundService.class).setAction(DownloadForegroundService.ACTION_RESUME));
-            bPauseResume.setText(getString(R.string.Pause));
+            ContextCompat.startForegroundService(
+                    this,
+                    new Intent(this, DownloadForegroundService.class).setAction(DownloadForegroundService.ACTION_RESUME)
+            );
+            // Button text will be updated by VM when repo sets paused=false
         }
     }
 
     private void performCancel() {
         myLogI("------ USER CLICKS btn CANCEL ----");
-
         WorkFlow.cancelAllOngoingTasks(this);
-
+        TaskStateRepository.get().resetToIdle();
         finish();
     }
 
@@ -114,9 +123,9 @@ public class AddResourceActivity extends LoggingActivity {
         myLogD("Set Activity result OK");
         AddResourceActivity.this.setResult(Activity.RESULT_OK);
         bCancel.setText(getString(R.string.Exit));
+
         if (tvErrorText.getText().length() > 0) {
             myToast(getString(R.string.Import_failed));
-
         } else if (tvWarning.getText().length() > 0) {
             myToast(getString(R.string.Import_finished_with_errors));
         } else {
@@ -129,7 +138,7 @@ public class AddResourceActivity extends LoggingActivity {
                 startActivity(mainIntent);
                 finish();
             };
-            myLog("Let's wait some " + DELAY_END_WAIT_NO_ERROR/1000 + " sec to display finish...");
+            myLog("Let's wait some " + DELAY_END_WAIT_NO_ERROR / 1000 + " sec to display finish...");
             delayedFinishHandler.postDelayed(delayedFinishRunnable, DELAY_END_WAIT_NO_ERROR);
         }
     }
@@ -142,5 +151,4 @@ public class AddResourceActivity extends LoggingActivity {
             myLog("Delayed finish runnable cancelled in onPause()");
         }
     }
-
 }

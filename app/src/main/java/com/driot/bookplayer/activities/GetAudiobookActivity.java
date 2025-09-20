@@ -12,6 +12,7 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.LanguageHelper;
+import com.driot.bookplayer.objects.OngoingTaskHost;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 import com.driot.bookplayer.views.EditTextWithButtons;
 
@@ -27,8 +28,13 @@ public class GetAudiobookActivity extends LoggingActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_get_audiobook);
+
+        OngoingTaskHost.attach(
+                this,
+                R.id.topOverlayContainer,
+                new Intent(this, AddResourceActivity.class)
+        );
 
         buttonTrending = findViewById(R.id.bLibrivoxTrending);
         spinnerLibrivox = findViewById(R.id.spinnerLibrivox);

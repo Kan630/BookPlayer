@@ -196,11 +196,12 @@ public class ParseFinalFolderWorker extends LoggingWorker {
 
         audioFileArrayList = new ArrayList<>();
         Thread backgroundThread;
+        myLog("bookState.playType = " + bookState.playType);
         if (bookState.playType != null && bookState.playType.equals(Var.PLAY_TYPE_TEXT)) {
             backgroundThread = new Thread(() -> {
                 addTextFileRecursive(dfPickedDir);
 
-                myLogD("addAudioFileRecursive done, sorting now...");
+                myLogD("addTextFileRecursive done, sorting now...");
                 audioFileArrayList.sort(AudioFileInfo.ALPHANUMERIC_COMPARATOR);
 
                 if (audioFileArrayList.isEmpty()) {

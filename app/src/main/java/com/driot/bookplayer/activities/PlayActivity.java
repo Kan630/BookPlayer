@@ -302,7 +302,7 @@ public class PlayActivity extends LoggingActivity {
         }
         PlayList.getInstance().setOnMetaLoadedListener((folder, podcast, isPodcast) -> {
             // Voices
-            if (folder.playType.equals(Var.PLAY_TYPE_TEXT)) {
+            if (folder.playType!=null && folder.playType.equals(Var.PLAY_TYPE_TEXT)) {
                 initTtsVoiceSpinner(folder.getId());
             }
 

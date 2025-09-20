@@ -117,7 +117,7 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
             } else {
                 myLogI("onClick - position=" + getBindingAdapterPosition() + " - " + folder.getName());
             }
-            if (folder.playType.equals(Var.PLAY_TYPE_TEXT)) {
+            if (folder.playType!=null && folder.playType.equals(Var.PLAY_TYPE_TEXT)) {
                 // early load of TTS
                 final AppTtsManager mgr = AppTtsManager.get(mCtx.getApplicationContext());
             }

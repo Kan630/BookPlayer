@@ -14,6 +14,7 @@ import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
+import com.driot.bookplayer.objects.TaskStateRepository;
 import com.driot.bookplayer.utils.InAppMsgManager;
 import com.driot.bookplayer.helpers.LocaleHelper;
 import com.driot.bookplayer.objects.BookToAdd;
@@ -52,6 +53,8 @@ public class MyApp extends Application {
         Pref.init(getApplicationContext());
         TaskStateManager.init(getApplicationContext());
         FirebaseAnalyticsHelper.init(getApplicationContext());
+
+        TaskStateRepository.get().hydrateFromPrefs();
 
         Option.applyNightMode();
 

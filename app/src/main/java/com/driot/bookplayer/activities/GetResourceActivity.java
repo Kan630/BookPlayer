@@ -10,6 +10,7 @@ import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.helpers.InsetHelper;
+import com.driot.bookplayer.objects.OngoingTaskHost;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
 public class GetResourceActivity extends LoggingActivity {
@@ -18,7 +19,14 @@ public class GetResourceActivity extends LoggingActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_get_resource);
-/*
+
+        OngoingTaskHost.attach(
+                this,
+                R.id.topOverlayContainer,
+                new Intent(this, AddResourceActivity.class)
+        );
+
+        /*
         View topContainer = findViewById(R.id.topContainer);
         View bottomBar = findViewById(R.id.bottomBar);
         View contentContainer = findViewById(R.id.contentContainer);

@@ -47,6 +47,7 @@ import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.StorageHelper;
+import com.driot.bookplayer.objects.OngoingTaskHost;
 import com.driot.bookplayer.objects.PlayList;
 import com.driot.bookplayer.services.AudioService;
 import com.driot.bookplayer.helpers.InfoHelper;
@@ -137,6 +138,11 @@ public class MainActivity extends LoggingActivity {
         //Sql.log_all_Folders(this);
 
         setContentView(R.layout.activity_main);
+
+        OngoingTaskHost.attach(
+                this,
+                R.id.topOverlayContainer,
+                new Intent(this, AddResourceActivity.class)); // tap => open details
 
         toolbar = findViewById(R.id.toolbar);
         try {

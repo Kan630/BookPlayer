@@ -5,9 +5,11 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 
-import com.driot.bookplayer.activities.OngoingTaskViewModelBridge;
+import androidx.annotation.NonNull;
+
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.objects.TaskStateRepository;
 import com.driot.bookplayer.utils.KanLogger;
 
 import java.util.LinkedHashMap;
@@ -24,63 +26,78 @@ public class TaskStateManager {
         public final int order;
         public final int weight;
         public final String label;
-
         public StepInfo(int order, int weight, String label) {
-            this.order = order;
-            this.weight = weight;
-            this.label = label;
+            this.order = order; this.weight = weight; this.label = label;
         }
     }
+
     private static final Map<String, StepInfo> stepMap = new LinkedHashMap<>();
     static {
         stepMap.put(Var.WORKER_TASK_LABEL_DOWNLOAD, new StepInfo(1, 20, "Downloading..."));
-        stepMap.put(Var.WORKER_TASK_LABEL_COPY, new StepInfo(2, 3, "Copying files..."));
-        stepMap.put(Var.WORKER_TASK_LABEL_UNZIP, new StepInfo(3, 7, "Unzipping..."));
-        stepMap.put(Var.WORKER_TASK_LABEL_SPLIT_M4B, new StepInfo(4, 7, "Splitting M4B..."));
-        stepMap.put(Var.WORKER_TASK_LABEL_SPLIT_EBOOK, new StepInfo(4, 7, "Splitting EPUB..."));
-        stepMap.put(Var.WORKER_TASK_LABEL_SCAN, new StepInfo(5, 2, "Scanning audio..."));
+        stepMap.put(Var.WORKER_TASK_LABEL_COPY,     new StepInfo(2, 3,  "Copying files..."));
+        stepMap.put(Var.WORKER_TASK_LABEL_UNZIP,    new StepInfo(3, 7,  "Unzipping..."));
+        stepMap.put(Var.WORKER_TASK_LABEL_SPLIT_M4B,new StepInfo(4, 7,  "Splitting M4B..."));
+        stepMap.put(Var.WORKER_TASK_LABEL_SPLIT_EBOOK,new StepInfo(4,7,"Splitting EPUB..."));
+        stepMap.put(Var.WORKER_TASK_LABEL_SCAN,     new StepInfo(5, 2,  "Scanning audio..."));
     }
 
     public static void init(Context context) {
         appContext = context.getApplicationContext();
     }
 
-    public static void tellEnd() {
-        OngoingTaskViewModelBridge.tellEnd(appContext);
+    // ---- Lifecycle edges ----
 
-        //Kind of garbage collector
-        final Handler handler = new Handler(Looper.getMainLooper());
-        Runnable runnable = () -> {
-            WorkFlow.cancelAllOngoingTasks(appContext);
-        };
-        handler.postDelayed(runnable, 500);
-
-    }
-
-    private static void updateTaskProgress(Context context, int percent, String progressText, String phase, boolean isLoadingPaused) {
+    public static void tellStart() {
+        myLogD("tellStart");
         LoadBookTaskState state = Pref.getLoadBookTaskState();
         if (state != null) {
-            state.progressPercent = percent;
-            state.progressText = progressText;
             state.onGoingLoading = true;
-            state.currentOperation = phase;
-            state.isLoadingPaused = isLoadingPaused;
+            state.currentOperation = "initialization";
             Pref.setLoadBookTaskState(state);
+
+            // Repo updates
+            String title = state.title != null ? state.title : "";
+            TaskStateRepository.get().start(title);
+            TaskStateRepository.get().setCurrentOperation("initialization");
+            boolean httpLike = (state.originalUri != null) &&
+                    String.valueOf(state.originalUri).startsWith("http");
+            TaskStateRepository.get().setPauseAvailable(httpLike);
+            TaskStateRepository.get().setPaused(false);
+
+            // reset cached calculations for a fresh run
+            cachedState = state;
+            totalWeight = 0;
+            titleUI = "initializing";
+        } else {
+            myLogEE(null, "tellStart - state == null");
         }
     }
+
+    public static void tellEnd() {
+        TaskStateRepository.get().finish();
+
+        // Kind of garbage collector
+        final Handler handler = new Handler(Looper.getMainLooper());
+        handler.postDelayed(() -> WorkFlow.cancelAllOngoingTasks(appContext), 500);
+    }
+
+    // ---- Markers that also persist sticky state in Pref ----
 
     public static void markDownloadResuming(Context context) {
         LoadBookTaskState state = Pref.getLoadBookTaskState();
         String currentOperation = "Download resuming";
-        state.isLoadingPaused = false;
-        state.currentOperation = currentOperation;
-        Pref.setLoadBookTaskState(state);
-        OngoingTaskViewModelBridge.updateProgressText(appContext, currentOperation);
+        if (state != null) {
+            state.isLoadingPaused = false;
+            state.currentOperation = currentOperation;
+            Pref.setLoadBookTaskState(state);
+        }
+        TaskStateRepository.get().setPaused(false);
+        TaskStateRepository.get().setCurrentOperation(currentOperation);
+        TaskStateRepository.get().setProgressText(currentOperation);
     }
 
     public static void markDownloadCompleted(String taskName, String downloadedFileFullPath) {
         String currentOperation = taskName + " completed - [" + downloadedFileFullPath + "]";
-        OngoingTaskViewModelBridge.removePauseCapability(appContext);
         LoadBookTaskState state = Pref.getLoadBookTaskState();
         if (state != null) {
             state.currentOperation = currentOperation;
@@ -91,50 +108,27 @@ public class TaskStateManager {
         } else {
             myLogEE(null, "markDownloadCompleted - state == null");
         }
+        TaskStateRepository.get().setCurrentOperation(currentOperation);
+        TaskStateRepository.get().setPauseAvailable(false);
+        TaskStateRepository.get().setPaused(false);
     }
 
     public static void markUnzipCompleted(String taskName, String destinationFolderPath) {
         String currentOperation = taskName + " completed - [" + destinationFolderPath + "]";
-        LoadBookTaskState state = Pref.getLoadBookTaskState();
-        if (state != null) {
-            state.currentOperation = currentOperation;
-            state.dynamicType = "Folder";
-            state.dynamicUri = Uri.parse(destinationFolderPath);
-            state.dynamicDestinationFolderPath = destinationFolderPath;
-            state.dynamicSourceFilePath = destinationFolderPath;
-            Pref.setLoadBookTaskState(state);
-        } else {
-            myLogEE(null, "markUnzipCompleted - state == null");
-        }
+        updateDynamicFolder(currentOperation, destinationFolderPath);
+        TaskStateRepository.get().setCurrentOperation(currentOperation);
     }
 
     public static void markM4bSplitCompleted(String taskName, String destinationFolderPath) {
         String currentOperation = taskName + " completed - [" + destinationFolderPath + "]";
-        LoadBookTaskState state = Pref.getLoadBookTaskState();
-        if (state != null) {
-            state.currentOperation = currentOperation;
-            state.dynamicType = "Folder";
-            state.dynamicUri = Uri.parse(destinationFolderPath);
-            state.dynamicDestinationFolderPath = destinationFolderPath;
-            state.dynamicSourceFilePath = destinationFolderPath;
-            Pref.setLoadBookTaskState(state);
-        } else {
-            myLogEE(null, "markM4bSplitCompleted - state == null");
-        }
+        updateDynamicFolder(currentOperation, destinationFolderPath);
+        TaskStateRepository.get().setCurrentOperation(currentOperation);
     }
+
     public static void markEpubSplitCompleted(String taskName, String destinationFolderPath) {
         String currentOperation = taskName + " completed - [" + destinationFolderPath + "]";
-        LoadBookTaskState state = Pref.getLoadBookTaskState();
-        if (state != null) {
-            state.currentOperation = currentOperation;
-            state.dynamicType = "Folder";
-            state.dynamicUri = Uri.parse(destinationFolderPath);
-            state.dynamicDestinationFolderPath = destinationFolderPath;
-            state.dynamicSourceFilePath = destinationFolderPath;
-            Pref.setLoadBookTaskState(state);
-        } else {
-            myLogEE(null, "markEpubSplitCompleted - state == null");
-        }
+        updateDynamicFolder(currentOperation, destinationFolderPath);
+        TaskStateRepository.get().setCurrentOperation(currentOperation);
     }
 
     public static void markCopyCompleted(String taskName, String destinationFolderPath) {
@@ -149,7 +143,10 @@ public class TaskStateManager {
         } else {
             myLogEE(null, "markCopyCompleted - state == null");
         }
+        TaskStateRepository.get().setCurrentOperation(currentOperation);
     }
+
+    // ---- Progress / pause / cancel / fail ----
 
     public static void markDownloadProgress(Context context, String taskName, int percent, String text) {
         updateTaskProgress(context, percent, text, "Downloading", false);
@@ -160,9 +157,12 @@ public class TaskStateManager {
         LoadBookTaskState state = Pref.getLoadBookTaskState();
         if (state != null) {
             state.currentOperation = whyPaused;
+            state.isLoadingPaused = true;
             Pref.setLoadBookTaskState(state);
             tellWarning(whyPaused);
-            OngoingTaskViewModelBridge.tellPause(appContext);
+            TaskStateRepository.get().setPaused(true);
+            TaskStateRepository.get().setCurrentOperation(whyPaused);
+            TaskStateRepository.get().setProgressText(whyPaused);
         } else {
             myLogEE(null, "markTaskPaused - No valid LoadBookTaskState found - " + whyPaused);
         }
@@ -179,6 +179,7 @@ public class TaskStateManager {
         } else {
             myLogEE(null, "markTaskCancelled - No valid LoadBookTaskState found - " + currentOperation);
         }
+        TaskStateRepository.get().error(currentOperation);
     }
 
     public static void markTaskFailed(String taskName, String errorText) {
@@ -192,46 +193,68 @@ public class TaskStateManager {
         } else {
             myLogEE(null, "markTaskFailed - No valid LoadBookTaskState found - " + currentOperation);
         }
+        TaskStateRepository.get().error(currentOperation);
         WorkFlow.cancelAllOngoingTasks(appContext);
     }
 
+    // ---- Tell* helpers (now route to repo) ----
 
     private static void tellCurrentOperation(String currentOperation) {
-        OngoingTaskViewModelBridge.tellCurrentOperation(appContext, currentOperation);
+        TaskStateRepository.get().setCurrentOperation(currentOperation);
     }
+
     public static void tellProgress(String taskName, int progress, String progressText) {
         int realProgress = getRealProgress(taskName, progress);
-        OngoingTaskViewModelBridge.tellProgress(appContext, realProgress, progressText);
+        TaskStateRepository.get().progress(realProgress, progressText);
         checkTitle(taskName);
     }
+
     public static void tellProgressText(String progressText) {
-        OngoingTaskViewModelBridge.tellProgressText(appContext, progressText);
+        TaskStateRepository.get().setProgressText(progressText);
     }
+
     public static void tellWarning(String warningText) {
         myLogW("Warning: " + warningText);
-        OngoingTaskViewModelBridge.tellWarning(appContext, warningText);
+        TaskStateRepository.get().warning(warningText);
     }
-    private static void tellError(String errorText) { //private because you need to always call markTaskFailed
+
+    private static void tellError(String errorText) { // keep private: always go through markTaskFailed/cancelled
         myLogE("Error: " + errorText);
-        OngoingTaskViewModelBridge.tellError(appContext, errorText);
+        TaskStateRepository.get().error(errorText);
     }
-    public static void tellStart() {
-        myLogD("tellStart");
+
+    // ---- Internals ----
+
+    private static void updateTaskProgress(Context context, int percent, String progressText, String phase, boolean isLoadingPaused) {
         LoadBookTaskState state = Pref.getLoadBookTaskState();
         if (state != null) {
+            state.progressPercent = percent;
+            state.progressText = progressText;
             state.onGoingLoading = true;
-            state.currentOperation = "initialization";
-            OngoingTaskViewModelBridge.tellStart(appContext);
+            state.currentOperation = phase;
+            state.isLoadingPaused = isLoadingPaused;
+            Pref.setLoadBookTaskState(state);
+            cachedState = state; // keep cache fresh
+        }
+    }
+
+    private static void updateDynamicFolder(@NonNull String currentOperation, @NonNull String path) {
+        LoadBookTaskState state = Pref.getLoadBookTaskState();
+        if (state != null) {
+            state.currentOperation = currentOperation;
+            state.dynamicType = "Folder";
+            state.dynamicUri = Uri.parse(path);
+            state.dynamicDestinationFolderPath = path;
+            state.dynamicSourceFilePath = path;
             Pref.setLoadBookTaskState(state);
         } else {
-            myLogEE(null, "tellStart - state == null");
+            myLogEE(null, "updateDynamicFolder - state == null");
         }
     }
 
     private static int getTotalWeight() {
         if (totalWeight > 0) return totalWeight;
         LoadBookTaskState state = Pref.getLoadBookTaskState();
-        myLogD("reload totalWeight");
         if (state == null) return 1;
         if (state.doDownload) totalWeight += stepMap.get(Var.WORKER_TASK_LABEL_DOWNLOAD).weight;
         if (state.doUnzip) totalWeight += stepMap.get(Var.WORKER_TASK_LABEL_UNZIP).weight;
@@ -241,11 +264,14 @@ public class TaskStateManager {
         return totalWeight;
     }
     private static LoadBookTaskState getCachedState() {
+        /*
         if (cachedState == null) {
             myLogD("reload cachedState");
             cachedState = Pref.getLoadBookTaskState();
         }
         return cachedState;
+         */
+        return Pref.getLoadBookTaskState();
     }
 
     private static int getRealProgress(String taskName, int percent) {
@@ -272,15 +298,14 @@ public class TaskStateManager {
 
             if (key.equals(taskName)) {
                 float partialProgress = (percent / 100f) * info.weight;
-                float totalProgress = (accumulatedWeight + partialProgress) / totalWeight * 100;
+                float totalProgress = (accumulatedWeight + partialProgress) / totalWeight * 100f;
                 return (int) totalProgress;
             }
-
             accumulatedWeight += info.weight;
         }
-
         return 0;
     }
+
     private static void checkTitle(String taskName) {
         StepInfo info = stepMap.get(taskName);
         if (info != null && !info.label.equals(titleUI)) {
@@ -289,12 +314,10 @@ public class TaskStateManager {
         }
     }
 
-
     private static final String TAG = "TaskStateManager";
     private static void myLogD(String str) { KanLogger.myLogD(TAG, str); }
     private static void myLogI(String str) { KanLogger.myLogI(TAG, str); }
     private static void myLogW(String str) { KanLogger.myLogW(TAG, str); }
     private static void myLogE(String str) { KanLogger.myLogE(TAG, str); }
     private static void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, TAG, str); }
-    private static void myToastEE(Throwable t, String str) { KanLogger.myToastEE(t, TAG, str); }
 }

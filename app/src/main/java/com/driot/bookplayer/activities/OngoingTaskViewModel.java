@@ -1,125 +1,66 @@
 package com.driot.bookplayer.activities;
 
 import android.app.Application;
-import android.os.Looper;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.MediatorLiveData;
 
-import com.driot.bookplayer.R;
-import com.driot.bookplayer.global.Pref;
-import com.driot.bookplayer.objects.LoadBookTaskState;
+import com.driot.bookplayer.objects.TaskStateRepository;
+import com.driot.bookplayer.objects.TaskUiState;
 import com.driot.bookplayer.utils.log.LoggingAndroidViewModel;
 
 public class OngoingTaskViewModel extends LoggingAndroidViewModel {
 
-    private String audioBookName;
+    private final MediatorLiveData<String>  taskTitle     = new MediatorLiveData<>();
+    private final MediatorLiveData<String>  progressText  = new MediatorLiveData<>();
+    private final MediatorLiveData<Integer> progressPct   = new MediatorLiveData<>();
+    private final MediatorLiveData<Boolean> running       = new MediatorLiveData<>();
+    private final MediatorLiveData<Boolean> finished      = new MediatorLiveData<>();
+    private final MediatorLiveData<Boolean> pauseAvail    = new MediatorLiveData<>();   // NEW
+    private final MediatorLiveData<Boolean> paused        = new MediatorLiveData<>();   // NEW
+    private final MediatorLiveData<String>  warningText   = new MediatorLiveData<>();
+    private final MediatorLiveData<String>  errorText     = new MediatorLiveData<>();
 
-    private final MutableLiveData<String> taskTitle = new MutableLiveData<>("");
-    private final MutableLiveData<String> progressText = new MutableLiveData<>("");
-    private final MutableLiveData<Integer> progressPercent = new MutableLiveData<>(0);
-    private final MutableLiveData<String> errorText = new MutableLiveData<>("");
-    private final MutableLiveData<String> warningText = new MutableLiveData<>("");
+    public OngoingTaskViewModel(@NonNull Application app) {
+        super(app);
 
-    private final MutableLiveData<Boolean> taskRunning = new MutableLiveData<>(false);
-    private final MutableLiveData<Boolean> pauseAvailable = new MutableLiveData<>(false);
-    private final MutableLiveData<Boolean> isPaused = new MutableLiveData<>(false);
-    private final MutableLiveData<Boolean> isFinished = new MutableLiveData<>(false);
+        taskTitle.setValue("");
+        progressText.setValue("");
+        progressPct.setValue(0);
+        running.setValue(false);
+        finished.setValue(false);
+        pauseAvail.setValue(false);
+        paused.setValue(false);
+        warningText.setValue(null);
+        errorText.setValue(null);
 
-    public OngoingTaskViewModel(@NonNull Application application) {
-        super(application);
-        myLogD("Constructor... Is main thread: " + (Looper.myLooper() == Looper.getMainLooper()));
-        reinit();
+        taskTitle.addSource(TaskStateRepository.get().state(), this::map);
     }
 
-    // Expose LiveData
-    public LiveData<String> getTaskTitle() { return taskTitle; }
-    public LiveData<String> getProgressText() { return progressText; }
-    public LiveData<Integer> getProgressPercent() { return progressPercent; }
-    public LiveData<String> getErrorText() { return errorText; }
-    public LiveData<String> getWarningText() { return warningText; }
-
-    public LiveData<Boolean> isTaskRunning() { return taskRunning; }
-    public LiveData<Boolean> isPauseAvailable() { return pauseAvailable; }
-    public LiveData<Boolean> isPaused() { return isPaused; }
-    public LiveData<Boolean> isFinished() { return isFinished; }
-
-    // Public state update methods
-    public void tellStart() {
-        taskRunning.postValue(true);
+    private void map(TaskUiState s) {
+        if (s == null) s = TaskUiState.idle();
+        taskTitle.setValue(s.title == null ? "" : s.title);
+        progressText.setValue(s.progressText == null ? "" : s.progressText);
+        progressPct.setValue(s.progressPercent);
+        running.setValue(s.running);
+        finished.setValue(s.finished);
+        pauseAvail.setValue(s.pauseAvailable);
+        paused.setValue(s.paused);
+        warningText.setValue(s.warningText);
+        errorText.setValue(s.errorText);
     }
 
-    public void tellProgress(String text, int percent) {
-        progressText.postValue(text);
-        progressPercent.postValue(percent);
-    }
+    public LiveData<String>  getTaskTitle()       { return taskTitle; }
+    public LiveData<String>  getProgressText()    { return progressText; }
+    public LiveData<Integer> getProgressPercent() { return progressPct; }
+    public LiveData<Boolean> isTaskRunning()      { return running; }
+    public LiveData<Boolean> isFinished()         { return finished; }
+    public LiveData<Boolean> isPauseAvailable()   { return pauseAvail; }  // NEW
+    public LiveData<Boolean> isPaused()           { return paused; }      // NEW
+    public LiveData<String>  getWarningText()     { return warningText; }
+    public LiveData<String>  getErrorText()       { return errorText; }
 
-    public void tellProgressText(String text) {
-        progressText.postValue(text);
-    }
-
-    public void tellPause() {
-        isPaused.postValue(true);
-    }
-
-    public void tellWarning(String text) {
-        String current = warningText.getValue();
-        if (current == null || current.isEmpty()) {
-            warningText.postValue(text);
-        } else {
-            warningText.postValue(current + "\n" + text);
-        }
-    }
-
-    public void tellError(String text) {
-        errorText.postValue(text);
-        taskRunning.postValue(false);
-        pauseAvailable.postValue(false);
-        isFinished.postValue(true);
-        progressText.postValue(getApplication().getString(R.string.Import_failed));
-        progressPercent.postValue(100);
-    }
-
-    public void removePauseCapability() {
-        pauseAvailable.postValue(false);
-    }
-
-    public void tellEnd() {
-        taskRunning.postValue(false);
-        pauseAvailable.postValue(false);
-        isFinished.postValue(true);
-        progressText.postValue(getApplication().getString(R.string.Finished));
-        progressPercent.postValue(100);
-    }
-    public void tellCurrentOperation(String currentOperation) {
-        taskTitle.postValue(audioBookName + "  (" + currentOperation + ")");
-    }
-    public void reinit() {
-        myLogD("reinit()");
-        LoadBookTaskState state = Pref.getLoadBookTaskState();
-        if (state != null) {
-            if (state.onGoingLoading) {
-                myLogD("onGoing");
-                audioBookName = state.title;
-                taskTitle.setValue(state.title);
-                progressText.setValue(state.progressText);
-                progressPercent.setValue(state.progressPercent);
-                myLogD("onGoing1");
-                taskRunning.setValue(true);
-                pauseAvailable.setValue(state.originalUri != null && state.originalUri.toString().startsWith("http"));
-                isPaused.setValue(state.isLoadingPaused);
-                isFinished.setValue(false);
-                myLogD("onGoing2");
-            } else {
-                myLogD("Not onGoing");
-                taskRunning.postValue(false);
-            }
-        } else {
-            myLogE("state is null");
-            taskRunning.postValue(false);
-        }
-
-    }
-
+    // NOTE: no more reinit(); repository is the single source of truth.
 }

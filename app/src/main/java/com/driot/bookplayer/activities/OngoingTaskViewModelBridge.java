@@ -1,3 +1,4 @@
+/*
 package com.driot.bookplayer.activities;
 
 import android.app.Application;
@@ -18,7 +19,7 @@ public class OngoingTaskViewModelBridge {
     private static final Object LOCK = new Object();
     private static WeakReference<OngoingTaskViewModel> sVmRef = new WeakReference<>(null);
 
-    /** Must be called on main thread */
+    // Must be called on main thread
     private static OngoingTaskViewModel getOrCreateVmOnMain(Application app) {
         OngoingTaskViewModel cached = sVmRef.get();
         if (cached != null) return cached;
@@ -39,7 +40,7 @@ public class OngoingTaskViewModelBridge {
         return vm;
     }
 
-    /** Run on main, then invoke */
+    //* Run on main, then invoke
     private static void post(Context context, Invoker invoker) {
         final Application app = (Application) context.getApplicationContext();
         MAIN.post(() -> {
@@ -95,3 +96,6 @@ public class OngoingTaskViewModelBridge {
         void call(OngoingTaskViewModel vm);
     }
 }
+
+ */
+
