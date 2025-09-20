@@ -129,7 +129,7 @@ public class BookToAdd {
                 return;
             }
 
-            if (ONLY_MIME_EBOOK.contains(mimeType) || SUPPORTED_EBOOK_EXTENSIONS.contains(fileExtension)) {
+            if (mimeType!=null && !mimeType.isEmpty() && ONLY_MIME_EBOOK.contains(mimeType) || SUPPORTED_EBOOK_EXTENSIONS.contains(fileExtension)) {
                 this.playType = Var.PLAY_TYPE_TEXT;
             } else {
                 this.playType = Var.PLAY_TYPE_AUDIO;
@@ -352,7 +352,9 @@ public class BookToAdd {
                 "\nfileExtension='" + fileExtension + '\'' +
                 "\nmimeType='" + mimeType + '\'' +
                 "\ninfoMimeExtension='" + infoMimeExtension + '\'' +
-                "\ninfoSourceLocation='" + infoSourceLocation + '\'';
+                "\ninfoSourceLocation='" + infoSourceLocation + '\'' +
+                "\nplayType='" + playType + '\'' +
+                '}';
     }
 
     private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
