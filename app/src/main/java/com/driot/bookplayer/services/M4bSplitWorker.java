@@ -8,8 +8,10 @@ import androidx.work.WorkerParameters;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.helpers.AudioMetadataHelper;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.objects.LoadBookTaskState;
+import com.driot.bookplayer.objects.MyAudioMetadata;
 import com.driot.bookplayer.objects.TaskStateManager;
 import com.driot.bookplayer.utils.log.LoggingWorker;
 import com.googlecode.mp4parser.authoring.Movie;
@@ -67,16 +69,17 @@ public class M4bSplitWorker extends LoggingWorker {
     private boolean splitM4bLocal(String m4bFilePath, String destinationFolderPath) {
         Context context = getApplicationContext();
         File m4bFile = new File(m4bFilePath);
-        /*
+
 // METADATA
         TaskStateManager.tellProgressText("Parsing Metadata");
         try {
+            //don't remove stuff is done in class for image
             MyAudioMetadata metadata = AudioMetadataHelper.extractMetadata(context, new File(m4bFilePath));
         } catch (Exception e) {
             myLogEE(e,"Error Parsing Metadata");
         }
 
-         */
+
 // CHAPTERS
         try {
             File outputFolder = new File(destinationFolderPath);
