@@ -802,7 +802,11 @@ public class PlayActivity extends LoggingActivity {
         } catch (Exception e) {
             myLogEE(e,"lockButtonAndDisplayErrorMessage");
         }
-        unbindService(audioServiceConnection);
+        try {
+            unbindService(audioServiceConnection);
+        } catch (Exception e) {
+            myLogEE(e, "unbindService(audioServiceConnection)");
+        }
         killTimerForDisplay();
     }
 
