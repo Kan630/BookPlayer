@@ -101,52 +101,67 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:baselineAligned="false"
+            android:weightSum="6"
+            >
 
-            <TextView
-                android:id="@+id/textviewTitle"
-                android:text="@string/title"
-                android:textColor="?attr/colorPrimary"
-                style="@style/myStyleTitle"
-                android:layout_marginTop="10dp"
+            <!-- BLOCK 1: Title + Subtitle (weight 2) -->
+            <LinearLayout
+                android:id="@+id/blockTitle"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:scrollHorizontally="false"
-                android:singleLine="false"
-                android:ellipsize="end"
-                android:maxLines="2"
-                app:autoSizeTextType="uniform"
-                app:autoSizeMaxTextSize="30sp"
-                app:autoSizeMinTextSize="15sp"
-                app:autoSizeStepGranularity="1sp" />
+                android:layout_height="0dp"
+                android:layout_weight="2"
+                android:orientation="vertical"
+                android:gravity="center_horizontal">
+                <TextView
+                    android:id="@+id/textviewTitle"
+                    android:text="@string/title"
+                    android:textColor="?attr/colorPrimary"
+                    style="@style/myStyleTitle"
+                    android:layout_marginTop="0dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:scrollHorizontally="false"
+                    android:singleLine="false"
+                    android:ellipsize="end"
+                    android:maxLines="2"
+                    app:autoSizeTextType="uniform"
+                    app:autoSizeMaxTextSize="30sp"
+                    app:autoSizeMinTextSize="15sp"
+                    app:autoSizeStepGranularity="1sp" />
 
-            <TextView
-                android:id="@+id/textViewSubTitle"
-                android:text="@string/subtitle"
-                android:textColor="?attr/colorPrimaryVariant"
-                style="@style/myStyleTitle"
-                android:layout_marginBottom="10dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:scrollHorizontally="false"
-                android:singleLine="false"
-                android:ellipsize="end"
-                android:maxLines="3"
-                app:autoSizeTextType="uniform"
-                app:autoSizeMaxTextSize="30sp"
-                app:autoSizeMinTextSize="15sp"
-                app:autoSizeStepGranularity="1sp" />
+                <TextView
+                    android:id="@+id/textViewSubTitle"
+                    android:text="@string/subtitle"
+                    android:textColor="?attr/colorPrimaryVariant"
+                    style="@style/myStyleTitle"
+                    android:layout_marginBottom="0dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:scrollHorizontally="false"
+                    android:singleLine="false"
+                    android:ellipsize="end"
+                    android:maxLines="3"
+                    app:autoSizeTextType="uniform"
+                    app:autoSizeMaxTextSize="30sp"
+                    app:autoSizeMinTextSize="15sp"
+                    app:autoSizeStepGranularity="1sp" />
+            </LinearLayout>
 
             <View style="@style/myStyleViewSimpleHorizontalBar" />
+
             <!-- SLEEP -->
+            <!-- BLOCK 2: Sleep row (weight 1) -->
             <LinearLayout
+                android:id="@+id/blockSleep"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
+                android:layout_weight="1"
                 android:orientation="horizontal"
-                android:gravity="center_vertical"
-                >
+                android:gravity="center_vertical">
 
                 <Button
                     android:id="@+id/bSetSleep"
@@ -190,15 +205,17 @@
 
             <View style="@style/myStyleViewSimpleHorizontalBar"
                 android:layout_marginTop="3dp"/>
-            <!-- SPEED -->
 
+
+            <!-- BLOCK 3: Speed row (weight 1) -->
             <LinearLayout
+                android:id="@+id/blockSpeed"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
+                android:layout_weight="1"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:paddingHorizontal="20dp"
-                >
+                android:paddingHorizontal="20dp">
 
                 <TextView
                     android:id="@+id/textViewSpeedDesc"
@@ -244,47 +261,53 @@
             <View style="@style/myStyleViewSimpleHorizontalBar"
                 android:layout_marginTop="3dp"/>
 
-            <!-- Ligne temps courant + temps total -->
+
+            <!-- BLOCK 4: Time + SeekBar (weight 2) -->
             <LinearLayout
+                android:id="@+id/blockSeek"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginTop="3dp"
-                >
+                android:layout_height="0dp"
+                android:layout_weight="2"
+                android:orientation="vertical"
+                android:gravity="center_vertical">
 
-                <TextView
-                    android:id="@+id/textViewSeekBar"
-                    android:text="@string/current_position"
-                    style="@style/textColor"
-                    android:layout_width="0dp"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginTop="3dp">
+                    <TextView
+                        android:id="@+id/textViewSeekBar"
+                        android:text="@string/current_position"
+                        style="@style/textColor"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:textAppearance="?android:attr/textAppearanceMedium" />
 
-                <TextView
-                    android:id="@+id/textViewTempsTotal"
-                    android:text="@string/total_time"
-                    style="@style/textColor"
-                    android:layout_width="wrap_content"
+                    <TextView
+                        android:id="@+id/textViewTempsTotal"
+                        android:text="@string/total_time"
+                        style="@style/textColor"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?android:attr/textAppearanceSmall"
+                        android:layout_marginStart="16dp" />
+                </LinearLayout>
+                <SeekBar
+                    android:id="@+id/seekBar"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:layout_marginStart="16dp" />
+                    android:layout_marginTop="3dp"
+                    android:progressDrawable="@drawable/seek_bar"
+                    android:layout_marginBottom="8dp"
+                    android:thumb="@drawable/seek_thumb" />
             </LinearLayout>
 
-            <SeekBar
-                android:id="@+id/seekBar"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="3dp"
-                android:progressDrawable="@drawable/seek_bar"
-                android:layout_marginBottom="8dp"
-                android:thumb="@drawable/seek_thumb" />
 
             <View style="@style/myStyleViewSimpleHorizontalBar"
                 android:layout_marginTop="3dp"/>
-
-
 
         </LinearLayout>
     </LinearLayout>
