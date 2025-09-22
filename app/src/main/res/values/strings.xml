@@ -1,20 +1,23 @@
 <resources>
+    <!-- ********************************** -->
+    <!-- NO TRANSLATION -->
+
     <string name="app_name" translatable="false">BookPlayer</string>
     <string name="lorem_ipsum" translatable="false">lorem ipsum</string>
-
-    <string name="title_FolderContent">Files List</string>
     <string name="PlayerActivity_Title" translatable="false">TextBook Player</string>
-
-
     <string name="asset_statements" translatable="false">
     [{
       \"include\": \"https://bookplayer.driot.com/.well-known/assetlinks.json\"
     }]
     </string>
-
     <string name="AutoTest_b1_text" translatable="false">zip (700KB)</string>
     <string name="AutoTest_b2_text" translatable="false">multi lang zip (7MB)</string>
     <string name="AutoTest_b3_text" translatable="false">m4b (9MB)</string>
+
+
+
+
+    <string name="title_FolderContent">Files List</string>
 
 
     <!-- ********************************** -->
@@ -807,7 +810,7 @@
     <string name="action_change">🖼️ Change</string>
 
     <string name="Podcast_specific_view">Podcast specific view</string>
-    <style name="Classic_book_view">Classic book view</style>
+    <string name="Classic_book_view">Classic book view</string>
     <string name="option_podcast_autodownloaded_at_the_top">When new episodes are downloaded, move the podcast to the top of the audiobooks list.</string>
     <string name="option_podcast_autodownload_subtitle">"If you mark a podcast as a favorite, you can also enable the ‘auto-download’ option.\nBookPlayer will then check for new episodes—both periodically and at startup—and download them."</string>
 

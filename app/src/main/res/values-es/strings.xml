@@ -765,12 +765,22 @@ El valor global de apagado automático está en Opciones (en el menú de la pant
     <string name="action_change">🖼️ Cambiar</string>
 
     <string name="Podcast_specific_view">Vista específica de pódcast</string>
-    <style name="Classic_book_view">Vista clásica de libro</style>
+    <string name="Classic_book_view">Vista clásica del libro</string>
     <string name="option_podcast_autodownloaded_at_the_top">Cuando se descarguen nuevos episodios, mover el pódcast al principio de la lista de audiolibros.</string>
     <string name="option_podcast_autodownload_subtitle">"Si marcas un pódcast como favorito, también puedes activar la opción \'descarga automática\'.\nBookPlayer verificará nuevos episodios — tanto periódicamente como al iniciar — y los descargará."</string>
 
     <string name="toast_tts_not_ready">"¡Texto a voz no está listo!"</string>
     <string name="toast_tts_getting_ready">"¡Texto a voz preparándose!"</string>
     <string name="Error_Import_No_Usable_item_Found">"No se encontró ningún elemento utilizable"</string>
+
+    <string name="Error_Import_could_not_delete_source">"no se pudo eliminar la fuente seleccionada"</string>
+
+    <string name="option_text_appearance_title">Apariencia del texto</string>
+    <string name="option_font_family">Fuente</string>
+    <string name="option_text_size">Tamaño</string>
+    <string name="option_text_preview_label">Vista previa</string>
+    <string name="option_text_preview_sample">El rápido zorro marrón salta sobre el perro perezoso - 0123456789</string>
+    <string name="option_podcast_open_specific_view_subtitle">Al hacer clic en un libro de tipo \'podcast\', ¿debe abrirse la vista de podcast con todos los episodios o la vista del libro solo con los descargados?</string>
+    <string name="option_podcast_open_specific_view">Abrir vista específica</string>
 
 </resources>

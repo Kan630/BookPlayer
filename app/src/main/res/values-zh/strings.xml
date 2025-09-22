@@ -773,12 +773,22 @@ BookPlayer 在<font color="#81C784">无需权限</font>的情况下也能运行�
     <string name="action_change">🖼️ 更改</string>
 
     <string name="Podcast_specific_view">播客专用视图</string>
-    <style name="Classic_book_view">经典书籍视图</style>
+    <string name="Classic_book_view">经典书籍视图</string>
     <string name="option_podcast_autodownloaded_at_the_top">当下载新剧集时，将播客移动到有声书列表的顶部。</string>
     <string name="option_podcast_autodownload_subtitle">"如果您将播客标记为收藏，还可以启用 \'自动下载\' 选项。\nBookPlayer 将定期以及在启动时检查新剧集并下载它们。"</string>
 
     <string name="toast_tts_not_ready">"文字转语音尚未准备好！"</string>
     <string name="toast_tts_getting_ready">"文字转语音正在准备！"</string>
     <string name="Error_Import_No_Usable_item_Found">"未找到可用项目"</string>
+
+    <string name="Error_Import_could_not_delete_source">"无法删除所选来源"</string>
+
+    <string name="option_text_appearance_title">文字外观</string>
+    <string name="option_font_family">字体</string>
+    <string name="option_text_size">大小</string>
+    <string name="option_text_preview_label">预览</string>
+    <string name="option_text_preview_sample">敏捷的棕色狐狸跳过懒狗 - 0123456789</string>
+    <string name="option_podcast_open_specific_view_subtitle">点击一种类型为\'播客\'的书时，应该打开包含所有剧集的播客视图，还是只打开已下载剧集的书籍视图？</string>
+    <string name="option_podcast_open_specific_view">打开特定视图</string>
 
 </resources>

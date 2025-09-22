@@ -778,12 +778,22 @@
     <string name="action_change">🖼️ Изменить</string>
 
     <string name="Podcast_specific_view">Специальный вид подкаста</string>
-    <style name="Classic_book_view">Классический вид книги</style>
+    <string name="Classic_book_view">Классический вид книги</string>
     <string name="option_podcast_autodownloaded_at_the_top">Когда новые эпизоды загружены, переместить подкаст в начало списка аудиокниг.</string>
     <string name="option_podcast_autodownload_subtitle">"Если вы отметите подкаст как избранный, вы также можете включить опцию \'автозагрузка\'.\nBookPlayer будет проверять новые эпизоды — как периодически, так и при запуске — и загружать их."</string>
 
     <string name="toast_tts_not_ready">"Синтез речи не готов!"</string>
     <string name="toast_tts_getting_ready">"Подготовка синтеза речи!"</string>
     <string name="Error_Import_No_Usable_item_Found">"Не найдено подходящих элементов"</string>
+
+    <string name="Error_Import_could_not_delete_source">"не удалось удалить выбранный источник"</string>
+
+    <string name="option_text_appearance_title">Вид текста</string>
+    <string name="option_font_family">Шрифт</string>
+    <string name="option_text_size">Размер</string>
+    <string name="option_text_preview_label">Предпросмотр</string>
+    <string name="option_text_preview_sample">Быстрая коричневая лиса перепрыгивает через ленивую собаку - 0123456789</string>
+    <string name="option_podcast_open_specific_view_subtitle">При нажатии на книгу типа \'подкаст\', нужно ли открыть представление подкаста со всеми эпизодами или представление книги только с загруженными?</string>
+    <string name="option_podcast_open_specific_view">Открыть определенное представление</string>
 
 </resources>

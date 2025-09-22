@@ -773,12 +773,23 @@ Tous les messages sont lisibles publiquement. Connectez-vous pour participer.
     <string name="action_change">🖼️ Changer</string>
 
     <string name="Podcast_specific_view">Vue spécifique podcast</string>
-    <style name="Classic_book_view">Vue classique du livre</style>
+    <string name="Classic_book_view">Vue classique du livre</string>
     <string name="option_podcast_autodownloaded_at_the_top">Lorsque de nouveaux épisodes sont téléchargés, déplacer le podcast en haut de la liste des livres audio.</string>
     <string name="option_podcast_autodownload_subtitle">"Si vous marquez un podcast comme favori, vous pouvez aussi activer l\'option ‘téléchargement automatique’.\nBookPlayer vérifiera alors les nouveaux épisodes — périodiquement et au démarrage — et les téléchargera."</string>
 
     <string name="toast_tts_not_ready">"Synthèse vocale non prête !"</string>
     <string name="toast_tts_getting_ready">"Préparation de la synthèse vocale !"</string>
     <string name="Error_Import_No_Usable_item_Found">"Aucun élément utilisable trouvé"</string>
+
+    <string name="Error_Import_could_not_delete_source">"impossible de supprimer la source choisie"</string>
+
+    <string name="option_text_appearance_title">Apparence du texte</string>
+    <string name="option_font_family">Police</string>
+    <string name="option_text_size">Taille</string>
+    <string name="option_text_preview_label">Aperçu</string>
+    <string name="option_text_preview_sample">Le rapide renard brun saute par-dessus le chien paresseux - 0123456789</string>
+    <string name="option_podcast_open_specific_view_subtitle">Lors du clic sur un livre de type \'podcast\', faut-il ouvrir la vue podcast avec tous les épisodes, ou la vue livre avec seulement ceux téléchargés ?</string>
+    <string name="option_podcast_open_specific_view">Ouvrir une vue spécifique</string>
+
 
 </resources>
