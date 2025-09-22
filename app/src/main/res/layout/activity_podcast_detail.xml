@@ -285,7 +285,7 @@
             android:layout_height="wrap_content"
             android:textColor="?colorOnSecondary"
             android:textSize="12sp"
-            android:paddingStart="8dp"/>
+            android:paddingHorizontal="8dp"/>
     </LinearLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
