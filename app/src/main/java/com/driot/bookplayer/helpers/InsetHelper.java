@@ -128,7 +128,11 @@ public final class InsetHelper {
     /** Classic fitSystemWindows behavior with IME support. */
     public static void apply(@NonNull Activity activity) {
         View root = activity.findViewById(android.R.id.content);
-        myLog("applyFitSystemWindows() on root");
+        if (root == null) {
+            myLogEE(null,"apply(): root content view is NULL, aborting insets setup.");
+            return;
+        }
+        myLog("apply() on root");
         applyInsets(activity, root,
                 new WindowConfig.Builder()
                         .softInputAdjustResize(true)
@@ -146,10 +150,25 @@ public final class InsetHelper {
     /** Scrollable view draws behind nav bar with proper bottom padding. */
     public static void applyInsetsForScrollableBehindNavBar(@NonNull Activity activity, @NonNull View scrollableView) {
         myLog("applyInsetsForScrollableBehindNavBar()");
+        if (scrollableView == null) { //can be null at runtime, just a compiler check
+            myLogEE(null,"applyInsetsForScrollableBehindNavBar(): scrollableView is NULL; falling back to root.");
+            View root = activity.findViewById(android.R.id.content);
+            if (root == null) {
+                myLogEE(null,"applyInsetsForScrollableBehindNavBar(): root also NULL; aborting insets setup.");
+                return;
+            }
+            scrollableView = root; // fallback
+        }
         applyInsets(activity, scrollableView,
-                new WindowConfig.Builder().build(),
+                new WindowConfig.Builder()
+                        .softInputAdjustResize(true)
+                        .allowShortEdgeCutout(true)
+                        .build(),
                 new PaddingConfig.Builder()
-                        .topAndBottom()
+                        .topAndBottom()   //maybe change to bottom only...
+                        .handleIME(true)
+                        .handleCutout(true)
+                        .sides(true)
                         .build(),
                 /*consume*/ true);
     }
@@ -229,70 +248,74 @@ public final class InsetHelper {
                                     @NonNull WindowConfig windowCfg,
                                     @NonNull PaddingConfig padCfg,
                                     boolean consume) {
-        final Window window = activity.getWindow();
+        try {
+            final Window window = activity.getWindow();
 
-        // Window setup
-        WindowCompat.setDecorFitsSystemWindows(window, !windowCfg.edgeToEdge);
+            // Window setup
+            WindowCompat.setDecorFitsSystemWindows(window, !windowCfg.edgeToEdge);
 
-        if (android.os.Build.VERSION.SDK_INT >= 28) {
-            window.getAttributes().layoutInDisplayCutoutMode = windowCfg.allowShortEdgeCutout
-                    ? WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
-                    : WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_NEVER;
-            window.setAttributes(window.getAttributes());
-        }
-
-        final int actualStatus = windowCfg.statusBarColor == -1
-                ? resolveAttr(activity, android.R.attr.statusBarColor, Color.BLACK)
-                : windowCfg.statusBarColor;
-        window.setStatusBarColor(actualStatus);
-        window.setNavigationBarColor(windowCfg.navigationBarColor);
-
-        if (windowCfg.softInputAdjustResize) {
-            window.setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-        }
-
-        myLogD("applyInsets(): edgeToEdge=" + windowCfg.edgeToEdge
-                + ", statusBarColor=" + colorHex(actualStatus)
-                + " (requested=" + colorHex(windowCfg.statusBarColor) + ")"
-                + ", navBarColor=" + colorHex(windowCfg.navigationBarColor)
-                + ", adjustResize=" + windowCfg.softInputAdjustResize
-                + ", allowShortEdgeCutout=" + windowCfg.allowShortEdgeCutout
-                + ", orientation=" + orientationString(activity));
-
-        configureBars(activity, window, windowCfg, actualStatus);
-
-        ViewCompat.setOnApplyWindowInsetsListener(targetView, (v, insets) -> {
-            final Insets sys = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            final Insets cut = padCfg.handleCutout ? insets.getInsets(WindowInsetsCompat.Type.displayCutout()) : Insets.NONE;
-            final Insets ime = padCfg.handleIME ? insets.getInsets(WindowInsetsCompat.Type.ime()) : Insets.NONE;
-
-            int left = padCfg.left ? Math.max(sys.left, cut.left) : 0;
-            int top = padCfg.top ? Math.max(sys.top, cut.top) : 0;
-            int right = padCfg.right ? Math.max(sys.right, cut.right) : 0;
-            int bottom = padCfg.bottom ? Math.max(sys.bottom, cut.bottom) : 0;
-
-            if (padCfg.handleIME) bottom = Math.max(bottom, ime.bottom);
-
-            if (padCfg.addToPadding) {
-                v.setPadding(v.getPaddingLeft() + left,
-                        v.getPaddingTop() + top,
-                        v.getPaddingRight() + right,
-                        v.getPaddingBottom() + bottom);
-            } else {
-                v.setPadding(left, top, right, bottom);
+            if (android.os.Build.VERSION.SDK_INT >= 28) {
+                window.getAttributes().layoutInDisplayCutoutMode = windowCfg.allowShortEdgeCutout
+                        ? WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+                        : WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_NEVER;
+                window.setAttributes(window.getAttributes());
             }
 
-            myLogD("onApplyWindowInsets -> sys=" + insetsToString(sys)
-                    + (padCfg.handleCutout ? (", cut=" + insetsToString(cut)) : "")
-                    + (padCfg.handleIME ? (", ime=" + insetsToString(ime)) : "")
-                    + ", applied(L/T/R/B)=" + left + "/" + top + "/" + right + "/" + bottom
-                    + ", addToPadding=" + padCfg.addToPadding
-                    + ", consume=" + consume);
+            final int actualStatus = windowCfg.statusBarColor == -1
+                    ? resolveAttr(activity, android.R.attr.statusBarColor, Color.BLACK)
+                    : windowCfg.statusBarColor;
+            window.setStatusBarColor(actualStatus);
+            window.setNavigationBarColor(windowCfg.navigationBarColor);
 
-            return consume ? WindowInsetsCompat.CONSUMED : insets;
-        });
+            if (windowCfg.softInputAdjustResize) {
+                window.setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+            }
 
-        requestApplyInsetsSafely(targetView);
+            myLogD("applyInsets(): edgeToEdge=" + windowCfg.edgeToEdge
+                    + ", statusBarColor=" + colorHex(actualStatus)
+                    + " (requested=" + colorHex(windowCfg.statusBarColor) + ")"
+                    + ", navBarColor=" + colorHex(windowCfg.navigationBarColor)
+                    + ", adjustResize=" + windowCfg.softInputAdjustResize
+                    + ", allowShortEdgeCutout=" + windowCfg.allowShortEdgeCutout
+                    + ", orientation=" + orientationString(activity));
+
+            configureBars(activity, window, windowCfg, actualStatus);
+
+            ViewCompat.setOnApplyWindowInsetsListener(targetView, (v, insets) -> {
+                final Insets sys = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+                final Insets cut = padCfg.handleCutout ? insets.getInsets(WindowInsetsCompat.Type.displayCutout()) : Insets.NONE;
+                final Insets ime = padCfg.handleIME ? insets.getInsets(WindowInsetsCompat.Type.ime()) : Insets.NONE;
+
+                int left = padCfg.left ? Math.max(sys.left, cut.left) : 0;
+                int top = padCfg.top ? Math.max(sys.top, cut.top) : 0;
+                int right = padCfg.right ? Math.max(sys.right, cut.right) : 0;
+                int bottom = padCfg.bottom ? Math.max(sys.bottom, cut.bottom) : 0;
+
+                if (padCfg.handleIME) bottom = Math.max(bottom, ime.bottom);
+
+                if (padCfg.addToPadding) {
+                    v.setPadding(v.getPaddingLeft() + left,
+                            v.getPaddingTop() + top,
+                            v.getPaddingRight() + right,
+                            v.getPaddingBottom() + bottom);
+                } else {
+                    v.setPadding(left, top, right, bottom);
+                }
+
+                myLogD("onApplyWindowInsets -> sys=" + insetsToString(sys)
+                        + (padCfg.handleCutout ? (", cut=" + insetsToString(cut)) : "")
+                        + (padCfg.handleIME ? (", ime=" + insetsToString(ime)) : "")
+                        + ", applied(L/T/R/B)=" + left + "/" + top + "/" + right + "/" + bottom
+                        + ", addToPadding=" + padCfg.addToPadding
+                        + ", consume=" + consume);
+
+                return consume ? WindowInsetsCompat.CONSUMED : insets;
+            });
+
+            requestApplyInsetsSafely(targetView);
+        } catch (Exception e) {
+            myLogEE(e, "applyInsets() failed unexpectedly, skipped insets setup.");
+        }
     }
 
     private static void configureBars(@NonNull Activity activity,
