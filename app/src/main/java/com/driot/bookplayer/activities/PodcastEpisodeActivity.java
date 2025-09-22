@@ -654,6 +654,8 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
 
                 myLogI("nb ZikFiles in that Book : " + zikFilesList.size() + " - [" + folder.getName() + "]");
 
+                PlayList.create(this, zikFilesList);
+
                 // Switch to main thread for any UI / navigation
                 runOnUiThread(() -> {
                     if (isFinishing() || isDestroyed()) return;
