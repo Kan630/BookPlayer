@@ -94,6 +94,7 @@ public class ZikFilesRVAdapter extends LoggingRVAdapter<ZikFilesRVAdapter.ZikFil
             int position = getBindingAdapterPosition();
             ZikFile zikFile = zikFileList.get(position);
             myLogI("USER CLICKS ZIKFILE : [" + zikFile.getName() + "] - [" + zikFile.getPath() + "]");
+            PlayList.create(mCtx, zikFileList); //need to reload if user delete some tracks in between
             if (PlayList.getInstance()!=null) {
                 PlayList.getInstance().setNumZikFile(position);
             } else {
