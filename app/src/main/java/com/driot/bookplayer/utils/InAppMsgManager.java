@@ -65,6 +65,8 @@ public final class InAppMsgManager {
 
     /** Périodicité du fetch. */
     private static final long PERIODIC_HOURS = 12;
+    private static final int IN_APP_MESSAGES_RETRY_DELAY_IN_SEC = 30;
+
 
     /** Package de Google Translate (facultatif). */
     private static final String GOOGLE_TRANSLATE_PKG = "com.google.android.apps.translate";
@@ -93,6 +95,10 @@ public final class InAppMsgManager {
 
         OneTimeWorkRequest now = new OneTimeWorkRequest.Builder(FetchWorker.class)
                 .setConstraints(net)
+                .setBackoffCriteria(
+                        androidx.work.BackoffPolicy.EXPONENTIAL,
+                        IN_APP_MESSAGES_RETRY_DELAY_IN_SEC, TimeUnit.SECONDS
+                )
                 .build();
         WorkManager.getInstance(ctx).enqueueUniqueWork(
                 "InAppMsgOneShot", ExistingWorkPolicy.REPLACE, now);
@@ -101,6 +107,10 @@ public final class InAppMsgManager {
         PeriodicWorkRequest periodic = new PeriodicWorkRequest.Builder(
                 FetchWorker.class, PERIODIC_HOURS, TimeUnit.HOURS)
                 .setConstraints(net)
+                .setBackoffCriteria(
+                        androidx.work.BackoffPolicy.EXPONENTIAL,
+                        IN_APP_MESSAGES_RETRY_DELAY_IN_SEC, TimeUnit.SECONDS
+                )
                 .build();
         WorkManager.getInstance(ctx).enqueueUniquePeriodicWork(
                 PERIODIC_WORK_NAME, ExistingPeriodicWorkPolicy.UPDATE, periodic);
@@ -418,15 +428,32 @@ public final class InAppMsgManager {
         int code = c.getResponseCode();
         String enc = c.getHeaderField("Content-Encoding");
         String newEtag = c.getHeaderField("ETag");
-        myLogD("fetchJson: HTTP " + code + ", ETag=" + newEtag + ", Content-Encoding=" + enc);
+        String retryAfter = c.getHeaderField("Retry-After"); // peut servir au logging
+        myLogD("fetchJson: HTTP " + code + ", ETag=" + newEtag + ", Content-Encoding=" + enc
+                + (retryAfter != null ? (", Retry-After=" + retryAfter) : ""));
 
         if (code == HttpURLConnection.HTTP_NOT_MODIFIED) {
             c.disconnect();
             throw new NotModifiedException();
         }
-        if (code != HttpURLConnection.HTTP_OK) {
+
+        if (code == HttpURLConnection.HTTP_OK) {
+            // (le reste de la méthode inchangé : lecture flux + saveIndexToCache + return)
+        } else if (code == HttpURLConnection.HTTP_NOT_FOUND || code == HttpURLConnection.HTTP_GONE) {
             c.disconnect();
-            throw new RuntimeException("HTTP " + code);
+            throw new PermanentHttpException(code, "Permanent HTTP " + code);
+        } else if (code >= 400 && code < 500 && code != 429) {
+            // Erreurs client non récupérables
+            c.disconnect();
+            throw new PermanentHttpException(code, "Permanent HTTP " + code);
+        } else if (code == 429 || code == 500 || code == 502 || code == 503 || code == 504) {
+            // Transitoire / surcharge / maintenance
+            c.disconnect();
+            throw new RetryableHttpException(code, "Retryable HTTP " + code);
+        } else {
+            // Par défaut, considère retryable (ex: 521/522/523 Cloudflare, etc.)
+            c.disconnect();
+            throw new RetryableHttpException(code, "Retryable HTTP " + code);
         }
 
         try (InputStream rawIn = c.getInputStream();
@@ -453,6 +480,14 @@ public final class InAppMsgManager {
     private static Context ctxOrApp(HttpURLConnection c) { return null; }
 
     static class NotModifiedException extends Exception {}
+    static class PermanentHttpException extends Exception {
+        final int code;
+        PermanentHttpException(int code, String msg) { super(msg); this.code = code; }
+    }
+    static class RetryableHttpException extends Exception {
+        final int code;
+        RetryableHttpException(int code, String msg) { super(msg); this.code = code; }
+    }
 
     // ------------------------------------------------------------------------
     // WORKER
@@ -463,28 +498,54 @@ public final class InAppMsgManager {
 
         @NonNull @Override
         public Result doWork() {
+            SharedPreferences p = prefs(getApplicationContext());
+            String etag = p.getString(KEY_ETAG, null);
+            myLogD("FetchWorker: start, endpoint=" + ENDPOINT + ", etag=" + etag);
+
             try {
-                SharedPreferences p = prefs(getApplicationContext());
-                String etag = p.getString(KEY_ETAG, null);
-                myLogD("FetchWorker: start, endpoint=" + ENDPOINT + ", etag=" + etag);
+                String before = p.getString(KEY_JSON, null);
+                fetchJson(ENDPOINT, etag, getApplicationContext());
+                String after = p.getString(KEY_JSON, null);
 
-                try {
-                    String before = p.getString(KEY_JSON, null);
-                    fetchJson(ENDPOINT, etag, getApplicationContext());
-                    String after = p.getString(KEY_JSON, null);
-
-                    if (after != null && !after.equals(before)) {
-                        myLogD("FetchWorker: cache updated (len=" + after.length() + ")");
-                        // ping UI (optionnel)
-                        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(new Intent(ACTION_CACHE_UPDATED));
-                        myLogD("FetchWorker: broadcast ACTION_CACHE_UPDATED sent");
-                    } else {
-                        myLogD("FetchWorker: cache content unchanged (but not 304 path)");
-                    }
-                } catch (NotModifiedException ignore) {
-                    myLogD("FetchWorker: HTTP 304 Not Modified (etag matched)");
+                if (after != null && !after.equals(before)) {
+                    myLogD("FetchWorker: cache updated (len=" + after.length() + ")");
+                    LocalBroadcastManager.getInstance(getApplicationContext())
+                            .sendBroadcast(new Intent(ACTION_CACHE_UPDATED));
+                    myLogD("FetchWorker: broadcast ACTION_CACHE_UPDATED sent");
+                } else {
+                    myLogD("FetchWorker: cache content unchanged (but not 304 path)");
                 }
                 return Result.success();
+
+            } catch (NotModifiedException ignore) {
+                myLogD("FetchWorker: HTTP 304 Not Modified (etag matched)");
+                return Result.success();
+
+            } catch (PermanentHttpException e) {
+                myLogW("FetchWorker: " + e.getMessage() + " — not retrying (will rely on next periodic run)");
+                return Result.success();
+
+            } catch (RetryableHttpException e) {
+                myLogI("FetchWorker: " + e.getMessage() + " — will retry with backoff");
+                return Result.retry();
+
+            } catch (java.net.UnknownHostException e) {
+                myLogI("FetchWorker: DNS resolution failed (UnknownHost). Will retry.");
+                return Result.retry();
+
+            } catch (java.net.SocketTimeoutException e) {
+                myLogI("FetchWorker: timeout. Will retry.");
+                return Result.retry();
+
+            } catch (java.net.ConnectException e) {
+                myLogI("FetchWorker: connect error. Will retry.");
+                return Result.retry();
+
+            } catch (javax.net.ssl.SSLException e) {
+                // Souvent transitoire (handshake, date/heure, réseau capricieux)
+                myLogI("FetchWorker: SSL error. Will retry.");
+                return Result.retry();
+
             } catch (Throwable t) {
                 myLogEE(t, "FetchWorker error");
                 return Result.retry();
