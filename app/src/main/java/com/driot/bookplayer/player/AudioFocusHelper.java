@@ -1,50 +1,56 @@
 package com.driot.bookplayer.player;
 
-import android.media.AudioAttributes;
-import android.media.AudioFocusRequest;
 import android.media.AudioManager;
-import android.os.Build;
 import android.content.Context;
 
-import androidx.annotation.NonNull;
-
-public final class AudioFocusHelper {
-
+public final class AudioFocusHelper implements AudioManager.OnAudioFocusChangeListener {
     public interface Listener {
-        void onFocusLost();
         void onFocusGain();
+        void onFocusLost(); // use for LOSS or LOSS_TRANSIENT (not DUCK)
     }
 
     private final AudioManager am;
-    private final Listener listener;
-    private AudioFocusRequest afr;
+    private final Listener cb;
+    private long lastRequestUptime = 0L;
 
-    public AudioFocusHelper(@NonNull Context ctx, @NonNull Listener l) {
+    public AudioFocusHelper(Context ctx, Listener cb) {
         this.am = (AudioManager) ctx.getSystemService(Context.AUDIO_SERVICE);
-        this.listener = l;
+        this.cb = cb;
     }
 
     public void request() {
-        if (am == null) return;
-        AudioAttributes aa = new AudioAttributes.Builder()
-                .setUsage(AudioAttributes.USAGE_MEDIA)
-                .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
-                .build();
-        afr = new AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
-                .setAudioAttributes(aa)
-                .setOnAudioFocusChangeListener(fc -> {
-                    if (fc <= 0) listener.onFocusLost(); else listener.onFocusGain();
-                })
-                .build();
-        am.requestAudioFocus(afr);
+        lastRequestUptime = android.os.SystemClock.uptimeMillis();
+        am.requestAudioFocus(this,
+                AudioManager.STREAM_MUSIC,
+                AudioManager.AUDIOFOCUS_GAIN);
     }
 
     public void abandon() {
-        if (am == null) return;
-        if (afr != null) {
-            am.abandonAudioFocusRequest(afr);
-        } else {
-            am.abandonAudioFocus(null);
+        am.abandonAudioFocus(this);
+    }
+
+    @Override public void onAudioFocusChange(int change) {
+        switch (change) {
+            case AudioManager.AUDIOFOCUS_GAIN:
+                cb.onFocusGain();
+                break;
+
+            case AudioManager.AUDIOFOCUS_LOSS:
+            case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT: {
+                // Debounce: ignore very-early transients during track switch
+                long sinceReq = android.os.SystemClock.uptimeMillis() - lastRequestUptime;
+                if (sinceReq < 500) return;
+                cb.onFocusLost();
+                break;
+            }
+
+            case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
+                // DO NOT pause on duck. If you want, lower volume instead.
+                // (no-op for now)
+                break;
+
+            default:
+                // ignore
         }
     }
 }

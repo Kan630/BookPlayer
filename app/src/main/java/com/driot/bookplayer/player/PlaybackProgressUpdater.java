@@ -54,7 +54,7 @@ public final class PlaybackProgressUpdater {
                 ZikFileDao dao = db.ZikFileDao();
                 int r = dao.update(zf);
                 if (r > 0) {
-                    log.d("zik updated (" + zf.getName() + ") pos=" + df.format(zf.getPosition()));
+                    log.d("zik updated (" + zf.getName() + ") pos=" + df.format(zf.getPosition()) + "/" + df.format(zf.getDuration()) + " - " + zf.getPercentdone() + "%");
                     Sql.calculateFolderProgress(app, zf.getIdFolder());
                 } else {
                     log.e("update failed for " + zf.getName());
