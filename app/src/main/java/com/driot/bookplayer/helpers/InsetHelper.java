@@ -29,16 +29,16 @@ public final class InsetHelper {
     private InsetHelper() {}
 
     // ===== Logging (global switch) =====
-    private static volatile boolean LOG_ENABLED = true; // default ON; call setLoggingEnabled(false) to mute
-    public static void setLoggingEnabled(boolean enabled) { LOG_ENABLED = enabled; }
-
+    private static volatile boolean LOG_ENABLED = false; // default ON; call setLoggingEnabled(false) to mute
     private static final String TAG = "InsetHelper";
+    public static void setLoggingEnabled(boolean enabled) { LOG_ENABLED = enabled; }
     private static void myLog(String s){ if (LOG_ENABLED) KanLogger.myLog(TAG, s); }
     private static void myLogD(String s){ if (LOG_ENABLED) KanLogger.myLogD(TAG, s); }
     private static void myLogI(String s){ if (LOG_ENABLED) KanLogger.myLogI(TAG, s); }
-    private static void myLogW(String s){ if (LOG_ENABLED) KanLogger.myLogW(TAG, s); }
-    private static void myLogE(String s){ if (LOG_ENABLED) KanLogger.myLogE(TAG, s); }
-    private static void myLogEE(Throwable t, String s){ if (LOG_ENABLED) KanLogger.myToastEE(t, TAG, s); }
+
+    private static void myLogW(String s){ KanLogger.myLogW(TAG, s); }
+    private static void myLogE(String s){ KanLogger.myLogE(TAG, s); }
+    private static void myLogEE(Throwable t, String s){ KanLogger.myToastEE(t, TAG, s); }
 
     // ===== Configs (immutable) =====
     private static final class WindowConfig {
@@ -132,7 +132,7 @@ public final class InsetHelper {
             myLogEE(null,"apply(): root content view is NULL, aborting insets setup.");
             return;
         }
-        myLog("apply() on root");
+        KanLogger.myLogD(TAG, "apply() on root");
         applyInsets(activity, root,
                 new WindowConfig.Builder()
                         .softInputAdjustResize(true)
@@ -149,7 +149,7 @@ public final class InsetHelper {
 
     /** Scrollable view draws behind nav bar with proper bottom padding. */
     public static void applyInsetsForScrollableBehindNavBar(@NonNull Activity activity, @NonNull View scrollableView) {
-        myLog("applyInsetsForScrollableBehindNavBar()");
+        KanLogger.myLogD(TAG, "applyInsetsForScrollableBehindNavBar()");
         if (scrollableView == null) { //can be null at runtime, just a compiler check
             myLogEE(null,"applyInsetsForScrollableBehindNavBar(): scrollableView is NULL; falling back to root.");
             View root = activity.findViewById(android.R.id.content);
@@ -171,73 +171,6 @@ public final class InsetHelper {
                         .sides(true)
                         .build(),
                 /*consume*/ true);
-    }
-
-    /**
-     * Title/header is fixed below the status bar (with cutout protection).
-     * Scrollable draws behind the navigation bar but remains fully accessible,
-     * including left/right padding for display cutouts (e.g., camera hole in landscape).
-     */
-    public static void applyTitleBelowStatusBarAndScrollableBehindNavBar(
-            @NonNull Activity activity,
-            @NonNull View titleContainer,
-            @NonNull View scrollableView
-    ) {
-        myLog("applyTitleBelowStatusBarAndScrollableBehindNavBar()");
-        final Window window = activity.getWindow();
-
-        // Edge-to-edge; allow reporting of cutout insets (we add padding to avoid overlap)
-        WindowCompat.setDecorFitsSystemWindows(window, false);
-        if (android.os.Build.VERSION.SDK_INT >= 28) {
-            window.getAttributes().layoutInDisplayCutoutMode =
-                    WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
-            window.setAttributes(window.getAttributes());
-        }
-
-        // Transparent bars (status stays visible above; we pad content under it)
-        window.setStatusBarColor(Color.TRANSPARENT);
-        window.setNavigationBarColor(Color.TRANSPARENT);
-
-        // Decide icon light/dark based on theme surface
-        WindowConfig wc = new WindowConfig.Builder()
-                .edgeToEdge(true)
-                .statusBarColor(Color.TRANSPARENT)
-                .navigationBarColor(Color.TRANSPARENT)
-                .build();
-        configureBars(activity, window, wc, Color.TRANSPARENT);
-
-        // Header/title: pad TOP (+ cutout), and also L/R for cutout safety.
-        ViewCompat.setOnApplyWindowInsetsListener(titleContainer, (v, insets) -> {
-            Insets sys = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            Insets cut = insets.getInsets(WindowInsetsCompat.Type.displayCutout());
-
-            int leftPad = Math.max(v.getPaddingLeft(),  Math.max(sys.left,  cut.left));
-            int topPad  = Math.max(v.getPaddingTop(),   Math.max(sys.top,   cut.top));
-            int rightPad= Math.max(v.getPaddingRight(), Math.max(sys.right, cut.right));
-
-            v.setPadding(leftPad, topPad, rightPad, v.getPaddingBottom());
-            myLogD("titleContainer padding L/T/R=" + leftPad + "/" + topPad + "/" + rightPad + " (sys=" + insetsToString(sys) + ", cut=" + insetsToString(cut) + ")");
-            return insets; // don't consume; let scrollable also receive
-        });
-
-        // Scrollable content: pad BOTTOM for nav bar (and IME if present), plus L/R for cutout.
-        ViewCompat.setOnApplyWindowInsetsListener(scrollableView, (v, insets) -> {
-            Insets sys = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            Insets cut = insets.getInsets(WindowInsetsCompat.Type.displayCutout());
-            Insets ime = insets.getInsets(WindowInsetsCompat.Type.ime());
-
-            int leftPad   = Math.max(v.getPaddingLeft(),  Math.max(sys.left,  cut.left));
-            int rightPad  = Math.max(v.getPaddingRight(), Math.max(sys.right, cut.right));
-            int bottomPad = Math.max(sys.bottom, Math.max(cut.bottom, ime.bottom)); // keep usable with keyboard
-
-            v.setPadding(leftPad, v.getPaddingTop(), rightPad, bottomPad);
-            myLogD("scrollableView padding L/R/B=" + leftPad + "/" + rightPad + "/" + bottomPad
-                    + " (sys=" + insetsToString(sys) + ", cut=" + insetsToString(cut) + ", ime=" + insetsToString(ime) + ")");
-            return WindowInsetsCompat.CONSUMED; // we've handled what we need
-        });
-
-        requestApplyInsetsSafely(titleContainer);
-        requestApplyInsetsSafely(scrollableView);
     }
 
 
@@ -302,7 +235,7 @@ public final class InsetHelper {
                     v.setPadding(left, top, right, bottom);
                 }
 
-                myLogD("onApplyWindowInsets -> sys=" + insetsToString(sys)
+                KanLogger.myLogD(TAG, "onApplyWindowInsets -> sys=" + insetsToString(sys)
                         + (padCfg.handleCutout ? (", cut=" + insetsToString(cut)) : "")
                         + (padCfg.handleIME ? (", ime=" + insetsToString(ime)) : "")
                         + ", applied(L/T/R/B)=" + left + "/" + top + "/" + right + "/" + bottom

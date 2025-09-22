@@ -354,7 +354,8 @@ public class PodcastHelper {
         });
     }
     public static void checkForNewEpisodesToAutoDownloadForPodcast(Context context, Podcast podcast, long since) {
-        getEpisodesByFeedId(context, podcast.feedId, since, Option.getPodcastAutoDownloadLastNbEpisode(), true, new EpisodeCallback() {
+        int maxEpisode = Option.getPodcastAutoDownloadLastNbEpisode();
+        getEpisodesByFeedId(context, podcast.feedId, since, maxEpisode, true, new EpisodeCallback() {
             @Override
             public void onSuccess(List<PodcastEpisode> podcastEpisodes) {
 
@@ -367,17 +368,17 @@ public class PodcastHelper {
                 for (PodcastEpisode episode : podcastEpisodes) {
                     /// EPISODES LOOP ////////////////////////////////////////////////////////
                     i++;
-                    if (i > Option.getPodcastAutoDownloadLastNbEpisode()) break;
+                    if (i > maxEpisode) break;
 
                     String episodeLabel = buildPodcastEpisodeName(episode);
                     String fileName = buildPodcastEpisodeFileName(episode);
                     File destFile = new File(podcastFolder, fileName);
 
                     if (!destFile.exists()) {
-                        myLogD("Auto-download episode n°" + i + " - [" + episodeLabel + "] - [" + fileName + "]");
+                        myLogD("Auto-download episode n°" + i + "/" + maxEpisode + " for [" + podcast.title + "] - [" + episodeLabel + "] - [" + fileName + "]");
                         newEpisodes.add(episode);
                     } else {
-                        myLogD("episode already exists - check n°" + i + " - [" + episodeLabel + "] - [" + fileName + "]");
+                        myLogD("episode already exists - n°" + i + "/" + maxEpisode + " for [" + podcast.title + "] - [" + episodeLabel + "] - [" + fileName + "]");
                     }
                     /// EPISODES LOOP ////////////////////////////////////////////////////////
                 }

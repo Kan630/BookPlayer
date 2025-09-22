@@ -123,17 +123,17 @@ public final class InAppMsgManager {
         myLogD("maybeShowBestMessage: start");
         InAppMessageIndex idx = loadIndexFromCache(activity);
         if (idx == null || idx.messages == null || idx.messages.isEmpty()) {
-            myLogD("maybeShowBestMessage: no messages in cache → nothing to show");
+            KanLogger.myLogD(TAG, "maybeShowBestMessage: no messages in cache → nothing to show");
             return;
         }
 
         InAppMessage best = pickBestMessage(activity, idx);
         if (best == null) {
-            myLogD("maybeShowBestMessage: no eligible message (all filtered out or already seen)");
+            KanLogger.myLogD(TAG, "maybeShowBestMessage: no eligible message (all filtered out or already seen)");
             return;
         }
 
-        myLogD("maybeShowBestMessage: showing id=" + best.id + ", priority=" + best.priority
+        KanLogger.myLogD(TAG, "maybeShowBestMessage: showing id=" + best.id + ", priority=" + best.priority
                 + ", start=" + best.start + ", end=" + best.end);
         showMessageDialog(activity, title, best);
     }
@@ -802,11 +802,15 @@ public final class InAppMsgManager {
     }
 
     // ----------------------- LOG -----------------------
+    // ===== Logging (global switch) =====
     private static final String TAG = "InAppMsgManager";
-    private static void myLog(String str) { KanLogger.myLog(TAG, str); }
-    private static void myLogD(String str) { KanLogger.myLogD(TAG, str); }
+    private static volatile boolean LOG_ENABLED = false;
+    public static void setLoggingEnabled(boolean enabled) { LOG_ENABLED = enabled; }
+    private static void myLog(String s){ if (LOG_ENABLED) KanLogger.myLog(TAG, s); }
+    private static void myLogD(String s){ if (LOG_ENABLED) KanLogger.myLogD(TAG, s); }
+    private static void myLogI(String s){ if (LOG_ENABLED) KanLogger.myLogI(TAG, s); }
+
     private static void myLogW(String str) { KanLogger.myLogW(TAG, str); }
-    private static void myLogI(String str) { KanLogger.myLogI(TAG, str); }
     private static void myLogE(String str) { KanLogger.myLogE(TAG, str); }
     private static void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, TAG, str); }
     private static void myToastEE(Throwable t, String str) { KanLogger.myToastEE(t, TAG, str); }
