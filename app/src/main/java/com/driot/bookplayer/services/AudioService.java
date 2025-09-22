@@ -3,10 +3,7 @@ package com.driot.bookplayer.services;
 import com.driot.bookplayer.R;
 
 import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ServiceInfo;
@@ -19,14 +16,11 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.ResultReceiver;
-import android.service.notification.StatusBarNotification;
-import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.view.KeyEvent;
 
 import androidx.annotation.Nullable;
-import androidx.core.app.NotificationCompat;
 import androidx.documentfile.provider.DocumentFile;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.media.session.MediaButtonReceiver;
@@ -40,21 +34,16 @@ import com.driot.bookplayer.player.TtsEngine;
 import com.driot.bookplayer.utils.AppTtsManager;
 import com.driot.bookplayer.utils.log.LoggingService;
 import com.driot.bookplayer.activities.PlayActivity;
-import com.driot.bookplayer.db.AppDatabase;
-import com.driot.bookplayer.db.ZikFileDao;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.objects.PlayList;
-import com.driot.bookplayer.db.Sql;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Pref;
-import com.driot.bookplayer.utils.Tonio;
 
 import java.io.File;
 import java.text.DecimalFormat;
 import java.util.Objects;
 
 import static com.driot.bookplayer.activities.PlayActivity.SHARED_PREFERENCE_SPEED;
-import static com.driot.bookplayer.utils.Tonio.FormatPercentDouble;
 import static com.driot.bookplayer.utils.Tonio.fileExists;
 import static com.driot.bookplayer.utils.Tonio.formatTime;
 
@@ -75,8 +64,6 @@ public class AudioService extends LoggingService {
     //Play Timer (for Sleep)
     public static final int DELAY_CHECK_TIMER_SLEEP = 1000;
     private Handler sleepCheckHandler;
-    private Runnable sleepTimerRunnable;
-    private int elapsedSeconds = 0;
     private int customSleepTime = 0;
 
     //Pause Timer (to free memory)
@@ -86,7 +73,6 @@ public class AudioService extends LoggingService {
     //public static final int DELAY_CHECK_TIMER_PAUSE = 2*1000;
     //public static final int TRIM_AFTER_PAUSE_MS = 5*1000; // so basically never... 7 days
     private Handler pauseCheckHandler;
-    private Runnable pauseCheckRunnable;
 
     public static final int[][] REWIND_AFTER_PAUSE = {  // stopped listening since (in min)  ,  rewind delay (in ms)
             {2, 3000},
@@ -127,6 +113,13 @@ public class AudioService extends LoggingService {
     public static final String NOTIFICATION_PLAYBACK_MAXTIMEREACH = "NOTIFICATION_PLAYBACK_MAXTIMEREACH";
     public static final String NOTIFICATION_PLAYBACK_TIMER_VALUE = "NOTIFICATION_PLAYBACK_TIMER_VALUE";
 
+    private com.driot.bookplayer.player.PlaybackNotificationManager notif;
+    private com.driot.bookplayer.player.MediaSessionController media;
+    private com.driot.bookplayer.player.AudioFocusHelper focus;
+    private com.driot.bookplayer.player.SleepTimer sleepTimer;
+    private com.driot.bookplayer.player.PauseTrimWatcher pauseWatcher;
+    private com.driot.bookplayer.player.PlaybackProgressUpdater progress;
+
     private long engineGen = 0L;
     private final EngineListener engineCb = new EngineListener() {
         @Override public void onPrepared(long gen) {
@@ -166,10 +159,6 @@ public class AudioService extends LoggingService {
 
     private PlayerEngine engine;
     private final Runnable onPrepared = this::onEnginePrepared;
-
-    private AudioManager audioManager;
-    private AudioManager.OnAudioFocusChangeListener afChangeListener;
-    private MediaSessionCompat mediaSession;
 
     public boolean directPlay;
 
@@ -253,8 +242,6 @@ public class AudioService extends LoggingService {
     private boolean ErrorLoadingFile = false;
     DecimalFormat myDF = new DecimalFormat("#,###.");
 
-    private boolean isTimerRunning = false;
-
     /********************************************************************************
      *       NATIVE METHODS
 
@@ -267,49 +254,115 @@ public class AudioService extends LoggingService {
         isRunning = true;
         super.onCreate();
 
-        startPauseTimer();
+        // Media session (wrapped)
+        media = new com.driot.bookplayer.player.MediaSessionController(this, callback);
 
-// ///////////////////////
-//      PLAYER
-// ///////////////////////
+        // Notification helper
+        notif = new com.driot.bookplayer.player.PlaybackNotificationManager(
+                this, ID_NOTIFICATION_PLAY_AUDIO_CHANNEL, R.mipmap.ic_launcher);
+        notif.ensureChannel("Music Playback", "Bookplayer Music Playback Controls");
 
+        // Sleep timer (ticks every second)
+        sleepCheckHandler = new Handler();
+        sleepTimer = new com.driot.bookplayer.player.SleepTimer(
+                sleepCheckHandler, DELAY_CHECK_TIMER_SLEEP,
+                new com.driot.bookplayer.player.SleepTimer.Listener() {
+                    @Override public void onTick(int elapsedSeconds) {
+                        updateZikFileStateInDB(false);
+                        Intent i = new Intent(NOTIFICATION_PLAYBACK_TIMER_VALUE)
+                                .putExtra(TIMER_VALUE, elapsedSeconds);
+                        LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(i);
+                    }
+                    @Override public void onReachedMax() {
+                        if (Option.getBeepAutoStop()) playBeep("2beeps");
+                        LocalBroadcastManager.getInstance(AudioService.this)
+                                .sendBroadcast(new Intent(NOTIFICATION_PLAYBACK_MAXTIMEREACH));
+                        if (engine != null && engine.isPlaying()) mediaPlayerStop();
+                        stopSelf();
+                    }
+                });
 
+        // Pause/trim watcher (kills service if paused too long)
+        pauseCheckHandler = new Handler();
+        pauseWatcher = new com.driot.bookplayer.player.PauseTrimWatcher(
+                pauseCheckHandler, DELAY_CHECK_TIMER_PAUSE,
+                new com.driot.bookplayer.player.PauseTrimWatcher.Killer() {
+                    @Override public void kill() { killService(); }
+                    @Override public void onLog(String msg) { myLogD(msg); }
+                },
+                System::currentTimeMillis,
+                () -> Pref.getPauseTime(),
+                TRIM_AFTER_PAUSE_MS);
+        pauseWatcher.start();
 
-// ///////////////////////
-//      MEDIA SESSION
-// ///////////////////////
-        mediaSession = new MediaSessionCompat(this, "BookplayerMediaSession");
-        sleepCheckHandler = new Handler(); // for sleep timer
+        // Audio focus
+        focus = new com.driot.bookplayer.player.AudioFocusHelper(
+                this,
+                new com.driot.bookplayer.player.AudioFocusHelper.Listener() {
+                    @Override public void onFocusLost() {
+                        myLogI("Audio Focus Lost");
+                        pauseAudio();
+                        LocalBroadcastManager.getInstance(AudioService.this)
+                                .sendBroadcast(new Intent(NOTIFICATION_AUDIOFOCUS_LOST));
+                    }
+                    @Override public void onFocusGain() {
+                        myLogI("Audio Focus Gain");
+                        playAudio();
+                        media.setActive(true);
+                        LocalBroadcastManager.getInstance(AudioService.this)
+                                .sendBroadcast(new Intent(NOTIFICATION_AUDIOFOCUS_GAIN));
+                    }
+                });
 
-        myLogD("configureMediaSession()");
-
-        // Overridden methods in the MediaSession.Callback class.
-        mediaSession.setCallback(callback);
-        mediaSession.setActive(true); // Needed for media button handling
+        // Progress updater (DB)
+        progress = new com.driot.bookplayer.player.PlaybackProgressUpdater(
+                getApplicationContext(),
+                new com.driot.bookplayer.player.PlaybackProgressUpdater.Logger() {
+                    @Override public void d(String m) { myLogD(m); }
+                    @Override public void e(String m) { myLogE(m); }
+                    @Override public void ee(Throwable t, String m) { myLogEE(t, m); }
+                });
 
         myLogD("onCreate() - END");
     }
 // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    private void startPlayWithEngine() {
-        audioManager = (AudioManager) AudioService.this.getSystemService(Context.AUDIO_SERVICE);
-        afChangeListener = focusChange -> {
-            if (focusChange <= 0) {
-                myLogI("Audio Focus Lost");
-                AudioService.this.pauseAudio();
-                Intent intent = new Intent(NOTIFICATION_AUDIOFOCUS_LOST);
-                LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(intent);
-            } else {
-                myLogI("Audio Focus Gain");
-                myKeyFirebase("Audio Focus Gain", "Audio Focus Gain");
-                AudioService.this.playAudio();
-                mediaSession.setActive(true);
-                Intent intent = new Intent(NOTIFICATION_AUDIOFOCUS_GAIN);
-                LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(intent);
-            }
-        };
+    private void showForegroundNotification(boolean playing) {
+        ZikFile zf = getCurrentZikFile();
+        CharSequence title = zf == null ? "---" : zf.getFolderName();
+        CharSequence text  = zf == null ? "---" : zf.getDisplayName();
 
-        // Rewind-after-pause (works for both engines)
+        Notification n = notif.build(
+                media.session(),
+                playing,
+                title,
+                text,
+                new com.driot.bookplayer.player.PlaybackNotificationManager.ActionProvider() {
+                    @Override public PendingIntent rewind()      { return MediaButtonReceiver.buildMediaButtonPendingIntent(AudioService.this, PlaybackStateCompat.ACTION_REWIND); }
+                    @Override public PendingIntent play()        { return MediaButtonReceiver.buildMediaButtonPendingIntent(AudioService.this, PlaybackStateCompat.ACTION_PLAY); }
+                    @Override public PendingIntent pause()       { return MediaButtonReceiver.buildMediaButtonPendingIntent(AudioService.this, PlaybackStateCompat.ACTION_PAUSE); }
+                    @Override public PendingIntent fastForward() { return MediaButtonReceiver.buildMediaButtonPendingIntent(AudioService.this, PlaybackStateCompat.ACTION_FAST_FORWARD); }
+                    @Override public PendingIntent content() {
+                        Intent open = new Intent(AudioService.this, PlayActivity.class)
+                                .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                        return PendingIntent.getActivity(AudioService.this, 0, open,
+                                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+                    }
+                });
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            startForeground(ID_NOTIFICATION_PLAY_AUDIO_INT, n, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK);
+        } else {
+            startForeground(ID_NOTIFICATION_PLAY_AUDIO_INT, n);
+        }
+    }
+
+
+    private void startPlayWithEngine() {
+        // Audio focus first
+        focus.request();
+
+        // Rewind-after-pause
         if (Option.getRewindAfterPause()) {
             ZikFile currentZik = PlayList.getInstance().getZikFile();
             if (currentZik != null && currentZik.lLastAccess != null) {
@@ -323,14 +376,24 @@ public class AudioService extends LoggingService {
         doIntroCut();
         myLogD("about to call engine.start()");
         logPauseTime();
+
         engine.start();
         Pref.setPauseTime(0);
-        updatePlaybackState(PlaybackStateCompat.STATE_PLAYING, engine.getCurrentPosition(), (float) getSpeed());
+
+        media.updateState(
+                PlaybackStateCompat.STATE_PLAYING,
+                engine.getCurrentPosition(),
+                (float) getSpeed(),
+                playbackStateCompatAction);
         engine.setSpeed((float) getSpeed());
-        if (!mediaSession.isActive()) mediaSession.setActive(true);
-        startSleepTimer();
-        createNotificationChannel();
-        createNotification();
+        if (!media.session().isActive()) media.setActive(true);
+
+        if (!sleepTimer.isRunning()) {
+            int minutes = (customSleepTime == 0) ? Option.getTimeBeforeSleep() : customSleepTime;
+            sleepTimer.start(minutes);
+        }
+
+        showForegroundNotification(true);
     }
 
     void nextTrack() {
@@ -363,7 +426,6 @@ public class AudioService extends LoggingService {
                 .putExtra(FROM, from)
                 .putExtra(ERR_MSG, errMsg)
         );
-        stopSleepTimer();
         myLogE("sendBroadcast alertError");
     }
 
@@ -446,15 +508,20 @@ public class AudioService extends LoggingService {
     public void onDestroy() {
         isRunning = false;
         myLog("onDestroy()");
-        stopSleepTimer();
-        stopPauseTimer();
+        sleepTimer.stop();
         stopForeground(true);
-        if (engine != null) { try {
-            if (engine instanceof TtsEngine) ((TtsEngine) engine).release();
-            engine.stop();
-        } catch (Exception ignored) {} }
-        if (audioManager != null) { audioManager.abandonAudioFocus(afChangeListener); }
-        if (mediaSession != null) { mediaSession.release(); }
+
+        if (engine != null) {
+            try {
+                if (engine instanceof TtsEngine) ((TtsEngine) engine).release();
+                engine.stop();
+            } catch (Exception ignored) {}
+        }
+
+        focus.abandon();
+        notif.cancel(ID_NOTIFICATION_PLAY_AUDIO_INT);
+        if (media != null) media.release();
+
         stopSelf();
         super.onDestroy();
     }
@@ -615,14 +682,12 @@ public class AudioService extends LoggingService {
     public void pauseAudio() {
         myLog("pauseAudio()");
         if (engine != null && engine.isPlaying()) {
-            mediaPlayerPause(); // this now pauses the engine
-            if (mediaSession != null) {
-                mediaSession.setActive(false);
-            }
+            mediaPlayerPause();
+            media.setActive(false);
             updateZikFileStateInDB(false);
-            if (audioManager != null) { audioManager.abandonAudioFocus(afChangeListener); }
-            stopSleepTimer();
-            createNotification();
+            focus.abandon();
+            sleepTimer.stop();
+            showForegroundNotification(false);
         }
     }
 
@@ -669,7 +734,7 @@ public class AudioService extends LoggingService {
     public void setPosition(int position) {
         myLog("setPosition() : " + myDF.format(position));
         if (engine != null) engine.seekTo(position);
-        createNotification();
+        //createNotification();
     }
 
     public int getPosition() {
@@ -726,122 +791,22 @@ public class AudioService extends LoggingService {
      ***       TIMER
      ********************************************************************************
      */
-
-    private void startSleepTimer() {
-        if (isTimerRunning) {
-            myLogD("Timer is already running....");
-            return;
-            //stopSleepTimer();
-        }
-
-        boolean doBeep = Option.getBeepAutoStop();
-        int timeBeforeSleep = customSleepTime == 0 ? Option.getTimeBeforeSleep() : customSleepTime;
-
-        elapsedSeconds = 0;
-        isTimerRunning = true;
-
-        myLog("----------------------------------------------------------------------------- timer STARTED -- ");
-        LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(new Intent(NOTIFICATION_PLAYBACK_TIMER_VALUE).putExtra(TIMER_VALUE, elapsedSeconds));
-
-        sleepTimerRunnable = new Runnable() {
-            @Override
-            public void run() {
-                String elapsedTime = Tonio.formatTime(elapsedSeconds*1000, true, true);
-                myLogD("----------------------------------------------------------------------------- [" + elapsedTime + "] since timer started.....      (AutoSleep set to " + timeBeforeSleep + "min.)");
-                updateZikFileStateInDB(false);
-
-                // Auto Sleep Option
-                if (elapsedSeconds > timeBeforeSleep * 60) {
-                    myLog("Max Playback Time Reached -- Stopping Service");
-                    stopSleepTimer();
-
-                    // 2 beeps
-                    if (doBeep) playBeep("2beeps");
-
-                    LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(new Intent(NOTIFICATION_PLAYBACK_MAXTIMEREACH));
-                    if (engine != null && engine.isPlaying()) {
-                        mediaPlayerStop(); // this now stops the engine
-                    }
-                    stopSelf();
-                } else {
-                    Intent intent = new Intent(NOTIFICATION_PLAYBACK_TIMER_VALUE);
-                    intent.putExtra(TIMER_VALUE, elapsedSeconds);
-                    LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(intent);
-
-                    elapsedSeconds += DELAY_CHECK_TIMER_SLEEP / 1000;
-
-                    //HOHO
-                    //createNotification();
-
-                    sleepCheckHandler.postDelayed(this, DELAY_CHECK_TIMER_SLEEP);
-                }
-            }
-        };
-
-        sleepCheckHandler.postDelayed(sleepTimerRunnable, DELAY_CHECK_TIMER_SLEEP);
-    }
-
-
     public void updateSleepTimer(int customSleepTime) {
         this.customSleepTime = customSleepTime;
-        reloadSleepTimer();
+        if (sleepTimer != null) {
+            int minutes = (customSleepTime == 0) ? Option.getTimeBeforeSleep() : customSleepTime;
+            sleepTimer.reload(minutes);
+        }
     }
     public void reloadSleepTimer() {
-        myLog("reloadSleepTimer()");
-        if (isTimerRunning) {
-            stopSleepTimer();
-            startSleepTimer();
-        }
-    }
-    public int getCustomSleepTime() {
-        return customSleepTime;
-    }
-
-    private void stopSleepTimer() {
-        myLog("stopSleepTimer()");
-        try {
-            if (sleepCheckHandler != null && sleepTimerRunnable != null) {
-                sleepCheckHandler.removeCallbacks(sleepTimerRunnable);
-            }
-            isTimerRunning = false;
-            String str;
-            if (!(PlayList.getInstance().getZikFilesList()==null)) {
-                ZikFile zf = getCurrentZikFile();
-                str = zf==null ? "---" : zf.getFolderName() + " : " + Tonio.formatTime(elapsedSeconds*1000);
-                myLog("----------------------------------------------------------------------------- " + elapsedSeconds + "s. since timer started -- STOPPED -- " + str );
-            } else {
-                str = "killTimer : ERROR zikFilePlayList==null";
-                myLogE("----------------------------------------------------------------------------- " + elapsedSeconds + "s. since timer started -- STOPPED -- " + str );
-            }
-        } catch (Exception e) {
-            myLogEE(e,"killTimer, nothing to kill ?");
+        if (sleepTimer != null && sleepTimer.isRunning()) {
+            int minutes = (customSleepTime == 0) ? Option.getTimeBeforeSleep() : customSleepTime;
+            sleepTimer.reload(minutes);
         }
     }
 
+    public int getCustomSleepTime() { return customSleepTime; }
 
-    private void startPauseTimer() {
-        myLogD("startPauseTimer");
-        pauseCheckHandler = new Handler();
-        pauseCheckRunnable = new Runnable() {
-            @Override
-            public void run() {
-                if (Pref.getPauseTime() != 0) {
-                    logPauseTime();
-                    if (System.currentTimeMillis() - Pref.getPauseTime() > TRIM_AFTER_PAUSE_MS) {
-                        myLogW("let's kill it");
-                        killService();
-                    }
-                }
-                pauseCheckHandler.postDelayed(this, DELAY_CHECK_TIMER_PAUSE);
-            }
-        };
-        pauseCheckHandler.postDelayed(pauseCheckRunnable, DELAY_CHECK_TIMER_PAUSE); //start
-    }
-    private void stopPauseTimer() {
-        if (pauseCheckHandler != null) {
-            pauseCheckHandler.removeCallbacks(pauseCheckRunnable);
-        }
-    }
 
     @Override
     public void onTrimMemory(int level) {
@@ -883,45 +848,11 @@ public class AudioService extends LoggingService {
             return;
         }
         try {
-            if (zf.lFirstAccess == null || zf.lFirstAccess == 0) {
-                zf.lFirstAccess = System.currentTimeMillis();
-            }
-            zf.lLastAccess = System.currentTimeMillis();
-            if (bFinished) {
-                zf.setPosition(zf.getDuration());
-                zf.setPercentdone(100);
-                zf.setFinished(true);
-            } else {
-                int pos = getPosition();
-                if (pos == 0) {
-                    myLogEE(null, "updateZikFileState : getPosition() = 0");
-                    return;
-                }
-                int dur = getDuration();
-                if (dur == 0) {
-                    myLogEE(null, "updateZikFileState : getDuration() = 0");
-                    return;
-                }
-                zf.setPosition(pos);
-                zf.setPercentdone(FormatPercentDouble((double) pos / dur));
-            }
-            new Thread(() -> {
-                try {
-                    AppDatabase db = AppDatabase.getDatabase(getApplicationContext());
-                    ZikFileDao zikFileDao = db.ZikFileDao();
-                    int mySqlResponse = zikFileDao.update(zf);
-                    if (mySqlResponse > 0) {
-                        myLogD("---------- zikFile updated (" + zf.getName() + ")- position : " + myDF.format(zf.getPosition()));
-                        Sql.calculateFolderProgress(getApplicationContext(), zf.getIdFolder());
-                    } else {
-                        myLogE("updateZikFileState - Error sql response ---------- ZikFile NOT updated");
-                    }
-                } catch (Exception e) {
-                    myLogEE(e,"updateZikFileState - Exception while Updating File progress in Thread");
-                }
-            }).start();
+            int pos = bFinished ? (int) zf.getDuration() : getPosition();
+            int dur = bFinished ? (int) zf.getDuration() : getDuration();
+            progress.update(zf, bFinished, pos, dur);
         } catch (Exception e) {
-            myLogEE(e,"updateZikFileState - Exception while Updating File progress in Initialization");
+            myLogEE(e,"updateZikFileStateInDB");
         }
     }
 
@@ -950,142 +881,21 @@ public class AudioService extends LoggingService {
      ********************************************************************************
      */
 
-    private void createNotification() {
-        myLogD("createNotification()");
-
-        final boolean playing = engine != null && engine.isPlaying();
-
-        try {
-            // custom addAction only ok on old Android devices... KO with Android 13+
-            PendingIntent playPauseAction;
-            String actionName;
-            int actionIcon;
-            if (playing) {
-                actionName = "Pause";
-                actionIcon = android.R.drawable.ic_media_pause;
-                playPauseAction = MediaButtonReceiver.buildMediaButtonPendingIntent(this, PlaybackStateCompat.ACTION_PAUSE);
-                updatePlaybackState(PlaybackStateCompat.STATE_PLAYING,
-                        engine != null ? engine.getCurrentPosition() : 0, (float) getSpeed());
-            } else {
-                actionName = "Play";
-                actionIcon = android.R.drawable.ic_media_play;
-                playPauseAction = MediaButtonReceiver.buildMediaButtonPendingIntent(this, PlaybackStateCompat.ACTION_PLAY);
-                updatePlaybackState(PlaybackStateCompat.STATE_PAUSED,
-                        engine != null ? engine.getCurrentPosition() : 0, (float) getSpeed());
-            }
-
-            // Create an intent to open the app when the notification is tapped
-            Intent openAppIntent = new Intent(this, PlayActivity.class);
-            openAppIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP); // Ensures only one instance
-            PendingIntent contentIntent = PendingIntent.getActivity(this, 0, openAppIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-
-            MediaMetadataCompat metadata = new MediaMetadataCompat.Builder()
-                    .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, engine != null ? engine.getDuration() : 0)
-                    .build();
-            mediaSession.setMetadata(metadata);
-
-
-            ZikFile zf = getCurrentZikFile();
-            String contentTitle = zf==null ? "---" : zf.getFolderName();
-            String contentText = zf==null ? "---" : zf.getDisplayName();
-
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(this, ID_NOTIFICATION_PLAY_AUDIO_CHANNEL) // channel is used for user to be able to disable all notifications from that channel, starting android 8
-                    .setContentTitle(contentTitle)
-                    .setContentText(contentText)
-                    .setSmallIcon(R.mipmap.ic_launcher)
-                    .setContentIntent(contentIntent)
-                    .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                    .setPriority(NotificationCompat.PRIORITY_LOW)
-                    .setOnlyAlertOnce(true)
-                    .setOngoing(true) //if not, Notification may get destroyed by system
-                    // custom addAction only ok on old Android devices... KO with Android 13+
-                    .addAction(new NotificationCompat.Action(android.R.drawable.ic_media_rew, "Rewind", MediaButtonReceiver.buildMediaButtonPendingIntent(this, PlaybackStateCompat.ACTION_REWIND)))
-                    .addAction(new NotificationCompat.Action(actionIcon, actionName, playPauseAction))
-                    .addAction(new NotificationCompat.Action(android.R.drawable.ic_media_ff, "Forward", MediaButtonReceiver.buildMediaButtonPendingIntent(this, PlaybackStateCompat.ACTION_FAST_FORWARD)))
-                    .setStyle(new androidx.media.app.NotificationCompat.MediaStyle()  //that's the shit that fuck with the progressBar... but yeah...
-                            .setMediaSession(mediaSession.getSessionToken())
-                            .setShowActionsInCompactView(0,1,2)
-                    )
-                    ;
-
-            Notification notification = builder.build();
-
-            try {
-
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) { // sdk 29 (28 is Android 9)
-                    myLogD("startForeground FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK");
-                    startForeground(ID_NOTIFICATION_PLAY_AUDIO_INT, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK);
-                } else {
-                    myLogD("startForeground");
-                    startForeground(ID_NOTIFICATION_PLAY_AUDIO_INT, notification);
-                }
-            } catch (Throwable t) {
-                myLogEE(t,"Notification startForeground failed");
-            }
-
-
-        } catch (Exception t) {
-            myLogEE(t,"Notification creation failed");
-        }
-    }
-
-    private void createNotificationChannel() {
-        myLog("createNotificationChannel()");
-        try {
-            NotificationChannel channel = new NotificationChannel(
-                    ID_NOTIFICATION_PLAY_AUDIO_CHANNEL, "Music Playback",
-                    NotificationManager.IMPORTANCE_LOW); //LOW = no sound
-            channel.setDescription("Bookplayer Music Playback Controls");
-            NotificationManager manager = getSystemService(NotificationManager.class);
-            if (manager != null) {
-                manager.createNotificationChannel(channel);
-            }
-        } catch (Exception e) {
-            myLogEE(e,"createNotificationChannel()");
-        }
-    }
-
-    private void removeNotification() {
-        myLogD("removeNotification()");
-        try {
-            stopForeground(true); // Remove the notification and stop being a foreground service
-
-            if (mediaSession != null) {
-                mediaSession.setActive(false); // Deactivate media session
-            }
-
-            NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            notificationManager.cancel(ID_NOTIFICATION_PLAY_AUDIO_INT); // ID 1 matches the one used in startForeground()
-
-            myLogI("Notification removed");
-        } catch (Exception e) {
-            myLogEE(e,"Failed to remove notification");
-        }
-    }
 
     private void mediaPlayerPause() {
         myLogD("mediaPlayerPause()");
         if (engine != null) engine.pause();
-        updatePlaybackState(PlaybackStateCompat.STATE_PAUSED,
-                engine != null ? engine.getCurrentPosition() : 0, 0.0f);
+        media.updateState(PlaybackStateCompat.STATE_PAUSED,
+                engine != null ? engine.getCurrentPosition() : 0, 0f, playbackStateCompatAction);
         Pref.setPauseTime();
     }
 
     private void mediaPlayerStop() {
         myLogD("mediaPlayerStop()");
         if (engine != null) engine.stop();
-        updatePlaybackState(PlaybackStateCompat.STATE_STOPPED, 0, 0.0f);
-        mediaSession.setActive(false);
-        if (Pref.getPauseTime() == 0 ) Pref.setPauseTime();
-    }
-
-
-    private void updatePlaybackState(int playbackState, long position, float playbackSpeed) {
-        PlaybackStateCompat playbackStateCompat = new PlaybackStateCompat.Builder()
-                .setState(playbackState, position, playbackSpeed)
-                .setActions(playbackStateCompatAction)
-                .build();
-        mediaSession.setPlaybackState(playbackStateCompat);
+        media.updateState(PlaybackStateCompat.STATE_STOPPED, 0, 0f, playbackStateCompatAction);
+        media.setActive(false);
+        if (Pref.getPauseTime() == 0) Pref.setPauseTime();
     }
 
     @SuppressWarnings("IfCanBeSwitch")
@@ -1106,48 +916,32 @@ public class AudioService extends LoggingService {
         }
     }
 
-    // 13-56
-    // StatusBarNotification(pkg=com.driot.bookplayer user=UserHandle{0} id=1 tag=null key=0|com.driot.bookplayer|1|null|10333:
-    // Notification(channel=audio_channel_of_bookplayer shortcut=null contentView=null vibrate=null sound=null defaults=0
-    // flags=ONGOING_EVENT|ONLY_ALERT_ONCE|NO_CLEAR|FOREGROUND_SERVICE color=0x00000000 category=transport actions=3 vis=PUBLIC semFlags=0x0 semPriority=0 semMissedCount=0))
-    private boolean isNotificationActive(Context context, int notificationId) {
-        NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        StatusBarNotification[] notifications = ((NotificationManager) manager).getActiveNotifications();
-        for (StatusBarNotification sbn : notifications) {
-            myLog(sbn.toString());
-            if (sbn.getId() == notificationId) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     private void killService() {
         myLogI("killService()");
         isRunning = false;
-        stopPauseTimer();
-        stopSleepTimer();
-        if (engine != null) { try {
-            if (engine instanceof TtsEngine) ((TtsEngine) engine).release();
-            engine.stop();
-        } catch (Exception ignored) {} }
-        removeNotification();
+        sleepTimer.stop();
+
+        if (engine != null) {
+            try {
+                if (engine instanceof TtsEngine) ((TtsEngine) engine).release();
+                engine.stop();
+            } catch (Exception ignored) {}
+        }
+
+        focus.abandon();
+        notif.cancel(ID_NOTIFICATION_PLAY_AUDIO_INT);
         stopForeground(true);
         stopSelf();
     }
+
     private void loadFileKO() {
         myLog("loadFileKO");
-        LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(new Intent(NOTIFICATION_FILENOTFOUND));
-        ErrorLoadingFile=true;
-        removeNotification();
+        LocalBroadcastManager.getInstance(AudioService.this)
+                .sendBroadcast(new Intent(NOTIFICATION_FILENOTFOUND));
+        ErrorLoadingFile = true;
+        notif.cancel(ID_NOTIFICATION_PLAY_AUDIO_INT);
+        stopForeground(true);
         stopSelf();
-    }
-
-    private static int estimateDurationMs(String text, float speechRate) {
-        if (text == null) return 0;
-        int words = Math.max(1, text.trim().split("\\s+").length);
-        double wpm = 180.0 * Math.max(0.1, speechRate); // 180 wpm baseline
-        return (int) Math.round((words / wpm) * 60_000.0);
     }
 
     private void onEnginePrepared() {
@@ -1163,14 +957,24 @@ public class AudioService extends LoggingService {
             myLogEE(e, "seekTo(saved) in onEnginePrepared");
         }
 
+        if (engine != null) {
+            media.setDuration(engine.getDuration());
+        }
+
         // Only send READY when engine.isReady()==true
         sendReadyToPlay("onEnginePrepared");
 
         if (directPlay) {
             startPlayWithEngine();
         } else {
-            createNotificationChannel();
-            createNotification();
+            media.updateState(
+                    PlaybackStateCompat.STATE_PAUSED,
+                    engine != null ? engine.getCurrentPosition() : 0,
+                    0f,
+                    playbackStateCompatAction
+            );
+            // paused/ready state: show a paused notification
+            showForegroundNotification(false);
         }
     }
 
@@ -1181,7 +985,7 @@ public class AudioService extends LoggingService {
             if (PlayList.getInstance().isLastTrack()) {
                 if (Option.getBeepBookEnd()) playBeep("3beeps");
                 alertPlaylistFinished();
-                stopSleepTimer();
+                sleepTimer.stop();
                 Pref.setPauseTime();
             } else {
                 nextTrack();
@@ -1189,9 +993,11 @@ public class AudioService extends LoggingService {
         }
     }
 
+
     private void onEngineError(String msg, int what, int extra) {
         myLogE("Engine error: " + msg + " (" + what + "," + extra + ")");
         ErrorLoadingFile = true;
+        sleepTimer.stop();
         if (msg.startsWith("TTS")) {
             alertError("TTS", msg);
         } else {
@@ -1202,8 +1008,10 @@ public class AudioService extends LoggingService {
     private void onEngineFatal(String msg, int what, int extra) {
         myLogE("Engine FATAL: " + msg + " (" + what + "," + extra + ")");
         ErrorLoadingFile = true;
+        sleepTimer.stop();
         alertError(null, null);
     }
+
 
     private int getSavedResumePosition() {
         ZikFile z = getCurrentZikFile();
