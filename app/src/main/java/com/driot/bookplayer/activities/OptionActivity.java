@@ -73,6 +73,7 @@ public class OptionActivity extends LoggingActivity {
     ImageButton btn_Color_13, btn_Color_14, btn_Color_15, btn_Color_16, btn_Color_17, btn_Color_18;
     Object[][] themesAndColors;
     CheckBox chk_rewind_after_pause;
+    CheckBox chk_start_next_track_at_zero;
     CheckBox chk_copy_file;
     CheckBox chk_click_visualizer_playpause;
     CheckBox chk_tech_log_file;
@@ -108,7 +109,8 @@ public class OptionActivity extends LoggingActivity {
 
     LinearLayout ll_visualizer_on, ll_visualizer_playpause, ll_copy_file, ll_delete_source_file;
     LinearLayout ll_beep_chapter, ll_beep_bookend, ll_beep_autostop;
-    LinearLayout ll_rewind_after_pause, ll_tech_log_file, ll_mail_method_default;
+    LinearLayout ll_rewind_after_pause, ll_start_next_track_at_zero;
+    LinearLayout ll_tech_log_file, ll_mail_method_default;
     LinearLayout ll_open_with, ll_open_with_all, ll_split_m4b, ll_use_sd_card;
     LinearLayout ll_container_sd_card, ll_create_cover;
 
@@ -392,6 +394,12 @@ public class OptionActivity extends LoggingActivity {
         chk_rewind_after_pause.setChecked(Option.getRewindAfterPause());
         ll_rewind_after_pause.setOnClickListener(v -> chk_rewind_after_pause.toggle());
         chk_rewind_after_pause.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setRewindAfterPause(isChecked));
+
+        chk_start_next_track_at_zero = findViewById(R.id.chk_start_next_track_at_zero);
+        ll_start_next_track_at_zero = findViewById(R.id.ll_start_next_track_at_zero);
+        chk_start_next_track_at_zero.setChecked(Option.getStartAtZeroNextTrack());
+        ll_start_next_track_at_zero.setOnClickListener(v -> chk_start_next_track_at_zero.toggle());
+        chk_start_next_track_at_zero.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setStartAtZeroNextTrack(isChecked));
 
         chk_copy_file.setChecked(Option.getCopyFile());
         ll_copy_file.setOnClickListener(v -> chk_copy_file.toggle());

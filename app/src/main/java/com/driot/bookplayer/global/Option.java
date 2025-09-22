@@ -27,6 +27,7 @@ public class Option {
     private static final boolean DEFAULT_DELETE_SOURCE_FILE = false;
     private static final boolean DEFAULT_VISUALIZER_ON = true;
     private static final boolean DEFAULT_REWIND_AFTER_PAUSE = true;
+    private static final boolean DEFAULT_START_AT_ZERO_NEXT_TRACK = true;
     private static final String DEFAULT_THEME_KEY = "purple"; //needs a string as resource ID are not stables between releases
     private static final boolean DEFAULT_COPY_FILES = true;
     private static final boolean DEFAULT_CLICK_VISUALIZER_PLAYPAUSE = false;
@@ -140,6 +141,10 @@ public class Option {
     /////////////////// REWIND AFTER PAUSE option ///////////////////
     public static void setRewindAfterPause(boolean bool) {prefs.edit().putBoolean("REWIND_AFTER_PAUSE",bool).apply();}
     public static boolean getRewindAfterPause() {return prefs.getBoolean("REWIND_AFTER_PAUSE", DEFAULT_REWIND_AFTER_PAUSE);}
+
+    /////////////////// START AT ZERO NEXT TRACK option ///////////////////
+    public static void setStartAtZeroNextTrack(boolean bool) {prefs.edit().putBoolean("START_AT_ZERO_NEXT_TRACK",bool).apply();}
+    public static boolean getStartAtZeroNextTrack() {return prefs.getBoolean("START_AT_ZERO_NEXT_TRACK", DEFAULT_START_AT_ZERO_NEXT_TRACK);}
 
     /////////////////// COPY FILES ///////////////////
     public static void setCopyFile(boolean bool) {prefs.edit().putBoolean("COPY_FILES",bool).apply();}

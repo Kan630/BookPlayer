@@ -629,7 +629,7 @@
             <LinearLayout style="@style/LinearLayoutOptionsVertical">
                 <TextView
                     style="@style/OptionTitle"
-                    android:text="@string/option_rewind_after_pause_title" />
+                    android:text="@string/option_playing_behaviour_title" />
                 <LinearLayout style="@style/LinearLayoutOptionsCheckBoxHorizontal"
                     android:id="@+id/ll_rewind_after_pause">
                     <com.google.android.material.checkbox.MaterialCheckBox
@@ -638,6 +638,15 @@
                     <TextView
                         style="@style/OptionCheckBoxText"
                         android:text="@string/option_rewind_after_pause_text" />
+                </LinearLayout>
+                <LinearLayout style="@style/LinearLayoutOptionsCheckBoxHorizontal"
+                    android:id="@+id/ll_start_next_track_at_zero">
+                    <com.google.android.material.checkbox.MaterialCheckBox
+                        android:id="@+id/chk_start_next_track_at_zero"
+                        style="@style/OptionCheckBox"/>
+                    <TextView
+                        style="@style/OptionCheckBoxText"
+                        android:text="@string/option_start_next_track_at_zero_title_text" />
                 </LinearLayout>
             </LinearLayout>
 
