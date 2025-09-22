@@ -6,6 +6,7 @@ package com.driot.bookplayer.global;
 
 import static android.content.Context.MODE_PRIVATE;
 
+import static com.driot.bookplayer.activities.PlayActivity.SHARED_PREFERENCE_SPEED;
 import static com.driot.bookplayer.global.Var.PODCAST_DETAIL_ANIMATION_COUNT;
 
 import android.content.Context;
@@ -55,6 +56,7 @@ public class Pref {
 
 
 
+    /////////////////// PER BOOK ID ///////////////////
 
     public static void saveIntroCutToPref(Context c, int idFolder, int introCut) {
         try {
@@ -64,7 +66,6 @@ public class Pref {
             myLogEE(e,"error saving introCut in prefs");
         }
     }
-
     public static int getIntroCutFromPref(Context c, int idFolder) {
         try {
             SharedPreferences prefs = c.getSharedPreferences(SHARED_PREFERENCE_INTROCUT, MODE_PRIVATE);
@@ -74,6 +75,25 @@ public class Pref {
             return 0;
         }
     }
+    public static void saveSpeedToPref(int idFolder, double speed) {
+        try {
+            SharedPreferences.Editor editor = appContext.getSharedPreferences(SHARED_PREFERENCE_SPEED, MODE_PRIVATE).edit();
+            editor.putString(String.valueOf(idFolder),Double.toString(speed)).apply();
+        } catch (Exception e) {
+            myLogEE(e,"error saving speed in prefs");
+        }
+    }
+    public static double getSpeedFromPref(int idFolder) {
+        try {
+            SharedPreferences prefs = appContext.getSharedPreferences(SHARED_PREFERENCE_SPEED, MODE_PRIVATE);
+            return Double.parseDouble(prefs.getString(String.valueOf(idFolder), "1.0"));
+        } catch (Exception e) {
+            myLogEE(e,"error getting speed from prefs");
+            return 1.0;
+        }
+    }
+
+    /////////////////// Load Book Task State ///////////////////
 
     public static void setLoadBookTaskState(LoadBookTaskState loadBookTaskState) {
         Parcel parcel = Parcel.obtain();
@@ -117,6 +137,7 @@ public class Pref {
         prefs.edit().remove(KEY_LOAD_BOOK_TASK_STATE).apply();
     }
 
+    /////////////////// Audio Metadata ///////////////////
 
     public static void saveAudioMetadata(MyAudioMetadata metadata) {
         Parcel parcel = Parcel.obtain();

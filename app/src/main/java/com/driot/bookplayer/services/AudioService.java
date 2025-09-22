@@ -5,7 +5,6 @@ import com.driot.bookplayer.R;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.ServiceInfo;
 import android.media.AudioManager;
 import android.media.ToneGenerator;
@@ -43,7 +42,6 @@ import java.io.File;
 import java.text.DecimalFormat;
 import java.util.Objects;
 
-import static com.driot.bookplayer.activities.PlayActivity.SHARED_PREFERENCE_SPEED;
 import static com.driot.bookplayer.utils.Tonio.fileExists;
 import static com.driot.bookplayer.utils.Tonio.formatTime;
 
@@ -657,8 +655,6 @@ public class AudioService extends LoggingService {
         }
     }
 
-
-
     private void doIntroCut() {
         myLog("doIntroCut");
         int introCut = 0;
@@ -766,13 +762,12 @@ public class AudioService extends LoggingService {
             myLog("setSpeed() : " + speed);
         } catch (Exception e) { myLogEE(e,"AudioService Error setting Speed"); }
         ZikFile zf = getCurrentZikFile();
-        if (zf != null) saveSpeedToPref(zf.getIdFolder(), speed);
+        if (zf != null) Pref.saveSpeedToPref(zf.getIdFolder(), speed);
     }
-
 
     public double getSpeed() {
         ZikFile zf = getCurrentZikFile();
-        if (zf != null) speed = getSpeedFromPref(zf.getIdFolder());
+        if (zf != null) speed = Pref.getSpeedFromPref(zf.getIdFolder());
         if (speed == 0) speed = 1.0;
         return speed;
     }
@@ -856,25 +851,6 @@ public class AudioService extends LoggingService {
         }
     }
 
-
-    private void saveSpeedToPref(int idFolder, double speed) {
-        try {
-            SharedPreferences.Editor editor = getSharedPreferences(SHARED_PREFERENCE_SPEED, MODE_PRIVATE).edit();
-            editor.putString(String.valueOf(idFolder),Double.toString(speed)).apply();
-        } catch (Exception e) {
-            myLogEE(e,"error saving speed in prefs");
-        }
-    }
-
-    private double getSpeedFromPref(int idFolder) {
-        try {
-            SharedPreferences prefs = getSharedPreferences(SHARED_PREFERENCE_SPEED, MODE_PRIVATE);
-            return Double.parseDouble(prefs.getString(String.valueOf(idFolder), "1.0"));
-        } catch (Exception e) {
-            myLogEE(e,"error getting speed from prefs");
-            return 1.0;
-        }
-    }
 
     /********************************************************************************
      ***       NOTIFICATIONS
