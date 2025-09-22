@@ -6,6 +6,7 @@ import android.os.Bundle;
 
 import androidx.annotation.Nullable;
 
+import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.services.BookLoadingWorkLauncher;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
@@ -38,6 +39,8 @@ public class OpenWithProxyActivityAll extends LoggingActivity {
         }
 
         myLogD("OpenWithProxyActivity received uri: " + uri);
+
+        FirebaseAnalyticsHelper.tellAnalyticsProxyLoad(uri.toString());
 
         Intent nextIntent = new Intent(this, LoadBookActivity.class);
         nextIntent.putExtra(LoadBookActivity.EXTRA_URI, uri);

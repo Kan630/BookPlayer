@@ -42,6 +42,11 @@ public final class FirebaseAnalyticsHelper {
         bundle.putString("originalFile", originalFile);
         logThat("manual_load", bundle);
     }
+    public static void tellAnalyticsProxyLoad(String originalUri) {
+        Bundle bundle = new Bundle();
+        bundle.putString("originalUri", originalUri);
+        logThat("proxy_load", bundle);
+    }
     public static void tellAnalyticsManualDownload(String fileUrl, String destinationFolder, long alreadyDownloaded) {
         Bundle bundle = new Bundle();
         bundle.putString("fileUrl", fileUrl);
