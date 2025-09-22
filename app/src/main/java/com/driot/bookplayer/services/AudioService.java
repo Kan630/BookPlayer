@@ -448,8 +448,7 @@ public class AudioService extends LoggingService {
                 return 0;
             } // no visualizer for TTS
 
-            @Override
-            public void seekTo(int ms) {
+            @Override public void seekTo(int ms) {
                 if (estDurationMs <= 0 || text.isEmpty()) return;
                 int clamped = Math.max(0, Math.min(ms, estDurationMs));
                 int charPos = (int) ((clamped / (double) estDurationMs) * Math.max(1, text.length()));
@@ -519,9 +518,7 @@ public class AudioService extends LoggingService {
                 onEngineError("TTS error", code, 0);
             }
 
-            @Override
-            public void onUtteranceRange(int start, int end) {
-                //myLogD("onUtteranceRange");
+            @Override public void onUtteranceRange(int start, int end) {
                 if (!text.isEmpty())
                     estPositionMs = (int) ((start / (double) text.length()) * estDurationMs);
                 // remember farthest character we actually spoke
@@ -536,8 +533,7 @@ public class AudioService extends LoggingService {
                 LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(i);
             }
 
-            @Override
-            public void onWordRange(int s, int e) {
+            @Override public void onWordRange(int s, int e) {
                 onUtteranceRange(s, e);
             }
 
@@ -1163,7 +1159,8 @@ public class AudioService extends LoggingService {
         sleepTimerRunnable = new Runnable() {
             @Override
             public void run() {
-                myLogD("----------------------------------------------------------------------------- " + elapsedSeconds + "s. since timer started.....      (AutoSleep set to " + timeBeforeSleep + "min.)");
+                String elapsedTime = Tonio.formatTime(elapsedSeconds*1000, true, true);
+                myLogD("----------------------------------------------------------------------------- [" + elapsedTime + "] since timer started.....      (AutoSleep set to " + timeBeforeSleep + "min.)");
                 updateZikFileStateInDB(false);
 
                 // Auto Sleep Option

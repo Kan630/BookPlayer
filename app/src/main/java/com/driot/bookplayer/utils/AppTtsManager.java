@@ -100,7 +100,7 @@ public final class AppTtsManager implements TextToSpeech.OnInitListener {
             // Progress listener (multiplexed to all registered listeners)
             tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
                 @Override public void onStart(String id) {
-                    myLog("setOnUtteranceProgressListener.onStart");
+                    myLogD("setOnUtteranceProgressListener.onStart");
                     int[] se = parseRange(id);
                     if (se != null) {
                         final int s = se[0], e = se[1];
@@ -109,7 +109,7 @@ public final class AppTtsManager implements TextToSpeech.OnInitListener {
                     listeners.values().forEach(w -> opt(w).onStart(id));
                 }
                 @Override public void onDone(String id) {
-                    myLog("setOnUtteranceProgressListener.onDone");
+                    myLogD("setOnUtteranceProgressListener.onDone");
                     listeners.values().forEach(w -> opt(w).onDone(id));
                 }
                 @Override public void onError(String id) {
@@ -119,7 +119,6 @@ public final class AppTtsManager implements TextToSpeech.OnInitListener {
                     listeners.values().forEach(w -> opt(w).onError(id, code));
                 }
                 @Override public void onRangeStart(String uttId, int start, int end, int frame) {
-                    myLog("setOnUtteranceProgressListener.onRangeStart");
                     // Convert to absolute using the uttId "utt_<absStart>_<absEnd>"
                     int[] se = parseRange(uttId);
                     if (se != null) {
