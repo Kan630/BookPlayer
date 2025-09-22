@@ -254,6 +254,11 @@ public class AudioService extends LoggingService {
 
         // Media session (wrapped)
         media = new com.driot.bookplayer.player.MediaSessionController(this, callback);
+        media.updateState(
+                PlaybackStateCompat.STATE_PAUSED,
+                0L,
+                0f,
+                playbackStateCompatAction /* your ACTION_* bitmask */);
 
         // Notification helper
         notif = new com.driot.bookplayer.player.PlaybackNotificationManager(
@@ -489,18 +494,14 @@ public class AudioService extends LoggingService {
         myLog("onStartCommand()"); //is called when user press icons buttons on Notification
         if (intent != null) {
             myLog("onStartCommand() - " + intent);
-            if (Objects.equals(intent.getAction(), Intent.ACTION_MEDIA_BUTTON)) {
-                if (intent.hasExtra(Intent.EXTRA_KEY_EVENT)) {
-                    KeyEvent keyEvent = intent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
-                    if (keyEvent != null) {
-                        int keyCode = keyEvent.getKeyCode();
-                        handleKeyEvent(keyCode);
-                    }
-                }
+            if (Intent.ACTION_MEDIA_BUTTON.equals(intent.getAction())) {
+                androidx.media.session.MediaButtonReceiver.handleIntent(media.session(), intent);
+                return START_STICKY;
             }
         }
-        return START_STICKY; // usually better for audio playback service
+        return START_STICKY;
     }
+
 
     @Override
     public void onDestroy() {
@@ -955,6 +956,7 @@ public class AudioService extends LoggingService {
     }
 
     private void onEngineCompletion() {
+        myLogD("onEngineCompletion()");
         if (!ErrorLoadingFile) {
             updateZikFileStateInDB(true);
             alertTrackFinished();
