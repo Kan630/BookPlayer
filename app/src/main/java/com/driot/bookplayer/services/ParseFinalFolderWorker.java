@@ -278,6 +278,7 @@ public class ParseFinalFolderWorker extends LoggingWorker {
                 String fileExtension = getExtension(fileName);
                 String mimeType = Objects.toString(f1.getType());
                 myLogD("* Checking File : [" + fileExtension + "] . [" + fileName + "] - mime = [" + mimeType + "] - subfolder : [" + recursivFolder + "]");
+                //TODO mime could be null.... and then warning message "not an audio"
                 if (mimeType.startsWith(Var.ONLY_MIME_AUDIO) || Var.SUPPORTED_AUDIO_EXTENSIONS.contains(fileExtension)) {
                     nbFileScan = nbFileScan + 1;
                     l_audioFilePath = recursivFolder + f1.getName();

@@ -2,6 +2,7 @@ package com.driot.bookplayer.activities;
 
 import android.os.Bundle;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -15,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.adapter.CleanMemoryRVAdapter;
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingActivity;
@@ -34,6 +36,11 @@ public class CleanMemoryActivity extends LoggingActivity implements CleanMemoryR
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_clean_memory);
 
+        RecyclerView recyclerView = findViewById(R.id.recyclerView_cacheFiles);
+        LinearLayout mainContent = findViewById(R.id.main_content);
+        //InsetHelper.applyInsetsForContentWithScrollableBottom(this, mainContent, recyclerView);
+        InsetHelper.apply(this);
+
         statsTextView = findViewById(R.id.cachefiles_stats_text);
 
         progressBar = findViewById(R.id.progress_cache_loading);
@@ -42,7 +49,6 @@ public class CleanMemoryActivity extends LoggingActivity implements CleanMemoryR
         cacheFilesViewModel = new ViewModelProvider(this).get(CleanMemoryViewModel.class);
 
         cacheFilesAdapter = new CleanMemoryRVAdapter(this, this);
-        RecyclerView recyclerView = findViewById(R.id.recyclerView_cacheFiles);
         recyclerView.setAdapter(cacheFilesAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 

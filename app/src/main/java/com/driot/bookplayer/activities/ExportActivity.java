@@ -18,6 +18,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
+import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.services.ExportService;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
@@ -82,6 +83,7 @@ public class ExportActivity extends LoggingActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_export);
+        InsetHelper.apply(this);
 
         folderId = getIntent().getIntExtra(EXTRA_FOLDER_ID, -1);
 

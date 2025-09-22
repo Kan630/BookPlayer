@@ -28,7 +28,7 @@ import android.widget.TextView;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Option;
-import com.driot.bookplayer.helpers.LanguageHelper;
+import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.LocaleHelper;
 import com.driot.bookplayer.helpers.TtsHelper;
 import com.driot.bookplayer.utils.NetworkUtils;
@@ -45,10 +45,6 @@ import static com.driot.bookplayer.helpers.StorageHelper.isExternalSDCardAvailab
 import androidx.annotation.NonNull;
 import androidx.annotation.StyleRes;
 import androidx.core.content.ContextCompat;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 20/12/20
@@ -106,30 +102,19 @@ public class OptionActivity extends LoggingActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_options); //trigers AutofillManager notifyValueChanged  ignoring on state UNKNOWN  (pollute log in Android 12)
-        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);  // -> To test Android 15, overlapping system bars dy default... Solution adds to xml : android:fitsSystemWindows="true"
+        InsetHelper.apply(this);
 
-        View scroll = findViewById(R.id.scrollView);
-
-// base comfort gap (e.g. 16dp) — set to 40dp if you like that spacing
-        int baseBottomPaddingPx = (int) (16 * getResources().getDisplayMetrics().density + 0.5f);
-
-        ViewCompat.setOnApplyWindowInsetsListener(scroll, (v, insets) -> {
-            // Get nav bar even if hidden, and IME when keyboard is open
-            Insets nav = insets.getInsetsIgnoringVisibility(WindowInsetsCompat.Type.navigationBars());
-            Insets ime = insets.getInsets(WindowInsetsCompat.Type.ime());
-
-            int extra = Math.max(nav.bottom, ime.bottom); // whichever is larger right now
-            v.setPadding(v.getPaddingLeft(), v.getPaddingTop(), v.getPaddingRight(),
-                    baseBottomPaddingPx + extra);
-
-            // Optional: log to verify it's working
-            // myLogD("Insets bottom nav=" + nav.bottom + " ime=" + ime.bottom + " total=" + (baseBottomPaddingPx + extra));
-
-            return insets; // don't consume so others can also react if needed
-        });
+        scrollView = findViewById(R.id.scrollView);
+        /*
+        InsetHelper.applyEdgeToEdge(
+                this,
+                scrollView,   // top container (adds status bar height to top padding)
+                scrollView,   // bottom container (adds max(nav, IME) to bottom padding)
+                scrollView    // content sides (adds left/right nav/gesture insets)
+        );
+         */
 
         advancedOptionsLayout = findViewById(R.id.layout_advanced_options);
-        scrollView = findViewById(R.id.scrollView);
         et_timeBeforeSleep = findViewById(R.id.etTimeBeforeSleep);
         et_ForwardSeconds = findViewById(R.id.etForwardSeconds);
         chk_create_cover = findViewById(R.id.chk_create_cover);

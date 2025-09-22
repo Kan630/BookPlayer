@@ -23,6 +23,7 @@ import androidx.appcompat.app.AlertDialog;
 import com.driot.bookplayer.BuildConfig;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.helpers.FileHelper;
+import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.objects.WorkFlow;
@@ -38,6 +39,7 @@ public class StatsActivity extends LoggingActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_stats);
+        InsetHelper.apply(this);
 
         String strPowerManagement = getStringPowerManagement();
         myLogI("Power Management :" + strPowerManagement);

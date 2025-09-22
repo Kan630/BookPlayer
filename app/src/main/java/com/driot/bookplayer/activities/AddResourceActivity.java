@@ -14,6 +14,7 @@ import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.objects.AppViewModelStoreOwner;
 import com.driot.bookplayer.objects.TaskStateRepository;
 import com.driot.bookplayer.objects.WorkFlow;
@@ -42,6 +43,7 @@ public class AddResourceActivity extends LoggingActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_resource);
+        InsetHelper.apply(this);
 
         tvTitle = findViewById(R.id.tvTitle);
         progressBarText = findViewById(R.id.progressBarText);

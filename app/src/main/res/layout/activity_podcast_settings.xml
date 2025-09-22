@@ -2,14 +2,15 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/scrollView"
-    android:fitsSystemWindows="true"
     >
 
     <LinearLayout
         android:id="@+id/ll_Podcast"
-        style="@style/LinearLayoutOptionsVertical">
+        style="@style/LinearLayoutOptionsVertical"
+        android:layout_marginTop="0dp"
+        android:padding="8dp"
+        >
         <TextView
             style="@style/OptionTitle"
             android:text="@string/Podcast_specific_view" />

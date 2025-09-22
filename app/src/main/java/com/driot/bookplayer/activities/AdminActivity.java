@@ -6,7 +6,6 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -17,6 +16,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.helpers.InsetHelper;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -39,6 +39,7 @@ public class AdminActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin);
+        InsetHelper.apply(this);
 
         btnContainer = findViewById(R.id.btnContainer);
         listActivities = findViewById(R.id.listActivities);

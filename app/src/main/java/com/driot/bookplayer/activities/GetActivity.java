@@ -2,7 +2,6 @@ package com.driot.bookplayer.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 
@@ -13,12 +12,13 @@ import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.objects.OngoingTaskHost;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
-public class GetResourceActivity extends LoggingActivity {
+public class GetActivity extends LoggingActivity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_get_resource);
+        setContentView(R.layout.activity_get);
+        InsetHelper.apply(this);
 
         OngoingTaskHost.attach(
                 this,

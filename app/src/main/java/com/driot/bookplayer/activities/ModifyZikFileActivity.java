@@ -16,6 +16,7 @@ import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Sql;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import java.io.File;
@@ -31,6 +32,8 @@ public class ModifyZikFileActivity extends LoggingActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_modify_zikfile);
+        InsetHelper.apply(this);
+
         TextView tvTitle = findViewById(R.id.title);
 
         Button bReset = findViewById(R.id.bReset);

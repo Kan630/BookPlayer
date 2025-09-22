@@ -28,6 +28,7 @@ import androidx.work.WorkManager;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.objects.OngoingTaskHost;
 import com.driot.bookplayer.utils.MediaScanner2;
 import com.driot.bookplayer.utils.NetworkUtils;
@@ -102,6 +103,7 @@ public class GetOtherActivity extends LoggingActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_get_other);
+        InsetHelper.apply(this);
 
         bOpenFile = findViewById(R.id.bOpenFile);
         bOpenZipFile = findViewById(R.id.bOpenZipFile);

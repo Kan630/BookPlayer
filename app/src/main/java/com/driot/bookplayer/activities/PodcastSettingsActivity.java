@@ -8,6 +8,7 @@ import android.widget.LinearLayout;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Option;
+import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
 public class PodcastSettingsActivity extends LoggingActivity {
@@ -26,6 +27,7 @@ public class PodcastSettingsActivity extends LoggingActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_podcast_settings);
+        InsetHelper.apply(this);
 
 
 ///  PODCASTS

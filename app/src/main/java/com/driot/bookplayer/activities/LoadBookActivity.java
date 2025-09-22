@@ -33,6 +33,7 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.objects.BookToAdd;
 import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
@@ -70,7 +71,8 @@ public class LoadBookActivity extends LoggingActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_load_options);
+        setContentView(R.layout.activity_load_book);
+        InsetHelper.apply(this);
 
         uri = getIntent().getParcelableExtra(EXTRA_URI);
         gotten_type = Objects.toString(getIntent().getStringExtra(EXTRA_TYPE),"");

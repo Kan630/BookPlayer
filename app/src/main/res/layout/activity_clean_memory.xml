@@ -2,15 +2,15 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
     style="@style/MainContainer"
     >
 
     <LinearLayout
+        android:id="@+id/main_content"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:padding="16dp"
+        android:padding="8dp"
         >
 
         <!-- Storage Selection -->
@@ -20,21 +20,21 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="8dp">
+            >
 
             <RadioButton
                 android:id="@+id/radio_internal"
                 style="@style/simpleText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Internal" />
+                android:text="@string/device" />
 
             <RadioButton
                 android:id="@+id/radio_sdcard"
                 style="@style/simpleText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="SD Card" />
+                android:text="@string/SD_card" />
         </RadioGroup>
 
         <!-- Storage Stats -->
@@ -59,6 +59,7 @@
             android:layout_height="0dp"
             android:layout_weight="1"
             android:layout_marginTop="16dp"
+            android:clipToPadding="false"
             android:divider="?android:attr/listDivider"
             android:dividerHeight="1dp" />
 

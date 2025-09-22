@@ -2,11 +2,12 @@ package com.driot.bookplayer.activities;
 
 import android.os.Bundle;
 import android.text.Html;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.utils.log.LoggingActivity;
-
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 20/12/20
  */
@@ -16,6 +17,8 @@ public class HelpActivity extends LoggingActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_help);
+        ScrollView scrollView = findViewById(R.id.scroll_view);
+        InsetHelper.applyInsetsForScrollableBehindNavBar(this, scrollView);
 
         TextView tv;
 
@@ -54,11 +57,3 @@ public class HelpActivity extends LoggingActivity {
 
     }
 }
-
-
-
-//// -> To test Android 15, overlapping system bars dy default... (Solution adds to xml : android:fitsSystemWindows="true")
-//WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
-
-//Toolbar toolbar = findViewById(R.id.toolbar);
-//toolbar.setTitle(R.string.help);

@@ -17,7 +17,6 @@ import android.content.Intent;
 
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -30,9 +29,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.Observer;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -45,14 +42,12 @@ import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.FolderDao;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
-import com.driot.bookplayer.helpers.FileHelper;
-import com.driot.bookplayer.helpers.StorageHelper;
+import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.objects.OngoingTaskHost;
 import com.driot.bookplayer.objects.PlayList;
 import com.driot.bookplayer.services.AudioService;
 import com.driot.bookplayer.helpers.InfoHelper;
 import com.driot.bookplayer.utils.InAppMsgManager;
-import com.driot.bookplayer.utils.KanLogger;
 import com.driot.bookplayer.utils.KanMail;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 import com.google.android.material.snackbar.Snackbar;
@@ -112,11 +107,10 @@ public class MainActivity extends LoggingActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        InsetHelper.apply(this);
 
         if (savedInstanceState == null && !infoAlreadyShown) {
-            KanLogger.myLog("------------------------------------------------------------------");
-            KanLogger.myLog("----------------     Main Activity onCreate()     ----------------");
-            KanLogger.myLog("------------------------------------------------------------------");
             InfoHelper.printSomeStuffAboutDevice(this);
             infoAlreadyShown = true;
         }
@@ -137,7 +131,6 @@ public class MainActivity extends LoggingActivity {
         //DEBUG SHIT - LIST ALL DB FOLDERS
         //Sql.log_all_Folders(this);
 
-        setContentView(R.layout.activity_main);
 
         OngoingTaskHost.attach(
                 this,
@@ -159,7 +152,7 @@ public class MainActivity extends LoggingActivity {
 
         getFolders();
 
-        //InAppMsgManager.deleteInAppMsgCache(this);
+        InAppMsgManager.deleteInAppMsgCache(this);
         MyApp.getPeriodicTaskManager(this).start(); // safe
         InAppMsgManager.maybeShowBestMessage(this, "message");
         //startActivity(new Intent(this, TtsReadTxtActivity.class));
@@ -220,9 +213,9 @@ public class MainActivity extends LoggingActivity {
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(Var.WEBSITE_URL));
             startActivity(browserIntent);
         } else if (itemId == R.id.menu_open) {
-            startActivity(new Intent(getApplicationContext(), GetResourceActivity.class));
+            startActivity(new Intent(getApplicationContext(), GetActivity.class));
         } else if (itemId == R.id.action_menu_addBook) {
-            startActivity(new Intent(getApplicationContext(), GetResourceActivity.class));
+            startActivity(new Intent(getApplicationContext(), GetActivity.class));
      // } else if (itemId == R.id.menu_synchro) {
        //     startActivity(new Intent(this, SynchroActivity.class));
         } else {
@@ -280,7 +273,7 @@ public class MainActivity extends LoggingActivity {
 
 
     public void openGetResourceActivity() {
-        Intent intent = new Intent(getApplicationContext(), GetResourceActivity.class);
+        Intent intent = new Intent(getApplicationContext(), GetActivity.class);
         startActivity(intent);
     }
 

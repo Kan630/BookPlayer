@@ -42,9 +42,9 @@ public class PodcastSearchResultsActivity extends LoggingActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_podcast_search_result);
 
-        InsetHelper.applyEdgeToEdge(this, null, null, null);
-
         recyclerView = findViewById(R.id.recyclerViewPodcast);
+        InsetHelper.applyInsetsForScrollableBehindNavBar(this, recyclerView);
+
         progressBar = findViewById(R.id.progressBarPodcast);
         errorMessage = findViewById(R.id.podcast_error_message);
 

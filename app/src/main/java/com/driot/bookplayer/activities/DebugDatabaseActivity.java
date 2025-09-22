@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.DatabaseBackupHelper;
+import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import java.io.File;
@@ -26,6 +27,7 @@ public class DebugDatabaseActivity extends LoggingActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_debug_database);
+        InsetHelper.apply(this);
 
         Button backupBtn = findViewById(R.id.btnBackupDb);
         Button restoreBtn = findViewById(R.id.btnRestoreDb);

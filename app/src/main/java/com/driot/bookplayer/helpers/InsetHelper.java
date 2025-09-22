@@ -2,133 +2,397 @@ package com.driot.bookplayer.helpers;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.Color;
-import android.os.Build;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.Window;
+import android.view.WindowManager;
 
-import androidx.annotation.Nullable;
+import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
 
-import com.driot.bookplayer.R;
+import com.driot.bookplayer.utils.KanLogger;
 
-/** One-liner edge-to-edge paddings for top & bottom. */
+/**
+ * Edge-to-edge + insets helper (API 26+).
+ * - Global logging toggle
+ * - Display cutout (camera hole) protection (esp. landscape)
+ */
 public final class InsetHelper {
+
     private InsetHelper() {}
 
+    // ===== Logging (global switch) =====
+    private static volatile boolean LOG_ENABLED = true; // default ON; call setLoggingEnabled(false) to mute
+    public static void setLoggingEnabled(boolean enabled) { LOG_ENABLED = enabled; }
+
+    private static final String TAG = "InsetHelper";
+    private static void myLog(String s){ if (LOG_ENABLED) KanLogger.myLog(TAG, s); }
+    private static void myLogD(String s){ if (LOG_ENABLED) KanLogger.myLogD(TAG, s); }
+    private static void myLogI(String s){ if (LOG_ENABLED) KanLogger.myLogI(TAG, s); }
+    private static void myLogW(String s){ if (LOG_ENABLED) KanLogger.myLogW(TAG, s); }
+    private static void myLogE(String s){ if (LOG_ENABLED) KanLogger.myLogE(TAG, s); }
+    private static void myLogEE(Throwable t, String s){ if (LOG_ENABLED) KanLogger.myToastEE(t, TAG, s); }
+
+    // ===== Configs (immutable) =====
+    private static final class WindowConfig {
+        final boolean edgeToEdge;
+        final int statusBarColor;        // -1 => theme
+        final int navigationBarColor;
+        final boolean softInputAdjustResize;
+        final Boolean lightStatusBarIcons; // null => auto
+        final Boolean lightNavBarIcons;    // null => auto
+        final boolean allowShortEdgeCutout; // true => layout may extend into cutout on short edges
+
+        private WindowConfig(Builder b) {
+            this.edgeToEdge = b.edgeToEdge;
+            this.statusBarColor = b.statusBarColor;
+            this.navigationBarColor = b.navigationBarColor;
+            this.softInputAdjustResize = b.softInputAdjustResize;
+            this.lightStatusBarIcons = b.lightStatusBarIcons;
+            this.lightNavBarIcons = b.lightNavBarIcons;
+            this.allowShortEdgeCutout = b.allowShortEdgeCutout;
+        }
+
+        static final class Builder {
+            boolean edgeToEdge = true;
+            int statusBarColor = Color.TRANSPARENT;
+            int navigationBarColor = Color.TRANSPARENT;
+            boolean softInputAdjustResize = false;
+            Boolean lightStatusBarIcons = null;
+            Boolean lightNavBarIcons = null;
+            boolean allowShortEdgeCutout = false; // default: avoid cutout overlap via padding
+
+            Builder edgeToEdge(boolean v){ this.edgeToEdge = v; return this; }
+            Builder statusBarColor(int v){ this.statusBarColor = v; return this; }
+            Builder useThemeStatusBarColor(){ this.statusBarColor = -1; return this; }
+            Builder navigationBarColor(int v){ this.navigationBarColor = v; return this; }
+            Builder softInputAdjustResize(boolean v){ this.softInputAdjustResize = v; return this; }
+            Builder lightStatusBarIcons(Boolean v){ this.lightStatusBarIcons = v; return this; }
+            Builder lightNavBarIcons(Boolean v){ this.lightNavBarIcons = v; return this; }
+            Builder allowShortEdgeCutout(boolean v){ this.allowShortEdgeCutout = v; return this; }
+            WindowConfig build(){ return new WindowConfig(this); }
+        }
+    }
+
+    private static final class PaddingConfig {
+        final boolean top;
+        final boolean bottom;
+        final boolean left;
+        final boolean right;
+        final boolean handleIME;
+        final boolean addToPadding;
+        final boolean handleCutout; // NEW: also pad for display cutout
+
+        private PaddingConfig(Builder b) {
+            this.top = b.top;
+            this.bottom = b.bottom;
+            this.left = b.left;
+            this.right = b.right;
+            this.handleIME = b.handleIME;
+            this.addToPadding = b.addToPadding;
+            this.handleCutout = b.handleCutout;
+        }
+
+        static final class Builder {
+            boolean top = true;
+            boolean bottom = true;
+            boolean left = false;
+            boolean right = false;
+            boolean handleIME = false;
+            boolean addToPadding = false;
+            boolean handleCutout = true; // default ON to protect against camera hole
+
+            Builder top(boolean v){ this.top = v; return this; }
+            Builder bottom(boolean v){ this.bottom = v; return this; }
+            Builder sides(boolean v){ this.left = v; this.right = v; return this; }
+            Builder handleIME(boolean v){ this.handleIME = v; return this; }
+            Builder addToPadding(boolean v){ this.addToPadding = v; return this; }
+            Builder handleCutout(boolean v){ this.handleCutout = v; return this; }
+
+            Builder onlyTop(){ this.top = true; this.bottom = false; this.left = false; this.right = false; return this; }
+            Builder topAndBottom(){ this.top = true; this.bottom = true; this.left = false; this.right = false; return this; }
+
+            PaddingConfig build(){ return new PaddingConfig(this); }
+        }
+    }
+
+    // ===== Public API =====
+
+    /** Classic fitSystemWindows behavior with IME support. */
+    public static void apply(@NonNull Activity activity) {
+        View root = activity.findViewById(android.R.id.content);
+        myLog("applyFitSystemWindows() on root");
+        applyInsets(activity, root,
+                new WindowConfig.Builder()
+                        .softInputAdjustResize(true)
+                        .allowShortEdgeCutout(true)
+                        .build(),
+                new PaddingConfig.Builder()
+                        .topAndBottom()
+                        .handleIME(true)
+                        .handleCutout(true)
+                        .sides(true)
+                        .build(),
+                /*consume*/ true);
+    }
+
+    /** Scrollable view draws behind nav bar with proper bottom padding. */
+    public static void applyInsetsForScrollableBehindNavBar(@NonNull Activity activity, @NonNull View scrollableView) {
+        myLog("applyInsetsForScrollableBehindNavBar()");
+        applyInsets(activity, scrollableView,
+                new WindowConfig.Builder().build(),
+                new PaddingConfig.Builder()
+                        .topAndBottom()
+                        .build(),
+                /*consume*/ true);
+    }
+
     /**
-     * Enables edge-to-edge and applies insets:
-     * - Adds status bar height to topContainer's top padding
-     * - Adds max(nav bar, IME) height to bottomContainer's bottom padding
-     * - Optionally pads contentContainer horizontally for gesture insets
-     *
-     * Pass null for any container you don't want adjusted.
+     * Title/header is fixed below the status bar (with cutout protection).
+     * Scrollable draws behind the navigation bar but remains fully accessible,
+     * including left/right padding for display cutouts (e.g., camera hole in landscape).
      */
-    public static void applyEdgeToEdge(Activity activity,
-                                       @Nullable View topContainer,
-                                       @Nullable View bottomContainer,
-                                       @Nullable View contentContainerForSides) {
-
+    public static void applyTitleBelowStatusBarAndScrollableBehindNavBar(
+            @NonNull Activity activity,
+            @NonNull View titleContainer,
+            @NonNull View scrollableView
+    ) {
+        myLog("applyTitleBelowStatusBarAndScrollableBehindNavBar()");
         final Window window = activity.getWindow();
-        WindowCompat.setDecorFitsSystemWindows(window, false);
 
-        // Make bars transparent so content can draw behind
-        //not sure if really needed...
+        // Edge-to-edge; allow reporting of cutout insets (we add padding to avoid overlap)
+        WindowCompat.setDecorFitsSystemWindows(window, false);
+        if (android.os.Build.VERSION.SDK_INT >= 28) {
+            window.getAttributes().layoutInDisplayCutoutMode =
+                    WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
+            window.setAttributes(window.getAttributes());
+        }
+
+        // Transparent bars (status stays visible above; we pad content under it)
         window.setStatusBarColor(Color.TRANSPARENT);
         window.setNavigationBarColor(Color.TRANSPARENT);
 
-        final View root = activity.findViewById(android.R.id.content);
-/*
-        // fuck with top system bar...
-        // Optional: light/dark icons depending on your theme (set to true if your background is light)
-        WindowInsetsControllerCompat controller = WindowCompat.getInsetsController(window, root);
-        // Example: light status bar icons off (use your own condition/theme here)
-        controller.setAppearanceLightStatusBars(false);
-        controller.setAppearanceLightNavigationBars(false);
+        // Decide icon light/dark based on theme surface
+        WindowConfig wc = new WindowConfig.Builder()
+                .edgeToEdge(true)
+                .statusBarColor(Color.TRANSPARENT)
+                .navigationBarColor(Color.TRANSPARENT)
+                .build();
+        configureBars(activity, window, wc, Color.TRANSPARENT);
 
- */
-        /*
-        View decor = window.getDecorView();
-        WindowInsetsControllerCompat c = ViewCompat.getWindowInsetsController(decor);
-        boolean isLight = isLightSurface(activity);
-        if (c != null) {
-            c.setAppearanceLightStatusBars(isLight);
-            c.setAppearanceLightNavigationBars(isLight);
-        }
-
-         */
-
-        // Capture initial paddings so we don’t stack them on every inset dispatch
-        final int topInitPadTop = topContainer != null ? topContainer.getPaddingTop() : 0;
-        final int topInitPadLeft = topContainer != null ? topContainer.getPaddingLeft() : 0;
-        final int topInitPadRight = topContainer != null ? topContainer.getPaddingRight() : 0;
-        final int topInitPadBottom = topContainer != null ? topContainer.getPaddingBottom() : 0;
-
-        final int bottomInitPadTop = bottomContainer != null ? bottomContainer.getPaddingTop() : 0;
-        final int bottomInitPadLeft = bottomContainer != null ? bottomContainer.getPaddingLeft() : 0;
-        final int bottomInitPadRight = bottomContainer != null ? bottomContainer.getPaddingRight() : 0;
-        final int bottomInitPadBottom = bottomContainer != null ? bottomContainer.getPaddingBottom() : 0;
-
-        final int contentInitPadLeft = contentContainerForSides != null ? contentContainerForSides.getPaddingLeft() : 0;
-        final int contentInitPadRight = contentContainerForSides != null ? contentContainerForSides.getPaddingRight() : 0;
-        final int contentInitPadTop = contentContainerForSides != null ? contentContainerForSides.getPaddingTop() : 0;
-        final int contentInitPadBottom = contentContainerForSides != null ? contentContainerForSides.getPaddingBottom() : 0;
-
-        ViewCompat.setOnApplyWindowInsetsListener(root, (v, insets) -> {
+        // Header/title: pad TOP (+ cutout), and also L/R for cutout safety.
+        ViewCompat.setOnApplyWindowInsetsListener(titleContainer, (v, insets) -> {
             Insets sys = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            Insets cut = insets.getInsets(WindowInsetsCompat.Type.displayCutout());
+
+            int leftPad = Math.max(v.getPaddingLeft(),  Math.max(sys.left,  cut.left));
+            int topPad  = Math.max(v.getPaddingTop(),   Math.max(sys.top,   cut.top));
+            int rightPad= Math.max(v.getPaddingRight(), Math.max(sys.right, cut.right));
+
+            v.setPadding(leftPad, topPad, rightPad, v.getPaddingBottom());
+            myLogD("titleContainer padding L/T/R=" + leftPad + "/" + topPad + "/" + rightPad + " (sys=" + insetsToString(sys) + ", cut=" + insetsToString(cut) + ")");
+            return insets; // don't consume; let scrollable also receive
+        });
+
+        // Scrollable content: pad BOTTOM for nav bar (and IME if present), plus L/R for cutout.
+        ViewCompat.setOnApplyWindowInsetsListener(scrollableView, (v, insets) -> {
+            Insets sys = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            Insets cut = insets.getInsets(WindowInsetsCompat.Type.displayCutout());
             Insets ime = insets.getInsets(WindowInsetsCompat.Type.ime());
 
-            // Top container → pad for status bar height
-            if (topContainer != null) {
-                topContainer.setPadding(
-                        topInitPadLeft + sys.left,
-                        topInitPadTop + sys.top,
-                        topInitPadRight + sys.right,
-                        topInitPadBottom
-                );
-            }
+            int leftPad   = Math.max(v.getPaddingLeft(),  Math.max(sys.left,  cut.left));
+            int rightPad  = Math.max(v.getPaddingRight(), Math.max(sys.right, cut.right));
+            int bottomPad = Math.max(sys.bottom, Math.max(cut.bottom, ime.bottom)); // keep usable with keyboard
 
-            // Bottom container → pad for whichever is taller: nav bar or IME
-            int bottomInset = Math.max(sys.bottom, ime.bottom);
-            if (bottomContainer != null) {
-                bottomContainer.setPadding(
-                        bottomInitPadLeft + sys.left,
-                        bottomInitPadTop,
-                        bottomInitPadRight + sys.right,
-                        bottomInitPadBottom + bottomInset
-                );
-            }
-
-            // Optional: pad content sides for gesture nav (and keep its original top/bottom)
-            if (contentContainerForSides != null) {
-                contentContainerForSides.setPadding(
-                        contentInitPadLeft + sys.left,
-                        contentInitPadTop,
-                        contentInitPadRight + sys.right,
-                        contentInitPadBottom
-                );
-            }
-
-            // Return the same insets so children may also consume them if needed
-            return insets;
+            v.setPadding(leftPad, v.getPaddingTop(), rightPad, bottomPad);
+            myLogD("scrollableView padding L/R/B=" + leftPad + "/" + rightPad + "/" + bottomPad
+                    + " (sys=" + insetsToString(sys) + ", cut=" + insetsToString(cut) + ", ime=" + insetsToString(ime) + ")");
+            return WindowInsetsCompat.CONSUMED; // we've handled what we need
         });
+
+        requestApplyInsetsSafely(titleContainer);
+        requestApplyInsetsSafely(scrollableView);
     }
 
-    private static boolean isLightSurface(Context ctx) {
-        TypedValue tv = new TypedValue();
-        int color = Color.WHITE;
-        if (ctx.getTheme().resolveAttribute(
-                com.google.android.material.R.attr.colorSurface, tv, true)) {
-            color = tv.data;
+
+    // ===== Core =====
+
+    private static void applyInsets(@NonNull Activity activity,
+                                    @NonNull View targetView,
+                                    @NonNull WindowConfig windowCfg,
+                                    @NonNull PaddingConfig padCfg,
+                                    boolean consume) {
+        final Window window = activity.getWindow();
+
+        // Window setup
+        WindowCompat.setDecorFitsSystemWindows(window, !windowCfg.edgeToEdge);
+
+        if (android.os.Build.VERSION.SDK_INT >= 28) {
+            window.getAttributes().layoutInDisplayCutoutMode = windowCfg.allowShortEdgeCutout
+                    ? WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+                    : WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_NEVER;
+            window.setAttributes(window.getAttributes());
         }
-        double r = Color.red(color)/255.0, g = Color.green(color)/255.0, b = Color.blue(color)/255.0;
-        double Y = 0.2126*r + 0.7152*g + 0.0722*b;
-        return Y > 0.5;
+
+        final int actualStatus = windowCfg.statusBarColor == -1
+                ? resolveAttr(activity, android.R.attr.statusBarColor, Color.BLACK)
+                : windowCfg.statusBarColor;
+        window.setStatusBarColor(actualStatus);
+        window.setNavigationBarColor(windowCfg.navigationBarColor);
+
+        if (windowCfg.softInputAdjustResize) {
+            window.setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+        }
+
+        myLogD("applyInsets(): edgeToEdge=" + windowCfg.edgeToEdge
+                + ", statusBarColor=" + colorHex(actualStatus)
+                + " (requested=" + colorHex(windowCfg.statusBarColor) + ")"
+                + ", navBarColor=" + colorHex(windowCfg.navigationBarColor)
+                + ", adjustResize=" + windowCfg.softInputAdjustResize
+                + ", allowShortEdgeCutout=" + windowCfg.allowShortEdgeCutout
+                + ", orientation=" + orientationString(activity));
+
+        configureBars(activity, window, windowCfg, actualStatus);
+
+        ViewCompat.setOnApplyWindowInsetsListener(targetView, (v, insets) -> {
+            final Insets sys = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            final Insets cut = padCfg.handleCutout ? insets.getInsets(WindowInsetsCompat.Type.displayCutout()) : Insets.NONE;
+            final Insets ime = padCfg.handleIME ? insets.getInsets(WindowInsetsCompat.Type.ime()) : Insets.NONE;
+
+            int left = padCfg.left ? Math.max(sys.left, cut.left) : 0;
+            int top = padCfg.top ? Math.max(sys.top, cut.top) : 0;
+            int right = padCfg.right ? Math.max(sys.right, cut.right) : 0;
+            int bottom = padCfg.bottom ? Math.max(sys.bottom, cut.bottom) : 0;
+
+            if (padCfg.handleIME) bottom = Math.max(bottom, ime.bottom);
+
+            if (padCfg.addToPadding) {
+                v.setPadding(v.getPaddingLeft() + left,
+                        v.getPaddingTop() + top,
+                        v.getPaddingRight() + right,
+                        v.getPaddingBottom() + bottom);
+            } else {
+                v.setPadding(left, top, right, bottom);
+            }
+
+            myLogD("onApplyWindowInsets -> sys=" + insetsToString(sys)
+                    + (padCfg.handleCutout ? (", cut=" + insetsToString(cut)) : "")
+                    + (padCfg.handleIME ? (", ime=" + insetsToString(ime)) : "")
+                    + ", applied(L/T/R/B)=" + left + "/" + top + "/" + right + "/" + bottom
+                    + ", addToPadding=" + padCfg.addToPadding
+                    + ", consume=" + consume);
+
+            return consume ? WindowInsetsCompat.CONSUMED : insets;
+        });
+
+        requestApplyInsetsSafely(targetView);
     }
 
+    private static void configureBars(@NonNull Activity activity,
+                                      @NonNull Window window,
+                                      @NonNull WindowConfig cfg,
+                                      @ColorInt int actualStatusColor) {
+        WindowInsetsControllerCompat c = ViewCompat.getWindowInsetsController(window.getDecorView());
+        if (c == null) {
+            myLogW("No WindowInsetsControllerCompat available.");
+            return;
+        }
+
+        final boolean statusLight;
+        if (cfg.lightStatusBarIcons != null) {
+            statusLight = cfg.lightStatusBarIcons;
+        } else if (cfg.statusBarColor == Color.TRANSPARENT) {
+            statusLight = isLightSurface(activity);
+        } else {
+            statusLight = isColorLight(actualStatusColor);
+        }
+
+        final boolean navLight = (cfg.lightNavBarIcons != null)
+                ? cfg.lightNavBarIcons
+                : isLightSurface(activity);
+
+        c.setAppearanceLightStatusBars(statusLight);
+        c.setAppearanceLightNavigationBars(navLight);
+
+        myLogD("configureBars(): lightStatus=" + statusLight
+                + ", lightNav=" + navLight
+                + ", statusBarColor(actual)=" + colorHex(actualStatusColor));
+    }
+
+    // ===== Helpers =====
+
+    private static boolean isColorLight(@ColorInt int color) {
+        double L = (0.299 * Color.red(color) +
+                0.587 * Color.green(color) +
+                0.114 * Color.blue(color)) / 255d;
+        return L > 0.5;
+    }
+
+    private static boolean isLightSurface(@NonNull Context ctx) {
+        TypedValue tv = new TypedValue();
+        int bg;
+
+        if (ctx.getTheme().resolveAttribute(com.google.android.material.R.attr.colorSurface, tv, true)) {
+            bg = tv.data;
+        } else if (ctx.getTheme().resolveAttribute(android.R.attr.windowBackground, tv, true)) {
+            bg = tv.data;
+        } else if (ctx.getTheme().resolveAttribute(android.R.attr.colorBackground, tv, true)) {
+            bg = tv.data;
+        } else {
+            myLogW("isLightSurface(): no background attr found; assuming dark.");
+            return false;
+        }
+
+        boolean explicitLight = false;
+        if (ctx.getTheme().resolveAttribute(android.R.attr.windowLightStatusBar, tv, true)) {
+            explicitLight = tv.data != 0;
+        }
+
+        boolean result = explicitLight || isColorLight(bg);
+        myLogD("isLightSurface(): bg=" + colorHex(bg)
+                + ", explicitLight=" + explicitLight
+                + ", computedLight=" + isColorLight(bg)
+                + " -> " + result);
+        return result;
+    }
+
+    private static int resolveAttr(@NonNull Context ctx, int attrRes, int defVal) {
+        TypedValue tv = new TypedValue();
+        if (ctx.getTheme().resolveAttribute(attrRes, tv, true)) {
+            return tv.data;
+        }
+        myLogW("resolveAttr(): attrRes=" + attrRes + " not found, using default=" + colorHex(defVal));
+        return defVal;
+    }
+
+    private static void requestApplyInsetsSafely(@NonNull View v) {
+        try {
+            ViewCompat.requestApplyInsets(v);
+            myLogD("requestApplyInsets() posted for view=" + v.getClass().getSimpleName());
+        } catch (Throwable t) {
+            myLogEE(t, "requestApplyInsets() failed");
+        }
+    }
+
+    private static String insetsToString(@NonNull Insets i) {
+        return "L" + i.left + " T" + i.top + " R" + i.right + " B" + i.bottom;
+    }
+
+    private static String colorHex(int c) {
+        if (c == -1) return "THEME";
+        return String.format("#%08X", (c));
+    }
+
+    private static String orientationString(@NonNull Context ctx) {
+        int o = ctx.getResources().getConfiguration().orientation;
+        return (o == Configuration.ORIENTATION_LANDSCAPE) ? "landscape"
+                : (o == Configuration.ORIENTATION_PORTRAIT) ? "portrait" : "undefined";
+    }
 }

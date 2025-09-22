@@ -149,64 +149,88 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
         toolbar.setAlpha(0f);
         toolbar.setVisibility(View.INVISIBLE);
 
-        // 1) Opt into edge-to-edge
+// 1) Opt into edge-to-edge
         WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
-
-        // 2) Grab views
+// 2) Grab views
         View root = findViewById(android.R.id.content);
-
-        // 3) Apply insets: add bottom padding equal to system bars / IME
+// 3) Apply insets: handle navigation bars, cutouts, and IME separately
         ViewCompat.setOnApplyWindowInsetsListener(root, (v, insets) -> {
-            final int typesBars = WindowInsetsCompat.Type.systemBars();
-            final int typesBarsIme = typesBars | WindowInsetsCompat.Type.ime();
-            Insets sysBars = insets.getInsets(typesBars);
-            Insets sysBarsIme = insets.getInsets(typesBarsIme);
+            // Separate different types of insets for better control
+            Insets statusBars = insets.getInsets(WindowInsetsCompat.Type.statusBars());
+            Insets navBars = insets.getInsets(WindowInsetsCompat.Type.navigationBars());
+            Insets cutouts = insets.getInsets(WindowInsetsCompat.Type.displayCutout());
+            Insets ime = insets.getInsets(WindowInsetsCompat.Type.ime());
 
-            // ----- TOP: keep collapsing header below status bar -----
+            // Combine what we need for different areas
+            Insets systemBarsForBottom = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            Insets systemBarsImeForBottom = insets.getInsets(WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.ime());
+
+            // ----- TOP: keep collapsing header below status bar + cutouts -----
             if (appBar != null) {
-                // add status bar height as TOP padding to the whole AppBar
-                int wantedTop = sysBars.top;
-                if (appBar.getPaddingTop() != wantedTop) {
-                    appBar.setPadding(appBar.getPaddingLeft(),
+                // Status bar height + any top cutout
+                int wantedTop = Math.max(statusBars.top, cutouts.top);
+                // AppBar only needs top cutout handling, sides handled by root
+                int wantedLeft = 0; // Let root handle horizontal spacing
+                int wantedRight = 0; // Let root handle horizontal spacing
+
+                if (appBar.getPaddingTop() != wantedTop ||
+                        appBar.getPaddingLeft() != wantedLeft ||
+                        appBar.getPaddingRight() != wantedRight) {
+                    appBar.setPadding(wantedLeft,
                             wantedTop,
-                            appBar.getPaddingRight(),
+                            wantedRight,
                             appBar.getPaddingBottom());
                 }
             }
 
+            // ----- SIDES: handle navigation bars + cutouts for main content -----
+            // For landscape navigation bars + cutouts (but don't double-count)
+            int wantedLeftPadding = Math.max(navBars.left, cutouts.left);
+            int wantedRightPadding = Math.max(navBars.right, cutouts.right);
+
+            if (root.getPaddingLeft() != wantedLeftPadding ||
+                    root.getPaddingRight() != wantedRightPadding) {
+                root.setPadding(wantedLeftPadding,
+                        root.getPaddingTop(),
+                        wantedRightPadding,
+                        root.getPaddingBottom());
+            }
+
             // ----- BOTTOM: your existing mini-player + RV logic -----
             int miniHeightPx = (int) (64 * getResources().getDisplayMetrics().density + 0.5f);
-
             if (miniPlayer != null) {
-                // NO bottom padding on mini (keeps full 64dp content)
-                miniPlayer.setPadding(miniPlayer.getPaddingLeft(),
+                // Mini player doesn't need extra horizontal padding - root handles it
+                miniPlayer.setPadding(0,
                         miniPlayer.getPaddingTop(),
-                        miniPlayer.getPaddingRight(),
+                        0,
                         0);
                 ViewGroup.LayoutParams lp = miniPlayer.getLayoutParams();
                 if (lp instanceof ViewGroup.MarginLayoutParams mlp) {
-                    int wantedMargin = sysBarsIme.bottom; // handles gesture pill & IME
+                    // Bottom margin handles nav bar + IME
+                    int wantedMargin = systemBarsImeForBottom.bottom;
                     if (mlp.bottomMargin != wantedMargin) {
                         mlp.bottomMargin = wantedMargin;
                         miniPlayer.setLayoutParams(mlp);
                     }
                 }
             }
-
             if (recyclerEpisodes != null) {
-                int wantedRvBottom = miniHeightPx + sysBarsIme.bottom;
-                if (recyclerEpisodes.getPaddingBottom() != wantedRvBottom) {
-                    recyclerEpisodes.setPadding(recyclerEpisodes.getPaddingLeft(),
+                int wantedRvBottom = miniHeightPx + systemBarsImeForBottom.bottom;
+                // RecyclerView doesn't need extra horizontal padding - root handles it
+                int wantedRvLeft = 0;
+                int wantedRvRight = 0;
+
+                if (recyclerEpisodes.getPaddingBottom() != wantedRvBottom ||
+                        recyclerEpisodes.getPaddingLeft() != wantedRvLeft ||
+                        recyclerEpisodes.getPaddingRight() != wantedRvRight) {
+                    recyclerEpisodes.setPadding(wantedRvLeft,
                             recyclerEpisodes.getPaddingTop(),
-                            recyclerEpisodes.getPaddingRight(),
+                            wantedRvRight,
                             wantedRvBottom);
                 }
             }
-
             return insets; // don't consume
         });
-
-
 
         podcastDao = AppDatabase.getDatabase(this).PodcastDao();
 

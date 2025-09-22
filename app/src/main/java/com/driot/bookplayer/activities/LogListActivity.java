@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.helpers.FileHelper;
+import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.objects.MyFile;
 import com.driot.bookplayer.adapter.MyFileRVAdapter;
 import com.driot.bookplayer.utils.log.LoggingActivity;
@@ -35,6 +36,7 @@ public class LogListActivity extends LoggingActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_log_list);
+        InsetHelper.apply(this);
 
         recyclerView = findViewById(R.id.rec);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);

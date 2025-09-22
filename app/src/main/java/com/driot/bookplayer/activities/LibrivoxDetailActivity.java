@@ -21,10 +21,12 @@ import com.bumptech.glide.signature.ObjectKey;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.objects.ItemMetadata;
 import com.driot.bookplayer.objects.LibrivoxApi;
 import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.helpers.ImageHelper;
+import com.driot.bookplayer.objects.OngoingTaskHost;
 import com.driot.bookplayer.services.BookLoadingWorkLauncher;
 import com.driot.bookplayer.objects.WorkFlow;
 import com.driot.bookplayer.utils.log.LoggingActivity;
@@ -64,6 +66,12 @@ public class LibrivoxDetailActivity extends LoggingActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_librivox_detail);
+        InsetHelper.apply(this);
+
+        OngoingTaskHost.attach(
+                this,
+                R.id.topOverlayContainer,
+                new Intent(this, AddResourceActivity.class)); // tap => open details
 
         titleView = findViewById(R.id.textDetailTitle);
         idView = findViewById(R.id.textDetailIdentifier);

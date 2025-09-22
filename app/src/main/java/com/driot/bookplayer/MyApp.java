@@ -54,6 +54,10 @@ public class MyApp extends Application {
         TaskStateManager.init(getApplicationContext());
         FirebaseAnalyticsHelper.init(getApplicationContext());
 
+        myLog("oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo");
+        myLog("ooooooooooooooooooo      BOOKPLAYER      ooooooooooooooooooooo");
+        myLog("oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo");
+
         TaskStateRepository.get().hydrateFromPrefs();
 
         Option.applyNightMode();

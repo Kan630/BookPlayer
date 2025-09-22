@@ -39,11 +39,7 @@ public class SupportedExtensionsActivity extends LoggingActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_supported_extensions);
-
-        View topContainer = findViewById(R.id.topContainer);
-        View bottomBar = findViewById(R.id.bottomBar);
-        View contentContainer = findViewById(R.id.contentContainer);
-        InsetHelper.applyEdgeToEdge(this, topContainer, bottomBar, contentContainer);
+        InsetHelper.apply(this);
 
         TextView tvMessage = findViewById(R.id.tvMessage);
         Button btnOk = findViewById(R.id.btnOk);

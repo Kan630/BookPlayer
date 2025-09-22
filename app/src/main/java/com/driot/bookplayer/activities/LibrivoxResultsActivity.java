@@ -5,6 +5,7 @@ import static com.driot.bookplayer.global.Var.LIBRIVOX_API_MAX_RESULTS;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -19,6 +20,7 @@ import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.objects.LibrivoxApiResponse;
 import com.driot.bookplayer.objects.LibrivoxApi;
 import com.driot.bookplayer.objects.LibrivoxItem;
+import com.driot.bookplayer.objects.OngoingTaskHost;
 import com.driot.bookplayer.utils.NetworkUtils;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
@@ -53,7 +55,15 @@ public class LibrivoxResultsActivity extends LoggingActivity {
         View topContainer = findViewById(R.id.headerLayout);
         //View bottomBar = findViewById(R.id.recyclerView);
         //View contentContainer = findViewById(R.id.recyclerView);
-        InsetHelper.applyEdgeToEdge(this, topContainer, null, null);
+        //InsetHelper.applyEdgeToEdge(this, topContainer, null, null);
+        //InsetHelper.applyInsetsForContentWithScrollableBottom(this, findViewById(R.id.headerLayout), findViewById(R.id.recyclerView));
+        InsetHelper.apply(this);
+
+        OngoingTaskHost.attach(
+                this,
+                R.id.topOverlayContainer,
+                new Intent(this, AddResourceActivity.class)); // tap => open details
+
 
         recyclerView = findViewById(R.id.recyclerView);
         progressBar = findViewById(R.id.progressBar);

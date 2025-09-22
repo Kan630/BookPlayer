@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.objects.MyTextChunk;
 import com.driot.bookplayer.adapter.MyTextChunkRVAdapter;
 import com.driot.bookplayer.utils.TextOptions;
@@ -46,6 +47,7 @@ public class LogTextActivity extends LoggingActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_log_text);
+        InsetHelper.apply(this);
 
         recyclerView = findViewById(R.id.recyclerView_biggerText);
 

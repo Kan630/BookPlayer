@@ -40,6 +40,7 @@ public class PodcastFavoritesActivity extends LoggingActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_podcast_search_result);
+        InsetHelper.applyInsetsForScrollableBehindNavBar(this, recyclerView);
 
         /*
         WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
@@ -55,7 +56,7 @@ public class PodcastFavoritesActivity extends LoggingActivity {
         progressBar = findViewById(R.id.progressBarPodcast);
         emptyMessage = findViewById(R.id.podcast_error_message);
 
-        InsetHelper.applyEdgeToEdge(this, recyclerView, null, recyclerView);
+        //InsetHelper.applyEdgeToEdge(this, recyclerView, null, recyclerView);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         viewModel = new ViewModelProvider(this).get(PodcastSearchResultsViewModel.class);
