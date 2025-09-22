@@ -271,6 +271,7 @@ public final class TtsEngine implements PlayerEngine, AppTtsManager.Listener {
         ttsHandle = null;
         if (tts != null) tts.stop();
         tts = null;
+        lastCharSpoken = 0; resumeOffsetChars = 0; estPositionMs = 0;
     }
 
     // --------------------- Internals ---------------------

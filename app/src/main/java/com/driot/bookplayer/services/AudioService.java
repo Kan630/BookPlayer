@@ -159,7 +159,7 @@ public class AudioService extends LoggingService {
     private final Runnable onPrepared = this::onEnginePrepared;
 
     public boolean directPlay;
-
+    private boolean justAdvancedToNext = false; //for TTS starting anywhere
 
     private final MediaSessionCompat.Callback callback = new MediaSessionCompat.Callback() {
 
@@ -399,12 +399,15 @@ public class AudioService extends LoggingService {
         showForegroundNotification(true);
     }
 
-    void nextTrack() {
+    private void nextTrack() {
         myLog("Next track");
+        justAdvancedToNext = true;
         PlayList.getInstance().nextTrack();
         if (engine != null) {
             try {
-                if (engine instanceof TtsEngine) ((TtsEngine) engine).release();
+                if (engine instanceof TtsEngine) {
+                    ((TtsEngine) engine).release();
+                }
                 engine.stop();
                 engine.reset();
             } catch (Exception ignored) {}
@@ -926,7 +929,11 @@ public class AudioService extends LoggingService {
 
         try {
             int saved = getSavedResumePosition();
-            if (engine != null && saved > 0) {
+            myLogE(getCurrentZikFile().getName());
+            boolean startAtZero = Option.getStartAtZeroNextTrack() && justAdvancedToNext;
+            justAdvancedToNext = false;
+
+            if (!startAtZero && engine != null && saved > 0) {
                 engine.seekTo(saved);
                 myLogD("Seeked to saved position: " + saved + " ms");
             }
