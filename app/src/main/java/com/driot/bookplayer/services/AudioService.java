@@ -38,6 +38,7 @@ import com.driot.bookplayer.helpers.TextExtractor;
 import com.driot.bookplayer.helpers.UriHelper;
 import com.driot.bookplayer.objects.KanMediaPlayer;
 import com.driot.bookplayer.objects.VoiceItem;
+import com.driot.bookplayer.player.PlayerEngine;
 import com.driot.bookplayer.utils.AppTtsManager;
 import com.driot.bookplayer.utils.log.LoggingService;
 import com.driot.bookplayer.activities.PlayActivity;
@@ -137,35 +138,6 @@ public class AudioService extends LoggingService {
 
         Intent i = new Intent(READY_TO_PLAY);
         LocalBroadcastManager.getInstance(this).sendBroadcast(i);
-    }
-
-
-    private interface PlayerEngine {
-        void setDataSource(@NonNull Context ctx, @NonNull Uri uri, @NonNull String displayName) throws Exception;
-
-        void prepareAsync();
-
-        void start();
-
-        void pause();
-
-        void stop();
-
-        void reset();
-
-        boolean isPlaying();
-
-        boolean isReady();
-
-        int getCurrentPosition();
-
-        int getDuration();
-
-        int getAudioSessionId();
-
-        void seekTo(int positionMs);
-
-        void setSpeed(float speed);
     }
 
     private PlayerEngine engine;
