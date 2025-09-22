@@ -46,8 +46,13 @@ public class Option {
     public static final boolean DEFAULT_PODCAST_AUTO_DOWNLOADED_AT_THE_TOP = false;
     public static final boolean DEFAULT_PODCAST_EPISODES_SORT_NEWEST_TOP = true;
     public static final boolean DEFAULT_PODCAST_EPISODES_DESCRIPTION_EXPAND = true;
+    public static final boolean DEFAULT_PODCAST_OPEN_SPECIFIC_VIEW = true;
     public static final boolean DEFAULT_CREATE_COVER = true;
     private static final String DEFAULT_LANGUAGE = "system";
+    public static final String DEFAULT_FONT_FAMILY = "sans-serif"; // neutre
+    public static final float  DEFAULT_TEXT_SIZE_SP = 18f;
+    public static final float  MIN_TEXT_SIZE_SP = 12f;
+    public static final float  MAX_TEXT_SIZE_SP = 36f;
 
 
     private static Context appContext;
@@ -198,19 +203,24 @@ public class Option {
     public static void setPodcastEpisodesDescriptionExpand(boolean bool) {prefs.edit().putBoolean("PODCAST_EPISODES_DESCRIPTION_EXPAND",bool).apply();}
     public static boolean getPodcastEpisodesDescriptionExpand() {return prefs.getBoolean("PODCAST_EPISODES_DESCRIPTION_EXPAND", DEFAULT_PODCAST_EPISODES_DESCRIPTION_EXPAND);}
 
+    public static void setPodcastOpenSpecificView(boolean bool) {prefs.edit().putBoolean("PODCAST_OPEN_SPECIFIC_VIEW",bool).apply();}
+    public static boolean getPodcastOpenSpecificView() {return prefs.getBoolean("PODCAST_OPEN_SPECIFIC_VIEW", DEFAULT_PODCAST_OPEN_SPECIFIC_VIEW);}
+
+
+
     public static void setCreateCover(boolean bool) {prefs.edit().putBoolean("CREATE_COVER",bool).apply();}
     public static boolean getCreateCover() {return prefs.getBoolean("CREATE_COVER", DEFAULT_CREATE_COVER);}
+
 
 
     /////////////////// LANGUAGE ///////////////////
     public static void setAppLanguage(String language) {prefs.edit().putString("APP_LANGUAGE",language).apply();}
     public static String getAppLanguage() {return prefs.getString("APP_LANGUAGE", DEFAULT_LANGUAGE);}
 
-    public static void setTtsLanguage(String language) {prefs.edit().putString("TTS_LANGUAGE",language).apply();}
-    public static String getTtsLanguage() {return prefs.getString("TTS_LANGUAGE", DEFAULT_LANGUAGE);}
-
     public static void setTtsVoice(String voice) {prefs.edit().putString("TTS_VOICE",voice).apply();}
     public static String getTtsVoice() {return prefs.getString("TTS_VOICE", DEFAULT_LANGUAGE);}
+
+    /////////////////// NIGHT MODE ///////////////////
 
     public static String getNightMode() {return prefs.getString("KEY_NIGHT_MODE", "SYSTEM");}
     public static void setNightMode(String nightMode) { prefs.edit().putString("KEY_NIGHT_MODE", nightMode).apply();}
@@ -225,33 +235,20 @@ public class Option {
         androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(appCompatMode);
     }
 
-    // ----- TEXT APPEARANCE -----
-    private static final String KEY_FONT_FAMILY = "TEXT_FONT_FAMILY_KEY";  // ex: "sans-serif"
-    private static final String KEY_TEXT_SIZE_SP = "TEXT_SIZE_SP";         // float en sp
-
-    // Défauts
-    public static final String DEFAULT_FONT_FAMILY = "sans-serif"; // neutre
-    public static final float  DEFAULT_TEXT_SIZE_SP = 18f;
-    public static final float  MIN_TEXT_SIZE_SP = 12f;
-    public static final float  MAX_TEXT_SIZE_SP = 36f;
-
-    // Setters/Getters
-    public static void setFontFamilyKey(@NonNull String family) {
-        prefs.edit().putString(KEY_FONT_FAMILY, family).apply();
-    }
-    @NonNull
-    public static String getFontFamilyKey() {
-        String v = prefs.getString(KEY_FONT_FAMILY, DEFAULT_FONT_FAMILY);
+    /////////////////// TEXT APPEARANCE ///////////////////
+    public static void setFontFamilyKey(@NonNull String family) { prefs.edit().putString("TEXT_FONT_FAMILY_KEY", family).apply(); }
+    @NonNull public static String getFontFamilyKey() {
+        String v = prefs.getString("TEXT_FONT_FAMILY_KEY", DEFAULT_FONT_FAMILY);
         return (v.isEmpty()) ? DEFAULT_FONT_FAMILY : v;
     }
 
     public static void setTextSizeSp(float sp) {
         // clamp
         float v = Math.max(MIN_TEXT_SIZE_SP, Math.min(MAX_TEXT_SIZE_SP, sp));
-        prefs.edit().putFloat(KEY_TEXT_SIZE_SP, v).apply();
+        prefs.edit().putFloat("TEXT_SIZE_SP", v).apply();
     }
     public static float getTextSizeSp() {
-        return prefs.getFloat(KEY_TEXT_SIZE_SP, DEFAULT_TEXT_SIZE_SP);
+        return prefs.getFloat("TEXT_SIZE_SP", DEFAULT_TEXT_SIZE_SP);
     }
 
     public static void applyUserTextAppearance(@NonNull TextView tv) {
@@ -262,5 +259,8 @@ public class Option {
             tv.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, sizeSp);
         } catch (Throwable ignored) {}
     }
+
+
+
 
 }

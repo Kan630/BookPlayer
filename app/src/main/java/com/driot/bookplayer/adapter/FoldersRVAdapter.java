@@ -142,7 +142,7 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
                         }
                     } else {
                         PlayList.create(mCtx, zikFilesList);
-                        if (folder.getSourceLocation().equals(Var.SOURCE_LOCATION_PODCAST)) {
+                        if (Option.getPodcastOpenSpecificView() && folder.getSourceLocation().equals(Var.SOURCE_LOCATION_PODCAST)) {
                             AppDatabase.databaseReadExecutor.execute(() -> {
                                 Podcast podcast = AppDatabase.getDatabase(mCtx).PodcastDao().getPodcastByFolderId(folder.getId());
                                 myLogD("opening PodcastEpisodeActivity for podcast : " + podcast.title);
