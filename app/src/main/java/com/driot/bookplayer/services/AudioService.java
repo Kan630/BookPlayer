@@ -521,7 +521,7 @@ public class AudioService extends LoggingService {
 
             @Override
             public void onUtteranceRange(int start, int end) {
-                myLogD("onUtteranceRange");
+                //myLogD("onUtteranceRange");
                 if (!text.isEmpty())
                     estPositionMs = (int) ((start / (double) text.length()) * estDurationMs);
                 // remember farthest character we actually spoke

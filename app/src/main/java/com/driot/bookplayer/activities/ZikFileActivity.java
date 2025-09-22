@@ -75,6 +75,7 @@ public class ZikFileActivity extends LoggingActivity {
         super.onResume();
         // Ensure header is always fresh when coming back to this screen
         reloadFolderFromDb();
+        getZikFilesAndLoadRecyclerView();
     }
 
     private void reloadFolderFromDb() {
