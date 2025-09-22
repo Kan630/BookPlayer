@@ -261,10 +261,7 @@
         <View style="@style/myStyleViewSimpleHorizontalBar" />
 
         <!-- Section : Taille & Police -->
-        <LinearLayout
-            style="@style/LinearLayoutOptionsVertical"
-            android:layout_marginHorizontal="10dp">
-
+        <LinearLayout style="@style/LinearLayoutOptionsVertical">
             <TextView
                 style="@style/OptionTitle"
                 android:text="@string/option_text_appearance_title" />
@@ -272,39 +269,31 @@
             <!-- Ligne Police (dropdown simple via Spinner) -->
             <LinearLayout
                 style="@style/LinearLayoutOptionsCheckBoxHorizontal"
-                android:id="@+id/ll_font_family"
-                android:paddingTop="8dp"
-                android:paddingBottom="8dp">
+                android:id="@+id/ll_font_family">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                <TextView style="@style/OptionCheckBoxText"
                     android:text="@string/option_font_family"
-                    android:textSize="16sp"
-                    android:layout_marginEnd="12dp"/>
+                    android:layout_width="80dp"
+                    />
 
                 <Spinner
                     android:id="@+id/sp_font_family"
-                    android:layout_width="0dp"
+                    android:spinnerMode="dropdown"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"/>
+                    style="@style/Spinner" />
             </LinearLayout>
 
             <!-- Ligne Taille (SeekBar + valeur) -->
             <LinearLayout
-                android:id="@+id/ll_text_size"
+                style="@style/LinearLayoutOptionsCheckBoxHorizontal"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:paddingTop="8dp"
-                android:paddingBottom="8dp">
+                android:id="@+id/ll_text_size">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                <TextView style="@style/OptionCheckBoxText"
                     android:text="@string/option_text_size"
-                    android:textSize="16sp"
-                    android:layout_marginEnd="12dp"/>
+                    android:layout_width="80dp"
+                    />
 
                 <SeekBar
                     android:id="@+id/seek_text_size"
@@ -314,12 +303,12 @@
                     android:max="36"
                     android:progress="18"/>
 
-                <TextView
+                <TextView style="@style/OptionCheckBoxText"
                     android:id="@+id/tv_text_size_value"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="18sp"
-                    android:paddingStart="12dp"/>
+                    text="XXdp"
+                    android:paddingHorizontal="12dp"/>
+
             </LinearLayout>
 
             <!-- Aperçu -->
@@ -329,7 +318,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/option_text_preview_label"
                 android:textStyle="bold"
-                android:paddingTop="8dp"/>
+                android:paddingTop="20dp"/>
 
             <TextView
                 android:id="@+id/tv_text_preview"
