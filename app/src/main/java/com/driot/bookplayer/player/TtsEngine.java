@@ -233,6 +233,19 @@ public final class TtsEngine implements PlayerEngine, AppTtsManager.Listener {
 
     // --------------------- Public helpers specific to TTS ---------------------
 
+    /** Expose the loaded raw text for UI. */
+    @Nullable
+    public String getText() {
+        return text;
+    }
+
+    /** Public wrapper to set voice and warm-up. */
+    public void setVoiceByNameAndWarmUp(@NonNull String voiceName,
+                                        long timeoutMs,
+                                        @NonNull WarmupCallback cb) {
+        setTtsVoiceByNameAsync(voiceName, timeoutMs, cb); // delegates to the internal method
+    }
+
     /** Allow service/UI to jump by characters (e.g., sentence/paragraph). */
     public void setStartOffsetChars(@IntRange(from = 0) int charOffset) {
         if (text == null) return;
@@ -353,4 +366,5 @@ public final class TtsEngine implements PlayerEngine, AppTtsManager.Listener {
             }
         } catch (Throwable ignored) {}
     }
+
 }

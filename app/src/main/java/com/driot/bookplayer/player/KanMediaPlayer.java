@@ -1,4 +1,4 @@
-package com.driot.bookplayer.objects;
+package com.driot.bookplayer.player;
 
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -7,6 +7,7 @@ import android.os.Build;
 
 import androidx.annotation.NonNull;
 
+import com.driot.bookplayer.objects.PlayList;
 import com.driot.bookplayer.utils.KanLogger;
 
 import java.io.IOException;

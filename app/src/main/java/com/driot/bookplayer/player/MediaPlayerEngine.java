@@ -5,8 +5,6 @@ import android.net.Uri;
 
 import androidx.annotation.NonNull;
 
-import com.driot.bookplayer.objects.KanMediaPlayer;
-
 import java.io.IOException;
 
 /**
