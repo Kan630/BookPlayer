@@ -26,6 +26,7 @@ import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.db.ZikFile;
+import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.objects.PlayList;
 import com.driot.bookplayer.helpers.IconHelper;
@@ -60,6 +61,8 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
     public void onBindViewHolder(FoldersViewHolder holder, int position) {
         Folder folder = folderList.get(position);
         holder.textViewFileName.setText(folder.getName());
+        Option.applyUserTextAppearance(holder.textViewFileName);
+
         holder.textViewFilePercent.setText(String.format(folder.getPercentdone().toString(), Locale.getDefault()));
 
         holder.textViewFilePercent.setText(FormatPercentString(folder.getPercentdone()));

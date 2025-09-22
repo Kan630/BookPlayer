@@ -817,4 +817,11 @@
 
     <string name="Error_Import_could_not_delete_source">"could not delete picked source"</string>">
 
+    <string name="option_text_appearance_title">Text appearance</string>
+    <string name="option_font_family">Font</string>
+    <string name="option_text_size">Size</string>
+    <string name="option_text_preview_label">Preview</string>
+    <string name="option_text_preview_sample">The quick brown fox jumps over the lazy dog — 0123456789</string>
+
+
 </resources>

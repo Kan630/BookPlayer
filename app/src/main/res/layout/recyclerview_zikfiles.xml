@@ -35,7 +35,6 @@
             android:layout_marginRight="@dimen/recyclerview_elements_sides"
             android:background="?attr/colorSurfaceVariant"
             android:textColor="?attr/colorOnSurface"
-            android:fontFamily="casual"
             android:textSize="16sp"
             app:layout_constraintBottom_toTopOf="@id/textViewFilePercent"
             />

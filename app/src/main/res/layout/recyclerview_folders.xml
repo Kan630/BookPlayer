@@ -68,7 +68,6 @@
                 android:background="?attr/colorSurfaceVariant"
                 android:textColor="?attr/colorOnSurface"
                 android:textSize="18sp"
-                android:fontFamily="casual"
                 app:layout_constraintStart_toEndOf="@id/ivSource"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />

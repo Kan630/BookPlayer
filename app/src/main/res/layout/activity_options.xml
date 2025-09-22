@@ -257,6 +257,92 @@
             </LinearLayout>
         </LinearLayout>
 
+        <!-- Séparateur -->
+        <View style="@style/myStyleViewSimpleHorizontalBar" />
+
+        <!-- Section : Taille & Police -->
+        <LinearLayout
+            style="@style/LinearLayoutOptionsVertical"
+            android:layout_marginHorizontal="10dp">
+
+            <TextView
+                style="@style/OptionTitle"
+                android:text="@string/option_text_appearance_title" />
+
+            <!-- Ligne Police (dropdown simple via Spinner) -->
+            <LinearLayout
+                style="@style/LinearLayoutOptionsCheckBoxHorizontal"
+                android:id="@+id/ll_font_family"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/option_font_family"
+                    android:textSize="16sp"
+                    android:layout_marginEnd="12dp"/>
+
+                <Spinner
+                    android:id="@+id/sp_font_family"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"/>
+            </LinearLayout>
+
+            <!-- Ligne Taille (SeekBar + valeur) -->
+            <LinearLayout
+                android:id="@+id/ll_text_size"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/option_text_size"
+                    android:textSize="16sp"
+                    android:layout_marginEnd="12dp"/>
+
+                <SeekBar
+                    android:id="@+id/seek_text_size"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:max="36"
+                    android:progress="18"/>
+
+                <TextView
+                    android:id="@+id/tv_text_size_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="18sp"
+                    android:paddingStart="12dp"/>
+            </LinearLayout>
+
+            <!-- Aperçu -->
+            <TextView
+                android:id="@+id/tv_text_preview_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/option_text_preview_label"
+                android:textStyle="bold"
+                android:paddingTop="8dp"/>
+
+            <TextView
+                android:id="@+id/tv_text_preview"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/option_text_preview_sample"
+                android:padding="12dp"
+                android:background="?attr/colorSurfaceVariant"
+                android:layout_marginTop="6dp"
+                android:layout_marginBottom="4dp"
+                android:minHeight="48dp"/>
+        </LinearLayout>
+
         <View style="@style/myStyleViewSimpleHorizontalBar" />
 
         <LinearLayout style="@style/LinearLayoutOptionsVertical"
@@ -264,6 +350,7 @@
             <TextView
                 style="@style/OptionTitle"
                 android:text="@string/option_pick_theme_color_title" />
+
             <LinearLayout
                 android:id="@+id/ll_night_mode"
                 android:layout_width="match_parent"

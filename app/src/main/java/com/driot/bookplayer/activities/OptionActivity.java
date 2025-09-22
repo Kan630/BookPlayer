@@ -23,6 +23,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
+import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -45,6 +46,9 @@ import static com.driot.bookplayer.helpers.StorageHelper.isExternalSDCardAvailab
 import androidx.annotation.NonNull;
 import androidx.annotation.StyleRes;
 import androidx.core.content.ContextCompat;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 20/12/20
@@ -86,6 +90,16 @@ public class OptionActivity extends LoggingActivity {
     ScrollView scrollView;
     private Button btnNightMode;
     AutoCloseable ttsHandle;
+    private Spinner spFontFamily;
+    private SeekBar seekTextSize;
+    private TextView tvTextSizeValue;
+    private TextView tvPreview;
+    private static class FontChoice {
+        final String key;   // ex: "sans-serif"
+        final String label; // ex: "Sans-serif"
+        FontChoice(String key, String label) { this.key = key; this.label = label; }
+    }
+    private List<FontChoice> fontChoices;
 
 
     private PermissionRequest mPermissionRequest;
@@ -210,11 +224,14 @@ public class OptionActivity extends LoggingActivity {
         ll_visualizer_playpause.setOnClickListener(v -> chk_click_visualizer_playpause.toggle());
         chk_click_visualizer_playpause.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setClickVisualizerPlayPause(isChecked));
 
+        setVisualizerPermissionText();
+
+//THEMES
+
         btnNightMode = findViewById(R.id.btn_night_mode);
         btnNightMode.setText(Option.getNightMode());
         btnNightMode.setOnClickListener(v -> showNightModeChooser());
 
-// New structure: array of [button, theme key, theme resource ID]
         themesAndColors = new Object[][] {
                 {btn_Color_01, "gray", R.style.Theme_BookPlayer_Gray},
                 {btn_Color_02, "purple", R.style.Theme_BookPlayer_Purple},
@@ -246,7 +263,72 @@ public class OptionActivity extends LoggingActivity {
             button.setOnClickListener(v -> changeBaseTheme(themeKey));
         }
 
-        setVisualizerPermissionText();
+
+// --- dans onCreate(...) après setContentView(...) ---
+        spFontFamily = findViewById(R.id.sp_font_family);
+        seekTextSize = findViewById(R.id.seek_text_size);
+        tvTextSizeValue = findViewById(R.id.tv_text_size_value);
+        tvPreview = findViewById(R.id.tv_text_preview);
+
+// 1) Prépare liste de polices (toutes existent depuis API 26+)
+        fontChoices = new ArrayList<>();
+        fontChoices.add(new FontChoice("sans-serif", "Sans-serif"));
+        fontChoices.add(new FontChoice("serif", "Serif"));
+        fontChoices.add(new FontChoice("monospace", "Monospace"));
+        fontChoices.add(new FontChoice("casual", "Casual"));
+        fontChoices.add(new FontChoice("cursive", "Cursive"));
+        fontChoices.add(new FontChoice("serif-monospace", "Serif Monospace"));
+        fontChoices.add(new FontChoice("sans-serif-condensed", "Sans-serif Condensed"));
+        fontChoices.add(new FontChoice("sans-serif-medium", "Sans-serif Medium"));
+        fontChoices.add(new FontChoice("sans-serif-smallcaps", "Sans-serif Smallcaps"));
+
+// 2) Adapter Spinner
+        ArrayAdapter<String> fontAdapter = new ArrayAdapter<>(
+                this, android.R.layout.simple_spinner_item,
+                toLabels(fontChoices));
+        fontAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spFontFamily.setAdapter(fontAdapter);
+
+// 3) Sélectionne valeur sauvegardée
+        String savedFamily = Option.getFontFamilyKey();
+        int savedIndex = indexOfKey(fontChoices, savedFamily);
+        if (savedIndex < 0) savedIndex = 0;
+        spFontFamily.setSelection(savedIndex, false);
+
+// 4) SeekBar text size
+        float savedSizeSp = Option.getTextSizeSp();
+// On mappe le min=12sp → progress=12 ; max=36sp → progress=36
+        seekTextSize.setMax((int) Option.MAX_TEXT_SIZE_SP);
+        seekTextSize.setProgress((int) Math.max(Option.MIN_TEXT_SIZE_SP, Math.min(Option.MAX_TEXT_SIZE_SP, savedSizeSp)));
+        tvTextSizeValue.setText(((int) savedSizeSp) + "sp");
+
+// 5) Applique l’aperçu initial
+        applyPreview(savedFamily, savedSizeSp);
+
+// 6) Listeners
+        spFontFamily.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
+            @Override public void onItemSelected(android.widget.AdapterView<?> parent, View view, int position, long id) {
+                String key = fontChoices.get(position).key;
+                Option.setFontFamilyKey(key);
+                applyPreview(key, Option.getTextSizeSp());
+                triggerFolderListReloadOnClose();
+            }
+            @Override public void onNothingSelected(android.widget.AdapterView<?> parent) {}
+        });
+
+        seekTextSize.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                // clamp min
+                int clamped = Math.max((int) Option.MIN_TEXT_SIZE_SP, progress);
+                tvTextSizeValue.setText(clamped + "sp");
+                Option.setTextSizeSp(clamped);
+                triggerFolderListReloadOnClose();
+                applyPreview(Option.getFontFamilyKey(), clamped);
+            }
+            @Override public void onStartTrackingTouch(SeekBar seekBar) {}
+            @Override public void onStopTrackingTouch(SeekBar seekBar) {}
+        });
+
 
         chk_beep_chapter = findViewById(R.id.chk_beep_chapter);
         chk_beep_bookend = findViewById(R.id.chk_beep_bookend);
@@ -557,13 +639,17 @@ public class OptionActivity extends LoggingActivity {
     private void changeBaseTheme(String new_base_theme) {
         myLog("new Base theme is [" + new_base_theme + "]" );
         Option.setTheme(new_base_theme);
-        this.getSharedPreferences(Option.SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE).edit().putBoolean("ACTIVITY_OPTION_HAS_RESULT", true).apply(); //trick to reload MainActivity if color change
+        triggerFolderListReloadOnClose();
         recreate();
+    }
+
+    private void triggerFolderListReloadOnClose() {
+        this.getSharedPreferences(Option.SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE).edit().putBoolean("ACTIVITY_OPTION_HAS_RESULT", true).apply(); //trick to reload MainActivity
     }
 
     @Override
     public void finish() { //needed because of recreate()
-        if (this.getSharedPreferences(Option.SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE).getBoolean("ACTIVITY_OPTION_HAS_RESULT", false)) { //trick to reload MainActivity if color change
+        if (this.getSharedPreferences(Option.SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE).getBoolean("ACTIVITY_OPTION_HAS_RESULT", false)) { //trick to reload MainActivity
             setResult(Activity.RESULT_OK);
         }
         super.finish();
@@ -650,5 +736,24 @@ public class OptionActivity extends LoggingActivity {
                 .setNegativeButton(android.R.string.cancel, null)
                 .show();
     }
+
+    private List<String> toLabels(List<FontChoice> list) {
+        List<String> labels = new ArrayList<>();
+        for (FontChoice f : list) labels.add(f.label);
+        return labels;
+    }
+
+    private int indexOfKey(List<FontChoice> list, String key) {
+        for (int i = 0; i < list.size(); i++) if (list.get(i).key.equalsIgnoreCase(key)) return i;
+        return -1;
+    }
+
+    private void applyPreview(String familyKey, float sizeSp) {
+        try {
+            tvPreview.setTypeface(android.graphics.Typeface.create(familyKey, android.graphics.Typeface.NORMAL));
+            tvPreview.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, sizeSp);
+        } catch (Throwable ignored) {}
+    }
+
 
 }

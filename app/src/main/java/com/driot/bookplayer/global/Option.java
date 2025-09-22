@@ -4,6 +4,9 @@ import static android.content.Context.MODE_PRIVATE;
 import static com.driot.bookplayer.utils.KanMail.DEFAULT_SEND_MAIL_METHOD_DEFAULT;
 
 import android.content.Context;
+import android.widget.TextView;
+
+import androidx.annotation.NonNull;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.utils.NetworkUtils;
@@ -222,5 +225,42 @@ public class Option {
         androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(appCompatMode);
     }
 
+    // ----- TEXT APPEARANCE -----
+    private static final String KEY_FONT_FAMILY = "TEXT_FONT_FAMILY_KEY";  // ex: "sans-serif"
+    private static final String KEY_TEXT_SIZE_SP = "TEXT_SIZE_SP";         // float en sp
+
+    // Défauts
+    public static final String DEFAULT_FONT_FAMILY = "sans-serif"; // neutre
+    public static final float  DEFAULT_TEXT_SIZE_SP = 18f;
+    public static final float  MIN_TEXT_SIZE_SP = 12f;
+    public static final float  MAX_TEXT_SIZE_SP = 36f;
+
+    // Setters/Getters
+    public static void setFontFamilyKey(@NonNull String family) {
+        prefs.edit().putString(KEY_FONT_FAMILY, family).apply();
+    }
+    @NonNull
+    public static String getFontFamilyKey() {
+        String v = prefs.getString(KEY_FONT_FAMILY, DEFAULT_FONT_FAMILY);
+        return (v.isEmpty()) ? DEFAULT_FONT_FAMILY : v;
+    }
+
+    public static void setTextSizeSp(float sp) {
+        // clamp
+        float v = Math.max(MIN_TEXT_SIZE_SP, Math.min(MAX_TEXT_SIZE_SP, sp));
+        prefs.edit().putFloat(KEY_TEXT_SIZE_SP, v).apply();
+    }
+    public static float getTextSizeSp() {
+        return prefs.getFloat(KEY_TEXT_SIZE_SP, DEFAULT_TEXT_SIZE_SP);
+    }
+
+    public static void applyUserTextAppearance(@NonNull TextView tv) {
+        try {
+            String family = Option.getFontFamilyKey();
+            float sizeSp  = Option.getTextSizeSp();
+            tv.setTypeface(android.graphics.Typeface.create(family, android.graphics.Typeface.NORMAL));
+            tv.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, sizeSp);
+        } catch (Throwable ignored) {}
+    }
 
 }

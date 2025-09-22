@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.PlayActivity;
 import com.driot.bookplayer.activities.ModifyZikFileActivity;
+import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.objects.PlayList;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.utils.Tonio;
@@ -55,6 +56,8 @@ public class ZikFilesRVAdapter extends LoggingRVAdapter<ZikFilesRVAdapter.ZikFil
         ZikFile t = zikFileList.get(position);
 
         holder.textViewFileName.setText(t.getDisplayName());
+        Option.applyUserTextAppearance(holder.textViewFileName);
+
         holder.textViewFilePercent.setText(Tonio.FormatPercentString(t.getPercentdone()));
         holder.mProgressBar.setProgress(Tonio.FormatPercentForProgressBar(t.getPercentdone()));
         holder.textViewFileLastAccess.setText(Tonio.formatLastAccess(t.lLastAccess, mCtx));
