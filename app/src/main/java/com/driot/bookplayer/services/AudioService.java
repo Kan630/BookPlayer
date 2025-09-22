@@ -1361,16 +1361,6 @@ public class AudioService extends LoggingService {
         }
     }
 
-    private String getBookTtsLanguage(int idFolder) {
-        try {
-            return Pref.getBookTtsLanguage(this, idFolder);
-        } catch (Exception e) {
-            myLogEE(e, "getBookTtsLanguage");
-            return Option.getTtsLanguage();
-        }
-    }
-
-
     /********************************************************************************
      ***       NOTIFICATIONS
      ********************************************************************************

@@ -75,28 +75,6 @@ public class Pref {
         }
     }
 
-
-    public static void setBookTtsLanguage(Context c, int idFolder, String twoLetterCodeOrSystem) {
-        try {
-            c.getSharedPreferences(SHARED_PREFERENCE_TTS_LANG, MODE_PRIVATE)
-                    .edit()
-                    .putString(String.valueOf(idFolder), twoLetterCodeOrSystem)
-                    .apply();
-        } catch (Exception e) {
-            myLogEE(e, "error saving book TTS language in prefs");
-        }
-    }
-
-    public static String getBookTtsLanguage(Context c, int idFolder) {
-        try {
-            SharedPreferences prefs = c.getSharedPreferences(SHARED_PREFERENCE_TTS_LANG, MODE_PRIVATE);
-            return prefs.getString(String.valueOf(idFolder), Option.getTtsLanguage());
-        } catch (Exception e) {
-            myLogEE(e, "error getting book TTS language from prefs");
-            return Option.getTtsLanguage();
-        }
-    }
-
     public static void setLoadBookTaskState(LoadBookTaskState loadBookTaskState) {
         Parcel parcel = Parcel.obtain();
         loadBookTaskState.writeToParcel(parcel, 0);
