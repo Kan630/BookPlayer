@@ -202,7 +202,7 @@ public class ParseFinalFolderWorker extends LoggingWorker {
                 addTextFileRecursive(dfPickedDir);
 
                 myLogD("addTextFileRecursive done, sorting now...");
-                audioFileArrayList.sort(AudioFileInfo.ALPHANUMERIC_COMPARATOR);
+                audioFileArrayList.sort(AudioFileInfo.SMART_CHAPTER_COMPARATOR);
 
                 if (audioFileArrayList.isEmpty()) {
                     myLog("No File found in directory : [" + dfPickedDir.getName() + ']');
@@ -219,7 +219,7 @@ public class ParseFinalFolderWorker extends LoggingWorker {
                 addAudioFileRecursive(dfPickedDir);
 
                 myLogD("addAudioFileRecursive done, sorting now...");
-                audioFileArrayList.sort(AudioFileInfo.ALPHANUMERIC_COMPARATOR);
+                audioFileArrayList.sort(AudioFileInfo.SMART_CHAPTER_COMPARATOR);
 
                 if (audioFileArrayList.isEmpty()) {
                     myLog("No File found in directory : [" + dfPickedDir.getName() + ']');
