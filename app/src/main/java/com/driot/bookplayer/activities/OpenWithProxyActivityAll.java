@@ -20,7 +20,7 @@ public class OpenWithProxyActivityAll extends LoggingActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        myLog("OpenWithProxyActivity");
+        myLog("OpenWithProxyActivityAll");
 
         Uri uri = null;
         Intent receivedIntent = getIntent();
@@ -33,12 +33,12 @@ public class OpenWithProxyActivityAll extends LoggingActivity {
         }
 
         if (uri == null) {
-            myToastE("OpenWithProxyActivity: URI is null");
+            myToastEE(null,"OpenWithProxyActivityAll: URI is null");
             finish();
             return;
         }
 
-        myLogD("OpenWithProxyActivity received uri: " + uri);
+        myLogD("OpenWithProxyActivityAll received uri: " + uri);
 
         FirebaseAnalyticsHelper.tellAnalyticsProxyLoad(uri.toString());
 

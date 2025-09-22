@@ -35,7 +35,7 @@ public class OpenWithProxyActivity extends LoggingActivity {
         }
 
         if (uri == null) {
-            myToastE("OpenWithProxyActivity: URI is null");
+            myToastEE(null,"OpenWithProxyActivity: URI is null");
             finish();
             return;
         }
