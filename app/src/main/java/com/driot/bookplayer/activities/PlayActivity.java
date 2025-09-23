@@ -87,7 +87,6 @@ public class PlayActivity extends LoggingActivity {
     private View progressOverlay, messageOverlay;
     private FrequencyVisualizerView frequencyVisualizerView;
     private boolean AnimationNow;
-    private boolean HasBeenInitializedService = false;
     private Intent intentMusicService;
     private Timer timerRedrawUI;
     private String tvListeningTimeBaseText;
@@ -144,20 +143,36 @@ public class PlayActivity extends LoggingActivity {
             audioService = binder.getService();
             audioServiceBound = true;
 
-            //boolean auto = autoPlay || forceReload;
             boolean auto = Option.getAutoPlayOnMainPlayer();
-            if (!HasBeenInitializedService || auto) {
 
-                try { audioService.pauseAudioNoSave(); } catch (Throwable ignored) {}
+            // only reload if forced or engine not ready; otherwise just sync UI
+            boolean shouldReload = forceReload || !audioService.isReadyToPlay();
+
+            if (shouldReload) {
+                try {
+                    audioService.pauseAudioNoSave();
+                } catch (Throwable t) {
+                    myLogEE(t, "audioService.pauseAudioNoSave()");
+                }
                 audioService.directPlay = auto;
-                try { audioService.loadFile(); } catch (Throwable ignored) {}
-
-                //forceReload = false;
-                HasBeenInitializedService = true;
+                try {
+                    audioService.loadFile();
+                } catch (Throwable t) {
+                    myLogEE(t, "audioService.loadFile()");
+                }
+            } else {
+                // same engine & track: no reload; optionally resume if auto-play pref says so
+                if (auto && !audioService.isPlaying()) {
+                    audioService.playAudio();
+                } else {
+                    audioService.pingUi(); // refresh mini/UI state
+                }
             }
 
             myLogD("onServiceConnected - DrawUI");
             DrawUI();
+            // use-once
+            forceReload = false;
         }
 
 
