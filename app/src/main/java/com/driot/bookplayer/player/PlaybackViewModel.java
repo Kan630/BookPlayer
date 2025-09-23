@@ -19,7 +19,14 @@ import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.objects.PlayList;
 import com.driot.bookplayer.services.AudioService;
 
+/**
+ * Mini player's single source of truth:
+ *   - ACTION_UI_STATE drives visibility/content.
+ *   - Snapshots are used ONLY when bound, for progress smoothing.
+ *   - We never overwrite with an "empty" state just because we're unbound.
+ */
 public class PlaybackViewModel extends AndroidViewModel {
+
     private final MutableLiveData<PlaybackUiState> state = new MutableLiveData<>();
     public LiveData<PlaybackUiState> getState() { return state; }
 
@@ -34,45 +41,47 @@ public class PlaybackViewModel extends AndroidViewModel {
             AudioService.BackgroundBinder b = (AudioService.BackgroundBinder) binder;
             service = b.getService();
             bound = true;
-            // Seed with current snapshot if service is already running
+            // Optional: seed a first progress snapshot (won't affect visibility logic)
             pushSnapshot();
         }
-        @Override public void onServiceDisconnected(ComponentName name) { bound = false; service = null; }
+        @Override public void onServiceDisconnected(ComponentName name) {
+            bound = false;
+            service = null;
+            // IMPORTANT: do NOT post an empty state here.
+            // We keep last known ACTION_UI_STATE so mini doesn't flicker/hide.
+        }
     };
 
     public PlaybackViewModel(@NonNull Application app) {
         super(app);
 
-        // ⚠️ Do NOT auto-create the service on app open.
-        // Bind only if service is actually running.
+        // Bind only if service is already running. Never auto-create.
         if (AudioService.isRunning) {
             app.bindService(new Intent(app, AudioService.class), conn, 0 /* no BIND_AUTO_CREATE */);
         }
 
-        // Observe unified UI state + keep timer ticks to refresh position
+        // Listen to unified UI state and (optionally) timer ticks for progress.
         LocalBroadcastManager lb = LocalBroadcastManager.getInstance(app);
         IntentFilter f = new IntentFilter();
-        f.addAction(AudioService.ACTION_UI_STATE);                 // NEW unified state
-        f.addAction(AudioService.NOTIFICATION_PLAYBACK_TIMER_VALUE); // still useful for live progress
-        f.addAction(AudioService.NOTIFICATION_NEWTRACK);
-        f.addAction(AudioService.READY_TO_PLAY);
-        f.addAction(AudioService.NOTIFICATION_TRACKFINISHED);
+        f.addAction(AudioService.ACTION_UI_STATE);
+        f.addAction(AudioService.NOTIFICATION_PLAYBACK_TIMER_VALUE); // progress only
         lb.registerReceiver(receiver, f);
 
-        // Seed initial UI:
-        // Only trust lastUiState if service is truly running; else start empty so mini stays hidden.
+        // Initial seed: if running and we have a last snapshot, use it; otherwise leave null.
+        // (Leaving null keeps the mini hidden via fragment's initial GONE + null guard.)
         if (AudioService.isRunning && AudioService.lastUiState != null) {
             state.setValue(AudioService.lastUiState);
-            miniSuppressed.setValue(AudioService.lastUiState.playing ? false : miniSuppressed.getValue());
-        } else {
-            state.setValue(new PlaybackUiState(false, 0, 0, "", ""));
+            // Use the suppression coming from service if you cache it there;
+            // otherwise start "not suppressed" and wait for first ACTION_UI_STATE.
             miniSuppressed.setValue(false);
         }
     }
 
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override public void onReceive(Context c, Intent i) {
-            if (AudioService.ACTION_UI_STATE.equals(i.getAction())) {
+            final String action = i.getAction();
+            if (AudioService.ACTION_UI_STATE.equals(action)) {
+                // Single source of truth for visibility/content
                 miniSuppressed.postValue(i.getBooleanExtra(AudioService.EXTRA_UI_SUPPRESS_MINI, false));
                 state.postValue(new PlaybackUiState(
                         i.getBooleanExtra(AudioService.EXTRA_UI_PLAYING, false),
@@ -81,68 +90,59 @@ public class PlaybackViewModel extends AndroidViewModel {
                         i.getStringExtra(AudioService.EXTRA_UI_TITLE),
                         i.getStringExtra(AudioService.EXTRA_UI_SUBTITLE)
                 ));
-            } else if (bound && service != null) {
-                // e.g., timer ticks; only safe if we have a live service handle
-                pushSnapshot();
-            } else {
-                // ignore — don’t clobber state with empties
+            } else if (AudioService.NOTIFICATION_PLAYBACK_TIMER_VALUE.equals(action)) {
+                // Progress smoothing only if we ARE bound
+                if (bound && service != null) pushSnapshot();
+                // If not bound, ignore. Never post empties.
             }
         }
     };
 
+    /** Progress-only refresh. Never called when unbound. */
     private void pushSnapshot() {
-        if (service == null) {
-            return;
-        }
+        if (!bound || service == null) return;
+
         PlayList pl = PlayList.getInstance();
         ZikFile z = (pl!=null) ? pl.getZikFile() : null;
-        boolean playing = (service != null) && service.isPlaying();
-        int pos = (service != null) ? service.getPosition() : 0;
+
+        boolean playing = service.isPlaying();
+        int pos = service.getPosition();
         int dur = (z != null) ? (int) z.getDuration() : 0;
         String title = (z != null) ? z.getFolderName()  : "";
         String sub   = (z != null) ? z.getDisplayName() : "";
 
         state.postValue(new PlaybackUiState(playing, pos, dur, title, sub));
-        miniSuppressed.postValue(service != null && service.isMiniSuppressed());
+        miniSuppressed.postValue(service.isMiniSuppressed());
     }
 
-
-    private PlaybackUiState fromIntent(Intent i) {
-        return new PlaybackUiState(
-                i.getBooleanExtra(AudioService.EXTRA_UI_PLAYING, false),
-                i.getIntExtra(AudioService.EXTRA_UI_POS, 0),
-                i.getIntExtra(AudioService.EXTRA_UI_DUR, 0),
-                i.getStringExtra(AudioService.EXTRA_UI_TITLE),
-                i.getStringExtra(AudioService.EXTRA_UI_SUBTITLE)
-        );
-    }
-
-    // Control methods stay the same
+    // Transport
     public void playPause() { if (service==null) return; if (service.isPlaying()) service.pauseAudio(); else service.playAudio(); }
     public void next() { if (service!=null) service.forwardAudio(); }
     public void prev() { if (service!=null) service.backwardAudio(); }
     public void seekTo(int ms) { if (service!=null) service.setPosition(ms); }
 
-    @Override protected void onCleared() {
-        if (bound) getApplication().unbindService(conn);
-        LocalBroadcastManager.getInstance(getApplication()).unregisterReceiver(receiver);
-    }
-
+    /** Close/hide mini and pause audio even if we're not bound. */
     public void dismissMini() {
-        // Optimistic local UX: hide immediately
+        // Optimistic local UX
         miniSuppressed.setValue(true);
 
-        // Always instruct the service to pause + suppress, even if we're not bound
+        // Let the service do the real work regardless of binding.
         Context app = getApplication();
         Intent cmd = new Intent(app, AudioService.class)
                 .setAction(AudioService.ACTION_CMD)
                 .putExtra(AudioService.EXTRA_CMD, AudioService.CMD_PAUSE_AND_SUPPRESS);
         try {
-            app.startService(cmd); // ok from foreground UI; service will pause, suppress, broadcast, and stopSelf()
-        } catch (Exception ignored) {}
-
-        // Do NOT overwrite state with an empty snapshot here.
-        // We'll rely on ACTION_UI_STATE (broadcastUiCleared) from the service to update the UI.
+            if (android.os.Build.VERSION.SDK_INT >= 26) {
+                androidx.core.content.ContextCompat.startForegroundService(app, cmd);
+            } else {
+                app.startService(cmd);
+            }
+        } catch (Throwable ignored) {}
+        // Do NOT post empty state; wait for ACTION_UI_STATE from service.
     }
 
+    @Override protected void onCleared() {
+        if (bound) getApplication().unbindService(conn);
+        LocalBroadcastManager.getInstance(getApplication()).unregisterReceiver(receiver);
+    }
 }
