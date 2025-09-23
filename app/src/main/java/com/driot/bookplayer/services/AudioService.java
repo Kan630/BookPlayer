@@ -294,7 +294,7 @@ public class AudioService extends LoggingService {
                     @Override public void onLog(String msg) { myLogD(msg); }
                 },
                 System::currentTimeMillis,
-                () -> Pref.getPauseTime(),
+                Pref::getPauseTime,
                 TRIM_AFTER_PAUSE_MS);
         pauseWatcher.start();
 

@@ -4,6 +4,9 @@ import android.os.Handler;
 
 import androidx.annotation.NonNull;
 
+import com.driot.bookplayer.utils.KanLogger;
+import com.driot.bookplayer.utils.Tonio;
+
 public final class SleepTimer {
 
     public interface Listener {
@@ -31,9 +34,11 @@ public final class SleepTimer {
             if (!running) return;
             l.onTick(elapsed);
             if (elapsed >= maxMinutes * 60) {
+                myLog("--------------   SLEEP PAUSE   ---------------------------------------------- " + Tonio.formatTime(elapsed*1000, true, true) + "s. since timer started.....      (AutoSleep set to " + maxMinutes + "min.)");
                 running = false;
                 l.onReachedMax();
             } else {
+                myLogD("----------------------------------------------------------------------------- " + Tonio.formatTime(elapsed*1000, true, true) + "s. since timer started.....      (AutoSleep set to " + maxMinutes + "min.)");
                 elapsed += tickMs / 1000;
                 h.postDelayed(this, tickMs);
             }
@@ -60,4 +65,15 @@ public final class SleepTimer {
 
     public boolean isRunning() { return running; }
     public int elapsedSeconds() { return elapsed; }
+
+
+    // ----------------------- LOG -----------------------
+    private static final String TAG = "SleepTimer";
+    private static void myLog(String str) { KanLogger.myLog(TAG, str); }
+    private static void myLogD(String str) { KanLogger.myLogD(TAG, str); }
+    private static void myLogW(String str) { KanLogger.myLogW(TAG, str); }
+    private static void myLogE(String str) { KanLogger.myLogE(TAG, str); }
+    private static void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, TAG, str); }
+    private static void myToastEE(Throwable t, String str) { KanLogger.myToastEE(t, TAG, str); }
+
 }
