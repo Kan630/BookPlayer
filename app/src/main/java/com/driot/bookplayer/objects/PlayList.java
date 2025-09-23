@@ -86,17 +86,21 @@ public class PlayList {
         myLogD("Playlist created - called from " + ctx.getClass().getSimpleName());
         appContext = ctx.getApplicationContext();  // not really needed but you never know :-)
         instance = new PlayList(zikFilesList);
-        instance.saveToStorage();
+        //instance.saveToStorage();
     }
 
     // --- Get instance from anywhere ---
     public static PlayList getInstance() {
         if (instance == null) {
+            myLogEE(null, "getInstance == null.");
+            /*
             instance = loadFromStorage();
             if (instance == null) {
                 myLogEE(null, "getInstance => PlayList not initialized and no saved instance available.");
                 //throw new IllegalStateException("PlayList not initialized and no saved instance available.");
             }
+
+             */
         }
         return instance;
     }
@@ -109,21 +113,21 @@ public class PlayList {
             AppDatabase.databaseReadExecutor.execute(() -> {
                 List<ZikFile> zikFilesList = AppDatabase.getDatabase(appContext).ZikFileDao().getZikFiles(PlayList.getInstance().getFolder().getId());
                 init(zikFilesList);
-                saveToStorage();
+                //saveToStorage();
                     });
         }
-        saveToStorage();
+        //saveToStorage();
     }
 
     public void clear() {
         zikFilesList = null;
         numZikFile = -1;
-        clearStorage();
+        //clearStorage();
     }
 
     public void nextTrack() {
         numZikFile = numZikFile + 1;
-        saveToStorage();
+        //saveToStorage();
         myLogD("nextTrack()");
     }
 
@@ -145,16 +149,6 @@ public class PlayList {
 
     public boolean isLastTrack() {
         return zikFilesList != null && numZikFile + 1 == zikFilesList.size();
-    }
-
-    public List<ZikFile> getZikFilesList() {
-        if (zikFilesList == null) {
-            instance = loadFromStorage();
-        }
-        if (zikFilesList == null) {
-            myLogE("zikFilesList == null .... still !");
-        }
-        return zikFilesList;
     }
 
     public int getNumZikFile() {
@@ -196,6 +190,7 @@ public class PlayList {
     //------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     //------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     // --- Save and load ---
+    /*
     private void saveToStorage() {
         SharedPreferences prefs = appContext.getSharedPreferences(SHARED_PREFERENCE_CURRENT_PLAYLIST, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
@@ -229,6 +224,7 @@ public class PlayList {
         SharedPreferences prefs = appContext.getSharedPreferences(SHARED_PREFERENCE_CURRENT_PLAYLIST, Context.MODE_PRIVATE);
         prefs.edit().clear().apply();
     }
+    */
 
 
 

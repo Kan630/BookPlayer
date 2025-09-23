@@ -830,7 +830,8 @@
 
     <string name="option_playing_behaviour_title">Play behaviour</string>
     <string name="option_start_next_track_at_zero_title_text">Always start the next track from the beginning, even if it was partly listened to before.</string>
-    option_start_next_track_at_zero_title_text
+    <string name="error_playlist_null">The playlist could not be retrieved.</string>
+
 
 
 </resources>
