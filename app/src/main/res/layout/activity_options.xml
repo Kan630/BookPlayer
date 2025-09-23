@@ -648,6 +648,15 @@
                         style="@style/OptionCheckBoxText"
                         android:text="@string/option_start_next_track_at_zero_title_text" />
                 </LinearLayout>
+                <LinearLayout style="@style/LinearLayoutOptionsCheckBoxHorizontal"
+                    android:id="@+id/ll_stop_audio_if_user_closes_app">
+                    <com.google.android.material.checkbox.MaterialCheckBox
+                        android:id="@+id/chk_stop_audio_if_user_closes_app"
+                        style="@style/OptionCheckBox"/>
+                    <TextView
+                        style="@style/OptionCheckBoxText"
+                        android:text="@string/option_stop_audio_if_user_closes_app_text" />
+                </LinearLayout>
             </LinearLayout>
 
             <View style="@style/myStyleViewSimpleHorizontalBar" />

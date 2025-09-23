@@ -1,0 +1,96 @@
+package com.driot.bookplayer.player;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageButton;
+import android.widget.SeekBar;
+import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+
+import com.driot.bookplayer.R;
+import com.driot.bookplayer.activities.PlayActivity;
+
+public class MiniNowPlayingFragment extends Fragment {
+    private PlaybackViewModel vm;
+    private TextView tvTitle, tvSub;
+    private SeekBar seek;
+    private ImageButton btnPrev, btnPlayPause, btnNext, btnStop;
+    private boolean userSeeking;
+
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inf, @Nullable ViewGroup c, @Nullable Bundle b) {
+        return inf.inflate(R.layout.fragment_mini_now_playing, c, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View v, @Nullable Bundle b) {
+        tvTitle = v.findViewById(R.id.tvTitle);
+        tvSub = v.findViewById(R.id.tvSub);
+        seek = v.findViewById(R.id.seek);
+        btnPrev = v.findViewById(R.id.btnPrev);
+        btnPlayPause = v.findViewById(R.id.btnPlayPause);
+        btnNext = v.findViewById(R.id.btnNext);
+        btnStop = v.findViewById(R.id.btnStop);
+
+        btnPrev.setImageResource(R.drawable.ic_media_fast_rewind_24);
+        btnNext.setImageResource(R.drawable.ic_media_fast_forward_24);
+        btnStop.setImageResource(R.drawable.ic_media_close_24);
+
+        v.setVisibility(View.GONE);
+
+        vm = new ViewModelProvider(requireActivity()).get(PlaybackViewModel.class);
+        vm.getState().observe(getViewLifecycleOwner(), s -> {
+            if (s == null) return;
+            tvTitle.setText(s.title);
+            tvSub.setText(s.subTitle);
+            if (!userSeeking) {
+                seek.setMax(Math.max(1, s.durationMs));
+                seek.setProgress(Math.min(s.positionMs, s.durationMs));
+            }
+            btnPlayPause.setImageResource(s.playing ? R.drawable.ic_media_pause_24 : R.drawable.ic_media_play_24);
+
+            Boolean suppressed = vm.getMiniSuppressed().getValue();
+            boolean hideBecauseSuppressed = Boolean.TRUE.equals(suppressed) && !s.playing;
+            boolean hasContent = s.playing || s.durationMs > 0;
+
+            v.setVisibility((hasContent && !hideBecauseSuppressed) ? View.VISIBLE : View.GONE);
+        });
+
+// also observe the suppression flag to re-evaluate immediately
+        vm.getMiniSuppressed().observe(getViewLifecycleOwner(), sup -> {
+            PlaybackUiState s = vm.getState().getValue();
+            if (s == null) return;
+            boolean hideBecauseSuppressed = Boolean.TRUE.equals(sup) && !s.playing;
+            boolean hasContent =
+                    (s.durationMs > 0) ||
+                            (s.title != null && !s.title.isEmpty()) ||
+                            (s.subTitle != null && !s.subTitle.isEmpty());
+            getView().setVisibility((hasContent && !hideBecauseSuppressed) ? View.VISIBLE : View.GONE);
+        });
+
+
+        v.setOnClickListener(_x -> startActivity(new Intent(requireContext(), PlayActivity.class)));
+
+        btnPrev.setOnClickListener(_v -> vm.prev());
+        btnPlayPause.setOnClickListener(_v -> vm.playPause());
+        btnNext.setOnClickListener(_v -> vm.next());
+        btnStop.setOnClickListener(_v -> vm.dismissMini());
+
+        seek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override public void onProgressChanged(SeekBar sb, int p, boolean fromUser) {}
+            @Override public void onStartTrackingTouch(SeekBar sb) { userSeeking = true; }
+            @Override public void onStopTrackingTouch(SeekBar sb) {
+                userSeeking = false;
+                vm.seekTo(sb.getProgress());
+            }
+        });
+    }
+}

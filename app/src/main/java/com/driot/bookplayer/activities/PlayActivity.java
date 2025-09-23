@@ -79,8 +79,8 @@ public class PlayActivity extends LoggingActivity {
     private static final float INCREMENT_SPEED = 0.05f;
     AudioService audioService;
     boolean audioServiceBound = false;
-    private Button bPlay;
-    List<Button> buttonsToLock;
+    private android.widget.ImageButton bPlayPause;
+    List<View> buttonsToLock;
     private SeekBar seekbar;
     private TextView tvSeekBar, tvTotalTime, tvTitle, tvSubTitle, tvSpeed, tvListeningTime, tvTimeLeft;
     private View progressOverlay, messageOverlay;
@@ -90,6 +90,7 @@ public class PlayActivity extends LoggingActivity {
     private Intent intentMusicService;
     private Timer timerRedrawUI;
     private String tvListeningTimeBaseText;
+    private boolean forceReload;
 
     String[] broadcastNotifications = {
             AudioService.NOTIFICATION_TRACKFINISHED //useless ?
@@ -142,11 +143,18 @@ public class PlayActivity extends LoggingActivity {
             audioServiceBound = true;
 
             // Get PlayList
-            if (!HasBeenInitializedService) {
-                if (!(audioService.isPlaying())) {
-                    loadPlayListIntoService();
-                }
+            // If we came from a folder click, replace whatever is currently playing
+            if (forceReload) {
+                myLogD("forceReload");
+                try { audioService.pauseAudio(); } catch (Throwable ignored) {}
+                audioService.directPlay = true;
+                // load current PlayList into the service even if it was already playing something else
+                try { audioService.loadFile(); } catch (Throwable ignored) {}
+                forceReload = false; // one-shot
+            } else if (!HasBeenInitializedService && !audioService.isPlaying()) {
+                loadPlayListIntoService();
             }
+
             HasBeenInitializedService = true;
 
             // retour de flip ecran
@@ -225,6 +233,9 @@ public class PlayActivity extends LoggingActivity {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
         }
 
+        forceReload = getIntent().getBooleanExtra("force_reload", false);
+        myLogD("forceReload = " + forceReload);
+
         PlayList playList = PlayList.getInstance();
         if (playList == null) {
             lockButtonAndDisplayErrorMessage(getString(R.string.error_playlist_null));
@@ -232,17 +243,19 @@ public class PlayActivity extends LoggingActivity {
             return;
         }
 
-        bPlay = findViewById(R.id.buttonPlay);
-        //bPlay.setEnabled(false);
+        bPlayPause = findViewById(R.id.ibPlayPause);
+        bPlayPause.setImageResource(R.drawable.ic_hourglass_24);
+        bPlayPause.setEnabled(false);
 
-        Button bRewind, bForward, bSpeedUp, bSpeedDown, bSetSleep;
-        bRewind = findViewById(R.id.buttonRewind);
-        bForward = findViewById(R.id.buttonForward);
+        ImageButton bRewind, bForward;
+        Button bSpeedUp, bSpeedDown, bSetSleep;
+        bRewind = findViewById(R.id.ibRewind);
+        bForward = findViewById(R.id.ibForward);
         bSpeedUp = findViewById(R.id.bSpeedUp);
         bSpeedDown = findViewById(R.id.bSpeedDown);
         bSetSleep = findViewById(R.id.bSetSleep);
 
-        bPlay.setOnClickListener(
+        bPlayPause.setOnClickListener(
                 v -> {
                     myLogI("----------> USER PRESSES PLAY BUTTON <----------");
                     FirebaseAnalyticsHelper.tellAnalyticsPressPlay(tvTitle.toString());
@@ -270,7 +283,7 @@ public class PlayActivity extends LoggingActivity {
             setSleep();
         });
 
-        buttonsToLock = Arrays.asList(bPlay, bRewind, bForward, bSpeedUp, bSpeedDown, bSetSleep);
+        buttonsToLock = Arrays.asList(bPlayPause, bRewind, bForward, bSpeedUp, bSpeedDown, bSetSleep);
 
         progressOverlay = findViewById(R.id.progress_overlay);
         messageOverlay = findViewById(R.id.message_overlay);
@@ -401,22 +414,6 @@ public class PlayActivity extends LoggingActivity {
             @Override
             public void handleOnBackPressed() {
                 myLogI("--- USER CLICK BACK --- (system button)");
-                if (audioService != null && audioService.isRunning()) {
-                    if (audioService.isPlaying()) {
-                        playMe();
-                    }
-                }
-                //PlayList.getInstance().clear();
-                if (audioServiceBound) {
-                    try {
-                        myLog("unbinding service - unregistering receiver");
-                        unbindService(audioServiceConnection);
-                        LocalBroadcastManager.getInstance(PlayActivity.this).unregisterReceiver(broadCastReceiver);
-                        stopService(intentMusicService);
-                    } catch (Exception e) {
-                        myLogEE(e,"onBackPressed() [error may be audio file not found, and so, service was not started]");
-                    }
-                }
                 finish();
             }
         });
@@ -443,27 +440,30 @@ public class PlayActivity extends LoggingActivity {
     }
 
     private void playMe() {
-        if (audioServiceBound) {
-            if (audioService != null && audioService.isRunning()) {
-                if (audioService.isPlaying()) {
-                    /////////   PAUSE
-                    myLog("PlayMe() => pause");
-                    audioService.pauseAudio();
-                    tvListeningTimeBaseText = getString(R.string.tv_ListeningTimeWithNoUserAction);
-                    tvListeningTime.setText("");
-                    tvTimeLeft.setText("");
-                    //reDrawListeningSince(0);
-                    /////// PLAY
-                } else {
-                    myLog("PlayMe() => play");
-                    audioService.playAudio();
-                    runVisualizer();
-                }
-            } else {
-                myLogEE(null,"playMe() => mService KO");
-            }
+        if (!audioServiceBound || audioService == null || !audioService.isRunning()) {
+            myLogEE(null, "playMe() => service not ready");
+            return;
+        }
+
+        // If engine isn’t ready yet, keep hourglass & ignore taps
+        if (!audioService.isReadyToPlay()) {
+            bPlayPause.setImageResource(R.drawable.ic_hourglass_24);
+            bPlayPause.setEnabled(false);
+            myLog("playMe() while preparing TTS — waiting...");
+            return;
+        }
+
+        bPlayPause.setEnabled(true);
+        if (audioService.isPlaying()) {
+            myLog("PlayMe() => pause");
+            audioService.pauseAudio();
+            tvListeningTimeBaseText = getString(R.string.tv_ListeningTimeWithNoUserAction);
+            tvListeningTime.setText("");
+            tvTimeLeft.setText("");
         } else {
-            myLogEE(null,"playMe() => mBound False");
+            myLog("PlayMe() => play");
+            audioService.playAudio();
+            runVisualizer();
         }
     }
 
@@ -588,6 +588,9 @@ public class PlayActivity extends LoggingActivity {
         killTimerForDisplay();
         // c'est l'ecran qui s'eteint.. ca call onPause, on UnBind null, on stop, puis 1min apres ca call on Destroy et plus de son
         // du coup, si on reste bind, on passe pas par destroy...
+        if (audioServiceBound && audioService != null) {
+            try { audioService.pingUi(); } catch (Throwable ignored) {}
+        }
         super.onPause();
     }
 
@@ -605,12 +608,12 @@ public class PlayActivity extends LoggingActivity {
         PlayList playList = PlayList.getInstance();
         if (playList == null) {
             myToastE("Cannot get Playlist - PlayList.getInstance() is null");
-            lockButtonAndDisplayErrorMessage("Cannot get Playlist - PlayList.getInstance() is null");
+            lockButtonAndDisplayErrorMessage("Cannot get Playlist - PlayList_getInstance() is null");
             return;
         }
         if (playList.getZikFile() == null) {
             myToastE("Cannot get Playlist - PlayList.getInstance().getZikFile() is null");
-            lockButtonAndDisplayErrorMessage("Cannot get Playlist - PlayList.getInstance().getZikFile() is null");
+            lockButtonAndDisplayErrorMessage("Cannot get Playlist - PlayList_getInstance().getZikFile() is null");
             return;
         }
         myLog("+++++++++ loading PlayList Into Service - GetZikFiles - Folder : " + playList.getZikFile().getIdFolder());
@@ -715,22 +718,37 @@ public class PlayActivity extends LoggingActivity {
     private void redrawSeekBar() {
         try {
             if (audioService != null && audioService.isRunning()) {
-                if (audioService.isPlaying()) {
-                    bPlay.setText(R.string.pause);
-                } else {
-                    bPlay.setText(R.string.play);
+
+                // NEW: show hourglass while engine is preparing (e.g., TTS warm-up)
+                if (!audioService.isReadyToPlay()) {
+                    bPlayPause.setImageResource(R.drawable.ic_hourglass_24);
+                    // Optional: disable the button while waiting
+                    bPlayPause.setEnabled(false);
+                    return;
                 }
+
+                // Ready: re-enable and show play/pause correctly
+                bPlayPause.setEnabled(true);
+                if (audioService.isPlaying()) {
+                    bPlayPause.setImageResource(R.drawable.ic_media_pause_24);
+                } else {
+                    bPlayPause.setImageResource(R.drawable.ic_media_play_24);
+                }
+
                 int iPosition = audioService.getPosition();
-                tvSeekBar.setText(formatTime(iPosition,true));
+                tvSeekBar.setText(formatTime(iPosition, true));
                 seekbar.setProgress(iPosition);
+
             } else {
-                bPlay.setText(R.string.pause);
-                myLogD("redrawSeekBar => service KO => drawing pause button");
+                bPlayPause.setImageResource(R.drawable.ic_hourglass_24);
+                bPlayPause.setEnabled(false);
+                myLogD("redrawSeekBar => service KO => drawing hourglass");
             }
         } catch (Exception e) {
             myLogEE(e, "redrawSeekBar");
         }
     }
+
 
     /********************************************************************************
      ***       DIVERS FONCTIONS
@@ -764,7 +782,7 @@ public class PlayActivity extends LoggingActivity {
     }
 
     private void lockUserActions(boolean doLock) {
-        for (Button b : buttonsToLock) {
+        for (View b : buttonsToLock) {
             b.setEnabled(!doLock);
         }
         frequencyVisualizerView.setEnabled(!doLock);
@@ -792,7 +810,18 @@ public class PlayActivity extends LoggingActivity {
                 tv.setText(errMessage);
                 myLogEE(null,errMessage);
             } else {
-                String zePath = PlayList.getInstance().getZikFile()==null ? "PlayList.getInstance().getZikFile()==null" : PlayList.getInstance().getZikFile().getPath();
+                String zePath;
+                if (PlayList.getInstance()==null) {
+                    myLogEE(null, "lockButtonAndDisplayErrorMessage PlayList_getInstance() == null");
+                    zePath = "***";
+                } else {
+                    if (PlayList.getInstance().getZikFile() == null) {
+                        myLogEE(null, "lockButtonAndDisplayErrorMessage PlayList_getInstance()_getZikFile() == null");
+                        zePath = "***";
+                    } else {
+                        zePath = PlayList.getInstance().getZikFile().getPath();
+                    }
+                }
                 String pathText = getString(R.string.source_file_path) + " = \n[" + zePath + "]";
                 if (zePath.contains(Var.PATH_CHECK_AUDIO_FILE_INTERNAL)) {
                     tv.setText(getString(R.string.source_not_found));
@@ -990,13 +1019,13 @@ public class PlayActivity extends LoggingActivity {
 
                         if (audioServiceBound && audioService != null && audioService.isTtsMode() && voice != null) {
                             try {
-                                //bPlay.setEnabled(false);
+                                bPlayPause.setEnabled(false);
                                 audioService.setTtsVoiceByNameAndWarmUp(
                                         voice.name,
                                         5000L,
                                         (ready, reason) -> runOnUiThread(() -> {
                                             if (ready) {
-                                                bPlay.setEnabled(true);
+                                                bPlayPause.setEnabled(true);
                                             } else {
                                                 switch (reason) {
                                                     case TtsHelper.MISSING_DATA:

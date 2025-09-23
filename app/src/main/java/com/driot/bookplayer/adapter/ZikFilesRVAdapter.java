@@ -1,9 +1,5 @@
 package com.driot.bookplayer.adapter;
 
-/**
- * created by Antoine Driot -- antoine.driot.com -- on 28/10/20
- */
-
 import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;
@@ -16,11 +12,11 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.activities.PlayActivity;
 import com.driot.bookplayer.activities.ModifyZikFileActivity;
+import com.driot.bookplayer.activities.PlayActivity;
+import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.objects.PlayList;
-import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingRVAdapter;
 
@@ -43,31 +39,45 @@ public class ZikFilesRVAdapter extends LoggingRVAdapter<ZikFilesRVAdapter.ZikFil
         return new ZikFilesViewHolder(view);
     }
 
-    /********************************************************************************
-     ***       SETTING VALUES
-     ********************************************************************************
-     */
     @Override
     public void onBindViewHolder(@NonNull ZikFilesViewHolder holder, int position) {
-        RedrawViewHolderElements(holder, position);
-    }
-
-    public void RedrawViewHolderElements(ZikFilesViewHolder holder, int position) {
         ZikFile t = zikFileList.get(position);
-
         holder.textViewFileName.setText(t.getDisplayName());
         Option.applyUserTextAppearance(holder.textViewFileName);
-
         holder.textViewFilePercent.setText(Tonio.FormatPercentString(t.getPercentdone()));
         holder.mProgressBar.setProgress(Tonio.FormatPercentForProgressBar(t.getPercentdone()));
         holder.textViewFileLastAccess.setText(Tonio.formatLastAccess(t.lLastAccess, mCtx));
         holder.textViewDuration.setText(Tonio.formatTime(t.getDuration()));
     }
 
-
     @Override
     public int getItemCount() {
         return zikFileList.size();
+    }
+
+    private int getCurrentFolderIdSafe() {
+        PlayList pl = PlayList.getInstance();
+        if (pl == null) return -1;
+        if (pl.getFolder() != null) return pl.getFolder().getId();
+        ZikFile z = pl.getZikFile();
+        return (z != null) ? z.getIdFolder() : -1;
+    }
+
+    private int getCurrentIndexSafe() {
+        PlayList pl = PlayList.getInstance();
+        return (pl != null) ? pl.getNumZikFile() : -1;
+    }
+
+    private void startPlayActivity(boolean forceReload, ZikFile clicked) {
+        Intent i = new Intent(mCtx, PlayActivity.class);
+        if (clicked != null) i.putExtra("ZikFile", clicked);
+        if (forceReload) {
+            i.putExtra("force_reload", true);
+        } else {
+            // same track: just bring the existing activity forward if it exists
+            i.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        }
+        mCtx.startActivity(i);
     }
 
     class ZikFilesViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
@@ -75,10 +85,8 @@ public class ZikFilesRVAdapter extends LoggingRVAdapter<ZikFilesRVAdapter.ZikFil
         TextView textViewFileName, textViewFileLastAccess, textViewFilePercent, textViewDuration;
         ProgressBar mProgressBar;
 
-
         public ZikFilesViewHolder(View itemView) {
             super(itemView);
-
             textViewFileName = itemView.findViewById(R.id.tvBookName);
             textViewFilePercent = itemView.findViewById(R.id.textViewFilePercent);
             textViewFileLastAccess = itemView.findViewById(R.id.textViewFileLastAccess);
@@ -92,26 +100,51 @@ public class ZikFilesRVAdapter extends LoggingRVAdapter<ZikFilesRVAdapter.ZikFil
         @Override
         public void onClick(View view) {
             int position = getBindingAdapterPosition();
-            ZikFile zikFile = zikFileList.get(position);
-            myLogI("USER CLICKS ZIKFILE : [" + zikFile.getName() + "] - [" + zikFile.getPath() + "]");
-            PlayList.create(mCtx, zikFileList); //need to reload if user delete some tracks in between
-            if (PlayList.getInstance()!=null) {
-                PlayList.getInstance().setNumZikFile(position);
-            } else {
+            if (position == RecyclerView.NO_POSITION) return;
+
+            ZikFile clicked = zikFileList.get(position);
+            int clickedFolderId = clicked.getIdFolder();
+
+            int currentFolderId = getCurrentFolderIdSafe();
+            int currentIndex = getCurrentIndexSafe();
+
+            boolean sameBook = (currentFolderId == clickedFolderId);
+            boolean sameTrack = sameBook && (currentIndex == position);
+
+            myLogI("USER CLICKS ZIKFILE : [" + clicked.getName() + "] - sameBook=" + sameBook + " sameTrack=" + sameTrack);
+
+            if (!sameBook) {
+                // Different book: rebuild playlist at clicked index and force engine reload
+                PlayList.create(mCtx, zikFileList, position);
+                startPlayActivity(/*forceReload*/ true, clicked);
+                return;
+            }
+
+            // Same book
+            PlayList pl = PlayList.getInstance();
+            if (pl == null) {
                 myToastEE(null, mCtx.getString(R.string.error_reading_track));
                 return;
             }
-            mCtx.startActivity(new Intent(mCtx, PlayActivity.class));
+
+            if (!sameTrack) {
+                // Same book, different track: set index and force reload
+                pl.setNumZikFile(position);
+                    startPlayActivity(/*forceReload*/ true, clicked);
+            } else {
+                // Same book, same track: no reload; just show the player
+                startPlayActivity(/*forceReload*/ false, null);
+            }
         }
 
         @Override
         public boolean onLongClick(View view) {
-            ZikFile zikFile = zikFileList.get(getBindingAdapterPosition());
+            int pos = getBindingAdapterPosition();
+            if (pos == RecyclerView.NO_POSITION) return false;
+            ZikFile zikFile = zikFileList.get(pos);
             myLogI("onLongClick() : [" + zikFile.getName() + "] - [" + zikFile.getPath() + "/" + zikFile.getName() + "]");
-
             mCtx.startActivity(new Intent(mCtx, ModifyZikFileActivity.class).putExtra("ZikFile", zikFile));
-            return false;
+            return true;
         }
     }
-
 }

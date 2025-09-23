@@ -4,6 +4,8 @@ import android.os.Handler;
 
 import androidx.annotation.NonNull;
 
+import com.driot.bookplayer.utils.Tonio;
+
 public final class PauseTrimWatcher {
 
     public interface Killer {
@@ -35,7 +37,7 @@ public final class PauseTrimWatcher {
             long p = pauseSinceMs.get();
             if (p != 0) {
                 long delta = nowMs.get() - p;
-                killer.onLog("Paused since " + delta + " ms (max " + trimAfterPauseMs + ")");
+                killer.onLog("Paused since " + Tonio.formatTime(delta) + " (max " + Tonio.formatTime(trimAfterPauseMs) + ")");
                 if (delta > trimAfterPauseMs) killer.kill();
             }
             h.postDelayed(this, periodMs);

@@ -1,8 +1,11 @@
 package com.driot.bookplayer.player;
 
+import android.app.PendingIntent;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
@@ -22,7 +25,7 @@ public final class MediaSessionController {
 
     public void setActive(boolean active) { session.setActive(active); }
 
-    public void setDuration(long durMs) {
+    public void setDuration(long durMs) { //TODO call should be replaced by below setMetaData
         MediaMetadataCompat md = new MediaMetadataCompat.Builder()
                 .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, durMs)
                 .build();
@@ -38,4 +41,28 @@ public final class MediaSessionController {
     }
 
     public void release() { session.release(); }
+
+    // NEW: allow the service to tell Android which activity to open
+    public void setSessionActivity(@NonNull PendingIntent pi) {
+        session.setSessionActivity(pi);
+    }
+
+    // NEW: richer metadata for cars / watches / lockscreen
+    public void setMetadata(@NonNull String title,
+                            @NonNull String artist,
+                            @NonNull String album,
+                            long durationMs,
+                            @Nullable android.graphics.Bitmap art /* pass null if you don't have it */) {
+        MediaMetadataCompat.Builder b = new MediaMetadataCompat.Builder()
+                .putText(MediaMetadataCompat.METADATA_KEY_TITLE, title)
+                .putText(MediaMetadataCompat.METADATA_KEY_ARTIST, artist)
+                .putText(MediaMetadataCompat.METADATA_KEY_ALBUM, album)
+                .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, durationMs);
+        if (art != null) {
+            b.putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, art);
+            b.putBitmap(MediaMetadataCompat.METADATA_KEY_ART, art);
+        }
+        session.setMetadata(b.build());
+    }
+
 }

@@ -40,8 +40,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activities.PlayActivity" />
-        <activity android:name=".activities.ZikFileActivity" />
+        <activity android:name=".activities.PlayActivity"
+            android:parentActivityName=".activities.MainActivity"/>
+        <activity android:name=".activities.ZikFileActivity"
+            android:parentActivityName=".activities.MainActivity"/>
         <activity android:name=".activities.GetActivity" />
         <activity android:name=".activities.GetOtherActivity" />
         <activity android:name=".activities.GetAudiobookActivity" />

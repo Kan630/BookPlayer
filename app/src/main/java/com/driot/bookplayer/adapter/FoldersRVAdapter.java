@@ -1,9 +1,6 @@
 package com.driot.bookplayer.adapter;
 
-/**
- * created by Antoine Driot -- antoine.driot.com -- on 28/10/20
- */
-
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;
@@ -14,6 +11,9 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.AsyncListDiffer;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -30,151 +30,206 @@ import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.objects.PlayList;
 import com.driot.bookplayer.helpers.IconHelper;
-import com.driot.bookplayer.utils.AppTtsManager;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingRVAdapter;
 
 import java.util.List;
-import java.util.Locale;
 
 import static com.driot.bookplayer.utils.KanLogger.myToastE;
 import static com.driot.bookplayer.utils.Tonio.*;
 
-public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersViewHolder> {
+public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersViewHolder>
+        implements View.OnClickListener, View.OnLongClickListener {
 
     private final Context mCtx;
-    private final List<Folder> folderList;
 
-    public FoldersRVAdapter(Context mCtx, List<Folder> FolderList) {
-        this.mCtx = mCtx;
-        this.folderList = FolderList;
+    private final AsyncListDiffer<Folder> differ = new AsyncListDiffer<>(this, DIFF);
+
+    // DiffUtil: compare by stable id; rebind if important fields change
+    private static final DiffUtil.ItemCallback<Folder> DIFF = new DiffUtil.ItemCallback<Folder>() {
+        @Override public boolean areItemsTheSame(@NonNull Folder a, @NonNull Folder b) {
+            return a.getId() == b.getId();
+        }
+        @Override public boolean areContentsTheSame(@NonNull Folder a, @NonNull Folder b) {
+            return a.getName().equals(b.getName())
+                    && safeEq(a.getPercentdone(), b.getPercentdone())
+                    && a.lLastAccess == b.lLastAccess
+                    && a.getDuration() == b.getDuration()
+                    && safeEq(a.image, b.image)
+                    && safeEq(a.getSourceLocation(), b.getSourceLocation())
+                    && safeEq(a.playType, b.playType);
+        }
+        private boolean safeEq(Object x, Object y) { return x == null ? y == null : x.equals(y); }
+    };
+
+    public FoldersRVAdapter(Context ctx) {
+        super();
+        this.mCtx = ctx;
+        setHasStableIds(true);
     }
+
+    // Use ListAdapter API
+    @Override public long getItemId(int position) {
+        Folder f = getItem(position);
+        return (f == null) ? RecyclerView.NO_ID : f.getId();
+    }
+
+    public Folder getItem(int position) {
+        List<Folder> list = differ.getCurrentList();
+        return (position >= 0 && position < list.size()) ? list.get(position) : null;
+    }
+
+    public void submitList(List<Folder> folders) {
+        differ.submitList(folders);
+    }
+
+    @Override public int getItemCount() {
+        return differ.getCurrentList().size();
+    }
+
 
     @NonNull
     @Override
     public FoldersViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(mCtx).inflate(R.layout.recyclerview_folders, parent, false);
-        return new FoldersViewHolder(view);
+        View v = LayoutInflater.from(mCtx).inflate(R.layout.recyclerview_folders, parent, false);
+        v.setOnClickListener(this);
+        v.setOnLongClickListener(this);
+        return new FoldersViewHolder(v);
     }
 
     @Override
-    public void onBindViewHolder(FoldersViewHolder holder, int position) {
-        Folder folder = folderList.get(position);
-        holder.textViewFileName.setText(folder.getName());
-        Option.applyUserTextAppearance(holder.textViewFileName);
+    public void onBindViewHolder(@NonNull FoldersViewHolder h, int position) {
+        Folder folder = getItem(position);
+        if (folder == null) return;
 
-        holder.textViewFilePercent.setText(String.format(folder.getPercentdone().toString(), Locale.getDefault()));
+        h.textViewFileName.setText(folder.getName());
+        Option.applyUserTextAppearance(h.textViewFileName);
 
-        holder.textViewFilePercent.setText(FormatPercentString(folder.getPercentdone()));
-
-        holder.mProgressBar.setProgress(FormatPercentForProgressBar(folder.getPercentdone()));
-
-        holder.textViewFileLastAccess.setText(Tonio.formatLastAccess(folder.lLastAccess, mCtx));
-
-        holder.textViewDuration.setText(formatTime(folder.getDuration()));
-
-        //holder.ivMemory.setImageResource(folder.getMemoryLocationIcon(mCtx));
+        h.textViewFilePercent.setText(FormatPercentString(folder.getPercentdone()));
+        h.mProgressBar.setProgress(FormatPercentForProgressBar(folder.getPercentdone()));
+        h.textViewFileLastAccess.setText(Tonio.formatLastAccess(folder.lLastAccess, mCtx));
+        h.textViewDuration.setText(formatTime(folder.getDuration()));
 
         if (folder.image != null) {
-            holder.ivBookCover.setVisibility(View.VISIBLE);
-            Glide.with(holder.ivBookCover.getContext()).load(folder.image).into(holder.ivBookCover);
+            h.ivBookCover.setVisibility(View.VISIBLE);
+            Glide.with(h.ivBookCover.getContext()).load(folder.image).into(h.ivBookCover);
         } else {
-            holder.ivBookCover.setVisibility(View.GONE);
+            h.ivBookCover.setVisibility(View.GONE);
         }
-        IconHelper.setSourceIcon(holder.ivSource, folder.getSourceLocation(), folder.playType);
+        IconHelper.setSourceIcon(h.ivSource, folder.getSourceLocation(), folder.playType);
+    }
+
+    // Click handling at adapter-level so ViewHolder stays dumb
+    @Override
+    public void onClick(View v) {
+        RecyclerView.ViewHolder vh = (RecyclerView.ViewHolder) v.getTag(R.id.view_holder_tag);
+        if (vh == null) return;
+        int pos = vh.getBindingAdapterPosition();
+        if (pos == RecyclerView.NO_POSITION) return;
+
+        Folder folder = getItem(pos);
+        if (folder == null) return;
+        myLogI("onClick - position=" + pos + " - " + folder.getName());
+
+        // DB work off main; UI nav back on main
+        AppDatabase.databaseReadExecutor.execute(() -> {
+            try {
+                List<ZikFile> zikFilesList = AppDatabase.getDatabase(mCtx).ZikFileDao().getZikFiles(folder.getId());
+                if (zikFilesList.isEmpty()) {
+                    if (Var.SOURCE_LOCATION_PODCAST.equals(folder.getSourceLocation())) {
+                        postToast(mCtx.getString(R.string.no_episode_all_deleted));
+                    } else {
+                        postToast(mCtx.getString(R.string.ErrorCouldNotLoadAudios_emptyfolder));
+                    }
+                    return;
+                }
+
+                if (Option.getPodcastOpenSpecificView() && Var.SOURCE_LOCATION_PODCAST.equals(folder.getSourceLocation())) {
+                    Podcast p = AppDatabase.getDatabase(mCtx).PodcastDao().getPodcastByFolderId(folder.getId());
+                    runOnUi(() -> mCtx.startActivity(new Intent(mCtx, PodcastEpisodeActivity.class).putExtra("podcast", p)));
+                } else {
+                    if (zikFilesList.size() > 1) {
+                        runOnUi(() -> mCtx.startActivity(new Intent(mCtx, ZikFileActivity.class).putExtra("folder", folder)));
+                    } else {
+                        myLogD("Single file");
+                        // SINGLE FILE: only reload if it's a different folder than what's playing
+                        int currentFolderId = getCurrentFolderIdSafe();
+                        myLogD("currentFolderId=" + currentFolderId + " - folder.getId()=" + folder.getId() + " -");
+                        boolean sameBook = (currentFolderId == folder.getId());
+
+                        if (!sameBook) {
+                            // new selection → rebuild playlist and force reload in PlayActivity
+                            PlayList.create(mCtx, zikFilesList, /*startIndex*/0);
+                            runOnUi(() -> mCtx.startActivity(
+                                    new Intent(mCtx, PlayActivity.class)
+                                            .putExtra("ZikFile", zikFilesList.get(0))
+                                            .putExtra("force_reload", true)
+                            ));
+                        } else {
+                            myLogD("same book");
+                            // same book → do NOT recreate playlist or reload; just bring player forward
+                            runOnUi(() -> mCtx.startActivity(
+                                    new Intent(mCtx, PlayActivity.class)
+                                            .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT) // nice UX if it's already open
+                            ));
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                myLogEE(e, "error getting nb of ZikFiles");
+                postToast(mCtx.getString(R.string.ErrorCouldNotLoadAudios));
+            }
+        });
     }
 
     @Override
-    public int getItemCount() {
-        return folderList.size();
+    public boolean onLongClick(View v) {
+        RecyclerView.ViewHolder vh = (RecyclerView.ViewHolder) v.getTag(R.id.view_holder_tag);
+        if (vh == null) return false;
+        int pos = vh.getBindingAdapterPosition();
+        if (pos == RecyclerView.NO_POSITION) return false;
+        Folder folder = getItem(pos);
+        if (folder == null) return false;
+        runOnUi(() -> mCtx.startActivity(new Intent(mCtx, ModifyFolderActivity.class).putExtra("folder", folder)));
+        return true;
     }
 
-    class FoldersViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
+    private void postToast(String msg) {
+        runOnUi(() -> myToastE(msg));
+    }
 
+    private void runOnUi(Runnable r) {
+        if (mCtx instanceof Activity) ((Activity) mCtx).runOnUiThread(r);
+        else r.run(); // best effort
+    }
+
+    class FoldersViewHolder extends RecyclerView.ViewHolder {
         TextView textViewFileName, textViewFileLastAccess, textViewFilePercent, textViewDuration;
         ProgressBar mProgressBar;
         ImageView ivBookCover, ivMemory, ivSource;
 
-        public FoldersViewHolder(View itemView) {
+        FoldersViewHolder(View itemView) {
             super(itemView);
-
             textViewFileName = itemView.findViewById(R.id.tvBookName);
             textViewFilePercent = itemView.findViewById(R.id.textViewFilePercent);
             textViewFileLastAccess = itemView.findViewById(R.id.textViewFileLastAccess);
-            textViewDuration =  itemView.findViewById(R.id.textViewDuration);
+            textViewDuration = itemView.findViewById(R.id.textViewDuration);
             mProgressBar = itemView.findViewById(R.id.progressBar);
             ivMemory = itemView.findViewById(R.id.imageViewStorageIcon);
             ivBookCover = itemView.findViewById(R.id.ivBookCover);
             ivSource = itemView.findViewById(R.id.ivSource);
 
-            itemView.setOnClickListener(this);
-            itemView.setOnLongClickListener(this);
+            // Store the holder on the root view so adapter can retrieve it in onClick/onLongClick
+            itemView.setTag(R.id.view_holder_tag, this);
         }
-
-        @Override
-        public void onClick(View view) {
-            Folder folder = folderList.get(getBindingAdapterPosition());
-            if (folder == null) {
-                myLogEE(null,"onClick folder == null");
-                return;
-            } else {
-                myLogI("onClick - position=" + getBindingAdapterPosition() + " - " + folder.getName());
-            }
-            //TODO
-            /*
-            if (folder.playType!=null && folder.playType.equals(Var.PLAY_TYPE_TEXT)) {
-                // early load of TTS
-                final AppTtsManager mgr = AppTtsManager.get(mCtx.getApplicationContext());
-            }
-
-             */
-
-            new Thread(() -> {
-                try {
-                    List<ZikFile> zikFilesList = AppDatabase.getDatabase(mCtx).ZikFileDao().getZikFiles(folder.getId());
-                    myLog("nb ZikFiles in that Book : " + zikFilesList.size() + " - [" + folder.getName() + "]");
-                    if (zikFilesList.isEmpty()) {
-                        if (folder.getSourceLocation().equals(Var.SOURCE_LOCATION_PODCAST)) {
-                            myToastE(mCtx.getString(R.string.no_episode_all_deleted));
-                        } else {
-                            myLogE("no ZikFiles in that folder !");
-                            myToastE(mCtx.getString(R.string.ErrorCouldNotLoadAudios_emptyfolder));
-                        }
-                    } else {
-                        PlayList.create(mCtx, zikFilesList);
-                        if (Option.getPodcastOpenSpecificView() && folder.getSourceLocation().equals(Var.SOURCE_LOCATION_PODCAST)) {
-                            AppDatabase.databaseReadExecutor.execute(() -> {
-                                Podcast podcast = AppDatabase.getDatabase(mCtx).PodcastDao().getPodcastByFolderId(folder.getId());
-                                myLogD("opening PodcastEpisodeActivity for podcast : " + podcast.title);
-                                mCtx.startActivity(new Intent(mCtx, PodcastEpisodeActivity.class).putExtra("podcast", podcast));
-                            });
-                        } else {
-                            if (zikFilesList.size() > 1) {
-                                mCtx.startActivity(new Intent(mCtx, ZikFileActivity.class).putExtra("folder", folder));
-                            } else if (zikFilesList.size() == 1) {
-                                PlayList.getInstance().setNumZikFile(0);
-                                mCtx.startActivity(new Intent(mCtx, PlayActivity.class).putExtra("ZikFile", zikFilesList.get(0)));
-                            }
-                        }
-                    }
-                } catch (Exception e) {
-                    myLogEE(e,"error getting nb of ZikFiles");
-                    myToastE(mCtx.getString(R.string.ErrorCouldNotLoadAudios));
-                }
-            }).start();
-        }
-
-
-        @Override
-        public boolean onLongClick(View view) {
-            myLogI("onLongClick");
-            Folder folder = folderList.get(getBindingAdapterPosition());
-            mCtx.startActivity(new Intent(mCtx, ModifyFolderActivity.class).putExtra("folder", folder));
-            return false;
-        }
-
-
     }
 
-
+    private int getCurrentFolderIdSafe() {
+        PlayList pl = PlayList.getInstance();
+        if (pl == null) return -1;
+        Folder f = pl.getFolder();
+        if (f != null) return f.getId();
+        ZikFile z = pl.getZikFile();
+        return (z != null) ? z.getIdFolder() : -1;
+    }
 }

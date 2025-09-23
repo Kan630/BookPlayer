@@ -326,7 +326,7 @@
         >
 
         <Button
-            android:id="@+id/buttonRewind"
+            android:id="@+id/ibRewind"
             android:text="@string/rewind"
             style="@style/PlayActivityActionButtons"
             android:layout_width="0dp"
@@ -334,7 +334,7 @@
             android:layout_weight="1" />
 
         <Button
-            android:id="@+id/buttonPlay"
+            android:id="@+id/ibPlayPause"
             android:text="@string/play"
             style="@style/PlayActivityActionButtons"
             android:layout_width="0dp"
@@ -343,7 +343,7 @@
             android:layout_marginHorizontal="5dp" />
 
         <Button
-            android:id="@+id/buttonForward"
+            android:id="@+id/ibForward"
             android:text="@string/forward"
             style="@style/PlayActivityActionButtons"
             android:layout_width="0dp"

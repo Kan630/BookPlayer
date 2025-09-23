@@ -109,15 +109,11 @@ public class KanMediaPlayer extends MediaPlayer {
     @Override
     public void seekTo(int posMilliSec) {
         if (isPrepared) {
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-                super.seekTo(posMilliSec);
+            if (PlayList.getInstance() !=null && PlayList.getInstance().getZikFile() != null && PlayList.getInstance().getZikFile().isM4b()) {
+                super.seekTo(posMilliSec, SEEK_CLOSEST);  //seek_closest needed for m4b...
+                KanLogger.myLogD("SEEK_CLOSEST (m4b)");
             } else {
-                if (PlayList.getInstance().getZikFile() != null && PlayList.getInstance().getZikFile().isM4b()) {
-                    super.seekTo(posMilliSec, SEEK_CLOSEST);  //seek_closest needed for m4b...
-                    KanLogger.myLogD("SEEK_CLOSEST (m4b)");
-                } else {
-                    super.seekTo(posMilliSec);
-                }
+                super.seekTo(posMilliSec);
             }
         } else {
             myLogE("seekTo(" + posMilliSec + ") - not prepared");

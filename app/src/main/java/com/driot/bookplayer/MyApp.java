@@ -48,7 +48,6 @@ public class MyApp extends Application {
         super.onCreate();
         KanLogger.init(getApplicationContext());
         BookToAdd.init(getApplicationContext());
-        PlayList.initContext(getApplicationContext());
         Option.init(getApplicationContext());
         Pref.init(getApplicationContext());
         TaskStateManager.init(getApplicationContext());

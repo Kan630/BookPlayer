@@ -78,12 +78,12 @@
     <style name="PlayActivityActionButtons">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_weight">1</item>
-        <item name="android:layout_height">80sp</item>
-        <item name="android:textSize">32sp</item>
-        <item name="android:layout_marginStart">0sp</item>
-        <item name="android:paddingBottom">0dp</item>
-        <item name="android:paddingTop">0dp</item>
+        <item name="android:layout_height">64dp</item>
+        <item name="android:padding">12dp</item>
+        <item name="android:adjustViewBounds">true</item>
+        <item name="android:scaleType">centerInside</item>
     </style>
+
 
     <style name="PlayActivity_TrackName" parent="textColor">
         <item name="android:textColor">?colorPrimary</item>
