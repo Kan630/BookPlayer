@@ -8,8 +8,10 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.IBinder;
+import android.view.KeyEvent;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -18,6 +20,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.objects.PlayList;
 import com.driot.bookplayer.services.AudioService;
+import com.driot.bookplayer.utils.KanLogger;
 
 /**
  * Mini player's single source of truth:
@@ -81,7 +84,9 @@ public class PlaybackViewModel extends AndroidViewModel {
         @Override public void onReceive(Context c, Intent i) {
             final String action = i.getAction();
             if (AudioService.ACTION_UI_STATE.equals(action)) {
-                // Single source of truth for visibility/content
+                // we now know the service is running; bind if not already
+                maybeBindOnFirstUiState();
+
                 miniSuppressed.postValue(i.getBooleanExtra(AudioService.EXTRA_UI_SUPPRESS_MINI, false));
                 state.postValue(new PlaybackUiState(
                         i.getBooleanExtra(AudioService.EXTRA_UI_PLAYING, false),
@@ -91,12 +96,11 @@ public class PlaybackViewModel extends AndroidViewModel {
                         i.getStringExtra(AudioService.EXTRA_UI_SUBTITLE)
                 ));
             } else if (AudioService.NOTIFICATION_PLAYBACK_TIMER_VALUE.equals(action)) {
-                // Progress smoothing only if we ARE bound
                 if (bound && service != null) pushSnapshot();
-                // If not bound, ignore. Never post empties.
             }
         }
     };
+
 
     /** Progress-only refresh. Never called when unbound. */
     private void pushSnapshot() {
@@ -116,10 +120,33 @@ public class PlaybackViewModel extends AndroidViewModel {
     }
 
     // Transport
-    public void playPause() { if (service==null) return; if (service.isPlaying()) service.pauseAudio(); else service.playAudio(); }
-    public void next() { if (service!=null) service.forwardAudio(); }
-    public void prev() { if (service!=null) service.backwardAudio(); }
-    public void seekTo(int ms) { if (service!=null) service.setPosition(ms); }
+    public void playPause() {
+        myLog("playpause");
+        if (service != null) {
+            if (service.isPlaying()) service.pauseAudio(); else service.playAudio();
+        } else {
+            // unbound path → toggle
+            sendMediaButton(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE);
+        }
+    }
+
+    public void next() {
+        myLog("next");
+        if (service != null) service.forwardAudio();
+        else sendMediaButton(KeyEvent.KEYCODE_MEDIA_NEXT);
+    }
+
+    public void prev() {
+        myLog("prev");
+        if (service != null) service.backwardAudio();
+        else sendMediaButton(KeyEvent.KEYCODE_MEDIA_PREVIOUS);
+    }
+
+    /** seek needs binder access; no safe media-button fallback. */
+    public void seekTo(int ms) {
+        myLog("seekTo");
+        if (service != null) service.setPosition(ms);
+    }
 
     /** Close/hide mini and pause audio even if we're not bound. */
     public void dismissMini() {
@@ -132,11 +159,7 @@ public class PlaybackViewModel extends AndroidViewModel {
                 .setAction(AudioService.ACTION_CMD)
                 .putExtra(AudioService.EXTRA_CMD, AudioService.CMD_PAUSE_AND_SUPPRESS);
         try {
-            if (android.os.Build.VERSION.SDK_INT >= 26) {
-                androidx.core.content.ContextCompat.startForegroundService(app, cmd);
-            } else {
-                app.startService(cmd);
-            }
+            androidx.core.content.ContextCompat.startForegroundService(app, cmd);
         } catch (Throwable ignored) {}
         // Do NOT post empty state; wait for ACTION_UI_STATE from service.
     }
@@ -145,4 +168,44 @@ public class PlaybackViewModel extends AndroidViewModel {
         if (bound) getApplication().unbindService(conn);
         LocalBroadcastManager.getInstance(getApplication()).unregisterReceiver(receiver);
     }
+
+
+    private void maybeBindOnFirstUiState() {
+        if (!bound) {
+            try {
+                getApplication().bindService(
+                        new Intent(getApplication(), AudioService.class),
+                        conn,
+                        0 /* no auto-create; service is already running because it just broadcast */
+                );
+            } catch (Throwable ignored) {}
+        }
+    }
+
+    /** Send a media button to the service so it routes via MediaSession callbacks. */
+    private void sendMediaButton(int keyCode) {
+        Context app = getApplication();
+        // ACTION_DOWN
+        Intent down = new Intent(app, AudioService.class)
+                .setAction(Intent.ACTION_MEDIA_BUTTON)
+                .putExtra(Intent.EXTRA_KEY_EVENT, new KeyEvent(KeyEvent.ACTION_DOWN, keyCode));
+        ContextCompat.startForegroundService(app, down);
+        // ACTION_UP (some OEMs need both)
+        Intent up = new Intent(app, AudioService.class)
+                .setAction(Intent.ACTION_MEDIA_BUTTON)
+                .putExtra(Intent.EXTRA_KEY_EVENT, new KeyEvent(KeyEvent.ACTION_UP, keyCode));
+        ContextCompat.startForegroundService(app, up);
+    }
+
+
+    // ----------------------- LOG -----------------------
+    private static final String TAG = "PlaybackViewModel";
+    private static void myLog(String str) { KanLogger.myLog(TAG, str); }
+    private static void myLogD(String str) { KanLogger.myLogD(TAG, str); }
+    private static void myLogI(String str) { KanLogger.myLogI(TAG, str); }
+    private static void myLogW(String str) { KanLogger.myLogW(TAG, str); }
+    private static void myLogE(String str) { KanLogger.myLogE(TAG, str); }
+    private static void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, TAG, str); }
+    private static void myToastEE(Throwable t, String str) { KanLogger.myToastEE(t, TAG, str); }
 }
+

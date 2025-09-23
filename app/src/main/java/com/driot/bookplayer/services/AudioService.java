@@ -19,6 +19,7 @@ import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.view.KeyEvent;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.documentfile.provider.DocumentFile;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -421,16 +422,13 @@ public class AudioService extends LoggingService {
                         if (pl != null && pl.getSize() > 1) {
                             // Prefer passing the Folder object if it's Parcelable/Serializable; else pass folderId
                             Intent trackList = new Intent(AudioService.this, com.driot.bookplayer.activities.ZikFileActivity.class);
-                            if (pl.getFolder() != null) {
-                                trackList.putExtra("folder", pl.getFolder()); // if your Folder is Serializable/Parcelable
-                            } else if (pl.getZikFile() != null) {
-                                trackList.putExtra("folderId", pl.getZikFile().getIdFolder());
-                            }
+                            trackList.putExtra("folder", pl.getFolder()); // if your Folder is Serializable/Parcelable
                             tsb.addNextIntent(trackList);
                         }
 
                         // Finally PlayActivity
-                        tsb.addNextIntent(new Intent(AudioService.this, com.driot.bookplayer.activities.PlayActivity.class));
+                        tsb.addNextIntent(new Intent(AudioService.this, com.driot.bookplayer.activities.PlayActivity.class)
+                                .putExtra(com.driot.bookplayer.activities.PlayActivity.EXTRA_AUTOPLAY, false));
 
                         return tsb.getPendingIntent(0, flags);
                     }
@@ -637,97 +635,92 @@ public class AudioService extends LoggingService {
      ********************************************************************************
      */
 
-    // TODO, use openFileDescriptor & remove legacy from manifest
+    /** Swap current engine with a new one, releasing TTS if needed, keeping flags intact. */
+    private void setEngine(@NonNull PlayerEngine newEngine) {
+        try {
+            if (engine != null) {
+                if (engine instanceof TtsEngine) {
+                    ((TtsEngine) engine).release();
+                } else {
+                    engine.stop();
+                    engine.reset();
+                }
+            }
+        } catch (Throwable ignored) {}
+        engine = newEngine;
+    }
 
-    //called in :
-    //* PlayActivity
-    //* onPrepare
-    //* onError
+    /** Simplified, side-effect-free loader. */
     public void loadFile() {
-        myLogD("loadingFile.......  - Play Audio straight away : " + directPlay);
+        myLogD("loadFile()  directPlay=" + directPlay);
 
-        if (PlayList.getInstance()==null || PlayList.getInstance().getZikFile()==null) {
+        // Ensure we actually have something to play
+        PlayList pl = PlayList.getInstance();
+        if (pl == null || pl.getZikFile() == null) {
+            // Try to restore once
             PlayList.restoreIfExists(this);
-            if (PlayList.getInstance()==null || PlayList.getInstance().getZikFile()==null) {
+            pl = PlayList.getInstance();
+            if (pl == null || pl.getZikFile() == null) {
                 loadFileKO();
                 return;
             }
         }
-        ZikFile zf = PlayList.getInstance().getZikFile();
 
-        Uri uriToPlay = null;
-        String pathToPlay = null;
+        ZikFile zf = pl.getZikFile();
 
-        // --- Your existing SAF/file/path resolution (kept) ---
-        if (zf.getPath().startsWith("content://")) {
-            myLog("New SAF file, content...");
-            uriToPlay = UriHelper.buildFileUri(this, zf.getPath(), zf.getName());
-            if (uriToPlay == null) { myLogEE(null,"buildFileUri returned null"); loadFileKO(); return; }
-            DocumentFile file = DocumentFile.fromSingleUri(this, uriToPlay);
-            if (!file.exists() || !file.isFile()) {
-                myLogD("Try Single file");
-                uriToPlay = Uri.parse(zf.getPath());
-                file = DocumentFile.fromSingleUri(this, uriToPlay);
-                if (!file.exists() || !file.isFile()) {
-                    myLogEE(null,"Invalid SAF Uri: " + uriToPlay);
-                    loadFileKO(); return;
-                }
-            }
-        } else if (zf.getPath().startsWith("file://")) {
-            Uri fileUri = Uri.parse(zf.getPath());
-            String p = fileUri.getPath();
-            if (p == null) { myLogEE(null,"Invalid file:// path"); loadFileKO(); return; }
-            File f = new File(p);
-            if (!f.exists() || !f.isFile()) {
-                File maybe = new File(p, zf.getName());
-                if (!maybe.exists() || !maybe.isFile()) { myLogEE(null,"File not found: " + p); loadFileKO(); return; }
-                f = maybe; fileUri = Uri.fromFile(f);
-            }
-            uriToPlay = fileUri;
-        } else {
-            pathToPlay = zf.getPath();
-            if (!fileExists(pathToPlay)) {
-                myLogEE(null,"File doesn't exist: " + pathToPlay);
-                pathToPlay = zf.getPath() + "/" + zf.getName();
-                if (!fileExists(pathToPlay)) { myLogEE(null,"Still missing: " + pathToPlay); loadFileKO(); return; }
-            }
-            uriToPlay = Uri.fromFile(new File(pathToPlay));
-        }
-
-        // --- Decide engine: AUDIO vs TTS (text) ---
+        // Decide engine type from display or path
         final boolean isText =
                 (zf.getPath()!=null && zf.getPath().toLowerCase().endsWith(".txt")) ||
                         (zf.getDisplayName()!=null && zf.getDisplayName().toLowerCase().endsWith(".txt"));
 
+        // Resolve Uri
+        Uri src = UriHelper.resolvePlayableUri(this, zf);
+        if (src == null) {
+            myLogEE(null, "resolvePlayableUri failed for: " + zf.getPath());
+            loadFileKO();
+            return;
+        }
+
+        // New generation (guards async callbacks)
         engineGen++;
         long gen = engineGen;
 
-        if (isText) {
-            engine = new TtsEngine(getApplicationContext(), AppTtsManager.get(getApplicationContext()), engineCb, gen);
-        } else {
-            engine = new MediaPlayerEngine(engineCb, gen);
-        }
+        // Swap engine
+        PlayerEngine fresh = isText
+                ? new TtsEngine(getApplicationContext(), AppTtsManager.get(getApplicationContext()), engineCb, gen)
+                : new MediaPlayerEngine(engineCb, gen);
+        setEngine(fresh);
 
         ErrorLoadingFile = false;
 
-        ZikFile z = getCurrentZikFile();
-        if (z != null) {
-            media.updateState(PlaybackStateCompat.STATE_BUFFERING, 0, 0f, playbackStateCompatAction);
-            media.setMetadata(z.getDisplayName(), z.getFolderName(), z.getFolderName(), 0L, null);
-            showForegroundNotification(isPlaying());
+        // Update media session metadata early (title/sub), set BUFFERING, show paused notif
+        media.updateState(PlaybackStateCompat.STATE_BUFFERING, 0, 0f, playbackStateCompatAction);
+        ZikFile cur = getCurrentZikFile(); // should be zf, but stay defensive
+        if (cur != null) {
+            media.setMetadata(
+                    cur.getDisplayName(),
+                    cur.getFolderName(),
+                    cur.getFolderName(),
+                    0L,
+                    null
+            );
         }
+        showForegroundNotification(isPlaying());
 
         try {
             engine.reset();
-            engine.setDataSource(this, uriToPlay, zf.getDisplayName());
+            engine.setDataSource(this, src, zf.getDisplayName());
             engine.prepareAsync();
+
+            // Optional: broadcast current title/pos (dur likely 0 → mini remains hidden).
+            // This “primes” the UI with labels without forcing visibility.
             broadcastUiState();
+
         } catch (Exception e) {
-            myLogEE(e, "ERROR loading source");
+            myLogEE(e, "loadFile: setDataSource/prepareAsync failed");
             loadFileKO();
         }
     }
-
 
 
     /********************************************************************************
@@ -784,10 +777,18 @@ public class AudioService extends LoggingService {
         }
     }
 
+    public void pauseAudioNoSave() {
+        if (engine != null && engine.isPlaying()) {
+            mediaPlayerPause();
+            focus.abandon();
+            sleepTimer.stop();
+            showForegroundNotification(false);
+            broadcastUiState();
+        }
+    }
     public void pauseAudio() {
         if (engine != null && engine.isPlaying()) {
             mediaPlayerPause();
-            // media.setActive(false);   // no de-activation for headset to still work...
             updateZikFileStateInDB(false);
             focus.abandon();
             sleepTimer.stop();
@@ -1053,7 +1054,6 @@ public class AudioService extends LoggingService {
         }
 
         if (engine != null) {
-            media.setDuration(engine.getDuration());   //TODO remove
             ZikFile z = getCurrentZikFile();
             if (z != null) {
                 media.setMetadata(

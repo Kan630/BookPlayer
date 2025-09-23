@@ -833,6 +833,8 @@
     <string name="error_playlist_null">The playlist could not be retrieved.</string>
     <string name="stop">stop</string>
     <string name="option_stop_audio_if_user_closes_app_text">Stop audio when you close the app.</string>
+    <string name="option_auto_play_on_main_player_text">Auto play when clicking audio track.</string>
+
 
 
 

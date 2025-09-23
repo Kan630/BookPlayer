@@ -6,7 +6,6 @@ package com.driot.bookplayer.global;
 
 import static android.content.Context.MODE_PRIVATE;
 
-import static com.driot.bookplayer.activities.PlayActivity.SHARED_PREFERENCE_SPEED;
 import static com.driot.bookplayer.global.Var.PODCAST_DETAIL_ANIMATION_COUNT;
 
 import android.content.Context;
@@ -23,8 +22,7 @@ public class Pref {
 
     private static final String SHARED_PREFERENCES_DIVERSE = "SHARED_PREFERENCES_DIVERSE";
 
-    private static final String SHARED_PREFERENCE_INTROCUT = "SHARED_PREFERENCE_INTROCUT";
-    private static final String SHARED_PREFERENCE_TTS_LANG = "SHARED_PREFERENCE_TTS_LANG";
+    private static final String SHARED_PREFERENCE_INTRO_CUT = "SHARED_PREFERENCE_INTRO_CUT";
 
     private static final String SHARED_PREFERENCES_DOWNLOAD = "SHARED_PREFERENCES_DOWNLOAD";
     private static final String KEY_LOAD_BOOK_TASK_STATE = "loadBookTaskState";
@@ -44,23 +42,11 @@ public class Pref {
     public static long getPauseTime() {return prefs.getLong("PAUSE_TIME", 0);}
 
 
-
-
-
-    /////////////////// OPEN WITH ... LAST IMPORTED FILE ///////////////////
-    public static void set_Last_OpenWith_FileUri(Context c, String last_uri) {c.getSharedPreferences(SHARED_PREFERENCES_DIVERSE, MODE_PRIVATE).edit().putString("LAST_URI",last_uri).apply();}
-    public static String get_Last_OpenWith_FileUri(Context c) {return c.getSharedPreferences(SHARED_PREFERENCES_DIVERSE, MODE_PRIVATE).getString("LAST_URI", "none");}
-
-    public static void set_Last_OpenWith_File_Time(Context c) {c.getSharedPreferences(SHARED_PREFERENCES_DIVERSE, MODE_PRIVATE).edit().putLong("LAST_URI_TIME",System.currentTimeMillis()).apply();}
-    public static long get_Last_OpenWith_File_Time(Context c) {return c.getSharedPreferences(SHARED_PREFERENCES_DIVERSE, MODE_PRIVATE).getLong("LAST_URI_TIME", 0);}
-
-
-
     /////////////////// PER BOOK ID ///////////////////
 
     public static void saveIntroCutToPref(Context c, int idFolder, int introCut) {
         try {
-            SharedPreferences.Editor editor = c.getSharedPreferences(SHARED_PREFERENCE_INTROCUT, MODE_PRIVATE).edit();
+            SharedPreferences.Editor editor = c.getSharedPreferences(SHARED_PREFERENCE_INTRO_CUT, MODE_PRIVATE).edit();
             editor.putInt(Integer.toString(idFolder), introCut).apply();
         } catch (Exception e) {
             myLogEE(e,"error saving introCut in prefs");
@@ -68,7 +54,7 @@ public class Pref {
     }
     public static int getIntroCutFromPref(Context c, int idFolder) {
         try {
-            SharedPreferences prefs = c.getSharedPreferences(SHARED_PREFERENCE_INTROCUT, MODE_PRIVATE);
+            SharedPreferences prefs = c.getSharedPreferences(SHARED_PREFERENCE_INTRO_CUT, MODE_PRIVATE);
             return prefs.getInt(String.valueOf(idFolder), 0);
         } catch (Exception e) {
             myLogEE(e,"error getting introCut from prefs");
@@ -77,7 +63,7 @@ public class Pref {
     }
     public static void saveSpeedToPref(int idFolder, double speed) {
         try {
-            SharedPreferences.Editor editor = appContext.getSharedPreferences(SHARED_PREFERENCE_SPEED, MODE_PRIVATE).edit();
+            SharedPreferences.Editor editor = appContext.getSharedPreferences("SHARED_PREFERENCE_SPEED", MODE_PRIVATE).edit();
             editor.putString(String.valueOf(idFolder),Double.toString(speed)).apply();
         } catch (Exception e) {
             myLogEE(e,"error saving speed in prefs");
@@ -85,7 +71,7 @@ public class Pref {
     }
     public static double getSpeedFromPref(int idFolder) {
         try {
-            SharedPreferences prefs = appContext.getSharedPreferences(SHARED_PREFERENCE_SPEED, MODE_PRIVATE);
+            SharedPreferences prefs = appContext.getSharedPreferences("SHARED_PREFERENCE_SPEED", MODE_PRIVATE);
             return Double.parseDouble(prefs.getString(String.valueOf(idFolder), "1.0"));
         } catch (Exception e) {
             myLogEE(e,"error getting speed from prefs");

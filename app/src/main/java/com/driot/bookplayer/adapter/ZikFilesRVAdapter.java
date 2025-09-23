@@ -9,6 +9,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
@@ -18,41 +19,56 @@ import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.objects.PlayList;
 import com.driot.bookplayer.utils.Tonio;
-import com.driot.bookplayer.utils.log.LoggingRVAdapter;
+import com.driot.bookplayer.utils.log.LoggingListAdapter;
 
-import java.util.List;
+public class ZikFilesRVAdapter extends LoggingListAdapter<ZikFile, ZikFilesRVAdapter.ZikFilesViewHolder> {
 
-public class ZikFilesRVAdapter extends LoggingRVAdapter<ZikFilesRVAdapter.ZikFilesViewHolder> {
+    public ZikFilesRVAdapter() {
+        super(DIFF);
+        setHasStableIds(true);
+    }
 
-    private final Context mCtx;
-    private final List<ZikFile> zikFileList;
+    private static final DiffUtil.ItemCallback<ZikFile> DIFF = new DiffUtil.ItemCallback<ZikFile>() {
+        @Override public boolean areItemsTheSame(@NonNull ZikFile a, @NonNull ZikFile b) {
+            return a.getId() == b.getId();
+        }
+        @Override public boolean areContentsTheSame(@NonNull ZikFile a, @NonNull ZikFile b) {
+            // Compare only what you render to avoid unnecessary redraws
+            return a.equalsVisual(b);
+        }
+    };
 
-    public ZikFilesRVAdapter(Context mCtx, List<ZikFile> zikFileList) {
-        this.mCtx = mCtx;
-        this.zikFileList = zikFileList;
+    @Override public long getItemId(int position) {
+        ZikFile z = getItem(position);
+        return (z == null) ? RecyclerView.NO_ID : z.getId();
     }
 
     @NonNull
     @Override
     public ZikFilesViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(mCtx).inflate(R.layout.recyclerview_zikfiles, parent, false);
+        View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.recyclerview_zikfiles, parent, false);
         return new ZikFilesViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ZikFilesViewHolder holder, int position) {
-        ZikFile t = zikFileList.get(position);
+        ZikFile t = getItem(position);
+        if (t == null) return;
+
+        Context ctx = holder.itemView.getContext();
+
         holder.textViewFileName.setText(t.getDisplayName());
         Option.applyUserTextAppearance(holder.textViewFileName);
         holder.textViewFilePercent.setText(Tonio.FormatPercentString(t.getPercentdone()));
         holder.mProgressBar.setProgress(Tonio.FormatPercentForProgressBar(t.getPercentdone()));
-        holder.textViewFileLastAccess.setText(Tonio.formatLastAccess(t.lLastAccess, mCtx));
+        holder.textViewFileLastAccess.setText(Tonio.formatLastAccess(t.lLastAccess, ctx));
         holder.textViewDuration.setText(Tonio.formatTime(t.getDuration()));
-    }
 
-    @Override
-    public int getItemCount() {
-        return zikFileList.size();
+        // Optional highlight for "now playing"
+        PlayList pl = PlayList.getInstance();
+        boolean isCurrent = pl != null && pl.getZikFile() != null && pl.getZikFile().getId() == t.getId();
+        holder.itemView.setActivated(isCurrent);
     }
 
     private int getCurrentFolderIdSafe() {
@@ -68,16 +84,15 @@ public class ZikFilesRVAdapter extends LoggingRVAdapter<ZikFilesRVAdapter.ZikFil
         return (pl != null) ? pl.getNumZikFile() : -1;
     }
 
-    private void startPlayActivity(boolean forceReload, ZikFile clicked) {
-        Intent i = new Intent(mCtx, PlayActivity.class);
+    private void startPlayActivity(@NonNull Context ctx, boolean forceReload, ZikFile clicked) {
+        Intent i = new Intent(ctx, PlayActivity.class);
         if (clicked != null) i.putExtra("ZikFile", clicked);
         if (forceReload) {
             i.putExtra("force_reload", true);
         } else {
-            // same track: just bring the existing activity forward if it exists
             i.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         }
-        mCtx.startActivity(i);
+        ctx.startActivity(i);
     }
 
     class ZikFilesViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
@@ -85,7 +100,7 @@ public class ZikFilesRVAdapter extends LoggingRVAdapter<ZikFilesRVAdapter.ZikFil
         TextView textViewFileName, textViewFileLastAccess, textViewFilePercent, textViewDuration;
         ProgressBar mProgressBar;
 
-        public ZikFilesViewHolder(View itemView) {
+        ZikFilesViewHolder(View itemView) {
             super(itemView);
             textViewFileName = itemView.findViewById(R.id.tvBookName);
             textViewFilePercent = itemView.findViewById(R.id.textViewFilePercent);
@@ -102,38 +117,42 @@ public class ZikFilesRVAdapter extends LoggingRVAdapter<ZikFilesRVAdapter.ZikFil
             int position = getBindingAdapterPosition();
             if (position == RecyclerView.NO_POSITION) return;
 
-            ZikFile clicked = zikFileList.get(position);
+            ZikFile clicked = getItem(position);
+            if (clicked == null) return;
+
             int clickedFolderId = clicked.getIdFolder();
-
             int currentFolderId = getCurrentFolderIdSafe();
-            int currentIndex = getCurrentIndexSafe();
 
+            // Prefer ID-based equality, not position
+            PlayList pl = PlayList.getInstance();
             boolean sameBook = (currentFolderId == clickedFolderId);
-            boolean sameTrack = sameBook && (currentIndex == position);
+            boolean sameTrack = sameBook
+                    && pl != null && pl.getZikFile() != null
+                    && pl.getZikFile().getId() == clicked.getId();
 
             myLogI("USER CLICKS ZIKFILE : [" + clicked.getName() + "] - sameBook=" + sameBook + " sameTrack=" + sameTrack);
 
+            Context ctx = itemView.getContext();
+
             if (!sameBook) {
                 // Different book: rebuild playlist at clicked index and force engine reload
-                PlayList.create(mCtx, zikFileList, position);
-                startPlayActivity(/*forceReload*/ true, clicked);
+                PlayList.create(ctx, getCurrentList(), position);
+                startPlayActivity(ctx, /*forceReload*/ true, clicked);
                 return;
             }
 
-            // Same book
-            PlayList pl = PlayList.getInstance();
             if (pl == null) {
-                myToastEE(null, mCtx.getString(R.string.error_reading_track));
+                myToastEE(null, ctx.getString(R.string.error_reading_track));
                 return;
             }
 
             if (!sameTrack) {
                 // Same book, different track: set index and force reload
                 pl.setNumZikFile(position);
-                    startPlayActivity(/*forceReload*/ true, clicked);
+                startPlayActivity(ctx, /*forceReload*/ true, clicked);
             } else {
-                // Same book, same track: no reload; just show the player
-                startPlayActivity(/*forceReload*/ false, null);
+                // Same book, same track: just show the player
+                startPlayActivity(ctx, /*forceReload*/ false, null);
             }
         }
 
@@ -141,9 +160,12 @@ public class ZikFilesRVAdapter extends LoggingRVAdapter<ZikFilesRVAdapter.ZikFil
         public boolean onLongClick(View view) {
             int pos = getBindingAdapterPosition();
             if (pos == RecyclerView.NO_POSITION) return false;
-            ZikFile zikFile = zikFileList.get(pos);
+            ZikFile zikFile = getItem(pos);
+            if (zikFile == null) return false;
+
             myLogI("onLongClick() : [" + zikFile.getName() + "] - [" + zikFile.getPath() + "/" + zikFile.getName() + "]");
-            mCtx.startActivity(new Intent(mCtx, ModifyZikFileActivity.class).putExtra("ZikFile", zikFile));
+            Context ctx = itemView.getContext();
+            ctx.startActivity(new Intent(ctx, ModifyZikFileActivity.class).putExtra("ZikFile", zikFile));
             return true;
         }
     }

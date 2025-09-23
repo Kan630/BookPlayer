@@ -1,5 +1,7 @@
 package com.driot.bookplayer.helpers;
 
+import static com.driot.bookplayer.utils.Tonio.fileExists;
+
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
@@ -9,9 +11,11 @@ import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.text.TextUtils;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.documentfile.provider.DocumentFile;
 
+import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.utils.KanLogger;
 
 import java.io.File;
@@ -392,6 +396,49 @@ public class UriHelper {
         return null;
     }
 
+
+    // TODO, use openFileDescriptor & remove legacy from manifest
+    @Nullable
+    public static Uri resolvePlayableUri(Context context, @NonNull ZikFile zf) {
+        try {
+            // Content (SAF)
+            if (zf.getPath() != null && zf.getPath().startsWith("content://")) {
+                Uri u = UriHelper.buildFileUri(context, zf.getPath(), zf.getName());
+                if (u == null) return null;
+                DocumentFile f = DocumentFile.fromSingleUri(context, u);
+                if (f != null && f.exists() && f.isFile()) return u;
+
+                // fallback: try the raw content Uri
+                u = Uri.parse(zf.getPath());
+                f = DocumentFile.fromSingleUri(context, u);
+                return (f != null && f.exists() && f.isFile()) ? u : null;
+            }
+
+            // file://
+            if (zf.getPath() != null && zf.getPath().startsWith("file://")) {
+                Uri u = Uri.parse(zf.getPath());
+                String p = u.getPath();
+                if (p == null) return null;
+                File f = new File(p);
+                if (f.exists() && f.isFile()) return u;
+
+                // sometimes folder path + name
+                File maybe = new File(p, zf.getName());
+                return (maybe.exists() && maybe.isFile()) ? Uri.fromFile(maybe) : null;
+            }
+
+            // Plain filesystem path
+            String base = zf.getPath();
+            if (base == null) return null;
+            if (fileExists(base)) return Uri.fromFile(new File(base));
+            String withName = base + "/" + zf.getName();
+            return fileExists(withName) ? Uri.fromFile(new File(withName)) : null;
+
+        } catch (Throwable t) {
+            myLogEE(t, "resolvePlayableUri");
+            return null;
+        }
+    }
 
 
 

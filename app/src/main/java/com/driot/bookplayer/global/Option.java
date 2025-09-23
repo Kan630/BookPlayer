@@ -29,6 +29,7 @@ public class Option {
     private static final boolean DEFAULT_REWIND_AFTER_PAUSE = true;
     private static final boolean DEFAULT_START_AT_ZERO_NEXT_TRACK = true;
     private static final boolean DEFAULT_STOP_AUDIO_IF_USER_CLOSES_APP = true;
+    private static final boolean DEFAULT_AUTO_PLAY_ON_MAIN_PLAYER = true;
     private static final String DEFAULT_THEME_KEY = "purple"; //needs a string as resource ID are not stables between releases
     private static final boolean DEFAULT_COPY_FILES = true;
     private static final boolean DEFAULT_CLICK_VISUALIZER_PLAYPAUSE = false;
@@ -150,6 +151,10 @@ public class Option {
     /////////////////// STOP AUDIO IF USER CLOSES APP option ///////////////////
     public static void setStopAudioIfUserClosesApp(boolean bool) {prefs.edit().putBoolean("STOP_AUDIO_IF_USER_CLOSES_APP",bool).apply();}
     public static boolean getStopAudioIfUserClosesApp() {return prefs.getBoolean("STOP_AUDIO_IF_USER_CLOSES_APP", DEFAULT_STOP_AUDIO_IF_USER_CLOSES_APP);}
+
+    /////////////////// AUTO_PLAY_ON_MAIN_PLAYER option ///////////////////
+    public static void setAutoPlayOnMainPlayer(boolean bool) {prefs.edit().putBoolean("AUTO_PLAY_ON_MAIN_PLAYER",bool).apply();}
+    public static boolean getAutoPlayOnMainPlayer() {return prefs.getBoolean("AUTO_PLAY_ON_MAIN_PLAYER", DEFAULT_AUTO_PLAY_ON_MAIN_PLAYER);}
 
     /////////////////// COPY FILES ///////////////////
     public static void setCopyFile(boolean bool) {prefs.edit().putBoolean("COPY_FILES",bool).apply();}

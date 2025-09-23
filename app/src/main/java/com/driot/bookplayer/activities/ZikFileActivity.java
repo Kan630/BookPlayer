@@ -10,6 +10,7 @@ import android.widget.TextView;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -23,7 +24,6 @@ import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
-import java.util.HashMap;
 import java.util.List;
 
 public class ZikFileActivity extends LoggingActivity {
@@ -34,9 +34,13 @@ public class ZikFileActivity extends LoggingActivity {
     private Folder folder;
     private int folderId = -1;
 
-    private List<ZikFile> zikFilesList;
-    private final HashMap<Integer, Integer> map = new HashMap<>();
     private ImageButton ib_settings;
+
+    // ViewModel that exposes LiveData<List<ZikFile>>
+    private ZikFilesViewModel vm;
+
+    // ensure we auto-scroll only once after the first list is loaded
+    private boolean didAutoScrollToLast = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -46,6 +50,8 @@ public class ZikFileActivity extends LoggingActivity {
 
         recyclerView = findViewById(R.id.recyclerview_zikfiles);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        adapter = new ZikFilesRVAdapter();
+        recyclerView.setAdapter(adapter);
 
         ib_settings = findViewById(R.id.ib_settings);
         ib_settings.setOnClickListener(view -> {
@@ -56,7 +62,7 @@ public class ZikFileActivity extends LoggingActivity {
             }
         });
 
-        // Read initial folder once, store id, then always reload from DB
+        // Read initial folder once; keep only the id and always re-read from DB
         Folder initial = getIntent().getParcelableExtra("folder");
         if (initial == null) {
             myToastEE(null, "ZikFileActivity : folder == null");
@@ -65,17 +71,28 @@ public class ZikFileActivity extends LoggingActivity {
         }
         folderId = initial.getId();
 
-        // Load data
-        reloadFolderFromDb();          // fills header (or finishes if deleted)
-        getZikFilesAndLoadRecyclerView();
+        // ViewModel + LiveData observation
+        vm = new ViewModelProvider(this).get(ZikFilesViewModel.class);
+        vm.getZikFilesLive(folderId).observe(this, list -> {
+            if (list == null) return;
+            adapter.submitList(list);
+
+            // Auto-scroll only on first load
+            if (!didAutoScrollToLast && !list.isEmpty()) {
+                didAutoScrollToLast = true;
+                scrollToLastPlayed(list);
+            }
+        });
+
+        // Load header info (folder metadata + image)
+        reloadFolderFromDb();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        // Ensure header is always fresh when coming back to this screen
+        // Keep header fresh when returning
         reloadFolderFromDb();
-        getZikFilesAndLoadRecyclerView();
     }
 
     private void reloadFolderFromDb() {
@@ -97,40 +114,20 @@ public class ZikFileActivity extends LoggingActivity {
         });
     }
 
-    private void getZikFilesAndLoadRecyclerView() {
-        AppDatabase.databaseReadExecutor.execute(() -> {
-            zikFilesList = AppDatabase.getDatabase(this).ZikFileDao().getZikFiles(folderId);
+    private void scrollToLastPlayed(List<ZikFile> list) {
+        long maxTs = 0;
+        int targetIndex = -1;
 
-            map.clear();
-            for (int i = 0; i < zikFilesList.size(); i++) {
-                map.put(zikFilesList.get(i).getId(), i);
-            }
-
-            runOnUiThread(() -> {
-                adapter = new ZikFilesRVAdapter(ZikFileActivity.this, zikFilesList);
-                recyclerView.setAdapter(adapter);
-                if (!zikFilesList.isEmpty()) {
-                    goToLastAudio();
-                } else {
-                    myLog("Zik file list is empty");
-                }
-            });
-        });
-    }
-
-    private void goToLastAudio() {
-        long maxTimestamp = 0;
-        int idMax = 0;
-
-        for (ZikFile z : zikFilesList) {
-            if (z.lLastAccess != null && z.lLastAccess > maxTimestamp) {
-                maxTimestamp = z.lLastAccess;
-                idMax = z.getId();
+        for (int i = 0; i < list.size(); i++) {
+            ZikFile z = list.get(i);
+            if (z.lLastAccess != null && z.lLastAccess > maxTs) {
+                maxTs = z.lLastAccess;
+                targetIndex = i;
             }
         }
-
-        if (idMax != 0 && map.containsKey(idMax)) {
-            int pos = Math.max(map.get(idMax) - 1, 0);
+        if (targetIndex >= 0) {
+            // scroll a little above the last item for context
+            int pos = Math.max(targetIndex - 1, 0);
             recyclerView.scrollToPosition(pos);
             myLogD("Scrolling to last played audio at position: " + pos);
         }
@@ -144,7 +141,7 @@ public class ZikFileActivity extends LoggingActivity {
 
         if (folder.image != null && !folder.image.isEmpty()) {
             imageView.setVisibility(ImageView.VISIBLE);
-            imageView.setImageURI(null);                 // force refresh if same URI
+            imageView.setImageURI(null); // force refresh if same URI
             imageView.setImageURI(Uri.parse(folder.image));
             imageView.invalidate();
         } else {

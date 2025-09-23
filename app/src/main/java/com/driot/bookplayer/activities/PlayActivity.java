@@ -73,7 +73,8 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
  */
 public class PlayActivity extends LoggingActivity {
 
-    public static final String SHARED_PREFERENCE_SPEED="SHARED_PREFERENCE_SPEED";
+    public static final String EXTRA_AUTOPLAY = "extra_autoplay";
+
     private static final int INTERVAL_REDRAW_SEEKBAR = 500; //  because looks like it happens erratically when choosing value of 100 for this constant
     private static final int DELAY_ANIMATION = 200;
     private static final float INCREMENT_SPEED = 0.05f;
@@ -91,6 +92,7 @@ public class PlayActivity extends LoggingActivity {
     private Timer timerRedrawUI;
     private String tvListeningTimeBaseText;
     private boolean forceReload;
+    private boolean autoPlay;
 
     String[] broadcastNotifications = {
             AudioService.NOTIFICATION_TRACKFINISHED //useless ?
@@ -142,25 +144,22 @@ public class PlayActivity extends LoggingActivity {
             audioService = binder.getService();
             audioServiceBound = true;
 
-            // Get PlayList
-            // If we came from a folder click, replace whatever is currently playing
-            if (forceReload) {
-                myLogD("forceReload");
-                try { audioService.pauseAudio(); } catch (Throwable ignored) {}
-                audioService.directPlay = true;
-                // load current PlayList into the service even if it was already playing something else
+            //boolean auto = autoPlay || forceReload;
+            boolean auto = Option.getAutoPlayOnMainPlayer();
+            if (!HasBeenInitializedService || auto) {
+
+                try { audioService.pauseAudioNoSave(); } catch (Throwable ignored) {}
+                audioService.directPlay = auto;
                 try { audioService.loadFile(); } catch (Throwable ignored) {}
-                forceReload = false; // one-shot
-            } else if (!HasBeenInitializedService && !audioService.isPlaying()) {
-                loadPlayListIntoService();
+
+                //forceReload = false;
+                HasBeenInitializedService = true;
             }
 
-            HasBeenInitializedService = true;
-
-            // retour de flip ecran
             myLogD("onServiceConnected - DrawUI");
             DrawUI();
         }
+
 
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
@@ -233,8 +232,9 @@ public class PlayActivity extends LoggingActivity {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
         }
 
+        //autoPlay = getIntent().getBooleanExtra(EXTRA_AUTOPLAY, false);
         forceReload = getIntent().getBooleanExtra("force_reload", false);
-        myLogD("forceReload = " + forceReload);
+        //myLogD("forceReload = " + forceReload + ", autoPlay = " + autoPlay);
 
         PlayList playList = PlayList.getInstance();
         if (playList == null) {
@@ -604,30 +604,6 @@ public class PlayActivity extends LoggingActivity {
      ***       GET FROM DB
      ********************************************************************************
      */
-    private void loadPlayListIntoService() {
-        PlayList playList = PlayList.getInstance();
-        if (playList == null) {
-            myToastE("Cannot get Playlist - PlayList.getInstance() is null");
-            lockButtonAndDisplayErrorMessage("Cannot get Playlist - PlayList_getInstance() is null");
-            return;
-        }
-        if (playList.getZikFile() == null) {
-            myToastE("Cannot get Playlist - PlayList.getInstance().getZikFile() is null");
-            lockButtonAndDisplayErrorMessage("Cannot get Playlist - PlayList_getInstance().getZikFile() is null");
-            return;
-        }
-        myLog("+++++++++ loading PlayList Into Service - GetZikFiles - Folder : " + playList.getZikFile().getIdFolder());
-        new Thread(() -> {
-            try {
-                audioService.directPlay = false;
-                audioService.loadFile();
-            } catch (Exception e) {
-                myToastE("Error Loading playlist");
-                myLogEE(e,"Error Loading playlist");
-            }
-        }).start();
-    }
-
     private void DrawUI() {
         PlayList playList = PlayList.getInstance();
         if (playList == null) {

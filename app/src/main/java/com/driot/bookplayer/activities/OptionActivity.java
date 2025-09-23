@@ -75,6 +75,7 @@ public class OptionActivity extends LoggingActivity {
     CheckBox chk_rewind_after_pause;
     CheckBox chk_start_next_track_at_zero;
     CheckBox chk_stop_audio_if_user_closes_app;
+    CheckBox chk_auto_play_on_main_player;
     CheckBox chk_copy_file;
     CheckBox chk_click_visualizer_playpause;
     CheckBox chk_tech_log_file;
@@ -110,7 +111,7 @@ public class OptionActivity extends LoggingActivity {
 
     LinearLayout ll_visualizer_on, ll_visualizer_playpause, ll_copy_file, ll_delete_source_file;
     LinearLayout ll_beep_chapter, ll_beep_bookend, ll_beep_autostop;
-    LinearLayout ll_rewind_after_pause, ll_start_next_track_at_zero, ll_stop_audio_if_user_closes_app;
+    LinearLayout ll_rewind_after_pause, ll_start_next_track_at_zero, ll_stop_audio_if_user_closes_app, ll_auto_play_on_main_player;
     LinearLayout ll_tech_log_file, ll_mail_method_default;
     LinearLayout ll_open_with, ll_open_with_all, ll_split_m4b, ll_use_sd_card;
     LinearLayout ll_container_sd_card, ll_create_cover;
@@ -407,6 +408,12 @@ public class OptionActivity extends LoggingActivity {
         chk_stop_audio_if_user_closes_app.setChecked(Option.getStopAudioIfUserClosesApp());
         ll_stop_audio_if_user_closes_app.setOnClickListener(v -> chk_stop_audio_if_user_closes_app.toggle());
         chk_stop_audio_if_user_closes_app.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setStopAudioIfUserClosesApp(isChecked));
+
+        chk_auto_play_on_main_player = findViewById(R.id.chk_auto_play_on_main_player);
+        ll_auto_play_on_main_player = findViewById(R.id.ll_auto_play_on_main_player);
+        chk_auto_play_on_main_player.setChecked(Option.getAutoPlayOnMainPlayer());
+        ll_auto_play_on_main_player.setOnClickListener(v -> chk_auto_play_on_main_player.toggle());
+        chk_auto_play_on_main_player.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setAutoPlayOnMainPlayer(isChecked));
 
         chk_copy_file.setChecked(Option.getCopyFile());
         ll_copy_file.setOnClickListener(v -> chk_copy_file.toggle());

@@ -13,6 +13,7 @@ import androidx.room.PrimaryKey;
 import java.io.Serializable;
 import java.sql.Date;
 import java.sql.Time;
+import java.util.Objects;
 
 @Entity
 public class ZikFile implements Serializable {
@@ -181,6 +182,15 @@ public class ZikFile implements Serializable {
                 '}';
     }
 
+    public boolean equalsVisual(ZikFile other) {
+        if (other == null) return false;
+        return Objects.equals(name, other.name)
+                && Objects.equals(duration, other.duration)
+                && Objects.equals(percentdone, other.percentdone)
+                && Objects.equals(lLastAccess, other.lLastAccess);
+    }
+
+
 
     @Deprecated
     public Long firstaccess;
@@ -188,4 +198,6 @@ public class ZikFile implements Serializable {
     public Long lastaccess;
     @Deprecated
     public Long lastaccessTime;
+
+
 }
