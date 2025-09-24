@@ -41,11 +41,11 @@ public class SupportedExtensionsActivity extends LoggingActivity {
         setContentView(R.layout.activity_supported_extensions);
         InsetHelper.apply(this);
 
-        TextView tvMessage = findViewById(R.id.tvMessage);
+        TextView tvFileMime = findViewById(R.id.tvFileMime);
         Button btnOk = findViewById(R.id.btnOk);
 
         String msg = getIntent().getStringExtra(EXTRA_MSG);
-        tvMessage.setText(msg != null ? msg : getString(R.string.mime_type_not_supported));
+        tvFileMime.setText(msg != null ? msg : "....");
 
         List<Section> data = buildSections();
         RecyclerView rv = findViewById(R.id.rvSections);
@@ -60,16 +60,20 @@ public class SupportedExtensionsActivity extends LoggingActivity {
         List<Section> sections = new ArrayList<>();
 
         sections.add(new Section(
-                getString(R.string.section_audio),
+                getString(R.string.Audio),
                 toSortedDotList(Var.SUPPORTED_AUDIO_EXTENSIONS)
         ));
         sections.add(new Section(
-                getString(R.string.section_video),
+                getString(R.string.Video),
                 toSortedDotList(Var.SUPPORTED_VIDEO_EXTENSIONS)
         ));
         sections.add(new Section(
-                getString(R.string.section_text),
+                getString(R.string.Text),
                 toSortedDotList(Var.SUPPORTED_EBOOK_EXTENSIONS)
+        ));
+        sections.add(new Section(
+                getString(R.string.Bundle),
+                toSortedDotList(Var.SUPPORTED_COMPRESSED_FILE_EXTENSIONS)
         ));
         return sections;
     }

@@ -70,9 +70,16 @@ public class Var {
 
     public static final int[] SLEEP_PRESET_VALUES = {10, 20, 30, 45, 90, 180};
 
+    public static final Set<String> SUPPORTED_COMPRESSED_FILE_EXTENSIONS = new HashSet<>(
+            Arrays.asList(
+                    "zip"
+                    //,"7z"
+            )
+    );
+
     public static final Set<String> SUPPORTED_COVER_PICTURE_EXTENSIONS = new HashSet<>(
             Arrays.asList(
-                     "jpg"
+                    "jpg"
                     ,"jpeg"
                     ,"png"
                     ,"webp"

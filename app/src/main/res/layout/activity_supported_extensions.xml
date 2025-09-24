@@ -21,7 +21,7 @@
         app:layout_constraintEnd_toEndOf="parent">
 
         <TextView
-            android:id="@+id/tvMessage"
+            android:id="@+id/tvNotSupported"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingTop="16dp"
@@ -29,6 +29,25 @@
             android:textStyle="bold"
             android:textAppearance="?attr/textAppearanceBody1"
             android:text="@string/mime_type_not_supported"/>
+        <TextView
+            android:id="@+id/tvFileMime"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="12dp"
+            android:paddingBottom="12dp"
+            android:textStyle="bold"
+            android:textColor="@color/orange"
+            android:textAppearance="?attr/textAppearanceBody1"
+            />
+        <TextView
+            android:id="@+id/tvListSupported"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="16dp"
+            android:paddingBottom="12dp"
+            android:textStyle="bold"
+            android:textAppearance="?attr/textAppearanceBody1"
+            android:text="@string/list_of_supported_extensions"/>
     </LinearLayout>
 
     <!-- Content container (optional): gets side paddings for gesture insets -->

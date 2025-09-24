@@ -117,10 +117,7 @@ public class LoadBookActivity extends LoggingActivity {
         bookToAdd = new BookToAdd(uri, gotten_type);
 
         if (!bookToAdd.isMimeSupported()) {
-            String message = getString(R.string.mime_type_not_supported) + ":"
-                    + "\n[" + bookToAdd.getInfoMimeExtensionSmall() + "]"
-                    + "\n" + "\n" + getString(R.string.list_of_supported_extensions) + " :";
-            startActivity(SupportedExtensionsActivity.newIntent(this, message));
+            startActivity(SupportedExtensionsActivity.newIntent(this, bookToAdd.getInfoMimeExtensionSmall()));
             finish();
             return;
         }

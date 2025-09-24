@@ -783,7 +783,7 @@
     <string name="default_">default</string>
     <string name="could_not_read_resource">Could not read resource</string>
     <string name="mime_type_not_supported">picked file is not supported</string>>
-    <string name="list_of_supported_extensions">list of supported extensions</string>
+    <string name="list_of_supported_extensions">list of supported extensions :</string>
     <string name="audio_book_name">audio book name</string>>
     <string name="audio_book_cover">audio book cover</string>>
     <string name="ok">OK</string>
@@ -834,6 +834,11 @@
     <string name="stop">stop</string>
     <string name="option_stop_audio_if_user_closes_app_text">Stop audio when you close the app.</string>
     <string name="option_auto_play_on_main_player_text">Auto play when clicking audio track.</string>
+    <string name="Audio">Audio</string>
+    <string name="Video">Video</string>
+    <string name="Text">Text</string>
+    <string name="Bundle">Bundle</string>
+
 
 
 
