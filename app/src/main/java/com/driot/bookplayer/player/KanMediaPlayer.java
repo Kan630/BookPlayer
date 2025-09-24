@@ -1,3 +1,4 @@
+/*
 package com.driot.bookplayer.player;
 
 import android.media.MediaPlayer;
@@ -240,3 +241,4 @@ public class KanMediaPlayer extends MediaPlayer {
     private static void myToastEE(Throwable t, String str) { KanLogger.myToastEE(t, TAG, str); }
 
 }
+*/

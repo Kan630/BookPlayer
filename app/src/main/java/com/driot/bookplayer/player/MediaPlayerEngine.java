@@ -1,73 +1,205 @@
 package com.driot.bookplayer.player;
 
 import android.content.Context;
+import android.media.MediaPlayer;
 import android.net.Uri;
 
 import androidx.annotation.NonNull;
 
+import com.driot.bookplayer.utils.KanLogger;
+
 import java.io.IOException;
 
 /**
- * Thin wrapper around KanMediaPlayer implementing PlayerEngine.
- * Thread-safe against stale callbacks using a generation token.
+ * MediaPlayer-based PlayerEngine with internal state + error mapping.
+ * Thread-safe against stale callbacks via generation token.
  */
 public final class MediaPlayerEngine implements PlayerEngine {
+
+    public enum SeekMode { NORMAL, CLOSEST } // CLOSEST is useful for .m4b
+
+    private static final String TAG = "MediaPlayerEngine";
 
     private final EngineListener listener;
     private final long gen;
 
-    private final KanMediaPlayer mp = new KanMediaPlayer();
+    private MediaPlayer mp;
     private volatile boolean prepared = false;
+    private volatile boolean preparing = false;
+    private volatile SeekMode seekMode = SeekMode.NORMAL;
 
     public MediaPlayerEngine(@NonNull EngineListener listener, long generationToken) {
         this.listener = listener;
         this.gen = generationToken;
+        initPlayer();
+    }
 
-        mp.setListener(new KanMediaPlayer.Listener() {
-            @Override public void onPrepared() {
-                prepared = true;
-                listener.onPrepared(gen);
-            }
+    private void initPlayer() {
+        mp = new MediaPlayer();
 
-            @Override public void onCompletion() {
-                listener.onCompletion(gen);
-            }
-
-            @Override public void onError(String msg, int what, int extra) {
-                prepared = false;
-                listener.onError(gen, msg != null ? msg : "Media error", what, extra);
-            }
-
-            @Override public void onFatalError(String msg, int what, int extra) {
-                prepared = false;
-                listener.onFatal(gen, msg != null ? msg : "Media fatal", what, extra);
-            }
+        mp.setOnPreparedListener(m -> {
+            prepared = true;
+            preparing = false;
+            myLog("onPrepared");
+            listener.onPrepared(gen);
         });
+
+        mp.setOnCompletionListener(m -> {
+            prepared = false; // conservative; many apps re-prepare next
+            myLog("onCompletion");
+            listener.onCompletion(gen);
+        });
+
+        mp.setOnErrorListener((m, what, extra) -> {
+            prepared = false;
+            preparing = false;
+            String msg = classifyError(what, extra);
+            boolean fatal = isFatalError(what, extra);
+            myLogE("onError what=" + what + " extra=" + extra + " -> " + msg + " fatal=" + fatal);
+            if (fatal) {
+                listener.onFatal(gen, msg, what, extra);
+            } else {
+                listener.onError(gen, msg, what, extra);
+            }
+            // We handled it; prevent framework default dialog/log spam.
+            return true;
+        });
+    }
+
+    /** Optional: call this after setDataSource if you know the content type (e.g., .m4b). */
+    public void setSeekMode(@NonNull SeekMode mode) {
+        this.seekMode = mode;
     }
 
     @Override
     public void setDataSource(@NonNull Context ctx, @NonNull Uri uri, @NonNull String displayName) throws IOException {
         prepared = false;
+        preparing = false;
         mp.reset();
         mp.setDataSource(ctx, uri);
+        // If you want convenience auto-detection without touching PlayList, uncomment:
+        // if (displayName.toLowerCase(Locale.US).endsWith(".m4b")) this.seekMode = SeekMode.CLOSEST;
     }
 
-    @Override public void prepareAsync() { mp.prepareAsync(); }
+    @Override public void prepareAsync() {
+        prepared = false;
+        preparing = true;
+        mp.prepareAsync();
+    }
+
     @Override public void start()        { mp.start(); }
     @Override public void pause()        { mp.pause(); }
-    @Override public void stop()         { mp.stop(); }
-    @Override public void reset()        { mp.reset(); prepared = false; }
+    @Override public void stop()         { safeStop(mp); }
+    @Override public void reset()        { prepared = false; preparing = false; mp.reset(); }
     @Override public boolean isPlaying() { return mp.isPlaying(); }
-    @Override public boolean isReady()   { return prepared && !mp.isPreparing(); }
-    @Override public int getCurrentPosition() { return mp.getCurrentPosition(); }
-    @Override public int getDuration()        { return mp.getDuration(); }
+
+    @Override public boolean isReady()   { return prepared && !preparing; }
+
+    @Override
+    public int getCurrentPosition() {
+        if (!prepared) {
+            myLogD("getCurrentPosition() while not prepared -> 0");
+            return 0;
+        }
+        try { return mp.getCurrentPosition(); }
+        catch (IllegalStateException e) { myLogE("getCurrentPosition() ISE"); return 0; }
+    }
+
+    @Override
+    public int getDuration() {
+        if (!prepared) {
+            myLogD("getDuration() while not prepared -> 0");
+            return 0;
+        }
+        try { return mp.getDuration(); }
+        catch (IllegalStateException e) { myLogE("getDuration() ISE"); return 0; }
+    }
+
     @Override public int getAudioSessionId()  { return mp.getAudioSessionId(); }
-    @Override public void seekTo(int ms)      { mp.seekTo(ms); }
+
+    @Override
+    public void seekTo(int ms) {
+        if (!prepared) {
+            myLogE("seekTo(" + ms + ") while not prepared");
+            return;
+        }
+        try {
+            if (seekMode == SeekMode.CLOSEST) {
+                // API 26+: seek with mode; lower APIs ignore the extra param
+                mp.seekTo(ms, MediaPlayer.SEEK_CLOSEST);
+                myLogD("seekTo CLOSEST " + ms);
+            } else {
+                mp.seekTo(ms);
+                myLogD("seekTo NORMAL " + ms);
+            }
+        } catch (Throwable t) {
+            myLogE("seekTo failed: " + t.getMessage());
+        }
+    }
 
     @Override
     public void setSpeed(float speed) {
         try {
             mp.setPlaybackParams(mp.getPlaybackParams().setSpeed(speed));
-        } catch (Throwable ignored) { /* keep calm on old devices */ }
+        } catch (Throwable ignored) { /* old devices / streams */ }
     }
+
+    /** Call when done with this engine. */
+    public void release() {
+        prepared = false;
+        preparing = false;
+        safeRelease(mp);
+        mp = null;
+    }
+
+    // ---------- Helpers ----------
+
+    private static void safeStop(MediaPlayer player) {
+        if (player == null) return;
+        try { player.stop(); } catch (IllegalStateException ignored) {}
+    }
+
+    private static void safeRelease(MediaPlayer player) {
+        if (player == null) return;
+        try {
+            if (player.isPlaying()) {
+                try { player.stop(); } catch (IllegalStateException ignored) {}
+            }
+        } catch (IllegalStateException ignored) {}
+        try { player.reset(); } catch (IllegalStateException ignored) {}
+        try { player.release(); } catch (Exception ignored) {}
+        myLog("safeRelease() done");
+    }
+
+    private static boolean isFatalError(int what, int extra) {
+        // You can tune this list over time from your crash telemetry
+        switch (what) {
+            case MediaPlayer.MEDIA_ERROR_SERVER_DIED:
+            case MediaPlayer.MEDIA_ERROR_MALFORMED:
+            case MediaPlayer.MEDIA_ERROR_UNSUPPORTED:
+            case MediaPlayer.MEDIA_ERROR_TIMED_OUT:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    private static String classifyError(int what, int extra) {
+        String whatString;
+        switch (what) {
+            case MediaPlayer.MEDIA_ERROR_UNKNOWN: whatString = "MEDIA_ERROR_UNKNOWN"; break;
+            case MediaPlayer.MEDIA_ERROR_SERVER_DIED: whatString = "MEDIA_ERROR_SERVER_DIED"; break;
+            case MediaPlayer.MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK: whatString = "MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK"; break;
+            case MediaPlayer.MEDIA_ERROR_IO: whatString = "MEDIA_ERROR_IO"; break;
+            case MediaPlayer.MEDIA_ERROR_MALFORMED: whatString = "MEDIA_ERROR_MALFORMED"; break;
+            case MediaPlayer.MEDIA_ERROR_UNSUPPORTED: whatString = "MEDIA_ERROR_UNSUPPORTED"; break;
+            case MediaPlayer.MEDIA_ERROR_TIMED_OUT: whatString = "MEDIA_ERROR_TIMED_OUT"; break;
+            default: whatString = "UNKNOWN_CODE_" + what;
+        }
+        return "MediaPlayer Error: " + whatString + " (" + what + "), extra=" + extra;
+    }
+
+    private static void myLog(String s)  { KanLogger.myLog(TAG, s); }
+    private static void myLogD(String s) { KanLogger.myLogD(TAG, s); }
+    private static void myLogE(String s) { KanLogger.myLogE(TAG, s); }
 }
