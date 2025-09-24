@@ -1,14 +1,11 @@
 package com.driot.bookplayer.services;
 
 import static com.driot.bookplayer.db.Sql.updateFolderTable;
-import static com.driot.bookplayer.global.Var.ONLY_MIME_EBOOK;
-import static com.driot.bookplayer.global.Var.SUPPORTED_EBOOK_EXTENSIONS;
 import static com.driot.bookplayer.utils.Tonio.formatMemPadding;
 import static com.driot.bookplayer.utils.Tonio.formatNameForDisplay;
 import static com.driot.bookplayer.utils.Tonio.formatTime;
 import static com.driot.bookplayer.utils.Tonio.getExtension;
 import static com.driot.bookplayer.utils.Tonio.getFileNameFromPath;
-import static com.driot.bookplayer.utils.Tonio.getSourceLocation;
 
 import android.content.Context;
 import android.media.MediaMetadataRetriever;
@@ -28,6 +25,7 @@ import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.ImageHelper;
+import com.driot.bookplayer.helpers.SupportedFilesHelper;
 import com.driot.bookplayer.helpers.UriHelper;
 import com.driot.bookplayer.objects.AudioFileInfo;
 import com.driot.bookplayer.objects.TaskStateManager;
@@ -274,12 +272,11 @@ public class ParseFinalFolderWorker extends LoggingWorker {
                 myLog("increase recursive depth for Directory : [" + f1.getName() + "]");
                 addAudioFileRecursive(f1,recursivFolder + f1.getName() + '/');
             } else {
-                String fileName = Objects.toString(f1.getName());
-                String fileExtension = getExtension(fileName);
-                String mimeType = Objects.toString(f1.getType());
+                String fileName = SupportedFilesHelper.getFileName(f1);
+                String fileExtension = SupportedFilesHelper.getFileExtension(f1);
+                String mimeType = SupportedFilesHelper.getMimeType(f1);
                 myLogD("* Checking File : [" + fileExtension + "] . [" + fileName + "] - mime = [" + mimeType + "] - subfolder : [" + recursivFolder + "]");
-                //TODO mime could be null.... and then warning message "not an audio"
-                if (mimeType.startsWith(Var.ONLY_MIME_AUDIO) || Var.SUPPORTED_AUDIO_EXTENSIONS.contains(fileExtension)) {
+                if (SupportedFilesHelper.getType(f1).equals(SupportedFilesHelper.FILE_TYPE_AUDIO)) {
                     nbFileScan = nbFileScan + 1;
                     l_audioFilePath = recursivFolder + f1.getName();
                     l_audioSize = f1.length();
@@ -292,9 +289,9 @@ public class ParseFinalFolderWorker extends LoggingWorker {
                     TaskStateManager.tellProgress(TASK_NAME, scaledProgress, context.getString(R.string.scanning_tracks) + "..... \n[" +  l_audioFilePath + ']');
                     audioFileArrayList.add(new AudioFileInfo(l_audioFilePath, duration, f1.getUri().toString()));
                     fullFolderSize = fullFolderSize + l_audioSize;
-                } else if (mimeType.startsWith(Var.ONLY_MIME_VIDEO) || Var.SUPPORTED_VIDEO_EXTENSIONS.contains(fileExtension)) {
+                } else if (SupportedFilesHelper.getType(f1).equals(SupportedFilesHelper.FILE_TYPE_VIDEO)) {
                     myLog("Video");
-                } else if (!hadImageBefore && Var.SUPPORTED_COVER_PICTURE_EXTENSIONS.contains(fileExtension)) {
+                } else if (!hadImageBefore && (SupportedFilesHelper.getType(f1).equals(SupportedFilesHelper.FILE_TYPE_IMAGE))) {
                     long imageSize = f1.length();
                     if (bookState.imagePath == null || imageSize > UriHelper.getSize(context, Uri.parse(bookState.imagePath))) {
                         myLogD("New biggest Picture Found, size = [" + Tonio.formatMemPadding(imageSize) + "] - [" + f1.getUri() + "]");
@@ -338,12 +335,11 @@ public class ParseFinalFolderWorker extends LoggingWorker {
                 myLog("increase recursive depth for Directory : [" + f1.getName() + "]");
                 addTextFileRecursive(f1, recursiveFolder + f1.getName() + '/');
             } else {
-                String fileName = Objects.toString(f1.getName());
-                String fileExtension = getExtension(fileName);
-                String mimeType = Objects.toString(f1.getType());
+                String fileName = SupportedFilesHelper.getFileName(f1);
+                String fileExtension = SupportedFilesHelper.getFileExtension(f1);
+                String mimeType = SupportedFilesHelper.getMimeType(f1);
                 myLogD("* Checking File (TEXT): [" + fileExtension + "] . [" + fileName + "] - mime = [" + mimeType + "] - subfolder : [" + recursiveFolder + "]");
-
-                if ((mimeType != null && mimeType.startsWith("text/")) || "txt".equalsIgnoreCase(fileExtension)) {
+                if (SupportedFilesHelper.getType(f1).equals(SupportedFilesHelper.SPECIAL_TYPE_TXT)) {
                     nbFileScan++;
                     String displayPath = recursiveFolder + fileName;
                     long size = f1.length();
@@ -358,7 +354,7 @@ public class ParseFinalFolderWorker extends LoggingWorker {
                     int scaledProgress = 10 + (int) ((80 - 10) * progress);
                     TaskStateManager.tellProgress(TASK_NAME, scaledProgress,
                             context.getString(R.string.scanning_tracks) + "..... \n[" + displayPath + ']');
-                } else if (!hadImageBefore && Var.SUPPORTED_COVER_PICTURE_EXTENSIONS.contains(fileExtension)) {
+                } else if (!hadImageBefore && (SupportedFilesHelper.getType(f1).equals(SupportedFilesHelper.FILE_TYPE_IMAGE))) {
                     long imageSize = f1.length();
                     if (bookState.imagePath == null || imageSize > UriHelper.getSize(context, Uri.parse(bookState.imagePath))) {
                         myLogD("New biggest Picture Found, size = [" + Tonio.formatMemPadding(imageSize) + "] - [" + f1.getUri() + "]");

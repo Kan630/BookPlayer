@@ -1,32 +1,15 @@
 package com.driot.bookplayer.objects;
 
-import static com.driot.bookplayer.global.Var.ONLY_MIME_AUDIO;
-import static com.driot.bookplayer.global.Var.ONLY_MIME_EBOOK;
-import static com.driot.bookplayer.global.Var.ONLY_MIME_VIDEO;
-import static com.driot.bookplayer.global.Var.SUPPORTED_AUDIO_EXTENSIONS;
-
-import static com.driot.bookplayer.global.Var.SUPPORTED_EBOOK_EXTENSIONS;
-import static com.driot.bookplayer.global.Var.SUPPORTED_TEXTUAL_MIMES;
-import static com.driot.bookplayer.global.Var.SUPPORTED_VIDEO_EXTENSIONS;
-import static com.driot.bookplayer.utils.Tonio.formatNameForDisplay;
-import static com.driot.bookplayer.utils.Tonio.getExtension;
-import static com.driot.bookplayer.utils.Tonio.getFileNameFromUri;
-import static com.driot.bookplayer.utils.Tonio.getMimeType;
-
 import android.content.Context;
-import android.database.Cursor;
 import android.net.Uri;
-import android.provider.MediaStore;
-import android.provider.OpenableColumns;
 
 import androidx.annotation.NonNull;
 import androidx.documentfile.provider.DocumentFile;
 
-import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.helpers.SupportedFilesHelper;
 import com.driot.bookplayer.utils.KanLogger;
 import com.driot.bookplayer.utils.Tonio;
 
-import java.io.File;
 import java.util.Objects;
 
 public class BookToAdd {
@@ -50,6 +33,7 @@ public class BookToAdd {
     private String infoMimeExtension = "init...";
     private String infoMimeExtensionSmall = "init...";
     private String infoSourceLocation = "init...";
+    private String extractedfileName = "...";
 
     public static void init(Context context) {
         appContext = context.getApplicationContext();
@@ -71,6 +55,7 @@ public class BookToAdd {
         this.sourceLocation = Tonio.getSourceLocation(appContext, uri);
         this.infoSourceLocation = "[" + this.sourceLocation + "]";
 
+        //TODO : is this really usefull ?
         if (type.equals("File")) {
             try {
                 this.df = DocumentFile.fromSingleUri(appContext, uri);
@@ -89,12 +74,11 @@ public class BookToAdd {
             myLogEE(null, "Very bad type");
         }
 
-
         if (type.equals("File")) {
             //TODO check that 3 methods
-            mimeType = Objects.toString(Tonio.getMimeType(appContext, uri),"");
-            String fileName = getFileNameFromUri(appContext, uri);
-            fileExtension = getExtension(fileName);
+            mimeType = SupportedFilesHelper.getMimeType(appContext, uri);
+            extractedfileName = SupportedFilesHelper.getFileName(appContext, uri) ;
+            fileExtension = SupportedFilesHelper.getFileExtension(extractedfileName);
 
             if (Objects.toString(fileExtension,"").isEmpty()) {
                 myLogEE(null, "file extension not found");
@@ -102,25 +86,13 @@ public class BookToAdd {
             }
 
             // specific workers....
-            if (fileExtension.equalsIgnoreCase("zip")) {
-                this.type = "ZIP";
-            } else if (fileExtension.equalsIgnoreCase("m4b")) {
-                this.type = "M4B";
-            } else if (fileExtension.equalsIgnoreCase("odt")) {
-                this.type = "ODT";
-            } else if (fileExtension.equalsIgnoreCase("fb2")) {
-                this.type = "FB2";
-            } else if (fileExtension.equalsIgnoreCase("epub")) {
-                this.type = "EPUB";
-            }
+            String specialType = SupportedFilesHelper.getSpecialType(extractedfileName);
+            if (specialType != null && !specialType.isEmpty()) { this.type = specialType; }
 
             this.infoMimeExtension = "[" + type + "] :    [" + mimeType + "] - [." + fileExtension + "]";
             this.infoMimeExtensionSmall = "[" + mimeType + "] - [." + fileExtension + "]";
 
-            if (this.type.equals("ZIP")
-                || mimeType.startsWith(ONLY_MIME_AUDIO) || SUPPORTED_AUDIO_EXTENSIONS.contains(fileExtension)
-                || mimeType.startsWith(ONLY_MIME_VIDEO) || SUPPORTED_VIDEO_EXTENSIONS.contains(fileExtension)
-                || SUPPORTED_TEXTUAL_MIMES.contains(mimeType) || SUPPORTED_EBOOK_EXTENSIONS.contains(fileExtension)
+            if (this.type.equals(SupportedFilesHelper.SPECIAL_TYPE_ZIP) || SupportedFilesHelper.isBookSupported(extractedfileName)
             ) {
                 myLogD("Mime/Extension supported - " + infoMimeExtension);
             } else {
@@ -129,20 +101,10 @@ public class BookToAdd {
                 return;
             }
 
-            if (mimeType!=null && !mimeType.isEmpty() && ONLY_MIME_EBOOK.contains(mimeType) || SUPPORTED_EBOOK_EXTENSIONS.contains(fileExtension)) {
-                this.playType = Var.PLAY_TYPE_TEXT;
-            } else {
-                this.playType = Var.PLAY_TYPE_AUDIO;
-            }
+            this.playType = SupportedFilesHelper.getPlayType(extractedfileName);
 
-            String fileName2 = getFileName();
-            this.audioBookName = formatNameForDisplay(fileName2);
-            this.originalFile = fileName2;
-
-            if (!Objects.equals(fileName, fileName2)) {
-                myLogE("-------------------------------------------------");
-                myLogE("CHECK THAT " + fileName + "/" + fileName2);
-            }
+            this.audioBookName = Tonio.formatNameForDisplay(extractedfileName);
+            this.originalFile = extractedfileName;
 
         } else if (type.equals("Folder")) {
 
@@ -226,77 +188,6 @@ public class BookToAdd {
     /// ////////////////////////////////////////////////////////////////////////////////////////
 
 
-
-
-
-    private String getFileName() {
-        myLogD("getFileName() start: uri = " + uri.toString());
-        String name = null;
-
-        // 1. Try OpenableColumns (most reliable for content://)
-        if ("content".equalsIgnoreCase(uri.getScheme())) {
-            try (Cursor cursor = appContext.getContentResolver().query(uri, null, null, null, null)) {
-                if (cursor != null && cursor.moveToFirst()) {
-                    int index = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
-                    if (index != -1) {
-                        name = cursor.getString(index);
-                        myLogD("getFileName - OpenableColumns: [" + name + "]");
-                        return name;
-                    }
-                }
-            } catch (Exception e) {
-                myLogEE(e, "getFileName - OpenableColumns failed");
-            }
-        }
-
-        // 2. Try resolving via MediaStore
-        if (name == null && "content".equalsIgnoreCase(uri.getScheme())) {
-            try {
-                String[] projection = { MediaStore.MediaColumns.DATA };
-                try (Cursor cursor = appContext.getContentResolver().query(uri, projection, null, null, null)) {
-                    if (cursor != null && cursor.moveToFirst()) {
-                        int index = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA);
-                        String filePath = cursor.getString(index);
-                        if (filePath != null) {
-                            name = new File(filePath).getName();
-                            myLog("getFileName - MediaStore: [" + name + "]");
-                            return name;
-                        }
-                    }
-                }
-            } catch (Exception e) {
-                myLogEE(e, "getFileName - MediaStore failed");
-            }
-        }
-
-        // 3. Fallback: parse from path manually
-        if (name == null) {
-            String path = uri.getPath();
-            if (path != null) {
-                if (path.endsWith("/")) path = path.substring(0, path.length() - 1);
-                int cut = path.lastIndexOf('/');
-                if (cut != -1) {
-                    name = path.substring(cut + 1);
-                    myLog("getFileName - path fallback: " + name);
-                    return name;
-                }
-            }
-        }
-
-        // 4. Last fallback: last path segment
-        if (name == null) {
-            name = uri.getLastPathSegment();
-            myLog("getFileName - lastPathSegment fallback: " + name);
-        }
-
-        if (name == null) {
-            myLogE("getFileName failed completely for uri: [" + uri.toString() + "]");
-            this.isBroken = true;
-        }
-
-        return name;
-    }
-
     private String getBookName_with2folders(String sFolderPath, boolean stripExtension) {
         // nom par défaut = les deux derniers folders :
         // ex  : "S3 - Finances publiques/Audios"
@@ -308,13 +199,13 @@ public class BookToAdd {
         if (pos1 > -1) {
             int pos2 = str.substring(0, pos1).lastIndexOf("/", pos1);
             if (pos2 > -1) {
-                zeReturn = formatNameForDisplay(str.substring(pos2 + 1), stripExtension);
+                zeReturn = Tonio.formatNameForDisplay(str.substring(pos2 + 1), stripExtension);
             } else {
-                zeReturn = formatNameForDisplay(str.substring(pos1 + 1), stripExtension);
+                zeReturn = Tonio.formatNameForDisplay(str.substring(pos1 + 1), stripExtension);
             }
         } else {
             // especially when foldername is just a string without slash (Android 11 zip local copy)
-            zeReturn = formatNameForDisplay(str, stripExtension);
+            zeReturn = Tonio.formatNameForDisplay(str, stripExtension);
         }
         myLog("getBookName_with2folders : [" + zeReturn + "]\nFrom : [" + sFolderPath + "]");
         return zeReturn;

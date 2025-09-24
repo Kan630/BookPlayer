@@ -82,6 +82,29 @@ public class Var {
     );
 
     public static final String ONLY_MIME_AUDIO = "audio/";
+
+    // --- Image files ---
+    public static final Set<String> SUPPORTED_IMAGE_EXTENSIONS = new HashSet<>(
+            Arrays.asList(
+                    "jpg",
+                    "jpeg",
+                    "png",
+                    "webp",
+                    "bmp"
+                    // "gif"  // optional if you allow animated covers
+            )
+    );
+    public static final Set<String> SUPPORTED_IMAGE_MIMES = new HashSet<>(
+            Arrays.asList(
+                    "image/jpeg",
+                    "image/png",
+                    "image/webp",
+                    "image/bmp"
+                    // "image/gif"
+            )
+    );
+
+    // --- Audio files ---
     public static final Set<String> SUPPORTED_AUDIO_EXTENSIONS = new HashSet<>(
             Arrays.asList(
                     // Common Formats
@@ -125,34 +148,54 @@ public class Var {
  */
             )
     );
+    public static final Set<String> SUPPORTED_AUDIO_MIMES = new HashSet<>(
+            Arrays.asList(
+                    "audio/mpeg",
+                    "audio/mp4",
+                    "audio/aac",
+                    "audio/x-m4a",
+                    "audio/wav",
+                    "audio/x-wav",
+                    "audio/ogg",
+                    "audio/flac",
+                    "audio/opus"
+            )
+    );
 
-    public static final String ONLY_MIME_VIDEO = "audio/";
+    // --- Video files ---
     public static final Set<String> SUPPORTED_VIDEO_EXTENSIONS = new HashSet<>(
             Arrays.asList(
-                    // Common Formats
                     "mpg",
                     "mpeg",
                     "avi"
             )
     );
-    public static final Set<String> SUPPORTED_TEXTUAL_MIMES = new HashSet<>(
+    public static final Set<String> SUPPORTED_VIDEO_MIMES = new HashSet<>(
             Arrays.asList(
-                    "text/plain",
-                    "text/html",
-                    "application/xhtml+xml",
-                    "application/x-fictionbook+xml", // fb2 (sometimes)
-                    "application/vnd.oasis.opendocument.text" // odt
+                    "video/mpeg",
+                    "video/x-msvideo" // AVI
             )
     );
-    public static final String ONLY_MIME_EBOOK = "application/epub+zip";
+
+    // --- Ebooks/Text files ---
     public static final Set<String> SUPPORTED_EBOOK_EXTENSIONS = new HashSet<>(
             Arrays.asList(
-                    "epub", // Kobo kepub is still .epub
+                    "epub",  // Kobo kepub is still .epub
                     "txt",
-                    "fb2",                // FictionBook 2
-                    "odt"                 // OpenDocument Text
-                    //"html","htm","xhtml", // HTML
-                    )
+                    "fb2",   // FictionBook 2
+                    "odt"    // OpenDocument Text
+                    // "html","htm","xhtml"
+            )
+    );
+    public static final Set<String> SUPPORTED_EBOOK_MIMES = new HashSet<>(
+            Arrays.asList(
+                    "application/epub+zip",               // epub
+                    "text/plain",                         // txt
+                    "text/html",                          // html
+                    "application/xhtml+xml",              // xhtml
+                    "application/x-fictionbook+xml",      // fb2
+                    "application/vnd.oasis.opendocument.text" // odt
+            )
     );
 
 }
