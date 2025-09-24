@@ -255,7 +255,7 @@ public final class InsetHelper {
                                       @NonNull Window window,
                                       @NonNull WindowConfig cfg,
                                       @ColorInt int actualStatusColor) {
-        WindowInsetsControllerCompat c = ViewCompat.getWindowInsetsController(window.getDecorView());
+        WindowInsetsControllerCompat c = WindowCompat.getInsetsController(window, window.getDecorView());
         if (c == null) {
             myLogW("No WindowInsetsControllerCompat available.");
             return;
