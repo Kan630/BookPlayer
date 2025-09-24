@@ -129,7 +129,7 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
 
         Folder folder = getItem(pos);
         if (folder == null) return;
-        myLogI("onClick - position=" + pos + " - " + folder.getName());
+        myLogI("--- USER CLICKS on FOLDER/BOOK ---    position=" + pos + " - " + folder.getName());
 
         // DB work off main; UI nav back on main
         AppDatabase.databaseReadExecutor.execute(() -> {

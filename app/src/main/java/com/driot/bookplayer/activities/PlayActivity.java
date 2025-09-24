@@ -751,21 +751,21 @@ public class PlayActivity extends LoggingActivity {
         AnimationNow = true;
     }
 
-    private void runVisualizer() { // check option + permission
+    private void runVisualizer() {
         if (audioService != null && audioService.isTtsMode()) return;
-        if (Option.getVisualizerOn()) {
-            if (isRecordAudioPermissionGranted(this)) {
-                try {
-                    //frequencyVisualizerView.setEnabled(false);
-                    frequencyVisualizerView.link_toto(audioService.getAudioSessionId());
-                } catch (Exception e) {
-                    myLogEE(e,"runVisualizer");
-                }
-            } else {
-                myLog("frequencyVisualizerView is On, but permission is not granted");
-            }
+        if (!Option.getVisualizerOn()) return;
+        if (!isRecordAudioPermissionGranted(this)) {
+            myLog("Visualizer ON but RECORD_AUDIO not granted");
+            return;
+        }
+        try {
+            frequencyVisualizerView.link_toto(audioService.getAudioSessionId());
+            frequencyVisualizerView.setVisibility(View.VISIBLE);
+        } catch (Exception e) {
+            myLogEE(e, "runVisualizer");
         }
     }
+
 
     private void lockUserActions(boolean doLock) {
         for (View b : buttonsToLock) {
@@ -881,6 +881,7 @@ public class PlayActivity extends LoggingActivity {
     private void showAudioUi() {
         ttsContainer.setVisibility(View.GONE);
         imFolderImage.setVisibility(View.VISIBLE);
+        runVisualizer();
     }
 
     private void scheduleTtsHighlight(int s, int e) {
@@ -926,24 +927,25 @@ public class PlayActivity extends LoggingActivity {
         btnToggleTtsView.setVisibility(ttsMode ? View.VISIBLE : View.GONE);
 
         if (!ttsMode) {
+            myLogD("UI : audio Mode");
             // Audio mode: show visualizer/image as you already do
             ttsContainer.setVisibility(View.GONE);
             frequencyVisualizerView.setVisibility(View.VISIBLE);
             imFolderImage.setVisibility(imFolderImage.getDrawable() != null ? View.VISIBLE : View.GONE);
-            return;
-        }
-
-        // TTS mode: never show the visualizer
-        frequencyVisualizerView.setVisibility(View.GONE);
-
-        if (showingTtsText) {
-            ttsContainer.setVisibility(View.VISIBLE);
-            imFolderImage.setVisibility(View.GONE);
-            btnToggleTtsView.setImageResource(android.R.drawable.ic_menu_gallery); // next tap -> image
+            runVisualizer();
         } else {
-            ttsContainer.setVisibility(View.GONE);
-            imFolderImage.setVisibility(View.VISIBLE);
-            btnToggleTtsView.setImageResource(android.R.drawable.ic_menu_edit); // next tap -> text
+            myLogD("UI : TTS Mode");
+            // TTS mode: never show the visualizer
+            frequencyVisualizerView.setVisibility(View.GONE);
+            if (showingTtsText) {
+                ttsContainer.setVisibility(View.VISIBLE);
+                imFolderImage.setVisibility(View.GONE);
+                btnToggleTtsView.setImageResource(android.R.drawable.ic_menu_gallery); // next tap -> image
+            } else {
+                ttsContainer.setVisibility(View.GONE);
+                imFolderImage.setVisibility(View.VISIBLE);
+                btnToggleTtsView.setImageResource(android.R.drawable.ic_menu_edit); // next tap -> text
+            }
         }
     }
 
