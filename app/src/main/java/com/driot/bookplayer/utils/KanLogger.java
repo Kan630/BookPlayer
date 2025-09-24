@@ -20,6 +20,9 @@ import java.util.Locale;
 import static com.driot.bookplayer.global.Option.getTechLog;
 import static com.driot.bookplayer.utils.TonioCommonStuff.MD5;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.driot.bookplayer.global.Option;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
@@ -208,10 +211,15 @@ public class KanLogger {
 
 
 
-
+//TODO change for snackbars....
     /////////////////////////////////
     /// TOAST
     /////////////////////////////////-----------------------------------------------------------
+// --- Toast helpers: hardened & consistent ---  (after crash : java.lang.IllegalArgumentException: Error unparceling MemoryIntArray)
+
+    private static final int MAX_TOAST_LEN = 1000; // avoid huge strings crashing OEM toasts
+    private static final Handler MAIN = new Handler(Looper.getMainLooper());
+
     public static void myToast(String str) {
         myToast("", str);
     }
@@ -225,21 +233,29 @@ public class KanLogger {
     }
 
     public static void myToast(String prefix, String str, int toastLength) {
-        myLog(prefix, "TOASTING : " + str);
-        if (getMyAppContext() != null) {
-            new Handler(Looper.getMainLooper()).post(() ->
-                Toast.makeText(getMyAppContext(), str, toastLength).show()
-            );
-        }
+        String msg = sanitize(prefix, str);
+        if (getMyAppContext() == null || msg == null) return;
+
+        myLog(prefix, "TOASTING : " + msg);
+
+        Runnable r = () -> safeToastShow(getMyAppContext().getApplicationContext(), msg, toastLength);
+        if (Looper.myLooper() == Looper.getMainLooper()) r.run();
+        else MAIN.post(r);
     }
 
-    public static void myToastEE(Throwable t, String prefix, String str) {
-        myLogE(prefix, str + (t != null ?  " : " + t.getMessage() : ""));
-        myToastE(prefix, str, Toast.LENGTH_SHORT);
-        if (t!=null) {
-            FirebaseCrashlytics.getInstance().recordException(t);
-        } else {
-            FirebaseCrashlytics.getInstance().log(prefix + " " + str);
+    public static void myToastEE(@Nullable Throwable t, String prefix, String str) {
+        String msg = sanitize(prefix, str);
+        if (msg == null) msg = "(null message)";
+        // Log once at error level
+        myLogE(prefix, msg + (t != null ? " : " + t.getMessage() : ""));
+        // Show toast (short) with full hardening
+        myToastE(prefix, msg, Toast.LENGTH_SHORT);
+        // Report (avoid double-reporting large stacks if t is null)
+        try {
+            if (t != null) FirebaseCrashlytics.getInstance().recordException(t);
+            else FirebaseCrashlytics.getInstance().log(prefix + " " + msg);
+        } catch (Throwable ignored) {
+            // Never let Crashlytics reporting crash the app
         }
     }
 
@@ -252,13 +268,41 @@ public class KanLogger {
     }
 
     public static void myToastE(String prefix, String str, int toastLength) {
-        myLogE(prefix,"TOASTING : " + str);
-        if (getMyAppContext() != null) {
-            new Handler(Looper.getMainLooper()).post(() ->
-                    Toast.makeText(getMyAppContext(), str, toastLength).show()
-            );
+        String msg = sanitize(prefix, str);
+        if (getMyAppContext() == null || msg == null) return;
+
+        myLogE(prefix, "TOASTING : " + msg);
+
+        Runnable r = () -> safeToastShow(getMyAppContext().getApplicationContext(), msg, toastLength);
+        if (Looper.myLooper() == Looper.getMainLooper()) r.run();
+        else MAIN.post(r);
+    }
+
+// --- Internals ---
+
+    @Nullable
+    private static String sanitize(@Nullable String prefix, @Nullable String str) {
+        // Collapse nulls and trim; keep it short to avoid OEM quirks
+        String s = (str == null ? "" : str).trim();
+        if (s.isEmpty()) return null;
+        if (s.length() > MAX_TOAST_LEN) s = s.substring(0, MAX_TOAST_LEN - 1) + "…";
+        return s;
+    }
+
+    private static int normalizeLength(int toastLength) {
+        return (toastLength == Toast.LENGTH_LONG) ? Toast.LENGTH_LONG : Toast.LENGTH_SHORT;
+    }
+
+    private static void safeToastShow(@NonNull Context appCtx, @NonNull String msg, int toastLength) {
+        try {
+            Toast t = Toast.makeText(appCtx, msg, normalizeLength(toastLength));
+            t.show();
+        } catch (Throwable t) {
+            // Swallow OEM/framework crashes (e.g., Error unparceling MemoryIntArray, etc.)
+            myLogEE(t, "KanLogger", "Toast.show() failed, swallowing");
         }
     }
+
 
 
 
@@ -282,11 +326,7 @@ public class KanLogger {
                 outputStreamWriter.write(time + " " + message + "\n");
                 outputStreamWriter.close();
 
-            } catch(FileNotFoundException e) {
-                e.printStackTrace();
-                Log.e(kanLogger_TAG, "writeToLogFile() : [" + e.getMessage() + "]");
-            } catch (IOException e) {
-                e.printStackTrace();
+            } catch(Exception e) {
                 Log.e(kanLogger_TAG, "writeToLogFile() : [" + e.getMessage() + "]");
             }
         } else {

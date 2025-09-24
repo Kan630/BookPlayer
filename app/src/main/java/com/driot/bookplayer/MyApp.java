@@ -18,7 +18,6 @@ import com.driot.bookplayer.objects.TaskStateRepository;
 import com.driot.bookplayer.utils.InAppMsgManager;
 import com.driot.bookplayer.helpers.LocaleHelper;
 import com.driot.bookplayer.objects.BookToAdd;
-import com.driot.bookplayer.objects.PlayList;
 import com.driot.bookplayer.objects.TaskStateManager;
 import com.driot.bookplayer.services.InAppPeriodicTaskManager;
 import com.driot.bookplayer.utils.KanLogger;
