@@ -837,7 +837,7 @@
     <string name="Audio">Audio</string>
     <string name="Video">Video</string>
     <string name="Text">Text</string>
-    <string name="Bundle">Bundle</string>
+    <string name="Bundle">Bundle</string> //means compressed file like zip
 
 
 

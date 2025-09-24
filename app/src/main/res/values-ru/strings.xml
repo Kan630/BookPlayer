@@ -796,4 +796,15 @@
     <string name="option_podcast_open_specific_view_subtitle">При нажатии на книгу типа \'подкаст\', нужно ли открыть представление подкаста со всеми эпизодами или представление книги только с загруженными?</string>
     <string name="option_podcast_open_specific_view">Открыть определенное представление</string>
 
+    <string name="option_playing_behaviour_title">Поведение воспроизведения</string>
+    <string name="option_start_next_track_at_zero_title_text">Всегда начинать следующий трек с начала, даже если он был частично прослушан ранее.</string>
+    <string name="error_playlist_null">Не удалось получить плейлист.</string>
+    <string name="stop">стоп</string>
+    <string name="option_stop_audio_if_user_closes_app_text">Останавливать аудио при закрытии приложения.</string>
+    <string name="option_auto_play_on_main_player_text">Автовоспроизведение при нажатии на аудиотрек.</string>
+    <string name="Audio">Аудио</string>
+    <string name="Video">Видео</string>
+    <string name="Text">Текст</string>
+    <string name="Bundle">Архив</string>
+
 </resources>

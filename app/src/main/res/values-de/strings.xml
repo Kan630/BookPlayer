@@ -807,7 +807,16 @@ Sind Sie sicher?"</string>
     <string name="option_podcast_open_specific_view_subtitle">Beim Klicken auf ein Buch vom Typ \'Podcast\', soll die Podcast-Ansicht mit allen Episoden oder die Buchansicht nur mit den heruntergeladenen geöffnet werden?</string>
     <string name="option_podcast_open_specific_view">Spezifische Ansicht öffnen</string>
 
-
+    <string name="option_playing_behaviour_title">Wiedergabeverhalten</string>
+    <string name="option_start_next_track_at_zero_title_text">Den nächsten Titel immer von Anfang an starten, auch wenn er zuvor bereits teilweise abgespielt wurde.</string>
+    <string name="error_playlist_null">Die Wiedergabeliste konnte nicht abgerufen werden.</string>
+    <string name="stop">Stopp</string>
+    <string name="option_stop_audio_if_user_closes_app_text">Audio stoppen, wenn du die App schließt.</string>
+    <string name="option_auto_play_on_main_player_text">Automatisch abspielen, wenn ein Titel angeklickt wird.</string>
+    <string name="Audio">Audio</string>
+    <string name="Video">Video</string>
+    <string name="Text">Text</string>
+    <string name="Bundle">Archivdatei</string>
 
 
 </resources>

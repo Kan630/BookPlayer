@@ -789,4 +789,15 @@
     <string name="option_podcast_open_specific_view_subtitle">عند النقر على كتاب من نوع \'بودكاست\'، هل يجب فتح عرض البودكاست مع جميع الحلقات، أم عرض الكتاب مع الحلقات التي تم تنزيلها فقط؟</string>
     <string name="option_podcast_open_specific_view">فتح عرض محدد</string>
 
+    <string name="option_playing_behaviour_title">سلوك التشغيل</string>
+    <string name="option_start_next_track_at_zero_title_text">ابدأ دائمًا المقطع التالي من البداية، حتى إذا تم الاستماع إليه جزئيًا من قبل.</string>
+    <string name="error_playlist_null">تعذّر استرجاع قائمة التشغيل.</string>
+    <string name="stop">إيقاف</string>
+    <string name="option_stop_audio_if_user_closes_app_text">إيقاف الصوت عند إغلاق التطبيق.</string>
+    <string name="option_auto_play_on_main_player_text">تشغيل تلقائي عند النقر على مقطع صوتي.</string>
+    <string name="Audio">صوت</string>
+    <string name="Video">فيديو</string>
+    <string name="Text">نص</string>
+    <string name="Bundle">أرشيف</string>
+
 </resources>

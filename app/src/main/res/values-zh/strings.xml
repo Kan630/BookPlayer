@@ -791,4 +791,14 @@ BookPlayer 在<font color="#81C784">无需权限</font>的情况下也能运行�
     <string name="option_podcast_open_specific_view_subtitle">点击一种类型为\'播客\'的书时，应该打开包含所有剧集的播客视图，还是只打开已下载剧集的书籍视图？</string>
     <string name="option_podcast_open_specific_view">打开特定视图</string>
 
+    <string name="option_playing_behaviour_title">播放行为</string>
+    <string name="option_start_next_track_at_zero_title_text">始终从头开始播放下一曲，即使之前已部分收听。</string>
+    <string name="error_playlist_null">无法获取播放列表。</string>
+    <string name="stop">停止</string>
+    <string name="option_stop_audio_if_user_closes_app_text">关闭应用时停止音频。</string>
+    <string name="option_auto_play_on_main_player_text">点击音频轨道时自动播放。</string>
+    <string name="Audio">音频</string>
+    <string name="Video">视频</string>
+    <string name="Text">文本</string>
+    <string name="Bundle">压缩文件</string>
 </resources>
