@@ -37,6 +37,7 @@ import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
+import com.driot.bookplayer.helpers.TitleHelper;
 import com.driot.bookplayer.helpers.TtsHelper;
 import com.driot.bookplayer.objects.PlayList;
 import com.driot.bookplayer.services.AudioService;
@@ -630,13 +631,7 @@ public class PlayActivity extends LoggingActivity {
             try {
                 ZikFile zf = playList.getZikFile();
                 myLogD("DrawUI : " + zf.getName() + " -- " + zf.getPosition() + " -- " + zf.getDisplayName());
-                String title = zf.getFolderName();
-                String subTitle = zf.getDisplayName();
-                subTitle = subTitle.replaceFirst("^" + Pattern.quote(title), "").trim();
-                tvTitle.setText(title);
-                tvSubTitle.setText(subTitle);
-                if (subTitle.equals(title) || subTitle.isEmpty())
-                    tvSubTitle.setVisibility(View.GONE);
+                TitleHelper.setTitleAndSubtitle(tvTitle, tvSubTitle, zf.getFolderName(), zf.getDisplayName());
                 tvTotalTime.setText(formatTime(zf.getDuration(), true));
                 seekbar.setMax((int) zf.getDuration());
                 tvSeekBar.setText(formatTime(zf.getPosition(), true));

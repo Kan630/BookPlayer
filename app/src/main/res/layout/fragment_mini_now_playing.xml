@@ -30,7 +30,7 @@
                 />
 
             <TextView
-                android:id="@+id/tvSub"
+                android:id="@+id/tvSubTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:singleLine="true"

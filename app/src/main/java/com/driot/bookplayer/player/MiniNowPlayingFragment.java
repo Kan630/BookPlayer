@@ -16,10 +16,11 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.PlayActivity;
+import com.driot.bookplayer.helpers.TitleHelper;
 
 public class MiniNowPlayingFragment extends Fragment {
     private PlaybackViewModel vm;
-    private TextView tvTitle, tvSub;
+    private TextView tvTitle, tvSubTitle;
     private SeekBar seek;
     private ImageButton btnPrev, btnPlayPause, btnNext, btnStop;
     private boolean userSeeking;
@@ -33,7 +34,7 @@ public class MiniNowPlayingFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View v, @Nullable Bundle b) {
         tvTitle = v.findViewById(R.id.tvTitle);
-        tvSub = v.findViewById(R.id.tvSub);
+        tvSubTitle = v.findViewById(R.id.tvSubTitle);
         seek = v.findViewById(R.id.seek);
         btnPrev = v.findViewById(R.id.btnPrev);
         btnPlayPause = v.findViewById(R.id.btnPlayPause);
@@ -49,8 +50,7 @@ public class MiniNowPlayingFragment extends Fragment {
         vm = new ViewModelProvider(requireActivity()).get(PlaybackViewModel.class);
         vm.getState().observe(getViewLifecycleOwner(), s -> {
             if (s == null) return;
-            tvTitle.setText(s.title);
-            tvSub.setText(s.subTitle);
+            TitleHelper.setTitleAndSubtitle(tvTitle, tvSubTitle, s.title, s.subTitle);
             if (!userSeeking) {
                 seek.setMax(Math.max(1, s.durationMs));
                 seek.setProgress(Math.min(s.positionMs, s.durationMs));
