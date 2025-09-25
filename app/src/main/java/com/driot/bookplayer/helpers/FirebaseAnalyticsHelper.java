@@ -23,6 +23,10 @@ public final class FirebaseAnalyticsHelper {
         }
     }
 
+    public static void tellPlayFor1min() {
+        sendEvent("play_for_1min");
+    }
+
     public static void tellLoadBookFailed(String originalUri, String taskName, String errorText) {
         Bundle bundle = new Bundle();
         bundle.putString("originalUri", originalUri);

@@ -4,6 +4,8 @@ import android.os.Handler;
 
 import androidx.annotation.NonNull;
 
+import com.driot.bookplayer.global.Pref;
+import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.utils.KanLogger;
 import com.driot.bookplayer.utils.Tonio;
 
@@ -19,7 +21,8 @@ public final class SleepTimer {
     private final Listener l;
 
     private boolean running = false;
-    private int elapsed = 0;
+    private int elapsed = 0;  // en sec
+    private int elapsed_count = 1;
     private int maxMinutes = 0;
     private boolean beepOnStop = false;
 
@@ -33,6 +36,9 @@ public final class SleepTimer {
         @Override public void run() {
             if (!running) return;
             l.onTick(elapsed);
+            if (elapsed_count % 60 == 0) {
+                FirebaseAnalyticsHelper.tellPlayFor1min();
+            }
             if (elapsed >= maxMinutes * 60) {
                 myLog("--------------   SLEEP PAUSE   ---------------------------------------------- " + Tonio.formatTime(elapsed*1000, true, true) + "s. since timer started.....      (AutoSleep set to " + maxMinutes + "min.)");
                 running = false;
@@ -40,6 +46,7 @@ public final class SleepTimer {
             } else {
                 myLogD("----------------------------------------------------------------------------- " + Tonio.formatTime(elapsed*1000, true, true) + "s. since timer started.....      (AutoSleep set to " + maxMinutes + "min.)");
                 elapsed += tickMs / 1000;
+                elapsed_count += 1;
                 h.postDelayed(this, tickMs);
             }
         }
