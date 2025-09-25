@@ -23,6 +23,20 @@ public final class FirebaseAnalyticsHelper {
         }
     }
 
+    public static void tellLoadBookFailed(String originalUri, String taskName, String errorText) {
+        Bundle bundle = new Bundle();
+        bundle.putString("originalUri", originalUri);
+        bundle.putString("taskName", taskName);
+        bundle.putString("errorText", errorText);
+        logThat("load_book_failed", bundle);
+    }
+
+    public static void tellLoadBookSuccess(String originalUri) {
+        Bundle bundle = new Bundle();
+        bundle.putString("originalUri", originalUri);
+        logThat("load_book_success", bundle);
+    }
+
     public static void tellAnalyticsPlaylistLoadFromStorage(Context context) {
         Bundle bundle = new Bundle();
         bundle.putString("context", context.getClass().getSimpleName());

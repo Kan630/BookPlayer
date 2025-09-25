@@ -24,6 +24,7 @@ import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.SupportedFilesHelper;
 import com.driot.bookplayer.helpers.UriHelper;
@@ -499,6 +500,8 @@ public class ParseFinalFolderWorker extends LoggingWorker {
         // check we have something in folder...
         if (saved == 0) {
             TaskStateManager.markTaskFailed(TASK_NAME, context.getString(R.string.Error_Import_No_Usable_item_Found));
+        } else {
+            FirebaseAnalyticsHelper.tellLoadBookSuccess(bookState.originalUri.toString());
         }
 
         myLogD("deleting source ??"

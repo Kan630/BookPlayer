@@ -9,7 +9,7 @@ import androidx.annotation.NonNull;
 
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
-import com.driot.bookplayer.objects.TaskStateRepository;
+import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.utils.KanLogger;
 
 import java.util.LinkedHashMap;
@@ -186,6 +186,7 @@ public class TaskStateManager {
         String currentOperation = taskName + " failed - [" + errorText + "]";
         LoadBookTaskState state = Pref.getLoadBookTaskState();
         if (state != null) {
+            FirebaseAnalyticsHelper.tellLoadBookFailed(state.originalUri.toString(), taskName, errorText);
             state.currentOperation = currentOperation;
             state.onGoingLoading = false;
             Pref.setLoadBookTaskState(state);
