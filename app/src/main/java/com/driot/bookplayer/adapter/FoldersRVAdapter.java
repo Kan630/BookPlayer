@@ -13,7 +13,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.AsyncListDiffer;
-import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -35,7 +34,6 @@ import com.driot.bookplayer.utils.log.LoggingRVAdapter;
 
 import java.util.List;
 
-import static com.driot.bookplayer.utils.KanLogger.myToastE;
 import static com.driot.bookplayer.utils.Tonio.*;
 
 public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersViewHolder>

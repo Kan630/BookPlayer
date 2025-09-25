@@ -39,7 +39,7 @@ public interface ZikFileDao {
     ZikFile[] getNextZikFiles(long idFolder, String startFromName);
 
     @Query("SELECT * FROM ZikFile WHERE id = :id")
-    ZikFile getZikFile(long id);
+    ZikFile getById(long id);
 
     //PODCAST LIST
     @Query("SELECT ZikFile.* FROM ZikFile " +

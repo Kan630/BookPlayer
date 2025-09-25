@@ -553,9 +553,13 @@ public class AudioService extends LoggingService {
             }
             return START_STICKY;
         }
-
-        // (existing) route media buttons etc.
         if (intent != null) {
+            String a = intent.getAction(); //some explicit actions added for automotive hereunder
+            if ("CMD_PLAY".equals(a)) { playAudio(); }
+            else if ("CMD_PAUSE".equals(a)) { pauseAudio(); }
+            else if ("CMD_NEXT".equals(a)) { forwardAudioTo(getPosition() + Option.get_ForwardSeconds()*1000); /* ou nextTrack() si tu veux piste suivante */ }
+            else if ("CMD_PREV".equals(a)) { backwardAudio(); }
+            else if ("CMD_SEEK".equals(a)) { setPosition(intent.getIntExtra("posMs", 0)); }
             MediaButtonReceiver.handleIntent(media.session(), intent);
         }
         showForegroundNotification(isPlaying());
