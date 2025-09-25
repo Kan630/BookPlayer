@@ -82,7 +82,9 @@ public class PlayActivity extends LoggingActivity {
     AudioService audioService;
     boolean audioServiceBound = false;
     private android.widget.ImageButton bPlayPause;
-    List<View> buttonsToLock;
+    ImageButton bRewind, bForward;
+    Button bSpeedUp, bSpeedDown, bSetSleep;
+
     private SeekBar seekbar;
     private TextView tvSeekBar, tvTotalTime, tvTitle, tvSubTitle, tvSpeed, tvListeningTime, tvTimeLeft;
     private View progressOverlay, messageOverlay;
@@ -262,9 +264,6 @@ public class PlayActivity extends LoggingActivity {
         bPlayPause = findViewById(R.id.ibPlayPause);
         bPlayPause.setImageResource(R.drawable.ic_hourglass_24);
         bPlayPause.setEnabled(false);
-
-        ImageButton bRewind, bForward;
-        Button bSpeedUp, bSpeedDown, bSetSleep;
         bRewind = findViewById(R.id.ibRewind);
         bForward = findViewById(R.id.ibForward);
         bSpeedUp = findViewById(R.id.bSpeedUp);
@@ -298,8 +297,6 @@ public class PlayActivity extends LoggingActivity {
             myLogI("user clicks button Sleep");
             setSleep();
         });
-
-        buttonsToLock = Arrays.asList(bPlayPause, bRewind, bForward, bSpeedUp, bSpeedDown, bSetSleep);
 
         progressOverlay = findViewById(R.id.progress_overlay);
         messageOverlay = findViewById(R.id.message_overlay);
@@ -768,30 +765,34 @@ public class PlayActivity extends LoggingActivity {
 
 
     private void lockUserActions(boolean doLock) {
-        for (View b : buttonsToLock) {
-            b.setEnabled(!doLock);
+        try {
+            List<View> buttonsToLock = Arrays.asList(bPlayPause, bRewind, bForward, bSpeedUp, bSpeedDown, bSetSleep);
+            for (View b : buttonsToLock) {
+                b.setEnabled(!doLock);
+            }
+            frequencyVisualizerView.setEnabled(!doLock);
+            seekbar.setEnabled(!doLock);
+            if (doLock) {
+                findViewById(R.id.dim_background).setVisibility(View.VISIBLE);
+                ShowMessageOverlay();
+            } else {
+                findViewById(R.id.dim_background).setVisibility(View.GONE);
+                HideMessageOverlay();
+            }
+        } catch (Throwable t) {
+            myLogEE(t, "lockUserActions");
         }
-        frequencyVisualizerView.setEnabled(!doLock);
-        seekbar.setEnabled(!doLock);
-        if (doLock) {
-            findViewById(R.id.dim_background).setVisibility(View.VISIBLE);
-            ShowMessageOverlay();
-        } else {
-            findViewById(R.id.dim_background).setVisibility(View.GONE);
-            HideMessageOverlay();
-        }
-
     }
 
     private void lockButtonAndDisplayErrorMessage(String errMessage) {
         myLog("lockButtonAndDisplayErrorMessage");
         LocalBroadcastManager.getInstance(this).unregisterReceiver(broadCastReceiver);
         lockUserActions(true);
-        TextView tv = findViewById(R.id.textViewOverlaidMessage);
-        TextView tv2 = findViewById(R.id.textViewOverlaidMessageDetails);
-        Button b1 = findViewById(R.id.btOverlaid01);
-        tv.setText("The source file could not be found or read.\n"); // in case bug later
         try {
+            TextView tv = findViewById(R.id.textViewOverlaidMessage);
+            TextView tv2 = findViewById(R.id.textViewOverlaidMessageDetails);
+            Button b1 = findViewById(R.id.btOverlaid01);
+            tv.setText("The source file could not be found or read.\n"); // in case bug later
             if (errMessage != null) {
                 tv.setText(errMessage);
                 myLogEE(null,errMessage);
