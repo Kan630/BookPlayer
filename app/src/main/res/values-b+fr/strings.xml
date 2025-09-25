@@ -545,64 +545,63 @@ Tous les messages sont lisibles publiquement. Connectez-vous pour participer.
     <string name="audio_location_bookplayer_reserved_storage">Stockage réservé à BookPlayer</string>
     <string name="audio_location_smartphone_shared_storage">Stockage partagé du smartphone</string>
     <string name="audio_location_audiobook_not_found">Livre audio introuvable</string>
-
     <!-- ********************************** -->
     <!-- Menus -->
 
     <string name="action_menu_three_dot">Menu</string>
-    <string name="menu_open">open</string>
-    <string name="menu_manual">manual</string>
+    <string name="menu_open">ouvrir</string>
+    <string name="menu_manual">manuel</string>
     <string name="menu_settings">options</string>
-    <string name="menu_otherapp">other apps</string>
-    <string name="menu_sendmail">mail developer</string>
-    <string name="stats">Stats</string>
+    <string name="menu_otherapp">autres applications</string>
+    <string name="menu_sendmail">e-mail au développeur</string>
+    <string name="stats">Statistiques</string>
     <string name="menu_seeLog" translatable="false">See Logs</string>
-    <string name="menu_cacheFiles">Cleaning</string>
+    <string name="menu_cacheFiles">Nettoyage</string>
     <string name="menu_forum">Forum</string>
-    <string name="menu_website">Website</string>
-    <string name="menu_synchro">Synchronization</string>
+    <string name="menu_website">Site web</string>
+    <string name="menu_synchro">Synchronisation</string>
 
     <!-- ********************************** -->
     <!-- OTHER APPS -->
 
-    <string name="otherApp_title">My other apps :-)</string>
+    <string name="otherApp_title">Mes autres applications :-)</string>
     <string name="otherApp_droitpositif" translatable="false">Droit Positif</string>
-    <string name="otherApp_droitpositif_txt">Major French law texts, available even offline</string>
+    <string name="otherApp_droitpositif_txt">Principaux textes de loi français, disponibles même hors ligne</string>
     <string name="otherApp_deces" translatable="false">Dead Frogs</string>
-    <string name="otherApp_deces_txt">People dead in France since the 70\'</string>
+    <string name="otherApp_deces_txt">Personnes décédées en France depuis les années 70</string>
     <string name="otherApp_scanner" translatable="false">Scanner</string>
-    <string name="otherApp_scanner_txt">QR-codes and barcodes scanner</string>
+    <string name="otherApp_scanner_txt">Lecteur de QR codes et de codes-barres</string>
 
     <!-- ********************************** -->
     <!-- PERMISSIONS -->
 
-    <string name="permission_rationale">This activity requires the following permissions: </string>
-    <string name="permissions_granted">Permissions were granted.</string>
-    <string name="permissions_denied">Permissions were not granted.</string>
+    <string name="permission_rationale">Cette activité nécessite les autorisations suivantes: </string>
+    <string name="permissions_granted">Autorisations accordées.</string>
+    <string name="permissions_denied">Autorisations refusées.</string>
     <string name="permissions_ok_button" translatable="false">OK</string>
 
-    <string name="permission_read_write_rationale">Bookplayer needs [Read Audio] permission (or set [Copy File] option).</string>
-    <string name="permission_read_write_denied">[Read Audio] permission was denied.
-\n\nClick [App Info] to activate permissions manually.
-\n\nOr
-\n\nClick [Options] to activate app [Copy File internally] option.
-\n<i>Then, your audio files will be copied inside Bookplayer internal memory and you won\'t need any permission to read them.</i>
+    <string name="permission_read_write_rationale">Bookplayer nécessite l\'autorisation [Lire l\'audio] (ou activez l\'option [Copier le fichier]).</string>
+    <string name="permission_read_write_denied">L\'autorisation [Lire l\'audio] a été refusée.
+\n\nCliquez sur [Infos sur l\'app] pour activer les autorisations manuellement.
+\n\nOu
+\n\nCliquez sur [Options] pour activer l\'option [Copier le fichier en interne] de l\'app.
+\n<i>Ainsi, vos fichiers audio seront copiés dans la mémoire interne de Bookplayer et vous n\'aurez plus besoin d\'autorisation pour les lire.</i>
 </string>
 
-    <string name="permission_record_audio_rationale_01">Following optional permission is to show spectrum visualizer.</string>
-    <string name="permission_record_audio_rationale">Spectrum visualizer requires [record audio] permission.</string>
-    <string name="permission_record_audio_denied">Spectrum visualizer will not be displayed. [record audio] permission has been denied.</string>
-    <string name="permission_record_audio_rationale_after_denied">BookPlayer can not ask again for an already denied permission.
-\n\nYou can bypass by clicking [App Info].
-\nThat will open the Bookplayer settings on the device.
-\n\nThen go in "Permissions" section and manually allow "Microphone".</string>
+    <string name="permission_record_audio_rationale_01">L\'autorisation optionnelle suivante sert à afficher le visualiseur de spectre.</string>
+    <string name="permission_record_audio_rationale">Le visualiseur de spectre nécessite l\'autorisation [enregistrer l\'audio].</string>
+    <string name="permission_record_audio_denied">Le visualiseur de spectre ne sera pas affiché. L\'autorisation [enregistrer l\'audio] a été refusée.</string>
+    <string name="permission_record_audio_rationale_after_denied">Bookplayer ne peut pas redemander une autorisation déjà refusée.
+\n\nVous pouvez contourner en cliquant sur [Infos sur l\'app].
+\nCela ouvrira les paramètres de Bookplayer sur l\'appareil.
+\n\nEnsuite, allez dans la section "Permissions" et autorisez manuellement "Microphone".</string>
 
-    <string name="Permission">Permission</string>
-    <string name="permission_read_denied_short_text_on_load">[Music and Audio] permission was previously denied.
-\n\nYou will need to click [App Info] and activate that permission manually.
-\n\n<i>It is needed if you want to directly read audio from smartphone general storage (copy option disabled).</i>
+    <string name="Permission">Autorisation</string>
+    <string name="permission_read_denied_short_text_on_load">L\'autorisation [Musique et audio] a précédemment été refusée.
+\n\nVous devrez cliquer sur [Infos sur l\'app] et activer cette autorisation manuellement.
+\n\n<i>Elle est nécessaire si vous souhaitez lire directement l\'audio depuis le stockage général du smartphone (option de copie désactivée).</i>
 </string>
-    <string name="permission_read_write_rationale_short_text_on_load">[Music and Audio] permission needed to play from smartphone general storage.</string>
+    <string name="permission_read_write_rationale_short_text_on_load">Autorisation [Musique et audio] requise pour lire depuis le stockage général du smartphone.</string>
 
     <string name="Close">Fermer</string>
     <string name="Episode_description">Description de l\'épisode</string>
