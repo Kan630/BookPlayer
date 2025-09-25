@@ -27,41 +27,41 @@
 
             <item android:id="@+id/menu_manual"
                 android:title="@string/menu_manual"
-                android:icon="@android:drawable/ic_menu_view"
+                android:icon="@drawable/ic_menu_book_24"
                 app:showAsAction="ifRoom"
                 />
 
-            <item android:id="@+id/menu_options"
-                android:title="@string/menu_options"
-                android:icon="@android:drawable/ic_menu_preferences"
+            <item android:id="@+id/menu_settings"
+                android:title="@string/settings"
+                android:icon="@drawable/ic_settings_24"
                 app:showAsAction="ifRoom"
                 />
 
             <item android:id="@+id/menu_seelog"
                 android:title="@string/menu_seeLog"
-                android:icon="@android:drawable/ic_menu_recent_history"
+                android:icon="@drawable/ic_handyman_24"
                 app:showAsAction="ifRoom"
                 />
 
             <item android:id="@+id/menu_stats"
                 android:title="@string/stats"
-                android:icon="@android:drawable/ic_menu_view"
+                android:icon="@drawable/ic_memory_24"
                 app:showAsAction="ifRoom"
                 />
 
             <item android:id="@+id/menu_sendmail"
                 android:title="@string/menu_sendmail"
-                android:icon="@android:drawable/ic_menu_send"
+                android:icon="@drawable/ic_mail_24"
                 app:showAsAction="ifRoom"
                 />
             <item android:id="@+id/menu_cacheFiles"
                 android:title="@string/menu_cacheFiles"
-                android:icon="@android:drawable/ic_menu_delete"
+                android:icon="@drawable/ic_delete_24"
                 app:showAsAction="ifRoom"
                 />
             <item android:id="@+id/menu_website"
                 android:title="@string/menu_website"
-                android:icon="@drawable/ic_menu_website"
+                android:icon="@drawable/ic_captive_portal_24"
                 app:showAsAction="ifRoom"
                 />
 

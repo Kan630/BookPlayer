@@ -6,6 +6,8 @@
         <item>Français</item>
         <item>Español</item>
         <item>Deutsch</item>
+        <item>Italiano</item>
+        <item>Português</item>
         <item>العربية</item>
         <item>Русский</item>
         <item>中文</item>
@@ -18,6 +20,8 @@
         <item>fr</item>
         <item>es</item>
         <item>de</item>
+        <item>it</item>
+        <item>pt</item>
         <item>ar</item>
         <item>ru</item>
         <item>zh</item>
