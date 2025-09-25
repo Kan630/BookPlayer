@@ -12,6 +12,5 @@ public class LocaleHelper {
         } else {
             AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(tagOrSystem));
         }
-        // AppCompat will recreate activities as needed.
     }
 }

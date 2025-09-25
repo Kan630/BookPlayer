@@ -557,7 +557,7 @@
     <string name="action_menu_three_dot">Меню</string>
     <string name="menu_open">открыть</string>
     <string name="menu_manual">руководство</string>
-    <string name="menu_options">настройки</string>
+    <string name="menu_settings">настройки</string>
     <string name="menu_otherapp">другие приложения</string>
     <string name="menu_sendmail">написать разработчику</string>
     <string name="stats">Статистика</string>
@@ -651,7 +651,7 @@
     <string name="Surf_the_vast_Internet_Archive_for_audio_files_and_download_some">Исследуйте огромный Internet Archive, чтобы найти аудиофайлы и скачать некоторые из них!</string>
     <string name="Please_enter_a_URL">Пожалуйста, введите URL.</string>
     <string name="Permission_Required">Требуется разрешение</string>
-    <string name="Options">Настройки</string>
+    <string name="Settings">Настройки</string>
     <string name="App_Info">Информация о приложении</string>
     <string name="reset_app">Сбросить приложение</string>
     <string name="Exit">Выход</string>

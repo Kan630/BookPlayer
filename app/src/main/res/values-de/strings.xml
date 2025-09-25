@@ -561,7 +561,7 @@ Soll die App technische Debug-Protokolle erstellen?
     <string name="action_menu_three_dot">Menü</string>
     <string name="menu_open">Öffnen</string>
     <string name="menu_manual">Handbuch</string>
-    <string name="menu_options">Optionen</string>
+    <string name="menu_settings">Optionen</string>
     <string name="menu_otherapp">andere Apps</string>
     <string name="menu_sendmail">E-Mail an Entwickler</string>
     <string name="stats">Statistiken</string>
@@ -661,7 +661,7 @@ Soll die App technische Debug-Protokolle erstellen?
     <string name="Surf_the_vast_Internet_Archive_for_audio_files_and_download_some">Durchstöbern Sie das umfangreiche Internet Archive nach Audiodateien und laden Sie einige herunter!</string>
     <string name="Please_enter_a_URL">Bitte geben Sie eine URL ein.</string>
     <string name="Permission_Required">Berechtigung erforderlich</string>
-    <string name="Options">Optionen</string>
+    <string name="Settings">Optionen</string>
     <string name="App_Info">App-Info</string>
     <string name="reset_app">App zurücksetzen</string>
     <string name="Exit">Beenden</string>

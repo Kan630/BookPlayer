@@ -418,7 +418,7 @@ public class GetOtherActivity extends LoggingActivity {
                 .setTitle(getString(R.string.Permission_Required))
                 .setMessage(R.string.permission_read_write_denied)
                 .setPositiveButton(getString(R.string.App_Info), (dialog, which) -> openAppInfo())
-                .setNeutralButton(getString(R.string.Options), (dialog, which) -> openOptionActivity())
+                .setNeutralButton(getString(R.string.Settings), (dialog, which) -> openOptionActivity())
                 .setNegativeButton(getString(R.string.Cancel), null)
                 .show();
     }

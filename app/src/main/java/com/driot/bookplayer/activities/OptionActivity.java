@@ -29,12 +29,15 @@ import android.widget.TextView;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Option;
+import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.LocaleHelper;
+import com.driot.bookplayer.helpers.LanguageHelper;
 import com.driot.bookplayer.helpers.TtsHelper;
 import com.driot.bookplayer.utils.NetworkUtils;
 import com.driot.bookplayer.utils.PermissionRequest;
 import com.driot.bookplayer.utils.log.LoggingActivity;
+
 
 import static com.driot.bookplayer.global.Option.DEFAULT_FORWARD_SECONDS;
 import static com.driot.bookplayer.global.Option.DEFAULT_TIME_BEFORE_SLEEP;
@@ -437,6 +440,23 @@ public class OptionActivity extends LoggingActivity {
             setOpenWithProxyEnabled_all(this, isChecked);  // dynamically enable/disable the component
         });
 
+/// APP  LANGUAGE
+        appLanguageSpinner = findViewById(R.id.spinner_app_language);
+
+        LanguageHelper.setupLanguageSpinner(
+                this,
+                appLanguageSpinner,
+                Option.getAppLanguage(), // "system" | "en" | ...
+                LanguageHelper.getAppLanguages(),
+                lang -> {
+                    String value = lang.twoLetterCode; // "system" or IETF language tag
+                    myLogD("App language chosen: " + value);
+                    Option.setAppLanguage(value);
+                    LocaleHelper.applyAppLocale(value);
+                    //recreate(); // activity-level refresh
+                },false
+        );
+
 /// TTS  VOICE
         ttsVoiceSpinner = findViewById(R.id.spinner_voice_item);
         lastSavedTtsVoice = Option.getTtsVoice();
@@ -457,42 +477,6 @@ public class OptionActivity extends LoggingActivity {
         );
 
 
-/// APP  LANGUAGE
-        appLanguageSpinner = findViewById(R.id.spinner_app_language);
-
-        ArrayAdapter<CharSequence> adapter =
-                ArrayAdapter.createFromResource(this,
-                        R.array.pref_languages_entries,
-                        android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        appLanguageSpinner.setAdapter(adapter);
-
-        String[] values = getResources().getStringArray(R.array.pref_languages_values);
-        String current = Option.getAppLanguage();
-
-        // Select current value
-        int sel = 0;
-        for (int i = 0; i < values.length; i++) {
-            if (values[i].equals(current)) { sel = i; break; }
-        }
-        appLanguageSpinner.setSelection(sel, false);
-
-        appLanguageSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            //boolean firstFire = true; // avoid applying immediately on initial bind if you want
-            @Override
-            public void onItemSelected(AdapterView<?> parent, android.view.View view, int position, long id) {
-                myLogD("onItemSelected " + position + " " + values[position]);
-                String chosen = values[position];
-                //if (firstFire) { firstFire = false; return; }
-                myLogD("onItemSelected - saving");
-                Option.setAppLanguage(chosen);
-                LocaleHelper.applyAppLocale(chosen);
-                recreate();
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) { }
-        });
 
 
 

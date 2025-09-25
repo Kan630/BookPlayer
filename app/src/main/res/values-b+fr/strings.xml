@@ -552,7 +552,7 @@ Tous les messages sont lisibles publiquement. Connectez-vous pour participer.
     <string name="action_menu_three_dot">Menu</string>
     <string name="menu_open">open</string>
     <string name="menu_manual">manual</string>
-    <string name="menu_options">options</string>
+    <string name="menu_settings">options</string>
     <string name="menu_otherapp">other apps</string>
     <string name="menu_sendmail">mail developer</string>
     <string name="stats">Stats</string>
@@ -646,7 +646,7 @@ Tous les messages sont lisibles publiquement. Connectez-vous pour participer.
     <string name="Surf_the_vast_Internet_Archive_for_audio_files_and_download_some">Parcourez l\'immense Internet Archive pour trouver des fichiers audio et en télécharger !</string>
     <string name="Please_enter_a_URL">Veuillez saisir une URL.</string>
     <string name="Permission_Required">Autorisation requise</string>
-    <string name="Options">Options</string>
+    <string name="Settings">Options</string>
     <string name="App_Info">Infos sur l\'application</string>
     <string name="reset_app">Réinitialiser l\'application</string>
     <string name="Exit">Quitter</string>

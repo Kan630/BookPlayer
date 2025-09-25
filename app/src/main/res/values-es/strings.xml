@@ -543,7 +543,7 @@ El valor global de apagado automático está en Opciones (en el menú de la pant
     <string name="action_menu_three_dot">Menú</string>
     <string name="menu_open">abrir</string>
     <string name="menu_manual">manual</string>
-    <string name="menu_options">opciones</string>
+    <string name="menu_settings">opciones</string>
     <string name="menu_otherapp">otras apps</string>
     <string name="menu_sendmail">enviar correo al desarrollador</string>
     <string name="stats">Estadísticas</string>
@@ -638,7 +638,7 @@ El valor global de apagado automático está en Opciones (en el menú de la pant
     <string name="Surf_the_vast_Internet_Archive_for_audio_files_and_download_some">Explora el vasto Internet Archive para encontrar archivos de audio y descargar algunos!</string>
     <string name="Please_enter_a_URL">Por favor, introduzca una URL.</string>
     <string name="Permission_Required">Permiso requerido</string>
-    <string name="Options">Opciones</string>
+    <string name="Settings">Opciones</string>
     <string name="App_Info">Información de la aplicación</string>
     <string name="reset_app">Restablecer aplicación</string>
     <string name="Exit">Salir</string>

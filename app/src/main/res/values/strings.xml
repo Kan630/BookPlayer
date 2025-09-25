@@ -111,7 +111,7 @@
     <br><br>
     <b>Note:</b> ZIP and split M4B files are always copied.
     <br><br>
-    Enable <font color="#F48FB1"><b>auto-delete</b></font> in the Options menu to delete the source file after import.
+    Enable <font color="#F48FB1"><b>auto-delete</b></font> in the Settings menu to delete the source file after import.
     ]]></string>
 
         <string name="help_librivox_title">Librivox Import :</string>
@@ -178,7 +178,7 @@
     <br><br>
     By default, BookPlayer uses the <font color="#81C784">SD card</font> if available, to save space.
     <br><br>
-    To switch to internal storage, change the setting in the <font color="#64B5F6">Options</font> menu.
+    To switch to internal storage, change the setting in the <font color="#64B5F6">Settings</font> menu.
     ]]></string>
 
         <string name="help_permission_title">Permissions :</string>
@@ -222,10 +222,10 @@
 
 
     <!-- ********************************** -->
-    <!-- Options Screen -->
+    <!-- Settings Screen -->
 
-    <string name="option_hide_advanced_options">"Hide Advanced Options"</string>
-    <string name="option_show_advanced_options">"Show Advanced Options"</string>
+    <string name="option_hide_advanced_options">"Hide Advanced Settings"</string>
+    <string name="option_show_advanced_options">"Show Advanced Settings"</string>
 
     <string name="option_timeBeforeSleep">Automatic Pause</string>
     <string name="option_timeBeforeSleep_text">after :</string>
@@ -526,7 +526,7 @@
     <string name="btnSleepSet" translatable="false">Sleep</string>
     <string name="tv_ListeningTimeWithNoUserAction">No user action since</string>
     <string name="tv_ListeningTimeWithCustomSleep">Custom sleep set since</string>
-    <string name="tv_CustomSleepDialog_generalInfo">"<i>Note that this value will only be used for the current playing session.\nThe global Auto Sleep Value is located in Options (in the menu, accessible on the app start page)</i>"</string>
+    <string name="tv_CustomSleepDialog_generalInfo">"<i>Note that this value will only be used for the current playing session.\nThe global Auto Sleep Value is located in Settings (in the menu, accessible on the app start page)</i>"</string>
     <string name="tv_CustomSleepDialog_EnterMinutesBeforeSleep">"Enter the number of minutes before sleep:"</string>
     <string name="tv_TimeLeft">Time before sleep</string>
     <string name="error_reading_track">"ERROR READING TRACK !"</string>
@@ -576,7 +576,7 @@
     <string name="action_menu_three_dot">Menu</string>
     <string name="menu_open">open</string>
     <string name="menu_manual">manual</string>
-    <string name="menu_options">options</string>
+    <string name="menu_settings">settings</string>
     <string name="menu_otherapp">other apps</string>
     <string name="menu_sendmail">mail developer</string>
     <string name="stats">Stats</string>
@@ -611,7 +611,7 @@
     <string name="permission_read_write_denied">[Read Audio] permission was denied.
         \n\nClick [App Info] to activate permissions manually.
         \n\nOr
-        \n\nClick [Options] to activate app [Copy File internally] option.
+        \n\nClick [Settings] to activate app [Copy File internally] option.
         \n<i>Then, your audio files will be copied inside Bookplayer internal memory and you won\'t need any permission to read them.</i>
     </string>
 
@@ -631,7 +631,7 @@
     <string name="permission_read_write_rationale_short_text_on_load">[Music and Audio] permission needed to play from smartphone general storage.</string>
 
 
-<!-- NEW STUFF -->
+<!-- NEW STUFF, to Reorder -->
 
     <string name="Close">Close</string>
     <string name="Episode_description">Episode description</string>
@@ -680,7 +680,7 @@
     <string name="Surf_the_vast_Internet_Archive_for_audio_files_and_download_some">Surf the vast Internet Archive for audio files, and download some !</string>
     <string name="Please_enter_a_URL">Please enter a URL.</string>
     <string name="Permission_Required">Permission Required</string>
-    <string name="Options">Options</string>
+    <string name="Settings">Settings</string>
     <string name="App_Info">App Info</string>
     <string name="reset_app">Reset App</string>
     <string name="Exit">Exit</string>
