@@ -21,6 +21,7 @@ import com.bumptech.glide.signature.ObjectKey;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.objects.ItemMetadata;
 import com.driot.bookplayer.objects.LibrivoxApi;
@@ -158,6 +159,7 @@ public class LibrivoxDetailActivity extends LoggingActivity {
             myLogI("------> USER CLICKS - GET -        LIBRIVOX BOOK");
             String downloadUrl = "https://archive.org/download/" + viewModel.identifier + "/" + viewModel.identifier + "_64kb_mp3.zip";
             checkThenDownload(downloadUrl);
+
         });
     }
 
@@ -385,6 +387,7 @@ public class LibrivoxDetailActivity extends LoggingActivity {
         setLoadBookTaskState(state);
 
         BookLoadingWorkLauncher.launch(this);
+        FirebaseAnalyticsHelper.tellLibrivoxDownload(state.title);
         Intent intentActivity = new Intent(this, AddResourceActivity.class);
         startActivity(intentActivity);
 

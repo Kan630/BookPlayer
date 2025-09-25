@@ -73,6 +73,11 @@ public final class FirebaseAnalyticsHelper {
         logThat("manual_download", bundle);
     }
 
+    public static void tellLibrivoxDownload(String title) {
+        Bundle bundle = new Bundle();
+        bundle.putString("title", title);
+        logThat("librivox_download", bundle);
+    }
     public static void tellAnalyticsLibrivoxSearch(String query, String lang) {
         Bundle bundle = new Bundle();
         bundle.putString("query", query);
