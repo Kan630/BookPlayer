@@ -49,8 +49,8 @@ public class CarMediaService extends MediaBrowserServiceCompat {
         @Override public void onReceive(Context ctx, Intent i) {
             if (!AudioService.ACTION_UI_STATE.equals(i.getAction())) return;
             playing  = i.getBooleanExtra(AudioService.EXTRA_UI_PLAYING, false);
-            posMs    = i.getLongExtra(AudioService.EXTRA_UI_POS, 0);
-            durMs    = i.getLongExtra(AudioService.EXTRA_UI_DUR, 0);
+            posMs    = (long) i.getIntExtra(AudioService.EXTRA_UI_POS, 0);
+            durMs    = (long) i.getIntExtra(AudioService.EXTRA_UI_DUR, 0);
             title    = i.getStringExtra(AudioService.EXTRA_UI_TITLE);
             subtitle = i.getStringExtra(AudioService.EXTRA_UI_SUBTITLE);
 
@@ -70,23 +70,13 @@ public class CarMediaService extends MediaBrowserServiceCompat {
         setSessionToken(mediaSession.getSessionToken());
 
         mediaSession.setCallback(new MediaSessionCompat.Callback() {
-            @Override public void onPlay() {
-                sendCmdToAudioService(PlaybackStateCompat.ACTION_PLAY);
-            }
-            @Override public void onPause() {
-                sendCmdToAudioService(PlaybackStateCompat.ACTION_PAUSE);
-            }
-            @Override public void onSkipToNext() {
-                // ton AudioService fait forward/next via ACTION_SKIP_TO_NEXT
-                sendCmdToAudioService(PlaybackStateCompat.ACTION_SKIP_TO_NEXT);
-            }
-            @Override public void onSkipToPrevious() {
-                sendCmdToAudioService(PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS);
-            }
-            @Override public void onSeekTo(long pos) {
-                Intent i = new Intent(CarMediaService.this, AudioService.class);
-                i.setAction("CMD_SEEK");
-                i.putExtra("posMs", pos);
+            @Override public void onPlay()              { sendCmd("CMD_PLAY"); }
+            @Override public void onPause()             { sendCmd("CMD_PAUSE"); }
+            @Override public void onSkipToNext()        { sendCmd("CMD_NEXT"); }
+            @Override public void onSkipToPrevious()    { sendCmd("CMD_PREV"); }
+            @Override public void onSeekTo(long posMs)  {
+                Intent i = new Intent(CarMediaService.this, AudioService.class).setAction("CMD_SEEK");
+                i.putExtra("posMs", (int) posMs);
                 startService(i);
             }
             @Override
@@ -294,34 +284,11 @@ public class CarMediaService extends MediaBrowserServiceCompat {
     }
 
     // --------- Bridge vers AudioService ----------
-    private void sendCmdToAudioService(long action) {
-        // Redirige les actions standard via MediaButtonReceiver (ton AudioService les gère déjà)
-        Intent i = new Intent(this, AudioService.class);
-        i.setAction(Intent.ACTION_MEDIA_BUTTON);
-        i.putExtra(Intent.EXTRA_KEY_EVENT,
-                MediaButtonReceiver.buildMediaButtonPendingIntent(this, action));
-        // Petit trick : on appelle directement MediaButtonReceiver côté service
-        startService(new Intent(this, AudioService.class)); // s’assure qu’il tourne
-        MediaButtonReceiver.handleIntent(
-                // on n’a pas accès à la session d’AudioService, mais il a son propre MediaSessionController
-                mediaSession, // suffisant pour relayer l’événement
-                new Intent(Intent.ACTION_MEDIA_BUTTON));
-        // Alternative simple : commandes directes déjà supportées par AudioService :
-        if (action == PlaybackStateCompat.ACTION_PLAY) {
-            startService(new Intent(this, AudioService.class)); // démarre
-        } else if (action == PlaybackStateCompat.ACTION_PAUSE) {
-            Intent pause = new Intent(this, AudioService.class);
-            pause.setAction("CMD_PAUSE");
-            startService(pause);
-        } else if (action == PlaybackStateCompat.ACTION_SKIP_TO_NEXT) {
-            Intent next = new Intent(this, AudioService.class);
-            next.setAction("CMD_NEXT");
-            startService(next);
-        } else if (action == PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS) {
-            Intent prev = new Intent(this, AudioService.class);
-            prev.setAction("CMD_PREV");
-            startService(prev);
-        }
+    private void sendCmd(String action) {
+        // Ensure AudioService is running
+        startService(new Intent(this, AudioService.class));
+        // Send the specific command
+        startService(new Intent(this, AudioService.class).setAction(action));
     }
 
     private static int safeParseInt(String s, int def) {
