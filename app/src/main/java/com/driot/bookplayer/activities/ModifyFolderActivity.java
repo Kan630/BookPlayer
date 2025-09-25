@@ -23,6 +23,7 @@ import androidx.work.WorkManager;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
+import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FileHelper;
@@ -72,8 +73,12 @@ public class ModifyFolderActivity extends LoggingActivity {
 
         folder = getIntent().getParcelableExtra("folder");
         if (folder == null) {
-            throw new IllegalArgumentException("folder must not be null");
+            myLogEE(null, "could_not_identify_folder_to_modify");
+            myToastE(getString(R.string.could_not_identify_folder_to_modify));
+            finish();
+            return;
         }
+
         tvTitle.setText(folder.getName());
 
         etRename = findViewById(R.id.etRename);

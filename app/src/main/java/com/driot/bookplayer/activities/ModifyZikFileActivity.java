@@ -46,8 +46,10 @@ public class ModifyZikFileActivity extends LoggingActivity {
 
         zikFile = (ZikFile) getIntent().getSerializableExtra("ZikFile");
         if (zikFile == null) {
-            myToastEE(null, "could not identify track to modify");
+            myLogEE(null, "could_not_identify_track_to_modify");
+            myToastE(getString(R.string.could_not_identify_track_to_modify));
             finish();
+            return;
         }
         String zikFileDisplayName = zikFile.getDisplayName();
         double zikFilePosition = zikFile.getZeorder();
