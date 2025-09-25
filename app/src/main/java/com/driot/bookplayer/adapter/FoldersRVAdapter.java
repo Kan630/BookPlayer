@@ -137,14 +137,19 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
                 List<ZikFile> zikFilesList = AppDatabase.getDatabase(mCtx).ZikFileDao().getZikFiles(folder.getId());
                 if (zikFilesList.isEmpty()) {
                     if (Var.SOURCE_LOCATION_PODCAST.equals(folder.getSourceLocation())) {
-                        postToast(mCtx.getString(R.string.no_episode_all_deleted));
+                        if (!Option.getPodcastOpenSpecificView()) {
+                            postToast(mCtx.getString(R.string.no_episode_all_deleted));
+                            //lets open the podcast specific view anyway
+                        }
                     } else {
                         postToast(mCtx.getString(R.string.ErrorCouldNotLoadAudios_emptyfolder));
+                        return;
                     }
-                    return;
                 }
 
-                if (Option.getPodcastOpenSpecificView() && Var.SOURCE_LOCATION_PODCAST.equals(folder.getSourceLocation())) {
+                if (Var.SOURCE_LOCATION_PODCAST.equals(folder.getSourceLocation())
+                        && (Option.getPodcastOpenSpecificView() || (!Option.getPodcastOpenSpecificView() && zikFilesList.isEmpty()))
+                ) {
                     Podcast p = AppDatabase.getDatabase(mCtx).PodcastDao().getPodcastByFolderId(folder.getId());
                     runOnUi(() -> mCtx.startActivity(new Intent(mCtx, PodcastEpisodeActivity.class).putExtra("podcast", p)));
                 } else {

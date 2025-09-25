@@ -735,7 +735,7 @@
     <string name="minutes">minutes</string>
     <string name="seconds">seconds</string>
     <string name="if_completion">if completion</string>
-    <string name="no_episode_all_deleted">no episode found, all deleted ?</string>
+    <string name="no_episode_all_deleted">no downloaded episode found, all deleted ?</string>
     <string name="podcast_api_unavailable_fallback">could not get new episodes, showing only previous ones</string>
     <string name="deleted_on">deleted on</string>
     <string name="added_on">added on</string>
