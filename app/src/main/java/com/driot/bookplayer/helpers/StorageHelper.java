@@ -119,12 +119,36 @@ public class StorageHelper {
                 Environment.isExternalStorageRemovable(dirs[1]);
     }
 
+    @Nullable
     private static File getRemovableSDCardPath(Context context) {
-        File[] dirs = context.getExternalFilesDirs(null);
-        for (File dir : dirs) {
-            if (dir != null && Environment.isExternalStorageRemovable(dir)) {
-                return dir;
+        try {
+            File[] dirs = androidx.core.content.ContextCompat.getExternalFilesDirs(context, null);
+            if (dirs == null || dirs.length == 0) return null;
+
+            StorageManager sm = (StorageManager) context.getSystemService(Context.STORAGE_SERVICE);
+
+            for (File dir : dirs) {
+                if (dir == null) continue;
+
+                // Skip obvious non-volume placeholders (seen on some ROMs/emulators)
+                String abs = dir.getAbsolutePath();
+                if (abs.startsWith("/data/")) continue;
+
+                try {
+                    StorageVolume vol = sm.getStorageVolume(dir);
+                    if (vol != null && vol.isRemovable()) {
+                        String state = Environment.getExternalStorageState(dir);
+                        if (Environment.MEDIA_MOUNTED.equals(state)
+                                || Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
+                            return dir; // app-specific directory on the removable SD
+                        }
+                    }
+                } catch (IllegalArgumentException ignore) {
+                    // e.g. "/data/local/tmp/external" — not a real storage device; skip
+                }
             }
+        } catch (Throwable t) {
+            myLogEE(t, "getRemovableSDCardPath()");
         }
         return null;
     }
