@@ -78,6 +78,26 @@
 
         <View style="@style/myStyleViewSimpleHorizontalBar"/>
 
+        <TextView
+            android:id="@+id/tv4_head"
+            style="@style/myStyleTextTitle2"
+            android:layout_marginTop="50sp"
+            android:layout_marginStart="15dp"
+            android:layout_marginEnd="15dp"
+            android:textStyle="bold"
+            />
+
+        <TextView
+            android:id="@+id/tv4_body"
+            style="@style/myStyleTextExplainButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10sp"
+            android:layout_marginTop="20sp"
+            />
+
+        <View style="@style/myStyleViewSimpleHorizontalBar"/>
+
         <Button
             android:id="@+id/bt_01"
             android:layout_marginTop="40sp"

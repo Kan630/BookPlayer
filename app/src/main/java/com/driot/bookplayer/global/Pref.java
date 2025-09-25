@@ -16,11 +16,15 @@ import android.util.Base64;
 import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.objects.MyAudioMetadata;
 import com.driot.bookplayer.utils.KanLogger;
+import com.driot.bookplayer.utils.Tonio;
+
+import java.text.Format;
 
 public class Pref {
 
 
     private static final String SHARED_PREFERENCES_DIVERSE = "SHARED_PREFERENCES_DIVERSE";
+    private static final String SHARED_PREFERENCES_STATS = "SHARED_PREFERENCES_DIVERSE";
 
     private static final String SHARED_PREFERENCE_INTRO_CUT = "SHARED_PREFERENCE_INTRO_CUT";
 
@@ -29,9 +33,12 @@ public class Pref {
 
     private static Context appContext;
     private static android.content.SharedPreferences prefs;
+    private static android.content.SharedPreferences stats;
     public static void init(Context context) {
         appContext = context.getApplicationContext();
         prefs = appContext.getSharedPreferences(SHARED_PREFERENCES_DIVERSE, MODE_PRIVATE);
+        stats = appContext.getSharedPreferences(SHARED_PREFERENCES_STATS, MODE_PRIVATE);
+        if (getFirstOpenTimeStamp()==0) setFirstOpen();
     }
 
 
@@ -157,6 +164,7 @@ public class Pref {
 
 
     /////////////////// LANGUAGE SPINNER ///////////////////
+    ///
     public static void set_Audio_Language_Librivox(Context c, String audioLanguage) {c.getSharedPreferences(SHARED_PREFERENCES_DIVERSE, MODE_PRIVATE).edit().putString("AUDIO_LANGUAGE_LIBRIVOX",audioLanguage).apply();}
     public static String get_Audio_Language_Librivox(Context c) {return c.getSharedPreferences(SHARED_PREFERENCES_DIVERSE, MODE_PRIVATE).getString("AUDIO_LANGUAGE_LIBRIVOX", "eng");}
     public static void set_Audio_Language_Podcast(Context c, String audioLanguage) {c.getSharedPreferences(SHARED_PREFERENCES_DIVERSE, MODE_PRIVATE).edit().putString("AUDIO_LANGUAGE_PODCAST",audioLanguage).apply();}
@@ -167,7 +175,25 @@ public class Pref {
 
 
 
+    /////////////////// STATS ///////////////////
+    ///
+    public static void setFirstOpen() {
+        stats.edit().putLong("FIRST_OPEN_TIMESTAMP", System.currentTimeMillis()).apply();
+        stats.edit().putString("FIRST_OPEN_DATE", Tonio.getCurrentDateTimeString()).apply();
+    }
+    public static Long getFirstOpenTimeStamp() {return stats.getLong("FIRST_OPEN_TIMESTAMP", 0);}
+    public static String getFirstOpenDate() {return stats.getString("FIRST_OPEN_DATE", "");}
+
+    public static void addToTotalMsPlayed(long ms) {
+        stats.edit().putLong("TOTAL_PLAY_IN_MS", stats.getLong("TOTAL_PLAY_IN_MS",0) + ms).apply();
+    }
+    public static Long getTotalMsPlayed() {return stats.getLong("TOTAL_PLAY_IN_MS", 0);}
+
+
+
+
     /////////////////// PODCAST DETAIL FAVORITE and AUTODOWNLOAD animations ///////////////////
+    ///
     public enum AnimatedButton {
         FAVORITE,
         AUTO_DOWNLOAD
@@ -186,6 +212,7 @@ public class Pref {
 
 
     /////////////////// LAST PODCAST API CHECK  ///////////////////
+    ///
     public static void setLastCheck(long value) {prefs.edit().putLong("LAST_PODCASTINDEXORG_API_AUTO_CHECK_TIMESTAMP", value).apply();}
     public static long getLastCheck() {return prefs.getLong("LAST_PODCASTINDEXORG_API_AUTO_CHECK_TIMESTAMP", Option.getPodcastAutoDownloadDelayBetweenChecks());}
     public static boolean shouldCheckApiForAutoDownload() {
@@ -202,6 +229,9 @@ public class Pref {
             return false;
         }
     }
+
+
+
 
     // ----------------------- LOG -----------------------
     private static final String TAG = "Pref";

@@ -22,6 +22,7 @@ import androidx.appcompat.app.AlertDialog;
 
 import com.driot.bookplayer.BuildConfig;
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.StorageHelper;
@@ -89,6 +90,8 @@ public class StatsActivity extends LoggingActivity {
         tv_head.setText(R.string.physical_storage_memory);
         tv_body.setText(zeText);
 
+        // ----------------------------------------
+
         zeText =
                 "Android SDK version = "  + Build.VERSION.SDK_INT + "\n" + "\n"
                         + "Android version = " + Build.VERSION.RELEASE + "\n" + "\n"
@@ -103,17 +106,33 @@ public class StatsActivity extends LoggingActivity {
         tv_head.setText(R.string.version);
         tv_body.setText(zeText);
 
+        // ----------------------------------------
+
         zeText = "Region Locale = " + Locale.getDefault().getCountry()
                 + "\n" + "\n" + "Region TimeZone = " + TimeZone.getDefault().getID()
                 + "\n" + "\n" + "Region SimCard = " + getCountryFromTelephonyManager(this)
                 + "\n" + "\n" + "---"
                 + "\n" + "\n" + "Theme = " + getKindOfTheme()
-                ;
+        ;
 
         tv_head = findViewById(R.id.tv3_head);
         tv_body = findViewById(R.id.tv3_body);
         tv_head.setText(R.string.miscellaneous);
         tv_body.setText(zeText);
+
+        // ----------------------------------------
+
+        zeText = "Install Date = " + Pref.getFirstOpenDate()
+                + "\n" + "\n" + "Audio Time = " + Tonio.formatTime(Pref.getTotalMsPlayed())
+                + "\n" + "\n" + "(These stats started on 2025-09-30)"
+        ;
+
+        tv_head = findViewById(R.id.tv4_head);
+        tv_body = findViewById(R.id.tv4_body);
+        tv_head.setText(R.string.miscellaneous);
+        tv_body.setText(zeText);
+
+        // ----------------------------------------
 
         findViewById(R.id.bt_01).setOnClickListener(v -> openAppInfo());
         findViewById(R.id.bt_02).setOnClickListener(v -> deleteLogsClick());
