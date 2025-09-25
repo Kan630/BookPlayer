@@ -504,6 +504,8 @@ public class ImageHelper {
         return createAndSaveFallbackImage(ctx, fileName, title, sizePx); // uses the helper we added earlier
     }
 
+
+
     // ----------------------- LOG -----------------------
     private static final String TAG = "ImageHelper";
     private static void myLog(String str) { KanLogger.myLog(TAG, str); }

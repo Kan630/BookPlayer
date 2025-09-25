@@ -12,7 +12,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.media.MediaBrowserServiceCompat;
-import androidx.media.session.MediaButtonReceiver;
 
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaDescriptionCompat;
@@ -31,8 +30,17 @@ import java.util.List;
 
 public class CarMediaService extends MediaBrowserServiceCompat {
 
+    // Small caches to avoid re-decoding
+    private final android.util.LruCache<String, android.graphics.Bitmap> artCache  = new android.util.LruCache<>(8);
+    private final android.util.LruCache<String, android.graphics.Bitmap> iconCache = new android.util.LruCache<>(24);
+    private static final int ART_MAX_PX  = 512;  // big artwork
+    private static final int ICON_MAX_PX = 128;  // list thumbnails
+
+    private static final java.util.concurrent.Executor imgExec =
+            java.util.concurrent.Executors.newFixedThreadPool(1);
+
+
     public static final String ROOT_ID = "root";
-    private static final String NODE_ALL = "all";
     private static final String PREFIX_FOLDER = "folder:";
     private static final String PREFIX_TRACK  = "track:";
 
@@ -179,28 +187,36 @@ public class CarMediaService extends MediaBrowserServiceCompat {
             List<MediaBrowserCompat.MediaItem> out = new ArrayList<>();
 
             if (ROOT_ID.equals(parentId)) {
-                // 1) Lister les Folders
                 List<Folder> folders = AppDatabase.getDatabase(getApplicationContext())
                         .FolderDao().getAll();
                 if (folders == null || folders.isEmpty()) {
                     out.add(browsable("hint", "No items. Open BookPlayer on your phone and import a book."));
-                } else {
-                    for (Folder f : folders) {
-                        MediaDescriptionCompat desc = new MediaDescriptionCompat.Builder()
-                                .setMediaId(PREFIX_FOLDER + f.getId())
-                                .setTitle(f.getName())
-                                //.setSubtitle(formatFolderSubtitle(f))
-                                // Option: setIconUri(Uri.parse(f.image)) si image stockée en URI accessible
-                                .build();
-                        out.add(new MediaBrowserCompat.MediaItem(desc,
-                                MediaBrowserCompat.MediaItem.FLAG_BROWSABLE));
+                    result.sendResult(out);
+                    return;
+                }
+                for (Folder f : folders) {
+                    MediaDescriptionCompat.Builder b = new MediaDescriptionCompat.Builder()
+                            .setMediaId(PREFIX_FOLDER + f.getId())
+                            .setTitle(f.getName());
+
+                    // Load small icon as Bitmap (not URI)
+                    android.graphics.Bitmap icon = null;
+                    if (f.image != null) {
+                        icon = iconCache.get(f.image);
+                        if (icon == null) {
+                            icon = decodeBitmapFromStringUri(f.image, ICON_MAX_PX);
+                            if (icon != null) iconCache.put(f.image, icon);
+                        }
                     }
+                    if (icon != null) b.setIconBitmap(icon);
+
+                    out.add(new MediaBrowserCompat.MediaItem(
+                            b.build(), MediaBrowserCompat.MediaItem.FLAG_BROWSABLE));
                 }
                 result.sendResult(out);
                 return;
             }
 
-            // 2) Si parent = un folder → lister ses tracks
             if (parentId.startsWith(PREFIX_FOLDER)) {
                 int folderId = safeParseInt(parentId.substring(PREFIX_FOLDER.length()), -1);
                 if (folderId > 0) {
@@ -209,25 +225,39 @@ public class CarMediaService extends MediaBrowserServiceCompat {
                     if (tracks == null || tracks.isEmpty()) {
                         out.add(browsable("hint", "Empty book"));
                     } else {
+                        // Fetch folder (for its image)
+                        Folder f = AppDatabase.getDatabase(getApplicationContext())
+                                .FolderDao().getById(folderId); // add DAO method if missing
+                        android.graphics.Bitmap icon = null;
+                        if (f != null && f.image != null) {
+                            icon = iconCache.get(f.image);
+                            if (icon == null) {
+                                icon = decodeBitmapFromStringUri(f.image, ICON_MAX_PX);
+                                if (icon != null) iconCache.put(f.image, icon);
+                            }
+                        }
                         for (ZikFile z : tracks) {
+                            MediaDescriptionCompat.Builder b = new MediaDescriptionCompat.Builder()
+                                    .setMediaId(PREFIX_TRACK + z.getId()) // or getIdZikFile()
+                                    .setTitle(z.getDisplayName())
+                                    .setSubtitle(z.getFolderName());
+                            if (icon != null) b.setIconBitmap(icon);
+
                             Bundle extras = new Bundle();
                             if (z.getDuration() > 0) {
                                 extras.putLong(MediaMetadataCompat.METADATA_KEY_DURATION, (long) z.getDuration());
                             }
-                            MediaDescriptionCompat desc = new MediaDescriptionCompat.Builder()
-                                    .setMediaId(PREFIX_TRACK + z.getId())
-                                    .setTitle(z.getDisplayName())
-                                    .setSubtitle(z.getFolderName())
-                                    .setExtras(extras)
-                                    .build();
-                            out.add(new MediaBrowserCompat.MediaItem(desc,
-                                    MediaBrowserCompat.MediaItem.FLAG_PLAYABLE));
+                            b.setExtras(extras);
+
+                            out.add(new MediaBrowserCompat.MediaItem(
+                                    b.build(), MediaBrowserCompat.MediaItem.FLAG_PLAYABLE));
                         }
                     }
                 }
                 result.sendResult(out);
                 return;
             }
+
 
             result.sendResult(Collections.emptyList());
         });
@@ -260,13 +290,42 @@ public class CarMediaService extends MediaBrowserServiceCompat {
         PlayList pl = PlayList.getInstance();
         ZikFile z = (pl != null) ? pl.getZikFile() : null;
 
+        String curTitle  = (title == null || title.isEmpty()) && z != null ? z.getDisplayName() : title;
+        String curArtist = (subtitle == null || subtitle.isEmpty()) && z != null ? z.getFolderName()  : subtitle;
+        long   curDurMs  = (durMs > 0) ? durMs : (z != null ? (long) z.getDuration() : 0);
+
+        String coverUriStr = null;
+        if (z != null) {
+            try {
+                Folder f = AppDatabase.getDatabase(getApplicationContext())
+                        .FolderDao().getById(z.getIdFolder());
+                if (f != null) coverUriStr = f.image;
+            } catch (Throwable ignored) {}
+        }
+
         MediaMetadataCompat.Builder mb = new MediaMetadataCompat.Builder()
-                .putString(MediaMetadataCompat.METADATA_KEY_TITLE,  (title == null || title.isEmpty()) && z != null ? z.getDisplayName() : title)
-                .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, (subtitle == null || subtitle.isEmpty()) && z != null ? z.getFolderName() : subtitle)
-                .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, (durMs > 0) ? durMs : (long) (z != null ? z.getDuration() : 0));
+                .putString(MediaMetadataCompat.METADATA_KEY_TITLE,  curTitle)
+                .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, curArtist)
+                .putLong  (MediaMetadataCompat.METADATA_KEY_DURATION, curDurMs);
+
+        android.graphics.Bitmap art = null;
+        if (coverUriStr != null) {
+            art = artCache.get(coverUriStr);
+            if (art == null) {
+                // decode synchronously once; if worried about jank, put this in imgExec
+                art = decodeBitmapFromStringUri(coverUriStr, ART_MAX_PX);
+                if (art != null) artCache.put(coverUriStr, art);
+            }
+        }
+        if (art != null) {
+            mb.putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART,    art);
+            mb.putBitmap(MediaMetadataCompat.METADATA_KEY_ART,          art);
+            mb.putBitmap(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON, art);
+        }
 
         mediaSession.setMetadata(mb.build());
     }
+
 
     private void pushPlaybackState(int state, long positionMs) {
         long actions = PlaybackStateCompat.ACTION_PLAY
@@ -294,4 +353,52 @@ public class CarMediaService extends MediaBrowserServiceCompat {
     private static int safeParseInt(String s, int def) {
         try { return Integer.parseInt(s); } catch (Exception e) { return def; }
     }
+
+    @Nullable
+    private android.graphics.Bitmap decodeBitmapFromStringUri(String uriString, int maxSidePx) {
+        if (uriString == null) return null;
+        try {
+            android.net.Uri uri = android.net.Uri.parse(uriString);
+
+            // File path support (if your DB sometimes stores plain paths)
+            if ("file".equalsIgnoreCase(uri.getScheme()) || uriString.startsWith("/")) {
+                String path = "file".equalsIgnoreCase(uri.getScheme()) ? uri.getPath() : uriString;
+                if (path == null) return null;
+                android.graphics.BitmapFactory.Options o = new android.graphics.BitmapFactory.Options();
+                o.inJustDecodeBounds = true;
+                android.graphics.BitmapFactory.decodeFile(path, o);
+                int sample = 1;
+                while (Math.max(o.outWidth / sample, o.outHeight / sample) > maxSidePx) sample *= 2;
+                android.graphics.BitmapFactory.Options o2 = new android.graphics.BitmapFactory.Options();
+                o2.inSampleSize = sample;
+                o2.inPreferredConfig = android.graphics.Bitmap.Config.ARGB_8888;
+                return android.graphics.BitmapFactory.decodeFile(path, o2);
+            }
+
+            // Content:// (SAF) — decode via stream (we are the same app → we can read it)
+            try (java.io.InputStream is = getContentResolver().openInputStream(uri)) {
+                if (is == null) return null;
+                byte[] all = readAll(is);
+                android.graphics.BitmapFactory.Options o = new android.graphics.BitmapFactory.Options();
+                o.inJustDecodeBounds = true;
+                android.graphics.BitmapFactory.decodeByteArray(all, 0, all.length, o);
+                int sample = 1;
+                while (Math.max(o.outWidth / sample, o.outHeight / sample) > maxSidePx) sample *= 2;
+                android.graphics.BitmapFactory.Options o2 = new android.graphics.BitmapFactory.Options();
+                o2.inSampleSize = sample;
+                o2.inPreferredConfig = android.graphics.Bitmap.Config.ARGB_8888;
+                return android.graphics.BitmapFactory.decodeByteArray(all, 0, all.length, o2);
+            }
+        } catch (Throwable ignored) { }
+        return null;
+    }
+
+    private static byte[] readAll(java.io.InputStream is) throws java.io.IOException {
+        java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
+        byte[] buf = new byte[16 * 1024];
+        int r;
+        while ((r = is.read(buf)) != -1) bos.write(buf, 0, r);
+        return bos.toByteArray();
+    }
+
 }
