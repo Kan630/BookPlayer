@@ -178,7 +178,7 @@ public class PlaybackViewModel extends AndroidViewModel {
         Context app = getApplication();
         Intent cmd = new Intent(app, AudioService.class)
                 .setAction(AudioService.ACTION_CMD)
-                .putExtra(AudioService.EXTRA_CMD, AudioService.CMD_PAUSE_AND_SUPPRESS);
+                .putExtra(AudioService.EXTRA_CMD, AudioService.CMD_STOP);
         try {
             androidx.core.content.ContextCompat.startForegroundService(app, cmd);
         } catch (Throwable ignored) {}

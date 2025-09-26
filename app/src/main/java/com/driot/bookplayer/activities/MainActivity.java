@@ -157,7 +157,7 @@
                     if (Option.getStopAudioIfUserClosesApp()) {
                         Intent i = new Intent(MainActivity.this, AudioService.class)
                                 .setAction(AudioService.ACTION_CMD)
-                                .putExtra(AudioService.EXTRA_CMD, AudioService.CMD_PAUSE_AND_SUPPRESS);
+                                .putExtra(AudioService.EXTRA_CMD, AudioService.CMD_STOP);
                         startService(i);
                     }
                     finish();

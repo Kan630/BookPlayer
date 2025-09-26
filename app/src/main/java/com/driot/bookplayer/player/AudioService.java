@@ -73,6 +73,7 @@ public class AudioService extends LoggingService {
 
     public static final String EXTRA_UI_SUPPRESS_MINI = "extra_ui_suppress_mini";
     public static final String ACTION_UI_STATE      = "com.driot.bookplayer.action.UI_STATE";
+    public static final String ACTION_PING_UI = "com.driot.bookplayer.PING_UI";
     public static final String EXTRA_UI_PLAYING     = "extra_ui_playing";
     public static final String EXTRA_UI_POS         = "extra_ui_pos";
     public static final String EXTRA_UI_DUR         = "extra_ui_dur";
@@ -85,7 +86,7 @@ public class AudioService extends LoggingService {
     public static final String EXTRA_UI_TTS       = "extra_ui_tts";
     public static final String ACTION_CMD = "com.driot.bookplayer.action.CMD";
     public static final String EXTRA_CMD  = "extra_cmd";
-    public static final String CMD_PAUSE_AND_SUPPRESS = "pause_and_suppress";
+    public static final String CMD_STOP = "cmd_stop";
 
 
     public static volatile com.driot.bookplayer.player.PlaybackUiState lastUiState = null;
@@ -635,6 +636,8 @@ public class AudioService extends LoggingService {
         if (intent != null) {
             String a = intent.getAction();
 
+            if (ACTION_PING_UI.equals(a)) { broadcastUiState(); return START_STICKY; }
+
             if (ACTION_PLAY_FROM_TRACK.equals(a)) {
                 final int trackId = intent.getIntExtra(EXTRA_TRACK_ID, -1);
                 if (trackId > 0) {
@@ -678,7 +681,7 @@ public class AudioService extends LoggingService {
         }
         if (intent != null && ACTION_CMD.equals(intent.getAction())) {
             String cmd = intent.getStringExtra(EXTRA_CMD);
-            if (CMD_PAUSE_AND_SUPPRESS.equals(cmd)) {
+            if (CMD_STOP.equals(cmd)) {
                 myLog("stopping audio");
                 pauseAudio();                   // → broadcastUiState() inside
                 suppressMiniUntilNextPlay();    // → and then

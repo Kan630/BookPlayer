@@ -28,6 +28,7 @@ import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.utils.KanLogger;
+import com.driot.bookplayer.utils.Tonio;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -43,6 +44,9 @@ public class CarMediaService extends MediaBrowserServiceCompat {
     private final android.util.LruCache<String, android.graphics.Bitmap> iconCache = new android.util.LruCache<>(24);
     private static final int ART_MAX_PX  = 512;  // big artwork
     private static final int ICON_MAX_PX = 128;  // list thumbnails
+
+    private static final long AUTO_RESUME_GRACE_MS = 4000L; // 4s feels good
+    private long lastPlayingTs = 0L;
 
     private static final java.util.concurrent.Executor imgExec =
             java.util.concurrent.Executors.newFixedThreadPool(1);
@@ -103,6 +107,8 @@ public class CarMediaService extends MediaBrowserServiceCompat {
             curTrackId  = i.getIntExtra(AudioService.EXTRA_UI_TRACK_ID, 0);
             curFolderId = i.getIntExtra(AudioService.EXTRA_UI_FOLDER_ID, 0);
 
+            if (playing) lastPlayingTs = android.os.SystemClock.elapsedRealtime();
+
             // push metadata + playbackstate vers Android Auto
             pushMetadataFromCurrent();
             pushPlaybackState(playing ? PlaybackStateCompat.STATE_PLAYING
@@ -130,23 +136,42 @@ public class CarMediaService extends MediaBrowserServiceCompat {
 
             @Override public void onPlay() {
                 myLog("onPlay()");
-                // Has the user picked anything / do we know a track?
+
+                // rely on our own snapshot (don’t use AudioService.lastUiState across processes)
+                //boolean haveKnownTrack = (curTrackId > 0) || (curFolderId > 0);
+
                 boolean haveKnownTrack =
                         AudioService.lastUiState != null &&
                                 AudioService.lastUiState.trackId > 0;
 
-                myLog("haveKnownTrack = " + haveKnownTrack);
-                myLog("userArmedPlay = " + userArmedPlay);
-                myLog("Option.getAutomotiveAutoResumeOnCarConnect() = " + Option.getAutomotiveAutoResumeOnCarConnect());
+                boolean inGrace = CarSignals.withinCarConnectGrace(AUTO_RESUME_GRACE_MS);
+                boolean wasPlayingRecently =
+                        (android.os.SystemClock.elapsedRealtime() - lastPlayingTs) <= AUTO_RESUME_GRACE_MS;
 
-                if (userArmedPlay || (haveKnownTrack && Option.getAutomotiveAutoResumeOnCarConnect())) {
+                final long now = System.currentTimeMillis();
+                final long pausedAt = com.driot.bookplayer.global.Pref.getPauseTime();
+                myLogI(Tonio.formatMS(now - pausedAt));
+                boolean wasPausedRecently = pausedAt > 0 && (now - pausedAt) <= AUTO_RESUME_GRACE_MS;
+
+                boolean shouldAutoResume =
+                        Option.getAutomotiveAutoResumeOnCarConnect()
+                                && haveKnownTrack
+                                && inGrace
+                                && wasPausedRecently;
+
+                myLog("haveKnownTrack=" + haveKnownTrack
+                        + " inGrace=" + inGrace
+                        + " wasPausedRecently=" + wasPausedRecently
+                        + " autoResumeOpt=" + Option.getAutomotiveAutoResumeOnCarConnect());
+
+                if (userArmedPlay || shouldAutoResume) {
                     sendCmd("CMD_PLAY");
                 } else {
-                    myLogW("Ignoring onPlay(): no user intent");
-                    // reflect paused so AA doesn’t show “playing”
+                    myLogW("Ignoring onPlay(): no explicit user intent and not eligible for auto-resume");
                     pushPlaybackState(PlaybackStateCompat.STATE_PAUSED, 0);
                 }
             }
+
             @Override public void onPause()             { sendCmd("CMD_PAUSE"); }
             @Override public void onSkipToNext()        { sendCmd("CMD_NEXT"); }
             @Override public void onSkipToPrevious()    { sendCmd("CMD_PREV"); }
@@ -206,6 +231,9 @@ public class CarMediaService extends MediaBrowserServiceCompat {
         // 2) s’abonner aux mises à jour UI de l’AudioService
         LocalBroadcastManager.getInstance(this).registerReceiver(
                 uiReceiver, new IntentFilter(AudioService.ACTION_UI_STATE));
+        androidx.core.content.ContextCompat.startForegroundService(
+                this, new Intent(this, AudioService.class).setAction(AudioService.ACTION_PING_UI)
+        );
 
         // état initial neutre
         pushPlaybackState(PlaybackStateCompat.STATE_NONE, 0);
