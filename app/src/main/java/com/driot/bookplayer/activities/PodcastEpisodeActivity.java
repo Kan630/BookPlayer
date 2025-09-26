@@ -497,7 +497,6 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
                                 List<Episode> dbEpisodes = podcastEpisodeViewModel.getEpisodesFromDB(podcast.getId(), sortNewestFirst);
                                 List<DisplayableEpisode> fullList =
                                         DisplayableEpisode.mergeDisplayableEpisodes(apiEpisodes, dbEpisodes);
-                                myLogD("DB episodes after insert: " + dbEpisodes.size());
                                 int nbEpisodeFull = fullList.size();
                                 myLogD("Displayed episodes count: " + nbEpisodeFull);
                                 runOnUiThread(() -> {

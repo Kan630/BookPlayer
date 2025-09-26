@@ -851,6 +851,9 @@
     <string name="automotive_no_item_in_bookplayer">No items. Open BookPlayer on your phone and import a book.</string>
     <string name="automotive_empty_book">Empty book</string>
     <string name="automotive_resume_play">Resume play</string>
+    <string name="nb_of_audios_found">Nb of audio found</string>
+    <string name="reviews">reviews</string>
+    <string name="average_rating">average rating</string>
 
 
 

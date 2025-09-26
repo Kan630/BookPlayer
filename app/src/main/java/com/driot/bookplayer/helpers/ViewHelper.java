@@ -5,14 +5,12 @@ import static com.driot.bookplayer.utils.TextOptions.parseMaybeHtml;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.app.AlertDialog;
-import android.content.ClipboardManager;
 import android.content.Context;
-import android.view.LayoutInflater;
+import android.graphics.Rect;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
 
@@ -43,4 +41,14 @@ public class ViewHelper {
                     }
                 });
     }
+
+    public static class SpacesItemDecoration extends RecyclerView.ItemDecoration {
+        private final int space;
+        public SpacesItemDecoration(int space) { this.space = space; }
+        @Override public void getItemOffsets(Rect outRect, View v, RecyclerView parent, RecyclerView.State s) {
+            outRect.set(space, space, space, space);
+        }
+    }
+    public static int dp(Context c, int v){ return Math.round(c.getResources().getDisplayMetrics().density * v); }
+
 }

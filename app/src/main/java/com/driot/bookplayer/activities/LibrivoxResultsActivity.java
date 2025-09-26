@@ -5,18 +5,18 @@ import static com.driot.bookplayer.global.Var.LIBRIVOX_API_MAX_RESULTS;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.adapter.LibrivoxResultRVAdapter;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
+import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.objects.LibrivoxApiResponse;
 import com.driot.bookplayer.objects.LibrivoxApi;
 import com.driot.bookplayer.objects.LibrivoxItem;
@@ -39,7 +39,7 @@ public class LibrivoxResultsActivity extends LoggingActivity {
 
     RecyclerView recyclerView;
     LibrivoxResultRVAdapter adapter;
-    TextView tvSearchTerms, tvLanguage, tvResultsCount;
+    //TextView tvSearchTerms, tvLanguage, tvResultsCount;
 
     ProgressBar progressBar;
 
@@ -52,12 +52,13 @@ public class LibrivoxResultsActivity extends LoggingActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_librivox_results);
 
-        View topContainer = findViewById(R.id.headerLayout);
+        //View topContainer = findViewById(R.id.headerLayout);
         //View bottomBar = findViewById(R.id.recyclerView);
         //View contentContainer = findViewById(R.id.recyclerView);
         //InsetHelper.applyEdgeToEdge(this, topContainer, null, null);
         //InsetHelper.applyInsetsForContentWithScrollableBottom(this, findViewById(R.id.headerLayout), findViewById(R.id.recyclerView));
-        InsetHelper.apply(this);
+        //InsetHelper.apply(this);
+        InsetHelper.applyInsetsForScrollableBehindNavBar(this, findViewById(R.id.recyclerView));
 
         OngoingTaskHost.attach(
                 this,
@@ -67,11 +68,18 @@ public class LibrivoxResultsActivity extends LoggingActivity {
 
         recyclerView = findViewById(R.id.recyclerView);
         progressBar = findViewById(R.id.progressBar);
+        /*
         tvSearchTerms = findViewById(R.id.tvSearchTerms);
         tvLanguage = findViewById(R.id.tvLanguage);
         tvResultsCount = findViewById(R.id.tvResultsCount);
 
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+         */
+
+        int span = getResources().getInteger(R.integer.classic_grid_span);
+        GridLayoutManager glm = new GridLayoutManager(this, span);
+        recyclerView.setLayoutManager(glm);
+        recyclerView.addItemDecoration(new ViewHelper.SpacesItemDecoration(ViewHelper.dp(this, Var.GRID_LAYOUT_SPACER)));
+        //recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         adapter = new LibrivoxResultRVAdapter(item -> {
             Intent intent = new Intent(this, LibrivoxDetailActivity.class);
@@ -88,11 +96,13 @@ public class LibrivoxResultsActivity extends LoggingActivity {
         viewModel.getResults().observe(this, items -> {
             adapter.setItems(items);
             progressBar.setVisibility(View.GONE);
+            String strResultsCount;
             if (items != null && items.size() == LIBRIVOX_API_MAX_RESULTS) {
-                tvResultsCount.setText("Max number of results reached (" + items.size() + ")");
+                strResultsCount = getString(R.string.max_number_of_results_reached) + " (" + items.size() + ")";
             } else {
-                tvResultsCount.setText("Nb of audio found: " + (items == null ? 0 : items.size()));
+                strResultsCount =  getString((R.string.nb_of_audios_found)) + " : " + (items == null ? 0 : items.size());
             }
+            adapter.setHeaderCount(strResultsCount);
         });
 
         // ✅ OBSERVE FINISH REQUEST
@@ -109,10 +119,18 @@ public class LibrivoxResultsActivity extends LoggingActivity {
             finish();
             return;
         }
-
+/*
         tvSearchTerms.setText(getString(R.string.Search_2pt) + (query.isEmpty() ? getString(R.string.search_nothing_specified) : query));
         tvLanguage.setText(getString(R.string.Language_2pt) + lang);
         tvResultsCount.setText(getString(R.string.Results_2pt) + "...");
+
+ */
+        CharSequence searchLine = getString(R.string.Search_2pt)
+                + (query.isEmpty() ? getString(R.string.search_nothing_specified) : query);
+        CharSequence langLine = getString(R.string.Language_2pt) + lang;
+        adapter.setHeader(searchLine, langLine);
+        adapter.setHeaderCount(getString(R.string.Results_2pt) + "...");
+
 
         // 🔄 Check cache
         if (viewModel.getResults().getValue() != null &&

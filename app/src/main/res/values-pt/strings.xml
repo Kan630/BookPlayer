@@ -574,7 +574,7 @@
     <string name="action_menu_three_dot">Menu</string>
     <string name="menu_open">abrir</string>
     <string name="menu_manual">manual</string>
-    <string name="menu_options">opções</string>
+    <string name="menu_settings">opções</string>
     <string name="menu_otherapp">outros apps</string>
     <string name="menu_sendmail">e-mail ao desenvolvedor</string>
     <string name="stats">Estatísticas</string>
@@ -676,7 +676,7 @@
     <string name="Surf_the_vast_Internet_Archive_for_audio_files_and_download_some">Explore o vasto Internet Archive em busca de arquivos de áudio e baixe alguns!</string>
     <string name="Please_enter_a_URL">Insira uma URL.</string>
     <string name="Permission_Required">Permissão necessária</string>
-    <string name="Options">Opções</string>
+    <string name="Settings">Opções</string>
     <string name="App_Info">Informações do app</string>
     <string name="reset_app">Redefinir app</string>
     <string name="Exit">Sair</string>

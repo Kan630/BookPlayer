@@ -8,7 +8,7 @@ import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
@@ -18,8 +18,8 @@ import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.db.PodcastDao;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
+import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.objects.PodcastFeed;
-import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.utils.NetworkUtils;
 import com.driot.bookplayer.helpers.PodcastHelper;
 import com.driot.bookplayer.utils.log.LoggingActivity;
@@ -48,7 +48,12 @@ public class PodcastSearchResultsActivity extends LoggingActivity {
         progressBar = findViewById(R.id.progressBarPodcast);
         errorMessage = findViewById(R.id.podcast_error_message);
 
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        int span = getResources().getInteger(R.integer.classic_grid_span);
+        GridLayoutManager glm = new GridLayoutManager(this, span);
+        recyclerView.setLayoutManager(glm);
+        recyclerView.addItemDecoration(new ViewHelper.SpacesItemDecoration(ViewHelper.dp(this,Var.GRID_LAYOUT_SPACER)));
+        //recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
         viewModel = new ViewModelProvider(this).get(PodcastSearchResultsViewModel.class);
 
         viewModel.getShouldFinish().observe(this, shouldFinish -> {

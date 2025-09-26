@@ -1,0 +1,5 @@
+<!-- 7–8" tablets -->
+
+<resources>
+    <integer name="classic_grid_span">2</integer>
+</resources>

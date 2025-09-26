@@ -1,0 +1,5 @@
+<resources>
+    <!-- phones -->
+
+    <integer name="classic_grid_span">1</integer>
+</resources>

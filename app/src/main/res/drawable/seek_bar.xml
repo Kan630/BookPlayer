@@ -1,11 +1,11 @@
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- Not working ! -->
+    <!-- Background -->
     <item android:id="@android:id/background">
         <shape
             android:shape="line">
             <stroke
-                android:color="?attr/colorSecondaryVariant"
-                android:width="20dp"/>
+                android:color="?attr/colorSurfaceVariant"
+                android:width="4dp"/>
         </shape>
     </item>
     <!-- Buffered (secondary progress) -->

@@ -32,6 +32,7 @@
     import androidx.core.app.ActivityCompat;
     import androidx.lifecycle.LiveData;
     import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+    import androidx.recyclerview.widget.GridLayoutManager;
     import androidx.recyclerview.widget.LinearLayoutManager;
     import androidx.recyclerview.widget.RecyclerView;
 
@@ -44,6 +45,7 @@
     import com.driot.bookplayer.global.Option;
     import com.driot.bookplayer.global.Var;
     import com.driot.bookplayer.helpers.InsetHelper;
+    import com.driot.bookplayer.helpers.ViewHelper;
     import com.driot.bookplayer.objects.OngoingTaskHost;
     import com.driot.bookplayer.player.PlayList;
     import com.driot.bookplayer.player.AudioService;
@@ -144,7 +146,14 @@
             toolbar.setLogo(R.mipmap.ic_launcher);
 
             recyclerView = findViewById(R.id.recyclerview_folders);
-            if (recyclerView != null) recyclerView.setLayoutManager(new LinearLayoutManager(this));
+            if (recyclerView != null) {
+                int span = getResources().getInteger(R.integer.classic_grid_span);
+                GridLayoutManager glm = new GridLayoutManager(this, span);
+                recyclerView.setLayoutManager(glm);
+                recyclerView.setHasFixedSize(true);
+                recyclerView.addItemDecoration(new ViewHelper.SpacesItemDecoration(ViewHelper.dp(this,Var.GRID_LAYOUT_SPACER)));
+                //recyclerView.setLayoutManager(new LinearLayoutManager(this));
+            }
 
             FoldersRVAdapter adapter = new FoldersRVAdapter(MainActivity.this);
             recyclerView.setAdapter(adapter);
