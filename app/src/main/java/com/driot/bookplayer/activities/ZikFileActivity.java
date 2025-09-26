@@ -28,6 +28,8 @@ import java.util.List;
 
 public class ZikFileActivity extends LoggingActivity {
 
+    public static final String EXTRA_FOLDER_ID = "extra_folder_id";
+
     private RecyclerView recyclerView;
     private ZikFilesRVAdapter adapter;
 
@@ -63,13 +65,16 @@ public class ZikFileActivity extends LoggingActivity {
         });
 
         // Read initial folder once; keep only the id and always re-read from DB
-        Folder initial = getIntent().getParcelableExtra("folder");
-        if (initial == null) {
-            myToastEE(null, "ZikFileActivity : folder == null");
-            finish();
-            return;
+        folderId = getIntent().getIntExtra(EXTRA_FOLDER_ID, -1);
+        if (!(folderId > 0)) {
+            Folder initial = getIntent().getParcelableExtra("folder");
+            if (initial == null) {
+                myToastEE(null, "ZikFileActivity : folder == null");
+                finish();
+                return;
+            }
+            folderId = initial.getId();
         }
-        folderId = initial.getId();
 
         // ViewModel + LiveData observation
         vm = new ViewModelProvider(this).get(ZikFilesViewModel.class);

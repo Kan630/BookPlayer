@@ -17,7 +17,6 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
-import com.driot.bookplayer.services.AudioService;
 import com.driot.bookplayer.utils.KanLogger;
 
 /**

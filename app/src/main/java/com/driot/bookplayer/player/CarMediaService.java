@@ -1,4 +1,4 @@
-package com.driot.bookplayer.services;
+package com.driot.bookplayer.player;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -27,8 +27,6 @@ import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
-import com.driot.bookplayer.player.PlayList;
-import com.driot.bookplayer.player.CarSignals;
 import com.driot.bookplayer.utils.KanLogger;
 
 import java.util.ArrayList;
@@ -149,67 +147,35 @@ public class CarMediaService extends MediaBrowserServiceCompat {
                 userArmedPlay = true;
                 if (mediaId == null) return;
 
-                // Case 1: user clicked a track item → "track:<zikId>"
                 if (mediaId.startsWith(PREFIX_TRACK)) {
-                    final int trackId = safeParseInt(mediaId.substring(PREFIX_TRACK.length()), -1);
-                    myLogD("trackId = " + trackId);
-                    if (trackId <= 0) return;
-
-
-                    AppDatabase.databaseReadExecutor.execute(() -> {
-                        // 1) Resolve the clicked track
-                        ZikFile clicked = AppDatabase.getDatabase(getApplicationContext())
-                                .ZikFileDao().getById(trackId); // <-- if your DAO name is getByIdNow(), use that exact name
-                        if (clicked == null) return;
-
-                        final int folderId = clicked.getIdFolder();
-
-                        // 2) Load the whole book (folder) track list
-                        List<ZikFile> list = AppDatabase.getDatabase(getApplicationContext())
-                                .ZikFileDao().getZikFiles(folderId);
-
-                        if (list == null || list.isEmpty()) return;
-
-                        // 3) Find clicked track index
-                        int index = 0;
-                        for (int i = 0; i < list.size(); i++) {
-                            ZikFile z = list.get(i);
-                            // IMPORTANT: use the correct getter for your ZikFile id
-                            // If your entity uses getIdZikFile(), replace getId() with getIdZikFile()
-                            if (z.getId() == trackId) { index = i; break; }
-                        }
-
-                        // 4) Build PlayList and start playback
-                        PlayList.create(getApplicationContext(), list, index);
+                    int trackId = safeParseInt(mediaId.substring(PREFIX_TRACK.length()), -1);
+                    if (trackId > 0) {
                         ContextCompat.startForegroundService(
-                                CarMediaService.this, new Intent(CarMediaService.this, AudioService.class).setAction("CMD_PLAY")
+                                CarMediaService.this,
+                                new Intent(CarMediaService.this, AudioService.class)
+                                        .setAction(AudioService.ACTION_PLAY_FROM_TRACK)
+                                        .putExtra(AudioService.EXTRA_TRACK_ID, trackId)
                         );
-                    });
+                        // Optional: show buffering right away in AA
+                        pushPlaybackState(PlaybackStateCompat.STATE_BUFFERING, 0);
+                    }
                     return;
                 }
 
                 if (mediaId.startsWith(PREFIX_FOLDER)) {
                     int folderId = safeParseInt(mediaId.substring(PREFIX_FOLDER.length()), -1);
-                    myLogD("folderId = " + folderId);
                     if (folderId > 0) {
-                        AppDatabase.databaseReadExecutor.execute(() -> {
-                            int count = AppDatabase.getDatabase(getApplicationContext())
-                                    .ZikFileDao().countTracks(folderId);
-                            if (count == 1) {
-                                List<ZikFile> list = AppDatabase.getDatabase(getApplicationContext())
-                                        .ZikFileDao().getZikFiles(folderId);
-
-                                if (list == null || list.isEmpty()) return;
-
-                                PlayList.create(getApplicationContext(), list, 0);
-                                ContextCompat.startForegroundService(
-                                        CarMediaService.this, new Intent(CarMediaService.this, AudioService.class).setAction("CMD_PLAY")
-                                );
-                            }
-                        });
-                    } else {
-                        myLogEE(null, "onPlayFromMediaId, Folder with many tracks");
+                        // If you want to play index 0 immediately (single-track or your UX choice):
+                        ContextCompat.startForegroundService(
+                                CarMediaService.this,
+                                new Intent(CarMediaService.this, AudioService.class)
+                                        .setAction(AudioService.ACTION_PLAY_FROM_FOLDER)
+                                        .putExtra(AudioService.EXTRA_FOLDER_ID, folderId)
+                                        .putExtra(AudioService.EXTRA_INDEX, 0)
+                        );
+                        pushPlaybackState(PlaybackStateCompat.STATE_BUFFERING, 0);
                     }
+                    return;
                 }
             }
             @Override

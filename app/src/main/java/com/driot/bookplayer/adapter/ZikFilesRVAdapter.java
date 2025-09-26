@@ -74,7 +74,6 @@ public class ZikFilesRVAdapter extends LoggingListAdapter<ZikFile, ZikFilesRVAda
     private int getCurrentFolderIdSafe() {
         PlayList pl = PlayList.getInstance();
         if (pl == null) return -1;
-        if (pl.getFolder() != null) return pl.getFolder().getId();
         ZikFile z = pl.getZikFile();
         return (z != null) ? z.getIdFolder() : -1;
     }

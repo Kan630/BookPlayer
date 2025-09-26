@@ -211,7 +211,7 @@
         </activity>
 
         <service
-            android:name=".services.AudioService"
+            android:name=".player.AudioService"
             android:enabled="true"
             android:foregroundServiceType="mediaPlayback"
             android:exported="false"
@@ -242,7 +242,7 @@
             android:name="com.google.android.gms.car.application"
             android:resource="@xml/automotive_app_desc" />
         <service
-            android:name=".services.CarMediaService"
+            android:name=".player.CarMediaService"
             android:exported="true">             <!--android:permission="android.permission.BIND_MEDIA_BROWSER_SERVICE"-->
         <intent-filter>
                 <action android:name="android.media.browse.MediaBrowserService" />

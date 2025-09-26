@@ -6,7 +6,7 @@ import android.content.pm.PackageManager;
 
 import com.driot.bookplayer.activities.OpenWithProxyActivity;
 import com.driot.bookplayer.activities.OpenWithProxyActivityAll;
-import com.driot.bookplayer.services.CarMediaService;
+import com.driot.bookplayer.player.CarMediaService;
 
 public class ComponentUtils {
     public static void setOpenWithProxyEnabled(Context context, boolean enabled) {

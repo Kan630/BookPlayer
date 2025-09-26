@@ -230,8 +230,6 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
     private int getCurrentFolderIdSafe() {
         PlayList pl = PlayList.getInstance();
         if (pl == null) return -1;
-        Folder f = pl.getFolder();
-        if (f != null) return f.getId();
         ZikFile z = pl.getZikFile();
         return (z != null) ? z.getIdFolder() : -1;
     }

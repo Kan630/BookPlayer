@@ -1,4 +1,4 @@
-package com.driot.bookplayer.services;
+package com.driot.bookplayer.player;
 
 import com.driot.bookplayer.R;
 
@@ -21,26 +21,25 @@ import android.view.KeyEvent;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.LiveData;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.media.session.MediaButtonReceiver;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 
+import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.helpers.TtsHelper;
 import com.driot.bookplayer.helpers.UriHelper;
-import com.driot.bookplayer.player.EngineListener;
-import com.driot.bookplayer.player.MediaPlayerEngine;
-import com.driot.bookplayer.player.PlaybackUiState;
-import com.driot.bookplayer.player.PlayerEngine;
-import com.driot.bookplayer.player.TtsEngine;
 import com.driot.bookplayer.utils.AppTtsManager;
 import com.driot.bookplayer.utils.log.LoggingService;
 import com.driot.bookplayer.activities.PlayActivity;
 import com.driot.bookplayer.global.Option;
-import com.driot.bookplayer.player.PlayList;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Pref;
 
 import java.text.DecimalFormat;
+import java.util.List;
 
 import static com.driot.bookplayer.utils.Tonio.formatTime;
 
@@ -50,6 +49,14 @@ import static com.driot.bookplayer.utils.Tonio.formatTime;
 
 public class AudioService extends LoggingService {
 
+    private final MutableLiveData<PlaybackUiState> uiLive = new MutableLiveData<>();
+    private PlayList.MetaState lastPlayListMeta = new PlayList.MetaState(false, null, null, false);
+    private final Observer<PlayList.MetaState> metaObs = meta -> {
+        lastPlayListMeta = meta;          // cache latest meta
+        broadcastUiState();       // rebuild + emit unified UI
+    };
+    public LiveData<PlaybackUiState> getUiLive() { return uiLive; }
+
     public static volatile boolean isRunning = false;
     private static final String ID_NOTIFICATION_PLAY_AUDIO_CHANNEL = "audio_channel_of_bookplayer";
     private static final int ID_NOTIFICATION_PLAY_AUDIO_INT = 2;
@@ -57,6 +64,12 @@ public class AudioService extends LoggingService {
     public static final String NOTIFICATION_TTS_RANGE = "NOTIFICATION_TTS_RANGE";
     public static final String EXTRA_TTS_START = "EXTRA_TTS_START";
     public static final String EXTRA_TTS_END   = "EXTRA_TTS_END";
+
+    public static final String ACTION_PLAY_FROM_TRACK  = "com.driot.bookplayer.PLAY_FROM_TRACK";
+    public static final String ACTION_PLAY_FROM_FOLDER = "com.driot.bookplayer.PLAY_FROM_FOLDER";
+    public static final String EXTRA_TRACK_ID  = "extra_track_id";
+    public static final String EXTRA_FOLDER_ID = "extra_folder_id";
+    public static final String EXTRA_INDEX     = "extra_index"; // optional, default 0
 
     public static final String EXTRA_UI_SUPPRESS_MINI = "extra_ui_suppress_mini";
     public static final String ACTION_UI_STATE      = "com.driot.bookplayer.action.UI_STATE";
@@ -188,6 +201,8 @@ public class AudioService extends LoggingService {
 
     private void broadcastUiCleared() {
         lastUiState = null;
+        uiLive.postValue(new PlaybackUiState(false, 0, 0, "", "", "",
+                0, 0, false, engine instanceof TtsEngine));
         Intent i = new Intent(ACTION_UI_STATE)
                 .putExtra(EXTRA_UI_PLAYING,  false)
                 .putExtra(EXTRA_UI_POS,      0)
@@ -201,6 +216,7 @@ public class AudioService extends LoggingService {
     private void broadcastUiState() {
         PlaybackUiState s = buildUiState();
         lastUiState = s;
+        uiLive.postValue(s);
         Intent i = new Intent(ACTION_UI_STATE)
                 .putExtra(EXTRA_UI_PLAYING,  s.playing)
                 .putExtra(EXTRA_UI_POS,      s.positionMs)
@@ -220,18 +236,20 @@ public class AudioService extends LoggingService {
 
     private PlaybackUiState buildUiState() {
         PlayList pl = PlayList.getInstance();
-        ZikFile z = (pl!=null) ? pl.getZikFile() : null;
-        Folder f =  (pl!=null) ? pl.getFolder() : null;
+        ZikFile z = (pl != null) ? pl.getZikFile() : null;
+        Folder f = lastPlayListMeta != null ? lastPlayListMeta.folder : null;
 
-        String title = (z != null) ? z.getFolderName()  : "";
+        String title = (z != null) ? z.getFolderName()
+                : (f != null ? f.getName() : "");
         String text  = (z != null) ? z.getDisplayName() : "";
         String cover = (f != null) ? f.image : "";
 
+        // Be defensive around engine readiness to avoid 0/0 churn if you want
         int pos = (engine != null) ? engine.getCurrentPosition() : 0;
         int dur = (engine != null) ? engine.getDuration() : 0;
         boolean playing = (engine != null) && engine.isPlaying();
 
-        int trackId  = (z != null) ? z.getId()     /* or getIdZikFile() */ : 0;
+        int trackId  = (z != null) ? z.getId() : 0;
         int folderId = (f != null) ? f.getId() : 0;
         boolean ready   = (engine != null) && engine.isReady();
         boolean ttsMode = (engine instanceof TtsEngine);
@@ -330,6 +348,9 @@ public class AudioService extends LoggingService {
     public void onCreate() {
         isRunning = true;
         super.onCreate();
+
+        PlayList.getMetaLive().observeForever(metaObs);
+
 
         // Media session (wrapped)
         media = new com.driot.bookplayer.player.MediaSessionController(this, callback);
@@ -477,22 +498,22 @@ public class AudioService extends LoggingService {
                     @Override public PendingIntent content() {
                         final int flags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;
 
-                        androidx.core.app.TaskStackBuilder tsb =
-                                androidx.core.app.TaskStackBuilder.create(AudioService.this);
-
-                        // Always start at Main
+                        androidx.core.app.TaskStackBuilder tsb = androidx.core.app.TaskStackBuilder.create(AudioService.this);
+                        // 1) Always start at Main
                         tsb.addNextIntent(new Intent(AudioService.this, com.driot.bookplayer.activities.MainActivity.class));
 
-                        // If this book has multiple tracks, add the track list before Play
+                        // 2) If multiple tracks, insert the track list screen before PlayActivity
                         PlayList pl = PlayList.getInstance();
-                        if (pl != null && pl.getSize() > 1) {
-                            // Prefer passing the Folder object if it's Parcelable/Serializable; else pass folderId
-                            Intent trackList = new Intent(AudioService.this, com.driot.bookplayer.activities.ZikFileActivity.class);
-                            trackList.putExtra("folder", pl.getFolder()); // if your Folder is Serializable/Parcelable
+                        ZikFile z   = (pl != null) ? pl.getZikFile() : null;
+                        int folderId = (z != null) ? z.getIdFolder() : -1;
+
+                        if (folderId > 0 && pl != null && pl.getSize() > 1) {
+                            Intent trackList = new Intent(AudioService.this, com.driot.bookplayer.activities.ZikFileActivity.class)
+                                    .putExtra(com.driot.bookplayer.activities.ZikFileActivity.EXTRA_FOLDER_ID, folderId);
                             tsb.addNextIntent(trackList);
                         }
 
-                        // Finally PlayActivity
+                        // 3) Finally PlayActivity (singleTop/clearTop like you already do)
                         tsb.addNextIntent(new Intent(AudioService.this, com.driot.bookplayer.activities.PlayActivity.class)
                                 .putExtra(com.driot.bookplayer.activities.PlayActivity.EXTRA_AUTOPLAY, false));
 
@@ -611,6 +632,50 @@ public class AudioService extends LoggingService {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        if (intent != null) {
+            String a = intent.getAction();
+
+            if (ACTION_PLAY_FROM_TRACK.equals(a)) {
+                final int trackId = intent.getIntExtra(EXTRA_TRACK_ID, -1);
+                if (trackId > 0) {
+                    AppDatabase.databaseReadExecutor.execute(() -> {
+                        ZikFile clicked = AppDatabase.getDatabase(this).ZikFileDao().getById(trackId);
+                        if (clicked == null) return;
+                        int folderId = clicked.getIdFolder();
+                        List<ZikFile> list = AppDatabase.getDatabase(this).ZikFileDao().getZikFiles(folderId);
+                        if (list == null || list.isEmpty()) return;
+
+                        int index = 0;
+                        for (int i = 0; i < list.size(); i++)
+                            if (list.get(i).getId() == trackId) {
+                                index = i;
+                                break;
+                            }
+
+                        PlayList.create(getApplicationContext(), list, index);
+                        directPlay = true;
+                        loadFile();  // will prepare
+                        // start once prepared or immediately if already ready
+                    });
+                }
+                return START_STICKY;
+            }
+
+            if (ACTION_PLAY_FROM_FOLDER.equals(a)) {
+                final int folderId = intent.getIntExtra(EXTRA_FOLDER_ID, -1);
+                final int index = Math.max(0, intent.getIntExtra(EXTRA_INDEX, 0));
+                if (folderId > 0) {
+                    AppDatabase.databaseReadExecutor.execute(() -> {
+                        List<ZikFile> list = AppDatabase.getDatabase(this).ZikFileDao().getZikFiles(folderId);
+                        if (list == null || list.isEmpty()) return;
+                        PlayList.create(getApplicationContext(), list, Math.min(index, list.size() - 1));
+                        directPlay = true;
+                        loadFile();
+                    });
+                }
+                return START_STICKY;
+            }
+        }
         if (intent != null && ACTION_CMD.equals(intent.getAction())) {
             String cmd = intent.getStringExtra(EXTRA_CMD);
             if (CMD_PAUSE_AND_SUPPRESS.equals(cmd)) {
@@ -672,6 +737,7 @@ public class AudioService extends LoggingService {
     public void onDestroy() {
         myLog("onDestroy()");
         // Send cleared first so observers hide mini even if process dies right after
+        try { PlayList.getMetaLive().removeObserver(metaObs); } catch (Throwable ignore) {}
         broadcastUiCleared();                     // ← ensure cleared
 
         isRunning = false;

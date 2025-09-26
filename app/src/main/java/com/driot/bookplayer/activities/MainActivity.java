@@ -46,7 +46,7 @@
     import com.driot.bookplayer.helpers.InsetHelper;
     import com.driot.bookplayer.objects.OngoingTaskHost;
     import com.driot.bookplayer.player.PlayList;
-    import com.driot.bookplayer.services.AudioService;
+    import com.driot.bookplayer.player.AudioService;
     import com.driot.bookplayer.helpers.InfoHelper;
     import com.driot.bookplayer.utils.InAppMsgManager;
     import com.driot.bookplayer.utils.KanMail;

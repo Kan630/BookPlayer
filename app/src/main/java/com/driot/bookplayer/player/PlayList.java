@@ -14,12 +14,8 @@ import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.db.ZikFile;
-import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.utils.KanLogger;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
-import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.List;
 
@@ -84,17 +80,19 @@ public final class PlayList {
     private final Object lock = new Object();
     private final Handler main = new Handler(Looper.getMainLooper());
 
-    private List<ZikFile> items = Collections.emptyList();
+    private List<ZikFile> zikFilesList = Collections.emptyList();
     private int index = -1;
 
     private Folder folder;
     private Podcast podcast;
     private boolean isPodcast;
     private boolean metaLoaded = false;
-
+/*
     public Folder getFolder() {
         return folder;
     }
+
+ */
 
     // Invalidate racing async loads
     private long version = 0L;
@@ -121,7 +119,7 @@ public final class PlayList {
 
     public void clear() {
         synchronized (lock) {
-            items = Collections.emptyList();
+            zikFilesList = Collections.emptyList();
             index = -1;
             folder = null;
             podcast = null;
@@ -138,7 +136,7 @@ public final class PlayList {
 
     public void nextTrack() {
         synchronized (lock) {
-            if (index >= 0 && index + 1 < items.size()) {
+            if (index >= 0 && index + 1 < zikFilesList.size()) {
                 index++;
                 saveToStorage();
             }
@@ -148,18 +146,18 @@ public final class PlayList {
 
     public boolean isLastTrack() {
         synchronized (lock) {
-            return !items.isEmpty() && index == items.size() - 1;
+            return !zikFilesList.isEmpty() && index == zikFilesList.size() - 1;
         }
     }
 
     public int getSize() {
-        synchronized (lock) { return items.size(); }
+        synchronized (lock) { return zikFilesList.size(); }
     }
 
     public String getNumSlashTotal() {
         synchronized (lock) {
             int cur = (index >= 0) ? (index + 1) : 0;
-            return cur + "/" + items.size();
+            return cur + "/" + zikFilesList.size();
         }
     }
 
@@ -171,11 +169,11 @@ public final class PlayList {
 
     public void setNumZikFile(int newIndex) {
         synchronized (lock) {
-            if (items.isEmpty()) {
+            if (zikFilesList.isEmpty()) {
                 myLogW("setNumZikFile(): items empty");
                 index = -1;
             } else {
-                index = clamp(newIndex, 0, items.size() - 1);
+                index = clamp(newIndex, 0, zikFilesList.size() - 1);
             }
             saveToStorage();
         }
@@ -184,11 +182,11 @@ public final class PlayList {
 
     public @Nullable ZikFile getZikFile() {
         synchronized (lock) {
-            if (items.isEmpty() || index < 0 || index >= items.size()) {
-                myLogEE(null, "getZikFile(): out of bounds index=" + index + " size=" + items.size());
+            if (zikFilesList.isEmpty() || index < 0 || index >= zikFilesList.size()) {
+                myLogEE(null, "getZikFile(): out of bounds index=" + index + " size=" + zikFilesList.size());
                 return null;
             }
-            return items.get(index);
+            return zikFilesList.get(index);
         }
     }
 /*
@@ -217,7 +215,7 @@ public final class PlayList {
 
     private void replaceItems(@NonNull List<ZikFile> list, int startIndex) {
         synchronized (lock) {
-            this.items = Collections.unmodifiableList(list);
+            this.zikFilesList = Collections.unmodifiableList(list);
             this.index = clamp(startIndex, 0, list.size() - 1);
             this.folder = null;
             this.podcast = null;
@@ -233,8 +231,8 @@ public final class PlayList {
         final int folderId;
         synchronized (lock) {
             v = version;
-            if (items.isEmpty()) return;
-            folderId = items.get(0).getIdFolder();
+            if (zikFilesList.isEmpty()) return;
+            folderId = zikFilesList.get(0).getIdFolder();
         }
         AppDatabase.databaseReadExecutor.execute(() -> {
             Folder f = null;
@@ -280,7 +278,7 @@ public final class PlayList {
         SharedPreferences.Editor e = prefs.edit();
         int folderId = -1;
         synchronized (lock) {
-            if (!items.isEmpty()) folderId = items.get(0).getIdFolder();
+            if (!zikFilesList.isEmpty()) folderId = zikFilesList.get(0).getIdFolder();
             e.putInt(KEY_FOLDER_ID, folderId);
             e.putInt(KEY_INDEX, index);
         }

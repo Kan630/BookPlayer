@@ -40,7 +40,8 @@ import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.TitleHelper;
 import com.driot.bookplayer.helpers.TtsHelper;
 import com.driot.bookplayer.player.PlayList;
-import com.driot.bookplayer.services.AudioService;
+import com.driot.bookplayer.player.PlaybackUiState;
+import com.driot.bookplayer.player.AudioService;
 import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.views.FrequencyVisualizerView;
 import com.driot.bookplayer.utils.log.LoggingActivity;
@@ -53,7 +54,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import static com.driot.bookplayer.global.Var.SLEEP_PRESET_VALUES;
-import static com.driot.bookplayer.services.AudioService.TIMER_VALUE;
+import static com.driot.bookplayer.player.AudioService.TIMER_VALUE;
 import static com.driot.bookplayer.utils.PermissionRequest.isReadAudioPermissionGranted;
 import static com.driot.bookplayer.utils.PermissionRequest.isRecordAudioPermissionGranted;
 import static com.driot.bookplayer.utils.Tonio.FormatPercentStringForSpeed;
@@ -106,7 +107,6 @@ public class PlayActivity extends LoggingActivity {
             ,AudioService.NOTIFICATION_PLAYBACK_TIMER_VALUE
             ,AudioService.NOTIFICATION_FILENOTFOUND
             ,AudioService.NOTIFICATION_TTS_RANGE
-            ,AudioService.ACTION_UI_STATE
             //,AudioService.NOTIFICATION_TTS_READY
             //,AudioService.NOTIFICATION_TTS_NEEDS_DOWNLOAD
     };
@@ -137,12 +137,39 @@ public class PlayActivity extends LoggingActivity {
 
     private final ServiceConnection audioServiceConnection = new ServiceConnection() {
 
+        private final androidx.lifecycle.Observer<PlaybackUiState> uiObserver = state -> {
+            if (state == null) return;
+
+            // same UI updates you were doing in the ACTION_UI_STATE branch:
+            if (!state.ready) {
+                bPlayPause.setImageResource(R.drawable.ic_hourglass_24);
+                bPlayPause.setEnabled(false);
+            } else {
+                bPlayPause.setEnabled(true);
+                bPlayPause.setImageResource(state.playing ? R.drawable.ic_media_pause_24
+                        : R.drawable.ic_media_play_24);
+            }
+
+            TitleHelper.setTitleAndSubtitle(tvTitle, tvSubTitle, state.title, state.subTitle);
+
+            // Keep your timer-based smooth progress if you like,
+            // but also sync hard bounds from the state:
+            seekbar.setMax((int) Math.max(1, state.durationMs));
+            seekbar.setProgress((int) Math.min(state.positionMs, state.durationMs));
+            tvSeekBar.setText(formatTime((int) state.positionMs, true));
+
+            // You can access cover path from state.cover if you want to update the image here too.
+        };
+
         @Override
         public void onServiceConnected(ComponentName className, IBinder service) {
             myLog("onServiceConnected");
             AudioService.BackgroundBinder binder = (AudioService.BackgroundBinder) service;
             audioService = binder.getService();
             audioServiceBound = true;
+
+            audioService.getUiLive().removeObservers(PlayActivity.this);
+            audioService.getUiLive().observe(PlayActivity.this, uiObserver);
 
             boolean auto = Option.getAutoPlayOnMainPlayer();
 
@@ -226,29 +253,6 @@ public class PlayActivity extends LoggingActivity {
                 int s = intent.getIntExtra(AudioService.EXTRA_TTS_START, -1);
                 int e = intent.getIntExtra(AudioService.EXTRA_TTS_END, -1);
                 if (s >= 0 && e > s) scheduleTtsHighlight(s, e);
-
-            } else if (Objects.equals(action, AudioService.ACTION_UI_STATE)) {
-
-                boolean ready = intent.getBooleanExtra(AudioService.EXTRA_UI_READY, false);
-                boolean playing = intent.getBooleanExtra(AudioService.EXTRA_UI_PLAYING, false);
-                long pos = intent.getLongExtra(AudioService.EXTRA_UI_POS, 0);
-                long dur = intent.getLongExtra(AudioService.EXTRA_UI_DUR, 0);
-                String title = intent.getStringExtra(AudioService.EXTRA_UI_TITLE);
-                String sub = intent.getStringExtra(AudioService.EXTRA_UI_SUBTITLE);
-                String cover = intent.getStringExtra(AudioService.EXTRA_UI_COVER);
-
-                if (!ready) {
-                    bPlayPause.setImageResource(R.drawable.ic_hourglass_24);
-                    bPlayPause.setEnabled(false);
-                } else {
-                    bPlayPause.setEnabled(true);
-                    bPlayPause.setImageResource(playing ? R.drawable.ic_media_pause_24 : R.drawable.ic_media_play_24);
-                }
-
-                TitleHelper.setTitleAndSubtitle(tvTitle, tvSubTitle, title, sub);
-                seekbar.setMax((int)Math.max(1, dur));
-                seekbar.setProgress((int)Math.min(pos, dur));
-                tvSeekBar.setText(formatTime((int)pos, true));
 
             } else {
                 myLogEE(null,"Unknown Broadcast : " + action);
@@ -712,7 +716,7 @@ public class PlayActivity extends LoggingActivity {
      ********************************************************************************
      */
 
-    private void runTimerForDisplay() {
+    private void runTimerForDisplay() {   //TODO remove ? (liveData...)
         killTimerForDisplay();
         timerRedrawUI = new Timer();
         timerRedrawUI.schedule(new TimerTask() {
