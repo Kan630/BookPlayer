@@ -4,12 +4,14 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.SystemClock;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.media.MediaBrowserServiceCompat;
 
@@ -55,6 +57,14 @@ public class CarMediaService extends MediaBrowserServiceCompat {
     private String title = "";
     private String subtitle = "";
     private String cover = "";
+    private int curTrackId = 0;
+    private int curFolderId = 0;
+
+    // For spam prevention in AA updates
+    private String lastTitle = null, lastSubtitle = null, lastCover = null;
+    private long lastDur = -1;
+    private int lastTrackId = 0, lastFolderId = 0;
+
 
     @Override
     public String toString() {
@@ -81,6 +91,8 @@ public class CarMediaService extends MediaBrowserServiceCompat {
             title    = i.getStringExtra(AudioService.EXTRA_UI_TITLE);
             subtitle = i.getStringExtra(AudioService.EXTRA_UI_SUBTITLE);
             cover    = i.getStringExtra(AudioService.EXTRA_UI_COVER);
+            curTrackId  = i.getIntExtra(AudioService.EXTRA_UI_TRACK_ID, 0);
+            curFolderId = i.getIntExtra(AudioService.EXTRA_UI_FOLDER_ID, 0);
 
             // push metadata + playbackstate vers Android Auto
             pushMetadataFromCurrent();
@@ -144,8 +156,9 @@ public class CarMediaService extends MediaBrowserServiceCompat {
                         PlayList.create(getApplicationContext(), list, index);
 
                         // Ensure AudioService is running, then explicit PLAY
-                        startService(new Intent(CarMediaService.this, AudioService.class));
-                        startService(new Intent(CarMediaService.this, AudioService.class).setAction("CMD_PLAY"));
+                        ContextCompat.startForegroundService(
+                                CarMediaService.this, new Intent(CarMediaService.this, AudioService.class).setAction("CMD_PLAY")
+                        );
                     });
                     return;
                 }
@@ -313,33 +326,44 @@ public class CarMediaService extends MediaBrowserServiceCompat {
     // --------- Push metadata/state to AA ----------
     private void pushMetadataFromCurrent() {
         myLog("pushMetadataFromCurrent");
-        PlayList pl = PlayList.getInstance();
-        ZikFile z = (pl!=null) ? pl.getZikFile() : null;
-        Folder f =  (pl!=null) ? pl.getFolder() : null;
 
-        String curTitle  = (title == null || title.isEmpty()) && z != null ? z.getDisplayName() : title;
-        String curArtist = (subtitle == null || subtitle.isEmpty()) && z != null ? z.getFolderName()  : subtitle;
-        long   curDurMs  = (durMs > 0) ? durMs : (z != null ? (long) z.getDuration() : 0);
+        // Prefer the snapshot fields sent by AudioService
+        final String curTitle   = (title != null)    ? title    : "";
+        final String curArtist  = (subtitle != null) ? subtitle : "";
+        final long   curDurMs   = Math.max(0L, durMs);
+        final String coverUri   = (cover != null && !cover.isEmpty()) ? cover : null;
+
+        // Optional: if you also cached trackId/folderId from the broadcast, use them here
+        // to decide whether to skip identical updates. If you didn't add those, the string
+        // fields + duration still work as a change key.
+
+        boolean unchanged =
+                safeEq(curTitle,  lastTitle) &&
+                        safeEq(curArtist, lastSubtitle) &&
+                        safeEq(coverUri,  lastCover) &&
+                        curDurMs == lastDur &&
+                        curTrackId == lastTrackId &&
+                        curFolderId == lastFolderId;
+        if (unchanged) return;
 
         MediaMetadataCompat.Builder mb = new MediaMetadataCompat.Builder()
-                .putString(MediaMetadataCompat.METADATA_KEY_TITLE,  curTitle)
-                .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, curArtist)
-                .putLong  (MediaMetadataCompat.METADATA_KEY_DURATION, curDurMs);
+                .putString(MediaMetadataCompat.METADATA_KEY_TITLE,   curTitle)
+                .putString(MediaMetadataCompat.METADATA_KEY_ARTIST,  curArtist)
+                .putLong  (MediaMetadataCompat.METADATA_KEY_DURATION, curDurMs)
+        // helps some AA skins and resume flows
+                .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, "track:" + curTrackId)
+                .putString(MediaMetadataCompat.METADATA_KEY_ALBUM, curArtist) // optional alias
+                .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE, curTitle)
+                .putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_SUBTITLE, curArtist);
 
-
-        String coverUriStr = (cover != null && !cover.isEmpty()) ? cover : null;
-        if (coverUriStr == null && f != null) {
-            try {
-                coverUriStr = f.image;
-            } catch (Throwable ignored) {}
-        }
-        android.graphics.Bitmap art = null;
-        if (coverUriStr != null) {
-            art = artCache.get(coverUriStr);
+        // Artwork (use cache; decode off main thread if you see jank)
+        Bitmap art = null;
+        if (coverUri != null) {
+            art = artCache.get(coverUri);
             if (art == null) {
-                // decode synchronously once; if worried about jank, put this in imgExec
-                art = decodeBitmapFromStringUri(coverUriStr, ART_MAX_PX);
-                if (art != null) artCache.put(coverUriStr, art);
+                // If you notice stutter, move this to imgExec and set a small placeholder first
+                art = decodeBitmapFromStringUri(coverUri, ART_MAX_PX);
+                if (art != null) artCache.put(coverUri, art);
             }
         }
         if (art != null) {
@@ -348,8 +372,21 @@ public class CarMediaService extends MediaBrowserServiceCompat {
             mb.putBitmap(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON, art);
         }
 
-        myLog(toString());
         mediaSession.setMetadata(mb.build());
+
+        // remember last
+        lastTitle     = curTitle;
+        lastSubtitle  = curArtist;
+        lastCover     = coverUri;
+        lastDur       = curDurMs;
+        lastTrackId   = curTrackId;
+        lastFolderId  = curFolderId;
+
+        myLog(toString());
+    }
+
+    private static boolean safeEq(Object a, Object b) {
+        return (a == b) || (a != null && a.equals(b));
     }
 
 
@@ -371,13 +408,12 @@ public class CarMediaService extends MediaBrowserServiceCompat {
 
     // --------- Bridge vers AudioService ----------
     private void sendCmd(String action) {
-        // Ensure AudioService is running
-        myLog("sendCmd");
-        startService(new Intent(this, AudioService.class));
-        // Send the specific command
         myLog("sendCmd : " + action);
-        startService(new Intent(this, AudioService.class).setAction(action));
+        androidx.core.content.ContextCompat.startForegroundService(
+                this, new Intent(this, AudioService.class).setAction(action)
+        );
     }
+
 
     private static int safeParseInt(String s, int def) {
         try { return Integer.parseInt(s); } catch (Exception e) { return def; }

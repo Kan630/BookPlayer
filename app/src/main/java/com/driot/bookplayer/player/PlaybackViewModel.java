@@ -17,9 +17,6 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
-import com.driot.bookplayer.db.Folder;
-import com.driot.bookplayer.db.ZikFile;
-import com.driot.bookplayer.objects.PlayList;
 import com.driot.bookplayer.services.AudioService;
 import com.driot.bookplayer.utils.KanLogger;
 
@@ -88,14 +85,23 @@ public class PlaybackViewModel extends AndroidViewModel {
                 // we now know the service is running; bind if not already
                 maybeBindOnFirstUiState();
 
+                final boolean playing = i.getBooleanExtra(AudioService.EXTRA_UI_PLAYING, false);
+                final long pos        = i.getLongExtra(AudioService.EXTRA_UI_POS, 0);
+                final long dur        = i.getLongExtra(AudioService.EXTRA_UI_DUR, 0);
+                final String title    = i.getStringExtra(AudioService.EXTRA_UI_TITLE);
+                final String sub      = i.getStringExtra(AudioService.EXTRA_UI_SUBTITLE);
+                final String cover    = i.getStringExtra(AudioService.EXTRA_UI_COVER);
+
+                // NEW
+                final int trackId     = i.getIntExtra(AudioService.EXTRA_UI_TRACK_ID, 0);
+                final int folderId    = i.getIntExtra(AudioService.EXTRA_UI_FOLDER_ID, 0);
+                final boolean ready   = i.getBooleanExtra(AudioService.EXTRA_UI_READY, false);
+                final boolean ttsMode = i.getBooleanExtra(AudioService.EXTRA_UI_TTS, false);
+
                 miniSuppressed.postValue(i.getBooleanExtra(AudioService.EXTRA_UI_SUPPRESS_MINI, false));
                 state.postValue(new PlaybackUiState(
-                        i.getBooleanExtra(AudioService.EXTRA_UI_PLAYING, false),
-                        i.getLongExtra(AudioService.EXTRA_UI_POS, 0),
-                        i.getLongExtra(AudioService.EXTRA_UI_DUR, 0),
-                        i.getStringExtra(AudioService.EXTRA_UI_TITLE),
-                        i.getStringExtra(AudioService.EXTRA_UI_SUBTITLE),
-                        i.getStringExtra(AudioService.EXTRA_UI_COVER)
+                        playing, pos, dur, title, sub, cover,
+                        trackId, folderId, ready, ttsMode
                 ));
             } else if (AudioService.NOTIFICATION_PLAYBACK_TIMER_VALUE.equals(action)) {
                 if (bound && service != null) pushSnapshot();
@@ -108,20 +114,32 @@ public class PlaybackViewModel extends AndroidViewModel {
     private void pushSnapshot() {
         if (!bound || service == null) return;
 
-        PlayList pl = PlayList.getInstance();
-        ZikFile z = (pl!=null) ? pl.getZikFile() : null;
-        Folder f =  (pl!=null) ? pl.getFolder() : null;
+        PlaybackUiState prev = state.getValue();
+        if (prev == null) return; // nothing to smooth yet
 
         boolean playing = service.isPlaying();
-        int pos = service.getPosition();
-        int dur = (z != null) ? (int) z.getDuration() : 0;
-        String title = (z != null) ? z.getFolderName()  : "";
-        String sub   = (z != null) ? z.getDisplayName() : "";
-        String cover = (f != null) ? f.image : "";
+        int pos         = service.getPosition();
+        // Prefer existing duration unless service can provide a non-zero duration now
+        long dur        = (prev.durationMs > 0) ? prev.durationMs : service.getDuration();
 
-        state.postValue(new PlaybackUiState(playing, pos, dur, title, sub, cover));
+        boolean ready   = service.isReadyToPlay();
+        boolean ttsMode = service.isTtsMode();
+
+        state.postValue(new PlaybackUiState(
+                playing,
+                pos,
+                dur,
+                prev.title,
+                prev.subTitle,
+                prev.cover,
+                prev.trackId,
+                prev.folderId,
+                ready,
+                ttsMode
+        ));
         miniSuppressed.postValue(service.isMiniSuppressed());
     }
+
 
     // Transport
     public void playPause() {

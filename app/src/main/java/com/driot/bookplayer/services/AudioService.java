@@ -68,6 +68,10 @@ public class AudioService extends LoggingService {
     public static final String EXTRA_UI_TITLE       = "extra_ui_title";
     public static final String EXTRA_UI_SUBTITLE    = "extra_ui_subtitle";
     public static final String EXTRA_UI_COVER       = "extra_ui_cover";
+    public static final String EXTRA_UI_TRACK_ID  = "extra_ui_track_id";
+    public static final String EXTRA_UI_FOLDER_ID = "extra_ui_folder_id";
+    public static final String EXTRA_UI_READY     = "extra_ui_ready";
+    public static final String EXTRA_UI_TTS       = "extra_ui_tts";
     public static final String ACTION_CMD = "com.driot.bookplayer.action.CMD";
     public static final String EXTRA_CMD  = "extra_cmd";
     public static final String CMD_PAUSE_AND_SUPPRESS = "pause_and_suppress";
@@ -115,7 +119,6 @@ public class AudioService extends LoggingService {
     public static final String ERR_MSG = "err_msg";
     public static final String TIMER_VALUE = "TIMER_VALUE";
     public static final String READY_TO_PLAY = "NOTIFICATION_FILELOADED";
-    public static final String NOTIFICATION_NEWTRACK = "NOTIFICATION_NEWTRACK";
     public static final String NOTIFICATION_TRACKFINISHED = "NOTIFICATION_TRACKFINISHED";
     public static final String NOTIFICATION_FILENOTFOUND = "NOTIFICATION_FILENOTFOUND";
     public static final String NOTIFICATION_ERROR = "NOTIFICATION_ERROR";
@@ -204,12 +207,18 @@ public class AudioService extends LoggingService {
                 .putExtra(EXTRA_UI_DUR,      s.durationMs)
                 .putExtra(EXTRA_UI_TITLE,    s.title)
                 .putExtra(EXTRA_UI_SUBTITLE, s.subTitle)
+                .putExtra(EXTRA_UI_COVER,    s.cover)
                 .putExtra(EXTRA_UI_SUPPRESS_MINI, suppressMiniUntilNextPlay)
-                .putExtra(EXTRA_UI_COVER, s.cover);
+                // NEW
+                .putExtra(EXTRA_UI_TRACK_ID,  s.trackId)
+                .putExtra(EXTRA_UI_FOLDER_ID, s.folderId)
+                .putExtra(EXTRA_UI_READY,     s.ready)
+                .putExtra(EXTRA_UI_TTS,       s.ttsMode);
         LocalBroadcastManager.getInstance(this).sendBroadcast(i);
     }
 
-    private com.driot.bookplayer.player.PlaybackUiState buildUiState() {
+
+    private PlaybackUiState buildUiState() {
         PlayList pl = PlayList.getInstance();
         ZikFile z = (pl!=null) ? pl.getZikFile() : null;
         Folder f =  (pl!=null) ? pl.getFolder() : null;
@@ -217,11 +226,20 @@ public class AudioService extends LoggingService {
         String title = (z != null) ? z.getFolderName()  : "";
         String text  = (z != null) ? z.getDisplayName() : "";
         String cover = (f != null) ? f.image : "";
+
         int pos = (engine != null) ? engine.getCurrentPosition() : 0;
         int dur = (engine != null) ? engine.getDuration() : 0;
         boolean playing = (engine != null) && engine.isPlaying();
-        return new com.driot.bookplayer.player.PlaybackUiState(playing, pos, dur, title, text, cover);
+
+        int trackId  = (z != null) ? z.getId()     /* or getIdZikFile() */ : 0;
+        int folderId = (f != null) ? f.getId() : 0;
+        boolean ready   = (engine != null) && engine.isReady();
+        boolean ttsMode = (engine instanceof TtsEngine);
+
+        return new PlaybackUiState(playing, pos, dur, title, text, cover,
+                trackId, folderId, ready, ttsMode);
     }
+
 
     private final MediaSessionCompat.Callback callback = new MediaSessionCompat.Callback() {
 
@@ -523,7 +541,6 @@ public class AudioService extends LoggingService {
 
     private void alertNewTrack() {
         myLog("alertNewTrack()");
-        LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(new Intent(NOTIFICATION_NEWTRACK).putExtra(TRACKNUMBER, PlayList.getInstance().getNumZikFile()));
         ZikFile z = getCurrentZikFile();
         if (z != null) {
             media.updateState(PlaybackStateCompat.STATE_BUFFERING, 0, 0f, playbackStateCompatAction);
@@ -557,26 +574,31 @@ public class AudioService extends LoggingService {
             String cmd = intent.getStringExtra(EXTRA_CMD);
             if (CMD_PAUSE_AND_SUPPRESS.equals(cmd)) {
                 myLog("stopping audio");
-                pauseAudio();
-                suppressMiniUntilNextPlay();
-                broadcastUiCleared();
+                pauseAudio();                   // → broadcastUiState() inside
+                suppressMiniUntilNextPlay();    // → and then
+                broadcastUiCleared();           // → explicit clear for hide
                 stopForeground(false);
                 stopSelf();
             }
             return START_STICKY;
         }
+
         if (intent != null) {
-            String a = intent.getAction(); //some explicit actions added for automotive hereunder
-            if ("CMD_PLAY".equals(a)) { playAudio(); }
-            else if ("CMD_PAUSE".equals(a)) { pauseAudio(); }
-            else if ("CMD_NEXT".equals(a)) { forwardAudioTo(getPosition() + Option.get_ForwardSeconds()*1000); /* ou nextTrack() si tu veux piste suivante */ }
-            else if ("CMD_PREV".equals(a)) { backwardAudio(); }
-            else if ("CMD_SEEK".equals(a)) { setPosition(intent.getIntExtra("posMs", 0)); }
+            String a = intent.getAction();
+            if ("CMD_PLAY".equals(a))   { playAudio();   return START_STICKY; }   // broadcasts
+            if ("CMD_PAUSE".equals(a))  { pauseAudio();  return START_STICKY; }   // broadcasts
+            if ("CMD_NEXT".equals(a))   { forwardAudioTo(getPosition() + Option.get_ForwardSeconds()*1000); return START_STICKY; } // seek → broadcast
+            if ("CMD_PREV".equals(a))   { backwardAudio(); return START_STICKY; } // seek → broadcast
+            if ("CMD_SEEK".equals(a))   { setPosition(intent.getIntExtra("posMs", 0)); return START_STICKY; } // seek → broadcast
+
+            // Only real hardware/software media button events fall through:
             MediaButtonReceiver.handleIntent(media.session(), intent);
         }
+
         showForegroundNotification(isPlaying());
         return START_STICKY;
     }
+
 
 /*  onTaskRemoved
     It fires when
@@ -747,35 +769,37 @@ public class AudioService extends LoggingService {
      ***       PLAY-PAUSE
      ********************************************************************************
      */
+    private boolean needsReloadForPlaylist() {
+        PlayList pl = PlayList.getInstance();
+        ZikFile cur = (pl != null) ? pl.getZikFile() : null;
+        int wantId = (cur != null) ? cur.getId() : 0;
+
+        // If we have no last snapshot or ids differ, we need to load.
+        if (lastUiState == null) return true;
+        return lastUiState.trackId != wantId;
+    }
 
     public void playAudio() {
         myLog("playAudio() - start");
-        // If user explicitly plays, we want the mini back
-        if (suppressMiniUntilNextPlay) {
-            suppressMiniUntilNextPlay = false;
-            broadcastUiState();
+
+        if (suppressMiniUntilNextPlay) { suppressMiniUntilNextPlay = false; broadcastUiState(); }
+
+        if (engine == null || needsReloadForPlaylist()) {
+            directPlay = true;
+            loadFile();        // will broadcast early + onPrepared; start after prepared
+            return;
         }
 
-        if (engine == null) {
-            directPlay = true;
-            loadFile();
-            return;
-        }
-        if (engine.isPlaying()) {
-            myLogE("Engine already playing");
-            return;
-        }
+        if (engine.isPlaying()) { myLogE("Engine already playing"); return; }
+
         if (engine.isReady()) {
             startPlayWithEngine();
         } else {
             myLog("Engine not ready yet; will start on prepared");
-            // Don't arm directPlay while TTS is switching language
-            boolean ttsSwitching = (engine instanceof TtsEngine) && !engine.isReady();
-            if (!ttsSwitching) {
-                directPlay = true;
-            }
+            directPlay = true;
         }
     }
+
 
     private void doIntroCut() {
         myLog("doIntroCut");
@@ -1113,6 +1137,7 @@ public class AudioService extends LoggingService {
                 alertPlaylistFinished();
                 sleepTimer.stop();
                 Pref.setPauseTime();
+                broadcastUiState();
             } else {
                 nextTrack();
             }

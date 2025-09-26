@@ -107,8 +107,8 @@ public class PlayActivity extends LoggingActivity {
             ,AudioService.NOTIFICATION_PLAYBACK_MAXTIMEREACH
             ,AudioService.NOTIFICATION_PLAYBACK_TIMER_VALUE
             ,AudioService.NOTIFICATION_FILENOTFOUND
-            ,AudioService.NOTIFICATION_NEWTRACK //useless ?
             ,AudioService.NOTIFICATION_TTS_RANGE
+            ,AudioService.ACTION_UI_STATE
             //,AudioService.NOTIFICATION_TTS_READY
             //,AudioService.NOTIFICATION_TTS_NEEDS_DOWNLOAD
     };
@@ -224,12 +224,32 @@ public class PlayActivity extends LoggingActivity {
             } else if (Objects.equals(action, AudioService.READY_TO_PLAY)) {
                 DrawUI();
                 lockUserActions(false);
-            } else if (Objects.equals(action, AudioService.NOTIFICATION_NEWTRACK) || Objects.equals(action, AudioService.NOTIFICATION_TRACKFINISHED)) {
-                myLog("ok, nothing to do for this Broadcast");
             } else if (Objects.equals(action, AudioService.NOTIFICATION_TTS_RANGE)) {
                 int s = intent.getIntExtra(AudioService.EXTRA_TTS_START, -1);
                 int e = intent.getIntExtra(AudioService.EXTRA_TTS_END, -1);
                 if (s >= 0 && e > s) scheduleTtsHighlight(s, e);
+            } else if (Objects.equals(action, AudioService.ACTION_UI_STATE)) {
+                boolean ready = intent.getBooleanExtra(AudioService.EXTRA_UI_READY, false);
+                boolean playing = intent.getBooleanExtra(AudioService.EXTRA_UI_PLAYING, false);
+                long pos = intent.getLongExtra(AudioService.EXTRA_UI_POS, 0);
+                long dur = intent.getLongExtra(AudioService.EXTRA_UI_DUR, 0);
+                String title = intent.getStringExtra(AudioService.EXTRA_UI_TITLE);
+                String sub = intent.getStringExtra(AudioService.EXTRA_UI_SUBTITLE);
+
+                if (!ready) {
+                    bPlayPause.setImageResource(R.drawable.ic_hourglass_24);
+                    bPlayPause.setEnabled(false);
+                } else {
+                    bPlayPause.setEnabled(true);
+                    bPlayPause.setImageResource(playing ? R.drawable.ic_media_pause_24 : R.drawable.ic_media_play_24);
+                }
+
+                // Update core widgets from the *same* snapshot as mini & AA:
+                TitleHelper.setTitleAndSubtitle(tvTitle, tvSubTitle, title, sub);
+                seekbar.setMax((int)Math.max(1, dur));
+                seekbar.setProgress((int)Math.min(pos, dur));
+                tvSeekBar.setText(formatTime((int)pos, true));
+
             } else {
                 myLogEE(null,"Unknown Broadcast : " + action);
             }
