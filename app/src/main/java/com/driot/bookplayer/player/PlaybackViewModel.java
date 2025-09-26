@@ -17,6 +17,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.objects.PlayList;
 import com.driot.bookplayer.services.AudioService;
@@ -90,10 +91,11 @@ public class PlaybackViewModel extends AndroidViewModel {
                 miniSuppressed.postValue(i.getBooleanExtra(AudioService.EXTRA_UI_SUPPRESS_MINI, false));
                 state.postValue(new PlaybackUiState(
                         i.getBooleanExtra(AudioService.EXTRA_UI_PLAYING, false),
-                        i.getIntExtra(AudioService.EXTRA_UI_POS, 0),
-                        i.getIntExtra(AudioService.EXTRA_UI_DUR, 0),
+                        i.getLongExtra(AudioService.EXTRA_UI_POS, 0),
+                        i.getLongExtra(AudioService.EXTRA_UI_DUR, 0),
                         i.getStringExtra(AudioService.EXTRA_UI_TITLE),
-                        i.getStringExtra(AudioService.EXTRA_UI_SUBTITLE)
+                        i.getStringExtra(AudioService.EXTRA_UI_SUBTITLE),
+                        i.getStringExtra(AudioService.EXTRA_UI_COVER)
                 ));
             } else if (AudioService.NOTIFICATION_PLAYBACK_TIMER_VALUE.equals(action)) {
                 if (bound && service != null) pushSnapshot();
@@ -108,14 +110,16 @@ public class PlaybackViewModel extends AndroidViewModel {
 
         PlayList pl = PlayList.getInstance();
         ZikFile z = (pl!=null) ? pl.getZikFile() : null;
+        Folder f =  (pl!=null) ? pl.getFolder() : null;
 
         boolean playing = service.isPlaying();
         int pos = service.getPosition();
         int dur = (z != null) ? (int) z.getDuration() : 0;
         String title = (z != null) ? z.getFolderName()  : "";
         String sub   = (z != null) ? z.getDisplayName() : "";
+        String cover = (f != null) ? f.image : "";
 
-        state.postValue(new PlaybackUiState(playing, pos, dur, title, sub));
+        state.postValue(new PlaybackUiState(playing, pos, dur, title, sub, cover));
         miniSuppressed.postValue(service.isMiniSuppressed());
     }
 

@@ -22,7 +22,9 @@ import android.support.v4.media.session.PlaybackStateCompat;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.ZikFile;
+import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.objects.PlayList;
+import com.driot.bookplayer.utils.KanLogger;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -52,15 +54,33 @@ public class CarMediaService extends MediaBrowserServiceCompat {
     private long durMs = 0;
     private String title = "";
     private String subtitle = "";
+    private String cover = "";
+
+    @Override
+    public String toString() {
+        return "CarMediaService{" +
+                "artCache=" + artCache +
+                ", iconCache=" + iconCache +
+                ", mediaSession=" + mediaSession +
+                ", playing=" + playing +
+                ", posMs=" + posMs +
+                ", durMs=" + durMs +
+                ", title='" + title + '\'' +
+                ", subtitle='" + subtitle + '\'' +
+                ", cover='" + cover + '\'' +
+                ", uiReceiver=" + uiReceiver +
+                '}';
+    }
 
     private final BroadcastReceiver uiReceiver = new BroadcastReceiver() {
         @Override public void onReceive(Context ctx, Intent i) {
             if (!AudioService.ACTION_UI_STATE.equals(i.getAction())) return;
             playing  = i.getBooleanExtra(AudioService.EXTRA_UI_PLAYING, false);
-            posMs    = (long) i.getIntExtra(AudioService.EXTRA_UI_POS, 0);
-            durMs    = (long) i.getIntExtra(AudioService.EXTRA_UI_DUR, 0);
+            posMs    = i.getLongExtra(AudioService.EXTRA_UI_POS, 0);
+            durMs    = i.getLongExtra(AudioService.EXTRA_UI_DUR, 0);
             title    = i.getStringExtra(AudioService.EXTRA_UI_TITLE);
             subtitle = i.getStringExtra(AudioService.EXTRA_UI_SUBTITLE);
+            cover    = i.getStringExtra(AudioService.EXTRA_UI_COVER);
 
             // push metadata + playbackstate vers Android Auto
             pushMetadataFromCurrent();
@@ -89,6 +109,7 @@ public class CarMediaService extends MediaBrowserServiceCompat {
             }
             @Override
             public void onPlayFromMediaId(String mediaId, Bundle extras) {
+                myLog("onPlayFromMediaId");
                 if (mediaId == null) return;
 
                 // Case 1: user clicked a track item → "track:<zikId>"
@@ -134,6 +155,7 @@ public class CarMediaService extends MediaBrowserServiceCompat {
             }
             @Override
             public boolean onMediaButtonEvent(Intent mediaButtonIntent) {
+                myLog("onMediaButtonEvent");
                 if (mediaButtonIntent == null) return super.onMediaButtonEvent(null);
                 // Forward the event to the session (translates KeyEvent → callbacks)
                 androidx.media.session.MediaButtonReceiver.handleIntent(mediaSession, mediaButtonIntent);
@@ -164,6 +186,7 @@ public class CarMediaService extends MediaBrowserServiceCompat {
     @Nullable
     @Override
     public BrowserRoot onGetRoot(@NonNull String clientPackageName, int clientUid, Bundle rootHints) {
+        myLogI("------------ onGetRoot ------------");
         // Filtre au cas ou je ne set pas la permission dans le manifest pour le service : android:permission="android.permission.BIND_MEDIA_BROWSER_SERVICE"
 /*
         if ("com.google.android.projection.gearhead".equals(clientPackageName)
@@ -174,6 +197,7 @@ public class CarMediaService extends MediaBrowserServiceCompat {
         return null; // ou renvoyer un BrowserRoot restreint
 
  */
+        FirebaseAnalyticsHelper.sendEvent("car_init");
         return new BrowserRoot(ROOT_ID, null);
     }
 
@@ -181,6 +205,7 @@ public class CarMediaService extends MediaBrowserServiceCompat {
     @Override
     public void onLoadChildren(@NonNull String parentId,
                                @NonNull Result<List<MediaBrowserCompat.MediaItem>> result) {
+        myLog("onLoadChildren");
         // Chargements DB → thread bg
         result.detach();
         AppDatabase.databaseReadExecutor.execute(() -> {
@@ -287,27 +312,27 @@ public class CarMediaService extends MediaBrowserServiceCompat {
 
     // --------- Push metadata/state to AA ----------
     private void pushMetadataFromCurrent() {
+        myLog("pushMetadataFromCurrent");
         PlayList pl = PlayList.getInstance();
-        ZikFile z = (pl != null) ? pl.getZikFile() : null;
+        ZikFile z = (pl!=null) ? pl.getZikFile() : null;
+        Folder f =  (pl!=null) ? pl.getFolder() : null;
 
         String curTitle  = (title == null || title.isEmpty()) && z != null ? z.getDisplayName() : title;
         String curArtist = (subtitle == null || subtitle.isEmpty()) && z != null ? z.getFolderName()  : subtitle;
         long   curDurMs  = (durMs > 0) ? durMs : (z != null ? (long) z.getDuration() : 0);
-
-        String coverUriStr = null;
-        if (z != null) {
-            try {
-                Folder f = AppDatabase.getDatabase(getApplicationContext())
-                        .FolderDao().getById(z.getIdFolder());
-                if (f != null) coverUriStr = f.image;
-            } catch (Throwable ignored) {}
-        }
 
         MediaMetadataCompat.Builder mb = new MediaMetadataCompat.Builder()
                 .putString(MediaMetadataCompat.METADATA_KEY_TITLE,  curTitle)
                 .putString(MediaMetadataCompat.METADATA_KEY_ARTIST, curArtist)
                 .putLong  (MediaMetadataCompat.METADATA_KEY_DURATION, curDurMs);
 
+
+        String coverUriStr = (cover != null && !cover.isEmpty()) ? cover : null;
+        if (coverUriStr == null && f != null) {
+            try {
+                coverUriStr = f.image;
+            } catch (Throwable ignored) {}
+        }
         android.graphics.Bitmap art = null;
         if (coverUriStr != null) {
             art = artCache.get(coverUriStr);
@@ -323,11 +348,13 @@ public class CarMediaService extends MediaBrowserServiceCompat {
             mb.putBitmap(MediaMetadataCompat.METADATA_KEY_DISPLAY_ICON, art);
         }
 
+        myLog(toString());
         mediaSession.setMetadata(mb.build());
     }
 
 
     private void pushPlaybackState(int state, long positionMs) {
+        myLog("pushPlaybackState");
         long actions = PlaybackStateCompat.ACTION_PLAY
                 | PlaybackStateCompat.ACTION_PAUSE
                 | PlaybackStateCompat.ACTION_PLAY_PAUSE
@@ -345,8 +372,10 @@ public class CarMediaService extends MediaBrowserServiceCompat {
     // --------- Bridge vers AudioService ----------
     private void sendCmd(String action) {
         // Ensure AudioService is running
+        myLog("sendCmd");
         startService(new Intent(this, AudioService.class));
         // Send the specific command
+        myLog("sendCmd : " + action);
         startService(new Intent(this, AudioService.class).setAction(action));
     }
 
@@ -356,11 +385,13 @@ public class CarMediaService extends MediaBrowserServiceCompat {
 
     @Nullable
     private android.graphics.Bitmap decodeBitmapFromStringUri(String uriString, int maxSidePx) {
+        myLog("decodeBitmapFromStringUri : " + uriString + " - " + maxSidePx);
         if (uriString == null) return null;
         try {
             android.net.Uri uri = android.net.Uri.parse(uriString);
 
             // File path support (if your DB sometimes stores plain paths)
+            //myLog("decodeBitmapFromStringUri by file");
             if ("file".equalsIgnoreCase(uri.getScheme()) || uriString.startsWith("/")) {
                 String path = "file".equalsIgnoreCase(uri.getScheme()) ? uri.getPath() : uriString;
                 if (path == null) return null;
@@ -377,6 +408,7 @@ public class CarMediaService extends MediaBrowserServiceCompat {
 
             // Content:// (SAF) — decode via stream (we are the same app → we can read it)
             try (java.io.InputStream is = getContentResolver().openInputStream(uri)) {
+                myLogW("decodeBitmapFromStringUri by stream");
                 if (is == null) return null;
                 byte[] all = readAll(is);
                 android.graphics.BitmapFactory.Options o = new android.graphics.BitmapFactory.Options();
@@ -401,4 +433,13 @@ public class CarMediaService extends MediaBrowserServiceCompat {
         return bos.toByteArray();
     }
 
+    ////////////////////////////////////////////////////////
+    private static final String TAG = "CarMediaService";
+    private static void myLog(String str) { KanLogger.myLog(TAG, str); }
+    private static void myLogD(String str) { KanLogger.myLogD(TAG, str); }
+    private static void myLogI(String str) { KanLogger.myLogI(TAG, str); }
+    private static void myLogW(String str) { KanLogger.myLogW(TAG, str); }
+    private static void myLogE(String str) { KanLogger.myLogE(TAG, str); }
+    private static void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, TAG, str); }
+    private static void myToastEE(Throwable t, String str) { KanLogger.myToastEE(t, TAG, str); }
 }

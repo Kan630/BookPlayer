@@ -21,10 +21,10 @@ import android.view.KeyEvent;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.documentfile.provider.DocumentFile;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.media.session.MediaButtonReceiver;
 
+import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.helpers.TtsHelper;
 import com.driot.bookplayer.helpers.UriHelper;
 import com.driot.bookplayer.player.EngineListener;
@@ -67,6 +67,7 @@ public class AudioService extends LoggingService {
     public static final String EXTRA_UI_DUR         = "extra_ui_dur";
     public static final String EXTRA_UI_TITLE       = "extra_ui_title";
     public static final String EXTRA_UI_SUBTITLE    = "extra_ui_subtitle";
+    public static final String EXTRA_UI_COVER       = "extra_ui_cover";
     public static final String ACTION_CMD = "com.driot.bookplayer.action.CMD";
     public static final String EXTRA_CMD  = "extra_cmd";
     public static final String CMD_PAUSE_AND_SUPPRESS = "pause_and_suppress";
@@ -203,18 +204,23 @@ public class AudioService extends LoggingService {
                 .putExtra(EXTRA_UI_DUR,      s.durationMs)
                 .putExtra(EXTRA_UI_TITLE,    s.title)
                 .putExtra(EXTRA_UI_SUBTITLE, s.subTitle)
-                .putExtra(EXTRA_UI_SUPPRESS_MINI, suppressMiniUntilNextPlay);
+                .putExtra(EXTRA_UI_SUPPRESS_MINI, suppressMiniUntilNextPlay)
+                .putExtra(EXTRA_UI_COVER, s.cover);
         LocalBroadcastManager.getInstance(this).sendBroadcast(i);
     }
 
     private com.driot.bookplayer.player.PlaybackUiState buildUiState() {
-        ZikFile z = getCurrentZikFile();
+        PlayList pl = PlayList.getInstance();
+        ZikFile z = (pl!=null) ? pl.getZikFile() : null;
+        Folder f =  (pl!=null) ? pl.getFolder() : null;
+
         String title = (z != null) ? z.getFolderName()  : "";
         String text  = (z != null) ? z.getDisplayName() : "";
+        String cover = (f != null) ? f.image : "";
         int pos = (engine != null) ? engine.getCurrentPosition() : 0;
         int dur = (engine != null) ? engine.getDuration() : 0;
         boolean playing = (engine != null) && engine.isPlaying();
-        return new com.driot.bookplayer.player.PlaybackUiState(playing, pos, dur, title, text);
+        return new com.driot.bookplayer.player.PlaybackUiState(playing, pos, dur, title, text, cover);
     }
 
     private final MediaSessionCompat.Callback callback = new MediaSessionCompat.Callback() {
@@ -334,6 +340,7 @@ public class AudioService extends LoggingService {
                 sleepCheckHandler, DELAY_CHECK_TIMER_SLEEP,
                 new com.driot.bookplayer.player.SleepTimer.Listener() {
                     @Override public void onTick(int elapsedSeconds) {
+                        Pref.addToTotalMsPlayed(DELAY_CHECK_TIMER_SLEEP);
                         updateZikFileStateInDB(false);
                         Intent i = new Intent(NOTIFICATION_PLAYBACK_TIMER_VALUE)
                                 .putExtra(TIMER_VALUE, elapsedSeconds);
@@ -491,7 +498,13 @@ public class AudioService extends LoggingService {
     private void nextTrack() {
         myLog("Next track");
         justAdvancedToNext = true;
-        PlayList.getInstance().nextTrack();
+        PlayList pl = PlayList.getInstance();
+        if (pl==null) {
+            alertError("nextTrack", "nextTrack : error getting playlist");
+            //loadFileKO();
+            return;
+        }
+        pl.nextTrack();
         if (engine != null) {
             try {
                 if (engine instanceof TtsEngine) {
@@ -501,7 +514,6 @@ public class AudioService extends LoggingService {
                 engine.reset();
             } catch (Exception ignored) {}
         }
-
         myLog("loading next track : n°" + PlayList.getInstance().getNumSlashTotal());
         if (Option.getBeepChapter()) playBeep("1beep");
         directPlay = true;
@@ -661,6 +673,7 @@ public class AudioService extends LoggingService {
         // Ensure we actually have something to play
         PlayList pl = PlayList.getInstance();
         if (pl == null || pl.getZikFile() == null) {
+            /*
             // Try to restore once
             PlayList.restoreIfExists(this);
             pl = PlayList.getInstance();
@@ -668,6 +681,9 @@ public class AudioService extends LoggingService {
                 loadFileKO();
                 return;
             }
+             */
+            loadFileKO();
+            return;
         }
 
         ZikFile zf = pl.getZikFile();

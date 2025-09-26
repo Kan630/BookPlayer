@@ -52,8 +52,8 @@ public class MiniNowPlayingFragment extends Fragment {
             if (s == null) return;
             TitleHelper.setTitleAndSubtitle(tvTitle, tvSubTitle, s.title, s.subTitle);
             if (!userSeeking) {
-                seek.setMax(Math.max(1, s.durationMs));
-                seek.setProgress(Math.min(s.positionMs, s.durationMs));
+                seek.setMax((int) Math.max(1L, s.durationMs));
+                seek.setProgress((int) Math.min(s.positionMs, s.durationMs));
             }
             btnPlayPause.setImageResource(s.playing ? R.drawable.ic_media_pause_24 : R.drawable.ic_media_play_24);
 
