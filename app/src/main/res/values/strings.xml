@@ -843,11 +843,14 @@
 
     <string name="could_not_identify_track_to_modify">could not identify track to modify</string>
     <string name="could_not_identify_folder_to_modify">could not identify folder to modify</string>
-    <string name="automotive_no_item_in_bookplayer">No items. Open BookPlayer on your phone and import a book.</string>
+
     <string name="option_automotive_title">Automotive</string>
     <string name="option_automotive_on">Connect to Android Auto.</string>
     <string name="option_automotive_auto_resume_on_car_connect">Auto-resume playback when connected to the car.</string>
     <string name="option_automotive_keep_phone_playback_on_car_connect">Keep phone playing when connected to the car.</string>
+    <string name="automotive_no_item_in_bookplayer">No items. Open BookPlayer on your phone and import a book.</string>
+    <string name="automotive_empty_book">Empty book</string>
+    <string name="automotive_resume_play">Resume play</string>
 
 
 

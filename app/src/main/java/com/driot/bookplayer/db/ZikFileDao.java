@@ -63,6 +63,14 @@ public interface ZikFileDao {
            """)
     LiveData<ZikFile> getLastListenedZikFileForPodcast(long feedId);
 
+    @Query("""
+           SELECT * FROM ZikFile
+           WHERE idFolder = :folderId
+           ORDER BY (position > 0 AND position < duration - 5000) DESC, lLastAccess DESC
+           LIMIT 1
+           """)
+    ZikFile getLastListenedZikFile(long folderId);
+
     @Insert
     long insert(ZikFile zikFile);
 

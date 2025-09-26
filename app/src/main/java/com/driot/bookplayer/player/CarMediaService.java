@@ -35,6 +35,9 @@ import java.util.List;
 
 public class CarMediaService extends MediaBrowserServiceCompat {
 
+    private final android.os.Handler carH = new android.os.Handler(android.os.Looper.getMainLooper());
+    private final java.util.Set<Integer> pendingFolderRefresh = new java.util.HashSet<>();
+
     // Small caches to avoid re-decoding
     private final android.util.LruCache<String, android.graphics.Bitmap> artCache  = new android.util.LruCache<>(8);
     private final android.util.LruCache<String, android.graphics.Bitmap> iconCache = new android.util.LruCache<>(24);
@@ -86,6 +89,11 @@ public class CarMediaService extends MediaBrowserServiceCompat {
     private final BroadcastReceiver uiReceiver = new BroadcastReceiver() {
         @Override public void onReceive(Context ctx, Intent i) {
             if (!AudioService.ACTION_UI_STATE.equals(i.getAction())) return;
+
+            boolean prevPlaying = playing;
+            int prevTrackId  = curTrackId;
+            int prevFolderId = curFolderId;
+
             playing  = i.getBooleanExtra(AudioService.EXTRA_UI_PLAYING, false);
             posMs    = i.getLongExtra(AudioService.EXTRA_UI_POS, 0);
             durMs    = i.getLongExtra(AudioService.EXTRA_UI_DUR, 0);
@@ -99,6 +107,12 @@ public class CarMediaService extends MediaBrowserServiceCompat {
             pushMetadataFromCurrent();
             pushPlaybackState(playing ? PlaybackStateCompat.STATE_PLAYING
                     : PlaybackStateCompat.STATE_PAUSED, posMs);
+
+            if (curFolderId > 0 && (curFolderId != prevFolderId || curTrackId != prevTrackId)) {
+                requestFolderRefresh(curFolderId);
+                // If your ROOT shows “Continue …”, refresh it too:
+                //requestRootRefresh(); // optional
+            }
         }
     };
 
@@ -287,13 +301,23 @@ public class CarMediaService extends MediaBrowserServiceCompat {
                 if (folderId > 0) {
                     List<ZikFile> tracks = AppDatabase.getDatabase(getApplicationContext())
                             .ZikFileDao().getZikFiles(folderId);
+
                     if (tracks == null || tracks.isEmpty()) {
-                        out.add(browsable("hint", "Empty book"));
-                    } else {
-                        // Fetch folder (for its image)
-                        Folder f = AppDatabase.getDatabase(getApplicationContext())
-                                .FolderDao().getById(folderId); // add DAO method if missing
-                        android.graphics.Bitmap icon = null;
+                        out.add(browsable("hint", getString(R.string.automotive_empty_book)));
+                        result.sendResult(out);
+                        return;
+                    }
+
+                    // Put a "Resume" item first
+                    ZikFile resume = AppDatabase.getDatabase(this).ZikFileDao().getLastListenedZikFile(folderId);
+                    if (resume != null) {
+                        MediaDescriptionCompat.Builder rb = new MediaDescriptionCompat.Builder()
+                                .setMediaId(PREFIX_TRACK + resume.getId())
+                                .setTitle("▶ " + getString(R.string.automotive_resume_play) + " : \n" + resume.getDisplayName())
+                                .setSubtitle(resume.getFolderName());
+                        // optional icon from folder cover (reuse your icon code)
+                        Folder f = AppDatabase.getDatabase(getApplicationContext()).FolderDao().getById(folderId);
+                        Bitmap icon = null;
                         if (f != null && f.image != null) {
                             icon = iconCache.get(f.image);
                             if (icon == null) {
@@ -301,23 +325,43 @@ public class CarMediaService extends MediaBrowserServiceCompat {
                                 if (icon != null) iconCache.put(f.image, icon);
                             }
                         }
-                        for (ZikFile z : tracks) {
-                            MediaDescriptionCompat.Builder b = new MediaDescriptionCompat.Builder()
-                                    .setMediaId(PREFIX_TRACK + z.getId()) // or getIdZikFile()
-                                    .setTitle(z.getDisplayName())
-                                    .setSubtitle(z.getFolderName());
-                            if (icon != null) b.setIconBitmap(icon);
+                        if (icon != null) rb.setIconBitmap(icon);
 
-                            Bundle extras = new Bundle();
-                            if (z.getDuration() > 0) {
-                                extras.putLong(MediaMetadataCompat.METADATA_KEY_DURATION, (long) z.getDuration());
-                            }
-                            b.setExtras(extras);
+                        Bundle rExtras = new Bundle();
+                        if (resume.getDuration() > 0) rExtras.putLong(MediaMetadataCompat.METADATA_KEY_DURATION, (long) resume.getDuration());
+                        rb.setExtras(rExtras);
 
-                            out.add(new MediaBrowserCompat.MediaItem(
-                                    b.build(), MediaBrowserCompat.MediaItem.FLAG_PLAYABLE));
+                        out.add(new MediaBrowserCompat.MediaItem(rb.build(), MediaBrowserCompat.MediaItem.FLAG_PLAYABLE));
+                    }
+
+                    // Fetch folder (for its image)
+                    Folder f = AppDatabase.getDatabase(getApplicationContext())
+                            .FolderDao().getById(folderId); // add DAO method if missing
+                    android.graphics.Bitmap icon = null;
+                    if (f != null && f.image != null) {
+                        icon = iconCache.get(f.image);
+                        if (icon == null) {
+                            icon = decodeBitmapFromStringUri(f.image, ICON_MAX_PX);
+                            if (icon != null) iconCache.put(f.image, icon);
                         }
                     }
+                    for (ZikFile z : tracks) {
+                        MediaDescriptionCompat.Builder b = new MediaDescriptionCompat.Builder()
+                                .setMediaId(PREFIX_TRACK + z.getId()) // or getIdZikFile()
+                                .setTitle(z.getDisplayName())
+                                .setSubtitle(z.getFolderName());
+                        if (icon != null) b.setIconBitmap(icon);
+
+                        Bundle extras = new Bundle();
+                        if (z.getDuration() > 0) {
+                            extras.putLong(MediaMetadataCompat.METADATA_KEY_DURATION, (long) z.getDuration());
+                        }
+                        b.setExtras(extras);
+
+                        out.add(new MediaBrowserCompat.MediaItem(
+                                b.build(), MediaBrowserCompat.MediaItem.FLAG_PLAYABLE));
+                    }
+
                 }
                 result.sendResult(out);
                 return;
@@ -494,6 +538,27 @@ public class CarMediaService extends MediaBrowserServiceCompat {
         int r;
         while ((r = is.read(buf)) != -1) bos.write(buf, 0, r);
         return bos.toByteArray();
+    }
+
+    private void requestFolderRefresh(int folderId) {
+        myLog("requestFolderRefresh");
+        if (folderId <= 0) return;
+        // coalesce multiple requests for the same folder
+        if (!pendingFolderRefresh.add(folderId)) return;
+        carH.postDelayed(() -> {
+            pendingFolderRefresh.remove(folderId);
+            notifyChildrenChanged(PREFIX_FOLDER + folderId);
+        }, 350); // small debounce
+    }
+    // Optional: if your ROOT shows “Continue …” subtitles, refresh ROOT too
+    private boolean rootRefreshPending = false;
+    private void requestRootRefresh() {
+        if (rootRefreshPending) return;
+        rootRefreshPending = true;
+        carH.postDelayed(() -> {
+            rootRefreshPending = false;
+            notifyChildrenChanged(ROOT_ID);
+        }, 500);
     }
 
     ////////////////////////////////////////////////////////
