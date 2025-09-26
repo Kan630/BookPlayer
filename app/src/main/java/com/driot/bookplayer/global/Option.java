@@ -56,7 +56,9 @@ public class Option {
     public static final float  DEFAULT_TEXT_SIZE_SP = 18f;
     public static final float  MIN_TEXT_SIZE_SP = 12f;
     public static final float  MAX_TEXT_SIZE_SP = 36f;
-
+    public static final boolean DEFAULT_AUTOMOTIVE_ON = true;
+    public static final boolean DEFAULT_AUTOMOTIVE_AUTO_RESUME_ON_CAR_CONNECT = true;
+    public static final boolean DEFAULT_AUTOMOTIVE_KEEP_PHONE_PLAYBACK_ON_CAR_CONNECT = false;
 
     private static Context appContext;
     private static android.content.SharedPreferences prefs;
@@ -234,6 +236,20 @@ public class Option {
 
     public static void setTtsVoice(String voice) {prefs.edit().putString("TTS_VOICE",voice).apply();}
     public static String getTtsVoice() {return prefs.getString("TTS_VOICE", DEFAULT_LANGUAGE);}
+
+    /////////////////// AUTOMOTIVE ///////////////////
+
+    public static void setAutomotiveOn(boolean bool) {prefs.edit().putBoolean("AUTOMOTIVE_ON",bool).apply();}
+    public static boolean getAutomotiveOn() {return prefs.getBoolean("AUTOMOTIVE_ON", DEFAULT_AUTOMOTIVE_ON);}
+
+
+    public static void setAutomotiveAutoResumeOnCarConnect(boolean bool) {prefs.edit().putBoolean("AUTOMOTIVE_AUTO_RESUME_ON_CAR_CONNECT",bool).apply();}
+    public static boolean getAutomotiveAutoResumeOnCarConnect() {return prefs.getBoolean("AUTOMOTIVE_AUTO_RESUME_ON_CAR_CONNECT", DEFAULT_AUTOMOTIVE_AUTO_RESUME_ON_CAR_CONNECT);}
+
+    public static void setAutomotiveKeepPhonePlaybackOnCarConnect(boolean bool) {prefs.edit().putBoolean("AUTOMOTIVE_KEEP_PHONE_PLAYBACK_ON_CAR_CONNECT",bool).apply();}
+    public static boolean getAutomotiveKeepPhonePlaybackOnCarConnect() {return prefs.getBoolean("AUTOMOTIVE_KEEP_PHONE_PLAYBACK_ON_CAR_CONNECT", DEFAULT_AUTOMOTIVE_KEEP_PHONE_PLAYBACK_ON_CAR_CONNECT);}
+
+
 
     /////////////////// NIGHT MODE ///////////////////
 

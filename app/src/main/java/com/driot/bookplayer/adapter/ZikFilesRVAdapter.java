@@ -17,7 +17,7 @@ import com.driot.bookplayer.activities.ModifyZikFileActivity;
 import com.driot.bookplayer.activities.PlayActivity;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Option;
-import com.driot.bookplayer.objects.PlayList;
+import com.driot.bookplayer.player.PlayList;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingListAdapter;
 

@@ -418,6 +418,19 @@ public class OptionActivity extends LoggingActivity {
         ll_auto_play_on_main_player.setOnClickListener(v -> chk_auto_play_on_main_player.toggle());
         chk_auto_play_on_main_player.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setAutoPlayOnMainPlayer(isChecked));
 
+
+        CheckBox chk_automotive_on = findViewById(R.id.chk_automotive_on);
+        LinearLayout ll_automotive_on = findViewById(R.id.ll_automotive_on);
+        chk_automotive_on.setChecked(Option.getAutomotiveOn());
+        ll_automotive_on.setOnClickListener(v -> chk_automotive_on.toggle());
+        chk_automotive_on.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setAutomotiveOn(isChecked));
+
+        CheckBox chk_automotive_auto_resume_on_car_connect = findViewById(R.id.chk_automotive_auto_resume_on_car_connect);
+        LinearLayout ll_automotive_auto_resume_on_car_connect = findViewById(R.id.ll_automotive_auto_resume_on_car_connect);
+        chk_automotive_auto_resume_on_car_connect.setChecked(Option.getAutomotiveAutoResumeOnCarConnect());
+        ll_automotive_auto_resume_on_car_connect.setOnClickListener(v -> chk_automotive_auto_resume_on_car_connect.toggle());
+        chk_automotive_auto_resume_on_car_connect.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setAutomotiveAutoResumeOnCarConnect(isChecked));
+
         chk_copy_file.setChecked(Option.getCopyFile());
         ll_copy_file.setOnClickListener(v -> chk_copy_file.toggle());
         chk_copy_file.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setCopyFile(isChecked));

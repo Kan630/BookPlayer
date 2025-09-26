@@ -27,7 +27,7 @@ import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
-import com.driot.bookplayer.objects.PlayList;
+import com.driot.bookplayer.player.PlayList;
 import com.driot.bookplayer.helpers.IconHelper;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingRVAdapter;

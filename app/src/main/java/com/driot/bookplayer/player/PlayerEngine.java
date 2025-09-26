@@ -31,4 +31,7 @@ public interface PlayerEngine {
     void seekTo(int positionMs);
 
     void setSpeed(float speed);
+
+    void setVolume(float volume);  // 0f..1f
+    float getVolume();             // current effective volume (0f..1f)
 }

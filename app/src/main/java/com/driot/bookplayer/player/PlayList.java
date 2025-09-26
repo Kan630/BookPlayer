@@ -1,13 +1,14 @@
-package com.driot.bookplayer.objects;
+package com.driot.bookplayer.player;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Looper;
 
-import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
@@ -34,6 +35,29 @@ import java.util.List;
  */
 public final class PlayList {
 
+    /** Immutable meta state exposed to UI */
+    public static final class MetaState {
+        public final boolean loaded;
+        public final @Nullable Folder folder;
+        public final @Nullable Podcast podcast;
+        public final boolean isPodcast;
+
+        public MetaState(boolean loaded, @Nullable Folder folder,
+                         @Nullable Podcast podcast, boolean isPodcast) {
+            this.loaded = loaded;
+            this.folder = folder;
+            this.podcast = podcast;
+            this.isPodcast = isPodcast;
+        }
+    }
+    // LiveData channel (process-local)
+    private static final MutableLiveData<MetaState> metaLive = new MutableLiveData<>(new MetaState(false, null, null, false));
+    public static LiveData<MetaState> getMetaLive() { return metaLive; }
+
+    // (optional) keep last posted to avoid noisy duplicates
+    private static @Nullable MetaState lastMetaPosted = null;
+
+
     // ==== Singleton ====
     private static volatile PlayList instance;
 
@@ -55,61 +79,6 @@ public final class PlayList {
         myLogD("Playlist created with " + items.size() + " items, index=" + pl.index);
     }
 
-    /** Try to restore from storage (folderId + index); returns true if restored. */
-    public static boolean restoreIfExists(@NonNull Context ctx) {
-        Context app = ctx.getApplicationContext();
-        FirebaseAnalyticsHelper.tellAnalyticsPlaylistLoadFromStorage(app);
-        SharedPreferences p = app.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
-
-        // New keys first
-        int folderId = p.getInt(KEY_FOLDER_ID, -1);
-        int index = p.getInt(KEY_INDEX, -1);
-
-        // Back-compat: if no folderId, try old JSON blob
-        if (folderId < 0) {
-            String json = p.getString(KEY_ZIK_FILES_LIST_LEGACY, null);
-            if (json == null) {
-                myLogD("restoreIfExists(): nothing to restore");
-                return false;
-            }
-            try {
-                Type type = new TypeToken<List<ZikFile>>() {}.getType();
-                List<ZikFile> list = new Gson().fromJson(json, type);
-                if (list == null || list.isEmpty()) return false;
-                index = Math.max(0, Math.min(p.getInt(KEY_ZIK_FILE_INDEX_LEGACY, 0), list.size() - 1));
-                PlayList pl = new PlayList(app);
-                pl.replaceItems(list, index);
-                pl.saveToStorage(); // migrate to new keys
-                instance = pl;
-                pl.loadMetaAsync();
-                myLogW("restoreIfExists(): migrated from legacy JSON");
-                return true;
-            } catch (Throwable t) {
-                myLogEE(t, "restoreIfExists(): legacy JSON failed");
-                return false;
-            }
-        }
-
-        // Normal path: re-query DB by folderId
-        try {
-            List<ZikFile> list = AppDatabase.getDatabase(app).ZikFileDao().getZikFiles(folderId);
-            if (list == null || list.isEmpty()) {
-                myLogW("restoreIfExists(): DB returned empty for folderId=" + folderId);
-                return false;
-            }
-            index = Math.max(0, Math.min(index, list.size() - 1));
-            PlayList pl = new PlayList(app);
-            pl.replaceItems(list, index);
-            instance = pl;
-            pl.loadMetaAsync();
-            myLogD("restoreIfExists(): restored folderId=" + folderId + " size=" + list.size() + " index=" + index);
-            return true;
-        } catch (Throwable t) {
-            myLogEE(t, "restoreIfExists(): DB error");
-            return false;
-        }
-    }
-
     // ==== Instance ====
     private final Context app;
     private final Object lock = new Object();
@@ -122,7 +91,10 @@ public final class PlayList {
     private Podcast podcast;
     private boolean isPodcast;
     private boolean metaLoaded = false;
-    private OnMetaLoadedListener metaListener;
+
+    public Folder getFolder() {
+        return folder;
+    }
 
     // Invalidate racing async loads
     private long version = 0L;
@@ -130,7 +102,7 @@ public final class PlayList {
     private PlayList(Context app) { this.app = app; }
 
     // ==== Public API (kept compatible) ====
-
+/*
     public interface OnMetaLoadedListener {
         void onMetaLoaded(Folder folder, @Nullable Podcast podcast, boolean isPodcast);
     }
@@ -145,6 +117,8 @@ public final class PlayList {
         }
     }
 
+ */
+
     public void clear() {
         synchronized (lock) {
             items = Collections.emptyList();
@@ -157,6 +131,9 @@ public final class PlayList {
         }
         clearStorage();
         instance = null;
+
+        // tell observers meta is gone
+        postMetaDistinct(new MetaState(false, null, null, false));
     }
 
     public void nextTrack() {
@@ -214,12 +191,29 @@ public final class PlayList {
             return items.get(index);
         }
     }
-
+/*
     public @Nullable Folder getFolder() { synchronized (lock) { return folder; } }
     public @Nullable Podcast getPodcast() { synchronized (lock) { return podcast; } }
     public boolean isPodcast() { synchronized (lock) { return isPodcast; } }
 
+ */
+
     // ==== Internal helpers ====
+
+    private void postMetaDistinct(MetaState s) {
+        // very light distinct; compare folder id & isPodcast & loaded
+        boolean same =
+                lastMetaPosted != null &&
+                        lastMetaPosted.loaded == s.loaded &&
+                        lastMetaPosted.isPodcast == s.isPodcast &&
+                        ((lastMetaPosted.folder == null && s.folder == null) ||
+                                (lastMetaPosted.folder != null && s.folder != null && lastMetaPosted.folder.getId() == s.folder.getId()));
+        if (!same) {
+            lastMetaPosted = s;
+            metaLive.postValue(s); // background-safe
+            myLogD("metaLive posted: loaded=" + s.loaded + " folderId=" + (s.folder == null ? -1 : s.folder.getId()) + " isPodcast=" + s.isPodcast);
+        }
+    }
 
     private void replaceItems(@NonNull List<ZikFile> list, int startIndex) {
         synchronized (lock) {
@@ -231,6 +225,7 @@ public final class PlayList {
             this.metaLoaded = false;
             this.version++; // invalidate prior asyncs
         }
+        postMetaDistinct(new MetaState(false, null, null, false));
     }
 
     private void loadMetaAsync() {
@@ -255,26 +250,19 @@ public final class PlayList {
                 myLogEE(t, "loadMetaAsync()");
             }
 
-            final Folder fFinal = f;
-            final Podcast pFinal = p;
-            final boolean isPodFinal = isPod;
-
             synchronized (lock) {
                 if (v != version) {
                     myLogD("loadMetaAsync(): stale result ignored");
                     return;
                 }
-                folder = fFinal;
-                podcast = pFinal;
-                isPodcast = isPodFinal;
+                folder = f;
+                podcast = p;
+                isPodcast = isPod;
                 metaLoaded = (folder != null);
             }
+            // LiveData: post state (loaded==true only if folder!=null)
+            postMetaDistinct(new MetaState(metaLoaded, folder, podcast, isPodcast));
 
-            OnMetaLoadedListener l;
-            synchronized (lock) { l = metaListener; }
-            if (metaLoaded && l != null && fFinal != null) {
-                main.post(() -> l.onMetaLoaded(fFinal, pFinal, isPodFinal));
-            }
         });
     }
 

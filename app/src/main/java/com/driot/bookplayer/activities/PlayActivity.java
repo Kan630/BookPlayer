@@ -39,7 +39,7 @@ import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.TitleHelper;
 import com.driot.bookplayer.helpers.TtsHelper;
-import com.driot.bookplayer.objects.PlayList;
+import com.driot.bookplayer.player.PlayList;
 import com.driot.bookplayer.services.AudioService;
 import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.views.FrequencyVisualizerView;
@@ -51,7 +51,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.regex.Pattern;
 
 import static com.driot.bookplayer.global.Var.SLEEP_PRESET_VALUES;
 import static com.driot.bookplayer.services.AudioService.TIMER_VALUE;
@@ -94,7 +93,6 @@ public class PlayActivity extends LoggingActivity {
     private Timer timerRedrawUI;
     private String tvListeningTimeBaseText;
     private boolean forceReload;
-    private boolean autoPlay;
 
     String[] broadcastNotifications = {
             AudioService.NOTIFICATION_TRACKFINISHED //useless ?
@@ -116,7 +114,7 @@ public class PlayActivity extends LoggingActivity {
     private long PodcastLastClickTime = 0;
     private static final long PODCAST_DOUBLE_CLICK_THRESHOLD = 300;
 
-    private ImageView imFolderImage;
+    private ImageView ivCover;
     private View ttsContainer;
     private Spinner spinnerTtsVoice;
     private TextView tvTtsText;
@@ -228,13 +226,16 @@ public class PlayActivity extends LoggingActivity {
                 int s = intent.getIntExtra(AudioService.EXTRA_TTS_START, -1);
                 int e = intent.getIntExtra(AudioService.EXTRA_TTS_END, -1);
                 if (s >= 0 && e > s) scheduleTtsHighlight(s, e);
+
             } else if (Objects.equals(action, AudioService.ACTION_UI_STATE)) {
+
                 boolean ready = intent.getBooleanExtra(AudioService.EXTRA_UI_READY, false);
                 boolean playing = intent.getBooleanExtra(AudioService.EXTRA_UI_PLAYING, false);
                 long pos = intent.getLongExtra(AudioService.EXTRA_UI_POS, 0);
                 long dur = intent.getLongExtra(AudioService.EXTRA_UI_DUR, 0);
                 String title = intent.getStringExtra(AudioService.EXTRA_UI_TITLE);
                 String sub = intent.getStringExtra(AudioService.EXTRA_UI_SUBTITLE);
+                String cover = intent.getStringExtra(AudioService.EXTRA_UI_COVER);
 
                 if (!ready) {
                     bPlayPause.setImageResource(R.drawable.ic_hourglass_24);
@@ -244,7 +245,6 @@ public class PlayActivity extends LoggingActivity {
                     bPlayPause.setImageResource(playing ? R.drawable.ic_media_pause_24 : R.drawable.ic_media_play_24);
                 }
 
-                // Update core widgets from the *same* snapshot as mini & AA:
                 TitleHelper.setTitleAndSubtitle(tvTitle, tvSubTitle, title, sub);
                 seekbar.setMax((int)Math.max(1, dur));
                 seekbar.setProgress((int)Math.min(pos, dur));
@@ -333,7 +333,7 @@ public class PlayActivity extends LoggingActivity {
         frequencyVisualizerView = findViewById(R.id.frequencyVisualizerView);
         frequencyVisualizerView.setOnClickListener(v -> visualizerClick());
 
-        imFolderImage = findViewById(R.id.folderImage);
+        ivCover = findViewById(R.id.folderImage);
 
         ttsContainer = findViewById(R.id.ttsContainer);
         spinnerTtsVoice = findViewById(R.id.spinnerTtsVoice);
@@ -345,39 +345,51 @@ public class PlayActivity extends LoggingActivity {
             applyTtsToggleUi();
         });
 
-        playList.setOnMetaLoadedListener((folder, podcast, isPodcast) -> {
+        PlayList.getMetaLive().observe(this, ms -> {
+            if (!ms.loaded || ms.folder == null) {
+                myLogW("Meta not loaded yet; show skeleton/keep previous visuals");
+                return;
+            }
+            myLogW("Meta arrived via LiveData; folderId=" + ms.folder.getId() + " isPodcast=" + ms.isPodcast);
+            // Your previous onMetaLoaded(...) logic:
+            // - update cover, title/sub, flags, etc.
+            // - "Is Podcast" branch => use state.podcast != null || state.isPodcast
+            //drawMetaOnUIThread(state.folder, state.podcast, state.isPodcast);
+
+            myLogW("playList.setOnMetaLoadedListener()");
             // Voices
-            if (folder.playType!=null && folder.playType.equals(Var.PLAY_TYPE_TEXT)) {
-                initTtsVoiceSpinner(folder.getId());
+
+            if (ms.folder.playType!=null && ms.folder.playType.equals(Var.PLAY_TYPE_TEXT)) {
+                initTtsVoiceSpinner(ms.folder.getId());
             }
 
             // Playlist objects are all loaded
-            if (folder.image != null && !folder.image.isEmpty()) {
-                imFolderImage.setImageURI(Uri.parse(folder.image));
-                imFolderImage.setVisibility(View.VISIBLE);
+            if (ms.folder.image != null && !ms.folder.image.isEmpty()) {
+                ivCover.setImageURI(Uri.parse(ms.folder.image));
+                ivCover.setVisibility(View.VISIBLE);
                 frequencyVisualizerView.setAlpha(0.6f);
                 try {
-                    File imageFile = new File(folder.image);
+                    File imageFile = new File(ms.folder.image);
                     myLogD("Image found : " + imageFile.getName() + " - " + getReadableSize(imageFile.length()));
                 } catch (Exception e) {
                     myLogE("image debug ko");
                 }
-                if (isPodcast) {
+                if (ms.isPodcast) {
                     myLogD("Is Podcast");
                     tvTitle.setOnClickListener(v -> {
                         myLogI("user clicks Title");
-                        handlePodcastClick(podcast);
+                        handlePodcastClick(ms.podcast);
                     });
                     tvSubTitle.setOnClickListener(v -> {
                         myLogI("user clicks subTitle");
-                        handlePodcastClick(podcast);
+                        handlePodcastClick(ms.podcast);
                     });
                 }
             } else {
-                imFolderImage.setVisibility(View.GONE);
+                ivCover.setVisibility(View.GONE);
                 frequencyVisualizerView.setAlpha(1f); // fully opaque
             }
-            imFolderImage.setOnClickListener(new View.OnClickListener() {
+            ivCover.setOnClickListener(new View.OnClickListener() {
                 private static final long DOUBLE_CLICK_TIME_DELTA = 300; // milliseconds
                 private long lastClickTime = 0;
 
@@ -431,7 +443,7 @@ public class PlayActivity extends LoggingActivity {
                 if (fromUser) {
                     myLogI("--- USER CLICK SEEK BAR ---- => Change Progress");
                     audioService.setPosition(progress);
-                    tvSeekBar.setText(formatTime(progress,true));
+                    tvSeekBar.setText(formatTime(progress,true)); //TODO usefull ?
                 }
             }
             @Override
@@ -599,6 +611,7 @@ public class PlayActivity extends LoggingActivity {
         for (String broadcastNotification : broadcastNotifications) {
             LocalBroadcastManager.getInstance(this).registerReceiver(broadCastReceiver, new IntentFilter(broadcastNotification));
         }
+        PlayList pl = PlayList.getInstance();
         runTimerForDisplay();
         audioServiceBound = bindService(intentMusicService, audioServiceConnection, Context.BIND_AUTO_CREATE);
         super.onResume();
@@ -877,7 +890,7 @@ public class PlayActivity extends LoggingActivity {
     }
 
     private void showTtsUi() {
-        imFolderImage.setVisibility(View.GONE);
+        ivCover.setVisibility(View.GONE);
         frequencyVisualizerView.setVisibility(View.GONE);
         ttsContainer.setVisibility(View.VISIBLE);
 
@@ -901,7 +914,7 @@ public class PlayActivity extends LoggingActivity {
 
     private void showAudioUi() {
         ttsContainer.setVisibility(View.GONE);
-        imFolderImage.setVisibility(View.VISIBLE);
+        ivCover.setVisibility(View.VISIBLE);
         runVisualizer();
     }
 
@@ -952,7 +965,7 @@ public class PlayActivity extends LoggingActivity {
             // Audio mode: show visualizer/image as you already do
             ttsContainer.setVisibility(View.GONE);
             frequencyVisualizerView.setVisibility(View.VISIBLE);
-            imFolderImage.setVisibility(imFolderImage.getDrawable() != null ? View.VISIBLE : View.GONE);
+            ivCover.setVisibility(ivCover.getDrawable() != null ? View.VISIBLE : View.GONE);
             runVisualizer();
         } else {
             myLogD("UI : TTS Mode");
@@ -960,11 +973,11 @@ public class PlayActivity extends LoggingActivity {
             frequencyVisualizerView.setVisibility(View.GONE);
             if (showingTtsText) {
                 ttsContainer.setVisibility(View.VISIBLE);
-                imFolderImage.setVisibility(View.GONE);
+                ivCover.setVisibility(View.GONE);
                 btnToggleTtsView.setImageResource(android.R.drawable.ic_menu_gallery); // next tap -> image
             } else {
                 ttsContainer.setVisibility(View.GONE);
-                imFolderImage.setVisibility(View.VISIBLE);
+                ivCover.setVisibility(View.VISIBLE);
                 btnToggleTtsView.setImageResource(android.R.drawable.ic_menu_edit); // next tap -> text
             }
         }

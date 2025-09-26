@@ -53,6 +53,8 @@ public final class TtsEngine implements PlayerEngine, AppTtsManager.Listener {
     private int estPositionMs = 0;
     private float speechRate = 1.0f;
 
+    private float volume = 1f;
+
     public TtsEngine(@NonNull Context appContext,
                      @NonNull AppTtsManager appTtsManager,
                      @NonNull EngineListener listener,
@@ -352,6 +354,15 @@ public final class TtsEngine implements PlayerEngine, AppTtsManager.Listener {
         } catch (Throwable ignored) {
             return null;
         }
+    }
+
+
+    @Override public void setVolume(float v) {
+        volume = Math.max(0f, Math.min(1f, v));
+    }
+
+    @Override public float getVolume() {
+        return volume;
     }
 
     private void logCurrentVoice() {

@@ -28,6 +28,8 @@ public final class MediaPlayerEngine implements PlayerEngine {
     private volatile boolean preparing = false;
     private volatile SeekMode seekMode = SeekMode.NORMAL;
 
+    private float volume = 1f;
+
     public MediaPlayerEngine(@NonNull EngineListener listener, long generationToken) {
         this.listener = listener;
         this.gen = generationToken;
@@ -87,7 +89,11 @@ public final class MediaPlayerEngine implements PlayerEngine {
         mp.prepareAsync();
     }
 
-    @Override public void start()        { mp.start(); }
+    @Override public void start()        {
+        mp.start();
+// re-apply volume in case system reset it
+        setVolume(volume);
+    }
     @Override public void pause()        { mp.pause(); }
     @Override public void stop()         { safeStop(mp); }
     @Override public void reset()        { prepared = false; preparing = false; mp.reset(); }
@@ -142,6 +148,18 @@ public final class MediaPlayerEngine implements PlayerEngine {
         try {
             mp.setPlaybackParams(mp.getPlaybackParams().setSpeed(speed));
         } catch (Throwable ignored) { /* old devices / streams */ }
+    }
+
+    @Override public void setVolume(float v) {
+        float nv = Math.max(0f, Math.min(1f, v));
+        volume = nv;
+        try {
+            mp.setVolume(nv, nv);
+        } catch (Throwable ignored) {}
+    }
+
+    @Override public float getVolume() {
+        return volume;
     }
 
     /** Call when done with this engine. */

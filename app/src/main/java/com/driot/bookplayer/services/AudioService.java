@@ -36,14 +36,12 @@ import com.driot.bookplayer.utils.AppTtsManager;
 import com.driot.bookplayer.utils.log.LoggingService;
 import com.driot.bookplayer.activities.PlayActivity;
 import com.driot.bookplayer.global.Option;
-import com.driot.bookplayer.objects.PlayList;
+import com.driot.bookplayer.player.PlayList;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Pref;
 
-import java.io.File;
 import java.text.DecimalFormat;
 
-import static com.driot.bookplayer.utils.Tonio.fileExists;
 import static com.driot.bookplayer.utils.Tonio.formatTime;
 
 /**
@@ -78,6 +76,8 @@ public class AudioService extends LoggingService {
 
 
     public static volatile com.driot.bookplayer.player.PlaybackUiState lastUiState = null;
+    private boolean pausedByFocusLoss = false;
+    private float preDuckVolume = 1f;
 
     //Play Timer (for Sleep)
     public static final int DELAY_CHECK_TIMER_SLEEP = 1000;
@@ -390,20 +390,61 @@ public class AudioService extends LoggingService {
         focus = new com.driot.bookplayer.player.AudioFocusHelper(
                 this,
                 new com.driot.bookplayer.player.AudioFocusHelper.Listener() {
-                    @Override public void onFocusLost() {
-                        myLogI("Audio Focus Lost");
-                        pauseAudio();
-                        LocalBroadcastManager.getInstance(AudioService.this)
-                                .sendBroadcast(new Intent(NOTIFICATION_AUDIOFOCUS_LOST));
-                    }
                     @Override public void onFocusGain() {
                         myLogI("Audio Focus Gain");
-                        playAudio();
+                        // restore volume if ducked
+                        try { if (engine != null) engine.setVolume(preDuckVolume); } catch (Throwable ignored) {}
+                        if (pausedByFocusLoss) {
+                            playAudio();
+                            pausedByFocusLoss = false;
+                        }
+                        // ensure session is active
                         media.setActive(true);
-                        LocalBroadcastManager.getInstance(AudioService.this)
-                                .sendBroadcast(new Intent(NOTIFICATION_AUDIOFOCUS_GAIN));
                     }
-                });
+
+                    @Override public void onFocusLost(int change) {
+                        myLogI("Audio Focus Lost change=" + change); //-2 = transient
+
+                        /*
+                        //TODO cree un timer sur le focus lost, et voir  dans les 3sec si c'etait pas AA qui se connectait, si c'est le cas, remettre le play?
+                        boolean keepOnPhone = Option.getAutomotiveKeepPhonePlaybackOnCarConnect(); // new toggle (default false)
+                        boolean inGrace     = CarSignals.withinCarConnectGrace(2500);
+                        myLog("keepOnPhone = " + keepOnPhone);
+                        myLog("inGrace = " + inGrace);
+
+                        if (keepOnPhone && inGrace && (change == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT || change == AudioManager.AUDIOFOCUS_LOSS)) {
+                            myLog("AUDIOFOCUS_LOSS_TRANSIENT");
+                            // treat transient like duck during grace window (don’t pause)
+                            startDuck();
+                            return;
+                        }
+                         */
+
+                        // normal behavior: pause if we were playing
+                        pausedByFocusLoss = isPlaying();
+                        pauseAudio();
+                    }
+
+                    @Override public void onDuck(boolean ducking) {
+                        if (ducking) startDuck(); else stopDuck();
+                    }
+
+                    private void startDuck() {
+                        try {
+                            if (engine != null) {
+                                preDuckVolume = 1f; // if you have a getter, use it; else assume 1
+                                engine.setVolume(0.2f);
+                            }
+                        } catch (Throwable ignored) {}
+                    }
+
+                    private void stopDuck() {
+                        try {
+                            if (engine != null) engine.setVolume(preDuckVolume);
+                        } catch (Throwable ignored) {}
+                    }
+                }
+        );
 
         // Progress updater (DB)
         progress = new com.driot.bookplayer.player.PlaybackProgressUpdater(
@@ -443,7 +484,7 @@ public class AudioService extends LoggingService {
                         tsb.addNextIntent(new Intent(AudioService.this, com.driot.bookplayer.activities.MainActivity.class));
 
                         // If this book has multiple tracks, add the track list before Play
-                        com.driot.bookplayer.objects.PlayList pl = com.driot.bookplayer.objects.PlayList.getInstance();
+                        PlayList pl = PlayList.getInstance();
                         if (pl != null && pl.getSize() > 1) {
                             // Prefer passing the Folder object if it's Parcelable/Serializable; else pass folderId
                             Intent trackList = new Intent(AudioService.this, com.driot.bookplayer.activities.ZikFileActivity.class);
@@ -592,7 +633,10 @@ public class AudioService extends LoggingService {
             if ("CMD_SEEK".equals(a))   { setPosition(intent.getIntExtra("posMs", 0)); return START_STICKY; } // seek → broadcast
 
             // Only real hardware/software media button events fall through:
-            MediaButtonReceiver.handleIntent(media.session(), intent);
+            if (Intent.ACTION_MEDIA_BUTTON.equals(a)) {
+                MediaButtonReceiver.handleIntent(media.session(), intent);
+            }
+
         }
 
         showForegroundNotification(isPlaying());

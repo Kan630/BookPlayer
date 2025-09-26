@@ -43,7 +43,7 @@ import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.objects.DisplayableEpisode;
-import com.driot.bookplayer.objects.PlayList;
+import com.driot.bookplayer.player.PlayList;
 import com.driot.bookplayer.objects.PodcastEpisode;
 import com.driot.bookplayer.objects.PodcastFeed;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;

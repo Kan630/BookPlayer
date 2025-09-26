@@ -21,11 +21,14 @@ import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 
+import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.ZikFile;
+import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
-import com.driot.bookplayer.objects.PlayList;
+import com.driot.bookplayer.player.PlayList;
+import com.driot.bookplayer.player.CarSignals;
 import com.driot.bookplayer.utils.KanLogger;
 
 import java.util.ArrayList;
@@ -103,6 +106,7 @@ public class CarMediaService extends MediaBrowserServiceCompat {
 
     @Override
     public void onCreate() {
+        CarSignals.markCarConnected();
         super.onCreate();
 
         // 1) MediaSession locale pour Android Auto
@@ -110,7 +114,27 @@ public class CarMediaService extends MediaBrowserServiceCompat {
         setSessionToken(mediaSession.getSessionToken());
 
         mediaSession.setCallback(new MediaSessionCompat.Callback() {
-            @Override public void onPlay()              { sendCmd("CMD_PLAY"); }
+            private boolean userArmedPlay = false; // set true only after explicit user action
+
+            @Override public void onPlay() {
+                myLog("onPlay()");
+                // Has the user picked anything / do we know a track?
+                boolean haveKnownTrack =
+                        AudioService.lastUiState != null &&
+                                AudioService.lastUiState.trackId > 0;
+
+                myLog("haveKnownTrack = " + haveKnownTrack);
+                myLog("userArmedPlay = " + userArmedPlay);
+                myLog("Option.getAutomotiveAutoResumeOnCarConnect() = " + Option.getAutomotiveAutoResumeOnCarConnect());
+
+                if (userArmedPlay || (haveKnownTrack && Option.getAutomotiveAutoResumeOnCarConnect())) {
+                    sendCmd("CMD_PLAY");
+                } else {
+                    myLogW("Ignoring onPlay(): no user intent");
+                    // reflect paused so AA doesn’t show “playing”
+                    pushPlaybackState(PlaybackStateCompat.STATE_PAUSED, 0);
+                }
+            }
             @Override public void onPause()             { sendCmd("CMD_PAUSE"); }
             @Override public void onSkipToNext()        { sendCmd("CMD_NEXT"); }
             @Override public void onSkipToPrevious()    { sendCmd("CMD_PREV"); }
@@ -121,13 +145,16 @@ public class CarMediaService extends MediaBrowserServiceCompat {
             }
             @Override
             public void onPlayFromMediaId(String mediaId, Bundle extras) {
-                myLog("onPlayFromMediaId");
+                myLogI("---- AUTOMOTIVE user click Play -----");
+                userArmedPlay = true;
                 if (mediaId == null) return;
 
                 // Case 1: user clicked a track item → "track:<zikId>"
                 if (mediaId.startsWith(PREFIX_TRACK)) {
                     final int trackId = safeParseInt(mediaId.substring(PREFIX_TRACK.length()), -1);
+                    myLogD("trackId = " + trackId);
                     if (trackId <= 0) return;
+
 
                     AppDatabase.databaseReadExecutor.execute(() -> {
                         // 1) Resolve the clicked track
@@ -154,8 +181,6 @@ public class CarMediaService extends MediaBrowserServiceCompat {
 
                         // 4) Build PlayList and start playback
                         PlayList.create(getApplicationContext(), list, index);
-
-                        // Ensure AudioService is running, then explicit PLAY
                         ContextCompat.startForegroundService(
                                 CarMediaService.this, new Intent(CarMediaService.this, AudioService.class).setAction("CMD_PLAY")
                         );
@@ -163,8 +188,29 @@ public class CarMediaService extends MediaBrowserServiceCompat {
                     return;
                 }
 
-                // Case 2 (optional): user clicked a folder item → "folder:<id>"
-                // We don’t auto-play; Android Auto will call onLoadChildren() to show the tracks.
+                if (mediaId.startsWith(PREFIX_FOLDER)) {
+                    int folderId = safeParseInt(mediaId.substring(PREFIX_FOLDER.length()), -1);
+                    myLogD("folderId = " + folderId);
+                    if (folderId > 0) {
+                        AppDatabase.databaseReadExecutor.execute(() -> {
+                            int count = AppDatabase.getDatabase(getApplicationContext())
+                                    .ZikFileDao().countTracks(folderId);
+                            if (count == 1) {
+                                List<ZikFile> list = AppDatabase.getDatabase(getApplicationContext())
+                                        .ZikFileDao().getZikFiles(folderId);
+
+                                if (list == null || list.isEmpty()) return;
+
+                                PlayList.create(getApplicationContext(), list, 0);
+                                ContextCompat.startForegroundService(
+                                        CarMediaService.this, new Intent(CarMediaService.this, AudioService.class).setAction("CMD_PLAY")
+                                );
+                            }
+                        });
+                    } else {
+                        myLogEE(null, "onPlayFromMediaId, Folder with many tracks");
+                    }
+                }
             }
             @Override
             public boolean onMediaButtonEvent(Intent mediaButtonIntent) {
@@ -203,6 +249,7 @@ public class CarMediaService extends MediaBrowserServiceCompat {
         // Filtre au cas ou je ne set pas la permission dans le manifest pour le service : android:permission="android.permission.BIND_MEDIA_BROWSER_SERVICE"
 /*
         if ("com.google.android.projection.gearhead".equals(clientPackageName)
+         || "com.google.android.apps.automotive.inputmethod".equals(clientPackageName)
                 || "com.google.android.googlequicksearchbox".equals(clientPackageName)) {
             return new BrowserRoot(ROOT_ID, null);
         }
@@ -210,11 +257,12 @@ public class CarMediaService extends MediaBrowserServiceCompat {
         return null; // ou renvoyer un BrowserRoot restreint
 
  */
+        CarSignals.markCarConnected();
         FirebaseAnalyticsHelper.sendEvent("car_init");
         return new BrowserRoot(ROOT_ID, null);
     }
 
-
+// getString(R.string.automotive_no_item_in_bookplayer)
     @Override
     public void onLoadChildren(@NonNull String parentId,
                                @NonNull Result<List<MediaBrowserCompat.MediaItem>> result) {
@@ -227,18 +275,20 @@ public class CarMediaService extends MediaBrowserServiceCompat {
             if (ROOT_ID.equals(parentId)) {
                 List<Folder> folders = AppDatabase.getDatabase(getApplicationContext())
                         .FolderDao().getAll();
+
                 if (folders == null || folders.isEmpty()) {
-                    out.add(browsable("hint", "No items. Open BookPlayer on your phone and import a book."));
+                    out.add(browsable("hint", getString(R.string.automotive_no_item_in_bookplayer)));
                     result.sendResult(out);
                     return;
                 }
+
                 for (Folder f : folders) {
                     MediaDescriptionCompat.Builder b = new MediaDescriptionCompat.Builder()
                             .setMediaId(PREFIX_FOLDER + f.getId())
                             .setTitle(f.getName());
 
-                    // Load small icon as Bitmap (not URI)
-                    android.graphics.Bitmap icon = null;
+                    // Small icon
+                    Bitmap icon = null;
                     if (f.image != null) {
                         icon = iconCache.get(f.image);
                         if (icon == null) {
@@ -248,9 +298,20 @@ public class CarMediaService extends MediaBrowserServiceCompat {
                     }
                     if (icon != null) b.setIconBitmap(icon);
 
-                    out.add(new MediaBrowserCompat.MediaItem(
-                            b.build(), MediaBrowserCompat.MediaItem.FLAG_BROWSABLE));
+                    // If only 1 track => Make the "folder" tap play directly
+                    int count = AppDatabase.getDatabase(getApplicationContext())
+                            .ZikFileDao().countTracks(f.getId());
+                    if (count == 1) {
+                        ZikFile only = AppDatabase.getDatabase(getApplicationContext()).ZikFileDao().getFirstInFolder(f.getId());
+                        if (only != null) {
+                            b.setSubtitle(only.getDisplayName());      // track label
+                            out.add(new MediaBrowserCompat.MediaItem(b.build(), MediaBrowserCompat.MediaItem.FLAG_PLAYABLE));
+                        }
+                    } else {
+                        out.add(new MediaBrowserCompat.MediaItem(b.build(), MediaBrowserCompat.MediaItem.FLAG_BROWSABLE));
+                    }
                 }
+
                 result.sendResult(out);
                 return;
             }
@@ -421,7 +482,7 @@ public class CarMediaService extends MediaBrowserServiceCompat {
 
     @Nullable
     private android.graphics.Bitmap decodeBitmapFromStringUri(String uriString, int maxSidePx) {
-        myLog("decodeBitmapFromStringUri : " + uriString + " - " + maxSidePx);
+        //myLog("decodeBitmapFromStringUri : " + uriString + " - " + maxSidePx);
         if (uriString == null) return null;
         try {
             android.net.Uri uri = android.net.Uri.parse(uriString);

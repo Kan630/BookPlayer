@@ -146,7 +146,11 @@ public interface ZikFileDao {
     @Query("DELETE FROM ZikFile WHERE id = :id")
     int deleteById(long id);
 
+    @Query("SELECT COUNT(*) FROM ZikFile WHERE idFolder=:folderId")
+    int countTracks(int folderId);
 
+    @Query("SELECT * FROM ZikFile WHERE idFolder=:folderId ORDER BY zeorder, name, id LIMIT 1")
+    ZikFile getFirstInFolder(int folderId);
 
     // Exemple avec dates :
     //@Query("SELECT * FROM user WHERE birthday BETWEEN :from AND :to")

@@ -15,6 +15,7 @@ import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.objects.TaskStateRepository;
+import com.driot.bookplayer.utils.ComponentUtils;
 import com.driot.bookplayer.utils.InAppMsgManager;
 import com.driot.bookplayer.helpers.LocaleHelper;
 import com.driot.bookplayer.objects.BookToAdd;
@@ -79,6 +80,9 @@ public class MyApp extends Application {
             setOpenWithProxyEnabled(this, true);
         }
         myLog("Proxy setup: openWith=" + openWithEnabled + " / all=" + openWithEnabledAll);
+
+        ComponentUtils.setAutomotiveEnabled(this, Option.getAutomotiveOn());
+        myLog("Android Auto, allow connect: " + Option.getAutomotiveOn());
 
 
         if ( isExternalStorageWritable() ) {
