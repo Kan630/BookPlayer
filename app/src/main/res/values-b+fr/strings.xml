@@ -801,4 +801,29 @@ Tous les messages sont lisibles publiquement. Connectez-vous pour participer.
     <string name="Text">Texte</string>
     <string name="Bundle">Archive</string>
 
+    <string name="could_not_identify_track_to_modify">impossible d\'identifier la piste à modifier</string>
+    <string name="could_not_identify_folder_to_modify">impossible d\'identifier le dossier à modifier</string>
+
+    <string name="option_automotive_title">Automobile</string>
+    <string name="option_automotive_on">Se connecter à Android Auto.</string>
+    <string name="option_automotive_auto_resume_on_car_connect">Reprendre automatiquement la lecture lors de la connexion à la voiture.</string>
+    <string name="option_automotive_keep_phone_playback_on_car_connect">Conserver la lecture sur le téléphone lors de la connexion à la voiture.</string>
+    <string name="automotive_no_item_in_bookplayer">Aucun élément. Ouvrez BookPlayer sur votre téléphone et importez un livre.</string>
+    <string name="automotive_empty_book">Livre vide</string>
+    <string name="automotive_resume_play">Reprendre la lecture</string>
+    <string name="nb_of_audios_found">Nb d\'audios trouvés</string>
+    <string name="reviews">avis</string>
+    <string name="average_rating">note moyenne</string>
+
+    <string name="help_tts_title">Synthèse vocale :</string>
+    <string name="help_tts_text"><![CDATA[
+<font color="#BA68C8"><b>Écouter du texte avec des voix synthétiques</b></font>
+<br><br>
+Les ebooks ou <font color="#90D8E8">documents texte</font> peuvent aussi être chargés comme <font color="#BA68C8">livres audio</font>.
+<br><br>
+BookPlayer utilisera les <font color="#81C784">voix intégrées de l\'appareil</font> pour lire le texte à voix haute.
+<br><br>
+C\'est une <font color="#FFCC80">fonctionnalité relativement nouvelle</font> — merci d\'être indulgent et de partager vos retours.
+]]></string>
+
 </resources>

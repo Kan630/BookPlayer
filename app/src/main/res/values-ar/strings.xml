@@ -800,4 +800,29 @@
     <string name="Text">نص</string>
     <string name="Bundle">أرشيف</string>
 
+    <string name="could_not_identify_track_to_modify">تعذر تحديد المقطع لتعديله</string>
+    <string name="could_not_identify_folder_to_modify">تعذر تحديد المجلد لتعديله</string>
+
+    <string name="option_automotive_title">السيارة</string>
+    <string name="option_automotive_on">الاتصال بـ Android Auto.</string>
+    <string name="option_automotive_auto_resume_on_car_connect">استئناف التشغيل تلقائيًا عند الاتصال بالسيارة.</string>
+    <string name="option_automotive_keep_phone_playback_on_car_connect">الاستمرار في التشغيل على الهاتف عند الاتصال بالسيارة.</string>
+    <string name="automotive_no_item_in_bookplayer">لا توجد عناصر. افتح BookPlayer على هاتفك واستورد كتابًا.</string>
+    <string name="automotive_empty_book">كتاب فارغ</string>
+    <string name="automotive_resume_play">استئناف التشغيل</string>
+    <string name="nb_of_audios_found">عدد المقاطع الصوتية الموجودة</string>
+    <string name="reviews">مراجعات</string>
+    <string name="average_rating">متوسط التقييم</string>
+
+    <string name="help_tts_title">التحويل إلى كلام :</string>
+    <string name="help_tts_text"><![CDATA[
+<font color="#BA68C8"><b>استمع إلى النص بأصوات اصطناعية</b></font>
+<br><br>
+يمكن تحميل الكتب الإلكترونية أو <font color="#90D8E8">مستندات النصوص</font> أيضًا كـ <font color="#BA68C8">كتب صوتية</font>.
+<br><br>
+سيستخدم BookPlayer <font color="#81C784">الأصوات المدمجة في الجهاز</font> لقراءة النص بصوت عالٍ.
+<br><br>
+هذه <font color="#FFCC80">ميزة جديدة نسبيًا</font> — يرجى التحلي بالصبر ومشاركة ملاحظاتك.
+]]></string>
+
 </resources>

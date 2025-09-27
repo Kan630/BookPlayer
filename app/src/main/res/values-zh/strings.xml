@@ -801,4 +801,32 @@ BookPlayer 在<font color="#81C784">无需权限</font>的情况下也能运行�
     <string name="Video">视频</string>
     <string name="Text">文本</string>
     <string name="Bundle">压缩文件</string>
+
+    <string name="could_not_identify_track_to_modify">无法识别要修改的音轨</string>
+    <string name="could_not_identify_folder_to_modify">无法识别要修改的文件夹</string>
+
+    <string name="option_automotive_title">车载</string>
+    <string name="option_automotive_on">连接到 Android Auto。</string>
+    <string name="option_automotive_auto_resume_on_car_connect">连接到汽车时自动恢复播放。</string>
+    <string name="option_automotive_keep_phone_playback_on_car_connect">连接到汽车时保持手机播放。</string>
+    <string name="automotive_no_item_in_bookplayer">没有项目。在手机上打开 BookPlayer 并导入一本书。</string>
+    <string name="automotive_empty_book">空书</string>
+    <string name="automotive_resume_play">继续播放</string>
+    <string name="nb_of_audios_found">找到的音频数量</string>
+    <string name="reviews">评论</string>
+    <string name="average_rating">平均评分</string>
+
+    <string name="help_tts_title">文字转语音 :</string>
+    <string name="help_tts_text"><![CDATA[
+<font color="#BA68C8"><b>使用合成语音收听文本</b></font>
+<br><br>
+电子书或 <font color="#90D8E8">文本文档</font> 也可以作为 <font color="#BA68C8">有声书</font> 加载。
+<br><br>
+BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗读文本。
+<br><br>
+这是一个 <font color="#FFCC80">相对较新的功能</font> — 请多多包涵并分享您的反馈。
+]]></string>
+
+
+
 </resources>

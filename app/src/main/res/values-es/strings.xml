@@ -793,4 +793,31 @@ El valor global de apagado automático está en Opciones (en el menú de la pant
     <string name="Video">Vídeo</string>
     <string name="Text">Texto</string>
     <string name="Bundle">Archivo comprimido</string>
+
+    <string name="could_not_identify_track_to_modify">no se pudo identificar la pista a modificar</string>
+    <string name="could_not_identify_folder_to_modify">no se pudo identificar la carpeta a modificar</string>
+
+    <string name="option_automotive_title">Automóvil</string>
+    <string name="option_automotive_on">Conectarse a Android Auto.</string>
+    <string name="option_automotive_auto_resume_on_car_connect">Reanudar la reproducción automáticamente al conectarse al coche.</string>
+    <string name="option_automotive_keep_phone_playback_on_car_connect">Mantener la reproducción en el teléfono al conectarse al coche.</string>
+    <string name="automotive_no_item_in_bookplayer">No hay elementos. Abre BookPlayer en tu teléfono e importa un libro.</string>
+    <string name="automotive_empty_book">Libro vacío</string>
+    <string name="automotive_resume_play">Reanudar reproducción</string>
+    <string name="nb_of_audios_found">Nº de audios encontrados</string>
+    <string name="reviews">reseñas</string>
+    <string name="average_rating">calificación media</string>
+
+    <string name="help_tts_title">Texto a voz :</string>
+    <string name="help_tts_text"><![CDATA[
+<font color="#BA68C8"><b>Escuchar texto con voces sintéticas</b></font>
+<br><br>
+Los ebooks o <font color="#90D8E8">documentos de texto</font> también se pueden cargar como <font color="#BA68C8">audiolibros</font>.
+<br><br>
+BookPlayer usará las <font color="#81C784">voces integradas del dispositivo</font> para leer el texto en voz alta.
+<br><br>
+Esta es una <font color="#FFCC80">función relativamente nueva</font> — por favor sé indulgente y comparte tus comentarios.
+]]></string>
+
+
 </resources>

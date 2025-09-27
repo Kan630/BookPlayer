@@ -807,4 +807,30 @@
     <string name="Text">Текст</string>
     <string name="Bundle">Архив</string>
 
+    <string name="could_not_identify_track_to_modify">не удалось определить дорожку для изменения</string>
+    <string name="could_not_identify_folder_to_modify">не удалось определить папку для изменения</string>
+
+    <string name="option_automotive_title">Автомобиль</string>
+    <string name="option_automotive_on">Подключиться к Android Auto.</string>
+    <string name="option_automotive_auto_resume_on_car_connect">Автоматически возобновлять воспроизведение при подключении к автомобилю.</string>
+    <string name="option_automotive_keep_phone_playback_on_car_connect">Продолжать воспроизведение на телефоне при подключении к автомобилю.</string>
+    <string name="automotive_no_item_in_bookplayer">Нет элементов. Откройте BookPlayer на телефоне и импортируйте книгу.</string>
+    <string name="automotive_empty_book">Пустая книга</string>
+    <string name="automotive_resume_play">Возобновить воспроизведение</string>
+    <string name="nb_of_audios_found">Кол-во найденных аудиофайлов</string>
+    <string name="reviews">отзывы</string>
+    <string name="average_rating">средняя оценка</string>
+
+    <string name="help_tts_title">Преобразование текста в речь :</string>
+    <string name="help_tts_text"><![CDATA[
+<font color="#BA68C8"><b>Слушайте текст с синтетическими голосами</b></font>
+<br><br>
+Электронные книги или <font color="#90D8E8">текстовые документы</font> также можно загрузить как <font color="#BA68C8">аудиокниги</font>.
+<br><br>
+BookPlayer будет использовать <font color="#81C784">встроенные голоса устройства</font> для чтения текста вслух.
+<br><br>
+Это <font color="#FFCC80">относительно новая функция</font> — пожалуйста, отнеситесь с пониманием и поделитесь отзывами.
+]]></string>
+
+
 </resources>

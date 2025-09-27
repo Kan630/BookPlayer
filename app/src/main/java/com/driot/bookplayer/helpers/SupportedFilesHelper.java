@@ -33,6 +33,27 @@ public class SupportedFilesHelper {
     public static final String SPECIAL_TYPE_ZIP  = "ZIP";
     public static final String SPECIAL_TYPE_TXT  = "TXT";
 
+    public static boolean isAudio(DocumentFile docFile) {
+        String type = getType(docFile);
+        myLogI("isAudio " + type);
+        return FILE_TYPE_AUDIO.equals(type);
+    }
+
+    public static boolean isVideo(DocumentFile docFile) {
+        String type = getType(docFile);
+        return FILE_TYPE_VIDEO.equals(type);
+    }
+
+    public static boolean isText(DocumentFile docFile) {
+        String type = getSpecialType(docFile);
+        return SPECIAL_TYPE_TXT.equals(type);
+    }
+
+    public static boolean isImage(DocumentFile docFile) {
+        String type = getType(docFile);
+        return FILE_TYPE_IMAGE.equals(type);
+    }
+
     // ----------------------- SAFE UTILITIES -----------------------
     private static String safeString(String s) { return s == null ? "" : s; }
 
@@ -292,6 +313,7 @@ public class SupportedFilesHelper {
             case "odt": return SPECIAL_TYPE_ODT;
             case "fb2": return SPECIAL_TYPE_FB2;
             case "epub":return SPECIAL_TYPE_EPUB;
+            case "txt": return SPECIAL_TYPE_TXT;
             default:    return null;
         }
     }
@@ -309,6 +331,7 @@ public class SupportedFilesHelper {
             case "odt": return SPECIAL_TYPE_ODT;
             case "fb2": return SPECIAL_TYPE_FB2;
             case "epub":return SPECIAL_TYPE_EPUB;
+            case "txt": return SPECIAL_TYPE_TXT;
             default:    return null;
         }
     }
@@ -323,6 +346,7 @@ public class SupportedFilesHelper {
             case "odt": return SPECIAL_TYPE_ODT;
             case "fb2": return SPECIAL_TYPE_FB2;
             case "epub":return SPECIAL_TYPE_EPUB;
+            case "txt": return SPECIAL_TYPE_TXT;
             default:    return null;
         }
     }

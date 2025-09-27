@@ -277,7 +277,7 @@ public class ParseFinalFolderWorker extends LoggingWorker {
                 String fileExtension = SupportedFilesHelper.getFileExtension(f1);
                 String mimeType = SupportedFilesHelper.getMimeType(f1);
                 myLogD("* Checking File : [" + fileExtension + "] . [" + fileName + "] - mime = [" + mimeType + "] - subfolder : [" + recursivFolder + "]");
-                if (SupportedFilesHelper.getType(f1).equals(SupportedFilesHelper.FILE_TYPE_AUDIO)) {
+                if (SupportedFilesHelper.isAudio(f1)) {
                     nbFileScan = nbFileScan + 1;
                     l_audioFilePath = recursivFolder + f1.getName();
                     l_audioSize = f1.length();
@@ -290,9 +290,9 @@ public class ParseFinalFolderWorker extends LoggingWorker {
                     TaskStateManager.tellProgress(TASK_NAME, scaledProgress, context.getString(R.string.scanning_tracks) + "..... \n[" +  l_audioFilePath + ']');
                     audioFileArrayList.add(new AudioFileInfo(l_audioFilePath, duration, f1.getUri().toString()));
                     fullFolderSize = fullFolderSize + l_audioSize;
-                } else if (SupportedFilesHelper.getType(f1).equals(SupportedFilesHelper.FILE_TYPE_VIDEO)) {
+                } else if (SupportedFilesHelper.isVideo(f1)) {
                     myLog("Video");
-                } else if (!hadImageBefore && (SupportedFilesHelper.getType(f1).equals(SupportedFilesHelper.FILE_TYPE_IMAGE))) {
+                } else if (!hadImageBefore && SupportedFilesHelper.isImage(f1)) {
                     long imageSize = f1.length();
                     if (bookState.imagePath == null || imageSize > UriHelper.getSize(context, Uri.parse(bookState.imagePath))) {
                         myLogD("New biggest Picture Found, size = [" + Tonio.formatMemPadding(imageSize) + "] - [" + f1.getUri() + "]");
@@ -340,7 +340,7 @@ public class ParseFinalFolderWorker extends LoggingWorker {
                 String fileExtension = SupportedFilesHelper.getFileExtension(f1);
                 String mimeType = SupportedFilesHelper.getMimeType(f1);
                 myLogD("* Checking File (TEXT): [" + fileExtension + "] . [" + fileName + "] - mime = [" + mimeType + "] - subfolder : [" + recursiveFolder + "]");
-                if (SupportedFilesHelper.getType(f1).equals(SupportedFilesHelper.SPECIAL_TYPE_TXT)) {
+                if (SupportedFilesHelper.isText(f1)) {
                     nbFileScan++;
                     String displayPath = recursiveFolder + fileName;
                     long size = f1.length();
@@ -355,7 +355,7 @@ public class ParseFinalFolderWorker extends LoggingWorker {
                     int scaledProgress = 10 + (int) ((80 - 10) * progress);
                     TaskStateManager.tellProgress(TASK_NAME, scaledProgress,
                             context.getString(R.string.scanning_tracks) + "..... \n[" + displayPath + ']');
-                } else if (!hadImageBefore && (SupportedFilesHelper.getType(f1).equals(SupportedFilesHelper.FILE_TYPE_IMAGE))) {
+                } else if (!hadImageBefore && (SupportedFilesHelper.isImage(f1))) {
                     long imageSize = f1.length();
                     if (bookState.imagePath == null || imageSize > UriHelper.getSize(context, Uri.parse(bookState.imagePath))) {
                         myLogD("New biggest Picture Found, size = [" + Tonio.formatMemPadding(imageSize) + "] - [" + f1.getUri() + "]");

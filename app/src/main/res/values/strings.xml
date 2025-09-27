@@ -152,17 +152,6 @@
     Everything is handled automatically — unpacking, adding, and making it available for playback.
     ]]></string>
 
-    <string name="help_tts_title">Text-To-Speech :</string>
-    <string name="help_tts_text"><![CDATA[
-    <font color="#BA68C8"><b>Listen to Text with Synthetic Voices</b></font>
-    <br><br>
-    Ebooks or <font color="#90D8E8">text documents</font> can also be loaded as <font color="#BA68C8">audiobooks</font>.
-    <br><br>
-    BookPlayer will use the device’s <font color="#81C784">built-in voices</font> to read the text aloud.
-    <br><br>
-    This is a relatively <font color="#FFCC80">new feature</font> — please be gentle and share your feedback.
-]]></string>
-
         <string name="help_memory_cleaning_title">Memory Cleaning :</string>
         <string name="help_memory_cleaning_text"><![CDATA[
     <font color="#BA68C8"><b>Manage Internal Storage</b></font>
@@ -845,7 +834,7 @@
     <string name="could_not_identify_folder_to_modify">could not identify folder to modify</string>
 
     <string name="option_automotive_title">Automotive</string>
-    <string name="option_automotive_on">Connect to Android Auto.</string>
+    <string name="option_automotive_on">Display in Android Auto.</string>
     <string name="option_automotive_auto_resume_on_car_connect">Auto-resume playback when connected to the car.</string>
     <string name="option_automotive_keep_phone_playback_on_car_connect">Keep phone playing when connected to the car.</string>
     <string name="automotive_no_item_in_bookplayer">No items. Open BookPlayer on your phone and import a book.</string>
@@ -856,6 +845,16 @@
     <string name="average_rating">average rating</string>
 
 
+    <string name="help_tts_title">Text-To-Speech :</string>
+    <string name="help_tts_text"><![CDATA[
+    <font color="#BA68C8"><b>Listen to Text with Synthetic Voices</b></font>
+    <br><br>
+    Ebooks or <font color="#90D8E8">text documents</font> can also be loaded as <font color="#BA68C8">audiobooks</font>.
+    <br><br>
+    BookPlayer will use the device’s <font color="#81C784">built-in voices</font> to read the text aloud.
+    <br><br>
+    This is a relatively <font color="#FFCC80">new feature</font> — please be gentle and share your feedback.
+]]></string>
 
 
 </resources>

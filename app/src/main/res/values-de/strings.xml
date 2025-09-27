@@ -818,5 +818,19 @@ Sind Sie sicher?"</string>
     <string name="Text">Text</string>
     <string name="Bundle">Archivdatei</string>
 
+    <string name="could_not_identify_track_to_modify">Titel zum Ändern konnte nicht identifiziert werden</string>
+    <string name="could_not_identify_folder_to_modify">Ordner zum Ändern konnte nicht identifiziert werden</string>
+
+    <string name="option_automotive_title">Automobil</string>
+    <string name="option_automotive_on">Mit Android Auto verbinden.</string>
+    <string name="option_automotive_auto_resume_on_car_connect">Wiedergabe automatisch fortsetzen, wenn mit dem Auto verbunden.</string>
+    <string name="option_automotive_keep_phone_playback_on_car_connect">Wiedergabe auf dem Telefon beibehalten, wenn mit dem Auto verbunden.</string>
+    <string name="automotive_no_item_in_bookplayer">Keine Elemente. Öffnen Sie BookPlayer auf Ihrem Telefon und importieren Sie ein Buch.</string>
+    <string name="automotive_empty_book">Leeres Buch</string>
+    <string name="automotive_resume_play">Wiedergabe fortsetzen</string>
+    <string name="nb_of_audios_found">Anzahl gefundener Audiodateien</string>
+    <string name="reviews">Bewertungen</string>
+    <string name="average_rating">Durchschnittsbewertung</string>
+
 
 </resources>

@@ -832,4 +832,20 @@
     <string name="Text">Testo</string>
     <string name="Bundle">Bundle</string> <!-- means compressed file like zip -->
 
+    <string name="could_not_identify_track_to_modify">impossibile identificare la traccia da modificare</string>
+    <string name="could_not_identify_folder_to_modify">impossibile identificare la cartella da modificare</string>
+
+    <string name="option_automotive_title">Automobile</string>
+    <string name="option_automotive_on">Connettersi ad Android Auto.</string>
+    <string name="option_automotive_auto_resume_on_car_connect">Riprendere automaticamente la riproduzione quando si collega all\'auto.</string>
+    <string name="option_automotive_keep_phone_playback_on_car_connect">Mantenere la riproduzione sul telefono quando si collega all\'auto.</string>
+    <string name="automotive_no_item_in_bookplayer">Nessun elemento. Apri BookPlayer sul tuo telefono e importa un libro.</string>
+    <string name="automotive_empty_book">Libro vuoto</string>
+    <string name="automotive_resume_play">Riprendi riproduzione</string>
+    <string name="nb_of_audios_found">N. di audio trovati</string>
+    <string name="reviews">recensioni</string>
+    <string name="average_rating">valutazione media</string>
+
+
+
 </resources>
