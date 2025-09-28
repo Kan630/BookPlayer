@@ -20,7 +20,6 @@ public class TaskStateManager {
 
     private static String titleUI = "initializing";
     private static int totalWeight = 0;
-    private static LoadBookTaskState cachedState = null;
 
     static class StepInfo {
         public final int order;
@@ -55,17 +54,12 @@ public class TaskStateManager {
             state.currentOperation = "initialization";
             Pref.setLoadBookTaskState(state);
 
-            // Repo updates
             String title = state.title != null ? state.title : "";
-            TaskStateRepository.get().start(title);
-            TaskStateRepository.get().setCurrentOperation("initialization");
-            boolean httpLike = (state.originalUri != null) &&
-                    String.valueOf(state.originalUri).startsWith("http");
-            TaskStateRepository.get().setPauseAvailable(httpLike);
-            TaskStateRepository.get().setPaused(false);
+            boolean httpLike = (state.originalUri != null) && String.valueOf(state.originalUri).startsWith("http");
+
+            TaskStateRepository.get().start(title, "initialization", httpLike, false);
 
             // reset cached calculations for a fresh run
-            cachedState = state;
             totalWeight = 0;
             titleUI = "initializing";
         } else {
@@ -83,7 +77,7 @@ public class TaskStateManager {
 
     // ---- Markers that also persist sticky state in Pref ----
 
-    public static void markDownloadResuming(Context context) {
+    public static void markDownloadResuming() {
         LoadBookTaskState state = Pref.getLoadBookTaskState();
         String currentOperation = "Download resuming";
         if (state != null) {
@@ -91,9 +85,7 @@ public class TaskStateManager {
             state.currentOperation = currentOperation;
             Pref.setLoadBookTaskState(state);
         }
-        TaskStateRepository.get().setPaused(false);
-        TaskStateRepository.get().setCurrentOperation(currentOperation);
-        TaskStateRepository.get().setProgressText(currentOperation);
+        TaskStateRepository.get().resuming(currentOperation);
     }
 
     public static void markDownloadCompleted(String taskName, String downloadedFileFullPath) {
@@ -108,9 +100,7 @@ public class TaskStateManager {
         } else {
             myLogEE(null, "markDownloadCompleted - state == null");
         }
-        TaskStateRepository.get().setCurrentOperation(currentOperation);
-        TaskStateRepository.get().setPauseAvailable(false);
-        TaskStateRepository.get().setPaused(false);
+        TaskStateRepository.get().downloadComplete(currentOperation);
     }
 
     public static void markUnzipCompleted(String taskName, String destinationFolderPath) {
@@ -148,8 +138,8 @@ public class TaskStateManager {
 
     // ---- Progress / pause / cancel / fail ----
 
-    public static void markDownloadProgress(Context context, String taskName, int percent, String text) {
-        updateTaskProgress(context, percent, text, "Downloading", false);
+    public static void markDownloadProgress(String taskName, int percent, String text) {
+        updateTaskProgress(percent, text, "Downloading", false);
         tellProgress(taskName, percent, text);
     }
 
@@ -159,13 +149,10 @@ public class TaskStateManager {
             state.currentOperation = whyPaused;
             state.isLoadingPaused = true;
             Pref.setLoadBookTaskState(state);
-            tellWarning(whyPaused);
-            TaskStateRepository.get().setPaused(true);
-            TaskStateRepository.get().setCurrentOperation(whyPaused);
-            TaskStateRepository.get().setProgressText(whyPaused);
         } else {
             myLogEE(null, "markTaskPaused - No valid LoadBookTaskState found - " + whyPaused);
         }
+        TaskStateRepository.get().pausedWithReason(whyPaused);
     }
 
     public static void markTaskCancelled(String taskName) {
@@ -175,11 +162,10 @@ public class TaskStateManager {
             state.currentOperation = currentOperation;
             state.onGoingLoading = false;
             Pref.setLoadBookTaskState(state);
-            tellError(currentOperation);
         } else {
             myLogEE(null, "markTaskCancelled - No valid LoadBookTaskState found - " + currentOperation);
         }
-        TaskStateRepository.get().error(currentOperation);
+        tellError(currentOperation);
     }
 
     public static void markTaskFailed(String taskName, String errorText) {
@@ -219,14 +205,16 @@ public class TaskStateManager {
         TaskStateRepository.get().warning(warningText);
     }
 
+    // -------------------------------------------
+    // ---- Internals ----
+    // -------------------------------------------
+
     private static void tellError(String errorText) { // keep private: always go through markTaskFailed/cancelled
         myLogE("Error: " + errorText);
         TaskStateRepository.get().error(errorText);
     }
 
-    // ---- Internals ----
-
-    private static void updateTaskProgress(Context context, int percent, String progressText, String phase, boolean isLoadingPaused) {
+    private static void updateTaskProgress(int percent, String progressText, String phase, boolean isLoadingPaused) {
         LoadBookTaskState state = Pref.getLoadBookTaskState();
         if (state != null) {
             state.progressPercent = percent;
@@ -235,7 +223,6 @@ public class TaskStateManager {
             state.currentOperation = phase;
             state.isLoadingPaused = isLoadingPaused;
             Pref.setLoadBookTaskState(state);
-            cachedState = state; // keep cache fresh
         }
     }
 
@@ -264,22 +251,12 @@ public class TaskStateManager {
         totalWeight += stepMap.get(Var.WORKER_TASK_LABEL_SCAN).weight; // Always run
         return totalWeight;
     }
-    private static LoadBookTaskState getCachedState() {
-        /*
-        if (cachedState == null) {
-            myLogD("reload cachedState");
-            cachedState = Pref.getLoadBookTaskState();
-        }
-        return cachedState;
-         */
-        return Pref.getLoadBookTaskState();
-    }
 
     private static int getRealProgress(String taskName, int percent) {
         int totalWeight = getTotalWeight();
         if (totalWeight == 0) return 0;
 
-        LoadBookTaskState state = getCachedState();
+        LoadBookTaskState state = Pref.getLoadBookTaskState();
         if (state == null) return 0;
 
         int accumulatedWeight = 0;

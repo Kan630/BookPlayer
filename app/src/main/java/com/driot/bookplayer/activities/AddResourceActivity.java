@@ -1,4 +1,3 @@
-// com/driot/bookplayer/activities/AddResourceActivity.java
 package com.driot.bookplayer.activities;
 
 import android.app.Activity;
@@ -11,6 +10,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.core.content.ContextCompat;
+import androidx.core.widget.NestedScrollView;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.driot.bookplayer.R;
@@ -30,6 +30,7 @@ public class AddResourceActivity extends LoggingActivity {
     private TextView progressBarText;
     private ProgressBar progressBar;
     private TextView tvErrorText, tvWarning;
+    NestedScrollView warningScroll;
 
     private Button bPauseResume;
     private Button bCancel;
@@ -38,6 +39,7 @@ public class AddResourceActivity extends LoggingActivity {
     private Runnable delayedFinishRunnable;
 
     private OngoingTaskViewModel viewModel;   // keep reference
+    private boolean didClose = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +52,7 @@ public class AddResourceActivity extends LoggingActivity {
         progressBar = findViewById(R.id.progressBar);
         tvErrorText = findViewById(R.id.errorText);
         tvWarning = findViewById(R.id.warningText);
+        warningScroll = findViewById(R.id.warningScroll);
 
         bCancel = findViewById(R.id.bCancel);
         bCancel.setText(getString(R.string.Cancel));
@@ -69,15 +72,22 @@ public class AddResourceActivity extends LoggingActivity {
         viewModel.getTaskTitle().observe(this, title -> tvTitle.setText(title));
         viewModel.getProgressText().observe(this, text -> progressBarText.setText(text));
         viewModel.getProgressPercent().observe(this, percent -> progressBar.setProgress(percent));
-        viewModel.getWarningText().observe(this, warningText -> tvWarning.setText(warningText));
+        viewModel.getWarningText().observe(this, warningText -> {
+            tvWarning.setText(warningText);
+            warningScroll.post(() -> warningScroll.fullScroll(View.FOCUS_DOWN));
+        });
         viewModel.getErrorText().observe(this, errorText -> tvErrorText.setText(errorText));
 
         viewModel.isPauseAvailable().observe(this, available -> {
             bPauseResume.setVisibility(Boolean.TRUE.equals(available) ? View.VISIBLE : View.GONE);
-            if (Boolean.TRUE.equals(available) && progressBarText.getText().length() == 0) {
-                progressBarText.setText(getString(R.string.About_to_start_download));
-            }
-        });
+            if (Boolean.TRUE.equals(available)) {
+                boolean pausedNow = Boolean.TRUE.equals(viewModel.isPaused().getValue());
+                bPauseResume.setText(getString(pausedNow ? R.string.Resume : R.string.Pause));
+
+                if (progressBarText.getText().length() == 0) {
+                    progressBarText.setText(getString(R.string.About_to_start_download));
+                }
+            }        });
 
         viewModel.isPaused().observe(this, paused -> {
             if (bPauseResume.getVisibility() == View.VISIBLE) {
@@ -86,8 +96,12 @@ public class AddResourceActivity extends LoggingActivity {
         });
 
         viewModel.isFinished().observe(this, finished -> {
+            myLog("isFinished = " + finished);
             if (Boolean.TRUE.equals(finished)) {
-                checkAndClose();
+                if (!didClose) {
+                    didClose = true;
+                    checkAndClose();
+                }
             }
         });
 
@@ -96,8 +110,8 @@ public class AddResourceActivity extends LoggingActivity {
 
     private void performPauseOrResume() {
         // Keep your existing service control; the VM/repo only reflects state.
-        boolean isPauseLabel = bPauseResume.getText().toString().contentEquals(getString(R.string.Pause));
-        if (isPauseLabel) {
+        boolean isPausedNow = Boolean.TRUE.equals(viewModel.isPaused().getValue());
+        if (!isPausedNow) {
             myLogI("------ USER CLICKS btn PAUSE ----");
             ContextCompat.startForegroundService(
                     this,
@@ -117,32 +131,53 @@ public class AddResourceActivity extends LoggingActivity {
     private void performCancel() {
         myLogI("------ USER CLICKS btn CANCEL ----");
         WorkFlow.cancelAllOngoingTasks(this);
-        TaskStateRepository.get().resetToIdle();
-        finish();
+        enterExitMode();
     }
 
     private void checkAndClose() {
-        myLogD("Set Activity result OK");
+        myLog("checkAndClose");
+        enterExitMode();
+
+        String err  = viewModel.getErrorText().getValue();
+        String warn = viewModel.getWarningText().getValue();
+
         AddResourceActivity.this.setResult(Activity.RESULT_OK);
         bCancel.setText(getString(R.string.Exit));
 
-        if (tvErrorText.getText().length() > 0) {
+        if (err != null && !err.isEmpty()) {
             myToast(getString(R.string.Import_failed));
-        } else if (tvWarning.getText().length() > 0) {
-            myToast(getString(R.string.Import_finished_with_errors));
-        } else {
-            delayedFinishHandler = new Handler();
-            delayedFinishRunnable = () -> {
-                myToast(getString(R.string.Import_Success) + "\n" + tvTitle.getText());
-                WorkFlow.cancelAllOngoingTasks(this);
-                Intent mainIntent = new Intent(this, MainActivity.class);
-                mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(mainIntent);
-                finish();
-            };
-            myLog("Let's wait some " + DELAY_END_WAIT_NO_ERROR / 1000 + " sec to display finish...");
-            delayedFinishHandler.postDelayed(delayedFinishRunnable, DELAY_END_WAIT_NO_ERROR);
+            return;
         }
+        if (warn != null && !warn.isEmpty()) {
+            myToast(getString(R.string.Import_finished_with_errors));
+            return;
+        }
+
+        // Success path
+        delayedFinishHandler = new Handler();
+        delayedFinishRunnable = () -> {
+            myToast(getString(R.string.Import_Success) + "\n" + tvTitle.getText());
+            WorkFlow.cancelAllOngoingTasks(this);
+            Intent mainIntent = new Intent(this, MainActivity.class);
+            mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(mainIntent);
+            finish();
+        };
+        myLog("Let's wait some " + DELAY_END_WAIT_NO_ERROR / 1000 + " sec to display finish...");
+        delayedFinishHandler.postDelayed(delayedFinishRunnable, DELAY_END_WAIT_NO_ERROR);
+    }
+    private void enterExitMode() {
+        // Hide pause, turn Cancel into Exit, and wire it to finish()
+        bPauseResume.setVisibility(View.GONE);
+        bCancel.setText(getString(R.string.Exit));
+        bCancel.setOnClickListener(v -> {
+            myLogI("------ USER CLICKS btn EXIT ----");
+            if (delayedFinishHandler != null && delayedFinishRunnable != null) {
+                delayedFinishHandler.removeCallbacks(delayedFinishRunnable);
+            }
+            TaskStateRepository.get().resetToIdle();
+            finish();
+        });
     }
 
     @Override

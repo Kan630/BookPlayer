@@ -856,5 +856,22 @@
     This is a relatively <font color="#FFCC80">new feature</font> — please be gentle and share your feedback.
 ]]></string>
 
+    <string name="pause_following_error">pause following error</string>
+    <string name="failed_to_create_destination_folder">Failed to create destination folder</string>
+    <string name="server_returned_http">Server returned HTTP</string>
+    <string name="Pause_wait_interrupted">Paused wait interrupted</string>
+    <string name="download_cancelled_during_execution">Download cancelled during execution</string>
+    <string name="connection_aborted">Connection aborted</string>
+    <string name="io_error">IO error</string>
+    <string name="unexpected_error">Unexpected error</string>
+    <string name="starting_download">Starting download…</string>
+
+
+
+
+
+
+
+
 
 </resources>

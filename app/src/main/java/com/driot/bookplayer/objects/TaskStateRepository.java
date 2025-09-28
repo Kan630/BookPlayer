@@ -1,7 +1,6 @@
 package com.driot.bookplayer.objects;
 
 import android.os.Looper;
-import android.os.Handler;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
@@ -16,9 +15,6 @@ public final class TaskStateRepository {
     public static TaskStateRepository get() { return INSTANCE; }
 
     private final MutableLiveData<TaskUiState> live = new MutableLiveData<>(TaskUiState.idle());
-    private final Handler main = new Handler(Looper.getMainLooper());
-
-    private final java.util.concurrent.atomic.AtomicBoolean acceptLate = new java.util.concurrent.atomic.AtomicBoolean(true);
 
     private TaskStateRepository() { }
 
@@ -41,10 +37,18 @@ public final class TaskStateRepository {
         bootstrapped = true;
     }
 
-    public void start(@NonNull String title) {
-        acceptLate.set(true);
+    public void start(@NonNull String title, String currentOperation, boolean pauseAvailable, boolean isLoadingPaused) {
         TaskUiState cur = s();
-        post(cur.running ? cur.forceRunningWithTitle(title) : TaskUiState.idle().started(title));
+        if (cur.running) {
+            TaskUiState next = cur
+            .forceRunningWithTitle(title)
+                    .setPauseAvailable(pauseAvailable)
+                    .setPaused(isLoadingPaused)
+                    .withProgressTextOnly(currentOperation);
+                    ;
+        } else {
+            TaskUiState.idle().started(title);
+        }
     }
 
     public void setCurrentOperation(@NonNull String op) {
@@ -71,19 +75,45 @@ public final class TaskStateRepository {
     public void setPauseAvailable(boolean available) { post(s().setPauseAvailable(available)); }
     public void setPaused(boolean paused) { post(s().setPaused(paused)); }
 
-    public void warning(@NonNull String w) { post(s().withWarning(w)); }
+    public void warning(@NonNull String w) {
+        post(s().withWarning(w));
+    }
+    public void pausedWithReason(@NonNull String reason) {
+        // Build next from the *current* state once, then post once.
+        TaskUiState cur = s();
+        TaskUiState next = cur
+                .setPaused(true)
+                .withWarning(reason)
+                .withProgressTextOnly(reason);
+        post(next);
+    }
+
+    public void resuming(@NonNull String text) {
+        TaskUiState cur = s();
+        TaskUiState next = cur
+                .setPaused(false)
+                .withProgressTextOnly(text);
+        post(next);
+    }
+
+    public void downloadComplete(@NonNull String currentOperation) {
+        TaskUiState cur = s();
+        TaskUiState next = cur
+                .setPaused(false)
+                .setPauseAvailable(false)
+                .withProgressTextOnly(currentOperation);
+        post(next);
+    }
+
     public void finish() {
-        acceptLate.set(false);
         post(s().finished());
     }
 
     public void error(@NonNull String message) {
-        acceptLate.set(false);
         post(s().failed(message));
     }
 
     public void resetToIdle() {
-        acceptLate.set(false);
         post(TaskUiState.idle());
     }
 

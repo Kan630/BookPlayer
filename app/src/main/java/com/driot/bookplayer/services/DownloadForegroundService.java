@@ -64,12 +64,14 @@ public class DownloadForegroundService extends LoggingService {
     private boolean pauseForPolicy = false;
     private volatile boolean isPaused = false;
     private volatile boolean isCancelled = false;
+    private volatile boolean weAlreadyMarkPause = false;
     private Thread downloadThread;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        startForeground(NOTIF_ID, buildNotification("Starting download…"));
+        startForeground(NOTIF_ID, buildNotification(getString(R.string.starting_download)));
         myLogD("onStartCommand ... " + intent);
+        weAlreadyMarkPause = false;
 
         LoadBookTaskState state = Pref.getLoadBookTaskState();
         if (state == null ) {
@@ -109,9 +111,8 @@ public class DownloadForegroundService extends LoggingService {
          */
 
         if (ACTION_PAUSE.equals(action)) {
-            isPaused = true;
             updateNotification(lastPercentProgress, getString(R.string.Download_paused_by_user));
-            TaskStateManager.tellProgressText(currrentProgressStatText + "   " + getString(R.string.Download_paused_by_user));
+            TellHimWhyPause(getString(R.string.Download_paused_by_user));
             return START_NOT_STICKY;
         } else if (ACTION_CANCEL.equals(action)) {
             isCancelled = true;
@@ -125,13 +126,14 @@ public class DownloadForegroundService extends LoggingService {
             } else {
                 myLogE("ACTION_CANCEL and fileUrl == null");
             }
+            TaskStateManager.markTaskCancelled(TASK_NAME);
             sendBroadcast(new Intent(DownloadRetryWorker.ACTION_DOWNLOAD_CANCELLED).setPackage(getPackageName()));
             stopForeground(true);
             stopSelf();
             return START_NOT_STICKY;
         } else if (ACTION_RESUME.equals(action)) {
             isPaused = false;
-            TaskStateManager.markDownloadResuming(this);
+            TaskStateManager.markDownloadResuming();
         }
 
         if (downloadThread != null && downloadThread.isAlive()) {
@@ -163,8 +165,8 @@ public class DownloadForegroundService extends LoggingService {
                 String errorMsg = getString(R.string.Download_failed);
                 myLogE(errorMsg);
 
-            } else if (isPaused) {
-                TaskStateManager.markTaskPaused("pause following error");
+            } else if (isPaused && !weAlreadyMarkPause) {
+                TaskStateManager.markTaskPaused(getString(R.string.pause_following_error));
             }
         });
 
@@ -185,7 +187,7 @@ public class DownloadForegroundService extends LoggingService {
 
         try {
             if (!NetworkUtils.isNetworkAvailable(this)) {
-                TellHimWhyPause("No internet connection");
+                TellHimWhyPause(getString(R.string.no_internet_connection));
                 return false;
             }
 
@@ -224,7 +226,7 @@ public class DownloadForegroundService extends LoggingService {
                 myLogW("Creating parent folder: " + parentFolder.getAbsolutePath());
                 boolean created = parentFolder.mkdirs();
                 if (!created) {
-                    TellHimWhyCancel("Failed to create destination folder: " + parentFolder.getAbsolutePath());
+                    TellHimWhyCancel(getString(R.string.failed_to_create_destination_folder) + ": " + parentFolder.getAbsolutePath());
                     return false;
                 }
             }
@@ -243,7 +245,7 @@ public class DownloadForegroundService extends LoggingService {
 
             if ((connection.getResponseCode() != HttpURLConnection.HTTP_OK) &&
                     (connection.getResponseCode() != HttpURLConnection.HTTP_PARTIAL)) {
-                String errTxt = "Server returned HTTP " + connection.getResponseCode();
+                String errTxt = getString(R.string.server_returned_http) + " " + connection.getResponseCode();
                 myLogE(errTxt + " - " + connection.getResponseMessage());
                 TellHimWhyCancel(errTxt);
             }
@@ -262,13 +264,13 @@ public class DownloadForegroundService extends LoggingService {
                         Thread.sleep(300);
                     } catch (InterruptedException e) {
                         myLogEE(e, "Paused wait interrupted");
-                        TellHimWhyCancel("Paused wait interrupted");
+                        TellHimWhyCancel(getString(R.string.Pause_wait_interrupted));
                     }
                 }
 
                 if (isCancelled) {
                     myLogW("Download cancelled during execution");
-                    TellHimWhyCancel("Download cancelled during execution");
+                    TellHimWhyCancel(getString(R.string.download_cancelled_during_execution));
                     return false;
                 }
 
@@ -279,7 +281,7 @@ public class DownloadForegroundService extends LoggingService {
                     int progress = (int) (total * 100 / fileLength);
                     if (System.currentTimeMillis() - lastUpdateTime > MIN_UPDATE_INTERVAL || progress == 100) {
                         currrentProgressStatText = formatSizeMB(total) + " / " + formatSizeMB(fileLength);
-                        TaskStateManager.markDownloadProgress(this, TASK_NAME, progress, currrentProgressStatText);
+                        TaskStateManager.markDownloadProgress(TASK_NAME, progress, currrentProgressStatText);
                         updateNotification(progress, currrentProgressStatText);
                         if (lastPercentProgress != progress) {
                             myLogD("tellProgress : " + progress + " - " + currrentProgressStatText);
@@ -296,23 +298,22 @@ public class DownloadForegroundService extends LoggingService {
             return true;
 
         } catch (UnknownHostException e) {
-            TellHimWhyPause("No internet connection");
+            TellHimWhyPause(getString(R.string.no_internet_connection));
             myLogE("No internet connection [" + e.getMessage() + "]");
             return false;
         } catch (SocketException e) {
             isPaused = true;
-            TellHimWhyPause("Connection aborted");
+            TellHimWhyPause(getString(R.string.connection_aborted));
             myLogE("Connection aborted [" + e.getMessage() + "]");
             return false;
         } catch (IOException e) {
             isPaused = true;
+            TellHimWhyPause(getString(R.string.io_error) + " [" + e.getMessage() + "]");
             myLogE("IO error [" + e.getMessage() + "]");
-            TellHimWhyPause("IO error [" + e.getMessage() + "]");
             return false;
         } catch (Exception e) {
+            TellHimWhyCancel(getString(R.string.unexpected_error) + " [" + e.getMessage() + "]");
             myLogEE(e,"Unexpected error");
-            TellHimWhyCancel("Unexpected error [" + e.getMessage() + "]");
-            e.printStackTrace();
             cancelDownloadNotification();
             return false;
         } finally {
@@ -363,15 +364,13 @@ public class DownloadForegroundService extends LoggingService {
     }
 
     private void createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel(
-                    CHANNEL_ID,
-                    "Download Channel",
-                    NotificationManager.IMPORTANCE_LOW);
-            NotificationManager manager = getSystemService(NotificationManager.class);
-            if (manager != null) {
-                manager.createNotificationChannel(channel);
-            }
+        NotificationChannel channel = new NotificationChannel(
+                CHANNEL_ID,
+                "Download Channel",
+                NotificationManager.IMPORTANCE_LOW);
+        NotificationManager manager = getSystemService(NotificationManager.class);
+        if (manager != null) {
+            manager.createNotificationChannel(channel);
         }
     }
 
@@ -383,13 +382,12 @@ public class DownloadForegroundService extends LoggingService {
 
     private void TellHimWhyPause(String whyPause) {
         isPaused = true;
-        myLogE(whyPause);
+        weAlreadyMarkPause = true;
         TaskStateManager.markTaskPaused(whyPause);
     }
 
     private void TellHimWhyCancel(String whyCancel) {
         isCancelled = true;
-        myLogE(whyCancel);
         TaskStateManager.markTaskFailed("download", whyCancel);
     }
 

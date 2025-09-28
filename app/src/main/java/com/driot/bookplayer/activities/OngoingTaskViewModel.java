@@ -18,8 +18,8 @@ public class OngoingTaskViewModel extends LoggingAndroidViewModel {
     private final MediatorLiveData<Integer> progressPct   = new MediatorLiveData<>();
     private final MediatorLiveData<Boolean> running       = new MediatorLiveData<>();
     private final MediatorLiveData<Boolean> finished      = new MediatorLiveData<>();
-    private final MediatorLiveData<Boolean> pauseAvail    = new MediatorLiveData<>();   // NEW
-    private final MediatorLiveData<Boolean> paused        = new MediatorLiveData<>();   // NEW
+    private final MediatorLiveData<Boolean> pauseAvail    = new MediatorLiveData<>();
+    private final MediatorLiveData<Boolean> paused        = new MediatorLiveData<>();
     private final MediatorLiveData<String>  warningText   = new MediatorLiveData<>();
     private final MediatorLiveData<String>  errorText     = new MediatorLiveData<>();
 
@@ -30,11 +30,11 @@ public class OngoingTaskViewModel extends LoggingAndroidViewModel {
         progressText.setValue("");
         progressPct.setValue(0);
         running.setValue(false);
-        finished.setValue(false);
         pauseAvail.setValue(false);
         paused.setValue(false);
         warningText.setValue(null);
         errorText.setValue(null);
+        finished.setValue(false);
 
         taskTitle.addSource(TaskStateRepository.get().state(), this::map);
     }
@@ -45,11 +45,11 @@ public class OngoingTaskViewModel extends LoggingAndroidViewModel {
         progressText.setValue(s.progressText == null ? "" : s.progressText);
         progressPct.setValue(s.progressPercent);
         running.setValue(s.running);
-        finished.setValue(s.finished);
         pauseAvail.setValue(s.pauseAvailable);
         paused.setValue(s.paused);
         warningText.setValue(s.warningText);
         errorText.setValue(s.errorText);
+        finished.setValue(s.finished);
     }
 
     public LiveData<String>  getTaskTitle()       { return taskTitle; }
@@ -57,10 +57,9 @@ public class OngoingTaskViewModel extends LoggingAndroidViewModel {
     public LiveData<Integer> getProgressPercent() { return progressPct; }
     public LiveData<Boolean> isTaskRunning()      { return running; }
     public LiveData<Boolean> isFinished()         { return finished; }
-    public LiveData<Boolean> isPauseAvailable()   { return pauseAvail; }  // NEW
-    public LiveData<Boolean> isPaused()           { return paused; }      // NEW
+    public LiveData<Boolean> isPauseAvailable()   { return pauseAvail; }
+    public LiveData<Boolean> isPaused()           { return paused; }
     public LiveData<String>  getWarningText()     { return warningText; }
     public LiveData<String>  getErrorText()       { return errorText; }
 
-    // NOTE: no more reinit(); repository is the single source of truth.
 }

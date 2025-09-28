@@ -3,11 +3,13 @@ package com.driot.bookplayer.objects;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.driot.bookplayer.utils.KanLogger;
+
 public final class TaskUiState {
     public final boolean running;
     public final boolean paused;
     public final boolean finished;
-    public final boolean pauseAvailable;          // NEW
+    public final boolean pauseAvailable;
 
     @NonNull public final String title;
     @NonNull public final String progressText;
@@ -86,15 +88,25 @@ public final class TaskUiState {
     }
 
     public TaskUiState failed(String error) {
+        myLogI("failed " + error);
         return new TaskUiState(false, false, true, false,
                 this.title, "Import failed", 100, this.warningText, nonNull(error));
     }
 
     public TaskUiState finished() {
+        myLogI("finished");
         return new TaskUiState(false, false, true, false,
                 this.title, "Finished", 100, this.warningText, null);
     }
 
     private static String nonNull(String s) { return s == null ? "" : s; }
     private static int clamp(int p) { return Math.max(0, Math.min(100, p)); }
+
+
+    private static final String TAG = "TaskUiState";
+    private static void myLogD(String str) { KanLogger.myLogD(TAG, str); }
+    private static void myLogI(String str) { KanLogger.myLogI(TAG, str); }
+    private static void myLogW(String str) { KanLogger.myLogW(TAG, str); }
+    private static void myLogE(String str) { KanLogger.myLogE(TAG, str); }
+    private static void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, TAG, str); }
 }
