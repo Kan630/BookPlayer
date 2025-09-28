@@ -3,6 +3,7 @@ package com.driot.bookplayer.objects;
 import android.os.Looper;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -37,18 +38,22 @@ public final class TaskStateRepository {
         bootstrapped = true;
     }
 
-    public void start(@NonNull String title, String currentOperation, boolean pauseAvailable, boolean isLoadingPaused) {
-        TaskUiState cur = s();
-        if (cur.running) {
-            TaskUiState next = cur
-            .forceRunningWithTitle(title)
-                    .setPauseAvailable(pauseAvailable)
-                    .setPaused(isLoadingPaused)
-                    .withProgressTextOnly(currentOperation);
-                    ;
-        } else {
-            TaskUiState.idle().started(title);
-        }
+    public void start(@NonNull String title,
+                      @Nullable String currentOperation,
+                      boolean pauseAvailable,
+                      boolean isLoadingPaused) {
+
+        TaskUiState cur  = s();
+        TaskUiState base = cur.running
+                ? cur.forceRunningWithTitle(title)   // keeps progress, clears error
+                : TaskUiState.idle().started(title); // fresh
+
+        TaskUiState next = base
+                .setPauseAvailable(pauseAvailable)
+                .setPaused(isLoadingPaused)
+                .withProgressTextOnly(currentOperation == null ? "" : currentOperation);
+
+        post(next);
     }
 
     public void setCurrentOperation(@NonNull String op) {
