@@ -231,9 +231,9 @@ public class CarMediaService extends MediaBrowserServiceCompat {
         // 2) s’abonner aux mises à jour UI de l’AudioService
         LocalBroadcastManager.getInstance(this).registerReceiver(
                 uiReceiver, new IntentFilter(AudioService.ACTION_UI_STATE));
-        androidx.core.content.ContextCompat.startForegroundService(
-                this, new Intent(this, AudioService.class).setAction(AudioService.ACTION_PING_UI)
-        );
+        LocalBroadcastManager.getInstance(this)
+                .sendBroadcast(new Intent(AudioService.ACTION_PING_UI));
+        myLog("PING sent");
 
         // état initial neutre
         pushPlaybackState(PlaybackStateCompat.STATE_NONE, 0);

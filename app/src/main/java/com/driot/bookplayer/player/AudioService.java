@@ -57,6 +57,18 @@ public class AudioService extends LoggingService {
     };
     public LiveData<PlaybackUiState> getUiLive() { return uiLive; }
 
+    private final android.content.BroadcastReceiver pingReceiver = new android.content.BroadcastReceiver() {
+        @Override public void onReceive(android.content.Context ctx, android.content.Intent i) {
+            if (i == null) return;
+            if (ACTION_PING_UI.equals(i.getAction())) {
+                myLog("PING received");
+                // Respond immediately with the latest UI state
+                // (uses your existing snapshot/builder)
+                broadcastUiState();
+            }
+        }
+    };
+
     public static volatile boolean isRunning = false;
     private static final String ID_NOTIFICATION_PLAY_AUDIO_CHANNEL = "audio_channel_of_bookplayer";
     private static final int ID_NOTIFICATION_PLAY_AUDIO_INT = 2;
@@ -476,6 +488,11 @@ public class AudioService extends LoggingService {
                     @Override public void e(String m) { myLogE(m); }
                     @Override public void ee(Throwable t, String m) { myLogEE(t, m); }
                 });
+
+        LocalBroadcastManager.getInstance(this).registerReceiver(
+                pingReceiver,
+                new android.content.IntentFilter(ACTION_PING_UI)
+        );
 
         myLogD("onCreate() - END");
     }
