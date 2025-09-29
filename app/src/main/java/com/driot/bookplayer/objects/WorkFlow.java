@@ -118,7 +118,7 @@ public class WorkFlow {
                     myLogW("tried to delete a folder with bad length : [" + folderToDeletePath + "]");
                 }
             } else {
-                myLogW("tried to delete a folder with state=null");
+                myLogD("cleaning folder - state=null");
             }
         } catch (Exception e) {
             myLogEE(e, "cancelAllOngoingTasks - delete Internal (unzip) Folder");

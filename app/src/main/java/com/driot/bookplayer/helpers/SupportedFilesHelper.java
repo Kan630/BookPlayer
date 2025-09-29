@@ -35,7 +35,6 @@ public class SupportedFilesHelper {
 
     public static boolean isAudio(DocumentFile docFile) {
         String type = getType(docFile);
-        myLogI("isAudio " + type);
         return FILE_TYPE_AUDIO.equals(type);
     }
 
@@ -267,7 +266,7 @@ public class SupportedFilesHelper {
         String mimeType = typeFromMime(mime);
 
         if (extType != null && mimeType != null && !extType.equals(mimeType)) {
-            myLogEE(null, "(WARNING Mismatch) [" + ext + "] . [" + name + "] - mime = [" + mime + "]");
+            myLogEE(null, "(WARNING Mismatch) [" + extType + "] . [" + name + "] - mime = [" + mime + "]");
         }
 
         // Prefer MIME when available (SAF), else extension
@@ -284,7 +283,7 @@ public class SupportedFilesHelper {
         String mimeType = typeFromMime(mime);
 
         if (extType != null && mimeType != null && !extType.equals(mimeType)) {
-            myLogEE(null, "(WARNING Mismatch) [" + ext + "] . [" + name + "] - mime = [" + mime + "]");
+            myLogEE(null, "(WARNING Mismatch) [" + extType + "] . [" + name + "] - mime = [" + mime + "]");
         }
 
         return mimeType != null ? mimeType : extType;
