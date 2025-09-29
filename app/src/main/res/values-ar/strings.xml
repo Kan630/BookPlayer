@@ -825,4 +825,28 @@
 هذه <font color="#FFCC80">ميزة جديدة نسبيًا</font> — يرجى التحلي بالصبر ومشاركة ملاحظاتك.
 ]]></string>
 
+    <string name="pause_following_error">إيقاف مؤقت بسبب خطأ</string>
+    <string name="failed_to_create_destination_folder">فشل في إنشاء مجلد الوجهة</string>
+    <string name="server_returned_http">أعاد الخادم HTTP</string>
+    <string name="Pause_wait_interrupted">تمت مقاطعة الإيقاف المؤقت</string>
+    <string name="download_cancelled_during_execution">تم إلغاء التنزيل أثناء التنفيذ</string>
+    <string name="connection_aborted">تم قطع الاتصال</string>
+    <string name="io_error">خطأ إدخال/إخراج</string>
+    <string name="unexpected_error">خطأ غير متوقع</string>
+    <string name="starting_download">بدء التنزيل…</string>
+    <string name="No_chapters_found">لم يتم العثور على فصول</string>
+    <string name="Unsupported_ebook_type">نوع الكتاب الإلكتروني غير مدعوم</string>
+    <string name="download_stopped_by_system_will_retry">تم إيقاف التنزيل من قبل النظام — ستتم إعادة المحاولة</string>
+    <string name="download_resuming">استئناف التنزيل</string>
+    <string name="cancelled">أُلغي</string>
+    <string name="failed">فشل</string>
+    <string name="completed">مكتمل</string>
+    <string name="copy">نسخ</string>
+    <string name="importing_book">جارٍ استيراد الكتاب</string>
+    <string name="three_dots" translatable="false">…</string>
+    <string name="checking_size">جارٍ التحقق من الحجم</string>
+    <string name="error">خطأ</string>
+    <string name="initialization">تهيئة</string>
+
+
 </resources>

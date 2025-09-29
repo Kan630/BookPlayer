@@ -832,5 +832,28 @@ Sind Sie sicher?"</string>
     <string name="reviews">Bewertungen</string>
     <string name="average_rating">Durchschnittsbewertung</string>
 
+    <string name="pause_following_error">Pause nach Fehler</string>
+    <string name="failed_to_create_destination_folder">Zielordner konnte nicht erstellt werden</string>
+    <string name="server_returned_http">Server hat HTTP zurückgegeben</string>
+    <string name="Pause_wait_interrupted">Pause unterbrochen</string>
+    <string name="download_cancelled_during_execution">Download während der Ausführung abgebrochen</string>
+    <string name="connection_aborted">Verbindung abgebrochen</string>
+    <string name="io_error">E/A-Fehler</string>
+    <string name="unexpected_error">Unerwarteter Fehler</string>
+    <string name="starting_download">Download wird gestartet…</string>
+    <string name="No_chapters_found">Keine Kapitel gefunden</string>
+    <string name="Unsupported_ebook_type">Nicht unterstützter E-Book-Typ</string>
+    <string name="download_stopped_by_system_will_retry">Download vom System gestoppt — neuer Versuch</string>
+    <string name="download_resuming">Download wird fortgesetzt</string>
+    <string name="cancelled">Abgebrochen</string>
+    <string name="failed">Fehlgeschlagen</string>
+    <string name="completed">Abgeschlossen</string>
+    <string name="copy">kopieren</string>
+    <string name="importing_book">Buch wird importiert</string>
+    <string name="three_dots" translatable="false">…</string>
+    <string name="checking_size">Größe wird überprüft</string>
+    <string name="error">Fehler</string>
+    <string name="initialization">Initialisierung</string>
+
 
 </resources>

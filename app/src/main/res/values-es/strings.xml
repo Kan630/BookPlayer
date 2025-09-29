@@ -819,5 +819,30 @@ BookPlayer usará las <font color="#81C784">voces integradas del dispositivo</fo
 Esta es una <font color="#FFCC80">función relativamente nueva</font> — por favor sé indulgente y comparte tus comentarios.
 ]]></string>
 
+    <string name="pause_following_error">pausa tras error</string>
+    <string name="failed_to_create_destination_folder">Error al crear la carpeta de destino</string>
+    <string name="server_returned_http">El servidor devolvió HTTP</string>
+    <string name="Pause_wait_interrupted">Pausa interrumpida</string>
+    <string name="download_cancelled_during_execution">Descarga cancelada durante la ejecución</string>
+    <string name="connection_aborted">Conexión interrumpida</string>
+    <string name="io_error">Error de E/S</string>
+    <string name="unexpected_error">Error inesperado</string>
+    <string name="starting_download">Iniciando descarga…</string>
+    <string name="No_chapters_found">No se encontraron capítulos</string>
+    <string name="Unsupported_ebook_type">Tipo de libro electrónico no compatible</string>
+    <string name="download_stopped_by_system_will_retry">Descarga detenida por el sistema — se reintentará</string>
+    <string name="download_resuming">Reanudando descarga</string>
+    <string name="cancelled">Cancelado</string>
+    <string name="failed">Fallido</string>
+    <string name="completed">Completado</string>
+    <string name="copy">copiar</string>
+    <string name="importing_book">Importando libro</string>
+    <string name="three_dots" translatable="false">…</string>
+    <string name="checking_size">comprobando tamaño</string>
+    <string name="error">error</string>
+    <string name="initialization">inicialización</string>
+
+
+
 
 </resources>

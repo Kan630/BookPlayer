@@ -832,5 +832,28 @@ BookPlayer будет использовать <font color="#81C784">встро�
 Это <font color="#FFCC80">относительно новая функция</font> — пожалуйста, отнеситесь с пониманием и поделитесь отзывами.
 ]]></string>
 
+    <string name="pause_following_error">пауза из-за ошибки</string>
+    <string name="failed_to_create_destination_folder">Не удалось создать папку назначения</string>
+    <string name="server_returned_http">Сервер вернул HTTP</string>
+    <string name="Pause_wait_interrupted">Пауза прервана</string>
+    <string name="download_cancelled_during_execution">Загрузка отменена во время выполнения</string>
+    <string name="connection_aborted">Соединение прервано</string>
+    <string name="io_error">Ошибка ввода/вывода</string>
+    <string name="unexpected_error">Неожиданная ошибка</string>
+    <string name="starting_download">Начало загрузки…</string>
+    <string name="No_chapters_found">Главы не найдены</string>
+    <string name="Unsupported_ebook_type">Неподдерживаемый тип электронной книги</string>
+    <string name="download_stopped_by_system_will_retry">Загрузка остановлена системой — будет повторена</string>
+    <string name="download_resuming">Возобновление загрузки</string>
+    <string name="cancelled">Отменено</string>
+    <string name="failed">Не удалось</string>
+    <string name="completed">Завершено</string>
+    <string name="copy">копировать</string>
+    <string name="importing_book">Импорт книги</string>
+    <string name="three_dots" translatable="false">…</string>
+    <string name="checking_size">проверка размера</string>
+    <string name="error">ошибка</string>
+    <string name="initialization">инициализация</string>
+
 
 </resources>

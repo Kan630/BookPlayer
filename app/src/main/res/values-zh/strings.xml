@@ -827,6 +827,28 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
 这是一个 <font color="#FFCC80">相对较新的功能</font> — 请多多包涵并分享您的反馈。
 ]]></string>
 
+    <string name="pause_following_error">因错误而暂停</string>
+    <string name="failed_to_create_destination_folder">创建目标文件夹失败</string>
+    <string name="server_returned_http">服务器返回 HTTP</string>
+    <string name="Pause_wait_interrupted">暂停被中断</string>
+    <string name="download_cancelled_during_execution">下载在执行过程中被取消</string>
+    <string name="connection_aborted">连接中止</string>
+    <string name="io_error">输入/输出错误</string>
+    <string name="unexpected_error">意外错误</string>
+    <string name="starting_download">开始下载…</string>
+    <string name="No_chapters_found">未找到章节</string>
+    <string name="Unsupported_ebook_type">不支持的电子书类型</string>
+    <string name="download_stopped_by_system_will_retry">下载被系统停止 — 将重试</string>
+    <string name="download_resuming">正在恢复下载</string>
+    <string name="cancelled">已取消</string>
+    <string name="failed">失败</string>
+    <string name="completed">完成</string>
+    <string name="copy">复制</string>
+    <string name="importing_book">正在导入书籍</string>
+    <string name="three_dots" translatable="false">…</string>
+    <string name="checking_size">正在检查大小</string>
+    <string name="error">错误</string>
+    <string name="initialization">初始化</string>
 
 
 </resources>

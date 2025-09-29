@@ -246,7 +246,7 @@ public class DownloadWorker extends LoggingWorker {
                     }
                     if (stoppedRequested.get()) {
                         myLogW("Stop requested");
-                        TaskStateManager.markDownloadPaused(getApplicationContext().getString(R.string.download_paused_by_user));
+                        TaskStateManager.markDownloadPaused(getApplicationContext().getString(R.string.Download_paused_by_user));
                         return Result.retry(); // partial file kept; WM will reschedule when constraints are met
                     }
                     if (cancelRequested.get()) {
@@ -385,7 +385,7 @@ public class DownloadWorker extends LoggingWorker {
             myLogE("Connection aborted [" + e.getMessage() + "]");
             return Result.retry();
         } catch (IOException e) {
-            TellHimWhyPause(ctx.getString(R.string.io_error) + " [" + e.getMessage() + "]");
+            TellHimWhyPause(ctx.getString(R.string.io_error) + " (" + ctx.getString(R.string.no_internet_connection) + "?)");
             myLogE("IO error [" + e.getMessage() + "]");
             return Result.retry();
         } catch (Exception e) {

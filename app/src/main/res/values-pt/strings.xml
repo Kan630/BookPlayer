@@ -846,5 +846,28 @@
     <string name="reviews">avaliações</string>
     <string name="average_rating">classificação média</string>
 
+    <string name="pause_following_error">pausa devido a erro</string>
+    <string name="failed_to_create_destination_folder">Falha ao criar a pasta de destino</string>
+    <string name="server_returned_http">O servidor retornou HTTP</string>
+    <string name="Pause_wait_interrupted">Pausa interrompida</string>
+    <string name="download_cancelled_during_execution">Download cancelado durante a execução</string>
+    <string name="connection_aborted">Conexão abortada</string>
+    <string name="io_error">Erro de E/S</string>
+    <string name="unexpected_error">Erro inesperado</string>
+    <string name="starting_download">Iniciando download…</string>
+    <string name="No_chapters_found">Nenhum capítulo encontrado</string>
+    <string name="Unsupported_ebook_type">Tipo de ebook não suportado</string>
+    <string name="download_stopped_by_system_will_retry">Download interrompido pelo sistema — será tentado novamente</string>
+    <string name="download_resuming">Retomando download</string>
+    <string name="cancelled">Cancelado</string>
+    <string name="failed">Falhou</string>
+    <string name="completed">Concluído</string>
+    <string name="copy">copiar</string>
+    <string name="importing_book">Importando livro</string>
+    <string name="three_dots" translatable="false">…</string>
+    <string name="checking_size">verificando tamanho</string>
+    <string name="error">erro</string>
+    <string name="initialization">inicialização</string>
+
 
 </resources>
