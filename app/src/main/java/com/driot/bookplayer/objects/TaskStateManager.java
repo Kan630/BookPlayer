@@ -176,11 +176,10 @@ public class TaskStateManager {
             state.currentOperation = currentOperation;
             state.onGoingLoading = false;
             Pref.setLoadBookTaskState(state);
-            tellError(currentOperation);
         } else {
             myLogEE(null, "markTaskFailed - No valid LoadBookTaskState found - " + currentOperation);
         }
-        TaskStateRepository.get().error(currentOperation);
+        tellError(currentOperation);
         WorkFlow.cancelAllOngoingTasks(appContext);
     }
 

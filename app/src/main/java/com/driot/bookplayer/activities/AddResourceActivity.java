@@ -16,6 +16,7 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.objects.AppViewModelStoreOwner;
+import com.driot.bookplayer.objects.TaskStateManager;
 import com.driot.bookplayer.services.LoadBookTaskState;
 import com.driot.bookplayer.objects.TaskStateRepository;
 import com.driot.bookplayer.objects.WorkFlow;
@@ -125,8 +126,9 @@ public class AddResourceActivity extends LoggingActivity {
 
     private void performCancel() {
         myLogI("------ USER CLICKS btn CANCEL ----");
-        WorkFlow.cancelAllOngoingTasks(this);
+        TaskStateManager.markTaskCancelled(getString(R.string.importing_book));
         enterExitMode();
+        WorkFlow.cancelAllOngoingTasks(this);
     }
 
     private void checkAndClose() {
@@ -171,7 +173,8 @@ public class AddResourceActivity extends LoggingActivity {
         delayedFinishHandler.postDelayed(delayedFinishRunnable, DELAY_END_WAIT_NO_ERROR);
     }
     private void enterExitMode() {
-        // Hide pause, turn Cancel into Exit, and wire it to finish()
+        viewModel.isPauseAvailable().removeObservers(this);
+        viewModel.isPaused().removeObservers(this);
         bPauseResume.setVisibility(View.GONE);
         bCancel.setText(getString(R.string.Exit));
         bCancel.setOnClickListener(v -> {

@@ -37,6 +37,13 @@ import java.net.HttpURLConnection;
 import java.net.SocketException;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
+import java.nio.channels.OverlappingFileLockException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -74,8 +81,9 @@ public class DownloadWorker extends LoggingWorker {
     // Optional legacy policy window (if you still want it)
     private static final long MANUAL_POLICY_WINDOW_MS = 30 * 60 * 1000L;
 
-    private java.nio.channels.FileLock downloadLock;
-    private java.nio.channels.FileChannel lockChannel;
+    private FileLock downloadLock;
+    private FileChannel lockChannel;
+    private Path lockPath;
 
     private final AtomicBoolean pauseRequested = new AtomicBoolean(false);
     private final AtomicBoolean cancelRequested = new AtomicBoolean(false);
@@ -260,9 +268,13 @@ public class DownloadWorker extends LoggingWorker {
 
                         // Wait here until resume or cancel or stop
                         while (true) {
+                            LoadBookTaskState state = Pref.getLoadBookTaskState();
+                            if (state == null) {
+                                return Result.failure();
+                            }
                             if (isStopped()) {
                                 myLogW("Paused → stopped");
-                                TaskStateManager.markDownloadPaused(TASK_NAME);
+                                TaskStateManager.markDownloadPaused(getApplicationContext().getString(R.string.download_stopped_by_system_will_retry));
                                 return Result.retry();
                             }
                             if (cancelRequested.get()) {
@@ -586,34 +598,61 @@ public class DownloadWorker extends LoggingWorker {
             if (cr != null && cr.startsWith("bytes")) {
                 int slash = cr.lastIndexOf('/');
                 if (slash > 0) {
-                    long total = Long.parseLong(cr.substring(slash + 1).trim());
-                    return total; // full size
+                    return Long.parseLong(cr.substring(slash + 1).trim()); // full size
                 }
             }
         } catch (Throwable ignored) {}
         return (remainingLen > 0) ? (already + remainingLen) : -1L;
     }
 
+
     private boolean acquireDownloadLock(File outFile) {
         try {
-            File lockFile = new File(outFile.getAbsolutePath() + ".lock");
-            lockFile.getParentFile().mkdirs();
-            lockChannel = new java.io.RandomAccessFile(lockFile, "rw").getChannel();
-            // Non-blocking tryLock: if another worker holds it, this returns null or throws OverlappingFileLockException
-            downloadLock = lockChannel.tryLock();
-            return downloadLock != null;
-        } catch (java.nio.channels.OverlappingFileLockException e) {
-            return false;
-        } catch (Throwable t) {
-            myLogW("Lock acquisition failed: " + t.getMessage());
+            lockPath = Paths.get(outFile.getAbsolutePath() + ".lock");
+            Path parent = lockPath.getParent();
+            if (parent != null) Files.createDirectories(parent);
+
+            // Keep channel open for the lifetime of the Worker; close in releaseDownloadLock()
+            lockChannel = FileChannel.open(
+                    lockPath,
+                    StandardOpenOption.CREATE,
+                    StandardOpenOption.READ,
+                    StandardOpenOption.WRITE
+                    // You could add StandardOpenOption.DELETE_ON_CLOSE and skip the manual delete below,
+                    // but manual delete is fine and explicit.
+            );
+
+            try {
+                downloadLock = lockChannel.tryLock(); // exclusive & non-blocking
+                if (downloadLock == null) {
+                    closeLockResources();
+                    return false;
+                }
+                return true;
+            } catch (OverlappingFileLockException e) {
+                // same-process overlap
+                closeLockResources();
+                return false;
+            }
+        } catch (Exception e) {
+            myLogW("Lock acquisition failed: " + e.getMessage());
+            closeLockResources();
             return false;
         }
     }
 
+    private void closeLockResources() {
+        try { if (downloadLock != null && downloadLock.isValid()) downloadLock.release(); } catch (Exception ignored) {}
+        try { if (lockChannel != null && lockChannel.isOpen()) lockChannel.close(); } catch (Exception ignored) {}
+        try { if (lockPath != null) Files.deleteIfExists(lockPath); } catch (Exception ignored) {}
+        downloadLock = null;
+        lockChannel  = null;
+        lockPath     = null;
+    }
+
     private void releaseDownloadLock() {
-        try { if (downloadLock != null) downloadLock.release(); } catch (Throwable ignored) {}
-        try { if (lockChannel != null) lockChannel.close(); } catch (Throwable ignored) {}
-        downloadLock = null; lockChannel = null;
+        // same cleanup when you’re done
+        closeLockResources();
     }
 
 }
