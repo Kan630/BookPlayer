@@ -231,9 +231,6 @@
             android:exported="false"
             android:stopWithTask="true" />
         <service
-            android:name=".services.DownloadForegroundService"
-            android:foregroundServiceType="dataSync" />
-        <service
             android:name="androidx.work.impl.foreground.SystemForegroundService"
             android:exported="false"
             android:foregroundServiceType="dataSync"

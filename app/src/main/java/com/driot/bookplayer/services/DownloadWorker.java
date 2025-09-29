@@ -19,16 +19,12 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 import androidx.work.Data;
 import androidx.work.ForegroundInfo;
-import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.global.Option;
+import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
-import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.objects.TaskStateManager;
-import com.driot.bookplayer.objects.WorkFlow;
-import com.driot.bookplayer.utils.KanLogger;
 import com.driot.bookplayer.utils.NetworkUtils;
 import com.driot.bookplayer.utils.log.LoggingWorker;
 
@@ -109,8 +105,6 @@ public class DownloadWorker extends LoggingWorker {
 
         final String workId = getId().toString();
         final int notifId = NOTIF_ID_BASE + Math.abs(workId.hashCode() % 1000);
-
-        DownloadSpecStore.save(ctx, new DownloadSpec(workId, urlStr, destFolder, title, isManual));
 
         // Create channel and move worker to foreground immediately
         createNotificationChannel(ctx);
@@ -210,6 +204,11 @@ public class DownloadWorker extends LoggingWorker {
                     return Result.failure();
                 }
 
+                LoadBookTaskState s = Pref.getLoadBookTaskState();
+                if (s != null && s.isLoadingPaused) {
+                    TaskStateManager.markDownloadResuming();
+                }
+
                 long contentLen = getContentLengthLongCompat(conn); // may be -1
                 long totalLen = (contentLen > 0 ? contentLen : -1L);
                 long fileLenIfKnown = (totalLen > 0 ? (already + totalLen) : -1L);
@@ -224,9 +223,20 @@ public class DownloadWorker extends LoggingWorker {
                 byte[] buf = new byte[16 * 1024];
                 long written = already;
                 for (;;) {
-                    if (isStopped() || stoppedRequested.get()) {
+                    if (isStopped()) {
+                        LoadBookTaskState state = Pref.getLoadBookTaskState();
+                        if (state == null) {
+                            myLogW("Stopped after cancelled");
+                            TaskStateManager.markTaskCancelled(TASK_NAME);
+                            return Result.failure();
+                        }
                         myLogW("Stopped by WM/constraints — keeping partial and retrying");
-                        TaskStateManager.markTaskPaused(getApplicationContext().getString(R.string.download_worker_stopped_by_system_will_retry));
+                        TaskStateManager.markTaskPaused(getApplicationContext().getString(R.string.download_stopped_by_system_will_retry));
+                        return Result.retry(); // partial file kept; WM will reschedule when constraints are met
+                    }
+                    if (stoppedRequested.get()) {
+                        myLogW("Stop requested");
+                        TaskStateManager.markTaskPaused(getApplicationContext().getString(R.string.download_paused_by_user));
                         return Result.retry(); // partial file kept; WM will reschedule when constraints are met
                     }
                     if (cancelRequested.get()) {
@@ -235,7 +245,6 @@ public class DownloadWorker extends LoggingWorker {
                         resumeRequested.set(false);
                         safeDelete(outFile);
                         TaskStateManager.markTaskCancelled(TASK_NAME);
-                        clearSpec(ctx, workId);
                         return Result.failure();
                     }
                     if (pauseRequested.get()) {
@@ -260,7 +269,6 @@ public class DownloadWorker extends LoggingWorker {
                                 safeClose(out);
                                 safeDelete(outFile);
                                 TaskStateManager.markTaskCancelled(TASK_NAME);
-                                clearSpec(ctx, workId);
                                 return Result.failure();
                             }
                             if (resumeRequested.get()) {
@@ -341,8 +349,6 @@ public class DownloadWorker extends LoggingWorker {
 
                 // Final “completed” notification tick
                 updateForeground(ctx, notifId, 100, ctx.getString(R.string.downloaded), title);
-
-                clearSpec(ctx, workId);
 
                 return Result.success(new Data.Builder()
                         .putString(OUT_FILEPATH, outFile.getAbsolutePath())
@@ -584,13 +590,6 @@ public class DownloadWorker extends LoggingWorker {
             }
         } catch (Throwable ignored) {}
         return (remainingLen > 0) ? (already + remainingLen) : -1L;
-    }
-
-    private void clearSpec(Context ctx, String workId) {
-        DownloadSpec spec = DownloadSpecStore.getByWorkId(ctx, workId);
-        if (spec != null) {
-            DownloadSpecStore.remove(ctx, workId, spec.uniqueName());
-        }
     }
 
     private boolean acquireDownloadLock(File outFile) {

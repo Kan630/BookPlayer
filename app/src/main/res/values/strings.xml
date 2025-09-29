@@ -867,7 +867,8 @@
     <string name="starting_download">Starting download…</string>
     <string name="No_chapters_found">No chapters found</string>
     <string name="Unsupported_ebook_type">Unsupported ebook type</string>
-    <string name="download_worker_stopped_by_system_will_retry">Download stopped by system — will retry</string>
+    <string name="download_stopped_by_system_will_retry">Download stopped by system — will retry</string>
+    <string name="download_paused_by_user">Download paused by user</string>
 
 
 

@@ -1,9 +1,5 @@
 package com.driot.bookplayer.objects;
 
-import static com.driot.bookplayer.global.Pref.clearLoadBookTaskState;
-import static com.driot.bookplayer.global.Pref.getLoadBookTaskState;
-import static com.driot.bookplayer.global.Pref.setLoadBookTaskState;
-import static com.driot.bookplayer.global.Var.FOREGROUND_DOWNLOAD_SERVICE_TAG;
 import static com.driot.bookplayer.services.BookLoadingWorkLauncher.BOOK_LOADING_WORKERS;
 
 import android.content.Context;
@@ -26,7 +22,7 @@ public class WorkFlow {
 
     public static boolean isSomeWorkFlowRunning(Context c) {
         myLogD("isSomeWorkFlowRunning() - called from " + c.getClass().getSimpleName());
-        LoadBookTaskState state = getLoadBookTaskState();
+        LoadBookTaskState state = Pref.getLoadBookTaskState();
         if (state==null) {
             myLogD("LoadBookTaskState : null instance...");
         } else {
@@ -42,7 +38,7 @@ public class WorkFlow {
     public static void maybeResumeWorkFlow(Context context) {
         String callerClass = context.getClass().getSimpleName();
         myLogD("maybe Resume WorkFlow...    called from " + callerClass);
-        LoadBookTaskState state = getLoadBookTaskState();
+        LoadBookTaskState state = Pref.getLoadBookTaskState();
 
         if (state == null) {
             myLogD("no WorkFlow");
@@ -56,56 +52,14 @@ public class WorkFlow {
 
         LoadBookTaskState state = Pref.getLoadBookTaskState();
 
-        // 1) If a download worker might be alive, ask it to cancel (broadcast)
         try {
-            if (state!=null) {
-                java.util.UUID id = state.getDownloadWorkUUID();
-                if (id != null) {
-                    DownloadControl.sendCancel(context, id);
-                }
-            }
+            Pref.clearLoadBookTaskState(context);
         } catch (Exception e) {
-            myLogEE(e, "cancelAllOngoingTasks - DownloadControl");
+            myLogEE(e, "cancelAllOngoingTasks - clearLoadBookTaskState");
         }
 
-        // 2) Cancel the pipeline by its UNIQUE NAME (download + post steps)
-        try {
-            if (state != null && state.uniqueChainName != null && !state.uniqueChainName.isEmpty()) {
-                WorkManager.getInstance(context).cancelUniqueWork(state.uniqueChainName);
-            } else {
-                // Legacy fallback: cancel by tag for older chains
-                WorkManager.getInstance(context).cancelAllWorkByTag(BOOK_LOADING_WORKERS);
-            }
-        } catch (Exception e) {
-            myLogEE(e, "cancelAllOngoingTasks - cancelUniqueWork(bookload:...)");
-        }
+        WorkManager.getInstance(context).cancelAllWorkByTag(BOOK_LOADING_WORKERS);
 
-        // 3) Also cancel any legacy download-only unique job (dl_...) if it was ever used
-        try {
-            if (state != null && state.downloadFileUrl != null && state.downloadDestinationFolder != null) {
-                String key = state.downloadFileUrl + "|" + state.downloadDestinationFolder;
-                String dlUnique = "dl_" + Integer.toHexString(key.hashCode());
-                WorkManager.getInstance(context).cancelUniqueWork(dlUnique);
-            }
-        } catch (Exception e) {
-            myLogEE(e, "cancelAllOngoingTasks - cancelUniqueWork(dl_...)");
-        }
-
-        // 4) Clear persisted DownloadSpec so RESUME can’t re-enqueue after a user cancel
-        try {
-            if (state != null) {
-                String workIdStr = (state.getDownloadWorkUUID() != null) ? state.getDownloadWorkUUID().toString() : null;
-                if (workIdStr != null) {
-                    com.driot.bookplayer.services.DownloadSpec spec =
-                            com.driot.bookplayer.services.DownloadSpecStore.getByWorkId(context, workIdStr);
-                    if (spec != null) {
-                        com.driot.bookplayer.services.DownloadSpecStore.remove(context, spec.workId, spec.uniqueName());
-                    }
-                }
-            }
-        } catch (Exception e) {
-            myLogEE(e, "cancelAllOngoingTasks - clear DownloadSpec");
-        }
 
         // 5) Delete ONLY the expected partial file for this workflow (and its .lock), not the whole folder
         try {
@@ -124,6 +78,8 @@ public class WorkFlow {
         } catch (Exception e) {
             myLogEE(e, "cancelAllOngoingTasks - delete partial/lock");
         }
+
+        // MY STUFF
 
         //Ensure nothing left in Download Folder
         try {
@@ -175,7 +131,7 @@ public class WorkFlow {
         }
 
         try {
-            clearLoadBookTaskState(context);
+            Pref.clearLoadBookTaskState(context);
         } catch (Exception e) {
             myLogEE(e, "cancelAllOngoingTasks - clearLoadBookTaskState");
         }
