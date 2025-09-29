@@ -5,6 +5,7 @@ import static com.driot.bookplayer.global.Var.SUPPORTED_AUDIO_EXTENSIONS;
 import static com.driot.bookplayer.global.Var.SUPPORTED_COVER_PICTURE_EXTENSIONS;
 import static com.driot.bookplayer.global.Var.ZIP_SIZE_MAX_COEF;
 import static com.driot.bookplayer.helpers.StorageHelper.getAvailableInternalMemorySize;
+import static com.driot.bookplayer.helpers.StorageHelper.getAvailableRemovableSDCardSize;
 import static com.driot.bookplayer.utils.Tonio.formatMemPadding;
 import static com.driot.bookplayer.utils.Tonio.getExtension;
 
@@ -65,15 +66,24 @@ public class CopyFileWorker extends LoggingWorker {
     public Result doWork() {
         LoadBookTaskState state = Pref.getLoadBookTaskState();
 
+        if (state==null) {
+            TaskStateManager.markTaskFailed(TASK_NAME, "bookState == null");
+            return Result.failure();
+        }
+
         Uri uri = state.dynamicUri;
         String destinationFolderPath = state.futureFolderPath;
         String destinationFileName = state.originalFile;
         String type = state.dynamicType;
-        boolean checkSize = true;  //TODO
+        boolean checkSize = true;  //TODO, to check
         long forceSize = -1;
         sourceLocation = Tonio.getSourceLocation(context, uri);
-        availableMemory = getAvailableInternalMemorySize();
         destinationLocation = StorageHelper.getMemoryLocationType(context, destinationFolderPath);
+        if (destinationLocation.equals(StorageHelper.MemoryLocationType.SDCARD_RESERVED) || destinationLocation.equals(StorageHelper.MemoryLocationType.SDCARD_SHARED)) {
+            availableMemory = StorageHelper.getAvailableRemovableSDCardSize(context);
+        } else {
+            availableMemory = StorageHelper.getAvailableInternalMemorySize();
+        }
 
         if (forceSize > 0) {
             totalSize = forceSize;
