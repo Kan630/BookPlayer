@@ -865,6 +865,12 @@
     <string name="io_error">IO error</string>
     <string name="unexpected_error">Unexpected error</string>
     <string name="starting_download">Starting download…</string>
+    <string name="No_chapters_found">No chapters found</string>
+    <string name="Unsupported_ebook_type">Unsupported ebook type</string>
+    <string name="download_worker_stopped_by_system_will_retry">Download stopped by system — will retry</string>
+
+
+
 
 
 

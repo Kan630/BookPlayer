@@ -38,7 +38,6 @@ import com.driot.bookplayer.utils.log.LoggingActivity;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.driot.bookplayer.objects.WorkFlow.maybeResumeWorkFlow;
 import static com.driot.bookplayer.utils.PermissionRequest.isReadAudioPermissionGranted;
 
 public class GetOtherActivity extends LoggingActivity {
@@ -299,7 +298,7 @@ public class GetOtherActivity extends LoggingActivity {
     }
 
     private void lockButtons(boolean doLock) {
-        myLogD("LockButtons : " + doLock);
+        //myLogD("LockButtons : " + doLock);
         try {
             // NOTE: fragment attach/remove is gone — the banner fragment self-hides.
             List<TextView> textViewToHide = Arrays.asList(
@@ -449,8 +448,5 @@ public class GetOtherActivity extends LoggingActivity {
 
         // Observe running flag and only lock/unlock buttons + labels.
         viewModel.isTaskRunning().observe(this, isRunning -> lockButtons(Boolean.TRUE.equals(isRunning)));
-
-        // If a workflow can be resumed, do it (your existing helper):
-        maybeResumeWorkFlow(this);
     }
 }

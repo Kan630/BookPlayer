@@ -7,11 +7,11 @@ import android.net.Uri;
 import androidx.annotation.NonNull;
 import androidx.work.WorkerParameters;
 
+import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.OdtLowLevelHelper;
-import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.objects.TaskStateManager;
 import com.driot.bookplayer.helpers.EpubLowLevelHelper;
 import com.driot.bookplayer.helpers.Fb2LowLevelHelper;
@@ -33,9 +33,6 @@ public class EbookSplitWorker extends LoggingWorker {
     // Keep existing label for compatibility with UI/strings
     private static final String TASK_NAME = Var.WORKER_TASK_LABEL_SPLIT_EBOOK;
 
-    // Optional input param to force type; values: "epub" | "fb2"
-    public static final String K_EBOOK_TYPE = "ebook_type";
-
     private final Context context;
 
     public EbookSplitWorker(@NonNull Context context, @NonNull WorkerParameters params) {
@@ -54,22 +51,18 @@ public class EbookSplitWorker extends LoggingWorker {
 
         final String ebookPath = bookState.dynamicSourceFilePath;   // absolute file path or content://
         final String destinationFolderPath = bookState.futureFolderPath;
-        final String typeOverride = getInputData().getString(K_EBOOK_TYPE); // may be null
+        final String ebookType = guessTypeFromPath(ebookPath); //"epub" or "fb2"
 
         myLog("EbookSplitWorker received:");
         myLog("ebookPath = " + ebookPath);
         myLog("destinationFolderPath = " + destinationFolderPath);
-        myLog("ebookType (override) = " + typeOverride);
+        myLog("ebookType = " + ebookType);
 
         if (ebookPath == null || destinationFolderPath == null) {
             TaskStateManager.markTaskFailed(TASK_NAME, "Missing input data for EbookSplitWorker");
             myLogEE(null, "Missing input data for EbookSplitWorker");
             return Result.failure();
         }
-
-        String ebookType = (typeOverride != null && !typeOverride.isEmpty())
-                ? typeOverride.toLowerCase(Locale.ROOT)
-                : guessTypeFromPath(ebookPath); // "epub" or "fb2"
 
         FirebaseAnalyticsHelper.tellAnalyticsEbookWorker(ebookType);
 
@@ -82,7 +75,7 @@ public class EbookSplitWorker extends LoggingWorker {
         try {
             File outFolder = new File(destinationFolderPath);
             if (!outFolder.exists() && !outFolder.mkdirs()) {
-                TaskStateManager.markTaskFailed(TASK_NAME, "Cannot create output folder: " + destinationFolderPath);
+                TaskStateManager.markTaskFailed(TASK_NAME, context.getString(R.string.failed_to_create_destination_folder) + ": " + destinationFolderPath);
                 return false;
             }
 
@@ -111,14 +104,13 @@ public class EbookSplitWorker extends LoggingWorker {
                 cover    = result.coverBitmap;
                 chapters = result.chapterFiles;
             } else {
-                String msg = "Unsupported ebook type: " + ebookType;
+                String msg = ctx.getString(R.string.Unsupported_ebook_type) + ". (" + ebookType + ")";
                 TaskStateManager.markTaskFailed(TASK_NAME, msg);
-                myLogE(msg);
                 return false;
             }
 
             if (chapters == null || chapters.isEmpty()) {
-                TaskStateManager.markTaskFailed(TASK_NAME, "No chapters found (" + ebookType.toUpperCase(Locale.ROOT) + ")");
+                TaskStateManager.markTaskFailed(TASK_NAME, ctx.getString(R.string.No_chapters_found) + ". (" + ebookType.toUpperCase(Locale.ROOT) + ")");
                 return false;
             }
 

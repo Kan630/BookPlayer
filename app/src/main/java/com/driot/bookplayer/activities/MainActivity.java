@@ -5,8 +5,6 @@
      */
 
 
-    import static com.driot.bookplayer.objects.WorkFlow.maybeResumeWorkFlow;
-
     import android.Manifest;
     import android.annotation.SuppressLint;
     import android.app.Activity;
@@ -47,6 +45,7 @@
     import com.driot.bookplayer.helpers.InsetHelper;
     import com.driot.bookplayer.helpers.ViewHelper;
     import com.driot.bookplayer.objects.OngoingTaskHost;
+    import com.driot.bookplayer.objects.WorkFlow;
     import com.driot.bookplayer.player.PlayList;
     import com.driot.bookplayer.player.AudioService;
     import com.driot.bookplayer.helpers.InfoHelper;
@@ -187,7 +186,7 @@
             super.onResume();
             LocalBroadcastManager.getInstance(this).registerReceiver(inAppMsgRx, new IntentFilter(InAppMsgManager.ACTION_CACHE_UPDATED));        // Et tente immédiatement avec le cache courant
             InAppMsgManager.maybeShowBestMessage(this, getString(R.string.app_name));
-            maybeResumeWorkFlow(this);
+            WorkFlow.maybeResumeWorkFlow(this);
         }
 
         @Override protected void onPause() {

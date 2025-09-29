@@ -20,6 +20,8 @@ public class Var {
 
     public static final String FOREGROUND_DOWNLOAD_SERVICE_TAG = "download_retry";
 
+    public static final String USER_AGENT_BOOKPLAYER = "BookPlayer/1.0 (Android)";
+
     public static final String SOURCE_LOCATION_PODCAST = "podcast";
     public static final String SOURCE_LOCATION_LIBRIVOX = "librivox";
 

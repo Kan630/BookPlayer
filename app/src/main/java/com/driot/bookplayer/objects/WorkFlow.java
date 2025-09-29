@@ -5,18 +5,19 @@ import static com.driot.bookplayer.global.Pref.getLoadBookTaskState;
 import static com.driot.bookplayer.global.Pref.setLoadBookTaskState;
 import static com.driot.bookplayer.global.Var.FOREGROUND_DOWNLOAD_SERVICE_TAG;
 import static com.driot.bookplayer.services.BookLoadingWorkLauncher.BOOK_LOADING_WORKERS;
-import static com.driot.bookplayer.helpers.FileHelper.deleteFolderRecursive;
 
 import android.content.Context;
-import android.content.Intent;
 
 import androidx.work.WorkManager;
 
 import com.driot.bookplayer.db.AppDatabase;
+import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
-import com.driot.bookplayer.services.DownloadForegroundService;
+import com.driot.bookplayer.services.DownloadControl;
 import com.driot.bookplayer.helpers.StorageHelper;
+import com.driot.bookplayer.services.LoadBookTaskState;
 import com.driot.bookplayer.utils.KanLogger;
 
 import java.io.File;
@@ -50,41 +51,84 @@ public class WorkFlow {
         }
     }
 
-
-    public static void setDownloadFinished(Context context, String filePath) {
-        myLog("...setDownloadFinished() - called from " + context.getClass().getSimpleName());
-        LoadBookTaskState state = getLoadBookTaskState();
-        if (state != null) {
-            state.downloadedFileReady = true;
-            state.downloadedFilePath = filePath;
-            state.isLoadingPaused = false;
-            state.progressText = "download finished";
-            setLoadBookTaskState(state);
-            myLog("downloadedFilePath set to : " + filePath);
-        }
-    }
-
     public static void cancelAllOngoingTasks(Context context) {
         myLog("...cancelAllOngoingTasks() - called from " + context.getClass().getSimpleName());
 
+        LoadBookTaskState state = Pref.getLoadBookTaskState();
+
+        // 1) If a download worker might be alive, ask it to cancel (broadcast)
         try {
-            Intent intent = new Intent(context, DownloadForegroundService.class);
-            context.stopService(intent);
+            if (state!=null) {
+                java.util.UUID id = state.getDownloadWorkUUID();
+                if (id != null) {
+                    DownloadControl.sendCancel(context, id);
+                }
+            }
         } catch (Exception e) {
-            myLogEE(e, "cancelAllOngoingTasks - DownloadForegroundService");
+            myLogEE(e, "cancelAllOngoingTasks - DownloadControl");
         }
 
+        // 2) Cancel the pipeline by its UNIQUE NAME (download + post steps)
         try {
-            WorkManager.getInstance(context).cancelAllWorkByTag(FOREGROUND_DOWNLOAD_SERVICE_TAG);
-            WorkManager.getInstance(context).cancelAllWorkByTag(BOOK_LOADING_WORKERS);
+            if (state != null && state.uniqueChainName != null && !state.uniqueChainName.isEmpty()) {
+                WorkManager.getInstance(context).cancelUniqueWork(state.uniqueChainName);
+            } else {
+                // Legacy fallback: cancel by tag for older chains
+                WorkManager.getInstance(context).cancelAllWorkByTag(BOOK_LOADING_WORKERS);
+            }
         } catch (Exception e) {
-            myLogEE(e, "cancelAllOngoingTasks - WorkManager");
+            myLogEE(e, "cancelAllOngoingTasks - cancelUniqueWork(bookload:...)");
+        }
+
+        // 3) Also cancel any legacy download-only unique job (dl_...) if it was ever used
+        try {
+            if (state != null && state.downloadFileUrl != null && state.downloadDestinationFolder != null) {
+                String key = state.downloadFileUrl + "|" + state.downloadDestinationFolder;
+                String dlUnique = "dl_" + Integer.toHexString(key.hashCode());
+                WorkManager.getInstance(context).cancelUniqueWork(dlUnique);
+            }
+        } catch (Exception e) {
+            myLogEE(e, "cancelAllOngoingTasks - cancelUniqueWork(dl_...)");
+        }
+
+        // 4) Clear persisted DownloadSpec so RESUME can’t re-enqueue after a user cancel
+        try {
+            if (state != null) {
+                String workIdStr = (state.getDownloadWorkUUID() != null) ? state.getDownloadWorkUUID().toString() : null;
+                if (workIdStr != null) {
+                    com.driot.bookplayer.services.DownloadSpec spec =
+                            com.driot.bookplayer.services.DownloadSpecStore.getByWorkId(context, workIdStr);
+                    if (spec != null) {
+                        com.driot.bookplayer.services.DownloadSpecStore.remove(context, spec.workId, spec.uniqueName());
+                    }
+                }
+            }
+        } catch (Exception e) {
+            myLogEE(e, "cancelAllOngoingTasks - clear DownloadSpec");
+        }
+
+        // 5) Delete ONLY the expected partial file for this workflow (and its .lock), not the whole folder
+        try {
+            if (state != null && state.downloadFileUrl != null && state.downloadDestinationFolder != null) {
+                String fileName = com.driot.bookplayer.utils.Tonio.getFileNameFromUrl(state.downloadFileUrl);
+                String downloadDirPath = state.downloadDestinationFolder;
+                java.io.File partial = new java.io.File(downloadDirPath, fileName);
+                java.io.File lock    = new java.io.File(partial.getAbsolutePath() + ".lock");
+
+                // It’s okay if these fail because the worker may still be releasing handles in onStopped/finally
+                if (lock.exists()) { try { lock.delete(); } catch (Throwable ignored) {} }
+                if (partial.exists()) { try { partial.delete(); } catch (Throwable ignored) {} }
+            } else {
+                myLogD("Skip partial delete: state missing url/destination");
+            }
+        } catch (Exception e) {
+            myLogEE(e, "cancelAllOngoingTasks - delete partial/lock");
         }
 
         //Ensure nothing left in Download Folder
         try {
             String downloadDirPath = StorageHelper.getDownloadFolderPath(context);
-            deleteFolderRecursive(downloadDirPath);
+            FileHelper.deleteFolderRecursive(downloadDirPath);
             File outputDir = new File(downloadDirPath);
             if (!outputDir.exists()) {
                 if (!outputDir.mkdirs()) myLogE("error mkdir");
@@ -95,19 +139,22 @@ public class WorkFlow {
 
         //and Unzip Folder
         try {
-            LoadBookTaskState state = getLoadBookTaskState();
             if (state != null) {
                 String folderToDeletePath = state.futureFolderPath;
                 if (folderToDeletePath.length()>5) {
                     if (folderToDeletePath.contains(Var.PATH_CHECK_AUDIO_FILE_INTERNAL)) { //only internal files
-                        AppDatabase.databaseReadExecutor.execute(() -> { //make sure not in DB
-                            if (AppDatabase.getDatabase(context).FolderDao().folderAlreadyExist_checkFolderPath(folderToDeletePath) == 0) {
-                                myLogI("deleting internal audio folder [" + folderToDeletePath + "]");
-                                deleteFolderRecursive(folderToDeletePath);
+                        if (FileHelper.exists(folderToDeletePath)) {
+                            AppDatabase.databaseReadExecutor.execute(() -> { //make sure not in DB
+                                if (AppDatabase.getDatabase(context).FolderDao().folderAlreadyExist_checkFolderPath(folderToDeletePath) == 0) {
+                                    myLogI("deleting internal audio folder [" + folderToDeletePath + "]");
+                                    FileHelper.deleteFolderRecursive(folderToDeletePath);
+                                } else {
+                                    myLogW("tried to delete a folder still in DB : [" + folderToDeletePath + "]");
+                                }
+                            });
                         } else {
-                                myLogW("tried to delete a folder still in DB : [" + folderToDeletePath + "]");
-                            }
-                        });
+                            myLogD("folderToDeletePath does not exist : [" + folderToDeletePath + "]");
+                        }
                     } else {
                         myLogD("no delete for non internal folder : [" + folderToDeletePath + "]");
                     }

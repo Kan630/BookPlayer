@@ -1,10 +1,11 @@
-package com.driot.bookplayer.objects;
+package com.driot.bookplayer.services;
 
 import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.utils.KanLogger;
 
@@ -44,6 +45,8 @@ public class LoadBookTaskState implements Parcelable {
     public boolean doSplitEbook;
     public boolean doUnzip;
     public String playType;
+    public String downloadWorkId;
+    public String uniqueChainName;
 
 
 
@@ -87,6 +90,8 @@ public class LoadBookTaskState implements Parcelable {
         doSplitEbook = in.readByte() != 0;
         doUnzip = in.readByte() != 0;
         playType = in.readString();
+        downloadWorkId = in.readString();
+        uniqueChainName = in.readString();
     }
 
     public static final Creator<LoadBookTaskState> CREATOR = new Creator<LoadBookTaskState>() {
@@ -138,6 +143,8 @@ public class LoadBookTaskState implements Parcelable {
         dest.writeByte((byte) (doSplitEbook ? 1 : 0));
         dest.writeByte((byte) (doUnzip ? 1 : 0));
         dest.writeString(playType);
+        dest.writeString(downloadWorkId);
+        dest.writeString(uniqueChainName);
     }
 
     @Override
@@ -184,6 +191,8 @@ public class LoadBookTaskState implements Parcelable {
                 ", doSplitEpub=" + doSplitEbook +
                 ", doUnzip=" + doUnzip +
                 ", playType='" + playType + "'" +
+                ", downloadWorkId='" + downloadWorkId + '\'' +
+                ", uniqueChainName='" + uniqueChainName + '\'' +
                 '}';
     }
     public String toStringN() {
@@ -195,7 +204,14 @@ public class LoadBookTaskState implements Parcelable {
     }
 
 
-
+    public void setDownloadWorkId(@Nullable java.util.UUID id) {
+        this.downloadWorkId = (id != null) ? id.toString() : null;
+    }
+    @Nullable
+    public java.util.UUID getDownloadWorkUUID() {
+        try { return (downloadWorkId != null) ? java.util.UUID.fromString(downloadWorkId) : null; }
+        catch (IllegalArgumentException ignore) { return null; }
+    }
 
 
     ////////////////////////////////////////////////////////

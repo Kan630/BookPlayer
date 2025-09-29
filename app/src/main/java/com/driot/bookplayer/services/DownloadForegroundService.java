@@ -19,8 +19,6 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
-import com.driot.bookplayer.objects.LoadBookTaskState;
-import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.utils.NetworkUtils;
 import com.driot.bookplayer.objects.TaskStateManager;
 import com.driot.bookplayer.utils.Tonio;
@@ -155,7 +153,7 @@ public class DownloadForegroundService extends LoggingService {
             if (success) {
                 String filePath = new File(destinationFolder, getFileNameFromUrl(fileUrl)).getAbsolutePath();
                 myLog("Download success => sending Broadcast - storing in SharedPrefs: " + filePath);
-                WorkFlow.setDownloadFinished(this, filePath);
+                //WorkFlow.setDownloadFinished(this, filePath);
                 sendBroadcast(new Intent(DownloadRetryWorker.ACTION_DOWNLOAD_COMPLETE).setPackage(getPackageName()));
                 LoadBookTaskState endState = Pref.getLoadBookTaskState();
                 if (endState != null) myLogD(endState.toString());
@@ -234,7 +232,7 @@ public class DownloadForegroundService extends LoggingService {
             long downloaded = destFile.exists() ? destFile.length() : 0;
             myLog("already downloaded " + Tonio.getReadableSize(downloaded));
 
-            FirebaseAnalyticsHelper.tellAnalyticsManualDownload(fileUrl, destinationFolder, downloaded);
+            //FirebaseAnalyticsHelper.tellAnalyticsManualDownload(fileUrl, destinationFolder, downloaded);
 
             URL url = new URL(fileUrl);
             connection = (HttpURLConnection) url.openConnection();
@@ -409,3 +407,5 @@ public class DownloadForegroundService extends LoggingService {
         //Pref.clearLoadBookTaskState(this);
     }
 }
+
+

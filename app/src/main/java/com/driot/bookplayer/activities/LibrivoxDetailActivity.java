@@ -25,7 +25,7 @@ import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.objects.ItemMetadata;
 import com.driot.bookplayer.objects.LibrivoxApi;
-import com.driot.bookplayer.objects.LoadBookTaskState;
+import com.driot.bookplayer.services.LoadBookTaskState;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.objects.OngoingTaskHost;
 import com.driot.bookplayer.services.BookLoadingWorkLauncher;

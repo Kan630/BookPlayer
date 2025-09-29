@@ -10,7 +10,6 @@ import androidx.core.content.ContextCompat;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
-import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.utils.KanLogger;
 import com.driot.bookplayer.global.Pref;
 

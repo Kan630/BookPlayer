@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
+import com.driot.bookplayer.services.LoadBookTaskState;
 import com.driot.bookplayer.utils.KanLogger;
 
 import java.util.LinkedHashMap;
@@ -96,6 +97,10 @@ public class TaskStateManager {
             state.dynamicType = "File";
             state.dynamicUri = Uri.parse(downloadedFileFullPath);
             state.dynamicSourceFilePath = downloadedFileFullPath;
+            state.downloadedFilePath = downloadedFileFullPath;
+            state.downloadedFileReady = true;
+            state.isLoadingPaused = false;
+            state.progressText = "download finished";
             Pref.setLoadBookTaskState(state);
         } else {
             myLogEE(null, "markDownloadCompleted - state == null");
@@ -144,6 +149,7 @@ public class TaskStateManager {
     }
 
     public static void markTaskPaused(String whyPaused) {
+        myLogI("markTaskPaused " + whyPaused);
         LoadBookTaskState state = Pref.getLoadBookTaskState();
         if (state != null) {
             state.currentOperation = whyPaused;
@@ -163,7 +169,7 @@ public class TaskStateManager {
             state.onGoingLoading = false;
             Pref.setLoadBookTaskState(state);
         } else {
-            myLogEE(null, "markTaskCancelled - No valid LoadBookTaskState found - " + currentOperation);
+            myLogD("markTaskCancelled - No valid LoadBookTaskState found - " + currentOperation);
         }
         tellError(currentOperation);
     }

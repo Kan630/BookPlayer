@@ -16,8 +16,6 @@ import java.io.IOException;
  */
 public final class MediaPlayerEngine implements PlayerEngine {
 
-    public enum SeekMode { NORMAL, CLOSEST } // CLOSEST is useful for .m4b
-
     private static final String TAG = "MediaPlayerEngine";
 
     private final EngineListener listener;
@@ -26,7 +24,6 @@ public final class MediaPlayerEngine implements PlayerEngine {
     private MediaPlayer mp;
     private volatile boolean prepared = false;
     private volatile boolean preparing = false;
-    private volatile SeekMode seekMode = SeekMode.NORMAL;
 
     private float volume = 1f;
 
@@ -68,19 +65,12 @@ public final class MediaPlayerEngine implements PlayerEngine {
         });
     }
 
-    /** Optional: call this after setDataSource if you know the content type (e.g., .m4b). */
-    public void setSeekMode(@NonNull SeekMode mode) {
-        this.seekMode = mode;
-    }
-
     @Override
     public void setDataSource(@NonNull Context ctx, @NonNull Uri uri, @NonNull String displayName) throws IOException {
         prepared = false;
         preparing = false;
         mp.reset();
         mp.setDataSource(ctx, uri);
-        // If you want convenience auto-detection without touching PlayList, uncomment:
-        // if (displayName.toLowerCase(Locale.US).endsWith(".m4b")) this.seekMode = SeekMode.CLOSEST;
     }
 
     @Override public void prepareAsync() {
@@ -91,7 +81,7 @@ public final class MediaPlayerEngine implements PlayerEngine {
 
     @Override public void start()        {
         mp.start();
-// re-apply volume in case system reset it
+// re-apply volume in case system reset it //TODO check that
         setVolume(volume);
     }
     @Override public void pause()        { mp.pause(); }
@@ -130,16 +120,12 @@ public final class MediaPlayerEngine implements PlayerEngine {
             return;
         }
         try {
-            if (seekMode == SeekMode.CLOSEST) {
-                // API 26+: seek with mode; lower APIs ignore the extra param
-                mp.seekTo(ms, MediaPlayer.SEEK_CLOSEST);
-                myLogD("seekTo CLOSEST " + ms);
-            } else {
+                //mp.seekTo(ms, MediaPlayer.SEEK_CLOSEST);
+                //myLogD("seekTo CLOSEST " + ms);
                 mp.seekTo(ms);
                 myLogD("seekTo NORMAL " + ms);
-            }
         } catch (Throwable t) {
-            myLogE("seekTo failed: " + t.getMessage());
+            myLogEE(null, "seekTo failed: " + t.getMessage());
         }
     }
 
@@ -217,7 +203,11 @@ public final class MediaPlayerEngine implements PlayerEngine {
         return "MediaPlayer Error: " + whatString + " (" + what + "), extra=" + extra;
     }
 
-    private static void myLog(String s)  { KanLogger.myLog(TAG, s); }
-    private static void myLogD(String s) { KanLogger.myLogD(TAG, s); }
-    private static void myLogE(String s) { KanLogger.myLogE(TAG, s); }
+    private static void myLog(String str) { KanLogger.myLog(TAG, str); }
+    private static void myLogD(String str) { KanLogger.myLogD(TAG, str); }
+    private static void myLogI(String str) { KanLogger.myLogI(TAG, str); }
+    private static void myLogW(String str) { KanLogger.myLogW(TAG, str); }
+    private static void myLogE(String str) { KanLogger.myLogE(TAG, str); }
+    private static void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, TAG, str); }
+    private static void myToastEE(Throwable t, String str) { KanLogger.myToastEE(t, TAG, str); }
 }

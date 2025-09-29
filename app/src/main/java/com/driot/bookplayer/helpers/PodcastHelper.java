@@ -141,7 +141,7 @@ public class PodcastHelper {
             }
 
             Request newRequest = chain.request().newBuilder()
-                    .header("User-Agent", "BookPlayer/1.0")
+                    .header("User-Agent", Var.USER_AGENT_BOOKPLAYER)
                     .header("X-Auth-Date", authDate)
                     .header("X-Auth-Key", key)
                     .header("Authorization", hexHash.toString())

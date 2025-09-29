@@ -33,10 +33,12 @@ public class InAppPeriodicTaskManager {
             scheduledFuture = scheduler.scheduleWithFixedDelay(() -> {
                 myLog("InAppPeriodicTask - Running task at " + new Date());
 
+///  Pocasts
                 if (Pref.shouldCheckApiForAutoDownload() || Var.FORCE_AUTO_DOWNLOAD_NO_DELAY) {
                     PodcastHelper.checkForNewEpisodesToAutoDownload(context, PODCASTINDEXORG_SINCE);
                     PodcastHelper.checkForEpisodesToAutoDelete(context);
                 }
+/// Images
                 ImageHelper.processPendingImages(context);
 
             }, 0, periodMinutes, TimeUnit.MINUTES);

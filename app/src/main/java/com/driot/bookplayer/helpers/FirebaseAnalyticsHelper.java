@@ -65,11 +65,10 @@ public final class FirebaseAnalyticsHelper {
         bundle.putString("originalUri", originalUri);
         logThat("proxy_load", bundle);
     }
-    public static void tellAnalyticsManualDownload(String fileUrl, String destinationFolder, long alreadyDownloaded) {
+    public static void tellAnalyticsManualDownload(String fileUrl, String destinationFolder) {
         Bundle bundle = new Bundle();
         bundle.putString("fileUrl", fileUrl);
         bundle.putString("destinationFolder", destinationFolder);
-        bundle.putLong("alreadyDownloaded", alreadyDownloaded);
         logThat("manual_download", bundle);
     }
 

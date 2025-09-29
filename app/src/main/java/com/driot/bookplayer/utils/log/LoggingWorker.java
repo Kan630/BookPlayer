@@ -3,10 +3,14 @@ package com.driot.bookplayer.utils.log;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
+import androidx.work.ForegroundInfo;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
+import androidx.work.impl.utils.futures.SettableFuture;
 
 import com.driot.bookplayer.utils.KanLogger;
+import com.google.common.util.concurrent.ListenableFuture;
+
 
 import static com.driot.bookplayer.utils.KanLogger.LOG_LIFECYCLE_TRACE;
 
@@ -19,6 +23,29 @@ public abstract class LoggingWorker extends Worker {
         super(context, workerParams);
         myInsideLogD("Constructor");
     }
+
+    @Override
+    public void onStopped() {
+        super.onStopped();
+        myInsideLogD("onStopped");
+    }
+
+    /**
+     * Newer API: WorkManager may call this to enter foreground
+     */
+    @NonNull @Override
+    public ListenableFuture<ForegroundInfo> getForegroundInfoAsync() {
+        myInsideLogD("getForegroundInfoAsync() requested");
+        return super.getForegroundInfoAsync();
+    }
+
+    /** Older/sync API still called in some paths */
+    @NonNull @Override
+    public ForegroundInfo getForegroundInfo() {
+        myInsideLogD("getForegroundInfo() requested");
+        return super.getForegroundInfo(); // or provide a common default
+    }
+
 
     //////////////////////////////////////////////////////////////////////////////////////////
     // PUBLIC LOGGER HELPERS (like LoggingService)
@@ -90,17 +117,17 @@ public abstract class LoggingWorker extends Worker {
             KanLogger.myLogD("Lifecycle", TAG_FROM_BRACKET + str);
     }
 
-    private void myInsideLogDW(String str) {
+    private void myInsideLogW(String str) {
         if (LOG_LIFECYCLE_TRACE)
             KanLogger.myLogW("Lifecycle", TAG_FROM_BRACKET + str);
     }
 
-    private void myInsideLogDE(String str) {
+    private void myInsideLogE(String str) {
         if (LOG_LIFECYCLE_TRACE)
             KanLogger.myLogE("Lifecycle", TAG_FROM_BRACKET + str);
     }
 
-    private void myInsideLogDEE(Throwable t, String str) {
+    private void myInsideLogEE(Throwable t, String str) {
         if (LOG_LIFECYCLE_TRACE)
             KanLogger.myLogEE(t, "Lifecycle", TAG_FROM_BRACKET + str);
     }

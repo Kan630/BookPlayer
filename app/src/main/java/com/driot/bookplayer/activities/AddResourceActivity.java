@@ -9,16 +9,17 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import androidx.core.content.ContextCompat;
 import androidx.core.widget.NestedScrollView;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.objects.AppViewModelStoreOwner;
+import com.driot.bookplayer.services.LoadBookTaskState;
 import com.driot.bookplayer.objects.TaskStateRepository;
 import com.driot.bookplayer.objects.WorkFlow;
-import com.driot.bookplayer.services.DownloadForegroundService;
+import com.driot.bookplayer.services.DownloadControl;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
 public class AddResourceActivity extends LoggingActivity {
@@ -96,7 +97,6 @@ public class AddResourceActivity extends LoggingActivity {
         });
 
         viewModel.isFinished().observe(this, finished -> {
-            myLog("isFinished = " + finished);
             if (Boolean.TRUE.equals(finished)) {
                 if (!didClose) {
                     didClose = true;
@@ -110,20 +110,32 @@ public class AddResourceActivity extends LoggingActivity {
 
     private void performPauseOrResume() {
         // Keep your existing service control; the VM/repo only reflects state.
+        LoadBookTaskState state = Pref.getLoadBookTaskState();
         boolean isPausedNow = Boolean.TRUE.equals(viewModel.isPaused().getValue());
         if (!isPausedNow) {
             myLogI("------ USER CLICKS btn PAUSE ----");
-            ContextCompat.startForegroundService(
-                    this,
-                    new Intent(this, DownloadForegroundService.class).setAction(DownloadForegroundService.ACTION_PAUSE)
-            );
+            if (state!=null) {
+                java.util.UUID id = state.getDownloadWorkUUID();
+                if (id != null) {
+                    DownloadControl.sendPause(this, id);
+                }
+            }
             // Button text will be updated by VM when repo sets paused=true
         } else {
             myLogI("------ USER CLICKS btn RESUME ----");
+            if (state!=null) {
+                java.util.UUID id = state.getDownloadWorkUUID();
+                if (id != null) {
+                    DownloadControl.sendResume(this, id);
+                }
+            }
+            /*
             ContextCompat.startForegroundService(
                     this,
                     new Intent(this, DownloadForegroundService.class).setAction(DownloadForegroundService.ACTION_RESUME)
             );
+
+             */
             // Button text will be updated by VM when repo sets paused=false
         }
     }
@@ -149,8 +161,17 @@ public class AddResourceActivity extends LoggingActivity {
             return;
         }
         if (warn != null && !warn.isEmpty()) {
-            myToast(getString(R.string.Import_finished_with_errors));
-            return;
+            String strRealWarning = warn
+                    .replace("\n", "")
+                    .replace(getString(R.string.Download_paused_by_user), "")
+                    .replace(getString(R.string.connection_aborted) + " (" + getString(R.string.no_internet_connection) + "?)","")
+                    .replace(getString(R.string.no_internet_connection),"")
+                    .trim();
+            if (!strRealWarning.isEmpty()) {
+                myLog("chapped warning string : [" + strRealWarning + "]");
+                myToast(getString(R.string.Import_finished_with_errors));
+                return;
+            }
         }
 
         // Success path
