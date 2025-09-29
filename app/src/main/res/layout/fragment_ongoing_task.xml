@@ -26,7 +26,7 @@
         style="@style/OnGoingImportTitle"
         android:singleLine="true"
         android:ellipsize="end"
-        android:text="Importing Book..."
+        android:text="@string/importing_book"
         />
 
     <TextView
@@ -36,7 +36,7 @@
         android:singleLine="true"
         android:ellipsize="end"
         style="@style/OnGoingImportText"
-        android:text="0%"
+        android:text="@string/three_dots"
         />
 
     <ProgressBar

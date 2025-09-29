@@ -45,6 +45,8 @@ public class DownloadWorker extends LoggingWorker {
     private static final String TASK_NAME = Var.WORKER_TASK_LABEL_DOWNLOAD;
 
     public static final int HTTP_REQUESTED_RANGE_NOT_SATISFIABLE = 416;
+    public static final String TAG_DOWNLOAD = "DOWNLOAD_WORK";
+
     // === Input keys ===
     public static final String KEY_URL = "url";
     public static final String KEY_DEST_FOLDER = "dest_folder";
@@ -144,13 +146,13 @@ public class DownloadWorker extends LoggingWorker {
         try {
             // Respect network policy (Constraints are preferred, this is a secondary guard)
             if (!NetworkUtils.isNetworkAvailable(ctx)) {
-                TaskStateManager.markTaskPaused(ctx.getString(R.string.no_internet_connection));
+                TaskStateManager.markDownloadPaused(ctx.getString(R.string.no_internet_connection));
                 return Result.retry();
             }
 
             // Optional: apply your manual vs auto policy (constraints should make most of this unnecessary)
             if (!isPolicyAllowed(ctx, isManual)) {
-                TaskStateManager.markTaskPaused(ctx.getString(R.string.Download_paused_due_to_network_policy));
+                TaskStateManager.markDownloadPaused(ctx.getString(R.string.Download_paused_due_to_network_policy));
                 return Result.retry();
             }
 
@@ -231,12 +233,12 @@ public class DownloadWorker extends LoggingWorker {
                             return Result.failure();
                         }
                         myLogW("Stopped by WM/constraints — keeping partial and retrying");
-                        TaskStateManager.markTaskPaused(getApplicationContext().getString(R.string.download_stopped_by_system_will_retry));
+                        TaskStateManager.markDownloadPaused(getApplicationContext().getString(R.string.download_stopped_by_system_will_retry));
                         return Result.retry(); // partial file kept; WM will reschedule when constraints are met
                     }
                     if (stoppedRequested.get()) {
                         myLogW("Stop requested");
-                        TaskStateManager.markTaskPaused(getApplicationContext().getString(R.string.download_paused_by_user));
+                        TaskStateManager.markDownloadPaused(getApplicationContext().getString(R.string.download_paused_by_user));
                         return Result.retry(); // partial file kept; WM will reschedule when constraints are met
                     }
                     if (cancelRequested.get()) {
@@ -260,7 +262,7 @@ public class DownloadWorker extends LoggingWorker {
                         while (true) {
                             if (isStopped()) {
                                 myLogW("Paused → stopped");
-                                TaskStateManager.markTaskPaused(TASK_NAME);
+                                TaskStateManager.markDownloadPaused(TASK_NAME);
                                 return Result.retry();
                             }
                             if (cancelRequested.get()) {
@@ -340,7 +342,7 @@ public class DownloadWorker extends LoggingWorker {
                 }
 
                 // Success
-                TaskStateManager.markDownloadCompleted(TASK_NAME, outFile.getAbsolutePath());
+                TaskStateManager.markDownloadCompleted(outFile.getAbsolutePath());
                 setProgressAsync(new Data.Builder()
                         .putInt(PROG_PERCENT, 100)
                         .putString(PROG_TEXT, progressText(written, fileLenIfKnown))
@@ -397,7 +399,7 @@ public class DownloadWorker extends LoggingWorker {
     private void TellHimWhyPause(String whyPause) {
         pauseRequested.set(true); //TODO useless : You don’t need to switch the notification to the paused layout here because the Worker is exiting with Result.retry(); your UI gets the paused reason via TaskStateManager.
         resumeRequested.set(false);
-        TaskStateManager.markTaskPaused(whyPause);
+        TaskStateManager.markDownloadPaused(whyPause);
     }
     // === Helpers ===
 
@@ -532,7 +534,7 @@ public class DownloadWorker extends LoggingWorker {
     }
 
     private void enterPausedState(Context ctx, int notifId, String title, String why) {
-        TaskStateManager.markTaskPaused(why);
+        TaskStateManager.markDownloadPaused(why);
         // Rebuild notification to show RESUME/CANCEL only
         try {
             setForegroundAsync(buildForegroundInfoPaused(ctx, notifId, title, why)).get();

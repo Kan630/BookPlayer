@@ -25,6 +25,7 @@ import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.objects.ItemMetadata;
 import com.driot.bookplayer.objects.LibrivoxApi;
+import com.driot.bookplayer.objects.TaskStateManager;
 import com.driot.bookplayer.services.LoadBookTaskState;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.objects.OngoingTaskHost;
@@ -386,6 +387,7 @@ public class LibrivoxDetailActivity extends LoggingActivity {
 
         setLoadBookTaskState(state);
 
+        TaskStateManager.tellStart();
         BookLoadingWorkLauncher.launch(this);
         FirebaseAnalyticsHelper.tellLibrivoxDownload(state.title);
         Intent intentActivity = new Intent(this, AddResourceActivity.class);

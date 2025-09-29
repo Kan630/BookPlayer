@@ -869,7 +869,16 @@
     <string name="Unsupported_ebook_type">Unsupported ebook type</string>
     <string name="download_stopped_by_system_will_retry">Download stopped by system — will retry</string>
     <string name="download_paused_by_user">Download paused by user</string>
-
+    <string name="download_resuming">Download resuming</string>
+    <string name="cancelled">Cancelled</string>
+    <string name="failed">Failed</string>
+    <string name="completed">Completed</string>
+    <string name="copy">copy</string>
+    <string name="importing_book">Importing Book</string>
+    <string name="three_dots" translatable="false">…</string>
+    <string name="checking_size">checking size</string>
+    <string name="error">error</string>
+    <string name="initialization">initialization</string>
 
 
 

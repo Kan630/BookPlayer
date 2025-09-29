@@ -94,14 +94,21 @@ public final class TaskStateRepository {
         post(next);
     }
 
-    public void resuming(@NonNull String text) {
+    public void downloadPaused(@NonNull String reason) {
+        TaskUiState cur = s();
+        TaskUiState next = cur
+                .setPaused(true)
+                .withWarning(reason)
+                .withProgressTextOnly(reason + "\n" + cur.progressText);
+        post(next);
+    }
+    public void downloadResuming(@NonNull String text) {
         TaskUiState cur = s();
         TaskUiState next = cur
                 .setPaused(false)
                 .withProgressTextOnly(text);
         post(next);
     }
-
     public void downloadComplete(@NonNull String currentOperation) {
         TaskUiState cur = s();
         TaskUiState next = cur

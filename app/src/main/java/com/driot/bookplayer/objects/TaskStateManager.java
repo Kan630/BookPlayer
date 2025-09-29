@@ -7,6 +7,7 @@ import android.os.Looper;
 
 import androidx.annotation.NonNull;
 
+import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
@@ -52,17 +53,17 @@ public class TaskStateManager {
         LoadBookTaskState state = Pref.getLoadBookTaskState();
         if (state != null) {
             state.onGoingLoading = true;
-            state.currentOperation = "initialization";
+            state.currentOperation = appContext.getString(R.string.initialization);
             Pref.setLoadBookTaskState(state);
 
             String title = state.title != null ? state.title : "";
             boolean httpLike = (state.originalUri != null) && String.valueOf(state.originalUri).startsWith("http");
 
-            TaskStateRepository.get().start(title, "initialization", httpLike, false);
+            TaskStateRepository.get().start(title, appContext.getString(R.string.initialization), httpLike, false);
 
             // reset cached calculations for a fresh run
             totalWeight = 0;
-            titleUI = "initializing";
+            titleUI = appContext.getString(R.string.initialization);
         } else {
             myLogEE(null, "tellStart - state == null");
         }
@@ -78,19 +79,32 @@ public class TaskStateManager {
 
     // ---- Markers that also persist sticky state in Pref ----
 
+    public static void markDownloadPaused(String whyPaused) {
+        myLogI("markDownloadPaused " + whyPaused);
+        LoadBookTaskState state = Pref.getLoadBookTaskState();
+        if (state != null) {
+            state.currentOperation = whyPaused;
+            state.isLoadingPaused = true;
+            Pref.setLoadBookTaskState(state);
+        } else {
+            myLogEE(null, "markTaskPaused - No valid LoadBookTaskState found - " + whyPaused);
+        }
+        TaskStateRepository.get().downloadPaused(whyPaused);
+    }
+
     public static void markDownloadResuming() {
         LoadBookTaskState state = Pref.getLoadBookTaskState();
-        String currentOperation = "Download resuming";
+        String currentOperation = appContext.getString(R.string.download_resuming);
         if (state != null) {
             state.isLoadingPaused = false;
             state.currentOperation = currentOperation;
             Pref.setLoadBookTaskState(state);
         }
-        TaskStateRepository.get().resuming(currentOperation);
+        TaskStateRepository.get().downloadResuming(currentOperation);
     }
 
-    public static void markDownloadCompleted(String taskName, String downloadedFileFullPath) {
-        String currentOperation = taskName + " completed - [" + downloadedFileFullPath + "]";
+    public static void markDownloadCompleted(String downloadedFileFullPath) {
+        String currentOperation = appContext.getString(R.string.download) + " " + appContext.getString(R.string.completed) + " - [" + downloadedFileFullPath + "]";
         LoadBookTaskState state = Pref.getLoadBookTaskState();
         if (state != null) {
             state.currentOperation = currentOperation;
@@ -100,7 +114,7 @@ public class TaskStateManager {
             state.downloadedFilePath = downloadedFileFullPath;
             state.downloadedFileReady = true;
             state.isLoadingPaused = false;
-            state.progressText = "download finished";
+            state.progressText = appContext.getString(R.string.Download_finished);
             Pref.setLoadBookTaskState(state);
         } else {
             myLogEE(null, "markDownloadCompleted - state == null");
@@ -126,8 +140,8 @@ public class TaskStateManager {
         TaskStateRepository.get().setCurrentOperation(currentOperation);
     }
 
-    public static void markCopyCompleted(String taskName, String destinationFolderPath) {
-        String currentOperation = taskName + " completed - [" + destinationFolderPath + "]";
+    public static void markCopyCompleted(String destinationFolderPath) {
+        String currentOperation = appContext.getString(R.string.copy) + " " + appContext.getString(R.string.completed) + " - [" + destinationFolderPath + "]";
         LoadBookTaskState state = Pref.getLoadBookTaskState();
         if (state != null) {
             state.currentOperation = currentOperation;
@@ -141,28 +155,8 @@ public class TaskStateManager {
         TaskStateRepository.get().setCurrentOperation(currentOperation);
     }
 
-    // ---- Progress / pause / cancel / fail ----
-
-    public static void markDownloadProgress(String taskName, int percent, String text) {
-        updateTaskProgress(percent, text, "Downloading", false);
-        tellProgress(taskName, percent, text);
-    }
-
-    public static void markTaskPaused(String whyPaused) {
-        myLogI("markTaskPaused " + whyPaused);
-        LoadBookTaskState state = Pref.getLoadBookTaskState();
-        if (state != null) {
-            state.currentOperation = whyPaused;
-            state.isLoadingPaused = true;
-            Pref.setLoadBookTaskState(state);
-        } else {
-            myLogEE(null, "markTaskPaused - No valid LoadBookTaskState found - " + whyPaused);
-        }
-        TaskStateRepository.get().pausedWithReason(whyPaused);
-    }
-
     public static void markTaskCancelled(String taskName) {
-        String currentOperation = taskName + " cancelled";
+        String currentOperation = taskName + " " + appContext.getString(R.string.cancelled);
         LoadBookTaskState state = Pref.getLoadBookTaskState();
         if (state != null) {
             state.currentOperation = currentOperation;
@@ -175,7 +169,7 @@ public class TaskStateManager {
     }
 
     public static void markTaskFailed(String taskName, String errorText) {
-        String currentOperation = taskName + " failed - [" + errorText + "]";
+        String currentOperation = taskName + " " + appContext.getString(R.string.failed) + " - [" + errorText + "]";
         LoadBookTaskState state = Pref.getLoadBookTaskState();
         if (state != null) {
             FirebaseAnalyticsHelper.tellLoadBookFailed(state.originalUri.toString(), taskName, errorText);
@@ -200,10 +194,25 @@ public class TaskStateManager {
         int realProgress = getRealProgress(taskName, progress);
         TaskStateRepository.get().progress(realProgress, progressText);
         checkTitle(taskName);
+        LoadBookTaskState state = Pref.getLoadBookTaskState();
+        if (state != null) {
+            state.progressText = progressText;
+            state.progressPercent = realProgress;
+            Pref.setLoadBookTaskState(state);
+        } else {
+            myLogEE(null, "tellProgress - No valid LoadBookTaskState found - [" + taskName + "] - progress: " + progress + " - [" + progressText + "]");
+        }
     }
 
     public static void tellProgressText(String progressText) {
         TaskStateRepository.get().setProgressText(progressText);
+        LoadBookTaskState state = Pref.getLoadBookTaskState();
+        if (state != null) {
+            state.progressText = progressText;
+            Pref.setLoadBookTaskState(state);
+        } else {
+            myLogEE(null, "tellProgressText - No valid LoadBookTaskState found - [" + progressText + "]");
+        }
     }
 
     public static void tellWarning(String warningText) {

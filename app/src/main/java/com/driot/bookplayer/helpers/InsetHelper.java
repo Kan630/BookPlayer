@@ -174,6 +174,44 @@ public final class InsetHelper {
     }
 
 
+    // 1) Ensure a view starts *below* the status bar / cutout.
+//    Keeps edge-to-edge on, but adds only TOP padding (and left/right if you wish).
+    public static void applyTopInsetsTo(@NonNull Activity activity, @NonNull View targetView) {
+        KanLogger.myLogD(TAG, "applyTopInsetsTo()");
+        applyInsets(activity, targetView,
+                new WindowConfig.Builder()
+                        .softInputAdjustResize(true)
+                        .allowShortEdgeCutout(false) // safer for headers
+                        .build(),
+                new PaddingConfig.Builder()
+                        .onlyTop()
+                        .handleCutout(true)
+                        .sides(true)          // set to false if you don’t want side padding
+                        .addToPadding(true)   // preserve existing margins/padding
+                        .build(),
+                /*consume*/ false);
+    }
+
+    // 2) Scrollable list behind nav bar, with IME lift.
+//    Only bottom padding + optional side padding. No top padding here.
+    public static void applyBottomInsetsForScrollable(@NonNull Activity activity, @NonNull View scrollableView) {
+        KanLogger.myLogD(TAG, "applyBottomInsetsForScrollable()");
+        applyInsets(activity, scrollableView,
+                new WindowConfig.Builder()
+                        .softInputAdjustResize(true)
+                        .allowShortEdgeCutout(true)
+                        .build(),
+                new PaddingConfig.Builder()
+                        .top(false)          // <-- important: no top padding here
+                        .bottom(true)
+                        .sides(true)
+                        .handleIME(true)
+                        .handleCutout(true)
+                        .addToPadding(false) // replace padding; your RV already has clipToPadding="false"
+                        .build(),
+                /*consume*/ false);
+    }
+
     // ===== Core =====
 
     private static void applyInsets(@NonNull Activity activity,

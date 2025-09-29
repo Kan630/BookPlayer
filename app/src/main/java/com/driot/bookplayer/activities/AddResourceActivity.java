@@ -84,10 +84,12 @@ public class AddResourceActivity extends LoggingActivity {
             if (Boolean.TRUE.equals(available)) {
                 boolean pausedNow = Boolean.TRUE.equals(viewModel.isPaused().getValue());
                 bPauseResume.setText(getString(pausedNow ? R.string.Resume : R.string.Pause));
-
+/*
                 if (progressBarText.getText().length() == 0) {
                     progressBarText.setText(getString(R.string.About_to_start_download));
                 }
+
+ */
             }        });
 
         viewModel.isPaused().observe(this, paused -> {
@@ -110,33 +112,14 @@ public class AddResourceActivity extends LoggingActivity {
 
     private void performPauseOrResume() {
         // Keep your existing service control; the VM/repo only reflects state.
-        LoadBookTaskState state = Pref.getLoadBookTaskState();
         boolean isPausedNow = Boolean.TRUE.equals(viewModel.isPaused().getValue());
         if (!isPausedNow) {
             myLogI("------ USER CLICKS btn PAUSE ----");
-            if (state!=null) {
-                java.util.UUID id = state.getDownloadWorkUUID();
-                if (id != null) {
-                    DownloadControl.sendPause(this, id);
-                }
-            }
+            DownloadControl.sendPause(this);
             // Button text will be updated by VM when repo sets paused=true
         } else {
             myLogI("------ USER CLICKS btn RESUME ----");
-            if (state!=null) {
-                java.util.UUID id = state.getDownloadWorkUUID();
-                if (id != null) {
-                    DownloadControl.sendResume(this, id);
-                }
-            }
-            /*
-            ContextCompat.startForegroundService(
-                    this,
-                    new Intent(this, DownloadForegroundService.class).setAction(DownloadForegroundService.ACTION_RESUME)
-            );
-
-             */
-            // Button text will be updated by VM when repo sets paused=false
+            DownloadControl.sendResume(this);
         }
     }
 

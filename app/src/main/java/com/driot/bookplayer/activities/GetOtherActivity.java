@@ -30,6 +30,7 @@ import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.objects.OngoingTaskHost;
+import com.driot.bookplayer.objects.TaskStateManager;
 import com.driot.bookplayer.utils.MediaScanner2;
 import com.driot.bookplayer.utils.NetworkUtils;
 import com.driot.bookplayer.utils.PermissionRequest;
@@ -233,6 +234,7 @@ public class GetOtherActivity extends LoggingActivity {
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
                     if (result.getResultCode() == Activity.RESULT_OK) {
+                        TaskStateManager.tellStart();
                         com.driot.bookplayer.services.BookLoadingWorkLauncher.launch(this);
                         startActivity(new Intent(this, AddResourceActivity.class));
                     }

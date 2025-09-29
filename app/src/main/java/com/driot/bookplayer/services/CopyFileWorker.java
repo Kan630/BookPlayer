@@ -78,7 +78,7 @@ public class CopyFileWorker extends LoggingWorker {
         if (forceSize > 0) {
             totalSize = forceSize;
         } else {
-            TaskStateManager.tellProgressText("checking size");
+            TaskStateManager.tellProgressText(context.getString(R.string.checking_size));
             totalSize = UriHelper.getSize(context, uri);
         }
         
@@ -129,9 +129,9 @@ public class CopyFileWorker extends LoggingWorker {
             }
             if (result) {
                 if ("Folder".equals(type)) {
-                    TaskStateManager.markCopyCompleted(TASK_NAME, destinationFolderPath);
+                    TaskStateManager.markCopyCompleted(destinationFolderPath);
                 } else {
-                    TaskStateManager.markCopyCompleted(TASK_NAME, destinationFolderPath + "/" + destinationFileName);
+                    TaskStateManager.markCopyCompleted(destinationFolderPath + "/" + destinationFileName);
                 }
                 return Result.success();
             } else {
@@ -190,7 +190,7 @@ public class CopyFileWorker extends LoggingWorker {
             ) {
         if (!destinationFolder.exists()) {
             if (!destinationFolder.mkdirs()) {
-                TaskStateManager.markTaskFailed(TASK_NAME, "Error creating destination folder in recursive folder copy for " + destinationFolder.getAbsolutePath());
+                TaskStateManager.markTaskFailed(TASK_NAME,  context.getString(R.string.failed_to_create_destination_folder) + " (recursive) - [" + destinationFolder.getAbsolutePath() + "]");
                 return;
             } else {
                 myLogD("Folder created: " + destinationFolder.getAbsolutePath());
@@ -315,8 +315,10 @@ public class CopyFileWorker extends LoggingWorker {
                 : context.getString(R.string.Import_Progress_copying_file_to_internal_reserved));
 
         String msg = progressMsg + "\n\n" +
-                context.getString(R.string.Error_Import_NotEnoughMemory_line3) + formatMemPadding(copiedSize/1024/1024, 0) + "Mo/" + formatMemPadding(totalSize/1024/1024, 0) + "Mo\n" +
-                context.getString(R.string.Error_Import_NotEnoughMemory_line2_1) + Tonio.formatMemPadding(availableMemory / 1048576L) + "Mo";
+                context.getString(R.string.Error_Import_NotEnoughMemory_line3) + formatMemPadding(copiedSize/1024/1024, 0) + " " + context.getString(R.string.MB)
+                +  " / " + formatMemPadding(totalSize/1024/1024, 0) + " " + context.getString(R.string.MB) +  "\n" +
+                context.getString(R.string.Error_Import_NotEnoughMemory_line2_1) + Tonio.formatMemPadding(availableMemory / 1048576L) + " " + context.getString(R.string.MB);
+        //TODO sd card or internal....   + live changing availableMemory ?
 
         if (!msg.equals(last_logged_msg)) {
             last_logged_msg = msg;
@@ -337,7 +339,7 @@ public class CopyFileWorker extends LoggingWorker {
                 return false;
             }
         } catch (Exception e) {
-            TaskStateManager.tellWarning("error checking size : " + e.getMessage());
+            TaskStateManager.tellWarning(context.getString(R.string.error) + " " + context.getString(R.string.checking_size) + " - " + e.getMessage());
         }
         return true;
     }

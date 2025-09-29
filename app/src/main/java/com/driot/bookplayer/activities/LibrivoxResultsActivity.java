@@ -52,14 +52,11 @@ public class LibrivoxResultsActivity extends LoggingActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_librivox_results);
 
-        //View topContainer = findViewById(R.id.headerLayout);
-        //View bottomBar = findViewById(R.id.recyclerView);
-        //View contentContainer = findViewById(R.id.recyclerView);
-        //InsetHelper.applyEdgeToEdge(this, topContainer, null, null);
-        //InsetHelper.applyInsetsForContentWithScrollableBottom(this, findViewById(R.id.headerLayout), findViewById(R.id.recyclerView));
-        //InsetHelper.apply(this);
-        InsetHelper.applyInsetsForScrollableBehindNavBar(this, findViewById(R.id.recyclerView));
+// Pad the whole screen down from the status bar
+        InsetHelper.applyTopInsetsTo(this, findViewById(R.id.rootLayout));
 
+// Let the list draw behind nav bar but stay readable, and lift for IME
+        InsetHelper.applyBottomInsetsForScrollable(this, findViewById(R.id.recyclerView));
         OngoingTaskHost.attach(
                 this,
                 R.id.topOverlayContainer,

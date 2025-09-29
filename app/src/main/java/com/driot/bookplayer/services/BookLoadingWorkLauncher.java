@@ -35,8 +35,6 @@ public class BookLoadingWorkLauncher {
         boolean doSplitEbook = false;
         boolean doUnzip = false;
 
-        TaskStateManager.tellStart(); //TODO maybe to remove
-
         LoadBookTaskState bookState = Pref.getLoadBookTaskState();
         if (bookState == null) throw new IllegalStateException("No task bookState found in BookLoadingWorkLauncher");
 
@@ -132,7 +130,8 @@ public class BookLoadingWorkLauncher {
                     .setConstraints(constraints)
                     .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 30, TimeUnit.SECONDS)
                     .setInputData(input)
-                    .addTag(BOOK_LOADING_WORKERS)
+                    .addTag(BookLoadingWorkLauncher.BOOK_LOADING_WORKERS) // existing pipeline tag
+                    .addTag(DownloadWorker.TAG_DOWNLOAD)                  // << new: tag ONLY the download step
                     .build();
 
             UUID downloadWorkId = downloadWork.getId();
