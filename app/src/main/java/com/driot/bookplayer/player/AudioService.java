@@ -394,14 +394,11 @@ public class AudioService extends LoggingService {
                     @Override public void onTick(int elapsedSeconds) {
                         Pref.addToTotalMsPlayed(DELAY_CHECK_TIMER_SLEEP);
                         updateZikFileStateInDB(false);
-                        Intent i = new Intent(NOTIFICATION_PLAYBACK_TIMER_VALUE)
-                                .putExtra(TIMER_VALUE, elapsedSeconds);
-                        LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(i);
+                        LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(new Intent(NOTIFICATION_PLAYBACK_TIMER_VALUE).putExtra(TIMER_VALUE, elapsedSeconds));
                     }
                     @Override public void onReachedMax() {
                         if (Option.getBeepAutoStop()) playBeep("2beeps");
-                        LocalBroadcastManager.getInstance(AudioService.this)
-                                .sendBroadcast(new Intent(NOTIFICATION_PLAYBACK_MAXTIMEREACH));
+                        LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(new Intent(NOTIFICATION_PLAYBACK_MAXTIMEREACH));
                         if (engine != null && engine.isPlaying()) mediaPlayerStop();
                         stopSelf();
                     }
@@ -481,13 +478,7 @@ public class AudioService extends LoggingService {
         );
 
         // Progress updater (DB)
-        progress = new com.driot.bookplayer.player.PlaybackProgressUpdater(
-                getApplicationContext(),
-                new com.driot.bookplayer.player.PlaybackProgressUpdater.Logger() {
-                    @Override public void d(String m) { myLogD(m); }
-                    @Override public void e(String m) { myLogE(m); }
-                    @Override public void ee(Throwable t, String m) { myLogEE(t, m); }
-                });
+        progress = new PlaybackProgressUpdater(this);
 
         LocalBroadcastManager.getInstance(this).registerReceiver(
                 pingReceiver,

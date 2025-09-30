@@ -4,7 +4,6 @@ import android.os.Handler;
 
 import androidx.annotation.NonNull;
 
-import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.utils.KanLogger;
 import com.driot.bookplayer.utils.Tonio;
@@ -22,7 +21,6 @@ public final class SleepTimer {
 
     private boolean running = false;
     private int elapsed = 0;  // en sec
-    private int elapsed_count = 1;
     private int maxMinutes = 0;
     private boolean beepOnStop = false;
 
@@ -32,21 +30,37 @@ public final class SleepTimer {
         this.l = listener;
     }
 
+    // in SleepTimer
+    private long lastTickRealtime = 0L;
+    private long playedSinceLastMinuteMs = 0L;
+    private long lastPostRealtime = 0L;
+
     private final Runnable r = new Runnable() {
         @Override public void run() {
             if (!running) return;
-            l.onTick(elapsed);
-            if (elapsed_count % 60 == 0) {
+
+            long now = android.os.SystemClock.elapsedRealtime();
+            if (lastPostRealtime == 0L) lastPostRealtime = now;
+            long delta = now - lastPostRealtime;           // real elapsed since last tick
+            lastPostRealtime = now;
+
+            // advance logical counters
+            elapsed += tickMs / 1000;
+
+            // accumulate **real** played time for analytics
+            playedSinceLastMinuteMs += delta;
+            if (playedSinceLastMinuteMs >= 60_000L) {
+                playedSinceLastMinuteMs -= 60_000L;
                 FirebaseAnalyticsHelper.tellPlayFor1min();
             }
+
+            l.onTick(elapsed);
+
             if (elapsed >= maxMinutes * 60) {
-                myLog("--------------   SLEEP PAUSE   ---------------------------------------------- " + Tonio.formatTime(elapsed*1000, true, true) + "s. since timer started.....      (AutoSleep set to " + maxMinutes + "min.)");
+                myLog("SLEEP PAUSE after " + Tonio.formatTime(elapsed*1000, true, true));
                 running = false;
                 l.onReachedMax();
             } else {
-                myLogD("----------------------------------------------------------------------------- " + Tonio.formatTime(elapsed*1000, true, true) + "s. since timer started.....      (AutoSleep set to " + maxMinutes + "min.)");
-                elapsed += tickMs / 1000;
-                elapsed_count += 1;
                 h.postDelayed(this, tickMs);
             }
         }
@@ -55,10 +69,13 @@ public final class SleepTimer {
     public void start(int customMinutes) {
         this.maxMinutes = Math.max(0, customMinutes);
         this.elapsed = 0;
+        this.playedSinceLastMinuteMs = 0L;
+        this.lastPostRealtime = 0L;
         if (running) stop();
         running = true;
         h.postDelayed(r, tickMs);
     }
+
 
     public void stop() {
         running = false;

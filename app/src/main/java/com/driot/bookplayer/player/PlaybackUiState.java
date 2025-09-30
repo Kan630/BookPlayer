@@ -30,7 +30,7 @@ public class PlaybackUiState {
         this.folderId = folderId;
         this.ready = ready;
         this.ttsMode = ttsMode;
-        myLog(toString());
+        //myLog(toString());
     }
 
     @Override public String toString() {
