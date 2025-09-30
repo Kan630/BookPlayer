@@ -9,16 +9,17 @@ import android.widget.TextView;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.helpers.InsetHelper;
+import com.driot.bookplayer.utils.log.LoggingActivity;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.checkbox.MaterialCheckBox;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-public class MsgBoxActivity extends AppCompatActivity {
+public class MsgBoxActivity extends LoggingActivity {
 
     // Types
     public static final int TYPE_INFO = 0;
@@ -53,6 +54,8 @@ public class MsgBoxActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_msgbox);
+
+        InsetHelper.apply(this);
 
         View root = findViewById(R.id.root);
         ImageView icon = findViewById(R.id.icon);
@@ -149,6 +152,7 @@ public class MsgBoxActivity extends AppCompatActivity {
             }
         });
         findViewById(R.id.card).setOnClickListener(v -> {/* bloquer propagation */});
+        myLog("MsgBox created.   type=" + type);
     }
 
     private Intent withCheck(Intent src, MaterialCheckBox cb) {

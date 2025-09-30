@@ -41,6 +41,7 @@ import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.TitleHelper;
@@ -276,19 +277,6 @@ public class PlayActivity extends LoggingActivity {
 
         if (Option.getScreenOrientationLock()) {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
-        }
-
-        if (1==1) {
-            MsgBox.alertWithNeutral(
-                    this,
-                    getString(R.string.error_reading_track),
-                    "error nessage",
-                    "zikfile path",
-                    getString(R.string.settings),
-                    new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).setData(android.net.Uri.fromParts("package", getPackageName(), null))
-            );
-            finish();
-            return;
         }
 
         //autoPlay = getIntent().getBooleanExtra(EXTRA_AUTOPLAY, false);
@@ -824,45 +812,67 @@ public class PlayActivity extends LoggingActivity {
     }
 
     private void finishAndShowFatalError(String errMessage) {
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(broadCastReceiver);
-
-        String pathText = null;
-        PlayList pl = PlayList.getInstance();
-        if (pl!=null && pl.getZikFile()!=null) {
-            pathText = getString(R.string.source_file_path) + " = \n[" + pl.getZikFile().getPath() + "]";
-        }
-        if (pathText!=null && (errMessage == null || errMessage.isEmpty())) {
-            if (pathText.contains(Var.PATH_CHECK_AUDIO_FILE_INTERNAL)) {
-                errMessage = getString(R.string.source_not_found);
-                myLogEE(null, "tellFataError() => Source file is inside app memory");
-            } else if (isReadAudioPermissionGranted(this)) {
-                errMessage = getString(R.string.source_not_found_deleted);
-            } else {
-                errMessage = getString(R.string.permission_not_set);
-                MsgBox.alertWithNeutral(
-                        this,
-                        getString(R.string.error_reading_track),
-                        errMessage,
-                        pathText,
-                        getString(R.string.device_settings),
-                        new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-                );
-                finish();
-            }
-        }
-        MsgBox.alert(
-                this,
-                getString(R.string.error_reading_track),
-                errMessage,
-                pathText
-        );
-        finish();
         try {
             unbindService(audioServiceConnection);
+            killTimerForDisplay();
+            LocalBroadcastManager.getInstance(this).unregisterReceiver(broadCastReceiver);
         } catch (Exception e) {
-            myLogEE(e, "unbindService(audioServiceConnection)");
+            myLogEE(e, "finishAndShowFatalError() init.");
         }
-        killTimerForDisplay();
+        try {
+            String pathText = null;
+            String zikFilePath;
+            PlayList pl = PlayList.getInstance();
+            if (pl!=null && pl.getZikFile()!=null) {
+                zikFilePath = pl.getZikFile().getPath();
+                pathText = getString(R.string.source_file_path) + " = \n[" + zikFilePath + "]";
+                if (!FileHelper.exists(zikFilePath)) {
+                    if (zikFilePath.contains(Var.PATH_CHECK_AUDIO_FILE_INTERNAL)) {
+                        errMessage = getString(R.string.source_not_found);
+                        myLogEE(null, "finishAndShowFatalError() => BAD BUG : Source file does not exist and should be inside app reserved memory [" + zikFilePath + "]");
+                    } else {
+                        errMessage = getString(R.string.source_not_found_deleted);
+                        myLogW(getString(R.string.source_not_found_deleted));
+                    }
+                } else {
+                    if (zikFilePath.contains(Var.PATH_CHECK_AUDIO_FILE_INTERNAL)) {
+                        errMessage = getString(R.string.source_not_found);
+                        myLogEE(null, "finishAndShowFatalError() => BAD BUG : Source file exists and is inside app reserved memory [" + zikFilePath + "]");
+                    } else {
+                        if (isReadAudioPermissionGranted(this)) {
+                            errMessage = getString(R.string.source_not_found);
+                            myLogEE(null, "finishAndShowFatalError() => BAD BUG : File exist and permission granted for [" + zikFilePath + "]");
+                        } else {
+                            errMessage = getString(R.string.permission_not_set);
+                            myLogW(getString(R.string.permission_not_set));
+                            MsgBox.alertWithNeutral(
+                                    this,
+                                    getString(R.string.error_reading_track),
+                                    errMessage,
+                                    pathText,
+                                    getString(R.string.settings),
+                                    new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                            );
+                            finish();
+                            return;                    }
+                        }
+                }
+            } else {
+                errMessage = getString(R.string.error_playlist_null);
+                myLogEE(null, "finishAndShowFatalError() => error_playlist_null");
+            }
+            MsgBox.alert(
+                    this,
+                    getString(R.string.error_reading_track),
+                    errMessage,
+                    pathText
+            );
+            finish();
+        } catch (Throwable t) {
+            myLogEE(t, "finishAndShowFatalError() show error");
+            finish();
+        }
+
     }
 
 
