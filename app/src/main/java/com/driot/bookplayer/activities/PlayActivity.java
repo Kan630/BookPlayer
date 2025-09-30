@@ -12,13 +12,19 @@ import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.provider.Settings;
+import android.text.Layout;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
+import android.text.method.ScrollingMovementMethod;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -43,12 +49,11 @@ import com.driot.bookplayer.player.PlayList;
 import com.driot.bookplayer.player.PlaybackUiState;
 import com.driot.bookplayer.player.AudioService;
 import com.driot.bookplayer.helpers.ViewHelper;
+import com.driot.bookplayer.utils.MsgBox;
 import com.driot.bookplayer.views.FrequencyVisualizerView;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -62,6 +67,7 @@ import static com.driot.bookplayer.utils.Tonio.formatTime;
 import static com.driot.bookplayer.utils.Tonio.getReadableSize;
 
 import androidx.activity.OnBackPressedCallback;
+import androidx.lifecycle.Observer;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 /**
@@ -81,7 +87,7 @@ public class PlayActivity extends LoggingActivity {
     private static final float INCREMENT_SPEED = 0.05f;
     AudioService audioService;
     boolean audioServiceBound = false;
-    private android.widget.ImageButton bPlayPause;
+    private ImageButton bPlayPause;
     ImageButton bRewind, bForward;
     Button bSpeedUp, bSpeedDown, bSetSleep;
 
@@ -125,7 +131,7 @@ public class PlayActivity extends LoggingActivity {
     private final BackgroundColorSpan ttsBgSpan = new BackgroundColorSpan(0x55FFFF00);
     private final ForegroundColorSpan ttsFgSpan = new ForegroundColorSpan(Color.BLACK);
     private int pendingStart = -1, pendingEnd = -1;
-    private final android.os.Handler uiH = new android.os.Handler(android.os.Looper.getMainLooper());
+    private final Handler uiH = new Handler(Looper.getMainLooper());
     private boolean highlightScheduled = false;
     private AutoCloseable ttsHandle;
     private String lastSavedTtsVoice;
@@ -137,7 +143,7 @@ public class PlayActivity extends LoggingActivity {
 
     private final ServiceConnection audioServiceConnection = new ServiceConnection() {
 
-        private final androidx.lifecycle.Observer<PlaybackUiState> uiObserver = state -> {
+        private final Observer<PlaybackUiState> uiObserver = state -> {
             if (state == null) return;
 
             // same UI updates you were doing in the ACTION_UI_STATE branch:
@@ -227,13 +233,12 @@ public class PlayActivity extends LoggingActivity {
                     myLogEE(null, "TTS Error : [" + err_msg + "]");
                     myToast(getString(R.string.toast_tts_not_ready));
                 } else {
-                    myToast(getString(R.string.error_reading_track));
-                    lockButtonAndDisplayErrorMessage(err_msg);
+                    finishAndShowFatalError(err_msg);
                 }
 
             } else if (Objects.equals(action, AudioService.NOTIFICATION_FILENOTFOUND)) {
                 Toast.makeText(getApplicationContext(), getString(R.string.error_reading_track) + "\n" + getString(R.string.error_file_not_found), Toast.LENGTH_SHORT).show();
-                lockButtonAndDisplayErrorMessage(null);
+                finishAndShowFatalError(null);
 
             } else if (Objects.equals(action, AudioService.NOTIFICATION_PLAYLISTFINISHED)) {
                 Toast.makeText(getApplicationContext(), R.string.notification_playlist_finished, Toast.LENGTH_SHORT).show();
@@ -248,7 +253,6 @@ public class PlayActivity extends LoggingActivity {
 
             } else if (Objects.equals(action, AudioService.READY_TO_PLAY)) {
                 DrawUI();
-                lockUserActions(false);
             } else if (Objects.equals(action, AudioService.NOTIFICATION_TTS_RANGE)) {
                 int s = intent.getIntExtra(AudioService.EXTRA_TTS_START, -1);
                 int e = intent.getIntExtra(AudioService.EXTRA_TTS_END, -1);
@@ -274,13 +278,33 @@ public class PlayActivity extends LoggingActivity {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
         }
 
+        if (1==1) {
+            MsgBox.alertWithNeutral(
+                    this,
+                    getString(R.string.error_reading_track),
+                    "error nessage",
+                    "zikfile path",
+                    getString(R.string.settings),
+                    new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).setData(android.net.Uri.fromParts("package", getPackageName(), null))
+            );
+            finish();
+            return;
+        }
+
         //autoPlay = getIntent().getBooleanExtra(EXTRA_AUTOPLAY, false);
         forceReload = getIntent().getBooleanExtra("force_reload", false);
         //myLogD("forceReload = " + forceReload + ", autoPlay = " + autoPlay);
 
         PlayList playList = PlayList.getInstance();
         if (playList == null) {
-            lockButtonAndDisplayErrorMessage(getString(R.string.error_playlist_null));
+            MsgBox.alert(
+                    this,
+                    getString(R.string.error_reading_track),
+                    getString(R.string.error_playlist_null),
+                    PlayList.getInstance() != null && PlayList.getInstance().getZikFile() != null
+                            ? PlayList.getInstance().getZikFile().getPath()
+                            : null
+            );
             myLogEE(null, "onCreate() -- cancelling since PlayList.getInstance() == null");
             return;
         }
@@ -657,8 +681,7 @@ public class PlayActivity extends LoggingActivity {
     private void DrawUI() {
         PlayList playList = PlayList.getInstance();
         if (playList == null) {
-            myToastEE(null, "DrawUI() -- cancelling since PlayList.getInstance() == null");
-            finish();
+            finishAndShowFatalError(null);
         } else if (playList.getZikFile() == null) {
             myToastEE(null,"DrawUI() => Cannot get Playlist - PlayList.getInstance().getZikFile() is null");
         } else {
@@ -800,71 +823,40 @@ public class PlayActivity extends LoggingActivity {
         }
     }
 
-
-    private void lockUserActions(boolean doLock) {
-        try {
-            List<View> buttonsToLock = Arrays.asList(bPlayPause, bRewind, bForward, bSpeedUp, bSpeedDown, bSetSleep);
-            for (View b : buttonsToLock) {
-                b.setEnabled(!doLock);
-            }
-            frequencyVisualizerView.setEnabled(!doLock);
-            seekbar.setEnabled(!doLock);
-            if (doLock) {
-                findViewById(R.id.dim_background).setVisibility(View.VISIBLE);
-                ShowMessageOverlay();
-            } else {
-                findViewById(R.id.dim_background).setVisibility(View.GONE);
-                HideMessageOverlay();
-            }
-        } catch (Throwable t) {
-            myLogEE(t, "lockUserActions");
-        }
-    }
-
-    private void lockButtonAndDisplayErrorMessage(String errMessage) {
-        myLog("lockButtonAndDisplayErrorMessage");
+    private void finishAndShowFatalError(String errMessage) {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(broadCastReceiver);
-        lockUserActions(true);
-        try {
-            TextView tv = findViewById(R.id.textViewOverlaidMessage);
-            TextView tv2 = findViewById(R.id.textViewOverlaidMessageDetails);
-            Button b1 = findViewById(R.id.btOverlaid01);
-            tv.setText("The source file could not be found or read.\n"); // in case bug later
-            if (errMessage != null) {
-                tv.setText(errMessage);
-                myLogEE(null,errMessage);
-            } else {
-                String zePath;
-                if (PlayList.getInstance()==null) {
-                    myLogEE(null, "lockButtonAndDisplayErrorMessage PlayList_getInstance() == null");
-                    zePath = "***";
-                } else {
-                    if (PlayList.getInstance().getZikFile() == null) {
-                        myLogEE(null, "lockButtonAndDisplayErrorMessage PlayList_getInstance()_getZikFile() == null");
-                        zePath = "***";
-                    } else {
-                        zePath = PlayList.getInstance().getZikFile().getPath();
-                    }
-                }
-                String pathText = getString(R.string.source_file_path) + " = \n[" + zePath + "]";
-                if (zePath.contains(Var.PATH_CHECK_AUDIO_FILE_INTERNAL)) {
-                    tv.setText(getString(R.string.source_not_found));
-                    myLog("Source file is inside app memory");
-                } else if (isReadAudioPermissionGranted(this)) {
-                    tv.setText(getString(R.string.source_not_found_deleted));
-                    tv2.setText(pathText);
-                } else {
-                    tv.setText(getString(R.string.permission_not_set));
-                    String msg = getString(R.string.permission_to_set) + "\n" + pathText;
-                    tv2.setText(msg);
-                    b1.setVisibility(View.VISIBLE);
-                    b1.setText(getString(R.string.device_settings));
-                    b1.setOnClickListener(v -> openAppSettingsOnPhone());
-                }
-            }
-        } catch (Exception e) {
-            myLogEE(e,"lockButtonAndDisplayErrorMessage");
+
+        String pathText = null;
+        PlayList pl = PlayList.getInstance();
+        if (pl!=null && pl.getZikFile()!=null) {
+            pathText = getString(R.string.source_file_path) + " = \n[" + pl.getZikFile().getPath() + "]";
         }
+        if (pathText!=null && (errMessage == null || errMessage.isEmpty())) {
+            if (pathText.contains(Var.PATH_CHECK_AUDIO_FILE_INTERNAL)) {
+                errMessage = getString(R.string.source_not_found);
+                myLogEE(null, "tellFataError() => Source file is inside app memory");
+            } else if (isReadAudioPermissionGranted(this)) {
+                errMessage = getString(R.string.source_not_found_deleted);
+            } else {
+                errMessage = getString(R.string.permission_not_set);
+                MsgBox.alertWithNeutral(
+                        this,
+                        getString(R.string.error_reading_track),
+                        errMessage,
+                        pathText,
+                        getString(R.string.device_settings),
+                        new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                );
+                finish();
+            }
+        }
+        MsgBox.alert(
+                this,
+                getString(R.string.error_reading_track),
+                errMessage,
+                pathText
+        );
+        finish();
         try {
             unbindService(audioServiceConnection);
         } catch (Exception e) {
@@ -873,17 +865,6 @@ public class PlayActivity extends LoggingActivity {
         killTimerForDisplay();
     }
 
-    private void openAppSettingsOnPhone() {
-        myLog("openAppSettingsOnPhone()");
-        try {
-            Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-            Uri uri = Uri.fromParts("package", getPackageName(), null);
-            intent.setData(uri);
-            startActivity(intent);
-        } catch (Exception e) {
-            myLogEE(e,"openAppSettingsOnPhone()");
-        }
-    }
 
     private void handlePodcastClick(Podcast podcast) {
         long currentTime = System.currentTimeMillis();
@@ -910,7 +891,7 @@ public class PlayActivity extends LoggingActivity {
 
 
         // allow user scrolling
-        tvTtsText.setMovementMethod(android.text.method.ScrollingMovementMethod.getInstance());
+        tvTtsText.setMovementMethod(ScrollingMovementMethod.getInstance());
 
         // enable tap / long-press to seek
         setupTtsTextInteractions();
@@ -947,7 +928,7 @@ public class PlayActivity extends LoggingActivity {
         // scroll the highlighted word into view
         tvTtsText.post(() -> {
             try {
-                android.text.Layout layout = tvTtsText.getLayout();
+                Layout layout = tvTtsText.getLayout();
                 if (layout != null) {
                     int line = layout.getLineForOffset(s);
                     int y = layout.getLineTop(line);
@@ -1008,7 +989,7 @@ public class PlayActivity extends LoggingActivity {
 
         // Mark when the user actually interacts with the spinner
         spinnerTtsVoice.setOnTouchListener((v, ev) -> {
-            if (ev.getAction() == android.view.MotionEvent.ACTION_UP) {
+            if (ev.getAction() == MotionEvent.ACTION_UP) {
                 myLogI("--- user click VOICE spinner --- ");
                 userTouched[0] = true;
                 v.performClick();
@@ -1076,9 +1057,9 @@ public class PlayActivity extends LoggingActivity {
 
     // CLICK DANS LE TEXTE
     private void setupTtsTextInteractions() {
-        final android.view.GestureDetector detector =
-                new android.view.GestureDetector(this, new android.view.GestureDetector.SimpleOnGestureListener() {
-                    @Override public boolean onSingleTapUp(android.view.MotionEvent e) {
+        final GestureDetector detector =
+                new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
+                    @Override public boolean onSingleTapUp(MotionEvent e) {
                         myLogI("--- USER CLICKS IN THE TEXT ---");
                         handleTtsTap(e);
                         return true;
@@ -1092,10 +1073,10 @@ public class PlayActivity extends LoggingActivity {
         });
     }
 
-    private void handleTtsTap(android.view.MotionEvent e) {
+    private void handleTtsTap(MotionEvent e) {
         if (spannableText == null || tvTtsText.getLayout() == null) return;
 
-        android.text.Layout layout = tvTtsText.getLayout();
+        Layout layout = tvTtsText.getLayout();
 
         int x = (int) e.getX();
         int y = (int) e.getY();
