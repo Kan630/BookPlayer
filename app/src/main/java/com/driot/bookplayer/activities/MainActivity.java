@@ -266,7 +266,7 @@
                 myLogD("LiveData onChange observed - List<Folders>");
 
                 if (folders == null || folders.isEmpty()) {
-                    if (!HasBeenProposedToOpenFile) openGetResourceActivity();
+                    if (!HasBeenProposedToOpenFile) startActivity(new Intent(getApplicationContext(), GetActivity.class));
                     HasBeenProposedToOpenFile = true;
                 }
 
@@ -274,24 +274,4 @@
                 if (a != null) a.submitList(folders);
             });
         }
-
-        private void showPermissionSnackbar() {
-            View view = findViewById(android.R.id.content);
-            Snackbar snackbar = Snackbar.make(view, getString(R.string.permission_record_audio_rationale_01), Snackbar.LENGTH_INDEFINITE);
-            snackbar.setAction("OK", v -> {
-                snackbar.dismiss();
-                askPermission();
-            });
-            snackbar.show();
-        }
-        private void askPermission() {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO}, 2399843);
-        }
-
-
-        public void openGetResourceActivity() {
-            Intent intent = new Intent(getApplicationContext(), GetActivity.class);
-            startActivity(intent);
-        }
-
     }

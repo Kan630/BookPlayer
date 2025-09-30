@@ -50,14 +50,25 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
         }
         @Override public boolean areContentsTheSame(@NonNull Folder a, @NonNull Folder b) {
             return a.getName().equals(b.getName())
-                    && safeEq(a.getPercentdone(), b.getPercentdone())
+                    && eq(a.getPercentdone(), b.getPercentdone())
                     && a.lLastAccess == b.lLastAccess
                     && a.getDuration() == b.getDuration()
-                    && safeEq(a.image, b.image)
-                    && safeEq(a.getSourceLocation(), b.getSourceLocation())
-                    && safeEq(a.playType, b.playType);
+                    && eq(a.image, b.image)
+                    && eq(a.getSourceLocation(), b.getSourceLocation())
+                    && eq(a.playType, b.playType);
         }
-        private boolean safeEq(Object x, Object y) { return x == null ? y == null : x.equals(y); }
+        @Override public Object getChangePayload(@NonNull Folder a, @NonNull Folder b) {
+            // Return fine-grained payloads to avoid full row rebinds
+            if (!eq(a.getPercentdone(), b.getPercentdone())) return "progress";
+            if (a.lLastAccess != b.lLastAccess)              return "lastAccess";
+            if (a.getDuration() != b.getDuration())          return "duration";
+            if (!eq(a.image, b.image))                       return "image";
+            if (!eq(a.getName(), b.getName()))               return "name";
+            if (!eq(a.getSourceLocation(), b.getSourceLocation())
+                    || !eq(a.playType, b.playType))          return "source";
+            return null;
+        }
+        private boolean eq(Object x, Object y) { return x == null ? y == null : x.equals(y); }
     };
 
     public FoldersRVAdapter(Context ctx) {
