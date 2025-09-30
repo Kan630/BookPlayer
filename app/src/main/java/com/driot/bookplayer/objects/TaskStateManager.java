@@ -57,7 +57,7 @@ public class TaskStateManager {
             Pref.setLoadBookTaskState(state);
 
             String title = state.title != null ? state.title : "";
-            boolean httpLike = (state.originalUri != null) && String.valueOf(state.originalUri).startsWith("http");
+            boolean httpLike = String.valueOf(state.originalUri).startsWith("http");
 
             TaskStateRepository.get().start(title, appContext.getString(R.string.initialization), httpLike, false);
 
@@ -172,7 +172,7 @@ public class TaskStateManager {
         String currentOperation = taskName + " " + appContext.getString(R.string.failed) + " - [" + errorText + "]";
         LoadBookTaskState state = Pref.getLoadBookTaskState();
         if (state != null) {
-            FirebaseAnalyticsHelper.tellLoadBookFailed(state.originalUri.toString(), taskName, errorText);
+            FirebaseAnalyticsHelper.tellLoadBookFailed(String.valueOf(state.originalUri), taskName, errorText);
             state.currentOperation = currentOperation;
             state.onGoingLoading = false;
             Pref.setLoadBookTaskState(state);

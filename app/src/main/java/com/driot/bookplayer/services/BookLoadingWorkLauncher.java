@@ -16,7 +16,6 @@ import androidx.work.WorkManager;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.helpers.StorageHelper;
-import com.driot.bookplayer.objects.TaskStateManager;
 import com.driot.bookplayer.utils.KanLogger;
 
 import java.util.ArrayList;
@@ -58,7 +57,7 @@ public class BookLoadingWorkLauncher {
         myLog("*********************************************************************************************************");
         myLog("*********************************************************************************************************");
 
-        FirebaseAnalyticsHelper.tellAnalyticsWork(bookState.originalUri.toString());
+        FirebaseAnalyticsHelper.tellAnalyticsWork(String.valueOf(bookState.originalUri));
 
         if (bookState.dynamicUri.toString().startsWith("http")) {
             myLogD("http => download");

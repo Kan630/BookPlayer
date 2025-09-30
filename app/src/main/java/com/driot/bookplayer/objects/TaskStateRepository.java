@@ -32,7 +32,7 @@ public final class TaskStateRepository {
             // Build a running state from persisted info
             TaskUiState next = TaskUiState.idle().started(nonNull(s.title))
                     .withProgress(s.progressPercent, nonNull(s.progressText))
-                    .setPauseAvailable(s.originalUri != null && String.valueOf(s.originalUri).startsWith("http"))
+                    .setPauseAvailable(String.valueOf(s.originalUri).startsWith("http"))
                     .setPaused(s.isLoadingPaused);
             post(next);
         }

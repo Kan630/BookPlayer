@@ -503,7 +503,7 @@ public class ParseFinalFolderWorker extends LoggingWorker {
         if (saved == 0) {
             TaskStateManager.markTaskFailed(TASK_NAME, context.getString(R.string.Error_Import_No_Usable_item_Found));
         } else {
-            FirebaseAnalyticsHelper.tellLoadBookSuccess(bookState.originalUri.toString());
+            FirebaseAnalyticsHelper.tellLoadBookSuccess(String.valueOf(bookState.originalUri));
         }
 
         myLogD("deleting source ??"
