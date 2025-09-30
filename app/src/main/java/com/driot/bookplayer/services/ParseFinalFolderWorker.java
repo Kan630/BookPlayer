@@ -143,9 +143,9 @@ public class ParseFinalFolderWorker extends LoggingWorker {
                 TaskStateManager.markTaskFailed(TASK_NAME, context.getString(R.string.Error_Import_CannotReadFile));
                 return Result.failure();
             }
-            MyAudioMetadata metadata;
             try {
-                metadata = AudioMetadataHelper.extractMetadata(context, bookState.dynamicUri);
+                // the temp image is updated at the end..  ImageHelper.finalizeTempFolderImage
+                MyAudioMetadata metadata = AudioMetadataHelper.extractMetadata(context, bookState.dynamicUri);
             } catch (Throwable t) {
                 myLogEE(t, "Error parsing metadata");
             }
