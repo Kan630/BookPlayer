@@ -812,39 +812,54 @@ public class PlayActivity extends LoggingActivity {
     }
 
     private void finishAndShowFatalError(String errMessage) {
+        // 1) Tear down safely
         try {
-            unbindService(audioServiceConnection);
-            killTimerForDisplay();
+            if (audioServiceBound) { // only unbind if bound
+                unbindService(audioServiceConnection);
+                audioServiceBound = false;
+            }
+        } catch (Exception e) {
+            myLogEE(e, "finishAndShowFatalError() unbind");
+        }
+
+        try { killTimerForDisplay(); } catch (Exception ignored) {}
+        try {
             LocalBroadcastManager.getInstance(this).unregisterReceiver(broadCastReceiver);
         } catch (Exception e) {
-            myLogEE(e, "finishAndShowFatalError() init.");
+            myLogEE(e, "finishAndShowFatalError() unregister");
         }
+
         try {
+            // 2) Build path details if available
             String pathText = null;
-            String zikFilePath;
+            String zikFilePath = null;
+
             PlayList pl = PlayList.getInstance();
-            if (pl!=null && pl.getZikFile()!=null) {
+            if (pl != null && pl.getZikFile() != null) {
                 zikFilePath = pl.getZikFile().getPath();
                 pathText = getString(R.string.source_file_path) + " = \n[" + zikFilePath + "]";
-                if (!FileHelper.exists(zikFilePath)) {
+
+                boolean exists = FileHelper.exists(zikFilePath);
+
+                if (!exists) {
                     if (zikFilePath.contains(Var.PATH_CHECK_AUDIO_FILE_INTERNAL)) {
                         errMessage = getString(R.string.source_not_found);
-                        myLogEE(null, "finishAndShowFatalError() => BAD BUG : Source file does not exist and should be inside app reserved memory [" + zikFilePath + "]");
+                        myLogEE(null, "BAD BUG: file missing inside app private dir [" + zikFilePath + "]");
                     } else {
                         errMessage = getString(R.string.source_not_found_deleted);
                         myLogW(getString(R.string.source_not_found_deleted));
                     }
                 } else {
                     if (zikFilePath.contains(Var.PATH_CHECK_AUDIO_FILE_INTERNAL)) {
+                        // Should be readable without permissions
                         errMessage = getString(R.string.source_not_found);
-                        myLogEE(null, "finishAndShowFatalError() => BAD BUG : Source file exists and is inside app reserved memory [" + zikFilePath + "]");
+                        myLogEE(null, "BAD BUG: file exists in private dir but not readable [" + zikFilePath + "]");
                     } else {
-                        if (isReadAudioPermissionGranted(this)) {
-                            errMessage = getString(R.string.source_not_found);
-                            myLogEE(null, "finishAndShowFatalError() => BAD BUG : File exist and permission granted for [" + zikFilePath + "]");
-                        } else {
+                        // External file case: if permission missing → offer Settings
+                        if (!isReadAudioPermissionGranted(this)) {
                             errMessage = getString(R.string.permission_not_set);
-                            myLogW(getString(R.string.permission_not_set));
+                            myLogW(errMessage);
+
                             MsgBox.alertWithNeutral(
                                     this,
                                     getString(R.string.error_reading_track),
@@ -852,15 +867,23 @@ public class PlayActivity extends LoggingActivity {
                                     pathText,
                                     getString(R.string.settings),
                                     new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                                            .setData(android.net.Uri.fromParts("package", getPackageName(), null))
                             );
                             finish();
-                            return;                    }
+                            return;
+                        } else {
+                            // Permission granted + file exists, but we still failed to read → generic not found
+                            errMessage = getString(R.string.source_not_found);
+                            myLogEE(null, "BAD BUG: file exists and permission granted [" + zikFilePath + "]");
                         }
+                    }
                 }
             } else {
                 errMessage = getString(R.string.error_playlist_null);
                 myLogEE(null, "finishAndShowFatalError() => error_playlist_null");
             }
+
+            // 3) Default alert (no neutral)
             MsgBox.alert(
                     this,
                     getString(R.string.error_reading_track),
@@ -868,12 +891,13 @@ public class PlayActivity extends LoggingActivity {
                     pathText
             );
             finish();
+
         } catch (Throwable t) {
             myLogEE(t, "finishAndShowFatalError() show error");
             finish();
         }
-
     }
+
 
 
     private void handlePodcastClick(Podcast podcast) {
