@@ -393,6 +393,17 @@
         <item name="android:background">@android:color/darker_gray</item>
     </style>>
 
+    <!-- Thème de l'activité en style "dialog" qui respecte ton thème M3 : parent="Theme.Material3.DayNight.Dialog"    Theme.MaterialComponents.DayNight.NoActionBar-->
+    <style name="Theme.BookPlayer.DialogActivity" parent="Theme.Material3.DayNight.Dialog">
+        <item name="android:windowCloseOnTouchOutside">false</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowAnimationStyle">@style/Anim.BookPlayer.Dialog</item>
+    </style>
+
+    <style name="Anim.BookPlayer.Dialog" parent="@android:style/Animation.Dialog">
+        <item name="android:windowEnterAnimation">@android:anim/fade_in</item>
+        <item name="android:windowExitAnimation">@android:anim/fade_out</item>
+    </style>
 
 
 

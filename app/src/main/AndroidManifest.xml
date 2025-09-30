@@ -71,6 +71,13 @@
             android:enabled="true">
         </activity>
         <activity
+            android:name=".activities.MsgBoxActivity"
+            android:exported="false"
+            android:theme="@style/Theme.BookPlayer.DialogActivity"
+            android:launchMode="singleTop"
+            android:taskAffinity=""
+            android:excludeFromRecents="true" />
+        <activity
             android:name=".activities.AdminActivity"
             android:exported="false"
             android:label="Admin"
