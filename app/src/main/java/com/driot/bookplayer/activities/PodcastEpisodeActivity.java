@@ -26,6 +26,8 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import androidx.media3.common.AudioAttributes;
+import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
 import androidx.media3.exoplayer.ExoPlayer;
 
@@ -43,6 +45,7 @@ import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.objects.DisplayableEpisode;
+import com.driot.bookplayer.player.AudioService;
 import com.driot.bookplayer.player.PlayList;
 import com.driot.bookplayer.objects.PodcastEpisode;
 import com.driot.bookplayer.objects.PodcastFeed;
@@ -78,7 +81,7 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
 
     private boolean sortNewestFirst;
 
-    private ExoPlayer player;
+    private ExoPlayer exoPlayer;
     private boolean isPlaying = false;
 
     private DisplayableEpisode currentEpisode;
@@ -255,11 +258,11 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
 
 
 // PLAYER
-        player = new ExoPlayer.Builder(this).build();
-        player.addListener(new androidx.media3.common.Player.Listener() {
+        exoPlayer = new ExoPlayer.Builder(this).build();
+        exoPlayer.addListener(new androidx.media3.common.Player.Listener() {
             @Override
             public void onPlaybackStateChanged(int state) {
-                boolean playWhenReady = player.getPlayWhenReady();
+                boolean playWhenReady = exoPlayer.getPlayWhenReady();
                 switch (state) {
                     case androidx.media3.common.Player.STATE_BUFFERING:
                         myLogD("STATE_BUFFERING");
@@ -315,30 +318,30 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
         // PlayerView pv = findViewById(R.id.playerViewMini);
         // pv.setPlayer(player);
 
-        btnMiniBack.setOnClickListener(v -> { if (player != null) player.seekTo(Math.max(0, player.getCurrentPosition() - 15_000)); });
-        btnMiniForward.setOnClickListener(v -> { if (player != null) player.seekTo(player.getCurrentPosition() + 15_000); });
+        btnMiniBack.setOnClickListener(v -> { if (exoPlayer != null) exoPlayer.seekTo(Math.max(0, exoPlayer.getCurrentPosition() - 15_000)); });
+        btnMiniForward.setOnClickListener(v -> { if (exoPlayer != null) exoPlayer.seekTo(exoPlayer.getCurrentPosition() + 15_000); });
 
         btnMiniPlayPause.setOnClickListener(v -> {
-            if (player == null) return;
-            if (player.isPlaying()) {
-                player.pause();
+            if (exoPlayer == null) return;
+            if (exoPlayer.isPlaying()) {
+                exoPlayer.pause();
             } else {
-                player.play();
+                exoPlayer.play();
             }
         });
 
         seekMini.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override public void onProgressChanged(SeekBar sb, int progress, boolean fromUser) {
-                if (!fromUser || player == null || miniUserSeeking) return;
+                if (!fromUser || exoPlayer == null || miniUserSeeking) return;
             }
             @Override public void onStartTrackingTouch(SeekBar sb) { miniUserSeeking = true; }
             @Override public void onStopTrackingTouch(SeekBar sb) {
                 setMiniLoading(true);
-                if (player != null) {
-                    long dur = player.getDuration();
+                if (exoPlayer != null) {
+                    long dur = exoPlayer.getDuration();
                     if (dur > 0) {
                         long pos = (dur * sb.getProgress()) / sb.getMax();
-                        player.seekTo(pos);
+                        exoPlayer.seekTo(pos);
                     }
                 }
                 miniUserSeeking = false;
@@ -352,7 +355,7 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
     }
 
     @Override protected void onDestroy() {
-        if (player != null) { player.release(); player = null; }
+        if (exoPlayer != null) { exoPlayer.release(); exoPlayer = null; }
         stopMiniTicker();
         super.onDestroy();
     }
@@ -575,7 +578,7 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
                     if (isFinishing() || isDestroyed()) return;
 
                     if (!zikFilesList.isEmpty()) {
-                        closePlayer();
+                        closeExoPlayer();
                         startActivity(new Intent(this, ZikFileActivity.class).putExtra("folder", folder));
                     } else {
                         myLogE("no ZikFiles in that folder !");
@@ -601,13 +604,23 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
 
     private void playEpisode(DisplayableEpisode ep) {
         if (ep == null) return;
+
+        stopAudioServiceIfRunning();
+
+        // ExoPlayer
         currentEpisode = ep;
         beginStartupTiming();
         setMiniLoading(true);
 
-        player.setMediaItem(MediaItem.fromUri(ep.enclosureUrl));
-        player.prepare();
-        player.play();
+        AudioAttributes attrs = new AudioAttributes.Builder()
+                .setUsage(C.USAGE_MEDIA)
+                .setContentType(C.AUDIO_CONTENT_TYPE_SPEECH) // pour musique: MUSIC ; pour podcast/voix: SPEECH (meilleur ducking)
+                .build();
+        exoPlayer.setAudioAttributes(attrs, /*handleAudioFocus=*/ true);
+
+        exoPlayer.setMediaItem(MediaItem.fromUri(ep.enclosureUrl));
+        exoPlayer.prepare();
+        exoPlayer.play();
 
         isPlaying = true;
         adapter.setCurrentlyPlayingEpisodeId(ep.idEpisode);
@@ -619,12 +632,12 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
         myLogD("onPlayEpisode [" + ep.title + "]");
         if (currentEpisode != null && currentEpisode.idEpisode == ep.idEpisode) {
             // Same episode toggled
-            if (player != null && player.isPlaying()) {
-                player.pause();
+            if (exoPlayer != null && exoPlayer.isPlaying()) {
+                exoPlayer.pause();
                 isPlaying = false;
-            } else if (player != null) {
+            } else if (exoPlayer != null) {
                 // resume (no spinner here; RESUME is near-instant)
-                player.play();
+                exoPlayer.play();
                 isPlaying = true;
             }
         } else {
@@ -636,8 +649,8 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
 
     @Override
     public void onOpenLocalEpisode(ZikFile zikFile) {
-        // 1) Stop/clear ExoPlayer (so it doesn't keep playing under PlayActivity)
-        closePlayer();
+        closeExoPlayer();
+        stopAudioServiceIfRunning();
 
         // 2) Launch PlayActivity with the local file
         // open Play
@@ -732,9 +745,9 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
         stopMiniTicker();
         miniTicker = new Runnable() {
             @Override public void run() {
-                if (player != null && !miniUserSeeking) {
-                    long pos = player.getCurrentPosition();
-                    long dur = player.getDuration();
+                if (exoPlayer != null && !miniUserSeeking) {
+                    long pos = exoPlayer.getCurrentPosition();
+                    long dur = exoPlayer.getDuration();
                     if (dur > 0) {
                         int prog = (int) ((pos * seekMini.getMax()) / dur);
                         seekMini.setProgress(prog);
@@ -881,11 +894,11 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
     }
 
 
-    private void closePlayer() {
-        if (player != null) {
+    private void closeExoPlayer() {
+        if (exoPlayer != null) {
             try {
-                player.stop();             // stop playback immediately
-                player.clearMediaItems();  // remove the streamed item
+                exoPlayer.stop();             // stop playback immediately
+                exoPlayer.clearMediaItems();  // remove the streamed item
             } catch (Exception ignored) {}
         }
         isPlaying = false;
@@ -894,5 +907,20 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
         currentEpisode = null;
         if (adapter != null) adapter.setCurrentlyPlayingEpisodeId(null); // remove highlight
         hideMini();
+    }
+
+    private void stopAudioServiceIfRunning() {
+        if (AudioService.isRunning) {
+            Intent cmd = new Intent(this, AudioService.class)
+                    .setAction(AudioService.ACTION_CMD)
+                    .putExtra(AudioService.EXTRA_CMD, AudioService.CMD_STOP);
+            try {
+                // App au premier plan → safe, pas de règle des 5s
+                startService(cmd);
+            } catch (IllegalStateException e) {
+                // Si jamais l’app est en arrière-plan, au pire on force l’arrêt
+                stopService(new Intent(this, AudioService.class));
+            }
+        }
     }
 }
