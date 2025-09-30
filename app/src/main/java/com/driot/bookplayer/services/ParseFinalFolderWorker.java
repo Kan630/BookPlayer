@@ -24,11 +24,13 @@ import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.helpers.AudioMetadataHelper;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.SupportedFilesHelper;
 import com.driot.bookplayer.helpers.UriHelper;
 import com.driot.bookplayer.objects.AudioFileInfo;
+import com.driot.bookplayer.objects.MyAudioMetadata;
 import com.driot.bookplayer.objects.TaskStateManager;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingWorker;
@@ -141,12 +143,13 @@ public class ParseFinalFolderWorker extends LoggingWorker {
                 TaskStateManager.markTaskFailed(TASK_NAME, context.getString(R.string.Error_Import_CannotReadFile));
                 return Result.failure();
             }
-            /*
-// METADATA
-            MyAudioMetadata metadata = AudioMetadataHelper.extractMetadata(context, bookState.dynamicUri);
+            MyAudioMetadata metadata;
+            try {
+                metadata = AudioMetadataHelper.extractMetadata(context, bookState.dynamicUri);
+            } catch (Throwable t) {
+                myLogEE(t, "Error parsing metadata");
+            }
 
-             */
-// THE REST
             populateArrayListOfTracksFromFile(df);
         }
         return Result.success();
