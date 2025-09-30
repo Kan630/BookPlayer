@@ -166,4 +166,57 @@
     <color name="green_Surface">#E8F5E9</color>
     <color name="green_dark_Surface">#E6F4EA</color>
 
+    <color name="purple_SurfacePressed">#E2DDEB</color>
+    <color name="purple_SurfaceActivated">#D4CEDB</color>
+
+    <color name="gray_SurfacePressed">#E6E6E6</color>
+    <color name="gray_SurfaceActivated">#D7D7D7</color>
+
+    <color name="brown_SurfacePressed">#E4DED9</color>
+    <color name="brown_SurfaceActivated">#D5CFCB</color>
+
+    <color name="yellow_SurfacePressed">#EBE9D5</color>
+    <color name="yellow_SurfaceActivated">#DBDAC7</color>
+
+    <color name="yellow_dark_SurfacePressed">#EBE4CF</color>
+    <color name="yellow_dark_SurfaceActivated">#DBD5C2</color>
+
+    <color name="orange_SurfacePressed">#EBE0CE</color>
+    <color name="orange_SurfaceActivated">#DBD1C1</color>
+
+    <color name="red_SurfacePressed">#EBD8DB</color>
+    <color name="red_SurfaceActivated">#DBCACD</color>
+
+    <color name="red_dark_SurfacePressed">#EBD7D7</color>
+    <color name="red_dark_SurfaceActivated">#DBC9C9</color>
+
+    <color name="pink_light_SurfacePressed">#EBDDE0</color>
+    <color name="pink_light_SurfaceActivated">#DBCED2</color>
+
+    <color name="pink_SurfacePressed">#EBDDE3</color>
+    <color name="pink_SurfaceActivated">#DBCED4</color>
+
+    <color name="pink_dark_SurfacePressed">#EBD4DD</color>
+    <color name="pink_dark_SurfaceActivated">#DBC6CE</color>
+
+    <color name="cyan_SurfacePressed">#CEE3E6</color>
+    <color name="cyan_SurfaceActivated">#C1D4D7</color>
+
+    <color name="pastel_blue_SurfacePressed">#D1DFE9</color>
+    <color name="pastel_blue_SurfaceActivated">#C3D0DA</color>
+
+    <color name="indigo_SurfacePressed">#D5D7E2</color>
+    <color name="indigo_SurfaceActivated">#C8C9D4</color>
+
+    <color name="turquoise_SurfacePressed">#CEE3E1</color>
+    <color name="turquoise_SurfaceActivated">#C1D4D3</color>
+
+    <color name="green_light_SurfacePressed">#DEE4D6</color>
+    <color name="green_light_SurfaceActivated">#CFD5C8</color>
+
+    <color name="green_SurfacePressed">#D5E1D6</color>
+    <color name="green_SurfaceActivated">#C8D3C8</color>
+
+    <color name="green_dark_SurfacePressed">#D4E0D7</color>
+    <color name="green_dark_SurfaceActivated">#C6D2C9</color>
 </resources>

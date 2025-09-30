@@ -14,6 +14,8 @@
         <item name="colorOutline">@color/bp_outline</item>
         <item name="colorSurfaceVariant">@color/purple_Surface</item>
         <item name="colorOnSurfaceVariant">@color/bp_onSurface</item>
+        <item name="colorSurfaceActivated">@color/purple_SurfaceActivated</item>
+        <item name="colorSurfacePressed">@color/purple_SurfacePressed</item>
 
         <!-- System bars / window -->
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
@@ -23,7 +25,6 @@
 
     <style name="Theme.BookPlayer.Purple" parent="Theme.BookPlayer">
     </style>
-
     <style name="Theme.BookPlayer.Gray" parent="Theme.BookPlayer">
         <item name="colorPrimary">@color/gray_500</item>
         <item name="colorPrimaryVariant">@color/gray_700</item>
@@ -32,6 +33,8 @@
         <item name="colorSecondaryVariant">@color/gray_900</item>
         <item name="colorOnSecondary">@color/black</item>
         <item name="colorSurfaceVariant">@color/gray_Surface</item>
+        <item name="colorSurfaceActivated">@color/gray_SurfaceActivated</item>
+        <item name="colorSurfacePressed">@color/gray_SurfacePressed</item>
     </style>
 
     <style name="Theme.BookPlayer.Green" parent="Theme.BookPlayer">
@@ -42,6 +45,8 @@
         <item name="colorSecondaryVariant">@color/green_900</item>
         <item name="colorOnSecondary">@color/white</item>
         <item name="colorSurfaceVariant">@color/green_Surface</item>
+        <item name="colorSurfaceActivated">@color/green_SurfaceActivated</item>
+        <item name="colorSurfacePressed">@color/green_SurfacePressed</item>
     </style>
 
     <style name="Theme.BookPlayer.Orange" parent="Theme.BookPlayer">
@@ -52,6 +57,8 @@
         <item name="colorSecondaryVariant">@color/orange_900</item>
         <item name="colorOnSecondary">@color/black</item>
         <item name="colorSurfaceVariant">@color/orange_Surface</item>
+        <item name="colorSurfaceActivated">@color/orange_SurfaceActivated</item>
+        <item name="colorSurfacePressed">@color/orange_SurfacePressed</item>
     </style>
 
     <style name="Theme.BookPlayer.Pink" parent="Theme.BookPlayer">
@@ -62,6 +69,8 @@
         <item name="colorSecondaryVariant">@color/pink_900</item>
         <item name="colorOnSecondary">@color/black</item>
         <item name="colorSurfaceVariant">@color/pink_Surface</item>
+        <item name="colorSurfaceActivated">@color/pink_SurfaceActivated</item>
+        <item name="colorSurfacePressed">@color/pink_SurfacePressed</item>
     </style>
 
     <style name="Theme.BookPlayer.Blue" parent="Theme.BookPlayer">
@@ -72,6 +81,8 @@
         <item name="colorSecondaryVariant">@color/pastel_blue_900</item>
         <item name="colorOnSecondary">@color/black</item>
         <item name="colorSurfaceVariant">@color/pastel_blue_Surface</item>
+        <item name="colorSurfaceActivated">@color/pastel_blue_SurfaceActivated</item>
+        <item name="colorSurfacePressed">@color/pastel_blue_SurfacePressed</item>
     </style>
 
     <style name="Theme.BookPlayer.Red" parent="Theme.BookPlayer">
@@ -82,6 +93,8 @@
         <item name="colorSecondaryVariant">@color/red_900</item>
         <item name="colorOnSecondary">@color/black</item>
         <item name="colorSurfaceVariant">@color/red_Surface</item>
+        <item name="colorSurfaceActivated">@color/red_SurfaceActivated</item>
+        <item name="colorSurfacePressed">@color/red_SurfacePressed</item>
     </style>
 
     <style name="Theme.BookPlayer.Yellow" parent="Theme.BookPlayer">
@@ -92,6 +105,8 @@
         <item name="colorSecondaryVariant">@color/yellow_900</item>
         <item name="colorOnSecondary">@color/black</item>
         <item name="colorSurfaceVariant">@color/yellow_Surface</item>
+        <item name="colorSurfaceActivated">@color/yellow_SurfaceActivated</item>
+        <item name="colorSurfacePressed">@color/yellow_SurfacePressed</item>
     </style>
 
     <style name="Theme.BookPlayer.Cyan" parent="Theme.BookPlayer">
@@ -102,6 +117,8 @@
         <item name="colorSecondaryVariant">@color/cyan_900</item>
         <item name="colorOnSecondary">@color/black</item>
         <item name="colorSurfaceVariant">@color/cyan_Surface</item>
+        <item name="colorSurfaceActivated">@color/cyan_SurfaceActivated</item>
+        <item name="colorSurfacePressed">@color/cyan_SurfacePressed</item>
     </style>
 
     <style name="Theme.BookPlayer.Brown" parent="Theme.BookPlayer">
@@ -112,6 +129,8 @@
         <item name="colorSecondaryVariant">@color/brown_900</item>
         <item name="colorOnSecondary">@color/white</item>
         <item name="colorSurfaceVariant">@color/brown_Surface</item>
+        <item name="colorSurfaceActivated">@color/brown_SurfaceActivated</item>
+        <item name="colorSurfacePressed">@color/brown_SurfacePressed</item>
     </style>
 
     <style name="Theme.BookPlayer.Indigo" parent="Theme.BookPlayer">
@@ -122,6 +141,8 @@
         <item name="colorSecondaryVariant">@color/indigo_900</item>
         <item name="colorOnSecondary">@color/white</item>
         <item name="colorSurfaceVariant">@color/indigo_Surface</item>
+        <item name="colorSurfaceActivated">@color/indigo_SurfaceActivated</item>
+        <item name="colorSurfacePressed">@color/indigo_SurfacePressed</item>
     </style>
 
     <style name="Theme.BookPlayer.Turquoise" parent="Theme.BookPlayer">
@@ -132,6 +153,8 @@
         <item name="colorSecondaryVariant">@color/turquoise_900</item>
         <item name="colorOnSecondary">@color/black</item>
         <item name="colorSurfaceVariant">@color/turquoise_Surface</item>
+        <item name="colorSurfaceActivated">@color/turquoise_SurfaceActivated</item>
+        <item name="colorSurfacePressed">@color/turquoise_SurfacePressed</item>
     </style>
 
     <style name="Theme.BookPlayer.GreenLight" parent="Theme.BookPlayer">
@@ -142,6 +165,8 @@
         <item name="colorSecondaryVariant">@color/green_light_900</item>
         <item name="colorOnSecondary">@color/black</item>
         <item name="colorSurfaceVariant">@color/green_light_Surface</item>
+        <item name="colorSurfaceActivated">@color/green_light_SurfaceActivated</item>
+        <item name="colorSurfacePressed">@color/green_light_SurfacePressed</item>
     </style>
 
     <style name="Theme.BookPlayer.GreenDark" parent="Theme.BookPlayer">
@@ -152,6 +177,8 @@
         <item name="colorSecondaryVariant">@color/green_dark_900</item>
         <item name="colorOnSecondary">@color/white</item>
         <item name="colorSurfaceVariant">@color/green_dark_Surface</item>
+        <item name="colorSurfaceActivated">@color/green_dark_SurfaceActivated</item>
+        <item name="colorSurfacePressed">@color/green_dark_SurfacePressed</item>
     </style>
 
     <style name="Theme.BookPlayer.PinkLight" parent="Theme.BookPlayer">
@@ -162,6 +189,8 @@
         <item name="colorSecondaryVariant">@color/pink_light_900</item>
         <item name="colorOnSecondary">@color/black</item>
         <item name="colorSurfaceVariant">@color/pink_light_Surface</item>
+        <item name="colorSurfaceActivated">@color/pink_light_SurfaceActivated</item>
+        <item name="colorSurfacePressed">@color/pink_light_SurfacePressed</item>
     </style>
 
     <style name="Theme.BookPlayer.PinkDark" parent="Theme.BookPlayer">
@@ -172,6 +201,8 @@
         <item name="colorSecondaryVariant">@color/pink_dark_900</item>
         <item name="colorOnSecondary">@color/black</item>
         <item name="colorSurfaceVariant">@color/pink_dark_Surface</item>
+        <item name="colorSurfaceActivated">@color/pink_dark_SurfaceActivated</item>
+        <item name="colorSurfacePressed">@color/pink_dark_SurfacePressed</item>
     </style>
 
     <style name="Theme.BookPlayer.YellowDark" parent="Theme.BookPlayer">
@@ -182,6 +213,8 @@
         <item name="colorSecondaryVariant">@color/yellow_dark_900</item>
         <item name="colorOnSecondary">@color/black</item>
         <item name="colorSurfaceVariant">@color/yellow_dark_Surface</item>
+        <item name="colorSurfaceActivated">@color/yellow_dark_SurfaceActivated</item>
+        <item name="colorSurfacePressed">@color/yellow_dark_SurfacePressed</item>
     </style>
 
     <style name="Theme.BookPlayer.RedDark" parent="Theme.BookPlayer">
@@ -192,6 +225,8 @@
         <item name="colorSecondaryVariant">@color/red_dark_900</item>
         <item name="colorOnSecondary">@color/white</item>
         <item name="colorSurfaceVariant">@color/red_dark_Surface</item>
+        <item name="colorSurfaceActivated">@color/red_dark_SurfaceActivated</item>
+        <item name="colorSurfacePressed">@color/red_dark_SurfacePressed</item>
     </style>
 
 </resources>
