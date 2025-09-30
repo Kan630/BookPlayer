@@ -9,6 +9,7 @@ import static com.driot.bookplayer.utils.Tonio.getMimeType;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.work.WorkerParameters;
 
 import com.driot.bookplayer.R;
@@ -90,8 +91,8 @@ public class UnzipWorker extends LoggingWorker {
             myLogD("---------------------------------------------------------");
 
             int numCurZip = 0;
-            Charset charset = getCharset(zipFile);
-            if (charset == null) charset = Charset.defaultCharset();
+            Charset charset = detectZipCharset(zipFile);
+            if (charset == null) charset = StandardCharsets.UTF_8;
             myLogD("---------------------------------------------------------");
 
             ////////////////////////////////////////////////////////////////////////////////
@@ -179,44 +180,75 @@ public class UnzipWorker extends LoggingWorker {
         }
     }
 
+    private static final Charset[] ZIP_CHARSET_CANDIDATES = new Charset[] {
+            StandardCharsets.UTF_8,
+            Charset.forName("CP437"),          // PKZIP default if EFS not set
+            Charset.forName("windows-1252"),   // very common on legacy zips
+            StandardCharsets.ISO_8859_1,
+            Charset.forName("IBM850"),       //added by kan (here and below)
+            StandardCharsets.US_ASCII,
+            StandardCharsets.UTF_16,
+            StandardCharsets.UTF_16BE,
+            StandardCharsets.UTF_16LE,
+            Charset.defaultCharset()
+    };
 
-    private Charset getCharset(File zipFile) {
-        Charset charset;
-        charset = Charset.forName("CP437"); //=IBM437
-        if (checkCharset(zipFile, charset)) { return charset; }
-        charset = Charset.forName("IBM850");
-        if (checkCharset(zipFile, charset)) { return charset; }
-        charset = StandardCharsets.UTF_8;
-        if (checkCharset(zipFile, charset)) { return charset; }
-        charset = StandardCharsets.ISO_8859_1;
-        if (checkCharset(zipFile, charset)) { return charset; }
-        charset = StandardCharsets.US_ASCII;
-        if (checkCharset(zipFile, charset)) { return charset; }
-        charset = StandardCharsets.UTF_16;
-        if (checkCharset(zipFile, charset)) { return charset; }
-        charset = StandardCharsets.UTF_16BE;
-        if (checkCharset(zipFile, charset)) { return charset; }
-        charset = StandardCharsets.UTF_16LE;
-        if (checkCharset(zipFile, charset)) { return charset; }
-        charset = Charset.defaultCharset();
-        if (checkCharset(zipFile, charset)) { return charset; }
-        myLogE("No correct charset found for zipFile");
-        return null;
+
+    @Nullable
+    private Charset detectZipCharset(File zipFile) {
+        Charset best = null;
+        double bestScore = Double.NEGATIVE_INFINITY;
+
+        for (Charset cs : ZIP_CHARSET_CANDIDATES) {
+            double score = scoreZipNames(zipFile, cs);
+            myLogD("Charset score " + cs + " = " + score);
+            if (score > bestScore) { bestScore = score; best = cs; }
+        }
+        if (best == null) {
+            myLogEE(null, "No charset scored > -Inf, using default");
+            return Charset.defaultCharset();
+        }
+        myLog("Chosen charset: " + best);
+        return best;
     }
 
-    private boolean checkCharset(File zipFile, Charset charset) {
-        int i = 1;
-        try (ZipFile zf = new ZipFile(zipFile, charset)) {
-            for (Enumeration<? extends ZipEntry> e = zf.entries(); e.hasMoreElements(); ) {
-                ZipEntry entry = e.nextElement();
-                i = i + 1;
+    private double scoreZipNames(File zip, Charset cs) {
+        int names = 0;
+        int goodChars = 0;
+        int badChars = 0;
+        int suspicious = 0;
+
+        try (ZipFile zf = new ZipFile(zip, cs)) {
+            Enumeration<? extends ZipEntry> it = zf.entries();
+            while (it.hasMoreElements()) {
+                ZipEntry e = it.nextElement();
+                String name = e.getName();
+                names++;
+
+                for (int i = 0; i < name.length(); i++) {
+                    char c = name.charAt(i);
+                    if (c == '\uFFFD') { badChars++; continue; } // replacement char
+                    if (Character.isISOControl(c) && c != '/' && c != '\\') { badChars++; continue; }
+                    if (c >= 0x2500 && c <= 0x257F) { suspicious++; continue; } // box-drawing etc.
+                    // treat letters/digits/basic punct/space as good
+                    if (Character.isLetterOrDigit(c) || " .-_()+[]{}'.,".indexOf(c) >= 0 || c=='/' || c=='\\') {
+                        goodChars++;
+                    } else {
+                        // rare symbols count slightly against
+                        suspicious++;
+                    }
+                }
             }
-            myLog("Charset found : [" + charset.toString() + "]");
-            return true;
-        } catch (Exception e) {
-            myLogEE(e,"Charset tested : [" + charset.toString() + "] => KO after " + i + " entries.");
-            return false;
+        } catch (Exception ex) {
+            // strong penalty if we can’t even iterate
+            myLog("Charset " + cs + " failed during listing");
+            return -1_000_000;
         }
+
+        if (names == 0) return -1; // empty zip: meh
+
+        // Weighted score: maximize good, minimize bad/suspicious.
+        return goodChars - (4.0 * badChars) - (0.5 * suspicious);
     }
 
     private String shortenAudioFileName(String audioFileName, String folderName) {
