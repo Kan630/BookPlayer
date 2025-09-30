@@ -9,6 +9,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -18,14 +20,40 @@ import com.driot.bookplayer.activities.PlayActivity;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.player.PlayList;
+import com.driot.bookplayer.player.PlaybackUiState;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingListAdapter;
 
 public class ZikFilesRVAdapter extends LoggingListAdapter<ZikFile, ZikFilesRVAdapter.ZikFilesViewHolder> {
 
-    public ZikFilesRVAdapter() {
+    public ZikFilesRVAdapter(@NonNull LifecycleOwner owner,
+                             @NonNull LiveData<PlaybackUiState> playbackState) {
         super(DIFF);
         setHasStableIds(true);
+        playbackState.observe(owner, s -> {
+            if (s == null) return;
+            setHighlightedTrackId(s.trackId); // triggers minimal payload updates
+        });
+    }
+
+    private long highlightedTrackId = -1;
+
+    private void setHighlightedTrackId(long newId) {
+        if (newId == highlightedTrackId) return;
+        int oldPos = findPositionById(highlightedTrackId);
+        int newPos = findPositionById(newId);
+        highlightedTrackId = newId;
+        if (oldPos >= 0) notifyItemChanged(oldPos, "playstate");
+        if (newPos >= 0) notifyItemChanged(newPos, "playstate");
+    }
+
+    private int findPositionById(long id) {
+        if (id < 0) return -1;
+        for (int i = 0; i < getItemCount(); i++) {
+            ZikFile z = getItem(i);
+            if (z != null && z.getId() == id) return i;
+        }
+        return -1;
     }
 
     private static final DiffUtil.ItemCallback<ZikFile> DIFF = new DiffUtil.ItemCallback<ZikFile>() {
@@ -33,11 +61,18 @@ public class ZikFilesRVAdapter extends LoggingListAdapter<ZikFile, ZikFilesRVAda
             return a.getId() == b.getId();
         }
         @Override public boolean areContentsTheSame(@NonNull ZikFile a, @NonNull ZikFile b) {
-            // Compare only what you render to avoid unnecessary redraws
+            // Only fields you render; do NOT include “is playing” here.
             return a.equalsVisual(b);
         }
+        @Override public Object getChangePayload(@NonNull ZikFile a, @NonNull ZikFile b) {
+            if (a.getPercentdone() != b.getPercentdone()) return "progress";
+            if (!safeEq(a.lLastAccess, b.lLastAccess))    return "lastAccess";
+            if (a.getDuration() != b.getDuration())       return "duration";
+            if (!safeEq(a.getDisplayName(), b.getDisplayName())) return "name";
+            return null; // full bind fallback
+        }
+        private boolean safeEq(Object x, Object y) { return x == null ? y == null : x.equals(y); }
     };
-
     @Override public long getItemId(int position) {
         ZikFile z = getItem(position);
         return (z == null) ? RecyclerView.NO_ID : z.getId();
@@ -51,6 +86,39 @@ public class ZikFilesRVAdapter extends LoggingListAdapter<ZikFile, ZikFilesRVAda
         return new ZikFilesViewHolder(view);
     }
 
+    // PARTIAL BIND
+    @Override
+    public void onBindViewHolder(@NonNull ZikFilesViewHolder h, int position, @NonNull java.util.List<Object> payloads) {
+        ZikFile t = getItem(position);
+        if (t == null) return;
+
+        if (!payloads.isEmpty()) {
+            Object p = payloads.get(0);
+            Context ctx = h.itemView.getContext();
+            switch (String.valueOf(p)) {
+                case "playstate":
+                    h.itemView.setActivated(t.getId() == highlightedTrackId);
+                    return;
+                case "progress":
+                    h.textViewFilePercent.setText(Tonio.FormatPercentString(t.getPercentdone()));
+                    h.mProgressBar.setProgress(Tonio.FormatPercentForProgressBar(t.getPercentdone()));
+                    return;
+                case "lastAccess":
+                    h.textViewFileLastAccess.setText(Tonio.formatLastAccess(t.lLastAccess, ctx));
+                    return;
+                case "duration":
+                    h.textViewDuration.setText(Tonio.formatTime(t.getDuration()));
+                    return;
+                case "name":
+                    h.textViewFileName.setText(t.getDisplayName());
+                    Option.applyUserTextAppearance(h.textViewFileName);
+                    return;
+            }
+        }
+        onBindViewHolder(h, position); // fallback to full bind
+    }
+
+    // FULL BIND
     @Override
     public void onBindViewHolder(@NonNull ZikFilesViewHolder holder, int position) {
         ZikFile t = getItem(position);
@@ -65,10 +133,7 @@ public class ZikFilesRVAdapter extends LoggingListAdapter<ZikFile, ZikFilesRVAda
         holder.textViewFileLastAccess.setText(Tonio.formatLastAccess(t.lLastAccess, ctx));
         holder.textViewDuration.setText(Tonio.formatTime(t.getDuration()));
 
-        // Optional highlight for "now playing"
-        PlayList pl = PlayList.getInstance();
-        boolean isCurrent = pl != null && pl.getZikFile() != null && pl.getZikFile().getId() == t.getId();
-        holder.itemView.setActivated(isCurrent);
+        holder.itemView.setActivated(t.getId() == highlightedTrackId);
     }
 
     private int getCurrentFolderIdSafe() {
@@ -167,5 +232,14 @@ public class ZikFilesRVAdapter extends LoggingListAdapter<ZikFile, ZikFilesRVAda
             ctx.startActivity(new Intent(ctx, ModifyZikFileActivity.class).putExtra("ZikFile", zikFile));
             return true;
         }
+    }
+    // Public helper to locate a track in the current list
+    public int findPositionByTrackId(long trackId) {
+        if (trackId <= 0) return -1;
+        for (int i = 0; i < getItemCount(); i++) {
+            ZikFile z = getItem(i);
+            if (z != null && z.getId() == trackId) return i;
+        }
+        return -1;
     }
 }

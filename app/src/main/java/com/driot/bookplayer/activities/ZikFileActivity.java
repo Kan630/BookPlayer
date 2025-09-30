@@ -22,6 +22,8 @@ import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
+import com.driot.bookplayer.player.PlaybackUiState;
+import com.driot.bookplayer.player.PlaybackViewModel;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import java.util.List;
@@ -31,15 +33,15 @@ public class ZikFileActivity extends LoggingActivity {
     public static final String EXTRA_FOLDER_ID = "extra_folder_id";
 
     private RecyclerView recyclerView;
+    private ZikFilesViewModel listVm;
+    private PlaybackViewModel playbackVm;
     private ZikFilesRVAdapter adapter;
+    private int lastObservedTrackId = -1;
 
     private Folder folder;
     private int folderId = -1;
 
     private ImageButton ib_settings;
-
-    // ViewModel that exposes LiveData<List<ZikFile>>
-    private ZikFilesViewModel vm;
 
     // ensure we auto-scroll only once after the first list is loaded
     private boolean didAutoScrollToLast = false;
@@ -52,7 +54,11 @@ public class ZikFileActivity extends LoggingActivity {
 
         recyclerView = findViewById(R.id.recyclerview_zikfiles);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new ZikFilesRVAdapter();
+
+        listVm = new ViewModelProvider(this).get(ZikFilesViewModel.class);
+        playbackVm = new ViewModelProvider(this).get(PlaybackViewModel.class);
+
+        adapter = new ZikFilesRVAdapter(this, playbackVm.getState());
         recyclerView.setAdapter(adapter);
 
         ib_settings = findViewById(R.id.ib_settings);
@@ -77,17 +83,48 @@ public class ZikFileActivity extends LoggingActivity {
         }
 
         // ViewModel + LiveData observation
-        vm = new ViewModelProvider(this).get(ZikFilesViewModel.class);
-        vm.getZikFilesLive(folderId).observe(this, list -> {
+        listVm.getZikFilesLive(folderId).observe(this, list -> {
             if (list == null) return;
             adapter.submitList(list);
 
             // Auto-scroll only on first load
             if (!didAutoScrollToLast && !list.isEmpty()) {
                 didAutoScrollToLast = true;
+
+                // Prefer the currently playing track if it's in this folder
+                PlaybackUiState s = playbackVm.getState().getValue();
+                if (s != null && s.folderId == folderId && s.trackId > 0) {
+                    int pos = adapter.findPositionByTrackId(s.trackId);
+                    if (pos >= 0) {
+                        scrollRowNearTop(pos);
+                        lastObservedTrackId = s.trackId;
+                        return;
+                    }
+                }
+
+                // Fallback: scroll to last listened audio
                 scrollToLastPlayed(list);
             }
         });
+
+        playbackVm.getState().observe(this, s -> {
+            if (s == null) return;
+            if (s.folderId != folderId) return;         // only care if user is viewing the same folder
+            if (s.trackId <= 0) return;
+
+            // Only scroll when the track actually changes
+            if (s.trackId != lastObservedTrackId) {
+                lastObservedTrackId = s.trackId;
+                int pos = adapter.findPositionByTrackId(s.trackId);
+                if (pos >= 0) {
+                    // Optional: only scroll if it's off-screen
+                    if (!isVisible(pos)) {
+                        smoothScrollRowNearTop(pos);
+                    }
+                }
+            }
+        });
+
 
         // Load header info (folder metadata + image)
         reloadFolderFromDb();
@@ -184,4 +221,33 @@ public class ZikFileActivity extends LoggingActivity {
                 // Always reload from DB; if folder was deleted, this will finish().
                 reloadFolderFromDb();
             });
+
+    private boolean isVisible(int position) {
+        RecyclerView.LayoutManager lm = recyclerView.getLayoutManager();
+        if (!(lm instanceof LinearLayoutManager)) return false;
+        LinearLayoutManager llm = (LinearLayoutManager) lm;
+        int first = llm.findFirstVisibleItemPosition();
+        int last = llm.findLastVisibleItemPosition();
+        return position >= first && position <= last;
+    }
+
+    private void scrollRowNearTop(int position) {
+        RecyclerView.LayoutManager lm = recyclerView.getLayoutManager();
+        if (lm instanceof LinearLayoutManager) {
+            ((LinearLayoutManager) lm).scrollToPositionWithOffset(position, dp(56));
+        } else {
+            recyclerView.scrollToPosition(position);
+        }
+    }
+
+    private void smoothScrollRowNearTop(int position) {
+        // For smooth behavior, we can first ask RecyclerView to smooth scroll;
+        // most managers do not support offset in smooth mode, but this feels fine in practice.
+        recyclerView.smoothScrollToPosition(position);
+    }
+
+    private int dp(int dp) {
+        float density = getResources().getDisplayMetrics().density;
+        return Math.round(dp * density);
+    }
 }
