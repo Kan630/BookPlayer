@@ -1,19 +1,15 @@
 package com.driot.bookplayer.services;
 
-import static com.driot.bookplayer.db.Sql.updateFolderTable;
 import static com.driot.bookplayer.global.Var.SOURCE_LOCATION_PODCAST;
 import static com.driot.bookplayer.utils.FinalizeDownloadWorker.KEY_FEED_ID;
 import static com.driot.bookplayer.utils.FinalizeDownloadWorker.KEY_FOLDER_NAME;
 import static com.driot.bookplayer.utils.FinalizeDownloadWorker.KEY_FOLDER_PATH;
-import static com.driot.bookplayer.helpers.FileHelper.getMediaDurationFromPath;
-import static com.driot.bookplayer.utils.Tonio.formatNameForDisplay;
 
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 
 import androidx.annotation.NonNull;
-import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
 import com.driot.bookplayer.db.AppDatabase;
@@ -22,16 +18,19 @@ import com.driot.bookplayer.db.EpisodeDao;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.FolderDao;
 import com.driot.bookplayer.db.PodcastDao;
+import com.driot.bookplayer.db.Sql;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.db.ZikFileDao;
 import com.driot.bookplayer.global.Option;
+import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.PodcastHelper;
-import com.driot.bookplayer.utils.KanLogger;
+import com.driot.bookplayer.utils.Tonio;
+import com.driot.bookplayer.utils.log.LoggingWorker;
 
 import java.io.File;
 
-public class PodcastSyncWorker extends Worker {
+public class PodcastSyncWorker extends LoggingWorker {
 
 
     public PodcastSyncWorker(@NonNull Context context, @NonNull WorkerParameters params) {
@@ -118,8 +117,8 @@ public class PodcastSyncWorker extends Worker {
 
                     myLogD("getting duration for file : [" + file.getAbsolutePath() + ']');
                     long duration = 0;
-                    duration = getMediaDurationFromPath(file.getAbsolutePath());
-                    String trackTitle = formatNameForDisplay(episode.title,false);
+                    duration = FileHelper.getMediaDurationFromPath(file.getAbsolutePath());
+                    String trackTitle = Tonio.formatNameForDisplay(episode.title, false);
                     if (duration > 0) {
                         ZikFile zikFile = new ZikFile();
                         zikFile.setIdFolder(idFolder);
@@ -160,7 +159,7 @@ public class PodcastSyncWorker extends Worker {
 
         // 3. Notify user
         if (newFilesCount > 0) {
-            updateFolderTable(getApplicationContext(), idFolder);
+            Sql.updateFolderTable(getApplicationContext(), idFolder);
             ImageHelper.processPendingImages(getApplicationContext());
             if (Option.getPodcastAutoDownloadedAtTheTop()) {
                 folderDao.updateLastAccess(idFolder, System.currentTimeMillis()); //triggers livedata update and reload of Book list
@@ -173,18 +172,5 @@ public class PodcastSyncWorker extends Worker {
 
         return Result.success();
     }
-
-    //--- FULL LOG --------------------------
-    private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
-    private void myLogInFile(String str) { KanLogger.myLogInFile(this.getClass().getName(), str); }
-    private void myLogD(String str) { KanLogger.myLogD(this.getClass().getName(), str); }
-    private void myLogI(String str) { KanLogger.myLogI(this.getClass().getName(), str); }
-    private void myLogW(String str) { KanLogger.myLogW(this.getClass().getName(), str); }
-    private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
-    private void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, this.getClass().getName(), str); }
-    private void myToast(String str) { KanLogger.myToast(this.getClass().getName(), str); }
-    private void myToastE(String str) { KanLogger.myToastE(this.getClass().getName(), str); }
-    private void myKeyFirebase(String strKey, String strValue) {KanLogger.myKeyFirebase(strKey, strValue);}
-    private void myLogFirebase(String strLog) {KanLogger.myLogFirebase(strLog);}
 
 }
