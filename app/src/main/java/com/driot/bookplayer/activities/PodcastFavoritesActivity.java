@@ -38,8 +38,10 @@ public class PodcastFavoritesActivity extends LoggingActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_podcast_search_result);
+
         recyclerView = findViewById(R.id.recyclerViewPodcast);
         InsetHelper.applyInsetsForScrollableBehindNavBar(this, recyclerView);
+        InsetHelper.applyBottomInsetsForScrollable(this, findViewById(R.id.miniNowPlaying));
 
         progressBar = findViewById(R.id.progressBarPodcast);
         emptyMessage = findViewById(R.id.podcast_error_message);

@@ -115,6 +115,8 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
         }
 
+        InsetHelper.applyInsetsForScrollableBehindNavBar(this, findViewById(R.id.coordinator_layout));
+
         tvTitle = findViewById(R.id.tvPodcastTitle);
         tvDescription = findViewById(R.id.tvPodcastDescription);
         tvStats = findViewById(R.id.tvPodcastStat);
@@ -152,8 +154,6 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
         toolbar = findViewById(R.id.toolbar);
         toolbar.setAlpha(0f);
         toolbar.setVisibility(View.INVISIBLE);
-
-        InsetHelper.applyInsetsForScrollableBehindNavBar(this, findViewById(R.id.coordinator_layout));
 
         podcastDao = AppDatabase.getDatabase(this).PodcastDao();
 

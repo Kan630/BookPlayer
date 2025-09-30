@@ -224,6 +224,15 @@
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         />
 
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/miniNowPlaying"
+        android:name="com.driot.bookplayer.player.MiniNowPlayingFragment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        app:layout_insetEdge="bottom"
+        />
+
     <!-- MINI PLAYER pinned at bottom -->
     <LinearLayout
         android:id="@+id/miniPlayer"

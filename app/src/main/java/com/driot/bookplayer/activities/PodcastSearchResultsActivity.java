@@ -44,6 +44,7 @@ public class PodcastSearchResultsActivity extends LoggingActivity {
 
         recyclerView = findViewById(R.id.recyclerViewPodcast);
         InsetHelper.applyInsetsForScrollableBehindNavBar(this, recyclerView);
+        InsetHelper.applyBottomInsetsForScrollable(this, findViewById(R.id.miniNowPlaying));
 
         progressBar = findViewById(R.id.progressBarPodcast);
         errorMessage = findViewById(R.id.podcast_error_message);
