@@ -579,7 +579,7 @@ public class ParseFinalFolderWorker extends LoggingWorker {
         long duration = 0;
         MediaMetadataRetriever retriever = null;
         try {
-            retriever = new MediaMetadataRetriever();
+            retriever = new MediaMetadataRetriever();   //try-with resource only for API 29 (android A10)
             retriever.setDataSource(context, uri);
             String durStr = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
             if (durStr == null) {
@@ -590,10 +590,10 @@ public class ParseFinalFolderWorker extends LoggingWorker {
         } catch (Exception e) {
             TaskStateManager.tellWarning(context.getString(R.string.Error_Import_track_duration_extraction) + " for " + audioName);
             myLogEE(e,"getMediaDurationFromUri => Exception, uri: [" + uri + "]");
-        } finally { //try-with resource only after android 10....
+        } finally {
             if (retriever != null) {
                 try {
-                    retriever.release();  // This is the correct method, compatible with all versions
+                    retriever.release();
                 } catch (Exception e) {
                     myLogEE(e, "Error releasing MediaMetadataRetriever");
                 }
