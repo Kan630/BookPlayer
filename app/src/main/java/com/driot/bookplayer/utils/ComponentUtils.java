@@ -45,7 +45,7 @@ public class ComponentUtils {
         pm.setComponentEnabledSetting(
                 cn,
                 newState,
-                0
+                PackageManager.DONT_KILL_APP
         );
     }
 
