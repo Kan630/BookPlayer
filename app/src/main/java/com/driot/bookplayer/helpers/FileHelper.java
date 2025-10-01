@@ -1,11 +1,4 @@
-// https://gist.github.com/r0b0t3d/492f375ec6267a033c23b4ab8ab11e6a
-// r0b0t3d/FileHelper.java
-
 package com.driot.bookplayer.helpers;
-
-import static com.driot.bookplayer.utils.KanLogger.myLog;
-import static com.driot.bookplayer.utils.KanLogger.myLogE;
-import static com.driot.bookplayer.utils.Tonio.fileExists;
 
 import android.annotation.SuppressLint;
 import android.content.ContentResolver;
@@ -30,7 +23,6 @@ import java.io.InputStream;
 import java.util.Locale;
 
 public class FileHelper {
-    //@TargetApi(19)
     public static String getRealPathFromURI(final Context context, final Uri uri) {
         String path = "";
         try {
@@ -149,14 +141,6 @@ public class FileHelper {
 
         }    ;
         thread_one.start();
-        /*
-        try {
-            thread_one.join(); // Wait for the thread to finish
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-         */
         myLog("copy started (finding uri) to : [" + destFilePath + "]");
         return destFilePath;
     }
@@ -244,14 +228,14 @@ public class FileHelper {
         return false;
     }
 
-
+    // don't delete DEBUG (Main)
     public static void listAllFiles(File dir) {
         if (dir == null || !dir.exists()) {
-            myLog("Directory does not exist.");
+            myLog("Directory [" + dir + "] does not exist.");
             return;
         }
         if (!dir.isDirectory()) {
-            myLog("Provided path is not a directory.");
+            myLog("Provided path [" + dir + "] is not a directory.");
             return;
         }
 

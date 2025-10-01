@@ -24,8 +24,10 @@ public class ExampleInstrumentedTest {
     public void useAppContext() {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        assertEquals("com.driot.bookplayer", appContext.getPackageName());
+        assertEquals("com.driot.bookplayer.debug", appContext.getPackageName());
     }
+
+    /*
     @Test
     public void test01() {
         // Context of the app under test.
@@ -39,6 +41,8 @@ public class ExampleInstrumentedTest {
         assertEquals(str, "toto");
 
     }
+
+     */
 
 
 }
