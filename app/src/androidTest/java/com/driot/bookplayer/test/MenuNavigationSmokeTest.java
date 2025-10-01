@@ -132,16 +132,16 @@ public class MenuNavigationSmokeTest {
         Context ctx = getInstrumentation().getTargetContext();
         myLogD("Starting menu navigation smoke test...");
 
-        TestNavUtils.logCurrentActivity(TAG);
+        TestNavUtils.logCurrentActivity();
 
         // If we landed on GetActivity (empty state), press back to reach MainActivity
         if (TestNavUtils.getCurrentResumedActivity() instanceof GetActivity) {
-            Log.i("SmokeTest", "On GetActivity, pressing back to reach MainActivity…");
+            myLogI("On GetActivity, pressing back to reach MainActivity…");
             boolean ok = TestNavUtils.pressBackTo(MainActivity.class, /*maxPresses*/3, /*perStepWaitMs*/1000);
             if (!ok) throw new AssertionError("Could not navigate back to MainActivity");
         }
 
-        TestNavUtils.logCurrentActivity(TAG);
+        TestNavUtils.logCurrentActivity();
 
         openOverflow(ctx);
 

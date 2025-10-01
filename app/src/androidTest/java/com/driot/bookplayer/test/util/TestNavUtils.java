@@ -25,9 +25,9 @@ public class TestNavUtils {
         return current[0];
     }
 
-    public static void logCurrentActivity(String tag) {
+    public static void logCurrentActivity() {
         Activity a = getCurrentResumedActivity();
-        myLogI("Current Activity: " + (a != null ? a.getClass().getName() : "none"));
+        myLog("Current Activity: " + (a != null ? a.getClass().getName() : "none"));
     }
 
     public static boolean waitForActivity(Class<? extends Activity> target, long timeoutMs) {
