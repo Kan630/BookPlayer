@@ -560,7 +560,7 @@
     <string name="menu_settings">настройки</string>
     <string name="menu_otherapp">другие приложения</string>
     <string name="menu_sendmail">написать разработчику</string>
-    <string name="stats">Статистика</string>
+    <string name="menu_stats">Статистика</string>
     <string name="menu_seeLog" translatable="false">Посмотреть логи</string>
     <string name="menu_cacheFiles">Очистка</string>
     <string name="menu_forum">Форум</string>

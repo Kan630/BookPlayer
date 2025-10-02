@@ -546,7 +546,7 @@ El valor global de apagado automático está en Opciones (en el menú de la pant
     <string name="menu_settings">opciones</string>
     <string name="menu_otherapp">otras apps</string>
     <string name="menu_sendmail">enviar correo al desarrollador</string>
-    <string name="stats">Estadísticas</string>
+    <string name="menu_stats">Estadísticas</string>
     <string name="menu_seeLog" translatable="false">Ver registros</string>
     <string name="menu_cacheFiles">Limpieza</string>
     <string name="menu_forum">Foro</string>

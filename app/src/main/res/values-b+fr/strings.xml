@@ -554,7 +554,7 @@ Tous les messages sont lisibles publiquement. Connectez-vous pour participer.
     <string name="menu_settings">options</string>
     <string name="menu_otherapp">autres applications</string>
     <string name="menu_sendmail">e-mail au développeur</string>
-    <string name="stats">Statistiques</string>
+    <string name="menu_stats">Statistiques</string>
     <string name="menu_seeLog" translatable="false">See Logs</string>
     <string name="menu_cacheFiles">Nettoyage</string>
     <string name="menu_forum">Forum</string>

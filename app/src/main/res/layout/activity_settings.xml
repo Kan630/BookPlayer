@@ -477,7 +477,7 @@
 
         <!-- Button to show/hide advanced options -->
         <Button
-            android:id="@+id/btnPodcastOptions"
+            android:id="@+id/btnPodcastSettings"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/podcast_settings"

@@ -29,7 +29,6 @@ import android.widget.TextView;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Option;
-import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.LocaleHelper;
 import com.driot.bookplayer.helpers.LanguageHelper;
@@ -56,7 +55,7 @@ import java.util.List;
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 20/12/20
  */
-public class OptionActivity extends LoggingActivity {
+public class SettingsActivity extends LoggingActivity {
 
     public static final int MINIMUM_FORWARD_SECONDS = 1;
     public static final int MAXIMUM_FORWARD_SECONDS = 300;
@@ -122,7 +121,7 @@ public class OptionActivity extends LoggingActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_options); //trigers AutofillManager notifyValueChanged  ignoring on state UNKNOWN  (pollute log in Android 12)
+        setContentView(R.layout.activity_settings); //trigers AutofillManager notifyValueChanged  ignoring on state UNKNOWN  (pollute log in Android 12)
         InsetHelper.apply(this);
 
         scrollView = findViewById(R.id.scrollView);
@@ -507,7 +506,7 @@ public class OptionActivity extends LoggingActivity {
             myLogI("--- USER CLICKS SHOW ADVANCED OPTIONS ---");
             toggleAdvancedOptions();
         });
-        btnPodcastOptions = findViewById(R.id.btnPodcastOptions);
+        btnPodcastOptions = findViewById(R.id.btnPodcastSettings);
         btnPodcastOptions.setOnClickListener( v -> {
             myLogI("--- USER CLICKS PODCAST OPTIONS ---");
             Intent intent = new Intent(this, PodcastSettingsActivity.class);

@@ -377,7 +377,7 @@ public class GetOtherActivity extends LoggingActivity {
 
     public void openOptionActivity() {
         try {
-            startActivity(new Intent(this, OptionActivity.class).putExtra("CopyFileSetRed", true));
+            startActivity(new Intent(this, SettingsActivity.class).putExtra("CopyFileSetRed", true));
         } catch (Exception e) { myLogEE(e, "openOptionActivity()"); }
     }
 

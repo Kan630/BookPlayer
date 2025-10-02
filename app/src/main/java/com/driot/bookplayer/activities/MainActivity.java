@@ -35,9 +35,7 @@
     import com.driot.bookplayer.db.FolderDao;
     import com.driot.bookplayer.global.Option;
     import com.driot.bookplayer.global.Var;
-    import com.driot.bookplayer.helpers.FileHelper;
     import com.driot.bookplayer.helpers.InsetHelper;
-    import com.driot.bookplayer.helpers.StorageHelper;
     import com.driot.bookplayer.helpers.ViewHelper;
     import com.driot.bookplayer.objects.OngoingTaskHost;
     import com.driot.bookplayer.objects.WorkFlow;
@@ -227,7 +225,7 @@
             } else if (itemId == R.id.menu_settings) {
                 myLogI("--- USER clicks MENU : OPTIONS ---");
                 this.getSharedPreferences(Option.SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE).edit().putBoolean("ACTIVITY_OPTION_HAS_RESULT", false).apply(); //trick to reload MainActivity if color changed in OptionActivity, by allowing to set Result=OK only if color is changed
-                startActivityForResult(new Intent(this, OptionActivity.class), REQUEST_CODE_OPTION);
+                startActivityForResult(new Intent(this, SettingsActivity.class), REQUEST_CODE_OPTION);
             } else if (itemId == R.id.menu_manual) {
                 startActivity(new Intent(getApplicationContext(), HelpActivity.class));
             } else if (itemId == R.id.menu_seelog) {

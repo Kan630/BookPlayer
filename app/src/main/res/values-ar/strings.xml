@@ -551,7 +551,7 @@
     <string name="menu_settings">خيارات</string>
     <string name="menu_otherapp">تطبيقات أخرى</string>
     <string name="menu_sendmail">مراسلة المطور</string>
-    <string name="stats">إحصائيات</string>
+    <string name="menu_stats">إحصائيات</string>
     <string name="menu_seeLog" translatable="false">See Logs</string>
     <string name="menu_cacheFiles">تنظيف</string>
     <string name="menu_forum">منتدى</string>

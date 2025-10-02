@@ -2,8 +2,13 @@ package com.driot.bookplayer.test.util;
 
 import android.app.Activity;
 import android.util.Log;
+import android.view.View;
+import android.widget.ScrollView;
 
 import androidx.test.espresso.Espresso;
+import androidx.test.espresso.UiController;
+import androidx.test.espresso.ViewAction;
+import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry;
 import androidx.test.runner.lifecycle.Stage;
 
@@ -11,7 +16,10 @@ import java.util.Collection;
 
 import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
 
+import com.driot.bookplayer.Var;
 import com.driot.bookplayer.utils.KanLogger;
+
+import org.hamcrest.Matcher;
 
 public class TestNavUtils {
 
@@ -47,6 +55,54 @@ public class TestNavUtils {
             if (waitForActivity(target, perStepWaitMs)) return true;
         }
         return false;
+    }
+
+    public static ViewAction scrollScrollViewToBottom() {
+        return new ViewAction() {
+            @Override public Matcher<View> getConstraints() {
+                return ViewMatchers.isAssignableFrom(ScrollView.class);
+            }
+            @Override public String getDescription() { return "Scroll ScrollView to bottom"; }
+            @Override public void perform(UiController ui, View v) {
+                ((ScrollView) v).post(() -> ((ScrollView) v).fullScroll(View.FOCUS_DOWN));
+                ui.loopMainThreadUntilIdle();
+            }
+        };
+    }
+
+    public static ViewAction scrollScrollViewToTop() {
+        return new ViewAction() {
+            @Override public Matcher<View> getConstraints() {
+                return ViewMatchers.isAssignableFrom(ScrollView.class);
+            }
+            @Override public String getDescription() { return "Scroll ScrollView to top"; }
+            @Override public void perform(UiController ui, View v) {
+                ((ScrollView) v).post(() -> ((ScrollView) v).fullScroll(View.FOCUS_UP));
+                ui.loopMainThreadUntilIdle();
+            }
+        };
+    }
+
+    public static void assertPressBackTo(Class<? extends Activity> targetActivity,
+                                         int maxPresses,
+                                         int waitStepMs) {
+        if (!TestNavUtils.pressBackTo(targetActivity, maxPresses, waitStepMs)) {
+            throw new AssertionError("Could not navigate back to " + targetActivity.getSimpleName());
+        }
+    }
+
+    public static void assertPressBackTo(Class<? extends Activity> targetActivity) {
+        assertPressBackTo(targetActivity, Var.BACK_MAX_PRESSES, Var.BACK_WAIT_STEP_MS);
+    }
+
+
+    public static void sleep(long millis) {
+        myLog("sleep " + millis + "ms");
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt(); // restore flag
+        }
     }
 
     // ----------------------- LOG -----------------------

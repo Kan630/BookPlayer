@@ -3,15 +3,14 @@ package com.driot.bookplayer;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.scrollTo;
-import static androidx.test.espresso.action.ViewActions.typeText;
+import static androidx.test.espresso.action.ViewActions.swipeDown;
+import static androidx.test.espresso.action.ViewActions.swipeUp;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static androidx.test.espresso.Espresso.openActionBarOverflowOrOptionsMenu;
-import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.matcher.ViewMatchers.*;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
-import static androidx.test.espresso.matcher.RootMatchers.isPlatformPopup;
+import androidx.test.espresso.contrib.RecyclerViewActions;
 import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.allOf;
 
@@ -21,12 +20,13 @@ import android.util.Log;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.platform.app.InstrumentationRegistry;
 
-import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.GetActivity;
 import com.driot.bookplayer.activities.MainActivity;
+import com.driot.bookplayer.activities.SettingsActivity;
+import com.driot.bookplayer.test.util.MenuHelpers;
 import com.driot.bookplayer.test.util.TestNavUtils;
+import com.driot.bookplayer.test.util.WaitForView;
 import com.driot.bookplayer.utils.KanLogger;
 
 import org.junit.Before;
@@ -44,9 +44,9 @@ public class BasicNavTest {
 
     @Before
     public void setUp() {
-        myLog("oooooooooooooooooooooooooooooooooooooooooooooooooooooo");
-        myLog("----------------- setUp ----------------- BasicNavTest");
-        myLog("oooooooooooooooooooooooooooooooooooooooooooooooooooooo");
+        myLog("ooooooooooooooooooooooooooooooooooooooooo");
+        myLog("----------------- setUp -----------------");
+        myLog("ooooooooooooooooooooooooooooooooooooooooo");
         KanLogger.init(ApplicationProvider.getApplicationContext());
     }
 
@@ -71,46 +71,87 @@ public class BasicNavTest {
         // TODO => openActionBarOverflowOrOptionsMenu(InstrumentationRegistry.getInstrumentation().getTargetContext());onView(withText(R.string.menu_open)).perform(click());
 // 1) Make sure toolbar is there
         onView(withId(R.id.toolbar)).check(matches(isDisplayed()));
-        myLog("nothing i gue");
-/*
-        onView(withId(R.id.action_menu_three_dot))
-                .check(matches(isDisplayed()))
-                .perform(click());
-        myLog("step2");
+        myLog("toolbar reachable");
 
- */
+        MenuHelpers.tapMenu(R.string.menu_manual);
+        onView(withId(R.id.tvHelpText)).check(matches(isDisplayed()));
+        TestNavUtils.logCurrentActivity();
+        onView(withId(android.R.id.content)).perform(swipeUp());
+        onView(withId(android.R.id.content)).perform(swipeDown());
+        TestNavUtils.assertPressBackTo(MainActivity.class);
 
-        try {
-            onView(withId(R.id.menu_open)).perform(click());
-            myLog("menu item pas visible");
-        } catch (Exception ignored) {
+        MenuHelpers.tapMenu(R.string.menu_settings);
+        TestNavUtils.logCurrentActivity();
+        onView(withId(R.id.scrollView)).perform(TestNavUtils.scrollScrollViewToBottom());
+        onView(withId(R.id.btnPodcastSettings)).perform(scrollTo(), click());
+        TestNavUtils.logCurrentActivity();
+        TestNavUtils.assertPressBackTo(SettingsActivity.class);
+        onView(withId(R.id.scrollView)).perform(TestNavUtils.scrollScrollViewToBottom());
+        onView(withId(R.id.btn_show_advanced)).perform(click());
+        onView(withId(R.id.scrollView)).perform(TestNavUtils.scrollScrollViewToBottom());
+        onView(withId(R.id.scrollView)).perform(TestNavUtils.scrollScrollViewToTop());
+        TestNavUtils.assertPressBackTo(MainActivity.class);
 
-            onView(allOf(
-                    anyOf(withId(R.id.action_menu_three_dot), withContentDescription(R.string.action_menu_three_dot)),
-                    isDescendantOfA(withId(R.id.toolbar)),
-                    isDisplayed()
-            )).perform(click());
-            myLog("clicked 3 dots");
+        //menu_seelog
 
-            onView(withText(R.string.menu_open))
-                    .inRoot(isPlatformPopup())
-                    .perform(click());
-            myLog("clicked menu item");
-}
+        MenuHelpers.tapMenu(R.string.menu_stats);
+        TestNavUtils.logCurrentActivity();
+        onView(withId(android.R.id.content)).perform(swipeUp());
+        onView(withId(android.R.id.content)).perform(swipeDown());
+        TestNavUtils.assertPressBackTo(MainActivity.class);
 
-        myLog("sleep");
-        try {Thread.sleep(300);} catch (InterruptedException e) {e.printStackTrace();}
+        //menu_sendmail
 
+        MenuHelpers.tapMenu(R.string.menu_cacheFiles);
+        TestNavUtils.logCurrentActivity();
+        onView(withId(android.R.id.content)).perform(swipeUp());
+        onView(withId(android.R.id.content)).perform(swipeDown());
+        TestNavUtils.assertPressBackTo(MainActivity.class);
+
+        //menu_website
+
+        MenuHelpers.tapMenu(R.string.menu_open);
         TestNavUtils.logCurrentActivity();
         myLog("in GET");
 
         onView(withId(R.id.bOpenOther)).perform(click());   //perform(scrollTo());
-
         TestNavUtils.logCurrentActivity();
         myLog("in GET OTHER");
 
+        for (int i = 0; i < 3; i++) {
+            onView(withId(R.id.viewSecretEntry)).perform(click());
+        }
+        TestNavUtils.logCurrentActivity();
+        myLog("in SECRET DEV");
+
+        onView(withId(R.id.bAutoTest_b1)).perform(click());
+        TestNavUtils.sleep(10000);
+        TestNavUtils.logCurrentActivity();
+        myLog("in LOAD BOOK");
+
+        onView(withId(R.id.btnConfirm)).perform(click());
+        TestNavUtils.logCurrentActivity();
+        myLog("in ADD RESOURCE");
+        //onView(withId(android.R.id.content)).perform(WaitForView.waitFor(withId(R.id.toolbar), 10000));
+        TestNavUtils.sleep(10000);
+        TestNavUtils.logCurrentActivity();
+
+
+        onView(withId(R.id.recyclerview_folders)).perform(RecyclerViewActions.actionOnItemAtPosition(0, click()));
+        TestNavUtils.sleep(5000);
+        TestNavUtils.logCurrentActivity();
+
+        onView(withId(R.id.ibPlayPause)).perform(click());
+        TestNavUtils.sleep(1000);
+
+
+
+
+/*
         onView(withId(R.id.bOpenFile)).perform(click());   //perform(scrollTo());
         TestNavUtils.logCurrentActivity();
+
+ */
 
 
         // Example: scroll to a view (useful inside ScrollView or RecyclerView)

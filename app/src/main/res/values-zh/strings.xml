@@ -555,7 +555,7 @@ BookPlayer 在<font color="#81C784">无需权限</font>的情况下也能运行�
     <string name="menu_settings">选项</string>
     <string name="menu_otherapp">其他应用</string>
     <string name="menu_sendmail">联系开发者</string>
-    <string name="stats">统计</string>
+    <string name="menu_stats">统计</string>
     <string name="menu_seeLog" translatable="false">查看日志</string>
     <string name="menu_cacheFiles">清理</string>
     <string name="menu_forum">论坛</string>

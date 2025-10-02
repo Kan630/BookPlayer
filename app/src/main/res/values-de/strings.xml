@@ -564,7 +564,7 @@ Soll die App technische Debug-Protokolle erstellen?
     <string name="menu_settings">Optionen</string>
     <string name="menu_otherapp">andere Apps</string>
     <string name="menu_sendmail">E-Mail an Entwickler</string>
-    <string name="stats">Statistiken</string>
+    <string name="menu_stats">Statistiken</string>
     <string name="menu_seeLog" translatable="false">See Logs</string>
     <string name="menu_cacheFiles">Bereinigung</string>
     <string name="menu_forum">Forum</string>

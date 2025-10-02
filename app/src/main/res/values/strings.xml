@@ -568,7 +568,7 @@
     <string name="menu_settings">settings</string>
     <string name="menu_otherapp">other apps</string>
     <string name="menu_sendmail">mail developer</string>
-    <string name="stats">Stats</string>
+    <string name="menu_stats">Stats</string>
     <string name="menu_seeLog" translatable="false">See Logs</string>
     <string name="menu_cacheFiles">Cleaning</string>
     <string name="menu_forum">Forum</string>

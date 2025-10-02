@@ -132,7 +132,7 @@ public class StatsActivity extends LoggingActivity {
 
         tv_head = findViewById(R.id.tv4_head);
         tv_body = findViewById(R.id.tv4_body);
-        tv_head.setText(R.string.stats);
+        tv_head.setText(R.string.menu_stats);
         tv_body.setText(zeText);
 
         // ----------------------------------------

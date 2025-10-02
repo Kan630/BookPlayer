@@ -577,7 +577,7 @@
     <string name="menu_settings">opzioni</string>
     <string name="menu_otherapp">altre app</string>
     <string name="menu_sendmail">mail sviluppatore</string>
-    <string name="stats">Statistiche</string>
+    <string name="menu_stats">Statistiche</string>
     <string name="menu_seeLog" translatable="false">See Logs</string>
     <string name="menu_cacheFiles">Pulizia</string>
     <string name="menu_forum">Forum</string>
