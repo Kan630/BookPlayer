@@ -294,6 +294,7 @@ public class PlayActivity extends LoggingActivity {
                             : null
             );
             myLogEE(null, "onCreate() -- cancelling since PlayList.getInstance() == null");
+            finish();
             return;
         }
 
