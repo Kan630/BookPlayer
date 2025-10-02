@@ -35,7 +35,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
-public class BasicNavTest {
+public abstract class BasicNavTest {
+
+    protected abstract int desiredOrientation();
 
     // Launches MainActivity before each test
     @Rule
@@ -47,6 +49,8 @@ public class BasicNavTest {
         myLog("ooooooooooooooooooooooooooooooooooooooooo");
         myLog("----------------- setUp -----------------");
         myLog("ooooooooooooooooooooooooooooooooooooooooo");
+        activityRule.getScenario().onActivity(a ->
+                a.setRequestedOrientation(desiredOrientation()));
         KanLogger.init(ApplicationProvider.getApplicationContext());
     }
 
@@ -129,6 +133,7 @@ public class BasicNavTest {
         TestNavUtils.logCurrentActivity();
         myLog("in LOAD BOOK");
 
+        onView(withId(android.R.id.content)).perform(swipeUp());
         onView(withId(R.id.btnConfirm)).perform(click());
         TestNavUtils.logCurrentActivity();
         myLog("in ADD RESOURCE");
