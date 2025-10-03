@@ -1,9 +1,5 @@
 package com.driot.bookplayer.helpers;
 
-import static com.driot.bookplayer.global.Var.FOLDER_DOWNLOAD;
-import static com.driot.bookplayer.global.Var.FOLDER_IMAGE;
-import static com.driot.bookplayer.global.Var.FOLDER_UNZIPPED;
-
 import android.content.Context;
 import android.net.Uri;
 import android.os.Environment;
@@ -16,12 +12,11 @@ import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
-import com.driot.bookplayer.utils.KanLogger;
+import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 import java.io.File;
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.Locale;
 
 public class StorageHelper {
 
@@ -73,16 +68,16 @@ public class StorageHelper {
 
     // UNZIPPED
     public static File getUnzipFolder(Context context) {
-        return getFolder(context, FOLDER_UNZIPPED, Option.getUseSdCard());
+        return getFolder(context, Var.FOLDER_UNZIPPED, Option.getUseSdCard());
     }
 
     public static File getUnzipFolder(Context context, boolean forceSdCard) {
-        return getFolder(context, FOLDER_UNZIPPED, forceSdCard);
+        return getFolder(context, Var.FOLDER_UNZIPPED, forceSdCard);
     }
 
     // DOWNLOAD
     public static File getDownloadFolder(Context context) {
-        return getFolder(context, FOLDER_DOWNLOAD, Option.getUseSdCard());
+        return getFolder(context, Var.FOLDER_DOWNLOAD, Option.getUseSdCard());
     }
 
     public static String getDownloadFolderPath(Context context) {
@@ -90,10 +85,13 @@ public class StorageHelper {
     }
 
     // IMAGES
-    public static File getImageFolder(Context context) {
-        return getFolder(context, FOLDER_IMAGE, false);
+    public static File getImageFolder(Context context, boolean isCached) {
+        if (isCached) {
+            return getFolder(context, Var.FOLDER_CACHED_IMAGE, false);
+        } else {
+            return getFolder(context, Var.FOLDER_IMAGE, false);
+        }
     }
-
 
     // === GENERIC FOLDER RESOLVER ===
     public static File getFolder(Context context, String subfolder, boolean useSdCard) {
@@ -159,7 +157,7 @@ public class StorageHelper {
             myLogI("No SD card available");
             return null;
         }
-        File unzipped = new File(base, FOLDER_UNZIPPED);
+        File unzipped = new File(base, Var.FOLDER_UNZIPPED);
         myLogD("Checking SD folder: " + unzipped.getAbsolutePath());
 
         if (unzipped.exists() && unzipped.isDirectory()) {
@@ -278,16 +276,5 @@ public class StorageHelper {
         }
         return null;
     }
-
-    // === LOGGING ===
-    // ----------------------- LOG -----------------------
-    private static final String TAG = "StorageHelper";
-    private static void myLog(String str) { KanLogger.myLog(TAG, str); }
-    private static void myLogD(String str) { KanLogger.myLogD(TAG, str); }
-    private static void myLogI(String str) { KanLogger.myLogI(TAG, str); }
-    private static void myLogW(String str) { KanLogger.myLogW(TAG, str); }
-    private static void myLogE(String str) { KanLogger.myLogE(TAG, str); }
-    private static void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, TAG, str); }
-    private static void myToastEE(Throwable t, String str) { KanLogger.myToastEE(t, TAG, str); }
 
 }

@@ -23,7 +23,6 @@ import androidx.work.WorkManager;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
-import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FileHelper;
@@ -341,8 +340,8 @@ public class ModifyFolderActivity extends LoggingActivity {
                     if (selectedImageUri != null) {
                         new Thread(() -> {
                             try {
-                                String fileName = "UserPic_" + ImageHelper.FOLDER_IMAGE_PREFIX + folder.getId() + ".jpg";
-                                String newImagePath = ImageHelper.copyContentUriToImageFile(this, selectedImageUri.toString(), fileName);
+                                String fileName = "UserPic_" + ImageHelper.IMAGE_PREFIX_FOR_SAVED_BOOK + folder.getId() + ".jpg";
+                                String newImagePath = ImageHelper.copyContentUriToImageFile(this, selectedImageUri.toString(), fileName, false);
                                 if (newImagePath == null) throw new RuntimeException("Image copy/compression failed");
 
                                 // Delete previous image if different

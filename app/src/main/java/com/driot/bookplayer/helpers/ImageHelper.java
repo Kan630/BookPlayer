@@ -11,19 +11,15 @@ import android.graphics.Paint;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.net.Uri;
-import android.widget.ImageView;
 
 import androidx.annotation.Nullable;
 import androidx.core.content.FileProvider;
 import androidx.documentfile.provider.DocumentFile;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.signature.ObjectKey;
-import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.Podcast;
-import com.driot.bookplayer.utils.KanLogger;
+import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -42,35 +38,14 @@ public class ImageHelper {
     public static final int MAX_IMAGE_WIDTH = 1280;
     public static final int MAX_IMAGE_HEIGHT = 1280;
 
-    public static final String PODCAST_IMAGE_PREFIX = "podcast_feed_";
-    public static final String FOLDER_IMAGE_PREFIX = "folder_id_";
-    public static final String LIBRIVOX_IMAGE_PREFIX = "librivox_img_";
-    public static final String TEMP_IMAGE_PREFIX = "tmp_img";
+    public static final String IMAGE_PREFIX_FOR_PODCAST_COVERS = "podcast_feed_";
+    public static final String IMAGE_PREFIX_FOR_LIBRIVOX_COVERS = "librivox_img_";
+    public static final String IMAGE_PREFIX_FOR_SAVED_BOOK = "folder_id_";
+    public static final String IMAGE_PREFIX_FOR_TEMP_FILE = "tmp_img";
 
-    public static File getImageFile(Context context, long id, boolean isFolder) {
-        File dir = StorageHelper.getImageFolder(context);
-        if (!dir.exists()) dir.mkdirs();
-        String prefix = isFolder ? FOLDER_IMAGE_PREFIX : PODCAST_IMAGE_PREFIX;
-        return new File(dir, prefix + id + ".jpg");
-    }
-
-
-    public static void imageGlider(String localPath, ImageView coverView, boolean emptyCache) {
-        try {
-            if (coverView.getContext() != null) {
-                Glide.with(coverView.getContext())
-                        .load(new File(localPath))
-                        .signature(new ObjectKey(System.currentTimeMillis())) //force glide empty cache
-                        .placeholder(R.drawable.placeholder_cover)
-                        .into(coverView);
-            }
-        } catch (Exception e) {
-            myLogEE(e, "Error gliding image");
-        }
-    }
 
     //TODO ASYNC...
-    private static String downloadAndMaybeCompressImage(Context context, String imageUrl, String imagePath) {
+    private static String downloadAndMaybeCompressImage(Context context, String imageUrl, String imagePath, boolean isCached) {
         try {
             URL url = new URL(imageUrl);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -86,7 +61,7 @@ public class ImageHelper {
             in.close();
 
             byte[] imageBytes = out.toByteArray();
-            return compressAndSaveImage(context, imageBytes, imagePath);
+            return compressAndSaveImage(context, imageBytes, imagePath, isCached);
 
         } catch (Throwable t) {
             myLogEE(t, "downloadAndMaybeCompressImage() failed for: " + imageUrl);
@@ -95,8 +70,8 @@ public class ImageHelper {
     }
 
 
-    private static String saveBytesToFile(Context context, byte[] data, String imagePath) throws IOException {
-        File dir = StorageHelper.getImageFolder(context);
+    private static String saveBytesToFile(Context context, byte[] data, String imagePath, boolean isCached) throws IOException {
+        File dir = StorageHelper.getImageFolder(context, isCached);
         if (!dir.exists()) dir.mkdirs();
         File imageFile = new File(dir, imagePath);
         FileOutputStream fos = new FileOutputStream(imageFile);
@@ -117,8 +92,8 @@ public class ImageHelper {
                 String url = podcast.image;
                 if (url == null || !url.startsWith("http")) continue;
 
-                String imagePath = PODCAST_IMAGE_PREFIX + podcast.feedId + ".jpg";
-                String localPath = downloadAndMaybeCompressImage(context, url, imagePath);
+                String imagePath = IMAGE_PREFIX_FOR_PODCAST_COVERS + podcast.feedId + ".jpg";
+                String localPath = downloadAndMaybeCompressImage(context, url, imagePath, true);
                 if (localPath != null) {
                     podcast.image = localPath;
                     db.PodcastDao().update(podcast);
@@ -133,12 +108,12 @@ public class ImageHelper {
                 if (url == null) continue;
 
                 String localPath = null;
-                String imagePath = FOLDER_IMAGE_PREFIX + folder.getId() + ".jpg";
+                String imagePath = IMAGE_PREFIX_FOR_SAVED_BOOK + folder.getId() + ".jpg";
 
                 if (url.startsWith("http")) {
-                    localPath = downloadAndMaybeCompressImage(context, url, imagePath);
+                    localPath = downloadAndMaybeCompressImage(context, url, imagePath, false);
                 } else if (isContentUri(url)) {
-                    localPath = copyContentUriToImageFile(context, url, imagePath);
+                    localPath = copyContentUriToImageFile(context, url, imagePath, false);
                 }
 
                 if (localPath != null) {
@@ -150,8 +125,8 @@ public class ImageHelper {
     }
 
     public static String getOrDownloadLibrivoxImage(Context context, String identifier, String imageUrl, boolean forceDownload) {
-        String imagePath = LIBRIVOX_IMAGE_PREFIX + identifier + ".jpg";
-        File imageFile = new File(StorageHelper.getImageFolder(context), imagePath);
+        String imagePath = IMAGE_PREFIX_FOR_LIBRIVOX_COVERS + identifier + ".jpg";
+        File imageFile = new File(StorageHelper.getImageFolder(context, true), imagePath);
 
         if (imageFile.exists() && !forceDownload) {
             myLogD("Librivox image already exists: " + imageFile.getAbsolutePath());
@@ -159,15 +134,15 @@ public class ImageHelper {
         }
 
         myLogI("Downloading Librivox image for: " + identifier);
-        return downloadAndMaybeCompressImage(context, imageUrl, imagePath);
+        return downloadAndMaybeCompressImage(context, imageUrl, imagePath, true);
     }
 
     public static File getLibrivoxImageFile(Context context, String identifier) {
-        File dir = StorageHelper.getImageFolder(context);
-        return new File(dir, LIBRIVOX_IMAGE_PREFIX + identifier + ".jpg");
+        File dir = StorageHelper.getImageFolder(context, true);
+        return new File(dir, IMAGE_PREFIX_FOR_LIBRIVOX_COVERS + identifier + ".jpg");
     }
 
-    public static String copyContentUriToImageFile(Context context, String uriOrPath, String outputFileName) {
+    public static String copyContentUriToImageFile(Context context, String uriOrPath, String outputFileName, boolean isCached) {
         try {
             InputStream in;
             Uri uri;
@@ -191,7 +166,7 @@ public class ImageHelper {
             in.close();
 
             byte[] imageBytes = out.toByteArray();
-            return compressAndSaveImage(context, imageBytes, outputFileName);
+            return compressAndSaveImage(context, imageBytes, outputFileName, isCached);
 
         } catch (Exception e) {
             myLogEE(e, "copyContentUriToImageFile() failed for: " + uriOrPath);
@@ -205,15 +180,15 @@ public class ImageHelper {
             // Use PNG to keep original quality before compressing later
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
             byte[] imageBytes = out.toByteArray();
-            return compressAndSaveImage(context, imageBytes, TEMP_IMAGE_PREFIX + ".jpg");
+            return compressAndSaveImage(context, imageBytes, IMAGE_PREFIX_FOR_TEMP_FILE + ".jpg", true);
         } catch (Exception e) {
             myLogEE(e, "saveTempBitmap");
             return null;
         }
     }
     public static void deleteTempImportImage(Context context) {
-        File imageDir = StorageHelper.getImageFolder(context);
-        File tmpFile = new File(imageDir, TEMP_IMAGE_PREFIX + ".jpg");
+        File imageDir = StorageHelper.getImageFolder(context, true);
+        File tmpFile = new File(imageDir, IMAGE_PREFIX_FOR_TEMP_FILE + ".jpg");
 
         if (tmpFile.exists()) {
             boolean deleted = tmpFile.delete();
@@ -227,9 +202,8 @@ public class ImageHelper {
         }
     }
     public static void finalizeTempFolderImage(Context context, int folderId) {
-        File imageDir = StorageHelper.getImageFolder(context);
-        File tmpFile = new File(imageDir, TEMP_IMAGE_PREFIX + ".jpg");
-        File newFile = new File(imageDir, FOLDER_IMAGE_PREFIX + folderId + ".jpg");
+        File tmpFile = new File(StorageHelper.getImageFolder(context, true), IMAGE_PREFIX_FOR_TEMP_FILE + ".jpg");
+        File newFile = new File(StorageHelper.getImageFolder(context, false), IMAGE_PREFIX_FOR_SAVED_BOOK + folderId + ".jpg");
 
         if (!tmpFile.exists()) {
             myLogD("Temp image not found: " + tmpFile.getAbsolutePath());
@@ -262,9 +236,9 @@ public class ImageHelper {
         return s != null && s.startsWith("content://");
     }
 
-    private static String compressAndSaveImage(Context context, byte[] imageBytes, String outputFileName) throws IOException {
+    private static String compressAndSaveImage(Context context, byte[] imageBytes, String outputFileName, boolean isCached) throws IOException {
         if (imageBytes.length / 1024 <= MAX_IMAGE_SIZE_KB) {
-            return saveBytesToFile(context, imageBytes, outputFileName);
+            return saveBytesToFile(context, imageBytes, outputFileName, isCached);
         }
 
         myLogD("Image too big (" + imageBytes.length / 1024 + "KB), compressing...");
@@ -310,7 +284,7 @@ public class ImageHelper {
             resizedBitmap.recycle();
         }
 
-        return saveBytesToFile(context, compressedBytes, outputFileName);
+        return saveBytesToFile(context, compressedBytes, outputFileName, isCached);
     }
 
     private static Bitmap resizeIfNeeded(Bitmap original) {
@@ -379,24 +353,11 @@ public class ImageHelper {
             bmp.compress(Bitmap.CompressFormat.JPEG, 92, out);
             bmp.recycle();
             byte[] bytes = out.toByteArray();
-            return compressAndSaveImage(context, bytes, fileName);
+            return compressAndSaveImage(context, bytes, fileName, false);
         } catch (Exception e) {
             myLogEE(e, "createAndSaveFallbackImage failed");
             return null;
         }
-    }
-
-    /** Public: create + persist a fallback cover for a Folder (manual imports). */
-    public static @Nullable String createAndSaveFallbackFolderImage(Context context, long folderId, String title, int sizePx) {
-        String fileName = FOLDER_IMAGE_PREFIX + folderId + ".jpg";
-        return createAndSaveFallbackImage(context, fileName, title, sizePx);
-    }
-
-    /** Public: ensure a folder has an image on disk; if missing, generate one. */
-    public static @Nullable String ensureFolderImage(Context context, long folderId, String title, int sizePx) {
-        File f = getImageFile(context, folderId, /*isFolder=*/true);
-        if (f.exists() && f.length() > 0) return f.getAbsolutePath();
-        return createAndSaveFallbackFolderImage(context, folderId, title, sizePx);
     }
 
     /** Build a bitmap with pastel background + centered initials. */
@@ -482,7 +443,7 @@ public class ImageHelper {
     public static String buildManualFolderImageFileName(String title, String futureFolderPath) {
         String key = (title == null ? "" : title.trim()) + "|" + (futureFolderPath == null ? "" : futureFolderPath.trim());
         String hash = md5Hex(key);
-        return FOLDER_IMAGE_PREFIX + "manual_" + hash + ".jpg";
+        return IMAGE_PREFIX_FOR_SAVED_BOOK + "manual_" + hash + ".jpg";
     }
 
     private static String md5Hex(String s) {
@@ -504,15 +465,4 @@ public class ImageHelper {
         return createAndSaveFallbackImage(ctx, fileName, title, sizePx); // uses the helper we added earlier
     }
 
-
-
-    // ----------------------- LOG -----------------------
-    private static final String TAG = "ImageHelper";
-    private static void myLog(String str) { KanLogger.myLog(TAG, str); }
-    private static void myLogD(String str) { KanLogger.myLogD(TAG, str); }
-    private static void myLogW(String str) { KanLogger.myLogW(TAG, str); }
-    private static void myLogI(String str) { KanLogger.myLogI(TAG, str); }
-    private static void myLogE(String str) { KanLogger.myLogE(TAG, str); }
-    private static void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, TAG, str); }
-    private static void myToastEE(Throwable t, String str) { KanLogger.myToastEE(t, TAG, str); }
 }

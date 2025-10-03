@@ -323,7 +323,7 @@ public class GetOtherActivity extends LoggingActivity {
             for (Button b : buttonsToLock) b.setEnabled(!doLock);
             for (TextView tv : textViewToHide) tv.setVisibility(doLock ? View.GONE : View.VISIBLE);
         } catch (Exception e) {
-            myLogEE(e, "Error while toggling UI lock");
+            myLogEE(e, "lockButtons(" + doLock + ")");
         }
     }
 
