@@ -62,12 +62,15 @@ public class Tonio {
         if (sizeBytes < 1024) {
             value = sizeBytes;
             unit = "B";
-        } else if (sizeBytes < 1024 * 1024) {
+        } else if (sizeBytes < 1024L * 1024L) {
             value = sizeBytes / 1024.0;
             unit = "KB";
-        } else {
+        } else if (sizeBytes < 1024L * 1024L * 1024L) {
             value = sizeBytes / (1024.0 * 1024.0);
             unit = "MB";
+        } else {
+            value = sizeBytes / (1024.0 * 1024.0 * 1024.0);
+            unit = "GB";
         }
 
         // %7.3g = largeur min 7, 3 chiffres significatifs
