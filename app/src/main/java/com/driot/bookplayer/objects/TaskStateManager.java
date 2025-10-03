@@ -11,7 +11,6 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
-import com.driot.bookplayer.services.LoadBookTaskState;
 import com.driot.bookplayer.utils.KanLogger;
 
 import java.util.LinkedHashMap;

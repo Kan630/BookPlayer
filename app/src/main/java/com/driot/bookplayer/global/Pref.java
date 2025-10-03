@@ -13,7 +13,7 @@ import android.content.SharedPreferences;
 import android.os.Parcel;
 import android.util.Base64;
 
-import com.driot.bookplayer.services.LoadBookTaskState;
+import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.objects.MyAudioMetadata;
 import com.driot.bookplayer.utils.KanLogger;
 import com.driot.bookplayer.utils.Tonio;

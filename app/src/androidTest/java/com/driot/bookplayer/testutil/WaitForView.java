@@ -1,5 +1,5 @@
 // test/util/WaitForView.java
-package com.driot.bookplayer.test.util;
+package com.driot.bookplayer.testutil;
 
 
 

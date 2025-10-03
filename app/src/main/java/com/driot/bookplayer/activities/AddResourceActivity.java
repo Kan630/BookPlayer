@@ -13,11 +13,9 @@ import androidx.core.widget.NestedScrollView;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.objects.AppViewModelStoreOwner;
 import com.driot.bookplayer.objects.TaskStateManager;
-import com.driot.bookplayer.services.LoadBookTaskState;
 import com.driot.bookplayer.objects.TaskStateRepository;
 import com.driot.bookplayer.objects.WorkFlow;
 import com.driot.bookplayer.services.DownloadControl;

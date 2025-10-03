@@ -8,7 +8,6 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.driot.bookplayer.global.Pref;
-import com.driot.bookplayer.services.LoadBookTaskState;
 import com.driot.bookplayer.utils.KanLogger;
 
 public final class TaskStateRepository {

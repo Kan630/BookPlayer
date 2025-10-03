@@ -30,6 +30,7 @@ import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.SupportedFilesHelper;
 import com.driot.bookplayer.helpers.UriHelper;
 import com.driot.bookplayer.objects.AudioFileInfo;
+import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.objects.MyAudioMetadata;
 import com.driot.bookplayer.objects.TaskStateManager;
 import com.driot.bookplayer.utils.Tonio;

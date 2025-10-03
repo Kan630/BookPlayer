@@ -35,7 +35,7 @@ import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.objects.BookToAdd;
-import com.driot.bookplayer.services.LoadBookTaskState;
+import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.utils.HashWorker;
 import com.driot.bookplayer.utils.PermissionRequest;

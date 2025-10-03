@@ -4,8 +4,6 @@ import static com.driot.bookplayer.global.Var.ONLY_MIME_AUDIO;
 import static com.driot.bookplayer.global.Var.SUPPORTED_AUDIO_EXTENSIONS;
 import static com.driot.bookplayer.global.Var.SUPPORTED_COVER_PICTURE_EXTENSIONS;
 import static com.driot.bookplayer.global.Var.ZIP_SIZE_MAX_COEF;
-import static com.driot.bookplayer.helpers.StorageHelper.getAvailableInternalMemorySize;
-import static com.driot.bookplayer.helpers.StorageHelper.getAvailableRemovableSDCardSize;
 import static com.driot.bookplayer.utils.Tonio.formatMemPadding;
 import static com.driot.bookplayer.utils.Tonio.getExtension;
 
@@ -24,6 +22,7 @@ import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.UriHelper;
 import com.driot.bookplayer.helpers.StorageHelper;
+import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.objects.TaskStateManager;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingWorker;

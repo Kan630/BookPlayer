@@ -1,4 +1,4 @@
-package com.driot.bookplayer;
+package com.driot.bookplayer.test;
 
 
 import android.content.pm.ActivityInfo;

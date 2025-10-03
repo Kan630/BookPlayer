@@ -105,11 +105,11 @@ android {
         release {
             // Enables code shrinking, obfuscation, and optimization for only
             // your project's release build type.
-            minifyEnabled = false
+            minifyEnabled = false //R8
 
             // Enables resource shrinking, which is performed by the
             // Android Gradle plugin.
-            shrinkResources = false
+            shrinkResources = false //Progard
 
 //            proguardFiles getDefaultProguardFile(
 //                    'proguard-android-optimize.txt'),
@@ -175,6 +175,8 @@ dependencies {
 
 
 
+    androidTestUtil "androidx.test:orchestrator:1.6.1"
+
     // ---- Unit tests (JVM) ----
     testImplementation "junit:junit:4.13.2"
 
@@ -186,7 +188,7 @@ dependencies {
     androidTestImplementation "androidx.test.espresso:espresso-core:3.7.0"
     androidTestImplementation "androidx.test.espresso:espresso-contrib:3.7.0"
     androidTestImplementation "androidx.test.uiautomator:uiautomator:2.3.0"
-    androidTestUtil "androidx.test:orchestrator:1.6.1"
-
+    androidTestImplementation "com.google.truth:truth:1.4.5"
+    androidTestImplementation "androidx.work:work-testing:2.10.5"
 
 }

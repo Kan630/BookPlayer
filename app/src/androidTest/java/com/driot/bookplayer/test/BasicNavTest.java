@@ -1,4 +1,4 @@
-package com.driot.bookplayer;
+package com.driot.bookplayer.test;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
@@ -18,15 +18,17 @@ import android.content.Context;
 import android.util.Log;
 
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.GetActivity;
 import com.driot.bookplayer.activities.MainActivity;
 import com.driot.bookplayer.activities.SettingsActivity;
-import com.driot.bookplayer.test.util.MenuHelpers;
-import com.driot.bookplayer.test.util.TestNavUtils;
-import com.driot.bookplayer.test.util.WaitForView;
+import com.driot.bookplayer.testutil.LoggingWatcher;
+import com.driot.bookplayer.testutil.MenuHelpers;
+import com.driot.bookplayer.testutil.TestNavUtils;
 import com.driot.bookplayer.utils.KanLogger;
 
 import org.junit.Before;
@@ -43,6 +45,9 @@ public abstract class BasicNavTest {
     @Rule
     public ActivityScenarioRule<MainActivity> activityRule =
             new ActivityScenarioRule<>(MainActivity.class);
+
+    @Rule
+    public LoggingWatcher logs = new LoggingWatcher();
 
     @Before
     public void setUp() {
@@ -74,31 +79,31 @@ public abstract class BasicNavTest {
         // TODO change your custom menu top stock menu, so you can use this handy method
         // TODO => openActionBarOverflowOrOptionsMenu(InstrumentationRegistry.getInstrumentation().getTargetContext());onView(withText(R.string.menu_open)).perform(click());
 // 1) Make sure toolbar is there
-        onView(withId(R.id.toolbar)).check(matches(isDisplayed()));
+        onView(ViewMatchers.withId(com.driot.bookplayer.R.id.toolbar)).check(matches(isDisplayed()));
         myLog("toolbar reachable");
 
-        MenuHelpers.tapMenu(R.string.menu_manual);
-        onView(withId(R.id.tvHelpText)).check(matches(isDisplayed()));
+        MenuHelpers.tapMenu(com.driot.bookplayer.R.string.menu_manual);
+        onView(ViewMatchers.withId(com.driot.bookplayer.R.id.tvHelpText)).check(matches(isDisplayed()));
         TestNavUtils.logCurrentActivity();
         onView(withId(android.R.id.content)).perform(swipeUp());
         onView(withId(android.R.id.content)).perform(swipeDown());
         TestNavUtils.assertPressBackTo(MainActivity.class);
 
-        MenuHelpers.tapMenu(R.string.menu_settings);
+        MenuHelpers.tapMenu(com.driot.bookplayer.R.string.menu_settings);
         TestNavUtils.logCurrentActivity();
-        onView(withId(R.id.scrollView)).perform(TestNavUtils.scrollScrollViewToBottom());
-        onView(withId(R.id.btnPodcastSettings)).perform(scrollTo(), click());
+        onView(withId(com.driot.bookplayer.R.id.scrollView)).perform(TestNavUtils.scrollScrollViewToBottom());
+        onView(ViewMatchers.withId(com.driot.bookplayer.R.id.btnPodcastSettings)).perform(scrollTo(), click());
         TestNavUtils.logCurrentActivity();
         TestNavUtils.assertPressBackTo(SettingsActivity.class);
-        onView(withId(R.id.scrollView)).perform(TestNavUtils.scrollScrollViewToBottom());
-        onView(withId(R.id.btn_show_advanced)).perform(click());
-        onView(withId(R.id.scrollView)).perform(TestNavUtils.scrollScrollViewToBottom());
-        onView(withId(R.id.scrollView)).perform(TestNavUtils.scrollScrollViewToTop());
+        onView(withId(com.driot.bookplayer.R.id.scrollView)).perform(TestNavUtils.scrollScrollViewToBottom());
+        onView(ViewMatchers.withId(com.driot.bookplayer.R.id.btn_show_advanced)).perform(click());
+        onView(withId(com.driot.bookplayer.R.id.scrollView)).perform(TestNavUtils.scrollScrollViewToBottom());
+        onView(withId(com.driot.bookplayer.R.id.scrollView)).perform(TestNavUtils.scrollScrollViewToTop());
         TestNavUtils.assertPressBackTo(MainActivity.class);
 
         //menu_seelog
 
-        MenuHelpers.tapMenu(R.string.menu_stats);
+        MenuHelpers.tapMenu(com.driot.bookplayer.R.string.menu_stats);
         TestNavUtils.logCurrentActivity();
         onView(withId(android.R.id.content)).perform(swipeUp());
         onView(withId(android.R.id.content)).perform(swipeDown());
@@ -106,7 +111,7 @@ public abstract class BasicNavTest {
 
         //menu_sendmail
 
-        MenuHelpers.tapMenu(R.string.menu_cacheFiles);
+        MenuHelpers.tapMenu(com.driot.bookplayer.R.string.menu_cacheFiles);
         TestNavUtils.logCurrentActivity();
         onView(withId(android.R.id.content)).perform(swipeUp());
         onView(withId(android.R.id.content)).perform(swipeDown());
@@ -114,40 +119,40 @@ public abstract class BasicNavTest {
 
         //menu_website
 
-        MenuHelpers.tapMenu(R.string.menu_open);
+        MenuHelpers.tapMenu(com.driot.bookplayer.R.string.menu_open);
         TestNavUtils.logCurrentActivity();
         myLog("in GET");
 
-        onView(withId(R.id.bOpenOther)).perform(click());   //perform(scrollTo());
+        onView(ViewMatchers.withId(com.driot.bookplayer.R.id.bOpenOther)).perform(click());   //perform(scrollTo());
         TestNavUtils.logCurrentActivity();
         myLog("in GET OTHER");
 
         for (int i = 0; i < 3; i++) {
-            onView(withId(R.id.viewSecretEntry)).perform(click());
+            onView(ViewMatchers.withId(com.driot.bookplayer.R.id.viewSecretEntry)).perform(click());
         }
         TestNavUtils.logCurrentActivity();
         myLog("in SECRET DEV");
 
-        onView(withId(R.id.bAutoTest_b1)).perform(click());
-        TestNavUtils.sleep(10000);
+        onView(ViewMatchers.withId(com.driot.bookplayer.R.id.bAutoTest_b1)).perform(click());
+        TestNavUtils.sleep(1_000);
         TestNavUtils.logCurrentActivity();
         myLog("in LOAD BOOK");
 
         onView(withId(android.R.id.content)).perform(swipeUp());
-        onView(withId(R.id.btnConfirm)).perform(click());
+        onView(ViewMatchers.withId(com.driot.bookplayer.R.id.btnConfirm)).perform(click());
         TestNavUtils.logCurrentActivity();
         myLog("in ADD RESOURCE");
         //onView(withId(android.R.id.content)).perform(WaitForView.waitFor(withId(R.id.toolbar), 10000));
-        TestNavUtils.sleep(10000);
+        TestNavUtils.sleep(10_000);
         TestNavUtils.logCurrentActivity();
 
 
-        onView(withId(R.id.recyclerview_folders)).perform(RecyclerViewActions.actionOnItemAtPosition(0, click()));
-        TestNavUtils.sleep(5000);
+        onView(ViewMatchers.withId(com.driot.bookplayer.R.id.recyclerview_folders)).perform(RecyclerViewActions.actionOnItemAtPosition(0, click()));
+        TestNavUtils.sleep(5_000);
         TestNavUtils.logCurrentActivity();
 
-        onView(withId(R.id.ibPlayPause)).perform(click());
-        TestNavUtils.sleep(1000);
+        onView(ViewMatchers.withId(R.id.ibPlayPause)).perform(click());
+        TestNavUtils.sleep(1_000);
 
 
 

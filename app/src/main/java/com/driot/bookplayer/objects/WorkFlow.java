@@ -11,9 +11,7 @@ import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
-import com.driot.bookplayer.services.DownloadControl;
 import com.driot.bookplayer.helpers.StorageHelper;
-import com.driot.bookplayer.services.LoadBookTaskState;
 import com.driot.bookplayer.utils.KanLogger;
 
 import java.io.File;

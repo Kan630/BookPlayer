@@ -1,4 +1,4 @@
-package com.driot.bookplayer.test.util;
+package com.driot.bookplayer.testutil;
 
 import android.app.Activity;
 import android.util.Log;

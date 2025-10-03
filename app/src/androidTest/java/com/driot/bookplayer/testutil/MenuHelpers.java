@@ -1,4 +1,4 @@
-package com.driot.bookplayer.test.util;
+package com.driot.bookplayer.testutil;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.Espresso.openActionBarOverflowOrOptionsMenu;

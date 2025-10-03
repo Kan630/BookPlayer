@@ -1,4 +1,4 @@
-package com.driot.bookplayer.services;
+package com.driot.bookplayer.objects;
 
 import android.net.Uri;
 import android.os.Parcel;

@@ -1,7 +1,6 @@
-package com.driot.bookplayer;
+package com.driot.bookplayer.test;
 
 import android.content.Context;
-import android.os.Build;
 
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -10,7 +9,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import static com.driot.bookplayer.utils.KanLogger.myLog;
-import static com.driot.bookplayer.utils.TonioCommonStuff.MD5;
 import static org.junit.Assert.*;
 
 /**
