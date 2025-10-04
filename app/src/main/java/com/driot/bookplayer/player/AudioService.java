@@ -703,7 +703,13 @@ public class AudioService extends LoggingService {
         if (intent != null) {
             String a = intent.getAction();
             if ("CMD_PLAY".equals(a))   { playAudio();   return START_STICKY; }   // broadcasts
-            if ("CMD_PAUSE".equals(a))  { pauseAudio();  return START_STICKY; }   // broadcasts
+            if ("CMD_PAUSE".equals(a))  {
+                if (engine == null || !engine.isPlaying()) {
+                    showForegroundNotification(false);
+                }
+                pauseAudio();
+                return START_STICKY;
+            }
             if ("CMD_NEXT".equals(a))   { forwardAudioTo(getPosition() + Option.get_ForwardSeconds()*1000); return START_STICKY; } // seek → broadcast
             if ("CMD_PREV".equals(a))   { backwardAudio(); return START_STICKY; } // seek → broadcast
             if ("CMD_SEEK".equals(a))   { setPosition(intent.getIntExtra("posMs", 0)); return START_STICKY; } // seek → broadcast
