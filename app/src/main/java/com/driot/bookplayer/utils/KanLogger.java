@@ -24,6 +24,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.global.Option;
+import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 /**
@@ -168,7 +169,7 @@ public class KanLogger {
         String newPrefix = parsePrefix(LOGCAT_PREFIX + " " + prefix);
         if (TextUtils.isEmpty(str)) {str = "...";}
         if (writeTechLogs()) {
-            writeToLogFile("WAR.." + parsePrefix(prefix) + ".." + str);
+            writeToLogFile("WAR.. " + parsePrefix(prefix) + ".. " + str);
             Log.w(newPrefix, str);
         } else {
             if (LOG_THEM_ALL) Log.w(newPrefix, str);
@@ -178,13 +179,18 @@ public class KanLogger {
     //TODO add e.getClass() to the string ?
     public static void myLogEE(Throwable t, String prefix, String str) {
         myLogE(prefix, str + (t != null ?  " : " + t.getMessage() : ""));
-        FirebaseCrashlytics.getInstance().setCustomKey("prefix",prefix);
-        String strFirebaseLog =  prefix + " " + str;
-        if (t!=null) {
-            FirebaseCrashlytics.getInstance().recordException(t);
-            strFirebaseLog = strFirebaseLog + " - " + t.getMessage();
-        }
-        FirebaseCrashlytics.getInstance().log(strFirebaseLog);
+        try {
+            FirebaseCrashlytics.getInstance().setCustomKey("prefix",prefix);
+            String strFirebaseLog =  prefix + " " + str;
+            String androidErrorMessage = "";
+            if (t!=null) {
+                androidErrorMessage = t.getMessage();
+                FirebaseCrashlytics.getInstance().recordException(t);
+                strFirebaseLog = strFirebaseLog + " - " + t.getMessage();
+            }
+            FirebaseCrashlytics.getInstance().log(strFirebaseLog);
+            FirebaseAnalyticsHelper.tellAnalyticsLogee(parsePrefix(prefix) + " " + str, androidErrorMessage);
+        } catch (Throwable ignored) {}
     }
 
     public static void myLogE(String str) {
@@ -194,7 +200,7 @@ public class KanLogger {
         String newPrefix = parsePrefix(LOGCAT_PREFIX + " " + prefix);
         if (TextUtils.isEmpty(str)) {str = "...";}
         if (writeTechLogs()) {
-            writeToLogFile("ERR.." + parsePrefix(prefix) + ".." + str);
+            writeToLogFile("ERR.. " + parsePrefix(prefix) + ".. " + str);
             Log.e(newPrefix, str);
         } else {
             if (LOG_THEM_ALL) Log.e(newPrefix, str);
@@ -338,6 +344,10 @@ public class KanLogger {
         String zeReturn = str;
         zeReturn = zeReturn.replace(PREFIX_DELETE,"");
         zeReturn = zeReturn.replace(" activities.", " a.");
+        zeReturn = zeReturn.replace(" services.", " s.");
+        zeReturn = zeReturn.replace(" helpers.", " h.");
+        zeReturn = zeReturn.replace(" objects.", " o.");
+        zeReturn = zeReturn.replace(" player.", " p.");
         return zeReturn;
     }
 

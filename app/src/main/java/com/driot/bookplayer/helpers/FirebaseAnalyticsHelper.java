@@ -138,6 +138,12 @@ public final class FirebaseAnalyticsHelper {
 
 
 
+    public static void tellAnalyticsLogee(String customErrorTxt, String androidErrorText) {
+        Bundle bundle = new Bundle();
+        bundle.putString("customErrorTxt", customErrorTxt);
+        bundle.putString("androidErrorText", androidErrorText);
+        logThat("log_ee", bundle);
+    }
     private static void logThat(String logName, Bundle bundle) {
         try {
             myLogD("Analytics logging - " + logName);
