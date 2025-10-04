@@ -28,6 +28,11 @@ public class StorageHelper {
         NOT_FOUND
     }
 
+    public static boolean isInInternalMemory(String path) {
+        String pathLower = path.toLowerCase();
+        return pathLower.contains(Var.PATH_CHECK_AUDIO_FILE_INTERNAL_PROD) || pathLower.contains(Var.PATH_CHECK_AUDIO_FILE_INTERNAL_DEBUG);
+    }
+
     //TODO should also check if the path/uri whatever is reachable and if not, another serie of 4 icons with a big red cross in front
     public static MemoryLocationType getMemoryLocationType(Context context, String path) {
         if (path == null) return MemoryLocationType.NOT_FOUND;
@@ -45,9 +50,9 @@ public class StorageHelper {
 
             if (pathLower.startsWith(reservedInternal.toLowerCase())) {
                 return MemoryLocationType.INTERNAL_RESERVED;
-            } else if (onSDcard && pathLower.contains(Var.PATH_CHECK_AUDIO_FILE_INTERNAL)) {
+            } else if (onSDcard && isInInternalMemory(pathLower)) {
                 return MemoryLocationType.SDCARD_RESERVED;
-            } else if (onSDcard && !pathLower.contains(Var.PATH_CHECK_AUDIO_FILE_INTERNAL)) {
+            } else if (onSDcard && !isInInternalMemory(pathLower)) {
                 return MemoryLocationType.SDCARD_SHARED;
             } else if (!reservedSD.isEmpty() && pathLower.startsWith(reservedSD.toLowerCase())) {
                 if (pathLower.contains("/android/data/" + context.getPackageName().toLowerCase())) {

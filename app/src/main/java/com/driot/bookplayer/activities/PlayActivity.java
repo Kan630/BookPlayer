@@ -44,6 +44,7 @@ import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
+import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.helpers.TitleHelper;
 import com.driot.bookplayer.helpers.TtsHelper;
 import com.driot.bookplayer.player.PlayList;
@@ -840,7 +841,7 @@ public class PlayActivity extends LoggingActivity {
 
                 if (errMessage==null || errMessage.isEmpty()) {
                     if (!exists) {
-                        if (zikFilePath.contains(Var.PATH_CHECK_AUDIO_FILE_INTERNAL)) {
+                        if (StorageHelper.isInInternalMemory(zikFilePath)) {
                             errMessage = getString(R.string.source_not_found);
                             myLogEE(null, "BAD BUG: file missing inside app private dir [" + zikFilePath + "]");
                         } else {
@@ -848,7 +849,7 @@ public class PlayActivity extends LoggingActivity {
                             myLogEE(null, getString(R.string.source_not_found_deleted));
                         }
                     } else {
-                        if (zikFilePath.contains(Var.PATH_CHECK_AUDIO_FILE_INTERNAL)) {
+                        if (StorageHelper.isInInternalMemory(zikFilePath)) {
                             // Should be readable without permissions
                             errMessage = getString(R.string.source_not_found);
                             myLogEE(null, "BAD BUG: file exists in private dir but not readable [" + zikFilePath + "]");

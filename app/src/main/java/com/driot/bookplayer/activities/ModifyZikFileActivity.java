@@ -18,6 +18,7 @@ import com.driot.bookplayer.db.Sql;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
+import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import java.io.File;
@@ -150,8 +151,8 @@ public class ModifyZikFileActivity extends LoggingActivity {
         String starter = "file:///";
         myLog("Deleting ZikFile : [" + strPath + "]");
         if (strPath.length()>5) {
-            if (!strPath.contains(Var.PATH_CHECK_AUDIO_FILE_INTERNAL) ) {
-                myLog("NO DISK DELETE : Not a folder in user data (" + Var.PATH_CHECK_AUDIO_FILE_INTERNAL + "), skip deletion");
+            if (!StorageHelper.isInInternalMemory(strPath)) {
+                myLog("NO DISK DELETE : Not a folder in user data, skip deletion");
             } else {
                 if (strPath.startsWith(starter)) {
                     strPath = strPath.replace(starter, "");

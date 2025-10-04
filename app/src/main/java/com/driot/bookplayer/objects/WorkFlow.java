@@ -96,7 +96,7 @@ public class WorkFlow {
             if (state != null) {
                 String folderToDeletePath = state.futureFolderPath;
                 if (folderToDeletePath.length()>5) {
-                    if (folderToDeletePath.contains(Var.PATH_CHECK_AUDIO_FILE_INTERNAL)) { //only internal files
+                    if (StorageHelper.isInInternalMemory(folderToDeletePath)) { //only internal files
                         if (FileHelper.exists(folderToDeletePath)) {
                             AppDatabase.databaseReadExecutor.execute(() -> { //make sure not in DB
                                 if (AppDatabase.getDatabase(context).FolderDao().folderAlreadyExist_checkFolderPath(folderToDeletePath) == 0) {

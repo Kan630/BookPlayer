@@ -1,7 +1,5 @@
 package com.driot.bookplayer.services;
 
-import static com.driot.bookplayer.global.Var.PATH_CHECK_AUDIO_FILE_INTERNAL;
-
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -13,7 +11,6 @@ import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 import androidx.work.Data;
 import androidx.work.ForegroundInfo;
-import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
 import com.driot.bookplayer.R;
@@ -24,11 +21,13 @@ import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
+import com.driot.bookplayer.helpers.StorageHelper;
+import com.driot.bookplayer.utils.log.LoggingWorker;
 
 import java.io.File;
 import java.util.List;
 
-public class DeleteFolderWorker extends Worker {
+public class DeleteFolderWorker extends LoggingWorker {
 
     public static final String KEY_FOLDER_ID = "key_folder_id";
     public static final String KEY_FOLDER_NAME = "key_folder_name";
@@ -49,9 +48,11 @@ public class DeleteFolderWorker extends Worker {
 
     @NonNull @Override
     public Result doWork() {
+        myLog("doWork()");
         long folderId = getInputData().getLong(KEY_FOLDER_ID, -1L);
         String folderName = getInputData().getString(KEY_FOLDER_NAME);
         if (folderId < 0) {
+            myLogEE(null, "DeleteFolderWorker - folderId < 0");
             return Result.failure(new Data.Builder()
                     .putString("error", "Bad input: folderId < 0")
                     .build());
@@ -61,11 +62,13 @@ public class DeleteFolderWorker extends Worker {
             // Make sure foreground is set BEFORE any long/opportunistic crash point
             setForegroundAsync(createForegroundInfo(folderName != null ? folderName : "Deleting"));
         } catch (Exception e) {
+            myLogEE(e, "setForegroundAsync ko");
             return Result.failure(new Data.Builder()
                     .putString("error", "Failed to start foreground: " + e.getMessage())
                     .putString("stack", stackToString(e))
                     .build());
         }
+        myLogD("init done");
 
         try {
             Context appCtx = getApplicationContext();
@@ -73,10 +76,12 @@ public class DeleteFolderWorker extends Worker {
 
             String folderPath = db.ZikFileDao().getFolderPath((int) folderId);
             if (!eraseFolderAndFiles(appCtx, folderPath)) {
+                myLogEE(null, "eraseFolderAndFiles ko");
                 return Result.failure(new Data.Builder()
                         .putString("error", "Disk deletion failed for " + folderPath)
                         .build());
             }
+            myLogD("Disk delete done");
 
             Podcast podcast = db.PodcastDao().getPodcastByFolderId(folderId);
             if (podcast == null) {
@@ -90,6 +95,7 @@ public class DeleteFolderWorker extends Worker {
                 if (episode != null) {
                     episode.date_delete = System.currentTimeMillis();
                     db.EpisodeDao().update(episode);
+                    myLogD("Podcast Episode date deleted set for " + episode.title);
                 }
             }
 
@@ -97,9 +103,12 @@ public class DeleteFolderWorker extends Worker {
             db.ZikFileDao().deleteAllZikFilesInFolder((int) folderId);
             com.driot.bookplayer.helpers.PodcastHelper.cancelAutoDownload(appCtx,(int) folderId);
 
+            myLog("delete finished");
+
             return Result.success();
 
         } catch (Exception e) {
+            myLogEE(e, "general exception");
             return Result.failure(new Data.Builder()
                     .putString("error", e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName())
                     .putString("stack", stackToString(e))
@@ -139,6 +148,7 @@ public class DeleteFolderWorker extends Worker {
     }
 
     private boolean eraseFolderAndFiles(Context ctx, String strPath) {
+        myLogD("erasing [" + strPath + "]");
         if (strPath == null) return false;
 
         if (strPath.endsWith("files/unzipped") || strPath.endsWith("files/unzipped/")) {
@@ -148,8 +158,9 @@ public class DeleteFolderWorker extends Worker {
         if (strPath.length() <= 5) return false;
 
         String starter = "file:///";
-        if (!strPath.contains(PATH_CHECK_AUDIO_FILE_INTERNAL)) {
+        if (!StorageHelper.isInInternalMemory(strPath)) {
             // Not in app user-data zone: don't delete from disk, but consider DB cleanup OK.
+            myLogD("not in app memory => no disk delete");
             return true;
         } else {
             strPath = strPath.replace(starter, "");
