@@ -18,12 +18,15 @@ import androidx.work.WorkerParameters;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
+import com.driot.bookplayer.db.Episode;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.Podcast;
+import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
 
 import java.io.File;
+import java.util.List;
 
 public class DeleteFolderWorker extends Worker {
 
@@ -81,6 +84,15 @@ public class DeleteFolderWorker extends Worker {
                 if (f != null) ImageHelper.deleteImage(appCtx, f);
             }
 
+            List<ZikFile> zikFileList = db.ZikFileDao().getZikFiles(folderId);
+            for (ZikFile zikFile : zikFileList) {
+                Episode episode = db.EpisodeDao().getByZikFileId(zikFile.getId());
+                if (episode != null) {
+                    episode.date_delete = System.currentTimeMillis();
+                    db.EpisodeDao().update(episode);
+                }
+            }
+
             db.FolderDao().delete((int) folderId);
             db.ZikFileDao().deleteAllZikFilesInFolder((int) folderId);
             com.driot.bookplayer.helpers.PodcastHelper.cancelAutoDownload(appCtx,(int) folderId);
@@ -101,11 +113,9 @@ public class DeleteFolderWorker extends Worker {
 
         NotificationManager nm =
                 (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel ch = new NotificationChannel(
-                    CHANNEL_ID, "Deletions", NotificationManager.IMPORTANCE_LOW);
-            nm.createNotificationChannel(ch);
-        }
+        NotificationChannel ch = new NotificationChannel(
+                CHANNEL_ID, "Deletions", NotificationManager.IMPORTANCE_LOW);
+        nm.createNotificationChannel(ch);
 
         int smallIcon = R.drawable.ic_delete_24;
         if (smallIcon == 0) smallIcon = R.mipmap.ic_launcher;

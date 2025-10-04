@@ -221,38 +221,6 @@ public class ModifyFolderActivity extends LoggingActivity {
         if (bGenerateCover != null) bGenerateCover.setEnabled(!deleting);
     }
 
-    private boolean eraseFolderAndFiles(String strPath) {
-        myLog("Deleting folder from Disk : [" + strPath + "]");
-        if (strPath==null) return false;
-        if (strPath.endsWith("files/unzipped") || strPath.endsWith("files/unzipped/")) {
-            myLogE("You are not deleting all the books, fucking dickhead !!");
-            return false;
-        }
-        String starter = "file:///";
-        if (strPath.length()>5) {
-            if (!strPath.contains(Var.PATH_CHECK_AUDIO_FILE_INTERNAL) ) { //strPath.startsWith(starter)
-                myLog("NO DISK DELETE : Not a folder in user data (" + Var.PATH_CHECK_AUDIO_FILE_INTERNAL + "), skip deletion of folder");
-                return true;
-            } else {
-                strPath = strPath.replace(starter, ""); //was a prefix in Folder table, field has been deprecated, now fill with dummies
-                try {
-                    File folderToDelete = new File(strPath);
-                    myLog("is directory :    " + folderToDelete.isDirectory());
-                    FileHelper.recursiveRemove(folderToDelete);
-                    return true;
-                } catch (Exception e) {
-                    myToastE("Error remove folder & files from Disk - user data");
-                    myLogE("Error remove folder & files from Disk - user data");
-                    return false;
-                }
-            }
-        } else {
-            myToastE("Weird error while removing file from Disk");
-            myLogE("should not happen : Path less than 5 chars");
-            return true;
-        }
-    }
-
     private void renameBook(String newName) {
         if (newName.length() < 2) {
             myToast(getString(R.string.Error_FolderNameTooShort));

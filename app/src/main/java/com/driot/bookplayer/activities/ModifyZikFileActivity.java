@@ -13,6 +13,7 @@ import androidx.appcompat.app.AlertDialog;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
+import com.driot.bookplayer.db.Episode;
 import com.driot.bookplayer.db.Sql;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Var;
@@ -110,17 +111,21 @@ public class ModifyZikFileActivity extends LoggingActivity {
 
     private void deleteZikFile() {
         // delete ZikFile if exist in app memory
-        String myErr = "Error getting uri from ZikFile for deleting file in memory";
-        if (DeleteZikFileFromDisk()) {
+        if (deleteZikFileFromDisk()) {
             myLog("Ok file deleted");
             deleteZikFileFromDB(); // to delete from DB
         } else {
-            myLog("Error deleting zik file from internal app memory");
+            myToastEE(null, "Error deleting zik file from internal app memory");
         }
     }
 
     private void deleteZikFileFromDB() {
         new Thread(() -> {
+            Episode episode = AppDatabase.getDatabase(this).EpisodeDao().getByZikFileId(zikFile.getId());
+            if (episode != null) {
+                episode.date_delete = System.currentTimeMillis();
+                AppDatabase.getDatabase(this).EpisodeDao().update(episode);
+            }
             AppDatabase.getDatabase(this).ZikFileDao().deleteZikFile(zikFile.getId());
             runOnUiThread(() -> {
                 myToast(getString(R.string.ZikFile_Deleted));
@@ -130,7 +135,7 @@ public class ModifyZikFileActivity extends LoggingActivity {
         }).start();
     }
 
-    private boolean DeleteZikFileFromDisk() {
+    private boolean deleteZikFileFromDisk() {
         new Thread(() -> {
             String zikFilePath = AppDatabase.getDatabase(this).ZikFileDao().getZikFilePath(zikFile.getId());
             runOnUiThread(() -> {
