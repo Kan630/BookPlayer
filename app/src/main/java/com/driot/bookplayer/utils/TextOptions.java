@@ -15,6 +15,8 @@ import java.io.StringReader;
 
 import static android.content.Context.MODE_PRIVATE;
 
+import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
+
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 02/12/20
  */
@@ -294,5 +296,7 @@ public class TextOptions {
     private void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, this.getClass().getName(), str); }
     private void myToast(String str) { KanLogger.myToast(this.getClass().getName(), str); }
     private void myToastE(String str) { KanLogger.myToastE(this.getClass().getName(), str); }
-    private void myKeyFirebase(String strKey, String strValue) {KanLogger.setCustomKeyCrashlytics(strKey, strValue);}
-    private void myLogFirebase(String strLog) {KanLogger.logCrashlytics(strLog);}}
+    private void myKeyFirebase(String strKey, String strValue) {
+        FirebaseAnalyticsHelper.setCustomKeyCrashlytics(strKey, strValue);}
+    private void myLogFirebase(String strLog) {
+        FirebaseAnalyticsHelper.logCrashlytics(strLog);}}

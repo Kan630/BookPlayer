@@ -1,7 +1,7 @@
 package com.driot.bookplayer.helpers;
 
 import static com.driot.bookplayer.utils.KanLogger.isMyPhoneDev;
-import static com.driot.bookplayer.utils.KanLogger.setCustomKeyCrashlytics;
+import static com.driot.bookplayer.helpers.FirebaseAnalyticsHelper.setCustomKeyCrashlytics;
 import static com.driot.bookplayer.utils.KanLogger.writeTechLogs;
 import static com.driot.bookplayer.utils.TonioCommonStuff.MD5;
 

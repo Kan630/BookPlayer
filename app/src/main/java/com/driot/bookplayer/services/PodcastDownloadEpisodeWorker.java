@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
+import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.utils.KanLogger;
 import com.driot.bookplayer.utils.Tonio;
 
@@ -104,8 +105,10 @@ public class PodcastDownloadEpisodeWorker extends Worker {
     private void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, this.getClass().getName(), str); }
     private void myToast(String str) { KanLogger.myToast(this.getClass().getName(), str); }
     private void myToastE(String str) { KanLogger.myToastE(this.getClass().getName(), str); }
-    private void myKeyFirebase(String strKey, String strValue) {KanLogger.setCustomKeyCrashlytics(strKey, strValue);}
-    private void myLogFirebase(String strLog) {KanLogger.logCrashlytics(strLog);}
+    private void myKeyFirebase(String strKey, String strValue) {
+        FirebaseAnalyticsHelper.setCustomKeyCrashlytics(strKey, strValue);}
+    private void myLogFirebase(String strLog) {
+        FirebaseAnalyticsHelper.logCrashlytics(strLog);}
 
 }
 

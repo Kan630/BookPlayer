@@ -71,7 +71,7 @@ public class UnzipWorker extends LoggingWorker {
             return Result.failure();
         }
 
-        FirebaseAnalyticsHelper.sendEvent("zip_worker");
+        FirebaseAnalyticsHelper.logEvent("zip_worker");
 
         try {
             myLogD("unzipping in: " + unzipFolder);

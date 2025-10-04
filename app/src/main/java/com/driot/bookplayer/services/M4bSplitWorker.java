@@ -60,7 +60,7 @@ public class M4bSplitWorker extends LoggingWorker {
             return Result.failure();
         }
 
-        FirebaseAnalyticsHelper.sendEvent("m4b_worker");
+        FirebaseAnalyticsHelper.logEvent("m4b_worker");
 
         boolean success = splitM4bLocal(m4bFilePath, destinationFolderPath);
         return success ? Result.success() : Result.failure();

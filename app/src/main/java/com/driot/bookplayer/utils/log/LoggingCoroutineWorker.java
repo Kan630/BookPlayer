@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 import androidx.work.CoroutineWorker;
 import androidx.work.WorkerParameters;
 
+import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.utils.KanLogger;
 
 import static com.driot.bookplayer.utils.KanLogger.LOG_LIFECYCLE_TRACE;
@@ -69,11 +70,11 @@ public abstract class LoggingCoroutineWorker extends CoroutineWorker {
     }
 
     protected void myKeyFirebase(String strKey, String strValue) {
-        KanLogger.setCustomKeyCrashlytics(strKey, strValue);
+        FirebaseAnalyticsHelper.setCustomKeyCrashlytics(strKey, strValue);
     }
 
     protected void myLogFirebase(String strLog) {
-        KanLogger.logCrashlytics(strLog);
+        FirebaseAnalyticsHelper.logCrashlytics(strLog);
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////

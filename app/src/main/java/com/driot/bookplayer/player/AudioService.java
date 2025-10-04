@@ -410,7 +410,11 @@ public class AudioService extends LoggingService {
                 pauseCheckHandler, DELAY_CHECK_TIMER_PAUSE,
                 new com.driot.bookplayer.player.PauseTrimWatcher.Killer() {
                     @Override public void kill() { killService(); }
-                    @Override public void onLog(String msg) { myLogD(msg); }
+                    @Override public void onLog(String msg) {
+                        String newMsg = msg;
+                        if (PlayList.getInstance()==null) newMsg += " [null playlist]";
+                        myLogD(newMsg);
+                    }
                 },
                 System::currentTimeMillis,
                 Pref::getPauseTime,

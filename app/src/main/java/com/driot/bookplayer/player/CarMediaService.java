@@ -176,6 +176,7 @@ public class CarMediaService extends MediaBrowserServiceCompat {
             @Override public void onSkipToNext()        { sendCmd("CMD_NEXT"); }
             @Override public void onSkipToPrevious()    { sendCmd("CMD_PREV"); }
             @Override public void onSeekTo(long posMs)  {
+                FirebaseAnalyticsHelper.tellCarSendCmd("CMD_SEEK");
                 Intent i = new Intent(CarMediaService.this, AudioService.class).setAction("CMD_SEEK");
                 i.putExtra("posMs", (int) posMs);
                 startService(i);
@@ -183,6 +184,7 @@ public class CarMediaService extends MediaBrowserServiceCompat {
             @Override
             public void onPlayFromMediaId(String mediaId, Bundle extras) {
                 myLogI("---- AUTOMOTIVE user click Play -----");
+                FirebaseAnalyticsHelper.tellCarOnPlayFromMediaId();
                 userArmedPlay = true;
                 if (mediaId == null) return;
 
@@ -266,7 +268,7 @@ public class CarMediaService extends MediaBrowserServiceCompat {
 
  */
         CarSignals.markCarConnected();
-        FirebaseAnalyticsHelper.sendEvent("car_init");
+        FirebaseAnalyticsHelper.tellCarOnRoot();
         return new BrowserRoot(ROOT_ID, null);
     }
 
@@ -274,7 +276,7 @@ public class CarMediaService extends MediaBrowserServiceCompat {
     @Override
     public void onLoadChildren(@NonNull String parentId,
                                @NonNull Result<List<MediaBrowserCompat.MediaItem>> result) {
-        myLog("onLoadChildren");
+        FirebaseAnalyticsHelper.tellCarOnChildren();
         // Chargements DB → thread bg
         result.detach();
         AppDatabase.databaseReadExecutor.execute(() -> {
@@ -508,6 +510,7 @@ public class CarMediaService extends MediaBrowserServiceCompat {
     // --------- Bridge vers AudioService ----------
     private void sendCmd(String action) {
         myLog("sendCmd : " + action);
+        FirebaseAnalyticsHelper.tellCarSendCmd(action);
         androidx.core.content.ContextCompat.startForegroundService(
                 this, new Intent(this, AudioService.class).setAction(action)
         );

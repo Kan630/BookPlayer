@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.utils.KanLogger;
 
 import static com.driot.bookplayer.utils.KanLogger.LOG_LIFECYCLE_TRACE;
@@ -68,11 +69,11 @@ public abstract class LoggingFragment extends Fragment {
     }
 
     protected void myKeyFirebase(String strKey, String strValue) {
-        KanLogger.setCustomKeyCrashlytics(strKey, strValue);
+        FirebaseAnalyticsHelper.setCustomKeyCrashlytics(strKey, strValue);
     }
 
     protected void myLogFirebase(String strLog) {
-        KanLogger.logCrashlytics(strLog);
+        FirebaseAnalyticsHelper.logCrashlytics(strLog);
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////

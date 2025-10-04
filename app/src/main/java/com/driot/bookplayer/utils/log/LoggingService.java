@@ -9,6 +9,7 @@ import android.os.IBinder;
 
 import androidx.annotation.Nullable;
 
+import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.utils.KanLogger;
 
 
@@ -133,11 +134,11 @@ public abstract class LoggingService extends Service {
     }
 
     protected void myKeyFirebase(String strKey, String strValue) {
-        KanLogger.setCustomKeyCrashlytics(strKey, strValue);
+        FirebaseAnalyticsHelper.setCustomKeyCrashlytics(strKey, strValue);
     }
 
     protected void myLogFirebase(String strLog) {
-        KanLogger.logCrashlytics(strLog);
+        FirebaseAnalyticsHelper.logCrashlytics(strLog);
     }
 
     /// ///////////////////////////////////////////////////////////////////

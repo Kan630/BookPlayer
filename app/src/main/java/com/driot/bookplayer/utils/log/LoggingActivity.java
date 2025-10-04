@@ -28,6 +28,7 @@ import static com.driot.bookplayer.utils.KanLogger.LOG_LIFECYCLE_TRACE;
 
 import com.driot.bookplayer.global.Option;
 //import com.driot.bookplayer.utils.KanLogger;
+import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.utils.KanLogger;
 
 
@@ -248,11 +249,11 @@ public abstract class LoggingActivity extends AppCompatActivity {
     }
 
     protected void myKeyFirebase(String strKey, String strValue) {
-        KanLogger.setCustomKeyCrashlytics(strKey, strValue);
+        FirebaseAnalyticsHelper.setCustomKeyCrashlytics(strKey, strValue);
     }
 
     protected void myLogFirebase(String strLog) {
-        KanLogger.logCrashlytics(strLog);
+        FirebaseAnalyticsHelper.logCrashlytics(strLog);
     }
 
 

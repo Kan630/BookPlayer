@@ -204,17 +204,6 @@ public class KanLogger {
         }
     }
 
-    public static void setCustomKeyCrashlytics(String strKey, String strValue) {
-        myLogI("setCustomKeyCrashlytics : " + strKey + " = " + strValue);
-        FirebaseCrashlytics.getInstance().setCustomKey(strKey, strValue);
-    }
-
-    public static void logCrashlytics(String strLog) {
-        myLogI("logCrashlytics : " + strLog);
-        FirebaseCrashlytics.getInstance().log(strLog);
-    }
-
-
 
 //TODO change for snackbars....
     /////////////////////////////////

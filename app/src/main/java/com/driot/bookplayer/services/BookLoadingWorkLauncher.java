@@ -101,6 +101,11 @@ public class BookLoadingWorkLauncher {
             }
         }
 
+        FirebaseAnalyticsHelper.setCustomKeyCrashlytics("worker_extension", String.valueOf(bookState.fileExtension));
+        FirebaseAnalyticsHelper.setCustomKeyCrashlytics("worker_sourceLocation", String.valueOf(bookState.sourceLocation));
+        FirebaseAnalyticsHelper.setCustomKeyCrashlytics("worker_playType", String.valueOf(bookState.playType));
+        FirebaseAnalyticsHelper.setCustomKeyCrashlytics("worker_originalUri", String.valueOf(bookState.originalUri));
+
         bookState.doDownload = doDownload;
         bookState.doCopy = doCopy;
         bookState.doSplitM4b = doSplitM4b;
