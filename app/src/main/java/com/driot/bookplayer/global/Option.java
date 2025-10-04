@@ -9,7 +9,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.utils.NetworkUtils;
+import com.driot.bookplayer.helpers.NetworkHelper;
 
 
 public class Option {
@@ -38,8 +38,8 @@ public class Option {
     private static final boolean DEFAULT_OPEN_WITH_ALL = false;
     private static final boolean DEFAULT_SPLIT_M4B = true;
     private static final boolean DEFAULT_USE_SD_CARD = true;
-    private static final NetworkUtils.NetworkPolicyManual DEFAULT_MANUAL_DOWNLOAD_POLICY = NetworkUtils.NetworkPolicyManual.NEVER_ASK;
-    private static final NetworkUtils.NetworkPolicyAuto DEFAULT_AUTO_DOWNLOAD_POLICY = NetworkUtils.NetworkPolicyAuto.WIFI;
+    private static final NetworkHelper.NetworkPolicyManual DEFAULT_MANUAL_DOWNLOAD_POLICY = NetworkHelper.NetworkPolicyManual.NETWORK_POLICY_NEVER_ASK;
+    private static final NetworkHelper.NetworkPolicyAuto DEFAULT_AUTO_DOWNLOAD_POLICY = NetworkHelper.NetworkPolicyAuto.NETWORK_POLICY_UNMETERED;
     private static final boolean DEFAULT_PODCAST_AUTO_DELETE = false;
     public static final int DEFAULT_PODCAST_DELAY_AUTO_DELETE = 7;
     public static final int DEFAULT_PODCAST_COMPLETION_PERCENTAGE_AUTO_DELETE = 90;
@@ -181,15 +181,15 @@ public class Option {
     public static boolean getUseSdCard() {return prefs.getBoolean("USE_SD_CARD", DEFAULT_USE_SD_CARD);}
 
     /////////////////// DOWNLOAD ON WIFI ///////////////////
-    public static void setNetworkPolicyManualDownload(NetworkUtils.NetworkPolicyManual policy) {prefs.edit().putInt("MANUAL_DOWNLOAD_POLICY_KEY", policy.ordinal()).apply();}
-    public static NetworkUtils.NetworkPolicyManual getNetworkPolicyManualDownload() {
+    public static void setNetworkPolicyManualDownload(NetworkHelper.NetworkPolicyManual policy) {prefs.edit().putInt("MANUAL_DOWNLOAD_POLICY_KEY", policy.ordinal()).apply();}
+    public static NetworkHelper.NetworkPolicyManual getNetworkPolicyManualDownload() {
         int index = prefs.getInt("MANUAL_DOWNLOAD_POLICY_KEY", DEFAULT_MANUAL_DOWNLOAD_POLICY.ordinal());
-        return NetworkUtils.NetworkPolicyManual.values()[Math.max(0, Math.min(index, NetworkUtils.NetworkPolicyManual.values().length - 1))];
+        return NetworkHelper.NetworkPolicyManual.values()[Math.max(0, Math.min(index, NetworkHelper.NetworkPolicyManual.values().length - 1))];
     }
-    public static void setNetworkPolicyAutoDownload(NetworkUtils.NetworkPolicyAuto policy) {prefs.edit().putInt("AUTO_DOWNLOAD_POLICY_KEY", policy.ordinal()).apply();}
-    public static NetworkUtils.NetworkPolicyAuto getNetworkPolicyAutoDownload() {
+    public static void setNetworkPolicyAutoDownload(NetworkHelper.NetworkPolicyAuto policy) {prefs.edit().putInt("AUTO_DOWNLOAD_POLICY_KEY", policy.ordinal()).apply();}
+    public static NetworkHelper.NetworkPolicyAuto getNetworkPolicyAutoDownload() {
         int index = prefs.getInt("AUTO_DOWNLOAD_POLICY_KEY", DEFAULT_AUTO_DOWNLOAD_POLICY.ordinal());
-        return NetworkUtils.NetworkPolicyAuto.values()[Math.max(0, Math.min(index, NetworkUtils.NetworkPolicyAuto.values().length - 1))];
+        return NetworkHelper.NetworkPolicyAuto.values()[Math.max(0, Math.min(index, NetworkHelper.NetworkPolicyAuto.values().length - 1))];
     }
 
     /////////////////// PODCAST ///////////////////

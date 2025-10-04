@@ -12,6 +12,7 @@ import android.provider.Settings;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -29,12 +30,13 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
+import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.objects.OngoingTaskHost;
 import com.driot.bookplayer.objects.TaskStateManager;
 import com.driot.bookplayer.utils.MediaScanner2;
-import com.driot.bookplayer.utils.NetworkUtils;
 import com.driot.bookplayer.utils.PermissionRequest;
 import com.driot.bookplayer.utils.log.LoggingActivity;
+import com.driot.bookplayer.views.EditTextWithButtons;
 
 import java.util.Arrays;
 import java.util.List;
@@ -44,7 +46,10 @@ import static com.driot.bookplayer.utils.PermissionRequest.isReadAudioPermission
 public class GetOtherActivity extends LoggingActivity {
 
     private Button bOpenFile, bOpenFolder, bOpenZipFile, bOpenM4bFile, bMassImport;
-    private Button bAutoTest_b1, bAutoTest_b2, bAutoTest_b3, bAutoTest_b4, bDirectDownload;
+    private Button bAutoTest_b1, bAutoTest_b2, bAutoTest_b3, bAutoTest_b4;
+
+    private Button bDirectDownload;
+    private EditTextWithButtons etDirectDownload;
 
     private PermissionRequest mPermissionRequest;
 
@@ -115,6 +120,7 @@ public class GetOtherActivity extends LoggingActivity {
         bAutoTest_b3 = findViewById(R.id.bAutoTest_b3);
         bAutoTest_b4 = findViewById(R.id.bAutoTest_b4);
         bDirectDownload = findViewById(R.id.bDirectDownload);
+        etDirectDownload = findViewById(R.id.etDirectDownload);
 
         // NEW: attach the ongoing banner fragment once; it will self-show/hide
         OngoingTaskHost.attach(
@@ -297,7 +303,47 @@ public class GetOtherActivity extends LoggingActivity {
                 }
             });
         });
+        bDirectDownload.setOnClickListener(view -> {
+            myLogI("Button click : JUST GET IT");
+            String justGetItUrl = etDirectDownload.getText();
+            if (justGetItUrl.isEmpty()) {
+                myToast("Please enter a URL");
+                return;
+            }
+            if (Option.getNetworkPolicyManualDownload().equals(NetworkHelper.NetworkPolicyManual.NETWORK_POLICY_UNMETERED) && !NetworkHelper.isUnmeteredConnected(this)) {
+                new AlertDialog.Builder(this)
+                        .setTitle(R.string.download_warning_title_unmetered)
+                        .setMessage(R.string.download_warning_message_unmetered)
+                        .setPositiveButton(android.R.string.ok, (dialog, which) -> {
+                            runOnUiThread(() -> {
+                                checkWWW(canReach -> {
+                                    if (canReach) {
+                                        Intent intent = new Intent(this, LoadBookActivity.class);
+                                        intent.putExtra(LoadBookActivity.EXTRA_URI, Uri.parse(justGetItUrl));
+                                        intent.putExtra(LoadBookActivity.EXTRA_TYPE, "File");
+                                        loadOptionsActivityResultLauncher.launch(intent);
+                                    }
+                                });
+                            });
+                        })
+                        .setNegativeButton(android.R.string.cancel, (dialog, which) -> {
+                            myLogD("User cancelled download (Network state popup)");
+                        })
+                        .show();
+            } else {
+                checkWWW(canReach -> {
+                    if (canReach) {
+                        Intent intent = new Intent(this, LoadBookActivity.class);
+                        intent.putExtra(LoadBookActivity.EXTRA_URI, Uri.parse(justGetItUrl));
+                        intent.putExtra(LoadBookActivity.EXTRA_TYPE, "File");
+                        loadOptionsActivityResultLauncher.launch(intent);
+                    }
+                });
+            }
+        });
     }
+
+
 
     private void lockButtons(boolean doLock) {
         //myLogD("LockButtons : " + doLock);
@@ -329,13 +375,13 @@ public class GetOtherActivity extends LoggingActivity {
 
     public interface WWWCheckCallback { void onResult(boolean canReach); }
     private void checkWWW(WWWCheckCallback callback) {
-        if (!NetworkUtils.isNetworkAvailable(this)) {
+        if (!NetworkHelper.isNetworkAvailable(this)) {
             myToast("Aie. Network not available.");
             callback.onResult(false);
             return;
         }
         new Thread(() -> {
-            boolean canReach = NetworkUtils.canReachUrl("https://bookplayer.driot.com");
+            boolean canReach = NetworkHelper.canReachUrl("https://bookplayer.driot.com");
             runOnUiThread(() -> {
                 if (canReach) callback.onResult(true);
                 else {

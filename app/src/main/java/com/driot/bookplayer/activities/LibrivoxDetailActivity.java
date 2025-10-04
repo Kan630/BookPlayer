@@ -6,6 +6,7 @@ import static com.driot.bookplayer.helpers.StorageHelper.getUnzipFolder;
 import static com.driot.bookplayer.utils.TextOptions.parseMaybeHtml;
 import static com.driot.bookplayer.utils.Tonio.getReadableSize;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -20,9 +21,11 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.signature.ObjectKey;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
+import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
+import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.objects.ItemMetadata;
 import com.driot.bookplayer.objects.LibrivoxApi;
 import com.driot.bookplayer.objects.TaskStateManager;
@@ -356,13 +359,28 @@ public class LibrivoxDetailActivity extends LoggingActivity {
     }
 
     private void checkThenDownload(String url) {
-        //check does not exist already
         String futurePath = getUnzipFolder(this).getAbsolutePath() + "/" + viewModel.identifier;
         AppDatabase.databaseReadExecutor.execute(() -> {
             if (AppDatabase.getDatabase(this).FolderDao().folderAlreadyExist_checkFolderPath(futurePath) > 0) {
                 runOnUiThread(() -> myToast(getString(R.string.error_media_already_loaded_samePath)));
             } else {
-                runOnUiThread(() -> proceedWithDownload(url, futurePath));
+                NetworkHelper.logCurrentNetworkState(this);
+                runOnUiThread(() -> {
+                    if (Option.getNetworkPolicyManualDownload().equals(NetworkHelper.NetworkPolicyManual.NETWORK_POLICY_UNMETERED) && !NetworkHelper.isUnmeteredConnected(this)) {
+                        new AlertDialog.Builder(this)
+                                .setTitle(R.string.download_warning_title_unmetered)
+                                .setMessage(R.string.download_warning_message_unmetered)
+                                .setPositiveButton(android.R.string.ok, (dialog, which) -> {
+                                    runOnUiThread(() -> proceedWithDownload(url, futurePath));
+                                })
+                                .setNegativeButton(android.R.string.cancel, (dialog, which) -> {
+                                    myLogD("User cancelled download (Network state popup)");
+                                })
+                                .show();
+                    } else {
+                        proceedWithDownload(url, futurePath);
+                    }
+                });
             }
         });
     }

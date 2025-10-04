@@ -21,7 +21,6 @@ import com.driot.bookplayer.objects.PodcastIndexApi;
 import com.driot.bookplayer.objects.PodcastFeed;
 import com.driot.bookplayer.objects.PodcastIndexResponse;
 import com.driot.bookplayer.utils.KanLogger;
-import com.driot.bookplayer.utils.NetworkUtils;
 import com.driot.bookplayer.utils.PodcastDownloadManager;
 
 import java.io.File;
@@ -29,9 +28,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import okhttp3.Interceptor;
@@ -331,12 +328,8 @@ public class PodcastHelper {
     }
 
     public static void checkForNewEpisodesToAutoDownload(Context context, long since) {
-        if (Option.getNetworkPolicyAutoDownload().equals(NetworkUtils.NetworkPolicyAuto.UNMETERED) && !NetworkUtils.isUnmeteredConnected(context)) {
+        if (Option.getNetworkPolicyAutoDownload().equals(NetworkHelper.NetworkPolicyAuto.NETWORK_POLICY_UNMETERED) && !NetworkHelper.isUnmeteredConnected(context)) {
             myLogD("Network policy prevents auto-download (Unmetered)");
-            return;
-        }
-        if (Option.getNetworkPolicyAutoDownload().equals(NetworkUtils.NetworkPolicyAuto.WIFI) && !NetworkUtils.isWifiConnected(context)) {
-            myLogD("Network policy prevents auto-download (Wifi)");
             return;
         }
         AppDatabase.databaseWriteExecutor.execute(() -> {

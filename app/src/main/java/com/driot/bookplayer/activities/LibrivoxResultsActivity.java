@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -16,12 +15,12 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.adapter.LibrivoxResultRVAdapter;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
+import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.objects.LibrivoxApiResponse;
 import com.driot.bookplayer.objects.LibrivoxApi;
 import com.driot.bookplayer.objects.LibrivoxItem;
 import com.driot.bookplayer.objects.OngoingTaskHost;
-import com.driot.bookplayer.utils.NetworkUtils;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import java.util.Arrays;
@@ -193,7 +192,7 @@ public class LibrivoxResultsActivity extends LoggingActivity {
 
             @Override
             public void onFailure(Call<LibrivoxApiResponse> call, Throwable t) {
-                if (NetworkUtils.isUnknownHost(t)) {
+                if (NetworkHelper.isUnknownHost(t)) {
                     myToastE(getString(R.string.no_internet_connection));
                 } else {
                     myLogEE(t, "librivox api search on Failure - " + finalFullQuery);

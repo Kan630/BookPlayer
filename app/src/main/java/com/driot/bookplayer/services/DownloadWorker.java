@@ -12,6 +12,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ServiceInfo;
+import android.net.Uri;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
@@ -24,9 +25,9 @@ import androidx.work.WorkerParameters;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.objects.TaskStateManager;
-import com.driot.bookplayer.utils.NetworkUtils;
 import com.driot.bookplayer.utils.log.LoggingWorker;
 
 import java.io.BufferedInputStream;
@@ -101,6 +102,7 @@ public class DownloadWorker extends LoggingWorker {
     @Override
     public Result doWork() {
         myLogD("doWork");
+
         final Context ctx = getApplicationContext();
 
         final String urlStr = getInputData().getString(KEY_URL);
@@ -154,7 +156,7 @@ public class DownloadWorker extends LoggingWorker {
 
         try {
             // Respect network policy (Constraints are preferred, this is a secondary guard)
-            if (!NetworkUtils.isNetworkAvailable(ctx)) {
+            if (!NetworkHelper.isNetworkAvailable(ctx)) {
                 TaskStateManager.markDownloadPaused(ctx.getString(R.string.no_internet_connection));
                 return Result.retry();
             }
@@ -382,11 +384,23 @@ public class DownloadWorker extends LoggingWorker {
             myLogE("No internet connection [" + e.getMessage() + "]");
             return Result.retry();
         } catch (SocketException e) {
-            TellHimWhyPause(ctx.getString(R.string.connection_aborted) + " (" + ctx.getString(R.string.no_internet_connection) + "?)");
+            TellHimWhyPause(ctx.getString(R.string.connection_aborted) + " (" + ctx.getString(R.string.no_internet_connection) + "?)\n" + e.getMessage());
             myLogE("Connection aborted [" + e.getMessage() + "]");
             return Result.retry();
         } catch (IOException e) {
-            TellHimWhyPause(ctx.getString(R.string.io_error) + " (" + ctx.getString(R.string.no_internet_connection) + "?)");
+            if (NetworkHelper.isCleartextNotPermitted(e)) {
+                String host = null;
+                try { host = Uri.parse(urlStr).getHost(); } catch (Throwable ignore) {}
+                String why = (host != null)
+                        ? ctx.getString(R.string.http_cleartext_to) + " " + host + " " + ctx.getString(R.string.is_blocked_by_android_s_network_security_policy) + ". " +
+                        ctx.getString(R.string.use_https_or_allow_cleartext_for_this_host_in_the_app_s_network_security_config)
+                        : ctx.getString(R.string.http_is_blocked_by_android_s_network_security_policy)  + " " +
+                        ctx.getString(R.string.use_https_or_allow_cleartext_for_this_host_in_the_app_s_network_security_config);
+                myLogE(why + " [" + e.getMessage() + "]");
+                TaskStateManager.markTaskFailed(TASK_NAME, why);
+                return Result.failure();
+            }
+            TellHimWhyPause(ctx.getString(R.string.io_error) + " (" + ctx.getString(R.string.no_internet_connection) + "?)\n" + e.getMessage());
             myLogE("IO error [" + e.getMessage() + "]");
             return Result.retry();
         } catch (Exception e) {
@@ -434,7 +448,7 @@ public class DownloadWorker extends LoggingWorker {
             return NetworkUtils.isNetworkAvailable(ctx);
         }
  */
-        return NetworkUtils.isNetworkAvailable(ctx);
+        return NetworkHelper.isNetworkAvailable(ctx);
     }
 
     private void maybeUpdateProgress(Context ctx, int notifId, long written, long fileLenIfKnown, String title) {

@@ -44,6 +44,7 @@ import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
+import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.objects.DisplayableEpisode;
 import com.driot.bookplayer.player.AudioService;
 import com.driot.bookplayer.player.PlayList;
@@ -52,7 +53,6 @@ import com.driot.bookplayer.objects.PodcastFeed;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.PodcastHelper;
-import com.driot.bookplayer.utils.NetworkUtils;
 import com.driot.bookplayer.utils.PodcastDownloadManager;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingActivity;
@@ -690,19 +690,10 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
             myLog("download already enqueued for " + ep.title);
             return;
         }
-        if (Option.getNetworkPolicyManualDownload().equals(NetworkUtils.NetworkPolicyManual.ASK_IF_NOT_UNMETERED) && !NetworkUtils.isUnmeteredConnected(this)) {
+        if (Option.getNetworkPolicyManualDownload().equals(NetworkHelper.NetworkPolicyManual.NETWORK_POLICY_UNMETERED) && NetworkHelper.isUnmeteredConnected(this)) {
             new AlertDialog.Builder(this)
                     .setTitle(R.string.download_warning_title_unmetered)
                     .setMessage(R.string.download_warning_message_unmetered)
-                    .setPositiveButton(android.R.string.ok, (dialog, which) -> {
-                        proceedWithDownload(podcastFeed.title, ep, podcastFeed.id);
-                    })
-                    .setNegativeButton(android.R.string.cancel, null)
-                    .show();
-        } else if (Option.getNetworkPolicyManualDownload().equals(NetworkUtils.NetworkPolicyManual.ASK_IF_NOT_WIFI) && !NetworkUtils.isWifiConnected(this)) {
-            new AlertDialog.Builder(this)
-                    .setTitle(R.string.download_warning_title_wifi)
-                    .setMessage(R.string.download_warning_message_wifi)
                     .setPositiveButton(android.R.string.ok, (dialog, which) -> {
                         proceedWithDownload(podcastFeed.title, ep, podcastFeed.id);
                     })

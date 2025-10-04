@@ -640,7 +640,7 @@
     <string name="download_ask_if_unmetered">⚠️ Ask if not Unmetered</string>
 
     <!-- Network download prompts -->
-    <string name="download_warning_title_unmetered">Unmetered</string>
+    <string name="download_warning_title_unmetered">Unmetered connection</string>
     <string name="download_warning_message_unmetered">You\'re not on an unmetered connection. Continue with the download?</string>
     <string name="download_warning_title_wifi">Wi-Fi</string>
     <string name="download_warning_message_wifi">You\'re not on Wi-Fi. Continue with the download?</string>
@@ -881,6 +881,14 @@
 
 
     <string name="back">back</string>
+    <string name="download_bis_unmetered">🆓 Unmetered only</string>
+    <string name="use_https_or_allow_cleartext_for_this_host_in_the_app_s_network_security_config">Use HTTPS or allow cleartext for this host in the app’s network security config.</string>
+    <string name="http_is_blocked_by_android_s_network_security_policy">HTTP (cleartext) is blocked by Android’s network security policy.</string>
+    <string name="http_cleartext_to">HTTP (cleartext) to</string>
+    <string name="is_blocked_by_android_s_network_security_policy">is blocked by Android’s network security policy</string>
+
+
+
 
 
 

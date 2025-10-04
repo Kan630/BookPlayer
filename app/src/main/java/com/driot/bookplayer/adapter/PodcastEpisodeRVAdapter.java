@@ -24,10 +24,10 @@ import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.helpers.FileHelper;
+import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.objects.DisplayableEpisode;
 import com.driot.bookplayer.objects.PodcastFeed;
 import com.driot.bookplayer.helpers.PodcastHelper;
-import com.driot.bookplayer.utils.NetworkUtils;
 import com.driot.bookplayer.utils.TextOptions;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingRVAdapter;
@@ -211,34 +211,33 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
                 }
                 holder.icon_download.setOnClickListener(v -> {
                     myLogI("---- USER CLICKS - Downloading single episode -----  " + episode.title);
-                    if (holder.flickerAnim == null) {
-                        holder.flickerRunning = true;
-                        holder.flickerAnim = createFlickerAnimation(holder.icon_download,holder);
-                        holder.flickerAnim.start();
-                    }
-                    if (Option.getNetworkPolicyManualDownload().equals(NetworkUtils.NetworkPolicyManual.ASK_IF_NOT_UNMETERED) && !NetworkUtils.isUnmeteredConnected(context)) {
+                    AppDatabase.databaseWriteExecutor.execute(() -> {
+                        PodcastHelper.addPodcastToDB(this.context, podcastFeed);
+                    });
+                    NetworkHelper.logCurrentNetworkState(this.context);
+                    if (Option.getNetworkPolicyManualDownload().equals(NetworkHelper.NetworkPolicyManual.NETWORK_POLICY_UNMETERED) && !NetworkHelper.isUnmeteredConnected(context)) {
                         new AlertDialog.Builder(context)
                                 .setTitle(R.string.download_warning_title_unmetered)
                                 .setMessage(R.string.download_warning_message_unmetered)
                                 .setPositiveButton(android.R.string.ok, (dialog, which) -> {
                                     handler.onDownloadEpisode(episode);
+                                    if (holder.flickerAnim == null) {
+                                        holder.flickerRunning = true;
+                                        holder.flickerAnim = createFlickerAnimation(holder.icon_download,holder);
+                                        holder.flickerAnim.start();
+                                    }
                                 })
-                                .setNegativeButton(android.R.string.cancel, null)
-                                .show();
-                    } else if (Option.getNetworkPolicyManualDownload().equals(NetworkUtils.NetworkPolicyManual.ASK_IF_NOT_WIFI) && !NetworkUtils.isWifiConnected(context)) {
-                        new AlertDialog.Builder(context)
-                                .setTitle(R.string.download_warning_title_wifi)
-                                .setMessage(R.string.download_warning_message_wifi)
-                                .setPositiveButton(android.R.string.ok, (dialog, which) -> {
-                                    handler.onDownloadEpisode(episode);
+                                .setNegativeButton(android.R.string.cancel, (dialog, which) -> {
+                                    myLogD("User cancelled download (Network state popup)");
                                 })
-                                .setNegativeButton(android.R.string.cancel, null)
                                 .show();
                     } else {
-                        AppDatabase.databaseWriteExecutor.execute(() -> {
-                            PodcastHelper.addPodcastToDB(this.context, podcastFeed);
-                        });
                         handler.onDownloadEpisode(episode);
+                        if (holder.flickerAnim == null) {
+                            holder.flickerRunning = true;
+                            holder.flickerAnim = createFlickerAnimation(holder.icon_download,holder);
+                            holder.flickerAnim.start();
+                        }
                     }
                 });
             }

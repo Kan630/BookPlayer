@@ -32,8 +32,8 @@ import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.LocaleHelper;
 import com.driot.bookplayer.helpers.LanguageHelper;
+import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.helpers.TtsHelper;
-import com.driot.bookplayer.utils.NetworkUtils;
 import com.driot.bookplayer.utils.PermissionRequest;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
@@ -44,6 +44,7 @@ import static com.driot.bookplayer.utils.ComponentUtils.setOpenWithProxyEnabled;
 import static com.driot.bookplayer.utils.ComponentUtils.setOpenWithProxyEnabled_all;
 import static com.driot.bookplayer.utils.PermissionRequest.isRecordAudioPermissionGranted;
 import static com.driot.bookplayer.helpers.StorageHelper.isExternalSDCardAvailable;
+import static com.driot.bookplayer.utils.log.LoggerStaticHelper.myLog;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.StyleRes;
@@ -185,8 +186,7 @@ public class SettingsActivity extends LoggingActivity {
 // Auto download spinner
         String[] autoOptions = new String[] {
                 getString(R.string.download_any),
-                getString(R.string.download_wifi),
-                getString(R.string.download_unmetered),
+                getString(R.string.download_bis_unmetered),
         };
         ArrayAdapter<String> autoAdapter = new ArrayAdapter<>(this, R.layout.spinner_item, autoOptions);
         autoAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
@@ -195,15 +195,15 @@ public class SettingsActivity extends LoggingActivity {
         spinnerAuto.setSelection(Option.getNetworkPolicyAutoDownload().ordinal());
         spinnerAuto.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-                Option.setNetworkPolicyAutoDownload(NetworkUtils.NetworkPolicyAuto.values()[pos]);
+                Option.setNetworkPolicyAutoDownload(NetworkHelper.NetworkPolicyAuto.values()[pos]);
+                myLog("Option auto download : " + Option.getNetworkPolicyAutoDownload().toString());
             }
             @Override public void onNothingSelected(AdapterView<?> parent) {}
         });
 // Manual download spinner
         String[] manualOptions = new String[] {
-                getString(R.string.download_never_ask),
-                getString(R.string.download_ask_if_not_wifi),
-                getString(R.string.download_ask_if_unmetered)
+                getString(R.string.download_any),
+                getString(R.string.download_bis_unmetered),
         };
         ArrayAdapter<String> manualAdapter = new ArrayAdapter<>(this, R.layout.spinner_item, manualOptions);
         manualAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
@@ -212,7 +212,8 @@ public class SettingsActivity extends LoggingActivity {
         spinnerUser.setSelection(Option.getNetworkPolicyManualDownload().ordinal());
         spinnerUser.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-                Option.setNetworkPolicyManualDownload(NetworkUtils.NetworkPolicyManual.values()[pos]);
+                Option.setNetworkPolicyManualDownload(NetworkHelper.NetworkPolicyManual.values()[pos]);
+                myLog("Option manual download : " + Option.getNetworkPolicyManualDownload().toString());
             }
             @Override public void onNothingSelected(AdapterView<?> parent) {}
         });

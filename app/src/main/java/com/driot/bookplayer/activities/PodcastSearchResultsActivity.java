@@ -18,9 +18,9 @@ import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.db.PodcastDao;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
+import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.objects.PodcastFeed;
-import com.driot.bookplayer.utils.NetworkUtils;
 import com.driot.bookplayer.helpers.PodcastHelper;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
@@ -152,7 +152,7 @@ public class PodcastSearchResultsActivity extends LoggingActivity {
         progressBar.setVisibility(View.GONE);
         errorMessage.setVisibility(View.VISIBLE);
         errorMessage.setTextColor(getColor(R.color.orange_500));
-        if (NetworkUtils.isUnknownHost(e)) {
+        if (NetworkHelper.isUnknownHost(e)) {
             myLogE("performSearch - handleError : no_internet_connection");
             errorMessage.setText(getString(R.string.no_internet_connection));
         } else {

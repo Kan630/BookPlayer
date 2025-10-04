@@ -13,11 +13,14 @@ import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkContinuation;
 import androidx.work.WorkManager;
 
+import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.global.Pref;
+import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.objects.LoadBookTaskState;
-import com.driot.bookplayer.utils.KanLogger;
+
+import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -112,11 +115,36 @@ public class BookLoadingWorkLauncher {
             bookState.onGoingLoading = true;
             setLoadBookTaskState(bookState);
 
-            // CONNECTED is enough for manual; if you want stricter auto policy use UNMETERED when you enqueue “auto” jobs.
-            Constraints constraints = new Constraints.Builder()
-                    .setRequiredNetworkType(NetworkType.CONNECTED)
-                    .setRequiresStorageNotLow(true)
-                    .build();
+            Constraints constraints;
+            NetworkHelper.NetworkPolicyManual policy = Option.getNetworkPolicyManualDownload();
+
+            com.driot.bookplayer.helpers.NetworkHelper.logCurrentNetworkState(context);
+
+            switch (policy) {
+                case NETWORK_POLICY_NEVER_ASK:
+                    // Manual downloads: just require a connection, not necessarily Wi-Fi
+                    constraints = new Constraints.Builder()
+                            .setRequiredNetworkType(NetworkType.CONNECTED)
+                            .setRequiresStorageNotLow(true)
+                            .build();
+                    break;
+
+                case NETWORK_POLICY_UNMETERED:
+                    // Allow only on unmetered networks (Wi-Fi, Ethernet, etc.)
+                    constraints = new Constraints.Builder()
+                            .setRequiredNetworkType(NetworkType.UNMETERED)
+                            .setRequiresStorageNotLow(true)
+                            .build();
+                    break;
+
+                default:
+                    // fallback, just in case
+                    constraints = new Constraints.Builder()
+                            .setRequiredNetworkType(NetworkType.CONNECTED)
+                            .setRequiresStorageNotLow(true)
+                            .build();
+                    break;
+            }
 
             // --- Input data for the Foreground DownloadWorker ---
             Data input = new Data.Builder()
@@ -189,15 +217,5 @@ public class BookLoadingWorkLauncher {
         list.add(new OneTimeWorkRequest.Builder(ParseFinalFolderWorker.class).addTag(BOOK_LOADING_WORKERS).build());
         return list;
     }
-
-    ////////////////////////////////////////////////////////
-    private static final String TAG = "BookLoadingWorkLauncher";
-    private static void myLog(String str) { KanLogger.myLog(TAG, str); }
-    private static void myLogD(String str) { KanLogger.myLogD(TAG, str); }
-    private static void myLogI(String str) { KanLogger.myLogI(TAG, str); }
-    private static void myLogW(String str) { KanLogger.myLogW(TAG, str); }
-    private static void myLogE(String str) { KanLogger.myLogE(TAG, str); }
-    private static void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, TAG, str); }
-    private static void myToastEE(Throwable t, String str) { KanLogger.myToastEE(t, TAG, str); }
 
 }
