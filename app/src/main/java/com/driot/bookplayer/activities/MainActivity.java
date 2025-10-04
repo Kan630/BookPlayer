@@ -114,29 +114,19 @@
                 infoAlreadyShown = true;
             }
 
-            //WorkManager.getInstance(this).cancelAllWork();
-            //WorkFlow.cancelAllOngoingTasks(this);
-
-            //DEBUG SHIT - LIST ALL DISK FILES
-            //myLogD("-----------------");FileHelper.listAllFiles(StorageHelper.getUnzipFolder(this, true));myLogD("-----------------");FileHelper.listAllFiles(StorageHelper.getUnzipFolder(this, false));myLogD("-----------------");
-
-
-            //DEBUG SHIT - LIST ALL DB FOLDERS
-            //Sql.log_all_Folders(this);
-
-
+            //ongoing book load ?
             OngoingTaskHost.attach(
                     this,
                     R.id.topOverlayContainer,
                     new Intent(this, AddResourceActivity.class)); // tap => open details
 
+            //toolbar
             toolbar = findViewById(R.id.toolbar);
             try {
                 setSupportActionBar(toolbar); //si ca plante, check le color theme saved ???
             } catch (Exception e) {
                 myLogEE(e,"Action bar error"); // on a Samsung S20 FE, android 13
             }
-
             toolbar.setLogo(R.mipmap.ic_launcher);
             toolbar.setLogo(R.mipmap.ic_launcher);
 

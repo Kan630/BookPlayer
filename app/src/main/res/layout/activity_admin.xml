@@ -7,6 +7,17 @@
     android:padding="16dp"
     >
 
+    <Button
+        android:id="@+id/bFlushDisk"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Flush to log : DISK files"/>
+    <Button
+        android:id="@+id/bFlushSQL"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Flush to log : SQL"/>
+
 <!-- Center section for dynamic buttons -->
 <LinearLayout
     android:id="@+id/btnContainerWrapper"

@@ -4,9 +4,8 @@ import android.content.Context;
 
 import androidx.sqlite.db.SimpleSQLiteQuery;
 
-import com.driot.bookplayer.R;
-import com.driot.bookplayer.utils.KanLogger;
 import com.driot.bookplayer.utils.Tonio;
+import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 import java.util.List;
 import java.util.Locale;
@@ -54,8 +53,6 @@ public class Sql {
         }
     }
 
-
-
     public static void calculateFolderProgress(Context c, int idFolder) {
         //SQLiteDatabase db = this.getWritableDatabase();
         //String selectQuery = "select sum(odometer) as odometer from tripmileagetable where date like '2012-07%'";
@@ -84,58 +81,120 @@ public class Sql {
     }
 
     public static void log_all_Folders(Context c) {
-        String TAG = "SQL log";
-        new Thread(() -> {
-            try {
-                List<Folder> folders = AppDatabase.getDatabase(c)
-                        .FolderDao()
-                        .getAll();
+        try {
+            myLogD("-----------------");
+            myLogD("-- FOLDERS");
+            myLogD("-----------------");
 
-                if (folders == null || folders.isEmpty()) {
-                    myLogEE(null, "No folders found in database");
-                    return;
-                }
+            List<Folder> folders = AppDatabase.getDatabase(c)
+                    .FolderDao()
+                    .getAll();
 
-                // Log column headers (optional)
-                myLogI("Folders (sorted by last access):");
-                myLogI("ID | originalHash | Hash | Name | Path | Duration | Last Access ...");
-                myLogI("----------------------------------------");
-
-                // Log each folder
-                for (Folder folder : folders) {
-                    String logEntry = String.format(Locale.getDefault(),
-                            "%d | %s | %s | %s | %s | %s | %s | %s"
-                            ,folder.getId()
-                            ,folder.getOriginalHash()
-                            ,folder.getHash()
-                            ,folder.getName()
-                            ,folder.getPath()
-                            ,Tonio.formatTime(folder.getDuration())
-                            ,Tonio.formatLastAccess(folder.lLastAccess, c)
-                            ,Tonio.formatLastAccessInDays(folder.lLastAccess)
-                    );
-                    myLogI(logEntry);
-
-                    // Or simply: myLogD(folder.toString());
-                }
-
-                myLogI("Total folders: " + folders.size());
-
-            } catch (Exception e) {
-                myLogEE(e,"logAllFolders - Exception");
+            if (folders == null || folders.isEmpty()) {
+                myLogEE(null, "No folders found in database");
+                return;
             }
-        }).start();
+
+            // Log column headers (optional)
+            myLogD("Folders (sorted by last access):");
+            myLogI("ID| Name | Path | Duration | originalHash | Hash | Last Access ...");
+            myLogD("----------------------------------------");
+
+            // Log each folder
+            for (Folder folder : folders) {
+                String logEntry = String.format(Locale.getDefault(),
+                        "%d | %s | %s | %s | %s | %s | %s | %s"
+                        ,folder.getId()
+                        ,folder.getName()
+                        ,folder.getPath()
+                        ,Tonio.formatTime(folder.getDuration())
+                        ,folder.getOriginalHash()
+                        ,folder.getHash()
+                        ,Tonio.formatLastAccess(folder.lLastAccess, c)
+                        ,Tonio.formatLastAccessInDays(folder.lLastAccess)
+                );
+                myLog(logEntry);
+
+                // Or simply: myLogD(folder.toString());
+            }
+            myLogD("----------------------------------------");
+            myLogI("Total folders: " + folders.size());
+            myLogD("----------------------------------------");
+
+        } catch (Exception e) {
+            myLogEE(e,"logAllFolders - Exception");
+        }
     }
+    public static void log_all_ZikFiles(Context c) {
+        try {
+            myLogD("-----------------");
+            myLogD("-- FILES");
+            myLogD("-----------------");
 
+            List<ZikFile> zikFiles = AppDatabase.getDatabase(c)
+                    .ZikFileDao()     // adjust if your DAO name differs
+                    .getAll();         // adjust if your query method differs
 
+            if (zikFiles == null || zikFiles.isEmpty()) {
+                myLogEE(null, "No ZikFiles found in database");
+                return;
+            }
 
-    // ----------------------- LOG -----------------------
-    private static final String TAG = "Sql";
-    private static void myLog(String str) { KanLogger.myLog(TAG, str); }
-    private static void myLogD(String str) { KanLogger.myLogD(TAG, str); }
-    private static void myLogI(String str) { KanLogger.myLogI(TAG, str); }
-    private static void myLogW(String str) { KanLogger.myLogW(TAG, str); }
-    private static void myLogE(String str) { KanLogger.myLogE(TAG, str); }
-    private static void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, TAG, str); }
-    private static void myToastEE(Throwable t, String str) { KanLogger.myToastEE(t, TAG, str); }
+            // Optional: sort for readability (by idFolder then zeorder then id)
+            try {
+                zikFiles.sort((a, b) -> {
+                    int byFolder = Integer.compare(a.getIdFolder(), b.getIdFolder());
+                    if (byFolder != 0) return byFolder;
+                    int byOrder = Double.compare(a.getZeorder(), b.getZeorder());
+                    if (byOrder != 0) return byOrder;
+                    return Integer.compare(a.getId(), b.getId());
+                });
+            } catch (Exception ignore) { /* non-fatal */ }
+
+            myLogD("ZikFiles (grouped by folder, then zeorder):");
+            myLogI("ID | idFolder | Name | Display | Path | Size | Dur | Pos | % | Done | zip/m4b | Last Access ...");
+            myLogD("-----------------------------------------------------------------------------------------------");
+
+            for (ZikFile z : zikFiles) {
+                String sizePretty;
+                try {
+                    // Use whichever you have available in Tonio:
+                    // size is a double; cast safely for human readable helpers
+                    sizePretty = Tonio.getReadableSizeForCleanActivity((long) z.getSize());
+                } catch (Throwable t) {
+                    // Fallback: raw number
+                    sizePretty = String.valueOf((long) z.getSize());
+                }
+
+                String logEntry = String.format(Locale.getDefault(),
+                        "%d | %d | %s | %s | %s | %s | %s | %s | %4.1f | %s | %s/%s | %s (%s)"
+                        , z.getId()
+                        , z.getIdFolder()
+                        , nullSafe(z.getName())
+                        , nullSafe(z.getDisplayName())
+                        , nullSafe(z.getPath())
+                        , sizePretty
+                        , Tonio.formatTime(z.getDuration())
+                        , Tonio.formatTime(z.getPosition())
+                        , z.getPercentdone()
+                        , z.isFinished() ? "✓" : " "
+                        , z.isIszipfile() ? "zip" : "-"
+                        , z.isM4b() ? "m4b" : "-"
+                        , Tonio.formatLastAccess(z.lLastAccess, c)
+                        , z.lLastAccess==null ? "" : Tonio.formatLastAccessInDays(z.lLastAccess)
+                );
+                myLog(logEntry);
+                // Or: myLogD(z.toString());
+            }
+
+            myLogD("----------------------------------------");
+            myLogI("Total ZikFiles: " + zikFiles.size());
+            myLogD("----------------------------------------");
+
+        } catch (Exception e) {
+            myLogEE(e, "log_all_ZikFiles - Exception");
+        }
+    }
+    private static String nullSafe(String s) { return (s == null) ? "" : s; }
+
 }

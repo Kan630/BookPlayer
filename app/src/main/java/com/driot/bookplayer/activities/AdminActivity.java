@@ -13,24 +13,26 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.db.Sql;
+import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
+import com.driot.bookplayer.helpers.StorageHelper;
+import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class AdminActivity extends AppCompatActivity {
+public class AdminActivity extends LoggingActivity {
 
     private LinearLayout btnContainer;
     private ListView listActivities;
 
     // Map of label -> Activity class to create buttons dynamically
     private final LinkedHashMap<String, Class<?>> quickButtons = new LinkedHashMap<String, Class<?>>() {{
-        // TODO: replace these with your real classes/packages if different
         put("Debug Database Activity", com.driot.bookplayer.activities.DebugDatabaseActivity.class);
         //put("Tts Read Txt Activity", com.driot.bookplayer.activities.TtsReadTxtActivity.class);
     }};
@@ -40,6 +42,26 @@ public class AdminActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin);
         InsetHelper.apply(this);
+
+        findViewById(R.id.bFlushDisk).setOnClickListener(v -> {
+            new Thread(() -> {
+                myLogD("-----------------");
+                myLogD("-- SD CARD");
+                myLogD("-----------------");
+                FileHelper.listAllFiles(StorageHelper.getUnzipFolder(this, true));
+                myLogD("-----------------");
+                myLogD("-- DEVICE");
+                myLogD("-----------------");
+                FileHelper.listAllFiles(StorageHelper.getUnzipFolder(this, false));
+                myLogD("-----------------");
+            }).start();
+        });
+        findViewById(R.id.bFlushSQL).setOnClickListener(v -> {
+            new Thread(() -> {
+                Sql.log_all_Folders(this);
+                Sql.log_all_ZikFiles(this);
+            }).start();
+        });
 
         btnContainer = findViewById(R.id.btnContainer);
         listActivities = findViewById(R.id.listActivities);

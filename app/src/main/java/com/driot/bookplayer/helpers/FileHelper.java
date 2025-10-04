@@ -14,7 +14,7 @@ import android.provider.MediaStore;
 import android.text.TextUtils;
 
 import com.driot.bookplayer.db.AppDatabase;
-import com.driot.bookplayer.utils.KanLogger;
+import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -228,17 +228,15 @@ public class FileHelper {
         return false;
     }
 
-    // don't delete DEBUG (Main)
     public static void listAllFiles(File dir) {
         if (dir == null || !dir.exists()) {
-            myLog("Directory [" + dir + "] does not exist.");
+            myLogE("Directory [" + dir + "] does not exist.");
             return;
         }
         if (!dir.isDirectory()) {
-            myLog("Provided path [" + dir + "] is not a directory.");
+            myLogE("Provided path [" + dir + "] is not a directory.");
             return;
         }
-
         listFilesRecursive(dir, "");
     }
 
@@ -396,15 +394,5 @@ public class FileHelper {
         }
         return false;
     }
-
-    // ----------------------- LOG -----------------------
-    private static final String TAG = "FileHelper";
-    private static void myLog(String str) { KanLogger.myLog(TAG, str); }
-    private static void myLogD(String str) { KanLogger.myLogD(TAG, str); }
-    private static void myLogI(String str) { KanLogger.myLogI(TAG, str); }
-    private static void myLogW(String str) { KanLogger.myLogW(TAG, str); }
-    private static void myLogE(String str) { KanLogger.myLogE(TAG, str); }
-    private static void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, TAG, str); }
-    private static void myToastEE(Throwable t, String str) { KanLogger.myToastEE(t, TAG, str); }
 
 }
