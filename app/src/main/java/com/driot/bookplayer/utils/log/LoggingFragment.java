@@ -68,11 +68,11 @@ public abstract class LoggingFragment extends Fragment {
     }
 
     protected void myKeyFirebase(String strKey, String strValue) {
-        KanLogger.myKeyFirebase(strKey, strValue);
+        KanLogger.setCustomKeyCrashlytics(strKey, strValue);
     }
 
     protected void myLogFirebase(String strLog) {
-        KanLogger.myLogFirebase(strLog);
+        KanLogger.logCrashlytics(strLog);
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////

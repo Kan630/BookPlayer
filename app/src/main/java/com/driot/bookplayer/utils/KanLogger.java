@@ -9,9 +9,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -23,7 +21,6 @@ import static com.driot.bookplayer.utils.TonioCommonStuff.MD5;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
@@ -190,7 +187,7 @@ public class KanLogger {
             }
             FirebaseCrashlytics.getInstance().log(strFirebaseLog);
             FirebaseAnalyticsHelper.tellAnalyticsLogee(parsePrefix(prefix) + " " + str, androidErrorMessage);
-        } catch (Throwable ignored) {}
+        } catch (Throwable ignored) {} // Never let Crashlytics reporting crash the app
     }
 
     public static void myLogE(String str) {
@@ -207,11 +204,13 @@ public class KanLogger {
         }
     }
 
-    public static void myKeyFirebase(String strKey, String strValue) {
+    public static void setCustomKeyCrashlytics(String strKey, String strValue) {
+        myLogI("setCustomKeyCrashlytics : " + strKey + " = " + strValue);
         FirebaseCrashlytics.getInstance().setCustomKey(strKey, strValue);
     }
 
-    public static void myLogFirebase(String strLog) {
+    public static void logCrashlytics(String strLog) {
+        myLogI("logCrashlytics : " + strLog);
         FirebaseCrashlytics.getInstance().log(strLog);
     }
 
@@ -258,11 +257,18 @@ public class KanLogger {
         myToastE(prefix, msg, Toast.LENGTH_SHORT);
         // Report (avoid double-reporting large stacks if t is null)
         try {
-            if (t != null) FirebaseCrashlytics.getInstance().recordException(t);
-            else FirebaseCrashlytics.getInstance().log(prefix + " " + msg);
-        } catch (Throwable ignored) {
-            // Never let Crashlytics reporting crash the app
-        }
+            String strFirebaseLog =  prefix + " " + str;
+            String androidErrorMessage = "";
+            if (t != null) {
+                androidErrorMessage = t.getMessage();
+                strFirebaseLog = strFirebaseLog + " - " + t.getMessage();
+                FirebaseCrashlytics.getInstance().recordException(t);
+            } else {
+                FirebaseCrashlytics.getInstance().log(prefix + " " + msg);
+            }
+            FirebaseCrashlytics.getInstance().log(strFirebaseLog);
+            FirebaseAnalyticsHelper.tellAnalyticsLogee(parsePrefix(prefix) + " " + str, androidErrorMessage);
+        } catch (Throwable ignored) {} // Never let Crashlytics reporting crash the app
     }
 
     public static void myToastE(String str) {
@@ -320,10 +326,8 @@ public class KanLogger {
         if (getMyAppContext() != null) {
             String date = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
             String time = new SimpleDateFormat("HH:mm:ss.SSS", Locale.getDefault()).format(new Date());
-            //String time = new SimpleDateFormat("HH:mm", Locale.getDefault()).format(new Date());
             String fileName = LOG_FILE_NAME + "_" + date + ".txt";
             try {
-                //FileOutputStream fileOutputStream = getMyAppContext.openFileOutput( fileName, Context.MODE_PRIVATE + Context.MODE_APPEND);
                 File dir = new File(getMyAppContext().getFilesDir(), LOG_FILE_FOLDER);
                 dir.mkdirs();
                 FileOutputStream fileOutputStream = new FileOutputStream(new File(dir, fileName),true);

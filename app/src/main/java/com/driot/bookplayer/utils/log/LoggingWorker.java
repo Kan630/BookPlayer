@@ -6,7 +6,6 @@ import androidx.annotation.NonNull;
 import androidx.work.ForegroundInfo;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
-import androidx.work.impl.utils.futures.SettableFuture;
 
 import com.driot.bookplayer.utils.KanLogger;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -96,11 +95,11 @@ public abstract class LoggingWorker extends Worker {
     }
 
     protected void myKeyFirebase(String strKey, String strValue) {
-        KanLogger.myKeyFirebase(strKey, strValue);
+        KanLogger.setCustomKeyCrashlytics(strKey, strValue);
     }
 
     protected void myLogFirebase(String strLog) {
-        KanLogger.myLogFirebase(strLog);
+        KanLogger.logCrashlytics(strLog);
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////

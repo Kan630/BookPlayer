@@ -1,7 +1,7 @@
 package com.driot.bookplayer.helpers;
 
 import static com.driot.bookplayer.utils.KanLogger.isMyPhoneDev;
-import static com.driot.bookplayer.utils.KanLogger.myKeyFirebase;
+import static com.driot.bookplayer.utils.KanLogger.setCustomKeyCrashlytics;
 import static com.driot.bookplayer.utils.KanLogger.writeTechLogs;
 import static com.driot.bookplayer.utils.TonioCommonStuff.MD5;
 
@@ -58,8 +58,8 @@ public class InfoHelper {
             KanLogger.myLog("==========================");
             KanLogger.myLog("");
 
-            myKeyFirebase("Locale.getDefault", Locale.getDefault().getCountry());
-            myKeyFirebase("TelephonyManager country", Objects.toString(getCountryFromTelephonyManager(context)));
+            setCustomKeyCrashlytics("Locale.getDefault", Locale.getDefault().getCountry());
+            setCustomKeyCrashlytics("TelephonyManager country", Objects.toString(getCountryFromTelephonyManager(context)));
 
         } catch (Exception e) {
             myLogEE(e, "printSomeStuffAboutDevice");
