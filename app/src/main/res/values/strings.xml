@@ -886,6 +886,10 @@
     <string name="http_is_blocked_by_android_s_network_security_policy">HTTP (cleartext) is blocked by Android’s network security policy.</string>
     <string name="http_cleartext_to">HTTP (cleartext) to</string>
     <string name="is_blocked_by_android_s_network_security_policy">is blocked by Android’s network security policy</string>
+    <string name="save">save</string>
+    <string name="rounded_corners">rounded corners</string>
+    <string name="cover_preview">cover preview</string>
+
 
 
 

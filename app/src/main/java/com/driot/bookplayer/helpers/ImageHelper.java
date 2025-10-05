@@ -19,6 +19,8 @@ import androidx.documentfile.provider.DocumentFile;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.Podcast;
+import com.driot.bookplayer.global.Var;
+
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 import java.io.ByteArrayOutputStream;
@@ -85,6 +87,32 @@ public class ImageHelper {
         myLogD("processPendingImages");
         AppDatabase.databaseWriteExecutor.execute(() -> {
             AppDatabase db = AppDatabase.getDatabase(context);
+
+            // --- 0) Migrate folder images from cached_images -> images ---
+            try {
+                List<Folder> allFolders = db.FolderDao().getAll(); // you already use this elsewhere
+                for (Folder f : allFolders) {
+                    String path = f.image;
+                    if (path == null || path.isEmpty()) continue;
+
+                    // Only local absolute files (skip URIs)
+                    if (path.startsWith("content://") || path.startsWith("file://")) continue;
+
+                    // If in cached_images, move it
+                    String moved = moveCachedImageToPermanent(context, path);
+                    if (moved != null && !moved.equals(path)) {
+                        try {
+                            db.FolderDao().updateImage(f.getId(), moved);
+                            myLogD("Folder image path updated (cache->images): id=" + f.getId() + "  " + moved);
+                        } catch (Exception e) {
+                            myLogEE(e, "DB update after moving cached image (folderId=" + f.getId() + ")");
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                myLogEE(e, "processPendingImages: cached->images migration block");
+            }
+
 
 // --- Handle Podcast images ---
             List<Podcast> pendingPodcasts = db.PodcastDao().getAllWithRemoteImage();
@@ -361,19 +389,27 @@ public class ImageHelper {
     }
 
     /** Build a bitmap with pastel background + centered initials. */
-    private static Bitmap createInitialsBitmap(String title, int sizePx, boolean rounded) {
+    public static Bitmap createInitialsBitmap(String title, int sizePx, boolean rounded) {
         String initials = getInitials(title);
         int bg = getColorFromTitle(title);
+        return createInitialsBitmapCustom(initials, bg, sizePx, rounded);
+    }
+
+    /** Same rendering but with explicit initials & color for the generator UI. */
+    public static Bitmap createInitialsBitmapCustom(String initials, int bgColor, int sizePx, boolean rounded) {
+        if (initials == null) initials = "";
+        initials = initials.trim();
+        if (initials.length() > 5) initials = initials.substring(0, 5); // hard cap
 
         Bitmap bmp = Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888);
         Canvas c = new Canvas(bmp);
 
         Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
         p.setStyle(Paint.Style.FILL);
-        p.setColor(bg);
+        p.setColor(bgColor);
 
         if (rounded) {
-            float r = sizePx * 0.12f; // corner radius
+            float r = sizePx * 0.12f;
             c.drawRoundRect(new RectF(0, 0, sizePx, sizePx), r, r, p);
         } else {
             c.drawRect(0, 0, sizePx, sizePx, p);
@@ -383,7 +419,7 @@ public class ImageHelper {
         p.setColor(Color.WHITE);
         p.setTextAlign(Paint.Align.CENTER);
         p.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
-        p.setTextSize(sizePx * (initials.length() == 1 ? 0.55f : 0.42f));
+        p.setTextSize(sizePx * (initials.length() <= 1 ? 0.55f : 0.42f));
 
         Paint.FontMetrics fm = p.getFontMetrics();
         float x = sizePx / 2f;
@@ -433,11 +469,21 @@ public class ImageHelper {
     }
 
 
-    private static int getColorFromTitle(String title) {
+    public static int getColorFromTitle(String title) {
         int h = (title == null ? 0 : title.hashCode());
         float hue = (h % 360 + 360) % 360;
         // Pastel-ish: low saturation, high value
         return Color.HSVToColor(new float[]{hue, 0.35f, 0.92f});
+    }
+
+    public static String saveGeneratedInitialsCover(Context context, int folderId, Bitmap bmp) throws IOException {
+        // Reuse your JPEG + size cap pipeline
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        bmp.compress(Bitmap.CompressFormat.JPEG, 92, out);
+        byte[] bytes = out.toByteArray();
+        // non-cached destination, consistent with saved book images
+        String fileName = IMAGE_PREFIX_FOR_SAVED_BOOK + folderId + ".jpg";
+        return compressAndSaveImage(context, bytes, fileName, false);
     }
 
     public static String buildManualFolderImageFileName(String title, String futureFolderPath) {
@@ -458,11 +504,113 @@ public class ImageHelper {
             return Integer.toHexString(s.hashCode());
         }
     }
+    public static String saveGeneratedInitialsCoverVersioned(
+            Context context, long folderId,
+            String initials, int color, boolean rounded, Bitmap bmp
+    ) throws IOException {
+
+        // Build a short, stable suffix for current settings
+        String signature = initials + "|" + color + "|" + (rounded ? 1 : 0);
+        String hash = shortHash(signature); // 6–8 hex chars is enough
+
+        String fileName = IMAGE_PREFIX_FOR_SAVED_BOOK + folderId + "_" + hash + ".jpg";
+
+        // Encode once (same as your existing saver)
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        bmp.compress(Bitmap.CompressFormat.JPEG, 92, out);
+        byte[] bytes = out.toByteArray();
+
+        String absPath = compressAndSaveImage(context, bytes, fileName, /*isCached=*/false);
+
+        // Delete older versions for this folder to avoid accumulation
+        File dir = StorageHelper.getImageFolder(context, false);
+        File[] old = dir.listFiles((d, name) ->
+                name.startsWith(IMAGE_PREFIX_FOR_SAVED_BOOK + folderId + "_")
+                        && !name.equals(fileName));
+        if (old != null) {
+            for (File o : old) { try { /* ignore result */ o.delete(); } catch (Throwable ignored) {} }
+        }
+
+        return absPath;
+    }
+
+    private static String shortHash(String s) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            byte[] b = md.digest(s.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            // 8 hex chars is plenty
+            StringBuilder sb = new StringBuilder(8);
+            for (int i = 0; i < 4; i++) sb.append(String.format(Locale.US, "%02x", b[i]));
+            return sb.toString();
+        } catch (Exception e) {
+            return Integer.toHexString(s.hashCode());
+        }
+    }
+
+
 
     /** Create fallback cover for manual folder BEFORE insert, returns absolute path */
     public static @Nullable String createFallbackManualFolderImagePreInsert(Context ctx, String title, String futureFolderPath, int sizePx) {
         String fileName = buildManualFolderImageFileName(title, futureFolderPath);
         return createAndSaveFallbackImage(ctx, fileName, title, sizePx); // uses the helper we added earlier
+    }
+
+    private static @Nullable String moveCachedImageToPermanent(Context context, String currentAbsPath) {
+        if (currentAbsPath == null || currentAbsPath.isEmpty()) return null;
+
+        // Only handle plain file paths (skip content:// or file://)
+        if (currentAbsPath.startsWith("content://") || currentAbsPath.startsWith("file://")) return null;
+
+        File cachedDir = StorageHelper.getImageFolder(context, /*isCached=*/true);
+        File imagesDir = StorageHelper.getImageFolder(context, /*isCached=*/false);
+
+        // Robust check: path starts with cached dir OR contains "/cached_images/"
+        String cachedDirPath = cachedDir.getAbsolutePath();
+        boolean isInCached = currentAbsPath.startsWith(cachedDirPath)
+                || currentAbsPath.contains(File.separator + Var.FOLDER_CACHED_IMAGE + File.separator);
+        if (!isInCached) return null;
+
+        File src = new File(currentAbsPath);
+        if (!src.exists()) {
+            myLogE("moveCachedImageToPermanent: source not found: " + currentAbsPath);
+            return null;
+        }
+
+        if (!imagesDir.exists() && !imagesDir.mkdirs()) {
+            myLogE("moveCachedImageToPermanent: could not create images dir: " + imagesDir.getAbsolutePath());
+            return null;
+        }
+
+        File dst = new File(imagesDir, src.getName());
+        if (dst.equals(src)) return src.getAbsolutePath(); // already correct
+
+        // If target exists, delete it to allow rename
+        if (dst.exists() && !dst.delete()) {
+            myLogE("moveCachedImageToPermanent: target exists and cannot delete: " + dst.getAbsolutePath());
+            return null;
+        }
+
+        boolean renamed = src.renameTo(dst);
+        if (!renamed) {
+            // Fallback: copy -> delete
+            myLogD("renameTo failed, will copy: " + src.getAbsolutePath() + " -> " + dst.getAbsolutePath());
+            try (java.io.FileInputStream in = new java.io.FileInputStream(src);
+                 java.io.FileOutputStream out = new java.io.FileOutputStream(dst)) {
+                byte[] buf = new byte[8192];
+                int n;
+                while ((n = in.read(buf)) != -1) out.write(buf, 0, n);
+            } catch (IOException io) {
+                myLogEE(io, "moveCachedImageToPermanent: copy failed");
+                // Clean up partial file
+                try { if (dst.exists()) dst.delete(); } catch (Throwable ignore) {}
+                return null;
+            }
+            // try to delete src; if it fails, we still proceed (we “copied” instead of move)
+            try { if (!src.delete()) myLogD("moveCachedImageToPermanent: could not delete source (copied): " + src.getAbsolutePath()); } catch (Throwable ignore) {}
+        }
+
+        myLog("Moved cached image to permanent: " + dst.getAbsolutePath());
+        return dst.getAbsolutePath();
     }
 
 }

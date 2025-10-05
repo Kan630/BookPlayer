@@ -65,8 +65,8 @@ public class MyApp extends Application {
 
         myLog("Context has been initialized");
 
-        FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(!BuildConfig.DEBUG);
-        myLogD("Crashlytics : " + !BuildConfig.DEBUG);
+        //FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(!BuildConfig.DEBUG);
+        //myLogD("Crashlytics : " + !BuildConfig.DEBUG);
 
         LocaleHelper.applyAppLocale(Option.getAppLanguage());
 

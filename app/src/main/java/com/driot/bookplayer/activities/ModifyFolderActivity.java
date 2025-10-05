@@ -352,33 +352,51 @@ public class ModifyFolderActivity extends LoggingActivity {
             }
         }).start();
     }
+    private final ActivityResultLauncher<Intent> coverGenLauncher =
+            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+                myLogW("result from CoverGenerationActivity " + result.getResultCode() + " " + result.getData());
+                if (result.getResultCode() != RESULT_OK || result.getData() == null) return;
+                String savedPath = result.getData().getStringExtra(CoverGenerationActivity.RESULT_SAVED_PATH);
+                myLogW("savedPath = " + savedPath);
+                if (savedPath == null || savedPath.isEmpty()) return;
+
+                new Thread(() -> {
+                    try {
+                        AppDatabase.getDatabase(this).FolderDao().updateImage(folder.getId(), savedPath);
+                        folder.image = savedPath;
+                        runOnUiThread(() -> ivCoverPreview.setImageURI(Uri.parse(savedPath)));
+                    } catch (Exception e) {
+                        myLogEE(e, "save generated cover (CoverGenerationActivity result)");
+                    }
+                }).start();
+            });
+
     private void clickGenerateCover() {
         myLogI("user clicks - GENERATE cover IMAGE");
-        if (folder.image != null) {
-            myToast("Please first delete image.");
-            return;
+
+        final long fId = folder.getId();
+        final String title = folder.getName();
+        final int sizePx = Var.FALL_BACK_COVER_IMAGE_SIZE_IN_PIXELS;
+
+        // Load saved prefs (if any), else fall back to defaults
+        String savedInitials = Pref.getBookCoverInitials(this, fId);
+        Integer savedColor   = Pref.getBookCoverColorOrNull(this, fId);
+        Boolean savedRounded = Pref.getBookCoverRoundedOrNull(this, fId);
+
+        final boolean rounded = (savedRounded != null) ? savedRounded : true;
+        final int defaultColor = (savedColor != null) ? savedColor : ImageHelper.getColorFromTitle(title);
+
+        Intent i = new Intent(this, CoverGenerationActivity.class);
+        i.putExtra(CoverGenerationActivity.EXTRA_FOLDER_ID, fId);
+        i.putExtra(CoverGenerationActivity.EXTRA_TITLE, title);
+        i.putExtra(CoverGenerationActivity.EXTRA_DEFAULT_COLOR, defaultColor);
+        i.putExtra(CoverGenerationActivity.EXTRA_SIZE_PX, sizePx);
+        i.putExtra(CoverGenerationActivity.EXTRA_ROUNDED, rounded);
+        if (savedInitials != null) {
+            i.putExtra(CoverGenerationActivity.EXTRA_INITIALS, savedInitials);
         }
-        new Thread(() -> {
-            String path;
-            try {
-                path = ImageHelper.createFallbackManualFolderImagePreInsert(
-                        this,
-                        folder.getName(),
-                        folder.getPath(),
-                        Var.FALL_BACK_COVER_IMAGE_SIZE_IN_PIXELS
-                );
-            } catch (Exception e) {
-                myLogEE(e, "generate cover");
-                return;
-            }
-            try {
-                AppDatabase.getDatabase(this).FolderDao().updateImage(folder.getId(), path);
-            } catch (Exception e) {
-                myLogEE(e, "save generated cover");
-                return;
-            }
-            runOnUiThread(() -> ivCoverPreview.setImageURI(Uri.parse(path)));
-        }).start();
+
+        coverGenLauncher.launch(i);
     }
 
 

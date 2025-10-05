@@ -13,9 +13,11 @@ import android.content.SharedPreferences;
 import android.os.Parcel;
 import android.util.Base64;
 
+import androidx.annotation.Nullable;
+
 import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.objects.MyAudioMetadata;
-import com.driot.bookplayer.utils.KanLogger;
+import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 import com.driot.bookplayer.utils.Tonio;
 
 public class Pref {
@@ -29,9 +31,11 @@ public class Pref {
     private static final String SHARED_PREFERENCES_DOWNLOAD = "SHARED_PREFERENCES_DOWNLOAD";
     private static final String KEY_LOAD_BOOK_TASK_STATE = "loadBookTaskState";
 
+
     private static Context appContext;
     private static android.content.SharedPreferences prefs;
     private static android.content.SharedPreferences stats;
+
     public static void init(Context context) {
         appContext = context.getApplicationContext();
         prefs = appContext.getSharedPreferences(SHARED_PREFERENCES_DIVERSE, MODE_PRIVATE);
@@ -230,14 +234,45 @@ public class Pref {
 
 
 
+    // Keys
+    private static String kCoverInitials(long folderId) { return "BOOK_COVER_INITIALS_" + folderId; }
+    private static String kCoverColor(long folderId)    { return "BOOK_COVER_COLOR_"    + folderId; }
+    private static String kCoverRounded(long folderId)  { return "BOOK_COVER_ROUNDED_"  + folderId; }
 
-    // ----------------------- LOG -----------------------
-    private static final String TAG = "Pref";
-    private static void myLog(String str) { KanLogger.myLog(TAG, str); }
-    private static void myLogD(String str) { KanLogger.myLogD(TAG, str); }
-    private static void myLogI(String str) { KanLogger.myLogI(TAG, str); }
-    private static void myLogW(String str) { KanLogger.myLogW(TAG, str); }
-    private static void myLogE(String str) { KanLogger.myLogE(TAG, str); }
-    private static void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, TAG, str); }
-    private static void myToastEE(Throwable t, String str) { KanLogger.myToastEE(t, TAG, str); }
+    // Setters
+    public static void setBookCoverInitials(Context c, long folderId, String initials) {
+        c.getSharedPreferences("book_prefs", Context.MODE_PRIVATE)
+                .edit().putString(kCoverInitials(folderId), initials).apply();
+    }
+
+    public static void setBookCoverColor(Context c, long folderId, int color) {
+        c.getSharedPreferences("book_prefs", Context.MODE_PRIVATE)
+                .edit().putInt(kCoverColor(folderId), color).apply();
+    }
+
+    public static void setBookCoverRounded(Context c, long folderId, boolean rounded) {
+        c.getSharedPreferences("book_prefs", Context.MODE_PRIVATE)
+                .edit().putBoolean(kCoverRounded(folderId), rounded).apply();
+    }
+
+    // Getters
+    @Nullable
+    public static String getBookCoverInitials(Context c, long folderId) {
+        return c.getSharedPreferences("book_prefs", Context.MODE_PRIVATE)
+                .getString(kCoverInitials(folderId), null);
+    }
+
+    public static Integer getBookCoverColorOrNull(Context c, long folderId) {
+        String key = kCoverColor(folderId);
+        if (!c.getSharedPreferences("book_prefs", Context.MODE_PRIVATE).contains(key)) return null;
+        return c.getSharedPreferences("book_prefs", Context.MODE_PRIVATE).getInt(key, 0);
+    }
+
+    public static Boolean getBookCoverRoundedOrNull(Context c, long folderId) {
+        String key = kCoverRounded(folderId);
+        if (!c.getSharedPreferences("book_prefs", Context.MODE_PRIVATE).contains(key)) return null;
+        return c.getSharedPreferences("book_prefs", Context.MODE_PRIVATE).getBoolean(key, true);
+    }
+
+
 }

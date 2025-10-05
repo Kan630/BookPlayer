@@ -170,6 +170,7 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
                 if (folder.image != null) {
                     h.ivBookCover.setVisibility(View.VISIBLE);
                     Glide.with(h.ivBookCover.getContext()).load(folder.image).into(h.ivBookCover);
+                    myLogW("1 " + folder.image);
                 } else {
                     h.ivBookCover.setVisibility(View.GONE);
                 }
@@ -202,6 +203,7 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
         if (folder.image != null) {
             h.ivBookCover.setVisibility(View.VISIBLE);
             Glide.with(h.ivBookCover.getContext()).load(folder.image).into(h.ivBookCover);
+            myLogW("2 " + folder.image);
         } else {
             h.ivBookCover.setVisibility(View.GONE);
         }

@@ -66,6 +66,7 @@
         <activity android:name=".activities.PodcastEpisodeActivity"/>
         <activity android:name=".activities.PodcastFavoritesActivity"/>
         <activity android:name=".activities.SupportedExtensionsActivity"/>
+        <activity android:name=".activities.CoverGenerationActivity" />
         <activity android:name=".activities.DebugDatabaseActivity"
             android:exported="false"
             android:enabled="true">
