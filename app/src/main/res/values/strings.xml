@@ -889,6 +889,19 @@
     <string name="save">save</string>
     <string name="rounded_corners">rounded corners</string>
     <string name="cover_preview">cover preview</string>
+    <string name="paste">paste</string>
+    <string name="clear">clear</string>
+    <string name="emoji_paste" translatable="false">📋</string>
+    <string name="emoji_clear" translatable="false">🗑️</string>
+    <string name="librivox" translatable="false">Librivox</string>
+    <string name="return_max">return max</string>
+    <string name="maximum_number_of_results_for_">Maximum number of results for </string>
+    <string name="minimum_number_of_results_for_">Minimum number of results for </string>
+    <string name="books">books</string>
+    <string name="favorite">favorite</string>
+    <string name="librivox_settings">Librivox settings</string>
+
+
 
 
 

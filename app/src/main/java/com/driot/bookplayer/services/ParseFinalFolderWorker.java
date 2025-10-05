@@ -507,6 +507,19 @@ public class ParseFinalFolderWorker extends LoggingWorker {
             FirebaseAnalyticsHelper.tellLoadBookSuccess(String.valueOf(bookState.originalUri));
             if (Var.SOURCE_LOCATION_LIBRIVOX.equals(bookState.sourceLocation)) {
                 FirebaseAnalyticsHelper.tellLibrivoxSuccess(String.valueOf(bookState.title));
+                AppDatabase.databaseWriteExecutor.execute(() -> {
+                    AppDatabase db = AppDatabase.getDatabase(context);
+                    db.BookSourceDao().markImported(
+                            Var.REPO_TYPE_AUDIOBOOK,               // repoType (lowercase)
+                            Var.REPO_NAME_LIBRIVOX,                // repoName (lowercase)
+                            bookState.futureFolderName,                // repoId (e.g., "dracula_123")
+                            insertedFolderId,                  // the new Folder.id
+                            bookState.title,                     // display title
+                            bookState.originalUri.toString(),  // source_url
+                            null,      // imageLocal if you saved it
+                            null       // imageRemote if available
+                    );
+                });
             }
         }
 

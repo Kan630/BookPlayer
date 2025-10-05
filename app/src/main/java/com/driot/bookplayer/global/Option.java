@@ -59,6 +59,8 @@ public class Option {
     public static final boolean DEFAULT_AUTOMOTIVE_ON = true;
     public static final boolean DEFAULT_AUTOMOTIVE_AUTO_RESUME_ON_CAR_CONNECT = true;
     public static final boolean DEFAULT_AUTOMOTIVE_KEEP_PHONE_PLAYBACK_ON_CAR_CONNECT = false;
+    public static final int DEFAULT_LIBRIVOX_API_NB_RESULTS = 200;
+    public static final int DEFAULT_PODCAST_INDEX_ORG_API_NB_RESULTS = 200;
 
     private static Context appContext;
     private static android.content.SharedPreferences prefs;
@@ -249,6 +251,10 @@ public class Option {
     public static void setAutomotiveKeepPhonePlaybackOnCarConnect(boolean bool) {prefs.edit().putBoolean("AUTOMOTIVE_KEEP_PHONE_PLAYBACK_ON_CAR_CONNECT",bool).apply();}
     public static boolean getAutomotiveKeepPhonePlaybackOnCarConnect() {return prefs.getBoolean("AUTOMOTIVE_KEEP_PHONE_PLAYBACK_ON_CAR_CONNECT", DEFAULT_AUTOMOTIVE_KEEP_PHONE_PLAYBACK_ON_CAR_CONNECT);}
 
+    public static void setLibrivoxApiNbResults(int i) {prefs.edit().putInt("LIBRIVOX_API_NB_RESULTS",i).apply();}
+    public static int getLibrivoxApiNbResults() {return prefs.getInt("LIBRIVOX_API_NB_RESULTS", DEFAULT_LIBRIVOX_API_NB_RESULTS);}
+    public static void setPodcastIndexOrgApiNbResults(int i) {prefs.edit().putInt("PODCAST_INDEX_ORG_API_NB_RESULTS",i).apply();}
+    public static int getPodcastIndexOrgApiNbResults() {return prefs.getInt("PODCAST_INDEX_ORG_API_NB_RESULTS", DEFAULT_PODCAST_INDEX_ORG_API_NB_RESULTS);}
 
 
     /////////////////// NIGHT MODE ///////////////////

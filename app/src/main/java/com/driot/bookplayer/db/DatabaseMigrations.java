@@ -1,5 +1,6 @@
 package com.driot.bookplayer.db;
 
+import androidx.annotation.NonNull;
 import androidx.room.migration.Migration;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
@@ -203,6 +204,22 @@ public class DatabaseMigrations {
             myLogI("Migration -> executing step 13 => 14"); // 2025-09-15
 
             db.execSQL("ALTER TABLE Folder ADD COLUMN playType TEXT");
+        }
+    };
+    static final Migration MIGRATION_14_15 = new Migration(14, 15) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase db) {
+            myLogI("Migration -> executing step 14 => 15"); // 2025-10-05
+
+            db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS index_BookSource_repoType_repoName_repoId ON BookSource(repoType, repoName, repoId)");
+
+            db.execSQL("ALTER TABLE BookSource ADD COLUMN book_title TEXT NOT NULL DEFAULT ''");
+            db.execSQL("ALTER TABLE BookSource ADD COLUMN source_url TEXT NOT NULL DEFAULT ''");
+            db.execSQL("ALTER TABLE BookSource ADD COLUMN source_size INTEGER NOT NULL DEFAULT 0");
+            db.execSQL("ALTER TABLE BookSource ADD COLUMN is_favorite INTEGER NOT NULL DEFAULT 0");
+            db.execSQL("ALTER TABLE BookSource ADD COLUMN date_add INTEGER NOT NULL DEFAULT 0");
+            db.execSQL("ALTER TABLE BookSource ADD COLUMN date_maj INTEGER NOT NULL DEFAULT 0");
+            db.execSQL("ALTER TABLE BookSource ADD COLUMN last_checked INTEGER");
         }
     };
 

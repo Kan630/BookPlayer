@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/scrollView">
+
+    <LinearLayout
+        android:id="@+id/ll_Podcast"
+        style="@style/LinearLayoutOptionsVertical"
+        android:layout_marginTop="0dp"
+        android:padding="8dp">
+
+        <TextView
+            style="@style/OptionTitle"
+            android:text="@string/librivox_settings" />
+
+        <View style="@style/myStyleViewSimpleHorizontalBar" />
+
+        <LinearLayout
+            android:id="@+id/ll_Search"
+            style="@style/LinearLayoutOptionsVertical">
+
+            <TextView
+                style="@style/OptionTitle"
+                android:text="@string/Search"
+                android:layout_marginTop="0dp" />
+            <LinearLayout
+                    style="@style/LinearLayoutOptionsCheckBoxHorizontal"
+                    android:gravity="center"
+                    android:layout_width="match_parent">
+                    <TextView
+                        style="@style/OptionPodcastTextBeforeEditText"
+                        android:text="@string/return_max"
+                        />
+                    <EditText
+                        style="@style/OptionPodcastEditText"
+                        android:layout_width="70dp"
+                        android:id="@+id/et_podcast_index_org_api_nb_results"
+                        />
+                    <TextView
+                        style="@style/OptionPodcastTextAfterEditText"
+                        android:text="@string/books"
+                        />
+            </LinearLayout>
+            <TextView
+                android:text="Min = 20"
+                style="@style/OptionMiniText" />
+            <TextView
+                android:text="Max = 1000"
+                style="@style/OptionMiniText" />
+        </LinearLayout>
+
+        <View style="@style/myStyleViewSimpleHorizontalBar" />
+
+    </LinearLayout>
+</ScrollView>

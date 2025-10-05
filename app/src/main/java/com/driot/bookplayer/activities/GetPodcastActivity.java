@@ -56,6 +56,10 @@ public class GetPodcastActivity extends LoggingActivity {
         ibFavorite.setOnClickListener(v -> clickFavorite());
         ibSettings.setOnClickListener(v -> clickSettings());
 
+        editTextPodcast.setHistoryKey("podcast_search"); // keep histories separate
+        editTextPodcast.setCompletionThreshold(1);        // suggestions after 1 char
+        editTextPodcast.setSuggestOnFocus(true);          // show dropdown on focus if empty
+
         buttonPodcastSearch.setOnClickListener(v -> {
             myLogI("--- User clicks SEARCH ---");
             query = editTextPodcast.getText();

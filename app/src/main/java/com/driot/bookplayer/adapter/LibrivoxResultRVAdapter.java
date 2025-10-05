@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
@@ -23,6 +24,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LibrivoxResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHolder> {
+    public interface OnItemClickListener {
+        void onItemClick(LibrivoxItem item);
+        void onFavoriteClick(LibrivoxItem item);
+    }
+    private final OnItemClickListener listener;
+
     private static final int VT_HEADER = 0;
     private static final int VT_ITEM   = 1;
 
@@ -33,10 +40,6 @@ public class LibrivoxResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
     private CharSequence headerLang = "";
     private CharSequence headerCount = "";
 
-    private final OnItemClickListener listener;
-    public interface OnItemClickListener {
-        void onItemClick(LibrivoxItem item);
-    }
 
     public LibrivoxResultRVAdapter(OnItemClickListener listener) {
         this.listener = listener;
@@ -75,6 +78,7 @@ public class LibrivoxResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
         TextView title, info, rating;
         RatingBar ratingBar;
         ImageView image;
+        ImageButton ibFavorite;
         ItemVH(@NonNull View itemView) {
             super(itemView);
             title = itemView.findViewById(R.id.librivox_title);
@@ -82,6 +86,7 @@ public class LibrivoxResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
             rating = itemView.findViewById(R.id.librivox_rating);
             ratingBar = itemView.findViewById(R.id.librivox_ratingbar);
             image = itemView.findViewById(R.id.librivox_image);
+            ibFavorite = itemView.findViewById(R.id.ibFavorite);
         }
     }
 
@@ -113,6 +118,8 @@ public class LibrivoxResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
             int idx = position - 1;
             LibrivoxItem item = items.get(idx);
             ItemVH holder = (ItemVH) vh;
+            Context context = holder.image.getContext();
+
             holder.title.setText(item.title);
             holder.info.setText(extractYear(item.date));
             String ratingText = item.num_reviews + " " + vh.itemView.getContext().getString(R.string.reviews) + " - " + vh.itemView.getContext().getString(R.string.reviews) + " : " + item.avg_rating;
@@ -121,7 +128,6 @@ public class LibrivoxResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
 
             holder.itemView.setOnClickListener(v -> listener.onItemClick(item));
 
-            Context context = holder.image.getContext();
 
             // 🏷️ Tag the imageView with the identifier to prevent race conditions
             holder.image.setTag(item.identifier);
@@ -161,6 +167,20 @@ public class LibrivoxResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
                         });
                     }
                 }).start();
+            }
+
+            int tint = ContextCompat.getColor(context, item.is_favorite ? R.color.red : android.R.color.white);
+            holder.ibFavorite.setColorFilter(tint);
+            holder.ibFavorite.setOnClickListener(v -> {
+                int p = holder.getBindingAdapterPosition();
+                if (p == RecyclerView.NO_POSITION) return;
+                listener.onFavoriteClick(item);  // delegate to VM
+            });
+            ImageView ivImported = holder.itemView.findViewById(R.id.ivImported);
+            if (item.isImported()) {
+                ivImported.setVisibility(View.VISIBLE);
+            } else {
+                ivImported.setVisibility(View.GONE);
             }
         }
     }

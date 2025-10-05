@@ -477,6 +477,15 @@
 
         <!-- Button to show/hide advanced options -->
         <Button
+            android:id="@+id/btnLibrivoxSettings"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/librivox_settings"
+            android:layout_gravity="center"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="20dp"
+            />
+        <Button
             android:id="@+id/btnPodcastSettings"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

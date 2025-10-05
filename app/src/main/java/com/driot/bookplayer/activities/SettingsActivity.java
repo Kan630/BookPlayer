@@ -44,7 +44,6 @@ import static com.driot.bookplayer.utils.ComponentUtils.setOpenWithProxyEnabled;
 import static com.driot.bookplayer.utils.ComponentUtils.setOpenWithProxyEnabled_all;
 import static com.driot.bookplayer.utils.PermissionRequest.isRecordAudioPermissionGranted;
 import static com.driot.bookplayer.helpers.StorageHelper.isExternalSDCardAvailable;
-import static com.driot.bookplayer.utils.log.LoggerStaticHelper.myLog;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.StyleRes;
@@ -92,7 +91,6 @@ public class SettingsActivity extends LoggingActivity {
     String lastSavedTtsVoice;
     View advancedOptionsLayout;
     Button btnShowAdvanced;
-    Button btnPodcastOptions;
     ScrollView scrollView;
     private Button btnNightMode;
     AutoCloseable ttsHandle;
@@ -507,10 +505,16 @@ public class SettingsActivity extends LoggingActivity {
             myLogI("--- USER CLICKS SHOW ADVANCED OPTIONS ---");
             toggleAdvancedOptions();
         });
-        btnPodcastOptions = findViewById(R.id.btnPodcastSettings);
-        btnPodcastOptions.setOnClickListener( v -> {
+        Button btnPodcastSettings = findViewById(R.id.btnPodcastSettings);
+        btnPodcastSettings.setOnClickListener(v -> {
             myLogI("--- USER CLICKS PODCAST OPTIONS ---");
             Intent intent = new Intent(this, PodcastSettingsActivity.class);
+            startActivity(intent);
+        });
+        Button btnLibrivoxSettings = findViewById(R.id.btnLibrivoxSettings);
+        btnLibrivoxSettings.setOnClickListener(v -> {
+            myLogI("--- USER CLICKS LIBRIVOX OPTIONS ---");
+            Intent intent = new Intent(this, LibrivoxSettingsActivity.class);
             startActivity(intent);
         });
 

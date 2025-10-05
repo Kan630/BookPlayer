@@ -164,7 +164,7 @@ public class PodcastHelper {
 
     public static void searchPodcasts(String query, String lang, Callback callback) {
         PodcastIndexApi api = buildApi();
-        api.searchPodcasts(query, Var.PODCASTINDEXORG_API_MAX_RESULTS_FOR_PODCASTS, lang).enqueue(new retrofit2.Callback<PodcastIndexResponse>() {
+        api.searchPodcasts(query, Option.getPodcastIndexOrgApiNbResults(), lang).enqueue(new retrofit2.Callback<PodcastIndexResponse>() {
         @Override
         public void onResponse(Call<PodcastIndexResponse> call, Response<PodcastIndexResponse> response) {
             if (response.isSuccessful() && response.body() != null) {

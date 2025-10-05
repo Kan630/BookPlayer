@@ -28,6 +28,9 @@ public class Var {
     public static final String PLAY_TYPE_TEXT = "text";
     public static final String PLAY_TYPE_AUDIO = "audio";
 
+    public static final String REPO_TYPE_AUDIOBOOK = "audiobook";
+    public static final String REPO_NAME_LIBRIVOX = "librivox";
+
     public static final int FALL_BACK_COVER_IMAGE_SIZE_IN_PIXELS = 512;
     public static final int GRID_LAYOUT_SPACER = 4; //dp between cards
 
@@ -41,7 +44,9 @@ public class Var {
     public static final HttpLoggingInterceptor.Level HTTP_LOGGING_INTERCEPTOR_LOG_LEVEL = HttpLoggingInterceptor.Level.NONE;
 
     public static final int LIBRIVOX_API_MAX_RESULTS = 1000;
-    public static final int PODCASTINDEXORG_API_MAX_RESULTS_FOR_PODCASTS = 200;
+    public static final int LIBRIVOX_API_MIN_RESULTS = 20;
+    public static final int PODCAST_INDEX_ORG_API_MAX_RESULTS_FOR_PODCASTS = 1000;
+    public static final int PODCAST_INDEX_ORG_API_MIN_RESULTS_FOR_PODCASTS = 20;
     public static final int PODCASTINDEXORG_API_MAX_RESULTS_FOR_EPISODES_NORMAL_MODE = 100;
     public static final int PODCASTINDEXORG_API_MAX_RESULTS_FOR_EPISODES_REFRESH_MODE = 1000;
     public static final int PODCASTINDEXORG_API_TIME_BETWEEN_PODCAST_CHECK_IN_MIN = 2;

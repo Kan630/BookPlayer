@@ -8,6 +8,7 @@ import android.widget.LinearLayout;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Option;
+import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
@@ -21,6 +22,8 @@ public class PodcastSettingsActivity extends LoggingActivity {
 
     EditText et_podcast_delay_deletion, et_podcast_completion_percentage_deletion;
     EditText et_podcast_auto_download_last_n_episode, et_auto_download_max_n_podcast, et_auto_download_delay_between_checks_in_min;
+    EditText et_podcast_index_org_api_nb_results;
+
 
     LinearLayout ll_podcast_auto_delete, ll_podcast_episodes_sort_order, ll_podcast_episodes_expand, ll_podcast_autodownloaded_at_the_top, ll_podcast_open_specific_view;
 
@@ -50,6 +53,8 @@ public class PodcastSettingsActivity extends LoggingActivity {
         ll_podcast_episodes_expand.setOnClickListener(v -> chk_podcast_episodes_expand.toggle());
         chk_podcast_episodes_expand.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setPodcastEpisodesDescriptionExpand(isChecked));
 
+        et_podcast_index_org_api_nb_results = findViewById(R.id.et_podcast_index_org_api_nb_results);
+        et_podcast_index_org_api_nb_results.setText(String.valueOf(Option.getPodcastIndexOrgApiNbResults()));
 
         et_podcast_auto_download_last_n_episode = findViewById(R.id.et_auto_download_last_n_episode);
         et_podcast_auto_download_last_n_episode.setText(String.valueOf(Option.getPodcastAutoDownloadLastNbEpisode()));
@@ -113,6 +118,12 @@ public class PodcastSettingsActivity extends LoggingActivity {
                     () -> myLongToast(getString(R.string.auto_download_delay_between_checks_in_min) + " " + getString(R.string.too_low)),
                     () -> myLongToast(getString(R.string.auto_download_delay_between_checks_in_min) + " " + getString(R.string.too_high)));
             Option.setPodcastAutoDownloadDelayBetweenChecks(value5);
+        }
+        if (et_podcast_index_org_api_nb_results != null ) {
+            int value6 = clampInt(et_podcast_index_org_api_nb_results, Var.PODCAST_INDEX_ORG_API_MIN_RESULTS_FOR_PODCASTS, Var.PODCAST_INDEX_ORG_API_MAX_RESULTS_FOR_PODCASTS, Option.DEFAULT_PODCAST_INDEX_ORG_API_NB_RESULTS,
+                    () -> myLongToast(getString(R.string.minimum_number_of_results_for_) + getString(R.string.podcasts) + " " + getString(R.string.too_low)),
+                    () -> myLongToast(getString(R.string.maximum_number_of_results_for_) + getString(R.string.podcasts) + " " + getString(R.string.too_high)));
+            Option.setPodcastIndexOrgApiNbResults(value6);
         }
 
     }

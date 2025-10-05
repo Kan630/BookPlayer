@@ -7,7 +7,7 @@
         android:orientation="horizontal"
         android:gravity="center_vertical">
 
-        <EditText
+        <androidx.appcompat.widget.AppCompatAutoCompleteTextView
             android:id="@+id/editText"
             android:layout_width="0dp"
             android:layout_weight="1"
@@ -29,14 +29,14 @@
         <Button
             android:id="@+id/btnPaste"
             style="@style/GetResourceEditTextButtons"
-            android:text="📋"
-            android:contentDescription="Paste" />
+            android:text="@string/emoji_paste"
+            android:contentDescription="@string/paste" />
 
         <Button
             android:id="@+id/btnClear"
             style="@style/GetResourceEditTextButtons"
-            android:text="❌"
-            android:contentDescription="Clear" />
+            android:text="@string/emoji_clear"
+            android:contentDescription="@string/clear" />
     </LinearLayout>
 
 </merge>

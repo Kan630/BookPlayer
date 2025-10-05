@@ -16,6 +16,7 @@ import com.driot.bookplayer.adapter.PodcastSearchResultsRVAdapter;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.db.PodcastDao;
+import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.NetworkHelper;
@@ -135,7 +136,7 @@ public class PodcastSearchResultsActivity extends LoggingActivity {
         if (!query.isEmpty()) {
             PodcastHelper.searchPodcasts(query, lang, callback);
         } else {
-            PodcastHelper.getTrendingPodcasts(lang, Var.PODCASTINDEXORG_API_MAX_RESULTS_FOR_PODCASTS, callback);
+            PodcastHelper.getTrendingPodcasts(lang, Option.getPodcastIndexOrgApiNbResults(), callback);
         }
     }
 

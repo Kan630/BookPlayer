@@ -1,7 +1,5 @@
 package com.driot.bookplayer.activities;
 
-import static com.driot.bookplayer.global.Var.LIBRIVOX_API_MAX_RESULTS;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -13,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.adapter.LibrivoxResultRVAdapter;
+import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.NetworkHelper;
@@ -38,7 +37,6 @@ public class LibrivoxResultsActivity extends LoggingActivity {
 
     RecyclerView recyclerView;
     LibrivoxResultRVAdapter adapter;
-    //TextView tvSearchTerms, tvLanguage, tvResultsCount;
 
     ProgressBar progressBar;
 
@@ -51,11 +49,9 @@ public class LibrivoxResultsActivity extends LoggingActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_librivox_results);
 
-// Pad the whole screen down from the status bar
         InsetHelper.applyTopInsetsTo(this, findViewById(R.id.rootLayout));
-
-// Let the list draw behind nav bar but stay readable, and lift for IME
         InsetHelper.applyBottomInsetsForScrollable(this, findViewById(R.id.recyclerView));
+
         OngoingTaskHost.attach(
                 this,
                 R.id.topOverlayContainer,
@@ -64,24 +60,23 @@ public class LibrivoxResultsActivity extends LoggingActivity {
 
         recyclerView = findViewById(R.id.recyclerView);
         progressBar = findViewById(R.id.progressBar);
-        /*
-        tvSearchTerms = findViewById(R.id.tvSearchTerms);
-        tvLanguage = findViewById(R.id.tvLanguage);
-        tvResultsCount = findViewById(R.id.tvResultsCount);
-
-         */
 
         int span = getResources().getInteger(R.integer.classic_grid_span);
         GridLayoutManager glm = new GridLayoutManager(this, span);
         recyclerView.setLayoutManager(glm);
         recyclerView.addItemDecoration(new ViewHelper.SpacesItemDecoration(ViewHelper.dp(this, Var.GRID_LAYOUT_SPACER)));
-        //recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        adapter = new LibrivoxResultRVAdapter(item -> {
-            Intent intent = new Intent(this, LibrivoxDetailActivity.class);
-            intent.putExtra("identifier", item.identifier);
-            intent.putExtra("title", item.title);
-            startActivity(intent);
+        adapter = new LibrivoxResultRVAdapter(new LibrivoxResultRVAdapter.OnItemClickListener() {
+            @Override public void onItemClick(LibrivoxItem item) {
+                Intent intent = new Intent(LibrivoxResultsActivity.this, LibrivoxDetailActivity.class);
+                intent.putExtra("identifier", item.identifier);
+                intent.putExtra("title", item.title);
+                startActivity(intent);
+            }
+            @Override public void onFavoriteClick(LibrivoxItem item) {
+                myLogI("------- user clicks favorite ------   for [" + item.identifier + "]");
+                viewModel.toggleFavorite(item);
+            }
         });
         recyclerView.setAdapter(adapter);
 
@@ -93,7 +88,7 @@ public class LibrivoxResultsActivity extends LoggingActivity {
             adapter.setItems(items);
             progressBar.setVisibility(View.GONE);
             String strResultsCount;
-            if (items != null && items.size() == LIBRIVOX_API_MAX_RESULTS) {
+            if (items != null && items.size() == Option.getLibrivoxApiNbResults()) {
                 strResultsCount = getString(R.string.max_number_of_results_reached) + " (" + items.size() + ")";
             } else {
                 strResultsCount =  getString((R.string.nb_of_audios_found)) + " : " + (items == null ? 0 : items.size());
@@ -115,12 +110,7 @@ public class LibrivoxResultsActivity extends LoggingActivity {
             finish();
             return;
         }
-/*
-        tvSearchTerms.setText(getString(R.string.Search_2pt) + (query.isEmpty() ? getString(R.string.search_nothing_specified) : query));
-        tvLanguage.setText(getString(R.string.Language_2pt) + lang);
-        tvResultsCount.setText(getString(R.string.Results_2pt) + "...");
 
- */
         CharSequence searchLine = getString(R.string.Search_2pt)
                 + (query.isEmpty() ? getString(R.string.search_nothing_specified) : query);
         CharSequence langLine = getString(R.string.Language_2pt) + lang;
@@ -169,7 +159,7 @@ public class LibrivoxResultsActivity extends LoggingActivity {
         progressBar.setVisibility(View.VISIBLE);
 
         String finalFullQuery = fullQuery;
-        api.search(fullQuery, fields, LIBRIVOX_API_MAX_RESULTS, 1, "json", API_SORT).enqueue(new Callback<LibrivoxApiResponse>() {
+        api.search(fullQuery, fields, Option.getLibrivoxApiNbResults(), 1, "json", API_SORT).enqueue(new Callback<LibrivoxApiResponse>() {
             @Override
             public void onResponse(Call<LibrivoxApiResponse> call, Response<LibrivoxApiResponse> response) {
                 //myLog(response.toString());
@@ -178,9 +168,9 @@ public class LibrivoxResultsActivity extends LoggingActivity {
                     List<LibrivoxItem> results = response.body().response.docs;
                     if (results.isEmpty()) {
                         myToast("[" + lang + "] " + getString(R.string.librivox_no_audiobook_found_for_search) + " [" + query + "]");
-                        viewModel.requestFinish(); // ✅ trigger finish
+                        viewModel.requestFinish();
                     } else {
-                        viewModel.setResults(results); // ✅ store results
+                        viewModel.enrichWithLocalState(results); // ← merge API + favorites
                         myLog(results.size() + " results found");
                     }
                 } else {

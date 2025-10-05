@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.objects.LanguageItem;
 import com.driot.bookplayer.objects.PodcastFeed;
@@ -111,7 +112,7 @@ public class PodcastSearchResultsRVAdapter extends LoggingRVAdapter<RecyclerView
             LanguageItem langItem = LanguageHelper.getLanguageForPodcastsByCode(lang);
             String language = "Language: " + (langItem != null ? langItem.displayName : "");
             tvLanguage.setText(language);
-            String resultsCount = "Results: " + count + (count == Var.PODCASTINDEXORG_API_MAX_RESULTS_FOR_PODCASTS ? " (" + context.getString(R.string.max_number_of_results_reached) + ")" : "");
+            String resultsCount = "Results: " + count + (count == Option.getPodcastIndexOrgApiNbResults() ? " (" + context.getString(R.string.max_number_of_results_reached) + ")" : "");
             tvResultsCount.setText(resultsCount);
         }
     }

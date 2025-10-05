@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.Spinner;
 
 import androidx.annotation.Nullable;
@@ -21,6 +22,9 @@ public class GetAudiobookActivity extends LoggingActivity {
 
     Spinner spinnerLibrivox;
     EditTextWithButtons editTextLibrivox;
+    Button bFavorite;
+    ImageButton ibFavorite;
+    ImageButton ibSettings;
     Button buttonTrending;
     Button buttonSearch;
 
@@ -42,6 +46,17 @@ public class GetAudiobookActivity extends LoggingActivity {
         spinnerLibrivox = findViewById(R.id.spinnerLibrivox);
         editTextLibrivox = findViewById(R.id.etLibrivox);
         buttonSearch = findViewById(R.id.bLibrivoxSearch);
+        bFavorite = findViewById(R.id.bFavorite);
+        ibFavorite = findViewById(R.id.ibFavorite);
+        ibSettings = findViewById(R.id.ibSettings);
+
+        bFavorite.setOnClickListener(v -> clickFavorite());
+        ibFavorite.setOnClickListener(v -> clickFavorite());
+        ibSettings.setOnClickListener(v -> clickSettings());
+
+        editTextLibrivox.setHistoryKey("librivox_search"); // keep histories separate
+        editTextLibrivox.setCompletionThreshold(1);        // suggestions after 1 char
+        editTextLibrivox.setSuggestOnFocus(true);          // show dropdown on focus if empty
 
         LanguageHelper.setupLanguageSpinner(
                 this,
@@ -67,13 +82,26 @@ public class GetAudiobookActivity extends LoggingActivity {
 
         buttonSearch.setOnClickListener(v -> {
             myLogI("--- User clicks SEARCH ---");
+            editTextLibrivox.saveCurrentTextToHistory();
             doSearch();
         });
-        // Keyboard "done/search"
         editTextLibrivox.getEditText().setOnEditorActionListener((v, actionId, event) -> {
-            if (actionId == EditorInfo.IME_ACTION_SEARCH
-                    || actionId == EditorInfo.IME_ACTION_DONE) {
+            boolean isEnterKey = event != null
+                    && event.getAction() == android.view.KeyEvent.ACTION_DOWN
+                    && event.getKeyCode() == android.view.KeyEvent.KEYCODE_ENTER;
+
+            if (actionId == EditorInfo.IME_ACTION_SEARCH || isEnterKey) {
+                myLogI("--- User clicks SEARCH --- (via keyboard)");
+
+                // 1) persist the query to MRU history
+                editTextLibrivox.saveCurrentTextToHistory();
+
+                // 2) run your existing search
                 doSearch();
+
+                // 3) optional: close suggestions dropdown
+                editTextLibrivox.getEditText().dismissDropDown();
+
                 return true;
             }
             return false;
@@ -83,6 +111,17 @@ public class GetAudiobookActivity extends LoggingActivity {
 
         ////////////////////////////////
         ////////////////////////////////
+        private void clickFavorite() {
+            myLogI("--- User clicks FAVORITES ---");
+            Intent intent = new Intent(this, LibrivoxFavoritesActivity.class);
+            startActivity(intent);
+        }
+
+    private void clickSettings() {
+        myLogI("--- User clicks SETTINGS ---");
+        Intent intent = new Intent(this, LibrivoxSettingsActivity.class);
+        startActivity(intent);
+    }
 
     private void doSearch() {
             query = editTextLibrivox.getText();
