@@ -1214,14 +1214,6 @@ public class AudioService extends LoggingService {
         Pref.setPauseTime();
     }
 
-    private void mediaPlayerStop() {
-        myLogD("mediaPlayerStop()");
-        if (engine != null) engine.stop();
-        media.updateState(PlaybackStateCompat.STATE_STOPPED, 0, 0f, playbackStateCompatAction);
-        media.setActive(false);
-        if (Pref.getPauseTime() == 0) Pref.setPauseTime();
-    }
-
     @SuppressWarnings("IfCanBeSwitch")
     private void playBeep(String beepType) {
         myLogI("playBeep - argument : " + beepType);
