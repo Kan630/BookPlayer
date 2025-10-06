@@ -1,4 +1,4 @@
-package com.driot.bookplayer.views;
+    package com.driot.bookplayer.views;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -28,6 +28,9 @@ import com.driot.bookplayer.utils.KanLogger;
  *      outlinePaint  -> a thicker “outer” line you can tune independently
  */
 public class FrequencyVisualizerView extends View {
+
+    // Compile-time kill switch (set to true to test without any Visualizer code)
+    private static final boolean VISUALIZER_DISABLED = false;
 
     // ───────────────────────────────────────────
     //                 KNOBS
@@ -147,10 +150,20 @@ public class FrequencyVisualizerView extends View {
 
     /** Keep your original entry point name */
     public void link_toto(int audioSessionId) {
+        if (VISUALIZER_DISABLED) {
+            myLog("Visualizer disabled (test mode)");
+            // Make sure we don’t hold any native resources
+            if (visualizer != null) { try { visualizer.release(); } catch (Throwable ignored) {} }
+            visualizer = null;
+            fftBytes = null;
+            invalidate();
+            return;
+        }
         if (visualizer == null) link(audioSessionId);
     }
 
     private void link(int audioSessionId) {
+        if (VISUALIZER_DISABLED) return;
         myLog("link - audioSessionId = [" + audioSessionId + "]");
         try {
             visualizer = new Visualizer(audioSessionId);
@@ -181,7 +194,7 @@ public class FrequencyVisualizerView extends View {
     @Override
     protected void onDraw(@NonNull Canvas canvas) {
         super.onDraw(canvas);
-        if (fftBytes == null) {
+        if (VISUALIZER_DISABLED || fftBytes == null) {
             drawIdle(canvas);
             return;
         }

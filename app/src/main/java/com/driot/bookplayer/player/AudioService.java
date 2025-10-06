@@ -40,6 +40,7 @@ import com.driot.bookplayer.global.Pref;
 
 import java.text.DecimalFormat;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.driot.bookplayer.utils.Tonio.formatTime;
 
@@ -68,6 +69,7 @@ public class AudioService extends LoggingService {
             }
         }
     };
+    private final AtomicBoolean isShuttingDown = new AtomicBoolean(false);
 
     public static volatile boolean isRunning = false;
     private static final String ID_NOTIFICATION_PLAY_AUDIO_CHANNEL = "audio_channel_of_bookplayer";
@@ -96,9 +98,6 @@ public class AudioService extends LoggingService {
     public static final String EXTRA_UI_FOLDER_ID = "extra_ui_folder_id";
     public static final String EXTRA_UI_READY     = "extra_ui_ready";
     public static final String EXTRA_UI_TTS       = "extra_ui_tts";
-    public static final String ACTION_CMD = "com.driot.bookplayer.action.CMD";
-    public static final String EXTRA_CMD  = "extra_cmd";
-    public static final String CMD_STOP = "cmd_stop";
 
 
     public static volatile com.driot.bookplayer.player.PlaybackUiState lastUiState = null;
@@ -396,11 +395,11 @@ public class AudioService extends LoggingService {
                         updateZikFileStateInDB(false);
                         LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(new Intent(NOTIFICATION_PLAYBACK_TIMER_VALUE).putExtra(TIMER_VALUE, elapsedSeconds));
                     }
+                    // go SLEEP
                     @Override public void onReachedMax() {
                         if (Option.getBeepAutoStop()) playBeep("2beeps");
                         LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(new Intent(NOTIFICATION_PLAYBACK_MAXTIMEREACH));
-                        if (engine != null && engine.isPlaying()) mediaPlayerStop();
-                        stopSelf();
+                        pauseAudio();
                     }
                 });
 
@@ -409,7 +408,7 @@ public class AudioService extends LoggingService {
         pauseWatcher = new com.driot.bookplayer.player.PauseTrimWatcher(
                 pauseCheckHandler, DELAY_CHECK_TIMER_PAUSE,
                 new com.driot.bookplayer.player.PauseTrimWatcher.Killer() {
-                    @Override public void kill() { killService(); }
+                    @Override public void kill() { shutdown(false); }
                     @Override public void onLog(String msg) {
                         String newMsg = msg;
                         if (PlayList.getInstance()==null) newMsg += " [null playlist]";
@@ -645,38 +644,52 @@ public class AudioService extends LoggingService {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (intent != null) {
-            String a = intent.getAction();
+        myLog("onStartCommand()");
+        if (intent!=null) myLogD("intent = " + intent);
+        if (intent!=null && intent.getAction()!=null) myLogD("intent.action = " + intent.getAction());
 
-            if (ACTION_PING_UI.equals(a)) { broadcastUiState(); return START_STICKY; }
+        if (intent == null) {            // happens when Android restarts your sticky service after it was killed, no 5-second foreground requirement in this case because the system didn’t just call startForegroundService(...) on your behalf;
+            myLogW("onStartCommand() with no intent - Android restarts?");
+            return START_STICKY;
+        }
 
-            if (ACTION_PLAY_FROM_TRACK.equals(a)) {
+        final String action = intent.getAction();
+        if (action == null) {
+            myLogEE(null, "onStartCommand() with no intent.action");
+            return START_STICKY;
+        }
+
+        switch (action) {
+            // -------- High-level “load something and (likely) play” intents --------
+            case ACTION_PLAY_FROM_TRACK: {
+                // Enter foreground *before* async work to satisfy the 5s rule
+                goForegroundPreparing("Preparing…", "Loading selected track");
+
                 final int trackId = intent.getIntExtra(EXTRA_TRACK_ID, -1);
                 if (trackId > 0) {
                     AppDatabase.databaseReadExecutor.execute(() -> {
                         ZikFile clicked = AppDatabase.getDatabase(this).ZikFileDao().getById(trackId);
                         if (clicked == null) return;
+
                         int folderId = clicked.getIdFolder();
                         List<ZikFile> list = AppDatabase.getDatabase(this).ZikFileDao().getZikFiles(folderId);
                         if (list == null || list.isEmpty()) return;
 
                         int index = 0;
-                        for (int i = 0; i < list.size(); i++)
-                            if (list.get(i).getId() == trackId) {
-                                index = i;
-                                break;
-                            }
+                        for (int i = 0; i < list.size(); i++) {
+                            if (list.get(i).getId() == trackId) { index = i; break; }
+                        }
 
                         PlayList.create(getApplicationContext(), list, index);
                         directPlay = true;
-                        loadFile();  // will prepare
-                        // start once prepared or immediately if already ready
+                        loadFile(); // will prepare; on prepared you'll call showForegroundNotification(...)
                     });
                 }
                 return START_STICKY;
             }
 
-            if (ACTION_PLAY_FROM_FOLDER.equals(a)) {
+            case ACTION_PLAY_FROM_FOLDER: {
+                goForegroundPreparing("Preparing…", "Loading folder");
                 final int folderId = intent.getIntExtra(EXTRA_FOLDER_ID, -1);
                 final int index = Math.max(0, intent.getIntExtra(EXTRA_INDEX, 0));
                 if (folderId > 0) {
@@ -690,43 +703,83 @@ public class AudioService extends LoggingService {
                 }
                 return START_STICKY;
             }
-        }
-        if (intent != null && ACTION_CMD.equals(intent.getAction())) {
-            String cmd = intent.getStringExtra(EXTRA_CMD);
-            if (CMD_STOP.equals(cmd)) {
-                myLog("stopping audio");
-                pauseAudio();                   // → broadcastUiState() inside
-                suppressMiniUntilNextPlay();    // → and then
-                broadcastUiCleared();           // → explicit clear for hide
-                stopForeground(false);
-                stopSelf();
-            }
-            return START_STICKY;
-        }
 
-        if (intent != null) {
-            String a = intent.getAction();
-            if ("CMD_PLAY".equals(a))   { playAudio();   return START_STICKY; }   // broadcasts
-            if ("CMD_PAUSE".equals(a))  {
+            case "CMD_STOP": {
+                myLog("CMD_STOP");
+                shutdown(false);
+                return START_STICKY;
+            }
+
+            // -------- Direct transport commands (often from notif/media buttons) --------
+            case "CMD_PLAY": {
+                // If the service was started via startForegroundService() from background,
+                // enter foreground immediately to avoid the 5s crash.
+                goForegroundPreparing("Resuming…", null);
+                playAudio(); // your existing logic will update the notif state
+                return START_STICKY;
+            }
+
+            case "CMD_PAUSE": {
                 if (engine == null || !engine.isPlaying()) {
+                    // Show a paused notification if you want to remain foreground while paused:
                     showForegroundNotification(false);
                 }
                 pauseAudio();
+                // If you prefer to drop foreground while paused:
+                // try { stopForeground(false); } catch (Throwable ignore) {}
                 return START_STICKY;
             }
-            if ("CMD_NEXT".equals(a))   { forwardAudioTo(getPosition() + Option.get_ForwardSeconds()*1000); return START_STICKY; } // seek → broadcast
-            if ("CMD_PREV".equals(a))   { backwardAudio(); return START_STICKY; } // seek → broadcast
-            if ("CMD_SEEK".equals(a))   { setPosition(intent.getIntExtra("posMs", 0)); return START_STICKY; } // seek → broadcast
 
-            // Only real hardware/software media button events fall through:
-            if (Intent.ACTION_MEDIA_BUTTON.equals(a)) {
-                MediaButtonReceiver.handleIntent(media.session(), intent);
+            case "CMD_NEXT": {
+                forwardAudioTo(getPosition() + Option.get_ForwardSeconds() * 1000);
+                return START_STICKY;
             }
 
-        }
+            case "CMD_PREV": {
+                backwardAudio();
+                return START_STICKY;
+            }
 
-        showForegroundNotification(isPlaying());
-        return START_STICKY;
+            case "CMD_SEEK": {
+                setPosition(intent.getIntExtra("posMs", 0));
+                return START_STICKY;
+            }
+
+            case Intent.ACTION_MEDIA_BUTTON: {
+                myLog("onStartCommand() - Intent.ACTION_MEDIA_BUTTON");
+                MediaButtonReceiver.handleIntent(media.session(), intent);
+                return START_STICKY;
+            }
+
+            default:
+                // Unknown action — keep service alive and ensure we have a notif if needed
+                myLogEE(null, "onStartCommand() - unknown action : [" + action + "]");
+                showForegroundNotification(isPlaying());
+                return START_STICKY;
+        }
+    }
+
+    /** Minimal foreground entry used before async prep to satisfy the 5s requirement. */
+    private void goForegroundPreparing(@Nullable CharSequence title, @Nullable CharSequence text) {
+        try {
+            CharSequence t = (title != null) ? title : "Preparing…";
+            CharSequence s = (text  != null) ? text  : "Please wait";
+            Notification n = notif.build(
+                    media.session(),
+                    /*playing=*/false,
+                    t,
+                    s,
+                    // You can pass your ActionProvider if you want controls here, or null for minimal
+                    null
+            );
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                startForeground(ID_NOTIFICATION_PLAY_AUDIO_INT, n, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK);
+            } else {
+                startForeground(ID_NOTIFICATION_PLAY_AUDIO_INT, n);
+            }
+        } catch (Throwable e) {
+            myLogEE(e, "goForegroundPreparing()");
+        }
     }
 
 
@@ -746,44 +799,51 @@ public class AudioService extends LoggingService {
         String logMsg = "onTaskRemoved";
         if (rootIntent.getAction() != null) logMsg = logMsg + " from " + rootIntent.getAction();
         myLogW(logMsg);
-        pauseAudio();
-        suppressMiniUntilNextPlay();
-        broadcastUiCleared();
-        stopForeground(false);
-        stopSelf();
+        shutdown(false);
         super.onTaskRemoved(rootIntent);
+    }
+
+    private void shutdown(boolean fromDestroy) {
+        if (!isShuttingDown.compareAndSet(false, true)) {
+            myLogI("shutdown() already running; ignore");
+            return;
+        }
+
+        myLogI("shutdown(fromDestroy=" + fromDestroy + ")");
+        try { PlayList.getMetaLive().removeObserver(metaObs); } catch (Throwable ignore) {}
+        broadcastUiCleared();
+        isRunning = false;
+
+        try { PlayList.getMetaLive().removeObserver(metaObs); } catch (Throwable ignore) {}
+        try { sleepTimer.stop(); } catch (Throwable ignore) {}
+        try { focus.abandon(); } catch (Throwable ignore) {}
+        try { stopForeground(true); } catch (Throwable ignore) {}
+        try { notif.cancel(ID_NOTIFICATION_PLAY_AUDIO_INT); } catch (Throwable ignore) {}
+        PlayerEngine e = engine; // snapshot
+        engine = null;           // prevent reuse elsewhere after shutdown begins
+        if (e != null) {
+            if (e instanceof TtsEngine) {
+                try { ((TtsEngine) e).release(); } catch (Exception ex) { myLogEE(ex, "TTS release"); }
+            } else {
+                try { e.stop(); }        catch (Exception ex) { myLogEE(ex, "engine stop"); }
+                try { e.reset(); }       catch (Exception ex) { myLogEE(ex, "engine reset"); }
+            }
+        }
+        if (media != null) media.release();
+        if (!fromDestroy) stopSelf();
     }
 
     @Override
     public void onDestroy() {
         myLog("onDestroy()");
-        // Send cleared first so observers hide mini even if process dies right after
-        try { PlayList.getMetaLive().removeObserver(metaObs); } catch (Throwable ignore) {}
-        broadcastUiCleared();                     // ← ensure cleared
-
-        isRunning = false;
-        sleepTimer.stop();
-        stopForeground(true);
-
-        if (engine != null) {
-            try {
-                if (engine instanceof TtsEngine) ((TtsEngine) engine).release();
-                engine.stop();
-            } catch (Exception ignored) {}
-        }
-
-        focus.abandon();
-        notif.cancel(ID_NOTIFICATION_PLAY_AUDIO_INT);
-        if (media != null) media.release();
-
-        stopSelf();
+        shutdown(true);
         super.onDestroy();
     }
 
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        myLog("onBind()");
+        myLog("onBind() - intent.DataString = " + intent.getDataString());
         return binder;
     }
 
@@ -954,7 +1014,7 @@ public class AudioService extends LoggingService {
 
     public void pauseAudioNoSave() {
         if (engine != null && engine.isPlaying()) {
-            mediaPlayerPause();
+            enginePause();
             focus.abandon();
             sleepTimer.stop();
             showForegroundNotification(false);
@@ -963,7 +1023,7 @@ public class AudioService extends LoggingService {
     }
     public void pauseAudio() {
         if (engine != null && engine.isPlaying()) {
-            mediaPlayerPause();
+            enginePause();
             updateZikFileStateInDB(false);
             focus.abandon();
             sleepTimer.stop();
@@ -971,7 +1031,6 @@ public class AudioService extends LoggingService {
             broadcastUiState();
         }
     }
-
 
     public void playPauseAudio() {
         myLog("playPauseAudio()");
@@ -1147,7 +1206,7 @@ public class AudioService extends LoggingService {
      */
 
 
-    private void mediaPlayerPause() {
+    private void enginePause() {
         myLogD("mediaPlayerPause()");
         if (engine != null) engine.pause();
         media.updateState(PlaybackStateCompat.STATE_PAUSED,
@@ -1181,34 +1240,13 @@ public class AudioService extends LoggingService {
         }
     }
 
-    private void killService() {
-        myLogI("killService()");
-        broadcastUiCleared();
-        isRunning = false;
-        sleepTimer.stop();
-
-        if (engine != null) {
-            try {
-                if (engine instanceof TtsEngine) ((TtsEngine) engine).release();
-                engine.stop();
-            } catch (Exception ignored) {}
-        }
-
-        focus.abandon();
-        notif.cancel(ID_NOTIFICATION_PLAY_AUDIO_INT);
-        stopForeground(true);
-        stopSelf();
-    }
 
     private void loadFileKO() {
         myLog("loadFileKO");
         LocalBroadcastManager.getInstance(AudioService.this)
                 .sendBroadcast(new Intent(NOTIFICATION_FILENOTFOUND));
         ErrorLoadingFile = true;
-        broadcastUiCleared();
-        notif.cancel(ID_NOTIFICATION_PLAY_AUDIO_INT);
-        stopForeground(true);
-        stopSelf();
+        shutdown(false);
     }
 
     private void onEnginePrepared() {
@@ -1266,9 +1304,7 @@ public class AudioService extends LoggingService {
             if (PlayList.getInstance().isLastTrack()) {
                 if (Option.getBeepBookEnd()) playBeep("3beeps");
                 alertPlaylistFinished();
-                sleepTimer.stop();
-                Pref.setPauseTime();
-                broadcastUiState();
+                shutdown(false);
             } else {
                 nextTrack();
             }

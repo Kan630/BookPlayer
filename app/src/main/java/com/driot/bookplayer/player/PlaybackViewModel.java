@@ -176,11 +176,8 @@ public class PlaybackViewModel extends AndroidViewModel {
 
         // Let the service do the real work regardless of binding.
         Context app = getApplication();
-        Intent cmd = new Intent(app, AudioService.class)
-                .setAction(AudioService.ACTION_CMD)
-                .putExtra(AudioService.EXTRA_CMD, AudioService.CMD_STOP);
         try {
-            androidx.core.content.ContextCompat.startForegroundService(app, cmd);
+            ContextCompat.startForegroundService(app, new Intent(app, AudioService.class).setAction("CMD_STOP"));
         } catch (Throwable ignored) {}
         // Do NOT post empty state; wait for ACTION_UI_STATE from service.
     }

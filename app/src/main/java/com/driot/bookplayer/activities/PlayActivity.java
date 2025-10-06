@@ -242,12 +242,15 @@ public class PlayActivity extends LoggingActivity {
             } else if (Objects.equals(action, AudioService.NOTIFICATION_FILENOTFOUND)) {
                 finishAndShowFatalError(null);
 
+            } else if (Objects.equals(action, AudioService.NOTIFICATION_TRACKFINISHED)) {
+                myLogD("nothing special to do for that broadcast");
+
             } else if (Objects.equals(action, AudioService.NOTIFICATION_PLAYLISTFINISHED)) {
-                Toast.makeText(getApplicationContext(), R.string.notification_playlist_finished, Toast.LENGTH_SHORT).show();
+                myToast(getString(R.string.notification_playlist_finished));
                 finish();
 
             } else if (Objects.equals(action, AudioService.NOTIFICATION_PLAYBACK_MAXTIMEREACH)) {
-                Toast.makeText(getApplicationContext(), R.string.notification_auto_sleep, Toast.LENGTH_SHORT).show();
+                myToast(getString(R.string.notification_auto_sleep));
                 finish();
 
             } else if (Objects.equals(action, AudioService.NOTIFICATION_PLAYBACK_TIMER_VALUE)) {
@@ -287,7 +290,8 @@ public class PlayActivity extends LoggingActivity {
         PlayList playList = PlayList.getInstance();
         if (playList == null) {
             myLogEE(null, "onCreate() -- cancelling since PlayList.getInstance() == null");
-            finishAndShowFatalError(null);
+            //finishAndShowFatalError(null);
+            finish();
             return;
         }
 
@@ -466,9 +470,11 @@ public class PlayActivity extends LoggingActivity {
         });
 
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
-            @Override
-            public void handleOnBackPressed() {
+            @Override public void handleOnBackPressed() {
                 myLogI("--- USER CLICK BACK --- (system button)");
+                if (audioService != null && !audioService.isPlaying()) {
+                    startService(new Intent(getApplicationContext(), AudioService.class).setAction("CMD_STOP"));
+                }
                 finish();
             }
         });

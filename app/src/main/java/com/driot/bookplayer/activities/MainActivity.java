@@ -150,10 +150,7 @@
                 public void handleOnBackPressed() {
                     myLogI("--- USER CLICK BACK from MAIN --- (system button)");
                     if (Option.getStopAudioIfUserClosesApp()) {
-                        Intent i = new Intent(MainActivity.this, AudioService.class)
-                                .setAction(AudioService.ACTION_CMD)
-                                .putExtra(AudioService.EXTRA_CMD, AudioService.CMD_STOP);
-                        startService(i);
+                        startService(new Intent(MainActivity.this, AudioService.class).setAction("CMD_STOP"));
                     }
                     finish();
                 }

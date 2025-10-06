@@ -511,7 +511,7 @@ public class CarMediaService extends MediaBrowserServiceCompat {
     private void sendCmd(String action) {
         myLog("sendCmd : " + action);
         FirebaseAnalyticsHelper.tellCarSendCmd(action);
-        androidx.core.content.ContextCompat.startForegroundService(
+        ContextCompat.startForegroundService(
                 this, new Intent(this, AudioService.class).setAction(action)
         );
     }
