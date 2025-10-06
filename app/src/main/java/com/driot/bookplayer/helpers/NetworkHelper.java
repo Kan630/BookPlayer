@@ -10,17 +10,23 @@ import android.security.NetworkSecurityPolicy;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
+import androidx.annotation.Nullable;
+
 import com.driot.bookplayer.global.Option;
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.UnknownServiceException;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Locale;
+import java.util.Set;
 
 public class NetworkHelper {
-
-    // ---------- Logging ----------
 
     public static void logCurrentNetworkState(Context context) {
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -109,8 +115,6 @@ public class NetworkHelper {
 
     /** True if active network is unmetered (Wi-Fi/Ethernet/etc.). Conservative default = false. */
     public static boolean isUnmeteredConnected(Context context) {
-        return false;
-        /*
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         if (cm == null) return false;
         Network active = cm.getActiveNetwork();
@@ -120,8 +124,6 @@ public class NetworkHelper {
                 && caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
                 && caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
                 && caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED);
-
-         */
     }
 
     /** True if active transport is Wi-Fi (does not imply unmetered). */
@@ -224,4 +226,132 @@ public class NetworkHelper {
             return null;
         }
     }
+
+
+    // -----------------------------------------------------
+    // ---- Getting images covers from URLs ----
+    // -----------------------------------------------------
+    private static final int GET_IMAGE_CONNECT_TIMEOUT_MS = 12_000;
+    private static final int GET_IMAGE_READ_TIMEOUT_MS = 20_000;
+    private static final int GET_IMAGE_MAX_REDIRECTS = 5;
+    private static final long GET_IMAGE_MAX_DOWNLOAD_BYTES = 15L * 1024L * 1024L; // 15 MB
+    private static final Set<String> GET_IMAGE_ALLOWED_MIME_PREFIXES = new HashSet<>(Arrays.asList(
+            "image/", "application/octet-stream" // some servers lie; allow, but verify decode later
+    ));
+    // ---- Public one-liner your ImageHelper will call ----
+    public static @Nullable byte[] fetchBytesWithHttpsFallbackForImage(String startUrl) {
+        // Try as-is
+        byte[] data = fetchImageBytesWithRedirects(startUrl);
+        if (data != null) return data;
+
+        // If http or we hit a cleartext error, try upgrading once to https
+        if (shouldAttemptHttpsUpgrade(startUrl)) {
+            String https = upgradeToHttps(startUrl);
+            if (https != null) {
+                myLogD("NetworkHelper: retrying over HTTPS: " + https);
+                return fetchImageBytesWithRedirects(https);
+            }
+        }
+        return null;
+    }
+    // ---- Core fetcher with redirects/size cap/timeouts/content-type sanity ----
+    private static @Nullable byte[] fetchImageBytesWithRedirects(String startUrl) {
+        String url = startUrl;
+        for (int i = 0; i <= GET_IMAGE_MAX_REDIRECTS; i++) {
+            HttpURLConnection conn = null;
+            InputStream in = null;
+            try {
+                URL u = new URL(url);
+                conn = (HttpURLConnection) u.openConnection();
+                conn.setInstanceFollowRedirects(false); // manual
+                conn.setConnectTimeout(GET_IMAGE_CONNECT_TIMEOUT_MS);
+                conn.setReadTimeout(GET_IMAGE_READ_TIMEOUT_MS);
+                conn.setUseCaches(false);
+                conn.setRequestProperty("User-Agent", "BookPlayer/1.0 (Android)");
+                conn.setRequestProperty("Accept-Encoding", "identity");
+
+                int code = conn.getResponseCode();
+                if (isRedirect(code)) {
+                    String loc = conn.getHeaderField("Location");
+                    if (loc == null || loc.isEmpty()) {
+                        myLogEE(null, "Redirect without Location from: " + url);
+                        return null;
+                    }
+                    url = new URL(u, loc).toString();
+                    continue;
+                }
+
+                if (code != HttpURLConnection.HTTP_OK) {
+                    myLogEE(null, "HTTP " + code + " for: " + url);
+                    return null;
+                }
+
+                String ctype = conn.getContentType();
+                if (ctype != null) {
+                    String low = ctype.toLowerCase(Locale.US);
+                    boolean ok = false;
+                    for (String p : GET_IMAGE_ALLOWED_MIME_PREFIXES) {
+                        if (low.startsWith(p)) { ok = true; break; }
+                    }
+                    if (!ok) {
+                        myLogEE(null, "Unexpected content-type '" + ctype + "' for: " + url);
+                        return null;
+                    }
+                }
+
+                long declared = conn.getContentLengthLong();
+                if (declared > 0 && declared > GET_IMAGE_MAX_DOWNLOAD_BYTES) {
+                    myLogEE(null, "Image too large (" + declared + " bytes) for: " + url);
+                    return null;
+                }
+
+                in = new BufferedInputStream(conn.getInputStream());
+                return readAllWithCap(in, GET_IMAGE_MAX_DOWNLOAD_BYTES);
+
+            } catch (Throwable t) {
+                // Let caller try HTTPS on cleartext errors
+                if (isCleartextNotPermitted(t)) {
+                    myLogD("Cleartext blocked for: " + url);
+                    return null;
+                }
+                myLogEE(t, "fetch failed for: " + url);
+                return null;
+            } finally {
+                try { if (in != null) in.close(); } catch (Exception ignored) {}
+                if (conn != null) conn.disconnect();
+            }
+        }
+        myLogEE(null, "Too many redirects for: " + startUrl);
+        return null;
+    }
+
+    private static boolean isRedirect(int code) {
+        return code == HttpURLConnection.HTTP_MOVED_PERM
+                || code == HttpURLConnection.HTTP_MOVED_TEMP
+                || code == HttpURLConnection.HTTP_SEE_OTHER
+                || code == 307 || code == 308;
+    }
+
+    private static @Nullable byte[] readAllWithCap(InputStream in, long capBytes) throws IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        byte[] buf = new byte[8192];
+        long total = 0;
+        int n;
+        while ((n = in.read(buf)) != -1) {
+            total += n;
+            if (total > capBytes) {
+                myLogEE(null, "Aborting download: exceeded cap of " + capBytes + " bytes");
+                return null;
+            }
+            out.write(buf, 0, n);
+        }
+        return out.toByteArray();
+    }
+
+    // ---- Small helpers reused above ----
+    private static boolean shouldAttemptHttpsUpgrade(String url) {
+        try { return "http".equalsIgnoreCase(new URL(url).getProtocol()); }
+        catch (Exception ignored) { return false; }
+    }
+
 }

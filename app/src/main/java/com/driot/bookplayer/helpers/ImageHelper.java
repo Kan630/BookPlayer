@@ -49,20 +49,15 @@ public class ImageHelper {
     //TODO ASYNC...
     private static String downloadAndMaybeCompressImage(Context context, String imageUrl, String imagePath, boolean isCached) {
         try {
-            URL url = new URL(imageUrl);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.connect();
+            byte[] imageBytes = NetworkHelper.fetchBytesWithHttpsFallbackForImage(imageUrl);
+            if (imageBytes == null) return null;
 
-            InputStream in = connection.getInputStream();
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            byte[] buffer = new byte[8192];
-            int len;
-            while ((len = in.read(buffer)) != -1) {
-                out.write(buffer, 0, len);
+            // Optional but recommended: ensure it’s actually an image (prevents saving HTML error pages)
+            if (!isLikelyImage(imageBytes)) {
+                myLogE("Not an image (decode failed): " + imageUrl);
+                return null;
             }
-            in.close();
 
-            byte[] imageBytes = out.toByteArray();
             return compressAndSaveImage(context, imageBytes, imagePath, isCached);
 
         } catch (Throwable t) {
@@ -613,4 +608,14 @@ public class ImageHelper {
         return dst.getAbsolutePath();
     }
 
+    private static boolean isLikelyImage(byte[] bytes) {
+        try {
+            BitmapFactory.Options o = new BitmapFactory.Options();
+            o.inJustDecodeBounds = true;
+            BitmapFactory.decodeByteArray(bytes, 0, bytes.length, o);
+            return o.outWidth > 0 && o.outHeight > 0;
+        } catch (Throwable ignored) {
+            return false;
+        }
+    }
 }
