@@ -8,6 +8,7 @@ import android.content.pm.ResolveInfo;
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -56,6 +57,7 @@ public class AdminActivity extends LoggingActivity {
                 myLogD("-----------------");
             }).start();
         });
+
         findViewById(R.id.bFlushSQL).setOnClickListener(v -> {
             new Thread(() -> {
                 Sql.log_all_Folders(this);
@@ -63,9 +65,14 @@ public class AdminActivity extends LoggingActivity {
             }).start();
         });
 
+        findViewById(R.id.bCrash).setOnClickListener(v -> {
+            String crashText = ((EditText) findViewById(R.id.etCrashText)).getText().toString();
+            throw new RuntimeException(crashText); // Force a crash
+                });
+
+//auto stuff
         btnContainer = findViewById(R.id.btnContainer);
         listActivities = findViewById(R.id.listActivities);
-
         addDynamicButtons();
         populateLaunchableActivitiesList();
     }

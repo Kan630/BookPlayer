@@ -18,6 +18,27 @@
         android:layout_height="wrap_content"
         android:text="Flush to log : SQL"/>
 
+    <View style="@style/GetResourceHorizontalBar" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+        <Button
+            android:id="@+id/bCrash"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Crash"/>
+        <EditText
+            android:id="@+id/etCrashText"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:layout_marginStart="10dp"
+            android:text="Test Crash"/>
+    </LinearLayout>
+    <View style="@style/GetResourceHorizontalBar" />
+
 <!-- Center section for dynamic buttons -->
 <LinearLayout
     android:id="@+id/btnContainerWrapper"
