@@ -426,7 +426,7 @@
     <string name="Import_Experimental_M4B_iferror">If you encounter errors</string>
     <string name="Import_Experimental_M4B_solution_1">Uncheck the [split m4b] option.</string>
     <string name="Import_Experimental_M4B_solution_2"><i>You could also use a third party tool to first convert that m4b file into a folder of mp3 files, and then import that folder into Bookplayer.</i></string>
-    <string name="Import_Progress_splitting_m4b_files">"Splitting m4b files"</string>
+    <string name="Import_Progress_splitting_m4b_files">"Splitting m4b files into chapters"</string>
     <string name="Import_Progress_splitting_m4b_file">"splitting m4b file : "</string>
 
     <string name="error_could_not_check_hash">Error while checking if this audiobook has already been imported</string>

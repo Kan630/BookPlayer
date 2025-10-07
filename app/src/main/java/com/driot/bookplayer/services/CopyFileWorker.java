@@ -186,13 +186,30 @@ public class CopyFileWorker extends LoggingWorker {
 
     private boolean copyFolder(Uri uri, String destinationFolderPath) {
         try {
-            copyFolderRecursive(context, uri, new File(destinationFolderPath), ONLY_MIME_AUDIO, SUPPORTED_AUDIO_EXTENSIONS, SUPPORTED_COVER_PICTURE_EXTENSIONS);
+            // Uniform wrapper for content:// (tree/single) and file:// paths
+            androidx.documentfile.provider.DocumentFile root =
+                    com.driot.bookplayer.helpers.UriHelper.getDocumentFileFromAnyUri(context, uri);
+
+            if (root == null || !root.exists() || !root.isDirectory()) {
+                TaskStateManager.markTaskFailed(TASK_NAME, "Invalid URI: " + uri);
+                return false;
+            }
+
+            File dest = new File(destinationFolderPath);
+            if (!dest.exists() && !dest.mkdirs()) {
+                TaskStateManager.markTaskFailed(TASK_NAME,
+                        context.getString(R.string.failed_to_create_destination_folder) + " - [" + dest.getAbsolutePath() + "]");
+                return false;
+            }
+
+            copyFolderRecursiveDoc(root, dest, ONLY_MIME_AUDIO, SUPPORTED_AUDIO_EXTENSIONS, SUPPORTED_COVER_PICTURE_EXTENSIONS);
+            return !hasBeenCancelled && nbFileCopied > 0; // keep your success criteria
         } catch (Exception e) {
             TaskStateManager.markTaskFailed(TASK_NAME, e.getMessage());
             return false;
         }
-        return true;
     }
+
     
     private void copyFolderRecursive(Context context, Uri sourceUri, File destinationFolder
             , String onlyMime, Set<String> onlyAudioExtensions, Set<String> onlyImageExtensions
@@ -310,6 +327,94 @@ public class CopyFileWorker extends LoggingWorker {
             return false;
         }
     }
+
+    private void copyFolderRecursiveDoc(androidx.documentfile.provider.DocumentFile src,
+                                        File destinationFolder,
+                                        String onlyMime,
+                                        Set<String> onlyAudioExtensions,
+                                        Set<String> onlyImageExtensions) {
+        if (hasBeenCancelled) return;
+
+        if (!destinationFolder.exists() && !destinationFolder.mkdirs()) {
+            TaskStateManager.markTaskFailed(TASK_NAME,
+                    context.getString(R.string.failed_to_create_destination_folder) + " (recursive) - [" + destinationFolder.getAbsolutePath() + "]");
+            return;
+        } else {
+            myLogD("Folder created: " + destinationFolder.getAbsolutePath());
+        }
+
+        androidx.documentfile.provider.DocumentFile[] children = src.listFiles();
+        for (androidx.documentfile.provider.DocumentFile child : children) {
+            if (isStopped()) {
+                TaskStateManager.markTaskCancelled(TASK_NAME);
+                hasBeenCancelled = true;
+                return;
+            }
+            if (child.isDirectory()) {
+                File subDest = new File(destinationFolder, safeName(child.getName()));
+                myLogD("copyFolder - on folder -> recursive call");
+                copyFolderRecursiveDoc(child, subDest, onlyMime, onlyAudioExtensions, onlyImageExtensions);
+                nbFolder++;
+            } else if (child.isFile()) {
+                String name = safeName(child.getName());
+                String mime = child.getType(); // can be null
+                String ext  = com.driot.bookplayer.utils.Tonio.getExtension(name);
+
+                boolean doCopy = false;
+                boolean isPic = false;
+
+                if (onlyMime != null && !onlyMime.isEmpty() && mime != null && mime.startsWith(onlyMime)) {
+                    doCopy = true;
+                }
+                if (!onlyAudioExtensions.isEmpty() && onlyAudioExtensions.contains(ext)) {
+                    doCopy = true;
+                }
+                if (!onlyImageExtensions.isEmpty() && onlyImageExtensions.contains(ext) && nbPic < MAX_NB_PIC) {
+                    doCopy = true;
+                    isPic  = true;
+                }
+
+                if (doCopy) {
+                    File out = new File(destinationFolder, name);
+                    if (copyFileFromDoc(child, out)) {
+                        if (isPic) nbPic++; else nbFileCopied++;
+                    } else {
+                        if (!isPic) nbFileKO++;
+                    }
+                }
+            }
+        }
+    }
+    private boolean copyFileFromDoc(androidx.documentfile.provider.DocumentFile docFile, File destinationFile) {
+        myLogD("copyFileFromDoc() -> " + destinationFile.getParentFile().getAbsolutePath());
+        try (InputStream in = context.getContentResolver().openInputStream(docFile.getUri());
+             FileOutputStream out = new FileOutputStream(destinationFile)) {
+
+            if (in == null) throw new IllegalStateException("openInputStream returned null for: " + docFile.getUri());
+
+            byte[] buf = new byte[1024];
+            int len, nbBuffCopied = 0;
+            while ((len = in.read(buf)) > 0) {
+                if (isStopped()) {
+                    TaskStateManager.markTaskCancelled(TASK_NAME);
+                    hasBeenCancelled = true;
+                    return false;
+                }
+                out.write(buf, 0, len);
+                copiedSize += len;
+                if (nbBuffCopied % 1024 == 0) buildProgressString();
+                nbBuffCopied++;
+            }
+            return true;
+        } catch (Exception e) {
+            myLogEE(e, "copyFileFromDoc");
+            return false;
+        }
+    }
+    private String safeName(String n) {
+        return n == null ? "unnamed" : n;
+    }
+
 
     private void buildProgressString() {
         long progress = (int) ((copiedSize * 100) / totalSize);

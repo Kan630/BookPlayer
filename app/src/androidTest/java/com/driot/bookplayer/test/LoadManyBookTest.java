@@ -161,9 +161,10 @@ public class LoadManyBookTest implements LogSupport {
                     if (DEBUG_MODE_NO_LOOP) return;
                 }
             }
+            logFinalMessage.append("\n--------------------------");
 
         }
-        myLogI(logFinalMessage.append("\n--------------------------\n--------------------------").toString());
+        myLogI(logFinalMessage.append("\n--------------------------").toString());
         TestNavUtils.sleep(TIMEOUT_TEST_END);
     }
 
@@ -264,7 +265,7 @@ public class LoadManyBookTest implements LogSupport {
                 if (TestNavUtils.isOn(AddResourceActivity.class) && TestNavUtils.isTextVisible("EXIT")) {
                     TestNavUtils.logCurrentActivity();
                     onView(withText("EXIT")).perform(click());
-                    myLogW("EXIT button clicked (legacy success path)");
+                    myLogW("EXIT button clicked (...some warnings displayed ?)");
                     done = true;
                     break;
                 }
