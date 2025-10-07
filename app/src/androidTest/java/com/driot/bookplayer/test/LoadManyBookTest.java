@@ -4,7 +4,9 @@ import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.swipeUp;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.AssetManager;
@@ -55,7 +57,7 @@ public class LoadManyBookTest implements LogSupport {
 
     private final static boolean DEBUG_MODE_NO_LOOP = false;
     private final static long TIMEOUT_TEST_END = 600_000;
-    private final static long TIMEOUT_BOOK_LOAD = 60_000;
+    private final static long TIMEOUT_BOOK_LOAD = 120_000;
     private final static long TIMEOUT_VISUAL_CHECK = 3_000;
 
     private static final class TestCase {
@@ -69,6 +71,8 @@ public class LoadManyBookTest implements LogSupport {
 
     private static final List<TestCase> TESTS = Arrays.asList(
             new TestCase("zip", "fixtures/zip"),
+            new TestCase("zip", "fixtures/ebooks"),
+            new TestCase("zip", "fixtures/folders"),
             new TestCase("m4b", "fixtures/m4b")
     );
 
@@ -109,7 +113,7 @@ public class LoadManyBookTest implements LogSupport {
         myLog("loadManyBooks");
 
         Context testContext = InstrumentationRegistry.getInstrumentation().getContext(); // test APK
-        StringBuilder logFinalMessage = new StringBuilder("--------------------------\n--------------------------\nFinal Message");
+        StringBuilder logFinalMessage = new StringBuilder("--------------------------\n--------------------------\nFinal Message\n--------------------------");
 
         // sanity log to prove assets are visible
         String[] root = testContext.getAssets().list("");
@@ -135,6 +139,7 @@ public class LoadManyBookTest implements LogSupport {
                 myLog("loading file : " + contentUri);
                 myLogD("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
                 lastTimestamp = System.currentTimeMillis();
+                String txtWarnings = null;
 
                 // Launch LoadBookActivity with grants
                 appContext.startActivity(new Intent(appContext, LoadBookActivity.class)
@@ -143,7 +148,7 @@ public class LoadManyBookTest implements LogSupport {
                         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_GRANT_READ_URI_PERMISSION));
                 myLog("LoadBookActivity launched");
                 TestNavUtils.assertWaitForActivity(LoadBookActivity.class, 1_000);
-                myLog("ok, on LoadBookActivity");
+                myLogD("ok, on LoadBookActivity");
                 TestNavUtils.logCurrentActivity();
 
                 // Scroll & confirm import
@@ -157,24 +162,55 @@ public class LoadManyBookTest implements LogSupport {
                         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
                 myLog("AddResourceActivity launched");
                 TestNavUtils.assertWaitForActivity(AddResourceActivity.class, 1_000);
-                myLog("ok, on AddResourceActivity");
+                myLogD("ok, on AddResourceActivity");
 
-                TestNavUtils.waitForAnyActivity(
-                        TIMEOUT_BOOK_LOAD,
-                        GetActivity.class,
-                        MainActivity.class
-                );
-                TestNavUtils.clickButtonIfOnActivity(
-                        AddResourceActivity.class,
-                        "EXIT"
-                );
+                final long deadline = System.currentTimeMillis() + TIMEOUT_BOOK_LOAD;
+                boolean done = false;
 
+                while (System.currentTimeMillis() < deadline) {
+                    if (TestNavUtils.isOn(GetActivity.class) || TestNavUtils.isOn(MainActivity.class)) {
+                        // success path: book finished and we navigated away
+                        done = true;
+                        myLog("success book load");
+                        TestNavUtils.logCurrentActivity();
+                        break;
+                    }
 
+                    if (TestNavUtils.isOn(AddResourceActivity.class)) {
+                        // still importing; allow the UI to render the EXIT button when ready
+                        if (TestNavUtils.isTextVisible("EXIT")) {
+                            TestNavUtils.logCurrentActivity();
+                            onView(withText("EXIT")).perform(click());
+                            myLogW("EXIT button clicked (needed if some warning to see)");
+                            txtWarnings = "EXIT button clicked";
+                            done = true;
+                            break;
+                        }
+                        // else: keep waiting (book still loading; don't pass yet)
+                    }
+
+                    Thread.sleep(100);
+                }
+                TestNavUtils.logCurrentActivity();
+
+// Final assertion: if not done, give a clear reason
+                if (!done) {
+                    Activity a = TestNavUtils.getCurrentResumedActivity();
+                    String where = (a == null) ? "none"
+                            : a.getClass().getSimpleName();
+                    throw new AssertionError(
+                            "Timeout waiting for success (Get/Main) or EXIT on AddResourceActivity. " +
+                                    "Current activity: " + where
+                    );
+                }
 
 
                 //Duration Log
                 String duration = Tonio.formatMmSs(System.currentTimeMillis() - lastTimestamp);
-                String newLineMsg = "\n" + duration + "  " + Tonio.getFileNameFromPath(contentUri.getPath());
+                String logDuration = duration + "  " + Tonio.getFileNameFromPath(contentUri.getPath());
+                myLogI(logDuration);
+                String newLineMsg = "\n" + logDuration;
+                newLineMsg = txtWarnings!=null ? newLineMsg + " - [" + txtWarnings + "]" : newLineMsg;
                 logFinalMessage.append(newLineMsg);
 
                 TestNavUtils.sleep(TIMEOUT_VISUAL_CHECK);

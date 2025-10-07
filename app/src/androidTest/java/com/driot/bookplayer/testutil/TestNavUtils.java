@@ -1,7 +1,6 @@
 package com.driot.bookplayer.testutil;
 
 import android.app.Activity;
-import android.util.Log;
 import android.view.View;
 import android.widget.ScrollView;
 
@@ -14,11 +13,14 @@ import androidx.test.runner.lifecycle.Stage;
 
 import java.util.Collection;
 
+import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
 
 import com.driot.bookplayer.Var;
-import com.driot.bookplayer.utils.KanLogger;
+import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 import org.hamcrest.Matcher;
 
@@ -37,6 +39,25 @@ public class TestNavUtils {
     public static void logCurrentActivity() {
         Activity a = getCurrentResumedActivity();
         myLog("Current Activity: " + (a != null ? a.getClass().getName() : "none"));
+    }
+
+    public static boolean isOn(Class<? extends Activity> clazz) {
+        Activity a = getCurrentResumedActivity();
+        myLogD("isOn? resumed=" + (a == null ? "none" : a.getClass().getSimpleName()));
+        return a != null && clazz.isAssignableFrom(a.getClass());
+    }
+
+    public static boolean isTextVisible(String text) {
+        // Only ask Espresso once the window is focused, or bail fast.
+        if (!waitForWindowFocus(2_000)) return false;
+
+        try {
+            onView(withText(text)).check(matches(isDisplayed()));
+            return true;
+        } catch (Exception e) {
+            // Covers NoMatchingViewException, AssertionError, PerformException, RootViewWithoutFocusException, etc.
+            return false;
+        }
     }
 
     public static boolean waitForActivity(Class<? extends Activity> target, long timeoutMs) {
@@ -192,8 +213,8 @@ public class TestNavUtils {
 
         if (target.isAssignableFrom(a.getClass())) {
             try {
-                Espresso.onView(ViewMatchers.withText(buttonText))
-                        .check(matches(ViewMatchers.isDisplayed()));
+                onView(withText(buttonText))
+                        .check(matches(isDisplayed()));
                 myLog("Verified button with text \"" + buttonText + "\" on " + a.getClass().getSimpleName());
             } catch (Exception e) {
                 throw new AssertionError("Button with text \"" + buttonText + "\" not found or not visible on "
@@ -215,8 +236,8 @@ public class TestNavUtils {
                     ", looking for button \"" + buttonText + "\"…");
 
             try {
-                Espresso.onView(ViewMatchers.withText(buttonText))
-                        .check(matches(ViewMatchers.isDisplayed()))
+                onView(withText(buttonText))
+                        .check(matches(isDisplayed()))
                         .perform(androidx.test.espresso.action.ViewActions.click());
 
                 myLog("Clicked button \"" + buttonText + "\" on " + a.getClass().getSimpleName());
@@ -230,14 +251,24 @@ public class TestNavUtils {
         }
     }
 
+    // Add this helper
+    public static boolean waitForWindowFocus(long timeoutMs) {
+        long end = System.currentTimeMillis() + timeoutMs;
+        final boolean[] hasFocus = new boolean[1];
 
-    // ----------------------- LOG -----------------------
-    private static final String TAG = "TestNavUtils";
-    // ----------------------- LOG -----------------------
-    private static void myLog(String str) { KanLogger.myLog(TAG, str); }
-    private static void myLogD(String str) { Log.d(TAG, str); }
-    private static void myLogI(String str) { KanLogger.myLogI(TAG, str); }
-    private static void myLogW(String str) { KanLogger.myLogW(TAG, str); }
-    private static void myLogE(String str) { KanLogger.myLogE(TAG, str); }
+        while (System.currentTimeMillis() < end) {
+            final Activity a = getCurrentResumedActivity();
+            if (a != null) {
+                getInstrumentation().runOnMainSync(() -> {
+                    View decor = a.getWindow() != null ? a.getWindow().getDecorView() : null;
+                    hasFocus[0] = (decor != null) && decor.hasWindowFocus();
+                });
+                if (hasFocus[0]) return true;
+            }
+            try { Thread.sleep(50); } catch (InterruptedException ignored) {}
+        }
+        return false;
+    }
+
 
 }
