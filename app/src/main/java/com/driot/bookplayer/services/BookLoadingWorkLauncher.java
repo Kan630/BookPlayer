@@ -19,6 +19,7 @@ import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.objects.LoadBookTaskState;
+import com.driot.bookplayer.objects.TaskStateManager;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
@@ -40,6 +41,7 @@ public class BookLoadingWorkLauncher {
 
         LoadBookTaskState bookState = Pref.getLoadBookTaskState();
         if (bookState == null) throw new IllegalStateException("No task bookState found in BookLoadingWorkLauncher");
+        TaskStateManager.tellStart();
 
         myLogD("....");
         myLogD("....");

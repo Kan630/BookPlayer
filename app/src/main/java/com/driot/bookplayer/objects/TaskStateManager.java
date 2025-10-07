@@ -11,7 +11,7 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
-import com.driot.bookplayer.utils.KanLogger;
+import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -191,7 +191,7 @@ public class TaskStateManager {
     public static void tellProgress(String taskName, int progress, String progressText) {
         int realProgress = getRealProgress(taskName, progress);
         TaskStateRepository.get().progress(realProgress, progressText);
-        checkTitle(taskName);
+        checkTitleStepInfo(taskName);
         LoadBookTaskState state = Pref.getLoadBookTaskState();
         if (state != null) {
             state.progressText = progressText;
@@ -297,18 +297,12 @@ public class TaskStateManager {
         return 0;
     }
 
-    private static void checkTitle(String taskName) {
-        StepInfo info = stepMap.get(taskName);
-        if (info != null && !info.label.equals(titleUI)) {
-            titleUI = info.label;
-            tellCurrentOperation(info.label);
+    private static void checkTitleStepInfo(String taskName) {
+        StepInfo stepInfo = stepMap.get(taskName);
+        if (stepInfo != null && !stepInfo.label.equals(titleUI)) {
+            myLogD("title UI set to " + stepInfo.label);
+            titleUI = stepInfo.label;
+            tellCurrentOperation(stepInfo.label);
         }
     }
-
-    private static final String TAG = "TaskStateManager";
-    private static void myLogD(String str) { KanLogger.myLogD(TAG, str); }
-    private static void myLogI(String str) { KanLogger.myLogI(TAG, str); }
-    private static void myLogW(String str) { KanLogger.myLogW(TAG, str); }
-    private static void myLogE(String str) { KanLogger.myLogE(TAG, str); }
-    private static void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, TAG, str); }
 }

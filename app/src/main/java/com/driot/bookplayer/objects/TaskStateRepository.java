@@ -8,16 +8,18 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.driot.bookplayer.global.Pref;
-import com.driot.bookplayer.utils.KanLogger;
+import com.driot.bookplayer.utils.log.LoggerHelper;
 
-public final class TaskStateRepository {
+public final class TaskStateRepository extends LoggerHelper {
 
     private static final TaskStateRepository INSTANCE = new TaskStateRepository();
     public static TaskStateRepository get() { return INSTANCE; }
 
     private final MutableLiveData<TaskUiState> live = new MutableLiveData<>(TaskUiState.idle());
 
-    private TaskStateRepository() { }
+    private TaskStateRepository() {
+        super(TaskStateRepository.class);
+    }
 
     public LiveData<TaskUiState> state() { return live; }
 
@@ -43,10 +45,14 @@ public final class TaskStateRepository {
                       boolean pauseAvailable,
                       boolean isLoadingPaused) {
 
+        /*
         TaskUiState cur  = s();
         TaskUiState base = cur.running
                 ? cur.forceRunningWithTitle(title)   // keeps progress, clears error
                 : TaskUiState.idle().started(title); // fresh
+
+         */
+        TaskUiState base = TaskUiState.idle().started(title);
 
         TaskUiState next = base
                 .setPauseAvailable(pauseAvailable)
@@ -57,7 +63,6 @@ public final class TaskStateRepository {
     }
 
     public void setCurrentOperation(@NonNull String op) {
-        // Change ONLY the progress text; never touch the percent here
         post(s().withProgressTextOnly(op));
     }
 
@@ -144,15 +149,5 @@ public final class TaskStateRepository {
     }
 
     private static String nonNull(String s) { return s == null ? "" : s; }
-
-
-
-
-    private static final String TAG = "TaskStateRepository";
-    private static void myLogD(String str) { KanLogger.myLogD(TAG, str); }
-    private static void myLogI(String str) { KanLogger.myLogI(TAG, str); }
-    private static void myLogW(String str) { KanLogger.myLogW(TAG, str); }
-    private static void myLogE(String str) { KanLogger.myLogE(TAG, str); }
-    private static void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, TAG, str); }
 
 }

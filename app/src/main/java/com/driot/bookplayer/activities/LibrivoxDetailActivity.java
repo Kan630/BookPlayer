@@ -409,7 +409,7 @@ public class LibrivoxDetailActivity extends LoggingActivity {
 
         setLoadBookTaskState(state);
 
-        TaskStateManager.tellStart();
+        //TaskStateManager.tellStart();
         BookLoadingWorkLauncher.launch(this);
         FirebaseAnalyticsHelper.tellLibrivoxDownload(state.title);
         startActivity(new Intent(this, AddResourceActivity.class));

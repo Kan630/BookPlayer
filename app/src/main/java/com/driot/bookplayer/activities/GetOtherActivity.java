@@ -239,7 +239,7 @@ public class GetOtherActivity extends LoggingActivity {
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
                     if (result.getResultCode() == Activity.RESULT_OK) {
-                        TaskStateManager.tellStart();
+                        //TaskStateManager.tellStart();
                         com.driot.bookplayer.services.BookLoadingWorkLauncher.launch(this);
                         startActivity(new Intent(this, AddResourceActivity.class));
                     }

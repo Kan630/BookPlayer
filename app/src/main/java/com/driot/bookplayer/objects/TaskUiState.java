@@ -3,9 +3,9 @@ package com.driot.bookplayer.objects;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.driot.bookplayer.utils.KanLogger;
+import com.driot.bookplayer.utils.log.LoggerHelper;
 
-public final class TaskUiState {
+public final class TaskUiState extends LoggerHelper {
     public final boolean running;
     public final boolean paused;
     public final boolean finished;
@@ -27,6 +27,7 @@ public final class TaskUiState {
                         int progressPercent,
                         @Nullable String warningText,
                         @Nullable String errorText) {
+        super(TaskUiState.class);
         this.running = running;
         this.paused = paused;
         this.finished = finished;
@@ -102,11 +103,4 @@ public final class TaskUiState {
     private static String nonNull(String s) { return s == null ? "" : s; }
     private static int clamp(int p) { return Math.max(0, Math.min(100, p)); }
 
-
-    private static final String TAG = "TaskUiState";
-    private static void myLogD(String str) { KanLogger.myLogD(TAG, str); }
-    private static void myLogI(String str) { KanLogger.myLogI(TAG, str); }
-    private static void myLogW(String str) { KanLogger.myLogW(TAG, str); }
-    private static void myLogE(String str) { KanLogger.myLogE(TAG, str); }
-    private static void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, TAG, str); }
 }

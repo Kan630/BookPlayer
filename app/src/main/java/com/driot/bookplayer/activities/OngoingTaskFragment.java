@@ -1,4 +1,3 @@
-// com/driot/bookplayer/activities/OngoingTaskFragment.java
 package com.driot.bookplayer.activities;
 
 import android.content.Intent;
@@ -9,10 +8,8 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import androidx.activity.ComponentActivity;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.driot.bookplayer.R;
@@ -67,10 +64,8 @@ public class OngoingTaskFragment extends LoggingFragment {
 
         vm.getProgressText().observe(getViewLifecycleOwner(), text -> {
             if (text == null || text.isEmpty()) {
-                //tvProgressText.setVisibility(View.GONE);
                 tvProgressText.setText("---");
             } else {
-                //tvProgressText.setVisibility(View.VISIBLE);
                 tvProgressText.setText(text);
             }
         });
