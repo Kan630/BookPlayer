@@ -102,6 +102,9 @@ public class LoadManyBookTest implements LogSupport {
         KanLogger.init(appContext);
         Option.setTechLog(true);
 
+        Option.setCopyFile(false);
+        Option.setUseSdCard(true);
+
         Configuration config = new Configuration.Builder()
                 .setMinimumLoggingLevel(Log.DEBUG)
                 .setExecutor(Executors.newSingleThreadExecutor()) //if not worker on main UI => not allowed...
@@ -142,7 +145,7 @@ public class LoadManyBookTest implements LogSupport {
         for (TestCase tc : TESTS) {
             List<String> assetFiles = listAssetFilesRecursively(testContext.getAssets(), tc.assetFolderPath); // <-- use testContext
             myLogD("--------------------------------------------------");
-            myLog(String.format("TestCase '%s' -> %d files", tc.uri_type, assetFiles.size()));
+            myLog(String.format("TestCase '%s'-'%s' -> %d files", tc.uri_type, tc.assetFolderPath, assetFiles.size()));
             myLogD("--------------------------------------------------");
             if ("Folder".equals(tc.uri_type)) {
                 // tc.assetFolderPath == "fixtures/folders/"
@@ -221,7 +224,7 @@ public class LoadManyBookTest implements LogSupport {
             myLog("LoadBookActivity launched");
             TestNavUtils.assertWaitForActivity(LoadBookActivity.class, 1_000, "arfff");
             myLogD("ok, on LoadBookActivity");
-            TestNavUtils.logCurrentActivity();
+            //TestNavUtils.logCurrentActivity();
 
             onView(withId(android.R.id.content)).perform(swipeUp());
             onView(withId(R.id.btnConfirm)).perform(click());
