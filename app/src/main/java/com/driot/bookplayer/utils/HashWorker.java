@@ -13,6 +13,7 @@ import androidx.work.WorkerParameters;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
+import com.driot.bookplayer.utils.log.LoggingWorker;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -23,7 +24,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
-public class HashWorker extends Worker {
+public class HashWorker extends LoggingWorker {
 
     public static final String WORKER_TAG_COMPUTE_HASH = "WORKER_TAG_COMPUTE_HASH";
     public static final int MAX_BYTES_TO_HASH_PER_FILE_BIG = 1024 * 1024; // 1 MB
@@ -149,78 +150,77 @@ public class HashWorker extends Worker {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             long totalStart = System.currentTimeMillis();
+
+            // shared counters across the whole operation
             long[] sumElapsed = new long[]{0};
-            int[] fileCount = new int[]{0};
+            int[]  fileCount  = new int[]{0};
+            int[]  fileIndex  = new int[]{0}; // drives BIG/SMALL tiering
 
             final String scheme = uri.getScheme();
             final String uriStr = uri.toString();
 
-            // 1) URLs: hash the string
+            // 1) http(s) → hash the string itself
             if (uriStr.startsWith("http://") || uriStr.startsWith("https://")) {
                 myLogD("Hashing URI string instead of content: " + uriStr);
                 digest.update(uriStr.getBytes(StandardCharsets.UTF_8));
                 return formatHash(digest.digest());
             }
 
-            // 2) Local file://
+            // 2) file://
             if ("file".equalsIgnoreCase(scheme)) {
                 File f = new File(uri.getPath());
                 if (f.isFile()) {
                     try (InputStream is = new FileInputStream(f)) {
-                        long start = System.currentTimeMillis();
-                        updateDigestFromStream(is, digest, MAX_BYTES_TO_HASH_PER_FILE_BIG);
-                        sumElapsed[0] += (System.currentTimeMillis() - start);
-                        fileCount[0]++;
+                        hashAndLog(is, digest, fileIndex, sumElapsed, fileCount, f.getName());
                     }
                     myLogD("---Nb of hashed file : " + fileCount[0] + " files.");
                     myLogD("---[Timing] " + sumElapsed[0] + " ms Cumulative hash time");
                     myLogD("---[Timing] " + (System.currentTimeMillis() - totalStart - sumElapsed[0]) + " ms other processes time");
                     return formatHash(digest.digest());
+                } else if (f.isDirectory()) {
+                    computeFolderHashRecursiveFs(f, digest, sumElapsed, fileCount, fileIndex);
+                    myLogD("---Nb of hashed file : " + fileCount[0] + " files.");
+                    myLogD("---[Timing] " + sumElapsed[0] + " ms Cumulative hash time");
+                    myLogD("---[Timing] " + (System.currentTimeMillis() - totalStart - sumElapsed[0]) + " ms other processes time");
+                    return formatHash(digest.digest());
                 } else {
-                    throw new IllegalArgumentException("file:// is not a regular file: " + uri);
+                    throw new IllegalArgumentException("file:// is neither regular file nor directory: " + uri);
                 }
             }
 
             // 3) content://
             if ("content".equalsIgnoreCase(scheme)) {
-                // 3a) If it's a SAF Document or Tree URI → use DocumentFile
-                boolean isDoc = false;
-                try { isDoc = DocumentsContract.isDocumentUri(context, uri); } catch (Exception ignore) {}
-                boolean isTree = false;
-                try { isTree = DocumentsContract.isTreeUri(uri); } catch (Exception ignore) {}
+                boolean isDoc = false, isTree = false;
+                try { isDoc  = DocumentsContract.isDocumentUri(context, uri); } catch (Exception ignore) {}
+                try { isTree = DocumentsContract.isTreeUri(uri); }           catch (Exception ignore) {}
 
                 if (isTree) {
                     DocumentFile tree = DocumentFile.fromTreeUri(context, uri);
                     if (tree != null && tree.isDirectory()) {
-                        int[] fileIndex = new int[]{0};
                         computeFolderHashRecursive(tree, digest,
-                                /*cutPrefixLen*/ (uri.getPath() != null ? uri.getPath().length() : 0),
+                                /*rootPathLen*/ (uri.getPath() != null ? uri.getPath().length() : 0),
                                 sumElapsed, fileCount, fileIndex);
                     } else {
                         throw new IllegalArgumentException("Tree URI is not a directory: " + uri);
                     }
                 } else if (isDoc) {
                     DocumentFile doc = DocumentFile.fromSingleUri(context, uri);
-                    if (doc.isFile()) {
-                        try (InputStream is = context.getContentResolver().openInputStream(uri)) {
-                            long start = System.currentTimeMillis();
-                            if (is != null) updateDigestFromStream(is, digest, MAX_BYTES_TO_HASH_PER_FILE_BIG);
-                            sumElapsed[0] += (System.currentTimeMillis() - start);
-                            fileCount[0]++;
+                    if (doc != null && doc.isFile()) {
+                        try (InputStream is = context.getContentResolver().openInputStream(doc.getUri())) {
+                            if (is != null) {
+                                hashAndLog(is, digest, fileIndex, sumElapsed, fileCount, doc.getName());
+                            }
                         }
                     } else {
-                        throw new IllegalArgumentException("Document URI is not a file: " + uri);
+                        throw new IllegalArgumentException("Document URI is not a file (or null): " + uri);
                     }
                 } else {
-                    // 3b) Generic content URI (e.g., Xiaomi file explorer, gallery, cloud apps)
-                    // We cannot traverse folders; treat as a single stream if readable.
+                    // Non-DocumentProvider content:// → treat as a single readable stream
                     myLogD("Generic content URI (non-DocumentProvider). Hashing via openInputStream.");
                     try (InputStream is = context.getContentResolver().openInputStream(uri)) {
                         if (is == null) throw new IllegalArgumentException("openInputStream returned null for: " + uri);
-                        long start = System.currentTimeMillis();
-                        updateDigestFromStream(is, digest, MAX_BYTES_TO_HASH_PER_FILE_BIG);
-                        sumElapsed[0] += (System.currentTimeMillis() - start);
-                        fileCount[0]++;
+                        // still go through hashAndLog to respect BIG/SMALL tiering & counters
+                        hashAndLog(is, digest, fileIndex, sumElapsed, fileCount, "content");
                     }
                 }
 
@@ -262,33 +262,80 @@ public class HashWorker extends Worker {
             DocumentFile file = files[indices[i]];
 
             if (file.isFile()) {
-                long startTime = System.currentTimeMillis();
-                int bytesRead = 0;
-                String type;
-                try (InputStream is = getApplicationContext().getContentResolver().openInputStream(file.getUri())) {
+                try (InputStream is = getApplicationContext()
+                        .getContentResolver().openInputStream(file.getUri())) {
                     if (is != null) {
-                        if (fileIndex[0] < COUNT_FILE_BIG_HASH) {
-                            type = "BIG";
-                            bytesRead = updateDigestFromStream(is, digest, MAX_BYTES_TO_HASH_PER_FILE_BIG);
-                        } else {
-                            type = "SMALL";
-                            bytesRead = updateDigestFromStream(is, digest, MAX_BYTES_TO_HASH_PER_FILE_SMALL);
-                        }
-                    } else continue;
+                        hashAndLog(is, digest, fileIndex, sumElapsed, fileCount, file.getName());
+                    }
                 } catch (Exception e) {
                     myLogEE(e, "While hashing file: " + file.getName());
-                    continue;
                 }
-                long elapsed = System.currentTimeMillis() - startTime;
-                sumElapsed[0] += elapsed;
-                fileCount[0]++;
-                myLogD(elapsed + " ms to hash - HashType = " + type + " - Read = " + Tonio.getReadableSize(bytesRead) + " - " + file.getName());
-                fileIndex[0]++;
             } else if (file.isDirectory()) {
                 computeFolderHashRecursive(file, digest, rootPathLen, sumElapsed, fileCount, fileIndex);
             }
+
         }
     }
+
+    /**
+     * Recursively hash first N files (COUNT_FILE_BIG_HASH then COUNT_FILE_SMALL_HASH) in a file:// folder tree.
+     */
+    private void computeFolderHashRecursiveFs(File folder,
+                                              MessageDigest digest,
+                                              long[] sumElapsed,
+                                              int[] fileCount,
+                                              int[] fileIndex) {
+        if (fileIndex[0] >= COUNT_FILE_BIG_HASH + COUNT_FILE_SMALL_HASH) return;
+        if (folder == null || !folder.exists() || !folder.isDirectory()) return;
+
+        File[] files = folder.listFiles();
+        if (files == null || files.length == 0) return;
+
+        // Sort by name, case-insensitive, nulls first (parity with SAF sorting)
+        Arrays.sort(files, Comparator.comparing(
+                (File f) -> f.getName() == null ? "" : f.getName(),
+                Comparator.nullsFirst(String::compareToIgnoreCase)));
+
+        for (File f : files) {
+            if (fileIndex[0] >= COUNT_FILE_BIG_HASH + COUNT_FILE_SMALL_HASH) return;
+
+            if (f.isFile()) {
+                try (InputStream is = new FileInputStream(f)) {
+                    hashAndLog(is, digest, fileIndex, sumElapsed, fileCount, f.getName());
+                } catch (Exception e) {
+                    myLogEE(e, "While hashing file: " + f.getAbsolutePath());
+                }
+            } else if (f.isDirectory()) {
+                computeFolderHashRecursiveFs(f, digest, sumElapsed, fileCount, fileIndex);
+            }
+        }
+    }
+
+    /** Hash a single file stream with tiering (BIG then SMALL), update counters, and log. */
+    private void hashAndLog(InputStream is,
+                            MessageDigest digest,
+                            int[] fileIndex,      // shared across the whole traversal
+                            long[] sumElapsed,    // accumulates hashing time
+                            int[] fileCount,      // number of files actually hashed
+                            String displayName) throws Exception {
+
+        final boolean bigTier = fileIndex[0] < COUNT_FILE_BIG_HASH;
+        final int maxBytes = bigTier ? MAX_BYTES_TO_HASH_PER_FILE_BIG : MAX_BYTES_TO_HASH_PER_FILE_SMALL;
+        final String type = bigTier ? "BIG" : "SMALL";
+
+        long start = System.currentTimeMillis();
+        int bytesRead = updateDigestFromStream(is, digest, maxBytes);
+        long elapsed = System.currentTimeMillis() - start;
+
+        sumElapsed[0] += elapsed;
+        fileCount[0]++;
+        fileIndex[0]++;
+
+        myLogD(elapsed + " ms to hash - HashType = " + type +
+                " - Read = " + Tonio.getReadableSize(bytesRead) +
+                " - " + (displayName != null ? displayName : "(unnamed)"));
+    }
+
 
     private String formatHash(byte[] hashBytes) {
         StringBuilder sb = new StringBuilder();
@@ -296,17 +343,5 @@ public class HashWorker extends Worker {
         return sb.toString();
     }
 
-    private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
-    private void myLogInFile(String str) { KanLogger.myLogInFile(this.getClass().getName(), str); }
-    private void myLogD(String str) { KanLogger.myLogD(this.getClass().getName(), str); }
-    private void myLogI(String str) { KanLogger.myLogI(this.getClass().getName(), str); }
-    private void myLogW(String str) { KanLogger.myLogW(this.getClass().getName(), str); }
-    private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
-    private void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, this.getClass().getName(), str); }
-    private void myToast(String str) { KanLogger.myToast(this.getClass().getName(), str); }
-    private void myToastE(String str) { KanLogger.myToastE(this.getClass().getName(), str); }
-    private void myKeyFirebase(String strKey, String strValue) {
-        FirebaseAnalyticsHelper.setCustomKeyCrashlytics(strKey, strValue);}
-    private void myLogFirebase(String strLog) {
-        FirebaseAnalyticsHelper.logCrashlytics(strLog);}
+
 }

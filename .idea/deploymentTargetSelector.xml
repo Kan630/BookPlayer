@@ -55,7 +55,7 @@
       </SelectionState>
       <SelectionState runConfigName="LoadManyBookTest">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2025-10-07T06:07:41.353811500Z">
+        <DropdownSelection timestamp="2025-10-07T15:04:33.572874100Z">
           <Target type="DEFAULT_BOOT">
             <handle>
               <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\adrio\.android\avd\Medium_Tablet.avd" />

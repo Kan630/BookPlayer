@@ -276,6 +276,7 @@ public class CarMediaService extends MediaBrowserServiceCompat {
     @Override
     public void onLoadChildren(@NonNull String parentId,
                                @NonNull Result<List<MediaBrowserCompat.MediaItem>> result) {
+        myLogI("------------ OnChildren ------------");
         FirebaseAnalyticsHelper.tellCarOnChildren();
         // Chargements DB → thread bg
         result.detach();

@@ -104,7 +104,7 @@ public class CopyFileWorker extends LoggingWorker {
                 "\n.    destination Location = [" + destinationLocation.toString() + "]"
         );
 
-        if (checkSize && !doCheckSize(uri, forceSize, type)) {
+        if (!isSizeOk(type)) {
             TaskStateManager.markTaskFailed(TASK_NAME, context.getString(R.string.Not_enough_memory));
             return Result.failure();
         }
@@ -339,11 +339,15 @@ public class CopyFileWorker extends LoggingWorker {
         }
     }
 
-    private boolean doCheckSize(Uri uri, long forceSize, String type) {
+    private boolean isSizeOk(String type) {
         try {
-            totalSize = forceSize < 0 ? UriHelper.getSize(context, uri) : forceSize;
-            long size_check_inflate_coefficient = "ZIP".equals(type) ? ZIP_SIZE_MAX_COEF : 1;
-
+            long size_check_inflate_coefficient = 1;
+            if ("ZIP".equalsIgnoreCase(type)) {
+                size_check_inflate_coefficient = ZIP_SIZE_MAX_COEF;
+            //TODO the rest
+            } else if ("M4B".equalsIgnoreCase(type)) {
+                size_check_inflate_coefficient = ZIP_SIZE_MAX_COEF;
+            }
             if (totalSize > 0 && totalSize * size_check_inflate_coefficient > availableMemory) {
                 return false;
             }
@@ -352,5 +356,4 @@ public class CopyFileWorker extends LoggingWorker {
         }
         return true;
     }
-
 }

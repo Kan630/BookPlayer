@@ -40,7 +40,10 @@ public class UriHelper {
         //content://com.android.providers.downloads.documents/document/msf%3A1000016621
         //content://com.android.externalstorage.documents/document/primary%3AAudiobooks%2FFrom%20Blood%20and%20Ash%20%231%20(2%20of%202)%20.mp3
         //content://com.android.externalstorage.documents/document/primary%3AMusic%2FTelegram%2FPrison%20Healer%20(Tome%201)%20-%20Lynette%20Noni.mp3
-        if (uri == null) return null;
+        if (uri == null) {
+            myLogEE(null, "getDocumentFileFromAnyUri: null passed as uri argument");
+            return null;
+        }
 
         try {
             final String scheme = uri.getScheme();
@@ -153,50 +156,86 @@ public class UriHelper {
                 return getFileSize(context, uri);
             }
         }
-        // Fallback when DocumentFile doesn't work like on [content://media/external/file/1000000103] (MediaStore)
-        myLogW("getSize: Falling back to manual check");
-        if (isFolder(context, uri)) {
-            return getFolderSize(context, uri, 0);
-        } else {
-            return getFileSize(context, uri);
+        // Fallbacks:
+        if ("file".equalsIgnoreCase(uri.getScheme()) || uri.getScheme() == null) {
+            File f = new File(uri.getPath() != null ? uri.getPath() : uri.toString());
+            return f.isDirectory() ? getFolderSizeFs(f, 0) : f.length();
         }
+        return getFileSize(context, uri);
+
     }
 
-    private static long getFolderSize(Context context, Uri uri, int recursiveStep) {
-        if (recursiveStep > MAX_RECURSION_DEPTH) {
+    // --- Public dispatcher (keeps your signature) ---
+    private static long getFolderSize(Context context, Uri uri, int step) {
+        if (step > MAX_RECURSION_DEPTH) {
             myLogW("getFolderSize: Max recursion depth reached");
             return 0;
         }
-        myLog("calculateFolderSize()" + (recursiveStep>0 ? " - step " + recursiveStep : "") + " - " + uri);
-        long totalSize = 0;
-        ContentResolver contentResolver = context.getContentResolver();
-        Uri childrenUri;
-        try {
-            //for children and sub child dirs
-            childrenUri = DocumentsContract.buildChildDocumentsUriUsingTree(uri, DocumentsContract.getDocumentId(uri));
-        } catch (Exception e) {
-            //for parent dir
-            childrenUri = DocumentsContract.buildChildDocumentsUriUsingTree(uri, DocumentsContract.getTreeDocumentId(uri));
+        myLog("getFolderSize()" + (step > 0 ? " - step " + step : "") + " - " + uri);
+
+        if (uri == null) return 0;
+
+        final String scheme = uri.getScheme();
+
+        // 1) Plain filesystem (file:// or raw path)
+        if (scheme == null || "file".equalsIgnoreCase(scheme)) {
+            String path = (scheme == null) ? uri.toString() : uri.getPath();
+            if (path == null) return 0;
+            return getFolderSizeFs(new File(path), step);
         }
 
-        try (Cursor cursor = contentResolver.query(childrenUri, new String[]{DocumentsContract.Document.COLUMN_DOCUMENT_ID, DocumentsContract.Document.COLUMN_MIME_TYPE}, null, null, null)) {
-            if (cursor != null) {
-                while (cursor.moveToNext()) {
-                    String documentId = cursor.getString(0);
-                    String mimeType = cursor.getString(1);
+        // 2) SAF / content:// → go via DocumentFile (works for both tree + file-backed)
+        if ("content".equalsIgnoreCase(scheme)) {
+            DocumentFile doc = getDocumentFileFromAnyUri(context, uri);
+            if (doc == null || !doc.exists() || !doc.isDirectory()) {
+                myLogW("getFolderSize: not a directory (or not resolvable) -> " + Uri.decode(uri.toString()));
+                return 0;
+            }
+            return getFolderSizeDoc(context, doc, step);
+        }
 
-                    Uri documentUri = DocumentsContract.buildDocumentUriUsingTree(uri, documentId);
+        myLogW("getFolderSize: unsupported scheme " + scheme + " for " + uri);
+        return 0;
+    }
 
-                    if (DocumentsContract.Document.MIME_TYPE_DIR.equals(mimeType)) {
-                        totalSize += getFolderSize(context, documentUri, recursiveStep + 1);
-                    } else {
-                        totalSize += getFileSize(context, documentUri);
-                    }
-                }
+    // --- Filesystem recursion for file:// ---
+    private static long getFolderSizeFs(File dir, int step) {
+        if (dir == null || !dir.exists() || !dir.isDirectory()) return 0;
+        long total = 0;
+        File[] kids = dir.listFiles();
+        if (kids == null) return 0;
+        for (File f : kids) {
+            if (f.isDirectory()) {
+                total += getFolderSizeFs(f, step + 1);
+            } else {
+                total += f.length();
             }
         }
-        return totalSize;
+        return total;
     }
+
+    // --- SAF recursion via DocumentFile (works for fromTreeUri AND fromFile) ---
+    private static long getFolderSizeDoc(Context context, DocumentFile dir, int step) {
+        if (dir == null || !dir.exists() || !dir.isDirectory()) return 0;
+        long total = 0;
+        for (DocumentFile child : dir.listFiles()) {
+            if (child.isDirectory()) {
+                total += getFolderSizeDoc(context, child, step + 1);
+            } else {
+                // Prefer DocumentFile.length(); fallback to openFileDescriptor if needed
+                long len = child.length();
+                if (len <= 0) {
+                    try (ParcelFileDescriptor pfd =
+                                 context.getContentResolver().openFileDescriptor(child.getUri(), "r")) {
+                        if (pfd != null) len = pfd.getStatSize();
+                    } catch (Exception ignored) {}
+                }
+                if (len > 0) total += len;
+            }
+        }
+        return total;
+    }
+
 
     private static long getFileSize(Context context, Uri uri) {
         if (uri == null) {

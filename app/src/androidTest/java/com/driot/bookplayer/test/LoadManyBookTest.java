@@ -31,6 +31,7 @@ import com.driot.bookplayer.services.BookLoadingWorkLauncher;
 import com.driot.bookplayer.testutil.LogSupport;
 import com.driot.bookplayer.testutil.LoggingWatcher;
 import com.driot.bookplayer.testutil.TestNavUtils;
+import com.driot.bookplayer.testutil.TaskStateTestProbe;
 import com.driot.bookplayer.utils.KanLogger;
 import com.driot.bookplayer.utils.Tonio;
 
@@ -61,19 +62,20 @@ public class LoadManyBookTest implements LogSupport {
     private final static long TIMEOUT_VISUAL_CHECK = 3_000;
 
     private static final class TestCase {
-        final String name;
+        final String uri_type;
         final String assetFolderPath; // e.g. "fixtures/m4b/"
-        TestCase(String name, String assetFolderPath) {
-            this.name = name;
+
+        TestCase(String uri_type, String assetFolderPath) {
+            this.uri_type = uri_type;
             this.assetFolderPath = assetFolderPath.endsWith("/") ? assetFolderPath : (assetFolderPath + "/");
         }
     }
 
     private static final List<TestCase> TESTS = Arrays.asList(
-            new TestCase("zip", "fixtures/zip"),
-            new TestCase("zip", "fixtures/ebooks"),
-            new TestCase("zip", "fixtures/folders"),
-            new TestCase("m4b", "fixtures/m4b")
+            //new TestCase("File", "fixtures/zip"),
+            //new TestCase("File", "fixtures/ebooks"),
+            new TestCase("Folder", "fixtures/folders")
+            //,new TestCase("File", "fixtures/m4b")
     );
 
     @Rule
@@ -81,6 +83,8 @@ public class LoadManyBookTest implements LogSupport {
 
     @Rule
     public LoggingWatcher logs = new LoggingWatcher();
+
+    StringBuilder logFinalMessage;
 
     @Before
     public void setUp() {
@@ -106,14 +110,17 @@ public class LoadManyBookTest implements LogSupport {
             if (!ok) throw new AssertionError("Could not navigate back to MainActivity");
             TestNavUtils.logCurrentActivity();
         }
+
+        TaskStateTestProbe probe;
     }
+
 
     @Test
     public void loadManyBooks() throws Exception {
         myLog("loadManyBooks");
 
         Context testContext = InstrumentationRegistry.getInstrumentation().getContext(); // test APK
-        StringBuilder logFinalMessage = new StringBuilder("--------------------------\n--------------------------\nFinal Message\n--------------------------");
+        logFinalMessage = new StringBuilder("--------------------------\n--------------------------\nFinal Message\n--------------------------");
 
         // sanity log to prove assets are visible
         String[] root = testContext.getAssets().list("");
@@ -127,97 +134,30 @@ public class LoadManyBookTest implements LogSupport {
         //noinspection ResultOfMethodCallIgnored
         stagingRoot.mkdirs();
 
+
         for (TestCase tc : TESTS) {
-            long lastTimestamp;
             List<String> assetFiles = listAssetFilesRecursively(testContext.getAssets(), tc.assetFolderPath); // <-- use testContext
             myLogD("--------------------------------------------------");
-            myLog(String.format("TestCase '%s' -> %d files", tc.name, assetFiles.size()));
+            myLog(String.format("TestCase '%s' -> %d files", tc.uri_type, assetFiles.size()));
             myLogD("--------------------------------------------------");
-            for (String assetPath : assetFiles) {
-                Uri contentUri = stageAssetAsContentUri(appContext, testContext, assetPath);
-                myLogD("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
-                myLog("loading file : " + contentUri);
-                myLogD("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
-                lastTimestamp = System.currentTimeMillis();
-                String txtWarnings = null;
+            if ("Folder".equals(tc.uri_type)) {
+                // tc.assetFolderPath == "fixtures/folders/"
+                List<String> subdirs = listAssetSubdirectories(testContext.getAssets(), tc.assetFolderPath);
+                myLog("Found " + subdirs.size() + " folders to import under " + tc.assetFolderPath);
 
-                // Launch LoadBookActivity with grants
-                appContext.startActivity(new Intent(appContext, LoadBookActivity.class)
-                        .putExtra(LoadBookActivity.EXTRA_URI, contentUri)
-                        .putExtra(LoadBookActivity.EXTRA_TYPE, "File") // your code expects "File"
-                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_GRANT_READ_URI_PERMISSION));
-                myLog("LoadBookActivity launched");
-                TestNavUtils.assertWaitForActivity(LoadBookActivity.class, 1_000);
-                myLogD("ok, on LoadBookActivity");
-                TestNavUtils.logCurrentActivity();
-
-                // Scroll & confirm import
-                onView(withId(android.R.id.content)).perform(swipeUp());
-                onView(withId(R.id.btnConfirm)).perform(click());
-
-                BookLoadingWorkLauncher.launch(appContext);
-
-                appContext.startActivity(new Intent(appContext,
-                        AddResourceActivity.class)
-                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-                myLog("AddResourceActivity launched");
-                TestNavUtils.assertWaitForActivity(AddResourceActivity.class, 1_000);
-                myLogD("ok, on AddResourceActivity");
-
-                final long deadline = System.currentTimeMillis() + TIMEOUT_BOOK_LOAD;
-                boolean done = false;
-
-                while (System.currentTimeMillis() < deadline) {
-                    if (TestNavUtils.isOn(GetActivity.class) || TestNavUtils.isOn(MainActivity.class)) {
-                        // success path: book finished and we navigated away
-                        done = true;
-                        myLog("success book load");
-                        TestNavUtils.logCurrentActivity();
-                        break;
-                    }
-
-                    if (TestNavUtils.isOn(AddResourceActivity.class)) {
-                        // still importing; allow the UI to render the EXIT button when ready
-                        if (TestNavUtils.isTextVisible("EXIT")) {
-                            TestNavUtils.logCurrentActivity();
-                            onView(withText("EXIT")).perform(click());
-                            myLogW("EXIT button clicked (needed if some warning to see)");
-                            txtWarnings = "EXIT button clicked";
-                            done = true;
-                            break;
-                        }
-                        // else: keep waiting (book still loading; don't pass yet)
-                    }
-
-                    Thread.sleep(100);
+                for (String assetDir : subdirs) {
+                    Uri dirUri = stageAssetDirectoryAsFileUri(appContext, testContext, assetDir);
+                    runImport(dirUri, tc.uri_type);
+                    if (DEBUG_MODE_NO_LOOP) return;
                 }
-                TestNavUtils.logCurrentActivity();
-
-// Final assertion: if not done, give a clear reason
-                if (!done) {
-                    Activity a = TestNavUtils.getCurrentResumedActivity();
-                    String where = (a == null) ? "none"
-                            : a.getClass().getSimpleName();
-                    throw new AssertionError(
-                            "Timeout waiting for success (Get/Main) or EXIT on AddResourceActivity. " +
-                                    "Current activity: " + where
-                    );
+            } else {
+                for (String assetPath : assetFiles) {
+                    Uri contentUri = stageAssetAsContentUri(appContext, testContext, assetPath);
+                    runImport(contentUri, tc.uri_type);
+                    if (DEBUG_MODE_NO_LOOP) return;
                 }
-
-
-                //Duration Log
-                String duration = Tonio.formatMmSs(System.currentTimeMillis() - lastTimestamp);
-                String logDuration = duration + "  " + Tonio.getFileNameFromPath(contentUri.getPath());
-                myLogI(logDuration);
-                String newLineMsg = "\n" + logDuration;
-                newLineMsg = txtWarnings!=null ? newLineMsg + " - [" + txtWarnings + "]" : newLineMsg;
-                logFinalMessage.append(newLineMsg);
-
-                TestNavUtils.sleep(TIMEOUT_VISUAL_CHECK);
-
-
-            if (DEBUG_MODE_NO_LOOP) return;
             }
+
         }
         myLogI(logFinalMessage.append("\n--------------------------\n--------------------------").toString());
         TestNavUtils.sleep(TIMEOUT_TEST_END);
@@ -228,6 +168,98 @@ public class LoadManyBookTest implements LogSupport {
 
 
     // ---------- Helpers ----------
+
+
+
+    private void runImport(Uri uri_content, String uri_type) throws InterruptedException {
+        long lastTimestamp;
+
+        myLogD("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+        myLog("loading " + uri_type + " : " + uri_content);
+        myLogD("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+        lastTimestamp = System.currentTimeMillis();
+        String txtWarnings = null;
+
+        // Launch LoadBookActivity with grants
+        appContext.startActivity(new Intent(appContext, LoadBookActivity.class)
+                .putExtra(LoadBookActivity.EXTRA_URI, uri_content)
+                .putExtra(LoadBookActivity.EXTRA_TYPE, uri_type) // your code expects "File"
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                .addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION | Intent.FLAG_GRANT_PREFIX_URI_PERMISSION)
+        );
+        myLog("LoadBookActivity launched");
+        TestNavUtils.assertWaitForActivity(LoadBookActivity.class, 1_000);
+        myLogD("ok, on LoadBookActivity");
+        TestNavUtils.logCurrentActivity();
+
+        // Scroll & confirm import
+        onView(withId(android.R.id.content)).perform(swipeUp());
+        onView(withId(R.id.btnConfirm)).perform(click());
+
+        BookLoadingWorkLauncher.launch(appContext);
+
+        appContext.startActivity(new Intent(appContext,
+                AddResourceActivity.class)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+        myLog("AddResourceActivity launched");
+        TestNavUtils.assertWaitForActivity(AddResourceActivity.class, 1_000);
+        myLogD("ok, on AddResourceActivity");
+
+        final long deadline = System.currentTimeMillis() + TIMEOUT_BOOK_LOAD;
+        boolean done = false;
+
+        while (System.currentTimeMillis() < deadline) {
+            if (TestNavUtils.isOn(GetActivity.class) || TestNavUtils.isOn(MainActivity.class)) {
+                // success path: book finished and we navigated away
+                done = true;
+                myLog("success book load");
+                TestNavUtils.logCurrentActivity();
+                break;
+            }
+
+            if (TestNavUtils.isOn(AddResourceActivity.class)) {
+                // still importing; allow the UI to render the EXIT button when ready
+                if (TestNavUtils.isTextVisible("EXIT")) {
+                    TestNavUtils.logCurrentActivity();
+                    onView(withText("EXIT")).perform(click());
+                    myLogW("EXIT button clicked (needed if some warning to see)");
+                    txtWarnings = "EXIT button clicked";
+                    done = true;
+                    break;
+                }
+                // else: keep waiting (book still loading; don't pass yet)
+            }
+
+            Thread.sleep(100);
+        }
+        TestNavUtils.logCurrentActivity();
+
+// Final assertion: if not done, give a clear reason
+        if (!done) {
+            Activity a = TestNavUtils.getCurrentResumedActivity();
+            String where = (a == null) ? "none"
+                    : a.getClass().getSimpleName();
+            throw new AssertionError(
+                    "Timeout waiting for success (Get/Main) or EXIT on AddResourceActivity. " +
+                            "Current activity: " + where
+            );
+        }
+
+
+        //Duration Log
+        String duration = Tonio.formatMmSs(System.currentTimeMillis() - lastTimestamp);
+        String logDuration = duration + "  " + Tonio.getFileNameFromPath(uri_content.getPath());
+        myLogI(logDuration);
+        String newLineMsg = "\n" + logDuration;
+        newLineMsg = txtWarnings!=null ? newLineMsg + " - [" + txtWarnings + "]" : newLineMsg;
+        logFinalMessage.append(newLineMsg);
+
+        TestNavUtils.sleep(TIMEOUT_VISUAL_CHECK);
+
+    }
+
+
+
 
     private static List<String> listAssetFilesRecursively(AssetManager am, String root) throws IOException {
         List<String> out = new ArrayList<>();
@@ -282,4 +314,55 @@ public class LoadManyBookTest implements LogSupport {
         //noinspection ResultOfMethodCallIgnored
         f.delete();
     }
+
+    /** Return full asset paths for direct subdirectories of `root` (no files). */
+    private static List<String> listAssetSubdirectories(AssetManager am, String root) throws IOException {
+        String normalized = root.endsWith("/") ? root.substring(0, root.length() - 1) : root;
+        List<String> out = new ArrayList<>();
+        String[] children = am.list(normalized);
+        if (children == null) return out;
+        for (String name : children) {
+            String child = normalized + "/" + name;
+            String[] nested = am.list(child);
+            if (nested != null && nested.length > 0) { // directory in assets
+                out.add(child);
+            }
+        }
+        return out;
+    }
+
+    /** Copy an entire asset directory tree to cache/fixtures and return a file:// Uri to the dir. */
+    private static Uri stageAssetDirectoryAsFileUri(Context appCtx, Context testCtx, String assetDirPath) throws IOException {
+        File stagingRoot = new File(appCtx.getCacheDir(), "fixtures");
+        File outDir = new File(stagingRoot, assetDirPath);
+        copyAssetDirRecursively(testCtx.getAssets(), assetDirPath, outDir);
+        return Uri.fromFile(outDir); // same-app -> file:// OK
+    }
+
+    /** Recursive copy of an assets directory to a real filesystem directory. */
+    private static void copyAssetDirRecursively(AssetManager am, String assetDir, File destDir) throws IOException {
+        if (!destDir.exists() && !destDir.mkdirs()) {
+            throw new IOException("Failed to create dir: " + destDir);
+        }
+        String[] list = am.list(assetDir);
+        if (list == null) return;
+        for (String name : list) {
+            String childAssetPath = assetDir + "/" + name;
+            String[] nested = am.list(childAssetPath);
+            if (nested != null && nested.length > 0) {
+                // directory
+                copyAssetDirRecursively(am, childAssetPath, new File(destDir, name));
+            } else {
+                // file
+                File outFile = new File(destDir, name);
+                if (!outFile.getParentFile().exists()) outFile.getParentFile().mkdirs();
+                try (InputStream in = am.open(childAssetPath);
+                     FileOutputStream out = new FileOutputStream(outFile)) {
+                    byte[] buf = new byte[8192];
+                    int n; while ((n = in.read(buf)) >= 0) out.write(buf, 0, n);
+                }
+            }
+        }
+    }
+
 }

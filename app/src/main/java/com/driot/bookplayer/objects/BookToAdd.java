@@ -55,7 +55,8 @@ public class BookToAdd {
         this.sourceLocation = Tonio.getSourceLocation(appContext, uri);
         this.infoSourceLocation = "[" + this.sourceLocation + "]";
 
-        //TODO : is this really usefull ?
+        //TODO : is this really usefull ?   => maybe to cancel early if path not supported...
+        /*
         if (type.equals("File")) {
             try {
                 this.df = DocumentFile.fromSingleUri(appContext, uri);
@@ -67,12 +68,14 @@ public class BookToAdd {
             try {
                 this.df = DocumentFile.fromTreeUri(appContext, uri);
             } catch (Exception e) {
-                myLogEE(e,"Error reading picked Folder.... DocumentFile.fromTreeUri");
+                myLogEE(e,"Error reading picked Folder.... DocumentFile.fromTreeUri : [" + uri + "]");
                 this.isBroken = true;
             }
         } else {
             myLogEE(null, "Very bad type");
         }
+
+         */
 
         if (type.equals("File")) {
             //TODO check that 3 methods
