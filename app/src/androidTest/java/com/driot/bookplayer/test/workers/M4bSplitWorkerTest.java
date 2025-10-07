@@ -103,7 +103,9 @@ public class M4bSplitWorkerTest implements LogSupport {
     // -------------------- helpers --------------------
 
     private void runCase(TestCase tc, boolean init) throws Exception {
+        myLog("---------------------------------------------------------------------------------");
         myLogI("▶ Running case: " + tc.name + "  (asset=" + tc.assetPath + ")");
+        myLog("---------------------------------------------------------------------------------");
 
         // 1) Sandbox (unique per case)
         File tempRoot = new File(context.getFilesDir(), "m4bsplit_" + tc.name);

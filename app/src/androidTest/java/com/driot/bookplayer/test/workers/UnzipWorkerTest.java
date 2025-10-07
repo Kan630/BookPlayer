@@ -107,7 +107,9 @@ public class UnzipWorkerTest implements LogSupport {
     // -------------------- helpers --------------------
 
     private void runCase(TestCase tc, boolean init) throws Exception {
+        myLog("---------------------------------------------------------------------------------");
         myLogI("▶ Running case: " + tc.name + "  (asset=" + tc.assetPath + ")");
+        myLog("---------------------------------------------------------------------------------");
 
         // 1) Prepare sandbox (unique per case)
         File tempRoot = new File(context.getFilesDir(), "unzip_" + tc.name);
