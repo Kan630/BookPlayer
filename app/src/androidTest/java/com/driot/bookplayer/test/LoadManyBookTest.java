@@ -20,6 +20,7 @@ import androidx.work.testing.WorkManagerTestInitHelper;
 
 import com.driot.bookplayer.BuildConfig;
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.activities.AddResourceActivity;
 import com.driot.bookplayer.activities.GetActivity;
 import com.driot.bookplayer.activities.LoadBookActivity;
 import com.driot.bookplayer.activities.MainActivity;
@@ -29,9 +30,9 @@ import com.driot.bookplayer.testutil.LogSupport;
 import com.driot.bookplayer.testutil.LoggingWatcher;
 import com.driot.bookplayer.testutil.TestNavUtils;
 import com.driot.bookplayer.utils.KanLogger;
+import com.driot.bookplayer.utils.Tonio;
 
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -44,6 +45,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Deque;
 import java.util.List;
+import java.util.concurrent.Executors;
 
 import androidx.core.content.FileProvider;
 
@@ -52,8 +54,9 @@ public class LoadManyBookTest implements LogSupport {
     private Context appContext;
 
     private final static boolean DEBUG_MODE_NO_LOOP = false;
+    private final static long TIMEOUT_TEST_END = 600_000;
     private final static long TIMEOUT_BOOK_LOAD = 60_000;
-    private final static long TIMEOUT_VISUAL_CHECK = 10_000;
+    private final static long TIMEOUT_VISUAL_CHECK = 3_000;
 
     private static final class TestCase {
         final String name;
@@ -65,8 +68,8 @@ public class LoadManyBookTest implements LogSupport {
     }
 
     private static final List<TestCase> TESTS = Arrays.asList(
-            new TestCase("m4b", "fixtures/m4b"),
-            new TestCase("zip", "fixtures/zip") // keep or remove if you only want m4b
+            new TestCase("zip", "fixtures/zip"),
+            new TestCase("m4b", "fixtures/m4b")
     );
 
     @Rule
@@ -85,12 +88,9 @@ public class LoadManyBookTest implements LogSupport {
         KanLogger.init(appContext);
         Option.setTechLog(true);
 
-        Log.d("LoadManyBookTest", "DEBUG baseline from test process");
-        System.out.println("STDOUT baseline from test");
-
         Configuration config = new Configuration.Builder()
-                .setMinimumLoggingLevel(android.util.Log.DEBUG)
-                .setExecutor(new SynchronousExecutor())
+                .setMinimumLoggingLevel(Log.DEBUG)
+                .setExecutor(Executors.newSingleThreadExecutor()) //if not worker on main UI => not allowed...
                 .setTaskExecutor(new SynchronousExecutor())
                 .build();
         WorkManagerTestInitHelper.initializeTestWorkManager(appContext, config);
@@ -109,6 +109,7 @@ public class LoadManyBookTest implements LogSupport {
         myLog("loadManyBooks");
 
         Context testContext = InstrumentationRegistry.getInstrumentation().getContext(); // test APK
+        StringBuilder logFinalMessage = new StringBuilder("--------------------------\n--------------------------\nFinal Message");
 
         // sanity log to prove assets are visible
         String[] root = testContext.getAssets().list("");
@@ -123,6 +124,7 @@ public class LoadManyBookTest implements LogSupport {
         stagingRoot.mkdirs();
 
         for (TestCase tc : TESTS) {
+            long lastTimestamp;
             List<String> assetFiles = listAssetFilesRecursively(testContext.getAssets(), tc.assetFolderPath); // <-- use testContext
             myLogD("--------------------------------------------------");
             myLog(String.format("TestCase '%s' -> %d files", tc.name, assetFiles.size()));
@@ -132,7 +134,7 @@ public class LoadManyBookTest implements LogSupport {
                 myLogD("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
                 myLog("loading file : " + contentUri);
                 myLogD("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
-
+                lastTimestamp = System.currentTimeMillis();
 
                 // Launch LoadBookActivity with grants
                 appContext.startActivity(new Intent(appContext, LoadBookActivity.class)
@@ -151,30 +153,38 @@ public class LoadManyBookTest implements LogSupport {
                 BookLoadingWorkLauncher.launch(appContext);
 
                 appContext.startActivity(new Intent(appContext,
-                        com.driot.bookplayer.activities.AddResourceActivity.class)
+                        AddResourceActivity.class)
                         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
                 myLog("AddResourceActivity launched");
-                TestNavUtils.assertWaitForActivity(com.driot.bookplayer.activities.AddResourceActivity.class, 1_000);
+                TestNavUtils.assertWaitForActivity(AddResourceActivity.class, 1_000);
                 myLog("ok, on AddResourceActivity");
 
                 TestNavUtils.waitForAnyActivity(
                         TIMEOUT_BOOK_LOAD,
-                        com.driot.bookplayer.activities.GetActivity.class,
-                        com.driot.bookplayer.activities.MainActivity.class
+                        GetActivity.class,
+                        MainActivity.class
                 );
                 TestNavUtils.clickButtonIfOnActivity(
-                        com.driot.bookplayer.activities.AddResourceActivity.class,
+                        AddResourceActivity.class,
                         "EXIT"
                 );
+
+
+
+
+                //Duration Log
+                String duration = Tonio.formatMmSs(System.currentTimeMillis() - lastTimestamp);
+                String newLineMsg = "\n" + duration + "  " + Tonio.getFileNameFromPath(contentUri.getPath());
+                logFinalMessage.append(newLineMsg);
+
                 TestNavUtils.sleep(TIMEOUT_VISUAL_CHECK);
-
-
 
 
             if (DEBUG_MODE_NO_LOOP) return;
             }
         }
-        TestNavUtils.sleep(600_000);
+        myLogI(logFinalMessage.append("\n--------------------------\n--------------------------").toString());
+        TestNavUtils.sleep(TIMEOUT_TEST_END);
     }
 
 
