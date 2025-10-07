@@ -1,4 +1,3 @@
-// src/androidTest/java/com/driot/bookplayer/testutil/LogSupport.java
 package com.driot.bookplayer.testutil;
 
 import android.util.Log;
@@ -14,5 +13,13 @@ public interface LogSupport {
     default void myLogI(String msg)   { KanLogger.myLogI(tag(), msg); }
     default void myLogW(String msg)   { KanLogger.myLogW(tag(), msg); }
     default void myLogE(String msg)   { KanLogger.myLogE(tag(), msg); }
-    default void myLogD(String msg)   { Log.d(tag(), msg); }
+    default void myLogD(String msg)   { KanLogger.myLogD(tag(), msg); }
+    //default void myLogD(String msg)   { Log.d("toto " + tag(), msg); }
+
+
+    // For tests
+    default void myLogD1(String msg)   { KanLogger.myLogD(tag(), msg); }
+    default void myLogD2(String msg)   { Log.d(tag(), msg); }
+    default void myLogD3(String msg)   { Log.d("toto", msg); }
+    default void myLogD4(String msg)   { Log.d("toto " + tag(), msg); }
 }

@@ -7,7 +7,7 @@ public class LoggingWatcher extends TestWatcher implements LogSupport {
 
     @Override
     protected void starting(Description description) {
-        myLogI("➡️ START " + description.getDisplayName());
+        myLogI("➡️ START " + description.getDisplayName() + " ➡️➡️➡️➡️➡️➡️➡️➡️➡️");
     }
 
     @Override

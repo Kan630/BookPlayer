@@ -14,6 +14,7 @@ import androidx.test.runner.lifecycle.Stage;
 
 import java.util.Collection;
 
+import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
 
 import com.driot.bookplayer.Var;
@@ -46,6 +47,29 @@ public class TestNavUtils {
             try { Thread.sleep(50); } catch (InterruptedException ignored) {}
         }
         return false;
+    }
+
+    public static void assertWaitForActivity(Class<? extends Activity> target, long timeoutMs) {
+        if (waitForActivity(target, timeoutMs)) return;
+
+        // Build a small lifecycle snapshot for the failure message
+        final String[] snapshot = new String[1];
+        getInstrumentation().runOnMainSync(() -> {
+            StringBuilder sb = new StringBuilder();
+            for (Stage s : Stage.values()) {
+                Collection<Activity> acts = ActivityLifecycleMonitorRegistry.getInstance()
+                        .getActivitiesInStage(s);
+                if (acts != null && !acts.isEmpty()) {
+                    sb.append(s).append(": ");
+                    for (Activity a : acts) sb.append(a.getClass().getSimpleName()).append(' ');
+                    sb.append(" | ");
+                }
+            }
+            snapshot[0] = sb.toString();
+        });
+
+        throw new AssertionError("Timeout waiting for " + target.getSimpleName()
+                + " after " + timeoutMs + "ms. Lifecycle snapshot -> " + snapshot[0]);
     }
 
     /** Press back up to maxPresses times, waiting after each press. */
@@ -104,6 +128,108 @@ public class TestNavUtils {
             Thread.currentThread().interrupt(); // restore flag
         }
     }
+
+    // --- ANY-OF helpers ---
+
+    /** Wait until the current RESUMED activity is one of the target classes. Returns the matched class or null on timeout. */
+    @SafeVarargs
+    public static Class<? extends Activity> waitForAnyActivity(long timeoutMs,
+                                                               Class<? extends Activity>... targets) {
+        long end = System.currentTimeMillis() + timeoutMs;
+        while (System.currentTimeMillis() < end) {
+            Activity a = getCurrentResumedActivity();
+            if (a != null) {
+                for (Class<? extends Activity> t : targets) {
+                    if (t.isAssignableFrom(a.getClass())) return t;
+                }
+            }
+            try { Thread.sleep(50); } catch (InterruptedException ignored) {}
+        }
+        return null;
+    }
+
+    /** Assert variant: succeeds if *any* of the targets is RESUMED within timeout; throws with a lifecycle snapshot otherwise. */
+    @SafeVarargs
+    public static void assertWaitForAnyActivity(long timeoutMs,
+                                                Class<? extends Activity>... targets) {
+        Class<? extends Activity> hit = waitForAnyActivity(timeoutMs, targets);
+        if (hit != null) {
+            myLog("Reached activity: " + hit.getSimpleName());
+            return;
+        }
+
+        // Build lifecycle snapshot for the failure message
+        final String[] snapshot = new String[1];
+        getInstrumentation().runOnMainSync(() -> {
+            StringBuilder sb = new StringBuilder();
+            for (Stage s : Stage.values()) {
+                Collection<Activity> acts = ActivityLifecycleMonitorRegistry.getInstance()
+                        .getActivitiesInStage(s);
+                if (acts != null && !acts.isEmpty()) {
+                    sb.append(s).append(": ");
+                    for (Activity a : acts) sb.append(a.getClass().getSimpleName()).append(' ');
+                    sb.append(" | ");
+                }
+            }
+            snapshot[0] = sb.toString();
+        });
+
+        StringBuilder want = new StringBuilder();
+        for (Class<? extends Activity> t : targets) {
+            if (want.length() > 0) want.append(" or ");
+            want.append(t.getSimpleName());
+        }
+        throw new AssertionError("Timeout waiting for any of [" + want + "] after " + timeoutMs
+                + "ms. Lifecycle snapshot -> " + snapshot[0]);
+    }
+    public static void assertButtonWithTextExistsIfOnActivity(
+            Class<? extends Activity> target, String buttonText) {
+
+        Activity a = getCurrentResumedActivity();
+        if (a == null) {
+            throw new AssertionError("No current activity found.");
+        }
+
+        if (target.isAssignableFrom(a.getClass())) {
+            try {
+                Espresso.onView(ViewMatchers.withText(buttonText))
+                        .check(matches(ViewMatchers.isDisplayed()));
+                myLog("Verified button with text \"" + buttonText + "\" on " + a.getClass().getSimpleName());
+            } catch (Exception e) {
+                throw new AssertionError("Button with text \"" + buttonText + "\" not found or not visible on "
+                        + a.getClass().getSimpleName(), e);
+            }
+        } else {
+            myLog("Current activity is " + a.getClass().getSimpleName() +
+                    ", not " + target.getSimpleName() + " — skipping button check.");
+        }
+    }
+    public static void clickButtonIfOnActivity(Class<? extends Activity> target, String buttonText) {
+        Activity a = getCurrentResumedActivity();
+        if (a == null) {
+            throw new AssertionError("No current activity found.");
+        }
+
+        if (target.isAssignableFrom(a.getClass())) {
+            myLog("Current activity is " + a.getClass().getSimpleName() +
+                    ", looking for button \"" + buttonText + "\"…");
+
+            try {
+                Espresso.onView(ViewMatchers.withText(buttonText))
+                        .check(matches(ViewMatchers.isDisplayed()))
+                        .perform(androidx.test.espresso.action.ViewActions.click());
+
+                myLog("Clicked button \"" + buttonText + "\" on " + a.getClass().getSimpleName());
+            } catch (Exception e) {
+                myLogW("Button with text \"" + buttonText + "\" not found or not clickable on "
+                        + a.getClass().getSimpleName() + ": " + e.getMessage());
+            }
+        } else {
+            myLog("Current activity is " + a.getClass().getSimpleName() +
+                    ", not " + target.getSimpleName() + " — skipping click.");
+        }
+    }
+
 
     // ----------------------- LOG -----------------------
     private static final String TAG = "TestNavUtils";

@@ -15,12 +15,12 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import static com.driot.bookplayer.global.Option.getTechLog;
 import static com.driot.bookplayer.utils.TonioCommonStuff.MD5;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
@@ -104,7 +104,7 @@ public class KanLogger {
     public static boolean writeTechLogs() {
         boolean ret = false;
         if (getMyAppContext() != null) {
-            ret = getTechLog();
+            ret = Option.getTechLog();
         } else {
             ret = isMyPhoneDev();
             Log.e(kanLogger_TAG,"writeTechLogs() => ERROR in getting Context => using isMyPhoneDev()");

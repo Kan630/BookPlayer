@@ -26,6 +26,7 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.GetActivity;
 import com.driot.bookplayer.activities.MainActivity;
 import com.driot.bookplayer.activities.SettingsActivity;
+import com.driot.bookplayer.testutil.LogSupport;
 import com.driot.bookplayer.testutil.LoggingWatcher;
 import com.driot.bookplayer.testutil.MenuHelpers;
 import com.driot.bookplayer.testutil.TestNavUtils;
@@ -37,7 +38,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
-public abstract class BasicNavTest {
+public abstract class BasicNavTest implements LogSupport {
 
     protected abstract int desiredOrientation();
 
@@ -173,16 +174,5 @@ public abstract class BasicNavTest {
         // Example: click a button with text
         //onView(withText("Continue")).perform(click());
     }
-
-
-    // ----------------------- LOG -----------------------
-    private static final String TAG = "BasicNavTest";
-    // ----------------------- LOG -----------------------
-    private static void myLog(String str) { KanLogger.myLog(TAG, str); }
-    private static void myLogD(String str) { Log.d(TAG, str); }
-    private static void myLogI(String str) { KanLogger.myLogI(TAG, str); }
-    private static void myLogW(String str) { KanLogger.myLogW(TAG, str); }
-    private static void myLogE(String str) { KanLogger.myLogE(TAG, str); }
-
 
 }
