@@ -12,7 +12,6 @@ import android.provider.Settings;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -57,7 +56,7 @@ public class GetOtherActivity extends LoggingActivity {
 
     private ActivityResultLauncher<Intent> bOpenFileActivityResultLauncher,
             bOpenFolderActivityResultLauncher,
-            loadOptionsActivityResultLauncher,
+            loadBookActivityResultLauncher,
             bMassImportActivityResultLauncher;
 
     private ActivityResultLauncher<Intent> addResourceActivityResultLauncher;
@@ -91,7 +90,7 @@ public class GetOtherActivity extends LoggingActivity {
                         Intent intent = new Intent(this, LoadBookActivity.class);
                         intent.putExtra(LoadBookActivity.EXTRA_URI, uri);
                         intent.putExtra(LoadBookActivity.EXTRA_TYPE, type);
-                        loadOptionsActivityResultLauncher.launch(intent);
+                        loadBookActivityResultLauncher.launch(intent);
                     }
                 } else {
                     myLogE("returned Uri not OK");
@@ -236,7 +235,7 @@ public class GetOtherActivity extends LoggingActivity {
             }
         });
 
-        loadOptionsActivityResultLauncher = registerForActivityResult(
+        loadBookActivityResultLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
                     if (result.getResultCode() == Activity.RESULT_OK) {
@@ -266,7 +265,7 @@ public class GetOtherActivity extends LoggingActivity {
                     Intent intent = new Intent(this, LoadBookActivity.class);
                     intent.putExtra(LoadBookActivity.EXTRA_URI, Uri.parse(Var.AUTOTEST_FILE_01));
                     intent.putExtra(LoadBookActivity.EXTRA_TYPE, "File");
-                    loadOptionsActivityResultLauncher.launch(intent);
+                    loadBookActivityResultLauncher.launch(intent);
                 }
             });
         });
@@ -277,7 +276,7 @@ public class GetOtherActivity extends LoggingActivity {
                     Intent intent = new Intent(this, LoadBookActivity.class);
                     intent.putExtra(LoadBookActivity.EXTRA_URI, Uri.parse(Var.AUTOTEST_FILE_02));
                     intent.putExtra(LoadBookActivity.EXTRA_TYPE, "File");
-                    loadOptionsActivityResultLauncher.launch(intent);
+                    loadBookActivityResultLauncher.launch(intent);
                 }
             });
         });
@@ -288,7 +287,7 @@ public class GetOtherActivity extends LoggingActivity {
                     Intent intent = new Intent(this, LoadBookActivity.class);
                     intent.putExtra(LoadBookActivity.EXTRA_URI, Uri.parse(Var.AUTOTEST_FILE_03));
                     intent.putExtra(LoadBookActivity.EXTRA_TYPE, "File");
-                    loadOptionsActivityResultLauncher.launch(intent);
+                    loadBookActivityResultLauncher.launch(intent);
                 }
             });
         });
@@ -299,7 +298,7 @@ public class GetOtherActivity extends LoggingActivity {
                     Intent intent = new Intent(this, LoadBookActivity.class);
                     intent.putExtra(LoadBookActivity.EXTRA_URI, Uri.parse(Var.AUTOTEST_FILE_04));
                     intent.putExtra(LoadBookActivity.EXTRA_TYPE, "File");
-                    loadOptionsActivityResultLauncher.launch(intent);
+                    loadBookActivityResultLauncher.launch(intent);
                 }
             });
         });
@@ -321,7 +320,7 @@ public class GetOtherActivity extends LoggingActivity {
                                         Intent intent = new Intent(this, LoadBookActivity.class);
                                         intent.putExtra(LoadBookActivity.EXTRA_URI, Uri.parse(justGetItUrl));
                                         intent.putExtra(LoadBookActivity.EXTRA_TYPE, "File");
-                                        loadOptionsActivityResultLauncher.launch(intent);
+                                        loadBookActivityResultLauncher.launch(intent);
                                     }
                                 });
                             });
@@ -336,7 +335,7 @@ public class GetOtherActivity extends LoggingActivity {
                         Intent intent = new Intent(this, LoadBookActivity.class);
                         intent.putExtra(LoadBookActivity.EXTRA_URI, Uri.parse(justGetItUrl));
                         intent.putExtra(LoadBookActivity.EXTRA_TYPE, "File");
-                        loadOptionsActivityResultLauncher.launch(intent);
+                        loadBookActivityResultLauncher.launch(intent);
                     }
                 });
             }
