@@ -69,4 +69,23 @@ public final class TaskStateTestProbe {
         getInstrumentation().runOnMainSync(() ->
                 TaskStateRepository.get().state().removeObserver(observer));
     }
+
+    public @Nullable TaskUiState lastState() {
+        return last.get();
+    }
+
+    public boolean isFinished() {
+        TaskUiState s = last.get();
+        return s != null && s.finished;
+    }
+
+    public boolean isSuccess() {
+        TaskUiState s = last.get();
+        return s != null && s.finished && s.errorText == null;
+    }
+
+    public boolean isFailed() {
+        TaskUiState s = last.get();
+        return s != null && s.finished && s.errorText != null;
+    }
 }

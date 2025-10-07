@@ -70,7 +70,7 @@ public class TestNavUtils {
         return false;
     }
 
-    public static void assertWaitForActivity(Class<? extends Activity> target, long timeoutMs) {
+    public static void assertWaitForActivity(Class<? extends Activity> target, long timeoutMs, String errorMsg) {
         if (waitForActivity(target, timeoutMs)) return;
 
         // Build a small lifecycle snapshot for the failure message
@@ -89,7 +89,7 @@ public class TestNavUtils {
             snapshot[0] = sb.toString();
         });
 
-        throw new AssertionError("Timeout waiting for " + target.getSimpleName()
+        throw new AssertionError(errorMsg + " - Timeout waiting for " + target.getSimpleName()
                 + " after " + timeoutMs + "ms. Lifecycle snapshot -> " + snapshot[0]);
     }
 

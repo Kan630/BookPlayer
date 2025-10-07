@@ -13,6 +13,7 @@ import android.content.res.AssetManager;
 import android.net.Uri;
 import android.util.Log;
 
+import androidx.lifecycle.Observer;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -27,6 +28,8 @@ import com.driot.bookplayer.activities.GetActivity;
 import com.driot.bookplayer.activities.LoadBookActivity;
 import com.driot.bookplayer.activities.MainActivity;
 import com.driot.bookplayer.global.Option;
+import com.driot.bookplayer.objects.TaskStateRepository;
+import com.driot.bookplayer.objects.TaskUiState;
 import com.driot.bookplayer.services.BookLoadingWorkLauncher;
 import com.driot.bookplayer.testutil.LogSupport;
 import com.driot.bookplayer.testutil.LoggingWatcher;
@@ -57,7 +60,7 @@ public class LoadManyBookTest implements LogSupport {
     private Context appContext;
 
     private final static boolean DEBUG_MODE_NO_LOOP = false;
-    private final static long TIMEOUT_TEST_END = 600_000;
+    private final static long TIMEOUT_TEST_END = 10_000;
     private final static long TIMEOUT_BOOK_LOAD = 120_000;
     private final static long TIMEOUT_VISUAL_CHECK = 3_000;
 
@@ -72,11 +75,14 @@ public class LoadManyBookTest implements LogSupport {
     }
 
     private static final List<TestCase> TESTS = Arrays.asList(
-            //new TestCase("File", "fixtures/zip"),
-            //new TestCase("File", "fixtures/ebooks"),
-            new TestCase("Folder", "fixtures/folders")
-            //,new TestCase("File", "fixtures/m4b")
+            new TestCase("File", "fixtures/zip")
+            ,new TestCase("File", "fixtures/ebooks")
+            ,new TestCase("Folder", "fixtures/folders")
+            ,new TestCase("File", "fixtures/m4b")
     );
+
+    private TaskStateTestProbe probe;
+    private Observer<TaskUiState> stateObs;
 
     @Rule
     public ActivityScenarioRule<MainActivity> activityRule = new ActivityScenarioRule<>(MainActivity.class);
@@ -110,8 +116,6 @@ public class LoadManyBookTest implements LogSupport {
             if (!ok) throw new AssertionError("Could not navigate back to MainActivity");
             TestNavUtils.logCurrentActivity();
         }
-
-        TaskStateTestProbe probe;
     }
 
 
@@ -180,82 +184,130 @@ public class LoadManyBookTest implements LogSupport {
         lastTimestamp = System.currentTimeMillis();
         String txtWarnings = null;
 
-        // Launch LoadBookActivity with grants
-        appContext.startActivity(new Intent(appContext, LoadBookActivity.class)
-                .putExtra(LoadBookActivity.EXTRA_URI, uri_content)
-                .putExtra(LoadBookActivity.EXTRA_TYPE, uri_type) // your code expects "File"
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                .addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION | Intent.FLAG_GRANT_PREFIX_URI_PERMISSION)
-        );
-        myLog("LoadBookActivity launched");
-        TestNavUtils.assertWaitForActivity(LoadBookActivity.class, 1_000);
-        myLogD("ok, on LoadBookActivity");
-        TestNavUtils.logCurrentActivity();
+        // --- Start a fresh probe + attach a verbose state logger
+        probe = new TaskStateTestProbe();
+        probe.start();
 
-        // Scroll & confirm import
-        onView(withId(android.R.id.content)).perform(swipeUp());
-        onView(withId(R.id.btnConfirm)).perform(click());
+        stateObs = s -> {
+            if (s == null) return;
+            /*
+            myLogD("[TaskState] running=" + s.running +
+                    " paused=" + s.paused +
+                    " finished=" + s.finished +
+                    " pauseAvail=" + s.pauseAvailable +
+                    " title='" + s.title + "'" +
+                    " progress=" + s.progressPercent +
+                    " text='" + s.progressText + "'" +
+                    (s.warningText != null ? " warn='" + s.warningText + "'" : "") +
+                    (s.errorText != null ? " error='" + s.errorText + "'" : ""));
 
-        BookLoadingWorkLauncher.launch(appContext);
+             */
+        };
 
-        appContext.startActivity(new Intent(appContext,
-                AddResourceActivity.class)
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-        myLog("AddResourceActivity launched");
-        TestNavUtils.assertWaitForActivity(AddResourceActivity.class, 1_000);
-        myLogD("ok, on AddResourceActivity");
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
+            TaskStateRepository.get().hydrateFromPrefs();
+            TaskStateRepository.get().resetToIdle();
+            TaskStateRepository.get().state().observeForever(stateObs);
+        });
 
-        final long deadline = System.currentTimeMillis() + TIMEOUT_BOOK_LOAD;
-        boolean done = false;
+        try {
+            // --- Launch flow (unchanged) ---
+            appContext.startActivity(new Intent(appContext, LoadBookActivity.class)
+                    .putExtra(LoadBookActivity.EXTRA_URI, uri_content)
+                    .putExtra(LoadBookActivity.EXTRA_TYPE, uri_type)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    .addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION | Intent.FLAG_GRANT_PREFIX_URI_PERMISSION));
+            myLog("LoadBookActivity launched");
+            TestNavUtils.assertWaitForActivity(LoadBookActivity.class, 1_000, "arfff");
+            myLogD("ok, on LoadBookActivity");
+            TestNavUtils.logCurrentActivity();
 
-        while (System.currentTimeMillis() < deadline) {
-            if (TestNavUtils.isOn(GetActivity.class) || TestNavUtils.isOn(MainActivity.class)) {
-                // success path: book finished and we navigated away
-                done = true;
-                myLog("success book load");
-                TestNavUtils.logCurrentActivity();
-                break;
-            }
+            onView(withId(android.R.id.content)).perform(swipeUp());
+            onView(withId(R.id.btnConfirm)).perform(click());
 
-            if (TestNavUtils.isOn(AddResourceActivity.class)) {
-                // still importing; allow the UI to render the EXIT button when ready
-                if (TestNavUtils.isTextVisible("EXIT")) {
+            BookLoadingWorkLauncher.launch(appContext);
+
+            appContext.startActivity(new Intent(appContext, AddResourceActivity.class)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+            myLog("AddResourceActivity launched");
+            TestNavUtils.assertWaitForActivity(AddResourceActivity.class, 1_000, "gizmo");
+            myLogD("ok, on AddResourceActivity");
+
+            // --- Wait for the task to finish (success OR failure) ---
+            probe.await(TIMEOUT_BOOK_LOAD);
+
+            long deadline = System.currentTimeMillis() + TIMEOUT_BOOK_LOAD;
+            boolean done = false;
+
+            while (System.currentTimeMillis() < deadline) {
+                // 1) fail fast if app signaled a failure
+                if (probe.isFailed()) {
+                    TaskStateTestProbe.Outcome out = probe.await(10); // quick drain to capture final error
+                    throw new AssertionError("Import failed: " + out.errorText + " | progress='" + out.progressText + "'");
+                }
+
+                // 2) success if app signaled finished success
+                if (probe.isSuccess()) {
+                    done = true;
+                    myLog("success book load (via probe)");
+                    break;
+                }
+
+                // 3) legacy success heuristics (like before you added the probe)
+                if (TestNavUtils.isOn(GetActivity.class) || TestNavUtils.isOn(MainActivity.class)) {
+                    done = true;
+                    myLog("success book load (via navigation)");
+                    TestNavUtils.logCurrentActivity();
+                    break;
+                }
+
+                if (TestNavUtils.isOn(AddResourceActivity.class) && TestNavUtils.isTextVisible("EXIT")) {
                     TestNavUtils.logCurrentActivity();
                     onView(withText("EXIT")).perform(click());
-                    myLogW("EXIT button clicked (needed if some warning to see)");
-                    txtWarnings = "EXIT button clicked";
+                    myLogW("EXIT button clicked (legacy success path)");
                     done = true;
                     break;
                 }
-                // else: keep waiting (book still loading; don't pass yet)
+
+                Thread.sleep(100);
             }
 
-            Thread.sleep(100);
+            if (!done) {
+                TaskUiState s = probe.lastState();
+                String lastProgress = (s == null || s.progressText == null) ? "" : s.progressText;
+                Activity a = TestNavUtils.getCurrentResumedActivity();
+                String where = (a == null) ? "none" : a.getClass().getSimpleName();
+                throw new AssertionError(
+                        "Timeout " + TIMEOUT_BOOK_LOAD/1000 + " sec. waiting for finish/navigation.\nCurrent activity: " + where +
+                                " | last progress='" + lastProgress + "'"
+                );
+            }
+            TestNavUtils.logCurrentActivity();
+
+            // --- Duration log (robust name from URI) ---
+            String duration = Tonio.formatMmSs(System.currentTimeMillis() - lastTimestamp);
+            String baseFromPath = (uri_content.getPath() != null) ? Tonio.getFileNameFromPath(uri_content.getPath()) : null;
+            String baseFromSeg  = (uri_content.getLastPathSegment() != null) ? uri_content.getLastPathSegment() : null;
+            String targetName   = (baseFromPath != null && !baseFromPath.isEmpty()) ? baseFromPath :
+                    (baseFromSeg != null ? baseFromSeg : uri_content.toString());
+
+            String logDuration = duration + "  " + targetName;
+            myLogI(logDuration);
+            String newLineMsg = "\n" + logDuration;
+            if (txtWarnings != null) newLineMsg = newLineMsg + " - [" + txtWarnings + "]";
+            logFinalMessage.append(newLineMsg);
+
+            TestNavUtils.sleep(TIMEOUT_VISUAL_CHECK);
+
+        } finally {
+            // --- Always detach the observer & stop the probe to avoid leaks / cross-test noise ---
+            InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
+                if (stateObs != null) {
+                    TaskStateRepository.get().state().removeObserver(stateObs);
+                }
+            });
+            if (probe != null) probe.stop();
         }
-        TestNavUtils.logCurrentActivity();
-
-// Final assertion: if not done, give a clear reason
-        if (!done) {
-            Activity a = TestNavUtils.getCurrentResumedActivity();
-            String where = (a == null) ? "none"
-                    : a.getClass().getSimpleName();
-            throw new AssertionError(
-                    "Timeout waiting for success (Get/Main) or EXIT on AddResourceActivity. " +
-                            "Current activity: " + where
-            );
-        }
-
-
-        //Duration Log
-        String duration = Tonio.formatMmSs(System.currentTimeMillis() - lastTimestamp);
-        String logDuration = duration + "  " + Tonio.getFileNameFromPath(uri_content.getPath());
-        myLogI(logDuration);
-        String newLineMsg = "\n" + logDuration;
-        newLineMsg = txtWarnings!=null ? newLineMsg + " - [" + txtWarnings + "]" : newLineMsg;
-        logFinalMessage.append(newLineMsg);
-
-        TestNavUtils.sleep(TIMEOUT_VISUAL_CHECK);
-
     }
 
 
