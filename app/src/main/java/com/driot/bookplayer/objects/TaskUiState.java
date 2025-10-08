@@ -58,19 +58,6 @@ public final class TaskUiState extends LoggerHelper {
                 this.title, nonNull(text), this.progressPercent, this.warningText, this.errorText
         );
     }
-    public TaskUiState forceRunningWithTitle(@NonNull String newTitle) {      // NEW
-        return new TaskUiState(
-                true, /*paused*/ false, /*finished*/ false, this.pauseAvailable,
-                nonNull(newTitle), this.progressText, this.progressPercent, this.warningText, null /*clear error*/
-        );
-    }
-
-    public TaskUiState withTitleSuffix(@NonNull String suffix) {
-        String base = (this.title == null || this.title.isEmpty()) ? "" : this.title;
-        String t = (suffix == null || suffix.isEmpty()) ? base : base + "  (" + suffix + ")";
-        return new TaskUiState(this.running, this.paused, this.finished, this.pauseAvailable,
-                t, this.progressText, this.progressPercent, this.warningText, this.errorText);
-    }
 
     public TaskUiState setPauseAvailable(boolean available) {     // NEW
         return new TaskUiState(this.running, this.paused, this.finished, available,
@@ -86,6 +73,11 @@ public final class TaskUiState extends LoggerHelper {
         String merged = (this.warningText == null || this.warningText.isEmpty()) ? w : (this.warningText + "\n" + w);
         return new TaskUiState(this.running, this.paused, this.finished, this.pauseAvailable,
                 this.title, this.progressText, this.progressPercent, merged, this.errorText);
+    }
+
+    public TaskUiState cleanWarning() {
+        return new TaskUiState(this.running, this.paused, this.finished, this.pauseAvailable,
+                this.title, this.progressText, this.progressPercent, null, this.errorText);
     }
 
     public TaskUiState failed(String error) {

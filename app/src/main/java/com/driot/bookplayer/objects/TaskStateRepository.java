@@ -118,6 +118,7 @@ public final class TaskStateRepository extends LoggerHelper {
         TaskUiState next = cur
                 .setPaused(false)
                 .setPauseAvailable(false)
+                .cleanWarning()
                 .withProgressTextOnly(currentOperation);
         post(next);
     }

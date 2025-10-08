@@ -6,7 +6,7 @@ import android.content.Intent;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 
-import com.driot.bookplayer.utils.KanLogger;
+import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 import java.util.List;
 import java.util.UUID;
@@ -101,13 +101,4 @@ public final class DownloadControl {
             } catch (Exception ignored) {}
         });
     }
-
-    ////////////////////////////////////////////////////////
-    private static final String TAG = "DownloadControl";
-    private static void myLog(String str) { KanLogger.myLog(TAG, str); }
-    private static void myLogD(String str) { KanLogger.myLogD(TAG, str); }
-    private static void myLogI(String str) { KanLogger.myLogI(TAG, str); }
-    private static void myLogW(String str) { KanLogger.myLogW(TAG, str); }
-    private static void myLogE(String str) { KanLogger.myLogE(TAG, str); }
-    private static void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, TAG, str); }
 }
