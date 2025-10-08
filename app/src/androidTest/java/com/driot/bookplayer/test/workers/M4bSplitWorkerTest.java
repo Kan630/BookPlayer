@@ -17,6 +17,7 @@ import androidx.work.WorkManager;
 import androidx.work.testing.SynchronousExecutor;
 import androidx.work.testing.WorkManagerTestInitHelper;
 
+import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.services.M4bSplitWorker;   // <-- your worker
@@ -38,7 +39,7 @@ import java.util.concurrent.TimeUnit;
 @RunWith(AndroidJUnit4.class)
 public class M4bSplitWorkerTest implements LogSupport {
 
-    private Context context;
+    private Context appContext;
 
     /** One case = input .m4b asset + expected folder-level hash (name+size). */
     private static final class TestCase {
@@ -80,14 +81,17 @@ public class M4bSplitWorkerTest implements LogSupport {
 
     @Before
     public void setup() {
-        context = ApplicationProvider.getApplicationContext();
+        myLog("ooooooooooooooooooooooooooooooooooooooooo");
+        myLog("----------------- setUp -----------------");
+        myLog("ooooooooooooooooooooooooooooooooooooooooo");
+        appContext = ApplicationProvider.getApplicationContext();
+        KanLogger.init(appContext);Option.setTechLog(true);
         Configuration config = new Configuration.Builder()
                 .setMinimumLoggingLevel(android.util.Log.DEBUG)
                 .setExecutor(new SynchronousExecutor())
                 .setTaskExecutor(new SynchronousExecutor()) // keeps callbacks synchronous too
                 .build();
-        WorkManagerTestInitHelper.initializeTestWorkManager(context, config);
-        KanLogger.init(context);
+        WorkManagerTestInitHelper.initializeTestWorkManager(appContext, config);
         myLogI("WorkManager test environment initialized");
     }
 
@@ -108,13 +112,15 @@ public class M4bSplitWorkerTest implements LogSupport {
         myLog("---------------------------------------------------------------------------------");
 
         // 1) Sandbox (unique per case)
-        File tempRoot = new File(context.getFilesDir(), "m4bsplit_" + tc.name);
+        File tempRoot = new File(appContext.getFilesDir(), "m4bsplit_" + tc.name);
         deleteRecursively(tempRoot);
         //noinspection ResultOfMethodCallIgnored
         tempRoot.mkdirs();
+        myLogD("tempRoot done");
 
         File inputFile = new File(tempRoot, "input.m4b");
-        copyAssetToFile(context, tc.assetPath, inputFile);
+        copyAssetToFile(appContext, tc.assetPath, inputFile);
+        myLogD("asset copy done");
 
         File destDir = new File(tempRoot, "out");
         //noinspection ResultOfMethodCallIgnored
@@ -125,10 +131,11 @@ public class M4bSplitWorkerTest implements LogSupport {
         s.dynamicSourceFilePath = inputFile.getAbsolutePath();
         s.futureFolderPath = destDir.getAbsolutePath();
         Pref.setLoadBookTaskState(s);
+        myLogD("LoadBookTaskState done, about to launch worker");
 
         // 3) Run Worker
         OneTimeWorkRequest req = new OneTimeWorkRequest.Builder(M4bSplitWorker.class).build();
-        WorkManager wm = WorkManager.getInstance(context);
+        WorkManager wm = WorkManager.getInstance(appContext);
         wm.enqueue(req).getResult().get();
 
         WorkInfo wi = waitForTerminalState(wm, req.getId(), /*maxMillis*/ 180_000);

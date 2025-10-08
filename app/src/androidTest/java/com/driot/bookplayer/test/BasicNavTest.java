@@ -15,17 +15,20 @@ import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.allOf;
 
 import android.content.Context;
-import android.util.Log;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.work.Configuration;
+import androidx.work.testing.SynchronousExecutor;
+import androidx.work.testing.WorkManagerTestInitHelper;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.GetActivity;
 import com.driot.bookplayer.activities.MainActivity;
 import com.driot.bookplayer.activities.SettingsActivity;
+import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.testutil.LogSupport;
 import com.driot.bookplayer.testutil.LoggingWatcher;
 import com.driot.bookplayer.testutil.MenuHelpers;
@@ -37,9 +40,12 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.concurrent.Executors;
+
 @RunWith(AndroidJUnit4.class)
 public abstract class BasicNavTest implements LogSupport {
 
+    private Context appContext;
     protected abstract int desiredOrientation();
 
     // Launches MainActivity before each test
@@ -55,9 +61,12 @@ public abstract class BasicNavTest implements LogSupport {
         myLog("ooooooooooooooooooooooooooooooooooooooooo");
         myLog("----------------- setUp -----------------");
         myLog("ooooooooooooooooooooooooooooooooooooooooo");
+        appContext = ApplicationProvider.getApplicationContext();
+
+        KanLogger.init(appContext);Option.setTechLog(true);
+
         activityRule.getScenario().onActivity(a ->
                 a.setRequestedOrientation(desiredOrientation()));
-        KanLogger.init(ApplicationProvider.getApplicationContext());
     }
 
     @Test
@@ -76,12 +85,14 @@ public abstract class BasicNavTest implements LogSupport {
         }
 
 ///  MAIN
-        myLog("on Main");
+        myLogD("on Main");
         // TODO change your custom menu top stock menu, so you can use this handy method
         // TODO => openActionBarOverflowOrOptionsMenu(InstrumentationRegistry.getInstrumentation().getTargetContext());onView(withText(R.string.menu_open)).perform(click());
 // 1) Make sure toolbar is there
         onView(ViewMatchers.withId(com.driot.bookplayer.R.id.toolbar)).check(matches(isDisplayed()));
-        myLog("toolbar reachable");
+        myLogD("toolbar reachable");
+
+        //menu_manual
 
         MenuHelpers.tapMenu(com.driot.bookplayer.R.string.menu_manual);
         onView(ViewMatchers.withId(com.driot.bookplayer.R.id.tvHelpText)).check(matches(isDisplayed()));
@@ -89,6 +100,8 @@ public abstract class BasicNavTest implements LogSupport {
         onView(withId(android.R.id.content)).perform(swipeUp());
         onView(withId(android.R.id.content)).perform(swipeDown());
         TestNavUtils.assertPressBackTo(MainActivity.class);
+
+        //menu_settings
 
         MenuHelpers.tapMenu(com.driot.bookplayer.R.string.menu_settings);
         TestNavUtils.logCurrentActivity();
@@ -102,7 +115,7 @@ public abstract class BasicNavTest implements LogSupport {
         onView(withId(com.driot.bookplayer.R.id.scrollView)).perform(TestNavUtils.scrollScrollViewToTop());
         TestNavUtils.assertPressBackTo(MainActivity.class);
 
-        //menu_seelog
+        //menu_stats
 
         MenuHelpers.tapMenu(com.driot.bookplayer.R.string.menu_stats);
         TestNavUtils.logCurrentActivity();
@@ -118,7 +131,7 @@ public abstract class BasicNavTest implements LogSupport {
         onView(withId(android.R.id.content)).perform(swipeDown());
         TestNavUtils.assertPressBackTo(MainActivity.class);
 
-        //menu_website
+        //menu_open
 
         MenuHelpers.tapMenu(com.driot.bookplayer.R.string.menu_open);
         TestNavUtils.logCurrentActivity();
@@ -147,6 +160,7 @@ public abstract class BasicNavTest implements LogSupport {
         TestNavUtils.sleep(10_000);
         TestNavUtils.logCurrentActivity();
 
+        // play audio
 
         onView(ViewMatchers.withId(com.driot.bookplayer.R.id.recyclerview_folders)).perform(RecyclerViewActions.actionOnItemAtPosition(0, click()));
         TestNavUtils.sleep(5_000);
