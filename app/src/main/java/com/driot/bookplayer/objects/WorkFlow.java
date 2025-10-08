@@ -4,17 +4,20 @@ import static com.driot.bookplayer.services.BookLoadingWorkLauncher.BOOK_LOADING
 
 import android.content.Context;
 
+import androidx.annotation.Nullable;
 import androidx.work.WorkManager;
 
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.global.Pref;
-import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.StorageHelper;
-import com.driot.bookplayer.utils.KanLogger;
+import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
+
 
 import java.io.File;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class WorkFlow {
 
@@ -45,6 +48,112 @@ public class WorkFlow {
         }
     }
 
+    private static final ExecutorService CLEANUP_EXEC =
+            Executors.newSingleThreadExecutor(r -> {
+                Thread t = new Thread(r, "WF-Cleanup");
+                t.setDaemon(true);
+                return t;
+            });
+
+    public static void cancelAllOngoingTasks(Context context) {
+        Context app = context.getApplicationContext();
+        myLog("...cancelAllOngoingTasks() - called from " + context.getClass().getSimpleName());
+
+        // Fast, non-blocking things only:
+        LoadBookTaskState state = Pref.getLoadBookTaskState();
+        try { Pref.clearLoadBookTaskState(app); } catch (Exception e) { myLogEE(e, "clearLoadBookTaskState fast"); }
+
+        // WorkManager cancel is async; safe to trigger here
+        WorkManager.getInstance(app).cancelAllWorkByTag(BOOK_LOADING_WORKERS);
+
+        // Defer all disk I/O
+        CLEANUP_EXEC.execute(() -> doCancelAllOngoingTasks(app, state));
+    }
+
+    private static void doCancelAllOngoingTasks(Context context, @Nullable LoadBookTaskState state) {
+        Thread.currentThread().setPriority(Thread.NORM_PRIORITY - 1);
+        myLogD("Cleanup starting (bg)…");
+
+        // 1) Delete partial/lock files (specific, not the whole folder)
+        try {
+            if (state != null && state.downloadFileUrl != null && state.downloadDestinationFolder != null) {
+                String fileName = com.driot.bookplayer.utils.Tonio.getFileNameFromUrl(state.downloadFileUrl);
+                File downloadDir = new File(state.downloadDestinationFolder);
+                File partial = new File(downloadDir, fileName);
+                File lock = new File(partial.getAbsolutePath() + ".lock");
+                if (lock.exists()) { try { lock.delete(); } catch (Throwable ignored) {} }
+                if (partial.exists()) { try { partial.delete(); } catch (Throwable ignored) {} }
+            } else {
+                myLogD("Skip partial delete: state missing url/destination");
+            }
+        } catch (Exception e) {
+            myLogEE(e, "cleanup - delete partial/lock");
+        }
+
+        // 3) Delete the unzip/working folder iff it's internal AND not referenced in DB
+        try {
+            if (state != null) {
+                String folderToDeletePath = state.futureFolderPath;
+                if (folderToDeletePath != null && folderToDeletePath.length() > 5) {
+                    if (StorageHelper.isInInternalMemory(folderToDeletePath)) {
+                        if (FileHelper.exists(folderToDeletePath)) {
+                            // DB check on DB executor, then delete in THIS bg thread.
+                            AppDatabase.databaseReadExecutor.execute(() -> {
+                                boolean safeToDelete =
+                                        AppDatabase.getDatabase(context)
+                                                .FolderDao()
+                                                .folderAlreadyExist_checkFolderPath(folderToDeletePath) == 0;
+                                if (safeToDelete) {
+                                    myLogI("deleting internal audio folder [" + folderToDeletePath + "]");
+                                    try { FileHelper.deleteFolderRecursive(folderToDeletePath); }
+                                    catch (Exception e) { myLogEE(e, "delete internal audio folder"); }
+                                } else {
+                                    myLogW("folder still in DB : [" + folderToDeletePath + "]");
+                                }
+                            });
+                        } else {
+                            myLogD("folderToDeletePath does not exist : [" + folderToDeletePath + "]");
+                        }
+                    } else {
+                        myLogD("no delete for non internal folder : [" + folderToDeletePath + "]");
+                    }
+                } else {
+                    myLogW("bad futureFolderPath length or null");
+                }
+            } else {
+                myLogD("cleanup - state=null");
+            }
+        } catch (Exception e) {
+            myLogEE(e, "cleanup - delete Internal (unzip) Folder");
+        }
+
+        // 2) Optional: tidy the app’s Download folder CONTENTS (not the folder itself)
+        try {
+            String downloadDirPath = StorageHelper.getDownloadFolderPath(context);
+            File dl = new File(downloadDirPath);
+            if (dl.exists() && dl.isDirectory()) {
+                FileHelper.deleteFolderChildren(dl); // implement: deletes children only
+            } else if (!dl.exists()) {
+                // Create if your pipeline assumes existence (still background, so OK)
+                if (!dl.mkdirs()) myLogW("cleanup - mkdirs failed for " + dl.getAbsolutePath());
+            }
+        } catch (Exception e) {
+            myLogEE(e, "cleanup - tidy Download folder");
+        }
+
+        // 4) Temp image
+        try { ImageHelper.deleteTempImportImage(context); }
+        catch (Exception e) { myLogEE(e, "cleanup - delete Temp Import Image"); }
+
+        // 5) Final fast things (prefs/viewmodels) — still safe in bg
+        try { Pref.clearLoadBookTaskState(context); } catch (Exception e) { myLogEE(e, "cleanup - clearLoadBookTaskState (bg)"); }
+        try { AppViewModelStoreOwner.clear(); } catch (Exception e) { myLogEE(e, "cleanup - clear AppViewModelStoreOwner"); }
+
+        myLogD("Cleanup finished (bg).");
+    }
+}
+
+/*
     public static void cancelAllOngoingTasks(Context context) {
         myLog("...cancelAllOngoingTasks() - called from " + context.getClass().getSimpleName());
 
@@ -59,7 +168,7 @@ public class WorkFlow {
         WorkManager.getInstance(context).cancelAllWorkByTag(BOOK_LOADING_WORKERS);
 
 
-        // 5) Delete ONLY the expected partial file for this workflow (and its .lock), not the whole folder
+        // Delete ONLY the expected partial file for this workflow (and its .lock), not the whole folder
         try {
             if (state != null && state.downloadFileUrl != null && state.downloadDestinationFolder != null) {
                 String fileName = com.driot.bookplayer.utils.Tonio.getFileNameFromUrl(state.downloadFileUrl);
@@ -141,24 +250,5 @@ public class WorkFlow {
         }
 
 
-
     }
-
-
-
-
-
-
-
-        ////////////////////////////////////////////////////////
-        ///////// Loggers
-        ////////////////////////////////////////////////////////
-        private static final String TAG = "WorkFlow";
-    private static void myLog(String str) { KanLogger.myLog(TAG, str); }
-    private static void myLogD(String str) { KanLogger.myLogD(TAG, str); }
-    private static void myLogI(String str) { KanLogger.myLogI(TAG, str); }
-    private static void myLogW(String str) { KanLogger.myLogW(TAG, str); }
-    private static void myLogE(String str) { KanLogger.myLogE(TAG, str); }
-    private static void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, TAG, str); }
-    private static void myToastEE(Throwable t, String str) { KanLogger.myToastEE(t, TAG, str); }
-}
+*/

@@ -395,4 +395,15 @@ public class FileHelper {
         return false;
     }
 
+    public static void deleteFolderChildren(File dir) {
+        File[] files = dir.listFiles();
+        if (files == null) return;
+        for (File f : files) {
+            try {
+                if (f.isDirectory()) deleteFolderRecursive(f.getAbsolutePath());
+                else f.delete();
+            } catch (Throwable ignored) {}
+        }
+    }
+
 }
