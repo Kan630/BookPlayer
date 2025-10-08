@@ -4,7 +4,7 @@
     <selectionStates>
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2025-10-08T15:17:20.051668500Z">
+        <DropdownSelection timestamp="2025-10-08T21:02:54.738516300Z">
           <Target type="DEFAULT_BOOT">
             <handle>
               <DeviceId pluginId="PhysicalDevice" identifier="serial=RF8Y50GB1XP" />
@@ -97,7 +97,7 @@
       </SelectionState>
       <SelectionState runConfigName="LoadManyBookTest">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2025-10-08T15:16:53.434802700Z">
+        <DropdownSelection timestamp="2025-10-08T21:02:47.122115700Z">
           <Target type="DEFAULT_BOOT">
             <handle>
               <DeviceId pluginId="PhysicalDevice" identifier="serial=RF8Y50GB1XP" />

@@ -8,7 +8,6 @@ import static com.driot.bookplayer.utils.Tonio.getExtension;
 import static com.driot.bookplayer.utils.Tonio.getFileNameFromPath;
 
 import android.content.Context;
-import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 
 import androidx.annotation.NonNull;
@@ -24,7 +23,6 @@ import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
-import com.driot.bookplayer.helpers.AudioMetadataHelper;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.SupportedFilesHelper;
@@ -33,10 +31,7 @@ import com.driot.bookplayer.objects.AudioFileInfo;
 import com.driot.bookplayer.objects.AudioInfo;
 import com.driot.bookplayer.objects.AudioProber;
 import com.driot.bookplayer.objects.LoadBookTaskState;
-import com.driot.bookplayer.objects.MyAudioMetadata;
 import com.driot.bookplayer.objects.TaskStateManager;
-import com.driot.bookplayer.player.PlayProbeResult;
-import com.driot.bookplayer.player.PlayabilityProbe;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingWorker;
 
@@ -309,21 +304,10 @@ public class ParseFinalFolderWorker extends LoggingWorker {
 
                     long duration = 0;
                     AudioInfo audioInfo = AudioProber.probe(context, f1.getUri());
-                    if (audioInfo == null || audioInfo.durationMs <= 0) {
-                        PlayProbeResult probe = PlayabilityProbe.probe(context, f1.getUri(), /*timeoutMs=*/3000, /*exo=*/false);
-                        if (probe.playable) {
-                            duration = (probe.durationMs > 0 ? probe.durationMs : 0);
-                            myLogD("Duration via " + probe.engine + " = " + formatTime(duration));
-                            if (duration == 0) {
-                                TaskStateManager.tellWarning(
-                                        context.getString(R.string.Error_Import_track_duration_extraction) + " for [" + f1.getName() + "]"
-                                );
-                            }
-                        } else {
-                            TaskStateManager.tellWarning(
-                                    context.getString(R.string.Error_Import_extract_audio_data_failed) + " for [" + f1.getName() + "]"
-                            );
-                        }
+                    if (audioInfo == null) {
+                        TaskStateManager.tellWarning(context.getString(R.string.Error_Import_extract_audio_data_failed) + " for [" + f1.getName() + "]");
+                    } else if (audioInfo.durationMs <= 0) {
+                        TaskStateManager.tellWarning(context.getString(R.string.Error_Import_track_duration_extraction) + " for [" + f1.getName() + "]");
                     } else {
                         duration = audioInfo.durationMs;
                         audioFileInfoArrayList.add(new AudioFileInfo(l_audioFilePath, duration, audioInfo.uri.toString()));

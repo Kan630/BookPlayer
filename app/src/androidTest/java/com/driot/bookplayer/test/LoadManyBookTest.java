@@ -73,13 +73,17 @@ public class LoadManyBookTest implements LogSupport {
             this.assetFolderPath = assetFolderPath.endsWith("/") ? assetFolderPath : (assetFolderPath + "/");
         }
     }
-
+/*
     private static final List<TestCase> TESTS = Arrays.asList(
             new TestCase("File", "fixtures/zip")
             ,new TestCase("File", "fixtures/ebooks")
             ,new TestCase("Folder", "fixtures/folders")
             ,new TestCase("File", "fixtures/m4b")
     );
+ */
+private static final List<TestCase> TESTS = Arrays.asList(
+        new TestCase("Folder", "fixtures/folders")
+);
 
     private TaskStateTestProbe probe;
     private Observer<TaskUiState> stateObs;

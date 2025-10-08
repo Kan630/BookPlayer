@@ -112,7 +112,7 @@
         app:layout_constraintTop_toBottomOf="@id/errorText"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="@id/guideline_vertical"
+        app:layout_constraintEnd_toEndOf="parent"
         android:fillViewport="true"
         android:overScrollMode="ifContentScrolls"
         app:layout_constraintHeight_default="wrap"

@@ -20,6 +20,8 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
 
 import com.driot.bookplayer.Var;
+import com.driot.bookplayer.utils.Tonio;
+
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 import org.hamcrest.Matcher;
@@ -142,7 +144,7 @@ public class TestNavUtils {
 
 
     public static void sleep(long millis) {
-        myLog("sleep " + millis + "ms");
+        myLog("sleep " + Tonio.formatMS(millis));
         try {
             Thread.sleep(millis);
         } catch (InterruptedException e) {

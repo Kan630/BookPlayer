@@ -162,9 +162,7 @@ public class AddResourceActivity extends LoggingActivity {
         delayedFinishRunnable = () -> {
             myToast(getString(R.string.Import_Success) + "\n" + tvTitle.getText());
             WorkFlow.cancelAllOngoingTasks(this);
-            Intent mainIntent = new Intent(this, MainActivity.class);
-            mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(mainIntent);
+            startActivity(new Intent(this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK));
             finish();
         };
         myLog("Let's wait some " + DELAY_END_WAIT_NO_ERROR / 1000 + " sec to display finish...");
@@ -181,7 +179,9 @@ public class AddResourceActivity extends LoggingActivity {
                 delayedFinishHandler.removeCallbacks(delayedFinishRunnable);
             }
             TaskStateRepository.get().resetToIdle();
+            startActivity(new Intent(this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP));
             finish();
+
         });
     }
 
