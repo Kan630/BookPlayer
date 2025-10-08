@@ -60,7 +60,7 @@ public class LoadManyBookTest implements LogSupport {
     private Context appContext;
 
     private final static boolean DEBUG_MODE_NO_LOOP = false;
-    private final static long TIMEOUT_TEST_END = 10_000;
+    private final static long TIMEOUT_TEST_END = 60*60_000;
     private final static long TIMEOUT_BOOK_LOAD = 120_000;
     private final static long TIMEOUT_VISUAL_CHECK = 3_000;
 
@@ -76,9 +76,9 @@ public class LoadManyBookTest implements LogSupport {
 
     private static final List<TestCase> TESTS = Arrays.asList(
             new TestCase("File", "fixtures/zip")
-            //,new TestCase("File", "fixtures/ebooks")
+            ,new TestCase("File", "fixtures/ebooks")
             ,new TestCase("Folder", "fixtures/folders")
-            //,new TestCase("File", "fixtures/m4b")
+            ,new TestCase("File", "fixtures/m4b")
     );
 
     private TaskStateTestProbe probe;

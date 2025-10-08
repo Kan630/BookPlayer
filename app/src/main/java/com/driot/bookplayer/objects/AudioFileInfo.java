@@ -1,5 +1,7 @@
 package com.driot.bookplayer.objects;
 
+import android.media.MediaMetadataRetriever;
+
 import java.util.Comparator;
 
 public class AudioFileInfo {
@@ -12,6 +14,7 @@ public class AudioFileInfo {
         this.duration = duration;
         this.contentUri = contentUri;
     }
+
     public String getDisplayPath() {
         return displayPath;
     }

@@ -30,9 +30,13 @@ import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.SupportedFilesHelper;
 import com.driot.bookplayer.helpers.UriHelper;
 import com.driot.bookplayer.objects.AudioFileInfo;
+import com.driot.bookplayer.objects.AudioInfo;
+import com.driot.bookplayer.objects.AudioProber;
 import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.objects.MyAudioMetadata;
 import com.driot.bookplayer.objects.TaskStateManager;
+import com.driot.bookplayer.player.PlayProbeResult;
+import com.driot.bookplayer.player.PlayabilityProbe;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingWorker;
 
@@ -46,7 +50,7 @@ public class ParseFinalFolderWorker extends LoggingWorker {
 
     private enum SaveResultEnum {SUCCESS, SKIPPED, FAILED}
 
-    private ArrayList<AudioFileInfo> audioFileArrayList;
+    private ArrayList<AudioFileInfo> audioFileInfoArrayList;
 
     private long fullFolderSize; //to make storage space checks
 
@@ -119,6 +123,7 @@ public class ParseFinalFolderWorker extends LoggingWorker {
         myLogD("dynamic Type : " + bookState.dynamicType);
         myLogD("dynamic Uri : " + bookState.dynamicUri);
 
+
         if (bookState.dynamicType.equals("Folder")) {
             try {
                 df = UriHelper.getDocumentFileFromAnyUri(context, bookState.dynamicUri);
@@ -132,6 +137,8 @@ public class ParseFinalFolderWorker extends LoggingWorker {
                 return Result.failure();
             }
             populateArrayListOfTracksFromFolder(df);
+
+
         } else {
             try {
                 df = UriHelper.getDocumentFileFromAnyUri(context, bookState.dynamicUri);
@@ -144,14 +151,18 @@ public class ParseFinalFolderWorker extends LoggingWorker {
                 TaskStateManager.markTaskFailed(TASK_NAME, "Error_Import_CannotReadFile", context.getString(R.string.Error_Import_CannotReadFile));
                 return Result.failure();
             }
+            /*
             try {
                 // the temp image is updated at the end..  ImageHelper.finalizeTempFolderImage
                 MyAudioMetadata metadata = AudioMetadataHelper.extractMetadata(context, bookState.dynamicUri);
+
             } catch (Throwable t) {
                 myLogEE(t, "Error parsing metadata");
             }
-
+             */
             populateArrayListOfTracksFromFile(df);
+
+
         }
         return Result.success();
 
@@ -171,7 +182,7 @@ public class ParseFinalFolderWorker extends LoggingWorker {
             return;
         }
 
-        audioFileArrayList = new ArrayList<>();
+        audioFileInfoArrayList = new ArrayList<>();
 
         if (bookState.playType != null && bookState.playType.equals(Var.PLAY_TYPE_TEXT)) {
             addTextFileUnique(dfPickedFile);
@@ -194,7 +205,7 @@ public class ParseFinalFolderWorker extends LoggingWorker {
         myLog("populateArrayListOfTracksFromFolder - DocumentFile [" + dfPickedDir + "]");
         TaskStateManager.tellProgress(TASK_NAME, 3, context.getString(R.string.listing_and_sorting_tracks));
 
-        audioFileArrayList = new ArrayList<>();
+        audioFileInfoArrayList = new ArrayList<>();
         Thread backgroundThread;
         myLog("bookState.playType = " + bookState.playType);
         if (bookState.playType != null && bookState.playType.equals(Var.PLAY_TYPE_TEXT)) {
@@ -202,12 +213,12 @@ public class ParseFinalFolderWorker extends LoggingWorker {
                 addTextFileRecursive(dfPickedDir);
 
                 myLogD("addTextFileRecursive done, sorting now...");
-                audioFileArrayList.sort(AudioFileInfo.SMART_CHAPTER_COMPARATOR);
+                audioFileInfoArrayList.sort(AudioFileInfo.SMART_CHAPTER_COMPARATOR);
 
-                if (audioFileArrayList.isEmpty()) {
+                if (audioFileInfoArrayList.isEmpty()) {
                     myLog("No File found in directory : [" + dfPickedDir.getName() + ']');
                 } else {
-                    myLog(audioFileArrayList.size() + " files found in directory : [" + dfPickedDir.getName() + ']');
+                    myLog(audioFileInfoArrayList.size() + " files found in directory : [" + dfPickedDir.getName() + ']');
                     myLog("Full directory size : [" + formatMemPadding(fullFolderSize/1024/1024,0) + " Mo]");
                     myLogD("-----------------------------");
                 }
@@ -219,12 +230,12 @@ public class ParseFinalFolderWorker extends LoggingWorker {
                 addAudioFileRecursive(dfPickedDir);
 
                 myLogD("addAudioFileRecursive done, sorting now...");
-                audioFileArrayList.sort(AudioFileInfo.SMART_CHAPTER_COMPARATOR);
+                audioFileInfoArrayList.sort(AudioFileInfo.SMART_CHAPTER_COMPARATOR);
 
-                if (audioFileArrayList.isEmpty()) {
+                if (audioFileInfoArrayList.isEmpty()) {
                     myLog("No File found in directory : [" + dfPickedDir.getName() + ']');
                 } else {
-                    myLog(audioFileArrayList.size() + " files found in directory : [" + dfPickedDir.getName() + ']');
+                    myLog(audioFileInfoArrayList.size() + " files found in directory : [" + dfPickedDir.getName() + ']');
                     myLog("Full directory size : [" + formatMemPadding(fullFolderSize/1024/1024,0) + " Mo]");
                     myLogD("-----------------------------");
                 }
@@ -250,13 +261,17 @@ public class ParseFinalFolderWorker extends LoggingWorker {
 
     private void addAudioFileUnique(DocumentFile df) {
         myLogD("* New Audio File : [" +  df.getName() + ']');
-        long duration = getMediaDurationFromUri(context, df.getUri(), df.getName());
-        if (duration==0) TaskStateManager.markTaskFailed(
-                TASK_NAME
-                , "Error_Import_track_duration_extraction for " + df.getName()
-                , context.getString(R.string.Error_Import_track_duration_extraction) + " for " + df.getName());
-        myLogD("* Duration : [" +  formatTime(duration) + ']');
-        audioFileArrayList.add(new AudioFileInfo(df.getName(), duration, df.getUri().toString()));
+        AudioInfo audioInfo = AudioProber.probe(context, df.getUri());
+        if (audioInfo == null || audioInfo.durationMs <= 0) {
+            TaskStateManager.markTaskFailed(
+                    TASK_NAME
+                    , "Error_Import_extract_audio_data_failed for [" + df.getName() + "]"
+                    , context.getString(R.string.Error_Import_extract_audio_data_failed) + " for [" + df.getName() + "]");
+        } else {
+            myLogD("* Duration : [" +  formatTime(audioInfo.durationMs) + ']');
+            audioFileInfoArrayList.add(new AudioFileInfo(df.getName(), audioInfo.durationMs, audioInfo.uri.toString()));
+            audioInfo.saveCover(this.context);
+        }
     }
     private void addAudioFileRecursive(DocumentFile f0) {
         totalDuration = 0;
@@ -272,6 +287,8 @@ public class ParseFinalFolderWorker extends LoggingWorker {
                 , context.getString(R.string.Error_Import_track_duration_extraction));
     }
     private void addAudioFileRecursive(DocumentFile f0, String recursivFolder) {
+        myLogD("-------------------------------------------------------------------------------------------------------------------xxx");
+        myLogD("-------------------------------------------------------------------------------------------------------------------xxx");
         String l_audioFilePath;
         long l_audioSize;
         boolean hadImageBefore = bookState.imagePath != null; //dont look in subDir if image found at top dir
@@ -284,33 +301,62 @@ public class ParseFinalFolderWorker extends LoggingWorker {
                 String fileExtension = SupportedFilesHelper.getFileExtension(f1);
                 String mimeType = SupportedFilesHelper.getMimeType(f1);
                 myLogD("* Checking File : [" + fileExtension + "] . [" + fileName + "] - mime = [" + mimeType + "] - subfolder : [" + recursivFolder + "]");
-                if (SupportedFilesHelper.isAudio(f1)) {
+
+                if (SupportedFilesHelper.isAudio(f1) || SupportedFilesHelper.isVideo(f1)) {
                     nbFileScan = nbFileScan + 1;
                     l_audioFilePath = recursivFolder + f1.getName();
                     l_audioSize = f1.length();
-                    long duration = getMediaDurationFromUri(context, f1.getUri(), l_audioFilePath);
+
+                    long duration = 0;
+                    AudioInfo audioInfo = AudioProber.probe(context, f1.getUri());
+                    if (audioInfo == null || audioInfo.durationMs <= 0) {
+                        PlayProbeResult probe = PlayabilityProbe.probe(context, f1.getUri(), /*timeoutMs=*/3000, /*exo=*/false);
+                        if (probe.playable) {
+                            duration = (probe.durationMs > 0 ? probe.durationMs : 0);
+                            myLogD("Duration via " + probe.engine + " = " + formatTime(duration));
+                            if (duration == 0) {
+                                TaskStateManager.tellWarning(
+                                        context.getString(R.string.Error_Import_track_duration_extraction) + " for [" + f1.getName() + "]"
+                                );
+                            }
+                        } else {
+                            TaskStateManager.tellWarning(
+                                    context.getString(R.string.Error_Import_extract_audio_data_failed) + " for [" + f1.getName() + "]"
+                            );
+                        }
+                    } else {
+                        duration = audioInfo.durationMs;
+                        audioFileInfoArrayList.add(new AudioFileInfo(l_audioFilePath, duration, audioInfo.uri.toString()));
+                    }
                     myLogD("Audio File : [" + l_audioFilePath + "] - size = [" + l_audioSize + "] - [" +  formatTime(duration) + "]");
+
                     totalDuration = totalDuration + duration;
                     nbAudioScanned++;
                     double progress = totalAudioToScan > 0 ? (nbAudioScanned / (double) totalAudioToScan) : 0;
                     int scaledProgress = 10 + (int) ((80 - 10) * progress);
                     TaskStateManager.tellProgress(TASK_NAME, scaledProgress, context.getString(R.string.scanning_tracks) + "..... \n[" +  l_audioFilePath + ']');
-                    audioFileArrayList.add(new AudioFileInfo(l_audioFilePath, duration, f1.getUri().toString()));
+
                     fullFolderSize = fullFolderSize + l_audioSize;
-                } else if (SupportedFilesHelper.isVideo(f1)) {
-                    myLog("Video");
-                } else if (!hadImageBefore && SupportedFilesHelper.isImage(f1)) {
-                    long imageSize = f1.length();
-                    if (bookState.imagePath == null || imageSize > UriHelper.getSize(context, Uri.parse(bookState.imagePath))) {
-                        myLogD("New biggest Picture Found, size = [" + Tonio.formatMemPadding(imageSize) + "] - [" + f1.getUri() + "]");
-                        bookState.imagePath = f1.getUri().toString();
-                        hadImageBefore = true;
+
+                } else if (SupportedFilesHelper.isImage(f1)) {
+                    if (!hadImageBefore) {
+                        long imageSize = f1.length();
+                        if (bookState.imagePath == null || imageSize > UriHelper.getSize(context, Uri.parse(bookState.imagePath))) {
+                            myLogD("New biggest Picture Found, size = [" + Tonio.formatMemPadding(imageSize) + "] - [" + f1.getUri() + "]");
+                            bookState.imagePath = f1.getUri().toString();
+                            hadImageBefore = true;
+                        }
+                    } else {
+                        myLogD("bypassing image (already got a cover)");
                     }
                 } else {
-                    myLogW("Wrong mime/extension - [" + fileExtension + "] - Bypassed file: [" + f1.getName() + "]");
+                    TaskStateManager.tellWarning(context.getString(R.string.Error_Import_unsupported_file) + " - [" + fileExtension + "] - [" + f1.getName() + "]");
+                    myLogW("Wrong mime/extension - [\" + fileExtension + \"] - Bypassed file: [" + f1.getName() + "]");
                 }
             }
         }
+        myLogD("-------------------------------------------------------------------------------------------------------------------xxx");
+        myLogD("-------------------------------------------------------------------------------------------------------------------xxx");
     }
 
     private void addTextFileUnique(DocumentFile df) {
@@ -321,7 +367,7 @@ public class ParseFinalFolderWorker extends LoggingWorker {
         long duration = estimateTtsDurationMsFromUri(context, df.getUri(), name, mime);
         myLogD("* TTS Duration (est.): [" + formatTime(duration) + ']');
 
-        audioFileArrayList.add(new AudioFileInfo(name, duration, df.getUri().toString()));
+        audioFileInfoArrayList.add(new AudioFileInfo(name, duration, df.getUri().toString()));
     }
 
     private void addTextFileRecursive(DocumentFile root) {
@@ -354,7 +400,7 @@ public class ParseFinalFolderWorker extends LoggingWorker {
 
                     long duration = estimateTtsDurationMsFromUri(context, f1.getUri(), fileName, mimeType);
                     myLogD("text file duration :" + Tonio.formatTime(duration));
-                    audioFileArrayList.add(new AudioFileInfo(displayPath, duration, f1.getUri().toString()));
+                    audioFileInfoArrayList.add(new AudioFileInfo(displayPath, duration, f1.getUri().toString()));
                     fullFolderSize += size;
 
                     nbAudioScanned++;
@@ -391,11 +437,11 @@ public class ParseFinalFolderWorker extends LoggingWorker {
     }
 
     private void goFolder() {
-        if (audioFileArrayList != null) {
-            if (audioFileArrayList.isEmpty()) {
+        if (audioFileInfoArrayList != null) {
+            if (audioFileInfoArrayList.isEmpty()) {
                 TaskStateManager.markTaskFailed(TASK_NAME, "Error_Import_NoMediaInFolder", context.getString(R.string.Error_Import_NoMediaInFolder));
             } else {
-                myLog(audioFileArrayList.size() + " " + context.getString(R.string.Import_nMediaInFolder));
+                myLog(audioFileInfoArrayList.size() + " " + context.getString(R.string.Import_nMediaInFolder));
                 if (Option.getCreateCover()) {
                     try {
                         if (bookState.imagePath == null || bookState.imagePath.isEmpty()) {
@@ -450,18 +496,19 @@ public class ParseFinalFolderWorker extends LoggingWorker {
     }
 
     private void saveFiles(int insertedFolderId) {
-        if (audioFileArrayList == null) {
+        myLogD("--------------------- saving files...");
+        if (audioFileInfoArrayList == null) {
             TaskStateManager.markTaskFailed(TASK_NAME, "saveFiles - audioFileArrayList is null", context.getString(R.string.Error_Import_no_valid_media_found));
             return;
         }
 
-        int total = audioFileArrayList.size();
+        int total = audioFileInfoArrayList.size();
         int saved = 0;
         int skipped = 0;
         int failed = 0;
 
         for (int i = 0; i < total; i++) {
-            AudioFileInfo info = audioFileArrayList.get(i);
+            AudioFileInfo info = audioFileInfoArrayList.get(i);
             int zeOrder = saved + 1;
 
             int progress = 85 + ((i + 1) * 100 / total) * (98 - 85) / 100;
@@ -599,33 +646,6 @@ public class ParseFinalFolderWorker extends LoggingWorker {
             myLogEE(null,"deleteSourceFile() => could not get ref to picked file");
             return false;
         }
-    }
-
-    private long getMediaDurationFromUri(Context context, Uri uri, String audioName) {
-        long duration = 0;
-        MediaMetadataRetriever retriever = null;
-        try {
-            retriever = new MediaMetadataRetriever();   //try-with resource only for API 29 (android A10)
-            retriever.setDataSource(context, uri);
-            String durStr = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
-            if (durStr == null) {
-                myLogEE(null,"getMediaDurationFromUri => duration is null, uri: [" + uri + "]");
-            } else {
-                duration = Long.parseLong(durStr);
-            }
-        } catch (Exception e) {
-            TaskStateManager.tellWarning(context.getString(R.string.Error_Import_track_duration_extraction) + " for " + audioName);
-            myLogEE(e,"getMediaDurationFromUri => Exception, uri: [" + uri + "]");
-        } finally {
-            if (retriever != null) {
-                try {
-                    retriever.release();
-                } catch (Exception e) {
-                    myLogEE(e, "Error releasing MediaMetadataRetriever");
-                }
-            }
-        }
-        return duration;
     }
 
     private void countAudioFiles(DocumentFile f0) {

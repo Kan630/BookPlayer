@@ -905,6 +905,10 @@
     <string name="invalid_resource">Invalid resource.</string>
     <string name="Error_while_listing_audio_files">Error while listing audio files</string>
     <string name="Error_Import_no_valid_media_found">Error : no valid media found</string>
+    <string name="Error_Import_extract_audio_data_failed">Error : could not extract audio data</string>
+    <string name="Error_Import_unsupported_file">Error : unsupported file</string>
+
+
 
 
 

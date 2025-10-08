@@ -6,12 +6,14 @@ import static com.driot.bookplayer.utils.FinalizeDownloadWorker.KEY_FOLDER_NAME;
 import static com.driot.bookplayer.utils.FinalizeDownloadWorker.KEY_FOLDER_PATH;
 
 import android.content.Context;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 
 import androidx.annotation.NonNull;
 import androidx.work.WorkerParameters;
 
+import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Episode;
 import com.driot.bookplayer.db.EpisodeDao;
@@ -25,6 +27,10 @@ import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.PodcastHelper;
+import com.driot.bookplayer.objects.AudioFileInfo;
+import com.driot.bookplayer.objects.AudioInfo;
+import com.driot.bookplayer.objects.AudioProber;
+import com.driot.bookplayer.objects.TaskStateManager;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingWorker;
 
@@ -114,11 +120,13 @@ public class PodcastSyncWorker extends LoggingWorker {
                 if (idFile < 1) { // not in DB
                     double zeOrder = zikFileDao.getMaxOrder(idFolder) + 1;
 
+                    String trackTitle = Tonio.formatNameForDisplay(episode.title, false);
 
                     myLogD("getting duration for file : [" + file.getAbsolutePath() + ']');
                     long duration = 0;
-                    duration = FileHelper.getMediaDurationFromPath(file.getAbsolutePath());
-                    String trackTitle = Tonio.formatNameForDisplay(episode.title, false);
+                    AudioInfo audioInfo = AudioProber.probe(this.getApplicationContext(), Uri.fromFile(file));
+                    if (audioInfo != null) duration = audioInfo.durationMs;
+
                     if (duration > 0) {
                         ZikFile zikFile = new ZikFile();
                         zikFile.setIdFolder(idFolder);

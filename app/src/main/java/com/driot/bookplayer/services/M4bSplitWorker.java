@@ -1,6 +1,7 @@
 package com.driot.bookplayer.services;
 
 import android.content.Context;
+import android.net.Uri;
 
 import androidx.annotation.NonNull;
 import androidx.work.WorkerParameters;
@@ -10,6 +11,8 @@ import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.AudioMetadataHelper;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
+import com.driot.bookplayer.objects.AudioInfo;
+import com.driot.bookplayer.objects.AudioProber;
 import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.objects.MyAudioMetadata;
 import com.driot.bookplayer.objects.TaskStateManager;
@@ -73,8 +76,12 @@ public class M4bSplitWorker extends LoggingWorker {
 // METADATA
         TaskStateManager.tellProgressText("Parsing Metadata");
         try {
-            //don't remove stuff is done in class for image
-            MyAudioMetadata metadata = AudioMetadataHelper.extractMetadata(context, new File(m4bFilePath));
+            // don't remove stuff is done in class for image
+            // MyAudioMetadata metadata = AudioMetadataHelper.extractMetadata(context, new File(m4bFilePath));
+            AudioInfo audioInfo = AudioProber.probe(context, Uri.fromFile(new File(m4bFilePath)));
+            if (audioInfo!=null && audioInfo.cover != null) {
+                audioInfo.saveCover(this.getApplicationContext());
+            }
         } catch (Exception e) {
             myLogEE(e,"Error Parsing Metadata");
         }

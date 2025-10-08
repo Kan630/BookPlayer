@@ -86,7 +86,11 @@ public class UriHelper {
 
                 // Not a DocumentsProvider → cannot create a DocumentFile
                 // (MediaStore: content://media/..., Xiaomi, gallery, cloud, etc.)
-                myLogEE(null, "getDocumentFileFromAnyUri: non-DocumentsProvider content URI → returning null: " + Uri.decode(uri.toString()));
+                myLogD("--------");
+                myLog("getDocumentFileFromAnyUri: non-DocumentsProvider content URI → returning null: " + Uri.decode(uri.toString()));
+                myLog(".....only way would be to write (=cache) the uri to a temp file...");
+                myLogD("scheme/authority : " + uri.getScheme() + "/" + uri.getAuthority());
+                myLogD("--------");
                 return null;
             }
 

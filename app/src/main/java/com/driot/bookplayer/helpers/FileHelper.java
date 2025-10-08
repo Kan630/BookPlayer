@@ -349,40 +349,6 @@ public class FileHelper {
         }
     }
 
-    // DUREE AUDIO
-    public static long getMediaDurationFromPath(String path) {
-        if (path == null) {
-            myLogEE(null, "duration: null path");
-            return 0L;
-        }
-        File f = new File(path);
-        if (!f.exists()) {
-            myLogEE(null, "duration: file does not exist: " + path);
-            return 0L;
-        }
-        if (f.length() <= 0) {
-            myLogEE(null, "duration: file is empty: " + path);
-            return 0L;
-        }
-
-        MediaMetadataRetriever mmr = new MediaMetadataRetriever();
-        try (FileInputStream fis = new FileInputStream(f)) {
-            // Using FD avoids many charset / path edge cases
-            mmr.setDataSource(fis.getFD());
-            String durMs = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
-            if (durMs == null) {
-                myLogEE(null, "duration: METADATA_KEY_DURATION is null for " + path);
-                return 0L;
-            }
-            return Long.parseLong(durMs);
-        } catch (Exception e) {
-            myLogEE(e, "error getting duration of media for " + path);
-            return 0L;
-        } finally {
-            try { mmr.release(); } catch (Throwable ignore) {}
-        }
-    }
-
     public static boolean deleteFile(Context context, String path) {
         if (path == null) return false;
 

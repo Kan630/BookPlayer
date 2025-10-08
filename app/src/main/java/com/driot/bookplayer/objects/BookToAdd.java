@@ -7,12 +7,12 @@ import androidx.annotation.NonNull;
 import androidx.documentfile.provider.DocumentFile;
 
 import com.driot.bookplayer.helpers.SupportedFilesHelper;
-import com.driot.bookplayer.utils.KanLogger;
 import com.driot.bookplayer.utils.Tonio;
+import com.driot.bookplayer.utils.log.LoggerHelper;
 
 import java.util.Objects;
 
-public class BookToAdd {
+public class BookToAdd extends LoggerHelper {
 
     private static Context appContext;
 
@@ -42,40 +42,15 @@ public class BookToAdd {
     ///    CONSTRUCTOR
     /// ////////////////////////////////////////////////////////////////////////////////////////
     public BookToAdd(Uri uri, String type) {
+        super(BookToAdd.class);
 
         this.type = type;
         this.uri = uri;
         this.originalType = type;
         this.isMimeSupported = true;
 
-        if (isUriDirectory() && !Objects.equals(type, "Folder")) {
-            myLogW("Side Check if it is a Folder : " + isUriDirectory() + " - but type = " + type);
-        }
-
         this.sourceLocation = Tonio.getSourceLocation(appContext, uri);
         this.infoSourceLocation = "[" + this.sourceLocation + "]";
-
-        //TODO : is this really usefull ?   => maybe to cancel early if path not supported...
-        /*
-        if (type.equals("File")) {
-            try {
-                this.df = DocumentFile.fromSingleUri(appContext, uri);
-            } catch (Exception e) {
-                myLogEE(e,"Error reading picked File.... DocumentFile.fromSingleUri");
-                this.isBroken = true;
-            }
-        } else if (type.equals("Folder")) {
-            try {
-                this.df = DocumentFile.fromTreeUri(appContext, uri);
-            } catch (Exception e) {
-                myLogEE(e,"Error reading picked Folder.... DocumentFile.fromTreeUri : [" + uri + "]");
-                this.isBroken = true;
-            }
-        } else {
-            myLogEE(null, "Very bad type");
-        }
-
-         */
 
         if (type.equals("File")) {
             //TODO check that 3 methods
@@ -112,11 +87,6 @@ public class BookToAdd {
         } else if (type.equals("Folder")) {
 
             this.infoMimeExtension = "[" + type + "]";
-
-            if (!isUriDirectory()) {
-                myLogEE(null,"is not a Directory ?");
-            }
-
             this.audioBookName = getBookName_with2folders(uri.getPath(), false);
 
         }
@@ -187,9 +157,10 @@ public class BookToAdd {
         return playType;
     }
 
-    /// ////////////////////////////////////////////////////////////////////////////////////////
-    /// ////////////////////////////////////////////////////////////////////////////////////////
 
+    /// ////////////////////////////////////////////////////////////////////////////////////////
+    /// HELPERS
+    /// ////////////////////////////////////////////////////////////////////////////////////////
 
     private String getBookName_with2folders(String sFolderPath, boolean stripExtension) {
         // nom par défaut = les deux derniers folders :
@@ -213,14 +184,7 @@ public class BookToAdd {
         myLog("getBookName_with2folders : [" + zeReturn + "]\nFrom : [" + sFolderPath + "]");
         return zeReturn;
     }
-    private boolean isUriDirectory() {
-        try {
-            DocumentFile doc = DocumentFile.fromTreeUri(appContext, uri);
-            return doc != null && doc.isDirectory();
-        } catch (Exception e) {
-            return false;
-        }
-    }
+
     private void trimAudioBookPrefix() {
         String[] prefixes = { "download/", "audiobooks/", "unzipped/" };
         for (String prefix : prefixes) {
@@ -230,7 +194,6 @@ public class BookToAdd {
             }
         }
     }
-
 
     @NonNull
     @Override
@@ -250,13 +213,4 @@ public class BookToAdd {
                 "\nplayType='" + playType + '\'' +
                 '}';
     }
-
-    private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
-    private void myLogD(String str) { KanLogger.myLogD(this.getClass().getName(), str); }
-    private void myLogI(String str) { KanLogger.myLogI(this.getClass().getName(), str); }
-    private void myLogW(String str) { KanLogger.myLogW(this.getClass().getName(), str); }
-    private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
-    private void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, this.getClass().getName(), str); }
-    private void myToastEE(Throwable t, String str) { KanLogger.myToastEE(t, this.getClass().getName(), str); }
-
 }

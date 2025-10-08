@@ -220,7 +220,7 @@ public class UnzipWorker extends LoggingWorker {
 
         for (Charset cs : ZIP_CHARSET_CANDIDATES) {
             double score = scoreZipNames(zipFile, cs);
-            myLogD("Charset score " + cs + " = " + score);
+            //myLogD("Charset score " + cs + " = " + score);
             if (score > bestScore) { bestScore = score; best = cs; }
         }
         if (best == null) {
