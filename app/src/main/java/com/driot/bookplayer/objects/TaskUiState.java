@@ -80,16 +80,16 @@ public final class TaskUiState extends LoggerHelper {
                 this.title, this.progressText, this.progressPercent, null, this.errorText);
     }
 
-    public TaskUiState failed(String error) {
-        myLogI("failed " + error);
+    public TaskUiState failed(String errorText, String progressText) {
+        myLogI("failed " + errorText);
         return new TaskUiState(false, false, true, false,
-                this.title, "Import failed", 100, this.warningText, nonNull(error));
+                this.title, progressText, 100, this.warningText, nonNull(errorText));
     }
 
-    public TaskUiState finished() {
+    public TaskUiState finished(String progressText) {
         myLogI("finished");
         return new TaskUiState(false, false, true, false,
-                this.title, "Finished", 100, this.warningText, null);
+                this.title, progressText, 100, this.warningText, null);
     }
 
     private static String nonNull(String s) { return s == null ? "" : s; }

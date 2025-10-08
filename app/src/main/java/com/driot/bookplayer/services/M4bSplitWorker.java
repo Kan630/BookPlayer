@@ -43,7 +43,7 @@ public class M4bSplitWorker extends LoggingWorker {
     public Result doWork() {
         LoadBookTaskState bookState = Pref.getLoadBookTaskState();
         if (bookState == null) {
-            TaskStateManager.markTaskFailed(TASK_NAME, "bookState == null");
+            TaskStateManager.markTaskFailed(TASK_NAME, "bookState == null", getApplicationContext().getString(R.string.invalid_resource));
             return Result.failure();
         }
 
@@ -55,7 +55,7 @@ public class M4bSplitWorker extends LoggingWorker {
         myLog("destinationFolderPath = " + destinationFolderPath);
 
         if (m4bFilePath == null || destinationFolderPath == null) {
-            TaskStateManager.markTaskFailed(TASK_NAME, "Missing input data for M4bSplitWorker");
+            TaskStateManager.markTaskFailed(TASK_NAME, "Missing input data for M4bSplitWorker", getApplicationContext().getString(R.string.invalid_resource));
             myLogEE(null,"Missing input data for M4bSplitWorker");
             return Result.failure();
         }
@@ -178,12 +178,28 @@ public class M4bSplitWorker extends LoggingWorker {
             return true;
 
         } catch (Exception e) {
+            String msg = (e.getMessage() != null ? e.getMessage() : "");
+
+            // --- Check for ENOSPC ("no space left on device") ---
+            boolean noSpace = msg.contains("ENOSPC")
+                    || msg.contains("No space left on device")
+                    || (e.getCause() != null && String.valueOf(e.getCause().getMessage()).contains("ENOSPC"));
+
+            if (noSpace) {
+                myLogEE(e, "splitM4bLocal - disk full (ENOSPC)");
+                String userMsg = context.getString(R.string.error_no_space_left)
+                        + "\n\n" + context.getString(R.string.solution_free_space);
+                TaskStateManager.tellWarning(userMsg);
+                TaskStateManager.markTaskFailed(TASK_NAME, "No space left on device", context.getString(R.string.error_no_space_left));
+                return false;
+            }
+
             myLogEE(e, "splitM4bLocal");
             TaskStateManager.tellWarning(context.getString(R.string.Import_Experimental_M4B_warning)
                     + "\n\n" + context.getString(R.string.Import_Experimental_M4B_iferror)
                     + ", " + context.getString(R.string.Import_Experimental_M4B_solution_1)
                     + "\n" + context.getString(R.string.Import_Experimental_M4B_solution_2));
-            TaskStateManager.markTaskFailed(TASK_NAME, e.getMessage());
+            TaskStateManager.markTaskFailed(TASK_NAME, e.getMessage(), null);
             return false;
         }
     }

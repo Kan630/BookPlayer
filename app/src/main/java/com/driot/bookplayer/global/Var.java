@@ -67,7 +67,8 @@ public class Var {
     public static final String PATH_CHECK_AUDIO_FILE_INTERNAL_PROD = "com.driot.bookplayer/files/unzipped";
     public static final String PATH_CHECK_AUDIO_FILE_INTERNAL_DEBUG = "com.driot.bookplayer.debug/files/unzipped";
 
-    public static final int  ZIP_SIZE_MAX_COEF = 4;
+    public static final int ZIP_SIZE_MAX_COEF = 3;
+    public static final int M4B_SIZE_MAX_COEF = 3;
 
     public static final String  PATH_AUTOTEST_URL = "https://bookplayer.driot.com/autotest/";
 

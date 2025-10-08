@@ -44,17 +44,19 @@ public class UnzipWorker extends LoggingWorker {
 
         LoadBookTaskState bookState = Pref.getLoadBookTaskState();
         if (bookState == null) {
-            TaskStateManager.markTaskFailed(TASK_NAME, "bookState == null");
+            TaskStateManager.markTaskFailed(TASK_NAME, "bookState == null", getApplicationContext().getString(R.string.invalid_resource));
             return Result.failure();
         }
 
         String zipFilePath = bookState.dynamicSourceFilePath;
         String destinationFolderPath = bookState.futureFolderPath;
+        myLogD("----------------------------------------------------");
         myLog("From: " + zipFilePath);
         myLog("To: " + destinationFolderPath);
+        myLogD("----------------------------------------------------");
 
         if (zipFilePath == null || destinationFolderPath == null) {
-            TaskStateManager.markTaskFailed(TASK_NAME, "Missing input data");
+            TaskStateManager.markTaskFailed(TASK_NAME, "Missing input data", getApplicationContext().getString(R.string.invalid_resource));
             return Result.failure();
         }
 
@@ -62,12 +64,12 @@ public class UnzipWorker extends LoggingWorker {
         File unzipFolder = new File(destinationFolderPath);
 
         if (!zipFile.exists()) {
-            TaskStateManager.markTaskFailed(TASK_NAME, "Zip file not found");
+            TaskStateManager.markTaskFailed(TASK_NAME, "Zip file not found", getApplicationContext().getString(R.string.invalid_resource));
             return Result.failure();
         }
 
         if (!unzipFolder.exists() && !unzipFolder.mkdirs()) {
-            TaskStateManager.markTaskFailed(TASK_NAME, "Could not create destination folder");
+            TaskStateManager.markTaskFailed(TASK_NAME, "Could not create destination folder", getApplicationContext().getString(R.string.failed_to_create_destination_folder));
             return Result.failure();
         }
 
@@ -129,7 +131,7 @@ public class UnzipWorker extends LoggingWorker {
 
                         File unzippedFile = new File(unzipFolder, audioFileName);
                         if (!(unzippedFile.getParentFile() == null) && !unzippedFile.getParentFile().exists() && !unzippedFile.getParentFile().mkdirs()) {
-                            TaskStateManager.markTaskFailed(TASK_NAME, "Failed to create output dir: " + unzippedFile);
+                            TaskStateManager.markTaskFailed(TASK_NAME, "Failed to create output dir: " + unzippedFile, getApplicationContext().getString(R.string.failed_to_create_destination_folder));
                             return Result.failure();
                         }
 
@@ -175,7 +177,23 @@ public class UnzipWorker extends LoggingWorker {
             return Result.success();
 
         } catch (Exception e) {
-            TaskStateManager.markTaskFailed(TASK_NAME, e.getMessage());
+            String msg = (e.getMessage() != null ? e.getMessage() : "");
+            myLogE("main catch : " + msg);
+
+            // --- Check for ENOSPC ("no space left on device") ---
+            boolean noSpace = msg.contains("ENOSPC")
+                    || msg.contains("No space left on device")
+                    || (e.getCause() != null && String.valueOf(e.getCause().getMessage()).contains("ENOSPC"));
+
+            if (noSpace) {
+                myLogEE(e, "splitM4bLocal - disk full (ENOSPC)");
+                String userMsg = context.getString(R.string.error_no_space_left)
+                        + "\n\n" + context.getString(R.string.solution_free_space);
+                TaskStateManager.tellWarning(userMsg);
+                TaskStateManager.markTaskFailed(TASK_NAME, "No space left on device", context.getString(R.string.error_no_space_left));
+            } else {
+                TaskStateManager.markTaskFailed(TASK_NAME, e.getMessage(), null);
+            }
             FileHelper.recursiveRemove(unzipFolder);
             return Result.failure();
         }

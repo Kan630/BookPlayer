@@ -288,24 +288,30 @@ public class FileHelper {
     }
 
     public static boolean recursiveRemove(File file) {
-        if(file == null  || !file.exists()) {
-            myLogE("recursiveRemove() => File does not exist.... [" + file.toString() + "]");
+        String callerInfo = captureExternalCaller();
+        return recursiveRemoveInternal(file, callerInfo);
+    }
+
+    private static boolean recursiveRemoveInternal(File file, String callerInfo) {
+        if (file == null || !file.exists()) {
+            myLogE("recursiveRemove() by " + callerInfo + " => File does not exist [" + file + "]");
             return false;
         }
 
-        if(file.isDirectory()) {
+        if (file.isDirectory()) {
             File[] list = file.listFiles();
-            if(list != null) {
-                for(File item : list) {
+            if (list != null) {
+                for (File item : list) {
                     recursiveRemove(item);
                 }
             }
         }
-        if(file.exists()) {
+
+        if (file.exists()) {
             if (file.delete()) {
-                myLog("recursiveRemove() => delete OK.... [" + file.toString() + "]");
+                myLog("recursiveRemove() by " + callerInfo + " => delete OK [" + file + "]");
             } else {
-                myLogE("recursiveRemove() => delete KO.... [" + file.toString() + "]");
+                myLogE("recursiveRemove() by " + callerInfo + " => delete KO [" + file + "]");
             }
         }
         return !file.exists();
@@ -404,6 +410,29 @@ public class FileHelper {
                 else f.delete();
             } catch (Throwable ignored) {}
         }
+    }
+
+
+    private static String captureExternalCaller() {
+        try {
+            StackTraceElement[] st = new Throwable().getStackTrace();
+            // st[0] = new Throwable
+            // st[1] = captureExternalCaller
+            // st[2] = recursiveRemove (public)
+            // st[3] = <external caller>  <-- usually this one
+            for (int i = 2; i < st.length; i++) {
+                StackTraceElement e = st[i];
+                String cn = e.getClassName();
+                if (cn.startsWith("dalvik.") || cn.startsWith("java.")
+                        || cn.startsWith("android.") || cn.startsWith("kotlin.")
+                        || cn.startsWith("sun.")
+                        || cn.equals(FileHelper.class.getName())) {
+                    continue; // skip internals + this helper class
+                }
+                return cn + "#" + e.getMethodName() + ":" + e.getLineNumber();
+            }
+        } catch (Throwable ignored) { }
+        return "unknown";
     }
 
 }

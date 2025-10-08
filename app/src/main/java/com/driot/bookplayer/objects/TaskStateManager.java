@@ -6,6 +6,7 @@ import android.os.Handler;
 import android.os.Looper;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Pref;
@@ -69,11 +70,11 @@ public class TaskStateManager {
     }
 
     public static void tellEnd() {
-        TaskStateRepository.get().finish();
+        TaskStateRepository.get().finish(appContext.getString(R.string.Finished));
 
         // Kind of garbage collector
         final Handler handler = new Handler(Looper.getMainLooper());
-        handler.postDelayed(() -> WorkFlow.cancelAllOngoingTasks(appContext), 500);
+        handler.postDelayed(() -> WorkFlow.cancelAllOngoingTasks(appContext), 300);
     }
 
     // ---- Markers that also persist sticky state in Pref ----
@@ -158,27 +159,34 @@ public class TaskStateManager {
         String currentOperation = taskName + " " + appContext.getString(R.string.cancelled);
         LoadBookTaskState state = Pref.getLoadBookTaskState();
         if (state != null) {
+            FirebaseAnalyticsHelper.tellLoadBookCancelled(String.valueOf(state.originalUri), taskName);
             state.currentOperation = currentOperation;
             state.onGoingLoading = false;
             Pref.setLoadBookTaskState(state);
         } else {
+            FirebaseAnalyticsHelper.tellLoadBookCancelled("state is null", taskName);
             myLogD("markTaskCancelled - No valid LoadBookTaskState found - " + currentOperation);
         }
         tellError(currentOperation);
     }
 
-    public static void markTaskFailed(String taskName, String errorText) {
-        String currentOperation = taskName + " " + appContext.getString(R.string.failed) + " - [" + errorText + "]";
+    public static void markTaskFailed(String taskName, String devErrorText, @Nullable String userErrorText) {
+        if (userErrorText == null || userErrorText.isEmpty()) userErrorText = devErrorText;
+        String devMessage = taskName + " failed - [" + devErrorText + "]";
+        String userMessage = taskName + " " + appContext.getString(R.string.failed) + " - [" + userErrorText + "]";
+        myLogE("user error message : " + userErrorText);
+        myLogEE(null, devErrorText);
         LoadBookTaskState state = Pref.getLoadBookTaskState();
         if (state != null) {
-            FirebaseAnalyticsHelper.tellLoadBookFailed(String.valueOf(state.originalUri), taskName, errorText);
-            state.currentOperation = currentOperation;
+            FirebaseAnalyticsHelper.tellLoadBookFailed(String.valueOf(state.originalUri), taskName, devErrorText);
+            state.currentOperation = userMessage;
             state.onGoingLoading = false;
             Pref.setLoadBookTaskState(state);
         } else {
-            myLogEE(null, "markTaskFailed - No valid LoadBookTaskState found - " + currentOperation);
+            FirebaseAnalyticsHelper.tellLoadBookFailed("state is null", taskName, devErrorText);
+            myLogEE(null, "markTaskFailed - No valid LoadBookTaskState found - " + devMessage);
         }
-        tellError(currentOperation);
+        tellError(userMessage);
         WorkFlow.cancelAllOngoingTasks(appContext);
     }
 
@@ -223,8 +231,8 @@ public class TaskStateManager {
     // -------------------------------------------
 
     private static void tellError(String errorText) { // keep private: always go through markTaskFailed/cancelled
-        myLogE("Error: " + errorText);
-        TaskStateRepository.get().error(errorText);
+        myLogE("tellError: " + errorText);
+        TaskStateRepository.get().error(errorText, appContext.getString(R.string.Import_failed));
     }
 
     private static void updateTaskProgress(int percent, String progressText, String phase, boolean isLoadingPaused) {

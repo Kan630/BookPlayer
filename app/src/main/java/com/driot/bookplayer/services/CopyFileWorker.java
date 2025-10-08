@@ -3,7 +3,6 @@ package com.driot.bookplayer.services;
 import static com.driot.bookplayer.global.Var.ONLY_MIME_AUDIO;
 import static com.driot.bookplayer.global.Var.SUPPORTED_AUDIO_EXTENSIONS;
 import static com.driot.bookplayer.global.Var.SUPPORTED_COVER_PICTURE_EXTENSIONS;
-import static com.driot.bookplayer.global.Var.ZIP_SIZE_MAX_COEF;
 import static com.driot.bookplayer.utils.Tonio.formatMemPadding;
 import static com.driot.bookplayer.utils.Tonio.getExtension;
 
@@ -66,7 +65,7 @@ public class CopyFileWorker extends LoggingWorker {
         LoadBookTaskState state = Pref.getLoadBookTaskState();
 
         if (state==null) {
-            TaskStateManager.markTaskFailed(TASK_NAME, "bookState == null");
+            TaskStateManager.markTaskFailed(TASK_NAME, "bookState == null", context.getString(R.string.invalid_resource));
             return Result.failure();
         }
 
@@ -74,6 +73,7 @@ public class CopyFileWorker extends LoggingWorker {
         String destinationFolderPath = state.futureFolderPath;
         String destinationFileName = state.originalFile;
         String type = state.dynamicType;
+        String fileExtension = state.fileExtension;
         boolean checkSize = true;  //TODO, to check
         long forceSize = -1;
         sourceLocation = Tonio.getSourceLocation(context, uri);
@@ -90,12 +90,14 @@ public class CopyFileWorker extends LoggingWorker {
             TaskStateManager.tellProgressText(context.getString(R.string.checking_size));
             totalSize = UriHelper.getSize(context, uri);
         }
-        
+
+        myLogD("----------------------------------------------------");
         myLog("parseIntent() ..   " +
                 "\n.    from uri = [" + uri.toString() + "] " +
                 "\n.    to folder = [" + destinationFolderPath + "] " +
                 "\n.    with name = [" + destinationFileName + "]" +
                 "\n.    for type = [" + type + "]" +
+                "\n.    extension = [" + fileExtension + "]" +
                 "\n.    check size = [" + checkSize + "]" +
                 "\n.    force size = [" + forceSize + "]" +
                 "\n.    total size = [" + Tonio.getReadableSize(totalSize)  + "]" +
@@ -103,9 +105,12 @@ public class CopyFileWorker extends LoggingWorker {
                 "\n.    source Location = [" + sourceLocation + "]" +
                 "\n.    destination Location = [" + destinationLocation.toString() + "]"
         );
+        myLogD("----------------------------------------------------");
 
-        if (!isSizeOk(type)) {
-            TaskStateManager.markTaskFailed(TASK_NAME, context.getString(R.string.Not_enough_memory));
+        if (!isSizeOk(fileExtension)) {
+            TaskStateManager.tellWarning(context.getString(R.string.Not_enough_memory)
+                    +"\n"+ Tonio.formatSizeMB(availableMemory) + " " + context.getString(R.string.MB_available_on_device));
+            TaskStateManager.markTaskFailed(TASK_NAME, "Not_enough_memory" , context.getString(R.string.Not_enough_memory));
             return Result.failure();
         }
 
@@ -113,12 +118,16 @@ public class CopyFileWorker extends LoggingWorker {
         File destinationFolderFile = new File(destinationFolderPath);
         try {
             if (!destinationFolderFile.exists() && !destinationFolderFile.mkdirs()) {
-                TaskStateManager.markTaskFailed(TASK_NAME, context.getString(R.string.Error_Import_Creating_Folders) + " : " + destinationFolderPath);
+                TaskStateManager.markTaskFailed(TASK_NAME
+                        ,"Error_Import_Creating_Folders : " + destinationFolderPath
+                        ,context.getString(R.string.Error_Import_Creating_Folders));
                 return Result.failure();
             }
         } catch (Exception e) {
             myLogEE(e, "CopyFileWorker - Error creating destination folder");
-            TaskStateManager.markTaskFailed(TASK_NAME, context.getString(R.string.Error_Import_Creating_Folders));
+            TaskStateManager.markTaskFailed(TASK_NAME
+                    ,"Catch Error_Import_Creating_Folders : " + destinationFolderPath
+                    ,context.getString(R.string.Error_Import_Creating_Folders));
             return Result.failure();
         }
 
@@ -130,7 +139,7 @@ public class CopyFileWorker extends LoggingWorker {
             } else {
                 result = copyFile(uri, destinationFolderPath, destinationFileName);
             }
-            myLog("nbFileCopied = " + nbFileCopied + " .  nbFileKO = " + nbFileKO + " .  nbFolder = " + nbFolder + " .  nbPic = " + nbPic);
+            myLogI("nbFileCopied = " + nbFileCopied + " .  nbFileKO = " + nbFileKO + " .  nbFolder = " + nbFolder + " .  nbPic = " + nbPic);
             if (nbFileCopied==0) result=false;
             if (hasBeenCancelled) {
                 TaskStateManager.markTaskCancelled(TASK_NAME);
@@ -147,7 +156,8 @@ public class CopyFileWorker extends LoggingWorker {
                 return Result.failure();
             }
         } catch (Exception e) {
-            TaskStateManager.markTaskFailed(TASK_NAME, e.getMessage());
+            myLogEE(e, "CopyFileWorker - Error during copy");
+            TaskStateManager.markTaskFailed(TASK_NAME, e.getMessage(), null);
             return Result.failure();
         }
     }
@@ -174,7 +184,8 @@ public class CopyFileWorker extends LoggingWorker {
                 }
             }
         } catch (Exception e) {
-            TaskStateManager.markTaskFailed(TASK_NAME, e.getMessage());
+            myLogEE(e, "CopyFileWorker - Error during copy");
+            TaskStateManager.markTaskFailed(TASK_NAME, e.getMessage(), null);
             return false;
         }
         nbFileCopied++;
@@ -191,21 +202,21 @@ public class CopyFileWorker extends LoggingWorker {
                     com.driot.bookplayer.helpers.UriHelper.getDocumentFileFromAnyUri(context, uri);
 
             if (root == null || !root.exists() || !root.isDirectory()) {
-                TaskStateManager.markTaskFailed(TASK_NAME, "Invalid URI: " + uri);
+                TaskStateManager.markTaskFailed(TASK_NAME, "Invalid URI: [" + uri + "]", context.getString(R.string.invalid_resource) + ": [" + uri + "]");
                 return false;
             }
 
             File dest = new File(destinationFolderPath);
             if (!dest.exists() && !dest.mkdirs()) {
                 TaskStateManager.markTaskFailed(TASK_NAME,
-                        context.getString(R.string.failed_to_create_destination_folder) + " - [" + dest.getAbsolutePath() + "]");
+                        "failed_to_create_destination_folder - [" + dest.getAbsolutePath() + "]", context.getString(R.string.failed_to_create_destination_folder));
                 return false;
             }
 
             copyFolderRecursiveDoc(root, dest, ONLY_MIME_AUDIO, SUPPORTED_AUDIO_EXTENSIONS, SUPPORTED_COVER_PICTURE_EXTENSIONS);
             return !hasBeenCancelled && nbFileCopied > 0; // keep your success criteria
         } catch (Exception e) {
-            TaskStateManager.markTaskFailed(TASK_NAME, e.getMessage());
+            TaskStateManager.markTaskFailed(TASK_NAME, e.getMessage(), null);
             return false;
         }
     }
@@ -216,7 +227,9 @@ public class CopyFileWorker extends LoggingWorker {
             ) {
         if (!destinationFolder.exists()) {
             if (!destinationFolder.mkdirs()) {
-                TaskStateManager.markTaskFailed(TASK_NAME,  context.getString(R.string.failed_to_create_destination_folder) + " (recursive) - [" + destinationFolder.getAbsolutePath() + "]");
+                TaskStateManager.markTaskFailed(TASK_NAME
+                        ,"failed_to_create_destination_folder (recursive) - [" + destinationFolder.getAbsolutePath() + "]"
+                        ,context.getString(R.string.failed_to_create_destination_folder) + " [" + destinationFolder.getAbsolutePath() + "]");
                 return;
             } else {
                 myLogD("Folder created: " + destinationFolder.getAbsolutePath());
@@ -336,8 +349,9 @@ public class CopyFileWorker extends LoggingWorker {
         if (hasBeenCancelled) return;
 
         if (!destinationFolder.exists() && !destinationFolder.mkdirs()) {
-            TaskStateManager.markTaskFailed(TASK_NAME,
-                    context.getString(R.string.failed_to_create_destination_folder) + " (recursive) - [" + destinationFolder.getAbsolutePath() + "]");
+            TaskStateManager.markTaskFailed(TASK_NAME
+                    ,"failed_to_create_destination_folder (recursive) - [" + destinationFolder.getAbsolutePath() + "]"
+                    ,context.getString(R.string.failed_to_create_destination_folder) + " [" + destinationFolder.getAbsolutePath() + "]");
             return;
         } else {
             myLogD("Folder created: " + destinationFolder.getAbsolutePath());
@@ -445,14 +459,16 @@ public class CopyFileWorker extends LoggingWorker {
     }
 
     private boolean isSizeOk(String type) {
+        myLogD("checking size");
         try {
             long size_check_inflate_coefficient = 1;
             if ("ZIP".equalsIgnoreCase(type)) {
-                size_check_inflate_coefficient = ZIP_SIZE_MAX_COEF;
-            //TODO the rest
+                size_check_inflate_coefficient = Var.ZIP_SIZE_MAX_COEF;
             } else if ("M4B".equalsIgnoreCase(type)) {
-                size_check_inflate_coefficient = ZIP_SIZE_MAX_COEF;
+                size_check_inflate_coefficient = Var.M4B_SIZE_MAX_COEF;
             }
+            myLogD("size_check_inflate_coefficient = [" + size_check_inflate_coefficient + "]");
+            myLogD("totalSize : [" + totalSize + "] => [" + totalSize * size_check_inflate_coefficient + "] - availableMemory : [" + availableMemory + "]");
             if (totalSize > 0 && totalSize * size_check_inflate_coefficient > availableMemory) {
                 return false;
             }

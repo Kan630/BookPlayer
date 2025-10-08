@@ -68,6 +68,13 @@ public final class FirebaseAnalyticsHelper {
         logBundleEvent("load_book_failed", bundle);
     }
 
+    public static void tellLoadBookCancelled(String originalUri, String taskName) {
+        Bundle bundle = new Bundle();
+        bundle.putString("originalUri", originalUri);
+        bundle.putString("taskName", taskName);
+        logBundleEvent("load_book_cancelled", bundle);
+    }
+
     public static void tellLoadBookSuccess(String originalUri) {
         Bundle bundle = new Bundle();
         bundle.putString("originalUri", originalUri);

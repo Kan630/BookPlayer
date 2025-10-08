@@ -46,7 +46,7 @@ public class EbookSplitWorker extends LoggingWorker {
     public Result doWork() {
         LoadBookTaskState bookState = Pref.getLoadBookTaskState();
         if (bookState == null) {
-            TaskStateManager.markTaskFailed(TASK_NAME, "bookState == null");
+            TaskStateManager.markTaskFailed(TASK_NAME, "bookState == null", getApplicationContext().getString(R.string.invalid_resource));
             return Result.failure();
         }
 
@@ -60,7 +60,7 @@ public class EbookSplitWorker extends LoggingWorker {
         myLog("ebookType = " + ebookType);
 
         if (ebookPath == null || destinationFolderPath == null) {
-            TaskStateManager.markTaskFailed(TASK_NAME, "Missing input data for EbookSplitWorker");
+            TaskStateManager.markTaskFailed(TASK_NAME, "Missing input data for EbookSplitWorker", getApplicationContext().getString(R.string.invalid_resource));
             myLogEE(null, "Missing input data for EbookSplitWorker");
             return Result.failure();
         }
@@ -76,7 +76,9 @@ public class EbookSplitWorker extends LoggingWorker {
         try {
             File outFolder = new File(destinationFolderPath);
             if (!outFolder.exists() && !outFolder.mkdirs()) {
-                TaskStateManager.markTaskFailed(TASK_NAME, context.getString(R.string.failed_to_create_destination_folder) + ": " + destinationFolderPath);
+                TaskStateManager.markTaskFailed(TASK_NAME
+                        , "failed_to_create_destination_folder : " + destinationFolderPath
+                        , context.getString(R.string.failed_to_create_destination_folder) + ": " + destinationFolderPath);
                 return false;
             }
 
@@ -105,13 +107,14 @@ public class EbookSplitWorker extends LoggingWorker {
                 cover    = result.coverBitmap;
                 chapters = result.chapterFiles;
             } else {
-                String msg = ctx.getString(R.string.Unsupported_ebook_type) + ". (" + ebookType + ")";
-                TaskStateManager.markTaskFailed(TASK_NAME, msg);
+                TaskStateManager.markTaskFailed(TASK_NAME, "unsupported_ebook_type: [" + ebookType + "]", ctx.getString(R.string.Unsupported_ebook_type) + ". (" + ebookType + ")");
                 return false;
             }
 
             if (chapters == null || chapters.isEmpty()) {
-                TaskStateManager.markTaskFailed(TASK_NAME, ctx.getString(R.string.No_chapters_found) + ". (" + ebookType.toUpperCase(Locale.ROOT) + ")");
+                TaskStateManager.markTaskFailed(TASK_NAME
+                        , "no_chapters_found : [" + ebookType + "]"
+                        , ctx.getString(R.string.No_chapters_found));
                 return false;
             }
 
@@ -168,7 +171,7 @@ public class EbookSplitWorker extends LoggingWorker {
 
         } catch (Exception e) {
             myLogEE(e, "splitEbook");
-            TaskStateManager.markTaskFailed(TASK_NAME, e.getMessage());
+            TaskStateManager.markTaskFailed(TASK_NAME, e.getMessage(), null);
             return false;
         }
     }

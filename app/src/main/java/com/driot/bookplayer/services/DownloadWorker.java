@@ -112,7 +112,7 @@ public class DownloadWorker extends LoggingWorker {
 
         if (urlStr == null || destFolder == null) {
             myLogE("Missing input data: url or dest_folder");
-            TaskStateManager.markTaskFailed(TASK_NAME, "Missing input data");
+            TaskStateManager.markTaskFailed(TASK_NAME, "Missing input data", null);
             return Result.failure();
         }
 
@@ -174,7 +174,8 @@ public class DownloadWorker extends LoggingWorker {
             File parent = outFile.getParentFile();
             if (parent != null && !parent.exists() && !parent.mkdirs()) {
                 TaskStateManager.markTaskFailed(TASK_NAME,
-                        ctx.getString(R.string.failed_to_create_destination_folder) + ": " + parent.getAbsolutePath());
+                        "failed_to_create_destination_folder : " + parent.getAbsolutePath()
+                        , ctx.getString(R.string.failed_to_create_destination_folder) + ": " + parent.getAbsolutePath());
                 return Result.failure();
             }
 
@@ -211,9 +212,9 @@ public class DownloadWorker extends LoggingWorker {
                     myLogW("Server ignored Range; restarting download from 0");
                     already = 0L;
                 } else if (code != HttpURLConnection.HTTP_OK && code != HttpURLConnection.HTTP_PARTIAL) {
-                    String errTxt = ctx.getString(R.string.server_returned_http) + " " + code;
-                    myLogE(errTxt + " - " + conn.getResponseMessage());
-                    TaskStateManager.markTaskFailed(TASK_NAME, errTxt);
+                    TaskStateManager.markTaskFailed(TASK_NAME
+                            , "server returned: " + code + " - " + conn.getResponseMessage()
+                            , ctx.getString(R.string.server_returned_http) + " " + code);
                     return Result.failure();
                 }
 
@@ -319,9 +320,10 @@ public class DownloadWorker extends LoggingWorker {
                             myLogW("416 Range not satisfiable — restarting from 0");
                             already = 0L;
                         } else if (code != HttpURLConnection.HTTP_OK && code != HttpURLConnection.HTTP_PARTIAL) {
-                            String errTxt = ctx.getString(R.string.server_returned_http) + " " + code;
-                            myLogE(errTxt + " - " + conn.getResponseMessage());
-                            TaskStateManager.markTaskFailed(TASK_NAME, errTxt);
+                            TaskStateManager.markTaskFailed(TASK_NAME
+                                    , "server returned: " + code + " - " + conn.getResponseMessage()
+                                    , ctx.getString(R.string.server_returned_http) + " " + code);
+
                             return Result.failure();
                         }
 
@@ -396,8 +398,7 @@ public class DownloadWorker extends LoggingWorker {
                         ctx.getString(R.string.use_https_or_allow_cleartext_for_this_host_in_the_app_s_network_security_config)
                         : ctx.getString(R.string.http_is_blocked_by_android_s_network_security_policy)  + " " +
                         ctx.getString(R.string.use_https_or_allow_cleartext_for_this_host_in_the_app_s_network_security_config);
-                myLogE(why + " [" + e.getMessage() + "]");
-                TaskStateManager.markTaskFailed(TASK_NAME, why);
+                TaskStateManager.markTaskFailed(TASK_NAME, "clear_text_not_permitted: [" + e.getMessage() + "]", why);
                 return Result.failure();
             }
             TellHimWhyPause(ctx.getString(R.string.io_error) + " (" + ctx.getString(R.string.no_internet_connection) + "?)\n" + e.getMessage());
@@ -405,8 +406,9 @@ public class DownloadWorker extends LoggingWorker {
             return Result.retry();
         } catch (Exception e) {
             myLogEE(e, "Unexpected error in DownloadWorker");
-            TaskStateManager.markTaskFailed(TASK_NAME,
-                    getApplicationContext().getString(R.string.unexpected_error) + " [" + e.getMessage() + "]");
+            TaskStateManager.markTaskFailed(TASK_NAME
+                    ,"unexpected_error: [" + e.getMessage() + "]"
+                    ,getApplicationContext().getString(R.string.unexpected_error) + " [" + e.getMessage() + "]");
             return Result.retry(); // treat as transient
         } finally {
             try {

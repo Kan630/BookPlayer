@@ -123,12 +123,12 @@ public final class TaskStateRepository extends LoggerHelper {
         post(next);
     }
 
-    public void finish() {
-        post(s().finished());
+    public void finish(@NonNull String progressText) {
+        post(s().finished(progressText));
     }
 
-    public void error(@NonNull String message) {
-        post(s().failed(message));
+    public void error(@NonNull String message, @NonNull String progressText) {
+        post(s().failed(message, progressText));
     }
 
     public void resetToIdle() {
