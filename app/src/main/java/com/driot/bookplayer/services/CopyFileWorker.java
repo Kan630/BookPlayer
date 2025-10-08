@@ -1,10 +1,6 @@
 package com.driot.bookplayer.services;
 
-import static com.driot.bookplayer.global.Var.ONLY_MIME_AUDIO;
-import static com.driot.bookplayer.global.Var.SUPPORTED_AUDIO_EXTENSIONS;
-import static com.driot.bookplayer.global.Var.SUPPORTED_COVER_PICTURE_EXTENSIONS;
 import static com.driot.bookplayer.utils.Tonio.formatMemPadding;
-import static com.driot.bookplayer.utils.Tonio.getExtension;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -19,6 +15,7 @@ import androidx.work.WorkerParameters;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.helpers.SupportedFilesHelper;
 import com.driot.bookplayer.helpers.UriHelper;
 import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.objects.LoadBookTaskState;
@@ -31,7 +28,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Set;
 
 public class CopyFileWorker extends LoggingWorker {
     private static final String TASK_NAME = Var.WORKER_TASK_LABEL_COPY;
@@ -64,7 +60,7 @@ public class CopyFileWorker extends LoggingWorker {
     public Result doWork() {
         LoadBookTaskState state = Pref.getLoadBookTaskState();
 
-        if (state==null) {
+        if (state == null) {
             TaskStateManager.markTaskFailed(TASK_NAME, "bookState == null", context.getString(R.string.invalid_resource));
             return Result.failure();
         }
@@ -100,8 +96,8 @@ public class CopyFileWorker extends LoggingWorker {
                 "\n.    extension = [" + fileExtension + "]" +
                 "\n.    check size = [" + checkSize + "]" +
                 "\n.    force size = [" + forceSize + "]" +
-                "\n.    total size = [" + Tonio.getReadableSize(totalSize)  + "]" +
-                "\n.    available = [" + Tonio.getReadableSize(availableMemory)  + "]" +
+                "\n.    total size = [" + Tonio.getReadableSize(totalSize) + "]" +
+                "\n.    available = [" + Tonio.getReadableSize(availableMemory) + "]" +
                 "\n.    source Location = [" + sourceLocation + "]" +
                 "\n.    destination Location = [" + destinationLocation.toString() + "]"
         );
@@ -109,8 +105,8 @@ public class CopyFileWorker extends LoggingWorker {
 
         if (!isSizeOk(fileExtension)) {
             TaskStateManager.tellWarning(context.getString(R.string.Not_enough_memory)
-                    +"\n"+ Tonio.formatSizeMB(availableMemory) + " " + context.getString(R.string.MB_available_on_device));
-            TaskStateManager.markTaskFailed(TASK_NAME, "Not_enough_memory" , context.getString(R.string.Not_enough_memory));
+                    + "\n" + Tonio.formatSizeMB(availableMemory) + " " + context.getString(R.string.MB_available_on_device));
+            TaskStateManager.markTaskFailed(TASK_NAME, "Not_enough_memory", context.getString(R.string.Not_enough_memory));
             return Result.failure();
         }
 
@@ -119,15 +115,15 @@ public class CopyFileWorker extends LoggingWorker {
         try {
             if (!destinationFolderFile.exists() && !destinationFolderFile.mkdirs()) {
                 TaskStateManager.markTaskFailed(TASK_NAME
-                        ,"Error_Import_Creating_Folders : " + destinationFolderPath
-                        ,context.getString(R.string.Error_Import_Creating_Folders));
+                        , "Error_Import_Creating_Folders : " + destinationFolderPath
+                        , context.getString(R.string.Error_Import_Creating_Folders));
                 return Result.failure();
             }
         } catch (Exception e) {
             myLogEE(e, "CopyFileWorker - Error creating destination folder");
             TaskStateManager.markTaskFailed(TASK_NAME
-                    ,"Catch Error_Import_Creating_Folders : " + destinationFolderPath
-                    ,context.getString(R.string.Error_Import_Creating_Folders));
+                    , "Catch Error_Import_Creating_Folders : " + destinationFolderPath
+                    , context.getString(R.string.Error_Import_Creating_Folders));
             return Result.failure();
         }
 
@@ -140,7 +136,7 @@ public class CopyFileWorker extends LoggingWorker {
                 result = copyFile(uri, destinationFolderPath, destinationFileName);
             }
             myLogI("nbFileCopied = " + nbFileCopied + " .  nbFileKO = " + nbFileKO + " .  nbFolder = " + nbFolder + " .  nbPic = " + nbPic);
-            if (nbFileCopied==0) result=false;
+            if (nbFileCopied == 0) result = false;
             if (hasBeenCancelled) {
                 TaskStateManager.markTaskCancelled(TASK_NAME);
                 return Result.failure();
@@ -192,9 +188,6 @@ public class CopyFileWorker extends LoggingWorker {
         return true;
     }
 
-
-
-
     private boolean copyFolder(Uri uri, String destinationFolderPath) {
         try {
             // Uniform wrapper for content:// (tree/single) and file:// paths
@@ -213,7 +206,7 @@ public class CopyFileWorker extends LoggingWorker {
                 return false;
             }
 
-            copyFolderRecursiveDoc(root, dest, ONLY_MIME_AUDIO, SUPPORTED_AUDIO_EXTENSIONS, SUPPORTED_COVER_PICTURE_EXTENSIONS);
+            copyFolderRecursiveDoc(root, dest);
             return !hasBeenCancelled && nbFileCopied > 0; // keep your success criteria
         } catch (Exception e) {
             TaskStateManager.markTaskFailed(TASK_NAME, e.getMessage(), null);
@@ -221,15 +214,13 @@ public class CopyFileWorker extends LoggingWorker {
         }
     }
 
-    
-    private void copyFolderRecursive(Context context, Uri sourceUri, File destinationFolder
-            , String onlyMime, Set<String> onlyAudioExtensions, Set<String> onlyImageExtensions
-            ) {
+    // --------- Legacy DocumentsContract-based recursion (args removed; uses SupportedFilesHelper) ---------
+    private void copyFolderRecursive(Context context, Uri sourceUri, File destinationFolder) {
         if (!destinationFolder.exists()) {
             if (!destinationFolder.mkdirs()) {
                 TaskStateManager.markTaskFailed(TASK_NAME
-                        ,"failed_to_create_destination_folder (recursive) - [" + destinationFolder.getAbsolutePath() + "]"
-                        ,context.getString(R.string.failed_to_create_destination_folder) + " [" + destinationFolder.getAbsolutePath() + "]");
+                        , "failed_to_create_destination_folder (recursive) - [" + destinationFolder.getAbsolutePath() + "]"
+                        , context.getString(R.string.failed_to_create_destination_folder) + " [" + destinationFolder.getAbsolutePath() + "]");
                 return;
             } else {
                 myLogD("Folder created: " + destinationFolder.getAbsolutePath());
@@ -260,7 +251,6 @@ public class CopyFileWorker extends LoggingWorker {
                     String documentId = cursor.getString(0);
                     String displayName = cursor.getString(1);
                     String mimeType = cursor.getString(2);
-                    String fileExtension = getExtension(displayName);
 
                     Uri documentUri = DocumentsContract.buildDocumentUriUsingTree(sourceUri, documentId);
 
@@ -272,23 +262,16 @@ public class CopyFileWorker extends LoggingWorker {
                         }
                         File subDir = new File(destinationFolder, displayName);
                         myLogD("copyFolder - on folder -> recursive call");
-                        copyFolderRecursive(context, documentUri, subDir, onlyMime, onlyAudioExtensions, onlyImageExtensions);  // Corrected parameters
+                        copyFolderRecursive(context, documentUri, subDir);  // args removed
                     } else {
                         myLogD("copyFolder - on file -> may call copyFile " + displayName + "  ///  " + mimeType);
-                        boolean doCopy = false;
-                        boolean isPic = false;
-                        if (onlyMime != null && !onlyMime.isEmpty()) {
-                            if (mimeType.startsWith(onlyMime)) {
-                                doCopy = true;
-                            }
-                        }
-                        if (!onlyAudioExtensions.isEmpty() && onlyAudioExtensions.contains(fileExtension)) {
-                            doCopy = true;
-                        }
-                        if (!onlyImageExtensions.isEmpty() && onlyImageExtensions.contains(fileExtension) && nbPic < MAX_NB_PIC) {
-                            doCopy = true;
-                            isPic = true;
-                        }
+
+                        // Decide copy via SupportedFilesHelper (Context+Uri)
+                        String type = SupportedFilesHelper.getType(context, documentUri);
+                        boolean isPic = SupportedFilesHelper.FILE_TYPE_IMAGE.equals(type);
+                        boolean doCopy = SupportedFilesHelper.FILE_TYPE_AUDIO.equals(type) || SupportedFilesHelper.FILE_TYPE_VIDEO.equals(type)
+                                || (isPic && nbPic < MAX_NB_PIC);
+
                         if (doCopy) {
                             if (isStopped()) {
                                 TaskStateManager.markTaskCancelled(TASK_NAME);
@@ -342,16 +325,13 @@ public class CopyFileWorker extends LoggingWorker {
     }
 
     private void copyFolderRecursiveDoc(androidx.documentfile.provider.DocumentFile src,
-                                        File destinationFolder,
-                                        String onlyMime,
-                                        Set<String> onlyAudioExtensions,
-                                        Set<String> onlyImageExtensions) {
+                                        File destinationFolder) {
         if (hasBeenCancelled) return;
 
         if (!destinationFolder.exists() && !destinationFolder.mkdirs()) {
             TaskStateManager.markTaskFailed(TASK_NAME
-                    ,"failed_to_create_destination_folder (recursive) - [" + destinationFolder.getAbsolutePath() + "]"
-                    ,context.getString(R.string.failed_to_create_destination_folder) + " [" + destinationFolder.getAbsolutePath() + "]");
+                    , "failed_to_create_destination_folder (recursive) - [" + destinationFolder.getAbsolutePath() + "]"
+                    , context.getString(R.string.failed_to_create_destination_folder) + " [" + destinationFolder.getAbsolutePath() + "]");
             return;
         } else {
             myLogD("Folder created: " + destinationFolder.getAbsolutePath());
@@ -367,26 +347,14 @@ public class CopyFileWorker extends LoggingWorker {
             if (child.isDirectory()) {
                 File subDest = new File(destinationFolder, safeName(child.getName()));
                 myLogD("copyFolder - on folder -> recursive call");
-                copyFolderRecursiveDoc(child, subDest, onlyMime, onlyAudioExtensions, onlyImageExtensions);
+                copyFolderRecursiveDoc(child, subDest);
                 nbFolder++;
             } else if (child.isFile()) {
                 String name = safeName(child.getName());
-                String mime = child.getType(); // can be null
-                String ext  = com.driot.bookplayer.utils.Tonio.getExtension(name);
 
-                boolean doCopy = false;
-                boolean isPic = false;
-
-                if (onlyMime != null && !onlyMime.isEmpty() && mime != null && mime.startsWith(onlyMime)) {
-                    doCopy = true;
-                }
-                if (!onlyAudioExtensions.isEmpty() && onlyAudioExtensions.contains(ext)) {
-                    doCopy = true;
-                }
-                if (!onlyImageExtensions.isEmpty() && onlyImageExtensions.contains(ext) && nbPic < MAX_NB_PIC) {
-                    doCopy = true;
-                    isPic  = true;
-                }
+                boolean isPic = SupportedFilesHelper.isImage(child);
+                boolean doCopy = SupportedFilesHelper.isAudio(child) || SupportedFilesHelper.isVideo(child)
+                        || (isPic && nbPic < MAX_NB_PIC);
 
                 if (doCopy) {
                     File out = new File(destinationFolder, name);
@@ -399,6 +367,7 @@ public class CopyFileWorker extends LoggingWorker {
             }
         }
     }
+
     private boolean copyFileFromDoc(androidx.documentfile.provider.DocumentFile docFile, File destinationFile) {
         myLogD("copyFileFromDoc() -> " + destinationFile.getParentFile().getAbsolutePath());
         try (InputStream in = context.getContentResolver().openInputStream(docFile.getUri());
@@ -425,10 +394,10 @@ public class CopyFileWorker extends LoggingWorker {
             return false;
         }
     }
+
     private String safeName(String n) {
         return n == null ? "unnamed" : n;
     }
-
 
     private void buildProgressString() {
         long progress = (int) ((copiedSize * 100) / totalSize);
@@ -437,14 +406,13 @@ public class CopyFileWorker extends LoggingWorker {
                 ? context.getString(R.string.Import_Progress_copying_file_from_cloud)
                 : context.getString(R.string.Import_Progress_copying_file_from_general_storage);
 
-
         progressMsg = progressMsg + (destinationLocation.equals(StorageHelper.MemoryLocationType.SDCARD_RESERVED)
                 ? context.getString(R.string.Import_Progress_copying_file_to_sd_card_reserved)
                 : context.getString(R.string.Import_Progress_copying_file_to_internal_reserved));
 
         String msg = progressMsg + "\n\n" +
-                context.getString(R.string.Error_Import_NotEnoughMemory_line3) + formatMemPadding(copiedSize/1024/1024, 0) + " " + context.getString(R.string.MB)
-                +  " / " + formatMemPadding(totalSize/1024/1024, 0) + " " + context.getString(R.string.MB) +  "\n" +
+                context.getString(R.string.Error_Import_NotEnoughMemory_line3) + formatMemPadding(copiedSize / 1024 / 1024, 0) + " " + context.getString(R.string.MB)
+                + " / " + formatMemPadding(totalSize / 1024 / 1024, 0) + " " + context.getString(R.string.MB) + "\n" +
                 context.getString(R.string.Error_Import_NotEnoughMemory_line2_1) + Tonio.formatMemPadding(availableMemory / 1048576L) + " " + context.getString(R.string.MB);
         //TODO sd card or internal....   + live changing availableMemory ?
 
@@ -454,7 +422,7 @@ public class CopyFileWorker extends LoggingWorker {
         }
         if (progress != last_logged_progress) {
             last_logged_progress = progress;
-            myLogD(progress + "% - " + msg.replace("\n"," . "));
+            myLogD(progress + "% - " + msg.replace("\n", " . "));
         }
     }
 
