@@ -103,6 +103,7 @@ public class BookLoadingWorkLauncher {
             }
         }
 
+        FirebaseAnalyticsHelper.setCustomKeyCrashlytics("worker_originalType", String.valueOf(bookState.originalType));
         FirebaseAnalyticsHelper.setCustomKeyCrashlytics("worker_extension", String.valueOf(bookState.fileExtension));
         FirebaseAnalyticsHelper.setCustomKeyCrashlytics("worker_sourceLocation", String.valueOf(bookState.sourceLocation));
         FirebaseAnalyticsHelper.setCustomKeyCrashlytics("worker_playType", String.valueOf(bookState.playType));
