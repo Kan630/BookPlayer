@@ -76,12 +76,10 @@ public class DeleteFolderWorker extends LoggingWorker {
 
             String folderPath = db.ZikFileDao().getFolderPath((int) folderId);
             if (!eraseFolderAndFiles(appCtx, folderPath)) {
-                myLogEE(null, "eraseFolderAndFiles ko");
-                return Result.failure(new Data.Builder()
-                        .putString("error", "Disk deletion failed for " + folderPath)
-                        .build());
+                myLogEE(null, "Disk delete error");
+            } else {
+                myLogD("Disk delete done");
             }
-            myLogD("Disk delete done");
 
             Podcast podcast = db.PodcastDao().getPodcastByFolderId(folderId);
             if (podcast == null) {
