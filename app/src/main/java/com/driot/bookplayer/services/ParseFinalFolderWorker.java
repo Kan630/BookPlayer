@@ -81,71 +81,71 @@ public class ParseFinalFolderWorker extends LoggingWorker {
     @Override
     public Result doWork() {
         try {
-        DocumentFile df;
-        Context context = getApplicationContext();
-        bookState = Pref.getLoadBookTaskState();
+            DocumentFile df;
+            Context context = getApplicationContext();
+            bookState = Pref.getLoadBookTaskState();
 
-        // New: override with InputData if provided
-        String inDynUri  = getInputData().getString(K_DYNAMIC_URI);
-        String inDynType = getInputData().getString(K_DYNAMIC_TYPE);
-        if (inDynUri != null && inDynType != null) {
-            // Build a minimal LoadBookTaskState on the fly
-            LoadBookTaskState s = new LoadBookTaskState();
-            s.dynamicUri = Uri.parse(inDynUri);
-            s.dynamicType = inDynType;
-            s.title = getInputData().getString(K_TITLE);
-            s.futureFolderPath = getInputData().getString(K_FUTURE_PATH); // store SAF uri string
-            s.sourceLocation = getInputData().getString(K_SOURCE_LOC);
-            s.originalHash = getInputData().getString(K_ORIGINAL_HASH);
-            s.imagePath = getInputData().getString(K_IMAGE_URI);
-            // sensible defaults
-            s.optionCopy = false;
-            s.optionDelete = false;
-            s.originalType = inDynType;
-            bookState = s;
-        }
+            // New: override with InputData if provided
+            String inDynUri  = getInputData().getString(K_DYNAMIC_URI);
+            String inDynType = getInputData().getString(K_DYNAMIC_TYPE);
+            if (inDynUri != null && inDynType != null) {
+                // Build a minimal LoadBookTaskState on the fly
+                LoadBookTaskState s = new LoadBookTaskState();
+                s.dynamicUri = Uri.parse(inDynUri);
+                s.dynamicType = inDynType;
+                s.title = getInputData().getString(K_TITLE);
+                s.futureFolderPath = getInputData().getString(K_FUTURE_PATH); // store SAF uri string
+                s.sourceLocation = getInputData().getString(K_SOURCE_LOC);
+                s.originalHash = getInputData().getString(K_ORIGINAL_HASH);
+                s.imagePath = getInputData().getString(K_IMAGE_URI);
+                // sensible defaults
+                s.optionCopy = false;
+                s.optionDelete = false;
+                s.originalType = inDynType;
+                bookState = s;
+            }
 
-        if (bookState == null) {
-            TaskStateManager.markTaskFailed(TASK_NAME, "bookState == null", getApplicationContext().getString(R.string.invalid_resource));
-            return Result.failure();
-        }
-        TaskStateManager.tellProgress(TASK_NAME, 1, context.getString(R.string.listing_and_sorting_tracks));
-
-
-        boolean isFolderComputed = UriHelper.isFolder(context, bookState.dynamicUri);
-        myLogD("isFolderComputed : " + isFolderComputed);
-        myLogD("original Type : " + bookState.originalType);
-        myLogD("dynamic Type : " + bookState.dynamicType);
-        myLogD("dynamic Uri : " + bookState.dynamicUri);
-
-
-        if (bookState.dynamicType.equals("Folder")) {
-            try {
-                df = UriHelper.getDocumentFileFromAnyUri(context, bookState.dynamicUri);
-            } catch (Exception e) {
-                myLogEE(e,"Error reading Folder Uri...." + bookState.dynamicUri);
-                TaskStateManager.markTaskFailed(TASK_NAME, "Error_Import_CannotReadFolder", context.getString(R.string.Error_Import_CannotReadFolder));
+            if (bookState == null) {
+                TaskStateManager.markTaskFailed(TASK_NAME, "bookState == null", getApplicationContext().getString(R.string.invalid_resource));
                 return Result.failure();
             }
-            if (df == null) {
-                TaskStateManager.markTaskFailed(TASK_NAME, "Error_Import_CannotReadFolder", context.getString(R.string.Error_Import_CannotReadFolder));
-                return Result.failure();
-            }
-            populateArrayListOfTracksFromFolder(df);
+            TaskStateManager.tellProgress(TASK_NAME, 1, context.getString(R.string.listing_and_sorting_tracks));
 
 
-        } else {
-            try {
-                df = UriHelper.getDocumentFileFromAnyUri(context, bookState.dynamicUri);
-            } catch (Exception e) {
-                myLogEE(e,"Error reading File Uri.... " + bookState.dynamicUri);
-                TaskStateManager.markTaskFailed(TASK_NAME, "Error_Import_CannotReadFile", context.getString(R.string.Error_Import_CannotReadFile));
-                return Result.failure();
-            }
-            if (df == null) {
-                TaskStateManager.markTaskFailed(TASK_NAME, "Error_Import_CannotReadFile", context.getString(R.string.Error_Import_CannotReadFile));
-                return Result.failure();
-            }
+            boolean isFolderComputed = UriHelper.isFolder(context, bookState.dynamicUri);
+            myLogD("isFolderComputed : " + isFolderComputed);
+            myLogD("original Type : " + bookState.originalType);
+            myLogD("dynamic Type : " + bookState.dynamicType);
+            myLogD("dynamic Uri : " + bookState.dynamicUri);
+
+
+            if (bookState.dynamicType.equals("Folder")) {
+                try {
+                    df = UriHelper.getDocumentFileFromAnyUri(context, bookState.dynamicUri);
+                } catch (Exception e) {
+                    myLogEE(e,"Error reading Folder Uri...." + bookState.dynamicUri);
+                    TaskStateManager.markTaskFailed(TASK_NAME, "Error_Import_CannotReadFolder", context.getString(R.string.Error_Import_CannotReadFolder));
+                    return Result.failure();
+                }
+                if (df == null) {
+                    TaskStateManager.markTaskFailed(TASK_NAME, "Error_Import_CannotReadFolder", context.getString(R.string.Error_Import_CannotReadFolder));
+                    return Result.failure();
+                }
+                populateArrayListOfTracksFromFolder(df);
+
+
+            } else {
+                try {
+                    df = UriHelper.getDocumentFileFromAnyUri(context, bookState.dynamicUri);
+                } catch (Exception e) {
+                    myLogEE(e,"Error reading File Uri.... " + bookState.dynamicUri);
+                    TaskStateManager.markTaskFailed(TASK_NAME, "Error_Import_CannotReadFile", context.getString(R.string.Error_Import_CannotReadFile));
+                    return Result.failure();
+                }
+                if (df == null) {
+                    TaskStateManager.markTaskFailed(TASK_NAME, "Error_Import_CannotReadFile", context.getString(R.string.Error_Import_CannotReadFile));
+                    return Result.failure();
+                }
             /*
             try {
                 // the temp image is updated at the end..  ImageHelper.finalizeTempFolderImage
@@ -155,11 +155,11 @@ public class ParseFinalFolderWorker extends LoggingWorker {
                 myLogEE(t, "Error parsing metadata");
             }
              */
-            populateArrayListOfTracksFromFile(df);
+                populateArrayListOfTracksFromFile(df);
 
 
-        }
-        return Result.success();
+            }
+            return Result.success();
 
         } catch (Throwable t) { // catch-all: NPEs, etc.
             return fail("Unexpected error in ParseFinalFolderWorker: " + t.getClass().getSimpleName() +
@@ -562,9 +562,9 @@ public class ParseFinalFolderWorker extends LoggingWorker {
                 + "\nOption CopyFile : " + bookState.optionCopy + "  -  is a ZIP : " + bookState.dynamicType.equals("ZIP")
                 + "\nOption DeleteSourceFile : " + bookState.optionDelete);
         if ((bookState.optionCopy || "ZIP".equals(bookState.dynamicType)) && bookState.optionDelete) {
-             if (!deleteSourceFile()) {
-                 TaskStateManager.tellWarning(context.getString(R.string.Error_Import_could_not_delete_source));
-             }
+            if (!deleteSourceFile()) {
+                TaskStateManager.tellWarning(context.getString(R.string.Error_Import_could_not_delete_source));
+            }
         }
         TaskStateManager.tellEnd();
     }
