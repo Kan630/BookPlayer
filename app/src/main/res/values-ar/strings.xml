@@ -848,5 +848,33 @@
     <string name="error">خطأ</string>
     <string name="initialization">تهيئة</string>
 
+    <string name="back">رجوع</string>
+    <string name="download_bis_unmetered">🆓 فقط بدون عداد</string>
+    <string name="use_https_or_allow_cleartext_for_this_host_in_the_app_s_network_security_config">استخدم HTTPS أو اسمح بالنص الصريح لهذا المضيف في إعداد أمان الشبكة للتطبيق.</string>
+    <string name="http_is_blocked_by_android_s_network_security_policy">تم حظر HTTP (نص صريح) بواسطة سياسة أمان شبكة أندرويد.</string>
+    <string name="http_cleartext_to">HTTP (نص صريح) إلى</string>
+    <string name="is_blocked_by_android_s_network_security_policy">محظور بواسطة سياسة أمان شبكة أندرويد</string>
+    <string name="save">حفظ</string>
+    <string name="rounded_corners">زوايا مستديرة</string>
+    <string name="cover_preview">معاينة الغلاف</string>
+    <string name="paste">لصق</string>
+    <string name="clear">مسح</string>
+    <string name="emoji_paste" translatable="false">📋</string>
+    <string name="emoji_clear" translatable="false">🗑️</string>
+    <string name="librivox" translatable="false">Librivox</string>
+    <string name="return_max">الحد الأقصى للنتائج</string>
+    <string name="maximum_number_of_results_for_">الحد الأقصى لعدد النتائج لـ </string>
+    <string name="minimum_number_of_results_for_">الحد الأدنى لعدد النتائج لـ </string>
+    <string name="books">كتب</string>
+    <string name="favorite">مفضل</string>
+    <string name="librivox_settings">إعدادات Librivox</string>
+    <string name="error_no_space_left">لا توجد مساحة كافية على الجهاز</string>
+    <string name="solution_free_space">يرجى تحرير بعض مساحة التخزين ثم المحاولة مرة أخرى.</string>
+    <string name="invalid_resource">مورد غير صالح.</string>
+    <string name="Error_while_listing_audio_files">خطأ أثناء عرض ملفات الصوت</string>
+    <string name="Error_Import_no_valid_media_found">خطأ: لم يتم العثور على وسائط صالحة</string>
+    <string name="Error_Import_extract_audio_data_failed">خطأ: فشل استخراج بيانات الصوت</string>
+    <string name="Error_Import_unsupported_file">خطأ: ملف غير مدعوم</string>
+    <string name="Error_Import_access_denied">خطأ: تم رفض الوصول</string>
 
 </resources>

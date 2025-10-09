@@ -146,6 +146,10 @@
                     style="@style/warningTextView"
                     android:layout_marginStart="30dp"
                     android:text="@string/warning_beta_test" />
+                <TextView
+                    style="@style/warningTextView"
+                    android:layout_marginStart="30dp"
+                    android:text="pick an emplacement containing only folders of mp3" />
 
                 <Button
                     android:id="@+id/bMassImport"

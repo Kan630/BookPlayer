@@ -1,4 +1,4 @@
-<resources>
+    <resources>
     <string name="app_name" translatable="false">BookPlayer</string>
     <string name="lorem_ipsum" translatable="false">lorem ipsum</string>
 
@@ -854,6 +854,37 @@ BookPlayer будет использовать <font color="#81C784">встро�
     <string name="checking_size">проверка размера</string>
     <string name="error">ошибка</string>
     <string name="initialization">инициализация</string>
+
+        <string name="back">назад</string>
+        <string name="download_bis_unmetered">🆓 Только без ограничений</string>
+        <string name="use_https_or_allow_cleartext_for_this_host_in_the_app_s_network_security_config">Используйте HTTPS или разрешите открытый текст для этого хоста в настройках сетевой безопасности приложения.</string>
+        <string name="http_is_blocked_by_android_s_network_security_policy">HTTP (открытый текст) заблокирован политикой сетевой безопасности Android.</string>
+        <string name="http_cleartext_to">HTTP (открытый текст) к</string>
+        <string name="is_blocked_by_android_s_network_security_policy">заблокирован политикой сетевой безопасности Android</string>
+        <string name="save">сохранить</string>
+        <string name="rounded_corners">скруглённые углы</string>
+        <string name="cover_preview">предпросмотр обложки</string>
+        <string name="paste">вставить</string>
+        <string name="clear">очистить</string>
+        <string name="emoji_paste" translatable="false">📋</string>
+        <string name="emoji_clear" translatable="false">🗑️</string>
+        <string name="librivox" translatable="false">Librivox</string>
+        <string name="return_max">макс. возврат</string>
+        <string name="maximum_number_of_results_for_">Максимальное количество результатов для </string>
+        <string name="minimum_number_of_results_for_">Минимальное количество результатов для </string>
+        <string name="books">книги</string>
+        <string name="favorite">избранное</string>
+        <string name="librivox_settings">настройки Librivox</string>
+        <string name="error_no_space_left">Недостаточно места на устройстве</string>
+        <string name="solution_free_space">Освободите место в памяти и попробуйте снова.</string>
+        <string name="invalid_resource">Недопустимый ресурс.</string>
+        <string name="Error_while_listing_audio_files">Ошибка при перечислении аудиофайлов</string>
+        <string name="Error_Import_no_valid_media_found">Ошибка: допустимые медиафайлы не найдены</string>
+        <string name="Error_Import_extract_audio_data_failed">Ошибка: не удалось извлечь аудиоданные</string>
+        <string name="Error_Import_unsupported_file">Ошибка: неподдерживаемый файл</string>
+        <string name="Error_Import_access_denied">Ошибка: доступ запрещён</string>
+
+
 
 
 </resources>

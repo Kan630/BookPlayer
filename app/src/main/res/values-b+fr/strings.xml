@@ -849,6 +849,33 @@ C\'est une <font color="#FFCC80">fonctionnalité relativement nouvelle</font> �
     <string name="error">erreur</string>
     <string name="initialization">initialisation</string>
 
-
+    <string name="back">retour</string>
+    <string name="download_bis_unmetered">🆓 Uniquement sans compteur</string>
+    <string name="use_https_or_allow_cleartext_for_this_host_in_the_app_s_network_security_config">Utilisez HTTPS ou autorisez le texte clair pour cet hôte dans la configuration de sécurité réseau de l\'app.</string>
+    <string name="http_is_blocked_by_android_s_network_security_policy">HTTP (texte clair) est bloqué par la politique de sécurité réseau d\'Android.</string>
+    <string name="http_cleartext_to">HTTP (texte clair) vers</string>
+    <string name="is_blocked_by_android_s_network_security_policy">est bloqué par la politique de sécurité réseau d\'Android</string>
+    <string name="save">enregistrer</string>
+    <string name="rounded_corners">coins arrondis</string>
+    <string name="cover_preview">aperçu de la couverture</string>
+    <string name="paste">coller</string>
+    <string name="clear">effacer</string>
+    <string name="emoji_paste" translatable="false">📋</string>
+    <string name="emoji_clear" translatable="false">🗑️</string>
+    <string name="librivox" translatable="false">Librivox</string>
+    <string name="return_max">retour max</string>
+    <string name="maximum_number_of_results_for_">Nombre maximum de résultats pour </string>
+    <string name="minimum_number_of_results_for_">Nombre minimum de résultats pour </string>
+    <string name="books">livres</string>
+    <string name="favorite">favori</string>
+    <string name="librivox_settings">paramètres Librivox</string>
+    <string name="error_no_space_left">Plus d\'espace disponible sur l\'appareil</string>
+    <string name="solution_free_space">Veuillez libérer de l\'espace de stockage et réessayer.</string>
+    <string name="invalid_resource">Ressource invalide.</string>
+    <string name="Error_while_listing_audio_files">Erreur lors de la liste des fichiers audio</string>
+    <string name="Error_Import_no_valid_media_found">Erreur : aucun média valide trouvé</string>
+    <string name="Error_Import_extract_audio_data_failed">Erreur : impossible d\'extraire les données audio</string>
+    <string name="Error_Import_unsupported_file">Erreur : fichier non pris en charge</string>
+    <string name="Error_Import_access_denied">Erreur : accès refusé</string>
 
 </resources>
