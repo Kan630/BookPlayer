@@ -256,7 +256,7 @@ public class PodcastHelper {
         int percent = Option.getPodcastAutoDeleteCompletionPercentage(); // e.g. 95
 
         if (days < 0 || percent < 10) {
-            myLogD("AutoDelete bad values : days=" + days + " percent=" + percent);
+            myLogE("AutoDelete bad values : days=" + days + " percent=" + percent);
             return;
         }
 
@@ -269,7 +269,8 @@ public class PodcastHelper {
             EpisodeDao episodeDao = db.EpisodeDao();
 
             List<ZikFile> filesToDelete = zikFileDao.getListenedPodcastEpisodesToDelete(percent, thresholdTime);
-            myLogD("AutoDelete : " + filesToDelete.size() + " Episodes to delete ... (thresholdTime=" + thresholdTime + " from " + days + " days) + " + percent + "% completion");
+            long deleteListSize = filesToDelete.size();
+            myLogD("AutoDelete : " + deleteListSize + " Episodes to delete ... (thresholdTime=" + thresholdTime + " from " + days + " days) + " + percent + "% completion");
 
             int fsDeleted = 0;
             int dbDeleted = 0;
@@ -279,16 +280,25 @@ public class PodcastHelper {
 
             for (ZikFile zikFile : filesToDelete) {
                 String path = zikFile.getPath();
-                if (path == null) continue;
-
-                File file = new File(path);
-                if (!file.exists() || !file.isFile()) {
-                    myLogE("AutoDelete => Failed to locate file: " + path);
+                if (path == null) {
+                    myLogE("AutoDelete => path is null");
                     continue;
                 }
 
+                File file = new File(path);
+                if (!file.exists() || !file.isFile()) {
+                    //legacy
+                    file = new File(path + "/" + zikFile.getName());
+                    if (!file.exists() || !file.isFile()) {
+                        myLogE("AutoDelete => Failed to locate file: " + path);
+                        continue;
+                    } else {
+                        myLogW("legacy paths : path/name"); //2025-10-09 (some 2 months old podcasts stays in my phone)
+                    }
+                }
+
                 if (!file.delete()) {
-                    myLogE("AutoDelete => Failed to delete file: " + path);
+                    myLogE("AutoDelete => Failed to delete file " + fsDeleted+1 + "/" + deleteListSize + ": " + path);
                     continue;
                 }
 
