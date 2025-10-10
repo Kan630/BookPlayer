@@ -14,6 +14,9 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         //testInstrumentationRunnerArguments clearPackageData: "false"
 
+        buildConfigField "String", "PROXY_BASE_URL", "\"https://steep-hat-11ff.adriot.workers.dev\""
+        buildConfigField "String", "APP_TOKEN", "\"bookplayer_petit_mais_costaud\""
+
         //  16   = android 4.1 Jelly Bean    2012
         //  19   = android 4.4 KitKat        2013       --> support dropped 2023 (Play store hs)
         //  21   = android 5.0 Lollipop      2014       --> google app are not updated since 2021...

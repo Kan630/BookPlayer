@@ -2,8 +2,13 @@ package com.driot.bookplayer.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
+
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -13,6 +18,7 @@ import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.adapters.CoverResultAdapter;
+import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.net.CoverSearchRepository;
 import com.driot.bookplayer.objects.CoverResult;
 import com.driot.bookplayer.services.DownloadCoverWorker;
@@ -29,23 +35,33 @@ public class CoverWebSearchActivity extends LoggingActivity {
     private long folderId;
     private EditText etQuery;
     private CoverResultAdapter adapter;
-    private final CoverSearchRepository repo = new CoverSearchRepository();
+    private final CoverSearchRepository repo = new CoverSearchRepository(this);
+
+    private Button btnSearch;
+    private final java.util.concurrent.ExecutorService searchExecutor =
+            Executors.newSingleThreadExecutor();
+    private volatile boolean searching = false;
 
     @Override protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cover_web_search);
+        InsetHelper.apply(this);
 
         folderId = getIntent().getLongExtra(EXTRA_FOLDER_ID, -1L);
         String defaultTitle = getIntent().getStringExtra(EXTRA_DEFAULT_TITLE);
         if (folderId <= 0) { finish(); return; }
 
         etQuery = findViewById(R.id.etQuery);
+        btnSearch = findViewById(R.id.btnSearch);
+
         etQuery.setText(defaultTitle != null ? defaultTitle : "");
+
         RecyclerView rv = findViewById(R.id.rvResults);
         rv.setLayoutManager(new LinearLayoutManager(this));
         adapter = new CoverResultAdapter(this::onResultClicked);
         rv.setAdapter(adapter);
 
+        // IME action on keyboard
         etQuery.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                 runSearch(etQuery.getText().toString().trim());
@@ -54,19 +70,62 @@ public class CoverWebSearchActivity extends LoggingActivity {
             return false;
         });
 
-        // auto search on open if we have a title
+        // Button click
+        btnSearch.setOnClickListener(v ->
+                runSearch(etQuery.getText().toString().trim()));
+
+        // Enable/disable button based on text present (optional)
+        btnSearch.setEnabled(etQuery.getText().length() > 0);
+        etQuery.addTextChangedListener(new android.text.TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int st, int c, int a) {}
+            @Override public void onTextChanged(CharSequence s, int st, int b, int c) {
+                btnSearch.setEnabled(s != null && s.toString().trim().length() > 0 && !searching);
+            }
+            @Override public void afterTextChanged(Editable s) {}
+        });
+
+        // Auto search on open if we have a title
         if (defaultTitle != null && !defaultTitle.isEmpty()) {
             runSearch(defaultTitle);
         }
     }
 
+    private void setSearching(boolean isSearching) {
+        searching = isSearching;
+        btnSearch.setEnabled(!isSearching && etQuery.getText().toString().trim().length() > 0);
+        etQuery.setEnabled(!isSearching);
+    }
+
     private void runSearch(String q) {
         if (q.isEmpty()) return;
+
+        // (optional) show a quick “searching…” state
+
+        TextView tvEmpty = findViewById(R.id.tvEmpty);
+        tvEmpty.setVisibility(View.GONE);
+        adapter.submit(java.util.Collections.emptyList());
+
         Executors.newSingleThreadExecutor().execute(() -> {
-            List<CoverResult> list = repo.search(this, q, MAX_NB_COVER_SEARCH_RESULT);
-            runOnUiThread(() -> adapter.submit(list));
+            List<CoverResult> list;
+            try {
+                list = repo.search(this, q, MAX_NB_COVER_SEARCH_RESULT);
+            } catch (Throwable t) {
+                myLogEE(t, "cover web search failed");
+                list = java.util.Collections.emptyList();
+            }
+            List<CoverResult> finalList = list;
+            runOnUiThread(() -> {
+                adapter.submit(finalList);
+                tvEmpty.setVisibility(finalList == null || finalList.isEmpty() ? View.VISIBLE : View.GONE);
+            });
         });
     }
+
+    @Override protected void onDestroy() {
+        super.onDestroy();
+        searchExecutor.shutdownNow();
+    }
+
 
     private void onResultClicked(CoverResult r) {
         new AlertDialog.Builder(this)

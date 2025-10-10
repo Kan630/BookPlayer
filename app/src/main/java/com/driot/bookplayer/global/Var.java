@@ -51,8 +51,6 @@ public class Var {
     public static final int PODCASTINDEXORG_API_MAX_RESULTS_FOR_EPISODES_REFRESH_MODE = 1000;
     public static final int PODCASTINDEXORG_API_TIME_BETWEEN_PODCAST_CHECK_IN_MIN = 2;
 
-    public static final String PODCASTINDEXORG_API_KEY = "PVULATRUYKDZX26NBGTR";
-    public static final String PODCASTINDEXORG_API_SECRET = "ACtMRyawFkg4MxA55y^CH$fE3Dynds4gURfByYXL";
     public static final String PODCAST_SOURCE = "podcastindex.org";
 
     //public static final int PODCASTINDEXORG_SINCE_DEBUG = 1751716800 ; //5 juillet, 2025

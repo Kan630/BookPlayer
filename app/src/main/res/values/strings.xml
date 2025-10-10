@@ -914,6 +914,7 @@
     <string name="use_this_image_as_cover">use this image as cover</string>
     <string name="search_title_hint">type here…</string>
     <string name="failed_to_change_image">Failed to change image</string>
+    <string name="no_image_found">No image found</string>
 
 
 

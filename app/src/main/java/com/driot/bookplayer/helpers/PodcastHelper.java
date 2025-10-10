@@ -1,7 +1,6 @@
 package com.driot.bookplayer.helpers;
 
-import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_API_KEY;
-import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_API_SECRET;
+import com.driot.bookplayer.BuildConfig;
 import static com.driot.bookplayer.helpers.FileHelper.sanitizeFilename;
 import static com.driot.bookplayer.helpers.StorageHelper.getUnzipFolder;
 
@@ -24,8 +23,6 @@ import com.driot.bookplayer.utils.KanLogger;
 import com.driot.bookplayer.utils.PodcastDownloadManager;
 
 import java.io.File;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -43,6 +40,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import android.content.Context;
 
 public class PodcastHelper {
+
+    private static final String BASE_URL = BuildConfig.PROXY_BASE_URL + "/podcastindex/";
 
     public interface Callback {
         void onSuccess(List<PodcastFeed> feeds);
@@ -109,51 +108,31 @@ public class PodcastHelper {
         return file.exists() ? file : null;
     }
 
-    private static final String BASE_URL = "https://api.podcastindex.org/api/1.0/";
-
     public static PodcastIndexApi buildApi() {
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
         logging.setLevel(Var.HTTP_LOGGING_INTERCEPTOR_LOG_LEVEL);
 
-        Interceptor buildAuthInterceptor = chain -> {
-            String key = PODCASTINDEXORG_API_KEY;
-            String secret = PODCASTINDEXORG_API_SECRET;
-
-            long epochSeconds = System.currentTimeMillis() / 1000;
-            String authDate = String.valueOf(epochSeconds);
-
-            // ✅ PodcastIndex requires SHA1(key + secret + time)
-            String toHash = key + secret + authDate;
-            MessageDigest digest = null;
-            try {
-                digest = MessageDigest.getInstance("SHA-1");
-            } catch (NoSuchAlgorithmException e) {
-                throw new RuntimeException(e);
+        // Optional: add the shared token header so your Worker accepts the call
+        Interceptor appTokenInterceptor = chain -> {
+            Request.Builder b = chain.request().newBuilder()
+                    .header("User-Agent", Var.USER_AGENT_BOOKPLAYER);
+            String tok = BuildConfig.APP_TOKEN;
+            if (tok != null && !tok.isEmpty()) {
+                b.header("x-app-auth", tok);
             }
-            byte[] hashBytes = digest.digest(toHash.getBytes("UTF-8"));
-
-            StringBuilder hexHash = new StringBuilder();
-            for (byte b : hashBytes) {
-                hexHash.append(String.format("%02x", b));
-            }
-
-            Request newRequest = chain.request().newBuilder()
-                    .header("User-Agent", Var.USER_AGENT_BOOKPLAYER)
-                    .header("X-Auth-Date", authDate)
-                    .header("X-Auth-Key", key)
-                    .header("Authorization", hexHash.toString())
-                    .build();
-
-            return chain.proceed(newRequest);
+            return chain.proceed(b.build());
         };
 
         OkHttpClient client = new OkHttpClient.Builder()
                 .addInterceptor(logging)
-                .addInterceptor(buildAuthInterceptor)
+                .addInterceptor(appTokenInterceptor)
+                // (optional) timeouts if you want:
+                //.connectTimeout(8, java.util.concurrent.TimeUnit.SECONDS)
+                //.readTimeout(12, java.util.concurrent.TimeUnit.SECONDS)
                 .build();
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(BASE_URL)
+                .baseUrl(BASE_URL)   // e.g. https://<worker>.workers.dev/podcastindex/
                 .client(client)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
