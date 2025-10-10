@@ -4,6 +4,7 @@ import com.driot.bookplayer.R;
 
 import android.app.Notification;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ServiceInfo;
 import android.media.AudioManager;
@@ -69,6 +70,20 @@ public class AudioService extends LoggingService {
             }
         }
     };
+
+    public static final String ACTION_LOAD_INDEX = "com.driot.bookplayer.LOAD_INDEX";
+    public static final String EXTRA_AUTOPLAY    = "extra_autoplay"; // default false
+    public static final String EXTRA_FORCE       = "extra_force";    // default false
+    public static void startAndLoad(Context ctx, int index, boolean autoplay, boolean force) {
+        Intent i = new Intent(ctx, AudioService.class)
+                .setAction(ACTION_LOAD_INDEX)
+                .putExtra(EXTRA_INDEX,    index)
+                .putExtra(EXTRA_AUTOPLAY, autoplay)
+                .putExtra(EXTRA_FORCE,    force);
+        ctx.startService(i);
+    }
+
+
     private final AtomicBoolean isShuttingDown = new AtomicBoolean(false);
 
     public static volatile boolean isRunning = false;
@@ -700,6 +715,38 @@ public class AudioService extends LoggingService {
                         directPlay = true;
                         loadFile();
                     });
+                }
+                return START_STICKY;
+            }
+
+            case ACTION_LOAD_INDEX: {
+                // Enter foreground early to satisfy 5s rule if app is in background
+                goForegroundPreparing("Preparing…", "Loading selection");
+
+                final int index      = Math.max(0, intent.getIntExtra(EXTRA_INDEX, 0));
+                final boolean autoplay = intent.getBooleanExtra(EXTRA_AUTOPLAY, false);
+                final boolean force    = intent.getBooleanExtra(EXTRA_FORCE,    false);
+
+                // We expect PlayList to already be created by the caller for the current folder.
+                PlayList pl = PlayList.getInstance();
+                if (pl == null || pl.getSize() == 0) {
+                    myLogEE(null, "ACTION_LOAD_INDEX but PlayList is null/empty");
+                    // Nothing to do; keep service sticky and foreground notification minimal
+                    showForegroundNotification(isPlaying());
+                    return START_STICKY;
+                }
+                int safeIndex = Math.min(index, pl.getSize() - 1);
+                pl.setNumZikFile(safeIndex);
+
+                // Respect caller’s wish:
+                directPlay = autoplay;
+
+                // Load if we must, otherwise just refresh/potentially auto-play
+                if (force || needsReloadForPlaylist() || engine == null || !isReadyToPlay()) {
+                    try { pauseAudioNoSave(); } catch (Throwable ignored) {}
+                    loadFile(); // on prepared: start if directPlay==true, else paused/ready
+                } else {
+                    if (autoplay && !isPlaying()) playAudio(); else pingUi();
                 }
                 return START_STICKY;
             }

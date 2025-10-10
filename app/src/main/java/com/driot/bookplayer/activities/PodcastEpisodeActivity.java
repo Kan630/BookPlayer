@@ -652,6 +652,7 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
         closeExoPlayer();
         stopAudioServiceIfRunning();
 
+
         // 2) Launch PlayActivity with the local file
         // open Play
         new Thread(() -> {
@@ -666,9 +667,10 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
                 PlayList.create(this, zikFilesList);
                 int rankZikFile = getZikFileRankInFolderSync(zikFilesList, zikFile.getName());
                 myLog("rankZikFile = " + rankZikFile);
-                if (rankZikFile >= 0 ) {
+                if (rankZikFile >= 0 && PlayList.getInstance()!=null) {
                     PlayList.getInstance().setNumZikFile(rankZikFile);
-                    startActivity(new Intent(this, PlayActivity.class).putExtra("ZikFile", zikFile));
+                    AudioService.startAndLoad(this, PlayList.getInstance().getNumZikFile(), /*autoplay*/ true, /*force*/ true);
+                    //startActivity(new Intent(this, PlayActivity.class).putExtra("ZikFile", zikFile));
                 }
             } catch (Exception e) {
                 myLogEE(e, "clickOnEpisode - playThatShit");
