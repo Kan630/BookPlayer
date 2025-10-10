@@ -4,10 +4,14 @@ import android.app.Activity;
 import android.view.View;
 import android.widget.ScrollView;
 
+import androidx.annotation.IdRes;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.test.espresso.Espresso;
+import androidx.test.espresso.NoMatchingViewException;
 import androidx.test.espresso.UiController;
 import androidx.test.espresso.ViewAction;
 import androidx.test.espresso.matcher.ViewMatchers;
+import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry;
 import androidx.test.runner.lifecycle.Stage;
 
@@ -16,6 +20,7 @@ import java.util.Collection;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
 
@@ -272,5 +277,39 @@ public class TestNavUtils {
         return false;
     }
 
+    public static void waitForViewVisible(@IdRes int viewId, long timeoutMs, String err) {
+        long end = System.currentTimeMillis() + timeoutMs;
+        while (System.currentTimeMillis() < end) {
+            if (TestNavUtils.waitForWindowFocus(300)) {
+                try {
+                    onView(withId(viewId)).check(matches(isDisplayed()));
+                    return;
+                } catch (NoMatchingViewException | AssertionError ignored) {}
+            }
+            try { Thread.sleep(50); } catch (InterruptedException ignored) {}
+        }
+        throw new AssertionError(err + " (id=" + viewId + ")");
+    }
+
+    public static void waitForTextVisible(String text, long timeoutMs, String err) {
+        long end = System.currentTimeMillis() + timeoutMs;
+        while (System.currentTimeMillis() < end) {
+            if (TestNavUtils.isTextVisible(text)) return;
+            try { Thread.sleep(50); } catch (InterruptedException ignored) {}
+        }
+        throw new AssertionError(err + " (text=\"" + text + "\")");
+    }
+
+    /** Safely fetches adapter item count for a RecyclerView currently in the RESUMED activity. */
+    public static int getRecyclerItemCount(@IdRes int recyclerId) {
+        final int[] out = {0};
+        Activity a = TestNavUtils.getCurrentResumedActivity();
+        if (a == null) return 0;
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
+            RecyclerView rv = a.findViewById(recyclerId);
+            if (rv != null && rv.getAdapter() != null) out[0] = rv.getAdapter().getItemCount();
+        });
+        return out[0];
+    }
 
 }

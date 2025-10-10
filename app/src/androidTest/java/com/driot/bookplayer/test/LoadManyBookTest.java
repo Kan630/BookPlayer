@@ -6,6 +6,11 @@ import static androidx.test.espresso.action.ViewActions.swipeUp;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
+import static com.driot.bookplayer.testutil.TestNavUtils.getRecyclerItemCount;
+import static com.driot.bookplayer.testutil.TestNavUtils.sleep;
+import static com.driot.bookplayer.testutil.TestNavUtils.waitForTextVisible;
+import static com.driot.bookplayer.testutil.TestNavUtils.waitForViewVisible;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -13,8 +18,10 @@ import android.content.res.AssetManager;
 import android.net.Uri;
 import android.util.Log;
 
+import androidx.annotation.IdRes;
 import androidx.lifecycle.Observer;
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.espresso.contrib.RecyclerViewActions;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.work.Configuration;
@@ -27,6 +34,8 @@ import com.driot.bookplayer.activities.AddResourceActivity;
 import com.driot.bookplayer.activities.GetActivity;
 import com.driot.bookplayer.activities.LoadBookActivity;
 import com.driot.bookplayer.activities.MainActivity;
+import com.driot.bookplayer.activities.PlayActivity;
+import com.driot.bookplayer.activities.ZikFileActivity;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.objects.TaskStateRepository;
 import com.driot.bookplayer.objects.TaskUiState;
@@ -64,6 +73,12 @@ public class LoadManyBookTest implements LogSupport {
     private final static long TIMEOUT_BOOK_LOAD = 120_000;
     private final static long TIMEOUT_VISUAL_CHECK = 3_000;
 
+    private static final int ID_MAIN_RECYCLER   = R.id.recyclerview_folders;   // list on MainActivity
+    private static final int ID_TRACKS_RECYCLER = R.id.recyclerview_zikfiles; // list on ZikFileActivity
+    private static final int ID_PLAY_BUTTON     = R.id.ibPlayPause;        // play button on PlayActivity
+    private static final String PLAY_TEXT_FALLBACK = "PLAY";           // fallback text if no id
+    private final static long PLAY_TIME = 3_000;
+
     private static final class TestCase {
         final String uri_type;
         final String assetFolderPath; // e.g. "fixtures/m4b/"
@@ -73,17 +88,12 @@ public class LoadManyBookTest implements LogSupport {
             this.assetFolderPath = assetFolderPath.endsWith("/") ? assetFolderPath : (assetFolderPath + "/");
         }
     }
-/*
     private static final List<TestCase> TESTS = Arrays.asList(
             new TestCase("File", "fixtures/zip")
             ,new TestCase("File", "fixtures/ebooks")
             ,new TestCase("Folder", "fixtures/folders")
             ,new TestCase("File", "fixtures/m4b")
     );
- */
-private static final List<TestCase> TESTS = Arrays.asList(
-        new TestCase("Folder", "fixtures/folders")
-);
 
     private TaskStateTestProbe probe;
     private Observer<TaskUiState> stateObs;
@@ -165,6 +175,8 @@ private static final List<TestCase> TESTS = Arrays.asList(
                 for (String assetPath : assetFiles) {
                     Uri contentUri = stageAssetAsContentUri(appContext, testContext, assetPath);
                     runImport(contentUri, tc.uri_type);
+                    TestNavUtils.logCurrentActivity();
+                    openFirstItemThenPlay(PLAY_TIME);
                     if (DEBUG_MODE_NO_LOOP) return;
                 }
             }
@@ -172,6 +184,10 @@ private static final List<TestCase> TESTS = Arrays.asList(
 
         }
         myLogI(logFinalMessage.append("\n--------------------------").toString());
+
+
+
+
         TestNavUtils.sleep(TIMEOUT_TEST_END);
     }
 
@@ -219,7 +235,6 @@ private static final List<TestCase> TESTS = Arrays.asList(
         });
 
         try {
-            // --- Launch flow (unchanged) ---
             appContext.startActivity(new Intent(appContext, LoadBookActivity.class)
                     .putExtra(LoadBookActivity.EXTRA_URI, uri_content)
                     .putExtra(LoadBookActivity.EXTRA_TYPE, uri_type)
@@ -228,7 +243,6 @@ private static final List<TestCase> TESTS = Arrays.asList(
             myLog("LoadBookActivity launched");
             TestNavUtils.assertWaitForActivity(LoadBookActivity.class, 1_000, "arfff");
             myLogD("ok, on LoadBookActivity");
-            //TestNavUtils.logCurrentActivity();
 
             onView(withId(android.R.id.content)).perform(swipeUp());
             onView(withId(R.id.btnConfirm)).perform(click());
@@ -423,6 +437,82 @@ private static final List<TestCase> TESTS = Arrays.asList(
                 }
             }
         }
+    }
+    /** Call this right after an import when you're back on MainActivity. */
+    private void openFirstItemThenPlay(long playTime) {
+        // 1) ensure window focused before Espresso checks
+        if (!TestNavUtils.waitForWindowFocus(2_000)) {
+            throw new AssertionError("Window never gained focus before click.");
+        }
+
+        // 2) click first item in the main list
+        waitForViewVisible(ID_MAIN_RECYCLER, 5_000, "Main list not visible");
+        onView(withId(ID_MAIN_RECYCLER))
+                .perform(RecyclerViewActions.actionOnItemAtPosition(0, click()));
+        myLog("Clicked first item in main list");
+        TestNavUtils.sleep(300);
+
+        // 3) wait until we land on either PlayActivity or ZikFileActivity
+        TestNavUtils.assertWaitForAnyActivity(5_000, PlayActivity.class, ZikFileActivity.class);
+
+        if (TestNavUtils.isOn(PlayActivity.class)) {
+            myLog("Landed directly on PlayActivity");
+            sleep(playTime);
+            pressPlay();
+            sleep(1_000);
+            TestNavUtils.pressBackTo(MainActivity.class,3, 1_000);
+            return;
+        }
+
+        // 4) intermediate screen: pick a random track, then expect PlayActivity
+        if (TestNavUtils.isOn(ZikFileActivity.class)) {
+            myLog("On ZikFileActivity → will click a random track");
+            clickRandomItemInRecycler(ID_TRACKS_RECYCLER);
+            TestNavUtils.assertWaitForActivity(PlayActivity.class, 5_000, "Expected PlayActivity after choosing a track");
+            sleep(playTime);
+            pressPlay();
+            sleep(1_000);
+            TestNavUtils.pressBackTo(MainActivity.class,3, 1_000);
+            return;
+        }
+
+        throw new AssertionError("Unexpected navigation: neither PlayActivity nor ZikFileActivity is RESUMED.");
+    }
+    /** Clicks a random item in the given RecyclerView (by id). */
+    private void clickRandomItemInRecycler(@IdRes int recyclerId) {
+        waitForViewVisible(recyclerId, 5_000, "Recycler view not visible: " + recyclerId);
+        int count = getRecyclerItemCount(recyclerId);
+        if (count <= 0) throw new AssertionError("Recycler has no items to click (id=" + recyclerId + ")");
+        int index = (int) (Math.random() * count);
+        myLog("Clicking item index " + index + " / " + count);
+        onView(withId(recyclerId))
+                .perform(RecyclerViewActions.actionOnItemAtPosition(index, click()));
+        TestNavUtils.sleep(200);
+    }
+
+    private void pressPlay() {
+        // settle a moment for the button to appear
+        TestNavUtils.sleep(200);
+
+        try {
+            waitForViewVisible(ID_PLAY_BUTTON, 2_000, "Play button not visible by id");
+            onView(withId(ID_PLAY_BUTTON)).perform(click());
+            myLog("Pressed Play via id");
+            return;
+        } catch (Exception ignored) {
+            // fall back to a text-based control
+        }
+
+        if (PLAY_TEXT_FALLBACK != null) {
+            try {
+                waitForTextVisible(PLAY_TEXT_FALLBACK, 2_000, "Play text control not visible");
+                onView(withText(PLAY_TEXT_FALLBACK)).perform(click());
+                myLog("Pressed Play via text");
+                return;
+            } catch (Exception ignored) {}
+        }
+
+        throw new AssertionError("Could not find a Play control (id nor text).");
     }
 
 }

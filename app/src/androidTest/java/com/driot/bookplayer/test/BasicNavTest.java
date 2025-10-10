@@ -119,6 +119,7 @@ public abstract class BasicNavTest implements LogSupport {
 
         MenuHelpers.tapMenu(com.driot.bookplayer.R.string.menu_stats);
         TestNavUtils.logCurrentActivity();
+        TestNavUtils.sleep(2_000); //let time to populate
         onView(withId(android.R.id.content)).perform(swipeUp());
         onView(withId(android.R.id.content)).perform(swipeDown());
         TestNavUtils.assertPressBackTo(MainActivity.class);
