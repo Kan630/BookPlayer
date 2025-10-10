@@ -909,6 +909,14 @@
     <string name="Error_Import_unsupported_file">Error : unsupported file</string>
     <string name="Error_Import_access_denied">Error : access denied</string>
 
+    <string name="action_web_search">🔎 Web search</string>
+    <string name="confirm">confirm</string>
+    <string name="use_this_image_as_cover">use this image as cover</string>
+    <string name="search_title_hint">type here…</string>
+    <string name="failed_to_change_image">Failed to change image</string>
+
+
+
 
 
 

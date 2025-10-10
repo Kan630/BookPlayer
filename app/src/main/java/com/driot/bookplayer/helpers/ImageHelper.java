@@ -618,4 +618,71 @@ public class ImageHelper {
             return false;
         }
     }
+
+    public static String downloadRemoteToBookCoverVersioned(Context context, long folderId, String imageUrl) {
+        try {
+            byte[] imageBytes = NetworkHelper.fetchBytesWithHttpsFallbackForImage(imageUrl);
+            if (imageBytes == null || !isLikelyImage(imageBytes)) return null;
+
+            String hash = shortHash(imageBytes); // first 8 hex chars of MD5, for example
+            String fileName = IMAGE_PREFIX_FOR_SAVED_BOOK + folderId + "_" + hash + ".jpg";
+
+            String abs = compressAndSaveImage(context, imageBytes, fileName, /*isCached=*/false);
+
+            // delete older versions
+            File dir = StorageHelper.getImageFolder(context, false);
+            File[] old = dir.listFiles((d, name) ->
+                    name.startsWith(IMAGE_PREFIX_FOR_SAVED_BOOK + folderId + "_") && !name.equals(fileName));
+            if (old != null) for (File o : old) try { o.delete(); } catch (Throwable ignore) {}
+
+            return abs;
+        } catch (Throwable t) {
+            myLogEE(t, "downloadRemoteToBookCoverVersioned");
+            return null;
+        }
+    }
+
+    private static String shortHash(byte[] data) {
+        try {
+            java.security.MessageDigest md = java.security.MessageDigest.getInstance("MD5");
+            byte[] b = md.digest(data);
+            StringBuilder sb = new StringBuilder(8);
+            for (int i = 0; i < 4; i++) sb.append(String.format(java.util.Locale.US, "%02x", b[i]));
+            return sb.toString();
+        } catch (Exception e) {
+            return Integer.toHexString(java.util.Arrays.hashCode(data));
+        }
+    }
+
+    public static String saveUserSelectedImageToBookCoverVersioned(Context context, long folderId, String uriOrPath) {
+        try (InputStream in = context.getContentResolver().openInputStream(Uri.parse(uriOrPath))) {
+            if (in == null) return null;
+            // read all bytes
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            byte[] buf = new byte[8192];
+            int n;
+            while ((n = in.read(buf)) != -1) out.write(buf, 0, n);
+            byte[] imageBytes = out.toByteArray();
+
+            if (!isLikelyImage(imageBytes)) return null;
+
+            // build short hash from content
+            String hash = shortHash(imageBytes);
+            String fileName = IMAGE_PREFIX_FOR_SAVED_BOOK + folderId + "_" + hash + ".jpg";
+
+            String abs = compressAndSaveImage(context, imageBytes, fileName, /*isCached=*/false);
+
+            // remove older versions for this folder
+            File dir = StorageHelper.getImageFolder(context, false);
+            File[] old = dir.listFiles((d, name) ->
+                    name.startsWith(IMAGE_PREFIX_FOR_SAVED_BOOK + folderId + "_") && !name.equals(fileName));
+            if (old != null) for (File o : old) try { o.delete(); } catch (Throwable ignored) {}
+
+            return abs;
+        } catch (Throwable t) {
+            myLogEE(t, "saveUserSelectedImageToBookCoverVersioned");
+            return null;
+        }
+    }
+
 }

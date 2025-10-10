@@ -1,4 +1,3 @@
-// com.driot.bookplayer.activities.CoverGenerationActivity
 package com.driot.bookplayer.activities;
 
 import android.content.Intent;
@@ -18,12 +17,12 @@ import android.widget.Switch;
 import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
-import java.io.IOException;
 import java.util.Locale;
 
 public class CoverGenerationActivity extends LoggingActivity {
@@ -104,27 +103,49 @@ public class CoverGenerationActivity extends LoggingActivity {
         btnCancel.setOnClickListener(v -> finish());
 
         btnSave.setOnClickListener(v -> {
-            try {
-                Pref.setBookCoverInitials(this, folderId, getInitials());
-                Pref.setBookCoverColor(this, folderId, getRgb());
-                Pref.setBookCoverRounded(this, folderId, rounded);
-                Bitmap bmp = render();
-                String savedPath = ImageHelper.saveGeneratedInitialsCoverVersioned(
-                        this, folderId, getInitials(), getRgb(), rounded, bmp
-                );
-                Intent out = new Intent();
-                out.putExtra(RESULT_SAVED_PATH, savedPath);
-                out.putExtra(RESULT_INITIALS, getInitials());
-                out.putExtra(RESULT_COLOR, getRgb());
-                out.putExtra(RESULT_ROUNDED, rounded);
-                setResult(RESULT_OK, out);
-                finish();
-            } catch (IOException e) {
-                // optional toast/log
-                setResult(RESULT_CANCELED);
-                finish();
-            }
+            // Persist user prefs immediately
+            Pref.setBookCoverInitials(this, folderId, getInitials());
+            Pref.setBookCoverColor(this, folderId, getRgb());
+            Pref.setBookCoverRounded(this, folderId, rounded);
+
+            // Do the heavy work off the main thread
+            AppDatabase.databaseWriteExecutor.execute(() -> {
+                Bitmap bmp = null;
+                String savedPath = null;
+                try {
+                    bmp = render(); // createInitialsBitmapCustom(...)
+                    // VERSIONED save (keeps latest, prunes older versions)
+                    savedPath = ImageHelper.saveGeneratedInitialsCoverVersioned(
+                            this, folderId, getInitials(), getRgb(), rounded, bmp
+                    );
+                } catch (Exception e) {
+                    myLogEE(e, "CoverGenerationActivity: saveGeneratedInitialsCoverVersioned failed");
+                } finally {
+                    if (bmp != null && !bmp.isRecycled()) bmp.recycle();
+                }
+
+                if (savedPath == null || savedPath.isEmpty()) {
+                    runOnUiThread(() -> {
+                        setResult(RESULT_CANCELED);
+                        finish();
+                    });
+                    return;
+                }
+
+                // Return the versioned absolute path to caller (ModifyFolderActivity updates DB & UI)
+                Intent out = new Intent()
+                        .putExtra(RESULT_SAVED_PATH, savedPath)
+                        .putExtra(RESULT_INITIALS, getInitials())
+                        .putExtra(RESULT_COLOR, getRgb())
+                        .putExtra(RESULT_ROUNDED, rounded);
+
+                runOnUiThread(() -> {
+                    setResult(RESULT_OK, out);
+                    finish();
+                });
+            });
         });
+
     }
 
     private TextWatcher watcher(Runnable r) {

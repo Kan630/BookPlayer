@@ -50,6 +50,7 @@
         <activity android:name=".activities.GetPodcastActivity" />
         <activity android:name=".activities.LoadBookActivity" />
         <activity android:name=".activities.ModifyFolderActivity" />
+        <activity android:name=".activities.CoverWebSearchActivity" android:exported="false" />
         <activity android:name=".activities.ModifyZikFileActivity" />
         <activity android:name=".activities.AddResourceActivity" />
         <activity android:name=".activities.HelpActivity" />

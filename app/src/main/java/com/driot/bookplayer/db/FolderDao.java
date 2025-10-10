@@ -110,6 +110,7 @@ public interface FolderDao {
     @Query("SELECT DISTINCT path, name, id, percentdone as percentDone, sourceLocation, playType, image FROM Folder")
     LiveData<List<FolderSummary>> getFoldersForCleaning();
 
-
+    @Query("SELECT * FROM Folder WHERE id = :id")
+    LiveData<Folder> observeById(long id);
 }
 

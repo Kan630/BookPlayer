@@ -42,7 +42,7 @@ public class ModifyFolderActivity extends LoggingActivity {
     private Folder folder;
     private View blockingOverlay;
     private Button bDelete, bReset, bExport;
-    private Button bChangeCover, bDeleteCover, bGenerateCover;
+    private Button bChangeCover, bDeleteCover, bGenerateCover, bWebSearch;
 
     EditText etIntroCut;
     EditText etRename;
@@ -64,6 +64,7 @@ public class ModifyFolderActivity extends LoggingActivity {
         bDeleteCover = findViewById(R.id.bDeleteCover);
         bGenerateCover = findViewById(R.id.bGenerateCover);
         bChangeCover = findViewById(R.id.bChangeCover);
+        bWebSearch = findViewById(R.id.bWebSearch);
 
         TextView tvTitle = findViewById(R.id.title);
         TextView tvInfo = findViewById(R.id.tvInfo);
@@ -141,9 +142,20 @@ public class ModifyFolderActivity extends LoggingActivity {
         bChangeCover.setOnClickListener(view -> clickChangeCover());
         bDeleteCover.setOnClickListener(view -> clickDeleteCover());
         bGenerateCover.setOnClickListener(view -> clickGenerateCover());
+        bWebSearch.setOnClickListener(view -> clickWebSearch());
 
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN); // Avoid keyboard on opening
 
+        AppDatabase.getDatabase(this).FolderDao()
+                .observeById(folder.getId())
+                .observe(this, fresh -> {
+                    if (fresh == null) return;
+                    if (fresh.image != null) {
+                        myLogD("observe : new fresh image : " + fresh.image);
+                        folder.image = fresh.image;
+                        ivCoverPreview.setImageURI(Uri.parse(fresh.image));
+                    }
+                });
     }
 
     private void bDeleteClick() {
@@ -308,23 +320,14 @@ public class ModifyFolderActivity extends LoggingActivity {
                     if (selectedImageUri != null) {
                         new Thread(() -> {
                             try {
-                                String fileName = "UserPic_" + ImageHelper.IMAGE_PREFIX_FOR_SAVED_BOOK + folder.getId() + ".jpg";
-                                String newImagePath = ImageHelper.copyContentUriToImageFile(this, selectedImageUri.toString(), fileName, false);
+                                String newImagePath = ImageHelper.saveUserSelectedImageToBookCoverVersioned(this, folder.getId(), selectedImageUri.toString());
                                 if (newImagePath == null) throw new RuntimeException("Image copy/compression failed");
-
-                                // Delete previous image if different
-                                if (folder.image != null && !folder.image.equals(newImagePath)) {
-                                    ImageHelper.deleteImage(this, folder);
-                                }
-
                                 folder.image = newImagePath;
                                 AppDatabase.getDatabase(this).FolderDao().updateImage(folder.getId(), folder.image);
-
                                 runOnUiThread(() -> ivCoverPreview.setImageURI(Uri.fromFile(new File(newImagePath))));
-
                             } catch (Exception e) {
                                 myLogEE(e, "Error processing selected image");
-                                runOnUiThread(() -> myToastE("Failed to change image"));
+                                runOnUiThread(() -> myToastE(getString(R.string.failed_to_change_image)));
                             }
                         }).start();
                     }
@@ -399,6 +402,13 @@ public class ModifyFolderActivity extends LoggingActivity {
         coverGenLauncher.launch(i);
     }
 
+    private void clickWebSearch() {
+        myLogI("--- user click WEB SEARCH COVER ---");
+        Intent i = new Intent(this, CoverWebSearchActivity.class);
+        i.putExtra(CoverWebSearchActivity.EXTRA_FOLDER_ID, (long) folder.getId());
+        i.putExtra(CoverWebSearchActivity.EXTRA_DEFAULT_TITLE, folder.getName());
+        this.startActivity(i);
+        }
 
     private void openFolderInFileExplorer(String pathOrUri) {
         myLog(pathOrUri);
