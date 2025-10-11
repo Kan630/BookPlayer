@@ -37,8 +37,8 @@ public class TaskStateManager {
         stepMap.put(Var.WORKER_TASK_LABEL_DOWNLOAD, new StepInfo(1, 20, "Downloading..."));
         stepMap.put(Var.WORKER_TASK_LABEL_COPY,     new StepInfo(2, 3,  "Copying files..."));
         stepMap.put(Var.WORKER_TASK_LABEL_UNZIP,    new StepInfo(3, 7,  "Unzipping..."));
-        stepMap.put(Var.WORKER_TASK_LABEL_SPLIT_M4B,new StepInfo(4, 7,  "Splitting M4B..."));
-        stepMap.put(Var.WORKER_TASK_LABEL_SPLIT_EBOOK,new StepInfo(4,7,"Splitting EPUB..."));
+        stepMap.put(Var.WORKER_TASK_LABEL_SPLIT_M4B,new StepInfo(4, 12,  "Splitting M4B..."));
+        stepMap.put(Var.WORKER_TASK_LABEL_SPLIT_EBOOK,new StepInfo(4,7,"Parsing EBook..."));
         stepMap.put(Var.WORKER_TASK_LABEL_SCAN,     new StepInfo(5, 2,  "Scanning audio..."));
     }
 
@@ -268,6 +268,7 @@ public class TaskStateManager {
         if (state.doDownload) totalWeight += stepMap.get(Var.WORKER_TASK_LABEL_DOWNLOAD).weight;
         if (state.doUnzip) totalWeight += stepMap.get(Var.WORKER_TASK_LABEL_UNZIP).weight;
         if (state.doSplitM4b) totalWeight += stepMap.get(Var.WORKER_TASK_LABEL_SPLIT_M4B).weight;
+        if (state.doSplitEbook) totalWeight += stepMap.get(Var.WORKER_TASK_LABEL_SPLIT_EBOOK).weight;
         if (state.doCopy) totalWeight += stepMap.get(Var.WORKER_TASK_LABEL_COPY).weight;
         totalWeight += stepMap.get(Var.WORKER_TASK_LABEL_SCAN).weight; // Always run
         return totalWeight;
@@ -288,9 +289,10 @@ public class TaskStateManager {
 
             boolean isEnabled = false;
             if (Var.WORKER_TASK_LABEL_DOWNLOAD.equals(key)) isEnabled = state.doDownload;
+            else if (Var.WORKER_TASK_LABEL_COPY.equals(key)) isEnabled = state.doCopy;
             else if (Var.WORKER_TASK_LABEL_UNZIP.equals(key)) isEnabled = state.doUnzip;
             else if (Var.WORKER_TASK_LABEL_SPLIT_M4B.equals(key)) isEnabled = state.doSplitM4b;
-            else if (Var.WORKER_TASK_LABEL_COPY.equals(key)) isEnabled = state.doCopy;
+            else if (Var.WORKER_TASK_LABEL_SPLIT_EBOOK.equals(key)) isEnabled = state.doSplitEbook;
             else if (Var.WORKER_TASK_LABEL_SCAN.equals(key)) isEnabled = true;
 
             if (!isEnabled) continue;
