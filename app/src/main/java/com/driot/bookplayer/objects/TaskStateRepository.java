@@ -1,5 +1,6 @@
 package com.driot.bookplayer.objects;
 
+import android.os.Handler;
 import android.os.Looper;
 
 import androidx.annotation.NonNull;
@@ -16,6 +17,7 @@ public final class TaskStateRepository extends LoggerHelper {
     public static TaskStateRepository get() { return INSTANCE; }
 
     private final MutableLiveData<TaskUiState> live = new MutableLiveData<>(TaskUiState.idle());
+    private final Handler main = new Handler(Looper.getMainLooper());
 
     private TaskStateRepository() {
         super(TaskStateRepository.class);
@@ -45,13 +47,6 @@ public final class TaskStateRepository extends LoggerHelper {
                       boolean pauseAvailable,
                       boolean isLoadingPaused) {
 
-        /*
-        TaskUiState cur  = s();
-        TaskUiState base = cur.running
-                ? cur.forceRunningWithTitle(title)   // keeps progress, clears error
-                : TaskUiState.idle().started(title); // fresh
-
-         */
         TaskUiState base = TaskUiState.idle().started(title);
 
         TaskUiState next = base
@@ -68,8 +63,7 @@ public final class TaskStateRepository extends LoggerHelper {
 
     private String fallbackTitleFromPrefs() {
         LoadBookTaskState s = Pref.getLoadBookTaskState();
-        String t = (s != null && s.title != null && !s.title.isEmpty()) ? s.title : "Task";
-        return t;
+        return (s != null && s.title != null && !s.title.isEmpty()) ? s.title : "Task";
     }
 
     public void progress(int percent, @NonNull String text) {
@@ -82,20 +76,10 @@ public final class TaskStateRepository extends LoggerHelper {
         post(next);
     }
 
-    public void setPauseAvailable(boolean available) { post(s().setPauseAvailable(available)); }
     public void setPaused(boolean paused) { post(s().setPaused(paused)); }
 
-    public void warning(@NonNull String w) {
+    public synchronized void warning(@NonNull String w) {
         post(s().withWarning(w));
-    }
-    public void pausedWithReason(@NonNull String reason) {
-        // Build next from the *current* state once, then post once.
-        TaskUiState cur = s();
-        TaskUiState next = cur
-                .setPaused(true)
-                .withWarning(reason)
-                .withProgressTextOnly(reason);
-        post(next);
     }
 
     public void downloadPaused(@NonNull String reason) {
@@ -123,11 +107,11 @@ public final class TaskStateRepository extends LoggerHelper {
         post(next);
     }
 
-    public void finish(@NonNull String progressText) {
+    public synchronized void finish(@NonNull String progressText) {
         post(s().finished(progressText));
     }
 
-    public void error(@NonNull String message, @NonNull String progressText) {
+    public synchronized void error(@NonNull String message, @NonNull String progressText) {
         post(s().failed(message, progressText));
     }
 
@@ -141,7 +125,7 @@ public final class TaskStateRepository extends LoggerHelper {
         if (Looper.myLooper() == Looper.getMainLooper()) {
             live.setValue(next);
         } else {
-            live.postValue(next);
+            main.post(() -> live.setValue(next));
         }
     }
 

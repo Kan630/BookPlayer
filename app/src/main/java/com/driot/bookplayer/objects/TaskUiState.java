@@ -70,7 +70,8 @@ public final class TaskUiState extends LoggerHelper {
     }
 
     public TaskUiState withWarning(String w) {
-        String merged = (this.warningText == null || this.warningText.isEmpty()) ? w : (this.warningText + "\n" + w);
+        myLogE("WITH WARNINGS");
+        String merged = (this.warningText == null || this.warningText.trim().replace("\n","").isEmpty()) ? w : (this.warningText + "\n" + w);
         return new TaskUiState(this.running, this.paused, this.finished, this.pauseAvailable,
                 this.title, this.progressText, this.progressPercent, merged, this.errorText);
     }
