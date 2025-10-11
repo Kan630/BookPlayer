@@ -540,7 +540,7 @@ public class ParseFinalFolderWorker extends LoggingWorker {
         if (saved == 0) {
             TaskStateManager.markTaskFailed(TASK_NAME, "saved = 0 - Error_Import_No_Usable_item_Found", context.getString(R.string.Error_Import_No_Usable_item_Found));
         } else {
-            FirebaseAnalyticsHelper.tellLoadBookSuccess(String.valueOf(bookState.originalUri));
+            FirebaseAnalyticsHelper.tellLoadBookSuccess(String.valueOf(bookState.originalUri), bookState.fileExtension, bookState.doDownload);
             if (Var.SOURCE_LOCATION_LIBRIVOX.equals(bookState.sourceLocation)) {
                 FirebaseAnalyticsHelper.tellLibrivoxSuccess(String.valueOf(bookState.title));
                 AppDatabase.databaseWriteExecutor.execute(() -> {

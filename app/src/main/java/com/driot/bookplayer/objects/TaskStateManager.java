@@ -159,12 +159,12 @@ public class TaskStateManager {
         String currentOperation = taskName + " " + appContext.getString(R.string.cancelled);
         LoadBookTaskState state = Pref.getLoadBookTaskState();
         if (state != null) {
-            FirebaseAnalyticsHelper.tellLoadBookCancelled(String.valueOf(state.originalUri), taskName);
+            FirebaseAnalyticsHelper.tellLoadBookCancelled(String.valueOf(state.originalUri), taskName, state.fileExtension, state.doDownload);
             state.currentOperation = currentOperation;
             state.onGoingLoading = false;
             Pref.setLoadBookTaskState(state);
         } else {
-            FirebaseAnalyticsHelper.tellLoadBookCancelled("state is null", taskName);
+            FirebaseAnalyticsHelper.tellLoadBookCancelled("state is null", taskName, "state is null", false);
             myLogD("markTaskCancelled - No valid LoadBookTaskState found - " + currentOperation);
         }
         tellError(currentOperation);
@@ -178,12 +178,12 @@ public class TaskStateManager {
         myLogEE(null, devErrorText);
         LoadBookTaskState state = Pref.getLoadBookTaskState();
         if (state != null) {
-            FirebaseAnalyticsHelper.tellLoadBookFailed(String.valueOf(state.originalUri), taskName, devErrorText);
+            FirebaseAnalyticsHelper.tellLoadBookFailed(String.valueOf(state.originalUri), taskName, devErrorText, state.fileExtension, state.doDownload);
             state.currentOperation = userMessage;
             state.onGoingLoading = false;
             Pref.setLoadBookTaskState(state);
         } else {
-            FirebaseAnalyticsHelper.tellLoadBookFailed("state is null", taskName, devErrorText);
+            FirebaseAnalyticsHelper.tellLoadBookFailed("state is null", taskName, devErrorText, "state is null", false);
             myLogEE(null, "markTaskFailed - No valid LoadBookTaskState found - " + devMessage);
         }
         tellError(userMessage);

@@ -66,8 +66,6 @@ public class BookLoadingWorkLauncher {
         myLog("*********************************************************************************************************");
         myLog("*********************************************************************************************************");
 
-        FirebaseAnalyticsHelper.tellAnalyticsWork(String.valueOf(bookState.originalUri));
-
         if (bookState.dynamicUri.toString().startsWith("http")) {
             myLogD("http => download");
             doDownload = true;
@@ -106,10 +104,11 @@ public class BookLoadingWorkLauncher {
             }
         }
 
-        FirebaseAnalyticsHelper.setCustomKeyCrashlytics("worker_originalType", String.valueOf(bookState.originalType));
-        FirebaseAnalyticsHelper.setCustomKeyCrashlytics("worker_extension", String.valueOf(bookState.fileExtension));
-        FirebaseAnalyticsHelper.setCustomKeyCrashlytics("worker_sourceLocation", String.valueOf(bookState.sourceLocation));
-        FirebaseAnalyticsHelper.setCustomKeyCrashlytics("worker_playType", String.valueOf(bookState.playType));
+        FirebaseAnalyticsHelper.tellAnalyticsWork(String.valueOf(bookState.originalUri), bookState.fileExtension, doDownload);
+        FirebaseAnalyticsHelper.setCustomKeyCrashlytics("worker_originalType", bookState.originalType);
+        FirebaseAnalyticsHelper.setCustomKeyCrashlytics("worker_extension", bookState.fileExtension);
+        FirebaseAnalyticsHelper.setCustomKeyCrashlytics("worker_sourceLocation", bookState.sourceLocation);
+        FirebaseAnalyticsHelper.setCustomKeyCrashlytics("worker_playType", bookState.playType);
         FirebaseAnalyticsHelper.setCustomKeyCrashlytics("worker_originalUri", String.valueOf(bookState.originalUri));
 
         bookState.doDownload = doDownload;
@@ -144,6 +143,14 @@ public class BookLoadingWorkLauncher {
                     // Allow only on unmetered networks (Wi-Fi, Ethernet, etc.)
                     constraints = new Constraints.Builder()
                             .setRequiredNetworkType(NetworkType.UNMETERED)
+                            .setRequiresStorageNotLow(true)
+                            .build();
+                    break;
+
+                case NETWORK_POLICY_NOT_ROAMING:
+                    // Allow only on unmetered networks (Wi-Fi, Ethernet, etc.)
+                    constraints = new Constraints.Builder()
+                            .setRequiredNetworkType(NetworkType.NOT_ROAMING)
                             .setRequiresStorageNotLow(true)
                             .build();
                     break;

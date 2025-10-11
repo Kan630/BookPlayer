@@ -915,6 +915,12 @@
     <string name="search_title_hint">type here…</string>
     <string name="failed_to_change_image">Failed to change image</string>
     <string name="no_image_found">No image found</string>
+    <string name="option_network_preference_subtext">
+"An unmetered connection means you’re not on mobile data (for example, Wi-Fi, Ethernet, or some VPNs).
+\nRoaming means being abroad — even hotel Wi-Fi while abroad counts as roaming."
+</string>
+    <string name="download_not_roaming">🏠 Not roaming</string>
+
 
 
 
