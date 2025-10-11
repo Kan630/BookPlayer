@@ -33,7 +33,8 @@ public class StorageHelper {
         return pathLower.contains(Var.PATH_CHECK_AUDIO_FILE_INTERNAL_PROD) || pathLower.contains(Var.PATH_CHECK_AUDIO_FILE_INTERNAL_DEBUG);
     }
 
-    //TODO should also check if the path/uri whatever is reachable and if not, another serie of 4 icons with a big red cross in front
+    //TODO should also check if the path/uri whatever, is reachable and if not, another serie of icons with a big red cross in front
+    //TODO add MemoryLocationType : USB "dongle"
     public static MemoryLocationType getMemoryLocationType(Context context, String path) {
         if (path == null) return MemoryLocationType.NOT_FOUND;
         boolean onSDcard = false;
@@ -114,8 +115,8 @@ public class StorageHelper {
 
 
     // === SD CARD HANDLING ===
-
     public static boolean isExternalSDCardAvailable(Context context) {
+        //TODO should be cached... getExternalFilesDirs() may lead to ANR...
         File[] dirs = context.getExternalFilesDirs(null);
         return dirs.length > 1 && dirs[1] != null &&
                 Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState(dirs[1])) &&

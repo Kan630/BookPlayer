@@ -841,7 +841,7 @@ public class PlayActivity extends LoggingActivity {
             PlayList pl = PlayList.getInstance();
             if (pl != null && pl.getZikFile() != null) {
                 zikFilePath = pl.getZikFile().getPath();
-                pathText = getString(R.string.source_file_path) + " = \n[" + zikFilePath + "]";
+                pathText = getString(R.string.source_file_path) + " = \n[" + Uri.decode(zikFilePath) + "]";
 
                 boolean exists = FileHelper.exists(zikFilePath);
 

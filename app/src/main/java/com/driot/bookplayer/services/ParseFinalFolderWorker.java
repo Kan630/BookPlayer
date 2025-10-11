@@ -334,7 +334,8 @@ public class ParseFinalFolderWorker extends LoggingWorker {
                         myLogD("bypassing image (already got a cover)");
                     }
                 } else {
-                    TaskStateManager.tellWarning(context.getString(R.string.Error_Import_unsupported_file) + " - [" + fileExtension + "] - [" + f1.getName() + "]");
+                    TaskStateManager.tellWarning(context.getString(R.string.Error_Import_unsupported_file) + " - [" + fileExtension + "] : "
+                            + "\"" + f1.getName() + "\"");
                     myLogW("Wrong mime/extension - [\" + fileExtension + \"] - Bypassed file: [" + f1.getName() + "]");
                 }
             }
