@@ -1,0 +1,196 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 3,
+    "identityHash": "dd22ae853637281f2f8fe66c9d1d4649",
+    "entities": [
+      {
+        "tableName": "Folder",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT, `path` TEXT, `uri` TEXT, `hash` TEXT, `position` INTEGER NOT NULL, `duration` REAL NOT NULL, `percentdone` REAL, `firstaccess` INTEGER, `lastaccess` INTEGER, `lastaccessTime` INTEGER, `iszipfile` INTEGER NOT NULL, `finished` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "path",
+            "columnName": "path",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "uri",
+            "columnName": "uri",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "hash",
+            "columnName": "hash",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "position",
+            "columnName": "position",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "duration",
+            "columnName": "duration",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "percentdone",
+            "columnName": "percentdone",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "firstaccess",
+            "columnName": "firstaccess",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "lastaccess",
+            "columnName": "lastaccess",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "lastaccessTime",
+            "columnName": "lastaccessTime",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "iszipfile",
+            "columnName": "iszipfile",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "finished",
+            "columnName": "finished",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "ZikFile",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `idFolder` INTEGER NOT NULL, `displayName` TEXT, `name` TEXT, `path` TEXT, `folderName` TEXT, `position` REAL NOT NULL, `duration` REAL NOT NULL, `size` REAL NOT NULL, `percentdone` REAL NOT NULL, `firstaccess` INTEGER, `lastaccess` INTEGER, `lastaccessTime` INTEGER, `iszipfile` INTEGER NOT NULL, `finished` INTEGER NOT NULL, `zeorder` REAL NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "idFolder",
+            "columnName": "idFolder",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "displayName",
+            "columnName": "displayName",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "path",
+            "columnName": "path",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "folderName",
+            "columnName": "folderName",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "position",
+            "columnName": "position",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "duration",
+            "columnName": "duration",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "size",
+            "columnName": "size",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "percentdone",
+            "columnName": "percentdone",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "firstaccess",
+            "columnName": "firstaccess",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "lastaccess",
+            "columnName": "lastaccess",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "lastaccessTime",
+            "columnName": "lastaccessTime",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "iszipfile",
+            "columnName": "iszipfile",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "finished",
+            "columnName": "finished",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "zeorder",
+            "columnName": "zeorder",
+            "affinity": "REAL",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        }
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'dd22ae853637281f2f8fe66c9d1d4649')"
+    ]
+  }
+}

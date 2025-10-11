@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Disable during debug/instrumented runs to avoid process kills -->
+    <bool name="enable_component_toggles">false</bool>
+</resources>

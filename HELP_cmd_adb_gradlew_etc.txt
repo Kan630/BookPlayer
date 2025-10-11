@@ -1,0 +1,114 @@
+//-------------------------------------------
+//  old Stuff
+//-------------------------------------------
+
+adb shell am instrument -w -e class com.driot.bookplayer.SanityInstrumentedTest com.driot.bookplayer.test/androidx.test.runner.AndroidJUnitRunner
+
+.\adb.exe shell am instrument -w -r -e log true -e package com.driot.bookplayer com.driot.bookplayer.test/androidx.test.runner.AndroidJUnitRunner
+
+.\adb.exe shell am instrument -w -r -e class com.driot.bookplayer.SanityInstrumentedTest com.driot.bookplayer.test/androidx.test.runner.AndroidJUnitRunner
+
+.\adb.exe logcat -d | findstr /i "AndroidRuntime FATAL AndroidJUnitRunner com.driot.bookplayer"
+
+.\adb.exe shell pm clear com.driot.bookplayer
+.\adb.exe shell pm clear com.driot.bookplayer.test
+.\adb.exe uninstall com.driot.bookplayer
+.\adb.exe uninstall com.driot.bookplayer.test
+
+
+.\adb.exe logcat -v time | Select-String -Pattern 'AndroidRuntime','FATAL EXCEPTION','AndroidJUnitRunner','Instrumentation','BookPlayer','Process'
+.\adb.exe logcat AndroidRuntime:E *:S
+
+.\adb.exe logcat -v time | Select-String -Pattern 'FATAL EXCEPTION','AndroidRuntime','Caused by:',' at com.driot.bookplayer'
+
+.\adb.exe logcat -c
+.\adb.exe logcat -b crash -v time
+.\adb.exe shell am instrument -w -r -e class com.driot.bookplayer.test.JustOpenAndWait com.driot.bookplayer.test/androidx.test.runner.AndroidJUnitRunner
+
+-------------------------------------------------------------------------------------------------------------------------------
+
+//-------------------------------------------
+//  clean install
+//-------------------------------------------
+./gradlew :app:assembleDebug :app:assembleDebugAndroidTest
+./gradlew :app:installDebug :app:installDebugAndroidTest
+
+//-------------------------------------------
+//  to check instrumentation
+//-------------------------------------------
+.\adb.exe shell pm list instrumentation | findstr bookplayer
+//if nothing, run : ./gradlew :app:installDebug :app:installDebugAndroidTest
+
+//-------------------------------------------
+//  to see logs
+//-------------------------------------------
+.\adb.exe logcat -v time | findstr /R /C:"FATAL EXCEPTION" /C:"AndroidRuntime" /C:"Process com.driot.bookplayer.debug" /C:"Process com.driot.bookplayer.debug.test"
+.\adb.exe shell am instrument -w -r -e class com.driot.bookplayer.test.JustOpenAndWait com.driot.bookplayer.debug.test/androidx.test.runner.AndroidJUnitRunner
+
+
+// what if "Test run failed to complete. Instrumentation run failed due to Process crashed."
+
+
+//-------------------------------------------
+//  run Tests
+//-------------------------------------------
+./gradlew :app:connectedDebugAndroidTest -P"android.testInstrumentationRunnerArguments.class=com.driot.bookplayer.SmokeTest"             
+.\adb.exe shell am instrument -w -e class com.driot.bookplayer.test.JustOpenAndWait com.driot.bookplayer.debug.test/androidx.test.runner.AndroidJUnitRunner
+
+
+//-------------------------------------------
+//  SD Card creation
+//-------------------------------------------
+cd C:\Users\adrio\AppData\Local\Android\Sdk\tools  
+./mksdcard.exe 2048M C:\Users\adrio\StudioProjects\BookPlayer\shared_sdcard.img
+
+
+
+
+
+
+
+
+
+
+//FOR IT TO WORK
+./gradlew :app:assembleDebug :app:assembleDebugAndroidTest
+./gradlew :app:installDebug :app:installDebugAndroidTest
+//THEN
+cd C:\Users\adrio\AppData\Local\Android\Sdk\platform-tools
+.\adb.exe shell am instrument -w -r -e class com.driot.bookplayer.test.JustOpenAndWait com.driot.bookplayer.debug.test/androidx.test.runner.AndroidJUnitRunner
+// => KO
+//RUN A SECOND TIME
+.\adb.exe shell am instrument -w -r -e class com.driot.bookplayer.test.JustOpenAndWait com.driot.bookplayer.debug.test/androidx.test.runner.AndroidJUnitRunner
+// => Ok
+//Now you can run once in IDE, that will work 1 time
+
+
+// message to chatGPT
+
+let's have a fresh start for the implementations of tests in my android app.
+I am running 
+* Android Studio Narwhal 3 Feature Drop | 2025.1.3
+* gradle 8.13/8.14
+
+I dont want to go too far in changing IDE settings or writing patches, It should work straight in stock IDE without having to touch things. my gradle has already too many tweaks for my liking.
+I am also a bit lost between 
+com.driot.bookplayer, com.driot.bookplayer.debug, com.driot.bookplayer.debug.test
+
+I am pretty new to tests.
+
+This far up, I have managed to run successful tests in IDE only using a very peculiar path :
+I need to first do in CLI  :
+./gradlew :app:assembleDebug :app:assembleDebugAndroidTest
+./gradlew :app:installDebug :app:installDebugAndroidTest
+cd C:\Users\adrio\AppData\Local\Android\Sdk\platform-tools
+.\adb.exe shell am instrument -w -r -e class com.driot.bookplayer.test.JustOpenAndWait com.driot.bookplayer.debug.test/androidx.test.runner.AndroidJUnitRunner
+//here it fails, so I run a second time and its ok :
+.\adb.exe shell am instrument -w -r -e class com.driot.bookplayer.test.JustOpenAndWait com.driot.bookplayer.debug.test/androidx.test.runner.AndroidJUnitRunner
+
+Then only, I can launch the tests in IDE with the proper button at the in the upper right hand corner.
+They pass fine.
+
+If I want to run a second time from IDE, I got this crash before instrumentation, and I need to do the full chain in CLI again before having the possibility to un another batch of tests in IDE
+
+hereunder my gradle file :

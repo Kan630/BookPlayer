@@ -1,0 +1,623 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 12,
+    "identityHash": "90a345300753bad24061e5aa37b78e4b",
+    "entities": [
+      {
+        "tableName": "Folder",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT, `path` TEXT, `uri` TEXT, `hash` TEXT, `position` INTEGER NOT NULL, `duration` REAL NOT NULL, `percentdone` REAL, `iszipfile` INTEGER NOT NULL, `finished` INTEGER NOT NULL, `originalType` TEXT, `originalFile` TEXT, `originalHash` TEXT, `sourceLocation` TEXT, `listeningDuration` INTEGER NOT NULL, `listeningPlayCount` INTEGER NOT NULL, `nbZikFile` INTEGER NOT NULL, `date_added` INTEGER NOT NULL, `date_last_zikfile_added` INTEGER NOT NULL, `image` TEXT, `lFirstAccess` INTEGER, `lLastAccess` INTEGER NOT NULL, `firstaccess` INTEGER, `lastaccess` INTEGER, `lastaccessTime` INTEGER)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "path",
+            "columnName": "path",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "uri",
+            "columnName": "uri",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "hash",
+            "columnName": "hash",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "position",
+            "columnName": "position",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "duration",
+            "columnName": "duration",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "percentdone",
+            "columnName": "percentdone",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "iszipfile",
+            "columnName": "iszipfile",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "finished",
+            "columnName": "finished",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "originalType",
+            "columnName": "originalType",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "originalFile",
+            "columnName": "originalFile",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "originalHash",
+            "columnName": "originalHash",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "sourceLocation",
+            "columnName": "sourceLocation",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "listeningDuration",
+            "columnName": "listeningDuration",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "listeningPlayCount",
+            "columnName": "listeningPlayCount",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nbZikFile",
+            "columnName": "nbZikFile",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "date_added",
+            "columnName": "date_added",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "date_last_zikfile_added",
+            "columnName": "date_last_zikfile_added",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "image",
+            "columnName": "image",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "lFirstAccess",
+            "columnName": "lFirstAccess",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "lLastAccess",
+            "columnName": "lLastAccess",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "firstaccess",
+            "columnName": "firstaccess",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "lastaccess",
+            "columnName": "lastaccess",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "lastaccessTime",
+            "columnName": "lastaccessTime",
+            "affinity": "INTEGER"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "ZikFile",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `idFolder` INTEGER NOT NULL, `displayName` TEXT, `name` TEXT, `path` TEXT, `folderName` TEXT, `position` REAL NOT NULL, `duration` REAL NOT NULL, `size` REAL NOT NULL, `percentdone` REAL NOT NULL, `iszipfile` INTEGER NOT NULL, `finished` INTEGER NOT NULL, `zeorder` REAL NOT NULL, `date_added` INTEGER NOT NULL, `lFirstAccess` INTEGER, `lLastAccess` INTEGER, `firstaccess` INTEGER, `lastaccess` INTEGER, `lastaccessTime` INTEGER)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "idFolder",
+            "columnName": "idFolder",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "displayName",
+            "columnName": "displayName",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "path",
+            "columnName": "path",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "folderName",
+            "columnName": "folderName",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "position",
+            "columnName": "position",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "duration",
+            "columnName": "duration",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "size",
+            "columnName": "size",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "percentdone",
+            "columnName": "percentdone",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "iszipfile",
+            "columnName": "iszipfile",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "finished",
+            "columnName": "finished",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "zeorder",
+            "columnName": "zeorder",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "date_added",
+            "columnName": "date_added",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lFirstAccess",
+            "columnName": "lFirstAccess",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "lLastAccess",
+            "columnName": "lLastAccess",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "firstaccess",
+            "columnName": "firstaccess",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "lastaccess",
+            "columnName": "lastaccess",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "lastaccessTime",
+            "columnName": "lastaccessTime",
+            "affinity": "INTEGER"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "Podcast",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `source` TEXT, `feedId` INTEGER NOT NULL, `title` TEXT NOT NULL, `image` TEXT, `imageOriginalUrl` TEXT, `description` TEXT, `language` TEXT, `isFavorite` INTEGER NOT NULL, `autoDownload` INTEGER NOT NULL, `idFolder` INTEGER, `date_added` INTEGER NOT NULL, `autoDelete` INTEGER NOT NULL, `lastCheck` INTEGER NOT NULL, FOREIGN KEY(`idFolder`) REFERENCES `Folder`(`id`) ON UPDATE NO ACTION ON DELETE SET NULL )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "source",
+            "columnName": "source",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "feedId",
+            "columnName": "feedId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "image",
+            "columnName": "image",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "imageOriginalUrl",
+            "columnName": "imageOriginalUrl",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "description",
+            "columnName": "description",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "language",
+            "columnName": "language",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "isFavorite",
+            "columnName": "isFavorite",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "autoDownload",
+            "columnName": "autoDownload",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "idFolder",
+            "columnName": "idFolder",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "date_added",
+            "columnName": "date_added",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "autoDelete",
+            "columnName": "autoDelete",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastCheck",
+            "columnName": "lastCheck",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_Podcast_idFolder",
+            "unique": true,
+            "columnNames": [
+              "idFolder"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_Podcast_idFolder` ON `${TABLE_NAME}` (`idFolder`)"
+          },
+          {
+            "name": "index_Podcast_feedId",
+            "unique": true,
+            "columnNames": [
+              "feedId"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_Podcast_feedId` ON `${TABLE_NAME}` (`feedId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "Folder",
+            "onDelete": "SET NULL",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "idFolder"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "BookSource",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `imageLocal` TEXT, `imageRemote` TEXT, `repoType` TEXT, `repoName` TEXT, `repoId` TEXT, `idFolder` INTEGER, FOREIGN KEY(`idFolder`) REFERENCES `Folder`(`id`) ON UPDATE NO ACTION ON DELETE SET NULL )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "imageLocal",
+            "columnName": "imageLocal",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "imageRemote",
+            "columnName": "imageRemote",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "repoType",
+            "columnName": "repoType",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "repoName",
+            "columnName": "repoName",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "repoId",
+            "columnName": "repoId",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "idFolder",
+            "columnName": "idFolder",
+            "affinity": "INTEGER"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_BookSource_idFolder",
+            "unique": false,
+            "columnNames": [
+              "idFolder"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_BookSource_idFolder` ON `${TABLE_NAME}` (`idFolder`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "Folder",
+            "onDelete": "SET NULL",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "idFolder"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "Episode",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `idPodcast` INTEGER NOT NULL, `date_add` INTEGER NOT NULL, `idZikFile` INTEGER, `date_import` INTEGER, `date_delete` INTEGER, `lastAccess` INTEGER, `idEpisode` INTEGER NOT NULL, `title` TEXT, `description` TEXT, `duration` INTEGER NOT NULL, `image` TEXT, `guid` TEXT, `podcastGuid` TEXT, `enclosureUrl` TEXT, `datePublished` TEXT, FOREIGN KEY(`idPodcast`) REFERENCES `Podcast`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`idZikFile`) REFERENCES `ZikFile`(`id`) ON UPDATE NO ACTION ON DELETE SET NULL )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "idPodcast",
+            "columnName": "idPodcast",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "date_add",
+            "columnName": "date_add",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "idZikFile",
+            "columnName": "idZikFile",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "date_import",
+            "columnName": "date_import",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "date_delete",
+            "columnName": "date_delete",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "lastAccess",
+            "columnName": "lastAccess",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "idEpisode",
+            "columnName": "idEpisode",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "description",
+            "columnName": "description",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "duration",
+            "columnName": "duration",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "image",
+            "columnName": "image",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "guid",
+            "columnName": "guid",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "podcastGuid",
+            "columnName": "podcastGuid",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "enclosureUrl",
+            "columnName": "enclosureUrl",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "datePublished",
+            "columnName": "datePublished",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_Episode_idPodcast",
+            "unique": false,
+            "columnNames": [
+              "idPodcast"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_Episode_idPodcast` ON `${TABLE_NAME}` (`idPodcast`)"
+          },
+          {
+            "name": "index_Episode_idZikFile",
+            "unique": true,
+            "columnNames": [
+              "idZikFile"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_Episode_idZikFile` ON `${TABLE_NAME}` (`idZikFile`)"
+          },
+          {
+            "name": "index_Episode_idEpisode",
+            "unique": true,
+            "columnNames": [
+              "idEpisode"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_Episode_idEpisode` ON `${TABLE_NAME}` (`idEpisode`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "Podcast",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "idPodcast"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "ZikFile",
+            "onDelete": "SET NULL",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "idZikFile"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '90a345300753bad24061e5aa37b78e4b')"
+    ]
+  }
+}
