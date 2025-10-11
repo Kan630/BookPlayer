@@ -143,6 +143,7 @@ public class LoadManyBookTest implements LogSupport {
     @Test
     public void loadManyBooks() throws Exception {
         myLog("loadManyBooks");
+        int nbBooks = 0;
 
         Context testContext = InstrumentationRegistry.getInstrumentation().getContext(); // test APK
         logFinalMessage = new StringBuilder("--------------------------\n--------------------------\nFinal Message\n--------------------------");
@@ -170,6 +171,7 @@ public class LoadManyBookTest implements LogSupport {
                 myLog("Found " + subdirs.size() + " folders to import under " + tc.assetFolderPath);
                 for (String assetDir : subdirs) {
                     Uri dirUri = stageAssetDirectoryAsFileUri(appContext, testContext, assetDir);
+                    nbBooks += 1;
                     runImport(dirUri, tc.uri_type);
                     goPlay();
                     if (DEBUG_MODE_NO_LOOP) return;
@@ -177,6 +179,7 @@ public class LoadManyBookTest implements LogSupport {
             } else {
                 for (String assetPath : assetFiles) {
                     Uri contentUri = stageAssetAsContentUri(appContext, testContext, assetPath);
+                    nbBooks += 1;
                     runImport(contentUri, tc.uri_type);
                     goPlay();
                     if (DEBUG_MODE_NO_LOOP) return;
@@ -184,7 +187,14 @@ public class LoadManyBookTest implements LogSupport {
             }
             logFinalMessage.append("\n--------------------------");
         }
+        if (!isOn(MainActivity.class)) {
+            myLogW("going back to MainActivity");
+            TestNavUtils.pressBackTo(MainActivity.class,3, 1_000);
+        }
+        waitForViewVisible(ID_MAIN_RECYCLER, 5_000, "MainActivity not visible");
         myLogI(logFinalMessage.append("\n--------------------------").toString());
+        TestNavUtils.assertRecyclerItemCountEquals(ID_MAIN_RECYCLER, nbBooks, 5_000, "Mismatch between nb of imported book, and nb of actually present books");
+        myLog("nb Books imported =" + nbBooks);
         TestNavUtils.sleep(TIMEOUT_TEST_END, "TEST END");
     }
 
@@ -531,6 +541,7 @@ public class LoadManyBookTest implements LogSupport {
 
         //fallback
         try {
+            myLogW("Using fallback for button PLAY");
             waitForTextVisible(PLAY_TEXT_FALLBACK, 2_000, "Play text control not visible");
             onView(withText(PLAY_TEXT_FALLBACK)).perform(click());
             myLog("Pressed Play via text");

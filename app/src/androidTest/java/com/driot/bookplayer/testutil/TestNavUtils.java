@@ -5,6 +5,7 @@ import android.view.View;
 import android.widget.ScrollView;
 
 import androidx.annotation.IdRes;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.test.espresso.Espresso;
 import androidx.test.espresso.NoMatchingViewException;
@@ -305,16 +306,181 @@ public class TestNavUtils {
         throw new AssertionError(err + " (text=\"" + text + "\")");
     }
 
-    /** Safely fetches adapter item count for a RecyclerView currently in the RESUMED activity. */
+
+// --- RecyclerView item count helpers ---
+
+    /** Returns adapter.getItemCount() for the RecyclerView, or 0 if view/adapter not found. */
     public static int getRecyclerItemCount(@IdRes int recyclerId) {
         final int[] out = {0};
-        Activity a = TestNavUtils.getCurrentResumedActivity();
+        final Activity a = getCurrentResumedActivity();
         if (a == null) return 0;
+
         InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
             RecyclerView rv = a.findViewById(recyclerId);
-            if (rv != null && rv.getAdapter() != null) out[0] = rv.getAdapter().getItemCount();
+            if (rv != null && rv.getAdapter() != null) {
+                out[0] = rv.getAdapter().getItemCount();
+            } else {
+                out[0] = 0;
+            }
         });
         return out[0];
+    }
+
+    /**
+     * Waits until adapter is non-null and its itemCount equals expected, or times out.
+     * Returns true on success, false on timeout. Uses short sleeps to avoid ANR.
+     */
+    public static boolean waitForRecyclerItemCountEquals(@IdRes int recyclerId,
+                                                         int expected,
+                                                         long timeoutMs) {
+        long end = System.currentTimeMillis() + timeoutMs;
+        while (System.currentTimeMillis() < end) {
+            if (waitForWindowFocus(300)) {
+                final int[] count = { -1 };
+                final boolean[] ok = { false };
+
+                final Activity a = getCurrentResumedActivity();
+                if (a != null) {
+                    InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
+                        RecyclerView rv = a.findViewById(recyclerId);
+                        if (rv != null && rv.getAdapter() != null) {
+                            count[0] = rv.getAdapter().getItemCount();
+                            ok[0] = true;
+                        }
+                    });
+                    if (ok[0]) {
+                        if (count[0] == expected) return true;
+                    }
+                }
+            }
+            try { Thread.sleep(50); } catch (InterruptedException ignored) {}
+        }
+        return false;
+    }
+
+    /**
+     * Waits until adapter is non-null and itemCount >= minCount (useful while data is loading).
+     * Returns the last observed count (>= minCount on success, otherwise what we saw at timeout).
+     */
+    public static int waitForRecyclerItemCountAtLeast(@IdRes int recyclerId,
+                                                      int minCount,
+                                                      long timeoutMs) {
+        long end = System.currentTimeMillis() + timeoutMs;
+        int last = -1;
+        while (System.currentTimeMillis() < end) {
+            if (waitForWindowFocus(300)) {
+                final int[] count = { -1 };
+                final Activity a = getCurrentResumedActivity();
+                if (a != null) {
+                    InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
+                        RecyclerView rv = a.findViewById(recyclerId);
+                        if (rv != null && rv.getAdapter() != null) {
+                            count[0] = rv.getAdapter().getItemCount();
+                        }
+                    });
+                    if (count[0] >= 0) {
+                        last = count[0];
+                        if (last >= minCount) return last;
+                    }
+                }
+            }
+            try { Thread.sleep(50); } catch (InterruptedException ignored) {}
+        }
+        return last; // may be < minCount if we timed out
+    }
+
+    /** Returns the adapter after the UI thread is idle (reduces race with DiffUtil). */
+    @Nullable
+    private static RecyclerView.Adapter<?> getRecyclerAdapterIdle(@IdRes int recyclerId) {
+        final Activity a = getCurrentResumedActivity();
+        if (a == null) return null;
+        final RecyclerView.Adapter<?>[] out = { null };
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
+            RecyclerView rv = a.findViewById(recyclerId);
+            if (rv != null) out[0] = rv.getAdapter();
+        });
+        // Let pending layout/diff work settle
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync();
+        return out[0];
+    }
+
+    /** True if this adapter is a known non-content wrapper like Paging3 LoadStateAdapter. */
+    private static boolean isNonContentAdapter(RecyclerView.Adapter<?> a) {
+        if (a == null) return false;
+        // Paging3: androidx.paging.LoadStateAdapter
+        try {
+            Class<?> loadState = Class.forName("androidx.paging.LoadStateAdapter");
+            if (loadState.isAssignableFrom(a.getClass())) return true;
+        } catch (ClassNotFoundException ignore) {}
+        // Add your own header/footer adapter classes here if you have them:
+        // if (a instanceof MyHeaderAdapter) return true;
+        // if (a instanceof MyFooterAdapter) return true;
+        return false;
+    }
+    /**
+     * Counts only "content" items.
+     * - If adapter is a ConcatAdapter, sums itemCount of child adapters excluding non-content ones.
+     * - Otherwise returns adapter.getItemCount().
+     */
+    public static int getRecyclerContentItemCount(@IdRes int recyclerId) {
+        RecyclerView.Adapter<?> adapter = getRecyclerAdapterIdle(recyclerId);
+        if (adapter == null) return 0;
+
+        // Handle ConcatAdapter by summing children and skipping non-content wrappers.
+        try {
+            Class<?> concatCls = Class.forName("androidx.recyclerview.widget.ConcatAdapter");
+            if (concatCls.isInstance(adapter)) {
+                int sum = 0;
+                // Call concatAdapter.getAdapters()
+                @SuppressWarnings("unchecked")
+                java.util.List<RecyclerView.Adapter<?>> children =
+                        (java.util.List<RecyclerView.Adapter<?>>)
+                                concatCls.getMethod("getAdapters").invoke(adapter);
+                for (RecyclerView.Adapter<?> child : children) {
+                    if (!isNonContentAdapter(child)) {
+                        sum += child.getItemCount();
+                    }
+                }
+                return sum;
+            }
+        } catch (Throwable ignore) {
+            // Reflection failed → fall back to plain count
+        }
+        // Non-concat: just return the adapter's count (may include header/footer if present).
+        return adapter.getItemCount();
+    }
+
+    /** Assertion wrapper that throws with a clear message + current lifecycle snapshot on failure. */
+    public static void assertRecyclerItemCountEquals(@IdRes int recyclerId,
+                                                     int expected,
+                                                     long timeoutMs,
+                                                     String errorMsg) {
+        if (waitForRecyclerItemCountEquals(recyclerId, expected, timeoutMs)) {
+            myLogD("Recycler(" + recyclerId + ") itemCount == " + expected);
+            return;
+        }
+        int seen = getRecyclerContentItemCount(recyclerId);
+
+        // Build a small lifecycle snapshot for context
+        final String[] snapshot = new String[1];
+        getInstrumentation().runOnMainSync(() -> {
+            StringBuilder sb = new StringBuilder();
+            for (Stage s : Stage.values()) {
+                Collection<Activity> acts = ActivityLifecycleMonitorRegistry.getInstance()
+                        .getActivitiesInStage(s);
+                if (acts != null && !acts.isEmpty()) {
+                    sb.append(s).append(": ");
+                    for (Activity a : acts) sb.append(a.getClass().getSimpleName()).append(' ');
+                    sb.append(" | ");
+                }
+            }
+            snapshot[0] = sb.toString();
+        });
+
+        throw new AssertionError(errorMsg
+                + "\nexpected " + expected
+                + "\nseen " + seen
+                + "\nLifecycle -> " + snapshot[0]);
     }
 
 }

@@ -94,10 +94,10 @@
       </SelectionState>
       <SelectionState runConfigName="LoadManyBookTest">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2025-10-11T07:30:04.106466500Z">
+        <DropdownSelection timestamp="2025-10-11T09:48:53.912053400Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\adrio\.android\avd\Pixel_9.avd" />
+              <DeviceId pluginId="PhysicalDevice" identifier="serial=FPMPH18C17900002" />
             </handle>
           </Target>
         </DropdownSelection>
@@ -127,11 +127,11 @@
         </DialogSelection>
       </SelectionState>
       <SelectionState runConfigName="orderedTests">
-        <option name="selectionMode" value="DIALOG" />
-        <DropdownSelection timestamp="2025-10-10T20:32:27.828664400Z">
+        <option name="selectionMode" value="DROPDOWN" />
+        <DropdownSelection timestamp="2025-10-11T08:57:09.727957Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\adrio\.android\avd\Pixel_9.avd" />
+              <DeviceId pluginId="PhysicalDevice" identifier="serial=FPMPH18C17900002" />
             </handle>
           </Target>
         </DropdownSelection>

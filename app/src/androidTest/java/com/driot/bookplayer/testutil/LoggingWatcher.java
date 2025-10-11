@@ -7,21 +7,29 @@ public class LoggingWatcher extends TestWatcher implements LogSupport {
 
     @Override
     protected void starting(Description description) {
+        myLog("oo-----------------------------------------------------------------------------oo");
         myLogI("➡️ START " + description.getDisplayName() + " ➡️➡️➡️➡️➡️➡️➡️➡️➡️");
+        myLog("oo-----------------------------------------------------------------------------oo");
     }
 
     @Override
     protected void succeeded(Description description) {
+        myLog("oo-----------------------------------------------------------------------------oo");
         myLogI("✅ PASS  " + description.getDisplayName());
+        myLog("oo-----------------------------------------------------------------------------oo");
     }
 
     @Override
     protected void failed(Throwable e, Description description) {
-        myLogE("❌ FAIL  " + description.getDisplayName() + " :: " + e);
+        myLog("oo-----------------------------------------------------------------------------oo");
+        myLogE("❌ FAIL  " + description.getDisplayName() + "\n" + e);
+        myLog("oo-----------------------------------------------------------------------------oo");
     }
 
     @Override
     protected void finished(Description description) {
+        myLog("oo-----------------------------------------------------------------------------oo");
         myLogI("⏹ END   " + description.getDisplayName());
+        myLog("oo-----------------------------------------------------------------------------oo");
     }
 }

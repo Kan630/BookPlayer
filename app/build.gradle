@@ -90,21 +90,11 @@ android {
         debug {
             applicationIdSuffix = ".debug"
             versionNameSuffix = "-debug"
-            resValue "string", "app_name", "BookPlayer • debug"
+            resValue "string", "app_name", "DEBUG BookPlayer"
 
             // Make tests debuggable
             debuggable = true
             testCoverageEnabled = false
-
-            // Keep Firebase quiet in debug:
-            manifestPlaceholders = [
-                    firebase_analytics_collection_deactivated: "true",
-                    crashlyticsCollectionEnabled: "false"
-            ]
-            firebaseCrashlytics {
-                mappingFileUploadEnabled = false
-                nativeSymbolUploadEnabled = false
-            }
         }
         release {
             // Enables code shrinking, obfuscation, and optimization for only
@@ -152,18 +142,18 @@ dependencies {
     implementation 'androidx.core:core:1.16.0' //needs sdk 36
     implementation 'androidx.media:media:1.7.1'
     implementation 'androidx.annotation:annotation:1.9.1'
-    implementation "androidx.room:room-runtime:2.8.1"
+    implementation "androidx.room:room-runtime:2.8.2"
     implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
 
     implementation 'com.google.code.gson:gson:2.13.2'
 
-    implementation 'com.google.firebase:firebase-crashlytics:20.0.2'
-    implementation platform('com.google.firebase:firebase-bom:34.3.0')
+    implementation 'com.google.firebase:firebase-crashlytics:20.0.3'
+    implementation platform('com.google.firebase:firebase-bom:34.4.0')
     implementation 'com.google.firebase:firebase-analytics'
 
     implementation 'org.jsoup:jsoup:1.21.2'
 
-    annotationProcessor "androidx.room:room-compiler:2.8.1"
+    annotationProcessor "androidx.room:room-compiler:2.8.2"
 
     implementation 'com.googlecode.mp4parser:isoparser:1.1.22'
 
