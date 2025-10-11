@@ -7,6 +7,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
 import static com.driot.bookplayer.testutil.TestNavUtils.getRecyclerItemCount;
+import static com.driot.bookplayer.testutil.TestNavUtils.isOn;
 import static com.driot.bookplayer.testutil.TestNavUtils.sleep;
 import static com.driot.bookplayer.testutil.TestNavUtils.waitForTextVisible;
 import static com.driot.bookplayer.testutil.TestNavUtils.waitForViewVisible;
@@ -39,6 +40,7 @@ import com.driot.bookplayer.activities.ZikFileActivity;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.objects.TaskStateRepository;
 import com.driot.bookplayer.objects.TaskUiState;
+import com.driot.bookplayer.player.PlayList;
 import com.driot.bookplayer.services.BookLoadingWorkLauncher;
 import com.driot.bookplayer.testutil.LogSupport;
 import com.driot.bookplayer.testutil.LoggingWatcher;
@@ -97,6 +99,8 @@ public class LoadManyBookTest implements LogSupport {
 
     private TaskStateTestProbe probe;
     private Observer<TaskUiState> stateObs;
+
+    private String lastPlayedSong = "init no song";
 
     @Rule
     public ActivityScenarioRule<MainActivity> activityRule = new ActivityScenarioRule<>(MainActivity.class);
@@ -162,35 +166,37 @@ public class LoadManyBookTest implements LogSupport {
             myLog(String.format("TestCase '%s'-'%s' -> %d files", tc.uri_type, tc.assetFolderPath, assetFiles.size()));
             myLogD("--------------------------------------------------");
             if ("Folder".equals(tc.uri_type)) {
-                // tc.assetFolderPath == "fixtures/folders/"
                 List<String> subdirs = listAssetSubdirectories(testContext.getAssets(), tc.assetFolderPath);
                 myLog("Found " + subdirs.size() + " folders to import under " + tc.assetFolderPath);
-
                 for (String assetDir : subdirs) {
                     Uri dirUri = stageAssetDirectoryAsFileUri(appContext, testContext, assetDir);
                     runImport(dirUri, tc.uri_type);
+                    goPlay();
                     if (DEBUG_MODE_NO_LOOP) return;
                 }
             } else {
                 for (String assetPath : assetFiles) {
                     Uri contentUri = stageAssetAsContentUri(appContext, testContext, assetPath);
                     runImport(contentUri, tc.uri_type);
-                    TestNavUtils.logCurrentActivity();
-                    openFirstItemThenPlay(PLAY_TIME);
+                    goPlay();
                     if (DEBUG_MODE_NO_LOOP) return;
                 }
             }
             logFinalMessage.append("\n--------------------------");
-
         }
         myLogI(logFinalMessage.append("\n--------------------------").toString());
-
-
-
-
-        TestNavUtils.sleep(TIMEOUT_TEST_END);
+        TestNavUtils.sleep(TIMEOUT_TEST_END, "TEST END");
     }
 
+    private void goPlay() {
+        TestNavUtils.logCurrentActivity();
+        if (!isOn(MainActivity.class)) {
+            myLogW("going back to MainActivity");
+            TestNavUtils.pressBackTo(MainActivity.class,3, 1_000);
+        }
+        TestNavUtils.logCurrentActivity();
+        openFirstItemThenPlay(PLAY_TIME);
+    }
 
 
 
@@ -300,7 +306,7 @@ public class LoadManyBookTest implements LogSupport {
                 Activity a = TestNavUtils.getCurrentResumedActivity();
                 String where = (a == null) ? "none" : a.getClass().getSimpleName();
                 throw new AssertionError(
-                        "Timeout " + TIMEOUT_BOOK_LOAD/1000 + " sec. waiting for finish/navigation.\nCurrent activity: " + where +
+                        "Timeout " + TIMEOUT_BOOK_LOAD / 1000 + " sec. waiting for finish/navigation.\nCurrent activity: " + where +
                                 " | last progress='" + lastProgress + "'"
                 );
             }
@@ -309,18 +315,25 @@ public class LoadManyBookTest implements LogSupport {
             // --- Duration log (robust name from URI) ---
             String duration = Tonio.formatMmSs(System.currentTimeMillis() - lastTimestamp);
             String baseFromPath = (uri_content.getPath() != null) ? Tonio.getFileNameFromPath(uri_content.getPath()) : null;
-            String baseFromSeg  = (uri_content.getLastPathSegment() != null) ? uri_content.getLastPathSegment() : null;
-            String targetName   = (baseFromPath != null && !baseFromPath.isEmpty()) ? baseFromPath :
+            String baseFromSeg = (uri_content.getLastPathSegment() != null) ? uri_content.getLastPathSegment() : null;
+            String targetName = (baseFromPath != null && !baseFromPath.isEmpty()) ? baseFromPath :
                     (baseFromSeg != null ? baseFromSeg : uri_content.toString());
 
             String logDuration = duration + "  " + targetName;
-            myLogI(logDuration);
+            myLogI("Import Duration: " + logDuration);
             String newLineMsg = "\n" + logDuration;
-            if (txtWarnings != null) newLineMsg = newLineMsg + " - [" + txtWarnings + "]";
+
+            try {
+                txtWarnings = TaskStateRepository.get().state().getValue().warningText;
+            } catch (Throwable ignored) {}
+            if (txtWarnings != null) newLineMsg = newLineMsg + "\ndisplayed warnings : \n" + txtWarnings;
+
             logFinalMessage.append(newLineMsg);
 
-            TestNavUtils.sleep(TIMEOUT_VISUAL_CHECK);
+            TestNavUtils.sleep(TIMEOUT_VISUAL_CHECK, "Visual Check");
 
+        } catch (Exception e) {
+            throw new AssertionError("Import failed: " + e.getMessage());
         } finally {
             // --- Always detach the observer & stop the probe to avoid leaks / cross-test noise ---
             InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
@@ -446,7 +459,7 @@ public class LoadManyBookTest implements LogSupport {
         }
 
         // 2) click first item in the main list
-        waitForViewVisible(ID_MAIN_RECYCLER, 5_000, "Main list not visible");
+        waitForViewVisible(ID_MAIN_RECYCLER, 5_000, "MainActivity not visible");
         onView(withId(ID_MAIN_RECYCLER))
                 .perform(RecyclerViewActions.actionOnItemAtPosition(0, click()));
         myLog("Clicked first item in main list");
@@ -457,10 +470,7 @@ public class LoadManyBookTest implements LogSupport {
 
         if (TestNavUtils.isOn(PlayActivity.class)) {
             myLog("Landed directly on PlayActivity");
-            sleep(playTime);
-            pressPlay();
-            sleep(1_000);
-            TestNavUtils.pressBackTo(MainActivity.class,3, 1_000);
+            runPlay(playTime);
             return;
         }
 
@@ -469,15 +479,31 @@ public class LoadManyBookTest implements LogSupport {
             myLog("On ZikFileActivity → will click a random track");
             clickRandomItemInRecycler(ID_TRACKS_RECYCLER);
             TestNavUtils.assertWaitForActivity(PlayActivity.class, 5_000, "Expected PlayActivity after choosing a track");
-            sleep(playTime);
-            pressPlay();
-            sleep(1_000);
-            TestNavUtils.pressBackTo(MainActivity.class,3, 1_000);
+            runPlay(playTime);
             return;
         }
 
         throw new AssertionError("Unexpected navigation: neither PlayActivity nor ZikFileActivity is RESUMED.");
     }
+
+    private void runPlay(long playTime) {
+        sleep(playTime, "PLAY TIME");
+        PlayList pl = PlayList.getInstance();
+        if (pl != null && pl.getZikFile() != null) {
+            String newPlayedSong = pl.getZikFile().getFolderName() + " / " + pl.getZikFile().getDisplayName();
+            if (lastPlayedSong.equals(newPlayedSong)) {
+                throw new AssertionError("Tried to play the same song... So import did not work");
+            }
+            myLogI("played track :" + newPlayedSong);
+            lastPlayedSong = newPlayedSong;
+        } else {
+            throw new AssertionError("Playlist not properly instantiated");
+        }
+        pressPlay();
+        sleep(1_000, "END PLAY");
+        TestNavUtils.pressBackTo(MainActivity.class,3, 1_000);
+    }
+
     /** Clicks a random item in the given RecyclerView (by id). */
     private void clickRandomItemInRecycler(@IdRes int recyclerId) {
         waitForViewVisible(recyclerId, 5_000, "Recycler view not visible: " + recyclerId);
@@ -503,14 +529,13 @@ public class LoadManyBookTest implements LogSupport {
             // fall back to a text-based control
         }
 
-        if (PLAY_TEXT_FALLBACK != null) {
-            try {
-                waitForTextVisible(PLAY_TEXT_FALLBACK, 2_000, "Play text control not visible");
-                onView(withText(PLAY_TEXT_FALLBACK)).perform(click());
-                myLog("Pressed Play via text");
-                return;
-            } catch (Exception ignored) {}
-        }
+        //fallback
+        try {
+            waitForTextVisible(PLAY_TEXT_FALLBACK, 2_000, "Play text control not visible");
+            onView(withText(PLAY_TEXT_FALLBACK)).perform(click());
+            myLog("Pressed Play via text");
+            return;
+        } catch (Exception ignored) {}
 
         throw new AssertionError("Could not find a Play control (id nor text).");
     }

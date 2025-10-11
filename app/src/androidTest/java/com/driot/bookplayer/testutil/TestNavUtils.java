@@ -148,13 +148,18 @@ public class TestNavUtils {
     }
 
 
-    public static void sleep(long millis) {
-        myLog("sleep " + Tonio.formatMS(millis));
+    public static void sleep(long millis, String customLogMessage) {
+        String log = "sleep " + Tonio.formatMS(millis);
+        if (!customLogMessage.isEmpty()) log+= " - " + customLogMessage;
+        myLog(log);
         try {
             Thread.sleep(millis);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt(); // restore flag
         }
+    }
+    public static void sleep(long millis) {
+        sleep(millis, "");
     }
 
     // --- ANY-OF helpers ---
