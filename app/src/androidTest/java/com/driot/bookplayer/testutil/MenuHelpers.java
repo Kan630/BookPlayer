@@ -3,7 +3,10 @@ package com.driot.bookplayer.testutil;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.Espresso.openActionBarOverflowOrOptionsMenu;
 import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.action.ViewActions.swipeUp;
+import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.RootMatchers.isPlatformPopup;
+import static androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom;
 import static androidx.test.espresso.matcher.ViewMatchers.isDescendantOfA;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withContentDescription;
@@ -14,9 +17,13 @@ import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.anyOf;
 
 import android.content.Context;
+import android.os.SystemClock;
+import android.view.View;
 
 import androidx.annotation.IdRes;
 import androidx.annotation.StringRes;
+import androidx.test.espresso.action.ViewActions;
+import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.driot.bookplayer.R;
@@ -84,6 +91,8 @@ public final class MenuHelpers {
     /** Overload: use only the title (for overflow-only items). */
     public static void tapMenu(@StringRes int menuTitleRes) {
         Context ctx = InstrumentationRegistry.getInstrumentation().getTargetContext();
+
+        // 1) Open overflow
         try {
             openActionBarOverflowOrOptionsMenu(ctx);
             myLog("Opened overflow via Espresso helper");
@@ -95,11 +104,62 @@ public final class MenuHelpers {
             )).perform(click());
             myLog("Opened overflow via toolbar three-dots");
         }
-        onView(withText(menuTitleRes))
-                .inRoot(isPlatformPopup())
-                .perform(click());
-        myLog("Tapped overflow-only item: titleRes=" + resName(menuTitleRes));
+
+        // 2) Try direct click if already visible
+        try {
+            onView(withText(menuTitleRes))
+                    .inRoot(isPlatformPopup())
+                    .check(matches(isDisplayed()))
+                    .perform(click());
+            myLog("Tapped overflow-only item immediately: titleRes=" + resName(menuTitleRes));
+            return;
+        } catch (Throwable ignored) {
+            // Not visible yet—fall through to scroll
+        }
+
+        // 3) Scroll the popup LIST (not the TextView) and retry a few times
+        final int MAX_SWIPES = 6; // adjust if your menus can be very long
+        boolean clicked = false;
+
+        Matcher<View> popupList = allOf(
+                isAssignableFrom(android.widget.AbsListView.class), // covers ListView/DropDownListView
+                isDisplayed()
+        );
+
+        for (int i = 0; i < MAX_SWIPES; i++) {
+            try {
+                // After each swipe, check if item is visible and click it
+                onView(withText(menuTitleRes))
+                        .inRoot(isPlatformPopup())
+                        .check(matches(isDisplayed()))
+                        .perform(click());
+                myLog("Tapped after " + i + " swipe(s), overflow-only item: titleRes=" + resName(menuTitleRes));
+                clicked = true;
+                break;
+            } catch (Throwable notYet) {
+                // Item still not on screen: swipe the popup list up to reveal more items
+                try {
+                    onView(popupList)
+                            .inRoot(isPlatformPopup())
+                            .perform(ViewActions.swipeUp());
+                    SystemClock.sleep(120); // tiny pause helps on some devices
+                } catch (Throwable swipeFail) {
+                    // If swipe fails (rare), break to avoid flaky infinite loops
+                    myLog("SwipeUp on popup list failed at attempt " + i + ": " + swipeFail);
+                    break;
+                }
+            }
+        }
+
+        // 4) Last-chance try (item may have become visible after last swipe)
+        if (!clicked) {
+            onView(withText(menuTitleRes))
+                    .inRoot(isPlatformPopup())
+                    .perform(click());
+            myLog("Tapped after final visibility check, overflow-only item: titleRes=" + resName(menuTitleRes));
+        }
     }
+
 
     // --- tiny logging helpers (route to your logger if you want) ---
     private static void myLog(String msg) {

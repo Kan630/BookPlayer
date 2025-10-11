@@ -15,6 +15,7 @@ import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.allOf;
 
 import android.content.Context;
+import android.content.pm.ActivityInfo;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.matcher.ViewMatchers;
@@ -67,6 +68,11 @@ public abstract class BasicNavTest implements LogSupport {
 
         activityRule.getScenario().onActivity(a ->
                 a.setRequestedOrientation(desiredOrientation()));
+        if (desiredOrientation() == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
+            myLog("+++++++++++++ Orientation = PORTRAIT -----------------------");
+        } else {
+            myLog("+++++++++++++ Orientation = LANDSCAPE -----------------------");
+        }
     }
 
     @Test
@@ -124,7 +130,7 @@ public abstract class BasicNavTest implements LogSupport {
         onView(withId(android.R.id.content)).perform(swipeDown());
         TestNavUtils.assertPressBackTo(MainActivity.class);
 
-        //menu_sendmail
+        //menu_clean
 
         MenuHelpers.tapMenu(com.driot.bookplayer.R.string.menu_cacheFiles);
         TestNavUtils.logCurrentActivity();

@@ -69,7 +69,7 @@ public class LoadManyBookTest implements LogSupport {
     private Context appContext;
 
     private final static boolean DEBUG_MODE_NO_LOOP = false;
-    private final static long TIMEOUT_TEST_END = 60*60_000;
+    private final static long TIMEOUT_TEST_END = 1*60_000;
     private final static long TIMEOUT_BOOK_LOAD = 120_000;
     private final static long TIMEOUT_VISUAL_CHECK = 3_000;
 
