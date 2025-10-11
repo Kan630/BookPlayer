@@ -10,6 +10,7 @@ import android.os.Environment;
 import java.io.File;
 import java.io.IOException;
 
+import com.driot.bookplayer.db.AppUpgrade;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
@@ -22,12 +23,7 @@ import com.driot.bookplayer.objects.BookToAdd;
 import com.driot.bookplayer.objects.TaskStateManager;
 import com.driot.bookplayer.services.InAppPeriodicTaskManager;
 import com.driot.bookplayer.utils.KanLogger;
-import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
-/**
- * created by Antoine Driot -- antoine.driot.com -- on 15/06/21
- * from https://stackoverflow.com/questions/19565685/saving-logcat-to-a-text-file-in-android-device
- */
 public class MyApp extends Application {
 
     public static final String APP_FOLDER = "zeAppFolder";
@@ -63,10 +59,9 @@ public class MyApp extends Application {
 
         InAppMsgManager.schedule(getApplicationContext());
 
-        myLog("Context has been initialized");
+        AppUpgrade.runMigrations(getApplicationContext());
 
-        //FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(!BuildConfig.DEBUG);
-        //myLogD("Crashlytics : " + !BuildConfig.DEBUG);
+        myLog("Context has been initialized");
 
         LocaleHelper.applyAppLocale(Option.getAppLanguage());
 

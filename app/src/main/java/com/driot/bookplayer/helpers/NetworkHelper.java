@@ -82,11 +82,13 @@ public class NetworkHelper {
 
     public enum NetworkPolicyManual {
          NETWORK_POLICY_NEVER_ASK
+        ,NETWORK_POLICY_NOT_ROAMING
         ,NETWORK_POLICY_UNMETERED
     }
 
     public enum NetworkPolicyAuto {
          NETWORK_POLICY_NEVER_ASK
+        ,NETWORK_POLICY_NOT_ROAMING
         ,NETWORK_POLICY_UNMETERED
     }
 

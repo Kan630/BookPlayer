@@ -200,12 +200,10 @@
                     android:spinnerMode="dropdown"
                     style="@style/Spinner" />
             </LinearLayout>
-
+            <TextView
+                style="@style/OptionSubTitle"
+                android:text="@string/option_network_preference_subtext" />
         </LinearLayout>
-
-
-
-
 
         <View style="@style/myStyleViewSimpleHorizontalBar" />
 

@@ -38,8 +38,8 @@ public class Option {
     private static final boolean DEFAULT_OPEN_WITH_ALL = false;
     private static final boolean DEFAULT_SPLIT_M4B = true;
     private static final boolean DEFAULT_USE_SD_CARD = true;
-    private static final NetworkHelper.NetworkPolicyManual DEFAULT_MANUAL_DOWNLOAD_POLICY = NetworkHelper.NetworkPolicyManual.NETWORK_POLICY_NEVER_ASK;
-    private static final NetworkHelper.NetworkPolicyAuto DEFAULT_AUTO_DOWNLOAD_POLICY = NetworkHelper.NetworkPolicyAuto.NETWORK_POLICY_UNMETERED;
+    public static final NetworkHelper.NetworkPolicyManual DEFAULT_MANUAL_DOWNLOAD_POLICY = NetworkHelper.NetworkPolicyManual.NETWORK_POLICY_NOT_ROAMING;
+    public static final NetworkHelper.NetworkPolicyAuto DEFAULT_AUTO_DOWNLOAD_POLICY = NetworkHelper.NetworkPolicyAuto.NETWORK_POLICY_UNMETERED;
     private static final boolean DEFAULT_PODCAST_AUTO_DELETE = false;
     public static final int DEFAULT_PODCAST_DELAY_AUTO_DELETE = 7;
     public static final int DEFAULT_PODCAST_COMPLETION_PERCENTAGE_AUTO_DELETE = 90;

@@ -184,6 +184,7 @@ public class SettingsActivity extends LoggingActivity {
 // Auto download spinner
         String[] autoOptions = new String[] {
                 getString(R.string.download_any),
+                getString(R.string.download_not_roaming),
                 getString(R.string.download_bis_unmetered),
         };
         ArrayAdapter<String> autoAdapter = new ArrayAdapter<>(this, R.layout.spinner_item, autoOptions);
@@ -201,6 +202,7 @@ public class SettingsActivity extends LoggingActivity {
 // Manual download spinner
         String[] manualOptions = new String[] {
                 getString(R.string.download_any),
+                getString(R.string.download_not_roaming),
                 getString(R.string.download_bis_unmetered),
         };
         ArrayAdapter<String> manualAdapter = new ArrayAdapter<>(this, R.layout.spinner_item, manualOptions);
