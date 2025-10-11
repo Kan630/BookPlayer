@@ -2,34 +2,27 @@ package com.driot.bookplayer.services;
 
 import static com.driot.bookplayer.utils.Tonio.formatMemPadding;
 
-import android.content.ContentResolver;
 import android.content.Context;
-import android.database.Cursor;
 import android.net.Uri;
-import android.os.ParcelFileDescriptor;
-import android.provider.DocumentsContract;
 
 import androidx.annotation.NonNull;
 import androidx.work.WorkerParameters;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.SupportedFilesHelper;
 import com.driot.bookplayer.helpers.UriHelper;
 import com.driot.bookplayer.helpers.StorageHelper;
-import com.driot.bookplayer.objects.LoadBookTaskState;
-import com.driot.bookplayer.objects.TaskStateManager;
+import com.driot.bookplayer.imports.ImportJob;
+import com.driot.bookplayer.imports.ImportWorker;
 import com.driot.bookplayer.utils.Tonio;
-import com.driot.bookplayer.utils.log.LoggingWorker;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public class CopyFileWorker extends LoggingWorker {
+public class CopyFileWorker extends ImportWorker {
     private static final String TASK_NAME = Var.WORKER_TASK_LABEL_COPY;
 
     private static final int MAX_NB_PIC = 5;
@@ -58,20 +51,15 @@ public class CopyFileWorker extends LoggingWorker {
     @NonNull
     @Override
     public Result doWork() {
-        LoadBookTaskState state = Pref.getLoadBookTaskState();
-
-        if (state == null) {
-            TaskStateManager.markTaskFailed(TASK_NAME, "bookState == null", context.getString(R.string.invalid_resource));
-            return Result.failure();
-        }
-
-        Uri uri = state.dynamicUri;
-        String destinationFolderPath = state.futureFolderPath;
-        String destinationFileName = state.originalFile;
-        String type = state.dynamicType;
-        String fileExtension = state.fileExtension;
+        ImportJob j = jobOrFail();
+        Uri uri = Uri.parse(j.dynamicUri);
+        String destinationFolderPath = j.futureFolderPath;
+        String destinationFileName = j.originalFile;
+        String type = j.dynamicType;
+        String fileExtension = j.fileExtension;
         boolean checkSize = true;  //TODO, to check
         long forceSize = -1;
+
         sourceLocation = Tonio.getSourceLocation(context, uri);
         destinationLocation = StorageHelper.getMemoryLocationType(context, destinationFolderPath);
         if (destinationLocation.equals(StorageHelper.MemoryLocationType.SDCARD_RESERVED) || destinationLocation.equals(StorageHelper.MemoryLocationType.SDCARD_SHARED)) {
@@ -83,7 +71,7 @@ public class CopyFileWorker extends LoggingWorker {
         if (forceSize > 0) {
             totalSize = forceSize;
         } else {
-            TaskStateManager.tellProgressText(context.getString(R.string.checking_size));
+            emitTextOnlyProgress(context.getString(R.string.checking_size));
             totalSize = UriHelper.getSize(context, uri);
         }
 
@@ -104,9 +92,9 @@ public class CopyFileWorker extends LoggingWorker {
         myLogD("----------------------------------------------------");
 
         if (!isSizeOk(fileExtension)) {
-            TaskStateManager.tellWarning(context.getString(R.string.Not_enough_memory)
+            emitWarning(context.getString(R.string.Not_enough_memory)
                     + "\n" + Tonio.formatSizeMB(availableMemory) + " " + context.getString(R.string.MB_available_on_device));
-            TaskStateManager.markTaskFailed(TASK_NAME, "Not_enough_memory", context.getString(R.string.Not_enough_memory));
+            emitFailed(TASK_NAME, "Not_enough_memory", context.getString(R.string.Not_enough_memory));
             return Result.failure();
         }
 
@@ -114,14 +102,14 @@ public class CopyFileWorker extends LoggingWorker {
         File destinationFolderFile = new File(destinationFolderPath);
         try {
             if (!destinationFolderFile.exists() && !destinationFolderFile.mkdirs()) {
-                TaskStateManager.markTaskFailed(TASK_NAME
+                emitFailed(TASK_NAME
                         , "Error_Import_Creating_Folders : " + destinationFolderPath
                         , context.getString(R.string.Error_Import_Creating_Folders));
                 return Result.failure();
             }
         } catch (Exception e) {
             myLogEE(e, "CopyFileWorker - Error creating destination folder");
-            TaskStateManager.markTaskFailed(TASK_NAME
+            emitFailed(TASK_NAME
                     , "Catch Error_Import_Creating_Folders : " + destinationFolderPath
                     , context.getString(R.string.Error_Import_Creating_Folders));
             return Result.failure();
@@ -138,14 +126,14 @@ public class CopyFileWorker extends LoggingWorker {
             myLogI("nbFileCopied = " + nbFileCopied + " .  nbFileKO = " + nbFileKO + " .  nbFolder = " + nbFolder + " .  nbPic = " + nbPic);
             if (nbFileCopied == 0) result = false;
             if (hasBeenCancelled) {
-                TaskStateManager.markTaskCancelled(TASK_NAME);
+                emitCancelled(TASK_NAME);
                 return Result.failure();
             }
             if (result) {
                 if ("Folder".equals(type)) {
-                    TaskStateManager.markCopyCompleted(destinationFolderPath);
+                    //emitCopyComplete(destinationFolderPath);
                 } else {
-                    TaskStateManager.markCopyCompleted(destinationFolderPath + "/" + destinationFileName);
+                    //emitCopyComplete(destinationFolderPath + "/" + destinationFileName);
                 }
                 return Result.success();
             } else {
@@ -153,7 +141,7 @@ public class CopyFileWorker extends LoggingWorker {
             }
         } catch (Exception e) {
             myLogEE(e, "CopyFileWorker - Error during copy");
-            TaskStateManager.markTaskFailed(TASK_NAME, e.getMessage(), null);
+            emitFailed(TASK_NAME, e.getMessage(), null);
             return Result.failure();
         }
     }
@@ -169,7 +157,7 @@ public class CopyFileWorker extends LoggingWorker {
 
             while ((len = is.read(buf)) > 0) {
                 if (isStopped()) {
-                    TaskStateManager.markTaskCancelled(TASK_NAME);
+                    emitCancelled(TASK_NAME);
                     return false;
                 }
                 nbBuffCopied++;
@@ -181,7 +169,7 @@ public class CopyFileWorker extends LoggingWorker {
             }
         } catch (Exception e) {
             myLogEE(e, "CopyFileWorker - Error during copy");
-            TaskStateManager.markTaskFailed(TASK_NAME, e.getMessage(), null);
+            emitFailed(TASK_NAME, e.getMessage(), null);
             return false;
         }
         nbFileCopied++;
@@ -195,13 +183,13 @@ public class CopyFileWorker extends LoggingWorker {
                     com.driot.bookplayer.helpers.UriHelper.getDocumentFileFromAnyUri(context, uri);
 
             if (root == null || !root.exists() || !root.isDirectory()) {
-                TaskStateManager.markTaskFailed(TASK_NAME, "Invalid URI: [" + uri + "]", context.getString(R.string.invalid_resource) + ": [" + uri + "]");
+                emitFailed(TASK_NAME, "Invalid URI: [" + uri + "]", context.getString(R.string.invalid_resource) + ": [" + uri + "]");
                 return false;
             }
 
             File dest = new File(destinationFolderPath);
             if (!dest.exists() && !dest.mkdirs()) {
-                TaskStateManager.markTaskFailed(TASK_NAME,
+                emitFailed(TASK_NAME,
                         "failed_to_create_destination_folder - [" + dest.getAbsolutePath() + "]", context.getString(R.string.failed_to_create_destination_folder));
                 return false;
             }
@@ -209,117 +197,7 @@ public class CopyFileWorker extends LoggingWorker {
             copyFolderRecursiveDoc(root, dest);
             return !hasBeenCancelled && nbFileCopied > 0; // keep your success criteria
         } catch (Exception e) {
-            TaskStateManager.markTaskFailed(TASK_NAME, e.getMessage(), null);
-            return false;
-        }
-    }
-
-    // --------- Legacy DocumentsContract-based recursion (args removed; uses SupportedFilesHelper) ---------
-    private void copyFolderRecursive(Context context, Uri sourceUri, File destinationFolder) {
-        if (!destinationFolder.exists()) {
-            if (!destinationFolder.mkdirs()) {
-                TaskStateManager.markTaskFailed(TASK_NAME
-                        , "failed_to_create_destination_folder (recursive) - [" + destinationFolder.getAbsolutePath() + "]"
-                        , context.getString(R.string.failed_to_create_destination_folder) + " [" + destinationFolder.getAbsolutePath() + "]");
-                return;
-            } else {
-                myLogD("Folder created: " + destinationFolder.getAbsolutePath());
-            }
-        }
-        ContentResolver contentResolver = context.getContentResolver();
-        Uri childrenUri;
-        try {
-            childrenUri = DocumentsContract.buildChildDocumentsUriUsingTree(sourceUri, DocumentsContract.getDocumentId(sourceUri));
-            myLogD("children");
-        } catch (Exception e) {
-            childrenUri = DocumentsContract.buildChildDocumentsUriUsingTree(sourceUri, DocumentsContract.getTreeDocumentId(sourceUri));
-            myLogD("parent");
-        }
-
-        try (Cursor cursor = contentResolver.query(childrenUri, new String[]{
-                DocumentsContract.Document.COLUMN_DOCUMENT_ID,
-                DocumentsContract.Document.COLUMN_DISPLAY_NAME,
-                DocumentsContract.Document.COLUMN_MIME_TYPE}, null, null, null)) {
-
-            if (cursor != null) {
-                while (cursor.moveToNext()) {
-                    if (isStopped()) {
-                        TaskStateManager.markTaskCancelled(TASK_NAME);
-                        hasBeenCancelled = true;
-                        return;
-                    }
-                    String documentId = cursor.getString(0);
-                    String displayName = cursor.getString(1);
-                    String mimeType = cursor.getString(2);
-
-                    Uri documentUri = DocumentsContract.buildDocumentUriUsingTree(sourceUri, documentId);
-
-                    if (DocumentsContract.Document.MIME_TYPE_DIR.equals(mimeType)) {
-                        if (isStopped()) {
-                            TaskStateManager.markTaskCancelled(TASK_NAME);
-                            hasBeenCancelled = true;
-                            return;
-                        }
-                        File subDir = new File(destinationFolder, displayName);
-                        myLogD("copyFolder - on folder -> recursive call");
-                        copyFolderRecursive(context, documentUri, subDir);  // args removed
-                    } else {
-                        myLogD("copyFolder - on file -> may call copyFile " + displayName + "  ///  " + mimeType);
-
-                        // Decide copy via SupportedFilesHelper (Context+Uri)
-                        String type = SupportedFilesHelper.getType(context, documentUri);
-                        boolean isPic = SupportedFilesHelper.FILE_TYPE_IMAGE.equals(type);
-                        boolean doCopy = SupportedFilesHelper.FILE_TYPE_AUDIO.equals(type) || SupportedFilesHelper.FILE_TYPE_VIDEO.equals(type)
-                                || (isPic && nbPic < MAX_NB_PIC);
-
-                        if (doCopy) {
-                            if (isStopped()) {
-                                TaskStateManager.markTaskCancelled(TASK_NAME);
-                                hasBeenCancelled = true;
-                                return;
-                            }
-                            if (copyFile2(context, documentUri, new File(destinationFolder, displayName))) {
-                                if (isPic) {
-                                    nbPic++;
-                                } else {
-                                    nbFileCopied++;
-                                }
-                            } else {
-                                if (!isPic) nbFileKO++;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        nbFolder++;
-    }
-
-    //used locally by copyFolder
-    private boolean copyFile2(Context context, Uri sourceUri, File destinationFile) {
-        myLogD("copyFile() in " + destinationFile.getParentFile().getAbsolutePath());
-        try (ParcelFileDescriptor pfd = context.getContentResolver().openFileDescriptor(sourceUri, "r");
-             FileInputStream inputStream = new FileInputStream(pfd.getFileDescriptor());
-             FileOutputStream outputStream = new FileOutputStream(destinationFile)) {
-
-            int nbBuffCopied = 0;
-            byte[] buffer = new byte[1024];
-            int length;
-            while ((length = inputStream.read(buffer)) > 0) {
-                if (isStopped()) {
-                    TaskStateManager.markTaskCancelled(TASK_NAME);
-                    hasBeenCancelled = true;
-                    return false;
-                }
-                outputStream.write(buffer, 0, length);
-                copiedSize += length;
-                if (nbBuffCopied % 1024 == 0) buildProgressString();
-                nbBuffCopied += 1;
-            }
-            nbFileCopied++;
-            return true;
-        } catch (Exception e) {
-            myLogEE(e, "copyFile2 (recursive)");
+            emitFailed(TASK_NAME, e.getMessage(), null);
             return false;
         }
     }
@@ -329,7 +207,7 @@ public class CopyFileWorker extends LoggingWorker {
         if (hasBeenCancelled) return;
 
         if (!destinationFolder.exists() && !destinationFolder.mkdirs()) {
-            TaskStateManager.markTaskFailed(TASK_NAME
+            emitFailed(TASK_NAME
                     , "failed_to_create_destination_folder (recursive) - [" + destinationFolder.getAbsolutePath() + "]"
                     , context.getString(R.string.failed_to_create_destination_folder) + " [" + destinationFolder.getAbsolutePath() + "]");
             return;
@@ -340,7 +218,7 @@ public class CopyFileWorker extends LoggingWorker {
         androidx.documentfile.provider.DocumentFile[] children = src.listFiles();
         for (androidx.documentfile.provider.DocumentFile child : children) {
             if (isStopped()) {
-                TaskStateManager.markTaskCancelled(TASK_NAME);
+                emitCancelled(TASK_NAME);
                 hasBeenCancelled = true;
                 return;
             }
@@ -379,7 +257,7 @@ public class CopyFileWorker extends LoggingWorker {
             int len, nbBuffCopied = 0;
             while ((len = in.read(buf)) > 0) {
                 if (isStopped()) {
-                    TaskStateManager.markTaskCancelled(TASK_NAME);
+                    emitCancelled(TASK_NAME);
                     hasBeenCancelled = true;
                     return false;
                 }
@@ -418,7 +296,7 @@ public class CopyFileWorker extends LoggingWorker {
 
         if (!msg.equals(last_logged_msg)) {
             last_logged_msg = msg;
-            TaskStateManager.tellProgress(TASK_NAME, (int) progress, msg);
+            emitStepProgress(TASK_NAME, (int) progress, msg);
         }
         if (progress != last_logged_progress) {
             last_logged_progress = progress;
@@ -441,7 +319,7 @@ public class CopyFileWorker extends LoggingWorker {
                 return false;
             }
         } catch (Exception e) {
-            TaskStateManager.tellWarning(context.getString(R.string.error) + " " + context.getString(R.string.checking_size) + " - " + e.getMessage());
+            emitWarning(context.getString(R.string.error) + " " + context.getString(R.string.checking_size) + " - " + e.getMessage());
         }
         return true;
     }

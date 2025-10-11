@@ -1,8 +1,6 @@
 package com.driot.bookplayer.services;
 
-import static com.driot.bookplayer.services.ParseFinalFolderWorker.*;
-import static com.driot.bookplayer.global.Var.ONLY_MIME_AUDIO;
-import static com.driot.bookplayer.global.Var.SUPPORTED_AUDIO_EXTENSIONS;
+import static com.driot.bookplayer.services.FinalParseFolderWorker.*;
 
 import android.content.Context;
 import android.net.Uri;
@@ -13,17 +11,13 @@ import androidx.work.Data;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkContinuation;
 import androidx.work.WorkManager;
-import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
-import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.DatabaseClient;
-import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.utils.log.LoggingWorker;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -62,7 +56,7 @@ public class ScanAndReimportWorker extends LoggingWorker {
             String pathKey = cand.getUri().toString(); // we store path as SAF uri string
             boolean exists = DatabaseClient.getInstance(ctx)
                     .getAppDatabase()
-                    .FolderDao()
+                    .folderDao()
                     .existsByPath(pathKey);
 
             if (!exists) {
@@ -98,7 +92,7 @@ public class ScanAndReimportWorker extends LoggingWorker {
                     .putString(K_IMAGE_URI, imageUri == null ? "" : imageUri)
                     .build();
 
-            OneTimeWorkRequest req = new OneTimeWorkRequest.Builder(ParseFinalFolderWorker.class)
+            OneTimeWorkRequest req = new OneTimeWorkRequest.Builder(FinalParseFolderWorker.class)
                     .setInputData(data)
                     .addTag("BulkReimport")
                     .build();

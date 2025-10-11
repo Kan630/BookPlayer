@@ -1,7 +1,5 @@
 package com.driot.bookplayer.services;
 
-import static com.driot.bookplayer.global.Pref.setLoadBookTaskState;
-
 import android.content.Context;
 
 import androidx.work.BackoffPolicy;
@@ -18,8 +16,10 @@ import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.helpers.StorageHelper;
+import com.driot.bookplayer.imports.ImportJob;
+import com.driot.bookplayer.imports.ImportJobRepository;
+import com.driot.bookplayer.imports.ImportWorker;
 import com.driot.bookplayer.objects.LoadBookTaskState;
-import com.driot.bookplayer.objects.TaskStateManager;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
@@ -41,7 +41,6 @@ public class BookLoadingWorkLauncher {
 
         LoadBookTaskState bookState = Pref.getLoadBookTaskState();
         if (bookState == null) throw new IllegalStateException("No task bookState found in BookLoadingWorkLauncher");
-        TaskStateManager.tellStart();
 
         myLogD("....");
         myLogD("....");
@@ -116,14 +115,14 @@ public class BookLoadingWorkLauncher {
         bookState.doSplitM4b = doSplitM4b;
         bookState.doSplitEbook = doSplitEbook;
         bookState.doUnzip = doUnzip;
-        setLoadBookTaskState(bookState);
+        Pref.setLoadBookTaskState(bookState);
 
         if (doDownload) {
 
             bookState.downloadFileUrl = bookState.dynamicUri.toString();
             bookState.downloadDestinationFolder = StorageHelper.getDownloadFolderPath(context);
             bookState.onGoingLoading = true;
-            setLoadBookTaskState(bookState);
+            Pref.setLoadBookTaskState(bookState);
 
             Constraints constraints;
             NetworkHelper.NetworkPolicyManual policy = Option.getNetworkPolicyManualDownload();
@@ -182,14 +181,14 @@ public class BookLoadingWorkLauncher {
 
             UUID downloadWorkId = downloadWork.getId();
             bookState.setDownloadWorkId(downloadWorkId);
-            setLoadBookTaskState(bookState);
+            Pref.setLoadBookTaskState(bookState);
             myLog("downloadWorkId = " + downloadWorkId);
 
             List<OneTimeWorkRequest> postChain = buildPostDownloadChain(bookState);
 
             String uniqueChainName = "bookload:" + (bookState.futureFolderName != null ? bookState.futureFolderName : String.valueOf(downloadWork.getId()));
             bookState.uniqueChainName = uniqueChainName;
-            setLoadBookTaskState(bookState);
+            Pref.setLoadBookTaskState(bookState);
             WorkContinuation workContinuation = WorkManager.getInstance(context)
                     .beginUniqueWork(uniqueChainName, ExistingWorkPolicy.REPLACE, downloadWork);
 
@@ -215,7 +214,7 @@ public class BookLoadingWorkLauncher {
         if (bookState.doSplitM4b) {workChain.add(new OneTimeWorkRequest.Builder(M4bSplitWorker.class).addTag(BOOK_LOADING_WORKERS).build());}
         if (bookState.doSplitEbook) { workChain.add(new OneTimeWorkRequest.Builder(EbookSplitWorker.class).addTag(BOOK_LOADING_WORKERS).build()); }
 
-        workChain.add(new OneTimeWorkRequest.Builder(ParseFinalFolderWorker.class).addTag(BOOK_LOADING_WORKERS).build());
+        workChain.add(new OneTimeWorkRequest.Builder(FinalParseFolderWorker.class).addTag(BOOK_LOADING_WORKERS).build());
 
         WorkContinuation workContinuation    = WorkManager.getInstance(context).beginWith(workChain.get(0));
         for (int i = 1; i < workChain.size(); i++) {
@@ -232,8 +231,75 @@ public class BookLoadingWorkLauncher {
         if (bookState.doUnzip) { list.add(new OneTimeWorkRequest.Builder(UnzipWorker.class).addTag(BOOK_LOADING_WORKERS).build()); }
         if (bookState.doSplitM4b) { list.add(new OneTimeWorkRequest.Builder(M4bSplitWorker.class).addTag(BOOK_LOADING_WORKERS).build()); }
         if (bookState.doSplitEbook) { list.add(new OneTimeWorkRequest.Builder(EbookSplitWorker.class).addTag(BOOK_LOADING_WORKERS).build()); }
-        list.add(new OneTimeWorkRequest.Builder(ParseFinalFolderWorker.class).addTag(BOOK_LOADING_WORKERS).build());
+        list.add(new OneTimeWorkRequest.Builder(FinalParseFolderWorker.class).addTag(BOOK_LOADING_WORKERS).build());
         return list;
+    }
+
+    public static void enqueueOneNoDownload(Context ctx, LoadBookTaskState s, boolean sequential) {
+        String importId = (s.futureFolderName != null ? s.futureFolderName : "book") + ":" + UUID.randomUUID();
+
+        // Derive flags like before
+        boolean doCopy = s.optionCopy || "cloud".equals(s.sourceLocation);
+        boolean doUnzip = "zip".equalsIgnoreCase(s.fileExtension);
+        boolean doSplitM4b = "m4b".equalsIgnoreCase(s.fileExtension) && s.optionSplit;
+        boolean doSplitEbook = "epub".equalsIgnoreCase(s.fileExtension)
+                || "fb2".equalsIgnoreCase(s.fileExtension)
+                || "odt".equalsIgnoreCase(s.fileExtension);
+
+        // Create job row
+        ImportJob j = new ImportJob();
+        j.importId = importId;
+        j.originalUri = s.originalUri != null ? s.originalUri.toString() : null;
+        j.originalType = s.originalType;
+        j.dynamicUri = s.dynamicUri != null ? s.dynamicUri.toString() : null;
+        j.dynamicType = s.dynamicType;
+        j.title = s.title;
+        j.futureFolderName = s.futureFolderName;
+        j.futureFolderPath = s.futureFolderPath;
+        j.optionSplit = s.optionSplit;
+        j.optionCopy = s.optionCopy;
+        j.optionDelete = s.optionDelete;
+        j.originalFile = s.originalFile;
+        j.originalHash = s.originalHash;
+        j.sourceLocation = s.sourceLocation;
+        j.fileExtension = s.fileExtension;
+        j.mimeType = s.mimeType;
+        j.imagePath = s.imagePath;
+
+        j.doCopy = doCopy || doUnzip || doSplitM4b || doSplitEbook;
+        j.doUnzip = doUnzip;
+        j.doSplitM4b = doSplitM4b;
+        j.doSplitEbook = doSplitEbook;
+        j.doDownload = false;
+
+        j.status = ImportJob.S_QUEUED;
+        j.createdAt = j.updatedAt = System.currentTimeMillis();
+
+        ImportJobRepository repo = new ImportJobRepository(ctx);
+        repo.upsert(j);
+
+        Data common = new Data.Builder().putString(ImportWorker.KEY_IMPORT_ID, importId).build();
+
+        List<OneTimeWorkRequest> steps = new ArrayList<>();
+        if (j.doCopy) steps.add(new OneTimeWorkRequest.Builder(CopyFileWorker.class)
+                .setInputData(common).addTag(BOOK_LOADING_WORKERS).addTag("import:"+importId).build());
+        if (j.doUnzip) steps.add(new OneTimeWorkRequest.Builder(UnzipWorker.class)
+                .setInputData(common).addTag(BOOK_LOADING_WORKERS).addTag("import:"+importId).build());
+        if (j.doSplitM4b) steps.add(new OneTimeWorkRequest.Builder(M4bSplitWorker.class)
+                .setInputData(common).addTag(BOOK_LOADING_WORKERS).addTag("import:"+importId).build());
+        if (j.doSplitEbook) steps.add(new OneTimeWorkRequest.Builder(EbookSplitWorker.class)
+                .setInputData(common).addTag(BOOK_LOADING_WORKERS).addTag("import:"+importId).build());
+
+        steps.add(new OneTimeWorkRequest.Builder(FinalParseFolderWorker.class)
+                .setInputData(common).addTag(BOOK_LOADING_WORKERS).addTag("import:"+importId).build());
+
+        WorkManager wm = WorkManager.getInstance(ctx);
+        String uniqueName = sequential ? "bookload-queue" : "bookload:"+importId;
+        ExistingWorkPolicy policy = sequential ? ExistingWorkPolicy.APPEND : ExistingWorkPolicy.REPLACE;
+
+        WorkContinuation cont = wm.beginUniqueWork(uniqueName, policy, steps.get(0));
+        for (int i = 1; i < steps.size(); i++) cont = cont.then(steps.get(i));
+        cont.enqueue();
     }
 
 }

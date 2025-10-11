@@ -26,8 +26,8 @@ import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.StorageHelper;
+import com.driot.bookplayer.imports.ImportHelper;
 import com.driot.bookplayer.utils.Tonio;
-import com.driot.bookplayer.objects.WorkFlow;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import java.io.File;
@@ -202,7 +202,7 @@ public class StatsActivity extends LoggingActivity {
     }
     private void resetApp() {
         myLogI("--- user clicks RESET APP ---");
-        WorkFlow.cancelAllOngoingTasks(this);
+        ImportHelper.cancelCurrentImport(this);
         myToast("App Reset Done");
     }
 

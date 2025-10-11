@@ -37,7 +37,7 @@ public class PodcastSearchResultsViewModel extends LoggingAndroidViewModel {
     public LiveData<List<Podcast>> getFavoritePodcastsLive() {
         if (favoritePodcastsLive == null) {
             favoritePodcastsLive = AppDatabase.getDatabase(getApplication())
-                    .PodcastDao()
+                    .podcastDao()
                     .getFavoritePodcastsLive();
         }
         return favoritePodcastsLive;

@@ -2,6 +2,7 @@ package com.driot.bookplayer.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +20,8 @@ import com.driot.bookplayer.utils.log.LoggingFragment;
 public class OngoingTaskFragment extends LoggingFragment {
 
     private static final String ARG_ONCLICK_INTENT = "onClickIntent";
+
+    private static final int DELAY_END_WAIT_NO_ERROR = 1_000;
 
     private TextView tvProgressText;
     private ProgressBar progressBar;
@@ -55,8 +58,21 @@ public class OngoingTaskFragment extends LoggingFragment {
         ).get(OngoingTaskViewModel.class);
 
         View root = view; // control visibility on the whole fragment
-        vm.isTaskRunning().observe(getViewLifecycleOwner(), running ->
-                root.setVisibility(Boolean.TRUE.equals(running) ? View.VISIBLE : View.GONE));
+        vm.isTaskRunning().observe(getViewLifecycleOwner(), running -> {
+                    if (Boolean.TRUE.equals(running)) {
+                        root.setVisibility(View.VISIBLE);
+                        myToast(getString(R.string.Import_Success) + "\n" + tvTitle.getText());
+                        Handler delayedFinishHandler = new Handler();
+                        Runnable delayedFinishRunnable = () -> {
+                            root.setVisibility(View.GONE);
+                        };
+                        myLog("Let's wait some " + DELAY_END_WAIT_NO_ERROR + " ms. to display finish...");
+                        delayedFinishHandler.postDelayed(delayedFinishRunnable, DELAY_END_WAIT_NO_ERROR);
+                    } else {
+                        root.setVisibility(View.GONE);
+                    }
+                }
+        );
 
         vm.getTaskTitle().observe(getViewLifecycleOwner(), title ->
                 tvTitle.setText((title == null || title.isEmpty())

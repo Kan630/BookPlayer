@@ -40,7 +40,7 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
     public LiveData<List<LibrivoxItem>> getFavoriteLibrivoxsLive() {
         if (favoritesLive == null) {
             AppDatabase db = AppDatabase.getDatabase(getApplication());
-            favoritesLive = db.BookSourceDao()
+            favoritesLive = db.bookSourceDao()
                     .getFavoriteLibrivoxItems(Var.REPO_TYPE_AUDIOBOOK, Var.REPO_NAME_LIBRIVOX); // lowercase per your convention
         }
         return favoritesLive;
@@ -50,7 +50,7 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
         if (apiItems == null || apiItems.isEmpty()) { results.setValue(apiItems); return; }
 
         AppDatabase.databaseWriteExecutor.execute(() -> {
-            BookSourceDao dao = AppDatabase.getDatabase(getApplication()).BookSourceDao();
+            BookSourceDao dao = AppDatabase.getDatabase(getApplication()).bookSourceDao();
             List<String> ids = new ArrayList<>(apiItems.size());
             for (LibrivoxItem it : apiItems) ids.add(it.identifier);
 
@@ -79,7 +79,7 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
         boolean newFav = !item.is_favorite;
         AppDatabase.databaseWriteExecutor.execute(() -> {
             long now = System.currentTimeMillis();
-            BookSourceDao dao = AppDatabase.getDatabase(getApplication()).BookSourceDao();
+            BookSourceDao dao = AppDatabase.getDatabase(getApplication()).bookSourceDao();
 
             int updated = dao.updateFavoriteFlag(Var.REPO_TYPE_AUDIOBOOK, Var.REPO_NAME_LIBRIVOX, item.identifier, newFav, now);
             if (updated == 0 && newFav) {
@@ -96,7 +96,7 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
                 bs.is_favorite = true;
                 bs.date_add = now;
                 bs.date_maj = now;
-                AppDatabase.getDatabase(getApplication()).BookSourceDao().upsert(bs);
+                AppDatabase.getDatabase(getApplication()).bookSourceDao().upsert(bs);
             }
 
             // update current list for snappy UI

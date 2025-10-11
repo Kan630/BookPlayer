@@ -1,10 +1,8 @@
 package com.driot.bookplayer.services;
 
 import android.content.Context;
-import android.content.Intent;
 
 import androidx.annotation.NonNull;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.work.Data;
 import androidx.work.WorkerParameters;
 
@@ -13,8 +11,6 @@ import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.utils.log.LoggingWorker;
-
-import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 /**
  * Downloads a remote image URL and saves it as the Folder cover.
@@ -51,7 +47,7 @@ public class DownloadCoverWorker extends LoggingWorker {
             setProgressAsync(new Data.Builder().putString("state", "starting").build());
 
             AppDatabase db = AppDatabase.getDatabase(getApplicationContext());
-            Folder folder = db.FolderDao().getById(folderId);
+            Folder folder = db.folderDao().getById(folderId);
             if (folder == null) {
                 myLogE("DownloadCoverWorker: folder not found id=" + folderId);
                 return Result.failure(new Data.Builder()
@@ -75,8 +71,8 @@ public class DownloadCoverWorker extends LoggingWorker {
             }
 
             // Update DB
-            db.FolderDao().updateImage((int) folderId, null); // force room observer
-            db.FolderDao().updateImage((int) folderId, savedAbsPath);
+            db.folderDao().updateImage((int) folderId, null); // force room observer
+            db.folderDao().updateImage((int) folderId, savedAbsPath);
             myLog("Cover saved at: " + savedAbsPath);
 
             // Clean up old local image if different

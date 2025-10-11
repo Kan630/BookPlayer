@@ -58,7 +58,7 @@ public class OpenWithProxyActivity extends LoggingActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == REQUEST_LOAD_OPTIONS && resultCode == RESULT_OK) {
-            BookLoadingWorkLauncher.launch(this);
+            //BookLoadingWorkLauncher.launch(this);
             Intent intentActivity = new Intent(this, AddResourceActivity.class);
             startActivity(intentActivity);
         } else {

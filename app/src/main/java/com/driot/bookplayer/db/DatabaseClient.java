@@ -23,7 +23,6 @@ public class DatabaseClient {
 
     private static DatabaseClient mInstance;
 
-    //our app database object
     private AppDatabase appDatabase;
 
     private DatabaseClient(Context mCtx) {
@@ -45,9 +44,6 @@ public class DatabaseClient {
             myLogE("db version logging error");
         }
 
-
-        //creating the app database with Room database builder
-        //MyToDos is the name of the database
         try {
             appDatabase = Room.databaseBuilder(mCtx, AppDatabase.class,DATABASE_NAME )
 
@@ -72,6 +68,7 @@ public class DatabaseClient {
                             , DatabaseMigrations.MIGRATION_12_13
                             , DatabaseMigrations.MIGRATION_13_14
                             , DatabaseMigrations.MIGRATION_14_15
+                            , DatabaseMigrations.MIGRATION_15_16
                     ).build();
 
             // Force early access to trigger DB open and migrations (and also check SQL version)

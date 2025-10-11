@@ -6,11 +6,13 @@ import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
+import android.os.Build;
 import android.security.NetworkSecurityPolicy;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 import com.driot.bookplayer.global.Option;
 
@@ -126,6 +128,20 @@ public class NetworkHelper {
                 && caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
                 && caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
                 && caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED);
+    }
+
+    //TODO check for roaming
+    @RequiresApi(api = Build.VERSION_CODES.P) //sdk 28...
+    public static boolean isRoaming(Context context) {
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (cm == null) return false;
+        Network active = cm.getActiveNetwork();
+        if (active == null) return false;
+        NetworkCapabilities caps = cm.getNetworkCapabilities(active);
+        return caps != null
+                && caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                && caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+                && caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_ROAMING);
     }
 
     /** True if active transport is Wi-Fi (does not imply unmetered). */

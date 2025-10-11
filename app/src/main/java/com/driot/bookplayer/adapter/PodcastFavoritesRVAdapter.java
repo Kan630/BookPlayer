@@ -175,7 +175,7 @@ public class PodcastFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.Vie
             ///  STATS
             if (podcast.idFolder != null && podcast.idFolder > 0) {
                 AppDatabase.databaseWriteExecutor.execute(() -> {
-                    Folder folder = AppDatabase.getDatabase(itemView.getContext()).FolderDao().getById(podcast.idFolder);
+                    Folder folder = AppDatabase.getDatabase(itemView.getContext()).folderDao().getById(podcast.idFolder);
                     if (folder != null) {
                         new Handler(Looper.getMainLooper()).post(() -> {
                             String nbFile = folder.nbZikFile + " tracks";

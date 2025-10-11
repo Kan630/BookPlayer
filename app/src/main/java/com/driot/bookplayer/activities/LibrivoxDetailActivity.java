@@ -1,6 +1,5 @@
 package com.driot.bookplayer.activities;
 
-import static com.driot.bookplayer.global.Pref.setLoadBookTaskState;
 import static com.driot.bookplayer.global.Var.SOURCE_LOCATION_LIBRIVOX;
 import static com.driot.bookplayer.helpers.StorageHelper.getUnzipFolder;
 import static com.driot.bookplayer.utils.TextOptions.parseMaybeHtml;
@@ -9,6 +8,7 @@ import static com.driot.bookplayer.utils.Tonio.getReadableSize;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -22,18 +22,18 @@ import com.bumptech.glide.signature.ObjectKey;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.global.Option;
+import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
+import com.driot.bookplayer.imports.ImportHelper;
 import com.driot.bookplayer.objects.ItemMetadata;
 import com.driot.bookplayer.objects.LibrivoxApi;
 import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.objects.OngoingTaskHost;
-import com.driot.bookplayer.objects.TaskStateManager;
 import com.driot.bookplayer.services.BookLoadingWorkLauncher;
-import com.driot.bookplayer.objects.WorkFlow;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import java.io.File;
@@ -173,12 +173,17 @@ public class LibrivoxDetailActivity extends LoggingActivity {
     }
 
     private void updateGetButtonEnabled() {
-        boolean running = WorkFlow.isSomeWorkFlowRunning(this);
-        bGet.setEnabled(!running);
-        if (running) {
-            tvDownloadLink.append("\n❌ " + getString(R.string.librivox_wait_integration));
-        }
+        AppDatabase.databaseReadExecutor.execute(() -> {
+            boolean running = ImportHelper.isAnyImportActiveSync(this);
+            runOnUiThread(() -> {
+                bGet.setEnabled(!running);
+                if (running) {
+                    tvDownloadLink.append("\n❌ " + getString(R.string.librivox_wait_integration));
+                }
+            });
+        });
     }
+
 
     // --- Networking ---
 
@@ -368,7 +373,7 @@ public class LibrivoxDetailActivity extends LoggingActivity {
     private void checkThenDownload(String url) {
         String futurePath = getUnzipFolder(this).getAbsolutePath() + "/" + viewModel.identifier;
         AppDatabase.databaseReadExecutor.execute(() -> {
-            if (AppDatabase.getDatabase(this).FolderDao().folderAlreadyExist_checkFolderPath(futurePath) > 0) {
+            if (AppDatabase.getDatabase(this).folderDao().folderAlreadyExist_checkFolderPath(futurePath) > 0) {
                 runOnUiThread(() -> myToast(getString(R.string.error_media_already_loaded_samePath)));
             } else {
                 NetworkHelper.logCurrentNetworkState(this);
@@ -379,10 +384,20 @@ public class LibrivoxDetailActivity extends LoggingActivity {
                                 .setTitle(R.string.download_warning_title_unmetered)
                                 .setMessage(R.string.download_warning_message_unmetered)
                                 .setPositiveButton(android.R.string.ok, (dialog, which) -> proceedWithDownload(url, futurePath))
-                                .setNegativeButton(android.R.string.cancel, (dialog, which) -> myLogD("User cancelled download (Network state popup)"))
+                                .setNegativeButton(android.R.string.cancel, (dialog, which) -> myLogD("User cancelled download (Network state popup unmetered)"))
                                 .show();
-                    } else {
-                        proceedWithDownload(url, futurePath);
+                    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                        if (Option.getNetworkPolicyManualDownload().equals(NetworkHelper.NetworkPolicyManual.NETWORK_POLICY_NOT_ROAMING)
+                                && !NetworkHelper.isRoaming(this)) {
+                            new AlertDialog.Builder(this)
+                                    .setTitle(R.string.download_warning_title_roaming)
+                                    .setMessage(R.string.download_warning_message_roaming)
+                                    .setPositiveButton(android.R.string.ok, (dialog, which) -> proceedWithDownload(url, futurePath))
+                                    .setNegativeButton(android.R.string.cancel, (dialog, which) -> myLogD("User cancelled download (Network state popup roaming)"))
+                                    .show();
+                        } else {
+                            proceedWithDownload(url, futurePath);
+                        }
                     }
                 });
             }
@@ -407,10 +422,10 @@ public class LibrivoxDetailActivity extends LoggingActivity {
         state.onGoingLoading = true;
         state.progressText = getString(R.string.About_to_start_download);
 
-        setLoadBookTaskState(state);
-
-        //TaskStateManager.tellStart();
+        //TODO to remove and replace by BookLoadingWorkLauncher.enqueueOneNoDownload(this, state, true);
+        Pref.setLoadBookTaskState(state);
         BookLoadingWorkLauncher.launch(this);
+
         FirebaseAnalyticsHelper.tellLibrivoxDownload(state.title);
         startActivity(new Intent(this, AddResourceActivity.class));
         finish();

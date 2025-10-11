@@ -16,7 +16,6 @@ import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Episode;
 import com.driot.bookplayer.db.Sql;
 import com.driot.bookplayer.db.ZikFile;
-import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.utils.log.LoggingActivity;
@@ -89,7 +88,7 @@ public class ModifyZikFileActivity extends LoggingActivity {
             myToast("cannot parse number");
         } else {
             new Thread(() -> {
-                AppDatabase.getDatabase(this).ZikFileDao().changePosition(zikFile.getId(), (double) newPos);
+                AppDatabase.getDatabase(this).zikFileDao().changePosition(zikFile.getId(), (double) newPos);
                 runOnUiThread(() -> {
                     myToast(getString(R.string.ZikFile_RePositioned));
                     myLogInFile( getString(R.string.ZikFile_RePositioned) + " [" + newPosStr + "] : " + zikFile.getDisplayName());
@@ -122,12 +121,12 @@ public class ModifyZikFileActivity extends LoggingActivity {
 
     private void deleteZikFileFromDB() {
         new Thread(() -> {
-            Episode episode = AppDatabase.getDatabase(this).EpisodeDao().getByZikFileId(zikFile.getId());
+            Episode episode = AppDatabase.getDatabase(this).episodeDao().getByZikFileId(zikFile.getId());
             if (episode != null) {
                 episode.date_delete = System.currentTimeMillis();
-                AppDatabase.getDatabase(this).EpisodeDao().update(episode);
+                AppDatabase.getDatabase(this).episodeDao().update(episode);
             }
-            AppDatabase.getDatabase(this).ZikFileDao().deleteZikFile(zikFile.getId());
+            AppDatabase.getDatabase(this).zikFileDao().deleteZikFile(zikFile.getId());
             runOnUiThread(() -> {
                 myToast(getString(R.string.ZikFile_Deleted));
                 myLog(getString(R.string.ZikFile_Deleted) + " : " + zikFile.getDisplayName());
@@ -138,7 +137,7 @@ public class ModifyZikFileActivity extends LoggingActivity {
 
     private boolean deleteZikFileFromDisk() {
         new Thread(() -> {
-            String zikFilePath = AppDatabase.getDatabase(this).ZikFileDao().getZikFilePath(zikFile.getId());
+            String zikFilePath = AppDatabase.getDatabase(this).zikFileDao().getZikFilePath(zikFile.getId());
             runOnUiThread(() -> {
                 eraseFileFromDisk("file://" + zikFilePath);
                 finish();
@@ -188,7 +187,7 @@ public class ModifyZikFileActivity extends LoggingActivity {
     }
     private void deleteProgressFromThisZikFile(ZikFile zikFile) {
         new Thread(() -> {
-            AppDatabase.getDatabase(this).ZikFileDao().resetProgressionFromThisZikFile(zikFile.getIdFolder(), zikFile.getZeorder());
+            AppDatabase.getDatabase(this).zikFileDao().resetProgressionFromThisZikFile(zikFile.getIdFolder(), zikFile.getZeorder());
             Sql.calculateFolderProgress(ModifyZikFileActivity.this, zikFile.getIdFolder());
             runOnUiThread(() -> {
                 myToast(ModifyZikFileActivity.this.getString(R.string.Progression_reset_done));
@@ -218,7 +217,7 @@ public class ModifyZikFileActivity extends LoggingActivity {
             myToast(getString(R.string.Error_NameTooShort));
         } else {
             new Thread(() -> {
-                AppDatabase.getDatabase(this).ZikFileDao().setDisplayName(zikFile.getId(), newDisplayName);
+                AppDatabase.getDatabase(this).zikFileDao().setDisplayName(zikFile.getId(), newDisplayName);
                 runOnUiThread(() -> {
                     myToast(getString(R.string.ZikFile_Renamed));
                     myLogInFile(getString(R.string.ZikFile_Renamed) + " : [" + zikFile.getDisplayName() + "] -> [" + newDisplayName + "]");

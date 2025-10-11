@@ -23,7 +23,7 @@ public class ZikFilesViewModel extends AndroidViewModel {
 
     public LiveData<List<ZikFile>> getZikFilesLive(int folderId) {
         if (liveList == null) {
-            liveList = db.ZikFileDao().getZikFilesLive(folderId);
+            liveList = db.zikFileDao().getZikFilesLive(folderId);
         }
         return liveList;
     }

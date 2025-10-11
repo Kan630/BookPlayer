@@ -49,7 +49,7 @@ public class CleanMemoryViewModel extends LoggingAndroidViewModel {
         super(application);
         cacheFilesRepository = new CleanMemoryRepository(application);
 
-        foldersFromDb = AppDatabase.getDatabase(getApplication()).FolderDao().getFoldersForCleaning();
+        foldersFromDb = AppDatabase.getDatabase(getApplication()).folderDao().getFoldersForCleaning();
 
         enrichedFolders.addSource(foldersFromDisk, diskFiles -> updateEnrichedFiles(diskFiles, foldersFromDb.getValue()));
         enrichedFolders.addSource(foldersFromDb, dbSummaries -> updateEnrichedFiles(foldersFromDisk.getValue(), dbSummaries));

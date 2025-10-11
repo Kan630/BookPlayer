@@ -1,16 +1,17 @@
 package com.driot.bookplayer.db;
+// created by Antoine Driot -- antoine.driot.com -- on 28/10/2020  -
 
-/**
- * created by Antoine Driot -- antoine.driot.com -- on 28/10/2020  -
- *
- * modified 05/2024
- */
+
 import static com.driot.bookplayer.db.AppDatabase.APP_DATABASE_VERSION;
 
 import android.content.Context;
 
 import androidx.room.Database;
 import androidx.room.RoomDatabase;
+
+import com.driot.bookplayer.imports.ImportJob;
+import com.driot.bookplayer.imports.ImportJobDao;
+
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 @Database(entities = {
@@ -19,25 +20,29 @@ import java.util.concurrent.Executors;
         ,Podcast.class
         ,BookSource.class
         ,Episode.class
+        ,ImportJob.class
         }, version = APP_DATABASE_VERSION
         )
 
 public abstract class AppDatabase extends RoomDatabase {
     public static final int APP_DATABASE_VERSION = 15;
 
-    public abstract FolderDao FolderDao();
-    public abstract ZikFileDao ZikFileDao();
-    public abstract PodcastDao PodcastDao();
-    public abstract BookSourceDao BookSourceDao();
-    public abstract EpisodeDao EpisodeDao();
+    public abstract FolderDao folderDao();
+    public abstract ZikFileDao zikFileDao();
+    public abstract PodcastDao podcastDao();
+    public abstract BookSourceDao bookSourceDao();
+    public abstract EpisodeDao episodeDao();
+    public abstract ImportJobDao importJobDao();
 
-    private static volatile AppDatabase INSTANCE;
     private static final int NUMBER_OF_WRITE_THREADS = 4;
     private static final int NUMBER_OF_READ_THREADS = 4;
     public static final ExecutorService databaseWriteExecutor = Executors.newFixedThreadPool(NUMBER_OF_WRITE_THREADS);
     public static final ExecutorService databaseReadExecutor = Executors.newFixedThreadPool(NUMBER_OF_READ_THREADS);
 
     public static AppDatabase getDatabase(final Context context) {
+        return DatabaseClient.getInstance(context).getAppDatabase();
+    }
+    public static AppDatabase getInstance(final Context context) {
         return DatabaseClient.getInstance(context).getAppDatabase();
     }
 

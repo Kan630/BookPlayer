@@ -38,7 +38,6 @@
     import com.driot.bookplayer.helpers.InsetHelper;
     import com.driot.bookplayer.helpers.ViewHelper;
     import com.driot.bookplayer.objects.OngoingTaskHost;
-    import com.driot.bookplayer.objects.WorkFlow;
     import com.driot.bookplayer.player.PlayList;
     import com.driot.bookplayer.player.AudioService;
     import com.driot.bookplayer.helpers.InfoHelper;
@@ -170,7 +169,6 @@
             super.onResume();
             LocalBroadcastManager.getInstance(this).registerReceiver(inAppMsgRx, new IntentFilter(InAppMsgManager.ACTION_CACHE_UPDATED));        // Et tente immédiatement avec le cache courant
             InAppMsgManager.maybeShowBestMessage(this, getString(R.string.app_name));
-            WorkFlow.maybeResumeWorkFlow(this);
             PlaybackViewModel playbackVm = new ViewModelProvider(this).get(PlaybackViewModel.class);
             com.driot.bookplayer.player.PlaybackUiState s = playbackVm.getState().getValue();
             if (s != null && s.folderId > 0 && s.folderId != lastScrolledFolderId) {
@@ -260,7 +258,7 @@
         private void getFolders() {
             myLogD("getFolders()");
             FolderDao folderDao = DatabaseClient.getInstance(getApplicationContext())
-                    .getAppDatabase().FolderDao();
+                    .getAppDatabase().folderDao();
             LiveData<List<Folder>> foldersLiveData = folderDao.getAllLiveData();
 
             foldersLiveData.observe(this, folders -> {

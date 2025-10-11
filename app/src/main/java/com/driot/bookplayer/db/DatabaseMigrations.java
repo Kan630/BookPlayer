@@ -222,5 +222,77 @@ public class DatabaseMigrations {
             db.execSQL("ALTER TABLE BookSource ADD COLUMN last_checked INTEGER");
         }
     };
+    static final Migration MIGRATION_15_16 = new Migration(15, 16) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase db) {
+            myLogI("Migration -> executing step 15 => 16"); // 2025-10-11
+
+            // Create ImportJob table (booleans -> INTEGER 0/1; primitives NOT NULL with defaults)
+            db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS `ImportJob` (" +
+                            " `importId` TEXT NOT NULL," +
+                            " `originalUri` TEXT," +
+                            " `originalType` TEXT," +
+                            " `dynamicUri` TEXT," +
+                            " `dynamicType` TEXT," +
+                            " `title` TEXT," +
+                            " `futureFolderName` TEXT," +
+                            " `futureFolderPath` TEXT," +
+
+                            " `optionSplit` INTEGER NOT NULL DEFAULT 0," +
+                            " `optionCopy` INTEGER NOT NULL DEFAULT 0," +
+                            " `optionDelete` INTEGER NOT NULL DEFAULT 0," +
+
+                            " `originalFile` TEXT," +
+                            " `originalHash` TEXT," +
+                            " `sourceLocation` TEXT," +
+                            " `fileExtension` TEXT," +
+                            " `mimeType` TEXT," +
+
+                            " `imagePath` TEXT," +
+                            " `progressText` TEXT," +
+                            " `progressPercent` INTEGER NOT NULL DEFAULT 0," +
+
+                            " `isLoadingPaused` INTEGER NOT NULL DEFAULT 0," +
+                            " `currentOperation` TEXT," +
+
+                            " `downloadFileUrl` TEXT," +
+                            " `downloadDestinationFolder` TEXT," +
+                            " `downloadRetryCount` INTEGER NOT NULL DEFAULT 0," +
+                            " `downloadStartTime` INTEGER NOT NULL DEFAULT 0," +
+                            " `downloadDuration` INTEGER NOT NULL DEFAULT 0," +
+
+                            " `downloadedFilePath` TEXT," +
+                            " `downloadedFileReady` INTEGER NOT NULL DEFAULT 0," +
+
+                            " `dynamicDestinationFolderPath` TEXT," +
+                            " `dynamicSourceFilePath` TEXT," +
+
+                            " `doDownload` INTEGER NOT NULL DEFAULT 0," +
+                            " `doCopy` INTEGER NOT NULL DEFAULT 0," +
+                            " `doSplitM4b` INTEGER NOT NULL DEFAULT 0," +
+                            " `doSplitEbook` INTEGER NOT NULL DEFAULT 0," +
+                            " `doUnzip` INTEGER NOT NULL DEFAULT 0," +
+
+                            " `playType` TEXT," +
+                            " `downloadWorkId` TEXT," +
+                            " `uniqueChainName` TEXT," +
+
+                            " `status` TEXT," +
+                            " `createdAt` INTEGER NOT NULL DEFAULT 0," +
+                            " `updatedAt` INTEGER NOT NULL DEFAULT 0," +
+                            " `warningText` TEXT," +
+                            " `errorTextDev` TEXT," +
+                            " `errorTextUser` TEXT," +
+
+                            " PRIMARY KEY(`importId`)" +
+                            ")"
+            );
+
+            // Indices declared in @Entity(indices=...)
+            db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_ImportJob_futureFolderPath` ON `ImportJob`(`futureFolderPath`)");
+            db.execSQL("CREATE INDEX IF NOT EXISTS `index_ImportJob_status` ON `ImportJob`(`status`)");
+        }
+    };
 
 }

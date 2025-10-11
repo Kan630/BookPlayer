@@ -1,3 +1,4 @@
+/*
 package com.driot.bookplayer.objects;
 
 import static com.driot.bookplayer.services.BookLoadingWorkLauncher.BOOK_LOADING_WORKERS;
@@ -101,7 +102,7 @@ public class WorkFlow {
                             AppDatabase.databaseReadExecutor.execute(() -> {
                                 boolean safeToDelete =
                                         AppDatabase.getDatabase(context)
-                                                .FolderDao()
+                                                .folderDao()
                                                 .folderAlreadyExist_checkFolderPath(folderToDeletePath) == 0;
                                 if (safeToDelete) {
                                     myLogI("deleting internal audio folder [" + folderToDeletePath + "]");

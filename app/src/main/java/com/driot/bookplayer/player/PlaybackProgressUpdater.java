@@ -44,7 +44,7 @@ public final class PlaybackProgressUpdater extends LoggerHelper {
                 }
 
                 AppDatabase db = AppDatabase.getDatabase(app);
-                ZikFileDao dao = db.ZikFileDao();
+                ZikFileDao dao = db.zikFileDao();
                 int r = dao.update(zf);
                 if (r > 0) {
                     myLogD("zik updated (" + zf.getName() + ") pos=" + df.format(zf.getPosition()) + "/" + df.format(zf.getDuration()) + " - " + zf.getPercentdone() + "%");

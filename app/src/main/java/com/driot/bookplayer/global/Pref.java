@@ -89,7 +89,6 @@ public class Pref {
     }
 
     /////////////////// Load Book Task State ///////////////////
-
     public static void setLoadBookTaskState(LoadBookTaskState loadBookTaskState) {
         Parcel parcel = Parcel.obtain();
         loadBookTaskState.writeToParcel(parcel, 0);
@@ -131,6 +130,8 @@ public class Pref {
         SharedPreferences prefs = context.getSharedPreferences(SHARED_PREFERENCES_DOWNLOAD, Context.MODE_PRIVATE);
         prefs.edit().remove(KEY_LOAD_BOOK_TASK_STATE).apply();
     }
+
+
 
     /////////////////// Audio Metadata ///////////////////
 

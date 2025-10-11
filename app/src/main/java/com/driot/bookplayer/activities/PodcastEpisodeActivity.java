@@ -155,7 +155,7 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
         toolbar.setAlpha(0f);
         toolbar.setVisibility(View.INVISIBLE);
 
-        podcastDao = AppDatabase.getDatabase(this).PodcastDao();
+        podcastDao = AppDatabase.getDatabase(this).podcastDao();
 
         podcast = getIntent().getParcelableExtra("podcast");
 
@@ -368,7 +368,7 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
 
             if (podcast == null) {
                 PodcastHelper.addPodcastToDB(this, podcastFeed);
-                podcast = AppDatabase.getDatabase(this).PodcastDao().getPodcastByFeedId(podcastFeed.id);
+                podcast = AppDatabase.getDatabase(this).podcastDao().getPodcastByFeedId(podcastFeed.id);
             }
 
             podcast.isFavorite = !podcast.isFavorite;
@@ -539,7 +539,7 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
     private void goToPlaySection() {
         if (podcast == null) {
             AppDatabase.databaseReadExecutor.execute(() -> {
-                podcast = AppDatabase.getDatabase(this).PodcastDao().getPodcastByFeedId(podcastFeed.id);
+                podcast = AppDatabase.getDatabase(this).podcastDao().getPodcastByFeedId(podcastFeed.id);
                 if (podcast == null) {
                     myLog("podcast == null");
                 } else {
@@ -563,11 +563,11 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
         new Thread(() -> {
             try {
                 Folder folder = AppDatabase.getDatabase(getApplicationContext())
-                        .FolderDao().getById(podcast.idFolder);
+                        .folderDao().getById(podcast.idFolder);
                 if (folder == null) return;
 
                 List<ZikFile> zikFilesList = AppDatabase.getDatabase(getApplicationContext())
-                        .ZikFileDao().getZikFiles(podcast.idFolder);
+                        .zikFileDao().getZikFiles(podcast.idFolder);
 
                 myLogI("nb ZikFiles in that Book : " + zikFilesList.size() + " - [" + folder.getName() + "]");
 
@@ -660,9 +660,9 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
                 myLog("clickOnEpisode : " + zikFile.getDisplayName() + " - " + zikFile.getId() + " - " + zikFile.getName());
                 List<ZikFile> zikFilesList;
                 if (sortNewestFirst) {
-                    zikFilesList = AppDatabase.getDatabase(this).ZikFileDao().getPodcastZikFilesDesc(zikFile.getIdFolder());
+                    zikFilesList = AppDatabase.getDatabase(this).zikFileDao().getPodcastZikFilesDesc(zikFile.getIdFolder());
                 } else {
-                    zikFilesList = AppDatabase.getDatabase(this).ZikFileDao().getPodcastZikFilesAsc(zikFile.getIdFolder());
+                    zikFilesList = AppDatabase.getDatabase(this).zikFileDao().getPodcastZikFilesAsc(zikFile.getIdFolder());
                 }
                 PlayList.create(this, zikFilesList);
                 int rankZikFile = getZikFileRankInFolderSync(zikFilesList, zikFile.getName());

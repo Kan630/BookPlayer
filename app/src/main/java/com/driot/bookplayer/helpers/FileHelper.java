@@ -5,7 +5,6 @@ import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
 import android.database.Cursor;
-import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -17,7 +16,6 @@ import com.driot.bookplayer.db.AppDatabase;
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.util.Locale;
@@ -336,7 +334,7 @@ public class FileHelper {
         } else {
             String name = file.getName().toLowerCase(Locale.ROOT);
             if (name.startsWith("librivox_img") || name.startsWith("podcast_feed")) {
-                boolean exists = AppDatabase.getDatabase(context).FolderDao().doesImageExist(name);
+                boolean exists = AppDatabase.getDatabase(context).folderDao().doesImageExist(name);
                 if (exists) {
                     myLogD("image is in DB book covers - bypassing : " + name);
                 }

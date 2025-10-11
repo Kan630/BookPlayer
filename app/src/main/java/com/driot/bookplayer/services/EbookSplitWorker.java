@@ -12,11 +12,10 @@ import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.OdtLowLevelHelper;
+import com.driot.bookplayer.imports.ImportWorker;
 import com.driot.bookplayer.objects.LoadBookTaskState;
-import com.driot.bookplayer.objects.TaskStateManager;
 import com.driot.bookplayer.helpers.EpubLowLevelHelper;
 import com.driot.bookplayer.helpers.Fb2LowLevelHelper;
-import com.driot.bookplayer.utils.log.LoggingWorker;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -29,7 +28,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-public class EbookSplitWorker extends LoggingWorker {
+public class EbookSplitWorker extends ImportWorker {
 
     // Keep existing label for compatibility with UI/strings
     private static final String TASK_NAME = Var.WORKER_TASK_LABEL_SPLIT_EBOOK;
@@ -46,7 +45,7 @@ public class EbookSplitWorker extends LoggingWorker {
     public Result doWork() {
         LoadBookTaskState bookState = Pref.getLoadBookTaskState();
         if (bookState == null) {
-            TaskStateManager.markTaskFailed(TASK_NAME, "bookState == null", getApplicationContext().getString(R.string.invalid_resource));
+            emitFailed(TASK_NAME, "bookState == null", getApplicationContext().getString(R.string.invalid_resource));
             return Result.failure();
         }
 
@@ -60,7 +59,7 @@ public class EbookSplitWorker extends LoggingWorker {
         myLog("ebookType = " + ebookType);
 
         if (ebookPath == null || destinationFolderPath == null) {
-            TaskStateManager.markTaskFailed(TASK_NAME, "Missing input data for EbookSplitWorker", getApplicationContext().getString(R.string.invalid_resource));
+            emitFailed(TASK_NAME, "Missing input data for EbookSplitWorker", getApplicationContext().getString(R.string.invalid_resource));
             myLogEE(null, "Missing input data for EbookSplitWorker");
             return Result.failure();
         }
@@ -76,7 +75,7 @@ public class EbookSplitWorker extends LoggingWorker {
         try {
             File outFolder = new File(destinationFolderPath);
             if (!outFolder.exists() && !outFolder.mkdirs()) {
-                TaskStateManager.markTaskFailed(TASK_NAME
+                emitFailed(TASK_NAME
                         , "failed_to_create_destination_folder : " + destinationFolderPath
                         , context.getString(R.string.failed_to_create_destination_folder) + ": " + destinationFolderPath);
                 return false;
@@ -92,27 +91,27 @@ public class EbookSplitWorker extends LoggingWorker {
             List<File> chapters;
 
             if ("fb2".equals(ebookType)) {
-                TaskStateManager.tellProgress(TASK_NAME, 1, "Parsing FB2…");
+                emitStepProgress(TASK_NAME, 1, "Parsing FB2…");
                 Fb2LowLevelHelper.ExtractResult result = Fb2LowLevelHelper.extractAll(ctx, uri);
                 cover    = result.coverBitmap;
                 chapters = result.chapterFiles;
             } else if ("epub".equals(ebookType)) {
-                TaskStateManager.tellProgress(TASK_NAME, 1, "Parsing EPUB…");
+                emitStepProgress(TASK_NAME, 1, "Parsing EPUB…");
                 EpubLowLevelHelper.ExtractResult result = EpubLowLevelHelper.extractAll(ctx, uri);
                 cover    = result.coverBitmap;
                 chapters = result.chapterFiles;
             } else if ("odt".equals(ebookType)) {
-                TaskStateManager.tellProgress(TASK_NAME, 1, "Parsing ODT…");
+                emitStepProgress(TASK_NAME, 1, "Parsing ODT…");
                 OdtLowLevelHelper.ExtractResult result = OdtLowLevelHelper.extractAll(ctx, uri);
                 cover    = result.coverBitmap;
                 chapters = result.chapterFiles;
             } else {
-                TaskStateManager.markTaskFailed(TASK_NAME, "unsupported_ebook_type: [" + ebookType + "]", ctx.getString(R.string.Unsupported_ebook_type) + ". (" + ebookType + ")");
+                emitFailed(TASK_NAME, "unsupported_ebook_type: [" + ebookType + "]", ctx.getString(R.string.Unsupported_ebook_type) + ". (" + ebookType + ")");
                 return false;
             }
 
             if (chapters == null || chapters.isEmpty()) {
-                TaskStateManager.markTaskFailed(TASK_NAME
+                emitFailed(TASK_NAME
                         , "no_chapters_found : [" + ebookType + "]"
                         , ctx.getString(R.string.No_chapters_found));
                 return false;
@@ -136,7 +135,7 @@ public class EbookSplitWorker extends LoggingWorker {
 
             for (int i = 0; i < total; i++) {
                 if (isStopped()) {
-                    TaskStateManager.markTaskCancelled(TASK_NAME);
+                    emitCancelled(TASK_NAME);
                     return false;
                 }
 
@@ -161,17 +160,17 @@ public class EbookSplitWorker extends LoggingWorker {
                 int progress = (int) Math.round(((i + 1) * 100.0) / total);
                 String progressText = "Splitting " + ebookType.toUpperCase(Locale.ROOT) + ": "
                         + (i + 1) + "/" + total + "\n\n" + title;
-                TaskStateManager.tellProgress(TASK_NAME, progress, progressText);
+                emitStepProgress(TASK_NAME, progress, progressText);
                 myLogD(progress + "% - " + progressText.replace("\n", " - "));
             }
 
             // Reuse existing completion hook for EPUB (keeps app logic unchanged)
-            TaskStateManager.markEpubSplitCompleted(TASK_NAME, outFolder.getAbsolutePath());
+            emitTaskCompleted(TASK_NAME, outFolder.getAbsolutePath());
             return true;
 
         } catch (Exception e) {
             myLogEE(e, "splitEbook");
-            TaskStateManager.markTaskFailed(TASK_NAME, e.getMessage(), null);
+            emitFailed(TASK_NAME, e.getMessage(), null);
             return false;
         }
     }

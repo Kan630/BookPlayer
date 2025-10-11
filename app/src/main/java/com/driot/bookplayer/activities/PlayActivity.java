@@ -33,7 +33,6 @@ import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.Podcast;

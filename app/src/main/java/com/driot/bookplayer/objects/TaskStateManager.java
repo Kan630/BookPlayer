@@ -1,3 +1,4 @@
+/*
 package com.driot.bookplayer.objects;
 
 import android.content.Context;
@@ -316,3 +317,5 @@ public class TaskStateManager {
         }
     }
 }
+
+ */

@@ -683,11 +683,11 @@ public class AudioService extends LoggingService {
                 final int trackId = intent.getIntExtra(EXTRA_TRACK_ID, -1);
                 if (trackId > 0) {
                     AppDatabase.databaseReadExecutor.execute(() -> {
-                        ZikFile clicked = AppDatabase.getDatabase(this).ZikFileDao().getById(trackId);
+                        ZikFile clicked = AppDatabase.getDatabase(this).zikFileDao().getById(trackId);
                         if (clicked == null) return;
 
                         int folderId = clicked.getIdFolder();
-                        List<ZikFile> list = AppDatabase.getDatabase(this).ZikFileDao().getZikFiles(folderId);
+                        List<ZikFile> list = AppDatabase.getDatabase(this).zikFileDao().getZikFiles(folderId);
                         if (list == null || list.isEmpty()) return;
 
                         int index = 0;
@@ -709,7 +709,7 @@ public class AudioService extends LoggingService {
                 final int index = Math.max(0, intent.getIntExtra(EXTRA_INDEX, 0));
                 if (folderId > 0) {
                     AppDatabase.databaseReadExecutor.execute(() -> {
-                        List<ZikFile> list = AppDatabase.getDatabase(this).ZikFileDao().getZikFiles(folderId);
+                        List<ZikFile> list = AppDatabase.getDatabase(this).zikFileDao().getZikFiles(folderId);
                         if (list == null || list.isEmpty()) return;
                         PlayList.create(getApplicationContext(), list, Math.min(index, list.size() - 1));
                         directPlay = true;

@@ -146,7 +146,7 @@ public class ModifyFolderActivity extends LoggingActivity {
 
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN); // Avoid keyboard on opening
 
-        AppDatabase.getDatabase(this).FolderDao()
+        AppDatabase.getDatabase(this).folderDao()
                 .observeById(folder.getId())
                 .observe(this, fresh -> {
                     if (fresh == null) return;
@@ -238,8 +238,8 @@ public class ModifyFolderActivity extends LoggingActivity {
             myToast(getString(R.string.Error_FolderNameTooShort));
         } else {
             new Thread(() -> {
-                AppDatabase.getDatabase(this).FolderDao().changeName(folder.getId(), newName);
-                AppDatabase.getDatabase(this).FolderDao().updateFolderNameInZikFile(folder.getId(), newName);
+                AppDatabase.getDatabase(this).folderDao().changeName(folder.getId(), newName);
+                AppDatabase.getDatabase(this).folderDao().updateFolderNameInZikFile(folder.getId(), newName);
                 runOnUiThread(() -> {
                     myToast(getString(R.string.Folder_Renamed));
                     myLogInFile(getString(R.string.Folder_Renamed) + " : [" + folder.getName() + "] - > [" + newName + "]");
@@ -271,8 +271,8 @@ public class ModifyFolderActivity extends LoggingActivity {
     private void resetFolder() {
         myLog("resetFolder()");
         new Thread(() -> {
-            AppDatabase.getDatabase(this).FolderDao().resetProgression(folder.getId());
-            AppDatabase.getDatabase(this).ZikFileDao().resetFolderProgression(folder.getId());
+            AppDatabase.getDatabase(this).folderDao().resetProgression(folder.getId());
+            AppDatabase.getDatabase(this).zikFileDao().resetFolderProgression(folder.getId());
             runOnUiThread(() -> {
                 myLogInFile(getString(R.string.Folder_Reset) + " : " + folder.getName());
                 myToast(getString(R.string.Folder_Reset));
@@ -323,7 +323,7 @@ public class ModifyFolderActivity extends LoggingActivity {
                                 String newImagePath = ImageHelper.saveUserSelectedImageToBookCoverVersioned(this, folder.getId(), selectedImageUri.toString());
                                 if (newImagePath == null) throw new RuntimeException("Image copy/compression failed");
                                 folder.image = newImagePath;
-                                AppDatabase.getDatabase(this).FolderDao().updateImage(folder.getId(), folder.image);
+                                AppDatabase.getDatabase(this).folderDao().updateImage(folder.getId(), folder.image);
                                 runOnUiThread(() -> ivCoverPreview.setImageURI(Uri.fromFile(new File(newImagePath))));
                             } catch (Exception e) {
                                 myLogEE(e, "Error processing selected image");
@@ -348,7 +348,7 @@ public class ModifyFolderActivity extends LoggingActivity {
             try {
                 FileHelper.deleteFile(this, folder.image);
                 folder.image = null;
-                AppDatabase.getDatabase(this).FolderDao().updateImage(folder.getId(), folder.image);
+                AppDatabase.getDatabase(this).folderDao().updateImage(folder.getId(), folder.image);
                 runOnUiThread(() -> ivCoverPreview.setImageResource(R.drawable.no_image_icon));
             } catch (Exception e) {
                 myLogEE(e, "delete cover");
@@ -365,7 +365,7 @@ public class ModifyFolderActivity extends LoggingActivity {
 
                 new Thread(() -> {
                     try {
-                        AppDatabase.getDatabase(this).FolderDao().updateImage(folder.getId(), savedPath);
+                        AppDatabase.getDatabase(this).folderDao().updateImage(folder.getId(), savedPath);
                         folder.image = savedPath;
                         runOnUiThread(() -> ivCoverPreview.setImageURI(Uri.parse(savedPath)));
                     } catch (Exception e) {

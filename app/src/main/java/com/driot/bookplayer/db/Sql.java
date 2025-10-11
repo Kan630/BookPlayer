@@ -46,7 +46,7 @@ public class Sql {
                 ;
         SimpleSQLiteQuery query = new SimpleSQLiteQuery(strSQL, new Object[]{mFolderId});
         try {
-            int sqlResult = AppDatabase.getDatabase(c).FolderDao().runRawSql(query);
+            int sqlResult = AppDatabase.getDatabase(c).folderDao().runRawSql(query);
             myLogD("Folder Updated for ID " + mFolderId + " → runRawSQL result = " + sqlResult);
         } catch (Exception e) {
             myLogEE(e,"updateFolderTable");
@@ -68,7 +68,7 @@ public class Sql {
 
         new Thread(() -> {
             try {
-                int result = AppDatabase.getDatabase(c).FolderDao().runRawSql(query);
+                int result = AppDatabase.getDatabase(c).folderDao().runRawSql(query);
                 if (result > 0) {
                     //myLog("calculateFolderProgress done - result=[" + result + "]");
                 } else {
@@ -87,7 +87,7 @@ public class Sql {
             myLogD("-----------------");
 
             List<Folder> folders = AppDatabase.getDatabase(c)
-                    .FolderDao()
+                    .folderDao()
                     .getAll();
 
             if (folders == null || folders.isEmpty()) {
@@ -132,7 +132,7 @@ public class Sql {
             myLogD("-----------------");
 
             List<ZikFile> zikFiles = AppDatabase.getDatabase(c)
-                    .ZikFileDao()     // adjust if your DAO name differs
+                    .zikFileDao()     // adjust if your DAO name differs
                     .getAll();         // adjust if your query method differs
 
             if (zikFiles == null || zikFiles.isEmpty()) {

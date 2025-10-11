@@ -285,7 +285,7 @@ public class CarMediaService extends MediaBrowserServiceCompat {
 
             if (ROOT_ID.equals(parentId)) {
                 List<Folder> folders = AppDatabase.getDatabase(getApplicationContext())
-                        .FolderDao().getAll();
+                        .folderDao().getAll();
 
                 if (folders == null || folders.isEmpty()) {
                     out.add(browsable("hint", getString(R.string.automotive_no_item_in_bookplayer)));
@@ -311,9 +311,9 @@ public class CarMediaService extends MediaBrowserServiceCompat {
 
                     // If only 1 track => Make the "folder" tap play directly
                     int count = AppDatabase.getDatabase(getApplicationContext())
-                            .ZikFileDao().countTracks(f.getId());
+                            .zikFileDao().countTracks(f.getId());
                     if (count == 1) {
-                        ZikFile only = AppDatabase.getDatabase(getApplicationContext()).ZikFileDao().getFirstInFolder(f.getId());
+                        ZikFile only = AppDatabase.getDatabase(getApplicationContext()).zikFileDao().getFirstInFolder(f.getId());
                         if (only != null) {
                             b.setSubtitle(only.getDisplayName());      // track label
                             out.add(new MediaBrowserCompat.MediaItem(b.build(), MediaBrowserCompat.MediaItem.FLAG_PLAYABLE));
@@ -331,7 +331,7 @@ public class CarMediaService extends MediaBrowserServiceCompat {
                 int folderId = safeParseInt(parentId.substring(PREFIX_FOLDER.length()), -1);
                 if (folderId > 0) {
                     List<ZikFile> tracks = AppDatabase.getDatabase(getApplicationContext())
-                            .ZikFileDao().getZikFiles(folderId);
+                            .zikFileDao().getZikFiles(folderId);
 
                     if (tracks == null || tracks.isEmpty()) {
                         out.add(browsable("hint", getString(R.string.automotive_empty_book)));
@@ -340,14 +340,14 @@ public class CarMediaService extends MediaBrowserServiceCompat {
                     }
 
                     // Put a "Resume" item first
-                    ZikFile resume = AppDatabase.getDatabase(this).ZikFileDao().getLastListenedZikFile(folderId);
+                    ZikFile resume = AppDatabase.getDatabase(this).zikFileDao().getLastListenedZikFile(folderId);
                     if (resume != null) {
                         MediaDescriptionCompat.Builder rb = new MediaDescriptionCompat.Builder()
                                 .setMediaId(PREFIX_TRACK + resume.getId())
                                 .setTitle("▶ " + getString(R.string.automotive_resume_play) + " : \n" + resume.getDisplayName())
                                 .setSubtitle(resume.getFolderName());
                         // optional icon from folder cover (reuse your icon code)
-                        Folder f = AppDatabase.getDatabase(getApplicationContext()).FolderDao().getById(folderId);
+                        Folder f = AppDatabase.getDatabase(getApplicationContext()).folderDao().getById(folderId);
                         Bitmap icon = null;
                         if (f != null && f.image != null) {
                             icon = iconCache.get(f.image);
@@ -367,7 +367,7 @@ public class CarMediaService extends MediaBrowserServiceCompat {
 
                     // Fetch folder (for its image)
                     Folder f = AppDatabase.getDatabase(getApplicationContext())
-                            .FolderDao().getById(folderId); // add DAO method if missing
+                            .folderDao().getById(folderId); // add DAO method if missing
                     android.graphics.Bitmap icon = null;
                     if (f != null && f.image != null) {
                         icon = iconCache.get(f.image);

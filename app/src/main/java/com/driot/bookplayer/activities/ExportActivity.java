@@ -107,7 +107,7 @@ public class ExportActivity extends LoggingActivity {
 
         // Load folder path in a background thread
         new Thread(() -> {
-            folderPath = AppDatabase.getDatabase(this).ZikFileDao().getFolderPath(folderId);
+            folderPath = AppDatabase.getDatabase(this).zikFileDao().getFolderPath(folderId);
             myLog("folderPath : " + folderPath);
             folder = new File(folderPath);
             onFolderPathLoaded();

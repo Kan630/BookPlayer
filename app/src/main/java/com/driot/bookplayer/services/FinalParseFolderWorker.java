@@ -27,18 +27,17 @@ import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.SupportedFilesHelper;
 import com.driot.bookplayer.helpers.UriHelper;
+import com.driot.bookplayer.imports.ImportWorker;
 import com.driot.bookplayer.objects.AudioFileInfo;
 import com.driot.bookplayer.objects.AudioInfo;
 import com.driot.bookplayer.objects.AudioProber;
 import com.driot.bookplayer.objects.LoadBookTaskState;
-import com.driot.bookplayer.objects.TaskStateManager;
 import com.driot.bookplayer.utils.Tonio;
-import com.driot.bookplayer.utils.log.LoggingWorker;
 
 import java.util.ArrayList;
 import java.util.Objects;
 
-public class ParseFinalFolderWorker extends LoggingWorker {
+public class FinalParseFolderWorker extends ImportWorker {
     private static final String TASK_NAME = Var.WORKER_TASK_LABEL_SCAN;
 
     Context context = getApplicationContext();
@@ -65,14 +64,14 @@ public class ParseFinalFolderWorker extends LoggingWorker {
     public static final String K_ORIGINAL_HASH = "original_hash";   // optional
     public static final String K_IMAGE_URI     = "image_uri";       // optional
 
-    public ParseFinalFolderWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
+    public FinalParseFolderWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
     }
     private static final String K_ERR = "error_msg";
 
     private Result fail(String userMsg, @Nullable Throwable t) {
         myLogEE(t, userMsg);
-        TaskStateManager.markTaskFailed(TASK_NAME, "fail - " + userMsg, userMsg);
+        emitFailed(TASK_NAME, "fail - " + userMsg, userMsg);
         return Result.failure(new androidx.work.Data.Builder()
                 .putString(K_ERR, userMsg)
                 .build());
@@ -106,10 +105,10 @@ public class ParseFinalFolderWorker extends LoggingWorker {
             }
 
             if (bookState == null) {
-                TaskStateManager.markTaskFailed(TASK_NAME, "bookState == null", getApplicationContext().getString(R.string.invalid_resource));
+                emitFailed(TASK_NAME, "bookState == null", getApplicationContext().getString(R.string.invalid_resource));
                 return Result.failure();
             }
-            TaskStateManager.tellProgress(TASK_NAME, 1, context.getString(R.string.listing_and_sorting_tracks));
+            emitStepProgress(TASK_NAME, 1, context.getString(R.string.listing_and_sorting_tracks));
 
 
             boolean isFolderComputed = UriHelper.isFolder(context, bookState.dynamicUri);
@@ -124,11 +123,11 @@ public class ParseFinalFolderWorker extends LoggingWorker {
                     df = UriHelper.getDocumentFileFromAnyUri(context, bookState.dynamicUri);
                 } catch (Exception e) {
                     myLogEE(e,"Error reading Folder Uri...." + bookState.dynamicUri);
-                    TaskStateManager.markTaskFailed(TASK_NAME, "Error_Import_CannotReadFolder_exception", context.getString(R.string.Error_Import_CannotReadFolder));
+                    emitFailed(TASK_NAME, "Error_Import_CannotReadFolder_exception", context.getString(R.string.Error_Import_CannotReadFolder));
                     return Result.failure();
                 }
                 if (df == null) {
-                    TaskStateManager.markTaskFailed(TASK_NAME, "Error_Import_CannotReadFolder_null", context.getString(R.string.Error_Import_CannotReadFolder));
+                    emitFailed(TASK_NAME, "Error_Import_CannotReadFolder_null", context.getString(R.string.Error_Import_CannotReadFolder));
                     return Result.failure();
                 }
                 populateArrayListOfTracksFromFolder(df);
@@ -139,11 +138,11 @@ public class ParseFinalFolderWorker extends LoggingWorker {
                     df = UriHelper.getDocumentFileFromAnyUri(context, bookState.dynamicUri);
                 } catch (Exception e) {
                     myLogEE(e,"Error reading File Uri.... " + bookState.dynamicUri);
-                    TaskStateManager.markTaskFailed(TASK_NAME, "Error_Import_CannotReadFile_exception", context.getString(R.string.Error_Import_CannotReadFile));
+                    emitFailed(TASK_NAME, "Error_Import_CannotReadFile_exception", context.getString(R.string.Error_Import_CannotReadFile));
                     return Result.failure();
                 }
                 if (df == null) {
-                    TaskStateManager.markTaskFailed(TASK_NAME, "Error_Import_CannotReadFile_null", context.getString(R.string.Error_Import_CannotReadFile));
+                    emitFailed(TASK_NAME, "Error_Import_CannotReadFile_null", context.getString(R.string.Error_Import_CannotReadFile));
                     return Result.failure();
                 }
             /*
@@ -173,7 +172,7 @@ public class ParseFinalFolderWorker extends LoggingWorker {
         myLog("populateArrayListOfTracksFromFile [" + dfPickedFile.getUri() + "] - single file");
 
         if (dfPickedFile.isDirectory()) {
-            TaskStateManager.markTaskFailed(TASK_NAME,"Error_Import_IsNotFile", context.getString(R.string.Error_Import_IsNotFile));
+            emitFailed(TASK_NAME,"Error_Import_IsNotFile", context.getString(R.string.Error_Import_IsNotFile));
             return;
         }
 
@@ -189,16 +188,16 @@ public class ParseFinalFolderWorker extends LoggingWorker {
 
     private void populateArrayListOfTracksFromFolder(DocumentFile dfPickedDir) {
         if (dfPickedDir == null) {
-            TaskStateManager.markTaskFailed(TASK_NAME, "populateArrayListOfTracksFromFolder - dfPickedDir == null", context.getString(R.string.Error_Import_CannotReadFolder));
+            emitFailed(TASK_NAME, "populateArrayListOfTracksFromFolder - dfPickedDir == null", context.getString(R.string.Error_Import_CannotReadFolder));
             return;
         }
         if (!dfPickedDir.isDirectory()) {
-            TaskStateManager.markTaskFailed(TASK_NAME, "populateArrayListOfTracksFromFolder - dfPickedDir is not directory", context.getString(R.string.Error_Import_IsNotFolder));
+            emitFailed(TASK_NAME, "populateArrayListOfTracksFromFolder - dfPickedDir is not directory", context.getString(R.string.Error_Import_IsNotFolder));
             return;
         }
 
         myLog("populateArrayListOfTracksFromFolder - DocumentFile [" + dfPickedDir + "]");
-        TaskStateManager.tellProgress(TASK_NAME, 3, context.getString(R.string.listing_and_sorting_tracks));
+        emitStepProgress(TASK_NAME, 3, context.getString(R.string.listing_and_sorting_tracks));
 
         audioFileInfoArrayList = new ArrayList<>();
         Thread backgroundThread;
@@ -250,7 +249,7 @@ public class ParseFinalFolderWorker extends LoggingWorker {
             } else {
                 devErr = devErr + "\n" + t.getMessage();
             }
-            TaskStateManager.markTaskFailed(TASK_NAME, devErr, userErr);
+            emitFailed(TASK_NAME, devErr, userErr);
         }
     }
 
@@ -258,7 +257,7 @@ public class ParseFinalFolderWorker extends LoggingWorker {
         myLogD("* New Audio File : [" +  df.getName() + ']');
         AudioInfo audioInfo = AudioProber.probe(context, df.getUri());
         if (audioInfo == null || audioInfo.durationMs <= 0) {
-            TaskStateManager.markTaskFailed(
+            emitFailed(
                     TASK_NAME
                     , "Error_Import_extract_audio_data_failed for [" + df.getName() + "]"
                     , context.getString(R.string.Error_Import_extract_audio_data_failed) + " for [" + df.getName() + "]");
@@ -274,10 +273,10 @@ public class ParseFinalFolderWorker extends LoggingWorker {
         fullFolderSize = 0;
         totalAudioToScan = 0;
         nbAudioScanned = 0;
-        TaskStateManager.tellProgress(TASK_NAME, 5, context.getString(R.string.listing_and_sorting_tracks));
+        emitStepProgress(TASK_NAME, 5, context.getString(R.string.listing_and_sorting_tracks));
         countAudioFiles(f0);
         addAudioFileRecursive(f0,"");
-        if (totalDuration==0) TaskStateManager.markTaskFailed(TASK_NAME
+        if (totalDuration==0) emitFailed(TASK_NAME
                 , "addAudioFileRecursive - Error_Import_track_duration_extraction"
                 , context.getString(R.string.Error_Import_track_duration_extraction));
     }
@@ -305,9 +304,9 @@ public class ParseFinalFolderWorker extends LoggingWorker {
                     long duration = 0;
                     AudioInfo audioInfo = AudioProber.probe(context, f1.getUri());
                     if (audioInfo == null) {
-                        TaskStateManager.tellWarning(context.getString(R.string.Error_Import_extract_audio_data_failed) + " for [" + f1.getName() + "]");
+                        emitWarning(context.getString(R.string.Error_Import_extract_audio_data_failed) + " for [" + f1.getName() + "]");
                     } else if (audioInfo.durationMs <= 0) {
-                        TaskStateManager.tellWarning(context.getString(R.string.Error_Import_track_duration_extraction) + " for [" + f1.getName() + "]");
+                        emitWarning(context.getString(R.string.Error_Import_track_duration_extraction) + " for [" + f1.getName() + "]");
                     } else {
                         duration = audioInfo.durationMs;
                         audioFileInfoArrayList.add(new AudioFileInfo(l_audioFilePath, duration, audioInfo.uri.toString()));
@@ -318,7 +317,7 @@ public class ParseFinalFolderWorker extends LoggingWorker {
                     nbAudioScanned++;
                     double progress = totalAudioToScan > 0 ? (nbAudioScanned / (double) totalAudioToScan) : 0;
                     int scaledProgress = 10 + (int) ((80 - 10) * progress);
-                    TaskStateManager.tellProgress(TASK_NAME, scaledProgress, context.getString(R.string.scanning_tracks) + "..... \n[" +  l_audioFilePath + ']');
+                    emitStepProgress(TASK_NAME, scaledProgress, context.getString(R.string.scanning_tracks) + "..... \n[" +  l_audioFilePath + ']');
 
                     fullFolderSize = fullFolderSize + l_audioSize;
 
@@ -334,7 +333,7 @@ public class ParseFinalFolderWorker extends LoggingWorker {
                         myLogD("bypassing image (already got a cover)");
                     }
                 } else {
-                    TaskStateManager.tellWarning(context.getString(R.string.Error_Import_unsupported_file) + " - [" + fileExtension + "] : "
+                    emitWarning(context.getString(R.string.Error_Import_unsupported_file) + " - [" + fileExtension + "] : "
                             + "\"" + f1.getName() + "\"");
                     myLogW("Wrong mime/extension - [\" + fileExtension + \"] - Bypassed file: [" + f1.getName() + "]");
                 }
@@ -362,7 +361,7 @@ public class ParseFinalFolderWorker extends LoggingWorker {
         totalAudioToScan = 0;   // reuse counters for progress
         nbAudioScanned = 0;
 
-        TaskStateManager.tellProgress(TASK_NAME, 5, context.getString(R.string.listing_and_sorting_tracks));
+        emitStepProgress(TASK_NAME, 5, context.getString(R.string.listing_and_sorting_tracks));
         countTextFiles(root);
         addTextFileRecursive(root, "");
     }
@@ -391,7 +390,7 @@ public class ParseFinalFolderWorker extends LoggingWorker {
                     nbAudioScanned++;
                     double progress = totalAudioToScan > 0 ? (nbAudioScanned / (double) totalAudioToScan) : 0;
                     int scaledProgress = 10 + (int) ((80 - 10) * progress);
-                    TaskStateManager.tellProgress(TASK_NAME, scaledProgress,
+                    emitStepProgress(TASK_NAME, scaledProgress,
                             context.getString(R.string.scanning_tracks) + "..... \n[" + displayPath + ']');
                 } else if (!hadImageBefore && (SupportedFilesHelper.isImage(f1))) {
                     long imageSize = f1.length();
@@ -424,7 +423,7 @@ public class ParseFinalFolderWorker extends LoggingWorker {
     private void goFolder() {
         if (audioFileInfoArrayList != null) {
             if (audioFileInfoArrayList.isEmpty()) {
-                TaskStateManager.markTaskFailed(TASK_NAME, "Error_Import_NoMediaInFolder", context.getString(R.string.Error_Import_NoMediaInFolder));
+                emitFailed(TASK_NAME, "Error_Import_NoMediaInFolder", context.getString(R.string.Error_Import_NoMediaInFolder));
             } else {
                 myLog(audioFileInfoArrayList.size() + " " + context.getString(R.string.Import_nMediaInFolder));
                 if (Option.getCreateCover()) {
@@ -447,12 +446,12 @@ public class ParseFinalFolderWorker extends LoggingWorker {
                 saveFolder();
             }
         } else {
-            TaskStateManager.markTaskFailed(TASK_NAME, "Error_Import_NoMediaInFolder", context.getString(R.string.Error_Import_NoMediaInFolder));
+            emitFailed(TASK_NAME, "Error_Import_NoMediaInFolder", context.getString(R.string.Error_Import_NoMediaInFolder));
         }
     }
 
     private void saveFolder() {
-        TaskStateManager.tellProgress(TASK_NAME, 81, context.getString(R.string.saving_folder));
+        emitStepProgress(TASK_NAME, 81, context.getString(R.string.saving_folder));
 
         Folder folder = new Folder();
         folder.setName(bookState.title);
@@ -472,10 +471,10 @@ public class ParseFinalFolderWorker extends LoggingWorker {
         folder.lLastAccess = System.currentTimeMillis(); //used to sort the Book on the main page
 
         new Thread(() -> {
-            int insertedFolderId = (int) DatabaseClient.getInstance(context).getAppDatabase().FolderDao().insert(folder);
+            int insertedFolderId = (int) DatabaseClient.getInstance(context).getAppDatabase().folderDao().insert(folder);
             myLog("Folder Saved in DB, ID=[" + insertedFolderId + "] - [" + bookState.title + "]");
             ImageHelper.finalizeTempFolderImage(context, insertedFolderId);
-            TaskStateManager.tellProgress(TASK_NAME, 83, context.getString(R.string.saving_folder));
+            emitStepProgress(TASK_NAME, 83, context.getString(R.string.saving_folder));
             saveFiles(insertedFolderId);
         }).start();
     }
@@ -483,7 +482,7 @@ public class ParseFinalFolderWorker extends LoggingWorker {
     private void saveFiles(int insertedFolderId) {
         myLogD("--------------------- saving files...");
         if (audioFileInfoArrayList == null) {
-            TaskStateManager.markTaskFailed(TASK_NAME, "saveFiles - audioFileArrayList is null", context.getString(R.string.Error_Import_no_valid_media_found));
+            emitFailed(TASK_NAME, "saveFiles - audioFileArrayList is null", context.getString(R.string.Error_Import_no_valid_media_found));
             return;
         }
 
@@ -502,7 +501,7 @@ public class ParseFinalFolderWorker extends LoggingWorker {
 
             myLogD("Registering track [" + info.getDisplayPath() + "]");
             SaveResultEnum result = saveSingleFile(info, insertedFolderId, zeOrder);
-            TaskStateManager.tellProgress(TASK_NAME, progress, txtProgress);
+            emitStepProgress(TASK_NAME, progress, txtProgress);
 
             switch (result) {
                 case SUCCESS: saved++; break;
@@ -520,7 +519,7 @@ public class ParseFinalFolderWorker extends LoggingWorker {
             myLogEE(null,"no saved zikFile, about to delete folder...");
             new Thread(() -> {
                 try {
-                    DatabaseClient.getInstance(context).getAppDatabase().FolderDao().delete(insertedFolderId);
+                    DatabaseClient.getInstance(context).getAppDatabase().folderDao().delete(insertedFolderId);
                 } catch (Exception e) {
                     myLogEE(e, "error deleting folder (no saved zikFiles)");
                 }
@@ -538,14 +537,14 @@ public class ParseFinalFolderWorker extends LoggingWorker {
 
         // check we have something in folder...
         if (saved == 0) {
-            TaskStateManager.markTaskFailed(TASK_NAME, "saved = 0 - Error_Import_No_Usable_item_Found", context.getString(R.string.Error_Import_No_Usable_item_Found));
+            emitFailed(TASK_NAME, "saved = 0 - Error_Import_No_Usable_item_Found", context.getString(R.string.Error_Import_No_Usable_item_Found));
         } else {
             FirebaseAnalyticsHelper.tellLoadBookSuccess(String.valueOf(bookState.originalUri), bookState.fileExtension, bookState.doDownload);
             if (Var.SOURCE_LOCATION_LIBRIVOX.equals(bookState.sourceLocation)) {
                 FirebaseAnalyticsHelper.tellLibrivoxSuccess(String.valueOf(bookState.title));
                 AppDatabase.databaseWriteExecutor.execute(() -> {
                     AppDatabase db = AppDatabase.getDatabase(context);
-                    db.BookSourceDao().markImported(
+                    db.bookSourceDao().markImported(
                             Var.REPO_TYPE_AUDIOBOOK,               // repoType (lowercase)
                             Var.REPO_NAME_LIBRIVOX,                // repoName (lowercase)
                             bookState.futureFolderName,                // repoId (e.g., "dracula_123")
@@ -564,10 +563,10 @@ public class ParseFinalFolderWorker extends LoggingWorker {
                 + "\nOption DeleteSourceFile : " + bookState.optionDelete);
         if ((bookState.optionCopy || "ZIP".equals(bookState.dynamicType)) && bookState.optionDelete) {
             if (!deleteSourceFile()) {
-                TaskStateManager.tellWarning(context.getString(R.string.Error_Import_could_not_delete_source));
+                emitWarning(context.getString(R.string.Error_Import_could_not_delete_source));
             }
         }
-        TaskStateManager.tellEnd();
+        emitFinished();
     }
 
 
@@ -591,13 +590,13 @@ public class ParseFinalFolderWorker extends LoggingWorker {
             return SaveResultEnum.SKIPPED;
         }
 
-        long id = AppDatabase.getDatabase(context).ZikFileDao().insert(file);
+        long id = AppDatabase.getDatabase(context).zikFileDao().insert(file);
         if (id > 0) {
             //myLog("✔️ ZikFile inserted: id = " + id);
             return SaveResultEnum.SUCCESS;
         } else {
             myLogE("❌ DB insert failed for: " + info.getDisplayPath());
-            TaskStateManager.markTaskFailed(TASK_NAME
+            emitFailed(TASK_NAME
                     , "Error_Import_CannotSaveInDB [" + info.getDisplayPath() + "]"
                     , context.getString(R.string.Error_Import_CannotSaveInDB) + " [" + info.getDisplayPath() + "]");
             return SaveResultEnum.FAILED;

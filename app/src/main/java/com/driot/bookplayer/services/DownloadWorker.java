@@ -26,9 +26,8 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.NetworkHelper;
+import com.driot.bookplayer.imports.ImportWorker;
 import com.driot.bookplayer.objects.LoadBookTaskState;
-import com.driot.bookplayer.objects.TaskStateManager;
-import com.driot.bookplayer.utils.log.LoggingWorker;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -49,7 +48,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class DownloadWorker extends LoggingWorker {
+public class DownloadWorker extends ImportWorker {
 
     private static final String TASK_NAME = Var.WORKER_TASK_LABEL_DOWNLOAD;
 
@@ -112,7 +111,7 @@ public class DownloadWorker extends LoggingWorker {
 
         if (urlStr == null || destFolder == null) {
             myLogE("Missing input data: url or dest_folder");
-            TaskStateManager.markTaskFailed(TASK_NAME, "Missing input data", null);
+            emitFailed(TASK_NAME, "Missing input data", null);
             return Result.failure();
         }
 
@@ -157,13 +156,13 @@ public class DownloadWorker extends LoggingWorker {
         try {
             // Respect network policy (Constraints are preferred, this is a secondary guard)
             if (!NetworkHelper.isNetworkAvailable(ctx)) {
-                TaskStateManager.markDownloadPaused(ctx.getString(R.string.no_internet_connection));
+                emitDownloadPause(ctx.getString(R.string.no_internet_connection));
                 return Result.retry();
             }
 
             // Optional: apply your manual vs auto policy (constraints should make most of this unnecessary)
             if (!isPolicyAllowed(ctx, isManual)) {
-                TaskStateManager.markDownloadPaused(ctx.getString(R.string.Download_paused_due_to_network_policy));
+                emitDownloadPause(ctx.getString(R.string.Download_paused_due_to_network_policy));
                 return Result.retry();
             }
 
@@ -173,7 +172,7 @@ public class DownloadWorker extends LoggingWorker {
             // Ensure parent folder exists
             File parent = outFile.getParentFile();
             if (parent != null && !parent.exists() && !parent.mkdirs()) {
-                TaskStateManager.markTaskFailed(TASK_NAME,
+                emitFailed(TASK_NAME,
                         "failed_to_create_destination_folder : " + parent.getAbsolutePath()
                         , ctx.getString(R.string.failed_to_create_destination_folder) + ": " + parent.getAbsolutePath());
                 return Result.failure();
@@ -212,7 +211,7 @@ public class DownloadWorker extends LoggingWorker {
                     myLogW("Server ignored Range; restarting download from 0");
                     already = 0L;
                 } else if (code != HttpURLConnection.HTTP_OK && code != HttpURLConnection.HTTP_PARTIAL) {
-                    TaskStateManager.markTaskFailed(TASK_NAME
+                    emitFailed(TASK_NAME
                             , "server returned: " + code + " - " + conn.getResponseMessage()
                             , ctx.getString(R.string.server_returned_http) + " " + code);
                     return Result.failure();
@@ -220,7 +219,7 @@ public class DownloadWorker extends LoggingWorker {
 
                 LoadBookTaskState s = Pref.getLoadBookTaskState();
                 if (s != null && s.isLoadingPaused) {
-                    TaskStateManager.markDownloadResuming();
+                    emitDownloadResuming();
                 }
 
                 long contentLen = getContentLengthLongCompat(conn); // may be -1
@@ -241,16 +240,16 @@ public class DownloadWorker extends LoggingWorker {
                         LoadBookTaskState state = Pref.getLoadBookTaskState();
                         if (state == null) {
                             myLogW("Stopped after cancelled");
-                            TaskStateManager.markTaskCancelled(TASK_NAME);
+                            emitCancelled(TASK_NAME);
                             return Result.failure();
                         }
                         myLogW("Stopped by WM/constraints — keeping partial and retrying");
-                        TaskStateManager.markDownloadPaused(getApplicationContext().getString(R.string.download_stopped_by_system_will_retry));
+                        emitDownloadPause(getApplicationContext().getString(R.string.download_stopped_by_system_will_retry));
                         return Result.retry(); // partial file kept; WM will reschedule when constraints are met
                     }
                     if (stoppedRequested.get()) {
                         myLogW("Stop requested");
-                        TaskStateManager.markDownloadPaused(getApplicationContext().getString(R.string.Download_paused_by_user));
+                        emitDownloadPause(getApplicationContext().getString(R.string.Download_paused_by_user));
                         return Result.retry(); // partial file kept; WM will reschedule when constraints are met
                     }
                     if (cancelRequested.get()) {
@@ -258,7 +257,7 @@ public class DownloadWorker extends LoggingWorker {
                         pauseRequested.set(false);
                         resumeRequested.set(false);
                         safeDelete(outFile);
-                        TaskStateManager.markTaskCancelled(TASK_NAME);
+                        emitCancelled(TASK_NAME);
                         return Result.failure();
                     }
                     if (pauseRequested.get()) {
@@ -278,7 +277,7 @@ public class DownloadWorker extends LoggingWorker {
                             }
                             if (isStopped()) {
                                 myLogW("Paused → stopped");
-                                TaskStateManager.markDownloadPaused(getApplicationContext().getString(R.string.download_stopped_by_system_will_retry));
+                                emitDownloadPause(getApplicationContext().getString(R.string.download_stopped_by_system_will_retry));
                                 return Result.retry();
                             }
                             if (cancelRequested.get()) {
@@ -286,7 +285,7 @@ public class DownloadWorker extends LoggingWorker {
                                 safeClose(in);
                                 safeClose(out);
                                 safeDelete(outFile);
-                                TaskStateManager.markTaskCancelled(TASK_NAME);
+                                emitCancelled(TASK_NAME);
                                 return Result.failure();
                             }
                             if (resumeRequested.get()) {
@@ -295,7 +294,7 @@ public class DownloadWorker extends LoggingWorker {
                                 resumeRequested.set(false);
                                 pauseRequested.set(false);
                                 updateForeground(ctx, notifId, lastPercent, progressText(written, fileLenIfKnown), title);
-                                TaskStateManager.markDownloadResuming();
+                                emitDownloadResuming();
                                 break; // continue the download loop
                             }
                             try { Thread.sleep(300); } catch (InterruptedException ignored) {}
@@ -320,7 +319,7 @@ public class DownloadWorker extends LoggingWorker {
                             myLogW("416 Range not satisfiable — restarting from 0");
                             already = 0L;
                         } else if (code != HttpURLConnection.HTTP_OK && code != HttpURLConnection.HTTP_PARTIAL) {
-                            TaskStateManager.markTaskFailed(TASK_NAME
+                            emitFailed(TASK_NAME
                                     , "server returned: " + code + " - " + conn.getResponseMessage()
                                     , ctx.getString(R.string.server_returned_http) + " " + code);
 
@@ -346,7 +345,7 @@ public class DownloadWorker extends LoggingWorker {
                                 .putString(PROG_TEXT, txtNow)
                                 .build());
                         updateForeground(ctx, notifId, lastPercent, txtNow, title);
-                        TaskStateManager.tellProgress(TASK_NAME, lastPercent, txtNow);
+                        emitStepProgress(TASK_NAME, lastPercent, txtNow);
                     }
 
 
@@ -359,7 +358,7 @@ public class DownloadWorker extends LoggingWorker {
                 }
 
                 // Success
-                TaskStateManager.markDownloadCompleted(outFile.getAbsolutePath());
+                emitTaskCompleted(TASK_NAME, outFile.getAbsolutePath());
                 setProgressAsync(new Data.Builder()
                         .putInt(PROG_PERCENT, 100)
                         .putString(PROG_TEXT, progressText(written, fileLenIfKnown))
@@ -398,7 +397,7 @@ public class DownloadWorker extends LoggingWorker {
                         ctx.getString(R.string.use_https_or_allow_cleartext_for_this_host_in_the_app_s_network_security_config)
                         : ctx.getString(R.string.http_is_blocked_by_android_s_network_security_policy)  + " " +
                         ctx.getString(R.string.use_https_or_allow_cleartext_for_this_host_in_the_app_s_network_security_config);
-                TaskStateManager.markTaskFailed(TASK_NAME, "clear_text_not_permitted: [" + e.getMessage() + "]", why);
+                emitFailed(TASK_NAME, "clear_text_not_permitted: [" + e.getMessage() + "]", why);
                 return Result.failure();
             }
             TellHimWhyPause(ctx.getString(R.string.io_error) + " (" + ctx.getString(R.string.no_internet_connection) + "?)\n" + e.getMessage());
@@ -406,7 +405,7 @@ public class DownloadWorker extends LoggingWorker {
             return Result.retry();
         } catch (Exception e) {
             myLogEE(e, "Unexpected error in DownloadWorker");
-            TaskStateManager.markTaskFailed(TASK_NAME
+            emitFailed(TASK_NAME
                     ,"unexpected_error: [" + e.getMessage() + "]"
                     ,getApplicationContext().getString(R.string.unexpected_error) + " [" + e.getMessage() + "]");
             return Result.retry(); // treat as transient
@@ -428,7 +427,7 @@ public class DownloadWorker extends LoggingWorker {
     private void TellHimWhyPause(String whyPause) {
         pauseRequested.set(true); //TODO useless : You don’t need to switch the notification to the paused layout here because the Worker is exiting with Result.retry(); your UI gets the paused reason via TaskStateManager.
         resumeRequested.set(false);
-        TaskStateManager.markDownloadPaused(whyPause);
+        emitDownloadPause(whyPause);
     }
     // === Helpers ===
 
@@ -465,7 +464,7 @@ public class DownloadWorker extends LoggingWorker {
                     .putString(PROG_TEXT, text)
                     .build());
             updateForeground(ctx, notifId, percent, text, title);
-            TaskStateManager.tellProgress(TASK_NAME, percent, text);
+            emitStepProgress(TASK_NAME, percent, text);
             lastPercent = percent;
             lastTick = now;
             if (percent > 0) myLogD("Progress " + percent + "% - " + text);
@@ -563,7 +562,7 @@ public class DownloadWorker extends LoggingWorker {
     }
 
     private void enterPausedState(Context ctx, int notifId, String title, String why) {
-        TaskStateManager.markDownloadPaused(why);
+        emitDownloadPause(why);
         // Rebuild notification to show RESUME/CANCEL only
         try {
             setForegroundAsync(buildForegroundInfoPaused(ctx, notifId, title, why)).get();

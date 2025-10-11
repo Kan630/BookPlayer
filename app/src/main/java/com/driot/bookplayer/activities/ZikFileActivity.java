@@ -143,7 +143,7 @@ public class ZikFileActivity extends LoggingActivity {
             return;
         }
         AppDatabase.databaseReadExecutor.execute(() -> {
-            Folder newest = AppDatabase.getDatabase(this).FolderDao().getById(folderId);
+            Folder newest = AppDatabase.getDatabase(this).folderDao().getById(folderId);
             runOnUiThread(() -> {
                 if (newest == null) {
                     myLogI("Folder " + folderId + " was deleted — finishing activity.");
@@ -204,7 +204,7 @@ public class ZikFileActivity extends LoggingActivity {
     private void goUserClickHeader() {
         if (Var.SOURCE_LOCATION_PODCAST.equals(folder.getSourceLocation())) {
             AppDatabase.databaseReadExecutor.execute(() -> {
-                Podcast podcast = AppDatabase.getDatabase(this).PodcastDao().getPodcastByFolderId(folderId);
+                Podcast podcast = AppDatabase.getDatabase(this).podcastDao().getPodcastByFolderId(folderId);
                 if (podcast != null) {
                     myLogD("opening PodcastEpisodeActivity for podcast : " + podcast.title);
                     startActivity(new Intent(this, PodcastEpisodeActivity.class).putExtra("podcast", podcast));

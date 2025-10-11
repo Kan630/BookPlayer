@@ -239,9 +239,9 @@ public final class PlayList {
             Podcast p = null;
             boolean isPod = false;
             try {
-                f = AppDatabase.getDatabase(app).FolderDao().getById(folderId);
+                f = AppDatabase.getDatabase(app).folderDao().getById(folderId);
                 if (f != null) {
-                    p = AppDatabase.getDatabase(app).PodcastDao().getPodcastByFolderId(f.getId());
+                    p = AppDatabase.getDatabase(app).podcastDao().getPodcastByFolderId(f.getId());
                     isPod = (p != null);
                 }
             } catch (Throwable t) {

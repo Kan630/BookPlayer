@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 15,
-    "identityHash": "23013031d4801b768e65c32439c7a2a4",
+    "identityHash": "459521db1ce0ba699a78f9bb70ad2653",
     "entities": [
       {
         "tableName": "Folder",
@@ -688,11 +688,280 @@
             ]
           }
         ]
+      },
+      {
+        "tableName": "ImportJob",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`importId` TEXT NOT NULL, `originalUri` TEXT, `originalType` TEXT, `dynamicUri` TEXT, `dynamicType` TEXT, `title` TEXT, `futureFolderName` TEXT, `futureFolderPath` TEXT, `optionSplit` INTEGER NOT NULL, `optionCopy` INTEGER NOT NULL, `optionDelete` INTEGER NOT NULL, `originalFile` TEXT, `originalHash` TEXT, `sourceLocation` TEXT, `fileExtension` TEXT, `mimeType` TEXT, `imagePath` TEXT, `progressText` TEXT, `progressPercent` INTEGER NOT NULL, `isLoadingPaused` INTEGER NOT NULL, `currentOperation` TEXT, `downloadFileUrl` TEXT, `downloadDestinationFolder` TEXT, `downloadRetryCount` INTEGER NOT NULL, `downloadStartTime` INTEGER NOT NULL, `downloadDuration` INTEGER NOT NULL, `downloadedFilePath` TEXT, `downloadedFileReady` INTEGER NOT NULL, `dynamicDestinationFolderPath` TEXT, `dynamicSourceFilePath` TEXT, `doDownload` INTEGER NOT NULL, `doCopy` INTEGER NOT NULL, `doSplitM4b` INTEGER NOT NULL, `doSplitEbook` INTEGER NOT NULL, `doUnzip` INTEGER NOT NULL, `playType` TEXT, `downloadWorkId` TEXT, `uniqueChainName` TEXT, `status` TEXT, `createdAt` INTEGER NOT NULL, `updatedAt` INTEGER NOT NULL, `warningText` TEXT, `errorTextDev` TEXT, `errorTextUser` TEXT, PRIMARY KEY(`importId`))",
+        "fields": [
+          {
+            "fieldPath": "importId",
+            "columnName": "importId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "originalUri",
+            "columnName": "originalUri",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "originalType",
+            "columnName": "originalType",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "dynamicUri",
+            "columnName": "dynamicUri",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "dynamicType",
+            "columnName": "dynamicType",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "futureFolderName",
+            "columnName": "futureFolderName",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "futureFolderPath",
+            "columnName": "futureFolderPath",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "optionSplit",
+            "columnName": "optionSplit",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "optionCopy",
+            "columnName": "optionCopy",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "optionDelete",
+            "columnName": "optionDelete",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "originalFile",
+            "columnName": "originalFile",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "originalHash",
+            "columnName": "originalHash",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "sourceLocation",
+            "columnName": "sourceLocation",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "fileExtension",
+            "columnName": "fileExtension",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "mimeType",
+            "columnName": "mimeType",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "imagePath",
+            "columnName": "imagePath",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "progressText",
+            "columnName": "progressText",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "progressPercent",
+            "columnName": "progressPercent",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isLoadingPaused",
+            "columnName": "isLoadingPaused",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "currentOperation",
+            "columnName": "currentOperation",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "downloadFileUrl",
+            "columnName": "downloadFileUrl",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "downloadDestinationFolder",
+            "columnName": "downloadDestinationFolder",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "downloadRetryCount",
+            "columnName": "downloadRetryCount",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "downloadStartTime",
+            "columnName": "downloadStartTime",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "downloadDuration",
+            "columnName": "downloadDuration",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "downloadedFilePath",
+            "columnName": "downloadedFilePath",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "downloadedFileReady",
+            "columnName": "downloadedFileReady",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dynamicDestinationFolderPath",
+            "columnName": "dynamicDestinationFolderPath",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "dynamicSourceFilePath",
+            "columnName": "dynamicSourceFilePath",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "doDownload",
+            "columnName": "doDownload",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "doCopy",
+            "columnName": "doCopy",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "doSplitM4b",
+            "columnName": "doSplitM4b",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "doSplitEbook",
+            "columnName": "doSplitEbook",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "doUnzip",
+            "columnName": "doUnzip",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "playType",
+            "columnName": "playType",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "downloadWorkId",
+            "columnName": "downloadWorkId",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "uniqueChainName",
+            "columnName": "uniqueChainName",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "status",
+            "columnName": "status",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "createdAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "updatedAt",
+            "columnName": "updatedAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "warningText",
+            "columnName": "warningText",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "errorTextDev",
+            "columnName": "errorTextDev",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "errorTextUser",
+            "columnName": "errorTextUser",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "importId"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_ImportJob_futureFolderPath",
+            "unique": true,
+            "columnNames": [
+              "futureFolderPath"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_ImportJob_futureFolderPath` ON `${TABLE_NAME}` (`futureFolderPath`)"
+          },
+          {
+            "name": "index_ImportJob_status",
+            "unique": false,
+            "columnNames": [
+              "status"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_ImportJob_status` ON `${TABLE_NAME}` (`status`)"
+          }
+        ]
       }
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '23013031d4801b768e65c32439c7a2a4')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '459521db1ce0ba699a78f9bb70ad2653')"
     ]
   }
 }

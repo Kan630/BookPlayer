@@ -13,3 +13,6 @@
 .externalNativeBuild
 .cxx
 local.properties
+/sdcard_Pixel9.img
+/sdcard_shared.img
+/app/src/androidTest/assets/fixtures

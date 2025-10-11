@@ -13,7 +13,6 @@ import android.os.Looper;
 import androidx.annotation.NonNull;
 import androidx.work.WorkerParameters;
 
-import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Episode;
 import com.driot.bookplayer.db.EpisodeDao;
@@ -24,13 +23,10 @@ import com.driot.bookplayer.db.Sql;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.db.ZikFileDao;
 import com.driot.bookplayer.global.Option;
-import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.PodcastHelper;
-import com.driot.bookplayer.objects.AudioFileInfo;
 import com.driot.bookplayer.objects.AudioInfo;
 import com.driot.bookplayer.objects.AudioProber;
-import com.driot.bookplayer.objects.TaskStateManager;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingWorker;
 
@@ -55,10 +51,10 @@ public class PodcastSyncWorker extends LoggingWorker {
         if (!folder.exists() || !folder.isDirectory()) return Result.failure();
 
         AppDatabase db = AppDatabase.getDatabase(getApplicationContext());
-        FolderDao folderDao = db.FolderDao();
-        ZikFileDao zikFileDao = db.ZikFileDao();
-        PodcastDao podcastDao = db.PodcastDao();
-        EpisodeDao episodeDao = db.EpisodeDao();
+        FolderDao folderDao = db.folderDao();
+        ZikFileDao zikFileDao = db.zikFileDao();
+        PodcastDao podcastDao = db.podcastDao();
+        EpisodeDao episodeDao = db.episodeDao();
 
         // 1. Ensure folder is registered
         Folder folderDb = folderDao.getByName(name);

@@ -641,7 +641,7 @@
 
     <!-- Network download prompts -->
     <string name="download_warning_title_unmetered">Unmetered connection</string>
-    <string name="download_warning_message_unmetered">You\'re not on an unmetered connection. Continue with the download?</string>
+    <string name="download_warning_message_unmetered">You\'re not on an unmetered connection (you are on a mobile network). Continue with the download?</string>
     <string name="download_warning_title_wifi">Wi-Fi</string>
     <string name="download_warning_message_wifi">You\'re not on Wi-Fi. Continue with the download?</string>
 
@@ -651,10 +651,6 @@
     <string name="Add_to_favorite">Add to favorite</string>
     <string name="Auto_Download_episodes">Auto-Download episodes</string>
     <string name="favorites">favorites</string>
-
-    <string name="Warning">Warning</string>
-    <string name="beta_test">beta test</string>
-
 
     <string name="Download_paused_due_to_network_policy">Download paused due to network policy</string>
     <string name="Download_paused_by_user">Download paused by user</string>
@@ -909,20 +905,28 @@
     <string name="Error_Import_unsupported_file">Error : unsupported file</string>
     <string name="Error_Import_access_denied">Error : access denied</string>
 
+
+    <string name="Warning">Warning</string>
+    <string name="beta_test">beta test</string>
+
+
     <string name="action_web_search">🔎 Web search</string>
     <string name="confirm">confirm</string>
     <string name="use_this_image_as_cover">use this image as cover</string>
     <string name="search_title_hint">type here…</string>
     <string name="failed_to_change_image">Failed to change image</string>
     <string name="no_image_found">No image found</string>
+    <string name="parsing_metadata">Parsing Metadata</string>
+
+    <string name="download_not_roaming">🏠 Not roaming</string>
+    <string name="download_warning_title_roaming">Roaming connection</string>
+    <string name="download_warning_message_roaming">You are on a roaming connection (abroad). Continue with the download?</string>
     <string name="option_network_preference_subtext">
 "An unmetered connection means you’re not on mobile data (for example, Wi-Fi, Ethernet, or some VPNs).
 \nRoaming means being abroad — even hotel Wi-Fi while abroad counts as roaming."
 </string>
-    <string name="download_not_roaming">🏠 Not roaming</string>
 
-
-
+    <string name="please_wait_another_book_is_being_imported">Please wait, another book is still being imported.</string>
 
 
 

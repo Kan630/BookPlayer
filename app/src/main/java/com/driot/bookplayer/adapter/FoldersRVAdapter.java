@@ -225,7 +225,7 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
         // DB work off main; UI nav back on main
         AppDatabase.databaseReadExecutor.execute(() -> {
             try {
-                List<ZikFile> zikFilesList = AppDatabase.getDatabase(mCtx).ZikFileDao().getZikFiles(folder.getId());
+                List<ZikFile> zikFilesList = AppDatabase.getDatabase(mCtx).zikFileDao().getZikFiles(folder.getId());
                 if (zikFilesList.isEmpty()) {
                     if (Var.SOURCE_LOCATION_PODCAST.equals(folder.getSourceLocation())) {
                         if (!Option.getPodcastOpenSpecificView()) {
@@ -241,7 +241,7 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
                 if (Var.SOURCE_LOCATION_PODCAST.equals(folder.getSourceLocation())
                         && (Option.getPodcastOpenSpecificView() || (!Option.getPodcastOpenSpecificView() && zikFilesList.isEmpty()))
                 ) {
-                    Podcast p = AppDatabase.getDatabase(mCtx).PodcastDao().getPodcastByFolderId(folder.getId());
+                    Podcast p = AppDatabase.getDatabase(mCtx).podcastDao().getPodcastByFolderId(folder.getId());
                     runOnUi(() -> mCtx.startActivity(new Intent(mCtx, PodcastEpisodeActivity.class).putExtra("podcast", p)));
                 } else {
                     if (zikFilesList.size() > 1) {

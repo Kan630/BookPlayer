@@ -28,8 +28,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
@@ -85,7 +83,7 @@ public class ImageHelper {
 
             // --- 0) Migrate folder images from cached_images -> images ---
             try {
-                List<Folder> allFolders = db.FolderDao().getAll(); // you already use this elsewhere
+                List<Folder> allFolders = db.folderDao().getAll(); // you already use this elsewhere
                 for (Folder f : allFolders) {
                     String path = f.image;
                     if (path == null || path.isEmpty()) continue;
@@ -97,7 +95,7 @@ public class ImageHelper {
                     String moved = moveCachedImageToPermanent(context, path);
                     if (moved != null && !moved.equals(path)) {
                         try {
-                            db.FolderDao().updateImage(f.getId(), moved);
+                            db.folderDao().updateImage(f.getId(), moved);
                             myLogD("Folder image path updated (cache->images): id=" + f.getId() + "  " + moved);
                         } catch (Exception e) {
                             myLogEE(e, "DB update after moving cached image (folderId=" + f.getId() + ")");
@@ -110,7 +108,7 @@ public class ImageHelper {
 
 
 // --- Handle Podcast images ---
-            List<Podcast> pendingPodcasts = db.PodcastDao().getAllWithRemoteImage();
+            List<Podcast> pendingPodcasts = db.podcastDao().getAllWithRemoteImage();
             for (Podcast podcast : pendingPodcasts) {
                 String url = podcast.image;
                 if (url == null || !url.startsWith("http")) continue;
@@ -119,12 +117,12 @@ public class ImageHelper {
                 String localPath = downloadAndMaybeCompressImage(context, url, imagePath, true);
                 if (localPath != null) {
                     podcast.image = localPath;
-                    db.PodcastDao().update(podcast);
+                    db.podcastDao().update(podcast);
                 }
             }
 
 // --- Handle Folder images ---
-            List<Folder> pendingFolders = db.FolderDao().getAllWithRemoteImage();
+            List<Folder> pendingFolders = db.folderDao().getAllWithRemoteImage();
             for (Folder folder : pendingFolders) {
                 String url = folder.image;
 
@@ -141,7 +139,7 @@ public class ImageHelper {
 
                 if (localPath != null) {
                     folder.image = localPath;
-                    db.FolderDao().update(folder);
+                    db.folderDao().update(folder);
                 }
             }
         });
@@ -243,10 +241,10 @@ public class ImageHelper {
 
         // Update folder in DB
         AppDatabase.databaseWriteExecutor.execute(() -> {
-            Folder folder = AppDatabase.getDatabase(context).FolderDao().getById(folderId);
+            Folder folder = AppDatabase.getDatabase(context).folderDao().getById(folderId);
             if (folder != null) {
                 folder.image = newFile.getAbsolutePath();
-                AppDatabase.getDatabase(context).FolderDao().update(folder);
+                AppDatabase.getDatabase(context).folderDao().update(folder);
                 myLog("Folder DB updated with new image path");
             } else {
                 myLogE("Folder not found for ID: " + folderId);

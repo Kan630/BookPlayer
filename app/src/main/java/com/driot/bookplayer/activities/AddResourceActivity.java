@@ -14,10 +14,9 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.helpers.InsetHelper;
+import com.driot.bookplayer.imports.ImportHelper;
 import com.driot.bookplayer.objects.AppViewModelStoreOwner;
-import com.driot.bookplayer.objects.TaskStateManager;
 import com.driot.bookplayer.objects.TaskStateRepository;
-import com.driot.bookplayer.objects.WorkFlow;
 import com.driot.bookplayer.services.DownloadControl;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
@@ -124,9 +123,9 @@ public class AddResourceActivity extends LoggingActivity {
 
     private void performCancel() {
         myLogI("------ USER CLICKS btn CANCEL ----");
-        TaskStateManager.markTaskCancelled(getString(R.string.importing_book));
+        ImportHelper.cancelCurrentImport(this);
         enterExitMode();
-        WorkFlow.cancelAllOngoingTasks(this);
+        //WorkFlow.cancelAllOngoingTasks(this);
     }
 
     private void checkAndClose() {
@@ -161,7 +160,6 @@ public class AddResourceActivity extends LoggingActivity {
         delayedFinishHandler = new Handler();
         delayedFinishRunnable = () -> {
             myToast(getString(R.string.Import_Success) + "\n" + tvTitle.getText());
-            WorkFlow.cancelAllOngoingTasks(this);
             startActivity(new Intent(this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK));
             finish();
         };
@@ -193,4 +191,6 @@ public class AddResourceActivity extends LoggingActivity {
             myLog("Delayed finish runnable cancelled in onPause()");
         }
     }
+
+
 }

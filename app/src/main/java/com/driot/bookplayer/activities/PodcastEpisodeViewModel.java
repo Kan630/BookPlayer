@@ -26,9 +26,9 @@ public class PodcastEpisodeViewModel extends LoggingAndroidViewModel {
     public PodcastEpisodeViewModel(@NonNull Application application) {
         super(application);
         AppDatabase db = AppDatabase.getDatabase(application);
-        zikFileDao = db.ZikFileDao();
-        episodeDao = db.EpisodeDao();
-        podcastDao = db.PodcastDao();
+        zikFileDao = db.zikFileDao();
+        episodeDao = db.episodeDao();
+        podcastDao = db.podcastDao();
     }
 
 

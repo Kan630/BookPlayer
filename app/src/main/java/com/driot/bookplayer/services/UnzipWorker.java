@@ -17,9 +17,8 @@ import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
+import com.driot.bookplayer.imports.ImportWorker;
 import com.driot.bookplayer.objects.LoadBookTaskState;
-import com.driot.bookplayer.objects.TaskStateManager;
-import com.driot.bookplayer.utils.log.LoggingWorker;
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -28,7 +27,7 @@ import java.util.Enumeration;
 import java.util.Locale;
 import java.util.zip.*;
 
-public class UnzipWorker extends LoggingWorker {
+public class UnzipWorker extends ImportWorker {
 
     private static final String TASK_NAME = Var.WORKER_TASK_LABEL_UNZIP;
 
@@ -44,7 +43,7 @@ public class UnzipWorker extends LoggingWorker {
 
         LoadBookTaskState bookState = Pref.getLoadBookTaskState();
         if (bookState == null) {
-            TaskStateManager.markTaskFailed(TASK_NAME, "bookState == null", getApplicationContext().getString(R.string.invalid_resource));
+            emitFailed(TASK_NAME, "bookState == null", getApplicationContext().getString(R.string.invalid_resource));
             return Result.failure();
         }
 
@@ -56,7 +55,7 @@ public class UnzipWorker extends LoggingWorker {
         myLogD("----------------------------------------------------");
 
         if (zipFilePath == null || destinationFolderPath == null) {
-            TaskStateManager.markTaskFailed(TASK_NAME, "Missing input data", getApplicationContext().getString(R.string.invalid_resource));
+            emitFailed(TASK_NAME, "Missing input data", getApplicationContext().getString(R.string.invalid_resource));
             return Result.failure();
         }
 
@@ -64,12 +63,12 @@ public class UnzipWorker extends LoggingWorker {
         File unzipFolder = new File(destinationFolderPath);
 
         if (!zipFile.exists()) {
-            TaskStateManager.markTaskFailed(TASK_NAME, "Zip file not found", getApplicationContext().getString(R.string.invalid_resource));
+            emitFailed(TASK_NAME, "Zip file not found", getApplicationContext().getString(R.string.invalid_resource));
             return Result.failure();
         }
 
         if (!unzipFolder.exists() && !unzipFolder.mkdirs()) {
-            TaskStateManager.markTaskFailed(TASK_NAME, "Could not create destination folder", getApplicationContext().getString(R.string.failed_to_create_destination_folder));
+            emitFailed(TASK_NAME, "Could not create destination folder", getApplicationContext().getString(R.string.failed_to_create_destination_folder));
             return Result.failure();
         }
 
@@ -108,7 +107,7 @@ public class UnzipWorker extends LoggingWorker {
 
                 while (ze != null) {
                     if (isStopped()) {
-                        TaskStateManager.markTaskCancelled(TASK_NAME);
+                        emitCancelled(TASK_NAME);
                         return Result.failure();
                     }
 
@@ -127,11 +126,11 @@ public class UnzipWorker extends LoggingWorker {
                         int progress = (int) ((double) numCurZip / nbZip * 100);
                         String progressText = getApplicationContext().getString(R.string.Import_Progress_unzipping_file) + numCurZip + "/" + nbZip + "\n" + audioFileName;
 
-                        TaskStateManager.tellProgress(TASK_NAME, progress, progressText);
+                        emitStepProgress(TASK_NAME, progress, progressText);
 
                         File unzippedFile = new File(unzipFolder, audioFileName);
                         if (!(unzippedFile.getParentFile() == null) && !unzippedFile.getParentFile().exists() && !unzippedFile.getParentFile().mkdirs()) {
-                            TaskStateManager.markTaskFailed(TASK_NAME, "Failed to create output dir: " + unzippedFile, getApplicationContext().getString(R.string.failed_to_create_destination_folder));
+                            emitFailed(TASK_NAME, "Failed to create output dir: " + unzippedFile, getApplicationContext().getString(R.string.failed_to_create_destination_folder));
                             return Result.failure();
                         }
 
@@ -139,7 +138,7 @@ public class UnzipWorker extends LoggingWorker {
                             int count;
                             while ((count = zis.read(buffer)) != -1) {
                                 if (isStopped()) {
-                                    TaskStateManager.markTaskCancelled(TASK_NAME);
+                                    emitCancelled(TASK_NAME);
                                     return Result.failure();
                                 }
                                 fout.write(buffer, 0, count);
@@ -173,7 +172,7 @@ public class UnzipWorker extends LoggingWorker {
                 }
             }
 
-            TaskStateManager.markUnzipCompleted(TASK_NAME, destinationFolderPath);
+            emitTaskCompleted(TASK_NAME, destinationFolderPath);
             return Result.success();
 
         } catch (Exception e) {
@@ -189,10 +188,10 @@ public class UnzipWorker extends LoggingWorker {
                 myLogEE(e, "splitM4bLocal - disk full (ENOSPC)");
                 String userMsg = context.getString(R.string.error_no_space_left)
                         + "\n\n" + context.getString(R.string.solution_free_space);
-                TaskStateManager.tellWarning(userMsg);
-                TaskStateManager.markTaskFailed(TASK_NAME, "No space left on device", context.getString(R.string.error_no_space_left));
+                emitWarning(userMsg);
+                emitFailed(TASK_NAME, "No space left on device", context.getString(R.string.error_no_space_left));
             } else {
-                TaskStateManager.markTaskFailed(TASK_NAME, e.getMessage(), null);
+                emitFailed(TASK_NAME, e.getMessage(), null);
             }
             FileHelper.recursiveRemove(unzipFolder);
             return Result.failure();

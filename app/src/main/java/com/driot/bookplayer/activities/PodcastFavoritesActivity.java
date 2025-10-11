@@ -66,7 +66,7 @@ public class PodcastFavoritesActivity extends LoggingActivity {
                 (item, newState) -> {
                     AppDatabase.databaseWriteExecutor.execute(() -> {
                         AppDatabase.getDatabase(this)
-                                .PodcastDao()
+                                .podcastDao()
                                 .updateAutoDownloadStatus_fromFeedId(item.feedId, newState);
                         PodcastHelper.checkForNewEpisodesToAutoDownloadForPodcast(this, item, PODCASTINDEXORG_SINCE);
                     });

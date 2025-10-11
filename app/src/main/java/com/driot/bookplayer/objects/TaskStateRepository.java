@@ -108,7 +108,7 @@ public final class TaskStateRepository extends LoggerHelper {
     }
 
     public synchronized void finish(@NonNull String progressText) {
-        post(s().finished(progressText));
+        post(s().success(progressText));
     }
 
     public synchronized void error(@NonNull String message, @NonNull String progressText) {

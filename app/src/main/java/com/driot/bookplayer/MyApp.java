@@ -20,7 +20,6 @@ import com.driot.bookplayer.utils.ComponentUtils;
 import com.driot.bookplayer.utils.InAppMsgManager;
 import com.driot.bookplayer.helpers.LocaleHelper;
 import com.driot.bookplayer.objects.BookToAdd;
-import com.driot.bookplayer.objects.TaskStateManager;
 import com.driot.bookplayer.services.InAppPeriodicTaskManager;
 import com.driot.bookplayer.utils.KanLogger;
 
@@ -46,7 +45,6 @@ public class MyApp extends Application {
         BookToAdd.init(getApplicationContext());
         Option.init(getApplicationContext());
         Pref.init(getApplicationContext());
-        TaskStateManager.init(getApplicationContext());
         FirebaseAnalyticsHelper.init(getApplicationContext());
 
         myLog("oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo");

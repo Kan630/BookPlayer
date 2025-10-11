@@ -21,8 +21,8 @@ public class CleanMemoryRepository {
 
     public CleanMemoryRepository(Application application) {
         AppDatabase db = AppDatabase.getDatabase(application);
-        zikFileDao = db.ZikFileDao();
-        folderDao = db.FolderDao();
+        zikFileDao = db.zikFileDao();
+        folderDao = db.folderDao();
         executorService = Executors.newSingleThreadExecutor();
     }
 

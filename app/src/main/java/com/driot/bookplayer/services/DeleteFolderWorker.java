@@ -74,31 +74,31 @@ public class DeleteFolderWorker extends LoggingWorker {
             Context appCtx = getApplicationContext();
             AppDatabase db = AppDatabase.getDatabase(appCtx);
 
-            String folderPath = db.ZikFileDao().getFolderPath((int) folderId);
+            String folderPath = db.zikFileDao().getFolderPath((int) folderId);
             if (!eraseFolderAndFiles(appCtx, folderPath)) {
                 myLogEE(null, "Disk delete error");
             } else {
                 myLogD("Disk delete done");
             }
 
-            Podcast podcast = db.PodcastDao().getPodcastByFolderId(folderId);
+            Podcast podcast = db.podcastDao().getPodcastByFolderId(folderId);
             if (podcast == null) {
-                Folder f = db.FolderDao().getById(folderId); // ensure DAO exists
+                Folder f = db.folderDao().getById(folderId); // ensure DAO exists
                 if (f != null) ImageHelper.deleteImage(appCtx, f);
             }
 
-            List<ZikFile> zikFileList = db.ZikFileDao().getZikFiles(folderId);
+            List<ZikFile> zikFileList = db.zikFileDao().getZikFiles(folderId);
             for (ZikFile zikFile : zikFileList) {
-                Episode episode = db.EpisodeDao().getByZikFileId(zikFile.getId());
+                Episode episode = db.episodeDao().getByZikFileId(zikFile.getId());
                 if (episode != null) {
                     episode.date_delete = System.currentTimeMillis();
-                    db.EpisodeDao().update(episode);
+                    db.episodeDao().update(episode);
                     myLogD("Podcast Episode date deleted set for " + episode.title);
                 }
             }
 
-            db.FolderDao().delete((int) folderId);
-            db.ZikFileDao().deleteAllZikFilesInFolder((int) folderId);
+            db.folderDao().delete((int) folderId);
+            db.zikFileDao().deleteAllZikFilesInFolder((int) folderId);
             com.driot.bookplayer.helpers.PodcastHelper.cancelAutoDownload(appCtx,(int) folderId);
 
             myLog("delete finished");

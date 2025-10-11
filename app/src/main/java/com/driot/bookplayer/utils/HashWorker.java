@@ -7,12 +7,10 @@ import android.provider.DocumentsContract;
 import androidx.annotation.NonNull;
 import androidx.documentfile.provider.DocumentFile;
 import androidx.work.Data;
-import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
-import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.utils.log.LoggingWorker;
 
 import java.io.File;
@@ -52,7 +50,7 @@ public class HashWorker extends LoggingWorker {
         try {
             Uri uri = Uri.parse(uriStr);
             String hash = computeHashFromUri(getApplicationContext(), uri);
-            boolean exists = AppDatabase.getDatabase(getApplicationContext()).FolderDao().hashExists(hash);
+            boolean exists = AppDatabase.getDatabase(getApplicationContext()).folderDao().hashExists(hash);
 
             Data outputData = new Data.Builder()
                     .putString(WORKER_TAG_COMPUTE_HASH, hash)
@@ -68,7 +66,7 @@ public class HashWorker extends LoggingWorker {
 
     private Result backfillMissingHashesInDb() {
         AppDatabase db = AppDatabase.getDatabase(getApplicationContext());
-        List<Folder> folders = db.FolderDao().getAll();
+        List<Folder> folders = db.folderDao().getAll();
 
         for (Folder folder : folders) {
             if (HASH_NOT_COMPUTED.equals(folder.getHash())) {
@@ -76,7 +74,7 @@ public class HashWorker extends LoggingWorker {
                     myLogD("Hashing folder: " + folder.getPath());
                     File dir = new File(folder.getPath());
                     String hash = computeFolderHash(dir);
-                    db.FolderDao().updateHash(folder.getId(), hash);
+                    db.folderDao().updateHash(folder.getId(), hash);
                 } catch (Exception e) {
                     myLogEE(e, "Exception while hashing folder: " + folder.getPath());
                 }

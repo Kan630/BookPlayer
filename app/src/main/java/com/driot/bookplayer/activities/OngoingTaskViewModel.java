@@ -3,11 +3,13 @@ package com.driot.bookplayer.activities;
 import android.app.Application;
 
 import androidx.annotation.NonNull;
-import androidx.lifecycle.AndroidViewModel;
+import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 
-import com.driot.bookplayer.objects.TaskStateRepository;
+import com.driot.bookplayer.db.AppDatabase;
+import com.driot.bookplayer.imports.ImportJob;
+import com.driot.bookplayer.imports.ImportUiMapper;
 import com.driot.bookplayer.objects.TaskUiState;
 import com.driot.bookplayer.utils.log.LoggingAndroidViewModel;
 
@@ -36,13 +38,17 @@ public class OngoingTaskViewModel extends LoggingAndroidViewModel {
         errorText.setValue(null);
         finished.setValue(false);
 
-        taskTitle.addSource(TaskStateRepository.get().state(), this::map);
+        AppDatabase db = AppDatabase.getInstance(app);
+        LiveData<ImportJob> src = db.importJobDao()
+                .observeCurrentActive(ImportJob.S_RUNNING, ImportJob.S_QUEUED, ImportJob.S_PAUSED);
+
+        taskTitle.addSource(src, job -> mapToUi(job));
     }
 
-    private void map(TaskUiState s) {
-        if (s == null) s = TaskUiState.idle();
-        taskTitle.setValue(s.title == null ? "" : s.title);
-        progressText.setValue(s.progressText == null ? "" : s.progressText);
+    private void mapToUi(@Nullable ImportJob job) {
+        TaskUiState s = (job == null) ? TaskUiState.idle() : ImportUiMapper.toUi(job);
+        taskTitle.setValue(s.title);
+        progressText.setValue(s.progressText);
         progressPct.setValue(s.progressPercent);
         running.setValue(s.running);
         pauseAvail.setValue(s.pauseAvailable);

@@ -244,8 +244,8 @@ public class PodcastHelper {
 
         AppDatabase.databaseWriteExecutor.execute(() -> {
             AppDatabase db = AppDatabase.getDatabase(context);
-            ZikFileDao zikFileDao = db.ZikFileDao();
-            EpisodeDao episodeDao = db.EpisodeDao();
+            ZikFileDao zikFileDao = db.zikFileDao();
+            EpisodeDao episodeDao = db.episodeDao();
 
             List<ZikFile> filesToDelete = zikFileDao.getListenedPodcastEpisodesToDelete(percent, thresholdTime);
             long deleteListSize = filesToDelete.size();
@@ -322,7 +322,7 @@ public class PodcastHelper {
             return;
         }
         AppDatabase.databaseWriteExecutor.execute(() -> {
-            List<Podcast> autoList = AppDatabase.getDatabase(context).PodcastDao().getAutoDownloads();
+            List<Podcast> autoList = AppDatabase.getDatabase(context).podcastDao().getAutoDownloads();
             int i=0;
             for (Podcast podcast : autoList) {
                 i=i+1;
@@ -368,7 +368,7 @@ public class PodcastHelper {
                 if (!newEpisodes.isEmpty()) {
                     AppDatabase.databaseWriteExecutor.execute(() -> {  //maybe Executors.newSingleThreadExecutor() will be better, or some background thread
                         List<Episode> toSave = PodcastHelper.convertToEpisodes(podcastEpisodes, podcast.getId());
-                        AppDatabase.getDatabase(context).EpisodeDao().insertAll(toSave);
+                        AppDatabase.getDatabase(context).episodeDao().insertAll(toSave);
                         PodcastDownloadManager.enqueueDownloads(context, podcast.feedId, newEpisodes, podcastFolder, null);
                     });
                 }
@@ -386,12 +386,12 @@ public class PodcastHelper {
 
     public static void cancelAutoDownload(Context c, int folderId) {
         AppDatabase.databaseWriteExecutor.execute(() -> {
-            AppDatabase.getDatabase(c).PodcastDao().updateAutoDownloadStatus_fromFolderId(folderId, false);
+            AppDatabase.getDatabase(c).podcastDao().updateAutoDownloadStatus_fromFolderId(folderId, false);
         });
     }
 
     public static void addPodcastToDB(Context context, PodcastFeed podcastFeed) {
-        Podcast podcast = AppDatabase.getDatabase(context).PodcastDao().getPodcastByFeedId(podcastFeed.id);
+        Podcast podcast = AppDatabase.getDatabase(context).podcastDao().getPodcastByFeedId(podcastFeed.id);
         if (podcast == null) {
             podcast = new Podcast();
             podcast.source = Var.PODCAST_SOURCE;
@@ -402,7 +402,7 @@ public class PodcastHelper {
             podcast.description = podcastFeed.description;
             podcast.isFavorite = false;
             podcast.autoDownload = false;
-            AppDatabase.getDatabase(context).PodcastDao().insert(podcast);
+            AppDatabase.getDatabase(context).podcastDao().insert(podcast);
             myLogD("Podcast added to DB: " + podcast.feedId + " " + podcast.title);
         }
     }
@@ -444,7 +444,7 @@ public class PodcastHelper {
     private static void updateLastCheck(Context context, long feedId) {
         // update lastCheck in table for that podcast
         AppDatabase.databaseWriteExecutor.execute(() -> {
-            AppDatabase.getDatabase(context).PodcastDao().updateLastCheck(
+            AppDatabase.getDatabase(context).podcastDao().updateLastCheck(
                     feedId,
                     System.currentTimeMillis()
             );
@@ -453,7 +453,7 @@ public class PodcastHelper {
     public static void updateSortNewestTop(Context context, long feedId, boolean sortNewestTop) {
         myLogD("update SortNewestTop in table for that podcast (" + feedId + ") -- SortNewestTop = " + sortNewestTop);
         AppDatabase.databaseWriteExecutor.execute(() -> {
-            AppDatabase.getDatabase(context).PodcastDao().updateSortNewestTop(
+            AppDatabase.getDatabase(context).podcastDao().updateSortNewestTop(
                     feedId,
                     sortNewestTop ? 1 : 0
             );

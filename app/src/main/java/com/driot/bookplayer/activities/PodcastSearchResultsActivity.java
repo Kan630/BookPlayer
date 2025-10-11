@@ -64,7 +64,7 @@ public class PodcastSearchResultsActivity extends LoggingActivity {
         myLogD("hello");
         adapter = new PodcastSearchResultsRVAdapter(podcastFeed -> {
             AppDatabase.databaseWriteExecutor.execute(() -> {
-                PodcastDao dao = AppDatabase.getDatabase(this).PodcastDao();
+                PodcastDao dao = AppDatabase.getDatabase(this).podcastDao();
                 podcast = dao.getPodcastByFeedId(podcastFeed.id);
                 if (podcast == null) {
                     podcast = PodcastHelper.fromPodcastFeed(podcastFeed);

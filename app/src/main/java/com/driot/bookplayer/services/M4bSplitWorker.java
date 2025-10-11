@@ -9,14 +9,11 @@ import androidx.work.WorkerParameters;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
-import com.driot.bookplayer.helpers.AudioMetadataHelper;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
+import com.driot.bookplayer.imports.ImportWorker;
 import com.driot.bookplayer.objects.AudioInfo;
 import com.driot.bookplayer.objects.AudioProber;
 import com.driot.bookplayer.objects.LoadBookTaskState;
-import com.driot.bookplayer.objects.MyAudioMetadata;
-import com.driot.bookplayer.objects.TaskStateManager;
-import com.driot.bookplayer.utils.log.LoggingWorker;
 import com.googlecode.mp4parser.authoring.Movie;
 import com.googlecode.mp4parser.authoring.Sample;
 import com.googlecode.mp4parser.authoring.Track;
@@ -33,7 +30,7 @@ import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.util.*;
 
-public class M4bSplitWorker extends LoggingWorker {
+public class M4bSplitWorker extends ImportWorker {
 
     private static final String TASK_NAME = Var.WORKER_TASK_LABEL_SPLIT_M4B;
 
@@ -46,7 +43,7 @@ public class M4bSplitWorker extends LoggingWorker {
     public Result doWork() {
         LoadBookTaskState bookState = Pref.getLoadBookTaskState();
         if (bookState == null) {
-            TaskStateManager.markTaskFailed(TASK_NAME, "bookState == null", getApplicationContext().getString(R.string.invalid_resource));
+            emitFailed(TASK_NAME, "bookState == null", getApplicationContext().getString(R.string.invalid_resource));
             return Result.failure();
         }
 
@@ -58,7 +55,7 @@ public class M4bSplitWorker extends LoggingWorker {
         myLog("destinationFolderPath = " + destinationFolderPath);
 
         if (m4bFilePath == null || destinationFolderPath == null) {
-            TaskStateManager.markTaskFailed(TASK_NAME, "Missing input data for M4bSplitWorker", getApplicationContext().getString(R.string.invalid_resource));
+            emitFailed(TASK_NAME, "Missing input data for M4bSplitWorker", getApplicationContext().getString(R.string.invalid_resource));
             myLogEE(null,"Missing input data for M4bSplitWorker");
             return Result.failure();
         }
@@ -74,7 +71,7 @@ public class M4bSplitWorker extends LoggingWorker {
         File m4bFile = new File(m4bFilePath);
 
 // METADATA
-        TaskStateManager.tellProgressText("Parsing Metadata");
+        emitTextOnlyProgress(getApplicationContext().getString(R.string.parsing_metadata));
         try {
             // don't remove stuff is done in class for image
             // MyAudioMetadata metadata = AudioMetadataHelper.extractMetadata(context, new File(m4bFilePath));
@@ -98,7 +95,7 @@ public class M4bSplitWorker extends LoggingWorker {
 
             for (Track track : movie.getTracks()) {
                 if (isStopped()) {
-                    TaskStateManager.markTaskCancelled(TASK_NAME);
+                    emitCancelled(TASK_NAME);
                     return false;
                 }
                 if ("soun".equals(track.getHandler()) && track.getSampleDescriptionBox().getSampleEntry().getType().equals("mp4a")) {
@@ -134,7 +131,7 @@ public class M4bSplitWorker extends LoggingWorker {
             long chapterTime = 0;
             for (int c = 0; c < chapterSamples.size(); c++) {
                 if (isStopped()) {
-                    TaskStateManager.markTaskCancelled(TASK_NAME);
+                    emitCancelled(TASK_NAME);
                     return false;
                 }
                 String title = extractCleanChapterTitle(chapterSamples.get(c));
@@ -157,13 +154,13 @@ public class M4bSplitWorker extends LoggingWorker {
                 double progress = (double) (c + 1) / chapterSamples.size() * 100;
                 String text = context.getString(R.string.Import_Progress_splitting_m4b_file)
                         + (c + 1) + "/" + chapterSamples.size() + "\n\n" + title;
-                TaskStateManager.tellProgress(TASK_NAME, (int) progress, text);
+                emitStepProgress(TASK_NAME, (int) progress, text);
                 myLogD((int) progress + "% - " + text.replace("\n"," - "));
 
                 FileOutputStream fos = new FileOutputStream(new File(outputFolder, filename));
                 for (int i = startSample; i < endSample && i < audioSamples.size(); i++) {
                     if (isStopped()) {
-                        TaskStateManager.markTaskCancelled(TASK_NAME);
+                        emitCancelled(TASK_NAME);
                         return false;
                     }
                     ByteBuffer buffer = audioSamples.get(i).asByteBuffer();
@@ -178,10 +175,10 @@ public class M4bSplitWorker extends LoggingWorker {
 
             if (!m4bFile.delete()) {
                 myLogE("Error Deleting source M4B file after split.");
-                TaskStateManager.tellWarning("Error Deleting source M4B file after split.");
+                emitWarning("Error Deleting source M4B file after split.");
             }
 
-            TaskStateManager.markM4bSplitCompleted(TASK_NAME, outputFolder.getAbsolutePath());
+            emitTaskCompleted(TASK_NAME, outputFolder.getAbsolutePath());
             return true;
 
         } catch (Exception e) {
@@ -196,17 +193,17 @@ public class M4bSplitWorker extends LoggingWorker {
                 myLogEE(e, "splitM4bLocal - disk full (ENOSPC)");
                 String userMsg = context.getString(R.string.error_no_space_left)
                         + "\n\n" + context.getString(R.string.solution_free_space);
-                TaskStateManager.tellWarning(userMsg);
-                TaskStateManager.markTaskFailed(TASK_NAME, "No space left on device", context.getString(R.string.error_no_space_left));
+                emitWarning(userMsg);
+                emitFailed(TASK_NAME, "No space left on device", context.getString(R.string.error_no_space_left));
                 return false;
             }
 
             myLogEE(e, "splitM4bLocal");
-            TaskStateManager.tellWarning(context.getString(R.string.Import_Experimental_M4B_warning)
+            emitWarning(context.getString(R.string.Import_Experimental_M4B_warning)
                     + "\n\n" + context.getString(R.string.Import_Experimental_M4B_iferror)
                     + ", " + context.getString(R.string.Import_Experimental_M4B_solution_1)
                     + "\n" + context.getString(R.string.Import_Experimental_M4B_solution_2));
-            TaskStateManager.markTaskFailed(TASK_NAME, e.getMessage(), null);
+            emitFailed(TASK_NAME, e.getMessage(), null);
             return false;
         }
     }
