@@ -47,11 +47,12 @@ import java.util.Objects;
 
 public class LoadBookActivity extends LoggingActivity {
 
-    public static final String EXTRA_URI = "uri";
-    public static final String EXTRA_TYPE = "type";  // File or Folder
+    public static final String EXTRA_URI = "EXTRA_URI";
+    public static final String EXTRA_TYPE = "EXTRA_TYPE";  // File or Folder
+    public static final String EXTRA_FORCE_COPY = "EXTRA_FORCE_COPY";  // from OpenWithProxy...
 
     private Uri uri;
-    private String gotten_type;
+    boolean forceCopy;
     private BookToAdd bookToAdd;
 
     private String audioBookTitle; // name can be changed... so keep as separate var
@@ -75,18 +76,21 @@ public class LoadBookActivity extends LoggingActivity {
         InsetHelper.apply(this);
 
         uri = getIntent().getParcelableExtra(EXTRA_URI);
-        gotten_type = Objects.toString(getIntent().getStringExtra(EXTRA_TYPE),"");
+        String gotten_type = Objects.toString(getIntent().getStringExtra(EXTRA_TYPE), "");
+        forceCopy =  getIntent().getBooleanExtra(EXTRA_FORCE_COPY,false);
 
-        if (
-                !(gotten_type.equals("File") || gotten_type.equals("Folder") || gotten_type.equals("Podcast"))
-        ) {
-            myToastE("Error picking audio - unsupported type : [" + gotten_type + "]");
+        if (!(
+                gotten_type.equals("File")
+                || gotten_type.equals("Folder")
+                || gotten_type.equals("Podcast")
+        )) {
+            myToastEE(null,"Error picking audio - unsupported type : [" + gotten_type + "]");
             finish();
             return;
         }
 
         if (Objects.isNull(uri)) {
-            myToastE("Error picking audio : [uri is null]");
+            myToastEE(null,"Error picking audio : [uri is null]");
             finish();
             return;
         }
@@ -164,7 +168,11 @@ public class LoadBookActivity extends LoggingActivity {
         llDelete.setOnClickListener(v -> cbDelete.toggle());
 
         cbSplit.setChecked(Option.getSplitM4b());
-        cbCopy.setChecked(Option.getCopyFile());
+        if (forceCopy) {
+            cbCopy.setChecked(true);
+        } else {
+            cbCopy.setChecked(Option.getCopyFile());
+        }
         cbUseSdCard.setChecked(Option.getUseSdCard());
         cbDelete.setChecked(Option.getDeleteSourceFile());
 
@@ -348,7 +356,10 @@ public class LoadBookActivity extends LoggingActivity {
             llCopy.setAlpha(0.4f);
         }
 
-        if (bookToAdd.getSourceLocation().equals("cloud") || bookToAdd.getSourceLocation().equals("web")) {
+        if (bookToAdd.getSourceLocation().equals("cloud")
+                || bookToAdd.getSourceLocation().equals("web")
+                || forceCopy
+        ) {
             cbCopy.setChecked(true);
             cbCopy.setEnabled(false);
             llCopy.setEnabled(false);

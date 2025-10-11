@@ -115,7 +115,7 @@ public class ParseFinalFolderWorker extends LoggingWorker {
             boolean isFolderComputed = UriHelper.isFolder(context, bookState.dynamicUri);
             myLogD("isFolderComputed : " + isFolderComputed);
             myLogD("original Type : " + bookState.originalType);
-            myLogD("dynamic Type : " + bookState.dynamicType);
+            myLogD("dynamic Type : " + bookState.dynamicType + "   <--- we check that");
             myLogD("dynamic Uri : " + bookState.dynamicUri);
 
 
@@ -124,11 +124,11 @@ public class ParseFinalFolderWorker extends LoggingWorker {
                     df = UriHelper.getDocumentFileFromAnyUri(context, bookState.dynamicUri);
                 } catch (Exception e) {
                     myLogEE(e,"Error reading Folder Uri...." + bookState.dynamicUri);
-                    TaskStateManager.markTaskFailed(TASK_NAME, "Error_Import_CannotReadFolder", context.getString(R.string.Error_Import_CannotReadFolder));
+                    TaskStateManager.markTaskFailed(TASK_NAME, "Error_Import_CannotReadFolder_exception", context.getString(R.string.Error_Import_CannotReadFolder));
                     return Result.failure();
                 }
                 if (df == null) {
-                    TaskStateManager.markTaskFailed(TASK_NAME, "Error_Import_CannotReadFolder", context.getString(R.string.Error_Import_CannotReadFolder));
+                    TaskStateManager.markTaskFailed(TASK_NAME, "Error_Import_CannotReadFolder_null", context.getString(R.string.Error_Import_CannotReadFolder));
                     return Result.failure();
                 }
                 populateArrayListOfTracksFromFolder(df);
@@ -139,11 +139,11 @@ public class ParseFinalFolderWorker extends LoggingWorker {
                     df = UriHelper.getDocumentFileFromAnyUri(context, bookState.dynamicUri);
                 } catch (Exception e) {
                     myLogEE(e,"Error reading File Uri.... " + bookState.dynamicUri);
-                    TaskStateManager.markTaskFailed(TASK_NAME, "Error_Import_CannotReadFile", context.getString(R.string.Error_Import_CannotReadFile));
+                    TaskStateManager.markTaskFailed(TASK_NAME, "Error_Import_CannotReadFile_exception", context.getString(R.string.Error_Import_CannotReadFile));
                     return Result.failure();
                 }
                 if (df == null) {
-                    TaskStateManager.markTaskFailed(TASK_NAME, "Error_Import_CannotReadFile", context.getString(R.string.Error_Import_CannotReadFile));
+                    TaskStateManager.markTaskFailed(TASK_NAME, "Error_Import_CannotReadFile_null", context.getString(R.string.Error_Import_CannotReadFile));
                     return Result.failure();
                 }
             /*

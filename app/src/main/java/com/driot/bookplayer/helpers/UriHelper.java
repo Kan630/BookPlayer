@@ -3,6 +3,7 @@ package com.driot.bookplayer.helpers;
 import static com.driot.bookplayer.utils.Tonio.fileExists;
 
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
@@ -480,6 +481,22 @@ public class UriHelper {
             myLogEE(t, "resolvePlayableUri");
             return null;
         }
+    }
+    public static boolean checkLongTermReadable(Context ctx, Uri src) {
+        // Try to persist; if it succeeds, just return src.
+        try {
+            ctx.getContentResolver().takePersistableUriPermission(
+                    src, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            myLog("persisting permission for uri [" + src + "]");
+            return true; // persistable → good
+        } catch (SecurityException e) {
+            myLogW("could not persist permission for uri [" + src + "] - " + e.getMessage());
+            return false;
+        } catch (Exception e) {
+            myLogW("Exception while checking persisted permission for uri [" + src + "] - " + e.getMessage());
+            return false;
+        }
+
     }
 
 }
