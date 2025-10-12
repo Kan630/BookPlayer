@@ -36,12 +36,12 @@ public class ImportJob {
     public String fileExtension;
     public String mimeType;
 
-
     public String imagePath;
     public String progressText;
     public int progressPercent;
 
     public boolean isLoadingPaused;       // UI pause flag
+    public boolean isPauseAvailable;
     public String currentOperation;
 
     public String downloadFileUrl;
@@ -67,7 +67,9 @@ public class ImportJob {
     public String uniqueChainName;
 
     // --- Control / lifecycle ---
-    public String status;                 // QUEUED/RUNNING/SUCCEEDED/FAILED/CANCELLED/PAUSED
+    public String status;// QUEUED/RUNNING/SUCCEEDED/FAILED/CANCELLED/PAUSED
+    public boolean hasBeenShown;   //TODO remove
+    public boolean showToUser;
     public long createdAt;
     public long updatedAt;
     public String warningText;

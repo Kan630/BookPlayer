@@ -1,4 +1,4 @@
-package com.driot.bookplayer.objects;
+package com.driot.bookplayer.imports;
 
 import android.content.Context;
 import android.net.Uri;
@@ -12,6 +12,8 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
+import com.driot.bookplayer.objects.LoadBookTaskState;
+
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 import java.util.LinkedHashMap;

@@ -5,8 +5,8 @@ import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentat
 import androidx.annotation.Nullable;
 import androidx.lifecycle.Observer;
 
-import com.driot.bookplayer.objects.TaskStateRepository;
-import com.driot.bookplayer.objects.TaskUiState;
+import com.driot.bookplayer.imports.TaskStateRepository;
+import com.driot.bookplayer.imports.TaskUiState;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;

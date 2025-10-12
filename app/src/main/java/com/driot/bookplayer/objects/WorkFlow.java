@@ -1,7 +1,7 @@
 /*
 package com.driot.bookplayer.objects;
 
-import static com.driot.bookplayer.services.BookLoadingWorkLauncher.BOOK_LOADING_WORKERS;
+import static com.driot.bookplayer.imports.BookLoadingWorkLauncher.BOOK_LOADING_WORKERS;
 
 import android.content.Context;
 

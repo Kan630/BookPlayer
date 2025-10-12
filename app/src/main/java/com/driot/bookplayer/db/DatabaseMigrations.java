@@ -254,6 +254,7 @@ public class DatabaseMigrations {
                             " `progressPercent` INTEGER NOT NULL DEFAULT 0," +
 
                             " `isLoadingPaused` INTEGER NOT NULL DEFAULT 0," +
+                            " `isPauseAvailable` INTEGER NOT NULL DEFAULT 0," +  //ADDED
                             " `currentOperation` TEXT," +
 
                             " `downloadFileUrl` TEXT," +
@@ -294,5 +295,24 @@ public class DatabaseMigrations {
             db.execSQL("CREATE INDEX IF NOT EXISTS `index_ImportJob_status` ON `ImportJob`(`status`)");
         }
     };
-
+    static final Migration MIGRATION_16_17 = new Migration(16, 17) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase db) {
+            myLogI("Migration -> executing step 16 => 17"); // 2025-10-06
+            db.execSQL("ALTER TABLE ImportJob ADD COLUMN isPauseAvailable INTEGER NOT NULL DEFAULT 0");
+        }
+    };
+    static final Migration MIGRATION_17_18 = new Migration(17, 18) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase db) {
+            myLogI("Migration -> executing step 17 => 18"); // 2025-10-06
+            db.execSQL("ALTER TABLE ImportJob ADD COLUMN hasBeenShown INTEGER NOT NULL DEFAULT 0");
+        }
+    };
+    static final Migration MIGRATION_18_19 = new Migration(18, 19) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase db) {
+            db.execSQL("ALTER TABLE ImportJob ADD COLUMN showToUser INTEGER NOT NULL DEFAULT 0");
+        }
+    };
 }

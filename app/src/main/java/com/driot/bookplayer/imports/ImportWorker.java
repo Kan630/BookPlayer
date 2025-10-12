@@ -32,15 +32,13 @@ public abstract class ImportWorker extends LoggingWorker {
 
     /** Step-scoped progress: converts 0..100 for a step into global % and writes Room. */
     protected void emitStepProgress(String stepKey, int stepPercent, String text) {
-        myLog("emitStepProgress " + stepKey + " - " + stepPercent + " - " + text);
         ImportJob j = jobOrFail();
         int global = ImportProgressWeigher.toGlobalPercent(j, stepKey, stepPercent);
-        repo.setStatus(importId, ImportJob.S_RUNNING, text);
         repo.setProgress(importId, text, global);
+        // Worker internal logic can hold progress...
         //setProgressAsync(new Data.Builder().putInt("progressPercent", global).putString("progressText", text).build());
     }
     protected void emitTextOnlyProgress(String text) {
-        repo.setStatus(importId, ImportJob.S_RUNNING, text);
         repo.setProgressText(importId, text);
         //setProgressAsync(new Data.Builder().putString("progressText", text).build());
     }
@@ -51,11 +49,13 @@ public abstract class ImportWorker extends LoggingWorker {
     protected void emitFailed(String taskName, String errorTextDev, String errorTextUser) {
         myLog("emitFailed " + taskName + " - errorTextDev = [" + errorTextDev + "]");
         repo.fail(importId, errorTextDev, errorTextUser);
+        ImportHelper.cleanUp(appContext, true, jobOrFail().futureFolderPath);
     }
 
     protected void emitCancelled(String taskName) {
         myLog("emitCancelled " + taskName);
         repo.cancel(importId);
+        ImportHelper.cleanUp(appContext, true, jobOrFail().futureFolderPath);
     }
 
     protected void emitTaskCompleted(String taskName, String destination) {
@@ -72,6 +72,7 @@ public abstract class ImportWorker extends LoggingWorker {
     protected void emitSuccess() {
         myLog("emitSuccess");
         repo.success(importId);
+        ImportHelper.cleanUp(appContext, false, jobOrFail().futureFolderPath);
     }
 
     protected void emitDownloadPause(String why)
@@ -82,5 +83,34 @@ public abstract class ImportWorker extends LoggingWorker {
 
     protected Data out()
         { return new Data.Builder().putString(KEY_IMPORT_ID, importId).build(); }
+
+    public static class ImportAbortException extends RuntimeException {
+        public final Data out;
+        public ImportAbortException(String taskName, String devMsg, String userMsg) {
+            super(userMsg);
+            this.out = new Data.Builder()
+                    .putString("error_task", taskName)
+                    .putString("errorTextDev", devMsg)
+                    .putString("errorTextUsr", userMsg)
+                    .build();
+        }
+    }
+
+    protected void failNow(String taskName, String devMsg, String userMsg) {
+        repo.fail(importId, devMsg, userMsg); // persist failure
+        throw new ImportAbortException(taskName, devMsg, userMsg);
+    }
+
+    protected Result failResult(String taskName, String devMsg, String userMsg) {
+        repo.fail(importId, devMsg, userMsg); // persist failure in Room
+        return Result.failure(
+                new Data.Builder()
+                        .putString("error_task", taskName)
+                        .putString("errorTextDev", devMsg)
+                        .putString("errorTextUsr", userMsg)
+                        .build()
+        );
+    }
+
 }
 

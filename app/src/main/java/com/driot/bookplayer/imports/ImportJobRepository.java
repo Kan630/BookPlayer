@@ -28,12 +28,24 @@ public class ImportJobRepository {
         dao.updateProgressText(id, text, System.currentTimeMillis());
     }
 
-    public void setStatus(String id, String status, String op) {
-        dao.updateStatus(id, status, op, System.currentTimeMillis());
-    }
-
     public void setWarning(String id, String w) {
         dao.updateWarning(id, w, System.currentTimeMillis());
+    }
+
+    public void taskCompleted(String id, String taskName, String destinationFolderPath, String playType) {
+        dao.taskComplete(id, taskName, destinationFolderPath, playType, System.currentTimeMillis());
+    }
+
+    public void downloadPause(String id, String why) {
+        dao.downloadPause(id, why, System.currentTimeMillis());
+    }
+
+    public void downloadResuming(String id) {
+        dao.downloadResuming(id, "resuming download",  System.currentTimeMillis());
+    }
+
+    public void downloadCompleted(String id, String taskName, String downloadedFileFullPath, String progressText) {
+        dao.downloadComplete(id, taskName, downloadedFileFullPath, progressText, System.currentTimeMillis());
     }
 
     public void fail(String id, String devErrorMsg, String usrErrorMsg) {
@@ -44,25 +56,10 @@ public class ImportJobRepository {
         dao.cancel(id, System.currentTimeMillis());
     }
 
-    public void taskCompleted(String id, String taskName, String destinationFolderPath, String playType) {
-        dao.taskComplete(id, taskName, destinationFolderPath, playType, System.currentTimeMillis());
-    }
-
-    public void downloadCompleted(String id, String taskName, String downloadedFileFullPath, String progressText) {
-        dao.downloadComplete(id, taskName, downloadedFileFullPath, progressText, System.currentTimeMillis());
-    }
-
     public void success(String id) {
-        dao.finish(id, System.currentTimeMillis());
+        dao.success(id, System.currentTimeMillis());
     }
 
-    public void downloadPause(String id, String why) {
-        dao.downloadPause(id, why, System.currentTimeMillis());
-    }
-
-    public void downloadResuming(String id) {
-        dao.downloadResuming(id, "resuming download",  System.currentTimeMillis());
-    }
 
 
 

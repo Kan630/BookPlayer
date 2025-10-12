@@ -1,4 +1,4 @@
-package com.driot.bookplayer.activities;
+package com.driot.bookplayer.imports;
 
 import android.app.Application;
 
@@ -8,9 +8,6 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 
 import com.driot.bookplayer.db.AppDatabase;
-import com.driot.bookplayer.imports.ImportJob;
-import com.driot.bookplayer.imports.ImportUiMapper;
-import com.driot.bookplayer.objects.TaskUiState;
 import com.driot.bookplayer.utils.log.LoggingAndroidViewModel;
 
 public class OngoingTaskViewModel extends LoggingAndroidViewModel {
@@ -24,6 +21,7 @@ public class OngoingTaskViewModel extends LoggingAndroidViewModel {
     private final MediatorLiveData<Boolean> paused        = new MediatorLiveData<>();
     private final MediatorLiveData<String>  warningText   = new MediatorLiveData<>();
     private final MediatorLiveData<String>  errorText     = new MediatorLiveData<>();
+    private final MediatorLiveData<Boolean> showToUser    = new MediatorLiveData<>();
 
     public OngoingTaskViewModel(@NonNull Application app) {
         super(app);
@@ -37,10 +35,11 @@ public class OngoingTaskViewModel extends LoggingAndroidViewModel {
         warningText.setValue(null);
         errorText.setValue(null);
         finished.setValue(false);
+        showToUser.setValue(false);
 
         AppDatabase db = AppDatabase.getInstance(app);
-        LiveData<ImportJob> src = db.importJobDao()
-                .observeCurrentOrLast(ImportJob.S_RUNNING, ImportJob.S_QUEUED, ImportJob.S_PAUSED);
+        LiveData<ImportJob> src = db.importJobDao().observeUniqueJob();
+                //.observeCurrentOrLast(ImportJob.S_RUNNING, ImportJob.S_QUEUED, ImportJob.S_PAUSED);
 
         taskTitle.addSource(src, job -> mapToUi(job));
     }
@@ -56,6 +55,7 @@ public class OngoingTaskViewModel extends LoggingAndroidViewModel {
         warningText.setValue(s.warningText);
         errorText.setValue(s.errorText);
         finished.setValue(s.finished);
+        showToUser.setValue(s.showToUser);
     }
 
     public LiveData<String>  getTaskTitle()       { return taskTitle; }
@@ -67,5 +67,6 @@ public class OngoingTaskViewModel extends LoggingAndroidViewModel {
     public LiveData<Boolean> isPaused()           { return paused; }
     public LiveData<String>  getWarningText()     { return warningText; }
     public LiveData<String>  getErrorText()       { return errorText; }
+    public LiveData<Boolean> getShowToUser()      { return showToUser; }
 
 }

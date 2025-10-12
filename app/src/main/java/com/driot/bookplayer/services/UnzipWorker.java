@@ -17,6 +17,7 @@ import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
+import com.driot.bookplayer.imports.ImportJob;
 import com.driot.bookplayer.imports.ImportWorker;
 import com.driot.bookplayer.objects.LoadBookTaskState;
 
@@ -39,16 +40,13 @@ public class UnzipWorker extends ImportWorker {
     @NonNull
     @Override
     public Result doWork() {
+        myLogD("doWork");
+        ImportJob j = jobOrFail();
+        final String zipFilePath = j.dynamicSourceFilePath;
+        final String destinationFolderPath = j.futureFolderPath;
+
         Context context = getApplicationContext();
 
-        LoadBookTaskState bookState = Pref.getLoadBookTaskState();
-        if (bookState == null) {
-            emitFailed(TASK_NAME, "bookState == null", getApplicationContext().getString(R.string.invalid_resource));
-            return Result.failure();
-        }
-
-        String zipFilePath = bookState.dynamicSourceFilePath;
-        String destinationFolderPath = bookState.futureFolderPath;
         myLogD("----------------------------------------------------");
         myLog("From: " + zipFilePath);
         myLog("To: " + destinationFolderPath);

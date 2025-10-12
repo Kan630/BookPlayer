@@ -20,7 +20,6 @@
 
     import androidx.annotation.Nullable;
     import androidx.appcompat.widget.Toolbar;
-    import androidx.lifecycle.LiveData;
     import androidx.lifecycle.ViewModelProvider;
     import androidx.localbroadcastmanager.content.LocalBroadcastManager;
     import androidx.recyclerview.widget.GridLayoutManager;
@@ -30,9 +29,6 @@
     import com.driot.bookplayer.MyApp;
     import com.driot.bookplayer.R;
     import com.driot.bookplayer.adapter.FoldersRVAdapter;
-    import com.driot.bookplayer.db.DatabaseClient;
-    import com.driot.bookplayer.db.Folder;
-    import com.driot.bookplayer.db.FolderDao;
     import com.driot.bookplayer.global.Option;
     import com.driot.bookplayer.global.Var;
     import com.driot.bookplayer.helpers.InsetHelper;
@@ -41,19 +37,17 @@
     import com.driot.bookplayer.player.PlayList;
     import com.driot.bookplayer.player.AudioService;
     import com.driot.bookplayer.helpers.InfoHelper;
+    import com.driot.bookplayer.player.PlaybackUiState;
     import com.driot.bookplayer.player.PlaybackViewModel;
     import com.driot.bookplayer.utils.InAppMsgManager;
     import com.driot.bookplayer.utils.KanMail;
     import com.driot.bookplayer.utils.log.LoggingActivity;
 
-    import java.util.List;
-
     public class MainActivity extends LoggingActivity {
 
         private RecyclerView recyclerView;
-        private boolean pendingScrollToTop = false;
-        private int pendingFolderIdForScroll = -1;
-        private int lastScrolledFolderId = -1;
+        private FoldersRVAdapter adapter;
+        private MainViewModel mainVm;
 
         Toolbar toolbar;
         private static final int REQUEST_CODE_OPTION = 34343;
@@ -138,11 +132,49 @@
                 recyclerView.addItemDecoration(new ViewHelper.SpacesItemDecoration(ViewHelper.dp(this,Var.GRID_LAYOUT_SPACER)));
             }
 
-            FoldersRVAdapter adapter = new FoldersRVAdapter(MainActivity.this);
+            adapter = new FoldersRVAdapter(this);
             recyclerView.setAdapter(adapter);
+
             PlaybackViewModel playbackVm = new ViewModelProvider(this).get(PlaybackViewModel.class);
             adapter.connectPlayback(this, playbackVm.getState()); // adapter observe playback (highlight)
-            getFolders();
+            //getFolders();
+
+            // --- Main ViewModel
+            /*
+            mainVm = new ViewModelProvider(this,
+                    new ViewModelProvider.AndroidViewModelFactory(getApplication()))
+                    .get(MainViewModel.class);
+
+             */
+            mainVm = new ViewModelProvider(this).get(MainViewModel.class);
+
+            // Folders list
+            mainVm.getFolders().observe(this, folders -> {
+                if (folders == null) return;
+                adapter.submitList(folders);
+            });
+
+            // Show empty prompt exactly once
+            mainVm.getShowEmptyPrompt().observe(this, show -> {
+                if (Boolean.TRUE.equals(show)) {
+                    startActivity(new Intent(getApplicationContext(), GetActivity.class));
+                    mainVm.markEmptyPromptShown();
+                }
+            });
+
+            // One-shot scroll-to-top request
+            mainVm.getScrollToTopEvent().observe(this, evt -> {
+                if (evt == null) return;
+                if (evt.getContentIfNotHandled() == null) return;
+                recyclerView.post(() -> {
+                    RecyclerView.LayoutManager lm = recyclerView.getLayoutManager();
+                    if (lm instanceof LinearLayoutManager) {
+                        ((LinearLayoutManager) lm).scrollToPositionWithOffset(0, 0);
+                    } else {
+                        recyclerView.scrollToPosition(0);
+                    }
+                });
+            });
 
             getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
                 @Override
@@ -164,21 +196,33 @@
             //Option.setTtsVoice("system"); //reset
         }
 
+        @Override protected void onNewIntent(Intent intent) {
+            super.onNewIntent(intent);
+            setIntent(intent);
+            if (intent.getBooleanExtra("forceRefresh", false) && mainVm != null) {
+                mainVm.forceRefresh();
+            //} else if (intent.getBooleanExtra("scrollToTop", false) && mainVm != null) {
+            //    mainVm.sc();
+            }
+/*   TO CALL :
+startActivity(new Intent(this, MainActivity.class)
+        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        .putExtra("forceRefresh", true));
+ */
+
+        }
+
         @Override
         protected void onResume() {
             super.onResume();
             LocalBroadcastManager.getInstance(this).registerReceiver(inAppMsgRx, new IntentFilter(InAppMsgManager.ACTION_CACHE_UPDATED));        // Et tente immédiatement avec le cache courant
             InAppMsgManager.maybeShowBestMessage(this, getString(R.string.app_name));
             PlaybackViewModel playbackVm = new ViewModelProvider(this).get(PlaybackViewModel.class);
-            com.driot.bookplayer.player.PlaybackUiState s = playbackVm.getState().getValue();
-            if (s != null && s.folderId > 0 && s.folderId != lastScrolledFolderId) {
-                pendingFolderIdForScroll = s.folderId;
-                pendingScrollToTop = true;
-            } else {
-                pendingScrollToTop = false; // same book still playing → no auto scroll
+            PlaybackUiState s = playbackVm.getState().getValue();
+            if (s != null && s.folderId > 0) {
+                mainVm.requestScrollToTopForFolder(s.folderId);
             }
         }
-
 
         @Override protected void onPause() {
             super.onPause();
@@ -254,39 +298,6 @@
                     recreate();
                 }
             }
-        }
-        private void getFolders() {
-            myLogD("getFolders()");
-            FolderDao folderDao = DatabaseClient.getInstance(getApplicationContext())
-                    .getAppDatabase().folderDao();
-            LiveData<List<Folder>> foldersLiveData = folderDao.getAllLiveData();
-
-            foldersLiveData.observe(this, folders -> {
-                FoldersRVAdapter a = (FoldersRVAdapter) recyclerView.getAdapter();
-                if (a == null) return;
-
-                if (folders == null || folders.isEmpty()) {
-                    if (!HasBeenProposedToOpenFile) startActivity(new Intent(getApplicationContext(), GetActivity.class));
-                    HasBeenProposedToOpenFile = true;
-                }
-
-                if (pendingScrollToTop) {
-                    a.submitList(folders, () -> recyclerView.post(() -> {
-                        // folder moved to top due to lLastAccess: jump to top once
-                        RecyclerView.LayoutManager lm = recyclerView.getLayoutManager();
-                        if (lm instanceof LinearLayoutManager) {
-                            ((LinearLayoutManager) lm).scrollToPositionWithOffset(0, 0);
-                        } else {
-                            recyclerView.scrollToPosition(0);
-                        }
-                        lastScrolledFolderId = pendingFolderIdForScroll; // mark done for this folder
-                        pendingScrollToTop = false;                      // one-shot
-                    }));
-                } else {
-                    a.submitList(folders);
-                }
-            });
-
         }
 
     }

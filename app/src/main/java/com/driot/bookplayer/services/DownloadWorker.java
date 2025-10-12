@@ -26,8 +26,10 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.NetworkHelper;
+import com.driot.bookplayer.imports.ImportJob;
 import com.driot.bookplayer.imports.ImportWorker;
 import com.driot.bookplayer.objects.LoadBookTaskState;
+import com.driot.bookplayer.utils.Tonio;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -101,13 +103,28 @@ public class DownloadWorker extends ImportWorker {
     @Override
     public Result doWork() {
         myLogD("doWork");
+        ImportJob j = jobOrFail();
+        final String urlStr = j.downloadFileUrl;
+        final String destFolder = j.downloadDestinationFolder;
+        final String title = j.title;
+        final boolean isManual = true;
+
+        myLogD("----------------------------------------------------");
+        myLog("Title: " + title);
+        myLogD("----------------------------------------------------");
+        myLog("From: " + urlStr);
+        myLog("To: " + destFolder);
+        myLog("isManual: " + isManual);
+        myLogD("----------------------------------------------------");
+
 
         final Context ctx = getApplicationContext();
 
-        final String urlStr = getInputData().getString(KEY_URL);
-        final String destFolder = getInputData().getString(KEY_DEST_FOLDER);
-        final String title = getInputData().getString(KEY_TITLE);
-        final boolean isManual = getInputData().getBoolean(KEY_IS_MANUAL, false);
+        // TODO, rewire, notably for auto download
+        //final String urlStr = getInputData().getString(KEY_URL);
+        //final String destFolder = getInputData().getString(KEY_DEST_FOLDER);
+        //final String title = getInputData().getString(KEY_TITLE);
+        //final boolean isManual = getInputData().getBoolean(KEY_IS_MANUAL, false);
 
         if (urlStr == null || destFolder == null) {
             myLogE("Missing input data: url or dest_folder");
@@ -187,6 +204,7 @@ public class DownloadWorker extends ImportWorker {
 
             // Range resume
             long already = outFile.exists() ? outFile.length() : 0L;
+            myLog("already downloaded : " + Tonio.formatSizeMB(already) + " for " + outFile.getName());
 
             HttpURLConnection conn = null;
             InputStream in = null;

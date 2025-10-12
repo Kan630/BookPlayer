@@ -6,7 +6,7 @@ import androidx.annotation.IdRes;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentActivity;
 
-import com.driot.bookplayer.activities.OngoingTaskFragment;
+import com.driot.bookplayer.imports.OngoingTaskFragment;
 
 public final class OngoingTaskHost {
     private OngoingTaskHost() {}

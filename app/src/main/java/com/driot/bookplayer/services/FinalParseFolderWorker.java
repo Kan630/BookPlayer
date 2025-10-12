@@ -70,13 +70,6 @@ public class FinalParseFolderWorker extends ImportWorker {
     }
     private static final String K_ERR = "error_msg";
 
-    private Result fail(String userMsg, @Nullable Throwable t) {
-        myLogEE(t, userMsg);
-        emitFailed(TASK_NAME, "fail - " + userMsg, userMsg);
-        return Result.failure(new androidx.work.Data.Builder()
-                .putString(K_ERR, userMsg)
-                .build());
-    }
     @NonNull
     @Override
     public Result doWork() {
@@ -181,9 +174,14 @@ public class FinalParseFolderWorker extends ImportWorker {
             }
             return Result.success();
 
-        } catch (Throwable t) { // catch-all: NPEs, etc.
-            return fail("Unexpected error in ParseFinalFolderWorker: " + t.getClass().getSimpleName() +
-                    (t.getMessage() != null ? (" - " + t.getMessage()) : ""), t);
+        } catch (ImportAbortException abort) {
+            return Result.failure(abort.out);
+        } catch (Throwable t) {
+            return failResult( // you can still reuse failResult for unknown crashes
+                    TASK_NAME,
+                    "Unexpected: " + t.getClass().getSimpleName() + " - " + (t.getMessage() == null ? "" : t.getMessage()),
+                    getApplicationContext().getString(R.string.unexpected_error)
+            );
         }
     }
 
@@ -270,7 +268,7 @@ public class FinalParseFolderWorker extends ImportWorker {
             } else {
                 devErr = devErr + "\n" + t.getMessage();
             }
-            emitFailed(TASK_NAME, devErr, userErr);
+            failNow(TASK_NAME, devErr, userErr);
         }
     }
 
@@ -278,10 +276,11 @@ public class FinalParseFolderWorker extends ImportWorker {
         myLogD("* New Audio File : [" +  df.getName() + ']');
         AudioInfo audioInfo = AudioProber.probe(context, df.getUri());
         if (audioInfo == null || audioInfo.durationMs <= 0) {
-            emitFailed(
+            failNow(
                     TASK_NAME
                     , "Error_Import_extract_audio_data_failed for [" + df.getName() + "]"
                     , context.getString(R.string.Error_Import_extract_audio_data_failed) + " for [" + df.getName() + "]");
+
         } else {
             myLogD("* Duration : [" +  formatTime(audioInfo.durationMs) + ']');
             audioFileInfoArrayList.add(new AudioFileInfo(df.getName(), audioInfo.durationMs, audioInfo.uri.toString()));
@@ -297,9 +296,11 @@ public class FinalParseFolderWorker extends ImportWorker {
         emitStepProgress(TASK_NAME, 5, context.getString(R.string.listing_and_sorting_tracks));
         countAudioFiles(f0);
         addAudioFileRecursive(f0,"");
-        if (totalDuration==0) emitFailed(TASK_NAME
-                , "addAudioFileRecursive - Error_Import_track_duration_extraction"
-                , context.getString(R.string.Error_Import_track_duration_extraction));
+        if (totalDuration==0) {
+            failNow(TASK_NAME
+                    , "addAudioFileRecursive - Error_Import_track_duration_extraction"
+                    , context.getString(R.string.Error_Import_track_duration_extraction));
+        }
     }
     private void addAudioFileRecursive(DocumentFile f0, String recursivFolder) {
         myLogD("-------------------------------------------------------------------------------------------------------------------xxx");
@@ -443,9 +444,7 @@ public class FinalParseFolderWorker extends ImportWorker {
 
     private void goFolder() {
         if (audioFileInfoArrayList != null) {
-            if (audioFileInfoArrayList.isEmpty()) {
-                emitFailed(TASK_NAME, "Error_Import_NoMediaInFolder", context.getString(R.string.Error_Import_NoMediaInFolder));
-            } else {
+            if (!audioFileInfoArrayList.isEmpty()) {
                 myLog(audioFileInfoArrayList.size() + " " + context.getString(R.string.Import_nMediaInFolder));
                 if (Option.getCreateCover()) {
                     try {
@@ -465,9 +464,11 @@ public class FinalParseFolderWorker extends ImportWorker {
                     }
                 }
                 saveFolder();
+            } else {
+                failNow(TASK_NAME, "Error_Import_NoMediaInFolder", context.getString(R.string.Error_Import_NoMediaInFolder));
             }
         } else {
-            emitFailed(TASK_NAME, "Error_Import_NoMediaInFolder", context.getString(R.string.Error_Import_NoMediaInFolder));
+            failNow(TASK_NAME, "Error_Import_NoMediaInFolder", context.getString(R.string.Error_Import_NoMediaInFolder));
         }
     }
 
@@ -503,7 +504,7 @@ public class FinalParseFolderWorker extends ImportWorker {
     private void saveFiles(int insertedFolderId) {
         myLogD("--------------------- saving files...");
         if (audioFileInfoArrayList == null) {
-            emitFailed(TASK_NAME, "saveFiles - audioFileArrayList is null", context.getString(R.string.Error_Import_no_valid_media_found));
+            failNow(TASK_NAME, "saveFiles - audioFileArrayList is null", context.getString(R.string.Error_Import_no_valid_media_found));
             return;
         }
 
@@ -558,7 +559,8 @@ public class FinalParseFolderWorker extends ImportWorker {
 
         // check we have something in folder...
         if (saved == 0) {
-            emitFailed(TASK_NAME, "saved = 0 - Error_Import_No_Usable_item_Found", context.getString(R.string.Error_Import_No_Usable_item_Found));
+            failNow(TASK_NAME, "saved = 0 - Error_Import_No_Usable_item_Found", context.getString(R.string.Error_Import_No_Usable_item_Found));
+            return;
         } else {
             FirebaseAnalyticsHelper.tellLoadBookSuccess(String.valueOf(importJob.originalUri), importJob.fileExtension, importJob.doDownload);
             if (Var.SOURCE_LOCATION_LIBRIVOX.equals(importJob.sourceLocation)) {
@@ -617,7 +619,8 @@ public class FinalParseFolderWorker extends ImportWorker {
             return SaveResultEnum.SUCCESS;
         } else {
             myLogE("❌ DB insert failed for: " + info.getDisplayPath());
-            emitFailed(TASK_NAME
+            //TODO, maybe better just a warning...  (anyway, should not happen)
+            failNow(TASK_NAME
                     , "Error_Import_CannotSaveInDB [" + info.getDisplayPath() + "]"
                     , context.getString(R.string.Error_Import_CannotSaveInDB) + " [" + info.getDisplayPath() + "]");
             return SaveResultEnum.FAILED;

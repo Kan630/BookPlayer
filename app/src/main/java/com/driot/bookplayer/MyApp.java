@@ -15,7 +15,7 @@ import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
-import com.driot.bookplayer.objects.TaskStateRepository;
+import com.driot.bookplayer.imports.TaskStateRepository;
 import com.driot.bookplayer.utils.ComponentUtils;
 import com.driot.bookplayer.utils.InAppMsgManager;
 import com.driot.bookplayer.helpers.LocaleHelper;

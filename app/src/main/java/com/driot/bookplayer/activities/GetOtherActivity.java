@@ -30,6 +30,7 @@ import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.NetworkHelper;
+import com.driot.bookplayer.imports.OngoingTaskViewModel;
 import com.driot.bookplayer.objects.OngoingTaskHost;
 import com.driot.bookplayer.utils.MediaScanner2;
 import com.driot.bookplayer.utils.PermissionRequest;
@@ -238,7 +239,9 @@ public class GetOtherActivity extends LoggingActivity {
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
                     if (result.getResultCode() == Activity.RESULT_OK) {
-                        startActivity(new Intent(this, AddResourceActivity.class));
+                        startActivity(new Intent(this, MainActivity.class)
+                                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK));
+                        //startActivity(new Intent(this, AddResourceActivity.class));
                     }
                 }
         );
