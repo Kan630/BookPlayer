@@ -49,13 +49,16 @@ public class OngoingTaskViewModel extends LoggingAndroidViewModel {
         taskTitle.setValue(s.title);
         progressText.setValue(s.progressText);
         progressPct.setValue(s.progressPercent);
-        running.setValue(s.running);
-        pauseAvail.setValue(s.pauseAvailable);
-        paused.setValue(s.paused);
+
         warningText.setValue(s.warningText);
         errorText.setValue(s.errorText);
+
+        pauseAvail.setValue(s.pauseAvailable);
+        paused.setValue(s.paused);
         finished.setValue(s.finished);
         showToUser.setValue(s.showToUser);
+
+        running.setValue(s.running);
     }
 
     public LiveData<String>  getTaskTitle()       { return taskTitle; }

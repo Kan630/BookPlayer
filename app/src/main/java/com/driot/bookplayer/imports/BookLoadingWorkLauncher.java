@@ -274,6 +274,10 @@ public class BookLoadingWorkLauncher {
         myLog("** extension =  " + s.fileExtension + " **");
         myLog("** playType =  " + s.playType + " **");
         myLog("---------------------------------------------------------------------------------------------------------");
+        myLog("** option copy =  " + s.optionCopy + " **");
+        myLog("** option split =  " + s.optionSplit + " **");
+        myLog("** option delete =  " + s.optionDelete + " **");
+        myLog("---------------------------------------------------------------------------------------------------------");
         //myLog("---------------------------------------------------------------------------------------------------------");
         //myLog(bookState.toString().replace(",", "\n"));
         myLog("*********************************************************************************************************");
@@ -287,14 +291,14 @@ public class BookLoadingWorkLauncher {
             myLogD("copy");
             doCopy = true;
         }
+        if (s.optionSplit && s.fileExtension!=null && s.fileExtension.equalsIgnoreCase("m4b")) {
+            myLogD("m4b to split");
+            doSplitM4b = true;
+            doCopy = true;
+        }
         if (s.fileExtension!=null && s.fileExtension.equalsIgnoreCase("zip")) {
             myLogD("ZIP => unzip + copy");
             doUnzip = true;
-            doCopy = true;
-        }
-        if (s.fileExtension!=null && s.fileExtension.equalsIgnoreCase("m4b") && s.optionSplit) {
-            myLogD("m4b to split");
-            doSplitM4b = true;
             doCopy = true;
         }
         if (s.fileExtension!=null && s.fileExtension.equalsIgnoreCase("epub")) {
@@ -369,6 +373,7 @@ public class BookLoadingWorkLauncher {
 
         j.status = ImportJob.S_RUNNING; //.S_QUEUED;
         j.createdAt = j.updatedAt = System.currentTimeMillis();
+        j.showToUser = true;
 
         Data common = new Data.Builder().putString(ImportWorker.KEY_IMPORT_ID, importId).build();
         List<OneTimeWorkRequest> steps = new ArrayList<>();

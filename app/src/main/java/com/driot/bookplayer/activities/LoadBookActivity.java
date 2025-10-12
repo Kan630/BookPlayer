@@ -262,9 +262,9 @@ public class LoadBookActivity extends LoggingActivity {
                 state.title = audioBookTitle;
                 state.futureFolderName = futureFolderName;
                 state.futureFolderPath = finalFutureFolderPath;
-                //state.optionSplit = cbSplit.isChecked();
-                //state.optionCopy = cbCopy.isChecked();
-                //state.optionDelete = cbDelete.isChecked();
+                state.optionSplit = cbSplit.isChecked();
+                state.optionCopy = cbCopy.isChecked();
+                state.optionDelete = cbDelete.isChecked();
                 state.originalFile = bookToAdd.getOriginalFile();
                 state.originalHash = originalHash;
                 state.sourceLocation = bookToAdd.getSourceLocation();

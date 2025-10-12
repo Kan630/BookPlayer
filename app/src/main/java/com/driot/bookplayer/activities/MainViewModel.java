@@ -68,6 +68,10 @@ public class MainViewModel extends LoggingAndroidViewModel {
     /** Call once when you actually navigate to GetActivity so we don’t spam the prompt. */
     public void markEmptyPromptShown() { state.set(K_PROMPTED, true); }
 
+    public void requestScrollToTopNow() {
+        scrollToTop.setValue(new Event<>(NoContent.INSTANCE));
+    }
+
     /** When playback changes, ask the grid to scroll the current folder to top (one-shot). */
     public void requestScrollToTopForFolder(int folderId) {
         Integer last = state.get(K_LAST_SCROLLED_FOLDER_ID);

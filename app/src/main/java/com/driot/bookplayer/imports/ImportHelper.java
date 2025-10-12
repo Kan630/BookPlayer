@@ -60,7 +60,7 @@ public class ImportHelper {
             if (job == null) {
                 myLogW("No active import to deal with");
             } else {
-                myLog("has been shown set");
+                myLog("show user set to [" + showToUser + "]");
                 dao.setShowToUser(job.importId, showToUser, System.currentTimeMillis());
             }
         });

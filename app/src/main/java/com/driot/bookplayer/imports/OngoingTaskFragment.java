@@ -17,14 +17,13 @@ import androidx.lifecycle.ViewModelProvider;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.objects.AppViewModelStoreOwner;
 import com.driot.bookplayer.utils.log.LoggingFragment;
+import com.google.android.material.color.MaterialColors;
 
 public class OngoingTaskFragment extends LoggingFragment {
 
     private static final String ARG_ONCLICK_INTENT = "onClickIntent";
 
-    private static final int DELAY_END_WAIT_NO_ERROR = 1_000;
-
-    private static final int SUCCESS_AUTO_HIDE_MS = 1000;
+    private static final int SUCCESS_AUTO_HIDE_MS = 2_000;
     private boolean didAutoHide = false;
     @Nullable private Long successFirstSeenUptimeMs = null;
     private final Handler mainH = new Handler(android.os.Looper.getMainLooper());
@@ -56,7 +55,8 @@ public class OngoingTaskFragment extends LoggingFragment {
     }
 
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view,
+                              @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         OngoingTaskViewModel vm = new ViewModelProvider(
@@ -65,21 +65,7 @@ public class OngoingTaskFragment extends LoggingFragment {
         ).get(OngoingTaskViewModel.class);
 
         View root = view; // control visibility on the whole fragment
-        /*
-        vm.isTaskRunning().observe(getViewLifecycleOwner(), running -> {
-                    String errorText = vm.getErrorText().getValue();
-                    boolean hasErrorText = errorText != null && !errorText.isEmpty();
-                    myLog("observe isTaskRunning = " + running + (hasErrorText ? " - errorText=" + errorText : ""));
-                    if (Boolean.TRUE.equals(running) || (hasErrorText && !errorText.equals("Cancelled"))) {
-                        root.setVisibility(View.VISIBLE);
-                    } else {
-                        //TODO add the timeout of isFinished
-                        root.setVisibility(View.GONE);
-                    }
-                }
-        );
 
-         */
         vm.getShowToUser().observe(getViewLifecycleOwner(), showToUser -> {
             myLog("observe showToUser = " + showToUser);
             if (Boolean.TRUE.equals(showToUser)) {
@@ -91,11 +77,14 @@ public class OngoingTaskFragment extends LoggingFragment {
 
         vm.getErrorText().observe(getViewLifecycleOwner(), errorText -> {
             myLog("errorText = " + errorText);
-                    if (errorText != null && !errorText.isEmpty() && !errorText.equals("Cancelled")) {
-                        tvProgressText.setText(errorText);
-                        tvProgressText.setTextColor(ContextCompat.getColor(requireContext(), R.color.red));
-                    }
-                });
+            boolean hasError = errorText != null && !errorText.isEmpty() && !"Cancelled".equals(errorText);
+            if (hasError) {
+                tvProgressText.setText(errorText);
+            }
+            int normal = MaterialColors.getColor(tvProgressText,com.google.android.material.R.attr.colorOnSurfaceVariant);
+            int error  = ContextCompat.getColor(requireContext(), R.color.red);
+            tvProgressText.setTextColor(hasError ? error : normal);
+        });
 
         vm.isFinished().observe(getViewLifecycleOwner(), finished -> {
             myLog("observe isFinished = " + finished);
@@ -116,25 +105,6 @@ public class OngoingTaskFragment extends LoggingFragment {
             maybeScheduleHide();
         });
 
-
-/*
-        vm.isFinished().observe(getViewLifecycleOwner(), success -> {
-            myLog("observe isFinished = " + success);
-                    if (Boolean.TRUE.equals(success)) {
-                        root.setVisibility(View.VISIBLE);
-                        myToast(getString(R.string.Import_Success) + "\n" + tvTitle.getText());
-                        Handler delayedFinishHandler = new Handler();
-                        Runnable delayedFinishRunnable = () -> {
-                            root.setVisibility(View.GONE);
-                        };
-                        myLog("Let's wait some " + DELAY_END_WAIT_NO_ERROR + " ms. to display finish...");
-                        delayedFinishHandler.postDelayed(delayedFinishRunnable, DELAY_END_WAIT_NO_ERROR);
-                    }
-                }
-        );
-
- */
-
         vm.getTaskTitle().observe(getViewLifecycleOwner(), title ->
                 tvTitle.setText((title == null || title.isEmpty())
                         ? getString(R.string.Import_in_progress) : title));
@@ -149,9 +119,7 @@ public class OngoingTaskFragment extends LoggingFragment {
 
         vm.getProgressPercent().observe(getViewLifecycleOwner(), progressBar::setProgress);
 
-        // Optional: show warnings/errors (toast, banner, etc.) — left for your UI choice.
-
-        // Injected navigation
+        // Injected navigation --> opens AddResourceActivity
         View container = view.findViewById(R.id.ongoing_task_container);
         Intent onClick = getArguments() != null ? getArguments().getParcelable(ARG_ONCLICK_INTENT) : null;
         if (container != null && onClick != null) {
@@ -178,10 +146,25 @@ public class OngoingTaskFragment extends LoggingFragment {
             if (isAdded() && !didAutoHide) {
                 didAutoHide = true;
                 myLog("Auto-hiding fragment after ~" + SUCCESS_AUTO_HIDE_MS + " ms since success first seen");
+                requestMainScrollToTopIfHostedByMain();
                 ImportHelper.setShowToUser(requireContext(), false);
             }
         };
         mainH.postDelayed(hideRunnable, remaining);
+    }
+
+    private void requestMainScrollToTopIfHostedByMain() {
+        if (!isAdded()) return;
+        if (!(requireActivity() instanceof com.driot.bookplayer.activities.MainActivity)) return;
+        try {
+            com.driot.bookplayer.activities.MainViewModel vm =
+                    new androidx.lifecycle.ViewModelProvider(requireActivity())
+                            .get(com.driot.bookplayer.activities.MainViewModel.class);
+            vm.requestScrollToTopNow(); // one-shot event you already expose
+            myLog("Requested Main scrollToTop");
+        } catch (Throwable t) {
+            myLogEE(t, "requestMainScrollToTopIfHostedByMain");
+        }
     }
 
 }

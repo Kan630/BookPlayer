@@ -167,14 +167,26 @@
                 if (evt == null) return;
                 if (evt.getContentIfNotHandled() == null) return;
                 recyclerView.post(() -> {
+                    recyclerView.post(() -> {
+                        recyclerView.smoothScrollToPosition(0);
+                    });
+                    /*
                     RecyclerView.LayoutManager lm = recyclerView.getLayoutManager();
                     if (lm instanceof LinearLayoutManager) {
                         ((LinearLayoutManager) lm).scrollToPositionWithOffset(0, 0);
                     } else {
                         recyclerView.scrollToPosition(0);
                     }
+
+                     */
                 });
             });
+
+            boolean wantScroll = getIntent() != null && getIntent().getBooleanExtra("scrollToTop", false);
+            if (wantScroll && mainVm != null) {
+                // either emit now or the list observer will run soon; both are fine
+                mainVm.requestScrollToTopNow();
+            }
 
             getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
                 @Override
@@ -200,16 +212,13 @@
             super.onNewIntent(intent);
             setIntent(intent);
             if (intent.getBooleanExtra("forceRefresh", false) && mainVm != null) {
+                myLog("forceRefresh");
                 mainVm.forceRefresh();
-            //} else if (intent.getBooleanExtra("scrollToTop", false) && mainVm != null) {
-            //    mainVm.sc();
             }
-/*   TO CALL :
-startActivity(new Intent(this, MainActivity.class)
-        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
-        .putExtra("forceRefresh", true));
- */
-
+            if (intent.getBooleanExtra("scrollToTop", false) && mainVm != null) {
+                myLog("scrollToTop");
+                mainVm.requestScrollToTopNow();
+            }
         }
 
         @Override

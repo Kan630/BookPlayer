@@ -96,28 +96,13 @@ public class AddResourceActivity extends LoggingActivity {
             String errorText = viewModel.getErrorText().getValue();
             boolean hasErrorText = errorText != null && !errorText.isEmpty();
             myLog("observe isTaskRunning = " + running + (hasErrorText ? " - errorText=" + errorText : ""));
-            checkAndClose();
-            /*
-            if (Boolean.TRUE.equals(running) || hasErrorText) {
-                //button cancel => exit
-            } else {
-            }
-
-             */
-        });
-
-        /*
-        viewModel.isFinished().observe(this, finished -> {
-            myLog("observe isFinished = " + finished);
-            if (Boolean.TRUE.equals(finished)) {
-                if (!didClose) {
+            if (!didClose) {
+                if (Boolean.FALSE.equals(running)) {  // && !hasErrorText
                     didClose = true;
                     checkAndClose();
                 }
             }
         });
-
-         */
     }
 
     private void performPauseOrResume() {
@@ -141,20 +126,16 @@ public class AddResourceActivity extends LoggingActivity {
 
     private void checkAndClose() {
         myLog("checkAndClose");
-        //ImportHelper.cancelCurrentImport(this);
-        //ImportHelper.cleanUp(this, false, null);
-        //ImportHelper.setShowToUser(this, false);
-        enterExitMode();
-
         final String err  = viewModel.getErrorText().getValue();
         final String warn = viewModel.getWarningText().getValue();
+        enterExitMode();
 
-        if (err != null && !err.isEmpty() && !"Cancelled".equals(err)) {
-            bCancel.setText(getString(R.string.Exit));
+        myLogI("err = " + err);
+
+        if (err != null && !err.isEmpty()) { // && !"Cancelled".equals(err)
             // Ensure the card stays up:
-            ImportHelper.setShowToUser(this, true);
+            //ImportHelper.setShowToUser(this, true);
             myToast(getString(R.string.Import_failed));
-            enterExitMode(); // changes the button behavior to Exit without hiding
             return;
         }
 
@@ -182,47 +163,16 @@ public class AddResourceActivity extends LoggingActivity {
         myToast(getString(R.string.Import_Success) + "\n" + tvTitle.getText());
         ImportHelper.setShowToUser(this, true); // (optional) keep visible during the short success toast
         scheduleFinish(DELAY_END_WAIT_NO_ERROR /* e.g., 1000ms */);
-        /*
-        AddResourceActivity.this.setResult(Activity.RESULT_OK);
-        bCancel.setText(getString(R.string.Exit));
-
-        if (err != null && !err.isEmpty()) {
-            myToast(getString(R.string.Import_failed));
-            return;
-        }
-        if (warn != null && !warn.isEmpty()) {
-            String strRealWarning = warn
-                    .replace("\n", "")
-                    .replace(getString(R.string.Download_paused_by_user), "")
-                    .replace(getString(R.string.connection_aborted) + " (" + getString(R.string.no_internet_connection) + "?)","")
-                    .replace(getString(R.string.no_internet_connection),"")
-                    .trim();
-            if (!strRealWarning.isEmpty()) {
-                myLog("chapped warning string : [" + strRealWarning + "]");
-                myToast(getString(R.string.Import_finished_with_errors));
-                return;
-            }
-        }
-
-
-        // Success path
-        myToast(getString(R.string.Import_Success) + "\n" + tvTitle.getText());
-        delayedFinishHandler = new Handler();
-        delayedFinishRunnable = () -> {
-            startActivity(new Intent(this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK));
-            finish();
-        };
-        myLog("Let's wait some " + DELAY_END_WAIT_NO_ERROR + " ms. to close activity...");
-        delayedFinishHandler.postDelayed(delayedFinishRunnable, DELAY_END_WAIT_NO_ERROR);
-         */
     }
+
     private void scheduleFinish(int delayMs) {
         delayedFinishHandler = new Handler();
         delayedFinishRunnable = () -> {
             // Now we can hide banners
             ImportHelper.setShowToUser(this, false);
             startActivity(new Intent(this, MainActivity.class)
-                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK));
+                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK)
+                    .putExtra("scrollToTop", true));
             finish();
         };
         myLog("Let's wait " + delayMs + " ms before closing activity...");
@@ -243,10 +193,8 @@ public class AddResourceActivity extends LoggingActivity {
             }
             startActivity(new Intent(this, MainActivity.class)
                     .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
-                    //.putExtra("forceRefresh", true));
                     .putExtra("scrollToTop", true));
             finish();
-
         });
     }
 
