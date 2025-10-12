@@ -130,11 +130,7 @@ public class CopyFileWorker extends ImportWorker {
                 return Result.failure();
             }
             if (result) {
-                if ("Folder".equals(type)) {
-                    emitTaskCompleted(TASK_NAME, destinationFolderPath);
-                } else {
-                    emitTaskCompleted(TASK_NAME, destinationFolderPath + "/" + destinationFileName);
-                }
+                emitTaskCompleted(TASK_NAME, destinationFolderPath);
                 return Result.success();
             } else {
                 return Result.failure();

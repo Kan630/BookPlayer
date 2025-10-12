@@ -3,14 +3,16 @@ package com.driot.bookplayer.imports;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.driot.bookplayer.utils.log.LoggerHelper;
+import java.util.Objects;
 
-public final class TaskUiState extends LoggerHelper {
-    public final boolean running;
-    public final boolean paused;
-    public final boolean finished;
-    public final boolean pauseAvailable;
+public final class TaskUiState {
+
+    public enum Result { IDLE, RUNNING, PAUSED, QUEUED, SUCCEEDED, FAILED, CANCELLED }
+
+    @NonNull public final Result result;
     public final boolean showToUser;
+    public final boolean pauseAvailable;
+    public final boolean paused;
 
     @NonNull public final String title;
     @NonNull public final String progressText;
@@ -19,105 +21,83 @@ public final class TaskUiState extends LoggerHelper {
     @Nullable public final String warningText;
     @Nullable public final String errorText;
 
-    private TaskUiState(boolean running,
-                        boolean paused,
-                        boolean finished,
+    private TaskUiState(@NonNull Result result,
+                        boolean showToUser,
                         boolean pauseAvailable,
+                        boolean paused,
                         @NonNull String title,
                         @NonNull String progressText,
                         int progressPercent,
                         @Nullable String warningText,
-                        @Nullable String errorText,
-                        boolean showToUser) {
-        super(TaskUiState.class);
-        this.running = running;
-        this.paused = paused;
-        this.finished = finished;
+                        @Nullable String errorText) {
+        this.result = result;
+        this.showToUser = showToUser;
         this.pauseAvailable = pauseAvailable;
+        this.paused = paused;
         this.title = title;
         this.progressText = progressText;
         this.progressPercent = progressPercent;
         this.warningText = warningText;
         this.errorText = errorText;
-        this.showToUser = showToUser;
     }
 
     public static TaskUiState idle() {
-        return new TaskUiState(false, false, false, false, "", "", 0, null, null, false);
+        return new TaskUiState(Result.IDLE, false, false, false, "", "", 0, null, null);
     }
 
-    public TaskUiState started(String taskTitle) {
-        return new TaskUiState(true, false, false, this.pauseAvailable, nonNull(taskTitle), "", 0, null, null, true);
-    }
+    public static TaskUiState from(@NonNull ImportJob j) {
+        Result r;
+        switch (j.status) {
+            case ImportJob.S_RUNNING:   r = Result.RUNNING; break;
+            case ImportJob.S_PAUSED:    r = Result.PAUSED;  break;
+            case ImportJob.S_QUEUED:    r = Result.QUEUED;  break;
+            case ImportJob.S_SUCCEEDED: r = Result.SUCCEEDED; break;
+            case ImportJob.S_FAILED:    r = Result.FAILED;    break;
+            case ImportJob.S_CANCELLED: r = Result.CANCELLED; break;
+            default:                    r = Result.IDLE;
+        }
 
-    public TaskUiState withProgress(int percent, String text) {
-        return new TaskUiState(true, this.paused, false, this.pauseAvailable,
-                this.title, nonNull(text), clamp(percent), this.warningText, null, this.showToUser);
-    }
+        String title = j.title != null ? j.title : "";
+        String pText = j.progressText != null ? j.progressText
+                : (j.currentOperation != null ? j.currentOperation : "");
+        int pct = Math.max(0, Math.min(100, j.progressPercent));
 
-    public TaskUiState withProgressTextOnly(@NonNull String text) {           // NEW
+        String err = (r == Result.FAILED)
+                ? (j.errorTextUser != null && !j.errorTextUser.isEmpty() ? j.errorTextUser : j.errorTextDev)
+                : null;
+
         return new TaskUiState(
-                this.running, this.paused, this.finished, this.pauseAvailable,
-                this.title, nonNull(text), this.progressPercent,
-                this.warningText, this.errorText, this.showToUser
+                r,
+                j.showToUser,              // DB is authority
+                j.isPauseAvailable,
+                j.isLoadingPaused,
+                title,
+                pText,
+                pct,
+                j.warningText,
+                err
         );
     }
 
-    public TaskUiState setPauseAvailable(boolean available) {     // NEW
-        return new TaskUiState(this.running, this.paused, this.finished, available,
-                this.title, this.progressText, this.progressPercent,
-                this.warningText, this.errorText, this.showToUser);
+    // helpful booleans
+    public boolean isFinished() { return result == Result.SUCCEEDED || result == Result.FAILED || result == Result.CANCELLED; }
+    public boolean isRunningLike() { return result == Result.RUNNING || result == Result.QUEUED || result == Result.PAUSED; }
+
+    @Override public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof TaskUiState)) return false;
+        TaskUiState that = (TaskUiState) o;
+        return showToUser == that.showToUser &&
+                pauseAvailable == that.pauseAvailable &&
+                paused == that.paused &&
+                progressPercent == that.progressPercent &&
+                result == that.result &&
+                title.equals(that.title) &&
+                progressText.equals(that.progressText) &&
+                Objects.equals(warningText, that.warningText) &&
+                Objects.equals(errorText, that.errorText);
     }
-
-    public TaskUiState setPaused(boolean paused) {                // NEW
-        return new TaskUiState(this.running, paused, this.finished, this.pauseAvailable,
-                this.title, this.progressText, this.progressPercent,
-                this.warningText, this.errorText, this.showToUser);
-    }
-
-    public TaskUiState withWarning(String w) {
-        myLogE("WITH WARNINGS");
-        String merged = (this.warningText == null || this.warningText.trim().replace("\n","").isEmpty()) ? w : (this.warningText + "\n" + w);
-        return new TaskUiState(this.running, this.paused, this.finished, this.pauseAvailable,
-                this.title, this.progressText, this.progressPercent
-                , merged, this.errorText, this.showToUser);
-    }
-
-    public TaskUiState cleanWarning() {
-        return new TaskUiState(this.running, this.paused, this.finished, this.pauseAvailable,
-                this.title, this.progressText, this.progressPercent
-                , null, this.errorText, this.showToUser);
-    }
-
-    public TaskUiState cancelled(String errorText, String progressText) {
-        myLogI("cancelled " + errorText);
-        return new TaskUiState(false, false, true, false,
-                this.title, progressText, 100
-                , this.warningText, nonNull(errorText), false);
-    }
-
-    public TaskUiState failed(String errorTextUser, String progressText) {
-        myLogI("failed " + errorTextUser);
-        return new TaskUiState(false, false, true, false,
-                this.title, progressText, 100
-                , this.warningText, nonNull(errorTextUser), true);
-    }
-
-    public TaskUiState success(String progressText) {
-        myLogI("success");
-        return new TaskUiState(false, false, true, false,
-                this.title, progressText, 100
-                , this.warningText, null, this.showToUser);
-    }
-
-    private static String nonNull(String s) { return s == null ? "" : s; }
-    private static int clamp(int p) { return Math.max(0, Math.min(100, p)); }
-
-    public TaskUiState withShowToUser(boolean show) {
-        return new TaskUiState(
-                this.running, this.paused, this.finished, this.pauseAvailable,
-                this.title, this.progressText, this.progressPercent,
-                this.warningText, this.errorText, show
-        );
+    @Override public int hashCode() {
+        return Objects.hash(result, showToUser, pauseAvailable, paused, title, progressText, progressPercent, warningText, errorText);
     }
 }

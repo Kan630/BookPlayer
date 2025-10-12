@@ -121,12 +121,22 @@ public class GetOtherActivity extends LoggingActivity {
         bDirectDownload = findViewById(R.id.bDirectDownload);
         etDirectDownload = findViewById(R.id.etDirectDownload);
 
-        // NEW: attach the ongoing banner fragment once; it will self-show/hide
+        // ongoing task fragment
         OngoingTaskHost.attach(
                 this,
                 R.id.topOverlayContainer,
                 new Intent(this, AddResourceActivity.class) // tap banner -> open details
         );
+
+        // ongoing task view model
+        viewModel = new ViewModelProvider(
+                com.driot.bookplayer.objects.AppViewModelStoreOwner.getInstance(),
+                ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication())
+        ).get(OngoingTaskViewModel.class);
+        myLogD("ViewModel instance: " + System.identityHashCode(viewModel));
+        viewModel.getUi().observe(this, ui -> {
+            lockButtons(ui.isRunningLike());
+        });
 
         // ADD RESOURCE RESULT
         addResourceActivityResultLauncher = registerForActivityResult(
@@ -480,20 +490,5 @@ public class GetOtherActivity extends LoggingActivity {
             myLogE("onRequestPermissionsResult() - mPermissionRequest is null ! bad hook");
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        viewModel = new ViewModelProvider(
-                com.driot.bookplayer.objects.AppViewModelStoreOwner.getInstance(),
-                ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication())
-        ).get(OngoingTaskViewModel.class);
-
-        myLogD("ViewModel instance: " + System.identityHashCode(viewModel));
-
-        // Observe running flag and only lock/unlock buttons + labels.
-        viewModel.isTaskRunning().observe(this, isRunning -> lockButtons(Boolean.TRUE.equals(isRunning)));
     }
 }

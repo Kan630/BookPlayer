@@ -40,14 +40,17 @@ public abstract class ImportWorker extends LoggingWorker {
     }
     protected void emitTextOnlyProgress(String text) {
         repo.setProgressText(importId, text);
+        // Worker internal logic can hold progress...
         //setProgressAsync(new Data.Builder().putString("progressText", text).build());
     }
 
-    protected void emitWarning(String warn)
-        { repo.setWarning(importId, warn); }
+    protected void emitWarning(String warn) {
+        myLogE("emitWarning    - warn = [" + warn + "]");
+        repo.setWarning(importId, warn);
+    }
 
     protected void emitFailed(String taskName, String errorTextDev, String errorTextUser) {
-        myLog("emitFailed " + taskName + " - errorTextDev = [" + errorTextDev + "]");
+        myLogE("emitFailed " + taskName + " - errorTextDev = [" + errorTextDev + "]");
         repo.fail(importId, errorTextDev, errorTextUser);
         ImportHelper.cleanUp(appContext, true, jobOrFail().futureFolderPath);
     }
@@ -70,16 +73,20 @@ public abstract class ImportWorker extends LoggingWorker {
     }
 
     protected void emitSuccess() {
-        myLog("emitSuccess");
+        myLogI("emitSuccess");
         repo.success(importId);
         ImportHelper.cleanUp(appContext, false, jobOrFail().futureFolderPath);
     }
 
-    protected void emitDownloadPause(String why)
-    { repo.downloadPause(importId, why); }
+    protected void emitDownloadPause(String why) {
+        myLogI("emitDownloadPause " + why);
+        repo.downloadPause(importId, why);
+    }
 
-    protected void emitDownloadResuming()
-    { repo.downloadResuming(importId); }
+    protected void emitDownloadResuming() {
+        myLogI("emitDownloadResuming");
+        repo.downloadResuming(importId);
+    }
 
     protected Data out()
         { return new Data.Builder().putString(KEY_IMPORT_ID, importId).build(); }
@@ -98,7 +105,7 @@ public abstract class ImportWorker extends LoggingWorker {
 
     protected void failNow(String taskName, String devMsg, String userMsg) {
         repo.fail(importId, devMsg, userMsg); // persist failure
-        throw new ImportAbortException(taskName, devMsg, userMsg);
+        //throw new ImportAbortException(taskName, devMsg, userMsg);
     }
 
     protected Result failResult(String taskName, String devMsg, String userMsg) {

@@ -66,64 +66,47 @@ public class OngoingTaskFragment extends LoggingFragment {
 
         View root = view; // control visibility on the whole fragment
 
-        vm.getShowToUser().observe(getViewLifecycleOwner(), showToUser -> {
-            myLog("observe showToUser = " + showToUser);
-            if (Boolean.TRUE.equals(showToUser)) {
-                root.setVisibility(View.VISIBLE);
-            } else {
-                root.setVisibility(View.GONE);
-            }
-        });
+        vm.getUi().observe(getViewLifecycleOwner(), ui -> {
+            // visibility
+            root.setVisibility(ui.showToUser ? View.VISIBLE : View.GONE);
 
-        vm.getErrorText().observe(getViewLifecycleOwner(), errorText -> {
-            myLog("errorText = " + errorText);
-            boolean hasError = errorText != null && !errorText.isEmpty() && !"Cancelled".equals(errorText);
+            // text
+            tvTitle.setText(ui.title.isEmpty() ? getString(R.string.Import_in_progress) : ui.title);
+            tvProgressText.setText(ui.progressText.isEmpty() ? "---" : ui.progressText);
+            progressBar.setProgress(ui.progressPercent);
+
+            // colors
+            boolean hasError = (ui.errorText != null && !ui.errorText.isEmpty() && ui.result != TaskUiState.Result.CANCELLED);
             if (hasError) {
-                tvProgressText.setText(errorText);
-            }
-            int normal = MaterialColors.getColor(tvProgressText,com.google.android.material.R.attr.colorOnSurfaceVariant);
-            int error  = ContextCompat.getColor(requireContext(), R.color.red);
-            tvProgressText.setTextColor(hasError ? error : normal);
-        });
-
-        vm.isFinished().observe(getViewLifecycleOwner(), finished -> {
-            myLog("observe isFinished = " + finished);
-            if (!Boolean.TRUE.equals(finished)) {
-                // reset gating flags if job flips back
-                successFirstSeenUptimeMs = null;
-                return;
-            }
-            // ignore errors (we don't auto-hide)
-            String err = vm.getErrorText().getValue();
-            boolean hasError = err != null && !err.isEmpty() && !"Cancelled".equals(err);
-            if (hasError) return;
-            // record the first time we saw success
-            if (successFirstSeenUptimeMs == null) {
-                myLog("hide countdown started");
-                successFirstSeenUptimeMs = android.os.SystemClock.uptimeMillis();
-            }
-            maybeScheduleHide();
-        });
-
-        vm.getTaskTitle().observe(getViewLifecycleOwner(), title ->
-                tvTitle.setText((title == null || title.isEmpty())
-                        ? getString(R.string.Import_in_progress) : title));
-
-        vm.getProgressText().observe(getViewLifecycleOwner(), text -> {
-            if (text == null || text.isEmpty()) {
-                tvProgressText.setText("---");
+                tvProgressText.setText(ui.errorText);
+                tvProgressText.setTextColor(
+                                ContextCompat.getColor(requireContext(), R.color.red)
+                );
             } else {
-                tvProgressText.setText(text);
+                tvProgressText.setTextColor(
+                        com.google.android.material.color.MaterialColors.getColor(tvProgressText,
+                                com.google.android.material.R.attr.colorOnSurfaceVariant)
+                );
+            }
+
+            // success auto-hide timing (your debounce code can now use ui.result/ui.isFinished())
+            if (ui.result == TaskUiState.Result.SUCCEEDED) {
+                // start your countdown once; then ImportHelper.setShowToUser(false)
+                hideRunnable = () -> {
+                    myLog("Auto-hiding fragment after ~" + SUCCESS_AUTO_HIDE_MS + " ms since success first seen");
+                    requestMainScrollToTopIfHostedByMain();
+                    ImportHelper.setShowToUser(requireContext(), false);
+                };
+                mainH.postDelayed(hideRunnable, SUCCESS_AUTO_HIDE_MS);
             }
         });
-
-        vm.getProgressPercent().observe(getViewLifecycleOwner(), progressBar::setProgress);
 
         // Injected navigation --> opens AddResourceActivity
         View container = view.findViewById(R.id.ongoing_task_container);
         Intent onClick = getArguments() != null ? getArguments().getParcelable(ARG_ONCLICK_INTENT) : null;
         if (container != null && onClick != null) {
             container.setOnClickListener(v -> {
+                myLogI("--- user CLICKS ON-GOING BANNER ---");
                 onClick.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 startActivity(onClick);
             });
@@ -133,6 +116,7 @@ public class OngoingTaskFragment extends LoggingFragment {
     }
 
     private void maybeScheduleHide() {
+        myLog("maybeScheduleHide");
         if (didAutoHide) return;
         if (successFirstSeenUptimeMs == null) return;
 

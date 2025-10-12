@@ -15,6 +15,7 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.imports.ImportHelper;
 import com.driot.bookplayer.imports.OngoingTaskViewModel;
+import com.driot.bookplayer.imports.TaskUiState;
 import com.driot.bookplayer.objects.AppViewModelStoreOwner;
 import com.driot.bookplayer.services.DownloadControl;
 import com.driot.bookplayer.utils.log.LoggingActivity;
@@ -66,48 +67,32 @@ public class AddResourceActivity extends LoggingActivity {
 
         myLogD("ViewModel instance: " + System.identityHashCode(viewModel));
 
-        // Bind UI
-        viewModel.getTaskTitle().observe(this, title -> tvTitle.setText(title));
-        viewModel.getProgressText().observe(this, text -> progressBarText.setText(text));
-        viewModel.getProgressPercent().observe(this, percent -> progressBar.setProgress(percent));
-        viewModel.getWarningText().observe(this, warningText -> {
-            tvWarning.setText(warningText);
+        viewModel.getUi().observe(this, ui -> {
+            // Bind UI
+            tvTitle.setText(ui.title);
+            progressBarText.setText(ui.progressText);
+            progressBar.setProgress(ui.progressPercent);
+            tvErrorText.setText(ui.errorText);
+            tvWarning.setText(ui.warningText);
             warningScroll.post(() -> warningScroll.fullScroll(View.FOCUS_DOWN));
-        });
-        viewModel.getErrorText().observe(this, errorText -> tvErrorText.setText(errorText));
 
-        viewModel.isPauseAvailable().observe(this, available -> {
-            myLog("observe isPauseAvailable = " + available);
-            bPauseResume.setVisibility(Boolean.TRUE.equals(available) ? View.VISIBLE : View.GONE);
-            if (Boolean.TRUE.equals(available)) {
-                boolean pausedNow = Boolean.TRUE.equals(viewModel.isPaused().getValue());
-                bPauseResume.setText(getString(pausedNow ? R.string.Resume : R.string.Pause));
+            bPauseResume.setVisibility(ui.pauseAvailable ? View.VISIBLE : View.GONE);
+            if (ui.pauseAvailable) {
+                bPauseResume.setText(getString(ui.paused ? R.string.Resume : R.string.Pause));
             }
-        });
 
-        viewModel.isPaused().observe(this, paused -> {
-            myLog("observe isPaused = " + paused);
-            if (bPauseResume.getVisibility() == View.VISIBLE) {
-                bPauseResume.setText(getString(Boolean.TRUE.equals(paused) ? R.string.Resume : R.string.Pause));
-            }
-        });
-
-        viewModel.isTaskRunning().observe(this, running -> {
-            String errorText = viewModel.getErrorText().getValue();
-            boolean hasErrorText = errorText != null && !errorText.isEmpty();
-            myLog("observe isTaskRunning = " + running + (hasErrorText ? " - errorText=" + errorText : ""));
-            if (!didClose) {
-                if (Boolean.FALSE.equals(running)) {  // && !hasErrorText
-                    didClose = true;
-                    checkAndClose();
-                }
+            // When no longer running (FAILED / SUCCEEDED / CANCELLED), close flow once
+            if (!didClose && ui.isFinished()) {
+                didClose = true;
+                // Defer to end-of-frame to avoid re-entrancy with other observers
+                getWindow().getDecorView().post(() -> checkAndClose(ui));
             }
         });
     }
 
     private void performPauseOrResume() {
         // Keep your existing service control; the VM/repo only reflects state.
-        boolean isPausedNow = Boolean.TRUE.equals(viewModel.isPaused().getValue());
+        boolean isPausedNow = viewModel.getUi().getValue() != null && viewModel.getUi().getValue().paused;
         if (!isPausedNow) {
             myLogI("------ USER CLICKS btn PAUSE ----");
             DownloadControl.sendPause(this);
@@ -124,45 +109,38 @@ public class AddResourceActivity extends LoggingActivity {
         enterExitMode();
     }
 
-    private void checkAndClose() {
-        myLog("checkAndClose");
-        final String err  = viewModel.getErrorText().getValue();
-        final String warn = viewModel.getWarningText().getValue();
-        enterExitMode();
+    private void checkAndClose(TaskUiState ui) {
+        myLog("checkAndClose(result=" + ui.result + ")");
 
-        myLogI("err = " + err);
+        enterExitMode(); // buttons → Exit mode
 
-        if (err != null && !err.isEmpty()) { // && !"Cancelled".equals(err)
-            // Ensure the card stays up:
-            //ImportHelper.setShowToUser(this, true);
+        // Failure => keep activity visible until user exits (or you can auto-close later)
+        if (ui.result == TaskUiState.Result.FAILED) {
             myToast(getString(R.string.Import_failed));
             return;
         }
 
-        // Collapse trivial warnings
-        String trimmedWarn = null;
-        if (warn != null && !warn.isEmpty()) {
-            trimmedWarn = warn
-                    .replace("\n", "")
-                    //.replace(getString(R.string.Download_paused_by_user), "")
-                    //.replace(getString(R.string.connection_aborted) + " (" + getString(R.string.no_internet_connection) + "?)","")
-                    //.replace(getString(R.string.no_internet_connection), "")
-                    .trim();
-        }
-
-        // If meaningful warnings: show "finished with errors" but still allow auto-close
-        if (trimmedWarn != null && !trimmedWarn.isEmpty()) {
+        // Finished with meaningful warnings => short display then close
+        boolean hasWarn = ui.warningText != null && !ui.warningText.trim().isEmpty();
+        if (hasWarn && ui.result != TaskUiState.Result.CANCELLED) {
             bCancel.setText(getString(R.string.Exit));
-            ImportHelper.setShowToUser(this, true); // keep visible for the brief display
+            ImportHelper.setShowToUser(this, true); // keep banner briefly
             myToast(getString(R.string.Import_finished_with_errors));
-            scheduleFinish(DELAY_END_WAIT_WARNINGS /* e.g., 5000ms */);
+            scheduleFinish(DELAY_END_WAIT_WARNINGS);
             return;
         }
 
-        // Success path: short display then close (and hide banners)
-        myToast(getString(R.string.Import_Success) + "\n" + tvTitle.getText());
-        ImportHelper.setShowToUser(this, true); // (optional) keep visible during the short success toast
-        scheduleFinish(DELAY_END_WAIT_NO_ERROR /* e.g., 1000ms */);
+        // Success or Cancelled:
+        if (ui.result == TaskUiState.Result.SUCCEEDED) {
+            myToast(getString(R.string.Import_Success) + "\n" + tvTitle.getText());
+        } else if (ui.result == TaskUiState.Result.CANCELLED) {
+            ImportHelper.setShowToUser(this, false);
+            scheduleFinish(0);
+            return;
+        }
+        // Briefly show, then hide banner + return to Main (ask scroll)
+        ImportHelper.setShowToUser(this, true);
+        scheduleFinish(DELAY_END_WAIT_NO_ERROR);
     }
 
     private void scheduleFinish(int delayMs) {
@@ -180,9 +158,7 @@ public class AddResourceActivity extends LoggingActivity {
     }
 
     private void enterExitMode() {
-        viewModel.isPauseAvailable().removeObservers(this);
-        viewModel.isPaused().removeObservers(this);
-        viewModel.isTaskRunning().removeObservers(this);
+        myLog("enterExitMode");
         bPauseResume.setVisibility(View.GONE);
         bCancel.setText(getString(R.string.Exit));
         bCancel.setOnClickListener(v -> {

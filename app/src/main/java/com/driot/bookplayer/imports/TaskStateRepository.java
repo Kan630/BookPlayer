@@ -1,3 +1,4 @@
+/*
 package com.driot.bookplayer.imports;
 
 import android.os.Handler;
@@ -28,7 +29,7 @@ public final class TaskStateRepository extends LoggerHelper {
 
     private volatile boolean bootstrapped = false;
 
-    /** Idempotent: safe to call multiple times. Restores title/progress after process death. */
+    //Idempotent: safe to call multiple times. Restores title/progress after process death. /
     public synchronized void hydrateFromPrefs() {
         if (bootstrapped) return;
         LoadBookTaskState s = Pref.getLoadBookTaskState();
@@ -137,3 +138,4 @@ public final class TaskStateRepository extends LoggerHelper {
     private static String nonNull(String s) { return s == null ? "" : s; }
 
 }
+*/
