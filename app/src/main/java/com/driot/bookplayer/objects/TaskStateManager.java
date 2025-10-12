@@ -1,4 +1,3 @@
-/*
 package com.driot.bookplayer.objects;
 
 import android.content.Context;
@@ -75,7 +74,7 @@ public class TaskStateManager {
 
         // Kind of garbage collector
         final Handler handler = new Handler(Looper.getMainLooper());
-        handler.postDelayed(() -> WorkFlow.cancelAllOngoingTasks(appContext), 300);
+        //handler.postDelayed(() -> WorkFlow.cancelAllOngoingTasks(appContext), 300);
     }
 
     // ---- Markers that also persist sticky state in Pref ----
@@ -188,7 +187,7 @@ public class TaskStateManager {
             myLogEE(null, "markTaskFailed - No valid LoadBookTaskState found - " + devMessage);
         }
         tellError(userMessage);
-        WorkFlow.cancelAllOngoingTasks(appContext);
+        //WorkFlow.cancelAllOngoingTasks(appContext);
     }
 
     // ---- Tell* helpers (now route to repo) ----
@@ -318,4 +317,3 @@ public class TaskStateManager {
     }
 }
 
- */

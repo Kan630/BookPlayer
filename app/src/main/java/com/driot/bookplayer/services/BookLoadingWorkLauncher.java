@@ -1,6 +1,8 @@
 package com.driot.bookplayer.services;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 
 import androidx.work.BackoffPolicy;
 import androidx.work.Constraints;
@@ -9,6 +11,7 @@ import androidx.work.ExistingWorkPolicy;
 import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkContinuation;
+import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 
 import com.driot.bookplayer.global.Option;
@@ -236,6 +239,7 @@ public class BookLoadingWorkLauncher {
     }
 
     public static void enqueueOneNoDownload(Context ctx, LoadBookTaskState s, boolean sequential) {
+        myLogD("enqueueOneNoDownload : " + s.title);
         String importId = (s.futureFolderName != null ? s.futureFolderName : "book") + ":" + UUID.randomUUID();
 
         // Derive flags like before
@@ -272,7 +276,7 @@ public class BookLoadingWorkLauncher {
         j.doSplitEbook = doSplitEbook;
         j.doDownload = false;
 
-        j.status = ImportJob.S_QUEUED;
+        j.status = ImportJob.S_RUNNING; //.S_QUEUED;
         j.createdAt = j.updatedAt = System.currentTimeMillis();
 
         ImportJobRepository repo = new ImportJobRepository(ctx);
@@ -282,24 +286,50 @@ public class BookLoadingWorkLauncher {
 
         List<OneTimeWorkRequest> steps = new ArrayList<>();
         if (j.doCopy) steps.add(new OneTimeWorkRequest.Builder(CopyFileWorker.class)
-                .setInputData(common).addTag(BOOK_LOADING_WORKERS).addTag("import:"+importId).build());
+                .setInputData(common).addTag(BOOK_LOADING_WORKERS).addTag("import:" + importId).build());
         if (j.doUnzip) steps.add(new OneTimeWorkRequest.Builder(UnzipWorker.class)
-                .setInputData(common).addTag(BOOK_LOADING_WORKERS).addTag("import:"+importId).build());
+                .setInputData(common).addTag(BOOK_LOADING_WORKERS).addTag("import:" + importId).build());
         if (j.doSplitM4b) steps.add(new OneTimeWorkRequest.Builder(M4bSplitWorker.class)
-                .setInputData(common).addTag(BOOK_LOADING_WORKERS).addTag("import:"+importId).build());
+                .setInputData(common).addTag(BOOK_LOADING_WORKERS).addTag("import:" + importId).build());
         if (j.doSplitEbook) steps.add(new OneTimeWorkRequest.Builder(EbookSplitWorker.class)
-                .setInputData(common).addTag(BOOK_LOADING_WORKERS).addTag("import:"+importId).build());
+                .setInputData(common).addTag(BOOK_LOADING_WORKERS).addTag("import:" + importId).build());
 
         steps.add(new OneTimeWorkRequest.Builder(FinalParseFolderWorker.class)
-                .setInputData(common).addTag(BOOK_LOADING_WORKERS).addTag("import:"+importId).build());
+                .setInputData(common).addTag(BOOK_LOADING_WORKERS).addTag("import:" + importId).build());
 
         WorkManager wm = WorkManager.getInstance(ctx);
-        String uniqueName = sequential ? "bookload-queue" : "bookload:"+importId;
+        String uniqueName = sequential ? "bookload-queue" : "bookload:" + importId;
+        myLogD("uniqueName = " + uniqueName);
         ExistingWorkPolicy policy = sequential ? ExistingWorkPolicy.APPEND : ExistingWorkPolicy.REPLACE;
+        myLogD("policy = " + policy);
 
         WorkContinuation cont = wm.beginUniqueWork(uniqueName, policy, steps.get(0));
         for (int i = 1; i < steps.size(); i++) cont = cont.then(steps.get(i));
         cont.enqueue();
-    }
+        for (int i = 0; i < steps.size(); i++) {
+            myLogD("step[" + i + "] id=" + steps.get(i).getId() + " cls=" + steps.get(i).toString());
+        }
 
+        Handler main = new Handler(Looper.getMainLooper());
+
+        main.post(() -> {
+            WorkManager.getInstance(ctx)
+                    .getWorkInfosForUniqueWorkLiveData(uniqueName)
+                    .observeForever(infos -> {
+                        if (infos == null) return;
+                        for (WorkInfo wi : infos) {
+                            myLogD("WM unique '" + uniqueName + "' -> " + wi.getId() + " state=" + wi.getState() + " tags=" + wi.getTags());
+                        }
+                    });
+
+            WorkManager.getInstance(ctx)
+                    .getWorkInfosByTagLiveData("import:" + importId)
+                    .observeForever(infos -> {
+                        if (infos == null) return;
+                        for (WorkInfo wi : infos) {
+                            myLogD("WM tag 'import:" + importId + "' -> " + wi.getId() + " state=" + wi.getState());
+                        }
+                    });
+        });
+    }
 }

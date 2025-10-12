@@ -40,7 +40,7 @@ public class OngoingTaskViewModel extends LoggingAndroidViewModel {
 
         AppDatabase db = AppDatabase.getInstance(app);
         LiveData<ImportJob> src = db.importJobDao()
-                .observeCurrentActive(ImportJob.S_RUNNING, ImportJob.S_QUEUED, ImportJob.S_PAUSED);
+                .observeCurrentOrLast(ImportJob.S_RUNNING, ImportJob.S_QUEUED, ImportJob.S_PAUSED);
 
         taskTitle.addSource(src, job -> mapToUi(job));
     }

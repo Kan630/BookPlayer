@@ -59,7 +59,19 @@ public class OngoingTaskFragment extends LoggingFragment {
 
         View root = view; // control visibility on the whole fragment
         vm.isTaskRunning().observe(getViewLifecycleOwner(), running -> {
+            myLog("observe isTaskRunning = " + running);
                     if (Boolean.TRUE.equals(running)) {
+                        root.setVisibility(View.VISIBLE);
+                    } else {
+                        //TODO add the timeout of isFinished
+                        root.setVisibility(View.GONE);
+                    }
+                }
+        );
+
+        vm.isFinished().observe(getViewLifecycleOwner(), success -> {
+            myLog("observe isFinished = " + success);
+                    if (Boolean.TRUE.equals(success)) {
                         root.setVisibility(View.VISIBLE);
                         myToast(getString(R.string.Import_Success) + "\n" + tvTitle.getText());
                         Handler delayedFinishHandler = new Handler();
@@ -68,8 +80,6 @@ public class OngoingTaskFragment extends LoggingFragment {
                         };
                         myLog("Let's wait some " + DELAY_END_WAIT_NO_ERROR + " ms. to display finish...");
                         delayedFinishHandler.postDelayed(delayedFinishRunnable, DELAY_END_WAIT_NO_ERROR);
-                    } else {
-                        root.setVisibility(View.GONE);
                     }
                 }
         );

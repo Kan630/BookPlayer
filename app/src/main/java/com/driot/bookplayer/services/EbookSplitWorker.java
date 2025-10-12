@@ -12,6 +12,7 @@ import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.OdtLowLevelHelper;
+import com.driot.bookplayer.imports.ImportJob;
 import com.driot.bookplayer.imports.ImportWorker;
 import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.helpers.EpubLowLevelHelper;
@@ -43,22 +44,22 @@ public class EbookSplitWorker extends ImportWorker {
     @NonNull
     @Override
     public Result doWork() {
-        LoadBookTaskState bookState = Pref.getLoadBookTaskState();
-        if (bookState == null) {
-            emitFailed(TASK_NAME, "bookState == null", getApplicationContext().getString(R.string.invalid_resource));
-            return Result.failure();
-        }
+        myLog("doWork()");
+        ImportJob j = jobOrFail();
+        final String ebookPath = j.dynamicSourceFilePath;
+        final String destinationFolderPath = j.futureFolderPath;
 
-        final String ebookPath = bookState.dynamicSourceFilePath;   // absolute file path or content://
-        final String destinationFolderPath = bookState.futureFolderPath;
-        final String ebookType = guessTypeFromPath(ebookPath); //"epub" or "fb2"
-
+        myLogD("--------------------------------------------------------------------------");
         myLog("EbookSplitWorker received:");
+        myLog("-------------------------------------");
         myLog("ebookPath = " + ebookPath);
         myLog("destinationFolderPath = " + destinationFolderPath);
-        myLog("ebookType = " + ebookType);
+        myLog("-------------------------------------");
+        final String ebookType = guessTypeFromPath(ebookPath); //keep that line here to get some log if null => throw...
+        myLog("computed ebookType = " + ebookType);
+        myLogD("--------------------------------------------------------------------------");
 
-        if (ebookPath == null || destinationFolderPath == null) {
+        if (ebookPath==null || destinationFolderPath==null || String.valueOf(ebookPath).isEmpty() || String.valueOf(destinationFolderPath).isEmpty()) {
             emitFailed(TASK_NAME, "Missing input data for EbookSplitWorker", getApplicationContext().getString(R.string.invalid_resource));
             myLogEE(null, "Missing input data for EbookSplitWorker");
             return Result.failure();

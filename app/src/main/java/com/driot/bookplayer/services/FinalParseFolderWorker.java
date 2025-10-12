@@ -27,6 +27,7 @@ import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.SupportedFilesHelper;
 import com.driot.bookplayer.helpers.UriHelper;
+import com.driot.bookplayer.imports.ImportJob;
 import com.driot.bookplayer.imports.ImportWorker;
 import com.driot.bookplayer.objects.AudioFileInfo;
 import com.driot.bookplayer.objects.AudioInfo;
@@ -53,8 +54,8 @@ public class FinalParseFolderWorker extends ImportWorker {
     private int nbFileScan;
     private int totalAudioToScan = 0;
     private int nbAudioScanned = 0;
-
-    LoadBookTaskState bookState;
+    
+    ImportJob importJob;
 
     public static final String K_DYNAMIC_URI   = "dynamic_uri";
     public static final String K_DYNAMIC_TYPE  = "dynamic_type"; // "Folder" | "File" | "ZIP"
@@ -81,9 +82,27 @@ public class FinalParseFolderWorker extends ImportWorker {
     public Result doWork() {
         try {
             DocumentFile df;
-            Context context = getApplicationContext();
-            bookState = Pref.getLoadBookTaskState();
+            Context appContext = getApplicationContext();
+            importJob = jobOrFail();
+            /*
+            String originalType = j.originalType;
+            String dynamicType = j.dynamicType;
+            
+            String playType = j.playType;
+            String title = j.title;
+            String futureFolderPath = j.futureFolderPath;
+            String sourceLocation = j.sourceLocation;
+            String originalHash = j.originalHash;
+            String imagePath = j.imagePath;
+            String fileExtension = j.fileExtension;
+            boolean optionCopy = j.optionCopy;
+            boolean optionDelete = j.optionDelete;
+            
+             */
 
+                    
+
+/*
             // New: override with InputData if provided
             String inDynUri  = getInputData().getString(K_DYNAMIC_URI);
             String inDynType = getInputData().getString(K_DYNAMIC_TYPE);
@@ -104,30 +123,32 @@ public class FinalParseFolderWorker extends ImportWorker {
                 bookState = s;
             }
 
-            if (bookState == null) {
-                emitFailed(TASK_NAME, "bookState == null", getApplicationContext().getString(R.string.invalid_resource));
+ */
+
+            if (importJob == null) {
+                emitFailed(TASK_NAME, "importJob == null", getApplicationContext().getString(R.string.invalid_resource));
                 return Result.failure();
             }
-            emitStepProgress(TASK_NAME, 1, context.getString(R.string.listing_and_sorting_tracks));
+            emitStepProgress(TASK_NAME, 1, appContext.getString(R.string.listing_and_sorting_tracks));
 
 
-            boolean isFolderComputed = UriHelper.isFolder(context, bookState.dynamicUri);
+            boolean isFolderComputed = UriHelper.isFolder(appContext, Uri.parse(importJob.dynamicUri));
             myLogD("isFolderComputed : " + isFolderComputed);
-            myLogD("original Type : " + bookState.originalType);
-            myLogD("dynamic Type : " + bookState.dynamicType + "   <--- we check that");
-            myLogD("dynamic Uri : " + bookState.dynamicUri);
+            myLogD("original Type : " + importJob.originalType);
+            myLogD("dynamic Type : " + importJob.dynamicType + "   <--- we check that");
+            myLogD("dynamic Uri : " + importJob.dynamicUri);
 
 
-            if (bookState.dynamicType.equals("Folder")) {
+            if (importJob.dynamicType.equals("Folder")) {
                 try {
-                    df = UriHelper.getDocumentFileFromAnyUri(context, bookState.dynamicUri);
+                    df = UriHelper.getDocumentFileFromAnyUri(appContext, Uri.parse(importJob.dynamicUri));
                 } catch (Exception e) {
-                    myLogEE(e,"Error reading Folder Uri...." + bookState.dynamicUri);
-                    emitFailed(TASK_NAME, "Error_Import_CannotReadFolder_exception", context.getString(R.string.Error_Import_CannotReadFolder));
+                    myLogEE(e,"Error reading Folder Uri...." + Uri.parse(importJob.dynamicUri));
+                    emitFailed(TASK_NAME, "Error_Import_CannotReadFolder_exception", appContext.getString(R.string.Error_Import_CannotReadFolder));
                     return Result.failure();
                 }
                 if (df == null) {
-                    emitFailed(TASK_NAME, "Error_Import_CannotReadFolder_null", context.getString(R.string.Error_Import_CannotReadFolder));
+                    emitFailed(TASK_NAME, "Error_Import_CannotReadFolder_null", appContext.getString(R.string.Error_Import_CannotReadFolder));
                     return Result.failure();
                 }
                 populateArrayListOfTracksFromFolder(df);
@@ -135,20 +156,20 @@ public class FinalParseFolderWorker extends ImportWorker {
 
             } else {
                 try {
-                    df = UriHelper.getDocumentFileFromAnyUri(context, bookState.dynamicUri);
+                    df = UriHelper.getDocumentFileFromAnyUri(appContext, Uri.parse(importJob.dynamicUri));
                 } catch (Exception e) {
-                    myLogEE(e,"Error reading File Uri.... " + bookState.dynamicUri);
-                    emitFailed(TASK_NAME, "Error_Import_CannotReadFile_exception", context.getString(R.string.Error_Import_CannotReadFile));
+                    myLogEE(e,"Error reading File Uri.... " + Uri.parse(importJob.dynamicUri));
+                    emitFailed(TASK_NAME, "Error_Import_CannotReadFile_exception", appContext.getString(R.string.Error_Import_CannotReadFile));
                     return Result.failure();
                 }
                 if (df == null) {
-                    emitFailed(TASK_NAME, "Error_Import_CannotReadFile_null", context.getString(R.string.Error_Import_CannotReadFile));
+                    emitFailed(TASK_NAME, "Error_Import_CannotReadFile_null", appContext.getString(R.string.Error_Import_CannotReadFile));
                     return Result.failure();
                 }
             /*
             try {
                 // the temp image is updated at the end..  ImageHelper.finalizeTempFolderImage
-                MyAudioMetadata metadata = AudioMetadataHelper.extractMetadata(context, bookState.dynamicUri);
+                MyAudioMetadata metadata = AudioMetadataHelper.extractMetadata(context, importJob.Uri.parse(importJob.dynamicUri));
 
             } catch (Throwable t) {
                 myLogEE(t, "Error parsing metadata");
@@ -178,7 +199,7 @@ public class FinalParseFolderWorker extends ImportWorker {
 
         audioFileInfoArrayList = new ArrayList<>();
 
-        if (bookState.playType != null && bookState.playType.equals(Var.PLAY_TYPE_TEXT)) {
+        if (importJob.playType != null && importJob.playType.equals(Var.PLAY_TYPE_TEXT)) {
             addTextFileUnique(dfPickedFile);
         } else {
             addAudioFileUnique(dfPickedFile);
@@ -201,8 +222,8 @@ public class FinalParseFolderWorker extends ImportWorker {
 
         audioFileInfoArrayList = new ArrayList<>();
         Thread backgroundThread;
-        myLog("bookState.playType = " + bookState.playType);
-        if (bookState.playType != null && bookState.playType.equals(Var.PLAY_TYPE_TEXT)) {
+        myLog("importJob.playType = " + importJob.playType);
+        if (importJob.playType != null && importJob.playType.equals(Var.PLAY_TYPE_TEXT)) {
             backgroundThread = new Thread(() -> {
                 addTextFileRecursive(dfPickedDir);
 
@@ -285,7 +306,7 @@ public class FinalParseFolderWorker extends ImportWorker {
         myLogD("-------------------------------------------------------------------------------------------------------------------xxx");
         String l_audioFilePath;
         long l_audioSize;
-        boolean hadImageBefore = bookState.imagePath != null; //dont look in subDir if image found at top dir
+        boolean hadImageBefore = importJob.imagePath != null; //dont look in subDir if image found at top dir
         for (DocumentFile f1 : f0.listFiles()) {
             if (f1.isDirectory()) {
                 myLog("increase recursive depth for Directory : [" + f1.getName() + "]");
@@ -324,9 +345,9 @@ public class FinalParseFolderWorker extends ImportWorker {
                 } else if (SupportedFilesHelper.isImage(f1)) {
                     if (!hadImageBefore) {
                         long imageSize = f1.length();
-                        if (bookState.imagePath == null || imageSize > UriHelper.getSize(context, Uri.parse(bookState.imagePath))) {
+                        if (importJob.imagePath == null || imageSize > UriHelper.getSize(context, Uri.parse(importJob.imagePath))) {
                             myLogD("New biggest Picture Found, size = [" + Tonio.formatMemPadding(imageSize) + "] - [" + f1.getUri() + "]");
-                            bookState.imagePath = f1.getUri().toString();
+                            importJob.imagePath = f1.getUri().toString();
                             hadImageBefore = true;
                         }
                     } else {
@@ -367,7 +388,7 @@ public class FinalParseFolderWorker extends ImportWorker {
     }
 
     private void addTextFileRecursive(DocumentFile dir, String recursiveFolder) {
-        boolean hadImageBefore = bookState.imagePath != null; //dont look in subDir if image found at top dir
+        boolean hadImageBefore = importJob.imagePath != null; //dont look in subDir if image found at top dir
         for (DocumentFile f1 : dir.listFiles()) {
             if (f1.isDirectory()) {
                 myLog("increase recursive depth for Directory : [" + f1.getName() + "]");
@@ -394,9 +415,9 @@ public class FinalParseFolderWorker extends ImportWorker {
                             context.getString(R.string.scanning_tracks) + "..... \n[" + displayPath + ']');
                 } else if (!hadImageBefore && (SupportedFilesHelper.isImage(f1))) {
                     long imageSize = f1.length();
-                    if (bookState.imagePath == null || imageSize > UriHelper.getSize(context, Uri.parse(bookState.imagePath))) {
+                    if (importJob.imagePath == null || imageSize > UriHelper.getSize(context, Uri.parse(importJob.imagePath))) {
                         myLogD("New biggest Picture Found, size = [" + Tonio.formatMemPadding(imageSize) + "] - [" + f1.getUri() + "]");
-                        bookState.imagePath = f1.getUri().toString();
+                        importJob.imagePath = f1.getUri().toString();
                         hadImageBefore = true;
                     }
                 } else {
@@ -428,15 +449,15 @@ public class FinalParseFolderWorker extends ImportWorker {
                 myLog(audioFileInfoArrayList.size() + " " + context.getString(R.string.Import_nMediaInFolder));
                 if (Option.getCreateCover()) {
                     try {
-                        if (bookState.imagePath == null || bookState.imagePath.isEmpty()) {
+                        if (importJob.imagePath == null || importJob.imagePath.isEmpty()) {
                             String path = ImageHelper.createFallbackManualFolderImagePreInsert(
                                     context,
-                                    bookState.title,
-                                    bookState.futureFolderPath,
+                                    importJob.title,
+                                    importJob.futureFolderPath,
                                     Var.FALL_BACK_COVER_IMAGE_SIZE_IN_PIXELS
                             );
                             if (path != null) {
-                                bookState.imagePath = path;
+                                importJob.imagePath = path;
                             }
                         }
                     } catch (Exception e) {
@@ -454,25 +475,25 @@ public class FinalParseFolderWorker extends ImportWorker {
         emitStepProgress(TASK_NAME, 81, context.getString(R.string.saving_folder));
 
         Folder folder = new Folder();
-        folder.setName(bookState.title);
-        folder.setPath(bookState.futureFolderPath);
-        folder.setUri(bookState.futureFolderPath); //2023-10-22 deprecated
+        folder.setName(importJob.title);
+        folder.setPath(importJob.futureFolderPath);
+        folder.setUri(importJob.futureFolderPath); //2023-10-22 deprecated
         folder.setHash("0"); //2023-10-22 deprecated
         folder.setPercentdone(0.0);
         folder.setFinished(false);
         folder.setIszipfile(false); //2023-10-22 deprecated (live zip reading - code has been removed)
-        folder.setOriginalHash(bookState.originalHash);
-        folder.setOriginalFile(bookState.originalFile);
-        folder.setOriginalType(bookState.originalType);
-        folder.setSourceLocation(bookState.sourceLocation);
-        folder.playType = bookState.playType;
+        folder.setOriginalHash(importJob.originalHash);
+        folder.setOriginalFile(importJob.originalFile);
+        folder.setOriginalType(importJob.originalType);
+        folder.setSourceLocation(importJob.sourceLocation);
+        folder.playType = importJob.playType;
         folder.date_added = System.currentTimeMillis();
-        folder.image = bookState.imagePath;
+        folder.image = importJob.imagePath;
         folder.lLastAccess = System.currentTimeMillis(); //used to sort the Book on the main page
 
         new Thread(() -> {
             int insertedFolderId = (int) DatabaseClient.getInstance(context).getAppDatabase().folderDao().insert(folder);
-            myLog("Folder Saved in DB, ID=[" + insertedFolderId + "] - [" + bookState.title + "]");
+            myLog("Folder Saved in DB, ID=[" + insertedFolderId + "] - [" + importJob.title + "]");
             ImageHelper.finalizeTempFolderImage(context, insertedFolderId);
             emitStepProgress(TASK_NAME, 83, context.getString(R.string.saving_folder));
             saveFiles(insertedFolderId);
@@ -539,18 +560,18 @@ public class FinalParseFolderWorker extends ImportWorker {
         if (saved == 0) {
             emitFailed(TASK_NAME, "saved = 0 - Error_Import_No_Usable_item_Found", context.getString(R.string.Error_Import_No_Usable_item_Found));
         } else {
-            FirebaseAnalyticsHelper.tellLoadBookSuccess(String.valueOf(bookState.originalUri), bookState.fileExtension, bookState.doDownload);
-            if (Var.SOURCE_LOCATION_LIBRIVOX.equals(bookState.sourceLocation)) {
-                FirebaseAnalyticsHelper.tellLibrivoxSuccess(String.valueOf(bookState.title));
+            FirebaseAnalyticsHelper.tellLoadBookSuccess(String.valueOf(importJob.originalUri), importJob.fileExtension, importJob.doDownload);
+            if (Var.SOURCE_LOCATION_LIBRIVOX.equals(importJob.sourceLocation)) {
+                FirebaseAnalyticsHelper.tellLibrivoxSuccess(String.valueOf(importJob.title));
                 AppDatabase.databaseWriteExecutor.execute(() -> {
                     AppDatabase db = AppDatabase.getDatabase(context);
                     db.bookSourceDao().markImported(
                             Var.REPO_TYPE_AUDIOBOOK,               // repoType (lowercase)
                             Var.REPO_NAME_LIBRIVOX,                // repoName (lowercase)
-                            bookState.futureFolderName,                // repoId (e.g., "dracula_123")
+                            importJob.futureFolderName,                // repoId (e.g., "dracula_123")
                             insertedFolderId,                  // the new Folder.id
-                            bookState.title,                     // display title
-                            bookState.originalUri.toString(),  // source_url
+                            importJob.title,                     // display title
+                            importJob.originalUri.toString(),  // source_url
                             null,      // imageLocal if you saved it
                             null       // imageRemote if available
                     );
@@ -559,14 +580,14 @@ public class FinalParseFolderWorker extends ImportWorker {
         }
 
         myLogD("deleting source ??"
-                + "\nOption CopyFile : " + bookState.optionCopy + "  -  is a ZIP : " + bookState.dynamicType.equals("ZIP")
-                + "\nOption DeleteSourceFile : " + bookState.optionDelete);
-        if ((bookState.optionCopy || "ZIP".equals(bookState.dynamicType)) && bookState.optionDelete) {
+                + "\nOption CopyFile : " + importJob.optionCopy + "  -  is a ZIP : " + importJob.dynamicType.equals("ZIP")
+                + "\nOption DeleteSourceFile : " + importJob.optionDelete);
+        if ((importJob.optionCopy || "ZIP".equals(importJob.dynamicType)) && importJob.optionDelete) {
             if (!deleteSourceFile()) {
                 emitWarning(context.getString(R.string.Error_Import_could_not_delete_source));
             }
         }
-        emitFinished();
+        emitSuccess();
     }
 
 
@@ -576,7 +597,7 @@ public class FinalParseFolderWorker extends ImportWorker {
         file.setDisplayName(formatNameForDisplay(info.getDisplayPath()));
         file.setIdFolder(folderId);
         file.setZeorder(zeOrder);
-        file.setFolderName(bookState.title);
+        file.setFolderName(importJob.title);
         file.setPercentdone(0.0);
         file.setPosition(0);
         file.setPath(info.getContentUri());
@@ -604,17 +625,17 @@ public class FinalParseFolderWorker extends ImportWorker {
     }
 
     private boolean deleteSourceFile() {
-        myLog("deleteSourceFile() - uri = [" + bookState.originalUri + "]");
+        myLog("deleteSourceFile() - uri = [" + importJob.originalUri + "]");
         DocumentFile dfPickedDir = null;
-        if (bookState.dynamicType.equals("File") || bookState.dynamicType.equals("ZIP") || bookState.dynamicType.equals("Folder")) {
+        if (importJob.dynamicType.equals("File") || importJob.dynamicType.equals("ZIP") || importJob.dynamicType.equals("Folder")) {
             try {
-                dfPickedDir = UriHelper.getDocumentFileFromAnyUri(context, bookState.originalUri);
+                dfPickedDir = UriHelper.getDocumentFileFromAnyUri(context, Uri.parse(importJob.originalUri));
             } catch (Exception e) {
                 myLogEE(e,"deleting - error getting DocumentFile.fromSingleUri");
                 return false;
             }
         } else {
-            myLogEE(null,"Incorrect type : **" + bookState.dynamicType + "**");
+            myLogEE(null,"Incorrect type : **" + importJob.dynamicType + "**");
             return false;
         }
         if (!(dfPickedDir == null)) {

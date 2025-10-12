@@ -44,7 +44,15 @@ public class ImportJobRepository {
         dao.cancel(id, System.currentTimeMillis());
     }
 
-    public void finish(String id) {
+    public void taskCompleted(String id, String taskName, String destinationFolderPath, String playType) {
+        dao.taskComplete(id, taskName, destinationFolderPath, playType, System.currentTimeMillis());
+    }
+
+    public void downloadCompleted(String id, String taskName, String downloadedFileFullPath, String progressText) {
+        dao.downloadComplete(id, taskName, downloadedFileFullPath, progressText, System.currentTimeMillis());
+    }
+
+    public void success(String id) {
         dao.finish(id, System.currentTimeMillis());
     }
 

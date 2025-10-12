@@ -67,7 +67,7 @@ public class ImportJob {
     public String uniqueChainName;
 
     // --- Control / lifecycle ---
-    public String status;                 // QUEUED/RUNNING/SUCCEEDED/FAILED/CANCELLED
+    public String status;                 // QUEUED/RUNNING/SUCCEEDED/FAILED/CANCELLED/PAUSED
     public long createdAt;
     public long updatedAt;
     public String warningText;
