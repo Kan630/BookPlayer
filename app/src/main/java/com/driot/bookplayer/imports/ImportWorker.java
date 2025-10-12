@@ -61,14 +61,20 @@ public abstract class ImportWorker extends LoggingWorker {
         ImportHelper.cleanUp(appContext, true, jobOrFail().futureFolderPath);
     }
 
-    protected void emitTaskCompleted(String taskName, String destination) {
-        myLog("emitTaskCompleted " + taskName + " - destination = [" + destination + "]");
+    protected void emitTaskStart(String taskName, String progressText) {
+        myLog("emitTaskStart " + taskName + " - progressText = [" + progressText + "]");
+        repo.taskStarted(importId, taskName, progressText);
+    }
+
+    protected void emitTaskCompleted(String taskName, String destination, String progressText) {
+        myLog("emitTaskCompleted " + taskName + " - destination = [" + destination + "] - progressText = [" + progressText + "]");
         if (Var.WORKER_TASK_LABEL_DOWNLOAD.equals(taskName)) {
             repo.downloadCompleted(importId, taskName, destination, appContext.getString(R.string.Download_finished));
         } else if (Var.WORKER_TASK_LABEL_SPLIT_EBOOK.equals(taskName)) {
-            repo.taskCompleted(importId, taskName, destination, Var.PLAY_TYPE_TEXT);
+            //TODO ugly, should certainly be somewhere else
+            repo.taskCompleted(importId, taskName, destination, Var.PLAY_TYPE_TEXT, progressText);
         } else {
-            repo.taskCompleted(importId, taskName, destination, Var.PLAY_TYPE_AUDIO);
+            repo.taskCompleted(importId, taskName, destination, Var.PLAY_TYPE_AUDIO, progressText);
         }
     }
 

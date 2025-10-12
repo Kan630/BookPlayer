@@ -27,7 +27,7 @@ import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
-import com.driot.bookplayer.utils.KanLogger;
+import com.driot.bookplayer.utils.log.KanLogger;
 import com.driot.bookplayer.utils.Tonio;
 
 import java.util.ArrayList;

@@ -7,7 +7,7 @@ import android.speech.tts.TextToSpeech;
 import android.speech.tts.Voice;
 
 import com.driot.bookplayer.helpers.FlagHelper;
-import com.driot.bookplayer.utils.KanLogger;
+import com.driot.bookplayer.utils.log.KanLogger;
 
 import java.util.Collections;
 import java.util.Locale;

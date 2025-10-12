@@ -2,9 +2,9 @@ package com.driot.bookplayer.utils;
 
 import java.nio.charset.StandardCharsets;
 
-import static com.driot.bookplayer.utils.KanLogger.myLogE;
+import static com.driot.bookplayer.utils.log.KanLogger.myLogE;
 
-import android.util.Log;
+import com.driot.bookplayer.utils.log.KanLogger;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 10/12/20

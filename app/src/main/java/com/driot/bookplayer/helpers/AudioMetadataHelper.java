@@ -10,7 +10,7 @@
     import com.coremedia.iso.boxes.Box;
     import com.coremedia.iso.boxes.Container;
     import com.driot.bookplayer.objects.MyAudioMetadata;
-    import com.driot.bookplayer.utils.KanLogger;
+    import com.driot.bookplayer.utils.log.KanLogger;
     import com.googlecode.mp4parser.FileDataSourceImpl;
 
     import java.io.ByteArrayOutputStream;

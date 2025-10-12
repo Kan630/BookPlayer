@@ -1,12 +1,10 @@
 package com.driot.bookplayer.helpers;
 
 import android.content.Context;
-import android.media.AudioAttributes;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.speech.tts.TextToSpeech;
-import android.speech.tts.UtteranceProgressListener;
 import android.speech.tts.Voice;
 import android.view.View;
 import android.widget.AdapterView;
@@ -19,7 +17,7 @@ import androidx.annotation.Nullable;
 import com.driot.bookplayer.adapter.VoiceSpinnerAdapter;
 import com.driot.bookplayer.objects.VoiceItem;
 import com.driot.bookplayer.utils.AppTtsManager;
-import com.driot.bookplayer.utils.KanLogger;
+import com.driot.bookplayer.utils.log.KanLogger;
 
 import java.io.File;
 import java.text.BreakIterator;

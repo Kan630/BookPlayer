@@ -1,6 +1,6 @@
 package com.driot.bookplayer.utils.log;
 
-import static com.driot.bookplayer.utils.KanLogger.LOG_LIFECYCLE_TRACE;
+import static com.driot.bookplayer.utils.log.KanLogger.LOG_LIFECYCLE_TRACE;
 
 import android.app.Service;
 import android.content.Intent;
@@ -10,7 +10,6 @@ import android.os.IBinder;
 import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
-import com.driot.bookplayer.utils.KanLogger;
 
 
 public abstract class LoggingService extends Service {

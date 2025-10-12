@@ -1,16 +1,7 @@
 package com.driot.bookplayer.utils;
 
-import static com.driot.bookplayer.utils.KanLogger.myLog;
-import static com.driot.bookplayer.utils.KanLogger.myLogE;
-
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.view.View;
-
-import com.driot.bookplayer.objects.AudioFileInfo;
-
-import java.io.File;
-import java.util.Comparator;
+import static com.driot.bookplayer.utils.log.KanLogger.myLog;
+import static com.driot.bookplayer.utils.log.KanLogger.myLogE;
 
 
 /**

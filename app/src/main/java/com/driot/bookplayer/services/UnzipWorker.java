@@ -13,13 +13,11 @@ import androidx.annotation.Nullable;
 import androidx.work.WorkerParameters;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.imports.ImportJob;
 import com.driot.bookplayer.imports.ImportWorker;
-import com.driot.bookplayer.objects.LoadBookTaskState;
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -32,20 +30,20 @@ public class UnzipWorker extends ImportWorker {
 
     private static final String TASK_NAME = Var.WORKER_TASK_LABEL_UNZIP;
 
+    private final Context context;
 
     public UnzipWorker(@NonNull Context context, @NonNull WorkerParameters params) {
         super(context, params);
+        this.context = context.getApplicationContext();
     }
 
     @NonNull
     @Override
     public Result doWork() {
-        myLogD("doWork");
+        emitTaskStart(TASK_NAME, context.getString(R.string.import_task_unzip) + " " + context.getString(R.string.import_task_start));
         ImportJob j = jobOrFail();
         final String zipFilePath = j.dynamicSourceFilePath;
         final String destinationFolderPath = j.futureFolderPath;
-
-        Context context = getApplicationContext();
 
         myLogD("----------------------------------------------------");
         myLog("From: " + zipFilePath);
@@ -53,7 +51,7 @@ public class UnzipWorker extends ImportWorker {
         myLogD("----------------------------------------------------");
 
         if (zipFilePath == null || destinationFolderPath == null) {
-            emitFailed(TASK_NAME, "Missing input data", getApplicationContext().getString(R.string.invalid_resource));
+            emitFailed(TASK_NAME, "Missing input data", context.getString(R.string.invalid_resource));
             return Result.failure();
         }
 
@@ -61,12 +59,12 @@ public class UnzipWorker extends ImportWorker {
         File unzipFolder = new File(destinationFolderPath);
 
         if (!zipFile.exists()) {
-            emitFailed(TASK_NAME, "Zip file not found", getApplicationContext().getString(R.string.invalid_resource));
+            emitFailed(TASK_NAME, "Zip file not found", context.getString(R.string.invalid_resource));
             return Result.failure();
         }
 
         if (!unzipFolder.exists() && !unzipFolder.mkdirs()) {
-            emitFailed(TASK_NAME, "Could not create destination folder", getApplicationContext().getString(R.string.failed_to_create_destination_folder));
+            emitFailed(TASK_NAME, "Could not create destination folder", context.getString(R.string.failed_to_create_destination_folder));
             return Result.failure();
         }
 
@@ -122,13 +120,13 @@ public class UnzipWorker extends ImportWorker {
 
                         numCurZip++;
                         int progress = (int) ((double) numCurZip / nbZip * 100);
-                        String progressText = getApplicationContext().getString(R.string.Import_Progress_unzipping_file) + numCurZip + "/" + nbZip + "\n" + audioFileName;
+                        String progressText = context.getString(R.string.Import_Progress_unzipping_file) + numCurZip + "/" + nbZip + "\n" + audioFileName;
 
                         emitStepProgress(TASK_NAME, progress, progressText);
 
                         File unzippedFile = new File(unzipFolder, audioFileName);
                         if (!(unzippedFile.getParentFile() == null) && !unzippedFile.getParentFile().exists() && !unzippedFile.getParentFile().mkdirs()) {
-                            emitFailed(TASK_NAME, "Failed to create output dir: " + unzippedFile, getApplicationContext().getString(R.string.failed_to_create_destination_folder));
+                            emitFailed(TASK_NAME, "Failed to create output dir: " + unzippedFile, context.getString(R.string.failed_to_create_destination_folder));
                             return Result.failure();
                         }
 
@@ -170,7 +168,7 @@ public class UnzipWorker extends ImportWorker {
                 }
             }
 
-            emitTaskCompleted(TASK_NAME, destinationFolderPath);
+            emitTaskCompleted(TASK_NAME, destinationFolderPath, context.getString(R.string.import_task_unzip) + " " + context.getString(R.string.import_task_complete));
             return Result.success();
 
         } catch (Exception e) {

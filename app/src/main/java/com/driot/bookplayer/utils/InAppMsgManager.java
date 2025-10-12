@@ -27,6 +27,7 @@ import androidx.work.WorkManager;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
+import com.driot.bookplayer.utils.log.KanLogger;
 import com.google.gson.Gson;
 
 import java.io.ByteArrayOutputStream;

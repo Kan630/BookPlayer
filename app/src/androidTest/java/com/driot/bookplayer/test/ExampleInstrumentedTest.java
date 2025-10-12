@@ -8,7 +8,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static com.driot.bookplayer.utils.KanLogger.myLog;
+import static com.driot.bookplayer.utils.log.KanLogger.myLog;
 import static org.junit.Assert.*;
 
 /**

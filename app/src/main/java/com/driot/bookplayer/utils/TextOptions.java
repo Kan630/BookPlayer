@@ -16,6 +16,7 @@ import java.io.StringReader;
 import static android.content.Context.MODE_PRIVATE;
 
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
+import com.driot.bookplayer.utils.log.KanLogger;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 02/12/20

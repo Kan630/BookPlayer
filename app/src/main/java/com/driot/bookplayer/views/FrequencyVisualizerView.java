@@ -11,7 +11,7 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 
-import com.driot.bookplayer.utils.KanLogger;
+import com.driot.bookplayer.utils.log.KanLogger;
 
 /**
  * FrequencyVisualizerView

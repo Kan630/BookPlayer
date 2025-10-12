@@ -7,13 +7,12 @@ import androidx.annotation.NonNull;
 import androidx.work.WorkerParameters;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
+import com.driot.bookplayer.imports.ImportJob;
 import com.driot.bookplayer.imports.ImportWorker;
 import com.driot.bookplayer.objects.AudioInfo;
 import com.driot.bookplayer.objects.AudioProber;
-import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.googlecode.mp4parser.authoring.Movie;
 import com.googlecode.mp4parser.authoring.Sample;
 import com.googlecode.mp4parser.authoring.Track;
@@ -34,25 +33,26 @@ public class M4bSplitWorker extends ImportWorker {
 
     private static final String TASK_NAME = Var.WORKER_TASK_LABEL_SPLIT_M4B;
 
+    private final Context context;
+
     public M4bSplitWorker(@NonNull Context context, @NonNull WorkerParameters params) {
         super(context, params);
+        this.context = context.getApplicationContext();
     }
 
     @NonNull
     @Override
     public Result doWork() {
-        LoadBookTaskState bookState = Pref.getLoadBookTaskState();
-        if (bookState == null) {
-            emitFailed(TASK_NAME, "bookState == null", getApplicationContext().getString(R.string.invalid_resource));
-            return Result.failure();
-        }
+        emitTaskStart(TASK_NAME, context.getString(R.string.import_task_unzip) + " " + context.getString(R.string.import_task_start));
+        ImportJob j = jobOrFail();
 
-        String m4bFilePath = bookState.dynamicSourceFilePath;
-        String destinationFolderPath = bookState.futureFolderPath;
+        String m4bFilePath = j.dynamicSourceFilePath;
+        String destinationFolderPath = j.futureFolderPath;
 
-        myLog("Worker received:");
+        myLogD("----------------------------------------------------");
         myLog("m4bFilePath = " + m4bFilePath);
         myLog("destinationFolderPath = " + destinationFolderPath);
+        myLogD("----------------------------------------------------");
 
         if (m4bFilePath == null || destinationFolderPath == null) {
             emitFailed(TASK_NAME, "Missing input data for M4bSplitWorker", getApplicationContext().getString(R.string.invalid_resource));
@@ -178,7 +178,7 @@ public class M4bSplitWorker extends ImportWorker {
                 emitWarning("Error Deleting source M4B file after split.");
             }
 
-            emitTaskCompleted(TASK_NAME, outputFolder.getAbsolutePath());
+            emitTaskCompleted(TASK_NAME, outputFolder.getAbsolutePath(), context.getString(R.string.import_task_m4b_split) + " " + context.getString(R.string.import_task_complete));
             return true;
 
         } catch (Exception e) {

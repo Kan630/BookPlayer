@@ -87,7 +87,7 @@ public class Pref {
             return 1.0;
         }
     }
-
+/*
     /////////////////// Load Book Task State ///////////////////
     public static void setLoadBookTaskState(LoadBookTaskState loadBookTaskState) {
         Parcel parcel = Parcel.obtain();
@@ -100,6 +100,8 @@ public class Pref {
         SharedPreferences prefs = appContext.getSharedPreferences(SHARED_PREFERENCES_DOWNLOAD, Context.MODE_PRIVATE);
         prefs.edit().putString(KEY_LOAD_BOOK_TASK_STATE, encoded).apply();
     }
+
+ */
 
     public static LoadBookTaskState getLoadBookTaskState() {
         SharedPreferences prefs = appContext.getSharedPreferences(SHARED_PREFERENCES_DOWNLOAD, Context.MODE_PRIVATE);

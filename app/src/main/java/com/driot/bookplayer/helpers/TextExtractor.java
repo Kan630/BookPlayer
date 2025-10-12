@@ -9,7 +9,7 @@ import android.webkit.MimeTypeMap;
 import androidx.annotation.Nullable;
 import androidx.core.text.HtmlCompat;
 
-import com.driot.bookplayer.utils.KanLogger;
+import com.driot.bookplayer.utils.log.KanLogger;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;

@@ -1,7 +1,7 @@
 package com.driot.bookplayer.testutil;
 
 import android.util.Log;
-import com.driot.bookplayer.utils.KanLogger;
+import com.driot.bookplayer.utils.log.KanLogger;
 
 public interface LogSupport {
 

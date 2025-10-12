@@ -6,7 +6,7 @@ import android.net.Uri;
 
 import androidx.annotation.NonNull;
 
-import com.driot.bookplayer.utils.KanLogger;
+import com.driot.bookplayer.utils.log.KanLogger;
 
 import java.io.IOException;
 

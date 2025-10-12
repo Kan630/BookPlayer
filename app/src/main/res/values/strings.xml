@@ -928,8 +928,14 @@
 
     <string name="please_wait_another_book_is_being_imported">Please wait, another book is still being imported.</string>
 
-
-
+    <string name="import_task_start">starting…</string>
+    <string name="import_task_complete">done.</string>
+    <string name="import_task_copy">Copy</string>
+    <string name="import_task_download">Download</string>
+    <string name="import_task_ebook_split">Ebook parsing</string>
+    <string name="import_task_m4b_split">M4b extraction</string>
+    <string name="import_task_unzip">Uncompress</string>
+    <string name="import_task_final_parse">Integration</string>
 
 
 

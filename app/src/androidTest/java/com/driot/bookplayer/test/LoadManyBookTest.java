@@ -46,7 +46,7 @@ import com.driot.bookplayer.testutil.LogSupport;
 import com.driot.bookplayer.testutil.LoggingWatcher;
 import com.driot.bookplayer.testutil.TestNavUtils;
 import com.driot.bookplayer.testutil.TaskStateTestProbe;
-import com.driot.bookplayer.utils.KanLogger;
+import com.driot.bookplayer.utils.log.KanLogger;
 import com.driot.bookplayer.utils.Tonio;
 
 import org.junit.Before;

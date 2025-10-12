@@ -1,7 +1,6 @@
 package com.driot.bookplayer.helpers;
 
 import android.content.Context;
-import android.speech.tts.TextToSpeech;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Spinner;
@@ -9,13 +8,10 @@ import android.widget.Spinner;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.adapter.LanguageSpinnerAdapter;
 import com.driot.bookplayer.objects.LanguageItem;
-import com.driot.bookplayer.objects.VoiceItem;
-import com.driot.bookplayer.utils.KanLogger;
+import com.driot.bookplayer.utils.log.KanLogger;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
-import java.util.MissingResourceException;
 
 public class LanguageHelper {
 

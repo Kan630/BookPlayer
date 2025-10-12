@@ -5,7 +5,7 @@ import android.widget.ImageView;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Var;
-import com.driot.bookplayer.utils.KanLogger;
+import com.driot.bookplayer.utils.log.KanLogger;
 
 public class IconHelper {
 

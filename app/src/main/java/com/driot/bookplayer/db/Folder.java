@@ -14,7 +14,7 @@ import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.utils.KanLogger;
+import com.driot.bookplayer.utils.log.KanLogger;
 import com.driot.bookplayer.helpers.StorageHelper;
 
 @Entity

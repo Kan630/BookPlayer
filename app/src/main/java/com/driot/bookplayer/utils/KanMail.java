@@ -1,7 +1,7 @@
 package com.driot.bookplayer.utils;
 
 import static android.content.Context.MODE_PRIVATE;
-import static com.driot.bookplayer.utils.KanLogger.myToast;
+import static com.driot.bookplayer.utils.log.KanLogger.myToast;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -11,6 +11,8 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.Parcelable;
+
+import com.driot.bookplayer.utils.log.KanLogger;
 
 import java.util.ArrayList;
 import java.util.List;

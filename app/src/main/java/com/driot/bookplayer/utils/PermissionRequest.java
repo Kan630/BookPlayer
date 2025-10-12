@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
 
+import com.driot.bookplayer.utils.log.KanLogger;
 import com.google.android.material.snackbar.Snackbar;
 
 import androidx.annotation.MainThread;

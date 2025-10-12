@@ -6,7 +6,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.driot.bookplayer.helpers.ImageHelper;
-import com.driot.bookplayer.utils.KanLogger;
+import com.driot.bookplayer.utils.log.KanLogger;
 
 // Add this inner class or top-level class in your codebase
 public class MyAudioMetadata implements Parcelable {

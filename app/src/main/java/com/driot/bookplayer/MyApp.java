@@ -20,7 +20,7 @@ import com.driot.bookplayer.utils.InAppMsgManager;
 import com.driot.bookplayer.helpers.LocaleHelper;
 import com.driot.bookplayer.objects.BookToAdd;
 import com.driot.bookplayer.services.InAppPeriodicTaskManager;
-import com.driot.bookplayer.utils.KanLogger;
+import com.driot.bookplayer.utils.log.KanLogger;
 
 public class MyApp extends Application {
 

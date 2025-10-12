@@ -19,7 +19,7 @@ import com.driot.bookplayer.objects.PodcastEpisodeResponse;
 import com.driot.bookplayer.objects.PodcastIndexApi;
 import com.driot.bookplayer.objects.PodcastFeed;
 import com.driot.bookplayer.objects.PodcastIndexResponse;
-import com.driot.bookplayer.utils.KanLogger;
+import com.driot.bookplayer.utils.log.KanLogger;
 import com.driot.bookplayer.utils.PodcastDownloadManager;
 
 import java.io.File;

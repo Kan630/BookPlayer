@@ -17,17 +17,21 @@ import androidx.lifecycle.ViewModelProvider;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.objects.AppViewModelStoreOwner;
 import com.driot.bookplayer.utils.log.LoggingFragment;
-import com.google.android.material.color.MaterialColors;
 
 public class OngoingTaskFragment extends LoggingFragment {
 
     private static final String ARG_ONCLICK_INTENT = "onClickIntent";
 
     private static final int SUCCESS_AUTO_HIDE_MS = 2_000;
-    private boolean didAutoHide = false;
-    @Nullable private Long successFirstSeenUptimeMs = null;
-    private final Handler mainH = new Handler(android.os.Looper.getMainLooper());
+    private static final int WARNING_AUTO_HIDE_MS  = 15_000;
+    private static final int ERROR_AUTO_HIDE_MS  = 4*60*60_000;
+
+    @Nullable private Long timerStartUptimeMs = null;
     @Nullable private Runnable hideRunnable = null;
+    private final Handler mainH = new Handler(android.os.Looper.getMainLooper());
+    private enum HideMode { NONE, SUCCESS, WARNING, ERROR }
+    private HideMode currentMode = HideMode.NONE;
+    private boolean didAutoHide = false;
 
     private TextView tvProgressText;
     private ProgressBar progressBar;
@@ -75,29 +79,31 @@ public class OngoingTaskFragment extends LoggingFragment {
             tvProgressText.setText(ui.progressText.isEmpty() ? "---" : ui.progressText);
             progressBar.setProgress(ui.progressPercent);
 
-            // colors
-            boolean hasError = (ui.errorText != null && !ui.errorText.isEmpty() && ui.result != TaskUiState.Result.CANCELLED);
-            if (hasError) {
-                tvProgressText.setText(ui.errorText);
-                tvProgressText.setTextColor(
-                                ContextCompat.getColor(requireContext(), R.color.red)
-                );
-            } else {
+            boolean hasWarnings = ui.warningText != null && !ui.warningText.trim().isEmpty();
+            boolean finishedSuccess = ui.result == TaskUiState.Result.SUCCEEDED;
+            boolean finishedFailed  = ui.result == TaskUiState.Result.FAILED;
+            if (ui.showToUser) {
                 tvProgressText.setTextColor(
                         com.google.android.material.color.MaterialColors.getColor(tvProgressText,
                                 com.google.android.material.R.attr.colorOnSurfaceVariant)
                 );
-            }
-
-            // success auto-hide timing (your debounce code can now use ui.result/ui.isFinished())
-            if (ui.result == TaskUiState.Result.SUCCEEDED) {
-                // start your countdown once; then ImportHelper.setShowToUser(false)
-                hideRunnable = () -> {
-                    myLog("Auto-hiding fragment after ~" + SUCCESS_AUTO_HIDE_MS + " ms since success first seen");
-                    requestMainScrollToTopIfHostedByMain();
-                    ImportHelper.setShowToUser(requireContext(), false);
-                };
-                mainH.postDelayed(hideRunnable, SUCCESS_AUTO_HIDE_MS);
+                if (finishedSuccess) {
+                    if (hasWarnings) {
+                        tvProgressText.setTextColor(
+                                ContextCompat.getColor(requireContext(), R.color.orange)
+                        );
+                        startOrUpdateHideTimer(HideMode.WARNING, WARNING_AUTO_HIDE_MS);
+                    } else {
+                        startOrUpdateHideTimer(HideMode.SUCCESS, SUCCESS_AUTO_HIDE_MS);
+                    }
+                } else if (finishedFailed) {
+                    tvProgressText.setTextColor(
+                            ContextCompat.getColor(requireContext(), R.color.red)
+                    );
+                    startOrUpdateHideTimer(HideMode.ERROR, ERROR_AUTO_HIDE_MS);
+                }
+            } else {
+                cancelHideTimer();
             }
         });
 
@@ -115,28 +121,6 @@ public class OngoingTaskFragment extends LoggingFragment {
         }
     }
 
-    private void maybeScheduleHide() {
-        myLog("maybeScheduleHide");
-        if (didAutoHide) return;
-        if (successFirstSeenUptimeMs == null) return;
-
-        long elapsed = android.os.SystemClock.uptimeMillis() - successFirstSeenUptimeMs;
-        long remaining = Math.max(0L, SUCCESS_AUTO_HIDE_MS - elapsed);
-
-        if (hideRunnable != null) {
-            mainH.removeCallbacks(hideRunnable);
-        }
-        hideRunnable = () -> {
-            if (isAdded() && !didAutoHide) {
-                didAutoHide = true;
-                myLog("Auto-hiding fragment after ~" + SUCCESS_AUTO_HIDE_MS + " ms since success first seen");
-                requestMainScrollToTopIfHostedByMain();
-                ImportHelper.setShowToUser(requireContext(), false);
-            }
-        };
-        mainH.postDelayed(hideRunnable, remaining);
-    }
-
     private void requestMainScrollToTopIfHostedByMain() {
         if (!isAdded()) return;
         if (!(requireActivity() instanceof com.driot.bookplayer.activities.MainActivity)) return;
@@ -150,5 +134,55 @@ public class OngoingTaskFragment extends LoggingFragment {
             myLogEE(t, "requestMainScrollToTopIfHostedByMain");
         }
     }
+
+    private void startOrUpdateHideTimer(@NonNull HideMode mode, int totalMs) {
+        long now = android.os.SystemClock.uptimeMillis();
+
+        // reset if mode changed
+        if (currentMode != mode) {
+            currentMode = mode;
+            timerStartUptimeMs = now;
+            rescheduleHide(totalMs, 0, mode);
+            return;
+        }
+
+        // same mode: compute remaining from first-seen time
+        if (timerStartUptimeMs == null) {
+            timerStartUptimeMs = now;
+        }
+        long elapsed = now - timerStartUptimeMs;
+        long remaining = Math.max(0, totalMs - elapsed);
+        rescheduleHide(totalMs, remaining, mode);
+    }
+
+    private void rescheduleHide(int totalMs, long remainingMs, @NonNull HideMode mode) {
+        if (hideRunnable != null) mainH.removeCallbacks(hideRunnable);
+        hideRunnable = () -> {
+            if (!isAdded() || didAutoHide) return;
+            didAutoHide = true;
+
+            if (mode == HideMode.SUCCESS) {
+                // On clean success, also nudge Main to show the newest card
+                requestMainScrollToTopIfHostedByMain();
+            }
+            ImportHelper.setShowToUser(requireContext(), false);
+            currentMode = HideMode.NONE;
+            timerStartUptimeMs = null;
+        };
+        mainH.postDelayed(hideRunnable, remainingMs);
+        myLog("Auto-hide mode=" + mode + " total=" + totalMs + "ms remaining=" + remainingMs + "ms");
+    }
+
+    private void cancelHideTimer() {
+        if (hideRunnable != null) mainH.removeCallbacks(hideRunnable);
+        hideRunnable = null;
+        timerStartUptimeMs = null;
+        if (currentMode != HideMode.NONE) {
+            myLog("Auto-hide canceled (mode was " + currentMode + ")");
+        }
+        currentMode = HideMode.NONE;
+        didAutoHide = false;
+    }
+
 
 }

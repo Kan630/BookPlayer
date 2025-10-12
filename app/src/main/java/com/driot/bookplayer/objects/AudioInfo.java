@@ -9,7 +9,7 @@ import android.os.Parcelable;
 import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.helpers.ImageHelper;
-import com.driot.bookplayer.utils.KanLogger;
+import com.driot.bookplayer.utils.log.KanLogger;
 
 public class AudioInfo implements Parcelable {
     public final Uri uri;

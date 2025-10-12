@@ -96,13 +96,16 @@ public class DownloadWorker extends ImportWorker {
     private long lastTick = 0L;
     private int lastPercent = 0;
 
-    public DownloadWorker(@NonNull Context appContext, @NonNull WorkerParameters params) {
-        super(appContext, params);
+    private final Context context;
+
+    public DownloadWorker(@NonNull Context context, @NonNull WorkerParameters params) {
+        super(context, params);
+        this.context = context.getApplicationContext();
     }
     @NonNull
     @Override
     public Result doWork() {
-        myLogD("doWork");
+        emitTaskStart(TASK_NAME, context.getString(R.string.import_task_ebook_split) + " " + context.getString(R.string.import_task_start));
         ImportJob j = jobOrFail();
         final String urlStr = j.downloadFileUrl;
         final String destFolder = j.downloadDestinationFolder;
@@ -376,7 +379,7 @@ public class DownloadWorker extends ImportWorker {
                 }
 
                 // Success
-                emitTaskCompleted(TASK_NAME, outFile.getAbsolutePath());
+                emitTaskCompleted(TASK_NAME, outFile.getAbsolutePath(), ctx.getString(R.string.import_task_download) + " " + ctx.getString(R.string.import_task_complete));
                 setProgressAsync(new Data.Builder()
                         .putInt(PROG_PERCENT, 100)
                         .putString(PROG_TEXT, progressText(written, fileLenIfKnown))

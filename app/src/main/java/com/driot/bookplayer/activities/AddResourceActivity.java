@@ -116,7 +116,7 @@ public class AddResourceActivity extends LoggingActivity {
 
         // Failure => keep activity visible until user exits (or you can auto-close later)
         if (ui.result == TaskUiState.Result.FAILED) {
-            myToast(getString(R.string.Import_failed));
+            //myToast(getString(R.string.Import_failed));
             return;
         }
 
@@ -132,7 +132,7 @@ public class AddResourceActivity extends LoggingActivity {
 
         // Success or Cancelled:
         if (ui.result == TaskUiState.Result.SUCCEEDED) {
-            myToast(getString(R.string.Import_Success) + "\n" + tvTitle.getText());
+            //myToast(getString(R.string.Import_Success) + "\n" + tvTitle.getText());
         } else if (ui.result == TaskUiState.Result.CANCELLED) {
             ImportHelper.setShowToUser(this, false);
             scheduleFinish(0);

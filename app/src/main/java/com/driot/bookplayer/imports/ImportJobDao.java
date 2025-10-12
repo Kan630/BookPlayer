@@ -74,7 +74,7 @@ public interface ImportJobDao {
     void downloadResuming(String id, String progressText, long ts);
 
     @Query("UPDATE ImportJob SET status='" + ImportJob.S_RUNNING + "'" +
-            ", currentOperation=:taskName" +
+            ", currentOperation=:currentOperation" +
             ", dynamicType = 'File'" +
             ", dynamicUri=:downloadedFileFullPath" +
             ", dynamicSourceFilePath=:downloadedFileFullPath" +
@@ -87,20 +87,27 @@ public interface ImportJobDao {
             ", progressText=:progressText" +
             ", updatedAt=:ts WHERE importId=:id")
     void downloadComplete(String id
-            , String taskName
+            , String currentOperation
             , String downloadedFileFullPath
             , String progressText
             , long ts);
 
     @Query("UPDATE ImportJob SET status='" + ImportJob.S_RUNNING + "'" +
-            ", currentOperation=:taskName" +
+            ", currentOperation=:currentOperation" +
+            ", progressText=:progressText" +
             ", dynamicType = 'Folder'" +
             ", dynamicUri=:destinationFolderPath" +
             ", dynamicSourceFilePath=:destinationFolderPath" +
             ", dynamicDestinationFolderPath=:destinationFolderPath" +
             ", playType=:playType" +
             ", updatedAt=:ts WHERE importId=:id")
-    void taskComplete(String id, String taskName, String destinationFolderPath, String playType, long ts);
+    void taskComplete(String id, String currentOperation, String destinationFolderPath, String playType, String progressText, long ts);
+
+    @Query("UPDATE ImportJob SET status='" + ImportJob.S_RUNNING + "'" +
+            ", currentOperation=:currentOperation" +
+            ", progressText=:progressText" +
+            ", updatedAt=:ts WHERE importId=:id")
+    void taskStart(String id, String currentOperation, String progressText, long ts);
 
     @Query("SELECT * FROM ImportJob WHERE status IN (:s1, :s2, :s3) ORDER BY createdAt DESC LIMIT 1")
     ImportJob getMostRecentActive(String s1, String s2, String s3);

@@ -406,6 +406,7 @@ public class LibrivoxDetailActivity extends LoggingActivity {
 
     private void proceedWithDownload(String url, String futurePath) {
         LoadBookTaskState state = new LoadBookTaskState();
+
         state.originalUri = Uri.parse(url);
         state.dynamicUri = Uri.parse(url);
         state.originalType = "ZIP";
@@ -422,9 +423,7 @@ public class LibrivoxDetailActivity extends LoggingActivity {
         state.onGoingLoading = true;
         state.progressText = getString(R.string.About_to_start_download);
 
-        //TODO to remove and replace by BookLoadingWorkLauncher.enqueueOneNoDownload(this, state, true);
-        Pref.setLoadBookTaskState(state);
-        BookLoadingWorkLauncher.launch(this);
+        BookLoadingWorkLauncher.enqueueOneNoDownload(this, state, true);
 
         FirebaseAnalyticsHelper.tellLibrivoxDownload(state.title);
         startActivity(new Intent(this, AddResourceActivity.class));

@@ -8,11 +8,10 @@ import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
-import com.driot.bookplayer.utils.KanLogger;
 import com.google.common.util.concurrent.ListenableFuture;
 
 
-import static com.driot.bookplayer.utils.KanLogger.LOG_LIFECYCLE_TRACE;
+import static com.driot.bookplayer.utils.log.KanLogger.LOG_LIFECYCLE_TRACE;
 
 public abstract class LoggingWorker extends Worker {
 

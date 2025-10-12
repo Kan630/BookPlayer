@@ -23,7 +23,7 @@ import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.services.M4bSplitWorker;   // <-- your worker
 import com.driot.bookplayer.testutil.LogSupport;
 import com.driot.bookplayer.testutil.LoggingWatcher;
-import com.driot.bookplayer.utils.KanLogger;
+import com.driot.bookplayer.utils.log.KanLogger;
 
 import org.junit.Before;
 import org.junit.Rule;

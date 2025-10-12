@@ -24,12 +24,11 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import static com.driot.bookplayer.utils.KanLogger.LOG_LIFECYCLE_TRACE;
+import static com.driot.bookplayer.utils.log.KanLogger.LOG_LIFECYCLE_TRACE;
 
 import com.driot.bookplayer.global.Option;
-//import com.driot.bookplayer.utils.KanLogger;
+//import com.driot.bookplayer.utils.log.KanLogger;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
-import com.driot.bookplayer.utils.KanLogger;
 
 
 /**

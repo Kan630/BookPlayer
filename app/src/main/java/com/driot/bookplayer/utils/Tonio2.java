@@ -6,6 +6,7 @@ import android.content.Intent;
 import com.driot.bookplayer.activities.LogTextActivity;
 import com.driot.bookplayer.objects.MyFile;
 import com.driot.bookplayer.objects.MyTextChunk;
+import com.driot.bookplayer.utils.log.KanLogger;
 
 import java.io.BufferedReader;
 import java.io.File;

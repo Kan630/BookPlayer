@@ -4,7 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.room.migration.Migration;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
-import static com.driot.bookplayer.utils.KanLogger.myLogI;
+import static com.driot.bookplayer.utils.log.KanLogger.myLogI;
 
 public class DatabaseMigrations {
 

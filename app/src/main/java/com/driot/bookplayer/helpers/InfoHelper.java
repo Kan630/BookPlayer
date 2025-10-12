@@ -1,8 +1,8 @@
 package com.driot.bookplayer.helpers;
 
-import static com.driot.bookplayer.utils.KanLogger.isMyPhoneDev;
+import static com.driot.bookplayer.utils.log.KanLogger.isMyPhoneDev;
 import static com.driot.bookplayer.helpers.FirebaseAnalyticsHelper.setCustomKeyCrashlytics;
-import static com.driot.bookplayer.utils.KanLogger.writeTechLogs;
+import static com.driot.bookplayer.utils.log.KanLogger.writeTechLogs;
 import static com.driot.bookplayer.utils.TonioCommonStuff.MD5;
 
 import android.content.Context;
@@ -15,7 +15,7 @@ import android.view.WindowManager;
 import androidx.core.app.NotificationManagerCompat;
 
 import com.driot.bookplayer.BuildConfig;
-import com.driot.bookplayer.utils.KanLogger;
+import com.driot.bookplayer.utils.log.KanLogger;
 
 import java.util.Locale;
 import java.util.Objects;

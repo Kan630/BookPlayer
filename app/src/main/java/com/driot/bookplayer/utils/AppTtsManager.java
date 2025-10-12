@@ -11,6 +11,8 @@ import android.speech.tts.Voice;
 
 import androidx.annotation.Nullable;
 
+import com.driot.bookplayer.utils.log.KanLogger;
+
 import java.lang.ref.WeakReference;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;

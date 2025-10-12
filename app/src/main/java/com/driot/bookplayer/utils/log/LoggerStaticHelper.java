@@ -1,7 +1,5 @@
 package com.driot.bookplayer.utils.log;
 
-import com.driot.bookplayer.utils.KanLogger;
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 

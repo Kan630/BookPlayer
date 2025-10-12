@@ -7,7 +7,7 @@ import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
-import com.driot.bookplayer.utils.KanLogger;
+import com.driot.bookplayer.utils.log.KanLogger;
 import com.driot.bookplayer.utils.Tonio;
 
 import java.io.BufferedInputStream;

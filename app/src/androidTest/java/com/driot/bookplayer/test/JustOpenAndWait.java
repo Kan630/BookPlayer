@@ -1,11 +1,11 @@
 package com.driot.bookplayer.test;
 
-//import static com.driot.bookplayer.utils.KanLogger.*;
+//import static com.driot.bookplayer.utils.log.KanLogger.*;
 //import com.driot.bookplayer.testutil.LogSupport;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.testutil.LogSupport;
-import com.driot.bookplayer.utils.KanLogger;
-//import com.driot.bookplayer.utils.KanLogger;
+import com.driot.bookplayer.utils.log.KanLogger;
+//import com.driot.bookplayer.utils.log.KanLogger;
 
 import android.content.Context;
 import android.content.Intent;

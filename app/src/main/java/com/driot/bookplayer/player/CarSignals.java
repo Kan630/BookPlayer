@@ -1,6 +1,6 @@
 package com.driot.bookplayer.player;
 
-import com.driot.bookplayer.utils.KanLogger;
+import com.driot.bookplayer.utils.log.KanLogger;
 
 public final class CarSignals {
 

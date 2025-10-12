@@ -7,9 +7,8 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
-import com.driot.bookplayer.utils.KanLogger;
 
-import static com.driot.bookplayer.utils.KanLogger.LOG_LIFECYCLE_TRACE;
+import static com.driot.bookplayer.utils.log.KanLogger.LOG_LIFECYCLE_TRACE;
 
 public abstract class LoggingFragment extends Fragment {
 

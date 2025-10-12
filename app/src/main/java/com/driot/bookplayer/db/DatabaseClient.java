@@ -5,7 +5,6 @@ package com.driot.bookplayer.db;
  */
 
 import static com.driot.bookplayer.db.AppDatabase.APP_DATABASE_VERSION;
-import static com.driot.bookplayer.db.DatabaseBackupHelper.backupDatabase;
 import static com.driot.bookplayer.db.DatabaseBackupHelper.getSQLiteVersion;
 
 import android.content.Context;
@@ -13,7 +12,7 @@ import android.content.Context;
 import androidx.room.Room;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
-import com.driot.bookplayer.utils.KanLogger;
+import com.driot.bookplayer.utils.log.KanLogger;
 
 import java.io.File;
 

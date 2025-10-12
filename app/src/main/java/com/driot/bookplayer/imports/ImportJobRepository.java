@@ -5,15 +5,20 @@ import android.content.Context;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Transformations;
 
+import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
+import com.driot.bookplayer.utils.log.LoggerHelper;
 
-public class ImportJobRepository {
+public class ImportJobRepository extends LoggerHelper {
     private final AppDatabase db;
     private final ImportJobDao dao;
+    private final Context context;
 
     public ImportJobRepository(Context ctx) {
+        super(ImportJobRepository.class);
         db = AppDatabase.getInstance(ctx.getApplicationContext());
         dao = db.importJobDao();
+        context = ctx.getApplicationContext();
     }
 
     public void upsert(ImportJob job) { dao.upsert(job); }
@@ -32,8 +37,12 @@ public class ImportJobRepository {
         dao.updateWarning(id, w, System.currentTimeMillis());
     }
 
-    public void taskCompleted(String id, String taskName, String destinationFolderPath, String playType) {
-        dao.taskComplete(id, taskName, destinationFolderPath, playType, System.currentTimeMillis());
+    public void taskStarted(String id, String taskName, String progressText) {
+        dao.taskStart(id, taskName, progressText, System.currentTimeMillis());
+    }
+
+    public void taskCompleted(String id, String taskName, String destinationFolderPath, String playType, String progressText) {
+        dao.taskComplete(id, taskName, destinationFolderPath, playType, progressText, System.currentTimeMillis());
     }
 
     public void downloadPause(String id, String why) {
@@ -50,6 +59,7 @@ public class ImportJobRepository {
 
     public void fail(String id, String devErrorMsg, String usrErrorMsg) {
         dao.fail(id, devErrorMsg, usrErrorMsg, System.currentTimeMillis());
+        myToast(context.getString(R.string.Import_failed));
     }
 
     public void cancel(String id) {
@@ -58,19 +68,7 @@ public class ImportJobRepository {
 
     public void success(String id) {
         dao.success(id, System.currentTimeMillis());
-    }
-
-
-
-
-    public boolean isAnyActive() {
-        return dao.countActive(ImportJob.S_RUNNING, ImportJob.S_QUEUED, ImportJob.S_PAUSED) > 0;
-    }
-    public LiveData<Boolean> observeAnyActive() {
-        return Transformations.map(
-                dao.observeActiveCount(ImportJob.S_RUNNING, ImportJob.S_QUEUED, ImportJob.S_PAUSED),
-                c -> c != null && c > 0
-        );
+        myToast(context.getString(R.string.Import_Success));
     }
 
 }

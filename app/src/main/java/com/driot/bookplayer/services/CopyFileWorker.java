@@ -45,12 +45,13 @@ public class CopyFileWorker extends ImportWorker {
 
     public CopyFileWorker(@NonNull Context context, @NonNull WorkerParameters params) {
         super(context, params);
-        this.context = context;
+        this.context = context.getApplicationContext();
     }
 
     @NonNull
     @Override
     public Result doWork() {
+        emitTaskStart(TASK_NAME, context.getString(R.string.import_task_copy) + " " + context.getString(R.string.import_task_start));
         ImportJob j = jobOrFail();
         Uri uri = Uri.parse(j.dynamicUri);
         String destinationFolderPath = j.futureFolderPath;
@@ -130,7 +131,7 @@ public class CopyFileWorker extends ImportWorker {
                 return Result.failure();
             }
             if (result) {
-                emitTaskCompleted(TASK_NAME, destinationFolderPath);
+                emitTaskCompleted(TASK_NAME, destinationFolderPath, context.getString(R.string.import_task_copy) + " " + context.getString(R.string.import_task_complete));
                 return Result.success();
             } else {
                 return Result.failure();

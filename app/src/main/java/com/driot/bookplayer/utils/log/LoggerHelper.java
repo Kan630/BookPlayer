@@ -1,7 +1,5 @@
 package com.driot.bookplayer.utils.log;
 
-import com.driot.bookplayer.utils.KanLogger;
-
 /**
  * not used right now, because I would need to add this line at the top od each activity/service/adapter
  *    private final LoggerHelper log = new LoggerHelper(this);

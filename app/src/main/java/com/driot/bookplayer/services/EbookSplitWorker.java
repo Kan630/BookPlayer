@@ -8,13 +8,11 @@ import androidx.annotation.NonNull;
 import androidx.work.WorkerParameters;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.OdtLowLevelHelper;
 import com.driot.bookplayer.imports.ImportJob;
 import com.driot.bookplayer.imports.ImportWorker;
-import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.helpers.EpubLowLevelHelper;
 import com.driot.bookplayer.helpers.Fb2LowLevelHelper;
 
@@ -38,13 +36,13 @@ public class EbookSplitWorker extends ImportWorker {
 
     public EbookSplitWorker(@NonNull Context context, @NonNull WorkerParameters params) {
         super(context, params);
-        this.context = context;
+        this.context = context.getApplicationContext();
     }
 
     @NonNull
     @Override
     public Result doWork() {
-        myLog("doWork()");
+        emitTaskStart(TASK_NAME, context.getString(R.string.import_task_ebook_split) + " " + context.getString(R.string.import_task_start));
         ImportJob j = jobOrFail();
         final String ebookPath = j.dynamicSourceFilePath;
         final String destinationFolderPath = j.futureFolderPath;
@@ -166,7 +164,7 @@ public class EbookSplitWorker extends ImportWorker {
             }
 
             // Reuse existing completion hook for EPUB (keeps app logic unchanged)
-            emitTaskCompleted(TASK_NAME, outFolder.getAbsolutePath());
+            emitTaskCompleted(TASK_NAME, outFolder.getAbsolutePath(), ctx.getString(R.string.import_task_ebook_split) + " " + context.getString(R.string.import_task_complete));
             return true;
 
         } catch (Exception e) {

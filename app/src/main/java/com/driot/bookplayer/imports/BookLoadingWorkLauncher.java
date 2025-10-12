@@ -122,14 +122,14 @@ public class BookLoadingWorkLauncher {
         bookState.doSplitM4b = doSplitM4b;
         bookState.doSplitEbook = doSplitEbook;
         bookState.doUnzip = doUnzip;
-        Pref.setLoadBookTaskState(bookState);
+        //Pref.setLoadBookTaskState(bookState);
 
         if (doDownload) {
 
             bookState.downloadFileUrl = bookState.dynamicUri.toString();
             bookState.downloadDestinationFolder = StorageHelper.getDownloadFolderPath(context);
             bookState.onGoingLoading = true;
-            Pref.setLoadBookTaskState(bookState);
+            //Pref.setLoadBookTaskState(bookState);
 
             Constraints constraints;
             NetworkHelper.NetworkPolicyManual policy = Option.getNetworkPolicyManualDownload();
@@ -188,14 +188,14 @@ public class BookLoadingWorkLauncher {
 
             UUID downloadWorkId = downloadWork.getId();
             bookState.setDownloadWorkId(downloadWorkId);
-            Pref.setLoadBookTaskState(bookState);
+            //Pref.setLoadBookTaskState(bookState);
             myLog("downloadWorkId = " + downloadWorkId);
 
             List<OneTimeWorkRequest> postChain = buildPostDownloadChain(bookState);
 
             String uniqueChainName = "bookload:" + (bookState.futureFolderName != null ? bookState.futureFolderName : String.valueOf(downloadWork.getId()));
             bookState.uniqueChainName = uniqueChainName;
-            Pref.setLoadBookTaskState(bookState);
+            //Pref.setLoadBookTaskState(bookState);
             WorkContinuation workContinuation = WorkManager.getInstance(context)
                     .beginUniqueWork(uniqueChainName, ExistingWorkPolicy.REPLACE, downloadWork);
 

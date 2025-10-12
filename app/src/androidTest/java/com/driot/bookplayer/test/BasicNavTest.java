@@ -21,9 +21,6 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.work.Configuration;
-import androidx.work.testing.SynchronousExecutor;
-import androidx.work.testing.WorkManagerTestInitHelper;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.GetActivity;
@@ -34,14 +31,12 @@ import com.driot.bookplayer.testutil.LogSupport;
 import com.driot.bookplayer.testutil.LoggingWatcher;
 import com.driot.bookplayer.testutil.MenuHelpers;
 import com.driot.bookplayer.testutil.TestNavUtils;
-import com.driot.bookplayer.utils.KanLogger;
+import com.driot.bookplayer.utils.log.KanLogger;
 
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import java.util.concurrent.Executors;
 
 @RunWith(AndroidJUnit4.class)
 public abstract class BasicNavTest implements LogSupport {

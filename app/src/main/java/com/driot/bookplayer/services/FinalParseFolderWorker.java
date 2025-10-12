@@ -21,7 +21,6 @@ import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Option;
-import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
@@ -32,7 +31,6 @@ import com.driot.bookplayer.imports.ImportWorker;
 import com.driot.bookplayer.objects.AudioFileInfo;
 import com.driot.bookplayer.objects.AudioInfo;
 import com.driot.bookplayer.objects.AudioProber;
-import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.utils.Tonio;
 
 import java.util.ArrayList;
@@ -40,8 +38,6 @@ import java.util.Objects;
 
 public class FinalParseFolderWorker extends ImportWorker {
     private static final String TASK_NAME = Var.WORKER_TASK_LABEL_SCAN;
-
-    Context context = getApplicationContext();
 
     private enum SaveResultEnum {SUCCESS, SKIPPED, FAILED}
 
@@ -65,17 +61,20 @@ public class FinalParseFolderWorker extends ImportWorker {
     public static final String K_ORIGINAL_HASH = "original_hash";   // optional
     public static final String K_IMAGE_URI     = "image_uri";       // optional
 
+    private final Context context;
+
     public FinalParseFolderWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
+        this.context = context.getApplicationContext();
     }
     private static final String K_ERR = "error_msg";
 
     @NonNull
     @Override
     public Result doWork() {
+        emitTaskStart(TASK_NAME, context.getString(R.string.import_task_final_parse) + " " + context.getString(R.string.import_task_start));
         try {
             DocumentFile df;
-            Context appContext = getApplicationContext();
             importJob = jobOrFail();
             /*
             String originalType = j.originalType;
@@ -122,10 +121,10 @@ public class FinalParseFolderWorker extends ImportWorker {
                 emitFailed(TASK_NAME, "importJob == null", getApplicationContext().getString(R.string.invalid_resource));
                 return Result.failure();
             }
-            emitStepProgress(TASK_NAME, 1, appContext.getString(R.string.listing_and_sorting_tracks));
+            emitStepProgress(TASK_NAME, 1, context.getString(R.string.listing_and_sorting_tracks));
 
 
-            boolean isFolderComputed = UriHelper.isFolder(appContext, Uri.parse(importJob.dynamicUri));
+            boolean isFolderComputed = UriHelper.isFolder(context, Uri.parse(importJob.dynamicUri));
             myLogD("isFolderComputed : " + isFolderComputed);
             myLogD("original Type : " + importJob.originalType);
             myLogD("dynamic Type : " + importJob.dynamicType + "   <--- we check that");
@@ -134,14 +133,14 @@ public class FinalParseFolderWorker extends ImportWorker {
 
             if (importJob.dynamicType.equals("Folder")) {
                 try {
-                    df = UriHelper.getDocumentFileFromAnyUri(appContext, Uri.parse(importJob.dynamicUri));
+                    df = UriHelper.getDocumentFileFromAnyUri(context, Uri.parse(importJob.dynamicUri));
                 } catch (Exception e) {
                     myLogEE(e,"Error reading Folder Uri...." + Uri.parse(importJob.dynamicUri));
-                    emitFailed(TASK_NAME, "Error_Import_CannotReadFolder_exception", appContext.getString(R.string.Error_Import_CannotReadFolder));
+                    emitFailed(TASK_NAME, "Error_Import_CannotReadFolder_exception", context.getString(R.string.Error_Import_CannotReadFolder));
                     return Result.failure();
                 }
                 if (df == null) {
-                    emitFailed(TASK_NAME, "Error_Import_CannotReadFolder_null", appContext.getString(R.string.Error_Import_CannotReadFolder));
+                    emitFailed(TASK_NAME, "Error_Import_CannotReadFolder_null", context.getString(R.string.Error_Import_CannotReadFolder));
                     return Result.failure();
                 }
                 populateArrayListOfTracksFromFolder(df);
@@ -149,14 +148,14 @@ public class FinalParseFolderWorker extends ImportWorker {
 
             } else {
                 try {
-                    df = UriHelper.getDocumentFileFromAnyUri(appContext, Uri.parse(importJob.dynamicUri));
+                    df = UriHelper.getDocumentFileFromAnyUri(context, Uri.parse(importJob.dynamicUri));
                 } catch (Exception e) {
                     myLogEE(e,"Error reading File Uri.... " + Uri.parse(importJob.dynamicUri));
-                    emitFailed(TASK_NAME, "Error_Import_CannotReadFile_exception", appContext.getString(R.string.Error_Import_CannotReadFile));
+                    emitFailed(TASK_NAME, "Error_Import_CannotReadFile_exception", context.getString(R.string.Error_Import_CannotReadFile));
                     return Result.failure();
                 }
                 if (df == null) {
-                    emitFailed(TASK_NAME, "Error_Import_CannotReadFile_null", appContext.getString(R.string.Error_Import_CannotReadFile));
+                    emitFailed(TASK_NAME, "Error_Import_CannotReadFile_null", context.getString(R.string.Error_Import_CannotReadFile));
                     return Result.failure();
                 }
             /*

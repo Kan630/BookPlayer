@@ -6,12 +6,12 @@ import android.net.Uri;
 import java.io.File;
 import java.util.Arrays;
 
-import static com.driot.bookplayer.utils.KanLogger.myLogE;
+import static com.driot.bookplayer.utils.log.KanLogger.myLogE;
 import static com.driot.bookplayer.utils.TonioCommonStuff.deleteExtension;
 
 import androidx.core.content.FileProvider;
 
-import com.driot.bookplayer.utils.KanLogger;
+import com.driot.bookplayer.utils.log.KanLogger;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 21/08/21
