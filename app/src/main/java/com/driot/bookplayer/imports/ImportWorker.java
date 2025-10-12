@@ -45,7 +45,7 @@ public abstract class ImportWorker extends LoggingWorker {
     }
 
     protected void emitWarning(String warn) {
-        myLogE("emitWarning    - warn = [" + warn + "]");
+        myLogW("emitWarning    - warn = [" + warn + "]");
         repo.setWarning(importId, warn);
     }
 

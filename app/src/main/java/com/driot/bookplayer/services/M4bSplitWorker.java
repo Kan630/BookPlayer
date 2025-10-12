@@ -43,10 +43,10 @@ public class M4bSplitWorker extends ImportWorker {
     @NonNull
     @Override
     public Result doWork() {
-        emitTaskStart(TASK_NAME, context.getString(R.string.import_task_unzip) + " " + context.getString(R.string.import_task_start));
+        emitTaskStart(TASK_NAME, context.getString(R.string.import_task_m4b_split) + " " + context.getString(R.string.import_task_start));
         ImportJob j = jobOrFail();
 
-        String m4bFilePath = j.dynamicSourceFilePath;
+        String m4bFilePath = j.futureFolderPath + "/" + j.originalFile;
         String destinationFolderPath = j.futureFolderPath;
 
         myLogD("----------------------------------------------------");

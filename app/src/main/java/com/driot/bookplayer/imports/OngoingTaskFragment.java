@@ -100,7 +100,7 @@ public class OngoingTaskFragment extends LoggingFragment {
                     tvProgressText.setTextColor(
                             ContextCompat.getColor(requireContext(), R.color.red)
                     );
-                    startOrUpdateHideTimer(HideMode.ERROR, ERROR_AUTO_HIDE_MS);
+                    //startOrUpdateHideTimer(HideMode.ERROR, ERROR_AUTO_HIDE_MS);
                 }
             } else {
                 cancelHideTimer();

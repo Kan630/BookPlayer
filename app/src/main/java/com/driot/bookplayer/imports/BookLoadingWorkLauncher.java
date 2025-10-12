@@ -293,26 +293,26 @@ public class BookLoadingWorkLauncher {
         }
         if (s.optionSplit && s.fileExtension!=null && s.fileExtension.equalsIgnoreCase("m4b")) {
             myLogD("m4b to split");
-            doSplitM4b = true;
             doCopy = true;
+            doSplitM4b = true;
         }
         if (s.fileExtension!=null && s.fileExtension.equalsIgnoreCase("zip")) {
             myLogD("ZIP => unzip + copy");
-            doUnzip = true;
             doCopy = true;
+            doUnzip = true;
         }
         if (s.fileExtension!=null && s.fileExtension.equalsIgnoreCase("epub")) {
             myLogD("epub");
-            doSplitEbook = true;
             doCopy = true;
+            doSplitEbook = true;
         } else if (s.fileExtension!=null && s.fileExtension.equalsIgnoreCase("fb2")) {
             myLogD("fb2");
-            doSplitEbook = true;
             doCopy = true;
+            doSplitEbook = true;
         } else if (s.fileExtension!=null && s.fileExtension.equalsIgnoreCase("odt")) {
             myLogD("odt");
-            doSplitEbook = true;
             doCopy = true;
+            doSplitEbook = true;
         }
         if (doDownload) {
             if  (doCopy) {
