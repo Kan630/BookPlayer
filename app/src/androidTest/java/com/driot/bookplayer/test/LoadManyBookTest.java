@@ -12,7 +12,6 @@ import static com.driot.bookplayer.testutil.TestNavUtils.sleep;
 import static com.driot.bookplayer.testutil.TestNavUtils.waitForTextVisible;
 import static com.driot.bookplayer.testutil.TestNavUtils.waitForViewVisible;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.AssetManager;
@@ -20,7 +19,6 @@ import android.net.Uri;
 import android.util.Log;
 
 import androidx.annotation.IdRes;
-import androidx.lifecycle.Observer;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.contrib.RecyclerViewActions;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
@@ -38,14 +36,12 @@ import com.driot.bookplayer.activities.MainActivity;
 import com.driot.bookplayer.activities.PlayActivity;
 import com.driot.bookplayer.activities.ZikFileActivity;
 import com.driot.bookplayer.global.Option;
-import com.driot.bookplayer.imports.TaskStateRepository;
 import com.driot.bookplayer.imports.TaskUiState;
 import com.driot.bookplayer.player.PlayList;
-import com.driot.bookplayer.imports.BookLoadingWorkLauncher;
+import com.driot.bookplayer.testutil.ImportProbe;
 import com.driot.bookplayer.testutil.LogSupport;
 import com.driot.bookplayer.testutil.LoggingWatcher;
 import com.driot.bookplayer.testutil.TestNavUtils;
-import com.driot.bookplayer.testutil.TaskStateTestProbe;
 import com.driot.bookplayer.utils.log.KanLogger;
 import com.driot.bookplayer.utils.Tonio;
 
@@ -97,8 +93,7 @@ public class LoadManyBookTest implements LogSupport {
             ,new TestCase("File", "fixtures/m4b")
     );
 
-    private TaskStateTestProbe probe;
-    private Observer<TaskUiState> stateObs;
+    private ImportProbe importProbe;
 
     private String lastPlayedSong = "init no song";
 
@@ -164,7 +159,7 @@ public class LoadManyBookTest implements LogSupport {
         for (TestCase tc : TESTS) {
             List<String> assetFiles = listAssetFilesRecursively(testContext.getAssets(), tc.assetFolderPath); // <-- use testContext
             myLogD("--------------------------------------------------");
-            myLog(String.format("TestCase '%s'-'%s' -> %d files", tc.uri_type, tc.assetFolderPath, assetFiles.size()));
+            myLogI("         Import => " + String.format("TestCase '%s'-'%s' -> %d files", tc.uri_type, tc.assetFolderPath, assetFiles.size()));
             myLogD("--------------------------------------------------");
             if ("Folder".equals(tc.uri_type)) {
                 List<String> subdirs = listAssetSubdirectories(testContext.getAssets(), tc.assetFolderPath);
@@ -222,33 +217,9 @@ public class LoadManyBookTest implements LogSupport {
         myLog("loading " + uri_type + " : " + uri_content);
         myLogD("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
         lastTimestamp = System.currentTimeMillis();
-        String txtWarnings = null;
 
-        // --- Start a fresh probe + attach a verbose state logger
-        probe = new TaskStateTestProbe();
-        probe.start();
-
-        stateObs = s -> {
-            if (s == null) return;
-            /*
-            myLogD("[TaskState] running=" + s.running +
-                    " paused=" + s.paused +
-                    " finished=" + s.finished +
-                    " pauseAvail=" + s.pauseAvailable +
-                    " title='" + s.title + "'" +
-                    " progress=" + s.progressPercent +
-                    " text='" + s.progressText + "'" +
-                    (s.warningText != null ? " warn='" + s.warningText + "'" : "") +
-                    (s.errorText != null ? " error='" + s.errorText + "'" : ""));
-
-             */
-        };
-
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
-            TaskStateRepository.get().hydrateFromPrefs();
-            TaskStateRepository.get().resetToIdle();
-            TaskStateRepository.get().state().observeForever(stateObs);
-        });
+        importProbe = new ImportProbe(appContext);
+        importProbe.start();
 
         try {
             appContext.startActivity(new Intent(appContext, LoadBookActivity.class)
@@ -263,64 +234,35 @@ public class LoadManyBookTest implements LogSupport {
             onView(withId(android.R.id.content)).perform(swipeUp());
             onView(withId(R.id.btnConfirm)).perform(click());
 
-            BookLoadingWorkLauncher.launch(appContext);
-
             appContext.startActivity(new Intent(appContext, AddResourceActivity.class)
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
             myLog("AddResourceActivity launched");
             TestNavUtils.assertWaitForActivity(AddResourceActivity.class, 1_000, "gizmo");
             myLogD("ok, on AddResourceActivity");
 
-            // --- Wait for the task to finish (success OR failure) ---
-            probe.await(TIMEOUT_BOOK_LOAD);
-
-            long deadline = System.currentTimeMillis() + TIMEOUT_BOOK_LOAD;
-            boolean done = false;
-
-            while (System.currentTimeMillis() < deadline) {
-                // 1) fail fast if app signaled a failure
-                if (probe.isFailed()) {
-                    TaskStateTestProbe.Outcome out = probe.await(10); // quick drain to capture final error
-                    throw new AssertionError("Import failed: " + out.errorText + " | progress='" + out.progressText + "'");
-                }
-
-                // 2) success if app signaled finished success
-                if (probe.isSuccess()) {
-                    done = true;
-                    myLog("success book load (via probe)");
-                    break;
-                }
-
-                // 3) legacy success heuristics (like before you added the probe)
-                if (TestNavUtils.isOn(GetActivity.class) || TestNavUtils.isOn(MainActivity.class)) {
-                    done = true;
-                    myLog("success book load (via navigation)");
-                    TestNavUtils.logCurrentActivity();
-                    break;
-                }
-
-                if (TestNavUtils.isOn(AddResourceActivity.class) && TestNavUtils.isTextVisible("EXIT")) {
-                    TestNavUtils.logCurrentActivity();
-                    onView(withText("EXIT")).perform(click());
-                    myLogW("EXIT button clicked (...some warnings displayed ?)");
-                    done = true;
-                    break;
-                }
-
-                Thread.sleep(100);
+            // --- Wait for terminal state from Room ---
+            TaskUiState terminal = importProbe.await(TIMEOUT_BOOK_LOAD);
+            if (terminal == null) {
+                TaskUiState last = importProbe.lastState();
+                String lastProgress = (last == null || last.progressText == null) ? "" : last.progressText;
+                throw new AssertionError("Timeout " + TIMEOUT_BOOK_LOAD/1000 + "s. last progress='" + lastProgress + "'");
             }
 
-            if (!done) {
-                TaskUiState s = probe.lastState();
-                String lastProgress = (s == null || s.progressText == null) ? "" : s.progressText;
-                Activity a = TestNavUtils.getCurrentResumedActivity();
-                String where = (a == null) ? "none" : a.getClass().getSimpleName();
-                throw new AssertionError(
-                        "Timeout " + TIMEOUT_BOOK_LOAD / 1000 + " sec. waiting for finish/navigation.\nCurrent activity: " + where +
-                                " | last progress='" + lastProgress + "'"
-                );
+            if (terminal.result == TaskUiState.Result.FAILED) {
+                String err = (terminal.errorText == null ? "(no error text)" : terminal.errorText);
+                throw new AssertionError("Import failed: " + err + " | progress='" + terminal.progressText + "'");
             }
-            TestNavUtils.logCurrentActivity();
+
+            // Optionally accept CANCELLED as a test failure
+            if (terminal.result == TaskUiState.Result.CANCELLED) {
+                throw new AssertionError("Import cancelled unexpectedly");
+            }
+
+            // SUCCESS path continues below...
+            myLog("success book load (via probe)");
+
+            // Navigation heuristics if you still want:
+            // ... (your existing checks)
 
             // --- Duration log (robust name from URI) ---
             String duration = Tonio.formatMmSs(System.currentTimeMillis() - lastTimestamp);
@@ -333,29 +275,19 @@ public class LoadManyBookTest implements LogSupport {
             myLogI("Import Duration: " + logDuration);
             String newLineMsg = "\n" + logDuration;
 
-            try {
-                txtWarnings = TaskStateRepository.get().state().getValue().warningText;
-            } catch (Throwable ignored) {}
+            // log warnings
+            String txtWarnings = terminal.warningText;
             if (txtWarnings != null) newLineMsg = newLineMsg + "\ndisplayed warnings : \n" + txtWarnings;
-
             logFinalMessage.append(newLineMsg);
 
             TestNavUtils.sleep(TIMEOUT_VISUAL_CHECK, "Visual Check");
-
-        } catch (Exception e) {
-            throw new AssertionError("Import failed: " + e.getMessage());
         } finally {
-            // --- Always detach the observer & stop the probe to avoid leaks / cross-test noise ---
-            InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
-                if (stateObs != null) {
-                    TaskStateRepository.get().state().removeObserver(stateObs);
-                }
-            });
-            if (probe != null) probe.stop();
+            if (importProbe != null) importProbe.stop();
         }
+
+
+
     }
-
-
 
 
     private static List<String> listAssetFilesRecursively(AssetManager am, String root) throws IOException {

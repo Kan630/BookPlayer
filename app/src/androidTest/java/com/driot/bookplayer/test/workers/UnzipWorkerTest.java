@@ -124,11 +124,16 @@ public class UnzipWorkerTest implements LogSupport {
         //noinspection ResultOfMethodCallIgnored
         destDir.mkdirs();
 
+        /*
+        TODO DELETE or change
+
         // 2) Inject state consumed by the Worker
         LoadBookTaskState s = new LoadBookTaskState();
         s.dynamicSourceFilePath = zipFile.getAbsolutePath();
         s.futureFolderPath = destDir.getAbsolutePath();
         Pref.setLoadBookTaskState(s);
+
+         */
 
         // 3) Run Worker
         OneTimeWorkRequest req = new OneTimeWorkRequest.Builder(UnzipWorker.class).build();

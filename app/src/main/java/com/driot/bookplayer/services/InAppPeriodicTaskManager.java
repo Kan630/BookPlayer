@@ -31,7 +31,7 @@ public class InAppPeriodicTaskManager {
     public void start() {
         if (scheduledFuture == null || scheduledFuture.isCancelled()) {
             scheduledFuture = scheduler.scheduleWithFixedDelay(() -> {
-                myLog("InAppPeriodicTask - Running task at " + new Date());
+                //myLogD("InAppPeriodicTask - Running task at " + new Date());
 
 ///  Pocasts
                 if (Pref.shouldCheckApiForAutoDownload() || Var.FORCE_AUTO_DOWNLOAD_NO_DELAY) {

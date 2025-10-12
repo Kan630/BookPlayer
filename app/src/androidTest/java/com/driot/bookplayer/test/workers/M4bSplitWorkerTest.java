@@ -126,12 +126,17 @@ public class M4bSplitWorkerTest implements LogSupport {
         //noinspection ResultOfMethodCallIgnored
         destDir.mkdirs();
 
+        /*
+        TODO DELETE or change
+
         // 2) Inject state for the Worker (same contract as UnzipWorker)
         LoadBookTaskState s = new LoadBookTaskState();
         s.dynamicSourceFilePath = inputFile.getAbsolutePath();
         s.futureFolderPath = destDir.getAbsolutePath();
         Pref.setLoadBookTaskState(s);
         myLogD("LoadBookTaskState done, about to launch worker");
+
+         */
 
         // 3) Run Worker
         OneTimeWorkRequest req = new OneTimeWorkRequest.Builder(M4bSplitWorker.class).build();

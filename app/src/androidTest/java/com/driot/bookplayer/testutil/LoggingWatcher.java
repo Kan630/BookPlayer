@@ -22,7 +22,9 @@ public class LoggingWatcher extends TestWatcher implements LogSupport {
     @Override
     protected void failed(Throwable e, Description description) {
         myLog("oo-----------------------------------------------------------------------------oo");
-        myLogE("❌ FAIL  " + description.getDisplayName() + "\n" + e);
+        myLogE("❌ FAIL         " + description.getDisplayName());
+        myLog("oo-----------------------------------------------------------------------------oo");
+        myLogE(e.getMessage());
         myLog("oo-----------------------------------------------------------------------------oo");
     }
 

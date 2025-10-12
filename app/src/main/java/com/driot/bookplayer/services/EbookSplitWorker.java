@@ -44,7 +44,7 @@ public class EbookSplitWorker extends ImportWorker {
     public Result doWork() {
         emitTaskStart(TASK_NAME, context.getString(R.string.import_task_ebook_split) + " " + context.getString(R.string.import_task_start));
         ImportJob j = jobOrFail();
-        final String ebookPath = j.dynamicSourceFilePath;
+        final String ebookPath = j.futureFolderPath + "/" + j.originalFile;
         final String destinationFolderPath = j.futureFolderPath;
 
         myLogD("--------------------------------------------------------------------------");

@@ -42,7 +42,7 @@ public class UnzipWorker extends ImportWorker {
     public Result doWork() {
         emitTaskStart(TASK_NAME, context.getString(R.string.import_task_unzip) + " " + context.getString(R.string.import_task_start));
         ImportJob j = jobOrFail();
-        final String zipFilePath = j.dynamicSourceFilePath;
+        final String zipFilePath = j.futureFolderPath + "/" + j.originalFile;
         final String destinationFolderPath = j.futureFolderPath;
 
         myLogD("----------------------------------------------------");
