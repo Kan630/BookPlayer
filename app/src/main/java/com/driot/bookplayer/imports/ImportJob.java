@@ -5,6 +5,8 @@ import androidx.room.Entity;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
+import java.util.Objects;
+
 @Entity(
         tableName = "ImportJob",
         indices = {
@@ -83,4 +85,6 @@ public class ImportJob {
     public static final String S_FAILED    = "FAILED";
     public static final String S_CANCELLED = "CANCELLED";
     public static final String S_PAUSED    = "PAUSED";
+
+    public boolean isFinished() { return Objects.equals(status, S_SUCCEEDED) || Objects.equals(status, S_FAILED) || Objects.equals(status, S_CANCELLED); }
 }

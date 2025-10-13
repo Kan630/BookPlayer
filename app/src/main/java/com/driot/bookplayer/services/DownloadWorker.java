@@ -238,10 +238,12 @@ public class DownloadWorker extends ImportWorker {
                     return Result.failure();
                 }
 
+                /*
                 LoadBookTaskState s = Pref.getLoadBookTaskState();
                 if (s != null && s.isLoadingPaused) {
                     emitDownloadResuming();
                 }
+                 */
 
                 long contentLen = getContentLengthLongCompat(conn); // may be -1
                 long totalLen = (contentLen > 0 ? contentLen : -1L);
@@ -258,19 +260,21 @@ public class DownloadWorker extends ImportWorker {
                 long written = already;
                 for (;;) {
                     if (isStopped()) {
+                        /*
                         LoadBookTaskState state = Pref.getLoadBookTaskState();
                         if (state == null) {
                             myLogW("Stopped after cancelled");
                             emitCancelled(TASK_NAME);
                             return Result.failure();
                         }
+                         */
                         myLogW("Stopped by WM/constraints — keeping partial and retrying");
                         emitDownloadPause(getApplicationContext().getString(R.string.download_stopped_by_system_will_retry));
                         return Result.retry(); // partial file kept; WM will reschedule when constraints are met
                     }
-                    if (stoppedRequested.get()) {
+                    if (stoppedRequested.get()) { //happens if we hit onStopped()... constraints ?
                         myLogW("Stop requested");
-                        emitDownloadPause(getApplicationContext().getString(R.string.Download_paused_by_user));
+                        emitDownloadPause(getApplicationContext().getString(R.string.download_stop_requested));
                         return Result.retry(); // partial file kept; WM will reschedule when constraints are met
                     }
                     if (cancelRequested.get()) {
@@ -292,10 +296,10 @@ public class DownloadWorker extends ImportWorker {
 
                         // Wait here until resume or cancel or stop
                         while (true) {
-                            LoadBookTaskState state = Pref.getLoadBookTaskState();
-                            if (state == null) {
-                                return Result.failure();
-                            }
+                            //LoadBookTaskState state = Pref.getLoadBookTaskState();
+                            //if (state == null) {
+                            //    return Result.failure();
+                            //}
                             if (isStopped()) {
                                 myLogW("Paused → stopped");
                                 emitDownloadPause(getApplicationContext().getString(R.string.download_stopped_by_system_will_retry));

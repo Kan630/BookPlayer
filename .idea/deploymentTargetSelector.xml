@@ -94,10 +94,10 @@
       </SelectionState>
       <SelectionState runConfigName="LoadManyBookTest">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2025-10-13T05:23:50.443561Z">
+        <DropdownSelection timestamp="2025-10-13T18:21:53.297755900Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="PhysicalDevice" identifier="serial=FPMPH18C17900002" />
+              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\adrio\.android\avd\Pixel_9.avd" />
             </handle>
           </Target>
         </DropdownSelection>

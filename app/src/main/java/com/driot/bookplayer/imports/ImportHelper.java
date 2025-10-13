@@ -2,7 +2,6 @@ package com.driot.bookplayer.imports;
 
 import android.content.Context;
 
-import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
@@ -14,13 +13,32 @@ import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Transformations;
-import androidx.work.ListenableWorker;
 import androidx.work.WorkManager;
 
 import java.io.File;
 import java.util.concurrent.Executors;
 
 public class ImportHelper {
+
+    public static void checkImportJobsAtStartUp(Context context) {
+        AppDatabase db = AppDatabase.getInstance(context.getApplicationContext());
+        Executors.newSingleThreadExecutor().execute(() -> {
+            ImportJobDao dao = db.importJobDao();
+            ImportJob job = dao.getUniqueJob();
+            if (job != null) {
+                if (!job.isFinished()) {
+                    if (!job.showToUser) {
+                        myLogEE(null, "Import Job was not visible, resetting job, id=[" + job.importId + "]");
+                        dao.setShowToUser(job.importId, true, System.currentTimeMillis());
+                    } else {
+                        myLogD("ongoing import job, id=[" + job.importId + "]");
+                    }
+                }
+            } else {
+                myLogD("no ongoing job");
+            }
+        });
+    }
 
     public static String getSourceFilePathForWorker(ImportJob j) {
         myLog(j.importId + " - getSourceFilePathForWorker");

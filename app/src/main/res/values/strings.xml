@@ -927,6 +927,7 @@
 </string>
 
     <string name="please_wait_another_book_is_being_imported">Please wait, another book is still being imported.</string>
+    <string name="download_stop_requested">Download requested to stop</string>
 
     <string name="import_task_start">starting…</string>
     <string name="import_task_complete">done.</string>
@@ -950,7 +951,11 @@
     <string name="sample_rate">Sample rate</string>
     <string name="channels">Channels</string>
 
+    <string name="streaming">streaming</string>
+
     <string name="frequency_visualizer">Frequency Visualizer</string>
+
+
 
 
 

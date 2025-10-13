@@ -65,7 +65,7 @@ public interface ImportJobDao {
             ", updatedAt=:ts WHERE importId=:id")
     void success(String id, String progressText, long ts);
 
-    @Query("UPDATE ImportJob SET progressText=:why" +
+    @Query("UPDATE ImportJob SET warningText = COALESCE(warningText || '\n', '') || :why" +
             ", isLoadingPaused = 1" +
             ", status='" + ImportJob.S_PAUSED + "'" +
             ", updatedAt=:ts WHERE importId=:id")

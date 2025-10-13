@@ -1,5 +1,6 @@
 package com.driot.bookplayer.activities;
 
+import android.content.Context;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -11,10 +12,14 @@ import com.driot.bookplayer.objects.MyTextChunk;
 import com.driot.bookplayer.adapter.MyTextChunkRVAdapter;
 import com.driot.bookplayer.utils.TextOptions;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
-
-import static com.driot.bookplayer.utils.Tonio2.getTextFileContentInArrayList;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.utils.log.LoggingActivity;
@@ -36,6 +41,48 @@ public class LogTextActivity extends LoggingActivity {
     private TextOptions textOptions;
 
     private boolean destroyedByFlip = false;
+
+    public ArrayList<MyTextChunk> getTextFileContentInArrayList(Context c, String typeStorage, String textFileName, String textFileFolder, int charSize) {
+        ArrayList<MyTextChunk> arrayList = new ArrayList<>();
+        BufferedReader reader;
+        InputStream inputStream = null;
+        myLogD( "getTextFileContentInArrayList - Opening file -" + textFileName + "- in folder -" + textFileFolder + "- with method -" + typeStorage + "-");
+        try {
+
+            //FROM ASSET FOLDER (BookPlayer/app/src/main/assets/)
+            if (typeStorage.equals("asset")) {
+                inputStream = c.getAssets().open(textFileName);
+
+            //FROM USER FOLDER (usually data/data/com.driot.bookplayer/files/...)
+            } else if (typeStorage.equals("classic")) {
+                File dir = new File(c.getFilesDir(), textFileFolder);
+                inputStream = new FileInputStream(new File(dir, textFileName));
+
+            } else {
+                inputStream = null;
+            }
+
+            reader = new BufferedReader(
+                    new InputStreamReader(inputStream));
+
+            String str;
+            int i = 0;
+            while ((str = reader.readLine()) != null) {
+                //if (!(str.contains("redraw Seek Bar"))) { //TODO temp for log analysis
+                arrayList.add(new MyTextChunk(i, str, charSize));
+                    i++;
+                //}
+            }
+            reader.close();
+            myLog("getTextFileContentInArrayList - Getting file lines into array...    array dim = nb line = [" + arrayList.size() + "]");
+            return arrayList;
+
+        } catch (IOException e) {
+            myLogEE(e,"getTextFileContentInArrayList");
+            e.printStackTrace();
+        }
+        return null;
+    }
 
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
@@ -107,80 +154,6 @@ public class LogTextActivity extends LoggingActivity {
         }
         super.onDestroy();
     }
-
-    /*
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.action_bar, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int itemId = item.getItemId();
-        if (itemId == R.id.action_tailleCharPlus) {
-            textOptions.charSizePlus(this);
-            loadRecyclerView();
-            return true;
-        } else if (itemId == R.id.action_tailleCharMoins) {
-            textOptions.charSizeMoins(this);
-            loadRecyclerView();
-            return true;
-        } else if (itemId == R.id.action_search) {
-            searchWordInText();
-            return true;
-        } else if (itemId == R.id.action_debutTexte) {
-            recyclerView.scrollToPosition(0);
-            return true;
-        }
-        myLog("default : " + item.toString());
-        return super.onOptionsItemSelected(item);
-    }
-
-    private void searchWordInText() {
-        final EditText reponseEditText = new EditText(this);
-        reponseEditText.setText("Article ");
-        AlertDialog dialog = new AlertDialog.Builder(this)
-                .setTitle("Search")
-                .setMessage("Enter a word ?")
-                .setView(reponseEditText)
-                .setPositiveButton("Search", (dialog1, which) -> {
-                    String reponse = "";
-                    try {
-                        reponse = String.valueOf(reponseEditText.getText());
-                        reponse = reponse.trim();
-                        searchWordInText2(reponse);
-                    } catch (Exception e) {
-                        if (!reponse.equals("")) {
-                            myToastE("Error while searching :" + e.getMessage());
-                            e.printStackTrace();
-                        }
-                    }
-                })
-                .setNegativeButton("Cancel", null)
-                .create();
-        dialog.show();
-    }
-
-    private void searchWordInText2(@Nullable String highlightedWord) {
-        myLog("searchWord :" + highlightedWord);
-        //saveScrollPosition();
-
-        if (highlightedWord != null && highlightedWord.length() > 1) {
-            textOptions.saveHighlightedText(this, file, highlightedWord);
-
-            for (MyTextChunk m : myTextChunkArrayList) {
-                if (m.contains(highlightedWord)) {
-                    myLog("Found : " + m.getId() + " -- " + m.getText());
-                    recyclerView.scrollToPosition(map.get(m.getId()) + 1);   //+1 sinon en plein milieu...
-                    break;
-                }
-            }
-
-
-        }
-    }
-*/
 
 }
 

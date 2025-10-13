@@ -232,8 +232,8 @@ public class AudioService extends LoggingService {
                 0, 0, false, engine instanceof TtsEngine));
         Intent i = new Intent(ACTION_UI_STATE)
                 .putExtra(EXTRA_UI_PLAYING,  false)
-                .putExtra(EXTRA_UI_POS,      0)
-                .putExtra(EXTRA_UI_DUR,      0)
+                .putExtra(EXTRA_UI_POS,      0L)
+                .putExtra(EXTRA_UI_DUR,      0L)
                 .putExtra(EXTRA_UI_TITLE,    "")
                 .putExtra(EXTRA_UI_SUBTITLE, "")
                 .putExtra(EXTRA_UI_SUPPRESS_MINI, true);
@@ -272,8 +272,8 @@ public class AudioService extends LoggingService {
         String cover = (f != null) ? f.image : "";
 
         // Be defensive around engine readiness to avoid 0/0 churn if you want
-        int pos = (engine != null) ? engine.getCurrentPosition() : 0;
-        int dur = (engine != null) ? engine.getDuration() : 0;
+        long pos = (engine != null) ? (long) engine.getCurrentPosition() : 0;
+        long dur = (engine != null) ? (long) engine.getDuration() : 0;
         boolean playing = (engine != null) && engine.isPlaying();
 
         int trackId  = (z != null) ? z.getId() : 0;
@@ -664,7 +664,7 @@ public class AudioService extends LoggingService {
         if (intent!=null && intent.getAction()!=null) myLogD("intent.action = " + intent.getAction());
 
         if (intent == null) {            // happens when Android restarts your sticky service after it was killed, no 5-second foreground requirement in this case because the system didn’t just call startForegroundService(...) on your behalf;
-            myLogW("onStartCommand() with no intent - Android restarts?");
+            myLogW("onStartCommand() with no intent - Android restarts? - because of START_STICKY and no START_REDELIVER_INTENT");
             return START_STICKY;
         }
 
@@ -754,7 +754,7 @@ public class AudioService extends LoggingService {
             case "CMD_STOP": {
                 myLog("CMD_STOP");
                 shutdown(false);
-                return START_STICKY;
+                return START_NOT_STICKY; //let's try to avoid crashes
             }
 
             // -------- Direct transport commands (often from notif/media buttons) --------
@@ -811,14 +811,32 @@ public class AudioService extends LoggingService {
         try {
             CharSequence t = (title != null) ? title : "Preparing…";
             CharSequence s = (text  != null) ? text  : "Please wait";
+
+            PlaybackNotificationManager.ActionProvider minimal =
+                    new PlaybackNotificationManager.ActionProvider() {
+                        @Override public PendingIntent rewind()      { return null; }
+                        @Override public PendingIntent play()        { return null; }
+                        @Override public PendingIntent pause()       { return null; }
+                        @Override public PendingIntent fastForward() { return null; }
+                        @Override public PendingIntent content() {
+                            // Tap → open PlayActivity (or your main)
+                            return PendingIntent.getActivity(
+                                    AudioService.this, 0,
+                                    new Intent(AudioService.this, PlayActivity.class)
+                                            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP),
+                                    PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+                            );
+                        }
+                    };
+
             Notification n = notif.build(
                     media.session(),
                     /*playing=*/false,
                     t,
                     s,
-                    // You can pass your ActionProvider if you want controls here, or null for minimal
-                    null
+                    minimal
             );
+            // to call before 5sec :
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 startForeground(ID_NOTIFICATION_PLAY_AUDIO_INT, n, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK);
             } else {
@@ -850,7 +868,7 @@ public class AudioService extends LoggingService {
         super.onTaskRemoved(rootIntent);
     }
 
-    private void shutdown(boolean fromDestroy) {
+    private void  shutdown(boolean fromDestroy) {
         if (!isShuttingDown.compareAndSet(false, true)) {
             myLogI("shutdown() already running; ignore");
             return;

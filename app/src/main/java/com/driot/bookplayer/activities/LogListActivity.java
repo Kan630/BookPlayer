@@ -1,5 +1,6 @@
 package com.driot.bookplayer.activities;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -19,8 +20,8 @@ import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import java.io.File;
 import java.util.ArrayList;
-
-import static com.driot.bookplayer.utils.Tonio2.getFileInArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 02/12/20
@@ -68,11 +69,31 @@ public class LogListActivity extends LoggingActivity {
         ArrayList<MyFile> myItemArrayList = getFileInArrayList(this, "log");
         recyclerView.setAdapter(new MyFileRVAdapter(this, myItemArrayList));
     }
-
-    @Override
-    public void onBackPressed() {
-        myLog("onBackPressed()");
-        super.onBackPressed();
+    private ArrayList<MyFile> getFileInArrayList(Context c, String path) {
+        ArrayList<String> fileNameArrayList = new ArrayList<>();
+        ArrayList<MyFile> myFileArrayList = new ArrayList<>();
+        listClassicFiles(c, path, fileNameArrayList);
+        if (fileNameArrayList.isEmpty()) myLogE("Warning fileNameArrayList empty");
+        for (String s : fileNameArrayList) {
+            myFileArrayList.add(new MyFile(s));
+        }
+        myFileArrayList.sort(Collections.reverseOrder(Comparator.comparing(MyFile::getDate)));
+        return myFileArrayList;
+    }
+    private boolean listClassicFiles(Context c, String path, ArrayList<String> arrayList) {
+        File dir = new File(c.getFilesDir(), path);
+        File[] fileList = dir.listFiles();
+        if (fileList != null) {
+            for (File f : fileList) {
+                if (f.isFile()) {
+                    String name = f.getName();
+                    arrayList.add(name);
+                }
+            }
+        } else {
+            myLogE("listClassicFiles, no file found in path [" + path + "]");
+        }
+        return arrayList.size() > 0;
     }
 
     private void btnDeleteLogsClick() {

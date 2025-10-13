@@ -65,6 +65,14 @@
                         android:id="@+id/bAutoTest_b4"
                         android:text="@string/AutoTest_b4_text"
                         style="@style/GetResourceButton" />
+                    <TextView
+                        android:layout_height="30dp"
+                        android:layout_width="match_parent"
+                        android:textIsSelectable="true"
+                        android:text="https://bookplayer.driot.com/autotest/file_01.zip"  />
+
+
+
                 </LinearLayout>
 
                 <include

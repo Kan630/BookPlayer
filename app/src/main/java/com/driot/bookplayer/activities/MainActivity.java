@@ -23,7 +23,6 @@
     import androidx.lifecycle.ViewModelProvider;
     import androidx.localbroadcastmanager.content.LocalBroadcastManager;
     import androidx.recyclerview.widget.GridLayoutManager;
-    import androidx.recyclerview.widget.LinearLayoutManager;
     import androidx.recyclerview.widget.RecyclerView;
 
     import com.driot.bookplayer.MyApp;
@@ -139,21 +138,11 @@
             adapter.connectPlayback(this, playbackVm.getState()); // adapter observe playback (highlight)
             //getFolders();
 
-            // --- Main ViewModel
-            /*
-            mainVm = new ViewModelProvider(this,
-                    new ViewModelProvider.AndroidViewModelFactory(getApplication()))
-                    .get(MainViewModel.class);
-
-             */
             mainVm = new ViewModelProvider(this).get(MainViewModel.class);
-
-            // Folders list
             mainVm.getFolders().observe(this, folders -> {
                 if (folders == null) return;
                 adapter.submitList(folders);
             });
-
             // Show empty prompt exactly once
             mainVm.getShowEmptyPrompt().observe(this, show -> {
                 if (Boolean.TRUE.equals(show)) {
@@ -161,7 +150,6 @@
                     mainVm.markEmptyPromptShown();
                 }
             });
-
             // One-shot scroll-to-top request
             mainVm.getScrollToTopEvent().observe(this, evt -> {
                 if (evt == null) return;
@@ -170,18 +158,8 @@
                     recyclerView.post(() -> {
                         recyclerView.smoothScrollToPosition(0);
                     });
-                    /*
-                    RecyclerView.LayoutManager lm = recyclerView.getLayoutManager();
-                    if (lm instanceof LinearLayoutManager) {
-                        ((LinearLayoutManager) lm).scrollToPositionWithOffset(0, 0);
-                    } else {
-                        recyclerView.scrollToPosition(0);
-                    }
-
-                     */
                 });
             });
-
             boolean wantScroll = getIntent() != null && getIntent().getBooleanExtra("scrollToTop", false);
             if (wantScroll && mainVm != null) {
                 // either emit now or the list observer will run soon; both are fine
@@ -199,11 +177,9 @@
                 }
             });
 
-
             //InAppMsgManager.deleteInAppMsgCache(this);
             MyApp.getPeriodicTaskManager(this).start(); // safe
             InAppMsgManager.maybeShowBestMessage(this, "message");
-            //startActivity(new Intent(this, TtsReadTxtActivity.class));
 
             //Option.setTtsVoice("system"); //reset
         }

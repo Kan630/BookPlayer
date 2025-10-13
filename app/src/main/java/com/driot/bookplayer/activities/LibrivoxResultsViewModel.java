@@ -54,6 +54,7 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
             List<String> ids = new ArrayList<>(apiItems.size());
             for (LibrivoxItem it : apiItems) ids.add(it.identifier);
 
+            //TODO fix android.database.sqlite.SQLiteException: too many SQL variables (code 1 SQLITE_ERROR): , while compiling: SELECT repoId, is_favorite, idFolder  => ids can be huge...>999
             List<BookSourceDao.RepoStateRow> rows = dao.getStateFor(Var.REPO_TYPE_AUDIOBOOK, Var.REPO_NAME_LIBRIVOX, ids);
             HashMap<String, BookSourceDao.RepoStateRow> map = new HashMap<>();
             for (BookSourceDao.RepoStateRow r : rows) map.put(r.repoId, r);

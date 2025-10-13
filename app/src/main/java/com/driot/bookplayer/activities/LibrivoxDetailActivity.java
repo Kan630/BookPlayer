@@ -27,6 +27,7 @@ import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
+import com.driot.bookplayer.helpers.SupportedFilesHelper;
 import com.driot.bookplayer.imports.ImportHelper;
 import com.driot.bookplayer.objects.ItemMetadata;
 import com.driot.bookplayer.objects.LibrivoxApi;
@@ -407,18 +408,24 @@ public class LibrivoxDetailActivity extends LoggingActivity {
         LoadBookTaskState state = new LoadBookTaskState();
 
         state.originalUri = Uri.parse(url);
-        state.dynamicUri = Uri.parse(url);
         state.originalType = "ZIP";
+        state.dynamicUri = Uri.parse(url);
         state.dynamicType = "ZIP";
-        state.fileExtension = "zip";
         state.title = viewModel.title;
+        state.futureFolderName = viewModel.identifier;
+        state.futureFolderPath = futurePath;
         state.optionSplit = false;
         state.optionCopy = true;
         state.optionDelete = false;
-        state.imagePath = futureCoverPic;
+        state.originalFile = SupportedFilesHelper.getFileName(this, Uri.parse(url)) ;
+        //state.originalHash = ;
         state.sourceLocation = SOURCE_LOCATION_LIBRIVOX;
-        state.futureFolderName = viewModel.identifier;
-        state.futureFolderPath = futurePath;
+        state.fileExtension = "zip";
+        //state.mimeType = SupportedFilesHelper.getMimeType(this, Uri.parse(url));
+        //state.playType = ;
+
+        //specific as of 2025-10-13 (compared to LoadBookActivity)
+        state.imagePath = futureCoverPic;
         state.onGoingLoading = true;
         state.progressText = getString(R.string.About_to_start_download);
 

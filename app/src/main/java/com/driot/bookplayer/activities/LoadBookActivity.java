@@ -271,8 +271,6 @@ public class LoadBookActivity extends LoggingActivity {
                 state.fileExtension = bookToAdd.getFileExtension();
                 state.mimeType = bookToAdd.getMimeType();
                 state.playType = bookToAdd.getPlayType();
-                //state.downloadDestinationFolder = false;
-                //setLoadBookTaskState(state); // save in SharedPrefs
 
                 runOnUiThread(() -> {
                     if (anotherRunning) {

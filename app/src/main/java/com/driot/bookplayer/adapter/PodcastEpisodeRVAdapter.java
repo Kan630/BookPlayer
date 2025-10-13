@@ -76,6 +76,14 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
 
     private final EpisodeClickHandler handler;
 
+    private int indexOfZikFileId(Long idZikFile) {
+        if (idZikFile == null || items == null) return -1;
+        for (int i = 0; i < items.size(); i++) {
+            Long z = items.get(i).idZikFile; // DisplayableEpisode has idZikFile in your code
+            if (z != null && z.equals(idZikFile)) return i;
+        }
+        return -1;
+    }
 
     public PodcastEpisodeRVAdapter(Context context, PodcastFeed podcastFeed, PodcastEpisodeViewModel viewModel, EpisodeClickHandler handler) {
         this.context = context;
@@ -86,11 +94,24 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
         if (podcastFeed==null) {
             myLogEE(null, "podcastFeed == null");
         }
-        // Observe once: last listened ZikFile for this feed
-        viewModel.getLastListenedZikFileForPodcast(podcastFeed.id /* or .feedId */)
+
+        viewModel.getLastListenedZikFileForPodcast(podcastFeed.id)
                 .observe(lifecycleOwner, zf -> {
-                    lastListenedZikFileId = (zf != null) ? (long) zf.getId() : null;
-                    notifyDataSetChanged(); // refresh highlights
+                    Long newId = (zf != null) ? (long) zf.getId() : null;
+                    if ((lastListenedZikFileId == null && newId == null) ||
+                            (lastListenedZikFileId != null && lastListenedZikFileId.equals(newId))) {
+                        return; // no visible change
+                    }
+                    int oldPos = indexOfZikFileId(lastListenedZikFileId);
+                    int newPos = indexOfZikFileId(newId);
+
+                    lastListenedZikFileId = newId;
+
+                    android.os.Bundle p = new android.os.Bundle();
+                    p.putBoolean("LAST_LISTENED_CHANGED", true);
+
+                    if (oldPos >= 0) notifyItemChanged(oldPos, p);
+                    if (newPos >= 0) notifyItemChanged(newPos, p);
                 });
     }
 

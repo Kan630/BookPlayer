@@ -18,6 +18,8 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.driot.bookplayer.utils.log.KanLogger;
+import com.driot.bookplayer.utils.log.LoggerHelper;
+import com.driot.bookplayer.utils.log.LoggingAndroidViewModel;
 
 /**
  * Mini player's single source of truth:
@@ -25,7 +27,7 @@ import com.driot.bookplayer.utils.log.KanLogger;
  *   - Snapshots are used ONLY when bound, for progress smoothing.
  *   - We never overwrite with an "empty" state just because we're unbound.
  */
-public class PlaybackViewModel extends AndroidViewModel {
+public class PlaybackViewModel extends LoggingAndroidViewModel {
 
     private final MutableLiveData<PlaybackUiState> state = new MutableLiveData<>();
     public LiveData<PlaybackUiState> getState() { return state; }
@@ -177,9 +179,12 @@ public class PlaybackViewModel extends AndroidViewModel {
         // Let the service do the real work regardless of binding.
         Context app = getApplication();
         try {
-            ContextCompat.startForegroundService(app, new Intent(app, AudioService.class).setAction("CMD_STOP"));
-        } catch (Throwable ignored) {}
-        // Do NOT post empty state; wait for ACTION_UI_STATE from service.
+            app.startService(new Intent(app, AudioService.class).setAction("CMD_STOP"));
+        } catch (IllegalStateException e) {
+            // If the app is truly backgrounded and startService() is disallowed,
+            // just request a hard stop (no-ops if not running).
+            app.stopService(new Intent(app, AudioService.class));
+        }
     }
 
     @Override protected void onCleared() {
@@ -215,15 +220,5 @@ public class PlaybackViewModel extends AndroidViewModel {
         ContextCompat.startForegroundService(app, up);
     }
 
-
-    // ----------------------- LOG -----------------------
-    private static final String TAG = "PlaybackViewModel";
-    private static void myLog(String str) { KanLogger.myLog(TAG, str); }
-    private static void myLogD(String str) { KanLogger.myLogD(TAG, str); }
-    private static void myLogI(String str) { KanLogger.myLogI(TAG, str); }
-    private static void myLogW(String str) { KanLogger.myLogW(TAG, str); }
-    private static void myLogE(String str) { KanLogger.myLogE(TAG, str); }
-    private static void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, TAG, str); }
-    private static void myToastEE(Throwable t, String str) { KanLogger.myToastEE(t, TAG, str); }
 }
 

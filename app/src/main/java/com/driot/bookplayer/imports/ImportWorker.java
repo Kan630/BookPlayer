@@ -91,7 +91,7 @@ public abstract class ImportWorker extends LoggingWorker {
 
     protected void emitDownloadResuming() {
         myLogI("emitDownloadResuming");
-        repo.downloadResuming(importId);
+        repo.downloadResuming(importId, appContext.getString(R.string.download_resuming));
     }
 
     protected Data out()

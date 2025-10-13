@@ -13,6 +13,7 @@ import com.driot.bookplayer.db.PodcastDao;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.db.ZikFileDao;
 import com.driot.bookplayer.helpers.PodcastHelper;
+import com.driot.bookplayer.objects.DisplayableEpisode;
 import com.driot.bookplayer.objects.PodcastEpisode;
 import com.driot.bookplayer.utils.log.LoggingAndroidViewModel;
 
@@ -77,7 +78,5 @@ public class PodcastEpisodeViewModel extends LoggingAndroidViewModel {
     // ---------------------------------
     //     API
     // ---------------------------------
-
-
 
 }

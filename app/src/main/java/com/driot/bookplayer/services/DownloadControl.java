@@ -29,37 +29,11 @@ public final class DownloadControl {
 
     public static void sendResume(Context ctx) {
         forEachRunningDownload(ctx, id -> sendResume(ctx, id));
-
-        /* Fallback commented 2025-10-13 after refactor
-        // Fallback: if nothing is running, force the pipeline to (re)start
-        EXEC.execute(() -> {
-            try {
-                List<WorkInfo> infos = WorkManager.getInstance(ctx)
-                        .getWorkInfosByTag(DownloadWorker.TAG_DOWNLOAD).get();
-
-                boolean anyRunning = false;
-                if (infos != null) {
-                    for (WorkInfo wi : infos) {
-                        if (wi.getState() == WorkInfo.State.RUNNING) {
-                            anyRunning = true; break;
-                        }
-                    }
-                }
-                if (!anyRunning) {
-                    myLogD("No running DownloadWorker → force resume pipeline");
-                    // Rebuild based on current Pref/LoadBookTaskState
-                    BookLoadingWorkLauncher.launch()
-                }
-            } catch (Exception ignored) {}
-        });
-
-         */
     }
 
     public static void sendCancel(Context ctx) {
         // Courtesy broadcast to alive workers (they'll clean up partials)
         forEachRunningDownload(ctx, id -> sendCancel(ctx, id));
-        // Your app logic already cancels the pipeline by tag or unique name elsewhere
     }
 
     // --- Legacy ID-based variants (optional to keep) ---

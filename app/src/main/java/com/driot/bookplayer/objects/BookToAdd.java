@@ -53,7 +53,7 @@ public class BookToAdd extends LoggerHelper {
         this.infoSourceLocation = "[" + this.sourceLocation + "]";
 
         if (type.equals("File")) {
-            //TODO check that 3 methods
+            //TODO check that 3 methods (and they are also in in Librivox, somewhere else in the code is use Tonio.get...)
             mimeType = SupportedFilesHelper.getMimeType(appContext, uri);
             extractedfileName = SupportedFilesHelper.getFileName(appContext, uri) ;
             fileExtension = SupportedFilesHelper.getFileExtension(extractedfileName);

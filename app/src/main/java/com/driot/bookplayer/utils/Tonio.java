@@ -1,7 +1,5 @@
 package com.driot.bookplayer.utils;
 
-import static com.driot.bookplayer.utils.Tonio2.removeLongDuplicates;
-
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -29,7 +27,8 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 /**
@@ -616,4 +615,16 @@ public class Tonio {
     private static void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, TAG, str); }
     private static void myToastEE(Throwable t, String str) { KanLogger.myToastEE(t, TAG, str); }
 
+    public static String removeLongDuplicates(String input, int duplicate_min_length) {
+        // Define a regex pattern to match duplicate substrings longer than 10 characters
+        Pattern pattern = Pattern.compile("(.{"+duplicate_min_length+",}).*\\1");
+
+        Matcher matcher = pattern.matcher(input);
+        while (matcher.find()) {
+            String duplicate = matcher.group(1);
+            input = input.replaceFirst(Pattern.quote(duplicate), ""); // Remove the first occurrence of the duplicate
+        }
+
+        return input;
+    }
 }

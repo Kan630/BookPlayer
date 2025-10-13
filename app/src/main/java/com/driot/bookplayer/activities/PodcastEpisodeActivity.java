@@ -538,6 +538,7 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
 
     private void goToPlaySection() {
         if (podcast == null) {
+            myLogEE(null, "goToPlaySection() - podcast is null");
             AppDatabase.databaseReadExecutor.execute(() -> {
                 podcast = AppDatabase.getDatabase(this).podcastDao().getPodcastByFeedId(podcastFeed.id);
                 if (podcast == null) {
@@ -556,41 +557,43 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
             return;
         }
         if (podcast.idFolder == null || podcast.idFolder <= 0) {
-            myLog("Podcast exist in DB but no Folder exists (nothing downloaded yet)");
+            myLog("Podcast exist in DB but no Folder/savedPodcastBook exists (nothing downloaded yet)");
             return;
         }
 
-        new Thread(() -> {
+        AppDatabase.databaseReadExecutor.execute(() -> {
             try {
-                Folder folder = AppDatabase.getDatabase(getApplicationContext())
-                        .folderDao().getById(podcast.idFolder);
+                Folder folder = AppDatabase.getDatabase(getApplicationContext()).folderDao().getById(podcast.idFolder);
                 if (folder == null) return;
 
-                List<ZikFile> zikFilesList = AppDatabase.getDatabase(getApplicationContext())
-                        .zikFileDao().getZikFiles(podcast.idFolder);
+                if (AudioService.isRunning && PlayList.getInstance()!=null &&  PlayList.getInstance().getZikFile()!=null && PlayList.getInstance().getZikFile().getIdFolder()==podcast.idFolder) {
+                    startActivity(new Intent(this, ZikFileActivity.class).putExtra("folder", folder));
+                } else {
+                    List<ZikFile> zikFilesList = AppDatabase.getDatabase(getApplicationContext())
+                            .zikFileDao().getZikFiles(podcast.idFolder);
 
-                myLogI("nb ZikFiles in that Book : " + zikFilesList.size() + " - [" + folder.getName() + "]");
+                    myLogI("nb ZikFiles in that Podcast Book : " + zikFilesList.size() + " - [" + folder.getName() + "]");
 
-                PlayList.create(this, zikFilesList);
+                    PlayList.create(this, zikFilesList);
 
-                // Switch to main thread for any UI / navigation
-                runOnUiThread(() -> {
-                    if (isFinishing() || isDestroyed()) return;
+                    // Switch to main thread for any UI / navigation
+                    runOnUiThread(() -> {
+                        if (isFinishing() || isDestroyed()) return;
 
-                    if (!zikFilesList.isEmpty()) {
-                        closeExoPlayer();
-                        startActivity(new Intent(this, ZikFileActivity.class).putExtra("folder", folder));
-                    } else {
-                        myLogE("no ZikFiles in that folder !");
-                        myToastE(getString(R.string.ErrorCouldNotLoadAudios_emptyfolder)); // main thread
-                    }
-                });
-
+                        if (!zikFilesList.isEmpty()) {
+                            closeExoPlayer();
+                            startActivity(new Intent(this, ZikFileActivity.class).putExtra("folder", folder));
+                        } else {
+                            myLogE("no ZikFiles in that folder !");
+                            myToastE(getString(R.string.ErrorCouldNotLoadAudios_emptyfolder)); // main thread
+                        }
+                    });
+                }
             } catch (Exception e) {
-                myLogEE(e, "error getting Folder/ZikFiles");
+                myLogEE(e, "goToPlaySection2()");
                 runOnUiThread(() -> myToastEE(null, getString(R.string.ErrorCouldNotLoadAudios)));
             }
-        }).start();
+        });
     }
 
 
@@ -650,11 +653,15 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
     @Override
     public void onOpenLocalEpisode(ZikFile zikFile) {
         closeExoPlayer();
-        stopAudioServiceIfRunning();
+        if (AudioService.isRunning) {
+            if (AudioService.lastUiState.trackId==zikFile.getId()) {
+                myLog("already playing that track");
+                startActivity(new Intent(this, PlayActivity.class));
+                return;
+            }
+        }
 
-
-        // 2) Launch PlayActivity with the local file
-        // open Play
+        //stopAudioServiceIfRunning();
         new Thread(() -> {
             try {
                 myLog("clickOnEpisode : " + zikFile.getDisplayName() + " - " + zikFile.getId() + " - " + zikFile.getName());
@@ -670,7 +677,6 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
                 if (rankZikFile >= 0 && PlayList.getInstance()!=null) {
                     PlayList.getInstance().setNumZikFile(rankZikFile);
                     AudioService.startAndLoad(this, PlayList.getInstance().getNumZikFile(), /*autoplay*/ true, /*force*/ true);
-                    //startActivity(new Intent(this, PlayActivity.class).putExtra("ZikFile", zikFile));
                 }
             } catch (Exception e) {
                 myLogEE(e, "clickOnEpisode - playThatShit");

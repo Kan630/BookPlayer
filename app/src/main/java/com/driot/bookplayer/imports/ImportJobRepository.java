@@ -46,8 +46,8 @@ public class ImportJobRepository extends LoggerHelper {
         dao.downloadPause(id, why, System.currentTimeMillis());
     }
 
-    public void downloadResuming(String id) {
-        dao.downloadResuming(id, "resuming download",  System.currentTimeMillis());
+    public void downloadResuming(String id, String progressText) {
+        dao.downloadResuming(id, progressText,  System.currentTimeMillis());
     }
 
     public void downloadCompleted(String id, String taskName, String downloadedFileFullPath, String progressText) {
