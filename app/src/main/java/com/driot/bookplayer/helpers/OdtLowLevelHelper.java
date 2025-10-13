@@ -5,7 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 
-import com.driot.bookplayer.utils.log.KanLogger;
+import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
@@ -56,7 +56,7 @@ public final class OdtLowLevelHelper {
     // ---------------- Public API ----------------
 
     public static ExtractResult extractAll(Context ctx, Uri odtUri) throws Exception {
-        myLogI("=== ODT extractAll: begin ===");
+        myLog("=== ODT extractAll: begin ===");
 
         // 1) Read whole ODT into memory
         byte[] odtBytes = readAllBytes(ctx, odtUri);
@@ -94,7 +94,7 @@ public final class OdtLowLevelHelper {
 
         // 3) Parse chapters (namespace-aware; proper \n handling)
         List<Chapter> chapters = parseChapters(contentXml);
-        myLogI("Chapters parsed: " + chapters.size());
+        myLog("Chapters parsed: " + chapters.size());
 
         // 4) Title heuristic: first heading text, else "untitled"
         String bookTitle = (chapters.isEmpty() || chapters.get(0).title == null || chapters.get(0).title.trim().isEmpty())
@@ -122,7 +122,7 @@ public final class OdtLowLevelHelper {
             myLogD("Wrote chapter: " + f.getName() + " (len=" + text.length() + ")");
         }
 
-        myLogI("=== ODT extractAll: done; chapters=" + outFiles.size() + " ===");
+        myLog("=== ODT extractAll: done; chapters=" + outFiles.size() + " ===");
         return new ExtractResult(bookTitle, outDir, outFiles, cover);
     }
 
@@ -361,12 +361,4 @@ public final class OdtLowLevelHelper {
         catch (Throwable ignore) { return def; }
     }
 
-    // ---------------- Logging ----------------
-
-    private static final String TAG = "OdtLowLevelHelper";
-    private static void myLogD(String s) { KanLogger.myLogD(TAG, s); }
-    private static void myLogI(String s) { KanLogger.myLogI(TAG, s); }
-    private static void myLogW(String s) { KanLogger.myLogW(TAG, s); }
-    @SuppressWarnings("SameParameterValue")
-    private static void myLogEE(Throwable t, String s) { KanLogger.myLogEE(t, TAG, s); }
 }

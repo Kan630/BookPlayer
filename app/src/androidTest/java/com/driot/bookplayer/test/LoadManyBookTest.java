@@ -73,7 +73,6 @@ public class LoadManyBookTest implements LogSupport {
     private static final int ID_MAIN_RECYCLER   = R.id.recyclerview_folders;   // list on MainActivity
     private static final int ID_TRACKS_RECYCLER = R.id.recyclerview_zikfiles; // list on ZikFileActivity
     private static final int ID_PLAY_BUTTON     = R.id.ibPlayPause;        // play button on PlayActivity
-    private static final String PLAY_TEXT_FALLBACK = "PLAY";           // fallback text if no id
     private final static long PLAY_TIME = 3_000;
 
     private static final class TestCase {
@@ -184,10 +183,7 @@ public class LoadManyBookTest implements LogSupport {
             logFinalImportMsg.append("\n--------------------------");
             logFinalPlayMsg.append("\n--------------------------");
         }
-        if (!isOn(MainActivity.class)) {
-            myLogW("going back to MainActivity");
-            TestNavUtils.pressBackTo(MainActivity.class,3, 1_000);
-        }
+        TestNavUtils.maybePressBackTo(MainActivity.class,3, 1_000);
         waitForViewVisible(ID_MAIN_RECYCLER, 5_000, "MainActivity not visible");
         myLogI(nbImported + " books imported");
         myLogI(logFinalImportMsg.append("\n--------------------------").toString());
@@ -200,10 +196,7 @@ public class LoadManyBookTest implements LogSupport {
 
     private void goPlay() {
         TestNavUtils.logCurrentActivity();
-        if (!isOn(MainActivity.class)) {
-            myLogW("going back to MainActivity");
-            TestNavUtils.pressBackTo(MainActivity.class,3, 1_000);
-        }
+        TestNavUtils.maybePressBackTo(MainActivity.class,3, 1_000);
         TestNavUtils.logCurrentActivity();
         openFirstItemThenPlay(PLAY_TIME);
     }
@@ -224,7 +217,7 @@ public class LoadManyBookTest implements LogSupport {
         myLog("loading " + uri_type + " : " + uri_content);
         myLogD("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
         lastTimestamp = System.currentTimeMillis();
-        nbImported =+ 1;
+        nbImported += 1;
 
         importProbe = new ImportProbe(appContext);
         importProbe.start();
@@ -443,7 +436,7 @@ public class LoadManyBookTest implements LogSupport {
             String newPlayedSong = pl.getZikFile().getFolderName() + " / " + pl.getZikFile().getDisplayName();
             logFinalPlayMsg.append("\nPlay: [").append(pl.getZikFile().getDisplayName()).append("] from [").append(pl.getZikFile().getFolderName()).append("]");
             if (lastPlayedSong.equals(newPlayedSong)) {
-                throw new AssertionError("Tried to play the same song... So import did not work");
+                throw new AssertionError("Tried to play the same song... So import did not work : " + newPlayedSong);
             }
             myLog("played track :" + newPlayedSong);
             lastPlayedSong = newPlayedSong;
@@ -470,29 +463,13 @@ public class LoadManyBookTest implements LogSupport {
     private void pressPlay() {
         // settle a moment for the button to appear
         TestNavUtils.sleep(200);
-
         try {
             waitForViewVisible(ID_PLAY_BUTTON, 2_000, "Play button not visible by id");
             onView(withId(ID_PLAY_BUTTON)).perform(click());
             myLog("Pressed Play via id");
             nbPlayed += 1;
             return;
-        } catch (Exception ignored) {
-            // fall back to a text-based control
-        }
-/*
-        //fallback
-        try {
-            myLogW("Using fallback for button PLAY");
-            waitForTextVisible(PLAY_TEXT_FALLBACK, 2_000, "Play text control not visible");
-            onView(withText(PLAY_TEXT_FALLBACK)).perform(click());
-            myLog("Pressed Play via text");
-            nbPlayed += 1;
-            return;
         } catch (Exception ignored) {}
-
- */
-
         throw new AssertionError("Could not find a Play control (id nor text).");
     }
 

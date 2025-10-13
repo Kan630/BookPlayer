@@ -5,7 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 
-import com.driot.bookplayer.utils.log.KanLogger;
+import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
@@ -53,7 +53,7 @@ public final class Fb2LowLevelHelper {
     // ---------------- Public API ----------------
 
     public static ExtractResult extractAll(Context ctx, Uri fb2Uri) throws Exception {
-        myLogI("=== FB2 extractAll: begin ===");
+        myLog("=== FB2 extractAll: begin ===");
 
         // Read whole FB2 as UTF-8 text
         String xml = readAllText(ctx, fb2Uri);
@@ -62,7 +62,7 @@ public final class Fb2LowLevelHelper {
         // Pass 1: metadata + binaries (cover image decoding)
         Meta meta = parseMetaAndBinaries(xml);
         String bookTitle = (meta.title != null && !meta.title.trim().isEmpty()) ? meta.title.trim() : "untitled";
-        myLogI("Book title: " + bookTitle);
+        myLog("Book title: " + bookTitle);
 
         Bitmap cover = null;
         if (meta.coverImageId != null) {
@@ -83,7 +83,7 @@ public final class Fb2LowLevelHelper {
 
         // Pass 2: chapters (one file per top-level <section> in main <body>)
         List<Chapter> chapters = parseChapters(xml);
-        myLogI("Chapters found (top-level sections): " + chapters.size());
+        myLog("Chapters found (top-level sections): " + chapters.size());
 
         // Write out
         java.io.File outDir = new java.io.File(ctx.getExternalFilesDir(null), "fb2_" + safe(bookTitle));
@@ -104,7 +104,7 @@ public final class Fb2LowLevelHelper {
             myLogD(String.format(Locale.US, "WROTE [%s] len=%d", f.getName(), ch.text.length()));
         }
 
-        myLogI("=== FB2 extractAll: done; chapters=" + outFiles.size() + " ===");
+        myLog("=== FB2 extractAll: done; chapters=" + outFiles.size() + " ===");
         return new ExtractResult(bookTitle, outDir, outFiles, cover);
     }
 
@@ -438,12 +438,4 @@ public final class Fb2LowLevelHelper {
         }
     }
 
-    // ---------------- Logging ----------------
-
-    private static final String TAG = "Fb2LowLevelHelper";
-    private static void myLogD(String s) { KanLogger.myLogD(TAG, s); }
-    private static void myLogI(String s) { KanLogger.myLogI(TAG, s); }
-    private static void myLogW(String s) { KanLogger.myLogW(TAG, s); }
-    @SuppressWarnings("SameParameterValue")
-    private static void myLogEE(Throwable t, String s) { KanLogger.myLogEE(t, TAG, s); }
 }

@@ -77,8 +77,6 @@ public class AddResourceActivity extends LoggingActivity {
             warningScroll.post(() -> warningScroll.fullScroll(View.FOCUS_DOWN));
 
             bPauseResume.setVisibility(ui.pauseAvailable ? View.VISIBLE : View.GONE);
-            myLogI("pause available " + ui.pauseAvailable);
-            myLogI(" is paused " + ui.paused);
             if (ui.pauseAvailable) {
                 bPauseResume.setText(getString(ui.paused ? R.string.Resume : R.string.Pause));
             }

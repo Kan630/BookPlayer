@@ -9,7 +9,7 @@ import android.text.Spanned;
 import androidx.annotation.Nullable;
 import androidx.core.text.HtmlCompat;
 
-import com.driot.bookplayer.utils.log.KanLogger;
+import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
@@ -112,7 +112,7 @@ public final class EpubLowLevelHelper {
 
     // ===== Entry point =====
     public static ExtractResult extractAll(Context ctx, Uri epubUri) throws Exception {
-        myLogI("=== extractAll: begin ===");
+        myLog("=== extractAll: begin ===");
         Map<String, byte[]> zip = readZip(epubUri, ctx);
 
         byte[] container = zip.get("META-INF/container.xml");
@@ -147,7 +147,7 @@ public final class EpubLowLevelHelper {
 
         String bookTitle = (opf.title != null && !opf.title.trim().isEmpty()) ? opf.title.trim() : "untitled";
         String bookTitleNorm = normalizeTitle(bookTitle);
-        myLogI("Book title: " + bookTitle);
+        myLog("Book title: " + bookTitle);
 
         File outDir = new File(ctx.getExternalFilesDir(null), "epub_" + safe(bookTitle));
         if (!outDir.exists() && !outDir.mkdirs()) {
@@ -223,7 +223,7 @@ public final class EpubLowLevelHelper {
             myLogD("  text-snippet: " + snippet(it.text));
         }
 
-        myLogI("Usable content items: " + body.size());
+        myLog("Usable content items: " + body.size());
 
         // Write: 1 file per usable item (keep running index; name after chosen chapter title)
         List<File> outFiles = new ArrayList<>();
@@ -241,7 +241,7 @@ public final class EpubLowLevelHelper {
         }
 
         myLog("========================================================================================");
-        myLogI("=== extractAll: done; files=" + outFiles.size() + " ===");
+        myLog("=== extractAll: done; files=" + outFiles.size() + " ===");
         myLog("========================================================================================");
         return new ExtractResult(bookTitle, outDir, outFiles, cover);
     }
@@ -695,14 +695,4 @@ public final class EpubLowLevelHelper {
         return t;
     }
 
-
-    // ===== Logging =====
-    private static final String TAG = "EpubLowLevelHelper";
-    private static void myLog(String str)  { KanLogger.myLog(TAG, str); }
-    private static void myLogD(String str) { KanLogger.myLogD(TAG, str); }
-    private static void myLogI(String str) { KanLogger.myLogI(TAG, str); }
-    private static void myLogW(String str) { KanLogger.myLogW(TAG, str); }
-    private static void myLogE(String str) { KanLogger.myLogE(TAG, str); }
-    private static void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, TAG, str); }
-    private static void myToastEE(Throwable t, String str) { KanLogger.myToastEE(t, TAG, str); }
 }

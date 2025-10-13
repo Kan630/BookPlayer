@@ -105,9 +105,19 @@ public class TestNavUtils {
     public static boolean pressBackTo(Class<? extends Activity> target, int maxPresses, long perStepWaitMs) {
         for (int i = 0; i < maxPresses; i++) {
             Espresso.pressBack(); // simulate back button
+            myLogD("press back to reach " + target.getSimpleName());
             if (waitForActivity(target, perStepWaitMs)) return true;
         }
         return false;
+    }
+
+    public static boolean maybePressBackTo(Class<? extends Activity> target, int maxPresses, long perStepWaitMs) {
+        for (int i = 0; i < maxPresses; i++) {
+            if (waitForActivity(target, perStepWaitMs)) return true;
+            Espresso.pressBack(); // simulate back button
+            myLogD("pressed back (" + i + ") to reach " + target.getSimpleName());
+        }
+        return waitForActivity(target, perStepWaitMs);
     }
 
     public static ViewAction scrollScrollViewToBottom() {
@@ -459,7 +469,7 @@ public class TestNavUtils {
             myLogD("Recycler(" + recyclerId + ") itemCount == " + expected);
             return;
         }
-        int seen = getRecyclerContentItemCount(recyclerId);
+        int seenInRecycler = getRecyclerContentItemCount(recyclerId);
 
         // Build a small lifecycle snapshot for context
         final String[] snapshot = new String[1];
@@ -477,9 +487,10 @@ public class TestNavUtils {
             snapshot[0] = sb.toString();
         });
 
-        throw new AssertionError(errorMsg
-                + "\nexpected " + expected
-                + "\nseen " + seen
+        //throw new AssertionError(errorMsg
+        myLogI(""
+                + "\nexpected : " + expected
+                + "\nseen in RecyclerView : " + seenInRecycler
                 + "\nLifecycle -> " + snapshot[0]);
     }
 

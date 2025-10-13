@@ -386,15 +386,13 @@ public class PlayActivity extends LoggingActivity {
                 myLogW("Meta not loaded yet; show skeleton/keep previous visuals");
                 return;
             }
-            myLogW("Meta arrived via LiveData; folderId=" + ms.folder.getId() + " isPodcast=" + ms.isPodcast);
+            myLogD("Meta arrived via LiveData; folderId=" + ms.folder.getId() + " isPodcast=" + ms.isPodcast);
             // Your previous onMetaLoaded(...) logic:
             // - update cover, title/sub, flags, etc.
             // - "Is Podcast" branch => use state.podcast != null || state.isPodcast
             //drawMetaOnUIThread(state.folder, state.podcast, state.isPodcast);
 
-            myLogW("playList.setOnMetaLoadedListener()");
             // Voices
-
             if (ms.folder.playType!=null && ms.folder.playType.equals(Var.PLAY_TYPE_TEXT)) {
                 initTtsVoiceSpinner(ms.folder.getId());
             }
