@@ -2,22 +2,45 @@ package com.driot.bookplayer.imports;
 
 import android.content.Context;
 
+import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.objects.AppViewModelStoreOwner;
+import com.driot.bookplayer.utils.Tonio;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Transformations;
+import androidx.work.ListenableWorker;
 import androidx.work.WorkManager;
 
 import java.io.File;
 import java.util.concurrent.Executors;
 
 public class ImportHelper {
+
+    public static String getSourceFilePathForWorker(ImportJob j) {
+        myLog(j.importId + " - getSourceFilePathForWorker");
+        String returnedPath;
+        if (j.downloadFileUrl != null && !j.downloadFileUrl.isEmpty()) {
+            myLog("downloaded file");
+            final String downloadedFileName = Tonio.getFileNameFromUrl(j.downloadFileUrl);
+            final File outFile = new File(j.downloadDestinationFolder, downloadedFileName);
+            if (outFile.exists()) {
+                returnedPath = outFile.getPath();
+            } else {
+                returnedPath = null;
+                myLogEE(null, "getSourceFilePathForWorker, download case, outFile does not exist");
+            }
+        } else {
+            myLog("non downloaded file");
+            returnedPath = j.futureFolderPath + "/" + j.originalFile;
+        }
+        return returnedPath;
+    }
 
     public static void cancelCurrentImport(Context ctx) {
         Context app = ctx.getApplicationContext();

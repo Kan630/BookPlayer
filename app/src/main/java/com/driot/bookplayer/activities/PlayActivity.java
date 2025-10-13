@@ -50,7 +50,10 @@ import com.driot.bookplayer.player.PlayList;
 import com.driot.bookplayer.player.PlaybackUiState;
 import com.driot.bookplayer.player.AudioService;
 import com.driot.bookplayer.helpers.ViewHelper;
+import com.driot.bookplayer.utils.MetadataFormatter;
+import com.driot.bookplayer.utils.MetadataUi;
 import com.driot.bookplayer.utils.MsgBox;
+import com.driot.bookplayer.views.ClickInterceptFrameLayout;
 import com.driot.bookplayer.views.FrequencyVisualizerView;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
@@ -344,7 +347,6 @@ public class PlayActivity extends LoggingActivity {
         tvListeningTimeBaseText = getString(R.string.tv_ListeningTimeWithNoUserAction);
         tvTimeLeft = findViewById(R.id.tv_TimeLeft);
         frequencyVisualizerView = findViewById(R.id.frequencyVisualizerView);
-        frequencyVisualizerView.setOnClickListener(v -> visualizerClick());
 
         ivCover = findViewById(R.id.folderImage);
 
@@ -356,6 +358,27 @@ public class PlayActivity extends LoggingActivity {
         btnToggleTtsView.setOnClickListener(v -> {
             showingTtsText = !showingTtsText;
             applyTtsToggleUi();
+        });
+
+        ClickInterceptFrameLayout container = findViewById(R.id.coverContainer);
+        container.setCallbacks(new ClickInterceptFrameLayout.Callbacks() {
+            @Override public void onSingleTap() {
+                // Reuse your existing logic (respects the “tap to play/pause” option)
+                visualizerClick();
+            }
+
+            @Override public void onDoubleTap() {
+                // Mirror your previous double-tap on the ImageView (toggle TTS view)
+                if (!audioServiceBound || audioService == null) return;
+                if (audioService.isTtsMode()) {
+                    showingTtsText = !showingTtsText;
+                    applyTtsToggleUi();
+                }
+            }
+
+            @Override public void onLongPress() {
+                MetadataUi.showMetadataDialog(PlayActivity.this, PlayList.getInstance().getZikFile());
+            }
         });
 
         PlayList.getMetaLive().observe(this, ms -> {
@@ -402,38 +425,6 @@ public class PlayActivity extends LoggingActivity {
                 ivCover.setVisibility(View.GONE);
                 frequencyVisualizerView.setAlpha(1f); // fully opaque
             }
-            ivCover.setOnClickListener(new View.OnClickListener() {
-                private static final long DOUBLE_CLICK_TIME_DELTA = 300; // milliseconds
-                private long lastClickTime = 0;
-
-                @Override
-                public void onClick(View v) {
-                    long clickTime = System.currentTimeMillis();
-                    if (clickTime - lastClickTime < DOUBLE_CLICK_TIME_DELTA) {
-                        myLogI("--- USER dbl Click IMAGE ---");
-                        handleDoubleClick(v);
-                    } else {
-                        myLogI("--- USER Click IMAGE ---");
-                        handleSingleClick(v);
-                    }
-                    lastClickTime = clickTime;
-                }
-
-                private void handleSingleClick(View v) {
-                    // Your single click action
-                }
-
-                private void handleDoubleClick(View v) {
-                    // Your double click action
-                    if (!audioServiceBound || audioService == null) return;
-                    boolean ttsMode = audioService.isTtsMode();
-                    if (ttsMode) {
-                        showingTtsText = !showingTtsText;
-                        applyTtsToggleUi();
-                    }
-                }
-            });
-
         });
 
         myLogD("onCreate() -- Launching Music Service");

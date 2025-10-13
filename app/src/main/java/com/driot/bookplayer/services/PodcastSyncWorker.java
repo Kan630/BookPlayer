@@ -120,7 +120,7 @@ public class PodcastSyncWorker extends LoggingWorker {
 
                     myLogD("getting duration for file : [" + file.getAbsolutePath() + ']');
                     long duration = 0;
-                    AudioInfo audioInfo = AudioProber.probe(this.getApplicationContext(), Uri.fromFile(file));
+                    AudioInfo audioInfo = AudioProber.probe(this.getApplicationContext(), Uri.fromFile(file), false);
                     if (audioInfo != null) duration = audioInfo.durationMs;
 
                     if (duration > 0) {

@@ -22,7 +22,6 @@ import com.bumptech.glide.signature.ObjectKey;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.global.Option;
-import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
@@ -423,7 +422,7 @@ public class LibrivoxDetailActivity extends LoggingActivity {
         state.onGoingLoading = true;
         state.progressText = getString(R.string.About_to_start_download);
 
-        BookLoadingWorkLauncher.enqueueOneNoDownload(this, state, true);
+        BookLoadingWorkLauncher.launch(this, state, true);
 
         FirebaseAnalyticsHelper.tellLibrivoxDownload(state.title);
         startActivity(new Intent(this, AddResourceActivity.class));

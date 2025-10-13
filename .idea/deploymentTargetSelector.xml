@@ -94,7 +94,7 @@
       </SelectionState>
       <SelectionState runConfigName="LoadManyBookTest">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2025-10-12T18:24:39.459732Z">
+        <DropdownSelection timestamp="2025-10-13T05:23:50.443561Z">
           <Target type="DEFAULT_BOOT">
             <handle>
               <DeviceId pluginId="PhysicalDevice" identifier="serial=FPMPH18C17900002" />

@@ -315,4 +315,10 @@ public class DatabaseMigrations {
             db.execSQL("ALTER TABLE ImportJob ADD COLUMN showToUser INTEGER NOT NULL DEFAULT 0");
         }
     };
+    static final Migration MIGRATION_19_20 = new Migration(19, 20) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase db) {
+            db.execSQL("ALTER TABLE ZikFile ADD COLUMN metadataJson TEXT NOT NULL DEFAULT '{}'");
+        }
+    };
 }

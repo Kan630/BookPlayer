@@ -936,7 +936,21 @@
     <string name="import_task_m4b_split">M4b extraction</string>
     <string name="import_task_unzip">Uncompress</string>
     <string name="import_task_final_parse">Integration</string>
+    <string name="Import_Success_with_warnings">Import completed with warnings</string>
 
+    <string name="metadata">metadata</string>
+    <string name="no_metadata_available">No metadata available</string>
+    <string name="artist">Artist</string>
+    <string name="album">Album</string>
+    <string name="genre">Genre</string>
+    <string name="year">Year</string>
+    <string name="track">Track</string>
+    <string name="disc">Disc</string>
+    <string name="bitrate">Bitrate</string>
+    <string name="sample_rate">Sample rate</string>
+    <string name="channels">Channels</string>
+
+    <string name="frequency_visualizer">Frequency Visualizer</string>
 
 
 

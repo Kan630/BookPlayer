@@ -164,4 +164,10 @@ public interface ZikFileDao {
     //@Query("SELECT * FROM user WHERE birthday BETWEEN :from AND :to")
     //List<User> findUsersBornBetweenDates(Date from, Date to);
 
+    @Query("SELECT metadataJson FROM ZikFile WHERE id = :id")
+    String getMetadataJson(long id);
+
+    @Query("UPDATE ZikFile SET metadataJson = :json WHERE id = :id")
+    void updateMetadataJson(long id, String json);
+
 }

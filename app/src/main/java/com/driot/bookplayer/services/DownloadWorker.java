@@ -186,7 +186,7 @@ public class DownloadWorker extends ImportWorker {
                 return Result.retry();
             }
 
-            final String fileName = getFileNameFromUrl(urlStr);
+            final String fileName = Tonio.getFileNameFromUrl(urlStr);
             final File outFile = new File(destFolder, fileName);
 
             // Ensure parent folder exists

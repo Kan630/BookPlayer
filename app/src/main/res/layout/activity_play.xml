@@ -37,7 +37,6 @@
         app:autoSizeStepGranularity="1sp"
         />
 
-
     <TextView
         android:id="@+id/textViewSubTitle"
         android:text="@string/subtitle"
@@ -238,26 +237,29 @@
         android:layout_above="@+id/horizontalBarTopOfSpeed"
         />
 
-
-
-
-
-    <!-- Optional background image under visualizer -->
-    <ImageView
-        android:id="@+id/folderImage"
+    <com.driot.bookplayer.views.ClickInterceptFrameLayout
+        android:id="@+id/coverContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/textViewSubTitle"
         android:layout_above="@+id/horizontalBarTopOfSleep"
-        android:scaleType="fitCenter"
-        android:visibility="gone" />
+        >
+        <ImageView
+            android:id="@+id/folderImage"
+            android:contentDescription="@string/book_cover"
+            android:scaleType="fitCenter"
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            />
 
-    <com.driot.bookplayer.views.FrequencyVisualizerView
-        android:id="@+id/frequencyVisualizerView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@+id/textViewSubTitle"
-        android:layout_above="@+id/horizontalBarTopOfSleep" />
+        <com.driot.bookplayer.views.FrequencyVisualizerView
+            android:id="@+id/frequencyVisualizerView"
+            android:contentDescription="@string/frequency_visualizer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            />
+        </com.driot.bookplayer.views.ClickInterceptFrameLayout>
 
     <!-- TTS UI (hidden for audio files) -->
     <LinearLayout

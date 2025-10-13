@@ -6,6 +6,7 @@ package com.driot.bookplayer.db;
 
 import static com.driot.bookplayer.utils.Tonio.getExtension;
 
+import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
@@ -66,6 +67,8 @@ public class ZikFile implements Serializable {
 
     public Long lLastAccess;
 
+    @NonNull
+    public String metadataJson = "{}";
 
     public int getId() {
         return id;

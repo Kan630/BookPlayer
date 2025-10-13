@@ -3,10 +3,14 @@ package com.driot.bookplayer.activities;
 import android.content.Context;
 import android.os.Bundle;
 import android.text.InputType;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
@@ -18,6 +22,8 @@ import com.driot.bookplayer.db.Sql;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.StorageHelper;
+import com.driot.bookplayer.utils.MetaJson;
+import com.driot.bookplayer.utils.MetadataFormatter;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import java.io.File;
@@ -45,6 +51,9 @@ public class ModifyZikFileActivity extends LoggingActivity {
         EditText etChangePosition = findViewById(R.id.etChangePosition);
         Button bMove = findViewById(R.id.bMove);
 
+        LinearLayout ll_metadata = findViewById(R.id.ll_metadata);
+        TextView tvMetadata = findViewById(R.id.tv_metadata);
+
         zikFile = (ZikFile) getIntent().getSerializableExtra("ZikFile");
         if (zikFile == null) {
             myLogEE(null, "could_not_identify_track_to_modify");
@@ -58,6 +67,29 @@ public class ModifyZikFileActivity extends LoggingActivity {
         tvTitle.setText(zikFileDisplayName);
         etRename.setText(zikFileDisplayName);
         etChangePosition.setText(String.valueOf(zikFilePosition));
+
+// METADATA
+        String json = null;
+        try {
+            json = zikFile.metadataJson;
+        } catch (Throwable ignore) {}
+        java.util.Map<String,String> meta = MetaJson.fromJson(json);
+        CharSequence pretty = MetadataFormatter.format(this, meta);
+        if (pretty != null && pretty.length() > 0) {
+            SpannableStringBuilder sb = new SpannableStringBuilder(); // for bold to stay bold
+            String header = "   " + getString(R.string.metadata) + " :";
+            int start = sb.length();
+            sb.append(header).append('\n').append('\n');
+            sb.setSpan(new android.text.style.StyleSpan(android.graphics.Typeface.BOLD),
+                    start, start + header.length(),
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            sb.append(pretty);
+            ll_metadata.setVisibility(View.VISIBLE);
+            tvMetadata.setText(sb);
+        } else {
+            ll_metadata.setVisibility(View.GONE);
+        }
+
 
         bMove.setOnClickListener(view -> {
             etChangePosition.requestFocus();

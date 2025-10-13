@@ -22,8 +22,8 @@ import com.driot.bookplayer.utils.log.LoggingActivity;
 
 public class AddResourceActivity extends LoggingActivity {
 
-    private static final int DELAY_END_WAIT_WARNINGS = 5000;
-    private static final int DELAY_END_WAIT_NO_ERROR = 1000;
+    private static final int DELAY_END_WAIT_WARNINGS = 5*60_000;
+    private static final int DELAY_END_WAIT_NO_ERROR = 2_000;
 
     private TextView tvTitle;
     private TextView progressBarText;
@@ -57,7 +57,7 @@ public class AddResourceActivity extends LoggingActivity {
         bCancel.setText(getString(R.string.Cancel));
         bCancel.setOnClickListener(v -> performCancel());
 
-        bPauseResume = findViewById(R.id.bPause);
+        bPauseResume = findViewById(R.id.bPauseResume);
         bPauseResume.setOnClickListener(v -> performPauseOrResume());
 
         viewModel = new ViewModelProvider(
@@ -125,7 +125,7 @@ public class AddResourceActivity extends LoggingActivity {
         if (hasWarn && ui.result != TaskUiState.Result.CANCELLED) {
             bCancel.setText(getString(R.string.Exit));
             ImportHelper.setShowToUser(this, true); // keep banner briefly
-            myToast(getString(R.string.Import_finished_with_errors));
+            //myToast(getString(R.string.Import_finished_with_errors));
             scheduleFinish(DELAY_END_WAIT_WARNINGS);
             return;
         }

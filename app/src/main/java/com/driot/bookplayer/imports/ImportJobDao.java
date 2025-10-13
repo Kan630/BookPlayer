@@ -40,9 +40,11 @@ public interface ImportJobDao {
             ", updatedAt=:ts WHERE importId=:id")
     void updateProgressText(String id, String txt, long ts);
 
-    @Query("UPDATE ImportJob SET warningText=:warn" +
-            ", updatedAt=:ts WHERE importId=:id")
-    void updateWarning(String id, String warn, long ts);
+    @Query("UPDATE ImportJob " +
+            "SET warningText = COALESCE(warningText || '\n', '') || :warn, " +
+            "updatedAt = :ts " +
+            "WHERE importId = :id")
+    void appendWarning(String id, String warn, long ts);
 
     @Query("UPDATE ImportJob SET status = '" + ImportJob.S_FAILED + "'" +
             ", showToUser = 1" +
@@ -58,8 +60,10 @@ public interface ImportJobDao {
 
     @Query("UPDATE ImportJob SET status='" + ImportJob.S_SUCCEEDED + "'" +
             ", showToUser = 1" +
+            ", progressText=:progressText" +
+            ", progressPercent = 100" +
             ", updatedAt=:ts WHERE importId=:id")
-    void success(String id, long ts);
+    void success(String id, String progressText, long ts);
 
     @Query("UPDATE ImportJob SET progressText=:why" +
             ", isLoadingPaused = 1" +
@@ -147,4 +151,8 @@ LIMIT 1
     @Query("UPDATE ImportJob SET showToUser=:showToUser" +
             ", updatedAt=:ts WHERE importId=:id")
     void setShowToUser(String id, boolean showToUser, long ts);
+
+    @Query("SELECT EXISTS(SELECT 1 FROM ImportJob " +
+            "WHERE importId = :id AND warningText IS NOT NULL AND TRIM(warningText) != '')")
+    boolean hasWarnings(String id);
 }

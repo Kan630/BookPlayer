@@ -2,9 +2,6 @@ package com.driot.bookplayer.imports;
 
 import android.content.Context;
 
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.Transformations;
-
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.utils.log.LoggerHelper;
@@ -34,7 +31,7 @@ public class ImportJobRepository extends LoggerHelper {
     }
 
     public void setWarning(String id, String w) {
-        dao.updateWarning(id, w, System.currentTimeMillis());
+        dao.appendWarning(id, w, System.currentTimeMillis());
     }
 
     public void taskStarted(String id, String taskName, String progressText) {
@@ -67,8 +64,13 @@ public class ImportJobRepository extends LoggerHelper {
     }
 
     public void success(String id) {
-        dao.success(id, System.currentTimeMillis());
-        myToast(context.getString(R.string.Import_Success));
+        boolean hasWarnings = dao.hasWarnings(id);
+        String text = hasWarnings
+                ? context.getString(R.string.Import_Success_with_warnings)
+                : context.getString(R.string.Import_Success);
+
+        dao.success(id, text, System.currentTimeMillis());
+        myToast(text);
     }
 
 }

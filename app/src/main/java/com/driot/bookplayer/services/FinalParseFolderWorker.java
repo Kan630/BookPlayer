@@ -31,6 +31,7 @@ import com.driot.bookplayer.imports.ImportWorker;
 import com.driot.bookplayer.objects.AudioFileInfo;
 import com.driot.bookplayer.objects.AudioInfo;
 import com.driot.bookplayer.objects.AudioProber;
+import com.driot.bookplayer.utils.MetaJson;
 import com.driot.bookplayer.utils.Tonio;
 
 import java.util.ArrayList;
@@ -273,7 +274,7 @@ public class FinalParseFolderWorker extends ImportWorker {
 
     private void addAudioFileUnique(DocumentFile df) {
         myLogD("* New Audio File : [" +  df.getName() + ']');
-        AudioInfo audioInfo = AudioProber.probe(context, df.getUri());
+        AudioInfo audioInfo = AudioProber.probe(context, df.getUri(), true);
         if (audioInfo == null || audioInfo.durationMs <= 0) {
             failNow(
                     TASK_NAME
@@ -282,7 +283,9 @@ public class FinalParseFolderWorker extends ImportWorker {
 
         } else {
             myLogD("* Duration : [" +  formatTime(audioInfo.durationMs) + ']');
-            audioFileInfoArrayList.add(new AudioFileInfo(df.getName(), audioInfo.durationMs, audioInfo.uri.toString()));
+            AudioFileInfo afi = AudioFileInfo.fromProbe(audioInfo, df.getName());
+            audioFileInfoArrayList.add(afi);
+            //audioFileInfoArrayList.add(new AudioFileInfo(df.getName(), audioInfo.durationMs, audioInfo.uri.toString()));
             audioInfo.saveCover(this.context);
         }
     }
@@ -323,14 +326,16 @@ public class FinalParseFolderWorker extends ImportWorker {
                     l_audioSize = f1.length();
 
                     long duration = 0;
-                    AudioInfo audioInfo = AudioProber.probe(context, f1.getUri());
+                    AudioInfo audioInfo = AudioProber.probe(context, f1.getUri(), false);
                     if (audioInfo == null) {
                         emitWarning(context.getString(R.string.Error_Import_extract_audio_data_failed) + " for [" + f1.getName() + "]");
                     } else if (audioInfo.durationMs <= 0) {
                         emitWarning(context.getString(R.string.Error_Import_track_duration_extraction) + " for [" + f1.getName() + "]");
                     } else {
                         duration = audioInfo.durationMs;
-                        audioFileInfoArrayList.add(new AudioFileInfo(l_audioFilePath, duration, audioInfo.uri.toString()));
+                        AudioFileInfo afi = AudioFileInfo.fromProbe(audioInfo, f1.getName());
+                        audioFileInfoArrayList.add(afi);
+                        //audioFileInfoArrayList.add(new AudioFileInfo(l_audioFilePath, duration, audioInfo.uri.toString()));
                     }
                     myLogD("Audio File : [" + l_audioFilePath + "] - size = [" + l_audioSize + "] - [" +  formatTime(duration) + "]");
 
@@ -372,7 +377,7 @@ public class FinalParseFolderWorker extends ImportWorker {
         long duration = estimateTtsDurationMsFromUri(context, df.getUri(), name, mime);
         myLogD("* TTS Duration (est.): [" + formatTime(duration) + ']');
 
-        audioFileInfoArrayList.add(new AudioFileInfo(name, duration, df.getUri().toString()));
+        audioFileInfoArrayList.add(new AudioFileInfo(name, duration, df.getUri().toString(), null));
     }
 
     private void addTextFileRecursive(DocumentFile root) {
@@ -405,7 +410,7 @@ public class FinalParseFolderWorker extends ImportWorker {
 
                     long duration = estimateTtsDurationMsFromUri(context, f1.getUri(), fileName, mimeType);
                     myLogD("text file duration :" + Tonio.formatTime(duration));
-                    audioFileInfoArrayList.add(new AudioFileInfo(displayPath, duration, f1.getUri().toString()));
+                    audioFileInfoArrayList.add(new AudioFileInfo(displayPath, duration, f1.getUri().toString(), null));
                     fullFolderSize += size;
 
                     nbAudioScanned++;
@@ -606,6 +611,7 @@ public class FinalParseFolderWorker extends ImportWorker {
         file.setFinished(false);
         file.setDuration(info.getDuration());
         file.date_added = System.currentTimeMillis();
+        file.metadataJson = MetaJson.toJson(info.getMeta());
 
         if (file.getDuration() == 0) {
             myLogW("⏭️ Skipped: duration = 0 → " + info.getDisplayPath());

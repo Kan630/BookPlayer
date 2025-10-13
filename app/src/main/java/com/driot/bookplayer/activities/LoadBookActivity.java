@@ -287,7 +287,7 @@ public class LoadBookActivity extends LoggingActivity {
 
                     // Enqueue on background (or main—WorkManager is fine either way)
                     AppDatabase.databaseWriteExecutor.execute(() ->
-                            BookLoadingWorkLauncher.enqueueOneNoDownload(this.getApplicationContext(), state, /* sequential = */ false)
+                            BookLoadingWorkLauncher.launch(this.getApplicationContext(), state, /* sequential = */ false)
                     );
                     finish();
                 });

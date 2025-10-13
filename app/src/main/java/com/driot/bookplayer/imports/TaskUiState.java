@@ -3,6 +3,8 @@ package com.driot.bookplayer.imports;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.driot.bookplayer.global.Var;
+
 import java.util.Objects;
 
 public final class TaskUiState {
@@ -66,11 +68,18 @@ public final class TaskUiState {
                 ? (j.errorTextUser != null && !j.errorTextUser.isEmpty() ? j.errorTextUser : j.errorTextDev)
                 : null;
 
+        final boolean pauseAvailNow =
+                (r == Result.RUNNING || r == Result.PAUSED)           // chain is alive
+                        && j.isPauseAvailable                                 // DB says download step is active
+                        && Var.WORKER_TASK_LABEL_DOWNLOAD.equals(j.currentOperation);   // we are actually in the download step
+
+        final boolean finished = (r == Result.SUCCEEDED || r == Result.FAILED || r == Result.CANCELLED);
+
         return new TaskUiState(
                 r,
                 j.showToUser,              // DB is authority
-                j.isPauseAvailable,
-                j.isLoadingPaused,
+                finished ? false : pauseAvailNow,
+                finished ? false : j.isLoadingPaused,
                 title,
                 pText,
                 pct,

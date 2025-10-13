@@ -59,8 +59,6 @@ public class GetOtherActivity extends LoggingActivity {
             loadBookActivityResultLauncher,
             bMassImportActivityResultLauncher;
 
-    private ActivityResultLauncher<Intent> addResourceActivityResultLauncher;
-
     private void launchAddResource(ActivityResult result, String type) {
         myLog("launchAddResource()-----------------------------------------------------------------------------------------------------");
         try {
@@ -138,14 +136,16 @@ public class GetOtherActivity extends LoggingActivity {
             lockButtons(ui.isRunningLike());
         });
 
-        // ADD RESOURCE RESULT
-        addResourceActivityResultLauncher = registerForActivityResult(
+        // ADD RESOURCE  (log)
+        registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
-                    myLog("return from Add_Resource_Activity");
+                    myLog("results from ActivityResultContracts.StartActivityForResult");
                     if (result.getResultCode() == Activity.RESULT_OK) {
-                        myLog("result ok - closing activity");
+                        myLog("result OK - closing activity");
                         finish();
+                    } else {
+                        myLog("no ok result - doing nothing");
                     }
                 });
 

@@ -103,7 +103,8 @@ public class LoadManyBookTest implements LogSupport {
     @Rule
     public LoggingWatcher logs = new LoggingWatcher();
 
-    StringBuilder logFinalMessage;
+    StringBuilder logFinalImportMsg;
+    StringBuilder logFinalPlayMsg;
 
     @Before
     public void setUp() {
@@ -141,7 +142,9 @@ public class LoadManyBookTest implements LogSupport {
         int nbBooks = 0;
 
         Context testContext = InstrumentationRegistry.getInstrumentation().getContext(); // test APK
-        logFinalMessage = new StringBuilder("--------------------------\n--------------------------\nFinal Message\n--------------------------");
+        logFinalImportMsg = new StringBuilder("--------------------------\n--------------------------\nFinal Import Message\n--------------------------");
+        logFinalPlayMsg = new StringBuilder("--------------------------\n--------------------------\nFinal Play Message\n--------------------------");
+
 
         // sanity log to prove assets are visible
         String[] root = testContext.getAssets().list("");
@@ -180,14 +183,14 @@ public class LoadManyBookTest implements LogSupport {
                     if (DEBUG_MODE_NO_LOOP) return;
                 }
             }
-            logFinalMessage.append("\n--------------------------");
+            logFinalImportMsg.append("\n--------------------------");
         }
         if (!isOn(MainActivity.class)) {
             myLogW("going back to MainActivity");
             TestNavUtils.pressBackTo(MainActivity.class,3, 1_000);
         }
         waitForViewVisible(ID_MAIN_RECYCLER, 5_000, "MainActivity not visible");
-        myLogI(logFinalMessage.append("\n--------------------------").toString());
+        myLogI(logFinalImportMsg.append("\n--------------------------").toString());
         TestNavUtils.assertRecyclerItemCountEquals(ID_MAIN_RECYCLER, nbBooks, 5_000, "Mismatch between nb of imported book, and nb of actually present books");
         myLog("nb Books imported =" + nbBooks);
         TestNavUtils.sleep(TIMEOUT_TEST_END, "TEST END");
@@ -278,7 +281,7 @@ public class LoadManyBookTest implements LogSupport {
             // log warnings
             String txtWarnings = terminal.warningText;
             if (txtWarnings != null) newLineMsg = newLineMsg + "\ndisplayed warnings : \n" + txtWarnings;
-            logFinalMessage.append(newLineMsg);
+            logFinalImportMsg.append(newLineMsg);
 
             TestNavUtils.sleep(TIMEOUT_VISUAL_CHECK, "Visual Check");
         } finally {
@@ -433,10 +436,11 @@ public class LoadManyBookTest implements LogSupport {
         PlayList pl = PlayList.getInstance();
         if (pl != null && pl.getZikFile() != null) {
             String newPlayedSong = pl.getZikFile().getFolderName() + " / " + pl.getZikFile().getDisplayName();
+            logFinalPlayMsg.append("\nPlay: [").append(pl.getZikFile().getDisplayName()).append("] from [").append(pl.getZikFile().getFolderName()).append("]");
             if (lastPlayedSong.equals(newPlayedSong)) {
                 throw new AssertionError("Tried to play the same song... So import did not work");
             }
-            myLogI("played track :" + newPlayedSong);
+            myLog("played track :" + newPlayedSong);
             lastPlayedSong = newPlayedSong;
         } else {
             throw new AssertionError("Playlist not properly instantiated");

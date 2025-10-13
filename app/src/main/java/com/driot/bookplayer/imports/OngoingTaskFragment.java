@@ -24,9 +24,9 @@ public class OngoingTaskFragment extends LoggingFragment {
 
     private static final int SUCCESS_AUTO_HIDE_MS = 2_000;
     private static final int WARNING_AUTO_HIDE_MS  = 15_000;
-    private static final int ERROR_AUTO_HIDE_MS  = 4*60*60_000;
+    private static final int ERROR_AUTO_HIDE_MS  = 1*60*60_000;
 
-    @Nullable private Long timerStartUptimeMs = null;
+    @Nullable private Long hideDeadlineUptimeMs = null;
     @Nullable private Runnable hideRunnable = null;
     private final Handler mainH = new Handler(android.os.Looper.getMainLooper());
     private enum HideMode { NONE, SUCCESS, WARNING, ERROR }
@@ -94,6 +94,9 @@ public class OngoingTaskFragment extends LoggingFragment {
                         );
                         startOrUpdateHideTimer(HideMode.WARNING, WARNING_AUTO_HIDE_MS);
                     } else {
+                        tvProgressText.setTextColor(
+                                ContextCompat.getColor(requireContext(), R.color.green_500)
+                        );
                         startOrUpdateHideTimer(HideMode.SUCCESS, SUCCESS_AUTO_HIDE_MS);
                     }
                 } else if (finishedFailed) {
@@ -138,45 +141,36 @@ public class OngoingTaskFragment extends LoggingFragment {
     private void startOrUpdateHideTimer(@NonNull HideMode mode, int totalMs) {
         long now = android.os.SystemClock.uptimeMillis();
 
-        // reset if mode changed
-        if (currentMode != mode) {
+        if (currentMode != mode || hideDeadlineUptimeMs == null) {
             currentMode = mode;
-            timerStartUptimeMs = now;
-            rescheduleHide(totalMs, 0, mode);
-            return;
+            hideDeadlineUptimeMs = now + totalMs;          // set deadline
         }
 
-        // same mode: compute remaining from first-seen time
-        if (timerStartUptimeMs == null) {
-            timerStartUptimeMs = now;
-        }
-        long elapsed = now - timerStartUptimeMs;
-        long remaining = Math.max(0, totalMs - elapsed);
-        rescheduleHide(totalMs, remaining, mode);
+        long remaining = Math.max(0, hideDeadlineUptimeMs - now);
+        rescheduleHide(remaining, mode);
     }
 
-    private void rescheduleHide(int totalMs, long remainingMs, @NonNull HideMode mode) {
+    private void rescheduleHide(long remainingMs, @NonNull HideMode mode) {
         if (hideRunnable != null) mainH.removeCallbacks(hideRunnable);
         hideRunnable = () -> {
             if (!isAdded() || didAutoHide) return;
             didAutoHide = true;
 
             if (mode == HideMode.SUCCESS) {
-                // On clean success, also nudge Main to show the newest card
                 requestMainScrollToTopIfHostedByMain();
             }
             ImportHelper.setShowToUser(requireContext(), false);
             currentMode = HideMode.NONE;
-            timerStartUptimeMs = null;
+            hideDeadlineUptimeMs = null;
         };
         mainH.postDelayed(hideRunnable, remainingMs);
-        myLog("Auto-hide mode=" + mode + " total=" + totalMs + "ms remaining=" + remainingMs + "ms");
+        myLog("Auto-hide mode=" + mode + " remaining=" + remainingMs + "ms");
     }
 
     private void cancelHideTimer() {
         if (hideRunnable != null) mainH.removeCallbacks(hideRunnable);
         hideRunnable = null;
-        timerStartUptimeMs = null;
+        hideDeadlineUptimeMs = null;
         if (currentMode != HideMode.NONE) {
             myLog("Auto-hide canceled (mode was " + currentMode + ")");
         }

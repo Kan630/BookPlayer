@@ -17,7 +17,30 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="20dp"
-            android:paddingHorizontal="20dp" />
+            android:paddingHorizontal="20dp"
+            android:text="@string/title"
+            />
+
+        <LinearLayout
+            android:id="@+id/ll_metadata"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            >
+
+            <View style="@style/myStyleViewSimpleHorizontalBar" />
+
+            <TextView
+                android:id="@+id/tv_metadata"
+                style="@style/textColor"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="0dp"
+                android:layout_marginTop="10dp"
+                android:paddingHorizontal="20dp"
+                android:text="@string/metadata"
+                />
+        </LinearLayout>
 
         <View style="@style/myStyleViewSimpleHorizontalBar" />
 

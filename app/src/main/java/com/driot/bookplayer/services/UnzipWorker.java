@@ -16,8 +16,10 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
+import com.driot.bookplayer.imports.ImportHelper;
 import com.driot.bookplayer.imports.ImportJob;
 import com.driot.bookplayer.imports.ImportWorker;
+import com.driot.bookplayer.utils.Tonio;
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -42,7 +44,8 @@ public class UnzipWorker extends ImportWorker {
     public Result doWork() {
         emitTaskStart(TASK_NAME, context.getString(R.string.import_task_unzip) + " " + context.getString(R.string.import_task_start));
         ImportJob j = jobOrFail();
-        final String zipFilePath = j.futureFolderPath + "/" + j.originalFile;
+
+        final String zipFilePath = ImportHelper.getSourceFilePathForWorker(j);
         final String destinationFolderPath = j.futureFolderPath;
 
         myLogD("----------------------------------------------------");

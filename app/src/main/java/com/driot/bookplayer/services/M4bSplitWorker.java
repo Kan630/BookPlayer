@@ -9,6 +9,7 @@ import androidx.work.WorkerParameters;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
+import com.driot.bookplayer.imports.ImportHelper;
 import com.driot.bookplayer.imports.ImportJob;
 import com.driot.bookplayer.imports.ImportWorker;
 import com.driot.bookplayer.objects.AudioInfo;
@@ -46,8 +47,8 @@ public class M4bSplitWorker extends ImportWorker {
         emitTaskStart(TASK_NAME, context.getString(R.string.import_task_m4b_split) + " " + context.getString(R.string.import_task_start));
         ImportJob j = jobOrFail();
 
-        String m4bFilePath = j.futureFolderPath + "/" + j.originalFile;
-        String destinationFolderPath = j.futureFolderPath;
+        final String m4bFilePath = ImportHelper.getSourceFilePathForWorker(j);
+        final String destinationFolderPath = j.futureFolderPath;
 
         myLogD("----------------------------------------------------");
         myLog("m4bFilePath = " + m4bFilePath);
@@ -75,7 +76,7 @@ public class M4bSplitWorker extends ImportWorker {
         try {
             // don't remove stuff is done in class for image
             // MyAudioMetadata metadata = AudioMetadataHelper.extractMetadata(context, new File(m4bFilePath));
-            AudioInfo audioInfo = AudioProber.probe(context, Uri.fromFile(new File(m4bFilePath)));
+            AudioInfo audioInfo = AudioProber.probe(context, Uri.fromFile(new File(m4bFilePath)), true);
             if (audioInfo!=null && audioInfo.cover != null) {
                 audioInfo.saveCover(this.getApplicationContext());
             }

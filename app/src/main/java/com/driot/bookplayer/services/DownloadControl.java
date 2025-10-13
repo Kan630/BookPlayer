@@ -30,6 +30,7 @@ public final class DownloadControl {
     public static void sendResume(Context ctx) {
         forEachRunningDownload(ctx, id -> sendResume(ctx, id));
 
+        /* Fallback commented 2025-10-13 after refactor
         // Fallback: if nothing is running, force the pipeline to (re)start
         EXEC.execute(() -> {
             try {
@@ -47,10 +48,12 @@ public final class DownloadControl {
                 if (!anyRunning) {
                     myLogD("No running DownloadWorker → force resume pipeline");
                     // Rebuild based on current Pref/LoadBookTaskState
-                    BookLoadingWorkLauncher.launch(ctx);
+                    BookLoadingWorkLauncher.launch()
                 }
             } catch (Exception ignored) {}
         });
+
+         */
     }
 
     public static void sendCancel(Context ctx) {

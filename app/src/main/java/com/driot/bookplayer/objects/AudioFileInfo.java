@@ -1,29 +1,50 @@
 package com.driot.bookplayer.objects;
 
-import android.media.MediaMetadataRetriever;
+import androidx.annotation.Nullable;
 
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
 
 public class AudioFileInfo {
     private final String displayPath;
     private final long duration;
     private final String contentUri;
+    private final Map<String,String> meta;
 
-    public AudioFileInfo(String displayPath, long duration, String contentUri) {
+    public AudioFileInfo(String displayPath,
+                         long duration,
+                         String contentUri,
+                         @Nullable Map<String,String> meta) {
         this.displayPath = displayPath;
         this.duration = duration;
         this.contentUri = contentUri;
+        // defensive copy to avoid external mutation
+        this.meta = (meta == null) ? new HashMap<>() : new HashMap<>(meta);
     }
 
-    public String getDisplayPath() {
-        return displayPath;
-    }
-
-    public long getDuration() {
-        return duration;
-    }
-
+    public String getDisplayPath() { return displayPath; }
+    public long getDuration() { return duration; }
     public String getContentUri() { return contentUri; }
+    public Map<String,String> getMeta() { return meta; }
+
+    /** Convenience builder from AudioInfo (uses AudioInfo.metadata directly). */
+    public static AudioFileInfo fromProbe(AudioInfo ai, @Nullable String displayPathOverride) {
+        String shown = (displayPathOverride != null && !displayPathOverride.isEmpty())
+                ? displayPathOverride
+                : ai.displayName;
+
+        // copy whatever the prober collected (title/artist/album/genre/year, etc.)
+        Map<String,String> m = (ai.metadata == null) ? new HashMap<>() : new HashMap<>(ai.metadata);
+
+        return new AudioFileInfo(
+                shown,
+                ai.durationMs,
+                ai.uri.toString(),
+                m
+        );
+    }
+
 
     public static final Comparator<AudioFileInfo> ALPHANUMERIC_COMPARATOR = new Comparator<AudioFileInfo>() {
         @Override

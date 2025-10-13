@@ -24,6 +24,14 @@ public class ViewHelper {
         builder.show();
     }
 
+    public static void showAlertDialogText(Context context, CharSequence text, CharSequence title) {
+        new AlertDialog.Builder(context)
+                .setTitle(title)
+                .setMessage(text)
+                .setPositiveButton(context.getString(R.string.Close), null)
+                .show();
+    }
+
 
     public static void animateView(final View view, final int toVisibility, float toAlpha, int duration) {
         boolean show = toVisibility == View.VISIBLE;
