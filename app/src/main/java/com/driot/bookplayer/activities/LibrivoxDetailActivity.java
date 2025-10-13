@@ -422,7 +422,7 @@ public class LibrivoxDetailActivity extends LoggingActivity {
         state.onGoingLoading = true;
         state.progressText = getString(R.string.About_to_start_download);
 
-        BookLoadingWorkLauncher.launch(this, state, true);
+        BookLoadingWorkLauncher.launch(this, state, false);
 
         FirebaseAnalyticsHelper.tellLibrivoxDownload(state.title);
         startActivity(new Intent(this, AddResourceActivity.class));
