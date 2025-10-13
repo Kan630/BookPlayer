@@ -9,7 +9,6 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static com.driot.bookplayer.testutil.TestNavUtils.getRecyclerItemCount;
 import static com.driot.bookplayer.testutil.TestNavUtils.isOn;
 import static com.driot.bookplayer.testutil.TestNavUtils.sleep;
-import static com.driot.bookplayer.testutil.TestNavUtils.waitForTextVisible;
 import static com.driot.bookplayer.testutil.TestNavUtils.waitForViewVisible;
 
 import android.content.Context;
@@ -105,6 +104,8 @@ public class LoadManyBookTest implements LogSupport {
 
     StringBuilder logFinalImportMsg;
     StringBuilder logFinalPlayMsg;
+    int nbPlayed = 0;
+    int nbImported = 0;
 
     @Before
     public void setUp() {
@@ -139,7 +140,6 @@ public class LoadManyBookTest implements LogSupport {
     @Test
     public void loadManyBooks() throws Exception {
         myLog("loadManyBooks");
-        int nbBooks = 0;
 
         Context testContext = InstrumentationRegistry.getInstrumentation().getContext(); // test APK
         logFinalImportMsg = new StringBuilder("--------------------------\n--------------------------\nFinal Import Message\n--------------------------");
@@ -169,7 +169,6 @@ public class LoadManyBookTest implements LogSupport {
                 myLog("Found " + subdirs.size() + " folders to import under " + tc.assetFolderPath);
                 for (String assetDir : subdirs) {
                     Uri dirUri = stageAssetDirectoryAsFileUri(appContext, testContext, assetDir);
-                    nbBooks += 1;
                     runImport(dirUri, tc.uri_type);
                     goPlay();
                     if (DEBUG_MODE_NO_LOOP) return;
@@ -177,22 +176,25 @@ public class LoadManyBookTest implements LogSupport {
             } else {
                 for (String assetPath : assetFiles) {
                     Uri contentUri = stageAssetAsContentUri(appContext, testContext, assetPath);
-                    nbBooks += 1;
                     runImport(contentUri, tc.uri_type);
                     goPlay();
                     if (DEBUG_MODE_NO_LOOP) return;
                 }
             }
             logFinalImportMsg.append("\n--------------------------");
+            logFinalPlayMsg.append("\n--------------------------");
         }
         if (!isOn(MainActivity.class)) {
             myLogW("going back to MainActivity");
             TestNavUtils.pressBackTo(MainActivity.class,3, 1_000);
         }
         waitForViewVisible(ID_MAIN_RECYCLER, 5_000, "MainActivity not visible");
+        myLogI(nbImported + " books imported");
         myLogI(logFinalImportMsg.append("\n--------------------------").toString());
-        TestNavUtils.assertRecyclerItemCountEquals(ID_MAIN_RECYCLER, nbBooks, 5_000, "Mismatch between nb of imported book, and nb of actually present books");
-        myLog("nb Books imported =" + nbBooks);
+        myLogI(nbPlayed + " books played");
+        myLogI(logFinalPlayMsg.append("\n--------------------------").toString());
+        TestNavUtils.assertRecyclerItemCountEquals(ID_MAIN_RECYCLER, nbImported, 5_000, "Mismatch between nb of imported book, and nb of actually present books");
+        myLog("nb Books imported =" + nbImported);
         TestNavUtils.sleep(TIMEOUT_TEST_END, "TEST END");
     }
 
@@ -206,7 +208,9 @@ public class LoadManyBookTest implements LogSupport {
         openFirstItemThenPlay(PLAY_TIME);
     }
 
-
+    /// -----------------------------------------------------------------------------------------------------------------------------------------
+    /// -----------------------------------------------------------------------------------------------------------------------------------------
+    /// -----------------------------------------------------------------------------------------------------------------------------------------
 
 
     // ---------- Helpers ----------
@@ -220,6 +224,7 @@ public class LoadManyBookTest implements LogSupport {
         myLog("loading " + uri_type + " : " + uri_content);
         myLogD("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
         lastTimestamp = System.currentTimeMillis();
+        nbImported =+ 1;
 
         importProbe = new ImportProbe(appContext);
         importProbe.start();
@@ -470,19 +475,23 @@ public class LoadManyBookTest implements LogSupport {
             waitForViewVisible(ID_PLAY_BUTTON, 2_000, "Play button not visible by id");
             onView(withId(ID_PLAY_BUTTON)).perform(click());
             myLog("Pressed Play via id");
+            nbPlayed += 1;
             return;
         } catch (Exception ignored) {
             // fall back to a text-based control
         }
-
+/*
         //fallback
         try {
             myLogW("Using fallback for button PLAY");
             waitForTextVisible(PLAY_TEXT_FALLBACK, 2_000, "Play text control not visible");
             onView(withText(PLAY_TEXT_FALLBACK)).perform(click());
             myLog("Pressed Play via text");
+            nbPlayed += 1;
             return;
         } catch (Exception ignored) {}
+
+ */
 
         throw new AssertionError("Could not find a Play control (id nor text).");
     }
