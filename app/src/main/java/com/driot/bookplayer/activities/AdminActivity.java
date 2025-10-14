@@ -44,7 +44,7 @@ public class AdminActivity extends LoggingActivity {
         setContentView(R.layout.activity_admin);
         InsetHelper.apply(this);
 
-        findViewById(R.id.bFlushDisk).setOnClickListener(v -> {
+        findViewById(R.id.bFlushDiskBooks).setOnClickListener(v -> {
             new Thread(() -> {
                 myLogD("-----------------");
                 myLogD("-- SD CARD");
@@ -54,6 +54,20 @@ public class AdminActivity extends LoggingActivity {
                 myLogD("-- DEVICE");
                 myLogD("-----------------");
                 FileHelper.listAllFiles(StorageHelper.getUnzipFolder(this, false));
+                myLogD("-----------------");
+            }).start();
+        });
+
+        findViewById(R.id.bFlushDiskImages).setOnClickListener(v -> {
+            new Thread(() -> {
+                myLogD("-----------------");
+                myLogD("-- NORMAL");
+                myLogD("-----------------");
+                FileHelper.listAllFiles(StorageHelper.getImageFolder(this, false));
+                myLogD("-----------------");
+                myLogD("-- CACHED");
+                myLogD("-----------------");
+                FileHelper.listAllFiles(StorageHelper.getImageFolder(this, true));
                 myLogD("-----------------");
             }).start();
         });

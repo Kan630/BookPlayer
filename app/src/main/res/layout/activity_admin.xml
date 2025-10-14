@@ -8,10 +8,15 @@
     >
 
     <Button
-        android:id="@+id/bFlushDisk"
+        android:id="@+id/bFlushDiskImages"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Flush to log : DISK files"/>
+        android:text="Flush to log : DISK images"/>
+    <Button
+        android:id="@+id/bFlushDiskBooks"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Flush to log : DISK book files"/>
     <Button
         android:id="@+id/bFlushSQL"
         android:layout_width="wrap_content"
