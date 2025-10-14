@@ -428,13 +428,6 @@ public class PlayActivity extends LoggingActivity {
         myLogD("onCreate() -- Launching Music Service");
         launchService();
 
-        // Check if progress bar is at the end and reset if necessary
-        if (playList.getZikFile() != null && playList.getZikFile().getPosition() >= playList.getZikFile().getDuration()) {
-            playList.getZikFile().setPosition(0);
-            tvSeekBar.setText(formatTime(0, true));
-            seekbar.setProgress(0);
-        }
-
         //-*******************************************************************************
         //-***       SEEKBAR
         //-*******************************************************************************

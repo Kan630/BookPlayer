@@ -570,18 +570,9 @@ public class AudioService extends LoggingService {
         // Audio focus first
         focus.request();
 
-        // Rewind-after-pause
-        if (Option.getRewindAfterPause()) {
-            ZikFile currentZik = PlayList.getInstance().getZikFile();
-            if (currentZik != null && currentZik.lLastAccess != null) {
-                long minutes = (System.currentTimeMillis() - currentZik.lLastAccess) / (60 * 1000);
-                int rewindMs = 0;
-                for (int[] rule : REWIND_AFTER_PAUSE) { if (minutes >= rule[0]) rewindMs = rule[1]; else break; }
-                if (rewindMs > 0) { myLogD("Rewind after Pause: " + (rewindMs/1000) + "s"); backwardAudio(rewindMs); }
-            }
-        }
+        //if maxReach + introCut + littleRewind
+        setCustomPosition();
 
-        doIntroCut();
         myLogD("about to call engine.start()");
         logPauseTime();
 
@@ -593,7 +584,7 @@ public class AudioService extends LoggingService {
                 engine.getCurrentPosition(),
                 (float) getSpeed(),
                 playbackStateCompatAction);
-        engine.setSpeed((float) getSpeed());
+        //engine.setSpeed((float) getSpeed());
         if (!media.session().isActive()) media.setActive(true);
 
         if (!sleepTimer.isRunning()) {
@@ -1066,26 +1057,6 @@ public class AudioService extends LoggingService {
     }
 
 
-    private void doIntroCut() {
-        myLog("doIntroCut");
-        int introCut = 0;
-        try {
-            if (PlayList.getInstance().getZikFile()!=null) {
-                introCut = Pref.getIntroCutFromPref(this,PlayList.getInstance().getZikFile().getIdFolder()) * 1000;
-            }
-        } catch (Exception e) {
-            myLogEE(e, "Error getting introCut from Pref - getIdFolder null ?");
-        }
-        if (introCut > 0) {
-            int position = getPosition();
-            myLog("position : [" + position + "]  introCut : [" + introCut + "]");
-            if (position < introCut) {
-                forwardAudioTo(introCut);
-                myLogI("=> Intro Cut");
-            }
-        }
-    }
-
     public void pauseAudioNoSave() {
         if (engine != null && engine.isPlaying()) {
             enginePause();
@@ -1474,6 +1445,51 @@ public class AudioService extends LoggingService {
                 break;
         }
         myLogI("Audio Focus Change: " + changeStr + " (" + change + ")");
+    }
+
+    private void setCustomPosition() {
+        myLogD("setCustomPosition()");
+        try {
+            PlayList pl = PlayList.getInstance();
+            if (pl==null) {
+                myLogEE(null, "setCustomPosition() - playlist null");
+                return;
+            }
+            ZikFile zikFile = pl.getZikFile();
+            if (zikFile==null) {
+                myLogEE(null, "setCustomPosition() - zikFile null");
+                return;
+            }
+
+            //max reach ?, reset to 0
+            if (zikFile.getPosition() >= zikFile.getDuration()) {
+                zikFile.setPosition(0);
+            } else { // Rewind-after-pause
+                if (Option.getRewindAfterPause() && zikFile.lLastAccess != null) {
+                    long minutes = (System.currentTimeMillis() - zikFile.lLastAccess) / (60 * 1000);
+                    int rewindMs = 0;
+                    for (int[] rule : REWIND_AFTER_PAUSE) { if (minutes >= rule[0]) rewindMs = rule[1]; else break; }
+                    if (rewindMs > 0) {
+                        myLogD("Rewind " + (rewindMs/1000) + "sec. after a " + minutes + "min. pause.");
+                        backwardAudio(rewindMs);
+                    }
+                }
+            }
+
+            //Cut Intro (book option)
+            int introCut = Pref.getIntroCutFromPref(this,zikFile.getIdFolder()) * 1000;
+            if (introCut > 0) {
+                int position = getPosition();
+                myLog("position : [" + position + "]  introCut : [" + introCut + "]");
+                if (position < introCut) {
+                    forwardAudioTo(introCut);
+                    myLogI("=> Intro Cut");
+                }
+            }
+
+        } catch (Exception e) {
+            myLogEE(e, "setCustomPosition()");
+        }
     }
 
 }
