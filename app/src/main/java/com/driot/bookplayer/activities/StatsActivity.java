@@ -103,7 +103,7 @@ public class StatsActivity extends LoggingActivity {
                 "Android SDK version = "  + Build.VERSION.SDK_INT
                         + "\n" + "\n" + "Android version = " + Build.VERSION.RELEASE
                         + "\n" + "\n" + "Android version name = " + getVersionName(Build.VERSION.SDK_INT)
-                        + "\n" + "\n" + "SQL lite version = " + getMySqlVersion()
+                        + "\n" + "\n" + "SQL lite version = " + getSqlLiteVersion()
                         + "\n" + "\n" + "---"
                         + "\n" + "\n" + "Bookplayer version number = " + BuildConfig.VERSION_CODE
                         + "\n" + "\n" + "Bookplayer version label = " + BuildConfig.VERSION_NAME
@@ -304,7 +304,7 @@ public class StatsActivity extends LoggingActivity {
         return strPowerManagement;
     }
 
-    private String getMySqlVersion() {
+    private String getSqlLiteVersion() {
         SupportSQLiteDatabase db = DatabaseClient.getInstance(getApplicationContext()).getAppDatabase().getOpenHelper().getWritableDatabase();
         return DatabaseBackupHelper.getSQLiteVersion(db);
     }
