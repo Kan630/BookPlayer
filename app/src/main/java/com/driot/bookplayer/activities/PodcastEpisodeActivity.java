@@ -918,7 +918,7 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
                 startService(intentStopService);
             } catch (IllegalStateException e) {
                 // Si jamais l’app est en arrière-plan, au pire on force l’arrêt
-                myLogEE();
+                myLogEE(e, "startService CMD_STOP failed");
                 stopService(new Intent(this, AudioService.class));
             }
         }

@@ -175,7 +175,7 @@
                         startService(
                                 new Intent(MainActivity.this, AudioService.class)
                                         .setAction(AudioService.EXTRA_CMD_STOP)
-                                        .putExtra(Var.EXTRA_CALLER, this.getClass().getSimpleName()));
+                                        .putExtra(Var.EXTRA_CALLER, "press back from MainActivity"));
                     }
                     finish();
                 }

@@ -42,7 +42,7 @@ public class ImportJob {
     public String progressText;
     public int progressPercent;
 
-    public boolean isLoadingPaused;       // UI pause flag
+    public boolean isLoadingPaused;
     public boolean isPauseAvailable;
     public String currentOperation;
 
@@ -70,7 +70,6 @@ public class ImportJob {
 
     // --- Control / lifecycle ---
     public String status;// QUEUED/RUNNING/SUCCEEDED/FAILED/CANCELLED/PAUSED
-    public boolean hasBeenShown;   //TODO remove
     public boolean showToUser;
     public long createdAt;
     public long updatedAt;

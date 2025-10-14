@@ -443,7 +443,7 @@ public class AudioService extends LoggingService {
                 this,
                 new com.driot.bookplayer.player.AudioFocusHelper.Listener() {
                     @Override public void onFocusGain() {
-                        myLogI("Audio Focus Gain");
+                        myLogI("onFocusGain");
                         // restore volume if ducked
                         try { if (engine != null) engine.setVolume(preDuckVolume); } catch (Throwable ignored) {}
                         if (pausedByFocusLoss) {
@@ -455,8 +455,8 @@ public class AudioService extends LoggingService {
                     }
 
                     @Override public void onFocusLost(int change) {
-                        myLogI("Audio Focus Lost change=" + change); //-2 = transient
-
+                        myLog("onFocusLost");
+                        logFocusChange(change);
                         /*
                         //TODO cree un timer sur le focus lost, et voir  dans les 3sec si c'etait pas AA qui se connectait, si c'est le cas, remettre le play?
                         boolean keepOnPhone = Option.getAutomotiveKeepPhonePlaybackOnCarConnect(); // new toggle (default false)
@@ -1453,4 +1453,27 @@ public class AudioService extends LoggingService {
                 playing ? (float) getSpeed() : 0f,
                 playbackStateCompatAction);
     }
+
+    private void logFocusChange(int change) {
+        String changeStr;
+        switch (change) {
+            case AudioManager.AUDIOFOCUS_LOSS:
+                changeStr = "AUDIOFOCUS_LOSS";
+                break;
+            case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
+                changeStr = "AUDIOFOCUS_LOSS_TRANSIENT";
+                break;
+            case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
+                changeStr = "AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK";
+                break;
+            case AudioManager.AUDIOFOCUS_GAIN:
+                changeStr = "AUDIOFOCUS_GAIN";
+                break;
+            default:
+                changeStr = "UNKNOWN(" + change + ")";
+                break;
+        }
+        myLogI("Audio Focus Change: " + changeStr + " (" + change + ")");
+    }
+
 }

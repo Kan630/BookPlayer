@@ -46,7 +46,7 @@ public class CarMediaService extends MediaBrowserServiceCompat {
     private static final int ART_MAX_PX  = 512;  // big artwork
     private static final int ICON_MAX_PX = 128;  // list thumbnails
 
-    private static final long AUTO_RESUME_GRACE_MS = 4000L; // 4s feels good
+    private static final long AUTO_RESUME_GRACE_MS = 10_000L; // 4s feels good
     private long lastPlayingTs = 0L;
 
     private static final java.util.concurrent.Executor imgExec =

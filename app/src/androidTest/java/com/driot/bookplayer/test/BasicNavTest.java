@@ -60,8 +60,6 @@ public abstract class BasicNavTest implements LogSupport {
 
         KanLogger.init(appContext);Option.setTechLog(true);
 
-        activityRule.getScenario().onActivity(a ->
-                a.setRequestedOrientation(desiredOrientation()));
         if (desiredOrientation() == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
             myLog("+++++++++++++ Orientation = PORTRAIT -----------------------");
         } else {

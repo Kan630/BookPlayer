@@ -93,7 +93,7 @@
         <DialogSelection />
       </SelectionState>
       <SelectionState runConfigName="LoadManyBookTest">
-        <option name="selectionMode" value="DIALOG" />
+        <option name="selectionMode" value="DROPDOWN" />
         <DropdownSelection timestamp="2025-10-13T18:21:53.297755900Z">
           <Target type="DEFAULT_BOOT">
             <handle>
@@ -105,19 +105,19 @@
           <targets>
             <Target type="DEFAULT_BOOT">
               <handle>
-                <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\adrio\.android\avd\Medium_Tablet.avd" />
+                <DeviceId pluginId="PhysicalDevice" identifier="serial=FPMPH18C17900002" />
               </handle>
             </Target>
             <Target type="DEFAULT_BOOT">
               <handle>
-                <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\adrio\.android\avd\Pixel_9.avd" />
+                <DeviceId pluginId="PhysicalDevice" identifier="serial=R9JT308QFNA" />
               </handle>
             </Target>
           </targets>
         </DialogSelection>
       </SelectionState>
       <SelectionState runConfigName="orderedTests">
-        <option name="selectionMode" value="DIALOG" />
+        <option name="selectionMode" value="DROPDOWN" />
         <DropdownSelection timestamp="2025-10-11T12:00:09.180050400Z">
           <Target type="DEFAULT_BOOT">
             <handle>
@@ -129,12 +129,12 @@
           <targets>
             <Target type="DEFAULT_BOOT">
               <handle>
-                <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\adrio\.android\avd\Pixel_9.avd" />
+                <DeviceId pluginId="PhysicalDevice" identifier="serial=FPMPH18C17900002" />
               </handle>
             </Target>
             <Target type="DEFAULT_BOOT">
               <handle>
-                <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\adrio\.android\avd\Medium_Tablet.avd" />
+                <DeviceId pluginId="PhysicalDevice" identifier="serial=R9JT308QFNA" />
               </handle>
             </Target>
           </targets>

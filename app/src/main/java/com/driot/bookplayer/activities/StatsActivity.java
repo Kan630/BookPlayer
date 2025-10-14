@@ -1,5 +1,6 @@
 package com.driot.bookplayer.activities;
 
+import static com.driot.bookplayer.db.AppDatabase.APP_DATABASE_VERSION;
 import static com.driot.bookplayer.helpers.StorageHelper.getAvailableInternalMemorySize;
 import static com.driot.bookplayer.helpers.StorageHelper.getAvailableRemovableSDCardSize;
 import static com.driot.bookplayer.helpers.StorageHelper.getTotaLInternalMemorySize;
@@ -19,9 +20,12 @@ import android.telephony.TelephonyManager;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
+import androidx.sqlite.db.SupportSQLiteDatabase;
 
 import com.driot.bookplayer.BuildConfig;
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.db.DatabaseBackupHelper;
+import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
@@ -96,12 +100,14 @@ public class StatsActivity extends LoggingActivity {
         // ----------------------------------------
 
         zeText =
-                "Android SDK version = "  + Build.VERSION.SDK_INT + "\n" + "\n"
-                        + "Android version = " + Build.VERSION.RELEASE + "\n" + "\n"
-                        + "Android version name = " + getVersionName(Build.VERSION.SDK_INT) + "\n" + "\n"
-                        + "---" + "\n" + "\n"
-                        + "Bookplayer version number = " + BuildConfig.VERSION_CODE + "\n" + "\n"
-                        + "Bookplayer version label = " + BuildConfig.VERSION_NAME
+                "Android SDK version = "  + Build.VERSION.SDK_INT
+                        + "\n" + "\n" + "Android version = " + Build.VERSION.RELEASE
+                        + "\n" + "\n" + "Android version name = " + getVersionName(Build.VERSION.SDK_INT)
+                        + "\n" + "\n" + "SQL lite version = " + getMySqlVersion()
+                        + "\n" + "\n" + "---"
+                        + "\n" + "\n" + "Bookplayer version number = " + BuildConfig.VERSION_CODE
+                        + "\n" + "\n" + "Bookplayer version label = " + BuildConfig.VERSION_NAME
+                        + "\n" + "\n" + "Bookplayer db version = " + APP_DATABASE_VERSION
         ;
 
         tv_head = findViewById(R.id.tv2_head);
@@ -278,6 +284,8 @@ public class StatsActivity extends LoggingActivity {
                 return "Upside Down Cake";
             case Build.VERSION_CODES.VANILLA_ICE_CREAM: // SDK 35  // Android 15
                 return "Vanilla Ice Cream";
+            case 36: // Android 16
+                return "Baklava";
             default:
                 return "Unknown";
         }
@@ -294,6 +302,11 @@ public class StatsActivity extends LoggingActivity {
             // Consider prompting the user to disable optimizations
         }
         return strPowerManagement;
+    }
+
+    private String getMySqlVersion() {
+        SupportSQLiteDatabase db = DatabaseClient.getInstance(getApplicationContext()).getAppDatabase().getOpenHelper().getWritableDatabase();
+        return DatabaseBackupHelper.getSQLiteVersion(db);
     }
 
 }

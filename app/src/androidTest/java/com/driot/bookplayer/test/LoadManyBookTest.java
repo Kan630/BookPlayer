@@ -89,14 +89,15 @@ public class LoadManyBookTest implements LogSupport {
             ,new TestCase("File", "fixtures/ebooks")
             ,new TestCase("Folder", "fixtures/folders")
             ,new TestCase("File", "fixtures/m4b")
+            ,new TestCase("File", "fixtures/single_files")
     );
 
     private ImportProbe importProbe;
 
     private String lastPlayedSong = "init no song";
 
-    @Rule
-    public ActivityScenarioRule<MainActivity> activityRule = new ActivityScenarioRule<>(MainActivity.class);
+    // Launches MainActivity before each test
+    @Rule public ActivityScenarioRule<MainActivity> activityRule = new ActivityScenarioRule<>(MainActivity.class);
 
     @Rule public LoggingWatcher logs = new LoggingWatcher();
 
@@ -233,12 +234,14 @@ public class LoadManyBookTest implements LogSupport {
 
             onView(withId(android.R.id.content)).perform(swipeUp());
             onView(withId(R.id.btnConfirm)).perform(click());
-
+/*
             appContext.startActivity(new Intent(appContext, AddResourceActivity.class)
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
             myLog("AddResourceActivity launched");
             TestNavUtils.assertWaitForActivity(AddResourceActivity.class, 1_000, "gizmo");
             myLogD("ok, on AddResourceActivity");
+
+ */
 
             // --- Wait for terminal state from Room ---
             TaskUiState terminal = importProbe.await(TIMEOUT_BOOK_LOAD);

@@ -6,7 +6,9 @@ import android.media.AudioFocusRequest;
 import android.media.AudioManager;
 import android.os.Build;
 
-public final class AudioFocusHelper implements AudioManager.OnAudioFocusChangeListener {
+import com.driot.bookplayer.utils.log.LoggerHelper;
+
+public final class AudioFocusHelper extends LoggerHelper implements AudioManager.OnAudioFocusChangeListener {
 
     public interface Listener {
         /** Called on AUDIOFOCUS_GAIN. Also implies duck=false. */
@@ -29,6 +31,7 @@ public final class AudioFocusHelper implements AudioManager.OnAudioFocusChangeLi
     private long lastRequestUptime = 0L;
 
     public AudioFocusHelper(Context ctx, Listener cb) {
+        super(AudioFocusHelper.class);
         this.am = (AudioManager) ctx.getSystemService(Context.AUDIO_SERVICE);
         this.cb = cb;
     }
@@ -63,27 +66,34 @@ public final class AudioFocusHelper implements AudioManager.OnAudioFocusChangeLi
         if (change == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT
                 || change == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK) {
             long sinceReq = android.os.SystemClock.uptimeMillis() - lastRequestUptime;
-            if (sinceReq < 500) return;
+            if (sinceReq < 500) {
+                myLog("Debounce: ignore very-early transients right after we asked for focus (during our own start)");
+                return;
+            }
         }
 
         switch (change) {
             case AudioManager.AUDIOFOCUS_GAIN:
+                myLog("AUDIOFOCUS_GAIN");
                 // Leaving duck as well
                 cb.onDuck(false);
                 cb.onFocusGain();
                 break;
 
             case AudioManager.AUDIOFOCUS_LOSS:
+                myLog("AUDIOFOCUS_LOSS");
                 cb.onDuck(false);
                 cb.onFocusLost(AudioManager.AUDIOFOCUS_LOSS);
                 break;
 
             case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
+                myLog("AUDIOFOCUS_LOSS_TRANSIENT");
                 cb.onDuck(false);
                 cb.onFocusLost(AudioManager.AUDIOFOCUS_LOSS_TRANSIENT);
                 break;
 
             case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
+                myLog("AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK");
                 cb.onDuck(true);
                 break;
 

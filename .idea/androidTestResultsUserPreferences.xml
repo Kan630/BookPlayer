@@ -55,6 +55,7 @@
                   <entry key="HUAWEI LLD-L31" value="120" />
                   <entry key="Pixel_9" value="120" />
                   <entry key="Tests" value="360" />
+                  <entry key="samsung SM-A165F" value="120" />
                 </map>
               </option>
             </AndroidTestResultsTableState>
@@ -72,6 +73,8 @@
                   <entry key="Pixel_9" value="120" />
                   <entry key="Status" value="80" />
                   <entry key="Tests" value="360" />
+                  <entry key="samsung SM-A165F" value="120" />
+                  <entry key="samsung SM-X200" value="120" />
                 </map>
               </option>
             </AndroidTestResultsTableState>
@@ -144,6 +147,7 @@
                   <entry key="Status" value="80" />
                   <entry key="Tests" value="360" />
                   <entry key="samsung SM-A165F" value="120" />
+                  <entry key="samsung SM-X200" value="120" />
                 </map>
               </option>
             </AndroidTestResultsTableState>

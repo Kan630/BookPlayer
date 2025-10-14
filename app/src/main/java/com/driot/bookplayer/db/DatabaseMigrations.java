@@ -225,7 +225,7 @@ public class DatabaseMigrations {
     static final Migration MIGRATION_15_16 = new Migration(15, 16) {
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase db) {
-            myLogI("Migration -> executing step 15 => 16"); // 2025-10-11
+            myLogI("Migration -> executing step 15 => 16"); // 2025-10-11/14
 
             // Create ImportJob table (booleans -> INTEGER 0/1; primitives NOT NULL with defaults)
             db.execSQL(
@@ -254,7 +254,7 @@ public class DatabaseMigrations {
                             " `progressPercent` INTEGER NOT NULL DEFAULT 0," +
 
                             " `isLoadingPaused` INTEGER NOT NULL DEFAULT 0," +
-                            " `isPauseAvailable` INTEGER NOT NULL DEFAULT 0," +  //ADDED
+                            " `isPauseAvailable` INTEGER NOT NULL DEFAULT 0," +
                             " `currentOperation` TEXT," +
 
                             " `downloadFileUrl` TEXT," +
@@ -286,39 +286,20 @@ public class DatabaseMigrations {
                             " `errorTextDev` TEXT," +
                             " `errorTextUser` TEXT," +
 
+                            " `showToUser` INTEGER NOT NULL DEFAULT 0," +
+
                             " PRIMARY KEY(`importId`)" +
+
+
                             ")"
             );
 
             // Indices declared in @Entity(indices=...)
             db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_ImportJob_futureFolderPath` ON `ImportJob`(`futureFolderPath`)");
             db.execSQL("CREATE INDEX IF NOT EXISTS `index_ImportJob_status` ON `ImportJob`(`status`)");
-        }
-    };
-    static final Migration MIGRATION_16_17 = new Migration(16, 17) {
-        @Override
-        public void migrate(@NonNull SupportSQLiteDatabase db) {
-            myLogI("Migration -> executing step 16 => 17"); // 2025-10-06
-            db.execSQL("ALTER TABLE ImportJob ADD COLUMN isPauseAvailable INTEGER NOT NULL DEFAULT 0");
-        }
-    };
-    static final Migration MIGRATION_17_18 = new Migration(17, 18) {
-        @Override
-        public void migrate(@NonNull SupportSQLiteDatabase db) {
-            myLogI("Migration -> executing step 17 => 18"); // 2025-10-06
-            db.execSQL("ALTER TABLE ImportJob ADD COLUMN hasBeenShown INTEGER NOT NULL DEFAULT 0");
-        }
-    };
-    static final Migration MIGRATION_18_19 = new Migration(18, 19) {
-        @Override
-        public void migrate(@NonNull SupportSQLiteDatabase db) {
-            db.execSQL("ALTER TABLE ImportJob ADD COLUMN showToUser INTEGER NOT NULL DEFAULT 0");
-        }
-    };
-    static final Migration MIGRATION_19_20 = new Migration(19, 20) {
-        @Override
-        public void migrate(@NonNull SupportSQLiteDatabase db) {
+
             db.execSQL("ALTER TABLE ZikFile ADD COLUMN metadataJson TEXT NOT NULL DEFAULT '{}'");
         }
     };
+
 }
