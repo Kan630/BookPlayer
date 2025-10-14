@@ -157,8 +157,8 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
                 h.itemView.setActivated(activated);
                 return;
             } else if ("progress".equals(p)) {
-                h.textViewFilePercent.setText(FormatPercentString(folder.getPercentdone()));
-                h.mProgressBar.setProgress(FormatPercentForProgressBar(folder.getPercentdone()));
+                h.textViewFilePercent.setText(Tonio.formatPercentString(folder.getPercentdone()));
+                h.mProgressBar.setProgress(formatPercentForProgressBar(folder.getPercentdone()));
                 return;
             } else if ("lastAccess".equals(p)) {
                 h.textViewFileLastAccess.setText(Tonio.formatLastAccess(folder.lLastAccess, mCtx));
@@ -194,8 +194,8 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
         h.textViewFileName.setText(folder.getName());
         Option.applyUserTextAppearance(h.textViewFileName);
 
-        h.textViewFilePercent.setText(FormatPercentString(folder.getPercentdone()));
-        h.mProgressBar.setProgress(FormatPercentForProgressBar(folder.getPercentdone()));
+        h.textViewFilePercent.setText(Tonio.formatPercentString(folder.getPercentdone()));
+        h.mProgressBar.setProgress(formatPercentForProgressBar(folder.getPercentdone()));
         h.textViewFileLastAccess.setText(Tonio.formatLastAccess(folder.lLastAccess, mCtx));
         h.textViewDuration.setText(formatTime(folder.getDuration()));
 

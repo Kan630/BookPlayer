@@ -5,7 +5,6 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
-import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.webkit.MimeTypeMap;
 
@@ -14,7 +13,7 @@ import androidx.documentfile.provider.DocumentFile;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.helpers.StorageHelper;
-import com.driot.bookplayer.utils.log.KanLogger;
+import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 import java.io.File;
 import java.sql.Date;
@@ -115,7 +114,7 @@ public class Tonio {
     }
 
 
-    public static String FormatPercentStringForSpeed(Double d) {
+    public static String formatPercentStringForSpeed(Double d) {
         String str = "";
         if (d != null) {
             str = Math.round(d) + "%";
@@ -123,37 +122,12 @@ public class Tonio {
         return str;
     }
 
-    public static String FormatPercentStringForVolume(Double d) {
-        String str = "";
-        if (d != null) {
-            str = Math.round(d) + "%";
-        }
-        if (str.equals("-100%")) {
-            str = "...";
-        }
-        return str;
+    public static String formatPercentString(Double d) {
+        if (d == null || d == 0.0) return "";
+        if (d == 100.0) return "100 %";
+        return String.format(Locale.US, "%.1f %%", d);
     }
-
-    public static String FormatPercentString(Double d) {
-        String str;
-        if (d != null) {
-            if (d == 100.0) {
-                str = "100 %";
-            } else if (d == 0.0) {
-                str = "";
-            } else if (d < 10.0) {
-                str = d.toString().substring(0, 3);
-                str = str + " %";
-            } else {
-                str = d.toString().substring(0, 2);
-                str = str + " %";
-            }
-        } else {
-            str = "";
-        }
-        return str;
-    }
-    public static int FormatPercentForProgressBar(Double d) {
+    public static int formatPercentForProgressBar(Double d) {
         int i;
         if (d != null) {
             i = d.intValue();
@@ -168,28 +142,12 @@ public class Tonio {
         }
         return i;
     }
-    public static double FormatPercentDouble(Double d) {
-        if (d != null) {
-            d = d * 100;
-            if (d < 0) {
-                d = 0.0;
-            }
-            if (d > 100) {
-                d = 100.0;
-            }
-        } else {
-            d = 0.0;
-        }
-        return d;
-    }
-    public static String getFormattedDate(long timeStamp) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd-HH'h'mm'm'ss's'", Locale.US);
-        return sdf.format(new java.util.Date());
-    }
+
     public static String getCurrentDateTimeString() {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd-HH'h'mm'm'ss's'", Locale.US);
         return sdf.format(new java.util.Date());
     }
+
     public static String formatLastAccess(Long lastAccess, Context context) {
         String s;
         if (lastAccess!= null && lastAccess > 0) {
@@ -447,79 +405,6 @@ public class Tonio {
         return m;
     }
 
-    public static String getFileNameFromUri(Context c, @NonNull Uri uri) {
-            String name = null;
-
-            // Try modern way first
-            if ("content".equals(uri.getScheme())) {
-                try (Cursor cursor = c.getContentResolver().query(uri, null, null, null, null)) {
-                    if (cursor != null && cursor.moveToFirst()) {
-                        int index = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
-                        if (index != -1) {
-                            name = cursor.getString(index);
-                        }
-                    }
-                } catch (Exception e) {
-                    myLogEE(e,"Modern filename fetch failed");
-                }
-            }
-
-            // Fallback for Android 8
-            if (name == null) {
-                name = getFileNameFromMediaUri(c, uri);
-            }
-
-            return name;
-        }
-
-    public static String getFileNameFromMediaUri(Context c, @NonNull Uri uri) {
-        try {
-            String[] projection = { MediaStore.MediaColumns.DATA };
-            Cursor cursor = c.getContentResolver().query(uri, projection, null, null, null);
-            if (cursor != null) {
-                try {
-                    int index = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA);
-                    if (cursor.moveToFirst()) {
-                        String filePath = cursor.getString(index);
-                        return new File(filePath).getName();
-                    }
-                } catch (Exception e) {
-                    myLogEE(e,"getFileNameFromMediaUri failed");
-                } finally {
-                    cursor.close();
-                }
-            }
-        } catch (Exception e) {
-            myLogEE(e,"getFileNameFromMediaUri failed");
-        }
-        return uri.getLastPathSegment(); // Fallback
-    }
-/* Old Code...
-    // from FileHelper... used to copy zip locally in Android 11+
-    private static String getContentName(ContentResolver resolver, Uri uri) {
-        Cursor cursor = resolver.query(uri, null, null, null, null);
-        if (cursor != null) {
-            cursor.moveToFirst();
-            int nameIndex = cursor.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME);
-            if (nameIndex >= 0) {
-                String name = cursor.getString(nameIndex);
-                cursor.close();
-                return name;
-            }
-        }
-        return null;
-    }
-
- */
-
-
-
-    public static boolean fileExists(String path) {
-        File file = new File(path);
-        return file.exists() && file.isFile();
-    }
-
-
     public static long getAppSize(Context c) {
         long size = 0;
         final PackageManager pm = c.getPackageManager();
@@ -600,20 +485,6 @@ public class Tonio {
         double seconds = ms / 1000.0;
         return String.format(java.util.Locale.US, "%.3f ms", seconds);
     }
-
-
-
-
-
-    // ----------------------- LOG -----------------------
-    private static final String TAG = "Tonio";
-    private static void myLog(String str) { KanLogger.myLog(TAG, str); }
-    private static void myLogD(String str) { KanLogger.myLogD(TAG, str); }
-    private static void myLogI(String str) { KanLogger.myLogI(TAG, str); }
-    private static void myLogW(String str) { KanLogger.myLogW(TAG, str); }
-    private static void myLogE(String str) { KanLogger.myLogE(TAG, str); }
-    private static void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, TAG, str); }
-    private static void myToastEE(Throwable t, String str) { KanLogger.myToastEE(t, TAG, str); }
 
     public static String removeLongDuplicates(String input, int duplicate_min_length) {
         // Define a regex pattern to match duplicate substrings longer than 10 characters

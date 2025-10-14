@@ -399,4 +399,8 @@ public class FileHelper {
         return "unknown";
     }
 
+    public static boolean fileExists(String path) {
+        File file = new File(path);
+        return file.exists() && file.isFile();
+    }
 }

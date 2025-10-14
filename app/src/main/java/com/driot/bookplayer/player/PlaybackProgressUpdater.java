@@ -40,7 +40,7 @@ public final class PlaybackProgressUpdater extends LoggerHelper {
                 } else {
                     if (pos <= 0 || dur <= 0) return;
                     zf.setPosition(pos);
-                    zf.setPercentdone((int) Math.round(100.0 * pos / dur));
+                    zf.setPercentdone(Math.round((10000.0 * pos / dur)) / 100.0); // like 47.56%
                 }
 
                 AppDatabase db = AppDatabase.getDatabase(app);

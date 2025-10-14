@@ -50,9 +50,9 @@ import com.driot.bookplayer.player.PlayList;
 import com.driot.bookplayer.player.PlaybackUiState;
 import com.driot.bookplayer.player.AudioService;
 import com.driot.bookplayer.helpers.ViewHelper;
-import com.driot.bookplayer.utils.MetadataFormatter;
 import com.driot.bookplayer.utils.MetadataUi;
 import com.driot.bookplayer.utils.MsgBox;
+import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.views.ClickInterceptFrameLayout;
 import com.driot.bookplayer.views.FrequencyVisualizerView;
 import com.driot.bookplayer.utils.log.LoggingActivity;
@@ -66,9 +66,6 @@ import static com.driot.bookplayer.global.Var.SLEEP_PRESET_VALUES;
 import static com.driot.bookplayer.player.AudioService.TIMER_VALUE;
 import static com.driot.bookplayer.utils.PermissionRequest.isReadAudioPermissionGranted;
 import static com.driot.bookplayer.utils.PermissionRequest.isRecordAudioPermissionGranted;
-import static com.driot.bookplayer.utils.Tonio.FormatPercentStringForSpeed;
-import static com.driot.bookplayer.utils.Tonio.formatTime;
-import static com.driot.bookplayer.utils.Tonio.getReadableSize;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.lifecycle.Observer;
@@ -166,7 +163,7 @@ public class PlayActivity extends LoggingActivity {
             // but also sync hard bounds from the state:
             seekbar.setMax((int) Math.max(1, state.durationMs));
             seekbar.setProgress((int) Math.min(state.positionMs, state.durationMs));
-            tvSeekBar.setText(formatTime((int) state.positionMs, true));
+            tvSeekBar.setText(Tonio.formatTime((int) state.positionMs, true));
 
             // You can access cover path from state.cover if you want to update the image here too.
         };
@@ -404,7 +401,7 @@ public class PlayActivity extends LoggingActivity {
                 frequencyVisualizerView.setAlpha(0.6f);
                 try {
                     File imageFile = new File(ms.folder.image);
-                    myLogD("Image found : " + imageFile.getName() + " - " + getReadableSize(imageFile.length()));
+                    myLogD("Image found : " + imageFile.getName() + " - " + Tonio.getReadableSize(imageFile.length()));
                 } catch (Exception e) {
                     myLogE("image debug ko");
                 }
@@ -438,7 +435,7 @@ public class PlayActivity extends LoggingActivity {
                 if (fromUser) {
                     myLogI("--- USER CLICK SEEK BAR ---- => Change Progress");
                     audioService.setPosition(progress);
-                    tvSeekBar.setText(formatTime(progress,true)); //TODO usefull ?
+                    tvSeekBar.setText(Tonio.formatTime(progress,true)); //TODO usefull ?
                 }
             }
             @Override
@@ -533,7 +530,7 @@ public class PlayActivity extends LoggingActivity {
     }
     private void setSpeed(double speed) {
         audioService.setSpeed(speed);
-        String txt = FormatPercentStringForSpeed((double) speed * 100);
+        String txt = Tonio.formatPercentStringForSpeed((double) speed * 100);
         tvSpeed.setText(txt);
     }
 
@@ -662,11 +659,11 @@ public class PlayActivity extends LoggingActivity {
                 ZikFile zf = playList.getZikFile();
                 myLogD("DrawUI : " + zf.getName() + " -- " + zf.getPosition() + " -- " + zf.getDisplayName());
                 TitleHelper.setTitleAndSubtitle(tvTitle, tvSubTitle, zf.getFolderName(), zf.getDisplayName());
-                tvTotalTime.setText(formatTime(zf.getDuration(), true));
+                tvTotalTime.setText(Tonio.formatTime(zf.getDuration(), true));
                 seekbar.setMax((int) zf.getDuration());
-                tvSeekBar.setText(formatTime(zf.getPosition(), true));
+                tvSeekBar.setText(Tonio.formatTime(zf.getPosition(), true));
                 seekbar.setProgress((int) zf.getPosition());
-                tvSpeed.setText(FormatPercentStringForSpeed(audioService.getSpeed() * 100));
+                tvSpeed.setText(Tonio.formatPercentStringForSpeed(audioService.getSpeed() * 100));
                 try {
                     if (audioService != null && audioService.isTtsMode()) {
                         showTtsUi();
@@ -689,8 +686,8 @@ public class PlayActivity extends LoggingActivity {
             int timeBeforeSleep = audioService.getCustomSleepTime() == 0 ? Option.getTimeBeforeSleep() : audioService.getCustomSleepTime();
             if (tempsEcoule >= 0) {
                 String str = tvListeningTimeBaseText;
-                zeText_since = str + " " + formatTime(tempsEcoule*1000,true);
-                zeText_left = getString(R.string.tv_TimeLeft) + " : " + formatTime(timeBeforeSleep*1000*60-tempsEcoule*1000,true);
+                zeText_since = str + " " + Tonio.formatTime(tempsEcoule*1000,true);
+                zeText_left = getString(R.string.tv_TimeLeft) + " : " + Tonio.formatTime(timeBeforeSleep*1000*60-tempsEcoule*1000,true);
                 tvTimeLeft.setText(zeText_left);
                 if (tempsEcoule>0) {
                     tvListeningTime.setText(zeText_since);
@@ -752,7 +749,7 @@ public class PlayActivity extends LoggingActivity {
                 }
 
                 int iPosition = audioService.getPosition();
-                tvSeekBar.setText(formatTime(iPosition, true));
+                tvSeekBar.setText(Tonio.formatTime(iPosition, true));
                 seekbar.setProgress(iPosition);
 
             } else {

@@ -100,8 +100,8 @@ public class ZikFilesRVAdapter extends LoggingListAdapter<ZikFile, ZikFilesRVAda
                     h.itemView.setActivated(t.getId() == highlightedTrackId);
                     return;
                 case "progress":
-                    h.textViewFilePercent.setText(Tonio.FormatPercentString(t.getPercentdone()));
-                    h.mProgressBar.setProgress(Tonio.FormatPercentForProgressBar(t.getPercentdone()));
+                    h.textViewFilePercent.setText(Tonio.formatPercentString(t.getPercentdone()));
+                    h.mProgressBar.setProgress(Tonio.formatPercentForProgressBar(t.getPercentdone()));
                     return;
                 case "lastAccess":
                     h.textViewFileLastAccess.setText(Tonio.formatLastAccess(t.lLastAccess, ctx));
@@ -128,8 +128,8 @@ public class ZikFilesRVAdapter extends LoggingListAdapter<ZikFile, ZikFilesRVAda
 
         holder.textViewFileName.setText(t.getDisplayName());
         Option.applyUserTextAppearance(holder.textViewFileName);
-        holder.textViewFilePercent.setText(Tonio.FormatPercentString(t.getPercentdone()));
-        holder.mProgressBar.setProgress(Tonio.FormatPercentForProgressBar(t.getPercentdone()));
+        holder.textViewFilePercent.setText(Tonio.formatPercentString(t.getPercentdone()));
+        holder.mProgressBar.setProgress(Tonio.formatPercentForProgressBar(t.getPercentdone()));
         holder.textViewFileLastAccess.setText(Tonio.formatLastAccess(t.lLastAccess, ctx));
         holder.textViewDuration.setText(Tonio.formatTime(t.getDuration()));
 
