@@ -878,4 +878,51 @@ C\'est une <font color="#FFCC80">fonctionnalité relativement nouvelle</font> �
     <string name="Error_Import_unsupported_file">Erreur : fichier non pris en charge</string>
     <string name="Error_Import_access_denied">Erreur : accès refusé</string>
 
+    <string name="Warning">Avertissement</string>
+    <string name="beta_test">test bêta</string>
+
+    <string name="action_web_search">🔎 Recherche web</string>
+    <string name="confirm">confirmer</string>
+    <string name="use_this_image_as_cover">utiliser cette image comme couverture</string>
+    <string name="search_title_hint">tapez ici...</string>
+    <string name="failed_to_change_image">Échec du changement d\'image</string>
+    <string name="no_image_found">Aucune image trouvée</string>
+    <string name="parsing_metadata">Analyse des métadonnées</string>
+
+    <string name="download_not_roaming">🏠 Pas en itinérance</string>
+    <string name="download_warning_title_roaming">Connexion en itinérance</string>
+    <string name="download_warning_message_roaming">Vous êtes en itinérance (à l\'étranger). Continuer le téléchargement ?</string>
+    <string name="option_network_preference_subtext">"Une connexion non mesurée signifie que vous n\'utilisez pas de données mobiles (par exemple Wi-Fi, Ethernet ou certains VPN).\nL\'itinérance signifie être à l\'étranger - même le Wi-Fi d\'hôtel à l\'étranger compte comme itinérance."</string>
+
+    <string name="please_wait_another_book_is_being_imported">Veuillez patienter, un autre livre est encore en cours d\'importation.</string>
+    <string name="download_stop_requested">Arrêt du téléchargement demandé</string>
+
+    <string name="import_task_start">démarrage...</string>
+    <string name="import_task_complete">terminé.</string>
+    <string name="import_task_copy">Copie</string>
+    <string name="import_task_download">Téléchargement</string>
+    <string name="import_task_ebook_split">Analyse de l\'ebook</string>
+    <string name="import_task_m4b_split">Extraction M4b</string>
+    <string name="import_task_unzip">Décompression</string>
+    <string name="import_task_final_parse">Intégration</string>
+    <string name="Import_Success_with_warnings">Importation terminée avec avertissements</string>
+
+    <string name="metadata">métadonnées</string>
+    <string name="no_metadata_available">Aucune métadonnée disponible</string>
+    <string name="artist">Artiste</string>
+    <string name="album">Album</string>
+    <string name="genre">Genre</string>
+    <string name="year">Année</string>
+    <string name="track">Piste</string>
+    <string name="disc">Disque</string>
+    <string name="bitrate">Débit binaire</string>
+    <string name="sample_rate">Fréquence d\'échantillonnage</string>
+    <string name="channels">Canaux</string>
+
+    <string name="streaming">lecture en ligne</string>
+
+    <string name="frequency_visualizer">Visualiseur de fréquences</string>
+    <string name="counting_files">comptage des fichiers</string>
+
+
 </resources>

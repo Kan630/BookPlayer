@@ -879,5 +879,51 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
     <string name="Error_Import_unsupported_file">错误：不支持的文件</string>
     <string name="Error_Import_access_denied">错误：访问被拒绝</string>
 
+    <string name="Warning">警告</string>
+    <string name="beta_test">测试版</string>
+
+    <string name="action_web_search">🔎 网络搜索</string>
+    <string name="confirm">确认</string>
+    <string name="use_this_image_as_cover">使用此图片作为封面</string>
+    <string name="search_title_hint">在此输入...</string>
+    <string name="failed_to_change_image">更改图片失败</string>
+    <string name="no_image_found">未找到图片</string>
+    <string name="parsing_metadata">正在解析元数据</string>
+
+    <string name="download_not_roaming">🏠 非漫游</string>
+    <string name="download_warning_title_roaming">漫游连接</string>
+    <string name="download_warning_message_roaming">您正在使用漫游连接（国外）。是否继续下载？</string>
+    <string name="option_network_preference_subtext">"未计费连接表示您未使用移动数据（例如 Wi-Fi、以太网或某些 VPN）。\n漫游表示您在国外 - 即使是在国外酒店的 Wi-Fi 也算作漫游。"</string>
+
+    <string name="please_wait_another_book_is_being_imported">请稍候，另一本书仍在导入中。</string>
+    <string name="download_stop_requested">已请求停止下载</string>
+
+    <string name="import_task_start">正在启动...</string>
+    <string name="import_task_complete">完成。</string>
+    <string name="import_task_copy">复制</string>
+    <string name="import_task_download">下载</string>
+    <string name="import_task_ebook_split">电子书解析</string>
+    <string name="import_task_m4b_split">M4b 提取</string>
+    <string name="import_task_unzip">解压缩</string>
+    <string name="import_task_final_parse">整合</string>
+    <string name="Import_Success_with_warnings">导入完成（有警告）</string>
+
+    <string name="metadata">元数据</string>
+    <string name="no_metadata_available">无可用元数据</string>
+    <string name="artist">艺术家</string>
+    <string name="album">专辑</string>
+    <string name="genre">类型</string>
+    <string name="year">年份</string>
+    <string name="track">曲目</string>
+    <string name="disc">光盘</string>
+    <string name="bitrate">比特率</string>
+    <string name="sample_rate">采样率</string>
+    <string name="channels">声道</string>
+
+    <string name="streaming">流媒体</string>
+
+    <string name="frequency_visualizer">频率可视化</string>
+    <string name="counting_files">正在统计文件</string>
+
 
 </resources>

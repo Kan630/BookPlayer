@@ -645,9 +645,6 @@ Soll die App technische Debug-Protokolle erstellen?
     <string name="Auto_Download_episodes">Episoden automatisch herunterladen</string>
     <string name="favorites">Favoriten</string>
 
-    <string name="Warning">Warnung</string>
-    <string name="beta_test">Beta-Test</string>
-
     <string name="Download_paused_due_to_network_policy">Download aufgrund der Netzwerkrichtlinie angehalten</string>
     <string name="Download_paused_by_user">Download vom Benutzer angehalten</string>
     <string name="Download_cancelled_by_user">Download vom Benutzer abgebrochen</string>
@@ -883,5 +880,52 @@ Sind Sie sicher?"</string>
     <string name="Error_Import_extract_audio_data_failed">Fehler: Audiodaten konnten nicht extrahiert werden</string>
     <string name="Error_Import_unsupported_file">Fehler: nicht unterstützte Datei</string>
     <string name="Error_Import_access_denied">Fehler: Zugriff verweigert</string>
+
+    <string name="Warning">Warnung</string>
+    <string name="beta_test">Betatest</string>
+
+    <string name="action_web_search">🔎 Websuche</string>
+    <string name="confirm">bestätigen</string>
+    <string name="use_this_image_as_cover">Dieses Bild als Cover verwenden</string>
+    <string name="search_title_hint">hier tippen...</string>
+    <string name="failed_to_change_image">Bild konnte nicht geändert werden</string>
+    <string name="no_image_found">Kein Bild gefunden</string>
+    <string name="parsing_metadata">Metadaten werden analysiert</string>
+
+    <string name="download_not_roaming">🏠 Kein Roaming</string>
+    <string name="download_warning_title_roaming">Roaming-Verbindung</string>
+    <string name="download_warning_message_roaming">Sie befinden sich im Roaming (im Ausland). Mit dem Download fortfahren?</string>
+    <string name="option_network_preference_subtext">"Eine ungemessene Verbindung bedeutet, dass Sie keine mobilen Daten verwenden (z. B. WLAN, Ethernet oder einige VPNs).\nRoaming bedeutet, dass Sie im Ausland sind - selbst WLAN im Hotel im Ausland gilt als Roaming."</string>
+
+    <string name="please_wait_another_book_is_being_imported">Bitte warten, ein anderes Buch wird noch importiert.</string>
+    <string name="download_stop_requested">Download-Stopp angefordert</string>
+
+    <string name="import_task_start">Startet...</string>
+    <string name="import_task_complete">fertig.</string>
+    <string name="import_task_copy">Kopieren</string>
+    <string name="import_task_download">Herunterladen</string>
+    <string name="import_task_ebook_split">E-Book-Analyse</string>
+    <string name="import_task_m4b_split">M4b-Extraktion</string>
+    <string name="import_task_unzip">Entpacken</string>
+    <string name="import_task_final_parse">Integration</string>
+    <string name="Import_Success_with_warnings">Import mit Warnungen abgeschlossen</string>
+
+    <string name="metadata">Metadaten</string>
+    <string name="no_metadata_available">Keine Metadaten verfügbar</string>
+    <string name="artist">Künstler</string>
+    <string name="album">Album</string>
+    <string name="genre">Genre</string>
+    <string name="year">Jahr</string>
+    <string name="track">Titel</string>
+    <string name="disc">Disk</string>
+    <string name="bitrate">Bitrate</string>
+    <string name="sample_rate">Abtastrate</string>
+    <string name="channels">Kanäle</string>
+
+    <string name="streaming">Streaming</string>
+
+    <string name="frequency_visualizer">Frequenzanzeige</string>
+    <string name="counting_files">Dateien werden gezählt</string>
+
 
 </resources>

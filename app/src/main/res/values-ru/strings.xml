@@ -884,6 +884,51 @@ BookPlayer будет использовать <font color="#81C784">встро�
         <string name="Error_Import_unsupported_file">Ошибка: неподдерживаемый файл</string>
         <string name="Error_Import_access_denied">Ошибка: доступ запрещён</string>
 
+        <string name="Warning">Предупреждение</string>
+        <string name="beta_test">бета-тест</string>
+
+        <string name="action_web_search">🔎 Поиск в интернете</string>
+        <string name="confirm">подтвердить</string>
+        <string name="use_this_image_as_cover">использовать это изображение как обложку</string>
+        <string name="search_title_hint">введите здесь...</string>
+        <string name="failed_to_change_image">Не удалось изменить изображение</string>
+        <string name="no_image_found">Изображение не найдено</string>
+        <string name="parsing_metadata">Анализ метаданных</string>
+
+        <string name="download_not_roaming">🏠 Без роуминга</string>
+        <string name="download_warning_title_roaming">Роуминг соединение</string>
+        <string name="download_warning_message_roaming">Вы находитесь в роуминге (за границей). Продолжить загрузку?</string>
+        <string name="option_network_preference_subtext">"Немеряемое соединение означает, что вы не используете мобильные данные (например, Wi-Fi, Ethernet или некоторые VPN).\nРоуминг означает, что вы за границей - даже Wi-Fi в отеле за границей считается роумингом."</string>
+
+        <string name="please_wait_another_book_is_being_imported">Пожалуйста, подождите; импортируется другая книга.</string>
+        <string name="download_stop_requested">Запрошена остановка загрузки</string>
+
+        <string name="import_task_start">запуск...</string>
+        <string name="import_task_complete">готово.</string>
+        <string name="import_task_copy">Копирование</string>
+        <string name="import_task_download">Загрузка</string>
+        <string name="import_task_ebook_split">Анализ ebook</string>
+        <string name="import_task_m4b_split">Извлечение M4b</string>
+        <string name="import_task_unzip">Распаковка</string>
+        <string name="import_task_final_parse">Интеграция</string>
+        <string name="Import_Success_with_warnings">Импорт завершён с предупреждениями</string>
+
+        <string name="metadata">метаданные</string>
+        <string name="no_metadata_available">Метаданные недоступны</string>
+        <string name="artist">Исполнитель</string>
+        <string name="album">Альбом</string>
+        <string name="genre">Жанр</string>
+        <string name="year">Год</string>
+        <string name="track">Трек</string>
+        <string name="disc">Диск</string>
+        <string name="bitrate">Битрейт</string>
+        <string name="sample_rate">Частота дискретизации</string>
+        <string name="channels">Каналы</string>
+
+        <string name="streaming">поток</string>
+
+        <string name="frequency_visualizer">Визуализатор частот</string>
+        <string name="counting_files">подсчёт файлов</string>
 
 
 

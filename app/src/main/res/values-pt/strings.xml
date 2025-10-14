@@ -660,9 +660,6 @@
     <string name="Auto_Download_episodes">Download automático de episódios</string>
     <string name="favorites">favoritos</string>
 
-    <string name="Warning">Aviso</string>
-    <string name="beta_test">beta test</string>
-
     <string name="Download_paused_due_to_network_policy">Download pausado devido à política de rede</string>
     <string name="Download_paused_by_user">Download pausado pelo usuário</string>
     <string name="Download_cancelled_by_user">Download cancelado pelo usuário</string>
@@ -898,6 +895,51 @@
     <string name="Error_Import_unsupported_file">Erro: arquivo não suportado</string>
     <string name="Error_Import_access_denied">Erro: acesso negado</string>
 
+    <string name="Warning">Aviso</string>
+    <string name="beta_test">teste beta</string>
+
+    <string name="action_web_search">🔎 Pesquisa na web</string>
+    <string name="confirm">confirmar</string>
+    <string name="use_this_image_as_cover">usar esta imagem como capa</string>
+    <string name="search_title_hint">digite aqui...</string>
+    <string name="failed_to_change_image">Falha ao alterar a imagem</string>
+    <string name="no_image_found">Nenhuma imagem encontrada</string>
+    <string name="parsing_metadata">Analisando metadados</string>
+
+    <string name="download_not_roaming">🏠 Sem roaming</string>
+    <string name="download_warning_title_roaming">Conexão em roaming</string>
+    <string name="download_warning_message_roaming">Você está em uma conexão de roaming (no exterior). Continuar com o download?</string>
+    <string name="option_network_preference_subtext">"Uma conexão não limitada significa que você não está usando dados móveis (por exemplo, Wi-Fi, Ethernet ou algumas VPNs).\nRoaming significa estar no exterior - até o Wi-Fi de hotel no exterior conta como roaming."</string>
+
+    <string name="please_wait_another_book_is_being_imported">Por favor, aguarde; outro livro ainda está sendo importado.</string>
+    <string name="download_stop_requested">Parada do download solicitada</string>
+
+    <string name="import_task_start">iniciando...</string>
+    <string name="import_task_complete">concluído.</string>
+    <string name="import_task_copy">Copiar</string>
+    <string name="import_task_download">Download</string>
+    <string name="import_task_ebook_split">Análise de ebook</string>
+    <string name="import_task_m4b_split">Extração M4b</string>
+    <string name="import_task_unzip">Descompactar</string>
+    <string name="import_task_final_parse">Integração</string>
+    <string name="Import_Success_with_warnings">Importação concluída com avisos</string>
+
+    <string name="metadata">metadados</string>
+    <string name="no_metadata_available">Nenhum metadado disponível</string>
+    <string name="artist">Artista</string>
+    <string name="album">Álbum</string>
+    <string name="genre">Gênero</string>
+    <string name="year">Ano</string>
+    <string name="track">Faixa</string>
+    <string name="disc">Disco</string>
+    <string name="bitrate">Taxa de bits</string>
+    <string name="sample_rate">Taxa de amostragem</string>
+    <string name="channels">Canais</string>
+
+    <string name="streaming">streaming</string>
+
+    <string name="frequency_visualizer">Visualizador de frequência</string>
+    <string name="counting_files">contando arquivos</string>
 
 
 </resources>

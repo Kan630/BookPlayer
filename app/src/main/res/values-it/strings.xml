@@ -660,9 +660,6 @@
     <string name="Auto_Download_episodes">Download automatico episodi</string>
     <string name="favorites">preferiti</string>
 
-    <string name="Warning">Attenzione</string>
-    <string name="beta_test">beta test</string>
-
     <string name="Download_paused_due_to_network_policy">Download in pausa per policy di rete</string>
     <string name="Download_paused_by_user">Download messo in pausa dall\'utente</string>
     <string name="Download_cancelled_by_user">Download annullato dall\'utente</string>
@@ -897,5 +894,51 @@
     <string name="Error_Import_extract_audio_data_failed">Errore: impossibile estrarre i dati audio</string>
     <string name="Error_Import_unsupported_file">Errore: file non supportato</string>
     <string name="Error_Import_access_denied">Errore: accesso negato</string>
+
+    <string name="Warning">Avviso</string>
+    <string name="beta_test">test beta</string>
+
+    <string name="action_web_search">🔎 Ricerca web</string>
+    <string name="confirm">conferma</string>
+    <string name="use_this_image_as_cover">usa questa immagine come copertina</string>
+    <string name="search_title_hint">scrivi qui...</string>
+    <string name="failed_to_change_image">Impossibile cambiare l\'immagine</string>
+    <string name="no_image_found">Nessuna immagine trovata</string>
+    <string name="parsing_metadata">Analisi dei metadati</string>
+
+    <string name="download_not_roaming">🏠 Non in roaming</string>
+    <string name="download_warning_title_roaming">Connessione in roaming</string>
+    <string name="download_warning_message_roaming">Sei in connessione roaming (all\'estero). Continuare con il download?</string>
+    <string name="option_network_preference_subtext">"Una connessione non a consumo significa che non stai usando i dati mobili (ad esempio Wi-Fi, Ethernet o alcune VPN).\nIl roaming significa essere all\'estero - anche il Wi-Fi dell\'hotel all\'estero è considerato roaming."</string>
+
+    <string name="please_wait_another_book_is_being_imported">Attendere, un altro libro è ancora in fase di importazione.</string>
+    <string name="download_stop_requested">Interruzione del download richiesta</string>
+
+    <string name="import_task_start">avvio...</string>
+    <string name="import_task_complete">fatto.</string>
+    <string name="import_task_copy">Copia</string>
+    <string name="import_task_download">Download</string>
+    <string name="import_task_ebook_split">Analisi ebook</string>
+    <string name="import_task_m4b_split">Estrazione M4b</string>
+    <string name="import_task_unzip">Decompressione</string>
+    <string name="import_task_final_parse">Integrazione</string>
+    <string name="Import_Success_with_warnings">Importazione completata con avvisi</string>
+
+    <string name="metadata">metadati</string>
+    <string name="no_metadata_available">Nessun metadato disponibile</string>
+    <string name="artist">Artista</string>
+    <string name="album">Album</string>
+    <string name="genre">Genere</string>
+    <string name="year">Anno</string>
+    <string name="track">Traccia</string>
+    <string name="disc">Disco</string>
+    <string name="bitrate">Bitrate</string>
+    <string name="sample_rate">Frequenza di campionamento</string>
+    <string name="channels">Canali</string>
+
+    <string name="streaming">streaming</string>
+
+    <string name="frequency_visualizer">Visualizzatore di frequenze</string>
+    <string name="counting_files">conteggio dei file</string>
 
 </resources>
