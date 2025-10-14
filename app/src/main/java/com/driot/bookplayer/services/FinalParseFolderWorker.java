@@ -122,8 +122,6 @@ public class FinalParseFolderWorker extends ImportWorker {
                 emitFailed(TASK_NAME, "importJob == null", getApplicationContext().getString(R.string.invalid_resource));
                 return Result.failure();
             }
-            emitStepProgress(TASK_NAME, 1, context.getString(R.string.listing_and_sorting_tracks));
-
 
             boolean isFolderComputed = UriHelper.isFolder(context, Uri.parse(importJob.dynamicUri));
             myLogD("isFolderComputed : " + isFolderComputed);
@@ -295,7 +293,6 @@ public class FinalParseFolderWorker extends ImportWorker {
         fullFolderSize = 0;
         totalAudioToScan = 0;
         nbAudioScanned = 0;
-        emitStepProgress(TASK_NAME, 5, context.getString(R.string.listing_and_sorting_tracks));
         countAudioFiles(f0);
         addAudioFileRecursive(f0,"");
         if (totalDuration==0) {
@@ -343,7 +340,7 @@ public class FinalParseFolderWorker extends ImportWorker {
                     nbAudioScanned++;
                     double progress = totalAudioToScan > 0 ? (nbAudioScanned / (double) totalAudioToScan) : 0;
                     int scaledProgress = 10 + (int) ((80 - 10) * progress);
-                    emitStepProgress(TASK_NAME, scaledProgress, context.getString(R.string.scanning_tracks) + "..... \n[" +  l_audioFilePath + ']');
+                    emitStepProgress(TASK_NAME, scaledProgress, context.getString(R.string.scanning_tracks) + " " + nbAudioScanned + "..... \n[" +  l_audioFilePath + ']');
 
                     fullFolderSize = fullFolderSize + l_audioSize;
 
@@ -387,7 +384,6 @@ public class FinalParseFolderWorker extends ImportWorker {
         totalAudioToScan = 0;   // reuse counters for progress
         nbAudioScanned = 0;
 
-        emitStepProgress(TASK_NAME, 5, context.getString(R.string.listing_and_sorting_tracks));
         countTextFiles(root);
         addTextFileRecursive(root, "");
     }
@@ -403,6 +399,7 @@ public class FinalParseFolderWorker extends ImportWorker {
                 String fileExtension = SupportedFilesHelper.getFileExtension(f1);
                 String mimeType = SupportedFilesHelper.getMimeType(f1);
                 myLogD("* Checking File (TEXT): [" + fileExtension + "] . [" + fileName + "] - mime = [" + mimeType + "] - subfolder : [" + recursiveFolder + "]");
+
                 if (SupportedFilesHelper.isText(f1)) {
                     nbFileScan++;
                     String displayPath = recursiveFolder + fileName;
@@ -417,7 +414,7 @@ public class FinalParseFolderWorker extends ImportWorker {
                     double progress = totalAudioToScan > 0 ? (nbAudioScanned / (double) totalAudioToScan) : 0;
                     int scaledProgress = 10 + (int) ((80 - 10) * progress);
                     emitStepProgress(TASK_NAME, scaledProgress,
-                            context.getString(R.string.scanning_tracks) + "..... \n[" + displayPath + ']');
+                            context.getString(R.string.scanning_tracks) + " " + nbAudioScanned + "..... \n[" + displayPath + ']');
                 } else if (!hadImageBefore && (SupportedFilesHelper.isImage(f1))) {
                     long imageSize = f1.length();
                     if (importJob.imagePath == null || imageSize > UriHelper.getSize(context, Uri.parse(importJob.imagePath))) {
@@ -670,6 +667,7 @@ public class FinalParseFolderWorker extends ImportWorker {
                 String mime = Objects.toString(f1.getType());
                 if (mime.startsWith(Var.ONLY_MIME_AUDIO) || Var.SUPPORTED_AUDIO_EXTENSIONS.contains(ext)) {
                     totalAudioToScan++;
+                    emitStepProgress(TASK_NAME, 2, context.getString(R.string.counting_files) + " : " + totalAudioToScan);
                 }
             }
         }
