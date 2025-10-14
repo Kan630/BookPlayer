@@ -17,6 +17,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.utils.log.KanLogger;
 import com.driot.bookplayer.utils.log.LoggerHelper;
 import com.driot.bookplayer.utils.log.LoggingAndroidViewModel;
@@ -179,7 +180,9 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
         // Let the service do the real work regardless of binding.
         Context app = getApplication();
         try {
-            app.startService(new Intent(app, AudioService.class).setAction("CMD_STOP"));
+            app.startService(new Intent(app, AudioService.class)
+                    .setAction(AudioService.EXTRA_CMD_STOP)
+                    .putExtra(Var.EXTRA_CALLER, this.getClass().getSimpleName()));
         } catch (IllegalStateException e) {
             // If the app is truly backgrounded and startService() is disallowed,
             // just request a hard stop (no-ops if not running).
@@ -211,14 +214,19 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
         // ACTION_DOWN
         Intent down = new Intent(app, AudioService.class)
                 .setAction(Intent.ACTION_MEDIA_BUTTON)
-                .putExtra(Intent.EXTRA_KEY_EVENT, new KeyEvent(KeyEvent.ACTION_DOWN, keyCode));
+                .putExtra(Intent.EXTRA_KEY_EVENT, new KeyEvent(KeyEvent.ACTION_DOWN, keyCode))
+                .putExtra(Var.EXTRA_CALLER, this.getClass().getSimpleName())
+                .putExtra(Var.EXTRA_FOREGROUND, true)
+                ;
         ContextCompat.startForegroundService(app, down);
         // ACTION_UP (some OEMs need both)
         Intent up = new Intent(app, AudioService.class)
                 .setAction(Intent.ACTION_MEDIA_BUTTON)
-                .putExtra(Intent.EXTRA_KEY_EVENT, new KeyEvent(KeyEvent.ACTION_UP, keyCode));
+                .putExtra(Intent.EXTRA_KEY_EVENT, new KeyEvent(KeyEvent.ACTION_UP, keyCode))
+                .putExtra(Var.EXTRA_CALLER, this.getClass().getSimpleName())
+                .putExtra(Var.EXTRA_FOREGROUND, true)
+                ;
         ContextCompat.startForegroundService(app, up);
     }
-
 }
 

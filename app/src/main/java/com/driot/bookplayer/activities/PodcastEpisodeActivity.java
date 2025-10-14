@@ -910,12 +910,15 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
 
     private void stopAudioServiceIfRunning() {
         if (AudioService.isRunning) {
-            Intent intentStopService = new Intent(this, AudioService.class).setAction("CMD_STOP");
+            Intent intentStopService = new Intent(this, AudioService.class).
+                    setAction(AudioService.EXTRA_CMD_STOP)
+                    .putExtra(Var.EXTRA_CALLER, this.getClass().getSimpleName());
             try {
                 // App au premier plan → safe, pas de règle des 5s
                 startService(intentStopService);
             } catch (IllegalStateException e) {
                 // Si jamais l’app est en arrière-plan, au pire on force l’arrêt
+                myLogEE();
                 stopService(new Intent(this, AudioService.class));
             }
         }

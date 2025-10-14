@@ -30,6 +30,7 @@ import androidx.lifecycle.Observer;
 
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
+import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.TtsHelper;
 import com.driot.bookplayer.helpers.UriHelper;
 import com.driot.bookplayer.utils.AppTtsManager;
@@ -74,12 +75,14 @@ public class AudioService extends LoggingService {
     public static final String ACTION_LOAD_INDEX = "com.driot.bookplayer.LOAD_INDEX";
     public static final String EXTRA_AUTOPLAY    = "extra_autoplay"; // default false
     public static final String EXTRA_FORCE       = "extra_force";    // default false
+    public static final String EXTRA_CMD_STOP    = "EXTRA_CMD_STOP";
     public static void startAndLoad(Context ctx, int index, boolean autoplay, boolean force) {
         Intent i = new Intent(ctx, AudioService.class)
                 .setAction(ACTION_LOAD_INDEX)
                 .putExtra(EXTRA_INDEX,    index)
                 .putExtra(EXTRA_AUTOPLAY, autoplay)
-                .putExtra(EXTRA_FORCE,    force);
+                .putExtra(EXTRA_FORCE,    force)
+                .putExtra(Var.EXTRA_CALLER, "AudioService.startAndLoad()");
         ctx.startService(i);
     }
 
@@ -660,17 +663,23 @@ public class AudioService extends LoggingService {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         myLog("onStartCommand()");
-        if (intent!=null) myLogD("intent = " + intent);
-        if (intent!=null && intent.getAction()!=null) myLogD("intent.action = " + intent.getAction());
-
-        if (intent == null) {            // happens when Android restarts your sticky service after it was killed, no 5-second foreground requirement in this case because the system didn’t just call startForegroundService(...) on your behalf;
-            myLogW("onStartCommand() with no intent - Android restarts? - because of START_STICKY and no START_REDELIVER_INTENT");
+        if (intent!=null) {
+            String strCallLog = "intent = " + intent +
+                    "\ncalled by = " + intent.getStringExtra(Var.EXTRA_CALLER) +
+                    "\nwith action = " + intent.getAction();
+            if (intent.getBooleanExtra(Var.EXTRA_FOREGROUND, false)) {
+                myLogI("FOREGROUND AudioService start\n" + strCallLog);
+            } else {
+                myLog("AudioService start\n" + strCallLog);
+            }
+        } else  {            // happens when Android restarts your sticky service after it was killed, no 5-second foreground requirement in this case because the system didn’t just call startForegroundService(...) on your behalf;
+            myLogW("AudioService start with no intent - Android restarts? - because of START_STICKY and no START_REDELIVER_INTENT");
             return START_STICKY;
         }
 
         final String action = intent.getAction();
         if (action == null) {
-            myLogEE(null, "onStartCommand() with no intent.action");
+            myLogW("AudioService start with no intent.action");
             return START_STICKY;
         }
 
@@ -751,7 +760,7 @@ public class AudioService extends LoggingService {
                 return START_STICKY;
             }
 
-            case "CMD_STOP": {
+            case EXTRA_CMD_STOP: {
                 myLog("CMD_STOP");
                 shutdown(false);
                 return START_NOT_STICKY; //let's try to avoid crashes

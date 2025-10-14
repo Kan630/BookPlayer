@@ -166,12 +166,16 @@
                 mainVm.requestScrollToTopNow();
             }
 
+            //if we quit app, check option => should let music continue =>if no, kill service
             getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
                 @Override
                 public void handleOnBackPressed() {
                     myLogI("--- USER CLICK BACK from MAIN --- (system button)");
                     if (Option.getStopAudioIfUserClosesApp()) {
-                        startService(new Intent(MainActivity.this, AudioService.class).setAction("CMD_STOP"));
+                        startService(
+                                new Intent(MainActivity.this, AudioService.class)
+                                        .setAction(AudioService.EXTRA_CMD_STOP)
+                                        .putExtra(Var.EXTRA_CALLER, this.getClass().getSimpleName()));
                     }
                     finish();
                 }

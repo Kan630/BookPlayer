@@ -49,8 +49,7 @@ public abstract class BasicNavTest implements LogSupport {
     public ActivityScenarioRule<MainActivity> activityRule =
             new ActivityScenarioRule<>(MainActivity.class);
 
-    @Rule
-    public LoggingWatcher logs = new LoggingWatcher();
+    @Rule public LoggingWatcher logs = new LoggingWatcher();
 
     @Before
     public void setUp() {

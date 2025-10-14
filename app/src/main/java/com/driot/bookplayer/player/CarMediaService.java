@@ -26,6 +26,7 @@ import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Option;
+import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.utils.log.KanLogger;
 import com.driot.bookplayer.utils.Tonio;
@@ -179,6 +180,7 @@ public class CarMediaService extends MediaBrowserServiceCompat {
                 FirebaseAnalyticsHelper.tellCarSendCmd("CMD_SEEK");
                 Intent i = new Intent(CarMediaService.this, AudioService.class).setAction("CMD_SEEK");
                 i.putExtra("posMs", (int) posMs);
+                i.putExtra(Var.EXTRA_CALLER, this.getClass().getSimpleName());
                 startService(i);
             }
             @Override
@@ -196,6 +198,8 @@ public class CarMediaService extends MediaBrowserServiceCompat {
                                 new Intent(CarMediaService.this, AudioService.class)
                                         .setAction(AudioService.ACTION_PLAY_FROM_TRACK)
                                         .putExtra(AudioService.EXTRA_TRACK_ID, trackId)
+                                        .putExtra(Var.EXTRA_CALLER, this.getClass().getSimpleName())
+                                        .putExtra(Var.EXTRA_FOREGROUND, true)
                         );
                         // Optional: show buffering right away in AA
                         pushPlaybackState(PlaybackStateCompat.STATE_BUFFERING, 0);
@@ -213,6 +217,8 @@ public class CarMediaService extends MediaBrowserServiceCompat {
                                         .setAction(AudioService.ACTION_PLAY_FROM_FOLDER)
                                         .putExtra(AudioService.EXTRA_FOLDER_ID, folderId)
                                         .putExtra(AudioService.EXTRA_INDEX, 0)
+                                        .putExtra(Var.EXTRA_CALLER, this.getClass().getSimpleName())
+                                        .putExtra(Var.EXTRA_FOREGROUND, true)
                         );
                         pushPlaybackState(PlaybackStateCompat.STATE_BUFFERING, 0);
                     }
@@ -514,6 +520,8 @@ public class CarMediaService extends MediaBrowserServiceCompat {
         FirebaseAnalyticsHelper.tellCarSendCmd(action);
         ContextCompat.startForegroundService(
                 this, new Intent(this, AudioService.class).setAction(action)
+                        .putExtra(Var.EXTRA_CALLER, this.getClass().getSimpleName())
+                        .putExtra(Var.EXTRA_FOREGROUND, true)
         );
     }
 

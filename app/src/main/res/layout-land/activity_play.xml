@@ -32,21 +32,30 @@
                 android:id="@+id/visualZone"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_weight="1">
+                android:layout_weight="1"
+                >
 
-                <!-- Image optionnelle -->
-                <ImageView
-                    android:id="@+id/folderImage"
+                <com.driot.bookplayer.views.ClickInterceptFrameLayout
+                    android:id="@+id/coverContainer"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:scaleType="fitCenter"
-                    android:visibility="gone" />
+                    >
+                    <ImageView
+                        android:id="@+id/folderImage"
+                        android:contentDescription="@string/book_cover"
+                        android:scaleType="fitCenter"
+                        android:visibility="gone"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        />
 
-                <!-- Visualizer -->
-                <com.driot.bookplayer.views.FrequencyVisualizerView
-                    android:id="@+id/frequencyVisualizerView"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
+                    <com.driot.bookplayer.views.FrequencyVisualizerView
+                        android:id="@+id/frequencyVisualizerView"
+                        android:contentDescription="@string/frequency_visualizer"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        />
+                </com.driot.bookplayer.views.ClickInterceptFrameLayout>
 
                 <!-- TTS : remplace visuellement le visualizer quand visible -->
                 <LinearLayout

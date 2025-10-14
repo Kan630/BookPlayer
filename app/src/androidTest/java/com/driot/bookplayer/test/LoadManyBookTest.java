@@ -98,8 +98,7 @@ public class LoadManyBookTest implements LogSupport {
     @Rule
     public ActivityScenarioRule<MainActivity> activityRule = new ActivityScenarioRule<>(MainActivity.class);
 
-    @Rule
-    public LoggingWatcher logs = new LoggingWatcher();
+    @Rule public LoggingWatcher logs = new LoggingWatcher();
 
     StringBuilder logFinalImportMsg;
     StringBuilder logFinalPlayMsg;
@@ -273,7 +272,7 @@ public class LoadManyBookTest implements LogSupport {
                     (baseFromSeg != null ? baseFromSeg : uri_content.toString());
 
             String logDuration = duration + "  " + targetName;
-            myLogI("Import Duration: " + logDuration);
+            myLogI("Import n°" + nbImported + ": Duration: " + logDuration);
             String newLineMsg = "\n" + logDuration;
 
             // log warnings
@@ -466,8 +465,8 @@ public class LoadManyBookTest implements LogSupport {
         try {
             waitForViewVisible(ID_PLAY_BUTTON, 2_000, "Play button not visible by id");
             onView(withId(ID_PLAY_BUTTON)).perform(click());
-            myLog("Pressed Play via id");
             nbPlayed += 1;
+            myLog("Pressed Play n°" + nbPlayed);
             return;
         } catch (Exception ignored) {}
         throw new AssertionError("Could not find a Play control (id nor text).");

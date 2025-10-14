@@ -457,11 +457,14 @@ public class PlayActivity extends LoggingActivity {
             }
         });
 
+        // if we return while no audio is playing, we kill the service
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override public void handleOnBackPressed() {
                 myLogI("--- USER CLICK BACK --- (system button)");
                 if (audioService != null && !audioService.isPlaying()) {
-                    startService(new Intent(getApplicationContext(), AudioService.class).setAction("CMD_STOP"));
+                    startService(new Intent(getApplicationContext(), AudioService.class)
+                            .setAction(AudioService.EXTRA_CMD_STOP)
+                            .putExtra(Var.EXTRA_CALLER, this.getClass().getSimpleName()));
                 }
                 finish();
             }
@@ -470,7 +473,8 @@ public class PlayActivity extends LoggingActivity {
 
     private void launchService() {
         myLogD("launchService");
-        intentMusicService = new Intent(PlayActivity.this, AudioService.class);
+        intentMusicService = new Intent(PlayActivity.this, AudioService.class)
+                .putExtra(Var.EXTRA_CALLER, this.getClass().getSimpleName());
         startService(intentMusicService);
         audioServiceBound = false;
         try {

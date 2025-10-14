@@ -93,7 +93,7 @@
         <DialogSelection />
       </SelectionState>
       <SelectionState runConfigName="LoadManyBookTest">
-        <option name="selectionMode" value="DROPDOWN" />
+        <option name="selectionMode" value="DIALOG" />
         <DropdownSelection timestamp="2025-10-13T18:21:53.297755900Z">
           <Target type="DEFAULT_BOOT">
             <handle>
@@ -105,17 +105,7 @@
           <targets>
             <Target type="DEFAULT_BOOT">
               <handle>
-                <DeviceId pluginId="PhysicalDevice" identifier="serial=FPMPH18C17900002" />
-              </handle>
-            </Target>
-            <Target type="DEFAULT_BOOT">
-              <handle>
                 <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\adrio\.android\avd\Medium_Tablet.avd" />
-              </handle>
-            </Target>
-            <Target type="DEFAULT_BOOT">
-              <handle>
-                <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\adrio\.android\avd\Automotive_1408p_landscape.avd" />
               </handle>
             </Target>
             <Target type="DEFAULT_BOOT">
@@ -127,7 +117,7 @@
         </DialogSelection>
       </SelectionState>
       <SelectionState runConfigName="orderedTests">
-        <option name="selectionMode" value="DROPDOWN" />
+        <option name="selectionMode" value="DIALOG" />
         <DropdownSelection timestamp="2025-10-11T12:00:09.180050400Z">
           <Target type="DEFAULT_BOOT">
             <handle>
@@ -139,17 +129,12 @@
           <targets>
             <Target type="DEFAULT_BOOT">
               <handle>
-                <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\adrio\.android\avd\Medium_Tablet.avd" />
-              </handle>
-            </Target>
-            <Target type="DEFAULT_BOOT">
-              <handle>
                 <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\adrio\.android\avd\Pixel_9.avd" />
               </handle>
             </Target>
             <Target type="DEFAULT_BOOT">
               <handle>
-                <DeviceId pluginId="PhysicalDevice" identifier="serial=FPMPH18C17900002" />
+                <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\adrio\.android\avd\Medium_Tablet.avd" />
               </handle>
             </Target>
           </targets>
