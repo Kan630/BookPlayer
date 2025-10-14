@@ -1,5 +1,7 @@
 package com.driot.bookplayer.player;
 
+import static com.driot.bookplayer.utils.log.KanLogger.myToast;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -29,7 +31,6 @@ import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.utils.log.KanLogger;
-import com.driot.bookplayer.utils.Tonio;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -138,9 +139,46 @@ public class CarMediaService extends MediaBrowserServiceCompat {
             @Override public void onPlay() {
                 myLog("onPlay()");
 
+                PlayList pl = PlayList.getInstance();
+                if (pl==null) {
+                    myLogI("Car onPlay but Playlist is null");
+                    if (Option.getAutomotiveLetCarAutoplay()) {
+                        AppDatabase.databaseReadExecutor.execute(() -> {
+                            ZikFile zikFile = AppDatabase.getDatabase(getApplicationContext())
+                                    .zikFileDao().getLastListenedZikFile();
+                            if (zikFile==null) {
+                                myLogW("no last played zikfile !, must be pretty new");
+                            } else {
+                                ContextCompat.startForegroundService(
+                                        CarMediaService.this,
+                                        new Intent(CarMediaService.this, AudioService.class)
+                                                .setAction(AudioService.ACTION_PLAY_FROM_TRACK)
+                                                .putExtra(AudioService.EXTRA_TRACK_ID, zikFile.getId())
+                                                .putExtra(Var.EXTRA_CALLER, this.getClass().getSimpleName() + ".onPlay()")
+                                                .putExtra(Var.EXTRA_FOREGROUND, true)
+                                );
+                                // Optional: show buffering right away in AA
+                                pushPlaybackState(PlaybackStateCompat.STATE_BUFFERING, 0);
+                            }
+
+                        });
+
+                    } else {
+                        myLogW("Android Auto not authorized to start audio (from Bookplayer settings)");
+                        return;
+                    }
+                } else {
+                    ZikFile zikFile = pl.getZikFile();
+                    if (zikFile==null) {
+                        myLogEE(null,"Car onPlay but ZikFile is null");
+                        return;
+                    }
+                }
+                sendCmd("CMD_PLAY : [" + pl.getZikFile().getDisplayName() + "]");
+
                 // rely on our own snapshot (don’t use AudioService.lastUiState across processes)
                 //boolean haveKnownTrack = (curTrackId > 0) || (curFolderId > 0);
-
+/*
                 boolean haveKnownTrack =
                         AudioService.lastUiState != null &&
                                 AudioService.lastUiState.trackId > 0;
@@ -165,12 +203,14 @@ public class CarMediaService extends MediaBrowserServiceCompat {
                         + " wasPausedRecently=" + wasPausedRecently
                         + " autoResumeOpt=" + Option.getAutomotiveAutoResumeOnCarConnect());
 
+
                 if (userArmedPlay || shouldAutoResume) {
                     sendCmd("CMD_PLAY");
                 } else {
                     myLogW("Ignoring onPlay(): no explicit user intent and not eligible for auto-resume");
                     pushPlaybackState(PlaybackStateCompat.STATE_PAUSED, 0);
                 }
+ */
             }
 
             @Override public void onPause()             { sendCmd("CMD_PAUSE"); }
@@ -198,7 +238,7 @@ public class CarMediaService extends MediaBrowserServiceCompat {
                                 new Intent(CarMediaService.this, AudioService.class)
                                         .setAction(AudioService.ACTION_PLAY_FROM_TRACK)
                                         .putExtra(AudioService.EXTRA_TRACK_ID, trackId)
-                                        .putExtra(Var.EXTRA_CALLER, this.getClass().getSimpleName())
+                                        .putExtra(Var.EXTRA_CALLER, this.getClass().getSimpleName() + ".onPlayFromMediaId()")
                                         .putExtra(Var.EXTRA_FOREGROUND, true)
                         );
                         // Optional: show buffering right away in AA
@@ -227,7 +267,7 @@ public class CarMediaService extends MediaBrowserServiceCompat {
             }
             @Override
             public boolean onMediaButtonEvent(Intent mediaButtonIntent) {
-                myLog("onMediaButtonEvent");
+                myLog("onMediaButtonEvent : " + mediaButtonIntent.getAction() + " - " + mediaButtonIntent.toString());
                 if (mediaButtonIntent == null) return super.onMediaButtonEvent(null);
                 // Forward the event to the session (translates KeyEvent → callbacks)
                 androidx.media.session.MediaButtonReceiver.handleIntent(mediaSession, mediaButtonIntent);
@@ -346,7 +386,7 @@ public class CarMediaService extends MediaBrowserServiceCompat {
                     }
 
                     // Put a "Resume" item first
-                    ZikFile resume = AppDatabase.getDatabase(this).zikFileDao().getLastListenedZikFile(folderId);
+                    ZikFile resume = AppDatabase.getDatabase(this).zikFileDao().getLastListenedZikFileOfFolder(folderId);
                     if (resume != null) {
                         MediaDescriptionCompat.Builder rb = new MediaDescriptionCompat.Builder()
                                 .setMediaId(PREFIX_TRACK + resume.getId())

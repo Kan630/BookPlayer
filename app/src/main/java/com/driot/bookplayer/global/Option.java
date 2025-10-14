@@ -57,6 +57,7 @@ public class Option {
     public static final float  MIN_TEXT_SIZE_SP = 12f;
     public static final float  MAX_TEXT_SIZE_SP = 36f;
     public static final boolean DEFAULT_AUTOMOTIVE_ON = true;
+    public static final boolean DEFAULT_AUTOMOTIVE_LET_CAR_AUTOPLAY = true;
     public static final boolean DEFAULT_AUTOMOTIVE_AUTO_RESUME_ON_CAR_CONNECT = true;
     public static final boolean DEFAULT_AUTOMOTIVE_KEEP_PHONE_PLAYBACK_ON_CAR_CONNECT = false;
     public static final int DEFAULT_LIBRIVOX_API_NB_RESULTS = 200;
@@ -244,6 +245,9 @@ public class Option {
     public static void setAutomotiveOn(boolean bool) {prefs.edit().putBoolean("AUTOMOTIVE_ON",bool).apply();}
     public static boolean getAutomotiveOn() {return prefs.getBoolean("AUTOMOTIVE_ON", DEFAULT_AUTOMOTIVE_ON);}
 
+
+    public static void setAutomotiveLetCarAutoplay(boolean bool) {prefs.edit().putBoolean("AUTOMOTIVE_LET_CAR_AUTOPLAY",bool).apply();}
+    public static boolean getAutomotiveLetCarAutoplay() {return prefs.getBoolean("AUTOMOTIVE_LET_CAR_AUTOPLAY", DEFAULT_AUTOMOTIVE_LET_CAR_AUTOPLAY);}
 
     public static void setAutomotiveAutoResumeOnCarConnect(boolean bool) {prefs.edit().putBoolean("AUTOMOTIVE_AUTO_RESUME_ON_CAR_CONNECT",bool).apply();}
     public static boolean getAutomotiveAutoResumeOnCarConnect() {return prefs.getBoolean("AUTOMOTIVE_AUTO_RESUME_ON_CAR_CONNECT", DEFAULT_AUTOMOTIVE_AUTO_RESUME_ON_CAR_CONNECT);}

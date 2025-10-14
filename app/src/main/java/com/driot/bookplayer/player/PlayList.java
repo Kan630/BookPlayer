@@ -70,7 +70,7 @@ public final class PlayList {
         PlayList pl = new PlayList(app);
         pl.replaceItems(items, startIndex);
         instance = pl;
-        pl.saveToStorage();     // persist folderId + index
+        pl.saveToStorage();     // persist folderId + index -//TODO remove
         pl.loadMetaAsync();     // async folder/podcast fetch
         myLogD("Playlist created with " + items.size() + " items, index=" + pl.index);
     }
@@ -87,35 +87,11 @@ public final class PlayList {
     private Podcast podcast;
     private boolean isPodcast;
     private boolean metaLoaded = false;
-/*
-    public Folder getFolder() {
-        return folder;
-    }
-
- */
 
     // Invalidate racing async loads
     private long version = 0L;
 
     private PlayList(Context app) { this.app = app; }
-
-    // ==== Public API (kept compatible) ====
-/*
-    public interface OnMetaLoadedListener {
-        void onMetaLoaded(Folder folder, @Nullable Podcast podcast, boolean isPodcast);
-    }
-
-    public void setOnMetaLoadedListener(@Nullable OnMetaLoadedListener l) {
-        synchronized (lock) {
-            this.metaListener = l;
-            if (metaLoaded && folder != null && l != null) {
-                // deliver on main thread
-                main.post(() -> l.onMetaLoaded(folder, podcast, isPodcast));
-            }
-        }
-    }
-
- */
 
     public void clear() {
         synchronized (lock) {
@@ -189,12 +165,6 @@ public final class PlayList {
             return zikFilesList.get(index);
         }
     }
-/*
-    public @Nullable Folder getFolder() { synchronized (lock) { return folder; } }
-    public @Nullable Podcast getPodcast() { synchronized (lock) { return podcast; } }
-    public boolean isPodcast() { synchronized (lock) { return isPodcast; } }
-
- */
 
     // ==== Internal helpers ====
 
@@ -266,12 +236,8 @@ public final class PlayList {
 
     // ==== Persistence (SharedPreferences) ====
     private static final String PREFS = "SHARED_PREFERENCE_CURRENT_PLAYLIST";
-    // New keys
     private static final String KEY_FOLDER_ID = "KEY_FOLDER_ID";
     private static final String KEY_INDEX = "KEY_INDEX";
-    // Legacy keys
-    private static final String KEY_ZIK_FILES_LIST_LEGACY = "KEY_ZIK_FILES_LIST";
-    private static final String KEY_ZIK_FILE_INDEX_LEGACY = "KEY_ZIK_FILE";
 
     private void saveToStorage() {
         SharedPreferences prefs = app.getSharedPreferences(PREFS, Context.MODE_PRIVATE);

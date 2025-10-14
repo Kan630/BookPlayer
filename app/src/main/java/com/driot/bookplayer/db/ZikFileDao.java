@@ -69,7 +69,14 @@ public interface ZikFileDao {
            ORDER BY (position > 0 AND position < duration - 5000) DESC, lLastAccess DESC
            LIMIT 1
            """)
-    ZikFile getLastListenedZikFile(long folderId);
+    ZikFile getLastListenedZikFileOfFolder(long folderId);
+
+    @Query("""
+           SELECT * FROM ZikFile
+           ORDER BY (position > 0 AND position < duration - 5000) DESC, lLastAccess DESC
+           LIMIT 1
+           """)
+    ZikFile getLastListenedZikFile();
 
     @Insert
     long insert(ZikFile zikFile);

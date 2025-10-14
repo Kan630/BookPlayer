@@ -425,8 +425,23 @@ public class SettingsActivity extends LoggingActivity {
         ll_automotive_on.setOnClickListener(v -> chk_automotive_on.toggle());
         chk_automotive_on.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setAutomotiveOn(isChecked));
 
+
+        //parent
+        CheckBox chk_automotive_let_car_autoplay = findViewById(R.id.chk_automotive_let_car_autoplay);
+        LinearLayout ll_automotive_let_car_autoplay = findViewById(R.id.ll_automotive_let_car_autoplay);
+        //child
         CheckBox chk_automotive_auto_resume_on_car_connect = findViewById(R.id.chk_automotive_auto_resume_on_car_connect);
         LinearLayout ll_automotive_auto_resume_on_car_connect = findViewById(R.id.ll_automotive_auto_resume_on_car_connect);
+
+        //parent
+        chk_automotive_let_car_autoplay.setChecked(Option.getAutomotiveLetCarAutoplay());
+        ll_automotive_let_car_autoplay.setOnClickListener(v -> chk_automotive_let_car_autoplay.toggle());
+        setChildButtonAutomotive(chk_automotive_auto_resume_on_car_connect, ll_automotive_auto_resume_on_car_connect, chk_automotive_let_car_autoplay.isChecked(), !chk_automotive_let_car_autoplay.isChecked());
+        chk_automotive_let_car_autoplay.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            setChildButtonAutomotive(chk_automotive_auto_resume_on_car_connect, ll_automotive_auto_resume_on_car_connect, isChecked, !isChecked);
+            Option.setAutomotiveLetCarAutoplay(isChecked);
+        });
+        //child
         chk_automotive_auto_resume_on_car_connect.setChecked(Option.getAutomotiveAutoResumeOnCarConnect());
         ll_automotive_auto_resume_on_car_connect.setOnClickListener(v -> chk_automotive_auto_resume_on_car_connect.toggle());
         chk_automotive_auto_resume_on_car_connect.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setAutomotiveAutoResumeOnCarConnect(isChecked));
@@ -779,6 +794,13 @@ public class SettingsActivity extends LoggingActivity {
             tvPreview.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, sizeSp);
         } catch (Throwable ignored) {}
     }
+
+    private void setChildButtonAutomotive(CheckBox chk, LinearLayout ll, boolean checked, boolean enabled) {
+        if (!chk.isChecked()) chk.setChecked(checked);
+        chk.setEnabled(enabled);
+        ll.setEnabled(enabled);
+    }
+
 
 
 }
