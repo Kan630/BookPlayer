@@ -1462,8 +1462,9 @@ public class AudioService extends LoggingService {
             }
 
             //max reach ?, reset to 0
-            if (zikFile.getPosition() >= zikFile.getDuration()) {
-                zikFile.setPosition(0);
+            //if (zikFile.getPosition() >= zikFile.getDuration()) {
+            if (engine!=null && engine.getCurrentPosition() >= engine.getDuration()) {
+                engine.seekTo(0);
             } else { // Rewind-after-pause
                 if (Option.getRewindAfterPause() && zikFile.lLastAccess != null) {
                     long minutes = (System.currentTimeMillis() - zikFile.lLastAccess) / (60 * 1000);

@@ -134,7 +134,6 @@ public class CarMediaService extends MediaBrowserServiceCompat {
         setSessionToken(mediaSession.getSessionToken());
 
         mediaSession.setCallback(new MediaSessionCompat.Callback() {
-            private boolean userArmedPlay = false; // set true only after explicit user action
 
             @Override public void onPlay() {
                 myLog("onPlay()");
@@ -143,12 +142,14 @@ public class CarMediaService extends MediaBrowserServiceCompat {
                 if (pl==null) {
                     myLogI("Car onPlay but Playlist is null");
                     if (Option.getAutomotiveLetCarAutoplay()) {
+                        FirebaseAnalyticsHelper.tellCarAutoPlay();
                         AppDatabase.databaseReadExecutor.execute(() -> {
                             ZikFile zikFile = AppDatabase.getDatabase(getApplicationContext())
                                     .zikFileDao().getLastListenedZikFile();
                             if (zikFile==null) {
                                 myLogW("no last played zikfile !, must be pretty new");
                             } else {
+                                myLog("go for last played zikfile : [" + zikFile.getDisplayName() + "], starting FOREGROUND");
                                 ContextCompat.startForegroundService(
                                         CarMediaService.this,
                                         new Intent(CarMediaService.this, AudioService.class)
@@ -160,57 +161,23 @@ public class CarMediaService extends MediaBrowserServiceCompat {
                                 // Optional: show buffering right away in AA
                                 pushPlaybackState(PlaybackStateCompat.STATE_BUFFERING, 0);
                             }
-
                         });
-
                     } else {
                         myLogW("Android Auto not authorized to start audio (from Bookplayer settings)");
-                        return;
                     }
                 } else {
                     ZikFile zikFile = pl.getZikFile();
                     if (zikFile==null) {
                         myLogEE(null,"Car onPlay but ZikFile is null");
-                        return;
+                    } else {
+                        if (Option.getAutomotiveAutoResumeOnCarConnect()) {
+                            myLog("resuming play : [" + zikFile.getDisplayName() + "]");
+                            sendCmd("CMD_PLAY");
+                        } else {
+                            myLogW("Android Auto not authorized to resume playback (from Bookplayer settings)");
+                        }
                     }
                 }
-                sendCmd("CMD_PLAY : [" + pl.getZikFile().getDisplayName() + "]");
-
-                // rely on our own snapshot (don’t use AudioService.lastUiState across processes)
-                //boolean haveKnownTrack = (curTrackId > 0) || (curFolderId > 0);
-/*
-                boolean haveKnownTrack =
-                        AudioService.lastUiState != null &&
-                                AudioService.lastUiState.trackId > 0;
-
-                boolean inGrace = CarSignals.withinCarConnectGrace(AUTO_RESUME_GRACE_MS);
-                boolean wasPlayingRecently =
-                        (android.os.SystemClock.elapsedRealtime() - lastPlayingTs) <= AUTO_RESUME_GRACE_MS;
-
-                final long now = System.currentTimeMillis();
-                final long pausedAt = com.driot.bookplayer.global.Pref.getPauseTime();
-                myLogI(Tonio.formatMS(now - pausedAt));
-                boolean wasPausedRecently = pausedAt > 0 && (now - pausedAt) <= AUTO_RESUME_GRACE_MS;
-
-                boolean shouldAutoResume =
-                        Option.getAutomotiveAutoResumeOnCarConnect()
-                                && haveKnownTrack
-                                && inGrace
-                                && wasPausedRecently;
-
-                myLog("haveKnownTrack=" + haveKnownTrack
-                        + " inGrace=" + inGrace
-                        + " wasPausedRecently=" + wasPausedRecently
-                        + " autoResumeOpt=" + Option.getAutomotiveAutoResumeOnCarConnect());
-
-
-                if (userArmedPlay || shouldAutoResume) {
-                    sendCmd("CMD_PLAY");
-                } else {
-                    myLogW("Ignoring onPlay(): no explicit user intent and not eligible for auto-resume");
-                    pushPlaybackState(PlaybackStateCompat.STATE_PAUSED, 0);
-                }
- */
             }
 
             @Override public void onPause()             { sendCmd("CMD_PAUSE"); }
@@ -227,7 +194,6 @@ public class CarMediaService extends MediaBrowserServiceCompat {
             public void onPlayFromMediaId(String mediaId, Bundle extras) {
                 myLogI("---- AUTOMOTIVE user click Play -----");
                 FirebaseAnalyticsHelper.tellCarOnPlayFromMediaId();
-                userArmedPlay = true;
                 if (mediaId == null) return;
 
                 if (mediaId.startsWith(PREFIX_TRACK)) {

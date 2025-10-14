@@ -44,6 +44,10 @@ public final class FirebaseAnalyticsHelper {
         logBundleEvent("play_for_1min", bundle);
     }
 
+    public static void tellCarAutoPlay() {
+        logEvent("car_auto_play");
+    }
+
     public static void tellCarOnChildren() {
         logEvent("car_on_children");
     }
