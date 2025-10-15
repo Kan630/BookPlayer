@@ -12,6 +12,8 @@ import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.utils.Tonio;
+
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 import java.io.File;
@@ -283,4 +285,27 @@ public class StorageHelper {
         return null;
     }
 
+    public static String getImagePathCachedOrNot(Context context, String imagePath) {
+        File f = new File(imagePath);
+        if (f.exists() && f.isFile()) {
+            return imagePath;
+        }
+        String fileName = Tonio.getFileNameFromPath(imagePath);
+
+        File f2 = new File(StorageHelper.getImageFolder(context, false), fileName);
+        if (f2.exists() && f2.isFile()) {
+            myLog("cached image => non cached image - [" + fileName + "]");
+            return f2.getAbsolutePath();
+        }
+
+        File f3 = new File(StorageHelper.getImageFolder(context, true), fileName);
+        if (f3.exists() && f3.isFile()) {
+            myLog("non cached image => cached image - [" + fileName + "]");
+            return f3.getAbsolutePath();
+        } else {
+            //TODO try redownload from Podcast.imageOriginalUri
+            myToastEE(null, "no valid image file - [" + fileName + "]");
+            return null;
+        }
+    }
 }

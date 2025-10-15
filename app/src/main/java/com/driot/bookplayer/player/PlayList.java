@@ -1,15 +1,12 @@
 package com.driot.bookplayer.player;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.v4.media.session.PlaybackStateCompat;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -17,7 +14,6 @@ import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.db.ZikFile;
-import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.utils.log.KanLogger;
 
 import java.util.Collections;
@@ -82,13 +78,14 @@ public final class PlayList {
     private PlayList(Context app) { this.app = app; }
 
 
-
-    /** Create/replace the singleton with a new list. startIndex is clamped to [0, size). */
+/*
+    /** Create/replace the singleton with a new list. startIndex is clamped to [0, size).
     public static void create(@NonNull Context ctx, @NonNull List<ZikFile> items) {
         create(ctx, items, 0);
     }
+ */
 
-    public static void create(@NonNull Context ctx, @NonNull List<ZikFile> items, int startIndex) {
+    public static void create(@NonNull Context ctx, Folder folder, @NonNull List<ZikFile> items, int startIndex) {
         if (items.isEmpty()) throw new IllegalStateException("PlayList.create(): empty list");
         Context app = ctx.getApplicationContext();
         PlayList pl = new PlayList(app);

@@ -31,6 +31,7 @@ import androidx.lifecycle.Observer;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.helpers.TtsHelper;
 import com.driot.bookplayer.helpers.UriHelper;
 import com.driot.bookplayer.utils.AppTtsManager;
@@ -58,38 +59,25 @@ public class AudioService extends LoggingService {
         lastPlayListMeta = meta;          // cache latest meta
         broadcastUiState();       // rebuild + emit unified UI
     };
-    public LiveData<PlaybackUiState> getUiLive() { return uiLive; }
+
+    private final AtomicBoolean isShuttingDown = new AtomicBoolean(false);
+    public static volatile boolean isRunning = false;
 
     private final android.content.BroadcastReceiver pingReceiver = new android.content.BroadcastReceiver() {
         @Override public void onReceive(android.content.Context ctx, android.content.Intent i) {
             if (i == null) return;
             if (ACTION_PING_UI.equals(i.getAction())) {
                 myLog("PING received");
-                // Respond immediately with the latest UI state
-                // (uses your existing snapshot/builder)
                 broadcastUiState();
             }
         }
     };
+    public static final String EXTRA_CMD_STOP    = "CMD_STOP";
 
-    public static final String ACTION_LOAD_INDEX = "com.driot.bookplayer.LOAD_INDEX";
     public static final String EXTRA_AUTOPLAY    = "extra_autoplay"; // default false
-    public static final String EXTRA_FORCE       = "extra_force";    // default false
-    public static final String EXTRA_CMD_STOP    = "EXTRA_CMD_STOP";
-    public static void startAndLoad(Context ctx, int index, boolean autoplay, boolean force) {
-        Intent i = new Intent(ctx, AudioService.class)
-                .setAction(ACTION_LOAD_INDEX)
-                .putExtra(EXTRA_INDEX,    index)
-                .putExtra(EXTRA_AUTOPLAY, autoplay)
-                .putExtra(EXTRA_FORCE,    force)
-                .putExtra(Var.EXTRA_CALLER, "AudioService.startAndLoad()");
-        ctx.startService(i);
-    }
 
 
-    private final AtomicBoolean isShuttingDown = new AtomicBoolean(false);
 
-    public static volatile boolean isRunning = false;
     private static final String ID_NOTIFICATION_PLAY_AUDIO_CHANNEL = "audio_channel_of_bookplayer";
     private static final int ID_NOTIFICATION_PLAY_AUDIO_INT = 2;
 
@@ -100,6 +88,8 @@ public class AudioService extends LoggingService {
     public static final String ACTION_PLAY_FROM_TRACK  = "com.driot.bookplayer.PLAY_FROM_TRACK";
     public static final String ACTION_PLAY_FROM_FOLDER = "com.driot.bookplayer.PLAY_FROM_FOLDER";
     public static final String EXTRA_TRACK_ID  = "extra_track_id";
+    public static final String EXTRA_TRACK_ORDER_NEWEST_FIRST = "extra_track_id";
+    public static final String EXTRA_IS_PODCAST = "extra_is_podcast";
     public static final String EXTRA_FOLDER_ID = "extra_folder_id";
     public static final String EXTRA_INDEX     = "extra_index"; // optional, default 0
 
@@ -272,7 +262,7 @@ public class AudioService extends LoggingService {
         String title = (z != null) ? z.getFolderName()
                 : (f != null ? f.getName() : "");
         String text  = (z != null) ? z.getDisplayName() : "";
-        String cover = (f != null) ? f.image : "";
+        String cover = (f != null) ? StorageHelper.getImagePathCachedOrNot(this, f.image) : "";
 
         // Be defensive around engine readiness to avoid 0/0 churn if you want
         long pos = (engine != null) ? (long) engine.getCurrentPosition() : 0;
@@ -681,13 +671,25 @@ public class AudioService extends LoggingService {
                 goForegroundPreparing("Preparing…", "Loading selected track");
 
                 final int trackId = intent.getIntExtra(EXTRA_TRACK_ID, -1);
+                final boolean newestFirst = intent.getBooleanExtra(EXTRA_TRACK_ORDER_NEWEST_FIRST, true);
+                final boolean isPodcast = intent.getBooleanExtra(EXTRA_IS_PODCAST, false);
                 if (trackId > 0) {
                     AppDatabase.databaseReadExecutor.execute(() -> {
                         ZikFile clicked = AppDatabase.getDatabase(this).zikFileDao().getById(trackId);
                         if (clicked == null) return;
 
                         int folderId = clicked.getIdFolder();
-                        List<ZikFile> list = AppDatabase.getDatabase(this).zikFileDao().getZikFiles(folderId);
+                        Folder folder = AppDatabase.getDatabase(this).folderDao().getById(folderId);
+                        List<ZikFile> list;
+                        if (isPodcast) {
+                            if (newestFirst) {
+                                list = AppDatabase.getDatabase(this).zikFileDao().getPodcastZikFilesDesc(folderId);
+                            } else {
+                                list = AppDatabase.getDatabase(this).zikFileDao().getPodcastZikFilesAsc(folderId);
+                            }
+                        } else {
+                            list = AppDatabase.getDatabase(this).zikFileDao().getZikFiles(folderId);
+                        }
                         if (list == null || list.isEmpty()) return;
 
                         int index = 0;
@@ -695,7 +697,7 @@ public class AudioService extends LoggingService {
                             if (list.get(i).getId() == trackId) { index = i; break; }
                         }
 
-                        PlayList.create(getApplicationContext(), list, index);
+                        PlayList.create(getApplicationContext(), folder, list, index);
                         directPlay = true;
                         loadFile(); // will prepare; on prepared you'll call showForegroundNotification(...)
                     });
@@ -709,9 +711,10 @@ public class AudioService extends LoggingService {
                 final int index = Math.max(0, intent.getIntExtra(EXTRA_INDEX, 0));
                 if (folderId > 0) {
                     AppDatabase.databaseReadExecutor.execute(() -> {
+                        Folder folder = AppDatabase.getDatabase(this).folderDao().getById(folderId);
                         List<ZikFile> list = AppDatabase.getDatabase(this).zikFileDao().getZikFiles(folderId);
                         if (list == null || list.isEmpty()) return;
-                        PlayList.create(getApplicationContext(), list, Math.min(index, list.size() - 1));
+                        PlayList.create(getApplicationContext(), folder, list, Math.min(index, list.size() - 1));
                         directPlay = true;
                         loadFile();
                     });
@@ -719,39 +722,7 @@ public class AudioService extends LoggingService {
                 return START_STICKY;
             }
 
-            case ACTION_LOAD_INDEX: {
-                // Enter foreground early to satisfy 5s rule if app is in background
-                goForegroundPreparing("Preparing…", "Loading selection");
-
-                final int index      = Math.max(0, intent.getIntExtra(EXTRA_INDEX, 0));
-                final boolean autoplay = intent.getBooleanExtra(EXTRA_AUTOPLAY, false);
-                final boolean force    = intent.getBooleanExtra(EXTRA_FORCE,    false);
-
-                // We expect PlayList to already be created by the caller for the current folder.
-                PlayList pl = PlayList.getInstance();
-                if (pl == null || pl.getSize() == 0) {
-                    myLogEE(null, "ACTION_LOAD_INDEX but PlayList is null/empty");
-                    // Nothing to do; keep service sticky and foreground notification minimal
-                    showForegroundNotification(isPlaying());
-                    return START_STICKY;
-                }
-                int safeIndex = Math.min(index, pl.getSize() - 1);
-                pl.setNumZikFile(safeIndex);
-
-                // Respect caller’s wish:
-                directPlay = autoplay;
-
-                // Load if we must, otherwise just refresh/potentially auto-play
-                if (force || needsReloadForPlaylist() || engine == null || !isReadyToPlay()) {
-                    try { pauseAudioNoSave(); } catch (Throwable ignored) {}
-                    loadFile(); // on prepared: start if directPlay==true, else paused/ready
-                } else {
-                    if (autoplay && !isPlaying()) playAudio(); else pingUi();
-                }
-                return START_STICKY;
-            }
-
-            case EXTRA_CMD_STOP: {
+            case "CMD_STOP": { //keep string CMD_STOP here as can be called by others than app
                 myLog("CMD_STOP");
                 shutdown(false);
                 return START_NOT_STICKY; //let's try to avoid crashes

@@ -183,9 +183,7 @@ public class ZikFilesRVAdapter extends LoggingListAdapter<ZikFile, ZikFilesRVAda
             );
 
             //maybe open PlayActivity
-            if (!sameTrack) {
-                if (Option.getOpenPlayActivity()) ctx.startActivity(new Intent(ctx, PlayActivity.class).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT));
-            } else {
+            if (sameTrack || Option.getOpenPlayActivity()) {
                 ctx.startActivity(new Intent(ctx, PlayActivity.class).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT));
             }
         }

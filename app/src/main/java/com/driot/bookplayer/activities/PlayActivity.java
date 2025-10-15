@@ -223,7 +223,7 @@ public class PlayActivity extends LoggingActivity {
                 vm.seekTo(sb.getProgress());
             }
         });
-
+/*
         // Meta observer (cover, podcast click handlers, TTS voice spinner init)
         PlayList.getMetaLive().observe(this, ms -> {
             if (ms == null || !ms.loaded || ms.folder == null) return;
@@ -253,6 +253,8 @@ public class PlayActivity extends LoggingActivity {
                 initTtsVoiceSpinner(ms.folder.getId());
             }
         });
+
+ */
 
         // Back press: if not playing, ask service to stop; then finish.
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {

@@ -31,6 +31,7 @@ import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.player.AudioService;
 import com.driot.bookplayer.player.PlayList;
 import com.driot.bookplayer.helpers.IconHelper;
@@ -171,7 +172,7 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
             } else if ("image".equals(p)) {
                 if (folder.image != null) {
                     h.ivBookCover.setVisibility(View.VISIBLE);
-                    Glide.with(h.ivBookCover.getContext()).load(folder.image).into(h.ivBookCover);
+                    Glide.with(h.ivBookCover.getContext()).load(StorageHelper.getImagePathCachedOrNot(context, folder.image)).into(h.ivBookCover);
                 } else {
                     h.ivBookCover.setVisibility(View.GONE);
                 }
@@ -203,7 +204,7 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
 
         if (folder.image != null) {
             h.ivBookCover.setVisibility(View.VISIBLE);
-            Glide.with(h.ivBookCover.getContext()).load(folder.image).into(h.ivBookCover);
+            Glide.with(h.ivBookCover.getContext()).load(StorageHelper.getImagePathCachedOrNot(context, folder.image)).into(h.ivBookCover);
         } else {
             h.ivBookCover.setVisibility(View.GONE);
         }
@@ -265,7 +266,6 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
                                             .putExtra(Var.EXTRA_CALLER, this.getClass().getSimpleName() + ".onClick() [FoldersRVAdapter]")
                                             .putExtra(Var.EXTRA_FOREGROUND, true)
                             );
-                            return;
                         } else {
                             myLogD("same book");
                             // same book → do NOT recreate playlist or reload; just bring player forward

@@ -45,6 +45,7 @@ import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.NetworkHelper;
+import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.objects.DisplayableEpisode;
 import com.driot.bookplayer.player.AudioService;
 import com.driot.bookplayer.player.PlayList;
@@ -173,6 +174,7 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
                 , podcast.image
                 , podcast.description
         );
+        podcastFeed.image = StorageHelper.getImagePathCachedOrNot(this, podcastFeed.image);
 
         podcastEpisodeViewModel = new ViewModelProvider(this).get(PodcastEpisodeViewModel.class);
         podcastEpisodeViewModel.getPodcastLiveByFeedId(podcastFeed.id).observe(this, updatedPodcast -> {
@@ -561,11 +563,14 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
             return;
         }
 
+        // user click sur image => open "Book"
+
         AppDatabase.databaseReadExecutor.execute(() -> {
             try {
                 Folder folder = AppDatabase.getDatabase(getApplicationContext()).folderDao().getById(podcast.idFolder);
                 if (folder == null) return;
 
+                //TODO we need a AudioService.isPlaying
                 if (AudioService.isRunning && PlayList.getInstance()!=null &&  PlayList.getInstance().getZikFile()!=null && PlayList.getInstance().getZikFile().getIdFolder()==podcast.idFolder) {
                     startActivity(new Intent(this, ZikFileActivity.class).putExtra("folder", folder));
                 } else {
@@ -573,8 +578,6 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
                             .zikFileDao().getZikFiles(podcast.idFolder);
 
                     myLogI("nb ZikFiles in that Podcast Book : " + zikFilesList.size() + " - [" + folder.getName() + "]");
-
-                    PlayList.create(this, zikFilesList);
 
                     // Switch to main thread for any UI / navigation
                     runOnUiThread(() -> {
@@ -661,35 +664,25 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
             }
         }
 
-        //stopAudioServiceIfRunning();
         new Thread(() -> {
             try {
                 myLog("clickOnEpisode : " + zikFile.getDisplayName() + " - " + zikFile.getId() + " - " + zikFile.getName());
-                List<ZikFile> zikFilesList;
-                if (sortNewestFirst) {
-                    zikFilesList = AppDatabase.getDatabase(this).zikFileDao().getPodcastZikFilesDesc(zikFile.getIdFolder());
-                } else {
-                    zikFilesList = AppDatabase.getDatabase(this).zikFileDao().getPodcastZikFilesAsc(zikFile.getIdFolder());
-                }
-                PlayList.create(this, zikFilesList);
-                int rankZikFile = getZikFileRankInFolderSync(zikFilesList, zikFile.getName());
-                myLog("rankZikFile = " + rankZikFile);
-                if (rankZikFile >= 0 && PlayList.getInstance()!=null) {
-                    PlayList.getInstance().setNumZikFile(rankZikFile);
-                    AudioService.startAndLoad(this, PlayList.getInstance().getNumZikFile(), /*autoplay*/ true, /*force*/ true);
-                }
+
+                ContextCompat.startForegroundService(
+                        this.getApplicationContext(),
+                        new Intent(this.getApplicationContext(), AudioService.class)
+                                .setAction(AudioService.ACTION_PLAY_FROM_TRACK)
+                                .putExtra(AudioService.EXTRA_TRACK_ID, zikFile.getId())
+                                .putExtra(AudioService.EXTRA_TRACK_ORDER_NEWEST_FIRST, sortNewestFirst)
+                                .putExtra(AudioService.EXTRA_IS_PODCAST, true)
+                                .putExtra(Var.EXTRA_CALLER, this.getClass().getSimpleName() + ".onOpenLocalEpisode() [PodcastEpisodeActivity]")
+                                .putExtra(Var.EXTRA_FOREGROUND, true)
+                );
+
             } catch (Exception e) {
                 myLogEE(e, "clickOnEpisode - playThatShit");
             }
         }).start();
-    }
-    private int getZikFileRankInFolderSync(List<ZikFile> files, String fileName) {
-        for (int i = 0; i < files.size(); i++) {
-            if (files.get(i).getName().equals(fileName)) {
-                return i ;
-            }
-        }
-        return -1; // not found
     }
 
     @Override
@@ -923,4 +916,5 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
             }
         }
     }
+
 }
