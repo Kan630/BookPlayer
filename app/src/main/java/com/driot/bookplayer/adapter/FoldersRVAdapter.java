@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.DiffUtil;
@@ -30,6 +31,7 @@ import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.player.AudioService;
 import com.driot.bookplayer.player.PlayList;
 import com.driot.bookplayer.helpers.IconHelper;
 import com.driot.bookplayer.player.PlaybackUiState;
@@ -43,7 +45,7 @@ import static com.driot.bookplayer.utils.Tonio.*;
 public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersViewHolder>
         implements View.OnClickListener, View.OnLongClickListener {
 
-    private final Context mCtx;
+    private final Context context;
 
     private final AsyncListDiffer<Folder> differ = new AsyncListDiffer<>(this, DIFF);
 
@@ -108,7 +110,7 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
 
     public FoldersRVAdapter(Context ctx) {
         super();
-        this.mCtx = ctx;
+        this.context = ctx;
         setHasStableIds(true);
     }
 
@@ -138,7 +140,7 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
     @NonNull
     @Override
     public FoldersViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(mCtx).inflate(R.layout.recyclerview_folders, parent, false);
+        View v = LayoutInflater.from(context).inflate(R.layout.recyclerview_folders, parent, false);
         v.setOnClickListener(this);
         v.setOnLongClickListener(this);
         return new FoldersViewHolder(v);
@@ -161,7 +163,7 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
                 h.mProgressBar.setProgress(formatPercentForProgressBar(folder.getPercentdone()));
                 return;
             } else if ("lastAccess".equals(p)) {
-                h.textViewFileLastAccess.setText(Tonio.formatLastAccess(folder.lLastAccess, mCtx));
+                h.textViewFileLastAccess.setText(Tonio.formatLastAccess(folder.lLastAccess, context));
                 return;
             } else if ("duration".equals(p)) {
                 h.textViewDuration.setText(formatTime(folder.getDuration()));
@@ -196,7 +198,7 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
 
         h.textViewFilePercent.setText(Tonio.formatPercentString(folder.getPercentdone()));
         h.mProgressBar.setProgress(formatPercentForProgressBar(folder.getPercentdone()));
-        h.textViewFileLastAccess.setText(Tonio.formatLastAccess(folder.lLastAccess, mCtx));
+        h.textViewFileLastAccess.setText(Tonio.formatLastAccess(folder.lLastAccess, context));
         h.textViewDuration.setText(formatTime(folder.getDuration()));
 
         if (folder.image != null) {
@@ -218,62 +220,63 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
         int pos = vh.getBindingAdapterPosition();
         if (pos == RecyclerView.NO_POSITION) return;
 
-        Folder folder = getItem(pos);
-        if (folder == null) return;
-        myLogI("--- USER CLICKS on FOLDER/BOOK ---    position=" + pos + " - " + folder.getName());
+        Folder clickedFolder = getItem(pos);
+        if (clickedFolder == null) return;
+        myLogI("--- USER CLICKS on FOLDER/BOOK ---    position=" + pos + " - " + clickedFolder.getName());
 
         // DB work off main; UI nav back on main
         AppDatabase.databaseReadExecutor.execute(() -> {
             try {
-                List<ZikFile> zikFilesList = AppDatabase.getDatabase(mCtx).zikFileDao().getZikFiles(folder.getId());
+                List<ZikFile> zikFilesList = AppDatabase.getDatabase(context).zikFileDao().getZikFiles(clickedFolder.getId());
                 if (zikFilesList.isEmpty()) {
-                    if (Var.SOURCE_LOCATION_PODCAST.equals(folder.getSourceLocation())) {
+                    if (Var.SOURCE_LOCATION_PODCAST.equals(clickedFolder.getSourceLocation())) {
                         if (!Option.getPodcastOpenSpecificView()) {
-                            postToast(mCtx.getString(R.string.no_episode_all_deleted));
+                            postToast(context.getString(R.string.no_episode_all_deleted));
                             //lets open the podcast specific view anyway
                         }
                     } else {
-                        postToast(mCtx.getString(R.string.ErrorCouldNotLoadAudios_emptyfolder));
+                        postToast(context.getString(R.string.ErrorCouldNotLoadAudios_emptyfolder));
                         return;
                     }
                 }
 
-                if (Var.SOURCE_LOCATION_PODCAST.equals(folder.getSourceLocation())
+                if (Var.SOURCE_LOCATION_PODCAST.equals(clickedFolder.getSourceLocation())
                         && (Option.getPodcastOpenSpecificView() || (!Option.getPodcastOpenSpecificView() && zikFilesList.isEmpty()))
                 ) {
-                    Podcast p = AppDatabase.getDatabase(mCtx).podcastDao().getPodcastByFolderId(folder.getId());
-                    runOnUi(() -> mCtx.startActivity(new Intent(mCtx, PodcastEpisodeActivity.class).putExtra("podcast", p)));
+                    Podcast p = AppDatabase.getDatabase(context).podcastDao().getPodcastByFolderId(clickedFolder.getId());
+                    runOnUi(() -> context.startActivity(new Intent(context, PodcastEpisodeActivity.class).putExtra("podcast", p)));
                 } else {
                     if (zikFilesList.size() > 1) {
-                        runOnUi(() -> mCtx.startActivity(new Intent(mCtx, ZikFileActivity.class).putExtra("folder", folder)));
+                        runOnUi(() -> context.startActivity(new Intent(context, ZikFileActivity.class).putExtra(ZikFileActivity.EXTRA_FOLDER, clickedFolder)));
                     } else {
                         myLogD("Single file");
-                        // SINGLE FILE: only reload if it's a different folder than what's playing
+                        // SINGLE FILE: only reload if it's a different clickedFolder than what's playing
                         int currentFolderId = getCurrentFolderIdSafe();
-                        myLogD("currentFolderId=" + currentFolderId + " - folder.getId()=" + folder.getId() + " -");
-                        boolean sameBook = (currentFolderId == folder.getId());
+                        myLogD("currentFolderId=" + currentFolderId + " - clickedFolder.getId()=" + clickedFolder.getId() + " -");
+                        boolean sameBook = (currentFolderId == clickedFolder.getId());
 
                         if (!sameBook) {
-                            // new selection → rebuild playlist and force reload in PlayActivity
-                            PlayList.create(mCtx, zikFilesList, /*startIndex*/0);
-                            runOnUi(() -> mCtx.startActivity(
-                                    new Intent(mCtx, PlayActivity.class)
-                                            .putExtra("ZikFile", zikFilesList.get(0))
-                                            .putExtra("force_reload", true)
-                            ));
+                            if (Option.getOpenPlayActivity()) runOnUi(() -> context.startActivity(new Intent(context, PlayActivity.class)));
+                            ContextCompat.startForegroundService(
+                                    context.getApplicationContext(),
+                                    new Intent(context.getApplicationContext(), AudioService.class)
+                                            .setAction(AudioService.ACTION_PLAY_FROM_FOLDER)
+                                            .putExtra(AudioService.EXTRA_FOLDER_ID, clickedFolder.getId())
+                                            .putExtra(Var.EXTRA_CALLER, this.getClass().getSimpleName() + ".onClick() [FoldersRVAdapter]")
+                                            .putExtra(Var.EXTRA_FOREGROUND, true)
+                            );
+                            return;
                         } else {
                             myLogD("same book");
                             // same book → do NOT recreate playlist or reload; just bring player forward
-                            runOnUi(() -> mCtx.startActivity(
-                                    new Intent(mCtx, PlayActivity.class)
-                                            .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT) // nice UX if it's already open
+                            runOnUi(() -> context.startActivity(new Intent(context, PlayActivity.class).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT) // nice UX if it's already open
                             ));
                         }
                     }
                 }
             } catch (Exception e) {
                 myLogEE(e, "error getting nb of ZikFiles");
-                postToast(mCtx.getString(R.string.ErrorCouldNotLoadAudios));
+                postToast(context.getString(R.string.ErrorCouldNotLoadAudios));
             }
         });
     }
@@ -286,7 +289,7 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
         if (pos == RecyclerView.NO_POSITION) return false;
         Folder folder = getItem(pos);
         if (folder == null) return false;
-        runOnUi(() -> mCtx.startActivity(new Intent(mCtx, ModifyFolderActivity.class).putExtra("folder", folder)));
+        runOnUi(() -> context.startActivity(new Intent(context, ModifyFolderActivity.class).putExtra("folder", folder)));
         return true;
     }
 
@@ -295,7 +298,7 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
     }
 
     private void runOnUi(Runnable r) {
-        if (mCtx instanceof Activity) ((Activity) mCtx).runOnUiThread(r);
+        if (context instanceof Activity) ((Activity) context).runOnUiThread(r);
         else r.run(); // best effort
     }
 

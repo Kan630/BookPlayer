@@ -11,6 +11,7 @@ import android.os.IBinder;
 import android.view.KeyEvent;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
@@ -18,6 +19,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.helpers.TtsHelper;
 import com.driot.bookplayer.utils.log.KanLogger;
 import com.driot.bookplayer.utils.log.LoggerHelper;
 import com.driot.bookplayer.utils.log.LoggingAndroidViewModel;
@@ -228,5 +230,68 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
                 ;
         ContextCompat.startForegroundService(app, up);
     }
+    // inside PlaybackViewModel
+    @Nullable public Double getSpeedOrNull() {
+        if (service != null) try { return service.getSpeed(); } catch (Throwable ignored) {}
+        return null;
+    }
+    public void setSpeed(double s) {
+        if (service != null) { try { service.setSpeed(s); return; } catch (Throwable ignored) {} }
+        // optional: send intent command if you have one (e.g., EXTRA_CMD_SET_SPEED)
+        // ContextCompat.startForegroundService(getApplication(),
+        //     new Intent(getApplication(), AudioService.class)
+        //         .setAction(AudioService.EXTRA_CMD_SET_SPEED)
+        //         .putExtra(AudioService.EXTRA_SPEED, s)
+        //         .putExtra(Var.EXTRA_CALLER, getClass().getSimpleName()));
+    }
+
+    public void updateSleepTimer(int minutes) {
+        if (service != null) { try { service.updateSleepTimer(minutes); return; } catch (Throwable ignored) {} }
+        // or send an intent to service if you support it
+    }
+
+    @Nullable public Integer getCustomSleepMinutesOrNull() {
+        if (service != null) try { return service.getCustomSleepTime(); } catch (Throwable ignored) {}
+        return null;
+    }
+
+    @Nullable
+    public Integer getAudioSessionIdOrNull() {
+        if (service != null) try { return service.getAudioSessionId(); } catch (Throwable ignored) {}
+        return null;
+    }
+
+    public String getTtsTextOrEmpty() {
+        if (service != null) try { String t = service.getTtsText(); return t == null ? "" : t; } catch (Throwable ignored) {}
+        return "";
+    }
+    public void setTtsStartOffsetChars(int start) {
+        if (service != null) try { service.setTtsStartOffsetChars(start); } catch (Throwable ignored) {}
+    }
+
+    public void setupTtsVoiceSpinner(
+            android.content.Context ctx,
+            android.widget.Spinner spinner,
+            String initial,
+            java.util.function.Consumer<TtsHelper.Listener> onSelected
+    ) {
+        // reuse your existing TtsHelper.setupTtsVoiceSpinner(...)
+        //TODO uncomment
+        //TtsHelper.setupTtsVoiceSpinner(ctx, spinner, initial, onSelected);
+
+    }
+    public void warmUpTtsVoice(String voiceName) {
+        if (service == null) return;
+        try {
+            service.setTtsVoiceByNameAndWarmUp(
+                    voiceName,
+                    5000L,
+                    (ready, reason) -> {
+                        // You can post a small LiveData if you want to re-enable buttons on ready
+                    }
+            );
+        } catch (Throwable ignored) {}
+    }
+
 }
 

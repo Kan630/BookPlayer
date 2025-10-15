@@ -2,6 +2,7 @@ package com.driot.bookplayer.adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,6 +10,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.DiffUtil;
@@ -19,6 +21,9 @@ import com.driot.bookplayer.activities.ModifyZikFileActivity;
 import com.driot.bookplayer.activities.PlayActivity;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Option;
+import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.player.AudioService;
+import com.driot.bookplayer.player.CarMediaService;
 import com.driot.bookplayer.player.PlayList;
 import com.driot.bookplayer.player.PlaybackUiState;
 import com.driot.bookplayer.utils.Tonio;
@@ -56,7 +61,7 @@ public class ZikFilesRVAdapter extends LoggingListAdapter<ZikFile, ZikFilesRVAda
         return -1;
     }
 
-    private static final DiffUtil.ItemCallback<ZikFile> DIFF = new DiffUtil.ItemCallback<ZikFile>() {
+    private static final DiffUtil.ItemCallback<ZikFile> DIFF = new DiffUtil.ItemCallback<>() {
         @Override public boolean areItemsTheSame(@NonNull ZikFile a, @NonNull ZikFile b) {
             return a.getId() == b.getId();
         }
@@ -136,29 +141,6 @@ public class ZikFilesRVAdapter extends LoggingListAdapter<ZikFile, ZikFilesRVAda
         holder.itemView.setActivated(t.getId() == highlightedTrackId);
     }
 
-    private int getCurrentFolderIdSafe() {
-        PlayList pl = PlayList.getInstance();
-        if (pl == null) return -1;
-        ZikFile z = pl.getZikFile();
-        return (z != null) ? z.getIdFolder() : -1;
-    }
-
-    private int getCurrentIndexSafe() {
-        PlayList pl = PlayList.getInstance();
-        return (pl != null) ? pl.getNumZikFile() : -1;
-    }
-
-    private void startPlayActivity(@NonNull Context ctx, boolean forceReload, ZikFile clicked) {
-        Intent i = new Intent(ctx, PlayActivity.class);
-        if (clicked != null) i.putExtra("ZikFile", clicked);
-        if (forceReload) {
-            i.putExtra("force_reload", true);
-        } else {
-            i.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        }
-        ctx.startActivity(i);
-    }
-
     class ZikFilesViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
 
         TextView textViewFileName, textViewFileLastAccess, textViewFilePercent, textViewDuration;
@@ -181,42 +163,30 @@ public class ZikFilesRVAdapter extends LoggingListAdapter<ZikFile, ZikFilesRVAda
             int position = getBindingAdapterPosition();
             if (position == RecyclerView.NO_POSITION) return;
 
-            ZikFile clicked = getItem(position);
-            if (clicked == null) return;
+            ZikFile clickedZikFile = getItem(position);
+            if (clickedZikFile == null) return;
 
-            int clickedFolderId = clicked.getIdFolder();
-            int currentFolderId = getCurrentFolderIdSafe();
-
-            // Prefer ID-based equality, not position
+            // was something playing ?
             PlayList pl = PlayList.getInstance();
-            boolean sameBook = (currentFolderId == clickedFolderId);
-            boolean sameTrack = sameBook
-                    && pl != null && pl.getZikFile() != null
-                    && pl.getZikFile().getId() == clicked.getId();
+            boolean sameTrack = (pl != null && pl.getZikFile() != null && pl.getZikFile() == clickedZikFile);  //should we put id ? i dont think so
+            myLogI("USER CLICKS ZIKFILE : [" + clickedZikFile.getName() + "] - sameTrack=" + sameTrack);
 
-            myLogI("USER CLICKS ZIKFILE : [" + clicked.getName() + "] - sameBook=" + sameBook + " sameTrack=" + sameTrack);
-
+            // start audio
             Context ctx = itemView.getContext();
+            ContextCompat.startForegroundService(
+                    ctx.getApplicationContext(),
+                    new Intent(ctx.getApplicationContext(), AudioService.class)
+                            .setAction(AudioService.ACTION_PLAY_FROM_TRACK)
+                            .putExtra(AudioService.EXTRA_TRACK_ID, clickedZikFile.getId())
+                            .putExtra(Var.EXTRA_CALLER, this.getClass().getSimpleName() + ".onClick() [ZikFilesRVAdapter]")
+                            .putExtra(Var.EXTRA_FOREGROUND, true)
+            );
 
-            if (!sameBook) {
-                // Different book: rebuild playlist at clicked index and force engine reload
-                PlayList.create(ctx, getCurrentList(), position);
-                startPlayActivity(ctx, /*forceReload*/ true, clicked);
-                return;
-            }
-
-            if (pl == null) {
-                myToastEE(null, ctx.getString(R.string.error_reading_track));
-                return;
-            }
-
+            //maybe open PlayActivity
             if (!sameTrack) {
-                // Same book, different track: set index and force reload
-                pl.setNumZikFile(position);
-                startPlayActivity(ctx, /*forceReload*/ true, clicked);
+                if (Option.getOpenPlayActivity()) ctx.startActivity(new Intent(ctx, PlayActivity.class).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT));
             } else {
-                // Same book, same track: just show the player
-                startPlayActivity(ctx, /*forceReload*/ false, null);
+                ctx.startActivity(new Intent(ctx, PlayActivity.class).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT));
             }
         }
 

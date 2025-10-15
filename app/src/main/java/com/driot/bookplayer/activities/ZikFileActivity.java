@@ -31,6 +31,7 @@ import java.util.List;
 public class ZikFileActivity extends LoggingActivity {
 
     public static final String EXTRA_FOLDER_ID = "extra_folder_id";
+    public static final String EXTRA_FOLDER = "extra_folder";
 
     private RecyclerView recyclerView;
     private ZikFilesViewModel listVm;
@@ -73,9 +74,9 @@ public class ZikFileActivity extends LoggingActivity {
         // Read initial folder once; keep only the id and always re-read from DB
         folderId = getIntent().getIntExtra(EXTRA_FOLDER_ID, -1);
         if (!(folderId > 0)) {
-            Folder initial = getIntent().getParcelableExtra("folder");
+            Folder initial = getIntent().getParcelableExtra(EXTRA_FOLDER);
             if (initial == null) {
-                myToastEE(null, "ZikFileActivity : folder == null");
+                myToastEE(null, "onCreate : Intent folder == null");
                 finish();
                 return;
             }

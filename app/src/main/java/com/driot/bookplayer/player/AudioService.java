@@ -545,7 +545,7 @@ public class AudioService extends LoggingService {
 
                         // 3) Finally PlayActivity (singleTop/clearTop like you already do)
                         tsb.addNextIntent(new Intent(AudioService.this, com.driot.bookplayer.activities.PlayActivity.class)
-                                .putExtra(com.driot.bookplayer.activities.PlayActivity.EXTRA_AUTOPLAY, false));
+                                .putExtra(EXTRA_AUTOPLAY, false));
 
                         return tsb.getPendingIntent(0, flags);
                     }

@@ -673,6 +673,15 @@
                         style="@style/OptionCheckBoxText"
                         android:text="@string/option_auto_play_on_main_player_text" />
                 </LinearLayout>
+                <LinearLayout style="@style/LinearLayoutOptionsCheckBoxHorizontal"
+                    android:id="@+id/ll_open_play_activity">
+                    <com.google.android.material.checkbox.MaterialCheckBox
+                        android:id="@+id/chk_open_play_activity"
+                        style="@style/OptionCheckBox"/>
+                    <TextView
+                        style="@style/OptionCheckBoxText"
+                        android:text="@string/option_open_play_activity" />
+                </LinearLayout>
 
             </LinearLayout>
             <View style="@style/myStyleViewSimpleHorizontalBar" />

@@ -396,6 +396,8 @@ public class SettingsActivity extends LoggingActivity {
             }
         });
 
+/// PLAY BEHAVIOUR
+
         chk_rewind_after_pause.setChecked(Option.getRewindAfterPause());
         ll_rewind_after_pause.setOnClickListener(v -> chk_rewind_after_pause.toggle());
         chk_rewind_after_pause.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setRewindAfterPause(isChecked));
@@ -418,13 +420,19 @@ public class SettingsActivity extends LoggingActivity {
         ll_auto_play_on_main_player.setOnClickListener(v -> chk_auto_play_on_main_player.toggle());
         chk_auto_play_on_main_player.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setAutoPlayOnMainPlayer(isChecked));
 
+        CheckBox chk_open_play_activity = findViewById(R.id.chk_open_play_activity);
+        LinearLayout ll_open_play_activity = findViewById(R.id.ll_open_play_activity);
+        chk_open_play_activity.setChecked(Option.getOpenPlayActivity());
+        ll_open_play_activity.setOnClickListener(v -> chk_open_play_activity.toggle());
+        chk_open_play_activity.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setOpenPlayActivity(isChecked));
 
+
+/// CAR
         CheckBox chk_automotive_on = findViewById(R.id.chk_automotive_on);
         LinearLayout ll_automotive_on = findViewById(R.id.ll_automotive_on);
         chk_automotive_on.setChecked(Option.getAutomotiveOn());
         ll_automotive_on.setOnClickListener(v -> chk_automotive_on.toggle());
         chk_automotive_on.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setAutomotiveOn(isChecked));
-
 
         //parent
         CheckBox chk_automotive_let_car_autoplay = findViewById(R.id.chk_automotive_let_car_autoplay);
