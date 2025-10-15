@@ -571,7 +571,7 @@ public class AudioService extends LoggingService {
         focus.request();
 
         //if maxReach + introCut + littleRewind
-        setCustomPosition();
+        setPositionPlayStart();
 
         myLogD("about to call engine.start()");
         logPauseTime();
@@ -1447,17 +1447,17 @@ public class AudioService extends LoggingService {
         myLogI("Audio Focus Change: " + changeStr + " (" + change + ")");
     }
 
-    private void setCustomPosition() {
-        myLogD("setCustomPosition()");
+    private void setPositionPlayStart() {
+        myLogD("setPositionPlayStart()");
         try {
             PlayList pl = PlayList.getInstance();
             if (pl==null) {
-                myLogEE(null, "setCustomPosition() - playlist null");
+                myLogEE(null, "setPositionPlayStart() - playlist null");
                 return;
             }
             ZikFile zikFile = pl.getZikFile();
             if (zikFile==null) {
-                myLogEE(null, "setCustomPosition() - zikFile null");
+                myLogEE(null, "setPositionPlayStart() - zikFile null");
                 return;
             }
 
@@ -1489,7 +1489,7 @@ public class AudioService extends LoggingService {
             }
 
         } catch (Exception e) {
-            myLogEE(e, "setCustomPosition()");
+            myLogEE(e, "setPositionPlayStart()");
         }
     }
 

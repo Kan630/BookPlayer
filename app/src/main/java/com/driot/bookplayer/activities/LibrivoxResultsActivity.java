@@ -184,6 +184,7 @@ public class LibrivoxResultsActivity extends LoggingActivity {
             public void onFailure(Call<LibrivoxApiResponse> call, Throwable t) {
                 if (NetworkHelper.isUnknownHost(t)) {
                     myToastE(getString(R.string.no_internet_connection));
+                    myLogW(t.toString());
                 } else {
                     myLogEE(t, "librivox api search on Failure - " + finalFullQuery);
                     myToastEE(t, getString(R.string.an_error_occurred));
