@@ -237,8 +237,7 @@ public class AudioService extends LoggingService {
         ZikFile z = (pl != null) ? pl.getZikFile() : null;
         Folder f = (pl != null) ? pl.getFolder() : null;
 
-        String title = (z != null) ? z.getFolderName()
-                : (f != null ? f.getName() : "");
+        String title = (z != null) ? z.getFolderName() : (f != null ? f.getName() : "");
         String text  = (z != null) ? z.getDisplayName() : "";
         String cover = (f != null) ? StorageHelper.checkAndCleanImagePath(this, f.image) : "";
 

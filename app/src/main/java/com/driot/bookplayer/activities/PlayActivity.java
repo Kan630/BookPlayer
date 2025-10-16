@@ -180,7 +180,7 @@ public class PlayActivity extends LoggingActivity {
         progressTitle.setText(getString(R.string.tts_progress_title));
 
         // Clicks
-        bPlayPause.setOnClickListener(v -> vm.playPause());
+        bPlayPause.setOnClickListener(v -> {vm.playPause();suppressAutoScroll = false;});
         bForward  .setOnClickListener(v -> vm.next());
         bRewind   .setOnClickListener(v -> vm.prev());
         bSpeedUp  .setOnClickListener(v -> setSpeedViaVm(+INCREMENT_SPEED));

@@ -41,6 +41,7 @@ import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingRVAdapter;
 
 import java.util.List;
+import java.util.Objects;
 
 import static com.driot.bookplayer.utils.Tonio.*;
 
@@ -254,12 +255,17 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
                     } else {
                         myLogD("Single file");
                         // SINGLE FILE: only reload if it's a different clickedFolder than what's playing
-                        int currentFolderId = getCurrentFolderIdSafe();
-                        myLogD("currentFolderId=" + currentFolderId + " - clickedFolder.getId()=" + clickedFolder.getId() + " -");
-                        boolean sameBook = (currentFolderId == clickedFolder.getId());
+                        PlaybackUiState lastUiState = AudioService.lastUiState;
+                        PlayList pl = PlayList.getInstance();
+                        boolean sameTrack = (pl != null && pl.getFolder() != null && pl.getFolder().getId() == clickedFolder.getId());  //keep getId() => needed !
+                        boolean isTTS = (pl != null && pl.getFolder() != null && Objects.equals(pl.getFolder().playType, Var.PLAY_TYPE_TEXT));  //keep getId() => needed !
+                        myLogI("Book with only 1 track...     - sameTrack=" + sameTrack + " - lastUiState = " + lastUiState);
 
-                        if (!sameBook) {
-                            if (Option.getOpenPlayActivity()) runOnUi(() -> context.startActivity(new Intent(context, PlayActivity.class)));
+                        if (lastUiState==null
+                                || !lastUiState.playing
+                                || !sameTrack
+                            //|| isTTS //TODO remove : TTS not perfect yet, so we force reload...
+                        ) {
                             ContextCompat.startForegroundService(
                                     context.getApplicationContext(),
                                     new Intent(context.getApplicationContext(), AudioService.class)
@@ -268,12 +274,8 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
                                             .putExtra(Var.EXTRA_CALLER, this.getClass().getSimpleName() + ".onClick() [FoldersRVAdapter]")
                                             .putExtra(Var.EXTRA_FOREGROUND, true)
                             );
-                        } else {
-                            myLogD("same book");
-                            // same book → do NOT recreate playlist or reload; just bring player forward
-                            runOnUi(() -> context.startActivity(new Intent(context, PlayActivity.class).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT) // nice UX if it's already open
-                            ));
                         }
+                        if (Option.getOpenPlayActivity()) runOnUi(() -> context.startActivity(new Intent(context, PlayActivity.class).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)));
                     }
                 }
             } catch (Exception e) {
@@ -327,10 +329,4 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
         }
     }
 
-    private int getCurrentFolderIdSafe() {
-        PlayList pl = PlayList.getInstance();
-        if (pl == null) return -1;
-        ZikFile z = pl.getZikFile();
-        return (z != null) ? z.getIdFolder() : -1;
-    }
 }

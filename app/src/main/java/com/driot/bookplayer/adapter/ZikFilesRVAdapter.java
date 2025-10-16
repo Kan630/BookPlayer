@@ -178,7 +178,8 @@ public class ZikFilesRVAdapter extends LoggingListAdapter<ZikFile, ZikFilesRVAda
             if (lastUiState==null
                     || !lastUiState.playing
                     || !sameTrack
-                    || isTTS) { //TODO remove : TTS not perfect yet, so we force reload...
+                    //|| isTTS  //TODO remove : TTS not perfect yet, so we force reload...
+            ) {
                 ContextCompat.startForegroundService(
                         ctx.getApplicationContext(),
                         new Intent(ctx.getApplicationContext(), AudioService.class)
