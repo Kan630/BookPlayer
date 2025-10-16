@@ -2,7 +2,6 @@ package com.driot.bookplayer.player;
 
 import android.content.Context;
 import android.net.Uri;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.speech.tts.TextToSpeech;
@@ -12,14 +11,13 @@ import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.helpers.TextExtractor;
 import com.driot.bookplayer.helpers.TtsHelper;
 import com.driot.bookplayer.objects.VoiceItem;
-import com.driot.bookplayer.tts.TtsIds;
 import com.driot.bookplayer.tts.AppTtsManager;
 import com.driot.bookplayer.utils.log.LoggerHelper;
 
-import java.io.File;
 import java.util.Set;
 
 /**
@@ -303,7 +301,7 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
         // Keep this generic—service can still override or persist per-folder in Pref/Option.
         try {
             // Prefer app-wide option; return null to use system default.
-            String name = com.driot.bookplayer.global.Option.getTtsVoice();
+            String name = Option.getTtsVoice();
             if (name == null || name.isEmpty() || "system".equalsIgnoreCase(name)) return null;
             return name;
         } catch (Throwable ignored) {

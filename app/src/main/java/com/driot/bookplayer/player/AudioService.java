@@ -158,12 +158,13 @@ public class AudioService extends LoggingService {
         }
         @Override public void onTtsRange(long gen, int s, int e) {
             if (gen != engineGen) return;
-            main.post(() -> {
-                Intent i = new Intent(Intents.NOTIFICATION_TTS_RANGE)
-                        .putExtra(Intents.EXTRA_TTS_START, s)
-                        .putExtra(Intents.EXTRA_TTS_END, e);
-                LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(i);
-            });        }
+            //main.post(() -> {   //surtout pas, source du décallage entre le highlight et l'audio
+            Intent i = new Intent(Intents.NOTIFICATION_TTS_RANGE)
+                    .putExtra(Intents.EXTRA_TTS_START, s)
+                    .putExtra(Intents.EXTRA_TTS_END, e);
+            LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(i);
+            //});
+        }
     };
 
 
