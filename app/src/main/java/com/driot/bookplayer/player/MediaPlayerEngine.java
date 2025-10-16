@@ -6,7 +6,8 @@ import android.net.Uri;
 
 import androidx.annotation.NonNull;
 
-import com.driot.bookplayer.utils.log.KanLogger;
+import com.driot.bookplayer.utils.log.LoggerHelper;
+import com.driot.bookplayer.utils.log.LoggerStaticHelper;
 
 import java.io.IOException;
 
@@ -14,9 +15,7 @@ import java.io.IOException;
  * MediaPlayer-based PlayerEngine with internal state + error mapping.
  * Thread-safe against stale callbacks via generation token.
  */
-public final class MediaPlayerEngine implements PlayerEngine {
-
-    private static final String TAG = "MediaPlayerEngine";
+public final class MediaPlayerEngine extends LoggerHelper implements PlayerEngine {
 
     private final EngineListener listener;
     private final long gen;
@@ -28,6 +27,7 @@ public final class MediaPlayerEngine implements PlayerEngine {
     private float volume = 1f;
 
     public MediaPlayerEngine(@NonNull EngineListener listener, long generationToken) {
+        super(MediaPlayerEngine.class);
         this.listener = listener;
         this.gen = generationToken;
         initPlayer();
@@ -172,7 +172,7 @@ public final class MediaPlayerEngine implements PlayerEngine {
         } catch (IllegalStateException ignored) {}
         try { player.reset(); } catch (IllegalStateException ignored) {}
         try { player.release(); } catch (Exception ignored) {}
-        myLog("safeRelease() done");
+        LoggerStaticHelper.myLog("safeRelease() done");
     }
 
     private static boolean isFatalError(int what, int extra) {
@@ -202,12 +202,4 @@ public final class MediaPlayerEngine implements PlayerEngine {
         }
         return "MediaPlayer Error: " + whatString + " (" + what + "), extra=" + extra;
     }
-
-    private static void myLog(String str) { KanLogger.myLog(TAG, str); }
-    private static void myLogD(String str) { KanLogger.myLogD(TAG, str); }
-    private static void myLogI(String str) { KanLogger.myLogI(TAG, str); }
-    private static void myLogW(String str) { KanLogger.myLogW(TAG, str); }
-    private static void myLogE(String str) { KanLogger.myLogE(TAG, str); }
-    private static void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, TAG, str); }
-    private static void myToastEE(Throwable t, String str) { KanLogger.myToastEE(t, TAG, str); }
 }

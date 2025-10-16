@@ -1,4 +1,4 @@
-package com.driot.bookplayer.utils;
+package com.driot.bookplayer.tts;
 
 import android.content.Context;
 import android.media.AudioAttributes;
@@ -11,7 +11,6 @@ import android.speech.tts.Voice;
 
 import androidx.annotation.Nullable;
 
-import com.driot.bookplayer.tts.TtsIds;
 import com.driot.bookplayer.utils.log.KanLogger;
 
 import java.lang.ref.WeakReference;
@@ -59,6 +58,12 @@ public final class AppTtsManager implements TextToSpeech.OnInitListener {
         synchronized (lock) {
             refCount++;
             if (l != null && owner != null) listeners.put(owner, new WeakReference<>(l));
+            // Ensure engine exists even after a previous shutdown
+            if (tts == null) {
+                main.post(() -> {
+                    if (tts == null) tts = new TextToSpeech(app, this);
+                });
+            }
         }
         if (ready && l != null) l.onTtsReady(tts);
         return () -> release(owner);
@@ -104,12 +109,18 @@ public final class AppTtsManager implements TextToSpeech.OnInitListener {
             tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
                 @Override public void onStart(String id) {
                     myLogD("setOnUtteranceProgressListener.onStart");
+                    listeners.values().forEach(w -> opt(w).onStart(id));
+                    //ou
+                    /*
                     int[] se = TtsIds.parseUtt(id);
                     if (se != null) {
-                        final int s = se[0], e = se[1];
-                        listeners.values().forEach(w -> opt(w).onUtteranceRange(s, e));
+                        final int s = se[0];
+                        // notify a zero-length range at start (start,start)
+                        listeners.values().forEach(w -> opt(w).onUtteranceRange(s, s));
                     }
                     listeners.values().forEach(w -> opt(w).onStart(id));
+
+                     */
                 }
                 @Override public void onDone(String id) {
                     myLogD("setOnUtteranceProgressListener.onDone");

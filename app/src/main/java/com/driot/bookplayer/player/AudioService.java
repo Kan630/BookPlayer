@@ -31,9 +31,8 @@ import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.StorageHelper;
-import com.driot.bookplayer.helpers.TtsHelper;
 import com.driot.bookplayer.helpers.UriHelper;
-import com.driot.bookplayer.utils.AppTtsManager;
+import com.driot.bookplayer.tts.AppTtsManager;
 import com.driot.bookplayer.utils.log.LoggingService;
 import com.driot.bookplayer.activities.PlayActivity;
 import com.driot.bookplayer.global.Option;
@@ -53,16 +52,8 @@ import static com.driot.bookplayer.utils.Tonio.formatTime;
 public class AudioService extends LoggingService {
 
     // ---- TTS phase tracking ----
-    private @Nullable AutoCloseable ttsMgrHandle;
-    private boolean waitingForFirstTtsStart = false;
     private @NonNull String currentUiPhase = Intents.PHASE_LOADING_TEXT;
     private @Nullable String currentUiPhaseMsg = null;
-
-    private final Handler phaseHandler = new Handler();
-    private @Nullable Runnable warmupTimeout;
-    private @Nullable Runnable startTimeout;
-
-    private boolean ttsFallbackTried = false;
 
     private final MutableLiveData<PlaybackUiState> uiLive = new MutableLiveData<>();
     private PlayList.MetaState lastPlayListMeta = new PlayList.MetaState(false, null, false);
@@ -159,7 +150,6 @@ public class AudioService extends LoggingService {
         }
         @Override public void onError(long gen, String msg, int what, int extra) {
             if (gen != engineGen) return;
-            onEngineError(msg, what, extra);
             main.post(() -> onEngineError(msg, what, extra));
         }
         @Override public void onFatal(long gen, String msg, int what, int extra) {
@@ -478,9 +468,6 @@ public class AudioService extends LoggingService {
         // Progress updater (DB)
         progress = new PlaybackProgressUpdater(this);
 
-        // Tap global TTS callbacks to detect the first *real* utterance start
-        ttsMgrHandle = AppTtsManager.get(this).acquire(this /*owner*/, ttsTap);
-
         LocalBroadcastManager.getInstance(this).registerReceiver(
                 pingReceiver,
                 new android.content.IntentFilter(Intents.ACTION_PING_UI)
@@ -564,11 +551,7 @@ public class AudioService extends LoggingService {
         myLogD("about to call engine.start()");
         logPauseTime();
 
-        if (engine instanceof TtsEngine) {
-            waitingForFirstTtsStart = true;
-            setUiPhase(Intents.PHASE_STARTING, "Starting speech…");
-            scheduleStartTimeout(2000);
-        }
+        if (engine instanceof TtsEngine) setUiPhase(Intents.PHASE_SPEAKING, null);
 
         engine.start();
         Pref.setPauseTime(0);
@@ -593,9 +576,6 @@ public class AudioService extends LoggingService {
     private void nextTrack() {
         myLog("Next track");
 
-        waitingForFirstTtsStart = false;
-        cancelWarmupTimeout();
-        cancelStartTimeout();
         if (engine instanceof TtsEngine) setUiPhase(Intents.PHASE_LOADING_TEXT, "Loading text…");
 
         justAdvancedToNext = true;
@@ -796,6 +776,28 @@ public class AudioService extends LoggingService {
                 return START_STICKY;
             }
 
+            case Intents.CMD_TTS_SET_VOICE: {
+                final String voiceName =
+                        intent.hasExtra(Intents.EXTRA_TTS_VOICE_NAME)
+                                ? intent.getStringExtra(Intents.EXTRA_TTS_VOICE_NAME)
+                                : intent.getStringExtra("voiceName"); // fallback if caller used a raw key
+
+                if (engine instanceof TtsEngine) {
+                    try {
+                        broadcastPhase(Intents.PHASE_WARMING_UP, getString(R.string.tts_phase_warming_up));
+                        boolean ok = ((TtsEngine) engine).setVoiceByName(voiceName);
+                        myLog("Voice change success = " + ok);
+                        if (ok) {
+                            broadcastPhase(Intents.PHASE_READY, null);
+                        } else {
+                            broadcastPhase(Intents.PHASE_ERROR, getString(R.string.tts_phase_error));
+                        }
+
+                    } catch (Throwable ignored) {}
+                }
+                return START_STICKY;
+            }
+
             case Intent.ACTION_MEDIA_BUTTON: {
                 myLog("onStartCommand() - Intent.ACTION_MEDIA_BUTTON");
                 MediaButtonReceiver.handleIntent(media.session(), intent);
@@ -882,7 +884,6 @@ public class AudioService extends LoggingService {
         }
 
         myLogI("shutdown(fromDestroy=" + fromDestroy + ")");
-        try { PlayList.getMetaLive().removeObserver(metaObs); } catch (Throwable ignore) {}
         broadcastUiCleared();
         isRunning = false;
 
@@ -902,13 +903,6 @@ public class AudioService extends LoggingService {
             }
         }
         if (media != null) media.release();
-
-        try { if (ttsMgrHandle != null) ttsMgrHandle.close(); } catch (Throwable ignore) {}
-        ttsMgrHandle = null;
-        cancelWarmupTimeout();
-        cancelStartTimeout();
-        waitingForFirstTtsStart = false;
-        if (engine instanceof TtsEngine) setUiPhase(Intents.PHASE_LOADING_TEXT, "Loading text…");
 
         if (!fromDestroy) stopSelf();
     }
@@ -962,7 +956,6 @@ public class AudioService extends LoggingService {
     /** Simplified, side-effect-free loader. */
     public void loadFile() {
         myLogD("loadFile()  directPlay=" + directPlay);
-        ttsFallbackTried = false;
 
         // Ensure we actually have something to play
         PlayList pl = PlayList.getInstance();
@@ -1028,13 +1021,25 @@ public class AudioService extends LoggingService {
         try {
             engine.reset();
             engine.setDataSource(this, src, zf.getDisplayName());
-
-            // PHASE: WARMING_UP (voice selection/warm-up happens during prepareAsync)
             if (engine instanceof TtsEngine) {
-                setUiPhase(Intents.PHASE_WARMING_UP, "Preparing voice…");
-                scheduleWarmupTimeout(5000); // gentle hint if it drags on
-            }
+                String picked = null;
 
+                // 1) Per-book voice
+                String perBook = Pref.getBookTtsVoiceName(this, zf.getIdFolder());
+                if (perBook != null && !perBook.isEmpty() && !"system".equalsIgnoreCase(perBook)) {
+                    picked = perBook;
+                } else {
+                    // 2) App-wide fallback
+                    String appWide = Option.getTtsVoice();
+                    if (appWide != null && !appWide.isEmpty() && !"system".equalsIgnoreCase(appWide)) {
+                        picked = appWide;
+                    }
+                }
+
+                if (picked != null) {
+                    try { ((TtsEngine) engine).setVoiceByName(picked); } catch (Throwable ignored) {}
+                }
+            }
             engine.prepareAsync();
 
             // Optional: broadcast current title/pos (dur likely 0 → mini remains hidden).
@@ -1175,7 +1180,7 @@ public class AudioService extends LoggingService {
     public void setSpeed(double speed) {
         try {
             this.speed = speed;
-            if (engine != null && engine.isPlaying()) engine.setSpeed((float) speed);
+            if (engine != null) engine.setSpeed((float) speed);
             myLog("setSpeed() : " + speed);
         } catch (Exception e) { myLogEE(e,"AudioService Error setting Speed"); }
         ZikFile zf = getCurrentZikFile();
@@ -1313,19 +1318,15 @@ public class AudioService extends LoggingService {
     private void onEnginePrepared() {
         myLogD("onEnginePrepared()");
 
-        cancelWarmupTimeout();
         setUiPhase(Intents.PHASE_READY, null);
 
         try {
             int saved = getSavedResumePosition();
             myLogD(getCurrentZikFile().getName() + " - savedPosition = " + saved);
-            boolean startAtZero = Option.getStartAtZeroNextTrack() && justAdvancedToNext;
-            justAdvancedToNext = false;
-
-            if (!startAtZero && engine != null && saved > 0) {
+            if (engine != null && saved > 0) {
                 engine.seekTo(saved);
-                myLogD("Seeked to saved position: " + saved + " ms");
             }
+            justAdvancedToNext = false;
         } catch (Exception e) {
             myLogEE(e, "seekTo(saved) in onEnginePrepared");
         }
@@ -1347,12 +1348,6 @@ public class AudioService extends LoggingService {
         sendReadyToPlay("onEnginePrepared");
 
         if (directPlay) {
-            // We will call start(); show “starting” until the first utt_* begins
-            waitingForFirstTtsStart = (engine instanceof TtsEngine);
-            if (waitingForFirstTtsStart) {
-                setUiPhase(Intents.PHASE_STARTING, "Starting speech…");
-                scheduleStartTimeout(2000);
-            }
             startPlayWithEngine();
         } else {
             //TODO usefull ?
@@ -1390,29 +1385,9 @@ public class AudioService extends LoggingService {
 
         // TTS errors are recoverable → do NOT send NOTIFICATION_ERROR
         if (msg != null && msg.startsWith("TTS")) {
-            // Drive UI with phase only, keep activity open
             setUiPhase(Intents.PHASE_ERROR, "Speech engine error (" + what + ")");
-
-            // One-shot fallback to system/default voice, then retry play
-            if (engine instanceof TtsEngine && !ttsFallbackTried) {
-                ttsFallbackTried = true;
-                TtsEngine te = (TtsEngine) engine;
-                setUiPhase(Intents.PHASE_WARMING_UP, getString(R.string.tts_phase_warming_up));
-                te.setVoiceByNameAndWarmUp("system", 2500L, (ready, reason) -> {
-                    if (ready) {
-                        setUiPhase(Intents.PHASE_READY, null);
-                        // If user intended to play, start again
-                        if (directPlay || (engine != null && !engine.isPlaying())) {
-                            setUiPhase(Intents.PHASE_STARTING, getString(R.string.tts_phase_starting));
-                            startPlayWithEngine();
-                        }
-                    } else {
-                        // Still failed → leave in ERROR phase, but don’t kill the UI
-                        setUiPhase(Intents.PHASE_ERROR, getString(R.string.tts_phase_error));
-                    }
-                });
-            }
-            return; // <-- no NOTIFICATION_ERROR broadcast
+            // Keep UI alive; do not broadcast NOTIFICATION_ERROR.
+            return;
         }
 
         // Non-TTS = real fatal
@@ -1453,34 +1428,6 @@ public class AudioService extends LoggingService {
             return ((TtsEngine) engine).getText();
         }
         return null;
-    }
-
-    public void setTtsVoiceByNameAndWarmUp(String voiceName, long timeoutMs, TtsEngine.WarmupCallback cb) {
-        if (!(engine instanceof TtsEngine)) { cb.onResult(false, TtsHelper.ERROR); return; }
-        myLogD("setTtsVoiceByNameAndWarmUp : " + voiceName);
-
-        final boolean wasPlaying = engine.isPlaying();
-        if (wasPlaying) engine.pause();
-
-        setUiPhase(Intents.PHASE_WARMING_UP, getString(R.string.tts_phase_warming_up));
-
-        ((TtsEngine) engine).setVoiceByNameAndWarmUp(voiceName, timeoutMs, (ready, reason) -> {
-            myLogD("Warmup result ready=" + ready + " reason=" + reason);
-            //cb.onResult(ready, reason);
-
-            // You decide when to resume; often resume only if ready==true
-            if (ready) {
-                setUiPhase(Intents.PHASE_READY, null);
-
-                if (wasPlaying) {
-                    // Resume playing with the new voice
-                    setUiPhase(Intents.PHASE_STARTING, getString(R.string.tts_phase_starting));
-                    main.post(this::startPlayWithEngine);
-                }
-            } else {
-                setUiPhase(Intents.PHASE_ERROR, "TTS warm-up failed (" + reason + ")");
-            }
-        });
     }
 
     public void setTtsStartOffsetChars(int start) {
@@ -1567,61 +1514,17 @@ public class AudioService extends LoggingService {
         }
     }
 
-
-    // Listen to *global* TTS events to detect first spoken utterance
-    private final AppTtsManager.Listener ttsTap = new AppTtsManager.Listener() {
-        @Override public void onStart(String id) {
-            // Only care in TTS mode, and only for real speech (utt_*), not warmups
-            if (!isTtsMode()) return;
-            if (id != null && id.startsWith("utt_") && waitingForFirstTtsStart) {
-                waitingForFirstTtsStart = false;
-                cancelStartTimeout();
-                setUiPhase(Intents.PHASE_SPEAKING, null /*no message*/);
-                // Make sure notif/UI reflect "playing"
-                showForegroundNotification(true);
-                broadcastUiState();
-            }
-        }
-        @Override public void onError(String id, int code) {
-            if (!isTtsMode()) return;
-            // Early error while we were expecting speech → show a helpful hint
-            if (waitingForFirstTtsStart || Intents.PHASE_WARMING_UP.equals(currentUiPhase)) {
-                setUiPhase(Intents.PHASE_ERROR, "Speech engine error (" + code + ")");
-                broadcastUiState();
-            }
-        }
-    };
-
     // Convenience for setting phase + optional message
     private void setUiPhase(@NonNull String phase, @Nullable String msg) {
         myLog("setUiPhase : " + phase + " - msg : " + msg);
         currentUiPhase = phase;
         currentUiPhaseMsg = msg;
     }
-    private void scheduleWarmupTimeout(long ms) {
-        cancelWarmupTimeout();
-        warmupTimeout = () -> {
-            if (Intents.PHASE_WARMING_UP.equals(currentUiPhase)) {
-                setUiPhase(Intents.PHASE_WARMING_UP, "Preparing voice… (check network / voice files)");
-                broadcastUiState();
-            }
-        };
-        phaseHandler.postDelayed(warmupTimeout, ms);
-    }
-    private void cancelWarmupTimeout() {
-        if (warmupTimeout != null) { phaseHandler.removeCallbacks(warmupTimeout); warmupTimeout = null; }
-    }
-    private void scheduleStartTimeout(long ms) {
-        cancelStartTimeout();
-        startTimeout = () -> {
-            if (Intents.PHASE_STARTING.equals(currentUiPhase)) {
-                setUiPhase(Intents.PHASE_STARTING, "Starting speech…");
-                broadcastUiState();
-            }
-        };
-        phaseHandler.postDelayed(startTimeout, ms);
-    }
-    private void cancelStartTimeout() {
-        if (startTimeout != null) { phaseHandler.removeCallbacks(startTimeout); startTimeout = null; }
+
+    private void broadcastPhase(@NonNull String phase, @Nullable String msg) {
+        Intent i = new Intent(Intents.ACTION_UI_STATE)
+                .putExtra(Intents.EXTRA_UI_PHASE, phase)
+                .putExtra(Intents.EXTRA_UI_PHASE_MSG, msg);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(i);
     }
 }

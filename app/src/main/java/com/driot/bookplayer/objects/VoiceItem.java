@@ -7,7 +7,7 @@ import android.speech.tts.TextToSpeech;
 import android.speech.tts.Voice;
 
 import com.driot.bookplayer.helpers.FlagHelper;
-import com.driot.bookplayer.utils.log.KanLogger;
+import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 import java.util.Collections;
 import java.util.Locale;
@@ -99,17 +99,6 @@ public class VoiceItem {
                 loc = tts.getLanguage();
                 myLogI("tts.getLanguage(): " + loc.getCountry());
             }
-/*
-            def = tts.getDefaultVoice();
-            if (def != null)  {
-                loc = def.getLocale();
-                myLogI("tts.getDefaultVoice(): " + def.getName());
-            } else {
-                loc = tts.getDefaultLanguage();
-                myLogI("tts.getDefaultLanguage(): " + loc.getCountry());
-            }
-
- */
 
             String lang2 = (loc != null && !loc.getLanguage().isEmpty()) ? loc.getLanguage() : "und";
             String prettyLoc = (loc == null) ? "" : prettyLocale(loc);
@@ -220,15 +209,4 @@ public class VoiceItem {
     private static String cap(String s) {
         return (s == null || s.isEmpty()) ? "" : Character.toUpperCase(s.charAt(0)) + s.substring(1);
     }
-
-    // ======== LOGGING ========
-    private static final String TAG = "VoiceItem";
-    private static void myLog(String str) { KanLogger.myLog(TAG, str); }
-    private static void myLogD(String str) { KanLogger.myLogD(TAG, str); }
-    private static void myLogI(String str) { KanLogger.myLogI(TAG, str); }
-    private static void myLogW(String str) { KanLogger.myLogW(TAG, str); }
-    private static void myLogE(String str) { KanLogger.myLogE(TAG, str); }
-    private static void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, TAG, str); }
-    private static void myToastEE(Throwable t, String str) { KanLogger.myToastEE(t, TAG, str); }
-
 }

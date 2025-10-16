@@ -28,6 +28,8 @@ import com.driot.bookplayer.player.PlaybackUiState;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingListAdapter;
 
+import java.util.Objects;
+
 public class ZikFilesRVAdapter extends LoggingListAdapter<ZikFile, ZikFilesRVAdapter.ZikFilesViewHolder> {
 
     public ZikFilesRVAdapter(@NonNull LifecycleOwner owner,
@@ -168,10 +170,13 @@ public class ZikFilesRVAdapter extends LoggingListAdapter<ZikFile, ZikFilesRVAda
 
             // was something playing ?
             PlayList pl = PlayList.getInstance();
-            boolean sameTrack = (pl != null && pl.getZikFile() != null && pl.getZikFile().getId() == clickedZikFile.getId());  //getId() needed !
+            boolean sameTrack = (pl != null && pl.getZikFile() != null && pl.getZikFile().getId() == clickedZikFile.getId());  //keep getId() => needed !
+            boolean isTTS = (pl != null && pl.getFolder() != null && Objects.equals(pl.getFolder().playType, Var.PLAY_TYPE_TEXT));  //keep getId() => needed !
             myLogI("USER CLICKS ZIKFILE : [" + clickedZikFile.getName() + "] - sameTrack=" + sameTrack);
 
-            if (!sameTrack) { //reload through service
+            //TTS not perfect, so we force reload...
+
+            if (!sameTrack || isTTS) { //reload through service
                 ContextCompat.startForegroundService(
                         ctx.getApplicationContext(),
                         new Intent(ctx.getApplicationContext(), AudioService.class)
@@ -183,7 +188,7 @@ public class ZikFilesRVAdapter extends LoggingListAdapter<ZikFile, ZikFilesRVAda
             }
 
             //maybe open PlayActivity
-            if (sameTrack || Option.getOpenPlayActivity()) {
+            if (sameTrack || Option.getOpenPlayActivity() || isTTS) {
                 ctx.startActivity(new Intent(ctx, PlayActivity.class).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT));
             }
         }

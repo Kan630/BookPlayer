@@ -9,6 +9,7 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.view.KeyEvent;
+import android.widget.Spinner;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -31,14 +32,13 @@ import com.driot.bookplayer.utils.log.LoggingAndroidViewModel;
  */
 public class PlaybackViewModel extends LoggingAndroidViewModel {
 
+    public interface WarmupUiCallback { void onResult(boolean ready, int reason); }
+
     private final MutableLiveData<PlaybackUiState> state = new MutableLiveData<>();
     public LiveData<PlaybackUiState> getState() { return state; }
 
     private final MutableLiveData<Boolean> miniSuppressed = new MutableLiveData<>(false);
     public LiveData<Boolean> getMiniSuppressed() { return miniSuppressed; }
-
-    public interface WarmupUiCallback { void onResult(boolean ready, int reason); }
-    private volatile boolean inError = false;
 
     private AudioService service;
     private boolean bound;
@@ -209,7 +209,7 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
         Context app = getApplication();
         try {
             app.startService(new Intent(app, AudioService.class)
-                    .setAction(Intents.EXTRA_CMD_STOP)
+                    .setAction("CMD_STOP")
                     .putExtra(Var.EXTRA_CALLER, this.getClass().getSimpleName()));
         } catch (IllegalStateException e) {
             // If the app is truly backgrounded and startService() is disallowed,
@@ -296,39 +296,28 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
     }
 
     public void setupTtsVoiceSpinner(
-            android.content.Context ctx,
-            android.widget.Spinner spinner,
+            Context ctx,
+            Spinner spinner,
             String initial,
             TtsHelper.OnVoiceSelected onSelected
     ) {
-            TtsHelper.setupTtsVoiceSpinner(ctx, spinner, initial, onSelected);
+        TtsHelper.setupTtsVoiceSpinner(ctx, spinner, initial, voiceItem -> {
+            // Persist choice
+            String code = (voiceItem == null) ? "system" : voiceItem.name;
+            com.driot.bookplayer.global.Option.setTtsVoice(code);
 
+            // Apply immediately (updates Phase to WARMING_UP then READY)
+            warmUpTtsVoice(code, /*cb*/ null);
+
+            // Still forward to caller if they want to react in UI
+            if (onSelected != null) onSelected.onSelected(voiceItem);
+        });
     }
 
-    public void warmUpTtsVoice(String voiceName, WarmupUiCallback cb) {
-        if (service == null) { if (cb != null) cb.onResult(false, TtsHelper.ERROR); return; }
-        try {
-            setPhase(Intents.PHASE_WARMING_UP, getApplication().getString(R.string.tts_phase_warming_up));
-            service.setTtsVoiceByNameAndWarmUp(
-                    voiceName,
-                    5000L,
-                    (ready, reason) -> {
-                        if (ready) {
-                            setPhase(Intents.PHASE_READY, null);
-                        } else {
-                            setPhase(Intents.PHASE_ERROR, "TTS warm-up failed (" + reason + ")");
-                        }
-                        if (cb != null) cb.onResult(ready, reason);
-                    }
-            );
-        } catch (Throwable ignored) {
-            setPhase(Intents.PHASE_ERROR, getApplication().getString(R.string.tts_phase_error));
-            if (cb != null) cb.onResult(false, TtsHelper.ERROR);
-        }
-    }
+    private volatile boolean inError = false;
 
     private void setPhase(@NonNull String phaseId, @Nullable String message) {
-        // If we’re in ERROR, ignore further warm-up/starting until a fresh voice change or load
+        // If you want to ignore warmup/starting while in error, keep this guard:
         if (inError && (Intents.PHASE_WARMING_UP.equals(phaseId) || Intents.PHASE_STARTING.equals(phaseId))) {
             return;
         }
@@ -336,11 +325,35 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
         if (Intents.PHASE_WARMING_UP.equals(phaseId) || Intents.PHASE_LOADING_TEXT.equals(phaseId)) inError = false;
 
         PhaseUi p = new PhaseUi(phaseId, message);
-
         if (android.os.Looper.myLooper() == android.os.Looper.getMainLooper()) {
-            phase.setValue(p);      // main thread
+            phase.setValue(p);
         } else {
-            phase.postValue(p);     // background thread
+            phase.postValue(p);
+        }
+    }
+
+        public void warmUpTtsVoice(String voiceName, @Nullable WarmupUiCallback cb) {
+        // Show spinner in the Activity while we switch
+        setPhase(Intents.PHASE_WARMING_UP, getApplication().getString(R.string.tts_phase_warming_up));
+
+        try {
+            Context app = getApplication();
+            // Ask the service to apply the voice right away
+            ContextCompat.startForegroundService(
+                    app,
+                    new Intent(app, AudioService.class)
+                            .setAction(Intents.CMD_TTS_SET_VOICE)
+                            .putExtra(Intents.EXTRA_TTS_VOICE_NAME, voiceName)
+                            .putExtra(Var.EXTRA_FOREGROUND, true)
+            );
+
+            // Consider it ready (we switched instantly). If you later add true warm-up,
+            // you can move this to the success callback.
+            setPhase(Intents.PHASE_READY, null);
+            if (cb != null) cb.onResult(true, TtsHelper.READY);
+        } catch (Throwable t) {
+            setPhase(Intents.PHASE_ERROR, getApplication().getString(R.string.tts_phase_error));
+            if (cb != null) cb.onResult(false, TtsHelper.ERROR);
         }
     }
 

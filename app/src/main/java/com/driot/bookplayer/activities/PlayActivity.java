@@ -89,6 +89,11 @@ public class PlayActivity extends LoggingActivity {
     private long podcastLastClickTime = 0;
     private static final long PODCAST_DOUBLE_CLICK_THRESHOLD = 300;
 
+    private boolean suppressAutoScroll = false;
+    private int touchSlop;
+    private float downY;
+    @Nullable private String lastTtsTextString = null;
+
     // --- Broadcasts we still care about at the Activity level (UI only) ---
     private final BroadcastReceiver uiReceiver = new BroadcastReceiver() {
         @Override public void onReceive(Context c, Intent i) {
@@ -141,6 +146,7 @@ public class PlayActivity extends LoggingActivity {
         if (folder.playType != null && folder.playType.equals(Var.PLAY_TYPE_TEXT)) {
             initTtsVoiceSpinner(folder.getId());
         }
+        touchSlop = android.view.ViewConfiguration.get(this).getScaledTouchSlop();
 
         progressOverlay = findViewById(R.id.progress_overlay);
         messageOverlay  = findViewById(R.id.message_overlay);
@@ -272,12 +278,12 @@ public class PlayActivity extends LoggingActivity {
             }
 
             // TTS mode: show spinner during busy phases, otherwise hide overlays
-            final boolean busy = p.isBusyPhase();
+            final boolean busy = Intents.PHASE_LOADING_TEXT.equals(p.phase)
+                    || Intents.PHASE_STARTING.equals(p.phase);
             progressOverlay.setVisibility(busy ? View.VISIBLE : View.GONE);
             String label;
             switch (p.phase) {
                 case Intents.PHASE_LOADING_TEXT: label = getString(R.string.tts_phase_loading_text); break;
-                case Intents.PHASE_WARMING_UP:   label = getString(R.string.tts_phase_warming_up);   break;
                 case Intents.PHASE_STARTING:     label = getString(R.string.tts_phase_starting);     break;
                 case Intents.PHASE_READY:        label = getString(R.string.tts_phase_ready);        break;
                 case Intents.PHASE_SPEAKING:     label = getString(R.string.tts_phase_speaking);     break;
@@ -458,33 +464,85 @@ public class PlayActivity extends LoggingActivity {
                 ttsContainer.setVisibility(View.VISIBLE);
                 ivCover.setVisibility(View.GONE);
 
-                // Fill TTS text (VM tries service if bound; else empty)
                 String txt = vm.getTtsTextOrEmpty();
-                SpannableStringBuilder sb = new SpannableStringBuilder(txt == null ? "" : txt);
-                tvTtsText.setText(sb, TextView.BufferType.SPANNABLE);
-                spannableText = (Spannable) tvTtsText.getText();
-                tvTtsText.setMovementMethod(ScrollingMovementMethod.getInstance());
+                if (txt == null) txt = "";
 
+// Only rebuild when text content actually changed
+                boolean textChanged = (lastTtsTextString == null) || !lastTtsTextString.equals(txt);
+                if (textChanged) {
+                    lastTtsTextString = txt;
+                    SpannableStringBuilder sb = new SpannableStringBuilder(txt);
+                    tvTtsText.setText(sb, TextView.BufferType.SPANNABLE);
+                    spannableText = (Spannable) tvTtsText.getText();
+                    // (Re)enable movement/scroll once, fine to keep as-is
+                    tvTtsText.setMovementMethod(ScrollingMovementMethod.getInstance());
+                    tvTtsText.setVerticalScrollBarEnabled(true);
+                }
                 // Tap-to-seek within text
+                final android.view.GestureDetector tapDetector =
+                        new android.view.GestureDetector(tvTtsText.getContext(),
+                                new android.view.GestureDetector.SimpleOnGestureListener() {
+                                    @Override public boolean onDown(MotionEvent e) {
+                                        // must return true so we keep receiving events
+                                        return true;
+                                    }
+                                    @Override public boolean onSingleTapUp(MotionEvent e) {
+                                        // Only on real tap, not on scroll/fling
+                                        Layout layout = tvTtsText.getLayout();
+                                        if (layout == null || spannableText == null) return false;
+
+                                        int x = (int)e.getX() - tvTtsText.getTotalPaddingLeft() + tvTtsText.getScrollX();
+                                        int y = (int)e.getY() - tvTtsText.getTotalPaddingTop() + tvTtsText.getScrollY();
+                                        int line = layout.getLineForVertical(y);
+                                        int off  = layout.getOffsetForHorizontal(line, x);
+                                        off = Math.max(0, Math.min(off, tvTtsText.getText().length()));
+
+                                        int[] word = TtsHelper.findWordBounds(spannableText, off);
+                                        try {
+                                            spannableText.removeSpan(ttsBgSpan);
+                                            spannableText.removeSpan(ttsFgSpan);
+                                            spannableText.setSpan(ttsBgSpan, word[0], word[1], Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                            spannableText.setSpan(ttsFgSpan, word[0], word[1], Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                        } catch (Throwable ignored) {}
+
+                                        vm.setTtsStartOffsetChars(word[0]);
+                                        return true; // we handled the tap
+                                    }
+                                });
                 tvTtsText.setOnTouchListener((v, ev) -> {
-                    if (ev.getAction() == MotionEvent.ACTION_UP && tvTtsText.getLayout() != null) {
-                        Layout layout = tvTtsText.getLayout();
-                        int x = (int)ev.getX() - tvTtsText.getTotalPaddingLeft() + tvTtsText.getScrollX();
-                        int y = (int)ev.getY() - tvTtsText.getTotalPaddingTop() + tvTtsText.getScrollY();
-                        int line = layout.getLineForVertical(y);
-                        int off  = layout.getOffsetForHorizontal(line, x);
-                        off = Math.max(0, Math.min(off, tvTtsText.getText().length()));
-                        int[] word = TtsHelper.findWordBounds(spannableText, off);
-                        try {
-                            spannableText.removeSpan(ttsBgSpan);
-                            spannableText.removeSpan(ttsFgSpan);
-                            spannableText.setSpan(ttsBgSpan, word[0], word[1], Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                            spannableText.setSpan(ttsFgSpan, word[0], word[1], Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                        } catch (Throwable ignored) {}
-                        vm.setTtsStartOffsetChars(word[0]);
+                    switch (ev.getActionMasked()) {
+                        case MotionEvent.ACTION_DOWN:
+                            downY = ev.getY();
+                            v.getParent().requestDisallowInterceptTouchEvent(true);
+                            tapDetector.onTouchEvent(ev);
+                            return false; // let TextView handle scroll
+                        case MotionEvent.ACTION_MOVE:
+                            // If user dragged enough, disable auto-scroll
+                            if (!suppressAutoScroll && Math.abs(ev.getY() - downY) > touchSlop) {
+                                suppressAutoScroll = true;
+                            }
+                            tapDetector.onTouchEvent(ev);
+                            return false;
+                        case MotionEvent.ACTION_UP: {
+                            boolean tapped = tapDetector.onTouchEvent(ev);
+                            v.getParent().requestDisallowInterceptTouchEvent(false);
+                            if (tapped) {
+                                // Re-enable auto-scroll only when the user *taps* a word
+                                suppressAutoScroll = false;
+                                // Satisfy accessibility/lint:
+                                v.performClick();
+                            }
+                            return tapped; // consume only real taps
+                        }
+                        case MotionEvent.ACTION_CANCEL:
+                            v.getParent().requestDisallowInterceptTouchEvent(false);
+                            return false;
+                        default:
+                            return false;
                     }
-                    return false; // allow scrolling
                 });
+
+
 
                 btnToggleTtsView.setImageResource(android.R.drawable.ic_menu_gallery); // next → image
             } else {
@@ -517,6 +575,8 @@ public class PlayActivity extends LoggingActivity {
             spannableText.setSpan(ttsBgSpan, s, e, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             spannableText.setSpan(ttsFgSpan, s, e, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         } catch (Throwable ignored) {}
+
+        if (suppressAutoScroll) return;
         tvTtsText.post(() -> {
             try {
                 Layout layout = tvTtsText.getLayout();
@@ -581,25 +641,31 @@ public class PlayActivity extends LoggingActivity {
 
                     final boolean wasPlayingFinal = wasPlaying;
                     final String prevGood = currentVoiceName[0];
-                    vm.warmUpTtsVoice(picked, (ready, reason) -> runOnUiThread(() -> {
-                        spinnerTtsVoice.setEnabled(true);
+                    try {
+                        if (vm != null && vm.getState().getValue() != null && vm.getState().getValue().ttsMode) {
+                            vm.warmUpTtsVoice(picked, (ready, reason) -> runOnUiThread(() -> {
+                                spinnerTtsVoice.setEnabled(true);
 
-                        if (ready) {
-                            // Commit new good value
-                            currentVoiceName[0] = picked;
-                            if (wasPlayingFinal) {
-                                // pause-if-playing then play to restart the flow; or call a 'restart TTS' intent if you have one
-                                vm.playPause(); // toggle
-                                vm.playPause();
-                            }
-                        } else {
-                            // Roll back visually + persistently
-                            Pref.setBookTtsVoiceName(this, folderId, prevGood);
-                            selectVoiceByNameWithoutCallback(spinnerTtsVoice, prevGood, suppressSelect);
-                            // Optional: toast with reason
-                            myToast(getString(R.string.tts_phase_error));
+                                if (ready) {
+                                    currentVoiceName[0] = picked; // commit
+                                    if (wasPlayingFinal) {
+                                        // If your TtsEngine resumes automatically after warm-up,
+                                        // you can omit the toggles below. If not, re-kick play:
+                                        vm.playPause(); // pause
+                                        vm.playPause(); // play
+                                    }
+                                } else {
+                                    // Roll back visually + persistently
+                                    Pref.setBookTtsVoiceName(this, folderId, prevGood);
+                                    selectVoiceByNameWithoutCallback(spinnerTtsVoice, prevGood, suppressSelect);
+                                    myToast(getString(mapWarmupReasonToMsg(reason)));
+                                }
+                            }));
                         }
-                    }));
+                    } catch (Throwable ignored) {
+                        spinnerTtsVoice.setEnabled(true);
+                    }
+
                 }
         );
     }
@@ -668,4 +734,18 @@ public class PlayActivity extends LoggingActivity {
         }
         finish();
     }
+    /** Map TTS warm-up reason -> user-friendly message id. */
+    private int mapWarmupReasonToMsg(int reason) {
+        switch (reason) {
+            case com.driot.bookplayer.helpers.TtsHelper.TIMEOUT:
+                return R.string.tts_error_warmup_timeout;
+            case com.driot.bookplayer.helpers.TtsHelper.SET_VOICE_FAILED:
+                return R.string.tts_error_voice_set_failed;
+            case com.driot.bookplayer.helpers.TtsHelper.SYNTH_FAIL:
+                return R.string.tts_error_synth_failed;
+            default:
+                return R.string.tts_phase_error; // generic fallback
+        }
+    }
+
 }

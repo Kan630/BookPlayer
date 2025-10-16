@@ -17,7 +17,7 @@ import androidx.annotation.Nullable;
 import com.driot.bookplayer.adapter.VoiceSpinnerAdapter;
 import com.driot.bookplayer.objects.VoiceItem;
 import com.driot.bookplayer.tts.TtsIds;
-import com.driot.bookplayer.utils.AppTtsManager;
+import com.driot.bookplayer.tts.AppTtsManager;
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 import java.io.File;
@@ -46,7 +46,7 @@ public class TtsHelper {
 
     public boolean isReady() { return tts != null; }
 
-    // ======== SPEAK API (unchanged) ========
+    // ======== SPEAK API ========
     public void speakFromOffset(String text, int startOffset, float volume) {
         myLogD("speakFromOffset");
         if (tts == null || text == null || text.isEmpty()) {
@@ -61,28 +61,52 @@ public class TtsHelper {
 
         List<Chunk> chunks = buildChunks(text, maxLen);
         int safeOffset = Math.max(0, Math.min(startOffset, text.length()));
+
+        // NEW: if we're at or beyond the end, do nothing (avoid empty utterances)
+        if (safeOffset >= text.length()) {
+            myLogD("speakFromOffset : at end, nothing to speak");
+            return;
+        }
+
         int idx = findChunkIndexForOffset(chunks, safeOffset);
         if (idx >= chunks.size()) return;
 
         Chunk base = chunks.get(idx);
+
+        // If offset is past this chunk's end (can happen at exact boundary),
+        // skip to the next chunk; if none, return.
+        if (safeOffset >= base.end) {
+            if (++idx >= chunks.size()) return;
+            base = chunks.get(idx);
+        }
+
         int headEnd = Math.min(base.end, safeOffset + maxLen);
+        if (headEnd <= safeOffset) {
+            // Nothing meaningful in head; fall through to queue remainder chunks
+            myLogD("speakFromOffset : head slice empty, skip");
+        }
 
         Bundle p = new Bundle();
         p.putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, Math.max(0f, Math.min(1f, volume)));
 
-        String headId = TtsIds.utt(safeOffset, headEnd);
-        tts.speak(text.substring(safeOffset, headEnd), TextToSpeech.QUEUE_FLUSH, p, headId);
+        // Only queue the head if it has content
+        if (headEnd > safeOffset) {
+            String headId = com.driot.bookplayer.tts.TtsIds.utt(safeOffset, headEnd);
+            tts.speak(text.substring(safeOffset, headEnd), TextToSpeech.QUEUE_FLUSH, p, headId);
+        } else {
+            // No head → still flush to clear any stale queue
+            tts.stop(); // reliable flush
+        }
 
         if (headEnd < base.end) {
-            String tailId = TtsIds.utt(headEnd, base.end);
+            String tailId = com.driot.bookplayer.tts.TtsIds.utt(headEnd, base.end);
             tts.speak(text.substring(headEnd, base.end), TextToSpeech.QUEUE_ADD, p, tailId);
         }
         for (int i = idx + 1; i < chunks.size(); i++) {
             Chunk c = chunks.get(i);
-            String id = TtsIds.utt(c.start, c.end);
+            String id = com.driot.bookplayer.tts.TtsIds.utt(c.start, c.end);
             tts.speak(c.text, TextToSpeech.QUEUE_ADD, p, id);
         }
-
     }
 
     public void setSpeechRate(float rate) { if (tts != null) tts.setSpeechRate(rate); }
@@ -199,7 +223,9 @@ public class TtsHelper {
         final AppTtsManager.Listener mgrListener = new AppTtsManager.Listener() {
             @Override public void onTtsReady(TextToSpeech tts) {
                 main.post(() -> {
+                    myLog("onTtsReady => populating spinner");
                     // Build catalog
+                    myLog("onTtsReady => listing voices");
                     final List<VoiceItem> voices = buildVoiceItems(app, tts); // your helper
                     if (voices == null || voices.isEmpty()) {
                         ArrayAdapter<String> empty = new ArrayAdapter<>(
@@ -212,6 +238,7 @@ public class TtsHelper {
                         return;
                     }
 
+                    myLog("onTtsReady => system default");
                     // Prepend "system default" option (null voice)
                     final ArrayList<VoiceItem> all = new ArrayList<>();
                     VoiceItem system = VoiceItem.makeSystemDefault(tts);
@@ -223,34 +250,29 @@ public class TtsHelper {
                     spinner.setEnabled(true);
 
                     // Preselect saved value
+                    myLog("onTtsReady => Preselect saved value : " + savedCode);
                     int pre = 0; // default to "system"
                     if (savedCode != null && !"system".equalsIgnoreCase(savedCode)) {
                         for (int i = 1; i < all.size(); i++) {
-                            if (savedCode.equals(all.get(i).name)) { pre = i; break; }
+                            if (savedCode.equals(all.get(i).name)) {
+                                myLog("onTtsReady => Preselect saved value OK");
+                                pre = i;
+                                break;
+                            }
                         }
                     }
                     spinner.setSelection(pre, false);
 
                     // Apply initial selection (skip setVoice for "system")
                     VoiceItem preSel = all.get(pre);
-                    /*
-                    if (preSel != null && preSel.voice != null) {
-                        try { mgr.setVoice(preSel.voice); } catch (Throwable ignored) {}
-                    }
-
-                     */
+                    myLog("onTtsReady => callback.onSelected");
                     callback.onSelected(preSel);
 
                     // Wire selection changes
                     spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                         @Override public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+                            myLog("onItemSelected => callback.onSelected");
                             VoiceItem sel = all.get(pos);
-                            /*
-                            if (sel != null && sel.voice != null) {
-                                try { mgr.setVoice(sel.voice); } catch (Throwable ignored) {}
-                            }
-
-                             */
                             callback.onSelected(sel);
                         }
                         @Override public void onNothingSelected(AdapterView<?> parent) { /* no-op */ }

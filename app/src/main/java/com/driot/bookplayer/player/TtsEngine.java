@@ -16,7 +16,8 @@ import com.driot.bookplayer.helpers.TextExtractor;
 import com.driot.bookplayer.helpers.TtsHelper;
 import com.driot.bookplayer.objects.VoiceItem;
 import com.driot.bookplayer.tts.TtsIds;
-import com.driot.bookplayer.utils.AppTtsManager;
+import com.driot.bookplayer.tts.AppTtsManager;
+import com.driot.bookplayer.utils.log.LoggerHelper;
 
 import java.io.File;
 import java.util.Set;
@@ -28,7 +29,7 @@ import java.util.Set;
  * - Emits onTtsRange progress callbacks
  * - Race-safe via (gen, disposed, preparing/prepared) guards
  */
-public final class TtsEngine implements PlayerEngine, AppTtsManager.Listener {
+public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTtsManager.Listener {
 
     private final Context app;
     private final EngineListener listener;
@@ -56,14 +57,11 @@ public final class TtsEngine implements PlayerEngine, AppTtsManager.Listener {
 
     private float volume = 1f;
 
-    @Nullable private String pendingWarmupId;
-    @Nullable private WarmupCallback pendingWarmupCb;
-    private int pendingWarmupReason = TtsHelper.ERROR;
-
     public TtsEngine(@NonNull Context appContext,
                      @NonNull AppTtsManager appTtsManager,
                      @NonNull EngineListener listener,
                      long generationToken) {
+        super(TtsEngine.class);
         this.app = appContext.getApplicationContext();
         this.mgr = appTtsManager;
         this.listener = listener;
@@ -94,38 +92,28 @@ public final class TtsEngine implements PlayerEngine, AppTtsManager.Listener {
     @Override
     public void prepareAsync() {
         if (disposed || preparing || prepared) return;
-        if (tts == null || !mgr.isReady() || mgr.raw() == null) {
-            // Defer until onTtsReady
-            return;
-        }
         preparing = true;
 
-        // Optional: pick a saved/app-wide voice
-        String voiceName = desiredVoiceName();
-        if (voiceName == null) {
-            prepared = true; preparing = false;
-            listener.onPrepared(gen);
-            return;
+        if (tts == null && mgr.isReady() && mgr.raw() != null) {
+            tts = new TtsHelper(app, mgr.raw());
         }
 
-        // Warm-up selected voice so first speak() is instant
-        setTtsVoiceByNameAsync(voiceName, /*timeoutMs*/ 5000L, (ok, reason) -> {
-            if (disposed) return;
-            preparing = false;
-            if (ok) {
-                prepared = true;
-                listener.onPrepared(gen);
-            } else {
-                listener.onError(gen, "TTS warm-up failed (" + reason + ")", reason, 0);
-            }
-        });
+        if (tts == null || !mgr.isReady() || mgr.raw() == null) {
+            // wait for onTtsReady -> prepareAsync() again
+            preparing = false; // avoid a stuck "preparing" flag
+            return;
+        }
+        prepared = true;
+        preparing = false;
+        listener.onPrepared(gen);
     }
 
     @Override
     public void start() {
         if (disposed || !prepared) return;
+        if (playing) return;
+
         if (tts == null) {
-            // Not expected, but can happen if readiness raced. Try to recover.
             if (mgr.isReady() && mgr.raw() != null) {
                 tts = new TtsHelper(app, mgr.raw());
             } else {
@@ -133,14 +121,18 @@ public final class TtsEngine implements PlayerEngine, AppTtsManager.Listener {
             }
         }
 
+        // Apply desired voice once before speaking (no-op if "system")
+        String desired = desiredVoiceName();
+        if (desired != null) setVoiceByName(desired);
+
         playing = true;
-        lastCharSpoken = Math.max(0, Math.min(resumeOffsetChars, text.length()));
         tts.setSpeechRate(speechRate);
         speakFromOffset(resumeOffsetChars);
     }
 
     @Override
     public void pause() {
+        resumeOffsetChars = lastCharSpoken;
         if (tts != null) tts.stop();
         playing = false;
     }
@@ -160,7 +152,7 @@ public final class TtsEngine implements PlayerEngine, AppTtsManager.Listener {
     }
 
     @Override public boolean isPlaying() { return playing; }
-    @Override public boolean isReady()   { return !disposed && prepared && tts != null && mgr.isReady(); }
+    @Override public boolean isReady()   { return !disposed && prepared && tts != null; }
     @Override public int getCurrentPosition() { return estPositionMs; }
     @Override public int getDuration()        { return estDurationMs; }
     @Override public int getAudioSessionId()  { return 0; } // no visualizer for TTS
@@ -207,12 +199,6 @@ public final class TtsEngine implements PlayerEngine, AppTtsManager.Listener {
     @Override
     public void onDone(String utteranceId) {
         if (disposed) return;
-        // Warm-up completion?
-        if (TtsIds.isWarmup(utteranceId) && utteranceId.equals(pendingWarmupId)) {
-            clearWarmup(pendingWarmupCb, TtsHelper.READY);
-            // fall through to nothing else (don’t advance text)
-            return;
-        }
 
         // End of logical text?
         if (lastCharSpoken >= logicalTextEndIndex()) {
@@ -232,10 +218,6 @@ public final class TtsEngine implements PlayerEngine, AppTtsManager.Listener {
     @Override
     public void onError(String utteranceId, int code) {
         if (disposed) return;
-        if (TtsIds.isWarmup(utteranceId) && utteranceId.equals(pendingWarmupId)) {
-            clearWarmup(pendingWarmupCb, code == 0 ? TtsHelper.ERROR : code);
-            return;
-        }
         playing = false;
         listener.onError(gen, "TTS error", code, 0);
     }
@@ -243,10 +225,11 @@ public final class TtsEngine implements PlayerEngine, AppTtsManager.Listener {
     @Override
     public void onUtteranceRange(int start, int end) {
         if (disposed) return;
-        if (!text.isEmpty() && estDurationMs > 0) {
-            estPositionMs = (int) ((start / (double) text.length()) * estDurationMs);
-        }
+        // Use 'end' for better sync to audible progress
         if (end > lastCharSpoken) lastCharSpoken = end;
+        if (!text.isEmpty() && estDurationMs > 0) {
+            estPositionMs = (int) ((lastCharSpoken / (double) text.length()) * estDurationMs);
+        }
         listener.onTtsRange(gen, start, Math.min(end, Math.max(0, text.length())));
     }
 
@@ -261,16 +244,8 @@ public final class TtsEngine implements PlayerEngine, AppTtsManager.Listener {
         return text;
     }
 
-    /** Public wrapper to set voice and warm-up. */
-    public void setVoiceByNameAndWarmUp(@NonNull String voiceName,
-                                        long timeoutMs,
-                                        @NonNull WarmupCallback cb) {
-        setTtsVoiceByNameAsync(voiceName, timeoutMs, cb); // delegates to the internal method
-    }
-
     /** Allow service/UI to jump by characters (e.g., sentence/paragraph). */
     public void setStartOffsetChars(@IntRange(from = 0) int charOffset) {
-        if (text == null) return;
         int target = Math.max(0, Math.min(charOffset, text.length()));
         resumeOffsetChars = target;
 
@@ -299,7 +274,7 @@ public final class TtsEngine implements PlayerEngine, AppTtsManager.Listener {
     // --------------------- Internals ---------------------
 
     private void speakFromOffset(int offsetChars) {
-        if (disposed || tts == null || text == null) return;
+        if (disposed || tts == null) return;
         tts.setSpeechRate(speechRate);
         final int off = Math.max(0, Math.min(offsetChars, text.length()));
         tts.speakFromOffset(text, off, volume);  // all chunking lives in TtsHelper
@@ -307,7 +282,6 @@ public final class TtsEngine implements PlayerEngine, AppTtsManager.Listener {
     }
 
     private int logicalTextEndIndex() {
-        if (text == null) return 0;
         int i = text.length();
         while (i > 0) {
             char ch = text.charAt(i - 1);
@@ -323,65 +297,6 @@ public final class TtsEngine implements PlayerEngine, AppTtsManager.Listener {
         double wpm = 180.0 * Math.max(0.1, rate);
         return (int) Math.round((words / wpm) * 60_000.0);
     }
-
-    // ---- Voice warm-up ----
-
-    public interface WarmupCallback { void onResult(boolean ready, int reason); }
-
-    private boolean handleWarmupDone(@Nullable String id, boolean ok, int reason) {
-        if (id == null || !id.startsWith("warmup-")) return false;
-        // no persistence needed here; a single warm-up in flight
-        // (kept simple; if you want multiple concurrent warmups, map id->cb)
-        return true;
-    }
-
-    private void setTtsVoiceByNameAsync(@NonNull String voiceName, long timeoutMs, @NonNull WarmupCallback cb) {
-        if (tts == null) { cb.onResult(false, TtsHelper.ERROR); return; }
-
-        main.post(() -> {
-            try {
-                Set<Voice> voices = mgr.getVoices(); // use manager
-                Voice target = null;
-                for (Voice v : voices) if (voiceName.equals(v.getName())) { target = v; break; }
-                if (target == null) { cb.onResult(false, TtsHelper.SET_VOICE_FAILED); return; }
-
-                int rSet = mgr.setVoice(target);
-                if (rSet != TextToSpeech.SUCCESS) { cb.onResult(false, TtsHelper.SET_VOICE_FAILED); return; }
-
-                // Track this warmup ID; completion will arrive in onDone/onError
-                final String id = "warmup-" + android.os.SystemClock.uptimeMillis();
-                pendingWarmupId = id;
-                pendingWarmupCb = cb;
-                pendingWarmupReason = TtsHelper.READY;
-
-                File out = new File(app.getCacheDir(), id + ".wav");
-                int rr = tts.synthesizeToFile("ok", new Bundle(), out, id);
-                if (rr != TextToSpeech.SUCCESS) {
-                    safeDelete(out);
-                    clearWarmup(cb, TtsHelper.SYNTH_FAIL);
-                    return;
-                }
-
-                // Timeout fallback
-                main.postDelayed(() -> {
-                    if (id.equals(pendingWarmupId)) {
-                        safeDelete(out);
-                        clearWarmup(cb, TtsHelper.TIMEOUT);
-                    }
-                }, Math.max(1500L, timeoutMs));
-            } catch (Throwable t) {
-                cb.onResult(false, TtsHelper.ERROR);
-            }
-        });
-    }
-
-    private void clearWarmup(@NonNull WarmupCallback cb, int reason) {
-        pendingWarmupId = null;
-        WarmupCallback c = pendingWarmupCb; pendingWarmupCb = null;
-        if (c != null) c.onResult(reason == TtsHelper.READY, reason);
-    }
-
-    private void safeDelete(File f) { try { if (f != null) f.delete(); } catch (Throwable ignored) {} }
 
     @Nullable
     private String desiredVoiceName() {
@@ -417,6 +332,61 @@ public final class TtsEngine implements PlayerEngine, AppTtsManager.Listener {
                 VoiceItem.describeVoice(v); // no-op; keeps parity with your utils
             }
         } catch (Throwable ignored) {}
+    }
+
+// In TtsEngine.java (public final class TtsEngine ...)
+
+    public boolean setVoiceByName(@Nullable String voiceName) {
+        if (disposed) return false;
+
+        // "system" or empty -> revert to engine default (language-based)
+        if (voiceName == null || voiceName.isEmpty() || "system".equalsIgnoreCase(voiceName)) {
+            try {
+                TextToSpeech raw = mgr.raw();
+                if (raw == null) return false;
+                // Reset to device default locale
+                int r = raw.setLanguage(java.util.Locale.getDefault());
+                boolean ok = (r != TextToSpeech.LANG_MISSING_DATA && r != TextToSpeech.LANG_NOT_SUPPORTED);
+                if (ok) restartIfPlaying();
+                return ok;
+            } catch (Throwable ignored) {
+                return false;
+            }
+        }
+
+        try {
+            Set<Voice> voices = mgr.getVoices();
+            if (voices == null || voices.isEmpty()) return false;
+
+            Voice target = null;
+            for (Voice v : voices) {
+                if (voiceName.equals(v.getName())) { target = v; break; }
+            }
+            if (target == null) return false;
+
+            int r = mgr.setVoice(target);
+            if (r != TextToSpeech.SUCCESS) return false;
+
+            restartIfPlaying();
+            return true;
+        } catch (Throwable ignored) {
+            return false;
+        }
+    }
+
+    private void restartIfPlaying() {
+        if (tts == null) return;
+        // keep current rate
+        tts.setSpeechRate(speechRate);
+
+        if (playing) {
+            // resume from last audible boundary we tracked
+            int start = Math.max(0, Math.min(lastCharSpoken, text != null ? text.length() : 0));
+            // ensure internal offset reflects where we’re resuming
+            resumeOffsetChars = start;
+            tts.stop();
+            speakFromOffset(start);
+        }
     }
 
 }
