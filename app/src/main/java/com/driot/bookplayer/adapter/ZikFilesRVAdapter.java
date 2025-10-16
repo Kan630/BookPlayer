@@ -169,14 +169,16 @@ public class ZikFilesRVAdapter extends LoggingListAdapter<ZikFile, ZikFilesRVAda
             Context ctx = itemView.getContext();
 
             // was something playing ?
+            PlaybackUiState lastUiState = AudioService.lastUiState;
             PlayList pl = PlayList.getInstance();
             boolean sameTrack = (pl != null && pl.getZikFile() != null && pl.getZikFile().getId() == clickedZikFile.getId());  //keep getId() => needed !
             boolean isTTS = (pl != null && pl.getFolder() != null && Objects.equals(pl.getFolder().playType, Var.PLAY_TYPE_TEXT));  //keep getId() => needed !
-            myLogI("USER CLICKS ZIKFILE : [" + clickedZikFile.getName() + "] - sameTrack=" + sameTrack);
+            myLogI("USER CLICKS ZIKFILE : [" + clickedZikFile.getName() + "] - sameTrack=" + sameTrack + " - lastUiState = " + lastUiState);
 
-            //TTS not perfect, so we force reload...
-
-            if (!sameTrack || isTTS) { //reload through service
+            if (lastUiState==null
+                    || !lastUiState.playing
+                    || !sameTrack
+                    || isTTS) { //TODO remove : TTS not perfect yet, so we force reload...
                 ContextCompat.startForegroundService(
                         ctx.getApplicationContext(),
                         new Intent(ctx.getApplicationContext(), AudioService.class)
