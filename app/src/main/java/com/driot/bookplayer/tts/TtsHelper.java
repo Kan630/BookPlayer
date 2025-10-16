@@ -1,4 +1,4 @@
-package com.driot.bookplayer.helpers;
+package com.driot.bookplayer.tts;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -16,8 +16,7 @@ import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.adapter.VoiceSpinnerAdapter;
 import com.driot.bookplayer.objects.VoiceItem;
-import com.driot.bookplayer.tts.TtsIds;
-import com.driot.bookplayer.tts.AppTtsManager;
+
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 import java.io.File;
@@ -92,7 +91,8 @@ public class TtsHelper {
         // Only queue the head if it has content
         if (headEnd > safeOffset) {
             String headId = com.driot.bookplayer.tts.TtsIds.utt(safeOffset, headEnd);
-            tts.speak(text.substring(safeOffset, headEnd), TextToSpeech.QUEUE_FLUSH, p, headId);
+            int r = tts.speak(text.substring(safeOffset, headEnd), TextToSpeech.QUEUE_FLUSH, p, headId);
+            TtsErrorUtils.logOperationResult("TTS", "speak()", r);
         } else {
             // No head → still flush to clear any stale queue
             tts.stop(); // reliable flush
@@ -100,12 +100,14 @@ public class TtsHelper {
 
         if (headEnd < base.end) {
             String tailId = com.driot.bookplayer.tts.TtsIds.utt(headEnd, base.end);
-            tts.speak(text.substring(headEnd, base.end), TextToSpeech.QUEUE_ADD, p, tailId);
+            int r = tts.speak(text.substring(headEnd, base.end), TextToSpeech.QUEUE_ADD, p, tailId);
+            TtsErrorUtils.logOperationResult("TTS", "speak()", r);
         }
         for (int i = idx + 1; i < chunks.size(); i++) {
             Chunk c = chunks.get(i);
             String id = com.driot.bookplayer.tts.TtsIds.utt(c.start, c.end);
-            tts.speak(c.text, TextToSpeech.QUEUE_ADD, p, id);
+            int r = tts.speak(c.text, TextToSpeech.QUEUE_ADD, p, id);
+            TtsErrorUtils.logOperationResult("TTS", "speak()", r);
         }
     }
 
@@ -345,5 +347,6 @@ public class TtsHelper {
 
         return t;
     }
+
 
 }

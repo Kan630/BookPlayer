@@ -2,7 +2,6 @@ package com.driot.bookplayer.tts;
 
 import android.content.Context;
 import android.media.AudioAttributes;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.speech.tts.TextToSpeech;
@@ -11,7 +10,7 @@ import android.speech.tts.Voice;
 
 import androidx.annotation.Nullable;
 
-import com.driot.bookplayer.utils.log.KanLogger;
+import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 import java.lang.ref.WeakReference;
 import java.util.*;
@@ -107,26 +106,28 @@ public final class AppTtsManager implements TextToSpeech.OnInitListener {
 
             // Progress listener (multiplexed to all registered listeners)
             tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
-                @Override public void onStart(String id) {
-                    myLogD("setOnUtteranceProgressListener.onStart");
-                    //listeners.values().forEach(w -> opt(w).onStart(id));
-                    int[] se = TtsIds.parseUtt(id);
+                @Override public void onStart(String utteranceId) {
+                    myLogD("setOnUtteranceProgressListener.onStart - utteranceId=" + utteranceId);
+                    //listeners.values().forEach(w -> opt(w).onStart(utteranceId));
+                    int[] se = TtsIds.parseUtt(utteranceId);
                     if (se != null) {
                         final int s = se[0];
                         // notify a zero-length range at start (start,start)
                         listeners.values().forEach(w -> opt(w).onUtteranceRange(s, s));
                     }
-                    listeners.values().forEach(w -> opt(w).onStart(id));
+                    listeners.values().forEach(w -> opt(w).onStart(utteranceId));
                 }
-                @Override public void onDone(String id) {
-                    myLogD("setOnUtteranceProgressListener.onDone");
-                    listeners.values().forEach(w -> opt(w).onDone(id));
+                @Override public void onDone(String utteranceId) {
+                    myLogD("setOnUtteranceProgressListener.onDone - utteranceId=" + utteranceId);
+                    listeners.values().forEach(w -> opt(w).onDone(utteranceId));
                 }
-                @Override public void onError(String id) {
-                    listeners.values().forEach(w -> opt(w).onError(id, 0));
+                @Override public void onError(String utteranceId) {
+                    myLogE("onError (legacy) for " + utteranceId);
+                    listeners.values().forEach(w -> opt(w).onError(utteranceId, 0));
                 }
-                @Override public void onError(String id, int code) {
-                    listeners.values().forEach(w -> opt(w).onError(id, code));
+                @Override public void onError(String utteranceId, int errorCode) {
+                    myLogE("onError " + utteranceId + " -> " + TtsErrorUtils.describeOnErrorCode(errorCode));
+                    listeners.values().forEach(w -> opt(w).onError(utteranceId, errorCode));
                 }
                 @Override public void onRangeStart(String uttId, int start, int end, int frame) {
                     // Convert to absolute using the uttId "utt_<absStart>_<absEnd>"
@@ -153,8 +154,10 @@ public final class AppTtsManager implements TextToSpeech.OnInitListener {
             } catch (Throwable ignored) {}
 
             if (!voiceSet) {
-                int r = tts.setLanguage(Locale.getDefault());
-                ready = (r != TextToSpeech.LANG_MISSING_DATA && r != TextToSpeech.LANG_NOT_SUPPORTED);
+                Locale locale = Locale.getDefault();
+                int langSetResult = tts.setLanguage(locale);
+                TtsErrorUtils.logSetLanguageResult("TTS", langSetResult, locale);
+                ready = (langSetResult != TextToSpeech.LANG_MISSING_DATA && langSetResult != TextToSpeech.LANG_NOT_SUPPORTED);
             } else {
                 ready = true;
             }
@@ -210,21 +213,8 @@ public final class AppTtsManager implements TextToSpeech.OnInitListener {
         return s;
     }
 
-
     // --- public API (thread-safe wrappers) ---
     public boolean isReady() { return ready && tts != null; }
-
-    public void speak(CharSequence text, int queueMode, Bundle params, String utteranceId) {
-        TextToSpeech t = tts; if (!ready || t == null || text == null) return;
-        t.speak(text, queueMode, params, utteranceId);
-    }
-    //overload with volume
-    public void speak(CharSequence text, int queueMode, float volume, String utteranceId) {
-        TextToSpeech t = tts; if (!ready || t == null || text == null) return;
-        android.os.Bundle p = new android.os.Bundle();
-        p.putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, Math.max(0f, Math.min(1f, volume)));
-        t.speak(text, queueMode, p, utteranceId);
-    }
 
     public void stop() { TextToSpeech t = tts; if (t != null) t.stop(); }
 
@@ -233,9 +223,5 @@ public final class AppTtsManager implements TextToSpeech.OnInitListener {
     public TextToSpeech raw() { return tts; } // if you need low-level access
 
 
-
-    // ======== LOGGING ========
-    private static final String TAG = "AppTtsManager";
-    private static void myLogD(String str) { KanLogger.myLogD(TAG, str); }
 
 }

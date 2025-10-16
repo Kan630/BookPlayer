@@ -974,6 +974,10 @@
     <string name="tts_error_voice_set_failed">Failed to apply voice</string>
     <string name="tts_error_synth_failed">Warm-up synthesis failed</string>
 
+    <string name="source_flag">source flag</string>
+    <string name="voice_name">voice name</string>
+
+
 
 
 

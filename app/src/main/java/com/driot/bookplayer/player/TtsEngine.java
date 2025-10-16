@@ -13,11 +13,13 @@ import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.helpers.TextExtractor;
-import com.driot.bookplayer.helpers.TtsHelper;
+import com.driot.bookplayer.tts.TtsErrorUtils;
+import com.driot.bookplayer.tts.TtsHelper;
 import com.driot.bookplayer.objects.VoiceItem;
 import com.driot.bookplayer.tts.AppTtsManager;
 import com.driot.bookplayer.utils.log.LoggerHelper;
 
+import java.util.Locale;
 import java.util.Set;
 
 /**
@@ -343,8 +345,10 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
                 TextToSpeech raw = mgr.raw();
                 if (raw == null) return false;
                 // Reset to device default locale
-                int r = raw.setLanguage(java.util.Locale.getDefault());
-                boolean ok = (r != TextToSpeech.LANG_MISSING_DATA && r != TextToSpeech.LANG_NOT_SUPPORTED);
+                Locale locale = Locale.getDefault();
+                int langSetResult = raw.setLanguage(locale);
+                TtsErrorUtils.logSetLanguageResult("TTS", langSetResult, locale);
+                boolean ok = (langSetResult != TextToSpeech.LANG_MISSING_DATA && langSetResult != TextToSpeech.LANG_NOT_SUPPORTED);
                 if (ok) restartIfPlaying();
                 return ok;
             } catch (Throwable ignored) {

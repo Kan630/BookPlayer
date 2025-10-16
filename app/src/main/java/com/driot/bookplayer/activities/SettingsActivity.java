@@ -33,7 +33,7 @@ import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.LocaleHelper;
 import com.driot.bookplayer.helpers.LanguageHelper;
 import com.driot.bookplayer.helpers.NetworkHelper;
-import com.driot.bookplayer.helpers.TtsHelper;
+import com.driot.bookplayer.tts.TtsHelper;
 import com.driot.bookplayer.utils.PermissionRequest;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 

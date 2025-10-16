@@ -21,7 +21,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Var;
-import com.driot.bookplayer.helpers.TtsHelper;
+import com.driot.bookplayer.tts.TtsHelper;
 import com.driot.bookplayer.utils.log.LoggingAndroidViewModel;
 
 /**

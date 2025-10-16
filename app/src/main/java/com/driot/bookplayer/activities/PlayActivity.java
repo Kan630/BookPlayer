@@ -44,7 +44,7 @@ import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.helpers.TitleHelper;
-import com.driot.bookplayer.helpers.TtsHelper;
+import com.driot.bookplayer.tts.TtsHelper;
 import com.driot.bookplayer.player.AudioService;
 import com.driot.bookplayer.player.PlayList;
 import com.driot.bookplayer.player.PlaybackUiState;
@@ -737,11 +737,11 @@ public class PlayActivity extends LoggingActivity {
     /** Map TTS warm-up reason -> user-friendly message id. */
     private int mapWarmupReasonToMsg(int reason) {
         switch (reason) {
-            case com.driot.bookplayer.helpers.TtsHelper.TIMEOUT:
+            case TtsHelper.TIMEOUT:
                 return R.string.tts_error_warmup_timeout;
-            case com.driot.bookplayer.helpers.TtsHelper.SET_VOICE_FAILED:
+            case TtsHelper.SET_VOICE_FAILED:
                 return R.string.tts_error_voice_set_failed;
-            case com.driot.bookplayer.helpers.TtsHelper.SYNTH_FAIL:
+            case TtsHelper.SYNTH_FAIL:
                 return R.string.tts_error_synth_failed;
             default:
                 return R.string.tts_phase_error; // generic fallback

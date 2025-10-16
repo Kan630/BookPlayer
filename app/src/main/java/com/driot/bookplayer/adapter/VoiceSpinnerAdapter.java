@@ -8,6 +8,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
+import androidx.appcompat.content.res.AppCompatResources;
+
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.objects.VoiceItem;
 import java.util.List;
@@ -18,7 +20,7 @@ public class VoiceSpinnerAdapter extends ArrayAdapter<VoiceItem> {
     }
 
     static class VH {
-        ImageView ivLang, ivVoice;
+        ImageView ivLang, ivVoice, ivSource;
         TextView tvName;
     }
 
@@ -41,6 +43,7 @@ public class VoiceSpinnerAdapter extends ArrayAdapter<VoiceItem> {
             vh = new VH();
             vh.ivLang = v.findViewById(R.id.iv_LanguageFlag);
             vh.ivVoice = v.findViewById(R.id.iv_VoiceFlag);
+            vh.ivSource = v.findViewById(R.id.iv_sourceFlag);
             vh.tvName = v.findViewById(R.id.tv_VoiceName);
             v.setTag(vh);
         } else {
@@ -53,6 +56,7 @@ public class VoiceSpinnerAdapter extends ArrayAdapter<VoiceItem> {
             // Reset first
             vh.ivLang.setImageDrawable(null);
             vh.ivVoice.setImageDrawable(null);
+            vh.ivSource.setImageDrawable(null);
 
             // Language flag (first)
             if (item.flagResIdLanguage != 0) {
@@ -68,6 +72,12 @@ public class VoiceSpinnerAdapter extends ArrayAdapter<VoiceItem> {
                 vh.ivVoice.setImageResource(item.flagResIdCountry);
             } else {
                 vh.ivVoice.setVisibility(View.GONE);
+            }
+
+            if (item.displayName.contains("Online")) {
+                vh.ivSource.setImageDrawable(AppCompatResources.getDrawable(this.getContext(), R.drawable.ic_cloud_24));
+            } else if (item.displayName.contains("Voice")) {
+                vh.ivSource.setImageDrawable(AppCompatResources.getDrawable(this.getContext(), R.drawable.ic_sync_saved_locally_24));
             }
         }
         return v;
