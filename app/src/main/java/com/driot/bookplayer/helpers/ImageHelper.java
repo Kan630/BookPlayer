@@ -76,74 +76,74 @@ public class ImageHelper {
         return imageFile.getAbsolutePath();
     }
 
-    public static void processPendingImages(Context context) {
-        myLogD("processPendingImages");
-        AppDatabase.databaseWriteExecutor.execute(() -> {
-            AppDatabase db = AppDatabase.getDatabase(context);
+        public static void processPendingImages(Context context) {
+            myLogD("processPendingImages");
+            AppDatabase.databaseWriteExecutor.execute(() -> {
+                AppDatabase db = AppDatabase.getDatabase(context);
 
-            // --- 0) Migrate folder images from cached_images -> images ---
-            try {
-                List<Folder> allFolders = db.folderDao().getAll(); // you already use this elsewhere
-                for (Folder f : allFolders) {
-                    String path = f.image;
-                    if (path == null || path.isEmpty()) continue;
+                // --- 0) Migrate folder images from cached_images -> images ---
+                try {
+                    List<Folder> allFolders = db.folderDao().getAll(); // you already use this elsewhere
+                    for (Folder f : allFolders) {
+                        String path = f.image;
+                        if (path == null || path.isEmpty()) continue;
 
-                    // Only local absolute files (skip URIs)
-                    if (path.startsWith("content://") || path.startsWith("file://")) continue;
+                        // Only local absolute files (skip URIs)
+                        if (path.startsWith("content://") || path.startsWith("file://")) continue;
 
-                    // If in cached_images, move it
-                    String moved = moveCachedImageToPermanent(context, path);
-                    if (moved != null && !moved.equals(path)) {
-                        try {
-                            db.folderDao().updateImage(f.getId(), moved);
-                            myLogD("Folder image path updated (cache->images): id=" + f.getId() + "  " + moved);
-                        } catch (Exception e) {
-                            myLogEE(e, "DB update after moving cached image (folderId=" + f.getId() + ")");
+                        // If in cached_images, move it
+                        String moved = moveCachedImageToPermanent(context, path);
+                        if (moved != null && !moved.equals(path)) {
+                            try {
+                                db.folderDao().updateImage(f.getId(), moved);
+                                myLogD("Folder image path updated (cache->images): id=" + f.getId() + "  " + moved);
+                            } catch (Exception e) {
+                                myLogEE(e, "DB update after moving cached image (folderId=" + f.getId() + ")");
+                            }
                         }
                     }
-                }
-            } catch (Exception e) {
-                myLogEE(e, "processPendingImages: cached->images migration block");
-            }
-
-
-// --- Handle Podcast images ---
-            List<Podcast> pendingPodcasts = db.podcastDao().getAllWithRemoteImage();
-            for (Podcast podcast : pendingPodcasts) {
-                String url = podcast.image;
-                if (url == null || !url.startsWith("http")) continue;
-
-                String imagePath = IMAGE_PREFIX_FOR_PODCAST_COVERS + podcast.feedId + ".jpg";
-                String localPath = downloadAndMaybeCompressImage(context, url, imagePath, true);
-                if (localPath != null) {
-                    podcast.image = localPath;
-                    db.podcastDao().update(podcast);
-                }
-            }
-
-// --- Handle Folder images ---
-            List<Folder> pendingFolders = db.folderDao().getAllWithRemoteImage();
-            for (Folder folder : pendingFolders) {
-                String url = folder.image;
-
-                if (url == null) continue;
-
-                String localPath = null;
-                String imagePath = IMAGE_PREFIX_FOR_SAVED_BOOK + folder.getId() + ".jpg";
-
-                if (url.startsWith("http")) {
-                    localPath = downloadAndMaybeCompressImage(context, url, imagePath, false);
-                } else if (isContentUri(url)) {
-                    localPath = copyContentUriToImageFile(context, url, imagePath, false);
+                } catch (Exception e) {
+                    myLogEE(e, "processPendingImages: cached->images migration block");
                 }
 
-                if (localPath != null) {
-                    folder.image = localPath;
-                    db.folderDao().update(folder);
+
+    // --- Handle Podcast images ---
+                List<Podcast> pendingPodcasts = db.podcastDao().getAllWithRemoteImage();
+                for (Podcast podcast : pendingPodcasts) {
+                    String url = podcast.image;
+                    if (url == null || !url.startsWith("http")) continue;
+
+                    String imagePath = IMAGE_PREFIX_FOR_PODCAST_COVERS + podcast.feedId + ".jpg";
+                    String localPath = downloadAndMaybeCompressImage(context, url, imagePath, true);
+                    if (localPath != null) {
+                        podcast.image = localPath;
+                        db.podcastDao().update(podcast);
+                    }
                 }
-            }
-        });
-    }
+
+    // --- Handle Folder images ---
+                List<Folder> pendingFolders = db.folderDao().getAllWithRemoteImage();
+                for (Folder folder : pendingFolders) {
+                    String url = folder.image;
+
+                    if (url == null) continue;
+
+                    String localPath = null;
+                    String imagePath = IMAGE_PREFIX_FOR_SAVED_BOOK + folder.getId() + ".jpg";
+
+                    if (url.startsWith("http")) {
+                        localPath = downloadAndMaybeCompressImage(context, url, imagePath, false);
+                    } else if (isContentUri(url)) {
+                        localPath = copyContentUriToImageFile(context, url, imagePath, false);
+                    }
+
+                    if (localPath != null) {
+                        folder.image = localPath;
+                        db.folderDao().update(folder);
+                    }
+                }
+            });
+        }
 
     public static String getOrDownloadLibrivoxImage(Context context, String identifier, String imageUrl, boolean forceDownload) {
         String imagePath = IMAGE_PREFIX_FOR_LIBRIVOX_COVERS + identifier + ".jpg";
@@ -565,8 +565,15 @@ public class ImageHelper {
 
         File src = new File(currentAbsPath);
         if (!src.exists()) {
-            myLogE("moveCachedImageToPermanent: source not found: " + currentAbsPath);
-            return null;
+            //check if it was not already in the permanent folder, but DB was not updated
+            File dst = new File(imagesDir, src.getName());
+            if (dst.exists()) {
+                myLogW("image was already moved but DB was not updated: " + dst.getAbsolutePath());
+                return dst.getAbsolutePath();
+            } else {
+                myLogE("moveCachedImageToPermanent: source not found: " + currentAbsPath);
+                return null;
+            }
         }
 
         if (!imagesDir.exists() && !imagesDir.mkdirs()) {

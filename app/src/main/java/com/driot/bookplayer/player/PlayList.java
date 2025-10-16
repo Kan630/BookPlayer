@@ -18,6 +18,7 @@ import com.driot.bookplayer.utils.log.KanLogger;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 05/09/21
@@ -34,20 +35,18 @@ public final class PlayList {
     /** Immutable meta state exposed to UI */
     public static final class MetaState {
         public final boolean loaded;
-        public final @Nullable Folder folder;
         public final @Nullable Podcast podcast;
         public final boolean isPodcast;
 
-        public MetaState(boolean loaded, @Nullable Folder folder,
+        public MetaState(boolean loaded,
                          @Nullable Podcast podcast, boolean isPodcast) {
             this.loaded = loaded;
-            this.folder = folder;
             this.podcast = podcast;
             this.isPodcast = isPodcast;
         }
     }
     // LiveData channel (process-local)
-    private static final MutableLiveData<MetaState> metaLive = new MutableLiveData<>(new MetaState(false, null, null, false));
+    private static final MutableLiveData<MetaState> metaLive = new MutableLiveData<>(new MetaState(false, null, false));
     public static LiveData<MetaState> getMetaLive() { return metaLive; }
 
     // (optional) keep last posted to avoid noisy duplicates
@@ -56,7 +55,6 @@ public final class PlayList {
 
     // ==== Singleton ====
     private static volatile PlayList instance;
-
     public static @Nullable PlayList getInstance() { return instance; }
 
     // ==== Instance ====
@@ -72,27 +70,21 @@ public final class PlayList {
     private boolean isPodcast;
     private boolean metaLoaded = false;
 
+
     // Invalidate racing async loads
     private long version = 0L;
 
     private PlayList(Context app) { this.app = app; }
 
-
-/*
-    /** Create/replace the singleton with a new list. startIndex is clamped to [0, size).
-    public static void create(@NonNull Context ctx, @NonNull List<ZikFile> items) {
-        create(ctx, items, 0);
-    }
- */
-
-    public static void create(@NonNull Context ctx, Folder folder, @NonNull List<ZikFile> items, int startIndex) {
+    public static void create(@NonNull Context ctx, @NonNull Folder folder, @NonNull List<ZikFile> items, int startIndex) {
         if (items.isEmpty()) throw new IllegalStateException("PlayList.create(): empty list");
         Context app = ctx.getApplicationContext();
         PlayList pl = new PlayList(app);
-        pl.replaceItems(items, startIndex);
+
+        pl.replaceItems(folder, items, startIndex);
         instance = pl;
         pl.saveToStorage();     // persist folderId + index -//TODO remove
-        pl.loadMetaAsync();     // async folder/podcast fetch
+        pl.loadMetaAsync();     // async podcast fetch
         myLogD("Playlist created with " + items.size() + " items, index=" + pl.index);
     }
 
@@ -108,9 +100,8 @@ public final class PlayList {
         }
         clearStorage();
         instance = null;
-
         // tell observers meta is gone
-        postMetaDistinct(new MetaState(false, null, null, false));
+        postMetaDistinct(new MetaState(false, null, false));
     }
 
     public void nextTrack() {
@@ -146,19 +137,6 @@ public final class PlayList {
         synchronized (lock) { return index; }
     }
 
-    public void setNumZikFile(int newIndex) {
-        synchronized (lock) {
-            if (zikFilesList.isEmpty()) {
-                myLogW("setNumZikFile(): items empty");
-                index = -1;
-            } else {
-                index = clamp(newIndex, 0, zikFilesList.size() - 1);
-            }
-            saveToStorage();
-        }
-        myLog("setNumZikFile(" + newIndex + ") -> " + getNumSlashTotal());
-    }
-
     public @Nullable ZikFile getZikFile() {
         synchronized (lock) {
             if (zikFilesList.isEmpty() || index < 0 || index >= zikFilesList.size()) {
@@ -168,53 +146,57 @@ public final class PlayList {
             return zikFilesList.get(index);
         }
     }
+    public @Nullable Folder getFolder() {
+        synchronized (lock) {
+            return folder;
+        }
+    }
+
 
     // ==== Internal helpers ====
 
     private void postMetaDistinct(MetaState s) {
-        // very light distinct; compare folder id & isPodcast & loaded
+        // very light distinct; compare isPodcast & loaded
         boolean same =
                 lastMetaPosted != null &&
                         lastMetaPosted.loaded == s.loaded &&
                         lastMetaPosted.isPodcast == s.isPodcast &&
-                        ((lastMetaPosted.folder == null && s.folder == null) ||
-                                (lastMetaPosted.folder != null && s.folder != null && lastMetaPosted.folder.getId() == s.folder.getId()));
+                        Objects.equals(lastMetaPosted.podcast, s.podcast)
+                ;
         if (!same) {
             lastMetaPosted = s;
             metaLive.postValue(s); // background-safe
-            myLogD("metaLive posted: loaded=" + s.loaded + " folderId=" + (s.folder == null ? -1 : s.folder.getId()) + " isPodcast=" + s.isPodcast);
+            myLogD("metaLive posted: loaded=" + s.loaded + " - isPodcast=" + s.isPodcast);
         }
     }
 
-    private void replaceItems(@NonNull List<ZikFile> list, int startIndex) {
+    private void replaceItems(@NonNull Folder folder, @NonNull List<ZikFile> list, int startIndex) {
         synchronized (lock) {
+            //direct args
+            this.folder = folder;
             this.zikFilesList = Collections.unmodifiableList(list);
             this.index = clamp(startIndex, 0, list.size() - 1);
-            this.folder = null;
+            // async data
             this.podcast = null;
             this.isPodcast = false;
             this.metaLoaded = false;
             this.version++; // invalidate prior asyncs
         }
-        postMetaDistinct(new MetaState(false, null, null, false));
+        postMetaDistinct(new MetaState(false, null, false));
     }
 
     private void loadMetaAsync() {
         final long v;
-        final int folderId;
         synchronized (lock) {
             v = version;
             if (zikFilesList.isEmpty()) return;
-            folderId = zikFilesList.get(0).getIdFolder();
         }
         AppDatabase.databaseReadExecutor.execute(() -> {
-            Folder f = null;
             Podcast p = null;
             boolean isPod = false;
             try {
-                f = AppDatabase.getDatabase(app).folderDao().getById(folderId);
-                if (f != null) {
-                    p = AppDatabase.getDatabase(app).podcastDao().getPodcastByFolderId(f.getId());
+                if (folder != null) {
+                    p = AppDatabase.getDatabase(app).podcastDao().getPodcastByFolderId(folder.getId());
                     isPod = (p != null);
                 }
             } catch (Throwable t) {
@@ -226,13 +208,12 @@ public final class PlayList {
                     myLogD("loadMetaAsync(): stale result ignored");
                     return;
                 }
-                folder = f;
                 podcast = p;
                 isPodcast = isPod;
                 metaLoaded = (folder != null);
             }
             // LiveData: post state (loaded==true only if folder!=null)
-            postMetaDistinct(new MetaState(metaLoaded, folder, podcast, isPodcast));
+            postMetaDistinct(new MetaState(metaLoaded, podcast, isPodcast));
 
         });
     }

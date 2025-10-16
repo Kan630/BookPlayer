@@ -77,6 +77,24 @@ public final class PlaybackNotificationManager {
         NotificationManager nm = (NotificationManager) app.getSystemService(Context.NOTIFICATION_SERVICE);
         if (nm != null) nm.cancel(notificationId);
     }
+
+    public @NonNull Notification buildPreparing(
+            @NonNull CharSequence title,
+            @NonNull CharSequence text,
+            @NonNull PendingIntent contentIntent) {
+        return new NotificationCompat.Builder(app, channelId)
+                .setContentTitle(title)
+                .setContentText(text)
+                .setSmallIcon(smallIconRes)
+                .setContentIntent(contentIntent)
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                .setPriority(NotificationCompat.PRIORITY_LOW)
+                .setOnlyAlertOnce(true)
+                .setOngoing(true)
+                // No transport actions here
+                .build();
+    }
+
 }
 
 /*

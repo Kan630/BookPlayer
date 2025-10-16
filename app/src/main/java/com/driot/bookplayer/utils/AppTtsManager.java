@@ -11,6 +11,7 @@ import android.speech.tts.Voice;
 
 import androidx.annotation.Nullable;
 
+import com.driot.bookplayer.tts.TtsIds;
 import com.driot.bookplayer.utils.log.KanLogger;
 
 import java.lang.ref.WeakReference;
@@ -103,7 +104,7 @@ public final class AppTtsManager implements TextToSpeech.OnInitListener {
             tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
                 @Override public void onStart(String id) {
                     myLogD("setOnUtteranceProgressListener.onStart");
-                    int[] se = parseRange(id);
+                    int[] se = TtsIds.parseUtt(id);
                     if (se != null) {
                         final int s = se[0], e = se[1];
                         listeners.values().forEach(w -> opt(w).onUtteranceRange(s, e));
@@ -122,7 +123,7 @@ public final class AppTtsManager implements TextToSpeech.OnInitListener {
                 }
                 @Override public void onRangeStart(String uttId, int start, int end, int frame) {
                     // Convert to absolute using the uttId "utt_<absStart>_<absEnd>"
-                    int[] se = parseRange(uttId);
+                    int[] se = TtsIds.parseUtt(uttId);
                     if (se != null) {
                         int absStart = se[0] + Math.max(0, start);
                         int absEnd   = se[0] + Math.max(0, end);
@@ -166,18 +167,8 @@ public final class AppTtsManager implements TextToSpeech.OnInitListener {
         return (l == null) ? new Listener() {} : l;
     }
 
-    private static int[] parseRange(String id) {
-        try {
-            if (id == null || !id.startsWith("utt_")) return null;
-            int sep = id.lastIndexOf('_');
-            int start = Integer.parseInt(id.substring(4, sep));
-            int end   = Integer.parseInt(id.substring(sep + 1));
-            return new int[]{start, end};
-        } catch (Throwable ignored) { return null; }
-    }
-
     @Nullable
-    private Voice pickBestVoice(Locale locale, @Nullable String preferredNamePart) {
+    public Voice pickBestVoice(Locale locale, @Nullable String preferredNamePart) {
         try {
             Set<Voice> voices = (tts != null) ? tts.getVoices() : null;
             if (voices == null || voices.isEmpty()) return null;
@@ -220,6 +211,14 @@ public final class AppTtsManager implements TextToSpeech.OnInitListener {
         TextToSpeech t = tts; if (!ready || t == null || text == null) return;
         t.speak(text, queueMode, params, utteranceId);
     }
+    //overload with volume
+    public void speak(CharSequence text, int queueMode, float volume, String utteranceId) {
+        TextToSpeech t = tts; if (!ready || t == null || text == null) return;
+        android.os.Bundle p = new android.os.Bundle();
+        p.putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, Math.max(0f, Math.min(1f, volume)));
+        t.speak(text, queueMode, p, utteranceId);
+    }
+
     public void stop() { TextToSpeech t = tts; if (t != null) t.stop(); }
 
     public int setVoice(Voice v) { TextToSpeech t = tts; return (t == null) ? TextToSpeech.ERROR : t.setVoice(v); }
@@ -230,12 +229,6 @@ public final class AppTtsManager implements TextToSpeech.OnInitListener {
 
     // ======== LOGGING ========
     private static final String TAG = "AppTtsManager";
-    private static void myLog(String str) { KanLogger.myLog(TAG, str); }
     private static void myLogD(String str) { KanLogger.myLogD(TAG, str); }
-    private static void myLogI(String str) { KanLogger.myLogI(TAG, str); }
-    private static void myLogW(String str) { KanLogger.myLogW(TAG, str); }
-    private static void myLogE(String str) { KanLogger.myLogE(TAG, str); }
-    private static void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, TAG, str); }
-    private static void myToastEE(Throwable t, String str) { KanLogger.myToastEE(t, TAG, str); }
 
 }

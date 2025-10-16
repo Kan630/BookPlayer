@@ -7,6 +7,7 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 
 import com.driot.bookplayer.db.AppDatabase;
+import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.ZikFile;
 
 import java.util.List;
@@ -18,6 +19,10 @@ public class ZikFilesViewModel extends AndroidViewModel {
     public ZikFilesViewModel(@NonNull Application app) {
         super(app);
         db = AppDatabase.getDatabase(app);
+    }
+
+    public LiveData<Folder> getFolderLive(int folderId) {
+        return db.folderDao().observeById(folderId);
     }
 
     public LiveData<List<ZikFile>> getZikFilesLive(int folderId) {

@@ -1,7 +1,5 @@
 package com.driot.bookplayer.player;
 
-import static com.driot.bookplayer.utils.log.KanLogger.myToast;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -15,7 +13,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import androidx.media.MediaBrowserServiceCompat;
 
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaDescriptionCompat;
@@ -27,16 +24,17 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.ZikFile;
+import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
-import com.driot.bookplayer.utils.log.KanLogger;
+import com.driot.bookplayer.utils.log.LoggingMediaBrowserServiceCompat;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class CarMediaService extends MediaBrowserServiceCompat {
+public class CarMediaService extends LoggingMediaBrowserServiceCompat {
 
     private final android.os.Handler carH = new android.os.Handler(android.os.Looper.getMainLooper());
     private final java.util.Set<Integer> pendingFolderRefresh = new java.util.HashSet<>();
@@ -47,12 +45,8 @@ public class CarMediaService extends MediaBrowserServiceCompat {
     private static final int ART_MAX_PX  = 512;  // big artwork
     private static final int ICON_MAX_PX = 128;  // list thumbnails
 
-    private static final long AUTO_RESUME_GRACE_MS = 10_000L; // 4s feels good
-    private long lastPlayingTs = 0L;
-
     private static final java.util.concurrent.Executor imgExec =
             java.util.concurrent.Executors.newFixedThreadPool(1);
-
 
     public static final String ROOT_ID = "root";
     private static final String PREFIX_FOLDER = "folder:";
@@ -94,22 +88,19 @@ public class CarMediaService extends MediaBrowserServiceCompat {
 
     private final BroadcastReceiver uiReceiver = new BroadcastReceiver() {
         @Override public void onReceive(Context ctx, Intent i) {
-            if (!AudioService.ACTION_UI_STATE.equals(i.getAction())) return;
+            if (!Intents.ACTION_UI_STATE.equals(i.getAction())) return;
 
-            boolean prevPlaying = playing;
             int prevTrackId  = curTrackId;
             int prevFolderId = curFolderId;
 
-            playing  = i.getBooleanExtra(AudioService.EXTRA_UI_PLAYING, false);
-            posMs    = i.getLongExtra(AudioService.EXTRA_UI_POS, 0);
-            durMs    = i.getLongExtra(AudioService.EXTRA_UI_DUR, 0);
-            title    = i.getStringExtra(AudioService.EXTRA_UI_TITLE);
-            subtitle = i.getStringExtra(AudioService.EXTRA_UI_SUBTITLE);
-            cover    = i.getStringExtra(AudioService.EXTRA_UI_COVER);
-            curTrackId  = i.getIntExtra(AudioService.EXTRA_UI_TRACK_ID, 0);
-            curFolderId = i.getIntExtra(AudioService.EXTRA_UI_FOLDER_ID, 0);
-
-            if (playing) lastPlayingTs = android.os.SystemClock.elapsedRealtime();
+            playing  = i.getBooleanExtra(Intents.EXTRA_UI_PLAYING, false);
+            posMs    = i.getLongExtra(Intents.EXTRA_UI_POS, 0);
+            durMs    = i.getLongExtra(Intents.EXTRA_UI_DUR, 0);
+            title    = i.getStringExtra(Intents.EXTRA_UI_TITLE);
+            subtitle = i.getStringExtra(Intents.EXTRA_UI_SUBTITLE);
+            cover    = i.getStringExtra(Intents.EXTRA_UI_COVER);
+            curTrackId  = i.getIntExtra(Intents.EXTRA_UI_TRACK_ID, 0);
+            curFolderId = i.getIntExtra(Intents.EXTRA_UI_FOLDER_ID, 0);
 
             // push metadata + playbackstate vers Android Auto
             pushMetadataFromCurrent();
@@ -142,6 +133,7 @@ public class CarMediaService extends MediaBrowserServiceCompat {
                 if (pl==null) {
                     myLogI("Car onPlay but Playlist is null");
                     if (Option.getAutomotiveLetCarAutoplay()) {
+                        myLogD("Car AutoPlay option enabled");
                         FirebaseAnalyticsHelper.tellCarAutoPlay();
                         AppDatabase.databaseReadExecutor.execute(() -> {
                             ZikFile zikFile = AppDatabase.getDatabase(getApplicationContext())
@@ -153,8 +145,8 @@ public class CarMediaService extends MediaBrowserServiceCompat {
                                 ContextCompat.startForegroundService(
                                         CarMediaService.this,
                                         new Intent(CarMediaService.this, AudioService.class)
-                                                .setAction(AudioService.ACTION_PLAY_FROM_TRACK)
-                                                .putExtra(AudioService.EXTRA_TRACK_ID, zikFile.getId())
+                                                .setAction(Intents.ACTION_PLAY_FROM_TRACK)
+                                                .putExtra(Intents.EXTRA_TRACK_ID, zikFile.getId())
                                                 .putExtra(Var.EXTRA_CALLER, this.getClass().getSimpleName() + ".onPlay()")
                                                 .putExtra(Var.EXTRA_FOREGROUND, true)
                                 );
@@ -187,7 +179,7 @@ public class CarMediaService extends MediaBrowserServiceCompat {
                 FirebaseAnalyticsHelper.tellCarSendCmd("CMD_SEEK");
                 Intent i = new Intent(CarMediaService.this, AudioService.class).setAction("CMD_SEEK");
                 i.putExtra("posMs", (int) posMs);
-                i.putExtra(Var.EXTRA_CALLER, this.getClass().getSimpleName());
+                i.putExtra(Var.EXTRA_CALLER, this.getClass().getSimpleName() + " (CarMediaService)");
                 startService(i);
             }
             @Override
@@ -202,8 +194,8 @@ public class CarMediaService extends MediaBrowserServiceCompat {
                         ContextCompat.startForegroundService(
                                 CarMediaService.this,
                                 new Intent(CarMediaService.this, AudioService.class)
-                                        .setAction(AudioService.ACTION_PLAY_FROM_TRACK)
-                                        .putExtra(AudioService.EXTRA_TRACK_ID, trackId)
+                                        .setAction(Intents.ACTION_PLAY_FROM_TRACK)
+                                        .putExtra(Intents.EXTRA_TRACK_ID, trackId)
                                         .putExtra(Var.EXTRA_CALLER, this.getClass().getSimpleName() + ".onPlayFromMediaId()")
                                         .putExtra(Var.EXTRA_FOREGROUND, true)
                         );
@@ -220,15 +212,14 @@ public class CarMediaService extends MediaBrowserServiceCompat {
                         ContextCompat.startForegroundService(
                                 CarMediaService.this,
                                 new Intent(CarMediaService.this, AudioService.class)
-                                        .setAction(AudioService.ACTION_PLAY_FROM_FOLDER)
-                                        .putExtra(AudioService.EXTRA_FOLDER_ID, folderId)
-                                        .putExtra(AudioService.EXTRA_INDEX, 0)
+                                        .setAction(Intents.ACTION_PLAY_FROM_FOLDER)
+                                        .putExtra(Intents.EXTRA_FOLDER_ID, folderId)
+                                        .putExtra(Intents.EXTRA_INDEX, 0)
                                         .putExtra(Var.EXTRA_CALLER, this.getClass().getSimpleName())
                                         .putExtra(Var.EXTRA_FOREGROUND, true)
                         );
                         pushPlaybackState(PlaybackStateCompat.STATE_BUFFERING, 0);
                     }
-                    return;
                 }
             }
             @Override
@@ -243,10 +234,10 @@ public class CarMediaService extends MediaBrowserServiceCompat {
         mediaSession.setActive(true);
 
         // 2) s’abonner aux mises à jour UI de l’AudioService
-        LocalBroadcastManager.getInstance(this).registerReceiver(
-                uiReceiver, new IntentFilter(AudioService.ACTION_UI_STATE));
         LocalBroadcastManager.getInstance(this)
-                .sendBroadcast(new Intent(AudioService.ACTION_PING_UI));
+                .registerReceiver(uiReceiver, new IntentFilter(Intents.ACTION_UI_STATE));
+        LocalBroadcastManager.getInstance(this)
+                .sendBroadcast(new Intent(Intents.ACTION_PING_UI));
         myLog("PING sent");
 
         // état initial neutre
@@ -414,6 +405,7 @@ public class CarMediaService extends MediaBrowserServiceCompat {
             result.sendResult(Collections.emptyList());
         });
     }
+
     // --------- Helpers browse ----------
     private MediaBrowserCompat.MediaItem browsable(String id, String title) {
         MediaDescriptionCompat desc = new MediaDescriptionCompat.Builder()
@@ -526,7 +518,7 @@ public class CarMediaService extends MediaBrowserServiceCompat {
         FirebaseAnalyticsHelper.tellCarSendCmd(action);
         ContextCompat.startForegroundService(
                 this, new Intent(this, AudioService.class).setAction(action)
-                        .putExtra(Var.EXTRA_CALLER, this.getClass().getSimpleName())
+                        .putExtra(Var.EXTRA_CALLER, this.getClass().getSimpleName() + ".sendCmd " + action)
                         .putExtra(Var.EXTRA_FOREGROUND, true)
         );
     }
@@ -607,13 +599,4 @@ public class CarMediaService extends MediaBrowserServiceCompat {
         }, 500);
     }
 
-    ////////////////////////////////////////////////////////
-    private static final String TAG = "CarMediaService";
-    private static void myLog(String str) { KanLogger.myLog(TAG, str); }
-    private static void myLogD(String str) { KanLogger.myLogD(TAG, str); }
-    private static void myLogI(String str) { KanLogger.myLogI(TAG, str); }
-    private static void myLogW(String str) { KanLogger.myLogW(TAG, str); }
-    private static void myLogE(String str) { KanLogger.myLogE(TAG, str); }
-    private static void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, TAG, str); }
-    private static void myToastEE(Throwable t, String str) { KanLogger.myToastEE(t, TAG, str); }
 }

@@ -2,7 +2,6 @@ package com.driot.bookplayer.adapter;
 
 import android.content.Context;
 import android.content.Intent;
-import android.support.v4.media.session.PlaybackStateCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,10 +19,10 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.ModifyZikFileActivity;
 import com.driot.bookplayer.activities.PlayActivity;
 import com.driot.bookplayer.db.ZikFile;
+import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.player.AudioService;
-import com.driot.bookplayer.player.CarMediaService;
 import com.driot.bookplayer.player.PlayList;
 import com.driot.bookplayer.player.PlaybackUiState;
 import com.driot.bookplayer.utils.Tonio;
@@ -165,22 +164,23 @@ public class ZikFilesRVAdapter extends LoggingListAdapter<ZikFile, ZikFilesRVAda
 
             ZikFile clickedZikFile = getItem(position);
             if (clickedZikFile == null) return;
+            Context ctx = itemView.getContext();
 
             // was something playing ?
             PlayList pl = PlayList.getInstance();
-            boolean sameTrack = (pl != null && pl.getZikFile() != null && pl.getZikFile() == clickedZikFile);  //should we put id ? i dont think so
+            boolean sameTrack = (pl != null && pl.getZikFile() != null && pl.getZikFile().getId() == clickedZikFile.getId());  //getId() needed !
             myLogI("USER CLICKS ZIKFILE : [" + clickedZikFile.getName() + "] - sameTrack=" + sameTrack);
 
-            // start audio
-            Context ctx = itemView.getContext();
-            ContextCompat.startForegroundService(
-                    ctx.getApplicationContext(),
-                    new Intent(ctx.getApplicationContext(), AudioService.class)
-                            .setAction(AudioService.ACTION_PLAY_FROM_TRACK)
-                            .putExtra(AudioService.EXTRA_TRACK_ID, clickedZikFile.getId())
-                            .putExtra(Var.EXTRA_CALLER, this.getClass().getSimpleName() + ".onClick() [ZikFilesRVAdapter]")
-                            .putExtra(Var.EXTRA_FOREGROUND, true)
-            );
+            if (!sameTrack) { //reload through service
+                ContextCompat.startForegroundService(
+                        ctx.getApplicationContext(),
+                        new Intent(ctx.getApplicationContext(), AudioService.class)
+                                .setAction(Intents.ACTION_PLAY_FROM_TRACK)
+                                .putExtra(Intents.EXTRA_TRACK_ID, clickedZikFile.getId())
+                                .putExtra(Var.EXTRA_CALLER, this.getClass().getSimpleName() + ".onClick() [ZikFilesRVAdapter]")
+                                .putExtra(Var.EXTRA_FOREGROUND, true)
+                );
+            }
 
             //maybe open PlayActivity
             if (sameTrack || Option.getOpenPlayActivity()) {

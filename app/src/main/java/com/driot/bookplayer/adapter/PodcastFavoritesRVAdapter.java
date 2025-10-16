@@ -19,6 +19,7 @@ import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.helpers.PodcastHelper;
+import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingRVAdapter;
 
@@ -143,7 +144,7 @@ public class PodcastFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.Vie
             title.setText(podcast.title);
             //desc.setText(podcast.language); // placeholder (you could fetch/show `feedId` or something better)
             desc.setVisibility(View.GONE);
-            Glide.with(image.getContext()).load(podcast.image).into(image);
+            Glide.with(image.getContext()).load(StorageHelper.checkAndCleanImagePath(image.getContext(), podcast.image)).into(image);
 
 
             ///  AUTO DOWNLOAD BUTTON

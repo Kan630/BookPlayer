@@ -33,8 +33,10 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.db.ZikFile;
+import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
@@ -43,7 +45,6 @@ import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.helpers.TitleHelper;
 import com.driot.bookplayer.helpers.TtsHelper;
-import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.player.AudioService;
 import com.driot.bookplayer.player.PlayList;
 import com.driot.bookplayer.player.PlaybackUiState;
@@ -54,8 +55,6 @@ import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 import com.driot.bookplayer.views.ClickInterceptFrameLayout;
 import com.driot.bookplayer.views.FrequencyVisualizerView;
-
-import java.io.File;
 
 import static com.driot.bookplayer.global.Var.SLEEP_PRESET_VALUES;
 import static com.driot.bookplayer.player.AudioService.TIMER_VALUE;
@@ -78,7 +77,6 @@ public class PlayActivity extends LoggingActivity {
     private FrequencyVisualizerView frequencyVisualizerView;
 
     private View ttsContainer;
-    private Spinner spinnerTtsVoice;
     private TextView tvTtsText;
     private ImageButton btnToggleTtsView;
     private boolean showingTtsText = true;
@@ -97,12 +95,21 @@ public class PlayActivity extends LoggingActivity {
             final String action = i.getAction();
             if (AudioService.NOTIFICATION_PLAYBACK_TIMER_VALUE.equals(action)) {
                 reDrawListeningSince(i.getIntExtra(TIMER_VALUE, -999));
-            } else if (AudioService.NOTIFICATION_TTS_RANGE.equals(action)) {
-                int s = i.getIntExtra(AudioService.EXTRA_TTS_START, -1);
-                int e = i.getIntExtra(AudioService.EXTRA_TTS_END, -1);
+            } else if (Intents.NOTIFICATION_TTS_RANGE.equals(action)) {
+                int s = i.getIntExtra(Intents.EXTRA_TTS_START, -1);
+                int e = i.getIntExtra(Intents.EXTRA_TTS_END, -1);
                 scheduleTtsHighlight(s, e);
             } else if (AudioService.NOTIFICATION_ERROR.equals(action)) {
-                finishAndShowFatalError(i.getStringExtra(AudioService.ERR_MSG));
+                // If it’s a TTS error, it’s recoverable → UI is already driven by phases
+                String em = i.getStringExtra(AudioService.ERR_MSG);
+                PlaybackUiState s = vm.getState().getValue();
+                if (em != null && em.startsWith("TTS")) {
+                    // Show non-blocking message overlay via vm.getPhase() observer
+                    // Do NOT finish the activity.
+                    return;
+                }
+                // Non-TTS: keep the old fatal path
+                finishAndShowFatalError(em);
             } else if (AudioService.NOTIFICATION_FILENOTFOUND.equals(action)) {
                 finishAndShowFatalError(null);
             } else if (AudioService.NOTIFICATION_PLAYLISTFINISHED.equals(action)) {
@@ -124,9 +131,16 @@ public class PlayActivity extends LoggingActivity {
             setRequestedOrientation(android.content.pm.ActivityInfo.SCREEN_ORIENTATION_LOCKED);
         }
 
-        if (PlayList.getInstance() == null) { finish(); return; }
+        if (PlayList.getInstance() == null) { finish(); myLogEE(null, "PlayList.getInstance() == null"); return; }
+        Folder folder = PlayList.getInstance().getFolder();
+        if (folder == null )  { finish(); myLogEE(null, "PlayList.getInstance().getFolder() == null"); return; }
 
         vm = new ViewModelProvider(this).get(PlaybackViewModel.class);
+
+        // TTS voices (early)
+        if (folder.playType != null && folder.playType.equals(Var.PLAY_TYPE_TEXT)) {
+            initTtsVoiceSpinner(folder.getId());
+        }
 
         progressOverlay = findViewById(R.id.progress_overlay);
         messageOverlay  = findViewById(R.id.message_overlay);
@@ -152,9 +166,12 @@ public class PlayActivity extends LoggingActivity {
         frequencyVisualizerView = findViewById(R.id.frequencyVisualizerView);
 
         ttsContainer   = findViewById(R.id.ttsContainer);
-        spinnerTtsVoice= findViewById(R.id.spinnerTtsVoice);
         tvTtsText      = findViewById(R.id.tvTtsText);
         btnToggleTtsView = findViewById(R.id.btnToggleTtsView);
+
+        final TextView progressTitle = progressOverlay.findViewById(R.id.tv_progress_overlay_title);
+        final TextView progressMessage = progressOverlay.findViewById(R.id.tv_progress_overlay_message);
+        progressTitle.setText(getString(R.string.tts_progress_title));
 
         // Clicks
         bPlayPause.setOnClickListener(v -> vm.playPause());
@@ -200,18 +217,92 @@ public class PlayActivity extends LoggingActivity {
             tvSeekBar.setText(Tonio.formatTime((int) s.positionMs, true));
             tvTotalTime.setText(Tonio.formatTime((int) s.durationMs, true));
 
+            PlaybackViewModel.PhaseUi p = vm.getPhase().getValue();
+            boolean isStarting = (p != null && Intents.PHASE_STARTING.equals(p.phase));
+
+            if (s.ready && !isStarting) {
+                bPlayPause.setEnabled(true);
+                bPlayPause.setImageResource(s.playing ? R.drawable.ic_media_pause_24 : R.drawable.ic_media_play_24);
+            } else {
+                bPlayPause.setEnabled(false);
+                bPlayPause.setImageResource(R.drawable.ic_hourglass_24);
+            }
+/*
             // Play/Pause icon + readiness
             bPlayPause.setEnabled(s.ready);
             bPlayPause.setImageResource(s.ready
                     ? (s.playing ? R.drawable.ic_media_pause_24 : R.drawable.ic_media_play_24)
                     : R.drawable.ic_hourglass_24);
 
+ */
+
+            if (s.cover != null && !s.cover.isEmpty()) {
+                ivCover.setImageURI(null);
+                ivCover.setImageURI(Uri.parse(s.cover));
+                ivCover.setVisibility(View.VISIBLE);
+                frequencyVisualizerView.setAlpha(0.6f);
+            } else {
+                ivCover.setVisibility(View.GONE);
+                frequencyVisualizerView.setAlpha(1f);
+            }
             // TTS vs Audio UI
             applyTtsToggleUi(s);
-
-            // Cover image via PlayList meta (kept as you had)
-            // (Handled below in PlayList meta observer)
         });
+
+        vm.getPhase().observe(this, p -> {
+            if (p == null) return;
+
+            // Pull the latest playback state to know if we’re in TTS or audio mode
+            PlaybackUiState s = vm.getState().getValue();
+            final boolean tts = (s != null && s.ttsMode);
+
+            // Default: hide overlays for pure audio mode unless we’re in an error phase
+            if (!tts) {
+                // Show only ERROR message if present
+                boolean showError = Intents.PHASE_ERROR.equals(p.phase);
+                progressOverlay.setVisibility(View.GONE);
+                if (showError) {
+                    progressTitle.setText("");
+                    progressMessage.setText(p.message != null ? p.message : getString(R.string.error_generic));
+                    messageOverlay.setVisibility(View.VISIBLE);
+                } else {
+                    messageOverlay.setVisibility(View.GONE);
+                }
+                return;
+            }
+
+            // TTS mode: show spinner during busy phases, otherwise hide overlays
+            final boolean busy = p.isBusyPhase();
+            progressOverlay.setVisibility(busy ? View.VISIBLE : View.GONE);
+            String label;
+            switch (p.phase) {
+                case Intents.PHASE_LOADING_TEXT: label = getString(R.string.tts_phase_loading_text); break;
+                case Intents.PHASE_WARMING_UP:   label = getString(R.string.tts_phase_warming_up);   break;
+                case Intents.PHASE_STARTING:     label = getString(R.string.tts_phase_starting);     break;
+                case Intents.PHASE_READY:        label = getString(R.string.tts_phase_ready);        break;
+                case Intents.PHASE_SPEAKING:     label = getString(R.string.tts_phase_speaking);     break;
+                case Intents.PHASE_ERROR:        label = getString(R.string.tts_phase_error);        break;
+                default:                         label = "";                                         break;
+            }
+            // Prefer explicit message from service if present
+            if (p.message != null && !p.message.isEmpty()) label = p.message;
+            progressMessage.setText(label);
+
+            // Error message overlay (non-blocking)
+            if (Intents.PHASE_ERROR.equals(p.phase)) {
+                progressMessage.setText(p.message != null ? p.message : getString(R.string.tts_phase_error));
+                messageOverlay.setVisibility(View.VISIBLE);
+            } else {
+                messageOverlay.setVisibility(View.GONE);
+            }
+
+            // Optionally soften main controls during busy phases
+            boolean controlsEnabled = !busy;
+            bRewind.setEnabled(controlsEnabled);
+            bForward.setEnabled(controlsEnabled);
+            seekbar.setEnabled(controlsEnabled);
+        });
+
 
         // Seekbar → VM.seekTo (only acts if VM is bound; otherwise ignored safely)
         seekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -223,38 +314,17 @@ public class PlayActivity extends LoggingActivity {
                 vm.seekTo(sb.getProgress());
             }
         });
-/*
+
         // Meta observer (cover, podcast click handlers, TTS voice spinner init)
         PlayList.getMetaLive().observe(this, ms -> {
-            if (ms == null || !ms.loaded || ms.folder == null) return;
-
-            // Cover
-            if (ms.folder.image != null && !ms.folder.image.isEmpty()) {
-                ivCover.setImageURI(Uri.parse(ms.folder.image));
-                ivCover.setVisibility(View.VISIBLE);
-                frequencyVisualizerView.setAlpha(0.6f);
-                try {
-                    File imageFile = new File(ms.folder.image);
-                    myLogD("Image found : " + imageFile.getName() + " - " + Tonio.getReadableSize(imageFile.length()));
-                } catch (Exception ignored) {}
-            } else {
-                ivCover.setVisibility(View.GONE);
-                frequencyVisualizerView.setAlpha(1f);
-            }
+            if (ms == null || !ms.loaded) return;
 
             // Podcast title/sub click → open episodes on double tap
             if (ms.isPodcast) {
                 tvTitle.setOnClickListener(v -> handlePodcastClick(ms.podcast));
                 tvSubTitle.setOnClickListener(v -> handlePodcastClick(ms.podcast));
             }
-
-            // TTS voices (if text book)
-            if (ms.folder.playType != null && ms.folder.playType.equals(Var.PLAY_TYPE_TEXT)) {
-                initTtsVoiceSpinner(ms.folder.getId());
-            }
         });
-
- */
 
         // Back press: if not playing, ask service to stop; then finish.
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
@@ -265,14 +335,10 @@ public class PlayActivity extends LoggingActivity {
             }
         });
 
-        // Kick the service if needed (optional; harmless if already running)
-        startService(new Intent(getApplicationContext(), AudioService.class)
-                .putExtra(Var.EXTRA_CALLER, this.getClass().getSimpleName()));
-
         // Register UI-level broadcasts we still use
         LocalBroadcastManager lb = LocalBroadcastManager.getInstance(this);
-        lb.registerReceiver(uiReceiver, new IntentFilter(AudioService.NOTIFICATION_PLAYBACK_TIMER_VALUE));
-        lb.registerReceiver(uiReceiver, new IntentFilter(AudioService.NOTIFICATION_TTS_RANGE));
+        lb.registerReceiver(uiReceiver, new IntentFilter(AudioService.NOTIFICATION_PLAYBACK_TIMER_VALUE)); //for UI displayed Sleep counters
+        lb.registerReceiver(uiReceiver, new IntentFilter(Intents.NOTIFICATION_TTS_RANGE));
         lb.registerReceiver(uiReceiver, new IntentFilter(AudioService.NOTIFICATION_ERROR));
         lb.registerReceiver(uiReceiver, new IntentFilter(AudioService.NOTIFICATION_FILENOTFOUND));
         lb.registerReceiver(uiReceiver, new IntentFilter(AudioService.NOTIFICATION_PLAYLISTFINISHED));
@@ -467,13 +533,26 @@ public class PlayActivity extends LoggingActivity {
     private void initTtsVoiceSpinner(int folderId) {
         String saved = Pref.getBookTtsVoiceName(this, folderId);
         if (saved == null) saved = Option.getTtsVoice();
+        final String[] currentVoiceName = { saved };  // track last good value
 
         final boolean[] first = {true};
         final boolean[] touched = {false};
+        final boolean[] suppressSelect = {false};
+
+        Spinner spinnerTtsVoice= findViewById(R.id.spinnerTtsVoice);
 
         spinnerTtsVoice.setOnTouchListener((v,e) -> {
             if (e.getAction()==MotionEvent.ACTION_UP) { touched[0]=true; v.performClick(); }
             return false;
+        });
+
+        String finalSaved = saved;
+
+        // Re-enable spinner when phase is not busy
+        vm.getPhase().observe(this, p -> {
+            if (p == null) return;
+            boolean busy = p.isBusyPhase(); // you already have this helper
+            spinnerTtsVoice.setEnabled(!busy);
         });
 
         vm.setupTtsVoiceSpinner(
@@ -483,18 +562,66 @@ public class PlayActivity extends LoggingActivity {
                 voice -> {
                     if (first[0]) { first[0]=false; return; }
                     if (!touched[0]) return;
-                    //TODO uncomment
-                    /*
-                    final String name = (voice==null || voice.name==null || voice.name.isEmpty()) ? "system" : voice.name;
-                    if (!name.equalsIgnoreCase(saved)) {
-                        Pref.setBookTtsVoiceName(this, folderId, name);
-                        vm.warmUpTtsVoice(name); // async enable play button on readiness inside VM
+                    if (suppressSelect[0]) return;
+
+                    final String picked = (voice==null || voice.name==null || voice.name.isEmpty()) ? "system" : voice.name;
+                    myLogI("--- user picks a VOICE in SPINNER ---     [" + picked + "]");
+
+                    if (picked.equalsIgnoreCase(currentVoiceName[0])) {
+                        myLog("same voice picked");
+                        return;
                     }
 
-                     */
+                    Pref.setBookTtsVoiceName(this, folderId, picked);
+                    spinnerTtsVoice.setEnabled(false);  // Disable immediately (guard against rapid taps)
+
+                    boolean wasPlaying = false;
+                    PlaybackUiState s = vm.getState().getValue();
+                    if (s != null) wasPlaying = s.playing;
+
+                    final boolean wasPlayingFinal = wasPlaying;
+                    final String prevGood = currentVoiceName[0];
+                    vm.warmUpTtsVoice(picked, (ready, reason) -> runOnUiThread(() -> {
+                        spinnerTtsVoice.setEnabled(true);
+
+                        if (ready) {
+                            // Commit new good value
+                            currentVoiceName[0] = picked;
+                            if (wasPlayingFinal) {
+                                // pause-if-playing then play to restart the flow; or call a 'restart TTS' intent if you have one
+                                vm.playPause(); // toggle
+                                vm.playPause();
+                            }
+                        } else {
+                            // Roll back visually + persistently
+                            Pref.setBookTtsVoiceName(this, folderId, prevGood);
+                            selectVoiceByNameWithoutCallback(spinnerTtsVoice, prevGood, suppressSelect);
+                            // Optional: toast with reason
+                            myToast(getString(R.string.tts_phase_error));
+                        }
+                    }));
                 }
         );
     }
+    /** Finds a voice by engine name and selects it without firing the spinner listener. */
+    private void selectVoiceByNameWithoutCallback(Spinner spinner, String name, boolean[] suppressFlag) {
+        try {
+            android.widget.SpinnerAdapter a = spinner.getAdapter();
+            if (!(a instanceof com.driot.bookplayer.adapter.VoiceSpinnerAdapter)) return;
+            com.driot.bookplayer.adapter.VoiceSpinnerAdapter va = (com.driot.bookplayer.adapter.VoiceSpinnerAdapter) a;
+
+            int target = 0; // 0 = "system"
+            for (int i = 0; i < va.getCount(); i++) {
+                com.driot.bookplayer.objects.VoiceItem vi = va.getItem(i);
+                String n = (vi == null || vi.name == null || vi.name.isEmpty()) ? "system" : vi.name;
+                if (n.equalsIgnoreCase(name)) { target = i; break; }
+            }
+            suppressFlag[0] = true;
+            spinner.setSelection(target, false);
+            spinner.post(() -> suppressFlag[0] = false);
+        } catch (Throwable ignored) {}
+    }
+
 
     private void finishAndShowFatalError(String errMessage) {
         try {

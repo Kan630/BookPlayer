@@ -40,6 +40,7 @@ import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.db.PodcastDao;
 import com.driot.bookplayer.db.ZikFile;
+import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
@@ -174,7 +175,7 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
                 , podcast.image
                 , podcast.description
         );
-        podcastFeed.image = StorageHelper.getImagePathCachedOrNot(this, podcastFeed.image);
+        podcastFeed.image = StorageHelper.checkAndCleanImagePath(this, podcastFeed.image);
 
         podcastEpisodeViewModel = new ViewModelProvider(this).get(PodcastEpisodeViewModel.class);
         podcastEpisodeViewModel.getPodcastLiveByFeedId(podcastFeed.id).observe(this, updatedPodcast -> {
@@ -209,8 +210,8 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
 
         tvTitle.setText(podcastFeed.title);
         tvDescription.setText(parseMaybeHtml(podcastFeed.description));
-        Glide.with(ivCover.getContext()).load(podcastFeed.image).into(ivCover);
-        Glide.with(ivMiniCover.getContext()).load(podcastFeed.image).into(ivMiniCover);
+        Glide.with(ivCover.getContext()).load(StorageHelper.checkAndCleanImagePath(ivCover.getContext(), podcastFeed.image)).into(ivCover);
+        Glide.with(ivMiniCover.getContext()).load(StorageHelper.checkAndCleanImagePath(ivMiniCover.getContext(), podcastFeed.image)).into(ivMiniCover);
 
         if (podcastFeed.id == -1) {
             myToastE("Error loading episodes. ID=-1");
@@ -572,7 +573,7 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
 
                 //TODO we need a AudioService.isPlaying
                 if (AudioService.isRunning && PlayList.getInstance()!=null &&  PlayList.getInstance().getZikFile()!=null && PlayList.getInstance().getZikFile().getIdFolder()==podcast.idFolder) {
-                    startActivity(new Intent(this, ZikFileActivity.class).putExtra("folder", folder));
+                    startActivity(new Intent(this, ZikFileActivity.class).putExtra(Intents.EXTRA_FOLDER, folder));
                 } else {
                     List<ZikFile> zikFilesList = AppDatabase.getDatabase(getApplicationContext())
                             .zikFileDao().getZikFiles(podcast.idFolder);
@@ -585,7 +586,7 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
 
                         if (!zikFilesList.isEmpty()) {
                             closeExoPlayer();
-                            startActivity(new Intent(this, ZikFileActivity.class).putExtra("folder", folder));
+                            startActivity(new Intent(this, ZikFileActivity.class).putExtra(Intents.EXTRA_FOLDER, folder));
                         } else {
                             myLogE("no ZikFiles in that folder !");
                             myToastE(getString(R.string.ErrorCouldNotLoadAudios_emptyfolder)); // main thread
@@ -666,16 +667,18 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
 
         new Thread(() -> {
             try {
-                myLog("clickOnEpisode : " + zikFile.getDisplayName() + " - " + zikFile.getId() + " - " + zikFile.getName());
+                myLog("onOpenLocalEpisode : " + zikFile.getDisplayName() + " - " + zikFile.getId() + " - " + zikFile.getName());
 
+                final int id = zikFile.getId();
+                myLog("id = " + id);
                 ContextCompat.startForegroundService(
                         this.getApplicationContext(),
                         new Intent(this.getApplicationContext(), AudioService.class)
-                                .setAction(AudioService.ACTION_PLAY_FROM_TRACK)
-                                .putExtra(AudioService.EXTRA_TRACK_ID, zikFile.getId())
-                                .putExtra(AudioService.EXTRA_TRACK_ORDER_NEWEST_FIRST, sortNewestFirst)
-                                .putExtra(AudioService.EXTRA_IS_PODCAST, true)
-                                .putExtra(Var.EXTRA_CALLER, this.getClass().getSimpleName() + ".onOpenLocalEpisode() [PodcastEpisodeActivity]")
+                                .setAction(Intents.ACTION_PLAY_FROM_TRACK)
+                                .putExtra(Intents.EXTRA_TRACK_ID, (int) id)
+                                .putExtra(Intents.EXTRA_TRACK_ORDER_NEWEST_FIRST, sortNewestFirst)
+                                .putExtra(Intents.EXTRA_IS_PODCAST, true)
+                                .putExtra(Var.EXTRA_CALLER, this.getClass().getSimpleName() + ".onOpenLocalEpisode()")
                                 .putExtra(Var.EXTRA_FOREGROUND, true)
                 );
 
@@ -904,7 +907,7 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
     private void stopAudioServiceIfRunning() {
         if (AudioService.isRunning) {
             Intent intentStopService = new Intent(this, AudioService.class).
-                    setAction(AudioService.EXTRA_CMD_STOP)
+                    setAction(Intents.EXTRA_CMD_STOP)
                     .putExtra(Var.EXTRA_CALLER, this.getClass().getSimpleName());
             try {
                 // App au premier plan → safe, pas de règle des 5s

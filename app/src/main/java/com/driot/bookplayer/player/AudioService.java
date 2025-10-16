@@ -4,7 +4,6 @@ import com.driot.bookplayer.R;
 
 import android.app.Notification;
 import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ServiceInfo;
 import android.media.AudioManager;
@@ -22,7 +21,6 @@ import android.view.KeyEvent;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.lifecycle.LiveData;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.media.session.MediaButtonReceiver;
 import androidx.lifecycle.MutableLiveData;
@@ -30,6 +28,7 @@ import androidx.lifecycle.Observer;
 
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
+import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.helpers.TtsHelper;
@@ -53,8 +52,20 @@ import static com.driot.bookplayer.utils.Tonio.formatTime;
 
 public class AudioService extends LoggingService {
 
+    // ---- TTS phase tracking ----
+    private @Nullable AutoCloseable ttsMgrHandle;
+    private boolean waitingForFirstTtsStart = false;
+    private @NonNull String currentUiPhase = Intents.PHASE_LOADING_TEXT;
+    private @Nullable String currentUiPhaseMsg = null;
+
+    private final Handler phaseHandler = new Handler();
+    private @Nullable Runnable warmupTimeout;
+    private @Nullable Runnable startTimeout;
+
+    private boolean ttsFallbackTried = false;
+
     private final MutableLiveData<PlaybackUiState> uiLive = new MutableLiveData<>();
-    private PlayList.MetaState lastPlayListMeta = new PlayList.MetaState(false, null, null, false);
+    private PlayList.MetaState lastPlayListMeta = new PlayList.MetaState(false, null, false);
     private final Observer<PlayList.MetaState> metaObs = meta -> {
         lastPlayListMeta = meta;          // cache latest meta
         broadcastUiState();       // rebuild + emit unified UI
@@ -66,46 +77,15 @@ public class AudioService extends LoggingService {
     private final android.content.BroadcastReceiver pingReceiver = new android.content.BroadcastReceiver() {
         @Override public void onReceive(android.content.Context ctx, android.content.Intent i) {
             if (i == null) return;
-            if (ACTION_PING_UI.equals(i.getAction())) {
+            if (Intents.ACTION_PING_UI.equals(i.getAction())) {
                 myLog("PING received");
                 broadcastUiState();
             }
         }
     };
-    public static final String EXTRA_CMD_STOP    = "CMD_STOP";
-
-    public static final String EXTRA_AUTOPLAY    = "extra_autoplay"; // default false
-
-
 
     private static final String ID_NOTIFICATION_PLAY_AUDIO_CHANNEL = "audio_channel_of_bookplayer";
     private static final int ID_NOTIFICATION_PLAY_AUDIO_INT = 2;
-
-    public static final String NOTIFICATION_TTS_RANGE = "NOTIFICATION_TTS_RANGE";
-    public static final String EXTRA_TTS_START = "EXTRA_TTS_START";
-    public static final String EXTRA_TTS_END   = "EXTRA_TTS_END";
-
-    public static final String ACTION_PLAY_FROM_TRACK  = "com.driot.bookplayer.PLAY_FROM_TRACK";
-    public static final String ACTION_PLAY_FROM_FOLDER = "com.driot.bookplayer.PLAY_FROM_FOLDER";
-    public static final String EXTRA_TRACK_ID  = "extra_track_id";
-    public static final String EXTRA_TRACK_ORDER_NEWEST_FIRST = "extra_track_id";
-    public static final String EXTRA_IS_PODCAST = "extra_is_podcast";
-    public static final String EXTRA_FOLDER_ID = "extra_folder_id";
-    public static final String EXTRA_INDEX     = "extra_index"; // optional, default 0
-
-    public static final String EXTRA_UI_SUPPRESS_MINI = "extra_ui_suppress_mini";
-    public static final String ACTION_UI_STATE      = "com.driot.bookplayer.action.UI_STATE";
-    public static final String ACTION_PING_UI = "com.driot.bookplayer.PING_UI";
-    public static final String EXTRA_UI_PLAYING     = "extra_ui_playing";
-    public static final String EXTRA_UI_POS         = "extra_ui_pos";
-    public static final String EXTRA_UI_DUR         = "extra_ui_dur";
-    public static final String EXTRA_UI_TITLE       = "extra_ui_title";
-    public static final String EXTRA_UI_SUBTITLE    = "extra_ui_subtitle";
-    public static final String EXTRA_UI_COVER       = "extra_ui_cover";
-    public static final String EXTRA_UI_TRACK_ID  = "extra_ui_track_id";
-    public static final String EXTRA_UI_FOLDER_ID = "extra_ui_folder_id";
-    public static final String EXTRA_UI_READY     = "extra_ui_ready";
-    public static final String EXTRA_UI_TTS       = "extra_ui_tts";
 
 
     public static volatile com.driot.bookplayer.player.PlaybackUiState lastUiState = null;
@@ -134,15 +114,15 @@ public class AudioService extends LoggingService {
             {60*24*30, 30000},
     };
     long playbackStateCompatAction =
-              PlaybackStateCompat.ACTION_PLAY
-            | PlaybackStateCompat.ACTION_PAUSE
-            | PlaybackStateCompat.ACTION_STOP
-            | PlaybackStateCompat.ACTION_REWIND
-            | PlaybackStateCompat.ACTION_FAST_FORWARD
-            | PlaybackStateCompat.ACTION_SKIP_TO_NEXT
-            | PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS
-            | PlaybackStateCompat.ACTION_PLAY_PAUSE
-            | PlaybackStateCompat.ACTION_SEEK_TO;
+            PlaybackStateCompat.ACTION_PLAY
+                    | PlaybackStateCompat.ACTION_PAUSE
+                    | PlaybackStateCompat.ACTION_STOP
+                    | PlaybackStateCompat.ACTION_REWIND
+                    | PlaybackStateCompat.ACTION_FAST_FORWARD
+                    | PlaybackStateCompat.ACTION_SKIP_TO_NEXT
+                    | PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS
+                    | PlaybackStateCompat.ACTION_PLAY_PAUSE
+                    | PlaybackStateCompat.ACTION_SEEK_TO;
 
     private static final boolean LOG_TRACE_ALL = false;
 
@@ -155,9 +135,6 @@ public class AudioService extends LoggingService {
     public static final String NOTIFICATION_TRACKFINISHED = "NOTIFICATION_TRACKFINISHED";
     public static final String NOTIFICATION_FILENOTFOUND = "NOTIFICATION_FILENOTFOUND";
     public static final String NOTIFICATION_ERROR = "NOTIFICATION_ERROR";
-    public static final String NOTIFICATION_AUDIOFOCUS_LOST = "NOTIFICATION_AUDIOFOCUS_LOST";
-    public static final String NOTIFICATION_AUDIOFOCUS_GAIN = "NOTIFICATION_AUDIOFOCUS_GAIN";
-    public static final String NOTIFICATION_ZIP_FILE_LOADED = "NOTIFICATION_ZIP_FILE_LOADED";
     public static final String NOTIFICATION_PLAYLISTFINISHED = "NOTIFICATION_PLAYLISTFINISHED";
     public static final String NOTIFICATION_PLAYBACK_MAXTIMEREACH = "NOTIFICATION_PLAYBACK_MAXTIMEREACH";
     public static final String NOTIFICATION_PLAYBACK_TIMER_VALUE = "NOTIFICATION_PLAYBACK_TIMER_VALUE";
@@ -170,30 +147,33 @@ public class AudioService extends LoggingService {
     private com.driot.bookplayer.player.PlaybackProgressUpdater progress;
 
     private long engineGen = 0L;
+    private final android.os.Handler main = new android.os.Handler(android.os.Looper.getMainLooper());
     private final EngineListener engineCb = new EngineListener() {
         @Override public void onPrepared(long gen) {
             if (gen != engineGen) return;
-            onEnginePrepared(); // your existing method
+            main.post(AudioService.this::onEnginePrepared);
         }
         @Override public void onCompletion(long gen) {
             if (gen != engineGen) return;
-            onEngineCompletion();
+            main.post(AudioService.this::onEngineCompletion);
         }
         @Override public void onError(long gen, String msg, int what, int extra) {
             if (gen != engineGen) return;
             onEngineError(msg, what, extra);
+            main.post(() -> onEngineError(msg, what, extra));
         }
         @Override public void onFatal(long gen, String msg, int what, int extra) {
             if (gen != engineGen) return;
-            onEngineFatal(msg, what, extra);
+            main.post(() -> onEngineFatal(msg, what, extra));
         }
         @Override public void onTtsRange(long gen, int s, int e) {
             if (gen != engineGen) return;
-            Intent i = new Intent(NOTIFICATION_TTS_RANGE)
-                    .putExtra(EXTRA_TTS_START, s)
-                    .putExtra(EXTRA_TTS_END, e);
-            LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(i);
-        }
+            main.post(() -> {
+                Intent i = new Intent(Intents.NOTIFICATION_TTS_RANGE)
+                        .putExtra(Intents.EXTRA_TTS_START, s)
+                        .putExtra(Intents.EXTRA_TTS_END, e);
+                LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(i);
+            });        }
     };
 
 
@@ -213,43 +193,50 @@ public class AudioService extends LoggingService {
     private boolean justAdvancedToNext = false; //for TTS starting anywhere
 
     private boolean suppressMiniUntilNextPlay = false;
-    public void suppressMiniUntilNextPlay() {
-        suppressMiniUntilNextPlay = true;
-        broadcastUiState(); // so observers hide immediately
-    }
+
     public boolean isMiniSuppressed() { return suppressMiniUntilNextPlay; }
 
     private void broadcastUiCleared() {
         lastUiState = null;
         uiLive.postValue(new PlaybackUiState(false, 0, 0, "", "", "",
                 0, 0, false, engine instanceof TtsEngine));
-        Intent i = new Intent(ACTION_UI_STATE)
-                .putExtra(EXTRA_UI_PLAYING,  false)
-                .putExtra(EXTRA_UI_POS,      0L)
-                .putExtra(EXTRA_UI_DUR,      0L)
-                .putExtra(EXTRA_UI_TITLE,    "")
-                .putExtra(EXTRA_UI_SUBTITLE, "")
-                .putExtra(EXTRA_UI_SUPPRESS_MINI, true);
+        Intent i = new Intent(Intents.ACTION_UI_STATE)
+                .putExtra(Intents.EXTRA_UI_PLAYING,  false)
+                .putExtra(Intents.EXTRA_UI_POS,      0L)
+                .putExtra(Intents.EXTRA_UI_DUR,      0L)
+                .putExtra(Intents.EXTRA_UI_TITLE,    "")
+                .putExtra(Intents.EXTRA_UI_SUBTITLE, "")
+                .putExtra(Intents.EXTRA_UI_SUPPRESS_MINI, true);
+
+        currentUiPhase = Intents.PHASE_LOADING_TEXT;
+        currentUiPhaseMsg = null;
+
         LocalBroadcastManager.getInstance(this).sendBroadcast(i);
     }
 
+    //needed for Car ?
     private void broadcastUiState() {
         PlaybackUiState s = buildUiState();
         lastUiState = s;
         uiLive.postValue(s);
-        Intent i = new Intent(ACTION_UI_STATE)
-                .putExtra(EXTRA_UI_PLAYING,  s.playing)
-                .putExtra(EXTRA_UI_POS,      s.positionMs)
-                .putExtra(EXTRA_UI_DUR,      s.durationMs)
-                .putExtra(EXTRA_UI_TITLE,    s.title)
-                .putExtra(EXTRA_UI_SUBTITLE, s.subTitle)
-                .putExtra(EXTRA_UI_COVER,    s.cover)
-                .putExtra(EXTRA_UI_SUPPRESS_MINI, suppressMiniUntilNextPlay)
-                // NEW
-                .putExtra(EXTRA_UI_TRACK_ID,  s.trackId)
-                .putExtra(EXTRA_UI_FOLDER_ID, s.folderId)
-                .putExtra(EXTRA_UI_READY,     s.ready)
-                .putExtra(EXTRA_UI_TTS,       s.ttsMode);
+        Intent i = new Intent(Intents.ACTION_UI_STATE)
+                .putExtra(Intents.EXTRA_UI_PLAYING,  s.playing)
+                .putExtra(Intents.EXTRA_UI_POS,      s.positionMs)
+                .putExtra(Intents.EXTRA_UI_DUR,      s.durationMs)
+                .putExtra(Intents.EXTRA_UI_TITLE,    s.title)
+                .putExtra(Intents.EXTRA_UI_SUBTITLE, s.subTitle)
+                .putExtra(Intents.EXTRA_UI_COVER,    s.cover)
+                .putExtra(Intents.EXTRA_UI_SUPPRESS_MINI, suppressMiniUntilNextPlay)
+
+                .putExtra(Intents.EXTRA_UI_TRACK_ID,  s.trackId)
+                .putExtra(Intents.EXTRA_UI_FOLDER_ID, s.folderId)
+                .putExtra(Intents.EXTRA_UI_READY,     s.ready)
+
+                .putExtra(Intents.EXTRA_UI_TTS,       s.ttsMode)
+                .putExtra(Intents.EXTRA_UI_PHASE,     currentUiPhase)
+                .putExtra(Intents.EXTRA_UI_PHASE_MSG, currentUiPhaseMsg)
+                ;
+
         LocalBroadcastManager.getInstance(this).sendBroadcast(i);
     }
 
@@ -257,12 +244,12 @@ public class AudioService extends LoggingService {
     private PlaybackUiState buildUiState() {
         PlayList pl = PlayList.getInstance();
         ZikFile z = (pl != null) ? pl.getZikFile() : null;
-        Folder f = lastPlayListMeta != null ? lastPlayListMeta.folder : null;
+        Folder f = (pl != null) ? pl.getFolder() : null;
 
         String title = (z != null) ? z.getFolderName()
                 : (f != null ? f.getName() : "");
         String text  = (z != null) ? z.getDisplayName() : "";
-        String cover = (f != null) ? StorageHelper.getImagePathCachedOrNot(this, f.image) : "";
+        String cover = (f != null) ? StorageHelper.checkAndCleanImagePath(this, f.image) : "";
 
         // Be defensive around engine readiness to avoid 0/0 churn if you want
         long pos = (engine != null) ? (long) engine.getCurrentPosition() : 0;
@@ -491,9 +478,12 @@ public class AudioService extends LoggingService {
         // Progress updater (DB)
         progress = new PlaybackProgressUpdater(this);
 
+        // Tap global TTS callbacks to detect the first *real* utterance start
+        ttsMgrHandle = AppTtsManager.get(this).acquire(this /*owner*/, ttsTap);
+
         LocalBroadcastManager.getInstance(this).registerReceiver(
                 pingReceiver,
-                new android.content.IntentFilter(ACTION_PING_UI)
+                new android.content.IntentFilter(Intents.ACTION_PING_UI)
         );
 
         myLogD("onCreate() - END");
@@ -529,13 +519,13 @@ public class AudioService extends LoggingService {
 
                         if (folderId > 0 && pl != null && pl.getSize() > 1) {
                             Intent trackList = new Intent(AudioService.this, com.driot.bookplayer.activities.ZikFileActivity.class)
-                                    .putExtra(com.driot.bookplayer.activities.ZikFileActivity.EXTRA_FOLDER_ID, folderId);
+                                    .putExtra(Intents.EXTRA_FOLDER_ID, folderId);
                             tsb.addNextIntent(trackList);
                         }
 
                         // 3) Finally PlayActivity (singleTop/clearTop like you already do)
                         tsb.addNextIntent(new Intent(AudioService.this, com.driot.bookplayer.activities.PlayActivity.class)
-                                .putExtra(EXTRA_AUTOPLAY, false));
+                                .putExtra(Intents.EXTRA_AUTOPLAY, false));
 
                         return tsb.getPendingIntent(0, flags);
                     }
@@ -563,8 +553,22 @@ public class AudioService extends LoggingService {
         //if maxReach + introCut + littleRewind
         setPositionPlayStart();
 
+        PlayerEngine e = this.engine; // snapshot to avoid races
+        if (e == null) {
+            myLogE("startPlayWithEngine: engine is null (race) — aborting start");
+            // Optionally: try to reload
+            // directPlay = true; loadFile();
+            return;
+        }
+
         myLogD("about to call engine.start()");
         logPauseTime();
+
+        if (engine instanceof TtsEngine) {
+            waitingForFirstTtsStart = true;
+            setUiPhase(Intents.PHASE_STARTING, "Starting speech…");
+            scheduleStartTimeout(2000);
+        }
 
         engine.start();
         Pref.setPauseTime(0);
@@ -588,6 +592,12 @@ public class AudioService extends LoggingService {
 
     private void nextTrack() {
         myLog("Next track");
+
+        waitingForFirstTtsStart = false;
+        cancelWarmupTimeout();
+        cancelStartTimeout();
+        if (engine instanceof TtsEngine) setUiPhase(Intents.PHASE_LOADING_TEXT, "Loading text…");
+
         justAdvancedToNext = true;
         PlayList pl = PlayList.getInstance();
         if (pl==null) {
@@ -607,8 +617,10 @@ public class AudioService extends LoggingService {
         }
         myLog("loading next track : n°" + PlayList.getInstance().getNumSlashTotal());
         if (Option.getBeepChapter()) playBeep("1beep");
-        directPlay = true;
-        loadFile();
+        new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+            directPlay = true;
+            loadFile();
+        });
         alertNewTrack();
     }
 
@@ -641,6 +653,7 @@ public class AudioService extends LoggingService {
         myLog("sendBroadcast alertPlaylistFinished");
     }
 
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         myLog("onStartCommand()");
@@ -658,6 +671,16 @@ public class AudioService extends LoggingService {
             return START_STICKY;
         }
 
+        Bundle b = intent.getExtras();
+        if (b == null) {
+            myLogW("No extras on intent!");
+        } else {
+            for (String k : b.keySet()) {
+                Object v = b.get(k);
+                myLogD("extra [" + k + "] = " + v + " (" + (v==null? "null" : v.getClass().getSimpleName()) + ")");
+            }
+        }
+
         final String action = intent.getAction();
         if (action == null) {
             myLogW("AudioService start with no intent.action");
@@ -666,13 +689,14 @@ public class AudioService extends LoggingService {
 
         switch (action) {
             // -------- High-level “load something and (likely) play” intents --------
-            case ACTION_PLAY_FROM_TRACK: {
+            case Intents.ACTION_PLAY_FROM_TRACK: {
                 // Enter foreground *before* async work to satisfy the 5s rule
                 goForegroundPreparing("Preparing…", "Loading selected track");
 
-                final int trackId = intent.getIntExtra(EXTRA_TRACK_ID, -1);
-                final boolean newestFirst = intent.getBooleanExtra(EXTRA_TRACK_ORDER_NEWEST_FIRST, true);
-                final boolean isPodcast = intent.getBooleanExtra(EXTRA_IS_PODCAST, false);
+                final int trackId = intent.getIntExtra(Intents.EXTRA_TRACK_ID, -1);
+                final boolean isPodcast = intent.getBooleanExtra(Intents.EXTRA_IS_PODCAST, false);
+                final boolean newestFirst = intent.getBooleanExtra(Intents.EXTRA_TRACK_ORDER_NEWEST_FIRST, true);
+                myLog("trackId : " + trackId + " - isPodcast : " +isPodcast + " - newestFirst : " + newestFirst );
                 if (trackId > 0) {
                     AppDatabase.databaseReadExecutor.execute(() -> {
                         ZikFile clicked = AppDatabase.getDatabase(this).zikFileDao().getById(trackId);
@@ -690,7 +714,10 @@ public class AudioService extends LoggingService {
                         } else {
                             list = AppDatabase.getDatabase(this).zikFileDao().getZikFiles(folderId);
                         }
-                        if (list == null || list.isEmpty()) return;
+                        if (list == null || list.isEmpty()) {
+                            myLogE("ZikFile list empty");
+                            return;
+                        }
 
                         int index = 0;
                         for (int i = 0; i < list.size(); i++) {
@@ -698,25 +725,31 @@ public class AudioService extends LoggingService {
                         }
 
                         PlayList.create(getApplicationContext(), folder, list, index);
-                        directPlay = true;
-                        loadFile(); // will prepare; on prepared you'll call showForegroundNotification(...)
+                        new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+                            directPlay = true;
+                            loadFile();
+                        });
                     });
+                } else {
+                    myLogE("track id = " + trackId);
                 }
                 return START_STICKY;
             }
 
-            case ACTION_PLAY_FROM_FOLDER: {
+            case Intents.ACTION_PLAY_FROM_FOLDER: {
                 goForegroundPreparing("Preparing…", "Loading folder");
-                final int folderId = intent.getIntExtra(EXTRA_FOLDER_ID, -1);
-                final int index = Math.max(0, intent.getIntExtra(EXTRA_INDEX, 0));
+                final int folderId = intent.getIntExtra(Intents.EXTRA_FOLDER_ID, -1);
+                final int index = Math.max(0, intent.getIntExtra(Intents.EXTRA_INDEX, 0));
                 if (folderId > 0) {
                     AppDatabase.databaseReadExecutor.execute(() -> {
                         Folder folder = AppDatabase.getDatabase(this).folderDao().getById(folderId);
                         List<ZikFile> list = AppDatabase.getDatabase(this).zikFileDao().getZikFiles(folderId);
                         if (list == null || list.isEmpty()) return;
                         PlayList.create(getApplicationContext(), folder, list, Math.min(index, list.size() - 1));
-                        directPlay = true;
-                        loadFile();
+                        new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+                            directPlay = true;
+                            loadFile();
+                        });
                     });
                 }
                 return START_STICKY;
@@ -749,7 +782,7 @@ public class AudioService extends LoggingService {
             }
 
             case "CMD_NEXT": {
-                forwardAudioTo(getPosition() + Option.get_ForwardSeconds() * 1000);
+                forwardAudio();
                 return START_STICKY;
             }
 
@@ -800,13 +833,16 @@ public class AudioService extends LoggingService {
                         }
                     };
 
+            Notification n = notif.buildPreparing(t, s, /* content PI */ minimal.content());
+            /*
             Notification n = notif.build(
                     media.session(),
-                    /*playing=*/false,
+                    false,
                     t,
                     s,
                     minimal
             );
+*/
             // to call before 5sec :
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 startForeground(ID_NOTIFICATION_PLAY_AUDIO_INT, n, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK);
@@ -819,17 +855,17 @@ public class AudioService extends LoggingService {
     }
 
 
-/*  onTaskRemoved
-    It fires when
-    The user opens the Recents screen and swipes your app’s card away.
-    The user taps “Clear all” in Recents (which removes your task).
-    You call finishAndRemoveTask() on an Activity (explicitly removes the task).
+    /*  onTaskRemoved
+        It fires when
+        The user opens the Recents screen and swipes your app’s card away.
+        The user taps “Clear all” in Recents (which removes your task).
+        You call finishAndRemoveTask() on an Activity (explicitly removes the task).
 
-    It does not fire when
-    The user presses Back to exit an Activity (unless you used finishAndRemoveTask()).
-    The user presses Home, switches apps, or turns the screen off.
-    The process is killed by the system’s low-memory killer or the user hits Force stop in Settings.
- */
+        It does not fire when
+        The user presses Back to exit an Activity (unless you used finishAndRemoveTask()).
+        The user presses Home, switches apps, or turns the screen off.
+        The process is killed by the system’s low-memory killer or the user hits Force stop in Settings.
+     */
     @Override
     public void onTaskRemoved(Intent rootIntent) {
         String logMsg = "onTaskRemoved";
@@ -866,6 +902,14 @@ public class AudioService extends LoggingService {
             }
         }
         if (media != null) media.release();
+
+        try { if (ttsMgrHandle != null) ttsMgrHandle.close(); } catch (Throwable ignore) {}
+        ttsMgrHandle = null;
+        cancelWarmupTimeout();
+        cancelStartTimeout();
+        waitingForFirstTtsStart = false;
+        if (engine instanceof TtsEngine) setUiPhase(Intents.PHASE_LOADING_TEXT, "Loading text…");
+
         if (!fromDestroy) stopSelf();
     }
 
@@ -918,6 +962,7 @@ public class AudioService extends LoggingService {
     /** Simplified, side-effect-free loader. */
     public void loadFile() {
         myLogD("loadFile()  directPlay=" + directPlay);
+        ttsFallbackTried = false;
 
         // Ensure we actually have something to play
         PlayList pl = PlayList.getInstance();
@@ -938,9 +983,7 @@ public class AudioService extends LoggingService {
         ZikFile zf = pl.getZikFile();
 
         // Decide engine type from display or path
-        final boolean isText =
-                (zf.getPath()!=null && zf.getPath().toLowerCase().endsWith(".txt")) ||
-                        (zf.getDisplayName()!=null && zf.getDisplayName().toLowerCase().endsWith(".txt"));
+        final boolean isText = (zf.getPath()!=null && zf.getPath().toLowerCase().endsWith(".txt"));
 
         // Resolve Uri
         Uri src = UriHelper.resolvePlayableUri(this, zf);
@@ -962,6 +1005,12 @@ public class AudioService extends LoggingService {
 
         ErrorLoadingFile = false;
 
+        // Update UI to "buffering" and notif already done...
+        showForegroundNotification(isPlaying());
+
+        // PHASE: LOADING_TEXT (text extraction / paragraphize happens inside setDataSource)
+        if (fresh instanceof TtsEngine) setUiPhase(Intents.PHASE_LOADING_TEXT, "Loading text…");
+
         // Update media session metadata early (title/sub), set BUFFERING, show paused notif
         media.updateState(PlaybackStateCompat.STATE_BUFFERING, 0, 0f, playbackStateCompatAction);
         ZikFile cur = getCurrentZikFile(); // should be zf, but stay defensive
@@ -979,6 +1028,13 @@ public class AudioService extends LoggingService {
         try {
             engine.reset();
             engine.setDataSource(this, src, zf.getDisplayName());
+
+            // PHASE: WARMING_UP (voice selection/warm-up happens during prepareAsync)
+            if (engine instanceof TtsEngine) {
+                setUiPhase(Intents.PHASE_WARMING_UP, "Preparing voice…");
+                scheduleWarmupTimeout(5000); // gentle hint if it drags on
+            }
+
             engine.prepareAsync();
 
             // Optional: broadcast current title/pos (dur likely 0 → mini remains hidden).
@@ -987,6 +1043,7 @@ public class AudioService extends LoggingService {
 
         } catch (Exception e) {
             myLogEE(e, "loadFile: setDataSource/prepareAsync failed");
+            setUiPhase(Intents.PHASE_ERROR, "Failed to prepare TTS");
             loadFileKO();
         }
     }
@@ -1012,8 +1069,10 @@ public class AudioService extends LoggingService {
         if (suppressMiniUntilNextPlay) { suppressMiniUntilNextPlay = false; broadcastUiState(); }
 
         if (engine == null || needsReloadForPlaylist()) {
-            directPlay = true;
-            loadFile();        // will broadcast early + onPrepared; start after prepared
+            new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+                directPlay = true;
+                loadFile();
+            });
             return;
         }
 
@@ -1064,12 +1123,6 @@ public class AudioService extends LoggingService {
         int temp = getPosition();
         if ((temp + lag ) <= getDuration()) {
             setPosition(temp + lag );
-        }
-    }
-    public void forwardAudioTo(int lag) {
-        myLog("forwardAudio to " + lag);
-        if (lag <= getDuration()) {
-            setPosition(lag);
         }
     }
     public void backwardAudio() {
@@ -1258,7 +1311,10 @@ public class AudioService extends LoggingService {
     }
 
     private void onEnginePrepared() {
-        myLogD("engine prepared");
+        myLogD("onEnginePrepared()");
+
+        cancelWarmupTimeout();
+        setUiPhase(Intents.PHASE_READY, null);
 
         try {
             int saved = getSavedResumePosition();
@@ -1291,8 +1347,15 @@ public class AudioService extends LoggingService {
         sendReadyToPlay("onEnginePrepared");
 
         if (directPlay) {
+            // We will call start(); show “starting” until the first utt_* begins
+            waitingForFirstTtsStart = (engine instanceof TtsEngine);
+            if (waitingForFirstTtsStart) {
+                setUiPhase(Intents.PHASE_STARTING, "Starting speech…");
+                scheduleStartTimeout(2000);
+            }
             startPlayWithEngine();
         } else {
+            //TODO usefull ?
             media.updateState(
                     PlaybackStateCompat.STATE_PAUSED,
                     engine != null ? engine.getCurrentPosition() : 0,
@@ -1324,12 +1387,39 @@ public class AudioService extends LoggingService {
         myLogEE(null,"Engine error: " + msg + " (" + what + "," + extra + ")");
         ErrorLoadingFile = true;
         sleepTimer.stop();
-        if (msg.startsWith("TTS")) {
-            alertError("TTS", msg);
-        } else {
-            alertError(null, null);
+
+        // TTS errors are recoverable → do NOT send NOTIFICATION_ERROR
+        if (msg != null && msg.startsWith("TTS")) {
+            // Drive UI with phase only, keep activity open
+            setUiPhase(Intents.PHASE_ERROR, "Speech engine error (" + what + ")");
+
+            // One-shot fallback to system/default voice, then retry play
+            if (engine instanceof TtsEngine && !ttsFallbackTried) {
+                ttsFallbackTried = true;
+                TtsEngine te = (TtsEngine) engine;
+                setUiPhase(Intents.PHASE_WARMING_UP, getString(R.string.tts_phase_warming_up));
+                te.setVoiceByNameAndWarmUp("system", 2500L, (ready, reason) -> {
+                    if (ready) {
+                        setUiPhase(Intents.PHASE_READY, null);
+                        // If user intended to play, start again
+                        if (directPlay || (engine != null && !engine.isPlaying())) {
+                            setUiPhase(Intents.PHASE_STARTING, getString(R.string.tts_phase_starting));
+                            startPlayWithEngine();
+                        }
+                    } else {
+                        // Still failed → leave in ERROR phase, but don’t kill the UI
+                        setUiPhase(Intents.PHASE_ERROR, getString(R.string.tts_phase_error));
+                    }
+                });
+            }
+            return; // <-- no NOTIFICATION_ERROR broadcast
         }
+
+        // Non-TTS = real fatal
+        alertError(null, null);
+        //broadcastUiState();
     }
+
 
     private void onEngineFatal(String msg, int what, int extra) {
         myLogEE(null,"Engine FATAL: " + msg + " (" + what + "," + extra + ")");
@@ -1368,14 +1458,27 @@ public class AudioService extends LoggingService {
     public void setTtsVoiceByNameAndWarmUp(String voiceName, long timeoutMs, TtsEngine.WarmupCallback cb) {
         if (!(engine instanceof TtsEngine)) { cb.onResult(false, TtsHelper.ERROR); return; }
         myLogD("setTtsVoiceByNameAndWarmUp : " + voiceName);
-        engine.pause();
+
+        final boolean wasPlaying = engine.isPlaying();
+        if (wasPlaying) engine.pause();
+
+        setUiPhase(Intents.PHASE_WARMING_UP, getString(R.string.tts_phase_warming_up));
+
         ((TtsEngine) engine).setVoiceByNameAndWarmUp(voiceName, timeoutMs, (ready, reason) -> {
             myLogD("Warmup result ready=" + ready + " reason=" + reason);
-            cb.onResult(ready, reason);
+            //cb.onResult(ready, reason);
+
             // You decide when to resume; often resume only if ready==true
             if (ready) {
-                myLog("ready, resuming");
-                //engine.resume();
+                setUiPhase(Intents.PHASE_READY, null);
+
+                if (wasPlaying) {
+                    // Resume playing with the new voice
+                    setUiPhase(Intents.PHASE_STARTING, getString(R.string.tts_phase_starting));
+                    main.post(this::startPlayWithEngine);
+                }
+            } else {
+                setUiPhase(Intents.PHASE_ERROR, "TTS warm-up failed (" + reason + ")");
             }
         });
     }
@@ -1454,7 +1557,7 @@ public class AudioService extends LoggingService {
                 int position = getPosition();
                 myLog("position : [" + position + "]  introCut : [" + introCut + "]");
                 if (position < introCut) {
-                    forwardAudioTo(introCut);
+                    engine.seekTo(introCut);
                     myLogI("=> Intro Cut");
                 }
             }
@@ -1464,4 +1567,61 @@ public class AudioService extends LoggingService {
         }
     }
 
+
+    // Listen to *global* TTS events to detect first spoken utterance
+    private final AppTtsManager.Listener ttsTap = new AppTtsManager.Listener() {
+        @Override public void onStart(String id) {
+            // Only care in TTS mode, and only for real speech (utt_*), not warmups
+            if (!isTtsMode()) return;
+            if (id != null && id.startsWith("utt_") && waitingForFirstTtsStart) {
+                waitingForFirstTtsStart = false;
+                cancelStartTimeout();
+                setUiPhase(Intents.PHASE_SPEAKING, null /*no message*/);
+                // Make sure notif/UI reflect "playing"
+                showForegroundNotification(true);
+                broadcastUiState();
+            }
+        }
+        @Override public void onError(String id, int code) {
+            if (!isTtsMode()) return;
+            // Early error while we were expecting speech → show a helpful hint
+            if (waitingForFirstTtsStart || Intents.PHASE_WARMING_UP.equals(currentUiPhase)) {
+                setUiPhase(Intents.PHASE_ERROR, "Speech engine error (" + code + ")");
+                broadcastUiState();
+            }
+        }
+    };
+
+    // Convenience for setting phase + optional message
+    private void setUiPhase(@NonNull String phase, @Nullable String msg) {
+        myLog("setUiPhase : " + phase + " - msg : " + msg);
+        currentUiPhase = phase;
+        currentUiPhaseMsg = msg;
+    }
+    private void scheduleWarmupTimeout(long ms) {
+        cancelWarmupTimeout();
+        warmupTimeout = () -> {
+            if (Intents.PHASE_WARMING_UP.equals(currentUiPhase)) {
+                setUiPhase(Intents.PHASE_WARMING_UP, "Preparing voice… (check network / voice files)");
+                broadcastUiState();
+            }
+        };
+        phaseHandler.postDelayed(warmupTimeout, ms);
+    }
+    private void cancelWarmupTimeout() {
+        if (warmupTimeout != null) { phaseHandler.removeCallbacks(warmupTimeout); warmupTimeout = null; }
+    }
+    private void scheduleStartTimeout(long ms) {
+        cancelStartTimeout();
+        startTimeout = () -> {
+            if (Intents.PHASE_STARTING.equals(currentUiPhase)) {
+                setUiPhase(Intents.PHASE_STARTING, "Starting speech…");
+                broadcastUiState();
+            }
+        };
+        phaseHandler.postDelayed(startTimeout, ms);
+    }
+    private void cancelStartTimeout() {
+        if (startTimeout != null) { phaseHandler.removeCallbacks(startTimeout); startTimeout = null; }
+    }
 }

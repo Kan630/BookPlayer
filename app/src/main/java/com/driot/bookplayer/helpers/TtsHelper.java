@@ -16,36 +16,21 @@ import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.adapter.VoiceSpinnerAdapter;
 import com.driot.bookplayer.objects.VoiceItem;
+import com.driot.bookplayer.tts.TtsIds;
 import com.driot.bookplayer.utils.AppTtsManager;
-import com.driot.bookplayer.utils.log.KanLogger;
+import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 import java.io.File;
 import java.text.BreakIterator;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Locale;
-import java.util.Set;
 
 public class TtsHelper {
-    private final Context ctx;
+    private final Context context;
     private TextToSpeech tts;
-    private boolean ready = false;
 
     public static final int READY=0, SET_VOICE_FAILED=1, MISSING_DATA=2, SYNTH_FAIL=3, ERROR=4, TIMEOUT=5;
-
-    private volatile int lastStartOffset = 0;
-    private volatile int lastEndOffset = 0;
-
-    public interface Listener {
-        void onStart(String uttId);
-        void onDone(String uttId);
-        void onError(String uttId, int errorCode);
-        default void onTtsReady(TextToSpeech tts) {}
-        default void onUtteranceRange(int start, int end) {}
-        default void onWordRange(int start, int end) {}
-    }
 
     // optional raw access
     public TextToSpeech raw() { return tts; }
@@ -54,127 +39,50 @@ public class TtsHelper {
         return tts.synthesizeToFile(text, params, file, utteranceId);
     }
 
-    private final Listener listener;
-
-    public TtsHelper(@NonNull Context ctx, @NonNull TextToSpeech sharedTts, @Nullable Listener listener) {
-        this.ctx = ctx.getApplicationContext();
-        this.listener = listener;
+    public TtsHelper(@NonNull Context ctx, @NonNull TextToSpeech sharedTts) {
+        this.context = ctx.getApplicationContext();
         this.tts = sharedTts;   // do NOT new TextToSpeech here
     }
-/*
-    @Override public void onInit(int status) {
-        if (status == TextToSpeech.SUCCESS) {
-            try {
-                // Engine + defaults
-                myLogI("TTS engine: " + tts.getDefaultEngine());
-                tts.setPitch(1.0f);
-                tts.setSpeechRate(1.0f);
-                tts.setAudioAttributes(new AudioAttributes.Builder()
-                        .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
-                        .setUsage(AudioAttributes.USAGE_MEDIA)
-                        .build());
-
-                tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
-                    @Override public void onStart(String id) {
-                        int[] se = parseRange(id);
-                        if (se != null) {
-                            lastStartOffset = se[0];
-                            lastEndOffset = se[1];
-                            if (listener != null) listener.onUtteranceRange(se[0], se[1]);
-                        }
-                        if (listener != null) listener.onStart(id);
-                    }
-                    @Override public void onDone(String id) {
-                        if (listener != null) listener.onDone(id);
-                    }
-                    @Override public void onError(String id) {
-                        if (listener != null) listener.onError(id, 0);
-                    }
-                    @Override public void onError(String id, int code) {
-                        if (listener != null) listener.onError(id, code);
-                    }
-                    @Override public void onRangeStart(String utteranceId, int start, int end, int frame) {
-                        int[] se = parseRange(utteranceId);
-                        if (se != null && listener != null) {
-                            int absStart = se[0] + Math.max(0, start);
-                            int absEnd   = se[0] + Math.max(0, end);
-                            listener.onWordRange(absStart, absEnd);
-                        }
-                    }
-                });
-
-                boolean voiceSet = false;
-                Voice best = pickBestVoice(Locale.getDefault(), null);
-                if (best != null) {
-                    int sr = tts.setVoice(best);
-                    myLog("onInit: picked voice=" + VoiceItem.describeVoice(best) + " -> setVoice()=" + sr);
-                    voiceSet = (sr == TextToSpeech.SUCCESS);
-                } else {
-                    myLogW("onInit: no suitable voice found for " + Locale.getDefault());
-                }
-
-                // Fallback to setLanguage for legacy / rare devices
-                if (!voiceSet) {
-                    int r = tts.setLanguage(Locale.getDefault());
-                    myLogI("onInit: fallback setLanguage(" + Locale.getDefault() + ") -> " + r);
-                    ready = (r != TextToSpeech.LANG_MISSING_DATA && r != TextToSpeech.LANG_NOT_SUPPORTED);
-                } else {
-                    ready = true;
-                }
-
-                if (ready) {
-                    logCurrentVoice();
-                    myLog("----------");
-                    //logAllVoices(); // dump the catalog once on init (handy during development)
-                    if (listener != null) listener.onTtsReady(tts);
-                }
-            } catch (Throwable t) {
-                myLogEE(t, "onInit failure");
-            }
-        } else {
-            myLogE("onInit: status != SUCCESS (" + status + ")");
-        }
-    }
-
- */
 
     public boolean isReady() { return tts != null; }
 
     // ======== SPEAK API (unchanged) ========
-    public void speakFromOffset(String text, int startOffset) {
+    public void speakFromOffset(String text, int startOffset, float volume) {
         myLogD("speakFromOffset");
-        if (!isReady()) {
-            myLogD("not ready");
+        if (tts == null || text == null || text.isEmpty()) {
+            myLogD("speakFromOffset : empty");
             return;
         }
-        if (text == null) {
-            myLogD("text == null");
+        if (!isReady()) {
+            myLogD("speakFromOffset : not ready");
             return;
         }
         int maxLen = 1800;
-        List<Chunk> chunks = buildChunks(text, maxLen);
 
+        List<Chunk> chunks = buildChunks(text, maxLen);
         int safeOffset = Math.max(0, Math.min(startOffset, text.length()));
         int idx = findChunkIndexForOffset(chunks, safeOffset);
         if (idx >= chunks.size()) return;
 
         Chunk base = chunks.get(idx);
         int headEnd = Math.min(base.end, safeOffset + maxLen);
-        String headText = text.substring(safeOffset, headEnd);
-        String headId   = "utt_" + safeOffset + "_" + headEnd;
-        tts.speak(headText, TextToSpeech.QUEUE_FLUSH, null, headId);
+
+        Bundle p = new Bundle();
+        p.putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, Math.max(0f, Math.min(1f, volume)));
+
+        String headId = TtsIds.utt(safeOffset, headEnd);
+        tts.speak(text.substring(safeOffset, headEnd), TextToSpeech.QUEUE_FLUSH, p, headId);
 
         if (headEnd < base.end) {
-            String tailText = text.substring(headEnd, base.end);
-            String tailId   = "utt_" + headEnd + "_" + base.end;
-            tts.speak(tailText, TextToSpeech.QUEUE_ADD, null, tailId);
+            String tailId = TtsIds.utt(headEnd, base.end);
+            tts.speak(text.substring(headEnd, base.end), TextToSpeech.QUEUE_ADD, p, tailId);
         }
-
         for (int i = idx + 1; i < chunks.size(); i++) {
             Chunk c = chunks.get(i);
-            String uttId = "utt_" + c.start + "_" + c.end;
-            tts.speak(c.text, TextToSpeech.QUEUE_ADD, null, uttId);
+            String id = TtsIds.utt(c.start, c.end);
+            tts.speak(c.text, TextToSpeech.QUEUE_ADD, p, id);
         }
+
     }
 
     public void setSpeechRate(float rate) { if (tts != null) tts.setSpeechRate(rate); }
@@ -182,143 +90,7 @@ public class TtsHelper {
     public void pause() { if (tts != null) tts.playSilentUtterance(250, TextToSpeech.QUEUE_ADD, "pause"); }
     //public void shutdown() { if (tts != null) { tts.stop(); tts.shutdown(); tts = null; } }
 
-    // ======== VOICE HELPERS ========
-
-    /** Dumps all voices with status/attributes to logcat. */
-    public void logAllVoices() {
-        if (tts == null) {
-            myLogW("logAllVoices: TTS null");
-            return;
-        }
-        try {
-            myLogI("---- VOICES CATALOG (engine=" + tts.getDefaultEngine() + ") ----");
-            for (Voice v : tts.getVoices()) {
-                myLog(VoiceItem.describeVoice(v));
-            }
-            myLogI("---- END VOICES ----");
-        } catch (Throwable t) {
-            myLogEE(t, "logAllVoices failed");
-        }
-    }
-
-    /** Logs the currently selected/default voice. */
-    public void logCurrentVoice() {
-        try {
-            Voice cur = tts.getVoice();
-            Voice def = tts.getDefaultVoice();
-            myLog("Current voice: " + cur.getName() + " - " + VoiceItem.describeVoice(cur));
-            myLog("Default voice: " + def.getName() + " - " + VoiceItem.describeVoice(def));
-        } catch (Throwable t) {
-            myLogEE(t, "tryLogCurrentVoice failed");
-        }
-    }
-
-    /** Picks the best voice for a locale (optionally filter by name substring), ranking by quality desc, latency asc, embedded preferred. */
-    public @Nullable Voice pickBestVoice(Locale locale, @Nullable String preferredNamePart) {
-        if (tts == null) return null;
-        try {
-            Set<Voice> voices = tts.getVoices();
-            if (voices == null || voices.isEmpty()) return null;
-            List<Voice> candidates = new ArrayList<>();
-            String lang = locale.getLanguage();
-            for (Voice v : voices) {
-                if (v.getLocale() == null) continue;
-                if (!lang.equals(v.getLocale().getLanguage())) continue; // allow any region in same language
-                if (preferredNamePart != null &&
-                        !v.getName().toLowerCase(Locale.US).contains(preferredNamePart.toLowerCase(Locale.US))) {
-                    // keep it in the pool; we will still consider in fallback
-                }
-                candidates.add(v);
-            }
-            if (candidates.isEmpty()) return null;
-
-            // Sort: preferredNamePart match first, then embedded first, then higher quality, then lower latency
-            Collections.sort(candidates, new Comparator<Voice>() {
-                @Override public int compare(Voice a, Voice b) {
-                    int scoreA = scoreVoice(a, preferredNamePart);
-                    int scoreB = scoreVoice(b, preferredNamePart);
-                    return Integer.compare(scoreB, scoreA); // desc
-                }
-            });
-            return candidates.get(0);
-        } catch (Throwable t) {
-            myLogEE(t, "pickBestVoice failed");
-            return null;
-        }
-    }
-
-    private static int scoreVoice(Voice v, @Nullable String preferredNamePart) {
-        int score = 0;
-        Set<String> feat = v.getFeatures();
-        boolean embedded = feat != null && feat.contains("embeddedTts");
-        boolean network  = (feat != null && feat.contains("networkTts")) || v.isNetworkConnectionRequired();
-
-        if (preferredNamePart != null &&
-                v.getName().toLowerCase(Locale.US).contains(preferredNamePart.toLowerCase(Locale.US))) {
-            score += 1000;
-        }
-        if (embedded) score += 200;
-        if (!network) score += 50;
-        // Quality ranges (higher is better), latency (lower is better)
-        score += (10 * v.getQuality());
-        score += (10 * (5 - Math.min(5, v.getLatency()))); // reverse latency
-        // Prefer region match slightly
-        score += 5;
-        return score;
-    }
-
-
-    // ======== LANGUAGE (fallback / back-compat) ========
-
-    /** Prefer voices. This remains for legacy devices or explicit fallbacks. */
-    public int setLanguage(@androidx.annotation.NonNull Locale locale) {
-        if (tts == null) return TextToSpeech.LANG_NOT_SUPPORTED;
-        try {
-            int r = tts.setLanguage(locale);
-            myLogI("setLanguage(" + locale + ") -> " + r);
-            return r;
-        } catch (Throwable t) {
-            myLogEE(t, "setLanguage failed");
-            return TextToSpeech.LANG_NOT_SUPPORTED;
-        }
-    }
-
-    /** Return all available voices from the current engine (may be empty). */
-    public @NonNull Set<Voice> getVoices() {
-        if (tts == null) return java.util.Collections.emptySet();
-        try {
-            return tts.getVoices();
-        } catch (Throwable t) {
-            myLogEE(t, "getVoices failed");
-            return java.util.Collections.emptySet();
-        }
-    }
-
-    /**
-     * Attempt to set a specific voice object on the TTS engine.
-     * Returns TextToSpeech.SUCCESS or TextToSpeech.ERROR.
-     */
-    public int setVoice(@NonNull Voice voice) {
-        if (tts == null) return TextToSpeech.ERROR;
-        try {
-            long startTime = System.currentTimeMillis();
-            int r = tts.setVoice(voice);
-            myLog("Voice loaded in " + (System.currentTimeMillis() - startTime) + " ms.");
-            myLog("setVoice(" + voice.getName() + ") -> " + r + " | " + VoiceItem.describeVoice(voice));
-            return r;
-        } catch (Throwable t) {
-            myLogEE(t, "setVoice failed");
-            return TextToSpeech.ERROR;
-        }
-    }
-
-
-
-
-
-
-
-    // ======== CHUNKING / UTILS (unchanged) ========
+    // ======== CHUNKING / UTILS ========
 
     private static final class Chunk {
         final int start, end; final String text;
@@ -374,15 +146,7 @@ public class TtsHelper {
         return ans;
     }
 
-    private static int[] parseRange(String id) {
-        try {
-            if (id == null || !id.startsWith("utt_")) return null;
-            int sep = id.lastIndexOf('_');
-            int start = Integer.parseInt(id.substring(4, sep));
-            int end   = Integer.parseInt(id.substring(sep + 1));
-            return new int[]{start, end};
-        } catch (Exception ignored) { return null; }
-    }
+
     /** Returns [wordStart, wordEnd] for a given offset. */
     public static int[] findWordBounds(CharSequence text, int off) {
         int n = text.length();
@@ -401,20 +165,6 @@ public class TtsHelper {
         if (e < s) e = s;
         return new int[]{s, e};
     }
-
-    /** Return a list of all available voices (may be empty if TTS not initialized). */
-    public List<Voice> getAllVoices() {
-        if (tts == null) return new ArrayList<>();
-        try {
-            Set<Voice> voices = tts.getVoices();
-            if (voices == null) return new ArrayList<>();
-            return new ArrayList<>(voices);
-        } catch (Exception e) {
-            // some devices may throw; return empty list
-            return new ArrayList<>();
-        }
-    }
-
 
 
     public interface OnVoiceSelected {
@@ -483,18 +233,24 @@ public class TtsHelper {
 
                     // Apply initial selection (skip setVoice for "system")
                     VoiceItem preSel = all.get(pre);
+                    /*
                     if (preSel != null && preSel.voice != null) {
                         try { mgr.setVoice(preSel.voice); } catch (Throwable ignored) {}
                     }
+
+                     */
                     callback.onSelected(preSel);
 
                     // Wire selection changes
                     spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                         @Override public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
                             VoiceItem sel = all.get(pos);
+                            /*
                             if (sel != null && sel.voice != null) {
                                 try { mgr.setVoice(sel.voice); } catch (Throwable ignored) {}
                             }
+
+                             */
                             callback.onSelected(sel);
                         }
                         @Override public void onNothingSelected(AdapterView<?> parent) { /* no-op */ }
@@ -522,11 +278,6 @@ public class TtsHelper {
 
 
     // ---- INTERNALS ----
-
-    private static void applyVoice(TextToSpeech tts, @Nullable VoiceItem item) {
-        if (tts == null || item == null || item.voice == null) return;
-        try { tts.setVoice(item.voice); } catch (Throwable ignored) {}
-    }
 
     /** Build & sort list of VoiceItem, with flags and nice labels. */
     private static List<VoiceItem> buildVoiceItems(Context ctx, TextToSpeech tts) {
@@ -573,14 +324,4 @@ public class TtsHelper {
         return t;
     }
 
-
-    // ======== LOGGING ========
-    private static final String TAG = "TtsHelper";
-    private static void myLog(String str) { KanLogger.myLog(TAG, str); }
-    private static void myLogD(String str) { KanLogger.myLogD(TAG, str); }
-    private static void myLogI(String str) { KanLogger.myLogI(TAG, str); }
-    private static void myLogW(String str) { KanLogger.myLogW(TAG, str); }
-    private static void myLogE(String str) { KanLogger.myLogE(TAG, str); }
-    private static void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, TAG, str); }
-    private static void myToastEE(Throwable t, String str) { KanLogger.myToastEE(t, TAG, str); }
 }

@@ -285,27 +285,48 @@ public class StorageHelper {
         return null;
     }
 
-    public static String getImagePathCachedOrNot(Context context, String imagePath) {
+    public static String checkAndCleanImagePath(Context context, String imagePath) {
+        if (imagePath == null || imagePath.isEmpty()) {
+            myLogW("checkAndCleanImagePath() called with null or empty path");
+            return null;
+        }
+
+        if (imagePath.startsWith("http://") || imagePath.startsWith("https://")) {
+            return imagePath; //let glide deals with it for now, it shall be downloaded later
+        }
+
+        if (imagePath.startsWith("file://")) {
+            imagePath = Uri.parse(imagePath).getPath();
+            if (imagePath == null) {
+                myLogW("imagePath null after Uri parse");
+                return null;
+            }
+            imagePath = Uri.decode(imagePath);
+        }
+
         File f = new File(imagePath);
         if (f.exists() && f.isFile()) {
             return imagePath;
+        } else {
+            myLogW("image path links to non existing file, trying a few fallbacks\n[" + imagePath + "]");
         }
         String fileName = Tonio.getFileNameFromPath(imagePath);
 
         File f2 = new File(StorageHelper.getImageFolder(context, false), fileName);
         if (f2.exists() && f2.isFile()) {
-            myLog("cached image => non cached image - [" + fileName + "]");
+            myLog("cached image => non cached image OK - [" + f2.getAbsolutePath() + "]");
             return f2.getAbsolutePath();
         }
 
         File f3 = new File(StorageHelper.getImageFolder(context, true), fileName);
         if (f3.exists() && f3.isFile()) {
-            myLog("non cached image => cached image - [" + fileName + "]");
+            myLog("non cached image => cached image OK - [" + f3.getAbsolutePath() + "]");
             return f3.getAbsolutePath();
-        } else {
-            //TODO try redownload from Podcast.imageOriginalUri
-            myToastEE(null, "no valid image file - [" + fileName + "]");
-            return null;
         }
+
+        //TODO maybe try redownload from Podcast.imageOriginalUri
+        // use processPendingImage, or run it
+        myToastEE(null, "no valid image file - [" + fileName + "]");
+        return null;
     }
 }

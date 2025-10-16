@@ -29,6 +29,7 @@ import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.db.ZikFile;
+import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.StorageHelper;
@@ -172,7 +173,7 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
             } else if ("image".equals(p)) {
                 if (folder.image != null) {
                     h.ivBookCover.setVisibility(View.VISIBLE);
-                    Glide.with(h.ivBookCover.getContext()).load(StorageHelper.getImagePathCachedOrNot(context, folder.image)).into(h.ivBookCover);
+                    Glide.with(h.ivBookCover.getContext()).load(StorageHelper.checkAndCleanImagePath(context, folder.image)).into(h.ivBookCover);
                 } else {
                     h.ivBookCover.setVisibility(View.GONE);
                 }
@@ -204,7 +205,8 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
 
         if (folder.image != null) {
             h.ivBookCover.setVisibility(View.VISIBLE);
-            Glide.with(h.ivBookCover.getContext()).load(StorageHelper.getImagePathCachedOrNot(context, folder.image)).into(h.ivBookCover);
+            Glide.with(h.ivBookCover.getContext()).load(StorageHelper.checkAndCleanImagePath(context, folder.image)).into(h.ivBookCover);
+            //Glide.with(h.ivBookCover.getContext()).load(folder.image).into(h.ivBookCover);
         } else {
             h.ivBookCover.setVisibility(View.GONE);
         }
@@ -248,7 +250,7 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
                     runOnUi(() -> context.startActivity(new Intent(context, PodcastEpisodeActivity.class).putExtra("podcast", p)));
                 } else {
                     if (zikFilesList.size() > 1) {
-                        runOnUi(() -> context.startActivity(new Intent(context, ZikFileActivity.class).putExtra(ZikFileActivity.EXTRA_FOLDER, clickedFolder)));
+                        runOnUi(() -> context.startActivity(new Intent(context, ZikFileActivity.class).putExtra(Intents.EXTRA_FOLDER, clickedFolder)));
                     } else {
                         myLogD("Single file");
                         // SINGLE FILE: only reload if it's a different clickedFolder than what's playing
@@ -261,8 +263,8 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
                             ContextCompat.startForegroundService(
                                     context.getApplicationContext(),
                                     new Intent(context.getApplicationContext(), AudioService.class)
-                                            .setAction(AudioService.ACTION_PLAY_FROM_FOLDER)
-                                            .putExtra(AudioService.EXTRA_FOLDER_ID, clickedFolder.getId())
+                                            .setAction(Intents.ACTION_PLAY_FROM_FOLDER)
+                                            .putExtra(Intents.EXTRA_FOLDER_ID, clickedFolder.getId())
                                             .putExtra(Var.EXTRA_CALLER, this.getClass().getSimpleName() + ".onClick() [FoldersRVAdapter]")
                                             .putExtra(Var.EXTRA_FOREGROUND, true)
                             );
@@ -289,7 +291,7 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
         if (pos == RecyclerView.NO_POSITION) return false;
         Folder folder = getItem(pos);
         if (folder == null) return false;
-        runOnUi(() -> context.startActivity(new Intent(context, ModifyFolderActivity.class).putExtra("folder", folder)));
+        runOnUi(() -> context.startActivity(new Intent(context, ModifyFolderActivity.class).putExtra(Intents.EXTRA_FOLDER, folder)));
         return true;
     }
 

@@ -1,5 +1,6 @@
 package com.driot.bookplayer.activities;
 
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -20,14 +21,17 @@ import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 
+import com.bumptech.glide.Glide;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
+import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
+import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.services.DeleteFolderWorker;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingActivity;
@@ -71,7 +75,7 @@ public class ModifyFolderActivity extends LoggingActivity {
         ImageView ivStorageIcon = findViewById(R.id.imageViewStorageIcon);
         TextView tvStorageIcon = findViewById(R.id.textViewStorageIcon);
 
-        folder = getIntent().getParcelableExtra("folder");
+        folder = getIntent().getParcelableExtra(Intents.EXTRA_FOLDER);
         if (folder == null) {
             myLogEE(null, "could_not_identify_folder_to_modify");
             myToastE(getString(R.string.could_not_identify_folder_to_modify));
@@ -114,7 +118,8 @@ public class ModifyFolderActivity extends LoggingActivity {
         ivCoverPreview = findViewById(R.id.ivCoverPreview);
 
         if (folder.image != null && !folder.image.isEmpty()) {
-            ivCoverPreview.setImageURI(Uri.parse(folder.image));
+            Context gildeContext = ivCoverPreview.getContext();
+            Glide.with(gildeContext).load(StorageHelper.checkAndCleanImagePath(gildeContext, folder.image)).into(ivCoverPreview);
         } else {
             ivCoverPreview.setImageResource(R.drawable.no_image_icon);
         }

@@ -1,7 +1,7 @@
 package com.driot.bookplayer.activities;
 
+import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -14,14 +14,17 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.adapter.ZikFilesRVAdapter;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.db.ZikFile;
+import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
+import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.player.PlaybackUiState;
 import com.driot.bookplayer.player.PlaybackViewModel;
 import com.driot.bookplayer.utils.log.LoggingActivity;
@@ -30,9 +33,6 @@ import java.util.List;
 
 public class ZikFileActivity extends LoggingActivity {
 
-    public static final String EXTRA_FOLDER_ID = "extra_folder_id";
-    public static final String EXTRA_FOLDER = "extra_folder";
-
     private RecyclerView recyclerView;
     private ZikFilesViewModel listVm;
     private PlaybackViewModel playbackVm;
@@ -40,7 +40,7 @@ public class ZikFileActivity extends LoggingActivity {
     private int lastObservedTrackId = -1;
 
     private Folder folder;
-    private int folderId = -1;
+    private int folderId;
 
     private ImageButton ib_settings;
 
@@ -66,15 +66,15 @@ public class ZikFileActivity extends LoggingActivity {
         ib_settings.setOnClickListener(view -> {
             myLogI("--- User clicks SETTINGS ---");
             if (folder != null) {
-                Intent it = new Intent(this, ModifyFolderActivity.class).putExtra("folder", folder);
+                Intent it = new Intent(this, ModifyFolderActivity.class).putExtra(Intents.EXTRA_FOLDER, folder);
                 modifyLauncher.launch(it);
             }
         });
 
         // Read initial folder once; keep only the id and always re-read from DB
-        folderId = getIntent().getIntExtra(EXTRA_FOLDER_ID, -1);
+        folderId = getIntent().getIntExtra(Intents.EXTRA_FOLDER_ID, -1);
         if (!(folderId > 0)) {
-            Folder initial = getIntent().getParcelableExtra(EXTRA_FOLDER);
+            Folder initial = getIntent().getParcelableExtra(Intents.EXTRA_FOLDER);
             if (initial == null) {
                 myToastEE(null, "onCreate : Intent folder == null");
                 finish();
@@ -82,6 +82,17 @@ public class ZikFileActivity extends LoggingActivity {
             }
             folderId = initial.getId();
         }
+
+        listVm.getFolderLive(folderId).observe(this, f -> {
+            if (f == null) {
+                myLogI("Folder " + folderId + " deleted — finishing.");
+                finish();
+                return;
+            }
+            folder = f;
+            fillHeader(); // uses the latest folder
+        });
+
 
         // ViewModel + LiveData observation
         listVm.getZikFilesLive(folderId).observe(this, list -> {
@@ -125,37 +136,8 @@ public class ZikFileActivity extends LoggingActivity {
                 }
             }
         });
-
-
-        // Load header info (folder metadata + image)
-        reloadFolderFromDb();
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        // Keep header fresh when returning
-        reloadFolderFromDb();
-    }
-
-    private void reloadFolderFromDb() {
-        if (folderId < 0) {
-            finish();
-            return;
-        }
-        AppDatabase.databaseReadExecutor.execute(() -> {
-            Folder newest = AppDatabase.getDatabase(this).folderDao().getById(folderId);
-            runOnUiThread(() -> {
-                if (newest == null) {
-                    myLogI("Folder " + folderId + " was deleted — finishing activity.");
-                    finish();
-                } else {
-                    folder = newest;
-                    fillHeader();
-                }
-            });
-        });
-    }
 
     private void scrollToLastPlayed(List<ZikFile> list) {
         long maxTs = 0;
@@ -178,21 +160,24 @@ public class ZikFileActivity extends LoggingActivity {
 
     private void fillHeader() {
         TextView textViewTitle = findViewById(R.id.textViewTitle);
-        ImageView imageView = findViewById(R.id.image);
+        ImageView ivCover = findViewById(R.id.coverImage);
 
         textViewTitle.setText(folder.getName());
 
         if (folder.image != null && !folder.image.isEmpty()) {
-            imageView.setVisibility(ImageView.VISIBLE);
-            imageView.setImageURI(null); // force refresh if same URI
-            imageView.setImageURI(Uri.parse(folder.image));
-            imageView.invalidate();
+            ivCover.setVisibility(ImageView.VISIBLE);
+
+            ivCover.setImageDrawable(null); // force refresh
+            Context gildeContext = ivCover.getContext();
+            Glide.with(gildeContext).load(StorageHelper.checkAndCleanImagePath(gildeContext, folder.image)).into(ivCover);
+            ivCover.invalidate();
         } else {
-            imageView.setImageDrawable(null);
-            imageView.setVisibility(ImageView.GONE);
+            ivCover.setImageDrawable(null);
+            ivCover.setVisibility(ImageView.GONE);
+            myLog("no image for " + folder.getName());
         }
 
-        imageView.setOnClickListener(v -> {
+        ivCover.setOnClickListener(v -> {
             myLogI("--- User click header image --");
             goUserClickHeader();
         });
@@ -219,8 +204,6 @@ public class ZikFileActivity extends LoggingActivity {
     private final ActivityResultLauncher<Intent> modifyLauncher =
             registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
                 myLogD("coming back from ModifyFolderActivity");
-                // Always reload from DB; if folder was deleted, this will finish().
-                reloadFolderFromDb();
             });
 
     private boolean isVisible(int position) {

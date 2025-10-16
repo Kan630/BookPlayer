@@ -13,15 +13,14 @@ import android.view.KeyEvent;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
-import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import com.driot.bookplayer.R;
+import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.TtsHelper;
-import com.driot.bookplayer.utils.log.KanLogger;
-import com.driot.bookplayer.utils.log.LoggerHelper;
 import com.driot.bookplayer.utils.log.LoggingAndroidViewModel;
 
 /**
@@ -38,8 +37,30 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
     private final MutableLiveData<Boolean> miniSuppressed = new MutableLiveData<>(false);
     public LiveData<Boolean> getMiniSuppressed() { return miniSuppressed; }
 
+    public interface WarmupUiCallback { void onResult(boolean ready, int reason); }
+    private volatile boolean inError = false;
+
     private AudioService service;
     private boolean bound;
+
+    // NEW: small holder for phase+message
+    public static final class PhaseUi {
+        public final @NonNull String phase;
+        public final @Nullable String message;
+        public PhaseUi(@NonNull String phase, @Nullable String message) {
+            this.phase = phase; this.message = message;
+        }
+        public boolean isBusyPhase() {
+            // Phases where we want a loading spinner
+            return Intents.PHASE_LOADING_TEXT.equals(phase)
+                    || Intents.PHASE_WARMING_UP.equals(phase)
+                    || Intents.PHASE_STARTING.equals(phase);
+        }
+    }
+
+    private final MutableLiveData<PhaseUi> phase = new MutableLiveData<>(new PhaseUi(Intents.PHASE_LOADING_TEXT, null));
+    public LiveData<PhaseUi> getPhase() { return phase; }
+
 
     private final ServiceConnection conn = new ServiceConnection() {
         @Override public void onServiceConnected(ComponentName name, IBinder binder) {
@@ -68,7 +89,7 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
         // Listen to unified UI state and (optionally) timer ticks for progress.
         LocalBroadcastManager lb = LocalBroadcastManager.getInstance(app);
         IntentFilter f = new IntentFilter();
-        f.addAction(AudioService.ACTION_UI_STATE);
+        f.addAction(Intents.ACTION_UI_STATE);
         f.addAction(AudioService.NOTIFICATION_PLAYBACK_TIMER_VALUE); // progress only
         lb.registerReceiver(receiver, f);
 
@@ -85,24 +106,29 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override public void onReceive(Context c, Intent i) {
             final String action = i.getAction();
-            if (AudioService.ACTION_UI_STATE.equals(action)) {
+            if (Intents.ACTION_UI_STATE.equals(action)) {
                 // we now know the service is running; bind if not already
                 maybeBindOnFirstUiState();
 
-                final boolean playing = i.getBooleanExtra(AudioService.EXTRA_UI_PLAYING, false);
-                final long pos        = i.getLongExtra(AudioService.EXTRA_UI_POS, 0);
-                final long dur        = i.getLongExtra(AudioService.EXTRA_UI_DUR, 0);
-                final String title    = i.getStringExtra(AudioService.EXTRA_UI_TITLE);
-                final String sub      = i.getStringExtra(AudioService.EXTRA_UI_SUBTITLE);
-                final String cover    = i.getStringExtra(AudioService.EXTRA_UI_COVER);
+                final boolean playing = i.getBooleanExtra(Intents.EXTRA_UI_PLAYING, false);
+                final long pos        = i.getLongExtra(Intents.EXTRA_UI_POS, 0);
+                final long dur        = i.getLongExtra(Intents.EXTRA_UI_DUR, 0);
+                final String title    = i.getStringExtra(Intents.EXTRA_UI_TITLE);
+                final String sub      = i.getStringExtra(Intents.EXTRA_UI_SUBTITLE);
+                final String cover    = i.getStringExtra(Intents.EXTRA_UI_COVER);
 
-                // NEW
-                final int trackId     = i.getIntExtra(AudioService.EXTRA_UI_TRACK_ID, 0);
-                final int folderId    = i.getIntExtra(AudioService.EXTRA_UI_FOLDER_ID, 0);
-                final boolean ready   = i.getBooleanExtra(AudioService.EXTRA_UI_READY, false);
-                final boolean ttsMode = i.getBooleanExtra(AudioService.EXTRA_UI_TTS, false);
+                final int trackId     = i.getIntExtra(Intents.EXTRA_UI_TRACK_ID, 0);
+                final int folderId    = i.getIntExtra(Intents.EXTRA_UI_FOLDER_ID, 0);
+                final boolean ready   = i.getBooleanExtra(Intents.EXTRA_UI_READY, false);
+                final boolean ttsMode = i.getBooleanExtra(Intents.EXTRA_UI_TTS, false);
 
-                miniSuppressed.postValue(i.getBooleanExtra(AudioService.EXTRA_UI_SUPPRESS_MINI, false));
+                final String uiPhase = i.getStringExtra(Intents.EXTRA_UI_PHASE);
+                final String uiMsg   = i.getStringExtra(Intents.EXTRA_UI_PHASE_MSG);
+                if (uiPhase != null) {
+                    phase.postValue(new PhaseUi(uiPhase, uiMsg));
+                }
+
+                miniSuppressed.postValue(i.getBooleanExtra(Intents.EXTRA_UI_SUPPRESS_MINI, false));
                 state.postValue(new PlaybackUiState(
                         playing, pos, dur, title, sub, cover,
                         trackId, folderId, ready, ttsMode
@@ -183,7 +209,7 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
         Context app = getApplication();
         try {
             app.startService(new Intent(app, AudioService.class)
-                    .setAction(AudioService.EXTRA_CMD_STOP)
+                    .setAction(Intents.EXTRA_CMD_STOP)
                     .putExtra(Var.EXTRA_CALLER, this.getClass().getSimpleName()));
         } catch (IllegalStateException e) {
             // If the app is truly backgrounded and startService() is disallowed,
@@ -273,25 +299,51 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
             android.content.Context ctx,
             android.widget.Spinner spinner,
             String initial,
-            java.util.function.Consumer<TtsHelper.Listener> onSelected
+            TtsHelper.OnVoiceSelected onSelected
     ) {
-        // reuse your existing TtsHelper.setupTtsVoiceSpinner(...)
-        //TODO uncomment
-        //TtsHelper.setupTtsVoiceSpinner(ctx, spinner, initial, onSelected);
+            TtsHelper.setupTtsVoiceSpinner(ctx, spinner, initial, onSelected);
 
     }
-    public void warmUpTtsVoice(String voiceName) {
-        if (service == null) return;
+
+    public void warmUpTtsVoice(String voiceName, WarmupUiCallback cb) {
+        if (service == null) { if (cb != null) cb.onResult(false, TtsHelper.ERROR); return; }
         try {
+            setPhase(Intents.PHASE_WARMING_UP, getApplication().getString(R.string.tts_phase_warming_up));
             service.setTtsVoiceByNameAndWarmUp(
                     voiceName,
                     5000L,
                     (ready, reason) -> {
-                        // You can post a small LiveData if you want to re-enable buttons on ready
+                        if (ready) {
+                            setPhase(Intents.PHASE_READY, null);
+                        } else {
+                            setPhase(Intents.PHASE_ERROR, "TTS warm-up failed (" + reason + ")");
+                        }
+                        if (cb != null) cb.onResult(ready, reason);
                     }
             );
-        } catch (Throwable ignored) {}
+        } catch (Throwable ignored) {
+            setPhase(Intents.PHASE_ERROR, getApplication().getString(R.string.tts_phase_error));
+            if (cb != null) cb.onResult(false, TtsHelper.ERROR);
+        }
     }
+
+    private void setPhase(@NonNull String phaseId, @Nullable String message) {
+        // If we’re in ERROR, ignore further warm-up/starting until a fresh voice change or load
+        if (inError && (Intents.PHASE_WARMING_UP.equals(phaseId) || Intents.PHASE_STARTING.equals(phaseId))) {
+            return;
+        }
+        if (Intents.PHASE_ERROR.equals(phaseId)) inError = true;
+        if (Intents.PHASE_WARMING_UP.equals(phaseId) || Intents.PHASE_LOADING_TEXT.equals(phaseId)) inError = false;
+
+        PhaseUi p = new PhaseUi(phaseId, message);
+
+        if (android.os.Looper.myLooper() == android.os.Looper.getMainLooper()) {
+            phase.setValue(p);      // main thread
+        } else {
+            phase.postValue(p);     // background thread
+        }
+    }
+
 
 }
 
