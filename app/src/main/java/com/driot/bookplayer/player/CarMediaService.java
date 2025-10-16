@@ -26,7 +26,6 @@ import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Option;
-import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.utils.log.LoggingMediaBrowserServiceCompat;
 
@@ -147,8 +146,8 @@ public class CarMediaService extends LoggingMediaBrowserServiceCompat {
                                         new Intent(CarMediaService.this, AudioService.class)
                                                 .setAction(Intents.ACTION_PLAY_FROM_TRACK)
                                                 .putExtra(Intents.EXTRA_TRACK_ID, zikFile.getId())
-                                                .putExtra(Var.EXTRA_CALLER, this.getClass().getSimpleName() + ".onPlay()")
-                                                .putExtra(Var.EXTRA_FOREGROUND, true)
+                                                .putExtra(Intents.EXTRA_CALLER, this.getClass().getSimpleName() + ".onPlay()")
+                                                .putExtra(Intents.EXTRA_FOREGROUND, true)
                                 );
                                 // Optional: show buffering right away in AA
                                 pushPlaybackState(PlaybackStateCompat.STATE_BUFFERING, 0);
@@ -179,7 +178,7 @@ public class CarMediaService extends LoggingMediaBrowserServiceCompat {
                 FirebaseAnalyticsHelper.tellCarSendCmd("CMD_SEEK");
                 Intent i = new Intent(CarMediaService.this, AudioService.class).setAction("CMD_SEEK");
                 i.putExtra("posMs", (int) posMs);
-                i.putExtra(Var.EXTRA_CALLER, this.getClass().getSimpleName() + " (CarMediaService)");
+                i.putExtra(Intents.EXTRA_CALLER, this.getClass().getSimpleName() + " (CarMediaService)");
                 startService(i);
             }
             @Override
@@ -196,8 +195,8 @@ public class CarMediaService extends LoggingMediaBrowserServiceCompat {
                                 new Intent(CarMediaService.this, AudioService.class)
                                         .setAction(Intents.ACTION_PLAY_FROM_TRACK)
                                         .putExtra(Intents.EXTRA_TRACK_ID, trackId)
-                                        .putExtra(Var.EXTRA_CALLER, this.getClass().getSimpleName() + ".onPlayFromMediaId()")
-                                        .putExtra(Var.EXTRA_FOREGROUND, true)
+                                        .putExtra(Intents.EXTRA_CALLER, this.getClass().getSimpleName() + ".onPlayFromMediaId()")
+                                        .putExtra(Intents.EXTRA_FOREGROUND, true)
                         );
                         // Optional: show buffering right away in AA
                         pushPlaybackState(PlaybackStateCompat.STATE_BUFFERING, 0);
@@ -215,8 +214,8 @@ public class CarMediaService extends LoggingMediaBrowserServiceCompat {
                                         .setAction(Intents.ACTION_PLAY_FROM_FOLDER)
                                         .putExtra(Intents.EXTRA_FOLDER_ID, folderId)
                                         .putExtra(Intents.EXTRA_INDEX, 0)
-                                        .putExtra(Var.EXTRA_CALLER, this.getClass().getSimpleName())
-                                        .putExtra(Var.EXTRA_FOREGROUND, true)
+                                        .putExtra(Intents.EXTRA_CALLER, this.getClass().getSimpleName())
+                                        .putExtra(Intents.EXTRA_FOREGROUND, true)
                         );
                         pushPlaybackState(PlaybackStateCompat.STATE_BUFFERING, 0);
                     }
@@ -518,8 +517,8 @@ public class CarMediaService extends LoggingMediaBrowserServiceCompat {
         FirebaseAnalyticsHelper.tellCarSendCmd(action);
         ContextCompat.startForegroundService(
                 this, new Intent(this, AudioService.class).setAction(action)
-                        .putExtra(Var.EXTRA_CALLER, this.getClass().getSimpleName() + ".sendCmd " + action)
-                        .putExtra(Var.EXTRA_FOREGROUND, true)
+                        .putExtra(Intents.EXTRA_CALLER, this.getClass().getSimpleName() + ".sendCmd " + action)
+                        .putExtra(Intents.EXTRA_FOREGROUND, true)
         );
     }
 

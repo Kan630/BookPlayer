@@ -17,8 +17,6 @@ public class Var {
     public static final String WORKER_TASK_LABEL_SPLIT_EBOOK = "SplitEbook";
     public static final String WORKER_TASK_LABEL_COPY = "Copy";
     public static final String WORKER_TASK_LABEL_SCAN = "Scan";
-    public static final String EXTRA_CALLER = "EXTRA_CALLER";
-    public static final String EXTRA_FOREGROUND = "EXTRA_FOREGROUND";
 
     public static final String FOREGROUND_DOWNLOAD_SERVICE_TAG = "download_retry";
 

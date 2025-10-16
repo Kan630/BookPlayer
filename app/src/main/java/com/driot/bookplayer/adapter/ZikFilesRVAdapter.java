@@ -185,8 +185,8 @@ public class ZikFilesRVAdapter extends LoggingListAdapter<ZikFile, ZikFilesRVAda
                         new Intent(ctx.getApplicationContext(), AudioService.class)
                                 .setAction(Intents.ACTION_PLAY_FROM_TRACK)
                                 .putExtra(Intents.EXTRA_TRACK_ID, clickedZikFile.getId())
-                                .putExtra(Var.EXTRA_CALLER, this.getClass().getSimpleName() + ".onClick() [ZikFilesRVAdapter]")
-                                .putExtra(Var.EXTRA_FOREGROUND, true)
+                                .putExtra(Intents.EXTRA_CALLER, this.getClass().getSimpleName() + ".onClick() [ZikFilesRVAdapter]")
+                                .putExtra(Intents.EXTRA_FOREGROUND, true)
                 );
             }
 

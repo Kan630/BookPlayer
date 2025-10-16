@@ -29,7 +29,6 @@ import androidx.lifecycle.Observer;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.global.Intents;
-import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.helpers.UriHelper;
 import com.driot.bookplayer.tts.AppTtsManager;
@@ -639,9 +638,9 @@ public class AudioService extends LoggingService {
         myLog("onStartCommand()");
         if (intent!=null) {
             String strCallLog = "intent = " + intent +
-                    "\ncalled by = " + intent.getStringExtra(Var.EXTRA_CALLER) +
+                    "\ncalled by = " + intent.getStringExtra(Intents.EXTRA_CALLER) +
                     "\nwith action = " + intent.getAction();
-            if (intent.getBooleanExtra(Var.EXTRA_FOREGROUND, false)) {
+            if (intent.getBooleanExtra(Intents.EXTRA_FOREGROUND, false)) {
                 myLogI("FOREGROUND AudioService start\n" + strCallLog);
             } else {
                 myLog("AudioService start\n" + strCallLog);

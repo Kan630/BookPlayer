@@ -271,8 +271,8 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
                                     new Intent(context.getApplicationContext(), AudioService.class)
                                             .setAction(Intents.ACTION_PLAY_FROM_FOLDER)
                                             .putExtra(Intents.EXTRA_FOLDER_ID, clickedFolder.getId())
-                                            .putExtra(Var.EXTRA_CALLER, this.getClass().getSimpleName() + ".onClick() [FoldersRVAdapter]")
-                                            .putExtra(Var.EXTRA_FOREGROUND, true)
+                                            .putExtra(Intents.EXTRA_CALLER, this.getClass().getSimpleName() + ".onClick() [FoldersRVAdapter]")
+                                            .putExtra(Intents.EXTRA_FOREGROUND, true)
                             );
                         }
                         if (Option.getOpenPlayActivity()) runOnUi(() -> context.startActivity(new Intent(context, PlayActivity.class).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)));

@@ -20,7 +20,6 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Intents;
-import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.tts.TtsHelper;
 import com.driot.bookplayer.utils.log.LoggingAndroidViewModel;
 
@@ -210,7 +209,7 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
         try {
             app.startService(new Intent(app, AudioService.class)
                     .setAction("CMD_STOP")
-                    .putExtra(Var.EXTRA_CALLER, this.getClass().getSimpleName()));
+                    .putExtra(Intents.EXTRA_CALLER, this.getClass().getSimpleName()));
         } catch (IllegalStateException e) {
             // If the app is truly backgrounded and startService() is disallowed,
             // just request a hard stop (no-ops if not running).
@@ -243,16 +242,16 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
         Intent down = new Intent(app, AudioService.class)
                 .setAction(Intent.ACTION_MEDIA_BUTTON)
                 .putExtra(Intent.EXTRA_KEY_EVENT, new KeyEvent(KeyEvent.ACTION_DOWN, keyCode))
-                .putExtra(Var.EXTRA_CALLER, this.getClass().getSimpleName())
-                .putExtra(Var.EXTRA_FOREGROUND, true)
+                .putExtra(Intents.EXTRA_CALLER, this.getClass().getSimpleName())
+                .putExtra(Intents.EXTRA_FOREGROUND, true)
                 ;
         ContextCompat.startForegroundService(app, down);
         // ACTION_UP (some OEMs need both)
         Intent up = new Intent(app, AudioService.class)
                 .setAction(Intent.ACTION_MEDIA_BUTTON)
                 .putExtra(Intent.EXTRA_KEY_EVENT, new KeyEvent(KeyEvent.ACTION_UP, keyCode))
-                .putExtra(Var.EXTRA_CALLER, this.getClass().getSimpleName())
-                .putExtra(Var.EXTRA_FOREGROUND, true)
+                .putExtra(Intents.EXTRA_CALLER, this.getClass().getSimpleName())
+                .putExtra(Intents.EXTRA_FOREGROUND, true)
                 ;
         ContextCompat.startForegroundService(app, up);
     }
@@ -344,7 +343,8 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
                     new Intent(app, AudioService.class)
                             .setAction(Intents.CMD_TTS_SET_VOICE)
                             .putExtra(Intents.EXTRA_TTS_VOICE_NAME, voiceName)
-                            .putExtra(Var.EXTRA_FOREGROUND, true)
+                            .putExtra(Intents.EXTRA_FOREGROUND, true)
+                            .putExtra(Intents.EXTRA_CALLER, this.getClass().getSimpleName() + ".warmUpTtsVoice()")
             );
 
             // Consider it ready (we switched instantly). If you later add true warm-up,

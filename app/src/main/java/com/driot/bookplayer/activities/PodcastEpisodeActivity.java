@@ -678,8 +678,8 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
                                 .putExtra(Intents.EXTRA_TRACK_ID, (int) id)
                                 .putExtra(Intents.EXTRA_TRACK_ORDER_NEWEST_FIRST, sortNewestFirst)
                                 .putExtra(Intents.EXTRA_IS_PODCAST, true)
-                                .putExtra(Var.EXTRA_CALLER, this.getClass().getSimpleName() + ".onOpenLocalEpisode()")
-                                .putExtra(Var.EXTRA_FOREGROUND, true)
+                                .putExtra(Intents.EXTRA_CALLER, this.getClass().getSimpleName() + ".onOpenLocalEpisode()")
+                                .putExtra(Intents.EXTRA_FOREGROUND, true)
                 );
 
             } catch (Exception e) {
@@ -908,7 +908,7 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
         if (AudioService.isRunning) {
             Intent intentStopService = new Intent(this, AudioService.class).
                     setAction(Intents.EXTRA_CMD_STOP)
-                    .putExtra(Var.EXTRA_CALLER, this.getClass().getSimpleName());
+                    .putExtra(Intents.EXTRA_CALLER, this.getClass().getSimpleName());
             try {
                 // App au premier plan → safe, pas de règle des 5s
                 startService(intentStopService);
