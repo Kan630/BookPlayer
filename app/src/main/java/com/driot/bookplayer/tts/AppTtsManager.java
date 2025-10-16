@@ -109,9 +109,7 @@ public final class AppTtsManager implements TextToSpeech.OnInitListener {
             tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
                 @Override public void onStart(String id) {
                     myLogD("setOnUtteranceProgressListener.onStart");
-                    listeners.values().forEach(w -> opt(w).onStart(id));
-                    //ou
-                    /*
+                    //listeners.values().forEach(w -> opt(w).onStart(id));
                     int[] se = TtsIds.parseUtt(id);
                     if (se != null) {
                         final int s = se[0];
@@ -119,8 +117,6 @@ public final class AppTtsManager implements TextToSpeech.OnInitListener {
                         listeners.values().forEach(w -> opt(w).onUtteranceRange(s, s));
                     }
                     listeners.values().forEach(w -> opt(w).onStart(id));
-
-                     */
                 }
                 @Override public void onDone(String id) {
                     myLogD("setOnUtteranceProgressListener.onDone");
