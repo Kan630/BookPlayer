@@ -1,6 +1,7 @@
 // app/src/androidTest/java/com/driot/bookplayer/test/workers/UnzipWorkerTest.java
-package com.driot.bookplayer.test.workers;
+package com.driot.bookplayer.test;
 
+import static com.driot.bookplayer.imports.BookLoadingWorkLauncher.BOOK_LOADING_WORKERS;
 import static com.driot.bookplayer.testutil.FixtureTestUtils.*;
 import static com.driot.bookplayer.testutil.HashAssert.assertOrInitFolderHash;
 
@@ -15,8 +16,6 @@ import androidx.work.WorkManager;
 import androidx.work.testing.SynchronousExecutor;
 import androidx.work.testing.WorkManagerTestInitHelper;
 
-import com.driot.bookplayer.global.Pref;
-import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.services.UnzipWorker;
 import com.driot.bookplayer.testutil.LogSupport;
 import com.driot.bookplayer.testutil.LoggingWatcher;
@@ -30,6 +29,7 @@ import org.junit.runner.RunWith;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @RunWith(AndroidJUnit4.class)
@@ -101,15 +101,19 @@ public class UnzipWorkerTest implements LogSupport {
     public void unzip_multiple_zips_and_check_folder_hash_or_init() throws Exception {
         boolean init = isInitMode();
         myLog("INIT mode = " + init + "  | cases=" + TESTS.size());
-        for (TestCase tc : TESTS) runCase(tc, init);
+        int i = 0;
+        for (TestCase tc : TESTS) {
+            i = i+1;
+            myLogI("---------------------------------------------------------------------------------");
+            myLogI("▶ Running case n°" + i + "/" + TESTS.size() + ": " + tc.name + "  (asset=" + tc.assetPath + ")");
+            myLogI("---------------------------------------------------------------------------------");
+            runCase(tc, init);
+        }
     }
 
     // -------------------- helpers --------------------
 
     private void runCase(TestCase tc, boolean init) throws Exception {
-        myLog("---------------------------------------------------------------------------------");
-        myLogI("▶ Running case: " + tc.name + "  (asset=" + tc.assetPath + ")");
-        myLog("---------------------------------------------------------------------------------");
 
         // 1) Prepare sandbox (unique per case)
         File tempRoot = new File(context.getFilesDir(), "unzip_" + tc.name);
@@ -136,7 +140,11 @@ public class UnzipWorkerTest implements LogSupport {
          */
 
         // 3) Run Worker
-        OneTimeWorkRequest req = new OneTimeWorkRequest.Builder(UnzipWorker.class).build();
+        String importId = "test_" + UUID.randomUUID();
+        OneTimeWorkRequest req = new OneTimeWorkRequest
+                .Builder(UnzipWorker.class)
+                .addTag(BOOK_LOADING_WORKERS).addTag("import:" + importId)
+                .build();
         WorkManager wm = WorkManager.getInstance(context);
         wm.enqueue(req).getResult().get();
 

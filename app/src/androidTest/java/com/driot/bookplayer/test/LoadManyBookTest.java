@@ -160,7 +160,9 @@ public class LoadManyBookTest implements LogSupport {
 
         for (TestCase tc : TESTS) {
             List<String> assetFiles = listAssetFilesRecursively(testContext.getAssets(), tc.assetFolderPath); // <-- use testContext
-            myLogD("--------------------------------------------------");
+            myLogI("--------------------------------------------------------------------------------------------------------------------------------------");
+            myLogI("---------------------------------------- ooooooooooooooooooooooo ---------------------------------------------------------------------");
+            myLogI("--------------------------------------------------------------------------------------------------------------------------------------");
             myLogI("         Import => " + String.format("TestCase '%s'-'%s' -> %d files", tc.uri_type, tc.assetFolderPath, assetFiles.size()));
             myLogD("--------------------------------------------------");
             if ("Folder".equals(tc.uri_type)) {
@@ -253,7 +255,11 @@ public class LoadManyBookTest implements LogSupport {
 
             if (terminal.result == TaskUiState.Result.FAILED) {
                 String err = (terminal.errorText == null ? "(no error text)" : terminal.errorText);
-                throw new AssertionError("Import failed: " + err + " | progress='" + terminal.progressText + "'");
+                throw new AssertionError("... Import failed... " + err +
+                        "\nprogress='" + terminal.progressPercent + " - " + terminal.progressText +
+                        "\n' | progress='" + terminal.warningText +
+                        "\n' | progress='" + terminal.title +
+                        "'");
             }
 
             // Optionally accept CANCELLED as a test failure
@@ -275,6 +281,7 @@ public class LoadManyBookTest implements LogSupport {
                     (baseFromSeg != null ? baseFromSeg : uri_content.toString());
 
             String logDuration = duration + "  " + targetName;
+            myLogI("-----------------------------------------------------------------------------------------------------------------------------");
             myLogI("Import n°" + nbImported + ": Duration: " + logDuration);
             String newLineMsg = "\n" + logDuration;
 

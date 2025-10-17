@@ -8,6 +8,8 @@ import org.junit.runners.Suite;
         PingTest.class,
         TestApplication.class,
         JustOpenAndWait.class,
+        UnzipWorkerTest.class,
+        M4bSplitWorkerTest.class,
         BasicNavPortraitTest.class,
         BasicNavLandscapeTest.class,
         LoadManyBookTest.class,

@@ -1,6 +1,7 @@
 // app/src/androidTest/java/com/driot/bookplayer/test/workers/M4bSplitWorkerTest.java
-package com.driot.bookplayer.test.workers;
+package com.driot.bookplayer.test;
 
+import static com.driot.bookplayer.imports.BookLoadingWorkLauncher.BOOK_LOADING_WORKERS;
 import static com.driot.bookplayer.testutil.FixtureTestUtils.copyAssetToFile;
 import static com.driot.bookplayer.testutil.FixtureTestUtils.deleteRecursively;
 import static com.driot.bookplayer.testutil.FixtureTestUtils.isInitMode;
@@ -18,8 +19,6 @@ import androidx.work.testing.SynchronousExecutor;
 import androidx.work.testing.WorkManagerTestInitHelper;
 
 import com.driot.bookplayer.global.Option;
-import com.driot.bookplayer.global.Pref;
-import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.services.M4bSplitWorker;   // <-- your worker
 import com.driot.bookplayer.testutil.LogSupport;
 import com.driot.bookplayer.testutil.LoggingWatcher;
@@ -98,8 +97,13 @@ public class M4bSplitWorkerTest implements LogSupport {
     @Test
     public void split_multiple_m4b_and_check_folder_hash_or_init() throws Exception {
         boolean init = isInitMode();
+        int i=0;
         myLog("INIT mode = " + init + "  | cases=" + TESTS.size());
         for (TestCase tc : TESTS) {
+            i = i+1;
+            myLogI("---------------------------------------------------------------------------------");
+            myLogI("▶ Running case n°" + i + "/" + TESTS.size() + ": " + tc.name + "  (asset=" + tc.assetPath + ")");
+            myLogI("---------------------------------------------------------------------------------");
             runCase(tc, init);
         }
     }
@@ -107,10 +111,6 @@ public class M4bSplitWorkerTest implements LogSupport {
     // -------------------- helpers --------------------
 
     private void runCase(TestCase tc, boolean init) throws Exception {
-        myLog("---------------------------------------------------------------------------------");
-        myLogI("▶ Running case: " + tc.name + "  (asset=" + tc.assetPath + ")");
-        myLog("---------------------------------------------------------------------------------");
-
         // 1) Sandbox (unique per case)
         File tempRoot = new File(appContext.getFilesDir(), "m4bsplit_" + tc.name);
         deleteRecursively(tempRoot);
@@ -139,7 +139,11 @@ public class M4bSplitWorkerTest implements LogSupport {
          */
 
         // 3) Run Worker
-        OneTimeWorkRequest req = new OneTimeWorkRequest.Builder(M4bSplitWorker.class).build();
+        String importId = "test_" + UUID.randomUUID();
+        OneTimeWorkRequest req = new OneTimeWorkRequest
+                .Builder(M4bSplitWorker.class)
+                .addTag(BOOK_LOADING_WORKERS).addTag("import:" + importId)
+                .build();
         WorkManager wm = WorkManager.getInstance(appContext);
         wm.enqueue(req).getResult().get();
 

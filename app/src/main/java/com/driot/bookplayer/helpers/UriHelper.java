@@ -40,6 +40,9 @@ public class UriHelper {
         //content://com.android.providers.downloads.documents/document/msf%3A1000016621
         //content://com.android.externalstorage.documents/document/primary%3AAudiobooks%2FFrom%20Blood%20and%20Ash%20%231%20(2%20of%202)%20.mp3
         //content://com.android.externalstorage.documents/document/primary%3AMusic%2FTelegram%2FPrison%20Healer%20(Tome%201)%20-%20Lynette%20Noni.mp3
+        //content://com.driot.bookplayer.debug.FileProvider/cache/fixtures/fixtures/single_files/AYAHUASCA [Progressive Psytrance Mix - 2016].mp3
+        //content://com.driot.bookplayer.debug.FileProvider/cache/fixtures/fixtures/single_files/AYAHUASCA%20%5BProgressive%20Psytrance%20Mix%20-%202016%5D.mp3
+
         if (uri == null) {
             myLogEE(null, "getDocumentFileFromAnyUri: null passed as uri argument");
             return null;
@@ -79,8 +82,8 @@ public class UriHelper {
                 }
 
                 if (isDoc || uri.toString().contains("/document/")) {
-                    DocumentFile single = DocumentFile.fromSingleUri(context, uri);
-                    if (single != null && single.exists()) return single;
+                    DocumentFile documentFile = DocumentFile.fromSingleUri(context, uri);
+                    if (documentFile != null && documentFile.exists()) return documentFile;
                     myLogEE(null,"getDocumentFileFromAnyUri: fromSingleUri returned null or !exists for " + Uri.decode(uri.toString()));
                     return null;
                 }

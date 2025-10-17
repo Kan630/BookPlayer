@@ -4,10 +4,10 @@
     <selectionStates>
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2025-10-12T18:10:51.048434900Z">
+        <DropdownSelection timestamp="2025-10-17T06:32:43.007607100Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="PhysicalDevice" identifier="serial=FPMPH18C17900002" />
+              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\adrio\.android\avd\Medium_Tablet.avd" />
             </handle>
           </Target>
         </DropdownSelection>
@@ -66,6 +66,14 @@
       </SelectionState>
       <SelectionState runConfigName="UnzipWorkerTest">
         <option name="selectionMode" value="DROPDOWN" />
+        <DropdownSelection timestamp="2025-10-17T06:21:20.423243800Z">
+          <Target type="DEFAULT_BOOT">
+            <handle>
+              <DeviceId pluginId="PhysicalDevice" identifier="serial=RF8Y50GB1XP" />
+            </handle>
+          </Target>
+        </DropdownSelection>
+        <DialogSelection />
       </SelectionState>
       <SelectionState runConfigName="M4bSplitWorkerTest">
         <option name="selectionMode" value="DROPDOWN" />

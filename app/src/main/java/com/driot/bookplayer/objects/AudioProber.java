@@ -223,21 +223,29 @@ public final class AudioProber {
                                                     MediaMetadataRetriever mmr,
                                                     String sourceHint,
                                                     boolean doExtractCover) {
+
+        //TODO check the use of MediaExtractor extractor = new MediaExtractor();
+        // extractor.setDataSource(filePath); MediaFormat format = extractor.getTrackFormat(i); format.containsKey(MediaFormat.KEY_CHANNEL_COUNT)
+
         // Common tags
         String title   = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
         String artist  = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ARTIST);
         String album   = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM);
         String composer= mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_COMPOSER);
+        String writer  = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_WRITER);
+        String compilation = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_COMPILATION);
+        String location = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_LOCATION);
         String genre   = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_GENRE);
         String year    = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_YEAR);
         String track   = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_CD_TRACK_NUMBER);
         String disc    = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DISC_NUMBER);
+
+        String mime    = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_MIMETYPE);
         String bitrate = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_BITRATE);
         String srate   = null;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
             srate   = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_SAMPLERATE);
         }
-        String mime    = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_MIMETYPE);
 
         long duration = 0L;
         String durStr = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
@@ -271,6 +279,10 @@ public final class AudioProber {
         putIfNotEmpty(meta, "disc",    disc);
         putIfNotEmpty(meta, "bitrate", prettyBitrate(bitrate));
         putIfNotEmpty(meta, "samplerate", prettyBitrate(srate));
+        putIfNotEmpty(meta, "location", location);
+        putIfNotEmpty(meta, "writer",  writer);
+        putIfNotEmpty(meta, "compilation", compilation);
+
 
         return new AudioInfo(
                 uri,
