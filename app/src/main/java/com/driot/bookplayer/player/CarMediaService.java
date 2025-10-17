@@ -14,7 +14,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import androidx.media.MediaBrowserServiceCompat;
 
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaDescriptionCompat;
@@ -29,15 +28,15 @@ import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
-import com.driot.bookplayer.utils.log.KanLogger;
 import com.driot.bookplayer.utils.log.LoggingMediaBrowserServiceCompat;
 
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
-public class CarMediaService extends LoggingMediaBrowserServiceCompat { //MediaBrowserServiceCompat
+public class CarMediaService extends LoggingMediaBrowserServiceCompat {
 
     private final android.os.Handler carH = new android.os.Handler(android.os.Looper.getMainLooper());
     private final java.util.Set<Integer> pendingFolderRefresh = new java.util.HashSet<>();
@@ -293,7 +292,23 @@ public class CarMediaService extends LoggingMediaBrowserServiceCompat { //MediaB
         CarSignals.markCarConnected();
         FirebaseAnalyticsHelper.tellCarOnRoot();
 
-        return new BrowserRoot(ROOT_ID, null);
+
+        Bundle extras = new Bundle();
+        // Tell host we support styled lists (same keys AA passed you)
+        extras.putBoolean("android.media.browse.CONTENT_STYLE_SUPPORTED", true);
+
+        // 1 = list, 2 = grid
+        extras.putInt("android.media.browse.CONTENT_STYLE_BROWSABLE_HINT", 1); //Folders
+        extras.putInt("android.media.browse.CONTENT_STYLE_PLAYABLE_HINT", 1);  //ZikFiles
+
+        // These androidx flags matter for some AA versions:
+        extras.putInt("androidx.media.MediaBrowserCompat.Extras.KEY_ROOT_CHILDREN_SUPPORTED_FLAGS", 1);
+        extras.putInt("androidx.media.MediaBrowserCompat.Extras.KEY_ROOT_CHILDREN_LIMIT", 1000);
+
+        // If you’re okay to be searchable:
+        extras.putBoolean("android.media.browse.SEARCH_SUPPORTED", true);
+
+        return new BrowserRoot(ROOT_ID, extras);
     }
 
 // getString(R.string.automotive_no_item_in_bookplayer)
@@ -449,6 +464,46 @@ public class CarMediaService extends LoggingMediaBrowserServiceCompat { //MediaB
             result.sendResult(Collections.emptyList());
         });
     }
+
+    @Override
+    public void onSearch(@NonNull String query, Bundle extras,
+                         @NonNull Result<List<MediaBrowserCompat.MediaItem>> result) {
+        myLogI("onSearch q=" + query + " extras=" + extras);
+        result.detach();
+
+        AppDatabase.databaseReadExecutor.execute(() -> {
+            List<MediaBrowserCompat.MediaItem> out = new ArrayList<>();
+
+            // naive search: match folder or track names containing the query
+            String q = query.toLowerCase(Locale.US);
+            for (Folder f : AppDatabase.getDatabase(getApplicationContext()).folderDao().getAll()) {
+                if (f.getName().toLowerCase(Locale.US).contains(q)) {
+                    MediaDescriptionCompat desc = new MediaDescriptionCompat.Builder()
+                            .setMediaId(PREFIX_FOLDER + f.getId())
+                            .setTitle(f.getName())
+                            .build();
+                    out.add(new MediaBrowserCompat.MediaItem(desc,
+                            MediaBrowserCompat.MediaItem.FLAG_BROWSABLE));
+                }
+            }
+            for (ZikFile z : AppDatabase.getDatabase(getApplicationContext()).zikFileDao().getAll()) {
+                if (z.getDisplayName().toLowerCase(Locale.US).contains(q)) {
+                    MediaDescriptionCompat desc = new MediaDescriptionCompat.Builder()
+                            .setMediaId(PREFIX_TRACK + z.getId())
+                            .setTitle(z.getDisplayName())
+                            .setSubtitle(z.getFolderName())
+                            .build();
+                    out.add(new MediaBrowserCompat.MediaItem(desc,
+                            MediaBrowserCompat.MediaItem.FLAG_PLAYABLE));
+                }
+            }
+
+            result.sendResult(out);
+        });
+    }
+
+
+
 
     // --------- Helpers browse ----------
     private MediaBrowserCompat.MediaItem browsable(String id, String title) {
@@ -643,15 +698,4 @@ public class CarMediaService extends LoggingMediaBrowserServiceCompat { //MediaB
             notifyChildrenChanged(ROOT_ID);
         }, 500);
     }
-/*
-    ////////////////////////////////////////////////////////
-    private static final String TAG = "CarMediaService";
-    private static void myLog(String str) { KanLogger.myLog(TAG, str); }
-    private static void myLogD(String str) { KanLogger.myLogD(TAG, str); }
-    private static void myLogI(String str) { KanLogger.myLogI(TAG, str); }
-    private static void myLogW(String str) { KanLogger.myLogW(TAG, str); }
-    private static void myLogE(String str) { KanLogger.myLogE(TAG, str); }
-    private static void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, TAG, str); }
-    private static void myToastEE(Throwable t, String str) { KanLogger.myToastEE(t, TAG, str); }
-*/
 }
