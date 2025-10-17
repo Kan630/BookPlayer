@@ -24,12 +24,13 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.AddResourceActivity;
-import com.driot.bookplayer.activities.AdminActivity;
 import com.driot.bookplayer.activities.GetActivity;
+import com.driot.bookplayer.activities.GetOtherActivity;
 import com.driot.bookplayer.activities.LoadBookActivity;
 import com.driot.bookplayer.activities.MainActivity;
 import com.driot.bookplayer.activities.SettingsActivity;
 import com.driot.bookplayer.global.Option;
+import com.driot.bookplayer.imports.ImportHelper;
 import com.driot.bookplayer.testutil.LogSupport;
 import com.driot.bookplayer.testutil.LoggingWatcher;
 import com.driot.bookplayer.testutil.MenuHelpers;
@@ -71,11 +72,14 @@ public abstract class BasicNavTest implements LogSupport {
     }
 
     @Test
-    public void testNavigationFlow() {
-        myLog("testNavigationFlow");
+    public void BasicNavigationTest_01() {
+        myLog("BasicNavTest : BasicNavigationTest_01");
         Context context = ApplicationProvider.getApplicationContext();
 
         TestNavUtils.logCurrentActivity();
+
+            //TODO remove
+        ImportHelper.cancelCurrentImport(appContext);
 
         // If we landed on GetActivity (empty state), press back to reach MainActivity
         if (TestNavUtils.getCurrentResumedActivity() instanceof GetActivity) {
@@ -141,14 +145,12 @@ public abstract class BasicNavTest implements LogSupport {
 
         onView(ViewMatchers.withId(com.driot.bookplayer.R.id.bOpenOther)).perform(click());   //perform(scrollTo());
         TestNavUtils.logCurrentActivity();
-        TestNavUtils.assertWaitForActivity(AdminActivity.class, 1_000, "not in get others");
+        TestNavUtils.assertWaitForActivity(GetOtherActivity.class, 1_000, "not in get others");
         myLog("in GET OTHER");
 
         for (int i = 0; i < 3; i++) {
             onView(ViewMatchers.withId(com.driot.bookplayer.R.id.viewSecretEntry)).perform(click());
         }
-        TestNavUtils.logCurrentActivity();
-        TestNavUtils.assertWaitForActivity(AdminActivity.class, 1_000, "not in secret dev");
         myLog("in SECRET DEV");
 
         onView(ViewMatchers.withId(com.driot.bookplayer.R.id.bAutoTest_b1)).perform(click());

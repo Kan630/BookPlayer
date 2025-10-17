@@ -235,6 +235,10 @@ public abstract class LoggingActivity extends AppCompatActivity {
         KanLogger.myToast(TAG_FROM, str);
     }
 
+    protected void myToastW(String str) {
+        KanLogger.myToastW(TAG_FROM, str);
+    }
+
     protected void myToastE(String str) {
         KanLogger.myToastE(TAG_FROM, str);
     }

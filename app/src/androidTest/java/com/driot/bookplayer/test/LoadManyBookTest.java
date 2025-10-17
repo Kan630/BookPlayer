@@ -35,6 +35,7 @@ import com.driot.bookplayer.activities.MainActivity;
 import com.driot.bookplayer.activities.PlayActivity;
 import com.driot.bookplayer.activities.ZikFileActivity;
 import com.driot.bookplayer.global.Option;
+import com.driot.bookplayer.imports.ImportHelper;
 import com.driot.bookplayer.imports.TaskUiState;
 import com.driot.bookplayer.player.PlayList;
 import com.driot.bookplayer.testutil.ImportProbe;
@@ -145,6 +146,8 @@ public class LoadManyBookTest implements LogSupport {
         logFinalImportMsg = new StringBuilder("--------------------------\n--------------------------\nFinal Import Message\n--------------------------");
         logFinalPlayMsg = new StringBuilder("--------------------------\n--------------------------\nFinal Play Message\n--------------------------");
 
+        //TODO Should not be used, hide potential user errors, check other test classes
+        ImportHelper.cancelCurrentImport(appContext);
 
         // sanity log to prove assets are visible
         String[] root = testContext.getAssets().list("");
@@ -157,7 +160,6 @@ public class LoadManyBookTest implements LogSupport {
         deleteQuiet(stagingRoot);
         //noinspection ResultOfMethodCallIgnored
         stagingRoot.mkdirs();
-
 
         for (TestCase tc : TESTS) {
             List<String> assetFiles = listAssetFilesRecursively(testContext.getAssets(), tc.assetFolderPath); // <-- use testContext

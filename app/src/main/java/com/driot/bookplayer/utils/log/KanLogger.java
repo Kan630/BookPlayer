@@ -268,11 +268,26 @@ public class KanLogger {
         myToastE(prefix, str, Toast.LENGTH_SHORT);
     }
 
+    public static void myToastW(String prefix, String str) {
+        myToastW(prefix, str, Toast.LENGTH_SHORT);
+    }
+
     public static void myToastE(String prefix, String str, int toastLength) {
         String msg = sanitize(prefix, str);
         if (getMyAppContext() == null || msg == null) return;
 
         myLogE(prefix, "TOASTING : " + msg);
+
+        Runnable r = () -> safeToastShow(getMyAppContext().getApplicationContext(), msg, toastLength);
+        if (Looper.myLooper() == Looper.getMainLooper()) r.run();
+        else MAIN.post(r);
+    }
+
+    public static void myToastW(String prefix, String str, int toastLength) {
+        String msg = sanitize(prefix, str);
+        if (getMyAppContext() == null || msg == null) return;
+
+        myLogW(prefix, "TOASTING : " + msg);
 
         Runnable r = () -> safeToastShow(getMyAppContext().getApplicationContext(), msg, toastLength);
         if (Looper.myLooper() == Looper.getMainLooper()) r.run();

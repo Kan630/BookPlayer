@@ -276,7 +276,7 @@ public class LoadBookActivity extends LoggingActivity {
                     if (anotherRunning) {
                         // Re-enable so user can try again later
                         btnConfirm.setEnabled(true);
-                        myToast(getString(R.string.please_wait_another_book_is_being_imported));
+                        myToastW(getString(R.string.please_wait_another_book_is_being_imported));
                         return;
                     }
 
