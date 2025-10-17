@@ -53,15 +53,17 @@ public class PodcastEpisodeViewModel extends LoggingAndroidViewModel {
         boolean sort_newest_top;
         if (podcast != null) {
             sort_newest_top = !podcast.sort_newest_top;
-            myLogD("new sort order => sort_newest_top: " + sort_newest_top);
             podcast.sort_newest_top = sort_newest_top;
             podcastDao.update(podcast);
+            myLogD("toggle sort, changed in DB,  sort_newest_top: " + sort_newest_top);
         } else {
             if (last_sort_newest_top==null) {
                 sort_newest_top = Option.getPodcastEpisodesSortOrder();
+                myLogD("toggle sort, Option tells sort_newest_top: " + sort_newest_top);
             } else {
                 sort_newest_top = !last_sort_newest_top;
                 last_sort_newest_top = sort_newest_top;
+                myLogD("toggle sort, lastValue tells sort_newest_top: " + sort_newest_top);
             }
         }
         if (sort_newest_top) {
