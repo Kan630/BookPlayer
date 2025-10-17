@@ -12,6 +12,7 @@ import android.support.v4.media.MediaBrowserCompat;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.media.MediaBrowserServiceCompat;
+import androidx.media.MediaSessionManager;
 
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 
@@ -91,7 +92,50 @@ public abstract class LoggingMediaBrowserServiceCompat extends MediaBrowserServi
         super.onTaskRemoved(rootIntent);
     }
 
-/*
+    @Override
+    public void onLoadItem(String itemId, @NonNull Result<MediaBrowserCompat.MediaItem> result) {
+        super.onLoadItem(itemId, result);
+        myInsideLogD("onLoadItem() itemId=[" + itemId + "]");
+    }
+
+    @Override
+    public void onLoadChildren(@NonNull String parentId, @NonNull Result<List<MediaBrowserCompat.MediaItem>> result, @NonNull Bundle options) {
+        super.onLoadChildren(parentId, result, options);
+        myInsideLogD("onLoadChildren() parentId=[" + parentId + "]");
+    }
+
+    @Override
+    public void onSearch(@NonNull String query, Bundle extras, @NonNull Result<List<MediaBrowserCompat.MediaItem>> result) {
+        super.onSearch(query, extras, result);
+        myInsideLogD("onSearch() query=[" + query + "]");
+    }
+
+    @Override
+    public void onCustomAction(@NonNull String action, Bundle extras, @NonNull Result<Bundle> result) {
+        super.onCustomAction(action, extras, result);
+        myInsideLogD("onCustomAction() action=[" + action + "]");
+    }
+
+    @Override
+    public void notifyChildrenChanged(@NonNull String parentId) {
+        super.notifyChildrenChanged(parentId);
+        myInsideLogD("notifyChildrenChanged() parentId=[" + parentId + "]");
+    }
+
+    @Override
+    public void notifyChildrenChanged(@NonNull String parentId, @NonNull Bundle options) {
+        super.notifyChildrenChanged(parentId, options);
+        myInsideLogD("notifyChildrenChanged() parentId=[" + parentId + "]");
+    }
+
+    @Nullable
+    @Override
+    public BrowserRoot onGetRoot(@NonNull String clientPackageName, int clientUid, @Nullable Bundle rootHints) {
+        myInsideLogD("onGetRoot() pkg=[" + clientPackageName + "] uid=[" + clientUid + "] hints=" + rootHints);
+        return null;
+    }
+
+    /*
     // ---- MediaBrowserServiceCompat abstract API with logging wrappers ----
 
     @Nullable

@@ -23,6 +23,11 @@ public final class TaskUiState {
     @Nullable public final String warningText;
     @Nullable public final String errorText;
 
+    @Nullable public final String extension;
+    @Nullable public final String originalUri;
+    @Nullable public final String currentOperation;
+    public final boolean doDownload;
+
     private TaskUiState(@NonNull Result result,
                         boolean showToUser,
                         boolean pauseAvailable,
@@ -31,7 +36,13 @@ public final class TaskUiState {
                         @NonNull String progressText,
                         int progressPercent,
                         @Nullable String warningText,
-                        @Nullable String errorText) {
+                        @Nullable String errorText,
+                        //tech
+                        @Nullable String extension,
+                        @Nullable String originalUri,
+                        @Nullable String currentOperation,
+                        boolean doDownload
+    ) {
         this.result = result;
         this.showToUser = showToUser;
         this.pauseAvailable = pauseAvailable;
@@ -41,10 +52,15 @@ public final class TaskUiState {
         this.progressPercent = progressPercent;
         this.warningText = warningText;
         this.errorText = errorText;
+        //tech
+        this.extension = extension;
+        this.originalUri = originalUri;
+        this.currentOperation = currentOperation;
+        this.doDownload = doDownload;
     }
 
     public static TaskUiState idle() {
-        return new TaskUiState(Result.IDLE, false, false, false, "", "", 0, null, null);
+        return new TaskUiState(Result.IDLE, false, false, false, "", "", 0, null, null, null, null, null, false);
     }
 
     public static TaskUiState from(@NonNull ImportJob j) {
@@ -84,7 +100,12 @@ public final class TaskUiState {
                 pText,
                 pct,
                 j.warningText,
-                err
+                err,
+                //tech
+                j.fileExtension,
+                j.originalUri,
+                j.currentOperation,
+                j.doDownload
         );
     }
 

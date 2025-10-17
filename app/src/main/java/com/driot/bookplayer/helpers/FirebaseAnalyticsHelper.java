@@ -66,20 +66,22 @@ public final class FirebaseAnalyticsHelper {
         logBundleEvent("car_send_cmd", bundle);
     }
 
-    public static void tellLoadBookFailed(String originalUri, String taskName, String errorText, String extension, boolean doDownload) {
+    public static void tellLoadBookFailed(String originalUri, String currentOperation, String errorText, String progressText, String extension, boolean doDownload) {
         Bundle bundle = new Bundle();
         bundle.putString("originalUri", String.valueOf(originalUri));
-        bundle.putString("taskName", String.valueOf(taskName));
+        bundle.putString("taskName", String.valueOf(currentOperation));
         bundle.putString("errorText", String.valueOf(errorText));
+        bundle.putString("progressText", String.valueOf(progressText));
         bundle.putString("extension", String.valueOf(extension));
         bundle.putBoolean("doDownload", doDownload);
         logBundleEvent("load_book_failed", bundle);
     }
 
-    public static void tellLoadBookCancelled(String originalUri, String taskName, String extension, boolean doDownload) {
+    public static void tellLoadBookCancelled(String originalUri, String currentOperation, String progressText, String extension, boolean doDownload) {
         Bundle bundle = new Bundle();
         bundle.putString("originalUri", String.valueOf(originalUri));
-        bundle.putString("taskName", String.valueOf(taskName));
+        bundle.putString("taskName", String.valueOf(currentOperation));
+        bundle.putString("progressText", String.valueOf(progressText));
         bundle.putString("extension", String.valueOf(extension));
         bundle.putBoolean("doDownload", doDownload);
         logBundleEvent("load_book_cancelled", bundle);
@@ -180,10 +182,11 @@ public final class FirebaseAnalyticsHelper {
         logBundleEvent("podcast_refresh", bundle);
     }
 
-    public static void tellAnalyticsPressPlay(String folderName) {
+    public static void tellAnalyticsPlayAction(String actionName, String folderName) {
         Bundle bundle = new Bundle();
+        bundle.putString("actionName", String.valueOf(actionName));
         bundle.putString("folderName", String.valueOf(folderName));
-        logBundleEvent("press_play", bundle);
+        logBundleEvent("play_action", bundle);
     }
     public static void tellAnalyticsEbookWorker(String extension) {
         Bundle bundle = new Bundle();

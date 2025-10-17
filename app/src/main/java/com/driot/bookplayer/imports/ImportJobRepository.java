@@ -4,6 +4,7 @@ import android.content.Context;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
+import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.utils.log.LoggerHelper;
 
 public class ImportJobRepository extends LoggerHelper {
@@ -57,10 +58,14 @@ public class ImportJobRepository extends LoggerHelper {
     public void fail(String id, String devErrorMsg, String usrErrorMsg) {
         dao.fail(id, devErrorMsg, usrErrorMsg, System.currentTimeMillis());
         myToast(context.getString(R.string.Import_failed));
+        ImportJob j = dao.get(id);
+        if (j!=null) FirebaseAnalyticsHelper.tellLoadBookFailed(j.originalUri, j.currentOperation, j.errorTextDev, j.progressText, j.fileExtension, j.doDownload);
     }
 
     public void cancel(String id) {
         dao.cancel(id, System.currentTimeMillis());
+        ImportJob j = dao.get(id);
+        if (j!=null) FirebaseAnalyticsHelper.tellLoadBookCancelled(j.originalUri, j.currentOperation, j.progressText, j.fileExtension, j.doDownload);
     }
 
     public void success(String id) {
@@ -71,6 +76,8 @@ public class ImportJobRepository extends LoggerHelper {
 
         dao.success(id, text, System.currentTimeMillis());
         myToast(text);
+        ImportJob j = dao.get(id);
+        if (j!=null) FirebaseAnalyticsHelper.tellLoadBookSuccess(j.originalUri, j.fileExtension, j.doDownload);
     }
 
 }

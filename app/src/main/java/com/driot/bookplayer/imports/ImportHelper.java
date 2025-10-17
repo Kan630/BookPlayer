@@ -16,6 +16,7 @@ import androidx.lifecycle.Transformations;
 import androidx.work.WorkManager;
 
 import java.io.File;
+import java.util.Objects;
 import java.util.concurrent.Executors;
 
 public class ImportHelper {
@@ -43,7 +44,10 @@ public class ImportHelper {
     public static String getSourceFilePathForWorker(ImportJob j) {
         myLog(j.importId + " - getSourceFilePathForWorker");
         String returnedPath;
-        if (j.downloadFileUrl != null && !j.downloadFileUrl.isEmpty()) {
+        if (Objects.equals(j.dynamicType, "INSTRUMENTED_TESTS")) {
+            myLog("getSourceFilePathForWorker() : INSTRUMENTED_TESTS");
+            returnedPath = j.dynamicSourceFilePath;
+        } else if  (j.downloadFileUrl != null && !j.downloadFileUrl.isEmpty()) {
             myLog("downloaded file");
             final String downloadedFileName = Tonio.getFileNameFromUrl(j.downloadFileUrl);
             final File outFile = new File(j.downloadDestinationFolder, downloadedFileName);

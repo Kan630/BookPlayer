@@ -105,6 +105,7 @@ public class LoadManyBookTest implements LogSupport {
     StringBuilder logFinalPlayMsg;
     int nbPlayed = 0;
     int nbImported = 0;
+    String lastImport;
 
     @Before
     public void setUp() {
@@ -214,10 +215,12 @@ public class LoadManyBookTest implements LogSupport {
 
     private void runImport(Uri uri_content, String uri_type) throws InterruptedException {
         long lastTimestamp;
+        lastImport = uri_content.getLastPathSegment();
+        myLogD("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+        myLog("runImport " + uri_type + " : " + uri_content);
+        myLog("runImport " + lastImport);
+        myLogD("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
 
-        myLogD("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
-        myLog("loading " + uri_type + " : " + uri_content);
-        myLogD("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
         lastTimestamp = System.currentTimeMillis();
         nbImported += 1;
 
@@ -445,7 +448,7 @@ public class LoadManyBookTest implements LogSupport {
             String newPlayedSong = pl.getZikFile().getFolderName() + " / " + pl.getZikFile().getDisplayName();
             logFinalPlayMsg.append("\nPlay: [").append(pl.getZikFile().getDisplayName()).append("] from [").append(pl.getZikFile().getFolderName()).append("]");
             if (lastPlayedSong.equals(newPlayedSong)) {
-                throw new AssertionError("Tried to play the same song... So import did not work : " + newPlayedSong);
+                throw new AssertionError("Tried to play the same song : [" + newPlayedSong + "]\nSo import did not work : [" + lastImport + "]");
             }
             myLog("played track :" + newPlayedSong);
             lastPlayedSong = newPlayedSong;

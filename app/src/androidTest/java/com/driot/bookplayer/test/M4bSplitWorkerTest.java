@@ -20,10 +20,13 @@ import androidx.work.testing.SynchronousExecutor;
 import androidx.work.testing.WorkManagerTestInitHelper;
 
 import com.driot.bookplayer.global.Option;
+import com.driot.bookplayer.imports.ImportJob;
+import com.driot.bookplayer.imports.ImportJobRepository;
 import com.driot.bookplayer.imports.ImportWorker;
 import com.driot.bookplayer.services.M4bSplitWorker;   // <-- your worker
 import com.driot.bookplayer.testutil.LogSupport;
 import com.driot.bookplayer.testutil.LoggingWatcher;
+import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.KanLogger;
 
 import org.junit.Before;
@@ -58,22 +61,22 @@ public class M4bSplitWorkerTest implements LogSupport {
     private static final List<TestCase> TESTS = Arrays.asList(
             new TestCase(
                     "FrostTonight_librivox",
-                    "fixtures/m4b/FrostTonight_librivox.m4b",
+                    "fixtures/worker_test_m4b/FrostTonight_librivox.m4b",
                     /* paste from INIT */ "5bb8569eeec03eba21f790172cc7e6f12df081ada3eae5f82ac53fc3134d1bc8"
             )
             ,new TestCase(
                     "Mythos (Unabridged)",
-                    "fixtures/m4b/Mythos (Unabridged).m4b",
+                    "fixtures/worker_test_m4b/Mythos (Unabridged).m4b",
                     /* paste from INIT */ "d6a3ca56ed8905de05664d661a097078e1336d570cfddb2fb63fd703e3b9150a"
             )
             ,new TestCase(
                     "Yukio Mishima - Sun and Steel",
-                    "fixtures/m4b/Yukio Mishima - Sun and Steel.m4b",
+                    "fixtures/worker_test_m4b/Yukio Mishima - Sun and Steel.m4b",
                     /* paste from INIT */ "ba289a83b6e040fb3877d6238e76bc63980727e0d2b7027d64d764ca41fefce3"
             )
             ,new TestCase(
                     "Can't Hurt Me by David Goggins",
-                    "fixtures/m4b/Can't Hurt Me by David Goggins.m4b",
+                    "fixtures/worker_test_m4b/Can't Hurt Me by David Goggins.m4b",
                     /* paste from INIT */ "7aa8e71c8f7215be5913942cefb0c4f134da93c2eb6be11d56d2700ead8af523"
             )
     );
@@ -118,7 +121,7 @@ public class M4bSplitWorkerTest implements LogSupport {
         deleteRecursively(tempRoot);
         //noinspection ResultOfMethodCallIgnored
         tempRoot.mkdirs();
-        myLogD("tempRoot done");
+        myLogD("tempRoot created : " + tempRoot.getAbsolutePath());
 
         File inputFile = new File(tempRoot, "input.m4b");
         copyAssetToFile(appContext, tc.assetPath, inputFile);
@@ -128,20 +131,19 @@ public class M4bSplitWorkerTest implements LogSupport {
         //noinspection ResultOfMethodCallIgnored
         destDir.mkdirs();
 
-        /*
-        TODO DELETE or change
 
-        // 2) Inject state for the Worker (same contract as UnzipWorker)
-        LoadBookTaskState s = new LoadBookTaskState();
-        s.dynamicSourceFilePath = inputFile.getAbsolutePath();
-        s.futureFolderPath = destDir.getAbsolutePath();
-        Pref.setLoadBookTaskState(s);
-        myLogD("LoadBookTaskState done, about to launch worker");
-
-         */
+        // 2) Prepare Job
+        String importId = "test_" + UUID.randomUUID();
+        ImportJob j = new ImportJob();
+        j.importId = importId;
+        j.dynamicType = "INSTRUMENTED_TESTS";
+        j.dynamicSourceFilePath = inputFile.getAbsolutePath();
+        j.futureFolderPath = destDir.getAbsolutePath();
+        ImportJobRepository repo = new ImportJobRepository(appContext);
+        repo.upsert(j);
+        myLogD("ImportJobRepository populated, about to launch worker");
 
         // 3) Run Worker
-        String importId = "test_" + UUID.randomUUID();
         OneTimeWorkRequest req = new OneTimeWorkRequest
                 .Builder(M4bSplitWorker.class)
                 .setInputData(new Data.Builder().putString(ImportWorker.KEY_IMPORT_ID, importId).build())

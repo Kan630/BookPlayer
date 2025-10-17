@@ -4,10 +4,10 @@
     <selectionStates>
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2025-10-17T06:32:43.007607100Z">
+        <DropdownSelection timestamp="2025-10-17T09:23:42.720617500Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\adrio\.android\avd\Medium_Tablet.avd" />
+              <DeviceId pluginId="PhysicalDevice" identifier="serial=RF8Y50GB1XP" />
             </handle>
           </Target>
         </DropdownSelection>
@@ -77,10 +77,10 @@
       </SelectionState>
       <SelectionState runConfigName="M4bSplitWorkerTest">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2025-10-08T07:50:18.188086Z">
+        <DropdownSelection timestamp="2025-10-17T09:09:50.375701600Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\adrio\.android\avd\Medium_Tablet.avd" />
+              <DeviceId pluginId="PhysicalDevice" identifier="serial=FPMPH18C17900002" />
             </handle>
           </Target>
         </DropdownSelection>

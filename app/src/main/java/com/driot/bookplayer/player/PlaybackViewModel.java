@@ -20,6 +20,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Intents;
+import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.tts.TtsHelper;
 import com.driot.bookplayer.utils.log.LoggingAndroidViewModel;
 
@@ -174,29 +175,48 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
     public void playPause() {
         myLog("playpause");
         if (service != null) {
-            if (service.isPlaying()) service.pauseAudio(); else service.playAudio();
+            if (service.isPlaying()) {
+                service.pauseAudio();
+                FirebaseAnalyticsHelper.tellAnalyticsPlayAction("pause", "");
+            } else {
+                service.playAudio();
+                FirebaseAnalyticsHelper.tellAnalyticsPlayAction("play", "");
+            }
         } else {
-            // unbound path → toggle
             sendMediaButton(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE);
+            FirebaseAnalyticsHelper.tellAnalyticsPlayAction("keycode playpause", "");
         }
     }
 
     public void next() {
         myLog("next");
-        if (service != null) service.forwardAudio();
-        else sendMediaButton(KeyEvent.KEYCODE_MEDIA_NEXT);
+        if (service != null) {
+            service.forwardAudio();
+            FirebaseAnalyticsHelper.tellAnalyticsPlayAction("next", "");
+        } else {
+            sendMediaButton(KeyEvent.KEYCODE_MEDIA_NEXT);
+            FirebaseAnalyticsHelper.tellAnalyticsPlayAction("keycode next", "");
+        }
     }
 
     public void prev() {
         myLog("prev");
-        if (service != null) service.backwardAudio();
-        else sendMediaButton(KeyEvent.KEYCODE_MEDIA_PREVIOUS);
+        if (service != null) {
+            service.backwardAudio();
+            FirebaseAnalyticsHelper.tellAnalyticsPlayAction("prev", "");
+        } else {
+            sendMediaButton(KeyEvent.KEYCODE_MEDIA_PREVIOUS);
+            FirebaseAnalyticsHelper.tellAnalyticsPlayAction("keycode prev", "");
+        }
     }
 
     /** seek needs binder access; no safe media-button fallback. */
     public void seekTo(int ms) {
         myLog("seekTo");
-        if (service != null) service.setPosition(ms);
+        if (service != null) {
+            service.setPosition(ms);
+            FirebaseAnalyticsHelper.tellAnalyticsPlayAction("seekTo", "");
+        }
     }
 
     /** Close/hide mini and pause audio even if we're not bound. */

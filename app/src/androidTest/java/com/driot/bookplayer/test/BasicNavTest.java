@@ -23,7 +23,10 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.activities.AddResourceActivity;
+import com.driot.bookplayer.activities.AdminActivity;
 import com.driot.bookplayer.activities.GetActivity;
+import com.driot.bookplayer.activities.LoadBookActivity;
 import com.driot.bookplayer.activities.MainActivity;
 import com.driot.bookplayer.activities.SettingsActivity;
 import com.driot.bookplayer.global.Option;
@@ -138,26 +141,32 @@ public abstract class BasicNavTest implements LogSupport {
 
         onView(ViewMatchers.withId(com.driot.bookplayer.R.id.bOpenOther)).perform(click());   //perform(scrollTo());
         TestNavUtils.logCurrentActivity();
+        TestNavUtils.assertWaitForActivity(AdminActivity.class, 1_000, "not in get others");
         myLog("in GET OTHER");
 
         for (int i = 0; i < 3; i++) {
             onView(ViewMatchers.withId(com.driot.bookplayer.R.id.viewSecretEntry)).perform(click());
         }
         TestNavUtils.logCurrentActivity();
+        TestNavUtils.assertWaitForActivity(AdminActivity.class, 1_000, "not in secret dev");
         myLog("in SECRET DEV");
 
         onView(ViewMatchers.withId(com.driot.bookplayer.R.id.bAutoTest_b1)).perform(click());
         TestNavUtils.sleep(1_000);
         TestNavUtils.logCurrentActivity();
+        TestNavUtils.assertWaitForActivity(LoadBookActivity.class, 1_000, "not in load book");
         myLog("in LOAD BOOK");
 
         onView(withId(android.R.id.content)).perform(swipeUp());
+        TestNavUtils.logCurrentActivity();
         onView(ViewMatchers.withId(com.driot.bookplayer.R.id.btnConfirm)).perform(click());
         TestNavUtils.logCurrentActivity();
+        TestNavUtils.assertWaitForAnyActivity(2_000, AddResourceActivity.class, MainActivity.class);
         myLog("in ADD RESOURCE");
         //onView(withId(android.R.id.content)).perform(WaitForView.waitFor(withId(R.id.toolbar), 10000));
         TestNavUtils.sleep(10_000);
         TestNavUtils.logCurrentActivity();
+        TestNavUtils.maybePressBackTo(MainActivity.class,3, 1_000);
 
         // play audio
 

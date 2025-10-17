@@ -578,7 +578,7 @@ public class CarMediaService extends LoggingMediaBrowserServiceCompat {
     }
 
     private void requestFolderRefresh(int folderId) {
-        myLog("requestFolderRefresh");
+        myLog("requestFolderRefresh - folderId = " + folderId);
         if (folderId <= 0) return;
         // coalesce multiple requests for the same folder
         if (!pendingFolderRefresh.add(folderId)) return;

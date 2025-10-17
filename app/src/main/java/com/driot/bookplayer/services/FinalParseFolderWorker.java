@@ -563,7 +563,7 @@ public class FinalParseFolderWorker extends ImportWorker {
             failNow(TASK_NAME, "saved = 0 - Error_Import_No_Usable_item_Found", context.getString(R.string.Error_Import_No_Usable_item_Found));
             return;
         } else {
-            FirebaseAnalyticsHelper.tellLoadBookSuccess(String.valueOf(importJob.originalUri), importJob.fileExtension, importJob.doDownload);
+            //FirebaseAnalyticsHelper.tellLoadBookSuccess(String.valueOf(importJob.originalUri), importJob.fileExtension, importJob.doDownload);
             if (Var.SOURCE_LOCATION_LIBRIVOX.equals(importJob.sourceLocation)) {
                 FirebaseAnalyticsHelper.tellLibrivoxSuccess(String.valueOf(importJob.title));
                 AppDatabase.databaseWriteExecutor.execute(() -> {
