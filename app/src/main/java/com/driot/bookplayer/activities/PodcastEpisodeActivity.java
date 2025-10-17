@@ -418,9 +418,8 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
     private void toggleSort() {
         sortNewestFirst = !sortNewestFirst;
         myLogI("-------- USER CLICKS SORT --  sortNewestFirst= " + sortNewestFirst);
-        PodcastHelper.updateSortNewestTop(this, podcast.feedId, sortNewestFirst);
         AppDatabase.databaseReadExecutor.execute(() -> {
-            List<Episode> dbEpisodes = podcastEpisodeViewModel.getEpisodesFromDB(podcast.getId(), sortNewestFirst);
+            List<Episode> dbEpisodes = podcastEpisodeViewModel.toggleSortAndGetEpisodesFromDB(podcast.getId());
             List<DisplayableEpisode> sortedList = DisplayableEpisode.fromEpisodeList(dbEpisodes);
             runOnUiThread(() -> {
                 adapter.setItems(sortedList);
@@ -462,7 +461,7 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
 
         // 1) Load DB immediately → optimistic UI
         AppDatabase.databaseReadExecutor.execute(() -> {
-            List<Episode> dbEpisodes = podcastEpisodeViewModel.getEpisodesFromDB(podcast.getId(), sortNewestFirst);
+            List<Episode> dbEpisodes = podcastEpisodeViewModel.getEpisodesFromDB(podcast.getId());
             myLogD("DB episodes count: " + dbEpisodes.size());
             List<DisplayableEpisode> initial = DisplayableEpisode.fromEpisodeList(dbEpisodes);
             runOnUiThread(() -> {
@@ -500,7 +499,7 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
 
                             // 4) Refresh DB and merge for display
                             AppDatabase.databaseReadExecutor.execute(() -> {
-                                List<Episode> dbEpisodes = podcastEpisodeViewModel.getEpisodesFromDB(podcast.getId(), sortNewestFirst);
+                                List<Episode> dbEpisodes = podcastEpisodeViewModel.getEpisodesFromDB(podcast.getId());
                                 List<DisplayableEpisode> fullList =
                                         DisplayableEpisode.mergeDisplayableEpisodes(apiEpisodes, dbEpisodes);
                                 int nbEpisodeFull = fullList.size();
@@ -519,7 +518,7 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
                             // Fallback: DB-only (you already showed initial DB result; here we just end the spinner and warn)
                             myLogE("API CALL ERROR - " + e.getMessage());
                             AppDatabase.databaseReadExecutor.execute(() -> {
-                                List<Episode> dbEpisodes = podcastEpisodeViewModel.getEpisodesFromDB(podcast.getId(), sortNewestFirst);
+                                List<Episode> dbEpisodes = podcastEpisodeViewModel.getEpisodesFromDB(podcast.getId());
                                 List<DisplayableEpisode> fallbackList = DisplayableEpisode.fromEpisodeList(dbEpisodes);
 
                                 runOnUiThread(() -> {

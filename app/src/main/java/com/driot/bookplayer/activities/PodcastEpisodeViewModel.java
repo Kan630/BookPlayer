@@ -12,8 +12,8 @@ import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.db.PodcastDao;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.db.ZikFileDao;
+import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.helpers.PodcastHelper;
-import com.driot.bookplayer.objects.DisplayableEpisode;
 import com.driot.bookplayer.objects.PodcastEpisode;
 import com.driot.bookplayer.utils.log.LoggingAndroidViewModel;
 
@@ -23,6 +23,8 @@ public class PodcastEpisodeViewModel extends LoggingAndroidViewModel {
     private final ZikFileDao zikFileDao;
     private final EpisodeDao episodeDao;
     private final PodcastDao podcastDao;
+
+    private Boolean last_sort_newest_top;
 
     public PodcastEpisodeViewModel(@NonNull Application application) {
         super(application);
@@ -46,8 +48,45 @@ public class PodcastEpisodeViewModel extends LoggingAndroidViewModel {
             episodeDao.insertAll(toSave);
         }).start();
     }
-    public List<Episode> getEpisodesFromDB(int podcastId, boolean sortNewestFirst) {
-        if (sortNewestFirst) {
+    public List<Episode> toggleSortAndGetEpisodesFromDB(int podcastId) {
+        Podcast podcast = podcastDao.getById(podcastId);
+        boolean sort_newest_top;
+        if (podcast != null) {
+            sort_newest_top = !podcast.sort_newest_top;
+            myLogD("new sort order => sort_newest_top: " + sort_newest_top);
+            podcast.sort_newest_top = sort_newest_top;
+            podcastDao.update(podcast);
+        } else {
+            if (last_sort_newest_top==null) {
+                sort_newest_top = Option.getPodcastEpisodesSortOrder();
+            } else {
+                sort_newest_top = !last_sort_newest_top;
+                last_sort_newest_top = sort_newest_top;
+            }
+        }
+        if (sort_newest_top) {
+            return episodeDao.getAllEpisodesForPodcastNewestFirst(podcastId);
+        } else {
+            return episodeDao.getAllEpisodesForPodcastOldestFirst(podcastId);
+        }
+    }
+    public List<Episode> getEpisodesFromDB(int podcastId) {
+        Podcast podcast = podcastDao.getById(podcastId);
+        boolean sort_newest_top;
+        if (podcast != null) {
+            sort_newest_top = podcast.sort_newest_top;
+            myLogD("getEpisodesFromDB, DB tells sort_newest_top: " + sort_newest_top);
+        } else {
+            if (last_sort_newest_top == null) {
+                sort_newest_top = Option.getPodcastEpisodesSortOrder();
+                myLogD("getEpisodesFromDB, Option tells sort_newest_top: " + sort_newest_top);
+            } else {
+                sort_newest_top = !last_sort_newest_top;
+                last_sort_newest_top = sort_newest_top;
+                myLogD("getEpisodesFromDB, lastValue tells sort_newest_top: " + sort_newest_top);
+            }
+        }
+        if (sort_newest_top) {
             return episodeDao.getAllEpisodesForPodcastNewestFirst(podcastId);
         } else {
             return episodeDao.getAllEpisodesForPodcastOldestFirst(podcastId);
