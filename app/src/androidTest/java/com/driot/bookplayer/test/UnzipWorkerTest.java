@@ -10,12 +10,14 @@ import android.content.Context;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.work.Configuration;
+import androidx.work.Data;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 import androidx.work.testing.SynchronousExecutor;
 import androidx.work.testing.WorkManagerTestInitHelper;
 
+import com.driot.bookplayer.imports.ImportWorker;
 import com.driot.bookplayer.services.UnzipWorker;
 import com.driot.bookplayer.testutil.LogSupport;
 import com.driot.bookplayer.testutil.LoggingWatcher;
@@ -144,6 +146,7 @@ public class UnzipWorkerTest implements LogSupport {
         OneTimeWorkRequest req = new OneTimeWorkRequest
                 .Builder(UnzipWorker.class)
                 .addTag(BOOK_LOADING_WORKERS).addTag("import:" + importId)
+                .setInputData(new Data.Builder().putString(ImportWorker.KEY_IMPORT_ID, importId).build())
                 .build();
         WorkManager wm = WorkManager.getInstance(context);
         wm.enqueue(req).getResult().get();

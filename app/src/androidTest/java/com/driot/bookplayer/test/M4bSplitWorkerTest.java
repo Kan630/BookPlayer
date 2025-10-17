@@ -12,6 +12,7 @@ import android.content.Context;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.work.Configuration;
+import androidx.work.Data;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
@@ -19,6 +20,7 @@ import androidx.work.testing.SynchronousExecutor;
 import androidx.work.testing.WorkManagerTestInitHelper;
 
 import com.driot.bookplayer.global.Option;
+import com.driot.bookplayer.imports.ImportWorker;
 import com.driot.bookplayer.services.M4bSplitWorker;   // <-- your worker
 import com.driot.bookplayer.testutil.LogSupport;
 import com.driot.bookplayer.testutil.LoggingWatcher;
@@ -142,6 +144,7 @@ public class M4bSplitWorkerTest implements LogSupport {
         String importId = "test_" + UUID.randomUUID();
         OneTimeWorkRequest req = new OneTimeWorkRequest
                 .Builder(M4bSplitWorker.class)
+                .setInputData(new Data.Builder().putString(ImportWorker.KEY_IMPORT_ID, importId).build())
                 .addTag(BOOK_LOADING_WORKERS).addTag("import:" + importId)
                 .build();
         WorkManager wm = WorkManager.getInstance(appContext);
