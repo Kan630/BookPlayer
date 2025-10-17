@@ -2,21 +2,18 @@
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/rootContainer"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     style="@style/MainContainer"
     >
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="16dp"
         >
-
-        <FrameLayout
-            android:id="@+id/topOverlayContainer"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
 
         <ScrollView
             android:layout_width="match_parent"
@@ -179,7 +176,7 @@
                     android:text="@string/DirectDownload_desc"
                     style="@style/GetResourceTextTopOfButton" />
 
-                <com.driot.bookplayer.views.EditTextWithButtons
+                <com.driot.bookplayer.views.EditText2linesWithPaste
                     android:id="@+id/etDirectDownload"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"/>
@@ -218,7 +215,27 @@
         </ScrollView>
     </LinearLayout>
 
-    <!-- Secret tappable area (invisible) -->
+    <!-- 2) DIM SCRIM — covers whole activity & consumes touches -->
+    <!-- B3 = ~70% black; tune opacity -->
+    <View
+        android:id="@+id/importDimScrim"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#B3000000"
+        android:clickable="true"
+        android:focusable="true"
+        android:visibility="gone" />
+
+    <!-- 3) ONGOING BANNER HOST — floats above scrim/content -->
+    <FrameLayout
+        android:id="@+id/topOverlayContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top"
+        android:padding="8dp"
+        android:elevation="12dp" />
+
+    <!-- 4) Secret tappable area (still on top, below banner if overlapping) -->
     <View
         android:id="@+id/viewSecretEntry"
         android:layout_width="48dp"
@@ -228,6 +245,5 @@
         android:background="@android:color/transparent"
         android:contentDescription="Secret Launch Area"
         android:clickable="true"
-        android:focusable="true"
-        />
+        android:focusable="true" />
 </FrameLayout>

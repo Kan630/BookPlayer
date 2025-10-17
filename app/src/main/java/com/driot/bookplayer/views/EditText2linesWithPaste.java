@@ -1,8 +1,8 @@
 package com.driot.bookplayer.views;
 
+import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
-import android.content.ClipData;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
@@ -30,11 +31,9 @@ import java.util.List;
  * - completionThreshold: chars before suggestions appear
  * - suggestOnFocus: show dropdown immediately when focused and empty
  */
-public class EditTextWithButtons extends LinearLayout {
+public class EditText2linesWithPaste extends LinearLayout {
 
     private AppCompatAutoCompleteTextView editText;
-    private Button btnPaste;
-    private Button btnClear;
 
     // --- Knobs (defaults) ---
     private String historyKey = "default_search_history";
@@ -44,26 +43,25 @@ public class EditTextWithButtons extends LinearLayout {
 
     private ArrayAdapter<String> adapter;
 
-    public EditTextWithButtons(Context context) {
+    public EditText2linesWithPaste(Context context) {
         super(context);
         init(context);
     }
 
-    public EditTextWithButtons(Context context, @Nullable AttributeSet attrs) {
+    public EditText2linesWithPaste(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         init(context);
     }
 
-    public EditTextWithButtons(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+    public EditText2linesWithPaste(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init(context);
     }
 
     private void init(Context context) {
-        LayoutInflater.from(context).inflate(R.layout.view_edittext_with_buttons, this, true);
+        LayoutInflater.from(context).inflate(R.layout.view_edittext_with_buttons2, this, true);
         editText = findViewById(R.id.editText); // now an AutoCompleteTextView in XML
-        btnPaste = findViewById(R.id.btnPaste);
-        btnClear = findViewById(R.id.btnClear);
+        ImageButton btnPaste = findViewById(R.id.btnPaste);
 
         // --- Suggestions adapter from history ---
         List<String> history = SearchHistoryStore.get(context, historyKey);
@@ -103,8 +101,6 @@ public class EditTextWithButtons extends LinearLayout {
                 Toast.makeText(context, context.getString(R.string.Clipboard_is_empty), Toast.LENGTH_SHORT).show();
             }
         });
-
-        btnClear.setOnClickListener(v -> editText.setText(""));
     }
 
     // --- Public API ---

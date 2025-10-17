@@ -13,7 +13,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultLauncher;
@@ -35,24 +34,16 @@ import com.driot.bookplayer.objects.OngoingTaskHost;
 import com.driot.bookplayer.utils.MediaScanner2;
 import com.driot.bookplayer.utils.PermissionRequest;
 import com.driot.bookplayer.utils.log.LoggingActivity;
-import com.driot.bookplayer.views.EditTextWithButtons;
-
-import java.util.Arrays;
-import java.util.List;
+import com.driot.bookplayer.views.EditText2linesWithPaste;
 
 import static com.driot.bookplayer.utils.PermissionRequest.isReadAudioPermissionGranted;
 
 public class GetOtherActivity extends LoggingActivity {
 
-    private Button bOpenFile, bOpenFolder, bOpenZipFile, bOpenM4bFile, bMassImport;
-    private Button bAutoTest_b1, bAutoTest_b2, bAutoTest_b3, bAutoTest_b4;
-
-    private Button bDirectDownload;
-    private EditTextWithButtons etDirectDownload;
+    private View importDimScrim;
+    private EditText2linesWithPaste etDirectDownload;
 
     private PermissionRequest mPermissionRequest;
-
-    private OngoingTaskViewModel viewModel;
 
     private ActivityResultLauncher<Intent> bOpenFileActivityResultLauncher,
             bOpenFolderActivityResultLauncher,
@@ -107,17 +98,25 @@ public class GetOtherActivity extends LoggingActivity {
         setContentView(R.layout.activity_get_other);
         InsetHelper.apply(this);
 
-        bOpenFile = findViewById(R.id.bOpenFile);
-        bOpenZipFile = findViewById(R.id.bOpenZipFile);
-        bOpenM4bFile = findViewById(R.id.bOpenM4bFile);
-        bOpenFolder = findViewById(R.id.bOpenFolder);
-        bMassImport = findViewById(R.id.bMassImport);
-        bAutoTest_b1 = findViewById(R.id.bAutoTest_b1);
-        bAutoTest_b2 = findViewById(R.id.bAutoTest_b2);
-        bAutoTest_b3 = findViewById(R.id.bAutoTest_b3);
-        bAutoTest_b4 = findViewById(R.id.bAutoTest_b4);
-        bDirectDownload = findViewById(R.id.bDirectDownload);
+        Button bOpenFile = findViewById(R.id.bOpenFile);
+        Button bOpenZipFile = findViewById(R.id.bOpenZipFile);
+        Button bOpenM4bFile = findViewById(R.id.bOpenM4bFile);
+        Button bOpenFolder = findViewById(R.id.bOpenFolder);
+        Button bMassImport = findViewById(R.id.bMassImport);
+        Button bAutoTest_b1 = findViewById(R.id.bAutoTest_b1);
+        Button bAutoTest_b2 = findViewById(R.id.bAutoTest_b2);
+        Button bAutoTest_b3 = findViewById(R.id.bAutoTest_b3);
+        Button bAutoTest_b4 = findViewById(R.id.bAutoTest_b4);
+        Button bDirectDownload = findViewById(R.id.bDirectDownload);
         etDirectDownload = findViewById(R.id.etDirectDownload);
+
+        importDimScrim = findViewById(R.id.importDimScrim);
+
+        // Eat all touches explicitly (belt & suspenders)
+        importDimScrim.setOnTouchListener((v, ev) -> true);
+        importDimScrim.setImportantForAccessibility(
+                View.IMPORTANT_FOR_ACCESSIBILITY_YES);
+        importDimScrim.setContentDescription(getString(R.string.Import_in_progress));
 
         // ongoing task fragment
         OngoingTaskHost.attach(
@@ -127,13 +126,14 @@ public class GetOtherActivity extends LoggingActivity {
         );
 
         // ongoing task view model
-        viewModel = new ViewModelProvider(
+        OngoingTaskViewModel viewModel = new ViewModelProvider(
                 com.driot.bookplayer.objects.AppViewModelStoreOwner.getInstance(),
                 ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication())
         ).get(OngoingTaskViewModel.class);
         myLogD("ViewModel instance: " + System.identityHashCode(viewModel));
+
         viewModel.getUi().observe(this, ui -> {
-            lockButtons(ui.isRunningLike());
+            setImportOverlayVisible(ui.isRunningLike());
         });
 
         // ADD RESOURCE  (log)
@@ -352,36 +352,6 @@ public class GetOtherActivity extends LoggingActivity {
         });
     }
 
-
-
-    private void lockButtons(boolean doLock) {
-        //myLogD("LockButtons : " + doLock);
-        try {
-            // NOTE: fragment attach/remove is gone — the banner fragment self-hides.
-            List<TextView> textViewToHide = Arrays.asList(
-                    findViewById(R.id.TextHeaderOpen),
-                    findViewById(R.id.bOpenFile_desc),
-                    findViewById(R.id.bOpenFolder_desc),
-                    findViewById(R.id.bOpenZipFile_desc),
-                    findViewById(R.id.bOpenM4bFile_desc),
-                    findViewById(R.id.bMassImport_desc),
-                    findViewById(R.id.txtAutoTest_title),
-                    findViewById(R.id.txtAutoTest_desc),
-                    findViewById(R.id.txtDirectDownload_title),
-                    findViewById(R.id.txtDirectDownload_desc)
-            );
-            List<Button> buttonsToLock = Arrays.asList(
-                    bOpenFile, bOpenFolder, bOpenZipFile, bOpenM4bFile, bMassImport,
-                    bAutoTest_b1, bAutoTest_b2, bAutoTest_b3, bAutoTest_b4, bDirectDownload
-            );
-
-            for (Button b : buttonsToLock) b.setEnabled(!doLock);
-            for (TextView tv : textViewToHide) tv.setVisibility(doLock ? View.GONE : View.VISIBLE);
-        } catch (Exception e) {
-            myLogEE(e, "lockButtons(" + doLock + ")");
-        }
-    }
-
     public interface WWWCheckCallback { void onResult(boolean canReach); }
     private void checkWWW(WWWCheckCallback callback) {
         if (!NetworkHelper.isNetworkAvailable(this)) {
@@ -490,5 +460,30 @@ public class GetOtherActivity extends LoggingActivity {
             myLogE("onRequestPermissionsResult() - mPermissionRequest is null ! bad hook");
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    private void setImportOverlayVisible(boolean show) {
+        if (importDimScrim == null) return;
+
+        final float target = show ? 1f : 0f;
+        if (show && importDimScrim.getVisibility() != View.VISIBLE) {
+            importDimScrim.setAlpha(0f);
+            importDimScrim.setVisibility(View.VISIBLE);
+        }
+        importDimScrim.animate()
+                .alpha(target)
+                .setDuration(180)
+                .withEndAction(() -> {
+                    if (!show) importDimScrim.setVisibility(View.GONE);
+                })
+                .start();
+
+        // Optional: suppress TalkBack focus on the dimmed content while overlay is up
+        View root = findViewById(R.id.rootContainer);
+        if (root != null) {
+            root.setImportantForAccessibility(
+                    show ? View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
+                            : View.IMPORTANT_FOR_ACCESSIBILITY_AUTO);
+        }
     }
 }
