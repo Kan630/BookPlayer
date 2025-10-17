@@ -16,6 +16,7 @@ import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.objects.LibrivoxItem;
+import com.driot.bookplayer.objects.OngoingTaskHost;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import java.util.Collections;
@@ -34,6 +35,12 @@ public class LibrivoxFavoritesActivity extends LoggingActivity {
 
         recyclerView = findViewById(R.id.recyclerView);
         progressBar = findViewById(R.id.progressBar);
+
+        //ongoing book load ?
+        OngoingTaskHost.attach(
+                this,
+                R.id.topOverlayContainer,
+                new Intent(this, AddResourceActivity.class)); // tap => open details
 
         InsetHelper.applyInsetsForScrollableBehindNavBar(this, recyclerView);
 

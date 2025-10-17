@@ -40,7 +40,6 @@ public class BookLoadingWorkLauncher {
 
     public static void launch(Context ctx, LoadBookTaskState s, boolean sequential) {
         if (s == null) throw new IllegalStateException("No task bookState found for BookLoadingWorkLauncher");
-        myLogD("enqueueOneNoDownload : " + s.title);
         AppDatabase.databaseWriteExecutor.execute(() -> {
             String importId = (s.futureFolderName != null ? s.futureFolderName : "book") + ":" + UUID.randomUUID();
 
@@ -50,8 +49,6 @@ public class BookLoadingWorkLauncher {
             boolean doSplitEbook = false;
             boolean doUnzip = false;
 
-            myLogD("....");
-            myLogD("....V2");
             myLog("*********************************************************************************************************");
             myLog("*********************************************************************************************************");
             myLog("** title =            " + s.title + " **");
@@ -111,7 +108,7 @@ public class BookLoadingWorkLauncher {
             if (doDownload) {
                 if (doCopy) {
                     doCopy = false;
-                    myLogW("doCopy should be false, reset");
+                    myLogD("http has copy integrated, so copy => false");
                 }
             }
 
@@ -206,6 +203,7 @@ public class BookLoadingWorkLauncher {
 
 
             // some logging
+            /*
             for (int i = 0; i < steps.size(); i++) {
                 myLogD("step[" + i + "] id=" + steps.get(i).getId() + " cls=" + steps.get(i).getClass().getSimpleName());
             }
@@ -228,6 +226,8 @@ public class BookLoadingWorkLauncher {
                             }
                         });
             });
+
+             */
         });
     }
 

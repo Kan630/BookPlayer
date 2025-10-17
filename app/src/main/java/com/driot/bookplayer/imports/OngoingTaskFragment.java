@@ -37,6 +37,8 @@ public class OngoingTaskFragment extends LoggingFragment {
     private ProgressBar progressBar;
     private TextView tvTitle;
 
+    private boolean isDisplayed = false;
+
     public static OngoingTaskFragment newInstance(@Nullable Intent onClickIntent) {
         OngoingTaskFragment f = new OngoingTaskFragment();
         Bundle b = new Bundle();
@@ -72,7 +74,9 @@ public class OngoingTaskFragment extends LoggingFragment {
 
         vm.getUi().observe(getViewLifecycleOwner(), ui -> {
             // visibility
+            if (ui.showToUser != isDisplayed) myLogI("OnGoing Fragment visibility changed to [" + ui.showToUser + "]");
             root.setVisibility(ui.showToUser ? View.VISIBLE : View.GONE);
+            isDisplayed = ui.showToUser;
 
             // text
             tvTitle.setText(ui.title.isEmpty() ? getString(R.string.Import_in_progress) : ui.title);

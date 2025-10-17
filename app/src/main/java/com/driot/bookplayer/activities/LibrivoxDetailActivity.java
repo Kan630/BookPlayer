@@ -236,7 +236,7 @@ public class LibrivoxDetailActivity extends LoggingActivity {
         }
 
         // --- Pick the best (largest) cover from files and upgrade if needed ---
-        tryUpgradeCoverIfPossible(metadata);
+        //tryUpgradeCoverIfPossible(metadata);
     }
 
     /** Pick ONLY filenames that clearly look like a cover and upgrade if meaningfully larger. */
@@ -432,7 +432,6 @@ public class LibrivoxDetailActivity extends LoggingActivity {
         BookLoadingWorkLauncher.launch(this, state, false);
 
         FirebaseAnalyticsHelper.tellLibrivoxDownload(state.title);
-        startActivity(new Intent(this, AddResourceActivity.class));
         finish();
     }
 
