@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
-    style="?android:attr/spinnerItemStyle"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    style="@style/simpleText"
+    android:background="?attr/colorSecondary"
     android:textColor="?attr/colorOnSecondary"
     android:padding="8dp"
     android:gravity="center_vertical" />

@@ -7,6 +7,7 @@ import android.content.Context;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.StyleRes;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.helpers.NetworkHelper;
@@ -115,11 +116,10 @@ public class Option {
     public static boolean getClickVisualizerPlayPause() {return prefs.getBoolean("CLICK_VISUALIZER_PLAYPAUSE", DEFAULT_CLICK_VISUALIZER_PLAYPAUSE);}
 
     /////////////////// THEME ///////////////////
-    public static void setTheme(String themeKey) {
-        prefs.edit().putString("CUSTOM_THEME_KEY", themeKey).apply();
+    public static void setThemeColor(String themeColor) {
+        prefs.edit().putString("CUSTOM_THEME_KEY", themeColor).apply();
     }
-
-    public static int getTheme() {
+    public static int getThemeColor() {
         String themeKey = prefs.getString("CUSTOM_THEME_KEY", DEFAULT_THEME_KEY);
         switch (themeKey) {
             case "purple": return R.style.Theme_BookPlayer_Purple;
@@ -142,6 +142,29 @@ public class Option {
             case "gray":
             default:
                 return R.style.Theme_BookPlayer_Gray;
+        }
+    }
+
+    public static void setFontFamilyKey(String key) {
+        prefs.edit().putString("FONT_FAMILY_KEY", key).apply();
+    }
+    public static String getFontFamilyKey() {
+        return prefs.getString("FONT_FAMILY_KEY", "sans-serif");
+    }
+
+    public static @StyleRes int getThemeFontOverlay() {
+        String themeKey = prefs.getString("FONT_FAMILY_KEY", "sans-serif");
+        switch (themeKey) {
+            case "serif":                 return R.style.ThemeOverlay_BookPlayer_Font_Serif;
+            case "monospace":             return R.style.ThemeOverlay_BookPlayer_Font_Mono;
+            case "casual":                return R.style.ThemeOverlay_BookPlayer_Font_Casual;
+            case "cursive":               return R.style.ThemeOverlay_BookPlayer_Font_Cursive;
+            case "serif-monospace":       return R.style.ThemeOverlay_BookPlayer_Font_SerifMono;
+            case "sans-serif-condensed":  return R.style.ThemeOverlay_BookPlayer_Font_SansCondensed;
+            case "sans-serif-medium":     return R.style.ThemeOverlay_BookPlayer_Font_SansMedium;
+            case "sans-serif-smallcaps":  return R.style.ThemeOverlay_BookPlayer_Font_Smallcaps;
+            case "sans-serif":
+            default:                      return R.style.ThemeOverlay_BookPlayer_Font_Sans;
         }
     }
 
@@ -279,13 +302,6 @@ public class Option {
             default -> androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM;
         };
         androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode(appCompatMode);
-    }
-
-    /////////////////// TEXT APPEARANCE ///////////////////
-    public static void setFontFamilyKey(@NonNull String family) { prefs.edit().putString("TEXT_FONT_FAMILY_KEY", family).apply(); }
-    @NonNull public static String getFontFamilyKey() {
-        String v = prefs.getString("TEXT_FONT_FAMILY_KEY", DEFAULT_FONT_FAMILY);
-        return (v.isEmpty()) ? DEFAULT_FONT_FAMILY : v;
     }
 
     public static void setTextSizeSp(float sp) {

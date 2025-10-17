@@ -50,7 +50,7 @@
                 android:gravity="center"
                 android:layout_width="match_parent">
                 <TextView
-                    style="@style/myStyleTextExplainButton"
+                    style="@style/simpleText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="50sp"
@@ -66,7 +66,7 @@
                     android:textAlignment="textEnd"
                     android:textSize="24sp" />
                 <TextView
-                    style="@style/myStyleTextExplainButton"
+                    style="@style/simpleText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/option_timeBeforeSleep_min"
@@ -94,7 +94,7 @@
                 android:gravity="center"
                 android:layout_width="match_parent">
                 <TextView
-                    style="@style/myStyleTextExplainButton"
+                    style="@style/simpleText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="50sp"
@@ -110,7 +110,7 @@
                     android:textAlignment="textEnd"
                     android:textSize="24sp" />
                 <TextView
-                    style="@style/myStyleTextExplainButton"
+                    style="@style/simpleText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="sec."
@@ -281,52 +281,6 @@
                     style="@style/Spinner" />
             </LinearLayout>
 
-            <!-- Ligne Taille (SeekBar + valeur) -->
-            <LinearLayout
-                style="@style/LinearLayoutOptionsCheckBoxHorizontal"
-                android:layout_width="match_parent"
-                android:id="@+id/ll_text_size">
-
-                <TextView style="@style/OptionCheckBoxText"
-                    android:text="@string/option_text_size"
-                    android:layout_width="80dp"
-                    />
-
-                <SeekBar
-                    android:id="@+id/seek_text_size"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:max="36"
-                    android:progress="18"/>
-
-                <TextView style="@style/OptionCheckBoxText"
-                    android:id="@+id/tv_text_size_value"
-                    android:layout_width="wrap_content"
-                    android:text="XXdp"
-                    android:paddingHorizontal="12dp"/>
-
-            </LinearLayout>
-
-            <!-- Aperçu -->
-            <TextView
-                android:id="@+id/tv_text_preview_label"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/option_text_preview_label"
-                android:textStyle="bold"
-                android:paddingTop="20dp"/>
-
-            <TextView
-                android:id="@+id/tv_text_preview"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/option_text_preview_sample"
-                android:padding="12dp"
-                android:background="?attr/colorSurfaceVariant"
-                android:layout_marginTop="6dp"
-                android:layout_marginBottom="4dp"
-                android:minHeight="48dp"/>
         </LinearLayout>
 
         <View style="@style/myStyleViewSimpleHorizontalBar" />

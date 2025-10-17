@@ -26,6 +26,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import static com.driot.bookplayer.utils.log.KanLogger.LOG_LIFECYCLE_TRACE;
 
+import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Option;
 //import com.driot.bookplayer.utils.log.KanLogger;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
@@ -56,25 +57,26 @@ public abstract class LoggingActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         try {
-            setTheme(Option.getTheme());
+            setTheme(Option.getThemeColor());
+            setTheme(Option.getThemeFontOverlay());
         } catch (Exception e) {
             myLifecycleLogEE(e, "Error setting theme : " + e.getMessage());
         }
 
         super.onCreate(savedInstanceState);
 
-        String str1 = this.getCallingActivity()==null ? "null" : this.getCallingActivity().toString();
+        String calledBy = CallerInspector.inferCaller(this, Intents.EXTRA_CALLER);
 
         if (savedInstanceState != null) {
             // The activity is being re-created. Use the
             // savedInstanceState bundle for initializations either
             // during onCreate or onRestoreInstanceState().
-            if (LOG_LIFECYCLE_TRACE) myLifecycleLog(TAG_FROM_BRACKET + "onCreate(): activity re-created. - Called by [" + str1 + "]");
+            if (LOG_LIFECYCLE_TRACE) myLifecycleLog(TAG_FROM_BRACKET + "onCreate(): activity re-created. - Called by [" + calledBy  + "]");
 
         } else {
             // Activity is being created anew. No prior saved
             // instance state information available in Bundle object.
-            if (LOG_LIFECYCLE_TRACE) myLifecycleLog(TAG_FROM_BRACKET + "onCreate(): activity created anew. - Called by [" + str1 + "]");
+            if (LOG_LIFECYCLE_TRACE) myLifecycleLog(TAG_FROM_BRACKET + "onCreate(): activity created anew. - Called by [" + calledBy  + "]");
         }
 
     }

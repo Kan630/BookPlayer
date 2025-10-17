@@ -792,7 +792,7 @@
     <string name="DeleteCoverImage_AskDelete">"You are about to delete this cover image.\nAre you sure ?"</string>
     <string name="action_generate">✨ Generate</string>
     <string name="action_delete">🗑️ Delete</string>
-    <string name="action_change">🖼️ Change</string>
+    <string name="action_change">📂 Change</string>
 
     <string name="Podcast_specific_view">Podcast specific view</string>
     <string name="Classic_book_view">Classic book view</string>
@@ -810,8 +810,8 @@
     <string name="option_text_size">Size</string>
     <string name="option_text_preview_label">Preview</string>
     <string name="option_text_preview_sample">The quick brown fox jumps over the lazy dog — 0123456789</string>
-    <string name="option_podcast_open_specific_view_subtitle">When clicking a \'podcast\' book, should it open the specific podcast view with all episodes, or the book view with only downloaded ones?</string>
-    <string name="option_podcast_open_specific_view">Open specific view</string>
+    <string name="option_podcast_open_specific_view_subtitle">When clicking a \'podcast\' item, should it open the stream podcast view with all episodes, or the \'book\' view with downloaded ones?</string>
+    <string name="option_podcast_open_specific_view">Open the live view</string>
 
     <string name="option_playing_behaviour_title">Play behaviour</string>
     <string name="option_start_next_track_at_zero_title_text">Always start the next track from the beginning, even if it was partly listened to before.</string>

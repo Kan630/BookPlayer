@@ -11,6 +11,14 @@
         <item name="android:textColor">@color/bp_onSurface</item>
     </style>
 
+    <style name="textColorFont" parent="textColor">
+        <item name="android:fontFamily">?attr/fontFamilyGlobal</item>"
+        <item name="fontFamily">?attr/fontFamilyGlobal</item>
+    </style>
+
+    <style name="simpleText" parent="textColorFont">
+    </style>
+
     <style name="errorText" parent="TextAppearance.AppCompat">
         <item name="android:textColor">@color/red_500</item>
     </style>
@@ -31,33 +39,26 @@
         <item name="android:textCursorDrawable">@drawable/edittext_cursor</item>
     </style>
 
-
-    <style name="myStyleTextExplainButton" parent="textColor">
-    </style>
-
-    <style name="simpleText" parent="textColor">
-    </style>
-
-    <style name="dayNightText" parent="textColor">
+    <style name="dayNightText" parent="textColorFont">
         <item name="android:textColor">@color/textColor</item>
     </style>
 
-    <style name="myStyleTitle" parent="textColor">
+    <style name="myStyleTitle" parent="textColorFont">
         <item name="android:textAlignment">center</item>
         <item name="android:textSize">24sp</item>
     </style>
 
-    <style name="myStyleBigTitle" parent="textColor">
+    <style name="myStyleBigTitle" parent="textColorFont">
         <item name="android:textAlignment">center</item>
         <item name="android:textSize">28sp</item>
         <item name="android:textStyle">bold</item>
     </style>
 
-    <style name="myStyleInfo" parent="textColor">
+    <style name="myStyleInfo" parent="textColorFont">
         <item name="android:textSize">12sp</item>
     </style>
 
-    <style name="myStyleTextTitle2" parent="textColor">
+    <style name="myStyleTextTitle2" parent="textColorFont">
         <item name="android:textStyle">bold</item>
         <item name="android:textSize">20sp</item>
         <item name="android:layout_width">wrap_content</item>
@@ -129,16 +130,16 @@
 
     <!-- ***************** OPTIONS ***************** -->
 
-    <style name="OptionTitle" parent="textColor">
+    <style name="OptionTitle" parent="textColorFont">
         <item name="android:textStyle">bold</item>
         <item name="android:textSize">22sp</item>
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginStart">20sp</item>
-        <item name="android:layout_marginTop">20sp</item>
+        <item name="android:layout_marginStart">20dp</item>
+        <item name="android:layout_marginTop">20dp</item>
     </style>
 
-    <style name="OptionSubTitle" parent="textColor">
+    <style name="OptionSubTitle" parent="textColorFont">
         <item name="android:layout_marginTop">10sp</item>
         <item name="android:layout_marginEnd">5sp</item>
         <item name="android:layout_width">match_parent</item>
@@ -155,7 +156,7 @@
         <item name="android:layout_gravity">center</item>
     </style>
 
-    <style name="OptionCheckBoxText" parent="textColor">
+    <style name="OptionCheckBoxText" parent="textColorFont">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_gravity">center</item>
@@ -165,7 +166,7 @@
         <item name="android:textSize">16sp</item>
     </style>>
 
-    <style name="OptionTextDefaultFor" parent="textColor">
+    <style name="OptionTextDefaultFor" parent="textColorFont">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_gravity">center</item>
@@ -175,7 +176,7 @@
         <item name="android:textSize">10sp</item>
     </style>>
 
-    <style name="OptionMiniText" parent="textColor">
+    <style name="OptionMiniText" parent="textColorFont">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textAlignment">textEnd</item>
@@ -189,7 +190,7 @@
         <item name="android:layout_height">40sp</item>
     </style>
 
-    <style name="OptionPodcastText" parent="textColor">
+    <style name="OptionPodcastText" parent="textColorFont">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textSize">20sp</item>
@@ -234,7 +235,7 @@
 
     <!-- ***************** HELP *****************  parent="?attr/borderlessButtonStyle"-->
 
-    <style name="HelpTitle" parent="textColor">
+    <style name="HelpTitle" parent="textColorFont">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_marginStart">50dp</item>
@@ -243,7 +244,7 @@
         <item name="android:textSize">20sp</item>
     </style>
 
-    <style name="HelpText" parent="textColor">
+    <style name="HelpText" parent="textColorFont">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_marginStart">10dp</item>
@@ -252,7 +253,7 @@
 
     <!-- ***************** IMPORT EN COURS ***************** -->
 
-    <style name="OnGoingImportTitle" parent="textColor">
+    <style name="OnGoingImportTitle" parent="textColorFont">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_marginStart">20sp</item>
@@ -260,7 +261,7 @@
         <item name="android:textSize">16sp</item>
     </style>
 
-    <style name="OnGoingImportText" parent="textColor">
+    <style name="OnGoingImportText" parent="textColorFont">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_marginStart">10sp</item>
@@ -284,7 +285,7 @@
 
     <!-- ***************** GET RESOURCES ***************** -->
 
-    <style name="GetResourceTextTopOfButton" parent="myStyleTextExplainButton">
+    <style name="GetResourceTextTopOfButton" parent="textColorFont">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_marginTop">15dp</item>
@@ -336,7 +337,7 @@
 
     <!-- ***************** LOAD OPTION AFTER FILE PICKED ***************** -->
 
-    <style name="OptionAfterPickedTitle" parent="textColor">
+    <style name="OptionAfterPickedTitle" parent="textColorFont">
         <item name="android:textStyle">bold</item>
         <item name="android:textSize">22sp</item>
         <item name="android:layout_width">wrap_content</item>
@@ -346,7 +347,7 @@
         <item name="android:layout_marginTop">20sp</item>
     </style>
 
-    <style name="OptionAfterPickedInfo" parent="textColor">
+    <style name="OptionAfterPickedInfo" parent="textColorFont">
         <item name="android:textStyle">bold</item>
         <item name="android:textSize">14sp</item>
         <item name="android:layout_marginStart">10sp</item>
@@ -358,7 +359,7 @@
 
     <!-- ***************** EXPORT ***************** -->
 
-    <style name="ExportTitle" parent="textColor">
+    <style name="ExportTitle" parent="textColorFont">
         <item name="android:textStyle">bold</item>
         <item name="android:textSize">18sp</item>
         <item name="android:layout_width">wrap_content</item>
@@ -367,7 +368,7 @@
         <item name="android:layout_marginTop">20sp</item>
     </style>
 
-    <style name="ExportProgressText" parent="textColor">
+    <style name="ExportProgressText" parent="textColorFont">
         <item name="android:textStyle">bold</item>
         <item name="android:textSize">12sp</item>
         <item name="android:layout_width">wrap_content</item>
@@ -393,6 +394,12 @@
         <item name="android:background">@android:color/darker_gray</item>
     </style>>
 
+
+
+
+
+
+
     <!-- Thème de l'activité en style "dialog" qui respecte ton thème M3 : parent="Theme.Material3.DayNight.Dialog"    Theme.MaterialComponents.DayNight.NoActionBar-->
     <style name="Theme.BookPlayer.DialogActivity" parent="Theme.Material3.DayNight.Dialog">
         <item name="android:windowCloseOnTouchOutside">false</item>
@@ -405,6 +412,49 @@
         <item name="android:windowExitAnimation">@android:anim/fade_out</item>
     </style>
 
+
+    <!-- TEXT FONT -->
+
+    <style name="ThemeOverlay.BookPlayer.Font" parent="ThemeOverlay.AppCompat">
+        <item name="fontFamilyGlobal">sans-serif</item>
+    </style>
+
+    <!-- Overlays par famille système -->
+    <style name="ThemeOverlay.BookPlayer.Font.Sans">
+        <item name="fontFamilyGlobal">sans-serif</item>
+    </style>
+
+    <style name="ThemeOverlay.BookPlayer.Font.Serif">
+        <item name="fontFamilyGlobal">serif</item>
+    </style>
+
+    <style name="ThemeOverlay.BookPlayer.Font.Mono">
+        <item name="fontFamilyGlobal">monospace</item>
+    </style>
+
+    <style name="ThemeOverlay.BookPlayer.Font.Casual">
+        <item name="fontFamilyGlobal">casual</item>
+    </style>
+
+    <style name="ThemeOverlay.BookPlayer.Font.Cursive">
+        <item name="fontFamilyGlobal">cursive</item>
+    </style>
+
+    <style name="ThemeOverlay.BookPlayer.Font.SerifMono">
+        <item name="fontFamilyGlobal">serif-monospace</item>
+    </style>
+
+    <style name="ThemeOverlay.BookPlayer.Font.SansCondensed">
+        <item name="fontFamilyGlobal">sans-serif-condensed</item>
+    </style>
+
+    <style name="ThemeOverlay.BookPlayer.Font.SansMedium">
+        <item name="fontFamilyGlobal">sans-serif-medium</item>
+    </style>
+
+    <style name="ThemeOverlay.BookPlayer.Font.Smallcaps">
+        <item name="fontFamilyGlobal">sans-serif-smallcaps</item>
+    </style>
 
 
 </resources>

@@ -36,13 +36,14 @@ public class LibrivoxFavoritesActivity extends LoggingActivity {
         recyclerView = findViewById(R.id.recyclerView);
         progressBar = findViewById(R.id.progressBar);
 
+        InsetHelper.applyTopInsetsTo(this, findViewById(R.id.rootLayout));
+        InsetHelper.applyBottomInsetsForScrollable(this, findViewById(R.id.recyclerView));
+
         //ongoing book load ?
         OngoingTaskHost.attach(
                 this,
                 R.id.topOverlayContainer,
                 new Intent(this, AddResourceActivity.class)); // tap => open details
-
-        InsetHelper.applyInsetsForScrollableBehindNavBar(this, recyclerView);
 
         int span = getResources().getInteger(R.integer.classic_grid_span);
         recyclerView.setLayoutManager(new GridLayoutManager(this, span));

@@ -28,7 +28,7 @@
             />
         <TextView
             android:id="@+id/tv1_body"
-            style="@style/myStyleTextExplainButton"
+            style="@style/simpleText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="20sp"
@@ -49,7 +49,7 @@
             />
         <TextView
             android:id="@+id/tv2_body"
-            style="@style/myStyleTextExplainButton"
+            style="@style/simpleText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="10sp"
@@ -69,7 +69,7 @@
 
         <TextView
             android:id="@+id/tv3_body"
-            style="@style/myStyleTextExplainButton"
+            style="@style/simpleText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="10sp"
@@ -89,7 +89,7 @@
 
         <TextView
             android:id="@+id/tv4_body"
-            style="@style/myStyleTextExplainButton"
+            style="@style/simpleText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="10sp"

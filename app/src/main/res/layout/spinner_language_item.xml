@@ -9,12 +9,15 @@
 
     <TextView
         android:id="@+id/textViewLanguage"
-        style="@style/GetResourceSpinner"
         android:layout_margin="0dp"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
+        style="@style/simpleText"
+        android:background="?attr/colorSecondary"
+        android:textColor="?attr/colorOnSecondary"
         android:text="@string/language"
+        android:padding="8dp"
         android:singleLine="true"
         android:textSize="16sp" />
 
