@@ -6,6 +6,7 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.os.Bundle;
+import android.support.v4.media.MediaBrowserCompat;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -13,6 +14,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.R;
@@ -20,6 +22,7 @@ import com.driot.bookplayer.db.Sql;
 import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.StorageHelper;
+import com.driot.bookplayer.player.CarMediaService;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import java.util.ArrayList;
@@ -83,6 +86,9 @@ public class AdminActivity extends LoggingActivity {
             String crashText = ((EditText) findViewById(R.id.etCrashText)).getText().toString();
             throw new RuntimeException(crashText); // Force a crash
                 });
+
+        findViewById(R.id.bCarConnect).setOnClickListener(v -> run_car_connect());
+
 
 //auto stuff
         btnContainer = findViewById(R.id.btnContainer);
@@ -160,4 +166,51 @@ public class AdminActivity extends LoggingActivity {
             Toast.makeText(this, "Cannot launch " + clazz.getSimpleName(), Toast.LENGTH_SHORT).show();
         }
     }
+
+
+    private MediaBrowserCompat carBrowser;
+
+    private void run_car_connect() {
+        if (carBrowser != null && carBrowser.isConnected()) {
+            myLogI("Already connected to CarMediaService");
+            return;
+        }
+        carBrowser = new MediaBrowserCompat(
+                this,
+                new ComponentName(this, CarMediaService.class),
+                new MediaBrowserCompat.ConnectionCallback() {
+                    @Override public void onConnected() {
+                        String rootId = carBrowser.getRoot(); // safe here
+                        myLogI("Connected, root=" + rootId);
+                        if (rootId == null) { myLogW("getRoot() returned null"); return; }
+
+                        // Post to main just to be extra safe with some OEMs
+                        new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+                            // Use 3-arg subscribe (options-aware) to hit the options overload
+                            carBrowser.subscribe(rootId, new android.os.Bundle(), new MediaBrowserCompat.SubscriptionCallback() {
+                                @Override public void onChildrenLoaded(@NonNull String parentId,
+                                                                       @NonNull List<MediaBrowserCompat.MediaItem> children) {
+                                    myLogI("children for " + parentId + " = " + children.size());
+                                    for (MediaBrowserCompat.MediaItem item : children) {
+                                        myLogI("  • " + String.valueOf(item.getDescription().getTitle()));
+                                    }
+                                }
+                                // (Optional) also override the options variant to log:
+                                @Override public void onChildrenLoaded(@NonNull String parentId,
+                                                                       @NonNull List<MediaBrowserCompat.MediaItem> children,
+                                                                       @NonNull Bundle options) {
+                                    myLogI("children(+opts) for " + parentId + " = " + children.size() + " opts=" + options);
+                                    onChildrenLoaded(parentId, children); // delegate to the 2-arg
+                                }
+                            });
+                        });
+                    }
+                    @Override public void onConnectionSuspended() { myLogW("Connection suspended"); }
+                    @Override public void onConnectionFailed()    { myLogE("Connection failed"); }
+                },
+                null
+        );
+        carBrowser.connect();
+    }
+
 }

@@ -12,6 +12,8 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />  <!-- Needed for Android >= 13 if no mediaSession -->
     <uses-permission android:name="android.permission.RECORD_AUDIO"/> <!--Visualizer-->
     <uses-permission android:name="android.permission.INTERNET"/> <!-- to test internet access -->
+    <!-- <uses-permission android:name="android.permission.BIND_MEDIA_BROWSER_SERVICE"/>Car stuff -->
+
     <!-- <uses-permission android:name="android.permission.RUN_USER_INITIATED_JOBS" />  for books download -->
 
     <meta-data android:name="google_analytics_adid_collection_enabled"
@@ -256,7 +258,7 @@
         <service
             android:name=".player.CarMediaService"
             android:exported="true">             <!--android:permission="android.permission.BIND_MEDIA_BROWSER_SERVICE"-->
-        <intent-filter>
+            <intent-filter>
                 <action android:name="android.media.browse.MediaBrowserService" />
             </intent-filter>
         </service>

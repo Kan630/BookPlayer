@@ -41,7 +41,7 @@ public abstract class LoggingMediaBrowserServiceCompat extends MediaBrowserServi
     @Override
     public IBinder onBind(Intent intent) {
         myInsideLogD("onBind() -Intent=[" + intent.toString() + "]");
-        return null; //TODO sure ?? not super ??
+        return super.onBind(intent);
     }
 
     @Override
@@ -97,12 +97,14 @@ public abstract class LoggingMediaBrowserServiceCompat extends MediaBrowserServi
         super.onLoadItem(itemId, result);
         myInsideLogD("onLoadItem() itemId=[" + itemId + "]");
     }
-
+/*
     @Override
     public void onLoadChildren(@NonNull String parentId, @NonNull Result<List<MediaBrowserCompat.MediaItem>> result, @NonNull Bundle options) {
         super.onLoadChildren(parentId, result, options);
         myInsideLogD("onLoadChildren() parentId=[" + parentId + "]");
     }
+
+ */
 
     @Override
     public void onSearch(@NonNull String query, Bundle extras, @NonNull Result<List<MediaBrowserCompat.MediaItem>> result) {
@@ -128,12 +130,14 @@ public abstract class LoggingMediaBrowserServiceCompat extends MediaBrowserServi
         myInsideLogD("notifyChildrenChanged() parentId=[" + parentId + "]");
     }
 
+    /*
     @Nullable
     @Override
     public BrowserRoot onGetRoot(@NonNull String clientPackageName, int clientUid, @Nullable Bundle rootHints) {
         myInsideLogD("onGetRoot() pkg=[" + clientPackageName + "] uid=[" + clientUid + "] hints=" + rootHints);
-        return null;
+        return onGetRoot(clientPackageName, clientUid, rootHints);
     }
+     */
 
     /*
     // ---- MediaBrowserServiceCompat abstract API with logging wrappers ----

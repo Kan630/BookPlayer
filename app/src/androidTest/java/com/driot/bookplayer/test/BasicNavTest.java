@@ -170,6 +170,7 @@ public abstract class BasicNavTest implements LogSupport {
 
         // play audio
 
+        TestNavUtils.assertWaitForActivity(MainActivity.class, 1_000, "not in main");
         onView(ViewMatchers.withId(com.driot.bookplayer.R.id.recyclerview_folders)).perform(RecyclerViewActions.actionOnItemAtPosition(0, click()));
         TestNavUtils.sleep(5_000);
         TestNavUtils.logCurrentActivity();

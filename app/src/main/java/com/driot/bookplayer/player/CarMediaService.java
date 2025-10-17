@@ -1,5 +1,6 @@
 package com.driot.bookplayer.player;
 
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -13,6 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.media.MediaBrowserServiceCompat;
 
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaDescriptionCompat;
@@ -27,13 +29,15 @@ import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
+import com.driot.bookplayer.utils.log.KanLogger;
 import com.driot.bookplayer.utils.log.LoggingMediaBrowserServiceCompat;
+
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class CarMediaService extends LoggingMediaBrowserServiceCompat {
+public class CarMediaService extends LoggingMediaBrowserServiceCompat { //MediaBrowserServiceCompat
 
     private final android.os.Handler carH = new android.os.Handler(android.os.Looper.getMainLooper());
     private final java.util.Set<Integer> pendingFolderRefresh = new java.util.HashSet<>();
@@ -122,6 +126,23 @@ public class CarMediaService extends LoggingMediaBrowserServiceCompat {
         // 1) MediaSession locale pour Android Auto
         mediaSession = new MediaSessionCompat(this, "BookPlayerCarSession");
         setSessionToken(mediaSession.getSessionToken());
+
+        mediaSession.setFlags(
+                MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS |
+                        MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS
+        );
+
+        /*
+        // Optional but nice: lets AA open your app when user taps the header
+        PendingIntent pi = PendingIntent.getActivity(
+                this, 0,
+                new Intent(this, com.driot.bookplayer.activities.MainActivity.class)
+                        .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP),
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        mediaSession.setSessionActivity(pi);
+
+         */
+
 
         mediaSession.setCallback(new MediaSessionCompat.Callback() {
 
@@ -257,7 +278,7 @@ public class CarMediaService extends LoggingMediaBrowserServiceCompat {
     @Nullable
     @Override
     public BrowserRoot onGetRoot(@NonNull String clientPackageName, int clientUid, Bundle rootHints) {
-        myLogI("------------ onGetRoot ------------");
+        myLogI("------------ onGetRoot ------------  from pkg=" + clientPackageName + " uid=" + clientUid + " hints=" + rootHints);
         // Filtre au cas ou je ne set pas la permission dans le manifest pour le service : android:permission="android.permission.BIND_MEDIA_BROWSER_SERVICE"
 /*
         if ("com.google.android.projection.gearhead".equals(clientPackageName)
@@ -271,17 +292,39 @@ public class CarMediaService extends LoggingMediaBrowserServiceCompat {
  */
         CarSignals.markCarConnected();
         FirebaseAnalyticsHelper.tellCarOnRoot();
+
         return new BrowserRoot(ROOT_ID, null);
     }
 
 // getString(R.string.automotive_no_item_in_bookplayer)
+
+    @Override
+    public void onLoadChildren(@NonNull String parentId,
+                               @NonNull Result<List<MediaBrowserCompat.MediaItem>> result,
+                               @NonNull Bundle options) {
+        myLogI("onLoadChildren(+opts) parentId=" + parentId + " opts=" + options);
+        loadChildrenImpl(parentId, options, result);
+    }
+
     @Override
     public void onLoadChildren(@NonNull String parentId,
                                @NonNull Result<List<MediaBrowserCompat.MediaItem>> result) {
-        myLogI("------------ OnChildren ------------");
+        myLogI("onLoadChildren parentId=" + parentId + " (no options)");
+        loadChildrenImpl(parentId, null, result);
+    }
+
+    private void loadChildrenImpl(@NonNull String parentId,
+                                  @Nullable Bundle options,
+                                  @NonNull Result<List<MediaBrowserCompat.MediaItem>> result) {
+        myLogI("------------ OnChildren ------------   parentId=" + parentId);
         FirebaseAnalyticsHelper.tellCarOnChildren();
         // Chargements DB → thread bg
         result.detach();
+
+        // Optional: honor paging if host asks
+        // int page = options != null ? options.getInt(MediaBrowserCompat.EXTRA_PAGE, -1) : -1;
+        // int pageSize = options != null ? options.getInt(MediaBrowserCompat.EXTRA_PAGE_SIZE, -1) :
+
         AppDatabase.databaseReadExecutor.execute(() -> {
             List<MediaBrowserCompat.MediaItem> out = new ArrayList<>();
 
@@ -325,6 +368,7 @@ public class CarMediaService extends LoggingMediaBrowserServiceCompat {
                     }
                 }
 
+                myLogI("sendResult count=" + out.size() + " for ROOT parentId=" + parentId);
                 result.sendResult(out);
                 return;
             }
@@ -396,11 +440,12 @@ public class CarMediaService extends LoggingMediaBrowserServiceCompat {
                     }
 
                 }
+                myLogI("sendResult count=" + out.size() + " for parentId=" + parentId);
                 result.sendResult(out);
                 return;
             }
 
-
+            myLogW("sendResult emptyList for parentId=" + parentId);
             result.sendResult(Collections.emptyList());
         });
     }
@@ -585,6 +630,7 @@ public class CarMediaService extends LoggingMediaBrowserServiceCompat {
         carH.postDelayed(() -> {
             pendingFolderRefresh.remove(folderId);
             notifyChildrenChanged(PREFIX_FOLDER + folderId);
+            notifyChildrenChanged(PREFIX_FOLDER + folderId, Bundle.EMPTY);
         }, 350); // small debounce
     }
     // Optional: if your ROOT shows “Continue …” subtitles, refresh ROOT too
@@ -597,5 +643,15 @@ public class CarMediaService extends LoggingMediaBrowserServiceCompat {
             notifyChildrenChanged(ROOT_ID);
         }, 500);
     }
-
+/*
+    ////////////////////////////////////////////////////////
+    private static final String TAG = "CarMediaService";
+    private static void myLog(String str) { KanLogger.myLog(TAG, str); }
+    private static void myLogD(String str) { KanLogger.myLogD(TAG, str); }
+    private static void myLogI(String str) { KanLogger.myLogI(TAG, str); }
+    private static void myLogW(String str) { KanLogger.myLogW(TAG, str); }
+    private static void myLogE(String str) { KanLogger.myLogE(TAG, str); }
+    private static void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, TAG, str); }
+    private static void myToastEE(Throwable t, String str) { KanLogger.myToastEE(t, TAG, str); }
+*/
 }
