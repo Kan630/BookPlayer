@@ -114,7 +114,7 @@ public final class AppTtsManager implements TextToSpeech.OnInitListener {
             tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
                 @Override public void onStart(String utteranceId) {
                     myLogD("setOnUtteranceProgressListener.onStart - utteranceId=" + utteranceId);
-                    //listeners.values().forEach(w -> opt(w).onStart(utteranceId));
+                    // this is for a reactive highlight, but I dont like it : log not nice
                     int[] se = TtsIds.parseUtt(utteranceId);
                     if (se != null) {
                         final int s = se[0];
@@ -135,7 +135,9 @@ public final class AppTtsManager implements TextToSpeech.OnInitListener {
                     myLogE("onError " + utteranceId + " -> " + TtsErrorUtils.describeOnErrorCode(errorCode));
                     listeners.values().forEach(w -> opt(w).onError(utteranceId, errorCode));
                 }
+                // used for words highlighting
                 @Override public void onRangeStart(String uttId, int start, int end, int frame) {
+                    myLogD("setOnUtteranceProgressListener.onRangeStart, uttId=" + uttId + " - " + start + "=>" + end + " - frame=" + frame);
                     // Convert to absolute using the uttId "utt_<absStart>_<absEnd>"
                     int[] se = TtsIds.parseUtt(uttId);
                     if (se != null) {

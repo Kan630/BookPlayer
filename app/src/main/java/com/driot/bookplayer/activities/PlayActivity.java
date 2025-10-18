@@ -195,6 +195,9 @@ public class PlayActivity extends LoggingActivity {
             applyTtsToggleUi(vm.getState().getValue());
         });
 
+        ImageButton ib_settings = findViewById(R.id.ib_settings);
+        ib_settings.setOnClickListener((v) -> startActivity(new Intent(this, TtsSettingsActivity.class)));
+
         ClickInterceptFrameLayout container = findViewById(R.id.coverContainer);
         container.setCallbacks(new ClickInterceptFrameLayout.Callbacks() {
             @Override public void onSingleTap() {
@@ -282,9 +285,12 @@ public class PlayActivity extends LoggingActivity {
             }
 
             // TTS mode: show spinner during busy phases, otherwise hide overlays
-            final boolean busy = Intents.PHASE_LOADING_TEXT.equals(p.phase)
-                    || Intents.PHASE_STARTING.equals(p.phase);
-            progressOverlay.setVisibility(busy ? View.VISIBLE : View.GONE);
+            //final boolean busy = Intents.PHASE_LOADING_TEXT.equals(p.phase)
+            //        || Intents.PHASE_STARTING.equals(p.phase);
+            //progressOverlay.setVisibility(busy ? View.VISIBLE : View.GONE);
+
+
+
             String label;
             switch (p.phase) {
                 case Intents.PHASE_LOADING_TEXT: label = getString(R.string.tts_phase_loading_text); break;
@@ -307,10 +313,12 @@ public class PlayActivity extends LoggingActivity {
             }
 
             // Optionally soften main controls during busy phases
+            /*
             boolean controlsEnabled = !busy;
             bRewind.setEnabled(controlsEnabled);
             bForward.setEnabled(controlsEnabled);
             seekbar.setEnabled(controlsEnabled);
+             */
         });
 
 

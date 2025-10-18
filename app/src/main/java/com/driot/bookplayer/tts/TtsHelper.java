@@ -15,7 +15,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.adapter.VoiceSpinnerAdapter;
+import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.objects.VoiceItem;
+import com.driot.bookplayer.utils.Tonio;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
@@ -47,7 +49,6 @@ public class TtsHelper {
 
     // ======== SPEAK API ========
     public void speakFromOffset(String text, int startOffset, float volume) {
-        myLogD("speakFromOffset");
         if (tts == null || text == null || text.isEmpty()) {
             myLogD("speakFromOffset : empty");
             return;
@@ -56,7 +57,8 @@ public class TtsHelper {
             myLogD("speakFromOffset : not ready");
             return;
         }
-        int maxLen = 1800;
+        int maxLen = Option.getTtsChunkSize();
+        myLog("speakFromOffset : text length = [" + Tonio.getReadableSize(text.length()) + "] - start = [" + Tonio.getReadableSize(startOffset) + "] - chunk buffer = [" + maxLen + "] chars");
 
         List<Chunk> chunks = buildChunks(text, maxLen);
         int safeOffset = Math.max(0, Math.min(startOffset, text.length()));

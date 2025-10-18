@@ -38,25 +38,68 @@
         <TextView
             style="@style/OptionTitle"
             android:text="@string/tts_language" />
-            <TextView style="@style/OptionSubTitle"
-                android:text="@string/option_tts_language_text"
-                />
-            <Spinner
-                android:id="@+id/spinner_voice_item"
-                style="@style/Spinner"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:layout_marginStart="40dp"
-                android:layout_marginBottom="15dp"
-                />
+        <TextView style="@style/OptionSubTitle"
+            android:text="@string/option_tts_language_text"
+            />
+        <Spinner
+            android:id="@+id/spinner_voice_item"
+            style="@style/Spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginStart="40dp"
+            android:layout_marginBottom="15dp"
+            />
 
         <View style="@style/myStyleViewSimpleHorizontalBar" />
 
         <LinearLayout
             style="@style/LinearLayoutOptionsVertical">
+
+
+
             <TextView
                 android:layout_marginTop="0dp"
+                style="@style/OptionTitle"
+                android:text="@string/Engine" />
+            <LinearLayout
+                android:id="@+id/ll_tts_chunk_size"
+                style="@style/LinearLayoutOptionsCheckBoxHorizontal"
+                android:gravity="center"
+                android:layout_width="match_parent">
+                <TextView
+                    style="@style/simpleText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/option_tts_chunk_size_text"
+                    android:textSize="24sp" />
+                <EditText
+                    android:id="@+id/et_tts_chunk_size"
+                    style="@style/EditText"
+                    android:layout_width="70sp"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:paddingStart="4sp"
+                    android:paddingEnd="4sp"
+                    android:textAlignment="textEnd"
+                    android:textSize="24sp" />
+                <TextView
+                    style="@style/simpleText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/chars"
+                    android:textSize="24sp" />
+            </LinearLayout>
+            <TextView
+                android:text="Min = 1200"
+                style="@style/OptionMiniText" />
+            <TextView
+                android:text="Max = 3600"
+                style="@style/OptionMiniText" />
+
+            <View style="@style/myStyleViewSimpleHorizontalBar" />
+
+            <TextView
                 style="@style/OptionTitle"
                 android:text="@string/option_tts_highlight_delay_title" />
             <LinearLayout
@@ -70,8 +113,9 @@
                     android:layout_height="wrap_content"
                     android:text="@string/option_tts_highlight_delay_text"
                     android:textSize="24sp" />
-                <EditText style="@style/EditText"
+                <EditText
                     android:id="@+id/et_tts_highlight_delay"
+                    style="@style/EditText"
                     android:layout_width="70sp"
                     android:layout_height="wrap_content"
                     android:inputType="number"
@@ -92,6 +136,9 @@
             <TextView
                 android:text="Max = 400"
                 style="@style/OptionMiniText" />
+
+
+
         </LinearLayout>
 
         <View style="@style/myStyleViewSimpleHorizontalBar" />

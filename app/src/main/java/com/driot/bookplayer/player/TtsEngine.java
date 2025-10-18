@@ -187,12 +187,14 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
 
     @Override
     public void onStart(String utteranceId) {
+        myLogD("onStart " + utteranceId);
         if (disposed) return;
         // ignore warm-up ids; nothing else to do
     }
 
     @Override
     public void onDone(String utteranceId) {
+        myLogD("onDone " + utteranceId);
         if (disposed) return;
 
         // End of logical text?
@@ -212,6 +214,7 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
 
     @Override
     public void onError(String utteranceId, int code) {
+        myLogD("onError " + utteranceId + ", code = " + code);
         if (disposed) return;
         playing = false;
         listener.onError(gen, "TTS error", code, 0);

@@ -2,14 +2,11 @@ package com.driot.bookplayer.activities;
 
 import android.os.Bundle;
 import android.view.WindowManager;
-import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.Spinner;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Option;
-import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.objects.VoiceItem;
 import com.driot.bookplayer.tts.TtsHelper;
@@ -19,7 +16,7 @@ public class TtsSettingsActivity extends LoggingActivity {
 
     AutoCloseable ttsHandle;
     String lastSavedTtsVoice;
-    EditText et_tts_highlight_delay;
+    EditText et_tts_highlight_delay, et_tts_chunk_size;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +52,10 @@ public class TtsSettingsActivity extends LoggingActivity {
         et_tts_highlight_delay = findViewById(R.id.et_tts_highlight_delay);
         et_tts_highlight_delay.setText(String.valueOf(Option.getTtsHighlightDelayMs()));
 
+        et_tts_chunk_size = findViewById(R.id.et_tts_chunk_size);
+        et_tts_chunk_size.setText(String.valueOf(Option.getTtsChunkSize()));
+
+
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN); // Avoid keyboard on opening
     }
 
@@ -64,6 +65,12 @@ public class TtsSettingsActivity extends LoggingActivity {
                     () -> myLongToast(getString(R.string.delay_for_auto_deletion) + " " + getString(R.string.too_low)),
                     () -> myLongToast(getString(R.string.delay_for_auto_deletion) + " " + getString(R.string.too_high)));
             Option.setTtsHighlightDelayMs(value1);
+        }
+        if (et_tts_chunk_size != null ) {
+            int value2 = clampInt(et_tts_chunk_size, 1200, 9999, Option.DEFAULT_TTS_CHUNK_SIZE,
+                    () -> myLongToast(getString(R.string.tts_chunk_size) + " " + getString(R.string.too_low)),
+                    () -> myLongToast(getString(R.string.tts_chunk_size) + " " + getString(R.string.too_high)));
+            Option.setTtsChunkSize(value2);
         }
     }
 
