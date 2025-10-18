@@ -139,22 +139,24 @@ public class MyApp extends Application {
 
     @RequiresApi(api = Build.VERSION_CODES.P) //28
     private void enableStrictModeForDebugBuild() {
-        if (BuildConfig.DEBUG) {
-            myLog("DEBUG => Strict mode set");
-            StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
-                    .detectDiskReads()
-                    .detectDiskWrites()
-                    .detectNetwork()
-                    //.detectAll()            // catch disk/network/slow calls on main thread
-                    .penaltyListener(Executors.newSingleThreadExecutor(), v -> logStrict("ThreadPolicy", v))
-                    .penaltyFlashScreen()   // (optional) flash the screen when violation happens
-                    .build());
+        if (!BuildConfig.DEBUG) return;
 
-            StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
-                    .detectAll()            // catch leaks, file descriptor misuse, etc.
-                    .penaltyListener(Executors.newSingleThreadExecutor(), v -> logStrict("VmPolicy", v))
-                    .build());
-        }
+        java.util.concurrent.Executor direct = Runnable::run;
+
+        myLog("DEBUG => Strict mode set");
+        StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
+                .detectDiskReads()
+                .detectDiskWrites()
+                .detectNetwork()
+                //.detectAll()            // catch disk/network/slow calls on main thread
+                .penaltyListener(direct, v -> logStrict("ThreadPolicy", v))
+                .penaltyFlashScreen()   // (optional) flash the screen when violation happens
+                .build());
+
+        StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
+                .detectAll()            // catch leaks, file descriptor misuse, etc.
+                .penaltyListener(direct, v -> logStrict("VmPolicy", v))
+                .build());
     }
     private static void logStrict(String policy, Throwable v) {
         // Only care about main thread violations:

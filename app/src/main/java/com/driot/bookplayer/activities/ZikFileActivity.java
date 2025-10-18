@@ -40,6 +40,7 @@ public class ZikFileActivity extends LoggingActivity {
     private int lastObservedTrackId = -1;
 
     private Folder folder;
+    private Folder lastFolder;
     private int folderId;
 
     private ImageButton ib_settings;
@@ -87,10 +88,13 @@ public class ZikFileActivity extends LoggingActivity {
             if (f == null) {
                 myLogI("Folder " + folderId + " deleted — finishing.");
                 finish();
-                return;
+            } else {
+                folder = f;
+                if (lastFolder==null || f.getId() != lastFolder.getId()) {
+                    fillHeader(); // uses the latest folder
+                    lastFolder = f;
+                }
             }
-            folder = f;
-            fillHeader(); // uses the latest folder
         });
 
 
@@ -159,6 +163,7 @@ public class ZikFileActivity extends LoggingActivity {
     }
 
     private void fillHeader() {
+        myLogD("fillHeader()");
         TextView textViewTitle = findViewById(R.id.textViewTitle);
         ImageView ivCover = findViewById(R.id.coverImage);
 

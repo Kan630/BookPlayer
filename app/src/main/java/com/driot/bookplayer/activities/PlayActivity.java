@@ -32,6 +32,7 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import com.bumptech.glide.Glide;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.Podcast;
@@ -74,6 +75,8 @@ public class PlayActivity extends LoggingActivity {
     private View progressOverlay, messageOverlay;
 
     private ImageView ivCover;
+    private String lastCoverUri = null;
+
     private FrequencyVisualizerView frequencyVisualizerView;
 
     private View ttsContainer;
@@ -233,21 +236,21 @@ public class PlayActivity extends LoggingActivity {
                 bPlayPause.setEnabled(false);
                 bPlayPause.setImageResource(R.drawable.ic_hourglass_24);
             }
-/*
-            // Play/Pause icon + readiness
-            bPlayPause.setEnabled(s.ready);
-            bPlayPause.setImageResource(s.ready
-                    ? (s.playing ? R.drawable.ic_media_pause_24 : R.drawable.ic_media_play_24)
-                    : R.drawable.ic_hourglass_24);
-
- */
 
             if (s.cover != null && !s.cover.isEmpty()) {
-                ivCover.setImageURI(null);
-                ivCover.setImageURI(Uri.parse(s.cover));
+                if (!s.cover.equals(lastCoverUri)) {
+                    lastCoverUri = s.cover;
+                    ivCover.setImageURI(null);
+                    ivCover.setImageURI(Uri.parse(s.cover));
+                    //Glide.with(ivCover.getContext()).load(StorageHelper.checkAndCleanImagePath(ivCover.getContext(), s.cover)).into(ivCover);
+                }
                 ivCover.setVisibility(View.VISIBLE);
                 frequencyVisualizerView.setAlpha(0.6f);
             } else {
+                if (lastCoverUri != null) {
+                    lastCoverUri = null;
+                    ivCover.setImageDrawable(null); // free memory
+                }
                 ivCover.setVisibility(View.GONE);
                 frequencyVisualizerView.setAlpha(1f);
             }
