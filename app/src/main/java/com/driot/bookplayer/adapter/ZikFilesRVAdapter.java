@@ -18,6 +18,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.ModifyZikFileActivity;
 import com.driot.bookplayer.activities.PlayActivity;
+import com.driot.bookplayer.db.AppDatabase;
+import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Option;
@@ -168,32 +170,42 @@ public class ZikFilesRVAdapter extends LoggingListAdapter<ZikFile, ZikFilesRVAda
             if (clickedZikFile == null) return;
             Context ctx = itemView.getContext();
 
-            // was something playing ?
-            PlaybackUiState lastUiState = AudioService.lastUiState;
-            PlayList pl = PlayList.getInstance();
-            boolean sameTrack = (pl != null && pl.getZikFile() != null && pl.getZikFile().getId() == clickedZikFile.getId());  //keep getId() => needed !
-            boolean isTTS = (pl != null && pl.getFolder() != null && Objects.equals(pl.getFolder().playType, Var.PLAY_TYPE_TEXT));  //keep getId() => needed !
-            myLogI("USER CLICKS ZIKFILE : [" + clickedZikFile.getName() + "] - sameTrack=" + sameTrack + " - lastUiState = " + lastUiState);
+            AppDatabase.databaseReadExecutor.execute(()-> {
+                //TTS ?
+                final boolean isTTS;
+                Folder folder = AppDatabase.getDatabase(ctx).folderDao().getById(clickedZikFile.getIdFolder());
+                isTTS = Objects.equals(folder.playType, Var.PLAY_TYPE_TEXT);
 
-            if (lastUiState==null
-                    || !lastUiState.playing
-                    || !sameTrack
-                    //|| isTTS  //TODO remove : TTS not perfect yet, so we force reload...
-            ) {
-                ContextCompat.startForegroundService(
-                        ctx.getApplicationContext(),
-                        new Intent(ctx.getApplicationContext(), AudioService.class)
-                                .setAction(Intents.ACTION_PLAY_FROM_TRACK)
-                                .putExtra(Intents.EXTRA_TRACK_ID, clickedZikFile.getId())
-                                .putExtra(Intents.EXTRA_CALLER, this.getClass().getSimpleName() + ".onClick() [ZikFilesRVAdapter]")
-                                .putExtra(Intents.EXTRA_FOREGROUND, true)
-                );
-            }
+                // was something playing ?
+                PlaybackUiState lastUiState = AudioService.lastUiState;
 
-            //maybe open PlayActivity
-            if (sameTrack || Option.getOpenPlayActivity() || isTTS) {
-                ctx.startActivity(new Intent(ctx, PlayActivity.class).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT));
-            }
+                //is same track clicked ?
+                PlayList pl = PlayList.getInstance();
+                boolean sameTrack = (pl != null && pl.getZikFile() != null && pl.getZikFile().getId() == clickedZikFile.getId());  //keep getId() => needed !
+
+                myLogI("USER CLICKS ZIKFILE : [" + clickedZikFile.getName() + "] - sameTrack=" + sameTrack + " - TTS=" + isTTS + " - lastUiState = " + lastUiState);
+
+                new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+                    if (lastUiState==null
+                            || !lastUiState.playing
+                            || !sameTrack
+                    ) {
+                        ContextCompat.startForegroundService(
+                                ctx.getApplicationContext(),
+                                new Intent(ctx.getApplicationContext(), AudioService.class)
+                                        .setAction(Intents.ACTION_PLAY_FROM_TRACK)
+                                        .putExtra(Intents.EXTRA_TRACK_ID, clickedZikFile.getId())
+                                        .putExtra(Intents.EXTRA_CALLER, this.getClass().getSimpleName() + ".onClick() [ZikFilesRVAdapter]")
+                                        .putExtra(Intents.EXTRA_FOREGROUND, true)
+                        );
+                    }
+
+                    //maybe open PlayActivity
+                    if (sameTrack || Option.getOpenPlayActivity() || isTTS) {
+                        ctx.startActivity(new Intent(ctx, PlayActivity.class).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT));
+                    }
+                });
+            });
         }
 
         @Override
