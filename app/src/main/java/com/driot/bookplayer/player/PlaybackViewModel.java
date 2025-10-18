@@ -56,6 +56,8 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
                     || Intents.PHASE_WARMING_UP.equals(phase)
                     || Intents.PHASE_STARTING.equals(phase);
         }
+        @NonNull
+        public String toString() { return phase + " - message = [" + message + "] - busy = [" + isBusyPhase() + "]"; }
     }
 
     private final MutableLiveData<PhaseUi> phase = new MutableLiveData<>(new PhaseUi(Intents.PHASE_LOADING_TEXT, null));

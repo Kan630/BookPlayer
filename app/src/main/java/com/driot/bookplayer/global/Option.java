@@ -64,6 +64,7 @@ public class Option {
     public static final boolean DEFAULT_AUTOMOTIVE_KEEP_PHONE_PLAYBACK_ON_CAR_CONNECT = false;
     public static final int DEFAULT_LIBRIVOX_API_NB_RESULTS = 200;
     public static final int DEFAULT_PODCAST_INDEX_ORG_API_NB_RESULTS = 200;
+    public static final int DEFAULT_TTS_HIGHLIGHT_DELAY_MS = 100;
 
     private static Context appContext;
     private static android.content.SharedPreferences prefs;
@@ -261,12 +262,17 @@ public class Option {
 
 
 
-    /////////////////// LANGUAGE ///////////////////
+    /////////////////// APP LANGUAGE ///////////////////
     public static void setAppLanguage(String language) {prefs.edit().putString("APP_LANGUAGE",language).apply();}
     public static String getAppLanguage() {return prefs.getString("APP_LANGUAGE", DEFAULT_LANGUAGE);}
 
+    /////////////////// TTS ///////////////////
     public static void setTtsVoice(String voice) {prefs.edit().putString("TTS_VOICE",voice).apply();}
     public static String getTtsVoice() {return prefs.getString("TTS_VOICE", DEFAULT_LANGUAGE);}
+
+    public static void setTtsHighlightDelayMs(int delayMs) {prefs.edit().putInt("TTS_HIGHLIGHT_DELAY_MS", delayMs).apply();}
+    public static int getTtsHighlightDelayMs() {return prefs.getInt("TTS_HIGHLIGHT_DELAY_MS", DEFAULT_TTS_HIGHLIGHT_DELAY_MS);}
+
 
     /////////////////// AUTOMOTIVE ///////////////////
 

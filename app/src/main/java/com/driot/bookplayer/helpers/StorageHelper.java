@@ -326,7 +326,7 @@ public class StorageHelper {
 
         //TODO maybe try redownload from Podcast.imageOriginalUri
         // use processPendingImage, or run it
-        myToastEE(null, "no valid image file - [" + fileName + "]");
+        myLogEE(null, "checkAndCleanImagePath : no valid image file - [" + fileName + "]");
         return null;
     }
 }

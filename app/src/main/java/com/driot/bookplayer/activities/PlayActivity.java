@@ -177,7 +177,7 @@ public class PlayActivity extends LoggingActivity {
 
         final TextView progressTitle = progressOverlay.findViewById(R.id.tv_progress_overlay_title);
         final TextView progressMessage = progressOverlay.findViewById(R.id.tv_progress_overlay_message);
-        progressTitle.setText(getString(R.string.tts_progress_title));
+        progressTitle.setText(getString(R.string.Text_To_Speech));
 
         // Clicks
         bPlayPause.setOnClickListener(v -> {vm.playPause();suppressAutoScroll = false;});
@@ -257,6 +257,7 @@ public class PlayActivity extends LoggingActivity {
 
         vm.getPhase().observe(this, p -> {
             if (p == null) return;
+            myLog("Phase observer : " + p);
 
             // Pull the latest playback state to know if we’re in TTS or audio mode
             PlaybackUiState s = vm.getState().getValue();
@@ -335,6 +336,7 @@ public class PlayActivity extends LoggingActivity {
         // Back press: if not playing, ask service to stop; then finish.
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override public void handleOnBackPressed() {
+                myLogI("--- user press BACK ---");
                 PlaybackUiState s = vm.getState().getValue();
                 if (s == null || !s.playing) vm.dismissMini(); // sends STOP to service
                 finish();
@@ -561,7 +563,7 @@ public class PlayActivity extends LoggingActivity {
         pendingStart = s; pendingEnd = e;
         if (highlightScheduled) return;
         highlightScheduled = true;
-        uiH.postDelayed(this::applyTtsHighlight, Var.TTS_HIGHLIGHT_DELAY_MS);
+        uiH.postDelayed(this::applyTtsHighlight, Option.getTtsHighlightDelayMs());
     }
     private void applyTtsHighlight() {
         highlightScheduled = false;

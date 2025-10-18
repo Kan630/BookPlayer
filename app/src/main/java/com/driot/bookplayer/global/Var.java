@@ -22,8 +22,6 @@ public class Var {
 
     public static final String USER_AGENT_BOOKPLAYER = "BookPlayer/1.0 (Android)";
 
-    public static final int TTS_HIGHLIGHT_DELAY_MS = 100;
-
     public static final String SOURCE_LOCATION_PODCAST = "podcast";
     public static final String SOURCE_LOCATION_LIBRIVOX = "librivox";
 

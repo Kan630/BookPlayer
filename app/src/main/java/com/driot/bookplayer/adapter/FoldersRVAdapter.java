@@ -275,7 +275,12 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
                                             .putExtra(Intents.EXTRA_FOREGROUND, true)
                             );
                         }
-                        if (Option.getOpenPlayActivity()) runOnUi(() -> context.startActivity(new Intent(context, PlayActivity.class).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)));
+                        if (Option.getOpenPlayActivity()
+                                || isTTS
+                                || sameTrack
+                        ) {
+                            runOnUi(() -> context.startActivity(new Intent(context, PlayActivity.class).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)));
+                        }
                     }
                 }
             } catch (Exception e) {

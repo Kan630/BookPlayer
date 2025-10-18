@@ -905,10 +905,8 @@
     <string name="Error_Import_unsupported_file">Error : unsupported file</string>
     <string name="Error_Import_access_denied">Error : access denied</string>
 
-
     <string name="Warning">Warning</string>
     <string name="beta_test">beta test</string>
-
 
     <string name="action_web_search">🔎 Web search</string>
     <string name="confirm">confirm</string>
@@ -959,8 +957,14 @@
 
     <string name="option_automotive_let_car_autoplay">Allow Android Auto to trigger play on its own (usually, when connected to the car).</string>
     <string name="option_open_play_activity">Open play view when playback starts.</string>
+    <string name="tts_settings">TTS settings</string>
+    <string name="option_tts_language_text">Default TTS language for new e-books.</string>
+    <string name="option_tts_highlight_delay_title">Words highlight.</string>
+    <string name="option_tts_highlight_delay_text">Engine delay :</string>
+    <string name="ms">ms.</string> //means milliseconds
 
-    <string name="tts_progress_title">Text-To-Speech</string>
+
+    <string name="Text_To_Speech">Text-To-Speech</string>
     <string name="tts_phase_loading_text">Loading text…</string>
     <string name="tts_phase_warming_up">Preparing voice…</string>
     <string name="tts_phase_starting">Starting speech…</string>

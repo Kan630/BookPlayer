@@ -32,8 +32,6 @@ import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.LocaleHelper;
 import com.driot.bookplayer.helpers.LanguageHelper;
 import com.driot.bookplayer.helpers.NetworkHelper;
-import com.driot.bookplayer.objects.VoiceItem;
-import com.driot.bookplayer.tts.TtsHelper;
 import com.driot.bookplayer.utils.PermissionRequest;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
@@ -87,13 +85,10 @@ public class SettingsActivity extends LoggingActivity {
     CheckBox chk_use_sd_card;
     CheckBox chk_create_cover;
     Spinner appLanguageSpinner;
-    Spinner ttsVoiceSpinner;
-    String lastSavedTtsVoice;
     View advancedOptionsLayout;
     Button btnShowAdvanced;
     ScrollView scrollView;
     private Button btnNightMode;
-    AutoCloseable ttsHandle;
 
     private static class FontChoice {
         final String key;   // ex: "sans-serif"
@@ -461,35 +456,6 @@ public class SettingsActivity extends LoggingActivity {
                 },false
         );
 
-/// TTS  VOICE
-        ttsVoiceSpinner = findViewById(R.id.spinner_voice_item);
-        lastSavedTtsVoice = Option.getTtsVoice();
-        myLogD("setUp Voice Spinner, saved voice = " + lastSavedTtsVoice);
-        ttsHandle = TtsHelper.setupTtsVoiceSpinner(
-                this,
-                ttsVoiceSpinner,
-                lastSavedTtsVoice,
-                voiceItem -> {
-                    if (voiceItem == null) {
-                        myLogD("TTS voice chosen is null");
-                    } else {
-                        myLogD("TTS voice chosen: " + VoiceItem.describeVoice(voiceItem.voice).replace(", ","\n"));
-                    }
-                    String sel = (voiceItem == null || voiceItem.name == null || voiceItem.name.isEmpty())
-                            ? "system" : voiceItem.name;
-
-                    if (!sel.equalsIgnoreCase(lastSavedTtsVoice)) {
-                        Option.setTtsVoice(sel);
-                        lastSavedTtsVoice = sel;
-                        myLog("TTS default base voice set to: " + sel + " (" + (voiceItem == null ? "system" : voiceItem.displayName + " / - name = " + voiceItem.name + ")"));
-                    }
-                }
-        );
-
-
-
-
-
         try {
             if (getIntent().getBooleanExtra("CopyFileSetRed", false)) {
                 TextView tv = findViewById(R.id.txtCopyFileHead);
@@ -514,6 +480,12 @@ public class SettingsActivity extends LoggingActivity {
         btnLibrivoxSettings.setOnClickListener(v -> {
             myLogI("--- USER CLICKS LIBRIVOX OPTIONS ---");
             Intent intent = new Intent(this, LibrivoxSettingsActivity.class);
+            startActivity(intent);
+        });
+        Button btnTtsSettings = findViewById(R.id.btnTtsSettings);
+        btnTtsSettings.setOnClickListener(v -> {
+            myLogI("--- USER CLICKS TTS OPTIONS ---");
+            Intent intent = new Intent(this, TtsSettingsActivity.class);
             startActivity(intent);
         });
 
@@ -555,7 +527,6 @@ public class SettingsActivity extends LoggingActivity {
 
     @Override
     protected void onDestroy() {
-        try { if (ttsHandle != null) ttsHandle.close(); } catch (Exception ignored) {}
         saveForwardSeconds();
         saveTimeBeforeSleep();
         super.onDestroy();
