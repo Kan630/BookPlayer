@@ -334,8 +334,6 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
         } catch (Throwable ignored) {}
     }
 
-// In TtsEngine.java (public final class TtsEngine ...)
-
     public boolean setVoiceByName(@Nullable String voiceName) {
         if (disposed) return false;
 

@@ -561,7 +561,7 @@ public class PlayActivity extends LoggingActivity {
         pendingStart = s; pendingEnd = e;
         if (highlightScheduled) return;
         highlightScheduled = true;
-        uiH.postDelayed(this::applyTtsHighlight, 60);
+        uiH.postDelayed(this::applyTtsHighlight, Var.TTS_HIGHLIGHT_DELAY_MS);
     }
     private void applyTtsHighlight() {
         highlightScheduled = false;
