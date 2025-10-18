@@ -923,5 +923,30 @@
     <string name="frequency_visualizer">عارض التردد</string>
     <string name="counting_files">جارٍ عد الملفات</string>
 
+    <string name="option_automotive_let_car_autoplay">السماح لـ Android Auto بتشغيل الصوت تلقائيًا (عادةً عند الاتصال بالسيارة).</string>
+    <string name="option_open_play_activity">فتح شاشة التشغيل عند بدء التشغيل.</string>
+    <string name="tts_settings">إعدادات تحويل النص إلى كلام</string>
+    <string name="option_tts_language_text">اللغة الافتراضية لتحويل النص إلى كلام للكتب الإلكترونية الجديدة.</string>
+    <string name="option_tts_highlight_delay_title">تمييز الكلمات.</string>
+    <string name="option_tts_highlight_delay_text">تأخير المحرك:</string>
+    <string name="ms">مللي ثانية.</string> //means milliseconds
+
+    <string name="Text_To_Speech">تحويل النص إلى كلام</string>
+    <string name="tts_phase_loading_text">جارٍ تحميل النص…</string>
+    <string name="tts_phase_warming_up">جارٍ تحضير الصوت…</string>
+    <string name="tts_phase_starting">جارٍ بدء النطق…</string>
+    <string name="tts_phase_ready">جاهز</string>
+    <string name="tts_phase_speaking">جارٍ التحدث</string>
+    <string name="tts_phase_error">خطأ في محرك النطق</string>
+    <string name="error_generic">حدث خطأ غير متوقع</string>
+    <string name="tts_error_engine_generic">خطأ في محرك النطق</string>
+    <string name="tts_error_warmup_timeout">انتهت مهلة تحضير الصوت</string>
+    <string name="tts_error_voice_set_failed">فشل في تطبيق الصوت</string>
+    <string name="tts_error_synth_failed">فشل في توليد الصوت أثناء التحضير</string>
+
+    <string name="source_flag">علم المصدر</string>
+    <string name="voice_name">اسم الصوت</string>
+    <string name="Clipboard_is_empty">الحافظة فارغة</string>
+
 
 </resources>

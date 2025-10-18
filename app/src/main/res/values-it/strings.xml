@@ -941,4 +941,32 @@
     <string name="frequency_visualizer">Visualizzatore di frequenze</string>
     <string name="counting_files">conteggio dei file</string>
 
+    <string name="option_automotive_let_car_autoplay">Consenti ad Android Auto di avviare automaticamente la riproduzione (di solito quando è collegato all\'auto).</string>
+    <string name="option_open_play_activity">Apri la schermata di riproduzione quando inizia la riproduzione.</string>
+    <string name="tts_settings">Impostazioni TTS</string>
+    <string name="option_tts_language_text">Lingua TTS predefinita per i nuovi e-book.</string>
+    <string name="option_tts_highlight_delay_title">Evidenziazione delle parole.</string>
+    <string name="option_tts_highlight_delay_text">Ritardo del motore:</string>
+    <string name="ms">ms.</string> //means milliseconds
+
+    <string name="Text_To_Speech">Sintesi vocale</string>
+    <string name="tts_phase_loading_text">Caricamento del testo…</string>
+    <string name="tts_phase_warming_up">Preparazione della voce…</string>
+    <string name="tts_phase_starting">Avvio del parlato…</string>
+    <string name="tts_phase_ready">Pronto</string>
+    <string name="tts_phase_speaking">Parla</string>
+    <string name="tts_phase_error">Errore del motore vocale</string>
+    <string name="error_generic">Si è verificato un errore imprevisto</string>
+    <string name="tts_error_engine_generic">Errore del motore vocale</string>
+    <string name="tts_error_warmup_timeout">Tempo di riscaldamento della voce scaduto</string>
+    <string name="tts_error_voice_set_failed">Applicazione della voce non riuscita</string>
+    <string name="tts_error_synth_failed">Sintesi di riscaldamento non riuscita</string>
+
+    <string name="source_flag">bandiera di origine</string>
+    <string name="voice_name">nome della voce</string>
+    <string name="Clipboard_is_empty">Gli appunti sono vuoti</string>
+
+
+
+
 </resources>

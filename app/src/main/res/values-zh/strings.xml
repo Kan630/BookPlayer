@@ -925,5 +925,30 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
     <string name="frequency_visualizer">频率可视化</string>
     <string name="counting_files">正在统计文件</string>
 
+    <string name="option_automotive_let_car_autoplay">允许 Android Auto 自动开始播放（通常在连接到汽车时）。</string>
+    <string name="option_open_play_activity">播放开始时打开播放视图。</string>
+    <string name="tts_settings">TTS 设置</string>
+    <string name="option_tts_language_text">新电子书的默认 TTS 语言。</string>
+    <string name="option_tts_highlight_delay_title">单词高亮。</string>
+    <string name="option_tts_highlight_delay_text">引擎延迟：</string>
+    <string name="ms">毫秒。</string> //means milliseconds
+
+    <string name="Text_To_Speech">文字转语音</string>
+    <string name="tts_phase_loading_text">正在加载文本…</string>
+    <string name="tts_phase_warming_up">正在准备语音…</string>
+    <string name="tts_phase_starting">正在开始语音…</string>
+    <string name="tts_phase_ready">准备就绪</string>
+    <string name="tts_phase_speaking">正在朗读</string>
+    <string name="tts_phase_error">语音引擎错误</string>
+    <string name="error_generic">发生意外错误</string>
+    <string name="tts_error_engine_generic">语音引擎错误</string>
+    <string name="tts_error_warmup_timeout">语音预热超时</string>
+    <string name="tts_error_voice_set_failed">应用语音失败</string>
+    <string name="tts_error_synth_failed">预热合成失败</string>
+
+    <string name="source_flag">来源标志</string>
+    <string name="voice_name">语音名称</string>
+    <string name="Clipboard_is_empty">剪贴板为空</string>
+
 
 </resources>

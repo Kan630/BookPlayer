@@ -928,4 +928,29 @@ Sind Sie sicher?"</string>
     <string name="counting_files">Dateien werden gezählt</string>
 
 
+    <string name="option_automotive_let_car_autoplay">Android Auto darf die Wiedergabe automatisch starten (normalerweise beim Verbinden mit dem Auto).</string>
+    <string name="option_open_play_activity">Wiedergabeansicht öffnen, wenn die Wiedergabe startet.</string>
+    <string name="tts_settings">TTS-Einstellungen</string>
+    <string name="option_tts_language_text">Standard-TTS-Sprache für neue E-Books.</string>
+    <string name="option_tts_highlight_delay_title">Wortmarkierung.</string>
+    <string name="option_tts_highlight_delay_text">Verzögerung der Engine:</string>
+    <string name="ms">ms.</string> //means milliseconds
+
+    <string name="Text_To_Speech">Text-zu-Sprache</string>
+    <string name="tts_phase_loading_text">Text wird geladen…</string>
+    <string name="tts_phase_warming_up">Stimme wird vorbereitet…</string>
+    <string name="tts_phase_starting">Sprache wird gestartet…</string>
+    <string name="tts_phase_ready">Bereit</string>
+    <string name="tts_phase_speaking">Spricht</string>
+    <string name="tts_phase_error">Sprachengine-Fehler</string>
+    <string name="error_generic">Ein unerwarteter Fehler ist aufgetreten</string>
+    <string name="tts_error_engine_generic">Sprachengine-Fehler</string>
+    <string name="tts_error_warmup_timeout">Stimmenaufwärmung abgelaufen</string>
+    <string name="tts_error_voice_set_failed">Stimme konnte nicht angewendet werden</string>
+    <string name="tts_error_synth_failed">Aufwärm-Synthese fehlgeschlagen</string>
+
+    <string name="source_flag">Quellenflagge</string>
+    <string name="voice_name">Stimmenname</string>
+    <string name="Clipboard_is_empty">Zwischenablage ist leer</string>
+
 </resources>

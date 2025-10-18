@@ -917,5 +917,28 @@ Esta es una <font color="#FFCC80">función relativamente nueva</font> — por fa
     <string name="frequency_visualizer">Visualizador de frecuencia</string>
     <string name="counting_files">contando archivos</string>
 
+    <string name="option_automotive_let_car_autoplay">Permitir que Android Auto inicie la reproducción automáticamente (normalmente al conectarse al coche).</string>
+    <string name="option_open_play_activity">Abrir la vista de reproducción cuando comience la reproducción.</string>
+    <string name="tts_settings">Configuración de TTS</string>
+    <string name="option_tts_language_text">Idioma TTS predeterminado para nuevos libros electrónicos.</string>
+    <string name="option_tts_highlight_delay_title">Resaltado de palabras.</string>
+    <string name="option_tts_highlight_delay_text">Retraso del motor:</string>
+    <string name="ms">ms.</string> //means milliseconds
 
+    <string name="Text_To_Speech">Texto a voz</string>
+    <string name="tts_phase_loading_text">Cargando texto…</string>
+    <string name="tts_phase_warming_up">Preparando la voz…</string>
+    <string name="tts_phase_starting">Iniciando el habla…</string>
+    <string name="tts_phase_ready">Listo</string>
+    <string name="tts_phase_speaking">Hablando</string>
+    <string name="tts_phase_error">Error del motor de voz</string>
+    <string name="error_generic">Ocurrió un error inesperado</string>
+    <string name="tts_error_engine_generic">Error del motor de voz</string>
+    <string name="tts_error_warmup_timeout">Tiempo de preparación de la voz agotado</string>
+    <string name="tts_error_voice_set_failed">No se pudo aplicar la voz</string>
+    <string name="tts_error_synth_failed">Error en la síntesis de preparación</string>
+
+    <string name="source_flag">bandera de origen</string>
+    <string name="voice_name">nombre de voz</string>
+    <string name="Clipboard_is_empty">El portapapeles está vacío</string>
 </resources>

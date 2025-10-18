@@ -973,7 +973,6 @@
     <string name="tts_phase_error">Speech engine error</string>
     <string name="error_generic">An unexpected error occurred</string>
     <string name="tts_error_engine_generic">Speech engine error</string>
-    <string name="tts_error_engine_code">Speech engine error (%1$d)</string>
     <string name="tts_error_warmup_timeout">Voice warm-up timed out</string>
     <string name="tts_error_voice_set_failed">Failed to apply voice</string>
     <string name="tts_error_synth_failed">Warm-up synthesis failed</string>

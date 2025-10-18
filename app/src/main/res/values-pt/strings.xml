@@ -941,5 +941,31 @@
     <string name="frequency_visualizer">Visualizador de frequência</string>
     <string name="counting_files">contando arquivos</string>
 
+    <string name="option_automotive_let_car_autoplay">Permitir que o Android Auto inicie a reprodução automaticamente (geralmente ao conectar ao carro).</string>
+    <string name="option_open_play_activity">Abrir a tela de reprodução quando a reprodução começar.</string>
+    <string name="tts_settings">Configurações de TTS</string>
+    <string name="option_tts_language_text">Idioma padrão de TTS para novos e-books.</string>
+    <string name="option_tts_highlight_delay_title">Destaque de palavras.</string>
+    <string name="option_tts_highlight_delay_text">Atraso do mecanismo:</string>
+    <string name="ms">ms.</string> //means milliseconds
+
+    <string name="Text_To_Speech">Texto para fala</string>
+    <string name="tts_phase_loading_text">Carregando texto…</string>
+    <string name="tts_phase_warming_up">Preparando voz…</string>
+    <string name="tts_phase_starting">Iniciando fala…</string>
+    <string name="tts_phase_ready">Pronto</string>
+    <string name="tts_phase_speaking">Falando</string>
+    <string name="tts_phase_error">Erro no mecanismo de fala</string>
+    <string name="error_generic">Ocorreu um erro inesperado</string>
+    <string name="tts_error_engine_generic">Erro no mecanismo de fala</string>
+    <string name="tts_error_warmup_timeout">Tempo de preparação da voz expirou</string>
+    <string name="tts_error_voice_set_failed">Falha ao aplicar a voz</string>
+    <string name="tts_error_synth_failed">Falha na síntese de preparação</string>
+
+    <string name="source_flag">bandeira de origem</string>
+    <string name="voice_name">nome da voz</string>
+    <string name="Clipboard_is_empty">A área de transferência está vazia</string>
+
+
 
 </resources>

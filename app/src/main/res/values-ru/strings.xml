@@ -930,6 +930,33 @@ BookPlayer будет использовать <font color="#81C784">встро�
         <string name="frequency_visualizer">Визуализатор частот</string>
         <string name="counting_files">подсчёт файлов</string>
 
+        <string name="option_automotive_let_car_autoplay">Разрешить Android Auto автоматически начинать воспроизведение (обычно при подключении к автомобилю).</string>
+        <string name="option_open_play_activity">Открывать экран воспроизведения при запуске воспроизведения.</string>
+        <string name="tts_settings">Настройки TTS</string>
+        <string name="option_tts_language_text">Язык TTS по умолчанию для новых электронных книг.</string>
+        <string name="option_tts_highlight_delay_title">Подсветка слов.</string>
+        <string name="option_tts_highlight_delay_text">Задержка движка:</string>
+        <string name="ms">мс.</string> //means milliseconds
+
+        <string name="Text_To_Speech">Преобразование текста в речь</string>
+        <string name="tts_phase_loading_text">Загрузка текста…</string>
+        <string name="tts_phase_warming_up">Подготовка голоса…</string>
+        <string name="tts_phase_starting">Запуск речи…</string>
+        <string name="tts_phase_ready">Готово</string>
+        <string name="tts_phase_speaking">Говорит</string>
+        <string name="tts_phase_error">Ошибка речевого движка</string>
+        <string name="error_generic">Произошла непредвиденная ошибка</string>
+        <string name="tts_error_engine_generic">Ошибка речевого движка</string>
+        <string name="tts_error_warmup_timeout">Время подготовки голоса истекло</string>
+        <string name="tts_error_voice_set_failed">Не удалось применить голос</string>
+        <string name="tts_error_synth_failed">Ошибка синтеза при подготовке</string>
+
+        <string name="source_flag">флаг источника</string>
+        <string name="voice_name">имя голоса</string>
+        <string name="Clipboard_is_empty">Буфер обмена пуст</string>
+
+
+
 
 
 </resources>

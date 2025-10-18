@@ -924,5 +924,29 @@ C\'est une <font color="#FFCC80">fonctionnalité relativement nouvelle</font> �
     <string name="frequency_visualizer">Visualiseur de fréquences</string>
     <string name="counting_files">comptage des fichiers</string>
 
+    <string name="option_automotive_let_car_autoplay">Autoriser Android Auto à lancer la lecture automatiquement (généralement lors de la connexion à la voiture).</string>
+    <string name="option_open_play_activity">Ouvrir la vue de lecture lorsque la lecture démarre.</string>
+    <string name="tts_settings">Paramètres TTS</string>
+    <string name="option_tts_language_text">Langue TTS par défaut pour les nouveaux livres électroniques.</string>
+    <string name="option_tts_highlight_delay_title">Surlignage des mots.</string>
+    <string name="option_tts_highlight_delay_text">Délai du moteur :</string>
+    <string name="ms">ms.</string> //means milliseconds
+
+    <string name="Text_To_Speech">Synthèse vocale</string>
+    <string name="tts_phase_loading_text">Chargement du texte…</string>
+    <string name="tts_phase_warming_up">Préparation de la voix…</string>
+    <string name="tts_phase_starting">Démarrage de la lecture…</string>
+    <string name="tts_phase_ready">Prêt</string>
+    <string name="tts_phase_speaking">Lecture en cours</string>
+    <string name="tts_phase_error">Erreur du moteur de synthèse</string>
+    <string name="error_generic">Une erreur inattendue est survenue</string>
+    <string name="tts_error_engine_generic">Erreur du moteur de synthèse</string>
+    <string name="tts_error_warmup_timeout">Le préchauffage de la voix a expiré</string>
+    <string name="tts_error_voice_set_failed">Échec de l\'application de la voix</string>
+    <string name="tts_error_synth_failed">Échec de la synthèse de préchauffage</string>
+
+    <string name="source_flag">drapeau de source</string>
+    <string name="voice_name">nom de la voix</string>
+    <string name="Clipboard_is_empty">Le presse-papiers est vide</string>
 
 </resources>
