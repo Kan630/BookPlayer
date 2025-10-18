@@ -100,17 +100,15 @@ public class VoiceItem {
                 myLogI("tts.getLanguage(): " + loc.getCountry());
             }
 
-            String lang2 = (loc != null && !loc.getLanguage().isEmpty()) ? loc.getLanguage() : "und";
+            String lang = (loc != null && !loc.getLanguage().isEmpty()) ? loc.getLanguage() : "und";
             String prettyLoc = (loc == null) ? "" : prettyLocale(loc);
-            myLogI("lang2: " + lang2 + " - prettyLoc: " + prettyLoc);
 
             String display = prettyLoc.isEmpty()
                     ? "System (default)"
                     : "System (default: " + prettyLoc + ")";
-            String details = display; // simple: same text for subtitle
-            myLogI("makeSystemDefault: " + display);
+            myLogI(display);
 
-            int flagLang = com.driot.bookplayer.helpers.FlagHelper.getFlagResIdForLanguage(lang2);
+            int flagLang = com.driot.bookplayer.helpers.FlagHelper.getFlagResIdForLanguage(lang);
             int flagCountry = 0;
             if (loc != null && !loc.getCountry().isEmpty()) {
                 flagCountry = com.driot.bookplayer.helpers.FlagHelper.getFlagResIdForCountry(loc.getCountry());
@@ -125,9 +123,9 @@ public class VoiceItem {
                     false,              // requiresNetwork
                     false,              // embedded
                     Collections.emptySet(),
-                    lang2,
+                    lang,
                     display,
-                    details,
+                    display,
                     flagLang,
                     flagCountry
             );

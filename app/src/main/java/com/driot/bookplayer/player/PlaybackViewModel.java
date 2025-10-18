@@ -320,16 +320,28 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
             String initial,
             TtsHelper.OnVoiceSelected onSelected
     ) {
+        myLog("setupTtsVoiceSpinner - initial = " + initial);
+        final java.util.concurrent.atomic.AtomicBoolean first = new java.util.concurrent.atomic.AtomicBoolean(true);
+
         TtsHelper.setupTtsVoiceSpinner(ctx, spinner, initial, voiceItem -> {
-            // Persist choice
-            String code = (voiceItem == null) ? "system" : voiceItem.name;
-            com.driot.bookplayer.global.Option.setTtsVoice(code);
-
-            // Apply immediately (updates Phase to WARMING_UP then READY)
-            warmUpTtsVoice(code, /*cb*/ null);
-
-            // Still forward to caller if they want to react in UI
+            // 1) Always forward to UI if needed
             if (onSelected != null) onSelected.onSelected(voiceItem);
+
+            // 2) Skip the very first callback (it’s the programmatic preselect)
+            if (first.getAndSet(false)) return;
+
+            // 3) Only warm up if it’s actually a new voice vs current engine
+            final String picked = (voiceItem == null || voiceItem.name == null || voiceItem.name.isEmpty())
+                    ? "system" : voiceItem.name;
+
+            String current = null;
+            if (service != null) try { current = service.getCurrentTtsVoiceName(); } catch (Throwable ignored) {}
+            if (current != null && current.equalsIgnoreCase(picked)) {
+                myLog("setupTtsVoiceSpinner: same as current engine voice → no warmup");
+                return;
+            }
+
+            warmUpTtsVoice(picked, /*cb*/ null);
         });
     }
 

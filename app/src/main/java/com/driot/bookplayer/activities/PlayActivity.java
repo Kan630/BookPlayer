@@ -592,8 +592,15 @@ public class PlayActivity extends LoggingActivity {
 
     private void initTtsVoiceSpinner(int folderId) {
         String saved = Pref.getBookTtsVoiceName(this, folderId);
-        if (saved == null) saved = Option.getTtsVoice();
+        if (saved == null) {
+            saved = Option.getTtsVoice();
+            myLog("initTtsVoiceSpinner - general option voice = [" + saved + "]");
+        } else {
+            myLog("initTtsVoiceSpinner - book saved voice = [" + saved + "]");
+        }
         final String[] currentVoiceName = { saved };  // track last good value
+
+
 
         final boolean[] first = {true};
         final boolean[] touched = {false};
@@ -605,8 +612,6 @@ public class PlayActivity extends LoggingActivity {
             if (e.getAction()==MotionEvent.ACTION_UP) { touched[0]=true; v.performClick(); }
             return false;
         });
-
-        String finalSaved = saved;
 
         // Re-enable spinner when phase is not busy
         vm.getPhase().observe(this, p -> {

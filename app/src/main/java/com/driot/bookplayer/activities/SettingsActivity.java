@@ -32,6 +32,7 @@ import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.LocaleHelper;
 import com.driot.bookplayer.helpers.LanguageHelper;
 import com.driot.bookplayer.helpers.NetworkHelper;
+import com.driot.bookplayer.objects.VoiceItem;
 import com.driot.bookplayer.tts.TtsHelper;
 import com.driot.bookplayer.utils.PermissionRequest;
 import com.driot.bookplayer.utils.log.LoggingActivity;
@@ -463,18 +464,24 @@ public class SettingsActivity extends LoggingActivity {
 /// TTS  VOICE
         ttsVoiceSpinner = findViewById(R.id.spinner_voice_item);
         lastSavedTtsVoice = Option.getTtsVoice();
+        myLogD("setUp Voice Spinner, saved voice = " + lastSavedTtsVoice);
         ttsHandle = TtsHelper.setupTtsVoiceSpinner(
                 this,
                 ttsVoiceSpinner,
                 lastSavedTtsVoice,
-                voice -> {
-                    String sel = (voice == null || voice.name == null || voice.name.isEmpty())
-                            ? "system" : voice.name;
+                voiceItem -> {
+                    if (voiceItem == null) {
+                        myLogD("TTS voice chosen is null");
+                    } else {
+                        myLogD("TTS voice chosen: " + VoiceItem.describeVoice(voiceItem.voice).replace(", ","\n"));
+                    }
+                    String sel = (voiceItem == null || voiceItem.name == null || voiceItem.name.isEmpty())
+                            ? "system" : voiceItem.name;
 
                     if (!sel.equalsIgnoreCase(lastSavedTtsVoice)) {
                         Option.setTtsVoice(sel);
                         lastSavedTtsVoice = sel;
-                        myLog("TTS base voice set to: " + sel + " (" + (voice == null ? "system" : voice.displayName + " / - name = " + voice.name + ")"));
+                        myLog("TTS default base voice set to: " + sel + " (" + (voiceItem == null ? "system" : voiceItem.displayName + " / - name = " + voiceItem.name + ")"));
                     }
                 }
         );

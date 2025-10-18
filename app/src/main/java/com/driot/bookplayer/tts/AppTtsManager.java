@@ -36,6 +36,12 @@ public final class AppTtsManager implements TextToSpeech.OnInitListener {
         return sInstance;
     }
 
+    @Nullable private volatile String preferredVoiceName = null;
+    /** Set before acquire() or anytime prior to onInit completing. */
+    public void setPreferredVoiceName(@Nullable String name) {
+        preferredVoiceName = (name == null || name.isEmpty() || "system".equalsIgnoreCase(name)) ? null : name;
+    }
+
     private final Context app;
     private final Handler main = new Handler(Looper.getMainLooper());
     private final Object lock = new Object();
@@ -143,28 +149,59 @@ public final class AppTtsManager implements TextToSpeech.OnInitListener {
                 }
             });
 
-            // Voice selection (try best voice for system locale; fallback to language)
+// --- Voice selection policy ---
+// Goal: never clobber a user preference. Only apply a voice if explicitly asked,
+// or (optionally) when we truly have no preference and no engine voice set.
+
             boolean voiceSet = false;
             try {
-                Voice best = pickBestVoice(Locale.getDefault(), null);
-                if (best != null) {
-                    int sr = tts.setVoice(best);
-                    voiceSet = (sr == TextToSpeech.SUCCESS);
-                }
-            } catch (Throwable ignored) {}
+                Voice current = (tts != null) ? tts.getVoice() : null;
 
-            if (!voiceSet) {
-                Locale locale = Locale.getDefault();
-                int langSetResult = tts.setLanguage(locale);
-                TtsErrorUtils.logSetLanguageResult("TTS", langSetResult, locale);
-                ready = (langSetResult != TextToSpeech.LANG_MISSING_DATA && langSetResult != TextToSpeech.LANG_NOT_SUPPORTED);
-            } else {
-                ready = true;
+                // 1) If a preferred voice name was provided, honor it.
+                String prefName = preferredVoiceName;
+                if (prefName != null && tts != null) {
+                    Set<Voice> all = tts.getVoices();
+                    if (all != null) {
+                        for (Voice v : all) {
+                            if (prefName.equalsIgnoreCase(v.getName())) {
+                                int sr = tts.setVoice(v);
+                                myLog("setting tts voice (preferred) : " + v.getName());
+                                voiceSet = (sr == TextToSpeech.SUCCESS);
+                                if (!voiceSet) myLogE("could not set preferred voice : " + v.getName());
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                // 2) If no preferred voice and engine already has a voice, keep it (do NOT override).
+                if (!voiceSet && current != null) {
+                    myLog("keeping engine's current voice: " + current.getName());
+                    voiceSet = true; // treat as “we have a voice”
+                }
+
+                // 3) Optional: If still no voice and you want a graceful default,
+                //    set language to device locale OR pickBestVoice *only* when no preference.
+                if (!voiceSet) {
+                    // Light-touch fallback: set language; avoid forcing a specific named voice.
+                    Locale locale = Locale.getDefault();
+                    int langSetResult = tts.setLanguage(locale);
+                    TtsErrorUtils.logSetLanguageResult("TTS", langSetResult, locale);
+                    ready = (langSetResult != TextToSpeech.LANG_MISSING_DATA
+                            && langSetResult != TextToSpeech.LANG_NOT_SUPPORTED);
+
+                    // If you DO want pickBestVoice, gate it carefully, e.g.:
+                    // Voice best = pickBestVoice(locale, null);
+                    // if (best != null) { int sr = tts.setVoice(best); if (sr == SUCCESS) { voiceSet = true; } }
+                }
+            } catch (Exception e) {
+                myLogEE(e, "AppTtsManager.onInit - setting Voice");
+                ready = false;
             }
-        } catch (Throwable ignored) {
+        } catch (Exception e) {
+            myLogEE(e, "AppTtsManager.onInit");
             ready = false;
         }
-
         // Notify everybody that TTS is ready (or not)
         if (ready) {
             for (WeakReference<Listener> w : listeners.values()) opt(w).onTtsReady(tts);

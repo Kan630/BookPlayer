@@ -120,11 +120,6 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
                 return; // wait for onTtsReady → prepareAsync → start again
             }
         }
-
-        // Apply desired voice once before speaking (no-op if "system")
-        String desired = desiredVoiceName();
-        if (desired != null) setVoiceByName(desired);
-
         playing = true;
         tts.setSpeechRate(speechRate);
         speakFromOffset(resumeOffsetChars);
@@ -326,12 +321,14 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
             TextToSpeech raw = mgr.raw();
             if (raw == null) return;
             Voice v = raw.getVoice();
-            if (v != null) {
-                // Replace with your logger if desired:
-                // myLog("Current voice: " + v.getName() + " - " + VoiceItem.describeVoice(v));
-                VoiceItem.describeVoice(v); // no-op; keeps parity with your utils
-            }
+            myLog("Current voice: " + VoiceItem.describeVoice(v).replace(", ","\n"));
         } catch (Throwable ignored) {}
+    }
+
+    public String getVoiceName() {
+        TextToSpeech raw = mgr.raw();
+        if (raw == null) return null;
+        return mgr.raw().getVoice().getName();
     }
 
     public boolean setVoiceByName(@Nullable String voiceName) {
@@ -365,7 +362,12 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
             if (target == null) return false;
 
             int r = mgr.setVoice(target);
-            if (r != TextToSpeech.SUCCESS) return false;
+            if (r != TextToSpeech.SUCCESS) {
+                myLogE("error setting TTS engine Voice");
+                return false;
+            } else {
+                myLog("TTS engine Voice set : " + target.getName());
+            }
 
             restartIfPlaying();
             return true;

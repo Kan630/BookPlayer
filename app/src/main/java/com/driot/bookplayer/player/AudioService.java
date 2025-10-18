@@ -89,8 +89,8 @@ public class AudioService extends LoggingService {
 
     //Pause Timer (to free memory)
     public static final int TRIM_MEMORY_THRESHOLD = 20;
-    public static final int DELAY_CHECK_TIMER_PAUSE = 60*1000;
-    public static final int TRIM_AFTER_PAUSE_MS = 7*24*60*60*1000; // so basically never... 7 days
+    public static final int DELAY_CHECK_TIMER_PAUSE = 60 * 1000;
+    public static final int TRIM_AFTER_PAUSE_MS = 7 * 24 * 60 * 60 * 1000; // so basically never... 7 days
     //public static final int DELAY_CHECK_TIMER_PAUSE = 2*1000;
     //public static final int TRIM_AFTER_PAUSE_MS = 5*1000; // so basically never... 7 days
     private Handler pauseCheckHandler;
@@ -98,10 +98,10 @@ public class AudioService extends LoggingService {
     public static final int[][] REWIND_AFTER_PAUSE = {  // stopped listening since (in min)  ,  rewind delay (in ms)
             {2, 3000},
             {30, 5000},
-            {60*12, 10000},
-            {60*36, 15000},
-            {60*24*3, 20000},
-            {60*24*30, 30000},
+            {60 * 12, 10000},
+            {60 * 36, 15000},
+            {60 * 24 * 3, 20000},
+            {60 * 24 * 30, 30000},
     };
     long playbackStateCompatAction =
             PlaybackStateCompat.ACTION_PLAY
@@ -139,23 +139,32 @@ public class AudioService extends LoggingService {
     private long engineGen = 0L;
     private final android.os.Handler main = new android.os.Handler(android.os.Looper.getMainLooper());
     private final EngineListener engineCb = new EngineListener() {
-        @Override public void onPrepared(long gen) {
+        @Override
+        public void onPrepared(long gen) {
             if (gen != engineGen) return;
             main.post(AudioService.this::onEnginePrepared);
         }
-        @Override public void onCompletion(long gen) {
+
+        @Override
+        public void onCompletion(long gen) {
             if (gen != engineGen) return;
             main.post(AudioService.this::onEngineCompletion);
         }
-        @Override public void onError(long gen, String msg, int what, int extra) {
+
+        @Override
+        public void onError(long gen, String msg, int what, int extra) {
             if (gen != engineGen) return;
             main.post(() -> onEngineError(msg, what, extra));
         }
-        @Override public void onFatal(long gen, String msg, int what, int extra) {
+
+        @Override
+        public void onFatal(long gen, String msg, int what, int extra) {
             if (gen != engineGen) return;
             main.post(() -> onEngineFatal(msg, what, extra));
         }
-        @Override public void onTtsRange(long gen, int s, int e) {
+
+        @Override
+        public void onTtsRange(long gen, int s, int e) {
             if (gen != engineGen) return;
             //main.post(() -> {   //surtout pas, source du décallage entre le highlight et l'audio
             Intent i = new Intent(Intents.NOTIFICATION_TTS_RANGE)
@@ -184,17 +193,19 @@ public class AudioService extends LoggingService {
 
     private boolean suppressMiniUntilNextPlay = false;
 
-    public boolean isMiniSuppressed() { return suppressMiniUntilNextPlay; }
+    public boolean isMiniSuppressed() {
+        return suppressMiniUntilNextPlay;
+    }
 
     private void broadcastUiCleared() {
         lastUiState = null;
         uiLive.postValue(new PlaybackUiState(false, 0, 0, "", "", "",
                 0, 0, false, engine instanceof TtsEngine));
         Intent i = new Intent(Intents.ACTION_UI_STATE)
-                .putExtra(Intents.EXTRA_UI_PLAYING,  false)
-                .putExtra(Intents.EXTRA_UI_POS,      0L)
-                .putExtra(Intents.EXTRA_UI_DUR,      0L)
-                .putExtra(Intents.EXTRA_UI_TITLE,    "")
+                .putExtra(Intents.EXTRA_UI_PLAYING, false)
+                .putExtra(Intents.EXTRA_UI_POS, 0L)
+                .putExtra(Intents.EXTRA_UI_DUR, 0L)
+                .putExtra(Intents.EXTRA_UI_TITLE, "")
                 .putExtra(Intents.EXTRA_UI_SUBTITLE, "")
                 .putExtra(Intents.EXTRA_UI_SUPPRESS_MINI, true);
 
@@ -210,22 +221,21 @@ public class AudioService extends LoggingService {
         lastUiState = s;
         uiLive.postValue(s);
         Intent i = new Intent(Intents.ACTION_UI_STATE)
-                .putExtra(Intents.EXTRA_UI_PLAYING,  s.playing)
-                .putExtra(Intents.EXTRA_UI_POS,      s.positionMs)
-                .putExtra(Intents.EXTRA_UI_DUR,      s.durationMs)
-                .putExtra(Intents.EXTRA_UI_TITLE,    s.title)
+                .putExtra(Intents.EXTRA_UI_PLAYING, s.playing)
+                .putExtra(Intents.EXTRA_UI_POS, s.positionMs)
+                .putExtra(Intents.EXTRA_UI_DUR, s.durationMs)
+                .putExtra(Intents.EXTRA_UI_TITLE, s.title)
                 .putExtra(Intents.EXTRA_UI_SUBTITLE, s.subTitle)
-                .putExtra(Intents.EXTRA_UI_COVER,    s.cover)
+                .putExtra(Intents.EXTRA_UI_COVER, s.cover)
                 .putExtra(Intents.EXTRA_UI_SUPPRESS_MINI, suppressMiniUntilNextPlay)
 
-                .putExtra(Intents.EXTRA_UI_TRACK_ID,  s.trackId)
+                .putExtra(Intents.EXTRA_UI_TRACK_ID, s.trackId)
                 .putExtra(Intents.EXTRA_UI_FOLDER_ID, s.folderId)
-                .putExtra(Intents.EXTRA_UI_READY,     s.ready)
+                .putExtra(Intents.EXTRA_UI_READY, s.ready)
 
-                .putExtra(Intents.EXTRA_UI_TTS,       s.ttsMode)
-                .putExtra(Intents.EXTRA_UI_PHASE,     currentUiPhase)
-                .putExtra(Intents.EXTRA_UI_PHASE_MSG, currentUiPhaseMsg)
-                ;
+                .putExtra(Intents.EXTRA_UI_TTS, s.ttsMode)
+                .putExtra(Intents.EXTRA_UI_PHASE, currentUiPhase)
+                .putExtra(Intents.EXTRA_UI_PHASE_MSG, currentUiPhaseMsg);
 
         LocalBroadcastManager.getInstance(this).sendBroadcast(i);
     }
@@ -237,7 +247,7 @@ public class AudioService extends LoggingService {
         Folder f = (pl != null) ? pl.getFolder() : null;
 
         String title = (z != null) ? z.getFolderName() : (f != null ? f.getName() : "");
-        String text  = (z != null) ? z.getDisplayName() : "";
+        String text = (z != null) ? z.getDisplayName() : "";
         String cover = (f != null) ? StorageHelper.checkAndCleanImagePath(this, f.image) : "";
 
         // Be defensive around engine readiness to avoid 0/0 churn if you want
@@ -245,9 +255,9 @@ public class AudioService extends LoggingService {
         long dur = (engine != null) ? (long) engine.getDuration() : 0;
         boolean playing = (engine != null) && engine.isPlaying();
 
-        int trackId  = (z != null) ? z.getId() : 0;
+        int trackId = (z != null) ? z.getId() : 0;
         int folderId = (f != null) ? f.getId() : 0;
-        boolean ready   = (engine != null) && engine.isReady();
+        boolean ready = (engine != null) && engine.isReady();
         boolean ttsMode = (engine instanceof TtsEngine);
 
         return new PlaybackUiState(playing, pos, dur, title, text, cover,
@@ -270,6 +280,7 @@ public class AudioService extends LoggingService {
             super.onPause();
             playPauseAudio();
         }
+
         @Override
         public void onStop() {
             myLog("MediaSessionCompat.Callback - onStop()");
@@ -279,6 +290,7 @@ public class AudioService extends LoggingService {
             stopForeground(false);
              */
         }
+
         @Override
         public boolean onMediaButtonEvent(Intent mediaButtonIntent) {
             KeyEvent ke = mediaButtonIntent.getParcelableExtra(Intent.EXTRA_KEY_EVENT);
@@ -327,15 +339,12 @@ public class AudioService extends LoggingService {
     };
 
 
-
-
     private double speed = 1.0;
     private boolean ErrorLoadingFile = false;
     DecimalFormat myDF = new DecimalFormat("#,###.");
 
     /********************************************************************************
      *       NATIVE METHODS
-
      *  Because service always runs in the same process as clients, no need IPC.
      *
      */
@@ -374,13 +383,16 @@ public class AudioService extends LoggingService {
         sleepTimer = new com.driot.bookplayer.player.SleepTimer(
                 sleepCheckHandler, DELAY_CHECK_TIMER_SLEEP,
                 new com.driot.bookplayer.player.SleepTimer.Listener() {
-                    @Override public void onTick(int elapsedSeconds) {
+                    @Override
+                    public void onTick(int elapsedSeconds) {
                         Pref.addToTotalMsPlayed(DELAY_CHECK_TIMER_SLEEP);
                         updateZikFileStateInDB(false);
                         LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(new Intent(NOTIFICATION_PLAYBACK_TIMER_VALUE).putExtra(TIMER_VALUE, elapsedSeconds));
                     }
+
                     // go SLEEP
-                    @Override public void onReachedMax() {
+                    @Override
+                    public void onReachedMax() {
                         if (Option.getBeepAutoStop()) playBeep("2beeps");
                         LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(new Intent(NOTIFICATION_PLAYBACK_MAXTIMEREACH));
                         pauseAudio();
@@ -392,10 +404,15 @@ public class AudioService extends LoggingService {
         pauseWatcher = new com.driot.bookplayer.player.PauseTrimWatcher(
                 pauseCheckHandler, DELAY_CHECK_TIMER_PAUSE,
                 new com.driot.bookplayer.player.PauseTrimWatcher.Killer() {
-                    @Override public void kill() { shutdown(false); }
-                    @Override public void onLog(String msg) {
+                    @Override
+                    public void kill() {
+                        shutdown(false);
+                    }
+
+                    @Override
+                    public void onLog(String msg) {
                         String newMsg = msg;
-                        if (PlayList.getInstance()==null) newMsg += " [null playlist]";
+                        if (PlayList.getInstance() == null) newMsg += " [null playlist]";
                         myLogD(newMsg);
                     }
                 },
@@ -408,10 +425,14 @@ public class AudioService extends LoggingService {
         focus = new com.driot.bookplayer.player.AudioFocusHelper(
                 this,
                 new com.driot.bookplayer.player.AudioFocusHelper.Listener() {
-                    @Override public void onFocusGain() {
+                    @Override
+                    public void onFocusGain() {
                         myLogI("onFocusGain");
                         // restore volume if ducked
-                        try { if (engine != null) engine.setVolume(preDuckVolume); } catch (Throwable ignored) {}
+                        try {
+                            if (engine != null) engine.setVolume(preDuckVolume);
+                        } catch (Throwable ignored) {
+                        }
                         if (pausedByFocusLoss) {
                             playAudio();
                             pausedByFocusLoss = false;
@@ -420,7 +441,8 @@ public class AudioService extends LoggingService {
                         media.setActive(true);
                     }
 
-                    @Override public void onFocusLost(int change) {
+                    @Override
+                    public void onFocusLost(int change) {
                         myLog("onFocusLost");
                         logFocusChange(change);
                         /*
@@ -443,8 +465,10 @@ public class AudioService extends LoggingService {
                         pauseAudio();
                     }
 
-                    @Override public void onDuck(boolean ducking) {
-                        if (ducking) startDuck(); else stopDuck();
+                    @Override
+                    public void onDuck(boolean ducking) {
+                        if (ducking) startDuck();
+                        else stopDuck();
                     }
 
                     private void startDuck() {
@@ -453,13 +477,15 @@ public class AudioService extends LoggingService {
                                 preDuckVolume = 1f; // if you have a getter, use it; else assume 1
                                 engine.setVolume(0.2f);
                             }
-                        } catch (Throwable ignored) {}
+                        } catch (Throwable ignored) {
+                        }
                     }
 
                     private void stopDuck() {
                         try {
                             if (engine != null) engine.setVolume(preDuckVolume);
-                        } catch (Throwable ignored) {}
+                        } catch (Throwable ignored) {
+                        }
                     }
                 }
         );
@@ -479,7 +505,7 @@ public class AudioService extends LoggingService {
     private void showForegroundNotification(boolean playing) {
         ZikFile zf = getCurrentZikFile();
         CharSequence title = zf == null ? "---" : zf.getFolderName();
-        CharSequence text  = zf == null ? "---" : zf.getDisplayName();
+        CharSequence text = zf == null ? "---" : zf.getDisplayName();
 
         Notification n = notif.build(
                 media.session(),
@@ -487,11 +513,28 @@ public class AudioService extends LoggingService {
                 title,
                 text,
                 new com.driot.bookplayer.player.PlaybackNotificationManager.ActionProvider() {
-                    @Override public PendingIntent rewind()      { return MediaButtonReceiver.buildMediaButtonPendingIntent(AudioService.this, PlaybackStateCompat.ACTION_REWIND); }
-                    @Override public PendingIntent play()        { return MediaButtonReceiver.buildMediaButtonPendingIntent(AudioService.this, PlaybackStateCompat.ACTION_PLAY); }
-                    @Override public PendingIntent pause()       { return MediaButtonReceiver.buildMediaButtonPendingIntent(AudioService.this, PlaybackStateCompat.ACTION_PAUSE); }
-                    @Override public PendingIntent fastForward() { return MediaButtonReceiver.buildMediaButtonPendingIntent(AudioService.this, PlaybackStateCompat.ACTION_FAST_FORWARD); }
-                    @Override public PendingIntent content() {
+                    @Override
+                    public PendingIntent rewind() {
+                        return MediaButtonReceiver.buildMediaButtonPendingIntent(AudioService.this, PlaybackStateCompat.ACTION_REWIND);
+                    }
+
+                    @Override
+                    public PendingIntent play() {
+                        return MediaButtonReceiver.buildMediaButtonPendingIntent(AudioService.this, PlaybackStateCompat.ACTION_PLAY);
+                    }
+
+                    @Override
+                    public PendingIntent pause() {
+                        return MediaButtonReceiver.buildMediaButtonPendingIntent(AudioService.this, PlaybackStateCompat.ACTION_PAUSE);
+                    }
+
+                    @Override
+                    public PendingIntent fastForward() {
+                        return MediaButtonReceiver.buildMediaButtonPendingIntent(AudioService.this, PlaybackStateCompat.ACTION_FAST_FORWARD);
+                    }
+
+                    @Override
+                    public PendingIntent content() {
                         final int flags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;
 
                         androidx.core.app.TaskStackBuilder tsb = androidx.core.app.TaskStackBuilder.create(AudioService.this);
@@ -500,7 +543,7 @@ public class AudioService extends LoggingService {
 
                         // 2) If multiple tracks, insert the track list screen before PlayActivity
                         PlayList pl = PlayList.getInstance();
-                        ZikFile z   = (pl != null) ? pl.getZikFile() : null;
+                        ZikFile z = (pl != null) ? pl.getZikFile() : null;
                         int folderId = (z != null) ? z.getIdFolder() : -1;
 
                         if (folderId > 0 && pl != null && pl.getSize() > 1) {
@@ -579,7 +622,7 @@ public class AudioService extends LoggingService {
 
         justAdvancedToNext = true;
         PlayList pl = PlayList.getInstance();
-        if (pl==null) {
+        if (pl == null) {
             alertError("nextTrack", "nextTrack : error getting playlist");
             //loadFileKO();
             return;
@@ -592,7 +635,8 @@ public class AudioService extends LoggingService {
                 }
                 engine.stop();
                 engine.reset();
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+            }
         }
         myLog("loading next track : n°" + PlayList.getInstance().getNumSlashTotal());
         if (Option.getBeepChapter()) playBeep("1beep");
@@ -636,7 +680,7 @@ public class AudioService extends LoggingService {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         myLog("onStartCommand()");
-        if (intent!=null) {
+        if (intent != null) {
             String strCallLog = "intent = " + intent +
                     "\ncalled by = " + intent.getStringExtra(Intents.EXTRA_CALLER) +
                     "\nwith action = " + intent.getAction();
@@ -645,7 +689,7 @@ public class AudioService extends LoggingService {
             } else {
                 myLog("AudioService start\n" + strCallLog);
             }
-        } else  {            // happens when Android restarts your sticky service after it was killed, no 5-second foreground requirement in this case because the system didn’t just call startForegroundService(...) on your behalf;
+        } else {            // happens when Android restarts your sticky service after it was killed, no 5-second foreground requirement in this case because the system didn’t just call startForegroundService(...) on your behalf;
             myLogW("AudioService start with no intent - Android restarts? - because of START_STICKY and no START_REDELIVER_INTENT");
             return START_STICKY;
         }
@@ -656,7 +700,7 @@ public class AudioService extends LoggingService {
         } else {
             for (String k : b.keySet()) {
                 Object v = b.get(k);
-                myLogD("extra [" + k + "] = " + v + " (" + (v==null? "null" : v.getClass().getSimpleName()) + ")");
+                myLogD("extra [" + k + "] = " + v + " (" + (v == null ? "null" : v.getClass().getSimpleName()) + ")");
             }
         }
 
@@ -675,7 +719,7 @@ public class AudioService extends LoggingService {
                 final int trackId = intent.getIntExtra(Intents.EXTRA_TRACK_ID, -1);
                 final boolean isPodcast = intent.getBooleanExtra(Intents.EXTRA_IS_PODCAST, false);
                 final boolean newestFirst = intent.getBooleanExtra(Intents.EXTRA_TRACK_ORDER_NEWEST_FIRST, true);
-                myLog("trackId : " + trackId + " - isPodcast : " +isPodcast + " - newestFirst : " + newestFirst );
+                myLog("trackId : " + trackId + " - isPodcast : " + isPodcast + " - newestFirst : " + newestFirst);
                 if (trackId > 0) {
                     AppDatabase.databaseReadExecutor.execute(() -> {
                         ZikFile clicked = AppDatabase.getDatabase(this).zikFileDao().getById(trackId);
@@ -700,7 +744,10 @@ public class AudioService extends LoggingService {
 
                         int index = 0;
                         for (int i = 0; i < list.size(); i++) {
-                            if (list.get(i).getId() == trackId) { index = i; break; }
+                            if (list.get(i).getId() == trackId) {
+                                index = i;
+                                break;
+                            }
                         }
 
                         PlayList.create(getApplicationContext(), folder, list, index);
@@ -776,11 +823,11 @@ public class AudioService extends LoggingService {
             }
 
             case Intents.CMD_TTS_SET_VOICE: {
-                final String voiceName =
-                        intent.hasExtra(Intents.EXTRA_TTS_VOICE_NAME)
-                                ? intent.getStringExtra(Intents.EXTRA_TTS_VOICE_NAME)
-                                : intent.getStringExtra("voiceName"); // fallback if caller used a raw key
-
+                final String voiceName = intent.getStringExtra(Intents.EXTRA_TTS_VOICE_NAME);
+                if (voiceName == null) {
+                    myLogEE(null, "CMD_TTS_SET_VOICE => EXTRA_TTS_VOICE_NAME is null");
+                    return START_STICKY;
+                }
                 if (engine instanceof TtsEngine) {
                     try {
                         broadcastPhase(Intents.PHASE_WARMING_UP, getString(R.string.tts_phase_warming_up));
@@ -792,7 +839,8 @@ public class AudioService extends LoggingService {
                             broadcastPhase(Intents.PHASE_ERROR, getString(R.string.tts_phase_error));
                         }
 
-                    } catch (Throwable ignored) {}
+                    } catch (Throwable ignored) {
+                    }
                 }
                 return START_STICKY;
             }
@@ -811,19 +859,38 @@ public class AudioService extends LoggingService {
         }
     }
 
-    /** Minimal foreground entry used before async prep to satisfy the 5s requirement. */
+    /**
+     * Minimal foreground entry used before async prep to satisfy the 5s requirement.
+     */
     private void goForegroundPreparing(@Nullable CharSequence title, @Nullable CharSequence text) {
         try {
             CharSequence t = (title != null) ? title : "Preparing…";
-            CharSequence s = (text  != null) ? text  : "Please wait";
+            CharSequence s = (text != null) ? text : "Please wait";
 
             PlaybackNotificationManager.ActionProvider minimal =
                     new PlaybackNotificationManager.ActionProvider() {
-                        @Override public PendingIntent rewind()      { return null; }
-                        @Override public PendingIntent play()        { return null; }
-                        @Override public PendingIntent pause()       { return null; }
-                        @Override public PendingIntent fastForward() { return null; }
-                        @Override public PendingIntent content() {
+                        @Override
+                        public PendingIntent rewind() {
+                            return null;
+                        }
+
+                        @Override
+                        public PendingIntent play() {
+                            return null;
+                        }
+
+                        @Override
+                        public PendingIntent pause() {
+                            return null;
+                        }
+
+                        @Override
+                        public PendingIntent fastForward() {
+                            return null;
+                        }
+
+                        @Override
+                        public PendingIntent content() {
                             // Tap → open PlayActivity (or your main)
                             return PendingIntent.getActivity(
                                     AudioService.this, 0,
@@ -876,7 +943,7 @@ public class AudioService extends LoggingService {
         super.onTaskRemoved(rootIntent);
     }
 
-    private void  shutdown(boolean fromDestroy) {
+    private void shutdown(boolean fromDestroy) {
         if (!isShuttingDown.compareAndSet(false, true)) {
             myLogI("shutdown() already running; ignore");
             return;
@@ -886,19 +953,46 @@ public class AudioService extends LoggingService {
         broadcastUiCleared();
         isRunning = false;
 
-        try { PlayList.getMetaLive().removeObserver(metaObs); } catch (Throwable ignore) {}
-        try { sleepTimer.stop(); } catch (Throwable ignore) {}
-        try { focus.abandon(); } catch (Throwable ignore) {}
-        try { stopForeground(true); } catch (Throwable ignore) {}
-        try { notif.cancel(ID_NOTIFICATION_PLAY_AUDIO_INT); } catch (Throwable ignore) {}
+        try {
+            PlayList.getMetaLive().removeObserver(metaObs);
+        } catch (Throwable ignore) {
+        }
+        try {
+            sleepTimer.stop();
+        } catch (Throwable ignore) {
+        }
+        try {
+            focus.abandon();
+        } catch (Throwable ignore) {
+        }
+        try {
+            stopForeground(true);
+        } catch (Throwable ignore) {
+        }
+        try {
+            notif.cancel(ID_NOTIFICATION_PLAY_AUDIO_INT);
+        } catch (Throwable ignore) {
+        }
         PlayerEngine e = engine; // snapshot
         engine = null;           // prevent reuse elsewhere after shutdown begins
         if (e != null) {
             if (e instanceof TtsEngine) {
-                try { ((TtsEngine) e).release(); } catch (Exception ex) { myLogEE(ex, "TTS release"); }
+                try {
+                    ((TtsEngine) e).release();
+                } catch (Exception ex) {
+                    myLogEE(ex, "TTS release");
+                }
             } else {
-                try { e.stop(); }        catch (Exception ex) { myLogEE(ex, "engine stop"); }
-                try { e.reset(); }       catch (Exception ex) { myLogEE(ex, "engine reset"); }
+                try {
+                    e.stop();
+                } catch (Exception ex) {
+                    myLogEE(ex, "engine stop");
+                }
+                try {
+                    e.reset();
+                } catch (Exception ex) {
+                    myLogEE(ex, "engine reset");
+                }
             }
         }
         if (media != null) media.release();
@@ -937,7 +1031,9 @@ public class AudioService extends LoggingService {
      ********************************************************************************
      */
 
-    /** Swap current engine with a new one, releasing TTS if needed, keeping flags intact. */
+    /**
+     * Swap current engine with a new one, releasing TTS if needed, keeping flags intact.
+     */
     private void setEngine(@NonNull PlayerEngine newEngine) {
         try {
             if (engine != null) {
@@ -948,11 +1044,14 @@ public class AudioService extends LoggingService {
                     engine.reset();
                 }
             }
-        } catch (Throwable ignored) {}
+        } catch (Throwable ignored) {
+        }
         engine = newEngine;
     }
 
-    /** Simplified, side-effect-free loader. */
+    /**
+     * Simplified, side-effect-free loader.
+     */
     public void loadFile() {
         myLogD("loadFile()  directPlay=" + directPlay);
 
@@ -975,7 +1074,7 @@ public class AudioService extends LoggingService {
         ZikFile zf = pl.getZikFile();
 
         // Decide engine type from display or path
-        final boolean isText = (zf.getPath()!=null && zf.getPath().toLowerCase().endsWith(".txt"));
+        final boolean isText = (zf.getPath() != null && zf.getPath().toLowerCase().endsWith(".txt"));
 
         // Resolve Uri
         Uri src = UriHelper.resolvePlayableUri(this, zf);
@@ -1020,23 +1119,33 @@ public class AudioService extends LoggingService {
         try {
             engine.reset();
             engine.setDataSource(this, src, zf.getDisplayName());
+
             if (engine instanceof TtsEngine) {
                 String picked = null;
+                String pickedSource = "system";
 
-                // 1) Per-book voice
+                // 1) Per-book voice (never override this later)
                 String perBook = Pref.getBookTtsVoiceName(this, zf.getIdFolder());
                 if (perBook != null && !perBook.isEmpty() && !"system".equalsIgnoreCase(perBook)) {
                     picked = perBook;
+                    pickedSource = "book";
                 } else {
-                    // 2) App-wide fallback
+                    // 2) App-wide fallback (only if no per-book)
                     String appWide = Option.getTtsVoice();
                     if (appWide != null && !appWide.isEmpty() && !"system".equalsIgnoreCase(appWide)) {
                         picked = appWide;
+                        pickedSource = "global";
                     }
                 }
-
                 if (picked != null) {
-                    try { ((TtsEngine) engine).setVoiceByName(picked); } catch (Throwable ignored) {}
+                    try {
+                        boolean ok = ((TtsEngine) engine).setVoiceByName(picked);
+                        myLog("Applied initial TTS voice = " + picked + " (source=" + pickedSource + ", ok=" + ok + ")");
+                    } catch (Throwable ignored) {
+                        myLogE("Failed to apply initial TTS voice = " + picked + " (source=" + pickedSource + ")");
+                    }
+                } else {
+                    myLog("Initial TTS voice = system (no explicit voice)");
                 }
             }
             engine.prepareAsync();
@@ -1070,7 +1179,10 @@ public class AudioService extends LoggingService {
     public void playAudio() {
         myLog("playAudio() - start");
 
-        if (suppressMiniUntilNextPlay) { suppressMiniUntilNextPlay = false; broadcastUiState(); }
+        if (suppressMiniUntilNextPlay) {
+            suppressMiniUntilNextPlay = false;
+            broadcastUiState();
+        }
 
         if (engine == null || needsReloadForPlaylist()) {
             new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
@@ -1080,7 +1192,10 @@ public class AudioService extends LoggingService {
             return;
         }
 
-        if (engine.isPlaying()) { myLogE("Engine already playing"); return; }
+        if (engine.isPlaying()) {
+            myLogE("Engine already playing");
+            return;
+        }
 
         if (engine.isReady()) {
             startPlayWithEngine();
@@ -1100,6 +1215,7 @@ public class AudioService extends LoggingService {
             broadcastUiState();
         }
     }
+
     public void pauseAudio() {
         if (engine != null && engine.isPlaying()) {
             enginePause();
@@ -1119,19 +1235,23 @@ public class AudioService extends LoggingService {
             playAudio();
         }
     }
+
     public void forwardAudio() {
-        forwardAudio(Option.get_ForwardSeconds()*1000);
+        forwardAudio(Option.get_ForwardSeconds() * 1000);
     }
+
     public void forwardAudio(int lag) {
         myLog("forwardAudio of " + lag);
         int temp = getPosition();
-        if ((temp + lag ) <= getDuration()) {
-            setPosition(temp + lag );
+        if ((temp + lag) <= getDuration()) {
+            setPosition(temp + lag);
         }
     }
+
     public void backwardAudio() {
-        backwardAudio(Option.get_ForwardSeconds()*1000);
+        backwardAudio(Option.get_ForwardSeconds() * 1000);
     }
+
     public void backwardAudio(int lag) {
         myLog("backwardAudio() : " + lag);
         int temp = getPosition();
@@ -1156,7 +1276,7 @@ public class AudioService extends LoggingService {
 
     public int getPosition() {
         int pos = engine != null ? engine.getCurrentPosition() : 0;
-        if (LOG_TRACE_ALL && PlayList.getInstance()!=null && PlayList.getInstance().getZikFile()!=null) {
+        if (LOG_TRACE_ALL && PlayList.getInstance() != null && PlayList.getInstance().getZikFile() != null) {
             int curPosGlobalVar = (int) PlayList.getInstance().getZikFile().getPosition();
             int diff = curPosGlobalVar - pos;
             myLogD("getPosition() Saved/EngineCurrent  " + curPosGlobalVar + "/" + pos + "  -  Diff = " + diff);
@@ -1181,7 +1301,9 @@ public class AudioService extends LoggingService {
             this.speed = speed;
             if (engine != null) engine.setSpeed((float) speed);
             myLog("setSpeed() : " + speed);
-        } catch (Exception e) { myLogEE(e,"AudioService Error setting Speed"); }
+        } catch (Exception e) {
+            myLogEE(e, "AudioService Error setting Speed");
+        }
         ZikFile zf = getCurrentZikFile();
         if (zf != null) Pref.saveSpeedToPref(zf.getIdFolder(), speed);
     }
@@ -1214,6 +1336,7 @@ public class AudioService extends LoggingService {
             sleepTimer.reload(minutes);
         }
     }
+
     public void reloadSleepTimer() {
         if (sleepTimer != null && sleepTimer.isRunning()) {
             int minutes = (customSleepTime == 0) ? Option.getTimeBeforeSleep() : customSleepTime;
@@ -1221,7 +1344,9 @@ public class AudioService extends LoggingService {
         }
     }
 
-    public int getCustomSleepTime() { return customSleepTime; }
+    public int getCustomSleepTime() {
+        return customSleepTime;
+    }
 
 
     @Override
@@ -1245,10 +1370,11 @@ public class AudioService extends LoggingService {
              */
         }
     }
+
     public void logPauseTime() {
         if (Pref.getPauseTime() != 0) {
             long pauseTime = (System.currentTimeMillis() - Pref.getPauseTime());
-            myLogD("Paused since " + formatTime(pauseTime, true) + ".   MAX is " + formatTime(TRIM_AFTER_PAUSE_MS,false, false));
+            myLogD("Paused since " + formatTime(pauseTime, true) + ".   MAX is " + formatTime(TRIM_AFTER_PAUSE_MS, false, false));
         }
     }
 
@@ -1259,7 +1385,7 @@ public class AudioService extends LoggingService {
      */
     private void updateZikFileStateInDB(boolean bFinished) {
         ZikFile zf = getCurrentZikFile();
-        if (zf==null) {
+        if (zf == null) {
             myLogEE(null, "updateZikFileState : currentZikFile = null");
             return;
         }
@@ -1268,7 +1394,7 @@ public class AudioService extends LoggingService {
             int dur = bFinished ? (int) zf.getDuration() : getDuration();
             progress.update(zf, bFinished, pos, dur);
         } catch (Exception e) {
-            myLogEE(e,"updateZikFileStateInDB");
+            myLogEE(e, "updateZikFileStateInDB");
         }
     }
 
@@ -1301,7 +1427,7 @@ public class AudioService extends LoggingService {
                 myLogE("playBeep - wrong argument : " + beepType);
             }
         } catch (Exception e) {
-            myLogEE(e,"playBeep(" + beepType + ")");
+            myLogEE(e, "playBeep(" + beepType + ")");
         }
     }
 
@@ -1378,7 +1504,7 @@ public class AudioService extends LoggingService {
 
 
     private void onEngineError(String msg, int what, int extra) {
-        myLogEE(null,"Engine error: " + msg + " (" + what + "," + extra + ")");
+        myLogEE(null, "Engine error: " + msg + " (" + what + "," + extra + ")");
         ErrorLoadingFile = true;
         sleepTimer.stop();
 
@@ -1396,7 +1522,7 @@ public class AudioService extends LoggingService {
 
 
     private void onEngineFatal(String msg, int what, int extra) {
-        myLogEE(null,"Engine FATAL: " + msg + " (" + what + "," + extra + ")");
+        myLogEE(null, "Engine FATAL: " + msg + " (" + what + "," + extra + ")");
         ErrorLoadingFile = true;
         sleepTimer.stop();
         alertError(null, null);
@@ -1416,10 +1542,19 @@ public class AudioService extends LoggingService {
         return engine != null && engine.isReady();
     }
 
-    public void pingUi() { broadcastUiState(); }
+    public void pingUi() {
+        broadcastUiState();
+    }
 
     public boolean isTtsMode() {
         return engine instanceof TtsEngine;
+    }
+
+    public String getCurrentTtsVoiceName() {
+        if (isTtsMode()) {
+            return ((TtsEngine) engine).getVoiceName();
+        }
+        return null;
     }
 
     public @Nullable String getTtsText() {
@@ -1471,34 +1606,37 @@ public class AudioService extends LoggingService {
         myLogD("setPositionPlayStart()");
         try {
             PlayList pl = PlayList.getInstance();
-            if (pl==null) {
+            if (pl == null) {
                 myLogEE(null, "setPositionPlayStart() - playlist null");
                 return;
             }
             ZikFile zikFile = pl.getZikFile();
-            if (zikFile==null) {
+            if (zikFile == null) {
                 myLogEE(null, "setPositionPlayStart() - zikFile null");
                 return;
             }
 
             //max reach ?, reset to 0
             //if (zikFile.getPosition() >= zikFile.getDuration()) {
-            if (engine!=null && engine.getCurrentPosition() >= engine.getDuration()) {
+            if (engine != null && engine.getCurrentPosition() >= engine.getDuration()) {
                 engine.seekTo(0);
             } else { // Rewind-after-pause
                 if (Option.getRewindAfterPause() && zikFile.lLastAccess != null) {
                     long minutes = (System.currentTimeMillis() - zikFile.lLastAccess) / (60 * 1000);
                     int rewindMs = 0;
-                    for (int[] rule : REWIND_AFTER_PAUSE) { if (minutes >= rule[0]) rewindMs = rule[1]; else break; }
+                    for (int[] rule : REWIND_AFTER_PAUSE) {
+                        if (minutes >= rule[0]) rewindMs = rule[1];
+                        else break;
+                    }
                     if (rewindMs > 0) {
-                        myLogD("Rewind " + (rewindMs/1000) + "sec. after a " + minutes + "min. pause.");
+                        myLogD("Rewind " + (rewindMs / 1000) + "sec. after a " + minutes + "min. pause.");
                         backwardAudio(rewindMs);
                     }
                 }
             }
 
             //Cut Intro (book option)
-            int introCut = Pref.getIntroCutFromPref(this,zikFile.getIdFolder()) * 1000;
+            int introCut = Pref.getIntroCutFromPref(this, zikFile.getIdFolder()) * 1000;
             if (introCut > 0) {
                 int position = getPosition();
                 myLog("position : [" + position + "]  introCut : [" + introCut + "]");
@@ -1527,3 +1665,4 @@ public class AudioService extends LoggingService {
         LocalBroadcastManager.getInstance(this).sendBroadcast(i);
     }
 }
+

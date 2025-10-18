@@ -207,6 +207,7 @@ public class TtsHelper {
             @Nullable String savedCode,          // "system" or exact engine voice name
             @NonNull OnVoiceSelected callback
     ) {
+        myLog("setupTtsVoiceSpinner - called from " + getCaller());
         final Context ui  = ui_context;                       // themed
         final Context app = ui_context.getApplicationContext();
         final Handler main = new Handler(Looper.getMainLooper());
@@ -220,16 +221,25 @@ public class TtsHelper {
         spinner.setEnabled(false);
 
         final AppTtsManager mgr = AppTtsManager.get(app);
+        mgr.setPreferredVoiceName(savedCode);
+
+        final java.util.concurrent.atomic.AtomicBoolean populatedOnce = new java.util.concurrent.atomic.AtomicBoolean(false);
+        final boolean[] suppressSelection = new boolean[]{true}; // suppress spurious onItemSelected during/just-after init
 
         // 2) Listener to (re)populate once TTS is ready
         final AppTtsManager.Listener mgrListener = new AppTtsManager.Listener() {
             @Override public void onTtsReady(TextToSpeech tts) {
+                // avoid double-populating if listener is invoked twice
+                if (!populatedOnce.compareAndSet(false, true)) {
+                    myLogW("setupTtsVoiceSpinner.onTtsReady => ignored (already populated)");
+                    return;
+                }
                 main.post(() -> {
-                    myLog("onTtsReady => populating spinner");
+                    myLog("setupTtsVoiceSpinner.onTtsReady => populating spinner");
                     // Build catalog
-                    myLog("onTtsReady => listing voices");
                     final List<VoiceItem> voices = buildVoiceItems(app, tts); // your helper
                     if (voices == null || voices.isEmpty()) {
+                        myLog("setupTtsVoiceSpinner.onTtsReady => no voices");
                         ArrayAdapter<String> empty = new ArrayAdapter<>(
                                 ui, android.R.layout.simple_spinner_item,
                                 java.util.Collections.singletonList("No voices"));
@@ -239,12 +249,17 @@ public class TtsHelper {
                         callback.onSelected(null);
                         return;
                     }
+                    myLog("setupTtsVoiceSpinner.onTtsReady => " + voices.size() + " voices");
 
-                    myLog("onTtsReady => system default");
                     // Prepend "system default" option (null voice)
                     final ArrayList<VoiceItem> all = new ArrayList<>();
                     VoiceItem system = VoiceItem.makeSystemDefault(tts);
-                    if (system != null) all.add(system);
+                    if (system != null) {
+                        myLog("setupTtsVoiceSpinner.onTtsReady => system default = " + system);
+                        all.add(system);
+                    } else {
+                        myLog("setupTtsVoiceSpinner.onTtsReady => no system default");
+                    }
                     all.addAll(voices);
 
                     final VoiceSpinnerAdapter adapter = new VoiceSpinnerAdapter(ui, all);
@@ -252,33 +267,38 @@ public class TtsHelper {
                     spinner.setEnabled(true);
 
                     // Preselect saved value
-                    myLog("onTtsReady => Preselect saved value : " + savedCode);
+                    myLog("setupTtsVoiceSpinner.onTtsReady => Preselect saved value : " + savedCode);
                     int pre = 0; // default to "system"
                     if (savedCode != null && !"system".equalsIgnoreCase(savedCode)) {
                         for (int i = 1; i < all.size(); i++) {
                             if (savedCode.equals(all.get(i).name)) {
-                                myLog("onTtsReady => Preselect saved value OK");
+                                myLog("setupTtsVoiceSpinner.onTtsReady => Preselect saved value OK");
                                 pre = i;
                                 break;
                             }
                         }
                     }
-                    spinner.setSelection(pre, false);
-
-                    // Apply initial selection (skip setVoice for "system")
-                    VoiceItem preSel = all.get(pre);
-                    myLog("onTtsReady => callback.onSelected");
-                    callback.onSelected(preSel);
 
                     // Wire selection changes
+                    // Wire listener but keep it suppressed initially
                     spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                         @Override public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-                            myLog("onItemSelected => callback.onSelected");
-                            VoiceItem sel = all.get(pos);
-                            callback.onSelected(sel);
+                            if (suppressSelection[0]) {
+                                myLog("setupTtsVoiceSpinner.onTtsReady.onItemSelected suppressed during init (pos=" + pos + ")");
+                                return;
+                            }
+                            myLogI("----  User picked a VOICE ---- onItemSelected => callback.onSelected ");
+                            callback.onSelected(all.get(pos));
                         }
                         @Override public void onNothingSelected(AdapterView<?> parent) { /* no-op */ }
                     });
+
+                    spinner.setSelection(pre, false);
+
+                    myLog("setupTtsVoiceSpinner.onTtsReady => callback.onSelected");
+                    callback.onSelected(all.get(pre));
+
+                    spinner.post(() -> suppressSelection[0] = false);
                 });
             }
         };
@@ -348,5 +368,14 @@ public class TtsHelper {
         return t;
     }
 
-
+    private static String getCaller() {
+        StackTraceElement[] stack = Thread.currentThread().getStackTrace();
+        // 0=getStackTrace, 1=getCaller, 2=this method, 3=the real caller
+        if (stack.length > 4) {
+            StackTraceElement caller = stack[4];
+            return caller.getClassName() + "." + caller.getMethodName() + " (line " + caller.getLineNumber() + ")";
+        } else {
+            return "unknown";
+        }
+    }
 }
