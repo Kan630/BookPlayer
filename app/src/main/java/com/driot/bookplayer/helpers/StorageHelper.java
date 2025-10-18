@@ -12,6 +12,7 @@ import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.utils.SdCardChecker;
 import com.driot.bookplayer.utils.Tonio;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
@@ -115,14 +116,9 @@ public class StorageHelper {
         }
     }
 
-
     // === SD CARD HANDLING ===
     public static boolean isExternalSDCardAvailable(Context context) {
-        //TODO should be cached... getExternalFilesDirs() may lead to ANR...
-        File[] dirs = context.getExternalFilesDirs(null);
-        return dirs.length > 1 && dirs[1] != null &&
-                Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState(dirs[1])) &&
-                Environment.isExternalStorageRemovable(dirs[1]);
+        return SdCardChecker.isExternalSDCardAvailable(context);
     }
 
     @Nullable
