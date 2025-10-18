@@ -5,10 +5,15 @@ import static com.driot.bookplayer.utils.ComponentUtils.setOpenWithProxyEnabled_
 
 import android.app.Application;
 import android.content.Context;
+import android.os.Build;
 import android.os.Environment;
+import android.os.Looper;
+import android.os.StrictMode;
+import android.util.Log;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.Executors;
 
 import com.driot.bookplayer.db.AppUpgrade;
 import com.driot.bookplayer.global.Option;
@@ -22,6 +27,10 @@ import com.driot.bookplayer.helpers.LocaleHelper;
 import com.driot.bookplayer.objects.BookToAdd;
 import com.driot.bookplayer.services.InAppPeriodicTaskManager;
 import com.driot.bookplayer.utils.log.KanLogger;
+
+import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
+
+import androidx.annotation.RequiresApi;
 
 public class MyApp extends Application {
 
@@ -52,6 +61,10 @@ public class MyApp extends Application {
         myLog("oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo");
 
         //TaskStateRepository.get().hydrateFromPrefs();
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) { //28
+            enableStrictModeForDebugBuild();
+        }
 
         Option.applyNightMode();
 
@@ -124,10 +137,57 @@ public class MyApp extends Application {
                 Environment.MEDIA_MOUNTED_READ_ONLY.equals(state);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.P) //28
+    private void enableStrictModeForDebugBuild() {
+        if (BuildConfig.DEBUG) {
+            myLog("DEBUG => Strict mode set");
+            StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
+                    .detectDiskReads()
+                    .detectDiskWrites()
+                    .detectNetwork()
+                    //.detectAll()            // catch disk/network/slow calls on main thread
+                    .penaltyListener(Executors.newSingleThreadExecutor(), v -> logStrict("ThreadPolicy", v))
+                    .penaltyFlashScreen()   // (optional) flash the screen when violation happens
+                    .build());
 
-    //--- LOG --------------------------
-    private void myLogD(String str) { KanLogger.myLogD(this.getClass().getName(), str); }
-    private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
-    private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
+            StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
+                    .detectAll()            // catch leaks, file descriptor misuse, etc.
+                    .penaltyListener(Executors.newSingleThreadExecutor(), v -> logStrict("VmPolicy", v))
+                    .build());
+        }
+    }
+    private static void logStrict(String policy, Throwable v) {
+        // Only care about main thread violations:
+        boolean isMain = Looper.myLooper() == Looper.getMainLooper();
+
+        String type = v.getClass().getSimpleName();
+        String thread = Thread.currentThread().getName();
+        String appPkg = "com.driot.bookplayer";
+
+        StackTraceElement[] st = v.getStackTrace();
+        StackTraceElement firstApp = (st != null && st.length > 0) ? st[0] : null;
+        if (st != null) {
+            for (StackTraceElement e : st) {
+                if (e.getClassName().startsWith(appPkg)) { firstApp = e; break; }
+            }
+        }
+        String logMsg = "⚠️ StrictMode " + policy + ": " + type +
+                " on [" + thread + "] at " +
+                (firstApp != null ? firstApp.getClassName() + ":" + firstApp.getLineNumber() : "<no stack>");
+
+        if (isMain) {
+            myLogE("on MAIN " + logMsg);
+        } else {
+            myLogD(logMsg);
+        }
+
+        // 3) Full stack for details
+        //myLogE(Log.getStackTraceString(v));
+    }
+
+
+
+
+
 
 }

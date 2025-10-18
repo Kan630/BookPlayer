@@ -11,9 +11,12 @@ import android.widget.Toast;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static com.driot.bookplayer.utils.TonioCommonStuff.MD5;
 
@@ -325,27 +328,36 @@ public class KanLogger {
     /////////////////////////////////
     /// LOG FILES
     /////////////////////////////////-----------------------------------------------------------
-    private static void writeToLogFile(String message)
-    {
-        if (getMyAppContext() != null) {
+    private static void writeToLogFile(String message) {
+        Context appCtx = getMyAppContext();
+        if (appCtx == null) {
+            Log.e(kanLogger_TAG, "writeToLogFile() KO : getMyAppContext is null");
+            return;
+        }
+
+        // Offload to background thread
+        Executors.newSingleThreadExecutor().execute(() -> {
             String date = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
             String time = new SimpleDateFormat("HH:mm:ss.SSS", Locale.getDefault()).format(new Date());
             String fileName = LOG_FILE_NAME + "_" + date + ".txt";
+
             try {
-                File dir = new File(getMyAppContext().getFilesDir(), LOG_FILE_FOLDER);
-                dir.mkdirs();
-                FileOutputStream fileOutputStream = new FileOutputStream(new File(dir, fileName),true);
+                File dir = new File(appCtx.getFilesDir(), LOG_FILE_FOLDER);
+                if (!dir.exists() && !dir.mkdirs()) {
+                    Log.w(kanLogger_TAG, "writeToLogFile() failed to create dir: " + dir);
+                    return;
+                }
 
-                OutputStreamWriter outputStreamWriter = new OutputStreamWriter(fileOutputStream);
-                outputStreamWriter.write(time + " " + message + "\n");
-                outputStreamWriter.close();
+                File logFile = new File(dir, fileName);
+                try (FileOutputStream fos = new FileOutputStream(logFile, true);
+                     OutputStreamWriter writer = new OutputStreamWriter(fos, StandardCharsets.UTF_8)) {
+                    writer.write(time + " " + message + "\n");
+                }
 
-            } catch(Exception e) {
-                Log.e(kanLogger_TAG, "writeToLogFile() : [" + e.getMessage() + "]");
+            } catch (Exception e) {
+                Log.e(kanLogger_TAG, "writeToLogFile() : [" + e + "]");
             }
-        } else {
-            Log.e(kanLogger_TAG, "writeToLogFile() KO : getMyAppContext is null");
-        }
+        });
     }
 
     private static String parsePrefix(String str) {
