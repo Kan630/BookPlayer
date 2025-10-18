@@ -6,14 +6,8 @@ import static com.driot.bookplayer.utils.ComponentUtils.setOpenWithProxyEnabled_
 import android.app.Application;
 import android.content.Context;
 import android.os.Build;
-import android.os.Environment;
 import android.os.Looper;
 import android.os.StrictMode;
-import android.util.Log;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.concurrent.Executors;
 
 import com.driot.bookplayer.db.AppUpgrade;
 import com.driot.bookplayer.global.Option;
@@ -33,9 +27,6 @@ import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 import androidx.annotation.RequiresApi;
 
 public class MyApp extends Application {
-
-    public static final String APP_FOLDER = "zeAppFolder";
-    public static final String LOG_FOLDER = "logs";
 
     private static InAppPeriodicTaskManager periodicTaskManager;
 
@@ -92,50 +83,8 @@ public class MyApp extends Application {
 
         ImportHelper.checkImportJobsAtStartUp(getApplicationContext());
 
-
-        if ( isExternalStorageWritable() ) {
-
-            File appDirectory = new File( Environment.getExternalStorageDirectory() + "/" + APP_FOLDER );
-            File logDirectory = new File( appDirectory + "/" + LOG_FOLDER );
-            File logFile = new File( logDirectory, "logcat_" + System.currentTimeMillis() + ".txt" );
-
-            // create app folder
-            if ( !appDirectory.exists() ) {
-                appDirectory.mkdir();
-            }
-
-            // create log folder
-            if ( !logDirectory.exists() ) {
-                logDirectory.mkdir();
-            }
-
-            // clear the previous logcat and then write the new one to the file
-            try {
-                Process process = Runtime.getRuntime().exec("logcat -c");
-                process = Runtime.getRuntime().exec("logcat -f " + logFile);
-            } catch ( IOException e ) {
-                e.printStackTrace();
-            }
-
-        } else if ( isExternalStorageReadable() ) {
-            // only readable
-        } else {
-            // not accessible
-        }
     }
-
-    /* Checks if external storage is available for read and write */
-    public boolean isExternalStorageWritable() {
-        String state = Environment.getExternalStorageState();
-        return Environment.MEDIA_MOUNTED.equals(state);
-    }
-
-    /* Checks if external storage is available to at least read */
-    public boolean isExternalStorageReadable() {
-        String state = Environment.getExternalStorageState();
-        return Environment.MEDIA_MOUNTED.equals(state) ||
-                Environment.MEDIA_MOUNTED_READ_ONLY.equals(state);
-    }
+/// STRICT MODE
 
     @RequiresApi(api = Build.VERSION_CODES.P) //28
     private void enableStrictModeForDebugBuild() {
@@ -159,7 +108,7 @@ public class MyApp extends Application {
                 .build());
     }
     private static void logStrict(String policy, Throwable v) {
-        // Only care about main thread violations:
+
         boolean isMain = Looper.myLooper() == Looper.getMainLooper();
 
         String type = v.getClass().getSimpleName();
