@@ -33,18 +33,86 @@
     <string name="delete_logs">Delete Logs</string>
     <string name="Delete">Delete</string>
 
+    <string name="favorites">favorites</string>
 
-    <string name="DeleteLogs_AskConfirm">"You are about to delete all logs.
-       Are you sure ?"</string>
-    <string name="ModifyFolder_AskDelete">"You are about to delete this folder and all the tracks
-       Are you sure ?"</string>
-    <string name="ModifyFolder_AskReset">"You are about to reset progression for this folder
-       Are you sure ?"</string>
-    <string name="ModifyZikFile_AskDelete">"You are about to delete this audio track
-       Are you sure ?"</string>
+    <string name="Pause">Pause</string>
+    <string name="Resume">Resume</string>
+    <string name="Import_finished_with_errors">Import finished with errors</string>
+    <string name="Import_failed">Import failed</string>
+    <string name="About_to_start_download">About to start download…</string>
+    <string name="Surf_the_vast_Internet_Archive_for_audio_files_and_download_some">Surf the vast Internet Archive for audio files, and download some !</string>
+    <string name="Please_enter_a_URL">Please enter a URL.</string>
+    <string name="Permission_Required">Permission Required</string>
+    <string name="Settings">Settings</string>
+    <string name="App_Info">App Info</string>
+    <string name="reset_app">Reset App</string>
+    <string name="Exit">Exit</string>
+    <string name="Finished">Finished</string>
+    <string name="add_book">add book</string>
+
+    <string name="Warning">Warning</string>
+    <string name="beta_test">beta test</string>
+    <string name="three_dots" translatable="false">…</string>
+
+    <string name="Not_enough_memory">Not enough memory</string>
+    <string name="unexpected_error">Unexpected error</string>
+    <string name="Error_checking_file">Error checking file</string>
+    <string name="an_error_occurred">An error occurred</string>
+    <string name="no_internet_connection">No internet connection</string>
+    <string name="no_metadata_available">No metadata available</string>
+
+    <string name="Import_in_progress">Import in progress</string>
+
+    <string name="confirm">confirm</string>
+    <string name="back">back</string>
+    <string name="save">save</string>
+    <string name="paste">paste</string>
+    <string name="clear">clear</string>
+    <string name="books">books</string>
+    <string name="favorite">favorite</string>
+    <string name="cancelled">Cancelled</string>
+    <string name="failed">Failed</string>
+    <string name="completed">Completed</string>
+    <string name="copy">copy</string>
+    <string name="error">error</string>
+    <string name="initialization">initialization</string>
+    <string name="stop">stop</string>
+    <string name="Audio">Audio</string>
+    <string name="Video">Video</string>
+    <string name="Text">Text</string>
+    <string name="Bundle">Bundle</string> //means compressed file like zip
+    <string name="Generate">Generate</string>
+
+    <string name="language">language</string>">
+    <string name="download">download</string>
+    <string name="refresh">refresh</string>
+    <string name="collapse">collapse</string>
+    <string name="expand">expand</string>
+    <string name="flag">flag</string>
+    <string name="settings">settings</string>
+    <string name="sort">sort</string>
+    <string name="default_">default</string>
+    <string name="reviews">reviews</string>
+
+    <string name="Also">Also</string>
+    <string name="ok">OK</string>
+    <string name="title">title</string>
+    <string name="subtitle">subtitle</string>
+    <string name="last">last</string>
+    <string name="episodes">episodes</string>
+    <string name="Podcasts">Podcasts</string>
+    <string name="podcasts">podcasts</string>
+    <string name="Auto_Download">Auto-Download</string>
+    <string name="Auto_Delete">Auto-Delete</string>
+    <string name="min.">min.</string>
+    <string name="after">after</string>
+    <string name="days">days</string>
+    <string name="hours">hours</string>
+    <string name="minutes">minutes</string>
+    <string name="seconds">seconds</string>
 
     <string name="left_on">left on</string>">
-    <string name="memory">memory</string>">
+    <string name="memory">memory</string>"> //in the storage space sense
     <string name="device">device</string>">
     <string name="sd_card">sd card</string>">
     <string name="SD_card">SD card</string>">
@@ -55,25 +123,50 @@
     <string name="Added">"Added"</string>
     <string name="Favorites">Favorites</string>
     <string name="Set">Set</string>">
-    <string name="MB">MB</string>">
+    <string name="MB">MB</string>"> //means MegaBytes
+    <string name="ms">ms.</string> //means milliseconds
     <string name="Export">"Export…"</string>
     <string name="version">Version</string>
     <string name="miscellaneous">Miscellaneous</string>
     <string name="Processing">"Processing"</string>
     <string name="StillExperimental">"- Still Experimental -"</string>
-    <string name="Download_cancelled">"Download cancelled"</string>">
-    <string name="Download_failed">"Download failed"</string>">
     <string name="downloaded">"downloaded"</string>">
     <string name="Downloading">"Downloading"</string>">
     <string name="book_cover">"book cover"</string>">
     <string name="Search">"Search"</string>
     <string name="Creator">Creator</string>
     <string name="Available_since">Available since</string>
-    <string name="Error_checking_file">Error checking file</string>
     <string name="default_for">default for</string>
+    <string name="streaming">streaming</string>
+    <string name="metadata">metadata</string>
+    <string name="artist">Artist</string>
+    <string name="album">Album</string>
+    <string name="genre">Genre</string>
+    <string name="year">Year</string>
+    <string name="track">Track</string>
+    <string name="disc">Disc</string>
+    <string name="bitrate">Bitrate</string>
+    <string name="sample_rate">Sample rate</string>
+    <string name="channels">Channels</string>
 
 
-        <!-- ********************************** -->
+
+
+
+
+    <string name="DeleteLogs_AskConfirm">"You are about to delete all logs.
+       Are you sure ?"</string>
+    <string name="ModifyFolder_AskDelete">"You are about to delete this folder and all the tracks
+       Are you sure ?"</string>
+    <string name="ModifyFolder_AskReset">"You are about to reset progression for this folder
+       Are you sure ?"</string>
+    <string name="ModifyZikFile_AskDelete">"You are about to delete this audio track
+       Are you sure ?"</string>
+
+
+
+
+    <!-- ********************************** -->
         <!-- HELP Screen -->
 
         <string name="help_title">BookPlayer Manual</string>
@@ -298,6 +391,39 @@
         \n* More memory will be needed if you do not delete the source file.
     </string>
     <string name="option_copy_file_text">Copy audio files in the internal, reserved, BookPlayer app memory.</string>
+
+    <string name="option_night_mode_title">Dark mode  ☀️ 🌙</string>
+    <string name="option_night_mode_follow_system">⚙️ System</string>
+    <string name="option_night_mode_light">☀️ Light</string>
+    <string name="option_night_mode_dark">🌙 Dark</string>
+    <string name="option_night_mode_dialog_title">Choose theme mode</string>
+
+    <string name="option_text_appearance_title">Text appearance</string>
+    <string name="option_font_family">Font</string>
+    <string name="option_text_size">Size</string>
+
+    <string name="option_podcast_open_specific_view_subtitle">When clicking a \'podcast\' item, should it open the stream podcast view with all episodes, or the \'book\' view with downloaded ones?</string>
+    <string name="option_podcast_open_specific_view">Open the live view</string>
+    <string name="option_podcast_autodownloaded_at_the_top">When new episodes are downloaded, move the podcast to the top of the audiobooks list.</string>
+    <string name="option_podcast_autodownload_subtitle">"If you mark a podcast as a favorite, you can also enable the ‘auto-download’ option.\nBookPlayer will then check for new episodes—both periodically and at startup—and download them."</string>
+
+    <string name="option_playing_behaviour_title">Play behaviour</string>
+    <string name="option_start_next_track_at_zero_title_text">Always start the next track from the beginning, even if it was partly listened to before.</string>
+    <string name="error_playlist_null">The playlist could not be retrieved.</string>
+    <string name="option_stop_audio_if_user_closes_app_text">Stop audio when you close the app.</string>
+    <string name="option_auto_play_on_main_player_text">Auto play when clicking audio track.</string>
+    <string name="option_network_preference_subtext">
+"An unmetered connection means you’re not on mobile data (for example, Wi-Fi, Ethernet, or some VPNs).
+\nRoaming means being abroad — even hotel Wi-Fi while abroad counts as roaming."
+</string>
+    <string name="option_automotive_let_car_autoplay">Allow Android Auto to trigger play on its own (usually, when connected to the car).</string>
+    <string name="option_open_play_activity">Open play view when playback starts.</string>
+    <string name="tts_settings">TTS settings</string>
+    <string name="option_tts_language_text">Default voice for new e-books.</string>
+    <string name="option_tts_highlight_delay_title">Words highlight.</string>
+    <string name="option_tts_highlight_delay_text">Engine delay :</string>
+
+
 
 
     <!-- ********************************** -->
@@ -638,41 +764,34 @@
     <string name="download_never_ask">🛣️ Never ask</string>
     <string name="download_ask_if_not_wifi">❓ Ask if not on Wi-Fi</string>
     <string name="download_ask_if_unmetered">⚠️ Ask if not Unmetered</string>
+    <string name="download_bis_unmetered">🆓 Unmetered only</string>
+    <string name="download_not_roaming">🏠 Not roaming</string>
 
-    <!-- Network download prompts -->
     <string name="download_warning_title_unmetered">Unmetered connection</string>
     <string name="download_warning_message_unmetered">You\'re not on an unmetered connection (you are on a mobile network). Continue with the download?</string>
     <string name="download_warning_title_wifi">Wi-Fi</string>
     <string name="download_warning_message_wifi">You\'re not on Wi-Fi. Continue with the download?</string>
 
-    <string name="no_internet_connection">No internet connection</string>
-    <string name="an_error_occurred">An error occurred</string>
+    <string name="use_https_or_allow_cleartext_for_this_host_in_the_app_s_network_security_config">Use HTTPS or allow cleartext for this host in the app’s network security config.</string>
+    <string name="http_is_blocked_by_android_s_network_security_policy">HTTP (cleartext) is blocked by Android’s network security policy.</string>
+    <string name="http_cleartext_to">HTTP (cleartext) to</string>
+    <string name="is_blocked_by_android_s_network_security_policy">is blocked by Android’s network security policy</string>
+
+    <string name="Download_cancelled">"Download cancelled"</string>">
+    <string name="Download_failed">"Download failed"</string>">
 
     <string name="Add_to_favorite">Add to favorite</string>
     <string name="Auto_Download_episodes">Auto-Download episodes</string>
-    <string name="favorites">favorites</string>
 
     <string name="Download_paused_due_to_network_policy">Download paused due to network policy</string>
     <string name="Download_paused_by_user">Download paused by user</string>
     <string name="Download_cancelled_by_user">Download cancelled by user</string>
     <string name="Download_finished">Download finished</string>
 
-    <string name="Pause">Pause</string>
-    <string name="Resume">Resume</string>
-    <string name="Import_finished_with_errors">Import finished with errors</string>
-    <string name="Import_failed">Import failed</string>
-    <string name="About_to_start_download">About to start download…</string>
-    <string name="Surf_the_vast_Internet_Archive_for_audio_files_and_download_some">Surf the vast Internet Archive for audio files, and download some !</string>
-    <string name="Please_enter_a_URL">Please enter a URL.</string>
-    <string name="Permission_Required">Permission Required</string>
-    <string name="Settings">Settings</string>
-    <string name="App_Info">App Info</string>
-    <string name="reset_app">Reset App</string>
-    <string name="Exit">Exit</string>
-    <string name="Finished">Finished</string>
-    <string name="add_book">add book</string>
-    <string name="Not_enough_memory">Not enough memory</string>
-    <string name="Import_in_progress">Import in progress</string>
+
+
+
+
 
     <string name="Import_Progress_copying_file_from_general_storage">"copying source file \n- from Device general storage"</string>
     <string name="Import_Progress_copying_file_from_cloud">"copying source file \n- from Cloud"</string>
@@ -682,7 +801,6 @@
     <string name="could_not_check_already_imported">could not check if already imported.</string>
     <string name="warning_url_already_loaded_under_the_name">the same web link has already been imported ! (content was not checked, is it the same?). It has been stored under the name :</string>
     <string name="A_different_media_with_the_same_name_had_already_been_loaded">A different media with the same name had already been loaded</string>
-    <string name="Also">Also</string>
     <string name="the_name_will_be_changed_to">, the name will be changed to : </string>
 
     <string name="listing_and_sorting_tracks">listing and sorting tracks</string>
@@ -704,21 +822,11 @@
     <string name="auto_download_max_n_podcast">auto download max xx podcast</string>
     <string name="auto_download_delay_between_checks_in_min">auto download delay between checks in min</string>
     <string name="Auto_Delete_episodes">Auto-Delete episodes</string>
-    <string name="last">last</string>
-    <string name="episodes">episodes</string>
-    <string name="Podcasts">Podcasts</string>
-    <string name="podcasts">podcasts</string>
-    <string name="Auto_Download">Auto-Download</string>
-    <string name="Auto_Delete">Auto-Delete</string>
+
+
     <string name="for_max">for max</string>
     <string name="check_every">check every</string>
-    <string name="min.">min.</string>
     <string name="auto_delete_episodes_once_listened_to">auto delete episodes once listened to</string>
-    <string name="after">after</string>
-    <string name="days">days</string>
-    <string name="hours">hours</string>
-    <string name="minutes">minutes</string>
-    <string name="seconds">seconds</string>
     <string name="if_completion">if completion</string>
     <string name="no_episode_all_deleted">no downloaded episode found, all deleted ?</string>
     <string name="podcast_api_unavailable_fallback">could not get new episodes, showing only previous ones</string>
@@ -747,16 +855,9 @@
 
     <string name="app_language">App language</string>">
     <string name="tts_language">TTS language</string>">
-    <string name="language">language</string>">
-    <string name="download">download</string>
     <string name="autodownload">auto-download</string>
-    <string name="refresh">refresh</string>
-    <string name="collapse">collapse</string>
-    <string name="expand">expand</string>
-    <string name="flag">flag</string>
     <string name="language_flag">language flag</string>
     <string name="voice_flag">voice flag</string>
-    <string name="settings">settings</string>
     <string name="podcast_settings">podcast settings</string>
     <string name="option_podcast_episodes_expand">show descriptions</string>
     <string name="option_create_cover">Create covers</string>
@@ -764,67 +865,35 @@
     <string name="toggle_text_image">Toggle Text Image</string>
     <string name="reset_progress_from_this_track">reset progress from this track</string>">
     <string name="rename_track">rename track</string>
-    <string name="sort">sort</string>
-    <string name="default_">default</string>
     <string name="could_not_read_resource">Could not read resource</string>
     <string name="mime_type_not_supported">picked file is not supported</string>>
     <string name="list_of_supported_extensions">list of supported extensions :</string>
     <string name="audio_book_name">audio book name</string>>
     <string name="audio_book_cover">audio book cover</string>>
-    <string name="ok">OK</string>
     <string name="section_audio">Audio</string>
     <string name="section_video">Video</string>
     <string name="section_text">Text</string>
-    <string name="title">title</string>
-    <string name="subtitle">subtitle</string>
 
 
-    <string name="option_night_mode_title">Theme mode  ☀️ 🌙</string>
-    <string name="option_night_mode_follow_system">⚙️ System</string>
-    <string name="option_night_mode_light">☀️ Light</string>
-    <string name="option_night_mode_dark">🌙 Dark</string>
-    <string name="option_night_mode_dialog_title">Choose theme mode</string>
     <string name="text_to_speech">text-to-speech</string>
     <string name="still_in_development">still in development</string>
     <string name="weird_behavior_could_happen">weird behavior could happen</string>
 
-    <string name="Generate">Generate</string>
     <string name="DeleteCoverImage_AskDelete">"You are about to delete this cover image.\nAre you sure ?"</string>
     <string name="action_generate">✨ Generate</string>
     <string name="action_delete">🗑️ Delete</string>
     <string name="action_change">📂 Change</string>
+    <string name="action_web_search">🔎 Web search</string>
+
 
     <string name="Podcast_specific_view">Podcast specific view</string>
     <string name="Classic_book_view">Classic book view</string>
-    <string name="option_podcast_autodownloaded_at_the_top">When new episodes are downloaded, move the podcast to the top of the audiobooks list.</string>
-    <string name="option_podcast_autodownload_subtitle">"If you mark a podcast as a favorite, you can also enable the ‘auto-download’ option.\nBookPlayer will then check for new episodes—both periodically and at startup—and download them."</string>
 
     <string name="toast_tts_not_ready">"Text-to-Speech not ready !"</string>
     <string name="toast_tts_getting_ready">"Text-to-Speech getting ready !"</string>
     <string name="Error_Import_No_Usable_item_Found">"No usable item found"</string>">
 
     <string name="Error_Import_could_not_delete_source">"could not delete picked source"</string>">
-
-    <string name="option_text_appearance_title">Text appearance</string>
-    <string name="option_font_family">Font</string>
-    <string name="option_text_size">Size</string>
-    <string name="option_text_preview_label">Preview</string>
-    <string name="option_text_preview_sample">The quick brown fox jumps over the lazy dog — 0123456789</string>
-    <string name="option_podcast_open_specific_view_subtitle">When clicking a \'podcast\' item, should it open the stream podcast view with all episodes, or the \'book\' view with downloaded ones?</string>
-    <string name="option_podcast_open_specific_view">Open the live view</string>
-
-    <string name="option_playing_behaviour_title">Play behaviour</string>
-    <string name="option_start_next_track_at_zero_title_text">Always start the next track from the beginning, even if it was partly listened to before.</string>
-    <string name="error_playlist_null">The playlist could not be retrieved.</string>
-    <string name="stop">stop</string>
-    <string name="option_stop_audio_if_user_closes_app_text">Stop audio when you close the app.</string>
-    <string name="option_auto_play_on_main_player_text">Auto play when clicking audio track.</string>
-    <string name="Audio">Audio</string>
-    <string name="Video">Video</string>
-    <string name="Text">Text</string>
-    <string name="Bundle">Bundle</string> //means compressed file like zip
-
-
 
     <string name="could_not_identify_track_to_modify">could not identify track to modify</string>
     <string name="could_not_identify_folder_to_modify">could not identify folder to modify</string>
@@ -837,7 +906,6 @@
     <string name="automotive_empty_book">Empty book</string>
     <string name="automotive_resume_play">Resume play</string>
     <string name="nb_of_audios_found">Nb of audio found</string>
-    <string name="reviews">reviews</string>
     <string name="average_rating">average rating</string>
 
 
@@ -859,42 +927,23 @@
     <string name="download_cancelled_during_execution">Download cancelled during execution</string>
     <string name="connection_aborted">Connection aborted</string>
     <string name="io_error">IO error</string>
-    <string name="unexpected_error">Unexpected error</string>
     <string name="starting_download">Starting download…</string>
     <string name="No_chapters_found">No chapters found</string>
     <string name="Unsupported_ebook_type">Unsupported ebook type</string>
     <string name="download_stopped_by_system_will_retry">Download stopped by system — will retry</string>
     <string name="download_resuming">Download resuming</string>
-    <string name="cancelled">Cancelled</string>
-    <string name="failed">Failed</string>
-    <string name="completed">Completed</string>
-    <string name="copy">copy</string>
     <string name="importing_book">Importing Book</string>
-    <string name="three_dots" translatable="false">…</string>
     <string name="checking_size">checking size</string>
-    <string name="error">error</string>
-    <string name="initialization">initialization</string>
 
 
-    <string name="back">back</string>
-    <string name="download_bis_unmetered">🆓 Unmetered only</string>
-    <string name="use_https_or_allow_cleartext_for_this_host_in_the_app_s_network_security_config">Use HTTPS or allow cleartext for this host in the app’s network security config.</string>
-    <string name="http_is_blocked_by_android_s_network_security_policy">HTTP (cleartext) is blocked by Android’s network security policy.</string>
-    <string name="http_cleartext_to">HTTP (cleartext) to</string>
-    <string name="is_blocked_by_android_s_network_security_policy">is blocked by Android’s network security policy</string>
-    <string name="save">save</string>
     <string name="rounded_corners">rounded corners</string>
     <string name="cover_preview">cover preview</string>
-    <string name="paste">paste</string>
-    <string name="clear">clear</string>
     <string name="emoji_paste" translatable="false">📋</string>
     <string name="emoji_clear" translatable="false">🗑️</string>
     <string name="librivox" translatable="false">Librivox</string>
     <string name="return_max">return max</string>
     <string name="maximum_number_of_results_for_">Maximum number of results for </string>
     <string name="minimum_number_of_results_for_">Minimum number of results for </string>
-    <string name="books">books</string>
-    <string name="favorite">favorite</string>
     <string name="librivox_settings">Librivox settings</string>
     <string name="error_no_space_left">No space left on device</string>
     <string name="solution_free_space">Please free some storage and try again.</string>
@@ -905,24 +954,14 @@
     <string name="Error_Import_unsupported_file">Error : unsupported file</string>
     <string name="Error_Import_access_denied">Error : access denied</string>
 
-    <string name="Warning">Warning</string>
-    <string name="beta_test">beta test</string>
-
-    <string name="action_web_search">🔎 Web search</string>
-    <string name="confirm">confirm</string>
     <string name="use_this_image_as_cover">use this image as cover</string>
     <string name="search_title_hint">type here…</string>
     <string name="failed_to_change_image">Failed to change image</string>
     <string name="no_image_found">No image found</string>
     <string name="parsing_metadata">Parsing Metadata</string>
 
-    <string name="download_not_roaming">🏠 Not roaming</string>
     <string name="download_warning_title_roaming">Roaming connection</string>
     <string name="download_warning_message_roaming">You are on a roaming connection (abroad). Continue with the download?</string>
-    <string name="option_network_preference_subtext">
-"An unmetered connection means you’re not on mobile data (for example, Wi-Fi, Ethernet, or some VPNs).
-\nRoaming means being abroad — even hotel Wi-Fi while abroad counts as roaming."
-</string>
 
     <string name="please_wait_another_book_is_being_imported">Please wait, another book is still being imported.</string>
     <string name="download_stop_requested">Download requested to stop</string>
@@ -937,31 +976,10 @@
     <string name="import_task_final_parse">Integration</string>
     <string name="Import_Success_with_warnings">Import completed with warnings</string>
 
-    <string name="metadata">metadata</string>
-    <string name="no_metadata_available">No metadata available</string>
-    <string name="artist">Artist</string>
-    <string name="album">Album</string>
-    <string name="genre">Genre</string>
-    <string name="year">Year</string>
-    <string name="track">Track</string>
-    <string name="disc">Disc</string>
-    <string name="bitrate">Bitrate</string>
-    <string name="sample_rate">Sample rate</string>
-    <string name="channels">Channels</string>
 
-    <string name="streaming">streaming</string>
 
     <string name="frequency_visualizer">Frequency Visualizer</string>
     <string name="counting_files">counting files</string>
-
-
-    <string name="option_automotive_let_car_autoplay">Allow Android Auto to trigger play on its own (usually, when connected to the car).</string>
-    <string name="option_open_play_activity">Open play view when playback starts.</string>
-    <string name="tts_settings">TTS settings</string>
-    <string name="option_tts_language_text">Default voice for new e-books.</string>
-    <string name="option_tts_highlight_delay_title">Words highlight.</string>
-    <string name="option_tts_highlight_delay_text">Engine delay :</string>
-    <string name="ms">ms.</string> //means milliseconds
 
 
     <string name="Text_To_Speech">Text-To-Speech</string>
