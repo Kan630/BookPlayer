@@ -3,6 +3,7 @@ package com.driot.bookplayer.adapter;
 import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
@@ -34,9 +35,22 @@ import java.util.Objects;
 
 public class ZikFilesRVAdapter extends LoggingListAdapter<ZikFile, ZikFilesRVAdapter.ZikFilesViewHolder> {
 
+
+    public interface OnStartDragListener {
+        void onStartDrag(RecyclerView.ViewHolder vh);
+    }
+
+    private final OnStartDragListener dragStart;
+    private final boolean activateReOrder;
+
     public ZikFilesRVAdapter(@NonNull LifecycleOwner owner,
-                             @NonNull LiveData<PlaybackUiState> playbackState) {
+                             @NonNull LiveData<PlaybackUiState> playbackState,
+                             @NonNull OnStartDragListener dragStart,
+                             boolean activateReOrder
+    ) {
         super(DIFF);
+        this.dragStart = dragStart;
+        this.activateReOrder = activateReOrder;
         setHasStableIds(true);
         playbackState.observe(owner, s -> {
             if (s == null) return;
@@ -44,8 +58,29 @@ public class ZikFilesRVAdapter extends LoggingListAdapter<ZikFile, ZikFilesRVAda
         });
     }
 
-    private long highlightedTrackId = -1;
+    ///  SORT - Drag and Drop - Called by Activity
 
+    private static final String PAYLOAD_ROWNUM = "rownum";
+    public void moveItem(int fromPosition, int toPosition) {
+        if (fromPosition == RecyclerView.NO_POSITION || toPosition == RecyclerView.NO_POSITION) return;
+        java.util.ArrayList<ZikFile> copy = new java.util.ArrayList<>(getCurrentList());
+        java.util.Collections.swap(copy, fromPosition, toPosition);
+        // Run after diff is applied, so positions are final when we update numbers
+        submitList(copy, () -> notifyItemRangeChanged(0, getItemCount(), PAYLOAD_ROWNUM));
+    }
+    public void notifyRowNumbersChanged(int fromPosition, int toPosition) {
+        if (fromPosition == RecyclerView.NO_POSITION || toPosition == RecyclerView.NO_POSITION) return;
+        int start = Math.min(fromPosition, toPosition);
+        int count = Math.abs(toPosition - fromPosition) + 1;
+        notifyItemRangeChanged(start, count, PAYLOAD_ROWNUM);
+    }
+    public java.util.List<ZikFile> currentInRenderOrder() {
+        return getCurrentList();
+    }
+
+    ///  TRACK HIGHLIGHT
+
+    private long highlightedTrackId = -1;
     private void setHighlightedTrackId(long newId) {
         if (newId == highlightedTrackId) return;
         int oldPos = findPositionById(highlightedTrackId);
@@ -54,7 +89,6 @@ public class ZikFilesRVAdapter extends LoggingListAdapter<ZikFile, ZikFilesRVAda
         if (oldPos >= 0) notifyItemChanged(oldPos, "playstate");
         if (newPos >= 0) notifyItemChanged(newPos, "playstate");
     }
-
     private int findPositionById(long id) {
         if (id < 0) return -1;
         for (int i = 0; i < getItemCount(); i++) {
@@ -94,16 +128,20 @@ public class ZikFilesRVAdapter extends LoggingListAdapter<ZikFile, ZikFilesRVAda
         return new ZikFilesViewHolder(view);
     }
 
+
     // PARTIAL BIND
     @Override
     public void onBindViewHolder(@NonNull ZikFilesViewHolder h, int position, @NonNull java.util.List<Object> payloads) {
         ZikFile t = getItem(position);
         if (t == null) return;
+        h.ibSort.setText(String.valueOf(position + 1));
 
         if (!payloads.isEmpty()) {
             Object p = payloads.get(0);
             Context ctx = h.itemView.getContext();
             switch (String.valueOf(p)) {
+                case PAYLOAD_ROWNUM:
+                    h.ibSort.setText(String.valueOf(position + 1));
                 case "playstate":
                     h.itemView.setActivated(t.getId() == highlightedTrackId);
                     return;
@@ -131,6 +169,7 @@ public class ZikFilesRVAdapter extends LoggingListAdapter<ZikFile, ZikFilesRVAda
     public void onBindViewHolder(@NonNull ZikFilesViewHolder holder, int position) {
         ZikFile t = getItem(position);
         if (t == null) return;
+        holder.ibSort.setText(String.valueOf(position + 1));
 
         Context ctx = holder.itemView.getContext();
 
@@ -148,6 +187,7 @@ public class ZikFilesRVAdapter extends LoggingListAdapter<ZikFile, ZikFilesRVAda
 
         TextView textViewFileName, textViewFileLastAccess, textViewFilePercent, textViewDuration;
         ProgressBar mProgressBar;
+        TextView ibSort;
 
         ZikFilesViewHolder(View itemView) {
             super(itemView);
@@ -156,6 +196,21 @@ public class ZikFilesRVAdapter extends LoggingListAdapter<ZikFile, ZikFilesRVAda
             textViewFileLastAccess = itemView.findViewById(R.id.textViewFileLastAccess);
             textViewDuration = itemView.findViewById(R.id.textViewDuration);
             mProgressBar = itemView.findViewById(R.id.progressBar);
+            ibSort = itemView.findViewById(R.id.ib_drag_sort);
+            if (ibSort != null) {
+                if (activateReOrder) {
+                    ibSort.setOnTouchListener((v, e) -> {
+                        if (e.getActionMasked() == MotionEvent.ACTION_DOWN) {
+                            if (dragStart != null) dragStart.onStartDrag(this);
+                            return true;  // consume so itemView.onClick won't fire
+                        }
+                        ibSort.setVisibility(View.VISIBLE);
+                        return false;
+                    });
+                } else {
+                    ibSort.setVisibility(View.GONE);
+                }
+            }
 
             itemView.setOnClickListener(this);
             itemView.setOnLongClickListener(this);
@@ -220,7 +275,10 @@ public class ZikFilesRVAdapter extends LoggingListAdapter<ZikFile, ZikFilesRVAda
             ctx.startActivity(new Intent(ctx, ModifyZikFileActivity.class).putExtra("ZikFile", zikFile));
             return true;
         }
+
     }
+
+
     // Public helper to locate a track in the current list
     public int findPositionByTrackId(long trackId) {
         if (trackId <= 0) return -1;

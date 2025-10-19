@@ -88,18 +88,17 @@
 
         <View style="@style/myStyleViewSimpleHorizontalBar" />
 
-        <EditText style="@style/EditText"
-            android:id="@+id/etChangePosition"
+        <TextView
             android:layout_width="wrap_content"
-            android:paddingHorizontal="20sp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="30dp"
-            android:inputType="numberDecimal"
-            android:paddingVertical="6sp"
-            android:textSize="20sp" />
-
+            android:text="@string/new_"
+            android:textColor="@color/orange"
+            android:layout_gravity="end"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="100dp"
+            />
         <Button
-            android:id="@+id/bMove"
+            android:id="@+id/bchangeTracksOrder"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"

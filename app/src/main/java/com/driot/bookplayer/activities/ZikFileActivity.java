@@ -9,8 +9,10 @@ import android.widget.TextView;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -42,6 +44,7 @@ public class ZikFileActivity extends LoggingActivity {
     private Folder folder;
     private Folder lastFolder;
     private int folderId;
+    private boolean activateChangeTrackOrder;
 
     private ImageButton ib_settings;
 
@@ -57,21 +60,6 @@ public class ZikFileActivity extends LoggingActivity {
         recyclerView = findViewById(R.id.recyclerview_zikfiles);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        listVm = new ViewModelProvider(this).get(ZikFilesViewModel.class);
-        playbackVm = new ViewModelProvider(this).get(PlaybackViewModel.class);
-
-        adapter = new ZikFilesRVAdapter(this, playbackVm.getState());
-        recyclerView.setAdapter(adapter);
-
-        ib_settings = findViewById(R.id.ib_settings);
-        ib_settings.setOnClickListener(view -> {
-            myLogI("--- User clicks SETTINGS ---");
-            if (folder != null) {
-                Intent it = new Intent(this, ModifyFolderActivity.class).putExtra(Intents.EXTRA_FOLDER, folder);
-                modifyLauncher.launch(it);
-            }
-        });
-
         // Read initial folder once; keep only the id and always re-read from DB
         folderId = getIntent().getIntExtra(Intents.EXTRA_FOLDER_ID, -1);
         if (!(folderId > 0)) {
@@ -83,6 +71,63 @@ public class ZikFileActivity extends LoggingActivity {
             }
             folderId = initial.getId();
         }
+        activateChangeTrackOrder = getIntent().getBooleanExtra(Intents.EXTRA_ACTIVATE_CHANGE_TRACK_ORDER, false);
+
+        listVm = new ViewModelProvider(this).get(ZikFilesViewModel.class);
+        playbackVm = new ViewModelProvider(this).get(PlaybackViewModel.class);
+
+        ItemTouchHelper.SimpleCallback callback = new ItemTouchHelper.SimpleCallback(
+                ItemTouchHelper.UP | ItemTouchHelper.DOWN, 0 /* no swipe */) {
+
+
+            @Override
+            public boolean isLongPressDragEnabled() { return false; } // use the button only
+
+            @Override
+            public boolean onMove(@NonNull RecyclerView rv,
+                                  @NonNull RecyclerView.ViewHolder from,
+                                  @NonNull RecyclerView.ViewHolder to) {
+                int fromPos = from.getBindingAdapterPosition();
+                int toPos   = to.getBindingAdapterPosition();
+                adapter.moveItem(fromPos, toPos);
+                adapter.notifyRowNumbersChanged(fromPos, toPos);
+                return true;
+            }
+
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder vh, int dir) {}
+
+            @Override
+            public void clearView(@NonNull RecyclerView rv, @NonNull RecyclerView.ViewHolder vh) {
+                super.clearView(rv, vh);
+                myLogI("---user reorder ---");
+                // Persist order when the drag ends
+                AppDatabase.databaseWriteExecutor.execute(() -> {
+                    AppDatabase db = AppDatabase.getDatabase(rv.getContext().getApplicationContext());
+                    // Use the current visual order from the adapter
+                    java.util.List<ZikFile> ordered = adapter.currentInRenderOrder();
+                    db.zikFileDao().persistOrder(ordered);
+                });
+            }
+        };
+
+        ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
+        adapter = new ZikFilesRVAdapter(this
+                , playbackVm.getState()
+                ,viewHolder -> touchHelper.startDrag(viewHolder)
+                , activateChangeTrackOrder);
+
+        recyclerView.setAdapter(adapter);
+        touchHelper.attachToRecyclerView(recyclerView);
+
+        ib_settings = findViewById(R.id.ib_settings);
+        ib_settings.setOnClickListener(view -> {
+            myLogI("--- User clicks SETTINGS ---");
+            if (folder != null) {
+                Intent it = new Intent(this, ModifyFolderActivity.class).putExtra(Intents.EXTRA_FOLDER, folder);
+                modifyLauncher.launch(it);
+            }
+        });
 
         listVm.getFolderLive(folderId).observe(this, f -> {
             if (f == null) {

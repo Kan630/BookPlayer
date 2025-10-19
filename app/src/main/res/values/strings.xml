@@ -1004,10 +1004,16 @@
     <string name="voice_name">voice name</string>
     <string name="Clipboard_is_empty">Clipboard is empty</string>
 
-    <string name="option_tts_chunk_size_text">Chunk size :</string>
     <string name="chars">chars</string> //means : word character
+    <string name="reorder">reorder</string>
+    <string name="new_">new</string>
     <string name="Engine">Engine</string>
+
+    <string name="option_tts_chunk_size_text">Chunk size :</string>
     <string name="tts_chunk_size">Chunk size</string>
+    <string name="changeTracksOrder">change tracks order</string>
+    <string name="Please_first_stop_the_player">Please first stop the player</string>
+
 
 
 

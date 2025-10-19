@@ -206,6 +206,25 @@
 
             <View style="@style/myStyleViewSimpleHorizontalBar" />
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/new_"
+                android:textColor="@color/orange"
+                android:layout_gravity="end"
+                android:layout_marginEnd="100dp"
+                android:layout_marginTop="10dp"
+                />
+            <Button
+                android:id="@+id/bchangeTracksOrder"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="0dp"
+                android:layout_marginBottom="20dp"
+                android:text="@string/changeTracksOrder" />
+
+            <View style="@style/myStyleViewSimpleHorizontalBar" />
+
             <Button
                 android:id="@+id/bReset"
                 android:layout_width="wrap_content"

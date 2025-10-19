@@ -7,6 +7,7 @@ public class Intents {
     public static final String EXTRA_FOREGROUND = "EXTRA_FOREGROUND";
     public static final String EXTRA_FOLDER = "extra_folder";
     public static final String EXTRA_FOLDER_ID = "extra_folder_id";
+    public static final String EXTRA_ACTIVATE_CHANGE_TRACK_ORDER = "EXTRA_ACTIVATE_CHANGE_TRACK_ORDER";
     public static final String EXTRA_CMD_STOP    = "CMD_STOP";
     public static final String EXTRA_AUTOPLAY    = "extra_autoplay"; // default false
     public static final String ACTION_PLAY_FROM_FOLDER = "com.driot.bookplayer.PLAY_FROM_FOLDER";

@@ -14,6 +14,7 @@ import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
+import androidx.room.Transaction;
 import androidx.room.Update;
 
 import java.util.List;
@@ -176,5 +177,18 @@ public interface ZikFileDao {
 
     @Query("UPDATE ZikFile SET metadataJson = :json WHERE id = :id")
     void updateMetadataJson(long id, String json);
+
+
+
+    @Query("UPDATE ZikFile SET zeorder = :order WHERE id = :id")
+    void updateZeorderById(int id, int order);
+
+    @Transaction
+    default void persistOrder(List<ZikFile> inOrder) {
+        int i = 1;
+        for (ZikFile z : inOrder) {
+            updateZeorderById(z.getId(), i++);
+        }
+    }
 
 }

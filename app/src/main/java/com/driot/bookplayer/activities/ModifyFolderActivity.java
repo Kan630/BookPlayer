@@ -32,6 +32,7 @@ import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.StorageHelper;
+import com.driot.bookplayer.player.AudioService;
 import com.driot.bookplayer.services.DeleteFolderWorker;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingActivity;
@@ -87,6 +88,17 @@ public class ModifyFolderActivity extends LoggingActivity {
 
         etRename = findViewById(R.id.etRename);
         etRename.setText(folder.getName());
+
+        findViewById(R.id.bchangeTracksOrder).setOnClickListener(view -> {
+            if (AudioService.lastUiState!=null) {
+                myToast(getString(R.string.Please_first_stop_the_player));
+            } else {
+                startActivity(new Intent(this, ZikFileActivity.class)
+                        .putExtra(Intents.EXTRA_FOLDER, folder)
+                        .putExtra(Intents.EXTRA_ACTIVATE_CHANGE_TRACK_ORDER, true)
+                );
+            }
+        });
 
         String memoryLocationText = getString(R.string.AudioLocation) + " : " + folder.getMemoryLocationText(this);
         int memoryLocationIcon = folder.getMemoryLocationIcon(this);

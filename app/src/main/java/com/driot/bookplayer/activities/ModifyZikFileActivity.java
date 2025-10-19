@@ -1,13 +1,11 @@
 package com.driot.bookplayer.activities;
 
-import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
-import android.text.InputType;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.view.View;
 import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -20,8 +18,10 @@ import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Episode;
 import com.driot.bookplayer.db.Sql;
 import com.driot.bookplayer.db.ZikFile;
+import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.StorageHelper;
+import com.driot.bookplayer.player.AudioService;
 import com.driot.bookplayer.utils.MetaJson;
 import com.driot.bookplayer.utils.MetadataFormatter;
 import com.driot.bookplayer.utils.log.LoggingActivity;
@@ -48,9 +48,6 @@ public class ModifyZikFileActivity extends LoggingActivity {
 
         EditText etRename = findViewById(R.id.etRename);
 
-        EditText etChangePosition = findViewById(R.id.etChangePosition);
-        Button bMove = findViewById(R.id.bMove);
-
         LinearLayout ll_metadata = findViewById(R.id.ll_metadata);
         TextView tvMetadata = findViewById(R.id.tv_metadata);
 
@@ -62,11 +59,9 @@ public class ModifyZikFileActivity extends LoggingActivity {
             return;
         }
         String zikFileDisplayName = zikFile.getDisplayName();
-        double zikFilePosition = zikFile.getZeorder();
 
         tvTitle.setText(zikFileDisplayName);
         etRename.setText(zikFileDisplayName);
-        etChangePosition.setText(String.valueOf(zikFilePosition));
 
 // METADATA
         String json = null;
@@ -90,44 +85,22 @@ public class ModifyZikFileActivity extends LoggingActivity {
             ll_metadata.setVisibility(View.GONE);
         }
 
-
-        bMove.setOnClickListener(view -> {
-            etChangePosition.requestFocus();
-            etChangePosition.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
-             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            if (imm != null) {
-                imm.showSoftInput(etChangePosition, InputMethodManager.SHOW_IMPLICIT);
+        findViewById(R.id.bchangeTracksOrder).setOnClickListener(view -> {
+            if (AudioService.lastUiState!=null) {
+                myToast(getString(R.string.Please_first_stop_the_player));
+            } else {
+                startActivity(new Intent(this, ZikFileActivity.class)
+                        .putExtra(Intents.EXTRA_FOLDER_ID, zikFile.getIdFolder())
+                        .putExtra(Intents.EXTRA_ACTIVATE_CHANGE_TRACK_ORDER, true)
+                );
             }
-            etChangePosition.setSelection(0, etChangePosition.getText().length());
         });
 
         bReset.setOnClickListener(view -> bResetClick(zikFile));
 
         bDelete.setOnClickListener(view -> bDeleteClick());
 
-        bMove.setOnClickListener(view -> bMoveClick(etChangePosition.getText().toString()));
-
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN); // Avoid keyboard on opening
-    }
-
-    private void bMoveClick(String newPosStr) {
-        try
-            {Double.parseDouble(newPosStr);}
-        catch(NumberFormatException e)
-            {myToast(getString(R.string.Error_ZikFilePositionOnlyDigits));}
-        double newPos = Double.parseDouble(newPosStr);
-        if (newPos < 0 || newPos > 1000) { // only digits
-            myToast("cannot parse number");
-        } else {
-            new Thread(() -> {
-                AppDatabase.getDatabase(this).zikFileDao().changePosition(zikFile.getId(), (double) newPos);
-                runOnUiThread(() -> {
-                    myToast(getString(R.string.ZikFile_RePositioned));
-                    myLogInFile( getString(R.string.ZikFile_RePositioned) + " [" + newPosStr + "] : " + zikFile.getDisplayName());
-                    finish();
-                });
-            }).start();
-        }
     }
 
     private void bDeleteClick() {
