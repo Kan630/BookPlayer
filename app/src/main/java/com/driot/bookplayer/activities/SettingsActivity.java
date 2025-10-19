@@ -47,6 +47,7 @@ import static com.driot.bookplayer.helpers.StorageHelper.isExternalSDCardAvailab
 import androidx.annotation.NonNull;
 import androidx.annotation.StyleRes;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -110,6 +111,10 @@ public class SettingsActivity extends LoggingActivity {
     LinearLayout ll_open_with, ll_open_with_all, ll_split_m4b, ll_use_sd_card;
     LinearLayout ll_container_sd_card, ll_create_cover;
 
+
+    private boolean isLibrivoxExpanded = false;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -162,6 +167,38 @@ public class SettingsActivity extends LoggingActivity {
             Option.setOpenPlayActivity(checked);
         });
  */
+
+
+        registerSection(
+                R.id.header_librivox,
+                R.id.container_librivox,
+                "expand_librivox",
+                () -> new com.driot.bookplayer.settings.ui.LibrivoxSettingsFragment(),
+                savedInstanceState
+        );
+
+        registerSection(
+                R.id.header_podcast,
+                R.id.container_podcast,
+                "expand_podcast",
+                () -> new com.driot.bookplayer.settings.ui.PodcastSettingsFragment(),
+                savedInstanceState
+        );
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         et_timeBeforeSleep.setText(String.valueOf(Option.getTimeBeforeSleep()));
         et_ForwardSeconds.setText(String.valueOf(Option.get_ForwardSeconds()));
@@ -479,18 +516,6 @@ public class SettingsActivity extends LoggingActivity {
             myLogI("--- USER CLICKS SHOW ADVANCED OPTIONS ---");
             toggleAdvancedOptions();
         });
-        Button btnPodcastSettings = findViewById(R.id.btnPodcastSettings);
-        btnPodcastSettings.setOnClickListener(v -> {
-            myLogI("--- USER CLICKS PODCAST OPTIONS ---");
-            Intent intent = new Intent(this, PodcastSettingsActivity.class);
-            startActivity(intent);
-        });
-        Button btnLibrivoxSettings = findViewById(R.id.btnLibrivoxSettings);
-        btnLibrivoxSettings.setOnClickListener(v -> {
-            myLogI("--- USER CLICKS LIBRIVOX OPTIONS ---");
-            Intent intent = new Intent(this, LibrivoxSettingsActivity.class);
-            startActivity(intent);
-        });
         Button btnTtsSettings = findViewById(R.id.btnTtsSettings);
         btnTtsSettings.setOnClickListener(v -> {
             myLogI("--- USER CLICKS TTS OPTIONS ---");
@@ -663,6 +688,10 @@ public class SettingsActivity extends LoggingActivity {
         super.onSaveInstanceState(outState);
         outState.putBoolean("advanced_visible", areAdvancedOptionsVisible);
         outState.putInt("scroll_position", scrollView.getScrollY());
+        for (SectionHost s : sectionHosts) {
+            outState.putBoolean(s.stateKey, s.expanded);
+        }
+
     }
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
@@ -758,5 +787,77 @@ public class SettingsActivity extends LoggingActivity {
     }
 
 
+
+    // =====================
+// Inline section helper
+// =====================
+    private interface FragmentFactory { Fragment create(); }
+
+    private static final class SectionHost {
+        final int headerId;
+        final int containerId;
+        final String stateKey;
+        final FragmentFactory factory;
+        boolean expanded;
+
+        SectionHost(int headerId, int containerId, String stateKey, FragmentFactory factory) {
+            this.headerId = headerId;
+            this.containerId = containerId;
+            this.stateKey = stateKey;
+            this.factory = factory;
+        }
+    }
+
+    private final List<SectionHost> sectionHosts = new ArrayList<>();
+
+    /** Call this in onCreate for each section you want inline. */
+    private void registerSection(int headerId, int containerId, String stateKey, FragmentFactory factory, Bundle savedInstanceState) {
+        SectionHost host = new SectionHost(headerId, containerId, stateKey, factory);
+        if (savedInstanceState != null) {
+            host.expanded = savedInstanceState.getBoolean(stateKey, false);
+        }
+        sectionHosts.add(host);
+
+        View header = findViewById(headerId);
+        header.setOnClickListener(v -> toggleSection(host));
+
+        applySectionState(host, /*scrollOnOpen*/ false);
+    }
+
+    private void toggleSection(SectionHost host) {
+        host.expanded = !host.expanded;
+        applySectionState(host, /*scrollOnOpen*/ host.expanded);
+    }
+
+    private void applySectionState(SectionHost host, boolean scrollOnOpen) {
+        View container = findViewById(host.containerId);
+        if (container == null) return;
+
+        if (host.expanded) {
+            container.setVisibility(View.VISIBLE);
+
+            if (getSupportFragmentManager().findFragmentById(host.containerId) == null) {
+                Fragment frag = host.factory.create();
+                Bundle args = (frag.getArguments() != null) ? frag.getArguments() : new Bundle();
+                args.putBoolean("ARG_SHOW_LOCAL_TITLE", false); // inline → no local header
+                frag.setArguments(args);
+
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(host.containerId, frag)
+                        .commit();
+            }
+
+            if (scrollOnOpen) {
+                ScrollView sv = findViewById(R.id.scrollView);
+                if (sv != null) sv.post(() -> sv.smoothScrollTo(0, findViewById(host.headerId).getTop()));
+            }
+        } else {
+            container.setVisibility(View.GONE);
+            // Optional: free resources
+            // Fragment f = getSupportFragmentManager().findFragmentById(host.containerId);
+            // if (f != null) getSupportFragmentManager().beginTransaction().remove(f).commit();
+        }
+    }
 
 }

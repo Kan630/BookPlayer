@@ -11,11 +11,18 @@
         android:layout_marginTop="0dp"
         android:padding="8dp">
 
-        <TextView
-            style="@style/OptionTitle"
-            android:text="@string/librivox_settings" />
+        <LinearLayout
+            android:id="@+id/ll_title"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            >
+            <TextView
+                style="@style/OptionTitle"
+                android:text="@string/librivox_settings" />
 
-        <View style="@style/myStyleViewSimpleHorizontalBar" />
+            <View style="@style/myStyleViewSimpleHorizontalBar" />
+        </LinearLayout>
 
         <LinearLayout
             android:id="@+id/ll_Search"

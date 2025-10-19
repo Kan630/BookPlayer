@@ -15,6 +15,7 @@ import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.objects.LanguageItem;
 import com.driot.bookplayer.helpers.LanguageHelper;
+import com.driot.bookplayer.settings.ui.PodcastSettingsFragment;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 import com.driot.bookplayer.views.EditTextWithButtons;
 
@@ -107,8 +108,7 @@ public class GetPodcastActivity extends LoggingActivity {
 
     private void clickSettings() {
         myLogI("--- User clicks SETTINGS ---");
-        Intent intent = new Intent(this, PodcastSettingsActivity.class);
-        startActivity(intent);
+        SettingsHostActivity.start(this, PodcastSettingsFragment.class, true, R.string.podcast_settings);
     }
 
     private void doSearch() {

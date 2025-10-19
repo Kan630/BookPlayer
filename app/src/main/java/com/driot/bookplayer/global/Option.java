@@ -4,6 +4,7 @@ import static android.content.Context.MODE_PRIVATE;
 import static com.driot.bookplayer.utils.KanMail.DEFAULT_SEND_MAIL_METHOD_DEFAULT;
 
 import android.content.Context;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -11,6 +12,8 @@ import androidx.annotation.StyleRes;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.helpers.NetworkHelper;
+
+import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 
 public class Option {
@@ -335,6 +338,35 @@ public class Option {
     }
 
 
+    public static int clampInt(
+            Context context,
+            EditText et,
+            int min,
+            int max,
+            int def,
+            String featureName   // e.g. getString(R.string.librivox)
+    ) {
+        if (et == null) return def;
 
+        String str = et.getText().toString().trim();
+        int val;
+        try {
+            val = Integer.parseInt(str);
+        } catch (NumberFormatException e) {
+            return def;
+        }
+
+        if (val < min) {
+            myToast(context.getString(R.string.minimum_number_of_results_for_) + " " + featureName + " " + context.getString(R.string.too_low));
+            return min;
+        }
+
+        if (val > max) {
+            myToast(context.getString(R.string.maximum_number_of_results_for_) + " " + featureName + " " + context.getString(R.string.too_high));
+            return max;
+        }
+
+        return val;
+    }
 
 }

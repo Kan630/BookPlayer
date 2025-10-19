@@ -25,6 +25,97 @@
             />
 -->
 
+        <!-- =========================================
+     Librivox section header + inline container
+     ========================================= -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/header_librivox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground"
+            style="@style/MainContainer">
+
+            <LinearLayout
+                android:padding="16dp"
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_overlay_card_2"
+                >
+
+                <TextView
+                    style="@style/OptionTitle"
+                    android:text="@string/librivox"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"/>
+
+                <ImageButton
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:src="@drawable/ic_librivox_24"
+                    android:scaleType="centerInside"
+                    android:background="@android:color/transparent"
+                    app:tint="?attr/colorOnSurface"
+                    android:layout_marginStart="20dp" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <FrameLayout
+            android:id="@+id/container_librivox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone" />
+
+        <!-- =========================================
+Librivox section header + inline container
+========================================= -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/header_podcast"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground"
+            style="@style/MainContainer">
+
+            <LinearLayout
+                android:padding="16dp"
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_overlay_card_2"
+                >
+
+                <TextView
+                    style="@style/OptionTitle"
+                    android:text="@string/Podcasts"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"/>
+
+                <ImageButton
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:src="@drawable/ic_podcast_24"
+                    android:scaleType="centerInside"
+                    android:background="@android:color/transparent"
+                    app:tint="?attr/colorOnSurface"
+                    android:layout_marginStart="20dp" />
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <FrameLayout
+            android:id="@+id/container_podcast"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone" />
+
         <LinearLayout
             android:id="@+id/ll_container_sd_card"
             style="@style/LinearLayoutOptionsVertical"

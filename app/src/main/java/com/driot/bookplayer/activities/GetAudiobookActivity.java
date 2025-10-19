@@ -15,6 +15,7 @@ import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.LanguageHelper;
 import com.driot.bookplayer.objects.OngoingTaskHost;
+import com.driot.bookplayer.settings.ui.LibrivoxSettingsFragment;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 import com.driot.bookplayer.views.EditTextWithButtons;
 
@@ -119,8 +120,7 @@ public class GetAudiobookActivity extends LoggingActivity {
 
     private void clickSettings() {
         myLogI("--- User clicks SETTINGS ---");
-        Intent intent = new Intent(this, LibrivoxSettingsActivity.class);
-        startActivity(intent);
+        SettingsHostActivity.start(this, LibrivoxSettingsFragment.class, true, R.string.librivox_settings);
     }
 
     private void doSearch() {

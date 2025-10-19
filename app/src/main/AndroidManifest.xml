@@ -57,9 +57,6 @@
         <activity android:name=".activities.AddResourceActivity" />
         <activity android:name=".activities.HelpActivity" />
         <activity android:name=".activities.SettingsActivity" />
-        <activity android:name=".activities.TtsSettingsActivity" />
-        <activity android:name=".activities.PodcastSettingsActivity" />
-        <activity android:name=".activities.LibrivoxSettingsActivity" />
         <activity android:name=".activities.LibrivoxFavoritesActivity"/>
         <activity android:name=".activities.LogTextActivity" />
         <activity android:name=".activities.LogListActivity" />
@@ -77,6 +74,10 @@
             android:exported="false"
             android:enabled="true">
         </activity>
+        <activity
+            android:name=".activities.SettingsHostActivity"
+            android:exported="false"
+            android:theme="@style/Theme.BookPlayer" />
         <activity
             android:name=".activities.MsgBoxActivity"
             android:exported="false"
