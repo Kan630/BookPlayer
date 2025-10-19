@@ -214,6 +214,9 @@ public class SettingsActivity extends LoggingActivity {
 
         if (savedInstanceState != null) {
             host.expanded = savedInstanceState.getBoolean(stateKey, false);
+        } else {
+            host.expanded = false;
+            sectionView.showContainer(false);
         }
 
         sectionHosts.add(host);

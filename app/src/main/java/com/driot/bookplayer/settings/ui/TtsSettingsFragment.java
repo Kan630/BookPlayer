@@ -12,7 +12,6 @@ import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Option;
-import com.driot.bookplayer.objects.VoiceItem;
 import com.driot.bookplayer.tts.TtsHelper;
 import com.driot.bookplayer.utils.log.LoggingFragment;
 
@@ -30,9 +29,9 @@ public class TtsSettingsFragment extends LoggingFragment {
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
 
-        View root = inflater.inflate(R.layout.activity_tts_settings, container, false);
+        View root = inflater.inflate(R.layout.fragment_tts_settings, container, false);
 
-        // Hide the local title row when embedded inline (ARG_SHOW_LOCAL_TITLE=false)
+        // Show/hide local title when embedded
         boolean showLocalTitle = true;
         Bundle args = getArguments();
         if (args != null) showLocalTitle = args.getBoolean("ARG_SHOW_LOCAL_TITLE", true);
@@ -41,37 +40,28 @@ public class TtsSettingsFragment extends LoggingFragment {
             titleContainer.setVisibility(showLocalTitle ? View.VISIBLE : View.GONE);
         }
 
-        // --- TTS Voice spinner ---
+        // Voice spinner
         Spinner ttsVoiceSpinner = root.findViewById(R.id.spinner_voice_item);
         lastSavedTtsVoice = Option.getTtsVoice();
         myLogD("setUp Voice Spinner, saved voice = " + lastSavedTtsVoice);
 
-        // If TtsHelper expects an Activity context, use requireActivity(); otherwise requireContext() is fine.
         ttsHandle = TtsHelper.setupTtsVoiceSpinner(
-                requireContext(),
-                ttsVoiceSpinner,
+                /* if it needs Activity: */ requireActivity(),
+                /* otherwise use requireContext() */ ttsVoiceSpinner,
                 lastSavedTtsVoice,
                 voiceItem -> {
-                    if (voiceItem == null) {
-                        myLogD("TTS voice chosen is null");
-                    } else {
-                        myLogD("TTS voice chosen: " + VoiceItem.describeVoice(voiceItem.voice).replace(", ", "\n"));
-                    }
-
                     String sel = (voiceItem == null || voiceItem.name == null || voiceItem.name.isEmpty())
                             ? "system"
                             : voiceItem.name;
-
                     if (!sel.equalsIgnoreCase(lastSavedTtsVoice)) {
                         Option.setTtsVoice(sel);
                         lastSavedTtsVoice = sel;
-                        myLog("TTS default base voice set to: " + sel + " (" +
-                                (voiceItem == null ? "system" : (voiceItem.displayName + " / - name = " + voiceItem.name + ")")));
+                        myLog("TTS default base voice set to: " + sel);
                     }
                 }
         );
 
-        // --- Fields ---
+        // Fields
         etTtsHighlightDelay = root.findViewById(R.id.et_tts_highlight_delay);
         etTtsHighlightDelay.setText(String.valueOf(Option.getTtsHighlightDelayMs()));
 
@@ -95,7 +85,7 @@ public class TtsSettingsFragment extends LoggingFragment {
     }
 
     private void saveEditTextValues() {
-        //TODO check if needed executor (check with StrictMode)
+        // Keep disk I/O off main for StrictMode
         Executors.newSingleThreadExecutor().execute(() -> {
             if (getContext() == null) return;
 
@@ -103,9 +93,8 @@ public class TtsSettingsFragment extends LoggingFragment {
                 int v1 = Option.clampInt(
                         getContext(),
                         etTtsHighlightDelay,
-                        /* min */ 0,
-                        /* max */ 400,
-                        /* def */ Option.DEFAULT_TTS_HIGHLIGHT_DELAY_MS,
+                        0, 400,
+                        Option.DEFAULT_TTS_HIGHLIGHT_DELAY_MS,
                         getString(R.string.option_tts_highlight_delay_outOfBounds)
                 );
                 Option.setTtsHighlightDelayMs(v1);
@@ -115,9 +104,8 @@ public class TtsSettingsFragment extends LoggingFragment {
                 int v2 = Option.clampInt(
                         getContext(),
                         etTtsChunkSize,
-                        /* min */ 1200,
-                        /* max */ 9999,
-                        /* def */ Option.DEFAULT_TTS_CHUNK_SIZE,
+                        1200, 7000,
+                        Option.DEFAULT_TTS_CHUNK_SIZE,
                         getString(R.string.tts_chunk_size)
                 );
                 Option.setTtsChunkSize(v2);
