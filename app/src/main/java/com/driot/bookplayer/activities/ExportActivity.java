@@ -15,6 +15,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.documentfile.provider.DocumentFile;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.driot.bookplayer.R;
@@ -34,6 +35,9 @@ public class ExportActivity extends LoggingActivity {
     public static final String EXTRA_DEST_FILE_FULL_PATH = "EXTRA_FILE_NAME";
 
     public static final int REQUEST_CODE_destinationFolder = 35737;
+    public static final String EXTRA_DEST_URI = "EXTRA_DEST_URI"; // New: Uri string of the created zip file
+    private static final String STATE_EXPORT_TREE_URI = "STATE_EXPORT_TREE_URI";
+    private Uri exportTreeUri = null;  // user-chosen folder (tree) Uri
 
     private int folderId;
     File folder;
@@ -111,20 +115,14 @@ public class ExportActivity extends LoggingActivity {
         btnCancel.setOnClickListener(v -> finish());
 
 
-        //TODO
-/*
         b_destinationFolder.setOnClickListener(v -> {
-            Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
-            intent.addCategory(Intent.CATEGORY_OPENABLE);
-            intent.setType("text/plain");
-            intent.putExtra(Intent.EXTRA_TITLE, );
+            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION
+                    | Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                    | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION
+                    | Intent.FLAG_GRANT_PREFIX_URI_PERMISSION);
             startActivityForResult(intent, REQUEST_CODE_destinationFolder);
-
-            // on result : exportFolder = result
         });
-
- */
-
 
         // Load folder path in a background thread
         new Thread(() -> {
@@ -167,18 +165,44 @@ public class ExportActivity extends LoggingActivity {
         btnExport.setEnabled(true);
 
         btnExport.setOnClickListener(v -> {
-
-            //TODO continue dev
-            String detFileFullPath = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),"BookplayerExport_" + folder.getName() + ".zip").getPath();
+            String exportFileName = "BookplayerExport_" + folder.getName() + ".zip";
 
             Intent serviceIntent = new Intent(this, ExportService.class);
             serviceIntent.putExtra(EXTRA_FOLDER_PATH, folderPath);
-            serviceIntent.putExtra(EXTRA_DEST_FILE_FULL_PATH, detFileFullPath);
+
+            if (exportTreeUri != null) {
+                // Create the destination ZIP file inside the chosen folder
+                DocumentFile tree = DocumentFile.fromTreeUri(this, exportTreeUri);
+                if (tree == null || !tree.canWrite()) {
+                    myToastE(getString(R.string.Cannot_write_to_the_chosen_folder));
+                    return;
+                }
+                // Ensure a clean filename (no extension duplication)
+                if (exportFileName.endsWith(".zip")) exportFileName = exportFileName.substring(0, exportFileName.length() - 4);
+                DocumentFile zipDoc = tree.createFile("application/zip", exportFileName);
+                if (zipDoc == null) {
+                    myToastE(getString(R.string.Failed_to_create_the_destionation_file));
+                    return;
+                }
+
+                // Pass Uri to the service
+                serviceIntent.putExtra(EXTRA_DEST_URI, zipDoc.getUri().toString());
+
+            } else {
+                // Legacy fallback: plain path in Downloads (pre-Q or when no folder chosen)
+                String detFileFullPath = new File(
+                        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+                        "BookplayerExport_" + folder.getName() + ".zip"
+                ).getPath();
+                serviceIntent.putExtra(EXTRA_DEST_FILE_FULL_PATH, detFileFullPath);
+            }
+
             startService(serviceIntent);
             btnExport.setEnabled(false);
             progressText.setText(getString(R.string.Export_display_text_preparing_export));
         });
     }
+
 
     @Override
     protected void onResume() {
@@ -206,6 +230,50 @@ public class ExportActivity extends LoggingActivity {
             } else {
                 myToastE("Permission denied, cannot export to Downloads.");
             }
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CODE_destinationFolder && resultCode == RESULT_OK && data != null) {
+            Uri tree = data.getData();
+            if (tree != null) {
+                // Persist access so we can use it later (and from the service)
+                final int takeFlags = (data.getFlags()
+                        & (Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION));
+                try {
+                    getContentResolver().takePersistableUriPermission(tree, takeFlags);
+                } catch (SecurityException ignore) { /* some OEMs can throw if you already have it */ }
+
+                exportTreeUri = tree;
+
+                // Update button label to show chosen folder name
+                DocumentFile picked = DocumentFile.fromTreeUri(this, tree);
+                String name = (picked != null && picked.getName() != null) ? picked.getName() : tree.getLastPathSegment();
+                b_destinationFolder.setText(name);
+
+                // If everything else is ready, you can enable export here as well
+                if (folder != null && folder.exists()) btnExport.setEnabled(true);
+            }
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (exportTreeUri != null) outState.putString(STATE_EXPORT_TREE_URI, exportTreeUri.toString());
+    }
+
+    @Override
+    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        String s = savedInstanceState.getString(STATE_EXPORT_TREE_URI, null);
+        if (s != null) {
+            exportTreeUri = Uri.parse(s);
+            DocumentFile picked = DocumentFile.fromTreeUri(this, exportTreeUri);
+            String name = (picked != null && picked.getName() != null) ? picked.getName() : exportTreeUri.getLastPathSegment();
+            b_destinationFolder.setText(name);
         }
     }
 }

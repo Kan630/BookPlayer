@@ -628,7 +628,7 @@
     <string name="Export_display_no_valid_audiobook">"Error getting audiobook audios."</string>
     <string name="Export_error">"Export Error"</string>
     <string name="Export_display_text_export_title">"ZIP Export"</string>
-    <string name="Export_done">"Done, exported in [Downloads] folder"</string>
+    <string name="Export_done">"Export_done"</string>
 
     <!-- ********************************** -->
     <!-- Zik File Adapter -->
@@ -1013,8 +1013,9 @@
     <string name="tts_chunk_size">Chunk size</string>
     <string name="changeTracksOrder">change tracks order</string>
     <string name="Please_first_stop_the_player">Please first stop the player</string>
-
-
+    <string name="Failed_to_create_the_destionation_file">Failed to create the destination file.</string>
+    <string name="Cannot_write_to_the_chosen_folder">Cannot write to the chosen folder.</string>
+    <string name="Export_done_Excl">"Export done !"</string>
 
 
 
